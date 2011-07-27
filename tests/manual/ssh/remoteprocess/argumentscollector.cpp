@@ -29,8 +29,10 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "argumentscollector.h"
+
+#include <QtCore/QDir>
+#include <QtCore/QProcessEnvironment>
 
 #include <iostream>
 
@@ -52,6 +54,7 @@ Utils::SshConnectionParameters ArgumentsCollector::collect(bool &success) const
         bool proxySettingGiven = false;
         int pos;
         int port;
+
         for (pos = 1; pos < m_arguments.count() - 1; ++pos) {
             if (checkAndSetStringArg(pos, parameters.host, "-h")
                 || checkAndSetStringArg(pos, parameters.userName, "-u"))
@@ -85,12 +88,20 @@ Utils::SshConnectionParameters ArgumentsCollector::collect(bool &success) const
                 throw ArgumentErrorException(QLatin1String("unknown option ") + m_arguments.at(pos));
         }
 
-        if (!authTypeGiven)
-            throw ArgumentErrorException(QLatin1String("No authentication argument given."));
-        if (parameters.host.isEmpty())
-            throw ArgumentErrorException(QLatin1String("No host given."));
+        if (!authTypeGiven) {
+            parameters.authenticationType = SshConnectionParameters::AuthenticationByKey;
+            parameters.privateKeyFile = QDir::homePath() + QLatin1String("/.ssh/id_rsa");
+        }
+
+        if (parameters.userName.isEmpty()) {
+            parameters.userName
+                = QProcessEnvironment::systemEnvironment().value(QLatin1String("USER"));
+        }
         if (parameters.userName.isEmpty())
             throw ArgumentErrorException(QLatin1String("No user name given."));
+
+        if (parameters.host.isEmpty())
+            throw ArgumentErrorException(QLatin1String("No host given."));
 
         parameters.port = portGiven ? port : 22;
         if (!timeoutGiven)
@@ -107,8 +118,8 @@ Utils::SshConnectionParameters ArgumentsCollector::collect(bool &success) const
 void ArgumentsCollector::printUsage() const
 {
     cerr << "Usage: " << qPrintable(m_arguments.first())
-        << " -h <host> -u <user> "
-        << "-pwd <password> | -k <private key file> [ -p <port> ] "
+        << " -h <host> [ -u <user> ] "
+        << "[ -pwd <password> | -k <private key file> ] [ -p <port> ] "
         << "[ -t <timeout> ] [ -no-proxy ]" << endl;
 }
 
