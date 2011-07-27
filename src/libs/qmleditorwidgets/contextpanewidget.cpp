@@ -263,7 +263,7 @@ void ContextPaneWidget::rePosition(const QPoint &position, const QPoint &alterna
     if (pos().y() < 0)
         move(alternative2);
     if ((pos().y() + height()) > parentWidget()->height())
-        hide();
+        move(x(), parentWidget()->height() - height() - 10);
 
     m_originalPos = pos();
 
