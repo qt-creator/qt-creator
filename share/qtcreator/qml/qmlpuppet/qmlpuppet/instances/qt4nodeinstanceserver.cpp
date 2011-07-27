@@ -146,4 +146,45 @@ void Qt4NodeInstanceServer::refreshBindings()
     engine()->rootContext()->setContextProperty(QString("__%1").arg(counter++), 0); // refreshing bindings
 }
 
+void Qt4NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
+{
+    NodeInstanceServer::changeAuxiliaryValues(command);
+
+    refreshScreenObject();
+}
+
+void Qt4NodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
+{
+    NodeInstanceServer::changePropertyValues(command);
+
+    refreshScreenObject();
+}
+
+void Qt4NodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
+{
+    NodeInstanceServer::changePropertyBindings(command);
+
+    refreshScreenObject();
+}
+
+void Qt4NodeInstanceServer::removeProperties(const RemovePropertiesCommand &command)
+{
+    NodeInstanceServer::removeProperties(command);
+
+    refreshScreenObject();
+}
+
+void Qt4NodeInstanceServer::refreshScreenObject()
+{
+    if (declarativeView()) {
+        QObject *screen = rootContext()->contextProperty("screen").value<QObject*>();
+        if (screen) {
+            screen->metaObject()->invokeMethod(screen,
+                                               "privateSetDisplay",
+                                               Q_ARG(int, rootNodeInstance().size().width()),
+                                               Q_ARG(int, rootNodeInstance().size().height()),
+                                               Q_ARG(qreal, 210)); // TODO: dpi should be setable
+        }
+    }
+}
 } // QmlDesigner
