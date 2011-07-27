@@ -87,4 +87,9 @@ QString RemoteLinuxUtils::osTypeToString(const QString &osType)
     return QCoreApplication::translate("RemoteLinux", "Unknown OS");
 }
 
+QString RemoteLinuxUtils::deviceConfigurationName(const LinuxDeviceConfiguration::ConstPtr &devConf)
+{
+    return devConf ? devConf->name() : QCoreApplication::translate("RemoteLinux", "(No device)");
+}
+
 } // namespace RemoteLinux

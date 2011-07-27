@@ -34,17 +34,21 @@
 
 #include "remotelinux_export.h"
 
+#include <QtCore/QSharedPointer>
+
 namespace ProjectExplorer {
 class Target;
 }
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
 
 class REMOTELINUX_EXPORT RemoteLinuxUtils
 {
 public:
     static bool hasLinuxQt(const ProjectExplorer::Target *target);
     static QString osTypeToString(const QString &osType);
+    static QString deviceConfigurationName(const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
 };
 
 } // namespace RemoteLinux

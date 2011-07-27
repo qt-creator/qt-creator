@@ -32,8 +32,8 @@
 #include "remotelinuxdeploystepwidget.h"
 
 #include "abstractremotelinuxdeploystep.h"
-#include "maemoglobal.h"
 #include "remotelinuxdeployconfiguration.h"
+#include "remotelinuxutils.h"
 
 using namespace ProjectExplorer;
 
@@ -77,7 +77,7 @@ QString RemoteLinuxDeployStepWidget::summaryText() const
             + QLatin1String("</font>");
     }
     return tr("<b>%1 using device</b>: %2").arg(m_step->displayName(),
-        MaemoGlobal::deviceConfigurationName(m_step->deployConfiguration()->deviceConfiguration()));
+        RemoteLinuxUtils::deviceConfigurationName(m_step->deployConfiguration()->deviceConfiguration()));
 }
 
 } // namespace RemoteLinux

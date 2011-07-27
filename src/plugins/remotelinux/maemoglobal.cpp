@@ -162,11 +162,6 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
     return QString::fromAscii(remoteCall);
 }
 
-QString MaemoGlobal::deviceConfigurationName(const LinuxDeviceConfiguration::ConstPtr &devConf)
-{
-    return devConf ? devConf->name() : tr("(No device)");
-}
-
 PortList MaemoGlobal::freePorts(const LinuxDeviceConfiguration::ConstPtr &devConf,
     const QtSupport::BaseQtVersion *qtVersion)
 {

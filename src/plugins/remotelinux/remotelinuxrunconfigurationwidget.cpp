@@ -32,10 +32,10 @@
 #include "remotelinuxrunconfigurationwidget.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "maemoglobal.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxenvironmentreader.h"
 #include "remotelinuxsettingspages.h"
+#include "remotelinuxutils.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -263,7 +263,7 @@ void RemoteLinuxRunConfigurationWidget::showDeviceConfigurationsDialog(const QSt
 
 void RemoteLinuxRunConfigurationWidget::handleCurrentDeviceConfigChanged()
 {
-    m_devConfLabel->setText(MaemoGlobal::deviceConfigurationName(m_runConfiguration->deviceConfig()));
+    m_devConfLabel->setText(RemoteLinuxUtils::deviceConfigurationName(m_runConfiguration->deviceConfig()));
 }
 
 void RemoteLinuxRunConfigurationWidget::fetchEnvironment()
