@@ -629,6 +629,8 @@ void QtOptionsPageWidget::editPath()
     if (qtVersion.isNull())
         return;
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
+    if (!version)
+        return;
     // Same type? then replace!
     if (current->type() != version->type()) {
         // not the same type, error out
