@@ -851,6 +851,15 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         return;
     }
 
+    if (modelNode.isRootNode() && isComponentType(typeName)) {
+        for (UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
+            if (UiObjectDefinition *def = cast<UiObjectDefinition *>(iter->member)) {
+                syncNode(modelNode, def, context, differenceHandler);
+                return;
+            }
+        }
+    }
+
     bool isImplicitComponent = modelNode.parentProperty().isValid() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
 
 
