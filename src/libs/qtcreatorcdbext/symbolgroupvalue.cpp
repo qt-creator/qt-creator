@@ -624,38 +624,23 @@ static inline std::string resolveQtSymbol(const char *symbolC,
 
 const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
 {
-    static const char qtCoreDefaultModule[] = "QtCored";
-    static const char qtGuiDefaultModule[] = "QtGuid";
-    static const char qtNetworkDefaultModule[] = "QtNetworkd";
-    static const char qtScriptDefaultModule[] = "QtScriptd";
     static QtInfo rc;
-    if (!rc.coreModule.empty())
+    if (!rc.libInfix.empty())
         return rc;
 
     do {
         // Lookup qstrdup() to hopefully get module (potential libinfix) and namespace
         // Typically, this resolves to 'QtGuid4!qstrdup' and 'QtCored4!qstrdup'...
-        const std::string qualifiedSymbol = resolveQtSymbol("qstrdup", qtCoreDefaultModule, "Core", ctx);
+        const std::string qualifiedSymbol = resolveQtSymbol("qstrdup", "QtCored", "Core", ctx);
         const std::string::size_type exclPos = qualifiedSymbol.find('!'); // Resolved: 'QtCored4!qstrdup'
         if (exclPos == std::string::npos) {
-            const char defaultVersion = '4';
+            rc.libInfix = "d4";
             rc.version = 4;
-            rc.coreModule = qtCoreDefaultModule + defaultVersion;
-            rc.guiModule = qtGuiDefaultModule + defaultVersion;
-            rc.networkModule = qtNetworkDefaultModule + defaultVersion;
-            rc.scriptModule = qtScriptDefaultModule + defaultVersion;
             break;
         }
         // Should be 'QtCored4!qstrdup'
-        rc.coreModule = qualifiedSymbol.substr(0, exclPos);
+        rc.libInfix = qualifiedSymbol.substr(6, exclPos - 6);
         rc.version = qualifiedSymbol.at(exclPos - 1) - '0';
-        // Derive other module names 'QtXX<infix>d4'
-        rc.guiModule = rc.coreModule;
-        rc.guiModule.replace(0, 6, "QtGui");
-        rc.networkModule = rc.coreModule;
-        rc.networkModule.replace(0, 6, "QtNetwork");
-        rc.scriptModule = rc.coreModule;
-        rc.scriptModule.replace(0, 6, "QtScript");
         // Any namespace? 'QtCored4!nsp::qstrdup'
         const std::string::size_type nameSpaceStart = exclPos + 1;
         const std::string::size_type colonPos = qualifiedSymbol.find(':', nameSpaceStart);
@@ -665,10 +650,21 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
     } while (false);
     rc.qObjectType = rc.prependQtCoreModule("QObject");
     rc.qObjectPrivateType = rc.prependQtCoreModule("QObjectPrivate");
-    rc.qWidgetPrivateType = rc.prependQtGuiModule("QWidgetPrivate");
+    rc.qWindowPrivateType = rc.prependQtGuiModule("QWindowPrivate");
+    rc.qWidgetPrivateType =
+        rc.prependQtModule("QWidgetPrivate",
+                           rc.version >= 5 &&  qt5WidgetSplit ? Widgets : Gui);
     if (SymbolGroupValue::verbose)
         DebugPrint() << rc;
     return rc;
+}
+
+std::string QtInfo::moduleName(Module m) const
+{
+    // Must match the enumeration
+    static const char* modNames[] =
+        {"QtCore", "QtGui", "QtWidgets", "QtNetwork", "QtScript" };
+    return modNames[m] + libInfix;
 }
 
 std::string QtInfo::prependModuleAndNameSpace(const std::string &type,
@@ -703,7 +699,7 @@ std::string QtInfo::prependModuleAndNameSpace(const std::string &type,
 std::ostream &operator<<(std::ostream &os, const QtInfo &i)
 {
     os << "Qt Info: Version: " << i.version << " Modules '"
-       << i.coreModule << "', '" << i.guiModule
+       << i.moduleName(QtInfo::Core) << "', '" << i.moduleName(QtInfo::Gui)
        << "', Namespace='" << i.nameSpace
        << "', types: " << i.qObjectType << ','
        << i.qObjectPrivateType << ',' << i.qWidgetPrivateType;
@@ -1144,6 +1140,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QObject;
         if (!type.compare(qPos, 7, "QWidget"))
             return KT_QWidget;
+        if (!type.compare(qPos, 7, "QWindow"))
+            return KT_QWindow;
         if (!type.compare(qPos, 7, "QLocale"))
             return KT_QLocale;
         if (!type.compare(qPos, 7, "QMatrix"))
@@ -1944,29 +1942,44 @@ static inline bool dumpQRectF(const SymbolGroupValue &v, std::wostream &str)
     return true;
 }
 
+/* Return a SymbolGroupValue containing the private class of
+ * a type (multiple) derived from QObject and something else
+ * (QWidget: QObject,QPaintDevice or QWindow: QObject,QSurface).
+ * We get differing behaviour for pointers and values on stack.
+ * For 'QWidget *', the base class QObject usually can be accessed
+ * by name (past the vtable). When browsing class hierarchies (stack),
+ * typically only the uninteresting QPaintDevice is seen. */
+
+SymbolGroupValue qobjectDerivedPrivate(const SymbolGroupValue &v,
+                                       const std::string &qwPrivateType,
+                                       const QtInfo &qtInfo)
+{
+    if (const SymbolGroupValue base = v[SymbolGroupValue::stripModuleFromType(qtInfo.qObjectType).c_str()])
+        if (const SymbolGroupValue qwPrivate = base["d_ptr"]["d"].pointerTypeCast(qwPrivateType.c_str()))
+            return qwPrivate;
+    if (!SymbolGroupValue::isPointerType(v.type()))
+        return SymbolGroupValue();
+    // Class hierarchy: Using brute force, add new symbol based on that
+    // QScopedPointer<Private> is basically a 'X *' (first member).
+    std::string errorMessage;
+    std::ostringstream str;
+    str << '(' << qwPrivateType << "*)(" << std::showbase << std::hex << v.address() << ')';
+    const std::string name = str.str();
+    SymbolGroupNode *qwPrivateNode
+        = v.node()->symbolGroup()->addSymbol(v.module(), name, std::string(), &errorMessage);
+    return SymbolGroupValue(qwPrivateNode, v.context());
+}
+
 // Dump the object name
 static inline bool dumpQWidget(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
-    const std::string &qwPrivateType = qtInfo.qWidgetPrivateType;
-    // We get differing behaviour caused by multiple inheritance of QWidget from QObject,QPaintDevice:
-    // For 'QWidget *', the base class QObject usually can be accessed (past the vtable).
-    // When browsing class hierarchies, typically only the uninteresting QPaintDevice is seen.
-    SymbolGroupValue qwPrivate;
-    if (const SymbolGroupValue base = v[SymbolGroupValue::stripModuleFromType(qtInfo.qObjectType).c_str()])
-        qwPrivate = base["d_ptr"]["d"].pointerTypeCast(qwPrivateType.c_str());
-    if (!qwPrivate && !SymbolGroupValue::isPointerType(v.type())) {
-        // Class hierarchy: Using brute force, add new symbol based on that
-        // QScopedPointer<Private> is basically a 'X *' (first member).
-        std::string errorMessage;
-        std::ostringstream str;
-        str << '(' << qwPrivateType << "*)(" << std::showbase << std::hex << v.address() << ')';
-        const std::string name = str.str();
-        SymbolGroupNode *qwPrivateNode
-            = v.node()->symbolGroup()->addSymbol(v.module(), name, std::string(), &errorMessage);
-        qwPrivate = SymbolGroupValue(qwPrivateNode, v.context());
-    }
-    const SymbolGroupValue oName = qwPrivate[unsigned(0)]["objectName"]; // QWidgetPrivate inherits QObjectPrivate
+    const SymbolGroupValue qwPrivate =
+        qobjectDerivedPrivate(v, qtInfo.qWidgetPrivateType, qtInfo);
+    if (!qwPrivate)
+        return false;
+    // QWidgetPrivate inherits QObjectPrivate
+    const SymbolGroupValue oName = qwPrivate[unsigned(0)]["objectName"];
     if (!oName)
         return false;
     if (specialInfoIn)
@@ -1988,6 +2001,24 @@ static inline bool dumpQObject(const SymbolGroupValue &v, std::wostream &str, vo
         }
     }
     return false;
+}
+
+// Dump the object name
+static inline bool dumpQWindow(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn = 0)
+{
+    const QtInfo &qtInfo = QtInfo::get(v.context());
+    const SymbolGroupValue qwPrivate =
+        qobjectDerivedPrivate(v, qtInfo.qWindowPrivateType, qtInfo);
+    if (!qwPrivate)
+        return false;
+    // QWindowPrivate inherits QObjectPrivate
+    const SymbolGroupValue oName = qwPrivate[unsigned(0)]["objectName"]; // QWidgetPrivate inherits QObjectPrivate
+    if (!oName)
+        return false;
+    if (specialInfoIn)
+        *specialInfoIn = qwPrivate.node();
+    dumpQString(oName, str);
+    return true;
 }
 
 // Dump a std::string.
@@ -2357,6 +2388,9 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     case KT_QWidget:
         rc = dumpQWidget(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
+    case KT_QWindow:
+        rc = dumpQWindow(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
     case KT_QSharedPointer:
         rc = dumpQSharedPointer(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
@@ -2696,6 +2730,7 @@ std::vector<AbstractSymbolGroupNode *>
         rc = complexDumpQByteArray(n, ctx);
         break;
     case KT_QWidget: // Special info by simple dumper is the QWidgetPrivate node
+    case KT_QWindow: // Special info by simple dumper is the QWindowPrivate node
     case KT_QObject: // Special info by simple dumper is the QObjectPrivate node
         if (specialInfo) {
             SymbolGroupNode *qObjectPrivateNode = reinterpret_cast<SymbolGroupNode *>(specialInfo);

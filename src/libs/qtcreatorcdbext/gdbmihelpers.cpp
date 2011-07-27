@@ -633,7 +633,11 @@ std::string widgetAt(const SymbolGroupValueContext &ctx, int x, int y, std::stri
     typedef SymbolGroupValue::SymbolList SymbolList;
     // First, resolve symbol since there are ambiguities. Take the first one which is the
     // overload for (int,int) and call by address instead off name to overcome that.
-    const std::string func = QtInfo::get(ctx).prependQtGuiModule("QApplication::widgetAt");
+    const QtInfo &qtInfo = QtInfo::get(ctx);
+    const std::string func =
+        qtInfo.prependQtModule("QApplication::widgetAt",
+                               qtInfo.version >= 5 && QtInfo::qt5WidgetSplit ?
+                               QtInfo::Widgets : QtInfo::Gui);
     const SymbolList symbols = SymbolGroupValue::resolveSymbol(func.c_str(), ctx, errorMessage);
     if (symbols.empty())
         return std::string(); // Not a gui application, likely

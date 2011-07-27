@@ -171,20 +171,32 @@ std::ostream &operator<<(std::ostream &, const SymbolGroupValue &v);
 
 struct QtInfo
 {
+    enum { qt5WidgetSplit = 0 };
+
+    enum Module
+    {
+        Core, Gui, Widgets, Network, Script
+    };
+
     QtInfo() : version(0) {}
 
     static const QtInfo &get(const SymbolGroupValueContext &ctx);
 
     // Prepend core module and Qt namespace. To be able to work with some
     // 'complicated' types like QMapNode, specifying the module helps
+    std::string prependQtModule(const std::string &type, Module m = Core) const
+        { return QtInfo::prependModuleAndNameSpace(type, moduleName(m), nameSpace); }
+
     std::string prependQtCoreModule(const std::string &type) const
-        { return QtInfo::prependModuleAndNameSpace(type, coreModule, nameSpace); }
+        { return prependQtModule(type, Core); }
     std::string prependQtGuiModule(const std::string &type) const
-        { return QtInfo::prependModuleAndNameSpace(type, guiModule, nameSpace); }
+        { return QtInfo::prependQtModule(type, Gui); }
+    std::string prependQtWidgetsModule(const std::string &type) const
+        { return QtInfo::prependQtModule(type, Widgets); }
     std::string prependQtNetworkModule(const std::string &type) const
-        { return QtInfo::prependModuleAndNameSpace(type, networkModule, nameSpace); }
+        { return QtInfo::prependQtModule(type, Network); }
     std::string prependQtScriptModule(const std::string &type) const
-        { return QtInfo::prependModuleAndNameSpace(type, scriptModule, nameSpace); }
+        { return QtInfo::prependQtModule(type, Script); }
 
     // Prepend module and namespace if missing with some smartness
     // ('Foo' or -> 'nsp::Foo') => 'QtCored4!nsp::Foo'
@@ -192,15 +204,15 @@ struct QtInfo
                                                  const std::string &module,
                                                  const std::string &nameSpace);
 
+    std::string moduleName(Module m) const;
+
     int version;
     std::string nameSpace;
-    std::string coreModule;
-    std::string guiModule;
-    std::string networkModule;
-    std::string scriptModule;
+    std::string libInfix;
     // Fully qualified types with module and namespace
     std::string qObjectType;
     std::string qObjectPrivateType;
+    std::string qWindowPrivateType;
     std::string qWidgetPrivateType;
 };
 
