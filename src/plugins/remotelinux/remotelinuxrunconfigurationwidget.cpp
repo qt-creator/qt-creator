@@ -271,7 +271,7 @@ void RemoteLinuxRunConfigurationWidget::fetchEnvironment()
     disconnect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
     connect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(stopFetchEnvironment()));
     m_fetchEnv->setText(tr("Cancel Fetch Operation"));
-    m_deviceEnvReader->start();
+    m_deviceEnvReader->start(m_runConfiguration->environmentPreparationCommand());
 }
 
 void RemoteLinuxRunConfigurationWidget::stopFetchEnvironment()

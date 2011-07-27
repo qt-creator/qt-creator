@@ -50,6 +50,7 @@ public:
     bool fromMap(const QVariantMap &map);
     bool isEnabled() const;
     QWidget *createConfigurationWidget();
+    QString environmentPreparationCommand() const;
     QString commandPrefix() const;
     PortList freePorts() const;
     DebuggingType debuggingType() const;

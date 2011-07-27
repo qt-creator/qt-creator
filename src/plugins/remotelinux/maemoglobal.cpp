@@ -142,16 +142,6 @@ QString MaemoGlobal::remoteSudo(const QString &osType, const QString &uname)
     return QString(); // Using sudo would open a can of worms.
 }
 
-QString MaemoGlobal::remoteCommandPrefix(const QString &osType)
-{
-    QString prefix = QString::fromLocal8Bit("%1; ").arg(remoteSourceProfilesCommand());
-    if (osType != QLatin1String(Maemo5OsType)
-            && osType != QLatin1String(HarmattanOsType)) {
-        prefix += QLatin1String("DISPLAY=:0.0 ");
-    }
-    return prefix;
-}
-
 QString MaemoGlobal::remoteSourceProfilesCommand()
 {
     const QList<QByteArray> profiles = QList<QByteArray>() << "/etc/profile"

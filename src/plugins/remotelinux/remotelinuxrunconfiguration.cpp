@@ -34,7 +34,6 @@
 
 #include "deploymentinfo.h"
 #include "linuxdeviceconfiguration.h"
-#include "maemoglobal.h"
 #include "maemoqtversion.h"
 #include "maemotoolchain.h"
 #include "qt4maemotarget.h"
@@ -261,10 +260,15 @@ QString RemoteLinuxRunConfiguration::arguments() const
     return m_d->arguments;
 }
 
+QString RemoteLinuxRunConfiguration::environmentPreparationCommand() const
+{
+    return QLatin1String("source /etc/profile; source $HOME/.profile");
+}
+
 QString RemoteLinuxRunConfiguration::commandPrefix() const
 {
     return QString::fromLocal8Bit("%1; DISPLAY=:0.0 %2")
-        .arg(MaemoGlobal::remoteSourceProfilesCommand(), userEnvironmentChangesAsString());
+        .arg(environmentPreparationCommand(), userEnvironmentChangesAsString());
 }
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const

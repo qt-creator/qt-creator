@@ -99,7 +99,6 @@ public:
     static QString devrootshPath();
     static int applicationIconSize(const QString &osType);
     static QString remoteSudo(const QString &osType, const QString &uname);
-    static QString remoteCommandPrefix(const QString &osType);
     static QString remoteSourceProfilesCommand();
     static PortList freePorts(const QSharedPointer<const LinuxDeviceConfiguration> &devConf,
         const QtSupport::BaseQtVersion *qtVersion);

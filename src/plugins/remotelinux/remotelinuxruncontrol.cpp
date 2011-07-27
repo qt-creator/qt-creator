@@ -31,7 +31,6 @@
 
 #include "remotelinuxruncontrol.h"
 
-#include "maemoglobal.h"
 #include "remotelinuxapplicationrunner.h"
 #include "remotelinuxrunconfiguration.h"
 

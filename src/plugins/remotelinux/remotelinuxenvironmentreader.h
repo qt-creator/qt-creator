@@ -54,7 +54,7 @@ public:
     RemoteLinuxEnvironmentReader(QObject *parent, RemoteLinuxRunConfiguration *config);
     ~RemoteLinuxEnvironmentReader();
 
-    void start();
+    void start(const QString &environmentSetupCommand);
     void stop();
 
     Utils::Environment deviceEnvironment() const { return m_env; }

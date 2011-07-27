@@ -108,14 +108,21 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
+QString MaemoRunConfiguration::environmentPreparationCommand() const
+{
+    return MaemoGlobal::remoteSourceProfilesCommand();
+}
+
 QString MaemoRunConfiguration::commandPrefix() const
 {
     if (!deviceConfig())
         return QString();
 
-    return QString::fromLocal8Bit("%1 %2")
-        .arg(MaemoGlobal::remoteCommandPrefix(deviceConfig()->osType()),
-             userEnvironmentChangesAsString());
+    QString prefix = environmentPreparationCommand() + QLatin1Char(';');
+    if (deviceConfig()->osType() == QLatin1String(MeeGoOsType))
+        prefix += QLatin1String("DISPLAY=:0.0 ");
+
+    return QString::fromLocal8Bit("%1 %2").arg(prefix, userEnvironmentChangesAsString());
 }
 
 PortList MaemoRunConfiguration::freePorts() const

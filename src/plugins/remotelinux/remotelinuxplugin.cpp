@@ -39,7 +39,6 @@
 #include "maemoconstants.h"
 #include "maemodeploystepfactory.h"
 #include "linuxdeviceconfigurations.h"
-#include "maemoglobal.h"
 #include "maemopackagecreationfactory.h"
 #include "maemopublishingwizardfactories.h"
 #include "maemoqemumanager.h"

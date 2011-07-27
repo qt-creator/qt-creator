@@ -31,7 +31,6 @@
 #include "remotelinuxenvironmentreader.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "maemoglobal.h"
 #include "remotelinuxrunconfiguration.h"
 
 #include <utils/ssh/sshremoteprocessrunner.h>
@@ -53,7 +52,7 @@ RemoteLinuxEnvironmentReader::~RemoteLinuxEnvironmentReader()
 {
 }
 
-void RemoteLinuxEnvironmentReader::start()
+void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
 {
     if (!m_devConfig)
         return;
@@ -75,8 +74,8 @@ void RemoteLinuxEnvironmentReader::start()
     connect(m_remoteProcessRunner.data(),
         SIGNAL(processErrorOutputAvailable(QByteArray)), this,
         SLOT(remoteErrorOutput(QByteArray)));
-    const QByteArray remoteCall = MaemoGlobal::remoteSourceProfilesCommand()
-        .toUtf8() + "; env";
+    const QByteArray remoteCall
+        = QString(environmentSetupCommand + QLatin1String("; env")).toUtf8();
     m_remoteOutput.clear();
     m_remoteProcessRunner->run(remoteCall);
 }

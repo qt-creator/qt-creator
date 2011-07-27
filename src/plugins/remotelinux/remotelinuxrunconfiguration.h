@@ -91,6 +91,7 @@ public:
 
     RemoteLinuxDeployConfiguration *deployConfig() const;
 
+    virtual QString environmentPreparationCommand() const;
     virtual QString commandPrefix() const;
     virtual PortList freePorts() const;
     virtual DebuggingType debuggingType() const;
