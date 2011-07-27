@@ -1389,6 +1389,10 @@ void QmlJSTextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
             menu->addAction(action);
             if (action->objectName() == QmlJSEditor::Constants::M_REFACTORING_MENU_INSERTION_POINT)
                 menu->addMenu(refactoringMenu);
+            if (action->objectName() == QmlJSEditor::Constants::SHOW_QT_QUICK_HELPER) {
+                bool enabled = m_contextPane->isAvailable(editor(), semanticInfo().document, m_semanticInfo.declaringMemberNoProperties(position()));
+                action->setEnabled(enabled);
+            }
         }
     }
 
