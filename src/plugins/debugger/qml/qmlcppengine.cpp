@@ -666,7 +666,7 @@ void QmlCppEngine::slaveEngineStateChanged
 void QmlCppEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     EDEBUG("MASTER REMOTE SETUP DONE");
-    d->m_qmlEngine->handleRemoteSetupDone(gdbServerPort, qmlPort);
+    d->m_qmlEngine->startParameters().qmlServerPort = qmlPort;
     d->m_cppEngine->handleRemoteSetupDone(gdbServerPort, qmlPort);
 }
 
