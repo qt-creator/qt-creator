@@ -216,6 +216,8 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
             setPixmap(source);
     } else {
         m_sizeLabel->setText("");
+        m_fileWidget->setFileName(QUrl());
+        setPixmap("");
     }
 }
 
