@@ -59,6 +59,13 @@ using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
 namespace Internal {
+namespace {
+const char ArgumentsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.Arguments";
+const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
+const char BaseEnvironmentBaseKey[] = "Qt4ProjectManager.MaemoRunConfiguration.BaseEnvironmentBase";
+const char UserEnvironmentChangesKey[]
+    = "Qt4ProjectManager.MaemoRunConfiguration.UserEnvironmentChanges";
+} // anonymous namespace
 
 class RemoteLinuxRunConfigurationPrivate {
 public:
@@ -200,11 +207,11 @@ void RemoteLinuxRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNod
 QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(ArgumentsKey, m_d->arguments);
+    map.insert(QLatin1String(ArgumentsKey), m_d->arguments);
     const QDir dir = QDir(target()->project()->projectDirectory());
-    map.insert(ProFileKey, dir.relativeFilePath(m_d->proFilePath));
-    map.insert(BaseEnvironmentBaseKey, m_d->baseEnvironmentType);
-    map.insert(UserEnvironmentChangesKey,
+    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(m_d->proFilePath));
+    map.insert(QLatin1String(BaseEnvironmentBaseKey), m_d->baseEnvironmentType);
+    map.insert(QLatin1String(UserEnvironmentChangesKey),
         Utils::EnvironmentItem::toStringList(m_d->userEnvironmentChanges));
     return map;
 }
@@ -214,13 +221,13 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    m_d->arguments = map.value(ArgumentsKey).toString();
+    m_d->arguments = map.value(QLatin1String(ArgumentsKey)).toString();
     const QDir dir = QDir(target()->project()->projectDirectory());
-    m_d->proFilePath = dir.filePath(map.value(ProFileKey).toString());
+    m_d->proFilePath = dir.filePath(map.value(QLatin1String(ProFileKey)).toString());
     m_d->userEnvironmentChanges =
-        Utils::EnvironmentItem::fromStringList(map.value(UserEnvironmentChangesKey)
+        Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(UserEnvironmentChangesKey))
         .toStringList());
-    m_d->baseEnvironmentType = static_cast<BaseEnvironmentType> (map.value(BaseEnvironmentBaseKey,
+    m_d->baseEnvironmentType = static_cast<BaseEnvironmentType>(map.value(QLatin1String(BaseEnvironmentBaseKey),
         SystemBaseEnvironment).toInt());
 
     m_d->validParse = qt4Target()->qt4Project()->validParse(m_d->proFilePath);

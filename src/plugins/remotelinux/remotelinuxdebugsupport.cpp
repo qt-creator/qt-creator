@@ -32,14 +32,15 @@
 #include "remotelinuxdebugsupport.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "qt4maemotarget.h"
 #include "remotelinuxapplicationrunner.h"
 #include "remotelinuxusedportsgatherer.h"
 
 #include <debugger/debuggerengine.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <utils/qtcassert.h>
 
 using namespace Utils;

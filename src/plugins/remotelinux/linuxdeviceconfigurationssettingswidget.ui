@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Maemo Device Configurations</string>
+   <string>Linux Device Configurations</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>

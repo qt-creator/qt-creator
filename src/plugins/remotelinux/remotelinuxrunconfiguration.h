@@ -33,7 +33,6 @@
 #ifndef REMOTELINUXRUNCONFIGURATION_H
 #define REMOTELINUXRUNCONFIGURATION_H
 
-#include "maemoconstants.h"
 #include "portlist.h"
 #include "remotelinux_export.h"
 
@@ -59,7 +58,6 @@ class RemoteLinuxRunConfigurationWidget;
 class RemoteLinuxDeployConfiguration;
 
 namespace Internal {
-class MaemoDeviceConfigListModel;
 class RemoteLinuxRunConfigurationPrivate;
 class RemoteLinuxRunConfigurationFactory;
 } // namespace Internal

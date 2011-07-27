@@ -34,7 +34,7 @@
 #include "deployablefile.h"
 #include "deploymentinfo.h"
 #include "genericdirectuploadservice.h"
-#include "qt4maemodeployconfiguration.h"
+#include "remotelinuxdeployconfiguration.h"
 
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
