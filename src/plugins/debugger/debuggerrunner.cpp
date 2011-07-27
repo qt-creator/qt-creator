@@ -258,7 +258,10 @@ void DebuggerRunControl::start()
                                        "languages currently active, and will be ignored.");
 
             debuggerCore()->showMessage(warningMessage, LogWarning);
-            QErrorMessage::qtHandler()->showMessage(warningMessage);
+
+            QErrorMessage *msgBox = new QErrorMessage(debuggerCore()->mainWindow());
+            msgBox->setAttribute(Qt::WA_DeleteOnClose);
+            msgBox->showMessage(warningMessage);
         }
     }
 
