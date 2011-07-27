@@ -64,6 +64,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60deployconfiguration.h>
@@ -363,14 +364,10 @@ void QmlProfilerTool::connectToClient()
         return;
 
     if (d->m_connectMode == QmlProfilerToolPrivate::TcpConnection) {
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QML Profiler: Connecting to %s:%lld ...", qPrintable(d->m_tcpHost), d->m_tcpPort);
-
+        logStatus(QString("QML Profiler: Connecting to %1:%2 ...").arg(d->m_tcpHost, QString::number(d->m_tcpPort)));
         d->m_client->connectToHost(d->m_tcpHost, d->m_tcpPort);
     } else {
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QML Profiler: Connecting to ost device %s...", qPrintable(d->m_ostDevice));
-
+        logStatus(QString("QML Profiler: Connecting to %1 ...").arg(d->m_tcpHost));
         d->m_client->connectToOst(d->m_ostDevice);
     }
 }
@@ -501,12 +498,11 @@ void QmlProfilerTool::tryToConnect()
     } else if (d->m_connectionAttempts == 50) {
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
-        if (QmlProfilerPlugin::debugOutput) {
-            if (d->m_client) {
-                qWarning("QML Profiler: Failed to connect: %s", qPrintable(d->m_client->errorString()));
-            } else {
-                qWarning("QML Profiler: Failed to connect.");
-            }
+
+        if (d->m_client) {
+            logError("QML Profiler: Failed to connect! " + d->m_client->errorString());
+        } else {
+            logError("QML Profiler: Failed to connect!");
         }
         emit connectionFailed();
     } else {
@@ -574,4 +570,17 @@ void QmlProfilerTool::startTool(StartMode mode)
     // ### not sure if we're supposed to check if the RunConFiguration isEnabled
     Project *pro = pe->startupProject();
     pe->runProject(pro, id());
+}
+
+void QmlProfilerTool::logStatus(const QString &msg)
+{
+    Core::MessageManager *messageManager = Core::MessageManager::instance();
+    messageManager->printToOutputPane(msg, false);
+}
+
+void QmlProfilerTool::logError(const QString &msg)
+{
+    // TODO: Rather show errors in the application ouput
+    Core::MessageManager *messageManager = Core::MessageManager::instance();
+    messageManager->printToOutputPane(msg, true);
 }

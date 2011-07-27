@@ -92,6 +92,8 @@ private:
     void connectToClient();
     void updateRecordingState();
     void ensureWidgets();
+    void logStatus(const QString &msg);
+    void logError(const QString &msg);
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;
