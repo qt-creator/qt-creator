@@ -65,6 +65,8 @@ public:
 private slots:
     void markAsChanged();
     void build();
+private:
+    bool m_infoBarShown;
 };
 
 class CMakeEditorWidget : public TextEditor::BaseTextEditorWidget
