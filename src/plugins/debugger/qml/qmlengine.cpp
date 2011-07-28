@@ -183,10 +183,37 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     d(new QmlEnginePrivate(this))
 {
     setObjectName(QLatin1String("QmlEngine"));
+
+    ExtensionSystem::PluginManager *pluginManager =
+        ExtensionSystem::PluginManager::instance();
+    pluginManager->addObject(this);
+
+    connect(&d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
+        SLOT(connectionError(QAbstractSocket::SocketError)));
+    connect(&d->m_adapter, SIGNAL(serviceConnectionError(QString)),
+        SLOT(serviceConnectionError(QString)));
+    connect(&d->m_adapter, SIGNAL(connected()),
+        SLOT(connectionEstablished()));
+    connect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
+        SLOT(connectionStartupFailed()));
+
+    connect(&d->m_applicationLauncher,
+        SIGNAL(processExited(int)),
+        SLOT(disconnected()));
+    connect(&d->m_applicationLauncher,
+        SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+        SLOT(appendMessage(QString,Utils::OutputFormat)));
 }
 
 QmlEngine::~QmlEngine()
-{}
+{
+    ExtensionSystem::PluginManager *pluginManager =
+        ExtensionSystem::PluginManager::instance();
+
+    if (pluginManager->allObjects().contains(this)) {
+        pluginManager->removeObject(this);
+    }
+}
 
 void QmlEngine::setupInferior()
 {
@@ -198,17 +225,6 @@ void QmlEngine::setupInferior()
         else
             emit requestRemoteSetup();
     } else {
-        connect(&d->m_applicationLauncher,
-            SIGNAL(processExited(int)),
-            SLOT(disconnected()));
-        connect(&d->m_applicationLauncher,
-            SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-            SLOT(appendMessage(QString,Utils::OutputFormat)));
-        connect(&d->m_applicationLauncher,
-            SIGNAL(bringToForegroundRequested(qint64)),
-            runControl(),
-            SLOT(bringApplicationToForeground(qint64)));
-
         d->m_applicationLauncher.setEnvironment(startParameters().environment);
         d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
 
@@ -225,11 +241,6 @@ void QmlEngine::connectionEstablished()
 {
     attemptBreakpointSynchronization();
 
-    ExtensionSystem::PluginManager *pluginManager =
-        ExtensionSystem::PluginManager::instance();
-    pluginManager->addObject(&d->m_adapter);
-    pluginManager->addObject(this);
-
     showMessage(tr("QML Debugger connected."), StatusBar);
 
     if (!watchHandler()->watcherNames().isEmpty()) {
@@ -238,7 +249,6 @@ void QmlEngine::connectionEstablished()
     connect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
 
     notifyEngineRunAndInferiorRunOk();
-
 }
 
 void QmlEngine::connectionStartupFailed()
@@ -366,17 +376,7 @@ bool QmlEngine::acceptsWatchesWhileRunning() const
 void QmlEngine::closeConnection()
 {
     disconnect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
-    disconnect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
-        this, SLOT(connectionStartupFailed()));
     d->m_adapter.closeConnection();
-
-    ExtensionSystem::PluginManager *pluginManager =
-        ExtensionSystem::PluginManager::instance();
-
-    if (pluginManager->allObjects().contains(this)) {
-        pluginManager->removeObject(&d->m_adapter);
-        pluginManager->removeObject(this);
-    }
 }
 
 void QmlEngine::runEngine()
@@ -448,14 +448,10 @@ void QmlEngine::shutdownEngine()
 void QmlEngine::setupEngine()
 {
     d->m_ping = 0;
-    connect(&d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
-        SLOT(connectionError(QAbstractSocket::SocketError)));
-    connect(&d->m_adapter, SIGNAL(serviceConnectionError(QString)),
-        SLOT(serviceConnectionError(QString)));
-    connect(&d->m_adapter, SIGNAL(connected()),
-        SLOT(connectionEstablished()));
-    connect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
-        SLOT(connectionStartupFailed()));
+
+    connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
+            runControl(), SLOT(bringApplicationToForeground(qint64)),
+            Qt::UniqueConnection);
 
     notifyEngineSetupOk();
 }
