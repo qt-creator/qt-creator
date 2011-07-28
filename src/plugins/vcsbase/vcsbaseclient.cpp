@@ -310,8 +310,6 @@ void VCSBaseClient::log(const QString &workingDir, const QStringList &files,
                         bool enableAnnotationContextMenu)
 {
     const QString vcsCmdString = vcsCommandString(LogCommand);
-    QStringList args;
-    args << vcsCmdString << logArguments(files, extraOptions);
     const QString kind = vcsEditorKind(LogCommand);
     const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
@@ -321,6 +319,13 @@ void VCSBaseClient::log(const QString &workingDir, const QStringList &files,
                                                            vcsCmdString.toLatin1().constData(), id);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
+    VCSBaseEditorParameterWidget *paramWidget = createLogEditor(workingDir, files, extraOptions);
+    if (paramWidget != 0)
+        editor->setConfigurationWidget(paramWidget);
+
+    QStringList args;
+    const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
+    args << vcsCmdString << logArguments(files, extraOptions + paramArgs);
     QSharedPointer<VCSJob> job(new VCSJob(workingDir, args, editor));
     enqueueJob(job);
 }
@@ -481,6 +486,15 @@ VCSBaseEditorParameterWidget *VCSBaseClient::createDiffEditor(const QString &wor
     return 0;
 }
 
+VCSBaseEditorParameterWidget *VCSBaseClient::createLogEditor(const QString &workingDir,
+                                                             const QStringList &files,
+                                                             const QStringList &extraOptions)
+{
+    Q_UNUSED(workingDir);
+    Q_UNUSED(files);
+    Q_UNUSED(extraOptions);
+    return 0;
+}
 
 QString VCSBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {

@@ -160,6 +160,9 @@ protected:
                                                            const QStringList &extraOptions);
     virtual QStringList logArguments(const QStringList &files,
                                      const QStringList &extraOptions) const = 0;
+    virtual VCSBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
+                                                          const QStringList &files,
+                                                          const QStringList &extraOptions);
     virtual QStringList statusArguments(const QString &file) const = 0;
     virtual QStringList viewArguments(const QString &revision) const = 0;
 
