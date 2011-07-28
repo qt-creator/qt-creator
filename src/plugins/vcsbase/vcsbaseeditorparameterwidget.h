@@ -52,7 +52,7 @@ class VCSBASE_EXPORT VCSBaseEditorParameterWidget : public QWidget
 {
     Q_OBJECT
 public:
-    struct ComboBoxItem
+    struct VCSBASE_EXPORT ComboBoxItem
     {
         ComboBoxItem();
         ComboBoxItem(const QString &text, const QVariant &val);
