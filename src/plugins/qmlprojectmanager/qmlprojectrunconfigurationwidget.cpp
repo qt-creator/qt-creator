@@ -110,9 +110,6 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
 
     layout->addWidget(detailsWidget);
 
-    updateFileComboBox();
-    updateQtVersionComboBox();
-
     //
     // Debugging
     //
@@ -166,6 +163,9 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
 
 
     layout->addWidget(m_environmentWidget);
+
+    updateFileComboBox();
+    updateQtVersionComboBox();
 }
 
 static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
@@ -252,6 +252,7 @@ void QmlProjectRunConfigurationWidget::onQtVersionSelectionChanged()
     QTC_ASSERT(data.isValid() && data.canConvert(QVariant::Int), return)
     m_runConfiguration->setQtVersionId(data.toInt());
     m_runConfiguration->updateEnabled();
+    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
 }
 
 void QmlProjectRunConfigurationWidget::onViewerArgsChanged()
@@ -303,6 +304,8 @@ void QmlProjectRunConfigurationWidget::updateQtVersionComboBox()
         m_qtVersionComboBox->addItem(tr("Invalid Qt version"), -1);
         m_qtVersionComboBox->setCurrentIndex(0);
     }
+    // Might have edited the qt version or changed e.g. the sysroot of a SymbianQtVersion
+    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
 }
 
 void QmlProjectRunConfigurationWidget::userChangesChanged()
