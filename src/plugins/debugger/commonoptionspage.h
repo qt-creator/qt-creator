@@ -73,6 +73,7 @@ class CommonOptionsPage : public Core::IOptionsPage
 
 public:
     explicit CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions> &go);
+    virtual ~CommonOptionsPage();
 
     // IOptionsPage
     QString id() const;

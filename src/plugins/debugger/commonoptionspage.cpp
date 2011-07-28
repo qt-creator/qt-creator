@@ -148,6 +148,10 @@ CommonOptionsPage::CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions>
 {
 }
 
+CommonOptionsPage::~CommonOptionsPage()
+{
+}
+
 QString CommonOptionsPage::id() const
 {
     return _(DEBUGGER_COMMON_SETTINGS_ID);
