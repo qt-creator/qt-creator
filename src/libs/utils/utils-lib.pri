@@ -86,6 +86,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/ssh/sftpchannel.cpp \
     $$PWD/ssh/sshremoteprocessrunner.cpp \
     $$PWD/ssh/sshconnectionmanager.cpp \
+    $$PWD/ssh/sshkeypasswordretriever.cpp \
     $$PWD/outputformatter.cpp \
     $$PWD/flowlayout.cpp \
     $$PWD/networkaccessmanager.cpp
@@ -187,6 +188,7 @@ HEADERS += \
     $$PWD/ssh/sshremoteprocessrunner.h \
     $$PWD/ssh/sshconnectionmanager.h \
     $$PWD/ssh/sshpseudoterminal.h \
+    $$PWD/ssh/sshkeypasswordretriever_p.h \
     $$PWD/statuslabel.h \
     $$PWD/outputformatter.h \
     $$PWD/outputformat.h \

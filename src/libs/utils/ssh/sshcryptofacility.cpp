@@ -36,6 +36,7 @@
 #include "sshcapabilities_p.h"
 #include "sshexception_p.h"
 #include "sshkeyexchange_p.h"
+#include "sshkeypasswordretriever_p.h"
 #include "sshpacket_p.h"
 
 #include <botan/ber_dec.h>
@@ -226,7 +227,7 @@ void SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &p
     Pipe pipe;
     pipe.process_msg(convertByteArray(privKeyFileContents),
         privKeyFileContents.size());
-    Private_Key * const key = PKCS8::load_key(pipe, m_rng);
+    Private_Key * const key = PKCS8::load_key(pipe, m_rng, SshKeyPasswordRetriever());
     if (DSA_PrivateKey * const dsaKey = dynamic_cast<DSA_PrivateKey *>(key)) {
         m_authKeyAlgoName = SshCapabilities::PubKeyDss;
         m_authKey.reset(dsaKey);
