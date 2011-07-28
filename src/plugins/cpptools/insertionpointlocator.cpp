@@ -37,6 +37,7 @@
 #include <AST.h>
 #include <ASTVisitor.h>
 #include <TranslationUnit.h>
+#include <Literals.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -317,6 +318,103 @@ static bool isSourceFile(const QString &fileName)
     return suffixes.contains(fileInfo.suffix());
 }
 
+namespace {
+template <class Key, class Value>
+class HighestValue
+{
+    Key _key;
+    Value _value;
+    bool _set;
+public:
+    HighestValue()
+        : _set(false)
+    {}
+
+    HighestValue(const Key &initialKey, const Value &initialValue)
+        : _key(initialKey)
+        , _value(initialValue)
+        , _set(true)
+    {}
+
+    void maybeSet(const Key &key, const Value &value)
+    {
+        if (!_set || key > _key) {
+            _value = value;
+            _key = key;
+            _set = true;
+        }
+    }
+
+    const Value &get() const
+    {
+        Q_ASSERT(_set);
+        return _value;
+    }
+};
+
+class FindMethodDefinitionInsertPoint : protected ASTVisitor
+{
+    QList<const Identifier *> _namespaceNames;
+    int _currentDepth;
+    HighestValue<int, int> _bestToken;
+
+public:
+    FindMethodDefinitionInsertPoint(TranslationUnit *translationUnit)
+        : ASTVisitor(translationUnit)
+    {}
+
+    void operator()(Declaration *decl, unsigned *line, unsigned *column)
+    {
+        *line = *column = 0;
+        if (translationUnit()->ast()->lastToken() < 2)
+            return;
+
+        QList<const Name *> names = LookupContext::fullyQualifiedName(decl);
+        foreach (const Name *name, names) {
+            const Identifier *id = name->asNameId();
+            if (!id)
+                break;
+            _namespaceNames += id;
+        }
+        _currentDepth = 0;
+
+        // default to end of file
+        _bestToken.maybeSet(-1, translationUnit()->ast()->lastToken() - 1);
+        accept(translationUnit()->ast());
+        translationUnit()->getTokenEndPosition(_bestToken.get(), line, column);
+    }
+
+protected:
+    bool preVisit(AST *ast)
+    {
+        return ast->asNamespace() || ast->asTranslationUnit() || ast->asLinkageBody();
+    }
+
+    bool visit(NamespaceAST *ast)
+    {
+        if (_currentDepth >= _namespaceNames.size())
+            return false;
+
+        // ignore anonymous namespaces
+        if (!ast->identifier_token)
+            return false;
+
+        const Identifier *name = translationUnit()->identifier(ast->identifier_token);
+        if (!name->equalTo(_namespaceNames.at(_currentDepth)))
+            return false;
+
+        // found a good namespace
+        _bestToken.maybeSet(_currentDepth, ast->lastToken() - 2);
+
+        ++_currentDepth;
+        accept(ast->linkage_body);
+        --_currentDepth;
+
+        return false;
+    }
+};
+} // anonymous namespace
+
 /// Currently, we return the end of fileName.cpp
 /// \todo take the definitions of the surrounding declarations into account
 QList<InsertionLocation> InsertionPointLocator::methodDefinition(
@@ -348,13 +446,9 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
         }
     }
 
-    TranslationUnit *xUnit = doc->translationUnit();
-    unsigned tokenCount = xUnit->tokenCount();
-    if (tokenCount < 2) // no tokens available
-        return result;
-
     unsigned line = 0, column = 0;
-    xUnit->getTokenEndPosition(xUnit->tokenCount() - 2, &line, &column);
+    FindMethodDefinitionInsertPoint finder(doc->translationUnit());
+    finder(declaration, &line, &column);
 
     const QLatin1String prefix("\n\n");
     result.append(InsertionLocation(target, prefix, QString(), line, column));
