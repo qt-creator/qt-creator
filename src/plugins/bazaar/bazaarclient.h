@@ -80,6 +80,9 @@ protected:
                                                             const QStringList &extraOptions);
     QStringList logArguments(const QStringList &files,
                              const QStringList &extraOptions) const;
+    VCSBase::VCSBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
+                                                           const QStringList &files,
+                                                           const QStringList &extraOptions);
     QStringList statusArguments(const QString &file) const;
     QStringList viewArguments(const QString &revision) const;
 

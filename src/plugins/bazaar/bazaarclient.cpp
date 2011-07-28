@@ -339,6 +339,50 @@ VCSBase::VCSBaseEditorParameterWidget *BazaarClient::createDiffEditor(
     return new BazaarDiffParameterWidget(this, parameters);
 }
 
+class BazaarLogParameterWidget : public VCSBase::VCSBaseEditorParameterWidget
+{
+    Q_OBJECT
+public:
+    BazaarLogParameterWidget(BazaarClient *client,
+                             const BazaarCommandParameters &p, QWidget *parent = 0) :
+        VCSBase::VCSBaseEditorParameterWidget(parent), m_client(client), m_params(p)
+    {
+        mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
+                                   tr("Show files changed in each revision")),
+                   &m_client->settings()->logVerbose);
+        mapSetting(addToggleButton(QLatin1String("--forward"), tr("Forward"),
+                                   tr("Show from oldest to newest")),
+                   &m_client->settings()->logForward);
+        mapSetting(addToggleButton(QLatin1String("--include-merges"), tr("Include merges"),
+                                   tr("Show merged revisions")),
+                   &m_client->settings()->logIncludeMerges);
+
+        QList<ComboBoxItem> logChoices;
+        logChoices << ComboBoxItem(tr("Detailed"), QLatin1String("long"))
+                   << ComboBoxItem(tr("Moderately short"), QLatin1String("short"))
+                   << ComboBoxItem(tr("One line"), QLatin1String("line"))
+                   << ComboBoxItem(tr("GNU ChangeLog"), QLatin1String("gnu-changelog"));
+        mapSetting(addComboBox(QLatin1String("--log-format"), logChoices),
+                   &m_client->settings()->logFormat);
+    }
+
+    void executeCommand()
+    {
+        m_client->log(m_params.workingDir, m_params.files, m_params.extraOptions);
+    }
+
+private:
+    BazaarClient* m_client;
+    const BazaarCommandParameters m_params;
+};
+
+VCSBase::VCSBaseEditorParameterWidget *BazaarClient::createLogEditor(
+    const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
+{
+    const BazaarCommandParameters parameters(workingDir, files, extraOptions);
+    return new BazaarLogParameterWidget(this, parameters);
+}
+
 } //namespace Internal
 } // namespace Bazaar
 

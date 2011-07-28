@@ -40,10 +40,18 @@ namespace Internal {
 
 const QLatin1String diffIgnoreWhiteSpaceKey("diffIgnoreWhiteSpace");
 const QLatin1String diffIgnoreBlankLinesKey("diffIgnoreBlankLines");
+const QLatin1String logVerboseKey("logVerbose");
+const QLatin1String logForwardKey("logForward");
+const QLatin1String logIncludeMergesKey("logIncludeMerges");
+const QLatin1String logFormatKey("logFormat");
 
 BazaarSettings::BazaarSettings() :
     diffIgnoreWhiteSpace(false),
-    diffIgnoreBlankLines(false)
+    diffIgnoreBlankLines(false),
+    logVerbose(false),
+    logForward(false),
+    logIncludeMerges(false),
+    logFormat(QLatin1String("long"))
 {
     setSettingsGroup(QLatin1String(Constants::BAZAAR));
     setBinary(QLatin1String(Constants::BAZAARDEFAULT));
@@ -55,6 +63,10 @@ BazaarSettings& BazaarSettings::operator=(const BazaarSettings& other)
     if (this != &other) {
         diffIgnoreWhiteSpace = other.diffIgnoreWhiteSpace;
         diffIgnoreBlankLines = other.diffIgnoreBlankLines;
+        logVerbose = other.logVerbose;
+        logForward = other.logForward;
+        logIncludeMerges = other.logIncludeMerges;
+        logFormat = other.logFormat;
     }
     return *this;
 }
@@ -70,6 +82,10 @@ void BazaarSettings::writeSettings(QSettings *settings) const
     settings->beginGroup(settingsGroup());
     settings->setValue(diffIgnoreWhiteSpaceKey, diffIgnoreWhiteSpace);
     settings->setValue(diffIgnoreBlankLinesKey, diffIgnoreBlankLines);
+    settings->setValue(logVerboseKey, logVerbose);
+    settings->setValue(logForwardKey, logForward);
+    settings->setValue(logIncludeMergesKey, logIncludeMerges);
+    settings->setValue(logFormatKey, logFormat);
     settings->endGroup();
 }
 
@@ -79,6 +95,10 @@ void BazaarSettings::readSettings(const QSettings *settings)
     const QString keyRoot = settingsGroup() + QLatin1Char('/');
     diffIgnoreWhiteSpace = settings->value(keyRoot + diffIgnoreWhiteSpaceKey, false).toBool();
     diffIgnoreBlankLines = settings->value(keyRoot + diffIgnoreBlankLinesKey, false).toBool();
+    logVerbose = settings->value(keyRoot + logVerboseKey, false).toBool();
+    logForward = settings->value(keyRoot + logForwardKey, false).toBool();
+    logIncludeMerges = settings->value(keyRoot + logIncludeMergesKey, false).toBool();
+    logFormat = settings->value(keyRoot + logFormatKey, QLatin1String("long")).toString();
 }
 
 bool BazaarSettings::equals(const VCSBaseClientSettings &rhs) const
@@ -88,7 +108,11 @@ bool BazaarSettings::equals(const VCSBaseClientSettings &rhs) const
         return false;
     return VCSBaseClientSettings::equals(rhs)
             && diffIgnoreWhiteSpace == bzrRhs->diffIgnoreWhiteSpace
-            && diffIgnoreBlankLines == bzrRhs->diffIgnoreBlankLines;
+            && diffIgnoreBlankLines == bzrRhs->diffIgnoreBlankLines
+            && logVerbose == bzrRhs->logVerbose
+            && logForward == bzrRhs->logForward
+            && logIncludeMerges == bzrRhs->logIncludeMerges
+            && logFormat == bzrRhs->logFormat;
 }
 
 } // namespace Internal

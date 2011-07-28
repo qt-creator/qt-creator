@@ -51,6 +51,11 @@ public:
 
     bool diffIgnoreWhiteSpace;
     bool diffIgnoreBlankLines;
+
+    bool logVerbose;
+    bool logForward;
+    bool logIncludeMerges;
+    QString logFormat;
 };
 
 } // namespace Internal
