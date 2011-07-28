@@ -28,6 +28,10 @@
       <property name="title" type="QString" value="SelectionListItem"/>
     </itemlibraryentry>
   </node>
+  <node name="com.nokia.symbian.StatusBar" icon=":/symbianplugin/images/statusbar16.png">
+    <itemlibraryentry name="StatusBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/statusbar.png"  version="1.0" requiredImport="com.nokia.symbian">
+    </itemlibraryentry>
+  </node>
   <node name="com.nokia.symbian.ListView" icon=":/symbianplugin/images/listview-icon16.png">
     <itemlibraryentry name="ListView" category="Components Symbian" libraryIcon=":/symbianplugin/images/listview-icon.png"  version="1.0" requiredImport="com.nokia.symbian">
     <qml source=":/symbianplugin/source/SymbianListView.qml"/>

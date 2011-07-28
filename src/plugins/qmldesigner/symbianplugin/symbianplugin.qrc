@@ -41,5 +41,7 @@
         <file>images/listview-icon.png</file>
         <file>images/listview-icon16.png</file>
         <file>source/SymbianListView.qml</file>
+        <file>images/statusbar.png</file>
+        <file>images/statusbar16.png</file>
     </qresource>
 </RCC>
