@@ -262,6 +262,7 @@ void DebuggerRunControl::start()
             QErrorMessage *msgBox = new QErrorMessage(debuggerCore()->mainWindow());
             msgBox->setAttribute(Qt::WA_DeleteOnClose);
             msgBox->showMessage(warningMessage);
+            break;
         }
     }
 
