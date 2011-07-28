@@ -43,7 +43,7 @@ std::string SshKeyPasswordRetriever::get_passphrase(const std::string &, const s
 {
     bool ok;
     const QString &password = QInputDialog::getText(0,
-        QCoreApplication::translate("Utils::Ssh", "Password required"),
+        QCoreApplication::translate("Utils::Ssh", "Password Required"),
         QCoreApplication::translate("Utils::Ssh", "Please enter the password for your private key."),
         QLineEdit::Password, QString(), &ok);
     result = ok ? OK : CANCEL_ACTION;

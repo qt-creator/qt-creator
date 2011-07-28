@@ -40,6 +40,7 @@
 
 namespace Botan {
     class Private_Key;
+    class RandomNumberGenerator;
 }
 
 namespace Utils {
@@ -62,8 +63,9 @@ public:
 private:
     typedef QSharedPointer<Botan::Private_Key> KeyPtr;
 
-    void generatePkcs8KeyStrings(const KeyPtr &key);
-    void generatePkcs8KeyString(const KeyPtr &key, bool privateKey);
+    void generatePkcs8KeyStrings(const KeyPtr &key, Botan::RandomNumberGenerator &rng);
+    void generatePkcs8KeyString(const KeyPtr &key, bool privateKey,
+        Botan::RandomNumberGenerator &rng);
     void generateOpenSslKeyStrings(const KeyPtr &key);
     void generateOpenSslPrivateKeyString(const KeyPtr &key);
     void generateOpenSslPublicKeyString(const KeyPtr &key);

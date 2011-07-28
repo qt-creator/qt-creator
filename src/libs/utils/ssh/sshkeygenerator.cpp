@@ -46,6 +46,9 @@
 #include <botan/x509_key.h>
 
 #include <QtCore/QDateTime>
+#include <QtGui/QInputDialog>
+
+#include <string>
 
 namespace Utils {
 
@@ -69,14 +72,14 @@ bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format, int ke
             key = KeyPtr(new DSA_PrivateKey(rng, DL_Group(rng, DL_Group::DSA_Kosherizer, keySize)));
         switch (format) {
         case Pkcs8:
-            generatePkcs8KeyStrings(key);
+            generatePkcs8KeyStrings(key, rng);
             break;
         case OpenSsl:
             generateOpenSslKeyStrings(key);
             break;
         case Mixed:
         default:
-            generatePkcs8KeyString(key, true);
+            generatePkcs8KeyString(key, true, rng);
             generateOpenSslPublicKeyString(key);
         }
         return true;
@@ -86,19 +89,37 @@ bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format, int ke
     }
 }
 
-void SshKeyGenerator::generatePkcs8KeyStrings(const KeyPtr &key)
+void SshKeyGenerator::generatePkcs8KeyStrings(const KeyPtr &key, Botan::RandomNumberGenerator &rng)
 {
-    generatePkcs8KeyString(key, false);
-    generatePkcs8KeyString(key, true);
+    generatePkcs8KeyString(key, false, rng);
+    generatePkcs8KeyString(key, true, rng);
 }
 
-void SshKeyGenerator::generatePkcs8KeyString(const KeyPtr &key, bool privateKey)
+void SshKeyGenerator::generatePkcs8KeyString(const KeyPtr &key, bool privateKey,
+    Botan::RandomNumberGenerator &rng)
 {
     Pipe pipe;
     pipe.start_msg();
     QByteArray *keyData;
     if (privateKey) {
-        PKCS8::encode(*key, pipe);
+        QInputDialog d;
+        d.setInputMode(QInputDialog::TextInput);
+        d.setTextEchoMode(QLineEdit::Password);
+        d.setWindowTitle(tr("Password for Private Key"));
+        d.setLabelText(tr("It is recommended that you secure your private key\n"
+            "with a password, which you can can enter below."));
+        d.setOkButtonText(tr("Encrypt key file"));
+        d.setCancelButtonText(tr("Do not encrypt key file"));
+        int result = QDialog::Accepted;
+        QString password;
+        while (result == QDialog::Accepted && password.isEmpty()) {
+            result = d.exec();
+            password = d.textValue();
+        }
+        if (result == QDialog::Accepted)
+            PKCS8::encrypt_key(*key, pipe, rng, password.toLocal8Bit().data());
+        else
+            PKCS8::encode(*key, pipe);
         keyData = &m_privateKey;
     } else {
         X509::encode(*key, pipe);
