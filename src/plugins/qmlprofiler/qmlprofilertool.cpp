@@ -103,7 +103,6 @@ public:
     Utils::FileInProjectFinder m_projectFinder;
     ProjectExplorer::RunConfiguration *m_runConfiguration;
     bool m_isAttached;
-    QAction *m_attachAction;
     QToolButton *m_recordButton;
     QToolButton *m_clearButton;
     bool m_recordingEnabled;
@@ -128,7 +127,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_project = 0;
     d->m_runConfiguration = 0;
     d->m_isAttached = false;
-    d->m_attachAction = 0;
     d->m_recordingEnabled = true;
 
     d->m_connectionTimer.setInterval(200);
@@ -228,16 +226,6 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     return engine;
 }
 
-void QmlProfilerTool::toolSelected()
-{
-    updateAttachAction(true);
-}
-
-void QmlProfilerTool::toolDeselected()
-{
-    updateAttachAction(false);
-}
-
 QWidget *QmlProfilerTool::createWidgets()
 {
     QTC_ASSERT(!d->m_traceWindow, return 0);
@@ -279,15 +267,6 @@ QWidget *QmlProfilerTool::createWidgets()
     Core::ActionManager *am = core->actionManager();
     Core::ActionContainer *manalyzer = am->actionContainer(Analyzer::Constants::M_DEBUG_ANALYZER);
     const Core::Context globalcontext(Core::Constants::C_GLOBAL);
-
-    d->m_attachAction = new QAction(tr("Attach..."), manalyzer);
-    Core::Command *command = am->registerAction(d->m_attachAction,
-                                                Constants::ATTACH, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    //manalyzer->addAction(command, Analyzer::Constants::G_ANALYZER_STARTSTOP);
-    connect(d->m_attachAction, SIGNAL(triggered()), this, SLOT(attach()));
-
-    updateAttachAction(false);
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (this, tr("Events"), d->m_eventsView, Qt::BottomDockWidgetArea);
@@ -476,16 +455,6 @@ void QmlProfilerTool::attach()
     }
 
     d->m_isAttached = !d->m_isAttached;
-    updateAttachAction(true);
-}
-
-void QmlProfilerTool::updateAttachAction(bool isCurrentTool)
-{
-    if (d->m_isAttached)
-        d->m_attachAction->setText(tr("Detach"));
-    else
-        d->m_attachAction->setText(tr("Attach..."));
-    d->m_attachAction->setEnabled(isCurrentTool);
 }
 
 void QmlProfilerTool::tryToConnect()
