@@ -104,7 +104,7 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 
     if (originalPath.isEmpty()) {
         if (success)
-            success = false;
+            *success = false;
         return originalPath;
     }
 
