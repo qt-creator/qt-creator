@@ -249,6 +249,7 @@ void ApplicationLauncher::readStandardError()
 #ifdef Q_OS_WIN
 void ApplicationLauncher::cannotRetrieveDebugOutput()
 {
+    disconnect(WinDebugInterface::instance(), 0, this, 0);
     emit appendMessage(msgWinCannotRetrieveDebuggingOutput(), Utils::ErrorMessageFormat);
 }
 
