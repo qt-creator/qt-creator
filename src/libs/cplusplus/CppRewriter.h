@@ -88,15 +88,24 @@ private:
     QList<QPair<const Name *, FullySpecifiedType> > _map;
 };
 
-class CPLUSPLUS_EXPORT UseQualifiedNames: public Substitution
+class CPLUSPLUS_EXPORT UseMinimalNames: public Substitution
+{
+public:
+    UseMinimalNames(ClassOrNamespace *target);
+    virtual ~UseMinimalNames();
+
+    virtual FullySpecifiedType apply(const Name *name, Rewrite *rewrite) const;
+
+private:
+    ClassOrNamespace *_target;
+};
+
+class CPLUSPLUS_EXPORT UseQualifiedNames: public UseMinimalNames
 {
 public:
     UseQualifiedNames();
     virtual ~UseQualifiedNames();
-
-    virtual FullySpecifiedType apply(const Name *name, Rewrite *rewrite) const;
 };
-
 
 
 CPLUSPLUS_EXPORT FullySpecifiedType rewriteType(const FullySpecifiedType &type,

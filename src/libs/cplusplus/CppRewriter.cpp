@@ -373,22 +373,35 @@ FullySpecifiedType SubstitutionMap::apply(const Name *name, Rewrite *) const
 }
 
 
-UseQualifiedNames::UseQualifiedNames()
+UseMinimalNames::UseMinimalNames(ClassOrNamespace *target)
+    : _target(target)
 {
 
 }
 
-UseQualifiedNames::~UseQualifiedNames()
+UseMinimalNames::~UseMinimalNames()
 {
 
 }
 
-FullySpecifiedType UseQualifiedNames::apply(const Name *name, Rewrite *rewrite) const
+static bool symbolIdentical(Symbol *s1, Symbol *s2)
+{
+    if (!s1 || !s2)
+        return false;
+    if (s1->line() != s2->line())
+        return false;
+    if (s1->column() != s2->column())
+        return false;
+
+    return QByteArray(s1->fileName()) == QByteArray(s2->fileName());
+}
+
+FullySpecifiedType UseMinimalNames::apply(const Name *name, Rewrite *rewrite) const
 {
     SubstitutionEnvironment *env = rewrite->env;
     Scope *scope = env->scope();
 
-    if (name->isQualifiedNameId() || name->isTemplateNameId())
+    if (name->isTemplateNameId())
         return FullySpecifiedType();
 
     if (! scope)
@@ -401,11 +414,22 @@ FullySpecifiedType UseQualifiedNames::apply(const Name *name, Rewrite *rewrite) 
     foreach (const LookupItem &r, results) {
         if (Symbol *d = r.declaration()) {
             const Name *n = 0;
-            foreach (const Name *c,  LookupContext::fullyQualifiedName(d)) {
+            QList<const Name *> names = LookupContext::fullyQualifiedName(d);
+            for (int i = names.size() - 1; i >= 0; --i) {
                 if (! n)
-                    n = c;
+                    n = names.at(i);
                 else
-                    n = control->qualifiedNameId(n, c);
+                    n = control->qualifiedNameId(names.at(i), n);
+                if (_target) {
+                    // minimize the qualifications
+                    const QList<LookupItem> tresults = _target->lookup(n);
+                    foreach (const LookupItem &tr, tresults) {
+                        if (symbolIdentical(tr.declaration(), d)) {
+                            i = 0; // break outer
+                            break;
+                        }
+                    }
+                }
             }
 
             return control->namedType(n);
@@ -415,6 +439,18 @@ FullySpecifiedType UseQualifiedNames::apply(const Name *name, Rewrite *rewrite) 
     }
 
     return FullySpecifiedType();
+}
+
+
+UseQualifiedNames::UseQualifiedNames()
+    : UseMinimalNames(0)
+{
+
+}
+
+UseQualifiedNames::~UseQualifiedNames()
+{
+
 }
 
 

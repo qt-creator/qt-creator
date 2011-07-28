@@ -242,17 +242,33 @@ public:
         oo.setShowReturnTypes(true);
         oo.setShowArgumentNames(true);
 
-        //--
+        // make target lookup context
+        Document::Ptr targetDoc = targetFile.cppDocument();
+        Scope *targetScope = targetDoc->scopeAt(m_loc.line(), m_loc.column());
+        LookupContext targetContext(targetDoc, assistInterface()->snapshot());
+        ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
+        if (!targetCoN)
+            targetCoN = targetContext.globalNamespace();
+
+        // setup rewriting to get minimally qualified names
         SubstitutionEnvironment env;
         env.setContext(assistInterface()->context());
         env.switchScope(m_decl->enclosingScope());
-        UseQualifiedNames q;
+        UseMinimalNames q(targetCoN);
         env.enter(&q);
-
         Control *control = assistInterface()->context().control().data();
+
+        // rewrite the function type
         FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
-        QString name = oo(LookupContext::fullyQualifiedName(m_decl));
-        //--
+
+        // rewrite the function name
+        QString name;
+        const FullySpecifiedType nametype = rewriteType(control->namedType(m_decl->name()), &env, control);
+        if (NamedType *nt = nametype.type()->asNamedType()) {
+            name = oo(nt->name());
+        } else {
+            name = oo(LookupContext::fullyQualifiedName(m_decl));
+        }
 
         QString defText = oo.prettyType(tn, name) + "\n{\n}";
 
