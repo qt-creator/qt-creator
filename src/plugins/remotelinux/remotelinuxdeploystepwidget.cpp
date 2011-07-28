@@ -35,6 +35,8 @@
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxutils.h"
 
+#include <projectexplorer/target.h>
+
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
@@ -51,6 +53,9 @@ RemoteLinuxDeployStepWidget::RemoteLinuxDeployStepWidget(AbstractRemoteLinuxDepl
         SLOT(handleStepToBeRemoved(int)));
 
     // TODO: Move this knowledge into the deploy step itself.
+    connect(m_step->target(),
+        SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+        SIGNAL(updateSummary()));
     connect(m_step->deployConfiguration(), SIGNAL(currentDeviceConfigurationChanged()),
         SIGNAL(updateSummary()));
 }
