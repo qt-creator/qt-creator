@@ -228,11 +228,13 @@ void SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &p
         privKeyFileContents.size());
     Private_Key * const key = PKCS8::load_key(pipe, m_rng);
     if (DSA_PrivateKey * const dsaKey = dynamic_cast<DSA_PrivateKey *>(key)) {
+        m_authKeyAlgoName = SshCapabilities::PubKeyDss;
         m_authKey.reset(dsaKey);
         pubKeyParams << dsaKey->group_p() << dsaKey->group_q()
             << dsaKey->group_g() << dsaKey->get_y();
         allKeyParams << pubKeyParams << dsaKey->get_x();
     } else if (RSA_PrivateKey * const rsaKey = dynamic_cast<RSA_PrivateKey *>(key)) {
+        m_authKeyAlgoName = SshCapabilities::PubKeyRsa;
         m_authKey.reset(rsaKey);
         pubKeyParams << rsaKey->get_e() << rsaKey->get_n();
         allKeyParams << pubKeyParams << rsaKey->get_p() << rsaKey->get_q()
