@@ -126,6 +126,7 @@ signals:
         TextEditor::ITextEditor *editor, int cursorPos);
 
 private slots:
+    void beginConnection();
     void connectionEstablished();
     void connectionStartupFailed();
     void connectionError(QAbstractSocket::SocketError error);

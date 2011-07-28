@@ -164,6 +164,7 @@ private:
     QmlAdapter m_adapter;
     ApplicationLauncher m_applicationLauncher;
     Utils::FileInProjectFinder fileFinder;
+    QTimer m_noDebugOutputTimer;
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
@@ -203,6 +204,12 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     connect(&d->m_applicationLauncher,
         SIGNAL(appendMessage(QString,Utils::OutputFormat)),
         SLOT(appendMessage(QString,Utils::OutputFormat)));
+
+// Only wait 8 seconds for the 'Waiting for connection' on application ouput, then just try to connect
+    // (application output might be redirected / blocked)
+    d->m_noDebugOutputTimer.setSingleShot(true);
+    d->m_noDebugOutputTimer.setInterval(8000);
+    connect(&d->m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(beginConnection()));
 }
 
 QmlEngine::~QmlEngine()
@@ -251,6 +258,12 @@ void QmlEngine::connectionEstablished()
     notifyEngineRunAndInferiorRunOk();
 }
 
+void QmlEngine::beginConnection()
+{
+    d->m_noDebugOutputTimer.stop();
+    d->m_adapter.beginConnection();
+}
+
 void QmlEngine::connectionStartupFailed()
 {
     Core::ICore * const core = Core::ICore::instance();
@@ -273,7 +286,7 @@ void QmlEngine::retryMessageBoxFinished(int result)
 {
     switch (result) {
     case QMessageBox::Retry: {
-        d->m_adapter.beginConnection();
+        beginConnection();
         break;
     }
     case QMessageBox::Help: {
@@ -311,6 +324,9 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 
     const int index = msg.indexOf(qddserver);
     if (index != -1) {
+        // we're actually getting debug output
+        d->m_noDebugOutputTimer.stop();
+
         QString status = msg;
         status.remove(0, index + qddserver.length()); // chop of 'QDeclarativeDebugServer: '
 
@@ -322,7 +338,7 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 
         QString errorMessage;
         if (status.startsWith(waitingForConnection)) {
-            d->m_adapter.beginConnection();
+            beginConnection();
         } else if (status.startsWith(unableToListen)) {
             //: Error message shown after 'Could not connect ... debugger:"
             errorMessage = tr("The port seems to be in use.");
@@ -356,7 +372,7 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
         }
     } else if (msg.contains(cannotRetrieveDebuggingOutput)) {
         // we won't get debugging output, so just try to connect ...
-        d->m_adapter.beginConnection();
+        beginConnection();
     }
 }
 
@@ -385,6 +401,7 @@ void QmlEngine::runEngine()
 
     if (!isSlaveEngine() && startParameters().startMode != AttachToRemote)
         startApplicationLauncher();
+    d->m_noDebugOutputTimer.start();
 }
 
 void QmlEngine::startApplicationLauncher()

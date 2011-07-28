@@ -54,6 +54,7 @@
 
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
+#include <QtCore/QTimer>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
@@ -83,6 +84,7 @@ public:
     bool m_fetchingData;
     bool m_fetchDataFromStart;
     bool m_delayedDelete;
+    QTimer m_noDebugOutputTimer;
 };
 
 AbstractQmlProfilerRunner *
@@ -135,6 +137,12 @@ QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
     d->m_fetchingData = false;
     d->m_fetchDataFromStart = false;
     d->m_delayedDelete = false;
+
+    // Only wait 4 seconds for the 'Waiting for connection' on application ouput, then just try to connect
+    // (application output might be redirected / blocked)
+    d->m_noDebugOutputTimer.setSingleShot(true);
+    d->m_noDebugOutputTimer.setInterval(4000);
+    connect(&d->m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(processIsRunning()));
 }
 
 QmlProfilerEngine::~QmlProfilerEngine()
@@ -174,6 +182,7 @@ bool QmlProfilerEngine::start()
     connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
             this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
 
+    d->m_noDebugOutputTimer.start();
     d->m_runner->start();
 
     d->m_running = true;
@@ -248,6 +257,9 @@ void QmlProfilerEngine::filterApplicationMessage(const QString &msg)
 
     const int index = msg.indexOf(qddserver);
     if (index != -1) {
+        // we're actually getting debug output
+        d->m_noDebugOutputTimer.stop();
+
         QString status = msg;
         status.remove(0, index + qddserver.length()); // chop of 'QDeclarativeDebugServer: '
 
@@ -259,7 +271,7 @@ void QmlProfilerEngine::filterApplicationMessage(const QString &msg)
 
         QString errorMessage;
         if (status.startsWith(waitingForConnection)) {
-            emit processRunning(d->m_runner->debugPort());
+            processIsRunning();
         } else if (status.startsWith(unableToListen)) {
             //: Error message shown after 'Could not connect ... debugger:"
             errorMessage = tr("The port seems to be in use.");
@@ -291,7 +303,7 @@ void QmlProfilerEngine::filterApplicationMessage(const QString &msg)
         }
     } else if (msg.contains(cannotRetrieveDebuggingOutput)) {
         // we won't get debugging output, so just try to connect ...
-        emit processRunning(d->m_runner->debugPort());
+        processIsRunning();
     }
 }
 
@@ -321,6 +333,12 @@ void QmlProfilerEngine::showNonmodalWarning(const QString &warningMsg)
     noExecWarning->setDefaultButton(QMessageBox::Ok);
     noExecWarning->setModal(false);
     noExecWarning->show();
+}
+
+void QmlProfilerEngine::processIsRunning()
+{
+    d->m_noDebugOutputTimer.stop();
+    emit processRunning(d->m_runner->debugPort());
 }
 
 } // namespace Internal
