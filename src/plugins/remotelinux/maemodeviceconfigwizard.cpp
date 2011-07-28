@@ -346,7 +346,7 @@ private:
         m_ui->statusLabel->setText(tr("Creating keys ... "));
         SshKeyGenerator keyGenerator;
         if (!keyGenerator.generateKeys(SshKeyGenerator::Rsa,
-             SshKeyGenerator::OpenSsl, 1024)) {
+             SshKeyGenerator::Mixed, 1024)) {
             QMessageBox::critical(this, tr("Cannot Create Keys"),
                 tr("Key creation failed: %1").arg(keyGenerator.error()));
             enableInput();

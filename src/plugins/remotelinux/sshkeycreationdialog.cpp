@@ -78,7 +78,7 @@ void SshKeyCreationDialog::generateSshKey()
 
     QApplication::setOverrideCursor(Qt::BusyCursor);
 
-    if (m_keyGenerator->generateKeys(keyType, SshKeyGenerator::OpenSsl,
+    if (m_keyGenerator->generateKeys(keyType, SshKeyGenerator::Mixed,
                                      m_ui.comboBox->currentText().toUShort())) {
         m_ui.plainTextEdit->setPlainText(m_keyGenerator->publicKey());
         m_ui.savePublicKey->setEnabled(true);
