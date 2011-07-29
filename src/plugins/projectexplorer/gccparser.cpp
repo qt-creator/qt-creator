@@ -46,7 +46,7 @@ namespace {
 GccParser::GccParser()
 {
     setObjectName(QLatin1String("GCCParser"));
-    m_regExp.setPattern(QString(QChar('^')) + QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s((fatal |#)?(warning|error|note):?\\s)(.+)$"));
+    m_regExp.setPattern(QString(QChar('^')) + QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s+((fatal |#)?(warning|error|note):?\\s)?([^\\s].+)$"));
     m_regExp.setMinimal(true);
 
     m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+)(:\\d+)?[,:]?$"));
@@ -636,10 +636,6 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
-/*
-In file included from <command-line>:0:0:
-./mw.h:4:0: warning: "STUPID_DEFINE" redefined
-*/
     QTest::newRow("include with line:column info")
             << QString::fromLatin1("In file included from <command-line>:0:0:\n"
                                    "./mw.h:4:0: warning: \"STUPID_DEFINE\" redefined")
@@ -653,6 +649,26 @@ In file included from <command-line>:0:0:
                 << Task(Task::Warning,
                         QLatin1String("\"STUPID_DEFINE\" redefined"),
                         QLatin1String("./mw.h"), 4,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("instanciation with line:column info")
+            << QString::fromLatin1("file.h: In function 'void UnitTest::CheckEqual(UnitTest::TestResults&, const Expected&, const Actual&, const UnitTest::TestDetails&) [with Expected = unsigned int, Actual = int]':\n"
+                                   "file.cpp:87:10: instantiated from here\n"
+                                   "file.h:21:5: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In function 'void UnitTest::CheckEqual(UnitTest::TestResults&, const Expected&, const Actual&, const UnitTest::TestDetails&) [with Expected = unsigned int, Actual = int]':"),
+                        QLatin1String("file.h"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Unknown,
+                        QLatin1String("instantiated from here"),
+                        QLatin1String("file.cpp"), 87,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Warning,
+                        QLatin1String("comparison between signed and unsigned integer expressions [-Wsign-compare]"),
+                        QLatin1String("file.h"), 21,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
