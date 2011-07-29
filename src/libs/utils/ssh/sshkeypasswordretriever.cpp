@@ -31,9 +31,11 @@
 **************************************************************************/
 #include "sshkeypasswordretriever_p.h"
 
-#include <QtCore/QCoreApplication>
 #include <QtCore/QString>
+#include <QtGui/QApplication>
 #include <QtGui/QInputDialog>
+
+#include <iostream>
 
 namespace Utils {
 namespace Internal {
@@ -41,13 +43,22 @@ namespace Internal {
 std::string SshKeyPasswordRetriever::get_passphrase(const std::string &, const std::string &,
     UI_Result &result) const
 {
-    bool ok;
-    const QString &password = QInputDialog::getText(0,
-        QCoreApplication::translate("Utils::Ssh", "Password Required"),
-        QCoreApplication::translate("Utils::Ssh", "Please enter the password for your private key."),
-        QLineEdit::Password, QString(), &ok);
-    result = ok ? OK : CANCEL_ACTION;
-    return std::string(password.toLocal8Bit().data());
+    const bool hasGui = dynamic_cast<QApplication *>(QApplication::instance());
+    if (hasGui) {
+        bool ok;
+        const QString &password = QInputDialog::getText(0,
+            QCoreApplication::translate("Utils::Ssh", "Password Required"),
+            QCoreApplication::translate("Utils::Ssh", "Please enter the password for your private key."),
+            QLineEdit::Password, QString(), &ok);
+        result = ok ? OK : CANCEL_ACTION;
+        return std::string(password.toLocal8Bit().data());
+    } else {
+        result = OK;
+        std::string password;
+        std::cout << "Please enter the password for your private key (set echo off beforehand!): " << std::flush;
+        std::cin >> password;
+        return password;
+    }
 }
 
 } // namespace Internal
