@@ -317,7 +317,7 @@ void QmlCppEngine::detachDebugger()
 void QmlCppEngine::executeStep()
 {
     if (d->m_activeEngine == d->m_qmlEngine) {
-        QTC_ASSERT(d->m_cppEngine->state() == InferiorRunOk, /**/);
+        QTC_CHECK(d->m_cppEngine->state() == InferiorRunOk);
         if (d->m_cppEngine->setupQmlStep(true))
             return; // Wait for callback to readyToExecuteQmlStep()
     } else {

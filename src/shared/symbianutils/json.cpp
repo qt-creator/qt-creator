@@ -240,7 +240,7 @@ void JsonValue::parseObject(const char *&from, const char *to)
 {
     JDEBUG("parseObject: " << QByteArray(from, to - from));
 #ifdef TODO_USE_CREATOR
-    QTC_ASSERT(*from == '{', /**/);
+    QTC_CHECK(*from == '{');
 #endif
     ++from;
     m_type = Object;
@@ -263,7 +263,7 @@ void JsonValue::parseArray(const char *&from, const char *to)
 {
     JDEBUG("parseArray: " << QByteArray(from, to - from));
 #ifdef TODO_USE_CREATOR
-    QTC_ASSERT(*from == '[', /**/);
+    QTC_CHECK(*from == '[');
 #endif
     ++from;
     m_type = Array;

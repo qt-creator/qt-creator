@@ -883,7 +883,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
             foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
                 QString processedFilename = handler->fileName(id);
                 if (processedFilename == file && handler->lineNumber(id) == line) {
-                    QTC_ASSERT(handler->state(id) == BreakpointInserted,/**/);
+                    QTC_CHECK(handler->state(id) == BreakpointInserted);
                     BreakpointResponse br = handler->response(id);
                     br.fileName = file;
                     br.lineNumber = line;

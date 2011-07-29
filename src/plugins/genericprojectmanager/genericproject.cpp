@@ -625,7 +625,7 @@ void GenericProjectFile::rename(const QString &newName)
 {
     // Can't happen
     Q_UNUSED(newName);
-    QTC_ASSERT(false, /**/);
+    QTC_CHECK(false);
 }
 
 Core::IFile::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

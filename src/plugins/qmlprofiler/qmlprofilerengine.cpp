@@ -117,7 +117,7 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
         runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);
     } else {
-        QTC_ASSERT(false, /**/);
+        QTC_CHECK(false);
     }
     return runner;
 }

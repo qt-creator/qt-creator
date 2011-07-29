@@ -417,7 +417,7 @@ void CodaGdbAdapter::logMessage(const QString &msg, int channel)
 void CodaGdbAdapter::handleGdbConnection()
 {
     logMessage("HANDLING GDB CONNECTION");
-    QTC_ASSERT(m_gdbConnection == 0, /**/);
+    QTC_CHECK(m_gdbConnection == 0);
     m_gdbConnection = m_gdbServer->nextPendingConnection();
     QTC_ASSERT(m_gdbConnection, return);
     connect(m_gdbConnection, SIGNAL(disconnected()),
@@ -1550,7 +1550,7 @@ void CodaGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
             }
         }
         // Happens when chunks are not combined
-        QTC_ASSERT(false, /**/);
+        QTC_CHECK(false);
         showMessage("CHUNKS NOT COMBINED");
 #        ifdef MEMORY_DEBUG
         qDebug() << "CHUNKS NOT COMBINED";

@@ -125,7 +125,7 @@ QString ClassNameValidatingLineEdit::createClassName(const QString &name)
     // Remove spaces and convert the adjacent characters to uppercase
     QString className = name;
     QRegExp spaceMatcher(QLatin1String(" +(\\w)"), Qt::CaseSensitive, QRegExp::RegExp2);
-    QTC_ASSERT(spaceMatcher.isValid(), /**/);
+    QTC_CHECK(spaceMatcher.isValid());
     int pos;
     while ((pos = spaceMatcher.indexIn(className)) != -1) {
         className.replace(pos, spaceMatcher.matchedLength(),

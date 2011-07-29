@@ -602,7 +602,7 @@ QAction *AnalyzerManagerPrivate::actionFromToolAndMode(IAnalyzerTool *tool, Star
     foreach (QAction *action, m_actions)
         if (m_toolFromAction.value(action) == tool && m_modeFromAction[action] == mode)
             return action;
-    QTC_ASSERT(false, /**/);
+    QTC_CHECK(false);
     return 0;
 }
 
@@ -666,9 +666,9 @@ void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
 
     if (!m_defaultSettings.contains(tool)) {
         QWidget *widget = tool->createWidgets();
-        QTC_ASSERT(widget, /**/);
+        QTC_CHECK(widget);
         m_defaultSettings.insert(tool, m_mainWindow->saveSettings());
-        QTC_ASSERT(!m_controlsWidgetFromTool.contains(tool), /**/);
+        QTC_CHECK(!m_controlsWidgetFromTool.contains(tool));
         m_controlsWidgetFromTool[tool] = widget;
         m_controlsStackWidget->addWidget(widget);
     }
@@ -677,7 +677,7 @@ void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
 
     loadToolSettings(tool);
 
-    QTC_ASSERT(m_controlsWidgetFromTool.contains(tool), /**/);
+    QTC_CHECK(m_controlsWidgetFromTool.contains(tool));
     m_controlsStackWidget->setCurrentWidget(m_controlsWidgetFromTool.value(tool));
     m_toolBox->setCurrentIndex(actionIndex);
 

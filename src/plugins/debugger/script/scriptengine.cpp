@@ -246,7 +246,7 @@ void ScriptEngine::setupEngine()
     showMessage(_("STARTING SCRIPT DEBUGGER"), LogMisc);
     if (m_scriptEngine.isNull())
         m_scriptEngine = Core::ICore::instance()->scriptManager()->scriptEngine();
-    QTC_ASSERT(!m_scriptAgent, /**/);
+    QTC_CHECK(!m_scriptAgent);
     m_scriptAgent.reset(new ScriptAgent(this, m_scriptEngine.data()));
     m_scriptEngine->setAgent(m_scriptAgent.data());
     //m_scriptEngine->setAgent(new ScriptAgent(this, m_scriptEngine.data()));

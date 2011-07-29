@@ -65,7 +65,7 @@ PerforceEditor::PerforceEditor(const VCSBase::VCSBaseEditorParameters *type,
     m_changeNumberPattern(QLatin1String("^\\d+$")),
     m_plugin(PerforcePlugin::perforcePluginInstance())
 {
-    QTC_ASSERT(m_changeNumberPattern.isValid(), /**/);
+    QTC_CHECK(m_changeNumberPattern.isValid());
     setAnnotateRevisionTextFormat(tr("Annotate change list \"%1\""));
     if (Perforce::Constants::debug)
         qDebug() << "PerforceEditor::PerforceEditor" << type->type << type->id;

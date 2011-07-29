@@ -812,7 +812,7 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         case LocalsExpandedRole:
             if (value.toBool()) {
                 // Should already have been triggered by fetchMore()
-                //QTC_ASSERT(m_handler->m_expandedINames.contains(data.iname), /**/);
+                //QTC_CHECK(m_handler->m_expandedINames.contains(data.iname));
                 m_handler->m_expandedINames.insert(data.iname);
             } else {
                 m_handler->m_expandedINames.remove(data.iname);
@@ -1550,7 +1550,7 @@ WatchModel *WatchHandler::model(WatchType type) const
         case WatchersWatch: return m_watchers;
         case TooltipsWatch: return m_tooltips;
     }
-    QTC_ASSERT(false, /**/);
+    QTC_CHECK(false);
     return 0;
 }
 

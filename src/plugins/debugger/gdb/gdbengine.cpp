@@ -1023,7 +1023,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 showMessage(_("APPLYING WORKAROUND #5"));
                 showMessageBox(QMessageBox::Critical,
                     tr("Setting breakpoints failed"), QString::fromLocal8Bit(msg));
-                QTC_ASSERT(state() == InferiorRunOk, /**/);
+                QTC_CHECK(state() == InferiorRunOk);
                 notifyInferiorSpontaneousStop();
                 notifyEngineIll();
             } else {
@@ -1147,7 +1147,7 @@ bool GdbEngine::acceptsDebuggerCommands() const
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
-    QTC_ASSERT(acceptsDebuggerCommands(), /**/);
+    QTC_CHECK(acceptsDebuggerCommands());
     m_gdbAdapter->write(command.toLatin1() + "\r\n");
 }
 
@@ -1337,7 +1337,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         notifyInferiorStopOk();
         flushQueuedCommands();
         if (state() == InferiorStopOk) {
-            QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
+            QTC_CHECK(m_commandsDoneCallback == 0);
             m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
         } else {
             QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state())
@@ -1969,7 +1969,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
 void GdbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    QTC_ASSERT(m_debuggingHelperState == DebuggingHelperUninitialized, /**/);
+    QTC_CHECK(m_debuggingHelperState == DebuggingHelperUninitialized);
 
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
         connect(debuggerCore()->action(UseDebuggingHelpers),
@@ -1977,7 +1977,7 @@ void GdbEngine::setupEngine()
             SLOT(setUseDebuggingHelpers(QVariant)));
     }
 
-    QTC_ASSERT(state() == EngineSetupRequested, /**/);
+    QTC_CHECK(state() == EngineSetupRequested);
     m_gdbAdapter->startAdapter();
 }
 
@@ -2068,7 +2068,7 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // Step was finishing too quick, and a '*stopped' messages should
         // have preceded it, so just ignore this result.
-        QTC_ASSERT(state() == InferiorStopOk, /**/);
+        QTC_CHECK(state() == InferiorStopOk);
         return;
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
@@ -2138,7 +2138,7 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // Step was finishing too quick, and a '*stopped' messages should
         // have preceded it, so just ignore this result.
-        QTC_ASSERT(state() == InferiorStopOk, /**/);
+        QTC_CHECK(state() == InferiorStopOk);
         return;
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
@@ -2447,7 +2447,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
             if (exp.startsWith('*'))
                 br.address = exp.mid(1).toULongLong(0, 0);
             handler->setResponse(id, br);
-            QTC_ASSERT(!handler->needsChange(id), /**/);
+            QTC_CHECK(!handler->needsChange(id));
             handler->notifyBreakpointInsertOk(id);
         } else if (ba.startsWith("Hardware watchpoint ")
                 || ba.startsWith("Watchpoint ")) {
@@ -2459,7 +2459,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
             if (address.startsWith('*'))
                 br.address = address.mid(1).toULongLong(0, 0);
             handler->setResponse(id, br);
-            QTC_ASSERT(!handler->needsChange(id), /**/);
+            QTC_CHECK(!handler->needsChange(id));
             handler->notifyBreakpointInsertOk(id);
         } else {
             showMessage(_("CANNOT PARSE WATCHPOINT FROM " + ba));
@@ -2658,7 +2658,7 @@ void GdbEngine::handleBreakList(const GdbMi &table)
 
 void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
 {
-    QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
+    QTC_CHECK(response.resultClass == GdbResultDone)
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     const QString str = QString::fromLocal8Bit(response.consoleStreamOutput);
     extractDataFromInfoBreak(str, id);
@@ -2666,7 +2666,7 @@ void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
 
 void GdbEngine::handleBreakDisable(const GdbResponse &response)
 {
-    QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
+    QTC_CHECK(response.resultClass == GdbResultDone)
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     // This should only be the requested state.
@@ -2679,7 +2679,7 @@ void GdbEngine::handleBreakDisable(const GdbResponse &response)
 
 void GdbEngine::handleBreakEnable(const GdbResponse &response)
 {
-    QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
+    QTC_CHECK(response.resultClass == GdbResultDone)
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     // This should only be the requested state.
@@ -2692,7 +2692,7 @@ void GdbEngine::handleBreakEnable(const GdbResponse &response)
 
 void GdbEngine::handleBreakThreadSpec(const GdbResponse &response)
 {
-    QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
+    QTC_CHECK(response.resultClass == GdbResultDone)
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     BreakpointResponse br = handler->response(id);
@@ -2714,7 +2714,7 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     // 29^done
     //
     // gdb 6.3 does not produce any console output
-    QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
+    QTC_CHECK(response.resultClass == GdbResultDone)
     //QString msg = _(response.consoleStreamOutput);
     BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
@@ -2734,7 +2734,7 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
 void GdbEngine::handleBreakCondition(const GdbResponse &response)
 {
     // Can happen at invalid condition strings.
-    //QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
+    //QTC_CHECK(response.resultClass == GdbResultDone)
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     // We just assume it was successful. Otherwise we had to parse
@@ -2923,7 +2923,7 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
     // Set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface.
     BreakHandler *handler = breakHandler();
-    QTC_ASSERT(handler->state(id) == BreakpointInsertRequested, /**/);
+    QTC_CHECK(handler->state(id) == BreakpointInsertRequested);
     handler->notifyBreakpointInsertProceeding(id);
     BreakpointType type = handler->type(id);
     QVariant vid = QVariant::fromValue(id);
@@ -3054,7 +3054,7 @@ void GdbEngine::changeBreakpoint(BreakpointModelId id)
 void GdbEngine::removeBreakpoint(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
-    QTC_ASSERT(handler->state(id) == BreakpointRemoveRequested, /**/);
+    QTC_CHECK(handler->state(id) == BreakpointRemoveRequested);
     handler->notifyBreakpointRemoveProceeding(id);
     BreakpointResponse br = handler->response(id);
     showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString())
@@ -3298,7 +3298,7 @@ void GdbEngine::reloadSourceFiles()
 
 void GdbEngine::reloadSourceFilesInternal()
 {
-    QTC_ASSERT(!m_sourcesListUpdating, /**/);
+    QTC_CHECK(!m_sourcesListUpdating);
     m_sourcesListUpdating = true;
     postCommand("-file-list-exec-source-files", NeedsStop, CB(handleQuerySources));
 #if 0
@@ -3328,7 +3328,7 @@ void GdbEngine::selectThread(int index)
 
 void GdbEngine::handleStackSelectThread(const GdbResponse &)
 {
-    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopOk, /**/);
+    QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
     showStatusMessage(tr("Retrieving data for stack view..."), 3000);
     reloadStack(true); // Will reload registers.
     updateLocals();
@@ -4871,7 +4871,7 @@ void GdbEngine::handleInferiorPrepared()
     if (m_cookieForToken.isEmpty()) {
         finishInferiorSetup();
     } else {
-        QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
+        QTC_CHECK(m_commandsDoneCallback == 0);
         m_commandsDoneCallback = &GdbEngine::finishInferiorSetup;
     }
 }

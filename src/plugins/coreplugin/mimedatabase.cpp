@@ -565,7 +565,7 @@ MimeTypeData::MimeTypeData()
     // "*.log[1-9]"
     : suffixPattern(QLatin1String("^\\*\\.[\\w+]+$"))
 {
-    QTC_ASSERT(suffixPattern.isValid(), /**/);
+    QTC_CHECK(suffixPattern.isValid());
 }
 
 void MimeTypeData::clear()
