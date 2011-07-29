@@ -634,7 +634,7 @@ CVSSubmitEditor *CVSPlugin::openCVSSubmitEditor(const QString &fileName)
     Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::CVSCOMMITEDITOR_ID),
                                                                         Core::EditorManager::ModeSwitch);
     CVSSubmitEditor *submitEditor = qobject_cast<CVSSubmitEditor*>(editor);
-    QTC_ASSERT(submitEditor, /**/);
+    QTC_CHECK(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCommitFiles(QStringList)));
 

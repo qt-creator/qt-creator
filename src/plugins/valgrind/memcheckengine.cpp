@@ -75,13 +75,13 @@ Valgrind::ValgrindRunner *MemcheckEngine::runner()
     return &m_runner;
 }
 
-void MemcheckEngine::start()
+bool MemcheckEngine::start()
 {
     m_runner.setParser(&m_parser);
 
     emit outputReceived(tr("Analyzing memory of %1\n").arg(executable()),
                         Utils::NormalMessageFormat);
-    ValgrindEngine::start();
+    return ValgrindEngine::start();
 }
 
 void MemcheckEngine::stop()

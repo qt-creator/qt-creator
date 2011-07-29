@@ -38,10 +38,11 @@
 
 #include "debuggerengine.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
+
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
-
-#include <utils/qtcassert.h>
 
 namespace Debugger {
 namespace Internal {
@@ -81,10 +82,19 @@ QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
     connect(d->m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
             SLOT(connectionErrorOccurred(QAbstractSocket::SocketError)));
 
+    ExtensionSystem::PluginManager *pluginManager =
+        ExtensionSystem::PluginManager::instance();
+    pluginManager->addObject(this);
 }
 
 QmlAdapter::~QmlAdapter()
 {
+    ExtensionSystem::PluginManager *pluginManager =
+        ExtensionSystem::PluginManager::instance();
+
+    if (pluginManager->allObjects().contains(this)) {
+        pluginManager->removeObject(this);
+    }
 }
 
 void QmlAdapter::beginConnection()
@@ -191,7 +201,8 @@ void QmlAdapter::connectionStateChanged()
     {
         showConnectionStatusMessage(tr("connected.\n"));
 
-        createDebuggerClient();
+        if (!d->m_qmlClient)
+            createDebuggerClient();
         //reloadEngines();
         emit connected();
         break;
@@ -226,9 +237,6 @@ bool QmlAdapter::isConnected() const
 
 QDeclarativeDebugConnection *QmlAdapter::connection() const
 {
-    if (!isConnected())
-        return 0;
-
     return d->m_conn;
 }
 

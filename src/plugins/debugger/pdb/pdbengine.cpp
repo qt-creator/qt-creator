@@ -338,7 +338,7 @@ bool PdbEngine::acceptsBreakpoint(BreakpointModelId id) const
 void PdbEngine::insertBreakpoint(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
-    QTC_ASSERT(handler->state(id) == BreakpointInsertRequested, /**/);
+    QTC_CHECK(handler->state(id) == BreakpointInsertRequested);
     handler->notifyBreakpointInsertProceeding(id);
 
     QByteArray loc;
@@ -374,7 +374,7 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
 void PdbEngine::removeBreakpoint(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
-    QTC_ASSERT(handler->state(id) == BreakpointRemoveRequested, /**/);
+    QTC_CHECK(handler->state(id) == BreakpointRemoveRequested);
     handler->notifyBreakpointRemoveProceeding(id);
     BreakpointResponse br = handler->response(id);
     showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString())

@@ -275,12 +275,17 @@ void FormEditorScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->buttons())
-        currentTool()->mouseMoveEvent(removeLayerItems(items(event->scenePos())), event);
-    else
-        currentTool()->hoverMoveEvent(removeLayerItems(items(event->scenePos())), event);
+    static QTime time;
 
-    event->accept();
+    if (time.elapsed() > 30) {
+        time.restart();
+        if (event->buttons())
+            currentTool()->mouseMoveEvent(removeLayerItems(items(event->scenePos())), event);
+        else
+            currentTool()->hoverMoveEvent(removeLayerItems(items(event->scenePos())), event);
+
+        event->accept();
+    }
 }
 
 void FormEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

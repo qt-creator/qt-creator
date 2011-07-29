@@ -69,7 +69,7 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration);
 
     /// Start analyzation process.
-    virtual void start() = 0;
+    virtual bool start() = 0;
     /// Trigger async stop of the analyzation process.
     virtual void stop() = 0;
 

@@ -49,7 +49,7 @@ CodaQmlProfilerRunner::CodaQmlProfilerRunner(S60DeviceRunConfiguration *configur
                                              QObject *parent) :
     AbstractQmlProfilerRunner(parent),
     m_configuration(configuration),
-    m_runControl(new CodaRunControl(configuration, "QmlProfiler"))
+    m_runControl(new CodaRunControl(configuration, Analyzer::Constants::MODE_ANALYZE))
 {
     connect(m_runControl, SIGNAL(finished()), this, SIGNAL(stopped()));
     connect(m_runControl,

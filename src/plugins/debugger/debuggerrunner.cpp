@@ -258,7 +258,11 @@ void DebuggerRunControl::start()
                                        "languages currently active, and will be ignored.");
 
             debuggerCore()->showMessage(warningMessage, LogWarning);
-            QErrorMessage::qtHandler()->showMessage(warningMessage);
+
+            QErrorMessage *msgBox = new QErrorMessage(debuggerCore()->mainWindow());
+            msgBox->setAttribute(Qt::WA_DeleteOnClose);
+            msgBox->showMessage(warningMessage);
+            break;
         }
     }
 
@@ -341,7 +345,7 @@ bool DebuggerRunControl::isRunning() const
 
 DebuggerEngine *DebuggerRunControl::engine()
 {
-    QTC_ASSERT(d->m_engine, /**/);
+    QTC_CHECK(d->m_engine);
     return d->m_engine;
 }
 

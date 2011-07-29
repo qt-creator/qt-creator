@@ -37,6 +37,7 @@
 #include "baseqtversion.h"
 #include "qtversionmanager.h"
 #include <coreplugin/messagemanager.h>
+#include <projectexplorer/abi.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/abi.h>
@@ -96,13 +97,21 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     if (toolChain->targetAbi().os() == ProjectExplorer::Abi::LinuxOS
         && ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS)
         m_target = QLatin1String("-unix");
+    if (toolChain->targetAbi().os() == ProjectExplorer::Abi::SymbianOS) {
+        m_makeArguments << QLatin1String("debug-") + toolChain->defaultMakeTarget();
+        m_makeArguments << QLatin1String("release-") + toolChain->defaultMakeTarget();
+        m_makeArguments << QLatin1String("-k");
+    } else {
+        m_makeArguments << QLatin1String("all")
+                        << QLatin1String("-k");
+    }
     m_qmakeCommand = version->qmakeCommand();
     m_makeCommand = toolChain->makeCommand();
     m_mkspec = version->mkspec();
 
     // Make sure QtVersion cache is invalidated
-    connect(this, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
-            QtVersionManager::instance(), SLOT(updateQtVersion(int)),
+    connect(this, SIGNAL(updateQtVersions(QString)),
+            QtVersionManager::instance(), SLOT(updateDumpFor(QString)),
             Qt::QueuedConnection);
 }
 
@@ -156,6 +165,7 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
         log(result, QString());
     }
 
+    emit updateQtVersions(m_qmakeCommand);
     emit finished(m_qtId, m_log, m_tools);
     deleteLater();
 }
@@ -164,7 +174,9 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
 {
     Utils::BuildableHelperLibrary::BuildHelperArguments arguments;
     arguments.makeCommand = m_makeCommand;
+    arguments.makeArguments = m_makeArguments;
     arguments.qmakeCommand = m_qmakeCommand;
+    arguments.qmakeArguments = QStringList() << QLatin1String("-nocache");
     arguments.targetMode = m_target;
     arguments.mkspec = m_mkspec;
     arguments.environment = m_environment;
@@ -205,8 +217,6 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
 
         bool success = true;
         arguments.directory = qmlDebuggingDirectory;
-        arguments.makeArguments += QLatin1String("all"); // build debug and release
-        arguments.makeArguments += QLatin1String("-k"); // don't stop if one fails
         if (arguments.directory.isEmpty()
                 || !QmlDebuggingLibrary::build(arguments, &output, &error)) {
             success = false;
@@ -216,7 +226,6 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
         if (!success) {
             return false;
         }
-        arguments.makeArguments.clear();
     }
     future.setProgressValue(4);
 

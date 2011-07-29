@@ -395,9 +395,44 @@ void NodeInstanceServer::setupDummyData(const QUrl &fileUrl)
 {
     if (!fileUrl.isEmpty()) {
         QStringList dummyDataDirectoryList = dummyDataDirectories(QFileInfo(fileUrl.toLocalFile()).path());
-        foreach (const QString &dummyDataDirectory, dummyDataDirectoryList)
+        foreach (const QString &dummyDataDirectory, dummyDataDirectoryList) {
             loadDummyDataFiles(dummyDataDirectory);
+            loadDummyDataContext(dummyDataDirectory);
+        }
     }
+
+    if (m_dummyContextObject.isNull())
+        setupDefaultDummyData();
+}
+
+void NodeInstanceServer::setupDefaultDummyData()
+{
+    QDeclarativeComponent component(engine());
+    QByteArray defaultContextObjectArray("import QtQuick 1.0\n"
+                                         "import QmlDesigner 1.0\n"
+                                         "DummyContextObject {\n"
+                                         "    parent: QtObject {\n"
+                                         "        property real width: 360\n"
+                                         "        property real height: 640\n"
+                                         "    }\n"
+                                         "}\n");
+
+    component.setData(defaultContextObjectArray, fileUrl());
+    m_dummyContextObject = component.create();
+
+    if (component.isError()) {
+        QList<QDeclarativeError> errors = component.errors();
+        foreach (const QDeclarativeError &error, errors) {
+            qWarning() << error;
+        }
+    }
+
+    if (m_dummyContextObject) {
+        qWarning() << "Loaded default dummy context object.";
+        m_dummyContextObject->setParent(this);
+    }
+
+    refreshBindings();
 }
 
 QList<ServerNodeInstance>  NodeInstanceServer::setupInstances(const CreateSceneCommand &command)
@@ -775,7 +810,11 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
     if (auxiliaryContainer.instanceId() == 0 && (auxiliaryContainer.name() == QLatin1String("width") ||
                                         auxiliaryContainer.name() == QLatin1String("height"))) {
 
-        setInstancePropertyVariant(auxiliaryContainer);
+        if (!auxiliaryContainer.value().isNull()) {
+            setInstancePropertyVariant(auxiliaryContainer);
+        } else {
+            rootNodeInstance().resetProperty(auxiliaryContainer.name());
+        }
     }
 }
 
@@ -1074,13 +1113,19 @@ void NodeInstanceServer::loadDummyDataFiles(const QString& directory)
 {
     QDir dir(directory, "*.qml");
     QList<QFileInfo> filePathList = dir.entryInfoList();
+    foreach (const QFileInfo &qmlFileInfo, filePathList) {
+        loadDummyDataFile(qmlFileInfo);
+    }
+}
+
+void NodeInstanceServer::loadDummyDataContext(const QString& directory)
+{
+    QDir dir(directory+"/context", "*.qml");
+    QList<QFileInfo> filePathList = dir.entryInfoList();
     QString baseName = QFileInfo(fileUrl().toLocalFile()).completeBaseName();
     foreach (const QFileInfo &qmlFileInfo, filePathList) {
-        if (!qmlFileInfo.completeBaseName().contains("_dummycontext")) {
-            loadDummyDataFile(qmlFileInfo);
-        } else if (qmlFileInfo.completeBaseName() == baseName+"_dummycontext") {
+        if (qmlFileInfo.completeBaseName() == baseName)
             loadDummyContextObjectFile(qmlFileInfo);
-        }
     }
 }
 

@@ -34,12 +34,11 @@
 #define OUTPUTPANEMANAGER_H
 
 #include <QtCore/QMap>
-#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
-class QToolButton;
 class QStackedWidget;
 class QSplitter;
 QT_END_NAMESPACE
@@ -118,14 +117,14 @@ private:
     QStackedWidget *m_outputWidgetPane;
     QStackedWidget *m_opToolBarWidgets;
     QWidget *m_buttonsWidget;
-    QMap<int, QPushButton *> m_buttons;
+    QMap<int, QToolButton *> m_buttons;
     QMap<QAction *, int> m_actions;
     QPixmap m_minimizeIcon;
     QPixmap m_maximizeIcon;
     bool m_maximised;
 };
 
-class OutputPaneToggleButton : public QPushButton
+class OutputPaneToggleButton : public QToolButton
 {
     Q_OBJECT
 public:

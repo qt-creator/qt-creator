@@ -172,6 +172,7 @@ protected:
     virtual void initializeView(const QVector<AddImportContainer> &importVector) = 0;
     virtual QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command) = 0;
     void loadDummyDataFiles(const QString& directory);
+    void loadDummyDataContext(const QString& directory);
     void loadDummyDataFile(const QFileInfo& fileInfo);
     void loadDummyContextObjectFile(const QFileInfo& fileInfo);
     static QStringList dummyDataDirectories(const QString& directoryPath);
@@ -192,6 +193,7 @@ protected:
     void setupFileUrl(const QUrl &fileUrl);
     void setupImports(const QVector<AddImportContainer> &container);
     void setupDummyData(const QUrl &fileUrl);
+    void setupDefaultDummyData();
     QList<ServerNodeInstance> setupInstances(const CreateSceneCommand &command);
 
     QList<QDeclarativeContext*> allSubContextsForObject(QObject *object);

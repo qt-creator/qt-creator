@@ -65,11 +65,11 @@ ClientProxy::ClientProxy(Debugger::QmlAdapter *adapter, QObject *parent)
 
 void ClientProxy::connectToServer()
 {
-    m_engineClient = new QDeclarativeEngineDebug(m_adapter->connection(), this);
+    m_engineClient = new QDeclarativeEngineDebug(m_adapter.data()->connection(), this);
 
     connect(m_engineClient, SIGNAL(newObjects()), this, SLOT(newObjects()));
 
-    m_inspectorClient = new QmlJSInspectorClient(m_adapter->connection(), this);
+    m_inspectorClient = new QmlJSInspectorClient(m_adapter.data()->connection(), this);
 
     connect(m_inspectorClient, SIGNAL(connectedStatusChanged(QDeclarativeDebugClient::Status)),
              this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
@@ -96,7 +96,7 @@ void ClientProxy::connectToServer()
     connect(m_inspectorClient, SIGNAL(selectedColorChanged(QColor)),
         SIGNAL(selectedColorChanged(QColor)));
     connect(m_inspectorClient, SIGNAL(logActivity(QString,QString)),
-            m_adapter, SLOT(logServiceActivity(QString,QString)));
+            m_adapter.data(), SLOT(logServiceActivity(QString,QString)));
 
     updateConnected();
 }
@@ -108,7 +108,8 @@ void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
         serviceName = client->name();
     }
 
-    m_adapter->logServiceStatusChange(serviceName, status);
+    if (m_adapter)
+        m_adapter.data()->logServiceStatusChange(serviceName, status);
 
     updateConnected();
 }
@@ -186,7 +187,8 @@ void ClientProxy::log(LogDirection direction, const QString &message)
     }
     msg += message;
 
-    m_adapter->logServiceActivity("QDeclarativeDebug", msg);
+    if (m_adapter)
+        m_adapter.data()->logServiceActivity("QDeclarativeDebug", msg);
 }
 
 QList<QDeclarativeDebugObjectReference> QmlJSInspector::Internal::ClientProxy::rootObjectReference() const
@@ -323,13 +325,16 @@ QDeclarativeDebugExpressionQuery *ClientProxy::queryExpressionResult(int objectD
     if (!isConnected())
         return 0;
 
-    bool block = m_adapter->disableJsDebugging(true);
+    bool block = false;
+    if (m_adapter)
+        block = m_adapter.data()->disableJsDebugging(true);
 
     log(LogSend, QString("EVAL_EXPRESSION %1 %2").arg(QString::number(objectDebugId), expr));
     QDeclarativeDebugExpressionQuery *query
             = m_engineClient->queryExpressionResult(objectDebugId, expr, m_engineClient);
 
-    m_adapter->disableJsDebugging(block);
+    if (m_adapter)
+        m_adapter.data()->disableJsDebugging(block);
     return query;
 }
 
@@ -662,7 +667,7 @@ void ClientProxy::updateEngineList()
 
 Debugger::QmlAdapter *ClientProxy::qmlAdapter() const
 {
-    return m_adapter;
+    return m_adapter.data();
 }
 
 bool ClientProxy::isConnected() const

@@ -470,15 +470,18 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
     QString output;
     QStringList args;
 
-    args << QLatin1String("--contains") << sha(idx);
+    args << QLatin1String("-a") << QLatin1String("--contains") << sha(idx);
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
         VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
         return false;
     }
 
-    QStringList lines = output.split(QLatin1Char('/'), QString::SkipEmptyParts);
+    QStringList lines = output.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     foreach (const QString &l, lines) {
-        if (l.startsWith(QLatin1String("  ")) && l.count() >= 3)
+        QString currentBranch = l.mid(2); // remove first letters (those are either
+                                          // "  " or "* " depending on whether it is
+                                          // the currently checked out branch or not)
+        if (currentBranch != branch)
             return true;
     }
     return false;

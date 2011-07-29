@@ -1113,7 +1113,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     qRegisterMetaType<ContextData>("ContextData");
     qRegisterMetaType<DebuggerStartParameters>("DebuggerStartParameters");
 
-    QTC_ASSERT(!theDebuggerCore, /**/);
+    QTC_CHECK(!theDebuggerCore);
     theDebuggerCore = this;
 
     m_plugin = plugin;
@@ -1350,7 +1350,7 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
         Target *target = project->activeTarget();
         QTC_ASSERT(target, return);
         activeRc = target->activeRunConfiguration();
-        QTC_ASSERT(activeRc, /**/);
+        QTC_CHECK(activeRc);
     }
     for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
         // Run controls might be deleted during exit.
@@ -3148,7 +3148,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         SLOT(onCurrentProjectChanged(ProjectExplorer::Project*)));
 
-    QTC_ASSERT(m_coreSettings, /**/);
+    QTC_CHECK(m_coreSettings);
     m_globalDebuggerOptions->fromSettings(m_coreSettings);
     m_watchersWindow->setVisible(false);
     m_returnWindow->setVisible(false);

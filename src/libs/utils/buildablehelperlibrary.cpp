@@ -78,12 +78,20 @@ QString BuildableHelperLibrary::qtInstallDataDir(const QString &qmakePath)
 
 QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 {
-    if (qmakePath.isEmpty())
+    bool qmakeIsExecutable;
+    return BuildableHelperLibrary::qtVersionForQMake(qmakePath, &qmakeIsExecutable);
+}
+
+QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool *qmakeIsExecutable)
+{
+    *qmakeIsExecutable = !qmakePath.isEmpty();
+    if (!*qmakeIsExecutable)
         return QString();
 
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
     if (!qmake.waitForStarted()) {
+        *qmakeIsExecutable = false;
         qWarning("Cannot start '%s': %s", qPrintable(qmakePath), qPrintable(qmake.errorString()));
         return QString();
     }
@@ -93,9 +101,11 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
         return QString();
     }
     if (qmake.exitStatus() != QProcess::NormalExit) {
+        *qmakeIsExecutable = false;
         qWarning("'%s' crashed.", qPrintable(qmakePath));
         return QString();
     }
+
     const QString output = QString::fromLocal8Bit(qmake.readAllStandardOutput());
     static QRegExp regexp(QLatin1String("(QMake version|QMake version:)[\\s]*([\\d.]*)"),
                           Qt::CaseInsensitive);

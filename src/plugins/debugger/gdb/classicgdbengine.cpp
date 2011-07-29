@@ -55,7 +55,7 @@
 #endif
 
 
-#define PRECONDITION QTC_ASSERT(!hasPython(), /**/)
+#define PRECONDITION QTC_CHECK(!hasPython())
 
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
@@ -543,7 +543,7 @@ void DumperHelper::evaluationParameters(const WatchData &data,
             // iname="local.ob.slots.2" // ".deleteLater()"?
             const int pos = data.iname.lastIndexOf('.');
             const QByteArray slotNumber = data.iname.mid(pos + 1);
-            QTC_ASSERT(slotNumber.toInt() != -1, /**/);
+            QTC_CHECK(slotNumber.toInt() != -1);
             extraArgs[0] = slotNumber;
         }
         break;
@@ -1111,7 +1111,7 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
     // Do not use STRINGIFY for RTLD_NOW as we really want to expand that to a number.
 #if defined(Q_OS_WIN) || defined(Q_OS_SYMBIAN)
     // We are using Python on Windows and Symbian.
-    QTC_ASSERT(false, /**/);
+    QTC_CHECK(false);
 #elif defined(Q_OS_MAC)
     //postCommand("sharedlibrary libc"); // for malloc
     //postCommand("sharedlibrary libdl"); // for dlopen

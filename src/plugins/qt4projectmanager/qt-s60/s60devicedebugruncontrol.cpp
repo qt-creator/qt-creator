@@ -94,6 +94,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.serverAddress = activeDeployConf->deviceAddress();
     sp.serverPort = activeDeployConf->devicePort().toInt();
     sp.displayName = rc->displayName();
+    sp.qmlServerAddress = activeDeployConf->deviceAddress();
     sp.qmlServerPort = rc->qmlDebugServerPort();
     if (rc->useQmlDebugger()) {
         QString qmlArgs = rc->qmlCommandLineArguments();
@@ -185,7 +186,7 @@ void S60DeviceDebugRunControl::codaConnected()
 {
     QTC_ASSERT(m_codaState == EWaitingForCodaConnection, return);
     m_codaState = ECodaConnected;
-    engine()->handleRemoteSetupDone(-1, 0); // calls notifyInferiorSetupOk()
+    engine()->handleRemoteSetupDone(-1, -1); // calls notifyInferiorSetupOk()
 }
 
 void S60DeviceDebugRunControl::qmlEngineStateChanged(const Debugger::DebuggerState &state)

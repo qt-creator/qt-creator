@@ -89,16 +89,11 @@ bool FindCdbBreakpoint::preVisit(AST *ast)
 
 bool FindCdbBreakpoint::visit(FunctionDefinitionAST *ast)
 {
-    if (ast->ctor_initializer) {
-        foundLine(ast->function_body->firstToken());
-        return false;
-    }
-
     if (ast->function_body) {
         if (CompoundStatementAST *stmt = ast->function_body->asCompoundStatement()) {
             accept(stmt);
             if (!m_breakpointLine)
-                foundLine(stmt->lastToken() - 1);
+                foundLine(ast->function_body->firstToken());
             return false;
         }
     }

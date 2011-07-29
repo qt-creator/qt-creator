@@ -1234,7 +1234,7 @@ void FakeVimHandler::Private::exportSelection()
         } else if (m_visualMode == VisualCharMode) {
             /* Nothing */
         } else {
-            QTC_ASSERT(false, /**/);
+            QTC_CHECK(false);
         }
     } else {
         setAnchorAndPosition(pos, pos);
@@ -1644,7 +1644,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
         if (!msg.isEmpty() && m_mode != CommandMode)
             msg += QChar(10073); // '|'; // FIXME: Use a real "cursor"
     } else {
-        QTC_ASSERT(m_mode == CommandMode && m_subsubmode != SearchSubSubMode, /**/);
+        QTC_CHECK(m_mode == CommandMode && m_subsubmode != SearchSubSubMode);
         msg = "-- COMMAND --";
     }
 
@@ -3368,7 +3368,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 
     showBlackMessage(QString());
     SavedAction *act = theFakeVimSettings()->item(cmd.args);
-    QTC_ASSERT(!cmd.args.isEmpty(), /**/); // Handled by plugin.
+    QTC_CHECK(!cmd.args.isEmpty()); // Handled by plugin.
     if (act && act->value().type() == QVariant::Bool) {
         // Boolean config to be switched on.
         bool oldValue = act->value().toBool();
@@ -4255,7 +4255,7 @@ void FakeVimHandler::Private::scrollToLine(int line)
     QScrollBar *scrollBar = EDITOR(verticalScrollBar());
     //qDebug() << "SCROLL: " << scrollBar->value() << line;
     scrollBar->setValue(line);
-    //QTC_ASSERT(firstVisibleLine() == line, /**/);
+    //QTC_CHECK(firstVisibleLine() == line);
 }
 
 int FakeVimHandler::Private::firstVisibleLine() const

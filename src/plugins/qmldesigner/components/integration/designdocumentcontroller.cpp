@@ -775,6 +775,9 @@ void DesignDocumentController::paste()
                 targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
             }
 
+            transaction.commit();
+            NodeMetaInfo::clearCache();
+
             view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
         } catch (RewritingException &e) { 
             qWarning() << e.description(); //silent error
@@ -805,12 +808,14 @@ void DesignDocumentController::undo()
 {
     if (m_d->rewriterView && !m_d->rewriterView->modificationGroupActive())
         m_d->textEdit->undo();
+    m_d->propertyEditorView->resetView();
 }
 
 void DesignDocumentController::redo()
 {
     if (m_d->rewriterView && !m_d->rewriterView->modificationGroupActive())
         m_d->textEdit->redo();
+    m_d->propertyEditorView->resetView();
 }
 
 static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocumentController *controller)

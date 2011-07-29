@@ -93,7 +93,7 @@ namespace { const int DataRange = 1024 * 1024; }
 MemoryAgent::MemoryAgent(DebuggerEngine *engine)
     : QObject(engine), m_engine(engine)
 {
-    QTC_ASSERT(engine, /**/);
+    QTC_CHECK(engine);
     connect(engine, SIGNAL(stateChanged(Debugger::DebuggerState)),
             this, SLOT(engineStateChanged(Debugger::DebuggerState)));
     connect(engine, SIGNAL(stackFrameCompleted()), this,

@@ -55,6 +55,9 @@ class QmlProfilerTraceClient : public QmlJsDebugClient::QDeclarativeDebugClient
     Q_OBJECT
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
+    // don't hide by signal
+    using QObject::event;
+
 public:
     QmlProfilerTraceClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
 

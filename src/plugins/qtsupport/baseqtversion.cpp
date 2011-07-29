@@ -177,7 +177,7 @@ BaseQtVersion::BaseQtVersion(const QString &qmakeCommand, bool isAutodetected, c
       m_hasExamples(false),
       m_hasDemos(false),
       m_hasDocumentation(false),
-      m_qmakeIsExecutable(false)
+      m_qmakeIsExecutable(true)
 {
     ctor(qmakeCommand);
     setDisplayName(defaultDisplayName(qtVersionString(), qmakeCommand, false));
@@ -197,7 +197,8 @@ BaseQtVersion::BaseQtVersion()
     m_notInstalled(false),
     m_hasExamples(false),
     m_hasDemos(false),
-    m_hasDocumentation(false)
+    m_hasDocumentation(false),
+    m_qmakeIsExecutable(true)
 {
     ctor(QString());
 }
@@ -661,12 +662,15 @@ BaseQtVersion::QmakeBuildConfigs BaseQtVersion::defaultBuildConfig() const
 
 QString BaseQtVersion::qtVersionString() const
 {
-    if (m_qtVersionString.isNull()) {
-        QFileInfo qmake(m_qmakeCommand);
-        if (qmake.exists() && qmake.isExecutable())
-            m_qtVersionString = ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(qmake.absoluteFilePath());
-        else
-            m_qtVersionString = QLatin1String("");
+    if (!m_qtVersionString.isNull())
+        return m_qtVersionString;
+    m_qtVersionString.clear();
+    if (m_qmakeIsExecutable) {
+        const QString qmake = QFileInfo(qmakeCommand()).absoluteFilePath();
+        m_qtVersionString =
+            ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(qmake, &m_qmakeIsExecutable);
+    } else {
+        qWarning("Cannot determine the Qt version: %s cannot be run.", qPrintable(qmakeCommand()));
     }
     return m_qtVersionString;
 }
@@ -680,6 +684,11 @@ void BaseQtVersion::updateVersionInfo() const
 {
     if (m_versionInfoUpToDate)
         return;
+    if (!m_qmakeIsExecutable) {
+        qWarning("Cannot update Qt version information: %s cannot be run.",
+                 qPrintable(qmakeCommand()));
+        return;
+    }
 
     // extract data from qmake executable
     m_versionInfo.clear();
@@ -691,15 +700,7 @@ void BaseQtVersion::updateVersionInfo() const
     m_hasQmlDebuggingLibrary = false;
     m_hasQmlObserver = false;
 
-    m_qmakeIsExecutable = true;
-
-    QFileInfo fi(qmakeCommand());
-    if (!fi.exists() || !fi.isExecutable() || fi.isDir()) {
-        m_qmakeIsExecutable = false;
-        return;
-    }
-
-    if (!queryQMakeVariables(qmakeCommand(), &m_versionInfo))
+    if (!queryQMakeVariables(qmakeCommand(), &m_versionInfo, &m_qmakeIsExecutable))
         return;
 
     if (m_versionInfo.contains("QT_INSTALL_DATA")) {
@@ -983,9 +984,17 @@ QtConfigWidget *BaseQtVersion::createConfigurationWidget() const
 
 bool BaseQtVersion::queryQMakeVariables(const QString &binary, QHash<QString, QString> *versionInfo)
 {
+    bool qmakeIsExecutable;
+    return BaseQtVersion::queryQMakeVariables(binary, versionInfo, &qmakeIsExecutable);
+}
+
+bool BaseQtVersion::queryQMakeVariables(const QString &binary, QHash<QString, QString> *versionInfo,
+                                        bool *qmakeIsExecutable)
+{
     const int timeOutMS = 30000; // Might be slow on some machines.
-    QFileInfo qmake(binary);
-    if (!qmake.exists() || !qmake.isExecutable() || qmake.isDir())
+    const QFileInfo qmake(binary);
+    *qmakeIsExecutable = qmake.exists() && qmake.isExecutable() && !qmake.isDir();
+    if (!*qmakeIsExecutable)
         return false;
     static const char * const variables[] = {
              "QT_VERSION",
@@ -1003,12 +1012,14 @@ bool BaseQtVersion::queryQMakeVariables(const QString &binary, QHash<QString, QS
              "QT_INSTALL_IMPORTS",
              "QMAKEFEATURES"
         };
+    const QString queryArg = QLatin1String("-query");
     QStringList args;
     for (uint i = 0; i < sizeof variables / sizeof variables[0]; ++i)
-        args << "-query" << variables[i];
+        args << queryArg << variables[i];
     QProcess process;
     process.start(qmake.absoluteFilePath(), args, QIODevice::ReadOnly);
     if (!process.waitForStarted()) {
+        *qmakeIsExecutable = false;
         qWarning("Cannot start '%s': %s", qPrintable(binary), qPrintable(process.errorString()));
         return false;
     }
@@ -1018,6 +1029,7 @@ bool BaseQtVersion::queryQMakeVariables(const QString &binary, QHash<QString, QS
         return false;
     }
     if (process.exitStatus() != QProcess::NormalExit) {
+        *qmakeIsExecutable = false;
         qWarning("'%s' crashed.", qPrintable(binary));
         return false;
     }

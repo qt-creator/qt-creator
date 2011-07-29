@@ -107,7 +107,7 @@ void AbstractPlainGdbAdapter::handleExecRun(const GdbResponse &response)
             m_engine->postCommand("target record");
     } else {
         QString msg = fromLocalEncoding(response.data.findChild("msg").data());
-        //QTC_ASSERT(status() == InferiorRunOk, /**/);
+        //QTC_CHECK(status() == InferiorRunOk);
         //interruptInferior();
         showMessage(msg);
         m_engine->notifyEngineRunFailed();

@@ -154,6 +154,7 @@ void BranchDialog::checkout()
     Q_ASSERT(m_model->isLocal(idx));
 
     m_model->checkoutBranch(idx);
+    enableButtons();
 }
 
 /* Prompt to delete a local branch and do so. */

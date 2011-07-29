@@ -40,11 +40,13 @@
 
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/target.h>
 
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
 #include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
+#include <qt4projectmanager/qt-s60/s60deployconfiguration.h>
 
 #include <utils/qtcassert.h>
 
@@ -112,12 +114,12 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
         sp.displayName = rc3->displayName();
     } else if (Qt4ProjectManager::S60DeviceRunConfiguration *rc4 =
         qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration *>(runConfiguration)) {
-        //sp.environment = rc4->environment();
-        //sp.workingDirectory = rc4->workingDirectory();
-        //sp.debuggee = rc4->executable();
+        Qt4ProjectManager::S60DeployConfiguration *deployConf =
+                qobject_cast<Qt4ProjectManager::S60DeployConfiguration *>(runConfiguration->target()->activeDeployConfiguration());
+
         sp.debuggeeArgs = rc4->commandLineArguments();
         sp.displayName = rc4->displayName();
-        sp.connParams.host = QLatin1String("localhost");
+        sp.connParams.host = deployConf->deviceAddress();
         sp.connParams.port = rc4->qmlDebugServerPort();
     } else {
         // What could that be?

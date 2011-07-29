@@ -165,7 +165,7 @@ static QScriptValue fileBox(QScriptContext *context, QScriptEngine *engine)
     if (fileDialog.exec() == QDialog::Rejected)
         return  QScriptValue(engine, QScriptValue::NullValue);
     const QStringList rc = fileDialog.selectedFiles();
-    QTC_ASSERT(!rc.empty(), /**/);
+    QTC_CHECK(!rc.empty());
     return TFileMode == QFileDialog::ExistingFiles ?
         engine->toScriptValue(rc) : engine->toScriptValue(rc.front());
 }

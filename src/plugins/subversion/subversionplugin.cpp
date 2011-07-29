@@ -640,7 +640,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
                                                                         QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_ID),
                                                                         Core::EditorManager::ModeSwitch);
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
-    QTC_ASSERT(submitEditor, /**/);
+    QTC_CHECK(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCommitFiles(QStringList)));
     submitEditor->setCheckScriptWorkingDirectory(m_commitRepository);

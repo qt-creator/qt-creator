@@ -69,9 +69,11 @@ public:
     static Tools availableTools(const BaseQtVersion *version);
 
 signals:
+    void finished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
+
     // used internally
     void logOutput(const QString &output, bool bringToForeground);
-    void finished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
+    void updateQtVersions(const QString &qmakeCommand);
 
 private:
     bool buildDebuggingHelper(QFutureInterface<void> &future);
@@ -84,6 +86,7 @@ private:
     QString m_target;
     QString m_qmakeCommand;
     QString m_makeCommand;
+    QStringList m_makeArguments;
     QString m_mkspec;
     Utils::Environment m_environment;
     QString m_log;

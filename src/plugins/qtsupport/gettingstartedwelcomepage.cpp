@@ -41,6 +41,8 @@
 #include <coreplugin/helpmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
+#include <QtCore/QMutex>
+#include <QtCore/QMutexLocker>
 #include <QtGui/QGraphicsProxyWidget>
 #include <QtGui/QScrollBar>
 #include <QtGui/QSortFilterProxyModel>
@@ -54,6 +56,19 @@ namespace Internal {
 
 const char *C_FALLBACK_ROOT = "ProjectsFallbackRoot";
 
+class Fetcher : public QObject
+{
+    Q_OBJECT
+public slots:
+    void fetchData(const QUrl &url)
+    {
+        fetchedData = Core::HelpManager::instance()->fileData(url);
+    }
+
+public:
+    QByteArray fetchedData;
+};
+
 class HelpImageProvider : public QDeclarativeImageProvider
 {
 public:
@@ -62,18 +77,29 @@ public:
     {
     }
 
+    // gets called by declarative in separate thread
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize)
     {
+        QMutexLocker lock(&m_mutex);
         QUrl url = QUrl::fromEncoded(id.toAscii());
-        QByteArray imgData = Core::HelpManager::instance()->fileData(url);
-        QBuffer imgBuffer(&imgData);
+        if (!QMetaObject::invokeMethod(&m_fetcher,
+                                       "fetchData",
+                                       Qt::BlockingQueuedConnection,
+                                       Q_ARG(QUrl, url))) {
+            return QImage();
+        }
+        QBuffer imgBuffer(&m_fetcher.fetchedData);
         imgBuffer.open(QIODevice::ReadOnly);
         QImageReader reader(&imgBuffer);
         QImage img = reader.read();
         if (size && requestedSize != *size)
             img = img.scaled(requestedSize);
+        m_fetcher.fetchedData.clear();
         return img;
     }
+private:
+    Fetcher m_fetcher;
+    QMutex m_mutex;
 };
 
 GettingStartedWelcomePage::GettingStartedWelcomePage()
@@ -202,3 +228,4 @@ void GettingStartedWelcomePage::updateTagsModel()
 } // namespace Internal
 } // namespace QtSupport
 
+#include "gettingstartedwelcomepage.moc"

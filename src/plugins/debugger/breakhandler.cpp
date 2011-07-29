@@ -461,7 +461,7 @@ QModelIndex BreakHandler::createIndex(int row, int column, quint32 id) const
 
 QModelIndex BreakHandler::createIndex(int row, int column, void *ptr) const
 {
-    QTC_ASSERT(false, /**/); // This function is not used.
+    QTC_CHECK(false); // This function is not used.
     return QAbstractItemModel::createIndex(row, column, ptr);
 }
 

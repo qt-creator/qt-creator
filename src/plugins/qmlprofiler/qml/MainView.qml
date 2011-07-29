@@ -37,8 +37,8 @@ import "MainView.js" as Plotter
 Rectangle {
     id: root
 
-    property bool dataAvailable: false;
-    property int eventCount: 0;
+    property bool dataAvailable: true;
+    property int eventCount: Plotter.ranges.length;
 
     // move the cursor in the editor
     signal updateCursorPosition

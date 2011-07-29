@@ -2,7 +2,7 @@
 # It enables debugging of Qt Quick applications 
 
 TEMPLATE = lib
-CONFIG += staticlib
+CONFIG += staticlib create_prl
 QT += declarative script
 
 DEFINES += BUILD_QMLJSDEBUGGER_STATIC_LIB

@@ -183,7 +183,7 @@ void GdbMi::parseValue(const char *&from, const char *to)
 void GdbMi::parseTuple(const char *&from, const char *to)
 {
     //qDebug() << "parseTuple: " << QByteArray(from, to - from);
-    QTC_ASSERT(*from == '{', /**/);
+    QTC_CHECK(*from == '{');
     ++from;
     parseTuple_helper(from, to);
 }
@@ -211,7 +211,7 @@ void GdbMi::parseTuple_helper(const char *&from, const char *to)
 void GdbMi::parseList(const char *&from, const char *to)
 {
     //qDebug() << "parseList: " << QByteArray(from, to - from);
-    QTC_ASSERT(*from == '[', /**/);
+    QTC_CHECK(*from == '[');
     ++from;
     m_type = List;
     skipCommas(from, to);

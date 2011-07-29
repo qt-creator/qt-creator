@@ -119,7 +119,7 @@ void BaseFileFind::findAll(const QString &txt, Find::FindFlags findFlags)
     }
     Core::FutureProgress *progress =
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
-                                                                        "Search",
+                                                                        tr("Search"),
                                                                         Constants::TASK_SEARCH);
     progress->setWidget(createProgressWidget());
     connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
@@ -147,7 +147,7 @@ void BaseFileFind::replaceAll(const QString &txt, Find::FindFlags findFlags)
     }
     Core::FutureProgress *progress =
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
-                                                                        "Search",
+                                                                        tr("Search"),
                                                                         Constants::TASK_SEARCH);
     progress->setWidget(createProgressWidget());
     connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
@@ -351,17 +351,27 @@ QStringList BaseFileFind::replaceAll(const QString &text,
         } else {
             Utils::FileReader reader;
             if (reader.fetch(fileName, Core::ICore::instance()->mainWindow())) {
+                // Keep track of line ending since QTextDocument is '\n' based.
+                bool convertLineEnding = false;
+                const QByteArray &data = reader.data();
+                const int lf = data.indexOf('\n');
+                if (lf > 0 && data.at(lf - 1) == '\r')
+                    convertLineEnding = true;
+
                 QTextDocument doc;
                 // ### set the encoding
-                doc.setPlainText(QString::fromLocal8Bit(reader.data()));
-
+                doc.setPlainText(QString::fromLocal8Bit(data));
                 applyChanges(&doc, text, changeItems);
+                QString plainText = doc.toPlainText();
+
+                if (convertLineEnding)
+                    plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
 
                 Utils::FileSaver saver(fileName);
                 if (!saver.hasError()) {
                     QTextStream stream(saver.file());
                     // ### set the encoding
-                    stream << doc.toPlainText();
+                    stream << plainText;
                     saver.setResult(&stream);
                 }
                 saver.finalize(Core::ICore::instance()->mainWindow());

@@ -164,6 +164,7 @@ private:
     QmlAdapter m_adapter;
     ApplicationLauncher m_applicationLauncher;
     Utils::FileInProjectFinder fileFinder;
+    QTimer m_noDebugOutputTimer;
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
@@ -183,10 +184,43 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
     d(new QmlEnginePrivate(this))
 {
     setObjectName(QLatin1String("QmlEngine"));
+
+    ExtensionSystem::PluginManager *pluginManager =
+        ExtensionSystem::PluginManager::instance();
+    pluginManager->addObject(this);
+
+    connect(&d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
+        SLOT(connectionError(QAbstractSocket::SocketError)));
+    connect(&d->m_adapter, SIGNAL(serviceConnectionError(QString)),
+        SLOT(serviceConnectionError(QString)));
+    connect(&d->m_adapter, SIGNAL(connected()),
+        SLOT(connectionEstablished()));
+    connect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
+        SLOT(connectionStartupFailed()));
+
+    connect(&d->m_applicationLauncher,
+        SIGNAL(processExited(int)),
+        SLOT(disconnected()));
+    connect(&d->m_applicationLauncher,
+        SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+        SLOT(appendMessage(QString,Utils::OutputFormat)));
+
+// Only wait 8 seconds for the 'Waiting for connection' on application ouput, then just try to connect
+    // (application output might be redirected / blocked)
+    d->m_noDebugOutputTimer.setSingleShot(true);
+    d->m_noDebugOutputTimer.setInterval(8000);
+    connect(&d->m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(beginConnection()));
 }
 
 QmlEngine::~QmlEngine()
 {
+    ExtensionSystem::PluginManager *pluginManager =
+        ExtensionSystem::PluginManager::instance();
+
+    if (pluginManager->allObjects().contains(this)) {
+        pluginManager->removeObject(this);
+    }
+
     delete d;
 }
 
@@ -195,19 +229,11 @@ void QmlEngine::setupInferior()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     if (startParameters().startMode == AttachToRemote) {
-        emit requestRemoteSetup();
+        if (startParameters().qmlServerPort != quint16(-1))
+            notifyInferiorSetupOk();
+        else
+            emit requestRemoteSetup();
     } else {
-        connect(&d->m_applicationLauncher,
-            SIGNAL(processExited(int)),
-            SLOT(disconnected()));
-        connect(&d->m_applicationLauncher,
-            SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-            SLOT(appendMessage(QString,Utils::OutputFormat)));
-        connect(&d->m_applicationLauncher,
-            SIGNAL(bringToForegroundRequested(qint64)),
-            runControl(),
-            SLOT(bringApplicationToForeground(qint64)));
-
         d->m_applicationLauncher.setEnvironment(startParameters().environment);
         d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
 
@@ -224,11 +250,6 @@ void QmlEngine::connectionEstablished()
 {
     attemptBreakpointSynchronization();
 
-    ExtensionSystem::PluginManager *pluginManager =
-        ExtensionSystem::PluginManager::instance();
-    pluginManager->addObject(&d->m_adapter);
-    pluginManager->addObject(this);
-
     showMessage(tr("QML Debugger connected."), StatusBar);
 
     if (!watchHandler()->watcherNames().isEmpty()) {
@@ -237,7 +258,12 @@ void QmlEngine::connectionEstablished()
     connect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
 
     notifyEngineRunAndInferiorRunOk();
+}
 
+void QmlEngine::beginConnection()
+{
+    d->m_noDebugOutputTimer.stop();
+    d->m_adapter.beginConnection();
 }
 
 void QmlEngine::connectionStartupFailed()
@@ -262,7 +288,7 @@ void QmlEngine::retryMessageBoxFinished(int result)
 {
     switch (result) {
     case QMessageBox::Retry: {
-        d->m_adapter.beginConnection();
+        beginConnection();
         break;
     }
     case QMessageBox::Help: {
@@ -300,6 +326,9 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 
     const int index = msg.indexOf(qddserver);
     if (index != -1) {
+        // we're actually getting debug output
+        d->m_noDebugOutputTimer.stop();
+
         QString status = msg;
         status.remove(0, index + qddserver.length()); // chop of 'QDeclarativeDebugServer: '
 
@@ -311,7 +340,7 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 
         QString errorMessage;
         if (status.startsWith(waitingForConnection)) {
-            d->m_adapter.beginConnection();
+            beginConnection();
         } else if (status.startsWith(unableToListen)) {
             //: Error message shown after 'Could not connect ... debugger:"
             errorMessage = tr("The port seems to be in use.");
@@ -345,7 +374,7 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
         }
     } else if (msg.contains(cannotRetrieveDebuggingOutput)) {
         // we won't get debugging output, so just try to connect ...
-        d->m_adapter.beginConnection();
+        beginConnection();
     }
 }
 
@@ -365,17 +394,7 @@ bool QmlEngine::acceptsWatchesWhileRunning() const
 void QmlEngine::closeConnection()
 {
     disconnect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
-    disconnect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
-        this, SLOT(connectionStartupFailed()));
     d->m_adapter.closeConnection();
-
-    ExtensionSystem::PluginManager *pluginManager =
-        ExtensionSystem::PluginManager::instance();
-
-    if (pluginManager->allObjects().contains(this)) {
-        pluginManager->removeObject(&d->m_adapter);
-        pluginManager->removeObject(this);
-    }
 }
 
 void QmlEngine::runEngine()
@@ -384,6 +403,7 @@ void QmlEngine::runEngine()
 
     if (!isSlaveEngine() && startParameters().startMode != AttachToRemote)
         startApplicationLauncher();
+    d->m_noDebugOutputTimer.start();
 }
 
 void QmlEngine::startApplicationLauncher()
@@ -447,14 +467,10 @@ void QmlEngine::shutdownEngine()
 void QmlEngine::setupEngine()
 {
     d->m_ping = 0;
-    connect(&d->m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
-        SLOT(connectionError(QAbstractSocket::SocketError)));
-    connect(&d->m_adapter, SIGNAL(serviceConnectionError(QString)),
-        SLOT(serviceConnectionError(QString)));
-    connect(&d->m_adapter, SIGNAL(connected()),
-        SLOT(connectionEstablished()));
-    connect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
-        SLOT(connectionStartupFailed()));
+
+    connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
+            runControl(), SLOT(bringApplicationToForeground(qint64)),
+            Qt::UniqueConnection);
 
     notifyEngineSetupOk();
 }
@@ -882,7 +898,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
             foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
                 QString processedFilename = handler->fileName(id);
                 if (processedFilename == file && handler->lineNumber(id) == line) {
-                    QTC_ASSERT(handler->state(id) == BreakpointInserted,/**/);
+                    QTC_CHECK(handler->state(id) == BreakpointInserted);
                     BreakpointResponse br = handler->response(id);
                     br.fileName = file;
                     br.lineNumber = line;

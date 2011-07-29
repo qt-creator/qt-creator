@@ -44,5 +44,8 @@
 #define QTC_ASSERT(cond, action) \
     if(cond){}else{qDebug()<<"ASSERTION " #cond " FAILED AT " __FILE__ ":" QTC_ASSERT_STRINGIFY(__LINE__);action;}
 
+#define QTC_CHECK(cond) \
+    if(cond){}else{qDebug()<<"ASSERTION " #cond " FAILED AT " __FILE__ ":" QTC_ASSERT_STRINGIFY(__LINE__);}
+
 #endif // QTC_ASSERT_H
 

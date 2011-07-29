@@ -237,6 +237,11 @@ void QDeclarativeDebugConnection::close()
         QIODevice::close();
         d->device->close();
         emit stateChanged(QAbstractSocket::UnconnectedState);
+
+        QHash<QString, QDeclarativeDebugClient*>::iterator iter = d->plugins.begin();
+        for (; iter != d->plugins.end(); ++iter) {
+             iter.value()->statusChanged(QDeclarativeDebugClient::NotConnected);
+        }
     }
 }
 
@@ -283,6 +288,7 @@ void QDeclarativeDebugConnection::connectToHost(const QString &hostName, quint16
     QTcpSocket *socket = new QTcpSocket(d);
     d->device = socket;
     d->connectDeviceSignals();
+    d->gotHello = false;
     connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SIGNAL(error(QAbstractSocket::SocketError)));
     connect(socket, SIGNAL(connected()), this, SIGNAL(connected()));
@@ -297,6 +303,7 @@ void QDeclarativeDebugConnection::connectToOst(const QString &port)
         ost->setParent(d);
         d->device = ost;
         d->connectDeviceSignals();
+        d->gotHello = false;
         QIODevice::open(ReadWrite | Unbuffered);
         emit stateChanged(QAbstractSocket::ConnectedState);
         emit connected();

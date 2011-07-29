@@ -53,8 +53,6 @@ public:
     ToolMode toolMode() const;
 
     void extensionsInitialized() {}
-    void toolSelected();
-    void toolDeselected();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
@@ -88,10 +86,11 @@ private slots:
     void connectionStateChanged();
 
 private:
-    void updateAttachAction(bool isCurrentTool);
     void connectToClient();
     void updateRecordingState();
     void ensureWidgets();
+    void logStatus(const QString &msg);
+    void logError(const QString &msg);
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

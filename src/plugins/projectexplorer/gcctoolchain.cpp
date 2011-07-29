@@ -70,7 +70,12 @@ static QByteArray runGcc(const QString &gcc, const QStringList &arguments, const
         return QByteArray();
 
     QProcess cpp;
-    cpp.setEnvironment(env);
+    // Force locale: This function is used only to detect settings inside the tool chain, so this is save.
+    QStringList environment(env);
+    environment.append(QLatin1String("LC_ALL"));
+    environment.append(QLatin1String("C"));
+
+    cpp.setEnvironment(environment);
     cpp.start(gcc, arguments);
     if (!cpp.waitForStarted()) {
         qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(gcc),

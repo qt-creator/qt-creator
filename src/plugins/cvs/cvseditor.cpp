@@ -127,7 +127,7 @@ cvs diff -d -u -r1.1 -r1.2:
 VCSBase::DiffHighlighter *CVSEditor::createDiffHighlighter() const
 {
     const QRegExp filePattern(QLatin1String("^[-+][-+][-+] .*1\\.[\\d\\.]+$"));
-    QTC_ASSERT(filePattern.isValid(), /**/);
+    QTC_CHECK(filePattern.isValid());
     return new VCSBase::DiffHighlighter(filePattern);
 }
 

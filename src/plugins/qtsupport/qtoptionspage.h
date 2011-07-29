@@ -111,9 +111,11 @@ private slots:
     void buildQmlDebuggingLibrary();
     void buildQmlObserver();
     void slotShowDebuggingBuildLog();
-    void debuggingHelperBuildFinished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
+    void debuggingHelperBuildFinished(int qtVersionId, const QString &output,
+                                      DebuggingHelperBuildTask::Tools tools);
     void cleanUpQtVersions();
     void toolChainsUpdated();
+    void selectedToolChainChanged(int index);
 
     void qtVersionsDumpUpdated(const QString &qmakeCommand);
 
@@ -125,6 +127,7 @@ private:
     };
     ValidityInfo validInformation(const BaseQtVersion *version);
     QList<ProjectExplorer::ToolChain*> toolChains(const BaseQtVersion *version);
+    QString defaultToolChainId(const BaseQtVersion *verison);
 };
 
 class QtOptionsPage : public Core::IOptionsPage

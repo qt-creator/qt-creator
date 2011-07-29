@@ -53,12 +53,18 @@ public:
     QDeclarativeEngine *engine() const;
     void refreshBindings();
 
+    void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command);
+    void changePropertyValues(const ChangeValuesCommand &command);
+    void changePropertyBindings(const ChangeBindingsCommand &command);
+    void removeProperties(const RemovePropertiesCommand &command);
+
 protected:
     void initializeView(const QVector<AddImportContainer> &importVector);
     void resizeCanvasSizeToRootItemSize();
     void resetAllItems();
     bool nonInstanceChildIsDirty(QGraphicsObject *graphicsObject) const;
     QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
+    void refreshScreenObject();
 
 private:
     QWeakPointer<QDeclarativeView> m_declarativeView;

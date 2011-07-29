@@ -317,7 +317,7 @@ void QmlCppEngine::detachDebugger()
 void QmlCppEngine::executeStep()
 {
     if (d->m_activeEngine == d->m_qmlEngine) {
-        QTC_ASSERT(d->m_cppEngine->state() == InferiorRunOk, /**/);
+        QTC_CHECK(d->m_cppEngine->state() == InferiorRunOk);
         if (d->m_cppEngine->setupQmlStep(true))
             return; // Wait for callback to readyToExecuteQmlStep()
     } else {
@@ -666,7 +666,7 @@ void QmlCppEngine::slaveEngineStateChanged
 void QmlCppEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     EDEBUG("MASTER REMOTE SETUP DONE");
-    d->m_qmlEngine->handleRemoteSetupDone(gdbServerPort, qmlPort);
+    d->m_qmlEngine->startParameters().qmlServerPort = qmlPort;
     d->m_cppEngine->handleRemoteSetupDone(gdbServerPort, qmlPort);
 }
 

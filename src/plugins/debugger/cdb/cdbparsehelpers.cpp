@@ -186,7 +186,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
         break;
     }
     if (bp.ignoreCount)
-        str << ' ' << (bp.ignoreCount + 1);
+        str << " 0n" << (bp.ignoreCount + 1);
     // Condition currently unsupported.
     if (!bp.command.isEmpty())
         str << " \"" << bp.command << '"';

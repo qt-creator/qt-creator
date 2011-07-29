@@ -72,7 +72,7 @@ void BranchAddDialog::setTrackedBranchName(const QString &name, bool remote)
 
 bool BranchAddDialog::track()
 {
-    return m_ui->trackingCheckBox->isVisible() && m_ui->trackingCheckBox->isChecked();
+    return m_ui->trackingCheckBox->isChecked();
 }
 
 } // namespace Internal

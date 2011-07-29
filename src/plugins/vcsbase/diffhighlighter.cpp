@@ -110,7 +110,7 @@ DiffHighlighterPrivate::DiffHighlighterPrivate(const QRegExp &filePattern) :
     m_diffOutIndicator(QLatin1Char('-')),
     m_foldingState(StartOfFile)
 {
-    QTC_ASSERT(filePattern.isValid(), /**/);
+    QTC_CHECK(filePattern.isValid());
 }
 
 DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) const

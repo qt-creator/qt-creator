@@ -239,7 +239,7 @@ void CoreGdbAdapter::runEngine()
 void CoreGdbAdapter::interruptInferior()
 {
     // A core never runs, so this cannot be called.
-    QTC_ASSERT(false, /**/);
+    QTC_CHECK(false);
 }
 
 void CoreGdbAdapter::shutdownInferior()

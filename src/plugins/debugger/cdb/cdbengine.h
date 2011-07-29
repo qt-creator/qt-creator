@@ -99,6 +99,7 @@ public:
     virtual void updateWatchData(const WatchData &data,
                                  const WatchUpdateFlags & flags = WatchUpdateFlags());
     virtual unsigned debuggerCapabilities() const;
+    virtual bool canWatchWidgets() const;
     virtual void watchPoint(const QPoint &);
     virtual void setRegisterValue(int regnr, const QString &value);
 

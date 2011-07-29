@@ -743,7 +743,7 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
 
 void DebuggerEngine::setupSlaveEngine()
 {
-    QTC_ASSERT(state() == DebuggerNotReady, /**/);
+    QTC_CHECK(state() == DebuggerNotReady);
     d->queueSetupEngine();
 }
 
@@ -776,7 +776,7 @@ void DebuggerEngine::notifyEngineSetupOk()
 
 void DebuggerEngine::setupSlaveInferior()
 {
-    QTC_ASSERT(state() == EngineSetupOk, /**/);
+    QTC_CHECK(state() == EngineSetupOk);
     d->queueSetupInferior();
 }
 
@@ -809,7 +809,7 @@ void DebuggerEngine::notifyInferiorSetupOk()
 void DebuggerEngine::runSlaveEngine()
 {
     QTC_ASSERT(isSlaveEngine(), return);
-    QTC_ASSERT(state() == InferiorSetupOk, /**/);
+    QTC_CHECK(state() == InferiorSetupOk);
     d->queueRunEngine();
 }
 
@@ -980,7 +980,7 @@ void DebuggerEngine::notifyInferiorIll()
 
 void DebuggerEngine::shutdownSlaveEngine()
 {
-    QTC_ASSERT(isAllowedTransition(state(),EngineShutdownRequested), /**/);
+    QTC_CHECK(isAllowedTransition(state(),EngineShutdownRequested));
     setState(EngineShutdownRequested);
     shutdownEngine();
 }
@@ -1329,7 +1329,7 @@ void DebuggerEngine::updateAll()
 #if 0
         // FIXME: Remove explicit use of BreakpointData
         if (!bp->engine && acceptsBreakpoint(id)) {
-            QTC_ASSERT(state == BreakpointNew, /**/);
+            QTC_CHECK(state == BreakpointNew);
             // Take ownership of the breakpoint.
             bp->engine = this;
         }
@@ -1355,7 +1355,7 @@ void DebuggerEngine::attemptBreakpointSynchronization()
         switch (handler->state(id)) {
         case BreakpointNew:
             // Should not happen once claimed.
-            QTC_ASSERT(false, /**/);
+            QTC_CHECK(false);
             continue;
         case BreakpointInsertRequested:
             done = false;
@@ -1381,7 +1381,7 @@ void DebuggerEngine::attemptBreakpointSynchronization()
             continue;
         case BreakpointDead:
             // Should not only be visible inside BreakpointHandler.
-            QTC_ASSERT(false, /**/);
+            QTC_CHECK(false);
             continue;
         }
         QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
@@ -1395,21 +1395,21 @@ void DebuggerEngine::insertBreakpoint(BreakpointModelId id)
 {
     BreakpointState state = breakHandler()->state(id);
     QTC_ASSERT(state == BreakpointInsertRequested, qDebug() << id << this << state);
-    QTC_ASSERT(false, /**/);
+    QTC_CHECK(false);
 }
 
 void DebuggerEngine::removeBreakpoint(BreakpointModelId id)
 {
     BreakpointState state = breakHandler()->state(id);
     QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << id << this << state);
-    QTC_ASSERT(false, /**/);
+    QTC_CHECK(false);
 }
 
 void DebuggerEngine::changeBreakpoint(BreakpointModelId id)
 {
     BreakpointState state = breakHandler()->state(id);
     QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << id << this << state);
-    QTC_ASSERT(false, /**/);
+    QTC_CHECK(false);
 }
 
 void DebuggerEngine::selectThread(int)

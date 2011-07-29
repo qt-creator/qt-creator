@@ -54,7 +54,7 @@ signals:
     void stopRecording();
 
 public slots:
-    void start();
+    bool start();
     void stop();
 
 private slots:
@@ -66,6 +66,7 @@ private slots:
     void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
     void filterApplicationMessage(const QString &msg);
     void wrongSetupMessageBoxFinished(int);
+    void processIsRunning();
 
 private:
     class QmlProfilerEnginePrivate;

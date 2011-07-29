@@ -59,7 +59,7 @@ MemoryRange::MemoryRange(uint f, uint t)
 bool MemoryRange::intersects(const MemoryRange &other) const
 {
     Q_UNUSED(other);
-    QTC_ASSERT(false, /**/);
+    QTC_CHECK(false);
     return false; // FIXME
 }
 

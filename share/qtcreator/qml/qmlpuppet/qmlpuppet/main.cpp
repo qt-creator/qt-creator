@@ -56,13 +56,19 @@ int main(int argc, char *argv[])
 
     QApplication application(argc, argv);
 
-    if (application.arguments().count() != 4)
-        return -1;
-
     QCoreApplication::setOrganizationName("Nokia");
     QCoreApplication::setOrganizationDomain("nokia.com");
     QCoreApplication::setApplicationName("QmlPuppet");
     QCoreApplication::setApplicationVersion("1.1.0");
+
+
+    if (application.arguments().count() == 2 && application.arguments().at(1) == "--version") {
+        qDebug() << QCoreApplication::applicationVersion();
+        return 0;
+    }
+
+    if (application.arguments().count() != 4)
+        return -1;
 
 #ifdef ENABLE_QT_BREAKPAD
     QtSystemExceptionHandler systemExceptionHandler;
