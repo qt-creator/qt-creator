@@ -33,6 +33,7 @@
 #include "linuxdeviceconfiguration.h"
 #include "maemokeydeployer.h"
 
+#include <QtCore/QTimer>
 #include <QtGui/QFileDialog>
 
 namespace RemoteLinux {
@@ -66,7 +67,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const LinuxDeviceConfigurat
         tr("Choose Public Key File"), dir,
         tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty()) {
-        reject();
+        QTimer::singleShot(0, this, SLOT(reject()));
         return;
     }
 
