@@ -6297,6 +6297,10 @@ rückgängig machen?</translation>
         <translation>Technischer Support</translation>
     </message>
     <message>
+        <source>Report Bug</source>
+        <translation type="obsolete">Fehler melden</translation>
+    </message>
+    <message>
         <source>Increase Font Size</source>
         <translation>Schrift vergrößern</translation>
     </message>
@@ -6355,6 +6359,10 @@ rückgängig machen?</translation>
     <message>
         <source>Context Help</source>
         <translation>Kontexthilfe</translation>
+    </message>
+    <message>
+        <source>Report Bug...</source>
+        <translation>Fehler melden...</translation>
     </message>
     <message>
         <source>Activate Index in Help mode</source>
@@ -10235,6 +10243,10 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 </context>
 <context>
     <name>TextEditor::BaseFileFind</name>
+    <message>
+        <source>Search</source>
+        <translation>Suche</translation>
+    </message>
     <message>
         <source>%1 found</source>
         <translation>%1 gefunden</translation>
@@ -24444,7 +24456,7 @@ Bitte verwenden Sie den Stop-Button.</translation>
     </message>
     <message>
         <source>Attach...</source>
-        <translation>Anhängen...</translation>
+        <translation type="obsolete">Anhängen...</translation>
     </message>
     <message>
         <source>Events</source>
@@ -24484,7 +24496,7 @@ Bitte verwenden Sie den Stop-Button.</translation>
     </message>
     <message>
         <source>Detach</source>
-        <translation>Abhängen</translation>
+        <translation type="obsolete">Abhängen</translation>
     </message>
 </context>
 <context>
@@ -25447,140 +25459,140 @@ Ist das Gerät verbunden und für Netzwerkzugriff eingerichtet?</translation>
     <name>RemoteLinux::Internal::AbstractMaemoPackageCreationStep</name>
     <message>
         <source>Package up to date.</source>
-        <translation>Paket ist auf aktuellem Stand.</translation>
+        <translation type="obsolete">Paket ist auf aktuellem Stand.</translation>
     </message>
     <message>
         <source>Creating package file ...</source>
-        <translation>Erzeuge Paketdatei...</translation>
+        <translation type="obsolete">Erzeuge Paketdatei...</translation>
     </message>
     <message>
         <source>Package created.</source>
-        <translation>Paketdatei erzeugt.</translation>
+        <translation type="obsolete">Paketdatei erzeugt.</translation>
     </message>
     <message>
         <source>Packaging failed.</source>
-        <translation>Die Paketerstellung schlug fehl.</translation>
+        <translation type="obsolete">Die Paketerstellung schlug fehl.</translation>
     </message>
     <message>
         <source>Packaging error: No Qt version.</source>
-        <translation>Paketierungsfehler: Keine Qt-Version.</translation>
+        <translation type="obsolete">Paketierungsfehler: Keine Qt-Version.</translation>
     </message>
     <message>
         <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation>Paketerstellung: Führe Kommando &apos;%1&apos; aus.</translation>
+        <translation type="obsolete">Paketerstellung: Führe Kommando &apos;%1&apos; aus.</translation>
     </message>
     <message>
         <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation>Fehler bei Paketerstellung: Das Kommando &apos;%1&apos; konnte nicht ausgeführt werden: %2</translation>
+        <translation type="obsolete">Fehler bei Paketerstellung: Das Kommando &apos;%1&apos; konnte nicht ausgeführt werden: %2</translation>
     </message>
     <message>
         <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation>Fehler bei Paketerstellung: Das Kommando &apos;%1&apos; schlug fehl.</translation>
+        <translation type="obsolete">Fehler bei Paketerstellung: Das Kommando &apos;%1&apos; schlug fehl.</translation>
     </message>
     <message>
         <source> Reason: %1</source>
-        <translation> Ursache: %1</translation>
+        <translation type="obsolete"> Ursache: %1</translation>
     </message>
     <message>
         <source>Exit code: %1</source>
-        <translation>Rückgabewert: %1</translation>
+        <translation type="obsolete">Rückgabewert: %1</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDebianPackageCreationStep</name>
     <message>
         <source>Create Debian Package</source>
-        <translation>Debian-Paketdatei erzeugen</translation>
+        <translation type="obsolete">Debian-Paketdatei erzeugen</translation>
     </message>
     <message>
         <source>Packaging failed.</source>
-        <translation>Die Paketerstellung schlug fehl.</translation>
+        <translation type="obsolete">Die Paketerstellung schlug fehl.</translation>
     </message>
     <message>
         <source>Could not move package files from %1 to %2.</source>
-        <translation>Die Paketdateien konnten nicht von %1 zu %2 verschoben werden.</translation>
+        <translation type="obsolete">Die Paketdateien konnten nicht von %1 zu %2 verschoben werden.</translation>
     </message>
     <message>
         <source>Your project name contains characters not allowed in Debian packages.
 They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
 We will try to work around that, but you may experience problems.</source>
-        <translation>Der Projektname enthält für Debian-Paketdateien nicht zulässige Zeichen.
+        <translation type="obsolete">Der Projektname enthält für Debian-Paketdateien nicht zulässige Zeichen.
 Es dürfen nur Kleinbuchstaben, Ziffern sowie &apos;-&apos;, &apos;+&apos; und &apos;.&apos; verwendet werden.
 Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftreten.</translation>
     </message>
     <message>
         <source>Packaging failed: Foreign debian directory detected.</source>
-        <translation>Fehlschlag bei Paketerstellung: Es wurde ein fremder Debian-Ordner festgestellt.</translation>
+        <translation type="obsolete">Fehlschlag bei Paketerstellung: Es wurde ein fremder Debian-Ordner festgestellt.</translation>
     </message>
     <message>
         <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation>Sie verwenden keinen Shadow-Build und es befindet sich ein Debian-Ordner im Hauptordner Ihres Projektes (&apos;%1&apos;). Qt Creator wird diesen Ordner nicht überschreiben. Bitte entfernen Sie den Ordner oder verwenden Sie einen Shadow-Build.</translation>
+        <translation type="obsolete">Sie verwenden keinen Shadow-Build und es befindet sich ein Debian-Ordner im Hauptordner Ihres Projektes (&apos;%1&apos;). Qt Creator wird diesen Ordner nicht überschreiben. Bitte entfernen Sie den Ordner oder verwenden Sie einen Shadow-Build.</translation>
     </message>
     <message>
         <source>Could not remove directory &apos;%1&apos;: %2</source>
-        <translation>Der Ordner &apos;%1&apos; konnte nicht entfernt werden: %2</translation>
+        <translation type="obsolete">Der Ordner &apos;%1&apos; konnte nicht entfernt werden: %2</translation>
     </message>
     <message>
         <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation>Der Debian-Ordner %1 konnte nicht angelegt werden.</translation>
+        <translation type="obsolete">Der Debian-Ordner %1 konnte nicht angelegt werden.</translation>
     </message>
     <message>
         <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation>Die Datei &apos;%1&apos; konnte nicht nach &apos;%2&apos; kopiert werden</translation>
+        <translation type="obsolete">Die Datei &apos;%1&apos; konnte nicht nach &apos;%2&apos; kopiert werden</translation>
     </message>
     <message>
         <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation>Fehler: Die Datei &apos;%1&apos; konnte nicht erstellt werden.</translation>
+        <translation type="obsolete">Fehler: Die Datei &apos;%1&apos; konnte nicht erstellt werden.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRpmPackageCreationStep</name>
     <message>
         <source>Create RPM Package</source>
-        <translation>RPM-Paket erzeugen</translation>
+        <translation type="obsolete">RPM-Paket erzeugen</translation>
     </message>
     <message>
         <source>Packaging failed.</source>
-        <translation>Die Paketerstellung schlug fehl.</translation>
+        <translation type="obsolete">Die Paketerstellung schlug fehl.</translation>
     </message>
     <message>
         <source>Could not move package file from %1 to %2.</source>
-        <translation>Die Paketdateien konnten nicht von %1 zu %2 verschoben werden.</translation>
+        <translation type="obsolete">Die Paketdateien konnten nicht von %1 zu %2 verschoben werden.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::CreateTarStepWidget</name>
     <message>
         <source>Create tarball:</source>
-        <translation>Tarball erzeugen:</translation>
+        <translation type="obsolete">Tarball erzeugen:</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoTarPackageCreationStep</name>
     <message>
         <source>Create tarball</source>
-        <translation>Tarball erzeugen</translation>
+        <translation type="obsolete">Tarball erzeugen</translation>
     </message>
     <message>
         <source>Error: tar file %1 cannot be opened (%2).</source>
-        <translation>Fehler: Die tar-Datei &apos;%1&apos; kann nicht geöffnet werden (%2).</translation>
+        <translation type="obsolete">Fehler: Die tar-Datei &apos;%1&apos; kann nicht geöffnet werden (%2).</translation>
     </message>
     <message>
         <source>Error writing tar file &apos;%1&apos;: %2.</source>
-        <translation>Fehler beim Schreiben der tar-Datei &apos;%1&apos;: %2.</translation>
+        <translation type="obsolete">Fehler beim Schreiben der tar-Datei &apos;%1&apos;: %2.</translation>
     </message>
     <message>
         <source>Error reading file &apos;%1&apos;: %2.</source>
-        <translation>Fehler beim Lesen der Datei &apos;%1&apos;: %2.</translation>
+        <translation type="obsolete">Fehler beim Lesen der Datei &apos;%1&apos;: %2.</translation>
     </message>
     <message>
         <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
-        <translation>Die Datei &apos;%1&apos; kann nicht zu dem Tar-Archiv hinzugefügt werden: Der Pfad ist zu lang.
+        <translation type="obsolete">Die Datei &apos;%1&apos; kann nicht zu dem Tar-Archiv hinzugefügt werden: Der Pfad ist zu lang.
 </translation>
     </message>
     <message>
         <source>Error writing tar file &apos;%1&apos;: %2</source>
-        <translation>Fehler beim Schreiben der tar-Datei &apos;%1&apos;: %2</translation>
+        <translation type="obsolete">Fehler beim Schreiben der tar-Datei &apos;%1&apos;: %2</translation>
     </message>
 </context>
 <context>
@@ -26447,7 +26459,7 @@ Möchten Sie sie zum Projekt hinzufügen?&lt;/html&gt;</translation>
     <name>Valgrind::Internal::CallgrindTool</name>
     <message>
         <source>Valgrind Function Profiler</source>
-        <translation>Valgrind-Profiling einer Funktion</translation>
+        <translation>Valgrind-Profiling der Funktionen</translation>
     </message>
     <message>
         <source>Valgrind Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
@@ -27586,12 +27598,16 @@ Erfordert Qt 4.7.4 oder neuer.</translation>
         <translation>Zeige Beispiele und Demos</translation>
     </message>
     <message>
+        <source>Tag List</source>
+        <translation>Schlüsselworte</translation>
+    </message>
+    <message>
         <source>Filter by Tag</source>
-        <translation>Filtere nach Schlüsselwort</translation>
+        <translation type="obsolete">Filtere nach Schlüsselwort</translation>
     </message>
     <message>
         <source>Tag Filter: %1</source>
-        <translation>Schlüsselwortfilter: %1</translation>
+        <translation type="obsolete">Schlüsselwortfilter: %1</translation>
     </message>
 </context>
 <context>
@@ -27722,7 +27738,7 @@ Erfordert Qt 4.7.4 oder neuer.</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation>Löschen</translation>
+        <translation type="obsolete">Löschen</translation>
     </message>
 </context>
 <context>
@@ -27956,6 +27972,153 @@ Erfordert Qt 4.7.4 oder neuer.</translation>
     <message>
         <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
         <translation>Der QML-Beobachter stellt zusätzliche Debugging-Funktionalität für QML-Anwendungen zur Verfügung, wie zum Beispiel interaktives Debuggen und weitere Werkzeuge zur Untersuchung. Er muss für jede verwendete Qt-Version separat übersetzt werden. Gehen Sie auf die Qt4-Einstellungsseite, wählen Sie die betreffende Qt-Installation aus und klicken Sie auf &apos;Neu Erstellen&apos;.</translation>
+    </message>
+</context>
+<context>
+    <name>ExampleDelegate</name>
+    <message>
+        <source>Tags:</source>
+        <translation>Schlüsselworte:</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractMaemoPackageCreationStep</name>
+    <message>
+        <source>Package up to date.</source>
+        <translation>Paket ist auf aktuellem Stand.</translation>
+    </message>
+    <message>
+        <source>Creating package file ...</source>
+        <translation>Erzeuge Paketdatei...</translation>
+    </message>
+    <message>
+        <source>Package created.</source>
+        <translation>Paketdatei erzeugt.</translation>
+    </message>
+    <message>
+        <source>Packaging failed.</source>
+        <translation>Die Paketerstellung schlug fehl.</translation>
+    </message>
+    <message>
+        <source>Packaging error: No Qt version.</source>
+        <translation>Paketierungsfehler: Keine Qt-Version.</translation>
+    </message>
+    <message>
+        <source>Package Creation: Running command &apos;%1&apos;.</source>
+        <translation>Paketerstellung: Führe Kommando &apos;%1&apos; aus.</translation>
+    </message>
+    <message>
+        <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
+        <translation>Fehler bei Paketerstellung: Das Kommando &apos;%1&apos; konnte nicht ausgeführt werden: %2</translation>
+    </message>
+    <message>
+        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
+        <translation>Fehler bei Paketerstellung: Das Kommando &apos;%1&apos; schlug fehl.</translation>
+    </message>
+    <message>
+        <source> Reason: %1</source>
+        <translation> Ursache: %1</translation>
+    </message>
+    <message>
+        <source>Exit code: %1</source>
+        <translation>Rückgabewert: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::MaemoDebianPackageCreationStep</name>
+    <message>
+        <source>Create Debian Package</source>
+        <translation>Debian-Paketdatei erzeugen</translation>
+    </message>
+    <message>
+        <source>Packaging failed.</source>
+        <translation>Die Paketerstellung schlug fehl.</translation>
+    </message>
+    <message>
+        <source>Could not move package files from %1 to %2.</source>
+        <translation>Die Paketdateien konnten nicht von %1 zu %2 verschoben werden.</translation>
+    </message>
+    <message>
+        <source>Your project name contains characters not allowed in Debian packages.
+They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
+We will try to work around that, but you may experience problems.</source>
+        <translation>Der Projektname enthält für Debian-Paketdateien nicht zulässige Zeichen.
+Es dürfen nur Kleinbuchstaben, Ziffern sowie &apos;-&apos;, &apos;+&apos; und &apos;.&apos; verwendet werden.
+Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftreten.</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Foreign debian directory detected.</source>
+        <translation>Fehlschlag bei Paketerstellung: Es wurde ein fremder Debian-Ordner festgestellt.</translation>
+    </message>
+    <message>
+        <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
+        <translation>Sie verwenden keinen Shadow-Build und es befindet sich ein Debian-Ordner im Hauptordner Ihres Projektes (&apos;%1&apos;). Qt Creator wird diesen Ordner nicht überschreiben. Bitte entfernen Sie den Ordner oder verwenden Sie einen Shadow-Build.</translation>
+    </message>
+    <message>
+        <source>Could not remove directory &apos;%1&apos;: %2</source>
+        <translation>Der Ordner &apos;%1&apos; konnte nicht entfernt werden: %2</translation>
+    </message>
+    <message>
+        <source>Could not create Debian directory &apos;%1&apos;.</source>
+        <translation>Der Debian-Ordner %1 konnte nicht angelegt werden.</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
+        <translation>Die Datei &apos;%1&apos; konnte nicht nach &apos;%2&apos; kopiert werden</translation>
+    </message>
+    <message>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
+        <translation>Fehler: Die Datei &apos;%1&apos; konnte nicht erstellt werden.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::MaemoRpmPackageCreationStep</name>
+    <message>
+        <source>Create RPM Package</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Packaging failed.</source>
+        <translation>Die Paketerstellung schlug fehl.</translation>
+    </message>
+    <message>
+        <source>Could not move package file from %1 to %2.</source>
+        <translation>Die Paketdateien konnten nicht von %1 zu %2 verschoben werden.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::CreateTarStepWidget</name>
+    <message>
+        <source>Create tarball:</source>
+        <translation>Tarball erzeugen:</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::MaemoTarPackageCreationStep</name>
+    <message>
+        <source>Create tarball</source>
+        <translation>Tarball erzeugen</translation>
+    </message>
+    <message>
+        <source>Error: tar file %1 cannot be opened (%2).</source>
+        <translation>Fehler: Die tar-Datei &apos;%1&apos; kann nicht geöffnet werden (%2).</translation>
+    </message>
+    <message>
+        <source>Error writing tar file &apos;%1&apos;: %2.</source>
+        <translation>Fehler beim Schreiben der tar-Datei &apos;%1&apos;: %2.</translation>
+    </message>
+    <message>
+        <source>Error reading file &apos;%1&apos;: %2.</source>
+        <translation>Fehler beim Lesen der Datei &apos;%1&apos;: %2.</translation>
+    </message>
+    <message>
+        <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
+        <translation>Die Datei &apos;%1&apos; kann nicht zu dem Tar-Archiv hinzugefügt werden: Der Pfad ist zu lang.
+</translation>
+    </message>
+    <message>
+        <source>Error writing tar file &apos;%1&apos;: %2</source>
+        <translation>Fehler beim Schreiben der tar-Datei &apos;%1&apos;: %2</translation>
     </message>
 </context>
 </TS>
