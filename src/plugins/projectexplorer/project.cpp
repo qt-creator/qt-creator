@@ -72,7 +72,7 @@ const char * const TARGET_KEY_PREFIX("ProjectExplorer.Project.Target.");
 const char * const TARGET_COUNT_KEY("ProjectExplorer.Project.TargetCount");
 
 const char * const EDITOR_SETTINGS_KEY("ProjectExplorer.Project.EditorSettings");
-
+const char * const PLUGIN_SETTINGS_KEY("ProjectExplorer.Project.PluginSettings");
 } // namespace
 
 namespace ProjectExplorer {
@@ -89,6 +89,7 @@ public:
     EditorConfiguration *m_editorConfiguration;
     Core::Context m_projectContext;
     Core::Context m_projectLanguage;
+    QVariantMap m_pluginSettings;
 };
 
 ProjectPrivate::ProjectPrivate() :
@@ -215,6 +216,7 @@ Target *Project::target(const QString &id) const
 
 void Project::saveSettings()
 {
+    emit aboutToSaveSettings();
     UserFileAccessor accessor;
     accessor.saveSettings(this, toMap());
 }
@@ -223,7 +225,10 @@ bool Project::restoreSettings()
 {
     UserFileAccessor accessor;
     QVariantMap map(accessor.restoreSettings(this));
-    return fromMap(map);
+    bool ok = fromMap(map);
+    if (ok)
+        emit settingsLoaded();
+    return ok;
 }
 
 QList<BuildConfigWidget*> Project::subConfigWidgets()
@@ -253,6 +258,7 @@ QVariantMap Project::toMap() const
         map.insert(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i), ts.at(i)->toMap());
 
     map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration->toMap());
+    map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
 
     return map;
 }
@@ -277,6 +283,9 @@ bool Project::fromMap(const QVariantMap &map)
         QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
         d->m_editorConfiguration->fromMap(values);
     }
+
+    if (map.contains(QLatin1String(PLUGIN_SETTINGS_KEY)))
+        d->m_pluginSettings = map.value(QLatin1String(PLUGIN_SETTINGS_KEY)).toMap();
 
     bool ok;
     int maxI(map.value(QLatin1String(TARGET_COUNT_KEY), 0).toInt(&ok));
@@ -353,6 +362,16 @@ Core::Context Project::projectContext() const
 Core::Context Project::projectLanguage() const
 {
     return d->m_projectLanguage;
+}
+
+QVariant Project::namedSettings(const QString &name) const
+{
+    return d->m_pluginSettings.value(name);
+}
+
+void Project::setNamedSettings(const QString &name, QVariant &value)
+{
+    d->m_pluginSettings.insert(name, value);
 }
 
 } // namespace ProjectExplorer

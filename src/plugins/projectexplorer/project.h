@@ -114,6 +114,9 @@ public:
     virtual Core::Context projectContext() const;
     virtual Core::Context projectLanguage() const;
 
+    QVariant namedSettings(const QString &name) const;
+    void setNamedSettings(const QString &name, QVariant &value);
+
 signals:
     void fileListChanged();
 
@@ -126,6 +129,9 @@ signals:
 
     void environmentChanged();
     void buildConfigurationEnabledChanged();
+
+    void settingsLoaded();
+    void aboutToSaveSettings();
 
 protected:
     // restore all data from the map.
