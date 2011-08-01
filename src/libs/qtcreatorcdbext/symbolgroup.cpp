@@ -384,6 +384,14 @@ bool SymbolGroup::expand(const std::string &nodeName, std::string *errorMessage)
     return false;
 }
 
+bool SymbolGroup::collapse(const std::string &nodeName, std::string *errorMessage)
+{
+    SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage);
+    if (!node)
+        return false;
+    return node->collapse(errorMessage);
+}
+
 bool SymbolGroup::expandRunComplexDumpers(const std::string &nodeName, const SymbolGroupValueContext &ctx, std::string *errorMessage)
 {
     if (SymbolGroupNode *node = findNodeForExpansion(this, nodeName, errorMessage))
@@ -797,8 +805,37 @@ WatchesSymbolGroup::InameExpressionMap
     return rc;
 }
 
+/*!
+    \brief Collapse all expanded pointer items.
+
+    If we have an item '*(Foo*)(address_of_Foo_D_Ptr)' and the
+    D-Ptr changes due to detaching, the expanded items (whose address
+    change) do not adapt their value. Force a re-evaluation by collapsing
+    them.
+*/
+
+bool WatchesSymbolGroup::collapsePointerItems(std::string *errorMessage)
+{
+    typedef AbstractSymbolGroupNodePtrVector::const_iterator CIT;
+
+    const AbstractSymbolGroupNodePtrVector existingWatches = root()->children();
+    if (existingWatches.empty())
+        return true;
+
+    const CIT cend = existingWatches.end();
+    for (CIT it = existingWatches.begin(); it != cend; ++it) {
+        if (SymbolGroupNode *n = (*it)->asSymbolGroupNode())
+            if (n->isExpanded() && SymbolGroupValue::isPointerType(n->type()))
+                if (!n->collapse(errorMessage))
+                return false;
+    }
+    return true;
+}
+
 // Synchronize watches passing on a map of '0' -> '*(int *)(0xA0)'
-bool WatchesSymbolGroup::synchronize(CIDebugSymbols *s, const InameExpressionMap &newInameExpMap, std::string *errorMessage)
+bool WatchesSymbolGroup::synchronize(CIDebugSymbols *s,
+                                     const InameExpressionMap &newInameExpMap,
+                                     std::string *errorMessage)
 {
     typedef std::set<std::string> StringSet;
     typedef InameExpressionMap::const_iterator InameExpressionMapConstIt;
@@ -808,7 +845,7 @@ bool WatchesSymbolGroup::synchronize(CIDebugSymbols *s, const InameExpressionMap
         DebugPrint() << "WatchesSymbolGroup::synchronize oldsize=" << oldInameExpMap.size()
                      << " newsize=" << newInameExpMap.size() << " items, changed=" << changed;
     if (!changed) // Quick check: All ok
-        return true;
+        return collapsePointerItems(errorMessage);
     // Check both maps against each other and determine elements to be deleted/added.
     StringSet deletionSet;
     InameExpressionMap addMap;
@@ -840,6 +877,8 @@ bool WatchesSymbolGroup::synchronize(CIDebugSymbols *s, const InameExpressionMap
                 return false;
         }
     }
+    if (!collapsePointerItems(errorMessage))
+        return false;
     // Insertion: We cannot possible fail here since this will trigger an
     // endless loop of the watch model. Insert a dummy item.
     if (!addMap.empty()) {

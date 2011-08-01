@@ -158,7 +158,7 @@ protected:
 
     void reserveChildren(AbstractSymbolGroupNodePtrVector::size_type s) { m_children.reserve(s); }
 
-private:
+protected:
     AbstractSymbolGroupNodePtrVector m_children;
     void removeChildren();
 };
@@ -244,6 +244,7 @@ public:
     bool expandRunComplexDumpers(const SymbolGroupValueContext &ctx, std::string *errorMessage);
     bool isExpanded() const { return !children().empty(); }
     bool canExpand() const { return m_parameters.SubElements > 0; }
+    bool collapse(std::string *errorMessage);
     void runComplexDumpers(const SymbolGroupValueContext &ctx);
     // Cast to a different type. Works only on unexpanded nodes
     bool typeCast(const std::string &desiredType, std::string *errorMessage);

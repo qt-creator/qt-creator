@@ -1093,6 +1093,39 @@ static std::string msgExpandFailed(const std::string &name, const std::string &i
     return str.str();
 }
 
+static std::string msgCollapseFailed(const std::string &name, const std::string &iname,
+                                     ULONG index, const std::string &why)
+{
+    std::ostringstream str;
+    str << "Collapsing of '" << name << "'/'" << iname << " (index: " << index
+        << ") failed: " << why;
+    return str.str();
+}
+
+bool SymbolGroupNode::collapse(std::string *errorMessage)
+{
+    if (!isExpanded())
+        return true;
+    SymbolGroupNode *sParent = symbolGroupNodeParent();
+    if (!sParent) {
+        *errorMessage = msgCollapseFailed(name(), absoluteFullIName(), m_index, "Cannot collapse root.");
+        ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
+        return false;
+    }
+    // Get current number of children
+    const ULONG next = nextSymbolIndex();
+    HRESULT hr = m_symbolGroup->debugSymbolGroup()->ExpandSymbol(m_index, FALSE);
+    if (FAILED(hr)) {
+        *errorMessage = msgCollapseFailed(name(), absoluteFullIName(), m_index, msgDebugEngineComFailed("ExpandSymbol(FALSE)", hr));
+        ExtensionContext::instance().report('X', 0, 0, "Error", "%s", errorMessage->c_str());
+        return false;
+    }
+    removeChildren();
+    if (next)
+        sParent->notifyIndexesMoved(m_index + 1, false, next - m_index - 1);
+    return true;
+}
+
 // Expand!
 bool SymbolGroupNode::expand(std::string *errorMessage)
 {
