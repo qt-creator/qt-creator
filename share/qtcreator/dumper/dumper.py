@@ -555,20 +555,6 @@ def qtNamespace():
     except:
         return ""
 
-# --  Determine size of qptrdiff (cached)
-
-qqptrdiffSize = None
-
-def qtptrdiffSize():
-    global qqptrdiffSize
-    if not qqptrdiffSize is None:
-        return qqptrdiffSize
-    try:
-        qqptrdiffSize = lookupType(qtNamespace() + 'qptrdiff').sizeof
-        return qqptrdiffSize
-    except:
-        return 0
-
 # --  Determine major Qt version by calling qVersion (cached)
 
 qqMajorVersion = None
@@ -669,7 +655,8 @@ def qByteArrayData(value):
         qByteArrayData = value['d'].dereference()
         size = qByteArrayData['size']
         alloc = qByteArrayData['alloc']
-        data = qByteArrayData['d'].cast(lookupType('char *')) + qByteArrayData['offset'] + qtptrdiffSize()
+        charPointerType = lookupType('char *')
+        data = qByteArrayData['d'].cast(charPointerType) + qByteArrayData['offset'] + charPointerType.sizeof
         return data, size, alloc
 
 def encodeByteArray(value):
@@ -687,7 +674,8 @@ def qQStringData(value):
         return d_ptr['data'], d_ptr['size'], d_ptr['alloc']
     else: # Qt5: Implement the QStringArrayData::data() accessor.
         qStringData = value['d'].dereference()
-        data = qStringData['d'].cast(lookupType('ushort *')) + qtptrdiffSize() / 2 + qStringData['offset']
+        ushortPointerType = lookupType('ushort *')
+        data = qStringData['d'].cast(ushortPointerType) + ushortPointerType.sizeof / 2 + qStringData['offset']
         return data, qStringData['size'], qStringData['alloc']
 
 def encodeString(value):
