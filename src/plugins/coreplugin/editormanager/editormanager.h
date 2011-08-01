@@ -213,6 +213,7 @@ private slots:
     void handleContextChange(Core::IContext *context);
     void updateActions();
     void makeCurrentEditorWritable();
+    void vcsOpenCurrentEditor();
     void updateWindowTitle();
     void handleEditorStateChange();
     void updateVariable(const QString &variable);

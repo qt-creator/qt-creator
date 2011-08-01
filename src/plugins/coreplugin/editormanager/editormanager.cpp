@@ -1581,6 +1581,23 @@ void EditorManager::makeCurrentEditorWritable()
         makeFileWritable(curEditor->file());
 }
 
+void EditorManager::vcsOpenCurrentEditor()
+{
+    IEditor *curEditor = currentEditor();
+    if (!curEditor)
+        return;
+
+    const QString directory = QFileInfo(curEditor->file()->fileName()).absolutePath();
+    IVersionControl *versionControl = m_d->m_core->vcsManager()->findVersionControlForDirectory(directory);
+    if (!versionControl || !versionControl->supportsOperation(IVersionControl::OpenOperation))
+        return;
+
+    if (!versionControl->vcsOpen(curEditor->file()->fileName())) {
+        QMessageBox::warning(m_d->m_core->mainWindow(), tr("Cannot Open File"),
+                             tr("Cannot open the file for editing with VCS."));
+    }
+}
+
 void EditorManager::updateWindowTitle()
 {
     QString windowTitle = tr("Qt Creator");
@@ -1635,12 +1652,35 @@ void EditorManager::updateActions()
         bool ww = curEditor->file()->isModified() && curEditor->file()->isReadOnly();
         if (ww != curEditor->file()->hasWriteWarning()) {
             curEditor->file()->setWriteWarning(ww);
+
+            // Do this after setWriteWarning so we don't re-evaluate this part even
+            // if we do not really show a warning.
+            bool promptVCS = false;
+            const QString directory = QFileInfo(curEditor->file()->fileName()).absolutePath();
+            IVersionControl *versionControl = m_d->m_core->vcsManager()->findVersionControlForDirectory(directory);
+            if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation)) {
+                if (versionControl->settingsFlags() & IVersionControl::AutoOpen) {
+                    vcsOpenCurrentEditor();
+                    ww = false;
+                } else {
+                    promptVCS = true;
+                }
+            }
+
             if (ww) {
                 // we are about to change a read-only file, warn user
-                InfoBarEntry info(QLatin1String("Core.EditorManager.MakeWritable"),
-                                  tr("<b>Warning:</b> You are changing a read-only file."));
-                info.setCustomButtonInfo(tr("Make writable"), this, SLOT(makeCurrentEditorWritable()));
-                curEditor->file()->infoBar()->addInfo(info);
+                if (promptVCS) {
+                    InfoBarEntry info(QLatin1String("Core.EditorManager.MakeWritable"),
+                                      tr("<b>Warning:</b> This file was not opened in %1 yet.")
+                                      .arg(versionControl->displayName()));
+                    info.setCustomButtonInfo(tr("Open"), this, SLOT(vcsOpenCurrentEditor()));
+                    curEditor->file()->infoBar()->addInfo(info);
+                } else {
+                    InfoBarEntry info(QLatin1String("Core.EditorManager.MakeWritable"),
+                                      tr("<b>Warning:</b> You are changing a read-only file."));
+                    info.setCustomButtonInfo(tr("Make writable"), this, SLOT(makeCurrentEditorWritable()));
+                    curEditor->file()->infoBar()->addInfo(info);
+                }
             } else {
                 curEditor->file()->infoBar()->removeInfo(QLatin1String("Core.EditorManager.MakeWritable"));
             }
