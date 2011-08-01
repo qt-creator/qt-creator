@@ -54,6 +54,14 @@ inline static QString properColorName(const QColor &color)
     return s;
 }
 
+inline static QString doubleToString(double d)
+{
+    QString string = QString::number(d, 'f', 3);
+    if (string.endsWith(".000"))
+        string.chop(4);
+    return string;
+}
+
 QmlTextGenerator::QmlTextGenerator(const QStringList &propertyOrder, int indentDepth):
         m_propertyOrder(propertyOrder),
         m_indentDepth(indentDepth)
@@ -116,7 +124,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                 return QString(QLatin1String("\"%1\"")).arg(properColorName(value.value<QColor>()));
 
             case QVariant::Double:
-                return QString::number(value.toDouble(), 'f', 3);
+                return doubleToString(value.toDouble());
             case QVariant::Int:
             case QVariant::LongLong:
             case QVariant::UInt:
