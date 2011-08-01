@@ -103,7 +103,6 @@ unix:!macx {
     SOURCES += $$PWD/unixutils.cpp
 }
 HEADERS += \
-    $$PWD/app_version.h \
     $$PWD/environment.h \
     $$PWD/environmentmodel.h \
     $$PWD/qtcprocess.h \
