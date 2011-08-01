@@ -32,18 +32,21 @@
 
 #include "maemoinstalltosysrootstep.h"
 
-#include "deploymentinfo.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemoqtversion.h"
-#include "remotelinuxdeployconfiguration.h"
 
 #include <utils/fileutils.h>
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4target.h>
 #include <qtsupport/baseqtversion.h>
+#include <remotelinux/deployablefile.h>
+#include <remotelinux/deploymentinfo.h>
+#include <remotelinux/remotelinuxdeployconfiguration.h>
 
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QLatin1Char>
 #include <QtCore/QProcess>
 #include <QtCore/QWeakPointer>

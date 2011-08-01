@@ -31,13 +31,11 @@
 **************************************************************************/
 #include "maemopublisherfremantlefree.h"
 
-#include "deployablefilesperprofile.h"
-#include "deploymentinfo.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"
+#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
-#include "remotelinuxdeployconfiguration.h"
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/project.h>
@@ -45,6 +43,8 @@
 #include <qt4projectmanager/qmakestep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
+#include <remotelinux/deployablefilesperprofile.h>
+#include <remotelinux/deploymentinfo.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -533,13 +533,13 @@ void MaemoPublisherFremantleFree::finishWithFailure(const QString &progressMsg,
 bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
 {
     bool success = true;
-    const RemoteLinuxDeployConfiguration * const deployConfig
-        = qobject_cast<RemoteLinuxDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
+    const Qt4MaemoDeployConfiguration * const deployConfig
+        = qobject_cast<Qt4MaemoDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
     const QSharedPointer<DeploymentInfo> deploymentInfo
         = deployConfig->deploymentInfo();
     for (int i = 0; i < deploymentInfo->modelCount(); ++i) {
         const DeployableFilesPerProFile * const model = deploymentInfo->modelAt(i);
-        QString desktopFilePath = model->localDesktopFilePath();
+        QString desktopFilePath = deployConfig->localDesktopFilePath(model);
         if (desktopFilePath.isEmpty())
             continue;
         desktopFilePath.replace(model->projectDir(), m_tmpProjectDir);

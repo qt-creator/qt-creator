@@ -37,8 +37,8 @@
 namespace RemoteLinux {
 namespace Internal {
 
-TypeSpecificDeviceConfigurationListModel::TypeSpecificDeviceConfigurationListModel(QObject *parent,
-    const QString &osType) : QAbstractListModel(parent), m_targetOsType(osType)
+TypeSpecificDeviceConfigurationListModel::TypeSpecificDeviceConfigurationListModel(const QString &osType,
+    QObject *parent) : QAbstractListModel(parent), m_targetOsType(osType)
 {
     const LinuxDeviceConfigurations * const devConfs
         = LinuxDeviceConfigurations::instance();

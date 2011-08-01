@@ -44,7 +44,7 @@ class TypeSpecificDeviceConfigurationListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit TypeSpecificDeviceConfigurationListModel(QObject *parent, const QString &osType);
+    explicit TypeSpecificDeviceConfigurationListModel(const QString &osType, QObject *parent = 0);
     ~TypeSpecificDeviceConfigurationListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

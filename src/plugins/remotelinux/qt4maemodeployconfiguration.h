@@ -36,6 +36,9 @@
 #include <remotelinux/remotelinuxdeployconfiguration.h>
 
 namespace RemoteLinux {
+class DeployableFilesPerProFile;
+class DeploymentSettingsAssistant;
+
 namespace Internal {
 
 class Qt4MaemoDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
@@ -57,17 +60,22 @@ public:
         ProjectExplorer::DeployConfiguration *product);
 };
 
-class Qt4MaemoDeployConfiguration : public RemoteLinuxDeployConfiguration
+class Qt4MaemoDeployConfiguration : public RemoteLinux::RemoteLinuxDeployConfiguration
 {
     Q_OBJECT
 
 public:
     ~Qt4MaemoDeployConfiguration();
 
-    static const QString FremantleWithPackagingId;
-    static const QString FremantleWithoutPackagingId;
-    static const QString HarmattanId;
-    static const QString MeegoId;
+    ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
+
+    QSharedPointer<DeploymentSettingsAssistant> deploymentSettingsAssistant() const;
+    QString localDesktopFilePath(const DeployableFilesPerProFile *proFileInfo) const;
+
+    static QString fremantleWithPackagingId();
+    static QString fremantleWithoutPackagingId();
+    static QString harmattanId();
+    static QString meegoId();
 
 private:
     friend class Internal::Qt4MaemoDeployConfigurationFactory;
@@ -76,6 +84,8 @@ private:
         const QString &displayName, const QString &supportedOsType);
     Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         Qt4MaemoDeployConfiguration *source);
+
+    QSharedPointer<DeploymentSettingsAssistant> m_deploymentSettingsAssistant;
 };
 
 } // namespace Internal

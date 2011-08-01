@@ -28,55 +28,52 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#ifndef DEPLOYMENTINFO_H
-#define DEPLOYMENTINFO_H
+#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QList>
+#include <projectexplorer/deployconfiguration.h>
 
-QT_FORWARD_DECLARE_CLASS(QTimer)
-
-namespace Qt4ProjectManager {
-class Qt4BaseTarget;
-class Qt4ProFileNode;
-} // namespace Qt4ProjectManager
+#include <QtGui/QWidget>
 
 namespace RemoteLinux {
-class DeployableFile;
 class DeployableFilesPerProFile;
+class RemoteLinuxDeployConfiguration;
 
-class REMOTELINUX_EXPORT DeploymentInfo : public QAbstractListModel
+namespace Internal {
+class RemoteLinuxDeployConfigurationWidgetPrivate;
+} // namespace Internal
+
+class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
+    : public ProjectExplorer::DeployConfigurationWidget
 {
     Q_OBJECT
+
 public:
-    DeploymentInfo(const Qt4ProjectManager::Qt4BaseTarget *target);
-    ~DeploymentInfo();
-    void setUnmodified();
-    bool isModified() const;
-    int deployableCount() const;
-    DeployableFile deployableAt(int i) const;
-    QString remoteExecutableFilePath(const QString &localExecutableFilePath) const;
-    int modelCount() const { return m_listModels.count(); }
-    DeployableFilesPerProFile *modelAt(int i) const { return m_listModels.at(i); }
+    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
+    ~RemoteLinuxDeployConfigurationWidget();
+
+    void init(ProjectExplorer::DeployConfiguration *dc);
+
+    RemoteLinuxDeployConfiguration *deployConfiguration() const;
+    DeployableFilesPerProFile *currentModel() const;
+
+signals:
+    void currentModelChanged(const DeployableFilesPerProFile *proFileInfo);
 
 private slots:
-    void startTimer(Qt4ProjectManager::Qt4ProFileNode *, bool success, bool parseInProgress);
+    void handleModelListToBeReset();
+    void handleModelListReset();
+    void setModel(int row);
+    void handleSelectedDeviceConfigurationChanged(int index);
+    void handleDeviceConfigurationListChanged();
+    void showDeviceConfigurations();
 
 private:
-    virtual int rowCount(const QModelIndex &parent) const;
-    virtual QVariant data(const QModelIndex &index, int role) const;
-
-    Q_SLOT void createModels();
-    void createModels(const Qt4ProjectManager::Qt4ProFileNode *proFileNode);
-
-    QList<DeployableFilesPerProFile *> m_listModels;
-    const Qt4ProjectManager::Qt4BaseTarget * const m_target;
-    QTimer *const m_updateTimer;
+    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const m_d;
 };
 
 } // namespace RemoteLinux
 
-#endif // DEPLOYMENTINFO_H
+#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H

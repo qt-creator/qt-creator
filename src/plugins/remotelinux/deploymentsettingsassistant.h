@@ -28,55 +28,45 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#ifndef DEPLOYMENTINFO_H
-#define DEPLOYMENTINFO_H
+#ifndef DEPLOYMENTSETTINGSASSISTANT_H
+#define DEPLOYMENTSETTINGSASSISTANT_H
 
 #include "remotelinux_export.h"
 
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QList>
-
-QT_FORWARD_DECLARE_CLASS(QTimer)
-
-namespace Qt4ProjectManager {
-class Qt4BaseTarget;
-class Qt4ProFileNode;
-} // namespace Qt4ProjectManager
+#include <QtCore/QObject>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QStringList>
 
 namespace RemoteLinux {
 class DeployableFile;
 class DeployableFilesPerProFile;
+class DeploymentInfo;
 
-class REMOTELINUX_EXPORT DeploymentInfo : public QAbstractListModel
+namespace Internal {
+class DeploymentSettingsAssistantInternal;
+} // namespace Internal
+
+class REMOTELINUX_EXPORT DeploymentSettingsAssistant : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(DeploymentSettingsAssistant)
 public:
-    DeploymentInfo(const Qt4ProjectManager::Qt4BaseTarget *target);
-    ~DeploymentInfo();
-    void setUnmodified();
-    bool isModified() const;
-    int deployableCount() const;
-    DeployableFile deployableAt(int i) const;
-    QString remoteExecutableFilePath(const QString &localExecutableFilePath) const;
-    int modelCount() const { return m_listModels.count(); }
-    DeployableFilesPerProFile *modelAt(int i) const { return m_listModels.at(i); }
+    DeploymentSettingsAssistant(const QString &qmakeScope, const QString &iunstallPrefix,
+        const QSharedPointer<DeploymentInfo> &deploymentInfo, QObject *parent = 0);
+    ~DeploymentSettingsAssistant();
+
+    bool addDeployableToProFile(const DeployableFilesPerProFile *proFileInfo,
+        const QString &variableName, const DeployableFile &deployable);
 
 private slots:
-    void startTimer(Qt4ProjectManager::Qt4ProFileNode *, bool success, bool parseInProgress);
+    void handleDeploymentInfoUpdated();
 
 private:
-    virtual int rowCount(const QModelIndex &parent) const;
-    virtual QVariant data(const QModelIndex &index, int role) const;
+    bool addLinesToProFile(const DeployableFilesPerProFile *proFileInfo, const QStringList &lines);
 
-    Q_SLOT void createModels();
-    void createModels(const Qt4ProjectManager::Qt4ProFileNode *proFileNode);
-
-    QList<DeployableFilesPerProFile *> m_listModels;
-    const Qt4ProjectManager::Qt4BaseTarget * const m_target;
-    QTimer *const m_updateTimer;
+    Internal::DeploymentSettingsAssistantInternal * const m_d;
 };
 
 } // namespace RemoteLinux
 
-#endif // DEPLOYMENTINFO_H
+#endif // DEPLOYMENTSETTINGSASSISTANT_H

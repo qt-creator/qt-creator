@@ -32,7 +32,7 @@
 #include "deploymentinfo.h"
 
 #include "deployablefile.h"
-#include "maemoprofilesupdatedialog.h"
+#include "deployablefilesperprofile.h"
 
 #include <projectexplorer/buildstep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -74,6 +74,7 @@ void DeploymentInfo::createModels()
     if (!m_target->activeBuildConfiguration() || !m_target->activeBuildConfiguration()->qtVersion()
             || !m_target->activeBuildConfiguration()->qtVersion()->isValid()) {
         beginResetModel();
+        qDeleteAll(m_listModels);
         m_listModels.clear();
         endResetModel();
         return;
@@ -90,30 +91,6 @@ void DeploymentInfo::createModels()
     qDeleteAll(m_listModels);
     m_listModels.clear();
     createModels(rootNode);
-    QList<DeployableFilesPerProFile *> modelsWithoutTargetPath;
-    foreach (DeployableFilesPerProFile *const model, m_listModels) {
-        if (!model->hasTargetPath()) {
-            if (model->proFileUpdateSetting() == DeployableFilesPerProFile::AskToUpdateProFile)
-                modelsWithoutTargetPath << model;
-        }
-    }
-
-    if (!modelsWithoutTargetPath.isEmpty()) {
-        MaemoProFilesUpdateDialog dialog(modelsWithoutTargetPath);
-        dialog.exec();
-        const QList<MaemoProFilesUpdateDialog::UpdateSetting> &settings
-            = dialog.getUpdateSettings();
-        foreach (const MaemoProFilesUpdateDialog::UpdateSetting &setting, settings) {
-            const DeployableFilesPerProFile::ProFileUpdateSetting updateSetting
-                = setting.second
-                    ? DeployableFilesPerProFile::UpdateProFile
-                    : DeployableFilesPerProFile::DontUpdateProFile;
-            m_updateSettings.insert(setting.first->proFilePath(),
-                updateSetting);
-            setting.first->setProFileUpdateSetting(updateSetting);
-        }
-    }
-
     endResetModel();
     connect(m_target->qt4Project(),
             SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
@@ -125,21 +102,9 @@ void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:
     case LibraryTemplate:
-    case AuxTemplate: {
-        DeployableFilesPerProFile::ProFileUpdateSetting updateSetting;
-        if (proFileNode->projectType() == AuxTemplate) {
-            updateSetting = DeployableFilesPerProFile::DontUpdateProFile;
-        } else {
-            UpdateSettingsMap::ConstIterator it
-                = m_updateSettings.find(proFileNode->path());
-            updateSetting = it != m_updateSettings.end()
-                ? it.value() : DeployableFilesPerProFile::AskToUpdateProFile;
-        }
-        DeployableFilesPerProFile *const newModel
-            = new DeployableFilesPerProFile(m_target, proFileNode, updateSetting, this);
-        m_listModels << newModel;
+    case AuxTemplate:
+        m_listModels << new DeployableFilesPerProFile(proFileNode, this);
         break;
-    }
     case SubDirsTemplate: {
         const QList<ProjectExplorer::ProjectNode *> &subProjects
             = proFileNode->subProjectNodes();

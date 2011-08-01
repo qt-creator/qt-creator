@@ -31,36 +31,19 @@
 **************************************************************************/
 #include "deployablefilesperprofile.h"
 
-#include "maemoglobal.h"
-#include "maemoconstants.h"
-
-#include <coreplugin/icore.h>
-#include <coreplugin/filemanager.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4nodes.h>
-#include <qt4projectmanager/qt4target.h>
-#include <qtsupport/baseqtversion.h>
-
 #include <utils/qtcassert.h>
-#include <utils/fileutils.h>
 
-#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QBrush>
-#include <QtGui/QImageReader>
-#include <QtGui/QMainWindow>
 
 using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
 using namespace Internal;
 
-DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4BaseTarget *target,
-    const Qt4ProFileNode *proFileNode, ProFileUpdateSetting updateSetting, QObject *parent)
+DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4ProFileNode *proFileNode,
+        QObject *parent)
     : QAbstractTableModel(parent),
-      m_target(target),
       m_projectType(proFileNode->projectType()),
       m_proFilePath(proFileNode->path()),
       m_projectName(proFileNode->displayName()),
@@ -68,30 +51,9 @@ DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4BaseTarget *target
       m_installsList(proFileNode->installsList()),
       m_projectVersion(proFileNode->projectVersion()),
       m_config(proFileNode->variableValue(ConfigVar)),
-      m_modified(false),
-      m_proFileUpdateSetting(updateSetting),
-      m_hasTargetPath(false)
+      m_modified(true)
 {
-    buildModel();
-}
-
-DeployableFilesPerProFile::~DeployableFilesPerProFile() {}
-
-bool DeployableFilesPerProFile::buildModel()
-{
-    m_deployables.clear();
-
-    m_hasTargetPath = !m_installsList.targetPath.isEmpty();
-    if (!m_hasTargetPath && m_proFileUpdateSetting == UpdateProFile) {
-        const QString remoteDirSuffix
-            = QLatin1String(m_projectType == LibraryTemplate
-                ? "/lib" : "/bin");
-        const QString remoteDir = QLatin1String("target.path = ")
-            + installPrefix() + remoteDirSuffix;
-        const QStringList deployInfo = QStringList() << remoteDir
-            << QLatin1String("INSTALLS += target");
-        return addLinesToProFile(deployInfo);
-    } else if (m_projectType == ApplicationTemplate) {
+    if (m_projectType == ApplicationTemplate) {
         m_deployables.prepend(DeployableFile(localExecutableFilePath(),
             m_installsList.targetPath));
     } else if (m_projectType == LibraryTemplate) {
@@ -104,10 +66,9 @@ bool DeployableFilesPerProFile::buildModel()
         foreach (const QString &file, elem.files)
             m_deployables << DeployableFile(file, elem.path);
     }
-
-    m_modified = true;
-    return true;
 }
+
+DeployableFilesPerProFile::~DeployableFilesPerProFile() {}
 
 DeployableFile DeployableFilesPerProFile::deployableAt(int row) const
 {
@@ -130,7 +91,8 @@ QVariant DeployableFilesPerProFile::data(const QModelIndex &index, int role) con
     if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
 
-    if (isEditable(index)) {
+    if (m_projectType != AuxTemplate && !hasTargetPath() && index.row() == 0
+            && index.column() == 1) {
         if (role == Qt::DisplayRole)
             return tr("<no target path set>");
         if (role == Qt::ForegroundRole) {
@@ -146,29 +108,6 @@ QVariant DeployableFilesPerProFile::data(const QModelIndex &index, int role) con
     if (role == Qt::DisplayRole || role == Qt::EditRole)
         return d.remoteDir;
     return QVariant();
-}
-
-Qt::ItemFlags DeployableFilesPerProFile::flags(const QModelIndex &index) const
-{
-    Qt::ItemFlags parentFlags = QAbstractTableModel::flags(index);
-    if (isEditable(index))
-        return parentFlags | Qt::ItemIsEditable;
-    return parentFlags;
-}
-
-bool DeployableFilesPerProFile::setData(const QModelIndex &index,
-                                   const QVariant &value, int role)
-{
-    if (!isEditable(index) || role != Qt::EditRole)
-        return false;
-    const QString &remoteDir = value.toString();
-    if (!addLinesToProFile(QStringList()
-             << QString::fromLocal8Bit("target.path = %1").arg(remoteDir)
-             << QLatin1String("INSTALLS += target")))
-        return false;
-    m_deployables.first().remoteDir = remoteDir;
-    emit dataChanged(index, index);
-    return true;
 }
 
 QVariant DeployableFilesPerProFile::headerData(int section,
@@ -208,8 +147,8 @@ QStringList DeployableFilesPerProFile::localLibraryFilePaths() const
 
 QString DeployableFilesPerProFile::remoteExecutableFilePath() const
 {
-    return m_hasTargetPath && m_projectType == ApplicationTemplate
-        ? deployableAt(0).remoteDir + '/'
+    return hasTargetPath() && m_projectType == ApplicationTemplate
+        ? deployableAt(0).remoteDir + QLatin1Char('/')
               + QFileInfo(localExecutableFilePath()).fileName()
         : QString();
 }
@@ -217,150 +156,6 @@ QString DeployableFilesPerProFile::remoteExecutableFilePath() const
 QString DeployableFilesPerProFile::projectDir() const
 {
     return QFileInfo(m_proFilePath).dir().path();
-}
-
-void DeployableFilesPerProFile::setProFileUpdateSetting(ProFileUpdateSetting updateSetting)
-{
-    m_proFileUpdateSetting = updateSetting;
-    if (updateSetting == UpdateProFile)
-        buildModel();
-}
-
-bool DeployableFilesPerProFile::isEditable(const QModelIndex &index) const
-{
-    return m_projectType != AuxTemplate
-        && index.row() == 0 && index.column() == 1
-        && m_deployables.first().remoteDir.isEmpty();
-}
-
-QString DeployableFilesPerProFile::localDesktopFilePath() const
-{
-    if (m_projectType == LibraryTemplate)
-        return QString();
-    foreach (const DeployableFile &d, m_deployables) {
-        if (QFileInfo(d.localFilePath).fileName() == m_projectName + QLatin1String(".desktop"))
-            return d.localFilePath;
-    }
-    return QString();
-}
-
-bool DeployableFilesPerProFile::addDesktopFile()
-{
-    if (!canAddDesktopFile())
-        return true;
-    const QString desktopFilePath = QFileInfo(m_proFilePath).path()
-        + QLatin1Char('/') + m_projectName + QLatin1String(".desktop");
-    if (!QFile::exists(desktopFilePath)) {
-        const QByteArray desktopTemplate("[Desktop Entry]\nEncoding=UTF-8\n"
-            "Version=1.0\nType=Application\nTerminal=false\nName=%1\nExec=%2\n"
-            "Icon=%1\nX-Window-Icon=\nX-HildonDesk-ShowInToolbar=true\n"
-            "X-Osso-Type=application/x-executable\n");
-        Utils::FileSaver saver(desktopFilePath);
-        saver.write(QString::fromLatin1(desktopTemplate)
-                    .arg(m_projectName, remoteExecutableFilePath()).toUtf8());
-        if (!saver.finalize(Core::ICore::instance()->mainWindow()))
-            return false;
-    }
-
-    const QtSupport::BaseQtVersion * const version = qtVersion();
-    QTC_ASSERT(version && version->isValid(), return false);
-    QString remoteDir = QLatin1String("/usr/share/applications");
-    if (MaemoGlobal::osType(version->qmakeCommand()) == QLatin1String(Maemo5OsType))
-        remoteDir += QLatin1String("/hildon");
-    const QLatin1String filesLine("desktopfile.files = $${TARGET}.desktop");
-    const QString pathLine = QLatin1String("desktopfile.path = ") + remoteDir;
-    const QLatin1String installsLine("INSTALLS += desktopfile");
-    if (!addLinesToProFile(QStringList() << filesLine << pathLine
-            << installsLine))
-        return false;
-
-    beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_deployables << DeployableFile(desktopFilePath, remoteDir);
-    endInsertRows();
-    return true;
-}
-
-bool DeployableFilesPerProFile::addIcon(const QString &fileName)
-{
-    if (!canAddIcon())
-        return true;
-
-    const QString filesLine = QLatin1String("icon.files = ") + fileName;
-    const QString pathLine = QLatin1String("icon.path = ") + remoteIconDir();
-    const QLatin1String installsLine("INSTALLS += icon");
-    if (!addLinesToProFile(QStringList() << filesLine << pathLine
-            << installsLine))
-        return false;
-
-    beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    const QString filePath = QFileInfo(m_proFilePath).path()
-        + QLatin1Char('/') + fileName;
-    m_deployables << DeployableFile(filePath, remoteIconDir());
-    endInsertRows();
-    return true;
-}
-
-QString DeployableFilesPerProFile::remoteIconFilePath() const
-{
-    if (m_projectType == LibraryTemplate)
-        return QString();
-    const QList<QByteArray> &imageTypes = QImageReader::supportedImageFormats();
-    foreach (const DeployableFile &d, m_deployables) {
-        const QByteArray extension
-            = QFileInfo(d.localFilePath).suffix().toLocal8Bit();
-        if (d.remoteDir.startsWith(remoteIconDir())
-                && imageTypes.contains(extension))
-            return d.remoteDir + QLatin1Char('/')
-                + QFileInfo(d.localFilePath).fileName();
-    }
-    return QString();
-}
-
-bool DeployableFilesPerProFile::addLinesToProFile(const QStringList &lines)
-{
-    Core::FileChangeBlocker update(m_proFilePath);
-
-    const QLatin1String separator("\n    ");
-    const QString proFileString = QString(QLatin1Char('\n') + proFileScope()
-        + QLatin1String(" {") + separator + lines.join(separator)
-        + QLatin1String("\n}\n"));
-    Utils::FileSaver saver(m_proFilePath, QIODevice::Append);
-    saver.write(proFileString.toLocal8Bit());
-    return saver.finalize(Core::ICore::instance()->mainWindow());
-}
-
-const QtSupport::BaseQtVersion *DeployableFilesPerProFile::qtVersion() const
-{
-    const Qt4BuildConfiguration *const bc = m_target->activeBuildConfiguration();
-    QTC_ASSERT(bc, return 0);
-    return bc->qtVersion();
-}
-
-QString DeployableFilesPerProFile::proFileScope() const
-{
-    const QtSupport::BaseQtVersion *const qv = qtVersion();
-    QTC_ASSERT(qv && qv->isValid(), return QString());
-    const QString osType = MaemoGlobal::osType(qv->qmakeCommand());
-    if (osType == QLatin1String(Maemo5OsType))
-        return QLatin1String("maemo5");
-    if (osType == QLatin1String(HarmattanOsType))
-        return QLatin1String("contains(MEEGO_EDITION,harmattan)");
-    if (osType == QLatin1String(MeeGoOsType))
-        return QLatin1String("!isEmpty(MEEGO_VERSION_MAJOR):!contains(MEEGO_EDITION,harmattan)");
-    return QLatin1String("unix:!symbian:!maemo5:isEmpty(MEEGO_VERSION_MAJOR)");
-}
-
-QString DeployableFilesPerProFile::installPrefix() const
-{
-    return QLatin1String("/opt/") + m_projectName;
-}
-
-QString DeployableFilesPerProFile::remoteIconDir() const
-{
-    const QtSupport::BaseQtVersion *const qv = qtVersion();
-    QTC_ASSERT(qv && qv->isValid(), return QString());
-    return QString::fromLocal8Bit("/usr/share/icons/hicolor/%1x%1/apps")
-            .arg(MaemoGlobal::applicationIconSize(MaemoGlobal::osType(qv->qmakeCommand())));
 }
 
 } // namespace RemoteLinux

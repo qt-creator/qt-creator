@@ -37,14 +37,16 @@
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-    class MaemoDeployConfigurationWidget;
+class MaemoDeployConfigurationWidget;
 }
 QT_END_NAMESPACE
 
 namespace RemoteLinux {
-class RemoteLinuxDeployConfiguration;
+class DeployableFilesPerProFile;
+class RemoteLinuxDeployConfigurationWidget;
 
 namespace Internal {
+class Qt4MaemoDeployConfiguration;
 
 class MaemoDeployConfigurationWidget : public ProjectExplorer::DeployConfigurationWidget
 {
@@ -56,18 +58,22 @@ public:
 
     void init(ProjectExplorer::DeployConfiguration *dc);
 
+    Qt4MaemoDeployConfiguration *deployConfiguration() const;
+
+private slots:
+    void addDesktopFile();
+    void addIcon();
+    void handleDeploymentInfoToBeReset();
+    void handleCurrentModelChanged(const DeployableFilesPerProFile *proFileInfo);
+
 private:
-    Q_SLOT void handleModelListToBeReset();
-    Q_SLOT void handleModelListReset();
-    Q_SLOT void setModel(int row);
-    Q_SLOT void handleSelectedDeviceConfigurationChanged(int index);
-    Q_SLOT void handleDeviceConfigurationListChanged();
-    Q_SLOT void addDesktopFile();
-    Q_SLOT void addIcon();
-    Q_SLOT void showDeviceConfigurations();
+    bool canAddDesktopFile(const DeployableFilesPerProFile *proFileInfo) const;
+    bool canAddIcon(const DeployableFilesPerProFile *proFileInfo) const;
+    QString remoteIconFilePath(const DeployableFilesPerProFile *proFileInfo) const;
+    QString remoteIconDir() const;
 
     Ui::MaemoDeployConfigurationWidget *ui;
-    RemoteLinuxDeployConfiguration *m_deployConfig;
+    RemoteLinuxDeployConfigurationWidget * const m_remoteLinuxWidget;
 };
 
 } // namespace Internal

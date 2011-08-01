@@ -45,6 +45,7 @@ namespace RemoteLinux {
 class DeploymentInfo;
 
 namespace Internal {
+class RemoteLinuxDeployConfigurationPrivate;
 class TypeSpecificDeviceConfigurationListModel;
 } // namespace Internal
 
@@ -67,6 +68,7 @@ public:
     QSharedPointer<DeploymentInfo> deploymentInfo() const;
     QSharedPointer<Internal::TypeSpecificDeviceConfigurationListModel> deviceConfigModel() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
+    QString supportedOsType() const;
 
     template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep) const
     {
@@ -91,9 +93,7 @@ private:
     void setDeviceConfig(LinuxDeviceConfiguration::Id internalId);
     Q_SLOT void handleDeviceConfigurationListUpdated();
 
-    QSharedPointer<DeploymentInfo> m_deploymentInfo;
-    QSharedPointer<Internal::TypeSpecificDeviceConfigurationListModel> m_devConfModel;
-    QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfiguration;
+    Internal::RemoteLinuxDeployConfigurationPrivate * const m_d;
 };
 
 } // namespace RemoteLinux

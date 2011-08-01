@@ -29,35 +29,49 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "maemodeployconfigurationwidget.h"
 #include "ui_maemodeployconfigurationwidget.h"
 
-#include "deployablefilesperprofile.h"
-#include "deploymentinfo.h"
-#include "linuxdeviceconfigurations.h"
+#include "deploymentsettingsassistant.h"
 #include "maemoglobal.h"
-#include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxsettingspages.h"
-#include "typespecificdeviceconfigurationlistmodel.h"
+#include "qt4maemodeployconfiguration.h"
+#include "qt4maemotarget.h"
 
-#include <coreplugin/icore.h>
+#include <qt4projectmanager/qt4nodes.h>
+#include <remotelinux/deployablefilesperprofile.h>
+#include <remotelinux/deploymentinfo.h>
+#include <remotelinux/remotelinuxdeployconfigurationwidget.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QFileInfo>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPixmap>
+#include <QtGui/QVBoxLayout>
 
 using namespace ProjectExplorer;
+using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
 namespace Internal {
 
 MaemoDeployConfigurationWidget::MaemoDeployConfigurationWidget(QWidget *parent)
     : DeployConfigurationWidget(parent),
-      ui(new Ui::MaemoDeployConfigurationWidget)
+      ui(new Ui::MaemoDeployConfigurationWidget),
+      m_remoteLinuxWidget(new RemoteLinuxDeployConfigurationWidget)
 {
-    ui->setupUi(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setSpacing(0);
+    mainLayout->addWidget(m_remoteLinuxWidget);
+    QWidget * const subWidget = new QWidget;
+    ui->setupUi(subWidget);
+    mainLayout->addWidget(subWidget);
+    mainLayout->addStretch(1);
+
+    connect(m_remoteLinuxWidget, SIGNAL(currentModelChanged(const DeployableFilesPerProFile*)),
+        SLOT(handleCurrentModelChanged(const DeployableFilesPerProFile*)));
+    handleCurrentModelChanged(0);
 }
 
 MaemoDeployConfigurationWidget::~MaemoDeployConfigurationWidget()
@@ -67,113 +81,70 @@ MaemoDeployConfigurationWidget::~MaemoDeployConfigurationWidget()
 
 void MaemoDeployConfigurationWidget::init(DeployConfiguration *dc)
 {
-    m_deployConfig = qobject_cast<RemoteLinuxDeployConfiguration *>(dc);
-    Q_ASSERT(m_deployConfig);
-
-    connect(ui->manageDevConfsLabel, SIGNAL(linkActivated(QString)),
-        SLOT(showDeviceConfigurations()));
-
-    ui->deviceConfigsComboBox->setModel(m_deployConfig->deviceConfigModel().data());
-    connect(ui->deviceConfigsComboBox, SIGNAL(activated(int)),
-        SLOT(handleSelectedDeviceConfigurationChanged(int)));
-    connect(m_deployConfig, SIGNAL(deviceConfigurationListChanged()),
-        SLOT(handleDeviceConfigurationListChanged()));
-    handleDeviceConfigurationListChanged();
-
-    ui->projectsComboBox->setModel(m_deployConfig->deploymentInfo().data());
-    connect(m_deployConfig->deploymentInfo().data(), SIGNAL(modelAboutToBeReset()),
-        SLOT(handleModelListToBeReset()));
-
-    // Queued connection because of race condition with combo box's reaction
-    // to modelReset().
-    connect(m_deployConfig->deploymentInfo().data(), SIGNAL(modelReset()),
-        SLOT(handleModelListReset()), Qt::QueuedConnection);
-
-    connect(ui->projectsComboBox, SIGNAL(currentIndexChanged(int)),
-        SLOT(setModel(int)));
-    connect(ui->addDesktopFileButton, SIGNAL(clicked()),
-        SLOT(addDesktopFile()));
+    m_remoteLinuxWidget->init(dc);
+    connect(ui->addDesktopFileButton, SIGNAL(clicked()), SLOT(addDesktopFile()));
     connect(ui->addIconButton, SIGNAL(clicked()), SLOT(addIcon()));
-    handleModelListReset();
+    connect(deployConfiguration()->deploymentInfo().data(), SIGNAL(modelAboutToBeReset()),
+        SLOT(handleDeploymentInfoToBeReset()));
 }
 
-void MaemoDeployConfigurationWidget::handleModelListToBeReset()
+Qt4MaemoDeployConfiguration *MaemoDeployConfigurationWidget::deployConfiguration() const
 {
-    ui->tableView->reset(); // Otherwise we'll crash if the user is currently editing.
-    ui->tableView->setModel(0);
+    return qobject_cast<Qt4MaemoDeployConfiguration *>(m_remoteLinuxWidget->deployConfiguration());
+}
+
+void MaemoDeployConfigurationWidget::handleDeploymentInfoToBeReset()
+{
     ui->addDesktopFileButton->setEnabled(false);
     ui->addIconButton->setEnabled(false);
 }
 
-void MaemoDeployConfigurationWidget::handleModelListReset()
+void MaemoDeployConfigurationWidget::handleCurrentModelChanged(const DeployableFilesPerProFile *proFileInfo)
 {
-    QTC_ASSERT(m_deployConfig->deploymentInfo()->modelCount() == ui->projectsComboBox->count(), return);
-    if (m_deployConfig->deploymentInfo()->modelCount() > 0) {
-        if (ui->projectsComboBox->currentIndex() == -1)
-            ui->projectsComboBox->setCurrentIndex(0);
-        else
-            setModel(ui->projectsComboBox->currentIndex());
-    }
-}
-
-void MaemoDeployConfigurationWidget::setModel(int row)
-{
-    bool canAddDesktopFile = false;
-    bool canAddIconFile = false;
-    if (row != -1) {
-        DeployableFilesPerProFile * const model
-            = m_deployConfig->deploymentInfo()->modelAt(row);
-        ui->tableView->setModel(model);
-        ui->tableView->resizeRowsToContents();
-        canAddDesktopFile = model->canAddDesktopFile();
-        canAddIconFile = model->canAddIcon();
-    }
-    ui->addDesktopFileButton->setEnabled(canAddDesktopFile);
-    ui->addIconButton->setEnabled(canAddIconFile);
-}
-
-void MaemoDeployConfigurationWidget::handleSelectedDeviceConfigurationChanged(int index)
-{
-    disconnect(m_deployConfig, SIGNAL(deviceConfigurationListChanged()), this,
-        SLOT(handleDeviceConfigurationListChanged()));
-    m_deployConfig->setDeviceConfiguration(index);
-    connect(m_deployConfig, SIGNAL(deviceConfigurationListChanged()),
-        SLOT(handleDeviceConfigurationListChanged()));
-}
-
-void MaemoDeployConfigurationWidget::handleDeviceConfigurationListChanged()
-{
-    const LinuxDeviceConfiguration::ConstPtr &devConf = m_deployConfig->deviceConfiguration();
-    const LinuxDeviceConfiguration::Id internalId
-        = LinuxDeviceConfigurations::instance()->internalId(devConf);
-    const int newIndex = m_deployConfig->deviceConfigModel()->indexForInternalId(internalId);
-    ui->deviceConfigsComboBox->setCurrentIndex(newIndex);
+    ui->addDesktopFileButton->setEnabled(canAddDesktopFile(proFileInfo));
+    ui->addIconButton->setEnabled(canAddIcon(proFileInfo));
 }
 
 void MaemoDeployConfigurationWidget::addDesktopFile()
 {
-    const int modelRow = ui->projectsComboBox->currentIndex();
-    if (modelRow == -1)
-        return;
-    DeployableFilesPerProFile *const model
-        = m_deployConfig->deploymentInfo()->modelAt(modelRow);
-    model->addDesktopFile();
-    ui->addDesktopFileButton->setEnabled(model->canAddDesktopFile());
-    ui->tableView->resizeRowsToContents();
+    DeployableFilesPerProFile * const proFileInfo = m_remoteLinuxWidget->currentModel();
+    QTC_ASSERT(canAddDesktopFile(proFileInfo), return);
+
+    const QString desktopFilePath = QFileInfo(proFileInfo->proFilePath()).path()
+        + QLatin1Char('/') + proFileInfo->projectName() + QLatin1String(".desktop");
+    if (!QFile::exists(desktopFilePath)) {
+        const QString desktopTemplate = QLatin1String("[Desktop Entry]\nEncoding=UTF-8\n"
+            "Version=1.0\nType=Application\nTerminal=false\nName=%1\nExec=%2\n"
+            "Icon=%1\nX-Window-Icon=\nX-HildonDesk-ShowInToolbar=true\n"
+            "X-Osso-Type=application/x-executable\n");
+        Utils::FileSaver saver(desktopFilePath);
+        saver.write(desktopTemplate.arg(proFileInfo->projectName(),
+            proFileInfo->remoteExecutableFilePath()).toUtf8());
+        if (!saver.finalize(this))
+            return;
+    }
+
+    DeployableFile d;
+    d.remoteDir = QLatin1String("/usr/share/applications");
+    if (qobject_cast<Qt4Maemo5Target *>(deployConfiguration()->target()))
+        d.remoteDir += QLatin1String("/hildon");
+    d.localFilePath = desktopFilePath;
+    if (!deployConfiguration()->deploymentSettingsAssistant()->addDeployableToProFile(proFileInfo,
+        QLatin1String("desktopfile"), d)) {
+        QMessageBox::critical(this, tr("Project File Update Failed"),
+            tr("Could not update the project file."));
+    } else {
+        ui->addDesktopFileButton->setEnabled(false);
+    }
 }
 
 void MaemoDeployConfigurationWidget::addIcon()
 {
-    const int modelRow = ui->projectsComboBox->currentIndex();
-    if (modelRow == -1)
-        return;
-
-    DeployableFilesPerProFile *const model
-        = m_deployConfig->deploymentInfo()->modelAt(modelRow);
-    const int iconDim = MaemoGlobal::applicationIconSize(MaemoGlobal::osType(model->qtVersion()->qmakeCommand()));
+    DeployableFilesPerProFile * const proFileInfo = m_remoteLinuxWidget->currentModel();
+    const int iconDim = MaemoGlobal::applicationIconSize(deployConfiguration()->supportedOsType());
     const QString origFilePath = QFileDialog::getOpenFileName(this,
         tr("Choose Icon (will be scaled to %1x%1 pixels, if necessary)").arg(iconDim),
-        model->projectDir(), QLatin1String("(*.png)"));
+        proFileInfo->projectDir(), QLatin1String("(*.png)"));
     if (origFilePath.isEmpty())
         return;
     QPixmap pixmap(origFilePath);
@@ -185,25 +156,55 @@ void MaemoDeployConfigurationWidget::addIcon()
     const QSize iconSize(iconDim, iconDim);
     if (pixmap.size() != iconSize)
         pixmap = pixmap.scaled(iconSize);
-    const QString newFileName = model->projectName() + QLatin1Char('.')
-            + QFileInfo(origFilePath).suffix();
-    const QString newFilePath = model->projectDir() + QLatin1Char('/')
-        + newFileName;
+    const QString newFileName = proFileInfo->projectName() + QLatin1Char('.')
+        + QFileInfo(origFilePath).suffix();
+    const QString newFilePath = proFileInfo->projectDir() + QLatin1Char('/') + newFileName;
     if (!pixmap.save(newFilePath)) {
         QMessageBox::critical(this, tr("Failed to Save Icon"),
             tr("Could not save icon to '%1'.").arg(newFilePath));
         return;
     }
 
-    model->addIcon(newFileName);
-    ui->addIconButton->setEnabled(model->canAddIcon());
-    ui->tableView->resizeRowsToContents();
+    if (!deployConfiguration()->deploymentSettingsAssistant()->addDeployableToProFile(proFileInfo,
+        QLatin1String("icon"), DeployableFile(newFilePath, remoteIconDir()))) {
+        QMessageBox::critical(this, tr("Project File Update Failed"),
+            tr("Could not update the project file."));
+    } else {
+        ui->addIconButton->setEnabled(false);
+    }
 }
 
-void MaemoDeployConfigurationWidget::showDeviceConfigurations()
+bool MaemoDeployConfigurationWidget::canAddDesktopFile(const DeployableFilesPerProFile *proFileInfo) const
 {
-    Core::ICore::instance()->showOptionsDialog(LinuxDeviceConfigurationsSettingsPage::pageCategory(),
-        LinuxDeviceConfigurationsSettingsPage::pageId());
+    return proFileInfo && proFileInfo->isApplicationProject()
+        && deployConfiguration()->localDesktopFilePath(proFileInfo).isEmpty();
+}
+
+bool MaemoDeployConfigurationWidget::canAddIcon(const DeployableFilesPerProFile *proFileInfo) const
+{
+    return proFileInfo && proFileInfo->isApplicationProject()
+        && remoteIconFilePath(proFileInfo).isEmpty();
+}
+
+QString MaemoDeployConfigurationWidget::remoteIconFilePath(const DeployableFilesPerProFile *proFileInfo) const
+{
+    QTC_ASSERT(proFileInfo->projectType() == ApplicationTemplate, return  QString());
+
+    const QStringList imageTypes = QStringList() << QLatin1String("jpg") << QLatin1String("png")
+        << QLatin1String("svg");
+    for (int i = 0; i < proFileInfo->rowCount(); ++i) {
+        const DeployableFile &d = proFileInfo->deployableAt(i);
+        const QString extension = QFileInfo(d.localFilePath).suffix();
+        if (d.remoteDir.startsWith(remoteIconDir()) && imageTypes.contains(extension))
+            return d.remoteDir + QLatin1Char('/') + QFileInfo(d.localFilePath).fileName();
+    }
+    return QString();
+}
+
+QString MaemoDeployConfigurationWidget::remoteIconDir() const
+{
+    return QString::fromLocal8Bit("/usr/share/icons/hicolor/%1x%1/apps")
+        .arg(MaemoGlobal::applicationIconSize(deployConfiguration()->supportedOsType()));
 }
 
 } // namespace Internal

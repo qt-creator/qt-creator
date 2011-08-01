@@ -98,7 +98,9 @@ HEADERS += \
     sshkeycreationdialog.h \
     remotelinuxusedportsgatherer.h \
     remotelinuxsettingspages.h \
-    remotelinuxutils.h
+    remotelinuxutils.h \
+    deploymentsettingsassistant.h \
+    remotelinuxdeployconfigurationwidget.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -189,7 +191,9 @@ SOURCES += \
     sshkeycreationdialog.cpp \
     remotelinuxusedportsgatherer.cpp \
     remotelinuxsettingspages.cpp \
-    remotelinuxutils.cpp
+    remotelinuxutils.cpp \
+    deploymentsettingsassistant.cpp \
+    remotelinuxdeployconfigurationwidget.cpp
 
 FORMS += \
     maemopackagecreationwidget.ui \
@@ -210,7 +214,8 @@ FORMS += \
     linuxdevicetestdialog.ui \
     remotelinuxprocessesdialog.ui \
     linuxdeviceconfigurationssettingswidget.ui \
-    sshkeycreationdialog.ui
+    sshkeycreationdialog.ui \
+    remotelinuxdeployconfigurationwidget.ui
 
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII

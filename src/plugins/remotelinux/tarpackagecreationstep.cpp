@@ -37,6 +37,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
+#include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>

@@ -30,6 +30,7 @@
 **************************************************************************/
 #include "abstractpackagingstep.h"
 
+#include "deployablefile.h"
 #include "deploymentinfo.h"
 #include "remotelinuxdeployconfiguration.h"
 
@@ -38,6 +39,7 @@
 #include <projectexplorer/target.h>
 #include <utils/fileutils.h>
 
+#include <QtCore/QDateTime>
 #include <QtCore/QFileInfo>
 
 using namespace ProjectExplorer;
