@@ -369,6 +369,7 @@ public:
     virtual int extraAreaWidth(int *markWidthPtr = 0) const;
     virtual void extraAreaPaintEvent(QPaintEvent *);
     virtual void extraAreaLeaveEvent(QEvent *);
+    virtual void extraAreaContextMenuEvent(QContextMenuEvent *);
     virtual void extraAreaMouseEvent(QMouseEvent *);
 
     const TabSettings &tabSettings() const;

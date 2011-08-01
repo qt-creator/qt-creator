@@ -145,6 +145,9 @@ protected:
     void leaveEvent(QEvent *event){
         textEdit->extraAreaLeaveEvent(event);
     }
+    void contextMenuEvent(QContextMenuEvent *event) {
+        textEdit->extraAreaContextMenuEvent(event);
+    }
 
     void wheelEvent(QWheelEvent *event) {
         QCoreApplication::sendEvent(textEdit->viewport(), event);
@@ -4191,6 +4194,19 @@ void BaseTextEditorWidget::extraAreaLeaveEvent(QEvent *)
     extraAreaMouseEvent(&me);
 }
 
+void BaseTextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
+{
+    QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
+    if (d->m_marksVisible) {
+        QMenu * contextMenu = new QMenu(this);
+        emit editor()->markContextMenuRequested(editor(), cursor.blockNumber() + 1, contextMenu);
+        if (!contextMenu->isEmpty())
+            contextMenu->exec(e->globalPos());
+        delete contextMenu;
+        e->accept();
+    }
+}
+
 void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
@@ -4247,13 +4263,6 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             } else {
                 d->extraAreaToggleMarkBlockNumber = cursor.blockNumber();
             }
-        } else if (d->m_marksVisible && e->button() == Qt::RightButton) {
-            QMenu * contextMenu = new QMenu(this);
-            emit editor()->markContextMenuRequested(editor(), cursor.blockNumber() + 1, contextMenu);
-            if (!contextMenu->isEmpty())
-                contextMenu->exec(e->globalPos());
-            delete contextMenu;
-            e->accept();
         }
     } else if (d->extraAreaSelectionAnchorBlockNumber >= 0) {
         QTextCursor selection = cursor;
