@@ -210,7 +210,6 @@ void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);
-    m_ui->detailsWidget->setEnabled(true);
     m_nameValidator->setDisplayName(current->name());
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     fillInValues();
@@ -355,11 +354,11 @@ void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
 {
     qDeleteAll(m_additionalActionButtons);
     m_additionalActionButtons.clear();
+    m_ui->detailsWidget->setEnabled(false);
     if (index == -1) {
         m_ui->removeConfigButton->setEnabled(false);
         m_ui->generateKeyButton->setEnabled(false);
         clearDetails();
-        m_ui->detailsWidget->setEnabled(false);
         m_ui->defaultDeviceButton->setEnabled(false);
     } else {
         m_ui->removeConfigButton->setEnabled(true);
@@ -374,6 +373,7 @@ void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
                 m_additionalActionsMapper->setMapping(button, actionId);
                 m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
             }
+            m_ui->detailsWidget->setEnabled(factory->isUserEditable());
         }
         m_ui->configurationComboBox->setCurrentIndex(index);
         displayCurrent();

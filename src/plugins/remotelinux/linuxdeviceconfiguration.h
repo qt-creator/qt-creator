@@ -178,6 +178,12 @@ public:
     */
     virtual QString displayNameForActionId(const QString &actionId) const=0;
 
+    /*!
+      True iff the user should be allowed to edit the device configurations created by this
+      factory. Returns true by default. Override if your factory creates fixed configurations
+      for which later editing makes no sense.
+    */
+    bool isUserEditable() const { return true; }
 
     /*!
       Produces a dialog implementing the respective action. The dialog is supposed to be
