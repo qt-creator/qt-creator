@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MaemoProFilesUpdateDialog</class>
- <widget class="QDialog" name="MaemoProFilesUpdateDialog">
+ <class>ProFilesUpdateDialog</class>
+ <widget class="QDialog" name="ProFilesUpdateDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="infoLabel">
      <property name="text">
-      <string>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</string>
+      <string>The project files listed below do not contain deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -106,7 +106,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>MaemoProFilesUpdateDialog</receiver>
+   <receiver>ProFilesUpdateDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -122,7 +122,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>MaemoProFilesUpdateDialog</receiver>
+   <receiver>ProFilesUpdateDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

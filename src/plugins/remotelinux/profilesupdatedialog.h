@@ -29,8 +29,8 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef MAEMOPROFILESUPDATEDIALOG_H
-#define MAEMOPROFILESUPDATEDIALOG_H
+#ifndef PROFILESUPDATEDIALOG_H
+#define PROFILESUPDATEDIALOG_H
 
 #include <QtCore/QList>
 #include <QtCore/QPair>
@@ -39,7 +39,7 @@
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-    class MaemoProFilesUpdateDialog;
+class ProFilesUpdateDialog;
 }
 QT_END_NAMESPACE
 
@@ -48,16 +48,16 @@ class DeployableFilesPerProFile;
 
 namespace Internal {
 
-class MaemoProFilesUpdateDialog : public QDialog
+class ProFilesUpdateDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     typedef QPair<DeployableFilesPerProFile *, bool> UpdateSetting;
 
-    explicit MaemoProFilesUpdateDialog(const QList<DeployableFilesPerProFile *> &models,
+    explicit ProFilesUpdateDialog(const QList<DeployableFilesPerProFile *> &models,
         QWidget *parent = 0);
-    ~MaemoProFilesUpdateDialog();
+    ~ProFilesUpdateDialog();
     QList<UpdateSetting> getUpdateSettings() const;
 
 private:
@@ -66,10 +66,10 @@ private:
     void setCheckStateForAll(Qt::CheckState checkState);
 
     const QList<DeployableFilesPerProFile *> m_models;
-    Ui::MaemoProFilesUpdateDialog *ui;
+    Ui::ProFilesUpdateDialog *ui;
 };
 
 } // namespace RemoteLinux
 } // namespace Internal
 
-#endif // MAEMOPROFILESUPDATEDIALOG_H
+#endif // PROFILESUPDATEDIALOG_H

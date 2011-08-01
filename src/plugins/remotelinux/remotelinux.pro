@@ -24,7 +24,6 @@ HEADERS += \
     maemoremotemountsmodel.h \
     maemomountspecification.h \
     maemoremotemounter.h \
-    maemoprofilesupdatedialog.h \
     maemopublishingwizardfactories.h \
     maemopublishingbuildsettingspagefremantlefree.h \
     maemopublishingfileselectiondialog.h \
@@ -100,7 +99,8 @@ HEADERS += \
     remotelinuxsettingspages.h \
     remotelinuxutils.h \
     deploymentsettingsassistant.h \
-    remotelinuxdeployconfigurationwidget.h
+    remotelinuxdeployconfigurationwidget.h \
+    profilesupdatedialog.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -120,7 +120,6 @@ SOURCES += \
     maemoremotemountsmodel.cpp \
     maemomountspecification.cpp \
     maemoremotemounter.cpp \
-    maemoprofilesupdatedialog.cpp \
     maemopublishingwizardfactories.cpp \
     maemopublishingbuildsettingspagefremantlefree.cpp \
     maemopublishingfileselectiondialog.cpp \
@@ -193,11 +192,11 @@ SOURCES += \
     remotelinuxsettingspages.cpp \
     remotelinuxutils.cpp \
     deploymentsettingsassistant.cpp \
-    remotelinuxdeployconfigurationwidget.cpp
+    remotelinuxdeployconfigurationwidget.cpp \
+    profilesupdatedialog.cpp
 
 FORMS += \
     maemopackagecreationwidget.ui \
-    maemoprofilesupdatedialog.ui \
     maemopublishingbuildsettingspagefremantlefree.ui \
     maemopublishingfileselectiondialog.ui \
     maemopublishinguploadsettingspagefremantlefree.ui \
@@ -215,7 +214,8 @@ FORMS += \
     remotelinuxprocessesdialog.ui \
     linuxdeviceconfigurationssettingswidget.ui \
     sshkeycreationdialog.ui \
-    remotelinuxdeployconfigurationwidget.ui
+    remotelinuxdeployconfigurationwidget.ui \
+    profilesupdatedialog.ui
 
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII

@@ -33,7 +33,7 @@
 #include "deploymentinfo.h"
 #include "deployablefile.h"
 #include "deployablefilesperprofile.h"
-#include "maemoprofilesupdatedialog.h"
+#include "profilesupdatedialog.h"
 
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
@@ -130,11 +130,10 @@ void DeploymentSettingsAssistant::handleDeploymentInfoUpdated()
     }
 
     if (!proFilesToAskAbout.isEmpty()) {
-        MaemoProFilesUpdateDialog dialog(proFilesToAskAbout);
+        ProFilesUpdateDialog dialog(proFilesToAskAbout);
         dialog.exec();
-        const QList<MaemoProFilesUpdateDialog::UpdateSetting> &settings
-            = dialog.getUpdateSettings();
-        foreach (const MaemoProFilesUpdateDialog::UpdateSetting &setting, settings) {
+        const QList<ProFilesUpdateDialog::UpdateSetting> &settings = dialog.getUpdateSettings();
+        foreach (const ProFilesUpdateDialog::UpdateSetting &setting, settings) {
             const ProFileUpdateSetting updateSetting = setting.second
                 ? UpdateProFile : DontUpdateProFile;
             m_d->updateSettings.insert(setting.first->proFilePath(), updateSetting);

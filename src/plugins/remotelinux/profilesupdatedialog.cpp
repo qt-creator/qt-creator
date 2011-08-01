@@ -29,8 +29,8 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#include "maemoprofilesupdatedialog.h"
-#include "ui_maemoprofilesupdatedialog.h"
+#include "profilesupdatedialog.h"
+#include "ui_profilesupdatedialog.h"
 
 #include "deployablefilesperprofile.h"
 
@@ -42,11 +42,11 @@
 namespace RemoteLinux {
 namespace Internal {
 
-MaemoProFilesUpdateDialog::MaemoProFilesUpdateDialog(const QList<DeployableFilesPerProFile *> &models,
+ProFilesUpdateDialog::ProFilesUpdateDialog(const QList<DeployableFilesPerProFile *> &models,
     QWidget *parent)
     : QDialog(parent),
     m_models(models),
-    ui(new Ui::MaemoProFilesUpdateDialog)
+    ui(new Ui::ProFilesUpdateDialog)
 {
     ui->setupUi(this);
     ui->tableWidget->setRowCount(models.count());
@@ -65,30 +65,29 @@ MaemoProFilesUpdateDialog::MaemoProFilesUpdateDialog(const QList<DeployableFiles
     connect(ui->uncheckAllButton, SIGNAL(clicked()), this, SLOT(uncheckAll()));
 }
 
-MaemoProFilesUpdateDialog::~MaemoProFilesUpdateDialog()
+ProFilesUpdateDialog::~ProFilesUpdateDialog()
 {
     delete ui;
 }
 
-void MaemoProFilesUpdateDialog::checkAll()
+void ProFilesUpdateDialog::checkAll()
 {
     setCheckStateForAll(Qt::Checked);
 }
 
-void MaemoProFilesUpdateDialog::uncheckAll()
+void ProFilesUpdateDialog::uncheckAll()
 {
     setCheckStateForAll(Qt::Unchecked);
 }
 
-void MaemoProFilesUpdateDialog::setCheckStateForAll(Qt::CheckState checkState)
+void ProFilesUpdateDialog::setCheckStateForAll(Qt::CheckState checkState)
 {
     for (int row = 0; row < ui->tableWidget->rowCount(); ++row)  {
         ui->tableWidget->item(row, 0)->setCheckState(checkState);
     }
 }
 
-QList<MaemoProFilesUpdateDialog::UpdateSetting>
-MaemoProFilesUpdateDialog::getUpdateSettings() const
+QList<ProFilesUpdateDialog::UpdateSetting> ProFilesUpdateDialog::getUpdateSettings() const
 {
     QList<UpdateSetting> settings;
     for (int row = 0; row < m_models.count(); ++row) {
