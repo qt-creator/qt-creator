@@ -11,7 +11,7 @@ include(doc/doc.pri)
 TEMPLATE  = subdirs
 CONFIG   += ordered
 
-SUBDIRS = src share
+SUBDIRS = src share lib/qtcreator/qtcomponents
 
 OTHER_FILES += dist/copyright_template.txt \
     dist/changes-1.1.0 \

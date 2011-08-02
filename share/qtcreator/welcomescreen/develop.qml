@@ -32,7 +32,7 @@
 
 import QtQuick 1.0
 import "widgets" as Widgets
-import components 1.0 as Components
+import qtcomponents 1.0 as Components
 
 Item {
     id: root
