@@ -32,10 +32,7 @@
 #ifndef LINUXDEVICECONFIGURATION_H
 #define LINUXDEVICECONFIGURATION_H
 
-#include "portlist.h"
 #include "remotelinux_export.h"
-
-#include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
@@ -47,11 +44,17 @@ class QDialog;
 class QSettings;
 QT_END_NAMESPACE
 
+namespace Utils {
+class SshConnectionParameters;
+}
 
 namespace RemoteLinux {
+class PortList;
+
 namespace Internal {
+class LinuxDeviceConfigurationPrivate;
 class LinuxDeviceConfigurations;
-}
+} // namespace Internal
 
 class REMOTELINUX_EXPORT LinuxDeviceConfiguration
 {
@@ -62,18 +65,17 @@ public:
 
     typedef quint64 Id;
 
-    enum DeviceType { Physical, Emulator };
+    enum DeviceType { Hardware, Emulator };
 
     ~LinuxDeviceConfiguration();
 
-    PortList freePorts() const { return m_freePorts; }
-    Utils::SshConnectionParameters sshParameters() const { return m_sshParameters; }
-    QString name() const { return m_name; }
-    void setName(const QString &name) { m_name = name; }
-    QString osType() const { return m_osType; }
-    DeviceType type() const { return m_type; }
-    Id internalId() const { return m_internalId; }
-    bool isDefault() const { return m_isDefault; }
+    PortList freePorts() const;
+    Utils::SshConnectionParameters sshParameters() const;
+    QString name() const;
+    QString osType() const;
+    DeviceType deviceType() const;
+    Id internalId() const;
+    bool isDefault() const;
 
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
@@ -95,15 +97,14 @@ private:
     static Ptr create(const QSettings &settings, Id &nextId);
     static Ptr create(const ConstPtr &other);
 
+    void setName(const QString &name);
+    void setInternalId(Id id);
+    void setDefault(bool isDefault);
+    void setSshParameters(const Utils::SshConnectionParameters &sshParameters);
+    void setFreePorts(const PortList &freePorts);
     void save(QSettings &settings) const;
 
-    Utils::SshConnectionParameters m_sshParameters;
-    QString m_name;
-    QString m_osType;
-    DeviceType m_type;
-    PortList m_freePorts;
-    bool m_isDefault;
-    Id m_internalId;
+    Internal::LinuxDeviceConfigurationPrivate *m_d;
 };
 
 

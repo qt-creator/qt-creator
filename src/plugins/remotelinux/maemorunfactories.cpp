@@ -28,7 +28,6 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "maemorunfactories.h"
 
 #include "maemoconstants.h"
@@ -40,6 +39,7 @@
 #include "qt4maemotarget.h"
 
 #include <debugger/debuggerconstants.h>
+#include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <projectexplorer/projectexplorerconstants.h>

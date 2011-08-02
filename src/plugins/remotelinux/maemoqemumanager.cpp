@@ -589,7 +589,7 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
     if (qtVersion)
         *qtVersion = version;
     const LinuxDeviceConfiguration::ConstPtr &config = mrc->deviceConfig();
-    return config && config->type() == LinuxDeviceConfiguration::Emulator;
+    return config && config->deviceType() == LinuxDeviceConfiguration::Emulator;
 }
 
 void MaemoQemuManager::notify(const QList<int> uniqueIds)

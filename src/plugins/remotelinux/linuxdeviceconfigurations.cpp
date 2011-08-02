@@ -34,6 +34,7 @@
 #include "remotelinuxutils.h"
 
 #include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QSettings>
@@ -128,12 +129,12 @@ void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration:
             name = nameTemplate.arg(QString::number(suffix++));
         while (hasConfig(name));
     }
-    devConfig->m_name = name;
+    devConfig->setName(name);
 
-    devConfig->m_internalId = m_nextId++;
+    devConfig->setInternalId(m_nextId++);
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     if (!defaultDeviceConfig(devConfig->osType()))
-        devConfig->m_isDefault = true;
+        devConfig->setDefault(true);
     m_devConfigs << devConfig;
     endInsertRows();
 }
@@ -142,14 +143,14 @@ void LinuxDeviceConfigurations::removeConfiguration(int idx)
 {
     Q_ASSERT(idx >= 0 && idx < rowCount());
     beginRemoveRows(QModelIndex(), idx, idx);
-    const bool wasDefault = deviceAt(idx)->m_isDefault;
+    const bool wasDefault = deviceAt(idx)->isDefault();
     const QString osType = deviceAt(idx)->osType();
     m_devConfigs.removeAt(idx);
     endRemoveRows();
     if (wasDefault) {
         for (int i = 0; i < m_devConfigs.count(); ++i) {
             if (deviceAt(i)->osType() == osType) {
-                m_devConfigs.at(i)->m_isDefault = true;
+                m_devConfigs.at(i)->setDefault(true);
                 const QModelIndex changedIndex = index(i, 0);
                 emit dataChanged(changedIndex, changedIndex);
                 break;
@@ -161,7 +162,7 @@ void LinuxDeviceConfigurations::removeConfiguration(int idx)
 void LinuxDeviceConfigurations::setConfigurationName(int i, const QString &name)
 {
     Q_ASSERT(i >= 0 && i < rowCount());
-    m_devConfigs.at(i)->m_name = name;
+    m_devConfigs.at(i)->setName(name);
     const QModelIndex changedIndex = index(i, 0);
     emit dataChanged(changedIndex, changedIndex);
 }
@@ -170,40 +171,39 @@ void LinuxDeviceConfigurations::setSshParameters(int i,
     const Utils::SshConnectionParameters &params)
 {
     Q_ASSERT(i >= 0 && i < rowCount());
-    m_devConfigs.at(i)->m_sshParameters = params;
+    m_devConfigs.at(i)->setSshParameters(params);
 }
 
 void LinuxDeviceConfigurations::setFreePorts(int i, const PortList &freePorts)
 {
     Q_ASSERT(i >= 0 && i < rowCount());
-    m_devConfigs.at(i)->m_freePorts = freePorts;
+    m_devConfigs.at(i)->setFreePorts(freePorts);
 }
 
 void LinuxDeviceConfigurations::setDefaultDevice(int idx)
 {
     Q_ASSERT(idx >= 0 && idx < rowCount());
     const LinuxDeviceConfiguration::Ptr &devConf = m_devConfigs.at(idx);
-    if (devConf->m_isDefault)
+    if (devConf->isDefault())
         return;
     QModelIndex oldDefaultIndex;
     for (int i = 0; i < m_devConfigs.count(); ++i) {
         const LinuxDeviceConfiguration::Ptr &oldDefaultDev = m_devConfigs.at(i);
-        if (oldDefaultDev->m_isDefault
-                && oldDefaultDev->osType() == devConf->osType()) {
-            oldDefaultDev->m_isDefault = false;
+        if (oldDefaultDev->isDefault() && oldDefaultDev->osType() == devConf->osType()) {
+            oldDefaultDev->setDefault(false);
             oldDefaultIndex = index(i, 0);
             break;
         }
     }
-    Q_ASSERT(oldDefaultIndex.isValid());
+
+    QTC_CHECK(oldDefaultIndex.isValid());
     emit dataChanged(oldDefaultIndex, oldDefaultIndex);
-    devConf->m_isDefault = true;
+    devConf->setDefault(true);
     const QModelIndex newDefaultIndex = index(idx, 0);
     emit dataChanged(newDefaultIndex, newDefaultIndex);
 }
 
-LinuxDeviceConfigurations::LinuxDeviceConfigurations(QObject *parent)
-    : QAbstractListModel(parent)
+LinuxDeviceConfigurations::LinuxDeviceConfigurations(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
@@ -249,7 +249,7 @@ LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::find(LinuxDeviceCo
 LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::defaultDeviceConfig(const QString &osType) const
 {
     foreach (const LinuxDeviceConfiguration::ConstPtr &devConf, m_devConfigs) {
-        if (devConf->m_isDefault && devConf->osType() == osType)
+        if (devConf->isDefault() && devConf->osType() == osType)
             return devConf;
     }
     return LinuxDeviceConfiguration::ConstPtr();
@@ -258,7 +258,7 @@ LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::defaultDeviceConfi
 int LinuxDeviceConfigurations::indexForInternalId(LinuxDeviceConfiguration::Id internalId) const
 {
     for (int i = 0; i < m_devConfigs.count(); ++i) {
-        if (deviceAt(i)->m_internalId == internalId)
+        if (deviceAt(i)->internalId() == internalId)
             return i;
     }
     return -1;
@@ -266,7 +266,7 @@ int LinuxDeviceConfigurations::indexForInternalId(LinuxDeviceConfiguration::Id i
 
 LinuxDeviceConfiguration::Id LinuxDeviceConfigurations::internalId(LinuxDeviceConfiguration::ConstPtr devConf) const
 {
-    return devConf ? devConf->m_internalId : LinuxDeviceConfiguration::InvalidId;
+    return devConf ? devConf->internalId() : LinuxDeviceConfiguration::InvalidId;
 }
 
 void LinuxDeviceConfigurations::ensureOneDefaultConfigurationPerOsType()
@@ -277,7 +277,7 @@ void LinuxDeviceConfigurations::ensureOneDefaultConfigurationPerOsType()
     foreach (const LinuxDeviceConfiguration::Ptr &devConf, m_devConfigs) {
         if (devConf->isDefault()) {
             if (osTypeHasDefault.value(devConf->osType()))
-                devConf->m_isDefault = false;
+                devConf->setDefault(false);
             else
                 osTypeHasDefault.insert(devConf->osType(), true);
         }
@@ -286,7 +286,7 @@ void LinuxDeviceConfigurations::ensureOneDefaultConfigurationPerOsType()
     // Step 2: Ensure there's at least one default configuration per device type.
     foreach (const LinuxDeviceConfiguration::Ptr &devConf, m_devConfigs) {
         if (!osTypeHasDefault.value(devConf->osType())) {
-            devConf->m_isDefault = true;
+            devConf->setDefault(true);
             osTypeHasDefault.insert(devConf->osType(), true);
         }
     }
@@ -304,7 +304,7 @@ QVariant LinuxDeviceConfigurations::data(const QModelIndex &index, int role) con
         return QVariant();
     const LinuxDeviceConfiguration::ConstPtr devConf = deviceAt(index.row());
     QString name = devConf->name();
-    if (devConf->m_isDefault) {
+    if (devConf->isDefault()) {
         name += QLatin1Char(' ') + tr("(default for %1)")
             .arg(RemoteLinuxUtils::osTypeToString(devConf->osType()));
     }

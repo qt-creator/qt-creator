@@ -36,7 +36,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QtCore/QString>
+QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace RemoteLinux {
 class AbstractRemoteLinuxApplicationRunner;
@@ -44,6 +44,7 @@ class AbstractRemoteLinuxApplicationRunner;
 class REMOTELINUX_EXPORT AbstractRemoteLinuxRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
+    Q_DISABLE_COPY(AbstractRemoteLinuxRunControl)
 public:
     explicit AbstractRemoteLinuxRunControl(ProjectExplorer::RunConfiguration *runConfig);
     virtual ~AbstractRemoteLinuxRunControl();
@@ -65,7 +66,6 @@ private slots:
     void handleProgressReport(const QString &progressString);
 
 private:
-
     void setFinished();
     void handleError(const QString &errString);
 

@@ -37,6 +37,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QString>
 #include <QtGui/QMessageBox>
 
 using namespace ProjectExplorer;
@@ -147,7 +148,7 @@ void AbstractRemoteLinuxRunControl::setFinished()
 
 RemoteLinuxRunControl::RemoteLinuxRunControl(ProjectExplorer::RunConfiguration *runConfig)
     : AbstractRemoteLinuxRunControl(runConfig),
-      m_runner(new GenericRemoteLinuxApplicationRunner(this, qobject_cast<RemoteLinuxRunConfiguration *>(runConfig)))
+      m_runner(new GenericRemoteLinuxApplicationRunner(qobject_cast<RemoteLinuxRunConfiguration *>(runConfig), this))
 {
 }
 

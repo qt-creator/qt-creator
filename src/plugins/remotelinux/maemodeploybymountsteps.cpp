@@ -47,8 +47,8 @@
 #include <remotelinux/deployablefile.h>
 #include <remotelinux/deploymentinfo.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
-
 #include <utils/qtcassert.h>
+#include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QList>
@@ -156,7 +156,7 @@ void AbstractMaemoDeployByMountService::doDeviceSetup()
 {
     QTC_ASSERT(m_state == Inactive, return);
 
-    if (deviceConfiguration()->type() == LinuxDeviceConfiguration::Physical) {
+    if (deviceConfiguration()->deviceType() == LinuxDeviceConfiguration::Hardware) {
         handleDeviceSetupDone(true);
         return;
     }

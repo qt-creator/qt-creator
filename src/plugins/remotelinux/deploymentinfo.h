@@ -35,9 +35,6 @@
 #include "remotelinux_export.h"
 
 #include <QtCore/QAbstractListModel>
-#include <QtCore/QList>
-
-QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Qt4ProjectManager {
 class Qt4BaseTarget;
@@ -48,19 +45,24 @@ namespace RemoteLinux {
 class DeployableFile;
 class DeployableFilesPerProFile;
 
+namespace Internal {
+class DeploymentInfoPrivate;
+}
+
 class REMOTELINUX_EXPORT DeploymentInfo : public QAbstractListModel
 {
     Q_OBJECT
 public:
     DeploymentInfo(const Qt4ProjectManager::Qt4BaseTarget *target);
     ~DeploymentInfo();
+
     void setUnmodified();
     bool isModified() const;
     int deployableCount() const;
     DeployableFile deployableAt(int i) const;
     QString remoteExecutableFilePath(const QString &localExecutableFilePath) const;
-    int modelCount() const { return m_listModels.count(); }
-    DeployableFilesPerProFile *modelAt(int i) const { return m_listModels.at(i); }
+    int modelCount() const;
+    DeployableFilesPerProFile *modelAt(int i) const;
 
 private slots:
     void startTimer(Qt4ProjectManager::Qt4ProFileNode *, bool success, bool parseInProgress);
@@ -72,9 +74,7 @@ private:
     Q_SLOT void createModels();
     void createModels(const Qt4ProjectManager::Qt4ProFileNode *proFileNode);
 
-    QList<DeployableFilesPerProFile *> m_listModels;
-    const Qt4ProjectManager::Qt4BaseTarget * const m_target;
-    QTimer *const m_updateTimer;
+    Internal::DeploymentInfoPrivate * const m_d;
 };
 
 } // namespace RemoteLinux

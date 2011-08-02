@@ -33,6 +33,8 @@
 #include "linuxdeviceconfiguration.h"
 #include "sshkeydeployer.h"
 
+#include <utils/ssh/sshconnection.h>
+
 #include <QtCore/QTimer>
 #include <QtGui/QFileDialog>
 

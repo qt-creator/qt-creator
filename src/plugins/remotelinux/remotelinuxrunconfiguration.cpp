@@ -34,15 +34,13 @@
 
 #include "deploymentinfo.h"
 #include "linuxdeviceconfiguration.h"
-#include "maemoqtversion.h"
-#include "maemotoolchain.h"
-#include "qt4maemotarget.h"
+#include "portlist.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxrunconfigurationwidget.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-
+#include <projectexplorer/toolchain.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
@@ -50,9 +48,6 @@
 #include <qt4projectmanager/qt4target.h>
 
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-
-#include <QtCore/QStringBuilder>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

@@ -39,7 +39,7 @@ namespace RemoteLinux {
 class AbstractRemoteLinuxPackageInstaller;
 
 namespace Internal {
-class UploadAndInstallTarPackageActionPrivate;
+class UploadAndInstallTarPackageServicePrivate;
 }
 
 class REMOTELINUX_EXPORT UploadAndInstallTarPackageService : public AbstractUploadAndInstallPackageService
@@ -53,7 +53,7 @@ public:
 private:
     AbstractRemoteLinuxPackageInstaller *packageInstaller() const;
 
-    Internal::UploadAndInstallTarPackageActionPrivate *m_d;
+    Internal::UploadAndInstallTarPackageServicePrivate *m_d;
 };
 
 

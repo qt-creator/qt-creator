@@ -36,7 +36,9 @@
 #include "remotelinux_export.h"
 
 namespace RemoteLinux {
-class GenericDirectUploadService;
+namespace Internal {
+class GenericDirectUploadStepPrivate;
+}
 
 class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDeployStep
 {
@@ -45,6 +47,7 @@ class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDep
 public:
     GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, const QString &id);
     GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, GenericDirectUploadStep *other);
+    ~GenericDirectUploadStep();
 
     bool isDeploymentPossible(QString *whyNot = 0) const;
 
@@ -56,7 +59,7 @@ private:
 
     void ctor();
 
-    GenericDirectUploadService *m_deployService;
+    Internal::GenericDirectUploadStepPrivate *m_d;
 };
 
 } //namespace RemoteLinux

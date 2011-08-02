@@ -33,8 +33,6 @@
 #ifndef DEPLOYABLEFILESPERPROFILE_H
 #define DEPLOYABLEFILESPERPROFILE_H
 
-#include "deployablefile.h"
-
 #include "remotelinux_export.h"
 
 #include <qt4projectmanager/qt4nodes.h>
@@ -44,6 +42,11 @@
 #include <QtCore/QString>
 
 namespace RemoteLinux {
+class DeployableFile;
+
+namespace Internal {
+class DeployableFilesPerProFilePrivate;
+}
 
 class REMOTELINUX_EXPORT DeployableFilesPerProFile : public QAbstractTableModel
 {
@@ -56,17 +59,17 @@ public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
     DeployableFile deployableAt(int row) const;
-    bool isModified() const { return m_modified; }
-    void setUnModified() { m_modified = false; }
+    bool isModified() const;
+    void setUnModified();
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
-    QString projectName() const { return m_projectName; }
+    QString projectName() const;
     QString projectDir() const;
-    QString proFilePath() const { return m_proFilePath; }
-    Qt4ProjectManager::Qt4ProjectType projectType() const { return m_projectType; }
-    bool isApplicationProject() const { return m_projectType == Qt4ProjectManager::ApplicationTemplate; }
-    QString applicationName() const { return m_targetInfo.target; }
-    bool hasTargetPath() const { return !m_installsList.targetPath.isEmpty(); }
+    QString proFilePath() const;
+    Qt4ProjectManager::Qt4ProjectType projectType() const;
+    bool isApplicationProject() const { return projectType() == Qt4ProjectManager::ApplicationTemplate; }
+    QString applicationName() const;
+    bool hasTargetPath() const;
 
 private:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -77,15 +80,7 @@ private:
 
     QStringList localLibraryFilePaths() const;
 
-    const Qt4ProjectManager::Qt4ProjectType m_projectType;
-    const QString m_proFilePath;
-    const QString m_projectName;
-    const Qt4ProjectManager::TargetInformation m_targetInfo;
-    const Qt4ProjectManager::InstallsList m_installsList;
-    const Qt4ProjectManager::ProjectVersion m_projectVersion;
-    const QStringList m_config;
-    QList<DeployableFile> m_deployables;
-    bool m_modified;
+    Internal::DeployableFilesPerProFilePrivate * const m_d;
 };
 
 } // namespace RemoteLinux

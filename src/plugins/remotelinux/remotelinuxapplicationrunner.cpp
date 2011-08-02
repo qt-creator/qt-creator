@@ -32,6 +32,7 @@
 #include "remotelinuxapplicationrunner.h"
 
 #include "linuxdeviceconfiguration.h"
+#include "portlist.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxusedportsgatherer.h"
 
@@ -93,8 +94,8 @@ public:
 
 using namespace Internal;
 
-AbstractRemoteLinuxApplicationRunner::AbstractRemoteLinuxApplicationRunner(QObject *parent,
-        RemoteLinuxRunConfiguration *runConfig)
+AbstractRemoteLinuxApplicationRunner::AbstractRemoteLinuxApplicationRunner(RemoteLinuxRunConfiguration *runConfig,
+        QObject *parent)
     : QObject(parent), m_d(new AbstractRemoteLinuxApplicationRunnerPrivate(runConfig))
 {
     connect(&m_d->portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGathererError(QString)));
@@ -441,9 +442,9 @@ void AbstractRemoteLinuxApplicationRunner::handlePostRunCleanupDone()
 const qint64 AbstractRemoteLinuxApplicationRunner::InvalidExitCode = std::numeric_limits<qint64>::min();
 
 
-GenericRemoteLinuxApplicationRunner::GenericRemoteLinuxApplicationRunner(QObject *parent,
-        RemoteLinuxRunConfiguration *runConfig)
-    : AbstractRemoteLinuxApplicationRunner(parent, runConfig)
+GenericRemoteLinuxApplicationRunner::GenericRemoteLinuxApplicationRunner(RemoteLinuxRunConfiguration *runConfig,
+        QObject *parent)
+    : AbstractRemoteLinuxApplicationRunner(runConfig, parent)
 {
 }
 

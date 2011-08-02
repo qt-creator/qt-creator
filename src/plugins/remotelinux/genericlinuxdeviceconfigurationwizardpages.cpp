@@ -42,6 +42,12 @@ public:
     Ui::GenericLinuxDeviceConfigurationWizardSetupPage ui;
 };
 
+class GenericLinuxDeviceConfigurationWizardFinalPagePrivate
+{
+public:
+    QLabel infoLabel;
+};
+
 } // namespace Internal
 
 using namespace Utils;
@@ -139,18 +145,23 @@ void GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged()
 
 
 GenericLinuxDeviceConfigurationWizardFinalPage::GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent)
-    : QWizardPage(parent), m_infoLabel(new QLabel(this))
+    : QWizardPage(parent), m_d(new Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate)
 {
     setTitle(tr("Setup Finished"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-    m_infoLabel->setWordWrap(true);
+    m_d->infoLabel.setWordWrap(true);
     QVBoxLayout * const layout = new QVBoxLayout(this);
-    layout->addWidget(m_infoLabel);
+    layout->addWidget(&m_d->infoLabel);
+}
+
+GenericLinuxDeviceConfigurationWizardFinalPage::~GenericLinuxDeviceConfigurationWizardFinalPage()
+{
+    delete m_d;
 }
 
 void GenericLinuxDeviceConfigurationWizardFinalPage::initializePage()
 {
-    m_infoLabel->setText(infoText());
+    m_d->infoLabel.setText(infoText());
 }
 
 QString GenericLinuxDeviceConfigurationWizardFinalPage::infoText() const

@@ -28,7 +28,6 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "maemosshrunner.h"
 
 #include "maemoqemumanager.h"
@@ -39,6 +38,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/qtcassert.h>
+#include <utils/ssh/sshconnection.h>
 
 using namespace Qt4ProjectManager;
 using namespace Utils;
@@ -47,7 +47,7 @@ namespace RemoteLinux {
 namespace Internal {
 
 MaemoSshRunner::MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig)
-    : AbstractRemoteLinuxApplicationRunner(parent, runConfig),
+    : AbstractRemoteLinuxApplicationRunner(runConfig, parent),
       m_mounter(new MaemoRemoteMounter(this)),
       m_mountSpecs(runConfig->remoteMounts()->mountSpecs()),
       m_mountState(InactiveMountState)
@@ -72,7 +72,7 @@ bool MaemoSshRunner::canRun(QString &whyNot) const
     if (!AbstractRemoteLinuxApplicationRunner::canRun(whyNot))
         return false;
 
-    if (devConfig()->type() == LinuxDeviceConfiguration::Emulator
+    if (devConfig()->deviceType() == LinuxDeviceConfiguration::Emulator
             && !MaemoQemuManager::instance().qemuIsRunning()) {
         MaemoQemuRuntime rt;
         if (MaemoQemuManager::instance().runtimeForQtVersion(m_qtId, &rt)) {

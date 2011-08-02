@@ -31,6 +31,8 @@
 **************************************************************************/
 #include "deployablefilesperprofile.h"
 
+#include "deployablefile.h"
+
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
@@ -39,46 +41,70 @@
 using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
+namespace Internal {
+class DeployableFilesPerProFilePrivate
+{
+public:
+    DeployableFilesPerProFilePrivate(const Qt4ProFileNode *proFileNode)
+        : projectType(proFileNode->projectType()),
+          proFilePath(proFileNode->path()),
+          projectName(proFileNode->displayName()),
+          targetInfo(proFileNode->targetInformation()),
+          installsList(proFileNode->installsList()),
+          projectVersion(proFileNode->projectVersion()),
+          config(proFileNode->variableValue(ConfigVar)),
+          modified(true)
+    {
+    }
+
+    const Qt4ProjectType projectType;
+    const QString proFilePath;
+    const QString projectName;
+    const Qt4ProjectManager::TargetInformation targetInfo;
+    const Qt4ProjectManager::InstallsList installsList;
+    const Qt4ProjectManager::ProjectVersion projectVersion;
+    const QStringList config;
+    QList<DeployableFile> deployables;
+    bool modified;
+};
+
+} // namespace Internal
+
 using namespace Internal;
 
 DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4ProFileNode *proFileNode,
         QObject *parent)
-    : QAbstractTableModel(parent),
-      m_projectType(proFileNode->projectType()),
-      m_proFilePath(proFileNode->path()),
-      m_projectName(proFileNode->displayName()),
-      m_targetInfo(proFileNode->targetInformation()),
-      m_installsList(proFileNode->installsList()),
-      m_projectVersion(proFileNode->projectVersion()),
-      m_config(proFileNode->variableValue(ConfigVar)),
-      m_modified(true)
+    : QAbstractTableModel(parent), m_d(new DeployableFilesPerProFilePrivate(proFileNode))
 {
-    if (m_projectType == ApplicationTemplate) {
-        m_deployables.prepend(DeployableFile(localExecutableFilePath(),
-            m_installsList.targetPath));
-    } else if (m_projectType == LibraryTemplate) {
+    if (m_d->projectType == ApplicationTemplate) {
+        m_d->deployables.prepend(DeployableFile(localExecutableFilePath(),
+            m_d->installsList.targetPath));
+    } else if (m_d->projectType == LibraryTemplate) {
         foreach (const QString &filePath, localLibraryFilePaths()) {
-            m_deployables.prepend(DeployableFile(filePath,
-                m_installsList.targetPath));
+            m_d->deployables.prepend(DeployableFile(filePath,
+                m_d->installsList.targetPath));
         }
     }
-    foreach (const InstallsItem &elem, m_installsList.items) {
+    foreach (const InstallsItem &elem, m_d->installsList.items) {
         foreach (const QString &file, elem.files)
-            m_deployables << DeployableFile(file, elem.path);
+            m_d->deployables << DeployableFile(file, elem.path);
     }
 }
 
-DeployableFilesPerProFile::~DeployableFilesPerProFile() {}
+DeployableFilesPerProFile::~DeployableFilesPerProFile()
+{
+    delete m_d;
+}
 
 DeployableFile DeployableFilesPerProFile::deployableAt(int row) const
 {
     Q_ASSERT(row >= 0 && row < rowCount());
-    return m_deployables.at(row);
+    return m_d->deployables.at(row);
 }
 
 int DeployableFilesPerProFile::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_deployables.count();
+    return parent.isValid() ? 0 : m_d->deployables.count();
 }
 
 int DeployableFilesPerProFile::columnCount(const QModelIndex &parent) const
@@ -91,7 +117,7 @@ QVariant DeployableFilesPerProFile::data(const QModelIndex &index, int role) con
     if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
 
-    if (m_projectType != AuxTemplate && !hasTargetPath() && index.row() == 0
+    if (m_d->projectType != AuxTemplate && !hasTargetPath() && index.row() == 0
             && index.column() == 1) {
         if (role == Qt::DisplayRole)
             return tr("<no target path set>");
@@ -120,34 +146,34 @@ QVariant DeployableFilesPerProFile::headerData(int section,
 
 QString DeployableFilesPerProFile::localExecutableFilePath() const
 {
-    if (!m_targetInfo.valid || m_projectType != ApplicationTemplate)
+    if (!m_d->targetInfo.valid || m_d->projectType != ApplicationTemplate)
         return QString();
-    return QDir::cleanPath(m_targetInfo.workingDir + '/' + m_targetInfo.target);
+    return QDir::cleanPath(m_d->targetInfo.workingDir + '/' + m_d->targetInfo.target);
 }
 
 QStringList DeployableFilesPerProFile::localLibraryFilePaths() const
 {
-    if (!m_targetInfo.valid || m_projectType != LibraryTemplate)
+    if (!m_d->targetInfo.valid || m_d->projectType != LibraryTemplate)
         return QStringList();
-    QString basePath = m_targetInfo.workingDir + QLatin1String("/lib");
-    const bool isStatic = m_config.contains(QLatin1String("static"))
-            || m_config.contains(QLatin1String("staticlib"));
-    basePath += m_targetInfo.target + QLatin1String(isStatic ? ".a" : ".so");
+    QString basePath = m_d->targetInfo.workingDir + QLatin1String("/lib");
+    const bool isStatic = m_d->config.contains(QLatin1String("static"))
+            || m_d->config.contains(QLatin1String("staticlib"));
+    basePath += m_d->targetInfo.target + QLatin1String(isStatic ? ".a" : ".so");
     basePath = QDir::cleanPath(basePath);
     const QChar dot(QLatin1Char('.'));
     const QString filePathMajor = basePath + dot
-        + QString::number(m_projectVersion.major);
+        + QString::number(m_d->projectVersion.major);
     const QString filePathMinor = filePathMajor + dot
-         + QString::number(m_projectVersion.minor);
+         + QString::number(m_d->projectVersion.minor);
     const QString filePathPatch  = filePathMinor + dot
-         + QString::number(m_projectVersion.patch);
+         + QString::number(m_d->projectVersion.patch);
     return QStringList() << filePathPatch << filePathMinor << filePathMajor
         << basePath;
 }
 
 QString DeployableFilesPerProFile::remoteExecutableFilePath() const
 {
-    return hasTargetPath() && m_projectType == ApplicationTemplate
+    return hasTargetPath() && m_d->projectType == ApplicationTemplate
         ? deployableAt(0).remoteDir + QLatin1Char('/')
               + QFileInfo(localExecutableFilePath()).fileName()
         : QString();
@@ -155,7 +181,18 @@ QString DeployableFilesPerProFile::remoteExecutableFilePath() const
 
 QString DeployableFilesPerProFile::projectDir() const
 {
-    return QFileInfo(m_proFilePath).dir().path();
+    return QFileInfo(m_d->proFilePath).dir().path();
 }
 
+bool DeployableFilesPerProFile::hasTargetPath() const
+{
+    return !m_d->installsList.targetPath.isEmpty();
+}
+
+bool DeployableFilesPerProFile::isModified() const { return m_d->modified; }
+void DeployableFilesPerProFile::setUnModified() { m_d->modified = false; }
+QString DeployableFilesPerProFile::projectName() const { return m_d->projectName; }
+QString DeployableFilesPerProFile::proFilePath() const { return m_d->proFilePath; }
+Qt4ProjectType DeployableFilesPerProFile::projectType() const { return m_d->projectType; }
+QString DeployableFilesPerProFile::applicationName() const { return m_d->targetInfo.target; }
 } // namespace RemoteLinux

@@ -37,22 +37,17 @@
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-class QComboBox;
-class QLabel;
-class QLineEdit;
-class QPushButton;
-class QRadioButton;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class EnvironmentWidget; }
-namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 namespace Utils { class EnvironmentItem; }
 
 namespace RemoteLinux {
 class RemoteLinuxRunConfiguration;
 
-namespace Internal { class RemoteLinuxEnvironmentReader; }
+namespace Internal {
+class RemoteLinuxRunConfigurationWidgetPrivate;
+} // namespace Internal
 
 class REMOTELINUX_EXPORT RemoteLinuxRunConfigurationWidget : public QWidget
 {
@@ -60,6 +55,7 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfigurationWidget : public QWidget
 public:
     explicit RemoteLinuxRunConfigurationWidget(RemoteLinuxRunConfiguration *runConfiguration,
         QWidget *parent = 0);
+    ~RemoteLinuxRunConfigurationWidget();
 
     void addDisabledLabel(QVBoxLayout *topLayout);
     void suppressQmlDebuggingOptions();
@@ -86,24 +82,7 @@ private:
     void addGenericWidgets(QVBoxLayout *mainLayout);
     void addEnvironmentWidgets(QVBoxLayout *mainLayout);
 
-    RemoteLinuxRunConfiguration *m_runConfiguration;
-    QWidget *topWidget;
-    QLabel *m_disabledIcon;
-    QLabel *m_disabledReason;
-    QLineEdit *m_argsLineEdit;
-    QLabel *m_localExecutableLabel;
-    QLabel *m_remoteExecutableLabel;
-    QLabel *m_devConfLabel;
-    QLabel *m_debuggingLanguagesLabel;
-    QRadioButton *m_debugCppOnlyButton;
-    QRadioButton *m_debugQmlOnlyButton;
-    QRadioButton *m_debugCppAndQmlButton;
-
-    bool m_ignoreChange;
-    QPushButton *m_fetchEnv;
-    QComboBox *m_baseEnvironmentComboBox;
-    Internal::RemoteLinuxEnvironmentReader *m_deviceEnvReader;
-    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
+    Internal::RemoteLinuxRunConfigurationWidgetPrivate * const m_d;
 };
 
 } // namespace RemoteLinux

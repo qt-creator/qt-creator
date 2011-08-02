@@ -40,6 +40,13 @@
 #include <QtCore/QSharedPointer>
 
 namespace RemoteLinux {
+namespace Internal {
+class GenericDirectUploadStepPrivate
+{
+public:
+    GenericDirectUploadService deployService;
+};
+} // namespace Internal
 
 GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, const QString &id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
@@ -53,6 +60,11 @@ GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList 
     ctor();
 }
 
+GenericDirectUploadStep::~GenericDirectUploadStep()
+{
+    delete m_d;
+}
+
 bool GenericDirectUploadStep::isDeploymentPossible(QString *whyNot) const
 {
     QList<DeployableFile> deployableFiles;
@@ -60,19 +72,19 @@ bool GenericDirectUploadStep::isDeploymentPossible(QString *whyNot) const
     const int deployableCount = deploymentInfo->deployableCount();
     for (int i = 0; i < deployableCount; ++i)
         deployableFiles << deploymentInfo->deployableAt(i);
-    m_deployService->setDeployableFiles(deployableFiles);
+    m_d->deployService.setDeployableFiles(deployableFiles);
     return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
 }
 
 AbstractRemoteLinuxDeployService *GenericDirectUploadStep::deployService() const
 {
-    return m_deployService;
+    return &m_d->deployService;
 }
 
 void GenericDirectUploadStep::ctor()
 {
     setDefaultDisplayName(displayName());
-    m_deployService = new GenericDirectUploadService(this);
+    m_d = new Internal::GenericDirectUploadStepPrivate;
 }
 
 QString GenericDirectUploadStep::stepId()

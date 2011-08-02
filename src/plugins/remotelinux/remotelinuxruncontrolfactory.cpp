@@ -31,6 +31,7 @@
 
 #include "remotelinuxruncontrolfactory.h"
 
+#include "portlist.h"
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxruncontrol.h"
@@ -38,6 +39,7 @@
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
+#include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace Debugger;

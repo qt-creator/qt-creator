@@ -157,7 +157,7 @@ PortList MaemoGlobal::freePorts(const LinuxDeviceConfiguration::ConstPtr &devCon
 {
     if (!devConf || !qtVersion)
         return PortList();
-    if (devConf->type() == LinuxDeviceConfiguration::Emulator) {
+    if (devConf->deviceType() == LinuxDeviceConfiguration::Emulator) {
         MaemoQemuRuntime rt;
         const int id = qtVersion->uniqueId();
         if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))

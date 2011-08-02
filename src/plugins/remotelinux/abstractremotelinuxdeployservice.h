@@ -57,6 +57,7 @@ class AbstractRemoteLinuxDeployServicePrivate;
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployService : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(AbstractRemoteLinuxDeployService)
 public:
     explicit AbstractRemoteLinuxDeployService(QObject *parent);
     ~AbstractRemoteLinuxDeployService();

@@ -54,6 +54,7 @@ class RemoteLinuxUsedPortsGathererPrivate;
 class REMOTELINUX_EXPORT RemoteLinuxUsedPortsGatherer : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(RemoteLinuxUsedPortsGatherer)
 public:
     explicit RemoteLinuxUsedPortsGatherer(QObject *parent = 0);
     ~RemoteLinuxUsedPortsGatherer();

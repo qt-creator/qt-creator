@@ -53,6 +53,7 @@ class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
     : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT
+    Q_DISABLE_COPY(RemoteLinuxDeployConfiguration)
 public:
     RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target, const QString &id,
         const QString &defaultDisplayName, const QString &supportedOsType);

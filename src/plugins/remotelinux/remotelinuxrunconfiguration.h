@@ -33,27 +33,20 @@
 #ifndef REMOTELINUXRUNCONFIGURATION_H
 #define REMOTELINUXRUNCONFIGURATION_H
 
-#include "portlist.h"
 #include "remotelinux_export.h"
 
-#include <utils/environment.h>
-
 #include <projectexplorer/runconfiguration.h>
-
-#include <QtCore/QDateTime>
-#include <QtCore/QStringList>
-
-QT_FORWARD_DECLARE_CLASS(QWidget)
+#include <utils/environment.h>
 
 namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
-class Qt4Project;
 class Qt4BaseTarget;
 class Qt4ProFileNode;
 } // namespace Qt4ProjectManager
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
+class PortList;
 class RemoteLinuxRunConfigurationWidget;
 class RemoteLinuxDeployConfiguration;
 
@@ -65,6 +58,7 @@ class RemoteLinuxRunConfigurationFactory;
 class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
+    Q_DISABLE_COPY(RemoteLinuxRunConfiguration)
     friend class Internal::RemoteLinuxRunConfigurationFactory;
     friend class RemoteLinuxRunConfigurationWidget;
 

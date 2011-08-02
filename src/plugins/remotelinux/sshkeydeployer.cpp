@@ -34,25 +34,37 @@
 #include <utils/fileutils.h>
 
 #include <QtCore/QFile>
+#include <QtCore/QSharedPointer>
 
 using namespace Utils;
 
 namespace RemoteLinux {
+namespace Internal {
 
-SshKeyDeployer::SshKeyDeployer(QObject *parent) : QObject(parent)
+class SshKeyDeployerPrivate
+{
+public:
+    SshRemoteProcessRunner::Ptr deployProcess;
+};
+
+} // namespace Internal
+
+SshKeyDeployer::SshKeyDeployer(QObject *parent)
+    : QObject(parent), m_d(new Internal::SshKeyDeployerPrivate)
 {
 }
 
 SshKeyDeployer::~SshKeyDeployer()
 {
     cleanup();
+    delete m_d;
 }
 
 void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
     const QString &keyFilePath)
 {
     cleanup();
-    m_deployProcess = SshRemoteProcessRunner::create(sshParams);
+    m_d->deployProcess = SshRemoteProcessRunner::create(sshParams);
 
     Utils::FileReader reader;
     if (!reader.fetch(keyFilePath)) {
@@ -60,21 +72,21 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
         return;
     }
 
-    connect(m_deployProcess.data(), SIGNAL(connectionError(Utils::SshError)), this,
+    connect(m_d->deployProcess.data(), SIGNAL(connectionError(Utils::SshError)), this,
         SLOT(handleConnectionFailure()));
-    connect(m_deployProcess.data(), SIGNAL(processClosed(int)), this,
+    connect(m_d->deployProcess.data(), SIGNAL(processClosed(int)), this,
         SLOT(handleKeyUploadFinished(int)));
     const QByteArray command = "test -d .ssh "
         "|| mkdir .ssh && chmod 0700 .ssh && echo '"
         + reader.data() + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
-    m_deployProcess->run(command);
+    m_d->deployProcess->run(command);
 }
 
 void SshKeyDeployer::handleConnectionFailure()
 {
-    if (!m_deployProcess)
+    if (!m_d->deployProcess)
         return;
-    const QString errorMsg = m_deployProcess->connection()->errorString();
+    const QString errorMsg = m_d->deployProcess->connection()->errorString();
     cleanup();
     emit error(tr("Connection failed: %1").arg(errorMsg));
 }
@@ -85,11 +97,11 @@ void SshKeyDeployer::handleKeyUploadFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (!m_deployProcess)
+    if (!m_d->deployProcess)
         return;
 
-    const int exitCode = m_deployProcess->process()->exitCode();
-    const QString errorMsg = m_deployProcess->process()->errorString();
+    const int exitCode = m_d->deployProcess->process()->exitCode();
+    const QString errorMsg = m_d->deployProcess->process()->errorString();
     cleanup();
     if (exitStatus == SshRemoteProcess::ExitedNormally && exitCode == 0)
         emit finishedSuccessfully();
@@ -104,9 +116,9 @@ void SshKeyDeployer::stopDeployment()
 
 void SshKeyDeployer::cleanup()
 {
-    if (m_deployProcess) {
-        disconnect(m_deployProcess.data(), 0, this, 0);
-        m_deployProcess.clear();
+    if (m_d->deployProcess) {
+        disconnect(m_d->deployProcess.data(), 0, this, 0);
+        m_d->deployProcess.clear();
     }
 }
 

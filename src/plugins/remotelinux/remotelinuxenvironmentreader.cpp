@@ -38,7 +38,8 @@
 namespace RemoteLinux {
 namespace Internal {
 
-RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(QObject *parent, RemoteLinuxRunConfiguration *config)
+RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RemoteLinuxRunConfiguration *config,
+        QObject *parent)
     : QObject(parent)
     , m_stop(false)
     , m_devConfig(config->deviceConfig())

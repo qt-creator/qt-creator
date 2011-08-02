@@ -49,7 +49,7 @@ class REMOTELINUX_EXPORT GenericDirectUploadService : public AbstractRemoteLinux
 {
     Q_OBJECT
 public:
-    GenericDirectUploadService(QObject *parent);
+    GenericDirectUploadService(QObject *parent = 0);
 
     void setDeployableFiles(const QList<DeployableFile> &deployableFiles);
 

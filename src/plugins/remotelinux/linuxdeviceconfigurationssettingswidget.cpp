@@ -34,6 +34,7 @@
 
 #include "linuxdeviceconfigurations.h"
 #include "linuxdevicefactoryselectiondialog.h"
+#include "portlist.h"
 #include "remotelinuxutils.h"
 #include "sshkeycreationdialog.h"
 
@@ -202,7 +203,7 @@ void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
     m_ui->osTypeValueLabel->setText(RemoteLinuxUtils::osTypeToString(current->osType()));
     const SshConnectionParameters &sshParams = current->sshParameters();
-    if (current->type() == LinuxDeviceConfiguration::Physical)
+    if (current->deviceType() == LinuxDeviceConfiguration::Hardware)
         m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));
     else
         m_ui->deviceTypeValueLabel->setText(tr("Emulator"));

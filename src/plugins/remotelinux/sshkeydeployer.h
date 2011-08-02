@@ -34,18 +34,20 @@
 #include "remotelinux_export.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
 
 namespace Utils {
 class SshConnectionParameters;
-class SshRemoteProcessRunner;
 }
 
 namespace RemoteLinux {
+namespace Internal {
+class SshKeyDeployerPrivate;
+}
 
 class REMOTELINUX_EXPORT SshKeyDeployer : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(SshKeyDeployer)
 public:
     explicit SshKeyDeployer(QObject *parent = 0);
     ~SshKeyDeployer();
@@ -65,7 +67,7 @@ private slots:
 private:
     void cleanup();
 
-    QSharedPointer<Utils::SshRemoteProcessRunner> m_deployProcess;
+    Internal::SshKeyDeployerPrivate * const m_d;
 };
 
 } // namespace RemoteLinux

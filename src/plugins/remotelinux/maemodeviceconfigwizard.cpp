@@ -69,7 +69,7 @@ QString defaultUser(const QString &osType)
 
 QString defaultHost(LinuxDeviceConfiguration::DeviceType type)
 {
-    return QLatin1String(type == LinuxDeviceConfiguration::Physical ? "192.168.2.15" : "localhost");
+    return QLatin1String(type == LinuxDeviceConfiguration::Hardware ? "192.168.2.15" : "localhost");
 }
 
 struct WizardData
@@ -152,7 +152,7 @@ public:
     LinuxDeviceConfiguration::DeviceType deviceType() const
     {
         return m_ui->hwButton->isChecked()
-            ? LinuxDeviceConfiguration::Physical : LinuxDeviceConfiguration::Emulator;
+            ? LinuxDeviceConfiguration::Hardware : LinuxDeviceConfiguration::Emulator;
     }
 
     int sshPort() const
@@ -164,7 +164,7 @@ public:
 private slots:
     void handleDeviceTypeChanged()
     {
-        const bool enable = deviceType() == LinuxDeviceConfiguration::Physical;
+        const bool enable = deviceType() == LinuxDeviceConfiguration::Hardware;
         m_ui->hostNameLabel->setEnabled(enable);
         m_ui->hostNameLineEdit->setEnabled(enable);
         m_ui->sshPortLabel->setEnabled(enable);

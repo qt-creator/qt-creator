@@ -35,8 +35,6 @@
 
 #include <projectexplorer/deployconfiguration.h>
 
-#include <QtGui/QWidget>
-
 namespace RemoteLinux {
 class DeployableFilesPerProFile;
 class RemoteLinuxDeployConfiguration;

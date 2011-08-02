@@ -38,6 +38,7 @@
 #include "qt4maemotarget.h"
 
 #include <qt4projectmanager/qt4nodes.h>
+#include <remotelinux/deployablefile.h>
 #include <remotelinux/deployablefilesperprofile.h>
 #include <remotelinux/deploymentinfo.h>
 #include <remotelinux/remotelinuxdeployconfigurationwidget.h>

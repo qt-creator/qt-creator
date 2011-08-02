@@ -41,6 +41,7 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <qt4projectmanager/qt4target.h>
+#include <remotelinux/deployablefile.h>
 #include <remotelinux/deployablefilesperprofile.h>
 #include <remotelinux/deploymentinfo.h>
 #include <remotelinux/deploymentsettingsassistant.h>

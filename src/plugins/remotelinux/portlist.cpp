@@ -31,10 +31,17 @@
 **************************************************************************/
 #include "portlist.h"
 
+#include <QtCore/QList>
+#include <QtCore/QPair>
+#include <QtCore/QString>
+
 #include <cctype>
 
 namespace RemoteLinux {
+namespace Internal {
 namespace {
+
+typedef QPair<int, int> Range;
 
 class PortsSpecParser
 {
@@ -120,43 +127,65 @@ private:
 
 } // anonymous namespace
 
+class PortListPrivate
+{
+public:
+    QList<Range> ranges;
+};
+
+} // namespace Internal
+
+PortList::PortList() : m_d(new Internal::PortListPrivate)
+{
+}
+
+PortList::PortList(const PortList &other) : m_d(new Internal::PortListPrivate(*other.m_d))
+{
+}
+
+PortList &PortList::operator=(const PortList &other)
+{
+    *m_d = *other.m_d;
+    return *this;
+}
 
 PortList PortList::fromString(const QString &portsSpec)
 {
-    return PortsSpecParser(portsSpec).parse();
+    return Internal::PortsSpecParser(portsSpec).parse();
 }
 
 void PortList::addPort(int port) { addRange(port, port); }
 
 void PortList::addRange(int startPort, int endPort)
 {
-    m_ranges << Range(startPort, endPort);
+    m_d->ranges << Internal::Range(startPort, endPort);
 }
 
-bool PortList::hasMore() const { return !m_ranges.isEmpty(); }
+bool PortList::hasMore() const { return !m_d->ranges.isEmpty(); }
 
 int PortList::count() const
 {
     int n = 0;
-    foreach (const Range &r, m_ranges)
+    foreach (const Internal::Range &r, m_d->ranges)
         n += r.second - r.first + 1;
     return n;
 }
 
 int PortList::getNext()
 {
-    Q_ASSERT(!m_ranges.isEmpty());
-    Range &firstRange = m_ranges.first();
+    Q_ASSERT(!m_d->ranges.isEmpty());
+
+    Internal::Range &firstRange = m_d->ranges.first();
     const int next = firstRange.first++;
     if (firstRange.first > firstRange.second)
-        m_ranges.removeFirst();
+        m_d->ranges.removeFirst();
     return next;
 }
 
 QString PortList::toString() const
 {
     QString stringRep;
-    foreach (const Range &range, m_ranges) {
+    foreach (const Internal::Range &range, m_d->ranges) {
         stringRep += QString::number(range.first);
         if (range.second != range.first)
             stringRep += QLatin1Char('-') + QString::number(range.second);

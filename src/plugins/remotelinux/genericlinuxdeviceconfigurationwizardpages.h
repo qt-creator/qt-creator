@@ -37,13 +37,10 @@
 
 #include <QtGui/QWizardPage>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-QT_END_NAMESPACE
-
 namespace RemoteLinux {
 namespace Internal {
 class GenericLinuxDeviceConfigurationWizardSetupPagePrivate;
+class GenericLinuxDeviceConfigurationWizardFinalPagePrivate;
 } // namespace Internal
 
 class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardSetupPage : public QWizardPage
@@ -80,6 +77,7 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardFinalPage : public
     Q_OBJECT
 public:
     GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent);
+    ~GenericLinuxDeviceConfigurationWizardFinalPage();
 
     void initializePage();
 
@@ -87,7 +85,7 @@ protected:
     virtual QString infoText() const;
 
 private:
-    QLabel * const m_infoLabel;
+    Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate * const m_d;
 };
 
 } // namespace RemoteLinux

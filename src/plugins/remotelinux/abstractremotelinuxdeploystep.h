@@ -49,6 +49,7 @@ class AbstractRemoteLinuxDeployStepPrivate;
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
+    Q_DISABLE_COPY(AbstractRemoteLinuxDeployStep)
 
 public:
     bool fromMap(const QVariantMap &map);

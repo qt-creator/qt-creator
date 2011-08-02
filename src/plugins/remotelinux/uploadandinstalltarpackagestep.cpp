@@ -41,13 +41,10 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
-class UploadAndInstallTarPackageActionPrivate
+class UploadAndInstallTarPackageServicePrivate
 {
 public:
-    UploadAndInstallTarPackageActionPrivate() : installer(new RemoteLinuxTarPackageInstaller) { }
-    ~UploadAndInstallTarPackageActionPrivate() { delete installer; }
-
-    RemoteLinuxTarPackageInstaller * const installer;
+    RemoteLinuxTarPackageInstaller installer;
 };
 } // namespace Internal
 
@@ -55,7 +52,7 @@ using namespace Internal;
 
 UploadAndInstallTarPackageService::UploadAndInstallTarPackageService(QObject *parent)
     : AbstractUploadAndInstallPackageService(parent),
-      m_d(new UploadAndInstallTarPackageActionPrivate)
+      m_d(new UploadAndInstallTarPackageServicePrivate)
 {
 }
 
@@ -66,7 +63,7 @@ UploadAndInstallTarPackageService::~UploadAndInstallTarPackageService()
 
 AbstractRemoteLinuxPackageInstaller *UploadAndInstallTarPackageService::packageInstaller() const
 {
-    return m_d->installer;
+    return &m_d->installer;
 }
 
 

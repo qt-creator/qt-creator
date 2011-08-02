@@ -28,24 +28,21 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #ifndef REMOTELINUXAPPLICATIONRUNNER_H
 #define REMOTELINUXAPPLICATIONRUNNER_H
 
-#include "portlist.h"
 #include "remotelinux_export.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QStringList>
 
 namespace Utils {
 class SshConnection;
-class SshRemoteProcess;
 }
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
+class PortList;
 class RemoteLinuxRunConfiguration;
 class RemoteLinuxUsedPortsGatherer;
 
@@ -58,7 +55,8 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxApplicationRunner : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(AbstractRemoteLinuxApplicationRunner)
 public:
-    AbstractRemoteLinuxApplicationRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig);
+    AbstractRemoteLinuxApplicationRunner(RemoteLinuxRunConfiguration *runConfig,
+        QObject *parent = 0);
     ~AbstractRemoteLinuxApplicationRunner();
 
     void start();
@@ -135,7 +133,8 @@ class REMOTELINUX_EXPORT GenericRemoteLinuxApplicationRunner : public AbstractRe
 {
     Q_OBJECT
 public:
-    GenericRemoteLinuxApplicationRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig);
+    GenericRemoteLinuxApplicationRunner(RemoteLinuxRunConfiguration *runConfig,
+        QObject *parent = 0);
     ~GenericRemoteLinuxApplicationRunner();
 
 protected:

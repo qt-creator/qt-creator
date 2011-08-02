@@ -31,6 +31,7 @@
 #include "remotelinuxusedportsgatherer.h"
 
 #include "linuxdeviceconfiguration.h"
+#include "portlist.h"
 
 #include <utils/ssh/sshremoteprocessrunner.h>
 

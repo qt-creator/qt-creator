@@ -51,7 +51,7 @@ class RemoteLinuxEnvironmentReader : public QObject
 {
     Q_OBJECT
 public:
-    RemoteLinuxEnvironmentReader(QObject *parent, RemoteLinuxRunConfiguration *config);
+    RemoteLinuxEnvironmentReader(RemoteLinuxRunConfiguration *config, QObject *parent = 0);
     ~RemoteLinuxEnvironmentReader();
 
     void start(const QString &environmentSetupCommand);

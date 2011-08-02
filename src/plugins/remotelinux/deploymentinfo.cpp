@@ -39,60 +39,76 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4target.h>
 
+#include <QtCore/QList>
 #include <QtCore/QTimer>
 
 using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
+namespace Internal {
+class DeploymentInfoPrivate
+{
+public:
+    DeploymentInfoPrivate(const Qt4BaseTarget *target) : target(target) {}
+
+    QList<DeployableFilesPerProFile *> listModels;
+    const Qt4ProjectManager::Qt4BaseTarget * const target;
+    QTimer updateTimer;
+
+};
+} // namespace Internal
+
 using namespace Internal;
 
-DeploymentInfo::DeploymentInfo(const Qt4BaseTarget *target)
-    : m_target(target), m_updateTimer(new QTimer(this))
+DeploymentInfo::DeploymentInfo(const Qt4BaseTarget *target) : m_d(new DeploymentInfoPrivate(target))
 {
-    Qt4Project * const pro = m_target->qt4Project();
+    Qt4Project * const pro = m_d->target->qt4Project();
     connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
-    m_updateTimer->setInterval(1500);
-    m_updateTimer->setSingleShot(true);
-    connect(m_updateTimer, SIGNAL(timeout()), this, SLOT(createModels()));
+        SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    m_d->updateTimer.setInterval(1500);
+    m_d->updateTimer.setSingleShot(true);
+    connect(&m_d->updateTimer, SIGNAL(timeout()), this, SLOT(createModels()));
     createModels();
 }
 
-DeploymentInfo::~DeploymentInfo() {}
+DeploymentInfo::~DeploymentInfo()
+{
+    delete m_d;
+}
 
 void DeploymentInfo::startTimer(Qt4ProjectManager::Qt4ProFileNode*, bool success, bool parseInProgress)
 {
     Q_UNUSED(success)
     if (!parseInProgress)
-        m_updateTimer->start();
+        m_d->updateTimer.start();
 }
 
 void DeploymentInfo::createModels()
 {
-    if (m_target->project()->activeTarget() != m_target)
+    if (m_d->target->project()->activeTarget() != m_d->target)
         return;
-    if (!m_target->activeBuildConfiguration() || !m_target->activeBuildConfiguration()->qtVersion()
-            || !m_target->activeBuildConfiguration()->qtVersion()->isValid()) {
+    if (!m_d->target->activeBuildConfiguration() || !m_d->target->activeBuildConfiguration()->qtVersion()
+            || !m_d->target->activeBuildConfiguration()->qtVersion()->isValid()) {
         beginResetModel();
-        qDeleteAll(m_listModels);
-        m_listModels.clear();
+        qDeleteAll(m_d->listModels);
+        m_d->listModels.clear();
         endResetModel();
         return;
     }
     const Qt4ProFileNode *const rootNode
-        = m_target->qt4Project()->rootProjectNode();
+        = m_d->target->qt4Project()->rootProjectNode();
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
-    m_updateTimer->stop();
-    disconnect(m_target->qt4Project(),
+    m_d->updateTimer.stop();
+    disconnect(m_d->target->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
         this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
     beginResetModel();
-    qDeleteAll(m_listModels);
-    m_listModels.clear();
+    qDeleteAll(m_d->listModels);
+    m_d->listModels.clear();
     createModels(rootNode);
     endResetModel();
-    connect(m_target->qt4Project(),
+    connect(m_d->target->qt4Project(),
             SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
             this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 }
@@ -103,12 +119,12 @@ void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)
     case ApplicationTemplate:
     case LibraryTemplate:
     case AuxTemplate:
-        m_listModels << new DeployableFilesPerProFile(proFileNode, this);
+        m_d->listModels << new DeployableFilesPerProFile(proFileNode, this);
         break;
     case SubDirsTemplate: {
         const QList<ProjectExplorer::ProjectNode *> &subProjects
             = proFileNode->subProjectNodes();
-        foreach (const ProjectExplorer::ProjectNode *subProject, subProjects) {
+        foreach (const ProjectExplorer::ProjectNode * const subProject, subProjects) {
             const Qt4ProFileNode * const qt4SubProject
                 = qobject_cast<const Qt4ProFileNode *>(subProject);
             if (qt4SubProject && !qt4SubProject->path()
@@ -123,13 +139,13 @@ void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)
 
 void DeploymentInfo::setUnmodified()
 {
-    foreach (DeployableFilesPerProFile *model, m_listModels)
+    foreach (DeployableFilesPerProFile * const model, m_d->listModels)
         model->setUnModified();
 }
 
 bool DeploymentInfo::isModified() const
 {
-    foreach (const DeployableFilesPerProFile *model, m_listModels) {
+    foreach (const DeployableFilesPerProFile * const model, m_d->listModels) {
         if (model->isModified())
             return true;
     }
@@ -139,14 +155,14 @@ bool DeploymentInfo::isModified() const
 int DeploymentInfo::deployableCount() const
 {
     int count = 0;
-    foreach (const DeployableFilesPerProFile *model, m_listModels)
+    foreach (const DeployableFilesPerProFile * const model, m_d->listModels)
         count += model->rowCount();
     return count;
 }
 
 DeployableFile DeploymentInfo::deployableAt(int i) const
 {
-    foreach (const DeployableFilesPerProFile *model, m_listModels) {
+    foreach (const DeployableFilesPerProFile * const model, m_d->listModels) {
         Q_ASSERT(i >= 0);
         if (i < model->rowCount())
             return model->deployableAt(i);
@@ -159,7 +175,7 @@ DeployableFile DeploymentInfo::deployableAt(int i) const
 
 QString DeploymentInfo::remoteExecutableFilePath(const QString &localExecutableFilePath) const
 {
-    foreach (const DeployableFilesPerProFile *model, m_listModels) {
+    foreach (const DeployableFilesPerProFile * const model, m_d->listModels) {
         if (model->localExecutableFilePath() == localExecutableFilePath)
             return model->remoteExecutableFilePath();
     }
@@ -176,7 +192,7 @@ QVariant DeploymentInfo::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() < 0 || index.row() >= modelCount()
             || index.column() != 0)
         return QVariant();
-    const DeployableFilesPerProFile *const model = m_listModels.at(index.row());
+    const DeployableFilesPerProFile * const model = m_d->listModels.at(index.row());
     if (role == Qt::ForegroundRole && model->projectType() != AuxTemplate
             && !model->hasTargetPath()) {
         QBrush brush;
@@ -187,5 +203,8 @@ QVariant DeploymentInfo::data(const QModelIndex &index, int role) const
         return QFileInfo(model->proFilePath()).fileName();
     return QVariant();
 }
+
+int DeploymentInfo::modelCount() const { return m_d->listModels.count(); }
+DeployableFilesPerProFile *DeploymentInfo::modelAt(int i) const { return m_d->listModels.at(i); }
 
 } // namespace RemoteLinux

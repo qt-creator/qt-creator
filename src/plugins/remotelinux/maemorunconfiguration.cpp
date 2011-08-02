@@ -41,6 +41,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <remotelinux/portlist.h>
+#include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>

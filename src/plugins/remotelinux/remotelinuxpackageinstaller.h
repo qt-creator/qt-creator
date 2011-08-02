@@ -35,7 +35,6 @@
 #include "remotelinux_export.h"
 
 #include <QtCore/QObject>
-
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
