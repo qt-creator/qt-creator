@@ -68,7 +68,7 @@ namespace Internal {
 class GitPlugin;
 class GitOutputWindow;
 class GitCommand;
-struct CommitData;
+class CommitData;
 struct GitSubmitEditorPanelData;
 class Stash;
 

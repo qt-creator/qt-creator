@@ -47,7 +47,7 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-struct GitSettings;
+class GitSettings;
 
 class SettingsPageWidget : public QWidget {
     Q_OBJECT

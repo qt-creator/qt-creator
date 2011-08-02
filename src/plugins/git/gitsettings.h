@@ -43,8 +43,9 @@ namespace Git {
 namespace Internal {
 
 // Todo: Add user name and password?
-struct GitSettings
+class GitSettings
 {
+public:
     GitSettings();
 
     void fromSettings(QSettings *);

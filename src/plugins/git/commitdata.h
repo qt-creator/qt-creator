@@ -66,8 +66,9 @@ struct GitSubmitEditorPanelData
 
 QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);
 
-struct CommitData
+class CommitData
 {
+public:
     // A pair of state string/file name ('modified', 'file.cpp').
     typedef QPair<QString, QString> StateFilePair;
 
