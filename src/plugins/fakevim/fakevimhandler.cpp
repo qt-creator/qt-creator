@@ -906,8 +906,8 @@ public:
     Input m_semicolonType;  // 'f', 'F', 't', 'T'
     QString m_semicolonKey;
 
-    // visual line mode
-    void enterVisualMode(VisualMode visualMode);
+    // visual modes
+    void toggleVisualMode(VisualMode visualMode);
     void leaveVisualMode();
     VisualMode m_visualMode;
     VisualMode m_oldVisualMode;
@@ -2520,11 +2520,11 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         scrollToLine(cursorLine() - sline);
         finishMovement();
     } else if (input.is('v')) {
-        enterVisualMode(VisualCharMode);
+        toggleVisualMode(VisualCharMode);
     } else if (input.is('V')) {
-        enterVisualMode(VisualLineMode);
+        toggleVisualMode(VisualLineMode);
     } else if (input.isControl('v')) {
-        enterVisualMode(VisualBlockMode);
+        toggleVisualMode(VisualBlockMode);
     } else if (input.is('w')) { // tested
         // Special case: "cw" and "cW" work the same as "ce" and "cE" if the
         // cursor is on a non-blank - except if the cursor is on the last
@@ -4614,17 +4614,21 @@ int FakeVimHandler::Private::lineForPosition(int pos) const
     return tc.block().blockNumber() + 1;
 }
 
-void FakeVimHandler::Private::enterVisualMode(VisualMode visualMode)
+void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
 {
-    m_positionPastEnd = false;
-    m_anchorPastEnd = false;
-    m_visualMode = visualMode;
-    const int pos = position();
-    //setMark('<', pos);
-    //setMark('>', pos + 1);
-    setAnchorAndPosition(pos, pos);
-    updateMiniBuffer();
-    updateSelection();
+    if (isVisualMode()) {
+        leaveVisualMode();
+    } else {
+        m_positionPastEnd = false;
+        m_anchorPastEnd = false;
+        m_visualMode = visualMode;
+        const int pos = position();
+        //setMark('<', pos);
+        //setMark('>', pos + 1);
+        setAnchorAndPosition(pos, pos);
+        updateMiniBuffer();
+        updateSelection();
+    }
 }
 
 void FakeVimHandler::Private::leaveVisualMode()
