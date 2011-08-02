@@ -49,7 +49,6 @@
 #include <QtGui/QMainWindow>
 #include <QtCore/QFile>
 #include <QtGui/QMessageBox>
-#include <QtNetwork/QHostInfo>
 
 using namespace ProjectExplorer;
 
