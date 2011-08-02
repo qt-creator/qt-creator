@@ -3631,7 +3631,8 @@ void GdbEngine::handleRegisterListNames(const GdbResponse &response)
 
     Registers registers;
     foreach (const GdbMi &item, response.data.findChild("register-names").children())
-        registers.append(Register(item.data()));
+        if (!item.data().isEmpty())
+            registers.append(Register(item.data()));
 
     registerHandler()->setRegisters(registers);
 
@@ -3645,38 +3646,38 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
         return;
 
     Registers registers = registerHandler()->registers();
+    int registerCount = registers.size();
 
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
     const GdbMi values = response.data.findChild("register-values");
-    foreach (const GdbMi &item, values.children()) {
-        const int index = item.findChild("number").data().toInt();
-        if (index < registers.size()) {
-            Register &reg = registers[index];
-            GdbMi val = item.findChild("value");
-            QByteArray ba;
-            bool handled = false;
-            if (val.data().startsWith('{')) {
-                int pos1 = val.data().indexOf("v2_int32");
-                if (pos1 == -1)
-                    pos1 = val.data().indexOf("v4_int32");
-                if (pos1 != -1) {
-                    // FIXME: This block wastes cycles.
-                    pos1 = val.data().indexOf('{', pos1 + 1) + 1;
-                    int pos2 = val.data().indexOf('}', pos1);
-                    QByteArray ba2 = val.data().mid(pos1, pos2 - pos1);
-                    foreach (QByteArray ba3, ba2.split(',')) {
-                        ba3 = ba3.trimmed();
-                        QTC_ASSERT(ba3.size() >= 3, continue);
-                        QTC_ASSERT(ba3.size() <= 10, continue);
-                        ba.prepend(QByteArray(10 - ba3.size(), '0'));
-                        ba.prepend(ba3.mid(2));
-                    }
-                    ba.prepend("0x");
-                    handled = true;
+    QTC_ASSERT(registerCount == values.children().size(), return);
+    for (int i = 0; i != registerCount; ++i) {
+        const GdbMi &item =  values.children().at(i);
+        Register &reg = registers[i];
+        GdbMi val = item.findChild("value");
+        QByteArray ba;
+        bool handled = false;
+        if (val.data().startsWith('{')) {
+            int pos1 = val.data().indexOf("v2_int32");
+            if (pos1 == -1)
+                pos1 = val.data().indexOf("v4_int32");
+            if (pos1 != -1) {
+                // FIXME: This block wastes cycles.
+                pos1 = val.data().indexOf('{', pos1 + 1) + 1;
+                int pos2 = val.data().indexOf('}', pos1);
+                QByteArray ba2 = val.data().mid(pos1, pos2 - pos1);
+                foreach (QByteArray ba3, ba2.split(',')) {
+                    ba3 = ba3.trimmed();
+                    QTC_ASSERT(ba3.size() >= 3, continue);
+                    QTC_ASSERT(ba3.size() <= 10, continue);
+                    ba.prepend(QByteArray(10 - ba3.size(), '0'));
+                    ba.prepend(ba3.mid(2));
                 }
+                ba.prepend("0x");
+                handled = true;
             }
-            reg.value = _(handled ? ba : val.data());
         }
+        reg.value = _(handled ? ba : val.data());
     }
     registerHandler()->setAndMarkRegisters(registers);
 }
