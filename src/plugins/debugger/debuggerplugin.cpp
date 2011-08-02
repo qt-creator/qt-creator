@@ -1604,7 +1604,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.remoteArchitecture = dlg.remoteArchitecture();
     sp.gnuTarget = dlg.gnuTarget();
     sp.executable = dlg.localExecutable();
-    sp.displayName = dlg.localExecutable();
+    sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.debuggerCommand = dlg.debugger(); // Override toolchain-detection.
     if (!sp.debuggerCommand.isEmpty())
         sp.toolChainAbi = ProjectExplorer::Abi();
