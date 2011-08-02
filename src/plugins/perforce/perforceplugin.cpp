@@ -489,12 +489,15 @@ void PerforcePlugin::revertCurrentFile()
     if (result.error)
         return;
     // "foo.cpp - file(s) not opened on this client."
-    if (result.stdOut.isEmpty() || result.stdOut.contains(QLatin1String(" - ")))
+    // also revert when the output is empty: The file is unchanged but open then.
+    if (result.stdOut.contains(QLatin1String(" - ")) || result.stdErr.contains(QLatin1String(" - ")))
         return;
 
-    const bool doNotRevert = QMessageBox::warning(0, tr("p4 revert"),
-                             tr("The file has been changed. Do you want to revert it?"),
-                             QMessageBox::Yes, QMessageBox::No) == QMessageBox::No;
+    bool doNotRevert = false;
+    if (!result.stdOut.isEmpty())
+        doNotRevert = (QMessageBox::warning(0, tr("p4 revert"),
+                                            tr("The file has been changed. Do you want to revert it?"),
+                                            QMessageBox::Yes, QMessageBox::No) == QMessageBox::No);
     if (doNotRevert)
         return;
 
