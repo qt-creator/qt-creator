@@ -93,8 +93,7 @@ void AbstractMobileAppWizardDialog::addMobilePages()
     m_maemoItem = wizardProgress()->item(m_maemoOptionsPageId);
     m_harmattanItem = wizardProgress()->item(m_harmattanOptionsPageId);
 
-    m_genericItem->setNextShownItem(0);
-    m_symbianItem->setNextShownItem(0);
+    m_targetItem->setNextShownItem(0);
 }
 
 TargetSetupPage *AbstractMobileAppWizardDialog::targetsPage() const
@@ -151,12 +150,16 @@ void AbstractMobileAppWizardDialog::initializePage(int id)
 {
     if (id == startId()) {
         m_targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
-            << m_genericItem << m_maemoItem << m_harmattanItem << itemOfNextGenericPage());
+            << m_genericItem << m_symbianItem << m_maemoItem << m_harmattanItem << itemOfNextGenericPage());
         m_genericItem->setNextItems(QList<Utils::WizardProgressItem *>()
             << m_symbianItem << m_maemoItem);
         m_symbianItem->setNextItems(QList<Utils::WizardProgressItem *>()
             << m_maemoItem << m_harmattanItem << itemOfNextGenericPage());
-    } else if (id == m_genericOptionsPageId) {
+        m_maemoItem->setNextItems(QList<Utils::WizardProgressItem *>()
+            << m_harmattanItem << itemOfNextGenericPage());
+    } else if (id == m_genericOptionsPageId
+               || id == m_symbianOptionsPageId
+               || id == m_maemoOptionsPageId) {
         QList<Utils::WizardProgressItem *> order;
         order << m_genericItem;
         if (isSymbianTargetSelected())
@@ -171,15 +174,6 @@ void AbstractMobileAppWizardDialog::initializePage(int id)
             order.at(i)->setNextShownItem(order.at(i + 1));
     }
     BaseProjectWizardDialog::initializePage(id);
-}
-
-void AbstractMobileAppWizardDialog::cleanupPage(int id)
-{
-    if (id == m_genericOptionsPageId) {
-        m_genericItem->setNextShownItem(0);
-        m_symbianItem->setNextShownItem(0);
-    }
-    BaseProjectWizardDialog::cleanupPage(id);
 }
 
 void AbstractMobileAppWizardDialog::setIgnoreGenericOptionsPage(bool ignore)

@@ -65,7 +65,6 @@ public:
 protected:
     int addPageWithTitle(QWizardPage *page, const QString &title);
     virtual void initializePage(int id);
-    virtual void cleanupPage(int id);
     virtual void setIgnoreGenericOptionsPage(bool);
     virtual int nextId() const;
 
