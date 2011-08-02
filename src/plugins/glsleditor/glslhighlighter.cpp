@@ -34,6 +34,7 @@
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
 #include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/basetextdocument.h>
 
 #include <QtCore/QDebug>
 
@@ -41,8 +42,8 @@ using namespace GLSLEditor;
 using namespace GLSLEditor::Internal;
 using namespace TextEditor;
 
-Highlighter::Highlighter(GLSLTextEditorWidget *editor, QTextDocument *parent)
-    : TextEditor::SyntaxHighlighter(parent), m_editor(editor)
+Highlighter::Highlighter(BaseTextDocument *parent)
+    : TextEditor::SyntaxHighlighter(parent)
 {
 }
 
@@ -72,7 +73,8 @@ void Highlighter::highlightBlock(const QString &text)
     lex.setState(state);
     lex.setScanKeywords(false);
     lex.setScanComments(true);
-    const int variant = m_editor->languageVariant();
+    const int variant =
+        GLSLTextEditorWidget::languageVariant(static_cast<BaseTextDocument*>(parent())->mimeType());
     lex.setVariant(variant);
 
     int initialState = state;

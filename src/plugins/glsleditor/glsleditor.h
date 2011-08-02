@@ -100,7 +100,7 @@ public:
 
     QSet<QString> identifiers() const;
 
-    int languageVariant() const;
+    static int languageVariant(const QString &mimeType);
 
     Document::Ptr glslDocument() const;
 
