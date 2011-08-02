@@ -48,6 +48,8 @@ GroupBox {
     property variant colorAlpha: colorGroupBox.alpha
     property bool hasGradient: backendValues.gradient.isInModel
 
+    property bool gradientIsBinding: backendValues.gradient.isBound
+
     onHasGradientChanged: {
         print("onGradientInModelChanged")
         if (backendValues.gradient.isInModel) {
@@ -75,7 +77,7 @@ GroupBox {
         isSetup = true;
         gradientLine.active = false;
         colorGroupBox.setSolidButtonChecked = true;
-        if (backendValues.gradient.isInModel) {
+        if (backendValues.gradient.isInModel && !gradientIsBinding) {
             colorGroupBox.setGradientButtonChecked = true;
             gradientLine.active = true;
             gradientLine.setupGradient();
@@ -117,6 +119,8 @@ GroupBox {
         }
 
         ColorGroupBox {
+            enabled: !gradientIsBinding
+            opacity: gradientIsBinding ? 0.7 : 1
             id: colorGroupBox
             caption: qsTr("Rectangle")
             finished: finishedNotify

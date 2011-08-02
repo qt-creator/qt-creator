@@ -85,6 +85,9 @@ void GradientLineQmlAdaptor::setupGradient()
     if (!modelNode.isValid())
         return;
 
+    if (modelNode.hasBindingProperty(gradientName()))
+        return;
+
     if (modelNode.hasProperty(gradientName())) { //gradient exists
 
         ModelNode gradientNode = modelNode.nodeProperty(gradientName()).modelNode();
