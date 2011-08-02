@@ -85,21 +85,6 @@ QWidget {
                     }
                 }
 
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Aliasing")
-                        }
-
-                        CheckBox {
-                            text: qsTr("Smooth")
-                            backendValue: backendValues.smooth
-                            baseStateFlag: isBaseState;
-                            checkable: true;
-                        }
-                    }
-                }
-
                 QWidget {  // 1
                     layout: HorizontalLayout {
 
