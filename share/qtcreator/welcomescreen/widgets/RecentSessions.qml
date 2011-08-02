@@ -38,7 +38,7 @@ HeaderItemView {
     model: sessionList
 
     delegate: Rectangle {
-        height: 60
+        height: 30
         width: dataSection.width
 
         Rectangle {
