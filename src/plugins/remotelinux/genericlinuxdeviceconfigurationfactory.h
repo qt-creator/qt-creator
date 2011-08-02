@@ -33,11 +33,12 @@
 #define GENERICLINUXDEVICECONFIGURATIONFACTORY_H
 
 #include "linuxdeviceconfiguration.h"
+#include "remotelinux_export.h"
 
 namespace RemoteLinux {
-namespace Internal {
 
-class GenericLinuxDeviceConfigurationFactory : public ILinuxDeviceConfigurationFactory
+class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationFactory
+    : public ILinuxDeviceConfigurationFactory
 {
     Q_OBJECT
 
@@ -54,7 +55,6 @@ public:
         const LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent) const;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
 #endif // GENERICLINUXDEVICECONFIGURATIONFACTORY_H

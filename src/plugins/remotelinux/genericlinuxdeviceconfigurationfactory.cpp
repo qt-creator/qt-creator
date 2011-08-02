@@ -41,7 +41,6 @@
 #include <utils/qtcassert.h>
 
 namespace RemoteLinux {
-namespace Internal {
 
 GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory(QObject *parent)
     : ILinuxDeviceConfigurationFactory(parent)
@@ -105,5 +104,4 @@ QDialog *GenericLinuxDeviceConfigurationFactory::createDeviceAction(const QStrin
     return 0; // Can't happen.
 }
 
-} // namespace Internal
 } // namespace RemoteLinux
