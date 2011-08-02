@@ -105,7 +105,11 @@ static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode, const
             && (modelNode.metaInfo().propertyTypeName(name) == "QColor"
                 || modelNode.metaInfo().propertyTypeName(name) == "color")) {
         if ((value->type() == QVariant::Color)) {
-            *value = QColor(value->value<QColor>().name());
+            QColor color = value->value<QColor>();
+            int alpha = color.alpha();
+            color = QColor(color.name());
+            color.setAlpha(alpha);
+            *value = color;
         } else {
             *value = QColor(value->toString()).name();
         }
