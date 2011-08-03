@@ -125,9 +125,6 @@ protected:
     void notifyEngineRunAndInferiorRunOk();
     void notifyInferiorShutdownOk();
 
-protected slots:
-    void skipCppBreakpoint();
-
 private:
     void engineStateChanged(DebuggerState newState);
     void setState(DebuggerState newState, bool forced = false);
