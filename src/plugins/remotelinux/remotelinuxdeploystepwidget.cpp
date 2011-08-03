@@ -36,8 +36,10 @@
 #include "remotelinuxutils.h"
 
 #include <projectexplorer/target.h>
+#include <qt4projectmanager/qt4project.h>
 
 using namespace ProjectExplorer;
+using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
 using namespace Internal;
@@ -53,8 +55,8 @@ RemoteLinuxDeployStepWidget::RemoteLinuxDeployStepWidget(AbstractRemoteLinuxDepl
         SLOT(handleStepToBeRemoved(int)));
 
     // TODO: Move this knowledge into the deploy step itself.
-    connect(m_step->target(),
-        SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+    connect(qobject_cast<Qt4Project *>(m_step->target()->project()),
+        SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *, bool, bool)),
         SIGNAL(updateSummary()));
     connect(m_step->deployConfiguration(), SIGNAL(currentDeviceConfigurationChanged()),
         SIGNAL(updateSummary()));
