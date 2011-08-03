@@ -2764,6 +2764,21 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
         m_submode = NoSubMode;
         m_mode = CommandMode;
         finishMovement();
+    } else if (input.isKey(Key_Left)) {
+        breakEditBlock();
+        moveLeft(1);
+        setTargetColumn();
+    } else if (input.isKey(Key_Right)) {
+        breakEditBlock();
+        moveRight(1);
+        setTargetColumn();
+    } else if (input.isKey(Key_Up)) {
+        breakEditBlock();
+        moveUp(1);
+        setTargetColumn();
+    } else if (input.isKey(Key_Down)) {
+        breakEditBlock();
+        moveDown(1);
     } else {
         joinPreviousEditBlock();
         if (!atEndOfLine()) {
