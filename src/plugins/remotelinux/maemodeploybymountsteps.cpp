@@ -131,7 +131,7 @@ private:
     void cancelInstallation();
     void handleInstallationSuccess();
 
-    Q_SLOT void handleFileCopied(const DeployableFile &deployable);
+    Q_SLOT void handleFileCopied(const RemoteLinux::DeployableFile &deployable);
 
     MaemoRemoteCopyFacility * const m_copyFacility;
     mutable QList<DeployableFile> m_filesToCopy;
@@ -329,8 +329,8 @@ MaemoMountAndCopyFilesService::MaemoMountAndCopyFilesService(QObject *parent)
     connect(m_copyFacility, SIGNAL(stdoutData(QString)), SIGNAL(stdOutData(QString)));
     connect(m_copyFacility, SIGNAL(stderrData(QString)), SIGNAL(stdErrData(QString)));
     connect(m_copyFacility, SIGNAL(progress(QString)), SIGNAL(progressMessage(QString)));
-    connect(m_copyFacility, SIGNAL(fileCopied(DeployableFile)),
-        SLOT(handleFileCopied(DeployableFile)));
+    connect(m_copyFacility, SIGNAL(fileCopied(RemoteLinux::DeployableFile)),
+        SLOT(handleFileCopied(RemoteLinux::DeployableFile)));
     connect(m_copyFacility, SIGNAL(finished(QString)), SLOT(handleInstallationFinished(QString)));
 }
 

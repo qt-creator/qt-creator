@@ -94,7 +94,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new RemoteLinuxDeployConfigurationFactory);
     addAutoReleasedObject(new GenericRemoteLinuxDeployStepFactory);
 
-    qRegisterMetaType<DeployableFile>("DeployableFile");
+    qRegisterMetaType<RemoteLinux::DeployableFile>("RemoteLinux::DeployableFile");
 
     return true;
 }

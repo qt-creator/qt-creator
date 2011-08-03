@@ -66,7 +66,7 @@ signals:
     void stdoutData(const QString &output);
     void stderrData(const QString &output);
     void progress(const QString &message);
-    void fileCopied(const DeployableFile &deployable);
+    void fileCopied(const RemoteLinux::DeployableFile &deployable);
     void finished(const QString &errorMsg = QString());
 
 private slots:
