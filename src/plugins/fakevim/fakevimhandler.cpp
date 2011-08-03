@@ -1113,14 +1113,17 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     if (key == Key_Escape) {
         if (m_subsubmode == SearchSubSubMode)
             return true;
-        // Not sure this feels good. People often hit Esc several times
-        if (isNoVisualMode() && m_mode == CommandMode
-               && m_opcount.isEmpty() && m_mvcount.isEmpty())
+        // Not sure this feels good. People often hit Esc several times.
+        if (isNoVisualMode()
+                && m_mode == CommandMode
+                && m_submode == NoSubMode
+                && m_opcount.isEmpty()
+                && m_mvcount.isEmpty())
             return false;
         return true;
     }
 
-    // We are interested in overriding most Ctrl key combinations
+    // We are interested in overriding most Ctrl key combinations.
     if (mods == RealControlModifier
             && !config(ConfigPassControlKey).toBool()
             && ((key >= Key_A && key <= Key_Z && key != Key_K)
@@ -1137,7 +1140,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
         return true;
     }
 
-    // Let other shortcuts trigger
+    // Let other shortcuts trigger.
     return false;
 }
 
