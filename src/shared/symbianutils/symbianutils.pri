@@ -24,4 +24,12 @@ unix:SOURCES += $$PWD/virtualserialdevice_posix.cpp
 
 macx:LIBS += -framework IOKit -framework CoreFoundation
 include(../../shared/json/json.pri)
+
 DEFINES += JSON_INCLUDE_PRI
+
+contains(CONFIG, dll) {
+    DEFINES += SYMBIANUTILS_BUILD_LIB
+} else {
+    DEFINES += SYMBIANUTILS_BUILD_STATIC_LIB
+}
+
