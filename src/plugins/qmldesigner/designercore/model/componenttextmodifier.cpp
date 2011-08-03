@@ -39,7 +39,6 @@ ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int
         m_componentEndOffset(componentEndOffset),
         m_rootStartOffset(rootStartOffset)
 {
-    connect(m_originalModifier, SIGNAL(replaced(int, int, int)), this, SLOT(contentsChange(int,int,int)));
     connect(m_originalModifier, SIGNAL(textChanged()), this, SIGNAL(textChanged()));
 
     connect(m_originalModifier, SIGNAL(replaced(int, int, int)), this, SIGNAL(replaced(int, int, int)));
@@ -73,16 +72,26 @@ int ComponentTextModifier::indentDepth() const
 void ComponentTextModifier::startGroup()
 {
     m_originalModifier->startGroup();
+    m_startLength = m_originalModifier->text().length();
 }
 
 void ComponentTextModifier::flushGroup()
 {
     m_originalModifier->flushGroup();
+
+    uint textLength = m_originalModifier->text().length();
+    m_componentEndOffset += (textLength - m_startLength);
+    m_startLength = textLength;
+
 }
 
 void ComponentTextModifier::commitGroup()
 {
     m_originalModifier->commitGroup();
+
+    uint textLength = m_originalModifier->text().length();
+    m_componentEndOffset += (textLength - m_startLength);
+    m_startLength = textLength;
 }
 
 QTextDocument *ComponentTextModifier::textDocument() const
@@ -119,21 +128,8 @@ void ComponentTextModifier::reactivateChangeSignals()
     m_originalModifier->reactivateChangeSignals();
 }
 
-void ComponentTextModifier::contentsChange(int position, int charsRemoved, int charsAdded)
+void ComponentTextModifier::contentsChange(int /*position*/, int /*charsRemoved*/, int /*charsAdded*/)
 {
-    const int diff = charsAdded - charsRemoved;
-
-    if (position < m_rootStartOffset) {
-        m_rootStartOffset += diff;
-    }
-
-    if (position < m_componentStartOffset) {
-        m_componentStartOffset += diff;
-    }
-
-    if (position < m_componentEndOffset) {
-        m_componentEndOffset += diff;
-    }
 }
 
 QmlJS::Snapshot ComponentTextModifier::getSnapshot() const
