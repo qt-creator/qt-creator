@@ -45,20 +45,19 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QtCore/QFile>
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
-#include <QtCore/QFile>
 #include <QtGui/QMessageBox>
 
 using namespace ProjectExplorer;
 
 namespace {
-const char * const USERFILE_VERSION_KEY = "ProjectExplorer.Project.Updater.FileVersion";
-const char * const USERFILE_ENVIRONMENT_ID_KEY = "ProjectExplorer.Project.Updater.EnvironmentId";
 
-const char * const USERFILE_PROP = "qtcUserFileName";
-
-const char * const PROJECT_FILE_POSTFIX(".user");
+const char USERFILE_VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
+const char USERFILE_ENVIRONMENT_ID_KEY[] = "ProjectExplorer.Project.Updater.EnvironmentId";
+const char USERFILE_PROP[] = "qtcUserFileName";
+const char PROJECT_FILE_POSTFIX[] = ".user";
 
 // Version 0 is used in Qt Creator 1.3.x and
 // (in a slighly different flavour) post 1.3 master.
@@ -284,11 +283,13 @@ static QString fileNameFor(const QString &name)
 
 QT_BEGIN_NAMESPACE
 
-class HandlerNode {
+class HandlerNode
+{
 public:
     QSet<QString> strings;
     QHash<QString, HandlerNode> children;
 };
+
 Q_DECLARE_TYPEINFO(HandlerNode, Q_MOVABLE_TYPE);
 
 QT_END_NAMESPACE
