@@ -72,7 +72,7 @@ MaemoDeployConfigurationWidget::MaemoDeployConfigurationWidget(QWidget *parent)
 
     connect(m_remoteLinuxWidget, SIGNAL(currentModelChanged(const DeployableFilesPerProFile*)),
         SLOT(handleCurrentModelChanged(const DeployableFilesPerProFile*)));
-    handleCurrentModelChanged(0);
+    handleCurrentModelChanged(m_remoteLinuxWidget->currentModel());
 }
 
 MaemoDeployConfigurationWidget::~MaemoDeployConfigurationWidget()
