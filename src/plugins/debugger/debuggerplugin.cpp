@@ -368,60 +368,58 @@ namespace PE = ProjectExplorer::Constants;
 namespace Debugger {
 namespace Constants {
 
-const char * const M_DEBUG_START_DEBUGGING = "QtCreator.Menu.Debug.StartDebugging";
+const char STARTEXTERNAL[]                = "Debugger.StartExternal";
+const char ATTACHEXTERNAL[]               = "Debugger.AttachExternal";
+const char ATTACHCORE[]                   = "Debugger.AttachCore";
+const char ATTACHREMOTE[]                 = "Debugger.AttachRemote";
+const char ATTACHREMOTECDB[]              = "Debugger.AttachRemoteCdb";
+const char STARTREMOTELLDB[]              = "Debugger.StartRemoteLldb";
+const char DETACH[]                       = "Debugger.Detach";
 
-const char * const STARTEXTERNAL            = "Debugger.StartExternal";
-const char * const ATTACHEXTERNAL           = "Debugger.AttachExternal";
-const char * const ATTACHCORE               = "Debugger.AttachCore";
-const char * const ATTACHREMOTE             = "Debugger.AttachRemote";
-const char * const ATTACHREMOTECDB          = "Debugger.AttachRemoteCDB";
-const char * const STARTREMOTELLDB          = "Debugger.StartRemoteLLDB";
-const char * const DETACH                   = "Debugger.Detach";
-
-const char * const RUN_TO_LINE              = "Debugger.RunToLine";
-const char * const RUN_TO_SELECTED_FUNCTION = "Debugger.RunToSelectedFunction";
-const char * const JUMP_TO_LINE             = "Debugger.JumpToLine";
-const char * const RETURN_FROM_FUNCTION     = "Debugger.ReturnFromFunction";
-const char * const SNAPSHOT                 = "Debugger.Snapshot";
-const char * const TOGGLE_BREAK             = "Debugger.ToggleBreak";
-const char * const BREAK_BY_FUNCTION        = "Debugger.BreakByFunction";
-const char * const BREAK_AT_MAIN            = "Debugger.BreakAtMain";
+const char RUN_TO_LINE[]                  = "Debugger.RunToLine";
+const char RUN_TO_SELECTED_FUNCTION[]     = "Debugger.RunToSelectedFunction";
+const char JUMP_TO_LINE[]                 = "Debugger.JumpToLine";
+const char RETURN_FROM_FUNCTION[]         = "Debugger.ReturnFromFunction";
+const char SNAPSHOT[]                     = "Debugger.Snapshot";
+const char TOGGLE_BREAK[]                 = "Debugger.ToggleBreak";
+const char BREAK_BY_FUNCTION[]            = "Debugger.BreakByFunction";
+const char BREAK_AT_MAIN[]                = "Debugger.BreakAtMain";
 // Don't add '1' to the string as it shows up in the shortcut dialog.
-const char * const ADD_TO_WATCH1            = "Debugger.AddToWatch";
-const char * const ADD_TO_WATCH2            = "Debugger.AddToWatch2";
-const char * const FRAME_UP                 = "Debugger.FrameUp";
-const char * const FRAME_DOWN               = "Debugger.FrameDown";
+const char ADD_TO_WATCH1[]                = "Debugger.AddToWatch";
+const char ADD_TO_WATCH2[]                = "Debugger.AddToWatch2";
+const char FRAME_UP[]                     = "Debugger.FrameUp";
+const char FRAME_DOWN[]                   = "Debugger.FrameDown";
 
 #ifdef Q_WS_MAC
-const char * const STOP_KEY                     = "Shift+Ctrl+Y";
-const char * const RESET_KEY                    = "Ctrl+Shift+F5";
-const char * const STEP_KEY                     = "Ctrl+Shift+I";
-const char * const STEPOUT_KEY                  = "Ctrl+Shift+T";
-const char * const NEXT_KEY                     = "Ctrl+Shift+O";
-const char * const REVERSE_KEY                  = "";
-const char * const RUN_TO_LINE_KEY              = "Shift+F8";
-const char * const RUN_TO_SELECTED_FUNCTION_KEY = "Ctrl+F6";
-const char * const JUMP_TO_LINE_KEY             = "Ctrl+D,Ctrl+L";
-const char * const TOGGLE_BREAK_KEY             = "F8";
-const char * const BREAK_BY_FUNCTION_KEY        = "Ctrl+D,Ctrl+F";
-const char * const BREAK_AT_MAIN_KEY            = "Ctrl+D,Ctrl+M";
-const char * const ADD_TO_WATCH_KEY             = "Ctrl+D,Ctrl+W";
-const char * const SNAPSHOT_KEY                 = "Ctrl+D,Ctrl+S";
+const char STOP_KEY[]                     = "Shift+Ctrl+Y";
+const char RESET_KEY[]                    = "Ctrl+Shift+F5";
+const char STEP_KEY[]                     = "Ctrl+Shift+I";
+const char STEPOUT_KEY[]                  = "Ctrl+Shift+T";
+const char NEXT_KEY[]                     = "Ctrl+Shift+O";
+const char REVERSE_KEY[]                  = "";
+const char RUN_TO_LINE_KEY[]              = "Shift+F8";
+const char RUN_TO_SELECTED_FUNCTION_KEY[] = "Ctrl+F6";
+const char JUMP_TO_LINE_KEY[]             = "Ctrl+D,Ctrl+L";
+const char TOGGLE_BREAK_KEY[]             = "F8";
+const char BREAK_BY_FUNCTION_KEY[]        = "Ctrl+D,Ctrl+F";
+const char BREAK_AT_MAIN_KEY[]            = "Ctrl+D,Ctrl+M";
+const char ADD_TO_WATCH_KEY[]             = "Ctrl+D,Ctrl+W";
+const char SNAPSHOT_KEY[]                 = "Ctrl+D,Ctrl+S";
 #else
-const char * const STOP_KEY                     = "Shift+F5";
-const char * const RESET_KEY                    = "Ctrl+Shift+F5";
-const char * const STEP_KEY                     = "F11";
-const char * const STEPOUT_KEY                  = "Shift+F11";
-const char * const NEXT_KEY                     = "F10";
-const char * const REVERSE_KEY                  = "F12";
-const char * const RUN_TO_LINE_KEY              = "";
-const char * const RUN_TO_SELECTED_FUNCTION_KEY = "Ctrl+F6";
-const char * const JUMP_TO_LINE_KEY             = "";
-const char * const TOGGLE_BREAK_KEY             = "F9";
-const char * const BREAK_BY_FUNCTION_KEY        = "";
-const char * const BREAK_AT_MAIN_KEY            = "";
-const char * const ADD_TO_WATCH_KEY             = "Ctrl+Alt+Q";
-const char * const SNAPSHOT_KEY                 = "Ctrl+D,Ctrl+S";
+const char STOP_KEY[]                     = "Shift+F5";
+const char RESET_KEY[]                    = "Ctrl+Shift+F5";
+const char STEP_KEY[]                     = "F11";
+const char STEPOUT_KEY[]                  = "Shift+F11";
+const char NEXT_KEY[]                     = "F10";
+const char REVERSE_KEY[]                  = "F12";
+const char RUN_TO_LINE_KEY[]              = "";
+const char RUN_TO_SELECTED_FUNCTION_KEY[] = "Ctrl+F6";
+const char JUMP_TO_LINE_KEY[]             = "";
+const char TOGGLE_BREAK_KEY[]             = "F9";
+const char BREAK_BY_FUNCTION_KEY[]        = "";
+const char BREAK_AT_MAIN_KEY[]            = "";
+const char ADD_TO_WATCH_KEY[]             = "Ctrl+Alt+Q";
+const char SNAPSHOT_KEY[]                 = "Ctrl+D,Ctrl+S";
 #endif
 
 } // namespace Constants
@@ -2944,7 +2942,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, _("Debugger.Sep.Step"), globalcontext);
+    cmd = am->registerAction(sep, "Debugger.Sep.Step", globalcontext);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_nextAction,
@@ -3000,7 +2998,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, _("Debugger.Sep.Break"), globalcontext);
+    cmd = am->registerAction(sep, "Debugger.Sep.Break", globalcontext);
     debugMenu->addAction(cmd);
 
     //cmd = am->registerAction(m_snapshotAction,
@@ -3028,7 +3026,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, _("Debugger.Sep.Watch"), globalcontext);
+    cmd = am->registerAction(sep, "Debugger.Sep.Watch", globalcontext);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_watchAction1,
@@ -3040,7 +3038,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // the editor context menu.
     if (ActionContainer *editorContextMenu =
             am->actionContainer(CppEditor::Constants::M_CONTEXT)) {
-        cmd = am->registerAction(sep, _("Debugger.Sep.Views"),
+        cmd = am->registerAction(sep, "Debugger.Sep.Views",
             cppDebuggercontext);
         editorContextMenu->addAction(cmd);
         cmd->setAttribute(Command::CA_Hide);
