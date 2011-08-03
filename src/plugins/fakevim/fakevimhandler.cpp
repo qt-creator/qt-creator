@@ -3226,7 +3226,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
                 }
             }
             text = text.left(pos) + repl + text.mid(pos + matched.size());
-            pos += matched.size();
+            pos += repl.size();
             if (!global)
                 break;
         }
