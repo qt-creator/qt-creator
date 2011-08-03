@@ -93,6 +93,17 @@ void PlainTextEditModifier::replace(int offset, int length, const QString &repla
 
 void PlainTextEditModifier::move(const MoveInfo &moveInfo)
 {
+#if 0
+    qDebug() << "Original:"    << m_textEdit->toPlainText();
+    qDebug() << "Move:" << m_textEdit->toPlainText().mid(moveInfo.objectStart, moveInfo.objectEnd - moveInfo.objectStart);
+    qDebug() << "     prefix:" << moveInfo.prefixToInsert;
+    qDebug() << "     suffix:" <<  moveInfo.suffixToInsert;
+    qDebug() << "     leadingCharsToRemove:" <<  moveInfo.leadingCharsToRemove;
+    qDebug() << "                          " <<  m_textEdit->toPlainText().mid(moveInfo.objectStart - moveInfo.leadingCharsToRemove,  moveInfo.leadingCharsToRemove);
+    qDebug() << "     trailingCharsToRemove:" <<  moveInfo.trailingCharsToRemove;
+    qDebug() << "                           " <<  m_textEdit->toPlainText().mid(moveInfo.objectEnd, moveInfo.trailingCharsToRemove);
+#endif
+
     Q_ASSERT(moveInfo.objectStart >= 0);
     Q_ASSERT(moveInfo.objectEnd > moveInfo.objectStart);
     Q_ASSERT(moveInfo.destination >= 0);
