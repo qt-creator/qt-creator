@@ -180,8 +180,8 @@ public:
 
     void addTypeFormats(const QByteArray &type, const QStringList &formats);
 
-    void setUnprintableBase(int base) { m_unprintableBase = base; }
-    int unprintableBase() const { return m_unprintableBase; }
+    void setUnprintableBase(int base);
+    static int unprintableBase();
 
     QByteArray watcherName(const QByteArray &exp);
     void synchronizeWatchers();
@@ -217,7 +217,6 @@ private:
     WatchModel *m_watchers;
     WatchModel *m_tooltips;
     DebuggerEngine *m_engine;
-    static int m_unprintableBase;
 };
 
 } // namespace Internal

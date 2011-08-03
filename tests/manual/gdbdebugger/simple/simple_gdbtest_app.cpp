@@ -1642,6 +1642,11 @@ void testQString()
 {
     QString str = "Hello ";
     str += " big, ";
+    str += "\t";
+    str += "\r";
+    str += "\n";
+    str += QLatin1Char(0);
+    str += QLatin1Char(1);
     str += " fat ";
     str += " World ";
     str += " World ";

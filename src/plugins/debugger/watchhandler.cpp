@@ -79,12 +79,25 @@ static int generationCounter = 0;
 
 QHash<QByteArray, int> WatchHandler::m_watcherNames;
 QHash<QByteArray, int> WatchHandler::m_typeFormats;
-int WatchHandler::m_unprintableBase = 0;
 
 static QByteArray stripTemplate(const QByteArray &ba)
 {
     int pos = ba.indexOf('<');
     return pos == -1 ? ba : ba.left(pos);
+}
+
+
+static int m_unprintableBase = 8;
+
+void WatchHandler::setUnprintableBase(int base)
+{
+    m_unprintableBase = base;
+    emitAllChanged();
+}
+
+int WatchHandler::unprintableBase()
+{
+    return m_unprintableBase;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -327,7 +340,7 @@ template <class IntType> QString reformatInteger(IntType value, int format)
 }
 
 // Format printable (char-type) characters
-static inline QString reformatCharacter(int code, int format)
+static QString reformatCharacter(int code, int format)
 {
     const QString codeS = reformatInteger(code, format);
     if (code < 0) // Append unsigned value.
@@ -347,7 +360,26 @@ static inline QString reformatCharacter(int code, int format)
     return codeS;
 }
 
-static inline QString formattedValue(const WatchData &data, int format)
+static QString quoteUnprintable(const QString &str)
+{
+    if (WatchHandler::unprintableBase() == 0)
+        return str;
+    QString encoded;
+    foreach (const QChar c, str) {
+        if (c.isPrint()) {
+            encoded += c;
+        } else if (WatchHandler::unprintableBase() == 8) {
+            encoded += QString("\\%1")
+                .arg(c.unicode(), 3, 8, QLatin1Char('0'));
+        } else {
+            encoded += QString("\\u%1")
+                .arg(c.unicode(), 4, 16, QLatin1Char('0'));
+        }
+    }
+    return encoded;
+}
+
+static QString formattedValue(const WatchData &data, int format)
 {
     if (isIntType(data.type)) {
         if (data.value.isEmpty())
@@ -379,7 +411,6 @@ static inline QString formattedValue(const WatchData &data, int format)
     }
 
     QString result = data.value;
-    result.replace(QLatin1Char('\n'), QLatin1String("\\n"));
     if (result.startsWith(QLatin1Char('<'))) {
         if (result == QLatin1String("<Edit>"))
             result = WatchHandler::tr("<Edit>");
@@ -405,7 +436,7 @@ static inline QString formattedValue(const WatchData &data, int format)
         }
     }
 
-    return result;
+    return quoteUnprintable(result);
 }
 
 // Get a pointer address from pointer values reported by the debugger.
@@ -674,21 +705,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 default:
                     break;
             }
-            if (WatchHandler::m_unprintableBase == 0)
-                return result;
-            QString encoded;
-            foreach (const QChar c, result) {
-                if (c.isPrint()) {
-                    encoded += c;
-                } else if (WatchHandler::m_unprintableBase == 8) {
-                    encoded += QString("\\%1")
-                        .arg(c.unicode(), 3, 8, QLatin1Char('0'));
-                } else {
-                    encoded += QString("\\u%1")
-                        .arg(c.unicode(), 4, 16, QLatin1Char('0'));
-                }
-            }
-            return encoded;
+            return result;
         }
 
         case Qt::ToolTipRole:
