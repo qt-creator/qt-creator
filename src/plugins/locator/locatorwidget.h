@@ -76,6 +76,7 @@ private slots:
     void filterSelected();
     void showConfigureDialog();
     void updateEntries();
+    void scheduleAcceptCurrentEntry();
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -97,6 +98,8 @@ private:
     QTimer *m_showPopupTimer;
     QFutureWatcher<FilterEntry> *m_entriesWatcher;
     QMap<QString, QAction *> m_filterActionMap;
+    bool m_updateRequested;
+    bool m_acceptRequested;
 };
 
 } // namespace Internal

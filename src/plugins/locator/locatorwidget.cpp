@@ -278,13 +278,15 @@ void CompletionList::updatePreferredSize()
 // =========== LocatorWidget ===========
 
 LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
-     m_locatorPlugin(qop),
-     m_locatorModel(new LocatorModel(this)),
-     m_completionList(new CompletionList(this)),
-     m_filterMenu(new QMenu(this)),
-     m_refreshAction(new QAction(tr("Refresh"), this)),
-     m_configureAction(new QAction(tr("Configure..."), this)),
-     m_fileLineEdit(new Utils::FilterLineEdit)
+    m_locatorPlugin(qop),
+    m_locatorModel(new LocatorModel(this)),
+    m_completionList(new CompletionList(this)),
+    m_filterMenu(new QMenu(this)),
+    m_refreshAction(new QAction(tr("Refresh"), this)),
+    m_configureAction(new QAction(tr("Configure..."), this)),
+    m_fileLineEdit(new Utils::FilterLineEdit),
+    m_updateRequested(false),
+    m_acceptRequested(false)
 {
     // Explicitly hide the completion list popup.
     m_completionList->hide();
@@ -331,7 +333,7 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
     connect(m_fileLineEdit, SIGNAL(textChanged(const QString&)),
         this, SLOT(showPopup()));
     connect(m_completionList, SIGNAL(activated(QModelIndex)),
-            this, SLOT(acceptCurrentEntry()));
+            this, SLOT(scheduleAcceptCurrentEntry()));
 
     m_entriesWatcher = new QFutureWatcher<FilterEntry>(this);
     connect(m_entriesWatcher, SIGNAL(finished()), SLOT(updateEntries()));
@@ -404,7 +406,7 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             return true;
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            acceptCurrentEntry();
+            scheduleAcceptCurrentEntry();
             return true;
         case Qt::Key_Escape:
             m_completionList->hide();
@@ -449,6 +451,7 @@ void LocatorWidget::showCompletionList()
 
 void LocatorWidget::showPopup()
 {
+    m_updateRequested = true;
     m_showPopupTimer->start();
 }
 
@@ -506,6 +509,7 @@ static void filter_helper(QFutureInterface<Locator::FilterEntry> &entries, QList
 
 void LocatorWidget::updateCompletionList(const QString &text)
 {
+    m_updateRequested = true;
     QString searchText;
     const QList<ILocatorFilter*> filters = filtersFor(text, searchText);
 
@@ -519,8 +523,12 @@ void LocatorWidget::updateCompletionList(const QString &text)
 
 void LocatorWidget::updateEntries()
 {
-    if (m_entriesWatcher->future().isCanceled())
+    m_updateRequested = false;
+    if (m_entriesWatcher->future().isCanceled()) {
+        // reset to usable state
+        m_acceptRequested = false;
         return;
+    }
 
     const QList<FilterEntry> entries = m_entriesWatcher->future().results();
     m_locatorModel->setEntries(entries);
@@ -530,10 +538,24 @@ void LocatorWidget::updateEntries()
 #if 0
     m_completionList->updatePreferredSize();
 #endif
+    if (m_acceptRequested)
+        acceptCurrentEntry();
+}
+
+void LocatorWidget::scheduleAcceptCurrentEntry()
+{
+    if (m_updateRequested) {
+        // don't just accept the selected entry, since the list is not up to date
+        // accept will be called after the update finished
+        m_acceptRequested = true;
+    } else {
+        acceptCurrentEntry();
+    }
 }
 
 void LocatorWidget::acceptCurrentEntry()
 {
+    m_acceptRequested = false;
     if (!m_completionList->isVisible())
         return;
     const QModelIndex index = m_completionList->currentIndex();
