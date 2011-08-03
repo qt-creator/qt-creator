@@ -36,6 +36,10 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#endif
+
 using namespace Utils;
 
 /*!
@@ -663,6 +667,8 @@ void QtcProcess::start()
     QString arguments;
     prepareCommand(m_command, m_arguments, &command, &arguments, &env, &workDir);
     setNativeArguments(arguments);
+    if (m_useCtrlCStub)
+        command.prepend(QLatin1Char('"') + QCoreApplication::applicationDirPath() + QLatin1String("/qtcbuildhelper.exe\" "));
     QProcess::start(command, QStringList());
 #else
     QStringList arguments;
@@ -675,6 +681,30 @@ void QtcProcess::start()
     }
     QProcess::start(command, arguments);
 #endif
+}
+
+#ifdef Q_OS_WIN
+BOOL CALLBACK sendShutDownMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
+{
+    static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcbuildhelper_shutdown");
+    DWORD dwProcessID;
+    GetWindowThreadProcessId(hwnd, &dwProcessID);
+    if (lParam == dwProcessID) {
+        SendNotifyMessage(hwnd, uiShutDownMessage, 0, 0);
+        return FALSE;
+    }
+    return TRUE;
+}
+#endif
+
+void QtcProcess::terminate()
+{
+#ifdef Q_OS_WIN
+    if (m_useCtrlCStub)
+        EnumWindows(sendShutDownMessageToAllWindowsOfProcess_enumWnd, pid()->dwProcessId);
+    else
+#endif
+    QProcess::terminate();
 }
 
 #ifdef Q_OS_WIN
