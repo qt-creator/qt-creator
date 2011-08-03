@@ -1427,9 +1427,9 @@ void DebuggerEngine::detachDebugger()
 
 void DebuggerEngine::exitDebugger()
 {
-    QTC_ASSERT(d->m_state == InferiorStopOk || d->m_state == InferiorUnrunnable,
-            qDebug() << d->m_state);
-    d->queueShutdownInferior();
+    QTC_ASSERT(d->m_state == InferiorStopOk || d->m_state == InferiorUnrunnable
+        || d->m_state == InferiorRunOk, qDebug() << d->m_state);
+    quitDebugger();
 }
 
 void DebuggerEngine::executeStep()

@@ -1029,8 +1029,9 @@ public:
     QString m_previousMode;
     QList<DebuggerStartParameters> m_scheduledStarts;
 
-    Utils::ProxyAction *m_visibleDebugAction;
-    QAction *m_debugAction;
+    Utils::ProxyAction *m_visibleStartAction;
+    Utils::ProxyAction *m_hiddenStopAction;
+    QAction *m_startAction;
     QAction *m_startExternalAction;
     QAction *m_startRemoteAction;
     QAction *m_startRemoteCdbAction;
@@ -1146,7 +1147,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_cmdLineEnabledEngines = AllEngineTypes;
 
     m_reverseToolButton = 0;
-    m_debugAction = 0;
+    m_startAction = 0;
     m_startExternalAction = 0;
     m_startRemoteAction = 0;
     m_startRemoteCdbAction = 0;
@@ -1365,13 +1366,11 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
         }
     }
     // No corresponding debugger found. So we are ready to start one.
-    ICore *core = ICore::instance();
-    ActionManager *am = core->actionManager();
     m_interruptAction->setEnabled(false);
     m_continueAction->setEnabled(false);
     m_exitAction->setEnabled(false);
-    m_debugAction->setEnabled(true);
-    m_visibleDebugAction->setAction(am->command(Constants::DEBUG)->action());
+    m_startAction->setEnabled(true);
+    m_visibleStartAction->setAction(m_startAction);
 }
 
 void DebuggerPluginPrivate::languagesChanged()
@@ -2043,37 +2042,39 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     bool actionsEnabled = DebuggerEngine::debuggerActionsEnabled(state);
 
-    ICore *core = ICore::instance();
-    ActionManager *am = core->actionManager();
     if (state == DebuggerNotReady) {
-        QTC_ASSERT(false, /* We use the Core m_debugAction here */);
+        QTC_ASSERT(false, /* We use the Core's m_debugAction here */);
         // F5 starts debugging. It is "startable".
         m_interruptAction->setEnabled(false);
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(false);
-        m_debugAction->setEnabled(true);
-        m_visibleDebugAction->setAction(am->command(Constants::DEBUG)->action());
+        m_startAction->setEnabled(true);
+        m_visibleStartAction->setAction(m_startAction);
+        m_hiddenStopAction->setAction(m_undisturbableAction);
     } else if (state == InferiorStopOk) {
         // F5 continues, Shift-F5 kills. It is "continuable".
         m_interruptAction->setEnabled(false);
         m_continueAction->setEnabled(true);
         m_exitAction->setEnabled(true);
-        m_debugAction->setEnabled(false);
-        m_visibleDebugAction->setAction(am->command(Constants::CONTINUE)->action());
+        m_startAction->setEnabled(false);
+        m_visibleStartAction->setAction(m_continueAction);
+        m_hiddenStopAction->setAction(m_exitAction);
     } else if (state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
         m_interruptAction->setEnabled(true);
         m_continueAction->setEnabled(false);
-        m_exitAction->setEnabled(false);
-        m_debugAction->setEnabled(false);
-        m_visibleDebugAction->setAction(am->command(Constants::INTERRUPT)->action());
+        m_exitAction->setEnabled(true);
+        m_startAction->setEnabled(false);
+        m_visibleStartAction->setAction(m_interruptAction);
+        m_hiddenStopAction->setAction(m_interruptAction);
     } else if (state == DebuggerFinished) {
         // We don't want to do anything anymore.
         m_interruptAction->setEnabled(false);
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(false);
-        m_debugAction->setEnabled(true);
-        m_visibleDebugAction->setAction(am->command(Constants::DEBUG)->action());
+        m_startAction->setEnabled(true);
+        m_visibleStartAction->setAction(m_startAction);
+        m_hiddenStopAction->setAction(m_undisturbableAction);
         m_codeModelSnapshot = CPlusPlus::Snapshot();
         setBusyCursor(false);
         cleanupViews();
@@ -2082,15 +2083,17 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_interruptAction->setEnabled(false);
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(true);
-        m_debugAction->setEnabled(false);
-        m_visibleDebugAction->setAction(am->command(Constants::DEBUG)->action());
+        m_startAction->setEnabled(false);
+        m_visibleStartAction->setAction(m_startAction);
+        m_hiddenStopAction->setAction(m_undisturbableAction);
     } else {
         // Everything else is "undisturbable".
         m_interruptAction->setEnabled(false);
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(false);
-        m_debugAction->setEnabled(false);
-        m_visibleDebugAction->setAction(m_undisturbableAction);
+        m_startAction->setEnabled(false);
+        m_visibleStartAction->setAction(m_undisturbableAction);
+        m_hiddenStopAction->setAction(m_undisturbableAction);
     }
 
     m_startExternalAction->setEnabled(true);
@@ -2156,8 +2159,8 @@ void DebuggerPluginPrivate::updateDebugActions()
     Project *project = pe->startupProject();
     const QString debugMode = _(Constants::DEBUGMODE);
     const bool canRun = pe->canRun(project, debugMode);
-    m_debugAction->setEnabled(canRun);
-    m_debugAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, debugMode));
+    m_startAction->setEnabled(canRun);
+    m_startAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, debugMode));
 
     // Step into/next: Start and break at 'main' unless a debugger is running.
     if (m_snapshotHandler->currentIndex() < 0) {
@@ -2811,7 +2814,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_plugin->addAutoReleasedObject(m_debuggerRunControlFactory);
 
     // The main "Start Debugging" action.
-    act = m_debugAction = new QAction(this);
+    act = m_startAction = new QAction(this);
     QIcon debuggerIcon(":/projectexplorer/images/debugger_start_small.png");
     debuggerIcon.addFile(":/projectexplorer/images/debugger_start.png");
     act->setIcon(debuggerIcon);
@@ -2854,20 +2857,20 @@ void DebuggerPluginPrivate::extensionsInitialized()
     Command *cmd = 0;
     ActionContainer *mstart = am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
-    cmd = am->registerAction(m_debugAction, Constants::DEBUG, globalcontext);
+    cmd = am->registerAction(m_startAction, Constants::DEBUG, globalcontext);
     cmd->setDefaultText(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
     cmd->setAttribute(Command::CA_UpdateText);
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
-    m_visibleDebugAction = new Utils::ProxyAction(this);
-    m_visibleDebugAction->initialize(m_debugAction);
-    m_visibleDebugAction->setAttribute(Utils::ProxyAction::UpdateText);
-    m_visibleDebugAction->setAttribute(Utils::ProxyAction::UpdateIcon);
-    m_visibleDebugAction->setAction(cmd->action());
+    m_visibleStartAction = new Utils::ProxyAction(this);
+    m_visibleStartAction->initialize(m_startAction);
+    m_visibleStartAction->setAttribute(Utils::ProxyAction::UpdateText);
+    m_visibleStartAction->setAttribute(Utils::ProxyAction::UpdateIcon);
+    m_visibleStartAction->setAction(cmd->action());
 
     ModeManager *modeManager = ModeManager::instance();
-    modeManager->addAction(m_visibleDebugAction, Constants::P_ACTION_DEBUG);
+    modeManager->addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
 
     cmd = am->registerAction(m_startExternalAction,
         Constants::STARTEXTERNAL, globalcontext);
@@ -2912,7 +2915,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = am->registerAction(m_interruptAction,
         Constants::INTERRUPT, globalcontext);
     cmd->setDefaultText(tr("Interrupt Debugger"));
-    cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_continueAction,
@@ -2922,9 +2924,17 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_exitAction,
         Constants::STOP, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
     cmd->setDefaultText(tr("Stop Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
+
+    m_hiddenStopAction = new Utils::ProxyAction(this);
+    m_hiddenStopAction->initialize(m_exitAction);
+    m_hiddenStopAction->setAttribute(Utils::ProxyAction::UpdateText);
+    m_hiddenStopAction->setAttribute(Utils::ProxyAction::UpdateIcon);
+
+    cmd = am->registerAction(m_hiddenStopAction,
+        Constants::HIDDEN_STOP, globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
 
     cmd = am->registerAction(m_resetAction,
         Constants::RESET, globalcontext);
@@ -3113,15 +3123,15 @@ void DebuggerPluginPrivate::extensionsInitialized()
     QHBoxLayout *hbox = new QHBoxLayout(toolbarContainer);
     hbox->setMargin(0);
     hbox->setSpacing(0);
-    hbox->addWidget(toolButton(m_visibleDebugAction));
-    hbox->addWidget(toolButton(am->command(STOP)->action()));
-    hbox->addWidget(toolButton(am->command(NEXT)->action()));
-    hbox->addWidget(toolButton(am->command(STEP)->action()));
-    hbox->addWidget(toolButton(am->command(STEPOUT)->action()));
-    hbox->addWidget(toolButton(am->command(OPERATE_BY_INSTRUCTION)->action()));
+    hbox->addWidget(toolButton(m_visibleStartAction));
+    hbox->addWidget(toolButton(m_exitAction));
+    hbox->addWidget(toolButton(m_nextAction));
+    hbox->addWidget(toolButton(m_stepAction));
+    hbox->addWidget(toolButton(m_stepOutAction));
+    hbox->addWidget(toolButton(action(OperateByInstruction)));
 
     //hbox->addWidget(new Utils::StyledSeparator);
-    m_reverseToolButton = toolButton(am->command(REVERSE)->action());
+    m_reverseToolButton = toolButton(m_reverseDirectionAction);
     hbox->addWidget(m_reverseToolButton);
     //m_reverseToolButton->hide();
 
@@ -3285,7 +3295,7 @@ DebuggerMainWindow *DebuggerPlugin::mainWindow()
 
 QAction *DebuggerPlugin::visibleDebugAction()
 {
-    return theDebuggerCore->m_visibleDebugAction;
+    return theDebuggerCore->m_visibleStartAction;
 }
 
 } // namespace Debugger

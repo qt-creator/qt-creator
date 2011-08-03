@@ -54,6 +54,7 @@ const char DEBUGMODE2[]             = "Debugger.DebugMode2"; // Breaks on main.
 const char INTERRUPT[]              = "Debugger.Interrupt";
 const char CONTINUE[]               = "Debugger.Continue";
 const char STOP[]                   = "Debugger.Stop";
+const char HIDDEN_STOP[]            = "Debugger.HiddenStop";
 const char RESET[]                  = "Debugger.Reset";
 const char STEP[]                   = "Debugger.StepLine";
 const char STEPOUT[]                = "Debugger.StepOut";
