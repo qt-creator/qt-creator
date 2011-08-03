@@ -1640,6 +1640,11 @@ void xxxx()
 
 void testQString()
 {
+    QString str1("Hello Qt"); // --> Value: "Hello Qt"
+    QString str2("Hello\nQt"); // --> Value: ""Hello\nQt"" (double quote not expected)
+    QString str3("Hello\rQt"); // --> Value: ""HelloQt"" (double quote and missing \r not expected)
+    QString str4("Hello\tQt"); // --> Value: "Hello\9Qt" (expected \t instead of \9)
+
     QString str = "Hello ";
     str += " big, ";
     str += "\t";

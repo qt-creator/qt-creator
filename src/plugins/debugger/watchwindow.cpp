@@ -645,6 +645,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *clearTypeFormatAction = 0;
     QAction *clearIndividualFormatAction = 0;
     QAction *showUnprintableUnicode = 0;
+    QAction *showUnprintableEscape = 0;
     QAction *showUnprintableOctal = 0;
     QAction *showUnprintableHexadecimal = 0;
     formatMenu.setTitle(tr("Change Display Format..."));
@@ -652,6 +653,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         formatMenu.addAction(tr("Treat All Characters as Printable"));
     showUnprintableUnicode->setCheckable(true);
     showUnprintableUnicode->setChecked(unprintableBase == 0);
+    showUnprintableEscape =
+        formatMenu.addAction(tr("Show Unprintable Characters as Escape Sequences"));
+    showUnprintableEscape->setCheckable(true);
+    showUnprintableEscape->setChecked(unprintableBase == -1);
     showUnprintableOctal =
         formatMenu.addAction(tr("Show Unprintable Characters as Octal"));
     showUnprintableOctal->setCheckable(true);
@@ -932,6 +937,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         debuggerCore()->openTextEditor(tr("Locals & Watchers"), contents);
     } else if (act == showUnprintableUnicode) {
         handler->setUnprintableBase(0);
+    } else if (act == showUnprintableEscape) {
+        handler->setUnprintableBase(-1);
     } else if (act == showUnprintableOctal) {
         handler->setUnprintableBase(8);
     } else if (act == showUnprintableHexadecimal) {

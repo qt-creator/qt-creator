@@ -87,7 +87,7 @@ static QByteArray stripTemplate(const QByteArray &ba)
 }
 
 
-static int m_unprintableBase = 8;
+static int m_unprintableBase = -1;
 
 void WatchHandler::setUnprintableBase(int base)
 {
@@ -364,7 +364,26 @@ static QString quoteUnprintable(const QString &str)
 {
     if (WatchHandler::unprintableBase() == 0)
         return str;
+
     QString encoded;
+    if (WatchHandler::unprintableBase() == -1) {
+        foreach (const QChar c, str) {
+            int u = c.unicode();
+            if (u >= 32 && u < 127)
+                encoded += c;
+            else if (u == '\r')
+                encoded += "\\r";
+            else if (u == '\t')
+                encoded += "\\t";
+            else if (u == '\n')
+                encoded += "\\n";
+            else
+                encoded += QString("\\%1")
+                    .arg(c.unicode(), 3, 8, QLatin1Char('0'));
+        }
+        return encoded;
+    }
+
     foreach (const QChar c, str) {
         if (c.isPrint()) {
             encoded += c;
