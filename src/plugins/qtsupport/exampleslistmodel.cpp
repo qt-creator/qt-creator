@@ -250,7 +250,14 @@ QStringList ExamplesListModel::exampleSources() const
     QFileInfoList sources;
     const QStringList pattern(QLatin1String("*.xml"));
 
-    // TODO: Read key from settings
+    // Read keys from SDK installer
+    QSettings *settings = Core::ICore::instance()->settings(QSettings::SystemScope);
+    int size = settings->beginReadArray("ExampleManifests");
+    for (int i = 0; i < size; ++i) {
+        settings->setArrayIndex(i);
+        sources.append(settings->value("Location").toString());
+    }
+    settings->endArray();
 
     if (sources.isEmpty()) {
         // Try to get dir from first Qt Version
