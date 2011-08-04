@@ -79,7 +79,11 @@
          </spacer>
         </item>
         <item>
-         <widget class="Utils::PathChooser" name="importLineEdit"/>
+         <widget class="Utils::PathChooser" name="importLineEdit">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+         </widget>
         </item>
        </layout>
       </item>
