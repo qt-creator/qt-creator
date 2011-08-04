@@ -32,6 +32,7 @@
 
 #include "modelnodecontextmenu.h"
 #include <QApplication>
+#include <QMessageBox>
 #include <coreplugin/editormanager/editormanager.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
@@ -40,6 +41,7 @@
 #include <qmlitemnode.h>
 #include <variantproperty.h>
 #include <nodeproperty.h>
+#include <rewritingexception.h>
 #include <rewritertransaction.h>
 #include <designdocumentcontroller.h>
 
@@ -65,6 +67,11 @@ static inline bool checkIfNodeIsAView(const ModelNode &node)
             (node.metaInfo().isSubclassOf("QtQuick.ListView", -1, -1) ||
              node.metaInfo().isSubclassOf("QtQuick.GridView", -1, -1) ||
              node.metaInfo().isSubclassOf("QtQuick.PathView", -1, -1));
+}
+
+static inline bool isItem(const ModelNode &node)
+{
+    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("QtQuick.Item", -1, -1);
 }
 
 static inline QList<QmlItemNode> siblingsForNode(const QmlItemNode &itemNode)
@@ -242,7 +249,10 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
         if (!modelNodesHaveProperty(selectedModelNodes, QLatin1String("width")) && !modelNodesHaveProperty(selectedModelNodes, QLatin1String("height")))
             action->setDisabled(true);
         editMenu->addAction(action);
-        editMenu->addAction(createModelNodeAction(tr("Visibility"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ModelNodeVisibility, singleSelected));
+        action = createModelNodeAction(tr("Visibility"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ModelNodeVisibility, singleSelected);
+        editMenu->addAction(action);
+        if (!isItem(currentSingleNode))
+            action->setDisabled(true);
 
     } else {
         editMenu->setEnabled(false);
@@ -358,11 +368,15 @@ void ModelNodeAction::toFront()
     if (!m_view)
         return;
 
-    QmlItemNode node = m_modelNodeList.first();
-    if (node.isValid()) {
-        signed int maximumZ = getMaxZValue(siblingsForNode(node));
-        maximumZ++;
-        node.setVariantProperty("z", maximumZ);
+    try {
+        QmlItemNode node = m_modelNodeList.first();
+        if (node.isValid()) {
+            signed int maximumZ = getMaxZValue(siblingsForNode(node));
+            maximumZ++;
+            node.setVariantProperty("z", maximumZ);
+        }
+    } catch (RewritingException &e) { //better save then sorry
+        QMessageBox::warning(0, "Error", e.description());
     }
 }
 
@@ -371,12 +385,16 @@ void ModelNodeAction::toBack()
 {
     if (!m_view)
         return;
+    try {
+        QmlItemNode node = m_modelNodeList.first();
+        if (node.isValid()) {
+            signed int minimumZ = getMinZValue(siblingsForNode(node));
+            minimumZ--;
+            node.setVariantProperty("z", minimumZ);
+        }
 
-    QmlItemNode node = m_modelNodeList.first();
-    if (node.isValid()) {
-        signed int minimumZ = getMinZValue(siblingsForNode(node));
-        minimumZ--;
-        node.setVariantProperty("z", minimumZ);
+    } catch (RewritingException &e) { //better save then sorry
+        QMessageBox::warning(0, "Error", e.description());
     }
 }
 
@@ -385,14 +403,18 @@ void ModelNodeAction::raise()
     if (!m_view)
         return;
 
-    RewriterTransaction(m_view);
-    foreach (ModelNode modelNode, m_modelNodeList) {
-        QmlItemNode node = modelNode;
-        if (node.isValid()) {
-            signed int z  = node.instanceValue("z").toInt();
-            z++;
-            node.setVariantProperty("z", z);
+    try {
+        RewriterTransaction(m_view);
+        foreach (ModelNode modelNode, m_modelNodeList) {
+            QmlItemNode node = modelNode;
+            if (node.isValid()) {
+                signed int z  = node.instanceValue("z").toInt();
+                z++;
+                node.setVariantProperty("z", z);
+            }
         }
+    } catch (RewritingException &e) { //better save then sorry
+         QMessageBox::warning(0, "Error", e.description());
     }
 }
 
@@ -400,15 +422,18 @@ void ModelNodeAction::lower()
 {
     if (!m_view)
         return;
-
-    RewriterTransaction(m_view);
-    foreach (ModelNode modelNode, m_modelNodeList) {
-        QmlItemNode node = modelNode;
-        if (node.isValid()) {
-            signed int z  = node.instanceValue("z").toInt();
-            z--;
-            node.setVariantProperty("z", z);
+    try {
+        RewriterTransaction(m_view);
+        foreach (ModelNode modelNode, m_modelNodeList) {
+            QmlItemNode node = modelNode;
+            if (node.isValid()) {
+                signed int z  = node.instanceValue("z").toInt();
+                z--;
+                node.setVariantProperty("z", z);
+            }
         }
+    } catch (RewritingException &e) { //better save then sorry
+        QMessageBox::warning(0, "Error", e.description());
     }
 }
 
@@ -426,7 +451,13 @@ void ModelNodeAction::redo()
 
 void ModelNodeAction::setVisible(bool b)
 {
-    m_modelNodeList.first().variantProperty("visible") = b;
+    if (!m_view)
+        return;
+    try {
+        m_modelNodeList.first().variantProperty("visible") = b;
+    } catch (RewritingException &e) { //better save then sorry
+        QMessageBox::warning(0, "Error", e.description());
+    }
 }
 
 
@@ -434,11 +465,14 @@ void ModelNodeAction::resetSize()
 {
     if (!m_view)
         return;
-
-    RewriterTransaction(m_view);
-    foreach (ModelNode node, m_modelNodeList) {
-        node.removeProperty("width");
-        node.removeProperty("height");
+    try {
+        RewriterTransaction(m_view);
+        foreach (ModelNode node, m_modelNodeList) {
+            node.removeProperty("width");
+            node.removeProperty("height");
+        }
+    } catch (RewritingException &e) { //better save then sorry
+        QMessageBox::warning(0, "Error", e.description());
     }
 }
 
@@ -446,11 +480,14 @@ void ModelNodeAction::resetPosition()
 {
     if (!m_view)
         return;
-
-    RewriterTransaction(m_view);
-    foreach (ModelNode node, m_modelNodeList) {
-        node.removeProperty("x");
-        node.removeProperty("y");
+    try {
+        RewriterTransaction(m_view);
+        foreach (ModelNode node, m_modelNodeList) {
+            node.removeProperty("x");
+            node.removeProperty("y");
+        }
+    } catch (RewritingException &e) { //better save then sorry
+        QMessageBox::warning(0, "Error", e.description());
     }
 }
 
