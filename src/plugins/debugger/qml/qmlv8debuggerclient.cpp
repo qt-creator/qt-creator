@@ -245,8 +245,8 @@ void QmlV8DebuggerClient::setBreakpoints()
 {
 }
 
-void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray expr, const quint64 &id,
-                                                const QString &property, const QString value)
+void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const quint64 &/*id*/,
+                                                const QString &/*property*/, const QString /*value*/)
 {
     //TODO::
 }
@@ -292,7 +292,7 @@ void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
 
 }
 
-void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &watchers)
+void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &/*watchers*/)
 {
     //TODO:: send watchers list
 }
