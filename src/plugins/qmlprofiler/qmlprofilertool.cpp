@@ -59,8 +59,6 @@
 #include <projectexplorer/target.h>
 
 #include <texteditor/itexteditor.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -262,11 +260,6 @@ QWidget *QmlProfilerTool::createWidgets()
     d->m_callerView->setViewType(QmlProfilerEventsView::CallersView);
     connect(d->m_callerView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
-
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
-    Core::ActionContainer *manalyzer = am->actionContainer(Analyzer::Constants::M_DEBUG_ANALYZER);
-    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (this, tr("Events"), d->m_eventsView, Qt::BottomDockWidgetArea);
