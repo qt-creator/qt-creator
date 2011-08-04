@@ -255,7 +255,6 @@ Rectangle {
                     function unFocus() {
                         if (visible) {
                             visible=false;
-                            statesEditorModel.renameState(nodeId, stateNameInput.text);
                         }
                     }
 
