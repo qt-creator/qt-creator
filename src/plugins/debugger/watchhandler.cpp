@@ -422,6 +422,9 @@ static QString formattedValue(const WatchData &data, int format)
         return reformatInteger(data.value.toLongLong(), format);
     }
 
+    if (data.type == "va_list")
+        return data.value;
+
     if (!isPointerType(data.type) && !isVTablePointer(data.type)) {
         bool ok = false;
         qulonglong integer = data.value.toULongLong(&ok, 0);

@@ -89,6 +89,8 @@
 #include <string>
 #include <vector>
 
+#include <stdarg.h>
+
 #define USE_PRIVATE 1
 //#define USE_BOOST 1
 //#define USE_EIGEN 1
@@ -2863,7 +2865,7 @@ namespace bug3611 {
         f += 1;
         f += 1;
         f += 1;
-        dummyStatement(&f);
+        dummyStatement(&f, &x);
     }
 
 } // namespace bug3611
@@ -3138,8 +3140,28 @@ namespace cp42895 {
 } // namespace cp
 
 
+namespace varargs {
+
+    void test(const char *format, ...)
+    {
+        va_list arg;
+        va_start(arg, format);
+        int i = va_arg(arg, int);
+        double f = va_arg(arg, double);
+        va_end(arg);
+        dummyStatement(&i, &f);
+    }
+
+    void testVaList()
+    {
+        test("abc", 1, 2.0);
+    }
+
+} // namespace varargs
+
 int main(int argc, char *argv[])
 {
+    varargs::testVaList();
     cp42895::test42895();
     bug5046::test5046();
     bug4904::test4904();
