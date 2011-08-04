@@ -63,9 +63,6 @@ const char C_ANALYZEMODE[] = "Analyzer.AnalyzeMode";
 // Menu.
 const char M_DEBUG_ANALYZER[] = "Analyzer.Menu.StartAnalyzer";
 
-const char START[] = "Analyzer.Start";
-const char STOP[] = "Analyzer.Stop";
-
 const char G_ANALYZER_CONTROL[] = "Menu.Group.Analyzer.Control";
 const char G_ANALYZER_TOOLS[] = "Menu.Group.Analyzer.Tools";
 const char G_ANALYZER_REMOTE_TOOLS[] = "Menu.Group.Analyzer.RemoteTools";

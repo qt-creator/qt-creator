@@ -281,13 +281,13 @@ void AnalyzerManagerPrivate::setupActions()
 
     m_startAction = new QAction(tr("Start"), m_menu);
     m_startAction->setIcon(QIcon(Constants::ANALYZER_CONTROL_START_ICON));
-    command = am->registerAction(m_startAction, Constants::START, globalcontext);
+    command = am->registerAction(m_startAction, "Analyzer.Start", globalcontext);
     connect(m_startAction, SIGNAL(triggered()), this, SLOT(startTool()));
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
     m_stopAction->setIcon(QIcon(Constants::ANALYZER_CONTROL_STOP_ICON));
-    command = am->registerAction(m_stopAction, Constants::STOP, globalcontext);
+    command = am->registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
     m_menu->addAction(command, Constants::G_ANALYZER_CONTROL);
 
     QAction *separatorAction1 = new QAction(m_menu);
