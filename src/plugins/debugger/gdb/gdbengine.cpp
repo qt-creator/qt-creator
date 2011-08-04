@@ -1999,6 +1999,7 @@ unsigned GdbEngine::debuggerCapabilities() const
         | WatchpointByAddressCapability
         | WatchpointByExpressionCapability
         | AddWatcherCapability
+        | WatchWidgetsCapability
         | ShowModuleSymbolsCapability
         | CatchCapability
         | OperateByInstructionCapability
@@ -2014,10 +2015,6 @@ unsigned GdbEngine::debuggerCapabilities() const
     return caps | SnapshotCapability;
 }
 
-bool GdbEngine::canWatchWidgets() const
-{
-    return true;
-}
 
 void GdbEngine::continueInferiorInternal()
 {

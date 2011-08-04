@@ -321,11 +321,6 @@ void QmlEngine::showMessage(const QString &msg, int channel, int timeout) const
     DebuggerEngine::showMessage(msg, channel, timeout);
 }
 
-bool QmlEngine::acceptsWatchesWhileRunning() const
-{
-    return true;
-}
-
 void QmlEngine::closeConnection()
 {
     disconnect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
@@ -645,7 +640,7 @@ void QmlEngine::synchronizeWatchers()
 
 unsigned QmlEngine::debuggerCapabilities() const
 {
-    return AddWatcherCapability;
+    return AddWatcherCapability|AddWatcherWhileRunningCapability;
     /*ReverseSteppingCapability | SnapshotCapability
         | AutoDerefPointersCapability | DisassemblerCapability
         | RegisterCapability | ShowMemoryCapability

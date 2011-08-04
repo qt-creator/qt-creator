@@ -252,17 +252,15 @@ void QmlCppEngine::setRegisterValue(int regnr, const QString &value)
 unsigned QmlCppEngine::debuggerCapabilities() const
 {
     // ### this could also be an OR of both engines' capabilities
-    return d->m_cppEngine->debuggerCapabilities();
-}
-
-bool QmlCppEngine::canWatchWidgets() const
-{
-    return d->m_activeEngine->canWatchWidgets();
-}
-
-bool QmlCppEngine::acceptsWatchesWhileRunning() const
-{
-    return d->m_activeEngine->acceptsWatchesWhileRunning();
+    unsigned result = d->m_cppEngine->debuggerCapabilities();
+    if (d->m_activeEngine != d->m_cppEngine) {
+        const unsigned qmlCapabilities = d->m_qmlEngine->debuggerCapabilities();
+        if (qmlCapabilities & AddWatcherWhileRunningCapability)
+            result |= AddWatcherWhileRunningCapability;
+        if (!(qmlCapabilities & WatchWidgetsCapability))
+            result &= ~WatchWidgetsCapability;
+    }
+    return result;
 }
 
 bool QmlCppEngine::isSynchronous() const

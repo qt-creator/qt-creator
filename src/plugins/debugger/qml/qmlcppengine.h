@@ -74,8 +74,6 @@ public:
 
     void setRegisterValue(int regnr, const QString &value);
     unsigned debuggerCapabilities() const;
-    virtual bool canWatchWidgets() const;
-    virtual bool acceptsWatchesWhileRunning() const;
 
     bool isSynchronous() const;
     QByteArray qtNamespace() const;

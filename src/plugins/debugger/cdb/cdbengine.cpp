@@ -1074,18 +1074,13 @@ void CdbEngine::updateLocalVariable(const QByteArray &iname)
 unsigned CdbEngine::debuggerCapabilities() const
 {
     return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
-           |WatchpointByAddressCapability|JumpToLineCapability|AddWatcherCapability
+           |WatchpointByAddressCapability|JumpToLineCapability|AddWatcherCapability|WatchWidgetsCapability
            |ReloadModuleCapability
            |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
            |BreakConditionCapability|TracePointCapability
            |BreakModuleCapability
            |OperateByInstructionCapability
            |RunToLineCapability;
-}
-
-bool CdbEngine::canWatchWidgets() const
-{
-    return true;
 }
 
 void CdbEngine::executeStep()

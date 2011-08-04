@@ -716,7 +716,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const DebuggerState state = engine->state();
     const bool canInsertWatches = state == InferiorStopOk
         || state == InferiorUnrunnable
-        || (state == InferiorRunOk && engine->acceptsWatchesWhileRunning());
+        || (state == InferiorRunOk && (engineCapabilities & AddWatcherWhileRunningCapability));
 
     QMenu breakpointMenu;
     breakpointMenu.setTitle(tr("Add Data Breakpoint..."));
@@ -763,8 +763,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Evaluated Expression"));
     actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
-    actSelectWidgetToWatch->setEnabled(canHandleWatches && (engine->canWatchWidgets()));
-
+    actSelectWidgetToWatch->setEnabled(canHandleWatches
+                                       && (engine->debuggerCapabilities() & WatchWidgetsCapability));
     menu.addSeparator();
 
     QAction *actWatchExpression = new QAction(addWatchActionText(exp), &menu);

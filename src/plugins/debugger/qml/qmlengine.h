@@ -66,7 +66,6 @@ public:
     void showMessage(const QString &msg, int channel = LogDebug,
                      int timeout = -1) const;
     void filterApplicationMessage(const QString &msg, int channel);
-    virtual bool acceptsWatchesWhileRunning() const;
     QString toFileInProject(const QUrl &fileUrl);
     void inferiorSpontaneousStop();
 

@@ -892,7 +892,7 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 
     // Disable editing if debuggee is positively running.
     const bool isRunning = engine() && engine()->state() == InferiorRunOk;
-    if (isRunning && engine() && !engine()->acceptsWatchesWhileRunning())
+    if (isRunning && engine() && !(engine()->debuggerCapabilities() & AddWatcherWhileRunningCapability))
         return notEditable;
 
     const WatchData &data = *watchItem(idx);
