@@ -64,6 +64,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/session.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -191,6 +192,7 @@ public slots:
     void modeChanged(Core::IMode *mode);
     void resetLayout();
     void updateRunActions();
+    void onCurrentProjectChanged(ProjectExplorer::Project*);
 
 public:
     AnalyzerManager *q;
@@ -245,6 +247,10 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
             this, SLOT(modeChanged(Core::IMode*)));
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     connect(pe, SIGNAL(updateRunActions()), SLOT(updateRunActions()));
+
+    connect(pe->session(),
+         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+         SLOT(onCurrentProjectChanged(ProjectExplorer::Project*)));
 }
 
 AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
@@ -698,6 +704,10 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
         Core::Command *command = am->registerAction(action, actionId,
             Core::Context(Core::Constants::C_GLOBAL));
         m_menu->addAction(command, menuGroup);
+        command->action()->setData(int(StartLocal));
+        // Assuming this happens before project loading.
+        if (mode == StartLocal)
+            command->action()->setEnabled(false);
         m_actions.append(action);
         m_toolFromAction[action] = tool;
         m_modeFromAction[action] = mode;
@@ -774,6 +784,13 @@ void AnalyzerManagerPrivate::updateRunActions()
     m_stopAction->setEnabled(m_isRunning);
     foreach (QAction *action, m_actions)
         action->setEnabled(!m_isRunning);
+}
+
+void AnalyzerManagerPrivate::onCurrentProjectChanged(Project *project)
+{
+    foreach (QAction *action, m_menu->menu()->actions())
+        if (action->data().toInt() == StartLocal)
+            action->setEnabled(project != 0);
 }
 
 ////////////////////////////////////////////////////////////////////
