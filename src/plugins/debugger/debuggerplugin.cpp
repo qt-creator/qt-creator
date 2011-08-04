@@ -368,28 +368,6 @@ namespace PE = ProjectExplorer::Constants;
 namespace Debugger {
 namespace Constants {
 
-const char STARTEXTERNAL[]                = "Debugger.StartExternal";
-const char ATTACHEXTERNAL[]               = "Debugger.AttachExternal";
-const char ATTACHCORE[]                   = "Debugger.AttachCore";
-const char ATTACHREMOTE[]                 = "Debugger.AttachRemote";
-const char ATTACHREMOTECDB[]              = "Debugger.AttachRemoteCdb";
-const char STARTREMOTELLDB[]              = "Debugger.StartRemoteLldb";
-const char DETACH[]                       = "Debugger.Detach";
-
-const char RUN_TO_LINE[]                  = "Debugger.RunToLine";
-const char RUN_TO_SELECTED_FUNCTION[]     = "Debugger.RunToSelectedFunction";
-const char JUMP_TO_LINE[]                 = "Debugger.JumpToLine";
-const char RETURN_FROM_FUNCTION[]         = "Debugger.ReturnFromFunction";
-const char SNAPSHOT[]                     = "Debugger.Snapshot";
-const char TOGGLE_BREAK[]                 = "Debugger.ToggleBreak";
-const char BREAK_BY_FUNCTION[]            = "Debugger.BreakByFunction";
-const char BREAK_AT_MAIN[]                = "Debugger.BreakAtMain";
-// Don't add '1' to the string as it shows up in the shortcut dialog.
-const char ADD_TO_WATCH1[]                = "Debugger.AddToWatch";
-const char ADD_TO_WATCH2[]                = "Debugger.AddToWatch2";
-const char FRAME_UP[]                     = "Debugger.FrameUp";
-const char FRAME_DOWN[]                   = "Debugger.FrameDown";
-
 #ifdef Q_WS_MAC
 const char STOP_KEY[]                     = "Shift+Ctrl+Y";
 const char RESET_KEY[]                    = "Ctrl+Shift+F5";
@@ -2871,42 +2849,42 @@ void DebuggerPluginPrivate::extensionsInitialized()
     modeManager->addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
 
     cmd = am->registerAction(m_startExternalAction,
-        Constants::STARTEXTERNAL, globalcontext);
+        "Debugger.StartExternal", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_attachExternalAction,
-        Constants::ATTACHEXTERNAL, globalcontext);
+        "Debugger.AttachExternal", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_attachCoreAction,
-        Constants::ATTACHCORE, globalcontext);
+        "Debugger.AttachCore", globalcontext);
 
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_startRemoteAction,
-        Constants::ATTACHREMOTE, globalcontext);
+        "Debugger.AttachRemote", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
 #ifdef WITH_LLDB
     cmd = am->registerAction(m_startRemoteLldbAction,
-        Constants::STARTREMOTELLDB, globalcontext);
+        "Debugger.RemoteLldb", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 #endif
 
     if (m_startRemoteCdbAction) {
         cmd = am->registerAction(m_startRemoteCdbAction,
-                                 Constants::ATTACHREMOTECDB, globalcontext);
+             "Debugger.AttachRemoteCdb", globalcontext);
         cmd->setAttribute(Command::CA_Hide);
         mstart->addAction(cmd, CC::G_DEFAULT_ONE);
     }
 
     cmd = am->registerAction(m_detachAction,
-        Constants::DETACH, globalcontext);
+        "Debugger.Detach", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
@@ -2966,13 +2944,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_runToLineAction,
-        Constants::RUN_TO_LINE, cppDebuggercontext);
+        "Debugger.RunToLine", cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_runToSelectedFunctionAction,
-        Constants::RUN_TO_SELECTED_FUNCTION, cppDebuggercontext);
+        "Debugger.RunToSelectedFunction", cppDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(
         Constants::RUN_TO_SELECTED_FUNCTION_KEY));
     cmd->setAttribute(Command::CA_Hide);
@@ -2981,12 +2959,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_jumpToLineAction,
-        Constants::JUMP_TO_LINE, cppDebuggercontext);
+        "Debugger.JumpToLine", cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_returnFromFunctionAction,
-        Constants::RETURN_FROM_FUNCTION, cppDebuggercontext);
+        "Debugger.ReturnFromFunction", cppDebuggercontext);
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
@@ -3002,15 +2980,15 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debugMenu->addAction(cmd);
 
     //cmd = am->registerAction(m_snapshotAction,
-    //    Constants::SNAPSHOT, cppDebuggercontext);
+    //    "Debugger.Snapshot", cppDebuggercontext);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
     //cmd->setAttribute(Command::CA_Hide);
     //debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_frameDownAction,
-        Constants::FRAME_DOWN, cppDebuggercontext);
+        "Debugger.FrameDown", cppDebuggercontext);
     cmd = am->registerAction(m_frameUpAction,
-        Constants::FRAME_UP, cppDebuggercontext);
+        "Debugger.FrameUp", cppDebuggercontext);
 
     cmd = am->registerAction(action(OperateByInstruction),
         Constants::OPERATE_BY_INSTRUCTION, cppDebuggercontext);
@@ -3018,7 +2996,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_breakAction,
-        Constants::TOGGLE_BREAK, globalcontext);
+        "Debugger.ToggleBreak", globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
     debugMenu->addAction(cmd);
     connect(m_breakAction, SIGNAL(triggered()),
@@ -3029,8 +3007,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = am->registerAction(sep, "Debugger.Sep.Watch", globalcontext);
     debugMenu->addAction(cmd);
 
+    // Don't add '1' to the string as it shows up in the shortcut dialog.
     cmd = am->registerAction(m_watchAction1,
-        Constants::ADD_TO_WATCH1, cppeditorcontext);
+        "Debugger.AddToWatch", cppeditorcontext);
     //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+W")));
     debugMenu->addAction(cmd);
 
@@ -3044,11 +3023,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
         cmd->setAttribute(Command::CA_Hide);
 
         cmd = am->registerAction(m_watchAction2,
-            Constants::ADD_TO_WATCH2, cppDebuggercontext);
+            "Debugger.AddToWatch2", cppDebuggercontext);
         cmd->action()->setEnabled(true);
         editorContextMenu->addAction(cmd);
         cmd->setAttribute(Command::CA_Hide);
-        cmd->setAttribute(Command::CA_NonConfigurable); // ADD_TO_WATCH1 is enough.
+        cmd->setAttribute(Command::CA_NonConfigurable);
+        // Debugger.AddToWatch is enough.
     }
 
     QList<Core::IOptionsPage *> engineOptionPages;
