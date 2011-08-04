@@ -4611,13 +4611,13 @@ void BaseTextEditorWidget::indentInsertedText(const QTextCursor &tc)
 void BaseTextEditorWidget::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
 {
     maybeClearSomeExtraSelections(cursor);
-    d->m_indenter->indent(doc, cursor, typedChar, this);
+    d->m_indenter->indent(doc, cursor, typedChar, tabSettings());
 }
 
 void BaseTextEditorWidget::reindent(QTextDocument *doc, const QTextCursor &cursor)
 {
     maybeClearSomeExtraSelections(cursor);
-    d->m_indenter->reindent(doc, cursor, this);
+    d->m_indenter->reindent(doc, cursor, tabSettings());
 }
 
 BaseTextEditorWidget::Link BaseTextEditorWidget::findLinkAt(const QTextCursor &, bool)

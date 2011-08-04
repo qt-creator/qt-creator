@@ -54,12 +54,12 @@ public:
     virtual void indentBlock(QTextDocument *doc,
                              const QTextBlock &block,
                              const QChar &typedChar,
-                             TextEditor::BaseTextEditorWidget *editor);
+                             const TextEditor::TabSettings &tabSettings);
 
     virtual void indent(QTextDocument *doc,
                         const QTextCursor &cursor,
                         const QChar &typedChar,
-                        TextEditor::BaseTextEditorWidget *editor);
+                        const TextEditor::TabSettings &tabSettings);
 
     virtual void setCodeStylePreferences(TextEditor::IFallbackPreferences *preferences);
 private:

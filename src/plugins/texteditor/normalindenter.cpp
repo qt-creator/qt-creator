@@ -32,7 +32,6 @@
 
 #include "normalindenter.h"
 #include "tabsettings.h"
-#include "basetexteditor.h"
 
 #include <QtGui/QTextDocument>
 
@@ -66,7 +65,7 @@ NormalIndenter::~NormalIndenter()
 void NormalIndenter::indentBlock(QTextDocument *doc,
                                  const QTextBlock &block,
                                  const QChar &typedChar,
-                                 BaseTextEditorWidget *editor)
+                                 const TextEditor::TabSettings &tabSettings)
 {
     Q_UNUSED(typedChar)
 
@@ -82,11 +81,10 @@ void NormalIndenter::indentBlock(QTextDocument *doc,
 
     // Just use previous line.
     // Skip blank characters when determining the indentation
-    const TabSettings &ts = editor->tabSettings();
     int i = 0;
     while (i < previousText.size()) {
         if (!previousText.at(i).isSpace()) {
-            ts.indentLine(block, ts.columnAt(previousText, i));
+            tabSettings.indentLine(block, tabSettings.columnAt(previousText, i));
             break;
         }
         ++i;

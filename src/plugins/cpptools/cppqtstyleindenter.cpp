@@ -36,7 +36,6 @@
 #include "cpptoolssettings.h"
 #include "cppcodestylepreferences.h"
 #include "cpptoolsconstants.h"
-#include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -93,12 +92,11 @@ static bool colonIsElectric(const QString &text)
 void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
                                      const QTextBlock &block,
                                      const QChar &typedChar,
-                                     TextEditor::BaseTextEditorWidget *editor)
+                                     const TextEditor::TabSettings &tabSettings)
 {
     Q_UNUSED(doc)
 
-    const TextEditor::TabSettings &ts = editor->tabSettings();
-    CppTools::QtStyleCodeFormatter codeFormatter(ts, codeStyleSettings());
+    CppTools::QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
 
     codeFormatter.updateStateUntil(block);
     int indent;
@@ -115,39 +113,38 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
         int newlineIndent;
         int newlinePadding;
         codeFormatter.indentForNewLineAfter(block.previous(), &newlineIndent, &newlinePadding);
-        if (ts.indentationColumn(block.text()) != newlineIndent + newlinePadding)
+        if (tabSettings.indentationColumn(block.text()) != newlineIndent + newlinePadding)
             return;
     }
 
-    ts.indentLine(block, indent + padding, padding);
+    tabSettings.indentLine(block, indent + padding, padding);
 }
 
 void CppQtStyleIndenter::indent(QTextDocument *doc,
                                 const QTextCursor &cursor,
                                 const QChar &typedChar,
-                                TextEditor::BaseTextEditorWidget *editor)
+                                const TextEditor::TabSettings &tabSettings)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
 
-        const TextEditor::TabSettings &ts = editor->tabSettings();
-        CppTools::QtStyleCodeFormatter codeFormatter(ts, codeStyleSettings());
+        CppTools::QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
         codeFormatter.updateStateUntil(block);
 
-        QTextCursor tc = editor->textCursor();
+        QTextCursor tc = cursor;
         tc.beginEditBlock();
         do {
             int indent;
             int padding;
             codeFormatter.indentFor(block, &indent, &padding);
-            ts.indentLine(block, indent + padding, padding);
+            tabSettings.indentLine(block, indent + padding, padding);
             codeFormatter.updateLineStateChange(block);
             block = block.next();
         } while (block.isValid() && block != end);
         tc.endEditBlock();
     } else {
-        indentBlock(doc, cursor.block(), typedChar, editor);
+        indentBlock(doc, cursor.block(), typedChar, tabSettings);
     }
 }
 

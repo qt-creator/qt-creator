@@ -1673,7 +1673,6 @@ void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
     tabSettings.m_indentSize = theFakeVimSetting(ConfigShiftWidth)->value().toInt();
     tabSettings.m_tabSize = theFakeVimSetting(ConfigTabStop)->value().toInt();
     tabSettings.m_spacesForTabs = theFakeVimSetting(ConfigExpandTab)->value().toBool();
-    bt->setTabSettings(tabSettings);
 
     QTextDocument *doc = bt->document();
     QTextBlock startBlock = doc->findBlockByNumber(beginLine);
@@ -1690,12 +1689,10 @@ void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
             while (!cursor.atBlockEnd())
                 cursor.deleteChar();
         } else {
-            bt->indenter()->indentBlock(doc, block, typedChar, bt);
+            bt->indenter()->indentBlock(doc, block, typedChar, tabSettings);
         }
         block = block.next();
     }
-
-    bt->setTabSettings(oldTabSettings);
 }
 
 void FakeVimPluginPrivate::quitFakeVim()
