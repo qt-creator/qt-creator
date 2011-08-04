@@ -47,6 +47,7 @@
 #include <SymbolVisitor.h>
 #include <Scope.h>
 #include <TranslationUnit.h>
+#include <CppRewriter.h>
 
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/MatchingText.h>
@@ -1857,14 +1858,29 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
             }
 
             if (autocompleteSignature && !isDestructor) {
+                // set up for rewriting function types with minimally qualified names
+                // to do it correctly we'd need the declaration's context and scope, but
+                // that'd be too expensive to get here. instead, we just minimize locally
+                SubstitutionEnvironment env;
+                env.setContext(context);
+                env.switchScope(sc);
+                ClassOrNamespace *targetCoN = context.lookupType(sc);
+                if (!targetCoN)
+                    targetCoN = context.globalNamespace();
+                UseMinimalNames q(targetCoN);
+                env.enter(&q);
+                Control *control = context.control().data();
+
                 // set up signature autocompletion
                 foreach (Function *f, functions) {
                     Overview overview;
                     overview.setShowArgumentNames(true);
                     overview.setShowDefaultArguments(false);
 
+                    const FullySpecifiedType localTy = rewriteType(f->type(), &env, control);
+
                     // gets: "parameter list) cv-spec",
-                    QString completion = overview(f->type()).mid(1);
+                    QString completion = overview(localTy).mid(1);
 
                     addCompletionItem(completion, QIcon(), 0,
                                       QVariant::fromValue(CompleteFunctionDeclaration(f)));
