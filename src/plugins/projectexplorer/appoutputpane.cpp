@@ -56,6 +56,8 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolButton>
+#include <QtGui/QTabBar>
+#include <QtGui/QMenu>
 
 #include <QtCore/QDebug>
 
@@ -76,6 +78,36 @@ static QString msgAttachDebuggerTooltip(const QString &handleDescription = QStri
            AppOutputPane::tr("Attach debugger to %1").arg(handleDescription);
 }
 
+namespace ProjectExplorer {
+namespace Internal {
+
+class TabWidget : public QTabWidget
+{
+    Q_OBJECT
+public:
+    TabWidget(QWidget *parent = 0);
+signals:
+    void contextMenuRequested(const QPoint &pos, const int index);
+private slots:
+    void slotContextMenuRequested(const QPoint &pos);
+};
+
+}
+}
+
+TabWidget::TabWidget(QWidget *parent)
+    : QTabWidget(parent)
+{
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(slotContextMenuRequested(QPoint)));
+}
+
+void TabWidget::slotContextMenuRequested(const QPoint &pos)
+{
+    emit contextMenuRequested(pos, tabBar()->tabAt(pos));
+}
+
 AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *w) :
     runControl(rc), window(w), asyncClosing(false)
 {
@@ -83,8 +115,11 @@ AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *
 
 AppOutputPane::AppOutputPane() :
     m_mainWidget(new QWidget),
-    m_tabWidget(new QTabWidget),
+    m_tabWidget(new TabWidget),
     m_stopAction(new QAction(tr("Stop"), this)),
+    m_closeCurrentTabAction(new QAction(tr("Close Tab"), this)),
+    m_closeAllTabsAction(new QAction(tr("Close All Tabs"), this)),
+    m_closeOtherTabsAction(new QAction(tr("Close Other Tabs"), this)),
     m_reRunButton(new QToolButton),
     m_stopButton(new QToolButton),
     m_attachButton(new QToolButton)
@@ -135,6 +170,7 @@ AppOutputPane::AppOutputPane() :
     layout->addWidget(m_tabWidget);
 
     connect(m_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
+    connect(m_tabWidget, SIGNAL(contextMenuRequested(QPoint,int)), this, SLOT(contextMenuRequested(QPoint,int)));
 
     m_mainWidget->setLayout(layout);
 
@@ -190,6 +226,14 @@ int AppOutputPane::tabWidgetIndexOf(int runControlIndex) const
     if (runControlIndex >= 0 && runControlIndex < m_runControlTabs.size())
         return m_tabWidget->indexOf(m_runControlTabs.at(runControlIndex).window);
     return -1;
+}
+
+void AppOutputPane::updateCloseActions()
+{
+    const int tabCount = m_tabWidget->count();
+    m_closeCurrentTabAction->setEnabled(tabCount > 0);
+    m_closeAllTabsAction->setEnabled(tabCount > 0);
+    m_closeOtherTabsAction->setEnabled(tabCount > 1);
 }
 
 bool AppOutputPane::aboutToClose() const
@@ -298,6 +342,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     m_tabWidget->addTab(ow, rc->displayName());
     if (debug)
         qDebug() << "OutputPane::createNewOutputWindow: Adding tab for " << rc;
+    updateCloseActions();
 }
 
 void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
@@ -414,6 +459,7 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     }
     delete tab.window;
     m_runControlTabs.removeAt(index);
+    updateCloseActions();
     return true;
 }
 
@@ -469,6 +515,23 @@ void AppOutputPane::tabChanged(int i)
         enableButtons(rc, rc->isRunning());
     } else {
         enableButtons();
+    }
+}
+
+void AppOutputPane::contextMenuRequested(const QPoint &pos, int index)
+{
+    QList<QAction *> actions = QList<QAction *>() << m_closeCurrentTabAction << m_closeAllTabsAction << m_closeOtherTabsAction;
+    QAction *action = QMenu::exec(actions, m_tabWidget->mapToGlobal(pos), 0, m_tabWidget);
+    const int currentIdx = index != -1 ? index : currentIndex();
+    if (action == m_closeCurrentTabAction) {
+        if (currentIdx >= 0)
+            closeTab(currentIdx);
+    } else if (action == m_closeAllTabsAction) {
+        closeTabs(AppOutputPane::CloseTabWithPrompt);
+    } else if (action == m_closeOtherTabsAction) {
+        for (int t = m_tabWidget->count() - 1; t >= 0; t--)
+            if (t != currentIdx)
+                closeTab(t);
     }
 }
 
@@ -544,4 +607,6 @@ QList<RunControl *> AppOutputPane::runControls() const
         result << tab.runControl;
     return result;
 }
+
+#include "appoutputpane.moc"
 
