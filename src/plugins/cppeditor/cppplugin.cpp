@@ -243,6 +243,9 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     Core::Command *cmd;
     Core::ActionContainer *cppToolsMenu = am->actionContainer(Core::Id(CppTools::Constants::M_TOOLS_CPP));
 
+    cmd = am->command(Core::Id(CppTools::Constants::SWITCH_HEADER_SOURCE));
+    contextMenu->addAction(cmd);
+
     QAction *jumpToDefinition = new QAction(tr("Follow Symbol Under Cursor"), this);
     cmd = am->registerAction(jumpToDefinition,
         Constants::JUMP_TO_DEFINITION, context, true);
