@@ -33,9 +33,9 @@
 #include "tracewindow.h"
 
 #include "qmlprofilerplugin.h"
-#include "qmlprofilertraceclient.h"
 
 #include <qmljsdebugclient/qdeclarativedebugclient.h>
+#include <qmljsdebugclient/qmlprofilertraceclient.h>
 #include <utils/styledbar.h>
 
 #include <QtDeclarative/QDeclarativeView>
@@ -43,6 +43,8 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QGraphicsObject>
+
+using namespace QmlJsDebugClient;
 
 namespace QmlProfiler {
 namespace Internal {
@@ -112,7 +114,7 @@ TraceWindow::~TraceWindow()
     delete m_plugin.data();
 }
 
-void TraceWindow::reset(QmlJsDebugClient::QDeclarativeDebugConnection *conn)
+void TraceWindow::reset(QDeclarativeDebugConnection *conn)
 {
     if (m_plugin)
         disconnect(m_plugin.data(), SIGNAL(complete()), this, SIGNAL(viewUpdated()));

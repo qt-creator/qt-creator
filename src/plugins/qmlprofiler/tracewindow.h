@@ -33,7 +33,7 @@
 #ifndef TRACEWINDOW_H
 #define TRACEWINDOW_H
 
-#include "qmlprofilertraceclient.h"
+#include <qmljsdebugclient/qmlprofilertraceclient.h>
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
@@ -79,7 +79,7 @@ signals:
     void enableToolbar(bool);
 
 private:
-    QWeakPointer<QmlProfilerTraceClient> m_plugin;
+    QWeakPointer<QmlJsDebugClient::QmlProfilerTraceClient> m_plugin;
     QSize m_sizeHint;
 
     QDeclarativeView *m_view;

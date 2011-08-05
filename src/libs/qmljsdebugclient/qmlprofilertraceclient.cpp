@@ -32,7 +32,6 @@
 
 #include "qmlprofilertraceclient.h"
 
-using namespace QmlProfiler::Internal;
 using namespace QmlJsDebugClient;
 
 static const int GAP_TIME = 150;

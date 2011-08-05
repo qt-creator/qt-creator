@@ -34,7 +34,7 @@
 #define QMLPROFILEREVENTVIEW_H
 
 #include <QTreeView>
-#include "qmlprofilereventtypes.h"
+#include <qmljsdebugclient/qmlprofilereventtypes.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -42,7 +42,7 @@ namespace Internal {
 struct QmlEventData
 {
     QmlEventData() : displayname(0) , filename(0) , location(0) , details(0),
-        line(0), eventType(MaximumQmlEventType), level(-1), parentList(0), childrenList(0) {}
+        line(0), eventType(QmlJsDebugClient::MaximumQmlEventType), level(-1), parentList(0), childrenList(0) {}
     ~QmlEventData() {
         delete displayname;
         delete filename;
@@ -55,7 +55,7 @@ struct QmlEventData
     QString *location;
     QString *details;
     int line;
-    QmlEventType eventType;
+    QmlJsDebugClient::QmlEventType eventType;
     qint64 level;
     QList< QmlEventData *> *parentList;
     QList< QmlEventData *> *childrenList;

@@ -33,8 +33,7 @@
 #ifndef QMLPROFILEREVENTTYPES_H
 #define QMLPROFILEREVENTTYPES_H
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlJsDebugClient {
 
 enum QmlEventType {
     Painting,
@@ -46,7 +45,6 @@ enum QmlEventType {
     MaximumQmlEventType
 };
 
-}
-}
+} // namespace QmlJsDebugClient
 
 #endif //QMLPROFILEREVENTTYPES_H

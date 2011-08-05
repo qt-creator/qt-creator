@@ -10,12 +10,15 @@ HEADERS += \
     $$PWD/qdeclarativeenginedebug.h \
     $$PWD/qpacketprotocol.h \
     $$PWD/qdeclarativedebugclient.h \
-    $$PWD/qmljsdebugclient_global.h
+    $$PWD/qmljsdebugclient_global.h \
+    $$PWD/qmlprofilertraceclient.h \
+    $$PWD/qmlprofilereventtypes.h
 
 SOURCES += \
     $$PWD/qdeclarativeenginedebug.cpp \
     $$PWD/qpacketprotocol.cpp \
-    $$PWD/qdeclarativedebugclient.cpp
+    $$PWD/qdeclarativedebugclient.cpp \
+    $$PWD/qmlprofilertraceclient.cpp
 
 OTHER_FILES += \
     $$PWD/qmljsdebugclient.pri \

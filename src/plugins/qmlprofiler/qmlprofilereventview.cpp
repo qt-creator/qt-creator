@@ -38,6 +38,8 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QStandardItemModel>
 
+using namespace QmlJsDebugClient;
+
 namespace QmlProfiler {
 namespace Internal {
 

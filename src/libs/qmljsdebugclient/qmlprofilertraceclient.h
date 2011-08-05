@@ -33,16 +33,16 @@
 #ifndef QMLPROFILERTRACECLIENT_H
 #define QMLPROFILERTRACECLIENT_H
 
-#include <qmljsdebugclient/qdeclarativedebugclient.h>
+#include "qdeclarativedebugclient.h"
+#include "qmlprofilereventtypes.h"
+#include "qmljsdebugclient_global.h"
+
 #include <QtCore/QStack>
 #include <QtCore/QStringList>
 
-#include "qmlprofilereventtypes.h"
+namespace QmlJsDebugClient {
 
-namespace QmlProfiler {
-namespace Internal {
-
-struct Location
+struct QMLJSDEBUGCLIENT_EXPORT Location
 {
     Location() : line(-1) {}
     Location(const QString &file, int lineNumber) : fileName(file), line(lineNumber) {}
@@ -50,7 +50,7 @@ struct Location
     int line;
 };
 
-class QmlProfilerTraceClient : public QmlJsDebugClient::QDeclarativeDebugClient
+class QMLJSDEBUGCLIENT_EXPORT QmlProfilerTraceClient : public QmlJsDebugClient::QDeclarativeDebugClient
 {
     Q_OBJECT
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
@@ -116,7 +116,6 @@ private:
     int m_nestingInType[MaximumQmlEventType];
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlJsDebugClient
 
 #endif // QMLPROFILERTRACECLIENT_H
