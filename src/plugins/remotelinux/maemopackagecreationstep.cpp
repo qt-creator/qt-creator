@@ -300,10 +300,14 @@ void AbstractMaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
     proc->setWorkingDirectory(workingDir);
 }
 
-QString AbstractMaemoPackageCreationStep::replaceDots(const QString &name)
+QString AbstractMaemoPackageCreationStep::replaceDots(const QString &name) const
 {
-    QString adaptedName = name;
-    return adaptedName.replace(QLatin1Char('.'), QLatin1Char('_'));
+    // Idiotic OVI store requirement for N900 (but not allowed for N9 ...).
+    if (qobject_cast<Qt4Maemo5Target *>(target())) {
+        QString adaptedName = name;
+        return adaptedName.replace(QLatin1Char('.'), QLatin1Char('_'));
+    }
+    return name;
 }
 
 MaemoDebianPackageCreationStep::MaemoDebianPackageCreationStep(BuildStepList *bsl)

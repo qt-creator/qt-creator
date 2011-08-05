@@ -91,7 +91,7 @@ protected:
     void raiseError(const QString &shortMsg,
         const QString &detailedMsg = QString());
     bool callPackagingCommand(QProcess *proc, const QStringList &arguments);
-    static QString replaceDots(const QString &name);
+    QString replaceDots(const QString &name) const;
     QString buildDirectory() const;
 
 private slots:
