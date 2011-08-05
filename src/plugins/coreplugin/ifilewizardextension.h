@@ -60,9 +60,14 @@ public:
     virtual QList<QWizardPage *> extensionPages(const IWizard *wizard) = 0;
 
     /* Process the files using the extension parameters */
-    virtual bool process(const QList<GeneratedFile> &files,
+    virtual bool processFiles(const QList<GeneratedFile> &files,
                          bool *removeOpenProjectAttribute,
                          QString *errorMessage) = 0;
+    /* Applies code style settings which may depend on the project to which
+     * the files will be added.
+     * This function is called before the files are actually written out,
+     * before processFiles() is called*/
+    virtual void applyCodeStyle(GeneratedFile *file) const = 0;
 
 public slots:
     /* Notification about the first extension page being shown. */

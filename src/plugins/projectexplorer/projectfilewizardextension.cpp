@@ -45,7 +45,16 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/indenter.h>
+#include <texteditor/codestylepreferencesmanager.h>
+#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/normalindenter.h>
+#include <texteditor/tabpreferences.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/editorconfiguration.h>
 
 #include <QtCore/QVariant>
 #include <QtCore/QtAlgorithms>
@@ -53,6 +62,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QMultiMap>
 #include <QtCore/QDir>
+#include <QtGui/QTextDocument>
+#include <QtGui/QTextCursor>
 
 /*!
     \class ProjectExplorer::Internal::ProjectFileWizardExtension
@@ -408,7 +419,7 @@ void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProj
     m_context->page->setProjectToolTips(projectToolTips);
 }
 
-bool ProjectFileWizardExtension::process(
+bool ProjectFileWizardExtension::processFiles(
         const QList<Core::GeneratedFile> &files,
         bool *removeOpenProjectAttribute, QString *errorMessage)
 {
@@ -485,6 +496,70 @@ bool ProjectFileWizardExtension::processVersionControl(const QList<Core::Generat
         }
     }
     return true;
+}
+
+static TextEditor::TabPreferences *tabPreferences(ProjectExplorer::Project *project, const QString &languageId)
+{
+    if (!languageId.isEmpty()) {
+        if (project)
+            return project->editorConfiguration()->tabPreferences(languageId);
+        return TextEditor::TextEditorSettings::instance()->tabPreferences(languageId);
+    } else if (project) {
+        return project->editorConfiguration()->tabPreferences();
+    }
+    return TextEditor::TextEditorSettings::instance()->tabPreferences();
+}
+
+static TextEditor::IFallbackPreferences *codeStylePreferences(ProjectExplorer::Project *project, const QString &languageId)
+{
+    if (languageId.isEmpty())
+        return 0;
+
+    if (project)
+        return project->editorConfiguration()->codeStylePreferences(languageId);
+
+    return TextEditor::TextEditorSettings::instance()->codeStylePreferences(languageId);
+}
+
+void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
+{
+    if (file->isBinary() || file->contents().isEmpty())
+        return; // nothing to do
+
+    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    Core::MimeType mt = mdb->findByFile(QFileInfo(file->path()));
+    const QString languageId = TextEditor::TextEditorSettings::instance()->languageId(mt.type());
+
+    if (languageId.isEmpty())
+        return; // don't modify files like *.ui *.pro
+
+    ProjectNode *project = 0;
+    const int projectIndex = m_context->page->currentProjectIndex() - 1;
+    if (projectIndex >= 0 && projectIndex < m_context->projects.size())
+        project = m_context->projects.at(projectIndex).node;
+
+    ProjectExplorer::Project *baseProject
+            = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForNode(project);
+
+    TextEditor::ICodeStylePreferencesFactory *factory
+            = TextEditor::CodeStylePreferencesManager::instance()->factory(languageId);
+
+    TextEditor::Indenter *indenter = 0;
+    if (factory)
+        indenter = factory->createIndenter();
+    if (!indenter)
+        indenter = new TextEditor::NormalIndenter();
+
+    TextEditor::TabPreferences *tabPrefs = tabPreferences(baseProject, languageId);
+    TextEditor::IFallbackPreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
+    indenter->setCodeStylePreferences(codeStylePrefs);
+
+    QTextDocument doc(file->contents());
+    QTextCursor cursor(&doc);
+    cursor.select(QTextCursor::Document);
+    indenter->indent(&doc, cursor, QChar::Null, tabPrefs->currentSettings());
+    file->setContents(doc.toPlainText());
+    delete indenter;
 }
 
 } // namespace Internal

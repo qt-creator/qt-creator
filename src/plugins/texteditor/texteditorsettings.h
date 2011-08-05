@@ -96,6 +96,9 @@ public:
     QMap<QString, IFallbackPreferences *> languageCodeStylePreferences() const;
     void registerLanguageCodeStylePreferences(const QString &languageId, IFallbackPreferences *prefs);
 
+    void registerMimeTypeForLanguageId(const QString &mimeType, const QString &languageId);
+    QString languageId(const QString &mimeType) const;
+
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);

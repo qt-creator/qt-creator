@@ -49,8 +49,9 @@ public:
     ~ProjectFileWizardExtension();
 
     QList<QWizardPage *> extensionPages(const Core::IWizard *wizard);
-    bool process(const QList<Core::GeneratedFile> &files,
+    bool processFiles(const QList<Core::GeneratedFile> &files,
                  bool *removeOpenProjectAttribute, QString *errorMessage);
+    void applyCodeStyle(Core::GeneratedFile *file) const;
 
 public slots:
     void firstExtensionPageShown(const QList<Core::GeneratedFile> &files);

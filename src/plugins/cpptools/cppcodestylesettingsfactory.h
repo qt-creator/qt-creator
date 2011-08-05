@@ -48,6 +48,7 @@ public:
     virtual QWidget *createEditor(TextEditor::IFallbackPreferences *settings,
                                           TextEditor::TabPreferences *tabSettings,
                                           QWidget *parent) const;
+    virtual TextEditor::Indenter *createIndenter() const;
 
 };
 

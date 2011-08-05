@@ -126,6 +126,10 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
     connect(core->progressManager(), SIGNAL(allTasksFinished(QString)),
             this, SLOT(onAllTasksFinished(QString)));
 
+    TextEditor::TextEditorSettings *ts = TextEditor::TextEditorSettings::instance();
+    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::QML_MIMETYPE), Constants::QML_JS_SETTINGS_ID);
+    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::JS_MIMETYPE), Constants::QML_JS_SETTINGS_ID);
+
     return true;
 }
 

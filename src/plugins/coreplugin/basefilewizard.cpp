@@ -599,6 +599,13 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     case OverwriteOk:
         break;
     }
+
+    foreach (IFileWizardExtension *ex, extensions) {
+        for (int i = 0; i < files.count(); i++) {
+            ex->applyCodeStyle(&files[i]);
+        }
+    }
+
     // Write
     if (!writeFiles(files, &errorMessage)) {
         QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
@@ -609,7 +616,7 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     // Run the extensions
     foreach (IFileWizardExtension *ex, extensions) {
         bool remove;
-        if (!ex->process(files, &remove, &errorMessage)) {
+        if (!ex->processFiles(files, &remove, &errorMessage)) {
             QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
             return;
         }

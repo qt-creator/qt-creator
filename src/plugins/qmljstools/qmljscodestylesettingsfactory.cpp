@@ -33,6 +33,7 @@
 #include "qmljscodestylesettingsfactory.h"
 #include "qmljscodestylesettingspage.h"
 #include "qmljstoolsconstants.h"
+#include "qmljsindenter.h"
 #include <texteditor/tabpreferences.h>
 #include <texteditor/tabsettings.h>
 #include <QtGui/QLayout>
@@ -70,5 +71,10 @@ QWidget *QmlJSCodeStylePreferencesFactory::createEditor(TextEditor::IFallbackPre
     widget->layout()->setMargin(0);
     widget->setTabPreferences(tabPreferences);
     return widget;
+}
+
+TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter() const
+{
+    return new QmlJSEditor::Internal::Indenter();
 }
 

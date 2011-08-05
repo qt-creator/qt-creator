@@ -154,6 +154,12 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
 
+    TextEditor::TextEditorSettings *ts = TextEditor::TextEditorSettings::instance();
+    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::C_SOURCE_MIMETYPE), Constants::CPP_SETTINGS_ID);
+    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::C_HEADER_MIMETYPE), Constants::CPP_SETTINGS_ID);
+    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::CPP_SOURCE_MIMETYPE), Constants::CPP_SETTINGS_ID);
+    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::CPP_HEADER_MIMETYPE), Constants::CPP_SETTINGS_ID);
+
     return true;
 }
 

@@ -35,6 +35,7 @@
 #include "cppcodestylesettingspage.h"
 #include "cppcodestylepreferences.h"
 #include "cpptoolsconstants.h"
+#include "cppqtstyleindenter.h"
 #include <texteditor/tabpreferences.h>
 #include <texteditor/tabsettings.h>
 #include <QtGui/QLayout>
@@ -72,5 +73,10 @@ QWidget *CppCodeStylePreferencesFactory::createEditor(TextEditor::IFallbackPrefe
     widget->layout()->setMargin(0);
     widget->setPreferences(cppPreferences, tabPreferences);
     return widget;
+}
+
+TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter() const
+{
+    return new CppQtStyleIndenter();
 }
 

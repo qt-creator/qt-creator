@@ -73,6 +73,8 @@ public:
     QMap<QString, TabPreferences *> m_languageTabPreferences;
     QMap<QString, IFallbackPreferences *> m_languageCodeStylePreferences;
 
+    QMap<QString, QString> m_mimeTypeToLanguage;
+
     CompletionSettings m_completionSettings;
 
     void fontZoomRequested(int pointSize);
@@ -341,6 +343,16 @@ QMap<QString, IFallbackPreferences *> TextEditorSettings::languageCodeStylePrefe
 void TextEditorSettings::registerLanguageCodeStylePreferences(const QString &languageId, IFallbackPreferences *prefs)
 {
     m_d->m_languageCodeStylePreferences.insert(languageId, prefs);
+}
+
+void TextEditorSettings::registerMimeTypeForLanguageId(const QString &mimeType, const QString &languageId)
+{
+    m_d->m_mimeTypeToLanguage.insert(mimeType, languageId);
+}
+
+QString TextEditorSettings::languageId(const QString &mimeType) const
+{
+    return m_d->m_mimeTypeToLanguage.value(mimeType);
 }
 
 #include "moc_texteditorsettings.cpp"
