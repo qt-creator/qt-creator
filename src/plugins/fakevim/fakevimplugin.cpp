@@ -1668,7 +1668,6 @@ void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
     if (!bt)
         return;
 
-    const TabSettings oldTabSettings = bt->tabSettings();
     TabSettings tabSettings;
     tabSettings.m_indentSize = theFakeVimSetting(ConfigShiftWidth)->value().toInt();
     tabSettings.m_tabSize = theFakeVimSetting(ConfigTabStop)->value().toInt();
