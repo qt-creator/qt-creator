@@ -10434,7 +10434,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     <name>TextEditor::BaseFileFind</name>
     <message>
         <source>Search</source>
-        <translation>Wyszukaj</translation>
+        <translation>Wyszukiwanie</translation>
     </message>
     <message>
         <source>%1 found</source>
@@ -15028,10 +15028,6 @@ Sprawdź dokumentację SSH zmienną środowiskową SSH_ASKPASS.</translation>
         <translation>Źródło</translation>
     </message>
     <message>
-        <source>Source size</source>
-        <translation>Rozmiar źródła</translation>
-    </message>
-    <message>
         <source>Left</source>
         <translation>Lewy</translation>
     </message>
@@ -15152,18 +15148,6 @@ Sprawdź dokumentację SSH zmienną środowiskową SSH_ASKPASS.</translation>
     <message>
         <source>Source size</source>
         <translation>Rozmiar źródła</translation>
-    </message>
-    <message>
-        <source>Painted size</source>
-        <translation>Rozmiar powierzchni rysowania</translation>
-    </message>
-    <message>
-        <source>Aliasing</source>
-        <translation>Antyaliasing</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>Gładki</translation>
     </message>
 </context>
 <context>
@@ -21337,16 +21321,6 @@ Uwaga: może to spowodować usunięcie lokalnego pliku.</translation>
     <message>
         <source>%1 debugger activated</source>
         <translation>Uaktywniono debugger %1</translation>
-    </message>
-    <message>
-        <source>QML/C++ Debugging</source>
-        <translation>Debugowanie QML/C++</translation>
-    </message>
-    <message>
-        <source>Cannot stop execution before QML engine is started. Skipping breakpoint.
-Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or switch to C++ only debugging.</source>
-        <translation>Nie można zatrzymać programu przed uruchomieniem silnika QML. Pułapka opuszczona.
-Sugestia: przesuń pułapkę poniżej instancjacji QmlApplicationViewer albo przełącz na debugowanie C++.</translation>
     </message>
 </context>
 <context>
