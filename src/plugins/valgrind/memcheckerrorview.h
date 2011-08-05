@@ -36,52 +36,13 @@
 #define MEMCHECKERRORVIEW_H
 
 #include <QtGui/QListView>
-#include <QtGui/QStyledItemDelegate>
-#include <QtGui/QLabel>
 
 namespace Analyzer {
 class AnalyzerSettings;
 }
 
-namespace ProjectExplorer {
-class Project;
-}
-
 namespace Valgrind {
 namespace Internal {
-
-class MemcheckErrorDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-
-public:
-    /// This delegate can only work on one view at a time, parent. parent will also be the parent
-    /// in the QObject parent-child system.
-    explicit MemcheckErrorDelegate(QListView *parent);
-
-    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const;
-
-public slots:
-    void currentChanged(const QModelIndex &now, const QModelIndex &previous);
-    void viewResized();
-    void layoutChanged();
-    void copy();
-
-private slots:
-    void verticalScrolled();
-    void openLinkInEditor(const QString &link);
-
-private:
-    // the constness of this method is a necessary lie because it is called from paint() const.
-    QWidget *createDetailsWidget(const QModelIndex &errorIndex, QWidget *parent) const;
-
-    static const int s_itemMargin = 2;
-    mutable QPersistentModelIndex m_detailsIndex;
-    mutable QWidget *m_detailsWidget;
-    mutable int m_detailsWidgetHeight;
-};
 
 class MemcheckErrorView : public QListView
 {

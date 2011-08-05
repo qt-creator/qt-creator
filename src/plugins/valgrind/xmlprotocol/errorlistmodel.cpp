@@ -137,17 +137,23 @@ QString ErrorListModel::Private::formatLocation(const Error &error) const
 
 QVariant ErrorListModel::Private::errorData(int row, int column, int role) const
 {
+    // A dummy entry.
+    if (row == 0 && errors.isEmpty()) {
+        if (role == Qt::DisplayRole)
+            return tr("No errors found");
+        if (role == ErrorRole)
+            return tr("No errors found");
+        return QVariant();
+    }
+
     if (row < 0 || row >= errors.size())
         return QVariant();
-    const Error &error = errors[row];
 
-    const QVector<Stack> stacks = error.stacks();
-    const Stack stack = !stacks.isEmpty() ? stacks.first() : Stack();
+    const Error &error = errors.at(row);
 
     if (error.stacks().count())
     switch (role) {
-    case Qt::DisplayRole:
-    {
+    case Qt::DisplayRole: {
         switch (column) {
         case WhatColumn:
             return error.what();
@@ -155,8 +161,7 @@ QVariant ErrorListModel::Private::errorData(int row, int column, int role) const
             return formatLocation(error);
         case AbsoluteFilePathColumn:
             return formatAbsoluteFilePath(error);
-        case LineColumn:
-        {
+        case LineColumn: {
             const qint64 line = findRelevantFrame(error).line();
             return line > 0 ? line : QVariant();
         }
@@ -177,17 +182,14 @@ QVariant ErrorListModel::Private::errorData(int row, int column, int role) const
         }
     }
     case Qt::ToolTipRole:
-    {
         return toolTipForFrame(findRelevantFrame(error));
-    }
     case ErrorRole:
         return QVariant::fromValue<Error>(error);
     case AbsoluteFilePathRole:
         return formatAbsoluteFilePath(error);
     case FileRole:
         return findRelevantFrame(error).file();
-    case LineRole:
-    {
+    case LineRole: {
         const qint64 line = findRelevantFrame(error).line();
         return line > 0 ? line : QVariant();
     }
@@ -199,8 +201,6 @@ QVariant ErrorListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
-
-    QTC_ASSERT(index.model() == this, return QVariant());
 
     if (!index.parent().isValid())
         return d->errorData(index.row(), index.column(), role);
@@ -241,13 +241,9 @@ QVariant ErrorListModel::headerData(int section, Qt::Orientation orientation, in
 
 int ErrorListModel::rowCount(const QModelIndex &parent) const
 {
-    //root
-    if (!parent.isValid())
-        return d->errors.count();
-
-    QTC_ASSERT(parent.model() == this, return 0);
-
-    return 0;
+    if (parent.isValid())
+        return 0;
+    return qMax(1, d->errors.count());
 }
 
 int ErrorListModel::columnCount(const QModelIndex &parent) const
@@ -286,7 +282,7 @@ Error ErrorListModel::error(const QModelIndex &index) const
     const int r = index.row();
     if (r < 0 || r >= d->errors.size())
         return Error();
-    return d->errors[r];
+    return d->errors.at(r);
 }
 
 void ErrorListModel::clear()

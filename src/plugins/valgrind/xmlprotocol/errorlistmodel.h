@@ -47,9 +47,10 @@ class Frame;
 class ErrorListModel : public QAbstractItemModel
 {
     Q_OBJECT
+
 public:
     enum Column {
-        WhatColumn=0,
+        WhatColumn = 0,
         LocationColumn,
         AbsoluteFilePathColumn,
         LineColumn,
@@ -63,7 +64,7 @@ public:
     };
 
     enum Role {
-        ErrorRole=Qt::UserRole,
+        ErrorRole = Qt::UserRole,
         AbsoluteFilePathRole,
         FileRole,
         LineRole
@@ -96,7 +97,7 @@ public:
 
     void clear();
 
-public Q_SLOTS:
+public slots:
     void addError(const Valgrind::XmlProtocol::Error &error);
 
 private:

@@ -44,32 +44,64 @@
 #include "xmlprotocol/modelhelpers.h"
 #include "xmlprotocol/suppression.h"
 
-#include <texteditor/basetexteditor.h>
-
+#include <coreplugin/coreconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
-#include <coreplugin/coreconstants.h>
-
+#include <texteditor/basetexteditor.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
+#include <QtGui/QAction>
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
 #include <QtGui/QLabel>
 #include <QtGui/QListView>
+#include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
 #include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QStyledItemDelegate>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QAction>
-#include <QtGui/QClipboard>
-#include <QtGui/QApplication>
-#include <QtGui/QMenu>
 
 using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
 namespace Internal {
+
+class MemcheckErrorDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    /// This delegate can only work on one view at a time, parent. parent will also be the parent
+    /// in the QObject parent-child system.
+    explicit MemcheckErrorDelegate(QListView *parent);
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
+
+public slots:
+    void currentChanged(const QModelIndex &now, const QModelIndex &previous);
+    void viewResized();
+    void layoutChanged();
+    void copy();
+
+private slots:
+    void verticalScrolled();
+    void openLinkInEditor(const QString &link);
+
+private:
+    // the constness of this method is a necessary lie because it is called from paint() const.
+    QWidget *createDetailsWidget(const QModelIndex &errorIndex, QWidget *parent) const;
+
+    static const int s_itemMargin = 2;
+    mutable QPersistentModelIndex m_detailsIndex;
+    mutable QWidget *m_detailsWidget;
+    mutable int m_detailsWidgetHeight;
+};
 
 MemcheckErrorDelegate::MemcheckErrorDelegate(QListView *parent)
     : QStyledItemDelegate(parent),
@@ -84,8 +116,7 @@ QSize MemcheckErrorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QMo
     const QListView *view = qobject_cast<const QListView *>(parent());
     const int viewportWidth = view->viewport()->width();
     const bool isSelected = view->selectionModel()->currentIndex() == index;
-
-    int dy = 2 * s_itemMargin;
+    const int dy = 2 * s_itemMargin;
 
     if (!isSelected) {
         QFontMetrics fm(opt.font);
@@ -153,20 +184,20 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
     return QString("0x%1").arg(frame.instructionPointer(), 0, 16);
 }
 
-QString relativeToPath()
+static QString relativeToPath()
 {
-    // project for which we insert the snippet
+    // The project for which we insert the snippet.
     const ProjectExplorer::Project *project =
             ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
 
-    QString relativeTo( project ? project->projectDirectory() : QDir::homePath() );
+    QString relativeTo(project ? project->projectDirectory() : QDir::homePath());
     if (!relativeTo.endsWith(QDir::separator()))
         relativeTo.append(QDir::separator());
 
     return relativeTo;
 }
 
-QString errorLocation(const QModelIndex &index, const Error &error,
+static QString errorLocation(const QModelIndex &index, const Error &error,
                       bool link = false, const QString &linkAttr = QString())
 {
     const ErrorListModel *model = 0;
@@ -190,9 +221,7 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QModelIndex &errorInde
     // don't include frameName here as it should wrap if required and pre-line is not supported
     // by Qt yet it seems
     const QString displayTextTemplate = QString("<code style='white-space:pre'>%1:</code> %2");
-
-    QString relativeTo = relativeToPath();
-
+    const QString relativeTo = relativeToPath();
     const Error error = errorIndex.data(ErrorListModel::ErrorRole).value<Error>();
 
     QLabel *errorLabel = new QLabel();
@@ -541,3 +570,5 @@ void MemcheckErrorView::setCurrentRow(int row)
 
 } // namespace Internal
 } // namespace Valgrind
+
+#include "memcheckerrorview.moc"

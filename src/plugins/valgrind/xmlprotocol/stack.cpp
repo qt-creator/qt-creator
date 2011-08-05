@@ -39,8 +39,6 @@
 #include <QtCore/QString>
 #include <QtCore/QVector>
 
-#include <algorithm>
-
 namespace Valgrind {
 namespace XmlProtocol {
 
@@ -80,11 +78,10 @@ void Stack::swap(Stack &other)
     qSwap(d, other.d);
 }
 
-Stack &Stack::operator=(const Stack &other)
+void Stack::operator=(const Stack &other)
 {
     Stack tmp(other);
     swap(tmp);
-    return *this;
 }
 
 bool Stack::operator==(const Stack &other) const

@@ -32,8 +32,8 @@
 **
 **************************************************************************/
 
-#ifndef LIBVALGRIND_PROTOCOL_STACK_H
-#define LIBVALGRIND_PROTOCOL_STACK_H
+#ifndef VALGRIND_PROTOCOL_STACK_H
+#define VALGRIND_PROTOCOL_STACK_H
 
 #include <QtCore/QSharedDataPointer>
 
@@ -52,7 +52,7 @@ public:
     Stack();
     Stack(const Stack &other);
     ~Stack();
-    Stack &operator=(const Stack &other);
+    void operator=(const Stack &other);
     void swap(Stack &other);
     bool operator==(const Stack &other) const;
 
@@ -84,4 +84,4 @@ private:
 } // namespace XmlProtocol
 } // namespace Stack
 
-#endif // LIBVALGRIND_PROTOCOL_STACK_H
+#endif // VALGRIND_PROTOCOL_STACK_H
