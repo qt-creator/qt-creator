@@ -33,7 +33,6 @@ qmljscontextcrumblepath.cpp \
 qmljsinspectorsettings.cpp \
 qmljspropertyinspector.cpp
 
-include(../../libs/qmljsdebugclient/qmljsdebugclient-lib.pri)
 include(../../../share/qtcreator/qml/qmljsdebugger/protocol/protocol.pri)
 
 RESOURCES += qmljsinspector.qrc
@@ -45,3 +44,4 @@ include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
 include(../../plugins/debugger/debugger.pri)
 include(../../libs/utils/utils.pri)
+include(../../libs/qmljsdebugclient/qmljsdebugclient.pri)

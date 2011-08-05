@@ -32,12 +32,13 @@
 #ifndef QDECLARATIVEDEBUGCLIENT_H
 #define QDECLARATIVEDEBUGCLIENT_H
 
+#include "qmljsdebugclient_global.h"
 #include <QtNetwork/qtcpsocket.h>
 
 namespace QmlJsDebugClient {
 
 class QDeclarativeDebugConnectionPrivate;
-class QDeclarativeDebugConnection : public QIODevice
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugConnection : public QIODevice
 {
     Q_OBJECT
 
@@ -71,7 +72,7 @@ private:
 };
 
 class QDeclarativeDebugClientPrivate;
-class QDeclarativeDebugClient : public QObject
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugClient : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDeclarativeDebugClient)

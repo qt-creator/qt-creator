@@ -10,11 +10,12 @@ SUBDIRS   = \
     utils \
     utils/process_stub.pro \
     languageutils \
+    symbianutils \
     cplusplus \
     qmljs \
+    qmljsdebugclient \
     glsl \
-    qmleditorwidgets \
-    symbianutils
+    qmleditorwidgets
 
 # Windows: Compile Qt Creator CDB extension if Debugging tools can be detected.    
 win32 {

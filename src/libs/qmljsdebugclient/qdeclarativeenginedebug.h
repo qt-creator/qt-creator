@@ -32,6 +32,7 @@
 #ifndef QDECLARATIVEDEBUG_H
 #define QDECLARATIVEDEBUG_H
 
+#include "qmljsdebugclient_global.h"
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qvariant.h>
@@ -53,7 +54,7 @@ class QDeclarativeDebugFileReference;
 class QDeclarativeDebugEngineReference;
 class QDeclarativeEngineDebugPrivate;
 
-class QDeclarativeEngineDebug : public QObject
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeEngineDebug : public QObject
 {
     Q_OBJECT
 public:
@@ -102,7 +103,7 @@ private:
     QScopedPointer<QDeclarativeEngineDebugPrivate> d_ptr;
 };
 
-class QDeclarativeDebugWatch : public QObject
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugWatch : public QObject
 {
     Q_OBJECT
 public:
@@ -133,7 +134,7 @@ private:
     int m_objectDebugId;
 };
 
-class QDeclarativeDebugPropertyWatch : public QDeclarativeDebugWatch
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugPropertyWatch : public QDeclarativeDebugWatch
 {
     Q_OBJECT
 public:
@@ -146,7 +147,7 @@ private:
     QString m_name;
 };
 
-class QDeclarativeDebugObjectExpressionWatch : public QDeclarativeDebugWatch
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugObjectExpressionWatch : public QDeclarativeDebugWatch
 {
     Q_OBJECT
 public:
@@ -160,7 +161,7 @@ private:
     int m_debugId;
 };
 
-class QDeclarativeDebugQuery : public QObject
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugQuery : public QObject
 {
     Q_OBJECT
 public:
@@ -182,7 +183,7 @@ private:
     State m_state;
 };
 
-class QDeclarativeDebugFileReference
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugFileReference
 {
 public:
     QDeclarativeDebugFileReference();
@@ -203,7 +204,7 @@ private:
     int m_columnNumber;
 };
 
-class QDeclarativeDebugEngineReference
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugEngineReference
 {
 public:
     QDeclarativeDebugEngineReference();
@@ -220,7 +221,7 @@ private:
     QString m_name;
 };
 
-class QDeclarativeDebugObjectReference
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugObjectReference
 {
 public:
     QDeclarativeDebugObjectReference();
@@ -251,7 +252,7 @@ private:
     QList<QDeclarativeDebugObjectReference> m_children;
 };
 
-class QDeclarativeDebugContextReference
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugContextReference
 {
 public:
     QDeclarativeDebugContextReference();
@@ -272,7 +273,7 @@ private:
     QList<QDeclarativeDebugContextReference> m_contexts;
 };
 
-class QDeclarativeDebugPropertyReference
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugPropertyReference
 {
 public:
     QDeclarativeDebugPropertyReference();
@@ -297,7 +298,7 @@ private:
 };
 
 
-class QDeclarativeDebugEnginesQuery : public QDeclarativeDebugQuery
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugEnginesQuery : public QDeclarativeDebugQuery
 {
     Q_OBJECT
 public:
@@ -312,7 +313,7 @@ private:
     QList<QDeclarativeDebugEngineReference> m_engines;
 };
 
-class QDeclarativeDebugRootContextQuery : public QDeclarativeDebugQuery
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugRootContextQuery : public QDeclarativeDebugQuery
 {
     Q_OBJECT
 public:
@@ -327,7 +328,7 @@ private:
     QDeclarativeDebugContextReference m_context;
 };
 
-class QDeclarativeDebugObjectQuery : public QDeclarativeDebugQuery
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugObjectQuery : public QDeclarativeDebugQuery
 {
     Q_OBJECT
 public:
@@ -343,7 +344,7 @@ private:
 
 };
 
-class QDeclarativeDebugExpressionQuery : public QDeclarativeDebugQuery
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugExpressionQuery : public QDeclarativeDebugQuery
 {
     Q_OBJECT
 public:

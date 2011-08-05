@@ -1,15 +1,22 @@
+contains(CONFIG, dll) {
+    DEFINES += QMLJSDEBUGCLIENT_LIB
+} else {
+    DEFINES += QMLJSDEBUGCLIENT_STATIC_LIB
+}
 
-## Input
+INCLUDEPATH += $$PWD/..
+
 HEADERS += \
-../../libs/qmljsdebugclient/qdeclarativeenginedebug.h \
-../../libs/qmljsdebugclient/qpacketprotocol.h \
-../../libs/qmljsdebugclient/qdeclarativedebugclient.h
-
+    $$PWD/qdeclarativeenginedebug.h \
+    $$PWD/qpacketprotocol.h \
+    $$PWD/qdeclarativedebugclient.h \
+    $$PWD/qmljsdebugclient_global.h
 
 SOURCES += \
-../../libs/qmljsdebugclient/qdeclarativeenginedebug.cpp \
-../../libs/qmljsdebugclient/qpacketprotocol.cpp \
-../../libs/qmljsdebugclient/qdeclarativedebugclient.cpp
+    $$PWD/qdeclarativeenginedebug.cpp \
+    $$PWD/qpacketprotocol.cpp \
+    $$PWD/qdeclarativedebugclient.cpp
 
-
-
+OTHER_FILES += \
+    $$PWD/qmljsdebugclient.pri \
+    $$PWD/qmljsdebugclient-lib.pri
