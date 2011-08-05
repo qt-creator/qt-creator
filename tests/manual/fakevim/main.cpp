@@ -67,9 +67,10 @@ public slots:
         updateStatusBar();
     }
 
-    void changeStatusMessage(const QString &info)
+    void changeStatusMessage(const QString &contents, int cursorPos)
     {
-        m_statusMessage = info;
+        m_statusMessage = cursorPos == -1 ? contents
+            : contents.left(cursorPos) + QChar(10073) + contents.mid(cursorPos);
         updateStatusBar();
     }
 
@@ -137,8 +138,8 @@ int main(int argc, char *argv[])
     widget->setFont(font);
     mw.statusBar()->setFont(font);
 
-    QObject::connect(&handler, SIGNAL(commandBufferChanged(QString)),
-        &proxy, SLOT(changeStatusMessage(QString)));
+    QObject::connect(&handler, SIGNAL(commandBufferChanged(QString,int)),
+        &proxy, SLOT(changeStatusMessage(QString,int)));
     //QObject::connect(&handler, SIGNAL(quitRequested(bool)),
     //    &app, SLOT(quit()));
     QObject::connect(&handler,
