@@ -642,6 +642,19 @@ void testQFixed()
 */
 }
 
+namespace qhostaddress {
+
+    void testQHostAddress()
+    {
+        QHostAddress ha1(129 * 256 * 256 * 256 + 130);
+        QHostAddress ha2("127.0.0.1");
+        // <== break here
+        // Check ha1 and ha2 look correct.
+        dummyStatement(&ha1, &ha2);
+    }
+
+} // namespace qhostaddress
+
 QHash<int, float> testQHash()
 {
 #if 1
@@ -3161,6 +3174,7 @@ namespace varargs {
 
 int main(int argc, char *argv[])
 {
+    qhostaddress::testQHostAddress();
     varargs::testVaList();
     cp42895::test42895();
     bug5046::test5046();

@@ -429,14 +429,12 @@ def qdump__QHostAddress(d, item):
     if int(data["ipString"]["d"]["size"]):
         d.putStringValue(data["ipString"])
     else:
-        a = data["a"]
-        m, a = divmod(a, 256 * 256 * 256)
-        s = str(m)
-        m, a = divmod(a, 256 * 256)
-        s = s + "." + str(m)
-        m, a = divmod(a, 256)
-        s = s + "." + str(m)
-        d.putValue(s)
+        a = long(data["a"])
+        a, n4 = divmod(a, 256)
+        a, n3 = divmod(a, 256)
+        a, n2 = divmod(a, 256)
+        a, n1 = divmod(a, 256)
+        d.putValue("%d.%d.%d.%d" % (n1, n2, n3, n4));
     d.putNumChild(1)
     if d.isExpanded(item):
         with Children(d):
