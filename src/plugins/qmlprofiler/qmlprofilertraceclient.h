@@ -33,7 +33,7 @@
 #ifndef QMLPROFILERTRACECLIENT_H
 #define QMLPROFILERTRACECLIENT_H
 
-#include <qmljsdebugclient/qdeclarativedebugclient_p.h>
+#include <qmljsdebugclient/qdeclarativedebugclient.h>
 #include <QtCore/QStack>
 #include <QtCore/QStringList>
 

@@ -1,13 +1,13 @@
 
 ## Input
 HEADERS += \
-../../libs/qmljsdebugclient/qdeclarativedebug_p.h \
-../../libs/qmljsdebugclient/qpacketprotocol_p.h \
-../../libs/qmljsdebugclient/qdeclarativedebugclient_p.h
+../../libs/qmljsdebugclient/qdeclarativeenginedebug.h \
+../../libs/qmljsdebugclient/qpacketprotocol.h \
+../../libs/qmljsdebugclient/qdeclarativedebugclient.h
 
 
 SOURCES += \
-../../libs/qmljsdebugclient/qdeclarativedebug.cpp \
+../../libs/qmljsdebugclient/qdeclarativeenginedebug.cpp \
 ../../libs/qmljsdebugclient/qpacketprotocol.cpp \
 ../../libs/qmljsdebugclient/qdeclarativedebugclient.cpp
 

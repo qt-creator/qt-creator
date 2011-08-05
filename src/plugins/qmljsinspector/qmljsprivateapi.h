@@ -32,8 +32,8 @@
 #ifndef QMLJSPRIVATEAPI_H
 #define QMLJSPRIVATEAPI_H
 
-#include <qmljsdebugclient/qdeclarativedebug_p.h>
-#include <qmljsdebugclient/qdeclarativedebugclient_p.h>
+#include <qmljsdebugclient/qdeclarativeenginedebug.h>
+#include <qmljsdebugclient/qdeclarativedebugclient.h>
 
 using namespace QmlJsDebugClient;
 

@@ -35,7 +35,7 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilertraceclient.h"
 
-#include <qmljsdebugclient/qdeclarativedebugclient_p.h>
+#include <qmljsdebugclient/qdeclarativedebugclient.h>
 #include <utils/styledbar.h>
 
 #include <QtDeclarative/QDeclarativeView>

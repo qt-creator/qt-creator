@@ -34,8 +34,6 @@
 
 #include <QtNetwork/qtcpsocket.h>
 
-QT_BEGIN_HEADER
-
 namespace QmlJsDebugClient {
 
 class QDeclarativeDebugConnectionPrivate;
@@ -100,8 +98,6 @@ private:
     QScopedPointer<QDeclarativeDebugClientPrivate> d_ptr;
 };
 
-}
-
-QT_END_HEADER
+} // namespace QmlJsDebugClient
 
 #endif // QDECLARATIVEDEBUGCLIENT_H

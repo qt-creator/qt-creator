@@ -36,8 +36,6 @@
 #include <QtCore/qurl.h>
 #include <QtCore/qvariant.h>
 
-QT_BEGIN_HEADER
-
 namespace QmlJsDebugClient {
 
 class QDeclarativeDebugConnection;
@@ -57,7 +55,7 @@ class QDeclarativeEngineDebugPrivate;
 
 class QDeclarativeEngineDebug : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     enum Status { NotConnected, Unavailable, Enabled };
 
@@ -67,28 +65,28 @@ public:
     Status status() const;
 
     QDeclarativeDebugPropertyWatch *addWatch(const QDeclarativeDebugPropertyReference &,
-                            QObject *parent = 0);
+                                             QObject *parent = 0);
     QDeclarativeDebugWatch *addWatch(const QDeclarativeDebugContextReference &, const QString &,
-                            QObject *parent = 0);
+                                     QObject *parent = 0);
     QDeclarativeDebugObjectExpressionWatch *addWatch(const QDeclarativeDebugObjectReference &, const QString &,
-                            QObject *parent = 0);
+                                                     QObject *parent = 0);
     QDeclarativeDebugWatch *addWatch(const QDeclarativeDebugObjectReference &,
-                            QObject *parent = 0);
+                                     QObject *parent = 0);
     QDeclarativeDebugWatch *addWatch(const QDeclarativeDebugFileReference &,
-                            QObject *parent = 0);
+                                     QObject *parent = 0);
 
     void removeWatch(QDeclarativeDebugWatch *watch);
 
     QDeclarativeDebugEnginesQuery *queryAvailableEngines(QObject *parent = 0);
     QDeclarativeDebugRootContextQuery *queryRootContexts(const QDeclarativeDebugEngineReference &,
-                                                QObject *parent = 0);
-    QDeclarativeDebugObjectQuery *queryObject(const QDeclarativeDebugObjectReference &, 
-                                     QObject *parent = 0);
-    QDeclarativeDebugObjectQuery *queryObjectRecursive(const QDeclarativeDebugObjectReference &, 
+                                                         QObject *parent = 0);
+    QDeclarativeDebugObjectQuery *queryObject(const QDeclarativeDebugObjectReference &,
                                               QObject *parent = 0);
-    QDeclarativeDebugExpressionQuery *queryExpressionResult(int objectDebugId, 
-                                                   const QString &expr,
-                                                   QObject *parent = 0);
+    QDeclarativeDebugObjectQuery *queryObjectRecursive(const QDeclarativeDebugObjectReference &,
+                                                       QObject *parent = 0);
+    QDeclarativeDebugExpressionQuery *queryExpressionResult(int objectDebugId,
+                                                            const QString &expr,
+                                                            QObject *parent = 0);
     bool setBindingForObject(int objectDebugId, const QString &propertyName,
                              const QVariant &bindingExpression, bool isLiteralValue,
                              QString source = QString(), int line = -1);
@@ -106,7 +104,7 @@ private:
 
 class QDeclarativeDebugWatch : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     enum State { Waiting, Active, Inactive, Dead };
 
@@ -164,14 +162,12 @@ private:
 
 class QDeclarativeDebugQuery : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     enum State { Waiting, Error, Completed };
 
     State state() const;
     bool isWaiting() const;
-
-//    bool waitUntilCompleted();
 
 Q_SIGNALS:
     void stateChanged(QDeclarativeDebugQuery::State);
@@ -303,7 +299,7 @@ private:
 
 class QDeclarativeDebugEnginesQuery : public QDeclarativeDebugQuery
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     virtual ~QDeclarativeDebugEnginesQuery();
     QList<QDeclarativeDebugEngineReference> engines() const;
@@ -318,7 +314,7 @@ private:
 
 class QDeclarativeDebugRootContextQuery : public QDeclarativeDebugQuery
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     virtual ~QDeclarativeDebugRootContextQuery();
     QDeclarativeDebugContextReference rootContext() const;
@@ -333,7 +329,7 @@ private:
 
 class QDeclarativeDebugObjectQuery : public QDeclarativeDebugQuery
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     virtual ~QDeclarativeDebugObjectQuery();
     QDeclarativeDebugObjectReference object() const;
@@ -349,7 +345,7 @@ private:
 
 class QDeclarativeDebugExpressionQuery : public QDeclarativeDebugQuery
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     virtual ~QDeclarativeDebugExpressionQuery();
     QVariant expression() const;
@@ -364,12 +360,11 @@ private:
     QVariant m_result;
 };
 
-}
+} // namespace QmlJsDebugClient
 
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugEngineReference)
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugObjectReference)
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugContextReference)
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugPropertyReference)
-
 
 #endif // QDECLARATIVEDEBUG_H

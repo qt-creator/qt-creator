@@ -29,9 +29,9 @@
 **
 **************************************************************************/
 
-#include "qdeclarativedebugclient_p.h"
+#include "qdeclarativedebugclient.h"
 
-#include "qpacketprotocol_p.h"
+#include "qpacketprotocol.h"
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qstringlist.h>
@@ -46,7 +46,7 @@ static const uchar KQmlOstProtocolId = 0x94;
 
 class QDeclarativeDebugClientPrivate
 {
-//    Q_DECLARE_PUBLIC(QDeclarativeDebugClient)
+    //    Q_DECLARE_PUBLIC(QDeclarativeDebugClient)
 public:
     QDeclarativeDebugClientPrivate();
 
@@ -77,7 +77,7 @@ public Q_SLOTS:
 };
 
 QDeclarativeDebugConnectionPrivate::QDeclarativeDebugConnectionPrivate(QDeclarativeDebugConnection *c)
-: QObject(c), q(c), protocol(0), device(0), gotHello(false)
+    : QObject(c), q(c), protocol(0), device(0), gotHello(false)
 {
     protocol = new QPacketProtocol(q, this);
     QObject::connect(c, SIGNAL(connected()), this, SLOT(connected()));
@@ -175,7 +175,7 @@ void QDeclarativeDebugConnectionPrivate::readyRead()
             pack >> message;
 
             QHash<QString, QDeclarativeDebugClient *>::Iterator iter =
-                plugins.find(name);
+                    plugins.find(name);
             if (iter == plugins.end()) {
                 qWarning() << "QDeclarativeDebugConnection: Message received for missing plugin" << name;
             } else {
@@ -193,7 +193,7 @@ void QDeclarativeDebugConnectionPrivate::deviceAboutToClose()
 }
 
 QDeclarativeDebugConnection::QDeclarativeDebugConnection(QObject *parent)
-: QIODevice(parent), d(new QDeclarativeDebugConnectionPrivate(this))
+    : QIODevice(parent), d(new QDeclarativeDebugConnectionPrivate(this))
 {
 }
 
@@ -201,8 +201,8 @@ QDeclarativeDebugConnection::~QDeclarativeDebugConnection()
 {
     QHash<QString, QDeclarativeDebugClient*>::iterator iter = d->plugins.begin();
     for (; iter != d->plugins.end(); ++iter) {
-         iter.value()->d_func()->connection = 0;
-         iter.value()->statusChanged(QDeclarativeDebugClient::NotConnected);
+        iter.value()->d_func()->connection = 0;
+        iter.value()->statusChanged(QDeclarativeDebugClient::NotConnected);
     }
 }
 
@@ -240,7 +240,7 @@ void QDeclarativeDebugConnection::close()
 
         QHash<QString, QDeclarativeDebugClient*>::iterator iter = d->plugins.begin();
         for (; iter != d->plugins.end(); ++iter) {
-             iter.value()->statusChanged(QDeclarativeDebugClient::NotConnected);
+            iter.value()->statusChanged(QDeclarativeDebugClient::NotConnected);
         }
     }
 }
@@ -322,13 +322,13 @@ void QDeclarativeDebugConnectionPrivate::connectDeviceSignals()
 //
 
 QDeclarativeDebugClientPrivate::QDeclarativeDebugClientPrivate()
-: connection(0)
+    : connection(0)
 {
 }
 
 QDeclarativeDebugClient::QDeclarativeDebugClient(const QString &name, 
-                                           QDeclarativeDebugConnection *parent)
-: QObject(parent), d_ptr(new QDeclarativeDebugClientPrivate())
+                                                 QDeclarativeDebugConnection *parent)
+    : QObject(parent), d_ptr(new QDeclarativeDebugClientPrivate())
 {
     Q_D(QDeclarativeDebugClient);
     d->name = name;
@@ -365,8 +365,8 @@ QDeclarativeDebugClient::Status QDeclarativeDebugClient::status() const
 {
     Q_D(const QDeclarativeDebugClient);
     if (!d->connection
-        || !d->connection->isConnected()
-        || !d->connection->d->gotHello)
+            || !d->connection->isConnected()
+            || !d->connection->d->gotHello)
         return NotConnected;
 
     if (d->connection->d->serverPlugins.contains(d->name))
