@@ -59,7 +59,8 @@ class QMLJSDEBUGCLIENT_EXPORT QmlProfilerTraceClient : public QmlJsDebugClient::
     using QObject::event;
 
 public:
-    QmlProfilerTraceClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
+    QmlProfilerTraceClient(QDeclarativeDebugConnection *client);
+    ~QmlProfilerTraceClient();
 
     enum EventType {
         FramePaint,
@@ -80,40 +81,30 @@ public:
         MaximumMessage
     };
 
-    bool isRecording() const { return m_recording; }
+    bool isRecording() const;
 
 public slots:
     void setRecording(bool);
-    void clearView();
+    void clearData();
 
 signals:
     void complete();
-    void gap(qint64);
+    void gap(qint64 time);
     void event(int event, qint64 time);
     void range(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length,
                const QStringList &data, const QString &fileName, int line);
 
-    void sample(int, int, int, bool);
-
     void recordingChanged(bool arg);
 
     void enabled();
-    void clear();
+    void cleared();
 
 protected:
     virtual void statusChanged(Status);
     virtual void messageReceived(const QByteArray &);
 
 private:
-    qint64 m_inProgressRanges;
-    QStack<qint64> m_rangeStartTimes[MaximumQmlEventType];
-    QStack<QStringList> m_rangeDatas[MaximumQmlEventType];
-    QStack<Location> m_rangeLocations[MaximumQmlEventType];
-    int m_rangeCount[MaximumQmlEventType];
-    qint64 m_maximumTime;
-    bool m_recording;
-    int m_nestingLevel;
-    int m_nestingInType[MaximumQmlEventType];
+    class QmlProfilerTraceClientPrivate *d;
 };
 
 } // namespace QmlJsDebugClient

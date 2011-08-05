@@ -163,7 +163,7 @@ Rectangle {
             }
         }
 
-        onClear: {
+        onDataCleared: {
             root.clearAll();
         }
 

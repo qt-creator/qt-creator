@@ -32,29 +32,64 @@
 
 #include "qmlprofilertraceclient.h"
 
+namespace QmlJsDebugClient {
+
+class QmlProfilerTraceClientPrivate {
+public:
+    QmlProfilerTraceClientPrivate()
+        : inProgressRanges(0)
+        , maximumTime(0)
+        , recording(false)
+        , nestingLevel(0)
+    {
+        ::memset(rangeCount, 0, MaximumQmlEventType * sizeof(int));
+        ::memset(nestingInType, 0, MaximumQmlEventType * sizeof(int));
+    }
+
+    qint64 inProgressRanges;
+    QStack<qint64> rangeStartTimes[MaximumQmlEventType];
+    QStack<QStringList> rangeDatas[MaximumQmlEventType];
+    QStack<Location> rangeLocations[MaximumQmlEventType];
+    int rangeCount[MaximumQmlEventType];
+    qint64 maximumTime;
+    bool recording;
+    int nestingLevel;
+    int nestingInType[MaximumQmlEventType];
+};
+
+} // namespace QmlJsDebugClient
+
 using namespace QmlJsDebugClient;
 
 static const int GAP_TIME = 150;
 
 QmlProfilerTraceClient::QmlProfilerTraceClient(QDeclarativeDebugConnection *client)
-    : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client),
-      m_inProgressRanges(0), m_maximumTime(0), m_recording(false), m_nestingLevel(0)
+    : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client)
+    , d(new QmlProfilerTraceClientPrivate)
 {
-    ::memset(m_rangeCount, 0, MaximumQmlEventType * sizeof(int));
-    ::memset(m_nestingInType, 0, MaximumQmlEventType * sizeof(int));
 }
 
-void QmlProfilerTraceClient::clearView()
+QmlProfilerTraceClient::~QmlProfilerTraceClient()
 {
-    ::memset(m_rangeCount, 0, MaximumQmlEventType * sizeof(int));
-    ::memset(m_nestingInType, 0, MaximumQmlEventType * sizeof(int));
-    m_nestingLevel = 0;
-    emit clear();
+    delete d;
+}
+
+void QmlProfilerTraceClient::clearData()
+{
+    ::memset(d->rangeCount, 0, MaximumQmlEventType * sizeof(int));
+    ::memset(d->nestingInType, 0, MaximumQmlEventType * sizeof(int));
+    d->nestingLevel = 0;
+    emit cleared();
+}
+
+bool QmlProfilerTraceClient::isRecording() const
+{
+    return d->recording;
 }
 
 void QmlProfilerTraceClient::setRecording(bool v)
 {
-    if (v == m_recording)
+    if (v == d->recording)
         return;
 
     if (status() == Enabled) {
@@ -64,15 +99,15 @@ void QmlProfilerTraceClient::setRecording(bool v)
         sendMessage(ba);
     }
 
-    m_recording = v;
+    d->recording = v;
     emit recordingChanged(v);
 }
 
 void QmlProfilerTraceClient::statusChanged(Status status)
 {
     if (status == Enabled) {
-        m_recording = !m_recording;
-        setRecording(!m_recording);
+        d->recording = !d->recording;
+        setRecording(!d->recording);
         emit enabled();
     }
 }
@@ -92,7 +127,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
     if (messageType >= MaximumMessage)
         return;
 
-    if (time > (m_maximumTime + GAP_TIME) && 0 == m_inProgressRanges)
+    if (time > (d->maximumTime + GAP_TIME) && 0 == d->inProgressRanges)
         emit gap(time);
 
     if (messageType == Event) {
@@ -101,7 +136,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 
         if (event < MaximumEventType) {
             emit this->event((EventType)event, time);
-            m_maximumTime = qMax(time, m_maximumTime);
+            d->maximumTime = qMax(time, d->maximumTime);
         }
     } else if (messageType == Complete) {
         emit complete();
@@ -113,20 +148,20 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             return;
 
         if (messageType == RangeStart) {
-            m_rangeStartTimes[range].push(time);
-            m_inProgressRanges |= (static_cast<qint64>(1) << range);
-            ++m_rangeCount[range];
-            ++m_nestingLevel;
-            ++m_nestingInType[range];
+            d->rangeStartTimes[range].push(time);
+            d->inProgressRanges |= (static_cast<qint64>(1) << range);
+            ++d->rangeCount[range];
+            ++d->nestingLevel;
+            ++d->nestingInType[range];
         } else if (messageType == RangeData) {
             QString data;
             stream >> data;
 
-            int count = m_rangeCount[range];
+            int count = d->rangeCount[range];
             if (count > 0) {
-                while (m_rangeDatas[range].count() < count)
-                    m_rangeDatas[range].push(QStringList());
-                m_rangeDatas[range][count-1] << data;
+                while (d->rangeDatas[range].count() < count)
+                    d->rangeDatas[range].push(QStringList());
+                d->rangeDatas[range][count-1] << data;
             }
 
         } else if (messageType == RangeLocation) {
@@ -134,28 +169,28 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             int line;
             stream >> fileName >> line;
 
-            if (m_rangeCount[range] > 0) {
-                m_rangeLocations[range].push(Location(fileName, line));
+            if (d->rangeCount[range] > 0) {
+                d->rangeLocations[range].push(Location(fileName, line));
             }
         } else {
-            if (m_rangeCount[range] > 0) {
-                --m_rangeCount[range];
-                if (m_inProgressRanges & (static_cast<qint64>(1) << range))
-                    m_inProgressRanges &= ~(static_cast<qint64>(1) << range);
+            if (d->rangeCount[range] > 0) {
+                --d->rangeCount[range];
+                if (d->inProgressRanges & (static_cast<qint64>(1) << range))
+                    d->inProgressRanges &= ~(static_cast<qint64>(1) << range);
 
-                m_maximumTime = qMax(time, m_maximumTime);
-                QStringList data = m_rangeDatas[range].count() ? m_rangeDatas[range].pop() : QStringList();
-                Location location = m_rangeLocations[range].count() ? m_rangeLocations[range].pop() : Location();
+                d->maximumTime = qMax(time, d->maximumTime);
+                QStringList data = d->rangeDatas[range].count() ? d->rangeDatas[range].pop() : QStringList();
+                Location location = d->rangeLocations[range].count() ? d->rangeLocations[range].pop() : Location();
 
-                qint64 startTime = m_rangeStartTimes[range].pop();
-                emit this->range((QmlEventType)range, m_nestingLevel, m_nestingInType[range], startTime,
+                qint64 startTime = d->rangeStartTimes[range].pop();
+                emit this->range((QmlEventType)range, d->nestingLevel, d->nestingInType[range], startTime,
                                  time - startTime, data, location.fileName, location.line);
-                --m_nestingLevel;
-                --m_nestingInType[range];
-                if (m_rangeCount[range] == 0) {
-                    int count = m_rangeDatas[range].count() +
-                                m_rangeStartTimes[range].count() +
-                                m_rangeLocations[range].count();
+                --d->nestingLevel;
+                --d->nestingInType[range];
+                if (d->rangeCount[range] == 0) {
+                    int count = d->rangeDatas[range].count() +
+                                d->rangeStartTimes[range].count() +
+                                d->rangeLocations[range].count();
                     if (count != 0)
                         qWarning() << "incorrectly nested data";
                 }

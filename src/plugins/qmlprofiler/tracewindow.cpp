@@ -154,7 +154,7 @@ void TraceWindow::updateTimer()
 void TraceWindow::clearDisplay()
 {
     if (m_plugin)
-        m_plugin.data()->clearView();
+        m_plugin.data()->clearData();
     else
         emit internalClearDisplay();
 }
