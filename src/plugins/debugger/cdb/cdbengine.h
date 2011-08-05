@@ -282,6 +282,7 @@ private:
     bool m_ignoreCdbOutput;
     QVariantList m_customSpecialStopData;
     QList<SourcePathMapping> m_sourcePathMappings;
+    QScopedPointer<GdbMi> m_coreStopReason;
 };
 
 } // namespace Internal

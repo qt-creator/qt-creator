@@ -316,7 +316,6 @@ static inline bool validMode(DebuggerStartMode sm)
 {
     switch (sm) {
     case NoStartMode:
-    case AttachCore:
     case StartRemoteGdb:
         return false;
     default:
@@ -391,6 +390,12 @@ bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
     if (sp.toolChainAbi.binaryFormat() != Abi::PEFormat || sp.toolChainAbi.os() != Abi::WindowsOS) {
         check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
                                       arg(sp.toolChainAbi.toString()));
+        return false;
+    }
+
+    if (sp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor
+        && sp.startMode == AttachCore) {
+        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine cannot debug MSys core files."));
         return false;
     }
 
@@ -479,6 +484,7 @@ void CdbEngine::init()
     m_pendingBreakpointMap.clear();
     m_customSpecialStopData.clear();
     m_symbolAddressCache.clear();
+    m_coreStopReason.reset();
 
     // Create local list of mappings in native separators
     m_sourcePathMappings.clear();
@@ -769,6 +775,9 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
                 arguments << QLatin1String("-pr") << QLatin1String("-pb");
         }
         break;
+    case AttachCore:
+        arguments << QLatin1String("-z") << sp.coreFile;
+        break;
     default:
         *errorMessage = QString::fromLatin1("Internal error: Unsupported start mode %1.").arg(sp.startMode);
         return false;
@@ -845,7 +854,13 @@ void CdbEngine::runEngine()
         qDebug("runEngine");
     foreach (const QString &breakEvent, m_options->breakEvents)
             postCommand(QByteArray("sxe ") + breakEvent.toAscii(), 0);
-    postCommand("g", 0);
+    if (startParameters().startMode == AttachCore) {
+        QTC_ASSERT(!m_coreStopReason.isNull(), return; );
+        notifyInferiorUnrunnable();
+        processStop(*m_coreStopReason, false);
+    } else {
+        postCommand("g", 0);
+    }
 }
 
 bool CdbEngine::commandsPending() const
@@ -1766,8 +1781,10 @@ void CdbEngine::reloadFullStack()
 
 void CdbEngine::handlePid(const CdbExtensionCommandPtr &reply)
 {
-    if (reply->success) {
+    // Fails for core dumps.
+    if (reply->success)
         notifyInferiorPid(reply->reply.toULongLong());
+    if (reply->success || startParameters().startMode == AttachCore) {
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSetupOk")
         notifyInferiorSetupOk();
     }  else {
@@ -2107,8 +2124,14 @@ void CdbEngine::handleSessionIdle(const QByteArray &messageBA)
     if (state() == EngineSetupRequested) { // Temporary stop at beginning
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupOk")
         notifyEngineSetupOk();
+        // Store stop reason to be handled in runEngine().
+        if (startParameters().startMode == AttachCore) {
+            m_coreStopReason.reset(new GdbMi);
+            m_coreStopReason->fromString(messageBA);
+        }
         return;
     }
+
     GdbMi stopReason;
     stopReason.fromString(messageBA);
     processStop(stopReason, false);
@@ -2136,12 +2159,14 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
     }
     // Notify about state and send off command sequence to get stack, etc.
     if (stopFlags & StopNotifyStop) {
-        if (state() == InferiorStopRequested) {
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopOk")
-            notifyInferiorStopOk();
-        } else {
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSpontaneousStop")
-            notifyInferiorSpontaneousStop();
+        if (startParameters().startMode != AttachCore) {
+            if (state() == InferiorStopRequested) {
+                STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopOk")
+                        notifyInferiorStopOk();
+            } else {
+                STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSpontaneousStop")
+                        notifyInferiorSpontaneousStop();
+            }
         }
         // Prevent further commands from being sent if shutdown is in progress
         if (stopFlags & StopShutdownInProgress) {
