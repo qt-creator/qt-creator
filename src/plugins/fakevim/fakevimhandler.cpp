@@ -4555,6 +4555,27 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
 {
     const QString text = g.registers[m_register].contents;
     const QStringList lines = text.split(QChar('\n'));
+
+    beginEditBlock();
+
+    if (isVisualCharMode()) {
+        leaveVisualMode();
+        m_submode = DeleteSubMode;
+        finishMovement();
+    } else if (isVisualLineMode()) {
+        leaveVisualMode();
+        m_rangemode = RangeLineMode;
+        yankText(currentRange(), m_register);
+        removeText(currentRange());
+        handleStartOfLine();
+    } else if (isVisualBlockMode()) {
+        leaveVisualMode();
+        m_rangemode = RangeBlockMode;
+        yankText(currentRange(), m_register);
+        removeText(currentRange());
+        setPosition(qMin(position(), anchor()));
+    }
+
     switch (g.registers[m_register].rangemode) {
         case RangeCharMode: {
             m_targetColumn = 0;
@@ -4573,7 +4594,6 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
         case RangeLineModeExclusive: {
             moveToStartOfLine();
             m_targetColumn = 0;
-            beginEditBlock();
             QTextCursor tc = cursor();
             for (int i = count(); --i >= 0; ) {
                 bool lastLine = document()->lastBlock() == this->block();
@@ -4596,12 +4616,10 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 }
             }
             moveToFirstNonBlankOnLine();
-            endEditBlock();
             break;
         }
         case RangeBlockAndTailMode:
         case RangeBlockMode: {
-            beginEditBlock();
             QTextBlock block = this->block();
             if (afterCursor)
                 moveRight();
@@ -4629,10 +4647,11 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 block = block.next();
             }
             moveLeft();
-            endEditBlock();
             break;
         }
     }
+
+    endEditBlock();
 }
 
 QString FakeVimHandler::Private::lineContents(int line) const
