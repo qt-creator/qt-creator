@@ -426,7 +426,17 @@ def qdump__QHashNode(d, item):
 
 def qdump__QHostAddress(d, item):
     data = item.value["d"]["d"].dereference()
-    d.putStringValue(data["ipString"])
+    if int(data["ipString"]["d"]["size"]):
+        d.putStringValue(data["ipString"])
+    else:
+        a = data["a"]
+        m, a = divmod(a, 256 * 256 * 256)
+        s = str(m)
+        m, a = divmod(a, 256 * 256)
+        s = s + "." + str(m)
+        m, a = divmod(a, 256)
+        s = s + "." + str(m)
+        d.putValue(s)
     d.putNumChild(1)
     if d.isExpanded(item):
         with Children(d):
