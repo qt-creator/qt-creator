@@ -3859,7 +3859,6 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle)
             sel.cursor = tc;
             sel.format = tc.blockCharFormat();
             sel.format.setBackground(QColor(177, 177, 0));
-            sel.format.setForeground(Qt::black);
             m_searchSelections.append(sel);
             if (document()->characterAt(tc.position()) == ParagraphSeparator)
                 tc.movePosition(Right, MoveAnchor);
