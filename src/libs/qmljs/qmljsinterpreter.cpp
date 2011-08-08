@@ -1128,8 +1128,13 @@ Function::~Function()
 {
 }
 
-void Function::addArgument(const Value *argument)
+void Function::addArgument(const Value *argument, const QString &name)
 {
+    if (!name.isEmpty()) {
+        while (_argumentNames.size() < _arguments.size())
+            _argumentNames.push_back(QString());
+        _argumentNames.push_back(name);
+    }
     _arguments.push_back(argument);
 }
 
@@ -1153,9 +1158,19 @@ const Value *Function::argument(int index) const
     return _arguments.at(index);
 }
 
-const Value *Function::invoke(const Activation *activation) const
+QString Function::argumentName(int index) const
 {
-    return activation->thisObject(); // ### FIXME it should return undefined
+    if (index < _argumentNames.size()) {
+        const QString name = _argumentNames.at(index);
+        if (!name.isEmpty())
+            return _argumentNames.at(index);
+    }
+    return FunctionValue::argumentName(index);
+}
+
+const Value *Function::invoke(const Activation *) const
+{
+    return _returnValue;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

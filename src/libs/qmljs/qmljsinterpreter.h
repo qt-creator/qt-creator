@@ -522,17 +522,19 @@ public:
     Function(ValueOwner *valueOwner);
     virtual ~Function();
 
-    void addArgument(const Value *argument);
+    void addArgument(const Value *argument, const QString &name = QString());
     void setReturnValue(const Value *returnValue);
 
     // FunctionValue interface
     virtual const Value *returnValue() const;
     virtual int argumentCount() const;
     virtual const Value *argument(int index) const;
+    virtual QString argumentName(int index) const;
     virtual const Value *invoke(const Activation *activation) const;
 
 private:
     ValueList _arguments;
+    QStringList _argumentNames;
     const Value *_returnValue;
 };
 

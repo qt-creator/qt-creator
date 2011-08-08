@@ -481,21 +481,23 @@ QString ValueOwner::typeId(const Value *value)
     return _typeId(value);
 }
 
-void ValueOwner::addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount)
+Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount)
 {
     Function *function = newFunction();
     function->setReturnValue(result);
     for (int i = 0; i < argumentCount; ++i)
         function->addArgument(undefinedValue()); // ### introduce unknownValue
     object->setMember(name, function);
+    return function;
 }
 
-void ValueOwner::addFunction(ObjectValue *object, const QString &name, int argumentCount)
+Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, int argumentCount)
 {
     Function *function = newFunction();
     for (int i = 0; i < argumentCount; ++i)
         function->addArgument(undefinedValue()); // ### introduce unknownValue
     object->setMember(name, function);
+    return function;
 }
 
 void ValueOwner::initializePrototypes()
@@ -750,6 +752,70 @@ void ValueOwner::initializePrototypes()
     _globalObject->setMember("Date", dateCtor());
     _globalObject->setMember("RegExp", regexpCtor());
 
+    Function *f = 0;
+
+    // XMLHttpRequest
+    ObjectValue *xmlHttpRequest = newObject();
+    xmlHttpRequest->setMember("onreadystatechange", functionPrototype());
+    xmlHttpRequest->setMember("UNSENT", numberValue());
+    xmlHttpRequest->setMember("OPENED", numberValue());
+    xmlHttpRequest->setMember("HEADERS_RECEIVED", numberValue());
+    xmlHttpRequest->setMember("LOADING", numberValue());
+    xmlHttpRequest->setMember("DONE", numberValue());
+    xmlHttpRequest->setMember("readyState", numberValue());
+    f = addFunction(xmlHttpRequest, "open");
+    f->addArgument(stringValue(), "method");
+    f->addArgument(stringValue(), "url");
+    f->addArgument(booleanValue(), "async");
+    f->addArgument(stringValue(), "user");
+    f->addArgument(stringValue(), "password");
+    f = addFunction(xmlHttpRequest, "setRequestHeader");
+    f->addArgument(stringValue(), "header");
+    f->addArgument(stringValue(), "value");
+    f = addFunction(xmlHttpRequest, "send");
+    f->addArgument(undefinedValue(), "data");
+    f = addFunction(xmlHttpRequest, "abort");
+    xmlHttpRequest->setMember("status", numberValue());
+    xmlHttpRequest->setMember("statusText", stringValue());
+    f = addFunction(xmlHttpRequest, "getResponseHeader");
+    f->addArgument(stringValue(), "header");
+    f = addFunction(xmlHttpRequest, "getAllResponseHeaders");
+    xmlHttpRequest->setMember("responseText", stringValue());
+    xmlHttpRequest->setMember("responseXML", undefinedValue());
+
+    f = addFunction(_globalObject, "XMLHttpRequest", xmlHttpRequest);
+    f->setMember("prototype", xmlHttpRequest);
+    xmlHttpRequest->setMember("constructor", f);
+
+    // Database API
+    ObjectValue *db = newObject();
+    f = addFunction(db, "transaction");
+    f->addArgument(functionPrototype(), "callback");
+    f = addFunction(db, "readTransaction");
+    f->addArgument(functionPrototype(), "callback");
+    f->setMember("version", stringValue());
+    f = addFunction(db, "changeVersion");
+    f->addArgument(stringValue(), "oldVersion");
+    f->addArgument(stringValue(), "newVersion");
+    f->addArgument(functionPrototype(), "callback");
+
+    f = addFunction(_globalObject, "openDatabaseSync", db);
+    f->addArgument(stringValue(), "name");
+    f->addArgument(stringValue(), "version");
+    f->addArgument(stringValue(), "displayName");
+    f->addArgument(numberValue(), "estimatedSize");
+    f->addArgument(functionPrototype(), "callback");
+
+    // JSON
+    ObjectValue *json = newObject();
+    f = addFunction(json, "parse", objectPrototype());
+    f->addArgument(stringValue(), "text");
+    f->addArgument(functionPrototype(), "reviver");
+    f = addFunction(json, "stringify", stringValue());
+    f->addArgument(undefinedValue(), "value");
+    f->addArgument(undefinedValue(), "replacer");
+    f->addArgument(undefinedValue(), "space");
+    _globalObject->setMember("JSON", json);
 
     // global Qt object, in alphabetic order
     _qtObject = newObject(/*prototype */ 0);

@@ -139,8 +139,8 @@ public:
 private:
     void initializePrototypes();
 
-    void addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount);
-    void addFunction(ObjectValue *object, const QString &name, int argumentCount);
+    Function *addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount = 0);
+    Function *addFunction(ObjectValue *object, const QString &name, int argumentCount = 0);
 
 private:
     ObjectValue *_objectPrototype;
