@@ -73,7 +73,7 @@ static inline void debugNodeFlags(std::ostream &str, unsigned f)
     if (f & SymbolGroupNode::ComplexDumperOk)
         str << " ComplexDumperOk";
     if (f & SymbolGroupNode::WatchNode)
-        str << " WatchNode";
+QTCREATORBUG-5667        str << " WatchNode";
     str << ' ';
 }
 
@@ -346,110 +346,160 @@ enum PointerFormats // Watch data pointer format requests
 enum DumpEncoding // WatchData encoding of GDBMI values
 {
     DumpEncodingAscii = 0,
-    DumpEncodingBase64 = 1,
-    DumpEncodingBase64_Utf16 = 2,
-    DumpEncodingBase64_Ucs4 = 3,
-    DumpEncodingHex_Latin1 = 6,
-    DumpEncodingHex_Utf16 = 7,
-    DumpEncodingHex_Ucs4_LittleEndian = 8,
-    DumpEncodingHex_Utf8_LittleEndian = 9,
-    DumpEncodingHex_Ucs4_BigEndian = 10,
-    DumpEncodingHex_Utf16_BigEndian = 11,
-    DumpEncodingHex_Utf16_LittleEndian = 12
+    DumpEncodingBase64_Utf16_WithQuotes = 2,
+    DumpEncodingHex_Ucs4_LittleEndian_WithQuotes = 3,
+    DumpEncodingBase64_Utf16 = 4,
+    DumpEncodingHex_Latin1_WithQuotes = 6,
+    DumpEncodingHex_Utf8_LittleEndian_WithQuotes = 9
 };
 
 /* Recode arrays/pointers of char*, wchar_t according to users
- * sepcification. Handles char formats for 'char *', '0x834478 "hallo.."'
- * and 'wchar_t *', '0x834478 "hallo.."'.
- * This is done by retrieving the address and the length (in characters)
+ * specification. Handles char formats for 'char *', '0x834478 "hallo.."'
+ * and 'wchar_t *', '0x834478 "hallo.."', 'wchar_t[56] "hallo"', etc.
+ * This is done by retrieving the address (from the pointer value for
+ * pointers, using passed in-address for arrays) and the length
+ * (in characters excluding \0)
  * of the CDB output, converting it to memory size, fetching the data
- * from memory, zero-terminating and recoding it using the encoding
+ * from memory, and recoding it using the encoding
  * defined in watchutils.cpp.
  * As a special case, if there is no user-defined format and the
- * CDB output contains '?' indicating non-printable characters,
- * switch to latin1 (8bit) such that the watchmodel formatting options trigger. */
+ * CDB output contains '?'/'.' (CDB version?)  indicating non-printable
+ * characters, switch to a suitable type such that the watchmodel
+ * formatting options trigger.
+ * This is split into a check step that returns a struct containing
+ * an allocated buffer with the raw data/size and recommended format
+ * (or 0 if recoding is not applicable) and the actual recoding step.
+ * Step 1) is used by std::string dumpers to potentially reformat
+ * the arrays. */
 
-bool DumpParameters::recode(const std::string &type,
+DumpParameterRecodeResult
+DumpParameters::checkRecode(const std::string &type,
                             const std::string &iname,
+                            const std::wstring &value,
                             const SymbolGroupValueContext &ctx,
-                            std::wstring *value, int *encoding) const
+                            ULONG64 address,
+                            const DumpParameters *dp /* =0 */)
 {
+    enum ReformatType { ReformatNone, ReformatPointer, ReformatArray };
+
+    DumpParameterRecodeResult result;
     // We basically handle char formats for 'char *', '0x834478 "hallo.."'
     // and 'wchar_t *', '0x834478 "hallo.."'
     // Determine address and length from the pointer value output,
     // read the raw memory and recode if that is possible.
-    if (type.empty() || type.at(type.size() - 1) != '*')
-        return false;
-    int newFormat = format(type, iname);
-    if (value->compare(0, 2, L"0x"))
-        return false;
-    const std::wstring::size_type quote1 = value->find(L'"', 2);
-    if (quote1 == std::wstring::npos)
-        return false;
-    // The user did not specify any format, still, there are '?'
-    // (indicating non-printable) in what the debugger prints. In that case,
-    // append a hex dump to the normal output. If there are no '?'-> all happy.
-    if (newFormat < FormatLatin1String) {
-        const bool hasNonPrintable = value->find(L'?', quote1 + 1) != std::wstring::npos;
-        if (!hasNonPrintable)
-            return false; // All happy, no need to re-encode
-        // Pass as on 8-bit such that Watchmodel's reformatting can trigger.
-        newFormat = FormatLatin1String;
+    if (type.empty() || value.empty())
+        return result;
+    const std::wstring::size_type quote2 = value.size() - 1;
+    if (value.at(quote2) != L'"')
+        return result;
+    ReformatType reformatType = ReformatNone;
+    switch (type.at(type.size() - 1)) {
+    case '*':
+        reformatType = ReformatPointer;
+        if (value.compare(0, 2, L"0x"))
+            return result;
+        break;
+    case ']':
+        reformatType = ReformatArray;
+        break;
+    default:
+        return result;
     }
-    const std::wstring::size_type quote2 = value->find(L'"', quote1 + 1);
-    if (quote2 == std::wstring::npos)
-        return false;
-    std::wstring::size_type length = quote2 - quote1 - 1;
+    // Check for a reformattable type (do not trigger for a 'std::string *').
+    if (type.compare(0, 4, "char") == 0
+        || type.compare(0, 13, "unsigned char") == 0) {
+    } else if (type.compare(0, 7, "wchar_t", 0, 7) == 0
+               || type.compare(0, 14, "unsigned short") == 0) {
+        result.isWide = true;
+    } else {
+        return result;
+    }
+    // Empty string?
+    const std::wstring::size_type quote1 = value.find(L'"', 2);
+    if (quote1 == std::wstring::npos || quote2 == quote1)
+        return result;
+    const std::wstring::size_type length = quote2 - quote1 - 1;
     if (!length)
-        return false;
-    // Get address from value
-    ULONG64 address = 0;
-    if (!integerFromWString(value->substr(0, quote1 - 1), &address) || !address)
-        return false;
-    // Get real size if this is for example a wchar_t *.
-    const unsigned elementSize = SymbolGroupValue::sizeOf(SymbolGroupValue::stripPointerType(type).c_str());
-    if (!elementSize)
-        return false;
-    length *= elementSize;
-    // Allocate real length + 8 bytes ('\0') for largest format (Ucs4).
-    // '\0' is not listed in the CDB output.
-    const std::wstring::size_type allocLength = length + 8;
-    unsigned char *buffer = new unsigned char[allocLength];
-    std::fill(buffer, buffer + allocLength, 0);
-    ULONG obtained = 0;
-    if (FAILED(ctx.dataspaces->ReadVirtual(address, buffer, ULONG(length), &obtained))) {
-        delete [] buffer;
-        return false;
+        return result;
+    // Choose format
+    result.recommendedFormat = dp ? dp->format(type, iname) : FormatAuto;
+    // The user did not specify any format, still, there are '?'/'.'
+    // (indicating non-printable) in what the debugger prints.
+    // Reformat in this case. If there are no '?'-> all happy.
+    if (result.recommendedFormat < FormatLatin1String) {
+        const bool hasNonPrintable = value.find(L'?', quote1 + 1) != std::wstring::npos
+                || value.find(L'.', quote1 + 1) != std::wstring::npos;
+        if (!hasNonPrintable)
+            return result; // All happy, no need to re-encode
+        // Pass as on 8-bit such that Watchmodel's reformatting can trigger.
+        result.recommendedFormat = result.isWide ?
+            FormatUtf16String : FormatLatin1String;
     }
-    // Recode raw memory
-    switch (newFormat) {
-    case FormatLatin1String:
-        *value = dataToHexW(buffer, buffer + length + 1); // Latin1 + 0
-        *encoding = DumpEncodingHex_Latin1;
-        break;
-    case FormatUtf8String:
-        *value = dataToHexW(buffer, buffer + length + 1); // UTF8 + 0
-        *encoding = DumpEncodingHex_Utf8_LittleEndian;
-        break;
+    // Get address from value if it is a pointer.
+    if (reformatType == ReformatPointer) {
+        address = 0;
+        if (!integerFromWString(value.substr(0, quote1 - 1), &address) || !address)
+            return result;
+    }
+    // Get real size (excluding 0) if this is for example a wchar_t *.
+    // Make fit to 2/4 character boundaries.
+    const std::string elementType = reformatType == ReformatPointer ?
+        SymbolGroupValue::stripPointerType(type) :
+        SymbolGroupValue::stripArrayType(type);
+    const unsigned elementSize = SymbolGroupValue::sizeOf(elementType.c_str());
+    if (!elementSize)
+        return result;
+    result.size = length * elementSize;
+    switch (result.recommendedFormat) {
     case FormatUtf16String: // Paranoia: make sure buffer is terminated at 2 byte borders
-        if (length % 2) {
-            length &= ~1;
-            buffer[length] = '\0';
-            buffer[length + 1] = '\0';
-        }
-        *value = base64EncodeToWString(buffer, length + 2);
-        *encoding = DumpEncodingBase64_Utf16;
+        if (result.size % 2)
+            result.size &= ~1;
         break;
     case FormatUcs4String: // Paranoia: make sure buffer is terminated at 4 byte borders
-        if (length % 4) {
-            length &= ~3;
-            std::fill(buffer + length, buffer + length + 4, 0);
-        }
-        *value = dataToHexW(buffer, buffer + length + 2); // UTF16 + 0
-        *encoding = DumpEncodingHex_Ucs4_LittleEndian;
+        if (result.size % 4)
+            result.size &= ~3;
         break;
     }
-    delete [] buffer;
+    result.buffer = new unsigned char[result.size];
+    std::fill(result.buffer, result.buffer + result.size, 0);
+    ULONG obtained = 0;
+    if (FAILED(ctx.dataspaces->ReadVirtual(address, result.buffer, ULONG(result.size), &obtained))) {
+        delete [] result.buffer;
+        result = DumpParameterRecodeResult();
+    }
+    return result;
+}
+
+bool DumpParameters::recode(const std::string &type,
+                            const std::string &iname,
+                            const SymbolGroupValueContext &ctx,
+                            ULONG64 address,
+                            std::wstring *value, int *encoding) const
+{
+    const DumpParameterRecodeResult check
+        = checkRecode(type, iname, *value, ctx, address, this);
+    if (!check.buffer)
+        return false;
+    // Recode raw memory
+    switch (check.recommendedFormat) {
+    case FormatLatin1String:
+        *value = dataToHexW(check.buffer, check.buffer + check.size); // Latin1 + 0
+        *encoding = DumpEncodingHex_Latin1_WithQuotes;
+        break;
+    case FormatUtf8String:
+        *value = dataToHexW(check.buffer, check.buffer + check.size); // UTF8 + 0
+        *encoding = DumpEncodingHex_Utf8_LittleEndian_WithQuotes;
+        break;
+    case FormatUtf16String: // Paranoia: make sure buffer is terminated at 2 byte borders
+        *value = base64EncodeToWString(check.buffer, check.size);
+        *encoding = DumpEncodingBase64_Utf16_WithQuotes;
+        break;
+    case FormatUcs4String: // Paranoia: make sure buffer is terminated at 4 byte borders
+        *value = dataToHexW(check.buffer, check.buffer + check.size); // UTF16 + 0
+        *encoding = DumpEncodingHex_Ucs4_LittleEndian_WithQuotes;
+        break;
+    }
+    delete [] check.buffer;
     return true;
 }
 
@@ -994,7 +1044,8 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
 
     if (addr)
         str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec << '"';
-    if (const ULONG s = size())
+    const ULONG s = size();
+    if (s)
         str << ",size=\"" << s << '"';
     const bool uninitialized = flags() & Uninitialized;
     bool valueEditable = !uninitialized;
@@ -1003,7 +1054,7 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     // Shall it be recoded?
     std::wstring value = simpleDumpValue(ctx);
     int encoding = 0;
-    if (dumpParameters.recode(t, aFullIName, ctx, &value, &encoding)) {
+    if (dumpParameters.recode(t, aFullIName, ctx, addr, &value, &encoding)) {
         str << ",valueencoded=\"" << encoding
             << "\",value=\"" << gdbmiWStringFormat(value) <<'"';
     } else { // As is: ASCII or base64?

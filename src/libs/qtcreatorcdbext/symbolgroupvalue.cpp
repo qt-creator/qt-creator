@@ -1394,6 +1394,13 @@ void formatKnownTypeFlags(std::ostream &os, KnownType kt)
         os << " simple_dumper";
 }
 
+static inline DumpParameterRecodeResult
+    checkCharArrayRecode(const SymbolGroupValue &v)
+{
+    return DumpParameters::checkRecode(v.type(), std::string(),
+                                       v.value(), v.context(), v.address());
+}
+
 // Helper struct containing data Address and size/alloc information
 // from Qt's QString/QByteArray.
 struct QtStringAddressData
@@ -1554,9 +1561,15 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
         return false;
     // Qt 4.
     if (qtInfo.version < 5) {
-        // TODO: More sophisticated dumping of binary data?
         if (const SymbolGroupValue data = dV["data"]) {
-            str << data.value();
+            const DumpParameterRecodeResult check =
+                checkCharArrayRecode(data);
+            if (check.buffer) {
+                str << quotedWStringFromCharData(check.buffer, check.size);
+                delete [] check.buffer;
+            } else {
+                str << data.value();
+            }
             return true;
         }
         return false;
@@ -2039,7 +2052,17 @@ static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream 
     const SymbolGroupValue string = bufSize <= reserved ? bx["_Ptr"] : bx["_Buf"];
     if (!string)
         return false;
-    str << string.value();
+    // Potentially re-code char arrays (preferably relying on
+    // CDB to initially format the string array).
+    const DumpParameterRecodeResult recode = checkCharArrayRecode(string);
+    if (recode.buffer) {
+        str << (type == KT_StdString ?
+            quotedWStringFromCharData(recode.buffer, recode.size) :
+            quotedWStringFromWCharData(recode.buffer, recode.size));
+        delete [] recode.buffer;
+    } else {
+        str << string.value();
+    }
     return true;
 }
 

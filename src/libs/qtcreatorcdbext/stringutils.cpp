@@ -206,6 +206,31 @@ inline char toHexDigit(unsigned v)
     return char(v - 10) + 'a';
 }
 
+// Strings from raw data.
+std::wstring quotedWStringFromCharData(const unsigned char *data, size_t size)
+{
+    std::wstring rc;
+    rc.reserve(size + 2);
+    rc.push_back(L'"');
+    const unsigned char *end = data + size;
+    for ( ; data < end; data++)
+        rc.push_back(wchar_t(*data));
+    rc.push_back(L'"');
+    return rc;
+}
+
+std::wstring quotedWStringFromWCharData(const unsigned char *dataIn, size_t sizeIn)
+{
+    std::wstring rc;
+    const wchar_t *data = reinterpret_cast<const wchar_t *>(dataIn);
+    const size_t size = sizeIn / sizeof(wchar_t);
+    rc.reserve(size + 2);
+    rc.push_back(L'"');
+    rc.append(data, data + size);
+    rc.push_back(L'"');
+    return rc;
+}
+
 // String from hex "414A" -> "AJ".
 std::string stringFromHex(const char *p, const char *end)
 {

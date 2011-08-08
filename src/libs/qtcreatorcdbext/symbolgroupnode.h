@@ -49,6 +49,17 @@ class SymbolGroup;
 struct SymbolGroupValueContext;
 class SymbolGroupNode;
 
+// Helper struct used for check results when recoding CDB char pointer output.
+struct DumpParameterRecodeResult
+{
+    DumpParameterRecodeResult() : buffer(0), size(0), recommendedFormat(0),isWide(false) {}
+
+    unsigned char *buffer;
+    size_t size;
+    int recommendedFormat;
+    bool isWide;
+};
+
 struct DumpParameters
 {
     typedef std::map<std::string, int> FormatMap; // type or iname to format
@@ -63,8 +74,17 @@ struct DumpParameters
     // Helper to decode format option arguments.
     static FormatMap decodeFormatArgument(const std::string &f);
 
+
+    static DumpParameterRecodeResult
+        checkRecode(const std::string &type, const std::string &iname,
+                    const std::wstring &value,
+                    const SymbolGroupValueContext &ctx,
+                    ULONG64 address,
+                    const DumpParameters *dp =0);
+
     bool recode(const std::string &type, const std::string &iname,
                 const SymbolGroupValueContext &ctx,
+                ULONG64 address,
                 std::wstring *value, int *encoding) const;
     int format(const std::string &type, const std::string &iname) const;
 

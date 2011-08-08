@@ -178,6 +178,10 @@ std::string wStringToGdbmiString(const std::wstring &w);
 std::string wStringToString(const std::wstring &w);
 std::wstring stringToWString(const std::string &w);
 
+// Strings from raw data.
+std::wstring quotedWStringFromCharData(const unsigned char *data, size_t size);
+std::wstring quotedWStringFromWCharData(const unsigned char *data, size_t size);
+
 // String from hex "414A" -> "AJ".
 std::string stringFromHex(const char *begin, const char *end);
 // Decode hex to a memory area.
