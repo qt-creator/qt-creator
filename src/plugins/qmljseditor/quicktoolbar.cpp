@@ -40,7 +40,6 @@
 #include <qmljs/qmljspropertyreader.h>
 #include <qmljs/qmljsrewriter.h>
 #include <qmljs/qmljsindenter.h>
-#include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsscopebuilder.h>
@@ -65,7 +64,7 @@ static inline QString textAt(const Document* doc,
     return doc->source().mid(from.offset, to.end() - from.begin());
 }
 
-static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *node, LookupContext::Ptr lookupContext)
+static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *node, const Interpreter::ScopeChain &scopeChain)
 {
     UiObjectInitializer *initializer = 0;
     if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(node))
@@ -78,7 +77,7 @@ static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *no
                 if (scriptBinding->qualifiedId
                         && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
                         && ! scriptBinding->qualifiedId->next) {
-                    Evaluate evaluator(&lookupContext->scopeChain());
+                    Evaluate evaluator(&scopeChain);
                     const Interpreter::Value *targetValue = evaluator(scriptBinding->statement);
                     if (const Interpreter::ObjectValue *targetObject = Interpreter::value_cast<const Interpreter::ObjectValue *>(targetValue)) {
                         return targetObject;
@@ -132,7 +131,7 @@ QuickToolBar::~QuickToolBar()
         m_widget.clear();
 }
 
-void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr document, LookupContext::Ptr lookupContext, AST::Node *node, bool update, bool force)
+void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr document, const Interpreter::ScopeChain *scopeChain, AST::Node *node, bool update, bool force)
 {
     if (!QuickToolBarSettings::get().enableContextPane && !force && !update) {
         contextWidget()->hide();
@@ -151,20 +150,20 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
 
     bool isPropertyChanges = false;
 
-    if (!lookupContext.isNull() && scopeObject) {
+    if (scopeChain && scopeObject) {
         m_prototypes.clear();
         foreach (const Interpreter::ObjectValue *object,
-                 Interpreter::PrototypeIterator(scopeObject, lookupContext->context()).all()) {
+                 Interpreter::PrototypeIterator(scopeObject, scopeChain->context()).all()) {
             m_prototypes.append(object->className());
         }
 
         if (m_prototypes.contains("PropertyChanges")) {
             isPropertyChanges = true;
-            const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, lookupContext);
+            const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, *scopeChain);
             m_prototypes.clear();
             if (targetObject) {
                 foreach (const Interpreter::ObjectValue *object,
-                         Interpreter::PrototypeIterator(targetObject, lookupContext->context()).all()) {
+                         Interpreter::PrototypeIterator(targetObject, scopeChain->context()).all()) {
                     m_prototypes.append(object->className());
                 }
             }
@@ -196,7 +195,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
             end = objectBinding->lastSourceLocation().end();
         }
 
-        if (lookupContext.isNull()) {
+        if (!scopeChain) {
             if (name != m_oldType)
                 m_prototypes.clear();
         }

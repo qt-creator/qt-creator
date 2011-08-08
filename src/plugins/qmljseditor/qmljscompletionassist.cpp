@@ -49,7 +49,6 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsscopechain.h>
-#include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscompletioncontextfinder.h>
@@ -421,9 +420,8 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
         isQmlFile = true;
 
     const QList<AST::Node *> path = semanticInfo.rangePath(m_interface->position());
-    LookupContext::Ptr lookupContext = semanticInfo.lookupContext(path);
-    const Interpreter::ContextPtr &context = lookupContext->context();
-    const Interpreter::ScopeChain &scopeChain = lookupContext->scopeChain();
+    const Interpreter::ContextPtr &context = semanticInfo.context;
+    const Interpreter::ScopeChain &scopeChain = semanticInfo.scopeChain(path);
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -615,9 +613,9 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
 
         if (expression != 0 && ! isLiteral(expression)) {
             // Evaluate the expression under cursor.
-            Interpreter::ValueOwner *interp = lookupContext->valueOwner();
+            Interpreter::ValueOwner *interp = context->valueOwner();
             const Interpreter::Value *value =
-                    interp->convertToObject(lookupContext->evaluate(expression));
+                    interp->convertToObject(scopeChain.evaluate(expression));
             //qDebug() << "type:" << interp->typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion

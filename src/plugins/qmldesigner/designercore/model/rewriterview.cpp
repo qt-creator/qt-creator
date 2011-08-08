@@ -624,9 +624,9 @@ bool RewriterView::renameId(const QString& oldId, const QString& newId)
     return false;
 }
 
-QmlJS::LookupContext *RewriterView::lookupContext() const
+const QmlJS::Interpreter::ScopeChain &RewriterView::scopeChain() const
 {
-    return textToModelMerger()->lookupContext();
+    return textToModelMerger()->scopeChain();
 }
 
 QmlJS::Document *RewriterView::document() const

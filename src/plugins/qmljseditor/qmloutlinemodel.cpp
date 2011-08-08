@@ -35,7 +35,7 @@
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljscontext.h>
-#include <qmljs/qmljslookupcontext.h>
+#include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsrewriter.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
@@ -72,10 +72,10 @@ QVariant QmlOutlineItem::data(int role) const
             return QVariant();
 
         QList<AST::Node *> astPath = m_outlineModel->m_semanticInfo.rangePath(location.begin());
-        LookupContext::Ptr lookupContext = m_outlineModel->m_semanticInfo.lookupContext(astPath);
-        const Interpreter::Value *value = lookupContext->evaluate(uiQualifiedId);
+        Interpreter::ScopeChain scopeChain = m_outlineModel->m_semanticInfo.scopeChain(astPath);
+        const Interpreter::Value *value = scopeChain.evaluate(uiQualifiedId);
 
-        return prettyPrint(value, lookupContext->context());
+        return prettyPrint(value, scopeChain.context());
     }
 
     if (role == Qt::DecorationRole) {

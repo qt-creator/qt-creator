@@ -51,6 +51,9 @@ namespace QmlJS {
 class DiagnosticMessage;
 class LookupContext;
 class Document;
+namespace Interpreter {
+class ScopeChain;
+}
 }
 
 
@@ -186,7 +189,7 @@ public:
 
     bool renameId(const QString& oldId, const QString& newId);
 
-    QmlJS::LookupContext *lookupContext() const;
+    const QmlJS::Interpreter::ScopeChain &scopeChain() const;
     QmlJS::Document *document() const;
 
     QString convertTypeToImportAlias(const QString &type) const;

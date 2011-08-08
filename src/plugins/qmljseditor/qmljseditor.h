@@ -37,7 +37,7 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscanner.h>
-#include <qmljs/qmljscontext.h>
+#include <qmljs/qmljsscopechain.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 
@@ -117,12 +117,13 @@ public:
     // Returns the list of nodes that enclose the given position.
     QList<QmlJS::AST::Node *> rangePath(int cursorPosition) const;
 
-    // Returns a context for the given path
-    QSharedPointer<QmlJS::LookupContext> lookupContext(const QList<QmlJS::AST::Node *> &path = QList<QmlJS::AST::Node *>()) const;
+    // Returns a scopeChain for the given path
+    QmlJS::Interpreter::ScopeChain scopeChain(const QList<QmlJS::AST::Node *> &path = QList<QmlJS::AST::Node *>()) const;
 
 public: // attributes
     QmlJS::Document::Ptr document;
     QmlJS::Snapshot snapshot;
+    QmlJS::Interpreter::ContextPtr context;
     QList<Range> ranges;
     QHash<QString, QList<QmlJS::AST::SourceLocation> > idLocations;
     QList<Declaration> declarations;
@@ -131,7 +132,7 @@ public: // attributes
     QList<QmlJS::DiagnosticMessage> semanticMessages;
 
 private:
-    QmlJS::Interpreter::ContextPtr m_context;
+    QSharedPointer<const QmlJS::Interpreter::ScopeChain> m_rootScopeChain;
 
     friend class Internal::SemanticHighlighter;
 };

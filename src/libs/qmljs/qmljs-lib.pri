@@ -18,7 +18,6 @@ HEADERS += \
     $$PWD/qmljslink.h \
     $$PWD/qmljscheck.h \
     $$PWD/qmljsscopebuilder.h \
-    $$PWD/qmljslookupcontext.h \
     $$PWD/qmljslineinfo.h \
     $$PWD/qmljscompletioncontextfinder.h \
     $$PWD/qmljsmodelmanagerinterface.h \
@@ -42,7 +41,6 @@ SOURCES += \
     $$PWD/qmljslink.cpp \
     $$PWD/qmljscheck.cpp \
     $$PWD/qmljsscopebuilder.cpp \
-    $$PWD/qmljslookupcontext.cpp \
     $$PWD/qmljslineinfo.cpp \
     $$PWD/qmljscompletioncontextfinder.cpp \
     $$PWD/qmljsmodelmanagerinterface.cpp \

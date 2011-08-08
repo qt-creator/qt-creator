@@ -40,7 +40,6 @@
 #include <QtCore/QFutureWatcher>
 #include <utils/filesearch.h>
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljslookupcontext.h>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 

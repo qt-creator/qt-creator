@@ -46,10 +46,10 @@
 #include <QDeclarativeEngine>
 #include <QDeclarativeComponent>
 
-#include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
+#include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <languageutils/fakemetaobject.h>
 #include <private/qdeclarativemetatype_p.h>
@@ -135,7 +135,7 @@ static inline bool isValueType(const QString &type)
     return objectValuesList.contains(type);
 }
 
-const Interpreter::QmlObjectValue *findQmlPrototype(const Interpreter::ObjectValue *ov, LookupContext *context)
+const Interpreter::QmlObjectValue *findQmlPrototype(const Interpreter::ObjectValue *ov, const Interpreter::ContextPtr &context)
 {
     if (!ov)
         return 0;
@@ -144,15 +144,15 @@ const Interpreter::QmlObjectValue *findQmlPrototype(const Interpreter::ObjectVal
     if (qmlValue)
         return qmlValue;
 
-    return findQmlPrototype(ov->prototype(context->context()), context);
+    return findQmlPrototype(ov->prototype(context), context);
 }
 
-QStringList prototypes(const Interpreter::ObjectValue *ov, LookupContext::Ptr context, bool versions = false)
+QStringList prototypes(const Interpreter::ObjectValue *ov, const Interpreter::ContextPtr &context, bool versions = false)
 {
     QStringList list;
     if (!ov)
         return list;
-    ov = ov->prototype(context->context());
+    ov = ov->prototype(context);
     while (ov) {
         const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ov);
         if (qmlValue) {
@@ -170,14 +170,14 @@ QStringList prototypes(const Interpreter::ObjectValue *ov, LookupContext::Ptr co
                 list << ov->className();
             }
         }
-        ov = ov->prototype(context->context());
+        ov = ov->prototype(context);
     }
     return list;
 }
 
-QList<PropertyInfo> getObjectTypes(const Interpreter::ObjectValue *ov, LookupContext *context, bool local = false);
+QList<PropertyInfo> getObjectTypes(const Interpreter::ObjectValue *ov, const Interpreter::ContextPtr &context, bool local = false);
 
-QList<PropertyInfo> getQmlTypes(const Interpreter::QmlObjectValue *ov, LookupContext *context, bool local = false)
+QList<PropertyInfo> getQmlTypes(const Interpreter::QmlObjectValue *ov, const Interpreter::ContextPtr &context, bool local = false)
 {
     QList<PropertyInfo> list;
     if (!ov)
@@ -192,7 +192,7 @@ QList<PropertyInfo> getQmlTypes(const Interpreter::QmlObjectValue *ov, LookupCon
         QString name = property.first;
         if (!ov->isWritable(name) && ov->isPointer(name)) {
             //dot property
-            const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ov->lookupMember(name, context->context()));
+            const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ov->lookupMember(name, context));
             if (qmlValue) {
                 QList<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
@@ -204,7 +204,7 @@ QList<PropertyInfo> getQmlTypes(const Interpreter::QmlObjectValue *ov, LookupCon
             }
         }
         if (isValueType(ov->propertyType(name))) {
-            const Interpreter::ObjectValue *dotObjectValue = dynamic_cast<const Interpreter::ObjectValue *>(ov->lookupMember(name, context->context()));
+            const Interpreter::ObjectValue *dotObjectValue = dynamic_cast<const Interpreter::ObjectValue *>(ov->lookupMember(name, context));
             if (dotObjectValue) {
                 QList<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
@@ -222,7 +222,7 @@ QList<PropertyInfo> getQmlTypes(const Interpreter::QmlObjectValue *ov, LookupCon
     }
 
     if (!local) {
-        const Interpreter::ObjectValue* prototype = ov->prototype(context->context());
+        const Interpreter::ObjectValue* prototype = ov->prototype(context);
 
         const Interpreter::QmlObjectValue * qmlObjectValue = dynamic_cast<const Interpreter::QmlObjectValue *>(prototype);
 
@@ -236,7 +236,7 @@ QList<PropertyInfo> getQmlTypes(const Interpreter::QmlObjectValue *ov, LookupCon
     return list;
 }
 
-QList<PropertyInfo> getTypes(const Interpreter::ObjectValue *ov, LookupContext *context, bool local = false)
+QList<PropertyInfo> getTypes(const Interpreter::ObjectValue *ov, const Interpreter::ContextPtr &context, bool local = false)
 {
     QList<PropertyInfo> list;
 
@@ -251,7 +251,7 @@ QList<PropertyInfo> getTypes(const Interpreter::ObjectValue *ov, LookupContext *
     return list;
 }
 
-QList<PropertyInfo> getObjectTypes(const Interpreter::ObjectValue *ov, LookupContext *context, bool local)
+QList<PropertyInfo> getObjectTypes(const Interpreter::ObjectValue *ov, const Interpreter::ContextPtr &context, bool local)
 {
     QList<PropertyInfo> list;
     if (!ov)
@@ -262,7 +262,7 @@ QList<PropertyInfo> getObjectTypes(const Interpreter::ObjectValue *ov, LookupCon
     list << processor.properties();
 
     if (!local) {
-        const Interpreter::ObjectValue* prototype = ov->prototype(context->context());
+        const Interpreter::ObjectValue* prototype = ov->prototype(context);
 
         const Interpreter::QmlObjectValue * qmlObjectValue = dynamic_cast<const Interpreter::QmlObjectValue *>(prototype);
 
@@ -381,7 +381,7 @@ private:
     QSet<QString> m_prototypeCacheNegatives;
 
     //storing the pointer would not be save
-    QmlJS::LookupContext *lookupContext() const;
+    QmlJS::Interpreter::ContextPtr context() const;
     QmlJS::Document *document() const;
 
     QPointer<Model> m_model;
@@ -423,11 +423,11 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
                                         m_minorVersion(min), m_isValid(false), m_isComponent(false),
                                         m_model(model)
 {
-    if (lookupContext()) {
+    if (context()) {
         const Interpreter::QmlObjectValue *objectValue = getQmlObjectValue();
         if (objectValue) {
-            setupPropertyInfo(getTypes(objectValue, lookupContext()));
-            setupLocalPropertyInfo(getTypes(objectValue, lookupContext(), true));
+            setupPropertyInfo(getTypes(objectValue, context()));
+            setupLocalPropertyInfo(getTypes(objectValue, context(), true));
             m_defaultPropertyName = objectValue->defaultPropertyName();
             setupPrototypes();
             m_isValid = true;
@@ -442,9 +442,9 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
                 } else {
                     m_isComponent = true;
                 }
-                setupPropertyInfo(getTypes(objectValue, lookupContext()));
-                setupLocalPropertyInfo(getTypes(objectValue, lookupContext(), true));
-                m_defaultPropertyName = lookupContext()->context()->defaultPropertyName(objectValue);
+                setupPropertyInfo(getTypes(objectValue, context()));
+                setupLocalPropertyInfo(getTypes(objectValue, context(), true));
+                m_defaultPropertyName = context()->defaultPropertyName(objectValue);
                 setupPrototypes();
                 m_isValid = true;
             }
@@ -466,7 +466,7 @@ static inline QString getUrlFromType(const QString& typeName)
 
 const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue() const
 {
-    QmlJS::Interpreter::QmlObjectValue * value = lookupContext()->valueOwner()->cppQmlTypes().typeByQualifiedName(lookupName());
+    QmlJS::Interpreter::QmlObjectValue * value = context()->valueOwner()->cppQmlTypes().typeByQualifiedName(lookupName());
     if (value)
         return value;
 
@@ -490,14 +490,12 @@ const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue
 
     LanguageUtils::ComponentVersion version(9999, 9999);
     //get the correct version
-    Document::Ptr doc = lookupContext()->document();
-    const Interpreter::Context *context = lookupContext()->context().data();
-    Interpreter::ImportInfo importInfo = context->imports(doc.data())->info(fullQualifiedImportAliasType(), context);
+    Interpreter::ImportInfo importInfo = context()->imports(document())->info(fullQualifiedImportAliasType(), context().data());
 
     if (importInfo.isValid())
         version = importInfo.version();
 
-    QList<Interpreter::QmlObjectValue *> qmlObjectValues = lookupContext()->valueOwner()->cppQmlTypes().typesForImport(package, version);
+    QList<Interpreter::QmlObjectValue *> qmlObjectValues = context()->valueOwner()->cppQmlTypes().typesForImport(package, version);
     const Interpreter::QmlObjectValue *qmlValue = 0;
     foreach (Interpreter::QmlObjectValue *value, qmlObjectValues) {
         if (value->className() == type)
@@ -525,15 +523,15 @@ const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue
 
 const QmlJS::Interpreter::ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
 {
-    return lookupContext()->context()->lookupType(document(), lookupNameComponent());
+    return context()->lookupType(document(), lookupNameComponent());
 }
 
-QmlJS::LookupContext *NodeMetaInfoPrivate::lookupContext() const
+QmlJS::Interpreter::ContextPtr NodeMetaInfoPrivate::context() const
 {
     if (m_model && m_model->rewriterView()) {
-        return m_model->rewriterView()->lookupContext();
+        return m_model->rewriterView()->scopeChain().context();
     }
-    return 0;
+    return QmlJS::Interpreter::ContextPtr(0);
 }
 
 QmlJS::Document *NodeMetaInfoPrivate::document() const
@@ -670,7 +668,7 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const QString &propertyName) const
     }
 
     QList<const Interpreter::ObjectValue *> objects;
-    objects = Interpreter::PrototypeIterator(getNearestQmlObjectValue(), lookupContext()->context()).all();
+    objects = Interpreter::PrototypeIterator(getNearestQmlObjectValue(), context()).all();
 
     //We have to run the prototype chain
     foreach (const Interpreter::ObjectValue *ov, objects) {
@@ -706,7 +704,7 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const QString &propertyName) cons
     }
 
     QList<const Interpreter::ObjectValue *> objects;
-    objects = Interpreter::PrototypeIterator(getNearestQmlObjectValue(), lookupContext()->context()).all();
+    objects = Interpreter::PrototypeIterator(getNearestQmlObjectValue(), context()).all();
 
     //We have to run the prototype chain
     foreach (const Interpreter::ObjectValue *ov, objects) {
@@ -849,7 +847,7 @@ QStringList NodeMetaInfoPrivate::lookupNameComponent() const
 
 bool NodeMetaInfoPrivate::isValid() const
 {
-    return m_isValid && lookupContext() && document();
+    return m_isValid && context() && document();
 }
 
 QString NodeMetaInfoPrivate::propertyType(const QString &propertyName) const
@@ -863,9 +861,9 @@ void NodeMetaInfoPrivate::setupPrototypes()
 {
     QList<const Interpreter::ObjectValue *> objects;
     if (m_isComponent)
-        objects = Interpreter::PrototypeIterator(getObjectValue(), lookupContext()->context()).all();
+        objects = Interpreter::PrototypeIterator(getObjectValue(), context()).all();
     else
-        objects = Interpreter::PrototypeIterator(getQmlObjectValue(), lookupContext()->context()).all();
+        objects = Interpreter::PrototypeIterator(getQmlObjectValue(), context()).all();
     foreach (const Interpreter::ObjectValue *ov, objects) {
         TypeDescription description;
         description.className = ov->className();
@@ -878,7 +876,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
                 description.className = qmlValue->packageName() + '.' + description.className;
             m_prototypes.append(description);
         } else {
-            if (lookupContext()->context()->lookupType(document(), QStringList() << ov->className()))
+            if (context()->lookupType(document(), QStringList() << ov->className()))
                 m_prototypes.append(description);
         }
     }
@@ -893,7 +891,7 @@ QList<TypeDescription> NodeMetaInfoPrivate::prototypes() const
 const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getNearestQmlObjectValue() const
 {
     if (m_isComponent)
-        return findQmlPrototype(getObjectValue(), lookupContext());
+        return findQmlPrototype(getObjectValue(), context());
     return getQmlObjectValue();
 }
 

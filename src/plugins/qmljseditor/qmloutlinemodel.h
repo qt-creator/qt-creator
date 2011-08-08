@@ -37,7 +37,6 @@
 #include <utils/changeset.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicons.h>
-#include <qmljs/qmljslookupcontext.h>
 
 #include <QtGui/QStandardItemModel>
 

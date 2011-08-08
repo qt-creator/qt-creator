@@ -32,6 +32,7 @@
 
 #include "qmljsscopechain.h"
 #include "qmljsbind.h"
+#include "qmljsevaluate.h"
 
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
@@ -99,6 +100,12 @@ const Value * ScopeChain::lookup(const QString &name, const ObjectValue **foundI
     if (foundInScope)
         *foundInScope = 0;
     return m_context->valueOwner()->undefinedValue();
+}
+
+const Value *ScopeChain::evaluate(AST::Node *node) const
+{
+    Evaluate evaluator(this);
+    return evaluator(node);
 }
 
 const ObjectValue *ScopeChain::globalScope() const

@@ -340,7 +340,6 @@ public:
         , m_scopeChain(doc, m_context)
         , m_scopeBuilder(&m_scopeChain)
     {
-        m_lookupContext = LookupContext::create(doc, m_context, QList<AST::Node*>());
     }
 
     ~ReadingContext()
@@ -384,7 +383,7 @@ public:
             majorVersion = ComponentVersion::NoVersion;
             minorVersion = ComponentVersion::NoVersion;
 
-            const Interpreter::Imports *imports = m_lookupContext->context()->imports(m_lookupContext->document().data());
+            const Interpreter::Imports *imports = m_context->imports(m_doc.data());
             Interpreter::ImportInfo importInfo = imports->info(fullTypeName, m_context.data());
             if (importInfo.isValid() && importInfo.type() == Interpreter::ImportInfo::LibraryImport) {
                 QString name = importInfo.name().replace("\\", ".");
@@ -621,8 +620,8 @@ public:
     }
 
 
-    LookupContext::Ptr lookupContext() const
-    { return m_lookupContext; }
+    const Interpreter::ScopeChain &scopeChain() const
+    { return m_scopeChain; }
 
     QList<DiagnosticMessage> diagnosticLinkMessages() const
     { return m_diagnosticLinkMessages; }
@@ -633,7 +632,6 @@ private:
     Link m_link;
     QList<DiagnosticMessage> m_diagnosticLinkMessages;
     Interpreter::ContextPtr m_context;
-    LookupContext::Ptr m_lookupContext;
     Interpreter::ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
 };
@@ -766,7 +764,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
         snapshot.insert(doc);
         ReadingContext ctxt(snapshot, doc, importPaths);
-        m_lookupContext = ctxt.lookupContext();
+        m_scopeChain = QSharedPointer<const Interpreter::ScopeChain>(
+                    new Interpreter::ScopeChain(ctxt.scopeChain()));
         m_document = doc;
 
         QList<RewriterView::Error> errors;
@@ -783,7 +782,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
 
         if (view()->checkSemanticErrors()) {
-            Check check(doc, m_lookupContext->context());
+            Check check(doc, m_scopeChain->context());
             check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
             foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check()) {
                 if (diagnosticMessage.isError())

@@ -46,8 +46,8 @@
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicontextpane.h>
-#include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
@@ -547,14 +547,17 @@ QList<AST::Node *> SemanticInfo::rangePath(int cursorPosition) const
     return path;
 }
 
-LookupContext::Ptr SemanticInfo::lookupContext(const QList<QmlJS::AST::Node *> &path) const
+Interpreter::ScopeChain SemanticInfo::scopeChain(const QList<QmlJS::AST::Node *> &path) const
 {
-    Q_ASSERT(! m_context.isNull());
+    Q_ASSERT(m_rootScopeChain);
 
-    if (m_context.isNull())
-        return LookupContext::create(document, snapshot, path);
+    if (path.isEmpty())
+        return *m_rootScopeChain;
 
-    return LookupContext::create(document, m_context, path);
+    Interpreter::ScopeChain scope = *m_rootScopeChain;
+    ScopeBuilder builder(&scope);
+    builder.push(path);
+    return scope;
 }
 
 static bool importContainsCursor(UiImport *importAst, unsigned cursorPosition)
@@ -602,7 +605,7 @@ AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
 
 bool SemanticInfo::isValid() const
 {
-    if (document && m_context)
+    if (document && context && m_rootScopeChain)
         return true;
 
     return false;
@@ -924,7 +927,7 @@ void QmlJSTextEditorWidget::updateCursorPositionNow()
         Node *oldNode = m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (oldNode != newNode && m_oldCursorPosition != -1)
-            m_contextPane->apply(editor(), semanticInfo().document, LookupContext::Ptr(),newNode, false);
+            m_contextPane->apply(editor(), semanticInfo().document, 0, newNode, false);
         if (m_contextPane->isAvailable(editor(), semanticInfo().document, newNode) &&
             !m_contextPane->widget()->isVisible()) {
             QList<TextEditor::RefactorMarker> markers;
@@ -1009,19 +1012,17 @@ class SelectedElement: protected Visitor
     unsigned m_cursorPositionStart;
     unsigned m_cursorPositionEnd;
     QList<UiObjectMember *> m_selectedMembers;
-    LookupContext::Ptr m_lookupContext;
 
 public:
     SelectedElement()
         : m_cursorPositionStart(0), m_cursorPositionEnd(0) {}
 
-    QList<UiObjectMember *> operator()(LookupContext::Ptr lookupContext, unsigned startPosition, unsigned endPosition)
+    QList<UiObjectMember *> operator()(const Document::Ptr &doc, unsigned startPosition, unsigned endPosition)
     {
-        m_lookupContext = lookupContext;
         m_cursorPositionStart = startPosition;
         m_cursorPositionEnd = endPosition;
         m_selectedMembers.clear();
-        Node::accept(lookupContext->document()->qmlProgram(), this);
+        Node::accept(doc->qmlProgram(), this);
         return m_selectedMembers;
     }
 
@@ -1135,7 +1136,7 @@ void QmlJSTextEditorWidget::setSelectedElements()
 
     if (m_semanticInfo.isValid()) {
         SelectedElement selectedMembers;
-        QList<UiObjectMember *> members = selectedMembers(m_semanticInfo.lookupContext(),
+        QList<UiObjectMember *> members = selectedMembers(m_semanticInfo.document,
                                                           startPos, endPos);
         if (!members.isEmpty()) {
             foreach(UiObjectMember *m, members) {
@@ -1259,8 +1260,8 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
         return Link();
     }
 
-    LookupContext::Ptr lookupContext = semanticInfo.lookupContext(semanticInfo.rangePath(cursorPosition));
-    Evaluate evaluator(&lookupContext->scopeChain());
+    const Interpreter::ScopeChain scopeChain = semanticInfo.scopeChain(semanticInfo.rangePath(cursorPosition));
+    Evaluate evaluator(&scopeChain);
     const Interpreter::Value *value = evaluator.reference(node);
 
     QString fileName;
@@ -1316,7 +1317,10 @@ void QmlJSTextEditorWidget::showContextPane()
 {
     if (m_contextPane && m_semanticInfo.isValid()) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
-        m_contextPane->apply(editor(), m_semanticInfo.document, m_semanticInfo.lookupContext(), newNode, false, true);
+        Interpreter::ScopeChain scopeChain = m_semanticInfo.scopeChain(m_semanticInfo.rangePath(position()));
+        m_contextPane->apply(editor(), m_semanticInfo.document,
+                             &scopeChain,
+                             newNode, false, true);
         m_oldCursorPosition = position();
         QList<TextEditor::RefactorMarker> markers;
         setRefactorMarkers(markers);
@@ -1412,10 +1416,7 @@ void QmlJSTextEditorWidget::wheelEvent(QWheelEvent *event)
     BaseTextEditorWidget::wheelEvent(event);
 
     if (visible) {
-        LookupContext::Ptr lookupContext;
-        if (m_semanticInfo.isValid())
-            lookupContext = m_semanticInfo.lookupContext();
-        m_contextPane->apply(editor(), semanticInfo().document, QmlJS::LookupContext::Ptr(), m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition), false, true);
+        m_contextPane->apply(editor(), semanticInfo().document, 0, m_semanticInfo.declaringMemberNoProperties(m_oldCursorPosition), false, true);
     }
 }
 
@@ -1486,7 +1487,7 @@ void QmlJSTextEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
-            m_contextPane->apply(editor(), semanticInfo.document, LookupContext::Ptr(), newNode, true);
+            m_contextPane->apply(editor(), semanticInfo.document, 0, newNode, true);
             m_cursorPositionTimer->start(); //update text marker
         }
     }
@@ -1539,7 +1540,7 @@ bool QmlJSTextEditorWidget::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
     if (b) {
-        m_contextPane->apply(editor(), semanticInfo().document, LookupContext::Ptr(), 0, false);
+        m_contextPane->apply(editor(), semanticInfo().document, 0, 0, false);
     }
     return b;
 }
