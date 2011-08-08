@@ -156,8 +156,8 @@ public:
     virtual ~DifferenceHandler()
     {}
 
-    virtual void modelMissesImport(const Import &import) = 0;
-    virtual void importAbsentInQMl(const Import &import) = 0;
+    virtual void modelMissesImport(const QmlDesigner::Import &import) = 0;
+    virtual void importAbsentInQMl(const QmlDesigner::Import &import) = 0;
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty,
                                           const QString &javascript,
                                           const QString &astType) = 0;
@@ -203,8 +203,8 @@ public:
     ~ModelValidator()
     {}
 
-    virtual void modelMissesImport(const Import &import);
-    virtual void importAbsentInQMl(const Import &import);
+    virtual void modelMissesImport(const QmlDesigner::Import &import);
+    virtual void importAbsentInQMl(const QmlDesigner::Import &import);
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty,
                                           const QString &javascript,
                                           const QString &astType);
@@ -247,8 +247,8 @@ public:
     ~ModelAmender()
     {}
 
-    virtual void modelMissesImport(const Import &import);
-    virtual void importAbsentInQMl(const Import &import);
+    virtual void modelMissesImport(const QmlDesigner::Import &import);
+    virtual void importAbsentInQMl(const QmlDesigner::Import &import);
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty,
                                           const QString &javascript,
                                           const QString &astType);

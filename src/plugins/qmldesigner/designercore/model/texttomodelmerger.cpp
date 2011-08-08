@@ -1270,13 +1270,13 @@ QStringList TextToModelMerger::syncGroupedProperties(ModelNode &modelNode,
     return props;
 }
 
-void ModelValidator::modelMissesImport(const Import &import)
+void ModelValidator::modelMissesImport(const QmlDesigner::Import &import)
 {
     Q_UNUSED(import)
     Q_ASSERT(m_merger->view()->model()->imports().contains(import));
 }
 
-void ModelValidator::importAbsentInQMl(const Import &import)
+void ModelValidator::importAbsentInQMl(const QmlDesigner::Import &import)
 {
     Q_UNUSED(import)
     Q_ASSERT(! m_merger->view()->model()->imports().contains(import));
@@ -1394,17 +1394,18 @@ void ModelValidator::propertyAbsentFromQml(AbstractProperty &modelProperty)
 void ModelValidator::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 {
     Q_UNUSED(modelNode)
+    Q_UNUSED(qmlId)
 
     Q_ASSERT(modelNode.id() == qmlId);
     Q_ASSERT(0);
 }
 
-void ModelAmender::modelMissesImport(const Import &import)
+void ModelAmender::modelMissesImport(const QmlDesigner::Import &import)
 {
-    m_merger->view()->model()->changeImports(QList<Import>() << import, QList<Import>());
+    m_merger->view()->model()->changeImports(QList<QmlDesigner::Import>() << import, QList<QmlDesigner::Import>());
 }
 
-void ModelAmender::importAbsentInQMl(const Import &import)
+void ModelAmender::importAbsentInQMl(const QmlDesigner::Import &import)
 {
     m_merger->view()->model()->changeImports(QList<Import>(), QList<Import>() << import);
 }
