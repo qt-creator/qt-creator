@@ -616,7 +616,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             Interpreter::ValueOwner *interp = lookupContext->valueOwner();
             const Interpreter::Value *value =
                     interp->convertToObject(lookupContext->evaluate(expression));
-            //qDebug() << "type:" << interp.typeId(value);
+            //qDebug() << "type:" << interp->typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 EnumerateProperties enumerateProperties(context);

@@ -53,6 +53,11 @@ Evaluate::~Evaluate()
 
 const Interpreter::Value *Evaluate::operator()(AST::Node *ast)
 {
+    return value(ast);
+}
+
+const Interpreter::Value *Evaluate::value(AST::Node *ast)
+{
     const Value *result = reference(ast);
 
     if (const Reference *ref = value_cast<const Reference *>(result))
@@ -304,7 +309,7 @@ bool Evaluate::visit(AST::FieldMemberExpression *ast)
     if (! ast->name)
         return false;
 
-    if (const Interpreter::Value *base = _valueOwner->convertToObject(reference(ast->base))) {
+    if (const Interpreter::Value *base = _valueOwner->convertToObject(value(ast->base))) {
         if (const Interpreter::ObjectValue *obj = base->asObjectValue()) {
             _result = obj->lookupMember(ast->name->asString(), _context);
         }
@@ -315,7 +320,7 @@ bool Evaluate::visit(AST::FieldMemberExpression *ast)
 
 bool Evaluate::visit(AST::NewMemberExpression *ast)
 {
-    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(reference(ast->base))) {
+    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(value(ast->base))) {
         _result = ctor->construct();
     }
     return false;
@@ -323,7 +328,7 @@ bool Evaluate::visit(AST::NewMemberExpression *ast)
 
 bool Evaluate::visit(AST::NewExpression *ast)
 {
-    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(reference(ast->expression))) {
+    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(value(ast->expression))) {
         _result = ctor->construct();
     }
     return false;
@@ -331,7 +336,7 @@ bool Evaluate::visit(AST::NewExpression *ast)
 
 bool Evaluate::visit(AST::CallExpression *ast)
 {
-    if (const Interpreter::Value *base = reference(ast->base)) {
+    if (const Interpreter::Value *base = value(ast->base)) {
         if (const Interpreter::FunctionValue *obj = base->asFunctionValue()) {
             _result = obj->returnValue();
         }

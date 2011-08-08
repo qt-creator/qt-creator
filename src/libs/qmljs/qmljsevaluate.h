@@ -52,8 +52,11 @@ public:
     Evaluate(const Interpreter::Context *context);
     virtual ~Evaluate();
 
-    // evaluate ast in the given context
+    // same as value()
     const Interpreter::Value *operator()(AST::Node *ast);
+
+    // evaluate ast in the given context, resolving references
+    const Interpreter::Value *value(AST::Node *ast);
 
     // evaluate, but stop when encountering a Reference
     const Interpreter::Value *reference(AST::Node *ast);
