@@ -556,24 +556,24 @@ QString decodeData(const QByteArray &ba, int encoding)
         case Base64Encoded8Bit: { // 5, without quotes (see 1)
             return quoteUnprintableLatin1(QByteArray::fromBase64(ba));
         }
-        case Hex2EncodedLatin1: { // 6, %02x encoded 8 bit Latin1 data
+        case Hex2EncodedLatin1WithQuotes: { // 6, %02x encoded 8 bit Latin1 data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             return doubleQuote + QString::fromLatin1(decodedBa) + doubleQuote;
         }
-        case Hex4EncodedLittleEndian: { // 7, %04x encoded 16 bit data
+        case Hex4EncodedLittleEndianWithQuotes: { // 7, %04x encoded 16 bit data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             return doubleQuote + QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2) + doubleQuote;
         }
-        case Hex8EncodedLittleEndian: { // 8, %08x encoded 32 bit data
+        case Hex8EncodedLittleEndianWithQuotes: { // 8, %08x encoded 32 bit data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
                 (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
         }
-        case Hex2EncodedUtf8: { // 9, %02x encoded 8 bit UTF-8 data
+        case Hex2EncodedUtf8WithQuotes: { // 9, %02x encoded 8 bit UTF-8 data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             return doubleQuote + QString::fromUtf8(decodedBa) + doubleQuote;
@@ -592,7 +592,7 @@ QString decodeData(const QByteArray &ba, int encoding)
             return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
                 (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
         }
-        case Hex4EncodedBigEndian: { // 11, %04x encoded 16 bit data
+        case Hex4EncodedBigEndianWithQuotes: { // 11, %04x encoded 16 bit data
             const QChar doubleQuote(QLatin1Char('"'));
             QByteArray decodedBa = QByteArray::fromHex(ba);
             for (int i = 0; i < decodedBa.size(); i += 2) {
@@ -608,7 +608,7 @@ QString decodeData(const QByteArray &ba, int encoding)
             return QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2);
         }
-        case Hex2EncodedLocal8Bit: { // 13, %02x encoded 8 bit UTF-8 data
+        case Hex2EncodedLocal8BitWithQuotes: { // 13, %02x encoded 8 bit UTF-8 data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             return doubleQuote + QString::fromLocal8Bit(decodedBa) + doubleQuote;

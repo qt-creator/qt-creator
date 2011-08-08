@@ -62,14 +62,14 @@ enum DebuggerEncoding
     Base64Encoded32BitWithQuotes         =  3,
     Base64Encoded16Bit                   =  4,
     Base64Encoded8Bit                    =  5,
-    Hex2EncodedLatin1                    =  6,
-    Hex4EncodedLittleEndian              =  7,
-    Hex8EncodedLittleEndian              =  8,
-    Hex2EncodedUtf8                      =  9,
+    Hex2EncodedLatin1WithQuotes          =  6,
+    Hex4EncodedLittleEndianWithQuotes    =  7,
+    Hex8EncodedLittleEndianWithQuotes    =  8,
+    Hex2EncodedUtf8WithQuotes            =  9,
     Hex8EncodedBigEndian                 = 10,
-    Hex4EncodedBigEndian                 = 11,
+    Hex4EncodedBigEndianWithQuotes       = 11,
     Hex4EncodedLittleEndianWithoutQuotes = 12,
-    Hex2EncodedLocal8Bit                 = 13
+    Hex2EncodedLocal8BitWithQuotes       = 13
 };
 
 bool isEditorDebuggable(Core::IEditor *editor);
