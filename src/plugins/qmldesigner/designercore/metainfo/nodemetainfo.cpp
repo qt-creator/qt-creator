@@ -491,7 +491,7 @@ const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue
     LanguageUtils::ComponentVersion version(9999, 9999);
     //get the correct version
     Document::Ptr doc = lookupContext()->document();
-    const Interpreter::Context *context = lookupContext()->context();
+    const Interpreter::Context *context = lookupContext()->context().data();
     Interpreter::ImportInfo importInfo = context->imports(doc.data())->info(fullQualifiedImportAliasType(), context);
 
     if (importInfo.isValid())
