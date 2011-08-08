@@ -43,7 +43,6 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlJS::Interpreter;
 
 QColor QmlJS::toQColor(const QString &qmlColorString)
 {
@@ -102,8 +101,8 @@ public:
     DiagnosticMessage operator()(
             const Document::Ptr &document,
             const SourceLocation &location,
-            const Interpreter::Value *lhsValue,
-            const Interpreter::Value *rhsValue,
+            const Value *lhsValue,
+            const Value *rhsValue,
             ExpressionNode *ast)
     {
         _doc = document;

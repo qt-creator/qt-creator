@@ -357,10 +357,10 @@ public:
     void lookup(UiQualifiedId *astTypeNode, QString &typeName, int &majorVersion,
                 int &minorVersion, QString &defaultPropertyName)
     {
-        const Interpreter::ObjectValue *value = m_context->lookupType(m_doc.data(), astTypeNode);
+        const ObjectValue *value = m_context->lookupType(m_doc.data(), astTypeNode);
         defaultPropertyName = m_context->defaultPropertyName(value);
 
-        const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(value);
+        const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(value);
         if (qmlValue) {
             typeName = fixUpPackeNameForQt(qmlValue->packageName()) + QLatin1String(".") + qmlValue->className();
 
@@ -383,14 +383,14 @@ public:
             majorVersion = ComponentVersion::NoVersion;
             minorVersion = ComponentVersion::NoVersion;
 
-            const Interpreter::Imports *imports = m_context->imports(m_doc.data());
-            Interpreter::ImportInfo importInfo = imports->info(fullTypeName, m_context.data());
-            if (importInfo.isValid() && importInfo.type() == Interpreter::ImportInfo::LibraryImport) {
+            const Imports *imports = m_context->imports(m_doc.data());
+            ImportInfo importInfo = imports->info(fullTypeName, m_context.data());
+            if (importInfo.isValid() && importInfo.type() == ImportInfo::LibraryImport) {
                 QString name = importInfo.name().replace("\\", ".");
                 majorVersion = importInfo.version().majorVersion();
                 minorVersion = importInfo.version().minorVersion();
                 typeName.prepend(name + ".");
-            } else if (importInfo.isValid() && importInfo.type() == Interpreter::ImportInfo::DirectoryImport) {
+            } else if (importInfo.isValid() && importInfo.type() == ImportInfo::DirectoryImport) {
                 QString path = importInfo.name();
                 QDir dir(m_doc->path());
                 QString relativeDir = dir.relativeFilePath(path);
@@ -404,9 +404,9 @@ public:
     /// When something is changed here, also change Check::checkScopeObjectMember in
     /// qmljscheck.cpp
     /// ### Maybe put this into the context as a helper method.
-    bool lookupProperty(const QString &prefix, const UiQualifiedId *id, const Interpreter::Value **property = 0, const Interpreter::ObjectValue **parentObject = 0, QString *name = 0)
+    bool lookupProperty(const QString &prefix, const UiQualifiedId *id, const Value **property = 0, const ObjectValue **parentObject = 0, QString *name = 0)
     {
-        QList<const Interpreter::ObjectValue *> scopeObjects = m_scopeChain.qmlScopeObjects();
+        QList<const ObjectValue *> scopeObjects = m_scopeChain.qmlScopeObjects();
         if (scopeObjects.isEmpty())
             return false;
 
@@ -432,7 +432,7 @@ public:
         bool isAttachedProperty = false;
         if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
             isAttachedProperty = true;
-            if (const Interpreter::ObjectValue *qmlTypes = m_scopeChain.qmlTypes())
+            if (const ObjectValue *qmlTypes = m_scopeChain.qmlTypes())
                 scopeObjects += qmlTypes;
         }
 
@@ -440,8 +440,8 @@ public:
             return false;
 
         // global lookup for first part of id
-        const Interpreter::ObjectValue *objectValue = 0;
-        const Interpreter::Value *value = 0;
+        const ObjectValue *objectValue = 0;
+        const Value *value = 0;
         for (int i = scopeObjects.size() - 1; i >= 0; --i) {
             objectValue = scopeObjects[i];
             value = objectValue->lookupMember(propertyName, m_context);
@@ -460,7 +460,7 @@ public:
             return false;
 
         // resolve references
-        if (const Interpreter::Reference *ref = value->asReference())
+        if (const Reference *ref = value->asReference())
             value = m_context->lookupReference(ref);
 
         // member lookup
@@ -468,7 +468,7 @@ public:
         if (prefix.isEmpty())
             idPart = idPart->next;
         for (; idPart; idPart = idPart->next) {
-            objectValue = Interpreter::value_cast<const Interpreter::ObjectValue *>(value);
+            objectValue = value_cast<const ObjectValue *>(value);
             if (! objectValue) {
 //                if (idPart->name)
 //                    qDebug() << idPart->name->asString() << "has no property named"
@@ -503,20 +503,20 @@ public:
         return true;
     }
 
-    bool isArrayProperty(const Interpreter::Value *value, const Interpreter::ObjectValue *containingObject, const QString &name)
+    bool isArrayProperty(const Value *value, const ObjectValue *containingObject, const QString &name)
     {
         if (!value)
             return false;
-        const Interpreter::ObjectValue *objectValue = value->asObjectValue();
+        const ObjectValue *objectValue = value->asObjectValue();
         if (objectValue && objectValue->prototype(m_context) == m_context->valueOwner()->arrayPrototype())
             return true;
 
-        Interpreter::PrototypeIterator iter(containingObject, m_context);
+        PrototypeIterator iter(containingObject, m_context);
         while (iter.hasNext()) {
-            const Interpreter::ObjectValue *proto = iter.next();
+            const ObjectValue *proto = iter.next();
             if (proto->lookupMember(name, m_context) == m_context->valueOwner()->arrayPrototype())
                 return true;
-            if (const Interpreter::QmlObjectValue *qmlIter = dynamic_cast<const Interpreter::QmlObjectValue *>(proto)) {
+            if (const QmlObjectValue *qmlIter = dynamic_cast<const QmlObjectValue *>(proto)) {
                 if (qmlIter->isListProperty(name))
                     return true;
             }
@@ -528,8 +528,8 @@ public:
     {
         const bool hasQuotes = astValue.trimmed().left(1) == QLatin1String("\"") && astValue.trimmed().right(1) == QLatin1String("\"");
         const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
-        const Interpreter::Value *property = 0;
-        const Interpreter::ObjectValue *containingObject = 0;
+        const Value *property = 0;
+        const ObjectValue *containingObject = 0;
         QString name;
         if (!lookupProperty(propertyPrefix, propertyId, &property, &containingObject, &name)) {
             qWarning() << "Unknown property" << propertyPrefix + QLatin1Char('.') + flatten(propertyId)
@@ -541,7 +541,7 @@ public:
         if (containingObject)
             containingObject->lookupMember(name, m_context, &containingObject);
 
-        if (const Interpreter::QmlObjectValue * qmlObject = dynamic_cast<const Interpreter::QmlObjectValue *>(containingObject)) {
+        if (const QmlObjectValue * qmlObject = dynamic_cast<const QmlObjectValue *>(containingObject)) {
             const QString typeName = qmlObject->propertyType(name);
             if (qmlObject->getEnum(typeName).isValid()) {
                 return QVariant(cleanedValue);
@@ -577,7 +577,7 @@ public:
         if (!eStmt || !eStmt->expression)
             return QVariant();
 
-        const Interpreter::ObjectValue *containingObject = 0;
+        const ObjectValue *containingObject = 0;
         QString name;
         if (!lookupProperty(propertyPrefix, propertyId, 0, &containingObject, &name)) {
             return QVariant();
@@ -585,12 +585,12 @@ public:
 
         if (containingObject)
             containingObject->lookupMember(name, m_context, &containingObject);
-        const Interpreter::QmlObjectValue * lhsQmlObject = dynamic_cast<const Interpreter::QmlObjectValue *>(containingObject);
+        const QmlObjectValue * lhsQmlObject = dynamic_cast<const QmlObjectValue *>(containingObject);
         if (!lhsQmlObject)
             return QVariant();
         const QString lhsPropertyTypeName = lhsQmlObject->propertyType(name);
 
-        const Interpreter::ObjectValue *rhsValueObject = 0;
+        const ObjectValue *rhsValueObject = 0;
         QString rhsValueName;
         if (IdentifierExpression *idExp = cast<IdentifierExpression *>(eStmt->expression)) {
             if (!m_scopeChain.qmlScopeObjects().isEmpty())
@@ -599,7 +599,7 @@ public:
                 rhsValueName = idExp->name->asString();
         } else if (FieldMemberExpression *memberExp = cast<FieldMemberExpression *>(eStmt->expression)) {
             Evaluate evaluate(&m_scopeChain);
-            const Interpreter::Value *result = evaluate(memberExp->base);
+            const Value *result = evaluate(memberExp->base);
             rhsValueObject = result->asObjectValue();
 
             if (memberExp->name)
@@ -609,7 +609,7 @@ public:
         if (rhsValueObject)
             rhsValueObject->lookupMember(rhsValueName, m_context, &rhsValueObject);
 
-        const Interpreter::QmlObjectValue *rhsQmlObjectValue = dynamic_cast<const Interpreter::QmlObjectValue *>(rhsValueObject);
+        const QmlObjectValue *rhsQmlObjectValue = dynamic_cast<const QmlObjectValue *>(rhsValueObject);
         if (!rhsQmlObjectValue)
             return QVariant();
 
@@ -620,7 +620,7 @@ public:
     }
 
 
-    const Interpreter::ScopeChain &scopeChain() const
+    const ScopeChain &scopeChain() const
     { return m_scopeChain; }
 
     QList<DiagnosticMessage> diagnosticLinkMessages() const
@@ -631,8 +631,8 @@ private:
     Document::Ptr m_doc;
     Link m_link;
     QList<DiagnosticMessage> m_diagnosticLinkMessages;
-    Interpreter::ContextPtr m_context;
-    Interpreter::ScopeChain m_scopeChain;
+    ContextPtr m_context;
+    ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
 };
 
@@ -764,8 +764,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
         snapshot.insert(doc);
         ReadingContext ctxt(snapshot, doc, importPaths);
-        m_scopeChain = QSharedPointer<const Interpreter::ScopeChain>(
-                    new Interpreter::ScopeChain(ctxt.scopeChain()));
+        m_scopeChain = QSharedPointer<const ScopeChain>(
+                    new ScopeChain(ctxt.scopeChain()));
         m_document = doc;
 
         QList<RewriterView::Error> errors;
@@ -927,8 +927,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             if (binding->hasOnToken) {
                 // skip value sources
             } else {
-                const Interpreter::Value *propertyType = 0;
-                const Interpreter::ObjectValue *containingObject = 0;
+                const Value *propertyType = 0;
+                const ObjectValue *containingObject = 0;
                 QString name;
                 if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name) || isPropertyChangesType(typeName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);

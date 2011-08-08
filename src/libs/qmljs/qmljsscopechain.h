@@ -41,7 +41,6 @@
 #include <QtCore/QSharedPointer>
 
 namespace QmlJS {
-namespace Interpreter {
 
 class ObjectValue;
 class TypeScope;
@@ -122,7 +121,6 @@ private:
     mutable QList<const ObjectValue *> m_all;
 };
 
-} // namespace Interpreter
 } // namespace QmlJS
 
 #endif // QMLJS_SCOPECHAIN_H

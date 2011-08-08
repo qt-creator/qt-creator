@@ -58,38 +58,38 @@ public:
     Link(const Snapshot &snapshot, const QStringList &importPaths, const LibraryInfo &builtins);
 
     // Link all documents in snapshot, collecting all diagnostic messages (if messages != 0)
-    Interpreter::ContextPtr operator()(QHash<QString, QList<DiagnosticMessage> > *messages = 0);
+    ContextPtr operator()(QHash<QString, QList<DiagnosticMessage> > *messages = 0);
 
     // Link all documents in snapshot, appending the diagnostic messages
     // for 'doc' in 'messages'
-    Interpreter::ContextPtr operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages);
+    ContextPtr operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages);
 
     ~Link();
 
 private:
     static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 
-    Interpreter::Context::ImportsPerDocument linkImports();
+    Context::ImportsPerDocument linkImports();
 
-    void populateImportedTypes(Interpreter::Imports *imports, Document::Ptr doc);
-    Interpreter::Import importFileOrDirectory(
+    void populateImportedTypes(Imports *imports, Document::Ptr doc);
+    Import importFileOrDirectory(
         Document::Ptr doc,
-        const Interpreter::ImportInfo &importInfo);
-    Interpreter::Import importNonFile(
+        const ImportInfo &importInfo);
+    Import importNonFile(
         Document::Ptr doc,
-        const Interpreter::ImportInfo &importInfo);
-    void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
+        const ImportInfo &importInfo);
+    void importObject(Bind *bind, const QString &name, ObjectValue *object, NameId *targetNamespace);
 
     bool importLibrary(Document::Ptr doc,
                        const QString &libraryPath,
-                       Interpreter::Import *import,
+                       Import *import,
                        const QString &importPath = QString());
-    void loadQmldirComponents(Interpreter::ObjectValue *import,
+    void loadQmldirComponents(ObjectValue *import,
                               LanguageUtils::ComponentVersion version,
                               const LibraryInfo &libraryInfo,
                               const QString &libraryPath);
-    void loadImplicitDirectoryImports(Interpreter::Imports *imports, Document::Ptr doc);
-    void loadImplicitDefaultImports(Interpreter::Imports *imports);
+    void loadImplicitDirectoryImports(Imports *imports, Document::Ptr doc);
+    void loadImplicitDefaultImports(Imports *imports);
 
     void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
     void warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);

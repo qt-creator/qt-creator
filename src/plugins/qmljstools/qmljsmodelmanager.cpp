@@ -128,16 +128,16 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
         if (qmlTypesFiles.at(i).baseName() == QLatin1String("builtins")) {
             QFileInfoList list;
             list.append(qmlTypesFiles.at(i));
-            Interpreter::CppQmlTypesLoader::defaultQtObjects =
-                    Interpreter::CppQmlTypesLoader::loadQmlTypes(list, &errors, &warnings);
+            CppQmlTypesLoader::defaultQtObjects =
+                    CppQmlTypesLoader::loadQmlTypes(list, &errors, &warnings);
             qmlTypesFiles.removeAt(i);
             break;
         }
     }
 
     // load the fallbacks for libraries
-    Interpreter::CppQmlTypesLoader::defaultLibraryObjects.unite(
-                Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings));
+    CppQmlTypesLoader::defaultLibraryObjects.unite(
+                CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings));
 
     Core::MessageManager *messageManager = Core::MessageManager::instance();
     foreach (const QString &error, errors)
@@ -362,12 +362,12 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
                         QStringList *importedFiles, QSet<QString> *scannedPaths)
 {
     // scan files and directories that are explicitly imported
-    foreach (const Interpreter::ImportInfo &import, doc->bind()->imports()) {
+    foreach (const ImportInfo &import, doc->bind()->imports()) {
         const QString &importName = import.name();
-        if (import.type() == Interpreter::ImportInfo::FileImport) {
+        if (import.type() == ImportInfo::FileImport) {
             if (! snapshot.document(importName))
                 *importedFiles += importName;
-        } else if (import.type() == Interpreter::ImportInfo::DirectoryImport) {
+        } else if (import.type() == ImportInfo::DirectoryImport) {
             if (snapshot.documentsInDirectory(importName).isEmpty()) {
                 if (! scannedPaths->contains(importName)) {
                     *importedFiles += qmlFilesInDirectory(importName);
@@ -473,14 +473,14 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
 
     // scan dir and lib imports
     const QStringList importPaths = modelManager->importPaths();
-    foreach (const Interpreter::ImportInfo &import, doc->bind()->imports()) {
-        if (import.type() == Interpreter::ImportInfo::DirectoryImport) {
+    foreach (const ImportInfo &import, doc->bind()->imports()) {
+        if (import.type() == ImportInfo::DirectoryImport) {
             const QString targetPath = import.name();
             findNewQmlLibraryInPath(targetPath, snapshot, modelManager,
                                     importedFiles, scannedPaths, newLibraries);
         }
 
-        if (import.type() == Interpreter::ImportInfo::LibraryImport) {
+        if (import.type() == ImportInfo::LibraryImport) {
             if (!import.version().isValid())
                 continue;
             foreach (const QString &importPath, importPaths) {

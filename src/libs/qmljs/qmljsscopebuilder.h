@@ -39,14 +39,12 @@
 
 namespace QmlJS {
 
-namespace Interpreter {
 class QmlComponentChain;
 class Context;
 typedef QSharedPointer<const Context> ContextPtr;
 class ObjectValue;
 class Value;
 class ScopeChain;
-}
 
 namespace AST {
     class Node;
@@ -55,20 +53,20 @@ namespace AST {
 class QMLJS_EXPORT ScopeBuilder
 {
 public:
-    ScopeBuilder(Interpreter::ScopeChain *scopeChain);
+    ScopeBuilder(ScopeChain *scopeChain);
     ~ScopeBuilder();
 
     void push(AST::Node *node);
     void push(const QList<AST::Node *> &nodes);
     void pop();
 
-    static const Interpreter::ObjectValue *isPropertyChangesObject(const Interpreter::ContextPtr &context, const Interpreter::ObjectValue *object);
+    static const ObjectValue *isPropertyChangesObject(const ContextPtr &context, const ObjectValue *object);
 
 private:
     void setQmlScopeObject(AST::Node *node);
-    const Interpreter::Value *scopeObjectLookup(AST::UiQualifiedId *id);
+    const Value *scopeObjectLookup(AST::UiQualifiedId *id);
 
-    Interpreter::ScopeChain *_scopeChain;
+    ScopeChain *_scopeChain;
     QList<AST::Node *> _nodes;
 };
 

@@ -79,18 +79,18 @@ enum CompletionOrder {
     TypeOrder = -30
 };
 
-class EnumerateProperties: private Interpreter::MemberProcessor
+class EnumerateProperties: private MemberProcessor
 {
-    QSet<const Interpreter::ObjectValue *> _processed;
-    QHash<QString, const Interpreter::Value *> _properties;
+    QSet<const ObjectValue *> _processed;
+    QHash<QString, const Value *> _properties;
     bool _globalCompletion;
     bool _enumerateGeneratedSlots;
     bool _enumerateSlots;
-    const Interpreter::ScopeChain *_scopeChain;
-    const Interpreter::ObjectValue *_currentObject;
+    const ScopeChain *_scopeChain;
+    const ObjectValue *_currentObject;
 
 public:
-    EnumerateProperties(const Interpreter::ScopeChain *scopeChain)
+    EnumerateProperties(const ScopeChain *scopeChain)
         : _globalCompletion(false),
           _enumerateGeneratedSlots(false),
           _enumerateSlots(true),
@@ -114,61 +114,61 @@ public:
         _enumerateSlots = enumerate;
     }
 
-    QHash<QString, const Interpreter::Value *> operator ()(const Interpreter::Value *value)
+    QHash<QString, const Value *> operator ()(const Value *value)
     {
         _processed.clear();
         _properties.clear();
-        _currentObject = Interpreter::value_cast<const Interpreter::ObjectValue *>(value);
+        _currentObject = value_cast<const ObjectValue *>(value);
 
         enumerateProperties(value);
 
         return _properties;
     }
 
-    QHash<QString, const Interpreter::Value *> operator ()()
+    QHash<QString, const Value *> operator ()()
     {
         _processed.clear();
         _properties.clear();
         _currentObject = 0;
 
-        foreach (const Interpreter::ObjectValue *scope, _scopeChain->all())
+        foreach (const ObjectValue *scope, _scopeChain->all())
             enumerateProperties(scope);
 
         return _properties;
     }
 
 private:
-    void insertProperty(const QString &name, const Interpreter::Value *value)
+    void insertProperty(const QString &name, const Value *value)
     {
         _properties.insert(name, value);
     }
 
-    virtual bool processProperty(const QString &name, const Interpreter::Value *value)
+    virtual bool processProperty(const QString &name, const Value *value)
     {
         insertProperty(name, value);
         return true;
     }
 
-    virtual bool processEnumerator(const QString &name, const Interpreter::Value *value)
+    virtual bool processEnumerator(const QString &name, const Value *value)
     {
         if (! _globalCompletion)
             insertProperty(name, value);
         return true;
     }
 
-    virtual bool processSignal(const QString &, const Interpreter::Value *)
+    virtual bool processSignal(const QString &, const Value *)
     {
         return true;
     }
 
-    virtual bool processSlot(const QString &name, const Interpreter::Value *value)
+    virtual bool processSlot(const QString &name, const Value *value)
     {
         if (_enumerateSlots)
             insertProperty(name, value);
         return true;
     }
 
-    virtual bool processGeneratedSlot(const QString &name, const Interpreter::Value *value)
+    virtual bool processGeneratedSlot(const QString &name, const Value *value)
     {
         if (_enumerateGeneratedSlots || (_currentObject && _currentObject->className().endsWith(QLatin1String("Keys")))) {
             // ### FIXME: add support for attached properties.
@@ -177,16 +177,16 @@ private:
         return true;
     }
 
-    void enumerateProperties(const Interpreter::Value *value)
+    void enumerateProperties(const Value *value)
     {
         if (! value)
             return;
-        else if (const Interpreter::ObjectValue *object = value->asObjectValue()) {
+        else if (const ObjectValue *object = value->asObjectValue()) {
             enumerateProperties(object);
         }
     }
 
-    void enumerateProperties(const Interpreter::ObjectValue *object)
+    void enumerateProperties(const ObjectValue *object)
     {
         if (! object || _processed.contains(object))
             return;
@@ -198,16 +198,16 @@ private:
     }
 };
 
-const Interpreter::Value *getPropertyValue(const Interpreter::ObjectValue *object,
+const Value *getPropertyValue(const ObjectValue *object,
                                            const QStringList &propertyNames,
-                                           const Interpreter::ContextPtr &context)
+                                           const ContextPtr &context)
 {
     if (propertyNames.isEmpty() || !object)
         return 0;
 
-    const Interpreter::Value *value = object;
+    const Value *value = object;
     foreach (const QString &name, propertyNames) {
-        if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
+        if (const ObjectValue *objectValue = value->asObjectValue()) {
             value = objectValue->lookupMember(name, context);
             if (!value)
                 return 0;
@@ -420,8 +420,8 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
         isQmlFile = true;
 
     const QList<AST::Node *> path = semanticInfo.rangePath(m_interface->position());
-    const Interpreter::ContextPtr &context = semanticInfo.context;
-    const Interpreter::ScopeChain &scopeChain = semanticInfo.scopeChain(path);
+    const ContextPtr &context = semanticInfo.context;
+    const ScopeChain &scopeChain = semanticInfo.scopeChain(path);
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -432,7 +432,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     startPositionCursor.setPosition(m_startPosition);
     CompletionContextFinder contextFinder(startPositionCursor);
 
-    const Interpreter::ObjectValue *qmlScopeType = 0;
+    const ObjectValue *qmlScopeType = 0;
     if (contextFinder.isInQmlContext()) {
         // find the enclosing qml object
         // ### this should use semanticInfo.declaringMember instead, but that may also return functions
@@ -450,15 +450,15 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             AST::UiObjectDefinition *objDef = AST::cast<AST::UiObjectDefinition *>(path[i]);
             if (!objDef || !document->bind()->isGroupedPropertyBinding(objDef))
                 break;
-            const Interpreter::ObjectValue *newScopeType = qmlScopeType;
+            const ObjectValue *newScopeType = qmlScopeType;
             for (AST::UiQualifiedId *it = objDef->qualifiedTypeNameId; it; it = it->next) {
                 if (!newScopeType || !it->name) {
                     newScopeType = 0;
                     break;
                 }
-                const Interpreter::Value *v = newScopeType->lookupMember(it->name->asString(), context);
+                const Value *v = newScopeType->lookupMember(it->name->asString(), context);
                 v = context->lookupReference(v);
-                newScopeType = Interpreter::value_cast<const Interpreter::ObjectValue *>(v);
+                newScopeType = value_cast<const ObjectValue *>(v);
             }
             if (!newScopeType)
                 break;
@@ -490,7 +490,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             return 0;
         }
 
-        const Interpreter::Value *value =
+        const Value *value =
                 getPropertyValue(qmlScopeType, contextFinder.bindingPropertyName(), context);
         if (!value) {
             // do nothing
@@ -550,10 +550,10 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             doQmlKeywordCompletion = false;
 
             // complete enum values for enum properties
-            const Interpreter::Value *value =
+            const Value *value =
                     getPropertyValue(qmlScopeType, contextFinder.bindingPropertyName(), context);
-            if (const Interpreter::QmlEnumValue *enumValue =
-                    dynamic_cast<const Interpreter::QmlEnumValue *>(value)) {
+            if (const QmlEnumValue *enumValue =
+                    dynamic_cast<const QmlEnumValue *>(value)) {
                 foreach (const QString &key, enumValue->keys())
                     addCompletion(key, m_interface->symbolIcon(),
                                   EnumValueOrder, QString("\"%1\"").arg(key));
@@ -564,7 +564,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             doQmlTypeCompletion = true;
 
         if (doQmlTypeCompletion) {
-            if (const Interpreter::ObjectValue *qmlTypes = scopeChain.qmlTypes()) {
+            if (const ObjectValue *qmlTypes = scopeChain.qmlTypes()) {
                 EnumerateProperties enumerateProperties(&scopeChain);
                 addCompletions(enumerateProperties(qmlTypes), m_interface->symbolIcon(), TypeOrder);
             }
@@ -613,8 +613,8 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
 
         if (expression != 0 && ! isLiteral(expression)) {
             // Evaluate the expression under cursor.
-            Interpreter::ValueOwner *interp = context->valueOwner();
-            const Interpreter::Value *value =
+            ValueOwner *interp = context->valueOwner();
+            const Value *value =
                     interp->convertToObject(scopeChain.evaluate(expression));
             //qDebug() << "type:" << interp->typeId(value);
 
@@ -632,7 +632,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
                        && completionOperator == QLatin1Char('(')
                        && m_startPosition == m_interface->position()) {
                 // function completion
-                if (const Interpreter::FunctionValue *f = value->asFunctionValue()) {
+                if (const FunctionValue *f = value->asFunctionValue()) {
                     QString functionName = expressionUnderCursor.text();
                     int indexOfDot = functionName.lastIndexOf(QLatin1Char('.'));
                     if (indexOfDot != -1)
@@ -767,12 +767,12 @@ bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath
 }
 
 void QmlJSCompletionAssistProcessor::addCompletionsPropertyLhs(const QHash<QString,
-                                                               const QmlJS::Interpreter::Value *> &newCompletions,
+                                                               const QmlJS::Value *> &newCompletions,
                                                                const QIcon &icon,
                                                                int order,
                                                                bool afterOn)
 {
-    QHashIterator<QString, const Interpreter::Value *> it(newCompletions);
+    QHashIterator<QString, const Value *> it(newCompletions);
     while (it.hasNext()) {
         it.next();
 
@@ -782,8 +782,8 @@ void QmlJSCompletionAssistProcessor::addCompletionsPropertyLhs(const QHash<QStri
             postfix = QLatin1String(": ");
         if (afterOn)
             postfix = QLatin1String(" {");
-        if (const Interpreter::QmlObjectValue *qmlValue =
-                dynamic_cast<const Interpreter::QmlObjectValue *>(it.value())) {
+        if (const QmlObjectValue *qmlValue =
+                dynamic_cast<const QmlObjectValue *>(it.value())) {
             // to distinguish "anchors." from "gradient:" we check if the right hand side
             // type is instantiatable or is the prototype of an instantiatable object
             if (qmlValue->hasChildInPackage())
@@ -815,11 +815,11 @@ void QmlJSCompletionAssistProcessor::addCompletion(const QString &text,
 }
 
 void QmlJSCompletionAssistProcessor::addCompletions(const QHash<QString,
-                                                    const QmlJS::Interpreter::Value *> &newCompletions,
+                                                    const QmlJS::Value *> &newCompletions,
                                                     const QIcon &icon,
                                                     int order)
 {
-    QHashIterator<QString, const Interpreter::Value *> it(newCompletions);
+    QHashIterator<QString, const Value *> it(newCompletions);
     while (it.hasNext()) {
         it.next();
         addCompletion(it.key(), icon, order);

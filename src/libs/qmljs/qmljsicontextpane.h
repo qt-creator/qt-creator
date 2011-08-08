@@ -46,9 +46,7 @@ class BaseTextEditor;
 
 namespace QmlJS {
 
-namespace Interpreter {
 class ScopeChain;
-}
 
 class QMLJS_EXPORT IContextPane : public QObject
 {
@@ -57,7 +55,7 @@ class QMLJS_EXPORT IContextPane : public QObject
 public:
     IContextPane(QObject *parent = 0) : QObject(parent) {}
     virtual ~IContextPane() {}
-    virtual void apply(TextEditor::BaseTextEditor *editor, Document::Ptr document, const Interpreter::ScopeChain *scopeChain, AST::Node *node, bool update, bool force = false) = 0;
+    virtual void apply(TextEditor::BaseTextEditor *editor, Document::Ptr document, const ScopeChain *scopeChain, AST::Node *node, bool update, bool force = false) = 0;
     virtual void setEnabled(bool) = 0;
     virtual bool isAvailable(TextEditor::BaseTextEditor *editor, Document::Ptr document, AST::Node *node) = 0;
     virtual QWidget* widget() = 0;

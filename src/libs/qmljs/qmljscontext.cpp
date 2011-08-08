@@ -36,7 +36,6 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlJS::Interpreter;
 
 ContextPtr Context::create(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports)
 {

@@ -116,7 +116,7 @@ void QmlContextPane::apply(TextEditor::BaseTextEditorEditable *editor, Document:
     m_blockWriting = true;
 
     LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<Node*>());
-    const Interpreter::ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
+    const ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
 
     QStringList prototypes;
     while (scopeObject) {
@@ -213,7 +213,7 @@ bool QmlContextPane::isAvailable(TextEditor::BaseTextEditorEditable *, Document:
         return false;
 
         LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<Node*>());
-        const Interpreter::ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
+        const ObjectValue *scopeObject = doc->bind()->findQmlObject(node);
 
         QStringList prototypes;
 

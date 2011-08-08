@@ -39,7 +39,6 @@
 #include <QtCore/QList>
 
 namespace QmlJS {
-namespace Interpreter {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Forward declarations
@@ -194,7 +193,6 @@ private:
     QMutex _mutex;
 };
 
-} // namespace Interpreter
 } // namespace QmlJS
 
 #endif // QMLJS_VALUEOWNER_H

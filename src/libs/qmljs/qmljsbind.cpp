@@ -44,7 +44,6 @@
 using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlJS::Interpreter;
 
 /*!
     \class QmlJS::Bind
@@ -54,7 +53,7 @@ using namespace QmlJS::Interpreter;
     Each QmlJS::Document owns a instance of Bind. It provides access to data
     that can be derived by looking at the document in isolation. If you need
     information that goes beyond that, you need to create a
-    \l{QmlJS::Interpreter::Context} using \l{QmlJS::Link}.
+    \l{QmlJS::Context} using \l{QmlJS::Link}.
 
     The document's imports are classified and available through imports().
 
@@ -81,17 +80,17 @@ QList<ImportInfo> Bind::imports() const
     return _imports;
 }
 
-Interpreter::ObjectValue *Bind::idEnvironment() const
+ObjectValue *Bind::idEnvironment() const
 {
     return _idEnvironment;
 }
 
-Interpreter::ObjectValue *Bind::rootObjectValue() const
+ObjectValue *Bind::rootObjectValue() const
 {
     return _rootObjectValue;
 }
 
-Interpreter::ObjectValue *Bind::findQmlObject(AST::Node *node) const
+ObjectValue *Bind::findQmlObject(AST::Node *node) const
 {
     return _qmlObjects.value(node);
 }
@@ -171,7 +170,7 @@ bool Bind::usesQmlPrototype(ObjectValue *prototype,
     return false;
 }
 
-Interpreter::ObjectValue *Bind::findAttachedJSScope(AST::Node *node) const
+ObjectValue *Bind::findAttachedJSScope(AST::Node *node) const
 {
     return _attachedJSScopes.value(node);
 }
@@ -317,7 +316,7 @@ bool Bind::visit(UiObjectDefinition *ast)
         _qmlObjects.insert(ast, value);
     } else {
         _groupedPropertyBindings.insert(ast);
-        Interpreter::ObjectValue *oldObjectValue = switchObjectValue(0);
+        ObjectValue *oldObjectValue = switchObjectValue(0);
         accept(ast->initializer);
         switchObjectValue(oldObjectValue);
     }

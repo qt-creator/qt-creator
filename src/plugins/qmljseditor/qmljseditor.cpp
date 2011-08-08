@@ -547,14 +547,14 @@ QList<AST::Node *> SemanticInfo::rangePath(int cursorPosition) const
     return path;
 }
 
-Interpreter::ScopeChain SemanticInfo::scopeChain(const QList<QmlJS::AST::Node *> &path) const
+ScopeChain SemanticInfo::scopeChain(const QList<QmlJS::AST::Node *> &path) const
 {
     Q_ASSERT(m_rootScopeChain);
 
     if (path.isEmpty())
         return *m_rootScopeChain;
 
-    Interpreter::ScopeChain scope = *m_rootScopeChain;
+    ScopeChain scope = *m_rootScopeChain;
     ScopeBuilder builder(&scope);
     builder.push(path);
     return scope;
@@ -573,7 +573,7 @@ AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
 
     const unsigned cursorPosition = pos;
 
-    foreach (const Interpreter::ImportInfo &import, document->bind()->imports()) {
+    foreach (const ImportInfo &import, document->bind()->imports()) {
         if (importContainsCursor(import.ast(), cursorPosition))
             return import.ast();
     }
@@ -1249,8 +1249,8 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
 
     if (AST::UiImport *importAst = cast<AST::UiImport *>(node)) {
         // if it's a file import, link to the file
-        foreach (const Interpreter::ImportInfo &import, semanticInfo.document->bind()->imports()) {
-            if (import.ast() == importAst && import.type() == Interpreter::ImportInfo::FileImport) {
+        foreach (const ImportInfo &import, semanticInfo.document->bind()->imports()) {
+            if (import.ast() == importAst && import.type() == ImportInfo::FileImport) {
                 BaseTextEditorWidget::Link link(import.name());
                 link.begin = importAst->firstSourceLocation().begin();
                 link.end = importAst->lastSourceLocation().end();
@@ -1260,9 +1260,9 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
         return Link();
     }
 
-    const Interpreter::ScopeChain scopeChain = semanticInfo.scopeChain(semanticInfo.rangePath(cursorPosition));
+    const ScopeChain scopeChain = semanticInfo.scopeChain(semanticInfo.rangePath(cursorPosition));
     Evaluate evaluator(&scopeChain);
-    const Interpreter::Value *value = evaluator.reference(node);
+    const Value *value = evaluator.reference(node);
 
     QString fileName;
     int line = 0, column = 0;
@@ -1317,7 +1317,7 @@ void QmlJSTextEditorWidget::showContextPane()
 {
     if (m_contextPane && m_semanticInfo.isValid()) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
-        Interpreter::ScopeChain scopeChain = m_semanticInfo.scopeChain(m_semanticInfo.rangePath(position()));
+        ScopeChain scopeChain = m_semanticInfo.scopeChain(m_semanticInfo.rangePath(position()));
         m_contextPane->apply(editor(), m_semanticInfo.document,
                              &scopeChain,
                              newNode, false, true);

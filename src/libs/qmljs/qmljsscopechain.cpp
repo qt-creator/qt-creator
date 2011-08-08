@@ -35,7 +35,6 @@
 #include "qmljsevaluate.h"
 
 using namespace QmlJS;
-using namespace QmlJS::Interpreter;
 
 QmlComponentChain::QmlComponentChain(const Document::Ptr &document)
     : m_document(document)

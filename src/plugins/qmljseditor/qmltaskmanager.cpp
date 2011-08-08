@@ -73,7 +73,7 @@ void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future
     Snapshot snapshot, QStringList files, QStringList /*importPaths*/)
 {
     // ### link and check error messages are disabled for now: too many false-positives!
-    //Interpreter::Context ctx(snapshot);
+    //Context ctx(snapshot);
     //QHash<QString, QList<DiagnosticMessage> > linkMessages;
     //Link link(&ctx, snapshot, importPaths);
     //link(&linkMessages);

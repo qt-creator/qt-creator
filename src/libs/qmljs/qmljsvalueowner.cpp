@@ -33,7 +33,6 @@
 #include "qmljsvalueowner.h"
 
 using namespace QmlJS;
-using namespace QmlJS::Interpreter;
 
 namespace {
 

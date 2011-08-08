@@ -54,7 +54,7 @@ class QMLJS_EXPORT Check: protected AST::Visitor
 
 public:
     // prefer taking root scope chain?
-    Check(Document::Ptr doc, const Interpreter::ContextPtr &context);
+    Check(Document::Ptr doc, const ContextPtr &context);
     virtual ~Check();
 
     QList<DiagnosticMessage> operator()();
@@ -116,7 +116,7 @@ protected:
 private:
     void visitQmlObject(AST::Node *ast, AST::UiQualifiedId *typeId,
                         AST::UiObjectInitializer *initializer);
-    const Interpreter::Value *checkScopeObjectMember(const AST::UiQualifiedId *id);
+    const Value *checkScopeObjectMember(const AST::UiQualifiedId *id);
     void checkAssignInCondition(AST::ExpressionNode *condition);
     void checkEndsWithControlFlow(AST::StatementList *statements, AST::SourceLocation errorLoc);
     void checkProperty(QmlJS::AST::UiQualifiedId *);
@@ -128,15 +128,15 @@ private:
 
     Document::Ptr _doc;
 
-    Interpreter::ContextPtr _context;
-    Interpreter::ScopeChain _scopeChain;
+    ContextPtr _context;
+    ScopeChain _scopeChain;
     ScopeBuilder _scopeBuilder;
 
     QList<DiagnosticMessage> _messages;
 
     Options _options;
 
-    const Interpreter::Value *_lastValue;
+    const Value *_lastValue;
     QList<AST::Node *> _chain;
     QStack<StringSet> m_idStack;
     QStack<StringSet> m_propertyStack;

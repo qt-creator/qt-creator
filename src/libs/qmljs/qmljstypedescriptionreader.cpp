@@ -218,7 +218,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
     }
 
     // ### add implicit export into the package of c++ types
-    fmo->addExport(fmo->className(), QmlJS::Interpreter::CppQmlTypes::cppPackage, ComponentVersion());
+    fmo->addExport(fmo->className(), QmlJS::CppQmlTypes::cppPackage, ComponentVersion());
     _objects->insert(fmo->className(), fmo);
 }
 

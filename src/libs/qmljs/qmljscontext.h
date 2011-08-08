@@ -42,9 +42,6 @@ namespace QmlJS {
 
 class Document;
 class Snapshot;
-
-namespace Interpreter {
-
 class Context;
 typedef QSharedPointer<const Context> ContextPtr;
 
@@ -100,8 +97,6 @@ private:
     QList<const Reference *> m_references;
 };
 
-
-} // namespace Interpreter
 } // namespace QmlJS
 
 #endif // QMLJS_CONTEXT_H

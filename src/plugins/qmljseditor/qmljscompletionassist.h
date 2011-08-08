@@ -48,9 +48,7 @@
 #include <QtGui/QIcon>
 
 namespace QmlJS {
-namespace Interpreter {
 class Value;
-}
 }
 
 namespace QmlJSEditor {
@@ -115,12 +113,12 @@ private:
                        const QIcon &icon,
                        int order,
                        const QVariant &data = QVariant());
-    void addCompletions(const QHash<QString, const QmlJS::Interpreter::Value *> &newCompletions,
+    void addCompletions(const QHash<QString, const QmlJS::Value *> &newCompletions,
                         const QIcon &icon,
                         int order);
     void addCompletions(const QStringList &newCompletions, const QIcon &icon, int order);
     void addCompletionsPropertyLhs(const QHash<QString,
-                                        const QmlJS::Interpreter::Value *> &newCompletions,
+                                        const QmlJS::Value *> &newCompletions,
                                    const QIcon &icon,
                                    int order,
                                    bool afterOn);

@@ -44,14 +44,13 @@
 
 using namespace LanguageUtils;
 using namespace QmlJS;
-using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
 namespace {
 class ImportCacheKey
 {
 public:
-    explicit ImportCacheKey(const Interpreter::ImportInfo &info)
+    explicit ImportCacheKey(const ImportInfo &info)
         : type(info.type())
         , name(info.name())
         , majorVersion(info.version().majorVersion())
@@ -84,7 +83,7 @@ class QmlJS::LinkPrivate
 {
 public:
     Snapshot snapshot;
-    Interpreter::ValueOwner *valueOwner;
+    ValueOwner *valueOwner;
     QStringList importPaths;
     LibraryInfo builtins;
 
@@ -99,7 +98,7 @@ public:
 /*!
     \class QmlJS::Link
     \brief Initializes the Context for a Document.
-    \sa QmlJS::Document QmlJS::Interpreter::Context
+    \sa QmlJS::Document QmlJS::Context
 
     Initializes a context by resolving imports and building the root scope
     chain. Currently, this is a expensive operation.
@@ -439,7 +438,7 @@ void Link::appendDiagnostic(const Document::Ptr &doc, const DiagnosticMessage &m
         (*d->allDiagnosticMessages)[doc->fileName()].append(message);
 }
 
-void Link::loadQmldirComponents(Interpreter::ObjectValue *import, ComponentVersion version,
+void Link::loadQmldirComponents(ObjectValue *import, ComponentVersion version,
                                 const LibraryInfo &libraryInfo, const QString &libraryPath)
 {
     Q_D(Link);

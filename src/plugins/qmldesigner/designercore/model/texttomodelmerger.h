@@ -68,7 +68,7 @@ public:
     RewriterView *view() const
     { return m_rewriterView; }
 
-    const QmlJS::Interpreter::ScopeChain &scopeChain() const
+    const QmlJS::ScopeChain &scopeChain() const
     { return *m_scopeChain; }
 
     QmlJS::Document *document() const
@@ -140,7 +140,7 @@ private:
 private:
     RewriterView *m_rewriterView;
     bool m_isActive;
-    QSharedPointer<const QmlJS::Interpreter::ScopeChain> m_scopeChain;
+    QSharedPointer<const QmlJS::ScopeChain> m_scopeChain;
     QmlJS::Document::Ptr m_document;
     QTimer m_setupTimer;
     QSet<ModelNode> m_setupComponentList;

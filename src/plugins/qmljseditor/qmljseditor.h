@@ -118,12 +118,12 @@ public:
     QList<QmlJS::AST::Node *> rangePath(int cursorPosition) const;
 
     // Returns a scopeChain for the given path
-    QmlJS::Interpreter::ScopeChain scopeChain(const QList<QmlJS::AST::Node *> &path = QList<QmlJS::AST::Node *>()) const;
+    QmlJS::ScopeChain scopeChain(const QList<QmlJS::AST::Node *> &path = QList<QmlJS::AST::Node *>()) const;
 
 public: // attributes
     QmlJS::Document::Ptr document;
     QmlJS::Snapshot snapshot;
-    QmlJS::Interpreter::ContextPtr context;
+    QmlJS::ContextPtr context;
     QList<Range> ranges;
     QHash<QString, QList<QmlJS::AST::SourceLocation> > idLocations;
     QList<Declaration> declarations;
@@ -132,7 +132,7 @@ public: // attributes
     QList<QmlJS::DiagnosticMessage> semanticMessages;
 
 private:
-    QSharedPointer<const QmlJS::Interpreter::ScopeChain> m_rootScopeChain;
+    QSharedPointer<const QmlJS::ScopeChain> m_rootScopeChain;
 
     friend class Internal::SemanticHighlighter;
 };

@@ -38,7 +38,6 @@
 #include <QtCore/QDebug>
 
 using namespace QmlJS;
-using namespace QmlJS::Interpreter;
 
 Evaluate::Evaluate(const ScopeChain *scopeChain)
     : _valueOwner(scopeChain->context()->valueOwner()),
@@ -53,12 +52,12 @@ Evaluate::~Evaluate()
 {
 }
 
-const Interpreter::Value *Evaluate::operator()(AST::Node *ast)
+const Value *Evaluate::operator()(AST::Node *ast)
 {
     return value(ast);
 }
 
-const Interpreter::Value *Evaluate::value(AST::Node *ast)
+const Value *Evaluate::value(AST::Node *ast)
 {
     const Value *result = reference(ast);
 
@@ -71,7 +70,7 @@ const Interpreter::Value *Evaluate::value(AST::Node *ast)
     return result;
 }
 
-const Interpreter::Value *Evaluate::reference(AST::Node *ast)
+const Value *Evaluate::reference(AST::Node *ast)
 {
     // save the result
     const Value *previousResult = switchResult(0);
@@ -83,16 +82,16 @@ const Interpreter::Value *Evaluate::reference(AST::Node *ast)
     return switchResult(previousResult);
 }
 
-const Interpreter::Value *Evaluate::switchResult(const Interpreter::Value *result)
+const Value *Evaluate::switchResult(const Value *result)
 {
-    const Interpreter::Value *previousResult = _result;
+    const Value *previousResult = _result;
     _result = result;
     return previousResult;
 }
 
-const Interpreter::ObjectValue *Evaluate::switchScope(const Interpreter::ObjectValue *scope)
+const ObjectValue *Evaluate::switchScope(const ObjectValue *scope)
 {
-    const Interpreter::ObjectValue *previousScope = _scope;
+    const ObjectValue *previousScope = _scope;
     _scope = scope;
     return previousScope;
 }
@@ -311,8 +310,8 @@ bool Evaluate::visit(AST::FieldMemberExpression *ast)
     if (! ast->name)
         return false;
 
-    if (const Interpreter::Value *base = _valueOwner->convertToObject(value(ast->base))) {
-        if (const Interpreter::ObjectValue *obj = base->asObjectValue()) {
+    if (const Value *base = _valueOwner->convertToObject(value(ast->base))) {
+        if (const ObjectValue *obj = base->asObjectValue()) {
             _result = obj->lookupMember(ast->name->asString(), _context);
         }
     }
@@ -338,8 +337,8 @@ bool Evaluate::visit(AST::NewExpression *ast)
 
 bool Evaluate::visit(AST::CallExpression *ast)
 {
-    if (const Interpreter::Value *base = value(ast->base)) {
-        if (const Interpreter::FunctionValue *obj = base->asFunctionValue()) {
+    if (const Value *base = value(ast->base)) {
+        if (const FunctionValue *obj = base->asFunctionValue()) {
             _result = obj->returnValue();
         }
     }

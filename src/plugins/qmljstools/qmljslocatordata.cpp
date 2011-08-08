@@ -39,7 +39,6 @@
 
 using namespace QmlJSTools::Internal;
 using namespace QmlJS;
-using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
 LocatorData::LocatorData(QObject *parent)

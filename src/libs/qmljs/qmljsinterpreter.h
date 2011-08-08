@@ -51,8 +51,6 @@ namespace QmlJS {
 class NameId;
 class Document;
 
-namespace Interpreter {
-
 ////////////////////////////////////////////////////////////////////////////////
 // Forward declarations
 ////////////////////////////////////////////////////////////////////////////////
@@ -573,10 +571,10 @@ public:
     static const QLatin1String cppPackage;
 
     template <typename T>
-    QList<QmlObjectValue *> load(Interpreter::ValueOwner *interpreter, const T &objects);
+    QList<QmlObjectValue *> load(ValueOwner *interpreter, const T &objects);
 
-    QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, LanguageUtils::ComponentVersion version) const;
-    Interpreter::QmlObjectValue *typeByCppName(const QString &cppName) const;
+    QList<QmlObjectValue *> typesForImport(const QString &prefix, LanguageUtils::ComponentVersion version) const;
+    QmlObjectValue *typeByCppName(const QString &cppName) const;
 
     bool hasPackage(const QString &package) const;
 
@@ -906,6 +904,6 @@ private:
     JSImportScope *_jsImportScope;
 };
 
-} } // namespace QmlJS::Interpreter
+} // namespace QmlJS
 
 #endif // QMLJS_INTERPRETER_H

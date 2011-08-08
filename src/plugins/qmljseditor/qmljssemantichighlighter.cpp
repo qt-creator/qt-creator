@@ -137,8 +137,8 @@ SemanticInfo SemanticHighlighter::semanticInfo(const SemanticHighlighterSource &
     QmlJS::Link link(snapshot, modelManager->importPaths(), modelManager->builtins(doc));
     semanticInfo.context = link(doc, &semanticInfo.semanticMessages);
 
-    QmlJS::Interpreter::ScopeChain *scopeChain = new QmlJS::Interpreter::ScopeChain(doc, semanticInfo.context);
-    semanticInfo.m_rootScopeChain = QSharedPointer<const QmlJS::Interpreter::ScopeChain>(scopeChain);
+    QmlJS::ScopeChain *scopeChain = new QmlJS::ScopeChain(doc, semanticInfo.context);
+    semanticInfo.m_rootScopeChain = QSharedPointer<const QmlJS::ScopeChain>(scopeChain);
 
     QmlJS::Check checker(doc, semanticInfo.context);
     semanticInfo.semanticMessages.append(checker());

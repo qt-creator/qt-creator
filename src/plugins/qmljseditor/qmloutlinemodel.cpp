@@ -72,8 +72,8 @@ QVariant QmlOutlineItem::data(int role) const
             return QVariant();
 
         QList<AST::Node *> astPath = m_outlineModel->m_semanticInfo.rangePath(location.begin());
-        Interpreter::ScopeChain scopeChain = m_outlineModel->m_semanticInfo.scopeChain(astPath);
-        const Interpreter::Value *value = scopeChain.evaluate(uiQualifiedId);
+        ScopeChain scopeChain = m_outlineModel->m_semanticInfo.scopeChain(astPath);
+        const Value *value = scopeChain.evaluate(uiQualifiedId);
 
         return prettyPrint(value, scopeChain.context());
     }
@@ -99,12 +99,12 @@ void QmlOutlineItem::setItemData(const QMap<int, QVariant> &roles)
     }
 }
 
-QString QmlOutlineItem::prettyPrint(const Interpreter::Value *value, const Interpreter::ContextPtr &context) const
+QString QmlOutlineItem::prettyPrint(const Value *value, const ContextPtr &context) const
 {
     if (! value)
         return QString();
 
-    if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
+    if (const ObjectValue *objectValue = value->asObjectValue()) {
         const QString className = objectValue->className();
         if (!className.isEmpty()) {
             return className;

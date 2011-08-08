@@ -65,7 +65,6 @@
 #include <functional>
 
 using namespace QmlJS;
-using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 using namespace QmlJSEditor;
 

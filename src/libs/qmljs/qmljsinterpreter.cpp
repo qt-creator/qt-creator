@@ -55,7 +55,7 @@
 #include <QtCore/QDebug>
 
 using namespace LanguageUtils;
-using namespace QmlJS::Interpreter;
+using namespace QmlJS;
 using namespace QmlJS::AST;
 
 namespace {
@@ -1176,7 +1176,7 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInf
             QString contents = QString::fromUtf8(file.readAll());
             file.close();
 
-            QmlJS::TypeDescriptionReader reader(contents);
+            TypeDescriptionReader reader(contents);
             if (!reader(&newObjects))
                 error = reader.errorMessage();
             warning = reader.warningMessage();
@@ -1205,7 +1205,7 @@ void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &xml,
 {
     errorMessage->clear();
     warningMessage->clear();
-    QmlJS::TypeDescriptionReader reader(QString::fromUtf8(xml));
+    TypeDescriptionReader reader(QString::fromUtf8(xml));
     if (!reader(newObjects)) {
         if (reader.errorMessage().isEmpty()) {
             *errorMessage = QLatin1String("unknown error");
@@ -1631,7 +1631,7 @@ void TypeId::visit(const AnchorLineValue *)
 
 ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
                                UiObjectInitializer *initializer,
-                               const QmlJS::Document *doc,
+                               const Document *doc,
                                ValueOwner *valueOwner)
     : ObjectValue(valueOwner), _typeName(typeName), _initializer(initializer), _doc(doc), _defaultPropertyRef(0)
 {
@@ -1701,12 +1701,12 @@ UiQualifiedId *ASTObjectValue::typeName() const
     return _typeName;
 }
 
-const QmlJS::Document *ASTObjectValue::document() const
+const Document *ASTObjectValue::document() const
 {
     return _doc;
 }
 
-ASTVariableReference::ASTVariableReference(VariableDeclaration *ast, const QmlJS::Document *doc, ValueOwner *valueOwner)
+ASTVariableReference::ASTVariableReference(VariableDeclaration *ast, const Document *doc, ValueOwner *valueOwner)
     : Reference(valueOwner)
     , _ast(ast)
     , _doc(doc)
@@ -1724,14 +1724,14 @@ const Value *ASTVariableReference::value(const ReferenceContext *referenceContex
 
     Document::Ptr doc = _doc->ptr();
     ScopeChain scopeChain(doc, referenceContext->context());
-    QmlJS::ScopeBuilder builder(&scopeChain);
-    builder.push(QmlJS::ScopeAstPath(doc)(_ast->expression->firstSourceLocation().begin()));
+    ScopeBuilder builder(&scopeChain);
+    builder.push(ScopeAstPath(doc)(_ast->expression->firstSourceLocation().begin()));
 
-    QmlJS::Evaluate evaluator(&scopeChain);
+    Evaluate evaluator(&scopeChain);
     return evaluator(_ast->expression);
 }
 
-ASTFunctionValue::ASTFunctionValue(FunctionExpression *ast, const QmlJS::Document *doc, ValueOwner *valueOwner)
+ASTFunctionValue::ASTFunctionValue(FunctionExpression *ast, const Document *doc, ValueOwner *valueOwner)
     : FunctionValue(valueOwner), _ast(ast), _doc(doc)
 {
     setPrototype(valueOwner->functionPrototype());
@@ -1787,7 +1787,7 @@ bool ASTFunctionValue::getSourceLocation(QString *fileName, int *line, int *colu
     return true;
 }
 
-QmlPrototypeReference::QmlPrototypeReference(UiQualifiedId *qmlTypeName, const QmlJS::Document *doc,
+QmlPrototypeReference::QmlPrototypeReference(UiQualifiedId *qmlTypeName, const Document *doc,
                                              ValueOwner *valueOwner)
     : Reference(valueOwner),
       _qmlTypeName(qmlTypeName),
@@ -1809,7 +1809,7 @@ const Value *QmlPrototypeReference::value(const ReferenceContext *referenceConte
     return referenceContext->context()->lookupType(_doc, _qmlTypeName);
 }
 
-ASTPropertyReference::ASTPropertyReference(UiPublicMember *ast, const QmlJS::Document *doc, ValueOwner *valueOwner)
+ASTPropertyReference::ASTPropertyReference(UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner)
     : Reference(valueOwner), _ast(ast), _doc(doc)
 {
     const QString propertyName = ast->name->asString();
@@ -1840,14 +1840,14 @@ const Value *ASTPropertyReference::value(const ReferenceContext *referenceContex
         // Adjust the context for the current location - expensive!
         // ### Improve efficiency by caching the 'use chain' constructed in ScopeBuilder.
 
-        QmlJS::Document::Ptr doc = _doc->ptr();
+        Document::Ptr doc = _doc->ptr();
         ScopeChain scopeChain(doc, referenceContext->context());
-        QmlJS::ScopeBuilder builder(&scopeChain);
+        ScopeBuilder builder(&scopeChain);
 
         int offset = _ast->statement->firstSourceLocation().begin();
         builder.push(ScopeAstPath(doc)(offset));
 
-        QmlJS::Evaluate evaluator(&scopeChain);
+        Evaluate evaluator(&scopeChain);
         return evaluator(_ast->statement);
     }
 
@@ -1857,7 +1857,7 @@ const Value *ASTPropertyReference::value(const ReferenceContext *referenceContex
     return valueOwner()->undefinedValue();
 }
 
-ASTSignalReference::ASTSignalReference(UiPublicMember *ast, const QmlJS::Document *doc, ValueOwner *valueOwner)
+ASTSignalReference::ASTSignalReference(UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner)
     : Reference(valueOwner), _ast(ast), _doc(doc)
 {
     const QString signalName = ast->name->asString();

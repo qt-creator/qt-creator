@@ -41,10 +41,8 @@
 #include <QtGui/QStandardItemModel>
 
 namespace QmlJS {
-namespace Interpreter {
 class Value;
 class Context;
-}
 }
 
 namespace QmlJSEditor {
@@ -64,7 +62,7 @@ public:
     void setItemData(const QMap<int, QVariant> &roles);
 
 private:
-    QString prettyPrint(const QmlJS::Interpreter::Value *value, const QmlJS::Interpreter::ContextPtr &context) const;
+    QString prettyPrint(const QmlJS::Value *value, const QmlJS::ContextPtr &context) const;
 
     QmlOutlineModel *m_outlineModel;
 };

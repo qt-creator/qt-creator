@@ -52,7 +52,7 @@ class QuickToolBar : public QmlJS::IContextPane
 public:
    QuickToolBar(QObject *parent = 0);
    ~QuickToolBar();
-   void apply(TextEditor::BaseTextEditor *editor, QmlJS::Document::Ptr document, const QmlJS::Interpreter::ScopeChain *scopeChain, QmlJS::AST::Node *node, bool update, bool force = false);
+   void apply(TextEditor::BaseTextEditor *editor, QmlJS::Document::Ptr document, const QmlJS::ScopeChain *scopeChain, QmlJS::AST::Node *node, bool update, bool force = false);
    bool isAvailable(TextEditor::BaseTextEditor *editor, QmlJS::Document::Ptr document, QmlJS::AST::Node *node);
    void setProperty(const QString &propertyName, const QVariant &value);
    void removeProperty(const QString &propertyName);

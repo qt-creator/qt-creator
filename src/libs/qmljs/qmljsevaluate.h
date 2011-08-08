@@ -39,34 +39,32 @@
 
 namespace QmlJS {
 
-namespace Interpreter {
-    class ValueOwner;
-    class Context;
-    class Value;
-    class ObjectValue;
-    class FunctionValue;
-} // namespace Interpreter
+class ValueOwner;
+class Context;
+class Value;
+class ObjectValue;
+class FunctionValue;
 
 class QMLJS_EXPORT Evaluate: protected AST::Visitor
 {
 public:
-    Evaluate(const Interpreter::ScopeChain *scopeChain);
+    Evaluate(const ScopeChain *scopeChain);
     virtual ~Evaluate();
 
     // same as value()
-    const Interpreter::Value *operator()(AST::Node *ast);
+    const Value *operator()(AST::Node *ast);
 
     // evaluate ast in the given context, resolving references
-    const Interpreter::Value *value(AST::Node *ast);
+    const Value *value(AST::Node *ast);
 
     // evaluate, but stop when encountering a Reference
-    const Interpreter::Value *reference(AST::Node *ast);
+    const Value *reference(AST::Node *ast);
 
 protected:
     void accept(AST::Node *node);
 
-    const Interpreter::Value *switchResult(const Interpreter::Value *result);
-    const Interpreter::ObjectValue *switchScope(const Interpreter::ObjectValue *scope);
+    const Value *switchResult(const Value *result);
+    const ObjectValue *switchScope(const ObjectValue *scope);
 
     // Ui
     virtual bool visit(AST::UiProgram *ast);
@@ -164,11 +162,11 @@ protected:
 
 private:
     QmlJS::Document::Ptr _doc;
-    Interpreter::ValueOwner *_valueOwner;
-    Interpreter::ContextPtr _context;
-    const Interpreter::ScopeChain *_scopeChain;
-    const Interpreter::ObjectValue *_scope;
-    const Interpreter::Value *_result;
+    ValueOwner *_valueOwner;
+    ContextPtr _context;
+    const ScopeChain *_scopeChain;
+    const ObjectValue *_scope;
+    const Value *_result;
 };
 
 } // namespace Qml

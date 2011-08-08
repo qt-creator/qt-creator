@@ -229,7 +229,7 @@ static QList<FakeMetaObject::ConstPtr> parseHelper(const QByteArray &qmlTypeDesc
 {
     QList<FakeMetaObject::ConstPtr> ret;
     QHash<QString, FakeMetaObject::ConstPtr> newObjects;
-    Interpreter::CppQmlTypesLoader::parseQmlTypeDescriptions(qmlTypeDescriptions, &newObjects,
+    CppQmlTypesLoader::parseQmlTypeDescriptions(qmlTypeDescriptions, &newObjects,
                                                              error, warning);
 
     if (error->isEmpty()) {

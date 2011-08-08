@@ -55,7 +55,6 @@
 
 using namespace Core;
 using namespace QmlJS;
-using namespace QmlJS::Interpreter;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
@@ -175,7 +174,7 @@ bool HoverHandler::matchColorItem(const ScopeChain &scopeChain,
         return false;
 
     QString color;
-    const Interpreter::Value *value = 0;
+    const Value *value = 0;
     if (const AST::UiScriptBinding *binding = AST::cast<const AST::UiScriptBinding *>(member)) {
         if (binding->qualifiedId && posIsInSource(pos, binding->statement)) {
             value = scopeChain.evaluate(binding->qualifiedId);
@@ -189,7 +188,7 @@ bool HoverHandler::matchColorItem(const ScopeChain &scopeChain,
                AST::cast<const AST::UiPublicMember *>(member)) {
         if (publicMember->name && posIsInSource(pos, publicMember->statement)) {
             value = scopeChain.lookup(publicMember->name->asString());
-            if (const Interpreter::Reference *ref = value->asReference())
+            if (const Reference *ref = value->asReference())
                 value = scopeChain.context()->lookupReference(ref);
                 color = textAt(qmlDocument,
                                publicMember->statement->firstSourceLocation(),
@@ -215,20 +214,20 @@ void HoverHandler::handleOrdinaryMatch(const ScopeChain &scopeChain, AST::Node *
 {
     if (node && !(AST::cast<AST::StringLiteral *>(node) != 0 ||
                   AST::cast<AST::NumericLiteral *>(node) != 0)) {
-        const Interpreter::Value *value = scopeChain.evaluate(node);
+        const Value *value = scopeChain.evaluate(node);
         prettyPrintTooltip(value, scopeChain.context());
     }
 }
 
 void HoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport *node)
 {
-    const Interpreter::Imports *imports = scopeChain.context()->imports(scopeChain.document().data());
+    const Imports *imports = scopeChain.context()->imports(scopeChain.document().data());
     if (!imports)
         return;
 
-    foreach (const Interpreter::Import &import, imports->all()) {
+    foreach (const Import &import, imports->all()) {
         if (import.info.ast() == node) {
-            if (import.info.type() == Interpreter::ImportInfo::LibraryImport
+            if (import.info.type() == ImportInfo::LibraryImport
                     && !import.libraryPath.isEmpty()) {
                 QString msg = tr("Library at %1").arg(import.libraryPath);
                 const LibraryInfo &libraryInfo = scopeChain.context()->snapshot().libraryInfo(import.libraryPath);
@@ -270,16 +269,16 @@ void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint 
     }
 }
 
-void HoverHandler::prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
-                                      const QmlJS::Interpreter::ContextPtr &context)
+void HoverHandler::prettyPrintTooltip(const QmlJS::Value *value,
+                                      const QmlJS::ContextPtr &context)
 {
     if (! value)
         return;
 
-    if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
-        Interpreter::PrototypeIterator iter(objectValue, context);
+    if (const ObjectValue *objectValue = value->asObjectValue()) {
+        PrototypeIterator iter(objectValue, context);
         while (iter.hasNext()) {
-            const Interpreter::ObjectValue *prototype = iter.next();
+            const ObjectValue *prototype = iter.next();
             const QString className = prototype->className();
 
             if (! className.isEmpty()) {
@@ -287,8 +286,8 @@ void HoverHandler::prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
                 break;
             }
         }
-    } else if (const Interpreter::QmlEnumValue *enumValue =
-               dynamic_cast<const Interpreter::QmlEnumValue *>(value)) {
+    } else if (const QmlEnumValue *enumValue =
+               dynamic_cast<const QmlEnumValue *>(value)) {
         setToolTip(enumValue->name());
     }
 
@@ -300,10 +299,10 @@ void HoverHandler::prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
 }
 
 // if node refers to a property, its name and defining object are returned - otherwise zero
-static const Interpreter::ObjectValue *isMember(const ScopeChain &scopeChain,
+static const ObjectValue *isMember(const ScopeChain &scopeChain,
                                                 AST::Node *node, QString *name)
 {
-    const Interpreter::ObjectValue *owningObject = 0;
+    const ObjectValue *owningObject = 0;
     if (AST::IdentifierExpression *identExp = AST::cast<AST::IdentifierExpression *>(node)) {
         if (!identExp->name)
             return 0;
@@ -313,7 +312,7 @@ static const Interpreter::ObjectValue *isMember(const ScopeChain &scopeChain,
         if (!fme->base || !fme->name)
             return 0;
         *name = fme->name->asString();
-        const Interpreter::Value *base = scopeChain.evaluate(fme->base);
+        const Value *base = scopeChain.evaluate(fme->base);
         if (!base)
             return 0;
         owningObject = base->asObjectValue();
@@ -323,11 +322,11 @@ static const Interpreter::ObjectValue *isMember(const ScopeChain &scopeChain,
         if (!qid->name)
             return 0;
         *name = qid->name->asString();
-        const Interpreter::Value *value = scopeChain.lookup(*name, &owningObject);
+        const Value *value = scopeChain.lookup(*name, &owningObject);
         for (AST::UiQualifiedId *it = qid->next; it; it = it->next) {
             if (!value)
                 return 0;
-            const Interpreter::ObjectValue *next = value->asObjectValue();
+            const ObjectValue *next = value->asObjectValue();
             if (!next || !it->name)
                 return 0;
             *name = it->name->asString();
@@ -341,7 +340,7 @@ TextEditor::HelpItem HoverHandler::qmlHelpItem(const ScopeChain &scopeChain,
                                                AST::Node *node) const
 {
     QString name;
-    if (const Interpreter::ObjectValue *scope = isMember(scopeChain, node, &name)) {
+    if (const ObjectValue *scope = isMember(scopeChain, node, &name)) {
         // maybe it's a type?
         if (!name.isEmpty() && name.at(0).isUpper()) {
             const QString maybeHelpId(QLatin1String("QML.") + name);
@@ -350,11 +349,11 @@ TextEditor::HelpItem HoverHandler::qmlHelpItem(const ScopeChain &scopeChain,
         }
 
         // otherwise, it's probably a property
-        const Interpreter::ObjectValue *lastScope;
+        const ObjectValue *lastScope;
         scope->lookupMember(name, scopeChain.context(), &lastScope);
-        Interpreter::PrototypeIterator iter(scope, scopeChain.context());
+        PrototypeIterator iter(scope, scopeChain.context());
         while (iter.hasNext()) {
-            const Interpreter::ObjectValue *cur = iter.next();
+            const ObjectValue *cur = iter.next();
 
             const QString className = cur->className();
             if (!className.isEmpty()) {

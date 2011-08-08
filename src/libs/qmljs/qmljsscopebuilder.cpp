@@ -39,7 +39,6 @@
 #include "parser/qmljsast_p.h"
 
 using namespace QmlJS;
-using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
 ScopeBuilder::ScopeBuilder(ScopeChain *scopeChain)

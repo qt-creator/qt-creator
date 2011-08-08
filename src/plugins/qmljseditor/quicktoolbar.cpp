@@ -64,7 +64,7 @@ static inline QString textAt(const Document* doc,
     return doc->source().mid(from.offset, to.end() - from.begin());
 }
 
-static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *node, const Interpreter::ScopeChain &scopeChain)
+static inline const ObjectValue * getPropertyChangesTarget(Node *node, const ScopeChain &scopeChain)
 {
     UiObjectInitializer *initializer = 0;
     if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(node))
@@ -78,8 +78,8 @@ static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *no
                         && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
                         && ! scriptBinding->qualifiedId->next) {
                     Evaluate evaluator(&scopeChain);
-                    const Interpreter::Value *targetValue = evaluator(scriptBinding->statement);
-                    if (const Interpreter::ObjectValue *targetObject = Interpreter::value_cast<const Interpreter::ObjectValue *>(targetValue)) {
+                    const Value *targetValue = evaluator(scriptBinding->statement);
+                    if (const ObjectValue *targetObject = value_cast<const ObjectValue *>(targetValue)) {
                         return targetObject;
                     } else {
                         return 0;
@@ -131,7 +131,7 @@ QuickToolBar::~QuickToolBar()
         m_widget.clear();
 }
 
-void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr document, const Interpreter::ScopeChain *scopeChain, AST::Node *node, bool update, bool force)
+void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr document, const ScopeChain *scopeChain, AST::Node *node, bool update, bool force)
 {
     if (!QuickToolBarSettings::get().enableContextPane && !force && !update) {
         contextWidget()->hide();
@@ -146,24 +146,24 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
 
     m_blockWriting = true;
 
-    const Interpreter::ObjectValue *scopeObject = document->bind()->findQmlObject(node);
+    const ObjectValue *scopeObject = document->bind()->findQmlObject(node);
 
     bool isPropertyChanges = false;
 
     if (scopeChain && scopeObject) {
         m_prototypes.clear();
-        foreach (const Interpreter::ObjectValue *object,
-                 Interpreter::PrototypeIterator(scopeObject, scopeChain->context()).all()) {
+        foreach (const ObjectValue *object,
+                 PrototypeIterator(scopeObject, scopeChain->context()).all()) {
             m_prototypes.append(object->className());
         }
 
         if (m_prototypes.contains("PropertyChanges")) {
             isPropertyChanges = true;
-            const Interpreter::ObjectValue *targetObject = getPropertyChangesTarget(node, *scopeChain);
+            const ObjectValue *targetObject = getPropertyChangesTarget(node, *scopeChain);
             m_prototypes.clear();
             if (targetObject) {
-                foreach (const Interpreter::ObjectValue *object,
-                         Interpreter::PrototypeIterator(targetObject, scopeChain->context()).all()) {
+                foreach (const ObjectValue *object,
+                         PrototypeIterator(targetObject, scopeChain->context()).all()) {
                     m_prototypes.append(object->className());
                 }
             }
