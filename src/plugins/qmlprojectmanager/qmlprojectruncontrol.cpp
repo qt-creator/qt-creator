@@ -207,6 +207,13 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     params.projectSourceDirectory = runConfig->target()->project()->projectDirectory();
     params.projectSourceFiles = runConfig->target()->project()->files(Project::ExcludeGeneratedFiles);
 
+    // Makes sure that all bindings go through the JavaScript engine, so that
+    // breakpoints are actually hit!
+    const QString optimizerKey = QLatin1String("QML_DISABLE_OPTIMIZER");
+    if (!params.environment.hasKey(optimizerKey)) {
+        params.environment.set(optimizerKey, QLatin1String("1"));
+    }
+
     if (params.executable.isEmpty()) {
         QmlProjectPlugin::showQmlObserverToolWarning();
         return 0;
