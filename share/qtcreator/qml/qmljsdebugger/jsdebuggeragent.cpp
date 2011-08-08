@@ -370,27 +370,28 @@ void JSDebuggerAgentPrivate::positionChange(qint64 scriptId, int lineNumber, int
 
     // check breakpoints
     if (!breakpoints.isEmpty()) {
-        QHash<qint64, QString>::const_iterator it = filenames.constFind(scriptId);
         QScriptContext *ctx = engine()->currentContext();
         QScriptContextInfo info(ctx);
-        if (it == filenames.constEnd()) {
-            // It is possible that the scripts are loaded before the agent is attached
-            QString filename = info.fileName();
 
-            JSAgentStackData frame;
-            frame.functionName = info.functionName().toUtf8();
+        if (info.functionType() == QScriptContextInfo::ScriptFunction) {
+            QHash<qint64, QString>::const_iterator it = filenames.constFind(scriptId);
+            if (it == filenames.constEnd()) {
+                // It is possible that the scripts are loaded before the agent is attached
+                QString filename = info.fileName();
 
-            QPair<QString, qint32> key = qMakePair(filename, lineNumber);
-            it = filenames.insert(scriptId, filename);
-        }
+                JSAgentStackData frame;
+                frame.functionName = info.functionName().toUtf8();
+                it = filenames.insert(scriptId, filename);
+            }
 
-        const QString filePath = it->toUtf8();
-        JSAgentBreakpoints bps = fileNameToBreakpoints.values(fileName(filePath)).toSet();
+            const QString filePath = it->toUtf8();
+            JSAgentBreakpoints bps = fileNameToBreakpoints.values(fileName(filePath)).toSet();
 
-        foreach (const JSAgentBreakpointData &bp, bps) {
-            if (bp.lineNumber == lineNumber) {
-                stopped();
-                return;
+            foreach (const JSAgentBreakpointData &bp, bps) {
+                if (bp.lineNumber == lineNumber) {
+                    stopped();
+                    return;
+                }
             }
         }
     }
