@@ -73,7 +73,7 @@ static inline void debugNodeFlags(std::ostream &str, unsigned f)
     if (f & SymbolGroupNode::ComplexDumperOk)
         str << " ComplexDumperOk";
     if (f & SymbolGroupNode::WatchNode)
-QTCREATORBUG-5667        str << " WatchNode";
+        str << " WatchNode";
     str << ' ';
 }
 
