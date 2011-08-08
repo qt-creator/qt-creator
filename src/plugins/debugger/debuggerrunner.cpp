@@ -249,20 +249,22 @@ void DebuggerRunControl::start()
         return;
     }
 
-    foreach (const BreakpointModelId &id, debuggerCore()->breakHandler()->allBreakpointIds()) {
-        if (d->m_engine->breakHandler()->breakpointData(id).enabled
-                && !d->m_engine->acceptsBreakpoint(id)) {
+    if (d->m_engine->startParameters().startMode == StartInternal) {
+        foreach (const BreakpointModelId &id, debuggerCore()->breakHandler()->allBreakpointIds()) {
+            if (d->m_engine->breakHandler()->breakpointData(id).enabled
+                    && !d->m_engine->acceptsBreakpoint(id)) {
 
-            QString warningMessage =
-                    DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger "
-                                       "languages currently active, and will be ignored.");
+                QString warningMessage =
+                        DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger "
+                                           "languages currently active, and will be ignored.");
 
-            debuggerCore()->showMessage(warningMessage, LogWarning);
+                debuggerCore()->showMessage(warningMessage, LogWarning);
 
-            QErrorMessage *msgBox = new QErrorMessage(debuggerCore()->mainWindow());
-            msgBox->setAttribute(Qt::WA_DeleteOnClose);
-            msgBox->showMessage(warningMessage);
-            break;
+                QErrorMessage *msgBox = new QErrorMessage(debuggerCore()->mainWindow());
+                msgBox->setAttribute(Qt::WA_DeleteOnClose);
+                msgBox->showMessage(warningMessage);
+                break;
+            }
         }
     }
 
