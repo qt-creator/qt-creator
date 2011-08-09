@@ -398,7 +398,7 @@ bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
         return false;
     }
 
-    if (sp.startMode == AttachCore && !isMSVC_Flavor(sp.toolChainAbi.osFlavor()) {
+    if (sp.startMode == AttachCore && !isMSVC_Flavor(sp.toolChainAbi.osFlavor())) {
         check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine cannot debug gdb core files."));
         return false;
     }
