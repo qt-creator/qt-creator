@@ -103,6 +103,8 @@ QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
         return MaemoCopyToSysrootStep::displayName();
     else if (id == MaemoMakeInstallToSysrootStep::Id)
         return MaemoMakeInstallToSysrootStep::displayName();
+    else if (id == GenericDirectUploadStep::stepId())
+        return GenericDirectUploadStep::displayName();
     return QString();
 }
 
@@ -134,6 +136,8 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const QString &
     } else if (id == MeegoUploadAndInstallPackageStep::stepId()
         || (id == OldMaemoDeployStepId && (qobject_cast<const Qt4MeegoTarget *>(t)))) {
         return new MeegoUploadAndInstallPackageStep(parent);
+    } else if (id == GenericDirectUploadStep::stepId()) {
+        return new GenericDirectUploadStep(parent, id);
     }
 
     return 0;
@@ -188,6 +192,9 @@ BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *produ
     } else if (product->id() == MaemoMakeInstallToSysrootStep::Id) {
         return new MaemoMakeInstallToSysrootStep(parent,
             qobject_cast<MaemoMakeInstallToSysrootStep *>(product));
+    } else if (product->id() == GenericDirectUploadStep::stepId()) {
+        return new GenericDirectUploadStep(parent,
+             qobject_cast<GenericDirectUploadStep *>(product));
     }
     return 0;
 }
