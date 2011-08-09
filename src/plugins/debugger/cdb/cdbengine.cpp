@@ -357,14 +357,19 @@ static inline QString msgNoCdbBinaryForToolChain(const ProjectExplorer::Abi &tc)
     return CdbEngine::tr("There is no CDB binary available for binaries in format '%1'").arg(tc.toString());
 }
 
+static inline bool isMSVC_Flavor(ProjectExplorer::Abi::OSFlavor osf)
+{
+  return osf == ProjectExplorer::Abi::WindowsMsvc2005Flavor
+      || osf == ProjectExplorer::Abi::WindowsMsvc2008Flavor
+      || osf == ProjectExplorer::Abi::WindowsMsvc2010Flavor;
+}
+
 static QString cdbBinary(const DebuggerStartParameters &sp)
 {
     if (!sp.debuggerCommand.isEmpty()) {
         // Do not use a GDB binary if we got started for a project with MinGW runtime.
         const bool abiMatch = sp.toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS
-                    && (sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
-                        || sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
-                        || sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor);
+                   && isMSVC_Flavor(sp.toolChainAbi.osFlavor());
         if (abiMatch)
             return sp.debuggerCommand;
     }
@@ -393,9 +398,8 @@ bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
         return false;
     }
 
-    if (sp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor
-        && sp.startMode == AttachCore) {
-        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine cannot debug MSys core files."));
+    if (sp.startMode == AttachCore && !isMSVC_Flavor(sp.toolChainAbi.osFlavor()) {
+        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine cannot debug gdb core files."));
         return false;
     }
 

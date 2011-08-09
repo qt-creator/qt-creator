@@ -1213,8 +1213,11 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             sp.toolChainAbi = anyAbiOfBinary(sp.executable);
         } else {
             // Fixme: Distinguish between core-file and executable by argument syntax?
-            // (default up to 2.2 was core-file).
-            if (Abi::hostAbi().os() == Abi::WindowsOS || QFileInfo(*it).isExecutable()) {
+            // (default up to 2.2 was core-file (".dmp on Windows)).
+            const bool isExecutable = Abi::hostAbi().os() == Abi::WindowsOS ?
+                !it->endsWith(QLatin1String(".dmp"), Qt::CaseInsensitive) :
+                QFileInfo(*it).isExecutable();
+            if (isExecutable) {
                 sp.startMode = StartExternal;
                 sp.executable = *it;
                 sp.displayName = tr("Executable file \"%1\"").arg(sp.executable);
