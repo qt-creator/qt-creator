@@ -47,12 +47,14 @@ QList<Node *> ScopeAstPath::operator()(quint32 offset)
     _result.clear();
     _offset = offset;
     if (_doc)
-        Node::accept(_doc->ast(), this);
+        accept(_doc->ast());
     return _result;
 }
 
 void ScopeAstPath::accept(Node *node)
-{ Node::acceptChild(node, this); }
+{
+    Node::accept(node, this);
+}
 
 bool ScopeAstPath::preVisit(Node *node)
 {
@@ -72,7 +74,7 @@ bool ScopeAstPath::visit(UiPublicMember *node)
             && containsOffset(node->statement->firstSourceLocation(),
                               node->statement->lastSourceLocation())) {
         _result.append(node);
-        Node::accept(node->statement, this);
+        accept(node->statement);
         return false;
     }
     return true;
@@ -85,7 +87,7 @@ bool ScopeAstPath::visit(UiScriptBinding *node)
                               node->statement->lastSourceLocation()))
     {
         _result.append(node);
-        Node::accept(node->statement, this);
+        accept(node->statement);
         return false;
     }
     return true;
@@ -94,14 +96,14 @@ bool ScopeAstPath::visit(UiScriptBinding *node)
 bool ScopeAstPath::visit(UiObjectDefinition *node)
 {
     _result.append(node);
-    Node::accept(node->initializer, this);
+    accept(node->initializer);
     return false;
 }
 
 bool ScopeAstPath::visit(UiObjectBinding *node)
 {
     _result.append(node);
-    Node::accept(node->initializer, this);
+    accept(node->initializer);
     return false;
 }
 
@@ -112,9 +114,9 @@ bool ScopeAstPath::visit(FunctionDeclaration *node)
 
 bool ScopeAstPath::visit(FunctionExpression *node)
 {
-    Node::accept(node->formals, this);
+    accept(node->formals);
     _result.append(node);
-    Node::accept(node->body, this);
+    accept(node->body);
     return false;
 }
 
