@@ -1292,6 +1292,25 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
         return Link();
     }
 
+    // string literals that could refer to a file link to them
+    if (StringLiteral *literal = cast<StringLiteral *>(node)) {
+        const QString text = literal->value->asString();
+        BaseTextEditorWidget::Link link;
+        link.begin = literal->literalToken.begin();
+        link.end = literal->literalToken.end();
+        if (semanticInfo.snapshot.document(text)) {
+            link.fileName = text;
+            return link;
+        }
+        const QString relative = QString("%1/%2").arg(
+                    semanticInfo.document->path(),
+                    text);
+        if (semanticInfo.snapshot.document(relative)) {
+            link.fileName = relative;
+            return link;
+        }
+    }
+
     const ScopeChain scopeChain = semanticInfo.scopeChain(semanticInfo.rangePath(cursorPosition));
     Evaluate evaluator(&scopeChain);
     const Value *value = evaluator.reference(node);
