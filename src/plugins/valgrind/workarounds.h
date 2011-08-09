@@ -39,7 +39,7 @@ QT_BEGIN_NAMESPACE
 class QPalette;
 QT_END_NAMESPACE
 
-///FIXME: remove this once http://bugreports.qt.nokia.com/browse/QTCREATORBUG-3247 gets fixed
+///FIXME: remove this once https://bugreports.qt.nokia.com/browse/QTCREATORBUG-3247 gets fixed
 QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false);
 
 #endif // WORKAROUNDS_H

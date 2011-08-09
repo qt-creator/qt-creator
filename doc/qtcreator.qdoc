@@ -42,7 +42,7 @@
     \l{Operating Systems and Supported Platforms}.
 
     \note Please report bugs and suggestions to the
-    \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
+    \l{https://bugreports.qt.nokia.com}{Qt Bug Tracker}.
     You can also join the Qt Creator mailing list at:
     \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
 
@@ -8427,7 +8427,7 @@
 
               \note The Mac OS X Snow Leopard (10.6) has a bug that might cause the
               application to crash. For a workaround, see:
-              \l{http://bugreports.qt.nokia.com/browse/QTBUG-4962}{QTBUG-4962}.
+              \l{https://bugreports.qt.nokia.com/browse/QTBUG-4962}{QTBUG-4962}.
 
     \endtable
 
@@ -11988,7 +11988,7 @@
     report them as bugs.
 
     For a list of fixed issues and added features, see the changelog file in
-    the \c{qtcreator\dist} folder or the \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
+    the \c{qtcreator\dist} folder or the \l{https://bugreports.qt.nokia.com}{Qt Bug Tracker}.
 
     \section1 General Issues
 
@@ -12013,7 +12013,7 @@
            \list
 
            \o  \l{https://bugs.launchpad.net/ubuntu/+source/kdeutils/+bug/662005}{Ubuntu bug 662005}
-           \o  \l{http://bugreports.qt.nokia.com/browse/QTBUG-12025}{QTBUG-12025}
+           \o  \l{https://bugreports.qt.nokia.com/browse/QTBUG-12025}{QTBUG-12025}
 
            \endlist
 
@@ -12067,7 +12067,7 @@
            might not be able to
            access memory when the operating system starts paging. This causes breakpoint
            handling and symbol resolution to fail. For more information, see
-           \l{http://bugreports.qt.nokia.com/browse/QTCREATORBUG-2158}{QTCREATORBUG-2158}.
+           \l{https://bugreports.qt.nokia.com/browse/QTCREATORBUG-2158}{QTCREATORBUG-2158}.
 
            As a workaround, add the following section to the application .pro file to
            disable paging:

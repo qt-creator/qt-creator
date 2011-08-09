@@ -4656,7 +4656,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
         postCommand("set non-stop on");
     }
 
-    // Work around http://bugreports.qt.nokia.com/browse/QTCREATORBUG-2004
+    // Work around https://bugreports.qt.nokia.com/browse/QTCREATORBUG-2004
     postCommand("maintenance set internal-warning quit no", ConsoleCommand);
     postCommand("maintenance set internal-error quit no", ConsoleCommand);
 

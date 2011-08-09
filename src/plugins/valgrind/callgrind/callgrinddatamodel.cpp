@@ -206,7 +206,7 @@ QModelIndex DataModel::indexForObject(const Function *function) const
 }
 
 /**
- * Evil workaround for http://bugreports.qt.nokia.com/browse/QTBUG-1135
+ * Evil workaround for https://bugreports.qt.nokia.com/browse/QTBUG-1135
  * Just replace the bad hyphens by a 'NON-BREAKING HYPHEN' unicode char
  */
 static QString noWrap(const QString &str)

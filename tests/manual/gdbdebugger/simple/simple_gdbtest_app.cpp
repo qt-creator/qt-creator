@@ -2387,7 +2387,7 @@ namespace basic {
 
     // This tests display of basic types.
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5326
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-5326
 
     void testChar()
     {
@@ -2856,7 +2856,7 @@ namespace eigen {
 
 namespace bug842 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-842
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-842
     void test842()
     {
         qWarning("Test");
@@ -2869,7 +2869,7 @@ namespace bug842 {
 
 namespace bug3611 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-3611
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-3611
     void test3611()
     {
         typedef unsigned char byte;
@@ -2904,7 +2904,7 @@ void testStuff3()
 
 namespace bug4019 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4019
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-4019
 
     class A4019
     {
@@ -2930,7 +2930,7 @@ namespace bug4019 {
 
 namespace bug4497 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4497
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-4497
 
     void test4497()
     {
@@ -2952,7 +2952,7 @@ namespace bug4497 {
 
 namespace bug4904 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4904
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-4904
 
     struct CustomStruct {
         int id;
@@ -2982,7 +2982,7 @@ namespace bug4904 {
 
 namespace bug5046 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5046
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-5046
 
     struct Foo { int a, b, c; };
 
@@ -3003,7 +3003,7 @@ namespace bug5046 {
 
 namespace bug5106 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5106
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-5106
 
     class A5106
     {
@@ -3039,7 +3039,7 @@ namespace bug5106 {
 
 namespace bug5184 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5184
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-5184
 
     // Note: The report there shows type field "QUrl &" instead of QUrl.
     // It's unclear how this can happen. It should never have been like

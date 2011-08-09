@@ -1017,7 +1017,7 @@ void WatchModel::insertData(const WatchData &data)
         QModelIndex idx = watchIndex(oldItem);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
 
-        // This works around http://bugreports.qt.nokia.com/browse/QTBUG-7115
+        // This works around https://bugreports.qt.nokia.com/browse/QTBUG-7115
         // by creating and destroying a dummy child item.
         if (!hadChildren && oldItem->hasChildren) {
             WatchData dummy = data;

@@ -102,7 +102,7 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
 
          When using Visual C++ 2010, you must apply a hotfix that is available
          from http://support.microsoft.com/kb/2280741
-         (See http://bugreports.qt.nokia.com/browse/QTBUG-11445).
+         (See https://bugreports.qt.nokia.com/browse/QTBUG-11445).
 
          For the Visual C++ compilers, it is recommended to use the tool 'jom'.
          It is a replacement for nmake that utilizes all CPU cores and thus
