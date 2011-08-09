@@ -53,12 +53,14 @@ const char * const TASK_SEARCH = "QmlJSEditor.TaskSearch";
 const char * const FOLLOW_SYMBOL_UNDER_CURSOR = "QmlJSEditor.FollowSymbolUnderCursor";
 const char * const FIND_USAGES = "QmlJSEditor.FindUsages";
 const char * const RENAME_USAGES = "QmlJSEditor.RenameUsages";
+const char * const RUN_SEMANTIC_SCAN = "QmlJSEditor.RunSemanticScan";
 const char * const SHOW_QT_QUICK_HELPER = "QmlJSEditor.ShowQtQuickHelper";
 
 const char * const QML_MIMETYPE = "application/x-qml";
 const char * const JS_MIMETYPE = "application/javascript";
 
 const char *const TASK_CATEGORY_QML = "Task.Category.Qml";
+const char *const TASK_CATEGORY_QML_ANALYSIS = "Task.Category.QmlAnalysis";
 
 const char * const WIZARD_CATEGORY_QML = "S.Qml";
 const char * const WIZARD_TR_CATEGORY_QML = QT_TRANSLATE_NOOP("QmlJsEditor", "QML");

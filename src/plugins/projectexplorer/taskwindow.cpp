@@ -679,14 +679,18 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
-    connect(d->m_taskHub, SIGNAL(categoryAdded(QString, QString)),
-            this, SLOT(addCategory(QString, QString)));
+    connect(d->m_taskHub, SIGNAL(categoryAdded(QString, QString, bool)),
+            this, SLOT(addCategory(QString, QString, bool)));
     connect(d->m_taskHub, SIGNAL(taskAdded(ProjectExplorer::Task)),
             this, SLOT(addTask(ProjectExplorer::Task)));
     connect(d->m_taskHub, SIGNAL(taskRemoved(ProjectExplorer::Task)),
             this, SLOT(removeTask(ProjectExplorer::Task)));
     connect(d->m_taskHub, SIGNAL(tasksCleared(QString)),
             this, SLOT(clearTasks(QString)));
+    connect(d->m_taskHub, SIGNAL(categoryVisibilityChanged(QString,bool)),
+            this, SLOT(setCategoryVisibility(QString,bool)));
+    connect(d->m_taskHub, SIGNAL(popupRequested(bool)),
+            this, SLOT(popup(bool)));
 }
 
 TaskWindow::~TaskWindow()
@@ -719,14 +723,35 @@ void TaskWindow::clearTasks(const QString &categoryId)
     navigateStateChanged();
 }
 
+void TaskWindow::setCategoryVisibility(const QString &categoryId, bool visible)
+{
+    if (categoryId.isEmpty())
+        return;
+
+    QStringList categories = d->m_filter->filteredCategories();
+
+    if (visible) {
+        categories.removeOne(categoryId);
+    } else {
+        categories.append(categoryId);
+    }
+
+    d->m_filter->setFilteredCategories(categories);
+}
+
 void TaskWindow::visibilityChanged(bool /* b */)
 {
 }
 
-void TaskWindow::addCategory(const QString &categoryId, const QString &displayName)
+void TaskWindow::addCategory(const QString &categoryId, const QString &displayName, bool visible)
 {
     Q_ASSERT(!categoryId.isEmpty());
     d->m_model->addCategory(categoryId, displayName);
+    if (!visible) {
+        QStringList filters = d->m_filter->filteredCategories();
+        filters += categoryId;
+        d->m_filter->setFilteredCategories(filters);
+    }
 }
 
 void TaskWindow::addTask(const Task &task)
@@ -848,16 +873,7 @@ void TaskWindow::filterCategoryTriggered(QAction *action)
     QString categoryId = action->data().toString();
     Q_ASSERT(!categoryId.isEmpty());
 
-    QStringList categories = d->m_filter->filteredCategories();
-    Q_ASSERT(d->m_filter->filteredCategories().contains(categoryId) == action->isChecked());
-
-    if (action->isChecked()) {
-        categories.removeOne(categoryId);
-    } else {
-        categories.append(categoryId);
-    }
-
-    d->m_filter->setFilteredCategories(categories);
+    setCategoryVisibility(categoryId, action->isChecked());
 }
 
 int TaskWindow::taskCount() const

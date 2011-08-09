@@ -99,6 +99,7 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     void currentEditorChanged(Core::IEditor *editor);
+    void runSemanticScan();
 
 private:
     Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const QString &name,

@@ -35,6 +35,7 @@
 
 #include <projectexplorer/task.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -64,12 +65,13 @@ public:
 
 public slots:
     void updateMessages();
+    void updateSemanticMessagesNow();
     void documentsRemoved(const QStringList path);
 
 private slots:
     void displayResults(int begin, int end);
     void displayAllResults();
-    void updateMessagesNow();
+    void updateMessagesNow(bool updateSemantic = false);
 
 private:
     void insertTask(const ProjectExplorer::Task &task);
@@ -81,16 +83,20 @@ private:
     {
     public:
         QString fileName;
-        QList<QmlJS::DiagnosticMessage> messages;
+        QList<ProjectExplorer::Task> tasks;
     };
     static void collectMessages(QFutureInterface<FileErrorMessages> &future,
-                                QmlJS::Snapshot snapshot, QStringList files, QStringList importPaths);
+                                QmlJS::Snapshot snapshot,
+                                QList<QmlJS::ModelManagerInterface::ProjectInfo> projectInfos,
+                                QStringList importPaths,
+                                bool updateSemantic);
 
 private:
     ProjectExplorer::TaskHub *m_taskHub;
     QMap<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
     QFutureWatcher<FileErrorMessages> m_messageCollector;
     QTimer m_updateDelay;
+    bool m_updatingSemantic;
 };
 
 } // Internal

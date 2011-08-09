@@ -85,10 +85,11 @@ signals:
     void tasksCleared();
 
 private slots:
-    void addCategory(const QString &categoryId, const QString &displayName);
+    void addCategory(const QString &categoryId, const QString &displayName, bool visible);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
     void clearTasks(const QString &categoryId);
+    void setCategoryVisibility(const QString &categoryId, bool visible);
 
     void triggerDefaultHandler(const QModelIndex &index);
     void showContextMenu(const QPoint &position);

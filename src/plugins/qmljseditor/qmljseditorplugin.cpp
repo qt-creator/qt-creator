@@ -131,6 +131,20 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_modelManager = QmlJS::ModelManagerInterface::instance();
     addAutoReleasedObject(new QmlJSSnippetProvider);
 
+    // QML task updating manager
+    m_qmlTaskManager = new QmlTaskManager;
+    addAutoReleasedObject(m_qmlTaskManager);
+    connect(m_modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
+            m_qmlTaskManager, SLOT(updateMessages()));
+    // recompute messages when information about libraries changes
+    connect(m_modelManager, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
+            m_qmlTaskManager, SLOT(updateMessages()));
+    // recompute messages when project data changes (files added or removed)
+    connect(m_modelManager, SIGNAL(projectInfoUpdated(ProjectInfo)),
+            m_qmlTaskManager, SLOT(updateMessages()));
+    connect(m_modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
+            m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
+
     Core::Context context(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 
     m_editor = new QmlJSEditorFactory(this);
@@ -187,6 +201,12 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
+    QAction *semanticScan = new QAction(tr("Run Checks"), this);
+    cmd = am->registerAction(semanticScan, Core::Id(Constants::RUN_SEMANTIC_SCAN), globalContext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+C")));
+    connect(semanticScan, SIGNAL(triggered()), this, SLOT(runSemanticScan()));
+    qmlToolsMenu->addAction(cmd);
+
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
     cmd = am->registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
 #ifdef Q_WS_MACX
@@ -227,20 +247,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     addAutoReleasedObject(new QmlJSOutlineWidgetFactory);
 
-    m_qmlTaskManager = new QmlTaskManager;
-    addAutoReleasedObject(m_qmlTaskManager);
-
-    connect(m_modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
-            m_qmlTaskManager, SLOT(updateMessages()));
-    // recompute messages when information about libraries changes
-    connect(m_modelManager, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
-            m_qmlTaskManager, SLOT(updateMessages()));
-    // recompute messages when project data changes (files added or removed)
-    connect(m_modelManager, SIGNAL(projectInfoUpdated(ProjectInfo)),
-            m_qmlTaskManager, SLOT(updateMessages()));
-    connect(m_modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
-            m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
-
     addAutoReleasedObject(new QuickToolBar);
     addAutoReleasedObject(new Internal::QuickToolBarSettingsPage);
 
@@ -254,6 +260,7 @@ void QmlJSEditorPlugin::extensionsInitialized()
     ProjectExplorer::TaskHub *taskHub =
         ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::TaskHub>();
     taskHub->addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
+    taskHub->addCategory(Constants::TASK_CATEGORY_QML_ANALYSIS, tr("QML Analysis"), false);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()
@@ -328,6 +335,14 @@ void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
     else if (QmlJSTextEditorWidget *textEditor = qobject_cast<QmlJSTextEditorWidget *>(editor->widget())) {
         textEditor->forceReparse();
     }
+}
+
+void QmlJSEditorPlugin::runSemanticScan()
+{
+    m_qmlTaskManager->updateSemanticMessagesNow();
+    ProjectExplorer::TaskHub *hub = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::TaskHub>();
+    hub->setCategoryVisibility(Constants::TASK_CATEGORY_QML_ANALYSIS, true);
+    hub->popup(false);
 }
 
 Q_EXPORT_PLUGIN(QmlJSEditorPlugin)

@@ -184,15 +184,7 @@ void AnalyzerRunControl::addTask(Task::TaskType type, const QString &description
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     TaskHub *hub = pm->getObject<TaskHub>();
     hub->addTask(Task(type, description, file, line, Constants::ANALYZERTASK_ID));
-
-    ///FIXME: get a better API for this into Qt Creator
-    QList<Core::IOutputPane *> panes = pm->getObjects<Core::IOutputPane>();
-    foreach (Core::IOutputPane *pane, panes) {
-        if (pane->displayName() == tr("Build Issues")) {
-            pane->popup(false);
-            break;
-        }
-    }
+    hub->popup(false);
 }
 
 } // namespace Analyzer
