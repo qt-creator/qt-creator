@@ -2771,6 +2771,21 @@ bool Bind::visit(ClassSpecifierAST *ast)
                 startScopeOffset = tokenAt(q->unqualified_name->lastToken() - 1).end(); // at the end of the unqualified name
             }
         }
+
+        // get the unqualified class name
+        const QualifiedNameId *q = className->asQualifiedNameId();
+        const Name *unqualifiedClassName = q ? q->name() : className;
+
+        if (! unqualifiedClassName) // paranoia check
+            className = 0;
+        else if (! (unqualifiedClassName->isNameId() || unqualifiedClassName->isTemplateNameId())) {
+            translationUnit()->error(sourceLocation, "expected a class-name");
+
+            className = unqualifiedClassName->identifier();
+
+            if (q && className)
+                className = control()->qualifiedNameId(q->base(), className);
+        }
     }
 
     Class *klass = control()->newClass(sourceLocation, className);
