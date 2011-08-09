@@ -486,8 +486,10 @@ QList<SearchResultItem> SearchResultWindow::checkedItems() const
     \fn void SearchResultWindow::visibilityChanged(bool)
     \internal
 */
-void SearchResultWindow::visibilityChanged(bool /*visible*/)
+void SearchResultWindow::visibilityChanged(bool visible)
 {
+    if (d->m_currentSearch)
+        d->m_currentSearch->visibilityChanged(visible);
 }
 
 /*!

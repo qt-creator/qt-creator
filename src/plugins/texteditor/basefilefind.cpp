@@ -32,17 +32,19 @@
 
 #include "basefilefind.h"
 
+#include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/filemanager.h>
 #include <find/textfindconstants.h>
-#include <find/searchresultwindow.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <utils/stylehelper.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDirIterator>
@@ -100,15 +102,28 @@ QStringList BaseFileFind::fileNameFilters() const
     return filters;
 }
 
-void BaseFileFind::findAll(const QString &txt, Find::FindFlags findFlags)
+void BaseFileFind::runNewSearch(const QString &txt, Find::FindFlags findFlags,
+                                    SearchResultWindow::SearchMode searchMode)
 {
     m_isSearching = true;
+    m_currentFindSupport = 0;
     emit changed();
     if (m_filterCombo)
         updateComboEntries(m_filterCombo, true);
     m_watcher.setFuture(QFuture<FileSearchResultList>());
-    SearchResult *result = m_resultWindow->startNewSearch();
+    SearchResult *result = m_resultWindow->startNewSearch(searchMode,
+                                                          searchMode == SearchResultWindow::SearchAndReplace
+                                                          ? QString::fromLatin1("TextEditor")
+                                                          : QString());
+    QVariantList searchParameters;
+    searchParameters << qVariantFromValue(txt) << qVariantFromValue(findFlags);
+    result->setUserData(searchParameters);
     connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
+    if (searchMode == SearchResultWindow::SearchAndReplace) {
+        connect(result, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+                this, SLOT(doReplace(QString,QList<Find::SearchResultItem>)));
+    }
+    connect(result, SIGNAL(visibilityChanged(bool)), this, SLOT(hideHighlightAll(bool)));
     m_resultWindow->popup(true);
     if (findFlags & Find::FindRegularExpression) {
         m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(),
@@ -125,32 +140,14 @@ void BaseFileFind::findAll(const QString &txt, Find::FindFlags findFlags)
     connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
 }
 
+void BaseFileFind::findAll(const QString &txt, Find::FindFlags findFlags)
+{
+    runNewSearch(txt, findFlags, SearchResultWindow::SearchOnly);
+}
+
 void BaseFileFind::replaceAll(const QString &txt, Find::FindFlags findFlags)
 {
-    m_isSearching = true;
-    emit changed();
-    if (m_filterCombo)
-        updateComboEntries(m_filterCombo, true);
-    m_watcher.setFuture(QFuture<FileSearchResultList>());
-    SearchResult *result = m_resultWindow->startNewSearch(
-            SearchResultWindow::SearchAndReplace, QLatin1String("TextEditor"));
-    connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
-    connect(result, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
-            this, SLOT(doReplace(QString,QList<Find::SearchResultItem>)));
-    m_resultWindow->popup(true);
-    if (findFlags & Find::FindRegularExpression) {
-        m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(),
-            textDocumentFlagsForFindFlags(findFlags), ITextEditor::openedTextEditorsContents()));
-    } else {
-        m_watcher.setFuture(Utils::findInFiles(txt, files(),
-            textDocumentFlagsForFindFlags(findFlags), ITextEditor::openedTextEditorsContents()));
-    }
-    Core::FutureProgress *progress =
-        Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
-                                                                        tr("Search"),
-                                                                        Constants::TASK_SEARCH);
-    progress->setWidget(createProgressWidget());
-    connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
+    runNewSearch(txt, findFlags, SearchResultWindow::SearchAndReplace);
 }
 
 void BaseFileFind::doReplace(const QString &text,
@@ -166,7 +163,7 @@ void BaseFileFind::doReplace(const QString &text,
 
 void BaseFileFind::displayResult(int index) {
     Utils::FileSearchResultList results = m_watcher.future().resultAt(index);
-    QList<Find::SearchResultItem> items; // this conversion is stupid...
+    QList<Find::SearchResultItem> items;
     foreach (const Utils::FileSearchResult &result, results) {
         Find::SearchResultItem item;
         item.path = QStringList() << QDir::toNativeSeparators(result.fileName);
@@ -267,12 +264,38 @@ void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
 
 void BaseFileFind::openEditor(const Find::SearchResultItem &item)
 {
+    SearchResult *result = qobject_cast<SearchResult *>(sender());
+    Core::IEditor *openedEditor = 0;
     if (item.path.size() > 0) {
-        TextEditor::BaseTextEditorWidget::openEditorAt(QDir::fromNativeSeparators(item.path.first()), item.lineNumber, item.textMarkPos,
-                                                 QString(), Core::EditorManager::ModeSwitch);
+        openedEditor = TextEditor::BaseTextEditorWidget::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+                                                                      item.lineNumber,
+                                                                      item.textMarkPos,
+                                                                      QString(),
+                                                                      Core::EditorManager::ModeSwitch);
     } else {
-        Core::EditorManager::instance()->openEditor(item.text, QString(), Core::EditorManager::ModeSwitch);
+        openedEditor = Core::EditorManager::instance()->openEditor(item.text, QString(),
+                                                                   Core::EditorManager::ModeSwitch);
     }
+    if (m_currentFindSupport)
+        m_currentFindSupport->clearResults();
+    m_currentFindSupport = 0;
+    if (!openedEditor)
+        return;
+    // highlight results
+    if (IFindSupport *findSupport = Aggregation::query<IFindSupport>(openedEditor->widget())) {
+        if (result) {
+            QVariantList userData = result->userData().value<QVariantList>();
+            QTC_ASSERT(userData.size() != 0, return);
+            m_currentFindSupport = findSupport;
+            m_currentFindSupport->highlightAll(userData.at(0).toString(), userData.at(1).value<FindFlags>());
+        }
+    }
+}
+
+void BaseFileFind::hideHighlightAll(bool visible)
+{
+    if (!visible && m_currentFindSupport)
+        m_currentFindSupport->clearResults();
 }
 
 // #pragma mark Static methods

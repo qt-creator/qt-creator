@@ -93,6 +93,11 @@ public:
         m_incrementalStartPos = m_contPos = -1;
     }
 
+    virtual void highlightAll(const QString &txt, Find::FindFlags findFlags)
+    {
+        m_editor->highlightSearchResults(txt.toLatin1(), Find::textDocumentFlagsForFindFlags(findFlags));
+    }
+
     void clearResults() { m_editor->highlightSearchResults(QByteArray()); }
     QString currentFindString() const { return QString(); }
     QString completedFindString() const { return QString(); }

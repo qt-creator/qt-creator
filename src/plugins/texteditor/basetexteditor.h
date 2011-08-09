@@ -132,7 +132,7 @@ public:
     BaseTextEditorWidget(QWidget *parent);
     ~BaseTextEditorWidget();
 
-    static ITextEditor *openEditorAt(const QString &fileName, int line, int column = 0,
+    static Core::IEditor *openEditorAt(const QString &fileName, int line, int column = 0,
                                      const QString &editorId =  QString(),
                                      Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::IgnoreNavigationHistory,
                                      bool *newEditor = 0);

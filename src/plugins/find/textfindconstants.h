@@ -35,6 +35,7 @@
 
 #include "find_global.h"
 
+#include <QtCore/QMetaType>
 #include <QtCore/QFlags>
 #include <QtGui/QTextDocument>
 
@@ -77,5 +78,6 @@ QTextDocument::FindFlags FIND_EXPORT textDocumentFlagsForFindFlags(Find::FindFla
 } // namespace Find
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Find::FindFlags)
+Q_DECLARE_METATYPE(Find::FindFlags)
 
 #endif // TEXTFINDCONSTANTS_H

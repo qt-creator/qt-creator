@@ -36,6 +36,8 @@
 #include "texteditor_global.h"
 
 #include <find/ifindfilter.h>
+#include <find/ifindsupport.h>
+#include <find/searchresultwindow.h>
 #include <utils/filesearch.h>
 
 #include <QtCore/QFutureWatcher>
@@ -88,13 +90,19 @@ private slots:
     void openEditor(const Find::SearchResultItem &item);
     void doReplace(const QString &txt,
                     const QList<Find::SearchResultItem> &items);
+    void hideHighlightAll(bool visible);
 
 private:
     QWidget *createProgressWidget();
+    void runNewSearch(const QString &txt, Find::FindFlags findFlags,
+                      Find::SearchResultWindow::SearchMode searchMode);
 
     Find::SearchResultWindow *m_resultWindow;
+
     QFutureWatcher<Utils::FileSearchResultList> m_watcher;
     bool m_isSearching;
+    QPointer<Find::IFindSupport> m_currentFindSupport;
+
     QLabel *m_resultLabel;
     QStringListModel m_filterStrings;
     QString m_filterSetting;

@@ -486,8 +486,10 @@ Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index)
 bool BookmarkManager::gotoBookmark(Bookmark *bookmark)
 {
     using namespace TextEditor;
-    if (ITextEditor *editor = BaseTextEditorWidget::openEditorAt(bookmark->filePath(), bookmark->lineNumber()))
+    if (ITextEditor *editor = qobject_cast<ITextEditor *>(BaseTextEditorWidget::openEditorAt(bookmark->filePath(),
+                                                                                             bookmark->lineNumber()))) {
         return (editor->currentLine() == bookmark->lineNumber());
+    }
     return false;
 }
 

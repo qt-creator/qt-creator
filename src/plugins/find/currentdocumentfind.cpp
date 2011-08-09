@@ -181,7 +181,7 @@ void CurrentDocumentFind::acceptCandidate()
         return;
     removeFindSupportConnections();
     if (m_currentFind)
-        m_currentFind->highlightAll(QString(), 0);
+        m_currentFind->clearResults();
 
     if (m_currentWidget)
         disconnect(Aggregation::Aggregate::parentAggregate(m_currentWidget), SIGNAL(changed()),

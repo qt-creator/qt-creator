@@ -154,7 +154,7 @@ protected:
 } // namespace Internal
 } // namespace TextEditor
 
-ITextEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int line, int column,
+Core::IEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int line, int column,
                                  const QString &editorKind,
                                  Core::EditorManager::OpenEditorFlags flags,
                                  bool *newEditor)
@@ -170,7 +170,7 @@ ITextEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int lin
         return texteditor;
     }
 
-    return 0;
+    return editor;
 }
 
 static void convertToPlainText(QString &txt)

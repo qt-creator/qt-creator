@@ -88,11 +88,19 @@ class FIND_EXPORT SearchResult : public QObject
 {
     Q_OBJECT
 
+public:
+    void setUserData(const QVariant &data) { m_userData = data; }
+    QVariant userData() const { return m_userData; }
+
 signals:
     void activated(const Find::SearchResultItem &item);
     void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
+    void visibilityChanged(bool visible);
 
     friend class SearchResultWindow;
+
+private:
+    QVariant m_userData;
 };
 
 class FIND_EXPORT SearchResultWindow : public Core::IOutputPane
