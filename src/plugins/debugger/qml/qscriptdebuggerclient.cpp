@@ -223,13 +223,6 @@ void QScriptDebuggerClient::setBreakpoints()
     QByteArray cmd = "BREAKPOINTS";
     rs << cmd
        << d->breakpoints;
-
-    QStringList breakPointsStr;
-    foreach (const JSAgentBreakpointData &bp, d->breakpoints) {
-        breakPointsStr << QString("('%1' '%2' %3)").arg(QString(bp.functionName),
-                                                        QString(bp.fileUrl), QString::number(bp.lineNumber));
-    }
-
     sendMessage(reply);
 
     d->breakpoints.clear();
