@@ -107,15 +107,21 @@ public:
     bool isValid() const;
     int revision() const;
 
+    // Returns the AST path
+    QList<QmlJS::AST::Node *> astPath(int cursorPosition) const;
+
+    // Returns the AST node at the offset (the last member of the astPath)
+    QmlJS::AST::Node *astNodeAt(int cursorPosition) const;
+
+    // Returns the list of declaration-type nodes that enclose the given position.
+    // It is more robust than astPath because it tracks ranges with text cursors
+    // and will thus be correct even if the document was changed and not yet
+    // reparsed. It does not return the full path of AST nodes.
+    QList<QmlJS::AST::Node *> rangePath(int cursorPosition) const;
+
     // Returns the declaring member
     QmlJS::AST::Node *rangeAt(int cursorPosition) const;
     QmlJS::AST::Node *declaringMemberNoProperties(int cursorPosition) const;
-
-    // Returns the AST node under cursor
-    QmlJS::AST::Node *nodeUnderCursor(int cursorPosition) const;
-
-    // Returns the list of nodes that enclose the given position.
-    QList<QmlJS::AST::Node *> rangePath(int cursorPosition) const;
 
     // Returns a scopeChain for the given path
     QmlJS::ScopeChain scopeChain(const QList<QmlJS::AST::Node *> &path = QList<QmlJS::AST::Node *>()) const;

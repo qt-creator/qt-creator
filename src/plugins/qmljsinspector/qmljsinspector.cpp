@@ -218,7 +218,7 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
         QString query;
         QLatin1Char doubleQuote('"');
 
-        QmlJS::AST::Node *qmlNode = qmlEditor->semanticInfo().nodeUnderCursor(cursorPos);
+        QmlJS::AST::Node *qmlNode = qmlEditor->semanticInfo().astNodeAt(cursorPos);
         if (!qmlNode)
             return;
 

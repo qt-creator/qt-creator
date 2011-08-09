@@ -38,6 +38,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
+#include <utils/qtcassert.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsscopechain.h>
@@ -121,18 +122,28 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     if (! semanticInfo.isValid() || semanticInfo.revision() != qmlEditor->editorRevision())
         return;
 
-    QList<AST::Node *> astPath = semanticInfo.rangePath(pos);
+    QList<AST::Node *> rangePath = semanticInfo.rangePath(pos);
 
     const Document::Ptr qmlDocument = semanticInfo.document;
-    ScopeChain scopeChain = semanticInfo.scopeChain(astPath);
+    ScopeChain scopeChain = semanticInfo.scopeChain(rangePath);
 
-    AST::Node *node = semanticInfo.nodeUnderCursor(pos);
-    if (astPath.isEmpty()) {
-        if (AST::UiImport *import = AST::cast<AST::UiImport *>(node))
+    QList<AST::Node *> astPath = semanticInfo.astPath(pos);
+    QTC_ASSERT(!astPath.isEmpty(), return);
+    AST::Node *node = astPath.last();
+
+    if (rangePath.isEmpty()) {
+        // Is the cursor on an import? The ast path will have an UiImport
+        // member in the last or second to last position!
+        AST::UiImport *import = 0;
+        if (astPath.size() >= 1)
+            import = AST::cast<AST::UiImport *>(astPath.last());
+        if (!import && astPath.size() >= 2)
+            import = AST::cast<AST::UiImport *>(astPath.at(astPath.size() - 2));
+        if (import)
             handleImport(scopeChain, import);
         return;
     }
-    if (matchColorItem(scopeChain, qmlDocument, astPath, pos))
+    if (matchColorItem(scopeChain, qmlDocument, rangePath, pos))
         return;
 
     handleOrdinaryMatch(scopeChain, node);

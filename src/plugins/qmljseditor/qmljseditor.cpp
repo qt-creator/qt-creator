@@ -77,6 +77,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QSignalMapper>
@@ -447,13 +448,25 @@ protected:
 
 };
 
-
-class CollectASTNodes: protected AST::Visitor
+// ### does not necessarily give the full AST path!
+// intentionally does not contain lists like
+// UiImportList, SourceElements, UiObjectMemberList
+class AstPath: protected AST::Visitor
 {
+    QList<AST::Node *> _path;
+    unsigned _offset;
+
 public:
-    QList<AST::UiQualifiedId *> qualifiedIds;
-    QList<AST::IdentifierExpression *> identifiers;
-    QList<AST::FieldMemberExpression *> fieldMembers;
+    QList<AST::Node *> operator()(AST::Node *node, unsigned offset)
+    {
+        _offset = offset;
+        _path.clear();
+        accept(node);
+        return _path;
+    }
+
+protected:
+    using AST::Visitor::visit;
 
     void accept(AST::Node *node)
     {
@@ -461,26 +474,69 @@ public:
             node->accept(this);
     }
 
-protected:
-    using AST::Visitor::visit;
+    bool containsOffset(AST::SourceLocation start, AST::SourceLocation end)
+    {
+        return _offset >= start.begin() && _offset <= end.end();
+    }
+
+    bool handle(AST::Node *ast,
+                AST::SourceLocation start, AST::SourceLocation end,
+                bool addToPath = true)
+    {
+        if (containsOffset(start, end)) {
+            if (addToPath)
+                _path.append(ast);
+            return true;
+        }
+        return false;
+    }
+
+    template <class T>
+    bool handleLocationAst(T *ast, bool addToPath = true)
+    {
+        return handle(ast, ast->firstSourceLocation(), ast->lastSourceLocation(), addToPath);
+    }
+
+    virtual bool preVisit(AST::Node *node)
+    {
+        if (Statement *stmt = node->statementCast()) {
+            return handleLocationAst(stmt);
+        } else if (ExpressionNode *exp = node->expressionCast()) {
+            return handleLocationAst(exp);
+        } else if (UiObjectMember *ui = node->uiObjectMemberCast()) {
+            return handleLocationAst(ui);
+        }
+        return true;
+    }
 
     virtual bool visit(AST::UiQualifiedId *ast)
     {
-        qualifiedIds.append(ast);
+        AST::SourceLocation first = ast->identifierToken;
+        AST::SourceLocation last;
+        for (AST::UiQualifiedId *it = ast; it; it = it->next)
+            last = it->identifierToken;
+        if (containsOffset(first, last))
+            _path.append(ast);
         return false;
     }
 
-    virtual bool visit(AST::IdentifierExpression *ast)
+    virtual bool visit(AST::UiProgram *ast)
     {
-        identifiers.append(ast);
-        return false;
-    }
-
-    virtual bool visit(AST::FieldMemberExpression *ast)
-    {
-        fieldMembers.append(ast);
+        _path.append(ast);
         return true;
     }
+
+    virtual bool visit(AST::Program *ast)
+    {
+        _path.append(ast);
+        return true;
+    }
+
+    virtual bool visit(AST::UiImport *ast)
+    {
+        return handleLocationAst(ast);
+    }
+
 };
 
 } // end of anonymous namespace
@@ -560,47 +616,22 @@ ScopeChain SemanticInfo::scopeChain(const QList<QmlJS::AST::Node *> &path) const
     return scope;
 }
 
-static bool importContainsCursor(UiImport *importAst, unsigned cursorPosition)
+QList<AST::Node *> SemanticInfo::astPath(int pos) const
 {
-    return cursorPosition >= importAst->firstSourceLocation().begin()
-           && cursorPosition <= importAst->lastSourceLocation().end();
+    QList<AST::Node *> result;
+    if (! document)
+        return result;
+
+    AstPath astPath;
+    return astPath(document->ast(), pos);
 }
 
-AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
+AST::Node *SemanticInfo::astNodeAt(int pos) const
 {
-    if (! document)
+    const QList<AST::Node *> path = astPath(pos);
+    if (path.isEmpty())
         return 0;
-
-    const unsigned cursorPosition = pos;
-
-    foreach (const ImportInfo &import, document->bind()->imports()) {
-        if (importContainsCursor(import.ast(), cursorPosition))
-            return import.ast();
-    }
-
-    CollectASTNodes nodes;
-    nodes.accept(document->ast());
-
-    foreach (AST::UiQualifiedId *q, nodes.qualifiedIds) {
-        if (cursorPosition >= q->identifierToken.begin()) {
-            for (AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
-                if (! tail->next && cursorPosition <= tail->identifierToken.end())
-                    return q;
-            }
-        }
-    }
-
-    foreach (AST::IdentifierExpression *id, nodes.identifiers) {
-        if (cursorPosition >= id->identifierToken.begin() && cursorPosition <= id->identifierToken.end())
-            return id;
-    }
-
-    foreach (AST::FieldMemberExpression *mem, nodes.fieldMembers) {
-        if (mem->name && cursorPosition >= mem->identifierToken.begin() && cursorPosition <= mem->identifierToken.end())
-            return mem;
-    }
-
-    return 0;
+    return path.last();
 }
 
 bool SemanticInfo::isValid() const
@@ -1245,7 +1276,8 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
 
     const unsigned cursorPosition = cursor.position();
 
-    AST::Node *node = semanticInfo.nodeUnderCursor(cursorPosition);
+    AST::Node *node = semanticInfo.astNodeAt(cursorPosition);
+    QTC_ASSERT(node, return Link());
 
     if (AST::UiImport *importAst = cast<AST::UiImport *>(node)) {
         // if it's a file import, link to the file
