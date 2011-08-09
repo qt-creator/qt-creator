@@ -51,10 +51,9 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QToolButton>
 
-#include <callgrind/callgrindcostview.h>
-#include <callgrind/callgrindcostdelegate.h>
-#include <callgrind/callgrindvisualisation.h>
-#include <callgrind/callgrindwidgethandler.h>
+#include <callgrindcostview.h>
+#include <callgrindcostdelegate.h>
+#include <callgrindvisualisation.h>
 
 #include <valgrind/callgrind/callgrindparsedata.h>
 #include <valgrind/callgrind/callgrindparser.h>

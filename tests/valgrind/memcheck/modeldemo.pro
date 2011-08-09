@@ -2,7 +2,8 @@ include(../../../qtcreator.pri)
 include(../../auto/qttestrpath.pri)
 include($$IDE_SOURCE_TREE/src/libs/3rdparty/botan/botan.pri)
 include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
-include($$IDE_SOURCE_TREE/src/libs/valgrind/valgrind.pri)
+include($$IDE_SOURCE_TREE/src/plugins/valgrind/valgrind_test.pri)
+
 TEMPLATE = app
 TARGET = modeldemo
 

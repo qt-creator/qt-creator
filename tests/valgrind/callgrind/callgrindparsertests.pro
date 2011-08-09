@@ -1,5 +1,5 @@
 include(../../auto/qttest.pri)
-include(../../../src/libs/valgrind/valgrind.pri)
+include($$IDE_SOURCE_TREE/src/plugins/valgrind/valgrind_test.pri)
 include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 TARGET = callgrindparsertests
 

@@ -1,6 +1,6 @@
 include(../../../qtcreator.pri)
 include(../../auto/qttestrpath.pri)
-include($$IDE_SOURCE_TREE/src/plugins/callgrind/callgrind.pri)
+include($$IDE_SOURCE_TREE/src/plugins/valgrind/valgrind_test.pri)
 include($$IDE_SOURCE_TREE/src/libs/languageutils/languageutils.pri)
 
 TEMPLATE = app
@@ -13,21 +13,21 @@ SRCDIR = $$IDE_SOURCE_TREE/src
 
 SOURCES += \
     modeltest.cpp \
-    $$SRCDIR/plugins/callgrind/callgrindcostdelegate.cpp \
-    $$SRCDIR/plugins/callgrind/callgrindhelper.cpp \
-    $$SRCDIR/plugins/callgrind/callgrindcostview.cpp \
-    $$SRCDIR/plugins/callgrind/callgrindnamedelegate.cpp \
-    $$SRCDIR/plugins/callgrind/callgrindwidgethandler.cpp \
-    $$SRCDIR/plugins/callgrind/callgrindvisualisation.cpp \
+    $$SRCDIR/plugins/valgrind/callgrindcostdelegate.cpp \
+    $$SRCDIR/plugins/valgrind/callgrindhelper.cpp \
+    $$SRCDIR/plugins/valgrind/callgrindcostview.cpp \
+    $$SRCDIR/plugins/valgrind/callgrindnamedelegate.cpp \
+    $$SRCDIR/plugins/valgrind/callgrindwidgethandler.cpp \
+    $$SRCDIR/plugins/valgrind/callgrindvisualisation.cpp \
 
 HEADERS += \
     modeltest.h \
-    $$SRCDIR/plugins/callgrind/callgrindcostdelegate.h \
-    $$SRCDIR/plugins/callgrind/callgrindcostview.h \
-    $$SRCDIR/plugins/callgrind/callgrindhelper.h \
-    $$SRCDIR/plugins/callgrind/callgrindnamedelegate.h \
-    $$SRCDIR/plugins/callgrind/callgrindwidgethandler.h \
-    $$SRCDIR/plugins/callgrind/callgrindvisualisation.h \
+    $$SRCDIR/plugins/valgrind/callgrindcostdelegate.h \
+    $$SRCDIR/plugins/valgrind/callgrindcostview.h \
+    $$SRCDIR/plugins/valgrind/callgrindhelper.h \
+    $$SRCDIR/plugins/valgrind/callgrindnamedelegate.h \
+    $$SRCDIR/plugins/valgrind/callgrindwidgethandler.h \
+    $$SRCDIR/plugins/valgrind/callgrindvisualisation.h \
 
 LIBS += -L$$IDE_PLUGIN_PATH/Nokia
 
