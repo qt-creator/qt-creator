@@ -690,7 +690,7 @@ BOOL CALLBACK sendShutDownMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM
     static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcbuildhelper_shutdown");
     DWORD dwProcessID;
     GetWindowThreadProcessId(hwnd, &dwProcessID);
-    if (lParam == dwProcessID) {
+    if ((DWORD)lParam == dwProcessID) {
         SendNotifyMessage(hwnd, uiShutDownMessage, 0, 0);
         return FALSE;
     }

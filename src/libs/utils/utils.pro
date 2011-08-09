@@ -15,4 +15,4 @@ HEADERS += \
 SOURCES += \
     proxyaction.cpp
 
-win32: LIBS += user32.lib
+win32: LIBS += -lUser32

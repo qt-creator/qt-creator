@@ -45,9 +45,10 @@ namespace Utils {
 
 ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_mode(ConsoleProcess::Run),
-    m_appPid(0),m_appMainThreadId(0),
+    m_appPid(0),
     m_stubSocket(0),
     m_tempFile(0),
+    m_appMainThreadId(0),
     m_pid(0),
     m_hInferior(NULL),
     inferiorFinishedNotifier(0),
