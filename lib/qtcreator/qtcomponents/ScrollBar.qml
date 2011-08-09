@@ -32,7 +32,6 @@
 
 import QtQuick 1.0
 import "custom" as Components
-import "plugin"
 
 Item {
     id: scrollbar
