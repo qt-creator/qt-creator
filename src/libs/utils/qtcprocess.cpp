@@ -35,6 +35,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QCoreApplication>
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
