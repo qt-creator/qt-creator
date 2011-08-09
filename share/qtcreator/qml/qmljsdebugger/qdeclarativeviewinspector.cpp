@@ -38,7 +38,6 @@
 #include "editor/colorpickertool.h"
 #include "editor/livelayeritem.h"
 #include "editor/boundingrecthighlighter.h"
-#include "editor/qmltoolbar.h"
 
 #include "qt_private/qdeclarativedebughelper_p.h"
 
@@ -51,63 +50,17 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QGraphicsObject>
 #include <QtGui/QApplication>
-#include <QtCore/QSettings>
 
 #include "qt_private/qdeclarativestate_p.h"
 
-static inline void initEditorResource() { Q_INIT_RESOURCE(editor); }
-
 namespace QmlJSDebugger {
-
-const char * const KEY_TOOLBOX_GEOMETRY = "toolBox/geometry";
-
-const int SceneChangeUpdateInterval = 5000;
-
-
-class ToolBox : public QWidget
-{
-    Q_OBJECT
-
-public:
-    ToolBox(QWidget *parent = 0);
-    ~ToolBox();
-
-    QmlToolBar *toolBar() const { return m_toolBar; }
-
-private:
-    QSettings m_settings;
-    QmlToolBar *m_toolBar;
-};
-
-ToolBox::ToolBox(QWidget *parent)
-    : QWidget(parent, Qt::Tool)
-    , m_settings(QLatin1String("Nokia"), QLatin1String("QmlInspector"), this)
-    , m_toolBar(new QmlToolBar)
-{
-    setWindowFlags((windowFlags() & ~Qt::WindowCloseButtonHint) | Qt::CustomizeWindowHint);
-    setWindowTitle(tr("Qt Quick Toolbox"));
-
-    QVBoxLayout *verticalLayout = new QVBoxLayout;
-    verticalLayout->setMargin(0);
-    verticalLayout->addWidget(m_toolBar);
-    setLayout(verticalLayout);
-
-    restoreGeometry(m_settings.value(QLatin1String(KEY_TOOLBOX_GEOMETRY)).toByteArray());
-}
-
-ToolBox::~ToolBox()
-{
-    m_settings.setValue(QLatin1String(KEY_TOOLBOX_GEOMETRY), saveGeometry());
-}
-
 
 QDeclarativeViewInspectorPrivate::QDeclarativeViewInspectorPrivate(QDeclarativeViewInspector *q) :
     q(q),
     designModeBehavior(false),
     showAppOnTop(false),
     animationPaused(false),
-    slowDownFactor(1.0f),
-    toolBox(0)
+    slowDownFactor(1.0f)
 {
 }
 
@@ -118,8 +71,6 @@ QDeclarativeViewInspectorPrivate::~QDeclarativeViewInspectorPrivate()
 QDeclarativeViewInspector::QDeclarativeViewInspector(QDeclarativeView *view, QObject *parent) :
     QObject(parent), data(new QDeclarativeViewInspectorPrivate(this))
 {
-    initEditorResource();
-
     data->view = view;
     data->manipulatorLayer = new LiveLayerItem(view->scene());
     data->selectionTool = new LiveSelectionTool(this);
@@ -134,10 +85,6 @@ QDeclarativeViewInspector::QDeclarativeViewInspector(QDeclarativeView *view, QOb
     data->setViewport(data->view->viewport());
 
     data->debugService = QDeclarativeInspectorService::instance();
-
-    // tool box is disabled
-    //connect(data->debugService, SIGNAL(debuggingClientChanged(bool)),
-    //        data.data(), SLOT(_q_setToolBoxVisible(bool)));
 
     connect(data->debugService, SIGNAL(designModeBehaviorChanged(bool)),
             SLOT(setDesignModeBehavior(bool)));
@@ -179,18 +126,6 @@ QDeclarativeViewInspector::QDeclarativeViewInspector(QDeclarativeView *view, QOb
 
 QDeclarativeViewInspector::~QDeclarativeViewInspector()
 {
-}
-
-void QDeclarativeViewInspectorPrivate::_q_setToolBoxVisible(bool visible)
-{
-#if !defined(Q_OS_SYMBIAN) && !defined(Q_WS_MAEMO_5) && !defined(Q_WS_SIMULATOR)
-    if (!toolBox && visible)
-        createToolBox();
-    if (toolBox)
-        toolBox->setVisible(visible);
-#else
-    Q_UNUSED(visible)
-#endif
 }
 
 void QDeclarativeViewInspectorPrivate::_q_reloadView()
@@ -566,8 +501,6 @@ void QDeclarativeViewInspector::setDesignModeBehavior(bool value)
 {
     emit designModeBehaviorChanged(value);
 
-    if (data->toolBox)
-        data->toolBox->toolBar()->setDesignModeBehavior(value);
     data->debugService->setDesignModeBehavior(value);
 
     data->designModeBehavior = value;
@@ -902,47 +835,4 @@ QRectF QDeclarativeViewInspector::adjustToScreenBoundaries(const QRectF &boundin
     return boundingRect;
 }
 
-void QDeclarativeViewInspectorPrivate::createToolBox()
-{
-    toolBox = new ToolBox(q->declarativeView());
-
-    QmlToolBar *toolBar = toolBox->toolBar();
-
-    QObject::connect(q, SIGNAL(selectedColorChanged(QColor)),
-                     toolBar, SLOT(setColorBoxColor(QColor)));
-
-    QObject::connect(q, SIGNAL(designModeBehaviorChanged(bool)),
-                     toolBar, SLOT(setDesignModeBehavior(bool)));
-
-    QObject::connect(toolBar, SIGNAL(designModeBehaviorChanged(bool)),
-                     q, SLOT(setDesignModeBehavior(bool)));
-    QObject::connect(toolBar, SIGNAL(animationSpeedChanged(qreal)), q, SLOT(setAnimationSpeed(qreal)));
-    QObject::connect(toolBar, SIGNAL(animationPausedChanged(bool)), q, SLOT(setAnimationPaused(bool)));
-    QObject::connect(toolBar, SIGNAL(colorPickerSelected()), this, SLOT(_q_changeToColorPickerTool()));
-    QObject::connect(toolBar, SIGNAL(zoomToolSelected()), this, SLOT(_q_changeToZoomTool()));
-    QObject::connect(toolBar, SIGNAL(selectToolSelected()), this, SLOT(_q_changeToSingleSelectTool()));
-    QObject::connect(toolBar, SIGNAL(marqueeSelectToolSelected()),
-                     this, SLOT(_q_changeToMarqueeSelectTool()));
-
-    QObject::connect(toolBar, SIGNAL(applyChangesFromQmlFileSelected()),
-                     this, SLOT(_q_applyChangesFromClient()));
-
-    QObject::connect(q, SIGNAL(animationSpeedChanged(qreal)), toolBar, SLOT(setAnimationSpeed(qreal)));
-    QObject::connect(q, SIGNAL(animationPausedChanged(bool)), toolBar, SLOT(setAnimationPaused(bool)));
-
-    QObject::connect(q, SIGNAL(selectToolActivated()), toolBar, SLOT(activateSelectTool()));
-
-    // disabled features
-    //connect(d->m_toolBar, SIGNAL(applyChangesToQmlFileSelected()), SLOT(applyChangesToClient()));
-    //connect(q, SIGNAL(resizeToolActivated()), d->m_toolBar, SLOT(activateSelectTool()));
-    //connect(q, SIGNAL(moveToolActivated()),   d->m_toolBar, SLOT(activateSelectTool()));
-
-    QObject::connect(q, SIGNAL(colorPickerActivated()), toolBar, SLOT(activateColorPicker()));
-    QObject::connect(q, SIGNAL(zoomToolActivated()), toolBar, SLOT(activateZoom()));
-    QObject::connect(q, SIGNAL(marqueeSelectToolActivated()),
-                     toolBar, SLOT(activateMarqueeSelectTool()));
-}
-
 } // namespace QmlJSDebugger
-
-#include "qdeclarativeviewinspector.moc"

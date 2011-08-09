@@ -41,7 +41,6 @@
 
 QT_FORWARD_DECLARE_CLASS(QDeclarativeItem)
 QT_FORWARD_DECLARE_CLASS(QMouseEvent)
-QT_FORWARD_DECLARE_CLASS(QToolBar)
 
 namespace QmlJSDebugger {
 

@@ -25,8 +25,6 @@ HEADERS += \
     $$PWD/editor/subcomponentmasklayeritem.h \
     $$PWD/editor/zoomtool.h \
     $$PWD/editor/colorpickertool.h \
-    $$PWD/editor/qmltoolbar.h \
-    $$PWD/editor/toolbarcolorbox.h \
     $$PWD/qdeclarativeviewinspector_p.h
 
 SOURCES += \
@@ -42,10 +40,6 @@ SOURCES += \
     $$PWD/editor/boundingrecthighlighter.cpp \
     $$PWD/editor/subcomponentmasklayeritem.cpp \
     $$PWD/editor/zoomtool.cpp \
-    $$PWD/editor/colorpickertool.cpp \
-    $$PWD/editor/qmltoolbar.cpp \
-    $$PWD/editor/toolbarcolorbox.cpp
-
-RESOURCES += $$PWD/editor/editor.qrc
+    $$PWD/editor/colorpickertool.cpp
 
 DEFINES += QMLJSDEBUGGER

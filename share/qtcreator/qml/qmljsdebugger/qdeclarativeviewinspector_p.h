@@ -48,7 +48,6 @@ class ZoomTool;
 class ColorPickerTool;
 class LiveLayerItem;
 class BoundingRectHighlighter;
-class ToolBox;
 class CrumblePath;
 class AbstractLiveEditTool;
 
@@ -83,12 +82,9 @@ public:
     bool animationPaused;
     qreal slowDownFactor;
 
-    ToolBox *toolBox;
-
     void setViewport(QWidget *widget);
 
     void clearEditorItems();
-    void createToolBox();
     void changeToSelectTool();
     QList<QGraphicsItem*> filterForSelection(QList<QGraphicsItem*> &itemlist) const;
 
@@ -111,8 +107,6 @@ public:
     bool isEditorItem(QGraphicsItem *item) const;
 
 public slots:
-    void _q_setToolBoxVisible(bool visible);
-
     void _q_reloadView();
     void _q_onStatusChanged(QDeclarativeView::Status status);
     void _q_onCurrentObjectsChanged(QList<QObject*> objects);
