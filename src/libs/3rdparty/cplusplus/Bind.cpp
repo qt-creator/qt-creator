@@ -2296,7 +2296,7 @@ bool Bind::visit(ObjCClassDeclarationAST *ast)
     _scope->addMember(klass);
 
     klass->setStartOffset(calculateScopeStart(ast));
-    klass->setEndOffset(tokenAt(ast->lastToken() - 1).begin());
+    klass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
     if (ast->interface_token)
         klass->setInterface(true);

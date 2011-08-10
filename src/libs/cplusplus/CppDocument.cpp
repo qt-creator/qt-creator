@@ -142,7 +142,7 @@ protected:
                 unsigned endLine, endColumn;
                 _unit->getPosition(scope->endOffset(), &endLine, &endColumn);
 
-                if (_line < endLine || (_line == endLine && _column <= endColumn))
+                if (_line < endLine || (_line == endLine && _column < endColumn))
                     _scope = scope;
             }
         }
