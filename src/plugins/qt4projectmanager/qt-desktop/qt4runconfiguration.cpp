@@ -66,6 +66,8 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QToolButton>
 #include <QtGui/QComboBox>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
@@ -607,9 +609,19 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
     // to find those libraries while actually running we explicitly prepend those
     // dirs to the library search path
     const Qt4ProFileNode *node = qt4Target()->qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
-    if (node)
-        foreach(const QString &dir, node->variableValue(LibDirectoriesVar))
-            env.prependOrSetLibrarySearchPath(dir);
+    if (node) {
+        const QStringList libDirectories = node->variableValue(LibDirectoriesVar);
+        if (!libDirectories.isEmpty()) {
+            const QString proDirectory = QFileInfo(node->path()).absolutePath();
+            foreach (QString dir, libDirectories) {
+                // Fix up relative entries like "LIBS+=-L.."
+                const QFileInfo fi(dir);
+                if (!fi.isAbsolute())
+                    dir = QDir::cleanPath(proDirectory + QLatin1Char('/') + dir);
+                env.prependOrSetLibrarySearchPath(dir);
+            } // foreach
+        } // libDirectories
+    } // node
     return env;
 }
 
