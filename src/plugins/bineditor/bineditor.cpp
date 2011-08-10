@@ -1049,6 +1049,7 @@ bool BinEditor::event(QEvent *e)
         }
         default:;
         }
+        break;
     case QEvent::ToolTip: {
         const QHelpEvent *helpEvent = static_cast<const QHelpEvent *>(e);
         const QString tt = toolTip(helpEvent);

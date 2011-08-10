@@ -15,7 +15,8 @@ SUBDIRS   = \
     qmljs \
     qmljsdebugclient \
     glsl \
-    qmleditorwidgets
+    qmleditorwidgets \
+    qtcomponents/styleitem
 
 # Windows: Compile Qt Creator CDB extension if Debugging tools can be detected.    
 win32 {

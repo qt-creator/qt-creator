@@ -450,7 +450,7 @@ void QmlProfilerEventsView::QmlProfilerEventsViewPrivate::buildModelFromList( co
 
         if (m_fieldShown[Type]) {
             newRow << new EventsViewItem(nameForType(binding->eventType));
-            newRow.last()->setData(QVariant(binding->eventType));
+            newRow.last()->setData(QVariant(nameForType(binding->eventType)));
         }
 
         if (m_fieldShown[Percent]) {

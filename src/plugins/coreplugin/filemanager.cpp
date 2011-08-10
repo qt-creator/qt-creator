@@ -628,8 +628,7 @@ bool FileManager::saveFile(IFile *file, const QString &fileName, bool *isReadOnl
         if (isReadOnly) {
             QFile ofi(effName);
             // Check whether the existing file is writable
-            if (ofi.exists() && !ofi.open(QIODevice::ReadWrite)
-                && ofi.error() == QFile::PermissionsError) {
+            if (!ofi.open(QIODevice::ReadWrite) && ofi.open(QIODevice::ReadOnly)) {
                 *isReadOnly = true;
                 goto out;
             }

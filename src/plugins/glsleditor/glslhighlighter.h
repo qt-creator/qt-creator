@@ -60,7 +60,7 @@ public:
         NumGLSLFormats
     };
 
-    explicit Highlighter(GLSLTextEditorWidget *editor, QTextDocument *parent);
+    explicit Highlighter(TextEditor::BaseTextDocument *parent);
     virtual ~Highlighter();
 
     void setFormats(const QVector<QTextCharFormat> &formats);
@@ -72,7 +72,6 @@ protected:
 
 private:
     QTextCharFormat m_formats[NumGLSLFormats];
-    GLSLTextEditorWidget *m_editor;
 };
 
 } // namespace Internal

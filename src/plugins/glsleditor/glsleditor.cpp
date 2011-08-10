@@ -163,7 +163,7 @@ GLSLTextEditorWidget::GLSLTextEditorWidget(QWidget *parent) :
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
-    baseTextDocument()->setSyntaxHighlighter(new Highlighter(this, document()));
+    new Highlighter(baseTextDocument());
 
 //    if (m_modelManager) {
 //        m_semanticHighlighter->setModelManager(m_modelManager);
@@ -312,7 +312,7 @@ void GLSLTextEditorWidget::updateDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    int variant = languageVariant();
+    int variant = languageVariant(mimeType());
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
@@ -371,10 +371,9 @@ void GLSLTextEditorWidget::updateDocumentNow()
     }
 }
 
-int GLSLTextEditorWidget::languageVariant() const
+int GLSLTextEditorWidget::languageVariant(const QString &type)
 {
     int variant = 0;
-    QString type = mimeType();
     bool isVertex = false;
     bool isFragment = false;
     bool isDesktop = false;

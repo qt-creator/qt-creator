@@ -47,6 +47,7 @@
 using namespace Analyzer::Internal;
 
 static const char groupC[] = "Analyzer";
+static const char useGlobalC[] = "Analyzer.Project.UseGlobal";
 
 namespace Analyzer {
 
@@ -55,15 +56,6 @@ AnalyzerGlobalSettings *AnalyzerGlobalSettings::m_instance = 0;
 AnalyzerSettings::AnalyzerSettings(QObject *parent)
     : QObject(parent)
 {
-}
-
-bool AnalyzerSettings::fromMap(const QVariantMap &map)
-{
-    bool ret = true;
-    foreach (AbstractAnalyzerSubConfig *config, subConfigs()) {
-        ret = ret && config->fromMap(map);
-    }
-    return ret;
 }
 
 QVariantMap AnalyzerSettings::defaults() const
@@ -75,10 +67,29 @@ QVariantMap AnalyzerSettings::defaults() const
     return map;
 }
 
+bool AnalyzerSettings::fromMap(const QVariantMap &map)
+{
+    return fromMap(map, &m_subConfigs);
+}
+
+bool AnalyzerSettings::fromMap(const QVariantMap &map, QList<AbstractAnalyzerSubConfig *> *subConfigs)
+{
+    bool ret = true;
+    foreach (AbstractAnalyzerSubConfig *config, *subConfigs) {
+        ret = ret && config->fromMap(map);
+    }
+    return ret;
+}
+
 QVariantMap AnalyzerSettings::toMap() const
 {
+    return toMap(m_subConfigs);
+}
+
+QVariantMap AnalyzerSettings::toMap(const QList<AbstractAnalyzerSubConfig *> &subConfigs) const
+{
     QVariantMap map;
-    foreach (AbstractAnalyzerSubConfig *config, subConfigs()) {
+    foreach (AbstractAnalyzerSubConfig *config, subConfigs) {
         map.unite(config->toMap());
     }
     return map;
@@ -102,6 +113,7 @@ AnalyzerGlobalSettings *AnalyzerGlobalSettings::instance()
 AnalyzerGlobalSettings::~AnalyzerGlobalSettings()
 {
     m_instance = 0;
+    qDeleteAll(m_subConfigs);
 }
 
 void AnalyzerGlobalSettings::readSettings()
@@ -134,30 +146,36 @@ void AnalyzerGlobalSettings::writeSettings() const
 void AnalyzerGlobalSettings::registerSubConfigs
     (AnalyzerSubConfigFactory globalCreator, AnalyzerSubConfigFactory projectCreator)
 {
-    m_projectSubConfigs.append(projectCreator);
+    m_projectSubConfigFactories.append(projectCreator);
 
     AbstractAnalyzerSubConfig *config = globalCreator();
-    config->setParent(this);
+    m_subConfigs.append(config);
     AnalyzerPlugin::instance()->addAutoReleasedObject(new AnalyzerOptionsPage(config));
 
     readSettings();
 }
 
-QList<AnalyzerSubConfigFactory> AnalyzerGlobalSettings::projectSubConfigs() const
+QList<AnalyzerSubConfigFactory> AnalyzerGlobalSettings::projectSubConfigFactories() const
 {
-    return m_projectSubConfigs;
+    return m_projectSubConfigFactories;
 }
 
 AnalyzerProjectSettings::AnalyzerProjectSettings(QObject *parent)
-    : AnalyzerSettings(parent)
+    : AnalyzerSettings(parent), m_useGlobalSettings(true)
 {
     // add sub configs
-    foreach (AnalyzerSubConfigFactory factory, AnalyzerGlobalSettings::instance()->projectSubConfigs())
-        factory()->setParent(this);
+    foreach (AnalyzerSubConfigFactory factory, AnalyzerGlobalSettings::instance()->projectSubConfigFactories()) {
+        AbstractAnalyzerSubConfig *config = factory();
+        m_customConfigurations.append(config);
+    }
 
-    // take defaults from global settings
-    AnalyzerGlobalSettings *gs = AnalyzerGlobalSettings::instance();
-    fromMap(gs->toMap());
+    m_subConfigs = AnalyzerGlobalSettings::instance()->subConfigs();
+    resetCustomToGlobalSettings();
+}
+
+AnalyzerProjectSettings::~AnalyzerProjectSettings()
+{
+    qDeleteAll(m_customConfigurations);
 }
 
 QString AnalyzerProjectSettings::displayName() const
@@ -167,12 +185,35 @@ QString AnalyzerProjectSettings::displayName() const
 
 bool AnalyzerProjectSettings::fromMap(const QVariantMap &map)
 {
-    return AnalyzerSettings::fromMap(map);
+    if (!AnalyzerSettings::fromMap(map, &m_customConfigurations))
+        return false;
+    m_useGlobalSettings = map.value(QLatin1String(useGlobalC), true).toBool();
+    return true;
 }
 
 QVariantMap AnalyzerProjectSettings::toMap() const
 {
-    return AnalyzerSettings::toMap();
+    QVariantMap map = AnalyzerSettings::toMap(m_customConfigurations);
+    map.insert(QLatin1String(useGlobalC), m_useGlobalSettings);
+    return map;
+}
+
+void AnalyzerProjectSettings::setUsingGlobalSettings(bool value)
+{
+    if (value == m_useGlobalSettings)
+        return;
+    m_useGlobalSettings = value;
+    if (m_useGlobalSettings) {
+        m_subConfigs = AnalyzerGlobalSettings::instance()->subConfigs();
+    } else {
+        m_subConfigs = m_customConfigurations;
+    }
+}
+
+void AnalyzerProjectSettings::resetCustomToGlobalSettings()
+{
+    AnalyzerGlobalSettings *gs = AnalyzerGlobalSettings::instance();
+    AnalyzerSettings::fromMap(gs->toMap(), &m_customConfigurations);
 }
 
 } // namespace Analyzer

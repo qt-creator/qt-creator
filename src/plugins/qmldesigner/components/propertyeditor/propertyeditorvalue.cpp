@@ -105,8 +105,12 @@ static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode, const
             && (modelNode.metaInfo().propertyTypeName(name) == "QColor"
                 || modelNode.metaInfo().propertyTypeName(name) == "color")) {
         if ((value->type() == QVariant::Color)) {
-            *value = QColor(value->value<QColor>().name());
-        } else {
+            QColor color = value->value<QColor>();
+            int alpha = color.alpha();
+            color = QColor(color.name());
+            color.setAlpha(alpha);
+            *value = color;
+        } else if (value->toString() != QLatin1String("transparent")) {
             *value = QColor(value->toString()).name();
         }
     }

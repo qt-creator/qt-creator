@@ -53,6 +53,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QHBoxLayout>
 
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
@@ -224,7 +226,13 @@ void WelcomeMode::initPlugins()
     if (!debug)
         engine->setOutputWarningsToStandardError(false);
     engine->setNetworkAccessManagerFactory(new NetworkAccessManagerFactory);
-    engine->addImportPath(Core::ICore::instance()->resourcePath() + "/welcomescreen");
+    QString pluginPath = QCoreApplication::applicationDirPath();
+#ifdef Q_OS_MAC
+    pluginPath += QLatin1String("/../PlugIns");
+#else
+    pluginPath += QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator");
+#endif
+    engine->addImportPath(QDir::cleanPath(pluginPath));
     facilitateQml(engine);
     foreach (Utils::IWelcomePage *plugin, plugins) {
         plugin->facilitateQml(engine);

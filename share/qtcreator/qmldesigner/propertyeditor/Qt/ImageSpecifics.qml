@@ -85,21 +85,6 @@ QWidget {
                     }
                 }
 
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Aliasing")
-                        }
-
-                        CheckBox {
-                            text: qsTr("Smooth")
-                            backendValue: backendValues.smooth
-                            baseStateFlag: isBaseState;
-                            checkable: true;
-                        }
-                    }
-                }
-
                 QWidget {  // 1
                     layout: HorizontalLayout {
 
@@ -125,41 +110,6 @@ QWidget {
                             alignRight: false
                             spacing: 4
                             backendValue: backendValues.sourceSize_height
-                            enabled: anchorBackend.hasParent;
-                            minimum: -2000;
-                            maximum: 2000;
-                            baseStateFlag: isBaseState;
-                        }
-
-
-                    }
-                } //QWidget  //1
-
-                QWidget {  // 1
-                    layout: HorizontalLayout {
-
-                        Label {
-                            text: qsTr("Painted size")
-                        }
-
-                        DoubleSpinBox {
-                            text: "W"
-                            alignRight: false
-                            spacing: 4
-                            singleStep: 1;
-                            enabled: anchorBackend.hasParent;
-                            backendValue: backendValues.paintedWidth
-                            minimum: -2000;
-                            maximum: 2000;
-                            baseStateFlag: isBaseState;
-                        }
-
-                        DoubleSpinBox {
-                            singleStep: 1;
-                            text: "H"
-                            alignRight: false
-                            spacing: 4
-                            backendValue: backendValues.paintedHeight
                             enabled: anchorBackend.hasParent;
                             minimum: -2000;
                             maximum: 2000;

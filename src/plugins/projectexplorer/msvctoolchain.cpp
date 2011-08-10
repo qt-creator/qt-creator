@@ -260,7 +260,7 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
 
 static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
                                                      const QString &args,
-                                                     const Utils::Environment &env)
+                                                     Utils::Environment env)
 {
     // Run the setup script and extract the variables
     Utils::Environment result = env;
@@ -286,6 +286,10 @@ static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
     }
 
     Utils::QtcProcess run;
+    // As of WinSDK 7.1, there is logic preventing the path from being set
+    // correctly if "ORIGINALPATH" is already set. That can cause problems
+    // if Creator is launched within a session set up by setenv.cmd.
+    env.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(env);
     const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     // Windows SDK setup scripts require command line switches for environment expansion.

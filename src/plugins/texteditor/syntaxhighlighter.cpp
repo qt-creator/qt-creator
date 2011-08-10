@@ -30,6 +30,7 @@
 **************************************************************************/
 
 #include "syntaxhighlighter.h"
+#include "basetextdocument.h"
 
 #include <qtextdocument.h>
 #include <qtextlayout.h>
@@ -322,6 +323,13 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
 {
     d_ptr->q_ptr = this;
     setDocument(parent);
+}
+
+SyntaxHighlighter::SyntaxHighlighter(BaseTextDocument *parent)
+    : d_ptr(new SyntaxHighlighterPrivate)
+{
+    d_ptr->q_ptr = this;
+    parent->setSyntaxHighlighter(this); // Extra logic (including setting the parent).
 }
 
 /*!

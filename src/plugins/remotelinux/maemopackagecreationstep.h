@@ -78,7 +78,7 @@ protected:
                              AbstractMaemoPackageCreationStep *other);
 
     bool callPackagingCommand(QProcess *proc, const QStringList &arguments);
-    static QString replaceDots(const QString &name);
+    QString replaceDots(const QString &name) const;
 
 private slots:
     void handleBuildOutput();

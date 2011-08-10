@@ -69,41 +69,6 @@ QWidget {
                     }
                 }
 
-                QWidget {  // 1
-                    layout: HorizontalLayout {
-
-                        Label {
-                            text: qsTr("Source size")
-                        }
-
-                        DoubleSpinBox {
-                            text: "W"
-                            alignRight: false
-                            spacing: 4
-                            singleStep: 1;
-                            enabled: anchorBackend.hasParent;
-                            backendValue: backendValues.sourceSize_width
-                            minimum: -2000;
-                            maximum: 2000;
-                            baseStateFlag: isBaseState;
-                        }
-
-                        DoubleSpinBox {
-                            singleStep: 1;
-                            text: "H"
-                            alignRight: false
-                            spacing: 4
-                            backendValue: backendValues.sourceSize_height
-                            enabled: anchorBackend.hasParent;
-                            minimum: -2000;
-                            maximum: 2000;
-                            baseStateFlag: isBaseState;
-                        }
-
-
-                    }
-                } //QWidget  //1
-
 
                 IntEditor {
                     id: pixelSize;

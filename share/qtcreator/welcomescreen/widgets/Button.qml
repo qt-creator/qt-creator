@@ -31,7 +31,7 @@
 **************************************************************************/
 
 import Qt 4.7
-import "../components/custom" as Custom
+import qtcomponents.custom 1.0 as Custom
 
 Custom.Button {
     id: button

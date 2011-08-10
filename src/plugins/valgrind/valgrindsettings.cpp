@@ -131,6 +131,7 @@ bool ValgrindBaseSettings::fromMap(const QVariantMap &map)
     setIfPresent(map, QLatin1String(callgrindVisualisationMinimumCostRatioC),
                  &m_visualisationMinimumInclusiveCostRatio);
 
+    emit changed();
     return true;
 }
 

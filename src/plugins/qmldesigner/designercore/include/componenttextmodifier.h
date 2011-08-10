@@ -74,6 +74,7 @@ private:
     int m_componentStartOffset;
     int m_componentEndOffset;
     int m_rootStartOffset;
+    int m_startLength;
 };
 
 } // namespace QmlDesigner

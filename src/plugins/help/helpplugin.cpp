@@ -261,7 +261,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(slotOpenSupportPage()));
 
-    action = new QAction(tr("Report Bug"), this);
+    action = new QAction(tr("Report Bug..."), this);
     cmd = am->registerAction(action, Core::Id("Help.ReportBug"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(slotReportBug()));
@@ -271,7 +271,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     action->setSeparator(true);
     cmd = am->registerAction(action, Core::Id("Help.Separator2"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
 #endif
 
     action = new QAction(this);

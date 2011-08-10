@@ -54,11 +54,14 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
       m_ui(new Ui::ValgrindConfigWidget)
 {
     m_ui->setupUi(this);
+    m_model = new QStandardItemModel(this);
 
     m_ui->valgrindExeChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->valgrindExeChooser->setPromptDialogTitle(tr("Valgrind Command"));
 
-    m_ui->valgrindExeChooser->setPath(m_settings->valgrindExecutable());
+    updateUi();
+    connect(m_settings, SIGNAL(changed()), this, SLOT(updateUi()));
+
     connect(m_ui->valgrindExeChooser, SIGNAL(changed(QString)),
             m_settings, SLOT(setValgrindExecutable(QString)));
     connect(m_settings, SIGNAL(valgrindExecutableChanged(QString)),
@@ -74,43 +77,36 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     //
     // Callgrind
     //
-    m_ui->enableCacheSim->setChecked(m_settings->enableCacheSim());
     connect(m_ui->enableCacheSim, SIGNAL(toggled(bool)),
             m_settings, SLOT(setEnableCacheSim(bool)));
     connect(m_settings, SIGNAL(enableCacheSimChanged(bool)),
             m_ui->enableCacheSim, SLOT(setChecked(bool)));
 
-    m_ui->enableBranchSim->setChecked(m_settings->enableBranchSim());
     connect(m_ui->enableBranchSim, SIGNAL(toggled(bool)),
             m_settings, SLOT(setEnableBranchSim(bool)));
     connect(m_settings, SIGNAL(enableBranchSimChanged(bool)),
             m_ui->enableBranchSim, SLOT(setChecked(bool)));
 
-    m_ui->collectSystime->setChecked(m_settings->collectSystime());
     connect(m_ui->collectSystime, SIGNAL(toggled(bool)),
             m_settings, SLOT(setCollectSystime(bool)));
     connect(m_settings, SIGNAL(collectSystimeChanged(bool)),
             m_ui->collectSystime, SLOT(setChecked(bool)));
 
-    m_ui->collectBusEvents->setChecked(m_settings->collectBusEvents());
     connect(m_ui->collectBusEvents, SIGNAL(toggled(bool)),
             m_settings, SLOT(setCollectBusEvents(bool)));
     connect(m_settings, SIGNAL(collectBusEventsChanged(bool)),
             m_ui->collectBusEvents, SLOT(setChecked(bool)));
 
-    m_ui->enableEventToolTips->setChecked(m_settings->enableEventToolTips());
     connect(m_ui->enableEventToolTips, SIGNAL(toggled(bool)),
             m_settings, SLOT(setEnableEventToolTips(bool)));
     connect(m_settings, SIGNAL(enableEventToolTipsChanged(bool)),
             m_ui->enableEventToolTips, SLOT(setChecked(bool)));
 
-    m_ui->minimumInclusiveCostRatio->setValue(m_settings->minimumInclusiveCostRatio());
     connect(m_ui->minimumInclusiveCostRatio, SIGNAL(valueChanged(double)),
             m_settings, SLOT(setMinimumInclusiveCostRatio(double)));
     connect(m_settings, SIGNAL(minimumInclusiveCostRatioChanged(double)),
             m_ui->minimumInclusiveCostRatio, SLOT(setValue(double)));
 
-    m_ui->visualisationMinimumInclusiveCostRatio->setValue(m_settings->visualisationMinimumInclusiveCostRatio());
     connect(m_ui->visualisationMinimumInclusiveCostRatio, SIGNAL(valueChanged(double)),
             m_settings, SLOT(setVisualisationMinimumInclusiveCostRatio(double)));
     connect(m_settings, SIGNAL(visualisationMinimumInclusiveCostRatioChanged(double)),
@@ -119,8 +115,6 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     //
     // Memcheck
     //
-    m_model = new QStandardItemModel(this);
-
     m_ui->suppressionList->setModel(m_model);
     m_ui->suppressionList->setSelectionMode(QAbstractItemView::MultiSelection);
 
@@ -129,11 +123,9 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     connect(m_ui->removeSuppression, SIGNAL(clicked()),
             this, SLOT(slotRemoveSuppression()));
 
-    m_ui->numCallers->setValue(m_settings->numCallers());
     connect(m_ui->numCallers, SIGNAL(valueChanged(int)), m_settings, SLOT(setNumCallers(int)));
     connect(m_settings, SIGNAL(numCallersChanged(int)), m_ui->numCallers, SLOT(setValue(int)));
 
-    m_ui->trackOrigins->setChecked(m_settings->trackOrigins());
     connect(m_ui->trackOrigins, SIGNAL(toggled(bool)),
             m_settings, SLOT(setTrackOrigins(bool)));
     connect(m_settings, SIGNAL(trackOriginsChanged(bool)),
@@ -143,10 +135,6 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
             this, SLOT(slotSuppressionsRemoved(QStringList)));
     connect(m_settings, SIGNAL(suppressionFilesAdded(QStringList)),
             this, SLOT(slotSuppressionsAdded(QStringList)));
-
-    m_model->clear();
-    foreach (const QString &file, m_settings->suppressionFiles())
-        m_model->appendRow(new QStandardItem(file));
 
     connect(m_ui->suppressionList->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -167,6 +155,23 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
 ValgrindConfigWidget::~ValgrindConfigWidget()
 {
     delete m_ui;
+}
+
+void ValgrindConfigWidget::updateUi()
+{
+    m_ui->valgrindExeChooser->setPath(m_settings->valgrindExecutable());
+    m_ui->enableCacheSim->setChecked(m_settings->enableCacheSim());
+    m_ui->enableBranchSim->setChecked(m_settings->enableBranchSim());
+    m_ui->collectSystime->setChecked(m_settings->collectSystime());
+    m_ui->collectBusEvents->setChecked(m_settings->collectBusEvents());
+    m_ui->enableEventToolTips->setChecked(m_settings->enableEventToolTips());
+    m_ui->minimumInclusiveCostRatio->setValue(m_settings->minimumInclusiveCostRatio());
+    m_ui->visualisationMinimumInclusiveCostRatio->setValue(m_settings->visualisationMinimumInclusiveCostRatio());
+    m_ui->numCallers->setValue(m_settings->numCallers());
+    m_ui->trackOrigins->setChecked(m_settings->trackOrigins());
+    m_model->clear();
+    foreach (const QString &file, m_settings->suppressionFiles())
+        m_model->appendRow(new QStandardItem(file));
 }
 
 void ValgrindConfigWidget::slotAddSuppression()

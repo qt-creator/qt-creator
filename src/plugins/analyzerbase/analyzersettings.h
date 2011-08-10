@@ -95,12 +95,16 @@ public:
     template<class T>
     T *subConfig() const
     {
-        return findChild<T *>();
+        foreach (AbstractAnalyzerSubConfig *subConfig, subConfigs()) {
+            if (T *config = qobject_cast<T *>(subConfig))
+                return config;
+        }
+        return 0;
     }
 
     QList<AbstractAnalyzerSubConfig *> subConfigs() const
     {
-        return findChildren<AbstractAnalyzerSubConfig *>();
+        return m_subConfigs;
     }
 
     QVariantMap defaults() const;
@@ -109,7 +113,11 @@ public:
 protected:
     virtual bool fromMap(const QVariantMap &map);
 
+    QVariantMap toMap(const QList<AbstractAnalyzerSubConfig *> &subConfigs) const;
+    bool fromMap(const QVariantMap &map, QList<AbstractAnalyzerSubConfig *> *subConfigs);
+
     AnalyzerSettings(QObject *parent);
+    QList<AbstractAnalyzerSubConfig *> m_subConfigs;
 };
 
 
@@ -137,12 +145,12 @@ public:
     void readSettings();
 
     void registerSubConfigs(AnalyzerSubConfigFactory globalFactory, AnalyzerSubConfigFactory projectFactory);
-    QList<AnalyzerSubConfigFactory> projectSubConfigs() const;
+    QList<AnalyzerSubConfigFactory> projectSubConfigFactories() const;
 
 private:
     AnalyzerGlobalSettings(QObject *parent);
     static AnalyzerGlobalSettings *m_instance;
-    QList<AnalyzerSubConfigFactory> m_projectSubConfigs;
+    QList<AnalyzerSubConfigFactory> m_projectSubConfigFactories;
 };
 
 /**
@@ -161,12 +169,23 @@ class ANALYZER_EXPORT AnalyzerProjectSettings
 
 public:
     AnalyzerProjectSettings(QObject *parent = 0);
+    ~AnalyzerProjectSettings();
 
     QString displayName() const;
     virtual QVariantMap toMap() const;
 
+    bool isUsingGlobalSettings() const { return m_useGlobalSettings; }
+    void setUsingGlobalSettings(bool value);
+    void resetCustomToGlobalSettings();
+
+    QList<AbstractAnalyzerSubConfig *> customSubConfigs() const { return m_customConfigurations; }
+
 protected:
     virtual bool fromMap(const QVariantMap &map);
+
+private:
+    bool m_useGlobalSettings;
+    QList<AbstractAnalyzerSubConfig *> m_customConfigurations;
 };
 
 } // namespace Analyzer

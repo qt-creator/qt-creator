@@ -31,14 +31,14 @@
 **************************************************************************/
 
 import QtQuick 1.0
-import components 1.0 as Components
+import qtcomponents 1.0 as Components
 
 HeaderItemView {
     header: qsTr("Recently Used Sessions")
     model: sessionList
 
     delegate: Rectangle {
-        height: 60
+        height: 30
         width: dataSection.width
 
         Rectangle {

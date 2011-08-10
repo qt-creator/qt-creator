@@ -62,6 +62,9 @@ public:
     virtual QString id() const;
     virtual QString displayName() const;
 
+signals:
+    void changed(); // sent when multiple values have changed simulatenously (e.g. fromMap)
+
 /**
  * Base valgrind settings
  */

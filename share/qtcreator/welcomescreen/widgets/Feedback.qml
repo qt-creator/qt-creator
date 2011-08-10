@@ -31,7 +31,7 @@
 **************************************************************************/
 
 import QtQuick 1.0
-import components 1.0 as Components
+import qtcomponents 1.0 as Components
 
 Rectangle {
     id: inner_background

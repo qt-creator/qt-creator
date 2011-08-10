@@ -34,13 +34,12 @@
 
 #include "analyzerrunconfigwidget.h"
 
-#include "analyzersettings.h"
-
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
-#include <QtGui/QGroupBox>
+#include <QtGui/QApplication>
+#include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
 
 namespace Analyzer {
@@ -51,6 +50,29 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget()
     QWidget *mainWidget = new QWidget(this);
     new QVBoxLayout(mainWidget);
     m_detailsWidget->setWidget(mainWidget);
+
+    QWidget *globalSetting = new QWidget(mainWidget);
+    QHBoxLayout *globalSettingLayout = new QHBoxLayout(globalSetting);
+    mainWidget->layout()->addWidget(globalSetting);
+    QLabel *label = new QLabel(displayName(), globalSetting);
+    globalSettingLayout->addWidget(label);
+    m_settingsCombo = new QComboBox(globalSetting);
+    m_settingsCombo->addItems(QStringList()
+                            << QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Global")
+                            << QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Custom")
+                            );
+    globalSettingLayout->addWidget(m_settingsCombo);
+    connect(m_settingsCombo, SIGNAL(activated(int)), this, SLOT(chooseSettings(int)));
+    m_restoreButton = new QPushButton(
+                QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Restore Global"),
+                globalSetting);
+    globalSettingLayout->addWidget(m_restoreButton);
+    connect(m_restoreButton, SIGNAL(clicked()), this, SLOT(restoreGlobal()));
+    globalSettingLayout->addStretch(2);
+
+    m_subConfigWidget = new QWidget(mainWidget);
+    mainWidget->layout()->addWidget(m_subConfigWidget);
+    new QVBoxLayout(m_subConfigWidget);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -66,23 +88,39 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
 {
     QTC_ASSERT(rc, return);
 
-    AnalyzerProjectSettings *settings = rc->extraAspect<AnalyzerProjectSettings>();
-    QTC_ASSERT(settings, return);
+    m_settings = rc->extraAspect<AnalyzerProjectSettings>();
+    QTC_ASSERT(m_settings, return);
 
     // update summary text
     QStringList tools;
-    foreach (AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
+    foreach (AbstractAnalyzerSubConfig *config, m_settings->subConfigs()) {
         tools << QString("<strong>%1</strong>").arg(config->displayName());
     }
     m_detailsWidget->setSummaryText(tr("Available settings: %1").arg(tools.join(", ")));
 
     // add group boxes for each sub config
-    QLayout *layout = m_detailsWidget->widget()->layout();
-    foreach (AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
-        (void) new QGroupBox(config->displayName());
+    QLayout *layout = m_subConfigWidget->layout();
+    foreach (AbstractAnalyzerSubConfig *config, m_settings->customSubConfigs()) {
         QWidget *widget = config->createConfigWidget(this);
         layout->addWidget(widget);
     }
+    m_subConfigWidget->setEnabled(!m_settings->isUsingGlobalSettings());
+    m_settingsCombo->setCurrentIndex(m_settings->isUsingGlobalSettings() ? 0 : 1);
+    m_restoreButton->setEnabled(!m_settings->isUsingGlobalSettings());
+}
+
+void AnalyzerRunConfigWidget::chooseSettings(int setting)
+{
+    QTC_ASSERT(m_settings, return);
+    m_settings->setUsingGlobalSettings(setting == 0);
+    m_subConfigWidget->setEnabled(!m_settings->isUsingGlobalSettings());
+    m_restoreButton->setEnabled(!m_settings->isUsingGlobalSettings());
+}
+
+void AnalyzerRunConfigWidget::restoreGlobal()
+{
+    QTC_ASSERT(m_settings, return);
+    m_settings->resetCustomToGlobalSettings();
 }
 
 } // namespace Analyzer

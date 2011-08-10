@@ -4822,7 +4822,8 @@ void GdbEngine::handleInferiorPrepared()
     }
 
     // Initial attempt to set breakpoints.
-    if (startParameters().startMode != AttachCore) {
+    if (startParameters().startMode != AttachCore
+            && !isSlaveEngine()) {
         showStatusMessage(tr("Setting breakpoints..."));
         showMessage(tr("Setting breakpoints..."));
         attemptBreakpointSynchronization();

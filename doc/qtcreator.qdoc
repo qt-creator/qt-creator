@@ -9475,6 +9475,13 @@
     libraries on devices. Then select the device as the target before you
     start debugging.
 
+    \section1 Mixed C++/QML Debugging
+
+    You can debug both the C++ and QML parts of your application at the same time:
+    Select the checkboxes for both languages in the \gui{Run Settings}. However,
+    C++ breakpoints will be ignored until the debugger has attached also to the QML
+    engine.
+
     \section1 Starting QML Debugging
 
     To start the application, choose \gui {Debug > Start Debugging

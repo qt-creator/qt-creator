@@ -31,8 +31,7 @@
 **************************************************************************/
 
 import QtQuick 1.0
-import components 1.0 as Components
-import widgets 1.0 as Widgets
+import qtcomponents 1.0 as Components
 
 Item {
     id: exampleBrowserRoot
@@ -57,7 +56,7 @@ Item {
         anchors.leftMargin: - 8
         anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 : -8
 
-        Widgets.LineEdit {
+        LineEdit {
             id: lineEdit
             placeholderText: !checkBox.checked ? qsTr("Search in Tutorials") : qsTr("Search in Tutorials, Examples and Demos")
             focus: true

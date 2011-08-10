@@ -31,7 +31,7 @@
 **************************************************************************/
 
 import QtQuick 1.0
-import "../components/custom" as Custom
+import qtcomponents.custom 1.0 as Custom
 
 
 Custom.TextField {
