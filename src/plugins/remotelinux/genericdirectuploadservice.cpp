@@ -309,7 +309,7 @@ void GenericDirectUploadService::uploadNextFile()
     QFileInfo fi(d.localFilePath);
     if (fi.isDir())
         dirToCreate += QLatin1Char('/') + fi.fileName();
-    const QString command = QLatin1String("mkdir -vp ") + dirToCreate;
+    const QString command = QLatin1String("mkdir -p ") + dirToCreate;
     m_d->mkdirProc = connection()->createRemoteProcess(command.toUtf8());
     connect(m_d->mkdirProc.data(), SIGNAL(closed(int)), SLOT(handleMkdirFinished(int)));
     connect(m_d->mkdirProc.data(), SIGNAL(outputAvailable(QByteArray)),
