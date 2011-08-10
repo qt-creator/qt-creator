@@ -10,5 +10,5 @@ QT        -= qt core gui
 CONFIG    += console warn_on
 
 SOURCES   += main.cpp
-LIBS      += user32.lib shell32.lib
+LIBS      += -luser32 -lshell32
 

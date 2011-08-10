@@ -95,8 +95,11 @@ int main(int argc, char **)
             return 1;
     if (!findFirst(strCommandLine, strCommandLineLength, pos, L" \t", pos))
         return 1;
+#ifdef Q_CC_MSVC
     wmemmove_s(strCommandLine, strCommandLineLength, strCommandLine + pos + 1, strCommandLineLength - pos);
-
+#else
+    wmemmove(strCommandLine, strCommandLine + pos + 1, strCommandLineLength - pos);
+#endif
     bool bSuccess = startProcess(strCommandLine);
     free(strCommandLine);
 
@@ -151,7 +154,7 @@ BOOL WINAPI ctrlHandler(DWORD /*dwCtrlType*/)
     return TRUE;
 }
 
-DWORD WINAPI processWatcherThread(__in LPVOID lpParameter)
+DWORD WINAPI processWatcherThread(LPVOID lpParameter)
 {
     HANDLE hProcess = reinterpret_cast<HANDLE>(lpParameter);
     WaitForSingleObject(hProcess, INFINITE);
