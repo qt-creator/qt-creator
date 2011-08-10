@@ -57,9 +57,9 @@ public:
     TaskWindow(ProjectExplorer::TaskHub *taskHub);
     virtual ~TaskWindow();
 
-    int taskCount() const;
-    int warningTaskCount() const;
-    int errorTaskCount() const;
+    int taskCount(const QString &category = QString()) const;
+    int warningTaskCount(const QString &category = QString()) const;
+    int errorTaskCount(const QString &category = QString()) const;
 
     // IOutputPane
     QWidget *outputWidget(QWidget *);

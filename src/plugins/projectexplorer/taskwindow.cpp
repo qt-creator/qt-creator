@@ -876,19 +876,38 @@ void TaskWindow::filterCategoryTriggered(QAction *action)
     setCategoryVisibility(categoryId, action->isChecked());
 }
 
-int TaskWindow::taskCount() const
+int TaskWindow::taskCount(const QString &category) const
 {
-    return d->m_model->taskCount();
+    if (category.isEmpty())
+        return d->m_model->taskCount();
+
+    return d->m_model->tasks(category).size();
 }
 
-int TaskWindow::errorTaskCount() const
+int TaskWindow::errorTaskCount(const QString &category) const
 {
-    return d->m_model->errorTaskCount();
+    if (category.isEmpty())
+        return d->m_model->errorTaskCount();
+
+    int count = 0;
+    foreach (const Task &task, d->m_model->tasks(category)) {
+        if (task.type == Task::Error)
+            ++count;
+    }
+    return count;
 }
 
-int TaskWindow::warningTaskCount() const
+int TaskWindow::warningTaskCount(const QString &category) const
 {
-    return d->m_model->warningTaskCount();
+    if (category.isEmpty())
+        return d->m_model->warningTaskCount();
+
+    int count = 0;
+    foreach (const Task &task, d->m_model->tasks(category)) {
+        if (task.type == Task::Warning)
+            ++count;
+    }
+    return count;
 }
 
 int TaskWindow::priorityInStatusBar() const

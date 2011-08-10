@@ -228,7 +228,9 @@ void BuildManager::cancel()
 void BuildManager::updateTaskCount()
 {
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
-    const int errors = d->m_taskWindow->errorTaskCount();
+    const int errors =
+            d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
+            + d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_COMPILE);
     if (errors > 0) {
         progressManager->setApplicationLabel(QString::number(errors));
     } else {
@@ -287,7 +289,10 @@ void BuildManager::toggleTaskWindow()
 
 bool BuildManager::tasksAvailable() const
 {
-    return d->m_taskWindow->taskCount() > 0;
+    const int count =
+            d->m_taskWindow->taskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
+            + d->m_taskWindow->taskCount(Constants::TASK_CATEGORY_COMPILE);
+    return count > 0;
 }
 
 void BuildManager::startBuildQueue()
@@ -327,7 +332,7 @@ void BuildManager::startBuildQueue()
 
 void BuildManager::showBuildResults()
 {
-    if (d->m_taskWindow->taskCount() != 0)
+    if (tasksAvailable())
         toggleTaskWindow();
     else
         toggleOutputWindow();
