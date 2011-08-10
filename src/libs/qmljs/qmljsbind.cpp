@@ -278,8 +278,6 @@ bool Bind::visit(UiImport *ast)
         else if (importFileInfo.isDir())
             type = ImportInfo::DirectoryImport;
         else {
-            _diagnosticMessages->append(
-                        errorMessage(ast, tr("file or directory not found")));
             type = ImportInfo::UnknownFileImport;
         }
     }

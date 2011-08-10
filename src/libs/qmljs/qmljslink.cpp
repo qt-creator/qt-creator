@@ -221,6 +221,10 @@ void Link::populateImportedTypes(Imports *imports, Document::Ptr doc)
             case ImportInfo::LibraryImport:
                 import = importNonFile(doc, info);
                 break;
+            case ImportInfo::UnknownFileImport:
+                error(doc, info.ast()->fileNameToken,
+                      tr("file or directory not found"));
+                break;
             default:
                 break;
             }
