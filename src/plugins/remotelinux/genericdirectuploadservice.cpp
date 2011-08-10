@@ -259,13 +259,15 @@ void GenericDirectUploadService::stopDeployment()
     handleDeploymentDone();
 }
 
+// Note: time stamp checks disabled for now; it's too much hassle for the user to force
+// deployment in case the device has changed.
 void GenericDirectUploadService::checkDeploymentNeeded(const DeployableFile &deployable) const
 {
     QFileInfo fileInfo(deployable.localFilePath);
     if (fileInfo.isDir()) {
         const QStringList files = QDir(deployable.localFilePath)
             .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-        if (files.isEmpty() && hasChangedSinceLastDeployment(deployable))
+        if (files.isEmpty() /* && hasChangedSinceLastDeployment(deployable) */)
             m_d->filesToUpload << deployable;
         foreach (const QString &fileName, files) {
             const QString localFilePath = deployable.localFilePath
@@ -274,7 +276,7 @@ void GenericDirectUploadService::checkDeploymentNeeded(const DeployableFile &dep
                 + fileInfo.fileName();
             checkDeploymentNeeded(DeployableFile(localFilePath, remoteDir));
         }
-    } else if (hasChangedSinceLastDeployment(deployable)) {
+    } else  /* if (hasChangedSinceLastDeployment(deployable)) */ {
         m_d->filesToUpload << deployable;
     }
 }
