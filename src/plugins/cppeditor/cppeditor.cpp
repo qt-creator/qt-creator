@@ -67,6 +67,7 @@
 #include <cpptools/cppcompletionassist.h>
 #include <cpptools/cppqtstyleindenter.h>
 #include <cpptools/cppcodestylesettings.h>
+#include <cpptools/cpprefactoringchanges.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -76,6 +77,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/mimedatabase.h>
+#include <utils/qtcassert.h>
 #include <utils/uncommentselection.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -84,6 +86,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/refactoroverlay.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <texteditor/codeassist/basicproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -111,7 +114,8 @@
 
 enum {
     UPDATE_OUTLINE_INTERVAL = 500,
-    UPDATE_USES_INTERVAL = 500
+    UPDATE_USES_INTERVAL = 500,
+    UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL = 200
 };
 
 using namespace CPlusPlus;
@@ -464,6 +468,13 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     m_referencesRevision = 0;
     m_referencesCursorPosition = 0;
     connect(&m_referencesWatcher, SIGNAL(finished()), SLOT(markSymbolsNow()));
+
+    connect(this, SIGNAL(refactorMarkerClicked(TextEditor::RefactorMarker)),
+            this, SLOT(onRefactorMarkerClicked(TextEditor::RefactorMarker)));
+
+    m_declDefLinkFinder = new FunctionDeclDefLinkFinder(this);
+    connect(m_declDefLinkFinder, SIGNAL(foundLink(QSharedPointer<FunctionDeclDefLink>)),
+            this, SLOT(onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink>)));
 }
 
 CPPEditorWidget::~CPPEditorWidget()
@@ -533,6 +544,11 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     m_updateUsesTimer->setInterval(UPDATE_USES_INTERVAL);
     connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
+    m_updateFunctionDeclDefLinkTimer = new QTimer(this);
+    m_updateFunctionDeclDefLinkTimer->setSingleShot(true);
+    m_updateFunctionDeclDefLinkTimer->setInterval(UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
+    connect(m_updateFunctionDeclDefLinkTimer, SIGNAL(timeout()), this, SLOT(updateFunctionDeclDefLinkNow()));
+
     connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateOutlineIndex()));
     connect(m_outlineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateOutlineToolTip()));
@@ -540,6 +556,9 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
 
     connect(file(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
+    // set up function declaration - definition link
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateFunctionDeclDefLink()));
+    connect(this, SIGNAL(textChanged()), this, SLOT(updateFunctionDeclDefLink()));
 
     // set up the semantic highlighter
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
@@ -1170,77 +1189,6 @@ static inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolv
     return result;
 }
 
-namespace {
-
-QList<Declaration *> findMatchingDeclaration(const LookupContext &context,
-                                             Function *functionType)
-{
-    QList<Declaration *> result;
-
-    Scope *enclosingScope = functionType->enclosingScope();
-    while (! (enclosingScope->isNamespace() || enclosingScope->isClass()))
-        enclosingScope = enclosingScope->enclosingScope();
-    Q_ASSERT(enclosingScope != 0);
-
-    const Name *functionName = functionType->name();
-    if (! functionName)
-        return result; // anonymous function names are not valid c++
-
-    ClassOrNamespace *binding = 0;
-    const QualifiedNameId *qName = functionName->asQualifiedNameId();
-    if (qName) {
-        if (qName->base())
-            binding = context.lookupType(qName->base(), enclosingScope);
-        functionName = qName->name();
-    }
-
-    if (!binding) { // declaration for a global function
-        binding = context.lookupType(enclosingScope);
-
-        if (!binding)
-            return result;
-    }
-
-    const Identifier *funcId = functionName->identifier();
-    if (!funcId) // E.g. operator, which we might be able to handle in the future...
-        return result;
-
-    QList<Declaration *> good, better, best;
-
-    foreach (Symbol *s, binding->symbols()) {
-        Class *matchingClass = s->asClass();
-        if (!matchingClass)
-            continue;
-
-        for (Symbol *s = matchingClass->find(funcId); s; s = s->next()) {
-            if (! s->name())
-                continue;
-            else if (! funcId->isEqualTo(s->identifier()))
-                continue;
-            else if (! s->type()->isFunctionType())
-                continue;
-            else if (Declaration *decl = s->asDeclaration()) {
-                if (Function *declFunTy = decl->type()->asFunctionType()) {
-                    if (functionType->isEqualTo(declFunTy))
-                        best.prepend(decl);
-                    else if (functionType->argumentCount() == declFunTy->argumentCount() && result.isEmpty())
-                        better.prepend(decl);
-                    else
-                        good.append(decl);
-                }
-            }
-        }
-    }
-
-    result.append(best);
-    result.append(better);
-    result.append(good);
-
-    return result;
-}
-
-} // end of anonymous namespace
-
 CPPEditorWidget::Link CPPEditorWidget::attemptFuncDeclDef(const QTextCursor &cursor, const Document::Ptr &doc, Snapshot snapshot) const
 {
     snapshot.insert(doc);
@@ -1616,7 +1564,10 @@ bool CPPEditorWidget::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::ShortcutOverride:
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_currentRenameSelection != NoCurrentRenameSelection) {
+        // handle escape manually if a rename or func decl/def link is active
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape
+                && (m_currentRenameSelection != NoCurrentRenameSelection
+                    || m_declDefLink)) {
             e->accept();
             return true;
         }
@@ -1691,9 +1642,28 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     if (m_currentRenameSelection == NoCurrentRenameSelection) {
+        // key handling for linked function declarations/definitions
+        if (m_declDefLink && m_declDefLink->isMarkerVisible()) {
+            switch (e->key()) {
+            case Qt::Key_Enter:
+            case Qt::Key_Return:
+                applyDeclDefLinkChanges(/*jump tp change*/ e->modifiers() & Qt::ShiftModifier);
+                e->accept();
+                return;
+            case Qt::Key_Escape:
+                abortDeclDefLink();
+                e->accept();
+                return;
+            default:
+                break;
+            }
+        }
+
         TextEditor::BaseTextEditorWidget::keyPressEvent(e);
         return;
     }
+
+    // key handling for renames
 
     QTextCursor cursor = textCursor();
     const QTextCursor::MoveMode moveMode =
@@ -1974,6 +1944,9 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     }
 
     m_lastSemanticInfo.forced = false; // clear the forced flag
+
+    // schedule a check for a decl/def link
+    updateFunctionDeclDefLink();
 }
 
 namespace {
@@ -2272,6 +2245,80 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
         return new CppQuickFixAssistInterface(const_cast<CPPEditorWidget *>(this), reason);
     }
     return 0;
+}
+
+void CPPEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker)
+{
+    if (marker.data.canConvert<FunctionDeclDefLink::Marker>())
+        applyDeclDefLinkChanges(true);
+}
+
+void CPPEditorWidget::updateFunctionDeclDefLink()
+{
+    const int pos = textCursor().selectionStart();
+
+    // if there's already a link, abort it if the cursor is outside
+    if (m_declDefLink
+            && (pos < m_declDefLink->linkSelection.selectionStart()
+                || pos > m_declDefLink->linkSelection.selectionEnd())) {
+        abortDeclDefLink();
+        return;
+    }
+
+    // don't start a new scan if there's one active and the cursor is already in the scanned area
+    const QTextCursor scannedSelection = m_declDefLinkFinder->scannedSelection();
+    if (!scannedSelection.isNull()
+            && scannedSelection.selectionStart() <= pos
+            && scannedSelection.selectionEnd() >= pos) {
+        return;
+    }
+
+    m_updateFunctionDeclDefLinkTimer->start();
+}
+
+void CPPEditorWidget::updateFunctionDeclDefLinkNow()
+{
+    if (Core::EditorManager::instance()->currentEditor() != editor())
+        return;
+    if (m_declDefLink) {
+        // update the change marker
+        const Utils::ChangeSet changes = m_declDefLink->changes(m_lastSemanticInfo.snapshot);
+        if (changes.isEmpty())
+            m_declDefLink->hideMarker(this);
+        else
+            m_declDefLink->showMarker(this);
+        return;
+    }
+    if (!m_lastSemanticInfo.doc || isOutdated())
+        return;
+
+    Snapshot snapshot = CppModelManagerInterface::instance()->snapshot();
+    snapshot.insert(m_lastSemanticInfo.doc);
+
+    m_declDefLinkFinder->startFindLinkAt(textCursor(), m_lastSemanticInfo.doc, snapshot);
+}
+
+void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link)
+{
+    abortDeclDefLink();
+    m_declDefLink = link;
+}
+
+void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
+{
+    if (!m_declDefLink)
+        return;
+    m_declDefLink->apply(this, jumpToMatch);
+    m_declDefLink.clear();
+    updateFunctionDeclDefLink();
+}
+
+void CPPEditorWidget::abortDeclDefLink()
+{
+    if (!m_declDefLink)
+        return;
+    m_declDefLink->hideMarker(this);
+    m_declDefLink.clear();
 }
 
 #include "cppeditor.moc"

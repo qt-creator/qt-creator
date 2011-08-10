@@ -138,7 +138,9 @@ CPPEditorWidget *CppQuickFixAssistInterface::editor() const
 
 const CppRefactoringFile CppQuickFixAssistInterface::currentFile() const
 {
-    return CppRefactoringFile(m_editor, m_semanticInfo.doc);
+    CppRefactoringFile file(m_editor);
+    file.setCppDocument(m_semanticInfo.doc);
+    return file;
 }
 
 bool CppQuickFixAssistInterface::isCursorOn(unsigned tokenIndex) const

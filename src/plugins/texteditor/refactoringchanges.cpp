@@ -186,6 +186,22 @@ RefactoringFile::RefactoringFile()
     , m_openEditor(false)
 { }
 
+RefactoringFile::RefactoringFile(QTextDocument *document, const QString &fileName)
+    : m_fileName(fileName)
+    , m_refactoringChanges(0)
+    , m_document(document)
+    , m_editor(0)
+    , m_openEditor(false)
+{ }
+
+RefactoringFile::RefactoringFile(BaseTextEditorWidget *editor)
+    : m_fileName(editor->file()->fileName())
+    , m_refactoringChanges(0)
+    , m_document(0)
+    , m_editor(editor)
+    , m_openEditor(false)
+{ }
+
 RefactoringFile::RefactoringFile(const QString &fileName, RefactoringChanges *refactoringChanges)
     : m_fileName(fileName)
     , m_refactoringChanges(refactoringChanges)

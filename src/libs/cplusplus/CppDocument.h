@@ -45,6 +45,7 @@ namespace CPlusPlus {
 
 class Macro;
 class MacroArgumentReference;
+class LookupContext;
 
 class CPLUSPLUS_EXPORT Document
 {
@@ -386,7 +387,7 @@ public:
     Document::Ptr documentFromSource(const QByteArray &preprocessedCode,
                                      const QString &fileName) const;
 
-    Symbol *findMatchingDefinition(Symbol *symbol) const;
+    Symbol *findMatchingDefinition(Symbol *symbol, bool strict = false) const;
     Class *findMatchingClassDeclaration(Symbol *symbol) const;
 
 private:
@@ -395,6 +396,15 @@ private:
 private:
     _Base _documents;
 };
+
+void CPLUSPLUS_EXPORT findMatchingDeclaration(
+        const LookupContext &context,
+        Function *functionType,
+        QList<Declaration *> *typeMatch,
+        QList<Declaration *> *argumentCountMatch,
+        QList<Declaration *> *nameMatch);
+QList<Declaration *> CPLUSPLUS_EXPORT findMatchingDeclaration(
+        const LookupContext &context, Function *functionType);
 
 } // namespace CPlusPlus
 

@@ -50,6 +50,7 @@
 #include <NameVisitor.h>
 #include <TypeVisitor.h>
 #include <CoreTypes.h>
+#include <LookupContext.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QBitArray>
@@ -583,6 +584,8 @@ void Document::check(CheckMode mode)
         semantic(ast, _globalNamespace);
     } else if (ExpressionAST *ast = _translationUnit->ast()->asExpression()) {
         semantic(ast, _globalNamespace);
+    } else if (DeclarationAST *ast = translationUnit()->ast()->asDeclaration()) {
+        semantic(ast, _globalNamespace);
     }
 }
 
@@ -972,7 +975,9 @@ public:
 };
 } // end of anonymous namespace
 
-Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
+// strict means the returned symbol has to match exactly,
+// including argument count and argument types
+Symbol *Snapshot::findMatchingDefinition(Symbol *declaration, bool strict) const
 {
     if (!declaration)
         return 0;
@@ -1030,7 +1035,7 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
             if (viableFunctions.isEmpty())
                 continue;
 
-            else if (viableFunctions.length() == 1)
+            else if (! strict && viableFunctions.length() == 1)
                 return viableFunctions.first();
 
             Function *best = 0;
@@ -1039,7 +1044,7 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
                 if (! (fun->unqualifiedName() && fun->unqualifiedName()->isEqualTo(declaration->unqualifiedName())))
                     continue;
                 else if (fun->argumentCount() == declarationTy->argumentCount()) {
-                    if (! best)
+                    if (! strict && ! best)
                         best = fun;
 
                     unsigned argc = 0;
@@ -1055,7 +1060,7 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *declaration) const
                 }
             }
 
-            if (! best)
+            if (!strict && ! best)
                 best = viableFunctions.first();
 
             return best;
@@ -1088,4 +1093,75 @@ Class *Snapshot::findMatchingClassDeclaration(Symbol *declaration) const
     }
 
     return 0;
+}
+
+void CPlusPlus::findMatchingDeclaration(const LookupContext &context,
+                                        Function *functionType,
+                                        QList<Declaration *> *typeMatch,
+                                        QList<Declaration *> *argumentCountMatch,
+                                        QList<Declaration *> *nameMatch)
+{
+    Scope *enclosingScope = functionType->enclosingScope();
+    while (! (enclosingScope->isNamespace() || enclosingScope->isClass()))
+        enclosingScope = enclosingScope->enclosingScope();
+    Q_ASSERT(enclosingScope != 0);
+
+    const Name *functionName = functionType->name();
+    if (! functionName)
+        return; // anonymous function names are not valid c++
+
+    ClassOrNamespace *binding = 0;
+    const QualifiedNameId *qName = functionName->asQualifiedNameId();
+    if (qName) {
+        if (qName->base())
+            binding = context.lookupType(qName->base(), enclosingScope);
+        functionName = qName->name();
+    }
+
+    if (!binding) { // declaration for a global function
+        binding = context.lookupType(enclosingScope);
+
+        if (!binding)
+            return;
+    }
+
+    const Identifier *funcId = functionName->identifier();
+    if (!funcId) // E.g. operator, which we might be able to handle in the future...
+        return;
+
+    foreach (Symbol *s, binding->symbols()) {
+        Class *matchingClass = s->asClass();
+        if (!matchingClass)
+            continue;
+
+        for (Symbol *s = matchingClass->find(funcId); s; s = s->next()) {
+            if (! s->name())
+                continue;
+            else if (! funcId->isEqualTo(s->identifier()))
+                continue;
+            else if (! s->type()->isFunctionType())
+                continue;
+            else if (Declaration *decl = s->asDeclaration()) {
+                if (Function *declFunTy = decl->type()->asFunctionType()) {
+                    if (functionType->isEqualTo(declFunTy))
+                        typeMatch->prepend(decl);
+                    else if (functionType->argumentCount() == declFunTy->argumentCount())
+                        argumentCountMatch->prepend(decl);
+                    else
+                        nameMatch->append(decl);
+                }
+            }
+        }
+    }
+}
+
+QList<Declaration *> CPlusPlus::findMatchingDeclaration(const LookupContext &context, Function *functionType)
+{
+    QList<Declaration *> result;
+    QList<Declaration *> nameMatch, argumentCountMatch, typeMatch;
+    findMatchingDeclaration(context, functionType, &typeMatch, &argumentCountMatch, &nameMatch);
+    result.append(typeMatch);
+    result.append(argumentCountMatch);
+    result.append(nameMatch);
+    return result;
 }

@@ -50,10 +50,11 @@ class CPPTOOLS_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
 {
 public:
     CppRefactoringFile();
-    CppRefactoringFile(const QString &fileName, CppRefactoringChanges *refactoringChanges);
-    CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor, CPlusPlus::Document::Ptr document);
+    CppRefactoringFile(QTextDocument *document, const QString &fileName = QString());
+    CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor);
 
     CPlusPlus::Document::Ptr cppDocument() const;
+    void setCppDocument(CPlusPlus::Document::Ptr document);
 
     CPlusPlus::Scope *scopeAt(unsigned index) const;
 
@@ -76,10 +77,15 @@ public:
     using TextEditor::RefactoringFile::textOf;
     QString textOf(const CPlusPlus::AST *ast) const;
 
+protected:
+    CppRefactoringFile(const QString &fileName, CppRefactoringChanges *refactoringChanges);
+
 private:
     CppRefactoringChanges *refactoringChanges() const;
 
     mutable CPlusPlus::Document::Ptr m_cppDocument;
+
+    friend class CppRefactoringChanges; // for access to constructor
 };
 
 class CPPTOOLS_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges

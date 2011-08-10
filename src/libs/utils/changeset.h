@@ -81,6 +81,7 @@ public:
 
 public:
     ChangeSet();
+    ChangeSet(const QList<EditOp> &operations);
 
     bool isEmpty() const;
 

@@ -41,6 +41,11 @@ ChangeSet::ChangeSet()
 {
 }
 
+ChangeSet::ChangeSet(const QList<EditOp> &operations)
+    : m_string(0), m_cursor(0), m_operationList(operations), m_error(false)
+{
+}
+
 static bool overlaps(int posA, int lengthA, int posB, int lengthB) {
     if (lengthB > 0) {
         return

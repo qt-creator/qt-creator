@@ -52,7 +52,9 @@ public:
 
 public:
     RefactoringFile();
-    RefactoringFile(const QString &fileName, RefactoringChanges *refactoringChanges);
+    // takes ownership of document
+    RefactoringFile(QTextDocument *document, const QString &fileName = QString());
+    RefactoringFile(BaseTextEditorWidget *editor);
     RefactoringFile(const RefactoringFile &other);
     virtual ~RefactoringFile();
 
@@ -76,6 +78,7 @@ protected:
     // not assignable
     //const RefactoringFile &operator=(const RefactoringFile &other);
 
+    RefactoringFile(const QString &fileName, RefactoringChanges *refactoringChanges);
     QTextDocument *mutableDocument() const;
 
 protected:
@@ -86,6 +89,8 @@ protected:
     Utils::ChangeSet m_changes;
     QList<Range> m_indentRanges;
     bool m_openEditor;
+
+    friend class RefactoringChanges; // access to constructor
 };
 
  /*!

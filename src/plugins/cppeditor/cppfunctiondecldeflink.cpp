@@ -1,0 +1,569 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+**************************************************************************/
+
+#include "cppfunctiondecldeflink.h"
+
+#include "cppeditor.h"
+
+#include <cplusplus/CppRewriter.h>
+#include <cplusplus/ASTPath.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/LookupContext.h>
+#include <cplusplus/Overview.h>
+#include <texteditor/refactoroverlay.h>
+#include <texteditor/tooltip/tooltip.h>
+#include <texteditor/tooltip/tipcontents.h>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QtConcurrentRun>
+
+using namespace CPlusPlus;
+using namespace CppEditor;
+using namespace CppEditor::Internal;
+
+FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
+    : QObject(parent)
+{
+    connect(&m_watcher, SIGNAL(finished()),
+            this, SLOT(onFutureDone()));
+}
+
+void FunctionDeclDefLinkFinder::onFutureDone()
+{
+    QSharedPointer<FunctionDeclDefLink> link = m_watcher.result();
+    if (link)
+        link->linkSelection = m_scannedSelection;
+    m_scannedSelection = QTextCursor();
+    if (link)
+        emit foundLink(link);
+}
+
+QTextCursor FunctionDeclDefLinkFinder::scannedSelection() const
+{
+    return m_scannedSelection;
+}
+
+// parent is either a FunctionDefinitionAST or a SimpleDeclarationAST
+static bool findDeclOrDef(const Document::Ptr &doc, const QTextCursor &cursor,
+                          DeclarationAST **parent, FunctionDeclaratorAST **funcDecl)
+{
+    QList<AST *> path = ASTPath(doc)(cursor);
+
+    // for function definitions, simply scan for FunctionDefinitionAST not preceded
+    //    by CompoundStatement/CtorInitializer
+    // for function declarations, look for SimpleDeclarations with a single Declarator
+    //    with a FunctionDeclarator postfix
+    FunctionDefinitionAST *funcDef = 0;
+    SimpleDeclarationAST *simpleDecl = 0;
+    DeclaratorAST *decl = 0;
+    for (int i = path.size() - 1; i > 0; --i) {
+        AST *ast = path.at(i);
+        if (ast->asCompoundStatement() || ast->asCtorInitializer())
+            break;
+        if ((funcDef = ast->asFunctionDefinition()) != 0) {
+            *parent = funcDef;
+            decl = funcDef->declarator;
+            break;
+        }
+        if ((simpleDecl = ast->asSimpleDeclaration()) != 0) {
+            *parent = simpleDecl;
+            if (!simpleDecl->declarator_list || !simpleDecl->declarator_list->value)
+                break;
+            decl = simpleDecl->declarator_list->value;
+            break;
+        }
+    }
+    if (!*parent || !decl)
+        return false;
+    if (!decl->postfix_declarator_list || !decl->postfix_declarator_list->value)
+        return false;
+    *funcDecl = decl->postfix_declarator_list->value->asFunctionDeclarator();
+    return *funcDecl;
+}
+
+static void declDefLinkStartEnd(const CppTools::CppRefactoringFile &file,
+                                DeclarationAST *parent, FunctionDeclaratorAST *funcDecl,
+                                int *start, int *end)
+{
+    *start = file.startOf(parent);
+    if (funcDecl->trailing_return_type)
+        *end = file.endOf(funcDecl->trailing_return_type);
+    else if (funcDecl->exception_specification)
+        *end = file.endOf(funcDecl->exception_specification);
+    else if (funcDecl->cv_qualifier_list)
+        *end = file.endOf(funcDecl->cv_qualifier_list->lastValue());
+    else
+        *end = file.endOf(funcDecl->rparen_token);
+}
+
+static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppTools::CppRefactoringChanges changes)
+{
+    QSharedPointer<FunctionDeclDefLink> noResult;
+    const Snapshot &snapshot = changes.snapshot();
+
+    // find the matching decl/def symbol
+    Symbol *target = 0;
+    if (FunctionDefinitionAST *funcDef = link->sourceDeclaration->asFunctionDefinition()) {
+        QList<Declaration *> nameMatch, argumentCountMatch, typeMatch;
+        findMatchingDeclaration(LookupContext(link->sourceDocument, snapshot),
+                                funcDef->symbol,
+                                &typeMatch, &argumentCountMatch, &nameMatch);
+        if (!typeMatch.isEmpty())
+            target = typeMatch.first();
+    } else if (link->sourceDeclaration->asSimpleDeclaration()) {
+        target = snapshot.findMatchingDefinition(link->sourceFunctionDeclarator->symbol, true);
+    }
+    if (!target) {
+        return noResult;
+    }
+
+    // parse the target file to get the linked decl/def
+    const QString targetFileName = QString::fromUtf8(
+                target->fileName(), target->fileNameLength());
+    CppTools::CppRefactoringFile targetFile = changes.file(targetFileName);
+    if (!targetFile.isValid())
+        return noResult;
+
+    QTextCursor tc(targetFile.cursor());
+    tc.setPosition(targetFile.position(target->line(), target->column()));
+    DeclarationAST *targetParent = 0;
+    FunctionDeclaratorAST *targetFuncDecl = 0;
+    if (!findDeclOrDef(targetFile.cppDocument(), tc, &targetParent, &targetFuncDecl))
+        return noResult;
+
+    // the parens are necessary for finding good places for changes
+    if (!targetFuncDecl->lparen_token || !targetFuncDecl->rparen_token)
+        return noResult;
+
+    int targetStart, targetEnd;
+    declDefLinkStartEnd(targetFile, targetParent, targetFuncDecl, &targetStart, &targetEnd);
+    QString targetInitial = targetFile.textOf(
+                targetFile.startOf(targetParent),
+                targetEnd);
+
+    link->targetOffset = targetStart;
+    link->targetInitial = targetInitial;
+
+    link->targetFile = QSharedPointer<CppTools::CppRefactoringFile>(
+                new CppTools::CppRefactoringFile(targetFile.document()->clone(), targetFile.fileName()));
+    link->targetFile->setCppDocument(targetFile.cppDocument());
+    link->targetFunction = targetFuncDecl->symbol;
+    link->targetFunctionDeclarator = targetFuncDecl;
+    link->targetDeclaration = targetParent;
+
+    return link;
+}
+
+void FunctionDeclDefLinkFinder::startFindLinkAt(
+        QTextCursor cursor, const Document::Ptr &doc, const Snapshot &snapshot)
+{
+    // check if cursor is on function decl/def
+    DeclarationAST *parent = 0;
+    FunctionDeclaratorAST *funcDecl = 0;
+    if (!findDeclOrDef(doc, cursor, &parent, &funcDecl))
+        return;
+
+    // find the start/end offsets
+    CppTools::CppRefactoringChanges refactoringChanges(snapshot);
+    CppTools::CppRefactoringFile sourceFile = refactoringChanges.file(doc->fileName());
+    sourceFile.setCppDocument(doc);
+    int start, end;
+    declDefLinkStartEnd(sourceFile, parent, funcDecl, &start, &end);
+
+    // if already scanning, don't scan again
+    if (!m_scannedSelection.isNull()
+            && m_scannedSelection.selectionStart() == start
+            && m_scannedSelection.selectionEnd() == end) {
+        return;
+    }
+
+    // build the selection for the currently scanned area
+    m_scannedSelection = cursor;
+    m_scannedSelection.setPosition(end);
+    m_scannedSelection.setPosition(start, QTextCursor::KeepAnchor);
+    m_scannedSelection.setKeepPositionOnInsert(true);
+
+    // set up a base result
+    QSharedPointer<FunctionDeclDefLink> result(new FunctionDeclDefLink);
+    result->sourceDocument = doc;
+    result->sourceFunction = funcDecl->symbol;
+    result->sourceDeclaration = parent;
+    result->sourceFunctionDeclarator = funcDecl;
+
+    // handle the rest in a thread
+    m_watcher.setFuture(QtConcurrent::run(&findLinkHelper, result, refactoringChanges));
+}
+
+FunctionDeclDefLink::FunctionDeclDefLink()
+{
+    hasMarker = false;
+    targetOffset = 0;
+    sourceFunction = 0;
+    targetFunction = 0;
+    targetDeclaration = 0;
+    targetFunctionDeclarator = 0;
+}
+
+FunctionDeclDefLink::~FunctionDeclDefLink()
+{
+}
+
+bool FunctionDeclDefLink::isValid() const
+{
+    return targetFile;
+}
+
+bool FunctionDeclDefLink::isMarkerVisible() const
+{
+    return hasMarker;
+}
+
+static bool namesEqual(const Name *n1, const Name *n2)
+{
+    return n1 == n2 || (n1 && n2 && n1->isEqualTo(n2));
+}
+
+static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
+{
+    if (!declarator || !declarator->core_declarator)
+        return 0;
+    if (DeclaratorIdAST *id = declarator->core_declarator->asDeclaratorId()) {
+        return id;
+    }
+    if (NestedDeclaratorAST *nested = declarator->core_declarator->asNestedDeclarator()) {
+        return getDeclaratorId(nested->declarator);
+    }
+    return 0;
+}
+
+void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
+{
+    Snapshot snapshot = editor->semanticInfo().snapshot;
+
+    // first verify the interesting region of the target file is unchanged
+    CppTools::CppRefactoringChanges refactoringChanges(snapshot);
+    CppTools::CppRefactoringFile newTargetFile = refactoringChanges.file(targetFile->fileName());
+    if (!newTargetFile.isValid())
+        return;
+    const int targetEnd = targetOffset + targetInitial.size();
+    if (targetInitial == newTargetFile.textOf(targetOffset, targetEnd)) {
+        const Utils::ChangeSet changeset = changes(snapshot);
+        newTargetFile.change(changeset, jumpToMatch);
+        if (jumpToMatch) {
+            QTextCursor tc = newTargetFile.cursor();
+            tc.setPosition(targetOffset + targetInitial.size());
+            refactoringChanges.activateEditor(newTargetFile.fileName(), tc.blockNumber(), tc.columnNumber());
+        }
+    } else {
+        TextEditor::ToolTip::instance()->show(
+                    editor->toolTipPosition(linkSelection),
+                    TextEditor::TextContent(
+                        tr("Target file was changed, could not apply changes")));
+    }
+
+    hideMarker(editor);
+}
+
+template <class T>
+static QList<TextEditor::RefactorMarker> removeMarkersOfType(const QList<TextEditor::RefactorMarker> &markers)
+{
+    QList<TextEditor::RefactorMarker> result;
+    foreach (const TextEditor::RefactorMarker &marker, markers) {
+        if (!marker.data.canConvert<T>())
+            result += marker;
+    }
+    return result;
+}
+
+void FunctionDeclDefLink::hideMarker(CPPEditorWidget *editor)
+{
+    if (!hasMarker)
+        return;
+    editor->setRefactorMarkers(
+                removeMarkersOfType<Marker>(editor->refactorMarkers()));
+    hasMarker = false;
+}
+
+void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
+{
+    if (hasMarker)
+        return;
+
+    QList<TextEditor::RefactorMarker> markers = removeMarkersOfType<Marker>(editor->refactorMarkers());
+    TextEditor::RefactorMarker marker;
+
+    // show the marker at the end of the linked area, with a special case
+    // to avoid it overlapping with a trailing semicolon
+    marker.cursor = editor->textCursor();
+    marker.cursor.setPosition(linkSelection.selectionEnd());
+    const int endBlockNr = marker.cursor.blockNumber();
+    marker.cursor.setPosition(linkSelection.selectionEnd() + 1, QTextCursor::KeepAnchor);
+    if (marker.cursor.blockNumber() != endBlockNr
+            || marker.cursor.selectedText() != QLatin1String(";")) {
+        marker.cursor.setPosition(linkSelection.selectionEnd());
+    }
+
+    QString message;
+    if (targetDeclaration->asFunctionDefinition())
+        message = tr("Apply changes to definition");
+    else
+        message = tr("Apply changes to declaration");
+    marker.tooltip = message;
+    marker.data = QVariant::fromValue(Marker());
+    markers += marker;
+    editor->setRefactorMarkers(markers);
+
+    hasMarker = true;
+}
+
+Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
+{
+    Utils::ChangeSet changes;
+
+    QSharedPointer<CppTools::CppRefactoringFile> matchFile = targetFile;
+
+    // parse the current source declaration
+    TypeOfExpression typeOfExpression; // ### just need to preprocess...
+    typeOfExpression.init(sourceDocument, snapshot);
+    const QString newDecl = typeOfExpression.preprocess(
+                linkSelection.selectedText()) + QLatin1String("{}");
+    Document::Ptr newDeclDoc = Document::create(QLatin1String("<decl>"));
+    newDeclDoc->setSource(newDecl.toUtf8());
+    newDeclDoc->parse(Document::ParseDeclaration);
+    newDeclDoc->check();
+
+    // extract the function symbol
+    if (!newDeclDoc->translationUnit()->ast()) {
+        return changes;
+    }
+    FunctionDefinitionAST *newDef = newDeclDoc->translationUnit()->ast()->asFunctionDefinition();
+    if (!newDef) {
+        return changes;
+    }
+    Function *newFunction = newDef->symbol;
+    QTC_ASSERT(newFunction, return changes); // check() should always create this symbol
+
+    LookupContext sourceContext(sourceDocument, snapshot);
+    LookupContext targetContext(targetFile->cppDocument(), snapshot);
+
+    Overview overview;
+    overview.setShowReturnTypes(true);
+    overview.setShowTemplateParameters(true);
+    overview.setShowArgumentNames(true);
+    overview.setShowFunctionSignatures(true);
+
+    // sync return type
+    {
+        // set up for rewriting return type
+        SubstitutionEnvironment env;
+        env.setContext(sourceContext);
+        env.switchScope(sourceFunction->enclosingScope());
+        ClassOrNamespace *targetCoN = targetContext.lookupType(targetFunction->enclosingScope());
+        if (!targetCoN)
+            targetCoN = targetContext.globalNamespace();
+        UseMinimalNames q(targetCoN);
+        env.enter(&q);
+        Control *control = sourceContext.control().data();
+
+        // get return type start position and declarator info from declaration
+        int returnTypeStart = 0;
+        DeclaratorAST *declarator = 0;
+        if (SimpleDeclarationAST *simple = targetDeclaration->asSimpleDeclaration()) {
+            declarator = simple->declarator_list->value;
+            if (simple->decl_specifier_list)
+                returnTypeStart = matchFile->startOf(simple->decl_specifier_list->value);
+            else
+                returnTypeStart = matchFile->startOf(declarator);
+        } else if (FunctionDefinitionAST *def = targetDeclaration->asFunctionDefinition()) {
+            declarator = def->declarator;
+            if (def->decl_specifier_list)
+                returnTypeStart = matchFile->startOf(def->decl_specifier_list->value);
+            else
+                returnTypeStart = matchFile->startOf(declarator);
+        }
+
+        if (!newFunction->returnType().isEqualTo(sourceFunction->returnType())
+                && !newFunction->returnType().isEqualTo(targetFunction->returnType())) {
+            FullySpecifiedType type = rewriteType(newFunction->returnType(), &env, control);
+            const QString replacement = overview(type, targetFunction->name());
+            changes.replace(returnTypeStart,
+                            matchFile->startOf(targetFunctionDeclarator->lparen_token),
+                            replacement);
+        }
+    }
+
+    // sync parameters
+    {
+        // set up for rewriting parameter types
+        SubstitutionEnvironment env;
+        env.setContext(sourceContext);
+        env.switchScope(sourceFunction);
+        ClassOrNamespace *targetCoN = targetContext.lookupType(targetFunction);
+        if (!targetCoN)
+            targetCoN = targetContext.globalNamespace();
+        UseMinimalNames q(targetCoN);
+        env.enter(&q);
+        Control *control = sourceContext.control().data();
+        Overview overview;
+
+        // check if parameter types or names have changed
+        const unsigned existingArgs = qMin(targetFunction->argumentCount(), newFunction->argumentCount());
+        ParameterDeclarationClauseAST *targetParameterDecl =
+                targetFunctionDeclarator->parameter_declaration_clause;
+        ParameterDeclarationListAST *firstTargetParameterDeclIt =
+                targetParameterDecl ? targetParameterDecl->parameter_declaration_list : 0;
+        ParameterDeclarationListAST *targetParameterDeclIt = firstTargetParameterDeclIt;
+        for (unsigned i = 0;
+             i < existingArgs && targetParameterDeclIt;
+             ++i, targetParameterDeclIt = targetParameterDeclIt->next) {
+            Symbol *targetParam = targetFunction->argumentAt(i);
+            Symbol *newParam = newFunction->argumentAt(i);
+
+            // if new's name and type are the same as source's, forbid changes
+            bool allowChangeType = true;
+            const Name *replacementName = newParam->name();
+            if (i < sourceFunction->argumentCount()) {
+                Symbol *sourceParam = sourceFunction->argumentAt(i);
+                if (newParam->type().isEqualTo(sourceParam->type()))
+                    allowChangeType = false;
+                if (namesEqual(replacementName, sourceParam->name()))
+                    replacementName = targetParam->name();
+            }
+
+            ParameterDeclarationAST *targetParamAst = targetParameterDeclIt->value;
+            int parameterNameEnd = 0;
+            if (targetParamAst->declarator)
+                parameterNameEnd = matchFile->endOf(targetParamAst->declarator);
+            else if (targetParamAst->type_specifier_list)
+                parameterNameEnd = matchFile->endOf(targetParamAst->type_specifier_list->lastToken() - 1);
+            else
+                parameterNameEnd = matchFile->startOf(targetParamAst);
+
+            if (allowChangeType
+                    && !targetParam->type().isEqualTo(newParam->type())) {
+                FullySpecifiedType replacementType = rewriteType(newParam->type(), &env, control);
+                const QString replacement = overview(replacementType, replacementName);
+
+                changes.replace(matchFile->startOf(targetParamAst),
+                                parameterNameEnd,
+                                replacement);
+            } else if (!namesEqual(targetParam->name(), replacementName)) {
+                DeclaratorIdAST *id = getDeclaratorId(targetParamAst->declarator);
+                QString replacementNameStr = overview(replacementName);
+                if (id) {
+                    changes.replace(matchFile->range(id), replacementNameStr);
+                } else {
+                    // add name to unnamed parameter
+                    replacementNameStr.prepend(QLatin1Char(' '));
+                    int end;
+                    if (targetParamAst->equal_token) {
+                        end = matchFile->startOf(targetParamAst->equal_token);
+                        replacementNameStr.append(QLatin1Char(' '));
+                    } else {
+                        // one past end on purpose
+                        end = matchFile->startOf(targetParamAst->lastToken());
+                    }
+                    changes.replace(parameterNameEnd, end, replacementNameStr);
+                }
+            }
+        }
+        if (newFunction->argumentCount() < targetFunction->argumentCount()) {
+            targetParameterDeclIt = firstTargetParameterDeclIt;
+            if (targetParameterDeclIt) {
+                if (newFunction->argumentCount() == 0) {
+                    changes.remove(matchFile->startOf(targetParameterDeclIt->firstToken()),
+                                   matchFile->endOf(targetParameterDeclIt->lastToken() - 1));
+                } else {
+                    // get the last valid argument
+                    for (unsigned i = 0; i < newFunction->argumentCount() - 1 && targetParameterDeclIt; ++i)
+                        targetParameterDeclIt = targetParameterDeclIt->next;
+                    if (targetParameterDeclIt) {
+                        const int start = matchFile->endOf(targetParameterDeclIt->value);
+                        const int end = matchFile->endOf(targetParameterDecl->lastToken() - 1);
+                        changes.remove(start, end);
+                    }
+                }
+            }
+        } else if (newFunction->argumentCount() > targetFunction->argumentCount()) {
+            QString newParams;
+            for (unsigned i = targetFunction->argumentCount(); i < newFunction->argumentCount(); ++i) {
+                Symbol *param = newFunction->argumentAt(i);
+                FullySpecifiedType type = rewriteType(param->type(), &env, control);
+                if (i != 0)
+                    newParams += QLatin1String(", ");
+                newParams += overview(type, param->name());
+            }
+            targetParameterDeclIt = firstTargetParameterDeclIt;
+            if (targetParameterDeclIt) {
+                while (targetParameterDeclIt->next)
+                    targetParameterDeclIt = targetParameterDeclIt->next;
+                changes.insert(matchFile->endOf(targetParameterDeclIt->value), newParams);
+            } else {
+                changes.insert(matchFile->endOf(targetFunctionDeclarator->lparen_token), newParams);
+            }
+        }
+    }
+
+    // sync cv qualification
+    if (targetFunction->isConst() != newFunction->isConst()
+            || targetFunction->isVolatile() != newFunction->isVolatile()) {
+        QString cvString;
+        if (newFunction->isConst())
+            cvString += QLatin1String("const");
+        if (newFunction->isVolatile()) {
+            if (!cvString.isEmpty())
+                cvString += QLatin1Char(' ');
+            cvString += QLatin1String("volatile");
+        }
+        const int rparenEnd = matchFile->endOf(targetFunctionDeclarator->rparen_token);
+        if (targetFunctionDeclarator->cv_qualifier_list) {
+            const int cvEnd = matchFile->endOf(targetFunctionDeclarator->cv_qualifier_list->lastToken() - 1);
+            // if the qualifies changed, replace
+            if (!cvString.isEmpty()) {
+                changes.replace(matchFile->startOf(targetFunctionDeclarator->cv_qualifier_list->firstToken()),
+                                cvEnd, cvString);
+            } else {
+                // remove
+                changes.remove(rparenEnd, cvEnd);
+            }
+        } else {
+            // otherwise add
+            cvString.prepend(QLatin1Char(' '));
+            changes.insert(rparenEnd, cvString);
+        }
+    }
+
+    return changes;
+}

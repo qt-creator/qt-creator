@@ -26,7 +26,8 @@ HEADERS += cppplugin.h \
     cppsnippetprovider.h \
     cppinsertqtpropertymembers.h \
     cppquickfixassistant.h \
-    cppquickfix.h
+    cppquickfix.h \
+    cppfunctiondecldeflink.h
 
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
@@ -47,7 +48,10 @@ SOURCES += cppplugin.cpp \
     cppsnippetprovider.cpp \
     cppinsertqtpropertymembers.cpp \
     cppquickfixassistant.cpp \
-    cppquickfix.cpp
+    cppquickfix.cpp \
+    cppfunctiondecldeflink.cpp
 
 RESOURCES += cppeditor.qrc
 OTHER_FILES += CppEditor.mimetypes.xml
+
+

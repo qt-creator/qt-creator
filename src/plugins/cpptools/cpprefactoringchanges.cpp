@@ -110,13 +110,13 @@ CppRefactoringFile::CppRefactoringFile(const QString &fileName, CppRefactoringCh
     m_cppDocument = snapshot.document(fileName);
 }
 
-CppRefactoringFile::CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor, CPlusPlus::Document::Ptr document)
-    : RefactoringFile()
-    , m_cppDocument(document)
-{
-    m_fileName = document->fileName();
-    m_editor = editor;
-}
+CppRefactoringFile::CppRefactoringFile(QTextDocument *document, const QString &fileName)
+    : RefactoringFile(document, fileName)
+{ }
+
+CppRefactoringFile::CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor)
+    : RefactoringFile(editor)
+{ }
 
 Document::Ptr CppRefactoringFile::cppDocument() const
 {
@@ -132,6 +132,11 @@ Document::Ptr CppRefactoringFile::cppDocument() const
     }
 
     return m_cppDocument;
+}
+
+void CppRefactoringFile::setCppDocument(Document::Ptr document)
+{
+    m_cppDocument = document;
 }
 
 Scope *CppRefactoringFile::scopeAt(unsigned index) const
