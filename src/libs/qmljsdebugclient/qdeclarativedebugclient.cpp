@@ -35,6 +35,7 @@
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qstringlist.h>
+#include <QtNetwork/qnetworkproxy.h>
 #include <symbiandevicemanager.h>
 
 namespace QmlJsDebugClient {
@@ -286,6 +287,7 @@ void QDeclarativeDebugConnection::flush()
 void QDeclarativeDebugConnection::connectToHost(const QString &hostName, quint16 port)
 {
     QTcpSocket *socket = new QTcpSocket(d);
+    socket->setProxy(QNetworkProxy::NoProxy);
     d->device = socket;
     d->connectDeviceSignals();
     d->gotHello = false;
