@@ -326,7 +326,7 @@ void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
         return;
 
     else if (QmlJSTextEditorWidget *textEditor = qobject_cast<QmlJSTextEditorWidget *>(editor->widget())) {
-        textEditor->forceSemanticRehighlight();
+        textEditor->forceReparse();
     }
 }
 

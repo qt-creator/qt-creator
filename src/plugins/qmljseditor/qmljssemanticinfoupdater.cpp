@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "qmljssemantichighlighter.h"
+#include "qmljssemanticinfoupdater.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
@@ -41,39 +41,39 @@
 namespace QmlJSEditor {
 namespace Internal {
 
-SemanticHighlighter::SemanticHighlighter(QObject *parent)
+SemanticInfoUpdater::SemanticInfoUpdater(QObject *parent)
         : QThread(parent),
           m_done(false),
           m_modelManager(0)
 {
 }
 
-SemanticHighlighter::~SemanticHighlighter()
+SemanticInfoUpdater::~SemanticInfoUpdater()
 {
 }
 
-void SemanticHighlighter::abort()
+void SemanticInfoUpdater::abort()
 {
     QMutexLocker locker(&m_mutex);
     m_done = true;
     m_condition.wakeOne();
 }
 
-void SemanticHighlighter::rehighlight(const SemanticHighlighterSource &source)
+void SemanticInfoUpdater::update(const SemanticInfoUpdaterSource &source)
 {
     QMutexLocker locker(&m_mutex);
     m_source = source;
     m_condition.wakeOne();
 }
 
-bool SemanticHighlighter::isOutdated()
+bool SemanticInfoUpdater::isOutdated()
 {
     QMutexLocker locker(&m_mutex);
     const bool outdated = ! m_source.fileName.isEmpty() || m_done;
     return outdated;
 }
 
-void SemanticHighlighter::run()
+void SemanticInfoUpdater::run()
 {
     setPriority(QThread::LowestPriority);
 
@@ -84,7 +84,7 @@ void SemanticHighlighter::run()
             m_condition.wait(&m_mutex);
 
         const bool done = m_done;
-        const SemanticHighlighterSource source = m_source;
+        const SemanticInfoUpdaterSource source = m_source;
         m_source.clear();
 
         m_mutex.unlock();
@@ -99,12 +99,12 @@ void SemanticHighlighter::run()
             m_lastSemanticInfo = info;
             m_mutex.unlock();
 
-            emit changed(info);
+            emit updated(info);
         }
     }
 }
 
-SemanticInfo SemanticHighlighter::semanticInfo(const SemanticHighlighterSource &source)
+SemanticInfo SemanticInfoUpdater::semanticInfo(const SemanticInfoUpdaterSource &source)
 {
     m_mutex.lock();
     const int revision = m_lastSemanticInfo.revision();
@@ -146,7 +146,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const SemanticHighlighterSource &
     return semanticInfo;
 }
 
-void SemanticHighlighter::setModelManager(QmlJS::ModelManagerInterface *modelManager)
+void SemanticInfoUpdater::setModelManager(QmlJS::ModelManagerInterface *modelManager)
 {
     m_modelManager = modelManager;
 }

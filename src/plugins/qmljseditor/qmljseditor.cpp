@@ -37,7 +37,7 @@
 #include "qmljseditorplugin.h"
 #include "qmloutlinemodel.h"
 #include "qmljsfindreferences.h"
-#include "qmljssemantichighlighter.h"
+#include "qmljssemanticinfoupdater.h"
 #include "qmljsautocompleter.h"
 #include "qmljscompletionassist.h"
 #include "qmljsquickfixassist.h"
@@ -661,8 +661,8 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
 {
     qRegisterMetaType<QmlJSEditor::SemanticInfo>("QmlJSEditor::SemanticInfo");
 
-    m_semanticHighlighter = new SemanticHighlighter(this);
-    m_semanticHighlighter->start();
+    m_semanticInfoUpdater = new SemanticInfoUpdater(this);
+    m_semanticInfoUpdater->start();
 
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -680,10 +680,10 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     m_updateUsesTimer->setSingleShot(true);
     connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
-    m_semanticRehighlightTimer = new QTimer(this);
-    m_semanticRehighlightTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
-    m_semanticRehighlightTimer->setSingleShot(true);
-    connect(m_semanticRehighlightTimer, SIGNAL(timeout()), this, SLOT(forceSemanticRehighlightIfCurrentEditor()));
+    m_localReparseTimer = new QTimer(this);
+    m_localReparseTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_localReparseTimer->setSingleShot(true);
+    connect(m_localReparseTimer, SIGNAL(timeout()), this, SLOT(forceReparseIfCurrentEditor()));
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
@@ -719,15 +719,15 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     m_oldCursorPosition = -1;
 
     if (m_modelManager) {
-        m_semanticHighlighter->setModelManager(m_modelManager);
+        m_semanticInfoUpdater->setModelManager(m_modelManager);
         connect(m_modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
                 this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
         connect(m_modelManager, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
-                this, SLOT(forceSemanticRehighlightIfCurrentEditor()));
+                this, SLOT(forceReparseIfCurrentEditor()));
         connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
     }
 
-    connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::SemanticInfo)),
+    connect(m_semanticInfoUpdater, SIGNAL(updated(QmlJSEditor::SemanticInfo)),
             this, SLOT(updateSemanticInfo(QmlJSEditor::SemanticInfo)));
 
     connect(this, SIGNAL(refactorMarkerClicked(TextEditor::RefactorMarker)),
@@ -739,8 +739,8 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
 QmlJSTextEditorWidget::~QmlJSTextEditorWidget()
 {
     hideContextPane();
-    m_semanticHighlighter->abort();
-    m_semanticHighlighter->wait();
+    m_semanticInfoUpdater->abort();
+    m_semanticInfoUpdater->wait();
 }
 
 SemanticInfo QmlJSTextEditorWidget::semanticInfo() const
@@ -853,15 +853,15 @@ void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
             || doc->editorRevision() != document()->revision()) {
         // maybe a dependency changed: schedule a potential rehighlight
         // will not rehighlight if the current editor changes away from this file
-        m_semanticRehighlightTimer->start();
+        m_localReparseTimer->start();
         return;
     }
 
     if (doc->ast()) {
         // got a correctly parsed (or recovered) file.
 
-        const SemanticHighlighterSource source = currentSource(/*force = */ true);
-        m_semanticHighlighter->rehighlight(source);
+        const SemanticInfoUpdaterSource source = currentSource(/*force = */ true);
+        m_semanticInfoUpdater->update(source);
     } else {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
@@ -1496,28 +1496,28 @@ void QmlJSTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
     TextEditor::BaseTextEditorWidget::setTabSettings(ts);
 }
 
-void QmlJSTextEditorWidget::forceSemanticRehighlight()
+void QmlJSTextEditorWidget::forceReparse()
 {
-    m_semanticHighlighter->rehighlight(currentSource(/* force = */ true));
+    m_semanticInfoUpdater->update(currentSource(/* force = */ true));
 }
 
-void QmlJSEditor::QmlJSTextEditorWidget::forceSemanticRehighlightIfCurrentEditor()
+void QmlJSEditor::QmlJSTextEditorWidget::forceReparseIfCurrentEditor()
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     if (editorManager->currentEditor() == editor())
-        forceSemanticRehighlight();
+        forceReparse();
 }
 
-void QmlJSTextEditorWidget::semanticRehighlight()
+void QmlJSTextEditorWidget::reparse()
 {
-    m_semanticHighlighter->rehighlight(currentSource());
+    m_semanticInfoUpdater->update(currentSource());
 }
 
 void QmlJSTextEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 {
     if (semanticInfo.revision() != document()->revision()) {
         // got outdated semantic info
-        semanticRehighlight();
+        reparse();
         return;
     }
 
@@ -1620,7 +1620,7 @@ QVector<QString> QmlJSTextEditorWidget::highlighterFormatCategories()
     return categories;
 }
 
-SemanticHighlighterSource QmlJSTextEditorWidget::currentSource(bool force)
+SemanticInfoUpdaterSource QmlJSTextEditorWidget::currentSource(bool force)
 {
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
@@ -1633,7 +1633,7 @@ SemanticHighlighterSource QmlJSTextEditorWidget::currentSource(bool force)
         code = toPlainText(); // get the source code only when needed.
 
     const unsigned revision = document()->revision();
-    SemanticHighlighterSource source(snapshot, fileName, code,
+    SemanticInfoUpdaterSource source(snapshot, fileName, code,
                                        line, column, revision);
     source.force = force;
     return source;

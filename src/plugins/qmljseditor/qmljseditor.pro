@@ -29,14 +29,14 @@ HEADERS += \
     qmljscomponentnamedialog.h \
     qmljsfindreferences.h \
     qmljseditoreditable.h \
-    qmljssemantichighlighter.h \
     qmljsautocompleter.h \
     jsfilewizard.h \
     qmljssnippetprovider.h \
     qmljsreuse.h \
     qmljsquickfixassist.h \
     qmljscompletionassist.h \
-    qmljsquickfix.h
+    qmljsquickfix.h \
+    qmljssemanticinfoupdater.h
 
 SOURCES += \
     qmljseditor.cpp \
@@ -59,14 +59,14 @@ SOURCES += \
     qmljscomponentnamedialog.cpp \
     qmljsfindreferences.cpp \
     qmljseditoreditable.cpp \
-    qmljssemantichighlighter.cpp \
     qmljsautocompleter.cpp \
     jsfilewizard.cpp \
     qmljssnippetprovider.cpp \
     qmljsreuse.cpp \
     qmljsquickfixassist.cpp \
     qmljscompletionassist.cpp \
-    qmljsquickfix.cpp
+    qmljsquickfix.cpp \
+    qmljssemanticinfoupdater.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.mimetypes.xml
@@ -74,3 +74,7 @@ OTHER_FILES += QmlJSEditor.mimetypes.xml
 FORMS += \
     quicktoolbarsettingspage.ui \
     qmljscomponentnamedialog.ui
+
+
+
+

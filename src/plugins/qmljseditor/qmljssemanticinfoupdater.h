@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef SEMANTICHIGHLIGHTER_H
-#define SEMANTICHIGHLIGHTER_H
+#ifndef SEMANTICINFOUPDATER_H
+#define SEMANTICINFOUPDATER_H
 
 #include "qmljseditor.h"
 
@@ -43,7 +43,7 @@
 namespace QmlJSEditor {
 namespace Internal {
 
-struct SemanticHighlighterSource
+struct SemanticInfoUpdaterSource
 {
     QmlJS::Snapshot snapshot;
     QString fileName;
@@ -53,11 +53,11 @@ struct SemanticHighlighterSource
     int revision;
     bool force;
 
-    SemanticHighlighterSource()
+    SemanticInfoUpdaterSource()
         : line(0), column(0), revision(0), force(false)
     { }
 
-    SemanticHighlighterSource(const QmlJS::Snapshot &snapshot,
+    SemanticInfoUpdaterSource(const QmlJS::Snapshot &snapshot,
            const QString &fileName,
            const QString &code,
            int line, int column,
@@ -79,33 +79,33 @@ struct SemanticHighlighterSource
     }
 };
 
-class SemanticHighlighter: public QThread
+class SemanticInfoUpdater: public QThread
 {
     Q_OBJECT
 
 public:
-    SemanticHighlighter(QObject *parent = 0);
-    virtual ~SemanticHighlighter();
+    SemanticInfoUpdater(QObject *parent = 0);
+    virtual ~SemanticInfoUpdater();
 
     void abort();
-    void rehighlight(const SemanticHighlighterSource &source);
+    void update(const SemanticInfoUpdaterSource &source);
     void setModelManager(QmlJS::ModelManagerInterface *modelManager);
 
 Q_SIGNALS:
-    void changed(const QmlJSEditor::SemanticInfo &semanticInfo);
+    void updated(const QmlJSEditor::SemanticInfo &semanticInfo);
 
 protected:
     virtual void run();
 
 private:
     bool isOutdated();
-    SemanticInfo semanticInfo(const SemanticHighlighterSource &source);
+    SemanticInfo semanticInfo(const SemanticInfoUpdaterSource &source);
 
 private:
     QMutex m_mutex;
     QWaitCondition m_condition;
     bool m_done;
-    SemanticHighlighterSource m_source;
+    SemanticInfoUpdaterSource m_source;
     SemanticInfo m_lastSemanticInfo;
     QmlJS::ModelManagerInterface *m_modelManager;
 };
@@ -113,4 +113,4 @@ private:
 } // namespace Internal
 } // namespace QmlJSEditor
 
-#endif // SEMANTICHIGHLIGHTER_H
+#endif // SEMANTICINFOUPDATER_H

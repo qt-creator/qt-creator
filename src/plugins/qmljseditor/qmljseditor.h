@@ -68,8 +68,8 @@ class FindReferences;
 
 namespace Internal {
 class QmlOutlineModel;
-class SemanticHighlighter;
-struct SemanticHighlighterSource;
+class SemanticInfoUpdater;
+struct SemanticInfoUpdaterSource;
 } // namespace Internal
 
 struct QMLJSEDITOR_EXPORT Declaration
@@ -140,7 +140,7 @@ public: // attributes
 private:
     QSharedPointer<const QmlJS::ScopeChain> m_rootScopeChain;
 
-    friend class Internal::SemanticHighlighter;
+    friend class Internal::SemanticInfoUpdater;
 };
 
 class QMLJSEDITOR_EXPORT QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
@@ -170,7 +170,7 @@ public:
 
 public slots:
     virtual void setTabSettings(const TextEditor::TabSettings &ts);
-    void forceSemanticRehighlight();
+    void forceReparse();
     void followSymbolUnderCursor();
     void findUsages();
     void renameUsages();
@@ -197,8 +197,8 @@ private slots:
     void updateUses();
     void updateUsesNow();
 
-    void semanticRehighlight();
-    void forceSemanticRehighlightIfCurrentEditor();
+    void reparse();
+    void forceReparseIfCurrentEditor();
     void updateSemanticInfo(const QmlJSEditor::SemanticInfo &semanticInfo);
     void onCursorPositionChanged();
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
@@ -221,7 +221,7 @@ private:
     void setSelectedElements();
     QString wordUnderCursor() const;
 
-    Internal::SemanticHighlighterSource currentSource(bool force = false);
+    Internal::SemanticInfoUpdaterSource currentSource(bool force = false);
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
     bool hideContextPane();
 
@@ -229,7 +229,7 @@ private:
 
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
-    QTimer *m_semanticRehighlightTimer;
+    QTimer *m_localReparseTimer;
     QTimer *m_updateOutlineTimer;
     QTimer *m_updateOutlineIndexTimer;
     QTimer *m_cursorPositionTimer;
@@ -241,7 +241,7 @@ private:
     QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;
 
-    Internal::SemanticHighlighter *m_semanticHighlighter;
+    Internal::SemanticInfoUpdater *m_semanticInfoUpdater;
     SemanticInfo m_semanticInfo;
 
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
