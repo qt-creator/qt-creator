@@ -2159,7 +2159,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
 
     m_mutex.lock();
     if (! source.force
-            && m_lastSemanticInfo.revision == source.revision
+            && m_lastSemanticInfo.revision == (unsigned)source.revision
             && m_lastSemanticInfo.doc
             && m_lastSemanticInfo.doc->translationUnit()->ast()
             && m_lastSemanticInfo.doc->fileName() == source.fileName) {
