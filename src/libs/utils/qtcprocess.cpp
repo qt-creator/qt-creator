@@ -666,11 +666,14 @@ void QtcProcess::start()
     QString command;
 #ifdef Q_OS_WIN
     QString arguments;
+    QStringList argList;
     prepareCommand(m_command, m_arguments, &command, &arguments, &env, &workDir);
     setNativeArguments(arguments);
-    if (m_useCtrlCStub)
-        command.prepend(QLatin1Char('"') + QCoreApplication::applicationDirPath() + QLatin1String("/qtcbuildhelper.exe\" "));
-    QProcess::start(command, QStringList());
+    if (m_useCtrlCStub) {
+        argList << command;
+        command = QCoreApplication::applicationDirPath() + QLatin1String("/qtcbuildhelper.exe"));
+    }
+    QProcess::start(command, argList);
 #else
     QStringList arguments;
     if (!prepareCommand(m_command, m_arguments, &command, &arguments, &env, &workDir)) {
