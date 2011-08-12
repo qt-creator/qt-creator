@@ -189,7 +189,9 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
         wd.mkpath(wd.absolutePath());
 
     m_process = new Utils::QtcProcess();
+#ifdef Q_OS_WIN
     m_process->setUseCtrlCStub(true);
+#endif
     m_process->setWorkingDirectory(wd.absolutePath());
     m_process->setEnvironment(m_param.environment());
 
