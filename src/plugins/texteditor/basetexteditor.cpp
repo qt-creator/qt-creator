@@ -6020,6 +6020,10 @@ QString BaseTextEditor::contextHelpId() const
     return m_contextHelpId;
 }
 
+Internal::RefactorMarkers BaseTextEditorWidget::refactorMarkers() const
+{
+    return d->m_refactorOverlay->markers();
+}
 
 void BaseTextEditorWidget::setRefactorMarkers(const Internal::RefactorMarkers &markers)
 {

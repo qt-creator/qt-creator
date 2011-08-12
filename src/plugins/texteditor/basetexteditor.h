@@ -405,7 +405,7 @@ public:
     QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
     QString extraSelectionTooltip(int pos) const;
 
-
+    Internal::RefactorMarkers refactorMarkers() const;
     void setRefactorMarkers(const Internal::RefactorMarkers &markers);
 signals:
     void refactorMarkerClicked(const TextEditor::RefactorMarker &marker);
