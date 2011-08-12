@@ -211,7 +211,7 @@ void QScriptDebuggerClient::insertBreakpoints(BreakHandler *handler, BreakpointM
     d->breakpoints.insert(bp);
 }
 
-void QScriptDebuggerClient::removeBreakpoints(BreakpointModelId */*id*/)
+void QScriptDebuggerClient::removeBreakpoints(BreakpointModelId * /*id*/)
 {
 
 }
