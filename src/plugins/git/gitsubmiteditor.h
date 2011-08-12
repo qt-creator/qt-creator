@@ -45,7 +45,7 @@ namespace Git {
 namespace Internal {
 
 class GitSubmitEditorWidget;
-struct CommitData;
+class CommitData;
 struct GitSubmitEditorPanelData;
 
 class GitSubmitEditor : public VCSBase::VCSBaseSubmitEditor
