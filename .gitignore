@@ -81,6 +81,7 @@ doc/pluginhowto/html/*
 bin/*.dll
 bin/qtcreator
 bin/qtcreator_process_stub*
+bin/qtcreator_ctrlc_stub*
 bin/qtcreator.exe
 bin/qmlpuppet
 bin/qmlpuppet.exe

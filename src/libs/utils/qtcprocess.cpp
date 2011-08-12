@@ -671,7 +671,7 @@ void QtcProcess::start()
     setNativeArguments(arguments);
     if (m_useCtrlCStub) {
         argList << command;
-        command = QCoreApplication::applicationDirPath() + QLatin1String("/qtcbuildhelper.exe"));
+        command = QCoreApplication::applicationDirPath() + QLatin1String("/qtcreator_ctrlc_stub.exe"));
     }
     QProcess::start(command, argList);
 #else

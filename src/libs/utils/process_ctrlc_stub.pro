@@ -1,0 +1,21 @@
+!win32: error("process_ctrlc_stub is Windows only")
+
+include(../../../qtcreator.pri)
+
+TEMPLATE  = app
+TARGET    = qtcreator_ctrlc_stub
+DESTDIR   = $$IDE_LIBEXEC_PATH
+
+QT        =
+CONFIG    += console warn_on
+
+SOURCES   += process_ctrlc_stub.cpp
+LIBS      += -luser32 -lshell32
+
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
+
+target.path  = /bin # FIXME: libexec, more or less
+INSTALLS    += target
