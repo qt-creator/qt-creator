@@ -239,13 +239,17 @@ void CppHighlighter::highlightBlock(const QString &text)
         int oldState = currentState & 0xff;
         int oldBraceDepth = currentState >> 8;
         if (oldState == tokenize.state() && oldBraceDepth != braceDepth) {
+            BaseTextDocumentLayout::FoldValidator foldValidor;
+            foldValidor.setup(qobject_cast<BaseTextDocumentLayout *>(document()->documentLayout()));
             int delta = braceDepth - oldBraceDepth;
             QTextBlock block = currentBlock().next();
             while (block.isValid() && block.userState() != -1) {
                 BaseTextDocumentLayout::changeBraceDepth(block, delta);
                 BaseTextDocumentLayout::changeFoldingIndent(block, delta);
+                foldValidor.process(block);
                 block = block.next();
             }
+            foldValidor.finalize();
         }
     }
 

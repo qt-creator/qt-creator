@@ -174,6 +174,22 @@ public:
     static bool isFolded(const QTextBlock &block);
     static void setFolded(const QTextBlock &block, bool folded);
 
+    class TEXTEDITOR_EXPORT FoldValidator
+    {
+    public:
+        FoldValidator();
+
+        void setup(BaseTextDocumentLayout *layout);
+        void reset();
+        void process(QTextBlock block);
+        void finalize();
+
+    private:
+        BaseTextDocumentLayout *m_layout;
+        bool m_requestDocUpdate;
+        int m_insideFold;
+    };
+
     static TextBlockUserData *testUserData(const QTextBlock &block) {
         return static_cast<TextBlockUserData*>(block.userData());
     }
