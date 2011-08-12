@@ -199,6 +199,7 @@ signals:
     // for LogOutput/AnnotateOutput content types.
     void describeRequested(const QString &source, const QString &change);
     void annotateRevisionRequested(const QString &source, const QString &change, int lineNumber);
+    void diffChunkApplied(const VCSBase::DiffChunk &dc);
     void diffChunkReverted(const VCSBase::DiffChunk &dc);
 
 public slots:
@@ -226,7 +227,7 @@ private slots:
     void slotDiffCursorPositionChanged();
     void slotAnnotateRevision();
     void slotCopyRevision();
-    void slotRevertDiffChunk();
+    void slotApplyDiffChunk();
     void slotPaste();
 
 protected:
@@ -235,9 +236,9 @@ protected:
      * source and version control. */
     QString findDiffFile(const QString &f, Core::IVersionControl *control = 0) const;
 
-    virtual bool canRevertDiffChunk(const DiffChunk &dc) const;
+    virtual bool canApplyDiffChunk(const DiffChunk &dc) const;
     // Revert a patch chunk. Default implementation uses patch.exe
-    virtual bool revertDiffChunk(const DiffChunk &dc) const;
+    virtual bool applyDiffChunk(const DiffChunk &dc, bool revert = false) const;
 
 private:
     // Implement to return a set of change identifiers in

@@ -1039,7 +1039,6 @@ static void mimeTypeFactoryRecursion(const MimeDatabase *db,
             list->push_back(*fit);
             if (firstMatchOnly)
                 return;
-            break;
         }
     }
     // Any parent mime type classes? -> recurse

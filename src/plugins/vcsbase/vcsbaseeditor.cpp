@@ -122,6 +122,26 @@ QByteArray DiffChunk::asPatch() const
     return rc;
 }
 
+namespace Internal {
+
+// Data to be passed to apply/revert diff chunk actions.
+class DiffChunkAction
+{
+public:
+    DiffChunkAction(const DiffChunk &dc = DiffChunk(), bool revertIn = false) :
+        chunk(dc), revert(revertIn) {}
+
+    DiffChunk chunk;
+    bool revert;
+};
+
+} // namespace Internal
+} // VCSBase
+
+Q_DECLARE_METATYPE(VCSBase::Internal::DiffChunkAction)
+
+namespace VCSBase {
+
 /*!
     \class VCSBase::VCSBaseEditor
 
@@ -554,11 +574,23 @@ void VCSBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         connect(menu->addAction(tr("Send to CodePaster...")), SIGNAL(triggered()),
                 this, SLOT(slotPaste()));
         menu->addSeparator();
-        QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
+        // Apply/revert diff chunk.
         const DiffChunk chunk = diffChunk(cursorForPosition(e->pos()));
-        revertAction->setEnabled(canRevertDiffChunk(chunk));
-        revertAction->setData(qVariantFromValue(chunk));
-        connect(revertAction, SIGNAL(triggered()), this, SLOT(slotRevertDiffChunk()));
+        const bool canApply = canApplyDiffChunk(chunk);
+        // Apply a chunk from a diff loaded into the editor. This typically will
+        // not have the 'source' property set and thus will only work if the working
+        // directory matches that of the patch (see findDiffFile()). In addition,
+        // the user has "Open With" and choose the right diff editor so that
+        // fileNameFromDiffSpecification() works.
+        QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
+        applyAction->setEnabled(canApply);
+        applyAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, false)));
+        connect(applyAction, SIGNAL(triggered()), this, SLOT(slotApplyDiffChunk()));
+        // Revert a chunk from a VCS diff, which might be linked to reloading the diff.
+        QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
+        revertAction->setEnabled(isRevertDiffChunkEnabled() && canApply);
+        revertAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, true)));
+        connect(revertAction, SIGNAL(triggered()), this, SLOT(slotApplyDiffChunk()));
     }
         break;
     default:
@@ -1073,34 +1105,40 @@ void VCSBaseEditorWidget::setRevertDiffChunkEnabled(bool e)
     d->m_revertChunkEnabled = e;
 }
 
-bool VCSBaseEditorWidget::canRevertDiffChunk(const DiffChunk &dc) const
+bool VCSBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 {
-    if (!isRevertDiffChunkEnabled() || !dc.isValid())
+    if (!dc.isValid())
         return false;
     const QFileInfo fi(dc.fileName);
     // Default implementation using patch.exe relies on absolute paths.
     return fi.isFile() && fi.isAbsolute() && fi.isWritable();
 }
 
-// Default implementation of revert: Revert a chunk by piping it into patch
-// with '-R', assuming we got absolute paths from the VCS plugins.
-bool VCSBaseEditorWidget::revertDiffChunk(const DiffChunk &dc) const
+// Default implementation of revert: Apply a chunk by piping it into patch,
+// (passing '-R' for revert), assuming we got absolute paths from the VCS plugins.
+bool VCSBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
 {
-    return VCSBasePlugin::runPatch(dc.asPatch(), QString(), 0, true);
+    return VCSBasePlugin::runPatch(dc.asPatch(), QString(), 0, revert);
 }
 
-void VCSBaseEditorWidget::slotRevertDiffChunk()
+void VCSBaseEditorWidget::slotApplyDiffChunk()
 {
     const QAction *a = qobject_cast<QAction *>(sender());
     QTC_ASSERT(a, return ; )
-    const DiffChunk chunk = qvariant_cast<DiffChunk>(a->data());
-    if (QMessageBox::No == QMessageBox::question(this, tr("Revert Chunk"),
-                                                  tr("Would you like to revert the chunk?"),
-                                                  QMessageBox::Yes|QMessageBox::No))
+    const Internal::DiffChunkAction chunkAction = qvariant_cast<Internal::DiffChunkAction>(a->data());
+    const QString title = chunkAction.revert ? tr("Revert Chunk") : tr("Apply Chunk");
+    const QString question = chunkAction.revert ?
+        tr("Would you like to revert the chunk?") : tr("Would you like to apply the chunk?");
+    if (QMessageBox::No == QMessageBox::question(this, title, question, QMessageBox::Yes|QMessageBox::No))
         return;
 
-    if (revertDiffChunk(chunk))
-        emit diffChunkReverted(chunk);
+    if (applyDiffChunk(chunkAction.chunk, chunkAction.revert)) {
+        if (chunkAction.revert) {
+            emit diffChunkReverted(chunkAction.chunk);
+        } else {
+            emit diffChunkApplied(chunkAction.chunk);
+        }
+    }
 }
 
 // Tagging of editors for re-use.
