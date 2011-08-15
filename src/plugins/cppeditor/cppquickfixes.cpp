@@ -1536,8 +1536,9 @@ private:
             TypeOfExpression typeOfExpression;
             typeOfExpression.init(assistInterface()->semanticInfo().doc,
                                   assistInterface()->snapshot(), assistInterface()->context().bindings());
+            Scope *scope = currentFile->scopeAt(binaryAST->firstToken());
             const QList<LookupItem> result = typeOfExpression(currentFile->textOf(binaryAST->right_expression),
-                                                              currentFile->scopeAt(binaryAST->firstToken()),
+                                                              scope,
                                                               TypeOfExpression::Preprocess);
 
             if (! result.isEmpty()) {
@@ -1545,7 +1546,10 @@ private:
                 SubstitutionEnvironment env;
                 env.setContext(assistInterface()->context());
                 env.switchScope(result.first().scope());
-                UseQualifiedNames q;
+                ClassOrNamespace *con = typeOfExpression.context().lookupType(scope);
+                if (!con)
+                    con = typeOfExpression.context().globalNamespace();
+                UseMinimalNames q(con);
                 env.enter(&q);
 
                 Control *control = assistInterface()->context().control().data();
