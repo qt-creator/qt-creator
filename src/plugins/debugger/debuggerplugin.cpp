@@ -928,7 +928,7 @@ public slots:
     {
         const QAction *action = qobject_cast<const QAction *>(sender());
         QTC_ASSERT(action, return);
-        const ContextData data = action->data().value<ContextData>();
+        const BreakpointMenuContextData data = action->data().value<BreakpointMenuContextData>();
         currentEngine()->executeRunToLine(data);
     }
 
@@ -936,7 +936,7 @@ public slots:
     {
         const QAction *action = qobject_cast<const QAction *>(sender());
         QTC_ASSERT(action, return);
-        const ContextData data = action->data().value<ContextData>();
+        const BreakpointMenuContextData data = action->data().value<BreakpointMenuContextData>();
         currentEngine()->executeJumpToLine(data);
     }
 
