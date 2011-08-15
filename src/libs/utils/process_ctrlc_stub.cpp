@@ -57,7 +57,7 @@ HWND hwndMain = 0;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 BOOL WINAPI ctrlHandler(DWORD dwCtrlType);
-bool findFirst(const wchar_t *str, const size_t strLength, const size_t startPos, const wchar_t *chars, size_t &pos);
+bool isSpaceOrTab(const wchar_t c);
 bool startProcess(wchar_t pCommandLine[]);
 
 int main(int argc, char **)
@@ -85,17 +85,21 @@ int main(int argc, char **)
         return FALSE;
 
     // Get the command line and remove the call to this executable.
-    // Note: We trust Qt Creator at this point to quote the call to this tool in a sensible way.
-    // Strange things like C:\Q"t Crea"tor\bin\qtcreator_ctrlc_stub.exe are not supported.
     wchar_t *strCommandLine = _wcsdup(GetCommandLine());
     const size_t strCommandLineLength = wcslen(strCommandLine);
     size_t pos = 1;
-    if (strCommandLine[0] == L'"')
-        if (!findFirst(strCommandLine, strCommandLineLength, pos, L"\"", pos))
-            return 1;
-    if (!findFirst(strCommandLine, strCommandLineLength, pos, L" \t", pos))
-        return 1;
-    bool bSuccess = startProcess(strCommandLine + pos + 1);
+    bool quoted = false;
+    while (pos < strCommandLineLength) {
+        if (strCommandLine[pos] == L'"') {
+            quoted = !quoted;
+        } else if (!quoted && isSpaceOrTab(strCommandLine[pos])) {
+            while (isSpaceOrTab(strCommandLine[++pos]));
+            break;
+        }
+        ++pos;
+    }
+
+    bool bSuccess = startProcess(strCommandLine + pos);
     free(strCommandLine);
 
     if (!bSuccess)
@@ -130,17 +134,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-bool findFirst(const wchar_t *str, const size_t strLength, const size_t startPos, const wchar_t *chars, size_t &pos)
+bool isSpaceOrTab(const wchar_t c)
 {
-    for (size_t i=startPos; i < strLength; ++i) {
-        for (size_t j=0; chars[j]; ++j) {
-            if (str[i] == chars[j]) {
-                pos = i;
-                return true;
-            }
-        }
-    }
-    return false;
+    return c == L' ' || c == L'\t';
 }
 
 BOOL WINAPI ctrlHandler(DWORD /*dwCtrlType*/)
