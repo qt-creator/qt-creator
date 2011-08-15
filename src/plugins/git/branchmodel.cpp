@@ -448,8 +448,11 @@ void BranchModel::checkoutBranch(const QModelIndex &idx)
     }
     if (m_client->synchronousCheckoutBranch(m_workingDirectory, branch, &errorMessage)) {
         if (errorMessage.isEmpty()) {
-            static_cast<BranchNode *>(currentBranch().internalPointer())->current = false;
-            emit dataChanged(currentBranch(), currentBranch());
+            QModelIndex currentIdx = currentBranch();
+            if (currentIdx.isValid()) {
+                static_cast<BranchNode *>(currentIdx.internalPointer())->current = false;
+                emit dataChanged(currentBranch(), currentBranch());
+            }
             static_cast<BranchNode *>(idx.internalPointer())->current = true;
             emit dataChanged(idx, idx);
         } else {
