@@ -405,8 +405,8 @@ bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
 
     if (cdbBinary(sp).isEmpty()) {
         check->errorDetails.push_back(msgNoCdbBinaryForToolChain(sp.toolChainAbi));
-        check->settingsCategory = QLatin1String(Constants::TOOLCHAIN_SETTINGS_CATEGORY);
-        check->settingsPage = QLatin1String(Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
         return false;
     }
 
