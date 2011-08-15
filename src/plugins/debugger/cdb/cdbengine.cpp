@@ -352,24 +352,24 @@ bool isCdbEngineEnabled()
 #endif
 }
 
-static inline QString msgNoCdbBinaryForToolChain(const ProjectExplorer::Abi &tc)
+static inline QString msgNoCdbBinaryForToolChain(const Abi &tc)
 {
     return CdbEngine::tr("There is no CDB binary available for binaries in format '%1'").arg(tc.toString());
 }
 
-static inline bool isMSVC_Flavor(ProjectExplorer::Abi::OSFlavor osf)
+static inline bool isMsvcFlavor(Abi::OSFlavor osf)
 {
-  return osf == ProjectExplorer::Abi::WindowsMsvc2005Flavor
-      || osf == ProjectExplorer::Abi::WindowsMsvc2008Flavor
-      || osf == ProjectExplorer::Abi::WindowsMsvc2010Flavor;
+  return osf == Abi::WindowsMsvc2005Flavor
+      || osf == Abi::WindowsMsvc2008Flavor
+      || osf == Abi::WindowsMsvc2010Flavor;
 }
 
 static QString cdbBinary(const DebuggerStartParameters &sp)
 {
     if (!sp.debuggerCommand.isEmpty()) {
         // Do not use a GDB binary if we got started for a project with MinGW runtime.
-        const bool abiMatch = sp.toolChainAbi.os() == ProjectExplorer::Abi::WindowsOS
-                   && isMSVC_Flavor(sp.toolChainAbi.osFlavor());
+        const bool abiMatch = sp.toolChainAbi.os() == Abi::WindowsOS
+                   && isMsvcFlavor(sp.toolChainAbi.osFlavor());
         if (abiMatch)
             return sp.debuggerCommand;
     }
@@ -398,15 +398,15 @@ bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
         return false;
     }
 
-    if (sp.startMode == AttachCore && !isMSVC_Flavor(sp.toolChainAbi.osFlavor())) {
+    if (sp.startMode == AttachCore && !isMsvcFlavor(sp.toolChainAbi.osFlavor())) {
         check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine cannot debug gdb core files."));
         return false;
     }
 
     if (cdbBinary(sp).isEmpty()) {
         check->errorDetails.push_back(msgNoCdbBinaryForToolChain(sp.toolChainAbi));
-        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
-        check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsCategory = QLatin1String(Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsPage = QLatin1String(Constants::TOOLCHAIN_SETTINGS_CATEGORY);
         return false;
     }
 
