@@ -690,7 +690,7 @@ void QtcProcess::start()
 #ifdef Q_OS_WIN
 BOOL CALLBACK sendShutDownMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARAM lParam)
 {
-    static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcbuildhelper_shutdown");
+    static UINT uiShutDownMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
     DWORD dwProcessID;
     GetWindowThreadProcessId(hwnd, &dwProcessID);
     if ((DWORD)lParam == dwProcessID) {

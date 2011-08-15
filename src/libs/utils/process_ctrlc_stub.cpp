@@ -50,8 +50,8 @@
 #include <cstdlib>
 #include <cstdio>
 
-const wchar_t szTitle[] = L"qtcbuildhelper";
-const wchar_t szWindowClass[] = L"wcqtcbuildhelper";
+const wchar_t szTitle[] = L"qtcctrlcstub";
+const wchar_t szWindowClass[] = L"wcqtcctrlcstub";
 UINT uiShutDownWindowMessage;
 HWND hwndMain = 0;
 
@@ -68,7 +68,7 @@ int main(int argc, char **)
     }
 
     SetConsoleCtrlHandler(ctrlHandler, TRUE);
-    uiShutDownWindowMessage = RegisterWindowMessage(L"qtcbuildhelper_shutdown");
+    uiShutDownWindowMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
 
     WNDCLASSEX wcex;
     ZeroMemory(&wcex, sizeof(wcex));
@@ -86,7 +86,7 @@ int main(int argc, char **)
 
     // Get the command line and remove the call to this executable.
     // Note: We trust Qt Creator at this point to quote the call to this tool in a sensible way.
-    // Strange things like C:\Q"t Crea"tor\bin\qtcbuildhelper.exe are not supported.
+    // Strange things like C:\Q"t Crea"tor\bin\qtcreator_ctrlc_stub.exe are not supported.
     wchar_t *strCommandLine = _wcsdup(GetCommandLine());
     const size_t strCommandLineLength = wcslen(strCommandLine);
     size_t pos = 1;
@@ -177,16 +177,15 @@ bool startProcess(wchar_t *pCommandLine)
     DWORD dwCreationFlags = 0;
     BOOL bSuccess = CreateProcess(NULL, pCommandLine, &sa, &sa, TRUE, dwCreationFlags, NULL, NULL, &si, &pi);
     if (!bSuccess) {
-        fwprintf(stderr, L"qtcbuildhelper: Command line failed: %s\n", pCommandLine);
+        fwprintf(stderr, L"qtcreator_ctrlc_stub: Command line failed: %s\n", pCommandLine);
         return false;
     }
 
     HANDLE hThread = CreateThread(NULL, 0, processWatcherThread, reinterpret_cast<void*>(pi.hProcess), 0, NULL);
     if (!hThread) {
-        fwprintf(stderr, L"qtcbuildhelper: The watch dog thread cannot be started.\n");
+        fwprintf(stderr, L"qtcreator_ctrlc_stub: The watch dog thread cannot be started.\n");
         return false;
     }
     CloseHandle(hThread);
     return true;
 }
-
