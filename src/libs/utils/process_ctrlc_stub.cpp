@@ -95,12 +95,7 @@ int main(int argc, char **)
             return 1;
     if (!findFirst(strCommandLine, strCommandLineLength, pos, L" \t", pos))
         return 1;
-#ifdef Q_CC_MSVC
-    wmemmove_s(strCommandLine, strCommandLineLength, strCommandLine + pos + 1, strCommandLineLength - pos);
-#else
-    wmemmove(strCommandLine, strCommandLine + pos + 1, strCommandLineLength - pos);
-#endif
-    bool bSuccess = startProcess(strCommandLine);
+    bool bSuccess = startProcess(strCommandLine + pos + 1);
     free(strCommandLine);
 
     if (!bSuccess)
