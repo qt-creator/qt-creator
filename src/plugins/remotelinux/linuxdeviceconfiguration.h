@@ -66,6 +66,7 @@ public:
     typedef quint64 Id;
 
     enum DeviceType { Hardware, Emulator };
+    enum Origin { ManuallyAdded, AutoDetected };
 
     ~LinuxDeviceConfiguration();
 
@@ -76,6 +77,7 @@ public:
     DeviceType deviceType() const;
     Id internalId() const;
     bool isDefault() const;
+    bool isAutoDetected() const;
 
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
@@ -83,11 +85,12 @@ public:
     static const Id InvalidId;
 
     static Ptr create(const QString &name, const QString &osType, DeviceType deviceType,
-        const PortList &freePorts, const Utils::SshConnectionParameters &sshParams);
+        const PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
+        Origin origin = ManuallyAdded);
 private:
     LinuxDeviceConfiguration(const QString &name, const QString &osType, DeviceType deviceType,
-        const PortList &freePorts, const Utils::SshConnectionParameters &sshParams);
-
+        const PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
+        Origin origin);
     LinuxDeviceConfiguration(const QSettings &settings, Id &nextId);
     LinuxDeviceConfiguration(const ConstPtr &other);
 

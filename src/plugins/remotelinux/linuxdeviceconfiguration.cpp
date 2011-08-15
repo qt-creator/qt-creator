@@ -79,6 +79,7 @@ public:
     LinuxDeviceConfiguration::DeviceType deviceType;
     PortList freePorts;
     bool isDefault;
+    LinuxDeviceConfiguration::Origin origin;
     LinuxDeviceConfiguration::Id internalId;
 };
 
@@ -104,13 +105,14 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const ConstPtr &o
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &name,
     const QString &osType, DeviceType deviceType, const PortList &freePorts,
-    const SshConnectionParameters &sshParams)
+    const SshConnectionParameters &sshParams, Origin origin)
 {
-    return Ptr(new LinuxDeviceConfiguration(name, osType, deviceType, freePorts, sshParams));
+    return Ptr(new LinuxDeviceConfiguration(name, osType, deviceType, freePorts, sshParams, origin));
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QString &osType,
-        DeviceType deviceType, const PortList &freePorts, const SshConnectionParameters &sshParams)
+        DeviceType deviceType, const PortList &freePorts, const SshConnectionParameters &sshParams,
+        Origin origin)
     : m_d(new LinuxDeviceConfigurationPrivate(sshParams))
 {
     m_d->name = name;
@@ -118,11 +120,13 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QS
     m_d->deviceType = deviceType;
     m_d->freePorts = freePorts;
     m_d->isDefault = false;
+    m_d->origin = origin;
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings, Id &nextId)
     : m_d(new LinuxDeviceConfigurationPrivate(SshConnectionParameters::NoProxy))
 {
+    m_d->origin = ManuallyAdded;
     m_d->name = settings.value(NameKey).toString();
     m_d->osType = settings.value(OsTypeKey).toString();
     m_d->deviceType = static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt());
@@ -163,6 +167,7 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguratio
     m_d->deviceType = other->deviceType();
     m_d->freePorts = other->freePorts();
     m_d->isDefault = other->m_d->isDefault;
+    m_d->origin = other->m_d->origin;
     m_d->internalId = other->m_d->internalId;
 }
 
@@ -217,6 +222,11 @@ void LinuxDeviceConfiguration::setSshParameters(const SshConnectionParameters &s
 void LinuxDeviceConfiguration::setFreePorts(const PortList &freePorts)
 {
     m_d->freePorts = freePorts;
+}
+
+bool LinuxDeviceConfiguration::isAutoDetected() const
+{
+    return m_d->origin == AutoDetected;
 }
 
 PortList LinuxDeviceConfiguration::freePorts() const { return m_d->freePorts; }

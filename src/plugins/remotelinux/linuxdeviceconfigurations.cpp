@@ -110,9 +110,15 @@ void LinuxDeviceConfigurations::save()
     settings->setValue(IdCounterKey, m_nextId);
     settings->setValue(DefaultKeyFilePathKey, m_defaultSshKeyFilePath);
     settings->beginWriteArray(ConfigListKey, m_devConfigs.count());
+    int skippedCount = 0;
     for (int i = 0; i < m_devConfigs.count(); ++i) {
-        settings->setArrayIndex(i);
-        m_devConfigs.at(i)->save(*settings);
+        const LinuxDeviceConfiguration::ConstPtr &devConf = m_devConfigs.at(i);
+        if (devConf->isAutoDetected()) {
+            ++skippedCount;
+        } else {
+            settings->setArrayIndex(i-skippedCount);
+            devConf->save(*settings);
+        }
     }
     settings->endArray();
     settings->endGroup();
