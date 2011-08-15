@@ -951,6 +951,10 @@ bool FakeVimPluginPrivate::initialize()
         Constants::INSTALL_HANDLER, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::INSTALL_KEY));
 
+    ActionContainer *advancedMenu =
+        actionManager()->actionContainer(Core::Constants::M_EDIT_ADVANCED);
+    advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
+
     for (int i = 1; i < 10; ++i) {
         QAction *act = new QAction(this);
         act->setText(QString("Execute User Action #%1").arg(i));
@@ -961,10 +965,6 @@ bool FakeVimPluginPrivate::initialize()
         cmd->setDefaultKeySequence(QKeySequence(keys));
         connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
     }
-
-    ActionContainer *advancedMenu =
-        actionManager()->actionContainer(Core::Constants::M_EDIT_ADVANCED);
-    advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
     connect(m_core, SIGNAL(coreAboutToClose()), this, SLOT(onCoreAboutToClose()));
 
