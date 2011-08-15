@@ -19,6 +19,7 @@ TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
 MIME_TR_H = $$OUT_PWD/mime_tr.h
 CUSTOMWIZARD_TR_H = $$OUT_PWD/customwizard_tr.h
+EXTERNALTOOLS_TR_H = $$OUT_PWD/externaltools_tr.h
 
 for(dir, $$list($$files($$IDE_SOURCE_TREE/src/plugins/*))):MIMETYPES_FILES += $$files($$dir/*.mimetypes.xml)
 MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, |)\"
@@ -26,9 +27,13 @@ MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, |)\"
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/wizards/*))):CUSTOMWIZARD_FILES += $$files($$dir/wizard.xml)
 CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, |)\"
 
+for(file, $$list($$files($$IDE_SOURCE_TREE/src/share/qtcreator/externaltools/*))):EXTERNALTOOLS_FILES += $$files($$file)
+EXTERNALTOOLS_FILES = \"$$join(EXTERNALTOOLS_FILES, |)\"
+
 extract.commands += \
     $$XMLPATTERNS -output $$MIME_TR_H -param files=$$MIMETYPES_FILES $$PWD/extract-mimetypes.xq $$escape_expand(\\n\\t) \
-    $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq
+    $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq $$escape_expand(\\n\\t) \
+    $$XMLPATTERNS -output $$EXTERNALTOOLS_TR_H -param files=$$EXTERNALTOOLS_FILES $$PWD/extract-externaltools.xq
 QMAKE_EXTRA_TARGETS += extract
 
 plugin_sources = $$files($$IDE_SOURCE_TREE/src/plugins/*)

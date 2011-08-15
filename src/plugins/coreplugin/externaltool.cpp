@@ -45,6 +45,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
 #include <QtCore/QDir>
@@ -316,7 +317,8 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
         }
     } else {
         if (*currentLocale < 0 && currentText->isEmpty()) {
-            *currentText = reader->readElementText();
+            *currentText = QCoreApplication::translate("Core::Internal::ExternalTool",
+                                                       reader->readElementText().toLatin1().constData());
         } else {
             reader->skipCurrentElement();
         }

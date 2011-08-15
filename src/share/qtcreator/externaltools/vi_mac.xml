@@ -31,11 +31,8 @@
 -->
 <externaltool id="vi">
     <description>Opens the current file in vi</description>
-    <description xml:lang="de">Öffnet die aktuelle Datei in vi</description>
     <displayname>Edit with vi</displayname>
-    <displayname xml:lang="de">In vi öffnen</displayname>
     <category>Text</category>
-    <category xml:lang="de">Text</category>
     <executable modifiesdocument="yes">
         <path>osascript</path>
         <input>

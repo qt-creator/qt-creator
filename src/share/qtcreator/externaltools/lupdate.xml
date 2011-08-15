@@ -31,11 +31,8 @@
 -->
 <externaltool id="lupdate">
     <description>Synchronizes translator's ts files with the program code</description>
-    <description xml:lang="de">Synchronisiert die ts-Übersetzungsdateien mit dem Programmcode</description>
     <displayname>Update Translations (lupdate)</displayname>
-    <displayname xml:lang="de">Übersetzungen aktualisieren (lupdate)</displayname>
     <category>Linguist</category>
-    <category xml:lang="de">Linguist</category>
     <order>1</order>
     <executable>
         <path>%{CurrentProject:QT_INSTALL_BINS}/lupdate</path>
