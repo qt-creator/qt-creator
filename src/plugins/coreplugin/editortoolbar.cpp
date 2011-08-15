@@ -289,8 +289,10 @@ void EditorToolBar::listContextMenu(QPoint pos)
     if (fileName.isEmpty())
         return;
     QMenu menu;
-    menu.addAction(tr("Copy Full Path to Clipboard"));
-    if (menu.exec(d->m_editorList->mapToGlobal(pos))) {
+    QAction *copyPath = menu.addAction(tr("Copy Full Path to Clipboard"));
+    EditorManager::instance()->addCloseEditorActions(&menu, index);
+    QAction *result = menu.exec(d->m_editorList->mapToGlobal(pos));
+    if (result == copyPath) {
         QApplication::clipboard()->setText(QDir::toNativeSeparators(fileName));
     }
 }

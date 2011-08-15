@@ -214,6 +214,11 @@ struct EditorManagerPrivate {
     QAction *m_removeAllSplitsAction;
     QAction *m_gotoOtherSplitAction;
 
+    QAction *m_closeCurrentEditorContextAction;
+    QAction *m_closeAllEditorsContextAction;
+    QAction *m_closeOtherEditorsContextAction;
+    QModelIndex m_contextMenuEditorIndex;
+
     Internal::OpenEditorsWindow *m_windowPopup;
     Internal::EditorClosingCoreListener *m_coreListener;
 
@@ -246,6 +251,9 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Open Document in History"), parent)),
     m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), parent)),
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
+    m_closeCurrentEditorContextAction(new QAction(EditorManager::tr("Close"), parent)),
+    m_closeAllEditorsContextAction(new QAction(EditorManager::tr("Close All"), parent)),
+    m_closeOtherEditorsContextAction(new QAction(EditorManager::tr("Close Others"), parent)),
     m_windowPopup(0),
     m_coreListener(0),
     m_reloadSetting(IFile::AlwaysAsk),
@@ -347,6 +355,11 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     connect(m_d->m_closeOtherEditorsAction, SIGNAL(triggered()), this, SLOT(closeOtherEditors()));
+
+    // Close XXX Context Actions
+    connect(m_d->m_closeAllEditorsContextAction, SIGNAL(triggered()), this, SLOT(closeAllEditors()));
+    connect(m_d->m_closeCurrentEditorContextAction, SIGNAL(triggered()), this, SLOT(closeEditorFromContextMenu()));
+    connect(m_d->m_closeOtherEditorsContextAction, SIGNAL(triggered()), this, SLOT(closeOtherEditorsFromContextMenu()));
 
     // Goto Previous In History Action
     cmd = am->registerAction(m_d->m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
@@ -749,6 +762,34 @@ void EditorManager::closeEditor()
         return;
     addCurrentPositionToNavigationHistory();
     closeEditor(m_d->m_currentEditor);
+}
+
+void EditorManager::addCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex)
+{
+    QTC_ASSERT(contextMenu, return);
+    m_d->m_contextMenuEditorIndex = editorIndex;
+    m_d->m_closeCurrentEditorContextAction->setText(editorIndex.isValid()
+                                                    ? tr("Close \"%1\"").arg(editorIndex.data().toString())
+                                                    : tr("Close Editor"));
+    m_d->m_closeOtherEditorsContextAction->setText(editorIndex.isValid()
+                                                   ? tr("Close All Except \"%1\"").arg(editorIndex.data().toString())
+                                                   : tr("Close Other Editors"));
+    m_d->m_closeCurrentEditorContextAction->setEnabled(editorIndex.isValid());
+    m_d->m_closeOtherEditorsContextAction->setEnabled(editorIndex.isValid());
+    m_d->m_closeAllEditorsContextAction->setEnabled(!openedEditors().isEmpty());
+    contextMenu->addAction(m_d->m_closeCurrentEditorContextAction);
+    contextMenu->addAction(m_d->m_closeAllEditorsContextAction);
+    contextMenu->addAction(m_d->m_closeOtherEditorsContextAction);
+}
+
+void EditorManager::closeEditorFromContextMenu()
+{
+    closeEditor(m_d->m_contextMenuEditorIndex);
+}
+
+void EditorManager::closeOtherEditorsFromContextMenu()
+{
+    closeOtherEditors(m_d->m_contextMenuEditorIndex.data(Qt::UserRole).value<IEditor *>());
 }
 
 void EditorManager::closeEditor(Core::IEditor *editor)

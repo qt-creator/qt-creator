@@ -37,8 +37,9 @@
 
 #include <coreplugin/ifile.h> // enumerations
 
-#include <QtGui/QWidget>
 #include <QtCore/QList>
+#include <QtGui/QWidget>
+#include <QtGui/QMenu>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -190,6 +191,8 @@ public:
     void setWindowTitleAddition(const QString &addition);
     QString windowTitleAddition() const;
 
+    void addCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex);
+
 signals:
     void currentEditorChanged(Core::IEditor *editor);
     void currentEditorStateChanged(Core::IEditor *editor);
@@ -218,6 +221,9 @@ private slots:
     void handleEditorStateChange();
     void updateVariable(const QString &variable);
     void autoSave();
+
+    void closeEditorFromContextMenu();
+    void closeOtherEditorsFromContextMenu();
 
 public slots:
     void goBackInNavigationHistory();
