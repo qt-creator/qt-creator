@@ -49,16 +49,16 @@ class SshConnectionParameters;
 }
 
 namespace RemoteLinux {
+class LinuxDeviceConfigurations;
 class PortList;
 
 namespace Internal {
 class LinuxDeviceConfigurationPrivate;
-class LinuxDeviceConfigurations;
 } // namespace Internal
 
 class REMOTELINUX_EXPORT LinuxDeviceConfiguration
 {
-    friend class Internal::LinuxDeviceConfigurations;
+    friend class LinuxDeviceConfigurations;
 public:
     typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
     typedef QSharedPointer<const LinuxDeviceConfiguration> ConstPtr;

@@ -48,11 +48,10 @@ QT_END_NAMESPACE
 namespace RemoteLinux {
 class ILinuxDeviceConfigurationFactory;
 class LinuxDeviceConfiguration;
+class LinuxDeviceConfigurations;
 
 namespace Internal {
-
 class NameValidator;
-class LinuxDeviceConfigurations;
 
 class LinuxDeviceConfigurationsSettingsWidget : public QWidget
 {
