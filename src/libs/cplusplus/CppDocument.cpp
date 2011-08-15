@@ -1115,6 +1115,8 @@ void CPlusPlus::findMatchingDeclaration(const LookupContext &context,
     if (qName) {
         if (qName->base())
             binding = context.lookupType(qName->base(), enclosingScope);
+        else
+            binding = context.globalNamespace();
         functionName = qName->name();
     }
 
