@@ -92,7 +92,7 @@ public:
         QString code;
         int line;
         int column;
-        int revision;
+        unsigned revision;
         bool force;
 
         Source()
@@ -103,7 +103,7 @@ public:
                const QString &fileName,
                const QString &code,
                int line, int column,
-               int revision)
+               unsigned revision)
             : snapshot(snapshot), fileName(fileName),
               code(code), line(line), column(column),
               revision(revision), force(false)
