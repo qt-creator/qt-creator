@@ -53,11 +53,11 @@ QString QmlApplicationViewerPrivate::adjustPath(const QString &path)
 #ifdef Q_OS_UNIX
 #ifdef Q_OS_MAC
     if (!QDir::isAbsolutePath(path))
-        return QCoreApplication::applicationDirPath()
-                + QLatin1String("/../Resources/") + path;
+        return QString::fromAscii("%1/../Resources/%2").arg(QCoreApplication::applicationDirPath(),
+                                                            path);
 #else
-    const QString pathInInstallDir = QCoreApplication::applicationDirPath()
-        + QLatin1String("/../") + path;
+    const QString pathInInstallDir =
+            QString::fromAscii("%1/../%2").arg(QCoreApplication::applicationDirPath(), path);
     if (pathInInstallDir.contains(QLatin1String("opt"))
             && pathInInstallDir.contains(QLatin1String("bin"))
             && QFileInfo(pathInInstallDir).exists()) {
