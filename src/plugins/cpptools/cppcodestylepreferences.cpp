@@ -36,10 +36,8 @@ using namespace CppTools;
 
 static const char *settingsSuffixKey = "CodeStyleSettings";
 
-static const char *currentFallbackKey = "CurrentFallback";
-
-CppCodeStylePreferences::CppCodeStylePreferences(const QList<TextEditor::IFallbackPreferences *> &fallbacks, QObject *parent) :
-    IFallbackPreferences(fallbacks, parent)
+CppCodeStylePreferences::CppCodeStylePreferences(QObject *parent) :
+    ICodeStylePreferences(parent)
 {
     connect(this, SIGNAL(currentValueChanged(QVariant)),
             this, SLOT(slotCurrentValueChanged(QVariant)));
@@ -48,7 +46,7 @@ CppCodeStylePreferences::CppCodeStylePreferences(const QList<TextEditor::IFallba
 QVariant CppCodeStylePreferences::value() const
 {
     QVariant v;
-    v.setValue(settings());
+    v.setValue(codeStyleSettings());
     return v;
 }
 
@@ -57,15 +55,15 @@ void CppCodeStylePreferences::setValue(const QVariant &data)
     if (!data.canConvert<CppCodeStyleSettings>())
         return;
 
-    setSettings(data.value<CppCodeStyleSettings>());
+    setCodeStyleSettings(data.value<CppCodeStyleSettings>());
 }
 
-CppCodeStyleSettings CppCodeStylePreferences::settings() const
+CppCodeStyleSettings CppCodeStylePreferences::codeStyleSettings() const
 {
     return m_data;
 }
 
-void CppCodeStylePreferences::setSettings(const CppCodeStyleSettings &data)
+void CppCodeStylePreferences::setCodeStyleSettings(const CppCodeStyleSettings &data)
 {
     if (m_data == data)
         return;
@@ -75,13 +73,13 @@ void CppCodeStylePreferences::setSettings(const CppCodeStyleSettings &data)
     QVariant v;
     v.setValue(data);
     emit valueChanged(v);
-    emit settingsChanged(m_data);
-    if (!currentFallback()) {
+    emit codeStyleSettingsChanged(m_data);
+    if (!currentDelegate()) {
         emit currentValueChanged(v);
     }
 }
 
-CppCodeStyleSettings CppCodeStylePreferences::currentSettings() const
+CppCodeStyleSettings CppCodeStylePreferences::currentCodeStyleSettings() const
 {
     QVariant v = currentValue();
     if (!v.canConvert<CppCodeStyleSettings>()) {
@@ -96,7 +94,7 @@ void CppCodeStylePreferences::slotCurrentValueChanged(const QVariant &value)
     if (!value.canConvert<CppCodeStyleSettings>())
         return;
 
-    emit currentSettingsChanged(value.value<CppCodeStyleSettings>());
+    emit currentCodeStyleSettingsChanged(value.value<CppCodeStyleSettings>());
 }
 
 QString CppCodeStylePreferences::settingsSuffix() const
@@ -106,13 +104,19 @@ QString CppCodeStylePreferences::settingsSuffix() const
 
 void CppCodeStylePreferences::toMap(const QString &prefix, QVariantMap *map) const
 {
+    ICodeStylePreferences::toMap(prefix, map);
+    if (currentDelegate())
+        return;
+
     m_data.toMap(prefix, map);
-    map->insert(prefix + QLatin1String(currentFallbackKey), currentFallbackId());
 }
 
 void CppCodeStylePreferences::fromMap(const QString &prefix, const QVariantMap &map)
 {
+    ICodeStylePreferences::fromMap(prefix, map);
+    if (currentDelegate())
+        return;
+
     m_data.fromMap(prefix, map);
-    setCurrentFallback(map.value(prefix + QLatin1String(currentFallbackKey), QLatin1String("Global")).toString());
 }
 

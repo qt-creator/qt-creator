@@ -35,9 +35,10 @@
 #include "toolchain.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/persistentsettings.h>
 
 #include <extensionsystem/pluginmanager.h>
+
+#include <utils/persistentsettings.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -51,6 +52,9 @@ static const char DEFAULT_DEBUGGER_COUNT_KEY[] = "DefaultDebugger.Count";
 static const char DEFAULT_DEBUGGER_ABI_KEY[] = "DefaultDebugger.Abi.";
 static const char DEFAULT_DEBUGGER_PATH_KEY[] = "DefaultDebugger.Path.";
 static const char TOOLCHAIN_FILENAME[] = "/toolChains.xml";
+
+using Utils::PersistentSettingsWriter;
+using Utils::PersistentSettingsReader;
 
 static QString settingsFileName()
 {

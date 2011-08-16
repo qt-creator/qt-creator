@@ -30,48 +30,28 @@
 **
 **************************************************************************/
 
-#ifndef TABPREFERENCESWIDGET_H
-#define TABPREFERENCESWIDGET_H
+#ifndef QMLJSCODESTYLEPREFERENCESFACTORY_H
+#define QMLJSCODESTYLEPREFERENCESFACTORY_H
 
-#include "texteditor_global.h"
+#include <texteditor/icodestylepreferencesfactory.h>
 
-#include <QtGui/QWidget>
+namespace QmlJSTools {
 
-namespace TextEditor {
-
-class TabSettings;
-class TabPreferences;
-class IFallbackPreferences;
-
-namespace Ui {
-    class TabPreferencesWidget;
-}
-
-class TEXTEDITOR_EXPORT TabPreferencesWidget : public QWidget
+class QmlJSCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
 {
-    Q_OBJECT
-
 public:
-    explicit TabPreferencesWidget(QWidget *parent = 0);
-    ~TabPreferencesWidget();
+    QmlJSCodeStylePreferencesFactory();
 
-    void setTabPreferences(TabPreferences *tabPreferences);
-    QString searchKeywords() const;
-
-    void setFallbacksVisible(bool on);
-    void setFlat(bool on);
-
-protected:
-    void changeEvent(QEvent *e);
-
-private slots:
-    void slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences *preferences);
-    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
-
-private:
-    Ui::TabPreferencesWidget *m_ui;
-    TabPreferences *m_tabPreferences;
+    virtual QString languageId();
+    virtual QString displayName();
+    virtual TextEditor::ICodeStylePreferences *createCodeStyle() const;
+    virtual QWidget *createEditor(TextEditor::ICodeStylePreferences *settings,
+                                          QWidget *parent) const;
+    virtual TextEditor::Indenter *createIndenter() const;
+    virtual TextEditor::ISnippetProvider *snippetProvider() const;
+    QString previewText() const;
 };
 
-} // namespace TextEditor
-#endif // TABPREFERENCESWIDGET_H
+} // namespace QmlJSTools
+
+#endif // QMLJSCODESTYLEPREFERENCESFACTORY_H

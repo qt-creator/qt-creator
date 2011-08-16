@@ -51,7 +51,7 @@ CppQtStyleIndenter::CppQtStyleIndenter()
 {
     // Just for safety. setCodeStylePreferences should be called when the editor the
     // indenter belongs to gets initialized.
-    m_cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStylePreferences();
+    m_cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
 }
 
 CppQtStyleIndenter::~CppQtStyleIndenter()
@@ -148,7 +148,7 @@ void CppQtStyleIndenter::indent(QTextDocument *doc,
     }
 }
 
-void CppQtStyleIndenter::setCodeStylePreferences(TextEditor::IFallbackPreferences *preferences)
+void CppQtStyleIndenter::setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences)
 {
     CppTools::CppCodeStylePreferences *cppCodeStylePreferences
             = qobject_cast<CppTools::CppCodeStylePreferences *>(preferences);
@@ -156,9 +156,15 @@ void CppQtStyleIndenter::setCodeStylePreferences(TextEditor::IFallbackPreference
         m_cppCodeStylePreferences = cppCodeStylePreferences;
 }
 
+void CppQtStyleIndenter::invalidateCache(QTextDocument *doc)
+{
+    CppTools::QtStyleCodeFormatter formatter;
+    formatter.invalidateCache(doc);
+}
+
 CppCodeStyleSettings CppQtStyleIndenter::codeStyleSettings() const
 {
     if (m_cppCodeStylePreferences)
-        return m_cppCodeStylePreferences->currentSettings();
+        return m_cppCodeStylePreferences->currentCodeStyleSettings();
     return CppCodeStyleSettings();
 }

@@ -41,7 +41,7 @@
 #include <texteditor/displaysettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/tabpreferences.h>
+#include <texteditor/codestyleeditor.h>
 #include <extensionsystem/pluginmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <coreplugin/icore.h>
@@ -209,8 +209,7 @@ namespace Internal {
 
 CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     : QWidget(parent),
-      m_tabPreferences(0),
-      m_cppCodeStylePreferences(0),
+      m_preferences(0),
       m_ui(new Ui::CppCodeStyleSettingsPage),
       m_blockUpdates(false)
 {
@@ -224,50 +223,51 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
         m_previews[i]->setPlainText(defaultCodeStyleSnippets[i]);
     }
 
-    TextEditor::TextEditorSettings *settings = TextEditorSettings::instance();
-    decorateEditors(settings->fontSettings());
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
+    decorateEditors(textEditorSettings->fontSettings());
+    connect(textEditorSettings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
        this, SLOT(decorateEditors(TextEditor::FontSettings)));
 
     setVisualizeWhitespace(true);
 
+    connect(m_ui->tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
+       this, SLOT(slotTabSettingsChanged(TextEditor::TabSettings)));
     connect(m_ui->indentBlockBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentBlockBody, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentClassBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentNamespaceBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentEnumBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentNamespaceBody, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentSwitchLabels, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentCaseStatements, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentCaseBlocks, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentCaseBreak, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentAccessSpecifiers, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentDeclarationsRelativeToAccessSpecifiers, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentFunctionBody, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->indentFunctionBraces, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->extraPaddingConditions, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
     connect(m_ui->alignAssignments, SIGNAL(toggled(bool)),
-       this, SLOT(slotCppCodeStyleSettingsChanged()));
+       this, SLOT(slotCodeStyleSettingsChanged()));
 
     m_ui->categoryTab->setCurrentIndex(0);
 
-    m_ui->tabPreferencesWidget->setFlat(true);
-    m_ui->fallbackWidget->setLabelText(tr("Code style settings:"));
+    m_ui->tabSettingsWidget->setFlat(true);
 }
 
 CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()
@@ -275,27 +275,21 @@ CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()
     delete m_ui;
 }
 
-void CppCodeStylePreferencesWidget::setPreferences(CppTools::CppCodeStylePreferences *codeStylePreferences,
-                                                   TextEditor::TabPreferences *tabPreferences)
+void CppCodeStylePreferencesWidget::setCodeStyle(CppTools::CppCodeStylePreferences *codeStylePreferences)
 {
-    // tab preferences
-    m_tabPreferences = tabPreferences;
-    m_ui->tabPreferencesWidget->setTabPreferences(tabPreferences);
-    connect(m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
-            this, SLOT(updatePreview()));
-
     // code preferences
-    m_cppCodeStylePreferences = codeStylePreferences;
-    m_ui->fallbackWidget->setFallbackPreferences(codeStylePreferences);
-    m_ui->fallbackContainer->setVisible(!m_ui->fallbackWidget->isHidden());
+    m_preferences = codeStylePreferences;
 
-    connect(m_cppCodeStylePreferences, SIGNAL(currentSettingsChanged(CppTools::CppCodeStyleSettings)),
-            this, SLOT(setCppCodeStyleSettings(CppTools::CppCodeStyleSettings)));
-    connect(m_cppCodeStylePreferences, SIGNAL(currentPreferencesChanged(TextEditor::IFallbackPreferences*)),
-            this, SLOT(slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences*)));
+    connect(m_preferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
+            this, SLOT(setTabSettings(TextEditor::TabSettings)));
+    connect(m_preferences, SIGNAL(currentCodeStyleSettingsChanged(CppTools::CppCodeStyleSettings)),
+            this, SLOT(setCodeStyleSettings(CppTools::CppCodeStyleSettings)));
+    connect(m_preferences, SIGNAL(currentPreferencesChanged(TextEditor::ICodeStylePreferences*)),
+            this, SLOT(slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences*)));
 
-    setCppCodeStyleSettings(m_cppCodeStylePreferences->settings(), false);
-    slotCurrentPreferencesChanged(m_cppCodeStylePreferences->currentPreferences(), false);
+    setTabSettings(m_preferences->tabSettings());
+    setCodeStyleSettings(m_preferences->codeStyleSettings(), false);
+    slotCurrentPreferencesChanged(m_preferences->currentPreferences(), false);
 
     updatePreview();
 }
@@ -324,7 +318,12 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
     return set;
 }
 
-void CppCodeStylePreferencesWidget::setCppCodeStyleSettings(const CppCodeStyleSettings &s, bool preview)
+void CppCodeStylePreferencesWidget::setTabSettings(const TextEditor::TabSettings &settings)
+{
+    m_ui->tabSettingsWidget->setTabSettings(settings);
+}
+
+void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSettings &s, bool preview)
 {
     const bool wasBlocked = m_blockUpdates;
     m_blockUpdates = true;
@@ -349,9 +348,10 @@ void CppCodeStylePreferencesWidget::setCppCodeStyleSettings(const CppCodeStyleSe
         updatePreview();
 }
 
-void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences *preferences, bool preview)
+void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences, bool preview)
 {
-    const bool enable = !preferences->isReadOnly() && m_cppCodeStylePreferences->isFallbackEnabled(m_cppCodeStylePreferences->currentFallback());
+    const bool enable = !preferences->isReadOnly() && !m_preferences->currentDelegate();
+    m_ui->tabSettingsWidget->setEnabled(enable);
     m_ui->contentGroupBox->setEnabled(enable);
     m_ui->bracesGroupBox->setEnabled(enable);
     m_ui->switchGroupBox->setEnabled(enable);
@@ -365,8 +365,7 @@ QString CppCodeStylePreferencesWidget::searchKeywords() const
     QString rc;
     QLatin1Char sep(' ');
     QTextStream(&rc)
-       << sep << m_ui->tabPreferencesWidget->searchKeywords()
-       << sep << m_ui->fallbackWidget->searchKeywords()
+       << sep << m_ui->tabSettingsWidget->searchKeywords()
        << sep << m_ui->indentBlockBraces->text()
        << sep << m_ui->indentBlockBody->text()
        << sep << m_ui->indentClassBraces->text()
@@ -394,15 +393,29 @@ QString CppCodeStylePreferencesWidget::searchKeywords() const
     return rc;
 }
 
-void CppCodeStylePreferencesWidget::slotCppCodeStyleSettingsChanged()
+void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
 {
     if (m_blockUpdates)
         return;
 
-    if (m_cppCodeStylePreferences) {
-        CppCodeStylePreferences *current = qobject_cast<CppCodeStylePreferences *>(m_cppCodeStylePreferences->currentPreferences());
+    if (m_preferences) {
+        CppCodeStylePreferences *current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
         if (current)
-            current->setSettings(cppCodeStyleSettings());
+            current->setCodeStyleSettings(cppCodeStyleSettings());
+    }
+
+    updatePreview();
+}
+
+void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TextEditor::TabSettings &settings)
+{
+    if (m_blockUpdates)
+        return;
+
+    if (m_preferences) {
+        CppCodeStylePreferences *current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        if (current)
+            current->setTabSettings(settings);
     }
 
     updatePreview();
@@ -410,30 +423,24 @@ void CppCodeStylePreferencesWidget::slotCppCodeStyleSettingsChanged()
 
 void CppCodeStylePreferencesWidget::updatePreview()
 {
+    CppCodeStylePreferences *cppCodeStylePreferences = m_preferences
+            ? m_preferences
+            : CppToolsSettings::instance()->cppCodeStyle();
+    const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentCodeStyleSettings();
+    const TextEditor::TabSettings ts = cppCodeStylePreferences->currentTabSettings();
+    QtStyleCodeFormatter formatter(ts, ccss);
     foreach (TextEditor::SnippetEditorWidget *preview, m_previews) {
-        QTextDocument *doc = preview->document();
-
-        const TextEditor::TabSettings ts = m_tabPreferences
-                ? m_tabPreferences->currentSettings()
-                : CppToolsSettings::instance()->tabPreferences()->settings();
-        CppCodeStylePreferences *cppCodeStylePreferences = m_cppCodeStylePreferences
-                ? m_cppCodeStylePreferences
-                : CppToolsSettings::instance()->cppCodeStylePreferences();
-        const CppCodeStyleSettings ccss = cppCodeStylePreferences->currentSettings();
         preview->setTabSettings(ts);
-        preview->setCodeStylePreferences(cppCodeStylePreferences);
-        QtStyleCodeFormatter formatter(ts, ccss);
+        preview->setCodeStyle(cppCodeStylePreferences);
+
+        QTextDocument *doc = preview->document();
         formatter.invalidateCache(doc);
 
         QTextBlock block = doc->firstBlock();
         QTextCursor tc = preview->textCursor();
         tc.beginEditBlock();
         while (block.isValid()) {
-            int indent;
-            int padding;
-            formatter.indentFor(block, &indent, &padding);
-            ts.indentLine(block, indent + padding, padding);
-            formatter.updateLineStateChange(block);
+            preview->indenter()->indentBlock(doc, block, QChar::Null, ts);
 
             block = block.next();
         }
@@ -475,7 +482,7 @@ void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 CppCodeStyleSettingsPage::CppCodeStyleSettingsPage(
         QWidget *parent) :
     Core::IOptionsPage(parent),
-    m_pageTabPreferences(0)
+    m_pageCppCodeStylePreferences(0)
 {
 }
 
@@ -510,33 +517,18 @@ QIcon CppCodeStyleSettingsPage::categoryIcon() const
 
 QWidget *CppCodeStyleSettingsPage::createPage(QWidget *parent)
 {
-    m_widget = new CppCodeStylePreferencesWidget(parent);
-
-    TextEditor::TabPreferences *originalTabPreferences
-            = CppToolsSettings::instance()->tabPreferences();
-    QList<TextEditor::IFallbackPreferences *> originalTabFallbacks = originalTabPreferences->fallbacks();
-    m_pageTabPreferences = new TextEditor::TabPreferences(originalTabFallbacks, m_widget);
-    for (int i = 0; i < originalTabFallbacks.count(); i++) {
-        TextEditor::IFallbackPreferences *fallback = originalTabFallbacks.at(i);
-        m_pageTabPreferences->setFallbackEnabled(fallback, originalTabPreferences->isFallbackEnabled(fallback));
-    }
-    m_pageTabPreferences->setSettings(originalTabPreferences->settings());
-    m_pageTabPreferences->setCurrentFallback(originalTabPreferences->currentFallback());
-
     CppCodeStylePreferences *originalCodeStylePreferences
-            = CppToolsSettings::instance()->cppCodeStylePreferences();
-    QList<TextEditor::IFallbackPreferences *> originalCodeStyleFallbacks = originalCodeStylePreferences->fallbacks();
-    m_pageCppCodeStylePreferences = new CppCodeStylePreferences(originalCodeStyleFallbacks, m_widget);
-    for (int i = 0; i < originalCodeStyleFallbacks.count(); i++) {
-        TextEditor::IFallbackPreferences *fallback = originalCodeStyleFallbacks.at(i);
-        m_pageCppCodeStylePreferences->setFallbackEnabled(fallback, originalCodeStylePreferences->isFallbackEnabled(fallback));
-    }
-    m_pageCppCodeStylePreferences->setSettings(originalCodeStylePreferences->settings());
-    m_pageCppCodeStylePreferences->setCurrentFallback(originalCodeStylePreferences->currentFallback());
-    m_widget->setPreferences(m_pageCppCodeStylePreferences, m_pageTabPreferences);
+            = CppToolsSettings::instance()->cppCodeStyle();
+    m_pageCppCodeStylePreferences = new CppCodeStylePreferences(m_widget);
+    m_pageCppCodeStylePreferences->setDelegatingPool(originalCodeStylePreferences->delegatingPool());
+    m_pageCppCodeStylePreferences->setCodeStyleSettings(originalCodeStylePreferences->codeStyleSettings());
+    m_pageCppCodeStylePreferences->setCurrentDelegate(originalCodeStylePreferences->currentDelegate());
+    // we set id so that it won't be possible to set delegate to the original prefs
+    m_pageCppCodeStylePreferences->setId(originalCodeStylePreferences->id());
+    TextEditorSettings *settings = TextEditorSettings::instance();
+    m_widget = new CodeStyleEditor(settings->codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID),
+                                   m_pageCppCodeStylePreferences, parent);
 
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
@@ -545,26 +537,19 @@ void CppCodeStyleSettingsPage::apply()
     if (m_widget) {
         QSettings *s = Core::ICore::instance()->settings();
 
-        TextEditor::TabPreferences *originalTabPreferences = CppToolsSettings::instance()->tabPreferences();
-        if (originalTabPreferences->settings() != m_pageTabPreferences->settings()) {
-            originalTabPreferences->setSettings(m_pageTabPreferences->settings());
-            if (s)
-                originalTabPreferences->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
-        }
-        if (originalTabPreferences->currentFallback() != m_pageTabPreferences->currentFallback()) {
-            originalTabPreferences->setCurrentFallback(m_pageTabPreferences->currentFallback());
-            if (s)
-                originalTabPreferences->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
-        }
-
-        CppCodeStylePreferences *originalCppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStylePreferences();
-        if (originalCppCodeStylePreferences->settings() != m_pageCppCodeStylePreferences->settings()) {
-            originalCppCodeStylePreferences->setSettings(m_pageCppCodeStylePreferences->settings());
+        CppCodeStylePreferences *originalCppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+        if (originalCppCodeStylePreferences->codeStyleSettings() != m_pageCppCodeStylePreferences->codeStyleSettings()) {
+            originalCppCodeStylePreferences->setCodeStyleSettings(m_pageCppCodeStylePreferences->codeStyleSettings());
             if (s)
                 originalCppCodeStylePreferences->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
         }
-        if (originalCppCodeStylePreferences->currentFallback() != m_pageCppCodeStylePreferences->currentFallback()) {
-            originalCppCodeStylePreferences->setCurrentFallback(m_pageCppCodeStylePreferences->currentFallback());
+        if (originalCppCodeStylePreferences->tabSettings() != m_pageCppCodeStylePreferences->tabSettings()) {
+            originalCppCodeStylePreferences->setTabSettings(m_pageCppCodeStylePreferences->tabSettings());
+            if (s)
+                originalCppCodeStylePreferences->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
+        }
+        if (originalCppCodeStylePreferences->currentDelegate() != m_pageCppCodeStylePreferences->currentDelegate()) {
+            originalCppCodeStylePreferences->setCurrentDelegate(m_pageCppCodeStylePreferences->currentDelegate());
             if (s)
                 originalCppCodeStylePreferences->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
         }

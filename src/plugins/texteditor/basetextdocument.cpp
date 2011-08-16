@@ -34,6 +34,7 @@
 
 #include "basetextdocumentlayout.h"
 #include "basetexteditor.h"
+#include "typingsettings.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "extraencodingsettings.h"
@@ -188,6 +189,7 @@ public:
     QString m_defaultPath;
     QString m_suggestedFileName;
     QString m_mimeType;
+    TypingSettings m_typingSettings;
     StorageSettings m_storageSettings;
     TabSettings m_tabSettings;
     ExtraEncodingSettings m_extraEncodingSettings;
@@ -233,9 +235,19 @@ void BaseTextDocument::setMimeType(const QString &mt)
     d->m_mimeType = mt;
 }
 
+void BaseTextDocument::setTypingSettings(const TypingSettings &typingSettings)
+{
+    d->m_typingSettings = typingSettings;
+}
+
 void BaseTextDocument::setStorageSettings(const StorageSettings &storageSettings)
 {
     d->m_storageSettings = storageSettings;
+}
+
+const TypingSettings &BaseTextDocument::typingSettings() const
+{
+    return d->m_typingSettings;
 }
 
 const StorageSettings &BaseTextDocument::storageSettings() const

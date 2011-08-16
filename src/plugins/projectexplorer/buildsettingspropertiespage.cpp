@@ -79,7 +79,13 @@ bool BuildSettingsPanelFactory::supports(Target *target)
 PropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)
 {
     PropertiesPanel *panel = new PropertiesPanel;
-    panel->setWidget(new BuildSettingsWidget(target));
+    QWidget *w = new QWidget();
+    QVBoxLayout *l = new QVBoxLayout(w);
+    QWidget *b = new BuildSettingsWidget(target);
+    l->addWidget(b);
+    l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    l->setContentsMargins(QMargins());
+    panel->setWidget(w);
     panel->setIcon(QIcon(":/projectexplorer/images/BuildSettings.png"));
     panel->setDisplayName(QCoreApplication::translate("BuildSettingsPanel", "Build Settings"));
     return panel;

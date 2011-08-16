@@ -35,17 +35,18 @@
 #include "qtversionfactory.h"
 
 #include <projectexplorer/debugginghelper.h>
-#include <projectexplorer/persistentsettings.h>
 // only for legay restore
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/gcctoolchain.h>
+
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #ifdef Q_OS_WIN
@@ -152,7 +153,7 @@ bool QtVersionManager::restoreQtVersions()
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<QtVersionFactory *> factories = pm->getObjects<QtVersionFactory>();
 
-    ProjectExplorer::PersistentSettingsReader reader;
+    Utils::PersistentSettingsReader reader;
     if (!reader.load(settingsFileName()))
         return false;
     QVariantMap data = reader.restoreValues();
@@ -202,7 +203,7 @@ void QtVersionManager::updateFromInstaller()
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<QtVersionFactory *> factories = pm->getObjects<QtVersionFactory>();
-    ProjectExplorer::PersistentSettingsReader reader;
+    Utils::PersistentSettingsReader reader;
     if (!reader.load(Core::ICore::instance()->resourcePath()
                      + QLatin1String("/Nokia") + QLatin1String(QTVERSION_FILENAME)))
         return;
@@ -343,7 +344,7 @@ void QtVersionManager::updateFromInstaller()
 
 void QtVersionManager::saveQtVersions()
 {
-    ProjectExplorer::PersistentSettingsWriter writer;
+    Utils::PersistentSettingsWriter writer;
     writer.saveValue(QLatin1String(QTVERSION_FILE_VERSION_KEY), 1);
 
     int count = 0;

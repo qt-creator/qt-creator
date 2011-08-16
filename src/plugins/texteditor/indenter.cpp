@@ -107,7 +107,11 @@ void Indenter::reindent(QTextDocument *doc, const QTextCursor &cursor, const Tex
     }
 }
 
-void Indenter::setCodeStylePreferences(IFallbackPreferences *)
+void Indenter::setCodeStylePreferences(ICodeStylePreferences *)
 {
 
+}
+
+void Indenter::invalidateCache(QTextDocument *)
+{
 }

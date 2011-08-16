@@ -81,3 +81,9 @@ void Indenter::indentBlock(QTextDocument *doc,
 
     tabSettings.indentLine(block, depth);
 }
+
+void Indenter::invalidateCache(QTextDocument *doc)
+{
+    QmlJSTools::QtStyleCodeFormatter codeFormatter;
+    codeFormatter.invalidateCache(doc);
+}

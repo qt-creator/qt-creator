@@ -43,8 +43,6 @@
 #include "symbolsfindfilter.h"
 #include "cppcompletionassist.h"
 #include "cpptoolssettings.h"
-#include "cppcodestylesettingsfactory.h"
-#include "cppcodestylesettings.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -59,9 +57,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/filemanager.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/codestylepreferencesmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <QtCore/QtConcurrentRun>
@@ -107,8 +102,6 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(arguments)
     Q_UNUSED(error)
 
-    qRegisterMetaType<CppTools::CppCodeStyleSettings>("CppTools::CppCodeStyleSettings");
-
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 
@@ -134,9 +127,6 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new SymbolsFindFilter(m_modelManager));
     addAutoReleasedObject(new CppCodeStyleSettingsPage);
 
-    TextEditor::CodeStylePreferencesManager::instance()->registerFactory(
-                new CppTools::CppCodeStylePreferencesFactory());
-
     // Menus
     Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
     Core::ActionContainer *mcpptools = am->createMenu(CppTools::Constants::M_TOOLS_CPP);
@@ -153,12 +143,6 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
-
-    TextEditor::TextEditorSettings *ts = TextEditor::TextEditorSettings::instance();
-    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::C_SOURCE_MIMETYPE), Constants::CPP_SETTINGS_ID);
-    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::C_HEADER_MIMETYPE), Constants::CPP_SETTINGS_ID);
-    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::CPP_SOURCE_MIMETYPE), Constants::CPP_SETTINGS_ID);
-    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::CPP_HEADER_MIMETYPE), Constants::CPP_SETTINGS_ID);
 
     return true;
 }

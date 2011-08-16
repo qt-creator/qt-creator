@@ -30,28 +30,43 @@
 **
 **************************************************************************/
 
-#ifndef CPPCODESTYLESETTINGSFACTORY_H
-#define CPPCODESTYLESETTINGSFACTORY_H
+#ifndef SIMPLECODESTYLEPREFERENCESWIDGET_H
+#define SIMPLECODESTYLEPREFERENCESWIDGET_H
 
-#include <texteditor/icodestylepreferencesfactory.h>
+#include "texteditor_global.h"
 
-namespace CppTools {
+#include <QtGui/QWidget>
 
-class CppCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
+namespace TextEditor {
+
+class TabSettings;
+class TabSettingsWidget;
+class ICodeStylePreferences;
+
+namespace Ui {
+    class TabPreferencesWidget;
+}
+
+class TEXTEDITOR_EXPORT SimpleCodeStylePreferencesWidget : public QWidget
 {
+    Q_OBJECT
+
 public:
-    CppCodeStylePreferencesFactory();
+    explicit SimpleCodeStylePreferencesWidget(QWidget *parent = 0);
 
-    virtual QString languageId();
-    virtual QString displayName();
-    virtual TextEditor::IFallbackPreferences *createPreferences(const QList<TextEditor::IFallbackPreferences *> &fallbacks) const;
-    virtual QWidget *createEditor(TextEditor::IFallbackPreferences *settings,
-                                          TextEditor::TabPreferences *tabSettings,
-                                          QWidget *parent) const;
-    virtual TextEditor::Indenter *createIndenter() const;
+    void setPreferences(ICodeStylePreferences *tabPreferences);
+    QString searchKeywords() const;
 
+    void setFlat(bool on);
+
+private slots:
+    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences);
+    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
+
+private:
+    TabSettingsWidget *m_tabSettingsWidget;
+    ICodeStylePreferences *m_preferences;
 };
 
-} // namespace CppTools
-
-#endif // CPPCODESTYLESETTINGSFACTORY_H
+} // namespace TextEditor
+#endif // SIMPLECODESTYLEPREFERENCESWIDGET_H

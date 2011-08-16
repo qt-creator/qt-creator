@@ -51,6 +51,7 @@ public:
                              const QTextBlock &block,
                              const QChar &typedChar,
                              const TextEditor::TabSettings &tabSettings);
+    virtual void invalidateCache(QTextDocument *doc);
 };
 
 } // Internal

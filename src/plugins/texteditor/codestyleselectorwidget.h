@@ -30,49 +30,69 @@
 **
 **************************************************************************/
 
-#ifndef TEXTEDITOR_TABSETTINGSWIDGET_H
-#define TEXTEDITOR_TABSETTINGSWIDGET_H
+#ifndef CODESTYLESELECTORWIDGET_H
+#define CODESTYLESELECTORWIDGET_H
 
 #include "texteditor_global.h"
 
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+class QHBoxLayout;
+class QComboBox;
+class QLabel;
+class QCheckBox;
+class QPushButton;
+QT_END_NAMESPACE
+
 namespace TextEditor {
 
-class TabSettings;
+class ICodeStylePreferences;
+class ICodeStylePreferencesFactory;
 
-namespace Ui {
-    class TabSettingsWidget;
-}
-
-class TEXTEDITOR_EXPORT TabSettingsWidget : public QWidget
+class TEXTEDITOR_EXPORT CodeStyleSelectorWidget : public QWidget
 {
     Q_OBJECT
-
 public:
-    explicit TabSettingsWidget(QWidget *parent = 0);
-    ~TabSettingsWidget();
+    explicit CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory, QWidget *parent = 0);
 
-    TabSettings tabSettings() const;
-
-    void setFlat(bool on);
+    void setCodeStyle(TextEditor::ICodeStylePreferences *codeStyle);
     QString searchKeywords() const;
 
-public slots:
-    void setTabSettings(const TextEditor::TabSettings& s);
-
 signals:
-    void settingsChanged(const TextEditor::TabSettings &);
-
-protected:
-    void changeEvent(QEvent *e);
 
 private slots:
-    void slotSettingsChanged();
+    void slotComboBoxActivated(int index);
+    void slotCurrentDelegateChanged(TextEditor::ICodeStylePreferences *delegate);
+    void slotCopyClicked();
+    void slotEditClicked();
+    void slotRemoveClicked();
+    void slotImportClicked();
+    void slotExportClicked();
+    void slotCodeStyleAdded(ICodeStylePreferences*);
+    void slotCodeStyleRemoved(ICodeStylePreferences*);
+    void slotUpdateName();
 
 private:
-    Ui::TabSettingsWidget *ui;
+    void updateName(ICodeStylePreferences *codeStyle);
+    ICodeStylePreferencesFactory *m_factory;
+    ICodeStylePreferences *m_codeStyle;
+
+    QString displayName(ICodeStylePreferences *codeStyle) const;
+
+    QHBoxLayout *m_layout;
+
+    QComboBox *m_comboBox;
+    QLabel *m_comboBoxLabel;
+    QPushButton *m_copyButton;
+    QPushButton *m_editButton;
+    QPushButton *m_removeButton;
+    QPushButton *m_importButton;
+    QPushButton *m_exportButton;
+
+    bool m_ignoreGuiSignals;
 };
 
 } // namespace TextEditor
-#endif // TEXTEDITOR_TABSETTINGSWIDGET_H
+
+#endif // CODESTYLESELECTORWIDGET_H

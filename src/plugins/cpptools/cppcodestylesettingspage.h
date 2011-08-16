@@ -48,9 +48,9 @@
 namespace TextEditor {
     class FontSettings;
     class TabSettings;
-    class TabPreferences;
-    class IFallbackPreferences;
+    class ICodeStylePreferences;
     class SnippetEditorWidget;
+    class CodeStyleEditor;
 }
 
 namespace CppTools {
@@ -70,24 +70,24 @@ public:
     explicit CppCodeStylePreferencesWidget(QWidget *parent = 0);
     virtual ~CppCodeStylePreferencesWidget();
 
-    void setPreferences(CppTools::CppCodeStylePreferences *codeStylePreferences,
-                        TextEditor::TabPreferences *tabPreferences);
+    void setCodeStyle(CppTools::CppCodeStylePreferences *codeStylePreferences);
 
     QString searchKeywords() const;
 
 private slots:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
-    void slotCppCodeStyleSettingsChanged();
+    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
+    void slotCodeStyleSettingsChanged();
     void updatePreview();
-    void setCppCodeStyleSettings(const CppTools::CppCodeStyleSettings &settings, bool preview = true);
-    void slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences *, bool preview = true);
+    void setTabSettings(const TextEditor::TabSettings &settings);
+    void setCodeStyleSettings(const CppTools::CppCodeStyleSettings &settings, bool preview = true);
+    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *, bool preview = true);
 
 private:
     CppCodeStyleSettings cppCodeStyleSettings() const;
 
-    TextEditor::TabPreferences *m_tabPreferences;
-    CppCodeStylePreferences *m_cppCodeStylePreferences;
+    CppCodeStylePreferences *m_preferences;
     Ui::CppCodeStyleSettingsPage *m_ui;
     QList<TextEditor::SnippetEditorWidget *> m_previews;
     bool m_blockUpdates;
@@ -115,9 +115,8 @@ public:
 
 private:
     QString m_searchKeywords;
-    TextEditor::TabPreferences *m_pageTabPreferences;
     CppCodeStylePreferences *m_pageCppCodeStylePreferences;
-    QPointer<CppCodeStylePreferencesWidget> m_widget;
+    QPointer<TextEditor::CodeStyleEditor> m_widget;
 };
 
 } // namespace Internal

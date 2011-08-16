@@ -48,13 +48,13 @@
 #include <coreplugin/helpmanager.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/environmentwidget.h>
-#include <projectexplorer/persistentsettings.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
 #include <utils/stringutils.h>
+#include <utils/persistentsettings.h>
 #include <utils/debuggerlanguagechooser.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/baseqtversion.h>
@@ -73,8 +73,8 @@
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
 using ProjectExplorer::LocalApplicationRunConfiguration;
-using ProjectExplorer::PersistentSettingsReader;
-using ProjectExplorer::PersistentSettingsWriter;
+using Utils::PersistentSettingsReader;
+using Utils::PersistentSettingsWriter;
 
 namespace {
 const char * const QT4_RC_ID("Qt4ProjectManager.Qt4RunConfiguration");

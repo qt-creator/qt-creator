@@ -34,6 +34,7 @@
 #include "ui_behaviorsettingswidget.h"
 
 #include <texteditor/tabsettings.h>
+#include <texteditor/typingsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
@@ -78,6 +79,12 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         d->m_codecs.append(codec);
     }
 
+    connect(d->m_ui.autoIndent, SIGNAL(toggled(bool)),
+            this, SLOT(slotTypingSettingsChanged()));
+    connect(d->m_ui.smartBackspaceBehavior, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(slotTypingSettingsChanged()));
+    connect(d->m_ui.tabKeyBehavior, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(slotTypingSettingsChanged()));
     connect(d->m_ui.cleanWhitespace, SIGNAL(clicked(bool)),
             this, SLOT(slotStorageSettingsChanged()));
     connect(d->m_ui.inEntireDocument, SIGNAL(clicked(bool)),
@@ -106,6 +113,7 @@ BehaviorSettingsWidget::~BehaviorSettingsWidget()
 void BehaviorSettingsWidget::setActive(bool active)
 {
     d->m_ui.tabPreferencesWidget->setEnabled(active);
+    d->m_ui.groupBoxTyping->setEnabled(active);
     d->m_ui.groupBoxEncodings->setEnabled(active);
     d->m_ui.groupBoxMouse->setEnabled(active);
     d->m_ui.groupBoxStorageSettings->setEnabled(active);
@@ -126,9 +134,25 @@ QTextCodec *BehaviorSettingsWidget::assignedCodec() const
     return d->m_codecs.at(d->m_ui.encodingBox->currentIndex());
 }
 
-void BehaviorSettingsWidget::setTabPreferences(TabPreferences *tabPreferences)
+void BehaviorSettingsWidget::setCodeStyle(ICodeStylePreferences *preferences)
 {
-    d->m_ui.tabPreferencesWidget->setTabPreferences(tabPreferences);
+    d->m_ui.tabPreferencesWidget->setPreferences(preferences);
+}
+
+void BehaviorSettingsWidget::setAssignedTypingSettings(const TypingSettings &typingSettings)
+{
+    d->m_ui.autoIndent->setChecked(typingSettings.m_autoIndent);
+    d->m_ui.smartBackspaceBehavior->setCurrentIndex(typingSettings.m_smartBackspaceBehavior);
+    d->m_ui.tabKeyBehavior->setCurrentIndex(typingSettings.m_tabKeyBehavior);
+}
+
+void BehaviorSettingsWidget::assignedTypingSettings(TypingSettings *typingSettings) const
+{
+    typingSettings->m_autoIndent = d->m_ui.autoIndent->isChecked();
+    typingSettings->m_smartBackspaceBehavior =
+        (TypingSettings::SmartBackspaceBehavior)(d->m_ui.smartBackspaceBehavior->currentIndex());
+    typingSettings->m_tabKeyBehavior =
+        (TypingSettings::TabKeyBehavior)(d->m_ui.tabKeyBehavior->currentIndex());
 }
 
 void BehaviorSettingsWidget::setAssignedStorageSettings(const StorageSettings &storageSettings)
@@ -180,6 +204,9 @@ QString BehaviorSettingsWidget::collectUiKeywords() const
     QString keywords;
     QTextStream(&keywords)
         << sep << d->m_ui.tabPreferencesWidget->searchKeywords()
+        << sep << d->m_ui.autoIndent->text()
+        << sep << d->m_ui.smartBackspaceLabel->text()
+        << sep << d->m_ui.tabKeyBehaviorLabel->text()
         << sep << d->m_ui.cleanWhitespace->text()
         << sep << d->m_ui.inEntireDocument->text()
         << sep << d->m_ui.cleanIndentation->text()
@@ -196,9 +223,11 @@ QString BehaviorSettingsWidget::collectUiKeywords() const
     return keywords;
 }
 
-void BehaviorSettingsWidget::setFallbacksVisible(bool on)
+void BehaviorSettingsWidget::slotTypingSettingsChanged()
 {
-    d->m_ui.tabPreferencesWidget->setFallbacksVisible(on);
+    TypingSettings settings;
+    assignedTypingSettings(&settings);
+    emit typingSettingsChanged(settings);
 }
 
 void BehaviorSettingsWidget::slotStorageSettingsChanged()

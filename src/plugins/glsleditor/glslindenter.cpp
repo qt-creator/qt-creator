@@ -71,7 +71,7 @@ void GLSLIndenter::indentBlock(QTextDocument *doc,
 
     // TODO: do something with it
     CppTools::QtStyleCodeFormatter codeFormatter(tabSettings,
-              CppTools::CppToolsSettings::instance()->cppCodeStylePreferences()->settings());
+              CppTools::CppToolsSettings::instance()->cppCodeStyle()->codeStyleSettings());
 
     codeFormatter.updateStateUntil(block);
     int indent;
@@ -102,7 +102,7 @@ void GLSLIndenter::indent(QTextDocument *doc,
 
         // TODO: do something with it
         CppTools::QtStyleCodeFormatter codeFormatter(tabSettings,
-                  CppTools::CppToolsSettings::instance()->cppCodeStylePreferences()->settings());
+                  CppTools::CppToolsSettings::instance()->cppCodeStyle()->codeStyleSettings());
         codeFormatter.updateStateUntil(block);
 
         QTextCursor tc = cursor;

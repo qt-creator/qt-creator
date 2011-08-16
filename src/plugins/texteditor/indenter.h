@@ -46,7 +46,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class IFallbackPreferences;
+class ICodeStylePreferences;
 class TabSettings;
 
 class TEXTEDITOR_EXPORT Indenter
@@ -74,7 +74,9 @@ public:
     // change of the first block.
     virtual void reindent(QTextDocument *doc, const QTextCursor &cursor, const TabSettings &tabSettings);
 
-    virtual void setCodeStylePreferences(IFallbackPreferences *preferences);
+    virtual void setCodeStylePreferences(ICodeStylePreferences *preferences);
+
+    virtual void invalidateCache(QTextDocument *doc);
 };
 
 } // namespace TextEditor

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
-    <height>384</height>
+    <width>258</width>
+    <height>228</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,22 +22,16 @@
      <property name="title">
       <string>Tabs And Indentation</string>
      </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <property name="margin">
-       <number>0</number>
-      </property>
       <item row="0" column="0" colspan="2">
-       <widget class="QCheckBox" name="insertSpaces">
+       <widget class="QLabel" name="tabPolicyLabel">
         <property name="text">
-         <string>Insert &amp;spaces instead of tabs</string>
+         <string>Tab policy:</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <spacer name="horizontalSpacer_5">
+       <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -47,22 +41,34 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>30</width>
-          <height>24</height>
+          <height>20</height>
          </size>
         </property>
        </spacer>
       </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QCheckBox" name="autoInsertSpaces">
-        <property name="enabled">
-         <bool>false</bool>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="tabPolicy">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="toolTip">
-         <string>Automatically determine based on the nearest indented line (previous line preferred over next line)</string>
-        </property>
-        <property name="text">
-         <string>Based on the surrounding lines</string>
-        </property>
+        <item>
+         <property name="text">
+          <string>Spaces Only</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Tabs Only</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mixed</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="2" column="0" colspan="2">
@@ -146,35 +152,21 @@
         </item>
        </layout>
       </item>
-      <item row="2" column="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>49</width>
-          <height>59</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="3" column="0" colspan="3">
-       <widget class="QCheckBox" name="autoIndent">
-        <property name="text">
-         <string>Enable automatic &amp;indentation</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
        <widget class="QLabel" name="continuationAlignBehaviorLabel">
         <property name="text">
          <string>Align continuation lines:</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
+      <item row="4" column="1">
        <widget class="QComboBox" name="continuationAlignBehavior">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 Influences the indentation of continuation lines.
@@ -219,100 +211,15 @@ Influences the indentation of continuation lines.
         </item>
        </widget>
       </item>
-      <item row="8" column="0" colspan="2">
-       <widget class="QLabel" name="tabKeyBehaviorLabel">
-        <property name="text">
-         <string>Tab key performs auto-indent:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1">
-       <widget class="QComboBox" name="tabKeyBehavior">
-        <item>
-         <property name="text">
-          <string>Never</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Always</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>In Leading White Space</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="10" column="1">
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>13</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="QLabel" name="smartBackspaceLabel">
-        <property name="text">
-         <string>Backspace indentation:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QComboBox" name="smartBackspaceBehavior">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Specifies how backspace interacts with indentation.
-
-&lt;ul&gt;
-&lt;li&gt;None: No interaction at all. Regular plain backspace behavior.
-&lt;/li&gt;
-
-&lt;li&gt;Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.
-&lt;/li&gt;
-
-&lt;li&gt;Unindents: If the character behind the cursor is a space it behaves as a backtab.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>None</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Follows Previous Indents</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Unindents</string>
-         </property>
-        </item>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>insertSpaces</tabstop>
-  <tabstop>autoInsertSpaces</tabstop>
   <tabstop>tabSize</tabstop>
   <tabstop>indentSize</tabstop>
-  <tabstop>autoIndent</tabstop>
   <tabstop>continuationAlignBehavior</tabstop>
-  <tabstop>tabKeyBehavior</tabstop>
  </tabstops>
  <resources/>
  <connections/>

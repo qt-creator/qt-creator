@@ -40,13 +40,15 @@
 #include "displaysettings.h"
 #include "displaysettingspage.h"
 #include "fontsettingspage.h"
+#include "typingsettings.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
-#include "tabpreferences.h"
 #include "extraencodingsettings.h"
 #include "texteditorplugin.h"
 #include "highlightersettingspage.h"
 #include "snippetssettingspage.h"
+#include "icodestylepreferences.h"
+#include "icodestylepreferencesfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
@@ -70,9 +72,10 @@ public:
     HighlighterSettingsPage *m_highlighterSettingsPage;
     SnippetsSettingsPage *m_snippetsSettingsPage;
 
-    QMap<QString, TabPreferences *> m_languageTabPreferences;
-    QMap<QString, IFallbackPreferences *> m_languageCodeStylePreferences;
+    QMap<QString, ICodeStylePreferencesFactory *> m_languageToFactory;
 
+    QMap<QString, ICodeStylePreferences *> m_languageToCodeStyle;
+    QMap<QString, CodeStylePool *> m_languageToCodeStylePool;
     QMap<QString, QString> m_mimeTypeToLanguage;
 
     CompletionSettings m_completionSettings;
@@ -219,6 +222,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
     connect(m_d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
             this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
+    connect(m_d->m_behaviorSettingsPage, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
+            this, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)));
     connect(m_d->m_behaviorSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)));
     connect(m_d->m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
@@ -259,6 +264,8 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
     // Connect to settings change signals
     connect(this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             editor, SLOT(setFontSettingsIfVisible(TextEditor::FontSettings)));
+    connect(this, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
+            editor, SLOT(setTypingSettings(TextEditor::TypingSettings)));
     connect(this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
     connect(this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
@@ -277,19 +284,24 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
 
     // Apply current settings (tab settings depend on font settings)
     editor->setFontSettings(fontSettings());
-    editor->setTabSettings(tabPreferences()->settings());
+    editor->setTabSettings(codeStyle()->tabSettings());
+    editor->setTypingSettings(typingSettings());
     editor->setStorageSettings(storageSettings());
     editor->setBehaviorSettings(behaviorSettings());
     editor->setDisplaySettings(displaySettings());
     editor->setCompletionSettings(completionSettings());
     editor->setExtraEncodingSettings(extraEncodingSettings());
-    editor->setTabPreferences(tabPreferences(editor->languageSettingsId()));
-    editor->setCodeStylePreferences(codeStylePreferences(editor->languageSettingsId()));
+    editor->setCodeStyle(codeStyle(editor->languageSettingsId()));
 }
 
 const FontSettings &TextEditorSettings::fontSettings() const
 {
     return m_d->m_fontSettingsPage->fontSettings();
+}
+
+const TypingSettings &TextEditorSettings::typingSettings() const
+{
+    return m_d->m_behaviorSettingsPage->typingSettings();
 }
 
 const StorageSettings &TextEditorSettings::storageSettings() const
@@ -334,42 +346,54 @@ void TextEditorSettings::setCompletionSettings(const TextEditor::CompletionSetti
     emit completionSettingsChanged(m_d->m_completionSettings);
 }
 
-TabPreferences *TextEditorSettings::tabPreferences() const
+void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *factory)
 {
-    return m_d->m_behaviorSettingsPage->tabPreferences();
+    m_d->m_languageToFactory.insert(factory->languageId(), factory);
 }
 
-TabPreferences *TextEditorSettings::tabPreferences(const QString &languageId) const
+QMap<QString, ICodeStylePreferencesFactory *> TextEditorSettings::codeStyleFactories() const
 {
-    TabPreferences *prefs = m_d->m_languageTabPreferences.value(languageId);
-    if (!prefs)
-        prefs = tabPreferences();
-    return prefs;
+    return m_d->m_languageToFactory;
 }
 
-QMap<QString, TabPreferences *> TextEditorSettings::languageTabPreferences() const
+ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(const QString &languageId) const
 {
-    return m_d->m_languageTabPreferences;
+    return m_d->m_languageToFactory.value(languageId);
 }
 
-void TextEditorSettings::registerLanguageTabPreferences(const QString &languageId, TabPreferences *prefs)
+ICodeStylePreferences *TextEditorSettings::codeStyle() const
 {
-    m_d->m_languageTabPreferences.insert(languageId, prefs);
+    return m_d->m_behaviorSettingsPage->codeStyle();
 }
 
-IFallbackPreferences *TextEditorSettings::codeStylePreferences(const QString &languageId) const
+ICodeStylePreferences *TextEditorSettings::codeStyle(const QString &languageId) const
 {
-    return m_d->m_languageCodeStylePreferences.value(languageId);
+    return m_d->m_languageToCodeStyle.value(languageId);
 }
 
-QMap<QString, IFallbackPreferences *> TextEditorSettings::languageCodeStylePreferences() const
+QMap<QString, ICodeStylePreferences *> TextEditorSettings::codeStyles() const
 {
-    return m_d->m_languageCodeStylePreferences;
+    return m_d->m_languageToCodeStyle;
 }
 
-void TextEditorSettings::registerLanguageCodeStylePreferences(const QString &languageId, IFallbackPreferences *prefs)
+void TextEditorSettings::registerCodeStyle(const QString &languageId, ICodeStylePreferences *prefs)
 {
-    m_d->m_languageCodeStylePreferences.insert(languageId, prefs);
+    m_d->m_languageToCodeStyle.insert(languageId, prefs);
+}
+
+CodeStylePool *TextEditorSettings::codeStylePool() const
+{
+    return m_d->m_behaviorSettingsPage->codeStylePool();
+}
+
+CodeStylePool *TextEditorSettings::codeStylePool(const QString &languageId) const
+{
+    return m_d->m_languageToCodeStylePool.value(languageId);
+}
+
+void TextEditorSettings::registerCodeStylePool(const QString &languageId, CodeStylePool *pool)
+{
+    m_d->m_languageToCodeStylePool.insert(languageId, pool);
 }
 
 void TextEditorSettings::registerMimeTypeForLanguageId(const QString &mimeType, const QString &languageId)

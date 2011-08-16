@@ -38,7 +38,6 @@
 #include "projectexplorerconstants.h"
 #include "nodesvisitor.h"
 #include "editorconfiguration.h"
-#include "persistentsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -53,6 +52,7 @@
 
 #include <utils/listutils.h>
 #include <utils/qtcassert.h>
+#include <utils/persistentsettings.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -72,6 +72,8 @@ namespace {
 }
 
 using namespace Core;
+using Utils::PersistentSettingsReader;
+using Utils::PersistentSettingsWriter;
 
 /* SessionFile definitions */
 namespace ProjectExplorer {

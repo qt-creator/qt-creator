@@ -90,7 +90,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/ssh/sshkeypasswordretriever.cpp \
     $$PWD/outputformatter.cpp \
     $$PWD/flowlayout.cpp \
-    $$PWD/networkaccessmanager.cpp
+    $$PWD/networkaccessmanager.cpp \
+    $$PWD/persistentsettings.cpp
 
 win32 {
     SOURCES += \
@@ -194,7 +195,8 @@ HEADERS += \
     $$PWD/outputformatter.h \
     $$PWD/outputformat.h \
     $$PWD/flowlayout.h \
-    $$PWD/networkaccessmanager.h
+    $$PWD/networkaccessmanager.h \
+    $$PWD/persistentsettings.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

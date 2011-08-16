@@ -53,13 +53,12 @@ namespace Utils {
 
 namespace TextEditor {
 class TabSettings;
-class TabPreferences;
 class RefactorOverlay;
 struct RefactorMarker;
 class IAssistMonitorInterface;
 class IAssistInterface;
 class IAssistProvider;
-class IFallbackPreferences;
+class ICodeStylePreferences;
 
 namespace Internal {
     class BaseTextEditorPrivate;
@@ -76,6 +75,7 @@ class FontSettings;
 class BehaviorSettings;
 class CompletionSettings;
 class DisplaySettings;
+class TypingSettings;
 class StorageSettings;
 class Indenter;
 class AutoCompleter;
@@ -357,7 +357,6 @@ private slots:
     bool inFindScope(const QTextCursor &cursor);
     bool inFindScope(int selectionStart, int selectionEnd);
     void inSnippetMode(bool *active);
-    void onTabPreferencesDestroyed();
     void onCodeStylePreferencesDestroyed();
 
 private:
@@ -378,8 +377,7 @@ public:
     void setLanguageSettingsId(const QString &settingsId);
     QString languageSettingsId() const;
 
-    void setTabPreferences(TabPreferences *preferences);
-    void setCodeStylePreferences(IFallbackPreferences *settings);
+    void setCodeStyle(ICodeStylePreferences *settings);
 
     const DisplaySettings &displaySettings() const;
 
@@ -435,6 +433,7 @@ public slots:
     virtual void setTabSettings(const TextEditor::TabSettings &);
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
+    virtual void setTypingSettings(const TextEditor::TypingSettings &);
     virtual void setStorageSettings(const TextEditor::StorageSettings &);
     virtual void setCompletionSettings(const TextEditor::CompletionSettings &);
     virtual void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &);

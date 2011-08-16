@@ -206,8 +206,7 @@ public:
     QWidget *m_extraArea;
 
     QString m_tabSettingsId;
-    TabPreferences *m_tabPreferences;
-    IFallbackPreferences *m_codeStylePreferences;
+    ICodeStylePreferences *m_codeStylePreferences;
     DisplaySettings m_displaySettings;
     FontSettings m_fontSettings;
     BehaviorSettings m_behaviorSettings;

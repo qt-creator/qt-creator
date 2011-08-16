@@ -30,43 +30,42 @@
 **
 **************************************************************************/
 
-#ifndef PERSISTENTSETTINGS_H
-#define PERSISTENTSETTINGS_H
+#ifndef CODESTYLEEDITOR_H
+#define CODESTYLEEDITOR_H
 
-#include "projectexplorer_export.h"
+#include "texteditor_global.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QVariant>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QWidget;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
+namespace TextEditor {
 
-class PROJECTEXPLORER_EXPORT PersistentSettingsReader
+class ICodeStylePreferencesFactory;
+class ICodeStylePreferences;
+class SnippetEditorWidget;
+
+class TEXTEDITOR_EXPORT CodeStyleEditor : public QWidget
 {
+    Q_OBJECT
 public:
-    PersistentSettingsReader();
-    QVariant restoreValue(const QString & variable) const;
-    QVariantMap restoreValues() const;
-    bool load(const QString & fileName);
+    CodeStyleEditor(ICodeStylePreferencesFactory *factory,
+                           ICodeStylePreferences *codeStyle, QWidget *parent = 0);
+
+    void clearMargins();
+
+private slots:
+    void updatePreview();
 
 private:
-    QMap<QString, QVariant> m_valueMap;
+    QVBoxLayout *m_layout;
+    ICodeStylePreferencesFactory *m_factory;
+    ICodeStylePreferences *m_codeStyle;
+    SnippetEditorWidget *m_preview;
 };
 
-class PROJECTEXPLORER_EXPORT PersistentSettingsWriter
-{
-public:
-    PersistentSettingsWriter();
-    void saveValue(const QString & variable, const QVariant &value);
-    bool save(const QString &fileName, const QString &docType, QWidget *parent) const;
+} // namespace TextEditor
 
-private:
-    QMap<QString, QVariant> m_valueMap;
-};
-
-} // namespace ProjectExplorer
-
-#endif // PERSISTENTSETTINGS_H
+#endif // CODESTYLEEDITOR_H

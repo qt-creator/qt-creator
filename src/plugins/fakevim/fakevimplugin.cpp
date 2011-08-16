@@ -58,8 +58,9 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/typingsettings.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/tabpreferences.h>
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/indenter.h>
 #include <texteditor/codeassist/basicproposalitem.h>
@@ -284,14 +285,15 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
 void FakeVimOptionPage::copyTextEditorSettings()
 {
-    TabSettings ts = TextEditorSettings::instance()->tabPreferences()->settings();
-    m_ui.checkBoxExpandTab->setChecked(ts.m_spacesForTabs);
+    TabSettings ts = TextEditorSettings::instance()->codeStyle()->tabSettings();
+    TypingSettings tps = TextEditorSettings::instance()->typingSettings();
+    m_ui.checkBoxExpandTab->setChecked(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
     m_ui.spinBoxTabStop->setValue(ts.m_tabSize);
     m_ui.spinBoxShiftWidth->setValue(ts.m_indentSize);
     m_ui.checkBoxSmartTab->setChecked(
-        ts.m_smartBackspaceBehavior == TabSettings::BackspaceFollowsPreviousIndents);
+        tps.m_smartBackspaceBehavior == TypingSettings::BackspaceFollowsPreviousIndents);
     m_ui.checkBoxAutoIndent->setChecked(true);
-    m_ui.checkBoxSmartIndent->setChecked(ts.m_autoIndent);
+    m_ui.checkBoxSmartIndent->setChecked(tps.m_autoIndent);
     m_ui.checkBoxIncSearch->setChecked(true);
 }
 
@@ -1659,7 +1661,8 @@ void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
     TabSettings tabSettings;
     tabSettings.m_indentSize = theFakeVimSetting(ConfigShiftWidth)->value().toInt();
     tabSettings.m_tabSize = theFakeVimSetting(ConfigTabStop)->value().toInt();
-    tabSettings.m_spacesForTabs = theFakeVimSetting(ConfigExpandTab)->value().toBool();
+    tabSettings.m_tabPolicy = theFakeVimSetting(ConfigExpandTab)->value().toBool()
+            ? TabSettings::SpacesOnlyTabPolicy : TabSettings::TabsOnlyTabPolicy;
 
     QTextDocument *doc = bt->document();
     QTextBlock startBlock = doc->findBlockByNumber(beginLine);

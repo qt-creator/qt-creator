@@ -30,38 +30,33 @@
 **
 **************************************************************************/
 
-#ifndef CODESTYLEPREFERENCESMANAGER_H
-#define CODESTYLEPREFERENCESMANAGER_H
+#include "simplecodestylepreferences.h"
+#include "tabsettings.h"
 
-#include "texteditor_global.h"
+using namespace TextEditor;
 
-#include <QtCore/QObject>
+static const char *settingsSuffixKey = "TabPreferences";
 
-namespace TextEditor {
 
-namespace Internal {
-class CodeStylePreferencesManagerPrivate;
+SimpleCodeStylePreferences::SimpleCodeStylePreferences(QObject *parent)
+    : ICodeStylePreferences(parent)
+{
 }
 
-class ICodeStylePreferencesFactory;
 
-class TEXTEDITOR_EXPORT CodeStylePreferencesManager : public QObject
+QVariant SimpleCodeStylePreferences::value() const
 {
-    Q_OBJECT
-public:
-    static CodeStylePreferencesManager *instance();
+    return QVariant();
+}
 
-    void registerFactory(ICodeStylePreferencesFactory *settings);
-    QList<ICodeStylePreferencesFactory *> factories() const;
-    ICodeStylePreferencesFactory *factory(const QString &languageId) const;
+void SimpleCodeStylePreferences::setValue(const QVariant &value)
+{
+    Q_UNUSED(value)
+}
 
-private:
-    CodeStylePreferencesManager();
-    ~CodeStylePreferencesManager();
-    Internal::CodeStylePreferencesManagerPrivate *d;
-    static CodeStylePreferencesManager *m_instance;
-};
+QString SimpleCodeStylePreferences::settingsSuffix() const
+{
+    return settingsSuffixKey;
+}
 
-} // namespace TextEditor
 
-#endif // CODESTYLEPREFERENCESMANAGER_H

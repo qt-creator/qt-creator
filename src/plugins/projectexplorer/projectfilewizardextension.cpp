@@ -49,10 +49,10 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/indenter.h>
-#include <texteditor/codestylepreferencesmanager.h>
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/normalindenter.h>
-#include <texteditor/tabpreferences.h>
+#include <texteditor/tabsettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/editorconfiguration.h>
 
@@ -499,27 +499,15 @@ bool ProjectFileWizardExtension::processVersionControl(const QList<Core::Generat
     return true;
 }
 
-static TextEditor::TabPreferences *tabPreferences(ProjectExplorer::Project *project, const QString &languageId)
-{
-    if (!languageId.isEmpty()) {
-        if (project)
-            return project->editorConfiguration()->tabPreferences(languageId);
-        return TextEditor::TextEditorSettings::instance()->tabPreferences(languageId);
-    } else if (project) {
-        return project->editorConfiguration()->tabPreferences();
-    }
-    return TextEditor::TextEditorSettings::instance()->tabPreferences();
-}
-
-static TextEditor::IFallbackPreferences *codeStylePreferences(ProjectExplorer::Project *project, const QString &languageId)
+static TextEditor::ICodeStylePreferences *codeStylePreferences(ProjectExplorer::Project *project, const QString &languageId)
 {
     if (languageId.isEmpty())
         return 0;
 
     if (project)
-        return project->editorConfiguration()->codeStylePreferences(languageId);
+        return project->editorConfiguration()->codeStyle(languageId);
 
-    return TextEditor::TextEditorSettings::instance()->codeStylePreferences(languageId);
+    return TextEditor::TextEditorSettings::instance()->codeStyle(languageId);
 }
 
 void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
@@ -543,7 +531,7 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
             = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForNode(project);
 
     TextEditor::ICodeStylePreferencesFactory *factory
-            = TextEditor::CodeStylePreferencesManager::instance()->factory(languageId);
+            = TextEditor::TextEditorSettings::instance()->codeStyleFactory(languageId);
 
     TextEditor::Indenter *indenter = 0;
     if (factory)
@@ -551,14 +539,13 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
     if (!indenter)
         indenter = new TextEditor::NormalIndenter();
 
-    TextEditor::TabPreferences *tabPrefs = tabPreferences(baseProject, languageId);
-    TextEditor::IFallbackPreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
+    TextEditor::ICodeStylePreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
     indenter->setCodeStylePreferences(codeStylePrefs);
 
     QTextDocument doc(file->contents());
     QTextCursor cursor(&doc);
     cursor.select(QTextCursor::Document);
-    indenter->indent(&doc, cursor, QChar::Null, tabPrefs->currentSettings());
+    indenter->indent(&doc, cursor, QChar::Null, codeStylePrefs->currentTabSettings());
     file->setContents(doc.toPlainText());
     delete indenter;
 }

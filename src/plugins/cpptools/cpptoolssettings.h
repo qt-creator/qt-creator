@@ -37,11 +37,6 @@
 
 #include <QtCore/QObject>
 
-namespace TextEditor
-{
-class TabPreferences;
-}
-
 namespace CppTools
 {
 class CppCodeStylePreferences;
@@ -65,8 +60,7 @@ public:
 
     static CppToolsSettings *instance();
 
-    CppCodeStylePreferences *cppCodeStylePreferences() const;
-    TextEditor::TabPreferences *tabPreferences() const;
+    CppCodeStylePreferences *cppCodeStyle() const;
 
 private:
     Internal::CppToolsSettingsPrivate *d;

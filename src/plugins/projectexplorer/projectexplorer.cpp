@@ -60,7 +60,6 @@
 #include "metatypedeclarations.h"
 #include "nodesvisitor.h"
 #include "appoutputpane.h"
-#include "persistentsettings.h"
 #include "pluginfilefactory.h"
 #include "processstep.h"
 #include "projectexplorerconstants.h"
@@ -115,6 +114,7 @@
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
 #include <utils/stringutils.h>
+#include <utils/persistentsettings.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDateTime>

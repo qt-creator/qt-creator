@@ -30,28 +30,43 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSCODESTYLESETTINGSFACTORY_H
-#define QMLJSCODESTYLESETTINGSFACTORY_H
+#ifndef PERSISTENTSETTINGS_H
+#define PERSISTENTSETTINGS_H
 
-#include <texteditor/icodestylepreferencesfactory.h>
+#include "utils_global.h"
 
-namespace QmlJSTools {
+#include <QtCore/QMap>
+#include <QtCore/QVariant>
 
-class QmlJSCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
+
+namespace Utils {
+
+class QTCREATOR_UTILS_EXPORT PersistentSettingsReader
 {
 public:
-    QmlJSCodeStylePreferencesFactory();
+    PersistentSettingsReader();
+    QVariant restoreValue(const QString &variable) const;
+    QVariantMap restoreValues() const;
+    bool load(const QString &fileName);
 
-    virtual QString languageId();
-    virtual QString displayName();
-    virtual TextEditor::IFallbackPreferences *createPreferences(const QList<TextEditor::IFallbackPreferences *> &fallbacks) const;
-    virtual QWidget *createEditor(TextEditor::IFallbackPreferences *settings,
-                                          TextEditor::TabPreferences *tabSettings,
-                                          QWidget *parent) const;
-    virtual TextEditor::Indenter *createIndenter() const;
-
+private:
+    QMap<QString, QVariant> m_valueMap;
 };
 
-} // namespace QmlJSTools
+class QTCREATOR_UTILS_EXPORT PersistentSettingsWriter
+{
+public:
+    PersistentSettingsWriter();
+    void saveValue(const QString &variable, const QVariant &value);
+    bool save(const QString &fileName, const QString &docType, QWidget *parent) const;
 
-#endif // QMLJSCODESTYLESETTINGSFACTORY_H
+private:
+    QMap<QString, QVariant> m_valueMap;
+};
+
+} // namespace Utils
+
+#endif // PERSISTENTSETTINGS_H

@@ -32,17 +32,22 @@
 
 #include "qmljstoolssettings.h"
 #include "qmljstoolsconstants.h"
+#include "qmljscodestylepreferencesfactory.h"
 
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/tabpreferences.h>
+#include <texteditor/simplecodestylepreferences.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/codestylepool.h>
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
+
 #include <QtCore/QSettings>
 
 static const char *idKey = "QmlJSGlobal";
 
 using namespace QmlJSTools;
+using TextEditor::TabSettings;
 
 namespace QmlJSTools {
 namespace Internal {
@@ -50,7 +55,7 @@ namespace Internal {
 class QmlJSToolsSettingsPrivate
 {
 public:
-    TextEditor::TabPreferences *m_tabPreferences;
+    TextEditor::SimpleCodeStylePreferences *m_globalCodeStyle;
 };
 
 } // namespace Internal
@@ -65,19 +70,55 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
 
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
+
+    // code style factory
+    TextEditor::ICodeStylePreferencesFactory *factory = new QmlJSTools::QmlJSCodeStylePreferencesFactory();
+    textEditorSettings->registerCodeStyleFactory(factory);
+
+    // code style pool
+    TextEditor::CodeStylePool *pool = new TextEditor::CodeStylePool(factory, this);
+    textEditorSettings->registerCodeStylePool(Constants::QML_JS_SETTINGS_ID, pool);
+
+    // global code style settings
+    d->m_globalCodeStyle = new TextEditor::SimpleCodeStylePreferences(this);
+    d->m_globalCodeStyle->setDelegatingPool(pool);
+    d->m_globalCodeStyle->setDisplayName(tr("Global", "Settings"));
+    d->m_globalCodeStyle->setId(idKey);
+    pool->addCodeStyle(d->m_globalCodeStyle);
+    textEditorSettings->registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, d->m_globalCodeStyle);
+
+    // built-in settings
+    // Qt style
+    TextEditor::SimpleCodeStylePreferences *qtCodeStyle = new TextEditor::SimpleCodeStylePreferences();
+    qtCodeStyle->setId(QLatin1String("qt"));
+    qtCodeStyle->setDisplayName(tr("Qt"));
+    qtCodeStyle->setReadOnly(true);
+    TabSettings qtTabSettings;
+    qtTabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+    qtTabSettings.m_tabSize = 4;
+    qtTabSettings.m_indentSize = 4;
+    qtTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
+    qtCodeStyle->setTabSettings(qtTabSettings);
+    pool->addCodeStyle(qtCodeStyle);
+
+    // default delegate for global preferences
+    d->m_globalCodeStyle->setCurrentDelegate(qtCodeStyle);
+
+    pool->loadCustomCodeStyles();
+
+    // load global settings (after built-in settings are added to the pool)
     if (const QSettings *s = Core::ICore::instance()->settings()) {
-        TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
-        TextEditor::TabPreferences *tabPrefs = textEditorSettings->tabPreferences();
-        d->m_tabPreferences
-                = new TextEditor::TabPreferences(QList<TextEditor::IFallbackPreferences *>()
-                                                 << tabPrefs, this);
-        d->m_tabPreferences->setCurrentFallback(tabPrefs);
-        d->m_tabPreferences->setFallbackEnabled(tabPrefs, false);
-        d->m_tabPreferences->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
-        d->m_tabPreferences->setDisplayName(tr("Global Qt Quick", "Settings"));
-        d->m_tabPreferences->setId(idKey);
-        textEditorSettings->registerLanguageTabPreferences(QmlJSTools::Constants::QML_JS_SETTINGS_ID, d->m_tabPreferences);
+        d->m_globalCodeStyle->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
     }
+
+    // mimetypes to be handled
+    textEditorSettings->registerMimeTypeForLanguageId(
+                QLatin1String(Constants::QML_MIMETYPE),
+                Constants::QML_JS_SETTINGS_ID);
+    textEditorSettings->registerMimeTypeForLanguageId(
+                QLatin1String(Constants::JS_MIMETYPE),
+                Constants::QML_JS_SETTINGS_ID);
 }
 
 QmlJSToolsSettings::~QmlJSToolsSettings()
@@ -92,9 +133,9 @@ QmlJSToolsSettings *QmlJSToolsSettings::instance()
     return m_instance;
 }
 
-TextEditor::TabPreferences *QmlJSToolsSettings::tabPreferences() const
+TextEditor::SimpleCodeStylePreferences *QmlJSToolsSettings::qmlJSCodeStyle() const
 {
-    return d->m_tabPreferences;
+    return d->m_globalCodeStyle;
 }
 
 

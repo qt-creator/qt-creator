@@ -33,8 +33,9 @@
 #include "codestylesettingspropertiespage.h"
 #include "editorconfiguration.h"
 #include "project.h"
-#include <texteditor/codestylepreferencesmanager.h>
+#include <texteditor/texteditorsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/codestyleeditor.h>
 
 #include <QtCore/QTextCodec>
 
@@ -72,23 +73,23 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : QWidget(), 
     m_ui.setupUi(this);
 
     const EditorConfiguration *config = m_project->editorConfiguration();
-    CodeStylePreferencesManager *manager =
-            CodeStylePreferencesManager::instance();
 
-    QList<ICodeStylePreferencesFactory *> factories = manager->factories();
-    for (int i = 0; i < factories.count(); i++) {
-        ICodeStylePreferencesFactory *factory = factories.at(i);
+    QMap<QString, ICodeStylePreferencesFactory *> factories
+            = TextEditor::TextEditorSettings::instance()->codeStyleFactories();
+    QMapIterator<QString, ICodeStylePreferencesFactory *> it(factories);
+    while (it.hasNext()) {
+        it.next();
+        ICodeStylePreferencesFactory *factory = it.value();
         const QString languageId = factory->languageId();
-        TabPreferences *tabPreferences = config->tabPreferences(languageId);
-        IFallbackPreferences *codeStylePreferences = config->codeStylePreferences(languageId);
+        ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
 
-        QWidget *widget = factory->createEditor(codeStylePreferences, tabPreferences, m_ui.stackedWidget);
-        m_ui.stackedWidget->addWidget(widget);
+        CodeStyleEditor *preview = new CodeStyleEditor(factory, codeStylePreferences, m_ui.stackedWidget);
+        preview->clearMargins();
+        m_ui.stackedWidget->addWidget(preview);
         m_ui.languageComboBox->addItem(factory->displayName());
     }
 
     connect(m_ui.languageComboBox, SIGNAL(currentIndexChanged(int)),
             m_ui.stackedWidget, SLOT(setCurrentIndex(int)));
 }
-
 

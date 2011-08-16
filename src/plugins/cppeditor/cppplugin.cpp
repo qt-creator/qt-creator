@@ -53,9 +53,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/navigationwidget.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/tabpreferences.h>
-#include <texteditor/storagesettings.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorplugin.h>
 #include <texteditor/texteditorsettings.h>

@@ -39,9 +39,10 @@
 
 namespace TextEditor {
 
-class IFallbackPreferences;
-class TabPreferences;
+class ICodeStylePreferences;
+class CodeStylePool;
 class Indenter;
+class ISnippetProvider;
 
 class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory : public QObject
 {
@@ -51,9 +52,11 @@ public:
 
     virtual QString languageId() = 0;
     virtual QString displayName() = 0;
-    virtual IFallbackPreferences *createPreferences(const QList<IFallbackPreferences *> &fallbacks) const = 0;
-    virtual QWidget *createEditor(IFallbackPreferences *preferences, TabPreferences *tabSettings, QWidget *parent) const = 0;
+    virtual ICodeStylePreferences *createCodeStyle() const = 0;
+    virtual QWidget *createEditor(ICodeStylePreferences *preferences, QWidget *parent) const = 0;
     virtual TextEditor::Indenter *createIndenter() const = 0;
+    virtual ISnippetProvider *snippetProvider() const = 0;
+    virtual QString previewText() const = 0;
 };
 
 } // namespace TextEditor

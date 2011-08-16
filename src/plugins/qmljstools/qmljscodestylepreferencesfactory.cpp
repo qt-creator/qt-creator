@@ -30,15 +30,36 @@
 **
 **************************************************************************/
 
-#include "qmljscodestylesettingsfactory.h"
+#include "qmljscodestylepreferencesfactory.h"
 #include "qmljscodestylesettingspage.h"
 #include "qmljstoolsconstants.h"
 #include "qmljsindenter.h"
-#include <texteditor/tabpreferences.h>
+#include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/snippets/isnippetprovider.h>
+#include <extensionsystem/pluginmanager.h>
+#include <qmljseditor/qmljseditorconstants.h>
 #include <QtGui/QLayout>
 
 using namespace QmlJSTools;
+
+static const char *defaultPreviewText =
+    "import QtQuick 1.0\n"
+    "\n"
+    "Rectangle {\n"
+    "    width: 360\n"
+    "    height: 360\n"
+    "    Text {\n"
+    "        anchors.centerIn: parent\n"
+    "        text: \"Hello World\"\n"
+    "    }\n"
+    "    MouseArea {\n"
+    "        anchors.fill: parent\n"
+    "        onClicked: {\n"
+    "            Qt.quit();\n"
+    "        }\n"
+    "    }\n"
+    "}\n";
 
 QmlJSCodeStylePreferencesFactory::QmlJSCodeStylePreferencesFactory()
 {
@@ -54,27 +75,37 @@ QString QmlJSCodeStylePreferencesFactory::displayName()
     return Constants::QML_JS_SETTINGS_NAME;
 }
 
-TextEditor::IFallbackPreferences *QmlJSCodeStylePreferencesFactory::createPreferences(
-    const QList<TextEditor::IFallbackPreferences *> &fallbacks) const
+TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeStyle() const
 {
-    Q_UNUSED(fallbacks);
-    return 0;
+    return new TextEditor::SimpleCodeStylePreferences();
 }
 
-QWidget *QmlJSCodeStylePreferencesFactory::createEditor(TextEditor::IFallbackPreferences *preferences,
-                                                           TextEditor::TabPreferences *tabPreferences,
+QWidget *QmlJSCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePreferences *preferences,
                                                            QWidget *parent) const
 {
-    Q_UNUSED(preferences)
-
     Internal::QmlJSCodeStylePreferencesWidget *widget = new Internal::QmlJSCodeStylePreferencesWidget(parent);
     widget->layout()->setMargin(0);
-    widget->setTabPreferences(tabPreferences);
+    widget->setPreferences(preferences);
     return widget;
 }
 
 TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter() const
 {
     return new QmlJSEditor::Internal::Indenter();
+}
+
+TextEditor::ISnippetProvider *QmlJSCodeStylePreferencesFactory::snippetProvider() const
+{
+    const QList<TextEditor::ISnippetProvider *> &providers =
+    ExtensionSystem::PluginManager::instance()->getObjects<TextEditor::ISnippetProvider>();
+    foreach (TextEditor::ISnippetProvider *provider, providers)
+        if (provider->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID))
+            return provider;
+    return 0;
+}
+
+QString QmlJSCodeStylePreferencesFactory::previewText() const
+{
+    return QLatin1String(defaultPreviewText);
 }
 

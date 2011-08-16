@@ -43,7 +43,8 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class TabPreferences;
+class ICodeStylePreferences;
+class TypingSettings;
 class StorageSettings;
 class BehaviorSettings;
 class ExtraEncodingSettings;
@@ -63,7 +64,10 @@ public:
     void setAssignedCodec(QTextCodec *codec);
     QTextCodec *assignedCodec() const;
 
-    void setTabPreferences(TabPreferences *tabPreferences);
+    void setCodeStyle(ICodeStylePreferences *preferences);
+
+    void setAssignedTypingSettings(const TypingSettings &typingSettings);
+    void assignedTypingSettings(TypingSettings *typingSettings) const;
 
     void setAssignedStorageSettings(const StorageSettings &storageSettings);
     void assignedStorageSettings(StorageSettings *storageSettings) const;
@@ -76,15 +80,15 @@ public:
 
     QString collectUiKeywords() const;
 
-    void setFallbacksVisible(bool on);
-
 signals:
+    void typingSettingsChanged(const TextEditor::TypingSettings &settings);
     void storageSettingsChanged(const TextEditor::StorageSettings &settings);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &settings);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &settings);
     void textCodecChanged(QTextCodec *codec);
 
 private slots:
+    void slotTypingSettingsChanged();
     void slotStorageSettingsChanged();
     void slotBehaviorSettingsChanged();
     void slotExtraEncodingChanged();

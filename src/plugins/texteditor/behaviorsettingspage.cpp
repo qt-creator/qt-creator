@@ -33,12 +33,14 @@
 #include "behaviorsettingspage.h"
 
 #include "behaviorsettings.h"
+#include "typingsettings.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "extraencodingsettings.h"
 #include "ui_behaviorsettingspage.h"
-#include "tabpreferences.h"
+#include "simplecodestylepreferences.h"
 #include "texteditorconstants.h"
+#include "codestylepool.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -58,8 +60,10 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
 
     void init();
 
-    TabPreferences *m_tabPreferences;
-    TabPreferences *m_pageTabPreferences;
+    CodeStylePool *m_defaultCodeStylePool;
+    SimpleCodeStylePreferences *m_codeStyle;
+    SimpleCodeStylePreferences *m_pageCodeStyle;
+    TypingSettings m_typingSettings;
     StorageSettings m_storageSettings;
     BehaviorSettings m_behaviorSettings;
     ExtraEncodingSettings m_extraEncodingSettings;
@@ -69,14 +73,15 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
 
 BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
     (const BehaviorSettingsPageParameters &p)
-    : m_parameters(p), m_page(0), m_pageTabPreferences(0)
+    : m_parameters(p), m_page(0), m_pageCodeStyle(0)
 {
 }
 
 void BehaviorSettingsPage::BehaviorSettingsPagePrivate::init()
 {
     if (const QSettings *s = Core::ICore::instance()->settings()) {
-        m_tabPreferences->fromSettings(m_parameters.settingsPrefix, s);
+        m_codeStyle->fromSettings(m_parameters.settingsPrefix, s);
+        m_typingSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_behaviorSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_extraEncodingSettings.fromSettings(m_parameters.settingsPrefix, s);
@@ -88,9 +93,14 @@ BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters 
   : TextEditorOptionsPage(parent),
     d(new BehaviorSettingsPagePrivate(p))
 {
-    d->m_tabPreferences = new TabPreferences(QList<IFallbackPreferences *>(), this);
-    d->m_tabPreferences->setDisplayName(tr("Global", "Settings"));
-    d->m_tabPreferences->setId(Constants::GLOBAL_SETTINGS_ID);
+    // global tab preferences for all other languages
+    d->m_codeStyle = new SimpleCodeStylePreferences(this);
+    d->m_codeStyle->setDisplayName(tr("Global", "Settings"));
+    d->m_codeStyle->setId(Constants::GLOBAL_SETTINGS_ID);
+
+    // default pool for all other languages
+    d->m_defaultCodeStylePool = new CodeStylePool(0, this); // Any language
+    d->m_defaultCodeStylePool->addCodeStyle(d->m_codeStyle);
     d->init();
 }
 
@@ -114,10 +124,11 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     d->m_page = new Ui::BehaviorSettingsPage;
     d->m_page->setupUi(w);
-    d->m_pageTabPreferences = new TabPreferences(d->m_tabPreferences->fallbacks(), w);
-    d->m_pageTabPreferences->setSettings(d->m_tabPreferences->settings());
-    d->m_pageTabPreferences->setCurrentFallback(d->m_tabPreferences->currentFallback());
-    d->m_page->behaviorWidget->setTabPreferences(d->m_pageTabPreferences);
+    d->m_pageCodeStyle = new SimpleCodeStylePreferences(w);
+    d->m_pageCodeStyle->setDelegatingPool(d->m_codeStyle->delegatingPool());
+    d->m_pageCodeStyle->setTabSettings(d->m_codeStyle->tabSettings());
+    d->m_pageCodeStyle->setCurrentDelegate(d->m_codeStyle->currentDelegate());
+    d->m_page->behaviorWidget->setCodeStyle(d->m_pageCodeStyle);
 
     settingsToUI();
 
@@ -132,25 +143,34 @@ void BehaviorSettingsPage::apply()
     if (!d->m_page) // page was never shown
         return;
 
+    TypingSettings newTypingSettings;
     StorageSettings newStorageSettings;
     BehaviorSettings newBehaviorSettings;
     ExtraEncodingSettings newExtraEncodingSettings;
 
-    settingsFromUI(&newStorageSettings, &newBehaviorSettings,
-                   &newExtraEncodingSettings);
+    settingsFromUI(&newTypingSettings, &newStorageSettings,
+                   &newBehaviorSettings, &newExtraEncodingSettings);
 
     QSettings *s = Core::ICore::instance()->settings();
 
-    if (d->m_tabPreferences->settings() != d->m_pageTabPreferences->settings()) {
-        d->m_tabPreferences->setSettings(d->m_pageTabPreferences->settings());
+    if (d->m_codeStyle->tabSettings() != d->m_pageCodeStyle->tabSettings()) {
+        d->m_codeStyle->setTabSettings(d->m_pageCodeStyle->tabSettings());
         if (s)
-            d->m_tabPreferences->toSettings(d->m_parameters.settingsPrefix, s);
+            d->m_codeStyle->toSettings(d->m_parameters.settingsPrefix, s);
     }
 
-    if (d->m_tabPreferences->currentFallback() != d->m_pageTabPreferences->currentFallback()) {
-        d->m_tabPreferences->setCurrentFallback(d->m_pageTabPreferences->currentFallback());
+    if (d->m_codeStyle->currentDelegate() != d->m_pageCodeStyle->currentDelegate()) {
+        d->m_codeStyle->setCurrentDelegate(d->m_pageCodeStyle->currentDelegate());
         if (s)
-            d->m_tabPreferences->toSettings(d->m_parameters.settingsPrefix, s);
+            d->m_codeStyle->toSettings(d->m_parameters.settingsPrefix, s);
+    }
+
+    if (newTypingSettings != d->m_typingSettings) {
+        d->m_typingSettings = newTypingSettings;
+        if (s)
+            d->m_typingSettings.toSettings(d->m_parameters.settingsPrefix, s);
+
+        emit typingSettingsChanged(newTypingSettings);
     }
 
     if (newStorageSettings != d->m_storageSettings) {
@@ -183,10 +203,12 @@ void BehaviorSettingsPage::apply()
     }
 }
 
-void BehaviorSettingsPage::settingsFromUI(StorageSettings *storageSettings,
+void BehaviorSettingsPage::settingsFromUI(TypingSettings *typingSettings,
+                                          StorageSettings *storageSettings,
                                           BehaviorSettings *behaviorSettings,
                                           ExtraEncodingSettings *extraEncodingSettings) const
 {
+    d->m_page->behaviorWidget->assignedTypingSettings(typingSettings);
     d->m_page->behaviorWidget->assignedStorageSettings(storageSettings);
     d->m_page->behaviorWidget->assignedBehaviorSettings(behaviorSettings);
     d->m_page->behaviorWidget->assignedExtraEncodingSettings(extraEncodingSettings);
@@ -194,6 +216,7 @@ void BehaviorSettingsPage::settingsFromUI(StorageSettings *storageSettings,
 
 void BehaviorSettingsPage::settingsToUI()
 {
+    d->m_page->behaviorWidget->setAssignedTypingSettings(d->m_typingSettings);
     d->m_page->behaviorWidget->setAssignedStorageSettings(d->m_storageSettings);
     d->m_page->behaviorWidget->setAssignedBehaviorSettings(d->m_behaviorSettings);
     d->m_page->behaviorWidget->setAssignedExtraEncodingSettings(d->m_extraEncodingSettings);
@@ -209,6 +232,21 @@ void BehaviorSettingsPage::finish()
     d->m_page = 0;
 }
 
+ICodeStylePreferences *BehaviorSettingsPage::codeStyle() const
+{
+    return d->m_codeStyle;
+}
+
+CodeStylePool *BehaviorSettingsPage::codeStylePool() const
+{
+    return d->m_defaultCodeStylePool;
+}
+
+const TypingSettings &BehaviorSettingsPage::typingSettings() const
+{
+    return d->m_typingSettings;
+}
+
 const StorageSettings &BehaviorSettingsPage::storageSettings() const
 {
     return d->m_storageSettings;
@@ -222,11 +260,6 @@ const BehaviorSettings &BehaviorSettingsPage::behaviorSettings() const
 const ExtraEncodingSettings &BehaviorSettingsPage::extraEncodingSettings() const
 {
     return d->m_extraEncodingSettings;
-}
-
-TabPreferences *BehaviorSettingsPage::tabPreferences() const
-{
-    return d->m_tabPreferences;
 }
 
 bool BehaviorSettingsPage::matches(const QString &s) const

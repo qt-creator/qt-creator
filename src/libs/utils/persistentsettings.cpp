@@ -47,8 +47,9 @@
 
 #include <utils/qtcassert.h>
 
+
 /*!
-    \class ProjectExplorer::PersistentSettingsReader
+    \class Utils::PersistentSettingsReader
 
     \brief Reads a QVariantMap of arbitrary, nested data structures from a XML file.
 
@@ -80,10 +81,10 @@
     and added to the stack entry below (added to list or inserted into map). The first element
     of the stack is the value of the <data> element.
 
-    \sa ProjectExplorer::PersistentSettingsWriter
+    \sa Utils::PersistentSettingsWriter
 */
 
-namespace ProjectExplorer {
+namespace Utils {
 
 struct Context // Basic context containing element name string constants.
 {
@@ -300,7 +301,7 @@ PersistentSettingsReader::PersistentSettingsReader()
 {
 }
 
-QVariant PersistentSettingsReader::restoreValue(const QString & variable) const
+QVariant PersistentSettingsReader::restoreValue(const QString &variable) const
 {
     if (m_valueMap.contains(variable))
         return m_valueMap.value(variable);
@@ -312,7 +313,7 @@ QVariantMap PersistentSettingsReader::restoreValues() const
     return m_valueMap;
 }
 
-bool PersistentSettingsReader::load(const QString & fileName)
+bool PersistentSettingsReader::load(const QString &fileName)
 {
     m_valueMap.clear();
 
@@ -326,10 +327,10 @@ bool PersistentSettingsReader::load(const QString & fileName)
 }
 
 /*!
-    \class ProjectExplorer::PersistentSettingsWriter
+    \class Utils::PersistentSettingsWriter
 
     \brief Serializes a QVariantMap of arbitrary, nested data structures to a XML file.
-    \sa ProjectExplorer::PersistentSettingsReader
+    \sa Utils::PersistentSettingsReader
 */
 
 PersistentSettingsWriter::PersistentSettingsWriter()
@@ -373,12 +374,12 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
     }
 }
 
-void PersistentSettingsWriter::saveValue(const QString & variable, const QVariant &value)
+void PersistentSettingsWriter::saveValue(const QString &variable, const QVariant &value)
 {
     m_valueMap.insert(variable, value);
 }
 
-bool PersistentSettingsWriter::save(const QString & fileName, const QString &docType,
+bool PersistentSettingsWriter::save(const QString &fileName, const QString &docType,
                                     QWidget *parent) const
 {
     Utils::FileSaver saver(fileName, QIODevice::Text);
@@ -406,4 +407,4 @@ bool PersistentSettingsWriter::save(const QString & fileName, const QString &doc
     }
     return saver.finalize(parent);
 }
-} // namespace ProjectExplorer
+} // namespace Utils

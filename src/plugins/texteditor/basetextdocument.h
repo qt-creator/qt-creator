@@ -45,6 +45,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class ITextMarkable;
+class TypingSettings;
 class StorageSettings;
 class TabSettings;
 class ExtraEncodingSettings;
@@ -59,10 +60,12 @@ public:
     BaseTextDocument();
     virtual ~BaseTextDocument();
 
+    void setTypingSettings(const TypingSettings &typingSettings);
     void setStorageSettings(const StorageSettings &storageSettings);
     void setTabSettings(const TabSettings &tabSettings);
     void setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings);
 
+    const TypingSettings &typingSettings() const;
     const StorageSettings &storageSettings() const;
     const TabSettings &tabSettings() const;
     const ExtraEncodingSettings &extraEncodingSettings() const;

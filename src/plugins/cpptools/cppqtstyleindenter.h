@@ -39,7 +39,7 @@
 
 namespace TextEditor
 {
-class IFallbackPreferences;
+class ICodeStylePreferences;
 }
 
 namespace CppTools {
@@ -63,7 +63,8 @@ public:
                         const QChar &typedChar,
                         const TextEditor::TabSettings &tabSettings);
 
-    virtual void setCodeStylePreferences(TextEditor::IFallbackPreferences *preferences);
+    virtual void setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences);
+    virtual void invalidateCache(QTextDocument *doc);
 private:
     CppCodeStyleSettings codeStyleSettings() const;
     CppCodeStylePreferences *m_cppCodeStylePreferences;

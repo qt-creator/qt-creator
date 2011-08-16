@@ -44,8 +44,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/persistentsettings.h>
 
+#include <utils/persistentsettings.h>
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 

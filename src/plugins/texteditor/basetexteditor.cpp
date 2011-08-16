@@ -39,7 +39,8 @@
 #include "codecselector.h"
 #include "completionsettings.h"
 #include "tabsettings.h"
-#include "tabpreferences.h"
+#include "typingsettings.h"
+#include "icodestylepreferences.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 #include "syntaxhighlighter.h"
@@ -1573,13 +1574,14 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (d->m_inBlockSelectionMode)
             cursor.clearSelection();
         const TabSettings &ts = d->m_document->tabSettings();
+        const TypingSettings &tps = d->m_document->typingSettings();
         cursor.beginEditBlock();
 
         int extraBlocks =
             d->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor, tabSettings());
 
         QString previousIndentationString;
-        if (ts.m_autoIndent) {
+        if (tps.m_autoIndent) {
             cursor.insertBlock();
             indent(document(), cursor, QChar::Null);
         } else {
@@ -1599,7 +1601,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             while (extraBlocks > 0) {
                 --extraBlocks;
                 ensureVisible.movePosition(QTextCursor::NextBlock);
-                if (ts.m_autoIndent)
+                if (tps.m_autoIndent)
                     indent(document(), ensureVisible, QChar::Null);
                 else if (!previousIndentationString.isEmpty())
                     ensureVisible.insertText(previousIndentationString);
@@ -1636,7 +1638,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
     } else if (!ro
                && e == QKeySequence::DeleteStartOfWord
-               && d->m_document->tabSettings().m_autoIndent
+               && d->m_document->typingSettings().m_autoIndent
                && !textCursor().hasSelection()){
         e->accept();
         QTextCursor c = textCursor();
@@ -1685,7 +1687,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
         QTextCursor cursor = textCursor();
         int newPosition;
-        if (d->m_document->tabSettings().tabShouldIndent(document(), cursor, &newPosition)) {
+        if (d->m_document->typingSettings().tabShouldIndent(document(), cursor, &newPosition)) {
             if (newPosition != cursor.position() && !cursor.hasSelection()) {
                 cursor.setPosition(newPosition);
                 setTextCursor(cursor);
@@ -1808,7 +1810,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         const QString &autoText = d->m_autoCompleter->autoComplete(cursor, text);
 
         QChar electricChar;
-        if (d->m_document->tabSettings().m_autoIndent) {
+        if (d->m_document->typingSettings().m_autoIndent) {
             foreach (QChar c, text) {
                 if (d->m_indenter->isElectricCharacter(c)) {
                     electricChar = c;
@@ -1836,7 +1838,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             indent(document(), cursor, electricChar);
         if (!autoText.isEmpty()) {
-            if (d->m_document->tabSettings().m_autoIndent)
+            if (d->m_document->typingSettings().m_autoIndent)
                 reindent(document(), cursor);
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
         }
@@ -2369,7 +2371,6 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_formatRange(false),
     m_parenthesesMatchingTimer(0),
     m_extraArea(0),
-    m_tabPreferences(0),
     m_codeStylePreferences(0),
     extraAreaSelectionAnchorBlockNumber(-1),
     extraAreaToggleMarkBlockNumber(-1),
@@ -4360,28 +4361,12 @@ QString BaseTextEditorWidget::languageSettingsId() const
     return d->m_tabSettingsId;
 }
 
-void BaseTextEditorWidget::setTabPreferences(TabPreferences *tabPreferences)
-{
-    if (d->m_tabPreferences) {
-        disconnect(d->m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
-                   this, SLOT(setTabSettings(TextEditor::TabSettings)));
-        disconnect(d->m_tabPreferences, SIGNAL(destroyed()),
-                   this, SLOT(onTabPreferencesDestroyed()));
-    }
-    d->m_tabPreferences = tabPreferences;
-    if (d->m_tabPreferences) {
-        connect(d->m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
-                this, SLOT(setTabSettings(TextEditor::TabSettings)));
-        connect(d->m_tabPreferences, SIGNAL(destroyed()),
-                this, SLOT(onTabPreferencesDestroyed()));
-        setTabSettings(d->m_tabPreferences->currentSettings());
-    }
-}
-
-void BaseTextEditorWidget::setCodeStylePreferences(IFallbackPreferences *preferences)
+void BaseTextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
 {
     indenter()->setCodeStylePreferences(preferences);
     if (d->m_codeStylePreferences) {
+        disconnect(d->m_codeStylePreferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
+                this, SLOT(setTabSettings(TextEditor::TabSettings)));
         disconnect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
                 this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
         disconnect(d->m_codeStylePreferences, SIGNAL(destroyed()),
@@ -4389,21 +4374,15 @@ void BaseTextEditorWidget::setCodeStylePreferences(IFallbackPreferences *prefere
     }
     d->m_codeStylePreferences = preferences;
     if (d->m_codeStylePreferences) {
+        connect(d->m_codeStylePreferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
+                this, SLOT(setTabSettings(TextEditor::TabSettings)));
         connect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
                 this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
         connect(d->m_codeStylePreferences, SIGNAL(destroyed()),
                 this, SLOT(onCodeStylePreferencesDestroyed()));
+        setTabSettings(d->m_codeStylePreferences->currentTabSettings());
         slotCodeStyleSettingsChanged(d->m_codeStylePreferences->currentValue());
     }
-}
-
-void BaseTextEditorWidget::onTabPreferencesDestroyed()
-{
-    if (sender() != d->m_tabPreferences)
-        return;
-    // avoid failing disconnects, m_tabPreferences has already been reduced to QObject
-    d->m_tabPreferences = 0;
-    setTabPreferences(TextEditorSettings::instance()->tabPreferences(languageSettingsId()));
 }
 
 void BaseTextEditorWidget::onCodeStylePreferencesDestroyed()
@@ -4412,7 +4391,7 @@ void BaseTextEditorWidget::onCodeStylePreferencesDestroyed()
         return;
     // avoid failing disconnects, m_codeStylePreferences has already been reduced to QObject
     d->m_codeStylePreferences = 0;
-    setCodeStylePreferences(TextEditorSettings::instance()->codeStylePreferences(languageSettingsId()));
+    setCodeStyle(TextEditorSettings::instance()->codeStyle(languageSettingsId()));
 }
 
 void BaseTextEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
@@ -4527,17 +4506,18 @@ void BaseTextEditorWidget::handleBackspaceKey()
     }
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
+    const TextEditor::TypingSettings &typingSettings = d->m_document->typingSettings();
 
-    if (tabSettings.m_autoIndent && d->m_autoCompleter->autoBackspace(cursor))
+    if (typingSettings.m_autoIndent && d->m_autoCompleter->autoBackspace(cursor))
         return;
 
     bool handled = false;
-    if (tabSettings.m_smartBackspaceBehavior == TabSettings::BackspaceNeverIndents) {
+    if (typingSettings.m_smartBackspaceBehavior == TypingSettings::BackspaceNeverIndents) {
         if (cursorWithinSnippet)
             cursor.beginEditBlock();
         cursor.deletePreviousChar();
         handled = true;
-    } else if (tabSettings.m_smartBackspaceBehavior == TabSettings::BackspaceFollowsPreviousIndents) {
+    } else if (typingSettings.m_smartBackspaceBehavior == TypingSettings::BackspaceFollowsPreviousIndents) {
         QTextBlock currentBlock = cursor.block();
         int positionInBlock = pos - currentBlock.position();
         const QString blockText = currentBlock.text();
@@ -4572,7 +4552,7 @@ void BaseTextEditorWidget::handleBackspaceKey()
                 }
             }
         }
-    } else if (tabSettings.m_smartBackspaceBehavior == TabSettings::BackspaceUnindents) {
+    } else if (typingSettings.m_smartBackspaceBehavior == TypingSettings::BackspaceUnindents) {
         const QChar &c = characterAt(pos - 1);
         if (!(c == QLatin1Char(' ') || c == QLatin1Char('\t'))) {
             if (cursorWithinSnippet)
@@ -5532,6 +5512,11 @@ void BaseTextEditorWidget::setBehaviorSettings(const TextEditor::BehaviorSetting
     d->m_behaviorSettings = bs;
 }
 
+void BaseTextEditorWidget::setTypingSettings(const TypingSettings &typingSettings)
+{
+    d->m_document->setTypingSettings(typingSettings);
+}
+
 void BaseTextEditorWidget::setStorageSettings(const StorageSettings &storageSettings)
 {
     d->m_document->setStorageSettings(storageSettings);
@@ -5806,8 +5791,9 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     }
 
     const TabSettings &ts = d->m_document->tabSettings();
+    const TypingSettings &tps = d->m_document->typingSettings();
     QTextCursor cursor = textCursor();
-    if (!ts.m_autoIndent) {
+    if (!tps.m_autoIndent) {
         cursor.beginEditBlock();
         cursor.insertText(text);
         cursor.endEditBlock();

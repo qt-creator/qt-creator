@@ -44,7 +44,8 @@ QT_END_NAMESPACE
 namespace TextEditor {
     class FontSettings;
     class TabSettings;
-    class TabPreferences;
+    class CodeStyleEditor;
+    class ICodeStylePreferences;
 }
 
 namespace QmlJSTools {
@@ -62,19 +63,19 @@ public:
     explicit QmlJSCodeStylePreferencesWidget(QWidget *parent = 0);
     virtual ~QmlJSCodeStylePreferencesWidget();
 
-    void setTabPreferences(TextEditor::TabPreferences *tabPreferences);
+    void setPreferences(TextEditor::ICodeStylePreferences *preferences);
 
     QString searchKeywords() const;
 
 private slots:
-    void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    void decorateEditor(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
     void slotSettingsChanged();
     void updatePreview();
 
 private:
 
-    TextEditor::TabPreferences *m_tabPreferences;
+    TextEditor::ICodeStylePreferences *m_preferences;
     Ui::QmlJSCodeStyleSettingsPage *m_ui;
 };
 
@@ -101,8 +102,8 @@ public:
 
 private:
     QString m_searchKeywords;
-    TextEditor::TabPreferences *m_pageTabPreferences;
-    QPointer<QmlJSCodeStylePreferencesWidget> m_widget;
+    TextEditor::ICodeStylePreferences *m_pageTabPreferences;
+    QPointer<TextEditor::CodeStyleEditor> m_widget;
 };
 
 } // namespace Internal

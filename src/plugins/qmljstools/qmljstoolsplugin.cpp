@@ -37,11 +37,6 @@
 #include "qmljscodestylesettingspage.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
-#include "qmljscodestylesettingsfactory.h"
-
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/codestylepreferencesmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -102,9 +97,6 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new FunctionFilter(locatorData));
     addAutoReleasedObject(new QmlJSCodeStyleSettingsPage);
 
-    TextEditor::CodeStylePreferencesManager::instance()->registerFactory(
-                new QmlJSTools::QmlJSCodeStylePreferencesFactory());
-
     // Menus
     Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
     Core::ActionContainer *mqmljstools = am->createMenu(Constants::M_TOOLS_QMLJS);
@@ -125,10 +117,6 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
             this, SLOT(onTaskStarted(QString)));
     connect(core->progressManager(), SIGNAL(allTasksFinished(QString)),
             this, SLOT(onAllTasksFinished(QString)));
-
-    TextEditor::TextEditorSettings *ts = TextEditor::TextEditorSettings::instance();
-    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::QML_MIMETYPE), Constants::QML_JS_SETTINGS_ID);
-    ts->registerMimeTypeForLanguageId(QLatin1String(Constants::JS_MIMETYPE), Constants::QML_JS_SETTINGS_ID);
 
     return true;
 }

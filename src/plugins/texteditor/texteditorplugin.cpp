@@ -41,7 +41,6 @@
 #include "textfilewizard.h"
 #include "plaintexteditorfactory.h"
 #include "plaintexteditor.h"
-#include "storagesettings.h"
 #include "manager.h"
 #include "outlinefactory.h"
 #include "snippets/plaintextsnippetprovider.h"

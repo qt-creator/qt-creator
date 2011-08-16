@@ -33,7 +33,6 @@
 #include "editorsettingspropertiespage.h"
 #include "editorconfiguration.h"
 #include "project.h"
-#include <texteditor/tabpreferences.h>
 
 #include <QtCore/QTextCodec>
 
@@ -77,6 +76,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
     connect(m_ui.globalSelector, SIGNAL(activated(int)),
             this, SLOT(globalSettingsActivated(int)));
     connect(m_ui.restoreButton, SIGNAL(clicked()), this, SLOT(restoreDefaultValues()));
+    connect(m_ui.behaviorSettingsWidget, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
+            config, SLOT(setTypingSettings(TextEditor::TypingSettings)));
     connect(m_ui.behaviorSettingsWidget, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             config, SLOT(setStorageSettings(TextEditor::StorageSettings)));
     connect(m_ui.behaviorSettingsWidget, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
@@ -85,15 +86,14 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
             config, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
     connect(m_ui.behaviorSettingsWidget, SIGNAL(textCodecChanged(QTextCodec*)),
             config, SLOT(setTextCodec(QTextCodec*)));
-
-    m_ui.behaviorSettingsWidget->setFallbacksVisible(false);
 }
 
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 {
-    m_ui.behaviorSettingsWidget->setTabPreferences(config->tabPreferences());
+    m_ui.behaviorSettingsWidget->setCodeStyle(config->codeStyle());
     m_ui.globalSelector->setCurrentIndex(config->useGlobalSettings() ? 0 : 1);
     m_ui.behaviorSettingsWidget->setAssignedCodec(config->textCodec());
+    m_ui.behaviorSettingsWidget->setAssignedTypingSettings(config->typingSettings());
     m_ui.behaviorSettingsWidget->setAssignedStorageSettings(config->storageSettings());
     m_ui.behaviorSettingsWidget->setAssignedBehaviorSettings(config->behaviorSettings());
     m_ui.behaviorSettingsWidget->setAssignedExtraEncodingSettings(config->extraEncodingSettings());

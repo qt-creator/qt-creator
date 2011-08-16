@@ -39,7 +39,7 @@
 
 namespace TextEditor
 {
-class TabPreferences;
+class SimpleCodeStylePreferences;
 }
 
 namespace QmlJSTools
@@ -63,7 +63,7 @@ public:
 
     static QmlJSToolsSettings *instance();
 
-    TextEditor::TabPreferences *tabPreferences() const;
+    TextEditor::SimpleCodeStylePreferences *qmlJSCodeStyle() const;
 
 private:
     Internal::QmlJSToolsSettingsPrivate *d;

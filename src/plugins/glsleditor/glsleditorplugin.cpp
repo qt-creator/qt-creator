@@ -49,8 +49,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/taskhub.h>
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/storagesettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>

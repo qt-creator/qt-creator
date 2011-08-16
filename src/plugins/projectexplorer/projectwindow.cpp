@@ -167,7 +167,6 @@ void PanelsWidget::addPropertiesPanel(PropertiesPanel *panel)
     QTC_ASSERT(panel, return);
 
     const int headerRow(m_layout->rowCount() - 1);
-    m_layout->setRowStretch(headerRow, 0);
 
     // icon:
     if (!panel->icon().isNull()) {
@@ -208,9 +207,6 @@ void PanelsWidget::addPanelWidget(PropertiesPanel *panel, int row)
                                BELOW_CONTENTS_MARGIN);
     widget->setParent(m_root);
     m_layout->addWidget(widget, row, 0, 1, 2);
-
-    const int stretchRow(row + 1);
-    m_layout->setRowStretch(stretchRow, 10);
 
     m_panels.append(panel);
 }

@@ -40,11 +40,12 @@
 namespace TextEditor {
 
 class TabSettings;
+class TypingSettings;
 class StorageSettings;
 class BehaviorSettings;
 class ExtraEncodingSettings;
-
-class TabPreferences;
+class ICodeStylePreferences;
+class CodeStylePool;
 
 class BehaviorSettingsPageParameters
 {
@@ -71,19 +72,22 @@ public:
     void finish();
     bool matches(const QString &s) const;
 
+    ICodeStylePreferences *codeStyle() const;
+    CodeStylePool *codeStylePool() const;
+    const TypingSettings &typingSettings() const;
     const StorageSettings &storageSettings() const;
     const BehaviorSettings &behaviorSettings() const;
     const ExtraEncodingSettings &extraEncodingSettings() const;
 
-    TabPreferences *tabPreferences() const;
-
 signals:
+    void typingSettingsChanged(const TextEditor::TypingSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
 
 private:
-    void settingsFromUI(StorageSettings *storageSettings,
+    void settingsFromUI(TypingSettings *typingSettings,
+                        StorageSettings *storageSettings,
                         BehaviorSettings *behaviorSettings,
                         ExtraEncodingSettings *extraEncodingSettings) const;
     void settingsToUI();

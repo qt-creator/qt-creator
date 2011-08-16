@@ -40,9 +40,10 @@
 #include <texteditor/snippets/isnippetprovider.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/tabpreferences.h>
+#include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/codestyleeditor.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmljseditor/qmljseditorconstants.h>
@@ -59,7 +60,7 @@ namespace Internal {
 
 QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent) :
     QWidget(parent),
-    m_tabPreferences(0),
+    m_preferences(0),
     m_ui(new Ui::QmlJSCodeStyleSettingsPage)
 {
     m_ui->setupUi(this);
@@ -72,10 +73,11 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent
             break;
         }
     }
-    TextEditor::TextEditorSettings *settings = TextEditorSettings::instance();
-    setFontSettings(settings->fontSettings());
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-       this, SLOT(setFontSettings(TextEditor::FontSettings)));
+
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
+    decorateEditor(textEditorSettings->fontSettings());
+    connect(textEditorSettings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+       this, SLOT(decorateEditor(TextEditor::FontSettings)));
 
     setVisualizeWhitespace(true);
 
@@ -87,12 +89,13 @@ QmlJSCodeStylePreferencesWidget::~QmlJSCodeStylePreferencesWidget()
     delete m_ui;
 }
 
-void QmlJSCodeStylePreferencesWidget::setTabPreferences(TextEditor::TabPreferences *tabPreferences)
+void QmlJSCodeStylePreferencesWidget::setPreferences(TextEditor::ICodeStylePreferences *preferences)
 {
-    m_tabPreferences = tabPreferences;
-    m_ui->tabPreferencesWidget->setTabPreferences(tabPreferences);
-    connect(m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
-            this, SLOT(slotSettingsChanged()));
+    m_preferences = preferences;
+    m_ui->tabPreferencesWidget->setPreferences(preferences);
+    if (m_preferences)
+        connect(m_preferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
+                this, SLOT(slotSettingsChanged()));
     updatePreview();
 }
 
@@ -108,9 +111,21 @@ QString QmlJSCodeStylePreferencesWidget::searchKeywords() const
     return rc;
 }
 
-void QmlJSCodeStylePreferencesWidget::setFontSettings(const TextEditor::FontSettings &fontSettings)
+void QmlJSCodeStylePreferencesWidget::decorateEditor(const TextEditor::FontSettings &fontSettings)
 {
-    m_ui->previewTextEdit->setFont(fontSettings.font());
+    const ISnippetProvider *provider = 0;
+    const QList<ISnippetProvider *> &providers =
+        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
+    foreach (const ISnippetProvider *current, providers) {
+        if (current->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID)) {
+            provider = current;
+            break;
+        }
+    }
+
+    m_ui->previewTextEdit->setFontSettings(fontSettings);
+    if (provider)
+        provider->decorateEditor(m_ui->previewTextEdit);
 }
 
 void QmlJSCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
@@ -129,9 +144,9 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
 {
     QTextDocument *doc = m_ui->previewTextEdit->document();
 
-    const TextEditor::TabSettings &ts = m_tabPreferences
-            ? m_tabPreferences->currentSettings()
-            : TextEditorSettings::instance()->tabPreferences()->settings();
+    const TextEditor::TabSettings &ts = m_preferences
+            ? m_preferences->currentTabSettings()
+            : TextEditorSettings::instance()->codeStyle()->tabSettings();
     m_ui->previewTextEdit->setTabSettings(ts);
     QtStyleCodeFormatter formatter(ts);
     formatter.invalidateCache(doc);
@@ -140,9 +155,7 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
     QTextCursor tc = m_ui->previewTextEdit->textCursor();
     tc.beginEditBlock();
     while (block.isValid()) {
-        int depth = formatter.indentFor(block);
-        ts.indentLine(block, depth);
-        formatter.updateLineStateChange(block);
+        m_ui->previewTextEdit->indenter()->indentBlock(doc, block, QChar::Null, ts);
 
         block = block.next();
     }
@@ -189,22 +202,17 @@ QIcon QmlJSCodeStyleSettingsPage::categoryIcon() const
 
 QWidget *QmlJSCodeStyleSettingsPage::createPage(QWidget *parent)
 {
-    m_widget = new QmlJSCodeStylePreferencesWidget(parent);
+    TextEditor::SimpleCodeStylePreferences *originalTabPreferences
+            = QmlJSToolsSettings::instance()->qmlJSCodeStyle();
+    m_pageTabPreferences = new TextEditor::SimpleCodeStylePreferences(m_widget);
+    m_pageTabPreferences->setDelegatingPool(originalTabPreferences->delegatingPool());
+    m_pageTabPreferences->setTabSettings(originalTabPreferences->tabSettings());
+    m_pageTabPreferences->setCurrentDelegate(originalTabPreferences->currentDelegate());
+    m_pageTabPreferences->setId(originalTabPreferences->id());
+    TextEditorSettings *settings = TextEditorSettings::instance();
+    m_widget = new CodeStyleEditor(settings->codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID),
+                                   m_pageTabPreferences, parent);
 
-    TextEditor::TabPreferences *originalTabPreferences
-            = QmlJSToolsSettings::instance()->tabPreferences();
-    QList<TextEditor::IFallbackPreferences *> originalTabFallbacks = originalTabPreferences->fallbacks();
-    m_pageTabPreferences = new TextEditor::TabPreferences(originalTabFallbacks, m_widget);
-    for (int i = 0; i < originalTabFallbacks.count(); i++) {
-        TextEditor::IFallbackPreferences *fallback = originalTabFallbacks.at(i);
-        m_pageTabPreferences->setFallbackEnabled(fallback, originalTabPreferences->isFallbackEnabled(fallback));
-    }
-    m_pageTabPreferences->setSettings(originalTabPreferences->settings());
-    m_pageTabPreferences->setCurrentFallback(originalTabPreferences->currentFallback());
-    m_widget->setTabPreferences(m_pageTabPreferences);
-
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
@@ -213,14 +221,14 @@ void QmlJSCodeStyleSettingsPage::apply()
     if (m_widget) {
         QSettings *s = Core::ICore::instance()->settings();
 
-        TextEditor::TabPreferences *originalTabPreferences = QmlJSToolsSettings::instance()->tabPreferences();
-        if (originalTabPreferences->settings() != m_pageTabPreferences->settings()) {
-            originalTabPreferences->setSettings(m_pageTabPreferences->settings());
+        TextEditor::SimpleCodeStylePreferences *originalTabPreferences = QmlJSToolsSettings::instance()->qmlJSCodeStyle();
+        if (originalTabPreferences->tabSettings() != m_pageTabPreferences->tabSettings()) {
+            originalTabPreferences->setTabSettings(m_pageTabPreferences->tabSettings());
             if (s)
                 originalTabPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
         }
-        if (originalTabPreferences->currentFallback() != m_pageTabPreferences->currentFallback()) {
-            originalTabPreferences->setCurrentFallback(m_pageTabPreferences->currentFallback());
+        if (originalTabPreferences->currentDelegate() != m_pageTabPreferences->currentDelegate()) {
+            originalTabPreferences->setCurrentDelegate(m_pageTabPreferences->currentDelegate());
             if (s)
                 originalTabPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
         }

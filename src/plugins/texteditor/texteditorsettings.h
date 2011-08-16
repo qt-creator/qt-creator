@@ -47,14 +47,16 @@ namespace TextEditor {
 class BaseTextEditorWidget;
 class FontSettings;
 class TabSettings;
+class TypingSettings;
 class StorageSettings;
 class BehaviorSettings;
 class DisplaySettings;
 class CompletionSettings;
 class HighlighterSettings;
 class ExtraEncodingSettings;
-class TabPreferences;
-class IFallbackPreferences;
+class ICodeStylePreferences;
+class ICodeStylePreferencesFactory;
+class CodeStylePool;
 
 namespace Internal {
 class TextEditorSettingsPrivate;
@@ -78,6 +80,7 @@ public:
     void initializeEditor(BaseTextEditorWidget *editor);
 
     const FontSettings &fontSettings() const;
+    const TypingSettings &typingSettings() const;
     const StorageSettings &storageSettings() const;
     const BehaviorSettings &behaviorSettings() const;
     const DisplaySettings &displaySettings() const;
@@ -87,20 +90,25 @@ public:
 
     void setCompletionSettings(const TextEditor::CompletionSettings &);
 
-    TabPreferences *tabPreferences() const;
-    TabPreferences *tabPreferences(const QString &languageId) const;
-    QMap<QString, TabPreferences *> languageTabPreferences() const;
-    void registerLanguageTabPreferences(const QString &languageId, TabPreferences *prefs);
+    ICodeStylePreferencesFactory *codeStyleFactory(const QString &languageId) const;
+    QMap<QString, ICodeStylePreferencesFactory *> codeStyleFactories() const;
+    void registerCodeStyleFactory(ICodeStylePreferencesFactory *codeStyleFactory);
 
-    IFallbackPreferences *codeStylePreferences(const QString &languageId) const;
-    QMap<QString, IFallbackPreferences *> languageCodeStylePreferences() const;
-    void registerLanguageCodeStylePreferences(const QString &languageId, IFallbackPreferences *prefs);
+    CodeStylePool *codeStylePool() const;
+    CodeStylePool *codeStylePool(const QString &languageId) const;
+    void registerCodeStylePool(const QString &languageId, CodeStylePool *pool);
+
+    ICodeStylePreferences *codeStyle() const;
+    ICodeStylePreferences *codeStyle(const QString &languageId) const;
+    QMap<QString, ICodeStylePreferences *> codeStyles() const;
+    void registerCodeStyle(const QString &languageId, ICodeStylePreferences *prefs);
 
     void registerMimeTypeForLanguageId(const QString &mimeType, const QString &languageId);
     QString languageId(const QString &mimeType) const;
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);
+    void typingSettingsChanged(const TextEditor::TypingSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);

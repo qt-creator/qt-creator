@@ -33,7 +33,6 @@
 #include "userfileaccessor.h"
 
 #include "buildconfiguration.h"
-#include "persistentsettings.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
@@ -44,6 +43,7 @@
 #include <coreplugin/ifile.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/persistentsettings.h>
 
 #include <QtCore/QFile>
 #include <QtGui/QApplication>
@@ -51,6 +51,8 @@
 #include <QtGui/QMessageBox>
 
 using namespace ProjectExplorer;
+using Utils::PersistentSettingsReader;
+using Utils::PersistentSettingsWriter;
 
 namespace {
 

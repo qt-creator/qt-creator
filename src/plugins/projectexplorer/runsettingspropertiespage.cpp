@@ -92,7 +92,13 @@ bool RunSettingsPanelFactory::supports(Target *target)
 PropertiesPanel *RunSettingsPanelFactory::createPanel(Target *target)
 {
     PropertiesPanel *panel = new PropertiesPanel;
-    panel->setWidget(new RunSettingsWidget(target));
+    QWidget *w = new QWidget();
+    QVBoxLayout *l = new QVBoxLayout(w);
+    QWidget *b = new RunSettingsWidget(target);
+    l->addWidget(b);
+    l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    l->setContentsMargins(QMargins());
+    panel->setWidget(w);
     panel->setIcon(QIcon(":/projectexplorer/images/RunSettings.png"));
     panel->setDisplayName(QCoreApplication::translate("RunSettingsPanel", "Run Settings"));
     return panel;

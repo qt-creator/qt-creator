@@ -72,7 +72,7 @@ public:
             ProjectExplorer::actualTabSettings(fileName, textEditor);
         // TODO: add similar method like above one
         CppTools::QtStyleCodeFormatter codeFormatter(tabSettings,
-            CppToolsSettings::instance()->cppCodeStylePreferences()->settings());
+            CppToolsSettings::instance()->cppCodeStyle()->codeStyleSettings());
         codeFormatter.updateStateUntil(block);
 
         do {
