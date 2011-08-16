@@ -2418,14 +2418,6 @@ QString fooxx()
     return "bababa";
 }
 
-int testReference()
-{
-    QString a = "hello";
-    const QString &b = fooxx();
-    const QString c = "world";
-    return a.size() + b.size() + c.size();
-}
-
 
 namespace basic {
 
@@ -2645,6 +2637,30 @@ namespace basic {
         dummyStatement(&i, &d, &s);
     }
 
+    void testReference1()
+    {
+        int a = 43;
+        const int &b = a;
+        typedef int &Ref;
+        const int c = 44;
+        const Ref d = a;
+        // <=== Break here.
+        dummyStatement(&a, &b);
+        dummyStatement(&c, &d);
+    }
+
+    void testReference2()
+    {
+        QString a = "hello";
+        const QString &b = fooxx();
+        typedef QString &Ref;
+        const QString c = "world";
+        const Ref d = a;
+        // <=== Break here.
+        dummyStatement(&a, &b);
+        dummyStatement(&c, &d);
+    }
+
     void testBasic()
     {
         testChar();
@@ -2658,6 +2674,8 @@ namespace basic {
         testStringWithNewline();
         testMemoryView();
         testColoredMemoryView();
+        testReference1();
+        testReference2();
     }
 
 } // namespace basic
@@ -3290,11 +3308,14 @@ namespace bug5799 {
         s2.m1 = 5;
         S4 s4;
         s4.m1 = 5;
-        S1 arr[10];
+        S1 a1[10];
+        typedef S1 Array[10];
+        Array a2;
         // <=== Break here.
         // Expand s2 and s4.
         // Check there is no <unavailable synchronous data>
-        dummyStatement(&s2, &s4, &arr);
+        dummyStatement(&s2, &s4);
+        dummyStatement(&a1, &a2);
     }
 
 } // namespace bug5799
@@ -3406,7 +3427,6 @@ int main(int argc, char *argv[])
     testPeekAndPoke3();
     testFunctionPointer();
     testAnonymous();
-    testReference();
     //testEndlessLoop();
     //testEndlessRecursion();
     testQStack();

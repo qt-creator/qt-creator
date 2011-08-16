@@ -1333,16 +1333,19 @@ class Dumper:
 
         value = item.value
         realtype = value.type
-        type = realtype;
+        type = value.type.unqualified()
         format = self.itemFormat(item)
 
-        if type.code == gdb.TYPE_CODE_REF:
+        typedefStrippedType = stripTypedefs(type)
+
+        if typedefStrippedType.code == gdb.TYPE_CODE_REF:
             try:
                 # This throws "RuntimeError: Attempt to dereference a
                 # generic pointer." with MinGW's gcc 4.5 when it "identifies"
                 # a "QWidget &" as "void &".
                 type = type.target()
-                value = value.cast(type)
+                typedefStrippedType = typedefStrippedType.target()
+                value = value.cast(typedefStrippedType)
                 item.value = value
             except RuntimeError:
                 value = item.value
@@ -1371,8 +1374,6 @@ class Dumper:
                 return
             except:
                 pass
-
-        typedefStrippedType = stripTypedefs(type)
 
         if typedefStrippedType.code == gdb.TYPE_CODE_INT:
             if self.alienSource and str(type) == "unsigned long long":
@@ -1404,7 +1405,7 @@ class Dumper:
             self.putNumChild(0)
             return
 
-        if value.type.code == gdb.TYPE_CODE_ARRAY:
+        if typedefStrippedType.code == gdb.TYPE_CODE_ARRAY:
             targettype = realtype.target()
             self.putAddress(value.address)
             self.putType(realtype)
@@ -1603,9 +1604,9 @@ class Dumper:
         #warn("INAME: %s " % item.iname)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
-        fields = extractFields(type)
+        fields = extractFields(typedefStrippedType)
 
-        self.putType(type)
+        self.putType(realtype)
         try:
             self.putAddress(item.value.address)
         except:
