@@ -136,6 +136,18 @@
 
     For more information on setting up debugger, see \l{Setting Up Debugger}.
 
+    \bold {How do I generate a core file in Qt Creator?}
+
+    To trigger the GDB command that generates a core file while debugging,
+    select \gui {Window > Views > Debugger Log}. In the \gui Command field,
+    type \c gcore and press \key Enter. The core file is created in the
+    current working directory. You can specify another location for the file,
+    including a relative or absolute path, as an argument of the command.
+
+    To generate a temporary core file, select \gui {Create Snapshot} in the
+    context menu in the \gui Snapshot view. The core file is deleted when you
+    stop debugging.
+
     \section1 Code Editor Questions
 
     \bold {How can I get code-completion to work on the standard headers and
