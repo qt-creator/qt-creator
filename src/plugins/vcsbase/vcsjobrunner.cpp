@@ -49,6 +49,30 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QSharedPointer>
 
+namespace {
+
+//Helper class to automatically disconnect a signal from all its receivers.
+//The disconnect occurs on destruction of the helper object.
+class DisconnectSignalHelper
+{
+public:
+    DisconnectSignalHelper(QObject *sender, const char *signal) :
+        m_sender(sender), m_signal(signal)
+    {
+    }
+
+    ~DisconnectSignalHelper()
+    {
+        QObject::disconnect(m_sender, m_signal, 0, 0);
+    }
+
+private:
+    QObject *m_sender;
+    const char *m_signal;
+};
+
+} // Anonymous namespace
+
 /*!
     \class  VCSBase::VCSJob
 
@@ -290,6 +314,11 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
         break;
     }
 
+    //the signal connection is to last only for the duration of a job/task.  next time a new
+    //output signal connection must be made
+    DisconnectSignalHelper autoDisconnectOutputSig(this, SIGNAL(output(QByteArray)));
+    Q_UNUSED(autoDisconnectOutputSig);
+
     const QStringList args = d->m_standardArguments + taskData->arguments();
     emit commandStarted(VCSBase::VCSBaseOutputWindow::msgExecutionLogEntry(taskData->workingDirectory(), d->m_binary, args));
     //infom the user of what we are going to try and perform
@@ -341,9 +370,6 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
     }
 
     vcsProcess->close();
-    //the signal connection is to last only for the duration of a job/task.  next time a new
-    //output signal connection must be made
-    disconnect(this, SIGNAL(output(QByteArray)), 0, 0);
 }
 
 } // namespace VCSBase
