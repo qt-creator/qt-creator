@@ -348,6 +348,15 @@ void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
     hasMarker = true;
 }
 
+// does consider foo(void) to have one argument
+static int declaredArgumentCount(Function *function)
+{
+    int c = function->memberCount();
+    if (c > 0 && function->memberAt(c - 1)->isBlock())
+        return c - 1;
+    return c;
+}
+
 Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
 {
     Utils::ChangeSet changes;
@@ -438,8 +447,12 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
         Control *control = sourceContext.control().data();
         Overview overview;
 
+        const unsigned sourceArgCount = declaredArgumentCount(sourceFunction);
+        const unsigned newArgCount = declaredArgumentCount(newFunction);
+        const unsigned targetArgCount = declaredArgumentCount(targetFunction);
+
         // check if parameter types or names have changed
-        const unsigned existingArgs = qMin(targetFunction->argumentCount(), newFunction->argumentCount());
+        const unsigned existingArgs = qMin(targetArgCount, newArgCount);
         ParameterDeclarationClauseAST *targetParameterDecl =
                 targetFunctionDeclarator->parameter_declaration_clause;
         ParameterDeclarationListAST *firstTargetParameterDeclIt =
@@ -454,7 +467,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
             // if new's name and type are the same as source's, forbid changes
             bool allowChangeType = true;
             const Name *replacementName = newParam->name();
-            if (i < sourceFunction->argumentCount()) {
+            if (i < sourceArgCount) {
                 Symbol *sourceParam = sourceFunction->argumentAt(i);
                 if (newParam->type().isEqualTo(sourceParam->type()))
                     allowChangeType = false;
@@ -499,15 +512,15 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
                 }
             }
         }
-        if (newFunction->argumentCount() < targetFunction->argumentCount()) {
+        if (newArgCount < targetArgCount) {
             targetParameterDeclIt = firstTargetParameterDeclIt;
             if (targetParameterDeclIt) {
-                if (newFunction->argumentCount() == 0) {
+                if (newArgCount == 0) {
                     changes.remove(matchFile->startOf(targetParameterDeclIt->firstToken()),
                                    matchFile->endOf(targetParameterDeclIt->lastToken() - 1));
                 } else {
                     // get the last valid argument
-                    for (unsigned i = 0; i < newFunction->argumentCount() - 1 && targetParameterDeclIt; ++i)
+                    for (unsigned i = 0; i < newArgCount - 1 && targetParameterDeclIt; ++i)
                         targetParameterDeclIt = targetParameterDeclIt->next;
                     if (targetParameterDeclIt) {
                         const int start = matchFile->endOf(targetParameterDeclIt->value);
@@ -516,9 +529,9 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
                     }
                 }
             }
-        } else if (newFunction->argumentCount() > targetFunction->argumentCount()) {
+        } else if (newArgCount > targetArgCount) {
             QString newParams;
-            for (unsigned i = targetFunction->argumentCount(); i < newFunction->argumentCount(); ++i) {
+            for (unsigned i = targetArgCount; i < newArgCount; ++i) {
                 Symbol *param = newFunction->argumentAt(i);
                 FullySpecifiedType type = rewriteType(param->type(), &env, control);
                 if (i != 0)
