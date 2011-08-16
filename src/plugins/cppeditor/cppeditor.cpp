@@ -87,6 +87,7 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/refactoroverlay.h>
+#include <texteditor/semantichighlighter.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <texteditor/codeassist/basicproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -461,7 +462,6 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     }
 
     m_highlightRevision = 0;
-    m_nextHighlightBlockNumber = 0;
     connect(&m_highlightWatcher, SIGNAL(resultsReadyAt(int,int)), SLOT(highlightSymbolUsages(int,int)));
     connect(&m_highlightWatcher, SIGNAL(finished()), SLOT(finishHighlightSymbolUsages()));
 
@@ -1010,68 +1010,11 @@ void CPPEditorWidget::highlightSymbolUsages(int from, int to)
     else if (m_highlighter.isCanceled())
         return; // aborted
 
-    CppHighlighter *highlighter = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
-    Q_ASSERT(highlighter);
-    QTextDocument *doc = document();
+    TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
+    QTC_ASSERT(highlighter, return);
 
-    if (m_nextHighlightBlockNumber >= doc->blockCount())
-        return;
-
-    QMap<int, QVector<SemanticInfo::Use> > chunks = CheckSymbols::chunks(m_highlighter, from, to);
-    if (chunks.isEmpty())
-        return;
-
-    QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
-
-    QMapIterator<int, QVector<SemanticInfo::Use> > it(chunks);
-    while (b.isValid() && it.hasNext()) {
-        it.next();
-        const int blockNumber = it.key();
-        Q_ASSERT(blockNumber < doc->blockCount());
-
-        while (m_nextHighlightBlockNumber < blockNumber) {
-            highlighter->setExtraAdditionalFormats(b, QList<QTextLayout::FormatRange>());
-            b = b.next();
-            ++m_nextHighlightBlockNumber;
-        }
-
-        QList<QTextLayout::FormatRange> formats;
-        foreach (const SemanticInfo::Use &use, it.value()) {
-            QTextLayout::FormatRange formatRange;
-
-            switch (use.kind) {
-            case SemanticInfo::Use::Type:
-                formatRange.format = m_typeFormat;
-                break;
-
-            case SemanticInfo::Use::Field:
-                formatRange.format = m_fieldFormat;
-                break;
-
-            case SemanticInfo::Use::Local:
-                formatRange.format = m_localFormat;
-                break;
-
-            case SemanticInfo::Use::Static:
-                formatRange.format = m_staticFormat;
-                break;
-
-            case SemanticInfo::Use::VirtualMethod:
-                formatRange.format = m_virtualMethodFormat;
-                break;
-
-            default:
-                continue;
-            }
-
-            formatRange.start = use.column - 1;
-            formatRange.length = use.length;
-            formats.append(formatRange);
-        }
-        highlighter->setExtraAdditionalFormats(b, formats);
-        b = b.next();
-        ++m_nextHighlightBlockNumber;
-    }
+    TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
+                highlighter, m_highlighter, from, to, m_semanticHighlightFormatMap);
 }
 
 void CPPEditorWidget::finishHighlightSymbolUsages()
@@ -1082,20 +1025,11 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
     else if (m_highlighter.isCanceled())
         return; // aborted
 
-    CppHighlighter *highlighter = qobject_cast<CppHighlighter*>(baseTextDocument()->syntaxHighlighter());
-    Q_ASSERT(highlighter);
-    QTextDocument *doc = document();
+    TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
+    QTC_ASSERT(highlighter, return);
 
-    if (m_nextHighlightBlockNumber >= doc->blockCount())
-        return;
-
-    QTextBlock b = doc->findBlockByNumber(m_nextHighlightBlockNumber);
-
-    while (b.isValid()) {
-        highlighter->setExtraAdditionalFormats(b, QList<QTextLayout::FormatRange>());
-        b = b.next();
-        ++m_nextHighlightBlockNumber;
-    }
+    TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
+                highlighter, m_highlighter);
 }
 
 
@@ -1777,11 +1711,16 @@ void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     m_occurrencesUnusedFormat.clearForeground();
     m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
     m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
-    m_typeFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TYPE));
-    m_localFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LOCAL));
-    m_fieldFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_FIELD));
-    m_staticFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_STATIC));
-    m_virtualMethodFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_VIRTUAL_METHOD));
+    m_semanticHighlightFormatMap[SemanticInfo::TypeUse] =
+            fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TYPE));
+    m_semanticHighlightFormatMap[SemanticInfo::LocalUse] =
+            fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_LOCAL));
+    m_semanticHighlightFormatMap[SemanticInfo::FieldUse] =
+            fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_FIELD));
+    m_semanticHighlightFormatMap[SemanticInfo::StaticUse] =
+            fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_STATIC));
+    m_semanticHighlightFormatMap[SemanticInfo::VirtualMethodUse] =
+            fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_VIRTUAL_METHOD));
     m_keywordFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_KEYWORD));
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
@@ -1921,7 +1860,6 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
                 CheckSymbols::Future f = CheckSymbols::go(semanticInfo.doc, context);
                 m_highlighter = f;
                 m_highlightRevision = semanticInfo.revision;
-                m_nextHighlightBlockNumber = 0;
                 m_highlightWatcher.setFuture(m_highlighter);
             }
         }

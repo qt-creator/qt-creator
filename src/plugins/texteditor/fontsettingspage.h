@@ -60,6 +60,8 @@ class TEXTEDITOR_EXPORT FormatDescription
 public:
     FormatDescription(const QString &id, const QString &displayName,
                       const QColor &foreground = Qt::black);
+    FormatDescription(const QString &id, const QString &displayName,
+                      const Format &format);
 
     QString id() const
     { return m_id; }

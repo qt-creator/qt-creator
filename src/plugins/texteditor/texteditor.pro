@@ -106,7 +106,8 @@ SOURCES += texteditorplugin.cpp \
     tabpreferences.cpp \
     icodestylepreferencesfactory.cpp \
     tabpreferenceswidget.cpp \
-    fallbackselectorwidget.cpp
+    fallbackselectorwidget.cpp \
+    semantichighlighter.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -217,7 +218,8 @@ HEADERS += texteditorplugin.h \
     tabpreferences.h \
     icodestylepreferencesfactory.h \
     tabpreferenceswidget.h \
-    fallbackselectorwidget.h
+    fallbackselectorwidget.h \
+    semantichighlighter.h
 
 FORMS += \
     displaysettingspage.ui \

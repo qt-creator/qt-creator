@@ -36,7 +36,8 @@ HEADERS += \
     qmljsquickfixassist.h \
     qmljscompletionassist.h \
     qmljsquickfix.h \
-    qmljssemanticinfoupdater.h
+    qmljssemanticinfoupdater.h \
+    qmljssemantichighlighter.h
 
 SOURCES += \
     qmljseditor.cpp \
@@ -66,7 +67,8 @@ SOURCES += \
     qmljsquickfixassist.cpp \
     qmljscompletionassist.cpp \
     qmljsquickfix.cpp \
-    qmljssemanticinfoupdater.cpp
+    qmljssemanticinfoupdater.cpp \
+    qmljssemantichighlighter.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.mimetypes.xml
@@ -74,7 +76,3 @@ OTHER_FILES += QmlJSEditor.mimetypes.xml
 FORMS += \
     quicktoolbarsettingspage.ui \
     qmljscomponentnamedialog.ui
-
-
-
-

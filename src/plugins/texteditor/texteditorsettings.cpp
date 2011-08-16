@@ -146,6 +146,27 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     virtualMethodFormatDescriptor.format().setItalic(true);
     formatDescriptions.append(virtualMethodFormatDescriptor);
 
+    Format qmlLocalNameFormat;
+    qmlLocalNameFormat.setItalic(true);
+    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_LOCAL_ID), tr("QML Local Id"), qmlLocalNameFormat));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_ROOT_OBJECT_PROPERTY), tr("QML Root Object Property"), qmlLocalNameFormat));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_SCOPE_OBJECT_PROPERTY), tr("QML Scope Object Property"), qmlLocalNameFormat));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_STATE_NAME), tr("QML State Name"), qmlLocalNameFormat));
+
+    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_TYPE_ID), tr("QML Type Name"), Qt::darkMagenta));
+
+    Format qmlExternalNameFormat = qmlLocalNameFormat;
+    qmlExternalNameFormat.setForeground(Qt::darkBlue);
+    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_EXTERNAL_ID), tr("QML External Id"), qmlExternalNameFormat));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_QML_EXTERNAL_OBJECT_PROPERTY), tr("QML External Object Property"), qmlExternalNameFormat));
+
+    Format jsFormat;
+    jsFormat.setForeground(QColor(Qt::darkCyan).darker());
+    jsFormat.setItalic(true);
+    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_SCOPE_VAR), tr("JavaScript Scope Var"), jsFormat));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_IMPORT_VAR), tr("JavaScript Import"), jsFormat));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_GLOBAL_VAR), tr("JavaScript Global Var"), jsFormat));
+
     formatDescriptions.append(FormatDescription(QLatin1String(C_KEYWORD), tr("Keyword"), Qt::darkYellow));
     formatDescriptions.append(FormatDescription(QLatin1String(C_OPERATOR), tr("Operator")));
     formatDescriptions.append(FormatDescription(QLatin1String(C_PREPROCESSOR), tr("Preprocessor"), Qt::darkBlue));

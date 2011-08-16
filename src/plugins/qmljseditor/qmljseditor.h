@@ -70,6 +70,7 @@ namespace Internal {
 class QmlOutlineModel;
 class SemanticInfoUpdater;
 struct SemanticInfoUpdaterSource;
+class SemanticHighlighter;
 } // namespace Internal
 
 struct QMLJSEDITOR_EXPORT Declaration
@@ -132,7 +133,6 @@ public: // attributes
     QmlJS::ContextPtr context;
     QList<Range> ranges;
     QHash<QString, QList<QmlJS::AST::SourceLocation> > idLocations;
-    QList<Declaration> declarations;
 
     // these are in addition to the parser messages in the document
     QList<QmlJS::DiagnosticMessage> semanticMessages;
@@ -251,6 +251,9 @@ private:
     bool m_updateSelectedElements;
 
     FindReferences *m_findReferences;
+    Internal::SemanticHighlighter *m_semanticHighlighter;
+
+    friend class Internal::SemanticHighlighter;
 };
 
 } // namespace QmlJSEditor

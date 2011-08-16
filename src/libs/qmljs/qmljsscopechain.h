@@ -58,6 +58,9 @@ public:
     Document::Ptr document() const;
     QList<const QmlComponentChain *> instantiatingComponents() const;
 
+    const ObjectValue *idScope() const;
+    const ObjectValue *rootObjectScope() const;
+
     // takes ownership
     void addInstantiatingComponent(const QmlComponentChain *component);
 

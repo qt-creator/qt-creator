@@ -41,6 +41,7 @@
 #include "qmljsautocompleter.h"
 #include "qmljscompletionassist.h"
 #include "qmljsquickfixassist.h"
+#include "qmljssemantichighlighter.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsevaluate.h>
@@ -658,7 +659,8 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     m_modelManager(0),
     m_contextPane(0),
     m_updateSelectedElements(false),
-    m_findReferences(new FindReferences(this))
+    m_findReferences(new FindReferences(this)),
+    m_semanticHighlighter(new SemanticHighlighter(this))
 {
     qRegisterMetaType<QmlJSEditor::SemanticInfo>("QmlJSEditor::SemanticInfo");
 
@@ -1218,6 +1220,8 @@ void QmlJSTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
     m_occurrenceRenameFormat.clearForeground();
+
+    m_semanticHighlighter->updateFontSettings(fs);
 }
 
 
@@ -1544,9 +1548,6 @@ void QmlJSTextEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     FindIdDeclarations updateIds;
     m_semanticInfo.idLocations = updateIds(doc);
 
-    FindDeclarations findDeclarations;
-    m_semanticInfo.declarations = findDeclarations(doc->ast());
-
     if (m_contextPane) {
         Node *newNode = m_semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
@@ -1563,6 +1564,10 @@ void QmlJSTextEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
     appendExtraSelectionsForMessages(&selections, m_semanticInfo.semanticMessages, document());
     setExtraSelections(CodeWarningsSelection, selections);
+
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    if (editorManager->currentEditor() == editor())
+        m_semanticHighlighter->rerun(m_semanticInfo.scopeChain());
 }
 
 void QmlJSTextEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker)

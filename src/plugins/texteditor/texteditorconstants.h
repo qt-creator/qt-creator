@@ -128,6 +128,17 @@ const char * const C_COMMENT             = "Comment";
 const char * const C_DOXYGEN_COMMENT     = "Doxygen.Comment";
 const char * const C_DOXYGEN_TAG         = "Doxygen.Tag";
 const char * const C_VISUAL_WHITESPACE   = "VisualWhitespace";
+const char * const C_QML_LOCAL_ID        = "QmlLocalId";
+const char * const C_QML_EXTERNAL_ID     = "QmlExternalId";
+const char * const C_QML_TYPE_ID         = "QmlTypeId";
+const char * const C_QML_ROOT_OBJECT_PROPERTY     = "QmlRootObjectProperty";
+const char * const C_QML_SCOPE_OBJECT_PROPERTY    = "QmlScopeObjectProperty";
+const char * const C_QML_EXTERNAL_OBJECT_PROPERTY = "QmlExternalObjectProperty";
+const char * const C_JS_SCOPE_VAR        = "JsScopeVar";
+const char * const C_JS_IMPORT_VAR       = "JsImportVar";
+const char * const C_JS_GLOBAL_VAR       = "JsGlobalVar";
+const char * const C_QML_STATE_NAME      = "QmlStateName";
+
 
 const char * const C_DISABLED_CODE       = "DisabledCode";
 

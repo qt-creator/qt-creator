@@ -56,6 +56,20 @@ QList<const QmlComponentChain *> QmlComponentChain::instantiatingComponents() co
     return m_instantiatingComponents;
 }
 
+const ObjectValue *QmlComponentChain::idScope() const
+{
+    if (!m_document)
+        return 0;
+    return m_document->bind()->idEnvironment();
+}
+
+const ObjectValue *QmlComponentChain::rootObjectScope() const
+{
+    if (!m_document)
+        return 0;
+    return m_document->bind()->rootObjectValue();
+}
+
 void QmlComponentChain::addInstantiatingComponent(const QmlComponentChain *component)
 {
     m_instantiatingComponents.append(component);
@@ -188,9 +202,9 @@ static void collectScopes(const QmlComponentChain *chain, QList<const ObjectValu
     if (!chain->document())
         return;
 
-    if (ObjectValue *root = chain->document()->bind()->rootObjectValue())
+    if (const ObjectValue *root = chain->rootObjectScope())
         target->append(root);
-    if (ObjectValue *ids = chain->document()->bind()->idEnvironment())
+    if (const ObjectValue *ids = chain->idScope())
         target->append(ids);
 }
 
@@ -294,4 +308,3 @@ void ScopeChain::makeComponentChain(
         }
     }
 }
-

@@ -297,12 +297,8 @@ private:
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;
-    QTextCharFormat m_typeFormat;
-    QTextCharFormat m_localFormat;
-    QTextCharFormat m_fieldFormat;
-    QTextCharFormat m_staticFormat;
+    QHash<int, QTextCharFormat> m_semanticHighlightFormatMap;
     QTextCharFormat m_keywordFormat;
-    QTextCharFormat m_virtualMethodFormat;
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;
@@ -320,7 +316,6 @@ private:
     QFuture<SemanticInfo::Use> m_highlighter;
     QFutureWatcher<SemanticInfo::Use> m_highlightWatcher;
     unsigned m_highlightRevision; // the editor revision that requested the highlight
-    int m_nextHighlightBlockNumber;
 
     QFuture<QList<int> > m_references;
     QFutureWatcher<QList<int> > m_referencesWatcher;

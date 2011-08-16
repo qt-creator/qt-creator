@@ -99,7 +99,7 @@ protected:
                         const Identifier *id = member->identifier();
                         unsigned line, column;
                         getTokenStartPosition(member->sourceLocation(), &line, &column);
-                        localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::Use::Local));
+                        localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::LocalUse));
                     }
                 }
             }
@@ -117,7 +117,7 @@ protected:
                     else if (!member->isGenerated() && (member->sourceLocation() < ast->firstToken() || member->enclosingScope()->isFunction())) {
                         unsigned line, column;
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
-                        localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::Use::Local));
+                        localUses[member].append(SemanticInfo::Use(line, column, id->size(), SemanticInfo::LocalUse));
                         return false;
                     }
                 }

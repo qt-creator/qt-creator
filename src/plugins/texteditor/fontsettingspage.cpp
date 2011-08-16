@@ -239,6 +239,13 @@ FormatDescription::FormatDescription(const QString &id, const QString &displayNa
     m_format.setForeground(color);
 }
 
+FormatDescription::FormatDescription(const QString &id, const QString &displayName, const Format &format) :
+    m_id(id),
+    m_displayName(displayName),
+    m_format(format)
+{
+}
+
 QColor FormatDescription::foreground() const
 {
     if (m_id == QLatin1String(Constants::C_LINE_NUMBER)) {

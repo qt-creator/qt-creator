@@ -1,0 +1,406 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+**************************************************************************/
+
+#include "qmljssemantichighlighter.h"
+
+#include "qmljseditor.h"
+
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsscopechain.h>
+#include <qmljs/qmljsscopebuilder.h>
+#include <qmljs/qmljsevaluate.h>
+#include <qmljs/qmljscontext.h>
+#include <qmljs/qmljsbind.h>
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <texteditor/syntaxhighlighter.h>
+#include <texteditor/basetextdocument.h>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/fontsettings.h>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QThreadPool>
+#include <QtCore/QFutureInterface>
+#include <QtCore/QRunnable>
+
+using namespace QmlJSEditor;
+using namespace QmlJSEditor::Internal;
+using namespace QmlJS;
+using namespace QmlJS::AST;
+
+namespace {
+
+template <typename T>
+class PriorityTask :
+        public QFutureInterface<T>,
+        public QRunnable
+{
+public:
+    typedef QFuture<T> Future;
+
+    Future start(QThread::Priority priority)
+    {
+        this->setRunnable(this);
+        this->reportStarted();
+        Future future = this->future();
+        QThreadPool::globalInstance()->start(this, priority);
+        return future;
+    }
+};
+
+static bool isIdScope(const ObjectValue *scope, const QList<const QmlComponentChain *> &chain)
+{
+    foreach (const QmlComponentChain *c, chain) {
+        if (c->idScope() == scope)
+            return true;
+        if (isIdScope(scope, c->instantiatingComponents()))
+            return true;
+    }
+    return false;
+}
+
+class CollectStateNames : protected Visitor
+{
+    QStringList m_stateNames;
+    bool m_inStateType;
+    ScopeChain m_scopeChain;
+    const QmlObjectValue *m_statePrototype;
+
+public:
+    CollectStateNames(const ScopeChain &scopeChain)
+        : m_scopeChain(scopeChain)
+    {
+        m_statePrototype = scopeChain.context()->valueOwner()->cppQmlTypes().typeByCppName(QLatin1String("QDeclarativeState"));
+    }
+
+    QStringList operator()(Node *ast)
+    {
+        m_stateNames.clear();
+        if (!m_statePrototype)
+            return m_stateNames;
+        m_inStateType = false;
+        accept(ast);
+        return m_stateNames;
+    }
+
+protected:
+    void accept(Node *ast)
+    {
+        if (ast)
+            ast->accept(this);
+    }
+
+    bool preVisit(Node *ast)
+    {
+        return ast->uiObjectMemberCast()
+                || cast<UiProgram *>(ast)
+                || cast<UiObjectInitializer *>(ast)
+                || cast<UiObjectMemberList *>(ast)
+                || cast<UiArrayMemberList *>(ast);
+    }
+
+    bool hasStatePrototype(Node *ast)
+    {
+        Bind *bind = m_scopeChain.document()->bind();
+        const ObjectValue *v = bind->findQmlObject(ast);
+        if (!v)
+            return false;
+        PrototypeIterator it(v, m_scopeChain.context());
+        while (it.hasNext()) {
+            const ObjectValue *proto = it.next();
+            const QmlObjectValue *qmlProto = dynamic_cast<const QmlObjectValue *>(proto);
+            if (!qmlProto)
+                continue;
+            if (qmlProto->metaObject() == m_statePrototype->metaObject())
+                return true;
+        }
+        return false;
+    }
+
+    bool visit(UiObjectDefinition *ast)
+    {
+        const bool old = m_inStateType;
+        m_inStateType = hasStatePrototype(ast);
+        accept(ast->initializer);
+        m_inStateType = old;
+        return false;
+    }
+
+    bool visit(UiObjectBinding *ast)
+    {
+        const bool old = m_inStateType;
+        m_inStateType = hasStatePrototype(ast);
+        accept(ast->initializer);
+        m_inStateType = old;
+        return false;
+    }
+
+    bool visit(UiScriptBinding *ast)
+    {
+        if (!m_inStateType)
+            return false;
+        if (!ast->qualifiedId || ! ast->qualifiedId->name || ast->qualifiedId->next)
+            return false;
+        if (ast->qualifiedId->name->asString() != QLatin1String("name"))
+            return false;
+
+        ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement);
+        if (!expStmt)
+            return false;
+        StringLiteral *strLit = cast<StringLiteral *>(expStmt->expression);
+        if (!strLit || !strLit->value)
+            return false;
+
+        m_stateNames += strLit->value->asString();
+
+        return false;
+    }
+};
+
+class CollectionTask :
+        public PriorityTask<SemanticHighlighter::Use>,
+        protected Visitor
+{
+public:
+    CollectionTask(const ScopeChain &scopeChain)
+        : m_scopeChain(scopeChain)
+        , m_scopeBuilder(&m_scopeChain)
+    {}
+
+protected:
+    void accept(Node *ast)
+    {
+        if (ast)
+            ast->accept(this);
+    }
+
+    void scopedAccept(Node *ast, Node *child)
+    {
+        m_scopeBuilder.push(ast);
+        accept(child);
+        m_scopeBuilder.pop();
+    }
+
+    void processName(NameId *name, SourceLocation location)
+    {
+        if (!name)
+            return;
+
+        const QString nameStr = name->asString();
+        const ObjectValue *scope = 0;
+        const Value *value = m_scopeChain.lookup(nameStr, &scope);
+        if (!value || !scope)
+            return;
+
+        SemanticHighlighter::Use use = SemanticHighlighter::makeUse(location);
+        if (QSharedPointer<const QmlComponentChain> chain = m_scopeChain.qmlComponentChain()) {
+            if (scope == chain->idScope()) {
+                use.kind = SemanticHighlighter::LocalIdType;
+            } else if (isIdScope(scope, chain->instantiatingComponents())) {
+                use.kind = SemanticHighlighter::ExternalIdType;
+            } else if (scope == chain->rootObjectScope()) {
+                use.kind = SemanticHighlighter::RootObjectPropertyType;
+            }
+        }
+
+        if (m_scopeChain.qmlTypes() == scope) {
+            use.kind = SemanticHighlighter::QmlTypeType;
+        } else if (m_scopeChain.qmlScopeObjects().contains(scope)) {
+            use.kind = SemanticHighlighter::ScopeObjectPropertyType;
+        } else if (m_scopeChain.jsScopes().contains(scope)) {
+            use.kind = SemanticHighlighter::JsScopeType;
+        } else if (m_scopeChain.jsImports() == scope) {
+            use.kind = SemanticHighlighter::JsImportType;
+        } else if (m_scopeChain.globalScope() == scope) {
+            use.kind = SemanticHighlighter::JsGlobalType;
+        }
+
+        // eliminated other possibilities, should potentially be a real check if this yields false-positives
+        if (use.kind == SemanticHighlighter::UnknownType) {
+            use.kind = SemanticHighlighter::ExternalObjectPropertyType;
+        }
+
+        reportResult(use);
+    }
+
+    bool visit(UiObjectDefinition *ast)
+    {
+        scopedAccept(ast, ast->initializer);
+        return false;
+    }
+
+    bool visit(UiObjectBinding *ast)
+    {
+        scopedAccept(ast, ast->initializer);
+        return false;
+    }
+
+    bool visit(UiScriptBinding *ast)
+    {
+        scopedAccept(ast, ast->statement);
+        return false;
+    }
+
+    bool visit(UiPublicMember *ast)
+    {
+        scopedAccept(ast, ast->statement);
+        return false;
+    }
+
+    bool visit(FunctionExpression *ast)
+    {
+        processName(ast->name, ast->identifierToken);
+        scopedAccept(ast, ast->body);
+        return false;
+    }
+
+    bool visit(FunctionDeclaration *ast)
+    {
+        return visit(static_cast<FunctionExpression *>(ast));
+    }
+
+    bool visit(VariableDeclaration *ast)
+    {
+        processName(ast->name, ast->identifierToken);
+        return true;
+    }
+
+    bool visit(IdentifierExpression *ast)
+    {
+        processName(ast->name, ast->identifierToken);
+        return false;
+    }
+
+    bool visit(StringLiteral *ast)
+    {
+        if (!ast->value)
+            return false;
+
+        const QString value = ast->value->asString();
+        if (m_stateNames.contains(value)) {
+            SemanticHighlighter::Use use = SemanticHighlighter::makeUse(
+                        ast->literalToken, SemanticHighlighter::LocalStateNameType);
+            reportResult(use);
+        }
+
+        return false;
+    }
+
+private:
+    void run()
+    {
+        Node *root = m_scopeChain.document()->ast();
+        m_stateNames = CollectStateNames(m_scopeChain)(root);
+        accept(root);
+        reportFinished();
+    }
+
+    ScopeChain m_scopeChain;
+    ScopeBuilder m_scopeBuilder;
+    QStringList m_stateNames;
+};
+
+} // anonymous namespace
+
+SemanticHighlighter::SemanticHighlighter(QmlJSTextEditorWidget *editor)
+    : QObject(editor)
+    , m_editor(editor)
+    , m_startRevision(0)
+{
+    connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)),
+            this, SLOT(applyResults(int,int)));
+    connect(&m_watcher, SIGNAL(finished()),
+            this, SLOT(finished()));
+}
+
+void SemanticHighlighter::rerun(const ScopeChain &scopeChain)
+{
+    m_watcher.cancel();
+
+    // this does not simply use QtConcurrentRun because we want a low-priority future
+    // the thread pool deletes the task when it is done
+    CollectionTask::Future f = (new CollectionTask(scopeChain))->start(QThread::LowestPriority);
+    m_startRevision = m_editor->editorRevision();
+    m_watcher.setFuture(f);
+}
+
+void SemanticHighlighter::applyResults(int from, int to)
+{
+    if (m_watcher.isCanceled())
+        return;
+    if (m_startRevision != m_editor->editorRevision())
+        return;
+
+    TextEditor::BaseTextDocument *baseTextDocument = m_editor->baseTextDocument();
+    QTC_ASSERT(baseTextDocument, return);
+    TextEditor::SyntaxHighlighter *highlighter = qobject_cast<TextEditor::SyntaxHighlighter *>(baseTextDocument->syntaxHighlighter());
+    QTC_ASSERT(highlighter, return);
+
+    TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
+                highlighter, m_watcher.future(), from, to, m_formats);
+}
+
+void SemanticHighlighter::finished()
+{
+    if (m_watcher.isCanceled())
+        return;
+    if (m_startRevision != m_editor->editorRevision())
+        return;
+
+    TextEditor::BaseTextDocument *baseTextDocument = m_editor->baseTextDocument();
+    QTC_ASSERT(baseTextDocument, return);
+    TextEditor::SyntaxHighlighter *highlighter = qobject_cast<TextEditor::SyntaxHighlighter *>(baseTextDocument->syntaxHighlighter());
+    QTC_ASSERT(highlighter, return);
+
+    TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
+                highlighter, m_watcher.future());
+}
+
+SemanticHighlighter::Use SemanticHighlighter::makeUse(const SourceLocation &location, SemanticHighlighter::UseType type)
+{
+    return Use(location.startLine, location.startColumn, location.length, type);
+}
+
+void SemanticHighlighter::updateFontSettings(const TextEditor::FontSettings &fontSettings)
+{
+    m_formats[LocalIdType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_LOCAL_ID));
+    m_formats[ExternalIdType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_EXTERNAL_ID));
+    m_formats[QmlTypeType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_TYPE_ID));
+    m_formats[RootObjectPropertyType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_ROOT_OBJECT_PROPERTY));
+    m_formats[ScopeObjectPropertyType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_SCOPE_OBJECT_PROPERTY));
+    m_formats[ExternalObjectPropertyType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_EXTERNAL_OBJECT_PROPERTY));
+    m_formats[JsScopeType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_JS_SCOPE_VAR));
+    m_formats[JsImportType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_JS_IMPORT_VAR));
+    m_formats[JsGlobalType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_JS_GLOBAL_VAR));
+    m_formats[LocalStateNameType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_STATE_NAME));
+}
+
