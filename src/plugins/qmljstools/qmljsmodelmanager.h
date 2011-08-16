@@ -69,7 +69,7 @@ public:
     void delayedInitialization();
 
     virtual WorkingCopy workingCopy() const;
-    virtual QmlJS::Snapshot snapshot() const;
+    virtual QmlJS::Snapshot snapshot(bool preferValid = true) const;
 
     virtual void updateSourceFiles(const QStringList &files,
                                    bool emitDocumentOnDiskChanged);
@@ -126,7 +126,8 @@ private:
 
     mutable QMutex m_mutex;
     Core::ICore *m_core;
-    QmlJS::Snapshot _snapshot;
+    QmlJS::Snapshot _validSnapshot;
+    QmlJS::Snapshot _newestSnapshot;
     QStringList m_allImportPaths;
     QStringList m_defaultImportPaths;
 

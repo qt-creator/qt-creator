@@ -389,9 +389,9 @@ Snapshot::~Snapshot()
 {
 }
 
-void Snapshot::insert(const Document::Ptr &document)
+void Snapshot::insert(const Document::Ptr &document, bool allowInvalid)
 {
-    if (document && (document->qmlProgram() || document->jsProgram())) {
+    if (document && (allowInvalid || document->qmlProgram() || document->jsProgram())) {
         const QString fileName = document->fileName();
         const QString path = document->path();
 

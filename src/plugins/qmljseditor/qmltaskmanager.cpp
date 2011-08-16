@@ -119,7 +119,8 @@ void QmlTaskManager::collectMessages(
                                                fileName, Constants::TASK_CATEGORY_QML_ANALYSIS);
             }
 
-            future.reportResult(result);
+            if (!result.tasks.isEmpty())
+                future.reportResult(result);
             if (future.isCanceled())
                 break;
         }
@@ -145,16 +146,15 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
 
     // abort any update that's going on already
     m_messageCollector.cancel();
-    removeAllTasks();
+    removeAllTasks(updateSemantic);
 
-    // collect all the source files in open projects
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
     // process them
     QFuture<FileErrorMessages> future =
             QtConcurrent::run<FileErrorMessages>(
-                &collectMessages, modelManager->snapshot(), modelManager->projectInfos(),
-                modelManager->importPaths(), !updateSemantic);
+                &collectMessages, modelManager->snapshot(false), modelManager->projectInfos(),
+                modelManager->importPaths(), updateSemantic);
     m_messageCollector.setFuture(future);
 }
 
@@ -198,14 +198,11 @@ void QmlTaskManager::removeTasksForFile(const QString &fileName)
     }
 }
 
-void QmlTaskManager::removeAllTasks()
+void QmlTaskManager::removeAllTasks(bool clearSemantic)
 {
-    QMapIterator<QString, QList<ProjectExplorer::Task> > it(m_docsWithTasks);
-    while (it.hasNext()) {
-        it.next();
-        foreach (const ProjectExplorer::Task &task, it.value())
-            m_taskHub->removeTask(task);
-    }
+    m_taskHub->clearTasks(Constants::TASK_CATEGORY_QML);
+    if (clearSemantic)
+        m_taskHub->clearTasks(Constants::TASK_CATEGORY_QML_ANALYSIS);
     m_docsWithTasks.clear();
 }
 

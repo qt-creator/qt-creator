@@ -76,7 +76,7 @@ private slots:
 private:
     void insertTask(const ProjectExplorer::Task &task);
     void removeTasksForFile(const QString &fileName);
-    void removeAllTasks();
+    void removeAllTasks(bool clearSemantic);
 
 private:
     class FileErrorMessages
