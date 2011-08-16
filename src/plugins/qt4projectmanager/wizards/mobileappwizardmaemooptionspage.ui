@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="appIconLabel">
      <property name="text">
-      <string>Application icon (%%w%%x%%h%%):</string>
+      <string>Application icon (64x64):</string>
      </property>
     </widget>
    </item>

@@ -70,8 +70,8 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent, co
 
     m_genericOptionsPage = new Internal::MobileAppWizardGenericOptionsPage;
     m_symbianOptionsPage = new Internal::MobileAppWizardSymbianOptionsPage;
-    m_maemoOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage(64);
-    m_harmattanOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage(80);
+    m_maemoOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage;
+    m_harmattanOptionsPage = new Internal::MobileAppWizardHarmattanOptionsPage;
 }
 
 void AbstractMobileAppWizardDialog::addMobilePages()
@@ -241,6 +241,7 @@ QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
     wdlg->m_symbianOptionsPage->setNetworkEnabled(app()->networkEnabled());
     wdlg->m_maemoOptionsPage->setPngIcon(app()->maemoPngIcon64());
     wdlg->m_harmattanOptionsPage->setPngIcon(app()->maemoPngIcon80());
+    wdlg->m_harmattanOptionsPage->setBoosterOptionEnabled(app()->canSupportMeegoBooster());
     connect(wdlg, SIGNAL(projectParametersChanged(QString, QString)),
         SLOT(useProjectPath(QString, QString)));
     foreach (QWizardPage *p, extensionPages)
@@ -259,6 +260,9 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     app()->setNetworkEnabled(wdlg->m_symbianOptionsPage->networkEnabled());
     app()->setMaemoPngIcon64(wdlg->m_maemoOptionsPage->pngIcon());
     app()->setMaemoPngIcon80(wdlg->m_harmattanOptionsPage->pngIcon());
+    if (wdlg->isHarmattanTargetSelected())
+        app()->setSupportsMeegoBooster(wdlg->isHarmattanTargetSelected()
+                                       && wdlg->m_harmattanOptionsPage->supportsBooster());
     prepareGenerateFiles(wizard, errorMessage);
     return app()->generateFiles(errorMessage);
 }

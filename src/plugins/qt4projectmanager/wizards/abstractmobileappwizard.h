@@ -48,6 +48,7 @@ namespace Internal {
 class MobileAppWizardGenericOptionsPage;
 class MobileAppWizardSymbianOptionsPage;
 class MobileAppWizardMaemoOptionsPage;
+class MobileAppWizardHarmattanOptionsPage;
 }
 
 /// \internal
@@ -82,7 +83,7 @@ private:
     Internal::MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
     Internal::MobileAppWizardSymbianOptionsPage *m_symbianOptionsPage;
     Internal::MobileAppWizardMaemoOptionsPage *m_maemoOptionsPage;
-    Internal::MobileAppWizardMaemoOptionsPage *m_harmattanOptionsPage;
+    Internal::MobileAppWizardHarmattanOptionsPage *m_harmattanOptionsPage;
     TargetSetupPage *m_targetsPage;
 
     int m_genericOptionsPageId;
