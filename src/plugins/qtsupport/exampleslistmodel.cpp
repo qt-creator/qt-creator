@@ -89,7 +89,7 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, co
                 item.hasSourceCode = !item.projectPath.isEmpty();
                 item.projectPath.prepend('/');
                 item.projectPath.prepend(projectsOffset);
-                item.imageUrl = attributes.value(QLatin1String("imagePath")).toString();
+                item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
