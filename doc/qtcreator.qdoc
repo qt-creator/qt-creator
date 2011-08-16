@@ -6501,9 +6501,8 @@
 
     \list 1
 
-        \o On the \gui Welcome page, select \gui {Choose an Example...}
-        in the \gui {Explore Qt Quick Examples} field, and then select
-        \gui {Toys > Clocks}.
+        \o On the \gui Welcome page, select the \gui {Show Examples and Demos}
+        check box, and then select \gui {Clocks} in the list of examples.
 
         \image qtcreator-gs-build-example-open.png "Selecting an example"
 
