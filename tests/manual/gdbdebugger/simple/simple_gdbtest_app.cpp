@@ -370,61 +370,6 @@ class D : public X, public Y
     int diamond;
 };
 
-void testArray()
-{
-#if 1
-    X x;
-    XX xx;
-    D diamond;
-    Q_UNUSED(diamond);
-    Foo *f = &xx;
-    Q_UNUSED(f);
-    Foo ff;
-    Q_UNUSED(ff);
-    double d[3][3];
-    for (int i = 0; i != 3; ++i)
-        for (int j = 0; j != 3; ++j)
-            d[i][j] = i + j;
-    Q_UNUSED(d);
-#endif
-
-#if 1
-    char c[20];
-    c[0] = 'a';
-    c[1] = 'b';
-    c[2] = 'c';
-    c[3] = 'd';
-    Q_UNUSED(c);
-#endif
-
-#if 1
-    QString s[20];
-    s[0] = "a";
-    s[1] = "b";
-    s[2] = "c";
-    s[3] = "d";
-    Q_UNUSED(s);
-#endif
-
-#if 1
-    QByteArray b[20];
-    b[0] = "a";
-    b[1] = "b";
-    b[2] = "c";
-    b[3] = "d";
-    Q_UNUSED(b);
-#endif
-
-#if 1
-    Foo foo[10];
-    //for (int i = 0; i != sizeof(foo)/sizeof(foo[0]); ++i) {
-    for (int i = 0; i < 5; ++i) {
-        foo[i].a = i;
-        foo[i].doit();
-    }
-#endif
-}
-
 #ifndef Q_CC_RVCT
 struct TestAnonymous
 {
@@ -2423,6 +2368,67 @@ namespace basic {
 
     // This tests display of basic types.
 
+    void testArray1()
+    {
+        X x;
+        XX xx;
+        D diamond;
+        Foo *f = &xx;
+        Foo ff;
+        double d[3][3];
+        for (int i = 0; i != 3; ++i)
+            for (int j = 0; j != 3; ++j)
+                d[i][j] = i + j;
+        // <== Break here.
+        dummyStatement(&x, &f, &d);
+        dummyStatement(&ff, &diamond);
+    }
+
+    void testArray2()
+    {
+        char c[20];
+        c[0] = 'a';
+        c[1] = 'b';
+        c[2] = 'c';
+        c[3] = 'd';
+        // <== Break here.
+        dummyStatement(&c);
+    }
+
+    void testArray3()
+    {
+        QString s[20];
+        s[0] = "a";
+        s[1] = "b";
+        s[2] = "c";
+        s[3] = "d";
+        // <== Break here.
+        dummyStatement(&s);
+    }
+
+    void testArray4()
+    {
+        QByteArray b[20];
+        b[0] = "a";
+        b[1] = "b";
+        b[2] = "c";
+        b[3] = "d";
+        // <== Break here.
+        dummyStatement(&b);
+    }
+
+    void testArray5()
+    {
+        Foo foo[10];
+        //for (int i = 0; i != sizeof(foo)/sizeof(foo[0]); ++i) {
+        for (int i = 0; i < 5; ++i) {
+            foo[i].a = i;
+            foo[i].doit();
+        }
+        // <== Break here.
+        dummyStatement(&foo);
+    }
+
     // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5326
 
     void testChar()
@@ -2663,6 +2669,11 @@ namespace basic {
 
     void testBasic()
     {
+        testArray1();
+        testArray2();
+        testArray3();
+        testArray4();
+        testArray5();
         testChar();
         testCharStar();
         testBitfields();
@@ -3463,7 +3474,6 @@ int main(int argc, char *argv[])
     testInput();
     testOutput();
     testHidden();
-    testArray();
     testCatchThrow();
     testQByteArray();
     testQByteArray2();

@@ -1329,7 +1329,6 @@ class Dumper:
         value = item.value
         realtype = value.type
         type = value.type.unqualified()
-        format = self.itemFormat(item)
 
         typedefStrippedType = stripTypedefs(type)
 
@@ -1373,6 +1372,7 @@ class Dumper:
             self.putAddress(value.address)
             self.putType(realtype)
             self.putNumChild(1)
+            format = self.itemFormat(item)
             if format == 0:
                 # Explicitly requested Latin1 formatting.
                 self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
@@ -1407,6 +1407,7 @@ class Dumper:
         #warn(" STRIPPED: %s" % nsStrippedType)
         #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
 
+        format = self.itemFormat(item)
         if self.useFancy \
                 and ((format is None) or (format >= 1)) \
                 and ((nsStrippedType in qqDumpers) \
