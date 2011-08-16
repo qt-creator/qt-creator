@@ -1398,14 +1398,6 @@ class Dumper:
             self.putNumChild(0)
             return
 
-        if isSimpleType(typedefStrippedType):
-            #warn("IS SIMPLE: %s " % type)
-            #self.putAddress(value.address)
-            self.putType(realtype)
-            self.putValue(value)
-            self.putNumChild(0)
-            return
-
         # Is this derived from QObject?
         isQObjectDerived = self.checkForQObjectBase(typedefStrippedType)
 
