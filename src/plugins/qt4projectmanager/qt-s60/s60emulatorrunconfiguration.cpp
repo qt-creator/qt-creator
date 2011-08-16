@@ -176,8 +176,14 @@ bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
 
 QString S60EmulatorRunConfiguration::executable() const
 {
+    if (!qt4Target()) 
+        return QString();
     Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
+    if (!qt4bc) 
+        return QString();
     QtSupport::BaseQtVersion *qtVersion = qt4bc->qtVersion();
+    if (!qtVersion) 
+        return QString();
     QString baseDir = qtVersion->systemRoot();
     QString qmakeBuildConfig = "urel";
     if (qt4bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
