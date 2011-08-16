@@ -192,6 +192,7 @@ public:
     QString windowTitleAddition() const;
 
     void addCloseEditorActions(QMenu *contextMenu, const QModelIndex &editorIndex);
+    void addNativeDirActions(QMenu *contextMenu, const QModelIndex &editorIndex);
 
 signals:
     void currentEditorChanged(Core::IEditor *editor);
@@ -224,6 +225,9 @@ private slots:
 
     void closeEditorFromContextMenu();
     void closeOtherEditorsFromContextMenu();
+
+    void showInGraphicalShell();
+    void openTerminal();
 
 public slots:
     void goBackInNavigationHistory();

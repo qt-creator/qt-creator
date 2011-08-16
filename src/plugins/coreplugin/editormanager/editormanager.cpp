@@ -58,6 +58,7 @@
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/fileutils.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -217,6 +218,8 @@ struct EditorManagerPrivate {
     QAction *m_closeCurrentEditorContextAction;
     QAction *m_closeAllEditorsContextAction;
     QAction *m_closeOtherEditorsContextAction;
+    QAction *m_openGraphicalShellAction;
+    QAction *m_openTerminalAction;
     QModelIndex m_contextMenuEditorIndex;
 
     Internal::OpenEditorsWindow *m_windowPopup;
@@ -254,6 +257,8 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_closeCurrentEditorContextAction(new QAction(EditorManager::tr("Close"), parent)),
     m_closeAllEditorsContextAction(new QAction(EditorManager::tr("Close All"), parent)),
     m_closeOtherEditorsContextAction(new QAction(EditorManager::tr("Close Others"), parent)),
+    m_openGraphicalShellAction(new QAction(FileUtils::msgGraphicalShellAction(), parent)),
+    m_openTerminalAction(new QAction(FileUtils::msgTerminalAction(), parent)),
     m_windowPopup(0),
     m_coreListener(0),
     m_reloadSetting(IFile::AlwaysAsk),
@@ -360,6 +365,9 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_closeAllEditorsContextAction, SIGNAL(triggered()), this, SLOT(closeAllEditors()));
     connect(m_d->m_closeCurrentEditorContextAction, SIGNAL(triggered()), this, SLOT(closeEditorFromContextMenu()));
     connect(m_d->m_closeOtherEditorsContextAction, SIGNAL(triggered()), this, SLOT(closeOtherEditorsFromContextMenu()));
+
+    connect(m_d->m_openGraphicalShellAction, SIGNAL(triggered()), this, SLOT(showInGraphicalShell()));
+    connect(m_d->m_openTerminalAction, SIGNAL(triggered()), this, SLOT(openTerminal()));
 
     // Goto Previous In History Action
     cmd = am->registerAction(m_d->m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
@@ -782,6 +790,15 @@ void EditorManager::addCloseEditorActions(QMenu *contextMenu, const QModelIndex 
     contextMenu->addAction(m_d->m_closeOtherEditorsContextAction);
 }
 
+void EditorManager::addNativeDirActions(QMenu *contextMenu, const QModelIndex &editorIndex)
+{
+    QTC_ASSERT(contextMenu, return);
+    m_d->m_openGraphicalShellAction->setEnabled(editorIndex.isValid());
+    m_d->m_openTerminalAction->setEnabled(editorIndex.isValid());
+    contextMenu->addAction(m_d->m_openGraphicalShellAction);
+    contextMenu->addAction(m_d->m_openTerminalAction);
+}
+
 void EditorManager::closeEditorFromContextMenu()
 {
     closeEditor(m_d->m_contextMenuEditorIndex);
@@ -790,6 +807,18 @@ void EditorManager::closeEditorFromContextMenu()
 void EditorManager::closeOtherEditorsFromContextMenu()
 {
     closeOtherEditors(m_d->m_contextMenuEditorIndex.data(Qt::UserRole).value<IEditor *>());
+}
+
+void EditorManager::showInGraphicalShell()
+{
+    const QString path = m_d->m_contextMenuEditorIndex.data(Qt::UserRole + 1).toString();
+    Core::Internal::FileUtils::showInGraphicalShell(ICore::instance()->mainWindow(), path);
+}
+
+void EditorManager::openTerminal()
+{
+    const QString path = QFileInfo(m_d->m_contextMenuEditorIndex.data(Qt::UserRole + 1).toString()).path();
+    Core::Internal::FileUtils::openTerminal(path);
 }
 
 void EditorManager::closeEditor(Core::IEditor *editor)

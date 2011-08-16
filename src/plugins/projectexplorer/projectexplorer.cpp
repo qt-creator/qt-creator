@@ -107,6 +107,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/variablemanager.h>
+#include <coreplugin/fileutils.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/searchresultwindow.h>
 #include <utils/consoleprocess.h>
@@ -583,13 +584,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
 
-    d->m_showInGraphicalShell = new QAction(FolderNavigationWidget::msgGraphicalShellAction(), this);
+    d->m_showInGraphicalShell = new QAction(Core::Internal::FileUtils::msgGraphicalShellAction(), this);
     cmd = am->registerAction(d->m_showInGraphicalShell, ProjectExplorer::Constants::SHOWINGRAPHICALSHELL,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 
-    d->m_openTerminalHere = new QAction(FolderNavigationWidget::msgTerminalAction(), this);
+    d->m_openTerminalHere = new QAction(Core::Internal::FileUtils::msgTerminalAction(), this);
     cmd = am->registerAction(d->m_openTerminalHere, ProjectExplorer::Constants::OPENTERMIANLHERE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
@@ -2524,14 +2525,14 @@ void ProjectExplorerPlugin::openFile()
 void ProjectExplorerPlugin::showInGraphicalShell()
 {
     QTC_ASSERT(d->m_currentNode, return)
-    FolderNavigationWidget::showInGraphicalShell(Core::ICore::instance()->mainWindow(),
-                                                 pathFor(d->m_currentNode));
+    Core::Internal::FileUtils::showInGraphicalShell(Core::ICore::instance()->mainWindow(),
+                                                    pathFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::openTerminalHere()
 {
     QTC_ASSERT(d->m_currentNode, return)
-    FolderNavigationWidget::openTerminal(directoryFor(d->m_currentNode));
+    Core::Internal::FileUtils::openTerminal(directoryFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::removeFile()

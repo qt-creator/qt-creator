@@ -90,7 +90,8 @@ SOURCES += mainwindow.cpp \
     variablechooser.cpp \
     mimetypemagicdialog.cpp \
     mimetypesettings.cpp \
-    dialogs/promptoverwritedialog.cpp
+    dialogs/promptoverwritedialog.cpp \
+    fileutils.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -182,7 +183,8 @@ HEADERS += mainwindow.h \
     variablechooser.h \
     mimetypemagicdialog.h \
     mimetypesettings.h \
-    dialogs/promptoverwritedialog.h
+    dialogs/promptoverwritedialog.h \
+    fileutils.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \
