@@ -79,8 +79,13 @@ public:
 
     virtual bool equals(const VCSBaseClientSettings &rhs) const;
 
+protected:
+    QString defaultBinary() const;
+    void setDefaultBinary(const QString &bin);
+
 private:
     QString m_binary;
+    QString m_defaultBinary;
     QStringList m_standardArguments;
     QString m_user;
     QString m_mail;

@@ -46,7 +46,7 @@ namespace Internal {
         diffIgnoreBlankLines(false)
     {
         setSettingsGroup(QLatin1String("Mercurial"));
-        setBinary(QLatin1String(Constants::MERCURIALDEFAULT));
+        setDefaultBinary(QLatin1String(Constants::MERCURIALDEFAULT));
     }
 
     MercurialSettings& MercurialSettings::operator=(const MercurialSettings& other)

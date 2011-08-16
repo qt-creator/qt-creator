@@ -47,7 +47,6 @@ enum { timeOutDefaultSeconds = 30 };
 */
 
 VCSBaseClientSettings::VCSBaseClientSettings() :
-   m_binary(),
     m_logCount(0),
     m_prompt(true),
     m_timeoutSeconds(timeOutDefaultSeconds)
@@ -59,6 +58,8 @@ VCSBaseClientSettings::~VCSBaseClientSettings()
 
 QString VCSBaseClientSettings::binary() const
 {
+    if (m_binary.isEmpty())
+        return defaultBinary(); // Fallback binary if not specified
     return m_binary;
 }
 
@@ -154,7 +155,7 @@ void VCSBaseClientSettings::writeSettings(QSettings *settings) const
 void VCSBaseClientSettings::readSettings(const QSettings *settings)
 {
     const QString keyRoot = settingsGroup() + QLatin1Char('/');
-    m_binary = settings->value(keyRoot + QLatin1String("VCS_Path"), QString()).toString();
+    m_binary = settings->value(keyRoot + QLatin1String("VCS_Path"), defaultBinary()).toString();
     m_user = settings->value(keyRoot + QLatin1String("VCS_Username"), QString()).toString();
     m_mail = settings->value(keyRoot + QLatin1String("VCS_Email"), QString()).toString();
     m_logCount = settings->value(keyRoot + QLatin1String("VCS_LogCount"), QString()).toInt();
@@ -168,4 +169,14 @@ bool VCSBaseClientSettings::equals(const VCSBaseClientSettings &rhs) const
             && m_user == rhs.m_user && m_mail == rhs.m_mail
             && m_logCount == rhs.m_logCount && m_prompt == rhs.m_prompt
             && m_timeoutSeconds == rhs.m_timeoutSeconds;
+}
+
+QString VCSBaseClientSettings::defaultBinary() const
+{
+    return m_defaultBinary;
+}
+
+void VCSBaseClientSettings::setDefaultBinary(const QString &bin)
+{
+    m_defaultBinary = bin;
 }

@@ -54,7 +54,7 @@ BazaarSettings::BazaarSettings() :
     logFormat(QLatin1String("long"))
 {
     setSettingsGroup(QLatin1String(Constants::BAZAAR));
-    setBinary(QLatin1String(Constants::BAZAARDEFAULT));
+    setDefaultBinary(QLatin1String(Constants::BAZAARDEFAULT));
 }
 
 BazaarSettings& BazaarSettings::operator=(const BazaarSettings& other)
