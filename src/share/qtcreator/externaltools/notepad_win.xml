@@ -31,11 +31,8 @@
 -->
 <externaltool id="notepad">
     <description>Opens the current file in Notepad</description>
-    <description xml:lang="de">Öffnet die aktuelle Datei in Notepad</description>
     <displayname>Edit with Notepad</displayname>
-    <displayname xml:lang="de">In Notepad öffnen</displayname>
     <category>Text</category>
-    <category xml:lang="de">Text</category>
     <executable modifiesdocument="yes">
         <path>notepad</path>
         <arguments>"%{CurrentDocument:FilePath}"</arguments>

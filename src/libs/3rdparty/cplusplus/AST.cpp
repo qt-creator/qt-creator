@@ -81,7 +81,7 @@ unsigned BaseSpecifierAST::firstToken() const
     if (access_specifier_token)
         return access_specifier_token;
     if (name)
-        name->firstToken();
+        return name->firstToken();
     // assert?
     return 0;
 }

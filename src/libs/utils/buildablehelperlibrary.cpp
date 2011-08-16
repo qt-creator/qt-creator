@@ -276,9 +276,9 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     log->append(newline);
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                             "Running %1 %2 ...\n").arg(arguments.qmakeCommand,
-                                                                       arguments.qmakeArguments.join(" ")));
+                                                                       qmakeArgs.join(" ")));
 
-    if (!runBuildProcess(proc, arguments.qmakeCommand, arguments.qmakeArguments, 30000, false, log, errorMessage))
+    if (!runBuildProcess(proc, arguments.qmakeCommand, qmakeArgs, 30000, false, log, errorMessage))
         return false;
     log->append(newline);
     if (makeFullPath.isEmpty()) {

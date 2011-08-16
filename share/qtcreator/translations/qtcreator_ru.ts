@@ -11346,6 +11346,10 @@ You can choose between stashing the changes or discarding them.</source>
         <translation>Контекстная справка</translation>
     </message>
     <message>
+        <source>Report Bug...</source>
+        <translation>Сообщить об ошибке...</translation>
+    </message>
+    <message>
         <source>Activate Index in Help mode</source>
         <translation>Показать указатель справки</translation>
     </message>
@@ -17974,10 +17978,6 @@ Please build the debugging helpers on the Qt version options page.</source>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerTool</name>
     <message>
-        <source>Attach...</source>
-        <translation>Подключить...</translation>
-    </message>
-    <message>
         <source>QML Profiler</source>
         <translation>Профилер QML</translation>
     </message>
@@ -18020,10 +18020,6 @@ Please build the debugging helpers on the Qt version options page.</source>
     <message>
         <source>Elapsed: %1 s</source>
         <translation>Прошло: %1 с</translation>
-    </message>
-    <message>
-        <source>Detach</source>
-        <translation>Отключить</translation>
     </message>
 </context>
 <context>
@@ -24258,6 +24254,10 @@ Server list was %2.</source>
 </context>
 <context>
     <name>TextEditor::BaseFileFind</name>
+    <message>
+        <source>Search</source>
+        <translation>Поиск</translation>
+    </message>
     <message>
         <source>%1 found</source>
         <translation>%1 найдено</translation>

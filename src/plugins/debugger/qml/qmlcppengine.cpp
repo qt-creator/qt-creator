@@ -413,7 +413,11 @@ void QmlCppEngine::executeJumpToLine(const ContextData &data)
 
 void QmlCppEngine::executeDebuggerCommand(const QString &command)
 {
-    d->m_cppEngine->executeDebuggerCommand(command);
+    if (d->m_qmlEngine->state() == InferiorStopOk) {
+        d->m_qmlEngine->executeDebuggerCommand(command);
+    } else {
+        d->m_cppEngine->executeDebuggerCommand(command);
+    }
 }
 
 /////////////////////////////////////////////////////////
