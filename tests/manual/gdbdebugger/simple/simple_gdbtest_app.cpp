@@ -3272,6 +3272,34 @@ namespace qc42170 {
 } // namespace qc42170
 
 
+namespace bug5799 {
+
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-5799
+
+    typedef struct { int m1; int m2; } S1;
+
+    struct S2 : S1 { };
+
+    typedef struct S3 { int m1; int m2; } S3;
+
+    struct S4 : S3 { };
+
+    void test5799()
+    {
+        S2 s2;
+        s2.m1 = 5;
+        S4 s4;
+        s4.m1 = 5;
+        S1 arr[10];
+        // <=== Break here.
+        // Expand s2 and s4.
+        // Check there is no <unavailable synchronous data>
+        dummyStatement(&s2, &s4, &arr);
+    }
+
+} // namespace bug5799
+
+
 namespace qc41700 {
 
     // http://www.qtcentre.org/threads/41700-How-to-watch-STL-containers-iterators-during-debugging
@@ -3354,6 +3382,7 @@ int main(int argc, char *argv[])
     bug4019::test4019();
     bug5106::test5106();
     bug5184::test5184();
+    bug5799::test5799();
     //bug4497::test4497();
     eigen::testEigen();
     kr::testKR();
