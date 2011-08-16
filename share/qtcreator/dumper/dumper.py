@@ -950,11 +950,6 @@ class Dumper:
         self.tooltipOnly = "tooltiponly" in options
         self.noLocals = "nolocals" in options
         self.ns = qtNamespace()
-        self.alienSource = False
-        #try:
-        #    self.alienSource = catchCliOutput("info source")[0][-3:-1]==".d"
-        #except:
-        #    self.alienSource = False
 
         #warn("NAMESPACE: '%s'" % self.ns)
         #warn("VARIABLES: %s" % varList)
@@ -1351,39 +1346,7 @@ class Dumper:
                 value = item.value
                 type = value.type
 
-        if type.code == gdb.TYPE_CODE_STRUCT and self.alienSource:
-            try:
-                # Check whether it's an array.
-                arraylen = value["length"]
-                arrayptr = value["ptr"]
-                self.putType(type)
-                self.putAddress(value.address)
-                if str(type) == "struct char[]":
-                    self.putValue(encodeCharArray(arrayptr, 100, arraylen),
-                        Hex2EncodedLatin1)
-                    self.putNumChild(0)
-                else:
-                    self.putNumChild(arraylen)
-                    self.putItemCount(arraylen)
-                    if self.isExpanded(item):
-                        with Children(self):
-                            for i in range(arraylen):
-                                v = arrayptr.dereference()
-                                self.putSubItem(Item(v, item.iname))
-                                arrayptr += 1
-                return
-            except:
-                pass
-
         if typedefStrippedType.code == gdb.TYPE_CODE_INT:
-            if self.alienSource and str(type) == "unsigned long long":
-                strlen = value % (1L<<32)
-                strptr = value / (1L<<32)
-                self.putType("string")
-                self.putAddress(value.address)
-                self.putValue(encodeCharArray(strptr, 100, strlen), Hex2EncodedLatin1)
-                self.putNumChild(0)
-                return
             self.putAddress(value.address)
             self.putType(realtype)
             self.putValue(int(value))
