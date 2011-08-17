@@ -36,12 +36,12 @@ HTML.postheader = \
     "            API Lookup</h2>\n" \
     "          <div  id=\"list001\" class=\"list\">\n" \
     "          <ul id=\"ul001\" >\n" \
-    "              <li class=\"defaultLink\"><a href=\"classes.html\">Class index</a></li>\n" \
-    "              <li class=\"defaultLink\"><a href=\"functions.html\">Function index</a></li>\n" \
-    "              <li class=\"defaultLink\"><a href=\"modules.html\">Modules</a></li>\n" \
-    "              <li class=\"defaultLink\"><a href=\"namespaces.html\">Namespaces</a></li>\n" \
-    "              <li class=\"defaultLink\"><a href=\"qtglobal.html\">Global Declarations</a></li>\n" \
-    "              <li class=\"defaultLink\"><a href=\"qdeclarativeelements.html\">QML elements</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/classes.html">Class index</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/functions.html">Function index</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/modules.html">Modules</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/namespaces.html">Namespaces</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/qtglobal.html">Global Declarations</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/qdeclarativeelements.html">QML elements</a></li>\n" \
     "            </ul> \n" \
     "          </div>\n" \
     "        </div>\n" \
@@ -50,13 +50,13 @@ HTML.postheader = \
     "            Qt Topics</h2>\n" \
     "          <div id=\"list002\" class=\"list\">\n" \
     "            <ul id=\"ul002\" >\n" \
-    "               <li class=\"defaultLink\"><a href=\"qt-basic-concepts.html\">Programming with Qt</a></li> \n" \
-    "               <li class=\"defaultLink\"><a href=\"qtquick.html\">Device UIs &amp; Qt Quick</a></li> \n" \
-    "               <li class=\"defaultLink\"><a href=\"qt-gui-concepts.html\">UI Design with Qt</a></li> \n" \
-    "               <li class=\"defaultLink\"><a href=\"developing-with-qt.html\">Cross-platform and Platform-specific</a></li> \n" \
-    "               <li class=\"defaultLink\"><a href=\"platform-specific.html\">Platform-specific info</a></li> \n" \
-    "               <li class=\"defaultLink\"><a href=\"technology-apis.html\">Qt and Key Technologies</a></li> \n" \
-    "               <li class=\"defaultLink\"><a href=\"best-practices.html\">How-To's and Best Practices</a></li> \n" \
+    "               <li><a href="http://doc.qt.nokia.com/4.7/qt-basic-concepts.html">Programming with Qt</a></li> \n" \
+    "               <li><a href="http://doc.qt.nokia.com/4.7/qtquick.html">Device UIs &amp; Qt Quick</a></li> \n" \
+    "               <li><a href="http://doc.qt.nokia.com/4.7/qt-gui-concepts.html">UI Design with Qt</a></li> \n" \
+    "               <li><a href="http://doc.qt.nokia.com/4.7/developing-with-qt.html">Cross-platform and Platform-specific</a></li> \n" \
+    "               <li><a href="http://doc.qt.nokia.com/4.7/platform-specific.html">Platform-specific info</a></li> \n" \
+    "               <li><a href="http://doc.qt.nokia.com/4.7/technology-apis.html">Qt and Key Technologies</a></li> \n" \
+    "               <li><a href="http://doc.qt.nokia.com/4.7/best-practices.html">How-To's and Best Practices</a></li> \n" \
     "            </ul>  \n" \
     "          </div>\n" \
     "        </div>\n" \
@@ -65,10 +65,10 @@ HTML.postheader = \
     "            Examples</h2>\n" \
     "          <div id=\"list003\" class=\"list\">\n" \
     "        <ul id=\"ul003\">\n" \
-    "              <li class=\"defaultLink\"><a href=\"all-examples.html\">Examples</a></li>\n" \
-    "              <li class=\"defaultLink\"><a href=\"tutorials.html\">Tutorials</a></li>\n" \
-    "              <li class=\"defaultLink\"><a href=\"demos.html\">Demos</a></li>\n" \
-    "              <li class=\"defaultLink\"><a href=\"qdeclarativeexamples.html\">QML Examples</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/all-examples.html">Examples</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/tutorials.html">Tutorials</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/demos.html">Demos</a></li>\n" \
+    "              <li><a href="http://doc.qt.nokia.com/4.7/qdeclarativeexamples.html">QML Examples</a></li>\n" \
     "            </ul> \n" \
     "          </div>\n" \
     "        </div>\n" \
