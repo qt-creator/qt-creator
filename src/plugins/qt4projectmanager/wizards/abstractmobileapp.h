@@ -57,8 +57,8 @@ struct
         AppProFile,
         DeploymentPriFile,
         SymbianSvgIconFile,
-        MaemoPngIconFile64,
-        MaemoPngIconFile80,
+        pngIconFile64,
+        pngIconFile80,
         DesktopFileFremantle,
         DesktopFileHarmattan,
         ExtendedFile
@@ -106,10 +106,10 @@ public:
         DeploymentPriOrigin,
         SymbianSvgIcon,
         SymbianSvgIconOrigin,
-        MaemoPngIcon64,
-        MaemoPngIconOrigin64,
-        MaemoPngIcon80,
-        MaemoPngIconOrigin80,
+        PngIcon64,
+        PngIconOrigin64,
+        PngIcon80,
+        PngIconOrigin80,
         ExtendedFile
     };
 
@@ -122,10 +122,10 @@ public:
     void setProjectPath(const QString &path);
     void setSymbianSvgIcon(const QString &icon);
     QString symbianSvgIcon() const;
-    void setMaemoPngIcon64(const QString &icon);
-    QString maemoPngIcon64() const;
-    void setMaemoPngIcon80(const QString &icon);
-    QString maemoPngIcon80() const;
+    void setPngIcon64(const QString &icon);
+    QString pngIcon64() const;
+    void setPngIcon80(const QString &icon);
+    QString pngIcon80() const;
     void setSymbianTargetUid(const QString &uid);
     QString symbianTargetUid() const;
     void setNetworkEnabled(bool enabled);
@@ -189,8 +189,8 @@ private:
     QString m_projectName;
     QFileInfo m_projectPath;
     QString m_symbianSvgIcon;
-    QString m_maemoPngIcon64;
-    QString m_maemoPngIcon80;
+    QString m_pngIcon64;
+    QString m_pngIcon80;
     QString m_symbianTargetUid;
     ScreenOrientation m_orientation;
     bool m_networkEnabled;

@@ -233,8 +233,8 @@ QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
     wdlg->m_genericOptionsPage->setOrientation(app()->orientation());
     wdlg->m_symbianOptionsPage->setSvgIcon(app()->symbianSvgIcon());
     wdlg->m_symbianOptionsPage->setNetworkEnabled(app()->networkEnabled());
-    wdlg->m_maemoOptionsPage->setPngIcon(app()->maemoPngIcon64());
-    wdlg->m_harmattanOptionsPage->setPngIcon(app()->maemoPngIcon80());
+    wdlg->m_maemoOptionsPage->setPngIcon(app()->pngIcon64());
+    wdlg->m_harmattanOptionsPage->setPngIcon(app()->pngIcon80());
     connect(wdlg, SIGNAL(projectParametersChanged(QString, QString)),
         SLOT(useProjectPath(QString, QString)));
     foreach (QWizardPage *p, extensionPages)
@@ -251,8 +251,8 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     app()->setSymbianTargetUid(wdlg->m_symbianOptionsPage->symbianUid());
     app()->setSymbianSvgIcon(wdlg->m_symbianOptionsPage->svgIcon());
     app()->setNetworkEnabled(wdlg->m_symbianOptionsPage->networkEnabled());
-    app()->setMaemoPngIcon64(wdlg->m_maemoOptionsPage->pngIcon());
-    app()->setMaemoPngIcon80(wdlg->m_harmattanOptionsPage->pngIcon());
+    app()->setPngIcon64(wdlg->m_maemoOptionsPage->pngIcon());
+    app()->setPngIcon80(wdlg->m_harmattanOptionsPage->pngIcon());
     prepareGenerateFiles(wizard, errorMessage);
     return app()->generateFiles(errorMessage);
 }
