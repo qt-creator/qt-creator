@@ -16,3 +16,7 @@ INCLUDEPATH += $$PWD
 } else {
     DEFINES -= QMLJSDEBUGGER
 }
+
+contains(CONFIG,qdeclarative-boostable):contains(MEEGO_EDITION,harmattan) {
+    DEFINES += HARMATTAN_BOOSTER
+}
