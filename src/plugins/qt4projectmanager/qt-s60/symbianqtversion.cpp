@@ -41,6 +41,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/pathchooser.h>
+#include <utils/environment.h>
 #include <proparser/profileevaluator.h>
 
 #include <QtCore/QCoreApplication>

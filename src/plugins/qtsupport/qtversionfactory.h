@@ -33,13 +33,17 @@
 #ifndef QTVERSIONFACTORY_H
 #define QTVERSIONFACTORY_H
 
-#include "baseqtversion.h"
 #include "qtsupport_global.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QVariantMap>
 
+QT_FORWARD_DECLARE_CLASS(QSettings)
+QT_FORWARD_DECLARE_CLASS(ProFileEvaluator)
+
 namespace QtSupport {
+
+class BaseQtVersion;
 
 class QTSUPPORT_EXPORT QtVersionFactory : public QObject
 {

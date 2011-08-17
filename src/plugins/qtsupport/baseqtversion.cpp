@@ -45,6 +45,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/persistentsettings.h>
 
+#include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 
 #include <QtCore/QDir>

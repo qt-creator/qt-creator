@@ -40,6 +40,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 #include <QtCore/QDir>
+#include <QtCore/QTextStream>
 
 using namespace Qt4ProjectManager;
 

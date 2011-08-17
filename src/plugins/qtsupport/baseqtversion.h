@@ -38,10 +38,17 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/task.h>
-#include <projectexplorer/ioutputparser.h>
-#include <utils/environment.h>
 
 #include <QtCore/QVariantMap>
+#include <QtGui/QWidget>
+
+namespace Utils {
+class Environment;
+} // namespace Utils
+
+namespace ProjectExplorer {
+class IOutputParser;
+} // namespace ProjectExplorer
 
 QT_BEGIN_NAMESPACE
 class ProFileEvaluator;

@@ -34,10 +34,8 @@
 #define GETTINGSTARTEDWELCOMEPLUGIN_H
 
 #include <utils/iwelcomepage.h>
-#include <coreplugin/icore.h>
 
-#include <QtGui/QStringListModel>
-#include <QtDeclarative/QDeclarativeItem>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;
@@ -57,7 +55,7 @@ class GettingStartedWelcomePage : public Utils::IWelcomePage
 public:
     GettingStartedWelcomePage();
 
-    QUrl pageLocation() const { return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml")); }
+    QUrl pageLocation() const;
     QString title() const { return tr("Getting Started");}
     int priority() const { return 10; }
     void facilitateQml(QDeclarativeEngine *);

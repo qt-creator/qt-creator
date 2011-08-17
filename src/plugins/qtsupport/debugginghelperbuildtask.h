@@ -41,6 +41,10 @@
 #include <QtCore/QFutureInterface>
 #include <QtCore/QMetaType>
 
+namespace ProjectExplorer {
+class ToolChain;
+} // namespace ProjectExplorer
+
 namespace QtSupport {
 class BaseQtVersion;
 

@@ -38,6 +38,7 @@
 #include <utils/fileutils.h>
 
 #include <coreplugin/coreplugin.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
@@ -105,6 +106,11 @@ private:
 GettingStartedWelcomePage::GettingStartedWelcomePage()
     : m_examplesModel(0), m_engine(0)
 {
+}
+
+QUrl GettingStartedWelcomePage::pageLocation() const
+{
+    return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"));
 }
 
 void GettingStartedWelcomePage::facilitateQml(QDeclarativeEngine *engine)

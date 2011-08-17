@@ -36,14 +36,8 @@
 #include "qtsupport_global.h"
 #include "baseqtversion.h"
 
-#include <projectexplorer/abi.h>
-
-#include <QtCore/QHash>
 #include <QtCore/QSet>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QFutureInterface>
 #include <QtCore/QStringList>
-#include <QtCore/QVariantMap>
 
 namespace Utils {
 class Environment;
@@ -56,8 +50,6 @@ class Task;
 }
 
 namespace QtSupport {
-class BaseQtVersion;
-
 namespace Internal {
 class QtOptionsPageWidget;
 class QtOptionsPage;

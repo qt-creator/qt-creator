@@ -39,10 +39,8 @@
 using namespace QtSupport;
 using ProjectExplorer::Task;
 
-namespace {
-    // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN = "^(([A-Za-z]:)?[^:]+\\.[^:]+)";
-}
+// opt. drive letter + filename: (2 brackets)
+static const char FILE_PATTERN[] = "^(([A-Za-z]:)?[^:]+\\.[^:]+)";
 
 QtParser::QtParser()
 {

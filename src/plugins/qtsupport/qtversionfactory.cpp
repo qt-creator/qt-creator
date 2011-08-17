@@ -33,6 +33,7 @@
 #include "qtversionfactory.h"
 #include "profilereader.h"
 #include "qtversionmanager.h"
+#include "baseqtversion.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <QtCore/QSettings>
