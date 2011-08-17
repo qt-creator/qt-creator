@@ -8694,7 +8694,7 @@
     typically includes information about parameters of the function in that
     frame as well as the local variables.
 
-    \image qtcreator-watcher.png "Locals and Expressions view"
+    \image qtcreator-locals-expressions.png "Locals and Expressions view"
 
     Compound variables of struct or class type are displayed as
     expandable in the view. Expand entries to show
