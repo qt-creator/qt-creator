@@ -35,10 +35,11 @@
 
 #include "coreplugin/core_global.h"
 
+QT_BEGIN_NAMESPACE
 class QWidget;
+QT_END_NAMESPACE
 
 namespace Core {
-
 namespace Internal {
 
 struct CORE_EXPORT FileUtils
