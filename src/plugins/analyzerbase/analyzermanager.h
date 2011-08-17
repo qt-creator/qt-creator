@@ -37,12 +37,12 @@
 
 #include "analyzerbase_global.h"
 #include "analyzerconstants.h"
-#include "projectexplorer/runconfiguration.h"
 
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 class QDockWidget;
+class QAction;
 QT_END_NAMESPACE
 
 namespace Utils {

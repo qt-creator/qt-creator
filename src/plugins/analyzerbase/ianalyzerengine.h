@@ -39,7 +39,6 @@
 #include "analyzerstartparameters.h"
 
 #include <projectexplorer/task.h>
-#include <utils/ssh/sshconnection.h>
 #include <utils/outputformat.h>
 
 #include <QtCore/QObject>

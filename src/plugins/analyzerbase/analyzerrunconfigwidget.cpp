@@ -41,6 +41,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QComboBox>
+#include <QtGui/QPushButton>
 
 namespace Analyzer {
 

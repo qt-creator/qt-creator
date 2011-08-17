@@ -40,8 +40,10 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QtGui/QComboBox>
-#include <QtGui/QPushButton>
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace Utils {
 class DetailsWidget;

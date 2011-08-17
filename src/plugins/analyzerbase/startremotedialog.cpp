@@ -34,9 +34,10 @@
 
 #include "ui_startremotedialog.h"
 
-#include <QtGui/QPushButton>
-
 #include <coreplugin/icore.h>
+#include <utils/ssh/sshconnection.h>
+
+#include <QtGui/QPushButton>
 
 namespace Analyzer {
 

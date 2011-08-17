@@ -37,8 +37,6 @@
 
 #include "analyzerbase_global.h"
 
-#include <utils/ssh/sshconnection.h>
-
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/task.h>
 

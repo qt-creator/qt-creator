@@ -34,7 +34,6 @@
 #define COMMONVCSSETTINGS_H
 
 #include <QtCore/QString>
-#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
