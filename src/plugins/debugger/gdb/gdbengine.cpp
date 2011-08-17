@@ -4605,7 +4605,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     //postCommand("define hookpost-stop\nprint 5\nend");
     //postCommand("define hook-call\nprint 6\nend");
     //postCommand("define hookpost-call\nprint 7\nend");
-    //postCommand("set print object on"); // works with CLI, but not MI
+    postCommand("set print object on");
     //postCommand("set step-mode on");  // we can't work with that yes
     //postCommand("set exec-done-display on");
     //postCommand("set print pretty on");
