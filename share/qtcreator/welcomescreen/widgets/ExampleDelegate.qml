@@ -34,8 +34,9 @@ import QtQuick 1.0
 import qtcomponents 1.0 as Components
 
 Rectangle {
+    property int textItemsCombinedHeight: title.paintedHeight + description.paintedHeight + tagLine.height
     id: root
-    height: Math.max(image.height-20, description.paintedHeight) + 68
+    height: textItemsCombinedHeight + 30
     color: "#00ffffff"
     property variant tags : model.tags
     signal tagClicked(string tag)
@@ -63,6 +64,8 @@ Rectangle {
         id: title
         anchors.left: parent.left
         anchors.leftMargin: 10
+        anchors.right: imageWrapper.left
+        anchors.rightMargin: 10
         anchors.top: parent.top
         anchors.topMargin: 10
         text: model.name
@@ -73,24 +76,30 @@ Rectangle {
     }
     RatingBar { id: rating; anchors.top: parent.top; anchors.topMargin: 10; anchors.right: parent.right; anchors.rightMargin: 10; rating: model.difficulty; visible: model.difficulty !== 0 }
 
-    Image {
-        property bool hideImage : model.imageUrl === "" || status === Image.Error
-        id: image
-        smooth: true
-        anchors.top: description.top
+    Item {
+        id: imageWrapper
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
         anchors.right: parent.right
+        width: 90
         anchors.rightMargin: 30
-        width: hideImage ? 0 : 90
-        height: hideImage ? 0 : 66
-        asynchronous: true
-        fillMode: Image.PreserveAspectFit
-        source: model.imageUrl !== "" ? "image://helpimage/" + encodeURI(model.imageUrl) : ""
+        Image {
+            property bool hideImage : model.imageUrl === "" || status === Image.Error
+            id: image
+            smooth: true
+            anchors.centerIn: parent
+            width: parent.width
+            height: textItemsCombinedHeight
+            asynchronous: true
+            fillMode: Image.PreserveAspectFit
+            source: model.imageUrl !== "" ? "image://helpimage/" + encodeURI(model.imageUrl) : ""
+        }
     }
 
     Text {
         id: description
         anchors.left: parent.left
-        anchors.right: image.left
+        anchors.right: imageWrapper.left
         anchors.leftMargin: 10
         anchors.top: rating.bottom
         wrapMode: Text.WordWrap
@@ -112,13 +121,15 @@ Rectangle {
         onExited: parent.state = ""
     }
 
-    Row {
+    Flow {
         id: tagLine;
+        anchors.topMargin: 5
         anchors.bottomMargin: 20
         anchors.top: description.bottom
         anchors.left: parent.left
         anchors.leftMargin: 10
         anchors.rightMargin: 26
+        anchors.right: imageWrapper.left
         spacing: 4
         Text { id: labelText; text: qsTr("Tags:") ; color: "#999"; font.pixelSize: 11}
         Repeater {
