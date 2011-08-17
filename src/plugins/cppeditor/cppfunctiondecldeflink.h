@@ -89,10 +89,12 @@ public:
     void apply(CPPEditorWidget *editor, bool jumpToMatch);
     void hideMarker(CPPEditorWidget *editor);
     void showMarker(CPPEditorWidget *editor);
-    Utils::ChangeSet changes(const CPlusPlus::Snapshot &snapshot);
+    Utils::ChangeSet changes(const CPlusPlus::Snapshot &snapshot, int targetOffset = -1);
 
     QTextCursor linkSelection;
-    int targetOffset;
+    // 1-based line and column
+    unsigned targetLine;
+    unsigned targetColumn;
     QString targetInitial;
 
     CPlusPlus::Document::Ptr sourceDocument;

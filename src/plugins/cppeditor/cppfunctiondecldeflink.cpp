@@ -174,7 +174,7 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
                 targetFile->startOf(targetParent),
                 targetEnd);
 
-    link->targetOffset = targetStart;
+    targetFile->lineAndColumn(targetStart, &link->targetLine, &link->targetColumn);
     link->targetInitial = targetInitial;
 
     link->targetFile = targetFile;
@@ -228,7 +228,8 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
 FunctionDeclDefLink::FunctionDeclDefLink()
 {
     hasMarker = false;
-    targetOffset = 0;
+    targetLine = 0;
+    targetColumn = 0;
     sourceFunction = 0;
     targetFunction = 0;
     targetDeclaration = 0;
@@ -276,12 +277,13 @@ void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
     CppTools::CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->fileName());
     if (!newTargetFile->isValid())
         return;
-    const int targetEnd = targetOffset + targetInitial.size();
-    if (targetInitial == newTargetFile->textOf(targetOffset, targetEnd)) {
-        const Utils::ChangeSet changeset = changes(snapshot);
+    const int targetStart = newTargetFile->position(targetLine, targetColumn);
+    const int targetEnd = targetStart + targetInitial.size();
+    if (targetInitial == newTargetFile->textOf(targetStart, targetEnd)) {
+        const Utils::ChangeSet changeset = changes(snapshot, targetStart);
         newTargetFile->setChangeSet(changeset);
         if (jumpToMatch)
-            newTargetFile->setOpenEditor(true, targetOffset);
+            newTargetFile->setOpenEditor(true, targetStart);
         newTargetFile->apply();
     } else {
         TextEditor::ToolTip::instance()->show(
@@ -354,7 +356,7 @@ static int declaredArgumentCount(Function *function)
     return c;
 }
 
-Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
+Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffset)
 {
     Utils::ChangeSet changes;
 
@@ -379,7 +381,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
     Function *newFunction = newDef->symbol;
     QTC_ASSERT(newFunction, return changes); // check() should always create this symbol
 
-    LookupContext sourceContext(sourceDocument, snapshot);
+    const LookupContext &sourceContext = typeOfExpression.context();
     LookupContext targetContext(targetFile->cppDocument(), snapshot);
 
     Overview overview;
@@ -571,6 +573,17 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
             cvString.prepend(QLatin1Char(' '));
             changes.insert(rparenEnd, cvString);
         }
+    }
+
+    if (targetOffset != -1) {
+        // move all change operations to have the right start offset
+        const int moveAmount = targetOffset - targetFile->startOf(targetDeclaration);
+        QList<Utils::ChangeSet::EditOp> ops = changes.operationList();
+        for (int i = 0; i < ops.size(); ++i) {
+            ops[i].pos1 += moveAmount;
+            ops[i].pos2 += moveAmount;
+        }
+        changes = Utils::ChangeSet(ops);
     }
 
     return changes;
