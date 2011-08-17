@@ -1,14 +1,32 @@
 
+cdbLoaded = False
+lldbLoaded = False
+gdbLoaded = False
+
 try:
-    import lldb_bridge
+    #import cdb_bridge
+    cdbLoaded = True
+
+except:
+    pass
+
+try:
+    #import lldb_bridge
+    lldbLoaded = True
 
 except:
     pass
 
 
-#try:
-if True:
+try:
     import gdb
+    #gdbLoaded = True
+
+    #######################################################################
+    #
+    # Infrastructure
+    #
+    #######################################################################
 
     def registerCommand(name, func):
 
@@ -111,7 +129,9 @@ if True:
                         name1 = name
                         shadowed[name] = 1
                     #warn("SYMBOL %s  (%s, %s)): " % (symbol, name, symbol.name))
-                    item = Item(0, "local", name1, name1)
+                    item = LocalItem()
+                    item.iname = "local." + name1
+                    item.name = name1
                     try:
                         item.value = frame.read_var(name, block)  # this is a gdb value
                     except:
@@ -179,7 +199,9 @@ if True:
             #warn("VARLIST: %s " % varList)
             for name in varList:
                 #warn("NAME %s " % name)
-                item = Item(0, "local", name, name)
+                item = LocalItem()
+                item.iname = "local." + name
+                item.name = name
                 try:
                     item.value = frame.read_var(name)  # this is a gdb value
                 except RuntimeError:
@@ -232,8 +254,87 @@ if True:
         removeTempFile(filename, file)
         return lines
 
+    #######################################################################
+    #
+    # Types
+    #
+    #######################################################################
 
+    PointerCode = gdb.TYPE_CODE_PTR
+    ArrayCode = gdb.TYPE_CODE_ARRAY
+    StructCode = gdb.TYPE_CODE_STRUCT
+    UnionCode = gdb.TYPE_CODE_UNION
+    EnumCode = gdb.TYPE_CODE_ENUM
+    FlagsCode = gdb.TYPE_CODE_FLAGS
+    FunctionCode = gdb.TYPE_CODE_FUNC
+    IntCode = gdb.TYPE_CODE_INT
+    FloatCode = gdb.TYPE_CODE_FLT # Parts of GDB assume that this means complex.
+    VoidCode = gdb.TYPE_CODE_VOID
+    #SetCode = gdb.TYPE_CODE_SET
+    RangeCode = gdb.TYPE_CODE_RANGE
+    StringCode = gdb.TYPE_CODE_STRING
+    #BitStringCode = gdb.TYPE_CODE_BITSTRING
+    #ErrorTypeCode = gdb.TYPE_CODE_ERROR
+    MethodCode = gdb.TYPE_CODE_METHOD
+    #MethodPointerCode = gdb.TYPE_CODE_METHODPTR
+    #MemberPointerCode = gdb.TYPE_CODE_MEMBERPTR
+    ReferenceCode = gdb.TYPE_CODE_REF
+    CharCode = gdb.TYPE_CODE_CHAR
+    BoolCode = gdb.TYPE_CODE_BOOL
+    ComplexCode = gdb.TYPE_CODE_COMPLEX # Fortran ?
+    TypedefCode = gdb.TYPE_CODE_TYPEDEF
+    NamespaceCode = gdb.TYPE_CODE_NAMESPACE
+    #Code = gdb.TYPE_CODE_DECFLOAT # Decimal floating point.
+    #Code = gdb.TYPE_CODE_MODULE # Fortran
+    #Code = gdb.TYPE_CODE_INTERNAL_FUNCTION
+
+    #######################################################################
+    #
+    # Step Command
+    #
+    #######################################################################
+
+    def sal(args):
+        (cmd, addr) = arg.split(",")
+        lines = catchCliOutput("info line *" + addr)
+        fromAddr = "0x0"
+        toAddr = "0x0"
+        for line in lines:
+            pos0from = line.find(" starts at address") + 19
+            pos1from = line.find(" ", pos0from)
+            pos0to = line.find(" ends at", pos1from) + 9
+            pos1to = line.find(" ", pos0to)
+            if pos1to > 0:
+                fromAddr = line[pos0from : pos1from]
+                toAddr = line[pos0to : pos1to]
+        gdb.execute("maint packet sal%s,%s,%s" % (cmd,fromAddr, toAddr))
+
+    registerCommand("sal", sal)
+
+
+    #######################################################################
+    #
+    # Convenience
+    #
+    #######################################################################
+
+    # Just convienience for 'python print ...'
+    class PPCommand(gdb.Command):
+        def __init__(self):
+            super(PPCommand, self).__init__("pp", gdb.COMMAND_OBSCURE)
+        def invoke(self, args, from_tty):
+            print(eval(args))
+
+    registerCommand("pp", pp)
         
+    # Just convienience for 'python print gdb.parse_and_eval(...)'
+    class PPPCommand(gdb.Command):
+        def __init__(self):
+            super(PPPCommand, self).__init__("ppp", gdb.COMMAND_OBSCURE)
+        def invoke(self, args, from_tty):
+            print(gdb.parse_and_eval(args))
 
-#except:
-#    pass
+    PPPCommand()
+
+except:
+    pass
