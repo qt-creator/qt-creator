@@ -114,7 +114,8 @@ public:
         }
     }
 
-    virtual void performChanges(QmlJSRefactoringFile *currentFile, QmlJSRefactoringChanges *refactoring)
+    virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
+                                const QmlJSRefactoringChanges &refactoring)
     {
         QString componentName = m_componentName;
         QString path = QFileInfo(fileName()).path();
@@ -142,7 +143,7 @@ public:
                 + QLatin1String("}\n");
 
         // stop if we can't create the new file
-        if (!refactoring->createFile(newFileName, txt))
+        if (!refactoring.createFile(newFileName, txt))
             return;
 
         QString replacement = componentName + QLatin1String(" {\n");
@@ -152,8 +153,9 @@ public:
 
         Utils::ChangeSet changes;
         changes.replace(start, end, replacement);
-        currentFile->change(changes);
-        currentFile->indent(Range(start, end + 1));
+        currentFile->setChangeSet(changes);
+        currentFile->appendIndentRange(Range(start, end + 1));
+        currentFile->apply();
     }
 };
 
@@ -163,13 +165,13 @@ public:
 QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(
     const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface)
 {
-    const int pos = interface->currentFile().cursor().position();
+    const int pos = interface->currentFile()->cursor().position();
 
     QList<Node *> path = interface->semanticInfo().rangePath(pos);
     for (int i = path.size() - 1; i >= 0; --i) {
         Node *node = path.at(i);
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
-            if (!interface->currentFile().isCursorOn(objDef->qualifiedTypeNameId))
+            if (!interface->currentFile()->isCursorOn(objDef->qualifiedTypeNameId))
                 return noResult();
              // check that the node is not the root node
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {

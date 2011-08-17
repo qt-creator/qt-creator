@@ -39,10 +39,9 @@
 #include <CPlusPlusForwardDeclarations.h>
 
 #include <cplusplus/CppDocument.h>
+#include <cpptools/cpprefactoringchanges.h>
 
 namespace CppTools {
-
-class CppRefactoringChanges;
 
 class CPPTOOLS_EXPORT InsertionLocation
 {
@@ -100,7 +99,7 @@ public:
     };
 
 public:
-    InsertionPointLocator(CppRefactoringChanges *refactoringChanges);
+    InsertionPointLocator(const CppRefactoringChanges &refactoringChanges);
 
     InsertionLocation methodDeclarationInClass(const QString &fileName,
                                                const CPlusPlus::Class *clazz,
@@ -109,7 +108,7 @@ public:
     QList<InsertionLocation> methodDefinition(CPlusPlus::Declaration *declaration) const;
 
 private:
-    CppRefactoringChanges *m_refactoringChanges;
+    CppRefactoringChanges m_refactoringChanges;
 };
 
 } // namespace CppTools

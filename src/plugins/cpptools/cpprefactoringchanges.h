@@ -45,14 +45,14 @@
 namespace CppTools {
 
 class CppRefactoringChanges;
+class CppRefactoringFile;
+class CppRefactoringChangesData;
+typedef QSharedPointer<CppRefactoringFile> CppRefactoringFilePtr;
+typedef QSharedPointer<const CppRefactoringFile> CppRefactoringFileConstPtr;
 
 class CPPTOOLS_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
 {
 public:
-    CppRefactoringFile();
-    CppRefactoringFile(QTextDocument *document, const QString &fileName = QString());
-    CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor);
-
     CPlusPlus::Document::Ptr cppDocument() const;
     void setCppDocument(CPlusPlus::Document::Ptr document);
 
@@ -78,10 +78,12 @@ public:
     QString textOf(const CPlusPlus::AST *ast) const;
 
 protected:
-    CppRefactoringFile(const QString &fileName, CppRefactoringChanges *refactoringChanges);
+    CppRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data);
+    CppRefactoringFile(QTextDocument *document, const QString &fileName);
+    CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor);
 
-private:
-    CppRefactoringChanges *refactoringChanges() const;
+    CppRefactoringChangesData *data() const;
+    virtual void fileChanged();
 
     mutable CPlusPlus::Document::Ptr m_cppDocument;
 
@@ -93,21 +95,16 @@ class CPPTOOLS_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChang
 public:
     CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot);
 
+    static CppRefactoringFilePtr file(TextEditor::BaseTextEditorWidget *editor,
+                                      const CPlusPlus::Document::Ptr &document);
+    CppRefactoringFilePtr file(const QString &fileName) const;
+    // safe to use from non-gui threads
+    CppRefactoringFileConstPtr fileNoEditor(const QString &fileName) const;
+
     const CPlusPlus::Snapshot &snapshot() const;
-    CppRefactoringFile file(const QString &fileName);
 
 private:
-    virtual void indentSelection(const QTextCursor &selection,
-                                 const QString &fileName,
-                                 const TextEditor::BaseTextEditorWidget *textEditor) const;
-    virtual void fileChanged(const QString &fileName);
-
-private:
-    CPlusPlus::Document::Ptr m_thisDocument;
-    CPlusPlus::Snapshot m_snapshot;
-    CPlusPlus::LookupContext m_context;
-    CPlusPlus::CppModelManagerInterface *m_modelManager;
-    CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
+    CppRefactoringChangesData *data() const;
 };
 
 } // namespace CppTools

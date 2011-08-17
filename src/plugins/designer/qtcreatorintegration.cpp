@@ -297,7 +297,7 @@ static void addDeclaration(const Snapshot &snapshot,
     declaration += QLatin1String(";\n");
 
     CppTools::CppRefactoringChanges refactoring(snapshot);
-    CppTools::InsertionPointLocator find(&refactoring);
+    CppTools::InsertionPointLocator find(refactoring);
     const CppTools::InsertionLocation loc = find.methodDeclarationInClass(
                 fileName, cl, CppTools::InsertionPointLocator::PrivateSlot);
 

@@ -51,6 +51,7 @@ QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSTextEditorWidget
     : DefaultAssistInterface(editor->document(), editor->position(), editor->file(), reason)
     , m_editor(editor)
     , m_semanticInfo(editor->semanticInfo())
+    , m_currentFile(QmlJSRefactoringChanges::file(m_editor, m_semanticInfo.document))
 {}
 
 QmlJSQuickFixAssistInterface::~QmlJSQuickFixAssistInterface()
@@ -61,9 +62,9 @@ const SemanticInfo &QmlJSQuickFixAssistInterface::semanticInfo() const
     return m_semanticInfo;
 }
 
-const QmlJSTools::QmlJSRefactoringFile QmlJSQuickFixAssistInterface::currentFile() const
+QmlJSRefactoringFilePtr QmlJSQuickFixAssistInterface::currentFile() const
 {
-    return QmlJSRefactoringFile(m_editor, m_semanticInfo.document);
+    return m_currentFile;
 }
 
 QWidget *QmlJSQuickFixAssistInterface::widget() const

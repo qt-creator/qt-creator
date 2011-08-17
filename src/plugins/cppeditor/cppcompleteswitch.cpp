@@ -116,15 +116,17 @@ public:
     }
 
 
-    virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
+    virtual void performChanges(const CppRefactoringFilePtr &currentFile,
+                                const CppRefactoringChanges &)
     {
         ChangeSet changes;
         int start = currentFile->endOf(compoundStatement->lbrace_token);
         changes.insert(start, QLatin1String("\ncase ")
                        + values.join(QLatin1String(":\nbreak;\ncase "))
                        + QLatin1String(":\nbreak;"));
-        currentFile->change(changes);
-        currentFile->indent(currentFile->range(compoundStatement));
+        currentFile->setChangeSet(changes);
+        currentFile->appendIndentRange(currentFile->range(compoundStatement));
+        currentFile->apply();
     }
 
     CompoundStatementAST *compoundStatement;

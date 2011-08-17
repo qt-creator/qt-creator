@@ -40,6 +40,7 @@ namespace CppTools {
     class CppModelManagerInterface;
     class CppRefactoringFile;
     class CppRefactoringChanges;
+    typedef QSharedPointer<CppRefactoringFile> CppRefactoringFilePtr;
 } // namespace CppTools
 
 namespace ExtensionSystem {
@@ -63,8 +64,8 @@ public:
     virtual void perform();
 
 protected:
-    virtual void performChanges(CppTools::CppRefactoringFile *currentFile,
-                                CppTools::CppRefactoringChanges *refactoring) = 0;
+    virtual void performChanges(const CppTools::CppRefactoringFilePtr &currentFile,
+                                const CppTools::CppRefactoringChanges &refactoring) = 0;
 
     QString fileName() const;
 

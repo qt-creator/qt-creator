@@ -169,7 +169,7 @@ Core::IEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int l
     Core::IEditor *editor = editorManager->openEditor(fileName, editorKind,
             flags, newEditor);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-    if (texteditor) {
+    if (texteditor && line != -1) {
         texteditor->gotoLine(line, column);
         return texteditor;
     }

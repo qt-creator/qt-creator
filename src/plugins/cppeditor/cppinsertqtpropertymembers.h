@@ -44,6 +44,7 @@ class Class;
 
 namespace TextEditor {
 class RefactoringFile;
+typedef QSharedPointer<RefactoringFile> RefactoringFilePtr;
 }
 
 namespace Utils {
@@ -83,11 +84,11 @@ private:
                   const QString &getterName, const QString &setterName, const QString &signalName,
                   const QString &storageName);
 
-        virtual void performChanges(CppTools::CppRefactoringFile *file,
-                                    CppTools::CppRefactoringChanges *refactoring);
+        virtual void performChanges(const CppTools::CppRefactoringFilePtr &file,
+                                    const CppTools::CppRefactoringChanges &refactoring);
 
     private:
-        void insertAndIndent(TextEditor::RefactoringFile *file, Utils::ChangeSet *changeSet,
+        void insertAndIndent(const TextEditor::RefactoringFilePtr &file, Utils::ChangeSet *changeSet,
                              const CppTools::InsertionLocation &loc, const QString &text);
 
         CPlusPlus::QtPropertyDeclarationAST *m_declaration;

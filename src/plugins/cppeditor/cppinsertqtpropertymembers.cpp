@@ -71,24 +71,23 @@ QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(
     if (!klass)
         return noResult();
 
-    CppRefactoringChanges refactoring(interface->snapshot());
-    const CppRefactoringFile &file = refactoring.file(interface->file()->fileName());
-    const QString propertyName = file.textOf(qtPropertyDeclaration->property_name);
+    CppRefactoringFilePtr file = interface->currentFile();
+    const QString propertyName = file->textOf(qtPropertyDeclaration->property_name);
     QString getterName;
     QString setterName;
     QString signalName;
     int generateFlags = 0;
     for (QtPropertyDeclarationItemListAST *it = qtPropertyDeclaration->property_declaration_item_list;
          it; it = it->next) {
-        const QString tokenString = file.tokenAt(it->value->item_name_token).spell();
+        const QString tokenString = file->tokenAt(it->value->item_name_token).spell();
         if (tokenString == QLatin1String("READ")) {
-            getterName = file.textOf(it->value->expression);
+            getterName = file->textOf(it->value->expression);
             generateFlags |= GenerateGetter;
         } else if (tokenString == QLatin1String("WRITE")) {
-            setterName = file.textOf(it->value->expression);
+            setterName = file->textOf(it->value->expression);
             generateFlags |= GenerateSetter;
         } else if (tokenString == QLatin1String("NOTIFY")) {
-            signalName = file.textOf(it->value->expression);
+            signalName = file->textOf(it->value->expression);
             generateFlags |= GenerateSignal;
         }
     }
@@ -143,7 +142,8 @@ InsertQtPropertyMembers::Operation::Operation(
     setDescription(desc);
 }
 
-void InsertQtPropertyMembers::Operation::performChanges(CppRefactoringFile *file, CppRefactoringChanges *refactoring)
+void InsertQtPropertyMembers::Operation::performChanges(const CppRefactoringFilePtr &file,
+                                                        const CppRefactoringChanges &refactoring)
 {
     InsertionPointLocator locator(refactoring);
     Utils::ChangeSet declarations;
@@ -190,13 +190,14 @@ void InsertQtPropertyMembers::Operation::performChanges(CppRefactoringFile *file
         insertAndIndent(file, &declarations, storageLoc, storageDeclaration);
     }
 
-    file->change(declarations);
+    file->setChangeSet(declarations);
+    file->apply();
 }
 
-void InsertQtPropertyMembers::Operation::insertAndIndent(RefactoringFile *file, ChangeSet *changeSet, const InsertionLocation &loc, const QString &text)
+void InsertQtPropertyMembers::Operation::insertAndIndent(const RefactoringFilePtr &file, ChangeSet *changeSet, const InsertionLocation &loc, const QString &text)
 {
     int targetPosition1 = file->position(loc.line(), loc.column());
     int targetPosition2 = qMax(0, file->position(loc.line(), 1) - 1);
     changeSet->insert(targetPosition1, loc.prefix() + text + loc.suffix());
-    file->indent(Utils::ChangeSet::Range(targetPosition2, targetPosition1));
+    file->appendIndentRange(Utils::ChangeSet::Range(targetPosition2, targetPosition1));
 }

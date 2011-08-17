@@ -51,12 +51,13 @@ public:
     virtual ~QmlJSQuickFixAssistInterface();
 
     const SemanticInfo &semanticInfo() const;
-    const QmlJSTools::QmlJSRefactoringFile currentFile() const;
+    QmlJSTools::QmlJSRefactoringFilePtr currentFile() const;
     QWidget *widget() const;
 
 private:
     QmlJSTextEditorWidget *m_editor;
     SemanticInfo m_semanticInfo;
+    QmlJSTools::QmlJSRefactoringFilePtr m_currentFile;
 };
 
 

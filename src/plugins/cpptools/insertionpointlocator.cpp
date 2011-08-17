@@ -287,7 +287,7 @@ InsertionLocation::InsertionLocation(const QString &fileName,
     , m_column(column)
 {}
 
-InsertionPointLocator::InsertionPointLocator(CppRefactoringChanges *refactoringChanges)
+InsertionPointLocator::InsertionPointLocator(const CppRefactoringChanges &refactoringChanges)
     : m_refactoringChanges(refactoringChanges)
 {
 }
@@ -297,7 +297,7 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(
     const Class *clazz,
     AccessSpec xsSpec) const
 {
-    const Document::Ptr doc = m_refactoringChanges->file(fileName).cppDocument();
+    const Document::Ptr doc = m_refactoringChanges.file(fileName)->cppDocument();
     if (doc) {
         FindInClass find(doc, clazz, xsSpec);
         return find();
@@ -434,11 +434,11 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
             target = candidate;
     }
 
-    Document::Ptr doc = m_refactoringChanges->file(target).cppDocument();
+    Document::Ptr doc = m_refactoringChanges.file(target)->cppDocument();
     if (doc.isNull())
         return result;
 
-    Snapshot simplified = m_refactoringChanges->snapshot().simplified(doc);
+    Snapshot simplified = m_refactoringChanges.snapshot().simplified(doc);
     if (Symbol *s = simplified.findMatchingDefinition(declaration)) {
         if (Function *f = s->asFunction()) {
             if (f->isConst() == declaration->type().isConst()

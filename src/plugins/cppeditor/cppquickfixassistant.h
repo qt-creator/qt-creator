@@ -44,6 +44,7 @@
 
 namespace CppTools {
 class CppRefactoringFile;
+typedef QSharedPointer<CppRefactoringFile> CppRefactoringFilePtr;
 }
 
 namespace CppEditor {
@@ -62,7 +63,7 @@ public:
     const CPlusPlus::LookupContext &context() const;
     CPPEditorWidget *editor() const;
 
-    const CppTools::CppRefactoringFile currentFile() const;
+    CppTools::CppRefactoringFilePtr currentFile() const;
 
     bool isCursorOn(unsigned tokenIndex) const;
     bool isCursorOn(const CPlusPlus::AST *ast) const;
@@ -71,6 +72,7 @@ private:
     CPPEditorWidget *m_editor;
     CppEditor::Internal::SemanticInfo m_semanticInfo;
     CPlusPlus::Snapshot m_snapshot;
+    CppTools::CppRefactoringFilePtr m_currentFile;
     CPlusPlus::LookupContext m_context;
     QList<CPlusPlus::AST *> m_path;
 };

@@ -70,9 +70,9 @@ CppQuickFixOperation::~CppQuickFixOperation()
 void CppQuickFixOperation::perform()
 {
     CppRefactoringChanges refactoring(m_interface->snapshot());
-    CppRefactoringFile current = refactoring.file(fileName());
+    CppRefactoringFilePtr current = refactoring.file(fileName());
 
-    performChanges(&current, &refactoring);
+    performChanges(current, refactoring);
 }
 
 const CppQuickFixAssistInterface *CppQuickFixOperation::assistInterface() const

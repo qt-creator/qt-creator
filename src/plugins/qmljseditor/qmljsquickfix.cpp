@@ -66,11 +66,10 @@ QmlJSQuickFixOperation::~QmlJSQuickFixOperation()
 void QmlJSQuickFixOperation::perform()
 {
     QmlJSRefactoringChanges refactoring(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>(),
-                                    //_state.snapshot());
                                         m_interface->semanticInfo().snapshot);
-    QmlJSRefactoringFile current = refactoring.file(fileName());
+    QmlJSRefactoringFilePtr current = refactoring.file(fileName());
 
-    performChanges(&current, &refactoring);
+    performChanges(current, refactoring);
 }
 
 const QmlJSQuickFixAssistInterface *QmlJSQuickFixOperation::assistInterface() const

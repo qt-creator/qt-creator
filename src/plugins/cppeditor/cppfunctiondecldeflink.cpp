@@ -42,6 +42,7 @@
 #include <cplusplus/TranslationUnit.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
+#include <cpptools/cpprefactoringchanges.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/tooltip/tooltip.h>
 #include <texteditor/tooltip/tipcontents.h>
@@ -76,10 +77,11 @@ QTextCursor FunctionDeclDefLinkFinder::scannedSelection() const
 }
 
 // parent is either a FunctionDefinitionAST or a SimpleDeclarationAST
-static bool findDeclOrDef(const Document::Ptr &doc, const QTextCursor &cursor,
+// line and column are 1-based
+static bool findDeclOrDef(const Document::Ptr &doc, int line, int column,
                           DeclarationAST **parent, FunctionDeclaratorAST **funcDecl)
 {
-    QList<AST *> path = ASTPath(doc)(cursor);
+    QList<AST *> path = ASTPath(doc)(line, column);
 
     // for function definitions, simply scan for FunctionDefinitionAST not preceded
     //    by CompoundStatement/CtorInitializer
@@ -113,19 +115,19 @@ static bool findDeclOrDef(const Document::Ptr &doc, const QTextCursor &cursor,
     return *funcDecl;
 }
 
-static void declDefLinkStartEnd(const CppTools::CppRefactoringFile &file,
+static void declDefLinkStartEnd(const CppTools::CppRefactoringFileConstPtr &file,
                                 DeclarationAST *parent, FunctionDeclaratorAST *funcDecl,
                                 int *start, int *end)
 {
-    *start = file.startOf(parent);
+    *start = file->startOf(parent);
     if (funcDecl->trailing_return_type)
-        *end = file.endOf(funcDecl->trailing_return_type);
+        *end = file->endOf(funcDecl->trailing_return_type);
     else if (funcDecl->exception_specification)
-        *end = file.endOf(funcDecl->exception_specification);
+        *end = file->endOf(funcDecl->exception_specification);
     else if (funcDecl->cv_qualifier_list)
-        *end = file.endOf(funcDecl->cv_qualifier_list->lastValue());
+        *end = file->endOf(funcDecl->cv_qualifier_list->lastValue());
     else
-        *end = file.endOf(funcDecl->rparen_token);
+        *end = file->endOf(funcDecl->rparen_token);
 }
 
 static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppTools::CppRefactoringChanges changes)
@@ -152,15 +154,14 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
     // parse the target file to get the linked decl/def
     const QString targetFileName = QString::fromUtf8(
                 target->fileName(), target->fileNameLength());
-    CppTools::CppRefactoringFile targetFile = changes.file(targetFileName);
-    if (!targetFile.isValid())
+    CppTools::CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(targetFileName);
+    if (!targetFile->isValid())
         return noResult;
 
-    QTextCursor tc(targetFile.cursor());
-    tc.setPosition(targetFile.position(target->line(), target->column()));
     DeclarationAST *targetParent = 0;
     FunctionDeclaratorAST *targetFuncDecl = 0;
-    if (!findDeclOrDef(targetFile.cppDocument(), tc, &targetParent, &targetFuncDecl))
+    if (!findDeclOrDef(targetFile->cppDocument(), target->line(), target->column(),
+                       &targetParent, &targetFuncDecl))
         return noResult;
 
     // the parens are necessary for finding good places for changes
@@ -169,16 +170,14 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
 
     int targetStart, targetEnd;
     declDefLinkStartEnd(targetFile, targetParent, targetFuncDecl, &targetStart, &targetEnd);
-    QString targetInitial = targetFile.textOf(
-                targetFile.startOf(targetParent),
+    QString targetInitial = targetFile->textOf(
+                targetFile->startOf(targetParent),
                 targetEnd);
 
     link->targetOffset = targetStart;
     link->targetInitial = targetInitial;
 
-    link->targetFile = QSharedPointer<CppTools::CppRefactoringFile>(
-                new CppTools::CppRefactoringFile(targetFile.document()->clone(), targetFile.fileName()));
-    link->targetFile->setCppDocument(targetFile.cppDocument());
+    link->targetFile = targetFile;
     link->targetFunction = targetFuncDecl->symbol;
     link->targetFunctionDeclarator = targetFuncDecl;
     link->targetDeclaration = targetParent;
@@ -192,13 +191,13 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     // check if cursor is on function decl/def
     DeclarationAST *parent = 0;
     FunctionDeclaratorAST *funcDecl = 0;
-    if (!findDeclOrDef(doc, cursor, &parent, &funcDecl))
+    if (!findDeclOrDef(doc, cursor.blockNumber() + 1, cursor.columnNumber() + 1, &parent, &funcDecl))
         return;
 
     // find the start/end offsets
     CppTools::CppRefactoringChanges refactoringChanges(snapshot);
-    CppTools::CppRefactoringFile sourceFile = refactoringChanges.file(doc->fileName());
-    sourceFile.setCppDocument(doc);
+    CppTools::CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->fileName());
+    sourceFile->setCppDocument(doc);
     int start, end;
     declDefLinkStartEnd(sourceFile, parent, funcDecl, &start, &end);
 
@@ -242,7 +241,7 @@ FunctionDeclDefLink::~FunctionDeclDefLink()
 
 bool FunctionDeclDefLink::isValid() const
 {
-    return targetFile;
+    return !linkSelection.isNull();
 }
 
 bool FunctionDeclDefLink::isMarkerVisible() const
@@ -274,18 +273,16 @@ void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
 
     // first verify the interesting region of the target file is unchanged
     CppTools::CppRefactoringChanges refactoringChanges(snapshot);
-    CppTools::CppRefactoringFile newTargetFile = refactoringChanges.file(targetFile->fileName());
-    if (!newTargetFile.isValid())
+    CppTools::CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->fileName());
+    if (!newTargetFile->isValid())
         return;
     const int targetEnd = targetOffset + targetInitial.size();
-    if (targetInitial == newTargetFile.textOf(targetOffset, targetEnd)) {
+    if (targetInitial == newTargetFile->textOf(targetOffset, targetEnd)) {
         const Utils::ChangeSet changeset = changes(snapshot);
-        newTargetFile.change(changeset, jumpToMatch);
-        if (jumpToMatch) {
-            QTextCursor tc = newTargetFile.cursor();
-            tc.setPosition(targetOffset + targetInitial.size());
-            refactoringChanges.activateEditor(newTargetFile.fileName(), tc.blockNumber(), tc.columnNumber());
-        }
+        newTargetFile->setChangeSet(changeset);
+        if (jumpToMatch)
+            newTargetFile->setOpenEditor(true, targetOffset);
+        newTargetFile->apply();
     } else {
         TextEditor::ToolTip::instance()->show(
                     editor->toolTipPosition(linkSelection),
@@ -361,8 +358,6 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
 {
     Utils::ChangeSet changes;
 
-    QSharedPointer<CppTools::CppRefactoringFile> matchFile = targetFile;
-
     // parse the current source declaration
     TypeOfExpression typeOfExpression; // ### just need to preprocess...
     typeOfExpression.init(sourceDocument, snapshot);
@@ -412,15 +407,15 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
         if (SimpleDeclarationAST *simple = targetDeclaration->asSimpleDeclaration()) {
             declarator = simple->declarator_list->value;
             if (simple->decl_specifier_list)
-                returnTypeStart = matchFile->startOf(simple->decl_specifier_list->value);
+                returnTypeStart = targetFile->startOf(simple->decl_specifier_list->value);
             else
-                returnTypeStart = matchFile->startOf(declarator);
+                returnTypeStart = targetFile->startOf(declarator);
         } else if (FunctionDefinitionAST *def = targetDeclaration->asFunctionDefinition()) {
             declarator = def->declarator;
             if (def->decl_specifier_list)
-                returnTypeStart = matchFile->startOf(def->decl_specifier_list->value);
+                returnTypeStart = targetFile->startOf(def->decl_specifier_list->value);
             else
-                returnTypeStart = matchFile->startOf(declarator);
+                returnTypeStart = targetFile->startOf(declarator);
         }
 
         if (!newFunction->returnType().isEqualTo(sourceFunction->returnType())
@@ -428,7 +423,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
             FullySpecifiedType type = rewriteType(newFunction->returnType(), &env, control);
             const QString replacement = overview(type, targetFunction->name());
             changes.replace(returnTypeStart,
-                            matchFile->startOf(targetFunctionDeclarator->lparen_token),
+                            targetFile->startOf(targetFunctionDeclarator->lparen_token),
                             replacement);
         }
     }
@@ -478,35 +473,35 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
             ParameterDeclarationAST *targetParamAst = targetParameterDeclIt->value;
             int parameterNameEnd = 0;
             if (targetParamAst->declarator)
-                parameterNameEnd = matchFile->endOf(targetParamAst->declarator);
+                parameterNameEnd = targetFile->endOf(targetParamAst->declarator);
             else if (targetParamAst->type_specifier_list)
-                parameterNameEnd = matchFile->endOf(targetParamAst->type_specifier_list->lastToken() - 1);
+                parameterNameEnd = targetFile->endOf(targetParamAst->type_specifier_list->lastToken() - 1);
             else
-                parameterNameEnd = matchFile->startOf(targetParamAst);
+                parameterNameEnd = targetFile->startOf(targetParamAst);
 
             if (allowChangeType
                     && !targetParam->type().isEqualTo(newParam->type())) {
                 FullySpecifiedType replacementType = rewriteType(newParam->type(), &env, control);
                 const QString replacement = overview(replacementType, replacementName);
 
-                changes.replace(matchFile->startOf(targetParamAst),
+                changes.replace(targetFile->startOf(targetParamAst),
                                 parameterNameEnd,
                                 replacement);
             } else if (!namesEqual(targetParam->name(), replacementName)) {
                 DeclaratorIdAST *id = getDeclaratorId(targetParamAst->declarator);
                 QString replacementNameStr = overview(replacementName);
                 if (id) {
-                    changes.replace(matchFile->range(id), replacementNameStr);
+                    changes.replace(targetFile->range(id), replacementNameStr);
                 } else {
                     // add name to unnamed parameter
                     replacementNameStr.prepend(QLatin1Char(' '));
                     int end;
                     if (targetParamAst->equal_token) {
-                        end = matchFile->startOf(targetParamAst->equal_token);
+                        end = targetFile->startOf(targetParamAst->equal_token);
                         replacementNameStr.append(QLatin1Char(' '));
                     } else {
                         // one past end on purpose
-                        end = matchFile->startOf(targetParamAst->lastToken());
+                        end = targetFile->startOf(targetParamAst->lastToken());
                     }
                     changes.replace(parameterNameEnd, end, replacementNameStr);
                 }
@@ -516,15 +511,15 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
             targetParameterDeclIt = firstTargetParameterDeclIt;
             if (targetParameterDeclIt) {
                 if (newArgCount == 0) {
-                    changes.remove(matchFile->startOf(targetParameterDeclIt->firstToken()),
-                                   matchFile->endOf(targetParameterDeclIt->lastToken() - 1));
+                    changes.remove(targetFile->startOf(targetParameterDeclIt->firstToken()),
+                                   targetFile->endOf(targetParameterDeclIt->lastToken() - 1));
                 } else {
                     // get the last valid argument
                     for (unsigned i = 0; i < newArgCount - 1 && targetParameterDeclIt; ++i)
                         targetParameterDeclIt = targetParameterDeclIt->next;
                     if (targetParameterDeclIt) {
-                        const int start = matchFile->endOf(targetParameterDeclIt->value);
-                        const int end = matchFile->endOf(targetParameterDecl->lastToken() - 1);
+                        const int start = targetFile->endOf(targetParameterDeclIt->value);
+                        const int end = targetFile->endOf(targetParameterDecl->lastToken() - 1);
                         changes.remove(start, end);
                     }
                 }
@@ -542,9 +537,9 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
             if (targetParameterDeclIt) {
                 while (targetParameterDeclIt->next)
                     targetParameterDeclIt = targetParameterDeclIt->next;
-                changes.insert(matchFile->endOf(targetParameterDeclIt->value), newParams);
+                changes.insert(targetFile->endOf(targetParameterDeclIt->value), newParams);
             } else {
-                changes.insert(matchFile->endOf(targetFunctionDeclarator->lparen_token), newParams);
+                changes.insert(targetFile->endOf(targetFunctionDeclarator->lparen_token), newParams);
             }
         }
     }
@@ -560,12 +555,12 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot)
                 cvString += QLatin1Char(' ');
             cvString += QLatin1String("volatile");
         }
-        const int rparenEnd = matchFile->endOf(targetFunctionDeclarator->rparen_token);
+        const int rparenEnd = targetFile->endOf(targetFunctionDeclarator->rparen_token);
         if (targetFunctionDeclarator->cv_qualifier_list) {
-            const int cvEnd = matchFile->endOf(targetFunctionDeclarator->cv_qualifier_list->lastToken() - 1);
+            const int cvEnd = targetFile->endOf(targetFunctionDeclarator->cv_qualifier_list->lastToken() - 1);
             // if the qualifies changed, replace
             if (!cvString.isEmpty()) {
-                changes.replace(matchFile->startOf(targetFunctionDeclarator->cv_qualifier_list->firstToken()),
+                changes.replace(targetFile->startOf(targetFunctionDeclarator->cv_qualifier_list->firstToken()),
                                 cvEnd, cvString);
             } else {
                 // remove

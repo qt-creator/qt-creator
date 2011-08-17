@@ -45,8 +45,8 @@ using namespace CPlusPlus;
 QList<AST *> ASTPath::operator()(int line, int column)
 {
     _nodes.clear();
-    _line = line + 1;
-    _column = column + 1;
+    _line = line;
+    _column = column;
 
     if (_doc) {
         if (TranslationUnit *unit = _doc->translationUnit())

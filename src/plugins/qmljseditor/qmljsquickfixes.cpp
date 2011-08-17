@@ -70,7 +70,7 @@ public:
     {
         UiObjectInitializer *objectInitializer = 0;
 
-        const int pos = interface->currentFile().cursor().position();
+        const int pos = interface->currentFile()->cursor().position();
 
         if (QmlJS::AST::Node *member = interface->semanticInfo().rangeAt(pos)) {
             if (QmlJS::AST::UiObjectBinding *b = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member)) {
@@ -104,7 +104,8 @@ private:
                                                    "Split initializer"));
         }
 
-        virtual void performChanges(QmlJSRefactoringFile *currentFile, QmlJSRefactoringChanges *)
+        virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
+                                    const QmlJSRefactoringChanges &)
         {
             Q_ASSERT(_objectInitializer != 0);
 
@@ -123,9 +124,10 @@ private:
             changes.insert(currentFile->startOf(_objectInitializer->rbraceToken),
                            QLatin1String("\n"));
 
-            currentFile->change(changes);
-            currentFile->indent(Range(currentFile->startOf(_objectInitializer->lbraceToken),
+            currentFile->setChangeSet(changes);
+            currentFile->appendIndentRange(Range(currentFile->startOf(_objectInitializer->lbraceToken),
                                       currentFile->startOf(_objectInitializer->rbraceToken)));
+            currentFile->apply();
         }
     };
 };

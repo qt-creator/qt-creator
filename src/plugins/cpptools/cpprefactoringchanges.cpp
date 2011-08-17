@@ -49,64 +49,101 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace Utils;
 
-CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)
-    : m_snapshot(snapshot)
-    , m_modelManager(Internal::CppModelManager::instance())
+class CppTools::CppRefactoringChangesData : public TextEditor::RefactoringChangesData
 {
-    Q_ASSERT(m_modelManager);
-    m_workingCopy = m_modelManager->workingCopy();
+public:
+    CppRefactoringChangesData(const Snapshot &snapshot)
+        : m_snapshot(snapshot)
+        , m_modelManager(Internal::CppModelManager::instance())
+        , m_workingCopy(m_modelManager->workingCopy())
+    {}
+
+    virtual void indentSelection(const QTextCursor &selection,
+                                 const QString &fileName,
+                                 const TextEditor::BaseTextEditorWidget *textEditor) const
+    {
+        // ### shares code with CPPEditor::indent()
+        QTextDocument *doc = selection.document();
+
+        QTextBlock block = doc->findBlock(selection.selectionStart());
+        const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
+
+        const TextEditor::TabSettings &tabSettings =
+            ProjectExplorer::actualTabSettings(fileName, textEditor);
+        // TODO: add similar method like above one
+        CppTools::QtStyleCodeFormatter codeFormatter(tabSettings,
+            CppToolsSettings::instance()->cppCodeStylePreferences()->settings());
+        codeFormatter.updateStateUntil(block);
+
+        do {
+            int indent;
+            int padding;
+            codeFormatter.indentFor(block, &indent, &padding);
+            tabSettings.indentLine(block, indent + padding, padding);
+            codeFormatter.updateLineStateChange(block);
+            block = block.next();
+        } while (block.isValid() && block != end);
+
+    }
+
+    virtual void fileChanged(const QString &fileName)
+    {
+        m_modelManager->updateSourceFiles(QStringList(fileName));
+    }
+
+    CPlusPlus::Snapshot m_snapshot;
+    CPlusPlus::CppModelManagerInterface *m_modelManager;
+    CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
+
+};
+
+CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)
+    : RefactoringChanges(new CppRefactoringChangesData(snapshot))
+{
+}
+
+CppRefactoringChangesData *CppRefactoringChanges::data() const
+{
+    return static_cast<CppRefactoringChangesData *>(m_data.data());
+}
+
+CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::BaseTextEditorWidget *editor, const Document::Ptr &document)
+{
+    CppRefactoringFilePtr result(new CppRefactoringFile(editor));
+    result->setCppDocument(document);
+    return result;
+}
+
+CppRefactoringFilePtr CppRefactoringChanges::file(const QString &fileName) const
+{
+    CppRefactoringFilePtr result(new CppRefactoringFile(fileName, m_data));
+    return result;
+}
+
+CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const QString &fileName) const
+{
+    QTextDocument *document = 0;
+    if (data()->m_workingCopy.contains(fileName))
+        document = new QTextDocument(data()->m_workingCopy.source(fileName));
+    CppRefactoringFilePtr result(new CppRefactoringFile(document, fileName));
+    result->m_data = m_data;
+
+    Document::Ptr cppDocument = data()->m_snapshot.document(fileName);
+    if (cppDocument)
+        result->setCppDocument(cppDocument);
+
+    return result;
 }
 
 const Snapshot &CppRefactoringChanges::snapshot() const
 {
-    return m_snapshot;
+    return data()->m_snapshot;
 }
 
-CppRefactoringFile CppRefactoringChanges::file(const QString &fileName)
+CppRefactoringFile::CppRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data)
+    : RefactoringFile(fileName, data)
 {
-    return CppRefactoringFile(fileName, this);
-}
-
-void CppRefactoringChanges::indentSelection(const QTextCursor &selection,
-                                            const QString &fileName,
-                                            const TextEditor::BaseTextEditorWidget *textEditor) const
-{
-    // ### shares code with CPPEditor::indent()
-    QTextDocument *doc = selection.document();
-
-    QTextBlock block = doc->findBlock(selection.selectionStart());
-    const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
-
-    const TextEditor::TabSettings &tabSettings =
-        ProjectExplorer::actualTabSettings(fileName, textEditor);
-    // TODO: add similar method like above one
-    CppTools::QtStyleCodeFormatter codeFormatter(tabSettings,
-        CppToolsSettings::instance()->cppCodeStylePreferences()->settings());
-    codeFormatter.updateStateUntil(block);
-
-    do {
-        int indent;
-        int padding;
-        codeFormatter.indentFor(block, &indent, &padding);
-        tabSettings.indentLine(block, indent + padding, padding);
-        codeFormatter.updateLineStateChange(block);
-        block = block.next();
-    } while (block.isValid() && block != end);
-}
-
-void CppRefactoringChanges::fileChanged(const QString &fileName)
-{
-    m_modelManager->updateSourceFiles(QStringList(fileName));
-}
-
-
-CppRefactoringFile::CppRefactoringFile()
-{ }
-
-CppRefactoringFile::CppRefactoringFile(const QString &fileName, CppRefactoringChanges *refactoringChanges)
-    : RefactoringFile(fileName, refactoringChanges)
-{
-    const Snapshot &snapshot = refactoringChanges->snapshot();
+    const Snapshot &snapshot = this->data()->m_snapshot;
     m_cppDocument = snapshot.document(fileName);
 }
 
@@ -124,7 +161,7 @@ Document::Ptr CppRefactoringFile::cppDocument() const
             !m_cppDocument->translationUnit()->ast()) {
         const QString source = document()->toPlainText();
         const QString name = fileName();
-        const Snapshot &snapshot = refactoringChanges()->snapshot();
+        const Snapshot &snapshot = data()->m_snapshot;
 
         const QByteArray contents = snapshot.preprocessedCode(source, name);
         m_cppDocument = snapshot.documentFromSource(contents, name);
@@ -233,7 +270,13 @@ const Token &CppRefactoringFile::tokenAt(unsigned index) const
     return cppDocument()->translationUnit()->tokenAt(index);
 }
 
-CppRefactoringChanges *CppRefactoringFile::refactoringChanges() const
+CppRefactoringChangesData *CppRefactoringFile::data() const
 {
-    return static_cast<CppRefactoringChanges *>(m_refactoringChanges);
+    return static_cast<CppRefactoringChangesData *>(m_data.data());
+}
+
+void CppRefactoringFile::fileChanged()
+{
+    m_cppDocument.clear();
+    RefactoringFile::fileChanged();
 }

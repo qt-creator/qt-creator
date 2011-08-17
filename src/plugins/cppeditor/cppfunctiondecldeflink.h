@@ -100,7 +100,7 @@ public:
     CPlusPlus::DeclarationAST *sourceDeclaration;
     CPlusPlus::FunctionDeclaratorAST *sourceFunctionDeclarator;
 
-    QSharedPointer<CppTools::CppRefactoringFile> targetFile;
+    CppTools::CppRefactoringFileConstPtr targetFile;
     CPlusPlus::Function *targetFunction;
     CPlusPlus::DeclarationAST *targetDeclaration;
     CPlusPlus::FunctionDeclaratorAST *targetFunctionDeclarator;
