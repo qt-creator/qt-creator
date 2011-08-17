@@ -288,7 +288,8 @@ void FakeVimOptionPage::copyTextEditorSettings()
     m_ui.checkBoxExpandTab->setChecked(ts.m_spacesForTabs);
     m_ui.spinBoxTabStop->setValue(ts.m_tabSize);
     m_ui.spinBoxShiftWidth->setValue(ts.m_indentSize);
-    m_ui.checkBoxSmartTab->setChecked(ts.m_smartBackspace);
+    m_ui.checkBoxSmartTab->setChecked(
+        ts.m_smartBackspaceBehavior == TabSettings::BackspaceFollowsPreviousIndents);
     m_ui.checkBoxAutoIndent->setChecked(true);
     m_ui.checkBoxSmartIndent->setChecked(ts.m_autoIndent);
     m_ui.checkBoxIncSearch->setChecked(true);

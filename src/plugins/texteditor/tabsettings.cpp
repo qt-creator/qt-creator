@@ -42,7 +42,7 @@
 
 static const char spacesForTabsKey[] = "SpacesForTabs";
 static const char autoSpacesForTabsKey[] = "AutoSpacesForTabs";
-static const char smartBackspaceKey[] = "SmartBackspace";
+static const char smartBackspaceBehaviorKey[] = "SmartBackspaceBehavior";
 static const char autoIndentKey[] = "AutoIndent";
 static const char tabSizeKey[] = "TabSize";
 static const char indentSizeKey[] = "IndentSize";
@@ -58,11 +58,11 @@ TabSettings::TabSettings() :
     m_spacesForTabs(true),
     m_autoSpacesForTabs(false),
     m_autoIndent(true),
-    m_smartBackspace(false),
     m_tabSize(8),
     m_indentSize(4),
     m_tabKeyBehavior(TabNeverIndents),
-    m_continuationAlignBehavior(ContinuationAlignWithSpaces)
+    m_continuationAlignBehavior(ContinuationAlignWithSpaces),
+    m_smartBackspaceBehavior(BackspaceNeverIndents)
 {
 }
 
@@ -82,7 +82,7 @@ void TabSettings::toMap(const QString &prefix, QVariantMap *map) const
     map->insert(prefix + QLatin1String(spacesForTabsKey), m_spacesForTabs);
     map->insert(prefix + QLatin1String(autoSpacesForTabsKey), m_autoSpacesForTabs);
     map->insert(prefix + QLatin1String(autoIndentKey), m_autoIndent);
-    map->insert(prefix + QLatin1String(smartBackspaceKey), m_smartBackspace);
+    map->insert(prefix + QLatin1String(smartBackspaceBehaviorKey), m_smartBackspaceBehavior);
     map->insert(prefix + QLatin1String(tabSizeKey), m_tabSize);
     map->insert(prefix + QLatin1String(indentSizeKey), m_indentSize);
     map->insert(prefix + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior);
@@ -96,8 +96,9 @@ void TabSettings::fromMap(const QString &prefix, const QVariantMap &map)
     m_autoSpacesForTabs =
         map.value(prefix + QLatin1String(autoSpacesForTabsKey), m_autoSpacesForTabs).toBool();
     m_autoIndent = map.value(prefix + QLatin1String(autoIndentKey), m_autoIndent).toBool();
-    m_smartBackspace =
-            map.value(prefix + QLatin1String(smartBackspaceKey), m_smartBackspace).toBool();
+    m_smartBackspaceBehavior = (SmartBackspaceBehavior)
+        map.value(prefix + QLatin1String(smartBackspaceBehaviorKey),
+                  m_smartBackspaceBehavior).toInt();
     m_tabSize = map.value(prefix + QLatin1String(tabSizeKey), m_tabSize).toInt();
     m_indentSize = map.value(prefix + QLatin1String(indentSizeKey), m_indentSize).toInt();
     m_tabKeyBehavior = (TabKeyBehavior)
@@ -396,7 +397,7 @@ bool TabSettings::equals(const TabSettings &ts) const
     return m_spacesForTabs == ts.m_spacesForTabs
         && m_autoSpacesForTabs == ts.m_autoSpacesForTabs
         && m_autoIndent == ts.m_autoIndent
-        && m_smartBackspace == ts.m_smartBackspace
+        && m_smartBackspaceBehavior == ts.m_smartBackspaceBehavior
         && m_tabSize == ts.m_tabSize
         && m_indentSize == ts.m_indentSize
         && m_tabKeyBehavior == ts.m_tabKeyBehavior

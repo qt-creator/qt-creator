@@ -63,6 +63,13 @@ public:
         ContinuationAlignWithIndent = 2
     };
 
+    // This enum must match the indexes of smartBackspaceBehavior widget
+    enum SmartBackspaceBehavior {
+        BackspaceNeverIndents = 0,
+        BackspaceFollowsPreviousIndents = 1,
+        BackspaceUnindents = 2
+    };
+
     TabSettings();
 
     void toSettings(const QString &category, QSettings *s) const;
@@ -96,11 +103,11 @@ public:
     bool m_spacesForTabs;
     bool m_autoSpacesForTabs;
     bool m_autoIndent;
-    bool m_smartBackspace;
     int m_tabSize;
     int m_indentSize;
     TabKeyBehavior m_tabKeyBehavior;
     ContinuationAlignBehavior m_continuationAlignBehavior;
+    SmartBackspaceBehavior m_smartBackspaceBehavior;
 
     bool equals(const TabSettings &ts) const;
 };

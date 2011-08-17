@@ -4529,12 +4529,12 @@ void BaseTextEditorWidget::handleBackspaceKey()
         return;
 
     bool handled = false;
-    if (!tabSettings.m_smartBackspace) {
+    if (tabSettings.m_smartBackspaceBehavior == TabSettings::BackspaceNeverIndents) {
         if (cursorWithinSnippet)
             cursor.beginEditBlock();
         cursor.deletePreviousChar();
         handled = true;
-    } else {
+    } else if (tabSettings.m_smartBackspaceBehavior == TabSettings::BackspaceFollowsPreviousIndents) {
         QTextBlock currentBlock = cursor.block();
         int positionInBlock = pos - currentBlock.position();
         const QString blockText = currentBlock.text();
@@ -4544,9 +4544,12 @@ void BaseTextEditorWidget::handleBackspaceKey()
             cursor.deletePreviousChar();
             handled = true;
         } else {
+            if (cursorWithinSnippet) {
+                d->m_snippetOverlay->clear();
+                cursorWithinSnippet = false;
+            }
             int previousIndent = 0;
             const int indent = tabSettings.columnAt(blockText, positionInBlock);
-
             for (QTextBlock previousNonEmptyBlock = currentBlock.previous();
                  previousNonEmptyBlock.isValid();
                  previousNonEmptyBlock = previousNonEmptyBlock.previous()) {
@@ -4554,8 +4557,8 @@ void BaseTextEditorWidget::handleBackspaceKey()
                 if (previousNonEmptyBlockText.trimmed().isEmpty())
                     continue;
                 previousIndent =
-                    tabSettings.columnAt(previousNonEmptyBlockText,
-                                         tabSettings.firstNonSpace(previousNonEmptyBlockText));
+                        tabSettings.columnAt(previousNonEmptyBlockText,
+                                             tabSettings.firstNonSpace(previousNonEmptyBlockText));
                 if (previousIndent < indent) {
                     cursor.beginEditBlock();
                     cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);
@@ -4566,6 +4569,19 @@ void BaseTextEditorWidget::handleBackspaceKey()
                 }
             }
         }
+    } else if (tabSettings.m_smartBackspaceBehavior == TabSettings::BackspaceUnindents) {
+        if (!pos || !characterAt(pos - 1).isSpace()) {
+            if (cursorWithinSnippet)
+                cursor.beginEditBlock();
+            cursor.deletePreviousChar();
+        } else {
+            if (cursorWithinSnippet) {
+                d->m_snippetOverlay->clear();
+                cursorWithinSnippet = false;
+            }
+            indentOrUnindent(false);
+        }
+        handled = true;
     }
 
     if (!handled) {

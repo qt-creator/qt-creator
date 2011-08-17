@@ -52,7 +52,7 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
             this, SLOT(slotSettingsChanged()));
     connect(ui->autoIndent, SIGNAL(toggled(bool)),
             this, SLOT(slotSettingsChanged()));
-    connect(ui->smartBackspace, SIGNAL(toggled(bool)),
+    connect(ui->smartBackspaceBehavior, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotSettingsChanged()));
     connect(ui->tabSize, SIGNAL(valueChanged(int)),
             this, SLOT(slotSettingsChanged()));
@@ -77,7 +77,7 @@ void TabSettingsWidget::setSettings(const TextEditor::TabSettings& s)
     ui->insertSpaces->setChecked(s.m_spacesForTabs);
     ui->autoInsertSpaces->setChecked(s.m_autoSpacesForTabs);
     ui->autoIndent->setChecked(s.m_autoIndent);
-    ui->smartBackspace->setChecked(s.m_smartBackspace);
+    ui->smartBackspaceBehavior->setCurrentIndex(s.m_smartBackspaceBehavior);
     ui->tabSize->setValue(s.m_tabSize);
     ui->indentSize->setValue(s.m_indentSize);
     ui->tabKeyBehavior->setCurrentIndex(s.m_tabKeyBehavior);
@@ -94,11 +94,13 @@ TabSettings TabSettingsWidget::settings() const
     set.m_spacesForTabs = ui->insertSpaces->isChecked();
     set.m_autoSpacesForTabs = ui->autoInsertSpaces->isChecked();
     set.m_autoIndent = ui->autoIndent->isChecked();
-    set.m_smartBackspace = ui->smartBackspace->isChecked();
+    set.m_smartBackspaceBehavior =
+        (TabSettings::SmartBackspaceBehavior)ui->smartBackspaceBehavior->currentIndex();
     set.m_tabSize = ui->tabSize->value();
     set.m_indentSize = ui->indentSize->value();
     set.m_tabKeyBehavior = (TabSettings::TabKeyBehavior)(ui->tabKeyBehavior->currentIndex());
-    set.m_continuationAlignBehavior = (TabSettings::ContinuationAlignBehavior)(ui->continuationAlignBehavior->currentIndex());
+    set.m_continuationAlignBehavior =
+        (TabSettings::ContinuationAlignBehavior)(ui->continuationAlignBehavior->currentIndex());
 
     return set;
 }
@@ -124,7 +126,7 @@ QString TabSettingsWidget::searchKeywords() const
             << sep << ui->insertSpaces->text()
             << sep << ui->autoInsertSpaces->text()
             << sep << ui->autoIndent->text()
-            << sep << ui->smartBackspace->text()
+            << sep << ui->smartBackspaceLabel->text()
             << sep << ui->tabSizeLabel->text()
             << sep << ui->indentSizeLabel->text()
             << sep << ui->tabKeyBehaviorLabel->text()

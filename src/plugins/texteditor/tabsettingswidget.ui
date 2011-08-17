@@ -166,24 +166,14 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="3">
-       <widget class="QCheckBox" name="smartBackspace">
-        <property name="toolTip">
-         <string>Backspace will go back one indentation level instead of one space.</string>
-        </property>
-        <property name="text">
-         <string>&amp;Backspace follows indentation</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="2">
+      <item row="6" column="0" colspan="2">
        <widget class="QLabel" name="continuationAlignBehaviorLabel">
         <property name="text">
          <string>Align continuation lines:</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="QComboBox" name="continuationAlignBehavior">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -229,14 +219,14 @@ Influences the indentation of continuation lines.
         </item>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
+      <item row="8" column="0" colspan="2">
        <widget class="QLabel" name="tabKeyBehaviorLabel">
         <property name="text">
          <string>Tab key performs auto-indent:</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
+      <item row="9" column="1">
        <widget class="QComboBox" name="tabKeyBehavior">
         <item>
          <property name="text">
@@ -255,7 +245,7 @@ Influences the indentation of continuation lines.
         </item>
        </widget>
       </item>
-      <item row="9" column="1">
+      <item row="10" column="1">
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -268,6 +258,48 @@ Influences the indentation of continuation lines.
         </property>
        </spacer>
       </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QLabel" name="smartBackspaceLabel">
+        <property name="text">
+         <string>Backspace indentation:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="smartBackspaceBehavior">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Specifies how backspace interacts with indentation.
+
+&lt;ul&gt;
+&lt;li&gt;None: No interaction at all. Regular plain backspace behavior.
+&lt;/li&gt;
+
+&lt;li&gt;Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.
+&lt;/li&gt;
+
+&lt;li&gt;Unindents: If the character behind the cursor is a space it behaves as a backtab.
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
+</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Follows Previous Indents</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Unindents</string>
+         </property>
+        </item>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -279,7 +311,6 @@ Influences the indentation of continuation lines.
   <tabstop>tabSize</tabstop>
   <tabstop>indentSize</tabstop>
   <tabstop>autoIndent</tabstop>
-  <tabstop>smartBackspace</tabstop>
   <tabstop>continuationAlignBehavior</tabstop>
   <tabstop>tabKeyBehavior</tabstop>
  </tabstops>
