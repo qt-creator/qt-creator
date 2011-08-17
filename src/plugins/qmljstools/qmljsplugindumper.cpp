@@ -162,15 +162,21 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
     // watch plugin libraries
     foreach (const QmlDirParser::Plugin &plugin, snapshot.libraryInfo(canonicalLibraryPath).plugins()) {
         const QString pluginLibrary = resolvePlugin(canonicalLibraryPath, plugin.path, plugin.name);
-        pluginWatcher()->addFile(pluginLibrary, Utils::FileSystemWatcher::WatchModifiedDate);
-        m_libraryToPluginIndex.insert(pluginLibrary, index);
+        if (!pluginLibrary.isEmpty()) {
+            if (!pluginWatcher()->watchesFile(pluginLibrary))
+                pluginWatcher()->addFile(pluginLibrary, Utils::FileSystemWatcher::WatchModifiedDate);
+            m_libraryToPluginIndex.insert(pluginLibrary, index);
+        }
     }
 
     // watch library xml file
     if (plugin.hasPredumpedQmlTypesFile()) {
         const QString &path = plugin.predumpedQmlTypesFilePath();
-        pluginWatcher()->addFile(path, Utils::FileSystemWatcher::WatchModifiedDate);
-        m_libraryToPluginIndex.insert(path, index);
+        if (!path.isEmpty()) {
+            if (!pluginWatcher()->watchesFile(path))
+                pluginWatcher()->addFile(path, Utils::FileSystemWatcher::WatchModifiedDate);
+            m_libraryToPluginIndex.insert(path, index);
+        }
     }
 
     dump(plugin);
