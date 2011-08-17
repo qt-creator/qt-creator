@@ -33,93 +33,98 @@
 #ifndef SIMPLE_DEBUGGER_TEST_H
 #define SIMPLE_DEBUGGER_TEST_H
 
-struct SomeClassWithInlineConstructor
-{
-    SomeClassWithInlineConstructor()
+namespace breakpoints {
+
+    struct SomeClassWithInlineConstructor
     {
-        a = 21;
-    }
-    int a;
-};
+        SomeClassWithInlineConstructor()
+        {
+            a = 21;
+        }
+        int a;
+    };
 
-struct SomeBaseClassWithInlineConstructor
-{
-    SomeBaseClassWithInlineConstructor()
+    struct SomeBaseClassWithInlineConstructor
     {
-        a = 21;
-    }
-    virtual ~SomeBaseClassWithInlineConstructor();
-    int a;
-};
+        SomeBaseClassWithInlineConstructor()
+        {
+            a = 21;
+        }
+        virtual ~SomeBaseClassWithInlineConstructor();
+        int a;
+    };
 
-struct SomeDerivedClassWithInlineConstructor
-    : SomeBaseClassWithInlineConstructor
-{
-    SomeDerivedClassWithInlineConstructor()
+    struct SomeDerivedClassWithInlineConstructor
+        : SomeBaseClassWithInlineConstructor
     {
-        a = 21;
-    }
-    virtual ~SomeDerivedClassWithInlineConstructor();
-    int a;
-};
+        SomeDerivedClassWithInlineConstructor()
+        {
+            a = 21;
+        }
+        virtual ~SomeDerivedClassWithInlineConstructor();
+        int a;
+    };
 
-template <class T>
-struct SomeTemplatedClassWithInlineConstructor
-{
-    SomeTemplatedClassWithInlineConstructor()
+    template <class T>
+    struct SomeTemplatedClassWithInlineConstructor
     {
-        a = 21;
-    }
-    T a;
-};
+        SomeTemplatedClassWithInlineConstructor()
+        {
+            a = 21;
+        }
+        T a;
+    };
 
-template <class T>
-struct SomeTemplatedBaseClassWithInlineConstructor
-{
-    SomeTemplatedBaseClassWithInlineConstructor()
+    template <class T>
+    struct SomeTemplatedBaseClassWithInlineConstructor
     {
-        a = 21;
-    }
-    virtual ~SomeTemplatedBaseClassWithInlineConstructor();
+        SomeTemplatedBaseClassWithInlineConstructor()
+        {
+            a = 21;
+        }
+        virtual ~SomeTemplatedBaseClassWithInlineConstructor();
 
-    T a;
-};
+        T a;
+    };
 
-template <class T>
-struct SomeTemplatedDerivedClassWithInlineConstructor
-    : SomeTemplatedBaseClassWithInlineConstructor<T>
-{
-    SomeTemplatedDerivedClassWithInlineConstructor()
+    template <class T>
+    struct SomeTemplatedDerivedClassWithInlineConstructor
+        : SomeTemplatedBaseClassWithInlineConstructor<T>
     {
-        a = 21;
+        SomeTemplatedDerivedClassWithInlineConstructor()
+        {
+            a = 21;
+        }
+        virtual ~SomeTemplatedDerivedClassWithInlineConstructor();
+        T a;
+    };
+
+
+    SomeBaseClassWithInlineConstructor::~SomeBaseClassWithInlineConstructor() {}
+
+    SomeDerivedClassWithInlineConstructor::~SomeDerivedClassWithInlineConstructor() {}
+
+    template <typename T>
+    SomeTemplatedBaseClassWithInlineConstructor<T>::
+        ~SomeTemplatedBaseClassWithInlineConstructor() {}
+
+    template <typename T>
+    SomeTemplatedDerivedClassWithInlineConstructor<T>::
+        ~SomeTemplatedDerivedClassWithInlineConstructor() {}
+
+    void testBreakpoints()
+    {
+        SomeClassWithInlineConstructor a;
+        SomeBaseClassWithInlineConstructor b;
+        SomeDerivedClassWithInlineConstructor c;
+        SomeTemplatedClassWithInlineConstructor<int> d;
+        SomeTemplatedBaseClassWithInlineConstructor<int> e;
+        SomeTemplatedDerivedClassWithInlineConstructor<int> f;
+        // <=== Break here.
+        dummyStatement(&a, &b, &c);
+        dummyStatement(&d, &e, &f);
     }
-    virtual ~SomeTemplatedDerivedClassWithInlineConstructor();
-    T a;
-};
 
-
-SomeBaseClassWithInlineConstructor::~SomeBaseClassWithInlineConstructor() {}
-
-SomeDerivedClassWithInlineConstructor::~SomeDerivedClassWithInlineConstructor() {}
-
-template <typename T>
-SomeTemplatedBaseClassWithInlineConstructor<T>::
-    ~SomeTemplatedBaseClassWithInlineConstructor() {}
-
-template <typename T>
-SomeTemplatedDerivedClassWithInlineConstructor<T>::
-    ~SomeTemplatedDerivedClassWithInlineConstructor() {}
-
-void testInlineBreakpoints()
-{
-    SomeClassWithInlineConstructor a;
-    SomeBaseClassWithInlineConstructor b;
-    SomeDerivedClassWithInlineConstructor c;
-    SomeTemplatedClassWithInlineConstructor<int> d;
-    SomeTemplatedBaseClassWithInlineConstructor<int> e;
-    SomeTemplatedDerivedClassWithInlineConstructor<int> f;
-    int i = a.a + b.a + c.a + d.a + e.a + f.a;
-    ++i;
-}
+} // namespace breakpoints
 
 #endif // SIMPLE_DEBUGGER_TEST_H

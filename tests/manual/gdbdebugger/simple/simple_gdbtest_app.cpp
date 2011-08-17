@@ -34,6 +34,8 @@
 
 //template <typename T> class B;  B foo() {}
 
+void dummyStatement(const void * = 0, const void * = 0, const void * = 0) {}
+
 #include "../simple/deep/deep/simple_gdbtest_app.h"
 
 #include <QtCore/QDebug>
@@ -124,13 +126,6 @@
 #include <xmmintrin.h>
 #include <stddef.h>
 #endif
-
-void dummyStatement(const void *x = 0, const void *y = 0, const void *z = 0)
-{
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(z);
-}
 
 namespace multibp {
 
@@ -370,17 +365,6 @@ class D : public X, public Y
     int diamond;
 };
 
-#ifndef Q_CC_RVCT
-struct TestAnonymous
-{
-    union {
-        struct { int i; int b; };
-        struct { float f; };
-        double d;
-    };
-};
-#endif
-
 void testPeekAndPoke3()
 {
     // Anonymous structs
@@ -430,45 +414,58 @@ void testPeekAndPoke3()
 }
 
 
-#ifndef Q_CC_RVCT
-namespace { // anon
+namespace anon {
 
-struct Something
-{
-    Something() { a = b = 1; }
-
-    void foo()
+    #ifndef Q_CC_RVCT
+    struct TestAnonymous
     {
-        a = 42;
-        b = 43;
+        union {
+            struct { int i; int b; };
+            struct { float f; };
+            double d;
+        };
+    };
+
+    namespace {
+
+        struct Something
+        {
+            Something() { a = b = 1; }
+
+            void foo()
+            {
+                a = 42;
+                b = 43;
+            }
+
+            int a, b;
+        };
+
+    }
+    #endif
+
+    void testAnonymous()
+    {
+    #ifndef Q_CC_RVCT
+        TestAnonymous a;
+        a.i = 1;
+        a.i = 2;
+        a.i = 3;
+        Something s;
+        // <== Break here.
+        // Step.
+        s.foo();
+        dummyStatement(&a, &s);
+    #endif
     }
 
-    int a, b;
-};
+} // namespace anon
 
-} // anon
-#endif
-
-
-void testAnonymous()
-{
-#ifndef Q_CC_RVCT
-    TestAnonymous a;
-    a.i = 1;
-    a.i = 2;
-    a.i = 3;
-    Q_UNUSED(a);
-
-    Something s;
-    s.foo();
-    Q_UNUSED(s);
-#endif
-}
 
 typedef void (*func_t)();
 func_t testFunctionPointer()
 {
-    func_t f1 = testAnonymous;
+    func_t f1 = anon::testAnonymous;
     func_t f2 = testPeekAndPoke3;
     func_t f3 = testPeekAndPoke3;
     Q_UNUSED(f1);
@@ -476,6 +473,7 @@ func_t testFunctionPointer()
     Q_UNUSED(f3);
     return f1;
 }
+
 
 
 namespace qbytearray {
@@ -1653,15 +1651,19 @@ namespace stdvector {
         v.push_back(2);
         v.push_back(3);
         v.push_back(4);
+        // <=== Break here.
         dummyStatement(&v);
     }
 
     void testStdVector3()
     {
+        Foo f;
         std::vector<Foo *> v;
         v.push_back(new Foo(1));
         v.push_back(0);
         v.push_back(new Foo(2));
+        // <=== Break here.
+        // Expand v.[0].x
         dummyStatement(&v);
     }
 
@@ -1672,6 +1674,8 @@ namespace stdvector {
         flist.push_back(2);
         flist.push_back(3);
         flist.push_back(4);
+        // <=== Break here.
+        // Expand v.[0].x
         dummyStatement(&flist);
     }
 
@@ -1683,6 +1687,7 @@ namespace stdvector {
         vec.push_back(false);
         vec.push_back(true);
         vec.push_back(false);
+        // <=== Break here.
         dummyStatement(&vec);
     }
 
@@ -1695,6 +1700,7 @@ namespace stdvector {
         list.push_back(45);
         vector.push_back(new std::list<int>(list));
         vector.push_back(0);
+        // <=== Break here.
         dummyStatement(&vector, &list);
     }
 
@@ -1763,17 +1769,6 @@ void testQUrl()
     QUrl url(QString("http://www.nokia.com"));
     (void) url;
 }
-
-void testLongEvaluation()
-{
-    QDateTime time = QDateTime::currentDateTime();
-    QVector<QDateTime> bigv;
-    for (int i = 0; i < 10000; ++i)
-        bigv.append(time);
-    int s = bigv.size();
-    ++s;
-}
-
 
 #ifdef FOP
 
@@ -1845,18 +1840,6 @@ namespace qstringlist {
     }
 
 } // namespace qstringlist
-
-
-Foo testStruct()
-{
-    Foo f(2);
-    f.doit();
-    f.doit();
-    f.doit();
-    Foo f1 = f;
-    f1.doit();
-    return f1;
-}
 
 
 namespace formats {
@@ -2420,27 +2403,6 @@ void testMemoryView()
         a[i] = i;
 }
 
-void testUninitialized()
-{
-    QString s;
-    QStringList sl;
-    QMap<int, int> mii;
-    QMap<QString, QString> mss;
-    QHash<int, int> hii;
-    QHash<QString, QString> hss;
-    QList<int> li;
-    QVector<int> vi;
-    QStack<int> si;
-
-    std::string ss;
-    std::map<int, int> smii;
-    std::map<std::string, std::string> smss;
-    std::list<int> sli;
-    std::list<std::string> ssl;
-    std::vector<int> svi;
-    std::stack<int> ssi;
-}
-
 void testEndlessRecursion()
 {
     testEndlessRecursion();
@@ -2626,6 +2588,16 @@ namespace basic {
         ++t2;
     }
 
+    void testStruct()
+    {
+        Foo f(2);
+        f.doit();
+        f.doit();
+        f.doit();
+        // <=== Break here.
+        dummyStatement(&f);
+    }
+
     void testUninitialized()
     {
         // This tests the display of uninitialized data.
@@ -2766,6 +2738,17 @@ namespace basic {
         dummyStatement(&c, &d);
     }
 
+    void testLongEvaluation()
+    {
+        QDateTime time = QDateTime::currentDateTime();
+        QVector<QDateTime> bigv;
+        for (int i = 0; i < 10000; ++i)
+            bigv.append(time);
+        // <== Break here.
+        // Expand bigv.
+        dummyStatement(&bigv);
+    }
+
     void testBasic()
     {
         testArray1();
@@ -2779,6 +2762,7 @@ namespace basic {
         testAlphabeticSorting();
         testTypedef();
         testPtrTypedef();
+        testStruct();
         testUninitialized();
         testTypeFormats();
         testStringWithNewline();
@@ -2786,31 +2770,11 @@ namespace basic {
         testColoredMemoryView();
         testReference1();
         testReference2();
+        testLongEvaluation();
     }
 
 } // namespace basic
 
-
-void testStuff()
-{
-    using namespace std;
-    typedef map<string, list<string> > map_t;
-    map_t m;
-    m["one"].push_back("a");
-    m["one"].push_back("b");
-    m["one"].push_back("c");
-    m["two"].push_back("1");
-    m["two"].push_back("2");
-    m["two"].push_back("3");
-    map_t::const_iterator i = m.begin();
-
-    vector<int> vec;
-    vec.push_back(1);
-    vec.push_back(2);
-    pair<vector<int>, vector<int> > a(pair<vector<int>,vector<int> >(vec, vec));
-
-    i++;
-}
 
 void testStuff2()
 {
@@ -2992,93 +2956,98 @@ void testFork()
     ba.append('x');
 }
 
-struct structdata
-{
-    int ints[8];
-    char chars[32];
-    double doubles[5];
-};
 
-enum type_t { MPI_LB, MPI_INT, MPI_CHAR, MPI_DOUBLE, MPI_UB };
+namespace mpi {
 
-struct tree_entry
-{
-    tree_entry() {}
-    tree_entry(int l, int o, type_t t)
-        : blocklength(l), offset(o), type(t)
-    {}
-
-    int blocklength;
-    int offset;
-    type_t type;
-};
-
-struct tree
-{
-    enum kind_t { STRUCT };
-
-    void *base;
-    kind_t kind;
-    int count;
-    tree_entry entries[20];
-};
-
-void testMPI()
-{
-    structdata buffer = {
-        //{MPI_LB},
-        {0, 1024, 2048, 3072, 4096, 5120, 6144 },
-        {"message to 1 of 2: hello"},
-        {0, 3.14, 6.2831853071795862, 9.4247779607693793, 13},
-        //{MPI_UB}
+    struct structdata
+    {
+        int ints[8];
+        char chars[32];
+        double doubles[5];
     };
 
-    tree x;
-    x.base = &buffer;
-    x.kind = tree::STRUCT;
-    x.count = 5;
-    x.entries[0] = tree_entry(1, -4, MPI_LB);
-    x.entries[1] = tree_entry(5,  0, MPI_INT);
-    x.entries[2] = tree_entry(7, 47, MPI_CHAR);
-    x.entries[3] = tree_entry(2, 76, MPI_DOUBLE);
-    x.entries[4] = tree_entry(1, 100, MPI_UB);
+    enum type_t { MPI_LB, MPI_INT, MPI_CHAR, MPI_DOUBLE, MPI_UB };
+
+    struct tree_entry
+    {
+        tree_entry() {}
+        tree_entry(int l, int o, type_t t)
+            : blocklength(l), offset(o), type(t)
+        {}
+
+        int blocklength;
+        int offset;
+        type_t type;
+    };
+
+    struct tree
+    {
+        enum kind_t { STRUCT };
+
+        void *base;
+        kind_t kind;
+        int count;
+        tree_entry entries[20];
+    };
+
+    void testMPI()
+    {
+        structdata buffer = {
+            //{MPI_LB},
+            {0, 1024, 2048, 3072, 4096, 5120, 6144 },
+            {"message to 1 of 2: hello"},
+            {0, 3.14, 6.2831853071795862, 9.4247779607693793, 13},
+            //{MPI_UB}
+        };
+
+        tree x;
+        x.base = &buffer;
+        x.kind = tree::STRUCT;
+        x.count = 5;
+        x.entries[0] = tree_entry(1, -4, MPI_LB);
+        x.entries[1] = tree_entry(5,  0, MPI_INT);
+        x.entries[2] = tree_entry(7, 47, MPI_CHAR);
+        x.entries[3] = tree_entry(2, 76, MPI_DOUBLE);
+        x.entries[4] = tree_entry(1, 100, MPI_UB);
 
 
-    int i = x.count;
-    i = buffer.ints[0];
-    i = buffer.ints[1];
-    i = buffer.ints[2];
-    i = buffer.ints[3];
-    /*
-            gdb) print datatype
-            > $3 = {
-            >   kind = STRUCT,
-            >   count = 5,
-            >   entries = {{
-            >       blocklength = 1,
-            >       offset = -4,
-            >       type = MPI_LB
-            >     }, {
-            >       blocklength = 5,
-            >       offset = 0,
-            >       type = MPI_INT
-            >     }, {
-            >       blocklength = 7,
-            >       offset = 47,
-            >       type = MPI_CHAR
-            >     }, {
-            >       blocklength = 2,
-            >       offset = 76,
-            >       type = MPI_DOUBLE
-            >     }, {
-            >       blocklength = 1,
-            >       offset = 100,
-            >       type = MPI_UB
-            >     }}
-            > }
-    */
+        int i = x.count;
+        i = buffer.ints[0];
+        i = buffer.ints[1];
+        i = buffer.ints[2];
+        i = buffer.ints[3];
+        /*
+                gdb) print datatype
+                > $3 = {
+                >   kind = STRUCT,
+                >   count = 5,
+                >   entries = {{
+                >       blocklength = 1,
+                >       offset = -4,
+                >       type = MPI_LB
+                >     }, {
+                >       blocklength = 5,
+                >       offset = 0,
+                >       type = MPI_INT
+                >     }, {
+                >       blocklength = 7,
+                >       offset = 47,
+                >       type = MPI_CHAR
+                >     }, {
+                >       blocklength = 2,
+                >       offset = 76,
+                >       type = MPI_DOUBLE
+                >     }, {
+                >       blocklength = 1,
+                >       offset = 100,
+                >       type = MPI_UB
+                >     }}
+                > }
+        */
 
-}
+    }
+
+} // namespace mpi
 
 
 //namespace kr {
@@ -3255,7 +3224,7 @@ namespace bug4904 {
         double dvalue;
     };
 
-    int test4904()
+    void test4904()
     {
         QMap<int, CustomStruct> map;
         CustomStruct cs1;
@@ -3266,11 +3235,11 @@ namespace bug4904 {
         map.insert(cs1.id, cs1);
         map.insert(cs2.id, cs2);
         QMap<int, CustomStruct>::iterator it = map.begin();
-        int n = map.size();   // <=== Break here.
+        // <=== Break here.
         // - expand map/[0]/value
         // - verify  map[0].key == -1
         // - verify  map[0].value.id == -1
-        return n;
+        dummyStatement(&it);
     }
 
 } // namespace bug4904
@@ -3282,16 +3251,17 @@ namespace bug5046 {
 
     struct Foo { int a, b, c; };
 
-    int test5046()
+    void test5046()
     {
         Foo f;
         f.a = 1;
         f.b = 2;
         f.c = 3;
-        f.a = 4; // <= Break here.
+        f.a = 4;
+        // <= Break here.
         // - pop up main editor tooltip over 'f'
         // - verify that the entry is expandable, and expansion works
-        return f.a;
+        dummyStatement(&f);
     }
 
 } // namespace bug5046
@@ -3370,14 +3340,13 @@ namespace qc42170 {
 
     struct Point : Object
     {
-        Point(double x_, double y_, int id_) : Object(id_), x(x_), y(y_) {}
+        Point(double x_, double y_) : Object(1), x(x_), y(y_) {}
         double x, y;
     };
 
     struct Circle : Point
     {
-        Circle(double x_, double y_, double r_, int id_)
-        : Point(x_, y_, id_), r(r_) {}
+        Circle(double x_, double y_, double r_) : Point(x_, y_), r(r_) { id = 2; }
         double r;
     };
 
@@ -3391,11 +3360,10 @@ namespace qc42170 {
 
     void test42170()
     {
-        Circle *circle = new Circle(1.5, -2.5, 3.0, 15);
+        Circle *circle = new Circle(1.5, -2.5, 3.0);
         Object *obj = circle;
         helper(circle);
         helper(obj);
-        dummyStatement(obj);
     }
 
 } // namespace qc42170
@@ -3501,6 +3469,26 @@ namespace varargs {
 
 int main(int argc, char *argv[])
 {
+    std::string s;
+    s = "hallo";
+    s += "hallo";
+
+    QVector<int> qv;
+    qv.push_back(2);
+
+    std::vector<int> v;
+    v.push_back(2);
+
+    QStringList list;
+    list << "aaa" << "bbb" << "cc";
+
+    QList<const char *> list2;
+    list2 << "foo";
+    list2 << "bar";
+    list2 << 0;
+    list2 << "baz";
+    list2 << 0;
+
     qhostaddress::testQHostAddress();
     varargs::testVaList();
     cp42895::test42895();
@@ -3518,14 +3506,10 @@ int main(int argc, char *argv[])
     //bug4497::test4497();
     eigen::testEigen();
     kr::testKR();
-    std::string s;
-    s = "hallo";
-    s += "hallo";
     qxml::testQXmlAttributes();
     qregexp::testQRegExp();
-    testInlineBreakpoints();
-    testLongEvaluation();
-    testMPI();
+    breakpoints::testBreakpoints();
+    mpi::testMPI();
     qobjectdata::testQObjectData();
     //testQSettings();
     //testWCout0();
@@ -3535,10 +3519,9 @@ int main(int argc, char *argv[])
     qrect::testGeometry();
     qregion::testQRegion();
     basic::testBasic();
-    testStuff();
     testPeekAndPoke3();
     testFunctionPointer();
-    testAnonymous();
+    anon::testAnonymous();
     //testEndlessLoop();
     //testEndlessRecursion();
     testQStack();
@@ -3550,22 +3533,6 @@ int main(int argc, char *argv[])
     stdvector::testStdVector();
     testQHash1();
     testSignalSlot(argc, argv);
-
-    QVector<int> qv;
-    qv.push_back(2);
-
-    std::vector<int> v;
-    v.push_back(2);
-
-    QStringList list;
-    list << "aaa" << "bbb" << "cc";
-
-    QList<const char *> list2;
-    list2 << "foo";
-    list2 << "bar";
-    list2 << 0;
-    list2 << "baz";
-    list2 << 0;
 
     testQStandardItemModel();
     testFunction();
@@ -3602,7 +3569,7 @@ int main(int argc, char *argv[])
     testQSharedPointer();
     qstringlist::testQStringList();
     testQScriptValue(argc, argv);
-    testStruct();
+    basic::testStruct();
     //qthread::testQThread();
     qvariant::testQVariant();
     qvector::testQVector();
