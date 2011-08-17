@@ -32,8 +32,9 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QUrl>
 #include <QtNetwork/QNetworkAccessManager>
+
+QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace Utils {
 

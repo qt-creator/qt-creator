@@ -34,13 +34,10 @@
 #define MESSAGEOUTPUTWINDOW_H
 
 #include "ioutputpane.h"
-#include "outputwindow.h"
-
-#include <QtGui/QShowEvent>
-#include <QtGui/QResizeEvent>
-#include <QtGui/QTextEdit>
 
 namespace Core {
+class OutputWindow;
+
 namespace Internal {
 
 class MessageOutputWindow : public Core::IOutputPane

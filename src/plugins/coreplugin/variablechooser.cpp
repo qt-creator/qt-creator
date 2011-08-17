@@ -35,7 +35,13 @@
 #include "variablemanager.h"
 #include "coreconstants.h"
 
+#include <utils/fancylineedit.h> // IconButton
+
 #include <QtCore/QTimer>
+#include <QtGui/QLineEdit>
+#include <QtGui/QTextEdit>
+#include <QtGui/QPlainTextEdit>
+#include <QtGui/QListWidgetItem>
 
 using namespace Core;
 

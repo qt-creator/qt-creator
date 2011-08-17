@@ -35,14 +35,19 @@
 
 #include "core_global.h"
 
-#include <utils/fancylineedit.h>
-
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
-#include <QtGui/QLineEdit>
-#include <QtGui/QTextEdit>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QListWidgetItem>
+
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QTextEdit;
+class QPlainTextEdit;
+class QListWidgetItem;
+QT_END_NAMESPACE
+
+namespace Utils {
+class IconButton;
+} // namespace Utils
 
 namespace Core {
 
@@ -78,7 +83,6 @@ private:
     QPointer<QPlainTextEdit> m_plainTextEdit;
     QPointer<Utils::IconButton> m_iconButton;
 };
-
 
 } // namespace Core
 #endif // VARIABLECHOOSER_H

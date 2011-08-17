@@ -34,6 +34,7 @@
 
 #include <QtCore/QRect>
 #include <QtGui/QWidgetItem>
+#include <QtGui/QWidget>
 
 using namespace Utils;
 

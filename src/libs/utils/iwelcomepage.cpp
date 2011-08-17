@@ -32,14 +32,14 @@
 
 #include "iwelcomepage.h"
 
-using namespace Utils;
+namespace Utils {
 
 IWelcomePage::IWelcomePage()
 {
-
 }
 
 IWelcomePage::~IWelcomePage()
 {
-
 }
+
+} // namespace Utils

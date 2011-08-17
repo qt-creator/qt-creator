@@ -72,6 +72,7 @@
 #include "statusbarwidget.h"
 #include "basefilewizard.h"
 #include "ioutputpane.h"
+#include "externaltoolmanager.h"
 #include "editormanager/systemeditor.h"
 
 #include <coreplugin/findplaceholder.h>

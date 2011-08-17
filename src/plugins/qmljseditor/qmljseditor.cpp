@@ -83,6 +83,7 @@
 #include <QtCore/QSignalMapper>
 #include <QtCore/QTimer>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QTextCodec>
 
 #include <QtGui/QMenu>
 #include <QtGui/QComboBox>

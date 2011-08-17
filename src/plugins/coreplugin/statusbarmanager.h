@@ -33,7 +33,10 @@
 #ifndef STATUSBARMANAGER_H
 #define STATUSBARMANAGER_H
 
-#include <QtGui/QWidget>
+#include <QtCore/QObject>
+#include <QtCore/QList>
+
+QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace Core {
 namespace Internal {

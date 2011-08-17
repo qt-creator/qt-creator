@@ -53,7 +53,7 @@ public:
     void setBackup(bool backup) { m_backup = backup; }
 
 private:
-    QString m_finalFileName;
+    const QString m_finalFileName;
     bool m_finalized;
     bool m_backup;
 };

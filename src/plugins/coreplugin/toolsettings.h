@@ -33,8 +33,6 @@
 #ifndef TOOLSETTINGS_H
 #define TOOLSETTINGS_H
 
-#include "dialogs/externaltoolconfig.h"
-
 #include "ioptionspage.h"
 
 #include <QtCore/QPointer>
@@ -42,12 +40,14 @@
 namespace Core {
 namespace Internal {
 
+class ExternalToolConfig;
+
 class ToolSettings : public IOptionsPage
 {
     Q_OBJECT
 public:
     explicit ToolSettings(QObject *parent = 0);
-    ~ToolSettings() {}
+    ~ToolSettings();
 
     QString id() const;
     QString displayName() const;

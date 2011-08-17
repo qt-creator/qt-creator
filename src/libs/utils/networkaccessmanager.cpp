@@ -33,6 +33,7 @@
 #include "networkaccessmanager.h"
 
 #include <QtCore/QLocale>
+#include <QtCore/QUrl>
 #include <QtNetwork/QNetworkReply>
 
 #ifdef Q_OS_UNIX

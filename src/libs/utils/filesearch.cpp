@@ -33,13 +33,12 @@
 #include "filesearch.h"
 #include <cctype>
 
-#include <QtCore/QIODevice>
 #include <QtCore/QBuffer>
 #include <QtCore/QFile>
-#include <QtCore/QFutureInterface>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QRegExp>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QTextCodec>
 
 #include <qtconcurrent/runextensions.h>
 

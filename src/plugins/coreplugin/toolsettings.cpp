@@ -31,9 +31,11 @@
 **************************************************************************/
 
 #include "toolsettings.h"
-
+#include "dialogs/externaltoolconfig.h"
 #include "externaltool.h"
+#include "externaltoolmanager.h"
 #include "coreconstants.h"
+#include "icore.h"
 
 #include <utils/qtcassert.h>
 
@@ -41,6 +43,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QTime>
+#include <QtGui/QIcon>
 
 #include <QtDebug>
 
@@ -49,6 +52,10 @@ using namespace Core::Internal;
 
 ToolSettings::ToolSettings(QObject *parent) :
     IOptionsPage(parent)
+{
+}
+
+ToolSettings::~ToolSettings()
 {
 }
 

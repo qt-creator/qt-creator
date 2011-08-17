@@ -31,19 +31,13 @@
 **************************************************************************/
 
 #include "savefile.h"
-
 #include "qtcassert.h"
-
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryFile>
 
 namespace Utils {
 
-SaveFile::SaveFile(const QString &filename)
+SaveFile::SaveFile(const QString &filename) :
+    m_finalFileName(filename), m_finalized(false), m_backup(false)
 {
-    m_finalFileName = filename;
-    m_finalized = false;
-    m_backup = false;
 }
 
 SaveFile::~SaveFile()

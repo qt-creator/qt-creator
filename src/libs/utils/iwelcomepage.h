@@ -33,16 +33,12 @@
 #ifndef IWELCOMEPAGE_H
 #define IWELCOMEPAGE_H
 
-
-#include <QtCore/QObject>
-#include <QtCore/QMetaType>
-#include <QtCore/QUrl>
-
 #include "utils_global.h"
 
-QT_BEGIN_NAMESPACE
-class QDeclarativeEngine;
-QT_END_NAMESPACE
+#include <QtCore/QObject>
+#include <QtCore/QUrl>
+
+QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine)
 
 namespace Utils {
 

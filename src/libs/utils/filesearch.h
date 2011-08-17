@@ -40,8 +40,9 @@
 #include <QtCore/QMap>
 #include <QtCore/QStack>
 #include <QtCore/QDir>
-#include <QtCore/QTextCodec>
 #include <QtGui/QTextDocument>
+
+QT_FORWARD_DECLARE_CLASS(QTextCodec)
 
 namespace Utils {
 

@@ -33,22 +33,18 @@
 #ifndef EXTERNALTOOL_H
 #define EXTERNALTOOL_H
 
-#include "icore.h"
-#include "core_global.h"
-#include "actionmanager/command.h"
-#include "actionmanager/actioncontainer.h"
-
-#include <utils/qtcprocess.h>
-
 #include <QtCore/QObject>
-#include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QTextCodec>
-#include <QtGui/QMenu>
+#include <QtCore/QMetaType>
 
+namespace Utils {
+class QtcProcess;
+}
 namespace Core {
+class ActionContainer;
 namespace Internal {
 
 class ExternalTool : public QObject
@@ -164,52 +160,6 @@ private:
 };
 
 } // Internal
-
-class CORE_EXPORT ExternalToolManager : public QObject
-{
-    Q_OBJECT
-
-public:
-    static ExternalToolManager *instance() { return m_instance; }
-
-    ExternalToolManager(Core::ICore *core);
-    ~ExternalToolManager();
-
-    QMap<QString, QList<Internal::ExternalTool *> > toolsByCategory() const;
-    QMap<QString, Internal::ExternalTool *> toolsById() const;
-
-    void setToolsByCategory(const QMap<QString, QList<Internal::ExternalTool *> > &tools);
-
-signals:
-    void replaceSelectionRequested(const QString &text);
-
-private slots:
-    void menuActivated();
-    void openPreferences();
-
-private:
-    void initialize();
-    void parseDirectory(const QString &directory,
-                        QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryMenus,
-                        QMap<QString, Internal::ExternalTool *> *tools,
-                        bool isPreset = false);
-    void readSettings(const QMap<QString, Internal::ExternalTool *> &tools,
-                      QMap<QString, QList<Internal::ExternalTool*> > *categoryPriorityMap);
-    void writeSettings();
-
-    static ExternalToolManager *m_instance;
-    Core::ICore *m_core;
-    QMap<QString, Internal::ExternalTool *> m_tools;
-    QMap<QString, QList<Internal::ExternalTool *> > m_categoryMap;
-    QMap<QString, QAction *> m_actions;
-    QMap<QString, ActionContainer *> m_containers;
-    QAction *m_configureSeparator;
-    QAction *m_configureAction;
-
-    // for sending the replaceSelectionRequested signal
-    friend class Core::Internal::ExternalToolRunner;
-};
-
 } // Core
 
 Q_DECLARE_METATYPE(Core::Internal::ExternalTool *)

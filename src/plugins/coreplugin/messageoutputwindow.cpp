@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "messageoutputwindow.h"
+#include "outputwindow.h"
 #include "icontext.h"
 #include "coreconstants.h"
 

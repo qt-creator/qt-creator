@@ -184,7 +184,8 @@ HEADERS += mainwindow.h \
     mimetypemagicdialog.h \
     mimetypesettings.h \
     dialogs/promptoverwritedialog.h \
-    fileutils.h
+    fileutils.h \
+    externaltoolmanager.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

@@ -37,7 +37,8 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
-#include <QtCore/QUrl>
+
+QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace Utils {
 
