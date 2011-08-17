@@ -192,6 +192,18 @@ void QmlV8DebuggerClient::interruptInferior()
 
 }
 
+void QmlV8DebuggerClient::shutdownInferior()
+{
+    QByteArray request;
+
+    JsonInputStream(request) << '{' << INITIALPARAMS ;
+    JsonInputStream(request) << ',' << "command" << ':' << "disconnect";
+
+    JsonInputStream(request) << '}';
+
+    sendMessage(packMessage(request));
+}
+
 void QmlV8DebuggerClient::activateFrame(int index)
 {
     setLocals(index);

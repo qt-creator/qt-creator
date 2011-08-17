@@ -375,10 +375,13 @@ void QmlEngine::handleRemoteSetupFailed(const QString &message)
 
 void QmlEngine::shutdownInferior()
 {
+    d->m_adapter.activeDebuggerClient()->shutdownInferior();
+
     if (isSlaveEngine()) {
         resetLocation();
     }
     stopApplicationLauncher();
+
     notifyInferiorShutdownOk();
 }
 
@@ -417,7 +420,7 @@ void QmlEngine::interruptInferior()
 {
     logMessage(LogSend, "INTERRUPT");
     d->m_adapter.activeDebuggerClient()->interruptInferior();
-
+    notifyInferiorStopOk();
 }
 
 void QmlEngine::executeStep()
@@ -724,8 +727,6 @@ void QmlEngine::inferiorSpontaneousStop()
 {
     if (state() == InferiorRunOk)
         notifyInferiorSpontaneousStop();
-    else
-        notifyInferiorStopOk();
 }
 
 void QmlEngine::disconnected()

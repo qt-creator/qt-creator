@@ -192,6 +192,11 @@ void QScriptDebuggerClient::interruptInferior()
     sendMessage(reply);
 }
 
+void QScriptDebuggerClient::shutdownInferior()
+{
+
+}
+
 void QScriptDebuggerClient::activateFrame(int index)
 {
     QByteArray reply;

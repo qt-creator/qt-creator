@@ -59,6 +59,7 @@ public:
 
     void continueInferior();
     void interruptInferior();
+    void shutdownInferior();
 
     void activateFrame(int index);
 

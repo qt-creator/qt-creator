@@ -59,6 +59,7 @@ public:
 
     virtual void continueInferior() = 0;
     virtual void interruptInferior() = 0;
+    virtual void shutdownInferior() = 0;
 
     virtual void activateFrame(int index) = 0;
 
