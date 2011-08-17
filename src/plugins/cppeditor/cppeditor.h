@@ -269,7 +269,7 @@ private:
     void abortRename();
 
     void applyDeclDefLinkChanges(bool jumpToMatch);
-    void abortDeclDefLink();
+    Q_SLOT void abortDeclDefLink();
 
     Link attemptFuncDeclDef(const QTextCursor &cursor,
                             const CPlusPlus::Document::Ptr &doc,

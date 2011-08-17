@@ -120,11 +120,10 @@ public:
      */
     void activateEditor(const QString &fileName, int line, int column);
 
-
-private:
     static BaseTextEditorWidget *editorForFile(const QString &fileName,
                                          bool openIfClosed = false);
 
+private:
     static QList<QTextCursor> rangesToSelections(QTextDocument *document, const QList<Range> &ranges);
     virtual void indentSelection(const QTextCursor &selection,
                                  const QString &fileName,
