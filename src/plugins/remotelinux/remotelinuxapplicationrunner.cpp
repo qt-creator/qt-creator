@@ -73,7 +73,7 @@ public:
     }
 
     RemoteLinuxUsedPortsGatherer portsGatherer;
-    const LinuxDeviceConfiguration::ConstPtr devConfig;
+    LinuxDeviceConfiguration::ConstPtr devConfig;
     const QString remoteExecutable;
     const QString appArguments;
     const QString commandPrefix;
@@ -364,6 +364,11 @@ bool AbstractRemoteLinuxApplicationRunner::canRun(QString &whyNot) const
     }
 
     return true;
+}
+
+void AbstractRemoteLinuxApplicationRunner::setDeviceConfiguration(const LinuxDeviceConfiguration::ConstPtr &deviceConfig)
+{
+    m_d->devConfig = deviceConfig;
 }
 
 void AbstractRemoteLinuxApplicationRunner::handleDeviceSetupDone(bool success)

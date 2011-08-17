@@ -87,6 +87,8 @@ protected:
     // Override to to additional checks.
     virtual bool canRun(QString &whyNot) const;
 
+    void setDeviceConfiguration(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig);
+
     void handleDeviceSetupDone(bool success);
     void handleInitialCleanupDone(bool success);
     void handleInitializationsDone(bool success);
