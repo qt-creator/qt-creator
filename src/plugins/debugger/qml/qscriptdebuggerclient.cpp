@@ -202,21 +202,29 @@ void QScriptDebuggerClient::activateFrame(int index)
     sendMessage(reply);
 }
 
-void QScriptDebuggerClient::insertBreakpoints(BreakHandler *handler, BreakpointModelId *id)
+void QScriptDebuggerClient::insertBreakpoint(BreakpointModelId id, BreakHandler *handler)
 {
     JSAgentBreakpointData bp;
-    bp.fileUrl = QUrl::fromLocalFile(handler->fileName(*id)).toString().toUtf8();
-    bp.lineNumber = handler->lineNumber(*id);
-    bp.functionName = handler->functionName(*id).toUtf8();
+    bp.fileUrl = QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8();
+    bp.lineNumber = handler->lineNumber(id);
+    bp.functionName = handler->functionName(id).toUtf8();
     d->breakpoints.insert(bp);
 }
 
-void QScriptDebuggerClient::removeBreakpoints(BreakpointModelId * /*id*/)
+void QScriptDebuggerClient::removeBreakpoint(BreakpointModelId id, BreakHandler *handler)
 {
-
+    JSAgentBreakpointData bp;
+    bp.fileUrl = QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8();
+    bp.lineNumber = handler->lineNumber(id);
+    bp.functionName = handler->functionName(id).toUtf8();
+    d->breakpoints.remove(bp);
 }
 
-void QScriptDebuggerClient::setBreakpoints()
+void QScriptDebuggerClient::changeBreakpoint(BreakpointModelId /*id*/, BreakHandler * /*handler*/)
+{
+}
+
+void QScriptDebuggerClient::updateBreakpoints()
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
@@ -224,8 +232,6 @@ void QScriptDebuggerClient::setBreakpoints()
     rs << cmd
        << d->breakpoints;
     sendMessage(reply);
-
-    d->breakpoints.clear();
 }
 
 void QScriptDebuggerClient::assignValueInDebugger(const QByteArray expr, const quint64 &id,

@@ -491,8 +491,73 @@ void QmlEngine::selectThread(int index)
     Q_UNUSED(index)
 }
 
+void QmlEngine::insertBreakpoint(BreakpointModelId id)
+{
+    BreakHandler *handler = breakHandler();
+    BreakpointState state = handler->state(id);
+    QTC_ASSERT(state == BreakpointInsertRequested, qDebug() << id << this << state);
+    handler->notifyBreakpointInsertProceeding(id);
+
+    if (d->m_adapter.activeDebuggerClient()) {
+        d->m_adapter.activeDebuggerClient()->insertBreakpoint(id,handler);
+    } else {
+        foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+            client->insertBreakpoint(id,handler);
+        }
+    }
+
+    if (handler->state(id) == BreakpointInsertProceeding) {
+        handler->notifyBreakpointInsertOk(id);
+    }
+}
+
+void QmlEngine::removeBreakpoint(BreakpointModelId id)
+{
+    BreakHandler *handler = breakHandler();
+    BreakpointState state = handler->state(id);
+    QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << id << this << state);
+    handler->notifyBreakpointRemoveProceeding(id);
+
+    if (d->m_adapter.activeDebuggerClient()) {
+        d->m_adapter.activeDebuggerClient()->removeBreakpoint(id,handler);
+    } else {
+        foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+            client->removeBreakpoint(id,handler);
+        }
+    }
+
+    if (handler->state(id) == BreakpointRemoveProceeding) {
+        handler->notifyBreakpointRemoveOk(id);
+    }
+}
+
+void QmlEngine::changeBreakpoint(BreakpointModelId id)
+{
+    BreakHandler *handler = breakHandler();
+    BreakpointState state = handler->state(id);
+    QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << id << this << state);
+    handler->notifyBreakpointChangeProceeding(id);
+
+    if (d->m_adapter.activeDebuggerClient()) {
+        d->m_adapter.activeDebuggerClient()->changeBreakpoint(id,handler);
+    } else {
+        foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+            client->changeBreakpoint(id,handler);
+        }
+    }
+
+    if (handler->state(id) == BreakpointChangeProceeding) {
+        handler->notifyBreakpointChangeOk(id);
+    }
+}
+
 void QmlEngine::attemptBreakpointSynchronization()
 {
+    if (!stateAcceptsBreakpointChanges()) {
+        showMessage(_("BREAKPOINT SYNCHRONIZATION NOT POSSIBLE IN CURRENT STATE"));
+        return;
+    }
+
     BreakHandler *handler = breakHandler();
 
     foreach (BreakpointModelId id, handler->unclaimedBreakpointIds()) {
@@ -501,45 +566,39 @@ void QmlEngine::attemptBreakpointSynchronization()
             handler->setEngine(id, this);
     }
 
-    QStringList breakPointsStr;
     foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
-        if (handler->state(id) == BreakpointRemoveRequested) {
-            handler->notifyBreakpointRemoveProceeding(id);
-            if (d->m_adapter.activeDebuggerClient())
-                d->m_adapter.activeDebuggerClient()->removeBreakpoints(&id);
-            else {
-                foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
-                    client->removeBreakpoints(&id);
-                }
-            }
-            handler->notifyBreakpointRemoveOk(id);
-        } else {
-            if (handler->state(id) == BreakpointInsertRequested) {
-                handler->notifyBreakpointInsertProceeding(id);
-            }
-            if (d->m_adapter.activeDebuggerClient())
-                d->m_adapter.activeDebuggerClient()->insertBreakpoints(handler,&id);
-            else {
-                foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
-                    client->insertBreakpoints(handler,&id);
-                }
-            }
-            if (handler->state(id) == BreakpointInsertProceeding) {
-                handler->notifyBreakpointInsertOk(id);
-            }
-            breakPointsStr << QString("('%1' '%2' %3)").arg(QString(handler->functionName(id).toUtf8()),
-                                      QString(QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8()), QString::number(handler->lineNumber(id)));
+        switch (handler->state(id)) {
+        case BreakpointNew:
+            // Should not happen once claimed.
+            QTC_CHECK(false);
+            continue;
+        case BreakpointInsertRequested:
+            insertBreakpoint(id);
+            continue;
+        case BreakpointChangeRequested:
+            changeBreakpoint(id);
+            continue;
+        case BreakpointRemoveRequested:
+            removeBreakpoint(id);
+            continue;
+        case BreakpointChangeProceeding:
+        case BreakpointInsertProceeding:
+        case BreakpointRemoveProceeding:
+        case BreakpointInserted:
+        case BreakpointDead:
+            continue;
         }
+        QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << id << state());
     }
 
-    logMessage(LogSend, QString("%1 [%2]").arg(QString("BREAKPOINTS"), breakPointsStr.join(", ")));
+    DebuggerEngine::attemptBreakpointSynchronization();
 
     if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->setBreakpoints();
-    }
-    else {
-        foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients())
-            client->setBreakpoints();
+        d->m_adapter.activeDebuggerClient()->updateBreakpoints();
+    } else {
+        foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+            client->updateBreakpoints();
+        }
     }
 }
 
@@ -631,8 +690,7 @@ void QmlEngine::synchronizeWatchers()
                    QString("WATCH_EXPRESSIONS"), watchedExpressions.join(", ")));
     if (d->m_adapter.activeDebuggerClient()) {
         d->m_adapter.activeDebuggerClient()->synchronizeWatchers(watchedExpressions);
-    }
-    else {
+    } else {
         foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients())
             client->synchronizeWatchers(watchedExpressions);
     }

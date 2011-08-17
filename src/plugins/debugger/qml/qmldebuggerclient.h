@@ -62,9 +62,10 @@ public:
 
     virtual void activateFrame(int index) = 0;
 
-    virtual void insertBreakpoints(BreakHandler *handler, BreakpointModelId *id) = 0;
-    virtual void removeBreakpoints(BreakpointModelId *id) = 0;
-    virtual void setBreakpoints() = 0;
+    virtual void insertBreakpoint(BreakpointModelId id, BreakHandler *handler) = 0;
+    virtual void removeBreakpoint(BreakpointModelId id, BreakHandler *handler) = 0;
+    virtual void changeBreakpoint(BreakpointModelId id, BreakHandler *handler) = 0;
+    virtual void updateBreakpoints() = 0;
 
     virtual void assignValueInDebugger(const QByteArray expr, const quint64 &id,
                                        const QString &property, const QString value) = 0;
@@ -75,7 +76,6 @@ public:
     virtual void synchronizeWatchers(const QStringList &watchers) = 0;
 
     virtual void expandObject(const QByteArray &iname, quint64 objectId) = 0;
-    virtual void sendPing() = 0;
 
     virtual void setEngine(QmlEngine *engine) = 0;
 

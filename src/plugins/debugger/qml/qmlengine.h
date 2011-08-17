@@ -107,6 +107,9 @@ private:
     void selectThread(int index);
 
     void attemptBreakpointSynchronization();
+    void insertBreakpoint(BreakpointModelId id);
+    void removeBreakpoint(BreakpointModelId id);
+    void changeBreakpoint(BreakpointModelId id);
     bool acceptsBreakpoint(BreakpointModelId id) const;
 
     void assignValueInDebugger(const WatchData *data,

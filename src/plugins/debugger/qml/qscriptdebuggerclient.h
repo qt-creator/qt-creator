@@ -61,9 +61,10 @@ public:
 
     void activateFrame(int index);
 
-    void insertBreakpoints(BreakHandler *handler, BreakpointModelId *id);
-    void removeBreakpoints(BreakpointModelId *id);
-    void setBreakpoints();
+    void insertBreakpoint(BreakpointModelId id, BreakHandler *handler);
+    void removeBreakpoint(BreakpointModelId id, BreakHandler *handler);
+    void changeBreakpoint(BreakpointModelId id, BreakHandler *handler);
+    void updateBreakpoints();
 
     void assignValueInDebugger(const QByteArray expr, const quint64 &id,
                                        const QString &property, const QString value);
@@ -74,7 +75,6 @@ public:
     void synchronizeWatchers(const QStringList &watchers);
 
     void expandObject(const QByteArray &iname, quint64 objectId);
-    void sendPing();
 
     void setEngine(QmlEngine *engine);
 
@@ -83,6 +83,9 @@ signals:
 
 protected:
     void messageReceived(const QByteArray &data);
+
+private:
+    void sendPing();
 
 private:
     QScriptDebuggerClientPrivate *d;

@@ -197,33 +197,32 @@ void QmlV8DebuggerClient::activateFrame(int index)
     setLocals(index);
 }
 
-void QmlV8DebuggerClient::insertBreakpoints(BreakHandler *handler, BreakpointModelId *id)
+void QmlV8DebuggerClient::insertBreakpoint(BreakpointModelId id, BreakHandler *handler)
 {
     QByteArray request;
 
     JsonInputStream(request) << '{' << INITIALPARAMS ;
     JsonInputStream(request) << ',' << "command" << ':' << "setbreakpoint";
     JsonInputStream(request) << ',' << "arguments" << ':' << '{';
-    if (handler->breakpointData(*id).type == BreakpointByFileAndLine) {
+    if (handler->breakpointData(id).type == BreakpointByFileAndLine) {
         JsonInputStream(request) << "type" << ':' << "script";
-        JsonInputStream(request) << ',' << "target" << ':' << QFileInfo(handler->fileName(*id)).fileName().toUtf8();
-        JsonInputStream(request) << ',' << "line" << ':' << handler->lineNumber(*id) - 1;
-    } else if (handler->breakpointData(*id).type == BreakpointByFunction) {
+        JsonInputStream(request) << ',' << "target" << ':' << QFileInfo(handler->fileName(id)).fileName().toUtf8();
+        JsonInputStream(request) << ',' << "line" << ':' << handler->lineNumber(id) - 1;
+    } else if (handler->breakpointData(id).type == BreakpointByFunction) {
         JsonInputStream(request) << "type" << ':' << "function";
-        JsonInputStream(request) << ',' << "target" << ':' << handler->functionName(*id).toUtf8();
+        JsonInputStream(request) << ',' << "target" << ':' << handler->functionName(id).toUtf8();
     }
     JsonInputStream(request) << '}';
     JsonInputStream(request) << '}';
 
-    d->breakpointsSync.insert(d->sequence,*id);
+    d->breakpointsSync.insert(d->sequence,id);
     sendMessage(packMessage(request));
-
 }
 
-void QmlV8DebuggerClient::removeBreakpoints(BreakpointModelId *id)
+void QmlV8DebuggerClient::removeBreakpoint(BreakpointModelId id, BreakHandler * /*handler*/)
 {
-    QList<int> breakpoints = d->breakpoints.values(*id);
-    d->breakpoints.remove(*id);
+    QList<int> breakpoints = d->breakpoints.values(id);
+    d->breakpoints.remove(id);
 
     foreach (int bp, breakpoints) {
         QByteArray request;
@@ -241,7 +240,11 @@ void QmlV8DebuggerClient::removeBreakpoints(BreakpointModelId *id)
     }
 }
 
-void QmlV8DebuggerClient::setBreakpoints()
+void QmlV8DebuggerClient::changeBreakpoint(BreakpointModelId /*id*/, BreakHandler * /*handler*/)
+{
+}
+
+void QmlV8DebuggerClient::updateBreakpoints()
 {
 }
 
@@ -318,17 +321,6 @@ void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId
 
 }
 
-void QmlV8DebuggerClient::sendPing()
-{
-    QByteArray request;
-
-    JsonInputStream(request) << '{' << INITIALPARAMS ;
-    JsonInputStream(request) << ',' << "command" << ':' << "ping" << '}';
-
-    d->ping = d->sequence;
-    sendMessage(packMessage(request));
-}
-
 void QmlV8DebuggerClient::backtrace()
 {
     QByteArray request;
@@ -362,9 +354,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
             }
 
             QString debugCommand(value.findChild("command").toVariant().toString());
-            if (debugCommand == "pong") {
-                //DO NOTHING
-            } else if (debugCommand == "backtrace") {
+            if (debugCommand == "backtrace") {
                 setStackFrames(response);
 
             } else if (debugCommand == "lookup") {
