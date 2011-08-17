@@ -232,6 +232,7 @@ public:
 
     ProcessHandle applicationProcessHandle() const;
     void setApplicationProcessHandle(const ProcessHandle &handle);
+    Abi abi() const;
 
     bool sameRunConfiguration(const RunControl *other) const;
 

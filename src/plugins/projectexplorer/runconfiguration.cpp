@@ -534,6 +534,13 @@ QString RunControl::displayName() const
     return m_displayName;
 }
 
+Abi RunControl::abi() const
+{
+    if (const RunConfiguration *rc = m_runConfiguration.data())
+        return rc->abi();
+    return Abi();
+}
+
 ProcessHandle RunControl::applicationProcessHandle() const
 {
     return m_applicationProcessHandle;

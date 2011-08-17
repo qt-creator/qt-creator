@@ -1457,8 +1457,7 @@ void DebuggerPluginPrivate::attachExternalApplication(ProjectExplorer::RunContro
     sp.attachPID = rc->applicationProcessHandle().pid();
     sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
     sp.startMode = AttachExternal;
-    //sp.toolChainAbi = anyAbiOfBinary(sp.executable);
-    sp.toolChainAbi = ProjectExplorer::Abi::hostAbi(); // FIXME: Extract from RunControl?
+    sp.toolChainAbi = rc->abi();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
