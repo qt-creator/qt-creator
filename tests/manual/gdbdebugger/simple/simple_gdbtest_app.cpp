@@ -477,33 +477,54 @@ func_t testFunctionPointer()
     return f1;
 }
 
-void testQByteArray()
-{
-    QByteArray ba = "Hello";
-    ba += '"';
-    ba += "World";
 
-    const char *str1 = "\356";
-    const char *str2 = "\xee";
-    const char *str3 = "\\ee";
-    QByteArray buf1( str1 );
-    QByteArray buf2( str2 );
-    QByteArray buf3( str3 );
+namespace qbytearray {
 
-    ba += char(0);
-    ba += 1;
-    ba += 2;
-}
+    void testQByteArray1()
+    {
+        QByteArray ba;
+        // <== Break here.
+        ba += "Hello";
+        ba += '"';
+        ba += "World";
+        ba += char(0);
+        ba += 1;
+        ba += 2;
+        dummyStatement(&ba);
+    }
 
-int testQByteArray2()
-{
-    QByteArray ba;
-    for (int i = 256; --i >= 0; )
-        ba.append(char(i));
-    QString s(10000, 'x');
-    std::string ss(10000, 'c');
-    return ba.size();
-}
+    void testQByteArray2()
+    {
+        QByteArray ba;
+        for (int i = 256; --i >= 0; )
+            ba.append(char(i));
+        // <== Break here.
+        QString s(10000, 'x');
+        std::string ss(10000, 'c');
+        dummyStatement(&ba, &ss, &s);
+    }
+
+    void testQByteArray3()
+    {
+        const char *str1 = "\356";
+        const char *str2 = "\xee";
+        const char *str3 = "\\ee";
+        QByteArray buf1(str1);
+        QByteArray buf2(str2);
+        QByteArray buf3(str3);
+        // <== Break here.
+        dummyStatement(&buf1, &buf2, &buf3);
+    }
+
+    void testQByteArray()
+    {
+        testQByteArray1();
+        testQByteArray2();
+        testQByteArray3();
+    }
+
+} // namespace qbytearray
+
 
 static void throwit1()
 {
@@ -572,18 +593,20 @@ namespace qdatetime {
 
 } // namespace qdatetime
 
-QFileInfo testQFileInfo()
-{
-    QFile file("/tmp/t");
-    QFileInfo fi("/tmp/t");
-    QString s = fi.absoluteFilePath();
-    s = fi.bundleName();
-    s = fi.bundleName();
-    s = fi.bundleName();
 
-    QFileInfo result("/tmp/t");
-    return result;
-}
+namespace qfileinfo {
+
+    void testQFileInfo()
+    {
+        QFile file("/tmp/t");
+        QFileInfo fi("/tmp/t");
+        QString s = fi.absoluteFilePath();
+        s = fi.bundleName();
+        dummyStatement(&file, &s);
+    }
+
+} // namespace qfileinfo
+
 
 void testQFixed()
 {
@@ -1114,6 +1137,75 @@ namespace qregexp {
     }
 
 } // namespace qregexp
+
+
+namespace qrect {
+
+    void testQPoint()
+    {
+        QPoint s;
+        // <=== Break here.
+        // Step over, check display looks sane.
+        s = QPoint(100, 200);
+        dummyStatement(&s);
+    }
+
+    void testQPointF()
+    {
+        QPointF s;
+        // <=== Break here.
+        // Step over, check display looks sane.
+        s = QPointF(100, 200);
+        dummyStatement(&s);
+    }
+
+    void testQRect()
+    {
+        QRect rect;
+        // <=== Break here.
+        // Step over, check display looks sane.
+        rect = QRect(100, 100, 200, 200);
+        dummyStatement(&rect);
+    }
+
+    void testQRectF()
+    {
+        QRectF rect;
+        // <=== Break here.
+        // Step over, check display looks sane.
+        rect = QRectF(100, 100, 200, 200);
+        dummyStatement(&rect);
+    }
+
+    void testQSize()
+    {
+        QSize s;
+        // <=== Break here.
+        // Step over, check display looks sane.
+        s = QSize(100, 200);
+        dummyStatement(&s);
+    }
+
+    void testQSizeF()
+    {
+        QSizeF s;
+        // <=== Break here.
+        // Step over, check display looks sane.
+        s = QSizeF(100, 200);
+        dummyStatement(&s);
+    }
+
+    void testGeometry()
+    {
+        testQPoint();
+        testQPointF();
+        testQRect();
+        testQRectF();
+        testQSize();
+        testQSizeF();
+    }
+
+} // namespace qrect
 
 
 namespace qregion {
@@ -1737,17 +1829,23 @@ void testQString3()
     delete pstring;
 }
 
-QStringList testQStringList()
-{
-    QStringList l;
-    l << "Hello ";
-    l << " big, ";
-    l << " fat ";
-    l.takeFirst();
-    l << " World ";
-    QStringList result;
-    return result;
-}
+
+namespace qstringlist {
+
+    void testQStringList()
+    {
+        QStringList l;
+        // <=== Break here.
+        l << "Hello ";
+        l << " big, ";
+        l << " fat ";
+        l.takeFirst();
+        l << " World ";
+        dummyStatement(&l);
+    }
+
+} // namespace qstringlist
+
 
 Foo testStruct()
 {
@@ -1936,7 +2034,7 @@ namespace qvariant {
          "QPointF",     # 26
          "QRegExp",     # 27
          */
-        var.isValid(); // Dummy
+        dummyStatement(&var);
     }
 
     void testQVariant3()
@@ -1960,6 +2058,7 @@ namespace qvariant {
         var.setValue(ha);
         QHostAddress ha1 = var.value<QHostAddress>();
         // <== Break here.
+        // Expand ha, ha1 and var.
         // Check var and ha1 look correct.
         dummyStatement(&ha1);
     }
@@ -2876,9 +2975,10 @@ void testBoostSharedPtr()
     boost::shared_ptr<int> s;
     boost::shared_ptr<int> i(new int(43));
     boost::shared_ptr<int> j = i;
-    boost::shared_ptr<QStringList> sl(new QStringList);
-    int k = 2;
-    ++k;
+    boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << "HUH!"));
+    // <=== Break here.
+    dummyStatement(&qs, &qj);
+    dummyStatement(&s, &j, &sl);
 #endif
 }
 
@@ -3432,6 +3532,7 @@ int main(int argc, char *argv[])
     //testWCout();
     testSSE();
     testQLocale();
+    qrect::testGeometry();
     qregion::testQRegion();
     basic::testBasic();
     testStuff();
@@ -3443,7 +3544,7 @@ int main(int argc, char *argv[])
     testQStack();
     testPointer();
     qdatetime::testDateTime();
-    testQFileInfo();
+    qfileinfo::testQFileInfo();
     testQFixed();
     testObject1();
     stdvector::testStdVector();
@@ -3475,8 +3576,7 @@ int main(int argc, char *argv[])
     testOutput();
     testHidden();
     testCatchThrow();
-    testQByteArray();
-    testQByteArray2();
+    qbytearray::testQByteArray();
 
     testStdDeque();
     testStdList();
@@ -3500,7 +3600,7 @@ int main(int argc, char *argv[])
     testQUrl();
     testQSet();
     testQSharedPointer();
-    testQStringList();
+    qstringlist::testQStringList();
     testQScriptValue(argc, argv);
     testStruct();
     //qthread::testQThread();
@@ -3519,8 +3619,5 @@ int main(int argc, char *argv[])
     //QFont font;
     return 0;
 }
-
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
 
 #include "simple_gdbtest_app.moc"
