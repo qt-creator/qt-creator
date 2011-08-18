@@ -37,6 +37,8 @@
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojecttarget.h"
 #include "qmlprojectconstants.h"
+#include "qmlprojectnodes.h"
+#include "qmlprojectmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -256,7 +258,7 @@ Core::IFile *QmlProject::file() const
     return m_file;
 }
 
-Internal::Manager *QmlProject::projectManager() const
+ProjectExplorer::IProjectManager *QmlProject::projectManager() const
 {
     return m_manager;
 }
@@ -276,7 +278,7 @@ Internal::QmlProjectTarget *QmlProject::activeTarget() const
     return static_cast<Internal::QmlProjectTarget *>(Project::activeTarget());
 }
 
-Internal::QmlProjectNode *QmlProject::rootProjectNode() const
+ProjectExplorer::ProjectNode *QmlProject::rootProjectNode() const
 {
     return m_rootNode;
 }

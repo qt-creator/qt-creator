@@ -34,8 +34,6 @@
 #define QMLPROJECT_H
 
 #include "qmlprojectmanager_global.h"
-#include "qmlprojectnodes.h"
-#include "qmlprojectmanager.h"
 
 #include <projectexplorer/project.h>
 
@@ -54,9 +52,10 @@ namespace QmlProjectManager {
 class QmlProjectItem;
 
 namespace Internal {
-
+class Manager;
 class QmlProjectFile;
 class QmlProjectTarget;
+class QmlProjectNode;
 } // namespace Internal
 
 class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
@@ -72,14 +71,14 @@ public:
     QString displayName() const;
     QString id() const;
     Core::IFile *file() const;
-    Internal::Manager *projectManager() const;
+    ProjectExplorer::IProjectManager *projectManager() const;
     Internal::QmlProjectTarget *activeTarget() const;
 
     QList<ProjectExplorer::Project *> dependsOn();
 
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
-    Internal::QmlProjectNode *rootProjectNode() const;
+    ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
 
     bool validProjectFile() const;

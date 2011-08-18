@@ -37,14 +37,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
-
 namespace QmlProjectManager {
-namespace Internal {
-
-class ProjectFilesFactory;
-
-}
 
 class QMLPROJECTMANAGER_EXPORT QmlProjectPlugin: public ExtensionSystem::IPlugin
 {
@@ -58,7 +51,6 @@ public:
     virtual void extensionsInitialized();
 
     static void showQmlObserverToolWarning();
-
 };
 
 } // namespace QmlProject

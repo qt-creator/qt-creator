@@ -37,7 +37,7 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <cplusplus/ModelManagerInterface.h>
+#include <cplusplus/CppDocument.h>
 
 #include <QtCore/QFuture>
 #include <QtCore/QFutureSynchronizer>
@@ -48,6 +48,10 @@ QT_FORWARD_DECLARE_CLASS(QTimer)
 namespace Core {
 class ICore;
 class MimeType;
+}
+
+namespace CPlusPlus {
+class CppModelManagerInterface;
 }
 
 namespace QmlJSTools {
