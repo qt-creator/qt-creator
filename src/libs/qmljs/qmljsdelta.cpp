@@ -511,13 +511,15 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
 
         if (!M.way2.contains(y)) {
             UiObjectMember* parent = parents2.parent.value(y);
-            if ( parent->kind == QmlJS::AST::Node::Kind_UiArrayBinding )
-                parent = parents2.parent.value(parent);
+            if (parent) {
+                if ( parent->kind == QmlJS::AST::Node::Kind_UiArrayBinding )
+                    parent = parents2.parent.value(parent);
 
-            if (M.way2.contains(parent) && newDebuggIds.value(parent).count() > 0) {
-                if (debug)
-                    qDebug () << "Delta::operator():  insert " << label(y, doc2) << " to " << label(parent, doc2);
-                insert(y, parent, newDebuggIds.value(parent), doc2);
+                if (M.way2.contains(parent) && newDebuggIds.value(parent).count() > 0) {
+                    if (debug)
+                        qDebug () << "Delta::operator():  insert " << label(y, doc2) << " to " << label(parent, doc2);
+                    insert(y, parent, newDebuggIds.value(parent), doc2);
+                }
             }
             continue;
         }
