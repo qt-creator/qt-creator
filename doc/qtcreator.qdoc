@@ -41,8 +41,8 @@
     Mac OS X and Windows operating systems. For more information, see
     \l{Operating Systems and Supported Platforms}.
 
-    \note Please report bugs and suggestions to the
-    \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
+    \note To report bugs and suggestions to the Qt Bug Tracker, select
+    \gui {Help > Report Bug}.
     You can also join the Qt Creator mailing list at:
     \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
 
