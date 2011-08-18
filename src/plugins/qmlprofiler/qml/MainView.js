@@ -36,7 +36,7 @@ var xmargin = 0;
 var ymargin = 0;
 var qmlEventList = 0;
 
-var names = [ "Painting", "Compiling", "Creating", "Binding", "Handling Signal"]
+var names = [ qsTr("Painting"), qsTr("Compiling"), qsTr("Creating"), qsTr("Binding"), qsTr("Handling Signal")]
 //### need better way to manipulate color from QML. In the meantime, these need to be kept in sync.
 var colors = [ "#99CCB3", "#99CCCC", "#99B3CC", "#9999CC", "#CC99B3", "#CC99CC", "#CCCC99", "#CCB399" ];
 var origColors = [ "#99CCB3", "#99CCCC", "#99B3CC", "#9999CC", "#CC99B3", "#CC99CC", "#CCCC99", "#CCB399" ];

@@ -172,7 +172,6 @@ Rectangle {
                 reset = false
             }
             var time = (new Date() - startDate)/1000
-            //elapsed.text = time.toFixed(1) + "s"
             root.elapsedTime = time.toFixed(1);
             root.updateTimer();
         }
@@ -390,11 +389,11 @@ Rectangle {
         Column {
             id: col
             //### change to use Repeater + Plotter.names?
-            Label { text: "Painting"; height: labels.height/labels.rowCount}
-            Label { text: "Compiling"; height: labels.height/labels.rowCount }
-            Label { text: "Creating"; height: labels.height/labels.rowCount }
-            Label { text: "Binding"; height: labels.height/labels.rowCount }
-            Label { text: "Signal Handler"; height: labels.height/labels.rowCount }
+            Label { text: qsTr("Painting"); height: labels.height/labels.rowCount}
+            Label { text: qsTr("Compiling"); height: labels.height/labels.rowCount }
+            Label { text: qsTr("Creating"); height: labels.height/labels.rowCount }
+            Label { text: qsTr("Binding"); height: labels.height/labels.rowCount }
+            Label { text: qsTr("Signal Handler"); height: labels.height/labels.rowCount }
         }
 
         //right border divider

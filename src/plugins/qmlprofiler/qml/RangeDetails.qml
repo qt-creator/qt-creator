@@ -70,23 +70,20 @@ BorderImage {
         anchors.top: typeTitle.bottom
         x: 2
         Detail {
-            label: "Duration"
+            label: qsTr("Duration")
             content: rangeDetails.duration < 1000 ?
                         rangeDetails.duration + "μs" :
                         Math.floor(rangeDetails.duration/10)/100 + "ms"
         }
         Detail {
             opacity: content.length !== 0 ? 1 : 0
-            label: "Details"
+            label: qsTr("Details")
             content: {
                 var inputString = rangeDetails.label;
                 if (inputString.length > 7 && inputString.substring(0,7) == "file://") {
                     var pos = inputString.lastIndexOf("/");
                     return inputString.substr(pos+1);
                 }
-                // transform code blocks into oneliners
-                inputString = inputString.replace("\n", " ");
-
                 var maxLen = 40;
                 if (inputString.length > maxLen)
                     inputString = inputString.substring(0,maxLen)+"...";
@@ -96,7 +93,7 @@ BorderImage {
         }
         Detail {
             opacity: content.length !== 0 ? 1 : 0
-            label: "Location"
+            label: qsTr("Location")
             content: {
                 var file = rangeDetails.file
                 var pos = file.lastIndexOf("/")
