@@ -12,6 +12,7 @@ TEMPLATE  = subdirs
 CONFIG   += ordered
 
 SUBDIRS = src share lib/qtcreator/qtcomponents
+unix:!macx:!isEmpty(copydata):SUBDIRS += bin
 
 OTHER_FILES += dist/copyright_template.txt \
     dist/changes-1.1.0 \
