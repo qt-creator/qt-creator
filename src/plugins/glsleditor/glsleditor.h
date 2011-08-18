@@ -34,12 +34,8 @@
 #define GLSLEDITOR_H
 
 #include "glsleditor_global.h"
-#include "glsleditoreditable.h"
-
-#include <glsl/glsl.h>
 
 #include <texteditor/basetexteditor.h>
-#include <texteditor/quickfix.h>
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QSet>
@@ -49,12 +45,21 @@ class QComboBox;
 class QTimer;
 QT_END_NAMESPACE
 
+namespace GLSL {
+class Engine;
+class TranslationUnitAST;
+class Scope;
+}
+
 namespace Core {
 class ICore;
 }
 
 namespace GLSLEditor {
 class GLSLTextEditorWidget;
+namespace Internal {
+class GLSLEditorEditable;
+}
 
 class GLSLEDITOR_EXPORT Document
 {

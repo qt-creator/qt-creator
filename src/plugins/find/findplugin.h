@@ -38,8 +38,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtGui/QTextDocument>
-
 QT_BEGIN_NAMESPACE
 class QStringListModel;
 QT_END_NAMESPACE

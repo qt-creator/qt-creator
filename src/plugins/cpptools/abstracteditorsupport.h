@@ -35,7 +35,11 @@
 
 #include "cpptools_global.h"
 
-#include <cplusplus/ModelManagerInterface.h>
+#include <QtCore/QString>
+
+namespace CPlusPlus {
+class CppModelManagerInterface;
+}
 
 namespace CppTools {
 

@@ -38,6 +38,7 @@
 #include <ASTVisitor.h>
 #include <TranslationUnit.h>
 #include <Literals.h>
+#include <Symbols.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>

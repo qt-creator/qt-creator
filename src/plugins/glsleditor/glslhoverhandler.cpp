@@ -32,6 +32,7 @@
 
 #include "glslhoverhandler.h"
 #include "glsleditor.h"
+#include "glsleditoreditable.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>

@@ -43,6 +43,10 @@
 #include <QtCore/QScopedPointer>
 #include <QtGui/QIcon>
 
+namespace GLSL {
+class Function;
+}
+
 namespace TextEditor {
 class BasicProposalItem;
 }

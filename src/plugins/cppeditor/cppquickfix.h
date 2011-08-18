@@ -34,10 +34,6 @@
 #define CPPQUICKFIX_H
 
 #include "cppeditor_global.h"
-#include "cppsemanticinfo.h"
-
-#include <ASTfwd.h>
-#include <cplusplus/CppDocument.h>
 #include <texteditor/quickfix.h>
 
 namespace CppTools {

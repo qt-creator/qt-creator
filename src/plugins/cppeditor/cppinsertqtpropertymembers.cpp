@@ -36,6 +36,7 @@
 #include <AST.h>
 #include <Token.h>
 #include <cplusplus/Overview.h>
+#include <cplusplus/Symbols.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cppeditor/cppquickfix.h>

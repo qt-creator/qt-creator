@@ -53,10 +53,6 @@ namespace ProjectExplorer {
     class Project;
 }
 
-namespace TextEditor {
-    class ITextEditor;
-}
-
 namespace CppTools {
     class AbstractEditorSupport;
 }

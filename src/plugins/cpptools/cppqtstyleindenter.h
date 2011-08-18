@@ -34,8 +34,8 @@
 #define CPPQTSTYLEINDENTER_H
 
 #include "cpptools_global.h"
+
 #include <texteditor/indenter.h>
-#include "cppcodestylesettingspage.h"
 
 namespace TextEditor
 {
@@ -43,6 +43,8 @@ class IFallbackPreferences;
 }
 
 namespace CppTools {
+class CppCodeStyleSettings;
+class CppCodeStylePreferences;
 
 class CPPTOOLS_EXPORT CppQtStyleIndenter : public TextEditor::Indenter
 {

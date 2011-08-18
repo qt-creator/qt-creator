@@ -37,7 +37,6 @@
 
 #include <ASTfwd.h>
 #include <CPlusPlusForwardDeclarations.h>
-#include <Symbols.h>
 
 #include <cplusplus/CppDocument.h>
 
