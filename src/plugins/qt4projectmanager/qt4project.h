@@ -205,7 +205,7 @@ private:
 
     Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher;
 
-    friend class Qt4ProjectFile;
+    friend class Internal::Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;
 };
 

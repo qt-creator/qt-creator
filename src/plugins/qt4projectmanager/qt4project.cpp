@@ -234,7 +234,7 @@ void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 }
 
 // ----------- Qt4ProjectFile
-
+namespace Internal {
 Qt4ProjectFile::Qt4ProjectFile(Qt4Project *project, const QString &filePath, QObject *parent)
     : Core::IFile(parent),
       m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)),
@@ -308,7 +308,6 @@ bool Qt4ProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
 }
 
 } // namespace Internal
-
 /*!
   \class Qt4Project
 
@@ -1342,5 +1341,7 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
 //        project()->setValue(buildConfiguration, "autoShadowBuild", true);
 //    }
 //}
+
+} // namespace Qt4ProjectManager
 
 #include "qt4project.moc"
