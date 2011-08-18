@@ -2293,7 +2293,8 @@
 
     \title Using External Tools
 
-    You can use external tools directly from Qt Creator. Qt Linguist, the
+    You can use external tools directly from Qt Creator. Qt Linguist,
+    QML Viewer, the
     default text editor for your system, and the \c sort tool are preconfigured
     for use. You can change their default configurations and configure new
     tools.
@@ -2319,6 +2320,15 @@
 
     For more information about Qt Linguist, see
     \l{http://doc.qt.nokia.com/4.7/linguist-manual.html}{Qt Linguist Manual}.
+
+    \section1 Using QML Viewer
+
+    You can preview the current QML document in the QML Viewer. The QML Viewer
+    invokes the QML runtime to load QML documents and also includes additional
+    features useful for the development of QML-based applications.
+
+    To preview the currently active QML file, select \gui {Tools > External >
+    Qt Quick > Preview (qmlviewer)}.
 
     \section1 Using External Text Editors
 
