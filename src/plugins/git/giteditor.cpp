@@ -157,35 +157,42 @@ static QByteArray removeAnnotationDate(const QByteArray &b)
         return QByteArray(b);
     int datePos = parenPos;
 
-    // Go back from paren for 5 spaces: That is where the date starts.
+    int i = parenPos;
+    while (i >= 0 && b.at(i) != ' ')
+        --i;
+    while (i >= 0 && b.at(i) == ' ')
+        --i;
     int spaceCount = 0;
-    for (int i = parenPos; i >= 0; --i) {
+    // i is now on timezone. Go back 3 spaces: That is where the date starts.
+    while (i >= 0) {
         if (b.at(i) == ' ')
             ++spaceCount;
-        if (spaceCount == 5) {
-            datePos = i + 1;
+        if (spaceCount == 3) {
+            datePos = i;
             break;
         }
+        --i;
     }
     if (datePos == 0)
         return QByteArray(b);
 
     // Copy over the parts that have not changed into a new byte array
     Q_ASSERT(b.size() >= parenPos);
-    QByteArray result(b.constData(), datePos);
+    QByteArray result;
     int prevPos = 0;
-    int pos = parenPos;
+    int pos = b.indexOf('\n', 0) + 1;
     forever {
         Q_ASSERT(prevPos < pos);
-        if (prevPos != 0)
-            result.append(b.constData() + prevPos, pos - prevPos);
+        int afterParen = prevPos + parenPos;
+        result.append(b.constData() + prevPos, datePos);
+        result.append(b.constData() + afterParen, pos - afterParen);
         prevPos = pos;
         Q_ASSERT(prevPos != 0);
         if (pos == b.size())
             break;
 
-        pos = b.indexOf('\n', pos + 1);
-        if (pos == -1)
+        pos = b.indexOf('\n', pos) + 1;
+        if (pos == 0) // indexOf returned -1
             pos = b.size();
     }
     return result;
