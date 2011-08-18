@@ -35,7 +35,7 @@
 
 #include <QtDeclarative/QDeclarativeItem>
 #include <QtScript/QScriptValue>
-#include <qmlprofilereventlist.h>
+#include <qmljsdebugclient/qmlprofilereventlist.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -81,10 +81,10 @@ public:
 
     qreal cachedProgress() const;
 
-    QmlProfilerEventList *eventList() const { return m_eventList; }
+    QmlJsDebugClient::QmlProfilerEventList *eventList() const { return m_eventList; }
     void setEventList(QObject *eventList)
     {
-        m_eventList = qobject_cast<QmlProfilerEventList *>(eventList);
+        m_eventList = qobject_cast<QmlJsDebugClient::QmlProfilerEventList *>(eventList);
         emit eventListChanged(m_eventList);
     }
 
@@ -100,7 +100,7 @@ signals:
     void endTimeChanged(qint64 arg);
     void startXChanged(qreal arg);
     void totalWidthChanged(qreal arg);
-    void eventListChanged(QmlProfilerEventList *list);
+    void eventListChanged(QmlJsDebugClient::QmlProfilerEventList *list);
 
     void cachedProgressChanged();
     void cacheReady();
@@ -157,7 +157,7 @@ private:
     int prevMin;
     int prevMax;
 
-    QmlProfilerEventList *m_eventList;
+    QmlJsDebugClient::QmlProfilerEventList *m_eventList;
 
     qreal m_totalWidth;
     int m_lastCachedIndex;

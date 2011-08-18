@@ -34,7 +34,7 @@
 #define TRACEWINDOW_H
 
 #include <qmljsdebugclient/qmlprofilertraceclient.h>
-#include "qmlprofilereventlist.h"
+#include <qmljsdebugclient/qmlprofilereventlist.h>
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
@@ -56,7 +56,7 @@ public:
 
     void reset(QmlJsDebugClient::QDeclarativeDebugConnection *conn);
 
-    QmlProfilerEventList *getEventList() const;
+    QmlJsDebugClient::QmlProfilerEventList *getEventList() const;
 
     void setRecording(bool recording);
     bool isRecording() const;
@@ -91,7 +91,7 @@ private:
     QSize m_sizeHint;
 
     QDeclarativeView *m_view;
-    QmlProfilerEventList *m_eventList;
+    QmlJsDebugClient::QmlProfilerEventList *m_eventList;
 };
 
 } // namespace Internal

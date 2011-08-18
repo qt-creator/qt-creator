@@ -32,7 +32,6 @@
 
 #include "qmlprofilereventlist.h"
 
-#include <coreplugin/icore.h>
 #include <QtCore/QUrl>
 #include <QtCore/QHash>
 #include <QtCore/QtAlgorithms>
@@ -44,13 +43,10 @@
 #include <QtCore/QXmlStreamWriter>
 
 #include <QtCore/QTimer>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMessageBox>
 
 #include <QDebug>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlJsDebugClient {
 
 #define MIN_LEVEL 1
 
@@ -590,16 +586,16 @@ int QmlProfilerEventList::count() const
 ////////////////////////////////////////////////////////////////////////////////////
 
 
-void QmlProfilerEventList::save(const QString &filename) const
+void QmlProfilerEventList::save(const QString &filename)
 {
     if (count() == 0) {
-        showErrorDialog(tr("No data to save"));
+        emit error(tr("No data to save"));
         return;
     }
 
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly)) {
-        showErrorDialog(tr("Could not open %1 for writing").arg(filename));
+        emit error(tr("Could not open %1 for writing").arg(filename));
         return;
     }
 
@@ -659,7 +655,7 @@ void QmlProfilerEventList::load()
     QFile file(filename);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        showErrorDialog(tr("Could not open %1 for reading").arg(filename));
+        emit error(tr("Could not open %1 for reading").arg(filename));
         return;
     }
 
@@ -761,7 +757,7 @@ void QmlProfilerEventList::load()
     file.close();
 
     if (stream.hasError()) {
-        showErrorDialog(tr("Error while parsing %1").arg(filename));
+        emit error(tr("Error while parsing %1").arg(filename));
         clear();
         return;
     }
@@ -792,19 +788,6 @@ void QmlProfilerEventList::load()
     descriptionBuffer.clear();
 
     postProcess();
-}
-
-void QmlProfilerEventList::showErrorDialog(const QString &st ) const
-{
-    Core::ICore * const core = Core::ICore::instance();
-    QMessageBox *errorDialog = new QMessageBox(core->mainWindow());
-    errorDialog->setIcon(QMessageBox::Warning);
-    errorDialog->setWindowTitle(tr("QML Profiler"));
-    errorDialog->setText( st );
-    errorDialog->setStandardButtons(QMessageBox::Ok);
-    errorDialog->setDefaultButton(QMessageBox::Ok);
-    errorDialog->setModal(false);
-    errorDialog->show();
 }
 
 ///////////////////////////////////////////////
@@ -845,5 +828,4 @@ QString QmlProfilerEventList::getDetails(int index) const {
 }
 
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlJsDebugClient

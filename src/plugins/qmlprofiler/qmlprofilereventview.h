@@ -35,13 +35,13 @@
 
 #include <QTreeView>
 #include <qmljsdebugclient/qmlprofilereventtypes.h>
-#include "qmlprofilereventlist.h"
+#include <qmljsdebugclient/qmlprofilereventlist.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-typedef QHash<QString, QmlEventData *> QmlEventHash;
-typedef QList<QmlEventData *> QmlEventList;
+typedef QHash<QString, QmlJsDebugClient::QmlEventData *> QmlEventHash;
+typedef QList<QmlJsDebugClient::QmlEventData *> QmlEventList;
 
 enum ItemRole {
     LocationRole = Qt::UserRole+1,
@@ -77,10 +77,10 @@ public:
         MaxViewTypes
     };
 
-    explicit QmlProfilerEventsView(QWidget *parent, QmlProfilerEventList *model);
+    explicit QmlProfilerEventsView(QWidget *parent, QmlJsDebugClient::QmlProfilerEventList *model);
     ~QmlProfilerEventsView();
 
-    void setEventStatisticsModel( QmlProfilerEventList *model );
+    void setEventStatisticsModel(QmlJsDebugClient::QmlProfilerEventList *model);
     void setFieldViewable(Fields field, bool show);
     void setViewType(ViewTypes type);
     void setShowAnonymousEvents( bool showThem );

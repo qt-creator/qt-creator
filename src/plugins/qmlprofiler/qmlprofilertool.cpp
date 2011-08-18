@@ -35,12 +35,12 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerattachdialog.h"
-#include "qmlprofilereventlist.h"
 #include "qmlprofilereventview.h"
 
 #include "tracewindow.h"
 #include "timelineview.h"
 
+#include <qmljsdebugclient/qmlprofilereventlist.h>
 #include <qmljsdebugclient/qdeclarativedebugclient.h>
 
 #include <analyzerbase/analyzermanager.h>
@@ -255,6 +255,7 @@ QWidget *QmlProfilerTool::createWidgets()
     connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)),this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
     connect(d->m_traceWindow, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(d->m_traceWindow->getEventList(), SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
 
     d->m_eventsView = new QmlProfilerEventsView(mw, d->m_traceWindow->getEventList());
     d->m_eventsView->setViewType(QmlProfilerEventsView::EventsView);
@@ -581,4 +582,17 @@ void QmlProfilerTool::showLoadDialog()
         d->m_traceWindow->getEventList()->setFilename(filename);
         QTimer::singleShot(100, d->m_traceWindow->getEventList(), SLOT(load()));
     }
+}
+
+void QmlProfilerTool::showErrorDialog(const QString &error)
+{
+    Core::ICore *core = Core::ICore::instance();
+    QMessageBox *errorDialog = new QMessageBox(core->mainWindow());
+    errorDialog->setIcon(QMessageBox::Warning);
+    errorDialog->setWindowTitle(tr("QML Profiler"));
+    errorDialog->setText(error);
+    errorDialog->setStandardButtons(QMessageBox::Ok);
+    errorDialog->setDefaultButton(QMessageBox::Ok);
+    errorDialog->setModal(false);
+    errorDialog->show();
 }

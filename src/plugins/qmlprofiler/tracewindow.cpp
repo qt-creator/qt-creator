@@ -33,9 +33,8 @@
 #include "tracewindow.h"
 
 #include "qmlprofilerplugin.h"
-#include "qmlprofilereventlist.h"
 
-#include <qmljsdebugclient/qdeclarativedebugclient.h>
+#include <qmljsdebugclient/qmlprofilereventlist.h>
 #include <qmljsdebugclient/qmlprofilertraceclient.h>
 #include <utils/styledbar.h>
 

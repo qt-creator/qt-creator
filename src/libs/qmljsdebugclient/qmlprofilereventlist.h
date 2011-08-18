@@ -33,14 +33,15 @@
 #ifndef QMLPROFILEREVENTLIST_H
 #define QMLPROFILEREVENTLIST_H
 
-#include <QObject>
+#include "qmlprofilereventtypes.h"
+#include "qmljsdebugclient_global.h"
+
 #include <QtCore/QHash>
-#include "qmljsdebugclient/qmlprofilereventtypes.h"
+#include <QtCore/QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlJsDebugClient {
 
-struct QmlEventData
+struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
 {
     QString displayname;
     QString filename;
@@ -70,7 +71,7 @@ enum ParsingStatus {
     DoneStatus = 5
 };
 
-class QmlProfilerEventList : public QObject
+class QMLJSDEBUGCLIENT_EXPORT QmlProfilerEventList : public QObject
 {
     Q_OBJECT
 public:
@@ -105,13 +106,14 @@ signals:
     void dataReady();
     void countChanged();
     void parsingStatusChanged();
+    void error(const QString &error);
 
 public slots:
     void clear();
     void addRangedEvent(int type, qint64 startTime, qint64 length,
                         const QStringList &data, const QString &fileName, int line);
     void complete();
-    void save(const QString &filename) const;
+    void save(const QString &filename);
     void load(const QString &filename);
     void setFilename(const QString &filename);
     void load();
@@ -132,7 +134,6 @@ private:
 };
 
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlJsDebugClient
 
 #endif // QMLPROFILEREVENTLIST_H

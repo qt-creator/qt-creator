@@ -90,6 +90,7 @@ private slots:
     void connectionStateChanged();
     void showSaveDialog();
     void showLoadDialog();
+    void showErrorDialog(const QString &error);
 
 private:
     void connectToClient();
