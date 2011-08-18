@@ -3489,6 +3489,7 @@ int main(int argc, char *argv[])
     list2 << "baz";
     list2 << 0;
 
+    formats::testFormats();
     qhostaddress::testQHostAddress();
     varargs::testVaList();
     cp42895::test42895();
