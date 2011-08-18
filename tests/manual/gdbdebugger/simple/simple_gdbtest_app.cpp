@@ -34,7 +34,7 @@
 
 //template <typename T> class B;  B foo() {}
 
-void dummyStatement(const void * = 0, const void * = 0, const void * = 0) {}
+void dummyStatement(...) {}
 
 #include "../simple/deep/deep/simple_gdbtest_app.h"
 
@@ -155,110 +155,6 @@ namespace multibp {
 
 } // namespace multibp
 
-
-namespace qobjectdata {
-
-    #if USE_PRIVATE
-
-    class DerivedObjectPrivate : public QObjectPrivate
-    {
-    public:
-        DerivedObjectPrivate()
-        {
-            m_extraX = 43;
-            m_extraY.append("xxx");
-            m_extraZ = 1;
-        }
-
-        int m_extraX;
-        QStringList m_extraY;
-        uint m_extraZ : 1;
-        bool m_extraA : 1;
-        bool m_extraB;
-    };
-
-    class DerivedObject : public QObject
-    {
-        Q_OBJECT
-
-    public:
-        DerivedObject()
-           : QObject(*new DerivedObjectPrivate, 0)
-        {}
-
-        Q_PROPERTY(int x READ x WRITE setX)
-        Q_PROPERTY(QStringList y READ y WRITE setY)
-        Q_PROPERTY(uint z READ z WRITE setZ)
-
-        int x() const;
-        void setX(int x);
-        QStringList y() const;
-        void setY(QStringList y);
-        uint z() const;
-        void setZ(uint z);
-
-    private:
-        Q_DECLARE_PRIVATE(DerivedObject)
-    };
-
-    int DerivedObject::x() const
-    {
-        Q_D(const DerivedObject);
-        return d->m_extraX;
-    }
-
-    void DerivedObject::setX(int x)
-    {
-        Q_D(DerivedObject);
-        d->m_extraX = x;
-        d->m_extraA = !d->m_extraA;
-        d->m_extraB = !d->m_extraB;
-    }
-
-    QStringList DerivedObject::y() const
-    {
-        Q_D(const DerivedObject);
-        return d->m_extraY;
-    }
-
-    void DerivedObject::setY(QStringList y)
-    {
-        Q_D(DerivedObject);
-        d->m_extraY = y;
-    }
-
-    uint DerivedObject::z() const
-    {
-        Q_D(const DerivedObject);
-        return d->m_extraZ;
-    }
-
-    void DerivedObject::setZ(uint z)
-    {
-        Q_D(DerivedObject);
-        d->m_extraZ = z;
-    }
-
-    #endif
-
-    void testQObjectData()
-    {
-        // This checks whether QObject-derived classes with Q_PROPERTYs
-        // are displayed properly.
-    #if USE_PRIVATE
-        DerivedObject ob;
-        // <=== Break here.
-        // expand ob and ob.properties
-        // step, and check whether x gets updated.
-        ob.setX(23);
-        ob.setX(25);
-        ob.setX(26);
-        ob.setX(63);
-        ob.setX(32);
-    #endif
-    }
-
-} // namespace qobjectdata
 
 
 namespace nsX { namespace nsY { int z; } }
@@ -462,20 +358,6 @@ namespace anon {
 } // namespace anon
 
 
-typedef void (*func_t)();
-func_t testFunctionPointer()
-{
-    func_t f1 = anon::testAnonymous;
-    func_t f2 = testPeekAndPoke3;
-    func_t f3 = testPeekAndPoke3;
-    Q_UNUSED(f1);
-    Q_UNUSED(f2);
-    Q_UNUSED(f3);
-    return f1;
-}
-
-
-
 namespace qbytearray {
 
     void testQByteArray1()
@@ -624,7 +506,7 @@ namespace qhostaddress {
     {
         QHostAddress ha1(129u * 256u * 256u * 256u + 130u);
         QHostAddress ha2("127.0.0.1");
-        // <== break here
+        // <== Break here.
         // Check ha1 and ha2 look correct.
         dummyStatement(&ha1, &ha2);
     }
@@ -721,36 +603,6 @@ void testFunction()
     func.max = 6;
     func.max = 7;
     func.max = 8;
-}
-
-void testOutput()
-{
-    qDebug() << "qDebug() 1";
-    qDebug() << "qDebug() 2";
-    qDebug() << "qDebug() 3";
-    qDebug() << "qDebug <foo & bar>";
-
-    std::cout << "std::cout @@ 1" << std::endl;
-    std::cout << "std::cout @@ 2\n";
-    std::cout << "std::cout @@ 3" << std::endl;
-    std::cout << "std::cout <foo & bar>\n";
-
-    std::cerr << "std::cerr 1\n";
-    std::cerr << "std::cerr 2\n";
-    std::cerr << "std::cerr 3\n";
-    std::cerr << "std::cerr <foo & bar>\n";
-}
-
-void testInput()
-{
-#if 0
-    // This works only when "Run in terminal" is selected
-    // in the Run Configuration.
-    int i;
-    std::cin >> i;
-    int j;
-    std::cin >> j;
-#endif
 }
 
 void testQLinkedList()
@@ -977,132 +829,247 @@ void testQMultiMap()
 #endif
 }
 
-namespace Names {
-namespace Bar {
 
-struct Ui {
-    Ui() { w = 0; }
-    QWidget *w;
-};
+namespace qobject {
 
-class TestObject : public QObject
-{
-    Q_OBJECT
-
-public:
-    TestObject(QObject *parent = 0)
-      : QObject(parent)
+    void testQObject1()
     {
-        m_ui = new Ui;
-        m_ui->w = new QWidget;
-        Q_UNUSED(parent);
+        // This checks whether signal-slot connections are displayed.
+        QObject parent;
+        parent.setObjectName("A Parent");
+        QObject child(&parent);
+        child.setObjectName("A Child");
+        QObject::connect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
+        QObject::disconnect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
+        child.setObjectName("A renamed Child");
+        // <=== Break here.
+        // Expand all.
+        dummyStatement(&parent, &child);
     }
 
-    Q_PROPERTY(QString myProp1 READ myProp1 WRITE setMyProp1)
-    QString myProp1() const { return m_myProp1; }
-    Q_SLOT void setMyProp1(const QString &mt) { m_myProp1 = mt; }
+    namespace Names {
+        namespace Bar {
 
-    Q_PROPERTY(QString myProp2 READ myProp2 WRITE setMyProp2)
-    QString myProp2() const { return m_myProp2; }
-    Q_SLOT void setMyProp2(const QString &mt) { m_myProp2 = mt; }
+        struct Ui { Ui() { w = 0; } QWidget *w; };
 
-public:
-    Ui *m_ui;
-    QString m_myProp1;
-    QString m_myProp2;
-};
+        class TestObject : public QObject
+        {
+            Q_OBJECT
+        public:
+            TestObject(QObject *parent = 0) : QObject(parent)
+                { m_ui = new Ui; m_ui->w = new QWidget; }
 
-} // namespace Bar
-} // namespace Names
+            Q_PROPERTY(QString myProp1 READ myProp1 WRITE setMyProp1)
+            QString myProp1() const { return m_myProp1; }
+            Q_SLOT void setMyProp1(const QString &mt) { m_myProp1 = mt; }
 
-void testQObject(int &argc, char *argv[])
-{
-    QApplication app(argc, argv);
-    //QString longString = QString(10000, QLatin1Char('A'));
-#if 1
-    Names::Bar::TestObject test;
-    test.setMyProp1("HELLO");
-    test.setMyProp2("WORLD");
-    QString s = test.myProp1();
-    s += test.myProp2();
-    Q_UNUSED(s);
-#endif
+            Q_PROPERTY(QString myProp2 READ myProp2 WRITE setMyProp2)
+            QString myProp2() const { return m_myProp2; }
+            Q_SLOT void setMyProp2(const QString &mt) { m_myProp2 = mt; }
 
-#if 0
-    QAction act("xxx", &app);
-    QString t = act.text();
-    t += "y";
-    t += "y";
-    t += "y";
-    t += "y";
-    t += "y";
-#endif
+        public:
+            Ui *m_ui;
+            QString m_myProp1;
+            QString m_myProp2;
+        };
 
-#if 1
-    QWidget ob;
-    ob.setObjectName("An Object");
-    ob.setProperty("USER DEFINED 1", 44);
-    ob.setProperty("USER DEFINED 2", QStringList() << "FOO" << "BAR");
-    QObject ob1;
-    ob1.setObjectName("Another Object");
+        } // namespace Bar
+    } // namespace Names
 
-    QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
-    QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
-    //QObject::connect(&app, SIGNAL(lastWindowClosed()), &ob, SLOT(deleteLater()));
-#endif
+    void testQObject2(int &argc, char *argv[])
+    {
+        QApplication app(argc, argv);
+        //QString longString = QString(10000, QLatin1Char('A'));
+    #if 1
+        Names::Bar::TestObject test;
+        test.setMyProp1("HELLO");
+        test.setMyProp2("WORLD");
+        QString s = test.myProp1();
+        s += test.myProp2();
+        Q_UNUSED(s);
+    #endif
 
-#if 0
-    QList<QObject *> obs;
-    obs.append(&ob);
-    obs.append(&ob1);
-    obs.append(0);
-    obs.append(&app);
-    ob1.setObjectName("A Subobject");
-#endif
+    #if 0
+        QAction act("xxx", &app);
+        QString t = act.text();
+        t += "y";
+        t += "y";
+        t += "y";
+        t += "y";
+        t += "y";
+    #endif
 
-#if 1
-    QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
-    QLabel l(str);
-    l.setObjectName("Some Label");
-    l.show();
-    app.exec();
-#endif
-}
+    #if 1
+        QWidget ob;
+        ob.setObjectName("An Object");
+        ob.setProperty("USER DEFINED 1", 44);
+        ob.setProperty("USER DEFINED 2", QStringList() << "FOO" << "BAR");
+        QObject ob1;
+        ob1.setObjectName("Another Object");
 
-class Sender : public QObject
-{
-    Q_OBJECT
-public:
-    Sender() { setObjectName("Sender"); }
-    void doEmit() { emit aSignal(); }
-signals:
-    void aSignal();
-};
+        QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
+        QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
+        //QObject::connect(&app, SIGNAL(lastWindowClosed()), &ob, SLOT(deleteLater()));
+    #endif
 
-class Receiver : public QObject
-{
-    Q_OBJECT
-public:
-    Receiver() { setObjectName("Receiver"); }
-public slots:
-    void aSlot() {
-        QObject *s = sender();
-        if (s) {
-            qDebug() << "SENDER: " << s;
-        } else {
-            qDebug() << "NO SENDER";
+    #if 0
+        QList<QObject *> obs;
+        obs.append(&ob);
+        obs.append(&ob1);
+        obs.append(0);
+        obs.append(&app);
+        ob1.setObjectName("A Subobject");
+    #endif
+
+    #if 1
+        QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
+        QLabel l(str);
+        l.setObjectName("Some Label");
+        l.show();
+        //app.exec();
+    #endif
+    }
+
+    class Sender : public QObject
+    {
+        Q_OBJECT
+    public:
+        Sender() { setObjectName("Sender"); }
+        void doEmit() { emit aSignal(); }
+    signals:
+        void aSignal();
+    };
+
+    class Receiver : public QObject
+    {
+        Q_OBJECT
+    public:
+        Receiver() { setObjectName("Receiver"); }
+    public slots:
+        void aSlot() {
+            QObject *s = sender();
+            if (s) {
+                qDebug() << "SENDER: " << s;
+            } else {
+                qDebug() << "NO SENDER";
+            }
         }
-    }
-};
+    };
 
-void testSignalSlot(int &argc, char *argv[])
-{
-    QApplication app(argc, argv);
-    Sender sender;
-    Receiver receiver;
-    QObject::connect(&sender, SIGNAL(aSignal()), &receiver, SLOT(aSlot()));
-    sender.doEmit();
-};
+    void testSignalSlot(int &argc, char *argv[])
+    {
+        QApplication app(argc, argv);
+        Sender sender;
+        Receiver receiver;
+        QObject::connect(&sender, SIGNAL(aSignal()), &receiver, SLOT(aSlot()));
+        // Break here.
+        // Single step through signal emission.
+        sender.doEmit();
+        dummyStatement(&app);
+    }
+
+    #if USE_PRIVATE
+
+    struct DerivedObjectPrivate : public QObjectPrivate
+    {
+        DerivedObjectPrivate() {
+            m_extraX = 43;
+            m_extraY.append("xxx");
+            m_extraZ = 1;
+        }
+        int m_extraX;
+        QStringList m_extraY;
+        uint m_extraZ : 1;
+        bool m_extraA : 1;
+        bool m_extraB;
+    };
+
+    class DerivedObject : public QObject
+    {
+        Q_OBJECT
+
+    public:
+        DerivedObject() : QObject(*new DerivedObjectPrivate, 0) {}
+
+        Q_PROPERTY(int x READ x WRITE setX)
+        Q_PROPERTY(QStringList y READ y WRITE setY)
+        Q_PROPERTY(uint z READ z WRITE setZ)
+
+        int x() const;
+        void setX(int x);
+        QStringList y() const;
+        void setY(QStringList y);
+        uint z() const;
+        void setZ(uint z);
+
+    private:
+        Q_DECLARE_PRIVATE(DerivedObject)
+    };
+
+    int DerivedObject::x() const
+    {
+        Q_D(const DerivedObject);
+        return d->m_extraX;
+    }
+
+    void DerivedObject::setX(int x)
+    {
+        Q_D(DerivedObject);
+        d->m_extraX = x;
+        d->m_extraA = !d->m_extraA;
+        d->m_extraB = !d->m_extraB;
+    }
+
+    QStringList DerivedObject::y() const
+    {
+        Q_D(const DerivedObject);
+        return d->m_extraY;
+    }
+
+    void DerivedObject::setY(QStringList y)
+    {
+        Q_D(DerivedObject);
+        d->m_extraY = y;
+    }
+
+    uint DerivedObject::z() const
+    {
+        Q_D(const DerivedObject);
+        return d->m_extraZ;
+    }
+
+    void DerivedObject::setZ(uint z)
+    {
+        Q_D(DerivedObject);
+        d->m_extraZ = z;
+    }
+
+    #endif
+
+    void testQObjectData()
+    {
+        // This checks whether QObject-derived classes with Q_PROPERTYs
+        // are displayed properly.
+    #if USE_PRIVATE
+        DerivedObject ob;
+        // <=== Break here.
+        // expand ob and ob.properties
+        // step, and check whether x gets updated.
+        ob.setX(23);
+        ob.setX(25);
+        ob.setX(26);
+    #endif
+    }
+
+    void testQObject(int &argc, char *argv[])
+    {
+        testQObjectData();
+        testQObject1();
+        testQObject2(argc, argv);
+        testSignalSlot(argc, argv);
+    }
+
+} // namespace qobject
 
 
 void testQPixmap()
@@ -1737,7 +1704,7 @@ void testQStandardItemModel()
     ++i;
 }
 
-QStack<int> testQStack()
+void testQStack()
 {
     QVector<int> bigv;
     for (int i = 0; i < 10; ++i)
@@ -1759,32 +1726,17 @@ QStack<int> testQStack()
     QStack<bool> vec;
     vec.append(true);
     vec.append(false);
-    QStack<int> result;
-    return result;
+    // <=== Break here.
+    dummyStatement(&vec);
 }
 
 
 void testQUrl()
 {
     QUrl url(QString("http://www.nokia.com"));
-    (void) url;
+    // <=== Break here.
+    dummyStatement(&url);
 }
-
-#ifdef FOP
-
-int xxxx()
-{
-}
-
-#else
-
-void xxxx()
-{
-}
-
-
-#endif
-
 
 void testQString()
 {
@@ -1873,8 +1825,7 @@ namespace formats {
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
 
         // Make sure to undo "Change Format".
-        dummyStatement(&s, &w);
-        dummyStatement(&t);
+        dummyStatement(&s, &w, &t);
     }
 
     void testCharArrays()
@@ -2352,17 +2303,6 @@ void testHidden()
     ++n;
 }
 
-void testObject1()
-{
-    QObject parent;
-    parent.setObjectName("A Parent");
-    QObject child(&parent);
-    child.setObjectName("A Child");
-    QObject::connect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
-    QObject::disconnect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
-    child.setObjectName("A renamed Child");
-}
-
 void testQHash1()
 {
     QHash<QString, QList<int> > hash;
@@ -2441,8 +2381,7 @@ namespace basic {
             for (int j = 0; j != 3; ++j)
                 d[i][j] = i + j;
         // <== Break here.
-        dummyStatement(&x, &f, &d);
-        dummyStatement(&ff, &diamond);
+        dummyStatement(&x, &f, &d, &ff, &diamond);
     }
 
     void testArray2()
@@ -2546,6 +2485,7 @@ namespace basic {
         // This checks whether bitfields are properly displayed
         S s;
         // <=== Break here.
+        s.i = 0;
         dummyStatement(&s);
     }
 
@@ -2581,11 +2521,8 @@ namespace basic {
         myType2 t2 = 0;
         ns::vl j = 1000;
         ns::verylong k = 1000;
-
-        ++j;
-        ++k;
-        ++t1;
-        ++t2;
+        // <== Break here.
+        dummyStatement(&j, &k, &t1, &t2);
     }
 
     void testStruct()
@@ -2625,11 +2562,8 @@ namespace basic {
         std::vector<int> svi;
         std::stack<int> ssi;
 
-        dummyStatement(&s, &sl, &mii);
-        dummyStatement(&mss, &hii, &hss);
-        dummyStatement(&li, &vi, &si);
-        dummyStatement(&ss, &smii, &smss);
-        dummyStatement(&sli, &svi, &ssi);
+        dummyStatement(&s, &sl, &mii, &mss, &hii, &hss, &si, &vi, &li,
+                       &ss, &smii, &smss, &sli, &svi, &ssi, &ssl);
     }
 
     void testTypeFormats()
@@ -2666,8 +2600,9 @@ namespace basic {
 
     void A::doSomething(CVoidPtr cp) const
     {
-        Q_UNUSED(cp);
-        std::cout << test << std::endl;
+        // <=== Break here.
+        // Check cp.
+        dummyStatement(&cp);
     }
 
     void testPtrTypedef()
@@ -2722,8 +2657,7 @@ namespace basic {
         const int c = 44;
         const Ref d = a;
         // <=== Break here.
-        dummyStatement(&a, &b);
-        dummyStatement(&c, &d);
+        dummyStatement(&a, &b, &c, &d);
     }
 
     void testReference2()
@@ -2734,8 +2668,7 @@ namespace basic {
         const QString c = "world";
         const Ref d = a;
         // <=== Break here.
-        dummyStatement(&a, &b);
-        dummyStatement(&c, &d);
+        dummyStatement(&a, &b, &c, &d);
     }
 
     void testLongEvaluation()
@@ -2746,11 +2679,35 @@ namespace basic {
             bigv.append(time);
         // <== Break here.
         // Expand bigv.
+        // This is expected to take up to a minute.
         dummyStatement(&bigv);
+    }
+
+    void testFork()
+    {
+        QProcess proc;
+        proc.start("/bin/ls");
+        proc.waitForFinished();
+        QByteArray ba = proc.readAllStandardError();
+        ba.append('x');
+        // <== Break here.
+        // Check there is some contents in ba. Error message is expected.
+        dummyStatement(&ba);
+    }
+
+    void testFunctionPointer()
+    {
+        typedef void (*func_t)();
+        func_t f2 = testPeekAndPoke3;
+        // <=== Break here.
+        // Check there's a valid display for f2.
+        dummyStatement(&f2);
     }
 
     void testBasic()
     {
+        testReference1();
+        testReference2();
         testArray1();
         testArray2();
         testArray3();
@@ -2768,9 +2725,9 @@ namespace basic {
         testStringWithNewline();
         testMemoryView();
         testColoredMemoryView();
-        testReference1();
-        testReference2();
         testLongEvaluation();
+        testFork();
+        testFunctionPointer();
     }
 
 } // namespace basic
@@ -2820,65 +2777,116 @@ void testPassByReference()
     testPassByReferenceHelper(f);
 }
 
-void testWCout()
-{
-    using namespace std;
-    wstring x = L"xxxxx";
-    wstring::iterator i = x.begin();
-    while (i != x.end()) {
-        wcout << *i;
-        i++;
-    }
-    wcout.flush();
-    string y = "yyyyy";
-    string::iterator j = y.begin();
-    while (j != y.end()) {
-        cout << *j;
-        j++;
-    }
-    cout.flush();
-}
+namespace io {
 
-void testWCout0()
-{
-    // Mixing cout and wcout does not work with gcc.
-    // See http://gcc.gnu.org/ml/gcc-bugs/2006-05/msg01193.html
-    // which also says "you can obtain something close to your
-    // expectations by calling std::ios::sync_with_stdio(false);
-    // at the beginning of your program."
-
-    using namespace std;
-    //std::ios::sync_with_stdio(false);
-    wcout << L"WWWWWW" << endl;
-    wcerr << L"YYYYYY" << endl;
-    cout << "CCCCCC" << endl;
-    cerr << "EEEEEE" << endl;
-    wcout << L"WWWWWW" << endl;
-    wcerr << L"YYYYYY" << endl;
-    cout << "CCCCCC" << endl;
-    cerr << "EEEEEE" << endl;
-    wcout << L"WWWWWW" << endl;
-    wcerr << L"YYYYYY" << endl;
-    cout << "CCCCCC" << endl;
-    cerr << "EEEEEE" << endl;
-}
-
-void testSSE()
-{
-#ifdef __SSE__
-    float a[4];
-    float b[4];
-    int i;
-    for (i = 0; i < 4; i++) {
-        a[i] = 2 * i;
-        b[i] = 2 * i;
+    void testWCout()
+    {
+        using namespace std;
+        wstring x = L"xxxxx";
+        wstring::iterator i = x.begin();
+        // Break here.
+        // Step.
+        while (i != x.end()) {
+            wcout << *i;
+            i++;
+        }
+        wcout.flush();
+        string y = "yyyyy";
+        string::iterator j = y.begin();
+        while (j != y.end()) {
+            cout << *j;
+            j++;
+        }
+        cout.flush();
     }
-    __m128 sseA, sseB;
-    sseA = _mm_loadu_ps(a);
-    sseB = _mm_loadu_ps(b);
-    ++i;
-#endif
-}
+
+    void testWCout0()
+    {
+        // Mixing cout and wcout does not work with gcc.
+        // See http://gcc.gnu.org/ml/gcc-bugs/2006-05/msg01193.html
+        // which also says "you can obtain something close to your
+        // expectations by calling std::ios::sync_with_stdio(false);
+        // at the beginning of your program."
+
+        using namespace std;
+        //std::ios::sync_with_stdio(false);
+        // Break here.
+        // Step.
+        wcout << L"WWWWWW" << endl;
+        wcerr << L"YYYYYY" << endl;
+        cout << "CCCCCC" << endl;
+        cerr << "EEEEEE" << endl;
+        wcout << L"WWWWWW" << endl;
+        wcerr << L"YYYYYY" << endl;
+        cout << "CCCCCC" << endl;
+        cerr << "EEEEEE" << endl;
+        wcout << L"WWWWWW" << endl;
+        wcerr << L"YYYYYY" << endl;
+        cout << "CCCCCC" << endl;
+        cerr << "EEEEEE" << endl;
+    }
+
+    void testOutput()
+    {
+        qDebug() << "qDebug() 1";
+        qDebug() << "qDebug() 2";
+        qDebug() << "qDebug() 3";
+        qDebug() << "qDebug <foo & bar>";
+
+        std::cout << "std::cout @@ 1" << std::endl;
+        std::cout << "std::cout @@ 2\n";
+        std::cout << "std::cout @@ 3" << std::endl;
+        std::cout << "std::cout <foo & bar>\n";
+
+        std::cerr << "std::cerr 1\n";
+        std::cerr << "std::cerr 2\n";
+        std::cerr << "std::cerr 3\n";
+        std::cerr << "std::cerr <foo & bar>\n";
+    }
+
+    void testInput()
+    {
+        // This works only when "Run in terminal" is selected
+        // in the Run Configuration.
+        int i;
+        std::cin >> i;
+        int j;
+        std::cin >> j;
+    }
+
+    void testIO()
+    {
+        testOutput();
+        //testInput();
+        //testWCout();
+        //testWCout0();
+    }
+
+} // namespace io
+
+
+namespace sse {
+
+    void testSSE()
+    {
+    #ifdef __SSE__
+        float a[4];
+        float b[4];
+        int i;
+        for (i = 0; i < 4; i++) {
+            a[i] = 2 * i;
+            b[i] = 2 * i;
+        }
+        __m128 sseA, sseB;
+        sseA = _mm_loadu_ps(a);
+        sseB = _mm_loadu_ps(b);
+        // Break here.
+        // Expand all.
+        dummyStatement(&i, &sseA, &sseB);
+    #endif
+    }
+
+} // namespace sse
 
 void testQSettings()
 {
@@ -2915,46 +2923,55 @@ void testQScriptValue(int argc, char *argv[])
     QScriptValue d = s.data();
 }
 
-void testBoostOptional()
-{
-#if USE_BOOST
-    boost::optional<int> i;
-    i = 1;
-    boost::optional<QStringList> sl;
-    sl = (QStringList() << "xxx" << "yyy");
-    sl.get().append("zzz");
-    i = 3;
-    i = 4;
-    i = 5;
-#endif
-}
 
-void testBoostSharedPtr()
-{
-#if USE_BOOST
-    QSharedPointer<int> qs;
-    QSharedPointer<int> qi(new int(43));
-    QSharedPointer<int> qj = qi;
+namespace boost {
 
-    boost::shared_ptr<int> s;
-    boost::shared_ptr<int> i(new int(43));
-    boost::shared_ptr<int> j = i;
-    boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << "HUH!"));
-    // <=== Break here.
-    dummyStatement(&qs, &qj);
-    dummyStatement(&s, &j, &sl);
-#endif
-}
+    #if USE_BOOST
+    void testBoostOptional1()
+    {
+        boost::optional<int> i;
+        // <=== Break here.
+        // Step.
+        i = 1;
+        i = 3;
+        i = 4;
+        dummyStatement(&i);
+    }
 
-void testFork()
-{
-    QProcess proc;
-    proc.start("/bin/ls");
-    proc.waitForFinished();
-    QByteArray ba = proc.readAllStandardError();
-    ba.append('x');
-    ba.append('x');
-}
+    void testBoostOptional2()
+    {
+        boost::optional<QStringList> sl;
+        // <=== Break here.
+        // Step.
+        sl = (QStringList() << "xxx" << "yyy");
+        sl.get().append("zzz");
+        dummyStatement(&sl);
+    }
+
+    void testBoostSharedPtr()
+    {
+        boost::shared_ptr<int> s;
+        boost::shared_ptr<int> i(new int(43));
+        boost::shared_ptr<int> j = i;
+        boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << "HUH!"));
+        // <=== Break here.
+        dummyStatement(&s, &j, &sl);
+    }
+
+    void testBoost()
+    {
+        testBoostOptional1();
+        testBoostOptional2();
+        testBoostSharedPtr();
+    }
+
+    #else
+
+    void testBoost() {}
+
+    #endif
+
+} // namespace boost
 
 
 namespace mpi {
@@ -3113,8 +3130,8 @@ namespace eigen {
 
         // <=== Break here.
         // check that Locals and Expresssions view looks sane
-        dummyStatement(&colMajorMatrix, &rowMajorMatrix, &test);
-        dummyStatement(&myMatrix, &myDynamicMatrix);
+        dummyStatement(&colMajorMatrix, &rowMajorMatrix, &test,
+                       &myMatrix, &myDynamicMatrix);
     #endif
     }
 }
@@ -3393,8 +3410,7 @@ namespace bug5799 {
         // <=== Break here.
         // Expand s2 and s4.
         // Check there is no <unavailable synchronous data>
-        dummyStatement(&s2, &s4);
-        dummyStatement(&a1, &a2);
+        dummyStatement(&s2, &s4, &a1, &a2);
     }
 
 } // namespace bug5799
@@ -3467,61 +3483,60 @@ namespace varargs {
 
 } // namespace varargs
 
+
+namespace sanity {
+
+    // A very quick check.
+    void testSanity()
+    {
+        std::string s;
+        s = "hallo";
+        s += "hallo";
+
+        QVector<int> qv;
+        qv.push_back(2);
+
+        std::vector<int> v;
+        v.push_back(2);
+
+        QStringList list;
+        list << "aaa" << "bbb" << "cc";
+
+        QList<const char *> list2;
+        list2 << "foo";
+        list2 << "bar";
+        list2 << 0;
+        list2 << "baz";
+        list2 << 0;
+
+        QObject obj;
+        obj.setObjectName("An Object");
+
+        // <=== Break here.
+        // Expand all.
+        dummyStatement(&s, &qv, &v, &list, &list2, &obj);
+    }
+
+}
+
 int main(int argc, char *argv[])
 {
-    std::string s;
-    s = "hallo";
-    s += "hallo";
+    // For a very quick check, step into this one.
+    sanity::testSanity();
 
-    QVector<int> qv;
-    qv.push_back(2);
-
-    std::vector<int> v;
-    v.push_back(2);
-
-    QStringList list;
-    list << "aaa" << "bbb" << "cc";
-
-    QList<const char *> list2;
-    list2 << "foo";
-    list2 << "bar";
-    list2 << 0;
-    list2 << "baz";
-    list2 << 0;
-
-    formats::testFormats();
+    // Check for normal dumpers.
+    basic::testBasic();
     qhostaddress::testQHostAddress();
     varargs::testVaList();
-    cp42895::test42895();
-    bug5046::test5046();
-    bug4904::test4904();
-    qc41700::test41700();
-    qc42170::test42170();
-    multibp::testMultiBp();
-    bug842::test842();
-    bug3611::test3611();
-    bug4019::test4019();
-    bug5106::test5106();
-    bug5184::test5184();
-    bug5799::test5799();
-    //bug4497::test4497();
-    eigen::testEigen();
-    kr::testKR();
+
+    formats::testFormats();
     qxml::testQXmlAttributes();
     qregexp::testQRegExp();
     breakpoints::testBreakpoints();
-    mpi::testMPI();
-    qobjectdata::testQObjectData();
     //testQSettings();
-    //testWCout0();
-    //testWCout();
-    testSSE();
-    testQLocale();
     qrect::testGeometry();
     qregion::testQRegion();
-    basic::testBasic();
     testPeekAndPoke3();
-    testFunctionPointer();
     anon::testAnonymous();
     //testEndlessLoop();
     //testEndlessRecursion();
@@ -3530,18 +3545,16 @@ int main(int argc, char *argv[])
     qdatetime::testDateTime();
     qfileinfo::testQFileInfo();
     testQFixed();
-    testObject1();
     stdvector::testStdVector();
     testQHash1();
-    testSignalSlot(argc, argv);
+    qobject::testQObject(argc, argv);
 
     testQStandardItemModel();
     testFunction();
     testQImage();
     noargs::testNoArgumentName(1, 2, 3);
     testQTextCursor();
-    testInput();
-    testOutput();
+    io::testIO();
     testHidden();
     testCatchThrow();
     qbytearray::testQByteArray();
@@ -3570,21 +3583,33 @@ int main(int argc, char *argv[])
     testQSharedPointer();
     qstringlist::testQStringList();
     testQScriptValue(argc, argv);
-    basic::testStruct();
     //qthread::testQThread();
     qvariant::testQVariant();
     qvector::testQVector();
 
-    testBoostOptional();
-    testBoostSharedPtr();
+    // Third party data types.
+    boost::testBoost();
+    eigen::testEigen();
+    kr::testKR();
+    mpi::testMPI();
+    sse::testSSE();
 
-    //*(int *)0 = 0;
-    testFork();
+    // The following tests are specific to certain bugs.
+    // They need not to be checked during a normal release check.
+    cp42895::test42895();
+    bug5046::test5046();
+    bug4904::test4904();
+    qc41700::test41700();
+    qc42170::test42170();
+    multibp::testMultiBp();
+    bug842::test842();
+    bug3611::test3611();
+    bug4019::test4019();
+    //bug4497::test4497();
+    bug5106::test5106();
+    bug5184::test5184();
+    bug5799::test5799();
 
-    testQObject(argc, argv);
-
-    //QColor color(255,128,10);
-    //QFont font;
     return 0;
 }
 
