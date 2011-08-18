@@ -33,13 +33,11 @@
 #ifndef QT4TARGET_H
 #define QT4TARGET_H
 
-#include "qt4buildconfiguration.h"
 #include "qt4targetsetupwidget.h"
 
-#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/baseqtversion.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
-#include <projectexplorer/projectnodes.h>
 
 namespace Utils {
 class DetailsWidget;
@@ -55,10 +53,15 @@ class QComboBox;
 class QPushButton;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+class Node;
+}
+
 namespace Qt4ProjectManager {
 class Qt4Project;
 class Qt4BaseTargetFactory;
 class Qt4ProFileNode;
+class Qt4BuildConfiguration;
 
 class QT4PROJECTMANAGER_EXPORT Qt4BaseTarget : public ProjectExplorer::Target
 {
@@ -69,7 +72,7 @@ public:
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
 
-    Qt4BuildConfiguration *activeBuildConfiguration() const;
+    Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
     Qt4ProjectManager::Qt4Project *qt4Project() const;
 
     // This is the same for almost all Qt4Targets

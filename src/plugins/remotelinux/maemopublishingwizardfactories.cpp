@@ -39,6 +39,7 @@
 #include <qt4projectmanager/qmakestep.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 
 using namespace ProjectExplorer;

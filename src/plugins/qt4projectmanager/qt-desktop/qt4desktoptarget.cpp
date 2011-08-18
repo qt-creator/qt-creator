@@ -32,7 +32,9 @@
 
 #include "qt4desktoptarget.h"
 #include "qt4project.h"
+#include "qt4nodes.h"
 #include "qt4runconfiguration.h"
+#include "qt4buildconfiguration.h"
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <QtGui/QApplication>
@@ -58,7 +60,7 @@ QString Qt4DesktopTarget::defaultDisplayName()
     return QApplication::translate("Qt4ProjectManager::Qt4Target", "Desktop", "Qt4 Desktop target display name");
 }
 
-Qt4BuildConfigurationFactory *Qt4DesktopTarget::buildConfigurationFactory() const
+ProjectExplorer::IBuildConfigurationFactory *Qt4DesktopTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
 }

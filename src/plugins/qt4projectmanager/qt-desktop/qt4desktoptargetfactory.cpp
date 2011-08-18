@@ -42,6 +42,8 @@
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <qtsupport/qtversionmanager.h>
+
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QApplication>
 #include <QtGui/QStyle>

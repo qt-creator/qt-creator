@@ -43,6 +43,7 @@
 #include <qt4projectmanager/buildconfigurationinfo.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
 
 using namespace Qt4ProjectManager;

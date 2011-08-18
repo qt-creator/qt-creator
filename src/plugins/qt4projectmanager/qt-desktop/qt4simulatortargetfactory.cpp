@@ -36,6 +36,7 @@
 #include "qt4project.h"
 #include "qt4runconfiguration.h"
 #include "qt4simulatortarget.h"
+#include <qtsupport/qtversionmanager.h>
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>

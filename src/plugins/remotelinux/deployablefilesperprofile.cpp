@@ -36,6 +36,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <QtGui/QBrush>
 
 using namespace Qt4ProjectManager;

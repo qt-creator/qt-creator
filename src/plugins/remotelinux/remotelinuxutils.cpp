@@ -72,7 +72,7 @@ bool RemoteLinuxUtils::hasLinuxQt(const Target *target)
     const Qt4BaseTarget * const qtTarget = qobject_cast<const Qt4BaseTarget *>(target);
     if (!qtTarget)
         return false;
-    const Qt4BuildConfiguration * const bc = qtTarget->activeBuildConfiguration();
+    const Qt4BuildConfiguration * const bc = qtTarget->activeQt4BuildConfiguration();
     return bc && Internal::isLinuxQt(bc->qtVersion());
 }
 

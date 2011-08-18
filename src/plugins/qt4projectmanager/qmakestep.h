@@ -34,15 +34,13 @@
 #define QMAKESTEP_H
 
 #include "qt4projectmanager_global.h"
-#include <QtCore/qglobal.h>
+#include <projectexplorer/abstractprocessstep.h>
+
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class QMakeStep; }
 QT_END_NAMESPACE
-
-#include <projectexplorer/abstractprocessstep.h>
-
-#include <QtCore/QStringList>
 
 namespace ProjectExplorer {
 class BuildStep;

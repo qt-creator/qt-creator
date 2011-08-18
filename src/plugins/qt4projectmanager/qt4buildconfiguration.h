@@ -36,7 +36,7 @@
 #include "qt4projectmanager_global.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/baseqtversion.h>
 
 namespace ProjectExplorer {
 class ToolChain;

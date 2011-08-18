@@ -33,6 +33,9 @@
 #include "qt4symbiantarget.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
+#include "qt4nodes.h"
+#include "qt4buildconfiguration.h"
+
 #include "qt-s60/s60deployconfiguration.h"
 #include "qt-s60/s60emulatorrunconfiguration.h"
 #include "qt-s60/s60devicerunconfiguration.h"
@@ -87,7 +90,7 @@ QIcon Qt4SymbianTarget::iconForId(const QString &id)
     return QIcon();
 }
 
-Qt4BuildConfigurationFactory *Qt4SymbianTarget::buildConfigurationFactory() const
+ProjectExplorer::IBuildConfigurationFactory *Qt4SymbianTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
 }

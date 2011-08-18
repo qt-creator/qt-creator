@@ -272,7 +272,7 @@ QString RemoteLinuxRunConfiguration::commandPrefix() const
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
 {
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()
+    TargetInformation ti = qt4Target()->qt4Project()->rootQt4ProjectNode()
         ->targetInformation(m_d->proFilePath);
     if (!ti.valid)
         return QString();

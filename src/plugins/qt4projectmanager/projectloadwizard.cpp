@@ -34,6 +34,8 @@
 #include "wizards/targetsetuppage.h"
 #include "qt4project.h"
 
+#include <coreplugin/ifile.h>
+
 #include <QtGui/QCheckBox>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>

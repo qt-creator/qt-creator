@@ -153,7 +153,7 @@ void Qt4Manager::editorChanged(Core::IEditor *editor)
         if (m_dirty) {
             const QString contents = formWindowEditorContents(m_lastEditor);
             foreach(Qt4Project *project, m_projects)
-                project->rootProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
+                project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
             m_dirty = false;
         }
     }
@@ -175,7 +175,7 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
             if (m_dirty) {
                 const QString contents = formWindowEditorContents(m_lastEditor);
                 foreach(Qt4Project *project, m_projects)
-                    project->rootProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
+                    project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->file()->fileName(), contents);
                 m_dirty = false;
             }
         }
@@ -192,7 +192,7 @@ void Qt4Manager::updateVariable(const QString &variable)
             return;
         }
         QString value;
-        QtSupport::BaseQtVersion *qtv = qt4pro->activeTarget()->activeBuildConfiguration()->qtVersion();
+        QtSupport::BaseQtVersion *qtv = qt4pro->activeTarget()->activeQt4BuildConfiguration()->qtVersion();
         if (qtv)
             value = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
         Core::VariableManager::instance()->insert(QLatin1String(kInstallBins), value);
@@ -355,7 +355,7 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
         !qt4pro->activeTarget()->activeBuildConfiguration())
     return;
 
-    Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeBuildConfiguration();
+    Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeQt4BuildConfiguration();
     QMakeStep *qs = bc->qmakeStep();
 
     if (!qs)
@@ -395,7 +395,7 @@ void Qt4Manager::handleSubDirContexMenu(Qt4Manager::Action action)
         !qt4pro->activeTarget()->activeBuildConfiguration())
     return;
 
-    Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeBuildConfiguration();
+    Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeQt4BuildConfiguration();
     if (m_contextNode != 0 && m_contextNode != qt4pro->rootProjectNode())
         if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(m_contextNode))
             bc->setSubNodeBuild(profile);

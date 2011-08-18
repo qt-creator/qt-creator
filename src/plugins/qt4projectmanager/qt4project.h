@@ -33,13 +33,10 @@
 #ifndef QT4PROJECT_H
 #define QT4PROJECT_H
 
-#include "qt4nodes.h"
-#include "qt4target.h"
 #include "qt4projectmanager_global.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <coreplugin/ifile.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
@@ -57,6 +54,8 @@ class ProFileReader;
 
 namespace Qt4ProjectManager {
 class Qt4ProFileNode;
+class Qt4BaseTarget;
+class Qt4BuildConfiguration;
 
 namespace Internal {
     class DeployHelperRunStep;
@@ -65,7 +64,8 @@ namespace Internal {
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
-
+    class Qt4ProjectFile;
+    class Qt4PriFileNode;
     class Qt4NodesWatcher;
 }
 
@@ -76,62 +76,8 @@ class Qt4Manager;
 class Qt4Project;
 class Qt4RunStep;
 
-class Qt4ProjectFile : public Core::IFile
-{
-    Q_OBJECT
-
-public:
-    Qt4ProjectFile(Qt4Project *project, const QString &filePath, QObject *parent = 0);
-
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-    QString fileName() const;
-    virtual void rename(const QString &newName);
-
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-    virtual QString mimeType() const;
-
-    bool isModified() const;
-    bool isReadOnly() const;
-    bool isSaveAsAllowed() const;
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-
-private:
-    const QString m_mimeType;
-    Qt4Project *m_project;
-    QString m_filePath;
-};
-
-/// Watches folders for Qt4PriFile nodes
-/// use one file system watcher to watch all folders
-/// such minimizing system ressouce usage
 namespace Internal {
-class CentralizedFolderWatcher : public QObject
-{
-    Q_OBJECT
-public:
-    CentralizedFolderWatcher();
-    ~CentralizedFolderWatcher();
-    void watchFolders(const QList<QString> &folders, Qt4PriFileNode *node);
-    void unwatchFolders(const QList<QString> &folders, Qt4PriFileNode *node);
-
-private slots:
-    void folderChanged(const QString &folder);
-    void onTimer();
-    void delayedFolderChanged(const QString &folder);
-
-private:
-    QSet<QString> recursiveDirs(const QString &folder);
-    QFileSystemWatcher m_watcher;
-    QMultiMap<QString, Qt4PriFileNode *> m_map;
-
-    QSet<QString> m_recursiveWatchedFolders;
-    QTimer m_compressTimer;
-    QSet<QString> m_changedFolders;
-};
-
+class CentralizedFolderWatcher;
 }
 
 class  QT4PROJECTMANAGER_EXPORT Qt4Project : public ProjectExplorer::Project
@@ -153,7 +99,8 @@ public:
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
 
-    Qt4ProFileNode *rootProjectNode() const;
+    ProjectExplorer::ProjectNode *rootProjectNode() const;
+    Qt4ProFileNode *rootQt4ProjectNode() const;
     bool validParse(const QString &proFilePath) const;
     bool parseInProgress(const QString &proFilePath) const;
 
@@ -183,10 +130,11 @@ public:
     /// \internal
     bool wasEvaluateCanceled();
 
-    Internal::CentralizedFolderWatcher *centralizedFolderWatcher();
-
     // For Qt4ProFileNode after a on disk change
     void updateFileList();
+
+    void watchFolders(const QStringList &l, Internal::Qt4PriFileNode *node);
+    void unwatchFolders(const QStringList &l, Internal::Qt4PriFileNode *node);
 
 signals:
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
@@ -231,7 +179,7 @@ private:
     Qt4ProFileNode *m_rootProjectNode;
     Internal::Qt4NodesWatcher *m_nodesWatcher;
 
-    Qt4ProjectFile *m_fileInfo;
+    Internal::Qt4ProjectFile *m_fileInfo;
 
     // Current configuration
     QString m_oldQtIncludePath;
@@ -255,7 +203,7 @@ private:
 
     QFuture<void> m_codeModelFuture;
 
-    Internal::CentralizedFolderWatcher m_centralizedFolderWatcher;
+    Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher;
 
     friend class Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;

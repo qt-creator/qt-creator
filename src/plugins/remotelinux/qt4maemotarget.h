@@ -41,7 +41,10 @@
 
 QT_FORWARD_DECLARE_CLASS(QFile)
 
-namespace Qt4ProjectManager { class Qt4Project; }
+namespace Qt4ProjectManager {
+class Qt4Project;
+class Qt4BuildConfigurationFactory;
+}
 namespace Utils { class FileSystemWatcher; }
 
 namespace RemoteLinux {
@@ -58,7 +61,7 @@ public:
         const QString &id);
     virtual ~AbstractQt4MaemoTarget();
 
-    Qt4ProjectManager::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
+    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
     void createApplicationProFiles();
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;

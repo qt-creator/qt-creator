@@ -32,12 +32,15 @@
 
 #include "qt4nodes.h"
 #include "qt4project.h"
+#include "qt4target.h"
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtuicodemodelsupport.h"
 #include "qmakestep.h"
+#include "qt4buildconfiguration.h"
 
 #include <projectexplorer/nodesvisitor.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -653,9 +656,9 @@ void Qt4PriFileNode::watchFolders(const QSet<QString> &folders)
     toWatch.subtract(m_watchedFolders);
 
     if (!toUnwatch.isEmpty())
-        m_project->centralizedFolderWatcher()->unwatchFolders(toUnwatch.toList(), this);
+        m_project->unwatchFolders(toUnwatch.toList(), this);
     if (!toWatch.isEmpty())
-        m_project->centralizedFolderWatcher()->watchFolders(toWatch.toList(), this);
+        m_project->watchFolders(toWatch.toList(), this);
 
     m_watchedFolders = folders;
 }
@@ -2086,7 +2089,7 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
         // Hmm can we find out whether it's debug or release in a saner way?
         // Theoretically it's in CONFIG
         QString qmakeBuildConfig = "release";
-        if (m_project->activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
+        if (m_project->activeTarget()->activeQt4BuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
             qmakeBuildConfig = "debug";
         wd += QLatin1Char('/') + qmakeBuildConfig;
     }
@@ -2213,7 +2216,7 @@ QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
     const QDir srcDirRoot = QFileInfo(m_project->rootProjectNode()->path()).absoluteDir();
     const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
     if (!bc && m_project->activeTarget())
-        bc = m_project->activeTarget()->activeBuildConfiguration();
+        bc = m_project->activeTarget()->activeQt4BuildConfiguration();
     if (!bc)
         return QString();
     return QDir(bc->buildDirectory()).absoluteFilePath(relativeDir);

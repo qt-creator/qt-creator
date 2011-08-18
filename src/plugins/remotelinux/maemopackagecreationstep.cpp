@@ -40,6 +40,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4target.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 

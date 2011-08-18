@@ -35,6 +35,7 @@
 #include "s60manager.h"
 #include "qt4project.h"
 #include "qt4target.h"
+#include "qt4nodes.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
 #include "qt4symbiantarget.h"
@@ -267,7 +268,7 @@ ProjectExplorer::ToolChain *S60DeployConfiguration::toolChain() const
 
 bool S60DeployConfiguration::isDebug() const
 {
-    const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
+    const Qt4BuildConfiguration *qt4bc = qt4Target()->activeQt4BuildConfiguration();
     return (qt4bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild);
 }
 
@@ -278,7 +279,7 @@ QString S60DeployConfiguration::symbianTarget() const
 
 const QtSupport::BaseQtVersion *S60DeployConfiguration::qtVersion() const
 {
-    if (const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration())
+    if (const Qt4BuildConfiguration *qt4bc = qt4Target()->activeQt4BuildConfiguration())
         return qt4bc->qtVersion();
     return 0;
 }

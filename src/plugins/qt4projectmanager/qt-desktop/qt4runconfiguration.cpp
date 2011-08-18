@@ -529,7 +529,7 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
 QString Qt4RunConfiguration::executable() const
 {
     Qt4Project *pro = qt4Target()->qt4Project();
-    TargetInformation ti = pro->rootProjectNode()->targetInformation(m_proFilePath);
+    TargetInformation ti = pro->rootQt4ProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();
     return ti.executable;
@@ -565,7 +565,7 @@ QString Qt4RunConfiguration::baseWorkingDirectory() const
 
     // else what the pro file reader tells us
     Qt4Project *pro = qt4Target()->qt4Project();
-    TargetInformation ti = pro->rootProjectNode()->targetInformation(m_proFilePath);
+    TargetInformation ti = pro->rootQt4ProjectNode()->targetInformation(m_proFilePath);
     if(!ti.valid)
         return QString();
     return ti.workingDir;
@@ -609,7 +609,7 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
     // The user could be linking to a library found via a -L/some/dir switch
     // to find those libraries while actually running we explicitly prepend those
     // dirs to the library search path
-    const Qt4ProFileNode *node = qt4Target()->qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
+    const Qt4ProFileNode *node = qt4Target()->qt4Project()->rootQt4ProjectNode()->findProFileFor(m_proFilePath);
     if (node) {
         const QStringList libDirectories = node->variableValue(LibDirectoriesVar);
         if (!libDirectories.isEmpty()) {
@@ -676,7 +676,7 @@ QString Qt4RunConfiguration::proFilePath() const
 
 QString Qt4RunConfiguration::dumperLibrary() const
 {
-    QtSupport::BaseQtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
+    QtSupport::BaseQtVersion *version = qt4Target()->activeQt4BuildConfiguration()->qtVersion();
     if (version)
         return version->gdbDebuggingHelperLibrary();
     return QString();
@@ -684,7 +684,7 @@ QString Qt4RunConfiguration::dumperLibrary() const
 
 QStringList Qt4RunConfiguration::dumperLibraryLocations() const
 {
-    QtSupport::BaseQtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
+    QtSupport::BaseQtVersion *version = qt4Target()->activeQt4BuildConfiguration()->qtVersion();
     if (version)
         return version->debuggingHelperLibraryLocations();
     return QStringList();

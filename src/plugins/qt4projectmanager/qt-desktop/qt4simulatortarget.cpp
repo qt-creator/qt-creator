@@ -32,7 +32,9 @@
 
 #include "qt4simulatortarget.h"
 #include "qt4project.h"
+#include "qt4nodes.h"
 #include "qt4runconfiguration.h"
+#include "qt4buildconfiguration.h"
 
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -63,7 +65,7 @@ QString Qt4SimulatorTarget::defaultDisplayName()
     return QApplication::translate("Qt4ProjectManager::Qt4Target", "Qt Simulator", "Qt4 Simulator target display name");
 }
 
-Qt4BuildConfigurationFactory *Qt4SimulatorTarget::buildConfigurationFactory() const
+ProjectExplorer::IBuildConfigurationFactory *Qt4SimulatorTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
 }

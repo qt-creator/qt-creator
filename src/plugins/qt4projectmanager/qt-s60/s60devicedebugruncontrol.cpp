@@ -41,6 +41,7 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>

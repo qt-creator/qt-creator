@@ -33,6 +33,7 @@
 #include "qt4project.h"
 
 #include "qt4projectmanager.h"
+#include "qt4target.h"
 #include "makestep.h"
 #include "qmakestep.h"
 #include "qt4nodes.h"
@@ -43,6 +44,7 @@
 #include "findqt4profiles.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/ifile.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
@@ -52,6 +54,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -63,6 +66,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QFileSystemWatcher>
 #include <QtGui/QFileDialog>
 #include <QtGui/QInputDialog>
 
@@ -74,6 +78,62 @@ enum { debug = 0 };
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+class Qt4ProjectFile : public Core::IFile
+{
+    Q_OBJECT
+
+public:
+    Qt4ProjectFile(Qt4Project *project, const QString &filePath, QObject *parent = 0);
+
+    bool save(QString *errorString, const QString &fileName, bool autoSave);
+    QString fileName() const;
+    virtual void rename(const QString &newName);
+
+    QString defaultPath() const;
+    QString suggestedFileName() const;
+    virtual QString mimeType() const;
+
+    bool isModified() const;
+    bool isReadOnly() const;
+    bool isSaveAsAllowed() const;
+
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+
+private:
+    const QString m_mimeType;
+    Qt4Project *m_project;
+    QString m_filePath;
+};
+
+/// Watches folders for Qt4PriFile nodes
+/// use one file system watcher to watch all folders
+/// such minimizing system ressouce usage
+
+class CentralizedFolderWatcher : public QObject
+{
+    Q_OBJECT
+public:
+    CentralizedFolderWatcher(QObject *parent);
+    ~CentralizedFolderWatcher();
+    void watchFolders(const QList<QString> &folders, Qt4PriFileNode *node);
+    void unwatchFolders(const QList<QString> &folders, Qt4PriFileNode *node);
+
+private slots:
+    void folderChanged(const QString &folder);
+    void onTimer();
+    void delayedFolderChanged(const QString &folder);
+
+private:
+    QSet<QString> recursiveDirs(const QString &folder);
+    QFileSystemWatcher m_watcher;
+    QMultiMap<QString, Qt4PriFileNode *> m_map;
+
+    QSet<QString> m_recursiveWatchedFolders;
+    QTimer m_compressTimer;
+    QSet<QString> m_changedFolders;
+};
 
 // Qt4ProjectFiles: Struct for (Cached) lists of files in a project
 struct Qt4ProjectFiles {
@@ -172,9 +232,9 @@ void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 }
 
 }
-}
 
 // ----------- Qt4ProjectFile
+
 Qt4ProjectFile::Qt4ProjectFile(Qt4Project *project, const QString &filePath, QObject *parent)
     : Core::IFile(parent),
       m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)),
@@ -247,6 +307,8 @@ bool Qt4ProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
     return true;
 }
 
+} // namespace Internal
+
 /*!
   \class Qt4Project
 
@@ -264,7 +326,8 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_pendingEvaluateFuturesCount(0),
     m_asyncUpdateState(NoState),
     m_cancelEvaluate(false),
-    m_codeModelCanceled(false)
+    m_codeModelCanceled(false),
+    m_centralizedFolderWatcher(0)
 {
     setProjectContext(Core::Context(Qt4ProjectManager::Constants::PROJECT_ID));
     setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -419,7 +482,7 @@ void Qt4Project::updateCodeModels()
 
 void Qt4Project::updateCppCodeModel()
 {
-    Qt4BuildConfiguration *activeBC = activeTarget()->activeBuildConfiguration();
+    Qt4BuildConfiguration *activeBC = activeTarget()->activeQt4BuildConfiguration();
 
     CPlusPlus::CppModelManagerInterface *modelmanager =
         CPlusPlus::CppModelManagerInterface::instance();
@@ -555,17 +618,18 @@ void Qt4Project::updateQmlJSCodeModel()
     }
     bool preferDebugDump = false;
     if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
-        preferDebugDump = activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
-        QtSupport::BaseQtVersion *qtVersion = activeTarget()->activeBuildConfiguration()->qtVersion();
+        preferDebugDump = activeTarget()->activeQt4BuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
+        QtSupport::BaseQtVersion *qtVersion = activeTarget()->activeQt4BuildConfiguration()->qtVersion();
         if (qtVersion && qtVersion->isValid()) {
             projectInfo.qtImportsPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
             if (!projectInfo.qtImportsPath.isEmpty())
                 projectInfo.importPaths += projectInfo.qtImportsPath;
             projectInfo.qtVersionString = qtVersion->qtVersionString();
         }
+
     }
-    QtSupport::QmlDumpTool::pathAndEnvironment(this, activeTarget()->activeBuildConfiguration()->qtVersion(),
-                                               activeTarget()->activeBuildConfiguration()->toolChain(),
+    const Qt4BuildConfiguration *bc = activeTarget()->activeQt4BuildConfiguration();
+    QtSupport::QmlDumpTool::pathAndEnvironment(this, bc->qtVersion(), bc->toolChain(),
                                                preferDebugDump, &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
     projectInfo.importPaths.removeDuplicates();
 
@@ -584,7 +648,7 @@ void Qt4Project::update()
     if (debug)
         qDebug()<<"State is now Base";
     m_asyncUpdateState = Base;
-    activeTarget()->activeBuildConfiguration()->setEnabled(true);
+    activeTarget()->activeQt4BuildConfiguration()->setEnabled(true);
 }
 
 void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
@@ -605,7 +669,7 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
         return;
     }
 
-    activeTarget()->activeBuildConfiguration()->setEnabled(false);
+    activeTarget()->activeQt4BuildConfiguration()->setEnabled(false);
 
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
         // Just postpone
@@ -675,7 +739,7 @@ void Qt4Project::scheduleAsyncUpdate()
             qDebug()<<"  update in progress, canceling and setting state to full update pending";
         m_cancelEvaluate = true;
         m_asyncUpdateState = AsyncFullUpdatePending;
-        activeTarget()->activeBuildConfiguration()->setEnabled(false);
+        activeTarget()->activeQt4BuildConfiguration()->setEnabled(false);
         m_rootProjectNode->setParseInProgressRecursive();
         m_rootProjectNode->emitProFileUpdated();
         return;
@@ -684,7 +748,7 @@ void Qt4Project::scheduleAsyncUpdate()
     if (debug)
         qDebug()<<"  starting timer for full update, setting state to full update pending";
     m_partialEvaluate.clear();
-    activeTarget()->activeBuildConfiguration()->setEnabled(false);
+    activeTarget()->activeQt4BuildConfiguration()->setEnabled(false);
     m_rootProjectNode->setParseInProgressRecursive();
     m_rootProjectNode->emitProFileUpdated();
     m_asyncUpdateState = AsyncFullUpdatePending;
@@ -732,7 +796,7 @@ void Qt4Project::decrementPendingEvaluateFutures()
             m_asyncUpdateTimer.start();
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After being done, we need to call:
-            activeTarget()->activeBuildConfiguration()->setEnabled(true);
+            activeTarget()->activeQt4BuildConfiguration()->setEnabled(true);
             foreach (Target *t, targets())
                 static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles();
             updateFileList();
@@ -878,7 +942,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
         m_proFileOptionRefCnt = 0;
 
         if (!bc && activeTarget())
-            bc = activeTarget()->activeBuildConfiguration();
+            bc = activeTarget()->activeQt4BuildConfiguration();
 
         if (bc) {
             QtSupport::BaseQtVersion *version = bc->qtVersion();
@@ -927,7 +991,12 @@ void Qt4Project::destroyProFileReader(QtSupport::ProFileReader *reader)
     }
 }
 
-Qt4ProFileNode *Qt4Project::rootProjectNode() const
+ProjectExplorer::ProjectNode *Qt4Project::rootProjectNode() const
+{
+    return m_rootProjectNode;
+}
+
+Qt4ProFileNode *Qt4Project::rootQt4ProjectNode() const
 {
     return m_rootProjectNode;
 }
@@ -984,7 +1053,7 @@ QList<Qt4ProFileNode *> Qt4Project::allProFiles() const
     QList<Qt4ProFileNode *> list;
     if (!rootProjectNode())
         return list;
-    collectAllfProFiles(list, rootProjectNode());
+    collectAllfProFiles(list, rootQt4ProjectNode());
     return list;
 }
 
@@ -993,7 +1062,7 @@ QList<Qt4ProFileNode *> Qt4Project::applicationProFiles() const
     QList<Qt4ProFileNode *> list;
     if (!rootProjectNode())
         return list;
-    collectApplicationProFiles(list, rootProjectNode());
+    collectApplicationProFiles(list, rootQt4ProjectNode());
     return list;
 }
 
@@ -1054,7 +1123,7 @@ void Qt4Project::notifyChanged(const QString &name)
 {
     if (files(Qt4Project::ExcludeGeneratedFiles).contains(name)) {
         QList<Qt4ProFileNode *> list;
-        findProFile(name, rootProjectNode(), list);
+        findProFile(name, rootQt4ProjectNode(), list);
         foreach(Qt4ProFileNode *node, list) {
             QtSupport::ProFileCacheManager::instance()->discardFile(name);
             node->update();
@@ -1063,9 +1132,19 @@ void Qt4Project::notifyChanged(const QString &name)
     }
 }
 
-CentralizedFolderWatcher *Qt4Project::centralizedFolderWatcher()
+void Qt4Project::watchFolders(const QStringList &l, Qt4PriFileNode *node)
 {
-    return &m_centralizedFolderWatcher;
+    if (l.isEmpty())
+        return;
+    if (!m_centralizedFolderWatcher)
+        m_centralizedFolderWatcher = new Internal::CentralizedFolderWatcher(this);
+    m_centralizedFolderWatcher->watchFolders(l, node);
+}
+
+void Qt4Project::unwatchFolders(const QStringList &l, Qt4PriFileNode *node)
+{
+    if (m_centralizedFolderWatcher && !l.isEmpty())
+        m_centralizedFolderWatcher->unwatchFolders(l, node);
 }
 
 /////////////
@@ -1078,7 +1157,7 @@ namespace {
    bool debugCFW = false;
 }
 
-CentralizedFolderWatcher::CentralizedFolderWatcher()
+CentralizedFolderWatcher::CentralizedFolderWatcher(QObject *parent) : QObject(parent)
 {
     m_compressTimer.setSingleShot(true);
     m_compressTimer.setInterval(200);
@@ -1264,4 +1343,4 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
 //    }
 //}
 
-
+#include "qt4project.moc"

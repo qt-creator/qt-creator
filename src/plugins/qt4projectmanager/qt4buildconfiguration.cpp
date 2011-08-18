@@ -49,7 +49,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
-
+#include <qtsupport/qtversionmanager.h>
 #include <QtCore/QDebug>
 
 #include <QtGui/QInputDialog>
@@ -327,7 +327,7 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
 
 QString Qt4BuildConfiguration::makefile() const
 {
-    return qt4Target()->qt4Project()->rootProjectNode()->makefile();
+    return qt4Target()->qt4Project()->rootQt4ProjectNode()->makefile();
 }
 
 QtSupport::BaseQtVersion *Qt4BuildConfiguration::qtVersion() const

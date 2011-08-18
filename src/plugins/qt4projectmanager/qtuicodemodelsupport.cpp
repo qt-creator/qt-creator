@@ -57,7 +57,7 @@ Qt4UiCodeModelSupport::~Qt4UiCodeModelSupport()
 
 QString Qt4UiCodeModelSupport::uicCommand() const
 {
-    Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeBuildConfiguration();
+    Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeQt4BuildConfiguration();
     if (!qt4bc->qtVersion())
         return QString();
     return qt4bc->qtVersion()->uicCommand();
@@ -65,6 +65,6 @@ QString Qt4UiCodeModelSupport::uicCommand() const
 
 QStringList Qt4UiCodeModelSupport::environment() const
 {
-    Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeBuildConfiguration();
+    Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeQt4BuildConfiguration();
     return qt4bc->environment().toStringList();
 }

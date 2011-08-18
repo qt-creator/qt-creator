@@ -39,6 +39,7 @@
 
 namespace Qt4ProjectManager {
 class Qt4Project;
+class Qt4BuildConfigurationFactory;
 namespace Internal {
 
 
@@ -50,7 +51,7 @@ public:
     explicit Qt4SymbianTarget(Qt4Project *parent, const QString &id);
     virtual ~Qt4SymbianTarget();
 
-    Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
+    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
 

@@ -48,6 +48,8 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/toolchain.h>
 #include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qt4nodes.h>
 #include <utils/fileutils.h>
 #include <utils/filesystemwatcher.h>
 #include <qtsupport/baseqtversion.h>
@@ -150,8 +152,7 @@ QList<ProjectExplorer::ToolChain *> AbstractQt4MaemoTarget::possibleToolChains(P
     return result;
 }
 
-
-Qt4BuildConfigurationFactory *AbstractQt4MaemoTarget::buildConfigurationFactory() const
+ProjectExplorer::IBuildConfigurationFactory *AbstractQt4MaemoTarget::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
 }
@@ -705,7 +706,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
     QDir projectDir(project()->projectDirectory());
     QProcess dh_makeProc;
     QString error;
-    const Qt4BuildConfiguration * const bc = activeBuildConfiguration();
+    const Qt4BuildConfiguration * const bc = qobject_cast<Qt4BuildConfiguration * >(activeBuildConfiguration());
     AbstractMaemoPackageCreationStep::preparePackagingProcess(&dh_makeProc, bc,
         projectDir.path() + QLatin1Char('/') + PackagingDirName);
     const QString dhMakeDebianDir = projectDir.path() + QLatin1Char('/')
@@ -715,7 +716,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
         << QLatin1String("-s") << QLatin1String("-n") << QLatin1String("-p")
         << (defaultPackageFileName() + QLatin1Char('_')
             + AbstractMaemoPackageCreationStep::DefaultVersionNumber);
-    QtSupport::BaseQtVersion *lqt = activeBuildConfiguration()->qtVersion();
+    QtSupport::BaseQtVersion *lqt = activeQt4BuildConfiguration()->qtVersion();
     if (!lqt) {
         raiseError(tr("Unable to create Debian templates: No Qt version set"));
         return ActionFailed;
@@ -919,7 +920,7 @@ QString AbstractRpmBasedQt4MaemoTarget::shortDescription() const
 
 QString AbstractRpmBasedQt4MaemoTarget::packageFileName() const
 {
-    QtSupport::BaseQtVersion *lqt = activeBuildConfiguration()->qtVersion();
+    QtSupport::BaseQtVersion *lqt = activeQt4BuildConfiguration()->qtVersion();
     if (!lqt)
         return QString();
     return packageName() + QLatin1Char('-') + projectVersion() + QLatin1Char('-')

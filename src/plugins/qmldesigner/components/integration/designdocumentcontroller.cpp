@@ -37,6 +37,8 @@
 #include "subcomponentmanager.h"
 #include "model/viewlogger.h"
 
+#include <qt4projectmanager/qt4buildconfiguration.h>
+
 #include <itemlibraryview.h>
 #include <itemlibrarywidget.h>
 #include <navigatorview.h>

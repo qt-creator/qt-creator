@@ -46,6 +46,8 @@
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchainmanager.h>
 
+#include <qtsupport/qtversionmanager.h>
+
 using ProjectExplorer::idFromMap;
 using ProjectExplorer::Task;
 using namespace Qt4ProjectManager;

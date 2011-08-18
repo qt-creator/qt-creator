@@ -38,6 +38,7 @@
 namespace Qt4ProjectManager {
 
 class Qt4Project;
+class Qt4BuildConfigurationFactory;
 
 namespace Internal {
 
@@ -49,7 +50,7 @@ public:
     explicit Qt4SimulatorTarget(Qt4Project *parent, const QString &id);
     virtual ~Qt4SimulatorTarget();
 
-    Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
+    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
     void createApplicationProFiles();
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);

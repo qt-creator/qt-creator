@@ -34,9 +34,11 @@
 
 #include "qt4project.h"
 #include "qt4target.h"
+#include "qt4nodes.h"
 #include "s60manager.h"
 #include "qt4symbiantarget.h"
 #include "qt4projectmanagerconstants.h"
+#include "qt4buildconfiguration.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -178,7 +180,7 @@ QString S60EmulatorRunConfiguration::executable() const
 {
     if (!qt4Target()) 
         return QString();
-    Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
+    Qt4BuildConfiguration *qt4bc = qt4Target()->activeQt4BuildConfiguration();
     if (!qt4bc) 
         return QString();
     QtSupport::BaseQtVersion *qtVersion = qt4bc->qtVersion();
@@ -190,7 +192,7 @@ QString S60EmulatorRunConfiguration::executable() const
         qmakeBuildConfig = "udeb";
     baseDir += "/epoc32/release/winscw/" + qmakeBuildConfig;
 
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
+    TargetInformation ti = qt4Target()->qt4Project()->rootQt4ProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();
     QString executable = QDir::toNativeSeparators(QDir::cleanPath(baseDir + QLatin1Char('/') + ti.target));

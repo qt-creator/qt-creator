@@ -39,6 +39,7 @@
 #include "qt4basetargetfactory.h"
 #include "qt4projectconfigwidget.h"
 #include "qt4projectmanagerconstants.h"
+#include "qt4buildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -51,6 +52,7 @@
 #include <projectexplorer/task.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionmanager.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
 #include <utils/qtcprocess.h>
@@ -245,7 +247,7 @@ ProjectExplorer::BuildConfigWidget *Qt4BaseTarget::createConfigWidget()
     return new Qt4ProjectConfigWidget(this);
 }
 
-Qt4BuildConfiguration *Qt4BaseTarget::activeBuildConfiguration() const
+Qt4BuildConfiguration *Qt4BaseTarget::activeQt4BuildConfiguration() const
 {
     return static_cast<Qt4BuildConfiguration *>(Target::activeBuildConfiguration());
 }

@@ -33,19 +33,16 @@
 #ifndef QT4NODES_H
 #define QT4NODES_H
 
-#include "qt4buildconfiguration.h"
+#include "qt4projectmanager_global.h"
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
 #include <QtCore/QDateTime>
 #include <QtCore/QMap>
 #include <QtCore/QFutureWatcher>
-#include <QtCore/QFileSystemWatcher>
 
 // defined in proitems.h
 QT_BEGIN_NAMESPACE
@@ -60,8 +57,13 @@ namespace QtSupport {
 class ProFileReader;
 }
 
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
+class RunConfiguration;
+class Project;
+}
 
+namespace Qt4ProjectManager {
+class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 class Qt4Project;
 

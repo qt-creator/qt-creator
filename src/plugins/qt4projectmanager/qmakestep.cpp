@@ -40,6 +40,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
 #include "qt4target.h"
+#include "qt4nodes.h"
 #include "qt4basetargetfactory.h"
 #include "ui_showbuildlog.h"
 
@@ -264,7 +265,7 @@ bool QMakeStep::init()
 
     setOutputParser(new QMakeParser);
 
-    Qt4ProFileNode *node = qt4bc->qt4Target()->qt4Project()->rootProjectNode();
+    Qt4ProFileNode *node = qt4bc->qt4Target()->qt4Project()->rootQt4ProjectNode();
     if (qt4bc->subNodeBuild())
         node = qt4bc->subNodeBuild();
     QString proFile = node->path();

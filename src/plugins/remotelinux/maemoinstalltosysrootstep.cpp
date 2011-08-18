@@ -158,7 +158,7 @@ RemoteLinuxDeployConfiguration *AbstractMaemoInstallPackageToSysrootStep::deploy
 void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
 {
     const Qt4BuildConfiguration * const bc
-        = qobject_cast<Qt4BaseTarget *>(target())->activeBuildConfiguration();
+        = qobject_cast<Qt4BaseTarget *>(target())->activeQt4BuildConfiguration();
     if (!bc) {
         addOutput(tr("Cannot install to sysroot without build configuration."),
             ErrorMessageOutput);
@@ -305,7 +305,7 @@ MaemoCopyToSysrootStep::MaemoCopyToSysrootStep(BuildStepList *bsl,
 void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
 {
     const Qt4BuildConfiguration * const bc
-        = qobject_cast<Qt4BaseTarget *>(target())->activeBuildConfiguration();
+        = qobject_cast<Qt4BaseTarget *>(target())->activeQt4BuildConfiguration();
     if (!bc) {
         addOutput(tr("Cannot copy to sysroot without build configuration."),
             ErrorMessageOutput);

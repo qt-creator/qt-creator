@@ -87,8 +87,8 @@ void DeploymentInfo::createModels()
 {
     if (m_d->target->project()->activeTarget() != m_d->target)
         return;
-    if (!m_d->target->activeBuildConfiguration() || !m_d->target->activeBuildConfiguration()->qtVersion()
-            || !m_d->target->activeBuildConfiguration()->qtVersion()->isValid()) {
+    const Qt4BuildConfiguration *bc = m_d->target->activeQt4BuildConfiguration();
+    if (!bc || !bc->qtVersion() || !bc->qtVersion()->isValid()) {
         beginResetModel();
         qDeleteAll(m_d->listModels);
         m_d->listModels.clear();
@@ -96,7 +96,7 @@ void DeploymentInfo::createModels()
         return;
     }
     const Qt4ProFileNode *const rootNode
-        = m_d->target->qt4Project()->rootProjectNode();
+        = m_d->target->qt4Project()->rootQt4ProjectNode();
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
     m_d->updateTimer.stop();

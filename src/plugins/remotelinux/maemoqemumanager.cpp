@@ -50,7 +50,9 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/qtversionmanager.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/filesystemwatcher.h>
 
@@ -529,7 +531,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
     int uniqueId = -1;
     if (target) {
         if (AbstractQt4MaemoTarget *qt4Target = qobject_cast<AbstractQt4MaemoTarget*>(target)) {
-            if (Qt4BuildConfiguration *bc = qt4Target->activeBuildConfiguration()) {
+            if (Qt4BuildConfiguration *bc = qt4Target->activeQt4BuildConfiguration()) {
                 if (QtSupport::BaseQtVersion *version = bc->qtVersion())
                     uniqueId = version->uniqueId();
             }
