@@ -36,17 +36,17 @@
 #include "buildstep.h"
 #include "processparameters.h"
 
-#include <utils/environment.h>
-
-#include <utils/qtcprocess.h>
-
 #include <QtCore/QString>
+#include <QtCore/QProcess>
 
 QT_BEGIN_NAMESPACE
 class QEventLoop;
 class QTimer;
 QT_END_NAMESPACE
 
+namespace Utils {
+class QtcProcess;
+}
 namespace ProjectExplorer {
 
 class IOutputParser;

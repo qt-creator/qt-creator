@@ -36,6 +36,7 @@
 #include "ioutputparser.h"
 #include "project.h"
 #include "target.h"
+#include "task.h"
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

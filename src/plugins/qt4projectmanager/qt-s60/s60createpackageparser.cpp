@@ -33,7 +33,7 @@
 #include "s60createpackageparser.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/taskwindow.h>
+#include <projectexplorer/task.h>
 
 using namespace Qt4ProjectManager::Internal;
 

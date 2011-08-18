@@ -35,13 +35,12 @@
 
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
-#include "task.h"
 
 #include <QtCore/QFutureInterface>
 #include <QtGui/QWidget>
 
 namespace ProjectExplorer {
-
+class Task;
 class BuildConfiguration;
 class BuildStepList;
 class DeployConfiguration;

@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "outputparser_test.h"
+#include "task.h"
 
 #if defined(WITH_TESTS)
 

@@ -33,11 +33,10 @@
 #ifndef PROJECTEXPLORER_H
 #define PROJECTEXPLORER_H
 
-#include <QtCore/QPair>
-
 #include "projectexplorer_export.h"
 
 #include <extensionsystem/iplugin.h>
+
 #include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
@@ -48,10 +47,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IMode;
-}
-
-namespace Utils {
-class ParameterAction;
 }
 
 namespace ProjectExplorer {
@@ -66,7 +61,6 @@ class BuildConfiguration;
 class ProjectNode;
 
 namespace Internal {
-class ProjectFileFactory;
 struct ProjectExplorerSettings;
 }
 

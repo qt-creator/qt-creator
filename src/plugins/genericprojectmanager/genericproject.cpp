@@ -36,6 +36,7 @@
 #include "genericprojectconstants.h"
 #include "generictarget.h"
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>

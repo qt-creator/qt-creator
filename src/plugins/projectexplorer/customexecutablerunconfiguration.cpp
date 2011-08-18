@@ -37,10 +37,12 @@
 #include "debugginghelper.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
+#include "abi.h"
 
 #include <coreplugin/icore.h>
 
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>

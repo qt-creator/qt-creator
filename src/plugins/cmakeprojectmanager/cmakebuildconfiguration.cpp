@@ -38,6 +38,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
 #include <utils/qtcassert.h>
 

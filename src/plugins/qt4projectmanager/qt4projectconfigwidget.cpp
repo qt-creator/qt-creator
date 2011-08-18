@@ -45,6 +45,8 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/task.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/qtversionfactory.h>

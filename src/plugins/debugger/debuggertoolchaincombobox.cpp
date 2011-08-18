@@ -33,6 +33,8 @@
 #include "debuggertoolchaincombobox.h"
 
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/abi.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>

@@ -36,11 +36,13 @@
 #include "projectexplorer_export.h"
 #include "projectconfiguration.h"
 
-#include <utils/stringutils.h>
 #include <utils/environment.h>
 
-#include <QtCore/QString>
 #include <QtCore/QStringList>
+
+namespace Utils {
+class AbstractMacroExpander;
+}
 
 namespace ProjectExplorer {
 
@@ -49,14 +51,6 @@ class BuildStepList;
 class Target;
 class ToolChain;
 class IOutputParser;
-
-class BuildConfigMacroExpander : public Utils::AbstractQtcMacroExpander {
-public:
-    BuildConfigMacroExpander(BuildConfiguration *bc) : m_bc(bc) {}
-    virtual bool resolveMacro(const QString &name, QString *ret);
-private:
-    BuildConfiguration *m_bc;
-};
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 {
@@ -94,7 +88,7 @@ public:
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
 
-    Utils::AbstractMacroExpander *macroExpander() { return &m_macroExpander; }
+    Utils::AbstractMacroExpander *macroExpander();
 
     virtual ProjectExplorer::ToolChain *toolChain() const;
     virtual void setToolChain(ProjectExplorer::ToolChain *tc);
@@ -129,8 +123,8 @@ private:
     bool m_clearSystemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
-    BuildConfigMacroExpander m_macroExpander;
     ToolChain *m_toolChain;
+    Utils::AbstractMacroExpander *m_macroExpander;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :

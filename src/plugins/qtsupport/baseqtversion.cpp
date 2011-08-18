@@ -38,6 +38,7 @@
 #include "qtversionmanager.h"
 #include "profilereader.h"
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>

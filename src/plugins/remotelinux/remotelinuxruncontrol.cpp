@@ -37,8 +37,10 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QString>
+#include <QtGui/QIcon>
 #include <QtGui/QMessageBox>
+
+#include <QtCore/QString>
 
 using namespace ProjectExplorer;
 

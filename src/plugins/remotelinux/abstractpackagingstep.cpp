@@ -37,6 +37,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/task.h>
 #include <utils/fileutils.h>
 
 #include <QtCore/QDateTime>

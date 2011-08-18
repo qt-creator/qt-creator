@@ -35,11 +35,13 @@
 #include "project.h"
 #include "target.h"
 #include "toolchain.h"
+#include "abi.h"
 #include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/outputformatter.h>
 #include <utils/checkablemessagebox.h>
 
 #include <coreplugin/icore.h>

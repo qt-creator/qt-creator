@@ -44,6 +44,8 @@
 
 #include <utils/pathchooser.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/abi.h>
 #include <texteditor/fontsettings.h>
 
 #include <QtGui/QVBoxLayout>

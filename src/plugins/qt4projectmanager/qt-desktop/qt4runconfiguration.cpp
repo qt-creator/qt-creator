@@ -54,6 +54,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
+#include <utils/stringutils.h>
 #include <utils/debuggerlanguagechooser.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/baseqtversion.h>

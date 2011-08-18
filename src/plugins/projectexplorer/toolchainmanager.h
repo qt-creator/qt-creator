@@ -35,9 +35,6 @@
 
 #include "projectexplorer_export.h"
 
-#include "abi.h"
-#include "toolchain.h"
-
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -46,6 +43,7 @@ namespace ProjectExplorer {
 class ProjectExplorerPlugin;
 class ToolChain;
 class ToolChainFactory;
+class Abi;
 
 namespace Internal {
 class ToolChainManagerPrivate;

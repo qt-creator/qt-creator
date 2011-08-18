@@ -51,7 +51,6 @@ class ToolChainPrivate;
 }
 
 class Abi;
-class HeaderPath;
 class IOutputParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;

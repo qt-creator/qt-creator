@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "abiwidget.h"
+#include "abi.h"
 
 #include <QtGui/QComboBox>
 #include <QtGui/QHBoxLayout>

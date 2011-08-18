@@ -32,7 +32,7 @@
 
 #include "rvctparser.h"
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/taskwindow.h>
+#include <projectexplorer/task.h>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Constants;

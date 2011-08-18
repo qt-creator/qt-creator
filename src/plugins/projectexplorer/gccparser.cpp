@@ -32,16 +32,14 @@
 
 #include "gccparser.h"
 #include "ldparser.h"
-#include "taskwindow.h"
+#include "task.h"
 #include "projectexplorerconstants.h"
 
 using namespace ProjectExplorer;
 
-namespace {
-    // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN = "(<command[ -]line>|([A-Za-z]:)?[^:]+\\.[^:]+):";
-    const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?(\\.exe)?: ";
-}
+// opt. drive letter + filename: (2 brackets)
+static const char FILE_PATTERN[] = "(<command[ -]line>|([A-Za-z]:)?[^:]+\\.[^:]+):";
+static const char COMMAND_PATTERN[] = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?(\\.exe)?: ";
 
 GccParser::GccParser()
 {

@@ -33,7 +33,7 @@
 #include "gnumakeparser.h"
 
 #include "projectexplorerconstants.h"
-#include "taskwindow.h"
+#include "task.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>

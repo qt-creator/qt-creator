@@ -31,7 +31,8 @@
 **************************************************************************/
 
 #include "toolchainoptionspage.h"
-
+#include "toolchain.h"
+#include "abi.h"
 #include "projectexplorerconstants.h"
 #include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"

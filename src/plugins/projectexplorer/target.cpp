@@ -32,6 +32,7 @@
 
 #include "target.h"
 
+#include "toolchain.h"
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
 #include "project.h"

@@ -46,6 +46,8 @@
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 #include <utils/debuggerlanguagechooser.h>
+#include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>

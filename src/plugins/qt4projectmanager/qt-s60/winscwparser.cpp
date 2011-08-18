@@ -33,6 +33,7 @@
 #include "winscwparser.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/task.h>
 
 using namespace Qt4ProjectManager;
 using namespace ProjectExplorer;

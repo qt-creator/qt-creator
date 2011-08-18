@@ -35,7 +35,6 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtCore/QString>
 #include <QtCore/QStringList>
 
 namespace ProjectExplorer {

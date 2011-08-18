@@ -41,6 +41,7 @@
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <symbianutils/symbiandevicemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <QtGui/QPainter>

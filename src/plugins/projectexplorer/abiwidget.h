@@ -35,11 +35,10 @@
 
 #include "projectexplorer_export.h"
 
-#include "abi.h"
-
 #include <QtGui/QWidget>
 
 namespace ProjectExplorer {
+class Abi;
 
 namespace Internal {
 class AbiWidgetPrivate;

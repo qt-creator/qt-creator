@@ -39,6 +39,7 @@
 #include <utils/environment.h>
 
 #include <QtGui/QLabel>
+#include <QtGui/QIcon>
 #include <QtCore/QDir>
 
 namespace ProjectExplorer {

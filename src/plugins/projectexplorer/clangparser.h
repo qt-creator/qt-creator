@@ -34,6 +34,7 @@
 #define CLANGPARSER_H
 
 #include "ioutputparser.h"
+#include "task.h"
 
 #include <QtCore/QRegExp>
 

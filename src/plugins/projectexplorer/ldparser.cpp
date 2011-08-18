@@ -32,7 +32,7 @@
 
 #include "ldparser.h"
 #include "projectexplorerconstants.h"
-#include "taskwindow.h"
+#include "task.h"
 
 using namespace ProjectExplorer;
 

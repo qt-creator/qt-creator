@@ -46,12 +46,14 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
+#include <utils/qtcprocess.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QPushButton>

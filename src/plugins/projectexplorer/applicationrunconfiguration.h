@@ -36,8 +36,6 @@
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
 
-#include "abi.h"
-
 namespace Utils {
 class AbstractMacroExpander;
 class Environment;
