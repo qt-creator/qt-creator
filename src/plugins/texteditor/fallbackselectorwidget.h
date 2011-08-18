@@ -36,7 +36,6 @@
 #include "texteditor_global.h"
 
 #include <QtGui/QWidget>
-#include <QtCore/QMap>
 
 QT_BEGIN_NAMESPACE
 class QHBoxLayout;

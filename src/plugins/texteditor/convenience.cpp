@@ -34,6 +34,7 @@
 
 #include <QtGui/QTextDocument>
 #include <QtGui/QTextBlock>
+#include <QtGui/QTextCursor>
 
 namespace TextEditor {
 namespace Convenience {

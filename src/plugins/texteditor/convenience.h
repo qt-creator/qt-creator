@@ -35,12 +35,12 @@
 
 #include "texteditor_global.h"
 
+#include <QtCore/QString>
+
 QT_BEGIN_NAMESPACE
 class QTextDocument;
+class QTextCursor;
 QT_END_NAMESPACE
-
-#include <QtCore/QString>
-#include <QtGui/QTextCursor>
 
 namespace TextEditor {
 namespace Convenience {

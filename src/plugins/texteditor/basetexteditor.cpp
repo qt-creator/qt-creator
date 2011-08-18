@@ -52,6 +52,7 @@
 #include "defaultassistinterface.h"
 #include "convenience.h"
 #include "texteditorsettings.h"
+#include "texteditoroverlay.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>

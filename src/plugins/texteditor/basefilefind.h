@@ -36,23 +36,26 @@
 #include "texteditor_global.h"
 
 #include <find/ifindfilter.h>
-#include <find/ifindsupport.h>
 #include <find/searchresultwindow.h>
 #include <utils/filesearch.h>
 
+#include <QtGui/QStringListModel>
+
 #include <QtCore/QFutureWatcher>
 #include <QtCore/QPointer>
-
-#include <QtGui/QStringListModel>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QComboBox;
 QT_END_NAMESPACE
 
+namespace Utils {
+class FileIterator;
+}
 namespace Find {
 class SearchResultWindow;
 struct SearchResultItem;
+class IFindSupport;
 }
 
 namespace TextEditor {
@@ -63,6 +66,7 @@ class TEXTEDITOR_EXPORT BaseFileFind : public Find::IFindFilter
 
 public:
     explicit BaseFileFind(Find::SearchResultWindow *resultWindow);
+    ~BaseFileFind();
 
     bool isEnabled() const;
     bool canCancel() const;

@@ -36,7 +36,6 @@
 #include "texteditor_global.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QVariant>
 
 namespace TextEditor {
 

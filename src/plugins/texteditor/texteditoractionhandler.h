@@ -34,16 +34,22 @@
 #define TEXTEDITORACTIONHANDLER_H
 
 #include "texteditor_global.h"
-#include "basetexteditor.h"
 
-#include "coreplugin/icontext.h"
+#include <coreplugin/icontext.h>
 
-#include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QList>
 
+QT_FORWARD_DECLARE_CLASS(QAction)
+
+namespace Core {
+class ICore;
+class IEditor;
+}
+
 namespace TextEditor {
+class BaseTextEditorWidget;
 
 // Redirects slots from global actions to the respective editor.
 
@@ -60,6 +66,8 @@ public:
     };
 
     explicit TextEditorActionHandler(const char *context, uint optionalActions = None);
+    ~TextEditorActionHandler();
+
     void setupActions(BaseTextEditorWidget *editor);
 
     void initializeActions();

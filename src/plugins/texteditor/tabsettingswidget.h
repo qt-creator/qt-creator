@@ -34,7 +34,8 @@
 #define TEXTEDITOR_TABSETTINGSWIDGET_H
 
 #include "texteditor_global.h"
-#include <QWidget>
+
+#include <QtGui/QWidget>
 
 namespace TextEditor {
 
@@ -73,7 +74,6 @@ private slots:
 private:
     Ui::TabSettingsWidget *ui;
 };
-
 
 } // namespace TextEditor
 #endif // TEXTEDITOR_TABSETTINGSWIDGET_H

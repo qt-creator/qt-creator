@@ -106,6 +106,10 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
         this, SLOT(updateCurrentEditor(Core::IEditor*)));
 }
 
+TextEditorActionHandler::~TextEditorActionHandler()
+{
+}
+
 void TextEditorActionHandler::setupActions(BaseTextEditorWidget *editor)
 {
     initializeActions();

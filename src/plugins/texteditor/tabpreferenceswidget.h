@@ -36,8 +36,6 @@
 #include "texteditor_global.h"
 
 #include <QtGui/QWidget>
-#include <QtCore/QMap>
-
 
 namespace TextEditor {
 
@@ -74,7 +72,6 @@ private:
     Ui::TabPreferencesWidget *m_ui;
     TabPreferences *m_tabPreferences;
 };
-
 
 } // namespace TextEditor
 #endif // TABPREFERENCESWIDGET_H

@@ -37,7 +37,6 @@
 #include "codeassist/assistenums.h"
 
 #include <find/ifindsupport.h>
-
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtGui/QPlainTextEdit>

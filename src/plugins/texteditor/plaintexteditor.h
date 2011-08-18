@@ -37,9 +37,6 @@
 
 #include <utils/uncommentselection.h>
 
-#include <QtCore/QList>
-#include <QtCore/QScopedPointer>
-
 namespace Core {
 class MimeType;
 }

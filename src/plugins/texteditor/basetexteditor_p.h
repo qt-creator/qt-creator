@@ -36,7 +36,6 @@
 #include "basetexteditor.h"
 #include "behaviorsettings.h"
 #include "displaysettings.h"
-#include "texteditoroverlay.h"
 #include "fontsettings.h"
 #include "refactoroverlay.h"
 
@@ -47,9 +46,6 @@
 #include <QtCore/QPointer>
 #include <QtCore/QScopedPointer>
 
-#include <QtGui/QPixmap>
-#include <QtGui/QTextEdit>
-
 namespace TextEditor {
 
 class BaseTextDocument;
@@ -57,6 +53,7 @@ class TextEditorActionHandler;
 class CodeAssistant;
 
 namespace Internal {
+class TextEditorOverlay;
 
 class TEXTEDITOR_EXPORT BaseTextBlockSelection
 {

@@ -37,7 +37,6 @@
 #include "itexteditor.h"
 
 #include <QtCore/QPointer>
-#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QTextBlock;

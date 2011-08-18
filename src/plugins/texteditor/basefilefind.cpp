@@ -72,6 +72,10 @@ BaseFileFind::BaseFileFind(SearchResultWindow *resultWindow)
     connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
 }
 
+BaseFileFind::~BaseFileFind()
+{
+}
+
 bool BaseFileFind::isEnabled() const
 {
     return !m_isSearching;

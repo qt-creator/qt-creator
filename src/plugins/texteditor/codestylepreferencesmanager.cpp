@@ -33,6 +33,8 @@
 #include "codestylepreferencesmanager.h"
 #include "icodestylepreferencesfactory.h"
 
+#include <QtCore/QMap>
+
 using namespace TextEditor;
 
 CodeStylePreferencesManager *CodeStylePreferencesManager::m_instance = 0;
