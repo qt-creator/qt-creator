@@ -2306,7 +2306,7 @@ void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
     // disable the link if content of the target editor changes
     TextEditor::BaseTextEditorWidget *targetEditor =
             TextEditor::RefactoringChanges::editorForFile(link->targetFile->fileName());
-    if (targetEditor) {
+    if (targetEditor && targetEditor != this) {
         connect(targetEditor, SIGNAL(textChanged()),
                 this, SLOT(abortDeclDefLink()));
     }
@@ -2329,7 +2329,7 @@ void CPPEditorWidget::abortDeclDefLink()
     // undo connect from onFunctionDeclDefLinkFound
     TextEditor::BaseTextEditorWidget *targetEditor =
             TextEditor::RefactoringChanges::editorForFile(m_declDefLink->targetFile->fileName());
-    if (targetEditor) {
+    if (targetEditor && targetEditor != this) {
         disconnect(targetEditor, SIGNAL(textChanged()),
                    this, SLOT(abortDeclDefLink()));
     }
