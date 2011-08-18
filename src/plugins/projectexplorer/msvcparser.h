@@ -34,7 +34,7 @@
 #define MSVCPARSER_H
 
 #include "ioutputparser.h"
-#include "taskwindow.h"
+#include "task.h"
 
 #include <QtCore/QRegExp>
 #include <QtCore/QString>

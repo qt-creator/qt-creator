@@ -33,9 +33,8 @@
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
 
-namespace {
-const char * const FILE_POS_PATTERN = "(cl|LINK|.+) : ";
-const char * const ERROR_PATTERN = "[A-Z]+\\d\\d\\d\\d ?:";
+static const char FILE_POS_PATTERN[] = "(cl|LINK|.+) : ";
+static const char ERROR_PATTERN[] = "[A-Z]+\\d\\d\\d\\d ?:";
 
 static QPair<QString, int> parseFileName(const QString &input)
 {
@@ -59,8 +58,6 @@ static QPair<QString, int> parseFileName(const QString &input)
     }
     return qMakePair(fileName, linenumber);
 }
-
-} // namespace
 
 using namespace ProjectExplorer;
 
