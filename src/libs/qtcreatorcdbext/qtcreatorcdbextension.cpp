@@ -386,13 +386,15 @@ DumpCommandParameters::ParseOptionResult DumpCommandParameters::parseOption(Stri
         options->pop_front();
         if (options->front().empty())
             return Error;
-        dumpParameters.typeFormats = DumpParameters::decodeFormatArgument(options->front());
+        dumpParameters.typeFormats =
+            DumpParameters::decodeFormatArgument(options->front(), true);
         break;
-    case 'I': // individual formats: 'hex'ed name = formatnumber,...'
+    case 'I': // individual formats: iname= formatnumber,...'
         if (options->size() < 2)
             return Error;
         options->pop_front();
-        dumpParameters.individualFormats = DumpParameters::decodeFormatArgument(options->front());
+        dumpParameters.individualFormats =
+            DumpParameters::decodeFormatArgument(options->front(), false);
         break;
     default:
         knownOption = false;

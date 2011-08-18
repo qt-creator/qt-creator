@@ -294,7 +294,8 @@ DumpParameters::DumpParameters() : dumpFlags(0)
 
 // typeformats: decode hex-encoded name, value pairs:
 // '414A=2,...' -> map of "AB:2".
-DumpParameters::FormatMap DumpParameters::decodeFormatArgument(const std::string &f)
+DumpParameters::FormatMap DumpParameters::decodeFormatArgument(const std::string &f,
+                                                               bool isHex)
 {
     FormatMap rc;
     const std::string::size_type size = f.size();
@@ -304,7 +305,9 @@ DumpParameters::FormatMap DumpParameters::decodeFormatArgument(const std::string
         const std::string::size_type equalsPos = f.find('=', pos);
         if (equalsPos == std::string::npos)
             return rc;
-        const std::string name = stringFromHex(f.c_str() + pos, f.c_str() + equalsPos);
+        const std::string name = isHex ?
+          stringFromHex(f.c_str() + pos, f.c_str() + equalsPos) :
+          f.substr(pos, equalsPos - pos);
         // Search for number
         const std::string::size_type numberPos = equalsPos + 1;
         std::string::size_type nextPos = f.find(',', numberPos);
@@ -383,6 +386,12 @@ DumpParameters::checkRecode(const std::string &type,
     enum ReformatType { ReformatNone, ReformatPointer, ReformatArray };
 
     DumpParameterRecodeResult result;
+    if (SymbolGroupValue::verbose > 2) {
+        DebugPrint debugPrint;
+        debugPrint << '>' << __FUNCTION__ << ' ' << iname << '/' << iname;
+        if (dp)
+            debugPrint << " option format: " << dp->format(type, iname);
+    }
     // We basically handle char formats for 'char *', '0x834478 "hallo.."'
     // and 'wchar_t *', '0x834478 "hallo.."'
     // Determine address and length from the pointer value output,
@@ -467,6 +476,11 @@ DumpParameters::checkRecode(const std::string &type,
         delete [] result.buffer;
         result = DumpParameterRecodeResult();
     }
+    if (SymbolGroupValue::verbose > 2)
+        DebugPrint()
+            << '<' << __FUNCTION__ << ' ' << iname << " format="
+            << result.recommendedFormat << " size="
+            << result.size << " data=" << dumpMemory(result.buffer, result.size);
     return result;
 }
 

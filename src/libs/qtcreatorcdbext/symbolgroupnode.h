@@ -72,8 +72,7 @@ struct DumpParameters
     DumpParameters();
     bool humanReadable() const {  return dumpFlags & DumpHumanReadable; }
     // Helper to decode format option arguments.
-    static FormatMap decodeFormatArgument(const std::string &f);
-
+    static FormatMap decodeFormatArgument(const std::string &f, bool isHex);
 
     static DumpParameterRecodeResult
         checkRecode(const std::string &type, const std::string &iname,
