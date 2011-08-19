@@ -72,12 +72,19 @@ IAssistProposal *QuickFixAssistProcessor::perform(const IAssistInterface *interf
     }
 
     QList<QuickFixOperation::Ptr> quickFixes;
+    // ### As the list of quick fixes grows, introduce some way of only showing relevant ones.
+    // The old priority-based way where the priority is the matching ast-node depth does not
+    // work well.
+    foreach (const QList<QuickFixOperation::Ptr> &fixes, matchedOps)
+        quickFixes += fixes;
+#if 0
     QMapIterator<int, QList<QuickFixOperation::Ptr> > it(matchedOps);
     it.toBack();
     if (it.hasPrevious()) {
         it.previous();
         quickFixes = it.value();
     }
+#endif
 
     if (!quickFixes.isEmpty()) {
         QList<BasicProposalItem *> items;
