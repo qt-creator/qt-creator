@@ -449,7 +449,7 @@ def qdump__QList(d, value):
 
     # Additional checks on pointer arrays.
     innerType = templateArgument(value.type, 0)
-    innerTypeIsPointer = innerType.code == gdb.TYPE_CODE_PTR \
+    innerTypeIsPointer = innerType.code == PointerCode \
         and str(innerType.target().unqualified()) != "char"
     if innerTypeIsPointer:
         p = gdb.Value(array).cast(innerType.pointer()) + begin
@@ -1817,7 +1817,7 @@ def qdump__std__stack(d, value):
 def qdump__std__string(d, value):
     data = value["_M_dataplus"]["_M_p"]
     baseType = value.type.unqualified().strip_typedefs()
-    if baseType.code == gdb.TYPE_CODE_REF:
+    if baseType.code == ReferenceType:
         baseType = baseType.target().unqualified().strip_typedefs()
     # We might encounter 'std::string' or 'std::basic_string<>'
     # or even 'std::locale::string' on MinGW due to some type lookup glitch.
@@ -1983,7 +1983,7 @@ def qdump__boost__optional(d, value):
         d.putBetterType(value.type)
         type = templateArgument(value.type, 0)
         storage = value["m_storage"]
-        if type.code == gdb.TYPE_CODE_REF:
+        if type.code == ReferenceCode:
             d.putItem(storage.cast(type.target().pointer()).dereference())
         else:
             d.putItem(storage.cast(type))
@@ -2251,7 +2251,7 @@ def qdump__Eigen__Matrix(d, value):
     options = numericTemplateArgument(value.type, 3)
     rowMajor = (int(options) & 0x1)
     p = storage["m_data"]
-    if p.type.code == gdb.TYPE_CODE_STRUCT: # Static
+    if p.type.code == StructCode: # Static
         nrows = numericTemplateArgument(value.type, 1)
         ncols = numericTemplateArgument(value.type, 2)
         p = p["array"].cast(innerType.pointer())

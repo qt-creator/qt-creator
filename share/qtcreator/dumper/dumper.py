@@ -346,7 +346,7 @@ class Children:
             if isSimpleType(childType):
                 self.d.put('childnumchild="0",')
                 self.childNumChild = 0
-            elif childType.code == gdb.TYPE_CODE_PTR:
+            elif childType.code == PointerCode:
                 self.d.put('childnumchild="1",')
                 self.childNumChild = 1
         else:
@@ -388,17 +388,6 @@ class Children:
         return True
 
 
-# Creates a list of field names of an anon union or struct
-#def listOfFields(type):
-#    fields = []
-#    for field in type.fields():
-#        if len(field.name) > 0:
-#            fields += field.name
-#        else:
-#            fields += listOfFields(field.type)
-#    return fields
-
-
 def value(expr):
     value = parseAndEvaluate(expr)
     try:
@@ -408,17 +397,11 @@ def value(expr):
 
 def isSimpleType(typeobj):
     code = typeobj.code
-    return code == gdb.TYPE_CODE_BOOL \
-        or code == gdb.TYPE_CODE_CHAR \
-        or code == gdb.TYPE_CODE_INT \
-        or code == gdb.TYPE_CODE_FLT \
-        or code == gdb.TYPE_CODE_ENUM
-
-    #return code == BoolCode \
-    #    or code == CharCode \
-    #    or code == IntCode \
-    #    or code == FloatCode \
-    #    or code == EnumCode
+    return code == BoolCode \
+        or code == CharCode \
+        or code == IntCode \
+        or code == FloatCode \
+        or code == EnumCode
 
 def warn(message):
     if True or verbosity > 0:
@@ -747,23 +730,13 @@ def extractFields(type):
 
 #######################################################################
 #
-# Item
+# LocalItem
 #
 #######################################################################
 
-#class Item:
-#    def __init__(self, value, parentiname, component):
-#        self.value = value
-#        self.iname = "%s.%s" % (parentiname, component)
-
-#class SameItem:
-#    def __init__(self, value, iname):
-#        self.value = value
-#        self.iname = iname
-
+# Contains iname, name, and value.
 class LocalItem:
-   def __init__(self):
-        pass
+    pass
 
 #######################################################################
 #
@@ -1004,7 +977,7 @@ class Dumper:
                 typeName = str(type)
 
                 # Special handling for char** argv.
-                if type.code == gdb.TYPE_CODE_PTR \
+                if type.code == PointerCode \
                         and item.iname == "local.argv" \
                         and typeName == "char **":
                     n = 0
@@ -1061,7 +1034,6 @@ class Dumper:
             qqQObjectCache[name] = False
             return False
         base = fields[0].type.strip_typedefs()
-        #if base.code != gdb.TYPE_CODE_STRUCT:
         if base.code != StructCode:
             return False
         # Prevent infinite recursion in Qt 3.3.8
@@ -1285,7 +1257,7 @@ class Dumper:
         #warn("REAL CODE: %s " % value.type.code)
         #warn("REAL VALUE: %s " % value)
 
-        if type.code == gdb.TYPE_CODE_REF:
+        if type.code == ReferenceCode:
             #try:
                 # This throws "RuntimeError: Attempt to dereference a
                 # generic pointer." with MinGW's gcc 4.5 when it "identifies"
@@ -1295,7 +1267,6 @@ class Dumper:
             #except RuntimeError:
             #    pass
 
-        #if type.code == gdb.TYPE_CODE_INT or type.code == gdb.TYPE_CODE_CHAR:
         if type.code == IntCode or type.code == CharCode:
             self.putAddress(value.address)
             self.putType(typeName)
@@ -1303,23 +1274,20 @@ class Dumper:
             self.putNumChild(0)
             return
 
-        if type.code == gdb.TYPE_CODE_FLT or type.code == gdb.TYPE_CODE_BOOL:
-        #if type.code == FloatCode or type.code == BoolCode:
+        if type.code == FloatCode or type.code == BoolCode:
             self.putAddress(value.address)
             self.putType(typeName)
             self.putValue(value)
             self.putNumChild(0)
             return
 
-        if type.code == gdb.TYPE_CODE_ENUM:
-        #if type.code == EnumCode:
+        if type.code == EnumCode:
             self.putType(typeName)
             self.putValue("%s (%d)" % (value, value))
             self.putNumChild(0)
             return
 
-        if type.code == gdb.TYPE_CODE_TYPEDEF:
-        #if type.code == TypedefCode:
+        if type.code == TypedefCode:
             self.putItem(value.cast(type.strip_typedefs()))
             self.putBetterType(typeName)
             return
@@ -1328,7 +1296,7 @@ class Dumper:
         if format is None:
             format = self.typeformats.get(stripClassTag(typeName))
 
-        if type.code == gdb.TYPE_CODE_ARRAY:
+        if type.code == ArrayCode:
             targettype = type.target()
             self.putAddress(value.address)
             self.putType(typeName)
@@ -1354,7 +1322,7 @@ class Dumper:
                     i = i + 1
             return
 
-        if type.code == gdb.TYPE_CODE_PTR:
+        if type.code == PointerCode:
             #warn("POINTER: %s" % value)
 
             if isNull(value):
@@ -1368,7 +1336,7 @@ class Dumper:
             innerType = type.target()
             innerTypeName = str(innerType.unqualified())
 
-            if innerType.code == gdb.TYPE_CODE_VOID:
+            if innerType.code == VoidCode:
                 #warn("VOID POINTER: %s" % format)
                 self.putType(typeName)
                 self.putValue(str(value))
@@ -1481,8 +1449,8 @@ class Dumper:
                 self.listAnonymous(value, "#%d" % self.anonNumber, type)
             return
 
-        if type.code != gdb.TYPE_CODE_STRUCT:
-            warning("WRONG ASSUMPTION HERE: %s " % gdb.TYPE_CODE_STRUCT)
+        if type.code != StructCode:
+            warning("WRONG ASSUMPTION HERE: %s " % type.code)
             check(False)
 
         # Is this derived from QObject?
@@ -1553,7 +1521,6 @@ class Dumper:
     def putFields(self, value, dumpBase = True):
             type = stripTypedefs(value.type)
             # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
-            #fields = value.type.fields()
             #fields = type.fields()
             fields = extractFields(type)
             #warn("TYPE: %s" % type)
@@ -1582,13 +1549,6 @@ class Dumper:
 
                 #warn("FIELD NAME: %s" % field.name)
                 #warn("FIELD TYPE: %s" % field.type)
-                # The 'field.is_base_class' attribute exists in gdb 7.0.X
-                # and later only. Symbian gdb is 6.8 as of 20.10.2010.
-                # TODO: Remove once Symbian gdb is up to date.
-                #if hasattr(field, 'is_base_class'):
-                #    isBaseClass = field.is_base_class
-                #else:
-                #    isBaseClass = field.name == stripClassTag(str(field.type))
                 if field.is_base_class:
                     # Field is base type. We cannot use field.name as part
                     # of the iname as it might contain spaces and other

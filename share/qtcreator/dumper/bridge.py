@@ -20,7 +20,7 @@ except:
 
 try:
     import gdb
-    #gdbLoaded = True
+    gdbLoaded = True
 
     #######################################################################
     #
