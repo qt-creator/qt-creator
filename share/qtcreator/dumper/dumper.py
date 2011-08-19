@@ -1485,8 +1485,8 @@ class Dumper:
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
-        #fields = extractFields(type)
-        fields = type.fields()
+        fields = extractFields(type)
+        #fields = type.fields()
 
         self.putType(typeName)
         self.putAddress(value.address)
