@@ -71,9 +71,6 @@ enum { debugModel = 0 };
 #define MODEL_DEBUG(s) do { if (debugModel) qDebug() << s; } while (0)
 #define MODEL_DEBUGX(s) qDebug() << s
 
-static const QString strNotInScope =
-    QCoreApplication::translate("Debugger::Internal::WatchData", "<not in scope>");
-
 static int watcherCounter = 0;
 static int generationCounter = 0;
 
@@ -1008,11 +1005,8 @@ void WatchModel::insertData(const WatchData &data)
     if (WatchItem *oldItem = findItem(data.iname, parent)) {
         bool hadChildren = oldItem->hasChildren;
         // Overwrite old entry.
-        bool changed = !data.value.isEmpty()
-            && data.value != oldItem->value
-            && data.value != strNotInScope;
         oldItem->setData(data);
-        oldItem->changed = changed;
+        oldItem->changed = data.hasChanged(*oldItem);
         oldItem->generation = generationCounter;
         QModelIndex idx = watchIndex(oldItem);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
@@ -1096,10 +1090,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
             data.generation = generationCounter;
             newList.insert(oldSortKey, data);
         } else {
-            bool changed = !it->value.isEmpty()
-                && it->value != oldItem->value
-                && it->value != strNotInScope;
-            it->changed = changed;
+            it->changed = it->hasChanged(*oldItem);
             if (it->generation == -1)
                 it->generation = generationCounter;
         }

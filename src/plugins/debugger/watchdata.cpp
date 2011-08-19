@@ -383,8 +383,7 @@ QString WatchData::toToolTip() const
         formatToolTipRow(str, tr("Referencing Address"),
                          QString::fromAscii(hexReferencingAddress()));
     if (size)
-        formatToolTipRow(str, tr("Size"),
-                         QString::number(size));
+        formatToolTipRow(str, tr("Size"), QString::number(size));
     formatToolTipRow(str, tr("Internal ID"), iname);
     formatToolTipRow(str, tr("Generation"),
         QString::number(generation));
@@ -435,6 +434,11 @@ QByteArray WatchData::hexReferencingAddress() const
     if (referencingAddress)
         return QByteArray("0x") + QByteArray::number(referencingAddress, 16);
     return QByteArray();
+}
+
+bool WatchData::hasChanged(const WatchData &old) const
+{
+    return !value.isEmpty() && value != old.value && value != msgNotInScope();
 }
 
 } // namespace Internal

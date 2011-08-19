@@ -113,6 +113,7 @@ public:
     quint64    coreAddress() const;
     QByteArray hexAddress()  const;
     QByteArray hexReferencingAddress()  const;
+    bool hasChanged(const WatchData &old) const;
 
 public:
     quint64    id;           // Token for the engine for internal mapping
