@@ -913,7 +913,6 @@ class Dumper:
 
         self.useFancy = "fancy" in options
         self.passExceptions = "pe" in options
-        self.passExceptions = True
         self.autoDerefPointers = "autoderef" in options
         self.partialUpdate = "partial" in options
         self.tooltipOnly = "tooltiponly" in options
