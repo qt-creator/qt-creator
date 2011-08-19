@@ -56,20 +56,23 @@ class GdbMi;
 // Keep in sync with dumper.py
 enum DebuggerEncoding
 {
-    Unencoded8Bit                        =  0,
-    Base64Encoded8BitWithQuotes          =  1,
-    Base64Encoded16BitWithQuotes         =  2,
-    Base64Encoded32BitWithQuotes         =  3,
-    Base64Encoded16Bit                   =  4,
-    Base64Encoded8Bit                    =  5,
-    Hex2EncodedLatin1WithQuotes          =  6,
-    Hex4EncodedLittleEndianWithQuotes    =  7,
-    Hex8EncodedLittleEndianWithQuotes    =  8,
-    Hex2EncodedUtf8WithQuotes            =  9,
-    Hex8EncodedBigEndian                 = 10,
-    Hex4EncodedBigEndianWithQuotes       = 11,
-    Hex4EncodedLittleEndianWithoutQuotes = 12,
-    Hex2EncodedLocal8BitWithQuotes       = 13
+    Unencoded8Bit                          =  0,
+    Base64Encoded8BitWithQuotes            =  1,
+    Base64Encoded16BitWithQuotes           =  2,
+    Base64Encoded32BitWithQuotes           =  3,
+    Base64Encoded16Bit                     =  4,
+    Base64Encoded8Bit                      =  5,
+    Hex2EncodedLatin1WithQuotes            =  6,
+    Hex4EncodedLittleEndianWithQuotes      =  7,
+    Hex8EncodedLittleEndianWithQuotes      =  8,
+    Hex2EncodedUtf8WithQuotes              =  9,
+    Hex8EncodedBigEndian                   = 10,
+    Hex4EncodedBigEndianWithQuotes         = 11,
+    Hex4EncodedLittleEndianWithoutQuotes   = 12,
+    Hex2EncodedLocal8BitWithQuotes         = 13,
+    JulianDate                             = 14,
+    MillisecondsSinceMidnight              = 15,
+    JulianDateAndMillisecondsSinceMidnight = 16
 };
 
 bool isEditorDebuggable(Core::IEditor *editor);

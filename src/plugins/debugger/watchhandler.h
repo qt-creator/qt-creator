@@ -121,6 +121,9 @@ signals:
 
 private:
     QString displayType(const WatchData &typeIn) const;
+    QString formattedValue(const WatchData &data) const;
+    QString removeInitialNamespace(QString str) const;
+    QString removeNamespaces(QString str) const;
     void formatRequests(QByteArray *out, const WatchItem *item) const;
     DebuggerEngine *engine() const;
     int itemFormat(const WatchData &data) const;

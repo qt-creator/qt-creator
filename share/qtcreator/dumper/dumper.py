@@ -66,8 +66,11 @@ Hex2EncodedUtf8, \
 Hex8EncodedBigEndian, \
 Hex4EncodedBigEndian, \
 Hex4EncodedLittleEndianWithoutQuotes, \
-Hex2EncodedLocal8Bit \
-    = range(14)
+Hex2EncodedLocal8Bit, \
+JulianDate, \
+MillisecondsSinceMidnight, \
+JulianDateAndMillisecondsSinceMidnight \
+    = range(17)
 
 # Display modes
 StopDisplay, \

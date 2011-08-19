@@ -139,14 +139,10 @@ def qdump__QModelIndex(d, value):
 
 
 def qdump__QDate(d, value):
-    if int(value["jd"]) == 0:
-        d.putValue("(null)")
-        d.putNumChild(0)
-        return
-    qt = d.ns + "Qt::"
-    d.putStringValue(call(value, "toString", qt + "TextDate"))
+    d.putValue(value["jd"], JulianDate)
     d.putNumChild(1)
     if d.isExpanded():
+        qt = d.ns + "Qt::"
         # FIXME: This improperly uses complex return values.
         with Children(d):
             d.putCallItem("toString", value, "toString", qt + "TextDate")
@@ -157,14 +153,10 @@ def qdump__QDate(d, value):
 
 
 def qdump__QTime(d, value):
-    if int(value["mds"]) == -1:
-        d.putValue("(null)")
-        d.putNumChild(0)
-        return
-    qt = d.ns + "Qt::"
-    d.putStringValue(call(value, "toString", qt + "TextDate"))
+    d.putValue(value["mds"], MillisecondsSinceMidnight)
     d.putNumChild(1)
     if d.isExpanded():
+        qt = d.ns + "Qt::"
         # FIXME: This improperly uses complex return values.
         with Children(d):
             d.putCallItem("toString", value, "toString", qt + "TextDate")
@@ -178,19 +170,17 @@ def qdump__QTime(d, value):
 def qdump__QDateTime(d, value):
     try:
         # Fails without debug info.
-        if int(value["d"]["d"].dereference()["time"]["mds"]) == -1:
-            d.putValue("(null)")
-            d.putNumChild(0)
-            return
+        p = value["d"]["d"].dereference()
     except:
         d.putPlainChildren(value)
         return
-    qt = d.ns + "Qt::"
-    d.putStringValue(call(value, "toString", qt + "TextDate"))
+    d.putValue("%s/%s" % (p["date"]["jd"], p["time"]["mds"]),
+        JulianDateAndMillisecondsSinceMidnight)
     d.putNumChild(1)
     if d.isExpanded():
         # FIXME: This improperly uses complex return values.
         with Children(d):
+            qt = d.ns + "Qt::"
             d.putCallItem("toTime_t", value, "toTime_t")
             d.putCallItem("toString", value, "toString", qt + "TextDate")
             d.putCallItem("(ISO)", value, "toString", qt + "ISODate")

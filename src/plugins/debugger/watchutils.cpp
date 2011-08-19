@@ -55,12 +55,13 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QTime>
-#include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QTextStream>
+#include <QtCore/QDateTime>
+#include <QtCore/QDebug>
 #include <QtCore/QHash>
+#include <QtCore/QStringList>
+#include <QtCore/QTextStream>
+#include <QtCore/QTime>
 
 #include <QtGui/QTextCursor>
 #include <QtGui/QPlainTextEdit>
@@ -518,6 +519,16 @@ QString quoteUnprintableLatin1(const QByteArray &ba)
     return res;
 }
 
+static QDate dateFromData(int jd)
+{
+    return jd ? QDate::fromJulianDay(jd) : QDate();
+}
+
+static QTime timeFromData(int ms)
+{
+    return ms == -1 ? QTime() : QTime(0, 0, 0, 0).addMSecs(ms);
+}
+
 QString decodeData(const QByteArray &ba, int encoding)
 {
     switch (encoding) {
@@ -612,6 +623,20 @@ QString decodeData(const QByteArray &ba, int encoding)
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             return doubleQuote + QString::fromLocal8Bit(decodedBa) + doubleQuote;
+        }
+        case JulianDate: { // 14, an integer count
+            const QDate date = dateFromData(ba.toInt());
+            return date.toString(Qt::TextDate);
+        }
+        case MillisecondsSinceMidnight: {
+            const QTime time = timeFromData(ba.toInt());
+            return time.toString(Qt::TextDate);
+        }
+        case JulianDateAndMillisecondsSinceMidnight: {
+            const int p = ba.indexOf('/');
+            const QDate date = dateFromData(ba.left(p).toInt());
+            const QTime time = timeFromData(ba.mid(p + 1 ).toInt());
+            return QDateTime(date, time).toString(Qt::TextDate);
         }
     }
     qDebug() << "ENCODING ERROR: " << encoding;

@@ -274,25 +274,25 @@ static QString niceTypeHelper(const QByteArray &typeIn)
     return simplified;
 }
 
-static QString removeNamespaces(QString str, const QByteArray &ns)
+QString WatchModel::removeNamespaces(QString str) const
 {
     if (!debuggerCore()->boolSetting(ShowStdNamespace))
         str.remove(QLatin1String("std::"));
     if (!debuggerCore()->boolSetting(ShowQtNamespace)) {
-        const QString qtNamespace = QString::fromLatin1(ns);
+        const QString qtNamespace = QString::fromLatin1(engine()->qtNamespace());
         if (!qtNamespace.isEmpty())
             str.remove(qtNamespace);
     }
     return str;
 }
 
-static QString removeInitialNamespace(QString str, const QByteArray &ns)
+QString WatchModel::removeInitialNamespace(QString str) const
 {
     if (str.startsWith(QLatin1String("std::"))
             && debuggerCore()->boolSetting(ShowStdNamespace))
         str = str.mid(5);
     if (!debuggerCore()->boolSetting(ShowQtNamespace)) {
-        const QString qtNamespace = QString::fromLatin1(ns);
+        const QByteArray qtNamespace = engine()->qtNamespace();
         if (!qtNamespace.isEmpty() && str.startsWith(qtNamespace))
             str = str.mid(qtNamespace.size());
     }
@@ -395,41 +395,45 @@ static QString quoteUnprintable(const QString &str)
     return encoded;
 }
 
-static QString formattedValue(const WatchData &data, int format)
+QString WatchModel::formattedValue(const WatchData &data) const
 {
+    const QByteArray qtNamespace = engine()->qtNamespace();
+    const QString &value = data.value;
+
+    int format = itemFormat(data);
     if (isIntType(data.type)) {
-        if (data.value.isEmpty())
-            return data.value;
+        if (value.isEmpty())
+            return value;
         // Do not reformat booleans (reported as 'true, false').
-        const QChar firstChar = data.value.at(0);
+        const QChar firstChar = value.at(0);
         if (!firstChar.isDigit() && firstChar != QLatin1Char('-'))
-            return data.value;
+            return value;
         // Append quoted, printable character also for decimal.
         if (data.type.endsWith("char")) {
             bool ok;
-            const int code = data.value.toInt(&ok);
-            return ok ? reformatCharacter(code, format) : data.value;
+            const int code = value.toInt(&ok);
+            return ok ? reformatCharacter(code, format) : value;
         }
         // Rest: Leave decimal as is
         if (format <= 0)
-            return data.value;
+            return value;
         // Evil hack, covers 'unsigned' as well as quint64.
         if (data.type.contains('u'))
-            return reformatInteger(data.value.toULongLong(0, 0), format);
-        return reformatInteger(data.value.toLongLong(), format);
+            return reformatInteger(value.toULongLong(0, 0), format);
+        return reformatInteger(value.toLongLong(), format);
     }
 
     if (data.type == "va_list")
-        return data.value;
+        return value;
 
     if (!isPointerType(data.type) && !isVTablePointer(data.type)) {
         bool ok = false;
-        qulonglong integer = data.value.toULongLong(&ok, 0);
+        qulonglong integer = value.toULongLong(&ok, 0);
         if (ok)
            return reformatInteger(integer, format);
     }
 
-    QString result = data.value;
+    QString result = value;
     if (result.startsWith(QLatin1Char('<'))) {
         if (result == QLatin1String("<Edit>"))
             result = WatchHandler::tr("<Edit>");
@@ -446,7 +450,8 @@ static QString formattedValue(const WatchData &data, int format)
             bool ok;
             const bool moreThan = result.at(1) == QLatin1Char('>');
             const int numberPos = moreThan ? 2 : 1;
-            const int size = result.mid(numberPos, result.indexOf(' ') - numberPos).toInt(&ok);
+            const int len = result.indexOf(' ') - numberPos;
+            const int size = result.mid(numberPos, len).toInt(&ok);
             QTC_ASSERT(ok, qWarning("WatchHandler: Invalid item count '%s'",
                 qPrintable(result)))
             result = moreThan ?
@@ -629,8 +634,8 @@ void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex)
         emitDataChanged(column, index(i, 0, parentIndex));
 }
 
-// Truncate value for item view, maintaining quotes
-static inline QString truncateValue(QString v)
+// Truncate value for item view, maintaining quotes.
+static QString truncateValue(QString v)
 {
     enum { maxLength = 512 };
     if (v.size() < maxLength)
@@ -699,7 +704,6 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         }
 
         case Qt::DisplayRole: {
-            const QByteArray qtNameSpace = engine()->qtNamespace();
             QString result;
             switch (idx.column()) {
                 case 0:
@@ -708,18 +712,18 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     else if (data.name == QLatin1String("*") && item->parent)
                         result = QLatin1Char('*') + item->parent->name;
                     else
-                        result = removeInitialNamespace(data.name, qtNameSpace);
+                        result = removeInitialNamespace(data.name);
                     break;
                 case 1:
-                    result = removeInitialNamespace(truncateValue(
-                            formattedValue(data, itemFormat(data))), qtNameSpace);
+                    result = removeInitialNamespace(
+                        truncateValue(formattedValue(data)));
                     if (data.referencingAddress) {
                         result += QLatin1String(" @");
                         result += QString::fromLatin1(data.hexAddress());
                     }
                     break;
                 case 2:
-                    result = removeNamespaces(displayType(data), qtNameSpace);
+                    result = removeNamespaces(displayType(data));
                     break;
                 default:
                     break;
@@ -787,7 +791,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_handler->m_reportedTypeFormats.value(type);
         }
         case LocalsTypeRole:
-           return removeNamespaces(displayType(data), engine()->qtNamespace());
+           return removeNamespaces(displayType(data));
         case LocalsRawTypeRole:
            return QString::fromLatin1(data.type);
         case LocalsTypeFormatRole:
