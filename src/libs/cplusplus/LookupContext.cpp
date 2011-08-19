@@ -361,13 +361,18 @@ ClassOrNamespace *LookupContext::lookupParent(Symbol *symbol) const
 }
 
 ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent)
-    : _factory(factory), _parent(parent), _templateId(0)
+    : _factory(factory), _parent(parent), _templateId(0), _instantiationOrigin(0)
 {
 }
 
 const TemplateNameId *ClassOrNamespace::templateId() const
 {
     return _templateId;
+}
+
+ClassOrNamespace *ClassOrNamespace::instantiationOrigin() const
+{
+    return _instantiationOrigin;
 }
 
 ClassOrNamespace *ClassOrNamespace::parent() const
@@ -541,26 +546,30 @@ ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name)
         return 0;
 
     QSet<ClassOrNamespace *> processed;
-    return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ true);
+    return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ true, this);
 }
 
 ClassOrNamespace *ClassOrNamespace::findType(const Name *name)
 {
     QSet<ClassOrNamespace *> processed;
-    return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ false);
+    return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ false, this);
 }
 
 ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                                                       QSet<ClassOrNamespace *> *processed,
-                                                      bool searchInEnclosingScope)
+                                                      bool searchInEnclosingScope,
+                                                      ClassOrNamespace *origin)
 {
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
 
-        if (! q->base())
-            return globalNamespace()->findType(q->name());
+        QSet<ClassOrNamespace *> innerProcessed;
+        if (! q->base()) {
+            return globalNamespace()->lookupType_helper(q->name(), &innerProcessed, true, origin);
+        }
 
-        else if (ClassOrNamespace *binding = lookupType(q->base()))
-            return binding->findType(q->name());
+        if (ClassOrNamespace *binding = lookupType_helper(q->base(), processed, true, origin)) {
+            return binding->lookupType_helper(q->name(), &innerProcessed, false, origin);
+        }
 
         return 0;
 
@@ -577,14 +586,14 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                 }
             }
 
-            if (ClassOrNamespace *e = nestedType(name))
+            if (ClassOrNamespace *e = nestedType(name, origin))
                 return e;
 
             else if (_templateId) {
                 if (_usings.size() == 1) {
                     ClassOrNamespace *delegate = _usings.first();
 
-                    if (ClassOrNamespace *r = delegate->lookupType_helper(name, processed, /*searchInEnclosingScope = */ true))
+                    if (ClassOrNamespace *r = delegate->lookupType_helper(name, processed, /*searchInEnclosingScope = */ true, origin))
                         return r;
                 } else {
                     if (debug)
@@ -593,19 +602,19 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
             }
 
             foreach (ClassOrNamespace *u, usings()) {
-                if (ClassOrNamespace *r = u->lookupType_helper(name, processed, /*searchInEnclosingScope =*/ false))
+                if (ClassOrNamespace *r = u->lookupType_helper(name, processed, /*searchInEnclosingScope =*/ false, origin))
                     return r;
             }
         }
 
         if (_parent && searchInEnclosingScope)
-            return _parent->lookupType_helper(name, processed, searchInEnclosingScope);
+            return _parent->lookupType_helper(name, processed, searchInEnclosingScope, origin);
     }
 
     return 0;
 }
 
-ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name) const
+ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespace *origin) const
 {
     Q_ASSERT(name != 0);
     Q_ASSERT(name->isNameId() || name->isTemplateNameId());
@@ -622,6 +631,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name) const
     if (const TemplateNameId *templId = name->asTemplateNameId()) {
         ClassOrNamespace *i = _factory->allocClassOrNamespace(c);
         i->_templateId = templId;
+        i->_instantiationOrigin = origin;
         i->_usings.append(c);
         return i;
     }
@@ -665,19 +675,21 @@ void ClassOrNamespace::addNestedType(const Name *alias, ClassOrNamespace *e)
     _classOrNamespaces[alias] = e;
 }
 
-ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name)
+ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNamespace *origin)
 {
     if (! name)
         return this;
+    if (! origin)
+        origin = this;
 
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
         if (! q->base())
-            return globalNamespace()->findOrCreateType(q->name());
+            return globalNamespace()->findOrCreateType(q->name(), origin);
 
-        return findOrCreateType(q->base())->findOrCreateType(q->name());
+        return findOrCreateType(q->base(), origin)->findOrCreateType(q->name(), origin);
 
     } else if (name->isNameId() || name->isTemplateNameId()) {
-        ClassOrNamespace *e = nestedType(name);
+        ClassOrNamespace *e = nestedType(name, origin);
 
         if (! e) {
             e = _factory->allocClassOrNamespace(this);

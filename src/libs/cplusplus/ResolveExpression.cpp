@@ -712,9 +712,19 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                             if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), overload->enclosingScope()))
                                 return retBinding;
 
-                            else if (scope != overload->enclosingScope()) {
+                            if (scope != overload->enclosingScope()) {
                                 if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), scope))
                                     return retBinding;
+                            }
+
+                            if (ClassOrNamespace *origin = binding->instantiationOrigin()) {
+                                foreach (Symbol *originSymbol, origin->symbols()) {
+                                    Scope *originScope = originSymbol->asScope();
+                                    if (originScope && originScope != scope && originScope != overload->enclosingScope()) {
+                                        if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), originScope))
+                                            return retBinding;
+                                    }
+                                }
                             }
                         }
                     }

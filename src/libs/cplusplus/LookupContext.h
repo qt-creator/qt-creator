@@ -54,6 +54,8 @@ public:
     ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent);
 
     const TemplateNameId *templateId() const;
+    ClassOrNamespace *instantiationOrigin() const;
+
     ClassOrNamespace *parent() const;
     QList<ClassOrNamespace *> usings() const;
     QList<Enum *> enums() const;
@@ -72,7 +74,7 @@ private:
     void flush();
 
     /// \internal
-    ClassOrNamespace *findOrCreateType(const Name *name);
+    ClassOrNamespace *findOrCreateType(const Name *name, ClassOrNamespace *origin = 0);
 
     void addTodo(Symbol *symbol);
     void addSymbol(Symbol *symbol);
@@ -88,9 +90,9 @@ private:
                        const TemplateNameId *templateId);
 
     ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
-                                        bool searchInEnclosingScope);
+                                        bool searchInEnclosingScope, ClassOrNamespace *origin);
 
-    ClassOrNamespace *nestedType(const Name *name) const;
+    ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin) const;
 
 private:
     struct CompareName: std::binary_function<const Name *, const Name *, bool> {
@@ -109,6 +111,7 @@ private:
 
     // it's an instantiation.
     const TemplateNameId *_templateId;
+    ClassOrNamespace *_instantiationOrigin;
 
     friend class CreateBindings;
 };
