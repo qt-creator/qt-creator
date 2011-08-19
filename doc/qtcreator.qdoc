@@ -8888,17 +8888,13 @@
     This section uses the \l{Creating a Qt Widget Based Application}{TextFinder} example to
     illustrate how to debug Qt C++ applications in the \gui Debug mode.
 
-    TextFinder
-    reads a text file into
-    QString and then displays it with QTextEdit.
-    To look at the example QString, \c{line}, and see the
-    stored data, place a breakpoint and view the QString object
-    data in textfinder.cpp, as follows:
+    TextFinder reads a text file into QString and then displays it with
+    QTextEdit. To look at the TextFinder class and see the stored data, place
+    a breakpoint in textfinder.cpp, as follows:
 
     \list 1
         \o Click in between the line number and the window border on the line
-        where we invoke \l{http://doc.qt.nokia.com/4.7/qtextedit.html#plainText-prop}{setPlainText()}
-        to set a breakpoint.
+        where we change the cursor position to set a breakpoint.
 
         \image qtcreator-setting-breakpoint1.png
 
@@ -8912,8 +8908,8 @@
         \o To remove a breakpoint, right-click it and select \gui{Delete Breakpoint}.
 
 
-        \o To view the contents of \c{line}, go to the \gui{Locals and
-    Expressions} view.
+        \o To view the base classes and data members of the TextFinder class,
+        go to the \gui{Locals and Expressions} view.
 
         \image qtcreator-watcher.png
 
