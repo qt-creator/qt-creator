@@ -82,23 +82,41 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
 
     m_verticalTarget = m_horizontalTarget = m_topTarget = m_bottomTarget = m_leftTarget = m_rightTarget = m_fxItemNode.modelNode().parentProperty().parentModelNode();
 
-    if (topAnchored())
-        m_topTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Top).qmlItemNode();
+    if (topAnchored()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Top).qmlItemNode();
+        if (targetNode.isValid())
+            m_topTarget = targetNode;
+    }
 
-    if (bottomAnchored())
-        m_bottomTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Bottom).qmlItemNode();
+    if (bottomAnchored()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Bottom).qmlItemNode();
+        if (targetNode.isValid())
+            m_bottomTarget = targetNode;
+    }
 
-    if (leftAnchored())
-        m_leftTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Left).qmlItemNode();
+    if (leftAnchored()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Left).qmlItemNode();
+        if (targetNode.isValid())
+            m_leftTarget = targetNode;
+    }
 
-    if (rightAnchored())
-        m_rightTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Right).qmlItemNode();
+    if (rightAnchored()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Right).qmlItemNode();
+        if (targetNode.isValid())
+            m_rightTarget = targetNode;
+    }
 
-    if (verticalCentered())
-        m_verticalTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode();
+    if (verticalCentered()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode();
+        if (targetNode.isValid())
+            m_verticalTarget = targetNode;
+    }
 
-    if (horizontalCentered())
-        m_horizontalTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::HorizontalCenter).qmlItemNode();
+    if (horizontalCentered()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::HorizontalCenter).qmlItemNode();
+        if (targetNode.isValid())
+            m_horizontalTarget = targetNode;
+    }
 
     emit itemNodeChanged();
     emit parentChanged();
@@ -130,23 +148,41 @@ void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
 
     m_verticalTarget = m_horizontalTarget = m_topTarget = m_bottomTarget = m_leftTarget = m_rightTarget = m_fxItemNode.modelNode().parentProperty().parentModelNode();
 
-    if (topAnchored())
-        m_topTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Top).qmlItemNode();
+    if (topAnchored()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Top).qmlItemNode();
+        if (targetNode.isValid())
+            m_topTarget = targetNode;
+    }
 
-    if (bottomAnchored())
-        m_bottomTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Bottom).qmlItemNode();
+    if (bottomAnchored()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Bottom).qmlItemNode();
+        if (targetNode.isValid())
+            m_bottomTarget = targetNode;
+    }
 
-    if (leftAnchored())
-        m_leftTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Left).qmlItemNode();
+    if (leftAnchored()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Left).qmlItemNode();
+        if (targetNode.isValid())
+            m_leftTarget = targetNode;
+    }
 
-    if (rightAnchored())
-        m_rightTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Right).qmlItemNode();
+    if (rightAnchored()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Right).qmlItemNode();
+        if (targetNode.isValid())
+            m_rightTarget = targetNode;
+    }
 
-    if (verticalCentered())
-        m_verticalTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode();
+    if (verticalCentered()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode();
+        if (targetNode.isValid())
+            m_verticalTarget = targetNode;
+    }
 
-    if (horizontalCentered())
-        m_horizontalTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::HorizontalCenter).qmlItemNode();
+    if (horizontalCentered()) {
+        ModelNode targetNode = m_fxItemNode.anchors().instanceAnchor(AnchorLine::HorizontalCenter).qmlItemNode();
+        if (targetNode.isValid())
+            m_horizontalTarget = targetNode;
+    }
 
     emit topAnchorChanged();
     emit bottomAnchorChanged();
