@@ -1303,7 +1303,7 @@
 
         \o \c  {import com.nokia.symbian 1.0} for Symbian
 
-        \o \c  {import com.meego 1.0} for MeeGo
+        \o \c  {import com.nokia.meego 1.0} for MeeGo
 
     \endlist
 
