@@ -70,6 +70,10 @@ Row {
             }
             states: [
                 State {
+                    id: hoverState; when: mouseArea.containsMouse && tabBar.current != index
+                    PropertyChanges { target: tabBackground; source:"qrc:welcome/images/tab_hover.png" }
+                },
+                State {
                     id: activeState; when: tabBar.current == index
                     PropertyChanges { target: tabBackground; source:"qrc:welcome/images/tab_active.png" }
                     PropertyChanges { target: text; color: "white" }
