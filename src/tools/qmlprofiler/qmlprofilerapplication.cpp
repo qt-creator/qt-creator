@@ -71,6 +71,8 @@ static const char commandTextC[] =
 "    q, quit\n"
 "           Terminate program.";
 
+static const char TraceFileExtension[] = ".qtd";
+
 QmlProfilerApplication::QmlProfilerApplication(int &argc, char **argv) :
     QCoreApplication(argc, argv),
     m_runMode(LaunchMode),
@@ -187,15 +189,15 @@ void QmlProfilerApplication::printCommands()
 QString QmlProfilerApplication::traceFileName() const
 {
     QString fileName = m_tracePrefix + "_" +
-            QDateTime::currentDateTime().toString("yyMMdd_hhmmss") + ".xml";
+            QDateTime::currentDateTime().toString("yyMMdd_hhmmss") + TraceFileExtension;
     if (QFileInfo(fileName).exists()) {
         QString baseName;
         int suffixIndex = 0;
         do {
             baseName = QFileInfo(fileName).baseName()
                     + QString::number(suffixIndex++);
-        } while (QFileInfo(baseName + ".xml").exists());
-        fileName = baseName + ".xml";
+        } while (QFileInfo(baseName + TraceFileExtension).exists());
+        fileName = baseName + TraceFileExtension;
     }
     return fileName;
 }
