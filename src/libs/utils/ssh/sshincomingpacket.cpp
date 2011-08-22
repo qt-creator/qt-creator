@@ -377,6 +377,7 @@ SshChannelExitStatus SshIncomingPacket::extractChannelExitStatus() const
         exitStatus.localChannel = SshPacketParser::asUint32(m_data, &offset);
         const QByteArray &type = SshPacketParser::asString(m_data, &offset);
         Q_ASSERT(type == ExitStatusType);
+        Q_UNUSED(type);
         if (SshPacketParser::asBool(m_data, &offset))
             throw SshPacketParseException();
         exitStatus.exitStatus = SshPacketParser::asUint32(m_data, &offset);
@@ -398,6 +399,7 @@ SshChannelExitSignal SshIncomingPacket::extractChannelExitSignal() const
         exitSignal.localChannel = SshPacketParser::asUint32(m_data, &offset);
         const QByteArray &type = SshPacketParser::asString(m_data, &offset);
         Q_ASSERT(type == ExitSignalType);
+        Q_UNUSED(type);
         if (SshPacketParser::asBool(m_data, &offset))
             throw SshPacketParseException();
         exitSignal.signal = SshPacketParser::asString(m_data, &offset);

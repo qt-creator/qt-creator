@@ -85,12 +85,14 @@ inline const char *botanSha1Name() { return "SHA-1"; }
 inline const char *botanHMacAlgoName(const QByteArray &rfcAlgoName)
 {
     Q_ASSERT(rfcAlgoName == SshCapabilities::HMacSha1);
+    Q_UNUSED(rfcAlgoName);
     return botanSha1Name();
 }
 
 inline quint32 botanHMacKeyLen(const QByteArray &rfcAlgoName)
 {
     Q_ASSERT(rfcAlgoName == SshCapabilities::HMacSha1);
+    Q_UNUSED(rfcAlgoName);
     return 20;
 }
 
