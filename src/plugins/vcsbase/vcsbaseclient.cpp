@@ -479,7 +479,7 @@ VCSBaseClientSettings *VCSBaseClient::settings() const
     return d->m_clientSettings;
 }
 
-void VCSBaseClient::settingsChanged()
+void VCSBaseClient::handleSettingsChanged()
 {
     if (d->m_jobManager) {
         d->m_jobManager->setSettings(settings()->binary(),

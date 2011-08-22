@@ -121,7 +121,7 @@ signals:
 
 public slots:
     void view(const QString &source, const QString &id);
-    void settingsChanged();
+    void handleSettingsChanged();
 
 protected:
     enum VCSCommand
