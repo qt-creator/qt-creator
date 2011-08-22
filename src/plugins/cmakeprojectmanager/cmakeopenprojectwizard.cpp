@@ -425,7 +425,7 @@ void CMakeRunPage::initializePage()
     bool hasCodeBlocksGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator();
     ProjectExplorer::Abi abi = ProjectExplorer::Abi::hostAbi();
     abi = ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::UnknownFlavor,
-                               abi.binaryFormat(), abi.wordWidth() == 32 ? 32 : 0);
+                               abi.binaryFormat(), 0);
     QList<ProjectExplorer::ToolChain *> tcs =
             ProjectExplorer::ToolChainManager::instance()->findToolChains(abi);
 
