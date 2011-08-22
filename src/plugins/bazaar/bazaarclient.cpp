@@ -220,7 +220,6 @@ QStringList BazaarClient::logArguments(const QStringList &files,
 QStringList BazaarClient::statusArguments(const QString &file) const
 {
     QStringList args;
-    args.append(QLatin1String("--short"));
     if (!file.isEmpty())
         args.append(file);
     return args;

@@ -396,11 +396,11 @@ void VCSBaseClient::status(const QString &workingDir, const QString &file)
     enqueueJob(job);
 }
 
-void VCSBaseClient::statusWithSignal(const QString &repositoryRoot)
+void VCSBaseClient::emitParsedStatus(const QString &repository, const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(StatusCommand));
-    args << statusArguments(QString());
-    QSharedPointer<VCSJob> job(new VCSJob(repositoryRoot, args, VCSJob::RawDataEmitMode));
+    args << extraOptions;
+    QSharedPointer<VCSJob> job(new VCSJob(repository, args, VCSJob::RawDataEmitMode));
     connect(job.data(), SIGNAL(rawData(QByteArray)), this, SLOT(statusParser(QByteArray)));
     enqueueJob(job);
 }

@@ -568,7 +568,7 @@ void MercurialPlugin::commit()
 
     connect(m_client, SIGNAL(parsedStatus(QList<VCSBase::VCSBaseClient::StatusItem>)),
             this, SLOT(showCommitWidget(QList<VCSBase::VCSBaseClient::StatusItem>)));
-    m_client->statusWithSignal(m_submitRepository);
+    m_client->emitParsedStatus(m_submitRepository);
 }
 
 void MercurialPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusItem> &status)

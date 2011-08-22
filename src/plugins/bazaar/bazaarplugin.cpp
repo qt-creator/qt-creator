@@ -543,7 +543,8 @@ void BazaarPlugin::commit()
 
     connect(m_client, SIGNAL(parsedStatus(QList<VCSBase::VCSBaseClient::StatusItem>)),
             this, SLOT(showCommitWidget(QList<VCSBase::VCSBaseClient::StatusItem>)));
-    m_client->statusWithSignal(m_submitRepository);
+    // The "--short" option allows to easily parse status output
+    m_client->emitParsedStatus(m_submitRepository, QStringList(QLatin1String("--short")));
 }
 
 void BazaarPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusItem> &status)

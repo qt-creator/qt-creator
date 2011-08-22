@@ -100,7 +100,8 @@ public:
              const QStringList &extraOptions = QStringList(),
              bool enableAnnotationContextMenu = false);
     void status(const QString &workingDir, const QString &file = QString());
-    void statusWithSignal(const QString &repository);
+    virtual void emitParsedStatus(const QString &repository,
+                                  const QStringList &extraOptions = QStringList());
     void revertFile(const QString &workingDir, const QString &file, const QString &revision = QString());
     void revertAll(const QString &workingDir, const QString &revision = QString());
     void import(const QString &repositoryRoot, const QStringList &files);
