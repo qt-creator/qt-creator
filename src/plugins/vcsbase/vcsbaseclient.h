@@ -185,13 +185,13 @@ protected:
                                                   const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
 
-private slots:
-    void statusParser(const QByteArray &data);
-    void slotAnnotateRevisionRequested(const QString &source, QString change, int lineNumber);
-    void saveSettings();
-
 private:
+    friend class VCSBaseClientPrivate;
     QScopedPointer<VCSBaseClientPrivate> d;
+
+    Q_PRIVATE_SLOT(d, void statusParser(QByteArray))
+    Q_PRIVATE_SLOT(d, void annotateRevision(QString, QString, int))
+    Q_PRIVATE_SLOT(d, void saveSettings())
 };
 
 } //namespace VCSBase

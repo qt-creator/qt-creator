@@ -81,20 +81,58 @@ namespace VCSBase {
 class VCSBaseClientPrivate
 {
 public:
-    explicit VCSBaseClientPrivate(VCSBaseClientSettings *settings);
+    VCSBaseClientPrivate(VCSBaseClient *client, VCSBaseClientSettings *settings);
+
+    void statusParser(QByteArray data);
+    void annotateRevision(QString source, QString change, int lineNumber);
+    void saveSettings();
 
     VCSJobRunner *m_jobManager;
     Core::ICore *m_core;
-    VCSBaseClientSettings* m_clientSettings;
+    VCSBaseClientSettings *m_clientSettings;
+
+private:
+    VCSBaseClient *m_client;
 };
 
-VCSBaseClientPrivate::VCSBaseClientPrivate(VCSBaseClientSettings *settings) :
-    m_jobManager(0), m_core(Core::ICore::instance()), m_clientSettings(settings)
+VCSBaseClientPrivate::VCSBaseClientPrivate(VCSBaseClient *client, VCSBaseClientSettings *settings) :
+    m_jobManager(0), m_core(Core::ICore::instance()), m_clientSettings(settings), m_client(client)
 {
 }
 
+void VCSBaseClientPrivate::statusParser(QByteArray data)
+{
+    QList<QPair<QString, QString> > statusList;
+
+    QStringList rawStatusList = QTextCodec::codecForLocale()->toUnicode(data).split(QLatin1Char('\n'));
+
+    foreach (const QString &string, rawStatusList) {
+        QPair<QString, QString> status = m_client->parseStatusLine(string);
+        if (!status.first.isEmpty() && !status.second.isEmpty())
+            statusList.append(status);
+    }
+
+    emit m_client->parsedStatus(statusList);
+}
+
+void VCSBaseClientPrivate::annotateRevision(QString source, QString change, int lineNumber)
+{
+    // This might be invoked with a verbose revision description
+    // "SHA1 author subject" from the annotation context menu. Strip the rest.
+    const int blankPos = change.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        change.truncate(blankPos);
+    const QFileInfo fi(source);
+    m_client->annotate(fi.absolutePath(), fi.fileName(), change, lineNumber);
+}
+
+void VCSBaseClientPrivate::saveSettings()
+{
+    m_clientSettings->writeSettings(m_core->settings());
+}
+
 VCSBaseClient::VCSBaseClient(VCSBaseClientSettings *settings) :
-    d(new VCSBaseClientPrivate(settings))
+    d(new VCSBaseClientPrivate(this, settings))
 {
     qRegisterMetaType<QVariant>();
     connect(d->m_core, SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
@@ -240,24 +278,6 @@ Utils::SynchronousProcessResponse VCSBaseClient::vcsSynchronousExec(
                                           flags, outputCodec);
 }
 
-void VCSBaseClient::slotAnnotateRevisionRequested(const QString &source,
-                                                  QString change,
-                                                  int lineNumber)
-{
-    // This might be invoked with a verbose revision description
-    // "SHA1 author subject" from the annotation context menu. Strip the rest.
-    const int blankPos = change.indexOf(QLatin1Char(' '));
-    if (blankPos != -1)
-        change.truncate(blankPos);
-    const QFileInfo fi(source);
-    annotate(fi.absolutePath(), fi.fileName(), change, lineNumber);
-}
-
-void VCSBaseClient::saveSettings()
-{
-    d->m_clientSettings->writeSettings(d->m_core->settings());
-}
-
 void VCSBaseClient::annotate(const QString &workingDir, const QString &file,
                              const QString revision /* = QString() */,
                              int lineNumber /* = -1 */)
@@ -372,8 +392,7 @@ void VCSBaseClient::statusWithSignal(const QString &repositoryRoot)
     QStringList args(vcsCommandString(StatusCommand));
     args << statusArguments(QString());
     QSharedPointer<VCSJob> job(new VCSJob(repositoryRoot, args, VCSJob::RawDataEmitMode));
-    connect(job.data(), SIGNAL(rawData(QByteArray)),
-            this, SLOT(statusParser(QByteArray)));
+    connect(job.data(), SIGNAL(rawData(QByteArray)), this, SLOT(statusParser(QByteArray)));
     enqueueJob(job);
 }
 
@@ -397,21 +416,6 @@ QString VCSBaseClient::vcsCommandString(VCSCommand cmd) const
     case StatusCommand: return QLatin1String("status");
     }
     return QString();
-}
-
-void VCSBaseClient::statusParser(const QByteArray &data)
-{
-    QList<QPair<QString, QString> > statusList;
-
-    QStringList rawStatusList = QTextCodec::codecForLocale()->toUnicode(data).split(QLatin1Char('\n'));
-
-    foreach (const QString &string, rawStatusList) {
-        QPair<QString, QString> status = parseStatusLine(string);
-        if (!status.first.isEmpty() && !status.second.isEmpty())
-            statusList.append(status);
-    }
-
-    emit parsedStatus(statusList);
 }
 
 void VCSBaseClient::import(const QString &repositoryRoot, const QStringList &files)
@@ -521,7 +525,7 @@ VCSBase::VCSBaseEditorWidget *VCSBaseClient::createVCSEditor(const QString &kind
         outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VCSBase::VCSBaseEditorWidget::getVcsBaseEditor(outputEditor);
         connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-                this, SLOT(slotAnnotateRevisionRequested(QString,QString,int)));
+                this, SLOT(annotateRevision(QString,QString,int)));
         QTC_ASSERT(baseEditor, return 0);
         baseEditor->setSource(source);
         if (setSourceCodec)
@@ -546,3 +550,5 @@ void VCSBaseClient::enqueueJob(const QSharedPointer<VCSJob> &job)
 }
 
 } // namespace VCSBase
+
+#include "moc_vcsbaseclient.cpp"
