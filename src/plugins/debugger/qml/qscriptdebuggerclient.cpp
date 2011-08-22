@@ -210,8 +210,9 @@ void QScriptDebuggerClient::activateFrame(int index)
     sendMessage(reply);
 }
 
-void QScriptDebuggerClient::insertBreakpoint(BreakpointModelId id, BreakHandler *handler)
+void QScriptDebuggerClient::insertBreakpoint(BreakpointModelId id)
 {
+    BreakHandler *handler = d->engine->breakHandler();
     JSAgentBreakpointData bp;
     bp.fileUrl = QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8();
     bp.lineNumber = handler->lineNumber(id);
@@ -219,8 +220,9 @@ void QScriptDebuggerClient::insertBreakpoint(BreakpointModelId id, BreakHandler 
     d->breakpoints.insert(bp);
 }
 
-void QScriptDebuggerClient::removeBreakpoint(BreakpointModelId id, BreakHandler *handler)
+void QScriptDebuggerClient::removeBreakpoint(BreakpointModelId id)
 {
+    BreakHandler *handler = d->engine->breakHandler();
     JSAgentBreakpointData bp;
     bp.fileUrl = QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8();
     bp.lineNumber = handler->lineNumber(id);
@@ -228,7 +230,7 @@ void QScriptDebuggerClient::removeBreakpoint(BreakpointModelId id, BreakHandler 
     d->breakpoints.remove(bp);
 }
 
-void QScriptDebuggerClient::changeBreakpoint(BreakpointModelId /*id*/, BreakHandler * /*handler*/)
+void QScriptDebuggerClient::changeBreakpoint(BreakpointModelId /*id*/)
 {
 }
 

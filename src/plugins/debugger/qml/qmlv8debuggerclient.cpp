@@ -221,8 +221,9 @@ void QmlV8DebuggerClient::activateFrame(int index)
     setLocals(index);
 }
 
-void QmlV8DebuggerClient::insertBreakpoint(BreakpointModelId id, BreakHandler *handler)
+void QmlV8DebuggerClient::insertBreakpoint(BreakpointModelId id)
 {
+    BreakHandler *handler = d->engine->breakHandler();
     QByteArray request;
 
     JsonInputStream(request) << '{' << INITIALPARAMS ;
@@ -243,7 +244,7 @@ void QmlV8DebuggerClient::insertBreakpoint(BreakpointModelId id, BreakHandler *h
     sendMessage(packMessage(request));
 }
 
-void QmlV8DebuggerClient::removeBreakpoint(BreakpointModelId id, BreakHandler * /*handler*/)
+void QmlV8DebuggerClient::removeBreakpoint(BreakpointModelId id)
 {
     QList<int> breakpoints = d->breakpoints.values(id);
     d->breakpoints.remove(id);
@@ -264,7 +265,7 @@ void QmlV8DebuggerClient::removeBreakpoint(BreakpointModelId id, BreakHandler * 
     }
 }
 
-void QmlV8DebuggerClient::changeBreakpoint(BreakpointModelId /*id*/, BreakHandler * /*handler*/)
+void QmlV8DebuggerClient::changeBreakpoint(BreakpointModelId /*id*/)
 {
 }
 

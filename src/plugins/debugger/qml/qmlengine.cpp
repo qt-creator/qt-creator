@@ -502,10 +502,10 @@ void QmlEngine::insertBreakpoint(BreakpointModelId id)
     handler->notifyBreakpointInsertProceeding(id);
 
     if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->insertBreakpoint(id,handler);
+        d->m_adapter.activeDebuggerClient()->insertBreakpoint(id);
     } else {
         foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
-            client->insertBreakpoint(id,handler);
+            client->insertBreakpoint(id);
         }
     }
 
@@ -522,10 +522,10 @@ void QmlEngine::removeBreakpoint(BreakpointModelId id)
     handler->notifyBreakpointRemoveProceeding(id);
 
     if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->removeBreakpoint(id,handler);
+        d->m_adapter.activeDebuggerClient()->removeBreakpoint(id);
     } else {
         foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
-            client->removeBreakpoint(id,handler);
+            client->removeBreakpoint(id);
         }
     }
 
@@ -542,10 +542,10 @@ void QmlEngine::changeBreakpoint(BreakpointModelId id)
     handler->notifyBreakpointChangeProceeding(id);
 
     if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->changeBreakpoint(id,handler);
+        d->m_adapter.activeDebuggerClient()->changeBreakpoint(id);
     } else {
         foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
-            client->changeBreakpoint(id,handler);
+            client->changeBreakpoint(id);
         }
     }
 

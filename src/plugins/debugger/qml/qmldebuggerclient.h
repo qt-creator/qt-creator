@@ -65,9 +65,9 @@ public:
 
     virtual void activateFrame(int index) = 0;
 
-    virtual void insertBreakpoint(BreakpointModelId id, BreakHandler *handler) = 0;
-    virtual void removeBreakpoint(BreakpointModelId id, BreakHandler *handler) = 0;
-    virtual void changeBreakpoint(BreakpointModelId id, BreakHandler *handler) = 0;
+    virtual void insertBreakpoint(BreakpointModelId id) = 0;
+    virtual void removeBreakpoint(BreakpointModelId id) = 0;
+    virtual void changeBreakpoint(BreakpointModelId id) = 0;
     virtual void updateBreakpoints() = 0;
 
     virtual void assignValueInDebugger(const QByteArray expr, const quint64 &id,

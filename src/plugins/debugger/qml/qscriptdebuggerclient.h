@@ -64,9 +64,9 @@ public:
 
     void activateFrame(int index);
 
-    void insertBreakpoint(BreakpointModelId id, BreakHandler *handler);
-    void removeBreakpoint(BreakpointModelId id, BreakHandler *handler);
-    void changeBreakpoint(BreakpointModelId id, BreakHandler *handler);
+    void insertBreakpoint(BreakpointModelId id);
+    void removeBreakpoint(BreakpointModelId id);
+    void changeBreakpoint(BreakpointModelId id);
     void updateBreakpoints();
 
     void assignValueInDebugger(const QByteArray expr, const quint64 &id,
