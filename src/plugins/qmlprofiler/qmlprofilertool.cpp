@@ -564,10 +564,10 @@ void QmlProfilerTool::logError(const QString &msg)
 void QmlProfilerTool::showSaveDialog()
 {
     Core::ICore *core = Core::ICore::instance();
-    QString filename = QFileDialog::getSaveFileName(core->mainWindow(), tr("Save QML Trace"), QString(), tr("QML traces (*.xml)"));
+    QString filename = QFileDialog::getSaveFileName(core->mainWindow(), tr("Save QML Trace"), QString(), tr("QML traces (%1)").arg(TraceFileExtension));
     if (!filename.isEmpty()) {
-        if (!filename.endsWith(QLatin1String(".xml")))
-            filename += QLatin1String(".xml");
+        if (!filename.endsWith(QLatin1String(TraceFileExtension)))
+            filename += QLatin1String(TraceFileExtension);
         d->m_traceWindow->getEventList()->save(filename);
     }
 }
@@ -575,7 +575,7 @@ void QmlProfilerTool::showSaveDialog()
 void QmlProfilerTool::showLoadDialog()
 {
     Core::ICore *core = Core::ICore::instance();
-    QString filename = QFileDialog::getOpenFileName(core->mainWindow(), tr("Load QML Trace"), QString(), tr("QML traces (*.xml)"));
+    QString filename = QFileDialog::getOpenFileName(core->mainWindow(), tr("Load QML Trace"), QString(), tr("QML traces (%1)").arg(TraceFileExtension));
 
     if (!filename.isEmpty()) {
         // delayed load (prevent graphical artifacts due to long load time)

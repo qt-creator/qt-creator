@@ -41,6 +41,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
+#define TraceFileExtension "*.qtd"
+
 class QmlProfilerTool : public Analyzer::IAnalyzerTool
 {
     Q_OBJECT
