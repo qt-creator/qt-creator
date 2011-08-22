@@ -52,6 +52,9 @@ public:
     QmlDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client, QLatin1String clientName);
     virtual ~QmlDebuggerClient();
 
+    virtual void connect() = 0;
+    virtual void disconnect() = 0;
+
     virtual void executeStep() = 0;
     virtual void executeStepOut() = 0;
     virtual void executeNext() = 0;
@@ -59,7 +62,6 @@ public:
 
     virtual void continueInferior() = 0;
     virtual void interruptInferior() = 0;
-    virtual void shutdownInferior() = 0;
 
     virtual void activateFrame(int index) = 0;
 

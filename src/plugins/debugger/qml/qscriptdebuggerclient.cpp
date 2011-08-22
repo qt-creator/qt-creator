@@ -192,9 +192,12 @@ void QScriptDebuggerClient::interruptInferior()
     sendMessage(reply);
 }
 
-void QScriptDebuggerClient::shutdownInferior()
+void QScriptDebuggerClient::connect()
 {
+}
 
+void QScriptDebuggerClient::disconnect()
+{
 }
 
 void QScriptDebuggerClient::activateFrame(int index)

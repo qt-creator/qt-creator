@@ -52,6 +52,9 @@ public:
     explicit QmlV8DebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
     ~QmlV8DebuggerClient();
 
+    void connect();
+    void disconnect();
+
     void executeStep();
     void executeStepOut();
     void executeNext();
@@ -59,7 +62,6 @@ public:
 
     void continueInferior();
     void interruptInferior();
-    void shutdownInferior();
 
     void activateFrame(int index);
 

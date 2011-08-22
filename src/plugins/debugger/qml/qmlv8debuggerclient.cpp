@@ -192,7 +192,19 @@ void QmlV8DebuggerClient::interruptInferior()
 
 }
 
-void QmlV8DebuggerClient::shutdownInferior()
+void QmlV8DebuggerClient::connect()
+{
+    QByteArray request;
+
+    JsonInputStream(request) << '{' << INITIALPARAMS ;
+    JsonInputStream(request) << ',' << "command" << ':' << "connect";
+
+    JsonInputStream(request) << '}';
+
+    sendMessage(packMessage(request));
+}
+
+void QmlV8DebuggerClient::disconnect()
 {
     QByteArray request;
 

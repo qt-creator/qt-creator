@@ -51,6 +51,9 @@ public:
     QScriptDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
     ~QScriptDebuggerClient();
 
+    void connect();
+    void disconnect();
+
     void executeStep();
     void executeStepOut();
     void executeNext();
@@ -58,7 +61,6 @@ public:
 
     void continueInferior();
     void interruptInferior();
-    void shutdownInferior();
 
     void activateFrame(int index);
 
