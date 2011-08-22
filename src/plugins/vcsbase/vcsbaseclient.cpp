@@ -102,17 +102,17 @@ VCSBaseClientPrivate::VCSBaseClientPrivate(VCSBaseClient *client, VCSBaseClientS
 
 void VCSBaseClientPrivate::statusParser(QByteArray data)
 {
-    QList<QPair<QString, QString> > statusList;
+    QList<VCSBaseClient::StatusItem> lineInfoList;
 
     QStringList rawStatusList = QTextCodec::codecForLocale()->toUnicode(data).split(QLatin1Char('\n'));
 
     foreach (const QString &string, rawStatusList) {
-        QPair<QString, QString> status = m_client->parseStatusLine(string);
-        if (!status.first.isEmpty() && !status.second.isEmpty())
-            statusList.append(status);
+        const VCSBaseClient::StatusItem lineInfo = m_client->parseStatusLine(string);
+        if (!lineInfo.flags.isEmpty() && !lineInfo.file.isEmpty())
+            lineInfoList.append(lineInfo);
     }
 
-    emit m_client->parsedStatus(statusList);
+    emit m_client->parsedStatus(lineInfoList);
 }
 
 void VCSBaseClientPrivate::annotateRevision(QString source, QString change, int lineNumber)
@@ -129,6 +129,15 @@ void VCSBaseClientPrivate::annotateRevision(QString source, QString change, int 
 void VCSBaseClientPrivate::saveSettings()
 {
     m_clientSettings->writeSettings(m_core->settings());
+}
+
+VCSBaseClient::StatusItem::StatusItem()
+{
+}
+
+VCSBaseClient::StatusItem::StatusItem(const QString &s, const QString &f) :
+    flags(s), file(f)
+{
 }
 
 VCSBaseClient::VCSBaseClient(VCSBaseClientSettings *settings) :

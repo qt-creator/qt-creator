@@ -35,6 +35,7 @@
 
 #include "mercurialsettings.h"
 
+#include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <coreplugin/icontext.h>
 
@@ -118,7 +119,7 @@ private slots:
     void incoming();
     void outgoing();
     void commit();
-    void showCommitWidget(const QList<QPair<QString, QString> > &status);
+    void showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusItem> &status);
     void commitFromEditor();
     void diffFromEditorSelected(const QStringList &files);
 

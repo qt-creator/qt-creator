@@ -86,7 +86,7 @@ protected:
     QStringList statusArguments(const QString &file) const;
     QStringList viewArguments(const QString &revision) const;
 
-    QPair<QString, QString> parseStatusLine(const QString &line) const;
+    StatusItem parseStatusLine(const QString &line) const;
 private:
     friend class CloneWizard;
 };

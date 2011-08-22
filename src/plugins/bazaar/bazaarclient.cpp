@@ -234,48 +234,48 @@ QStringList BazaarClient::viewArguments(const QString &revision) const
     return args;
 }
 
-QPair<QString, QString> BazaarClient::parseStatusLine(const QString &line) const
+BazaarClient::StatusItem BazaarClient::parseStatusLine(const QString &line) const
 {
-    QPair<QString, QString> status;
+    StatusItem item;
     if (!line.isEmpty()) {
         const QChar flagVersion = line[0];
         if (flagVersion == QLatin1Char('+'))
-            status.first = QLatin1String("Versioned");
+            item.flags = QLatin1String("Versioned");
         else if (flagVersion == QLatin1Char('-'))
-            status.first = QLatin1String("Unversioned");
+            item.flags = QLatin1String("Unversioned");
         else if (flagVersion == QLatin1Char('R'))
-            status.first = QLatin1String("Renamed");
+            item.flags = QLatin1String("Renamed");
         else if (flagVersion == QLatin1Char('?'))
-            status.first = QLatin1String("Unknown");
+            item.flags = QLatin1String("Unknown");
         else if (flagVersion == QLatin1Char('X'))
-            status.first = QLatin1String("Nonexistent");
+            item.flags = QLatin1String("Nonexistent");
         else if (flagVersion == QLatin1Char('C'))
-            status.first = QLatin1String("Conflict");
+            item.flags = QLatin1String("Conflict");
         else if (flagVersion == QLatin1Char('P'))
-            status.first = QLatin1String("PendingMerge");
+            item.flags = QLatin1String("PendingMerge");
 
         const int lineLength = line.length();
         if (lineLength >= 2) {
             const QChar flagContents = line[1];
             if (flagContents == QLatin1Char('N'))
-                status.first = QLatin1String("Created");
+                item.flags = QLatin1String("Created");
             else if (flagContents == QLatin1Char('D'))
-                status.first = QLatin1String("Deleted");
+                item.flags = QLatin1String("Deleted");
             else if (flagContents == QLatin1Char('K'))
-                status.first = QLatin1String("KindChanged");
+                item.flags = QLatin1String("KindChanged");
             else if (flagContents == QLatin1Char('M'))
-                status.first = QLatin1String("Modified");
+                item.flags = QLatin1String("Modified");
         }
         if (lineLength >= 3) {
             const QChar flagExec = line[2];
             if (flagExec == QLatin1Char('*'))
-                status.first = QLatin1String("ExecuteBitChanged");
+                item.flags = QLatin1String("ExecuteBitChanged");
         }
         // The status string should be similar to "xxx file_with_changes"
         // so just should take the file name part and store it
-        status.second = line.mid(4);
+        item.file = line.mid(4);
     }
-    return status;
+    return item;
 }
 
 // Collect all parameters required for a diff or log to be able to associate

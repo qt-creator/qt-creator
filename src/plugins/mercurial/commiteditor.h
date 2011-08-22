@@ -33,6 +33,7 @@
 #ifndef COMMITEDITOR_H
 #define COMMITEDITOR_H
 
+#include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 
 #include <QtCore/QFileInfo>
@@ -55,7 +56,7 @@ public:
 
     void setFields(const QFileInfo &repositoryRoot, const QString &branch,
                    const QString &userName, const QString &email,
-                   const QList<QPair<QString, QString> > &repoStatus);
+                   const QList<VCSBase::VCSBaseClient::StatusItem> &repoStatus);
 
     QString committerInfo();
     QString repoRoot();

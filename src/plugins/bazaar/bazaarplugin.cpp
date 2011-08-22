@@ -541,17 +541,17 @@ void BazaarPlugin::commit()
 
     m_submitRepository = state.topLevel();
 
-    connect(m_client, SIGNAL(parsedStatus(QList<QPair<QString,QString> >)),
-            this, SLOT(showCommitWidget(QList<QPair<QString,QString> >)));
+    connect(m_client, SIGNAL(parsedStatus(QList<VCSBase::VCSBaseClient::StatusItem>)),
+            this, SLOT(showCommitWidget(QList<VCSBase::VCSBaseClient::StatusItem>)));
     m_client->statusWithSignal(m_submitRepository);
 }
 
-void BazaarPlugin::showCommitWidget(const QList<QPair<QString, QString> > &status)
+void BazaarPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusItem> &status)
 {
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     //Once we receive our data release the connection so it can be reused elsewhere
-    disconnect(m_client, SIGNAL(parsedStatus(QList<QPair<QString,QString> >)),
-               this, SLOT(showCommitWidget(QList<QPair<QString,QString> >)));
+    disconnect(m_client, SIGNAL(parsedStatus(QList<VCSBase::VCSBaseClient::StatusItem>)),
+               this, SLOT(showCommitWidget(QList<VCSBase::VCSBaseClient::StatusItem>)));
 
     if (status.isEmpty()) {
         outputWindow->appendError(tr("There are no changes to commit."));

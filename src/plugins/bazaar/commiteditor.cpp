@@ -62,7 +62,7 @@ BazaarCommitWidget *CommitEditor::commitWidget()
 
 void CommitEditor::setFields(const BranchInfo &branch,
                              const QString &userName, const QString &email,
-                             const QList<QPair<QString, QString> > &repoStatus)
+                             const QList<VCSBase::VCSBaseClient::StatusItem> &repoStatus)
 {
     BazaarCommitWidget *bazaarWidget = commitWidget();
     if (!bazaarWidget)
@@ -71,9 +71,8 @@ void CommitEditor::setFields(const BranchInfo &branch,
     bazaarWidget->setFields(branch, userName, email);
 
     m_fileModel = new VCSBase::SubmitFileModel(this);
-    typedef QPair<QString, QString> StringPair;
-    foreach (const StringPair &status, repoStatus)
-        if (status.first != QLatin1String("Unknown"))
-            m_fileModel->addFile(status.second, status.first, true);
+    foreach (const VCSBase::VCSBaseClient::StatusItem &item, repoStatus)
+        if (item.flags != QLatin1String("Unknown"))
+            m_fileModel->addFile(item.file, item.flags, true);
     setFileModel(m_fileModel);
 }

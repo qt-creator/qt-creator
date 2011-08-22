@@ -67,6 +67,14 @@ class VCSBASE_EXPORT VCSBaseClient : public QObject
 {
     Q_OBJECT
 public:
+    struct VCSBASE_EXPORT StatusItem
+    {
+        StatusItem();
+        StatusItem(const QString &s, const QString &f);
+        QString flags;
+        QString file;
+    };
+
     explicit VCSBaseClient(VCSBaseClientSettings *settings);
     ~VCSBaseClient();
     virtual bool synchronousCreateRepository(const QString &workingDir);
@@ -107,7 +115,7 @@ public:
     virtual VCSBaseClientSettings *settings() const;
 
 signals:
-    void parsedStatus(const QList<QPair<QString, QString> > &statusList);
+    void parsedStatus(const QList<VCSBase::VCSBaseClient::StatusItem> &statusList);
     // Passes on changed signals from VCSJob to Control
     void changed(const QVariant &v);
 
@@ -166,7 +174,7 @@ protected:
     virtual QStringList statusArguments(const QString &file) const = 0;
     virtual QStringList viewArguments(const QString &revision) const = 0;
 
-    virtual QPair<QString, QString> parseStatusLine(const QString &line) const = 0;
+    virtual StatusItem parseStatusLine(const QString &line) const = 0;
 
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;
     void enqueueJob(const QSharedPointer<VCSJob> &);

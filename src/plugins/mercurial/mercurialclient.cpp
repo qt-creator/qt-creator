@@ -452,29 +452,29 @@ QStringList MercurialClient::viewArguments(const QString &revision) const
     return args;
 }
 
-QPair<QString, QString> MercurialClient::parseStatusLine(const QString &line) const
+MercurialClient::StatusItem MercurialClient::parseStatusLine(const QString &line) const
 {
-    QPair<QString, QString> status;
+    StatusItem item;
     if (!line.isEmpty())
     {
         if (line.startsWith(QLatin1Char('M')))
-            status.first = QLatin1String("Modified");
+            item.flags = QLatin1String("Modified");
         else if (line.startsWith(QLatin1Char('A')))
-            status.first = QLatin1String("Added");
+            item.flags = QLatin1String("Added");
         else if (line.startsWith(QLatin1Char('R')))
-            status.first = QLatin1String("Removed");
+            item.flags = QLatin1String("Removed");
         else if (line.startsWith(QLatin1Char('!')))
-            status.first = QLatin1String("Deleted");
+            item.flags = QLatin1String("Deleted");
         else if (line.startsWith(QLatin1Char('?')))
-            status.first = QLatin1String("Untracked");
+            item.flags = QLatin1String("Untracked");
         else
-            return status;
+            return item;
 
         //the status line should be similar to "M file_with_changes"
         //so just should take the file name part and store it
-        status.second = line.mid(2);
+        item.file = line.mid(2);
     }
-    return status;
+    return item;
 }
 
 // Collect all parameters required for a diff to be able to associate them

@@ -55,7 +55,7 @@ MercurialCommitWidget *CommitEditor::commitWidget()
 
 void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &branch,
                              const QString &userName, const QString &email,
-                             const QList<QPair<QString, QString> > &repoStatus)
+                             const QList<VCSBase::VCSBaseClient::StatusItem> &repoStatus)
 {
     MercurialCommitWidget *mercurialWidget = commitWidget();
     if (!mercurialWidget)
@@ -66,23 +66,22 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
     fileModel = new VCSBase::SubmitFileModel(this);
 
     //TODO Messy tidy this up
-    typedef QPair<QString, QString> StringStringPair;
     QStringList shouldTrack;
 
-    foreach (const StringStringPair &status, repoStatus) {
-        if (status.first == QLatin1String("Untracked"))
-            shouldTrack.append(status.second);
+    foreach (const VCSBase::VCSBaseClient::StatusItem &item, repoStatus) {
+        if (item.flags == QLatin1String("Untracked"))
+            shouldTrack.append(item.file);
         else
-            fileModel->addFile(status.second, status.first, false);
+            fileModel->addFile(item.file, item.flags, false);
     }
 
     VCSBase::VCSBaseSubmitEditor::filterUntrackedFilesOfProject(repositoryRoot.absoluteFilePath(),
                                                                 &shouldTrack);
 
     foreach (const QString &track, shouldTrack) {
-        foreach (const StringStringPair &status, repoStatus) {
-            if (status.second == track)
-                fileModel->addFile(status.second, status.first, false);
+        foreach (const VCSBase::VCSBaseClient::StatusItem &item, repoStatus) {
+            if (item.file == track)
+                fileModel->addFile(item.file, item.flags, false);
         }
     }
 
