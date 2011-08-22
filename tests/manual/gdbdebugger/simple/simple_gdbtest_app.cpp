@@ -2671,12 +2671,27 @@ namespace basic {
         dummyStatement(&a, &b, &c, &d);
     }
 
-    void testLongEvaluation()
+    void testLongEvaluation1()
     {
         QDateTime time = QDateTime::currentDateTime();
-        QVector<QDateTime> bigv;
-        for (int i = 0; i < 10000; ++i)
-            bigv.append(time);
+        const int N = 10000;
+        QDateTime bigv[N];
+        for (int i = 0; i < N; ++i) {
+            bigv[i] = time;
+            time.addDays(1);
+        }
+        // <== Break here.
+        // Expand bigv.
+        // This is expected to take up to a minute.
+        dummyStatement(&bigv);
+    }
+
+    void testLongEvaluation2()
+    {
+        const int N = 10000;
+        int bigv[N];
+        for (int i = 0; i < N; ++i)
+            bigv[i] = i;
         // <== Break here.
         // Expand bigv.
         // This is expected to take up to a minute.
@@ -2725,7 +2740,8 @@ namespace basic {
         testStringWithNewline();
         testMemoryView();
         testColoredMemoryView();
-        testLongEvaluation();
+        testLongEvaluation1();
+        testLongEvaluation2();
         testFork();
         testFunctionPointer();
     }

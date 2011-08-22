@@ -340,17 +340,21 @@ class Children:
         self.addrBase = addrBase
         self.addrStep = addrStep
         self.printsAddress = True
-        if not childType is None:
+        if childType is None:
+            self.childType = None
+        else:
             self.childType = stripClassTag(str(childType))
             self.d.put('childtype="%s",' % self.childType)
-            if isSimpleType(childType):
-                self.d.put('childnumchild="0",')
-                self.childNumChild = 0
-            elif childType.code == PointerCode:
-                self.d.put('childnumchild="1",')
-                self.childNumChild = 1
-        else:
-            self.childType = None
+            if childNumChild is None:
+                if isSimpleType(childType):
+                    self.d.put('childnumchild="0",')
+                    self.childNumChild = 0
+                elif childType.code == PointerCode:
+                    self.d.put('childnumchild="1",')
+                    self.childNumChild = 1
+            else:
+                self.d.put('childnumchild="%s",' % childNumChild)
+                self.childNumChild = childNumChild
         try:
             if not addrBase is None and not addrStep is None:
                 self.d.put('addrbase="0x%x",' % long(addrBase))
