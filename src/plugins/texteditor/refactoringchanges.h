@@ -144,6 +144,7 @@ class TEXTEDITOR_EXPORT RefactoringChangesData
 
 public:
     RefactoringChangesData() {}
+    virtual ~RefactoringChangesData();
 
     virtual void indentSelection(const QTextCursor &selection,
                                  const QString &fileName,

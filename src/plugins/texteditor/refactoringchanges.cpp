@@ -362,6 +362,9 @@ void RefactoringFile::fileChanged()
         m_data->fileChanged(m_fileName);
 }
 
+RefactoringChangesData::~RefactoringChangesData()
+{}
+
 void RefactoringChangesData::indentSelection(const QTextCursor &, const QString &, const BaseTextEditorWidget *) const
 {
     qWarning() << Q_FUNC_INFO << "not implemented";
