@@ -555,7 +555,7 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
     for (int i=0; i < folders.size(); ++i) {
         const QFileInfo fi(folders.at(i));
         if (fi.isRelative())
-            folders[i] = projectDir + '/' + folders.at(i);
+            folders[i] = QDir::cleanPath(projectDir + '/' + folders.at(i));
     }
 
 
