@@ -17,7 +17,8 @@ HEADERS += \
     $$PWD/qmljsfunctionfilter.h \
     $$PWD/qmljslocatordata.h \
     $$PWD/qmljsindenter.h \
-    $$PWD/qmljscodestylesettingspage.h
+    $$PWD/qmljscodestylesettingspage.h \
+    $$PWD/qmljsfindexportedcpptypes.h
 
 SOURCES += \
     $$PWD/qmljstoolsplugin.cpp \
@@ -30,7 +31,8 @@ SOURCES += \
     $$PWD/qmljsfunctionfilter.cpp \
     $$PWD/qmljslocatordata.cpp \
     $$PWD/qmljsindenter.cpp \
-    $$PWD/qmljscodestylesettingspage.cpp
+    $$PWD/qmljscodestylesettingspage.cpp \
+    $$PWD/qmljsfindexportedcpptypes.cpp
 
 FORMS += \
     $$PWD/qmljscodestylesettingspage.ui

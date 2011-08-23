@@ -33,6 +33,7 @@
 #include "qmljsmodelmanager.h"
 #include "qmljstoolsconstants.h"
 #include "qmljsplugindumper.h"
+#include "qmljsfindexportedcpptypes.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -41,8 +42,6 @@
 #include <coreplugin/messagemanager.h>
 #include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/TypeOfExpression.h>
-#include <cplusplus/Overview.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/parser/qmldirparser_p.h>
@@ -98,8 +97,10 @@ void ModelManager::delayedInitialization()
     CPlusPlus::CppModelManagerInterface *cppModelManager =
             CPlusPlus::CppModelManagerInterface::instance();
     if (cppModelManager) {
+        // It's important to have a direct connection here so we can prevent
+        // the source and AST of the cpp document being cleaned away.
         connect(cppModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-                this, SLOT(queueCppQmlTypeUpdate(CPlusPlus::Document::Ptr)));
+                this, SLOT(maybeQueueCppQmlTypeUpdate(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
     }
 }
 
@@ -673,9 +674,25 @@ void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &im
     m_pluginDumper->loadPluginTypes(libraryPath, importPath, importUri, importVersion);
 }
 
-void ModelManager::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc)
+// is called *inside a c++ parsing thread*, to allow hanging on to source and ast
+void ModelManager::maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc)
 {
-    m_queuedCppDocuments.insert(doc->fileName());
+    // keep source and AST alive if we want to scan for register calls
+    const bool scan = FindExportedCppTypes::maybeExportsTypes(doc);
+    if (scan)
+        doc->keepSourceAndAST();
+
+    // delegate actual queuing to the gui thread
+    QMetaObject::invokeMethod(this, "queueCppQmlTypeUpdate",
+                              Q_ARG(CPlusPlus::Document::Ptr, doc), Q_ARG(bool, scan));
+}
+
+void ModelManager::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan)
+{
+    QPair<CPlusPlus::Document::Ptr, bool> prev = m_queuedCppDocuments.value(doc->fileName());
+    if (prev.first && prev.second)
+        prev.first->releaseSourceAndAST();
+    m_queuedCppDocuments.insert(doc->fileName(), qMakePair(doc, scan));
     m_updateCppQmlTypesTimer->start();
 }
 
@@ -691,20 +708,32 @@ void ModelManager::startCppQmlTypeUpdate()
     m_queuedCppDocuments.clear();
 }
 
-void ModelManager::updateCppQmlTypes(ModelManager *qmlModelManager, CPlusPlus::CppModelManagerInterface *cppModelManager, QSet<QString> files)
+void ModelManager::updateCppQmlTypes(ModelManager *qmlModelManager,
+                                     CPlusPlus::CppModelManagerInterface *cppModelManager,
+                                     QMap<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents)
 {
     CppQmlTypeHash newCppTypes = qmlModelManager->cppQmlTypes();
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
+    FindExportedCppTypes finder(snapshot);
 
-    foreach (const QString &fileName, files) {
-        CPlusPlus::Document::Ptr doc = snapshot.document(fileName);
-        QList<LanguageUtils::FakeMetaObject::ConstPtr> exported;
-        if (doc)
-            exported = cppModelManager->exportedQmlObjects(doc);
+    typedef QPair<CPlusPlus::Document::Ptr, bool> DocScanPair;
+    foreach (const DocScanPair &pair, documents) {
+        CPlusPlus::Document::Ptr doc = pair.first;
+        const bool scan = pair.second;
+        const QString fileName = doc->fileName();
+        if (!scan) {
+            newCppTypes.remove(fileName);
+            continue;
+        }
+
+        QList<LanguageUtils::FakeMetaObject::ConstPtr> exported = finder(doc);
+
         if (!exported.isEmpty())
             newCppTypes[fileName] = exported;
         else
             newCppTypes.remove(fileName);
+
+        doc->releaseSourceAndAST();
     }
 
     QMutexLocker locker(&qmlModelManager->m_cppTypesMutex);

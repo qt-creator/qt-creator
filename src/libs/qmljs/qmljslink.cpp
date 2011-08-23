@@ -502,7 +502,9 @@ void Link::loadImplicitDefaultImports(Imports *imports)
             import.info = info;
             import.object = new ObjectValue(d->valueOwner);
             foreach (QmlObjectValue *object,
-                     d->valueOwner->cppQmlTypes().typesForImport(defaultPackage, ComponentVersion())) {
+                     d->valueOwner->cppQmlTypes().typesForImport(
+                         defaultPackage,
+                         ComponentVersion(ComponentVersion::MaxVersion, ComponentVersion::MaxVersion))) {
                 import.object->setMember(object->className(), object);
             }
             d->importCache.insert(ImportCacheKey(info), import);

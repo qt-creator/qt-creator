@@ -40,6 +40,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QHash>
 #include <QtCore/QFileInfo>
+#include <QtCore/QAtomicInt>
 
 namespace CPlusPlus {
 
@@ -124,11 +125,6 @@ public:
     };
 
     void check(CheckMode mode = FullCheck);
-
-    void findExposedQmlTypes();
-
-    void releaseSource();
-    void releaseTranslationUnit();
 
     static Ptr create(const QString &fileName);
 
@@ -320,18 +316,8 @@ public:
     const MacroUse *findMacroUseAt(unsigned offset) const;
     const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned offset) const;
 
-    class ExportedQmlType {
-    public:
-        QString packageName;
-        QString typeName;
-        int majorVersion;
-        int minorVersion;
-        Scope *scope;
-        QString typeExpression;
-    };
-
-    QList<ExportedQmlType> exportedQmlTypes() const
-    { return _exportedQmlTypes; }
+    void keepSourceAndAST();
+    void releaseSourceAndAST();
 
 private:
     QString _fileName;
@@ -344,11 +330,12 @@ private:
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
     QList<UndefinedMacroUse> _undefinedMacroUses;
-    QList<ExportedQmlType> _exportedQmlTypes;
     QByteArray _source;
     QDateTime _lastModified;
+    QAtomicInt _keepSourceAndASTCount;
     unsigned _revision;
     unsigned _editorRevision;
+    bool _fastCheck;
 
     friend class Snapshot;
 };

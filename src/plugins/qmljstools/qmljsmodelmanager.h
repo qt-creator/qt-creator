@@ -117,12 +117,15 @@ protected:
     void updateImportPaths();
 
 private slots:
-    void queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc);
+    void maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc);
+    void queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan);
     void startCppQmlTypeUpdate();
 
 private:
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
-    static void updateCppQmlTypes(ModelManager *qmlModelManager, CPlusPlus::CppModelManagerInterface *cppModelManager, QSet<QString> files);
+    static void updateCppQmlTypes(ModelManager *qmlModelManager,
+                                  CPlusPlus::CppModelManagerInterface *cppModelManager,
+                                  QMap<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents);
 
     mutable QMutex m_mutex;
     Core::ICore *m_core;
@@ -134,7 +137,7 @@ private:
     QFutureSynchronizer<void> m_synchronizer;
 
     QTimer *m_updateCppQmlTypesTimer;
-    QSet<QString> m_queuedCppDocuments;
+    QMap<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
     CppQmlTypeHash m_cppTypes;
     mutable QMutex m_cppTypesMutex;
 

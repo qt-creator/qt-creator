@@ -256,7 +256,8 @@ Document::Document(const QString &fileName)
     : _fileName(QDir::cleanPath(fileName)),
       _globalNamespace(0),
       _revision(0),
-      _editorRevision(0)
+      _editorRevision(0),
+      _fastCheck(false)
 {
     _control = new Control();
 
@@ -574,8 +575,10 @@ void Document::check(CheckMode mode)
 
     _globalNamespace = _control->newNamespace(0);
     Bind semantic(_translationUnit);
-    if (mode == FastCheck)
+    if (mode == FastCheck) {
+        _fastCheck = true;
         semantic.setSkipFunctionBodies(true);
+    }
 
     if (! _translationUnit->ast())
         return; // nothing to do.
@@ -589,253 +592,19 @@ void Document::check(CheckMode mode)
     }
 }
 
-class FindExposedQmlTypes : protected ASTVisitor
+void Document::keepSourceAndAST()
 {
-    Document *_doc;
-    QList<Document::ExportedQmlType> _exportedTypes;
-    CompoundStatementAST *_compound;
-    ASTMatcher _matcher;
-    ASTPatternBuilder _builder;
-    Overview _overview;
-
-public:
-    FindExposedQmlTypes(Document *doc)
-        : ASTVisitor(doc->translationUnit())
-        , _doc(doc)
-        , _compound(0)
-    {}
-
-    QList<Document::ExportedQmlType> operator()()
-    {
-        _exportedTypes.clear();
-        accept(translationUnit()->ast());
-        return _exportedTypes;
-    }
-
-protected:
-    virtual bool visit(CompoundStatementAST *ast)
-    {
-        CompoundStatementAST *old = _compound;
-        _compound = ast;
-        accept(ast->statement_list);
-        _compound = old;
-        return false;
-    }
-
-    virtual bool visit(CallAST *ast)
-    {
-        IdExpressionAST *idExp = ast->base_expression->asIdExpression();
-        if (!idExp || !idExp->name)
-            return false;
-        TemplateIdAST *templateId = idExp->name->asTemplateId();
-        if (!templateId || !templateId->identifier_token)
-            return false;
-
-        // check the name
-        const Identifier *templateIdentifier = translationUnit()->identifier(templateId->identifier_token);
-        if (!templateIdentifier)
-            return false;
-        const QString callName = QString::fromUtf8(templateIdentifier->chars());
-        if (callName != QLatin1String("qmlRegisterType"))
-            return false;
-
-        // must have a single typeid template argument
-        if (!templateId->template_argument_list || !templateId->template_argument_list->value
-                || templateId->template_argument_list->next)
-            return false;
-        TypeIdAST *typeId = templateId->template_argument_list->value->asTypeId();
-        if (!typeId)
-            return false;
-
-        // must have four arguments
-        if (!ast->expression_list
-                || !ast->expression_list->value || !ast->expression_list->next
-                || !ast->expression_list->next->value || !ast->expression_list->next->next
-                || !ast->expression_list->next->next->value || !ast->expression_list->next->next->next
-                || !ast->expression_list->next->next->next->value
-                || ast->expression_list->next->next->next->next)
-            return false;
-
-        // last argument must be a string literal
-        const StringLiteral *nameLit = 0;
-        if (StringLiteralAST *nameAst = ast->expression_list->next->next->next->value->asStringLiteral())
-            nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
-        if (!nameLit) {
-            // disable this warning for now, we don't want to encourage using string literals if they don't mean to
-            // in the future, we will also accept annotations for the qmlRegisterType arguments in comments
-//            translationUnit()->warning(ast->expression_list->next->next->next->value->firstToken(),
-//                                       "The type will only be available in Qt Creator's QML editors when the type name is a string literal");
-            return false;
-        }
-
-        // if the first argument is a string literal, things are easy
-        QString packageName;
-        if (StringLiteralAST *packageAst = ast->expression_list->value->asStringLiteral()) {
-            const StringLiteral *packageLit = translationUnit()->stringLiteral(packageAst->literal_token);
-            packageName = QString::fromUtf8(packageLit->chars(), packageLit->size());
-        }
-        // as a special case, allow an identifier package argument if there's a
-        // Q_ASSERT(QLatin1String(uri) == QLatin1String("actual uri"));
-        // in the enclosing compound statement
-        IdExpressionAST *uriName = ast->expression_list->value->asIdExpression();
-        if (packageName.isEmpty() && uriName && _compound) {
-            for (StatementListAST *it = _compound->statement_list; it; it = it->next) {
-                StatementAST *stmt = it->value;
-
-                packageName = nameOfUriAssert(stmt, uriName);
-                if (!packageName.isEmpty())
-                    break;
-            }
-        }
-
-        // second and third argument must be integer literals
-        const NumericLiteral *majorLit = 0;
-        const NumericLiteral *minorLit = 0;
-        if (NumericLiteralAST *majorAst = ast->expression_list->next->value->asNumericLiteral())
-            majorLit = translationUnit()->numericLiteral(majorAst->literal_token);
-        if (NumericLiteralAST *minorAst = ast->expression_list->next->next->value->asNumericLiteral())
-            minorLit = translationUnit()->numericLiteral(minorAst->literal_token);
-
-        // build the descriptor
-        Document::ExportedQmlType exportedType;
-        exportedType.typeName = QString::fromUtf8(nameLit->chars(), nameLit->size());
-        if (!packageName.isEmpty() && majorLit && minorLit && majorLit->isInt() && minorLit->isInt()) {
-            exportedType.packageName = packageName;
-            exportedType.majorVersion = QString::fromUtf8(majorLit->chars(), majorLit->size()).toInt();
-            exportedType.minorVersion = QString::fromUtf8(minorLit->chars(), minorLit->size()).toInt();
-        } else {
-            // disable this warning, see above for details
-//            translationUnit()->warning(ast->base_expression->firstToken(),
-//                                       "The module will not be available in Qt Creator's QML editors because the uri and version numbers\n"
-//                                       "cannot be determined by static analysis. The type will still be available globally.");
-            exportedType.packageName = QLatin1String("<default>");
-        }
-
-        // we want to do lookup later, so also store the surrounding scope
-        unsigned line, column;
-        translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
-        exportedType.scope = _doc->scopeAt(line, column);
-
-        // and the expression
-        const Token begin = translationUnit()->tokenAt(typeId->firstToken());
-        const Token last = translationUnit()->tokenAt(typeId->lastToken() - 1);
-        exportedType.typeExpression = _doc->source().mid(begin.begin(), last.end() - begin.begin());
-
-        _exportedTypes += exportedType;
-
-        return false;
-    }
-
-private:
-    QString stringOf(AST *ast)
-    {
-        const Token begin = translationUnit()->tokenAt(ast->firstToken());
-        const Token last = translationUnit()->tokenAt(ast->lastToken() - 1);
-        return _doc->source().mid(begin.begin(), last.end() - begin.begin());
-    }
-
-    ExpressionAST *skipStringCall(ExpressionAST *exp)
-    {
-        if (!exp)
-            return 0;
-
-        IdExpressionAST *callName = _builder.IdExpression();
-        CallAST *call = _builder.Call(callName);
-        if (!exp->match(call, &_matcher))
-            return exp;
-
-        const QString name = stringOf(callName);
-        if (name != QLatin1String("QLatin1String")
-                && name != QLatin1String("QString"))
-            return exp;
-
-        if (!call->expression_list || call->expression_list->next)
-            return exp;
-
-        return call->expression_list->value;
-    }
-
-    QString nameOfUriAssert(StatementAST *stmt, IdExpressionAST *uriName)
-    {
-        QString null;
-
-        IdExpressionAST *outerCallName = _builder.IdExpression();
-        BinaryExpressionAST *binary = _builder.BinaryExpression();
-        // assert(... == ...);
-        ExpressionStatementAST *pattern = _builder.ExpressionStatement(
-                    _builder.Call(outerCallName, _builder.ExpressionList(
-                                     binary)));
-
-        if (!stmt->match(pattern, &_matcher)) {
-            outerCallName = _builder.IdExpression();
-            binary = _builder.BinaryExpression();
-            // the expansion of Q_ASSERT(...),
-            // ((!(... == ...)) ? qt_assert(...) : ...);
-            pattern = _builder.ExpressionStatement(
-                        _builder.NestedExpression(
-                            _builder.ConditionalExpression(
-                                _builder.NestedExpression(
-                                    _builder.UnaryExpression(
-                                        _builder.NestedExpression(
-                                            binary))),
-                                _builder.Call(outerCallName))));
-
-            if (!stmt->match(pattern, &_matcher))
-                return null;
-        }
-
-        const QString outerCall = stringOf(outerCallName);
-        if (outerCall != QLatin1String("qt_assert")
-                && outerCall != QLatin1String("assert")
-                && outerCall != QLatin1String("Q_ASSERT"))
-            return null;
-
-        if (translationUnit()->tokenAt(binary->binary_op_token).kind() != T_EQUAL_EQUAL)
-            return null;
-
-        ExpressionAST *lhsExp = skipStringCall(binary->left_expression);
-        ExpressionAST *rhsExp = skipStringCall(binary->right_expression);
-        if (!lhsExp || !rhsExp)
-            return null;
-
-        StringLiteralAST *uriString = lhsExp->asStringLiteral();
-        IdExpressionAST *uriArgName = lhsExp->asIdExpression();
-        if (!uriString)
-            uriString = rhsExp->asStringLiteral();
-        if (!uriArgName)
-            uriArgName = rhsExp->asIdExpression();
-        if (!uriString || !uriArgName)
-            return null;
-
-        if (stringOf(uriArgName) != stringOf(uriName))
-            return null;
-
-        const StringLiteral *packageLit = translationUnit()->stringLiteral(uriString->literal_token);
-        return QString::fromUtf8(packageLit->chars(), packageLit->size());
-    }
-};
-
-void Document::findExposedQmlTypes()
-{
-    if (! _translationUnit->ast())
-        return;
-
-    QByteArray qmlRegisterTypeToken("qmlRegisterType");
-    if (_translationUnit->control()->findIdentifier(
-                qmlRegisterTypeToken.constData(), qmlRegisterTypeToken.size())) {
-        FindExposedQmlTypes finder(this);
-        _exportedQmlTypes = finder();
-    }
+    _keepSourceAndASTCount.ref();
 }
 
-void Document::releaseSource()
+void Document::releaseSourceAndAST()
 {
-    _source.clear();
-}
-
-void Document::releaseTranslationUnit()
-{
-    _translationUnit->release();
+    if (!_keepSourceAndASTCount.deref()) {
+        _source.clear();
+        _translationUnit->release();
+        if (_fastCheck)
+            _control->squeeze();
+    }
 }
 
 Snapshot::Snapshot()

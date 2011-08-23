@@ -140,8 +140,6 @@ public:
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
 
-    virtual QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedQmlObjects(const CPlusPlus::Document::Ptr &doc) const = 0;
-
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);
     void sourceFilesRefreshed(const QStringList &files);
