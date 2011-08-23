@@ -1,10 +1,10 @@
 TEMPLATE = app
-TARGET = simple_gdbtest_app
+TARGET = simple_test_app
 DEPENDPATH += .
 INCLUDEPATH += .
 DESTDIR = .
 
-SOURCES +=  simple_gdbtest_app.cpp
+SOURCES +=  simple_test_app.cpp
 
 QT += network
 QT += script

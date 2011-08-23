@@ -36,7 +36,7 @@
 
 void dummyStatement(...) {}
 
-#include "../simple/deep/deep/simple_gdbtest_app.h"
+#include "../simple/deep/deep/simple_test_app.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDateTime>
@@ -1197,17 +1197,17 @@ void testPlugin()
 {
     QString dir = QDir::currentPath();
 #ifdef Q_OS_LINUX
-    QLibrary lib(dir + "/libsimple_gdbtest_plugin.so");
+    QLibrary lib(dir + "/libsimple_test_plugin.so");
 #endif
 #ifdef Q_OS_MAC
     dir = QFileInfo(dir + "/../..").canonicalPath();
-    QLibrary lib(dir + "/libsimple_gdbtest_plugin.dylib");
+    QLibrary lib(dir + "/libsimple_test_plugin.dylib");
 #endif
 #ifdef Q_OS_WIN
-    QLibrary lib(dir + "/debug/simple_gdbtest_plugin.dll");
+    QLibrary lib(dir + "/debug/simple_test_plugin.dll");
 #endif
 #ifdef Q_OS_SYMBIAN
-    QLibrary lib(dir + "/libsimple_gdbtest_plugin.dll");
+    QLibrary lib(dir + "/libsimple_test_plugin.dll");
 #endif
     int (*foo)() = (int(*)()) lib.resolve("pluginTest");
     qDebug() << "library resolve: " << foo << lib.fileName();
@@ -3629,4 +3629,4 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-#include "simple_gdbtest_app.moc"
+#include "simple_test_app.moc"

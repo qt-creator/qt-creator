@@ -1,9 +1,8 @@
 TEMPLATE = lib
-TARGET = simple_gdbtest_plugin
+TARGET = simple_test_plugin
 CONFIG += shared
 
-SOURCES += \
-    simple_gdbtest_plugin.cpp
+SOURCES += simple_test_plugin.cpp
 
 macx {
    QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../PlugIns/$${PROVIDER}/
