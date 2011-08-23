@@ -1419,55 +1419,59 @@
 
     \section2 Loading Placeholder Data
 
-    Often, QML applications are prototyped with fake data that is later
-    replaced by real data sources from C++ plugins. QML Viewer loads fake data
-    into the application context: it looks for a directory named \e dummydata
-    in the same directory as the target QML file, loads any .qml files in that
-    directory as QML objects, and binds them to the root context as properties.
-    For more information, see
-    \l{http://doc.qt.nokia.com/latest/qmlviewer.html}{QML Viewer}.
+    \QMLD supports views, models, and delegates, so that when you add a Grid
+    View, List View, or Path View element, the ListModel and the delegate
+    component are added automatically.
 
-    You can use dummydata files also to specify fake properties for QML
-    components that you open for editing in \QMLD.
-    A QML component provides a way of defining a new UI element that you can
-    re-use in other QML files. A component is generally defined in its own QML
-    file. You can use property binding to specify the properties of a component
-    to make it easily reusable.
+    However, the missing context of the application presents a challenge for
+    \QMLD. Specific models defined in C++ are the most obvious case. Often,
+    the context is missing simple properties, which are either defined in C++,
+    or in other QML files. A typical example is a component which uses the
+    properties of its parent, such as \c parent.width.
 
-    For example, you can create a button bar component (buttonbar.qml) that
-    inherits its width from the screen that is its parent:
+    \section3 Using Dummy Models
 
-    \code
+    If you open a file in \QMLD that references a C++ model, you see nothing on
+    the canvas. If the data in the model is fetched from the internet, you have
+    no control over it. To get reliable data, \e {dummy data} was introduced.
 
-    import QtQuick 1.0
+    For example, the following code snippet describes the file example.qml that
+    contains a ListView that in turn specifies a C++ model:
 
-    Item {
-        width: parent.width
-        }
+    \snippet snippets/qml/dummydata.qml 0
 
-    \endcode
-
-    However, when you open the QML file for editing in \QMLD, the button bar
-    component does not have a width, because it is specified outside the QML
-    file (in the QML file that specifies the screen). To specify a fake width
-    for the component, create a \c <component>_dummydata.qml file (here,
-    buttonbar_dummydata.qml) that specifies the component width and copy it to
-    the \c dummydata directory.
-
-    For example:
+    Create a directory named \e dummydata in the root directory of the project,
+    so that it is not deployed to the device. In the \c dummydata directory,
+    create a QML file that has the same name as the value of \c model:
 
     \code
-    import QtQuick 1.0
-    import QmlDesigner 1.0
-
-    DummyContextObject {
-        parent: QtObject {
-        property real width: 1000
-        }
-    }
+        qml/exampleapp/example.qml
+        dummydata/dataModel.qml
     \endcode
 
-    The file is reloaded if you change it.
+    Then create the dataModel.qml file that contains the dummy data:
+
+    \snippet snippets/qml/datamodel.qml 0
+
+    \section3 Creating Dummy Context
+
+    The following example presents a common pattern in QML:
+
+    \code
+        Item {
+            width: parent.width
+            height: parent.height
+        }
+    \endcode
+
+    This works nicely for applications but \QMLD displays a zero-sized item.
+    A parent for the opened file does not exist, because the context is
+    missing. To get around the missing context, the idea of a \e {dummy
+    context} is introduced. If you place a file with the same name as the
+    application (here, example.qml) in the \c {dummydata/context} directory,
+    you can fake a parent context:
+
+    \snippet snippets/qml/dummydatacontext.qml 0
 
     \section2 Setting Anchors and Margins
 
