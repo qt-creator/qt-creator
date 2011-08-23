@@ -173,7 +173,9 @@ CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
       m_modelManager(modelManager),
       preprocess(this, &env),
       m_revision(0)
-{ }
+{
+    preprocess.setKeepComments(true);
+}
 
 #else
 

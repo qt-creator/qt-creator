@@ -461,7 +461,8 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
       _dot(_tokens.end()),
       _result(0),
       _markGeneratedTokens(false),
-      _expandMacros(true)
+      _expandMacros(true),
+      _keepComments(false)
 {
     resetIfLevel ();
 }
@@ -558,12 +559,24 @@ void Preprocessor::setExpandMacros(bool expandMacros)
     _expandMacros = expandMacros;
 }
 
+bool Preprocessor::keepComments() const
+{
+    return _keepComments;
+}
+
+void Preprocessor::setKeepComments(bool keepComments)
+{
+    _keepComments = keepComments;
+}
+
 Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source) const
 {
     State state;
     state.source = source;
     Lexer lex(state.source.constBegin(), state.source.constEnd());
     lex.setScanKeywords(false);
+    if (_keepComments)
+        lex.setScanCommentTokens(true);
     Token tok;
     do {
         lex(&tok);
@@ -578,7 +591,11 @@ void Preprocessor::processNewline(bool force)
     if (_dot != _tokens.constBegin()) {
         TokenIterator prevTok = _dot - 1;
 
-        if (prevTok->isLiteral()) {
+        // line changes due to multi-line tokens
+        if (prevTok->isLiteral()
+                || (_keepComments
+                    && (prevTok->kind() == T_COMMENT
+                        || prevTok->kind() == T_DOXY_COMMENT))) {
             const char *ptr = _source.constBegin() + prevTok->begin();
             const char *end = ptr + prevTok->length();
 
