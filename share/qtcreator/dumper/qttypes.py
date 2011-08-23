@@ -1359,12 +1359,12 @@ def qdump__QTemporaryFile(d, value):
 
 def qdump__QTextCodec(d, value):
     name = call(value, "name")
-    d.putValue(encodeByteArray(value), 6)
+    d.putValue(encodeByteArray(name), 6)
     d.putNumChild(2)
     if d.isExpanded():
         with Children(d):
-            d.putCallItem("name", name, "name")
-            d.putCallItem("mibEnum", name, "mibEnum")
+            d.putCallItem("name", value, "name")
+            d.putCallItem("mibEnum", value, "mibEnum")
 
 
 def qdump__QTextCursor(d, value):
