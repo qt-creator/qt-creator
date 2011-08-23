@@ -509,6 +509,10 @@ void QmlV8DebuggerClient::setLocals(int frameIndex)
 
             WatchData data;
             data.exp = local.findChild("name").toVariant().toByteArray();
+            //Check for v8 specific local
+            if (data.exp.startsWith("."))
+                continue;
+
             data.name = data.exp;
             data.iname = "local." + data.exp;
             JsonValue val = refs.childAt(indexInRef(refs,local.findChild("value").findChild("ref").toVariant().toInt()));
