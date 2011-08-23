@@ -145,6 +145,7 @@ Item {
                 id: styleItem;
                 cursor: "pointinghandcursor";
                 anchors.fill: column
+                visible: link !== ""
             }
             Timer {
                 id: toolTipTimer
@@ -171,7 +172,7 @@ Item {
 
             states: [
                 State { name: "clicked"; when: mouseArea.pressed;  PropertyChanges { target: text; color: "black" } },
-                State { name: "hovered"; when: mouseArea.containsMouse;  PropertyChanges { target: text; color: "#074C1C" } }
+                State { name: "hovered"; when: mouseArea.containsMouse && link !== ""; PropertyChanges { target: text; color: "#074C1C" } }
             ]
 
 
