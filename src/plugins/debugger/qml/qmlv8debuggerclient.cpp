@@ -246,23 +246,21 @@ void QmlV8DebuggerClient::insertBreakpoint(BreakpointModelId id)
 
 void QmlV8DebuggerClient::removeBreakpoint(BreakpointModelId id)
 {
-    QList<int> breakpoints = d->breakpoints.values(id);
+    int breakpoint = d->breakpoints.value(id);
     d->breakpoints.remove(id);
 
-    foreach (int bp, breakpoints) {
-        QByteArray request;
+    QByteArray request;
 
-        JsonInputStream(request) << '{' << INITIALPARAMS ;
-        JsonInputStream(request) << ',' << "command" << ':' << "clearbreakpoint";
+    JsonInputStream(request) << '{' << INITIALPARAMS ;
+    JsonInputStream(request) << ',' << "command" << ':' << "clearbreakpoint";
 
-        JsonInputStream(request) << ',' << "arguments" << ':';
-        JsonInputStream(request) << '{' << "breakpoint" << ':' << bp;
-        JsonInputStream(request) << '}';
+    JsonInputStream(request) << ',' << "arguments" << ':';
+    JsonInputStream(request) << '{' << "breakpoint" << ':' << breakpoint;
+    JsonInputStream(request) << '}';
 
-        JsonInputStream(request) << '}';
+    JsonInputStream(request) << '}';
 
-        sendMessage(packMessage(request));
-    }
+    sendMessage(packMessage(request));
 }
 
 void QmlV8DebuggerClient::changeBreakpoint(BreakpointModelId /*id*/)
@@ -346,6 +344,17 @@ void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId
 
 }
 
+void QmlV8DebuggerClient::listBreakpoints()
+{
+    QByteArray request;
+
+    JsonInputStream(request) << '{' << INITIALPARAMS ;
+    JsonInputStream(request) << ',' << "command" << ':' << "listbreakpoints";
+    JsonInputStream(request) << '}';
+
+    sendMessage(packMessage(request));
+}
+
 void QmlV8DebuggerClient::backtrace()
 {
     QByteArray request;
@@ -388,10 +397,15 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
             } else if (debugCommand == "setbreakpoint") {
                 int sequence = value.findChild("request_seq").toVariant().toInt();
                 int breakpoint = value.findChild("body").findChild("breakpoint").toVariant().toInt();
-                d->breakpoints.insertMulti(d->breakpointsSync.take(sequence),breakpoint);
+                BreakpointModelId id = d->breakpointsSync.take(sequence);
+                d->breakpoints.insert(id,breakpoint);
 
             } else if (debugCommand == "evaluate") {
                 setExpression(response);
+
+            } else if (debugCommand == "listbreakpoints") {
+                updateBreakpoints(response);
+                backtrace();
 
             } else {
                 //TODO::
@@ -402,8 +416,12 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
             QString event(value.findChild("event").toVariant().toString());
 
             if (event == "break") {
-                d->engine->inferiorSpontaneousStop();
-                backtrace();
+                //Check if this break is due to a breakpoint
+                QList<QVariant> breakpoints = value.findChild("body").findChild("breakpoints").toVariant().toList();
+                if (breakpoints.count()) {
+                    d->engine->inferiorSpontaneousStop();
+                    listBreakpoints();
+                }
             }
         }
     }
@@ -448,31 +466,6 @@ void QmlV8DebuggerClient::setStackFrames(QByteArray &message)
     }
 
     d->engine->stackHandler()->setFrames(ideStackFrames);
-
-    QString fileName;
-    QString file;
-    QString function;
-    int line = -1;
-
-    if (!ideStackFrames.isEmpty()) {
-        file = ideStackFrames.at(0).file;
-        fileName = QFileInfo(file).fileName();
-        line = ideStackFrames.at(0).line;
-        function = ideStackFrames.at(0).function;
-    }
-
-    BreakHandler *handler = d->engine->breakHandler();
-    foreach (BreakpointModelId id, handler->engineBreakpointIds(d->engine)) {
-        QString processedFilename = QFileInfo(handler->fileName(id)).fileName();
-        if (processedFilename == fileName && handler->lineNumber(id) == line) {
-            QTC_ASSERT(handler->state(id) == BreakpointInserted,/**/);
-            BreakpointResponse br = handler->response(id);
-            br.fileName = file;
-            br.lineNumber = line;
-            br.functionName = function;
-            handler->setResponse(id, br);
-        }
-    }
 
     if (!ideStackFrames.isEmpty()) {
         setLocals(0);
@@ -571,25 +564,45 @@ void QmlV8DebuggerClient::setExpression(QByteArray &message)
 
     int seq = response.findChild("request_seq").toVariant().toInt();
 
+    //Console
     if (!d->watches.contains(seq)) {
         d->engine->showMessage(body.findChild("text").toVariant().toString(), ScriptConsoleOutput);
         return;
     }
-    //TODO::
-//    JsonValue refs = response.findChild("refs");
-//    JsonValue body = response.findChild("body");
-//    JsonValue details = body.childAt(0);
 
-//    int id = QString(details.name()).toInt();
-//    QByteArray prepend = d->locals.take(id);
+    //TODO: For watch point
+}
 
-//    JsonValue properties = details.findChild("properties");
-//    int propertiesCount = properties.childCount();
+void QmlV8DebuggerClient::updateBreakpoints(QByteArray &message)
+{
+    JsonValue response(message);
 
-//    for (int k = 0; k != propertiesCount; ++k) {
-//        JsonValue property = properties.childAt(k);
-//        setPropertyValue(refs,property,prepend);
-//    }
+    JsonValue refs = response.findChild("refs");
+    JsonValue body = response.findChild("body");
+
+    QList<JsonValue> breakpoints = body.findChild("breakpoints").children();
+    BreakHandler *handler = d->engine->breakHandler();
+
+    foreach (const JsonValue &bp, breakpoints) {
+
+        int bpIndex = bp.findChild("number").toVariant().toInt();
+        BreakpointModelId id = d->breakpoints.key(bpIndex);
+        BreakpointResponse br = handler->response(id);
+
+        if (!br.pending)
+            continue;
+
+        br.hitCount = bp.findChild("hit_count").toVariant().toInt();
+
+        QList<JsonValue> actualLocations = bp.findChild("actual_locations").children();
+        foreach (const JsonValue &location, actualLocations) {
+            int line = location.findChild("line").toVariant().toInt() + 1; //Add the offset
+            br.lineNumber = line;
+            br.correctedLineNumber = line;
+            handler->setResponse(id,br);
+            handler->notifyBreakpointInsertOk(id);
+        }
+    }
 }
 
 void QmlV8DebuggerClient::setPropertyValue(JsonValue &refs, JsonValue &property, QByteArray &prepend)

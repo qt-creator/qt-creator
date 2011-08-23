@@ -89,10 +89,12 @@ protected:
     void messageReceived(const QByteArray &data);
 
 private:
+    void listBreakpoints();
     void backtrace();
     void setStackFrames(QByteArray &);
     void setLocals(int frameIndex);
     void setExpression(QByteArray &message);
+    void updateBreakpoints(QByteArray &message);
     void expandLocal(QByteArray &message);
     void setPropertyValue(Json::JsonValue &refs, Json::JsonValue &property, QByteArray &prepend);
     int indexInRef(const Json::JsonValue &refs, int refIndex);

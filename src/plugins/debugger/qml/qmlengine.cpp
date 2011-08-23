@@ -508,10 +508,6 @@ void QmlEngine::insertBreakpoint(BreakpointModelId id)
             client->insertBreakpoint(id);
         }
     }
-
-    if (handler->state(id) == BreakpointInsertProceeding) {
-        handler->notifyBreakpointInsertOk(id);
-    }
 }
 
 void QmlEngine::removeBreakpoint(BreakpointModelId id)

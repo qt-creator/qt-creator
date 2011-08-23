@@ -218,6 +218,10 @@ void QScriptDebuggerClient::insertBreakpoint(BreakpointModelId id)
     bp.lineNumber = handler->lineNumber(id);
     bp.functionName = handler->functionName(id).toUtf8();
     d->breakpoints.insert(bp);
+
+    if (handler->state(id) == BreakpointInsertProceeding) {
+        handler->notifyBreakpointInsertOk(id);
+    }
 }
 
 void QScriptDebuggerClient::removeBreakpoint(BreakpointModelId id)
