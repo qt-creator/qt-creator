@@ -12515,6 +12515,13 @@
     select \gui {Dereference Pointers Automatically} in the context menu in the
     \gui {Locals and Expressions} view.
 
+    \section1 Structure Members Are Not Sorted According to Structure Layout
+
+    By default, structure members are displayed in alphabetic order.
+    To inspect the real layout in memory, deselect \gui {Sort Members of
+    Classes and Structs Alphabetically} in the context menu in the
+    \gui {Locals and Expressions} view.
+
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 
     The Qt Creator for Windows installation packages install GDB from MinGW.
