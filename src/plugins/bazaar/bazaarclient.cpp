@@ -92,6 +92,21 @@ BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) c
     return BranchInfo(repositoryRoot, false);
 }
 
+void BazaarClient::commit(const QString &repositoryRoot, const QStringList &files,
+                          const QString &commitMessageFile, const QStringList &extraOptions)
+{
+    VCSBaseClient::commit(repositoryRoot, files, commitMessageFile,
+                          QStringList(extraOptions) << QLatin1String("-F") << commitMessageFile);
+}
+
+void BazaarClient::annotate(const QString &workingDir, const QString &file,
+                            const QString revision, int lineNumber,
+                            const QStringList &extraOptions)
+{
+    VCSBaseClient::annotate(workingDir, file, revision, lineNumber,
+                            QStringList(extraOptions) << QLatin1String("--long"));
+}
+
 QString BazaarClient::findTopLevelForFile(const QFileInfo &file) const
 {
     const QString repositoryCheckFile =
@@ -101,6 +116,13 @@ QString BazaarClient::findTopLevelForFile(const QFileInfo &file) const
                                                                    repositoryCheckFile) :
                 VCSBase::VCSBasePlugin::findRepositoryForDirectory(file.absolutePath(),
                                                                    repositoryCheckFile);
+}
+
+void BazaarClient::view(const QString &source, const QString &id, const QStringList &extraOptions)
+{
+    QStringList args(QLatin1String("log"));
+    args << QLatin1String("-p") << QLatin1String("-v") << extraOptions;
+    VCSBaseClient::view(source, id, args);
 }
 
 QString BazaarClient::vcsEditorKind(VCSCommand cmd) const
@@ -117,119 +139,11 @@ QString BazaarClient::vcsEditorKind(VCSCommand cmd) const
     }
 }
 
-QStringList BazaarClient::cloneArguments(const QString &srcLocation,
-                                         const QString &dstLocation,
-                                         const QStringList &extraOptions) const
-{
-    QStringList args(extraOptions);
-    args << srcLocation;
-    if (!dstLocation.isEmpty())
-        args << dstLocation;
-    return args;
-}
-
-QStringList BazaarClient::pullArguments(const QString &srcLocation,
-                                        const QStringList &extraOptions) const
-{
-    QStringList args(extraOptions);
-    if (!srcLocation.isEmpty())
-        args << srcLocation;
-    return args;
-}
-
-QStringList BazaarClient::pushArguments(const QString &dstLocation,
-                                        const QStringList &extraOptions) const
-{
-    QStringList args(extraOptions);
-    if (!dstLocation.isEmpty())
-        args << dstLocation;
-    return args;
-}
-
-QStringList BazaarClient::commitArguments(const QStringList &files,
-                                          const QString &commitMessageFile,
-                                          const QStringList &extraOptions) const
-{
-    QStringList args(extraOptions);
-    args << QLatin1String("-F") << commitMessageFile;
-    args << files;
-    return args;
-}
-
-QStringList BazaarClient::importArguments(const QStringList &files) const
-{
-    QStringList args;
-    if (!files.isEmpty())
-        args.append(files);
-    return args;
-}
-
-QStringList BazaarClient::updateArguments(const QString &revision) const
+QStringList BazaarClient::revisionSpec(const QString &revision) const
 {
     QStringList args;
     if (!revision.isEmpty())
         args << QLatin1String("-r") << revision;
-    return args;
-}
-
-QStringList BazaarClient::revertArguments(const QString &file,
-                                          const QString &revision) const
-{
-    QStringList args;
-    if (!revision.isEmpty())
-        args << QLatin1String("-r") << revision;
-    if (!file.isEmpty())
-        args << file;
-    return args;
-}
-
-QStringList BazaarClient::revertAllArguments(const QString &revision) const
-{
-    QStringList args;
-    if (!revision.isEmpty())
-        args << QLatin1String("-r") << revision;
-    return args;
-}
-
-QStringList BazaarClient::annotateArguments(const QString &file,
-                                            const QString &revision,
-                                            int lineNumber) const
-{
-    Q_UNUSED(lineNumber);
-    QStringList args(QLatin1String("--long"));
-    if (!revision.isEmpty())
-        args << QLatin1String("-r") << revision;
-    return args << file;
-}
-
-QStringList BazaarClient::diffArguments(const QStringList &files,
-                                        const QStringList &extraOptions) const
-{
-    QStringList args(extraOptions);
-    if (!files.isEmpty())
-        args.append(files);
-    return args;
-}
-
-QStringList BazaarClient::logArguments(const QStringList &files,
-                                       const QStringList &extraOptions) const
-{
-    return diffArguments(files, extraOptions);
-}
-
-QStringList BazaarClient::statusArguments(const QString &file) const
-{
-    QStringList args;
-    if (!file.isEmpty())
-        args.append(file);
-    return args;
-}
-
-QStringList BazaarClient::viewArguments(const QString &revision) const
-{
-    QStringList args(QLatin1String("log"));
-    args << QLatin1String("-p") << QLatin1String("-v")
-         << QLatin1String("-r") << revision;
     return args;
 }
 

@@ -112,7 +112,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<
         extraOptions << QLatin1String("-r") << panel->revision();
     const BazaarClient *client = BazaarPlugin::instance()->client();
     args << client->vcsCommandString(BazaarClient::CloneCommand)
-         << client->cloneArguments(page->repository(), page->directory(), extraOptions);
+         << extraOptions << page->repository() << page->directory();
 
     VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
     job->addStep(settings.binary(), args, page->path());

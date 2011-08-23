@@ -303,6 +303,54 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     enqueueJob(job);
 }
 
+void MercurialClient::annotate(const QString &workingDir, const QString &file,
+                               const QString revision, int lineNumber,
+                               const QStringList &extraOptions)
+{
+    QStringList args(extraOptions);
+    args << QLatin1String("-u") << QLatin1String("-c") << QLatin1String("-d");
+    VCSBaseClient::annotate(workingDir, file, revision, lineNumber, args);
+}
+
+void MercurialClient::commit(const QString &repositoryRoot, const QStringList &files,
+                             const QString &commitMessageFile,
+                             const QStringList &extraOptions)
+{
+    QStringList args(extraOptions);
+    args << QLatin1String("--noninteractive") << QLatin1String("-l") << commitMessageFile;
+    VCSBaseClient::commit(repositoryRoot, files, commitMessageFile, args);
+}
+
+void MercurialClient::diff(const QString &workingDir, const QStringList &files,
+                           const QStringList &extraOptions)
+{
+    QStringList args(extraOptions);
+    args << QLatin1String("-g") << QLatin1String("-p") << QLatin1String("-U 8");
+    VCSBaseClient::diff(workingDir, files, args);
+}
+
+void MercurialClient::import(const QString &repositoryRoot, const QStringList &files,
+                             const QStringList &extraOptions)
+{
+    VCSBaseClient::import(repositoryRoot, files,
+                          QStringList(extraOptions) << QLatin1String("--no-commit"));
+}
+
+void MercurialClient::revertAll(const QString &workingDir, const QString &revision,
+                                const QStringList &extraOptions)
+{
+    VCSBaseClient::revertAll(workingDir, revision,
+                             QStringList(extraOptions) << QLatin1String("--all"));
+}
+
+void MercurialClient::view(const QString &source, const QString &id,
+                           const QStringList &extraOptions)
+{
+    QStringList args;
+    args << QLatin1String("log") << QLatin1String("-p") << QLatin1String("-g");
+    VCSBaseClient::view(source, id, args << extraOptions);
+}
+
 QString MercurialClient::findTopLevelForFile(const QFileInfo &file) const
 {
     const QString repositoryCheckFile = QLatin1String(Constants::MECURIALREPO) + QLatin1String("/requires");
@@ -323,132 +371,11 @@ QString MercurialClient::vcsEditorKind(VCSCommand cmd) const
     return QLatin1String("");
 }
 
-QStringList MercurialClient::cloneArguments(const QString &srcLocation,
-                                            const QString &dstLocation,
-                                            const QStringList &extraOptions) const
-{
-    Q_UNUSED(srcLocation);
-    Q_UNUSED(dstLocation);
-    Q_UNUSED(extraOptions);
-    QStringList args;
-    return args;
-}
-
-QStringList MercurialClient::pullArguments(const QString &srcLocation,
-                                           const QStringList &extraOptions) const
-{
-    Q_UNUSED(extraOptions);
-    QStringList args;
-    // Add arguments for common options
-    if (!srcLocation.isEmpty())
-        args << srcLocation;
-    return args;
-}
-
-QStringList MercurialClient::pushArguments(const QString &dstLocation,
-                                           const QStringList &extraOptions) const
-{
-    Q_UNUSED(extraOptions);
-    QStringList args;
-    // Add arguments for common options
-    if (!dstLocation.isEmpty())
-        args << dstLocation;
-    return args;
-}
-
-QStringList MercurialClient::commitArguments(const QStringList &files,
-                                             const QString &commitMessageFile,
-                                             const QStringList &extraOptions) const
-{
-    QStringList args(QLatin1String("--noninteractive"));
-    if (!args.isEmpty())
-        args.append(extraOptions);
-    args << QLatin1String("-l") << commitMessageFile;
-    args << files;
-    return args;
-}
-
-QStringList MercurialClient::importArguments(const QStringList &files) const
-{
-    QStringList args(QLatin1String("--no-commit"));
-    if (!files.isEmpty())
-        args.append(files);
-    return args;
-}
-
-QStringList MercurialClient::updateArguments(const QString &revision) const
+QStringList MercurialClient::revisionSpec(const QString &revision) const
 {
     QStringList args;
     if (!revision.isEmpty())
         args << QLatin1String("-r") << revision;
-    return args;
-}
-
-QStringList MercurialClient::revertArguments(const QString &file,
-                                             const QString &revision) const
-{
-    QStringList args;
-    if (!revision.isEmpty())
-        args << QLatin1String("-r") << revision;
-    if (!file.isEmpty())
-        args << file;
-    return args;
-}
-
-QStringList MercurialClient::revertAllArguments(const QString &revision) const
-{
-    QStringList args;
-    if (!revision.isEmpty())
-        args << QLatin1String("-r") << revision;
-    return args << QLatin1String("--all");
-}
-
-QStringList MercurialClient::annotateArguments(const QString &file,
-                                               const QString &revision,
-                                               int /*lineNumber*/) const
-{
-    QStringList args;
-    args << QLatin1String("-u") << QLatin1String("-c") << QLatin1String("-d");
-    if (!revision.isEmpty())
-        args << QLatin1String("-r") << revision;
-    return args << file;
-}
-
-QStringList MercurialClient::diffArguments(const QStringList &files,
-                                           const QStringList &extraOptions) const
-{
-    QStringList args;
-    args << QLatin1String("-g") << QLatin1String("-p") << QLatin1String("-U 8");
-    if (!args.isEmpty())
-        args.append(extraOptions);
-    if (!files.isEmpty())
-        args.append(files);
-    return args;
-}
-
-QStringList MercurialClient::logArguments(const QStringList &files,
-                                          const QStringList &extraOptions) const
-{
-    Q_UNUSED(extraOptions);
-    QStringList args;
-    if (!files.empty())
-        args.append(files);
-    return args;
-}
-
-QStringList MercurialClient::statusArguments(const QString &file) const
-{
-    QStringList args;
-    if (!file.isEmpty())
-        args.append(file);
-    return args;
-}
-
-QStringList MercurialClient::viewArguments(const QString &revision) const
-{
-    QStringList args;
-    args << QLatin1String("log") << QLatin1String("-p") << QLatin1String("-g")
-         << QLatin1String("-r") << revision;
     return args;
 }
 

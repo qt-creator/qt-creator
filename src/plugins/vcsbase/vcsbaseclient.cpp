@@ -155,9 +155,11 @@ VCSBaseClient::~VCSBaseClient()
     }
 }
 
-bool VCSBaseClient::synchronousCreateRepository(const QString &workingDirectory)
+bool VCSBaseClient::synchronousCreateRepository(const QString &workingDirectory,
+                                                const QStringList &extraOptions)
 {
-    const QStringList args(vcsCommandString(CreateRepositoryCommand));
+    QStringList args(vcsCommandString(CreateRepositoryCommand));
+    args << extraOptions;
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
         return false;
@@ -174,32 +176,35 @@ bool VCSBaseClient::synchronousClone(const QString &workingDir,
 {
     QStringList args;
     args << vcsCommandString(CloneCommand)
-         << cloneArguments(srcLocation, dstLocation, extraOptions);
+         << extraOptions << srcLocation << dstLocation;
     QByteArray stdOut;
     return vcsFullySynchronousExec(workingDir, args, &stdOut);
 }
 
-bool VCSBaseClient::synchronousAdd(const QString &workingDir, const QString &filename)
+bool VCSBaseClient::synchronousAdd(const QString &workingDir, const QString &filename,
+                                   const QStringList &extraOptions)
 {
     QStringList args;
-    args << vcsCommandString(AddCommand) << filename;
+    args << vcsCommandString(AddCommand) << extraOptions << filename;
     QByteArray stdOut;
     return vcsFullySynchronousExec(workingDir, args, &stdOut);
 }
 
-bool VCSBaseClient::synchronousRemove(const QString &workingDir, const QString &filename)
+bool VCSBaseClient::synchronousRemove(const QString &workingDir, const QString &filename,
+                                      const QStringList &extraOptions)
 {
     QStringList args;
-    args << vcsCommandString(RemoveCommand) << filename;
+    args << vcsCommandString(RemoveCommand) << extraOptions << filename;
     QByteArray stdOut;
     return vcsFullySynchronousExec(workingDir, args, &stdOut);
 }
 
 bool VCSBaseClient::synchronousMove(const QString &workingDir,
-                                    const QString &from, const QString &to)
+                                    const QString &from, const QString &to,
+                                    const QStringList &extraOptions)
 {
     QStringList args;
-    args << vcsCommandString(MoveCommand) << from << to;
+    args << vcsCommandString(MoveCommand) << extraOptions << from << to;
     QByteArray stdOut;
     return vcsFullySynchronousExec(workingDir, args, &stdOut);
 }
@@ -209,7 +214,7 @@ bool VCSBaseClient::synchronousPull(const QString &workingDir,
                                     const QStringList &extraOptions)
 {
     QStringList args;
-    args << vcsCommandString(PullCommand) << pullArguments(srcLocation, extraOptions);
+    args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
     // Disable UNIX terminals to suppress SSH prompting
     const unsigned flags =
             VCSBase::VCSBasePlugin::SshPasswordPrompt
@@ -227,7 +232,7 @@ bool VCSBaseClient::synchronousPush(const QString &workingDir,
                                     const QStringList &extraOptions)
 {
     QStringList args;
-    args << vcsCommandString(PushCommand) << pushArguments(dstLocation, extraOptions);
+    args << vcsCommandString(PushCommand) << extraOptions << dstLocation;
     // Disable UNIX terminals to suppress SSH prompting
     const unsigned flags =
             VCSBase::VCSBasePlugin::SshPasswordPrompt
@@ -289,12 +294,13 @@ Utils::SynchronousProcessResponse VCSBaseClient::vcsSynchronousExec(
 
 void VCSBaseClient::annotate(const QString &workingDir, const QString &file,
                              const QString revision /* = QString() */,
-                             int lineNumber /* = -1 */)
+                             int lineNumber /* = -1 */,
+                             const QStringList &extraOptions)
 {
     Q_UNUSED(lineNumber)
     const QString vcsCmdString = vcsCommandString(AnnotateCommand);
     QStringList args;
-    args << vcsCmdString << annotateArguments(file, revision, lineNumber);
+    args << vcsCmdString << revisionSpec(revision) << extraOptions << file;
     const QString kind = vcsEditorKind(AnnotateCommand);
     const QString id = VCSBase::VCSBaseEditorWidget::getSource(workingDir, QStringList(file));
     const QString title = vcsEditorTitle(vcsCmdString, id);
@@ -329,7 +335,7 @@ void VCSBaseClient::diff(const QString &workingDir, const QStringList &files,
 
     QStringList args;
     const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
-    args << vcsCmdString << diffArguments(files, extraOptions + paramArgs);
+    args << vcsCmdString << extraOptions << paramArgs << files;
     QSharedPointer<VCSJob> job(new VCSJob(workingDir, args, editor));
     enqueueJob(job);
 }
@@ -354,17 +360,18 @@ void VCSBaseClient::log(const QString &workingDir, const QStringList &files,
 
     QStringList args;
     const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
-    args << vcsCmdString << logArguments(files, extraOptions + paramArgs);
+    args << vcsCmdString << extraOptions << paramArgs << files;
     QSharedPointer<VCSJob> job(new VCSJob(workingDir, args, editor));
     enqueueJob(job);
 }
 
 void VCSBaseClient::revertFile(const QString &workingDir,
                                const QString &file,
-                               const QString &revision)
+                               const QString &revision,
+                               const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(RevertCommand));
-    args << revertArguments(file, revision);
+    args << revisionSpec(revision) << extraOptions << file;
     // Indicate repository change or file list
     QSharedPointer<VCSJob> job(new VCSJob(workingDir, args));
     job->setCookie(QStringList(workingDir + QLatin1Char('/') + file));
@@ -373,10 +380,11 @@ void VCSBaseClient::revertFile(const QString &workingDir,
     enqueueJob(job);
 }
 
-void VCSBaseClient::revertAll(const QString &workingDir, const QString &revision)
+void VCSBaseClient::revertAll(const QString &workingDir, const QString &revision,
+                              const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(RevertCommand));
-    args << revertAllArguments(revision);
+    args << revisionSpec(revision) << extraOptions;
     // Indicate repository change or file list
     QSharedPointer<VCSJob> job(new VCSJob(workingDir, args));
     connect(job.data(), SIGNAL(succeeded(QVariant)),
@@ -384,10 +392,11 @@ void VCSBaseClient::revertAll(const QString &workingDir, const QString &revision
     enqueueJob(job);
 }
 
-void VCSBaseClient::status(const QString &workingDir, const QString &file)
+void VCSBaseClient::status(const QString &workingDir, const QString &file,
+                           const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(StatusCommand));
-    args << statusArguments(file);
+    args << extraOptions << file;
     VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
     outwin->setRepository(workingDir);
     QSharedPointer<VCSJob> job(new VCSJob(workingDir, args));
@@ -427,17 +436,20 @@ QString VCSBaseClient::vcsCommandString(VCSCommand cmd) const
     return QString();
 }
 
-void VCSBaseClient::import(const QString &repositoryRoot, const QStringList &files)
+void VCSBaseClient::import(const QString &repositoryRoot, const QStringList &files,
+                           const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(ImportCommand));
-    args << importArguments(files);
+    args << extraOptions << files;
     QSharedPointer<VCSJob> job(new VCSJob(repositoryRoot, args));
     enqueueJob(job);
 }
 
-void VCSBaseClient::view(const QString &source, const QString &id)
+void VCSBaseClient::view(const QString &source, const QString &id,
+                         const QStringList &extraOptions)
 {
-    QStringList args(viewArguments(id));
+    QStringList args;
+    args << extraOptions << revisionSpec(id);
     const QString kind = vcsEditorKind(DiffCommand);
     const QString title = vcsEditorTitle(vcsCommandString(LogCommand), id);
 
@@ -450,11 +462,11 @@ void VCSBaseClient::view(const QString &source, const QString &id)
     enqueueJob(job);
 }
 
-void VCSBaseClient::update(const QString &repositoryRoot, const QString &revision)
+void VCSBaseClient::update(const QString &repositoryRoot, const QString &revision,
+                           const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(UpdateCommand));
-    args.append(updateArguments(revision));
-
+    args << revisionSpec(revision) << extraOptions;
     QSharedPointer<VCSJob> job(new VCSJob(repositoryRoot, args));
     job->setCookie(repositoryRoot);
     // Suppress SSH prompting
@@ -468,8 +480,17 @@ void VCSBaseClient::commit(const QString &repositoryRoot,
                            const QString &commitMessageFile,
                            const QStringList &extraOptions)
 {
+    // Handling of commitMessageFile is a bit tricky :
+    //   VCSBaseClient cannot do something with it because it doesn't know which
+    //   option to use (-F ? but sub VCS clients might require a different option
+    //   name like -l for hg ...)
+    //
+    //   So descendants of VCSBaseClient *must* redefine commit() and extend
+    //   extraOptions with the usage for commitMessageFile (see BazaarClient::commit()
+    //   for example)
+    Q_UNUSED(commitMessageFile);
     QStringList args(vcsCommandString(CommitCommand));
-    args.append(commitArguments(files, commitMessageFile, extraOptions));
+    args << extraOptions << files;
     QSharedPointer<VCSJob> job(new VCSJob(repositoryRoot, args));
     enqueueJob(job);
 }

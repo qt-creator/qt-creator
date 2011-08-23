@@ -47,10 +47,6 @@ class QFileInfo;
 class QVariant;
 QT_END_NAMESPACE
 
-namespace Core {
-class ICore;
-}
-
 namespace Utils {
 struct SynchronousProcessResponse;
 }
@@ -77,39 +73,49 @@ public:
 
     explicit VCSBaseClient(VCSBaseClientSettings *settings);
     ~VCSBaseClient();
-    virtual bool synchronousCreateRepository(const QString &workingDir);
+    virtual bool synchronousCreateRepository(const QString &workingDir,
+                                             const QStringList &extraOptions = QStringList());
     virtual bool synchronousClone(const QString &workingDir,
                                   const QString &srcLocation,
                                   const QString &dstLocation,
                                   const QStringList &extraOptions = QStringList());
-    virtual bool synchronousAdd(const QString &workingDir, const QString &fileName);
-    virtual bool synchronousRemove(const QString &workingDir, const QString &fileName);
+    virtual bool synchronousAdd(const QString &workingDir, const QString &fileName,
+                                const QStringList &extraOptions = QStringList());
+    virtual bool synchronousRemove(const QString &workingDir, const QString &fileName,
+                                   const QStringList &extraOptions = QStringList());
     virtual bool synchronousMove(const QString &workingDir,
-                                 const QString &from, const QString &to);
+                                 const QString &from, const QString &to,
+                                 const QStringList &extraOptions = QStringList());
     virtual bool synchronousPull(const QString &workingDir,
                                  const QString &srcLocation,
                                  const QStringList &extraOptions = QStringList());
     virtual bool synchronousPush(const QString &workingDir,
                                  const QString &dstLocation,
                                  const QStringList &extraOptions = QStringList());
-    void annotate(const QString &workingDir, const QString &file,
-                  const QString revision = QString(), int lineNumber = -1);
-    void diff(const QString &workingDir, const QStringList &files = QStringList(),
-              const QStringList &extraOptions = QStringList());
-    void log(const QString &workingDir, const QStringList &files = QStringList(),
-             const QStringList &extraOptions = QStringList(),
-             bool enableAnnotationContextMenu = false);
-    void status(const QString &workingDir, const QString &file = QString());
+    virtual void annotate(const QString &workingDir, const QString &file,
+                          const QString revision = QString(), int lineNumber = -1,
+                          const QStringList &extraOptions = QStringList());
+    virtual void diff(const QString &workingDir, const QStringList &files = QStringList(),
+                      const QStringList &extraOptions = QStringList());
+    virtual void log(const QString &workingDir, const QStringList &files = QStringList(),
+                     const QStringList &extraOptions = QStringList(),
+                     bool enableAnnotationContextMenu = false);
+    virtual void status(const QString &workingDir, const QString &file = QString(),
+                        const QStringList &extraOptions = QStringList());
     virtual void emitParsedStatus(const QString &repository,
                                   const QStringList &extraOptions = QStringList());
-    void revertFile(const QString &workingDir, const QString &file, const QString &revision = QString());
-    void revertAll(const QString &workingDir, const QString &revision = QString());
-    void import(const QString &repositoryRoot, const QStringList &files);
-    void update(const QString &repositoryRoot, const QString &revision = QString());
-    void commit(const QString &repositoryRoot,
-                const QStringList &files,
-                const QString &commitMessageFile,
-                const QStringList &extraOptions = QStringList());
+    virtual void revertFile(const QString &workingDir, const QString &file,
+                            const QString &revision = QString(),
+                            const QStringList &extraOptions = QStringList());
+    virtual void revertAll(const QString &workingDir, const QString &revision = QString(),
+                           const QStringList &extraOptions = QStringList());
+    virtual void import(const QString &repositoryRoot, const QStringList &files,
+                        const QStringList &extraOptions = QStringList());
+    virtual void update(const QString &repositoryRoot, const QString &revision = QString(),
+                        const QStringList &extraOptions = QStringList());
+    virtual void commit(const QString &repositoryRoot, const QStringList &files,
+                        const QString &commitMessageFile,
+                        const QStringList &extraOptions = QStringList());
 
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
@@ -121,7 +127,8 @@ signals:
     void changed(const QVariant &v);
 
 public slots:
-    void view(const QString &source, const QString &id);
+    virtual void view(const QString &source, const QString &id,
+                      const QStringList &extraOptions = QStringList());
     void handleSettingsChanged();
 
 protected:
@@ -146,35 +153,13 @@ protected:
     virtual QString vcsCommandString(VCSCommand cmd) const;
     virtual QString vcsEditorKind(VCSCommand cmd) const = 0;
 
-    virtual QStringList cloneArguments(const QString &srcLocation,
-                                       const QString &dstLocation,
-                                       const QStringList &extraOptions) const = 0;
-    virtual QStringList pullArguments(const QString &srcLocation,
-                                      const QStringList &extraOptions) const = 0;
-    virtual QStringList pushArguments(const QString &dstLocation,
-                                      const QStringList &extraOptions) const = 0;
-    virtual QStringList commitArguments(const QStringList &files,
-                                        const QString &commitMessageFile,
-                                        const QStringList &extraOptions) const = 0;
-    virtual QStringList importArguments(const QStringList &files) const = 0;
-    virtual QStringList updateArguments(const QString &revision) const = 0;
-    virtual QStringList revertArguments(const QString &file, const QString &revision) const = 0;
-    virtual QStringList revertAllArguments(const QString &revision) const = 0;
-    virtual QStringList annotateArguments(const QString &file,
-                                          const QString &revision, int lineNumber) const = 0;
-    virtual QStringList diffArguments(const QStringList &files,
-                                      const QStringList &extraOptions) const = 0;
+    virtual QStringList revisionSpec(const QString &revision) const = 0;
     virtual VCSBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                            const QStringList &files,
                                                            const QStringList &extraOptions);
-    virtual QStringList logArguments(const QStringList &files,
-                                     const QStringList &extraOptions) const = 0;
     virtual VCSBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
                                                           const QStringList &files,
                                                           const QStringList &extraOptions);
-    virtual QStringList statusArguments(const QString &file) const = 0;
-    virtual QStringList viewArguments(const QString &revision) const = 0;
-
     virtual StatusItem parseStatusLine(const QString &line) const = 0;
 
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;

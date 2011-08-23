@@ -52,40 +52,24 @@ public:
 
     bool synchronousSetUserId();
     BranchInfo synchronousBranchQuery(const QString &repositoryRoot) const;
+    void commit(const QString &repositoryRoot, const QStringList &files,
+                const QString &commitMessageFile, const QStringList &extraOptions = QStringList());
+    void annotate(const QString &workingDir, const QString &file,
+                  const QString revision = QString(), int lineNumber = -1,
+                  const QStringList &extraOptions = QStringList());
+    void view(const QString &source, const QString &id,
+              const QStringList &extraOptions = QStringList());
     QString findTopLevelForFile(const QFileInfo &file) const;
 
 protected:
     QString vcsEditorKind(VCSCommand cmd) const;
-
-    QStringList cloneArguments(const QString &srcLocation,
-                               const QString &dstLocation,
-                               const QStringList &extraOptions) const;
-    QStringList pullArguments(const QString &srcLocation,
-                              const QStringList &extraOptions) const;
-    QStringList pushArguments(const QString &dstLocation,
-                              const QStringList &extraOptions) const;
-    QStringList commitArguments(const QStringList &files,
-                                const QString &commitMessageFile,
-                                const QStringList &extraOptions) const;
-    QStringList importArguments(const QStringList &files) const;
-    QStringList updateArguments(const QString &revision) const;
-    QStringList revertArguments(const QString &file, const QString &revision) const;
-    QStringList revertAllArguments(const QString &revision) const;
-    QStringList annotateArguments(const QString &file,
-                                  const QString &revision, int lineNumber) const;
-    QStringList diffArguments(const QStringList &files,
-                              const QStringList &extraOptions) const;
+    QStringList revisionSpec(const QString &revision) const;
     VCSBase::VCSBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                             const QStringList &files,
                                                             const QStringList &extraOptions);
-    QStringList logArguments(const QStringList &files,
-                             const QStringList &extraOptions) const;
     VCSBase::VCSBaseEditorParameterWidget *createLogEditor(const QString &workingDir,
                                                            const QStringList &files,
                                                            const QStringList &extraOptions);
-    QStringList statusArguments(const QString &file) const;
-    QStringList viewArguments(const QString &revision) const;
-
     StatusItem parseStatusLine(const QString &line) const;
 private:
     friend class CloneWizard;
