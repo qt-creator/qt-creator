@@ -256,8 +256,7 @@ Document::Document(const QString &fileName)
     : _fileName(QDir::cleanPath(fileName)),
       _globalNamespace(0),
       _revision(0),
-      _editorRevision(0),
-      _fastCheck(false)
+      _editorRevision(0)
 {
     _control = new Control();
 
@@ -575,10 +574,8 @@ void Document::check(CheckMode mode)
 
     _globalNamespace = _control->newNamespace(0);
     Bind semantic(_translationUnit);
-    if (mode == FastCheck) {
-        _fastCheck = true;
+    if (mode == FastCheck)
         semantic.setSkipFunctionBodies(true);
-    }
 
     if (! _translationUnit->ast())
         return; // nothing to do.
@@ -602,8 +599,7 @@ void Document::releaseSourceAndAST()
     if (!_keepSourceAndASTCount.deref()) {
         _source.clear();
         _translationUnit->release();
-        if (_fastCheck)
-            _control->squeeze();
+        _control->squeeze();
     }
 }
 

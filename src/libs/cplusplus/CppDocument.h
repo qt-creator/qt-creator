@@ -335,7 +335,6 @@ private:
     QAtomicInt _keepSourceAndASTCount;
     unsigned _revision;
     unsigned _editorRevision;
-    bool _fastCheck;
 
     friend class Snapshot;
 };
