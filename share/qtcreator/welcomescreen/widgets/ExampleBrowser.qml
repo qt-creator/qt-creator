@@ -54,7 +54,7 @@ Item {
         anchors.right: parent.right
         anchors.bottomMargin: - 8
         anchors.leftMargin: -8
-        anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 8 : -8
+        anchors.rightMargin: -8
 
 
         CheckBox {
@@ -117,7 +117,6 @@ Item {
                 delegate: ExampleDelegate { width: scrollArea.width; onTagClicked: exampleBrowserRoot.appendTag(tag) }
             }
         }
-        Component.onCompleted: verticalScrollBar.anchors.bottomMargin = -(scrollArea.anchors.bottomMargin + 8)
     }
 
     Rectangle {
