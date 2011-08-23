@@ -450,11 +450,20 @@ void CMakeRunPage::initializePage()
 
 void CMakeRunPage::runCMake()
 {
+    if (m_cmakeExecutable) {
+        // We asked the user for the cmake executable
+        m_cmakeWizard->cmakeManager()->setCMakeExecutable(m_cmakeExecutable->path());
+    }
+
     int index = m_generatorComboBox->currentIndex();
 
     ProjectExplorer::ToolChain *tc = 0;
     if (index >= 0)
         tc = static_cast<ProjectExplorer::ToolChain *>(m_generatorComboBox->itemData(index).value<void *>());
+    if (!tc) {
+        m_output->appendPlainText(tr("No generator selected."));
+        return;
+    }
 
     m_cmakeWizard->setToolChain(tc);
 
@@ -475,10 +484,7 @@ void CMakeRunPage::runCMake()
     Utils::Environment env = m_cmakeWizard->environment();
     tc->addToEnvironment(env);
 
-    if (m_cmakeExecutable) {
-        // We asked the user for the cmake executable
-        m_cmakeWizard->cmakeManager()->setCMakeExecutable(m_cmakeExecutable->path());
-    }
+
 
     m_output->clear();
 
