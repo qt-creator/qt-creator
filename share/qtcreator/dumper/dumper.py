@@ -1033,6 +1033,7 @@ class Dumper:
             qqQObjectCache[name] = True
             return True
         fields = type.strip_typedefs().fields()
+        #fields = extractFields(type)
         if len(fields) == 0:
             qqQObjectCache[name] = False
             return False
@@ -1438,7 +1439,6 @@ class Dumper:
                     with SubItem(self, "*"):
                         self.put('name="*",')
                         self.putItem(value.dereference())
-                        self.putAddress(value)
             self.putPointerValue(value.address)
             return
 
@@ -1453,7 +1453,7 @@ class Dumper:
             return
 
         if type.code != StructCode:
-            warning("WRONG ASSUMPTION HERE: %s " % type.code)
+            warn("WRONG ASSUMPTION HERE: %s " % type.code)
             check(False)
 
         # Is this derived from QObject?
@@ -1548,6 +1548,21 @@ class Dumper:
 
                 # Ignore vtable pointers for virtual inheritance.
                 if field.name.startswith("_vptr."):
+                    with SubItem(self, "[vptr]"):
+                        # int (**)(void)
+                        n = 20
+                        self.putType(" ")
+                        self.putValue(value[field.name])
+                        self.putNumChild(n)
+                        if self.isExpanded():
+                            with Children(self):
+                                p = value[field.name]
+                                for i in xrange(n):
+                                    if long(p.dereference()) != 0:
+                                        with SubItem(self, i):
+                                            self.putItem(p.dereference())
+                                            self.putType(" ")
+                                            p = p + 1
                     continue
 
                 #warn("FIELD NAME: %s" % field.name)
