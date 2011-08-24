@@ -51,9 +51,15 @@ QByteArray IAnalyzerTool::defaultMenuGroup(StartMode mode)
 QByteArray IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
 {
     QByteArray id = tool->id();
-    if (mode == StartRemote)
-        return "Action." + id + ".RemoteStart." + QByteArray::number(mode);
-    return "Action." + id + ".LocalStart." + QByteArray::number(mode);
+    switch (mode) {
+    case Analyzer::StartLocal:
+        return "Analyzer." + id + ".Local";
+    case Analyzer::StartRemote:
+        return "Analyzer." + id + ".Remote";
+    case Analyzer::StartQml:
+        return "Analyzer." + id + ".Qml";
+    }
+    return QByteArray();
 }
 
 QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mode)
