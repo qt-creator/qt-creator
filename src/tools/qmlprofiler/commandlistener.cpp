@@ -45,6 +45,8 @@ void CommandListener::run()
     QTextStream in(stdin, QIODevice::ReadOnly);
     do {
         line = in.readLine();
-        emit command(line);
+        line = line.trimmed();
+        if (!line.isEmpty())
+            emit command(line);
     } while (!m_stopRequested && !line.isNull());
 }
