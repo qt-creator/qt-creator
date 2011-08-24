@@ -92,7 +92,6 @@ private:
 
     QString m_hostName;
     quint16 m_port;
-    bool m_recordFromStart;
     bool m_verbose;
     bool m_quitAfterSave;
 

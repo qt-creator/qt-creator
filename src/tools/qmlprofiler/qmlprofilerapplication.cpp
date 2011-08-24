@@ -80,7 +80,6 @@ QmlProfilerApplication::QmlProfilerApplication(int &argc, char **argv) :
     m_tracePrefix("trace"),
     m_hostName(QLatin1String("127.0.0.1")),
     m_port(3768),
-    m_recordFromStart(false),
     m_verbose(false),
     m_quitAfterSave(false),
     m_traceClient(&m_connection),
@@ -139,7 +138,7 @@ bool QmlProfilerApplication::parseArguments()
                 return false;
             }
         } else if (arg == "-fromStart") {
-            m_recordFromStart = true;
+            m_traceClient.setRecording(true);
         } else if (arg == "-help" || arg == "-h" || arg == "/h" || arg == "/?") {
             return false;
         } else if (arg == "-verbose" || arg == "-v") {
