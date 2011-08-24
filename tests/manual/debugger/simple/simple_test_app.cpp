@@ -42,6 +42,12 @@
 // Default: 1
 #define USE_AUTOBREAK 1
 
+// With USE_UNINITIALIZE_AUTOBREAK, the debugger will stop automatically
+// on all lines containing the BREAK_UNINITIALIZED_HERE macro.
+// This should be enabled during manual testing.
+// Default: 1
+#define USE_UNINITIALIZED_AUTOBREAK 1
+
 // With USE_PRIVATE tests that require private headers are enabled.
 // Default: 1
 #define USE_PRIVATE 1
@@ -162,8 +168,25 @@ void dummyStatement(...) {}
 #   define BREAK_HERE /**/
 #endif
 
+#if USE_UNINITIALIZED_AUTOBREAK
+#   if Q_CC_MSVC
+#       define BREAK_UNINITIALIZED_HERE __asm { int 3 }; __asm { mov eax, eax }
+#   else
+#       define BREAK_UNINITIALIZED_HERE asm("int $3; mov %eax, %eax")
+#   endif
+#else
+#   define BREAK_UNINITIALIZED_HERE /**/
+#endif
+
+
+uint qHash(const QMap<int, int> &) { return 0; }
+uint qHash(const double & f) { return int(f); }
+
+
 namespace multibp {
 
+    // This tests multiple breakpoints. When a
+    // the b
     template <typename T> class Vector
     {
     public:
@@ -171,6 +194,9 @@ namespace multibp {
             : m_size(size), m_data(new T[size])
         {
             BREAK_HERE;
+            int i = a // <== Set a manual breakpoint here.
+            // Check there are multiple entries in the Breakpoint vie.
+            dummyStatement(&this);
         }
         ~Vector() { delete [] m_data; }
         int size() const { return m_size; }
@@ -180,37 +206,18 @@ namespace multibp {
     };
 
 
-    int testMultiBp()
+    void testMultiBp()
     {
-        // Tests multiple breakpoints
         Vector<int> vi(10);
         Vector<float> vf(10);
         Vector<double> vd(10);
         Vector<char> vc(10);
-        return vi.size() + vf.size() + vd.size() + vc.size();
+        dummyStatement(&vi, &vf, &vd, &vc);
     }
 
 } // namespace multibp
 
 
-
-namespace nsX { namespace nsY { int z; } }
-namespace nsXY = nsX::nsY;
-
-int qwert()
-{
-    return nsXY::z;
-}
-
-uint qHash(const QMap<int, int> &)
-{
-    return 0;
-}
-
-uint qHash(const double & f)
-{
-    return int(f);
-}
 
 
 class Foo
@@ -222,21 +229,7 @@ public:
         int s = 1;
         int t = 2;
         b = 2 + s + t;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
-        a += 1;
+        dummyStatement(&s, &t);
     }
 
     virtual ~Foo()
@@ -255,96 +248,93 @@ public:
         //s += 'x';
     }
 
-
-    struct Bar {
-        Bar() : ob(0) {}
-        QObject *ob;
-    };
-
 public:
     int a, b;
     char x[6];
 
 private:
-    //QString s;
     typedef QMap<QString, QString> Map;
     Map m;
     QHash<QObject *, Map::iterator> h;
 };
 
-class X : public Foo
-{
-public:
-    X() {
-    }
-};
+class X : virtual public Foo { public: X() { } };
 
-class XX : virtual public Foo
-{
-public:
-    XX() {
-    }
-};
+class XX : virtual public Foo { public: XX() { } };
 
-class Y : virtual public Foo
-{
-public:
-    Y() {
-    }
-};
+class Y : virtual public Foo { public: Y() { } };
 
-class D : public X, public Y
-{
-    int diamond;
-};
+class D : public X, public Y { int diamond; };
 
-void testPeekAndPoke3()
-{
-    // Anonymous structs
+
+namespace peekandpoke {
+
+    void testAnonymousStructs()
     {
-#ifndef Q_CC_RVCT
+        #ifndef Q_CC_RVCT
         union {
             struct { int i; int b; };
             struct { float f; };
             double d;
         } a = { { 42, 43 } };
-        a.i = 1; // Break here. Expand a. Step.
-        a.i = 2; // Change a.i in Locals view to 0. This changes f, d but expectedly not b. Step.
-        a.i = 3; // Continue.
-        Q_UNUSED(a);
-#endif
+        BREAK_HERE;
+        // Expand a. Step.
+        a.i = 1;
+        BREAK_HERE;
+        // Change a.i in Locals view to 0. This changes f, d but expectedly not b. Step.
+        a.i = 2;
+        BREAK_HERE;
+        a.i = 3;
+        dummyStatement(&a);
+        #endif
     }
 
-    // Complex watchers
+    void testComplexWatchers()
     {
         struct S { int a; double b; } s[10];
-        for (int i = 0; i != 10; ++i) {
-            s[i].a = i;  // Break here. Expand s and s[0]. Step.
-            // Watcher Context: "Add New Watcher".
-            // Type    ['s[%d].a' % i for i in range(5)]
-            // Expand it, continue stepping. This should result in a list
-            // of five items containing the .a fields of s[0]..s[4].
-        }
-        Q_UNUSED(s);
+        for (int i = 0; i != 10; ++i)
+            s[i].a = i;
+        BREAK_HERE;
+        // Expand s and s[0]. Step.
+        // Watcher Context: "Add New Watcher".
+        // Type    ['s[%d].a' % i for i in range(5)]
+        // Expand it, continue stepping. This should result in a list
+        // of five items containing the .a fields of s[0]..s[4].
+        dummyStatement(&s);
     }
 
-    // QImage display
+    void testQImageDisplay()
     {
         QImage im(QSize(200, 200), QImage::Format_RGB32);
         im.fill(QColor(200, 10, 30).rgba());
         QPainter pain;
         pain.begin(&im);
         pain.setPen(QPen(Qt::black, 5.0, Qt::SolidLine, Qt::RoundCap));
-        pain.drawEllipse(20, 20, 160, 160); // Break here. Step.
-        // Toggle between "Normal" and "Displayed" in L&W Context Menu, entry "Display of Type QImage". Step.
+        BREAK_HERE;
+        pain.drawEllipse(20, 20, 160, 160);
+        BREAK_HERE;
+        // Toggle between "Normal" and "Displayed" in L&W Context Menu, entry "Display of Type QImage".
         pain.drawArc(70, 115, 60, 30, 200 * 16, 140 * 16);
+        BREAK_HERE;
         pain.setBrush(Qt::black);
-        pain.drawEllipse(65, 70, 15, 15); // Step.
-        pain.drawEllipse(120, 70, 15, 15); // Step.
+        BREAK_HERE;
+        pain.drawEllipse(65, 70, 15, 15);
+        BREAK_HERE;
+        // Toggle between "Normal" and "Displayed" in L&W Context Menu, entry "Display of Type QImage".
+        pain.drawEllipse(120, 70, 15, 15);
+        BREAK_HERE;
         pain.end();
+        dummyStatement(&s);
     }
 
-}
+    void testPeekAndPoke3()
+    {
+        testAnonymousStructs();
+        testComplexWatchers();
+        testQImageDisplay();
+    }
+
+} // namespace peekandpoke
 
 
 namespace anon {
@@ -1250,6 +1240,15 @@ void testPlugin()
 
 namespace application {
 
+    void testQSettings()
+    {
+        // Note: Construct a QCoreApplication first.
+        QSettings settings("/tmp/test.ini", QSettings::IniFormat);
+        QVariant value = settings.value("item1","").toString();
+        BREAK_HERE;
+        dummyStatement(&settings, &value);
+    }
+
     void testApplicationStart(int &argc, char *argv[])
     {
         QApplication app(argc, argv);
@@ -1257,6 +1256,7 @@ namespace application {
         QLabel l(str);
         l.setObjectName("Some Label");
         l.show();
+        testQSettings();
         app.exec();
     }
 
@@ -1318,35 +1318,76 @@ public:
 };
 #endif
 
-void testQSharedPointer()
-{
-#    if QT_VERSION >= 0x040500
-    //Employee e1(1, "Herbert");
-    //Employee e2 = e1;
-#if 0
-    QSharedPointer<int> iptr(new int(43));
-    QSharedPointer<int> iptr2 = iptr;
-    QSharedPointer<int> iptr3 = iptr;
 
-    QSharedPointer<QString> ptr(new QString("hallo"));
-    QSharedPointer<QString> ptr2 = ptr;
-    QSharedPointer<QString> ptr3 = ptr;
+namespace qsharedpointer {
 
-    QWeakPointer<int> wiptr(iptr);
-    QWeakPointer<int> wiptr2 = wiptr;
-    QWeakPointer<int> wiptr3 = wiptr;
+    #if QT_VERSION < 0x040500
 
-    QWeakPointer<QString> wptr(ptr);
-    QWeakPointer<QString> wptr2 = wptr;
-    QWeakPointer<QString> wptr3 = wptr;
-#endif
+    void testQSharedPointer() {}
 
-    QSharedPointer<Foo> fptr(new Foo(1));
-    QWeakPointer<Foo> wfptr(fptr);
-    QWeakPointer<Foo> wfptr2 = wfptr;
-    QWeakPointer<Foo> wfptr3 = wfptr;
-#    endif
-}
+    #else
+
+    void testQSharedPointer1()
+    {
+        QSharedPointer<int> ptr(new int(43));
+        QSharedPointer<int> ptr2 = ptr;
+        QSharedPointer<int> ptr3 = ptr;
+        BREAK_HERE;
+        dummyStatement(&ptr, &ptr2, &ptr3);
+    }
+
+    void testQSharedPointer2()
+    {
+        QSharedPointer<QString> ptr(new QString("hallo"));
+        QSharedPointer<QString> ptr2 = ptr;
+        QSharedPointer<QString> ptr3 = ptr;
+        BREAK_HERE;
+        dummyStatement(&ptr, &ptr2, &ptr3);
+    }
+
+    void testQSharedPointer3()
+    {
+        QSharedPointer<int> iptr(new int(43));
+        QWeakPointer<int> ptr(iptr);
+        QWeakPointer<int> ptr2 = ptr;
+        QWeakPointer<int> ptr3 = ptr;
+        BREAK_HERE;
+        dummyStatement(&ptr, &ptr2, &ptr3);
+    }
+
+    void testQSharedPointer4()
+    {
+        QSharedPointer<QString> sptr(new QString("hallo"));
+        QWeakPointer<QString> ptr(sptr);
+        QWeakPointer<QString> ptr2 = ptr;
+        QWeakPointer<QString> ptr3 = ptr;
+        BREAK_HERE;
+        dummyStatement(&ptr, &ptr2, &ptr3);
+    }
+
+    void testQSharedPointer5()
+    {
+        QSharedPointer<Foo> fptr(new Foo(1));
+        QWeakPointer<Foo> ptr(fptr);
+        QWeakPointer<Foo> ptr2 = ptr;
+        QWeakPointer<Foo> ptr3 = ptr;
+        BREAK_HERE;
+        dummyStatement(&ptr, &ptr2, &ptr3);
+    }
+
+    void testQSharedPointer()
+    {
+        testQSharedPointer1();
+        testQSharedPointer2();
+        testQSharedPointer3();
+        testQSharedPointer4();
+        testQSharedPointer5();
+    }
+
+    #endif
+
+} // namespace qsharedpointer
+
 
 namespace qxml {
 
@@ -2417,7 +2458,6 @@ namespace basic {
     {
         X x;
         XX xx;
-        D diamond;
         Foo *f = &xx;
         Foo ff;
         double d[3][3];
@@ -2425,7 +2465,7 @@ namespace basic {
             for (int j = 0; j != 3; ++j)
                 d[i][j] = i + j;
         BREAK_HERE;
-        dummyStatement(&x, &f, &d, &ff, &diamond);
+        dummyStatement(&x, &f, &d, &ff);
     }
 
     void testArray2()
@@ -2763,6 +2803,20 @@ namespace basic {
         dummyStatement(&f2);
     }
 
+    void testPassByReferenceHelper(Foo &f)
+    {
+        BREAK_HERE;
+        ++f.a;
+        BREAK_HERE;
+    }
+
+    void testPassByReference()
+    {
+        Foo f(12);
+        testPassByReferenceHelper(f);
+        dummyStatement(&f);
+    }
+
     void testBasic()
     {
         testReference1();
@@ -2788,54 +2842,11 @@ namespace basic {
         testLongEvaluation2();
         testFork();
         testFunctionPointer();
+        testPassByReference();
     }
 
 } // namespace basic
 
-
-void testStuff2()
-{
-    QList<QList<int> > list1;
-    QList<QList<int> > list2;
-    list1.append(QList<int>() << 1);
-    list2.append(QList<int>() << 2);
-    for (int i = 0; i < list1.size(); ++i) {
-        for (int j = 0; j < list1.at(i).size(); ++j) {
-            for (int k = i; k < list1.size(); ++k) {
-                for (int l = j; l < list1.at(k).size(); ++l) {
-                    qDebug() << list1.at(i).at(j)+list2.at(k).at(l);
-                }
-            }
-        }
-    }
-
-    // special char* support only with Python.
-    typedef unsigned short wchar;
-    wchar *str = new wchar[10];
-    str[2] = 0;
-    str[1] = 'B';
-    str[0] = 'A';
-    str[0] = 'A';
-    str[0] = 'A';
-    str[0] = 'A';
-    QString foo = "foo";
-    wchar *f = (wchar*)foo.utf16();
-    Q_UNUSED(f);
-    str[0] = 'A';
-    str[0] = 'A';
-    str[0] = 'A';
-}
-
-void testPassByReferenceHelper(Foo &f)
-{
-    ++f.a;
-}
-
-void testPassByReference()
-{
-    Foo f(12);
-    testPassByReferenceHelper(f);
-}
 
 namespace io {
 
@@ -2948,21 +2959,15 @@ namespace sse {
 
 } // namespace sse
 
-void testQSettings()
-{
-    // Note: Construct a QCoreApplication first.
-    QSettings settings("/tmp/test.ini", QSettings::IniFormat);
-    QVariant value = settings.value("item1","").toString();
-    int x = 1;
-    Q_UNUSED(x);
-}
-
 void testQScriptValue(int argc, char *argv[])
 {
+    BREAK_UNINITIALIZED_HERE;
     QCoreApplication app(argc, argv);
     QScriptEngine engine;
     QDateTime date = QDateTime::currentDateTime();
     QScriptValue s;
+
+    BREAK_HERE;
     s = QScriptValue(33);
     int x = s.toInt32();
 
@@ -2976,11 +2981,10 @@ void testQScriptValue(int argc, char *argv[])
     s = engine.newVariant(QVariant(QString("sss")));
     s = engine.newDate(date);
     x = s.toInt32();
-    bool xx = s.isDate();
-    Q_UNUSED(xx);
     date = s.toDateTime();
     s.setProperty("a", QScriptValue());
     QScriptValue d = s.data();
+    dummyStatement(&x1, &v, &s, &app);
 }
 
 
@@ -3141,6 +3145,7 @@ namespace mpi {
 
 //} // namespace kr
 
+
 namespace kr {
 
     // Only with python.
@@ -3228,20 +3233,6 @@ namespace bug3611 {
     }
 
 } // namespace bug3611
-
-
-void testStuff3()
-{
-    Foo *f1 = new Foo(1);
-    X *x = new X();
-    Foo *f2 = x;
-    XX *xx = new XX();
-    Foo *f3 = xx;
-    Y *y = new Y();
-    Foo *f4 = y;
-    //Foo *f5 = new D();
-    qDebug() << f1 << f2 << f3 << f4;
-}
 
 
 namespace bug4019 {
@@ -3352,9 +3343,7 @@ namespace bug5106 {
     {
     public:
             A5106(int a, int b) : m_a(a), m_b(b) {}
-
             virtual int test() { return 5; }
-
     private:
             int m_a, m_b;
     };
@@ -3363,9 +3352,7 @@ namespace bug5106 {
     {
     public:
             B5106(int c, int a, int b) : A5106(a, b), m_c(c) {}
-
             virtual int test() { return 4; BREAK_HERE; }
-
     private:
             int m_c;
     };
@@ -3388,11 +3375,12 @@ namespace bug5184 {
     // It's unclear how this can happen. It should never have been like
     // that with a stock 7.2 and any version of Creator.
 
-    int helper(const QUrl &url)
+    void helper(const QUrl &url)
     {
         QNetworkRequest request(url);
         QList<QByteArray> raw = request.rawHeaderList();
-        return raw.size();  BREAK_HERE;
+        BREAK_HERE;
+        dummyStatement(&request, &raw);
     }
 
     void test5184()
@@ -3426,7 +3414,6 @@ namespace qc42170 {
         Circle(double x_, double y_, double r_) : Point(x_, y_), r(r_) { id = 2; }
         double r;
     };
-
 
     void helper(Object *obj)
     {
@@ -3498,6 +3485,7 @@ namespace qc41700 {
     }
 
 } // namespace qc41700
+
 
 namespace cp42895 {
 
@@ -3593,10 +3581,9 @@ int main(int argc, char *argv[])
     qxml::testQXmlAttributes();
     qregexp::testQRegExp();
     breakpoints::testBreakpoints();
-    //testQSettings();
     qrect::testGeometry();
     qregion::testQRegion();
-    testPeekAndPoke3();
+    peekandpoke::testPeekAndPoke3();
     anon::testAnonymous();
     //testEndlessLoop();
     //testEndlessRecursion();
@@ -3629,7 +3616,6 @@ int main(int argc, char *argv[])
     stdvector::testStdVector();
     namespc::testNamespace();
 
-    testPassByReference();
     testPlugin();
     testQList();
     testQLinkedList();
@@ -3640,7 +3626,7 @@ int main(int argc, char *argv[])
     testQString();
     testQUrl();
     testQSet();
-    testQSharedPointer();
+    qsharedpointer::testQSharedPointer();
     qstringlist::testQStringList();
     testQScriptValue(argc, argv);
     //qthread::testQThread();
