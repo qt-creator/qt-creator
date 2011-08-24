@@ -192,7 +192,7 @@ void QmlV8DebuggerClient::interruptInferior()
 
 }
 
-void QmlV8DebuggerClient::connect()
+void QmlV8DebuggerClient::startSession()
 {
     QByteArray request;
 
@@ -204,7 +204,7 @@ void QmlV8DebuggerClient::connect()
     sendMessage(packMessage(request));
 }
 
-void QmlV8DebuggerClient::disconnect()
+void QmlV8DebuggerClient::endSession()
 {
     QByteArray request;
 

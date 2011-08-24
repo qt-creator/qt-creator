@@ -52,8 +52,8 @@ public:
     explicit QmlV8DebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
     ~QmlV8DebuggerClient();
 
-    void connect();
-    void disconnect();
+    void startSession();
+    void endSession();
 
     void executeStep();
     void executeStepOut();

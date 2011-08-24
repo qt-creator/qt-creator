@@ -51,8 +51,8 @@ public:
     QScriptDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
     ~QScriptDebuggerClient();
 
-    void connect();
-    void disconnect();
+    void startSession();
+    void endSession();
 
     void executeStep();
     void executeStepOut();

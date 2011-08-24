@@ -375,7 +375,7 @@ void QmlEngine::handleRemoteSetupFailed(const QString &message)
 
 void QmlEngine::shutdownInferior()
 {
-    d->m_adapter.activeDebuggerClient()->disconnect();
+    d->m_adapter.activeDebuggerClient()->endSession();
 
     if (isSlaveEngine()) {
         resetLocation();

@@ -52,8 +52,8 @@ public:
     QmlDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client, QLatin1String clientName);
     virtual ~QmlDebuggerClient();
 
-    virtual void connect() = 0;
-    virtual void disconnect() = 0;
+    virtual void startSession() = 0;
+    virtual void endSession() = 0;
 
     virtual void executeStep() = 0;
     virtual void executeStepOut() = 0;

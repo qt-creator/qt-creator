@@ -192,11 +192,17 @@ void QScriptDebuggerClient::interruptInferior()
     sendMessage(reply);
 }
 
-void QScriptDebuggerClient::connect()
+void QScriptDebuggerClient::startSession()
 {
+    //Set all breakpoints
+    BreakHandler *handler = d->engine->breakHandler();
+    foreach (BreakpointModelId id, handler->engineBreakpointIds(d->engine)) {
+        QTC_ASSERT(handler->state(id) == BreakpointInsertProceeding,/**/);
+        handler->notifyBreakpointInsertOk(id);
+    }
 }
 
-void QScriptDebuggerClient::disconnect()
+void QScriptDebuggerClient::endSession()
 {
 }
 
@@ -408,8 +414,6 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
             BreakHandler *handler = d->engine->breakHandler();
             foreach (BreakpointModelId id, handler->engineBreakpointIds(d->engine)) {
                 QString processedFilename = handler->fileName(id);
-                QTC_ASSERT(handler->state(id) == BreakpointInsertProceeding,/**/);
-                handler->notifyBreakpointInsertOk(id);
 
                 if (processedFilename == file && handler->lineNumber(id) == line) {
                     QTC_ASSERT(handler->state(id) == BreakpointInserted,/**/);
