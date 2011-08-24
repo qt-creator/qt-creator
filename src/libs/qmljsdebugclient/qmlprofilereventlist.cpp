@@ -228,6 +228,7 @@ void QmlProfilerEventList::compileStatistics()
         // maximum possible value
         eventDescription->minTime = d->m_endTimeSortedList.last().endTime;
         eventDescription->maxTime = 0;
+        eventDescription->medianTime = 0;
         eventDescription->cumulatedDuration = 0;
         eventDescription->parentList.clear();
         eventDescription->childrenList.clear();
@@ -271,6 +272,20 @@ void QmlProfilerEventList::compileStatistics()
             continue;
         binding->percentOfTime = binding->cumulatedDuration * 100.0 / totalTime;
         binding->timePerCall = binding->calls > 0 ? double(binding->cumulatedDuration) / binding->calls : 0;
+    }
+
+    // compute median time
+    QHash < QmlEventData* , QList<qint64> > durationLists;
+    foreach (const QmlEventStartTimeData &startData, d->m_startTimeSortedList) {
+        durationLists[startData.description].append(startData.length);
+    }
+    QMutableHashIterator < QmlEventData* , QList<qint64> > iter(durationLists);
+    while (iter.hasNext()) {
+        iter.next();
+        if (!iter.value().isEmpty()) {
+            qSort(iter.value());
+            iter.key()->medianTime = iter.value().at(iter.value().count()/2);
+        }
     }
 
     // continue postprocess

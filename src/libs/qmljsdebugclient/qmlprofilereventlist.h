@@ -57,6 +57,7 @@ struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
     qint64 maxTime;
     double timePerCall;
     double percentOfTime;
+    qint64 medianTime;
 };
 
 typedef QHash<QString, QmlEventData *> QmlEventHash;

@@ -165,6 +165,7 @@ void QmlProfilerEventsView::setViewType(ViewTypes type)
         setFieldViewable(TimePerCall, true);
         setFieldViewable(MaxTime, true);
         setFieldViewable(MinTime, true);
+        setFieldViewable(MedianTime, true);
         setFieldViewable(Details, false);
         setFieldViewable(Parents, false);
         setFieldViewable(Children, false);
@@ -181,6 +182,7 @@ void QmlProfilerEventsView::setViewType(ViewTypes type)
         setFieldViewable(TimePerCall, false);
         setFieldViewable(MaxTime, false);
         setFieldViewable(MinTime, false);
+        setFieldViewable(MedianTime, false);
         setFieldViewable(Details, true);
         setFieldViewable(Parents, true);
         setFieldViewable(Children, false);
@@ -197,6 +199,7 @@ void QmlProfilerEventsView::setViewType(ViewTypes type)
         setFieldViewable(TimePerCall, false);
         setFieldViewable(MaxTime, false);
         setFieldViewable(MinTime, false);
+        setFieldViewable(MedianTime, false);
         setFieldViewable(Details, true);
         setFieldViewable(Parents, false);
         setFieldViewable(Children, true);
@@ -234,7 +237,9 @@ void QmlProfilerEventsView::setHeaderLabels()
     if (d->m_fieldShown[CallCount])
         d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Calls")));
     if (d->m_fieldShown[TimePerCall])
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Time per Call")));
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Mean Time")));
+    if (d->m_fieldShown[MedianTime])
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Median Time")));
     if (d->m_fieldShown[MaxTime])
         d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Longest Time")));
     if (d->m_fieldShown[MinTime])
@@ -324,6 +329,11 @@ void QmlProfilerEventsView::QmlProfilerEventsViewPrivate::buildModelFromList( co
             newRow.last()->setData(QVariant(binding->timePerCall));
         }
 
+        if (m_fieldShown[MedianTime]) {
+            newRow << new EventsViewItem(displayTime(binding->medianTime));
+            newRow.last()->setData(QVariant(binding->medianTime));
+        }
+
         if (m_fieldShown[MaxTime]) {
             newRow << new EventsViewItem(displayTime(binding->maxTime));
             newRow.last()->setData(QVariant(binding->maxTime));
@@ -338,6 +348,8 @@ void QmlProfilerEventsView::QmlProfilerEventsViewPrivate::buildModelFromList( co
             newRow << new EventsViewItem(binding->details);
             newRow.last()->setData(QVariant(binding->details));
         }
+
+
 
         if (!newRow.isEmpty()) {
             // no edit

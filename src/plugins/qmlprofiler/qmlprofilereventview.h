@@ -62,6 +62,7 @@ public:
         TimePerCall,
         MaxTime,
         MinTime,
+        MedianTime,
         Details,
         Parents,
         Children,
