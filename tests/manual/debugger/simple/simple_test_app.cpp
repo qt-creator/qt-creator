@@ -32,11 +32,7 @@
 
 //#include <complex>
 
-//template <typename T> class B;  B foo() {}
-
 void dummyStatement(...) {}
-
-#include "../simple/deep/deep/simple_test_app.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDateTime>
@@ -93,6 +89,15 @@ void dummyStatement(...) {}
 
 #include <stdarg.h>
 
+// For the full manual test, change the '#if 0' to '#if 1'
+#if 1
+#define BREAK_HERE /**/
+#else
+#define BREAK_HERE asm("int $3; mov %eax, %eax")
+#endif
+
+#include "../simple/deep/deep/simple_test_app.h"
+
 #define USE_PRIVATE 1
 //#define USE_BOOST 1
 //#define USE_EIGEN 1
@@ -134,7 +139,9 @@ namespace multibp {
     public:
         explicit Vector(int size)
             : m_size(size), m_data(new T[size])
-        {} // <=== Break here.
+        {
+            BREAK_HERE;
+        }
         ~Vector() { delete [] m_data; }
         int size() const { return m_size; }
     private:
@@ -348,7 +355,7 @@ namespace anon {
         a.i = 2;
         a.i = 3;
         Something s;
-        // <== Break here.
+        BREAK_HERE;
         // Step.
         s.foo();
         dummyStatement(&a, &s);
@@ -363,7 +370,7 @@ namespace qbytearray {
     void testQByteArray1()
     {
         QByteArray ba;
-        // <== Break here.
+        BREAK_HERE;
         ba += "Hello";
         ba += '"';
         ba += "World";
@@ -378,7 +385,7 @@ namespace qbytearray {
         QByteArray ba;
         for (int i = 256; --i >= 0; )
             ba.append(char(i));
-        // <== Break here.
+        BREAK_HERE;
         QString s(10000, 'x');
         std::string ss(10000, 'c');
         dummyStatement(&ba, &ss, &s);
@@ -392,7 +399,7 @@ namespace qbytearray {
         QByteArray buf1(str1);
         QByteArray buf2(str2);
         QByteArray buf3(str3);
-        // <== Break here.
+        BREAK_HERE;
         dummyStatement(&buf1, &buf2, &buf3);
     }
 
@@ -434,7 +441,7 @@ namespace qdatetime {
     void testQDate()
     {
         QDate date;
-        // <== Break here.
+        BREAK_HERE;
         // Step, check display.
         date = QDate::currentDate();
         date = date.addDays(5);
@@ -445,7 +452,7 @@ namespace qdatetime {
     void testQTime()
     {
         QTime time;
-        // <== Break here.
+        BREAK_HERE;
         // Step, check display.
         time = QTime::currentTime();
         time = time.addSecs(5);
@@ -456,7 +463,7 @@ namespace qdatetime {
     void testQDateTime()
     {
         QDateTime date;
-        // <== Break here.
+        BREAK_HERE;
         // Step, check display.
         date = QDateTime::currentDateTime();
         date = date.addSecs(5);
@@ -506,7 +513,7 @@ namespace qhostaddress {
     {
         QHostAddress ha1(129u * 256u * 256u * 256u + 130u);
         QHostAddress ha2("127.0.0.1");
-        // <== Break here.
+        BREAK_HERE;
         // Check ha1 and ha2 look correct.
         dummyStatement(&ha1, &ha2);
     }
@@ -842,7 +849,7 @@ namespace qobject {
         QObject::connect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
         QObject::disconnect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
         child.setObjectName("A renamed Child");
-        // <=== Break here.
+        BREAK_HERE;
         // Expand all.
         dummyStatement(&parent, &child);
     }
@@ -919,14 +926,6 @@ namespace qobject {
         obs.append(0);
         obs.append(&app);
         ob1.setObjectName("A Subobject");
-    #endif
-
-    #if 1
-        QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
-        QLabel l(str);
-        l.setObjectName("Some Label");
-        l.show();
-        //app.exec();
     #endif
     }
 
@@ -1052,7 +1051,7 @@ namespace qobject {
         // are displayed properly.
     #if USE_PRIVATE
         DerivedObject ob;
-        // <=== Break here.
+        BREAK_HERE;
         // expand ob and ob.properties
         // step, and check whether x gets updated.
         ob.setX(23);
@@ -1092,7 +1091,7 @@ namespace qregexp {
     {
         // Works with Python dumpers only.
         QRegExp re(QString("a(.*)b(.*)c"));
-        // <=== Break here.
+        BREAK_HERE;
         // Step over until end, check display looks ok.
         QString str1 = "a1121b344c";
         QString str2 = "Xa1121b344c";
@@ -1109,7 +1108,7 @@ namespace qrect {
     void testQPoint()
     {
         QPoint s;
-        // <=== Break here.
+        BREAK_HERE;
         // Step over, check display looks sane.
         s = QPoint(100, 200);
         dummyStatement(&s);
@@ -1118,7 +1117,7 @@ namespace qrect {
     void testQPointF()
     {
         QPointF s;
-        // <=== Break here.
+        BREAK_HERE;
         // Step over, check display looks sane.
         s = QPointF(100, 200);
         dummyStatement(&s);
@@ -1127,7 +1126,7 @@ namespace qrect {
     void testQRect()
     {
         QRect rect;
-        // <=== Break here.
+        BREAK_HERE;
         // Step over, check display looks sane.
         rect = QRect(100, 100, 200, 200);
         dummyStatement(&rect);
@@ -1136,7 +1135,7 @@ namespace qrect {
     void testQRectF()
     {
         QRectF rect;
-        // <=== Break here.
+        BREAK_HERE;
         // Step over, check display looks sane.
         rect = QRectF(100, 100, 200, 200);
         dummyStatement(&rect);
@@ -1145,7 +1144,7 @@ namespace qrect {
     void testQSize()
     {
         QSize s;
-        // <=== Break here.
+        BREAK_HERE;
         // Step over, check display looks sane.
         s = QSize(100, 200);
         dummyStatement(&s);
@@ -1154,7 +1153,7 @@ namespace qrect {
     void testQSizeF()
     {
         QSizeF s;
-        // <=== Break here.
+        BREAK_HERE;
         // Step over, check display looks sane.
         s = QSizeF(100, 200);
         dummyStatement(&s);
@@ -1179,7 +1178,7 @@ namespace qregion {
     {
         // Works with Python dumpers only.
         QRegion region;
-        // <=== Break here.
+        BREAK_HERE;
         // Step over until end, check display looks sane.
         region += QRect(100, 100, 200, 200);
         region += QRect(300, 300, 400, 500);
@@ -1218,6 +1217,21 @@ void testPlugin()
         qDebug() << lib.errorString();
     }
 }
+
+namespace application {
+
+    void testApplicationStart(int &argc, char *argv[])
+    {
+        QApplication app(argc, argv);
+        QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
+        QLabel l(str);
+        l.setObjectName("Some Label");
+        l.show();
+        app.exec();
+    }
+
+} // namespace application
+
 
 void testQSet()
 {
@@ -1313,7 +1327,7 @@ namespace qxml {
         atts.append("name1", "uri1", "localPart1", "value1");
         atts.append("name2", "uri2", "localPart2", "value2");
         atts.append("name3", "uri3", "localPart3", "value3");
-        // <=== Break here.
+        BREAK_HERE;
         // Expand, check that attributes are displayed.
         dummyStatement();
     }
@@ -1495,7 +1509,7 @@ namespace stdstack {
     {
         // This does not work with the compiled dumpers.
         std::stack<int *> plist1;
-        // <=== Break here.
+        BREAK_HERE;
         plist1.push(new int(1));
         plist1.push(0);
         plist1.push(new int(2));
@@ -1508,7 +1522,7 @@ namespace stdstack {
     void testStdStack2()
     {
         std::stack<int> flist2;
-        // <=== Break here.
+        BREAK_HERE;
         flist2.push(1);
         flist2.push(2);
         dummyStatement(&flist2);
@@ -1517,7 +1531,7 @@ namespace stdstack {
     void testStdStack3()
     {
         std::stack<Foo *> plist;
-        // <=== Break here.
+        BREAK_HERE;
         plist.push(new Foo(1));
         plist.push(new Foo(2));
         dummyStatement(&plist);
@@ -1526,7 +1540,7 @@ namespace stdstack {
     void testStdStack4()
     {
         std::stack<Foo> flist;
-        // <=== Break here.
+        BREAK_HERE;
         flist.push(1);
         flist.push(2);
         dummyStatement(&flist);
@@ -1549,7 +1563,7 @@ namespace stdstring {
     {
         std::string str;
         std::wstring wstr;
-        // <=== Break here.
+        BREAK_HERE;
         str += "b";
         wstr += wchar_t('e');
         str += "d";
@@ -1568,7 +1582,7 @@ namespace stdstring {
     {
         std::string str = "foo";
         QList<std::string> l;
-        // <=== Break here.
+        BREAK_HERE;
         l.push_back(str);
         l.push_back(str);
         l.push_back(str);
@@ -1580,7 +1594,7 @@ namespace stdstring {
     {
         std::string str = "foo";
         std::vector<std::string> v;
-        // <=== Break here.
+        BREAK_HERE;
         v.push_back(str);
         v.push_back(str);
         v.push_back(str);
@@ -1603,7 +1617,7 @@ namespace stdvector {
     void testStdVector1()
     {
         std::vector<int *> v;
-        // <=== Break here.
+        BREAK_HERE;
         // Expand. Step. Check display.
         v.push_back(new int(1));
         v.push_back(0);
@@ -1618,7 +1632,7 @@ namespace stdvector {
         v.push_back(2);
         v.push_back(3);
         v.push_back(4);
-        // <=== Break here.
+        BREAK_HERE;
         dummyStatement(&v);
     }
 
@@ -1629,7 +1643,7 @@ namespace stdvector {
         v.push_back(new Foo(1));
         v.push_back(0);
         v.push_back(new Foo(2));
-        // <=== Break here.
+        BREAK_HERE;
         // Expand v.[0].x
         dummyStatement(&v);
     }
@@ -1641,7 +1655,7 @@ namespace stdvector {
         flist.push_back(2);
         flist.push_back(3);
         flist.push_back(4);
-        // <=== Break here.
+        BREAK_HERE;
         // Expand v.[0].x
         dummyStatement(&flist);
     }
@@ -1654,7 +1668,7 @@ namespace stdvector {
         vec.push_back(false);
         vec.push_back(true);
         vec.push_back(false);
-        // <=== Break here.
+        BREAK_HERE;
         dummyStatement(&vec);
     }
 
@@ -1667,7 +1681,7 @@ namespace stdvector {
         list.push_back(45);
         vector.push_back(new std::list<int>(list));
         vector.push_back(0);
-        // <=== Break here.
+        BREAK_HERE;
         dummyStatement(&vector, &list);
     }
 
@@ -1726,7 +1740,7 @@ void testQStack()
     QStack<bool> vec;
     vec.append(true);
     vec.append(false);
-    // <=== Break here.
+    BREAK_HERE;
     dummyStatement(&vec);
 }
 
@@ -1734,7 +1748,7 @@ void testQStack()
 void testQUrl()
 {
     QUrl url(QString("http://www.nokia.com"));
-    // <=== Break here.
+    BREAK_HERE;
     dummyStatement(&url);
 }
 
@@ -1782,7 +1796,7 @@ namespace qstringlist {
     void testQStringList()
     {
         QStringList l;
-        // <=== Break here.
+        BREAK_HERE;
         l << "Hello ";
         l << " big, ";
         l << " fat ";
@@ -1804,7 +1818,7 @@ namespace formats {
             u = QString::fromUcs4((uint *)w);
         else
             u = QString::fromUtf16((ushort *)w);
-        // <== break here
+        BREAK_HERE;
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
@@ -1819,7 +1833,7 @@ namespace formats {
         const char *s = "aöa";
         const char *t = "a\xc3\xb6";
         const wchar_t *w = L"aöa";
-        // <== break here
+        BREAK_HERE;
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
@@ -1835,7 +1849,7 @@ namespace formats {
 
         const char s[] = "aöa";
         const wchar_t w[] = L"aöa";
-        // <== break here
+        BREAK_HERE;
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
@@ -1924,7 +1938,7 @@ namespace qvariant {
         QVariant::Type t = QVariant::String;
         value = QVariant(t, (void*)0);
         *(QString*)value.data() = QString("Some string");
-        int i = 1; // <=== Break here.
+        int i = 1; BREAK_HERE;
         // Check the variant contains a proper QString.
         dummyStatement(&i);
     }
@@ -1932,7 +1946,7 @@ namespace qvariant {
     void testQVariant2()
     {
         QVariant var;                        // Type 0, invalid
-        // <== Break here.
+        BREAK_HERE;
         // Step through with F10.
         // Check var contains objects of the types indicated.
         var.setValue(true);                  // 1, bool
@@ -1974,7 +1988,7 @@ namespace qvariant {
     void testQVariant3()
     {
         QVariant var;
-        // <== Break here..
+        BREAK_HERE;
         // Expand var.
         // Step with F10.
         // Check the list is updated properly.
@@ -1991,7 +2005,7 @@ namespace qvariant {
         QHostAddress ha("127.0.0.1");
         var.setValue(ha);
         QHostAddress ha1 = var.value<QHostAddress>();
-        // <== Break here.
+        BREAK_HERE;
         // Expand ha, ha1 and var.
         // Check var and ha1 look correct.
         dummyStatement(&ha1);
@@ -2008,7 +2022,7 @@ namespace qvariant {
         var.setValue(my);
         // FIXME: Known to break
         //QString type = var.typeName();
-        var.setValue(my); // <== Break here.
+        var.setValue(my); BREAK_HERE;
         var.setValue(my);
         var.setValue(my);
         var.setValue(my);
@@ -2052,7 +2066,7 @@ namespace qvector {
     {
         // This tests the display of a big vector.
         QVector<int> big(10000);
-        // <=== Break here.
+        BREAK_HERE;
         // step over
         // check that the display updates in reasonable time
         big[1] = 1;
@@ -2072,7 +2086,7 @@ namespace qvector {
     {
         // This tests the display of a vector of pointers to custom structs.
         QVector<Foo> flist;
-        // <== Break here.
+        BREAK_HERE;
         // step over, check display.
         flist.append(1);
         flist.append(2);
@@ -2098,7 +2112,7 @@ namespace qvector {
     {
         // This tests the display of a vector of pointers to custom structs.
         QVector<Foo *> plist;
-        // <=== Break here.
+        BREAK_HERE;
         // step over
         // check that the display is ok.
         plist.append(new Foo(1));
@@ -2113,7 +2127,7 @@ namespace qvector {
     {
         // This tests the display of a vector of custom structs.
         QVector<bool> vec;
-        // <== Break here..
+        BREAK_HERE;
         // step over
         // check that the display is ok.
         vec.append(true);
@@ -2125,7 +2139,7 @@ namespace qvector {
     {
         QVector<QList<int> > v;
         QVector<QList<int> > *pv = &v;
-        // <=== Break here.
+        BREAK_HERE;
         v.append(QList<int>() << 1);
         v.append(QList<int>() << 2 << 3);
         dummyStatement(pv);
@@ -2168,7 +2182,7 @@ namespace noargs {
         list2.append(Goo("Hello", 1));
         list2.append(Goo("World", 2));
 
-        // <=== Break here..
+        BREAK_HERE;
         // check display is ok, especially for _i_ and _k_
 
         dummyStatement(&i, &k);
@@ -2263,7 +2277,7 @@ namespace namespc {
         MyBar bar;
         MyAnon anon;
         baz::MyBaz baz;
-        // <== Break here.
+        BREAK_HERE;
         // step into the doit() functions
         baz.doit(1);
         anon.doit(1);
@@ -2380,7 +2394,7 @@ namespace basic {
         for (int i = 0; i != 3; ++i)
             for (int j = 0; j != 3; ++j)
                 d[i][j] = i + j;
-        // <== Break here.
+        BREAK_HERE;
         dummyStatement(&x, &f, &d, &ff, &diamond);
     }
 
@@ -2391,7 +2405,7 @@ namespace basic {
         c[1] = 'b';
         c[2] = 'c';
         c[3] = 'd';
-        // <== Break here.
+        BREAK_HERE;
         dummyStatement(&c);
     }
 
@@ -2402,7 +2416,7 @@ namespace basic {
         s[1] = "b";
         s[2] = "c";
         s[3] = "d";
-        // <== Break here.
+        BREAK_HERE;
         dummyStatement(&s);
     }
 
@@ -2413,7 +2427,7 @@ namespace basic {
         b[1] = "b";
         b[2] = "c";
         b[3] = "d";
-        // <== Break here.
+        BREAK_HERE;
         dummyStatement(&b);
     }
 
@@ -2425,7 +2439,7 @@ namespace basic {
             foo[i].a = i;
             foo[i].doit();
         }
-        // <== Break here.
+        BREAK_HERE;
         dummyStatement(&foo);
     }
 
@@ -2435,7 +2449,7 @@ namespace basic {
     {
         char s[5];
         s[0] = 0;
-        // <=== Break here..
+        BREAK_HERE;
         // Expand 's' in Locals view.
         // Open pinnable tooltip.
         // Step over.
@@ -2454,7 +2468,7 @@ namespace basic {
     void testCharStar()
     {
         char *s = buf;
-        // <=== Break here..
+        BREAK_HERE;
         // Expand 's' in Locals view.
         // Open pinnable tooltip.
         // Step over.
@@ -2484,7 +2498,7 @@ namespace basic {
     {
         // This checks whether bitfields are properly displayed
         S s;
-        // <=== Break here.
+        BREAK_HERE;
         s.i = 0;
         dummyStatement(&s);
     }
@@ -2500,7 +2514,7 @@ namespace basic {
         // This checks whether alphabetic sorting of structure
         // members work.
         Color c;
-        // <=== Break here.
+        BREAK_HERE;
         // Expand c.
         // Toogle "Sort Member Alphabetically" in context menu
         // of "Locals and Expressions" view.
@@ -2521,7 +2535,7 @@ namespace basic {
         myType2 t2 = 0;
         ns::vl j = 1000;
         ns::verylong k = 1000;
-        // <== Break here.
+        BREAK_HERE;
         dummyStatement(&j, &k, &t1, &t2);
     }
 
@@ -2531,7 +2545,7 @@ namespace basic {
         f.doit();
         f.doit();
         f.doit();
-        // <=== Break here.
+        BREAK_HERE;
         dummyStatement(&f);
     }
 
@@ -2539,7 +2553,7 @@ namespace basic {
     {
         // This tests the display of uninitialized data.
 
-        // <=== Break here.
+        BREAK_HERE;
         // Check the display: All values should be <uninitialized> or random data.
         // Check that nothing bad happens if items with random data
         // are expanded.
@@ -2574,7 +2588,7 @@ namespace basic {
         const char *s = "aöa";
         const wchar_t *w = L"aöa";
         QString u;
-        // <== Break here.
+        BREAK_HERE;
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
@@ -2600,7 +2614,7 @@ namespace basic {
 
     void A::doSomething(CVoidPtr cp) const
     {
-        // <=== Break here.
+        BREAK_HERE;
         // Check cp.
         dummyStatement(&cp);
     }
@@ -2610,7 +2624,7 @@ namespace basic {
         A a;
         VoidPtr p = &a;
         CVoidPtr cp = &a;
-        // <=== Break here.
+        BREAK_HERE;
         a.doSomething(cp);
         dummyStatement(&a, &p);
     }
@@ -2618,7 +2632,7 @@ namespace basic {
     void testStringWithNewline()
     {
         QString hallo = "hallo\nwelt";
-        // <=== Break here.
+        BREAK_HERE;
         // Check that string is properly displayed.
         dummyStatement(&hallo);
     }
@@ -2626,7 +2640,7 @@ namespace basic {
     void testMemoryView()
     {
         int a[20];
-        // <=== Break here.
+        BREAK_HERE;
         // Select "Open Memory View" from Locals and Expressions
         //    context menu for item 'a'.
         // Step several times.
@@ -2641,7 +2655,7 @@ namespace basic {
         int i = 42;
         double d = 23;
         QString s = "Foo";
-        // <=== Break here.
+        BREAK_HERE;
         // Select "Open Memory View" from Locals and Expressions
         //    context menu for item 'd'.
         // Check that the opened memory view contains coloured items
@@ -2656,7 +2670,7 @@ namespace basic {
         typedef int &Ref;
         const int c = 44;
         const Ref d = a;
-        // <=== Break here.
+        BREAK_HERE;
         dummyStatement(&a, &b, &c, &d);
     }
 
@@ -2667,7 +2681,7 @@ namespace basic {
         typedef QString &Ref;
         const QString c = "world";
         const Ref d = a;
-        // <=== Break here.
+        BREAK_HERE;
         dummyStatement(&a, &b, &c, &d);
     }
 
@@ -2680,7 +2694,7 @@ namespace basic {
             bigv[i] = time;
             time.addDays(1);
         }
-        // <== Break here.
+        BREAK_HERE;
         // Expand bigv.
         // This is expected to take up to a minute.
         dummyStatement(&bigv);
@@ -2692,7 +2706,7 @@ namespace basic {
         int bigv[N];
         for (int i = 0; i < N; ++i)
             bigv[i] = i;
-        // <== Break here.
+        BREAK_HERE;
         // Expand bigv.
         // This is expected to take up to a minute.
         dummyStatement(&bigv);
@@ -2705,7 +2719,7 @@ namespace basic {
         proc.waitForFinished();
         QByteArray ba = proc.readAllStandardError();
         ba.append('x');
-        // <== Break here.
+        BREAK_HERE;
         // Check there is some contents in ba. Error message is expected.
         dummyStatement(&ba);
     }
@@ -2714,7 +2728,7 @@ namespace basic {
     {
         typedef void (*func_t)();
         func_t f2 = testPeekAndPoke3;
-        // <=== Break here.
+        BREAK_HERE;
         // Check there's a valid display for f2.
         dummyStatement(&f2);
     }
@@ -2946,7 +2960,7 @@ namespace boost {
     void testBoostOptional1()
     {
         boost::optional<int> i;
-        // <=== Break here.
+        BREAK_HERE;
         // Step.
         i = 1;
         i = 3;
@@ -2957,7 +2971,7 @@ namespace boost {
     void testBoostOptional2()
     {
         boost::optional<QStringList> sl;
-        // <=== Break here.
+        BREAK_HERE;
         // Step.
         sl = (QStringList() << "xxx" << "yyy");
         sl.get().append("zzz");
@@ -2970,7 +2984,7 @@ namespace boost {
         boost::shared_ptr<int> i(new int(43));
         boost::shared_ptr<int> j = i;
         boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << "HUH!"));
-        // <=== Break here.
+        BREAK_HERE;
         dummyStatement(&s, &j, &sl);
     }
 
@@ -3108,7 +3122,7 @@ namespace kr {
         KRBase *ptr1 = new KRA;
         KRBase *ptr2 = new KRB;
         ptr2 = new KRB;
-        // <== Break here..
+        BREAK_HERE;
         // check ptr1 is shown as KRA and ptr2 as KRB
         dummyStatement(&ptr1, &ptr2);
     }
@@ -3144,7 +3158,7 @@ namespace eigen {
             }
         }
 
-        // <=== Break here.
+        BREAK_HERE;
         // check that Locals and Expresssions view looks sane
         dummyStatement(&colMajorMatrix, &rowMajorMatrix, &test,
                        &myMatrix, &myDynamicMatrix);
@@ -3159,7 +3173,7 @@ namespace bug842 {
     {
         // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-842
         qWarning("Test");
-        // <=== Break here.
+        BREAK_HERE;
         // Check that Application Output pane contains string "Test".
         dummyStatement();
     }
@@ -3175,7 +3189,7 @@ namespace bug3611 {
         typedef unsigned char byte;
         byte f = '2';
         int *x = (int*)&f;
-        // <=== Break here.
+        BREAK_HERE;
         // Step.
         f += 1;
         f += 1;
@@ -3234,7 +3248,7 @@ namespace bug4497 {
     {
         using namespace std;
         //cin.get(); // if commented out, the debugger doesn't stop at the breakpoint in the next line.
-        cout << "Hello, world!" << endl; // <=== Break here.
+        cout << "Hello, world!" << endl; BREAK_HERE;
 
         int sum = 0;
         for (int i = 1; i <= 10; i++)
@@ -3268,7 +3282,7 @@ namespace bug4904 {
         map.insert(cs1.id, cs1);
         map.insert(cs2.id, cs2);
         QMap<int, CustomStruct>::iterator it = map.begin();
-        // <=== Break here.
+        BREAK_HERE;
         // - expand map/[0]/value
         // - verify  map[0].key == -1
         // - verify  map[0].value.id == -1
@@ -3291,7 +3305,7 @@ namespace bug5046 {
         f.b = 2;
         f.c = 3;
         f.a = 4;
-        // <= Break here.
+        BREAK_HERE;
         // - pop up main editor tooltip over 'f'
         // - verify that the entry is expandable, and expansion works
         dummyStatement(&f);
@@ -3320,7 +3334,7 @@ namespace bug5106 {
     public:
             B5106(int c, int a, int b) : A5106(a, b), m_c(c) {}
 
-            virtual int test() { return 4; } // <=== Break here.
+            virtual int test() { return 4; BREAK_HERE; }
 
     private:
             int m_c;
@@ -3348,7 +3362,7 @@ namespace bug5184 {
     {
         QNetworkRequest request(url);
         QList<QByteArray> raw = request.rawHeaderList();
-        return raw.size();  // <=== Break here.
+        return raw.size();  BREAK_HERE;
     }
 
     void test5184()
@@ -3386,7 +3400,7 @@ namespace qc42170 {
 
     void helper(Object *obj)
     {
-        // <== Break here.
+        BREAK_HERE;
         // Check that obj is shown as a 'Circle' object.
         dummyStatement(obj);
     }
@@ -3423,7 +3437,7 @@ namespace bug5799 {
         S1 a1[10];
         typedef S1 Array[10];
         Array a2;
-        // <=== Break here.
+        BREAK_HERE;
         // Expand s2 and s4.
         // Check there is no <unavailable synchronous data>
         dummyStatement(&s2, &s4, &a1, &a2);
@@ -3448,7 +3462,7 @@ namespace qc41700 {
         m["two"].push_back("2");
         m["two"].push_back("3");
         map_t::const_iterator it = m.begin();
-        // <=== Break here.
+        BREAK_HERE;
         // Check that m is displayed nicely.
         dummyStatement(&it);
     }
@@ -3462,7 +3476,7 @@ namespace cp42895 {
     void g(int c, int d)
     {
         qDebug() << c << d;
-        // <== Break here.
+        BREAK_HERE;
         // Check there are frames for g and f in the stack view.
         dummyStatement(&c, &d);
     }
@@ -3528,7 +3542,7 @@ namespace sanity {
         QObject obj;
         obj.setObjectName("An Object");
 
-        // <=== Break here.
+        BREAK_HERE;
         // Expand all.
         dummyStatement(&s, &qv, &v, &list, &list2, &obj);
     }
@@ -3625,6 +3639,8 @@ int main(int argc, char *argv[])
     bug5106::test5106();
     bug5184::test5184();
     bug5799::test5799();
+
+    application::testApplicationStart(argc, argv);
 
     return 0;
 }
