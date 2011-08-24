@@ -471,14 +471,14 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_importLineButton->setVisible(m_showImport);
 
     m_buildConfigurationLabel = new QLabel;
-    m_buildConfigurationLabel->setText("Create Build Configurations:");
+    m_buildConfigurationLabel->setText(tr("Create Build Configurations:"));
     m_buildConfigurationLabel->setVisible(false);
 
     m_buildConfigurationComboBox = new QComboBox;
-    m_buildConfigurationComboBox->addItem("per Qt Version a Debug and Release", PERQT);
-    m_buildConfigurationComboBox->addItem("for one Qt Version a Debug and Release", ONEQT);
-    m_buildConfigurationComboBox->addItem("manually", MANUALLY);
-    m_buildConfigurationComboBox->addItem("none", NONE);
+    m_buildConfigurationComboBox->addItem(tr("For Each Qt Version One Debug And One Release"), PERQT);
+    m_buildConfigurationComboBox->addItem(tr("For One Qt Version One Debug And One Release"), ONEQT);
+    m_buildConfigurationComboBox->addItem(tr("Manually"), MANUALLY);
+    m_buildConfigurationComboBox->addItem(tr("None"), NONE);
 
     if (m_importInfos.isEmpty())
         m_buildConfigurationComboBox->setCurrentIndex(s->value("Qt4ProjectManager.TargetSetupPage.BuildTemplate", 0).toInt());
@@ -501,7 +501,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_shadowBuildEnabled->setVisible(m_shadowBuildCheckBoxVisible);
 
     m_versionLabel = new QLabel;
-    m_versionLabel->setText("Qt Version:");
+    m_versionLabel->setText(tr("Qt Version:"));
     m_versionLabel->setVisible(false);
     m_versionComboBox = new QComboBox;
     m_versionComboBox->setVisible(false);

@@ -180,9 +180,9 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
                 runConfiguration->target()->activeBuildConfiguration())) {
         if (qt4Config->qtVersion()->isValid() && qt4Config->qtVersion()->qtVersion() < minimumVersion) {
             int result = QMessageBox::warning(QApplication::activeWindow(), tr("QML Profiler"),
-                 "The QML profiler requires Qt 4.7.4 or newer.\n"
+                 tr("The QML profiler requires Qt 4.7.4 or newer.\n"
                  "The Qt version configured in your active build configuration is too old.\n"
-                 "Do you want to continue?", QMessageBox::Yes, QMessageBox::No);
+                 "Do you want to continue?"), QMessageBox::Yes, QMessageBox::No);
             if (result == QMessageBox::No)
                 return 0;
         }

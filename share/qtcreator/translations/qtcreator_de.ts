@@ -21915,8 +21915,16 @@ Fehler: %2</translation>
         <translation>Build hinzufügen</translation>
     </message>
     <message>
+        <source>Create Build Configurations:</source>
+        <translation>Build-Konfigurationen erstellen:</translation>
+    </message>
+    <message>
         <source>Use Shadow Building</source>
         <translation>Shadow-Build verwenden</translation>
+    </message>
+    <message>
+        <source>Qt Version:</source>
+        <translation>Qt-Version:</translation>
     </message>
     <message>
         <source>debug</source>
@@ -21943,6 +21951,22 @@ Fehler: %2</translation>
     <message>
         <source>Incompatible build found</source>
         <translation>Inkompatibler Build gefunden</translation>
+    </message>
+    <message>
+        <source>For Each Qt Version One Debug And One Release</source>
+        <translation>Für jede Qt-Version jeweils Debug und Release</translation>
+    </message>
+    <message>
+        <source>For One Qt Version One Debug And One Release</source>
+        <translation>Für eine Qt-Version Debug und Release</translation>
+    </message>
+    <message>
+        <source>Manually</source>
+        <translation>Manuell</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Import build from %1</source>
@@ -24457,6 +24481,14 @@ Bitte verwenden Sie den Stop-Button.</translation>
     <message>
         <source>Attach...</source>
         <translation type="obsolete">Anhängen...</translation>
+    </message>
+    <message>
+        <source>The QML profiler requires Qt 4.7.4 or newer.
+The Qt version configured in your active build configuration is too old.
+Do you want to continue?</source>
+        <translation>Der QML-Profiler benötigt Qt 4.7.4 oder neuer.
+Die Qt-Version, die in Ihrer aktuellen Build-Konfiguration eingestellt ist, ist zu alt.
+Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Events</source>
@@ -28119,6 +28151,69 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <message>
         <source>Error writing tar file &apos;%1&apos;: %2</source>
         <translation>Fehler beim Schreiben der tar-Datei &apos;%1&apos;: %2</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::ExternalTool</name>
+    <message>
+        <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
+        <translation>Erzeugt aus den ts-Dateien des Übersetzers qm-Übersetzungsdateien, die von einer Anwendung genutzt werden können</translation>
+    </message>
+    <message>
+        <source>Release Translations (lrelease)</source>
+        <translation>Übersetzungen freigeben (lrelease)</translation>
+    </message>
+    <message>
+        <source>Linguist</source>
+        <translation>Linguist</translation>
+    </message>
+    <message>
+        <source>Synchronizes translator&apos;s ts files with the program code</source>
+        <translation>Synchronisiert die ts-Dateien des Übersetzers mit dem Quelltext</translation>
+    </message>
+    <message>
+        <source>Update Translations (lupdate)</source>
+        <translation>Übersetzungen aktualisieren (lupdate)</translation>
+    </message>
+    <message>
+        <source>Opens the current file in Notepad</source>
+        <translation>Öffnet die aktuelle Datei im Editor</translation>
+    </message>
+    <message>
+        <source>Edit with Notepad</source>
+        <translation>Mit Editor bearbeiten</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <source>Runs the current QML file with qmlviewer</source>
+        <translation>Führt die aktuelle QML-Datei mit qmlviewer aus</translation>
+    </message>
+    <message>
+        <source>Preview (qmlviewer)</source>
+        <translation>Vorschau (qmlviewer)</translation>
+    </message>
+    <message>
+        <source>Qt Quick</source>
+        <translation>Qt Quick</translation>
+    </message>
+    <message>
+        <source>Sorts the selected text</source>
+        <translation>Sortiert den ausgewählten Text</translation>
+    </message>
+    <message>
+        <source>Sort Selection</source>
+        <translation>Auswahl sortieren</translation>
+    </message>
+    <message>
+        <source>Opens the current file in vi</source>
+        <translation>Öffnet die aktuelle Datei in vi</translation>
+    </message>
+    <message>
+        <source>Edit with vi</source>
+        <translation>Mit vi bearbeiten</translation>
     </message>
 </context>
 </TS>
