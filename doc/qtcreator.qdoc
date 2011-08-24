@@ -6585,16 +6585,19 @@
 
     \image qmldesigner-tutorial.png "States and transitions example"
 
+    For more information about using \QMLD, see
+    \l{Developing Qt Quick Applications}.
+
     \section1 Creating the Project
 
     \list 1
 
-        \o Select \gui{File > New File or Project > Qt Quick Project > Qt Quick UI >
-        Choose}.
+        \o Select \gui{File > New File or Project > Qt Quick Project > Qt Quick
+        Application > Choose}.
 
         \o Follow the instructions of the wizard to create a project called Transitions.
 
-        \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+        \o Press \key {Ctrl+R} to run the application.
 
     \endlist
 
@@ -6616,7 +6619,7 @@
 
     \list 1
 
-        \o In the \gui Projects view, double-click the main .qml file (Transitions.qml)
+        \o In the \gui Projects view, double-click the main.qml file
         to open it in the code editor.
 
         \o Click \gui Design to open the file in \QMLD.
@@ -6634,7 +6637,7 @@
             \o In the \gui Id field, enter \e page, to be able to reference the rectangle
             from other places.
 
-            \o In the \gui Colors tab, \gui Rectangle field, set the color to #343434.
+            \o In the \gui Colors group, \gui Rectangle field, set the color to #343434.
 
         \endlist
 
@@ -6665,13 +6668,13 @@
             \o In the \gui Size field, set \gui W and \gui H to 64, for the rectangle size
             to match the image size.
 
-            \o In the \gui Colors tab, \gui Rectangle field, click the
+            \o In the \gui Colors group, \gui Rectangle field, click the
             \inlineimage qmldesigner-transparent-button.png
             button to make the rectangle transparent.
 
             \o In the \gui Border field, set the border color to #808080.
 
-            \o In the \gui Rectangle tab, \gui Border field, set the border width to
+            \o In the \gui Rectangle group, \gui Border field, set the border width to
             1.
 
             \note If the \gui Border field does not appear after you set the border
@@ -6769,7 +6772,7 @@
 
     \o Press \key {Ctrl+S} to save the changes.
 
-    \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+    \o Press \key {Ctrl+R} to run the application.
 
     \endlist
 
@@ -6803,7 +6806,7 @@
         \note When you set the expressions, drag and drop is disabled for
         the icon in \QMLD.
 
-    \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+    \o Press \key {Ctrl+R} to run the application.
 
     \endlist
 
@@ -6853,17 +6856,11 @@
 
         \snippet snippets/qml/list-of-transitions.qml default transition
 
-        \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+        \o Press \key {Ctrl+R} to run the application.
 
     \endlist
 
     Click the rectangles to view the animated transitions.
-
-    \section1 Deploying the Application to Mobile Devices
-
-    To deploy the application to mobile devices, use the \gui {Qt Quick Application} wizard
-    to convert it into a Qt Quick application. For more information, see
-    \l{Importing QML Applications}.
 
 */
 
