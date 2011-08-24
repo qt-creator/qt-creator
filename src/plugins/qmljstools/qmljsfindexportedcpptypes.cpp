@@ -44,6 +44,7 @@
 #include <cplusplus/Literals.h>
 #include <cplusplus/CoreTypes.h>
 #include <cplusplus/Symbols.h>
+#include <cplusplus/SimpleLexer.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -150,14 +151,40 @@ protected:
         // as a special case, allow an identifier package argument if there's a
         // Q_ASSERT(QLatin1String(uri) == QLatin1String("actual uri"));
         // in the enclosing compound statement
-        IdExpressionAST *uriName = ast->expression_list->value->asIdExpression();
-        if (packageName.isEmpty() && uriName && _compound) {
+        QString uriNameString;
+        if (IdExpressionAST *uriName = ast->expression_list->value->asIdExpression())
+            uriNameString = stringOf(uriName);
+        if (packageName.isEmpty() && !uriNameString.isEmpty() && _compound) {
             for (StatementListAST *it = _compound->statement_list; it; it = it->next) {
                 StatementAST *stmt = it->value;
 
-                packageName = nameOfUriAssert(stmt, uriName);
+                packageName = nameOfUriAssert(stmt, uriNameString);
                 if (!packageName.isEmpty())
                     break;
+            }
+        }
+        if (packageName.isEmpty() && _compound) {
+            // check the comments in _compound for annotations
+            const QRegExp uriAnnotation(QLatin1String("@uri\\s*([\\w\\.]*)"));
+
+            // scan every comment between the pipes in
+            // {|
+            //    // comment
+            //    othercode;
+            //   |qmlRegisterType<Foo>(...);
+            const Token begin = _doc->translationUnit()->tokenAt(_compound->firstToken());
+            const Token end = _doc->translationUnit()->tokenAt(ast->firstToken());
+
+            // go through comments backwards to find the annotation closest to the call
+            for (unsigned i = _doc->translationUnit()->commentCount(); i-- > 0; ) {
+                const Token commentToken = _doc->translationUnit()->commentAt(i);
+                if (commentToken.begin() >= end.begin() || commentToken.end() <= begin.begin())
+                    continue;
+                const QString comment = stringOf(commentToken);
+                if (uriAnnotation.indexIn(comment) != -1) {
+                    packageName = uriAnnotation.cap(1);
+                    break;
+                }
             }
         }
 
@@ -203,9 +230,19 @@ protected:
 private:
     QString stringOf(AST *ast)
     {
-        const Token begin = translationUnit()->tokenAt(ast->firstToken());
-        const Token last = translationUnit()->tokenAt(ast->lastToken() - 1);
-        return _doc->source().mid(begin.begin(), last.end() - begin.begin());
+        return stringOf(ast->firstToken(), ast->lastToken() - 1);
+    }
+
+    QString stringOf(int first, int last)
+    {
+        const Token firstToken = translationUnit()->tokenAt(first);
+        const Token lastToken = translationUnit()->tokenAt(last);
+        return _doc->source().mid(firstToken.begin(), lastToken.end() - firstToken.begin());
+    }
+
+    QString stringOf(const Token &token)
+    {
+        return _doc->source().mid(token.begin(), token.length());
     }
 
     ExpressionAST *skipStringCall(ExpressionAST *exp)
@@ -229,7 +266,7 @@ private:
         return call->expression_list->value;
     }
 
-    QString nameOfUriAssert(StatementAST *stmt, IdExpressionAST *uriName)
+    QString nameOfUriAssert(StatementAST *stmt, const QString &uriName)
     {
         QString null;
 
@@ -281,7 +318,7 @@ private:
         if (!uriString || !uriArgName)
             return null;
 
-        if (stringOf(uriArgName) != stringOf(uriName))
+        if (stringOf(uriArgName) != uriName)
             return null;
 
         const StringLiteral *packageLit = translationUnit()->stringLiteral(uriString->literal_token);
