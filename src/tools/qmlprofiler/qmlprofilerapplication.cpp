@@ -248,7 +248,7 @@ void QmlProfilerApplication::tryToConnect()
     Q_ASSERT(!m_connection.isConnected());
     ++ m_connectionAttempts;
 
-    if (m_connectionAttempts > 10) {// 10 seconds
+    if (!m_verbose && !(m_connectionAttempts % 5)) {// print every 5 seconds
         if (!m_verbose)
             logError(QString("Could not connect to %1:%2 for %3 seconds ...").arg(
                          m_hostName, QString::number(m_port), QString::number(m_connectionAttempts)));
