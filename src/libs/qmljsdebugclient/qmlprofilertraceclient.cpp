@@ -36,14 +36,18 @@ namespace QmlJsDebugClient {
 
 class QmlProfilerTraceClientPrivate {
 public:
-    QmlProfilerTraceClientPrivate()
-        : inProgressRanges(0)
+    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q)
+        : q(_q)
+        ,  inProgressRanges(0)
         , maximumTime(0)
         , recording(false)
     {
         ::memset(rangeCount, 0, MaximumQmlEventType * sizeof(int));
     }
 
+    void sendRecordingStatus();
+
+    QmlProfilerTraceClient *q;
     qint64 inProgressRanges;
     QStack<qint64> rangeStartTimes[MaximumQmlEventType];
     QStack<QStringList> rangeDatas[MaximumQmlEventType];
@@ -59,9 +63,17 @@ using namespace QmlJsDebugClient;
 
 static const int GAP_TIME = 150;
 
+void QmlProfilerTraceClientPrivate::sendRecordingStatus()
+{
+    QByteArray ba;
+    QDataStream stream(&ba, QIODevice::WriteOnly);
+    stream << recording;
+    q->sendMessage(ba);
+}
+
 QmlProfilerTraceClient::QmlProfilerTraceClient(QDeclarativeDebugConnection *client)
     : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client)
-    , d(new QmlProfilerTraceClientPrivate)
+    , d(new QmlProfilerTraceClientPrivate(this))
 {
 }
 
@@ -86,22 +98,19 @@ void QmlProfilerTraceClient::setRecording(bool v)
     if (v == d->recording)
         return;
 
+    d->recording = v;
+
     if (status() == Enabled) {
-        QByteArray ba;
-        QDataStream stream(&ba, QIODevice::WriteOnly);
-        stream << v;
-        sendMessage(ba);
+        d->sendRecordingStatus();
     }
 
-    d->recording = v;
     emit recordingChanged(v);
 }
 
 void QmlProfilerTraceClient::statusChanged(Status status)
 {
     if (status == Enabled) {
-        d->recording = !d->recording;
-        setRecording(!d->recording);
+        d->sendRecordingStatus();
         emit enabled();
     }
 }
