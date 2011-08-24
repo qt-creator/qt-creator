@@ -12896,7 +12896,7 @@
     \gui Analyze mode, you can switch
     between tools by selecting them in the menu on the toolbar.
 
-    \image qtcreator-analyze-menu "Analyze mode menu"
+    \image qtcreator-analyze-menu.png "Analyze mode menu"
 
     By default, the views in the \gui Analyze mode are locked into place in the
     workspace. Select \gui {Window > Views > Locked} to unlock the views. Drag
