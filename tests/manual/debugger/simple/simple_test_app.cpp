@@ -30,7 +30,35 @@
 **
 **************************************************************************/
 
-//#include <complex>
+////////////////  Some global configuration below ////////////////
+
+
+// The following defines can be used to steer the kind of tests that
+// can be done.
+
+// With USE_AUTOBREAK, the debugger will stop automatically on all
+// lines containing the BREAK_HERE macro. This should be enabled
+// during manual testing.
+// Default: 1
+#define USE_AUTOBREAK 1
+
+// With USE_PRIVATE tests that require private headers are enabled.
+// Default: 1
+#define USE_PRIVATE 1
+
+// With USE_BOOST tests of boost data dumpers are enabled. You need
+// some boost headers installed.
+// Default: 0
+#define USE_BOOST 0
+
+// With USE_EGIEN tests of data dumpers for the "Eigen" library are
+// enabled. You need some eigen headers installed.
+// Default: 0
+#define USE_EIGEN 0
+
+
+////////////// No further global configuration below ////////////////
+
 
 void dummyStatement(...) {}
 
@@ -62,6 +90,8 @@ void dummyStatement(...) {}
 #include <QtGui/QColor>
 #include <QtGui/QFont>
 #include <QtGui/QLabel>
+
+
 //#include <QtGui/private/qfixed_p.h>
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
@@ -89,18 +119,8 @@ void dummyStatement(...) {}
 
 #include <stdarg.h>
 
-// For the full manual test, change the '#if 0' to '#if 1'
-#if 1
-#define BREAK_HERE /**/
-#else
-#define BREAK_HERE asm("int $3; mov %eax, %eax")
-#endif
-
 #include "../simple/deep/deep/simple_test_app.h"
 
-#define USE_PRIVATE 1
-//#define USE_BOOST 1
-//#define USE_EIGEN 1
 
 #if USE_BOOST
 #include <boost/optional.hpp>
@@ -130,6 +150,16 @@ void dummyStatement(...) {}
 #ifdef __SSE__
 #include <xmmintrin.h>
 #include <stddef.h>
+#endif
+
+#if USE_AUTOBREAK
+#   if Q_CC_MSVC
+#       define BREAK_HERE __asm { int 3 }; __asm { mov eax, eax }
+#   else
+#       define BREAK_HERE asm("int $3; mov %eax, %eax")
+#   endif
+#else
+#   define BREAK_HERE /**/
 #endif
 
 namespace multibp {
