@@ -78,7 +78,7 @@ public:
 
 private:
     void clear();
-    void checkDiagnosticMessage(const CPlusPlus::Document::Ptr &document, unsigned line);
+    void checkDiagnosticMessage(int pos);
     bool matchIncludeFile(const CPlusPlus::Document::Ptr &document, unsigned line);
     bool matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos);
     void handleLookupItemMatch(const CPlusPlus::Snapshot &snapshot,

@@ -1084,6 +1084,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
                 }
                 c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
                 sel.cursor = c;
+                sel.format.setToolTip(m.text());
                 selections.append(sel);
             }
 #endif

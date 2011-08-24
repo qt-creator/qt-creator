@@ -109,7 +109,7 @@ void CppElementEvaluator::execute()
     const int pos = m_tc.position();
     m_editor->convertPosition(pos, &line, &column);
 
-    checkDiagnosticMessage(doc, line);
+    checkDiagnosticMessage(pos);
 
     if (!matchIncludeFile(doc, line) && !matchMacroInUse(doc, pos)) {
         CppTools::moveCursorToEndOfIdentifier(&m_tc);
@@ -130,12 +130,12 @@ void CppElementEvaluator::execute()
     }
 }
 
-void CppElementEvaluator::checkDiagnosticMessage(const CPlusPlus::Document::Ptr &document,
-                                                 unsigned line)
+void CppElementEvaluator::checkDiagnosticMessage(int pos)
 {
-    foreach (const Document::DiagnosticMessage &m, document->diagnosticMessages()) {
-        if (m.line() == line) {
-            m_diagnosis = m.text();
+    foreach (const QTextEdit::ExtraSelection &sel,
+             m_editor->extraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection)) {
+        if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
+            m_diagnosis = sel.format.toolTip();
             break;
         }
     }
