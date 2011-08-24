@@ -64,6 +64,7 @@ public:
     virtual bool isRunning() const;
     virtual QIcon icon() const;
 private slots:
+    void processStarted();
     void processExited(int exitCode);
     void slotAppendMessage(const QString &err, Utils::OutputFormat isError);
 private:

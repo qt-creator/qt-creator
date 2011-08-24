@@ -73,6 +73,7 @@ public:
 
 signals:
     void appendMessage(const QString &message, Utils::OutputFormat format);
+    void processStarted();
     void processExited(int exitCode);
     void bringToForegroundRequested(qint64 pid);
 

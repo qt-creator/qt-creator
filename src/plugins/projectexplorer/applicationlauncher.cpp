@@ -111,6 +111,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
 #ifdef Q_OS_UNIX
     d->m_consoleProcess.setSettings(Core::ICore::instance()->settings());
 #endif
+    connect(&d->m_consoleProcess, SIGNAL(processStarted()),
+            this, SIGNAL(processStarted()));
     connect(&d->m_consoleProcess, SIGNAL(processError(QString)),
             this, SLOT(consoleProcessError(QString)));
     connect(&d->m_consoleProcess, SIGNAL(processStopped()),
@@ -273,6 +275,7 @@ void ApplicationLauncher::processDone(int exitCode, QProcess::ExitStatus)
 void ApplicationLauncher::bringToForeground()
 {
     emit bringToForegroundRequested(applicationPID());
+    emit processStarted();
 }
 
 QString ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput()
