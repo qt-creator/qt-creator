@@ -416,12 +416,8 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
             QString event(value.findChild("event").toVariant().toString());
 
             if (event == "break") {
-                //Check if this break is due to a breakpoint
-                QList<QVariant> breakpoints = value.findChild("body").findChild("breakpoints").toVariant().toList();
-                if (breakpoints.count()) {
-                    d->engine->inferiorSpontaneousStop();
-                    listBreakpoints();
-                }
+                d->engine->inferiorSpontaneousStop();
+                listBreakpoints();
             }
         }
     }
@@ -577,7 +573,6 @@ void QmlV8DebuggerClient::updateBreakpoints(QByteArray &message)
 {
     JsonValue response(message);
 
-    JsonValue refs = response.findChild("refs");
     JsonValue body = response.findChild("body");
 
     QList<JsonValue> breakpoints = body.findChild("breakpoints").children();

@@ -218,10 +218,6 @@ void QScriptDebuggerClient::insertBreakpoint(BreakpointModelId id)
     bp.lineNumber = handler->lineNumber(id);
     bp.functionName = handler->functionName(id).toUtf8();
     d->breakpoints.insert(bp);
-
-    if (handler->state(id) == BreakpointInsertProceeding) {
-        handler->notifyBreakpointInsertOk(id);
-    }
 }
 
 void QScriptDebuggerClient::removeBreakpoint(BreakpointModelId id)
@@ -412,6 +408,9 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
             BreakHandler *handler = d->engine->breakHandler();
             foreach (BreakpointModelId id, handler->engineBreakpointIds(d->engine)) {
                 QString processedFilename = handler->fileName(id);
+                QTC_ASSERT(handler->state(id) == BreakpointInsertProceeding,/**/);
+                handler->notifyBreakpointInsertOk(id);
+
                 if (processedFilename == file && handler->lineNumber(id) == line) {
                     QTC_ASSERT(handler->state(id) == BreakpointInserted,/**/);
                     BreakpointResponse br = handler->response(id);
