@@ -126,31 +126,6 @@ namespace {
 bool semanticHighlighterDisabled = qstrcmp(qVersion(), "4.7.0") == 0;
 }
 
-static QList<QTextEdit::ExtraSelection> createSelections(QTextDocument *document,
-                                                         const QList<CPlusPlus::Document::DiagnosticMessage> &msgs,
-                                                         const QTextCharFormat &format)
-{
-    QList<QTextEdit::ExtraSelection> selections;
-
-    foreach (const Document::DiagnosticMessage &m, msgs) {
-        const int pos = document->findBlockByNumber(m.line() - 1).position() + m.column() - 1;
-        if (pos < 0)
-            continue;
-
-        QTextCursor cursor(document);
-        cursor.setPosition(pos);
-        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
-
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
-        sel.format = format;
-        sel.format.setToolTip(m.text());
-        selections.append(sel);
-    }
-
-    return selections;
-}
-
 namespace {
 
 class OverviewTreeView : public QTreeView
@@ -1844,14 +1819,6 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     }
 
     if (m_lastSemanticInfo.forced || previousSemanticInfo.revision != semanticInfo.revision) {
-        QTextCharFormat diagnosticMessageFormat;
-        diagnosticMessageFormat.setUnderlineColor(Qt::darkYellow); // ### hardcoded
-        diagnosticMessageFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline); // ### hardcoded
-
-        setExtraSelections(UndefinedSymbolSelection, createSelections(document(),
-                                                                      semanticInfo.diagnosticMessages,
-                                                                      diagnosticMessageFormat));
-
         m_highlighter.cancel();
 
         if (! semanticHighlighterDisabled && semanticInfo.doc) {
@@ -2076,7 +2043,6 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
             && m_lastSemanticInfo.doc->fileName() == source.fileName) {
         semanticInfo.snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
         semanticInfo.doc = m_lastSemanticInfo.doc;
-        semanticInfo.diagnosticMessages = m_lastSemanticInfo.diagnosticMessages;
         semanticInfo.objcKeywords = m_lastSemanticInfo.objcKeywords;
     }
     m_mutex.unlock();
