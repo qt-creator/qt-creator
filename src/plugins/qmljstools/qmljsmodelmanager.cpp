@@ -698,10 +698,17 @@ void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &im
 // is called *inside a c++ parsing thread*, to allow hanging on to source and ast
 void ModelManager::maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc)
 {
+    // avoid scanning documents without source code available
+    doc->keepSourceAndAST();
+    if (doc->source().isEmpty()) {
+        doc->releaseSourceAndAST();
+        return;
+    }
+
     // keep source and AST alive if we want to scan for register calls
     const bool scan = FindExportedCppTypes::maybeExportsTypes(doc);
-    if (scan)
-        doc->keepSourceAndAST();
+    if (!scan)
+        doc->releaseSourceAndAST();
 
     // delegate actual queuing to the gui thread
     QMetaObject::invokeMethod(this, "queueCppQmlTypeUpdate",

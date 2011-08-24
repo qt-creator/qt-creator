@@ -113,6 +113,12 @@ public:
         Table _elements;
     };
 
+    enum ExtraDiagnosticKind
+    {
+        AllExtraDiagnostics = -1,
+        ExportedQmlTypesDiagnostic
+    };
+
 public:
     CppModelManagerInterface(QObject *parent = 0);
     virtual ~CppModelManagerInterface();
@@ -139,6 +145,11 @@ public:
     virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) = 0;
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
+
+    virtual void setExtraDiagnostics(const QString &fileName, int key,
+                                     const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics) = 0;
+    virtual QList<CPlusPlus::Document::DiagnosticMessage> extraDiagnostics(
+            const QString &fileName, int key = AllExtraDiagnostics) const = 0;
 
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);

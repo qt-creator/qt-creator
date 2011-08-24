@@ -1060,7 +1060,9 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
             }
 #else
             QSet<int> lines;
-            foreach (const Document::DiagnosticMessage &m, doc->diagnosticMessages()) {
+            QList<Document::DiagnosticMessage> messages = doc->diagnosticMessages();
+            messages += extraDiagnostics(doc->fileName());
+            foreach (const Document::DiagnosticMessage &m, messages) {
                 if (m.fileName() != fileName)
                     continue;
                 else if (lines.contains(m.line()))
@@ -1287,6 +1289,35 @@ void CppModelManager::GC()
 void CppModelManager::finishedRefreshingSourceFiles(const QStringList &files)
 {
     emit sourceFilesRefreshed(files);
+}
+
+
+void CppModelManager::setExtraDiagnostics(const QString &fileName, int kind,
+                                          const QList<Document::DiagnosticMessage> &diagnostics)
+{
+    {
+        QMutexLocker locker(&protectExtraDiagnostics);
+        m_extraDiagnostics[fileName].insert(kind, diagnostics);
+    }
+    Document::Ptr doc;
+    {
+        QMutexLocker locker(&protectSnapshot);
+        doc = m_snapshot.document(fileName);
+    }
+    if (doc)
+        emit documentUpdated(doc);
+}
+
+QList<Document::DiagnosticMessage> CppModelManager::extraDiagnostics(const QString &fileName, int kind) const
+{
+    QMutexLocker locker(&protectExtraDiagnostics);
+    if (kind == -1) {
+        QList<Document::DiagnosticMessage> messages;
+        foreach (const QList<Document::DiagnosticMessage> &list, m_extraDiagnostics.value(fileName))
+            messages += list;
+        return messages;
+    }
+    return m_extraDiagnostics.value(fileName).value(kind);
 }
 
 #endif

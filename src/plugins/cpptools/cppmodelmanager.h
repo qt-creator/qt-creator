@@ -34,6 +34,7 @@
 #define CPPMODELMANAGER_H
 
 #include "cpptools_global.h"
+#include "cpptoolsconstants.h"
 #include <cplusplus/ModelManagerInterface.h>
 #ifndef ICHECK_BUILD
 #  include <projectexplorer/project.h>
@@ -127,6 +128,12 @@ public:
     virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
+
+    virtual void setExtraDiagnostics(const QString &fileName, int key,
+                                     const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics);
+    virtual QList<CPlusPlus::Document::DiagnosticMessage> extraDiagnostics(
+            const QString &fileName, int key = AllExtraDiagnostics) const;
+
 
     void finishedRefreshingSourceFiles(const QStringList &files);
 
@@ -226,6 +233,9 @@ private:
 
     CppFindReferences *m_findReferences;
     bool m_indexerEnabled;
+
+    mutable QMutex protectExtraDiagnostics;
+    QHash<QString, QHash<int, QList<CPlusPlus::Document::DiagnosticMessage> > > m_extraDiagnostics;
 };
 #endif
 

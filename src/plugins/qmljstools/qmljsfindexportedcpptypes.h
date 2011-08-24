@@ -36,12 +36,17 @@
 #include <cplusplus/CppDocument.h>
 #include <languageutils/fakemetaobject.h>
 
+#include <QtCore/QCoreApplication>
+
 namespace QmlJSTools {
 
 class FindExportedCppTypes
 {
+    Q_DECLARE_TR_FUNCTIONS(FindExportedCppTypes)
 public:
     FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot);
+
+    // document must have a valid source and ast for the duration of the call
     QList<LanguageUtils::FakeMetaObject::ConstPtr> operator()(const CPlusPlus::Document::Ptr &document);
 
     static bool maybeExportsTypes(const CPlusPlus::Document::Ptr &document);

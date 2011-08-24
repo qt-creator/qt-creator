@@ -45,6 +45,7 @@
 #include <cplusplus/CoreTypes.h>
 #include <cplusplus/Symbols.h>
 #include <cplusplus/SimpleLexer.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -71,6 +72,7 @@ class FindExportsVisitor : protected ASTVisitor
     ASTMatcher _matcher;
     ASTPatternBuilder _builder;
     Overview _overview;
+    QList<Document::DiagnosticMessage> _messages;
 
 public:
     FindExportsVisitor(CPlusPlus::Document::Ptr doc)
@@ -84,6 +86,11 @@ public:
         _exportedTypes.clear();
         accept(translationUnit()->ast());
         return _exportedTypes;
+    }
+
+    QList<Document::DiagnosticMessage> messages() const
+    {
+        return _messages;
     }
 
 protected:
@@ -135,10 +142,14 @@ protected:
         if (StringLiteralAST *nameAst = ast->expression_list->next->next->next->value->asStringLiteral())
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
-            // disable this warning for now, we don't want to encourage using string literals if they don't mean to
-            // in the future, we will also accept annotations for the qmlRegisterType arguments in comments
-//            translationUnit()->warning(ast->expression_list->next->next->next->value->firstToken(),
-//                                       "The type will only be available in Qt Creator's QML editors when the type name is a string literal");
+            unsigned line, column;
+            translationUnit()->getTokenStartPosition(ast->expression_list->next->next->next->value->firstToken(), &line, &column);
+            _messages += Document::DiagnosticMessage(
+                        Document::DiagnosticMessage::Warning,
+                        _doc->fileName(),
+                        line, column,
+                        FindExportedCppTypes::tr(
+                            "The type will only be available in Qt Creator's QML editors when the type name is a string literal"));
             return false;
         }
 
@@ -187,6 +198,19 @@ protected:
                 }
             }
         }
+        if (packageName.isEmpty()) {
+            packageName = QmlJS::CppQmlTypes::defaultPackage;
+            unsigned line, column;
+            translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
+            _messages += Document::DiagnosticMessage(
+                        Document::DiagnosticMessage::Warning,
+                        _doc->fileName(),
+                        line, column,
+                        FindExportedCppTypes::tr(
+                            "The module uri cannot be determined by static analysis. The type will be available\n"
+                            "globally in the QML editor. You can add a \"// @uri My.Module.Uri\" annotation to let\n"
+                            "Qt Creator know about a likely uri."));
+        }
 
         // second and third argument must be integer literals
         const NumericLiteral *majorLit = 0;
@@ -199,17 +223,11 @@ protected:
         // build the descriptor
         ExportedQmlType exportedType;
         exportedType.typeName = QString::fromUtf8(nameLit->chars(), nameLit->size());
-        if (!packageName.isEmpty() && majorLit && minorLit && majorLit->isInt() && minorLit->isInt()) {
-            exportedType.packageName = packageName;
+        exportedType.packageName = packageName;
+        if (majorLit && minorLit && majorLit->isInt() && minorLit->isInt()) {
             exportedType.version = LanguageUtils::ComponentVersion(
                         QString::fromUtf8(majorLit->chars(), majorLit->size()).toInt(),
                         QString::fromUtf8(minorLit->chars(), minorLit->size()).toInt());
-        } else {
-            // disable this warning, see above for details
-//            translationUnit()->warning(ast->base_expression->firstToken(),
-//                                       "The module will not be available in Qt Creator's QML editors because the uri and version numbers\n"
-//                                       "cannot be determined by static analysis. The type will still be available globally.");
-            exportedType.packageName = QmlJS::CppQmlTypes::defaultPackage;
         }
 
         // we want to do lookup later, so also store the surrounding scope
@@ -498,12 +516,17 @@ FindExportedCppTypes::FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot)
 QList<LanguageUtils::FakeMetaObject::ConstPtr> FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 {
     QList<LanguageUtils::FakeMetaObject::ConstPtr> noResults;
+    // this check only guards against some input errors, if document's source and AST has not
+    // been guarded properly the source and AST may still become empty/null while this function is running
     if (document->source().isEmpty()
             || !document->translationUnit()->ast())
         return noResults;
 
     FindExportsVisitor finder(document);
     QList<ExportedQmlType> exports = finder();
+    CppModelManagerInterface::instance()->setExtraDiagnostics(
+                document->fileName(), CppModelManagerInterface::ExportedQmlTypesDiagnostic,
+                finder.messages());
     if (exports.isEmpty())
         return noResults;
 
