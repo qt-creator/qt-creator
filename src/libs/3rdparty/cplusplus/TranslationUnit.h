@@ -57,6 +57,9 @@ public:
     int tokenKind(unsigned index) const;
     const char *spell(unsigned index) const;
 
+    unsigned commentCount() const;
+    const Token &commentAt(unsigned index) const;
+
     unsigned matchingBrace(unsigned index) const;
     const Identifier *identifier(unsigned index) const;
     const Literal *literal(unsigned index) const;
@@ -164,6 +167,7 @@ private:
     const char *_firstSourceChar;
     const char *_lastSourceChar;
     std::vector<Token> *_tokens;
+    std::vector<Token> *_comments;
     std::vector<unsigned> _lineOffsets;
     std::vector<PPLine> _ppLines;
     MemoryPool *_pool;

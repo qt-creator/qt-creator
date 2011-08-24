@@ -48,6 +48,7 @@ TranslationUnit::TranslationUnit(Control *control, const StringLiteral *fileId)
       _flags(0)
 {
     _tokens = new std::vector<Token>();
+    _comments = new std::vector<Token>();
     _previousTranslationUnit = control->switchTranslationUnit(this);
     _pool = new MemoryPool();
 }
@@ -56,6 +57,7 @@ TranslationUnit::~TranslationUnit()
 {
     (void) _control->switchTranslationUnit(_previousTranslationUnit);
     delete _tokens;
+    delete _comments;
     delete _pool;
 }
 
@@ -121,6 +123,12 @@ const char *TranslationUnit::spell(unsigned index) const
     return _tokens->at(index).spell();
 }
 
+unsigned TranslationUnit::commentCount() const
+{ return _comments->size(); }
+
+const Token &TranslationUnit::commentAt(unsigned index) const
+{ return _comments->at(index); }
+
 const Identifier *TranslationUnit::identifier(unsigned index) const
 { return _tokens->at(index).identifier; }
 
@@ -159,6 +167,7 @@ void TranslationUnit::tokenize()
     lex.setQtMocRunEnabled(f._qtMocRunEnabled);
     lex.setCxxOxEnabled(f._cxx0xEnabled);
     lex.setObjCEnabled(f._objCEnabled);
+    lex.setScanCommentTokens(true);
 
     std::stack<unsigned> braces;
     _tokens->push_back(Token()); // the first token needs to be invalid!
@@ -212,6 +221,9 @@ void TranslationUnit::tokenize()
             const unsigned open_brace_index = braces.top();
             braces.pop();
             (*_tokens)[open_brace_index].close_brace = _tokens->size();
+        } else if (tk.isComment()) {
+            _comments->push_back(tk);
+            continue; // comments are not in the regular token stream
         }
         tk.f.generated = generated;
         _tokens->push_back(tk);
@@ -475,6 +487,8 @@ void TranslationUnit::release()
     resetAST();
     delete _tokens;
     _tokens = 0;
+    delete _comments;
+    _comments = 0;
 }
 
 
