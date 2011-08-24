@@ -81,6 +81,8 @@ struct ApplicationLauncherPrivate {
     QTextCodec *m_outputCodec;
     QTextCodec::ConverterState m_outputCodecState;
     QTextCodec::ConverterState m_errorCodecState;
+    // Keep track whether we need to emit a finished signal
+    bool m_processRunning;
 };
 
 ApplicationLauncherPrivate::ApplicationLauncherPrivate() :
@@ -155,6 +157,7 @@ void ApplicationLauncher::setEnvironment(const Utils::Environment &env)
 
 void ApplicationLauncher::start(Mode mode, const QString &program, const QString &args)
 {
+    d->m_processRunning = true;
 #ifdef Q_OS_WIN
     if (!WinDebugInterface::instance()->isRunning())
         WinDebugInterface::instance()->start(); // Try to start listener again...
@@ -225,11 +228,19 @@ void ApplicationLauncher::guiProcessError()
         error = tr("Some error has occurred while running the program.");
     }
     emit appendMessage(error + QLatin1Char('\n'), Utils::ErrorMessageFormat);
+    if (d->m_processRunning && !isRunning()) {
+        d->m_processRunning = false;
+        emit processExited(-1);
+    }
 }
 
 void ApplicationLauncher::consoleProcessError(const QString &error)
 {
     emit appendMessage(error + QLatin1Char('\n'), Utils::ErrorMessageFormat);
+    if (d->m_processRunning && d->m_consoleProcess.applicationPID() == 0) {
+        d->m_processRunning = false;
+        emit processExited(-1);
+    }
 }
 
 void ApplicationLauncher::readStandardOutput()
