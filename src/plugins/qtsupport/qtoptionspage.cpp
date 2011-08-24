@@ -293,6 +293,8 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
 
     if (!success)
         showDebuggingBuildLog(item);
+
+    updateDebuggingHelperUi();
 }
 
 void QtOptionsPageWidget::cleanUpQtVersions()
