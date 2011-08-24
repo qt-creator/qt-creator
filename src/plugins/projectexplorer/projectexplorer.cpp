@@ -1319,7 +1319,7 @@ void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *o
 void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
 {
     // Process command line arguments first:
-    if (pluginSpec()->arguments.contains("-lastsession"))
+    if (pluginSpec()->arguments().contains("-lastsession"))
         d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
     QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
     if (d->m_sessionToRestoreAtStartup.isNull()) {
