@@ -85,6 +85,10 @@ public:
     void setViewType(ViewTypes type);
     void setShowAnonymousEvents( bool showThem );
 
+    QModelIndex selectedItem() const;
+    void copyTableToClipboard();
+    void copyRowToClipboard();
+
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber);
     void contextMenuRequested(const QPoint &position);

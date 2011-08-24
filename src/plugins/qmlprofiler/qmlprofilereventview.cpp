@@ -38,6 +38,9 @@
 #include <QtGui/QStandardItem>
 #include <QtGui/QHeaderView>
 
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
+
 #include <QtGui/QContextMenuEvent>
 #include <QDebug>
 
@@ -83,6 +86,8 @@ public:
     int getFieldCount();
     QString displayTime(double time) const;
     QString nameForType(int typeNumber) const;
+
+    QString textForItem(QStandardItem *item, bool recursive) const;
 
 
     QmlProfilerEventsView *q;
@@ -405,6 +410,71 @@ void QmlProfilerEventsView::jumpToItem(const QModelIndex &index)
 void QmlProfilerEventsView::contextMenuEvent(QContextMenuEvent *ev)
 {
     emit contextMenuRequested(ev->globalPos());
+}
+
+QModelIndex QmlProfilerEventsView::selectedItem() const
+{
+    QModelIndexList sel = selectedIndexes();
+    if (sel.isEmpty())
+        return QModelIndex();
+    else
+        return sel.first();
+}
+
+QString QmlProfilerEventsView::QmlProfilerEventsViewPrivate::textForItem(QStandardItem *item, bool recursive = true) const
+{
+    QString str;
+
+    if (recursive) {
+        // indentation
+        QStandardItem *itemParent = item->parent();
+        while (itemParent) {
+            str += '\t';
+            itemParent = itemParent->parent();
+        }
+    }
+
+    // item's data
+    int colCount = m_model->columnCount();
+    for (int j = 0; j < colCount; ++j) {
+        QStandardItem *colItem = item->parent() ? item->parent()->child(item->row(),j) : m_model->item(item->row(),j);
+        str += colItem->data(Qt::DisplayRole).toString();
+        if (j < colCount-1) str += '\t';
+    }
+    str += '\n';
+
+    // recursively print children
+    if (recursive && item->child(0))
+        for (int j = 0; j != item->rowCount(); j++)
+            str += textForItem(item->child(j));
+
+    return str;
+}
+
+void QmlProfilerEventsView::copyTableToClipboard()
+{
+    QString str;
+    int n = d->m_model->rowCount();
+    for (int i = 0; i != n; ++i) {
+        str += d->textForItem(d->m_model->item(i));
+    }
+    QClipboard *clipboard = QApplication::clipboard();
+#    ifdef Q_WS_X11
+    clipboard->setText(str, QClipboard::Selection);
+#    endif
+    clipboard->setText(str, QClipboard::Clipboard);
+}
+
+void QmlProfilerEventsView::copyRowToClipboard()
+{
+    QString str;
+    str = d->textForItem(d->m_model->itemFromIndex(selectedItem()), false);
+
+    QClipboard *clipboard = QApplication::clipboard();
+#    ifdef Q_WS_X11
+    clipboard->setText(str, QClipboard::Selection);
+#    endif
+    clipboard->setText(str, QClipboard::Clipboard);
 }
 
 } // namespace Internal

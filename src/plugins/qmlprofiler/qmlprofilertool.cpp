@@ -169,15 +169,28 @@ IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
 
 void QmlProfilerTool::showContextMenu(const QPoint &position)
 {
+    QmlProfilerEventsView *senderView = qobject_cast<QmlProfilerEventsView *>(sender());
+
     QMenu menu;
     QAction *loadAction = menu.addAction(tr("Load QML Trace"));
     QAction *saveAction = menu.addAction(tr("Save QML Trace"));
+    QAction *copyRowAction;
+    QAction *copyTableAction;
+    if (senderView) {
+        if (senderView->selectedItem().isValid())
+            copyRowAction = menu.addAction(tr("Copy Row"));
+        copyTableAction = menu.addAction(tr("Copy Table"));
+    }
 
     QAction *selectedAction = menu.exec(position);
     if (selectedAction == loadAction)
         showLoadDialog();
     if (selectedAction == saveAction)
         showSaveDialog();
+    if (selectedAction == copyRowAction)
+        senderView->copyRowToClipboard();
+    if (selectedAction == copyTableAction)
+        senderView->copyTableToClipboard();
 }
 
 IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
