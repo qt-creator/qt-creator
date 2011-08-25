@@ -91,7 +91,8 @@ SOURCES += mainwindow.cpp \
     mimetypemagicdialog.cpp \
     mimetypesettings.cpp \
     dialogs/promptoverwritedialog.cpp \
-    fileutils.cpp
+    fileutils.cpp \
+    textfile.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -185,7 +186,8 @@ HEADERS += mainwindow.h \
     mimetypesettings.h \
     dialogs/promptoverwritedialog.h \
     fileutils.h \
-    externaltoolmanager.h
+    externaltoolmanager.h \
+    textfile.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

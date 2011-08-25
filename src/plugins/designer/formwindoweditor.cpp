@@ -157,19 +157,19 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     const QFileInfo fi(fileName);
     const QString absfileName = fi.absoluteFilePath();
 
-    Utils::FileReader reader;
-    if (!reader.fetch(realFileName, QIODevice::Text, errorString))
+    QString contents;
+    if (d->m_file.read(absfileName, &contents, errorString) != Utils::TextFileFormat::ReadSuccess)
         return false;
 
     form->setFileName(absfileName);
-    QByteArray contents = reader.data();
 #if QT_VERSION >= 0x050000
-    QBuffer str(&contents);
+    const QByteArray contentsBA = contents.toUtf8();
+    QBuffer str(&contentsBA);
     str.open(QIODevice::ReadOnly);
     if (!form->setContents(&str, errorString))
         return false;
 #else
-    form->setContents(QString::fromUtf8(contents));
+    form->setContents(contents);
     if (!form->mainContainer())
         return false;
 #endif

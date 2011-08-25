@@ -40,6 +40,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/synchronousprocess.cpp \
     $$PWD/savefile.cpp \
     $$PWD/fileutils.cpp \
+    $$PWD/textfileformat.cpp \
     $$PWD/submitfieldwidget.cpp \
     $$PWD/consoleprocess.cpp \
     $$PWD/uncommentselection.cpp \
@@ -135,6 +136,7 @@ HEADERS += \
     $$PWD/synchronousprocess.h \
     $$PWD/savefile.h \
     $$PWD/fileutils.h \
+    $$PWD/textfileformat.h \
     $$PWD/submitfieldwidget.h \
     $$PWD/uncommentselection.h \
     $$PWD/parameteraction.h \

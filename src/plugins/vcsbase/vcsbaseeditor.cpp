@@ -387,7 +387,7 @@ void VCSBaseEditorWidget::setDiffBaseDirectory(const QString &bd)
 
 QTextCodec *VCSBaseEditorWidget::codec() const
 {
-    return baseTextDocument()->codec();
+    return const_cast<QTextCodec *>(baseTextDocument()->codec());
 }
 
 void VCSBaseEditorWidget::setCodec(QTextCodec *c)

@@ -35,7 +35,7 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/textfile.h>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;
@@ -51,7 +51,7 @@ class ExtraEncodingSettings;
 class SyntaxHighlighter;
 class BaseTextDocumentPrivate;
 
-class TEXTEDITOR_EXPORT BaseTextDocument : public Core::IFile
+class TEXTEDITOR_EXPORT BaseTextDocument : public Core::TextFile
 {
     Q_OBJECT
 
@@ -94,11 +94,6 @@ public:
     QTextDocument *document() const;
     void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
     SyntaxHighlighter *syntaxHighlighter() const;
-
-    bool hasDecodingError() const;
-    QTextCodec *codec() const;
-    void setCodec(QTextCodec *c);
-    QByteArray decodingErrorSample() const;
 
     bool reload(QString *errorString, QTextCodec *codec);
     void cleanWhitespace(const QTextCursor &cursor);

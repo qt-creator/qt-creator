@@ -5615,7 +5615,8 @@ void BaseTextEditorWidget::setTextCodec(QTextCodec *codec)
 
 QTextCodec *BaseTextEditorWidget::textCodec() const
 {
-    return baseTextDocument()->codec();
+    // TODO: Fix all QTextCodec usages to be const *.
+    return const_cast<QTextCodec *>(baseTextDocument()->codec());
 }
 
 void BaseTextEditorWidget::setReadOnly(bool b)

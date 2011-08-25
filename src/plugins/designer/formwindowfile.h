@@ -33,7 +33,7 @@
 #ifndef FORMWINDOWFILE_H
 #define FORMWINDOWFILE_H
 
-#include <coreplugin/ifile.h>
+#include <coreplugin/textfile.h>
 
 #include <QtCore/QPointer>
 
@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 namespace Designer {
 namespace Internal {
 
-class FormWindowFile : public Core::IFile
+class FormWindowFile : public Core::TextFile
 {
     Q_OBJECT
 
