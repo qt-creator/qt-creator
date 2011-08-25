@@ -64,9 +64,14 @@ FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
 void FunctionDeclDefLinkFinder::onFutureDone()
 {
     QSharedPointer<FunctionDeclDefLink> link = m_watcher.result();
-    if (link)
+    if (link) {
         link->linkSelection = m_scannedSelection;
+        link->nameSelection = m_nameSelection;
+        if (m_nameSelection.selectedText() != link->nameInitial)
+            link.clear();
+    }
     m_scannedSelection = QTextCursor();
+    m_nameSelection = QTextCursor();
     if (link)
         emit foundLink(link);
 }
@@ -79,7 +84,8 @@ QTextCursor FunctionDeclDefLinkFinder::scannedSelection() const
 // parent is either a FunctionDefinitionAST or a SimpleDeclarationAST
 // line and column are 1-based
 static bool findDeclOrDef(const Document::Ptr &doc, int line, int column,
-                          DeclarationAST **parent, FunctionDeclaratorAST **funcDecl)
+                          DeclarationAST **parent, DeclaratorAST **decl,
+                          FunctionDeclaratorAST **funcDecl)
 {
     QList<AST *> path = ASTPath(doc)(line, column);
 
@@ -89,29 +95,29 @@ static bool findDeclOrDef(const Document::Ptr &doc, int line, int column,
     //    with a FunctionDeclarator postfix
     FunctionDefinitionAST *funcDef = 0;
     SimpleDeclarationAST *simpleDecl = 0;
-    DeclaratorAST *decl = 0;
+    *decl = 0;
     for (int i = path.size() - 1; i > 0; --i) {
         AST *ast = path.at(i);
         if (ast->asCompoundStatement() || ast->asCtorInitializer())
             break;
         if ((funcDef = ast->asFunctionDefinition()) != 0) {
             *parent = funcDef;
-            decl = funcDef->declarator;
+            *decl = funcDef->declarator;
             break;
         }
         if ((simpleDecl = ast->asSimpleDeclaration()) != 0) {
             *parent = simpleDecl;
             if (!simpleDecl->declarator_list || !simpleDecl->declarator_list->value)
                 break;
-            decl = simpleDecl->declarator_list->value;
+            *decl = simpleDecl->declarator_list->value;
             break;
         }
     }
-    if (!*parent || !decl)
+    if (!*parent || !*decl)
         return false;
-    if (!decl->postfix_declarator_list || !decl->postfix_declarator_list->value)
+    if (!(*decl)->postfix_declarator_list || !(*decl)->postfix_declarator_list->value)
         return false;
-    *funcDecl = decl->postfix_declarator_list->value->asFunctionDeclarator();
+    *funcDecl = (*decl)->postfix_declarator_list->value->asFunctionDeclarator();
     return *funcDecl;
 }
 
@@ -128,6 +134,19 @@ static void declDefLinkStartEnd(const CppTools::CppRefactoringFileConstPtr &file
         *end = file->endOf(funcDecl->cv_qualifier_list->lastValue());
     else
         *end = file->endOf(funcDecl->rparen_token);
+}
+
+static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
+{
+    if (!declarator || !declarator->core_declarator)
+        return 0;
+    if (DeclaratorIdAST *id = declarator->core_declarator->asDeclaratorId()) {
+        return id;
+    }
+    if (NestedDeclaratorAST *nested = declarator->core_declarator->asNestedDeclarator()) {
+        return getDeclaratorId(nested->declarator);
+    }
+    return 0;
 }
 
 static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppTools::CppRefactoringChanges changes)
@@ -160,8 +179,9 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
 
     DeclarationAST *targetParent = 0;
     FunctionDeclaratorAST *targetFuncDecl = 0;
+    DeclaratorAST *targetDeclarator = 0;
     if (!findDeclOrDef(targetFile->cppDocument(), target->line(), target->column(),
-                       &targetParent, &targetFuncDecl))
+                       &targetParent, &targetDeclarator, &targetFuncDecl))
         return noResult;
 
     // the parens are necessary for finding good places for changes
@@ -191,7 +211,9 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     // check if cursor is on function decl/def
     DeclarationAST *parent = 0;
     FunctionDeclaratorAST *funcDecl = 0;
-    if (!findDeclOrDef(doc, cursor.blockNumber() + 1, cursor.columnNumber() + 1, &parent, &funcDecl))
+    DeclaratorAST *declarator = 0;
+    if (!findDeclOrDef(doc, cursor.blockNumber() + 1, cursor.columnNumber() + 1,
+                       &parent, &declarator, &funcDecl))
         return;
 
     // find the start/end offsets
@@ -214,8 +236,16 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     m_scannedSelection.setPosition(start, QTextCursor::KeepAnchor);
     m_scannedSelection.setKeepPositionOnInsert(true);
 
+    // build selection for the name
+    DeclaratorIdAST *declId = getDeclaratorId(declarator);
+    m_nameSelection = cursor;
+    m_nameSelection.setPosition(sourceFile->endOf(declId));
+    m_nameSelection.setPosition(sourceFile->startOf(declId), QTextCursor::KeepAnchor);
+    m_nameSelection.setKeepPositionOnInsert(true);
+
     // set up a base result
     QSharedPointer<FunctionDeclDefLink> result(new FunctionDeclDefLink);
+    result->nameInitial = m_nameSelection.selectedText();
     result->sourceDocument = doc;
     result->sourceFunction = funcDecl->symbol;
     result->sourceDeclaration = parent;
@@ -253,19 +283,6 @@ bool FunctionDeclDefLink::isMarkerVisible() const
 static bool namesEqual(const Name *n1, const Name *n2)
 {
     return n1 == n2 || (n1 && n2 && n1->isEqualTo(n2));
-}
-
-static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
-{
-    if (!declarator || !declarator->core_declarator)
-        return 0;
-    if (DeclaratorIdAST *id = declarator->core_declarator->asDeclaratorId()) {
-        return id;
-    }
-    if (NestedDeclaratorAST *nested = declarator->core_declarator->asNestedDeclarator()) {
-        return getDeclaratorId(nested->declarator);
-    }
-    return 0;
 }
 
 void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)

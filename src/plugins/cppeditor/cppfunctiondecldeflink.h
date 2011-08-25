@@ -71,6 +71,7 @@ private slots:
 
 private:
     QTextCursor m_scannedSelection;
+    QTextCursor m_nameSelection;
     QFutureWatcher<QSharedPointer<FunctionDeclDefLink> > m_watcher;
 };
 
@@ -92,6 +93,11 @@ public:
     Utils::ChangeSet changes(const CPlusPlus::Snapshot &snapshot, int targetOffset = -1);
 
     QTextCursor linkSelection;
+
+    // stored to allow aborting when the name is changed
+    QTextCursor nameSelection;
+    QString nameInitial;
+
     // 1-based line and column
     unsigned targetLine;
     unsigned targetColumn;
