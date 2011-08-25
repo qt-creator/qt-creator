@@ -194,9 +194,8 @@ namespace multibp {
             : m_size(size), m_data(new T[size])
         {
             BREAK_HERE;
-            int i = a // <== Set a manual breakpoint here.
             // Check there are multiple entries in the Breakpoint vie.
-            dummyStatement(&this);
+            dummyStatement(this);
         }
         ~Vector() { delete [] m_data; }
         int size() const { return m_size; }
@@ -204,7 +203,6 @@ namespace multibp {
         int m_size;
         T *m_data;
     };
-
 
     void testMultiBp()
     {
@@ -324,7 +322,7 @@ namespace peekandpoke {
         pain.drawEllipse(120, 70, 15, 15);
         BREAK_HERE;
         pain.end();
-        dummyStatement(&s);
+        dummyStatement(&pain);
     }
 
     void testPeekAndPoke3()
@@ -2794,10 +2792,12 @@ namespace basic {
         dummyStatement(&ba);
     }
 
+    void testFunctionPointerHelper() {}
+
     void testFunctionPointer()
     {
         typedef void (*func_t)();
-        func_t f2 = testPeekAndPoke3;
+        func_t f2 = testFunctionPointerHelper;
         BREAK_HERE;
         // Check there's a valid display for f2.
         dummyStatement(&f2);
