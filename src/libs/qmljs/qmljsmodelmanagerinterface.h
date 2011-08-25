@@ -110,7 +110,14 @@ public:
         Table _elements;
     };
 
-    typedef QHash<QString, QList<LanguageUtils::FakeMetaObject::ConstPtr> > CppQmlTypeHash;
+    class CppData
+    {
+    public:
+        QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedTypes;
+        QMap<QString, QString> contextProperties;
+    };
+
+    typedef QHash<QString, CppData> CppDataHash;
 
 public:
     ModelManagerInterface(QObject *parent = 0);
@@ -138,7 +145,7 @@ public:
     virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath,
                                  const QString &importUri, const QString &importVersion) = 0;
 
-    virtual CppQmlTypeHash cppQmlTypes() const = 0;
+    virtual CppDataHash cppData() const = 0;
 
     virtual LibraryInfo builtins(const Document::Ptr &doc) const = 0;
 

@@ -64,10 +64,18 @@ public:
     QString typeExpression;
 };
 
+class ContextProperty {
+public:
+    QString name;
+    QString expression;
+    unsigned line, column;
+};
+
 class FindExportsVisitor : protected ASTVisitor
 {
     CPlusPlus::Document::Ptr _doc;
     QList<ExportedQmlType> _exportedTypes;
+    QList<ContextProperty> _contextProperties;
     CompoundStatementAST *_compound;
     ASTMatcher _matcher;
     ASTPatternBuilder _builder;
@@ -81,16 +89,26 @@ public:
         , _compound(0)
     {}
 
-    QList<ExportedQmlType> operator()()
+    void operator()()
     {
         _exportedTypes.clear();
+        _contextProperties.clear();
         accept(translationUnit()->ast());
-        return _exportedTypes;
     }
 
     QList<Document::DiagnosticMessage> messages() const
     {
         return _messages;
+    }
+
+    QList<ExportedQmlType> exportedTypes() const
+    {
+        return _exportedTypes;
+    }
+
+    QList<ContextProperty> contextProperties() const
+    {
+        return _contextProperties;
     }
 
 protected:
@@ -104,6 +122,14 @@ protected:
     }
 
     virtual bool visit(CallAST *ast)
+    {
+        if (checkForQmlRegisterType(ast))
+            return false;
+        checkForSetContextProperty(ast);
+        return false;
+    }
+
+    bool checkForQmlRegisterType(CallAST *ast)
     {
         IdExpressionAST *idExp = ast->base_expression->asIdExpression();
         if (!idExp || !idExp->name)
@@ -139,7 +165,7 @@ protected:
 
         // last argument must be a string literal
         const StringLiteral *nameLit = 0;
-        if (StringLiteralAST *nameAst = ast->expression_list->next->next->next->value->asStringLiteral())
+        if (StringLiteralAST *nameAst = skipStringCall(ast->expression_list->next->next->next->value)->asStringLiteral())
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
             unsigned line, column;
@@ -155,7 +181,7 @@ protected:
 
         // if the first argument is a string literal, things are easy
         QString packageName;
-        if (StringLiteralAST *packageAst = ast->expression_list->value->asStringLiteral()) {
+        if (StringLiteralAST *packageAst = skipStringCall(ast->expression_list->value)->asStringLiteral()) {
             const StringLiteral *packageLit = translationUnit()->stringLiteral(packageAst->literal_token);
             packageName = QString::fromUtf8(packageLit->chars(), packageLit->size());
         }
@@ -242,7 +268,118 @@ protected:
 
         _exportedTypes += exportedType;
 
-        return false;
+        return true;
+    }
+
+    static NameAST *callName(ExpressionAST *exp)
+    {
+        if (IdExpressionAST *idExp = exp->asIdExpression())
+            return idExp->name;
+        if (MemberAccessAST *memberExp = exp->asMemberAccess())
+            return memberExp->member_name;
+        return 0;
+    }
+
+    static ExpressionAST *skipQVariant(ExpressionAST *ast, TranslationUnit *translationUnit)
+    {
+        CallAST *call = ast->asCall();
+        if (!call)
+            return ast;
+        if (!call->expression_list
+                || !call->expression_list->value
+                || call->expression_list->next)
+            return ast;
+
+        IdExpressionAST *idExp = call->base_expression->asIdExpression();
+        if (!idExp || !idExp->name)
+            return ast;
+
+        // QVariant(foo) -> foo
+        if (SimpleNameAST *simpleName = idExp->name->asSimpleName()) {
+            const Identifier *id = translationUnit->identifier(simpleName->identifier_token);
+            if (!id)
+                return ast;
+            if (QString::fromUtf8(id->chars(), id->size()) != QLatin1String("QVariant"))
+                return ast;
+            return call->expression_list->value;
+        }
+        // QVariant::fromValue(foo) -> foo
+        else if (QualifiedNameAST *q = idExp->name->asQualifiedName()) {
+            SimpleNameAST *simpleRhsName = q->unqualified_name->asSimpleName();
+            if (!simpleRhsName
+                    || !q->nested_name_specifier_list
+                    || !q->nested_name_specifier_list->value
+                    || q->nested_name_specifier_list->next)
+                return ast;
+            const Identifier *rhsId = translationUnit->identifier(simpleRhsName->identifier_token);
+            if (!rhsId)
+                return ast;
+            if (QString::fromUtf8(rhsId->chars(), rhsId->size()) != QLatin1String("fromValue"))
+                return ast;
+            NestedNameSpecifierAST *nested = q->nested_name_specifier_list->value;
+            SimpleNameAST *simpleLhsName = nested->class_or_namespace_name->asSimpleName();
+            if (!simpleLhsName)
+                return ast;
+            const Identifier *lhsId = translationUnit->identifier(simpleLhsName->identifier_token);
+            if (!lhsId)
+                return ast;
+            if (QString::fromUtf8(lhsId->chars(), lhsId->size()) != QLatin1String("QVariant"))
+                return ast;
+            return call->expression_list->value;
+        }
+
+        return ast;
+    }
+
+    bool checkForSetContextProperty(CallAST *ast)
+    {
+        // check whether ast->base_expression has the 'setContextProperty' name
+        NameAST *callNameAst = callName(ast->base_expression);
+        if (!callNameAst)
+            return false;
+        SimpleNameAST *simpleNameAst = callNameAst->asSimpleName();
+        if (!simpleNameAst || !simpleNameAst->identifier_token)
+            return false;
+        const Identifier *nameIdentifier = translationUnit()->identifier(simpleNameAst->identifier_token);
+        if (!nameIdentifier)
+            return false;
+        const QString callName = QString::fromUtf8(nameIdentifier->chars(), nameIdentifier->size());
+        if (callName != QLatin1String("setContextProperty"))
+            return false;
+
+        // must have two arguments
+        if (!ast->expression_list
+                || !ast->expression_list->value || !ast->expression_list->next
+                || !ast->expression_list->next->value || ast->expression_list->next->next)
+            return false;
+
+        // first argument must be a string literal
+        const StringLiteral *nameLit = 0;
+        if (StringLiteralAST *nameAst = skipStringCall(ast->expression_list->value)->asStringLiteral())
+            nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
+        if (!nameLit) {
+            unsigned line, column;
+            translationUnit()->getTokenStartPosition(ast->expression_list->value->firstToken(), &line, &column);
+            _messages += Document::DiagnosticMessage(
+                        Document::DiagnosticMessage::Warning,
+                        _doc->fileName(),
+                        line, column,
+                        FindExportedCppTypes::tr(
+                            "must be a string literal to be available in qml editor"));
+            return false;
+        }
+
+        ContextProperty contextProperty;
+        contextProperty.name = QString::fromUtf8(nameLit->chars(), nameLit->size());
+        contextProperty.expression = stringOf(skipQVariant(ast->expression_list->next->value, translationUnit()));
+        // we want to do lookup later, so also store the line and column of the target scope
+        translationUnit()->getTokenStartPosition(ast->firstToken(),
+                                                 &contextProperty.line,
+                                                 &contextProperty.column);
+
+        _contextProperties += contextProperty;
+
+        return true;
     }
 
 private:
@@ -265,8 +402,8 @@ private:
 
     ExpressionAST *skipStringCall(ExpressionAST *exp)
     {
-        if (!exp)
-            return 0;
+        if (!exp || !exp->asCall())
+            return exp;
 
         IdExpressionAST *callName = _builder.IdExpression();
         CallAST *call = _builder.Call(callName);
@@ -381,15 +518,26 @@ static Class *lookupClass(const QString &expression, Scope *scope, TypeOfExpress
     return 0;
 }
 
-static void populate(LanguageUtils::FakeMetaObject::Ptr fmo, Class *klass,
-                     QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> *classes,
-                     TypeOfExpression &typeOf)
+static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
+        Class *klass,
+        QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> *fakeMetaObjects,
+        TypeOfExpression &typeOf)
 {
     using namespace LanguageUtils;
 
+    if (FakeMetaObject::Ptr fmo = fakeMetaObjects->value(klass))
+        return fmo;
+
+    FakeMetaObject::Ptr fmo(new FakeMetaObject);
+    if (!klass)
+        return fmo;
+    fakeMetaObjects->insert(klass, fmo);
+
     Overview namePrinter;
 
-    classes->insert(klass, fmo);
+    fmo->setClassName(namePrinter(klass->name()));
+    // add the no-package export, so the cpp name can be used in properties
+    fmo->addExport(fmo->className(), QmlJS::CppQmlTypes::cppPackage, ComponentVersion());
 
     for (unsigned i = 0; i < klass->memberCount(); ++i) {
         Symbol *member = klass->memberAt(i);
@@ -454,56 +602,74 @@ static void populate(LanguageUtils::FakeMetaObject::Ptr fmo, Class *klass,
     if (klass->baseClassCount() > 0) {
         BaseClass *base = klass->baseClassAt(0);
         if (!base->name())
-            return;
+            return fmo;
 
         const QString baseClassName = namePrinter(base->name());
         fmo->setSuperclassName(baseClassName);
 
         Class *baseClass = lookupClass(baseClassName, klass, typeOf);
         if (!baseClass)
-            return;
+            return fmo;
 
-        FakeMetaObject::Ptr baseFmo = classes->value(baseClass);
-        if (!baseFmo) {
-            baseFmo = FakeMetaObject::Ptr(new FakeMetaObject);
-            populate(baseFmo, baseClass, classes, typeOf);
-        }
+        buildFakeMetaObject(baseClass, fakeMetaObjects, typeOf);
     }
+
+    return fmo;
 }
 
-QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedQmlObjects(
-        const Document::Ptr &doc,
-        const Snapshot &snapshot,
-        const QList<ExportedQmlType> &exportedTypes)
+static void buildExportedQmlObjects(
+        TypeOfExpression &typeOf,
+        const QList<ExportedQmlType> &cppExports,
+        QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> *fakeMetaObjects)
 {
     using namespace LanguageUtils;
-    QList<FakeMetaObject::ConstPtr> exportedObjects;
-    QHash<Class *, FakeMetaObject::Ptr> classes;
 
-    if (exportedTypes.isEmpty())
-        return exportedObjects;
+    if (cppExports.isEmpty())
+        return;
 
-    TypeOfExpression typeOf;
-    typeOf.init(doc, snapshot);
-    foreach (const ExportedQmlType &exportedType, exportedTypes) {
-        FakeMetaObject::Ptr fmo(new FakeMetaObject);
+    foreach (const ExportedQmlType &exportedType, cppExports) {
+        Class *klass = lookupClass(exportedType.typeExpression, exportedType.scope, typeOf);
+        // accepts a null klass
+        FakeMetaObject::Ptr fmo = buildFakeMetaObject(klass, fakeMetaObjects, typeOf);
         fmo->addExport(exportedType.typeName,
                        exportedType.packageName,
                        exportedType.version);
-        exportedObjects += fmo;
-
-        Class *klass = lookupClass(exportedType.typeExpression, exportedType.scope, typeOf);
-        if (!klass)
-            continue;
-
-        // add the no-package export, so the cpp name can be used in properties
-        Overview overview;
-        fmo->addExport(overview(klass->name()), QmlJS::CppQmlTypes::cppPackage, ComponentVersion());
-
-        populate(fmo, klass, &classes, typeOf);
     }
+}
 
-    return exportedObjects;
+static void buildContextProperties(
+        const Document::Ptr &doc,
+        TypeOfExpression &typeOf,
+        const QList<ContextProperty> &contextPropertyDescriptions,
+        QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> *fakeMetaObjects,
+        QMap<QString, QString> *contextProperties)
+{
+    using namespace LanguageUtils;
+
+    foreach (const ContextProperty &property, contextPropertyDescriptions) {
+        Scope *scope = doc->scopeAt(property.line, property.column);
+        QList<LookupItem> results = typeOf(property.expression, scope);
+        QString typeName;
+        if (!results.isEmpty()) {
+            LookupItem result = results.first();
+            FullySpecifiedType simpleType = stripPointerAndReference(result.type());
+            if (NamedType *namedType = simpleType.type()->asNamedType()) {
+                Scope *typeScope = result.scope();
+                if (!typeScope)
+                    typeScope = scope; // incorrect but may be an ok fallback
+                ClassOrNamespace *binding = typeOf.context().lookupType(namedType->name(), typeScope);
+                if (binding && !binding->symbols().isEmpty()) {
+                    Class *klass = binding->symbols().first()->asClass();
+                    if (klass) {
+                        FakeMetaObject::Ptr fmo = buildFakeMetaObject(klass, fakeMetaObjects, typeOf);
+                        typeName = fmo->className();
+                    }
+                }
+            }
+        }
+
+        contextProperties->insert(property.name, typeName);
+    }
 }
 
 } // anonymous namespace
@@ -513,26 +679,65 @@ FindExportedCppTypes::FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot)
 {
 }
 
-QList<LanguageUtils::FakeMetaObject::ConstPtr> FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
+void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 {
-    QList<LanguageUtils::FakeMetaObject::ConstPtr> noResults;
+    m_contextProperties.clear();
+    m_exportedTypes.clear();
+
     // this check only guards against some input errors, if document's source and AST has not
     // been guarded properly the source and AST may still become empty/null while this function is running
     if (document->source().isEmpty()
             || !document->translationUnit()->ast())
-        return noResults;
+        return;
 
     FindExportsVisitor finder(document);
-    QList<ExportedQmlType> exports = finder();
+    finder();
     if (CppModelManagerInterface *cppModelManager = CppModelManagerInterface::instance()) {
         cppModelManager->setExtraDiagnostics(
                     document->fileName(), CppModelManagerInterface::ExportedQmlTypesDiagnostic,
                     finder.messages());
     }
-    if (exports.isEmpty())
-        return noResults;
 
-    return exportedQmlObjects(document, m_snapshot, exports);
+    // if nothing was found, done
+    const QList<ContextProperty> contextPropertyDescriptions = finder.contextProperties();
+    const QList<ExportedQmlType> exports = finder.exportedTypes();
+    if (exports.isEmpty() && contextPropertyDescriptions.isEmpty())
+        return;
+
+    // context properties need lookup inside function scope, and thus require a full check
+    Document::Ptr localDoc = document;
+    if (document->checkMode() != Document::FullCheck && !contextPropertyDescriptions.isEmpty()) {
+        localDoc = m_snapshot.documentFromSource(document->source(), document->fileName());
+        localDoc->check();
+    }
+
+    // create a single type of expression (and bindings) for the document
+    TypeOfExpression typeOf;
+    typeOf.init(localDoc, m_snapshot);
+    QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> fakeMetaObjects;
+
+    // generate the exports from qmlRegisterType
+    buildExportedQmlObjects(typeOf, exports, &fakeMetaObjects);
+
+    // add the types from the context properties and create a name->cppname map
+    // also expose types where necessary
+    buildContextProperties(localDoc, typeOf, contextPropertyDescriptions,
+                           &fakeMetaObjects, &m_contextProperties);
+
+    // convert to list of FakeMetaObject::ConstPtr
+    m_exportedTypes.reserve(fakeMetaObjects.size());
+    foreach (const LanguageUtils::FakeMetaObject::Ptr &fmo, fakeMetaObjects)
+        m_exportedTypes += fmo;
+}
+
+QList<LanguageUtils::FakeMetaObject::ConstPtr> FindExportedCppTypes::exportedTypes() const
+{
+    return m_exportedTypes;
+}
+
+QMap<QString, QString> FindExportedCppTypes::contextProperties() const
+{
+    return m_contextProperties;
 }
 
 bool FindExportedCppTypes::maybeExportsTypes(const Document::Ptr &document)
@@ -540,8 +745,13 @@ bool FindExportedCppTypes::maybeExportsTypes(const Document::Ptr &document)
     if (!document->control())
         return false;
     const QByteArray qmlRegisterTypeToken("qmlRegisterType");
+    const QByteArray setContextPropertyToken("setContextProperty");
     if (document->control()->findIdentifier(
                 qmlRegisterTypeToken.constData(), qmlRegisterTypeToken.size())) {
+        return true;
+    }
+    if (document->control()->findIdentifier(
+                setContextPropertyToken.constData(), setContextPropertyToken.size())) {
         return true;
     }
     return false;

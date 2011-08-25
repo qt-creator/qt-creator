@@ -120,11 +120,29 @@ Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const Libra
     d->diagnosticMessages = 0;
     d->allDiagnosticMessages = 0;
 
-    // populate engine with types from C++
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
     if (modelManager) {
-        foreach (const QList<FakeMetaObject::ConstPtr> &cppTypes, modelManager->cppQmlTypes()) {
-            d->valueOwner->cppQmlTypes().load(d->valueOwner, cppTypes);
+        ModelManagerInterface::CppDataHash cppDataHash = modelManager->cppData();
+
+        // populate engine with types from C++
+        foreach (const ModelManagerInterface::CppData &cppData, cppDataHash) {
+            d->valueOwner->cppQmlTypes().load(d->valueOwner, cppData.exportedTypes);
+        }
+
+        // populate global object with context properties from C++
+        ObjectValue *global = d->valueOwner->globalObject();
+        foreach (const ModelManagerInterface::CppData &cppData, cppDataHash) {
+            QMapIterator<QString, QString> it(cppData.contextProperties);
+            while (it.hasNext()) {
+                it.next();
+                const Value *value = 0;
+                const QString cppTypeName = it.value();
+                if (!cppTypeName.isEmpty())
+                    value = d->valueOwner->cppQmlTypes().typeByCppName(cppTypeName);
+                if (!value)
+                    value = d->valueOwner->undefinedValue();
+                global->setMember(it.key(), value);
+            }
         }
     }
 }

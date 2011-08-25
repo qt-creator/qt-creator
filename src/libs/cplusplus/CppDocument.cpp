@@ -256,7 +256,8 @@ Document::Document(const QString &fileName)
     : _fileName(QDir::cleanPath(fileName)),
       _globalNamespace(0),
       _revision(0),
-      _editorRevision(0)
+      _editorRevision(0),
+      _checkMode(0)
 {
     _control = new Control();
 
@@ -568,6 +569,8 @@ bool Document::parse(ParseMode mode)
 void Document::check(CheckMode mode)
 {
     Q_ASSERT(!_globalNamespace);
+
+    _checkMode = mode;
 
     if (! isParsed())
         parse();

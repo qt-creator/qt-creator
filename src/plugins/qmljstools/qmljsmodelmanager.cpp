@@ -717,7 +717,8 @@ void ModelManager::updateCppQmlTypes(ModelManager *qmlModelManager,
                                      CPlusPlus::CppModelManagerInterface *cppModelManager,
                                      QMap<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents)
 {
-    CppQmlTypeHash newCppTypes = qmlModelManager->cppQmlTypes();
+    CppDataHash newData = qmlModelManager->cppData();
+
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
     FindExportedCppTypes finder(snapshot);
 
@@ -727,28 +728,33 @@ void ModelManager::updateCppQmlTypes(ModelManager *qmlModelManager,
         const bool scan = pair.second;
         const QString fileName = doc->fileName();
         if (!scan) {
-            newCppTypes.remove(fileName);
+            newData.remove(fileName);
             continue;
         }
 
-        QList<LanguageUtils::FakeMetaObject::ConstPtr> exported = finder(doc);
+        finder(doc);
 
-        if (!exported.isEmpty())
-            newCppTypes[fileName] = exported;
-        else
-            newCppTypes.remove(fileName);
+        QList<LanguageUtils::FakeMetaObject::ConstPtr> exported = finder.exportedTypes();
+        QMap<QString, QString> contextProperties = finder.contextProperties();
+        if (exported.isEmpty() && contextProperties.isEmpty()) {
+            newData.remove(fileName);
+        } else {
+            CppData &data = newData[fileName];
+            data.exportedTypes = exported;
+            data.contextProperties = contextProperties;
+        }
 
         doc->releaseSourceAndAST();
     }
 
-    QMutexLocker locker(&qmlModelManager->m_cppTypesMutex);
-    qmlModelManager->m_cppTypes = newCppTypes;
+    QMutexLocker locker(&qmlModelManager->m_cppDataMutex);
+    qmlModelManager->m_cppDataHash = newData;
 }
 
-ModelManagerInterface::CppQmlTypeHash ModelManager::cppQmlTypes() const
+ModelManager::CppDataHash ModelManager::cppData() const
 {
-    QMutexLocker locker(&m_cppTypesMutex);
-    return m_cppTypes;
+    QMutexLocker locker(&m_cppDataMutex);
+    return m_cppDataHash;
 }
 
 LibraryInfo ModelManager::builtins(const Document::Ptr &doc) const

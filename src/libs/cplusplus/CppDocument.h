@@ -120,6 +120,7 @@ public:
     bool parse(ParseMode mode = ParseTranlationUnit);
 
     enum CheckMode {
+        Unchecked,
         FullCheck,
         FastCheck
     };
@@ -322,6 +323,9 @@ public:
     void keepSourceAndAST();
     void releaseSourceAndAST();
 
+    CheckMode checkMode() const
+    { return static_cast<CheckMode>(_checkMode); }
+
 private:
     QString _fileName;
     Control *_control;
@@ -338,6 +342,7 @@ private:
     QAtomicInt _keepSourceAndASTCount;
     unsigned _revision;
     unsigned _editorRevision;
+    quint8 _checkMode;
 
     friend class Snapshot;
 };

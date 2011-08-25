@@ -37,6 +37,7 @@
 #include <languageutils/fakemetaobject.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QMap>
 
 namespace QmlJSTools {
 
@@ -47,12 +48,17 @@ public:
     FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot);
 
     // document must have a valid source and ast for the duration of the call
-    QList<LanguageUtils::FakeMetaObject::ConstPtr> operator()(const CPlusPlus::Document::Ptr &document);
+    void operator()(const CPlusPlus::Document::Ptr &document);
+
+    QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedTypes() const;
+    QMap<QString, QString> contextProperties() const;
 
     static bool maybeExportsTypes(const CPlusPlus::Document::Ptr &document);
 
 private:
     CPlusPlus::Snapshot m_snapshot;
+    QList<LanguageUtils::FakeMetaObject::ConstPtr> m_exportedTypes;
+    QMap<QString, QString> m_contextProperties;
 };
 
 } // namespace QmlJSTools
