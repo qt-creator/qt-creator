@@ -371,15 +371,14 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     newDeclDoc->check();
 
     // extract the function symbol
-    if (!newDeclDoc->translationUnit()->ast()) {
+    if (!newDeclDoc->translationUnit()->ast())
         return changes;
-    }
     FunctionDefinitionAST *newDef = newDeclDoc->translationUnit()->ast()->asFunctionDefinition();
-    if (!newDef) {
+    if (!newDef)
         return changes;
-    }
     Function *newFunction = newDef->symbol;
-    QTC_ASSERT(newFunction, return changes); // check() should always create this symbol
+    if (!newFunction)
+        return changes;
 
     const LookupContext &sourceContext = typeOfExpression.context();
     LookupContext targetContext(targetFile->cppDocument(), snapshot);
