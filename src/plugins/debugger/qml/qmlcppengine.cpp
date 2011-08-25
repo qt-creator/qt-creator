@@ -129,7 +129,7 @@ void QmlCppEnginePrivate::qmlStackChanged()
 {
     StackFrames frames = m_qmlEngine->stackHandler()->frames();
     q->stackHandler()->setFrames(frames);
-    m_stackBoundary = frames.size();
+    m_stackBoundary = 0;
 }
 
 
