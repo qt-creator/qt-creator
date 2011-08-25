@@ -63,7 +63,7 @@
 
 #include "dummycontextobject.h"
 
-#include "designersupportfunctions.h"
+#include "private/designersupport.h"
 
 namespace QmlDesigner {
 
@@ -90,13 +90,13 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             }
 
             clearChangedPropertyList();
-            resetAllItems();
 
             if (!m_dirtyInstanceSet.isEmpty() && nodeInstanceClient()->bytesToWrite() < 10000) {
                 nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(m_dirtyInstanceSet.toList()));
                 m_dirtyInstanceSet.clear();
             }
 
+            resetAllItems();
 //            if (adjustSceneRect) {
 //                QRectF boundingRect = rootNodeInstance().boundingRect();
 //                if (boundingRect.isValid()) {

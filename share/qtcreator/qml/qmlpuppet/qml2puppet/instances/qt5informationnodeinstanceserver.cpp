@@ -64,7 +64,7 @@
 
 #include "dummycontextobject.h"
 
-#include "designersupportfunctions.h"
+#include "private/designersupport.h"
 
 namespace QmlDesigner {
 

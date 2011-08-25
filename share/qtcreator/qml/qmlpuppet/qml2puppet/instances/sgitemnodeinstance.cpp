@@ -32,8 +32,6 @@
 
 #include "sgitemnodeinstance.h"
 
-#if QT_VERSION >= 0x050000
-
 #include "qt5nodeinstanceserver.h"
 
 #include <QDeclarativeExpression>
@@ -188,11 +186,20 @@ bool SGItemNodeInstance::equalSGItem(QSGItem *item) const
 
 QImage SGItemNodeInstance::renderImage() const
 {
-    return designerSupport()->renderImageForItem(sgItem());
+    QImage image = designerSupport()->renderImageForItem(sgItem());
+
+    image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+    qDebug() << __FUNCTION__ << image.size();
+
+    return image;
 }
 
 bool SGItemNodeInstance::isMovable() const
 {
+    if (isRootNodeInstance())
+        return false;
+
     return m_isMovable && sgItem() && sgItem()->parentItem();
 }
 
@@ -214,7 +221,7 @@ SGItemNodeInstance::Pointer SGItemNodeInstance::create(QObject *object)
 
     static_cast<QDeclarativeParserStatus*>(sgItem)->classBegin();
 
-    instance->populateResetValueHash();
+    instance->populateResetHashes();
 
     return instance;
 }
@@ -241,7 +248,7 @@ QSizeF SGItemNodeInstance::size() const
 {
     double width;
 
-    if (QSGItemPrivate::get(sgItem())->widthValid) {
+    if (DesignerSupport::isValidWidth(sgItem())) {
         width = sgItem()->width();
     } else {
         width = sgItem()->implicitWidth();
@@ -249,7 +256,7 @@ QSizeF SGItemNodeInstance::size() const
 
     double height;
 
-    if (QSGItemPrivate::get(sgItem())->heightValid) {
+    if (DesignerSupport::isValidHeight(sgItem())) {
         height = sgItem()->height();
     } else {
         height = sgItem()->implicitHeight();
@@ -259,14 +266,20 @@ QSizeF SGItemNodeInstance::size() const
     return QSizeF(width, height);
 }
 
+static inline bool isRectangleSane(const QRectF &rect)
+{
+    return rect.isValid() && (rect.width() < 10000) && (rect.height() < 10000);
+}
+
 QRectF SGItemNodeInstance::boundingRectWithStepChilds(QSGItem *parentItem) const
 {
     QRectF boundingRect = parentItem->boundingRect();
 
     foreach (QSGItem *childItem, parentItem->childItems()) {
         if (nodeInstanceServer()->hasInstanceForObject(childItem)) {
-            QRectF transformedRect = childItem->mapRectToItem(parentItem, childItemBoundingRect(childItem));
-            boundingRect = boundingRect.united(transformedRect);
+            QRectF transformedRect = childItem->mapRectToItem(parentItem, boundingRectWithStepChilds(childItem));
+            if (isRectangleSane(transformedRect))
+                boundingRect = boundingRect.united(transformedRect);
         }
     }
 
@@ -279,7 +292,7 @@ QRectF SGItemNodeInstance::boundingRect() const
         if (sgItem()->clip()) {
             return sgItem()->boundingRect();
         } else {
-            return boundingRectWithStepChilds();
+            return boundingRectWithStepChilds(sgItem());
         }
     }
 
@@ -382,6 +395,9 @@ void SGItemNodeInstance::doComponentComplete()
 
 bool SGItemNodeInstance::isResizable() const
 {
+    if (isRootNodeInstance())
+        return false;
+
     return m_isResizable && sgItem() && sgItem()->parentItem();
 }
 
@@ -560,4 +576,3 @@ Qt5NodeInstanceServer *SGItemNodeInstance::qt5NodeInstanceServer() const
 } // namespace Internal
 } // namespace QmlDesigner
 
-#endif //QT_VERSION

@@ -40,6 +40,7 @@
 #include <QDeclarativeError>
 #include <QDeclarativeEngine>
 #include <QDeclarativeProperty>
+#include <QDeclarativeComponent>
 #include <QSharedPointer>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
@@ -55,8 +56,6 @@
 #include <private/qdeclarativebinding_p.h>
 #include <private/qdeclarativemetatype_p.h>
 #include <private/qdeclarativevaluetype_p.h>
-#include <private/qdeclarativetext_p.h>
-#include <private/qdeclarativetext_p_p.h>
 #include <private/qdeclarativetransition_p.h>
 #include <private/qdeclarativeanimation_p.h>
 #include <private/qdeclarativetimer_p.h>

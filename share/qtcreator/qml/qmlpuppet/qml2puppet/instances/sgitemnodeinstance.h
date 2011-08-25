@@ -35,12 +35,10 @@
 
 #include <QtGlobal>
 
-#if QT_VERSION >= 0x050000
-
 #include "objectnodeinstance.h"
 
 #include <QSGItem>
-#include <designersupportfunctions.h>
+#include <private/designersupport.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -134,6 +132,5 @@ private: //variables
 } // namespace Internal
 } // namespace QmlDesigner
 
-#endif  // QT_VERSION
 #endif  // SGITEMNODEINSTANCE_H
 
