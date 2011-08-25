@@ -106,6 +106,7 @@ public:
     QToolButton *m_recordButton;
     QToolButton *m_clearButton;
     bool m_recordingEnabled;
+    bool m_appIsRunning;
 
     enum ConnectMode {
         TcpConnection, OstConnection
@@ -128,6 +129,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_runConfiguration = 0;
     d->m_isAttached = false;
     d->m_recordingEnabled = true;
+    d->m_appIsRunning = false;
 
     d->m_connectionTimer.setInterval(200);
     connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(tryToConnect()));
@@ -247,6 +249,9 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(dataReceived()));
     connect(this, SIGNAL(connectionFailed()), engine, SLOT(finishProcess()));
     connect(this, SIGNAL(fetchingData(bool)), engine, SLOT(setFetchingData(bool)));
+    connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)), this, SLOT(setAppIsRunning()));
+    connect(engine, SIGNAL(finished()), this, SLOT(setAppIsStopped()));
+    connect(this, SIGNAL(cancelRun()), engine, SLOT(finishProcess()));
     emit fetchingData(d->m_recordButton->isChecked());
 
     return engine;
@@ -395,6 +400,10 @@ void QmlProfilerTool::stopRecording()
 {
     d->m_traceWindow->setRecording(false);
     emit fetchingData(false);
+
+    // manage early stop
+    if (d->m_client && !d->m_client->isConnected() && d->m_appIsRunning)
+        emit cancelRun();
 }
 
 void QmlProfilerTool::setRecording(bool recording)
@@ -410,6 +419,16 @@ void QmlProfilerTool::setRecording(bool recording)
         startRecording();
     else
         stopRecording();
+}
+
+void QmlProfilerTool::setAppIsRunning()
+{
+    d->m_appIsRunning = true;
+}
+
+void QmlProfilerTool::setAppIsStopped()
+{
+    d->m_appIsRunning = false;
 }
 
 void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)

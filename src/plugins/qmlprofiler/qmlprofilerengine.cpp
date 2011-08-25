@@ -193,6 +193,7 @@ bool QmlProfilerEngine::start()
     }
 
     AnalyzerManager::handleToolStarted();
+    emit starting(this);
     return true;
 }
 

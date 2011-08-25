@@ -61,6 +61,7 @@ Rectangle {
                 target: statusText
                 text: qsTr("No QML events recorded");
             }
+            onCompleted: root.clearAll();
         },
         // running app
         State {

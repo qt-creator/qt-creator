@@ -72,6 +72,9 @@ public slots:
     void stopRecording();
     void setRecording(bool recording);
 
+    void setAppIsRunning();
+    void setAppIsStopped();
+
     void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void updateTimer(qreal elapsedSeconds);
     void correctTimer();
@@ -84,6 +87,7 @@ signals:
     void setTimeLabel(const QString &);
     void fetchingData(bool);
     void connectionFailed();
+    void cancelRun();
 
 private slots:
     void updateProjectFileList();
