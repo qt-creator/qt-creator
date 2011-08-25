@@ -760,11 +760,12 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     breakpointMenu.addAction(actSetWatchpointAtExpression);
 
     QMenu menu;
-    QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Evaluated Expression"));
+    QAction *actInsertNewWatchItem =
+        menu.addAction(tr("Insert New Evaluated Expression"));
     actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
     actSelectWidgetToWatch->setEnabled(canHandleWatches
-                                       && (engine->debuggerCapabilities() & WatchWidgetsCapability));
+           && (engine->debuggerCapabilities() & WatchWidgetsCapability));
     menu.addSeparator();
 
     QAction *actWatchExpression = new QAction(addWatchActionText(exp), &menu);
@@ -774,7 +775,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(exp), &menu);
     actRemoveWatchExpression->setEnabled(
         (canHandleWatches || state == DebuggerNotReady) && !exp.isEmpty());
-    QAction *actRemoveWatches = new QAction(tr("Remove All Watch Items"), &menu);
+    QAction *actRemoveWatches =
+        new QAction(tr("Remove All Evaluated Expressions"), &menu);
     actRemoveWatches->setEnabled(!WatchHandler::watcherNames().isEmpty());
 
     if (m_type == LocalsType)
@@ -824,7 +826,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
                 tr("Open Memory View at Referenced Address"));
             actOpenMemoryViewAtPointerValue->setEnabled(false);
         }
-        actOpenMemoryEditorStackLayout->setText(tr("Open Memory Editor Showing Stack Layout"));
+        actOpenMemoryEditorStackLayout->setText(
+            tr("Open Memory Editor Showing Stack Layout"));
         actOpenMemoryEditorStackLayout->setEnabled(m_type == LocalsType);
         memoryMenu.addAction(actOpenMemoryViewAtVariableAddress);
         memoryMenu.addAction(actOpenMemoryViewAtPointerValue);
@@ -873,7 +876,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actShowInEditor);
     menu.addAction(debuggerCore()->action(SettingsDialog));
 
-    QAction *actCloseEditorToolTips = new QAction(tr("Close Editor Tooltips"), &menu);
+    QAction *actCloseEditorToolTips =
+        new QAction(tr("Close Editor Tooltips"), &menu);
     actCloseEditorToolTips->setEnabled(DebuggerToolTipManager::instance()->hasToolTips());
     menu.addAction(actCloseEditorToolTips);
 
