@@ -772,7 +772,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     actWatchExpression->setEnabled(canHandleWatches && !exp.isEmpty());
 
     // Can remove watch if engine can handle it or session engine.
-    QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(exp), &menu);
+    QModelIndex p = mi0;
+    while (p.parent().isValid())
+        p = p.parent();
+    QString removeExp = p.data(LocalsExpressionRole).toString();
+    QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(removeExp), &menu);
     actRemoveWatchExpression->setEnabled(
         (canHandleWatches || state == DebuggerNotReady) && !exp.isEmpty());
     QAction *actRemoveWatches =
@@ -923,7 +927,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actWatchExpression) {
         watchExpression(exp);
     } else if (act == actRemoveWatchExpression) {
-        removeWatchExpression(exp);
+        removeWatchExpression(removeExp);
     } else if (act == actCopy) {
         copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
     } else if (act == actCopyValue) {
