@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE QtCreatorQtVersions>
+<!-- Written by Qt Creator 2.2.81, 2011-06-06T16:08:30. -->
+<qtcreator>
+ <data>
+  <variable>QtVersion.0</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">4</value>
+   <value type="QString" key="Name">Qt for Fremantle PR1.3 Devices (Qt SDK)</value>
+   <value type="QString" key="QMakePath">~/QtSDK/Maemo/4.6.2/targets/fremantle-pr13/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.1</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">5</value>
+   <value type="QString" key="Name">Desktop Qt 4.7.3 for GCC (Qt SDK)</value>
+   <value type="QString" key="QMakePath">~/QtSDK/Desktop/Qt/473/gcc/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.2</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">6</value>
+   <value type="QString" key="Name">Simulator Qt for GCC (Qt SDK)</value>
+   <value type="QString" key="QMakePath">~/QtSDK/Simulator/Qt/gcc/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Simulator</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.3</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">8</value>
+   <value type="QString" key="Name">4.7.0</value>
+   <value type="QString" key="QMakePath">/usr/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.Count</variable>
+  <value type="int">4</value>
+ </data>
+ <data>
+  <variable>Version</variable>
+  <value type="int">1</value>
+ </data>
+</qtcreator>

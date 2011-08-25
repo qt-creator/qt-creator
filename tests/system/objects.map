@@ -1,0 +1,13 @@
+:*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FilterLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator_Utils::FilterLineEdit	{type='Utils::FilterLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator_Utils::IconButton	{occurrence='4' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:CMake Wizard.Finish_QPushButton	{text='Finish' type='QPushButton' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
+:CMake Wizard.Next_QPushButton	{name='__qt__passive_wizardbutton1' text='Next' type='QPushButton' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
+:CMake Wizard.Run CMake_QPushButton	{text='Run CMake' type='QPushButton' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
+:CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard	{type='CMakeProjectManager::Internal::CMakeOpenProjectWizard' unnamed='1' visible='1' windowTitle='CMake Wizard'}
+:Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' unnamed='1' visible='1' windowTitle?='*Qt Creator'}
+:Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Utils::IconButton	{occurrence='2' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Utils::NavigationTreeView	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:projects.projects.pro_QModelIndex	{column='0' container=':projects_QModelIndex' text='projects.pro' type='QModelIndex'}
+:projects_QModelIndex	{column='0' container=':Qt Creator_Utils::NavigationTreeView' text='projects' type='QModelIndex'}
