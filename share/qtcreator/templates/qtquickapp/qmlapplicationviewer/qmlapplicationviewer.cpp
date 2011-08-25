@@ -16,6 +16,8 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
 
+#include <qplatformdefs.h> // MEEGO_EDITION_HARMATTAN
+
 #if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 
 #include <qt_private/qdeclarativedebughelper_p.h>
