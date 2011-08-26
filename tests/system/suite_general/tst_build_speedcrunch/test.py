@@ -27,8 +27,8 @@ def main():
     # Wait for, and test if the build succeeded
     installLazySignalHandler("{type='ProjectExplorer::BuildManager'}", "buildQueueFinished(bool)", "handleBuildFinished")
     waitFor("buildFinished == True", 30000)
-    test.verify(buildSucceeded == 1)
-
+    test.verify(buildSucceeded == 1) # buildSucceeded is True for me - even on failed builds; remove this check at all?
+    checkLastBuild()
     # Now that this has finished, test adding a new build configuration
 
     # Add a new run configuration

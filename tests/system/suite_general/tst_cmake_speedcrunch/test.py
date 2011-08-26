@@ -41,7 +41,8 @@ def main():
 
     # Wait for, and test if the build succeeded
     waitFor("buildFinished == True", 300000)
-    test.verify(buildSucceeded == 1)
+    test.verify(buildSucceeded == 1) # buildSucceeded is True for me - even on failed builds; remove this check at all?
+    checkLastBuild()
 
     invokeMenuItem("File", "Exit")
 
