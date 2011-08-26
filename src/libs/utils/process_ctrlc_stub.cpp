@@ -70,8 +70,7 @@ int main(int argc, char **)
     SetConsoleCtrlHandler(ctrlHandler, TRUE);
     uiShutDownWindowMessage = RegisterWindowMessage(L"qtcctrlcstub_shutdown");
 
-    WNDCLASSEX wcex;
-    ZeroMemory(&wcex, sizeof(wcex));
+    WNDCLASSEX wcex = {0};
     wcex.cbSize = sizeof(wcex);
     wcex.lpfnWndProc = WndProc;
     wcex.hInstance = GetModuleHandle(0);
@@ -155,13 +154,11 @@ DWORD WINAPI processWatcherThread(LPVOID lpParameter)
 
 bool startProcess(wchar_t *pCommandLine)
 {
-    SECURITY_ATTRIBUTES sa;
-    ZeroMemory(&sa, sizeof(sa));
+    SECURITY_ATTRIBUTES sa = {0};
     sa.nLength = sizeof(sa);
     sa.bInheritHandle = TRUE;
 
-    STARTUPINFO si;
-    ZeroMemory(&si, sizeof(si));
+    STARTUPINFO si = {0};
     si.cb = sizeof(si);
 
     PROCESS_INFORMATION pi;
