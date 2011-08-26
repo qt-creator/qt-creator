@@ -75,9 +75,9 @@ static QBrush unexpectedBrush(QColor("orange"));
     Constructs a screenshot ID for the test failure at the given \a file and
     \a line.
 */
-QString screenshotId(const QString &file, int line)
+static QString screenshotId(const QString &file, int line)
 {
-    return QString("%1 %2").arg(QFileInfo(file).canonicalFilePath()).arg(line);
+    return QString::fromLatin1("%1 %2").arg(QFileInfo(file).canonicalFilePath()).arg(line);
 }
 
 ResultsView::ResultsView(QWidget *parent, const char *name) :
@@ -186,7 +186,7 @@ void ResultsView::updateScreenshots()
             continue;
 
         QString screenshot = m_pendingScreenshots.take(id);
-        QTableWidgetItem* shot = new QTableWidgetItem(QIcon(QPixmap(":/testrun.png")), QString());
+        QTableWidgetItem* shot = new QTableWidgetItem(QIcon(QPixmap(QLatin1String(":/testrun.png"))), QString());
         shot->setData(ScreenshotLinkRole, screenshot);
         shot->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
         setItem(row, SCREEN_POS, shot);
@@ -213,20 +213,20 @@ void ResultsView::append(const QString &res, const QString &test, const QString 
 
     QTableWidgetItem* result = new QTableWidgetItem(res);
     result->setTextAlignment(Qt::AlignCenter);
-    if (res.startsWith("PASS")) {
+    if (res.startsWith(QLatin1String("PASS"))) {
         result->setBackground(passBrush);
         setRowHidden(row, !m_showPassing);
-    } else if (res.startsWith("FAIL")) {
+    } else if (res.startsWith(QLatin1String("FAIL"))) {
         result->setBackground(failBrush);
-    } else if (res.startsWith("QDEBUG")) {
+    } else if (res.startsWith(QLatin1String("QDEBUG"))) {
         setRowHidden(row, !m_showDebug);
-    } else if (res.startsWith("SKIP")) {
+    } else if (res.startsWith(QLatin1String("SKIP"))) {
         setRowHidden(row, !m_showSkipped);
-    } else if (res.startsWith("XFAIL") || res.startsWith("XPASS")) {
+    } else if (res.startsWith(QLatin1String("XFAIL")) || res.startsWith(QLatin1String("XPASS"))) {
         result->setBackground(unexpectedBrush);
     }
 
-    if ((res.contains("FAIL") || res.startsWith("XPASS")) && !m_failedTests.contains(test))
+    if ((res.contains(QLatin1String("FAIL")) || res.startsWith(QLatin1String("XPASS"))) && !m_failedTests.contains(test))
         m_failedTests.append(test);
 
     // Construct a result id for use in mapping test failures to screenshots.
@@ -272,8 +272,11 @@ QString ResultsView::htmlQuote(const QString &input)
 QString ResultsView::formatTestDetails(const QString &test, const QString &dataTag)
 {
     QString ret = test;
-    if (!dataTag.isEmpty() && dataTag != "...")
-        ret += " (" + dataTag + ")";
+    if (!dataTag.isEmpty() && dataTag != QLatin1String("...")) {
+        ret += QLatin1String(" (");
+        ret += dataTag;
+        ret += QLatin1Char(')');
+    }
     return ret;
 }
 
@@ -281,12 +284,14 @@ QString ResultsView::formatLocation(const QString &file, const QString &line)
 {
     QString description;
     QString _file = file;
-    if (_file.startsWith("["))
+    if (_file.startsWith(QLatin1Char('[')))
         _file = _file.mid(1);
-    if (_file != "" || line != "") {
+    if (!_file.isEmpty() || !line.isEmpty()) {
         description += xmlDequote(file);
-        if (line != "-1")
-            description += ":" + line;
+        if (line !=  QLatin1String("-1")) {
+            description += QLatin1Char(':');
+            description += line;
+        }
     }
 
     return description;
@@ -295,7 +300,7 @@ QString ResultsView::formatLocation(const QString &file, const QString &line)
 QString ResultsView::result(int row)
 {
     if (row >= rowCount())
-        return false;
+        return QString();
 
     return item(row, RESULT_POS)->text().simplified();
 }
@@ -303,19 +308,19 @@ QString ResultsView::result(int row)
 QString ResultsView::reason(int row)
 {
     if (row >= rowCount())
-        return false;
+        return QString();
 
     QString txt = item(row, REASON_POS)->text();
-    int pos = txt.indexOf("\n");
+    const int pos = txt.indexOf(QLatin1Char('\n'));
     if (pos > 0)
-        txt = txt.left(pos);
+        txt.truncate(pos);
     return txt.simplified();
 }
 
 QString ResultsView::location(int row)
 {
     if (row >= rowCount())
-        return false;
+        return QString();
 
     return item(row, DETAILS_POS)->toolTip();
 }
@@ -324,25 +329,27 @@ QString ResultsView::file(int row)
 {
     QString txt = location(row);
     if (!txt.isEmpty()) {
-        int pos = txt.indexOf(":");
+        const int pos = txt.indexOf(QLatin1Char(':'));
         if (pos >= 0)
-            txt = txt.left(pos);
+            txt.truncate(pos);
         return txt.simplified();
     }
-    return "";
+    return QString();
 }
 
 QString ResultsView::line(int row)
 {
     QString txt = location(row);
     if (!txt.isEmpty()) {
-        int pos = txt.indexOf(":");
-        if (pos >= 0)
+        const int pos = txt.indexOf(QLatin1Char(':'));
+        if (pos >= 0) {
             txt = txt.mid(pos + 1);
-        else txt = "";
+        } else {
+            txt.clear();
+        }
         return txt.simplified();
     }
-    return "";
+    return QString();
 }
 
 int ResultsView::intLine(int row)
@@ -412,21 +419,21 @@ TestResultsWindow* ResultsView::resultsWindow() const
 void ResultsView::showPassing(bool show)
 {
     m_showPassing = show;
-    updateHidden("PASS", show);
+    updateHidden(QLatin1String("PASS"), show);
     m_testSettings.setShowPassedResults(show);
 }
 
 void ResultsView::showDebugMessages(bool show)
 {
     m_showDebug = show;
-    updateHidden("QDEBUG", show);
+    updateHidden(QLatin1String("QDEBUG"), show);
     m_testSettings.setShowDebugResults(show);
 }
 
 void ResultsView::showSkipped(bool show)
 {
     m_showSkipped = show;
-    updateHidden("SKIP", show);
+    updateHidden(QLatin1String("SKIP"), show);
     m_testSettings.setShowSkippedResults(show);
 }
 
@@ -669,18 +676,18 @@ void TestResultsWindow::copyResults()
 void ResultsView::copyResults()
 {
     QMimeData *md = new QMimeData();
-    QString html("<html><table>");
+    QString html = QLatin1String("<html><table>");
     QString text;
     for (int row = 0; row < rowCount(); ++row) {
         QString result = item(row, RESULT_POS)->text().trimmed();
         QString detail = item(row, DETAILS_POS)->text();
         QString location = item(row, DETAILS_POS)->toolTip();
         QString reason = item(row, REASON_POS)->text();
-        html += QString("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td></tr>")
+        html += QString::fromLatin1("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td></tr>")
             .arg(result).arg(detail).arg(location).arg(htmlQuote(reason));
-        text += QString("%1\n%2\n%3\n%4\n").arg(result).arg(detail).arg(location).arg(reason);
+        text += QString::fromLatin1("%1\n%2\n%3\n%4\n").arg(result).arg(detail).arg(location).arg(reason);
     }
-    html += "</table></html>";
+    html += QLatin1String("</table></html>");
     md->setHtml(html);
     md->setText(text);
     QApplication::clipboard()->setMimeData(md);
