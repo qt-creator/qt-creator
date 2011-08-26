@@ -301,6 +301,10 @@ void QmlProfilerEngine::filterApplicationMessage(const QString &msg)
                     this, SLOT(wrongSetupMessageBoxFinished(int)));
 
             infoBox->show();
+
+            d->m_running = false;
+            AnalyzerManager::stopTool();
+            emit finished();
         }
     } else if (msg.contains(cannotRetrieveDebuggingOutput)) {
         // we won't get debugging output, so just try to connect ...
