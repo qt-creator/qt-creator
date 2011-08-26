@@ -6210,8 +6210,9 @@
     button to build your program and run it in the Qt Simulator.
 
     In Qt Simulator, run the runOutOfBattery.qs example script
-    to see the value change in the Battery Indicator application.
-    Select \gui {Scripting > examples > runOutOfBattery.qs > Run}.
+    to see the value change in the Battery Status application.
+    Select \gui {Scripting > examples > runOutOfBattery.qs > Run Selected
+    Script}.
 
     \image qtcreator-symbian-components-example-simulated.png "Mobile example in Qt Simulator"
 
@@ -6547,8 +6548,8 @@
         \image {qt-simulator.png} "Qt Simulator"
 
         \o Change the settings in the
-        \gui View pane. For example, rotate the device by clicking the
-        \gui {Orientation} buttons or choose from the various Symbian and Maemo
+        \gui Model view. For example, rotate the device by clicking the
+        \gui {Orientation} buttons or choose from the various mobile device
         configurations in the \gui {Device} field. You can also simulate various
         mobile functions and create your own scripts.
 
