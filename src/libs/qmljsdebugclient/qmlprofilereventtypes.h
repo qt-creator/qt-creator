@@ -33,6 +33,8 @@
 #ifndef QMLPROFILEREVENTTYPES_H
 #define QMLPROFILEREVENTTYPES_H
 
+#include <QtCore/QString>
+
 namespace QmlJsDebugClient {
 
 enum QmlEventType {
@@ -44,6 +46,9 @@ enum QmlEventType {
 
     MaximumQmlEventType
 };
+
+QString qmlEventType(QmlEventType typeEnum);
+QmlEventType qmlEventType(const QString &typeString);
 
 } // namespace QmlJsDebugClient
 

@@ -48,6 +48,14 @@
 
 namespace QmlJsDebugClient {
 
+namespace Constants {
+const char *const TYPE_PAINTING_STR = "Painting";
+const char *const TYPE_COMPILING_STR = "Compiling";
+const char *const TYPE_CREATING_STR = "Creating";
+const char *const TYPE_BINDING_STR = "Binding";
+const char *const TYPE_HANDLINGSIGNAL_STR = "HandlingSignal";
+}
+
 #define MIN_LEVEL 1
 
 // description
@@ -101,6 +109,52 @@ bool compareStartTimes(const QmlEventStartTimeData &t1, const QmlEventStartTimeD
 bool compareStartIndexes(const QmlEventEndTimeData &t1, const QmlEventEndTimeData &t2)
 {
     return t1.startTimeIndex < t2.startTimeIndex;
+}
+
+QString qmlEventType(QmlEventType typeEnum)
+{
+    switch (typeEnum) {
+    case Painting:
+        return QLatin1String(Constants::TYPE_PAINTING_STR);
+        break;
+    case Compiling:
+        return QLatin1String(Constants::TYPE_COMPILING_STR);
+        break;
+    case Creating:
+        return QLatin1String(Constants::TYPE_CREATING_STR);
+        break;
+    case Binding:
+        return QLatin1String(Constants::TYPE_BINDING_STR);
+        break;
+    case HandlingSignal:
+        return QLatin1String(Constants::TYPE_HANDLINGSIGNAL_STR);
+        break;
+    default:
+        return QString::number((int)typeEnum);
+    }
+}
+
+QmlEventType qmlEventType(const QString &typeString)
+{
+    if (typeString == QLatin1String(Constants::TYPE_PAINTING_STR)) {
+        return Painting;
+    } else if (typeString == QLatin1String(Constants::TYPE_COMPILING_STR)) {
+        return Compiling;
+    } else if (typeString == QLatin1String(Constants::TYPE_CREATING_STR)) {
+        return Creating;
+    } else if (typeString == QLatin1String(Constants::TYPE_BINDING_STR)) {
+        return Binding;
+    } else if (typeString == QLatin1String(Constants::TYPE_HANDLINGSIGNAL_STR)) {
+        return HandlingSignal;
+    } else {
+        bool isNumber = false;
+        int type = typeString.toUInt(&isNumber);
+        if (isNumber) {
+            return (QmlEventType)type;
+        } else {
+            return MaximumQmlEventType;
+        }
+    }
 }
 
 class QmlProfilerEventList::QmlProfilerEventListPrivate
@@ -625,7 +679,7 @@ void QmlProfilerEventList::save(const QString &filename)
         stream.writeStartElement("event");
         stream.writeAttribute("index", QString::number(d->m_eventDescriptions.keys().indexOf(eventData->location)));
         stream.writeTextElement("displayname", eventData->displayname);
-        stream.writeTextElement("type", QString::number(eventData->eventType));
+        stream.writeTextElement("type", qmlEventType(eventData->eventType));
         if (!eventData->filename.isEmpty()) {
             stream.writeTextElement("filename", eventData->filename);
             stream.writeTextElement("line", QString::number(eventData->line));
@@ -743,7 +797,7 @@ void QmlProfilerEventList::load()
                     break;
                 }
                 if (elementName == "type") {
-                    currentEvent->eventType = QmlJsDebugClient::QmlEventType(readData.toInt());
+                    currentEvent->eventType = qmlEventType(readData);
                     break;
                 }
                 if (elementName == "filename") {
