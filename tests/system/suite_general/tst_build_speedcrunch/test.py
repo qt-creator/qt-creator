@@ -1,4 +1,4 @@
-source(findFile("scripts", "qtcreator.py"))
+source("../../shared/qtcreator.py")
 
 SpeedCrunchPath = ""
 buildFinished = False

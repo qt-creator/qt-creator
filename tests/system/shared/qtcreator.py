@@ -7,8 +7,8 @@ SDKPath = ''
 SettingsPath = ''
 testSettings.logScreenshotOnFail = True
 
-source(findFile("scripts", "utils.py"))
-source(findFile("scripts", "mainwin.py"))
+source("../../shared/utils.py")
+source("../../shared/mainwin.py")
 
 if platform.system() in ('Windows', 'Microsoft'):
     SDKPath = "C:/QtSDK/src"
