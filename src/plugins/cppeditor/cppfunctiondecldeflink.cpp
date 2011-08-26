@@ -371,6 +371,62 @@ static int declaredArgumentCount(Function *function)
     return c;
 }
 
+Q_GLOBAL_STATIC(QRegExp, commentArgNameRegexp)
+
+static bool hasCommentedName(
+        TranslationUnit *unit,
+        const QString &source,
+        FunctionDeclaratorAST *declarator,
+        int i)
+{
+    if (!declarator
+            || !declarator->parameter_declaration_clause
+            || !declarator->parameter_declaration_clause->parameter_declaration_list)
+        return false;
+
+    if (Function *f = declarator->symbol) {
+        if (Symbol *a = f->argumentAt(i)) {
+            if (a->name())
+                return false;
+        }
+    }
+
+    ParameterDeclarationListAST *list = declarator->parameter_declaration_clause->parameter_declaration_list;
+    while (list && i) {
+        list = list->next;
+        --i;
+    }
+    if (!list || !list->value || i)
+        return false;
+
+    ParameterDeclarationAST *param = list->value;
+    if (param->symbol && param->symbol->name()) {
+        return false;
+    }
+
+    // maybe in a comment but in the right spot?
+    int nameStart = 0;
+    if (param->declarator)
+        nameStart = unit->tokenAt(param->declarator->lastToken() - 1).end();
+    else if (param->type_specifier_list)
+        nameStart = unit->tokenAt(param->type_specifier_list->lastToken() - 1).end();
+    else
+        nameStart = unit->tokenAt(param->firstToken()).begin();
+
+    int nameEnd = 0;
+    if (param->equal_token)
+        nameEnd = unit->tokenAt(param->equal_token).begin();
+    else
+        nameEnd = unit->tokenAt(param->lastToken()).begin(); // one token after
+
+    QString text = source.mid(nameStart, nameEnd - nameStart);
+
+    if (commentArgNameRegexp()->isEmpty()) {
+        *commentArgNameRegexp() = QRegExp(QLatin1String("/\\*\\s*(\\w*)\\s*\\*/"));
+    }
+    return commentArgNameRegexp()->indexIn(text) != -1;
+}
+
 Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffset)
 {
     Utils::ChangeSet changes;
@@ -486,6 +542,13 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                     replacementName = targetParam->name();
             }
 
+            // don't change the name if it's in a comment
+            if (hasCommentedName(targetFile->cppDocument()->translationUnit(),
+                                 targetFile->cppDocument()->source(),
+                                 targetFunctionDeclarator, i))
+                replacementName = 0;
+
+            // find the end of the parameter declaration
             ParameterDeclarationAST *targetParamAst = targetParameterDeclIt->value;
             int parameterNameEnd = 0;
             if (targetParamAst->declarator)
@@ -495,6 +558,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             else
                 parameterNameEnd = targetFile->startOf(targetParamAst);
 
+            // change name and type?
             if (allowChangeType
                     && !targetParam->type().isEqualTo(newParam->type())) {
                 FullySpecifiedType replacementType = rewriteType(newParam->type(), &env, control);
@@ -503,7 +567,9 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                 changes.replace(targetFile->startOf(targetParamAst),
                                 parameterNameEnd,
                                 replacement);
-            } else if (!namesEqual(targetParam->name(), replacementName)) {
+            }
+            // change the name only?
+            else if (!namesEqual(targetParam->name(), replacementName)) {
                 DeclaratorIdAST *id = getDeclaratorId(targetParamAst->declarator);
                 QString replacementNameStr = overview(replacementName);
                 if (id) {
@@ -523,6 +589,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                 }
             }
         }
+        // remove some parameters?
         if (newArgCount < targetArgCount) {
             targetParameterDeclIt = firstTargetParameterDeclIt;
             if (targetParameterDeclIt) {
@@ -540,7 +607,9 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                     }
                 }
             }
-        } else if (newArgCount > targetArgCount) {
+        }
+        // add some parameters?
+        else if (newArgCount > targetArgCount) {
             QString newParams;
             for (unsigned i = targetArgCount; i < newArgCount; ++i) {
                 Symbol *param = newFunction->argumentAt(i);
