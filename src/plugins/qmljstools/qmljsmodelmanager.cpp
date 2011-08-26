@@ -102,6 +102,12 @@ void ModelManager::delayedInitialization()
         connect(cppModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
                 this, SLOT(maybeQueueCppQmlTypeUpdate(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
     }
+
+    ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    if (sessionManager) {
+        connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+                this, SLOT(removeProjectInfo(ProjectExplorer::Project*)));
+    }
 }
 
 void ModelManager::loadQmlTypeDescriptions()
@@ -301,6 +307,19 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
         m_pluginDumper->loadBuiltinTypes(pinfo);
 
     emit projectInfoUpdated(pinfo);
+}
+
+
+void ModelManager::removeProjectInfo(ProjectExplorer::Project *project)
+{
+    ProjectInfo info(project);
+    // update with an empty project info to clear data
+    updateProjectInfo(info);
+
+    {
+        QMutexLocker locker(&m_mutex);
+        m_projects.remove(project);
+    }
 }
 
 void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)

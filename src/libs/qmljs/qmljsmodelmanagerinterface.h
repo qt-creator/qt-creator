@@ -131,6 +131,7 @@ public:
     virtual QList<ProjectInfo> projectInfos() const = 0;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
     virtual void updateProjectInfo(const ProjectInfo &pinfo) = 0;
+    Q_SLOT virtual void removeProjectInfo(ProjectExplorer::Project *project) = 0;
 
     virtual QStringList importPaths() const = 0;
 
