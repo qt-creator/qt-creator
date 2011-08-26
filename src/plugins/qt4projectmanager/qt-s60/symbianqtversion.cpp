@@ -328,7 +328,11 @@ QList<ProjectExplorer::Task> SymbianQtVersion::reportIssuesImpl(const QString &p
     QList<ProjectExplorer::Task> results = BaseQtVersion::reportIssuesImpl(proFile, buildDir);
     const QString epocRootDir = systemRoot();
     // Report an error if project- and epoc directory are on different drives:
-    if (!epocRootDir.startsWith(proFile.left(3), Qt::CaseInsensitive) && !isBuildWithSymbianSbsV2()) {
+    if (!epocRootDir.startsWith(proFile.left(3), Qt::CaseInsensitive)) {
+        // Note: SBSv2 works fine with the EPOCROOT and the sources being on different drives,
+        //       but it fails when Qt is on a different drive than the sources. Since
+        //       the SDK installs Qt and the EPOCROOT on the same drive we just stick with this
+        //       warning.
         results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                              QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
                                                                          "The Symbian SDK and the project sources must reside on the same drive."),
