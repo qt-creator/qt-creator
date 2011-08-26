@@ -52,7 +52,7 @@
 #endif
 #endif
 
-using namespace Core::Internal;
+using namespace Core;
 
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
 // Show error with option to open settings.

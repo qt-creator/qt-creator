@@ -40,7 +40,6 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
-namespace Internal {
 
 struct CORE_EXPORT FileUtils
 {
@@ -52,7 +51,6 @@ struct CORE_EXPORT FileUtils
     static QString msgTerminalAction();
 };
 
-} // namespace Internal
 } // namespace Core
 
 #endif // FILEUTILS_H

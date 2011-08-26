@@ -812,13 +812,13 @@ void EditorManager::closeOtherEditorsFromContextMenu()
 void EditorManager::showInGraphicalShell()
 {
     const QString path = m_d->m_contextMenuEditorIndex.data(Qt::UserRole + 1).toString();
-    Core::Internal::FileUtils::showInGraphicalShell(ICore::instance()->mainWindow(), path);
+    Core::FileUtils::showInGraphicalShell(ICore::instance()->mainWindow(), path);
 }
 
 void EditorManager::openTerminal()
 {
     const QString path = QFileInfo(m_d->m_contextMenuEditorIndex.data(Qt::UserRole + 1).toString()).path();
-    Core::Internal::FileUtils::openTerminal(path);
+    Core::FileUtils::openTerminal(path);
 }
 
 void EditorManager::closeEditor(Core::IEditor *editor)

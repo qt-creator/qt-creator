@@ -307,9 +307,9 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actionOpen = menu.addAction(actionOpenText(m_fileSystemModel, current));
     actionOpen->setEnabled(hasCurrentItem);
     // Explorer & teminal
-    QAction *actionExplorer = menu.addAction(Core::Internal::FileUtils::msgGraphicalShellAction());
+    QAction *actionExplorer = menu.addAction(Core::FileUtils::msgGraphicalShellAction());
     actionExplorer->setEnabled(hasCurrentItem);
-    QAction *actionTerminal = menu.addAction(Core::Internal::FileUtils::msgTerminalAction());
+    QAction *actionTerminal = menu.addAction(Core::FileUtils::msgTerminalAction());
     actionTerminal->setEnabled(hasCurrentItem);
 
     // open with...
@@ -338,11 +338,11 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         return;
     }
     if (action == actionTerminal) {
-        Core::Internal::FileUtils::openTerminal(m_fileSystemModel->filePath(current));
+        Core::FileUtils::openTerminal(m_fileSystemModel->filePath(current));
         return;
     }
     if (action == actionExplorer) {
-        Core::Internal::FileUtils::showInGraphicalShell(this, m_fileSystemModel->filePath(current));
+        Core::FileUtils::showInGraphicalShell(this, m_fileSystemModel->filePath(current));
         return;
     }
     ProjectExplorerPlugin::openEditorFromAction(action,
