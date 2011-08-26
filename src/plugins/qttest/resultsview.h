@@ -43,7 +43,9 @@
 
 class ResultsView;
 class TestResultsWindow;
+QT_BEGIN_NAMESPACE
 class QToolButton;
+QT_END_NAMESPACE
 
 ResultsView *testResultsPane();
 

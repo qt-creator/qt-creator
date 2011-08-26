@@ -36,9 +36,11 @@
 #include "testgenerator.h"
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
-    class NewTestCaseDlg;
+class NewTestCaseDlg;
 }
+QT_END_NAMESPACE
 
 class NewTestCaseDlg : public QDialog
 {
