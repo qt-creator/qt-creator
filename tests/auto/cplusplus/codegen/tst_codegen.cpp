@@ -43,6 +43,7 @@
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsplugin.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/fileutils.h>
 
 #include <QtTest>
 #include <QtDebug>
@@ -71,6 +72,11 @@ private slots:
     void protected_in_nonempty_class();
     void protected_betwee_public_and_private();
     void qtdesigner_integration();
+    void definition_empty_class();
+    void definition_first_member();
+    void definition_last_member();
+    void definition_middle_member();
+
 private:
     ExtensionSystem::PluginManager *pluginManager;
 };
@@ -88,8 +94,9 @@ void tst_Codegen::initTestCase()
 
 void tst_Codegen::cleanupTestCase()
 {
-    pluginManager->shutdown();
-    delete pluginManager;
+    // gives me a qFatal...
+//    pluginManager->shutdown();
+//    delete pluginManager;
 }
 /*!
     Should insert at line 3, column 1, with "public:\n" as prefix and without suffix.
@@ -118,7 +125,7 @@ void tst_Codegen::public_in_empty_class()
     Snapshot snapshot;
     snapshot.insert(doc);
     CppRefactoringChanges changes(snapshot);
-    InsertionPointLocator find(&changes);
+    InsertionPointLocator find(changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -158,7 +165,7 @@ void tst_Codegen::public_in_nonempty_class()
     Snapshot snapshot;
     snapshot.insert(doc);
     CppRefactoringChanges changes(snapshot);
-    InsertionPointLocator find(&changes);
+    InsertionPointLocator find(changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -198,7 +205,7 @@ void tst_Codegen::public_before_protected()
     Snapshot snapshot;
     snapshot.insert(doc);
     CppRefactoringChanges changes(snapshot);
-    InsertionPointLocator find(&changes);
+    InsertionPointLocator find(changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -239,7 +246,7 @@ void tst_Codegen::private_after_protected()
     Snapshot snapshot;
     snapshot.insert(doc);
     CppRefactoringChanges changes(snapshot);
-    InsertionPointLocator find(&changes);
+    InsertionPointLocator find(changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -280,7 +287,7 @@ void tst_Codegen::protected_in_nonempty_class()
     Snapshot snapshot;
     snapshot.insert(doc);
     CppRefactoringChanges changes(snapshot);
-    InsertionPointLocator find(&changes);
+    InsertionPointLocator find(changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -321,7 +328,7 @@ void tst_Codegen::protected_betwee_public_and_private()
     Snapshot snapshot;
     snapshot.insert(doc);
     CppRefactoringChanges changes(snapshot);
-    InsertionPointLocator find(&changes);
+    InsertionPointLocator find(changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -382,7 +389,7 @@ void tst_Codegen::qtdesigner_integration()
     Snapshot snapshot;
     snapshot.insert(doc);
     CppRefactoringChanges changes(snapshot);
-    InsertionPointLocator find(&changes);
+    InsertionPointLocator find(changes);
     InsertionLocation loc = find.methodDeclarationInClass(
                 doc->fileName(),
                 foo,
@@ -392,6 +399,275 @@ void tst_Codegen::qtdesigner_integration()
     QCOMPARE(loc.suffix(), QLatin1String("\n"));
     QCOMPARE(loc.line(), 18U);
     QCOMPARE(loc.column(), 1U);
+}
+
+void tst_Codegen::definition_empty_class()
+{
+    const QByteArray srcText = "\n"
+            "class Foo\n"  // line 1
+            "{\n"
+            "void foo();\n" // line 3
+            "};\n"
+            "\n";
+
+    const QByteArray dstText = "\n"
+            "int x;\n"  // line 1
+            "\n";
+
+    Document::Ptr src = Document::create(QLatin1String("/tmp/file.h"));
+    Utils::FileSaver srcSaver(src->fileName());
+    srcSaver.write(srcText);
+    srcSaver.finalize();
+    src->setSource(srcText);
+    src->parse();
+    src->check();
+    QCOMPARE(src->diagnosticMessages().size(), 0);
+    QCOMPARE(src->globalSymbolCount(), 1U);
+
+    Document::Ptr dst = Document::create(QLatin1String("/tmp/file.cpp"));
+    Utils::FileSaver dstSaver(dst->fileName());
+    dstSaver.write(dstText);
+    dstSaver.finalize();
+    dst->setSource(dstText);
+    dst->parse();
+    dst->check();
+    QCOMPARE(dst->diagnosticMessages().size(), 0);
+    QCOMPARE(dst->globalSymbolCount(), 1U);
+
+    Snapshot snapshot;
+    snapshot.insert(src);
+    snapshot.insert(dst);
+
+    Class *foo = src->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
+    QCOMPARE(foo->memberCount(), 1U);
+    Declaration *decl = foo->memberAt(0)->asDeclaration();
+    QVERIFY(decl);
+    QCOMPARE(decl->line(), 3U);
+    QCOMPARE(decl->column(), 6U);
+
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(changes);
+    QList<InsertionLocation> locList = find.methodDefinition(decl);
+    QVERIFY(locList.size() == 1);
+    InsertionLocation loc = locList.first();
+    QCOMPARE(loc.fileName(), QLatin1String("/tmp/file.cpp"));
+    QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
+    QCOMPARE(loc.suffix(), QString());
+    QCOMPARE(loc.line(), 1U);
+    QCOMPARE(loc.column(), 7U);
+}
+
+void tst_Codegen::definition_first_member()
+{
+    const QByteArray srcText = "\n"
+            "class Foo\n"  // line 1
+            "{\n"
+            "void foo();\n" // line 3
+            "void bar();\n" // line 4
+            "};\n"
+            "\n";
+
+    const QByteArray dstText = "\n"
+            "#include \"/tmp/file.h\"\n" // line 1
+            "int x;\n"
+            "\n"
+            "void Foo::bar()\n" // line 4
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            "int y;\n";
+
+    Document::Ptr src = Document::create(QLatin1String("/tmp/file.h"));
+    Utils::FileSaver srcSaver(src->fileName());
+    srcSaver.write(srcText);
+    srcSaver.finalize();
+    src->setSource(srcText);
+    src->parse();
+    src->check();
+    QCOMPARE(src->diagnosticMessages().size(), 0);
+    QCOMPARE(src->globalSymbolCount(), 1U);
+
+    Document::Ptr dst = Document::create(QLatin1String("/tmp/file.cpp"));
+    dst->addIncludeFile("/tmp/file.h", 1);
+    Utils::FileSaver dstSaver(dst->fileName());
+    dstSaver.write(dstText);
+    dstSaver.finalize();
+    dst->setSource(dstText);
+    dst->parse();
+    dst->check();
+    QCOMPARE(dst->diagnosticMessages().size(), 0);
+    QCOMPARE(dst->globalSymbolCount(), 3U);
+
+    Snapshot snapshot;
+    snapshot.insert(src);
+    snapshot.insert(dst);
+
+    Class *foo = src->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
+    QCOMPARE(foo->memberCount(), 2U);
+    Declaration *decl = foo->memberAt(0)->asDeclaration();
+    QVERIFY(decl);
+    QCOMPARE(decl->line(), 3U);
+    QCOMPARE(decl->column(), 6U);
+
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(changes);
+    QList<InsertionLocation> locList = find.methodDefinition(decl);
+    QVERIFY(locList.size() == 1);
+    InsertionLocation loc = locList.first();
+    QCOMPARE(loc.fileName(), QLatin1String("/tmp/file.cpp"));
+    QCOMPARE(loc.line(), 4U);
+    QCOMPARE(loc.column(), 1U);
+    QCOMPARE(loc.suffix(), QLatin1String("\n\n"));
+    QCOMPARE(loc.prefix(), QString());
+}
+
+void tst_Codegen::definition_last_member()
+{
+    const QByteArray srcText = "\n"
+            "class Foo\n"  // line 1
+            "{\n"
+            "void foo();\n" // line 3
+            "void bar();\n" // line 4
+            "};\n"
+            "\n";
+
+    const QByteArray dstText = "\n"
+            "#include \"/tmp/file.h\"\n" // line 1
+            "int x;\n"
+            "\n"
+            "void Foo::foo()\n" // line 4
+            "{\n"
+            "\n"
+            "}\n" // line 7
+            "\n"
+            "int y;\n";
+
+    Document::Ptr src = Document::create(QLatin1String("/tmp/file.h"));
+    Utils::FileSaver srcSaver(src->fileName());
+    srcSaver.write(srcText);
+    srcSaver.finalize();
+    src->setSource(srcText);
+    src->parse();
+    src->check();
+    QCOMPARE(src->diagnosticMessages().size(), 0);
+    QCOMPARE(src->globalSymbolCount(), 1U);
+
+    Document::Ptr dst = Document::create(QLatin1String("/tmp/file.cpp"));
+    dst->addIncludeFile("/tmp/file.h", 1);
+    Utils::FileSaver dstSaver(dst->fileName());
+    dstSaver.write(dstText);
+    dstSaver.finalize();
+    dst->setSource(dstText);
+    dst->parse();
+    dst->check();
+    QCOMPARE(dst->diagnosticMessages().size(), 0);
+    QCOMPARE(dst->globalSymbolCount(), 3U);
+
+    Snapshot snapshot;
+    snapshot.insert(src);
+    snapshot.insert(dst);
+
+    Class *foo = src->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
+    QCOMPARE(foo->memberCount(), 2U);
+    Declaration *decl = foo->memberAt(1)->asDeclaration();
+    QVERIFY(decl);
+    QCOMPARE(decl->line(), 4U);
+    QCOMPARE(decl->column(), 6U);
+
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(changes);
+    QList<InsertionLocation> locList = find.methodDefinition(decl);
+    QVERIFY(locList.size() == 1);
+    InsertionLocation loc = locList.first();
+    QCOMPARE(loc.fileName(), QLatin1String("/tmp/file.cpp"));
+    QCOMPARE(loc.line(), 7U);
+    QCOMPARE(loc.column(), 2U);
+    QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
+    QCOMPARE(loc.suffix(), QString());
+}
+
+void tst_Codegen::definition_middle_member()
+{
+    const QByteArray srcText = "\n"
+            "class Foo\n"  // line 1
+            "{\n"
+            "void foo();\n" // line 3
+            "void bar();\n" // line 4
+            "void car();\n" // line 5
+            "};\n"
+            "\n";
+
+    const QByteArray dstText = "\n"
+            "#include \"/tmp/file.h\"\n" // line 1
+            "int x;\n"
+            "\n"
+            "void Foo::foo()\n" // line 4
+            "{\n"
+            "\n"
+            "}\n" // line 7
+            "\n"
+            "void Foo::car()\n" // line 9
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            "int y;\n";
+
+    Document::Ptr src = Document::create(QLatin1String("/tmp/file.h"));
+    Utils::FileSaver srcSaver(src->fileName());
+    srcSaver.write(srcText);
+    srcSaver.finalize();
+    src->setSource(srcText);
+    src->parse();
+    src->check();
+    QCOMPARE(src->diagnosticMessages().size(), 0);
+    QCOMPARE(src->globalSymbolCount(), 1U);
+
+    Document::Ptr dst = Document::create(QLatin1String("/tmp/file.cpp"));
+    dst->addIncludeFile("/tmp/file.h", 1);
+    Utils::FileSaver dstSaver(dst->fileName());
+    dstSaver.write(dstText);
+    dstSaver.finalize();
+    dst->setSource(dstText);
+    dst->parse();
+    dst->check();
+    QCOMPARE(dst->diagnosticMessages().size(), 0);
+    QCOMPARE(dst->globalSymbolCount(), 4U);
+
+    Snapshot snapshot;
+    snapshot.insert(src);
+    snapshot.insert(dst);
+
+    Class *foo = src->globalSymbolAt(0)->asClass();
+    QVERIFY(foo);
+    QCOMPARE(foo->line(), 1U);
+    QCOMPARE(foo->column(), 7U);
+    QCOMPARE(foo->memberCount(), 3U);
+    Declaration *decl = foo->memberAt(1)->asDeclaration();
+    QVERIFY(decl);
+    QCOMPARE(decl->line(), 4U);
+    QCOMPARE(decl->column(), 6U);
+
+    CppRefactoringChanges changes(snapshot);
+    InsertionPointLocator find(changes);
+    QList<InsertionLocation> locList = find.methodDefinition(decl);
+    QVERIFY(locList.size() == 1);
+    InsertionLocation loc = locList.first();
+    QCOMPARE(loc.fileName(), QLatin1String("/tmp/file.cpp"));
+    QCOMPARE(loc.line(), 7U);
+    QCOMPARE(loc.column(), 2U);
+    QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
+    QCOMPARE(loc.suffix(), QString());
 }
 
 QTEST_MAIN(tst_Codegen)
