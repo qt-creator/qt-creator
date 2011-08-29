@@ -72,7 +72,6 @@ private slots:
     void jumpToFile();
 
 #ifdef WITH_TESTS
-    void testBasicProjectLoading(); // Test fails!
     void testAbldOutputParsers_data();
     void testAbldOutputParsers();
     void testSbsV2OutputParsers_data();

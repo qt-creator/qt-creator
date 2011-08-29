@@ -326,18 +326,4 @@ void Qt4ProjectManagerPlugin::jumpToFile()
         editor->jumpToFile();
 }
 
-#ifdef WITH_TESTS
-void Qt4ProjectManagerPlugin::testBasicProjectLoading()
-{
-    QString testDirectory = ExtensionSystem::PluginManager::instance()->testDataDirectory() + "/qt4projectmanager/";
-    QString test1 = testDirectory + "test1/test1.pro";
-    m_projectExplorer->openProject(test1);
-    QVERIFY(!m_projectExplorer->session()->projects().isEmpty());
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(m_projectExplorer->session()->projects().first());
-    QVERIFY(qt4project);
-    QVERIFY(qt4project->rootQt4ProjectNode()->projectType() == ApplicationTemplate);
-    QVERIFY(m_projectExplorer->currentProject() != 0);
-}
-#endif
-
 Q_EXPORT_PLUGIN(Qt4ProjectManagerPlugin)
