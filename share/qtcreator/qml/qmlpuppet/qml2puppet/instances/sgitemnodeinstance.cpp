@@ -184,13 +184,23 @@ bool SGItemNodeInstance::equalSGItem(QSGItem *item) const
     return item == sgItem();
 }
 
+void SGItemNodeInstance::updateDirtyNodeRecursive(QSGItem *parentItem) const
+{
+    DesignerSupport::updateDirtyNode(parentItem);
+
+    foreach (QSGItem *childItem, parentItem->childItems()) {
+        if (!nodeInstanceServer()->hasInstanceForObject(childItem))
+            updateDirtyNodeRecursive(childItem);
+    }
+}
+
 QImage SGItemNodeInstance::renderImage() const
 {
+    updateDirtyNodeRecursive(sgItem());
+
     QImage image = designerSupport()->renderImageForItem(sgItem());
 
     image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-
-    qDebug() << __FUNCTION__ << image.size();
 
     return image;
 }

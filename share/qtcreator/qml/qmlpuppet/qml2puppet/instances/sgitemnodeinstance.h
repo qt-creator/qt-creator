@@ -116,6 +116,7 @@ protected:
     void resetVertical();
     void refresh();
     QRectF boundingRectWithStepChilds(QSGItem *parentItem) const;
+    void updateDirtyNodeRecursive(QSGItem *parentItem) const;
 
 private: //variables
     bool m_hasHeight;
