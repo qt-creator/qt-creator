@@ -143,6 +143,7 @@ void CMakeOpenProjectWizard::init()
 {
     setOption(QWizard::NoBackButtonOnStartPage);
     setWindowTitle(tr("CMake Wizard"));
+    setMinimumSize(800, 600);
 }
 
 CMakeManager *CMakeOpenProjectWizard::cmakeManager() const
