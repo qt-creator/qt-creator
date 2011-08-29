@@ -79,6 +79,13 @@ void ProjectWizardPage::setProjectToolTips(const QStringList &t)
     m_projectToolTips = t;
 }
 
+void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
+{
+    m_ui->projectLabel->setText(addingSubProject ?
+                                    tr("Add as a subproject to project:")
+                                  : tr("Add to &project:"));
+}
+
 int ProjectWizardPage::currentProjectIndex() const
 {
     return m_ui->projectComboBox->currentIndex();

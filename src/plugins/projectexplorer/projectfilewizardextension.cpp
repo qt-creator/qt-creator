@@ -417,6 +417,7 @@ void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProj
 
     m_context->page->setProjects(projectChoices);
     m_context->page->setProjectToolTips(projectToolTips);
+    m_context->page->setAddingSubProject(projectAction == ProjectNode::AddSubProject);
 }
 
 bool ProjectFileWizardExtension::processFiles(

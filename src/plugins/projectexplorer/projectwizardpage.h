@@ -68,6 +68,7 @@ public:
     // Returns the common path
     void setFilesDisplay(const QString &commonPath, const QStringList &files);
 
+    void setAddingSubProject(bool addingSubProject);
 protected:
     virtual void changeEvent(QEvent *e);
 
