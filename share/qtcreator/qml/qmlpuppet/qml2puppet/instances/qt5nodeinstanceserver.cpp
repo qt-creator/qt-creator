@@ -32,7 +32,6 @@
 
 #include "qt5nodeinstanceserver.h"
 
-#if QT_VERSION >= 0x050000
 
 #include <QSGItem>
 #include <QSGView>
@@ -162,5 +161,3 @@ void Qt5NodeInstanceServer::clearScene(const ClearSceneCommand &command)
 }
 
 } // QmlDesigner
-
-#endif // QT_VERSION

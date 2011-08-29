@@ -37,8 +37,6 @@
 
 #include "nodeinstanceserver.h"
 
-#if QT_VERSION >= 0x050000
-
 QT_BEGIN_NAMESPACE
 class QSGItem;
 class DesignerSupport;
@@ -76,7 +74,5 @@ private:
 };
 
 } // QmlDesigner
-
-#endif // QT_VERSION
 
 #endif // QT5NODEINSTANCESERVER_H
