@@ -35,6 +35,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginerroroverview.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QUrl>
@@ -353,15 +354,10 @@ int main(int argc, char **argv)
         return 1;
     }
     {
-        QStringList errors;
-        foreach (ExtensionSystem::PluginSpec *p, pluginManager.plugins())
-            // only show errors on startup if plugin is enabled.
-            if (p->hasError() && p->isEnabled() && !p->isDisabledIndirectly())
-                errors.append(p->name() + "\n" + p->errorString());
-        if (!errors.isEmpty())
-            QMessageBox::warning(0,
-                QCoreApplication::translate("Application", "Qt Creator - Plugin loader messages"),
-                errors.join(QString::fromLatin1("\n\n")));
+        if (pluginManager.hasError()) {
+            ExtensionSystem::PluginErrorOverview errorOverview(&pluginManager);
+            errorOverview.exec();
+        }
     }
 
     if (isFirstInstance) {
@@ -385,4 +381,3 @@ int main(int argc, char **argv)
 
     return app.exec();
 }
-

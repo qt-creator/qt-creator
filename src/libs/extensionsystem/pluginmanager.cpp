@@ -329,6 +329,22 @@ void PluginManager::loadPlugins()
 }
 
 /*!
+    \fn bool PluginManager::hasError() const
+    Returns true if any plugin has errors even though it is enabled.
+    Most useful to call after loadPlugins().
+*/
+bool PluginManager::hasError() const
+{
+    foreach (PluginSpec *spec, plugins()) {
+        // only show errors on startup if plugin is enabled.
+        if (spec->hasError() && spec->isEnabled() && !spec->isDisabledIndirectly()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/*!
     \fn void PluginManager::shutdown()
     Shuts down and deletes all plugins.
 */

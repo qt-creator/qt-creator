@@ -106,6 +106,7 @@ public:
     QHash<QString, PluginCollection *> pluginCollections() const;
     void setFileExtension(const QString &extension);
     QString fileExtension() const;
+    bool hasError() const;
 
     // Settings
     void setSettings(QSettings *settings);
