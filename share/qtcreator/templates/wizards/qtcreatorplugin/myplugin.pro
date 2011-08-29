@@ -24,6 +24,14 @@ isEmpty(QTCREATOR_SOURCES):QTCREATOR_SOURCES=%QtCreatorSources%
 IDE_BUILD_TREE = $$(QTC_BUILD)
 isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=%QtCreatorBuild%
 
+## uncomment to build plugin into user config directory
+## <localappdata>/plugins/<ideversion>
+##    where <localappdata> is e.g.
+##    <drive>:\Users\<username>\AppData\Local\Nokia\QtCreator on Windows Vista and later
+##    $XDG_DATA_HOME/Nokia/QtCreator or ~/.local/share/Nokia/QtCreator on Linux
+##    ~/Library/Application Support/Nokia/QtCreator on Mac
+%DestDir%USE_USER_DESTDIR = yes
+
 PROVIDER = %VendorName%
 
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)

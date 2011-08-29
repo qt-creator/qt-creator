@@ -32,6 +32,7 @@
 
 #include "qtsingleapplication.h"
 
+#include <app/app_version.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/iplugin.h>
@@ -51,9 +52,10 @@
 
 #include <QtNetwork/QNetworkProxyFactory>
 
-#include <QtGui/QMessageBox>
 #include <QtGui/QApplication>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
 
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
@@ -153,7 +155,7 @@ static inline int askMsgSendFailed()
                                  QMessageBox::Retry);
 }
 
-static inline QStringList getPluginPaths()
+static inline QStringList getPluginPaths(QSettings *settings)
 {
     QStringList rc;
     // Figure out root:  Up one from 'bin'
@@ -177,6 +179,17 @@ static inline QStringList getPluginPaths()
     pluginPath += QLatin1String("PlugIns");
     rc.push_back(pluginPath);
 #endif
+    // 3) <localappdata>/plugins/<ideversion>
+    //    where <localappdata> is e.g.
+    //    <drive>:\Users\<username>\AppData\Local\Nokia\QtCreator on Windows Vista and later
+    //    $XDG_DATA_HOME or ~/.local/share/Nokia/QtCreator on Linux
+    //    ~/Library/Application Support/Nokia/QtCreator on Mac
+    pluginPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    pluginPath += QLatin1Char('/');
+    pluginPath += QLatin1String("plugins");
+    pluginPath += QLatin1Char('/');
+    pluginPath += QLatin1String(Core::Constants::IDE_VERSION_LONG);
+    rc.push_back(pluginPath);
     return rc;
 }
 
@@ -276,7 +289,7 @@ int main(int argc, char **argv)
 #endif
 #endif
     // Load
-    const QStringList pluginPaths = getPluginPaths();
+    const QStringList pluginPaths = getPluginPaths(settings);
     pluginManager.setPluginPaths(pluginPaths);
 
     QMap<QString, QString> foundAppOptions;

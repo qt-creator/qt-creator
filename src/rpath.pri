@@ -3,7 +3,7 @@ macx {
         QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../PlugIns/
     } else {
         QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/PlugIns/
-        QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../
+        QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../,-rpath,@executable_path/../
     }
 } else:linux-* {
     #do the rpath by hand since it's not possible to use ORIGIN in QMAKE_RPATHDIR

@@ -95,5 +95,18 @@ leave room for the Qt 4 target page.
                           defaulttext="" />
             <fielddescription>Qt Creator build:</fielddescription>
         </field>
+        <field name="DestDir">
+            <fieldcontrol class="QComboBox" defaultindex="0">
+                <comboentries>
+                    <comboentry value="# ">
+                        <comboentrytext>Qt Creator build</comboentrytext>
+                    </comboentry>
+                    <comboentry value="">
+                        <comboentrytext>Local user settings</comboentrytext>
+                    </comboentry>
+                </comboentries>
+            </fieldcontrol>
+            <fielddescription>Deploy into:</fielddescription>
+        </field>
     </fields>
 </wizard>

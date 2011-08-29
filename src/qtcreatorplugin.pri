@@ -7,7 +7,17 @@ isEmpty(PROVIDER) {
     PROVIDER = Nokia
 }
 
-DESTDIR = $$IDE_PLUGIN_PATH/$$PROVIDER
+isEmpty(USE_USER_DESTDIR) {
+    DESTDIR = $$IDE_PLUGIN_PATH/$$PROVIDER
+} else {
+    win32:DESTDIRBASE = "$$(LOCALAPPDATA)"
+    else:macx: DESTDIRBASE = "$$(HOME)/Library/Application Support"
+    else:unix {
+        DESTDIRBASE = "$$(XDG_DATA_HOME)"
+        isEmpty(DESTDIRBASE):DESTDIRBASE = "$$(HOME)/.local/share"
+    }
+    DESTDIR = "$$DESTDIRBASE/Nokia/QtCreator/plugins/$$QTCREATOR_VERSION/$$PROVIDER"
+}
 LIBS += -L$$DESTDIR
 
 # copy the plugin spec
@@ -44,7 +54,7 @@ macx {
         QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../PlugIns/$${PROVIDER}/
     } else {
         QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/PlugIns/$${PROVIDER}/
-        QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../../
+        QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../../,-rpath,@executable_path/../
     }
 } else:linux-* {
     #do the rpath by hand since it's not possible to use ORIGIN in QMAKE_RPATHDIR
