@@ -91,8 +91,6 @@ QDeclarativeEngine *Qt5NodeInstanceServer::engine() const
 
 void Qt5NodeInstanceServer::resizeCanvasSizeToRootItemSize()
 {
-    if (sgView())
-        sgView()->resize(rootNodeInstance().size().toSize());
 }
 
 void Qt5NodeInstanceServer::resetAllItems()

@@ -78,8 +78,6 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction) {
         inFunction = true;
 
-        bool adjustSceneRect = false;
-
         if (sgView()) {
             foreach (QSGItem *item, allItems()) {
                 if (item && hasInstanceForObject(item)) {
@@ -97,12 +95,6 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             }
 
             resetAllItems();
-//            if (adjustSceneRect) {
-//                QRectF boundingRect = rootNodeInstance().boundingRect();
-//                if (boundingRect.isValid()) {
-//                    declarativeView()->setSceneRect(boundingRect);
-//                }
-//            }
 
             slowDownRenderTimer();
             nodeInstanceClient()->flush();
