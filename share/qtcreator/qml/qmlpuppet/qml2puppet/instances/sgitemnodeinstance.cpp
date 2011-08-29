@@ -276,7 +276,7 @@ QRectF SGItemNodeInstance::boundingRectWithStepChilds(QSGItem *parentItem) const
     QRectF boundingRect = parentItem->boundingRect();
 
     foreach (QSGItem *childItem, parentItem->childItems()) {
-        if (nodeInstanceServer()->hasInstanceForObject(childItem)) {
+        if (!nodeInstanceServer()->hasInstanceForObject(childItem)) {
             QRectF transformedRect = childItem->mapRectToItem(parentItem, boundingRectWithStepChilds(childItem));
             if (isRectangleSane(transformedRect))
                 boundingRect = boundingRect.united(transformedRect);
