@@ -108,7 +108,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
 void Qt5RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    NodeInstanceServer::createScene(command);
+    Qt5NodeInstanceServer::createScene(command);
 
     QList<ServerNodeInstance> instanceList;
     foreach (const InstanceContainer &container, command.instances()) {
@@ -123,20 +123,21 @@ void Qt5RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
 
 void Qt5RenderNodeInstanceServer::clearScene(const ClearSceneCommand &command)
 {
-    NodeInstanceServer::clearScene(command);
+    Qt5NodeInstanceServer::clearScene(command);
 
     m_dirtyInstanceSet.clear();
 }
 
 void Qt5RenderNodeInstanceServer::completeComponent(const CompleteComponentCommand &command)
 {
-    NodeInstanceServer::completeComponent(command);
+    Qt5NodeInstanceServer::completeComponent(command);
 
     QList<ServerNodeInstance> instanceList;
     foreach (qint32 instanceId, command.instances()) {
         ServerNodeInstance instance = instanceForId(instanceId);
         if (instance.isValid()) {
             instanceList.append(instance);
+            m_dirtyInstanceSet.insert(instance);
         }
     }
 
