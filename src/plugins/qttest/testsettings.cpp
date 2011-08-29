@@ -229,9 +229,9 @@ TestSettings_p *TestSettings::d = 0;
 TestSettings_p::TestSettings_p()
 {
     // Clear out the settings first incase there is no ini file or it's missing values
-    m_showPassedResults = 1;
-    m_showDebugResults = 1;
-    m_showSkippedResults = 1;
+    m_showPassedResults = true;
+    m_showDebugResults = true;
+    m_showSkippedResults = true;
     m_showVerbose = 0;
     m_hiddenTestTypes = 0;
     load();
@@ -252,9 +252,12 @@ void TestSettings_p::load()
     TestIniFile ini(QDir ::homePath() + QDir::separator() + ".qttest"
         + QDir::separator() + "saved_settings");
 
-    ini.read("showPassedResults", m_showPassedResults);
-    ini.read("showDebugResults", m_showDebugResults);
-    ini.read("showSkippedResults", m_showSkippedResults);
+    int showPassedResults;
+    int showDebugResults;
+    int showSkippedResults;
+    ini.read("showPassedResults", showPassedResults);
+    ini.read("showDebugResults", showDebugResults);
+    ini.read("showSkippedResults", showSkippedResults);
     ini.read("showVerbose", m_showVerbose);
     ini.read("autosaveOn", m_autosaveOn);
     ini.read("componentViewMode", m_componentViewMode);
@@ -262,6 +265,10 @@ void TestSettings_p::load()
     ini.read("systemTestRunner", m_systemTestRunner);
     ini.read("learnMode", m_learnMode);
     ini.read("hiddenTestTypes", m_hiddenTestTypes);
+
+    m_showPassedResults = showPassedResults;
+    m_showDebugResults = showDebugResults;
+    m_showSkippedResults = showSkippedResults;
 }
 
 void TestSettings_p::save()
@@ -308,26 +315,26 @@ void TestSettings::save()
 bool TestSettings::showPassedResults()
 {
     Q_ASSERT(d);
-    return (d->m_showPassedResults != 0);
+    return d->m_showPassedResults;
 }
 
 bool TestSettings::showDebugResults()
 {
     Q_ASSERT(d);
-    return (d->m_showDebugResults != 0);
+    return d->m_showDebugResults;
 }
 
 bool TestSettings::showSkippedResults()
 {
     Q_ASSERT(d);
-    return (d->m_showSkippedResults != 0);
+    return d->m_showSkippedResults;
 }
 
 void TestSettings::setShowPassedResults(bool doShow)
 {
     Q_ASSERT(d);
-    if (d->m_showPassedResults ^ doShow) {
-        d->m_showPassedResults = (doShow ? 1 : 0);
+    if (d->m_showPassedResults != doShow) {
+        d->m_showPassedResults = doShow;
         d->emitChanged();
     }
 }
@@ -335,8 +342,8 @@ void TestSettings::setShowPassedResults(bool doShow)
 void TestSettings::setShowDebugResults(bool doShow)
 {
     Q_ASSERT(d);
-    if (d->m_showDebugResults ^ doShow) {
-        d->m_showDebugResults = (doShow ? 1 : 0);
+    if (d->m_showDebugResults != doShow) {
+        d->m_showDebugResults = doShow;
         d->emitChanged();
     }
 }
@@ -344,8 +351,8 @@ void TestSettings::setShowDebugResults(bool doShow)
 void TestSettings::setShowSkippedResults(bool doShow)
 {
     Q_ASSERT(d);
-    if (d->m_showSkippedResults ^ doShow) {
-        d->m_showSkippedResults = (doShow ? 1 : 0);
+    if (d->m_showSkippedResults != doShow) {
+        d->m_showSkippedResults = doShow;
         d->emitChanged();
     }
 }

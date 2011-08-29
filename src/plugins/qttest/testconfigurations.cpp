@@ -797,7 +797,7 @@ QString TestConfig::uploadBranch()
             if (ok) {
                 QString output = proc.readAllStandardOutput();
                 if (!output.isEmpty()) {
-                    QRegExp gitRemoteRegEx(QLatin1String("(\\w+\\s+\\w+@[^:]+):(\\w+)/\(.*)"));
+                    QRegExp gitRemoteRegEx(QLatin1String("(\\w+\\s+\\w+@[^:]+):(\\w+)/\\(.*)"));
                     QRegExp gitReadonlyRemoteRegEx(QLatin1String("(\\w+\\s+\\w+://.+)/(\\w+)/(.*)"));
                     QStringList tmp = output.split(QLatin1Char('\n'));
                     foreach (const QString &line, tmp) {

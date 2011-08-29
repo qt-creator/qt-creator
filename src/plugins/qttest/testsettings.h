@@ -49,9 +49,9 @@ public:
     void save();
     void emitChanged();
 
-    int m_showPassedResults;
-    int m_showDebugResults;
-    int m_showSkippedResults;
+    bool m_showPassedResults;
+    bool m_showDebugResults;
+    bool m_showSkippedResults;
     int m_showVerbose;
     QString m_uploadServer;
     QString m_systemTestRunner;
