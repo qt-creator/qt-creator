@@ -34,8 +34,8 @@
 #define TESTGENERATOR_H
 
 #include <QString>
-#include <QTextStream>
-#include <QStringList>
+
+QT_FORWARD_DECLARE_CLASS(QTextStream)
 
 class TestGenerator
 {

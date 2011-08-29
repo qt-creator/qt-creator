@@ -35,6 +35,11 @@
 #include "dialogs.h"
 #include "qsystem.h"
 #include "testsettingspropertiespage.h"
+#include "resultsview.h"
+#include "testexecuter.h"
+#include "testcontextmenu.h"
+#include "testsuite.h"
+#include "testoutputwindow.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -48,6 +53,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
+#include <texteditor/basetexteditor.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <extensionsystem/pluginmanager.h>
@@ -75,6 +81,8 @@
 #include <QToolButton>
 
 using namespace QtTest::Internal;
+
+enum { debug = 0 };
 
 Core::NavigationView TestNavigationWidgetFactory::createWidget()
 {
@@ -109,16 +117,15 @@ Core::NavigationView TestNavigationWidgetFactory::createWidget()
 
 QString TestNavigationWidgetFactory::displayName() const
 {
-    return "Tests";
+    return QtTestPlugin::tr("Tests");
 }
 
 //******************************************
 
-QtTestPlugin::QtTestPlugin()
+QtTestPlugin::QtTestPlugin() :
+    m_messageOutputWindow(0), m_testResultsWindow(0),
+    m_contextMenu(new TestContextMenu(this))
 {
-    m_messageOutputWindow = 0;
-    m_testResultsWindow = 0;
-    m_contextMenu = new TestContextMenu(this);
 }
 
 QtTestPlugin::~QtTestPlugin()
@@ -235,9 +242,10 @@ void QtTestPlugin::testDebug()
     Debugger::DebuggerRunControl *runControl = 0;
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::NoStartMode; // we'll start the test runner here
-    params.executable = ".qtt";
+    params.executable = QLatin1String(".qtt");
     runControl = Debugger::DebuggerPlugin::createDebugger(params);
-    qDebug() << "Debugger run control" << runControl;
+    if (debug)
+        qDebug() << "Debugger run control" << runControl;
     runControl->start();
 
 #ifdef QTTEST_DEBUGGER_SUPPORT
@@ -276,7 +284,7 @@ void QtTestPlugin::retryTests(const QStringList &tests)
     QStringList newSelection;
 
     foreach (const QString &test, currentSelection) {
-        QString testName = test.mid(test.lastIndexOf("/") + 1);
+        QString testName = test.mid(test.lastIndexOf(QLatin1Char('/')) + 1);
         if (tests.contains(testName))
             newSelection.append(test);
     }
@@ -288,8 +296,8 @@ void QtTestPlugin::insertTestFunction()
 {
     TestCode *currentTest = m_testCollection.currentEditedTest();
     if (currentTest) {
-        QString prompt = "<b>" + currentTest->testTypeString()
-            +  " Test: </b>" + currentTest->testCase();
+        QString prompt = QLatin1String("<b>") + currentTest->testTypeString()
+            +  QLatin1String(" Test: </b>") + currentTest->testCase();
         NewTestFunctionDlg dlg(prompt);
         dlg.exec();
 

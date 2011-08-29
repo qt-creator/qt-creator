@@ -38,6 +38,8 @@
 #include "testgenerator.h"
 #include "dialogs.h"
 #include "testconfigurations.h"
+#include "testexecuter.h"
+#include "testcontextmenu.h"
 
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
@@ -221,7 +223,7 @@ QString TestViewItem::suiteName()
     if (m_parent != 0)
         ret = m_parent->suiteName();
     if (m_isTestSuite) {
-        if (!ret.isEmpty()) ret += "/";
+        if (!ret.isEmpty()) ret += QLatin1Char('/');
         ret += m_name;
     }
     return QDir::convertSeparators(ret);
@@ -231,7 +233,7 @@ QString TestViewItem::fullName()
 {
     QString ret = suiteName();
     if (!m_isTestSuite) {
-        ret += "/"+ m_name;
+        ret += QLatin1Char('/')+ m_name;
     }
     return QDir::convertSeparators(ret);
 }
@@ -413,7 +415,7 @@ bool splitSuiteName(const QString &fullName, QString &first, QString &rest)
         return false;
 
     first = L[0];
-    rest = "";
+    rest.clear();
     if (L.count() > 1) {
         for (int i = 1; i < L.count(); ++i) {
             if (!rest.isEmpty())
@@ -564,7 +566,7 @@ QString TestFunctionItem::key(int column, bool /*ascending*/) const
 
 int TestSelector::m_refCount = 0;
 
-TestSelector::TestSelector(QWidget *parent, const char *name) :
+TestSelector::TestSelector(QWidget *parent) :
     QTreeWidget(parent)
 {
     TestSettings testSettings;
@@ -577,14 +579,12 @@ TestSelector::TestSelector(QWidget *parent, const char *name) :
     connect(TestExecuter::instance(), SIGNAL(testFinished()),
         this, SLOT(updateActions()), Qt::DirectConnection);
 
-    Q_UNUSED(name);
-
     setColumnCount(1);
     setSortingEnabled(false);
     setRootIsDecorated(true);
     setSelectionMode(QAbstractItemView::SingleSelection);
 
-    m_curTest.m_testFunction = "";
+    m_curTest.m_testFunction.clear();;
     m_curTest.m_line = -1;
     m_curTest.m_code = 0;
 
@@ -796,14 +796,14 @@ void TestSelector::onSelectionChanged()
     m_testCollection.setCurrentEditedTest(0);
     m_curTest.m_code = 0;
 
-    m_curTest.m_basePath = "";
+    m_curTest.m_basePath.clear();
     checkSuite(0, selected, multiSelection);
     if (!selected || multiSelection) {
         // no function and no class selected
         m_curTest.m_code = 0;
-        m_curTest.m_testFunction = "";
+        m_curTest.m_testFunction.clear();
         m_curTest.m_line = -1;
-        m_testContextMenu->updateSingleTestAction("");
+        m_testContextMenu->updateSingleTestAction(QString());
     }
 
     if (m_curTest.m_code) {
@@ -855,9 +855,9 @@ void TestSelector::selectGroup()
                 if (inf && (inf->testStartLine() >= 0)) {
                     if (!inf->testGroups().isEmpty()) {
                         dlg.addSelectableItems(inf->testGroups()
-                            .split(",", QString::SkipEmptyParts));
+                            .split(QLatin1Char(','), QString::SkipEmptyParts));
                         groupsList.append(tc->testCase() + "::" + inf->functionName()
-                            + "@" + inf->testGroups().split(",", QString::SkipEmptyParts).join("@"));
+                            + QLatin1Char('@') + inf->testGroups().split(QLatin1Char(','), QString::SkipEmptyParts).join(QString(QLatin1Char('@'))));
                     }
                 }
             }
@@ -871,7 +871,7 @@ void TestSelector::selectGroup()
         while (current < groupsList.count()) {
             bool containsAGroup = false;
             for (int i = 0; i < selectedGroups.count(); ++i) {
-                if (groupsList[current].contains(QString("@" + selectedGroups[i]))) {
+                if (groupsList[current].contains(QString(QLatin1Char('@') + selectedGroups[i]))) {
                     containsAGroup = true;
                     break;
                 }
@@ -879,7 +879,7 @@ void TestSelector::selectGroup()
             if (!containsAGroup) {
                 groupsList.removeAt(current);
             } else {
-                groupsList[current] = groupsList[current].left(groupsList[current].indexOf("@"));
+                groupsList[current] = groupsList[current].left(groupsList[current].indexOf(QLatin1Char('@')));
                 ++current;
             }
         }
@@ -890,7 +890,7 @@ void TestSelector::selectGroup()
 QString TestSelector::curTestSuite(bool fullPath)
 {
     if ((m_curTest.m_code == 0) || m_curTest.m_code->actualFileName().isEmpty())
-        return "";
+        return QString();
     if (fullPath)
         return m_curTest.m_code->fullVisualSuitePath(m_testSettings.componentViewMode());
     return m_curTest.m_code->visualBasePath();
@@ -921,7 +921,7 @@ void TestSelector::checkSuite(TestSuiteItem *base, bool &selected, bool &multiSe
                     multiSelection = true;
                 selected = true;
                 if (!multiSelection) {
-                    m_curTest.m_testFunction = "";
+                    m_curTest.m_testFunction.clear();
                     m_curTest.m_line = -1;
                     if (!m_curTest.m_code
                         || (m_curTest.m_code->visualFileName(m_testSettings.componentViewMode()) != T->fullName())) {
@@ -943,7 +943,7 @@ void TestSelector::checkSuite(TestSuiteItem *base, bool &selected, bool &multiSe
                     multiSelection = true;
                 selected = true;
                 if (!multiSelection) {
-                    m_curTest.m_testFunction = "";
+                    m_curTest.m_testFunction.clear();
                     m_curTest.m_line = -1;
                     if (!m_curTest.m_code
                         || (m_curTest.m_code->visualFileName(m_testSettings.componentViewMode()) != testCase->fullName())) {
@@ -1190,7 +1190,7 @@ void TestSelector::select(TestCode *tc, const QString &funcName)
         QString tcFileName = tc->visualFileName(m_testSettings.componentViewMode());
         TestCaseItem *testCase = findCase(tcFileName);
         if (testCase) {
-            if (funcName != "") {
+            if (!funcName.isEmpty()) {
                 TestFunctionItem *testFunction;
                 if (testCase->findFunction(funcName, testFunction)) {
                     expandItem(testFunction);
@@ -1480,7 +1480,7 @@ void TestSelector::testInsertUnitOrSystemTest()
         gen.enableComponentInTestName(dlg.componentInName());
         gen.setTestCase(dlg.mode(),
             dlg.location(),
-            "", // use automatic "subdir" selection
+            QString(), // use automatic "subdir" selection
             dlg.testCaseName(),
             dlg.testedComponent(),
             dlg.testedClassName(),

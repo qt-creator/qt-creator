@@ -54,12 +54,13 @@
 #include <QApplication>
 #include <QDebug>
 
-enum {
-    RES_SIZE = 100,
-    RESULT_POS = 0,
-    DETAILS_POS = 1,
-    REASON_POS  = 2,
-    SCREEN_POS = 3
+enum
+{
+    ResultSize = 100,
+    ResultPosition = 0,
+    DetailsPosition = 1,
+    ReasonPosition  = 2,
+    ScreenPosition = 3
 };
 
 // Role for data which holds the identifier for use with m_pendingScreenshots
@@ -67,9 +68,6 @@ static const int ScreenshotIdRole = Qt::UserRole + 10;
 // Role for the link to the .png file of a failure screenshot
 static const int ScreenshotLinkRole = Qt::UserRole + 100;
 
-static QBrush passBrush(QColor("lightgreen"));
-static QBrush failBrush(QColor("orangered"));
-static QBrush unexpectedBrush(QColor("orange"));
 
 /*
     Constructs a screenshot ID for the test failure at the given \a file and
@@ -80,10 +78,15 @@ static QString screenshotId(const QString &file, int line)
     return QString::fromLatin1("%1 %2").arg(QFileInfo(file).canonicalFilePath()).arg(line);
 }
 
-ResultsView::ResultsView(QWidget *parent, const char *name) :
-    QTableWidget(parent)
+ResultsView::ResultsView(QWidget *parent) :
+    QTableWidget(parent),
+    m_lastRow(-1),
+    m_ignoreEvent(false),
+    m_userLock(false),
+    m_passBrush(QColor("lightgreen")),
+    m_failBrush(QColor("orangered")),
+    m_unexpectedBrush(QColor("orange"))
 {
-    setObjectName(name);
     setColumnCount(3);
     setGridStyle(Qt::NoPen);
 
@@ -103,11 +106,6 @@ ResultsView::ResultsView(QWidget *parent, const char *name) :
     verticalHeader()->hide();
     horizontalHeader()->show();
 
-    m_lastRow = -1;
-
-    m_ignoreEvent = false;
-    m_userLock = false;
-
     connect(this, SIGNAL(currentCellChanged(int,int,int,int)),
         this, SLOT(onChanged()), Qt::DirectConnection);
     connect(this, SIGNAL(itemClicked(QTableWidgetItem*)),
@@ -122,14 +120,14 @@ ResultsView::~ResultsView()
 
 void ResultsView::resize(int width)
 {
-    resizeColumnToContents(RESULT_POS);
-    if (columnWidth(RESULT_POS) < RES_SIZE)
-        setColumnWidth(RESULT_POS, RES_SIZE);
-    resizeColumnToContents(DETAILS_POS);
-    if (columnWidth(DETAILS_POS) < RES_SIZE)
-        setColumnWidth(DETAILS_POS, RES_SIZE);
-    setColumnWidth(DETAILS_POS, columnWidth(DETAILS_POS) + 20);
-    setColumnWidth(REASON_POS, width - columnWidth(RESULT_POS) - columnWidth(DETAILS_POS));
+    resizeColumnToContents(ResultPosition);
+    if (columnWidth(ResultPosition) < ResultSize)
+        setColumnWidth(ResultPosition, ResultSize);
+    resizeColumnToContents(DetailsPosition);
+    if (columnWidth(DetailsPosition) < ResultSize)
+        setColumnWidth(DetailsPosition, ResultSize);
+    setColumnWidth(DetailsPosition, columnWidth(DetailsPosition) + 20);
+    setColumnWidth(ReasonPosition, width - columnWidth(ResultPosition) - columnWidth(DetailsPosition));
 }
 
 void ResultsView::resizeEvent(QResizeEvent *event)
@@ -177,7 +175,7 @@ void ResultsView::addScreenshot(const QString &screenshot, const QString &testfu
 void ResultsView::updateScreenshots()
 {
     for (int row = 0; row < rowCount(); ++row) {
-        QTableWidgetItem *result = item(row, RESULT_POS);
+        QTableWidgetItem *result = item(row, ResultPosition);
         if (!result)
             continue;
         // If there is a screenshot for this result, put a link to it in the table.
@@ -189,7 +187,7 @@ void ResultsView::updateScreenshots()
         QTableWidgetItem* shot = new QTableWidgetItem(QIcon(QPixmap(QLatin1String(":/testrun.png"))), QString());
         shot->setData(ScreenshotLinkRole, screenshot);
         shot->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-        setItem(row, SCREEN_POS, shot);
+        setItem(row, ScreenPosition, shot);
     }
 }
 
@@ -214,16 +212,16 @@ void ResultsView::append(const QString &res, const QString &test, const QString 
     QTableWidgetItem* result = new QTableWidgetItem(res);
     result->setTextAlignment(Qt::AlignCenter);
     if (res.startsWith(QLatin1String("PASS"))) {
-        result->setBackground(passBrush);
+        result->setBackground(m_passBrush);
         setRowHidden(row, !m_showPassing);
     } else if (res.startsWith(QLatin1String("FAIL"))) {
-        result->setBackground(failBrush);
+        result->setBackground(m_failBrush);
     } else if (res.startsWith(QLatin1String("QDEBUG"))) {
         setRowHidden(row, !m_showDebug);
     } else if (res.startsWith(QLatin1String("SKIP"))) {
         setRowHidden(row, !m_showSkipped);
     } else if (res.startsWith(QLatin1String("XFAIL")) || res.startsWith(QLatin1String("XPASS"))) {
-        result->setBackground(unexpectedBrush);
+        result->setBackground(m_unexpectedBrush);
     }
 
     if ((res.contains(QLatin1String("FAIL")) || res.startsWith(QLatin1String("XPASS"))) && !m_failedTests.contains(test))
@@ -235,14 +233,14 @@ void ResultsView::append(const QString &res, const QString &test, const QString 
 
     QTableWidgetItem *testDetails = new QTableWidgetItem(formatTestDetails(test, dataTag));
     testDetails->setToolTip(formatLocation(file, line));
-    setItem(row, RESULT_POS, result);
-    setItem(row, DETAILS_POS, testDetails);
-    setItem(row, REASON_POS, new QTableWidgetItem(reason));
+    setItem(row, ResultPosition, result);
+    setItem(row, DetailsPosition, testDetails);
+    setItem(row, ReasonPosition, new QTableWidgetItem(reason));
     resize(width());
     resizeRowToContents(row);
 
     if (currentRow() == -1)
-        scrollToItem(item(row, REASON_POS));
+        scrollToItem(item(row, ReasonPosition));
 
     m_resultsWindow->navigateStateChanged();
     updateScreenshots();
@@ -302,7 +300,7 @@ QString ResultsView::result(int row)
     if (row >= rowCount())
         return QString();
 
-    return item(row, RESULT_POS)->text().simplified();
+    return item(row, ResultPosition)->text().simplified();
 }
 
 QString ResultsView::reason(int row)
@@ -310,7 +308,7 @@ QString ResultsView::reason(int row)
     if (row >= rowCount())
         return QString();
 
-    QString txt = item(row, REASON_POS)->text();
+    QString txt = item(row, ReasonPosition)->text();
     const int pos = txt.indexOf(QLatin1Char('\n'));
     if (pos > 0)
         txt.truncate(pos);
@@ -322,7 +320,7 @@ QString ResultsView::location(int row)
     if (row >= rowCount())
         return QString();
 
-    return item(row, DETAILS_POS)->toolTip();
+    return item(row, DetailsPosition)->toolTip();
 }
 
 QString ResultsView::file(int row)
@@ -440,7 +438,7 @@ void ResultsView::showSkipped(bool show)
 void ResultsView::updateHidden(const QString &result, bool show)
 {
     for (int row = 0; row < rowCount(); ++row) {
-        QTableWidgetItem *resultItem = item(row, RESULT_POS);
+        QTableWidgetItem *resultItem = item(row, ResultPosition);
         if (resultItem && resultItem->text().startsWith(result))
             setRowHidden(row, !show);
     }
@@ -679,10 +677,10 @@ void ResultsView::copyResults()
     QString html = QLatin1String("<html><table>");
     QString text;
     for (int row = 0; row < rowCount(); ++row) {
-        QString result = item(row, RESULT_POS)->text().trimmed();
-        QString detail = item(row, DETAILS_POS)->text();
-        QString location = item(row, DETAILS_POS)->toolTip();
-        QString reason = item(row, REASON_POS)->text();
+        QString result = item(row, ResultPosition)->text().trimmed();
+        QString detail = item(row, DetailsPosition)->text();
+        QString location = item(row, DetailsPosition)->toolTip();
+        QString reason = item(row, ReasonPosition)->text();
         html += QString::fromLatin1("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td></tr>")
             .arg(result).arg(detail).arg(location).arg(htmlQuote(reason));
         text += QString::fromLatin1("%1\n%2\n%3\n%4\n").arg(result).arg(detail).arg(location).arg(reason);

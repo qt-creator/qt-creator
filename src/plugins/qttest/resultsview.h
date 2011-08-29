@@ -37,7 +37,9 @@
 #include "testsettings.h"
 
 #include <coreplugin/ioutputpane.h>
+
 #include <QTableWidget>
+#include <QBrush>
 
 class ResultsView;
 class TestResultsWindow;
@@ -50,7 +52,7 @@ class ResultsView : public QTableWidget
     Q_OBJECT
 
 public:
-    ResultsView(QWidget *parent = 0, const char *name = 0);
+    explicit ResultsView(QWidget *parent = 0);
     virtual ~ResultsView();
 
     QString result(int row);
@@ -77,6 +79,14 @@ public slots:
 
 signals:
     void defectSelected(TestCaseRec rec);
+
+private slots:
+    void onChanged();
+    void emitCurSelection();
+    void onItemClicked(QTableWidgetItem *);
+    void showPassing(bool);
+    void showDebugMessages(bool);
+    void showSkipped(bool);
 
 private:
     QString formatTestDetails(const QString &test, const QString &dataTag);
@@ -106,14 +116,9 @@ private:
     bool m_showSkipped;
     QStringList m_failedTests;
     TestSettings m_testSettings;
-
-private slots:
-    void onChanged();
-    void emitCurSelection();
-    void onItemClicked(QTableWidgetItem *);
-    void showPassing(bool);
-    void showDebugMessages(bool);
-    void showSkipped(bool);
+    const QBrush m_passBrush;
+    const QBrush m_failBrush;
+    const QBrush m_unexpectedBrush;
 };
 
 class TestResultsWindow : public Core::IOutputPane

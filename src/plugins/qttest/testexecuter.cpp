@@ -43,6 +43,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
+#include <texteditor/basetexteditor.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/qtversionmanager.h>
 #include <projectexplorer/target.h>
@@ -89,14 +90,14 @@ TestExecuter::TestExecuter() :
     m_stopTesting = false;
     m_manualStop = false;
     m_killTestRequested = false;
-    m_testOutputFile = QString("$HOME%1.qttest%1last_test_output").arg(QDir::separator());
+    m_testOutputFile = QString::fromLatin1("$HOME%1.qttest%1last_test_output").arg(QDir::separator());
     m_pendingFailure = false;
     m_inBuildMode = false;
     m_recordingEvents = false;
     m_abortRecording = false;
     m_progressBar = 0;
     m_testResultsStream = 0;
-    m_peekedResult = "";
+    m_peekedResult.clear();
 
     m_executer.setReadChannelMode(QProcess::MergedChannels);
     m_executer.setReadChannel(QProcess::StandardOutput);
@@ -177,7 +178,7 @@ void TestExecuter::runTests(bool singleTest, bool forceManual)
         m_selectedTests = TestConfigurations::instance().selectedTests();
     }
     if (m_selectedTests.count() == 0) {
-        testOutputPane()->append("No test selected");
+        testOutputPane()->append(tr("No test selected"));
         endTest();
         return;
     }
@@ -197,8 +198,8 @@ void TestExecuter::runSelectedTests(bool forceManual)
 
     bool hasSystemTestsSelected = false;
     int maxProgress = 0;
-    m_lastFinishedTest = QString();
-    QString lastTc = "";
+    m_lastFinishedTest.clear();
+    QString lastTc;
     bool lastIsSystemTest = false;
     // pretend we executed these tests - so the progress bar keeps counting nicely.
     foreach (const QString &item, m_selectedTests) {
@@ -219,22 +220,22 @@ void TestExecuter::runSelectedTests(bool forceManual)
 
     m_testCfg = TestConfigurations::instance().activeConfiguration();
     if (!m_testCfg) {
-        testOutputPane()->append("No test configuration defined. This is unusual.");
+        testOutputPane()->append(tr("No test configuration defined. This is unusual."));
         endTest();
         return;
     }
 
     m_pendingInsertions.clear();
     TestResultsWindow::instance()->clearContents();
-    testOutputPane()->append("*********** Start testing  *************");
+    testOutputPane()->append(tr("*********** Start testing  *************"));
 
     TestResultsWindow::instance()->popup();
 
     m_curTestCode = 0;
     QString changeNo;
-    QString lastConfigName = "";
-    QString lastPlatform = "";
-    QString lastBranch = "";
+    QString lastConfigName;
+    QString lastPlatform;
+    QString lastBranch;
     m_testCfg = 0;
     m_testFailedUnexpectedly = false;
 
@@ -254,7 +255,7 @@ void TestExecuter::runSelectedTests(bool forceManual)
     m_progress = 0;
     m_progressBar->setProgressRange(0, maxProgress);
     m_progressBar->reportStarted();
-    m_progressBar->setProgressValueAndText(0, "Just started");
+    m_progressBar->setProgressValueAndText(0, tr("Just started"));
 
     m_progressFailCount = 0;
     m_progressPassCount = 0;
@@ -267,15 +268,14 @@ void TestExecuter::runSelectedTests(bool forceManual)
 
         // Is this a valid test?
         if (!m_curTestCode) {
-            addTestResult("CFAIL", "", "Path '" + m_curTestCode->actualFileName()
-                + "'doesn't contain a valid testcase");
+            addTestResult("CFAIL", QString(), "Path '" + m_curTestCode->actualFileName()
+                + "' does not contain a valid testcase");
             continue;
         }
 
         m_testCfg = TestConfigurations::instance().findConfig(m_curTestCode->actualBasePath());
         if (!m_testCfg) {
-            testOutputPane()->append("Test configuration for '"
-                + m_curTestCode->actualFileName() + "' not found. Skipping test.");
+            testOutputPane()->append(tr("Test configuration for '%1' not found. Skipping test.").arg(m_curTestCode->actualFileName()));
             continue;
         }
 
@@ -286,7 +286,7 @@ void TestExecuter::runSelectedTests(bool forceManual)
 
             uploadResults = m_testCfg->uploadResults();
             if (!uploadResults)
-                testOutputPane()->append("Test results will not be uploaded into the results database.");
+                testOutputPane()->append(tr("Test results will not be uploaded into the results database."));
             QSystem::unsetEnvKey(m_testCfg->buildEnvironment(), "QTEST_COLORED");
             QSystem::addEnvPath(m_testCfg->buildEnvironment(), "PATH",
                 m_testCfg->buildPath() + QDir::separator() + "bin");
@@ -295,13 +295,13 @@ void TestExecuter::runSelectedTests(bool forceManual)
                 QRegExp validBranchRegEx(QLatin1String("^(.+)-(.+)"));
                 QRegExp validBranchSpecializationRegEx(QLatin1String(".*"));
                 if (m_testCfg->uploadBranch().isEmpty() || !validBranchRegEx.exactMatch(m_testCfg->uploadBranch())) {
-                    testOutputPane()->append(QString("-- ATTENTION: Uploading of test results failed. No branch specified or branch "
+                    testOutputPane()->append(tr("-- ATTENTION: Uploading of test results failed. No branch specified or branch "
                         "name \"%1\" is not in form: \n\t<Product>-<Version>\n. Check \"Branch\" value in Test Settings.")
                         .arg(m_testCfg->uploadBranch()));
                     uploadResults = false;
                 } else {
                     if (!m_testCfg->uploadBranchSpecialization().isEmpty() && !validBranchSpecializationRegEx.exactMatch(m_testCfg->uploadBranchSpecialization())) {
-                        testOutputPane()->append(QString("-- ATTENTION: Uploading of test results failed. "
+                        testOutputPane()->append(tr("-- ATTENTION: Uploading of test results failed. "
                             "Optional Branch specialization value \"%1\" is not in form: \n\t<Specialization>\n. "
                             "Check \"Branch\" \"Specialization\" value in Test Settings.")
                             .arg(m_testCfg->uploadBranchSpecialization()));
@@ -310,21 +310,21 @@ void TestExecuter::runSelectedTests(bool forceManual)
                         lastBranch = m_testCfg->uploadBranch();
                         if (!m_testCfg->uploadBranchSpecialization().isEmpty())
                             lastBranch += QLatin1String("-") + m_testCfg->uploadBranchSpecialization();
-                        testOutputPane()->append("Tested branch: " + lastBranch);
+                        testOutputPane()->append(tr("Tested branch: %1").arg(lastBranch));
                     }
                 }
 
                 lastPlatform = m_testCfg->QMAKESPEC();
                 if (lastPlatform.isEmpty()) {
-                    testOutputPane()->append("-- ATTENTION: Uploading of test results failed. "
+                    testOutputPane()->append(tr("-- ATTENTION: Uploading of test results failed. "
                         "No QMAKESPEC specified. Set QMAKESPEC in project's build environment "
-                        "or set a custom \"QMakespec\" value in Test Settings.");
+                        "or set a custom \"QMakespec\" value in Test Settings."));
                     uploadResults = false;
                 } else {
                     QRegExp validQmakespecSpecializationRegEx(QLatin1String(".*"));
                     QString lastPlatformSpecialization = m_testCfg->QMAKESPECSpecialization();
                     if (!lastPlatformSpecialization.isEmpty() && !validQmakespecSpecializationRegEx.exactMatch(lastPlatformSpecialization)) {
-                        testOutputPane()->append(QString("-- ATTENTION: Uploading of test results failed. "
+                        testOutputPane()->append(tr("-- ATTENTION: Uploading of test results failed. "
                             "QMAKESPEC \"Specialization\" \"%1\" not in form: \n\t <Specialization>\n. "
                             "Set the QMAKESPEC specialization value in Test Settings or clear its current value.")
                             .arg(lastPlatformSpecialization));
@@ -332,26 +332,26 @@ void TestExecuter::runSelectedTests(bool forceManual)
                     } else {
                         if (!lastPlatformSpecialization.isEmpty())
                             lastPlatform += QLatin1String("_") + lastPlatformSpecialization;
-                        testOutputPane()->append("Tested platform: " + lastPlatform);
+                        testOutputPane()->append(tr("Tested platform: %1").arg(lastPlatform));
                     }
                 }
 
                 changeNo = m_testCfg->uploadChange();
                 if (changeNo.isEmpty()) {
-                    testOutputPane()->append("-- ATTENTION: Uploading of test results failed. "
-                        "No changeNumber specified. Set a custom \"Change\" value in Test Settings.");
+                    testOutputPane()->append(tr("-- ATTENTION: Uploading of test results failed. "
+                        "No changeNumber specified. Set a custom \"Change\" value in Test Settings."));
                     uploadResults = false;
                 } else {
-                    testOutputPane()->append("Testing change: " + changeNo);
+                    testOutputPane()->append(tr("Testing change: %1").arg(changeNo));
                 }
-                testOutputPane()->append("Tester: " + QSystem::userName());
-                testOutputPane()->append("Host machine: " + sanitizedForFilename(QSystem::hostName()));
+                testOutputPane()->append(tr("Tester: %1").arg(QSystem::userName()));
+                testOutputPane()->append(tr("Host machine: ").arg(sanitizedForFilename(QSystem::hostName())));
             }
         }
 
         lastConfigName = m_testCfg->configName();
 
-        testOutputPane()->append("");
+        testOutputPane()->append(QString());
         bool ok = buildTestCase();
         if (ok && !m_manualStop)
             ok = runTestCase(forceManual);
@@ -361,7 +361,7 @@ void TestExecuter::runSelectedTests(bool forceManual)
     m_progressBar->setProgressValue(m_progress);
 
     if (testStopped()) {
-        testOutputPane()->append("-- Testing halted by user");
+        testOutputPane()->append(tr("-- Testing halted by user"));
     } else {
         m_progressLabel->setText(tr("%1 failed\n%2 passed")
             .arg(m_progressFailCount).arg(m_progressPassCount));
@@ -372,8 +372,8 @@ void TestExecuter::runSelectedTests(bool forceManual)
         }
     }
 
-    testOutputPane()->append("");
-    testOutputPane()->append("******** All testing finished **********");
+    testOutputPane()->append(QString());
+    testOutputPane()->append(tr("******** All testing finished **********"));
 
     TestResultsWindow::instance()->popup();
 
@@ -399,10 +399,10 @@ void TestExecuter::endTest()
 
 bool TestExecuter::buildTestCase()
 {
-    m_syntaxError = "";
+    m_syntaxError.clear();
 
     if (!m_testCfg) {
-        testOutputPane()->append("No test configuration defined: building test case aborted");
+        testOutputPane()->append(tr("No test configuration defined: building test case aborted"));
         return false;
     }
 
@@ -413,11 +413,11 @@ bool TestExecuter::buildTestCase()
     QString tgtPath = QDir::convertSeparators(tgtInf.absolutePath());
     QDir().mkpath(tgtPath);
 
-    testOutputPane()->append("********** Build " + tgtInf.baseName() + " **********");
+    testOutputPane()->append(tr("********** Build %1 **********").arg(tgtInf.baseName()));
 
     QString proFile = m_curTestCode->projectFileName();
     if (proFile.isEmpty()) {
-        addTestResult("CFAIL", "", "No .pro file found.");
+        addTestResult("CFAIL", QString(), "No .pro file found.");
         return false;
     }
     m_inBuildMode = true;
@@ -426,8 +426,8 @@ bool TestExecuter::buildTestCase()
 
     if (ok && m_curTestCode->testType() != TestCode::TypeSystemTest) {
         if (m_testCfg->makeCommand().isEmpty()) {
-            testOutputPane()->append("-- No 'make' or 'nmake' instance found in PATH ("
-                + QSystem::envKey(m_testCfg->buildEnvironment(), "PATH") + ").");
+            const QString path = QSystem::envKey(m_testCfg->buildEnvironment(), "PATH");
+            testOutputPane()->append(tr("-- No 'make' or 'nmake' instance found in PATH (%1).").arg(path));
             return false;
         }
 
@@ -441,7 +441,7 @@ bool TestExecuter::buildTestCase()
 bool TestExecuter::postProcess()
 {
     if (!m_testCfg) {
-        testOutputPane()->append("No test configuration defined: post processing results aborted");
+        testOutputPane()->append(tr("No test configuration defined: post processing results aborted"));
         return false;
     }
 
@@ -455,9 +455,8 @@ bool TestExecuter::postProcess()
     if (exec(cmd,QStringList()))
         return true;
 
-    addTestResult("FAIL", "",
-        QString("Could not run postprocess script on Test Case '"
-        + m_curTestCode->actualFileName() + "'"));
+    addTestResult("FAIL", QString(),
+                  QString::fromLatin1("Could not run postprocess script on Test Case '%1'").arg(m_curTestCode->actualFileName()));
     return false;
 }
 
@@ -465,7 +464,7 @@ bool xmlLineStartsWith(QString &line, const QString &expression, QString &variab
 {
     if (line.startsWith(expression)) {
         variable = line.mid(expression.length());
-        variable = variable.left(variable.indexOf("\""));
+        variable = variable.left(variable.indexOf(QLatin1Char('"')));
         variable = variable.left(variable.indexOf("</"));
         return !variable.isEmpty();
     }
@@ -490,7 +489,7 @@ void xmlLineVariable(QString &line, const QString &expression, QString &variable
     int pos = line.indexOf(expression);
     if (pos > 0) {
         variable = line.mid(pos+expression.length()+1);
-        variable = variable.left(variable.indexOf("\""));
+        variable = variable.left(variable.indexOf(QLatin1Char('"')));
     }
 }
 
@@ -510,7 +509,7 @@ QString TestExecuter::readLine()
     if (m_testResultsStream) {
         if (!m_peekedResult.isEmpty()) {
             QString tmp = m_peekedResult;
-            m_peekedResult = "";
+            m_peekedResult.clear();
             return tmp;
         }
         return m_testResultsStream->readLine();
@@ -525,25 +524,25 @@ QStringList TestExecuter::peek()
         QStringList tmp;
         if (!m_peekedResult.isEmpty()) {
             tmp.append(m_peekedResult);
-            m_peekedResult = "";
+            m_peekedResult.clear();
         }
         while (!m_testResultsStream->atEnd()) {
             QString line = m_testResultsStream->readLine();
-            if (line.startsWith(" ")) {
+            if (line.startsWith(QLatin1Char(' '))) {
                 tmp.append(line);
             } else {
                 m_peekedResult = line;
                 return tmp;
             }
         }
-        m_peekedResult = "";
+        m_peekedResult.clear();
         return tmp;
     } else {
         QByteArray data = m_executer.peek(1024);
         QStringList tmp;
-        QStringList lines = QString(data).split("\n");
+        QStringList lines = QString(data).split(QLatin1Char('\n'));
         for (int i = 0; i < lines.size(); ++i) {
-            if (lines[i].startsWith(" "))
+            if (lines[i].startsWith(QLatin1Char(' ')))
                 tmp.append(lines[i]);
             else
                 return tmp;
@@ -555,7 +554,7 @@ QStringList TestExecuter::peek()
 void TestExecuter::parseOutput()
 {
     if (!m_testCfg) {
-        testOutputPane()->append("No test configuration defined: parsing output aborted");
+        testOutputPane()->append(tr("No test configuration defined: parsing output aborted"));
         return;
     }
 
@@ -570,21 +569,21 @@ void TestExecuter::parseOutput()
           if (m_inBuildMode) {
             // Parse build output
             if (line.contains(" error: ")) {
-                QString file = line.section(':', 0, 0);
+                QString file = line.section(QLatin1Char(':'), 0, 0);
 
-                int lineNum = line.section(':', 1, 1).toInt();
+                int lineNum = line.section(QLatin1Char(':'), 1, 1).toInt();
 
                 // The error string will continue across multiple lines so need to peek
-                QString errorStr = line.section(':', 3);
-                errorStr.remove('\n');
+                QString errorStr = line.section(QLatin1Char(':'), 3);
+                errorStr.remove(QLatin1Char('\n'));
                 QStringList lines = peek();
                 for (int i = 0; i < lines.size(); ++i)
-                    errorStr.append(" " + lines[i].trimmed());
+                    errorStr.append(QLatin1Char(' ') + lines[i].trimmed());
 
-                addTestResult("CFAIL", "", errorStr, file, lineNum);
+                addTestResult("CFAIL", QString(), errorStr, file, lineNum);
             } else {
                 if (!m_testSettings.showVerbose()) {
-                    QStringList tmp = line.split(" ");
+                    QStringList tmp = line.split(QLatin1Char(' '));
                     if (tmp.count() > 0) {
                         QString cmd = tmp[0];
                         if (cmd.contains("moc")) {
@@ -596,7 +595,7 @@ void TestExecuter::parseOutput()
                             } else if (tmp.contains("-o")) {
                                 int pos = tmp.indexOf("-o");
                                 if (pos > 0 && (pos < tmp.count()-2)) {
-                                    line = cmd + " " + tmp[pos+1].split(QDir::separator()).last();
+                                    line = cmd + QLatin1Char(' ') + tmp[pos+1].split(QDir::separator()).last();
                                 }
                             }
                         }
@@ -606,15 +605,15 @@ void TestExecuter::parseOutput()
         } else {
             if (m_xmlMode) {
                 if (line.startsWith("<?xml version")) {
-                    m_xmlTestfunction = "";
-                    m_xmlTestcase = "";
-                    m_xmlDatatag = "";
-                    m_xmlFile = "";
+                    m_xmlTestfunction.clear();
+                    m_xmlTestcase.clear();
+                    m_xmlDatatag.clear();
+                    m_xmlFile.clear();
                     m_xmlLine = "-1";
-                    m_xmlResult = "";
-                    m_xmlDescription = "";
-                    m_xmlQtVersion = "";
-                    m_xmlQtestVersion = "";
+                    m_xmlResult.clear();
+                    m_xmlDescription.clear();
+                    m_xmlQtVersion.clear();
+                    m_xmlQtestVersion.clear();
                     m_xmlLog.clear();
                     continue;
                 }
@@ -626,32 +625,32 @@ void TestExecuter::parseOutput()
                             line = m_xmlResult.toUpper();
 
                             if (line == "FAIL")
-                                line += "!";
+                                line += QLatin1Char('!');
 
                             while (line.length() < 7)
-                                line += " ";
+                                line += QLatin1Char(' ');
 
                             QString testDescriptor = m_xmlTestcase + "::"
-                                + m_xmlTestfunction + "("+m_xmlDatatag+")";
+                                + m_xmlTestfunction + QLatin1Char('(')+m_xmlDatatag+QLatin1Char(')');
                             line += ": " + testDescriptor + m_xmlDescription;
 
                             if (!m_xmlFile.isEmpty())
-                                line += "\nLoc: [" + m_xmlFile + "(" + m_xmlLine + ")]";
+                                line += "\nLoc: [" + m_xmlFile + QLatin1Char('(') + m_xmlLine + ")]";
 
                             if (m_curTestCode->testType() != TestCode::TypeSystemTest) {
                                 if (m_xmlResult.contains("fail") || m_xmlResult.contains("pass")) {
-                                    addTestResult(m_xmlResult.toUpper(), "",
+                                    addTestResult(m_xmlResult.toUpper(), QString(),
                                         testDescriptor + m_xmlDescription,
                                         m_xmlFile, m_xmlLine.toInt(), m_xmlDatatag);
                                 }
                             }
                         }
-                        m_xmlResult = "";
-                        m_xmlDescription = "";
+                        m_xmlResult.clear();
+                        m_xmlDescription.clear();
 
                     } else if (xmlLineCData(line, "<Description>", m_xmlDescription)) {
                         if (!m_xmlDescription.isEmpty())
-                            m_xmlDescription = "\n" + m_xmlDescription;
+                            m_xmlDescription = QLatin1Char('\n') + m_xmlDescription;
                         continue;
 
                     } else if (xmlLineCData(line, "<DataTag>", m_xmlDatatag)) {
@@ -677,30 +676,30 @@ void TestExecuter::parseOutput()
                         if (line.endsWith("/>")) {
                             line = m_xmlResult.toUpper();
                             while (line.length() < 7)
-                                line += " ";
+                                line += QLatin1Char(' ');
                             QString testDescriptor = m_xmlTestcase + "::"
-                                + m_xmlTestfunction + "("+m_xmlDatatag+")";
+                                + m_xmlTestfunction + QLatin1Char('(')+m_xmlDatatag+QLatin1Char(')');
                             line += ": " + testDescriptor + m_xmlDescription;
 
                             if (!m_xmlFile.isEmpty())
-                                line += "\nLoc: [" + m_xmlFile + "(" + m_xmlLine + ")]";
+                                line += "\nLoc: [" + m_xmlFile + QLatin1Char('(') + m_xmlLine + ")]";
 
                             if (m_curTestCode->testType() != TestCode::TypeSystemTest) {
                                 if (m_xmlResult.contains("fail") || m_xmlResult.contains("pass")) {
-                                    addTestResult(m_xmlResult.toUpper(), "", testDescriptor
+                                    addTestResult(m_xmlResult.toUpper(), QString(), testDescriptor
                                         + m_xmlDescription, m_xmlFile, m_xmlLine.toInt(), m_xmlDatatag);
                                 }
                             }
                         }
 
                     } else if (line == "</TestFunction>") {
-                        m_xmlTestfunction = "";
-                        m_xmlDatatag = "";
+                        m_xmlTestfunction.clear();
+                        m_xmlDatatag.clear();
                         continue;
 
                     } else if (line == "</TestCase>") {
                         line = "********* Finished testing of " + m_xmlTestcase + " *********";
-                        m_xmlTestcase = "";
+                        m_xmlTestcase.clear();
                         // In case the testcase hangs at the end, we need a mechanism
                         // to terminate the process. So set a timer that will kill the
                         // executer if we haven't heard anything for 1.5 seconds.
@@ -723,12 +722,12 @@ void TestExecuter::parseOutput()
                         continue;
 
                     } else if (line.startsWith("<anonymous>()@")) {
-                        m_xmlFile = line.mid(line.indexOf("@")+1);
-                        m_xmlLine = m_xmlFile.mid(m_xmlFile.indexOf(":")+1);
-                        m_xmlFile = m_xmlFile.left(m_xmlFile.indexOf(":"));
+                        m_xmlFile = line.mid(line.indexOf(QLatin1Char('@'))+1);
+                        m_xmlLine = m_xmlFile.mid(m_xmlFile.indexOf(QLatin1Char(':'))+1);
+                        m_xmlFile = m_xmlFile.left(m_xmlFile.indexOf(QLatin1Char(':')));
                         if (!m_syntaxError.isEmpty()) {
-                            addTestResult("CFAIL", "", m_syntaxError, m_xmlFile, m_xmlLine.toInt());
-                            m_syntaxError = "";
+                            addTestResult("CFAIL", QString(), m_syntaxError, m_xmlFile, m_xmlLine.toInt());
+                            m_syntaxError.clear();
                         }
                     }
                 }
@@ -749,7 +748,7 @@ void TestExecuter::parseOutput()
             int i = 0;
             while (i < filter.count()) {
                 if (line.contains(filter[i])) {
-                    line = "";
+                    line.clear();
                     break;
                 }
                 ++i;
@@ -769,7 +768,7 @@ void TestExecuter::onKillTestRequested()
 bool TestExecuter::exec(const QString &cmd, const QStringList &arguments, const QString &workDir, int timeout)
 {
     if (!m_testCfg) {
-        testOutputPane()->append("No test configuration defined: exec aborted");
+        testOutputPane()->append(tr("No test configuration defined: exec aborted"));
         return false;
     }
 
@@ -780,7 +779,7 @@ bool TestExecuter::exec(const QString &cmd, const QStringList &arguments, const 
     }
     Q_ASSERT(m_executer.state() == QProcess::NotRunning);
 
-    if ((workDir != "") && (m_executer.workingDirectory() != workDir)) {
+    if ((!workDir.isEmpty()) && (m_executer.workingDirectory() != workDir)) {
         if (m_inBuildMode)
             testOutputPane()->append("cd " + workDir);
         m_executer.setWorkingDirectory(workDir);
@@ -788,7 +787,7 @@ bool TestExecuter::exec(const QString &cmd, const QStringList &arguments, const 
     m_executer.setEnvironment(*m_testCfg->buildEnvironment());
 
     if (m_inBuildMode)
-        testOutputPane()->append(cmd + " " + arguments.join(" "));
+        testOutputPane()->append(cmd + QLatin1Char(' ') + arguments.join(QString(QLatin1Char(' '))));
 
     m_executerFinished = false;
     if (arguments.count() > 0) {
@@ -799,8 +798,8 @@ bool TestExecuter::exec(const QString &cmd, const QStringList &arguments, const 
             realCmd = cmd;
 
         if (realCmd.isEmpty()) {
-            testOutputPane()->append("-- No '" + cmd + "' instance found in PATH ("
-                + QSystem::envKey(m_testCfg->buildEnvironment(), "PATH") + ").");
+            const QString path = QSystem::envKey(m_testCfg->buildEnvironment(), "PATH");
+            testOutputPane()->append(tr("-- No '%1' instance found in PATH (%2) + ).").arg(cmd, path));
             return false;
         }
         m_executer.start(realCmd, arguments);
@@ -821,7 +820,7 @@ bool TestExecuter::exec(const QString &cmd, const QStringList &arguments, const 
         return m_executer.exitCode() == 0;
     } else {
         testOutputPane()->append(QString(tr("-- %1 failed: %2, time elapsed: %3"))
-            .arg(cmd).arg(m_executer.errorString()).arg(time.elapsed()));
+            .arg(cmd, m_executer.errorString()).arg(time.elapsed()));
         return false;
     }
 }
@@ -834,7 +833,7 @@ void TestExecuter::onExecuterFinished()
 bool TestExecuter::runTestCase(bool forceManual)
 {
     if (!m_testCfg) {
-        testOutputPane()->append("No test configuration defined: running test case aborted");
+        testOutputPane()->append(tr("No test configuration defined: running test case aborted"));
         return false;
     }
 
@@ -845,21 +844,21 @@ bool TestExecuter::runTestCase(bool forceManual)
     uint timeout = 30000;
 
     if (m_curTestCode->testType() == TestCode::TypeSystemTest) {
-        QString m_testPlatform = "";
-        if (m_testCfg->uploadPlatform().toLower().contains("windows"))
-            m_testPlatform = "win";
-        else if (m_testCfg->uploadPlatform().toLower().contains("mac"))
-            m_testPlatform = "mac";
-        else if (m_testCfg->uploadPlatform().toLower().contains("linux"))
-            m_testPlatform = "linux";
+        QString m_testPlatform;
+        if (m_testCfg->uploadPlatform().toLower().contains(QLatin1String("windows")))
+            m_testPlatform = QLatin1String("win");
+        else if (m_testCfg->uploadPlatform().toLower().contains(QLatin1String("mac")))
+            m_testPlatform = QLatin1String("mac");
+        else if (m_testCfg->uploadPlatform().toLower().contains(QLatin1String("linux")))
+            m_testPlatform = QLatin1String("linux");
         else
-            m_testPlatform = "symbian";
+            m_testPlatform = QLatin1String("symbian");
 
-        QSystem::setEnvKey(&env, "TESTPLATFORM", m_testPlatform);
-        args << "-env TESTPLATFORM=" + m_testPlatform;
+        QSystem::setEnvKey(&env, QLatin1String("TESTPLATFORM"), m_testPlatform);
+        args << QLatin1String("-env TESTPLATFORM=") + m_testPlatform;
 
         if (forceManual)
-            args << "-force-manual";
+            args << QLatin1String("-force-manual");
 
         QString deviceName;
         QString deviceType;
@@ -867,31 +866,31 @@ bool TestExecuter::runTestCase(bool forceManual)
         m_testCfg->isRemoteTarget(deviceName, deviceType, sshParam);
 
         QVariantMap connectionParam;
-        connectionParam["host"] = sshParam.host;
-        connectionParam["username"] = sshParam.userName;
-        connectionParam["sshPort"] = sshParam.port;
-        connectionParam["sshTimeout"] = sshParam.timeout;
+        connectionParam[QLatin1String("host")] = sshParam.host;
+        connectionParam[QLatin1String("username")] = sshParam.userName;
+        connectionParam[QLatin1String("sshPort")] = sshParam.port;
+        connectionParam[QLatin1String("sshTimeout")] = sshParam.timeout;
 
         if (sshParam.authenticationType == Utils::SshConnectionParameters::AuthenticationByPassword) {
-            connectionParam["password"] = sshParam.password;
+            connectionParam[QLatin1String("password")] = sshParam.password;
         } else {
-            connectionParam["privateKeyFile"] = sshParam.privateKeyFile;
+            connectionParam[QLatin1String("privateKeyFile")] = sshParam.privateKeyFile;
         }
 
 #ifndef QTTEST_PLUGIN_LEAN
         m_qscriptSystemTest.setConnectionParameters(deviceType, sshParam);
 #else
-        args << "-authost" << sshParam.host;
-        args << "-username" << sshParam.userName;
+        args << QLatin1String("-authost") << sshParam.host;
+        args << QLatin1String("-username") << sshParam.userName;
         if (sshParam.authenticationType == Utils::SshConnectionParameters::AuthenticationByPassword) {
-            args << "-pwd" << sshParam.password;
+            args << QLatin1String("-pwd") << sshParam.password;
         } else {
-            args << "-private-key" << sshParam.privateKeyFile;
+            args << QLatin1String("-private-key") << sshParam.privateKeyFile;
         }
 #endif
 
         timeout = 600000; // 10 minutes to run a manual test should be sufficient?
-        cmd = "qtuitestrunner";
+        cmd = QLatin1String("qtuitestrunner");
     } else {
         QFileInfo tmp(m_curTestCode->actualFileName());
         QString testRelPath = QDir::convertSeparators(tmp.absolutePath());
@@ -899,10 +898,9 @@ bool TestExecuter::runTestCase(bool forceManual)
         QString exePath;
         QString exeFile = m_curTestCode->execFileName();
         if (exeFile.isEmpty()) {
-            testOutputPane()->append("Unknown executable name for Test Case '"
-                + m_curTestCode->testCase() + "'");
-            addTestResult("FAIL", "",
-                QString("Unknown executable name for Test Case '" + m_curTestCode->testCase() + "'"));
+            testOutputPane()->append(tr("Unknown executable name for Test Case '%1'").arg(m_curTestCode->testCase()));
+            addTestResult(QLatin1String("FAIL"), QString(),
+                QString("Unknown executable name for Test Case '" + m_curTestCode->testCase() + QLatin1Char('\'')));
             return false;
         }
 
@@ -910,55 +908,55 @@ bool TestExecuter::runTestCase(bool forceManual)
         exePath1 += testRelPath;
 
 #ifdef Q_OS_MAC
-        exePath1 += "/" + tmp.baseName() + ".app/Contents/MacOS";
+        exePath1 += QLatin1Char('/') + tmp.baseName() + QLatin1String(".app/Contents/MacOS");
 #endif
         exePath = QSystem::which(exePath1, exeFile);
 
         QString exePath2, exePath3, exePath4;
         if (exePath.isEmpty()) {
             exePath3 = m_testCfg->buildPath();
-            exePath3 += QString("%1bin").arg(QDir::separator());
+            exePath3 += QDir::separator() + QLatin1String("bin");
             exePath = QSystem::which(exePath3, exeFile);
 
             if (exePath.isEmpty()) {
                 exePath4 = m_testCfg->buildPath();
-                exePath4 += QString("%1build%1tests%1bin").arg(QDir::separator());
+                exePath4 += QString::fromLatin1("%1build%1tests%1bin").arg(QDir::separator());
                 exePath = QSystem::which(exePath4, exeFile);
 
                 if (exePath.isEmpty()) {
-                    exePath2 = QString("%1%2debug").arg(exePath1).arg(QDir::separator());
+                    exePath2 = QString::fromLatin1("%1%2debug").arg(exePath1).arg(QDir::separator());
                     exePath = QSystem::which(exePath2, exeFile);
                 }
             }
         }
 
         if (exePath.isEmpty()) {
-            testOutputPane()->append("Test Case '" + exeFile + "' not found");
-            addTestResult("FAIL", "",
-                QString("Test Case '" + exeFile + "' not found in:\n - '"  + exePath1
-                + "' or \n - '"  + exePath2 + "' or \n - '"  + exePath3
-                + "' or \n - '"  + exePath4 + "'."));
+            testOutputPane()->append(tr("Test Case '%1' not found").arg(exeFile));
+            addTestResult(QLatin1String("FAIL"), QString(),
+                QLatin1String("Test Case '") + exeFile + QLatin1String("' not found in:\n - '")  + exePath1
+                + QLatin1String("' or \n - '")  + exePath2 + QLatin1String("' or \n - '")  + exePath3
+                + QLatin1String("' or \n - '")  + exePath4 + QLatin1String("'."));
             return false;
         }
 
         cmd = exePath;
     }
 
-    args << "-xml";
+    args << QLatin1String("-xml");
 
     if (m_testSettings.learnMode() == 1)
-        args << "-learn";
+        args << QLatin1String("-learn");
     else if (m_testSettings.learnMode() == 2)
-        args << "-learn-all";
+        args << QLatin1String("-learn-all");
 
 
     // Grab a list of all the functions we want to execute
     bool hasTests = false;
     foreach (const QString &item, m_selectedTests) {
-        if (item.startsWith(m_curTestCode->testCase() + "::")) {
-            QString func = item.mid(item.indexOf("::")+2);
-            if ((func != "init") && (func != "initTestCase") && (func != "cleanup")
-                && (func != "cleanupTestCase") && !func.endsWith("_data")) {
+        if (item.startsWith(m_curTestCode->testCase() + QLatin1String("::"))) {
+            QString func = item.mid(item.indexOf(QLatin1String("::"))+2);
+            if ((func != QLatin1String("init")) && (func != QLatin1String("initTestCase")) && (func != QLatin1String("cleanup"))
+                && (func != QLatin1String("cleanupTestCase")) && !func.endsWith(QLatin1String("_data"))) {
                 args << func;
                 hasTests = true;
             }
@@ -971,16 +969,16 @@ bool TestExecuter::runTestCase(bool forceManual)
 
     // If we have a postprocessing step, pipe output to a file
     if (!m_testCfg->postProcessScript().isEmpty())
-        cmd.append(" | tee " + m_testOutputFile);
+        cmd.append(QLatin1String(" | tee ") + m_testOutputFile);
 
 #ifndef Q_OS_WIN
-    QString libPath = QSystem::envKey(m_testCfg->buildEnvironment(), "QTDIR");
+    QString libPath = QSystem::envKey(m_testCfg->buildEnvironment(), QLatin1String("QTDIR"));
     if (!libPath.isEmpty()) {
-        libPath = libPath + QDir::separator() + "lib";
+        libPath = libPath + QDir::separator() + QLatin1String("lib");
 # ifdef Q_OS_MAC
-        QSystem::addEnvPath(m_testCfg->buildEnvironment(), "DYLD_LIBRARY_PATH", libPath);
+        QSystem::addEnvPath(m_testCfg->buildEnvironment(), QLatin1String("DYLD_LIBRARY_PATH"), libPath);
 # else
-        QSystem::addEnvPath(m_testCfg->buildEnvironment(), "LD_LIBRARY_PATH", libPath);
+        QSystem::addEnvPath(m_testCfg->buildEnvironment(), QLatin1String("LD_LIBRARY_PATH"), libPath);
 # endif
     }
 #endif
@@ -990,10 +988,10 @@ bool TestExecuter::runTestCase(bool forceManual)
         if (m_curTestCode->hasUnsavedChanges()) {
             QMessageBox msgBox;
             msgBox.setText(tr("Unsaved Changes"));
-            msgBox.setInformativeText(QString(tr("File '%1' has unsaved changes.\nThe file must be saved before proceeding."))
+            msgBox.setInformativeText(tr("File '%1' has unsaved changes.\nThe file must be saved before proceeding.")
                 .arg(m_curTestCode->baseFileName()));
             if (QMessageBox::warning(0, tr("Unsaved Changes"),
-                QString("File \"%1\" has unsaved changes.\n"
+                tr("File \"%1\" has unsaved changes.\n"
                 "The file must be saved before proceeding.").arg(m_curTestCode->baseFileName()),
                 QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Save) == QMessageBox::Save) {
                 m_curTestCode->save();
@@ -1003,34 +1001,34 @@ bool TestExecuter::runTestCase(bool forceManual)
         }
         if (!cancel) {
             QString testOutput;
-            testOutputPane()->append(QString("********* Start testing of %1 *********")
+            testOutputPane()->append(tr("********* Start testing of %1 *********")
                 .arg(m_curTestCode->baseFileName()));
 
             args.prepend(m_curTestCode->actualFileName());
-            testOutputPane()->append(QString("%1 %2").arg(cmd).arg(args.join(" ")));
+            testOutputPane()->append(QString::fromLatin1("%1 %2").arg(cmd).arg(args.join(QString(QLatin1Char(' ')))));
             if (exec(cmd, args, m_testCfg->buildPath(), timeout))
                 return true;
-            testOutputPane()->append(QString("********* Finished testing of %1 *********")
+            testOutputPane()->append(tr("********* Finished testing of %1 *********")
                 .arg(m_curTestCode->baseFileName()));
 
 #ifndef QTTEST_PLUGIN_LEAN
             m_qscriptSystemTest.runTest(m_curTestCode->actualFileName(), args, env, &testOutput);
             if (qscript_system_test.isAborted()) {
-                testOutputPane()->append(QString("********* Aborted testing of %1 *********")
+                testOutputPane()->append(tr("********* Aborted testing of %1 *********")
                     .arg(m_curTestCode->baseFileName()));
                 if (!m_manualStop)
                     manualStop();
             } else {
-                testOutputPane()->append(QString("********* Finished testing of %1 *********")
+                testOutputPane()->append(tr("********* Finished testing of %1 *********")
                     .arg(m_curTestCode->baseFileName()));
             }
 #endif
 
-            m_xmlLog = testOutput.split("\n");
+            m_xmlLog = testOutput.split(QLatin1Char('\n'));
             m_xmlLog.removeAll(QString("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"));
         } else {
             addTestResult("FAIL", m_curTestCode->testCase(),
-                QString("Execution cancelled for Test Case '%1'").arg(m_curTestCode->testCase()));
+                QString::fromLatin1("Execution cancelled for Test Case '%1'").arg(m_curTestCode->testCase()));
             return false;
         }
     } else {
@@ -1044,9 +1042,9 @@ bool TestExecuter::runTestCase(bool forceManual)
     if (m_executer.exitCode() >= 0)
         return true;
 
-    addTestResult("FAIL", m_curTestCode->testCase(),
-        QString("Execution failed for Test Case '%1' with exit code '%2': %3")
-        .arg(m_curTestCode->testCase() + "'")
+    addTestResult(QLatin1String("FAIL"), m_curTestCode->testCase(),
+        QString::fromLatin1("Execution failed for Test Case '%1' with exit code '%2': %3")
+        .arg(m_curTestCode->testCase() + QLatin1Char('\''))
         .arg(m_executer.exitCode())
         .arg(m_executer.errorString()));
     return false;
@@ -1060,12 +1058,12 @@ bool TestExecuter::testFailedUnexpectedly()
 void TestExecuter::addTestResult(const QString &result, const QString &test, const QString &reason,
     const QString &file, int line, const QString &dataTag)
 {
-    if (result.contains("FAIL")) {
-        if (!result.contains("XFAIL"))
+    if (result.contains(QLatin1String("FAIL"))) {
+        if (!result.contains(QLatin1String("XFAIL")))
             m_testFailedUnexpectedly = true;
         ++m_progressFailCount;
-    } else if (result.contains("PASS")) {
-        if (reason.contains("::initTestCase()") || reason.contains("::cleanupTestCase()"))
+    } else if (result.contains(QLatin1String("PASS"))) {
+        if (reason.contains(QLatin1String("::initTestCase()")) || reason.contains(QLatin1String("::cleanupTestCase()")))
             return;
         ++m_progressPassCount;
     }
@@ -1086,13 +1084,13 @@ void TestExecuter::addTestResult(const QString &result, const QString &test, con
 
 bool TestExecuter::getNextTest()
 {
-    QString curTestName = "";
+    QString curTestName;
     if (m_curTestCode)
         curTestName = m_curTestCode->testCase();
 
     if (m_selectedTests.count() > 0) {
         if (curTestName.isEmpty()) {
-            curTestName = m_selectedTests[0].left(m_selectedTests[0].indexOf("::"));
+            curTestName = m_selectedTests[0].left(m_selectedTests[0].indexOf(QLatin1String("::")));
             if (!curTestName.isEmpty()) {
                 m_curTestCode = m_testCollection.findCodeByTestCaseName(curTestName);
                 return (m_curTestCode != 0);
@@ -1100,14 +1098,14 @@ bool TestExecuter::getNextTest()
         }
 
         bool tcFound = false;
-        QString tcName = curTestName + "::";
+        QString tcName = curTestName + QLatin1String("::");
         foreach (const QString &item, m_selectedTests) {
             if (!tcFound) {
                 if (item.startsWith(tcName))
                     tcFound = true;
             } else {
                 if (!item.startsWith(tcName)) {
-                    curTestName = item.left(item.indexOf("::"));
+                    curTestName = item.left(item.indexOf(QLatin1String("::")));
                     if (!curTestName.isEmpty()) {
                         m_curTestCode = m_testCollection.findCodeByTestCaseName(curTestName);
                         return m_curTestCode != 0;
@@ -1126,18 +1124,18 @@ bool TestExecuter::testBusy() const
 
 QString TestExecuter::saveResults(const QString &changeNo, const QString &platform, const QString &branch)
 {
-    QString fname = QDir::homePath() + QDir::separator() + ".qttest"
-        + QDir::separator() + "pending_test_results";
+    QString fname = QDir::homePath() + QDir::separator() + QLatin1String(".qttest")
+        + QDir::separator() + QLatin1String("pending_test_results");
     QDir().mkpath(fname);
 
     fname += QDir::separator();
-    fname += "creator_upload_USER_";
+    fname += QLatin1String("creator_upload_USER_");
     fname += sanitizedForFilename(QSystem::userName());
-    fname += "_HOST_";
+    fname += QLatin1String("_HOST_");
     fname += sanitizedForFilename(QSystem::hostName());
-    fname += "_ON_";
+    fname += QLatin1String("_ON_");
     fname += sanitizedForFilename(QDateTime::currentDateTime().toString());
-    fname += ".xml";
+    fname += QLatin1String(".xml");
 
     QFile xmlFile(fname);
     xmlFile.remove();
@@ -1146,23 +1144,23 @@ QString TestExecuter::saveResults(const QString &changeNo, const QString &platfo
         if (xmlFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
             QTextStream xml_stream(&xmlFile);
             xml_stream << testrHeader(changeNo, platform, branch);
-            xml_stream << "\n";
+            xml_stream << '\n';
             xml_stream << QString("\n<!-- file 1 of 1: filename -->\n");
-            xml_stream << m_xmlLog.join("\n");
-            xml_stream << "\n";
+            xml_stream << m_xmlLog.join(QString(QLatin1Char('\n')));
+            xml_stream << '\n';
             xml_stream << testrFooter();
             xmlFile.close();
             return fname;
         }
     }
-    return "";
+    return QString();
 }
 
 QString TestExecuter::sanitizedForFilename(const QString &in) const
 {
     QString out = in;
-    static const QRegExp replaceRx("[^a-zA-Z0-9\\-_\\.]");
-    out.replace(replaceRx, "_");
+    static const QRegExp replaceRx(QLatin1String("[^a-zA-Z0-9\\-_\\.]"));
+    out.replace(replaceRx, QString(QLatin1Char('_')));
     return out;
 }
 
@@ -1223,8 +1221,7 @@ void TestExecuter::syntaxError(const QString &msg, const QString &file, int line
         tmp->gotoLine(line);
     }
     QFileInfo fi(file);
-    QString message(QString(tr("Syntax error in %1, near line %2.\n%3"))
-        .arg(fi.fileName()).arg(line).arg(msg));
+    const QString message = tr("Syntax error in %1, near line %2.\n%3").arg(fi.fileName()).arg(line).arg(msg);
     QMessageBox::critical(0, tr("System Test Failure"), message);
 }
 
@@ -1316,9 +1313,9 @@ void TestExecuter::applyPendingInsertions()
         if (editable) {
             QString insertCode = "//BEGIN Recorded Events";
             int column = editable->currentColumn();
-            QStringList recordedLines = recordedCode.split('\n');
+            QStringList recordedLines = recordedCode.split(QLatin1Char('\n'));
             QString indent(QString(' ').repeated(column-1));
-            indent.prepend("\n");
+            indent.prepend(QLatin1Char('\n'));
             foreach (const QString &line, recordedLines) {
                 insertCode.append(indent);
                 insertCode.append(line);

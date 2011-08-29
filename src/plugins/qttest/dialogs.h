@@ -65,7 +65,7 @@ class NewTestFunctionDlg : public QDialog, public Ui::NewTestFunctionDlg
     Q_OBJECT
 
 public:
-    NewTestFunctionDlg(const QString &testCase, QWidget *parent = 0);
+    explicit NewTestFunctionDlg(const QString &testCase, QWidget *parent = 0);
 
 private slots:
     void onChanged();

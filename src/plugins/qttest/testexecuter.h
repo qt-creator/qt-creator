@@ -46,10 +46,7 @@
 #endif
 
 #include <QtCore/QFutureWatcher>
-#include <QObject>
-#include <QTimer>
 #include <QProcess>
-#include <QLabel>
 
 #define NO_X_SERVER_AVAILABLE "No X-server available for testing"
 #define COMPILE_ERROR "Compile error"
@@ -57,6 +54,11 @@
 #define COMPILE_NOT_AVAIL "Binary not available for testing"
 #define COMPILE_UP_TO_DATE "Not recompiled, binary is up-to-date"
 #define SELF_TEST "self-test"
+
+QT_BEGIN_NAMESPACE
+class QTextEdit;
+class QLabel;
+QT_END_NAMESPACE
 
 class TestExecuter : public QObject
 {

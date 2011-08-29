@@ -33,14 +33,14 @@
 #ifndef TESTSETTINGSPROPERTIESPAGE_H
 #define TESTSETTINGSPROPERTIESPAGE_H
 
-#include "testconfigurations.h"
 #include "testsettings.h"
 
 #include <projectexplorer/iprojectproperties.h>
-#include <projectexplorer/iprojectmanager.h>
 #include <ui_testsettingspropertiespage.h>
 
 #include <QStringList>
+
+class TestConfig;
 
 namespace QtTest {
 

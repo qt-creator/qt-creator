@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "testsettingspropertiespage.h"
+#include "testconfigurations.h"
 
 #include <projectexplorer/project.h>
 
@@ -249,13 +250,13 @@ void TestSettingsWidget::onChanged()
     // to be used when uploading test results
     if (!m_ui.upload_branch_Specialization->text().trimmed().isEmpty())
         m_ui.effectiveBranchName->setText(m_ui.upload_branch->text().trimmed()
-            + "-" + m_ui.upload_branch_Specialization->text().trimmed());
+            + QLatin1Char('-') + m_ui.upload_branch_Specialization->text().trimmed());
     else
         m_ui.effectiveBranchName->setText(m_ui.upload_branch->text().trimmed());
 
     if (!m_ui.qmakespecSpecialization->text().trimmed().isEmpty())
         m_ui.effectiveQMakespec->setText(m_ui.qmakespec->text().trimmed()
-            + "_" + m_ui.qmakespecSpecialization->text().trimmed());
+            + QLatin1Char('_') + m_ui.qmakespecSpecialization->text().trimmed());
     else
         m_ui.effectiveQMakespec->setText(m_ui.qmakespec->text().trimmed());
 

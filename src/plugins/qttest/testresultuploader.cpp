@@ -32,8 +32,10 @@
 
 #include "testresultuploader.h"
 #include "testoutputwindow.h"
+#include "qsystem.h"
 
 #include <QFileInfo>
+#include <QTextEdit>
 
 TestResultUploader::TestResultUploader(QObject *parent) :
     QObject(parent)
@@ -66,19 +68,19 @@ void TestResultUploader::uploadResultsToDatabase(const QString &fname, TestConfi
     m_srcFname = fname;
 
     if (!fname.isEmpty()) {
-        m_logFile.setFileName(QDir::homePath() + QDir::separator() + ".qttest"
-            + QDir::separator() + "test_result_upload.log");
+        m_logFile.setFileName(QDir::homePath() + QDir::separator() + QLatin1String(".qttest")
+            + QDir::separator() + QLatin1String("test_result_upload.log"));
         m_logFile.open(QFile::WriteOnly);
 
         if (m_testSettings.uploadServer().isEmpty()) {
-            testOutputPane()->append("-- ATTENTION: Uploading of test results to the database aborted. "
-                "Please specify an upload server in the Upload Test Results Settings dialog.");
+            testOutputPane()->append(tr("-- ATTENTION: Uploading of test results to the database aborted. "
+                "Please specify an upload server in the Upload Test Results Settings dialog."));
             return;
         }
 
         m_uploadServerName = m_testSettings.uploadServer();
 
-        int pos = m_uploadServerName.indexOf(":");
+        int pos = m_uploadServerName.indexOf(QLatin1Char(':'));
         if (pos)
             m_uploadServerName = m_uploadServerName.left(pos);
 
@@ -87,10 +89,10 @@ void TestResultUploader::uploadResultsToDatabase(const QString &fname, TestConfi
             return;
         m_tgtFname = inf.fileName();
 
-        QString cmd1 = QSystem::which(m_testCfg->PATH(), "scp");
+        QString cmd1 = QSystem::which(m_testCfg->PATH(), QLatin1String("scp"));
         QStringList args1;
-        args1 << fname << QString("%1:/tmp/%2").arg(m_uploadServerName).arg(m_tgtFname);
-        if (exec(cmd1, QStringList() << "-q" << "-v" << "-C" << args1, "", 60000))
+        args1 << fname << QString::fromLatin1("%1:/tmp/%2").arg(m_uploadServerName, m_tgtFname);
+        if (exec(cmd1, QStringList() << QLatin1String("-q") << QLatin1String("-v") << QLatin1String("-C") << args1, QString(), 60000))
             m_uploadState = UploadScp;
     }
 }
@@ -109,7 +111,7 @@ bool TestResultUploader::exec(const QString &cmd, const QStringList &arguments, 
 
     Q_ASSERT(m_executer.state() == QProcess::NotRunning);
 
-    if ((workDir != "") && (m_executer.workingDirectory() != workDir))
+    if ((!workDir.isEmpty()) && (m_executer.workingDirectory() != workDir))
         m_executer.setWorkingDirectory(workDir);
 
     m_executer.setEnvironment(*m_testCfg->buildEnvironment());
@@ -122,8 +124,8 @@ bool TestResultUploader::exec(const QString &cmd, const QStringList &arguments, 
             realCmd = cmd;
 
         if (realCmd.isEmpty()) {
-            testOutputPane()->append("-- No '" + cmd + "' instance found in PATH ("
-                + QSystem::envKey(m_testCfg->buildEnvironment(), "PATH") + ").");
+            const QString path = QSystem::envKey(m_testCfg->buildEnvironment(), "PATH");
+            testOutputPane()->append(tr("-- No '%1' instance found in PATH (%2).").arg(cmd, path));
             return false;
         }
         m_executer.start(realCmd,arguments);
@@ -135,7 +137,7 @@ bool TestResultUploader::exec(const QString &cmd, const QStringList &arguments, 
     if (m_logFile.isOpen()) {
         m_logFile.write("exec: ");
         m_logFile.write(cmd.toLatin1());
-        m_logFile.write(arguments.join(" ").toLatin1());
+        m_logFile.write(arguments.join(QString(QLatin1Char(' '))).toLatin1());
         m_logFile.write("\n");
     }
     return m_executer.waitForStarted(30000);
@@ -149,17 +151,17 @@ void TestResultUploader::execFinished(int exitValue, QProcess::ExitStatus)
             m_logFile.write("Upload FAILED!");
             m_logFile.close();
 
-            QString errFname = QDir::homePath() + QDir::separator() + ".qttest"
-                + QDir::separator() + "last_test_result_upload_failure.log";
+            QString errFname = QDir::homePath() + QDir::separator() + QLatin1String(".qttest")
+                + QDir::separator() + QLatin1String("last_test_result_upload_failure.log");
             QFile::remove(errFname);
             m_logFile.rename(m_logFile.fileName(), errFname);
             QFile errorFile(errFname);
             QString lastErrorMessage;
             if (errorFile.open(QIODevice::ReadOnly)){
-                lastErrorMessage = QString("Upload FAILED: %1").arg(QString(errorFile.readAll()));
+                lastErrorMessage = tr("Upload FAILED: %1").arg(QString::fromLocal8Bit(errorFile.readAll()));
                 errorFile.close();
             } else {
-                lastErrorMessage = QString("Upload FAILED, look at the log file %1").arg(errFname);
+                lastErrorMessage = tr("Upload FAILED, look at the log file %1").arg(errFname);
             }
             testOutputPane()->append(lastErrorMessage);
         }
@@ -173,16 +175,14 @@ void TestResultUploader::execFinished(int exitValue, QProcess::ExitStatus)
         QString cmd2 = QSystem::which(m_testCfg->PATH(), "ssh");
         QStringList args2;
         args2 << m_uploadServerName
-            << "mv"
-            << "-f"
-            << QString("/tmp/%1").arg(m_tgtFname)
-            << QString("results/%3").arg(m_tgtFname);
-        exec(cmd2, QStringList() << "-q" << "-v" << args2);
+            << QLatin1String("mv")
+            << QLatin1String("-f")
+            << QLatin1String("/tmp/") + m_tgtFname
+            << QLatin1String("results/") + m_tgtFname;
+        exec(cmd2, QStringList() << QLatin1String("-q") << QLatin1String("-v") << args2);
     } else if (m_uploadState == UploadMv) {
         m_uploadState = UploadIdle;
-        testOutputPane()->append("\nTest results have been uploaded into the results database.\nThank you for supporting "
-            + m_testCfg->configName());
-
+        testOutputPane()->append(tr("\nTest results have been uploaded into the results database.\nThank you for supporting %1").arg(m_testCfg->configName()));
         QFile::remove(m_srcFname);
         m_logFile.close();
         m_logFile.remove();

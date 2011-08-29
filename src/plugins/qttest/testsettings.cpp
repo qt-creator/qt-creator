@@ -83,7 +83,7 @@ TestIniFile::TestIniFile(const QString &fileName)
         QString S;
         while (!ds.atEnd()) {
             S = ds.readLine().trimmed();
-            if (S != "" && !S.startsWith("#"))
+            if (!S.isEmpty() && !S.startsWith(QLatin1Char('#')))
                 m_settings.append(S);
         }
     }
@@ -101,7 +101,7 @@ bool TestIniFile::find(const QString &key, QString &line)
 {
     foreach (const QString &S, m_settings) {
         if (S.startsWith(key)) {
-            int pos = S.indexOf("=");
+            int pos = S.indexOf(QLatin1Char('='));
             if (pos > 0) {
                 line = S.mid(pos+1).trimmed();
                 return true;
@@ -176,8 +176,8 @@ bool TestIniFile::initSaving(const QString &comment)
         }
     }
 
-    foreach (const QString &S, comment.split("\n")) {
-        if (!S.startsWith("#"))
+    foreach (const QString &S, comment.split(QLatin1Char('\n'))) {
+        if (!S.startsWith(QLatin1Char('#')))
             *m_outStream << "# ";
         *m_outStream << S << "\n";
     }
@@ -189,7 +189,7 @@ bool TestIniFile::write(const QString &comment, const QString &key, const QStrin
 {
     if (!initSaving(comment))
         return false;
-    *m_outStream << key << "=";
+    *m_outStream << key << '=';
     if (!value.isEmpty())
         *m_outStream << value;
     *m_outStream << "\n\n";
@@ -200,7 +200,7 @@ bool TestIniFile::write(const QString &comment, const QString &key, int value)
 {
     if (!initSaving(comment))
         return false;
-    *m_outStream << key << "=" << QString("%1").arg(value) << "\n\n";
+    *m_outStream << key << '=' << QString::number(value) << "\n\n";
     return true;
 }
 
@@ -208,7 +208,7 @@ bool TestIniFile::write(const QString &comment, const QString &key, uint value)
 {
     if (!initSaving(comment))
         return false;
-    *m_outStream << key << "=" << QString("%1").arg(value) << "\n\n";
+    *m_outStream << key << '=' << QString::number(value) << "\n\n";
     return true;
 }
 
@@ -216,9 +216,9 @@ bool TestIniFile::write(const QString &comment, const QString &key, QDateTime va
 {
     if (!initSaving(comment))
         return false;
-    *m_outStream << key << "=";
+    *m_outStream << key << '=';
     if (value.isValid())
-        *m_outStream << QString("%1").arg(value.toString(Qt::ISODate));
+        *m_outStream << value.toString(Qt::ISODate);
     *m_outStream << "\n\n";
     return true;
 }

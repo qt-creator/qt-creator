@@ -42,8 +42,15 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <texteditor/basetexteditor.h>
+
+#include <coreplugin/icontext.h>
+
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
+
 
 #include <AST.h>
 #include <ASTVisitor.h>
@@ -85,8 +92,8 @@ private:
     bool visit(QmlJS::AST::IdentifierExpression *identifier)
     {
         QString name = identifier->name->asString();
-        m_foundTestCase = (name == "testcase");
-        if (!m_foundTestCase && (name == "prompt" || name == "manualTest"))
+        m_foundTestCase = (name == QLatin1String("testcase"));
+        if (!m_foundTestCase && (name == QLatin1String("prompt") || name == QLatin1String("manualTest")))
             m_testCode->setManualTest(identifier->identifierToken.offset);
         return true;
     }
@@ -175,7 +182,7 @@ protected:
         if (symbol->name()) {
             const CPlusPlus::QualifiedNameId *qn = symbol->name()->asQualifiedNameId();
             if (qn && qn->base()) {
-                QString name = QString("%1::%2").arg(qn->base()->identifier()->chars())
+                QString name = QString::fromLatin1("%1::%2").arg(qn->base()->identifier()->chars())
                     .arg(qn->name()->identifier()->chars());
                 if (m_knownTestFunctions.contains(name))
                     m_testCode->processFunction(QString(symbol->name()->identifier()->chars()),
@@ -197,7 +204,7 @@ protected:
                 CPlusPlus::Symbol *member = *it;
                 CPlusPlus::Function *fun = member->type()->asFunctionType();
                 if (fun && fun->isSlot() && member && member->name() && member->name()->identifier()) {
-                    m_knownTestFunctions.append(className + "::"
+                    m_knownTestFunctions.append(className + QLatin1String("::")
                         + QString(member->name()->identifier()->chars()));
                     m_testCode->processFunction(QString(member->name()->identifier()->chars()),
                         fun->line(), fun->startOffset(), fun->endOffset());
@@ -259,11 +266,11 @@ TestFunctionInfo& TestFunctionInfo::operator=(const TestFunctionInfo &other)
 bool TestFunctionInfo::validFunctionName(const QString &funcName)
 {
     return (!funcName.isEmpty()
-        && funcName != "init"
-        && funcName != "initTestCase"
-        && funcName != "cleanup"
-        && funcName != "cleanupTestCase"
-        && !funcName.endsWith("_data"));
+        && funcName != QLatin1String("init")
+        && funcName != QLatin1String("initTestCase")
+        && funcName != QLatin1String("cleanup")
+        && funcName != QLatin1String("cleanupTestCase")
+        && !funcName.endsWith(QLatin1String("_data")));
 }
 
 TestCode::TestCode(const QString &basePath, const QString &externalPath, const QString &fileName) :
@@ -278,13 +285,13 @@ TestCode::TestCode(const QString &basePath, const QString &externalPath, const Q
     m_errored(false)
 {
     QString baseName = baseFileName();
-    if (baseName.endsWith(".qtt"))
+    if (baseName.endsWith(QLatin1String(".qtt")))
         m_testType = TypeSystemTest;
-    else if (baseName.startsWith("prf_"))
+    else if (baseName.startsWith(QLatin1String("prf_")))
         m_testType = TypePerformanceTest;
-    else if (baseName.startsWith("int_"))
+    else if (baseName.startsWith(QLatin1String("int_")))
         m_testType = TypeIntegrationTest;
-    else if (baseName.endsWith(".cpp"))
+    else if (baseName.endsWith(QLatin1String(".cpp")))
         m_testType = TypeUnitTest;
 
     connect(&m_parseTimer, SIGNAL(timeout()), this, SLOT(parseDocument()), Qt::DirectConnection);
@@ -297,17 +304,17 @@ TestCode::~TestCode()
 
 bool TestCode::parseComments(const QString &contents)
 {
-    static QRegExp componentRegEx("//TESTED_COMPONENT=(.*)");
-    static QRegExp fileRegEx("//TESTED_FILE=(.*)");
-    static QRegExp classRegEx("//TESTED_CLASS=(.*)");
-    static QRegExp groupsRegEx("\\\\groups\\s+(.*)");
+    static QRegExp componentRegEx(QLatin1String("//TESTED_COMPONENT=(.*)"));
+    static QRegExp fileRegEx(QLatin1String("//TESTED_FILE=(.*)"));
+    static QRegExp classRegEx(QLatin1String("//TESTED_CLASS=(.*)"));
+    static QRegExp groupsRegEx(QLatin1String("\\\\groups\\s+(.*)"));
 
     m_testedComponent.clear();
     m_testedFile.clear();
     m_testedClass.clear();
     int offset = 0;
 
-    QStringList fileContents = contents.split("\n");
+    QStringList fileContents = contents.split(QLatin1Char('\n'));
     foreach (const QString &line, fileContents) {
         if (m_testedComponent.isEmpty() && line.contains(componentRegEx)) {
             m_testedComponent = componentRegEx.cap(1);
@@ -348,10 +355,10 @@ bool TestCode::openTestInEditor(const QString &testFunction)
 
         m_codeEditor = qobject_cast<TextEditor::BaseTextEditor*>(edit);
         if (m_codeEditor) {
-            if (m_fileName.endsWith(".qtt")) {
+            if (m_fileName.endsWith(QLatin1String(".qtt"))) {
                 connect(edit, SIGNAL(contextHelpIdRequested(TextEditor::ITextEditor*,int)),
                     this, SLOT(onContextHelpIdRequested(TextEditor::ITextEditor*,int)));
-                m_codeEditor->setContextHelpId("QtUiTest Manual");
+                m_codeEditor->setContextHelpId(QLatin1String("QtUiTest Manual"));
             }
         }
 
@@ -399,7 +406,7 @@ bool TestCode::testFunctionExists(QString funcName)
 QString TestCode::testedComponent() const
 {
     if (m_testedComponent.isEmpty())
-        return "other";
+        return QLatin1String("other");
     return m_testedComponent;
 }
 
@@ -506,19 +513,19 @@ QString TestCode::testTypeString() const
     QString ret;
     switch (m_testType) {
     case TypeUnitTest:
-        ret = "Unit";
+        ret = QLatin1String("Unit");
         break;
     case TypeIntegrationTest:
-        ret = "Integration";
+        ret = QLatin1String("Integration");
         break;
     case TypePerformanceTest:
-        ret = "Performance";
+        ret = QLatin1String("Performance");
         break;
     case TypeSystemTest:
-        ret = "System";
+        ret = QLatin1String("System");
         break;
     default:
-        ret = "Unknown";
+        ret = QLatin1String("Unknown");
         break;
     }
     return ret;
@@ -574,7 +581,7 @@ void TestCode::parseDocument()
     m_testCase.clear();
 
     if (m_testType == TypeSystemTest) {
-        static QRegExp fileNameReg(".*/(.*)/.*\\.qtt$");
+        static QRegExp fileNameReg(QLatin1String(".*/(.*)/.*\\.qtt$"));
         if (fileNameReg.indexIn(QDir::fromNativeSeparators(m_qmlJSDoc->fileName())) >= 0)
             m_testCase = fileNameReg.cap(1);
         SystemTestCodeSync sync(this);
@@ -584,10 +591,10 @@ void TestCode::parseDocument()
             m_errored = true;
     } else {
         // Determine the testcase class name
-        foreach (const CPlusPlus::Document::MacroUse macro, m_cppDoc->macroUses()) {
+        foreach (const CPlusPlus::Document::MacroUse &macro, m_cppDoc->macroUses()) {
             QString macroName(macro.macro().name());
-            if (macro.isFunctionLike() && ((macroName == "QTEST_MAIN")
-                || (macroName == "QTEST_APPLESS_MAIN") || (macroName == "QTEST_NOOP_MAIN"))) {
+            if (macro.isFunctionLike() && ((macroName == QLatin1String("QTEST_MAIN"))
+                || (macroName == QLatin1String("QTEST_APPLESS_MAIN")) || (macroName == QLatin1String("QTEST_NOOP_MAIN")))) {
                 int pos = macro.arguments()[0].position();
                 int length = macro.arguments()[0].length();
                 m_testCase = contents.mid(pos, length);
@@ -628,15 +635,15 @@ QString TestCode::projectFileName()
     // Figure out what the pro file is.
     QString srcPath = QDir::convertSeparators(m_fileInfo->absolutePath());
     QDir D(srcPath);
-    QStringList files = D.entryList(QStringList("*.pro"));
+    QStringList files = D.entryList(QStringList(QLatin1String("*.pro")));
     if (files.count() > 1) {
-        qDebug() << "CFAIL", "I am confused: Multiple .pro files (" + files.join(",")
+        qDebug() << "CFAIL", "I am confused: Multiple .pro files (" + files.join(QString(QLatin1Char(',')))
             + ") found in '" + srcPath + "'.";
-        return "";
+        return QString();
     }
 
     if (files.count() == 0)
-        return "";
+        return QString();
 
     return QString(srcPath + QDir::separator() + files[0]);
 }
@@ -645,19 +652,19 @@ QString TestCode::execFileName()
 {
     QString proFile = projectFileName();
     if (proFile.isEmpty())
-        return "";
+        return QString();
 
     QFile F(proFile);
     if (F.open(QFile::ReadOnly)) {
         QTextStream S(&F);
         while (!S.atEnd()) {
             QString line = S.readLine();
-            if (line.contains("TARGET")) {
-                line = line.mid(line.indexOf("=") + 1);
+            if (line.contains(QLatin1String("TARGET"))) {
+                line = line.mid(line.indexOf(QLatin1Char('=')) + 1);
                 line = line.simplified();
-                if (line.contains("$$TARGET")) {
+                if (line.contains(QLatin1String("$$TARGET"))) {
                     QFileInfo inf(proFile);
-                    line.replace("$$TARGET",inf.baseName());
+                    line.replace(QLatin1String("$$TARGET"),inf.baseName());
                 }
                 return line;
             }
@@ -670,7 +677,7 @@ QString TestCode::execFileName()
        return fInfo.baseName();
     }
 
-    return "";
+    return QString();
 }
 
 
@@ -755,7 +762,7 @@ bool TestCollection_p::isUnitTestCase(const CPlusPlus::Document::Ptr &doc,
 {
     // If a source file #includes QtTest/QTest, assume it is a testcase
     foreach (const CPlusPlus::Document::Include &i, doc->includes()) {
-        if (i.fileName().contains("QtTest") || i.fileName().contains("QTest"))
+        if (i.fileName().contains(QLatin1String("QtTest")) || i.fileName().contains(QLatin1String("QTest")))
             return true;
 
         if (visited.contains(i.fileName()))
@@ -833,7 +840,7 @@ void TestCollection_p::scanTests(const QString &suitePath)
     if (!D.exists())
         return;
 
-    QFileInfoList qttTestFiles = D.entryInfoList(QStringList() << "*.qtt", QDir::Files);
+    QFileInfoList qttTestFiles = D.entryInfoList(QStringList(QLatin1String("*.qtt")), QDir::Files);
     QStringList qttTests;
     foreach (const QFileInfo &qttTestFile, qttTestFiles) {
         qttTests << qttTestFile.absoluteFilePath();
@@ -843,7 +850,7 @@ void TestCollection_p::scanTests(const QString &suitePath)
     if (!qttTests.isEmpty())
         m_qmlJSModelManager->updateSourceFiles(qttTests, true);
 
-    QFileInfoList cppTestFiles = D.entryInfoList(QStringList() << "*.cpp", QDir::Files);
+    QFileInfoList cppTestFiles = D.entryInfoList(QStringList(QLatin1String("*.cpp")), QDir::Files);
     QStringList cppTests;
     const CPlusPlus::Snapshot snapshot = m_cppModelManager->snapshot();
     foreach (const QFileInfo &cppTestFile, cppTestFiles) {
@@ -860,11 +867,11 @@ void TestCollection_p::scanTests(const QString &suitePath)
         m_cppModelManager->updateSourceFiles(cppTests);
 
     QStringList potentialSubdirs =
-        D.entryList(QStringList() << "*", QDir::Dirs|QDir::NoDotAndDotDot);
+        D.entryList(QStringList(QString(QLatin1Char('*'))), QDir::Dirs|QDir::NoDotAndDotDot);
 
     foreach (const QString &dname, potentialSubdirs) {
         // stop scanning subdirs if we've ended up in a testdata subdir
-        if (dname != "testdata")
+        if (dname != QLatin1String("testdata"))
             scanTests(suitePath + QDir::separator() + dname);
     }
 }
@@ -893,12 +900,12 @@ TestCode *TestCollection_p::findCode(const QString &fileName, const QString &bas
         QFileInfo inf(fileName);
         if (inf.exists() && inf.isFile()) {
             tmp = new TestCode(basePath, extraPath, fileName);
-            if (fileName.endsWith(".qtt")) {
+            if (fileName.endsWith(QLatin1String(".qtt"))) {
                 m_qttDocumentMap[fileName] = tmp;
-                m_qmlJSModelManager->updateSourceFiles(QStringList() << fileName, true);
+                m_qmlJSModelManager->updateSourceFiles(QStringList(fileName), true);
             } else {
                 m_cppDocumentMap[fileName] = tmp;
-                m_cppModelManager->updateSourceFiles(QStringList() << fileName);
+                m_cppModelManager->updateSourceFiles(QStringList(fileName));
             }
             if (tmp) {
                 m_codeList.append(tmp);
@@ -969,8 +976,11 @@ QStringList TestCollection_p::manualTests(const QString &startPath, bool compone
         if (tmp && (startPath.isEmpty() || tmp->visualFileName(componentMode).startsWith(startPath))) {
             for (uint j = 0; j < tmp->testFunctionCount(); ++j) {
                 TestFunctionInfo *inf = tmp->testFunction(j);
-                if (inf && inf->isManualTest())
-                    ret.append(QString("%1::%2").arg(tmp->testCase()).arg(inf->functionName()));
+                if (inf && inf->isManualTest()) {
+                    ret.append(tmp->testCase());
+                    ret.append(QLatin1String("::"));
+                    ret.append(inf->functionName());
+                }
             }
         }
     }
@@ -1116,8 +1126,8 @@ void TestCode::setManualTest(int offset)
 
 bool TestCode::validFunctionName(const QString &funcName)
 {
-    if (funcName.isEmpty() || funcName == "initTestCase" || funcName == "init"
-        || funcName == "cleanupTestCase" || funcName == "cleanup" || funcName.endsWith("_data")) {
+    if (funcName.isEmpty() || funcName == QLatin1String("initTestCase") || funcName == QLatin1String("init")
+        || funcName == QLatin1String("cleanupTestCase") || funcName == QLatin1String("cleanup") || funcName.endsWith(QLatin1String("_data"))) {
         return false;
     }
     return true;
@@ -1166,7 +1176,7 @@ void TestCode::addTestFunction(const QString &newFuncName, const QString &newFun
         }
 
         QString insertString =
-            QString("\n\n    %1_data:\n    {\n    },\n\n    %1: function()\n    {\n    }")
+            QString::fromLatin1("\n\n    %1_data:\n    {\n    },\n\n    %1: function()\n    {\n    }")
             .arg(newFuncName);
 
         m_codeEditor->setCursorPosition(entryPoint);
@@ -1175,10 +1185,10 @@ void TestCode::addTestFunction(const QString &newFuncName, const QString &newFun
         QString lineBefore = m_codeEditor->textAt(m_codeEditor->position(), lineLength).simplified();
         m_codeEditor->setCursorPosition(m_codeEditor->position(TextEditor::ITextEditor::EndOfLine));
 
-        if (!lineBefore.endsWith(",") && !m_testFunctions.isEmpty())
-            insertString.prepend(",");
+        if (!lineBefore.endsWith(QLatin1Char(',')) && !m_testFunctions.isEmpty())
+            insertString.prepend(QLatin1Char(','));
         else
-            insertString.append(",");
+            insertString.append(QLatin1Char(','));
 
         m_codeEditor->insert(insertString);
     } else {
@@ -1228,7 +1238,7 @@ void TestCode::addTestFunction(const QString &newFuncName, const QString &newFun
 
         m_codeEditor->gotoLine(declLine);
         m_codeEditor->setCursorPosition(m_codeEditor->position(TextEditor::ITextEditor::StartOfLine));
-        insertString = QString("    void %1_data();\n    void %1();\n").arg(newFuncName);
+        insertString = QString::fromLatin1("    void %1_data();\n    void %1();\n").arg(newFuncName);
         m_codeEditor->insert(insertString);
         m_codeEditor->gotoLine(entryLine + 2);
     }
@@ -1260,18 +1270,18 @@ QString TestCode::actualBasePath()
 QString TestCode::fullVisualSuitePath(bool componentViewMode) const
 {
     if (m_fileName.isEmpty())
-        return "";
+        return QString();
 
     if (componentViewMode)
         return QDir::convertSeparators(m_basePath + QDir::separator() + testedComponent());
 
-    if (!m_fileName.endsWith(".cpp") && !m_fileName.endsWith(".qtt"))
+    if (!m_fileName.endsWith(QLatin1String(".cpp")) && !m_fileName.endsWith(QLatin1String(".qtt")))
         return m_fileName;
 
     QString fn = m_fileName;
     if (!m_externalPath.isEmpty() && fn.startsWith(m_externalPath)) {
         fn.remove(m_externalPath);
-        fn = m_basePath + QDir::separator() + "tests" + QDir::separator() + "external" + fn;
+        fn = m_basePath + QDir::separator() + QLatin1String("tests") + QDir::separator() + QLatin1String("external") + fn;
     }
 
     QFileInfo inf(fn);
@@ -1282,7 +1292,7 @@ QString TestCode::fullVisualSuitePath(bool componentViewMode) const
         fn = fn.left(fn.length() - (inf.baseName().length() + 1));
 
     // remove '/tests" if that's on the end
-    QString eolstr = QString(QDir::separator()) + "tests";
+    QString eolstr = QString(QDir::separator()) + QLatin1String("tests");
     if (fn.endsWith(eolstr)) {
         int pos = fn.lastIndexOf(eolstr);
         if (pos) fn = fn.left(pos);
@@ -1320,8 +1330,8 @@ QString TestCode::targetFileName(const QString &buildPath) const
     QString fn = m_fileName;
     if (!m_externalPath.isEmpty() && fn.startsWith(m_externalPath)) {
         fn.remove(m_externalPath);
-        fn = m_basePath + QDir::separator() + "tests" + QDir::separator()
-            + "external" + QDir::separator() + fn;
+        fn = m_basePath + QDir::separator() + QLatin1String("tests") + QDir::separator()
+            + QLatin1String("external") + QDir::separator() + fn;
     }
     fn.remove(m_basePath);
 
@@ -1359,20 +1369,20 @@ void TestCode::onContextHelpIdRequested(TextEditor::ITextEditor *editor, int pos
             if (!qstSlots.contains(slot))
                 qstSlots << slot.left(slot.indexOf('('));
         }
-        qstSlots << "compare" << "verify" << "waitFor"
-            << "expect" << "fail" << "tabBar" << "menuBar";
+        qstSlots << QLatin1String("compare") << QLatin1String("verify") << QLatin1String("waitFor")
+            << QLatin1String("expect") << QLatin1String("fail") << QLatin1String("tabBar") << QLatin1String("menuBar");
     }
 
     if (start < end) {
         QString function = text.mid(start, end - start);
         if (qstSlots.contains(function)) {
-            m_codeEditor->setContextHelpId(QString("QSystemTest::%1").arg(function));
+            m_codeEditor->setContextHelpId(QString::fromLatin1("QSystemTest::%1").arg(function));
             return;
         }
     }
 #endif
 
-    m_codeEditor->setContextHelpId("QtUiTest Manual");
+    m_codeEditor->setContextHelpId(QLatin1String("QtUiTest Manual"));
 }
 
 bool TestCode::hasUnsavedChanges() const

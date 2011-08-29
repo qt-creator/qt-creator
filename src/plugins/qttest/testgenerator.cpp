@@ -45,7 +45,6 @@
 
 TestGenerator::TestGenerator()
 {
-    m_generatedFilename = "";
     m_initialized = false;
     m_enableComponentNamedTest = true;
 }
@@ -65,7 +64,7 @@ bool TestGenerator::generateProFile()
 
         if (m_genMode != SystemTest) {
             src << "load(testcase)\n";
-            src << "TARGET = " << m_testCase.toLower() << "\n";
+            src << "TARGET = " << m_testCase.toLower() << '\n';
             src << "QT += testlib\n";
             src << "SOURCES = " << m_testCase.toLower() << ".cpp\n";
         } else if (m_genMode == SystemTest) {
@@ -143,80 +142,80 @@ void TestGenerator::initSrc(QTextStream *s)
         *s << crfileStream.readAll();
     }
 
-    *s << "\n";
-    *s << "//TESTED_COMPONENT=" << m_testedComponent << "\n";
-    *s << "//TESTED_CLASS=" << m_testedClass << "\n";
-    *s << "//TESTED_FILE=" << m_includeFile << "\n";
-    *s << "\n";
+    *s << '\n';
+    *s << "//TESTED_COMPONENT=" << m_testedComponent << '\n';
+    *s << "//TESTED_CLASS=" << m_testedClass << '\n';
+    *s << "//TESTED_FILE=" << m_includeFile << '\n';
+    *s << '\n';
     *s << "#include <QtTest/QtTest>\n";
 
-    if (m_includeFile != "")
+    if (!m_includeFile.isEmpty())
         *s << "#include \"" << m_includeFile << "\"\n";
 
-    *s << "\n";
+    *s << '\n';
     *s << "/*!\n";
     *s << "    \\internal\n";
-    *s << "\n";
-    *s << "    \\class " << m_testCase << "\n";
+    *s << '\n';
+    *s << "    \\class " << m_testCase << '\n';
     *s << "    \\brief <put brief description here>\n";
-    *s << "\n";
+    *s << '\n';
     *s << "    <put extended description here>\n";
-    *s << "\n";
+    *s << '\n';
 
     if (m_testedClass.isEmpty())
         *s << "    \\sa " << "<tested class name>\n";
     else
-        *s << "    \\sa " << m_testedClass << "\n";
+        *s << "    \\sa " << m_testedClass << '\n';
 
     *s << "*/\n";
     *s << "class " << m_testCase << " : public QObject\n";
     *s << "{\n";
     *s << "    Q_OBJECT\n";
-    *s << "\n";
+    *s << '\n';
     *s << "public:\n";
     *s << "    " << m_testCase << "();\n";
     *s << "    virtual ~" << m_testCase << "();\n";
-    *s << "\n";
+    *s << '\n';
     *s << "private slots:\n";
     *s << "    virtual void initTestCase();\n";
     *s << "    virtual void init();\n";
     *s << "    virtual void cleanup();\n";
     *s << "    virtual void cleanupTestCase();\n";
     *s << "};\n";
-    *s << "\n";
+    *s << '\n';
 
     *s << "QTEST_MAIN(" << m_testCase << ")\n";
-    *s << "#include " << '"' << m_testCase.toLower() << ".moc" << '"' << "\n";
-    *s << "\n";
-    *s << "\n";
+    *s << "#include " << '"' << m_testCase.toLower() << ".moc" << '"' << '\n';
+    *s << '\n';
+    *s << '\n';
 
     *s << m_testCase << "::" << m_testCase << "()\n";
     *s << "{\n";
     *s << "}\n";
-    *s << "\n";
+    *s << '\n';
 
     *s << m_testCase << "::~" << m_testCase << "()\n";
     *s << "{\n";
     *s << "}\n";
-    *s << "\n";
+    *s << '\n';
 
     *s << "void " << m_testCase << "::initTestCase()\n";
     *s << "{\n";
     *s << "}\n";
-    *s << "\n";
+    *s << '\n';
     *s << "void " << m_testCase << "::init()\n";
     *s << "{\n";
     *s << "}\n";
-    *s << "\n";
+    *s << '\n';
     *s << "void " << m_testCase << "::cleanup()\n";
     *s << "{\n";
     *s << "}\n";
-    *s << "\n";
+    *s << '\n';
     *s << "void " << m_testCase << "::cleanupTestCase()\n";
     *s << "{\n";
     *s << "}\n";
-    *s << "\n";
-    *s << "\n";
+    *s << '\n';
+    *s << '\n';
 }
 
 void TestGenerator::initScript(QTextStream *s)
@@ -234,29 +233,29 @@ void TestGenerator::initScript(QTextStream *s)
         *s << crfileStream.readAll();
     }
 
-    *s << "\n";
-    *s << "//TESTED_COMPONENT=" << m_testedComponent << "\n";
-    *s << "\n";
+    *s << '\n';
+    *s << "//TESTED_COMPONENT=" << m_testedComponent << '\n';
+    *s << '\n';
     *s << "testcase = {\n";
     *s << "    initTestCase: function()\n";
     *s << "    {\n";
     *s << "    },\n";
-    *s << "\n";
+    *s << '\n';
     *s << "    init: function()\n";
     *s << "    {\n";
     *s << "    },\n";
-    *s << "\n";
+    *s << '\n';
     *s << "    cleanup: function()\n";
     *s << "    {\n";
     *s << "    },\n";
-    *s << "\n";
+    *s << '\n';
     *s << "    cleanupTestCase: function()\n";
     *s << "    {\n";
     *s << "    },\n";
-    *s << "\n";
-    *s << "\n";
+    *s << '\n';
+    *s << '\n';
     *s << "}  // end of testcase\n";
-    *s << "\n";
+    *s << '\n';
 }
 
 void TestGenerator::setTestCase(GenMode mode, const QString &rootDir, const QString &testDir,
@@ -265,12 +264,12 @@ void TestGenerator::setTestCase(GenMode mode, const QString &rootDir, const QStr
 {
     Q_UNUSED(testedClassFile);
     QString testCaseNameSuffix;
-    m_generatedFilename = "";
+    m_generatedFilename.clear();
 
     m_genMode = mode;
     m_testedClass = testedClassName;
     m_testedComponent = testedComponent;
-    m_includeFile = "";
+    m_includeFile.clear();
 
     m_testCase = testCase;
     m_rootDir = rootDir;

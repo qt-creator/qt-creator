@@ -34,22 +34,21 @@
 #define TESTSELECTOR_H
 
 #include "testsuite.h"
-#include "testexecuter.h"
-#include "testcode.h"
 #include "testsettings.h"
-#include "testcontextmenu.h"
-
-#include <extensionsystem/iplugin.h>
-#include <projectexplorer/projectexplorer.h>
 
 #include <QString>
 #include <QTreeWidget>
-#include <QMenu>
-#include <QAction>
+
+QT_BEGIN_NAMESPACE
+class QMenu;
+class QAction;
+QT_END_NAMESPACE
 
 class TestSuiteItem;
 class TestCaseItem;
 class TestFunctionItem;
+class TestContextMenu;
+class TestCode;
 
 class TestViewItem : public QTreeWidgetItem
 {
@@ -112,7 +111,7 @@ class TestSelector : public QTreeWidget
     Q_OBJECT
 
 public:
-    TestSelector(QWidget *parent = 0, const char *name = 0);
+    explicit TestSelector(QWidget *parent = 0);
     virtual ~TestSelector();
 
     void setContextMenu(TestContextMenu *contextMenu);

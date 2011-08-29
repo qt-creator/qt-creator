@@ -33,19 +33,21 @@
 #ifndef TESTCONTEXTMENU_H
 #define TESTCONTEXTMENU_H
 
-#include "testsuite.h"
-#include "testexecuter.h"
-#include "testcode.h"
-#include "testoutputwindow.h"
 #include "testsettings.h"
 
 #include "extensionsystem/iplugin.h"
 #include "projectexplorer/projectexplorer.h"
 
 #include <QString>
-#include <QTreeWidget>
-#include <QMenu>
-#include <QAction>
+
+namespace Core {
+class IEditor;
+}
+
+QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
+QT_END_NAMESPACE
 
 class TestContextMenu_p;
 

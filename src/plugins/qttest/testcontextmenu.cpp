@@ -34,10 +34,15 @@
 #include "testcode.h"
 #include "testsettings.h"
 #include "qsystem.h"
+#include "testsuite.h"
+#include "testexecuter.h"
+#include "testcode.h"
+#include "testoutputwindow.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <extensionsystem/iplugin.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 TestContextMenu_p *TestContextMenu::m_instance = 0;
@@ -104,19 +109,19 @@ TestContextMenu_p::TestContextMenu_p(QObject *widget)
     m_editorInsertTestFunctionAction->setEnabled(false);
 
     m_testRunAction = new QAction(widget);
-    m_testRunAction->setIcon(QIcon(QPixmap(":/testrun.png")));
+    m_testRunAction->setIcon(QIcon(QPixmap(QLatin1String(":/testrun.png"))));
     m_testRunAsManualAction = new QAction(widget);
-    m_testRunAsManualAction->setIcon(QIcon(QPixmap(":/testrun.png")));
+    m_testRunAsManualAction->setIcon(QIcon(QPixmap(QLatin1String(":/testrun.png"))));
     m_testDebugAction = new QAction(widget);
-    m_testDebugAction->setIcon(QIcon(QPixmap(":/testlearn.png")));
+    m_testDebugAction->setIcon(QIcon(QPixmap(QLatin1String(":/testlearn.png"))));
     m_editorRunSingleTestAction = new QAction(widget);
-    m_editorRunSingleTestAction->setIcon(QIcon(QPixmap(":/testrun.png")));
+    m_editorRunSingleTestAction->setIcon(QIcon(QPixmap(QLatin1String(":/testrun.png"))));
     m_editorRunSingleTestAction->setVisible(false);
 
     m_testStopTestingAction = new QAction(widget);
-    m_testStopTestingAction->setIcon(QIcon(QPixmap(":/teststop.png")));
+    m_testStopTestingAction->setIcon(QIcon(QPixmap(QLatin1String(":/teststop.png"))));
     m_editorStopTestingAction = new QAction(widget);
-    m_editorStopTestingAction->setIcon(QIcon(QPixmap(":/teststop.png")));
+    m_editorStopTestingAction->setIcon(QIcon(QPixmap(QLatin1String(":/teststop.png"))));
 
     m_testLearnAction = new QAction(widget);
     m_testLearnAction->setCheckable(true);
@@ -246,7 +251,7 @@ void TestContextMenu_p::updateActions(bool testVisible, bool testBusy, bool test
 void TestContextMenu_p::enableIncludeFile(const QString &fileName)
 {
     m_includeFile = fileName;
-    m_testOpenIncludeFileAction->setText("Open: '" + fileName + "'");
+    m_testOpenIncludeFileAction->setText(tr("Open: '%1'").arg(fileName));
     m_testOpenIncludeFileAction->setVisible(!fileName.isEmpty());
 }
 

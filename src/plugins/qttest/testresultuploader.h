@@ -38,7 +38,6 @@
 
 #include <QObject>
 #include <QProcess>
-#include <QDebug>
 
 class TestResultUploader : public QObject
 {

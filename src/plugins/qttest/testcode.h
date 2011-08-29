@@ -35,10 +35,7 @@
 
 #include "testconfigurations.h"
 
-#include <texteditor/basetexteditor.h>
-#include <coreplugin/icontext.h>
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <cplusplus/CppDocument.h>
 
 #include <QStringList>
@@ -51,6 +48,15 @@ class TestCollection_p;
 
 namespace Core {
     class IEditor;
+}
+
+namespace TextEditor {
+class ITextEditor;
+class BaseTextEditor;
+}
+
+namespace QmlJS {
+class ModelManagerInterface;
 }
 
 namespace CPlusPlus {

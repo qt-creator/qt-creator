@@ -40,12 +40,13 @@
 #include "projectexplorer/project.h"
 #include <../../libs/utils/ssh/sshconnection.h>
 
-#include <QTextStream>
-#include <QObject>
-#include <QList>
 #include <QStringList>
 #include <QPointer>
 #include <QTimer>
+
+QT_BEGIN_NAMESPACE
+class QTextStream;
+QT_END_NAMESPACE
 
 class TestConfigurations_p;
 

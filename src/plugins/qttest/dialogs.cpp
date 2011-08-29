@@ -90,14 +90,14 @@ void SelectDlg::addSelectableItem(const QString &item)
     if (groupsList->columnCount() > 1) {
         int row = groupsList->rowCount();
         groupsList->insertRow(row);
-        QStringList tmp = item.split("|");
+        QStringList tmp = item.split(QLatin1Char('|'));
         if (tmp.count() > groupsList->columnCount()) {
             for (int i = 0; i < (groupsList->columnCount() - 1); ++i)
                 groupsList->setItem(row, i, new QTableWidgetItem(tmp[i]));
 
             QString s;
             for (int i = groupsList->columnCount(); i < tmp.count(); ++i) {
-                if (!s.isEmpty()) s+= "|";
+                if (!s.isEmpty()) s+= QLatin1Char('|');
                 s += tmp[i];
             }
             groupsList->setItem(row, (groupsList->columnCount() - 1), new QTableWidgetItem(s));
@@ -105,7 +105,7 @@ void SelectDlg::addSelectableItem(const QString &item)
             for (int i = 0; i < tmp.count(); ++i)
                 groupsList->setItem(row, i, new QTableWidgetItem(tmp[i]));
             for (int i = tmp.count(); i < groupsList->columnCount(); ++i)
-                groupsList->setItem(row, i, new QTableWidgetItem(""));
+                groupsList->setItem(row, i, new QTableWidgetItem(QString()));
         } else {
             for (int i = 0; i < tmp.count(); ++i)
                 groupsList->setItem(row, i, new QTableWidgetItem(tmp[i]));
@@ -130,7 +130,7 @@ QStringList SelectDlg::selectedItems()
         if (item && item->isSelected()) {
             QString S = item->text();
             for (int col = 1; col < groupsList->columnCount(); ++col) {
-                S+= "|";
+                S+= QLatin1Char('|');
                 item = groupsList->item(row, col);
                 if (item)
                     S += item->text();

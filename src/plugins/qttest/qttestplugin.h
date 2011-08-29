@@ -33,16 +33,15 @@
 #ifndef QTTESTPLUGIN_H
 #define QTTESTPLUGIN_H
 
-#include "testoutputwindow.h"
-#include "testselector.h"
-#include "resultsview.h"
-#include "testexecuter.h"
-#include "testcontextmenu.h"
 #include "testsuite.h"
 
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <extensionsystem/iplugin.h>
 #include <QtCore/QObject>
+
+class TestContextMenu;
+class TestResultsWindow;
+class TestOutputWindow;
 
 namespace QtTest {
 namespace Internal {

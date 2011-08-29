@@ -34,7 +34,8 @@
 #define TESTOUTPUTWINDOW_H
 
 #include <coreplugin/ioutputpane.h>
-#include <QTextEdit>
+
+QT_FORWARD_DECLARE_CLASS(QTextEdit)
 
 QTextEdit *testOutputPane();
 

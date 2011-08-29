@@ -134,8 +134,8 @@ void TestConfigurations_p::clear()
 
 bool TestConfigurations_p::load()
 {
-    return load(QDir::homePath() + QDir::separator() + ".qttest"
-        + QDir::separator() + "saved_configurations");
+    return load(QDir::homePath() + QDir::separator() + QLatin1String(".qttest")
+        + QDir::separator() + QLatin1String("saved_configurations"));
 }
 
 bool TestConfigurations_p::load(const QString &fileName)
@@ -147,16 +147,16 @@ bool TestConfigurations_p::load(const QString &fileName)
     if (f.open(QIODevice::ReadOnly)) {
         QTextStream S(&f);
         QString tmpName = S.readLine();
-        if (tmpName.startsWith("VERSION=")) {
+        if (tmpName.startsWith(QLatin1String("VERSION="))) {
             bool ok;
             tmpName = tmpName.mid(8).simplified();
             version = tmpName.toUInt(&ok);
             if (!ok) {
-                qWarning("Couldn't read version in configurations file");
+                qWarning("Could not read version in configurations file");
                 return false;
             }
         } else {
-            qWarning("Couldn't read configurations file");
+            qWarning("Could not read configurations file");
             return false;
         }
 
@@ -178,9 +178,9 @@ bool TestConfigurations_p::load(const QString &fileName)
 
 bool TestConfigurations_p::save()
 {
-    QDir().mkpath(QDir::homePath() + QDir::separator() + ".qttest");
-    return save(QDir::homePath() + QDir::separator() + ".qttest"
-        + QDir::separator() + "saved_configurations");
+    QDir().mkpath(QDir::homePath() + QDir::separator() + QLatin1String(".qttest"));
+    return save(QDir::homePath() + QDir::separator() + QLatin1String(".qttest")
+        + QDir::separator() + QLatin1String("saved_configurations"));
 }
 
 bool TestConfigurations_p::save(const QString &fileName)
@@ -189,7 +189,7 @@ bool TestConfigurations_p::save(const QString &fileName)
     QFile f(fileName);
     if (f.open(QIODevice::WriteOnly)) {
         QTextStream S(&f);
-        S << QString("VERSION=%1").arg(curVersion) << "\n";
+        S << QString::fromLatin1("VERSION=%1").arg(curVersion) << '\n';
         TestConfig *tmp;
         for (int i = 0; i < m_configList.count(); ++i) {
             tmp = m_configList.at(i);
@@ -248,9 +248,9 @@ TestConfig *TestConfigurations_p::config(const QString &cfgName)
 
     cfg = new TestConfig();
     cfg->setConfigName(cfgName);
-    cfg->setRunParams("");
-    cfg->setRunScript("");
-    cfg->setPostProcessScript("");
+    cfg->setRunParams(QString());
+    cfg->setRunScript(QString());
+    cfg->setPostProcessScript(QString());
     m_configList.append(cfg);
 
     return cfg;
@@ -305,7 +305,7 @@ void TestConfigurations_p::setSelectedTests(const QStringList &list)
 
             QStringList tmpList;
             foreach (const QString &selection, list) {
-                QString tcname = selection.left(selection.indexOf("::"));
+                QString tcname = selection.left(selection.indexOf(QLatin1String("::")));
                 TestCode *tc = m_testCollection.findCodeByTestCaseName(tcname);
                 if (tc) {
                     foreach (const QString &srcPath, srcPaths) {
@@ -336,7 +336,7 @@ QString TestConfigurations_p::currentTestCase()
     TestConfig *tmp = activeConfiguration();
     if (tmp)
         return tmp->currentTestCase();
-    return "";
+    return QString();
 }
 
 QString TestConfigurations_p::currentTestFunction()
@@ -346,7 +346,7 @@ QString TestConfigurations_p::currentTestFunction()
         if (tmp && tmp->isActive())
             return tmp->currentTestFunc();
     }
-    return "";
+    return QString();
 }
 
 void TestConfigurations_p::rescan()
@@ -410,7 +410,7 @@ void TestConfig::clear()
     m_branchDetected = false;
     m_autodetectPlatformConfiguration = true;
     m_platformDetected = false;
-    m_uploadMethod = "SCP";
+    m_uploadMethod = QLatin1String("SCP");
     m_buildEnvironment.clear();
     m_uploadMode = UploadAuto;
     m_makeCommand.clear();
@@ -427,12 +427,12 @@ QString TestConfig::runScript()
 
 QString TestConfig::copyrightHeader()
 {
-    QString ret = srcPath() + QDir::separator() + "dist" + QDir::separator()
-        + "header-dual-license.txt";
+    QString ret = srcPath() + QDir::separator() + QLatin1String("dist") + QDir::separator()
+        + QLatin1String("header-dual-license.txt");
     QFileInfo inf(ret);
     if (inf.exists())
         return ret;
-    return "";
+    return QString();
 }
 
 void TestConfig::setQMAKESPEC(const QString &newValue)
@@ -450,7 +450,7 @@ QString TestConfig::QMAKESPEC()
         if (qtBuildConfig)
             return qtBuildConfig->qtVersion()->mkspec();
         else
-            return QSystem::envKey(buildEnvironment(), "QMAKESPEC");
+            return QSystem::envKey(buildEnvironment(), QLatin1String("QMAKESPEC"));
     }
 
     return m_qmakeMkspec;
@@ -468,12 +468,12 @@ void TestConfig::setQMAKESPECSpecialization(const QString &newValue)
 
 QString TestConfig::PATH()
 {
-    return QSystem::envKey(buildEnvironment(), "PATH");
+    return QSystem::envKey(buildEnvironment(), QLatin1String("PATH"));
 }
 
 QString TestConfig::QTDIR()
 {
-    return QSystem::envKey(buildEnvironment(), "QTDIR");
+    return QSystem::envKey(buildEnvironment(), QLatin1String("QTDIR"));
 }
 
 QString TestConfig::runParams()
@@ -493,12 +493,12 @@ QString TestConfig::postProcessScript()
 QString TestConfig::makeCommand()
 {
     if (m_makeCommand.isEmpty()) {
-        if (QMAKESPEC().contains("msvc"))
-            m_makeCommand = "nmake";
-        else if (QMAKESPEC().contains("mingw"))
-            m_makeCommand = "mingw32-make";
+        if (QMAKESPEC().contains(QLatin1String("msvc")))
+            m_makeCommand = QLatin1String("nmake");
+        else if (QMAKESPEC().contains(QLatin1String("mingw")))
+            m_makeCommand = QLatin1String("mingw32-make");
         else
-            m_makeCommand = "make";
+            m_makeCommand = QLatin1String("make");
         m_makeCommand = QSystem::which(PATH(), m_makeCommand);
     }
     return m_makeCommand;
@@ -515,7 +515,7 @@ QString TestConfig::qmakeCommand(bool /*desktopQMakeRequested*/)
     }
 
     qWarning() << "Unable to detect qmake command, falling back to \"qmake\"";
-    return "qmake";
+    return QLatin1String("qmake");
 }
 
 void TestConfig::setUploadMode(UploadMode mode)
@@ -534,9 +534,9 @@ bool TestConfig::uploadResults()
         return true;
     if (m_uploadMode == TestConfig::UploadNoThanks)
         return false;
-    if (QMessageBox::question(0,"Upload Test Results",
-        "You can positively influence the quality of " + configName()
-        + " by contributing test results.\n\nWould you like to upload your Test Results",
+    if (QMessageBox::question(0, tr("Upload Test Results"),
+        tr("You can positively influence the quality of %1"
+           " by contributing test results.\n\nWould you like to upload your Test Results").arg(configName()),
         QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
         return true;
     return false;
@@ -548,39 +548,39 @@ bool TestConfig::isRemoteTarget(QString &deviceName, QString &testDeviceType,
     if (m_activeProject && m_activeProject->activeTarget()) {
         ProjectExplorer::RunConfiguration *r = m_activeProject->activeTarget()->activeRunConfiguration();
         if (r) {
-            if (r->id() == "Qt4ProjectManager.MaemoRunConfiguration") {
+            if (r->id() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration")) {
                 RemoteLinux::Internal::MaemoRunConfiguration *mr = static_cast<RemoteLinux::Internal::MaemoRunConfiguration*>(r);
                 if (mr) {
                     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> mc = mr->deviceConfig();
                     if (mc){
                         deviceName = mc->name();
                         sshParameters = mc->sshParameters();
-                        testDeviceType = "Maemo";//Qt4Test::TestController::Maemo;
+                        testDeviceType = QLatin1String("Maemo");//Qt4Test::TestController::Maemo;
                         return true;
                     }else{
                         qWarning() << "Invalid remote" << deviceName;
                     }
                 }
-            } else if (r->id() == "Qt4ProjectManager.Qt4RunConfiguration"
-                || r->id() == "ProjectExplorer.CustomExecutableRunConfiguration") {
-                deviceName = "Desktop";
-                sshParameters.host = "127.0.0.1";
+            } else if (r->id() == QLatin1String("Qt4ProjectManager.Qt4RunConfiguration")
+                || r->id() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration")) {
+                deviceName = QLatin1String("Desktop");
+                sshParameters.host = QLatin1String("127.0.0.1");
                 sshParameters.port = 5656;
                 sshParameters.userName.clear();
                 sshParameters.password.clear();
                 sshParameters.privateKeyFile.clear();
-                testDeviceType = "Desktop";//Qt4Test::TestController::Desktop;
+                testDeviceType = QLatin1String("Desktop");//Qt4Test::TestController::Desktop;
                 return false;
             }
         }
     }
-    deviceName = "Unknown";
-    sshParameters.host = "0.0.0.0";
+    deviceName = QLatin1String("Unknown");
+    sshParameters.host = QLatin1String("0.0.0.0");
     sshParameters.port = 0;
     sshParameters.userName.clear();
     sshParameters.password.clear();
     sshParameters.privateKeyFile.clear();
-    testDeviceType = "Desktop";//Qt4Test::TestController::Desktop;
+    testDeviceType = QLatin1String("Desktop"); //Qt4Test::TestController::Desktop;
 
     return false;
 }
@@ -590,7 +590,7 @@ void TestConfig::loadLine(QTextStream *s, const QString &id, QString &value)
     Q_UNUSED(id);
 
     QString tmp = s->readLine();
-    int pos = tmp.indexOf("=");
+    int pos = tmp.indexOf(QLatin1Char('='));
     value = tmp.mid(pos + 1);
 }
 
@@ -599,7 +599,7 @@ void TestConfig::loadLine(QTextStream *s, const QString &id, int &value)
     Q_UNUSED(id);
 
     QString tmp = s->readLine();
-    int pos = tmp.indexOf("=");
+    int pos = tmp.indexOf(QLatin1Char('='));
     value = tmp.mid(pos + 1).toInt();
 }
 
@@ -611,61 +611,61 @@ bool TestConfig::load(uint version, QTextStream *s)
         return false;
 
     QString tmp = s->readLine();
-    if (tmp == "CONFIG-START") {
-        loadLine(s, "", m_configName);
-        loadLine(s, "", m_runParams);
-        loadLine(s, "", m_postprocessScript);
-        loadLine(s, "", m_runScript);
-        loadLine(s, "", m_lastTestcase);
-        loadLine(s, "", m_lastTestfunc);
+    if (tmp == QLatin1String("CONFIG-START")) {
+        loadLine(s, QString(), m_configName);
+        loadLine(s, QString(), m_runParams);
+        loadLine(s, QString(), m_postprocessScript);
+        loadLine(s, QString(), m_runScript);
+        loadLine(s, QString(), m_lastTestcase);
+        loadLine(s, QString(), m_lastTestfunc);
         QString tmp;
-        loadLine(s, "", tmp);
-        m_lastSelectedTests = tmp.split(",", QString::SkipEmptyParts);
+        loadLine(s, QString(), tmp);
+        m_lastSelectedTests = tmp.split(QLatin1Char(','), QString::SkipEmptyParts);
         if (version > 1) {
-            loadLine(s, "", m_uploadChange);
-            loadLine(s, "", m_uploadBranch);
-            loadLine(s, "", m_uploadPlatform);
+            loadLine(s, QString(), m_uploadChange);
+            loadLine(s, QString(), m_uploadBranch);
+            loadLine(s, QString(), m_uploadPlatform);
             if (version < 8)
                 tmp = s->readLine();
         }
         if (version > 2) {
             if (version < 8) tmp = s->readLine();
             tmp = s->readLine();
-            m_autodetectPlatformConfiguration = (tmp == "AUTO-PLATFORM=1");
-            loadLine(s, "", m_uploadMethod);
+            m_autodetectPlatformConfiguration = (tmp == QLatin1String("AUTO-PLATFORM=1"));
+            loadLine(s, QString(), m_uploadMethod);
         }
         if (version > 3) {
-            loadLine(s, "", tmp);
-            m_extraTests = tmp.split(":", QString::SkipEmptyParts);
+            loadLine(s, QString(), tmp);
+            m_extraTests = tmp.split(QLatin1Char(':'), QString::SkipEmptyParts);
         }
         if (version > 4) {
             int tmp;
-            loadLine(s, "", tmp);
+            loadLine(s, QString(), tmp);
             m_uploadMode = static_cast<UploadMode>(tmp);
         }
         if (version > 5 && version < 7) {
             QString dummy;
-            loadLine(s, "", dummy);
-            loadLine(s, "", dummy);
-            loadLine(s, "", dummy);
+            loadLine(s, QString(), dummy);
+            loadLine(s, QString(), dummy);
+            loadLine(s, QString(), dummy);
         }
         if (version >= 9) {
-            loadLine(s, "", m_qmakeMkspec);
-            loadLine(s, "", m_uploadBranchSpecialization);
-            loadLine(s, "", m_qmakeMkspecSpecialization);
+            loadLine(s, QString(), m_qmakeMkspec);
+            loadLine(s, QString(), m_uploadBranchSpecialization);
+            loadLine(s, QString(), m_qmakeMkspecSpecialization);
         }
         //Add member here
 
         QString checkSum;
-        loadLine(s, "", checkSum);
-        return checkSum == "CONFIG-END";
+        loadLine(s, QString(), checkSum);
+        return checkSum == QLatin1String("CONFIG-END");
     }
     return false;
 }
 
 void TestConfig::saveLine(QTextStream *s, const QString &id, const QString &value)
 {
-    *s << id << "=" << value << "\n";
+    *s << id << '=' << value << '\n';
 }
 
 bool TestConfig::save(QTextStream *s)
@@ -673,29 +673,29 @@ bool TestConfig::save(QTextStream *s)
     if (s == 0)
         return false;
 
-    QString checkSum = "CONFIG-START";
-    *s << checkSum << "\n";
-    saveLine(s, "NAME", m_configName);
-    saveLine(s, "RUN_PARAMS", m_runParams);
-    saveLine(s, "POSTPROCESS_SCRIPT", m_postprocessScript);
-    saveLine(s, "RUN_SCRIPT", m_runScript);
-    saveLine(s, "LAST_TESTCASE", m_lastTestcase);
-    saveLine(s, "LAST_TESTFUNC", m_lastTestfunc);
-    saveLine(s, "LAST_SELECTED_TESTS", m_lastSelectedTests.join(","));
-    saveLine(s, "CHANGE", m_uploadChange);
-    saveLine(s, "BRANCH", m_uploadBranch);
-    saveLine(s, "PLATFORM", m_uploadPlatform);
-    saveLine(s, "AUTO-PLATFORM", QString("%1").arg(m_autodetectPlatformConfiguration));
-    saveLine(s, "UPLOAD_METHOD", m_uploadMethod);
-    saveLine(s, "EXTRA_TESTS", m_extraTests.join(":"));
-    saveLine(s, "UPLOAD_MODE", QString("%1").arg(static_cast<int>(m_uploadMode)));
-    saveLine(s, "QMAKESPEC", m_qmakeMkspec);
-    saveLine(s, "BRANCH_SPECIALIZATION", m_uploadBranchSpecialization);
-    saveLine(s, "QMAKESPEC_SPECIALIZATION", m_qmakeMkspecSpecialization);
+    QString checkSum = QLatin1String("CONFIG-START");
+    *s << checkSum << QLatin1Char('\n');
+    saveLine(s, QLatin1String("NAME"), m_configName);
+    saveLine(s, QLatin1String("RUN_PARAMS"), m_runParams);
+    saveLine(s, QLatin1String("POSTPROCESS_SCRIPT"), m_postprocessScript);
+    saveLine(s, QLatin1String("RUN_SCRIPT"), m_runScript);
+    saveLine(s, QLatin1String("LAST_TESTCASE"), m_lastTestcase);
+    saveLine(s, QLatin1String("LAST_TESTFUNC"), m_lastTestfunc);
+    saveLine(s, QLatin1String("LAST_SELECTED_TESTS"), m_lastSelectedTests.join(QString(QLatin1Char(','))));
+    saveLine(s, QLatin1String("CHANGE"), m_uploadChange);
+    saveLine(s, QLatin1String("BRANCH"), m_uploadBranch);
+    saveLine(s, QLatin1String("PLATFORM"), m_uploadPlatform);
+    saveLine(s, QLatin1String("AUTO-PLATFORM"), QString::fromLatin1("%1").arg(m_autodetectPlatformConfiguration));
+    saveLine(s, QLatin1String("UPLOAD_METHOD"), m_uploadMethod);
+    saveLine(s, QLatin1String("EXTRA_TESTS"), m_extraTests.join(QString(QLatin1Char(':'))));
+    saveLine(s, QLatin1String("UPLOAD_MODE"), QString::number(static_cast<int>(m_uploadMode)));
+    saveLine(s, QLatin1String("QMAKESPEC"), m_qmakeMkspec);
+    saveLine(s, QLatin1String("BRANCH_SPECIALIZATION"), m_uploadBranchSpecialization);
+    saveLine(s, QLatin1String("QMAKESPEC_SPECIALIZATION"), m_qmakeMkspecSpecialization);
     //Add member here
 
-    checkSum = "CONFIG-END";
-    *s << checkSum << "\n";
+    checkSum = QLatin1String("CONFIG-END");
+    *s << checkSum << '\n';
     return true;
 }
 
@@ -737,7 +737,7 @@ QString TestConfig::uploadChange()
         proc.setEnvironment(*buildEnvironment());
         proc.setWorkingDirectory(srcPath());
 
-        proc.start("git", QStringList() << "log" << "-1" << "--pretty=oneline");
+        proc.start(QLatin1String("git"), QStringList() << QLatin1String("log") << QLatin1String("-1") << QLatin1String("--pretty=oneline"));
         bool ok = proc.waitForStarted();
         if (ok)
             ok = proc.waitForFinished();
@@ -745,7 +745,7 @@ QString TestConfig::uploadChange()
         if (ok) {
             QString output = proc.readAllStandardOutput();
             if (!output.isEmpty()) {
-                QStringList tmp = output.split(" ");
+                QStringList tmp = output.split(QLatin1Char(' '));
                 if (tmp.count() >= 2) {
                     m_uploadChange = tmp[0];
                     m_changeDetected = true;
@@ -768,7 +768,7 @@ QString TestConfig::uploadBranch()
         proc.setEnvironment(*buildEnvironment());
         proc.setWorkingDirectory(srcPath());
 
-        proc.start("git", QStringList() << "branch");
+        proc.start(QLatin1String("git"), QStringList(QLatin1String("branch")));
         bool ok = proc.waitForStarted();
         if (ok)
             ok = proc.waitForFinished();
@@ -776,9 +776,9 @@ QString TestConfig::uploadBranch()
         if (ok) {
             QString output = proc.readAllStandardOutput();
             if (!output.isEmpty()) {
-                QStringList tmp = output.split("\n");
-                foreach (QString line, tmp) {
-                    if (line.startsWith("*")) {
+                QStringList tmp = output.split(QLatin1Char('\n'));
+                foreach (const QString &line, tmp) {
+                    if (line.startsWith(QLatin1Char('*'))) {
                         m_uploadBranch = line.mid(2);
                         m_branchDetected = true;
                     }
@@ -789,7 +789,7 @@ QString TestConfig::uploadBranch()
         if (m_branchDetected){
             // prepend <Product>- to the branch name
             // this only supports remotes using git@... and git://
-            proc.start("git", QStringList() << "remote" << "-v");
+            proc.start(QLatin1String("git"), QStringList() << QLatin1String("remote") << QLatin1String("-v"));
             ok = proc.waitForStarted();
             if (ok)
                 ok = proc.waitForFinished();
@@ -799,16 +799,16 @@ QString TestConfig::uploadBranch()
                 if (!output.isEmpty()) {
                     QRegExp gitRemoteRegEx(QLatin1String("(\\w+\\s+\\w+@[^:]+):(\\w+)/\(.*)"));
                     QRegExp gitReadonlyRemoteRegEx(QLatin1String("(\\w+\\s+\\w+://.+)/(\\w+)/(.*)"));
-                    QStringList tmp = output.split("\n");
+                    QStringList tmp = output.split(QLatin1Char('\n'));
                     foreach (const QString &line, tmp) {
                         if (gitRemoteRegEx.exactMatch(line)) {
                             m_uploadBranch = gitRemoteRegEx.capturedTexts()[2]
-                                + "-" + m_uploadBranch;
+                                + QLatin1Char('-') + m_uploadBranch;
                             break;
                         }
                         if (gitReadonlyRemoteRegEx.exactMatch(line)) {
                             m_uploadBranch = gitReadonlyRemoteRegEx.capturedTexts()[2]
-                                + "-" + m_uploadBranch;
+                                + QLatin1Char('-') + m_uploadBranch;
                             break;
                         }
                     }
@@ -872,20 +872,20 @@ void TestConfig::setAutoDetectPlatformConfiguration(bool doAutoDetect)
 
 bool TestConfig::uploadUsingScp()
 {
-    return m_uploadMethod == "SCP";
+    return m_uploadMethod == QLatin1String("SCP");
 }
 
 bool TestConfig::uploadUsingEMail()
 {
-    return m_uploadMethod != "SCP";
+    return m_uploadMethod != QLatin1String("SCP");
 }
 
 void TestConfig::setUploadMethod(bool useScp)
 {
     if (useScp)
-        m_uploadMethod = "SCP";
+        m_uploadMethod = QLatin1String("SCP");
     else
-        m_uploadMethod = "EMAIL";
+        m_uploadMethod = QLatin1String("EMAIL");
 }
 
 void TestConfig::deactivate()
@@ -940,7 +940,7 @@ void TestConfig::onProjectSettingsChanged()
 
     Core::ICore *core = Core::ICore::instance();
     Core::ModeManager *mgr = core->modeManager();
-    if ((mgr && (mgr->currentMode()->id() != "Edit")) || TestConfigurations::instance().updatesDelayed()) {
+    if ((mgr && (mgr->currentMode()->id() != QLatin1String("Edit"))) || TestConfigurations::instance().updatesDelayed()) {
         // Try again later.
         emitConfigChanged();
         return;
@@ -985,13 +985,13 @@ QStringList *TestConfig::runEnvironment()
         ProjectExplorer::RunConfiguration *rc =
             m_activeProject->activeTarget()->activeRunConfiguration();
         if (rc) {
-            if (rc->id() == "Qt4ProjectManager.Qt4RunConfiguration") {
+            if (rc->id() == QLatin1String("Qt4ProjectManager.Qt4RunConfiguration")) {
                 m_runEnvironment =
                     static_cast<Qt4ProjectManager::Internal::Qt4RunConfiguration*>(rc)->environment().toStringList();
-            } else if (rc->id() == "ProjectExplorer.CustomExecutableRunConfiguration") {
+            } else if (rc->id() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration")) {
                 m_runEnvironment =
                     static_cast<ProjectExplorer::CustomExecutableRunConfiguration*>(rc)->environment().toStringList();
-            } else if (rc->id() == "Qt4ProjectManager.MaemoRunConfiguration") {
+            } else if (rc->id() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration")) {
                 m_runEnvironment =
                     static_cast<RemoteLinux::Internal::MaemoRunConfiguration*>(rc)->environment().toStringList();
             }
@@ -1003,18 +1003,18 @@ QStringList *TestConfig::runEnvironment()
 QString TestConfig::buildPath()
 {
     if (!m_activeProject)
-        return "";
+        return QString();
     ProjectExplorer::BuildConfiguration *b =
         m_activeProject->activeTarget()->activeBuildConfiguration();
     if (!b)
-        return "";
+        return QString();
     return QDir::convertSeparators(b->buildDirectory());
 }
 
 QString TestConfig::srcPath()
 {
     if (!m_activeProject)
-        return "";
+        return QString();
     return QDir::convertSeparators(m_activeProject->projectDirectory());
 }
 

@@ -33,10 +33,8 @@
 #ifndef TESTSETTINGS_H
 #define TESTSETTINGS_H
 
-#include "qsystem.h"
-
+#include <QObject>
 #include <QString>
-#include <QStringList>
 
 // class TestSettings_p;
 class TestSettings_p : public QObject

@@ -88,15 +88,15 @@ QString QSystem::userName()
     QString userName;
 
 #if defined Q_OS_TEMP
-    userName = "WinCE";
+    userName = QLatin1String("WinCE");
 #elif defined Q_OS_WIN32
-    userName = getenv("USERNAME");
+    userName = QString::fromLocal8Bit(qgetenv("USERNAME"));
 #elif defined Q_OS_UNIX
-    userName = getenv("USER");
-    if (userName == "")
-        userName = getenv("LOGNAME");
+    userName = QString::fromLocal8Bit(qgetenv("USER"));
+    if (userName.isEmpty())
+        userName = QString::fromLocal8Bit(qgetenv("LOGNAME"));
 #elif defined Q_OS_MAC
-    userName = getenv();
+    userName = getenv(); // TODO?
 #endif
 
     return userName.toLower();
@@ -116,10 +116,9 @@ QString QSystem::hostName()
     hostName = QHostInfo::localHostName();
 
     // convert anarki.troll.no to anarki
-    int pos = hostName.indexOf(".");
+    const int pos = hostName.indexOf(QLatin1Char('.'));
     if (pos > 0)
-        hostName = hostName.left(pos);
-
+        hostName.truncate(pos);
     return hostName;
 }
 
@@ -129,86 +128,86 @@ QString QSystem::hostName()
 QString QSystem::OSName()
 {
 #if defined(Q_OS_MAC)
-    return "Mac-OSX";
+    return QLatin1String("Mac-OSX");
 #elif defined(Q_OS_MSDOS)
-    return "MSDOS";
+    return  QLatin1String("MSDOS");
 #elif defined(Q_OS_OS2EMX)
-    return "OS2EMX";
+    return  QLatin1String("OS2EMX");
 #elif defined(Q_OS_OS2)
-    return "OS2";
-#elif defined(Q_OS_WIN32) || defined (Q_OS_WIN64)
-    return "Windows";
+    return  QLatin1String("OS2");
+#elif defined(Q_OS_WIN)
+    return  QLatin1String("Windows");
 #elif defined(Q_OS_SOLARIS)
-    return "Solaris";
+    return QLatin1String("Solaris");
 #elif defined(Q_OS_SUN) && defined(Q_OS_BSD4)
-    return "Sun";
+    return QLatin1String("Sun");
 #elif defined(Q_OS_HPUX)
-    return "HPUX";
+    return QLatin1String("HPUX");
 #elif defined(Q_OS_ULTRIX)
-    return "ULTRIX";
+    return QLatin1String("ULTRIX");
 #elif defined(Q_OS_RELIANT)
-    return "RELIANT";
+    return QLatin1String("RELIANT");
 #elif defined(Q_OS_LINUX)
-    return "Linux";
+    return QLatin1String("Linux");
 #elif defined(Q_OS_FREEBSD) && defined(Q_OS_BSD4)
-    return "FREEBSD";
+    return QLatin1String("FREEBSD");
 #elif defined(Q_OS_NETBSD) && defined(Q_OS_BSD4)
-    return "NETBSD";
+    return QLatin1String("NETBSD");
 #elif defined(Q_OS_OPENBSD) && defined(Q_OS_BSD4)
-    return "OPENBSD";
+    return QLatin1String("OPENBSD");
 #elif defined(Q_OS_BSDI) && defined(Q_OS_BSD4)
-    return "BSDI";
+    return QLatin1String("BSDI");
 #elif defined(Q_OS_IRIX)
-    return "IRIX";
+    return QLatin1String("IRIX");
 #elif defined(Q_OS_OSF)
-    return "OSF";
+    return QLatin1String("OSF");
 #elif defined(Q_OS_AIX)
-    return "AIX";
+    return QLatin1String("AIX");
 #elif defined(Q_OS_LYNX)
-    return "LYNX";
+    return QLatin1String("LYNX");
 #elif defined(Q_OS_UNIXWARE)
-    return "UNIXWARE";
+    return QLatin1String("UNIXWARE");
 #elif defined(Q_OS_HURD)
-    return "HURD";
+    return QLatin1String("HURD");
 #elif defined(Q_OS_DGUX)
-    return "DGUX";
+    return QLatin1String("DGUX");
 #elif defined(Q_OS_QNX6)
-    return "QNX6";
+    return QLatin1String("QNX6");
 #elif defined(Q_OS_QNX)
-    return "QNX";
+    return QLatin1String("QNX");
 #elif defined(Q_OS_SCO)
-    return "SCO";
+    return QLatin1String("SCO");
 #elif defined(Q_OS_UNIXWARE7)
-    return "UNIXWARE7";
+    return QLatin1String("UNIXWARE7");
 #elif defined(Q_OS_DYNIX)
-    return "DYNIX";
+    return QLatin1String("DYNIX");
 #elif defined(Q_OS_SVR4)
-    return "SVR4";
+    return QLatin1String("SVR4");
 #else
-    return "UNKNOWN";
+    return QLatin1String("UNKNOWN");
 #endif
 }
 
 QString which_p(const QString &path, const QString &applicationName)
 {
     QStringList paths;
-#if defined Q_OS_WIN32
-    paths = path.split(";");
+#if defined Q_OS_WIN
+    paths = path.split(QLatin1Char(';'));
 #else
-    paths = path.split(":");
+    paths = path.split(QLatin1Char(':'));
 #endif
     foreach (const QString &p, paths) {
         QString fname = p + QDir::separator() + applicationName;
         if (QFile::exists(fname))
             return fname;
-#if defined Q_OS_WIN32
-        if (QFile::exists(fname + ".exe"))
-            return fname + ".exe";
-        if (QFile::exists(fname + ".bat"))
-            return fname + ".bat";
+#if defined Q_OS_WIN
+        if (QFile::exists(fname + QLatin1String(".exe")))
+            return fname + QLatin1String(".exe");
+        if (QFile::exists(fname + QLatin1String(".bat")))
+            return fname + QLatin1String(".bat");
 #endif
     }
-    return "";
+    return QString();
 }
 
 /*!
@@ -219,8 +218,8 @@ QString which_p(const QString &path, const QString &applicationName)
 QString QSystem::which(const QString &path, const QString &applicationName)
 {
     QString ret = which_p(path, applicationName);
-    if (ret.contains(" "))
-        return '"' + ret + '"';
+    if (ret.contains(QLatin1Char(' ')))
+        return QLatin1Char('"') + ret + QLatin1Char('"');
     return ret;
 }
 
@@ -268,20 +267,20 @@ bool QSystem::processEnvValue(QStringList *envList, QString &envString)
     QString prefix;
     bool isSetCmd = false;
 
-    if (_envString.startsWith("export ")) {
+    if (_envString.startsWith(QLatin1String("export "))) {
         _envString = _envString.mid(7);
-        prefix = "export ";
+        prefix = QLatin1String("export ");
         isSetCmd = true;
     }
 
-    if (_envString.startsWith("set ")) {
+    if (_envString.startsWith(QLatin1String("set "))) {
         _envString = _envString.mid(4);
-        prefix = "set ";
+        prefix = QLatin1String("set ");
         isSetCmd = true;
     }
 
     if (isSetCmd) {
-        int pos = _envString.indexOf("=");
+        int pos = _envString.indexOf(QLatin1Char('='));
         if (pos < 0) {
             // nothing to do
             return false;
@@ -292,7 +291,7 @@ bool QSystem::processEnvValue(QStringList *envList, QString &envString)
         if (processEnvValue(envList, value)) {
             setEnvKey(envList, key, value);
 
-            envString = /*prefix +*/ key + "=" + value;
+            envString = /*prefix +*/ key + QLatin1Char('=') + value;
             return true;
         } else {
             return false;
@@ -309,7 +308,7 @@ bool QSystem::processEnvValue(QStringList *envList, QString &envString)
             int len = key.length()+1;
             if (_envString.at(pos) == '%')
                 len++;
-            if (_envString.indexOf("("+ key + ")") == (pos + 1))
+            if (_envString.indexOf(QLatin1Char('(')+ key + QLatin1Char(')')) == (pos + 1))
                     len += 2;
             _envString.remove(pos, len);
             _envString.insert(pos, replacementValue);
@@ -332,7 +331,7 @@ bool QSystem::processEnvValue(QStringList *envList, QString &envString)
 bool QSystem::hasEnvKey(const QString &envString, QString &key, int &pos, int start)
 {
     pos = -1;
-    key = "";
+    key.clear();
     int end = -1;
     bool winKey = false;
 
@@ -340,9 +339,9 @@ bool QSystem::hasEnvKey(const QString &envString, QString &key, int &pos, int st
     ++start;
 
     int pos1, pos2, pos3;
-    pos1 = envString.indexOf("$", start);
-    pos2 = envString.indexOf("%", start);
-    pos3 = envString.indexOf("%", pos2 + 1);
+    pos1 = envString.indexOf(QLatin1Char('$'), start);
+    pos2 = envString.indexOf(QLatin1Char('%'), start);
+    pos3 = envString.indexOf(QLatin1Char('%'), pos2 + 1);
 
     if (pos1 < 0 && pos2 < 0)
         return false;
@@ -371,20 +370,20 @@ bool QSystem::hasEnvKey(const QString &envString, QString &key, int &pos, int st
         end = -1;
         if (winKey) {
             // if we found a % we only look for a closing one
-            end = envString.indexOf("%", pos+1);
+            end = envString.indexOf(QLatin1Char('%'), pos+1);
 
         } else {
 
             // else look for some other characters that close a KEY
             const uint maxSrch = 8;
             int term[maxSrch];
-            term[0] = envString.indexOf("/", pos+1);
-            term[1] = envString.indexOf(":", pos+1);
-            term[2] = envString.indexOf("\\", pos+1);
-            term[3] = envString.indexOf(";", pos+1);
-            term[4] = envString.indexOf(" ", pos+1);
-            term[5] = envString.indexOf("-", pos+1);
-            term[6] = envString.indexOf(".", pos+1);
+            term[0] = envString.indexOf(QLatin1Char('/'), pos+1);
+            term[1] = envString.indexOf(QLatin1Char(':'), pos+1);
+            term[2] = envString.indexOf(QLatin1Char('\\'), pos+1);
+            term[3] = envString.indexOf(QLatin1Char(';'), pos+1);
+            term[4] = envString.indexOf(QLatin1Char(' '), pos+1);
+            term[5] = envString.indexOf(QLatin1Char('-'), pos+1);
+            term[6] = envString.indexOf(QLatin1Char('.'), pos+1);
             term[7] = envString.length();
 
             // now lets see which char comes first after pos: Thats the one we are looking for.
@@ -404,7 +403,7 @@ bool QSystem::hasEnvKey(const QString &envString, QString &key, int &pos, int st
             QString tmpKey = envString.mid(pos + 1, end - (pos+1));
 
             // see if we have a string that looks like $(QTDIR) and convert it to QTDIR
-            if (tmpKey.startsWith("(") && tmpKey.endsWith(")"))
+            if (tmpKey.startsWith(QLatin1Char('(')) && tmpKey.endsWith(QLatin1Char(')')))
                 tmpKey = tmpKey.mid(1, tmpKey.length()-2);
 
             if (!tmpKey.isEmpty()) {
@@ -418,7 +417,7 @@ bool QSystem::hasEnvKey(const QString &envString, QString &key, int &pos, int st
 }
 
 /*!
-    Removes any occurance of environment \a key from the environment \a list.
+    Removes any occurrence of environment \a key from the environment \a list.
     The function returns true if the list was valid and no more instances of \a key
     exist in the list.
 */
@@ -434,7 +433,7 @@ bool QSystem::unsetEnvKey(QStringList *list, const QString &key)
     QStringList::Iterator it;
     for (int i = list->size() - 1; i > 0; --i) {
         QString s = list->at(i);
-        int pos = s.indexOf("=");
+        int pos = s.indexOf(QLatin1Char('='));
         if (pos > 0) {
             QString keyName = (s.left(pos)).toUpper();
             if (keyName == envKey) {
@@ -469,7 +468,7 @@ bool QSystem::setEnvKey(QStringList *list, const QString &key, const QString &va
             replacementValue = QSystem::envKey(list, tmpKey.toUpper());
             if (!replacementValue.isEmpty()) {
                 int len = tmpKey.length() + 1;
-                if (envValue.at(pos) == '%')
+                if (envValue.at(pos) == QLatin1Char('%'))
                     ++len;
                 envValue.remove(pos, len);
                 envValue.insert(pos, replacementValue);
@@ -482,18 +481,18 @@ bool QSystem::setEnvKey(QStringList *list, const QString &key, const QString &va
     QStringList::Iterator end = list->end();
     for (QStringList::Iterator it = list->begin(); it != end; ++it) {
         QString s = *it;
-        pos = s.indexOf("=");
+        pos = s.indexOf(QLatin1Char('='));
         if (pos > 0) {
             QString keyName = (s.left(pos)).toUpper();
             if (keyName == envKey) {
-                *it = envKey + "=" + envValue;
+                *it = envKey + QLatin1Char('=') + envValue;
                 list->sort();
                 return true;
             }
         }
     }
 
-    list->append(envKey + "=" + envValue);
+    list->append(envKey + QLatin1Char('=') + envValue);
     list->sort();
     return true;
 }
@@ -503,9 +502,9 @@ void QSystem::addEnvPath(QStringList *environment, const QString &key, const QSt
     QString dyldPath = QSystem::envKey(environment, key);
     if (!dyldPath.contains(addedPath)) {
 #ifdef Q_OS_WIN
-        dyldPath = addedPath + ";" + dyldPath;
+        dyldPath = addedPath + QLatin1Char(';') + dyldPath;
 #else
-        dyldPath = addedPath + ":" + dyldPath;
+        dyldPath = addedPath + QLatin1Char(':') + dyldPath;
 #endif
         QSystem::setEnvKey(environment, key, dyldPath);
     }
@@ -520,7 +519,7 @@ QString QSystem::envKey(QStringList *list, const QString &key)
 {
     QString value;
     if (list == 0)
-        return "";
+       return QString();
 
     QString srchKey = key.toUpper();
 
@@ -528,14 +527,14 @@ QString QSystem::envKey(QStringList *list, const QString &key)
     QStringList::Iterator end = list->end();
     for (QStringList::Iterator it = list->begin(); it != end; ++it) {
         QString s = *it;
-        pos = s.indexOf("=");
+        pos = s.indexOf(QLatin1Char('='));
         if (pos > 0) {
             QString keyName = (s.left(pos)).toUpper();
             if (keyName == srchKey) {
                 value = s.mid(pos+1);
-                if (value.endsWith(";%" + keyName + "%")) {
+                if (value.endsWith(QLatin1String(";%") + keyName + QLatin1Char('%'))) {
                     value = value.left(value.length() - (3 + keyName.length()));
-                } else if (value.endsWith(":$" + keyName)) {
+                } else if (value.endsWith(QLatin1String(":$") + keyName)) {
                     value = value.left(value.length() - (2 + keyName.length()));
                 }
                 return value;
@@ -543,5 +542,5 @@ QString QSystem::envKey(QStringList *list, const QString &key)
         }
     }
 
-    return "";
+    return QString();
 }

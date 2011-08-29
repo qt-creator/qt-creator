@@ -44,9 +44,8 @@ QTextEdit *testOutputPane()
     return 0;
 }
 
-TestOutputWindow::TestOutputWindow()
+TestOutputWindow::TestOutputWindow() : m_widget(new QTextEdit)
 {
-    m_widget = new QTextEdit;
     m_widget->setReadOnly(true);
     m_widget->setFrameStyle(QFrame::NoFrame);
     m_instance = this;
