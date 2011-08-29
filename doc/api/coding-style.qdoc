@@ -500,6 +500,20 @@
 
     \section1 Patterns and Practices
 
+    \section2 Namespacing
+
+    Read \l {http://developer.qt.nokia.com/wiki/Qt_In_Namespace}{Qt In Namespace}
+    and keep in mind that all of Qt Creator is \e{namespace aware} code.
+
+    The namespacing policy within Qt Creator is as follows:
+    \list
+        \o Classes/Symbols of a library or plugin that are exported for use of
+           other libraries or plugins are in a namespace specific to that
+           library/plugin, e.g. \c{MyPlugin}.
+        \o Classes/Symbols of a library or plugin that are not exported are in
+           an additional \c{Internal} namespace, e.g. \c{MyPlugin::Internal}.
+    \endlist
+
     \section2 Passing File Names
 
     Qt Creator API expects file names in portable format, that is, with slashes (/)
@@ -803,11 +817,6 @@
     and library B has class \c {Q_EXPORT Y: public QList<QVariant> {};}.
     Suddenly, QList symbols are exported from two libraries which results in a
     clash.
-
-    \section2 Namespacing
-
-    Read \l {http://developer.qt.nokia.com/wiki/Qt_In_Namespace}{Qt In Namespace}
-    and keep in mind that all of Qt Creator is \e{namespace aware} code.
 
     \section2 Conventions for Public Header Files
 
