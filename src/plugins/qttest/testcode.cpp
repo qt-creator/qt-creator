@@ -181,7 +181,7 @@ protected:
     {
         if (symbol->name()) {
             const CPlusPlus::QualifiedNameId *qn = symbol->name()->asQualifiedNameId();
-            if (qn && qn->base()) {
+            if (qn && qn->base() && qn->base()->identifier() && qn->name() && qn->name()->identifier()) {
                 QString name = QString::fromLatin1("%1::%2").arg(qn->base()->identifier()->chars())
                     .arg(qn->name()->identifier()->chars());
                 if (m_knownTestFunctions.contains(name))
