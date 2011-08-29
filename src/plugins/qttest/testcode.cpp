@@ -467,7 +467,7 @@ TestFunctionInfo* TestCode::testFunction(int index)
 TestFunctionInfo *TestCode::findFunction(int offset, bool next)
 {
     if (offset < 0)
-        return false;
+        return 0;
     TestFunctionInfo *found = 0;
 
     for (int i = 0; i < m_testFunctions.count(); ++i) {
