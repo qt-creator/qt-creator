@@ -32,7 +32,9 @@
 
 #include "modeltest.h"
 
-#include <QtGui/QAbstractItemModel>
+#include <QStringList>
+#include <QSize>
+#include <QAbstractItemModel>
 
 /*!
     Connect to all of the models signals.  Whenever anything happens
