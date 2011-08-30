@@ -291,6 +291,7 @@ CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &co
 
 CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context)
+    , _lineOfLastUsage(0)
 {
     CollectSymbols collectTypes(doc, context.snapshot());
 
@@ -839,15 +840,23 @@ void CheckSymbols::addUse(unsigned tokenIndex, UseKind kind)
     addUse(use);
 }
 
+static const int chunkSize = 50;
+
 void CheckSymbols::addUse(const Use &use)
 {
+    if (!use.line)
+        return;
+
+    _lineOfLastUsage = qMax(_lineOfLastUsage, use.line);
+
     if (! enclosingFunctionDefinition()) {
-        if (_usages.size() >= 50) {
-            if (_flushRequested && use.line != _flushLine)
+        if (_usages.size() >= chunkSize) {
+            if (_flushRequested && use.line > _flushLine) {
                 flush();
-            else if (! _flushRequested) {
+                _lineOfLastUsage = use.line;
+            } else if (! _flushRequested) {
                 _flushRequested = true;
-                _flushLine = use.line;
+                _flushLine = _lineOfLastUsage;
             }
         }
     }
@@ -1086,14 +1095,22 @@ bool CheckSymbols::maybeVirtualMethod(const Name *name) const
     return false;
 }
 
+static bool sortByLinePredicate(const CheckSymbols::Use &lhs, const CheckSymbols::Use &rhs)
+{
+    return lhs.line < rhs.line;
+}
+
 void CheckSymbols::flush()
 {
     _flushRequested = false;
     _flushLine = 0;
+    _lineOfLastUsage = 0;
 
     if (_usages.isEmpty())
         return;
 
+    qSort(_usages.begin(), _usages.end(), sortByLinePredicate);
     reportResults(_usages);
     _usages.clear();
+    _usages.reserve(chunkSize);
 }

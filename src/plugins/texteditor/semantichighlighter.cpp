@@ -48,33 +48,23 @@ void TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
         int from, int to,
         const QHash<int, QTextCharFormat> &kindToFormat)
 {
-    QMap<int, QVector<Result> > blockNumberToResults;
-    for (int i = from; i < to; ++i) {
-        const Result &result = future.resultAt(i);
-        if (!result.line)
-            continue;
-        blockNumberToResults[result.line - 1].append(result);
-    }
-    if (blockNumberToResults.isEmpty())
+    if (to <= from)
         return;
 
-    const int firstResultBlockNumber = blockNumberToResults.constBegin().key();
+    const int firstResultBlockNumber = future.resultAt(from).line - 1;
 
     // blocks between currentBlockNumber and the last block with results will
     // be cleaned of additional extra formats if they have no results
     int currentBlockNumber = 0;
     for (int i = from - 1; i >= 0; --i) {
         const Result &result = future.resultAt(i);
-        if (!result.line)
-            continue;
         const int blockNumber = result.line - 1;
         if (blockNumber < firstResultBlockNumber) {
             // stop! found where last format stopped
             currentBlockNumber = blockNumber + 1;
-            break;
-        } else {
             // add previous results for the same line to avoid undoing their formats
-            blockNumberToResults[blockNumber].append(result);
+            from = i + 1;
+            break;
         }
     }
 
@@ -82,10 +72,9 @@ void TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
     QTC_ASSERT(currentBlockNumber < doc->blockCount(), return);
     QTextBlock b = doc->findBlockByNumber(currentBlockNumber);
 
-    QMapIterator<int, QVector<Result> > it(blockNumberToResults);
-    while (b.isValid() && it.hasNext()) {
-        it.next();
-        const int blockNumber = it.key();
+    Result result = future.resultAt(from);
+    for (int i = from; i < to && b.isValid(); ) {
+        const int blockNumber = result.line - 1;
         QTC_ASSERT(blockNumber < doc->blockCount(), return);
 
         // clear formats of blocks until blockNumber
@@ -95,17 +84,25 @@ void TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
             ++currentBlockNumber;
         }
 
+        // collect all the formats for the current line
         QList<QTextLayout::FormatRange> formats;
-        foreach (const Result &result, it.value()) {
+        forever {
             QTextLayout::FormatRange formatRange;
 
             formatRange.format = kindToFormat.value(result.kind);
-            if (!formatRange.format.isValid())
-                continue;
+            if (formatRange.format.isValid()) {
+                formatRange.start = result.column - 1;
+                formatRange.length = result.length;
+                formats.append(formatRange);
+            }
 
-            formatRange.start = result.column - 1;
-            formatRange.length = result.length;
-            formats.append(formatRange);
+            ++i;
+            if (i >= to)
+                break;
+            result = future.resultAt(i);
+            const int nextBlockNumber = result.line - 1;
+            if (nextBlockNumber != blockNumber)
+                break;
         }
         highlighter->setExtraAdditionalFormats(b, formats);
         b = b.next();

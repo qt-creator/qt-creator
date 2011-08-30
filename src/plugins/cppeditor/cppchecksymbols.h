@@ -168,6 +168,7 @@ private:
     QSet<QByteArray> _potentialStatics;
     QList<AST *> _astStack;
     QVector<Use> _usages;
+    unsigned _lineOfLastUsage;
     bool _flushRequested;
     unsigned _flushLine;
 };
