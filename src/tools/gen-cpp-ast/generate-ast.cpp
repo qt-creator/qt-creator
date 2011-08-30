@@ -200,6 +200,8 @@ public:
         : ASTVisitor(unit), _cplusplusDir(cplusplusDir), out(0)
     { }
 
+    QList<QByteArray> classes() const { return classMap.keys(); }
+
     void operator()(AST *ast)
     {
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTVisit.cpp"));
@@ -1218,6 +1220,138 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     }
 }
 
+void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
+                          const QList<QByteArray> &classes)
+{
+  QFileInfo fileASTVisitor_h(cplusplusDir, QLatin1String("ASTVisitor.h"));
+  Q_ASSERT(fileASTVisitor_h.exists());
+
+  const QString fileName = fileASTVisitor_h.absoluteFilePath();
+
+  QFile file(fileName);
+  if (! file.open(QFile::WriteOnly))
+    return;
+
+  QTextStream out(&file);
+  out << copyrightHeader <<
+"\n"
+"#ifndef CPLUSPLUS_ASTVISITOR_H\n"
+"#define CPLUSPLUS_ASTVISITOR_H\n"
+"\n"
+"#include \"CPlusPlusForwardDeclarations.h\"\n"
+"#include \"ASTfwd.h\"\n"
+"\n"
+"namespace CPlusPlus {\n"
+"\n"
+"class CPLUSPLUS_EXPORT ASTVisitor\n"
+"{\n"
+"    ASTVisitor(const ASTVisitor &other);\n"
+"    void operator =(const ASTVisitor &other);\n"
+"\n"
+"public:\n"
+"    ASTVisitor(TranslationUnit *unit);\n"
+"    virtual ~ASTVisitor();\n"
+"\n"
+"    TranslationUnit *translationUnit() const;\n"
+"    void setTranslationUnit(TranslationUnit *translationUnit);\n"
+"\n"
+"    Control *control() const;\n"
+"    unsigned tokenCount() const;\n"
+"    const Token &tokenAt(unsigned index) const;\n"
+"    int tokenKind(unsigned index) const;\n"
+"    const char *spell(unsigned index) const;\n"
+"    const Identifier *identifier(unsigned index) const;\n"
+"    const Literal *literal(unsigned index) const;\n"
+"    const NumericLiteral *numericLiteral(unsigned index) const;\n"
+"    const StringLiteral *stringLiteral(unsigned index) const;\n"
+"\n"
+"    void getPosition(unsigned offset,\n"
+"                     unsigned *line,\n"
+"                     unsigned *column = 0,\n"
+"                     const StringLiteral **fileName = 0) const;\n"
+"\n"
+"    void getTokenPosition(unsigned index,\n"
+"                          unsigned *line,\n"
+"                          unsigned *column = 0,\n"
+"                          const StringLiteral **fileName = 0) const;\n"
+"\n"
+"    void getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const;\n"
+"    void getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const;\n"
+"\n"
+"    void accept(AST *ast);\n"
+"\n"
+"    template <typename _Tp>\n"
+"    void accept(List<_Tp> *it)\n"
+"    {\n"
+"        for (; it; it = it->next)\n"
+"            accept(it->value);\n"
+"    }\n"
+"\n"
+"    virtual bool preVisit(AST *) { return true; }\n"
+"    virtual void postVisit(AST *) {}\n";
+
+  out << "\n";
+  foreach (const QByteArray &klass, classes) {
+    out << "    virtual bool visit(" << klass << " *) { return true; }\n";
+  }
+
+  out << "\n";
+  foreach (const QByteArray &klass, classes) {
+    out << "    virtual void endVisit(" << klass << " *) {}\n";
+  }
+  out << "\n";
+
+  out <<
+"private:\n"
+"   TranslationUnit *_translationUnit;\n"
+"};\n"
+"\n"
+"} // namespace CPlusPlus\n"
+"\n"
+"#endif // CPLUSPLUS_ASTVISITOR_H\n";
+}
+
+void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
+                          const QList<QByteArray> &classes)
+{
+  QFileInfo fileASTMatcher_h(cplusplusDir, QLatin1String("ASTMatcher.h"));
+  Q_ASSERT(fileASTMatcher_h.exists());
+
+  const QString fileName = fileASTMatcher_h.absoluteFilePath();
+
+  QFile file(fileName);
+  if (! file.open(QFile::WriteOnly))
+    return;
+
+  QTextStream out(&file);
+  out << copyrightHeader <<
+"\n"
+"#ifndef ASTMATCHER_H\n"
+"#define ASTMATCHER_H\n"
+"\n"
+"#include \"ASTfwd.h\"\n"
+"\n"
+"namespace CPlusPlus {\n"
+"\n"
+"class CPLUSPLUS_EXPORT ASTMatcher\n"
+"{\n"
+"public:\n"
+"    ASTMatcher();\n"
+"    virtual ~ASTMatcher();\n"
+"\n";
+
+  foreach (const QByteArray &klass, classes) {
+    out << "    virtual bool match(" << klass << " *node, " << klass << " *pattern);\n";
+  }
+
+  out <<
+"};\n"
+"\n"
+"} // namespace CPlusPlus\n"
+"\n"
+"#endif // CPLUSPLUS_ASTMATCHER_H\n";
+}
+
 QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, const QString &dumpersFile)
 {
     QStringList astDerivedClasses;
@@ -1306,6 +1440,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
 
     Accept0CG cg(cplusplusDir, AST_h_document->translationUnit());
     cg(AST_h_document->translationUnit()->ast());
+    const QList<QByteArray> astClasses = cg.classes();
 
     Match0CG cg2(cplusplusDir, AST_h_document->translationUnit());
     cg2(AST_h_document->translationUnit()->ast());
@@ -1317,6 +1452,9 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
     cg4(AST_h_document->translationUnit()->ast());
 
     generateAST_cpp(snapshot, cplusplusDir);
+
+    generateASTVisitor_H(snapshot, cplusplusDir, astClasses);
+    generateASTMatcher_H(snapshot, cplusplusDir, astClasses);
 
     if (!dumpersFile.isEmpty())
         GenerateDumpers::go(dumpersFile, AST_h_document->translationUnit());
