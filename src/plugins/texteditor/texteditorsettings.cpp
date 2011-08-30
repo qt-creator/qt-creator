@@ -160,12 +160,16 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.append(FormatDescription(QLatin1String(C_QML_EXTERNAL_ID), tr("QML External Id"), qmlExternalNameFormat));
     formatDescriptions.append(FormatDescription(QLatin1String(C_QML_EXTERNAL_OBJECT_PROPERTY), tr("QML External Object Property"), qmlExternalNameFormat));
 
-    Format jsFormat;
-    jsFormat.setForeground(QColor(Qt::darkCyan).darker());
-    jsFormat.setItalic(true);
-    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_SCOPE_VAR), tr("JavaScript Scope Var"), jsFormat));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_IMPORT_VAR), tr("JavaScript Import"), jsFormat));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_GLOBAL_VAR), tr("JavaScript Global Var"), jsFormat));
+    Format jsLocalFormat;
+    jsLocalFormat.setForeground(QColor(41, 133, 199)); // very light blue
+    jsLocalFormat.setItalic(true);
+    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_SCOPE_VAR), tr("JavaScript Scope Var"), jsLocalFormat));
+
+    Format jsGlobalFormat;
+    jsGlobalFormat.setForeground(QColor(0, 85, 175)); // light blue
+    jsGlobalFormat.setItalic(true);
+    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_IMPORT_VAR), tr("JavaScript Import"), jsGlobalFormat));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_GLOBAL_VAR), tr("JavaScript Global Var"), jsGlobalFormat));
 
     formatDescriptions.append(FormatDescription(QLatin1String(C_KEYWORD), tr("Keyword"), Qt::darkYellow));
     formatDescriptions.append(FormatDescription(QLatin1String(C_OPERATOR), tr("Operator")));
