@@ -2207,6 +2207,7 @@ void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
 {
     abortDeclDefLink();
     m_declDefLink = link;
+    setProperty(Constants::FUNCTION_DECL_DEF_LINK_PROPERTY_NAME, true);
 
     // disable the link if content of the target editor changes
     TextEditor::BaseTextEditorWidget *targetEditor =
@@ -2222,7 +2223,7 @@ void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
     if (!m_declDefLink)
         return;
     m_declDefLink->apply(this, jumpToMatch);
-    m_declDefLink.clear();
+    abortDeclDefLink();
     updateFunctionDeclDefLink();
 }
 
@@ -2239,6 +2240,7 @@ void CPPEditorWidget::abortDeclDefLink()
                    this, SLOT(abortDeclDefLink()));
     }
 
+    setProperty(Constants::FUNCTION_DECL_DEF_LINK_PROPERTY_NAME, false);
     m_declDefLink->hideMarker(this);
     m_declDefLink.clear();
 }

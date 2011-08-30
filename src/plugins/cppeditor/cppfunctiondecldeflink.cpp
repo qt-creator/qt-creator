@@ -308,8 +308,6 @@ void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
                     TextEditor::TextContent(
                         tr("Target file was changed, could not apply changes")));
     }
-
-    hideMarker(editor);
 }
 
 template <class T>
