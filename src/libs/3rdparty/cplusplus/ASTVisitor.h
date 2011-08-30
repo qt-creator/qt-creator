@@ -24,7 +24,6 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "ASTfwd.h"
 
-
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT ASTVisitor
@@ -75,22 +74,19 @@ public:
     virtual void postVisit(AST *) {}
 
     virtual bool visit(AccessDeclarationAST *) { return true; }
-    virtual bool visit(QtObjectTagAST *) { return true; }
-    virtual bool visit(QtPrivateSlotAST *) { return true; }
-    virtual bool visit(QtPropertyDeclarationAST *) { return true; }
-    virtual bool visit(QtEnumDeclarationAST *) { return true; }
-    virtual bool visit(QtFlagsDeclarationAST *) { return true; }
     virtual bool visit(ArrayAccessAST *) { return true; }
     virtual bool visit(ArrayDeclaratorAST *) { return true; }
     virtual bool visit(ArrayInitializerAST *) { return true; }
     virtual bool visit(AsmDefinitionAST *) { return true; }
-    virtual bool visit(AttributeSpecifierAST *) { return true; }
     virtual bool visit(AttributeAST *) { return true; }
+    virtual bool visit(AttributeSpecifierAST *) { return true; }
     virtual bool visit(BaseSpecifierAST *) { return true; }
     virtual bool visit(BinaryExpressionAST *) { return true; }
     virtual bool visit(BoolLiteralAST *) { return true; }
+    virtual bool visit(BracedInitializerAST *) { return true; }
     virtual bool visit(BreakStatementAST *) { return true; }
     virtual bool visit(CallAST *) { return true; }
+    virtual bool visit(CaptureAST *) { return true; }
     virtual bool visit(CaseStatementAST *) { return true; }
     virtual bool visit(CastExpressionAST *) { return true; }
     virtual bool visit(CatchClauseAST *) { return true; }
@@ -104,8 +100,8 @@ public:
     virtual bool visit(ConversionFunctionIdAST *) { return true; }
     virtual bool visit(CppCastExpressionAST *) { return true; }
     virtual bool visit(CtorInitializerAST *) { return true; }
-    virtual bool visit(DeclaratorAST *) { return true; }
     virtual bool visit(DeclarationStatementAST *) { return true; }
+    virtual bool visit(DeclaratorAST *) { return true; }
     virtual bool visit(DeclaratorIdAST *) { return true; }
     virtual bool visit(DeleteExpressionAST *) { return true; }
     virtual bool visit(DestructorNameAST *) { return true; }
@@ -118,14 +114,18 @@ public:
     virtual bool visit(ExceptionSpecificationAST *) { return true; }
     virtual bool visit(ExpressionOrDeclarationStatementAST *) { return true; }
     virtual bool visit(ExpressionStatementAST *) { return true; }
-    virtual bool visit(ForeachStatementAST *) { return true; }
     virtual bool visit(ForStatementAST *) { return true; }
+    virtual bool visit(ForeachStatementAST *) { return true; }
     virtual bool visit(FunctionDeclaratorAST *) { return true; }
     virtual bool visit(FunctionDefinitionAST *) { return true; }
     virtual bool visit(GotoStatementAST *) { return true; }
     virtual bool visit(IdExpressionAST *) { return true; }
     virtual bool visit(IfStatementAST *) { return true; }
     virtual bool visit(LabeledStatementAST *) { return true; }
+    virtual bool visit(LambdaCaptureAST *) { return true; }
+    virtual bool visit(LambdaDeclaratorAST *) { return true; }
+    virtual bool visit(LambdaExpressionAST *) { return true; }
+    virtual bool visit(LambdaIntroducerAST *) { return true; }
     virtual bool visit(LinkageBodyAST *) { return true; }
     virtual bool visit(LinkageSpecificationAST *) { return true; }
     virtual bool visit(MemInitializerAST *) { return true; }
@@ -136,12 +136,37 @@ public:
     virtual bool visit(NestedDeclaratorAST *) { return true; }
     virtual bool visit(NestedExpressionAST *) { return true; }
     virtual bool visit(NestedNameSpecifierAST *) { return true; }
-    virtual bool visit(NewPlacementAST *) { return true; }
     virtual bool visit(NewArrayDeclaratorAST *) { return true; }
     virtual bool visit(NewExpressionAST *) { return true; }
     virtual bool visit(NewInitializerAST *) { return true; }
+    virtual bool visit(NewPlacementAST *) { return true; }
     virtual bool visit(NewTypeIdAST *) { return true; }
     virtual bool visit(NumericLiteralAST *) { return true; }
+    virtual bool visit(ObjCClassDeclarationAST *) { return true; }
+    virtual bool visit(ObjCClassForwardDeclarationAST *) { return true; }
+    virtual bool visit(ObjCDynamicPropertiesDeclarationAST *) { return true; }
+    virtual bool visit(ObjCEncodeExpressionAST *) { return true; }
+    virtual bool visit(ObjCFastEnumerationAST *) { return true; }
+    virtual bool visit(ObjCInstanceVariablesDeclarationAST *) { return true; }
+    virtual bool visit(ObjCMessageArgumentAST *) { return true; }
+    virtual bool visit(ObjCMessageArgumentDeclarationAST *) { return true; }
+    virtual bool visit(ObjCMessageExpressionAST *) { return true; }
+    virtual bool visit(ObjCMethodDeclarationAST *) { return true; }
+    virtual bool visit(ObjCMethodPrototypeAST *) { return true; }
+    virtual bool visit(ObjCPropertyAttributeAST *) { return true; }
+    virtual bool visit(ObjCPropertyDeclarationAST *) { return true; }
+    virtual bool visit(ObjCProtocolDeclarationAST *) { return true; }
+    virtual bool visit(ObjCProtocolExpressionAST *) { return true; }
+    virtual bool visit(ObjCProtocolForwardDeclarationAST *) { return true; }
+    virtual bool visit(ObjCProtocolRefsAST *) { return true; }
+    virtual bool visit(ObjCSelectorAST *) { return true; }
+    virtual bool visit(ObjCSelectorArgumentAST *) { return true; }
+    virtual bool visit(ObjCSelectorExpressionAST *) { return true; }
+    virtual bool visit(ObjCSynchronizedStatementAST *) { return true; }
+    virtual bool visit(ObjCSynthesizedPropertiesDeclarationAST *) { return true; }
+    virtual bool visit(ObjCSynthesizedPropertyAST *) { return true; }
+    virtual bool visit(ObjCTypeNameAST *) { return true; }
+    virtual bool visit(ObjCVisibilityDeclarationAST *) { return true; }
     virtual bool visit(OperatorAST *) { return true; }
     virtual bool visit(OperatorFunctionIdAST *) { return true; }
     virtual bool visit(ParameterDeclarationAST *) { return true; }
@@ -149,6 +174,16 @@ public:
     virtual bool visit(PointerAST *) { return true; }
     virtual bool visit(PointerToMemberAST *) { return true; }
     virtual bool visit(PostIncrDecrAST *) { return true; }
+    virtual bool visit(QtEnumDeclarationAST *) { return true; }
+    virtual bool visit(QtFlagsDeclarationAST *) { return true; }
+    virtual bool visit(QtInterfaceNameAST *) { return true; }
+    virtual bool visit(QtInterfacesDeclarationAST *) { return true; }
+    virtual bool visit(QtMemberDeclarationAST *) { return true; }
+    virtual bool visit(QtMethodAST *) { return true; }
+    virtual bool visit(QtObjectTagAST *) { return true; }
+    virtual bool visit(QtPrivateSlotAST *) { return true; }
+    virtual bool visit(QtPropertyDeclarationAST *) { return true; }
+    virtual bool visit(QtPropertyDeclarationItemAST *) { return true; }
     virtual bool visit(QualifiedNameAST *) { return true; }
     virtual bool visit(ReferenceAST *) { return true; }
     virtual bool visit(ReturnStatementAST *) { return true; }
@@ -163,208 +198,163 @@ public:
     virtual bool visit(TemplateTypeParameterAST *) { return true; }
     virtual bool visit(ThisExpressionAST *) { return true; }
     virtual bool visit(ThrowExpressionAST *) { return true; }
+    virtual bool visit(TrailingReturnTypeAST *) { return true; }
     virtual bool visit(TranslationUnitAST *) { return true; }
     virtual bool visit(TryBlockStatementAST *) { return true; }
     virtual bool visit(TypeConstructorCallAST *) { return true; }
     virtual bool visit(TypeIdAST *) { return true; }
     virtual bool visit(TypeidExpressionAST *) { return true; }
-    virtual bool visit(TypeofSpecifierAST *) { return true; }
     virtual bool visit(TypenameCallExpressionAST *) { return true; }
     virtual bool visit(TypenameTypeParameterAST *) { return true; }
+    virtual bool visit(TypeofSpecifierAST *) { return true; }
     virtual bool visit(UnaryExpressionAST *) { return true; }
     virtual bool visit(UsingAST *) { return true; }
     virtual bool visit(UsingDirectiveAST *) { return true; }
     virtual bool visit(WhileStatementAST *) { return true; }
-    virtual bool visit(QtMethodAST *) { return true; }
-    virtual bool visit(QtMemberDeclarationAST *) { return true; }
-    virtual bool visit(QtPropertyDeclarationItemAST *) { return true; }
-    virtual bool visit(QtInterfacesDeclarationAST *) { return true; }
-    virtual bool visit(QtInterfaceNameAST *) { return true; }
 
-    // C++0x
-    virtual bool visit(LambdaExpressionAST *) { return true; }
-    virtual bool visit(LambdaIntroducerAST *) { return true; }
-    virtual bool visit(LambdaCaptureAST *) { return true; }
-    virtual bool visit(LambdaDeclaratorAST *) { return true; }
-    virtual bool visit(CaptureAST *) { return true; }
-    virtual bool visit(TrailingReturnTypeAST *) { return true; }
-    virtual bool visit(BracedInitializerAST *) { return true; }
-
-    // ObjC++
-    virtual bool visit(ObjCClassDeclarationAST *) { return true; }
-    virtual bool visit(ObjCClassForwardDeclarationAST *) { return true; }
-    virtual bool visit(ObjCProtocolDeclarationAST *) { return true; }
-    virtual bool visit(ObjCProtocolForwardDeclarationAST *) { return true; }
-    virtual bool visit(ObjCProtocolRefsAST *) { return true; }
-    virtual bool visit(ObjCSelectorAST *) { return true; }
-    virtual bool visit(ObjCMessageExpressionAST *) { return true; }
-    virtual bool visit(ObjCMessageArgumentAST *) { return true; }
-    virtual bool visit(ObjCProtocolExpressionAST *) { return true; }
-    virtual bool visit(ObjCTypeNameAST *) { return true; }
-    virtual bool visit(ObjCEncodeExpressionAST *) { return true; }
-    virtual bool visit(ObjCSelectorArgumentAST *) { return true; }
-    virtual bool visit(ObjCSelectorExpressionAST *) { return true; }
-    virtual bool visit(ObjCInstanceVariablesDeclarationAST *) { return true; }
-    virtual bool visit(ObjCVisibilityDeclarationAST *) { return true; }
-    virtual bool visit(ObjCPropertyAttributeAST *) { return true; }
-    virtual bool visit(ObjCPropertyDeclarationAST *) { return true; }
-    virtual bool visit(ObjCMethodPrototypeAST *) { return true; }
-    virtual bool visit(ObjCMethodDeclarationAST *) { return true; }
-    virtual bool visit(ObjCMessageArgumentDeclarationAST *) { return true; }
-    virtual bool visit(ObjCSynthesizedPropertyAST *) { return true; }
-    virtual bool visit(ObjCSynthesizedPropertiesDeclarationAST *) { return true; }
-    virtual bool visit(ObjCDynamicPropertiesDeclarationAST *) { return true; }
-    virtual bool visit(ObjCFastEnumerationAST *) { return true; }
-    virtual bool visit(ObjCSynchronizedStatementAST *) { return true; }
-
-    virtual void endVisit(AccessDeclarationAST *) { }
+    virtual void endVisit(AccessDeclarationAST *) {}
+    virtual void endVisit(ArrayAccessAST *) {}
+    virtual void endVisit(ArrayDeclaratorAST *) {}
+    virtual void endVisit(ArrayInitializerAST *) {}
+    virtual void endVisit(AsmDefinitionAST *) {}
+    virtual void endVisit(AttributeAST *) {}
+    virtual void endVisit(AttributeSpecifierAST *) {}
+    virtual void endVisit(BaseSpecifierAST *) {}
+    virtual void endVisit(BinaryExpressionAST *) {}
+    virtual void endVisit(BoolLiteralAST *) {}
+    virtual void endVisit(BracedInitializerAST *) {}
+    virtual void endVisit(BreakStatementAST *) {}
+    virtual void endVisit(CallAST *) {}
+    virtual void endVisit(CaptureAST *) {}
+    virtual void endVisit(CaseStatementAST *) {}
+    virtual void endVisit(CastExpressionAST *) {}
+    virtual void endVisit(CatchClauseAST *) {}
+    virtual void endVisit(ClassSpecifierAST *) {}
+    virtual void endVisit(CompoundExpressionAST *) {}
+    virtual void endVisit(CompoundLiteralAST *) {}
+    virtual void endVisit(CompoundStatementAST *) {}
+    virtual void endVisit(ConditionAST *) {}
+    virtual void endVisit(ConditionalExpressionAST *) {}
+    virtual void endVisit(ContinueStatementAST *) {}
+    virtual void endVisit(ConversionFunctionIdAST *) {}
+    virtual void endVisit(CppCastExpressionAST *) {}
+    virtual void endVisit(CtorInitializerAST *) {}
+    virtual void endVisit(DeclarationStatementAST *) {}
+    virtual void endVisit(DeclaratorAST *) {}
+    virtual void endVisit(DeclaratorIdAST *) {}
+    virtual void endVisit(DeleteExpressionAST *) {}
+    virtual void endVisit(DestructorNameAST *) {}
+    virtual void endVisit(DoStatementAST *) {}
+    virtual void endVisit(ElaboratedTypeSpecifierAST *) {}
+    virtual void endVisit(EmptyDeclarationAST *) {}
+    virtual void endVisit(EnumSpecifierAST *) {}
+    virtual void endVisit(EnumeratorAST *) {}
+    virtual void endVisit(ExceptionDeclarationAST *) {}
+    virtual void endVisit(ExceptionSpecificationAST *) {}
+    virtual void endVisit(ExpressionOrDeclarationStatementAST *) {}
+    virtual void endVisit(ExpressionStatementAST *) {}
+    virtual void endVisit(ForStatementAST *) {}
+    virtual void endVisit(ForeachStatementAST *) {}
+    virtual void endVisit(FunctionDeclaratorAST *) {}
+    virtual void endVisit(FunctionDefinitionAST *) {}
+    virtual void endVisit(GotoStatementAST *) {}
+    virtual void endVisit(IdExpressionAST *) {}
+    virtual void endVisit(IfStatementAST *) {}
+    virtual void endVisit(LabeledStatementAST *) {}
+    virtual void endVisit(LambdaCaptureAST *) {}
+    virtual void endVisit(LambdaDeclaratorAST *) {}
+    virtual void endVisit(LambdaExpressionAST *) {}
+    virtual void endVisit(LambdaIntroducerAST *) {}
+    virtual void endVisit(LinkageBodyAST *) {}
+    virtual void endVisit(LinkageSpecificationAST *) {}
+    virtual void endVisit(MemInitializerAST *) {}
+    virtual void endVisit(MemberAccessAST *) {}
+    virtual void endVisit(NamedTypeSpecifierAST *) {}
+    virtual void endVisit(NamespaceAST *) {}
+    virtual void endVisit(NamespaceAliasDefinitionAST *) {}
+    virtual void endVisit(NestedDeclaratorAST *) {}
+    virtual void endVisit(NestedExpressionAST *) {}
+    virtual void endVisit(NestedNameSpecifierAST *) {}
+    virtual void endVisit(NewArrayDeclaratorAST *) {}
+    virtual void endVisit(NewExpressionAST *) {}
+    virtual void endVisit(NewInitializerAST *) {}
+    virtual void endVisit(NewPlacementAST *) {}
+    virtual void endVisit(NewTypeIdAST *) {}
+    virtual void endVisit(NumericLiteralAST *) {}
+    virtual void endVisit(ObjCClassDeclarationAST *) {}
+    virtual void endVisit(ObjCClassForwardDeclarationAST *) {}
+    virtual void endVisit(ObjCDynamicPropertiesDeclarationAST *) {}
+    virtual void endVisit(ObjCEncodeExpressionAST *) {}
+    virtual void endVisit(ObjCFastEnumerationAST *) {}
+    virtual void endVisit(ObjCInstanceVariablesDeclarationAST *) {}
+    virtual void endVisit(ObjCMessageArgumentAST *) {}
+    virtual void endVisit(ObjCMessageArgumentDeclarationAST *) {}
+    virtual void endVisit(ObjCMessageExpressionAST *) {}
+    virtual void endVisit(ObjCMethodDeclarationAST *) {}
+    virtual void endVisit(ObjCMethodPrototypeAST *) {}
+    virtual void endVisit(ObjCPropertyAttributeAST *) {}
+    virtual void endVisit(ObjCPropertyDeclarationAST *) {}
+    virtual void endVisit(ObjCProtocolDeclarationAST *) {}
+    virtual void endVisit(ObjCProtocolExpressionAST *) {}
+    virtual void endVisit(ObjCProtocolForwardDeclarationAST *) {}
+    virtual void endVisit(ObjCProtocolRefsAST *) {}
+    virtual void endVisit(ObjCSelectorAST *) {}
+    virtual void endVisit(ObjCSelectorArgumentAST *) {}
+    virtual void endVisit(ObjCSelectorExpressionAST *) {}
+    virtual void endVisit(ObjCSynchronizedStatementAST *) {}
+    virtual void endVisit(ObjCSynthesizedPropertiesDeclarationAST *) {}
+    virtual void endVisit(ObjCSynthesizedPropertyAST *) {}
+    virtual void endVisit(ObjCTypeNameAST *) {}
+    virtual void endVisit(ObjCVisibilityDeclarationAST *) {}
+    virtual void endVisit(OperatorAST *) {}
+    virtual void endVisit(OperatorFunctionIdAST *) {}
+    virtual void endVisit(ParameterDeclarationAST *) {}
+    virtual void endVisit(ParameterDeclarationClauseAST *) {}
+    virtual void endVisit(PointerAST *) {}
+    virtual void endVisit(PointerToMemberAST *) {}
+    virtual void endVisit(PostIncrDecrAST *) {}
+    virtual void endVisit(QtEnumDeclarationAST *) {}
+    virtual void endVisit(QtFlagsDeclarationAST *) {}
+    virtual void endVisit(QtInterfaceNameAST *) {}
+    virtual void endVisit(QtInterfacesDeclarationAST *) {}
+    virtual void endVisit(QtMemberDeclarationAST *) {}
+    virtual void endVisit(QtMethodAST *) {}
     virtual void endVisit(QtObjectTagAST *) {}
     virtual void endVisit(QtPrivateSlotAST *) {}
-    virtual void endVisit(QtPropertyDeclarationAST *) { }
-    virtual void endVisit(QtEnumDeclarationAST *) { }
-    virtual void endVisit(QtFlagsDeclarationAST *) { }
-    virtual void endVisit(ArrayAccessAST *) { }
-    virtual void endVisit(ArrayDeclaratorAST *) { }
-    virtual void endVisit(ArrayInitializerAST *) { }
-    virtual void endVisit(AsmDefinitionAST *) { }
-    virtual void endVisit(AttributeSpecifierAST *) { }
-    virtual void endVisit(AttributeAST *) { }
-    virtual void endVisit(BaseSpecifierAST *) { }
-    virtual void endVisit(BinaryExpressionAST *) { }
-    virtual void endVisit(BoolLiteralAST *) { }
-    virtual void endVisit(BreakStatementAST *) { }
-    virtual void endVisit(CallAST *) { }
-    virtual void endVisit(CaseStatementAST *) { }
-    virtual void endVisit(CastExpressionAST *) { }
-    virtual void endVisit(CatchClauseAST *) { }
-    virtual void endVisit(ClassSpecifierAST *) { }
-    virtual void endVisit(CompoundExpressionAST *) { }
-    virtual void endVisit(CompoundLiteralAST *) { }
-    virtual void endVisit(CompoundStatementAST *) { }
-    virtual void endVisit(ConditionAST *) { }
-    virtual void endVisit(ConditionalExpressionAST *) { }
-    virtual void endVisit(ContinueStatementAST *) { }
-    virtual void endVisit(ConversionFunctionIdAST *) { }
-    virtual void endVisit(CppCastExpressionAST *) { }
-    virtual void endVisit(CtorInitializerAST *) { }
-    virtual void endVisit(DeclaratorAST *) { }
-    virtual void endVisit(DeclarationStatementAST *) { }
-    virtual void endVisit(DeclaratorIdAST *) { }
-    virtual void endVisit(DeleteExpressionAST *) { }
-    virtual void endVisit(DestructorNameAST *) { }
-    virtual void endVisit(DoStatementAST *) { }
-    virtual void endVisit(ElaboratedTypeSpecifierAST *) { }
-    virtual void endVisit(EmptyDeclarationAST *) { }
-    virtual void endVisit(EnumSpecifierAST *) { }
-    virtual void endVisit(EnumeratorAST *) { }
-    virtual void endVisit(ExceptionDeclarationAST *) { }
-    virtual void endVisit(ExceptionSpecificationAST *) { }
-    virtual void endVisit(ExpressionOrDeclarationStatementAST *) { }
-    virtual void endVisit(ExpressionStatementAST *) { }
-    virtual void endVisit(ForeachStatementAST *) { }
-    virtual void endVisit(ForStatementAST *) { }
-    virtual void endVisit(FunctionDeclaratorAST *) { }
-    virtual void endVisit(FunctionDefinitionAST *) { }
-    virtual void endVisit(GotoStatementAST *) { }
-    virtual void endVisit(IdExpressionAST *) { }
-    virtual void endVisit(IfStatementAST *) { }
-    virtual void endVisit(LabeledStatementAST *) { }
-    virtual void endVisit(LinkageBodyAST *) { }
-    virtual void endVisit(LinkageSpecificationAST *) { }
-    virtual void endVisit(MemInitializerAST *) { }
-    virtual void endVisit(MemberAccessAST *) { }
-    virtual void endVisit(NamedTypeSpecifierAST *) { }
-    virtual void endVisit(NamespaceAST *) { }
-    virtual void endVisit(NamespaceAliasDefinitionAST *) { }
-    virtual void endVisit(NestedDeclaratorAST *) { }
-    virtual void endVisit(NestedExpressionAST *) { }
-    virtual void endVisit(NestedNameSpecifierAST *) { }
-    virtual void endVisit(NewPlacementAST *) { }
-    virtual void endVisit(NewArrayDeclaratorAST *) { }
-    virtual void endVisit(NewExpressionAST *) { }
-    virtual void endVisit(NewInitializerAST *) { }
-    virtual void endVisit(NewTypeIdAST *) { }
-    virtual void endVisit(NumericLiteralAST *) { }
-    virtual void endVisit(OperatorAST *) { }
-    virtual void endVisit(OperatorFunctionIdAST *) { }
-    virtual void endVisit(ParameterDeclarationAST *) { }
-    virtual void endVisit(ParameterDeclarationClauseAST *) { }
-    virtual void endVisit(PointerAST *) { }
-    virtual void endVisit(PointerToMemberAST *) { }
-    virtual void endVisit(PostIncrDecrAST *) { }
-    virtual void endVisit(QualifiedNameAST *) { }
-    virtual void endVisit(ReferenceAST *) { }
-    virtual void endVisit(ReturnStatementAST *) { }
-    virtual void endVisit(SimpleDeclarationAST *) { }
-    virtual void endVisit(SimpleNameAST *) { }
-    virtual void endVisit(SimpleSpecifierAST *) { }
-    virtual void endVisit(SizeofExpressionAST *) { }
-    virtual void endVisit(StringLiteralAST *) { }
-    virtual void endVisit(SwitchStatementAST *) { }
-    virtual void endVisit(TemplateDeclarationAST *) { }
-    virtual void endVisit(TemplateIdAST *) { }
-    virtual void endVisit(TemplateTypeParameterAST *) { }
-    virtual void endVisit(ThisExpressionAST *) { }
-    virtual void endVisit(ThrowExpressionAST *) { }
-    virtual void endVisit(TranslationUnitAST *) { }
-    virtual void endVisit(TryBlockStatementAST *) { }
-    virtual void endVisit(TypeConstructorCallAST *) { }
-    virtual void endVisit(TypeIdAST *) { }
-    virtual void endVisit(TypeidExpressionAST *) { }
-    virtual void endVisit(TypeofSpecifierAST *) { }
-    virtual void endVisit(TypenameCallExpressionAST *) { }
-    virtual void endVisit(TypenameTypeParameterAST *) { }
-    virtual void endVisit(UnaryExpressionAST *) { }
-    virtual void endVisit(UsingAST *) { }
-    virtual void endVisit(UsingDirectiveAST *) { }
-    virtual void endVisit(WhileStatementAST *) { }
-    virtual void endVisit(QtMethodAST *) { }
-    virtual void endVisit(QtMemberDeclarationAST *) { }
-    virtual void endVisit(QtPropertyDeclarationItemAST *) { }
-    virtual void endVisit(QtInterfacesDeclarationAST *) { }
-    virtual void endVisit(QtInterfaceNameAST *) { }
-
-    // C++0x
-    virtual void endVisit(LambdaExpressionAST *) { }
-    virtual void endVisit(LambdaIntroducerAST *) { }
-    virtual void endVisit(LambdaCaptureAST *) { }
-    virtual void endVisit(LambdaDeclaratorAST *) { }
-    virtual void endVisit(CaptureAST *) { }
-    virtual void endVisit(TrailingReturnTypeAST *) { }
-    virtual void endVisit(BracedInitializerAST *) { }
-
-    // ObjC++
-    virtual void endVisit(ObjCClassDeclarationAST *) { }
-    virtual void endVisit(ObjCClassForwardDeclarationAST *) { }
-    virtual void endVisit(ObjCProtocolDeclarationAST *) { }
-    virtual void endVisit(ObjCProtocolForwardDeclarationAST *) { }
-    virtual void endVisit(ObjCProtocolRefsAST *) { }
-    virtual void endVisit(ObjCSelectorAST *) { }
-    virtual void endVisit(ObjCMessageExpressionAST *) { }
-    virtual void endVisit(ObjCMessageArgumentAST *) { }
-    virtual void endVisit(ObjCProtocolExpressionAST *) { }
-    virtual void endVisit(ObjCTypeNameAST *) { }
-    virtual void endVisit(ObjCEncodeExpressionAST *) { }
-    virtual void endVisit(ObjCSelectorArgumentAST *) { }
-    virtual void endVisit(ObjCSelectorExpressionAST *) { }
-    virtual void endVisit(ObjCInstanceVariablesDeclarationAST *) { }
-    virtual void endVisit(ObjCVisibilityDeclarationAST *) { }
-    virtual void endVisit(ObjCPropertyAttributeAST *) { }
-    virtual void endVisit(ObjCPropertyDeclarationAST *) { }
-    virtual void endVisit(ObjCMethodPrototypeAST *) { }
-    virtual void endVisit(ObjCMethodDeclarationAST *) { }
-    virtual void endVisit(ObjCMessageArgumentDeclarationAST *) { }
-    virtual void endVisit(ObjCSynthesizedPropertyAST *) { }
-    virtual void endVisit(ObjCSynthesizedPropertiesDeclarationAST *) { }
-    virtual void endVisit(ObjCDynamicPropertiesDeclarationAST *) { }
-    virtual void endVisit(ObjCFastEnumerationAST *) { }
-    virtual void endVisit(ObjCSynchronizedStatementAST *) { }
+    virtual void endVisit(QtPropertyDeclarationAST *) {}
+    virtual void endVisit(QtPropertyDeclarationItemAST *) {}
+    virtual void endVisit(QualifiedNameAST *) {}
+    virtual void endVisit(ReferenceAST *) {}
+    virtual void endVisit(ReturnStatementAST *) {}
+    virtual void endVisit(SimpleDeclarationAST *) {}
+    virtual void endVisit(SimpleNameAST *) {}
+    virtual void endVisit(SimpleSpecifierAST *) {}
+    virtual void endVisit(SizeofExpressionAST *) {}
+    virtual void endVisit(StringLiteralAST *) {}
+    virtual void endVisit(SwitchStatementAST *) {}
+    virtual void endVisit(TemplateDeclarationAST *) {}
+    virtual void endVisit(TemplateIdAST *) {}
+    virtual void endVisit(TemplateTypeParameterAST *) {}
+    virtual void endVisit(ThisExpressionAST *) {}
+    virtual void endVisit(ThrowExpressionAST *) {}
+    virtual void endVisit(TrailingReturnTypeAST *) {}
+    virtual void endVisit(TranslationUnitAST *) {}
+    virtual void endVisit(TryBlockStatementAST *) {}
+    virtual void endVisit(TypeConstructorCallAST *) {}
+    virtual void endVisit(TypeIdAST *) {}
+    virtual void endVisit(TypeidExpressionAST *) {}
+    virtual void endVisit(TypenameCallExpressionAST *) {}
+    virtual void endVisit(TypenameTypeParameterAST *) {}
+    virtual void endVisit(TypeofSpecifierAST *) {}
+    virtual void endVisit(UnaryExpressionAST *) {}
+    virtual void endVisit(UsingAST *) {}
+    virtual void endVisit(UsingDirectiveAST *) {}
+    virtual void endVisit(WhileStatementAST *) {}
 
 private:
-    TranslationUnit *_translationUnit;
+   TranslationUnit *_translationUnit;
 };
 
 } // namespace CPlusPlus
-
 
 #endif // CPLUSPLUS_ASTVISITOR_H
