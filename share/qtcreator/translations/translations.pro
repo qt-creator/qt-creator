@@ -1,6 +1,8 @@
 include(../../../qtcreator.pri)
 
-LANGUAGES = cs de fr hu ja pl ru sl zh_CN
+LANGUAGES = cs de fr ja pl ru sl zh_CN
+# *don't* re-enable these without a prior rework
+BAD_LANGUAGES = hu
 
 # var, prepend, append
 defineReplace(prependAll) {
@@ -52,12 +54,12 @@ files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
 for(file, files) {
     lang = $$replace(file, .*_([^/]*)\\.ts, \\1)
     v = ts-$${lang}.commands
-    $$v = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$file
+    $$v = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$file
     v = ts-$${lang}.depends
     $$v = extract
     QMAKE_EXTRA_TARGETS += ts-$$lang
 }
-ts-all.commands = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$files
+ts-all.commands = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$files
 ts-all.depends = extract
 QMAKE_EXTRA_TARGETS += ts-all
 

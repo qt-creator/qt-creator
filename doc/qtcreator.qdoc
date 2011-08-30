@@ -41,8 +41,8 @@
     Mac OS X and Windows operating systems. For more information, see
     \l{Operating Systems and Supported Platforms}.
 
-    \note Please report bugs and suggestions to the
-    \l{https://bugreports.qt.nokia.com}{Qt Bug Tracker}.
+    \note To report bugs and suggestions to the Qt Bug Tracker, select
+    \gui {Help > Report Bug}.
     You can also join the Qt Creator mailing list at:
     \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
 
@@ -1303,7 +1303,7 @@
 
         \o \c  {import com.nokia.symbian 1.0} for Symbian
 
-        \o \c  {import com.meego 1.0} for MeeGo
+        \o \c  {import com.nokia.meego 1.0} for MeeGo
 
     \endlist
 
@@ -1419,55 +1419,59 @@
 
     \section2 Loading Placeholder Data
 
-    Often, QML applications are prototyped with fake data that is later
-    replaced by real data sources from C++ plugins. QML Viewer loads fake data
-    into the application context: it looks for a directory named \e dummydata
-    in the same directory as the target QML file, loads any .qml files in that
-    directory as QML objects, and binds them to the root context as properties.
-    For more information, see
-    \l{http://doc.qt.nokia.com/latest/qmlviewer.html}{QML Viewer}.
+    \QMLD supports views, models, and delegates, so that when you add a Grid
+    View, List View, or Path View element, the ListModel and the delegate
+    component are added automatically.
 
-    You can use dummydata files also to specify fake properties for QML
-    components that you open for editing in \QMLD.
-    A QML component provides a way of defining a new UI element that you can
-    re-use in other QML files. A component is generally defined in its own QML
-    file. You can use property binding to specify the properties of a component
-    to make it easily reusable.
+    However, the missing context of the application presents a challenge for
+    \QMLD. Specific models defined in C++ are the most obvious case. Often,
+    the context is missing simple properties, which are either defined in C++,
+    or in other QML files. A typical example is a component which uses the
+    properties of its parent, such as \c parent.width.
 
-    For example, you can create a button bar component (buttonbar.qml) that
-    inherits its width from the screen that is its parent:
+    \section3 Using Dummy Models
 
-    \code
+    If you open a file in \QMLD that references a C++ model, you see nothing on
+    the canvas. If the data in the model is fetched from the internet, you have
+    no control over it. To get reliable data, \e {dummy data} was introduced.
 
-    import QtQuick 1.0
+    For example, the following code snippet describes the file example.qml that
+    contains a ListView that in turn specifies a C++ model:
 
-    Item {
-        width: parent.width
-        }
+    \snippet snippets/qml/dummydata.qml 0
 
-    \endcode
-
-    However, when you open the QML file for editing in \QMLD, the button bar
-    component does not have a width, because it is specified outside the QML
-    file (in the QML file that specifies the screen). To specify a fake width
-    for the component, create a \c <component>_dummydata.qml file (here,
-    buttonbar_dummydata.qml) that specifies the component width and copy it to
-    the \c dummydata directory.
-
-    For example:
+    Create a directory named \e dummydata in the root directory of the project,
+    so that it is not deployed to the device. In the \c dummydata directory,
+    create a QML file that has the same name as the value of \c model:
 
     \code
-    import QtQuick 1.0
-    import QmlDesigner 1.0
-
-    DummyContextObject {
-        parent: QtObject {
-        property real width: 1000
-        }
-    }
+        qml/exampleapp/example.qml
+        dummydata/dataModel.qml
     \endcode
 
-    The file is reloaded if you change it.
+    Then create the dataModel.qml file that contains the dummy data:
+
+    \snippet snippets/qml/datamodel.qml 0
+
+    \section3 Creating Dummy Context
+
+    The following example presents a common pattern in QML:
+
+    \code
+        Item {
+            width: parent.width
+            height: parent.height
+        }
+    \endcode
+
+    This works nicely for applications but \QMLD displays a zero-sized item.
+    A parent for the opened file does not exist, because the context is
+    missing. To get around the missing context, the idea of a \e {dummy
+    context} is introduced. If you place a file with the same name as the
+    application (here, example.qml) in the \c {dummydata/context} directory,
+    you can fake a parent context:
+
+    \snippet snippets/qml/dummydatacontext.qml 0
 
     \section2 Setting Anchors and Margins
 
@@ -2293,7 +2297,8 @@
 
     \title Using External Tools
 
-    You can use external tools directly from Qt Creator. Qt Linguist, the
+    You can use external tools directly from Qt Creator. Qt Linguist,
+    QML Viewer, the
     default text editor for your system, and the \c sort tool are preconfigured
     for use. You can change their default configurations and configure new
     tools.
@@ -2319,6 +2324,15 @@
 
     For more information about Qt Linguist, see
     \l{http://doc.qt.nokia.com/4.7/linguist-manual.html}{Qt Linguist Manual}.
+
+    \section1 Using QML Viewer
+
+    You can preview the current QML document in the QML Viewer. The QML Viewer
+    invokes the QML runtime to load QML documents and also includes additional
+    features useful for the development of QML-based applications.
+
+    To preview the currently active QML file, select \gui {Tools > External >
+    Qt Quick > Preview (qmlviewer)}.
 
     \section1 Using External Text Editors
 
@@ -6184,8 +6198,9 @@
     button to build your program and run it in the Qt Simulator.
 
     In Qt Simulator, run the runOutOfBattery.qs example script
-    to see the value change in the Battery Indicator application.
-    Select \gui {Scripting > examples > runOutOfBattery.qs > Run}.
+    to see the value change in the Battery Status application.
+    Select \gui {Scripting > examples > runOutOfBattery.qs > Run Selected
+    Script}.
 
     \image qtcreator-symbian-components-example-simulated.png "Mobile example in Qt Simulator"
 
@@ -6489,9 +6504,8 @@
 
     \list 1
 
-        \o On the \gui Welcome page, select \gui {Choose an Example...}
-        in the \gui {Explore Qt Quick Examples} field, and then select
-        \gui {Toys > Clocks}.
+        \o On the \gui Welcome page, select the \gui {Show Examples and Demos}
+        check box, and then select \gui {Clocks} in the list of examples.
 
         \image qtcreator-gs-build-example-open.png "Selecting an example"
 
@@ -6522,8 +6536,8 @@
         \image {qt-simulator.png} "Qt Simulator"
 
         \o Change the settings in the
-        \gui View pane. For example, rotate the device by clicking the
-        \gui {Orientation} buttons or choose from the various Symbian and Maemo
+        \gui Model view. For example, rotate the device by clicking the
+        \gui {Orientation} buttons or choose from the various mobile device
         configurations in the \gui {Device} field. You can also simulate various
         mobile functions and create your own scripts.
 
@@ -6560,16 +6574,19 @@
 
     \image qmldesigner-tutorial.png "States and transitions example"
 
+    For more information about using \QMLD, see
+    \l{Developing Qt Quick Applications}.
+
     \section1 Creating the Project
 
     \list 1
 
-        \o Select \gui{File > New File or Project > Qt Quick Project > Qt Quick UI >
-        Choose}.
+        \o Select \gui{File > New File or Project > Qt Quick Project > Qt Quick
+        Application > Choose}.
 
         \o Follow the instructions of the wizard to create a project called Transitions.
 
-        \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+        \o Press \key {Ctrl+R} to run the application.
 
     \endlist
 
@@ -6591,7 +6608,7 @@
 
     \list 1
 
-        \o In the \gui Projects view, double-click the main .qml file (Transitions.qml)
+        \o In the \gui Projects view, double-click the main.qml file
         to open it in the code editor.
 
         \o Click \gui Design to open the file in \QMLD.
@@ -6609,7 +6626,7 @@
             \o In the \gui Id field, enter \e page, to be able to reference the rectangle
             from other places.
 
-            \o In the \gui Colors tab, \gui Rectangle field, set the color to #343434.
+            \o In the \gui Colors group, \gui Rectangle field, set the color to #343434.
 
         \endlist
 
@@ -6640,13 +6657,13 @@
             \o In the \gui Size field, set \gui W and \gui H to 64, for the rectangle size
             to match the image size.
 
-            \o In the \gui Colors tab, \gui Rectangle field, click the
+            \o In the \gui Colors group, \gui Rectangle field, click the
             \inlineimage qmldesigner-transparent-button.png
             button to make the rectangle transparent.
 
             \o In the \gui Border field, set the border color to #808080.
 
-            \o In the \gui Rectangle tab, \gui Border field, set the border width to
+            \o In the \gui Rectangle group, \gui Border field, set the border width to
             1.
 
             \note If the \gui Border field does not appear after you set the border
@@ -6744,7 +6761,7 @@
 
     \o Press \key {Ctrl+S} to save the changes.
 
-    \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+    \o Press \key {Ctrl+R} to run the application.
 
     \endlist
 
@@ -6778,7 +6795,7 @@
         \note When you set the expressions, drag and drop is disabled for
         the icon in \QMLD.
 
-    \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+    \o Press \key {Ctrl+R} to run the application.
 
     \endlist
 
@@ -6828,17 +6845,11 @@
 
         \snippet snippets/qml/list-of-transitions.qml default transition
 
-        \o Press \key {Ctrl+R} to run the application in the QML Viewer.
+        \o Press \key {Ctrl+R} to run the application.
 
     \endlist
 
     Click the rectangles to view the animated transitions.
-
-    \section1 Deploying the Application to Mobile Devices
-
-    To deploy the application to mobile devices, use the \gui {Qt Quick Application} wizard
-    to convert it into a Qt Quick application. For more information, see
-    \l{Importing QML Applications}.
 
 */
 
@@ -8683,7 +8694,7 @@
     typically includes information about parameters of the function in that
     frame as well as the local variables.
 
-    \image qtcreator-watcher.png "Locals and Expressions view"
+    \image qtcreator-locals-expressions.png "Locals and Expressions view"
 
     Compound variables of struct or class type are displayed as
     expandable in the view. Expand entries to show
@@ -8867,17 +8878,13 @@
     This section uses the \l{Creating a Qt Widget Based Application}{TextFinder} example to
     illustrate how to debug Qt C++ applications in the \gui Debug mode.
 
-    TextFinder
-    reads a text file into
-    QString and then displays it with QTextEdit.
-    To look at the example QString, \c{line}, and see the
-    stored data, place a breakpoint and view the QString object
-    data in textfinder.cpp, as follows:
+    TextFinder reads a text file into QString and then displays it with
+    QTextEdit. To look at the TextFinder class and see the stored data, place
+    a breakpoint in textfinder.cpp, as follows:
 
     \list 1
         \o Click in between the line number and the window border on the line
-        where we invoke \l{http://doc.qt.nokia.com/4.7/qtextedit.html#plainText-prop}{setPlainText()}
-        to set a breakpoint.
+        where we change the cursor position to set a breakpoint.
 
         \image qtcreator-setting-breakpoint1.png
 
@@ -8891,8 +8898,8 @@
         \o To remove a breakpoint, right-click it and select \gui{Delete Breakpoint}.
 
 
-        \o To view the contents of \c{line}, go to the \gui{Locals and
-    Expressions} view.
+        \o To view the base classes and data members of the TextFinder class,
+        go to the \gui{Locals and Expressions} view.
 
         \image qtcreator-watcher.png
 
@@ -12874,7 +12881,7 @@
     \gui Analyze mode, you can switch
     between tools by selecting them in the menu on the toolbar.
 
-    \image qtcreator-analyze-menu "Analyze mode menu"
+    \image qtcreator-analyze-menu.png "Analyze mode menu"
 
     By default, the views in the \gui Analyze mode are locked into place in the
     workspace. Select \gui {Window > Views > Locked} to unlock the views. Drag

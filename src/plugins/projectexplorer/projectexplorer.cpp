@@ -88,6 +88,7 @@
 #    include "msvctoolchain.h"
 #endif
 
+#include <extensionsystem/pluginspec.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
@@ -1343,10 +1344,10 @@ void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *o
 
 void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
 {
-    QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
     // Process command line arguments first:
-    if (arguments.contains("-lastsession"))
+    if (pluginSpec()->arguments().contains("-lastsession"))
         d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
+    QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
     if (d->m_sessionToRestoreAtStartup.isNull()) {
         QStringList sessions = d->m_session->sessions();
         // We have command line arguments, try to find a session in them

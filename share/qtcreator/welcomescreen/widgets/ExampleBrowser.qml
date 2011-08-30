@@ -53,29 +53,30 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottomMargin: - 8
-        anchors.leftMargin: - 8
-        anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 : -8
+        anchors.leftMargin: -8
+        anchors.rightMargin: -8
 
-        LineEdit {
-            id: lineEdit
-            placeholderText: !checkBox.checked ? qsTr("Search in Tutorials") : qsTr("Search in Tutorials, Examples and Demos")
-            focus: true
-            anchors.left: parent.left
-            anchors.leftMargin:4
-            anchors.verticalCenter: parent.verticalCenter
-            width: Math.max(lineEditRoot.width - checkBox.width - 21 - tagFilterButton.width, 100)
-            onTextChanged: examplesModel.parseSearchString(text)
-        }
 
         CheckBox {
             id: checkBox
             text: qsTr("Show Examples and Demos")
             checked: false
+            anchors.left: parent.left
             anchors.leftMargin: 6
-            anchors.left: lineEdit.right
             anchors.verticalCenter: lineEdit.verticalCenter
             height: lineEdit.height
             onCheckedChanged: examplesModel.showTutorialsOnly = !checked;
+        }
+
+        LineEdit {
+            id: lineEdit
+            placeholderText: !checkBox.checked ? qsTr("Search in Tutorials") : qsTr("Search in Tutorials, Examples and Demos")
+            focus: true
+            anchors.left: checkBox.right
+            anchors.leftMargin: 6
+            anchors.verticalCenter: parent.verticalCenter
+            width: Math.max(lineEditRoot.width - checkBox.width - 21 - tagFilterButton.width, 100)
+            onTextChanged: examplesModel.parseSearchString(text)
         }
 
         Button {
@@ -83,7 +84,7 @@ Item {
             property string tag
             property Item browser;
             onTagChanged: exampleBrowserRoot.appendTag(tag)
-            anchors.left: checkBox.right
+            anchors.left: lineEdit.right
             anchors.leftMargin: 6
             anchors.verticalCenter: lineEdit.verticalCenter
             text: qsTr("Tag List")
@@ -116,7 +117,6 @@ Item {
                 delegate: ExampleDelegate { width: scrollArea.width; onTagClicked: exampleBrowserRoot.appendTag(tag) }
             }
         }
-        Component.onCompleted: verticalScrollBar.anchors.bottomMargin = -(scrollArea.anchors.bottomMargin + 8)
     }
 
     Rectangle {

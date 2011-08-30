@@ -110,17 +110,18 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
     summaryLayout->setSpacing(0);
 
     m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-    m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_summaryLabel->setContentsMargins(0, 0, 0, 0);
     summaryLayout->addWidget(m_summaryLabel);
 
-    m_summaryCheckBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_summaryCheckBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_summaryCheckBox->setAttribute(Qt::WA_LayoutUsesWidgetRect); /* broken layout on mac otherwise */
     m_summaryCheckBox->setVisible(false);
     m_summaryCheckBox->setContentsMargins(0, 0, 0, 0);
     summaryLayout->addWidget(m_summaryCheckBox);
 
     m_additionalSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_additionalSummaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_additionalSummaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
     m_additionalSummaryLabel->setWordWrap(true);
     m_additionalSummaryLabel->setVisible(false);

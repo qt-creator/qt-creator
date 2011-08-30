@@ -270,7 +270,7 @@ void ItemLibraryWidget::updateImports()
                 imports << import.url();
         if (imports.contains("com.nokia.symbian", Qt::CaseInsensitive))
             filter = Symbian;
-        if (imports.contains("com.Meego", Qt::CaseInsensitive))
+        if (imports.contains("com.nokia.meego", Qt::CaseInsensitive))
             filter = Meego;
     }
 
@@ -398,14 +398,14 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
     try {
         block = true;
         if (flag == QtBasic) {
-            removeImport(QLatin1String("com.meego"));
+            removeImport(QLatin1String("com.nokia.meego"));
             removeImport(QLatin1String("com.nokia.symbian"));
         } else  if (flag == Symbian) {
-            removeImport(QLatin1String("com.meego"));
+            removeImport(QLatin1String("com.nokia.meego"));
             addImport(QLatin1String("com.nokia.symbian"), QLatin1String("1.0"));
         }  else  if (flag == Meego) {
             removeImport(QLatin1String("com.nokia.symbian"));
-            addImport(QLatin1String("com.meego"), QLatin1String("1.0"));
+            addImport(QLatin1String("com.nokia.meego"), QLatin1String("1.0"));
         }
         QApplication::restoreOverrideCursor();
         block = false;

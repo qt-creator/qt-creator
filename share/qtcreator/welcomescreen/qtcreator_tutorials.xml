@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <instructionals module="Qt">
  <tutorials>
-  <tutorial imageUrl="" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html" projectPath="" name="The Qt Creator User Interface">
-   <description><![CDATA[This tutorial provides you with a principal summary of the Qt Creator User Interface and introduces fundamental terminologies.]]></description>
+  <tutorial imageUrl="qthelp://com.nokia.qtcreator/doc/images/qtcreator-qt-quick-editors.png" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html" projectPath="" name="The Qt Creator User Interface">
+   <description><![CDATA[This tutorial provides you with a principal summary of the Qt Creator User Interface.]]></description>
    <tags>qt creator,quick tour,ui</tags>
   </tutorial>
-  <tutorial imageUrl="" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Building and Running an Example Application">
-   <description><![CDATA[How to verify that your installation works]]></description>
+  <tutorial imageUrl="qthelp://com.nokia.qtcreator/doc/images/qtcreator-gs-build-example-select-qs.png" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Building and Running an Example Application">
+   <description><![CDATA[You can test that your installation is successful by opening an existing example application project.]]></description>
    <tags>qt creator,build,compile</tags>
   </tutorial>
-  <tutorial imageUrl="" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-writing-program.html" projectPath="" name="Creating a Qt C++ Application">
+  <tutorial imageUrl="qthelp://com.nokia.qtcreator/doc/images/qtcreator-textfinder-screenshot.png" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-writing-program.html" projectPath="" name="Creating a Qt Widget Based Application">
    <description><![CDATA[This tutorial describes how to use Qt Creator to create a small Qt application, Text Finder.]]></description>
    <tags>qt,c++,text,qt designer,qt creator</tags>
   </tutorial>
-  <tutorial imageUrl="" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-mobile-example.html" projectPath="" name="Creating a Mobile Application">
-   <description><![CDATA[This tutorial describes how to use Qt Creator to create a small Qt application, that uses the System Information Mobility API to fetch battery information from the device.]]></description>
+  <tutorial imageUrl="qthelp://com.nokia.qtcreator/doc/images/qtcreator-batteryindicator-screenshot.png" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-mobile-example.html" projectPath="" name="Creating a Qt Widget Based Mobile Application">
+   <description><![CDATA[This tutorial describes how to use Qt Creator to create a small Qt application, that uses the System Information Mobility API to fetch battery information from the device. The user interface for the application is designed using Qt widgets.]]></description>
    <tags>qt,c++,mobile,qt mobility,qt creator</tags>
   </tutorial>
-  <tutorial imageUrl="" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-qml-application.html" projectPath="" name="Creating a Qt Quick Application">
+  <tutorial imageUrl="qthelp://com.nokia.qtcreator/doc/images/qmldesigner-tutorial.png" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-qml-application.html" projectPath="" name="Creating a Qt Quick Application">
    <description><![CDATA[This tutorial uses basic elements and illustrates basic concepts of Qt Quick.]]></description>
    <tags>qt quick,qml,states,transitions,visual designer,qt creator</tags>
+  </tutorial>
+  <tutorial imageUrl="qthelp://com.nokia.qtcreator/doc/images/qtcreator-symbian-components-example.png" difficulty="" docUrl="qthelp://com.nokia.qtcreator/doc/creator-qml-components-example.html" projectPath="" name="Creating a Qt Quick Application Using Qt Quick Components">
+   <description><![CDATA[This tutorial describes how to use Qt Creator to create a small Qt application, Battery Status, that uses the System Information Mobility API to fetch battery information from the device. The user interface for the application is designed using Qt Quick Components for Symbian.]]></description>
+   <tags>qt quick,qml,components,symbian,visual designer,qt creator</tags>
   </tutorial>
  </tutorials>
 </instructionals>

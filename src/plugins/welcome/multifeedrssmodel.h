@@ -68,7 +68,7 @@ class NetworkAccessManager;
 enum RssRoles { TitleRole = Qt::UserRole+1, DescriptionRole, LinkRole,
                 PubDateRole, BlogNameRole, BlogIconRole };
 
-class WELCOME_EXPORT MultiFeedRssModel : public QAbstractListModel {
+class MultiFeedRssModel : public QAbstractListModel {
     Q_OBJECT
     Q_PROPERTY(int articleCount READ articleCount WRITE setArticleCount NOTIFY articleCountChanged)
 public:

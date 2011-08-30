@@ -1289,10 +1289,6 @@ Local pulls are not applied to the master branch.</source>
         <translation>Источник</translation>
     </message>
     <message>
-        <source>Source size</source>
-        <translation>Размер источника</translation>
-    </message>
-    <message>
         <source>Left</source>
         <translation>Слева</translation>
     </message>
@@ -3102,6 +3098,69 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Edit</source>
         <translation>Редактор</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::ExternalTool</name>
+    <message>
+        <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
+        <translation>Создание из ts-файлов переводчика qm-файлов переводов, используемых приложением</translation>
+    </message>
+    <message>
+        <source>Release Translations (lrelease)</source>
+        <translation>Создать переводы (lrelease)</translation>
+    </message>
+    <message>
+        <source>Linguist</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Synchronizes translator&apos;s ts files with the program code</source>
+        <translation>Синхронизация ts-файлов переводчика с кодом программы</translation>
+    </message>
+    <message>
+        <source>Update Translations (lupdate)</source>
+        <translation>Обновить переводы (lupdate)</translation>
+    </message>
+    <message>
+        <source>Opens the current file in Notepad</source>
+        <translation>Открытие текущего файла в Блокноте</translation>
+    </message>
+    <message>
+        <source>Edit with Notepad</source>
+        <translation>Открыть в Блокноте</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Текст</translation>
+    </message>
+    <message>
+        <source>Runs the current QML file with qmlviewer</source>
+        <translation>Запуск текущего файла QML с помощью qmlviewer</translation>
+    </message>
+    <message>
+        <source>Preview (qmlviewer)</source>
+        <translation>Предпросмотр (qmlviewer)</translation>
+    </message>
+    <message>
+        <source>Qt Quick</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Sorts the selected text</source>
+        <translation>Сортировка выделенного текста</translation>
+    </message>
+    <message>
+        <source>Sort Selection</source>
+        <translation>Отсортировать выделенное</translation>
+    </message>
+    <message>
+        <source>Opens the current file in vi</source>
+        <translation>Открытие текущего файла в vi</translation>
+    </message>
+    <message>
+        <source>Edit with vi</source>
+        <translation>Открыть в vi</translation>
     </message>
 </context>
 <context>
@@ -6926,12 +6985,12 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>QML/C++ Debugging</source>
-        <translation>Отладка QML/C++</translation>
+        <translation type="obsolete">Отладка QML/C++</translation>
     </message>
     <message>
         <source>Cannot stop execution before QML engine is started. Skipping breakpoint.
 Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or switch to C++ only debugging.</source>
-        <translation>Невозможно прекратить выполнение пока запущен движок QML. Пропуск точки останова.
+        <translation type="obsolete">Невозможно прекратить выполнение пока запущен движок QML. Пропуск точки останова.
 Рекомендуется переустановить точку останова после инициализации QmlApplicationViewer или переключиться в режим отладки только C++.</translation>
     </message>
 </context>
@@ -11642,18 +11701,6 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Source size</source>
         <translation>Размер источника</translation>
-    </message>
-    <message>
-        <source>Painted size</source>
-        <translation>Отображаемый размер</translation>
-    </message>
-    <message>
-        <source>Aliasing</source>
-        <translation>Ступенчатость</translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>Гладкий</translation>
     </message>
 </context>
 <context>

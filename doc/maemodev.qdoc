@@ -197,10 +197,11 @@
           \image qtcreator-mad-developer-screenshot.png
     \endlist
 
-    \section1 Installing Qt Mobility Libraries
+    \section1 Installing Qt Mobility Libraries on Nokia N900
 
-    To develop applications that use the Qt Mobility APIs, you must install the
-    Qt Mobility Libraries on the devices. The APIs are not available in the
+    To develop applications for the Nokia N900 devices that use the Qt Mobility
+    APIs, you must install the
+    Qt Mobility Libraries on the devices. The libraries are not available in the
     device package
     manager, and therefore, you must install them from the command line as the
     root user:
@@ -218,6 +219,9 @@
         \o Close the terminal.
 
     \endlist
+
+    \note the Qt Mobility Libraries are preinstalled on MeeGo Harmattan
+    devices.
 
     \section1 Setting Up Network Connectivity on Development PC
 

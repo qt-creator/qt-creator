@@ -780,7 +780,7 @@
     </message>
     <message>
         <source>Describe all files matching commit id</source>
-        <translation>Alle zur Commit-ID gehörenden Dateien beschreiben:</translation>
+        <translation>Alle zur Commit-ID gehörenden Dateien beschreiben</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -972,7 +972,7 @@
     </message>
     <message>
         <source>Switch to previous mode on debugger exit.</source>
-        <translation>Bewirkt, dass der bei Beginn des Debuggens aktive Modus bei Beendigung wiederherstellt wird.</translation>
+        <translation>Bewirkt, dass der bei Beginn des Debuggens aktive Modus bei Beendigung wiederhergestellt wird.</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit</source>
@@ -1290,7 +1290,7 @@
     </message>
     <message>
         <source>Go to Next Split</source>
-        <translation>Gehe zu nächsten Teilung</translation>
+        <translation>Gehe zur nächsten Teilung</translation>
     </message>
     <message>
         <source>%1,o</source>
@@ -1574,7 +1574,7 @@
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation>Alles Aus&amp;wählen</translation>
+        <translation>Alles aus&amp;wählen</translation>
     </message>
     <message>
         <source>&amp;Go to Line...</source>
@@ -1983,7 +1983,7 @@
     </message>
     <message>
         <source>Find Usages</source>
-        <translation>Verwendung suchen</translation>
+        <translation>Verwendungen suchen</translation>
     </message>
     <message>
         <source>Ctrl+Shift+U</source>
@@ -2625,11 +2625,11 @@ Qt Creator kann sich nicht anhängen.</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
-        <translation>Leerzeichen &amp;anstelle Tabulatoren einfügen</translation>
+        <translation>&quot;std::&quot; Namespace in Typnamen anzeigen</translation>
     </message>
     <message>
         <source>Show Qt&apos;s Namespace in Types</source>
-        <translation>Leerzeichen &amp;anstelle Tabulatoren einfügen</translation>
+        <translation>&quot;Qt&quot; Namespace in Typnamen anzeigen</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
@@ -7943,7 +7943,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Files to be added in</source>
-        <translation>Hinzufügende Dateien in</translation>
+        <translation>Hinzuzufügende Dateien in</translation>
     </message>
 </context>
 <context>
@@ -10662,7 +10662,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
     <message>
         <source>Toggle &amp;Fold All</source>
-        <translation>Alles Aus&amp;klappen</translation>
+        <translation>Alles aus&amp;klappen</translation>
     </message>
     <message>
         <source>Increase Font Size</source>
@@ -12005,7 +12005,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Email to use by default on commit.</source>
-        <translation>Email-Addresse für Abgabe.</translation>
+        <translation>E-Mail-Adresse für Commit.</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -12037,7 +12037,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Default email:</source>
-        <translation>Vorgabe-Email:</translation>
+        <translation>Vorgabe-E-Mail:</translation>
     </message>
 </context>
 <context>
@@ -13271,7 +13271,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation>Alles Aus&amp;wählen</translation>
+        <translation>Alles aus&amp;wählen</translation>
     </message>
     <message>
         <source>Select All &quot;%1&quot;</source>
@@ -15179,7 +15179,7 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
         <source>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</source>
         <translation>Eine Datei, die Nutzernamen und E-Mail-Adressen in einem vierspaltigen Format (mailmap) enthält:
-Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
+Namen &lt;E-Mail&gt; Alias &lt;E-Mail&gt;</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
@@ -19506,7 +19506,7 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
     </message>
     <message>
         <source>Add to Watch Window</source>
-        <translation>Zu Überwachten Ausdrücken hinzufügen</translation>
+        <translation>Zu überwachten Ausdrücken hinzufügen</translation>
     </message>
     <message>
         <source>Reverse Direction</source>
@@ -20251,7 +20251,7 @@ Bitte erstellen Sie die Debugger-Hilfskomponenten auf der Einstellungsseite der 
     </message>
     <message>
         <source>&lt;b&gt;IP address:&lt;/b&gt; %1:%2</source>
-        <translation>&lt;b&gt;IP-Addresse:&lt;/b&gt; %1:%2</translation>
+        <translation>&lt;b&gt;IP-Adresse:&lt;/b&gt; %1:%2</translation>
     </message>
 </context>
 <context>
@@ -20355,7 +20355,7 @@ Verwenden Sie ein Entwicklerzertifikat oder eine andere Form der Signierung, um 
 You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects.</source>
         <translation>Erstellt ein HTML5-Projekt, welches HTML5- und C++-Code enthält und WebKit zur Anzeige verwendet.
 
-Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen ausführen. Dieser Projekttyp ermöglicht zum Beispiel die Estellung eines signierten Symbian Installation System (SIS)-Paketes.</translation>
+Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen ausführen. Dieser Projekttyp ermöglicht zum Beispiel die Erstellung eines signierten Symbian Installation System (SIS)-Paketes.</translation>
     </message>
 </context>
 <context>
@@ -20789,11 +20789,11 @@ Der neue Branch benötigt den Quell-Branch für alle Operationen.</translation>
     </message>
     <message>
         <source>Email to use by default on commit.</source>
-        <translation>Email-Addresse für Abgabe.</translation>
+        <translation>E-Mail-Adresse für Commit.</translation>
     </message>
     <message>
         <source>Default email:</source>
-        <translation>Vorgabe-Email:</translation>
+        <translation>Vorgabe-E-Mail:</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -21915,8 +21915,16 @@ Fehler: %2</translation>
         <translation>Build hinzufügen</translation>
     </message>
     <message>
+        <source>Create Build Configurations:</source>
+        <translation>Build-Konfigurationen erstellen:</translation>
+    </message>
+    <message>
         <source>Use Shadow Building</source>
         <translation>Shadow-Build verwenden</translation>
+    </message>
+    <message>
+        <source>Qt Version:</source>
+        <translation>Qt-Version:</translation>
     </message>
     <message>
         <source>debug</source>
@@ -21943,6 +21951,22 @@ Fehler: %2</translation>
     <message>
         <source>Incompatible build found</source>
         <translation>Inkompatibler Build gefunden</translation>
+    </message>
+    <message>
+        <source>For Each Qt Version One Debug And One Release</source>
+        <translation>Für jede Qt-Version jeweils Debug und Release</translation>
+    </message>
+    <message>
+        <source>For One Qt Version One Debug And One Release</source>
+        <translation>Für eine Qt-Version Debug und Release</translation>
+    </message>
+    <message>
+        <source>Manually</source>
+        <translation>Manuell</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Import build from %1</source>
@@ -23264,7 +23288,7 @@ a = a +
     </message>
     <message>
         <source>Insert &amp;spaces instead of tabs</source>
-        <translation>Leerzeichen &amp;anstelle Tabulatoren einfügen</translation>
+        <translation>Leerzeichen st&amp;att Tabulatoren einfügen</translation>
     </message>
     <message>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
@@ -24457,6 +24481,14 @@ Bitte verwenden Sie den Stop-Button.</translation>
     <message>
         <source>Attach...</source>
         <translation type="obsolete">Anhängen...</translation>
+    </message>
+    <message>
+        <source>The QML profiler requires Qt 4.7.4 or newer.
+The Qt version configured in your active build configuration is too old.
+Do you want to continue?</source>
+        <translation>Der QML-Profiler benötigt Qt 4.7.4 oder neuer.
+Die Qt-Version, die in Ihrer aktuellen Build-Konfiguration eingestellt ist, ist zu alt.
+Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Events</source>
@@ -27324,7 +27356,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <source>The built-in elements in the QtQuick namespace allow you to write cross-platform applications with a custom look and feel.
 
 Requires Qt 4.7.1 or newer.</source>
-        <translation>Die eingebauten Elemente im QtQuick-Namensraum gestatten es, plattformübergreifende Anwendung mit benutzerdefinierbarem Look and Feel zu erstellen.
+        <translation>Die eingebauten Elemente im QtQuick-Namensraum erlauben es, plattformübergreifende Anwendungen mit benutzerdefinierbarem Look and Feel zu erstellen.
 
 Erfordert Qt 4.7.1 oder neuer.</translation>
     </message>
@@ -27346,7 +27378,7 @@ Erfordert Qt 4.7.4 oder neuer.</translation>
     </message>
     <message>
         <source>Use an existing .qml file</source>
-        <translation>Verwnde existierende .qml-Datei</translation>
+        <translation>Verwende existierende .qml-Datei</translation>
     </message>
     <message>
         <source>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
@@ -28119,6 +28151,69 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <message>
         <source>Error writing tar file &apos;%1&apos;: %2</source>
         <translation>Fehler beim Schreiben der tar-Datei &apos;%1&apos;: %2</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::ExternalTool</name>
+    <message>
+        <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
+        <translation>Erzeugt aus den ts-Dateien des Übersetzers qm-Übersetzungsdateien, die von einer Anwendung genutzt werden können</translation>
+    </message>
+    <message>
+        <source>Release Translations (lrelease)</source>
+        <translation>Übersetzungen freigeben (lrelease)</translation>
+    </message>
+    <message>
+        <source>Linguist</source>
+        <translation>Linguist</translation>
+    </message>
+    <message>
+        <source>Synchronizes translator&apos;s ts files with the program code</source>
+        <translation>Synchronisiert die ts-Dateien des Übersetzers mit dem Quelltext</translation>
+    </message>
+    <message>
+        <source>Update Translations (lupdate)</source>
+        <translation>Übersetzungen aktualisieren (lupdate)</translation>
+    </message>
+    <message>
+        <source>Opens the current file in Notepad</source>
+        <translation>Öffnet die aktuelle Datei im Editor</translation>
+    </message>
+    <message>
+        <source>Edit with Notepad</source>
+        <translation>Mit Editor bearbeiten</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>Text</translation>
+    </message>
+    <message>
+        <source>Runs the current QML file with qmlviewer</source>
+        <translation>Führt die aktuelle QML-Datei mit qmlviewer aus</translation>
+    </message>
+    <message>
+        <source>Preview (qmlviewer)</source>
+        <translation>Vorschau (qmlviewer)</translation>
+    </message>
+    <message>
+        <source>Qt Quick</source>
+        <translation>Qt Quick</translation>
+    </message>
+    <message>
+        <source>Sorts the selected text</source>
+        <translation>Sortiert den ausgewählten Text</translation>
+    </message>
+    <message>
+        <source>Sort Selection</source>
+        <translation>Auswahl sortieren</translation>
+    </message>
+    <message>
+        <source>Opens the current file in vi</source>
+        <translation>Öffnet die aktuelle Datei in vi</translation>
+    </message>
+    <message>
+        <source>Edit with vi</source>
+        <translation>Mit vi bearbeiten</translation>
     </message>
 </context>
 </TS>
