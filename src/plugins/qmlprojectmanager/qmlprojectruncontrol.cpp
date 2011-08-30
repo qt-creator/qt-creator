@@ -206,6 +206,8 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     params.displayName = runConfig->displayName();
     params.projectSourceDirectory = runConfig->target()->project()->projectDirectory();
     params.projectSourceFiles = runConfig->target()->project()->files(Project::ExcludeGeneratedFiles);
+    if (!runConfig->qtVersion()->qtAbis().isEmpty())
+        params.toolChainAbi = runConfig->qtVersion()->qtAbis().first();
 
     // Makes sure that all bindings go through the JavaScript engine, so that
     // breakpoints are actually hit!
