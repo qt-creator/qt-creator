@@ -591,11 +591,9 @@ void Preprocessor::processNewline(bool force)
     if (_dot != _tokens.constBegin()) {
         TokenIterator prevTok = _dot - 1;
 
-        // line changes due to multi-line tokens
-        if (prevTok->isLiteral()
-                || (_keepComments
-                    && (prevTok->kind() == T_COMMENT
-                        || prevTok->kind() == T_DOXY_COMMENT))) {
+        // Line changes due to multi-line tokens that we assume got printed
+        // to the preprocessed source. See interaction with skipToNextLine.
+        if (maybeMultilineToken(prevTok)) {
             const char *ptr = _source.constBegin() + prevTok->begin();
             const char *end = ptr + prevTok->length();
 
@@ -711,6 +709,41 @@ bool Preprocessor::maybeAfterComment() const
     return false;
 }
 
+bool Preprocessor::maybeMultilineToken(Preprocessor::TokenIterator tok)
+{
+    return tok->isLiteral()
+            || (_keepComments
+                && (tok->kind() == T_COMMENT
+                    || tok->kind() == T_DOXY_COMMENT));
+}
+
+void Preprocessor::skipToNextLine()
+{
+    do {
+        if (maybeMultilineToken(_dot)) {
+            const char *ptr = _source.constBegin() + _dot->begin();
+            const char *end = ptr + _dot->length();
+
+            int newlines = 0;
+            for (; ptr != end; ++ptr) {
+                if (*ptr == '\n')
+                    ++newlines;
+            }
+            if (newlines) {
+                // This function does not output tokens it skips. We need to offset
+                // the currentLine so it gets correctly adjusted by processNewline.
+                env->currentLine -= newlines;
+                ++_dot;
+                return;
+            }
+        }
+
+        ++_dot;
+
+    } while (_dot->isNot(T_EOF_SYMBOL)
+             && (_dot->f.joined || !_dot->f.newline));
+}
+
 void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                               QByteArray *result)
 {
@@ -741,9 +774,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
             // handle the preprocessor directive
 
             TokenIterator start = _dot;
-            do {
-                ++_dot;
-            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->f.joined || ! _dot->f.newline));
+            skipToNextLine();
 
             const bool skippingBlocks = _skipping[iflevel];
 
@@ -752,10 +783,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
 
         } else if (skipping()) {
             // skip the current line
-
-            do {
-                ++_dot;
-            } while (_dot->isNot(T_EOF_SYMBOL) && (_dot->f.joined || ! _dot->f.newline));
+            skipToNextLine();
 
         } else {
 

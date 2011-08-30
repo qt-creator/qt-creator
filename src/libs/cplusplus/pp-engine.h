@@ -180,6 +180,9 @@ private:
     QString string(const char *first, int len) const;
     bool maybeAfterComment() const;
 
+    bool maybeMultilineToken(TokenIterator tok);
+    void skipToNextLine();
+
 private:
     Client *client;
     Environment *env;
