@@ -33,8 +33,7 @@
 #include "macro.h"
 #include "macroevent.h"
 
-#include <coreplugin/coreconstants.h>
-
+#include <app/app_version.h>
 #include <utils/fileutils.h>
 
 #include <QtCore/QFileInfo>

@@ -37,6 +37,7 @@
 #include "coreconstants.h"
 #include "variablemanager.h"
 
+#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/filemanager.h>

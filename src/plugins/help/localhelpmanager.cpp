@@ -33,7 +33,7 @@
 #include "localhelpmanager.h"
 #include "bookmarkmanager.h"
 
-#include <coreplugin/coreconstants.h>
+#include <app/app_version.h>
 #include <coreplugin/helpmanager.h>
 
 #include <QtCore/QMutexLocker>

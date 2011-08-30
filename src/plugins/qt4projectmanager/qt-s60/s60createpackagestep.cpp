@@ -44,7 +44,7 @@
 #include "s60certificatedetailsdialog.h"
 #include "symbianqtversion.h"
 
-#include <coreplugin/coreconstants.h>
+#include <app/app_version.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>

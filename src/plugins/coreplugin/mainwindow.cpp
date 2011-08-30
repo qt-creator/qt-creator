@@ -75,6 +75,7 @@
 #include "externaltoolmanager.h"
 #include "editormanager/systemeditor.h"
 
+#include <app/app_version.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/inavigationwidgetfactory.h>

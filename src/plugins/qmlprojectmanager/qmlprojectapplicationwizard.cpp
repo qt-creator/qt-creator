@@ -34,7 +34,7 @@
 
 #include "qmlprojectconstants.h"
 
-#include <coreplugin/coreconstants.h>
+#include <app/app_version.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include <qtsupport/qtsupportconstants.h>
 

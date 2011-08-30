@@ -31,10 +31,10 @@
 **************************************************************************/
 
 #include "versiondialog.h"
-
-#include "coreconstants.h"
 #include "icore.h"
 
+#include <app/app_version.h>
+#include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDate>
@@ -49,7 +49,6 @@
 
 using namespace Core;
 using namespace Core::Internal;
-using namespace Core::Constants;
 
 VersionDialog::VersionDialog(QWidget *parent)
     : QDialog(parent)
@@ -63,17 +62,17 @@ VersionDialog::VersionDialog(QWidget *parent)
     QGridLayout *layout = new QGridLayout(this);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    QString version = QLatin1String(IDE_VERSION_LONG);
+    QString version = QLatin1String(Constants::IDE_VERSION_LONG);
 
     QString ideVersionDescription;
 #ifdef IDE_VERSION_DESCRIPTION
-    ideVersionDescription = tr("(%1)").arg(QLatin1String(IDE_VERSION_DESCRIPTION_STR));
+    ideVersionDescription = tr("(%1)").arg(QLatin1String(Constants::IDE_VERSION_DESCRIPTION_STR));
 #endif
 
     QString ideRev;
 #ifdef IDE_REVISION
      //: This gets conditionally inserted as argument %8 into the description string.
-     ideRev = tr("From revision %1<br/>").arg(QString::fromLatin1(IDE_REVISION_STR).left(10));
+     ideRev = tr("From revision %1<br/>").arg(QString::fromLatin1(Constants::IDE_REVISION_STR).left(10));
 #endif
 
      const QString description = tr(
@@ -91,8 +90,8 @@ VersionDialog::VersionDialog(QWidget *parent)
         "PARTICULAR PURPOSE.<br/>")
         .arg(version, 
              QLatin1String(QT_VERSION_STR), QString::number(QSysInfo::WordSize),
-             QLatin1String(__DATE__), QLatin1String(__TIME__), QLatin1String(IDE_YEAR),
-             (QLatin1String(IDE_AUTHOR)), ideVersionDescription,
+             QLatin1String(__DATE__), QLatin1String(__TIME__), QLatin1String(Constants::IDE_YEAR),
+             (QLatin1String(Constants::IDE_AUTHOR)), ideVersionDescription,
              ideRev);
 
     QLabel *copyRightLabel = new QLabel(description);

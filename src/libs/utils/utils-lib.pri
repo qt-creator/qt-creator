@@ -203,8 +203,3 @@ FORMS += $$PWD/filewizardpage.ui \
     $$PWD/checkablemessagebox.ui
 
 RESOURCES += $$PWD/utils.qrc
-
-OTHER_FILES += $$PWD/app_version.h.in
-
-
-QMAKE_SUBSTITUTES += $$PWD/app_version.h.in

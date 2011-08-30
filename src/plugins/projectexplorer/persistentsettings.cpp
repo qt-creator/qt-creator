@@ -32,7 +32,7 @@
 
 #include "persistentsettings.h"
 
-#include <coreplugin/coreconstants.h>
+#include <app/app_version.h>
 
 #include <utils/fileutils.h>
 

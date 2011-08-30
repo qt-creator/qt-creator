@@ -33,4 +33,8 @@ win32 {
     INSTALLS    += target
 }
 
-OTHER_FILES += qtcreator.rc Info.plist.in
+OTHER_FILES += qtcreator.rc \
+    Info.plist.in \
+    $$PWD/app_version.h.in
+
+QMAKE_SUBSTITUTES += $$PWD/app_version.h.in

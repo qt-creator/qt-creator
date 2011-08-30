@@ -38,35 +38,6 @@
 namespace Core {
 namespace Constants {
 
-#include "ide_version.h"
-
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
-
-#define IDE_VERSION STRINGIFY(IDE_VERSION_MAJOR) \
-    "." STRINGIFY(IDE_VERSION_MINOR) \
-    "." STRINGIFY(IDE_VERSION_RELEASE)
-
-const char * const IDE_VERSION_LONG      = IDE_VERSION;
-const char * const IDE_AUTHOR            = "Nokia Corporation";
-const char * const IDE_YEAR              = "2011";
-
-#ifdef IDE_VERSION_DESCRIPTION
-const char * const IDE_VERSION_DESCRIPTION_STR = STRINGIFY(IDE_VERSION_DESCRIPTION);
-#else
-const char * const IDE_VERSION_DESCRIPTION_STR = "";
-#endif
-
-#ifdef IDE_REVISION
-const char * const IDE_REVISION_STR      = STRINGIFY(IDE_REVISION);
-#else
-const char * const IDE_REVISION_STR      = "";
-#endif
-
-#undef IDE_VERSION
-#undef STRINGIFY
-#undef STRINGIFY_INTERNAL
-
 //modes
 const char * const MODE_WELCOME          = "Welcome";
 const char * const MODE_WELCOME_TYPE     = "Type.Welcome";

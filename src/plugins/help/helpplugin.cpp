@@ -51,6 +51,7 @@
 #include "remotehelpfilter.h"
 #include "searchwidget.h"
 
+#include <app/app_version.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -95,7 +96,6 @@
 #include <QtWebKit/QWebHistory>
 #endif
 
-using namespace Core::Constants;
 using namespace Help::Internal;
 
 const char * const SB_INDEX = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Index");
@@ -235,17 +235,17 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
         tr(SB_CONTENTS), this);
     cmd = am->registerAction(action, Core::Id("Help.Contents"), globalcontext);
-    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
 
     action = new QAction(tr(SB_INDEX), this);
     cmd = am->registerAction(action, Core::Id("Help.Index"), globalcontext);
-    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
 
     action = new QAction(tr("Context Help"), this);
     cmd = am->registerAction(action, Core::Id("Help.Context"), globalcontext);
-    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
 
@@ -253,24 +253,24 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     action = new QAction(this);
     action->setSeparator(true);
     cmd = am->registerAction(action, Core::Id("Help.Separator"), globalcontext);
-    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
 #endif
 
     action = new QAction(tr("Technical Support"), this);
     cmd = am->registerAction(action, Core::Id("Help.TechSupport"), globalcontext);
-    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(slotOpenSupportPage()));
 
     action = new QAction(tr("Report Bug..."), this);
     cmd = am->registerAction(action, Core::Id("Help.ReportBug"), globalcontext);
-    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(slotReportBug()));
 
 #ifndef Q_WS_MAC
     action = new QAction(this);
     action->setSeparator(true);
     cmd = am->registerAction(action, Core::Id("Help.Separator2"), globalcontext);
-    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
 #endif
 
     action = new QAction(this);
@@ -283,7 +283,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     action->setText(cmd->action()->text());
     action->setIcon(cmd->action()->icon());
 
-    if (Core::ActionContainer *advancedMenu = am->actionContainer(M_EDIT_ADVANCED)) {
+    if (Core::ActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED)) {
         // reuse TextEditor constants to avoid a second pair of menu actions
         action = new QAction(tr("Increase Font Size"), this);
         cmd = am->registerAction(action, TextEditor::Constants::INCREASE_FONT_SIZE,
@@ -304,11 +304,11 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
 
-    if (Core::ActionContainer *windowMenu = am->actionContainer(M_WINDOW)) {
+    if (Core::ActionContainer *windowMenu = am->actionContainer(Core::Constants::M_WINDOW)) {
         // reuse EditorManager constants to avoid a second pair of menu actions
         action = new QAction(QApplication::translate("EditorManager",
             "Next Open Document in History"), this);
-        Core::Command *ctrlTab = am->registerAction(action, GOTOPREVINHISTORY,
+        Core::Command *ctrlTab = am->registerAction(action, Core::Constants::GOTOPREVINHISTORY,
             modecontext);   // Goto Previous In History Action
         windowMenu->addAction(ctrlTab, Core::Constants::G_WINDOW_NAVIGATE);
         connect(action, SIGNAL(triggered()), &OpenPagesManager::instance(),
@@ -316,7 +316,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
         action = new QAction(QApplication::translate("EditorManager",
             "Previous Open Document in History"), this);
-        Core::Command *ctrlShiftTab = am->registerAction(action, GOTONEXTINHISTORY,
+        Core::Command *ctrlShiftTab = am->registerAction(action, Core::Constants::GOTONEXTINHISTORY,
             modecontext);   // Goto Next In History Action
         windowMenu->addAction(ctrlShiftTab, Core::Constants::G_WINDOW_NAVIGATE);
         connect(action, SIGNAL(triggered()), &OpenPagesManager::instance(),
@@ -618,7 +618,7 @@ void HelpPlugin::createRightPaneContextViewer()
         SLOT(setEnabled(bool)));
 
     Core::ActionManager *am = m_core->actionManager();
-    if (Core::ActionContainer *advancedMenu = am->actionContainer(M_EDIT_ADVANCED)) {
+    if (Core::ActionContainer *advancedMenu = am->actionContainer(Core::Constants::M_EDIT_ADVANCED)) {
         // reuse TextEditor constants to avoid a second pair of menu actions
         QAction *action = new QAction(tr("Increase Font Size"), this);
         cmd = am->registerAction(action, TextEditor::Constants::INCREASE_FONT_SIZE,

@@ -34,8 +34,9 @@
 #include "shortcutsettings.h"
 #include "command_p.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/coreconstants.h>
 
 #include <utils/qtcassert.h>
 

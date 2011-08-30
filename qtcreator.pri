@@ -123,6 +123,7 @@ macx {
 }
 
 INCLUDEPATH += \
+    $$IDE_BUILD_TREE/src \ # for <app/app_version.h>
     $$IDE_SOURCE_TREE/src/libs \
     $$IDE_SOURCE_TREE/tools \
     $$IDE_SOURCE_TREE/src/plugins

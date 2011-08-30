@@ -40,7 +40,7 @@
 #include <sys/utsname.h>
 #endif
 
-#include "app_version.h"
+#include <app/app_version.h>
 
 /*!
    \class Utils::NetworkManager
@@ -134,7 +134,7 @@ void NetworkAccessManager::getUrl(const QUrl &url)
 QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
     QString agentStr = QString::fromLatin1("Qt-Creator/%1 (QNetworkAccessManager %2; %3; %4; %5 bit)")
-                    .arg(APP_VERSION_STR).arg(qVersion())
+                    .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
                     .arg(getOsString()).arg(QLocale::system().name())
                     .arg(QSysInfo::WordSize);
     QNetworkRequest req(request);
