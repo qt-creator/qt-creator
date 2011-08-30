@@ -170,14 +170,16 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
     return workingCopy;
 }
 
-Snapshot ModelManager::snapshot(bool preferValid) const
+Snapshot ModelManager::snapshot() const
 {
     QMutexLocker locker(&m_mutex);
+    return _validSnapshot;
+}
 
-    if (preferValid)
-        return _validSnapshot;
-    else
-        return _newestSnapshot;
+Snapshot ModelManager::newestSnapshot() const
+{
+    QMutexLocker locker(&m_mutex);
+    return _newestSnapshot;
 }
 
 void ModelManager::updateSourceFiles(const QStringList &files,

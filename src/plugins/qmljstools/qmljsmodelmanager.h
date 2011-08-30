@@ -69,7 +69,8 @@ public:
     void delayedInitialization();
 
     virtual WorkingCopy workingCopy() const;
-    virtual QmlJS::Snapshot snapshot(bool preferValid = true) const;
+    virtual QmlJS::Snapshot snapshot() const;
+    virtual QmlJS::Snapshot newestSnapshot() const;
 
     virtual void updateSourceFiles(const QStringList &files,
                                    bool emitDocumentOnDiskChanged);

@@ -119,7 +119,9 @@ public:
     static ModelManagerInterface *instance();
 
     virtual WorkingCopy workingCopy() const = 0;
-    virtual QmlJS::Snapshot snapshot(bool preferValid = true) const = 0;
+
+    virtual QmlJS::Snapshot snapshot() const = 0;
+    virtual QmlJS::Snapshot newestSnapshot() const = 0;
 
     virtual void updateSourceFiles(const QStringList &files,
                                    bool emitDocumentOnDiskChanged) = 0;
