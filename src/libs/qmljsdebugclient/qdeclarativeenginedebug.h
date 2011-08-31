@@ -29,8 +29,8 @@
 **
 **************************************************************************/
 
-#ifndef QDECLARATIVEDEBUG_H
-#define QDECLARATIVEDEBUG_H
+#ifndef QDECLARATIVEENGINEDEBUG_H
+#define QDECLARATIVEENGINEDEBUG_H
 
 #include "qmljsdebugclient_global.h"
 #include <QtCore/qobject.h>
@@ -368,4 +368,4 @@ Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugObjectReference)
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugContextReference)
 Q_DECLARE_METATYPE(QmlJsDebugClient::QDeclarativeDebugPropertyReference)
 
-#endif // QDECLARATIVEDEBUG_H
+#endif // QDECLARATIVEENGINEDEBUG_H

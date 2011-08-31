@@ -64,6 +64,8 @@ public:
     qint64 packetsAvailable() const;
     QPacket read();
 
+    bool waitForReadyRead(int msecs = 3000);
+
     void clear();
 
     QIODevice *device();
@@ -87,6 +89,7 @@ public:
 
     void clear();
     bool isEmpty() const;
+    QByteArray data() const;
 
 protected:
     friend class QPacketProtocol;

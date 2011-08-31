@@ -31,7 +31,8 @@
 
 #include "qpacketprotocol.h"
 
-#include <QtCore/QBuffer>
+#include <QtCore/qbuffer.h>
+#include <QtCore/qelapsedtimer.h>
 
 namespace QmlJsDebugClient {
 
@@ -105,7 +106,7 @@ class QPacketProtocolPrivate : public QObject
 public:
     QPacketProtocolPrivate(QPacketProtocol *parent, QIODevice *_dev)
         : QObject(parent), inProgressSize(-1), maxPacketSize(MAX_PACKET_SIZE),
-          dev(_dev)
+          waitingForPacket(false), dev(_dev)
     {
         Q_ASSERT(4 == sizeof(qint32));
 
@@ -189,6 +190,7 @@ public Q_SLOTS:
                     inProgressSize = -1;
                     inProgress.clear();
 
+                    waitingForPacket = false;
                     emit readyRead();
                 } else
                     return;
@@ -202,14 +204,15 @@ public:
     QByteArray inProgress;
     qint32 inProgressSize;
     qint32 maxPacketSize;
-    QIODevice * dev;
+    bool waitingForPacket;
+    QIODevice *dev;
 };
 
 /*!
   Construct a QPacketProtocol instance that works on \a dev with the
   specified \a parent.
  */
-QPacketProtocol::QPacketProtocol(QIODevice * dev, QObject * parent)
+QPacketProtocol::QPacketProtocol(QIODevice *dev, QObject *parent)
     : QObject(parent), d(new QPacketProtocolPrivate(this, dev))
 {
     Q_ASSERT(dev);
@@ -313,10 +316,53 @@ QPacket QPacketProtocol::read()
     return rv;
 }
 
+
+/*
+   Returns the difference between msecs and elapsed. If msecs is -1,
+   however, -1 is returned.
+*/
+static int qt_timeout_value(int msecs, int elapsed)
+{
+    if (msecs == -1)
+        return -1;
+
+    int timeout = msecs - elapsed;
+    return timeout < 0 ? 0 : timeout;
+}
+
+/*!
+  This function locks until a new packet is available for reading and the
+  \l{QIODevice::}{readyRead()} signal has been emitted. The function
+  will timeout after \a msecs milliseconds; the default timeout is
+  30000 milliseconds.
+
+  The function returns true if the readyRead() signal is emitted and
+  there is new data available for reading; otherwise it returns false
+  (if an error occurred or the operation timed out).
+  */
+
+bool QPacketProtocol::waitForReadyRead(int msecs)
+{
+    if (!d->packets.isEmpty())
+        return true;
+
+    QElapsedTimer stopWatch;
+    stopWatch.start();
+
+    d->waitingForPacket = true;
+    do {
+        if (!d->dev->waitForReadyRead(msecs))
+            return false;
+        if (!d->waitingForPacket)
+            return true;
+        msecs = qt_timeout_value(msecs, stopWatch.elapsed());
+    } while (true);
+}
+
 /*!
   Return the QIODevice passed to the QPacketProtocol constructor.
 */
-QIODevice * QPacketProtocol::device()
+QIODevice *QPacketProtocol::device()
 {
     return d->dev;
 }
@@ -396,6 +442,7 @@ QPacket::QPacket()
     buf = new QBuffer(&b);
     buf->open(QIODevice::WriteOnly);
     setDevice(buf);
+    setVersion(QDataStream::Qt_4_7);
 }
 
 /*!
@@ -441,6 +488,14 @@ bool QPacket::isEmpty() const
 }
 
 /*!
+  Returns raw packet data.
+  */
+QByteArray QPacket::data() const
+{
+    return b;
+}
+
+/*!
   Clears data in the packet.  This is useful for reusing one writable packet.
   For example
   \code
@@ -471,7 +526,7 @@ void QPacket::clear()
 
   \internal
   */
-QPacketAutoSend::QPacketAutoSend(QPacketProtocol * _p)
+QPacketAutoSend::QPacketAutoSend(QPacketProtocol *_p)
     : QPacket(), p(_p)
 {
 }

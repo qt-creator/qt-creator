@@ -41,7 +41,7 @@ class QDeclarativeDebugConnectionPrivate;
 class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugConnection : public QIODevice
 {
     Q_OBJECT
-
+    Q_DISABLE_COPY(QDeclarativeDebugConnection)
 public:
     QDeclarativeDebugConnection(QObject * = 0);
     ~QDeclarativeDebugConnection();
@@ -55,13 +55,14 @@ public:
     void flush();
     bool isSequential() const;
     void close();
+    bool waitForConnected(int msecs = 30000);
 
 signals:
     void connected();
     void stateChanged(QAbstractSocket::SocketState socketState);
     void error(QAbstractSocket::SocketError socketError);
 
-private:
+protected:
     qint64 readData(char *data, qint64 maxSize);
     qint64 writeData(const char *data, qint64 maxSize);
 
@@ -76,6 +77,7 @@ class QMLJSDEBUGCLIENT_EXPORT QDeclarativeDebugClient : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDeclarativeDebugClient)
+    Q_DISABLE_COPY(QDeclarativeDebugClient)
 
 public:
     enum Status { NotConnected, Unavailable, Enabled };

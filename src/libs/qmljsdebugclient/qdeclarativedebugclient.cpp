@@ -246,6 +246,14 @@ void QDeclarativeDebugConnection::close()
     }
 }
 
+bool QDeclarativeDebugConnection::waitForConnected(int msecs)
+{
+    QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
+    if (socket)
+        return socket->waitForConnected(msecs);
+    return false;
+}
+
 // For ease of refactoring we use QAbstractSocket's states even if we're actually using a OstChannel underneath
 // since serial ports have a subset of the socket states afaics
 QAbstractSocket::SocketState QDeclarativeDebugConnection::state() const
@@ -350,7 +358,7 @@ QDeclarativeDebugClient::QDeclarativeDebugClient(const QString &name,
 
 QDeclarativeDebugClient::~QDeclarativeDebugClient()
 {
-    Q_D(QDeclarativeDebugClient);
+    Q_D(const QDeclarativeDebugClient);
     if (d->connection && d->connection->d) {
         d->connection->d->plugins.remove(d->name);
         d->connection->d->advertisePlugins();
