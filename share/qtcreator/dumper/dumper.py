@@ -443,6 +443,12 @@ def checkPointer(p, align = 1):
     if not isNull(p):
         p.dereference()
 
+def isAccessible(p):
+    try:
+        long(p)
+        return True
+    except:
+        return False
 
 def isNull(p):
     # The following can cause evaluation to abort with "UnicodeEncodeError"
@@ -454,7 +460,11 @@ def isNull(p):
     #    return p.cast(lookupType("void").pointer()) == 0
     #except:
     #    return False
-    return long(p) == 0
+    try:
+        # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
+        return long(p) == 0
+    except:
+        return False
 
 movableTypes = set([
     "QBrush", "QBitArray", "QByteArray", "QCustomTypeInfo", "QChar", "QDate",
@@ -1128,6 +1138,11 @@ class Dumper:
         # in SubItem.__exit__().
         self.putBetterType(" ")
 
+    def putInaccessible(self):
+        #self.putBetterType(" ")
+        self.putNumChild(0)
+        self.currentValue = None
+
     def putBetterType(self, type, priority = 0):
         self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
@@ -1211,7 +1226,7 @@ class Dumper:
             return True
         if isSimpleType(type):
             return True
-        return self.stripNamespaceFromType(type) in movableTypes
+        return self.stripNamespaceFromType(str(type)) in movableTypes
 
     def putIntItem(self, name, value):
         with SubItem(self, name):
@@ -1331,6 +1346,11 @@ class Dumper:
 
         if type.code == PointerCode:
             #warn("POINTER: %s" % value)
+
+            if not isAccessible(value):
+                self.currentValue = None
+                self.putNumChild(0)
+                return
 
             if isNull(value):
                 #warn("NULL POINTER")

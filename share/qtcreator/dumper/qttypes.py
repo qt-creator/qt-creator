@@ -51,8 +51,15 @@ def qdump__QChar(d, value):
     d.putNumChild(0)
 
 
+def qform__QModelIndex():
+    return "Normal,Enhanced"
 
 def qdump__QAbstractItemModel(d, value):
+    format = d.currentItemFormat()
+    if format == 1:
+        d.putPlainChildren(value)
+        return
+    #format == 2:
     # Create a default-constructed QModelIndex on the stack.
     try:
         ri = makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
@@ -86,7 +93,14 @@ def qdump__QAbstractItemModel(d, value):
                         #d.putType(mi.type)
     #gdb.execute("call free($ri)")
 
+def qform__QModelIndex():
+    return "Normal,Enhanced"
+
 def qdump__QModelIndex(d, value):
+    format = d.currentItemFormat()
+    if format == 1:
+        d.putPlainChildren(value)
+        return
     r = value["r"]
     c = value["c"]
     p = value["p"]
@@ -681,6 +695,7 @@ def qdump__QObject(d, value):
     if privateType is None:
         d.putNumChild(4)
         #d.putValue(cleanAddress(value.address))
+        d.putPlainChildren(value)
         if d.isExpanded():
             with Children(d):
                 d.putFields(value)
@@ -688,6 +703,9 @@ def qdump__QObject(d, value):
     #warn("OBJECTNAME: %s " % objectName)
     #warn("D_PTR: %s " % d_ptr)
     mo = d_ptr["metaObject"]
+    if not isAccessible(mo):
+        d.putInaccessible()
+        return
     if isNull(mo):
         mo = staticMetaObject
     #warn("MO: %s " % mo)
@@ -1807,7 +1825,7 @@ def qdump__std__stack(d, value):
 def qdump__std__string(d, value):
     data = value["_M_dataplus"]["_M_p"]
     baseType = value.type.unqualified().strip_typedefs()
-    if baseType.code == ReferenceType:
+    if baseType.code == ReferenceCode:
         baseType = baseType.target().unqualified().strip_typedefs()
     # We might encounter 'std::string' or 'std::basic_string<>'
     # or even 'std::locale::string' on MinGW due to some type lookup glitch.
