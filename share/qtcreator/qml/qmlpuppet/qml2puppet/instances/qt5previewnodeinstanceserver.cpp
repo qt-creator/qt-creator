@@ -36,6 +36,9 @@
 #include "statepreviewimagechangedcommand.h"
 #include "createscenecommand.h"
 
+#include <QSGItem>
+#include <designersupport.h>
+
 namespace QmlDesigner {
 
 Qt5PreviewNodeInstanceServer::Qt5PreviewNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :

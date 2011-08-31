@@ -38,7 +38,7 @@
 #include "objectnodeinstance.h"
 
 #include <QSGItem>
-#include <private/designersupport.h>
+#include <designersupport.h>
 
 namespace QmlDesigner {
 namespace Internal {

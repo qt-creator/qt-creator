@@ -54,6 +54,8 @@
 #include <QSet>
 #include <QtDebug>
 
+#include <QSGItem>
+
 #include <QtDeclarative/QDeclarativeEngine>
 
 /*!

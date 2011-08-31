@@ -36,7 +36,7 @@
 #include <QSGItem>
 #include <QSGView>
 
-#include <private/designersupport.h>
+#include <designersupport.h>
 #include <addimportcontainer.h>
 #include <createscenecommand.h>
 
