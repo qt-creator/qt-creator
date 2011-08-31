@@ -524,9 +524,11 @@ QList<LanguageUtils::FakeMetaObject::ConstPtr> FindExportedCppTypes::operator()(
 
     FindExportsVisitor finder(document);
     QList<ExportedQmlType> exports = finder();
-    CppModelManagerInterface::instance()->setExtraDiagnostics(
-                document->fileName(), CppModelManagerInterface::ExportedQmlTypesDiagnostic,
-                finder.messages());
+    if (CppModelManagerInterface *cppModelManager = CppModelManagerInterface::instance()) {
+        cppModelManager->setExtraDiagnostics(
+                    document->fileName(), CppModelManagerInterface::ExportedQmlTypesDiagnostic,
+                    finder.messages());
+    }
     if (exports.isEmpty())
         return noResults;
 
