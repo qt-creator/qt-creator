@@ -109,6 +109,8 @@ public:
     DesignerSupport *designerSupport() const;
     Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
 
+    static void createEffectItem(bool createEffectItem);
+
 protected:
     SGItemNodeInstance(QSGItem*);
     QSGItem *sgItem() const;
@@ -128,6 +130,7 @@ private: //variables
     double m_y;
     double m_width;
     double m_height;
+    static bool s_createEffectItem;
 };
 
 } // namespace Internal

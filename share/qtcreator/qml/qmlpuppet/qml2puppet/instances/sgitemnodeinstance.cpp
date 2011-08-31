@@ -45,6 +45,8 @@
 namespace QmlDesigner {
 namespace Internal {
 
+bool SGItemNodeInstance::s_createEffectItem = false;
+
 SGItemNodeInstance::SGItemNodeInstance(QSGItem *item)
    : ObjectNodeInstance(item),
      m_hasHeight(false),
@@ -186,23 +188,27 @@ bool SGItemNodeInstance::equalSGItem(QSGItem *item) const
 
 void SGItemNodeInstance::updateDirtyNodeRecursive(QSGItem *parentItem) const
 {
-    DesignerSupport::updateDirtyNode(parentItem);
-
     foreach (QSGItem *childItem, parentItem->childItems()) {
         if (!nodeInstanceServer()->hasInstanceForObject(childItem))
             updateDirtyNodeRecursive(childItem);
     }
+
+    DesignerSupport::updateDirtyNode(parentItem);
 }
 
 QImage SGItemNodeInstance::renderImage() const
 {
     updateDirtyNodeRecursive(sgItem());
 
-    QImage image = designerSupport()->renderImageForItem(sgItem(), boundingRectWithStepChilds(sgItem()));
+    QRectF boundingRect = boundingRectWithStepChilds(sgItem());
 
-    image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    QImage renderImage = designerSupport()->renderImageForItem(sgItem(), boundingRect, boundingRect.size().toSize());
 
-    return image;
+    qDebug() << __FUNCTION__ << renderImage.size();
+
+    renderImage = renderImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+    return renderImage;
 }
 
 bool SGItemNodeInstance::isMovable() const
@@ -244,7 +250,9 @@ void SGItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNod
         sgItem()->setParentItem(qobject_cast<QSGItem*>(nodeInstanceServer()->sgView()->rootObject()));
     }
 
-    designerSupport()->refFromEffectItem(sgItem());
+    if (s_createEffectItem || instanceId() == 0)
+        designerSupport()->refFromEffectItem(sgItem());
+
     ObjectNodeInstance::initialize(objectNodeInstance);
     sgItem()->update();
 }
@@ -311,6 +319,8 @@ QRectF SGItemNodeInstance::boundingRect() const
 
 void SGItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
+    if (name == "width" || name == "height")
+        qDebug() << __FUNCTION__ << name << value;
     if (name == "state")
         return; // states are only set by us
 
@@ -581,6 +591,11 @@ DesignerSupport *SGItemNodeInstance::designerSupport() const
 Qt5NodeInstanceServer *SGItemNodeInstance::qt5NodeInstanceServer() const
 {
     return qobject_cast<Qt5NodeInstanceServer*>(nodeInstanceServer());
+}
+
+void SGItemNodeInstance::createEffectItem(bool createEffectItem)
+{
+    s_createEffectItem = createEffectItem;
 }
 
 } // namespace Internal

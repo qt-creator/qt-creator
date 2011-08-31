@@ -60,6 +60,8 @@
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
+#include "sgitemnodeinstance.h"
+
 
 #include "dummycontextobject.h"
 
@@ -70,6 +72,7 @@ namespace QmlDesigner {
 Qt5RenderNodeInstanceServer::Qt5RenderNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
 {
+    Internal::SGItemNodeInstance::createEffectItem(true);
 }
 
 void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
