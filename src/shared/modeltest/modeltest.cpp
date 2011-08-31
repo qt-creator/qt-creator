@@ -220,8 +220,11 @@ void ModelTest::index()
         return;
 
     // Catch off by one errors
-    Q_ASSERT(model->index(rows, columns) == QModelIndex());
-    Q_ASSERT(model->index(0, 0).isValid() == true);
+    QModelIndex tmp;
+    tmp = model->index(rows, columns);
+    Q_ASSERT(tmp == QModelIndex());
+    tmp = model->index(0, 0);
+    Q_ASSERT(tmp.isValid() == true);
 
     // Make sure that the same index is *always* returned
     QModelIndex a = model->index(0, 0);
@@ -244,6 +247,8 @@ void ModelTest::parent()
     if (model->rowCount() == 0)
         return;
 
+    QModelIndex tmp;
+
     // Column 0                | Column 1    |
     // QModelIndex()           |             |
     //    \- topIndex          | topIndex1   |
@@ -252,13 +257,15 @@ void ModelTest::parent()
     // Common error test #1, make sure that a top level index has a parent
     // that is a invalid QModelIndex.
     QModelIndex topIndex = model->index(0, 0, QModelIndex());
-    Q_ASSERT(model->parent(topIndex) == QModelIndex());
+    tmp = model->parent(topIndex);
+    Q_ASSERT(tmp == QModelIndex());
 
     // Common error test #2, make sure that a second level index has a parent
     // that is the first level index.
     if (model->rowCount(topIndex) > 0) {
         QModelIndex childIndex = model->index(0, 0, topIndex);
-        Q_ASSERT(model->parent(childIndex) == topIndex);
+        tmp = model->parent(childIndex);
+        Q_ASSERT(tmp == topIndex);
     }
 
     // Common error test #3, the second column should NOT have the same children
@@ -292,6 +299,8 @@ void ModelTest::parent()
  */
 void ModelTest::checkChildren(const QModelIndex &parent, int currentDepth)
 {
+    QModelIndex tmp;
+
     // First just try walking back up the tree.
     QModelIndex p = parent;
     while (p.isValid())
@@ -366,7 +375,8 @@ void ModelTest::checkChildren(const QModelIndex &parent, int currentDepth)
             //qDebug() << "TTT 1: " << model->parent(index);
             //qDebug() << "TTT 2: " << parent;
             //qDebug() << "TTT 3: " << index;
-            Q_ASSERT(model->parent(index) == parent);
+            tmp = model->parent(index);
+            Q_ASSERT(tmp == parent);
 
             // recursively go down the children
             if (model->hasChildren(index) && currentDepth < 10 ) {
