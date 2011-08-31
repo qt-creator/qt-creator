@@ -1023,6 +1023,9 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Linux 8")
                 << QString::fromLatin1("armv5tl-montavista-linux-gnueabi")
                 << (QStringList() << QLatin1String("arm-linux-generic-elf-32bit"));
+    QTest::newRow("Linux 9")
+                << QString::fromLatin1("arm-angstrom-linux-gnueabi")
+                << (QStringList() << QLatin1String("arm-linux-generic-elf-32bit"));
 
     QTest::newRow("Mingw 1")
             << QString::fromLatin1("i686-w64-mingw32")
