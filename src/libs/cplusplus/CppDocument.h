@@ -128,7 +128,7 @@ public:
 
     static Ptr create(const QString &fileName);
 
-    class DiagnosticMessage
+    class CPLUSPLUS_EXPORT DiagnosticMessage
     {
     public:
         enum Level {
