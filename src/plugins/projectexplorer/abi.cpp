@@ -221,11 +221,20 @@ static QList<Abi> abiOf(const QByteArray &data)
                && static_cast<unsigned char>(data.at(16)) == 'E' && static_cast<unsigned char>(data.at(17)) == 'P'
                && static_cast<unsigned char>(data.at(18)) == 'O' && static_cast<unsigned char>(data.at(19)) == 'C') {
         result.append(Abi(Abi::ArmArchitecture, Abi::SymbianOS, Abi::SymbianDeviceFlavor, Abi::ElfFormat, 32));
-    } else {
+    } else if (data.size() >= 64){
         // Windows PE
-        // Windows can have its magic bytes everywhere...
-        int pePos = data.indexOf(QByteArray("PE\0\0", 4));
-        if (pePos >= 0)
+
+        // MZ header first:
+        if (!data.at(0) == 'M' || !data.at(1) == 'Z')
+            return result;
+
+        // Get PE/COFF header position from MZ header:
+        qint32 pePos = static_cast<quint8>(data.at(60)) + static_cast<quint8>(data.at(61)) * 0x100
+                       + static_cast<quint8>(data.at(62)) * 0x10000 + static_cast<quint8>(data.at(63)) * 0x1000000;
+        if (pePos <= 0 || data.size() < pePos + 4 + 20) // PE magic bytes plus COFF header
+            return result;
+        if (data.at(pePos) == 'P' && data.at(pePos + 1) == 'E'
+            && data.at(pePos + 2) == 0 && data.at(pePos + 3) == 0)
             result = parseCoffHeader(data.mid(pePos + 4));
     }
     return result;
