@@ -18,8 +18,8 @@ def verifyEnabled(objectName):
 
 def selectFromCombo(objectName, itemName):
     object = verifyEnabled(objectName)
-    mouseClick(object, 198, 7, 0, Qt.LeftButton)
-    mouseClick(waitForObjectItem(object, itemName), 84, 5, 0, Qt.LeftButton)
+    mouseClick(object, 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(object, itemName), 5, 5, 0, Qt.LeftButton)
 
 def wordUnderCursor(window):
     cursor = window.textCursor()

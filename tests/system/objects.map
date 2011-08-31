@@ -1,13 +1,27 @@
+:*Qt Creator.Build Project_Core::Internal::FancyToolButton	{text='Build Project' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.Run_Core::Internal::FancyToolButton	{text='Run' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FilterLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.qt_tabwidget_stackedwidget_QStackedWidget	{name='qt_tabwidget_stackedwidget' type='QStackedWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator_Core::Internal::FancyToolButton	{occurrence='3' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::FilterLineEdit	{type='Utils::FilterLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::IconButton	{occurrence='4' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Build:_QComboBox	{aboveWidget=':Desktop_QLabel' container=':QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget' leftWidget=':Build:_QLabel' type='QComboBox'}
+:Build:_QLabel	{container=':QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget' name='buildLabel' text='Build:' type='QLabel' visible='1'}
 :CMake Wizard.Finish_QPushButton	{text='Finish' type='QPushButton' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard.Next_QPushButton	{name='__qt__passive_wizardbutton1' text='Next' type='QPushButton' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard.Run CMake_QPushButton	{text='Run CMake' type='QPushButton' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard	{type='CMakeProjectManager::Internal::CMakeOpenProjectWizard' unnamed='1' visible='1' windowTitle='CMake Wizard'}
-:Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' unnamed='1' visible='1' windowTitle?='*Qt Creator'}
+:Desktop_QLabel	{container=':QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget' name='target' text='Desktop' type='QLabel' visible='1'}
+:Project Setup.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard'}
+:Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard	{type='Qt4ProjectManager::Internal::ProjectLoadWizard' unnamed='1' visible='1' windowTitle='Project Setup'}
+:Qt Creator.QtCreator.MenuBar_QMenuBar	{name='QtCreator.MenuBar' type='QMenuBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' visible='1' windowTitle?='*Qt Creator'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::IconButton	{occurrence='2' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::NavigationTreeView	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector	{type='ProjectExplorer::Internal::MiniProjectTargetSelector'}
+:QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget	{type='ProjectExplorer::Internal::ProjectListWidget' window=':QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector'}
 :projects.projects.pro_QModelIndex	{column='0' container=':projects_QModelIndex' text='projects.pro' type='QModelIndex'}
 :projects_QModelIndex	{column='0' container=':Qt Creator_Utils::NavigationTreeView' text='projects' type='QModelIndex'}
+:scrollArea.Create Build Configurations:_QComboBox	{container=':Project Setup.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel' type='QComboBox' unnamed='1' visible='1'}
+:scrollArea.Create Build Configurations:_QLabel	{container=':Project Setup.scrollArea_QScrollArea' text='Create Build Configurations:' type='QLabel' unnamed='1' visible='1'}

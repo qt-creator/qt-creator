@@ -7,15 +7,15 @@ def handleRefreshFinished(object, fileList):
     refreshFinishedCount += 1
 
 def main():
+    test.verify(os.path.exists(SDKPath + "/qt/projects.pro"))
+    test.verify(os.path.exists(SDKPath + "/creator/qtcreator.pro"))
+
     startApplication("qtcreator" + SettingsPath)
 
     installLazySignalHandler("{type='CppTools::Internal::CppModelManager'}", "sourceFilesRefreshed(QStringList)", "handleRefreshFinished")
 
-    test.verify(os.path.exists(SDKPath + "/qt/projects.pro"))
-    test.verify(os.path.exists(SDKPath + "/creator/qtcreator.pro"))
-
-    openProject(SDKPath + "/qt/projects.pro")
-    openProject(SDKPath + "/creator/qtcreator.pro")
+    openQmakeProject(SDKPath + "/qt/projects.pro")
+    openQmakeProject(SDKPath + "/creator/qtcreator.pro")
 
     # Test that some of the expected items are in the navigation tree
     for row, record in enumerate(testData.dataset("qt_tree.tsv")):
@@ -34,7 +34,7 @@ def main():
 
     # Now check some basic lookups in the search box
 
-    mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 101, 7, 0, Qt.LeftButton)
+    mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 5, 5, 0, Qt.LeftButton)
     type(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), ": Qlist::QList")
     snooze(1)
     type(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), "<Return>")

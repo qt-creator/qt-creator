@@ -6,22 +6,25 @@ def handleRefreshFinished(object, fileList):
     global refreshFinishedCount
     refreshFinishedCount += 1
 
-
 def main():
+    test.verify(os.path.exists(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro"))
+
     startApplication("qtcreator" + SettingsPath)
 
     installLazySignalHandler("{type='CppTools::Internal::CppModelManager'}", "sourceFilesRefreshed(QStringList)", "handleRefreshFinished")
-    test.verify(os.path.exists(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro"))
-    openProject(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
+    openQmakeProject(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
 
     waitFor("refreshFinishedCount == 1", 20000)
     test.compare(refreshFinishedCount, 1)
 
-    mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 110, 11, 0, Qt.LeftButton)
+    mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 5, 5, 0, Qt.LeftButton)
     type(waitForObject(":*Qt Creator_Utils::FilterLineEdit"), "dummy.cpp")
     # pause to wait for results to populate
     snooze(1)
     type(waitForObject(":*Qt Creator_Utils::FilterLineEdit"), "<Return>")
+
+##   Waiting for a solution from Froglogic to make the below work.
+##   There is an issue with slots that return a class type that wasn't running previously...
 
 #    editorManager = waitForObject("{type='Core::EditorManager'}", 2000)
 #    t2 = editorManager.currentEditor()
@@ -55,7 +58,7 @@ def main():
 #    Creator should show the definition of this function
 #    - Press Shift+F2 or select from menu: Tools / C++ / Switch Between Method Declaration/Definition again
 #    Creator should show the declaration of the function again.
-    mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 110, 11, 0, Qt.LeftButton)
+    mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject(":Qt Creator_Utils::IconButton"))
     type(waitForObject(":*Qt Creator_Utils::FilterLineEdit"), "dummy.cpp")
     # pause to wait for results to populate

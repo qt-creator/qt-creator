@@ -14,18 +14,11 @@ def main():
         test.fatal("cmake not found")
         return
 
+    test.verify(os.path.exists(SpeedCrunchPath))
+
     startApplication("qtcreator" + SettingsPath)
 
-    invokeMenuItem("File", "Open File or Project...")
-
-    test.verify(os.path.exists(SpeedCrunchPath))
-    waitForObject("{name='QFileDialog' type='QFileDialog' visible='1' windowTitle='Open File'}", 20000)
-    type(findObject("{name='fileNameEdit' type='QLineEdit'}"), SpeedCrunchPath)
-    clickButton(findObject("{text='Open' type='QPushButton'}"))
-
-    clickButton(waitForObject(":CMake Wizard.Next_QPushButton", 20000))
-    clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton", 20000))
-    clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))
+    openCmakeProject(SpeedCrunchPath)
 
     waitFor("object.exists(':speedcrunch_QModelIndex')", 20000)
 
