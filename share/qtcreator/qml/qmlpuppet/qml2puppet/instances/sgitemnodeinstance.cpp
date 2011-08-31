@@ -198,7 +198,7 @@ QImage SGItemNodeInstance::renderImage() const
 {
     updateDirtyNodeRecursive(sgItem());
 
-    QImage image = designerSupport()->renderImageForItem(sgItem());
+    QImage image = designerSupport()->renderImageForItem(sgItem(), boundingRectWithStepChilds(sgItem()));
 
     image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
