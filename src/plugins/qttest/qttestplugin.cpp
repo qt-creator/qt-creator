@@ -198,6 +198,9 @@ void QtTestPlugin::extensionsInitialized()
     ProjectExplorer::ProjectExplorerPlugin *explorer =
         ProjectExplorer::ProjectExplorerPlugin::instance();
 
+    connect(explorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+        this, SLOT(onStartupProjectChanged(ProjectExplorer::Project *)));
+
     connect(core->progressManager(), SIGNAL(allTasksFinished(QString)),
         this, SLOT(onAllTasksFinished(QString)));
 
@@ -213,6 +216,11 @@ void QtTestPlugin::onDefectSelected(TestCaseRec rec)
         int line = (rec.m_line > 0 ? rec.m_line : 0);
         TextEditor::BaseTextEditorWidget::openEditorAt(rec.m_code->actualFileName(), line);
     }
+}
+
+void QtTestPlugin::onStartupProjectChanged(ProjectExplorer::Project *project)
+{
+    TestConfigurations::instance().setActiveConfiguration(project);
 }
 
 void QtTestPlugin::onProjectRemoved(ProjectExplorer::Project *project)

@@ -71,6 +71,7 @@ public:
 
 public slots:
     void onDefectSelected(TestCaseRec rec);
+    void onStartupProjectChanged(ProjectExplorer::Project *project);
     void onProjectRemoved(ProjectExplorer::Project *project);
     void onAllTasksFinished(const QString &);
 
