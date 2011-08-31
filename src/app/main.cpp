@@ -160,6 +160,7 @@ static inline QStringList getPluginPaths()
     QDir rootDir = QApplication::applicationDirPath();
     rootDir.cdUp();
     const QString rootDirPath = rootDir.canonicalPath();
+#if !defined(Q_OS_MAC)
     // 1) "plugins" (Win/Linux)
     QString pluginPath = rootDirPath;
     pluginPath += QLatin1Char('/');
@@ -169,11 +170,13 @@ static inline QStringList getPluginPaths()
     pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String("plugins");
     rc.push_back(pluginPath);
+#else
     // 2) "PlugIns" (OS X)
-    pluginPath = rootDirPath;
+    QString pluginPath = rootDirPath;
     pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String("PlugIns");
     rc.push_back(pluginPath);
+#endif
     return rc;
 }
 
