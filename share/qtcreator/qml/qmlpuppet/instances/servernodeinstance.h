@@ -46,6 +46,7 @@ class QStyleOptionGraphicsItem;
 class QDeclarativeContext;
 class QGraphicsItem;
 class QGraphicsTransform;
+class QSGItem;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -198,6 +199,7 @@ private: // functions
 
 
     QObject *internalObject() const; // should be not used outside of the nodeinstances!!!!
+    QSGItem *internalSGItem() const;
 
 private: // variables
     QSharedPointer<Internal::ObjectNodeInstance> m_nodeInstance;

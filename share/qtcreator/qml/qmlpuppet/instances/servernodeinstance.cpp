@@ -548,6 +548,11 @@ QObject *ServerNodeInstance::internalObject() const
     return m_nodeInstance->object();
 }
 
+QSGItem *ServerNodeInstance::internalSGItem() const
+{
+    return qobject_cast<QSGItem*>(internalObject());
+}
+
 void ServerNodeInstance::activateState()
 {
     m_nodeInstance->activateState();
