@@ -54,6 +54,41 @@ namespace ProjectExplorer {
 // Helpers
 // --------------------------------------------------------------------------
 
+static quint8 getUint8(const QByteArray &data, int pos)
+{
+    return static_cast<quint8>(data.at(pos));
+}
+
+static quint32 getLEUint32(const QByteArray &ba, int pos)
+{
+    Q_ASSERT(ba.size() >= pos + 3);
+    return (static_cast<quint32>(static_cast<quint8>(ba.at(pos + 3))) << 24)
+            + (static_cast<quint32>(static_cast<quint8>(ba.at(pos + 2)) << 16))
+            + (static_cast<quint32>(static_cast<quint8>(ba.at(pos + 1))) << 8)
+            + static_cast<quint8>(ba.at(pos));
+}
+
+static quint32 getBEUint32(const QByteArray &ba, int pos)
+{
+    Q_ASSERT(ba.size() >= pos + 3);
+    return (static_cast<quint32>(static_cast<quint8>(ba.at(pos))) << 24)
+            + (static_cast<quint32>(static_cast<quint8>(ba.at(pos + 1))) << 16)
+            + (static_cast<quint32>(static_cast<quint8>(ba.at(pos + 2))) << 8)
+            + static_cast<quint8>(ba.at(pos + 3));
+}
+
+static quint32 getLEUint16(const QByteArray &ba, int pos)
+{
+    Q_ASSERT(ba.size() >= pos + 1);
+    return (static_cast<quint16>(static_cast<quint8>(ba.at(pos + 1))) << 8) + static_cast<quint8>(ba.at(pos));
+}
+
+static quint32 getBEUint16(const QByteArray &ba, int pos)
+{
+    Q_ASSERT(ba.size() >= pos + 1);
+    return (static_cast<quint16>(static_cast<quint8>(ba.at(pos))) << 8) + static_cast<quint8>(ba.at(pos + 1));
+}
+
 static Abi macAbiForCpu(quint32 type) {
     switch (type) {
     case 7: // CPU_TYPE_X86, CPU_TYPE_I386
@@ -82,7 +117,7 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
     int width = 0;
 
     // Get machine field from COFF file header
-    quint16 machine = (data.at(1) << 8) + data.at(0);
+    quint16 machine = getLEUint16(data, 0);
     switch (machine) {
     case 0x8664: // x86_64
         arch = Abi::X86Architecture;
@@ -104,7 +139,7 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
 
     if (data.size() >= 68) {
         // Get Major and Minor Image Version from optional header fields
-        quint32 image = (data.at(67) << 24) + (data.at(66) << 16) + (data.at(65) << 8) + data.at(64);
+        quint32 image = getLEUint32(data, 64);
         if (image == 1) { // Image is 1 for mingw and higher for MSVC (4.something in some encoding)
             flavor = Abi::WindowsMSysFlavor;
         } else {
@@ -134,16 +169,16 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
 static QList<Abi> abiOf(const QByteArray &data)
 {
     QList<Abi> result;
+    if (data.size() <= 8)
+        return result;
 
     if (data.size() >= 20
-            && static_cast<unsigned char>(data.at(0)) == 0x7f && static_cast<unsigned char>(data.at(1)) == 'E'
-            && static_cast<unsigned char>(data.at(2)) == 'L' && static_cast<unsigned char>(data.at(3)) == 'F') {
+            && getUint8(data, 0) == 0x7f && getUint8(data, 1) == 'E' && getUint8(data, 2) == 'L'
+            && getUint8(data, 3) == 'F') {
         // ELF format:
-        bool isLsbEncoded = (static_cast<quint8>(data.at(5)) == 1);
-        quint16 machine = (data.at(19) << 8) + data.at(18);
-        if (!isLsbEncoded)
-            machine = qFromBigEndian(machine);
-        quint8 osAbi = static_cast<quint8>(data.at(7));
+        bool isLE = (getUint8(data, 5) == 1);
+        quint16 machine = isLE ? getLEUint16(data, 18) : getBEUint16(data, 18);
+        quint8 osAbi = getUint8(data, 7);
 
         Abi::OS os = Abi::UnixOS;
         Abi::OSFlavor flavor = Abi::GenericUnixFlavor;
@@ -196,45 +231,53 @@ static QList<Abi> abiOf(const QByteArray &data)
         default:
             ;;
         }
-    } else if (data.size() >= 8
-               && (static_cast<unsigned char>(data.at(0)) == 0xce || static_cast<unsigned char>(data.at(0)) == 0xcf)
-               && static_cast<unsigned char>(data.at(1)) == 0xfa
-               && static_cast<unsigned char>(data.at(2)) == 0xed && static_cast<unsigned char>(data.at(3)) == 0xfe) {
-        // Mach-O format (Mac non-fat binary, 32 and 64bit magic)
-        quint32 type = (data.at(7) << 24) + (data.at(6) << 16) + (data.at(5) << 8) + data.at(4);
-        result.append(macAbiForCpu(type));
-    } else if (data.size() >= 8
-               && static_cast<unsigned char>(data.at(0)) == 0xca && static_cast<unsigned char>(data.at(1)) == 0xfe
-               && static_cast<unsigned char>(data.at(2)) == 0xba && static_cast<unsigned char>(data.at(3)) == 0xbe) {
-        // Mac fat binary:
-        quint32 count = (data.at(4) << 24) + (data.at(5) << 16) + (data.at(6) << 8) + data.at(7);
+    } else if (((getUint8(data, 0) == 0xce || getUint8(data, 0) == 0xcf)
+             && getUint8(data, 1) == 0xfa && getUint8(data, 2) == 0xed && getUint8(data, 3) == 0xfe
+            )
+            ||
+            (getUint8(data, 0) == 0xfe && getUint8(data, 1) == 0xed && getUint8(data, 2) == 0xfa
+             && (getUint8(data, 3) == 0xce || getUint8(data, 3) == 0xcf)
+            )
+           ) {
+            // Mach-O format (Mac non-fat binary, 32 and 64bit magic):
+            quint32 type = (getUint8(data, 1) ==  0xfa) ? getLEUint32(data, 4) : getBEUint32(data, 4);
+            result.append(macAbiForCpu(type));
+    } else if ((getUint8(data, 0) == 0xbe && getUint8(data, 1) == 0xba
+                && getUint8(data, 2) == 0xfe && getUint8(data, 3) == 0xca)
+               ||
+               (getUint8(data, 0) == 0xca && getUint8(data, 1) == 0xfe
+                && getUint8(data, 2) == 0xba && getUint8(data, 3) == 0xbe)
+              ) {
+        // Mach-0 format Fat binary header:
+        bool isLE = (getUint8(data, 0) == 0xbe);
+        quint32 count = isLE ? getLEUint32(data, 4) : getBEUint32(data, 4);
         int pos = 8;
         for (quint32 i = 0; i < count; ++i) {
             if (data.size() <= pos + 4)
                 break;
 
-            quint32 type = (data.at(pos) << 24) + (data.at(pos + 1) << 16) + (data.at(pos + 2) << 8) + data.at(pos + 3);
+            quint32 type = isLE ? getLEUint32(data, pos) : getBEUint32(data, pos);
             result.append(macAbiForCpu(type));
             pos += 20;
         }
     } else if (data.size() >= 20
-               && static_cast<unsigned char>(data.at(16)) == 'E' && static_cast<unsigned char>(data.at(17)) == 'P'
-               && static_cast<unsigned char>(data.at(18)) == 'O' && static_cast<unsigned char>(data.at(19)) == 'C') {
+               && getUint8(data, 16) == 'E' && getUint8(data, 17) == 'P'
+               && getUint8(data, 18) == 'O' && getUint8(data, 19) == 'C') {
         result.append(Abi(Abi::ArmArchitecture, Abi::SymbianOS, Abi::SymbianDeviceFlavor, Abi::ElfFormat, 32));
     } else if (data.size() >= 64){
-        // Windows PE
+        // Windows PE: values are LE (except for a few exceptions which we will not use here).
 
-        // MZ header first:
-        if (!data.at(0) == 'M' || !data.at(1) == 'Z')
-            return result;
+        // MZ header first (ZM is also allowed, but rarely used)
+        if (!getUint8(data, 0) == 'M' || !getUint8(data, 1) == 'Z')
+            if (!getUint8(data, 0) == 'Z' || !getUint8(data, 1) == 'M')
+                return result;
 
         // Get PE/COFF header position from MZ header:
-        qint32 pePos = static_cast<quint8>(data.at(60)) + static_cast<quint8>(data.at(61)) * 0x100
-                       + static_cast<quint8>(data.at(62)) * 0x10000 + static_cast<quint8>(data.at(63)) * 0x1000000;
+        qint32 pePos = getLEUint32(data, 60);
         if (pePos <= 0 || data.size() < pePos + 4 + 20) // PE magic bytes plus COFF header
             return result;
-        if (data.at(pePos) == 'P' && data.at(pePos + 1) == 'E'
-            && data.at(pePos + 2) == 0 && data.at(pePos + 3) == 0)
+        if (getUint8(data, pePos) == 'P' && getUint8(data, pePos + 1) == 'E'
+            && getUint8(data, pePos + 2) == 0 && getUint8(data, pePos + 3) == 0)
             result = parseCoffHeader(data.mid(pePos + 4));
     }
     return result;
@@ -619,17 +662,16 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
     f.open(QFile::ReadOnly);
     QByteArray data = f.read(1024);
     if (data.size() >= 67
-            && static_cast<unsigned char>(data.at(0)) == '!' && static_cast<unsigned char>(data.at(1)) == '<'
-            && static_cast<unsigned char>(data.at(2)) == 'a' && static_cast<unsigned char>(data.at(3)) == 'r'
-            && static_cast<unsigned char>(data.at(4)) == 'c' && static_cast<unsigned char>(data.at(5)) == 'h'
-            && static_cast<unsigned char>(data.at(6)) == '>' && static_cast<unsigned char>(data.at(7)) == 0x0a) {
+            && getUint8(data, 0) == '!' && getUint8(data, 1) == '<' && getUint8(data, 2) == 'a'
+            && getUint8(data, 3) == 'r' && getUint8(data, 4) == 'c' && getUint8(data, 5) == 'h'
+            && getUint8(data, 6) == '>' && getUint8(data, 7) == 0x0a) {
         // We got an ar file: possibly a static lib for ELF, PE or Mach-O
 
         data = data.mid(8); // Cut of ar file magic
         quint64 offset = 8;
 
         while (!data.isEmpty()) {
-            if ((data.at(58) != 0x60 || data.at(59) != 0x0a)) {
+            if ((getUint8(data, 58) != 0x60 || getUint8(data, 59) != 0x0a)) {
                 qWarning() << path << ": Thought it was an ar-file, but it is not!";
                 break;
             }
