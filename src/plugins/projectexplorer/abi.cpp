@@ -802,6 +802,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("dynamic QtCore: arm linux 32bit")
             << QString::fromLatin1("%1/dynamic/arm-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
+    QTest::newRow("dynamic QtCore: arm linux 32bit (angstrom)")
+            << QString::fromLatin1("%1/dynamic/arm-angstrom-linux.so").arg(prefix)
+            << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
     QTest::newRow("dynamic QtCore: mips linux 32bit")
             << QString::fromLatin1("%1/dynamic/mips-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("mips-linux-generic-elf-32bit"));
