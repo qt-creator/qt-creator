@@ -8,7 +8,7 @@ contains (QT_CONFIG, webkit) {
     QT += webkit
 }
 
-QT += core-private declarative-private gui-private script-private
+QT += core-private declarative-private gui-private script-private v8-private
 
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
 
