@@ -62,37 +62,3 @@ def which(program):
 
     return None
 
-def checkLastBuild(expectedToFail=False):
-    try:
-        # can't use waitForObject() 'cause visible is always 0
-        buildProg = findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
-    except LookupError:
-        test.log("checkLastBuild called without a build")
-        return
-    # get labels for errors and warnings
-    children = object.children(buildProg)
-    if len(children)<4:
-        test.fatal("Leaving checkLastBuild()", "Referred code seems to have changed - method has to get adjusted")
-        return
-    errors = children[2].text
-    if errors == "":
-        errors = "none"
-    warnings = children[4].text
-    if warnings == "":
-        warnings = "none"
-    gotErrors = errors != "none" and errors != "0"
-    if (gotErrors and expectedToFail) or (not expectedToFail and not gotErrors):
-        test.passes("Errors: %s" % errors)
-        test.passes("Warnings: %s" % warnings)
-    else:
-        test.fail("Errors: %s" % errors)
-        test.fail("Warnings: %s" % warnings)
-    # additional stuff - could be removed... or improved :)
-    toggleBuildIssues = waitForObject("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' "
-                                      "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
-    if not toggleBuildIssues.checked:
-        clickButton(toggleBuildIssues)
-    list=waitForObject("{type='QListView' unnamed='1' visible='1' "
-                       "window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Build Issues'}", 20000)
-    model = list.model()
-    test.log("Rows inside build-issues: %d" % model.rowCount())

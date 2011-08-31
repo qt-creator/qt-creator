@@ -1,13 +1,6 @@
 source("../../shared/qtcreator.py")
 
 SpeedCrunchPath = ""
-buildFinished = False
-buildSucceeded = False
-
-def handleBuildFinished(object, success):
-    global buildFinished, buildSucceeded
-    buildFinished = True
-    buildSucceeded = success
 
 def main():
     if(which("cmake") == None):
@@ -29,13 +22,10 @@ def main():
         test.compare(findObject(node).text, value)
 
     # Invoke a rebuild of the application
-    installLazySignalHandler("{type='ProjectExplorer::BuildManager'}", "buildQueueFinished(bool)", "handleBuildFinished")
     invokeMenuItem("Build", "Rebuild All")
 
     # Wait for, and test if the build succeeded
-    waitFor("buildFinished == True", 300000)
-    test.verify(buildSucceeded == 1) # buildSucceeded is True for me - even on failed builds; remove this check at all?
-    checkLastBuild()
+    waitForBuildFinished(300000)
 
     invokeMenuItem("File", "Exit")
 
