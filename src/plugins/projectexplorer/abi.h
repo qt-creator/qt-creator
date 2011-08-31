@@ -50,7 +50,7 @@ public:
         ArmArchitecture,
         X86Architecture,
         ItaniumArchitecture,
-        MipsArcitecture,
+        MipsArchitecture,
         PowerPCArchitecture,
         UnknownArchitecture
     };

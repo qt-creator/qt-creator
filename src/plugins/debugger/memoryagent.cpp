@@ -316,7 +316,7 @@ bool MemoryAgent::isBigEndian(const ProjectExplorer::Abi &a)
     case ProjectExplorer::Abi::ItaniumArchitecture: // Configureable
     case ProjectExplorer::Abi::ArmArchitecture:     // Configureable
         break;
-    case ProjectExplorer::Abi::MipsArcitecture:     // Configureable
+    case ProjectExplorer::Abi::MipsArchitecture:     // Configureable
     case ProjectExplorer::Abi::PowerPCArchitecture: // Configureable
         return true;
     }

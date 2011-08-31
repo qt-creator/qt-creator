@@ -93,7 +93,7 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
         width = 32;
         break;
     case 0x0166: // MIPS, little endian
-        arch = Abi::MipsArcitecture;
+        arch = Abi::MipsArchitecture;
         width = 32;
         break;
     case 0x0200: // ia64
@@ -176,7 +176,7 @@ static QList<Abi> abiOf(const QByteArray &data)
             result.append(Abi(Abi::X86Architecture, os, flavor, Abi::ElfFormat, 32));
             break;
         case 8: // EM_MIPS
-            result.append(Abi(Abi::MipsArcitecture, os, flavor, Abi::ElfFormat, 32));
+            result.append(Abi(Abi::MipsArchitecture, os, flavor, Abi::ElfFormat, 32));
             break;
         case 20: // EM_PPC
             result.append(Abi(Abi::PowerPCArchitecture, os, flavor, Abi::ElfFormat, 32));
@@ -282,7 +282,7 @@ Abi::Abi(const QString &abiString) :
         else if (abiParts.at(0) == QLatin1String("x86"))
             m_architecture = X86Architecture;
         else if (abiParts.at(0) == QLatin1String("mips"))
-            m_architecture = MipsArcitecture;
+            m_architecture = MipsArchitecture;
         else if (abiParts.at(0) == QLatin1String("ppc"))
             m_architecture = PowerPCArchitecture;
         else if (abiParts.at(0) == QLatin1String("itanium"))
@@ -440,7 +440,7 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("arm");
     case X86Architecture:
         return QLatin1String("x86");
-    case MipsArcitecture:
+    case MipsArchitecture:
         return QLatin1String("mips");
     case PowerPCArchitecture:
         return QLatin1String("ppc");

@@ -198,7 +198,7 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
             arch = ProjectExplorer::Abi::ArmArchitecture;
             width = 32;
         } else if (p == QLatin1String("mipsel")) {
-            arch = ProjectExplorer::Abi::MipsArcitecture;
+            arch = ProjectExplorer::Abi::MipsArchitecture;
             width = 32;
         } else if (p == QLatin1String("x86_64")) {
             arch = ProjectExplorer::Abi::X86Architecture;
