@@ -345,7 +345,7 @@ void TestExecuter::runSelectedTests(bool forceManual)
                     testOutputPane()->append(tr("Testing change: %1").arg(changeNo));
                 }
                 testOutputPane()->append(tr("Tester: %1").arg(QSystem::userName()));
-                testOutputPane()->append(tr("Host machine: ").arg(sanitizedForFilename(QSystem::hostName())));
+                testOutputPane()->append(tr("Host machine: %1").arg(sanitizedForFilename(QSystem::hostName())));
             }
         }
 
@@ -855,7 +855,7 @@ bool TestExecuter::runTestCase(bool forceManual)
             m_testPlatform = QLatin1String("symbian");
 
         QSystem::setEnvKey(&env, QLatin1String("TESTPLATFORM"), m_testPlatform);
-        args << QLatin1String("-env TESTPLATFORM=") + m_testPlatform;
+        args << QLatin1String("-env") << (QLatin1String("TESTPLATFORM=") + m_testPlatform);
 
         if (forceManual)
             args << QLatin1String("-force-manual");
