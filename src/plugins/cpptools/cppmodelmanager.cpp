@@ -694,6 +694,8 @@ CppModelManager::CppModelManager(QObject *parent)
     // thread connections
     connect(this, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
+    connect(this, SIGNAL(extraDiagnosticsUpdated(QString)),
+            this, SLOT(onExtraDiagnosticsUpdated(QString)));
 
     // Listen for editor closed and opened events so that we can keep track of changing files
     connect(m_core->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
@@ -967,6 +969,22 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 
     if (outdated)
         return;
+
+    updateEditor(doc);
+}
+
+void CppModelManager::onExtraDiagnosticsUpdated(const QString &fileName)
+{
+    protectSnapshot.lock();
+    Document::Ptr doc = m_snapshot.document(fileName);
+    protectSnapshot.unlock();
+    if (doc)
+        updateEditor(doc);
+}
+
+void CppModelManager::updateEditor(Document::Ptr doc)
+{
+    const QString fileName = doc->fileName();
 
     QList<Core::IEditor *> openedEditors = m_core->editorManager()->openedEditors();
     foreach (Core::IEditor *editor, openedEditors) {
@@ -1297,15 +1315,11 @@ void CppModelManager::setExtraDiagnostics(const QString &fileName, int kind,
 {
     {
         QMutexLocker locker(&protectExtraDiagnostics);
+        if (m_extraDiagnostics[fileName][kind] == diagnostics)
+            return;
         m_extraDiagnostics[fileName].insert(kind, diagnostics);
     }
-    Document::Ptr doc;
-    {
-        QMutexLocker locker(&protectSnapshot);
-        doc = m_snapshot.document(fileName);
-    }
-    if (doc)
-        emit documentUpdated(doc);
+    emit extraDiagnosticsUpdated(fileName);
 }
 
 QList<Document::DiagnosticMessage> CppModelManager::extraDiagnostics(const QString &fileName, int kind) const

@@ -177,6 +177,9 @@ public:
         QString text() const
         { return _text; }
 
+        bool operator==(const DiagnosticMessage &other) const;
+        bool operator!=(const DiagnosticMessage &other) const;
+
     private:
         int _level;
         QString _fileName;

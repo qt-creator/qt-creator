@@ -150,6 +150,7 @@ public Q_SLOTS:
 private Q_SLOTS:
     // this should be executed in the GUI thread.
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
+    void onExtraDiagnosticsUpdated(const QString &fileName);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onAboutToUnloadSession();
     void onProjectAdded(ProjectExplorer::Project *project);
@@ -157,6 +158,8 @@ private Q_SLOTS:
     void updateEditorSelections();
 
 private:
+    void updateEditor(CPlusPlus::Document::Ptr doc);
+
     WorkingCopy buildWorkingCopyList();
 
     QStringList projectFiles()
