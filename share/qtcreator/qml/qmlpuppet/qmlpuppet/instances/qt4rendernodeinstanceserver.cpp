@@ -93,7 +93,7 @@ void Qt4RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
         bool adjustSceneRect = false;
 
-        if (declarativeView()) {
+        if (declarativeView() && nodeInstanceClient()->bytesToWrite() < 10000) {
             foreach (QGraphicsItem *item, declarativeView()->items()) {
                 QGraphicsObject *graphicsObject = item->toGraphicsObject();
                 if (graphicsObject && hasInstanceForObject(graphicsObject)) {
@@ -130,7 +130,7 @@ void Qt4RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             clearChangedPropertyList();
             resetAllItems();
 
-            if (!m_dirtyInstanceSet.isEmpty() && nodeInstanceClient()->bytesToWrite() < 10000) {
+            if (!m_dirtyInstanceSet.isEmpty() ) {
                 nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(m_dirtyInstanceSet.toList()));
                 m_dirtyInstanceSet.clear();
             }
