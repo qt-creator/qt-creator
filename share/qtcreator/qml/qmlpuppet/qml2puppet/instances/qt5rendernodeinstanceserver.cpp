@@ -78,7 +78,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction) {
         inFunction = true;
 
-        if (sgView()) {
+        if (sgView() && nodeInstanceClient()->bytesToWrite() < 10000) {
             foreach (QSGItem *item, allItems()) {
                 if (item && hasInstanceForObject(item)) {
                     ServerNodeInstance instance = instanceForObject(item);
@@ -89,7 +89,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
             clearChangedPropertyList();
 
-            if (!m_dirtyInstanceSet.isEmpty() && nodeInstanceClient()->bytesToWrite() < 10000) {
+            if (!m_dirtyInstanceSet.isEmpty()) {
                 nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(m_dirtyInstanceSet.toList()));
                 m_dirtyInstanceSet.clear();
             }
