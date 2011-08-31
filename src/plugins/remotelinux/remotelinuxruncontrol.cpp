@@ -38,8 +38,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QMessageBox>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
@@ -135,7 +133,6 @@ void AbstractRemoteLinuxRunControl::handleError(const QString &errString)
 {
     stop();
     appendMessage(errString, Utils::ErrorMessageFormat);
-    QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
 }
 
 void AbstractRemoteLinuxRunControl::setFinished()
