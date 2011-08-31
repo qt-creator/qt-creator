@@ -97,6 +97,7 @@ private:
 
     void handleKeyEvent(QKeyEvent *e);
     int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
+    using Core::CommandMappings::markPossibleCollisions;
     void markPossibleCollisions(ShortcutItem *);
     void resetCollisionMarker(ShortcutItem *);
     void resetCollisionMarkers();
