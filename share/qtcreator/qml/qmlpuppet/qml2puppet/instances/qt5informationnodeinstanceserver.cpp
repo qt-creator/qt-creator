@@ -103,14 +103,15 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                     ServerNodeInstance instance = instanceForObject(item);
 
                     DesignerSupport::DirtyType informationsDirty = DesignerSupport::DirtyType(DesignerSupport::TransformUpdateMask
+                                                                                              | DesignerSupport::ContentUpdateMask
                                                                                               | DesignerSupport::Visible
                                                                                               | DesignerSupport::ZValue
                                                                                               | DesignerSupport::OpacityValue);
-                    if (DesignerSupport::dirty(item, informationsDirty))
+                    if (DesignerSupport::isDirty(item, informationsDirty))
                         informationChangedInstanceSet.insert(instance);
 
 
-                    if (DesignerSupport::dirty(item, DesignerSupport::ParentChanged)) {
+                    if (DesignerSupport::isDirty(item, DesignerSupport::ParentChanged)) {
                         m_parentChangedSet.insert(instance);
                         informationChangedInstanceSet.insert(instance);
                     }

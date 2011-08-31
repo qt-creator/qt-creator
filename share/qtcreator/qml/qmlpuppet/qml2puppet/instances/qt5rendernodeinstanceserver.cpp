@@ -82,7 +82,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             foreach (QSGItem *item, allItems()) {
                 if (item && hasInstanceForObject(item)) {
                     ServerNodeInstance instance = instanceForObject(item);
-                    if (DesignerSupport::dirty(item, DesignerSupport::ContentUpdateMask))
+                    if (DesignerSupport::isDirty(item, DesignerSupport::ContentUpdateMask))
                         m_dirtyInstanceSet.insert(instance);
                 }
             }
