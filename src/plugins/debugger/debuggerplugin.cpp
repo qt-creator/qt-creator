@@ -580,6 +580,16 @@ public:
     DebuggerEngine *currentEngine() const { return m_currentEngine; }
     DebuggerEngine *dummyEngine();
 
+    void setThreads(const QStringList &list, int index)
+    {
+        const bool state = m_threadBox->blockSignals(true);
+        m_threadBox->clear();
+        foreach (const QString &item, list)
+            m_threadBox->addItem(item);
+        m_threadBox->setCurrentIndex(index);
+        m_threadBox->blockSignals(state);
+    }
+
 public slots:
     void writeSettings()
     {
@@ -1869,8 +1879,8 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_sourceFilesWindow->setModel(engine->sourceFilesModel());
     m_stackWindow->setModel(engine->stackModel());
     m_threadsWindow->setModel(engine->threadsModel());
-    m_threadBox->setModel(engine->threadsModel());
-    m_threadBox->setModelColumn(ThreadData::NameColumn);
+    //m_threadBox->setModel(engine->threadsModel());
+    //m_threadBox->setModelColumn(ThreadData::ComboNameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
     engine->watchHandler()->rebuildModel();
 }
@@ -3120,6 +3130,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addWidget(new QLabel(tr("Threads:")));
 
     m_threadBox = new QComboBox;
+    m_threadBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(m_threadBox, SIGNAL(activated(int)), SLOT(selectThread(int)));
 
     hbox->addWidget(m_threadBox);

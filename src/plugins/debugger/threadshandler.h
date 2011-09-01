@@ -38,14 +38,16 @@
 
 #include "threaddata.h"
 
-namespace Debugger {
-namespace Internal {
-class GdbMi;
 ////////////////////////////////////////////////////////////////////////
 //
 // ThreadsHandler
 //
 ////////////////////////////////////////////////////////////////////////
+
+namespace Debugger {
+namespace Internal {
+
+class GdbMi;
 
 class ThreadsHandler : public QAbstractTableModel
 {
@@ -80,6 +82,7 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
+    void updateThreadBox();
 
     Threads m_threads;
     int m_currentIndex;

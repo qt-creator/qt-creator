@@ -105,7 +105,8 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *errorMessage) = 0;
     virtual QWidget *mainWindow() const = 0;
     virtual bool isDockVisible(const QString &objectName) const = 0;
-    virtual QString debuggerForAbi(const ProjectExplorer::Abi &abi, DebuggerEngineType et = NoEngineType) const = 0;
+    virtual QString debuggerForAbi(const ProjectExplorer::Abi &abi,
+        DebuggerEngineType et = NoEngineType) const = 0;
     virtual void showModuleSymbols(const QString &moduleName,
         const QVector<Symbol> &symbols) = 0;
     virtual void openMemoryEditor() = 0;
@@ -115,6 +116,7 @@ public:
     virtual Utils::SavedAction *action(int code) const = 0;
     virtual bool boolSetting(int code) const = 0;
     virtual QString stringSetting(int code) const = 0;
+    virtual void setThreads(const QStringList &list, int index) = 0;
 
     virtual DebuggerToolTipManager *toolTipManager() const = 0;
     virtual QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const = 0;

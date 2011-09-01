@@ -79,9 +79,11 @@ void ThreadsWindow::rowActivated(const QModelIndex &index)
 void ThreadsWindow::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
-    resizeColumnToContents(0); // Id
-    resizeColumnToContents(4); // Line
-    resizeColumnToContents(6); // Name
+    resizeColumnToContents(ThreadData::IdColumn);
+    resizeColumnToContents(ThreadData::LineColumn);
+    resizeColumnToContents(ThreadData::NameColumn);
+    resizeColumnToContents(ThreadData::StateColumn);
+    resizeColumnToContents(ThreadData::TargetIdColumn);
     if (header()) {
         bool adjust = debuggerCore()->boolSetting(AlwaysAdjustThreadsColumnWidths);
         setAlwaysResizeColumnsToContents(adjust);
@@ -109,7 +111,7 @@ void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
 void ThreadsWindow::resizeColumnsToContents()
 {
     const int columnCount = model()->columnCount();
-    for (int c = 0 ; c < columnCount; c++)
+    for (int c = 0 ; c != columnCount; ++c)
         resizeColumnToContents(c);
 }
 

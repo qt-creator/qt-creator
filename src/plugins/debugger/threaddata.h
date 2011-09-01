@@ -60,7 +60,9 @@ struct ThreadData
         LineColumn,
         StateColumn,
         NameColumn,
+        TargetIdColumn,
         CoreColumn,
+        ComboNameColumn,
         ColumnCount = CoreColumn
     };
 
