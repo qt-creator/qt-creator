@@ -73,7 +73,6 @@ public:
     };
 
     typedef TextEditor::SemanticHighlighter::Result Use;
-    static Use makeUse(const QmlJS::AST::SourceLocation &location, UseType type = UnknownType);
 
     SemanticHighlighter(QmlJSTextEditorWidget *editor);
 

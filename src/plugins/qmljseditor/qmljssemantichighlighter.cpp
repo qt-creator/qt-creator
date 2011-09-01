@@ -194,6 +194,7 @@ public:
     CollectionTask(const ScopeChain &scopeChain)
         : m_scopeChain(scopeChain)
         , m_scopeBuilder(&m_scopeChain)
+        , m_lineOfLastUse(0)
     {}
 
 protected:
@@ -221,35 +222,30 @@ protected:
         if (!value || !scope)
             return;
 
-        SemanticHighlighter::Use use = SemanticHighlighter::makeUse(location);
-        if (QSharedPointer<const QmlComponentChain> chain = m_scopeChain.qmlComponentChain()) {
-            if (scope == chain->idScope()) {
-                use.kind = SemanticHighlighter::LocalIdType;
-            } else if (isIdScope(scope, chain->instantiatingComponents())) {
-                use.kind = SemanticHighlighter::ExternalIdType;
-            } else if (scope == chain->rootObjectScope()) {
-                use.kind = SemanticHighlighter::RootObjectPropertyType;
-            }
-        }
-
+        SemanticHighlighter::UseType type = SemanticHighlighter::UnknownType;
         if (m_scopeChain.qmlTypes() == scope) {
-            use.kind = SemanticHighlighter::QmlTypeType;
+            type = SemanticHighlighter::QmlTypeType;
         } else if (m_scopeChain.qmlScopeObjects().contains(scope)) {
-            use.kind = SemanticHighlighter::ScopeObjectPropertyType;
+            type = SemanticHighlighter::ScopeObjectPropertyType;
         } else if (m_scopeChain.jsScopes().contains(scope)) {
-            use.kind = SemanticHighlighter::JsScopeType;
+            type = SemanticHighlighter::JsScopeType;
         } else if (m_scopeChain.jsImports() == scope) {
-            use.kind = SemanticHighlighter::JsImportType;
+            type = SemanticHighlighter::JsImportType;
         } else if (m_scopeChain.globalScope() == scope) {
-            use.kind = SemanticHighlighter::JsGlobalType;
+            type = SemanticHighlighter::JsGlobalType;
+        } else if (QSharedPointer<const QmlComponentChain> chain = m_scopeChain.qmlComponentChain()) {
+            if (scope == chain->idScope()) {
+                type = SemanticHighlighter::LocalIdType;
+            } else if (isIdScope(scope, chain->instantiatingComponents())) {
+                type = SemanticHighlighter::ExternalIdType;
+            } else if (scope == chain->rootObjectScope()) {
+                type = SemanticHighlighter::RootObjectPropertyType;
+            }
+        } else { // check for this?
+            type = SemanticHighlighter::ExternalObjectPropertyType;
         }
 
-        // eliminated other possibilities, should potentially be a real check if this yields false-positives
-        if (use.kind == SemanticHighlighter::UnknownType) {
-            use.kind = SemanticHighlighter::ExternalObjectPropertyType;
-        }
-
-        reportResult(use);
+        addUse(location, type);
     }
 
     bool visit(UiObjectDefinition *ast)
@@ -307,9 +303,7 @@ protected:
 
         const QString value = ast->value->asString();
         if (m_stateNames.contains(value)) {
-            SemanticHighlighter::Use use = SemanticHighlighter::makeUse(
-                        ast->literalToken, SemanticHighlighter::LocalStateNameType);
-            reportResult(use);
+            addUse(ast->literalToken, SemanticHighlighter::LocalStateNameType);
         }
 
         return false;
@@ -321,12 +315,51 @@ private:
         Node *root = m_scopeChain.document()->ast();
         m_stateNames = CollectStateNames(m_scopeChain)(root);
         accept(root);
+        flush();
         reportFinished();
+    }
+
+    void addUse(const SourceLocation &location, SemanticHighlighter::UseType type)
+    {
+        addUse(SemanticHighlighter::Use(location.startLine, location.startColumn, location.length, type));
+    }
+
+    static const int chunkSize = 50;
+
+    void addUse(const SemanticHighlighter::Use &use)
+    {
+        if (m_uses.size() >= chunkSize) {
+            if (use.line > m_lineOfLastUse)
+                flush();
+        }
+
+        m_lineOfLastUse = qMax(m_lineOfLastUse, use.line);
+        m_uses.append(use);
+    }
+
+    static bool sortByLinePredicate(const SemanticHighlighter::Use &lhs, const SemanticHighlighter::Use &rhs)
+    {
+        return lhs.line < rhs.line;
+    }
+
+    void flush()
+    {
+        m_lineOfLastUse = 0;
+
+        if (m_uses.isEmpty())
+            return;
+
+        qSort(m_uses.begin(), m_uses.end(), sortByLinePredicate);
+        reportResults(m_uses);
+        m_uses.clear();
+        m_uses.reserve(chunkSize);
     }
 
     ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
     QStringList m_stateNames;
+    QVector<SemanticHighlighter::Use> m_uses;
+    unsigned m_lineOfLastUse;
 };
 
 } // anonymous namespace
@@ -383,11 +416,6 @@ void SemanticHighlighter::finished()
 
     TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
                 highlighter, m_watcher.future());
-}
-
-SemanticHighlighter::Use SemanticHighlighter::makeUse(const SourceLocation &location, SemanticHighlighter::UseType type)
-{
-    return Use(location.startLine, location.startColumn, location.length, type);
 }
 
 void SemanticHighlighter::updateFontSettings(const TextEditor::FontSettings &fontSettings)
