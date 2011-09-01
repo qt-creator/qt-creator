@@ -164,7 +164,7 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
         if (tc && !qt4Target()->possibleToolChains(this).contains(tc))
             setToolChain(0);
         if (!toolChain())
-            tc = qt4Target()->preferredToolChain(this);
+            setToolChain(qt4Target()->preferredToolChain(this));
         m_shadowBuild = (m_shadowBuild && version->supportsShadowBuilds());
     }
 
