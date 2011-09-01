@@ -548,11 +548,6 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     BreakpointModelIds selectedIds = handler->findBreakpointsByIndex(selectedIndices);
 
     const int rowCount = model()->rowCount();
-    unsigned engineCapabilities = AllDebuggerCapabilities;
-    if (!selectedIndices.isEmpty())
-        if (const unsigned ec = model()->data(selectedIndices.front(), EngineCapabilitiesRole).toUInt())
-            engineCapabilities = ec;
-
     QAction *deleteAction = new QAction(tr("Delete Breakpoint"), &menu);
     deleteAction->setEnabled(!selectedIds.isEmpty());
 
@@ -566,7 +561,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         const QModelIndex index = indexUnderMouse.sibling(indexUnderMouse.row(), 2);
         const QString file = index.data().toString();
         if (!file.isEmpty()) {
-            for (int i = 0; i < rowCount; i++)
+            for (int i = 0; i != rowCount; ++i)
                 if (index.data().toString() == file)
                     breakpointsInFile.append(handler->findBreakpointByIndex(index));
             if (breakpointsInFile.size() > 1) {
