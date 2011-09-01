@@ -419,15 +419,6 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
 
     qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
     qt4BuildConfiguration()->emitProFileEvaluateNeeded();
-
-    Core::ICore * const core = Core::ICore::instance();
-    QMessageBox *question = new QMessageBox(core->mainWindow());
-    question->setWindowTitle(tr("QML Debugging"));
-    question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
-    question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    question->setModal(true);
-    connect(question, SIGNAL(finished(int)), this, SLOT(recompileMessageBoxFinished(int)));
-    question->show();
 }
 
 QStringList QMakeStep::parserArguments()
@@ -493,20 +484,6 @@ bool QMakeStep::fromMap(const QVariantMap &map)
     }
 
     return BuildStep::fromMap(map);
-}
-
-void QMakeStep::recompileMessageBoxFinished(int button)
-{
-    if (button == QMessageBox::Yes) {
-        Qt4BuildConfiguration *bc = qt4BuildConfiguration();
-        if (!bc)
-            return;
-
-        QList<ProjectExplorer::BuildStepList *> stepLists;
-        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        ProjectExplorerPlugin::instance()->buildManager()->buildLists(stepLists);
-    }
 }
 
 ////
@@ -651,6 +628,16 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
     updateSummaryLabel();
     updateEffectiveQMakeCall();
     updateQmlDebuggingOption();
+
+
+    Core::ICore * const core = Core::ICore::instance();
+    QMessageBox *question = new QMessageBox(core->mainWindow());
+    question->setWindowTitle(tr("QML Debugging"));
+    question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
+    question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    question->setModal(true);
+    connect(question, SIGNAL(finished(int)), this, SLOT(recompileMessageBoxFinished(int)));
+    question->show();
 }
 
 void QMakeStepConfigWidget::buildQmlDebuggingHelper()
@@ -720,6 +707,20 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
     if (qtVersion)
         program = QFileInfo(qtVersion->qmakeCommand()).fileName();
     m_ui->qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + m_step->allArguments());
+}
+
+void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
+{
+    if (button == QMessageBox::Yes) {
+        Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
+        if (!bc)
+            return;
+
+        QList<ProjectExplorer::BuildStepList *> stepLists;
+        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        ProjectExplorerPlugin::instance()->buildManager()->buildLists(stepLists);
+    }
 }
 
 ////
