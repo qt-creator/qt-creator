@@ -54,7 +54,9 @@
 #include <QSet>
 #include <QtDebug>
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QSGItem>
+#endif
 
 #include <QtDeclarative/QDeclarativeEngine>
 
@@ -550,10 +552,12 @@ QObject *ServerNodeInstance::internalObject() const
     return m_nodeInstance->object();
 }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 QSGItem *ServerNodeInstance::internalSGItem() const
 {
     return qobject_cast<QSGItem*>(internalObject());
 }
+#endif
 
 void ServerNodeInstance::activateState()
 {
