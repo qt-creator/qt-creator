@@ -115,6 +115,7 @@ const char * const ICON_HTML5_APP = ":/wizards/images/html5app.png";
 
 // Env variables
 const char * const QMAKEVAR_QMLJSDEBUGGER_PATH = "QMLJSDEBUGGER_PATH";
+const char * const QMAKEVAR_DECLARATIVE_DEBUG = "CONFIG+=declarative_debug";
 
 } // namespace Constants
 } // namespace Qt4ProjectManager

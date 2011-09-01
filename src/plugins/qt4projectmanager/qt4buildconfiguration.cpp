@@ -533,9 +533,12 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
 
 void Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
 {
-    for (Utils::QtcProcess::ArgIterator ait(args); ait.next(); )
-        if (ait.value().contains(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)))
+    for (Utils::QtcProcess::ArgIterator ait(args); ait.next(); ) {
+        const QString arg = ait.value();
+        if (arg.contains(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH))
+                || arg.contains(Constants::QMAKEVAR_DECLARATIVE_DEBUG))
             ait.deleteArg();
+    }
 }
 
 QString Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
