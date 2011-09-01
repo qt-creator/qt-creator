@@ -194,11 +194,6 @@ void NavigationWidget::onDataUpdate(QSharedPointer<QStandardItem> result)
     if (result.isNull())
         return;
 
-    // if this is 1st call
-    bool expandRootItems = false;
-    if (d->treeModel->invisibleRootItem()->rowCount() == 0)
-        expandRootItems = true;
-
     QTime timer;
     if (debug)
         timer.start();
