@@ -2111,10 +2111,6 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     // unsigned equal_token = ast->equal_token;
     ExpressionTy expression = this->expression(ast->expression);
 
-    unsigned sourceLocation = ast->firstToken();
-    if (declaratorId)
-        sourceLocation = declaratorId->firstToken();
-
     const Name *argName = 0;
     if (declaratorId && declaratorId->name)
         argName = declaratorId->name->name;

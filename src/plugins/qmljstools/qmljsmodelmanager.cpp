@@ -558,20 +558,6 @@ void ModelManager::parse(QFutureInterface<void> &future,
 
         const QString fileName = files.at(i);
 
-        bool isQmlFile = true;
-        if (db) {
-            if (suffixMatches(fileName, jsSourceTy)) {
-                isQmlFile = false;
-            } else if (! suffixMatches(fileName, qmlSourceTy)) {
-                continue; // skip it. it's not a QML or a JS file.
-            }
-        } else {
-            if (fileName.contains(QLatin1String(".js"), Qt::CaseInsensitive))
-                isQmlFile = false;
-            else if (!fileName.contains(QLatin1String(".qml"), Qt::CaseInsensitive))
-                continue;
-        }
-
         QString contents;
         int documentRevision = 0;
 

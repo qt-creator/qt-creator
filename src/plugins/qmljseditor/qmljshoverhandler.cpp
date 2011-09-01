@@ -201,9 +201,11 @@ bool HoverHandler::matchColorItem(const ScopeChain &scopeChain,
             value = scopeChain.lookup(publicMember->name->asString());
             if (const Reference *ref = value->asReference())
                 value = scopeChain.context()->lookupReference(ref);
+            if (value && value->asColorValue()) {
                 color = textAt(qmlDocument,
                                publicMember->statement->firstSourceLocation(),
                                publicMember->statement->lastSourceLocation());
+            }
         }
     }
 

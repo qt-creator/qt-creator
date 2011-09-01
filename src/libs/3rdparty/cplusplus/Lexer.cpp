@@ -590,7 +590,6 @@ void Lexer::scan_helper(Token *tok)
                 break;
             } else if (ch == '@' && _yychar == '"') {
                 // objc @string literals
-                ch = _yychar;
                 yyinp();
                 tok->f.kind = T_AT_STRING_LITERAL;
 
