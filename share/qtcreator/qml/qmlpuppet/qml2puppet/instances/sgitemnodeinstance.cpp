@@ -204,8 +204,6 @@ QImage SGItemNodeInstance::renderImage() const
 
     QImage renderImage = designerSupport()->renderImageForItem(sgItem(), boundingRect, boundingRect.size().toSize());
 
-    qDebug() << __FUNCTION__ << renderImage.size();
-
     renderImage = renderImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     return renderImage;
@@ -319,8 +317,6 @@ QRectF SGItemNodeInstance::boundingRect() const
 
 void SGItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    if (name == "width" || name == "height")
-        qDebug() << __FUNCTION__ << name << value;
     if (name == "state")
         return; // states are only set by us
 

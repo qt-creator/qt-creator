@@ -573,7 +573,7 @@ QVariant ObjectNodeInstance::property(const QString &name) const
 
     QDeclarativeProperty property(object(), name, context());
     if (property.property().isEnumType()) {
-        QVariant value = object()->property(name.toLatin1());
+        QVariant value = property.read();
         return property.property().enumerator().valueToKey(value.toInt());
     }
 
