@@ -92,7 +92,7 @@ bool RemoteLinuxRunConfigurationFactory::canClone(Target *parent, RunConfigurati
 QStringList RemoteLinuxRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
     if (Qt4BaseTarget *t = qobject_cast<Qt4BaseTarget *>(parent)) {
-        if (t && RemoteLinuxUtils::hasLinuxQt(t)) {
+        if (t && RemoteLinuxUtils::hasUnixQt(t)) {
             return t->qt4Project()->applicationProFilePathes(RemoteLinuxRunConfiguration::Id);
         }
     }

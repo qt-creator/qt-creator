@@ -55,7 +55,7 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory(QOb
 QStringList RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QStringList ids;
-    if (RemoteLinuxUtils::hasLinuxQt(parent))
+    if (RemoteLinuxUtils::hasUnixQt(parent))
         ids << genericDeployConfigurationId();
     return ids;
 }
