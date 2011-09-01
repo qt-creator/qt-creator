@@ -214,7 +214,7 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project 
     foreach (const BuildConfigurationInfo &info, infos)
         target->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(),
                                          info.version, info.buildConfig,
-                                         info.additionalArguments, info.directory);
+                                         info.additionalArguments, info.directory, info.importing);
 
     foreach (const QString &deployConfigId, deployConfigIds) {
         target->addDeployConfiguration(target->createDeployConfiguration(deployConfigId));

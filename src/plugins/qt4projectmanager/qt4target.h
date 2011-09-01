@@ -82,7 +82,8 @@ public:
                                                             QtSupport::BaseQtVersion *qtversion,
                                                             QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                                             QString additionalArguments,
-                                                            QString directory);
+                                                            QString directory,
+                                                            bool importing);
 
     virtual void createApplicationProFiles() = 0;
 

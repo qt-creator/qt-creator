@@ -531,11 +531,16 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
     return false;
 }
 
-void Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
+bool Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
 {
-    for (Utils::QtcProcess::ArgIterator ait(args); ait.next(); )
-        if (ait.value().contains(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)))
+    bool removedArgument = false;
+    for (Utils::QtcProcess::ArgIterator ait(args); ait.next(); ) {
+        if (ait.value().contains(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH))) {
             ait.deleteArg();
+            removedArgument = true;
+        }
+    }
+    return removedArgument;
 }
 
 QString Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
@@ -745,7 +750,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
     BuildConfiguration *bc = qt4Target->addQt4BuildConfiguration(defaultDebugName, customDebugName,
                                         version,
                                         (version->defaultBuildConfig() | QtSupport::BaseQtVersion::DebugBuild),
-                                        QString(), QString());
+                                        QString(), QString(), false);
 
     if (qt4Target->id() != Constants::S60_EMULATOR_TARGET_ID) {
         //: Release build configuration. We recommend not translating it.
@@ -757,7 +762,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
         bc = qt4Target->addQt4BuildConfiguration(defaultReleaseName, customReleaseName,
                                                  version,
                                                  (version->defaultBuildConfig() & ~QtSupport::BaseQtVersion::DebugBuild),
-                                                 QString(), QString());
+                                                 QString(), QString(), false);
     }
     return bc;
 }
@@ -832,13 +837,15 @@ void Qt4BuildConfiguration::importFromBuildDirectory()
 
             QString additionalArguments = result.second;
             QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, directory, version);
-            Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
+            const bool enableQmlDebugger =
+                    Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
 
             // So we got all the information now apply it...
             setQtVersion(version);
 
             QMakeStep *qs = qmakeStep();
             qs->setUserArguments(additionalArguments);
+            qs->setLinkQmlDebuggingLibrary(enableQmlDebugger);
             if (!parsedSpec.isEmpty() && parsedSpec != QLatin1String("default") && qs->mkspec() != parsedSpec) {
                 Utils::QtcProcess::addArgs(&additionalArguments, (QStringList() << "-spec" << parsedSpec));
                 qs->setUserArguments(additionalArguments);

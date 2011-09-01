@@ -126,7 +126,7 @@ QList<BuildConfigurationInfo> Qt4BaseTargetFactory::availableBuildConfigurations
         if (!version->isValid() || !version->toolChainAvailable(id))
             continue;
         QtSupport::BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-        BuildConfigurationInfo info = BuildConfigurationInfo(version, config, QString(), QString());
+        BuildConfigurationInfo info = BuildConfigurationInfo(version, config, QString(), QString(), false, false);
         info.directory = shadowBuildDirectory(proFilePath, id, msgBuildConfigurationName(info));
         infoList.append(info);
 
@@ -299,7 +299,8 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString defaultDi
                                                            QString displayName, QtSupport::BaseQtVersion *qtversion,
                                                            QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                                            QString additionalArguments,
-                                                           QString directory)
+                                                           QString directory,
+                                                           bool importing)
 {
     Q_ASSERT(qtversion);
     bool debug = qmakeBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild;
@@ -324,8 +325,13 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString defaultDi
     cleanStep->setClean(true);
     cleanStep->setUserArguments("clean");
     cleanSteps->insertStep(0, cleanStep);
+
+    bool enableQmlDebugger
+            = Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
+    if (importing)
+        qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
 
     // set some options for qmake and make
     if (qmakeBuildConfiguration & QtSupport::BaseQtVersion::BuildAll) // debug_and_release => explicit targets
@@ -1144,7 +1150,6 @@ BuildConfigurationInfo BuildConfigurationInfo::checkForBuild(const QString &dire
         specArgument = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec);
     }
     Utils::QtcProcess::addArgs(&specArgument, additionalArguments);
-    Qt4BuildConfiguration::removeQMLInspectorFromArguments(&specArgument);
 
     BuildConfigurationInfo info = BuildConfigurationInfo(version,
                                                          makefileBuildConfig.first,

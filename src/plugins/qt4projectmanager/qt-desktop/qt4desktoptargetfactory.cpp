@@ -180,7 +180,7 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
     foreach (const BuildConfigurationInfo &info, infos)
         t->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(),
                                     info.version, info.buildConfig,
-                                    info.additionalArguments, info.directory);
+                                    info.additionalArguments, info.directory, info.importing);
 
     t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
 
