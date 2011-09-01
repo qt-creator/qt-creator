@@ -139,12 +139,15 @@ public:
             const SourceLocation &location,
             const Value *lhsValue,
             const Value *rhsValue,
-            ExpressionNode *ast)
+            Node *ast)
     {
         _doc = document;
         _message = DiagnosticMessage(DiagnosticMessage::Error, location, QString());
         _rhsValue = rhsValue;
-        _ast = ast;
+        if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast))
+            _ast = expStmt->expression;
+        else
+            _ast = ast->expressionCast();
 
         if (lhsValue)
             lhsValue->accept(this);
@@ -166,9 +169,8 @@ public:
                 _message.message = Check::tr("enum value is not a string or number");
             }
         } else {
-            if (/*cast<StringLiteral *>(_ast)
-                ||*/ _ast->kind == Node::Kind_TrueLiteral
-                     || _ast->kind == Node::Kind_FalseLiteral) {
+            if (cast<TrueLiteral *>(_ast)
+                    || cast<FalseLiteral *>(_ast)) {
                 _message.message = Check::tr("numerical value expected");
             }
         }
@@ -191,8 +193,8 @@ public:
 
         if (cast<NumericLiteral *>(_ast)
                 || (unaryMinus && cast<NumericLiteral *>(unaryMinus->expression))
-                || _ast->kind == Node::Kind_TrueLiteral
-                || _ast->kind == Node::Kind_FalseLiteral) {
+                || cast<TrueLiteral *>(_ast)
+                || cast<FalseLiteral *>(_ast)) {
             _message.message = Check::tr("string value expected");
         }
 
@@ -593,23 +595,20 @@ bool Check::visit(UiScriptBinding *ast)
 
     checkProperty(ast->qualifiedId);
 
+    if (!ast->statement)
+        return false;
+
     const Value *lhsValue = checkScopeObjectMember(ast->qualifiedId);
     if (lhsValue) {
-        // ### Fix the evaluator to accept statements!
-        if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement)) {
-            ExpressionNode *expr = expStmt->expression;
+        Evaluate evaluator(&_scopeChain);
+        const Value *rhsValue = evaluator(ast->statement);
 
-            Evaluate evaluator(&_scopeChain);
-            const Value *rhsValue = evaluator(expr);
-
-            const SourceLocation loc = locationFromRange(expStmt->firstSourceLocation(),
-                                                         expStmt->lastSourceLocation());
-            AssignmentCheck assignmentCheck;
-            DiagnosticMessage message = assignmentCheck(_doc, loc, lhsValue, rhsValue, expr);
-            if (! message.message.isEmpty())
-                _messages += message;
-        }
-
+        const SourceLocation loc = locationFromRange(ast->statement->firstSourceLocation(),
+                                                     ast->statement->lastSourceLocation());
+        AssignmentCheck assignmentCheck;
+        DiagnosticMessage message = assignmentCheck(_doc, loc, lhsValue, rhsValue, ast->statement);
+        if (! message.message.isEmpty())
+            _messages += message;
     }
 
     if (Block *block = cast<Block *>(ast->statement)) {
