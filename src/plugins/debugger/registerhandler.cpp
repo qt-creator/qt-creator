@@ -56,6 +56,7 @@ enum RegisterType
     RegisterI16,
     RegisterI32,
     RegisterI64,
+    RegisterI128,
     RegisterF32,
     RegisterF64,
     RegisterF80,
@@ -70,6 +71,107 @@ static struct RegisterNameAndType
     const char *name;
     RegisterType type;
 } theNameAndType[] = {
+    // ARM
+    { "r0", RegisterI32 },
+    { "r1", RegisterI32 },
+    { "r2", RegisterI32 },
+    { "r3", RegisterI32 },
+    { "r4", RegisterI32 },
+    { "r5", RegisterI32 },
+    { "r6", RegisterI32 },
+    { "r7", RegisterI32 },
+    { "r8", RegisterI32 },
+    { "r9", RegisterI32 },
+    { "r10", RegisterI32 },
+    { "r11", RegisterI32 },
+    { "r12", RegisterI32 },
+    { "sp", RegisterI32 },
+    { "lr", RegisterI32 },
+    { "pc", RegisterI32 },
+    { "cpsr", RegisterFlags32 },
+    { "d0", RegisterI64 },
+    { "d1", RegisterI64 },
+    { "d2", RegisterI64 },
+    { "d3", RegisterI64 },
+    { "d4", RegisterI64 },
+    { "d5", RegisterI64 },
+    { "d6", RegisterI64 },
+    { "d7", RegisterI64 },
+    { "d8", RegisterI64 },
+    { "d9", RegisterI64 },
+    { "d10", RegisterI64 },
+    { "d11", RegisterI64 },
+    { "d12", RegisterI64 },
+    { "d13", RegisterI64 },
+    { "d14", RegisterI64 },
+    { "d15", RegisterI64 },
+    { "d16", RegisterI64 },
+    { "d17", RegisterI64 },
+    { "d18", RegisterI64 },
+    { "d19", RegisterI64 },
+    { "d20", RegisterI64 },
+    { "d21", RegisterI64 },
+    { "d22", RegisterI64 },
+    { "d23", RegisterI64 },
+    { "d24", RegisterI64 },
+    { "d25", RegisterI64 },
+    { "d26", RegisterI64 },
+    { "d27", RegisterI64 },
+    { "d28", RegisterI64 },
+    { "d29", RegisterI64 },
+    { "d30", RegisterI64 },
+    { "d31", RegisterI64 },
+    { "fpscr", RegisterFlags32 },
+    { "s0", RegisterI32 },
+    { "s1", RegisterI32 },
+    { "s2", RegisterI32 },
+    { "s3", RegisterI32 },
+    { "s4", RegisterI32 },
+    { "s5", RegisterI32 },
+    { "s6", RegisterI32 },
+    { "s7", RegisterI32 },
+    { "s8", RegisterI32 },
+    { "s9", RegisterI32 },
+    { "s10", RegisterI32 },
+    { "s11", RegisterI32 },
+    { "s12", RegisterI32 },
+    { "s13", RegisterI32 },
+    { "s14", RegisterI32 },
+    { "s15", RegisterI32 },
+    { "s16", RegisterI32 },
+    { "s17", RegisterI32 },
+    { "s18", RegisterI32 },
+    { "s19", RegisterI32 },
+    { "s20", RegisterI32 },
+    { "s21", RegisterI32 },
+    { "s22", RegisterI32 },
+    { "s23", RegisterI32 },
+    { "s24", RegisterI32 },
+    { "s25", RegisterI32 },
+    { "s26", RegisterI32 },
+    { "s27", RegisterI32 },
+    { "s28", RegisterI32 },
+    { "s29", RegisterI32 },
+    { "s30", RegisterI32 },
+    { "s31", RegisterI32 },
+    { "q0", RegisterI128 },
+    { "q1", RegisterI128 },
+    { "q2", RegisterI128 },
+    { "q3", RegisterI128 },
+    { "q4", RegisterI128 },
+    { "q5", RegisterI128 },
+    { "q6", RegisterI128 },
+    { "q7", RegisterI128 },
+    { "q8", RegisterI128 },
+    { "q9", RegisterI128 },
+    { "q10", RegisterI128 },
+    { "q11", RegisterI128 },
+    { "q12", RegisterI128 },
+    { "q13", RegisterI128 },
+    { "q14", RegisterI128 },
+    { "q15", RegisterI128 },
+
+    // Intel
     { "eax", RegisterI32 },
     { "ecx", RegisterI32 },
     { "edx", RegisterI32 },
@@ -155,6 +257,7 @@ static int childCountFromType(int type)
         case RegisterI16: return 1;
         case RegisterI32: return 2;
         case RegisterI64: return 3;
+        case RegisterI128: return 4;
         case RegisterF32: return 0;
         case RegisterF64: return 0;
         case RegisterF80: return 0;
@@ -169,10 +272,10 @@ static int childCountFromType(int type)
 
 static int bitWidthFromType(int type, int subType)
 {
-    const uint integer[] = { 8, 16, 32, 64 };
-    const uint xmm[] = { 8, 16, 32, 64 };
-    const uint mmx[] = { 8, 16, 32, 64 };
-    const uint neon[] = { 8, 16, 32, 64 };
+    const uint integer[] = { 8, 16, 32, 64, 128 };
+    const uint xmm[] = { 8, 16, 32, 64, 128 };
+    const uint mmx[] = { 8, 16, 32, 64, 128 };
+    const uint neon[] = { 8, 16, 32, 64, 128 };
 
     switch (type) {
         case RegisterUnknown: return 0;
@@ -180,6 +283,7 @@ static int bitWidthFromType(int type, int subType)
         case RegisterI16: return integer[subType];
         case RegisterI32: return integer[subType];
         case RegisterI64: return integer[subType];
+        case RegisterI128: return integer[subType];
         case RegisterF32: return 0;
         case RegisterF64: return 0;
         case RegisterF80: return 0;
@@ -313,6 +417,7 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
                     case 16: return "[Words]";
                     case 32: return "[DWords]";
                     case 64: return "[QWords]";
+                    case 128: return "[TWords]";
                     case -32: return "[Single]";
                     case -64: return "[Double]";
                     return QVariant(bitWidth);

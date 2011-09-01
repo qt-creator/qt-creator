@@ -497,7 +497,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 foreach (const GdbMi &bkpt, result.children()) {
                     const QByteArray nr = bkpt.findChild("number").data();
                     BreakpointResponseId rid(nr);
-                    if (!isHiddenBreakpoint(rid)) { 
+                    if (!isHiddenBreakpoint(rid)) {
                         if (nr.contains('.')) {
                             // A sub-breakpoint.
                             BreakpointResponse sub;
@@ -3653,11 +3653,12 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
         Register &reg = registers[i];
         GdbMi val = item.findChild("value");
         QByteArray ba;
-        bool handled = false;
         if (val.data().startsWith('{')) {
             int pos1 = val.data().indexOf("v2_int32");
             if (pos1 == -1)
                 pos1 = val.data().indexOf("v4_int32");
+            if (pos1 == -1)
+                pos1 = val.data().indexOf("u32 = {");
             if (pos1 != -1) {
                 // FIXME: This block wastes cycles.
                 pos1 = val.data().indexOf('{', pos1 + 1) + 1;
@@ -3671,10 +3672,13 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
                     ba.prepend(ba3.mid(2));
                 }
                 ba.prepend("0x");
-                handled = true;
+                reg.value = _(ba);
+            } else {
+                reg.value = _(val.data());
             }
+        } else {
+            reg.value = _(val.data());
         }
-        reg.value = _(handled ? ba : val.data());
     }
     registerHandler()->setAndMarkRegisters(registers);
 }
