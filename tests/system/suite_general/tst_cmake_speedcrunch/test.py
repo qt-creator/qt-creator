@@ -43,3 +43,8 @@ def cleanup():
 
     if os.access(BuildPath, os.F_OK):
         shutil.rmtree(BuildPath)
+    # added because creator uses this one for me
+    BuildPath = SDKPath + "/creator-test-data/speedcrunch/qtcreator-build"
+
+    if os.access(BuildPath, os.F_OK):
+        shutil.rmtree(BuildPath)

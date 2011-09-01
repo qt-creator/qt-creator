@@ -3,6 +3,7 @@ import shutil;
 import os;
 import glob;
 import atexit;
+import codecs;
 
 SDKPath = ''
 SettingsPath = ''
