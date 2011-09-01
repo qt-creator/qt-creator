@@ -945,8 +945,8 @@ void BinEditor::setCursorPosition(int pos, MoveMode moveMode)
     hasSelection = m_anchorPosition != m_cursorPosition;
     updateLines(hasSelection ? oldCursorPosition : m_cursorPosition, m_cursorPosition);
     ensureCursorVisible();
-    if (hasSelection != (m_anchorPosition != m_anchorPosition))
-        emit copyAvailable(m_anchorPosition != m_cursorPosition);
+    if (hasSelection)
+        emit copyAvailable(hasSelection);
     emit cursorPositionChanged(m_cursorPosition);
 }
 
