@@ -360,10 +360,8 @@ int ResultsView::intLine(int row)
 
 void ResultsView::setResult(const QString &result, const QString &test, const QString &reason, const QString &dataTag, const QString &file, int line)
 {
-    int row;
     QString lineStr(QString::number(line));
     append(result, test, reason, dataTag, file, lineStr);
-    row = rowCount()-1;
 }
 
 void ResultsView::onChanged()

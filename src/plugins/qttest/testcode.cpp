@@ -1340,6 +1340,10 @@ QString TestCode::targetFileName(const QString &buildPath) const
 
 void TestCode::onContextHelpIdRequested(TextEditor::ITextEditor *editor, int position)
 {
+#ifdef QTTEST_PLUGIN_LEAN
+    Q_UNUSED(editor);
+    Q_UNUSED(position);
+#else
     int charsBefore = 32;
     if (position < charsBefore)
         charsBefore = position;
@@ -1361,7 +1365,6 @@ void TestCode::onContextHelpIdRequested(TextEditor::ITextEditor *editor, int pos
         }
     }
 
-#ifndef QTTEST_PLUGIN_LEAN
     static QStringList qstSlots;
     if (qstSlots.isEmpty()) {
         for (int i = 0; i < QSystemTest::staticMetaObject.methodCount(); ++i) {

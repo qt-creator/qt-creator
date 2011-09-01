@@ -396,10 +396,6 @@ bool QSystem::hasEnvKey(const QString &envString, QString &key, int &pos, int st
         }
 
         if (end > pos) {
-            int extraKey = 0;
-            if (winKey)
-                extraKey = 1;
-
             QString tmpKey = envString.mid(pos + 1, end - (pos+1));
 
             // see if we have a string that looks like $(QTDIR) and convert it to QTDIR

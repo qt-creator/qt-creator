@@ -196,7 +196,6 @@ void TestExecuter::runSelectedTests(bool forceManual)
 
     testOutputPane()->clear();
 
-    bool hasSystemTestsSelected = false;
     int maxProgress = 0;
     m_lastFinishedTest.clear();
     QString lastTc;
@@ -209,10 +208,8 @@ void TestExecuter::runSelectedTests(bool forceManual)
             ++maxProgress;
 
             TestCode *tmp = m_testCollection.findCodeByTestCaseName(lastTc);
-            if (tmp && tmp->testType() == TestCode::TypeSystemTest) {
+            if (tmp && tmp->testType() == TestCode::TypeSystemTest)
                 lastIsSystemTest = true;
-                hasSystemTestsSelected = true;
-            }
         } else if (lastIsSystemTest) {
             ++maxProgress;
         }

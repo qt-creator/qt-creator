@@ -899,15 +899,11 @@ QString TestSelector::curTestSuite(bool fullPath)
 void TestSelector::checkSuite(TestSuiteItem *base, bool &selected, bool &multiSelection)
 {
     TestViewItem *tmpViewItem;
-    TestSuiteItem *testSuite;
     int tmpViewItemInd = 1;
-    if (base == 0) {
+    if (base == 0)
         tmpViewItem = static_cast<TestViewItem *>(topLevelItem(0));
-        testSuite = static_cast<TestSuiteItem *>(tmpViewItem);
-    } else {
+    else
         tmpViewItem = static_cast<TestViewItem *>(base->child(0));
-        testSuite = base;
-    }
 
     while (tmpViewItem != 0) {
 
@@ -992,15 +988,11 @@ QStringList TestSelector::selectedTests()
 void TestSelector::getSelectedTests(TestSuiteItem *base, QStringList &list, bool isAssigned)
 {
     TestViewItem *tmpViewItem;
-    TestSuiteItem *testSuite;
     int tmpViewItemInd = 1;
-    if (base == 0) {
+    if (base == 0)
         tmpViewItem = static_cast<TestViewItem *>(topLevelItem(0));
-        testSuite = static_cast<TestSuiteItem *>(tmpViewItem);
-    } else {
+    else
         tmpViewItem = static_cast<TestViewItem *>(base->child(0));
-        testSuite = base;
-    }
 
     while (tmpViewItem != 0) {
         if (tmpViewItem->isTestSuite()) {
