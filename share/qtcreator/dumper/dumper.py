@@ -527,7 +527,7 @@ def makeValue(type, init):
     type = stripClassTag(type)
     if type.find(":") >= 0:
         type = "'" + type + "'"
-    # Avoid malloc symbol clash with QVector
+    # Avoid malloc symbol clash with QVector.
     gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (type, type))
     gdb.execute("set *$d = {%s}" % init)
     value = parseAndEvaluate("$d").dereference()
@@ -685,12 +685,13 @@ def qQStringData(value):
     if qtMajorVersion() < 5:
         d_ptr = value['d'].dereference()
         checkRef(d_ptr['ref'])
-        return d_ptr['data'], d_ptr['size'], d_ptr['alloc']
+        return d_ptr['data'], int(d_ptr['size']), int(d_ptr['alloc'])
     else: # Qt5: Implement the QStringArrayData::data() accessor.
         qStringData = value['d'].dereference()
         ushortPointerType = lookupType('ushort *')
-        data = qStringData['d'].cast(ushortPointerType) + ushortPointerType.sizeof / 2 + qStringData['offset']
-        return data, qStringData['size'], qStringData['alloc']
+        data = qStringData['d'].cast(ushortPointerType) \
+            + ushortPointerType.sizeof / 2 + qStringData['offset']
+        return data, int(qStringData['size']), int(qStringData['alloc'])
 
 def encodeString(value):
     data, size, alloc = qQStringData(value)
@@ -1175,10 +1176,10 @@ class Dumper:
             self.putValue("0x%x" % value.dereference().cast(
                 lookupType("unsigned long")), None, -1)
 
-    def putStringValue(self, value):
+    def putStringValue(self, value, priority = 0):
         if not value is None:
             str = encodeString(value)
-            self.putValue(str, Hex4EncodedLittleEndian)
+            self.putValue(str, Hex4EncodedLittleEndian, priority)
 
     def putDisplay(self, format, value = None, cmd = None):
         self.put('editformat="%s",' % format)
@@ -1255,6 +1256,7 @@ class Dumper:
         with SubItem(self, component):
             self.putName(name)
             self.putItem(value)
+
     def putCallItem(self, name, value, func, *args):
         result = call2(value, func, args)
         with SubItem(self, name):
@@ -1479,34 +1481,26 @@ class Dumper:
             warn("WRONG ASSUMPTION HERE: %s " % type.code)
             check(False)
 
-        # Is this derived from QObject?
-        isQObjectDerived = self.checkForQObjectBase(type)
-
-        nsStrippedType = self.stripNamespaceFromType(typeName)\
-            .replace("::", "__")
-
-        #warn(" STRIPPED: %s" % nsStrippedType)
-        #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
-
-        if self.useFancy \
-                and (format is None or format >= 1) \
-                and (nsStrippedType in qqDumpers \
-                    or typeName in qqDumpers \
-                    or isQObjectDerived):
-            #warn("IS DUMPABLE: %s " % type)
-            #self.putAddress(value.address)
+        if self.useFancy and (format is None or format >= 1):
             self.putAddress(value.address)
             self.putType(typeName)
-            if nsStrippedType in qqDumpers:
-                qqDumpers[nsStrippedType](self, value)
+
             if typeName in qqDumpers:
                 qqDumpers[typeName](self, value)
-            elif isQObjectDerived:
-                # FIXME: value has references stripped off item.value.
-                #item1 = Item(value, item.iname)
+                return
+
+            nsStrippedType = self.stripNamespaceFromType(typeName)\
+                .replace("::", "__")
+            #warn(" STRIPPED: %s" % nsStrippedType)
+            #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
+            if nsStrippedType in qqDumpers:
+                qqDumpers[nsStrippedType](self, value)
+                return
+
+            # Is this derived from QObject?
+            if self.checkForQObjectBase(type):
                 qdump__QObject(self, value)
-            #warn(" RESULT: %s " % self.output)
-            return
+                return
 
         #warn("GENERIC STRUCT: %s" % type)
         #warn("INAME: %s " % self.currentIName)

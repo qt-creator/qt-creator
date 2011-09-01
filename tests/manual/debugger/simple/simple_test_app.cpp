@@ -504,9 +504,9 @@ namespace qfileinfo {
     void testQFileInfo()
     {
         QFile file("/tmp/t");
-        QFileInfo fi("/tmp/t");
+        file.setObjectName("A QFile instance");
+        QFileInfo fi("/tmp/tt");
         QString s = fi.absoluteFilePath();
-        s = fi.bundleName();
         dummyStatement(&file, &s);
     }
 

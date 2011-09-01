@@ -1,6 +1,4 @@
 
-#Note: Keep name-type-value-numchild-extra order
-
 #######################################################################
 #
 # Dumper Implementations
@@ -206,7 +204,7 @@ def qdump__QDateTime(d, value):
 
 def qdump__QDir(d, value):
     d.putStringValue(value["d_ptr"]["d"].dereference()["path"])
-    d.putNumChild(2)
+    d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
             d.putCallItem("absolutePath", value, "absolutePath")
@@ -214,13 +212,17 @@ def qdump__QDir(d, value):
 
 
 def qdump__QFile(d, value):
-    ptype = lookupType(d.ns + "QFilePrivate")
-    d_ptr = value["d_ptr"]["d"].dereference()
-    d.putStringValue(d_ptr.cast(ptype)["fileName"])
+    try:
+        ptype = lookupType(d.ns + "QFilePrivate").pointer()
+        d_ptr = value["d_ptr"]["d"]
+        d.putStringValue(d_ptr.cast(ptype).dereference()["fileName"])
+    except:
+        d.putPlainChildren(value)
+        return
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            d.putCallItem("exists", value, "exists()")
+            d.putCallItem("exists", value, "exists")
 
 
 def qdump__QFileInfo(d, value):
@@ -229,7 +231,7 @@ def qdump__QFileInfo(d, value):
     except:
         d.putPlainChildren(value)
         return
-    d.putNumChild(3)
+    d.putNumChild(1)
     if d.isExpanded():
         with Children(d, childType=lookupType(d.ns + "QString")):
             d.putCallItem("absolutePath", value, "absolutePath")
