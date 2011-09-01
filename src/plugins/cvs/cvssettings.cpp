@@ -94,7 +94,7 @@ void CVSSettings::toSettings(QSettings *settings) const
 
 bool CVSSettings::equals(const CVSSettings &s) const
 {
-    return promptToSubmit     == promptToSubmit
+    return promptToSubmit     == s.promptToSubmit
         && describeByCommitId == s.describeByCommitId
         && cvsCommand         == s.cvsCommand
         && cvsRoot            == s.cvsRoot
