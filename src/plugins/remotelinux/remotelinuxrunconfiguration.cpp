@@ -261,7 +261,13 @@ QString RemoteLinuxRunConfiguration::arguments() const
 
 QString RemoteLinuxRunConfiguration::environmentPreparationCommand() const
 {
-    return QLatin1String("source /etc/profile; source $HOME/.profile");
+    QString command;
+    const QStringList filesToSource = QStringList() << QLatin1String("/etc/profile")
+        << QLatin1String("$HOME/.profile");
+    foreach (const QString &filePath, filesToSource)
+        command += QString::fromLocal8Bit("test -f %1 && source %1;").arg(filePath);
+    command.chop(1); // Trailing semicolon.
+    return command;
 }
 
 QString RemoteLinuxRunConfiguration::commandPrefix() const
