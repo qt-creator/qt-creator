@@ -300,8 +300,6 @@ CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context)
     _potentialMembers = collectTypes.members();
     _potentialVirtualMethods = collectTypes.virtualMethods();
     _potentialStatics = collectTypes.statics();
-    _flushRequested = false;
-    _flushLine = 0;
 
     typeOfExpression.init(_doc, _context.snapshot(), _context.bindings());
 }
@@ -847,20 +845,14 @@ void CheckSymbols::addUse(const Use &use)
     if (!use.line)
         return;
 
-    _lineOfLastUsage = qMax(_lineOfLastUsage, use.line);
-
     if (! enclosingFunctionDefinition()) {
         if (_usages.size() >= chunkSize) {
-            if (_flushRequested && use.line > _flushLine) {
+            if (use.line > _lineOfLastUsage)
                 flush();
-                _lineOfLastUsage = use.line;
-            } else if (! _flushRequested) {
-                _flushRequested = true;
-                _flushLine = _lineOfLastUsage;
-            }
         }
     }
 
+    _lineOfLastUsage = qMax(_lineOfLastUsage, use.line);
     _usages.append(use);
 }
 
@@ -1102,8 +1094,6 @@ static bool sortByLinePredicate(const CheckSymbols::Use &lhs, const CheckSymbols
 
 void CheckSymbols::flush()
 {
-    _flushRequested = false;
-    _flushLine = 0;
     _lineOfLastUsage = 0;
 
     if (_usages.isEmpty())
