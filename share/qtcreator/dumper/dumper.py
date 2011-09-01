@@ -82,7 +82,7 @@ DisplayProcess \
 
 
 def hasInferiorThreadList():
-    return False
+    #return False
     try:
         a = gdb.inferiors()[0].threads()
         return True
@@ -1642,7 +1642,7 @@ class Dumper:
 #
 #######################################################################
 
-def threadnames(args):
+def threadnames(arg):
     ns = qtNamespace()
     out = '['
     oldthread = gdb.selected_thread()
@@ -1674,7 +1674,7 @@ def threadnames(args):
     except:
         pass
     oldthread.switch()
-    return out[:-1] + ']'
+    return out + ']'
 
 registerCommand("threadnames", threadnames)
 
