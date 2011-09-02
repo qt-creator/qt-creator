@@ -67,7 +67,7 @@ namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DisassemblerAgent
+// FrameKey
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -86,11 +86,19 @@ public:
 bool FrameKey::matches(const Location &loc) const
 {
     return loc.address() >= startAddress
-            && loc.address() < endAddress
-            && loc.fileName() == fileName && loc.functionName() == functionName;
+            && loc.address() <= endAddress
+            && loc.fileName() == fileName
+            && loc.functionName() == functionName;
 }
 
 typedef QPair<FrameKey, DisassemblerLines> CacheEntry;
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// DisassemblerAgentPrivate
+//
+///////////////////////////////////////////////////////////////////////
 
 class DisassemblerAgentPrivate
 {
@@ -98,26 +106,25 @@ public:
     DisassemblerAgentPrivate();
     ~DisassemblerAgentPrivate();
     void configureMimeType();
+    DisassemblerLines contentsAtCurrentLocation() const;
 
 public:
     QPointer<TextEditor::ITextEditor> editor;
     Location location;
-    bool tryMixed;
     QPointer<DebuggerEngine> engine;
     ITextMark *locationMark;
     QList<ITextMark *> breakpointMarks;
-
     QList<CacheEntry> cache;
-
     QString mimeType;
-    bool m_resetLocationScheduled;
+    bool tryMixed;
+    bool resetLocationScheduled;
 };
 
 DisassemblerAgentPrivate::DisassemblerAgentPrivate()
   : editor(0),
-    tryMixed(true),
     mimeType(_("text/x-qtcreator-generic-asm")),
-    m_resetLocationScheduled(false)
+    tryMixed(true),
+    resetLocationScheduled(false)
 {
     locationMark = new ITextMark;
     locationMark->setIcon(debuggerCore()->locationMarkIcon());
@@ -133,6 +140,23 @@ DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
     editor = 0;
     delete locationMark;
 }
+
+DisassemblerLines DisassemblerAgentPrivate::contentsAtCurrentLocation() const
+{
+    for (int i = 0, n = cache.size(); i != n; ++i) {
+        const CacheEntry &entry = cache.at(i);
+        if (entry.first.matches(location))
+            return entry.second;
+    }
+    return DisassemblerLines();
+}
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// DisassemblerAgent
+//
+///////////////////////////////////////////////////////////////////////
 
 /*!
     \class Debugger::Internal::DisassemblerAgent
@@ -169,15 +193,15 @@ void DisassemblerAgent::cleanup()
 
 void DisassemblerAgent::scheduleResetLocation()
 {
-    d->m_resetLocationScheduled = true;
+    d->resetLocationScheduled = true;
 }
 
 void DisassemblerAgent::resetLocation()
 {
     if (!d->editor)
         return;
-    if (d->m_resetLocationScheduled) {
-        d->m_resetLocationScheduled = false;
+    if (d->resetLocationScheduled) {
+        d->resetLocationScheduled = false;
         d->editor->markableInterface()->removeMark(d->locationMark);
     }
 }
@@ -216,7 +240,7 @@ void DisassemblerAgent::setLocation(const Location &loc)
                 .arg(loc.functionName(), QDir::toNativeSeparators(loc.fileName()));
         d->engine->showMessage(msg);
         setContentsToEditor(d->cache.at(index).second);
-        d->m_resetLocationScheduled = false; // In case reset from previous run still pending.
+        d->resetLocationScheduled = false; // In case reset from previous run still pending.
     } else {
         d->engine->fetchDisassembler(this);
     }
@@ -322,10 +346,7 @@ void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
 void DisassemblerAgent::updateLocationMarker()
 {
     QTC_ASSERT(d->editor, return);
-
-    const int index = indexOf(d->location);
-    const DisassemblerLines contents = index != -1 ?
-                d->cache.at(index).second : DisassemblerLines();
+    const DisassemblerLines contents = d->contentsAtCurrentLocation();
     int lineNumber = contents.lineForAddress(d->location.address());
     if (d->location.needsMarker()) {
         d->editor->markableInterface()->removeMark(d->locationMark);
@@ -353,9 +374,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
     if (ids.isEmpty())
         return;
 
-    const int index = indexOf(d->location);
-    const DisassemblerLines contents = index != -1 ?
-                                       d->cache.at(index).second : DisassemblerLines();
+    const DisassemblerLines contents = d->contentsAtCurrentLocation();
     foreach (TextEditor::ITextMark *marker, d->breakpointMarks)
         d->editor->markableInterface()->removeMark(marker);
     d->breakpointMarks.clear();
