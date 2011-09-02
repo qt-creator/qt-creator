@@ -78,6 +78,7 @@ void SnippetEditorWidget::focusOutEvent(QFocusEvent *event)
         document()->setModified(false);
         emit snippetContentChanged();
     }
+    BaseTextEditorWidget::focusOutEvent(event);
 }
 
 BaseTextEditor *SnippetEditorWidget::createEditor()
