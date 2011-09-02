@@ -66,9 +66,9 @@ public:
 
     virtual QAction *insertLocation(const QString &group) const = 0;
     virtual void appendGroup(const QString &group) = 0;
-    virtual void addAction(Core::Command *action, const QString &group = QString()) = 0;
-    virtual void addMenu(Core::ActionContainer *menu, const QString &group = QString()) = 0;
-    virtual void addMenu(Core::ActionContainer *before, Core::ActionContainer *menu, const QString &group = QString()) = 0;
+    virtual void addAction(Command *action, const QString &group = QString()) = 0;
+    virtual void addMenu(ActionContainer *menu, const QString &group = QString()) = 0;
+    virtual void addMenu(ActionContainer *before, ActionContainer *menu, const QString &group = QString()) = 0;
 
     // clears this menu and submenus from all actions and submenus
     // doesn't destroy the submenus and commands, just removes them from their parents
