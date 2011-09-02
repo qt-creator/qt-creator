@@ -45,7 +45,7 @@ void DisassemblerLine::fromString(const QString &unparsed)
 {
     int pos = -1;
     for (int i = 0; i != unparsed.size(); ++i) {
-        uint c = unparsed.at(i).unicode();
+        const uint c = unparsed.at(i).unicode();
         if (c == ' ' || c == ':' || c == '\t') {
             pos = i;
             break;
@@ -66,8 +66,9 @@ void DisassemblerLine::fromString(const QString &unparsed)
         addr.chop(1);
     if (addr.startsWith(QLatin1String("0x")))
         addr.remove(0, 2);
-    address = addr.toULongLong(0, 16);
-    if (address)
+    bool ok = false;
+    address = addr.toULongLong(&ok, 16);
+    if (ok)
         data = unparsed.mid(pos + 1);
     else
         data = unparsed;
@@ -112,7 +113,7 @@ void DisassemblerLines::appendLine(const DisassemblerLine &dl)
     m_rowCache[dl.address] = m_data.size();
 }
 
-// Append source line: Cache current file
+// Append source line: Cache current file.
 struct SourceFileCache
 {
     QString fileName;
@@ -126,7 +127,7 @@ void DisassemblerLines::appendSourceLine(const QString &fileName, uint lineNumbe
 
     if (fileName.isEmpty() || lineNumber == 0)
         return;
-    lineNumber--; // fix 1..n range.
+    lineNumber--; // Fix 1..n range.
     SourceFileCache *cache = sourceFileCache();
     if (fileName != cache->fileName) {
         cache->fileName = fileName;
@@ -135,8 +136,8 @@ void DisassemblerLines::appendSourceLine(const QString &fileName, uint lineNumbe
         if (file.open(QIODevice::ReadOnly)) {
             QTextStream ts(&file);
             cache->lines = ts.readAll().split(QLatin1Char('\n'));
-        } // open
-    }     // different file
+        }
+    }
     if (lineNumber >= uint(cache->lines.size()))
         return;
     DisassemblerLine dl;
@@ -177,7 +178,6 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
                 m_data.append(dl);
                 m_lastFunction = function;
             }
-            //line.replace(pos1, pos2 - pos1, "");
         }
         DisassemblerLine dl;
         dl.address = line.left(pos1 - 1).toULongLong(0, 0);
@@ -200,9 +200,8 @@ QString DisassemblerLine::toString() const
     QString str;
     if (isAssembler()) {
         if (address)
-            str += _("0x%1  ").arg(address, 0, 16);
-        if (offset)
-            str += _("<+0x%1> ").arg(offset, 4, 16, QLatin1Char('0'));
+            str += _("0x%1  <+0x%1> ").arg(offset, 4, 16, QLatin1Char('0'))
+                .arg(address, 0, 16);
         str += _("        ");
         str += data;
     } else if (isCode()) {
