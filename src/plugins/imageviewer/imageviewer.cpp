@@ -63,52 +63,52 @@ struct ImageViewerPrivate
 
 ImageViewer::ImageViewer(QWidget *parent)
     : IEditor(parent),
-    d_ptr(new ImageViewerPrivate)
+    d(new ImageViewerPrivate)
 {
-    d_ptr->file = new ImageViewerFile(this);
-    d_ptr->imageView = new ImageView();
+    d->file = new ImageViewerFile(this);
+    d->imageView = new ImageView();
 
     setContext(Core::Context(Constants::IMAGEVIEWER_ID));
-    setWidget(d_ptr->imageView);
+    setWidget(d->imageView);
 
     // toolbar
-    d_ptr->toolbar = new QWidget();
-    d_ptr->ui_toolbar.setupUi(d_ptr->toolbar);
+    d->toolbar = new QWidget();
+    d->ui_toolbar.setupUi(d->toolbar);
 
     // icons update - try to use system theme
-    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonZoomIn, "zoom-in");
-    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonZoomOut, "zoom-out");
-    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonOriginalSize, "zoom-original");
-    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonFitToScreen, "zoom-fit-best");
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomIn, "zoom-in");
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonZoomOut, "zoom-out");
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonOriginalSize, "zoom-original");
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonFitToScreen, "zoom-fit-best");
     // a display - something is on the background
-    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonBackground, "video-display");
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonBackground, "video-display");
     // "emblem to specify the directory where the user stores photographs"
     // (photograph has outline - piece of paper)
-    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonOutline, "emblem-photos");
+    updateButtonIconByTheme(d->ui_toolbar.toolButtonOutline, "emblem-photos");
 
     // connections
-    connect(d_ptr->file, SIGNAL(changed()), this, SIGNAL(changed()));
+    connect(d->file, SIGNAL(changed()), this, SIGNAL(changed()));
 
-    connect(d_ptr->ui_toolbar.toolButtonZoomIn, SIGNAL(clicked()),
-            d_ptr->imageView, SLOT(zoomIn()));
-    connect(d_ptr->ui_toolbar.toolButtonZoomOut, SIGNAL(clicked()),
-            d_ptr->imageView, SLOT(zoomOut()));
-    connect(d_ptr->ui_toolbar.toolButtonFitToScreen, SIGNAL(clicked()),
-            d_ptr->imageView, SLOT(fitToScreen()));
-    connect(d_ptr->ui_toolbar.toolButtonOriginalSize, SIGNAL(clicked()),
-            d_ptr->imageView, SLOT(resetToOriginalSize()));
-    connect(d_ptr->ui_toolbar.toolButtonBackground, SIGNAL(toggled(bool)),
-            d_ptr->imageView, SLOT(setViewBackground(bool)));
-    connect(d_ptr->ui_toolbar.toolButtonOutline, SIGNAL(toggled(bool)),
-            d_ptr->imageView, SLOT(setViewOutline(bool)));
-    connect(d_ptr->imageView, SIGNAL(scaleFactorChanged(qreal)),
+    connect(d->ui_toolbar.toolButtonZoomIn, SIGNAL(clicked()),
+            d->imageView, SLOT(zoomIn()));
+    connect(d->ui_toolbar.toolButtonZoomOut, SIGNAL(clicked()),
+            d->imageView, SLOT(zoomOut()));
+    connect(d->ui_toolbar.toolButtonFitToScreen, SIGNAL(clicked()),
+            d->imageView, SLOT(fitToScreen()));
+    connect(d->ui_toolbar.toolButtonOriginalSize, SIGNAL(clicked()),
+            d->imageView, SLOT(resetToOriginalSize()));
+    connect(d->ui_toolbar.toolButtonBackground, SIGNAL(toggled(bool)),
+            d->imageView, SLOT(setViewBackground(bool)));
+    connect(d->ui_toolbar.toolButtonOutline, SIGNAL(toggled(bool)),
+            d->imageView, SLOT(setViewOutline(bool)));
+    connect(d->imageView, SIGNAL(scaleFactorChanged(qreal)),
             this, SLOT(scaleFactorUpdate(qreal)));
 }
 
 ImageViewer::~ImageViewer()
 {
-    delete d_ptr->imageView;
-    delete d_ptr->toolbar;
+    delete d->imageView;
+    delete d->toolbar;
 }
 
 bool ImageViewer::createNew(const QString &contents)
@@ -119,12 +119,12 @@ bool ImageViewer::createNew(const QString &contents)
 
 bool ImageViewer::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    if (!d_ptr->imageView->openFile(realFileName)) {
+    if (!d->imageView->openFile(realFileName)) {
         *errorString = tr("Cannot open image file %1").arg(QDir::toNativeSeparators(realFileName));
         return false;
     }
     setDisplayName(QFileInfo(fileName).fileName());
-    d_ptr->file->setFileName(fileName);
+    d->file->setFileName(fileName);
     // d_ptr->file->setMimeType
     emit changed();
     return true;
@@ -132,7 +132,7 @@ bool ImageViewer::open(QString *errorString, const QString &fileName, const QStr
 
 Core::IFile *ImageViewer::file()
 {
-    return d_ptr->file;
+    return d->file;
 }
 
 QString ImageViewer::id() const
@@ -142,12 +142,12 @@ QString ImageViewer::id() const
 
 QString ImageViewer::displayName() const
 {
-    return d_ptr->displayName;
+    return d->displayName;
 }
 
 void ImageViewer::setDisplayName(const QString &title)
 {
-    d_ptr->displayName = title;
+    d->displayName = title;
     emit changed();
 }
 
@@ -190,13 +190,13 @@ bool ImageViewer::isTemporary() const
 
 QWidget *ImageViewer::toolBar()
 {
-    return d_ptr->toolbar;
+    return d->toolbar;
 }
 
 void ImageViewer::scaleFactorUpdate(qreal factor)
 {
     const QString info = QString::number(factor * 100, 'f', 2) + QLatin1Char('%');
-    d_ptr->ui_toolbar.labelInfo->setText(info);
+    d->ui_toolbar.labelInfo->setText(info);
 }
 
 bool ImageViewer::updateButtonIconByTheme(QAbstractButton *button, const QString &name)
@@ -214,32 +214,32 @@ bool ImageViewer::updateButtonIconByTheme(QAbstractButton *button, const QString
 
 void ImageViewer::switchViewBackground()
 {
-    d_ptr->ui_toolbar.toolButtonBackground->click();
+    d->ui_toolbar.toolButtonBackground->click();
 }
 
 void ImageViewer::switchViewOutline()
 {
-    d_ptr->ui_toolbar.toolButtonOutline->click();
+    d->ui_toolbar.toolButtonOutline->click();
 }
 
 void ImageViewer::zoomIn()
 {
-    d_ptr->ui_toolbar.toolButtonZoomIn->click();
+    d->ui_toolbar.toolButtonZoomIn->click();
 }
 
 void ImageViewer::zoomOut()
 {
-    d_ptr->ui_toolbar.toolButtonZoomOut->click();
+    d->ui_toolbar.toolButtonZoomOut->click();
 }
 
 void ImageViewer::resetToOriginalSize()
 {
-    d_ptr->ui_toolbar.toolButtonOriginalSize->click();
+    d->ui_toolbar.toolButtonOriginalSize->click();
 }
 
 void ImageViewer::fitToScreen()
 {
-    d_ptr->ui_toolbar.toolButtonFitToScreen->click();
+    d->ui_toolbar.toolButtonFitToScreen->click();
 }
 
 } // namespace Internal

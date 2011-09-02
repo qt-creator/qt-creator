@@ -50,13 +50,12 @@ namespace Internal {
 class ImageViewerActionHandler : public QObject
 {
     Q_OBJECT
+
 public:
     explicit ImageViewerActionHandler(QObject *parent = 0);
     ~ImageViewerActionHandler();
 
     void createActions();
-
-signals:
 
 public slots:
     void actionTriggered(int supportedAction);
@@ -75,11 +74,10 @@ protected:
                                const Core::Context &context, const QKeySequence &key);
 
 private:
-    QScopedPointer<struct ImageViewerActionHandlerPrivate> d_ptr;
+    QScopedPointer<struct ImageViewerActionHandlerPrivate> d;
 };
 
 } // namespace Internal
 } // namespace ImageViewer
-
 
 #endif // IMAGEVIEWERACTIONHANDLER_H

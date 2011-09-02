@@ -62,7 +62,7 @@ public:
     void extensionsInitialized();
 
 private:
-    QScopedPointer<struct ImageViewerFactoryPrivate> d_ptr;
+    QScopedPointer<struct ImageViewerFactoryPrivate> d;
 };
 
 } // namespace Internal

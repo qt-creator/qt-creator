@@ -70,10 +70,10 @@ struct ImageViewerActionHandlerPrivate
 
 ImageViewerActionHandler::ImageViewerActionHandler(QObject *parent) :
     QObject(parent),
-    d_ptr(new ImageViewerActionHandlerPrivate)
+    d(new ImageViewerActionHandlerPrivate)
 {
-    d_ptr->signalMapper = new QSignalMapper(this);
-    connect(d_ptr->signalMapper, SIGNAL(mapped(int)), SLOT(actionTriggered(int)));
+    d->signalMapper = new QSignalMapper(this);
+    connect(d->signalMapper, SIGNAL(mapped(int)), SLOT(actionTriggered(int)));
 }
 
 ImageViewerActionHandler::~ImageViewerActionHandler()
@@ -116,17 +116,17 @@ void ImageViewerActionHandler::actionTriggered(int supportedAction)
 void ImageViewerActionHandler::createActions()
 {
     registerNewAction(ZoomIn, Constants::ACTION_ZOOM_IN, tr("Zoom In"),
-                      d_ptr->context, QKeySequence(tr("Ctrl++")));
+                      d->context, QKeySequence(tr("Ctrl++")));
     registerNewAction(ZoomOut, Constants::ACTION_ZOOM_OUT, tr("Zoom Out"),
-                      d_ptr->context, QKeySequence(tr("Ctrl+-")));
+                      d->context, QKeySequence(tr("Ctrl+-")));
     registerNewAction(OriginalSize, Constants::ACTION_ORIGINAL_SIZE, tr("Original Size"),
-                      d_ptr->context, QKeySequence(tr("Ctrl+0")));
+                      d->context, QKeySequence(tr("Ctrl+0")));
     registerNewAction(FitToScreen, Constants::ACTION_FIT_TO_SCREEN, tr("Fit To Screen"),
-                      d_ptr->context, QKeySequence(tr("Ctrl+=")));
+                      d->context, QKeySequence(tr("Ctrl+=")));
     registerNewAction(Background, Constants::ACTION_BACKGROUND, tr("Switch Background"),
-                      d_ptr->context, QKeySequence(tr("Ctrl+[")));
+                      d->context, QKeySequence(tr("Ctrl+[")));
     registerNewAction(Outline, Constants::ACTION_OUTLINE, tr("Switch Outline"),
-                      d_ptr->context, QKeySequence(tr("Ctrl+]")));
+                      d->context, QKeySequence(tr("Ctrl+]")));
 }
 
 QAction *ImageViewerActionHandler::registerNewAction(int actionId, const QString &id,
@@ -139,8 +139,8 @@ QAction *ImageViewerActionHandler::registerNewAction(int actionId, const QString
     command = actionManager->registerAction(action, id, context);
     if (command)
         command->setDefaultKeySequence(key);
-    connect(action, SIGNAL(triggered()), d_ptr->signalMapper, SLOT(map()));
-    d_ptr->signalMapper->setMapping(action, actionId);
+    connect(action, SIGNAL(triggered()), d->signalMapper, SLOT(map()));
+    d->signalMapper->setMapping(action, actionId);
 
     return action;
 }

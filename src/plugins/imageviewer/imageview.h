@@ -83,7 +83,7 @@ protected:
     void wheelEvent(QWheelEvent *event);
 
 private:
-    QScopedPointer<struct ImageViewPrivate> d_ptr;
+    QScopedPointer<struct ImageViewPrivate> d;
 };
 
 } // namespace Internal

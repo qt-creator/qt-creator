@@ -71,7 +71,7 @@ struct ImageViewPrivate
 
 ImageView::ImageView(QWidget *parent)
     : QGraphicsView(parent),
-    d_ptr(new ImageViewPrivate())
+    d(new ImageViewPrivate())
 {
     setScene(new QGraphicsScene(this));
     setTransformationAnchor(AnchorUnderMouse);
@@ -123,8 +123,8 @@ bool ImageView::openFile(QString fileName)
 
     QGraphicsScene *s = scene();
 
-    bool drawBackground = (d_ptr->backgroundItem ? d_ptr->backgroundItem->isVisible() : false);
-    bool drawOutline = (d_ptr->outlineItem ? d_ptr->outlineItem->isVisible() : true);
+    bool drawBackground = (d->backgroundItem ? d->backgroundItem->isVisible() : false);
+    bool drawOutline = (d->outlineItem ? d->outlineItem->isVisible() : true);
 
     s->clear();
     resetTransform();
@@ -132,40 +132,40 @@ bool ImageView::openFile(QString fileName)
     // image
 #ifndef QT_NO_SVG
     if (isSvg) {
-        d_ptr->imageItem = new QGraphicsSvgItem(fileName);
+        d->imageItem = new QGraphicsSvgItem(fileName);
     } else
 #endif
     {
         QPixmap pixmap(fileName);
         QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
         pixmapItem->setTransformationMode(Qt::SmoothTransformation);
-        d_ptr->imageItem = pixmapItem;
+        d->imageItem = pixmapItem;
     }
-    d_ptr->imageItem->setCacheMode(QGraphicsItem::NoCache);
-    d_ptr->imageItem->setZValue(0);
+    d->imageItem->setCacheMode(QGraphicsItem::NoCache);
+    d->imageItem->setZValue(0);
 
     // background item
-    d_ptr->backgroundItem = new QGraphicsRectItem(d_ptr->imageItem->boundingRect());
-    d_ptr->backgroundItem->setBrush(Qt::white);
-    d_ptr->backgroundItem->setPen(Qt::NoPen);
-    d_ptr->backgroundItem->setVisible(drawBackground);
-    d_ptr->backgroundItem->setZValue(-1);
+    d->backgroundItem = new QGraphicsRectItem(d->imageItem->boundingRect());
+    d->backgroundItem->setBrush(Qt::white);
+    d->backgroundItem->setPen(Qt::NoPen);
+    d->backgroundItem->setVisible(drawBackground);
+    d->backgroundItem->setZValue(-1);
 
     // outline
-    d_ptr->outlineItem = new QGraphicsRectItem(d_ptr->imageItem->boundingRect());
+    d->outlineItem = new QGraphicsRectItem(d->imageItem->boundingRect());
     QPen outline(Qt::black, 1, Qt::DashLine);
     outline.setCosmetic(true);
-    d_ptr->outlineItem->setPen(outline);
-    d_ptr->outlineItem->setBrush(Qt::NoBrush);
-    d_ptr->outlineItem->setVisible(drawOutline);
-    d_ptr->outlineItem->setZValue(1);
+    d->outlineItem->setPen(outline);
+    d->outlineItem->setBrush(Qt::NoBrush);
+    d->outlineItem->setVisible(drawOutline);
+    d->outlineItem->setZValue(1);
 
-    s->addItem(d_ptr->backgroundItem);
-    s->addItem(d_ptr->imageItem);
-    s->addItem(d_ptr->outlineItem);
+    s->addItem(d->backgroundItem);
+    s->addItem(d->imageItem);
+    s->addItem(d->outlineItem);
 
     // if image size is 0x0, then it is not loaded
-    if (d_ptr->imageItem->boundingRect().height() == 0 && d_ptr->imageItem->boundingRect().width() == 0)
+    if (d->imageItem->boundingRect().height() == 0 && d->imageItem->boundingRect().width() == 0)
         return false;
     emitScaleFactor();
 
@@ -174,18 +174,18 @@ bool ImageView::openFile(QString fileName)
 
 void ImageView::setViewBackground(bool enable)
 {
-    if (!d_ptr->backgroundItem)
+    if (!d->backgroundItem)
           return;
 
-    d_ptr->backgroundItem->setVisible(enable);
+    d->backgroundItem->setVisible(enable);
 }
 
 void ImageView::setViewOutline(bool enable)
 {
-    if (!d_ptr->outlineItem)
+    if (!d->outlineItem)
         return;
 
-    d_ptr->outlineItem->setVisible(enable);
+    d->outlineItem->setVisible(enable);
 }
 
 void ImageView::doScale(qreal factor)
@@ -219,7 +219,7 @@ void ImageView::resetToOriginalSize()
 
 void ImageView::fitToScreen()
 {
-    fitInView(d_ptr->imageItem, Qt::KeepAspectRatio);
+    fitInView(d->imageItem, Qt::KeepAspectRatio);
     emitScaleFactor();
 }
 
