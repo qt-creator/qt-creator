@@ -537,9 +537,8 @@ void EditorManager::removeEditor(IEditor *editor)
 {
     bool isDuplicate = m_d->m_editorModel->isDuplicate(editor);
     m_d->m_editorModel->removeEditor(editor);
-    if (!isDuplicate) {
-        m_d->m_core->fileManager()->removeFile(editor->file());
-    }
+    if (!isDuplicate)
+        FileManager::instance()->removeFile(editor->file());
     m_d->m_core->removeContextObject(editor);
 }
 

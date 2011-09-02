@@ -50,11 +50,11 @@
 
 namespace Core {
 
-struct HelpManagerPrivate {
+struct HelpManagerPrivate
+{
     HelpManagerPrivate() :
-       m_needsSetup(true), m_helpEngine(0), m_collectionWatcher(0) {}
-
-    static HelpManager *m_instance;
+       m_needsSetup(true), m_helpEngine(0), m_collectionWatcher(0)
+    {}
 
     bool m_needsSetup;
     QHelpEngineCore *m_helpEngine;
@@ -65,7 +65,7 @@ struct HelpManagerPrivate {
     QHash<QString, QVariant> m_customValues;
 };
 
-HelpManager *HelpManagerPrivate::m_instance = 0;
+static HelpManager *m_instance = 0;
 
 static const char linksForKeyQuery[] = "SELECT d.Title, f.Name, e.Name, "
     "d.Name, a.Anchor FROM IndexTable a, FileNameTable d, FolderTable e, "
@@ -74,12 +74,10 @@ static const char linksForKeyQuery[] = "SELECT d.Title, f.Name, e.Name, "
 
 // -- DbCleaner
 
-struct DbCleaner {
-    DbCleaner(const QString &dbName)
-        : name(dbName) {}
-    ~DbCleaner() {
-        QSqlDatabase::removeDatabase(name);
-    }
+struct DbCleaner
+{
+    DbCleaner(const QString &dbName) : name(dbName) {}
+    ~DbCleaner() { QSqlDatabase::removeDatabase(name); }
     QString name;
 };
 
@@ -88,25 +86,23 @@ struct DbCleaner {
 HelpManager::HelpManager(QObject *parent) :
     QObject(parent), d(new HelpManagerPrivate)
 {
-    Q_ASSERT(!HelpManagerPrivate::m_instance);
-    HelpManagerPrivate::m_instance = this;
-
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this,
-        SLOT(setupHelpManager()));
+    Q_ASSERT(!m_instance);
+    m_instance = this;
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()), SLOT(setupHelpManager()));
 }
 
 HelpManager::~HelpManager()
 {
     delete d->m_helpEngine;
     d->m_helpEngine = 0;
-
-    HelpManagerPrivate::m_instance = 0;
+    m_instance = 0;
+    delete d;
 }
 
-HelpManager* HelpManager::instance()
+HelpManager *HelpManager::instance()
 {
-    Q_ASSERT(HelpManagerPrivate::m_instance);
-    return HelpManagerPrivate::m_instance;
+    Q_ASSERT(m_instance);
+    return m_instance;
 }
 
 QString HelpManager::collectionFilePath()

@@ -35,8 +35,6 @@
 
 #include "core_global.h"
 
-#include <QtCore/QScopedPointer>
-
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
@@ -99,8 +97,7 @@ private slots:
 
 private:
     void verifyDocumenation();
-
-    QScopedPointer<HelpManagerPrivate> d;
+    HelpManagerPrivate *d;
 };
 
 }   // Core
