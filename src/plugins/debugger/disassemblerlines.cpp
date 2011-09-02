@@ -200,8 +200,8 @@ QString DisassemblerLine::toString() const
     QString str;
     if (isAssembler()) {
         if (address)
-            str += _("0x%1  <+0x%1> ").arg(offset, 4, 16, QLatin1Char('0'))
-                .arg(address, 0, 16);
+            str += _("0x%1  <+0x%2> ").arg(address, 0, 16)
+                .arg(offset, 4, 16, QLatin1Char('0'));
         str += _("        ");
         str += data;
     } else if (isCode()) {
