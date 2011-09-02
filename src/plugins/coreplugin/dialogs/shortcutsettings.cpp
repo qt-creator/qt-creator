@@ -218,8 +218,6 @@ void ShortcutSettings::removeTargetIdentifier()
 
 void ShortcutSettings::importAction()
 {
-    UniqueIDManager *uidm = UniqueIDManager::instance();
-
     QString fileName = QFileDialog::getOpenFileName(0, tr("Import Keyboard Mapping Scheme"),
         ICore::instance()->resourcePath() + "/schemes/",
         tr("Keyboard Mapping Scheme (*.kms)"));
@@ -229,7 +227,7 @@ void ShortcutSettings::importAction()
         QMap<QString, QKeySequence> mapping = cf.importCommands();
 
         foreach (ShortcutItem *item, m_scitems) {
-            QString sid = uidm->stringForUniqueIdentifier(item->m_cmd->id());
+            QString sid = Id::fromUniqueIdentifier(item->m_cmd->id()).toString();
             if (mapping.contains(sid)) {
                 item->m_key = mapping.value(sid);
                 item->m_item->setText(2, item->m_key);
@@ -294,8 +292,6 @@ void ShortcutSettings::initialize()
         return;
     clear();
     Core::Internal::ActionManagerPrivate *am = ActionManagerPrivate::instance();
-    UniqueIDManager *uidm = UniqueIDManager::instance();
-
     QMap<QString, QTreeWidgetItem *> sections;
 
     foreach (Command *c, am->commands()) {
@@ -311,7 +307,7 @@ void ShortcutSettings::initialize()
         s->m_cmd = c;
         s->m_item = item;
 
-        const QString identifier = uidm->stringForUniqueIdentifier(c->id());
+        const QString identifier = Id::fromUniqueIdentifier(c->id()).toString();
         int pos = identifier.indexOf(QLatin1Char('.'));
         const QString section = identifier.left(pos);
         const QString subId = identifier.mid(pos+1);

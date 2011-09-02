@@ -380,8 +380,6 @@ void FakeVimExCommandsPage::initialize()
 {
     ActionManager *am = ICore::instance()->actionManager();
     QTC_ASSERT(am, return);
-    UniqueIDManager *uidm = UniqueIDManager::instance();
-    QTC_ASSERT(uidm, return);
 
     QMap<QString, QTreeWidgetItem *> sections;
 
@@ -392,7 +390,7 @@ void FakeVimExCommandsPage::initialize()
         QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setData(0, CommandRole, int(c->id()));
 
-        const QString name = uidm->stringForUniqueIdentifier(c->id());
+        const QString name = Id::fromUniqueIdentifier(c->id()).toString();
         const int pos = name.indexOf(QLatin1Char('.'));
         const QString section = name.left(pos);
         const QString subId = name.mid(pos + 1);
@@ -445,9 +443,8 @@ void FakeVimExCommandsPage::targetIdentifierChanged()
     if (!current)
         return;
 
-    UniqueIDManager *uidm = UniqueIDManager::instance();
     int id = current->data(0, CommandRole).toInt();
-    const QString name = uidm->stringForUniqueIdentifier(id);
+    const QString name = Id::fromUniqueIdentifier(id).toString();
     const QString regex = targetEdit()->text();
 
     if (current->data(0, Qt::UserRole).isValid()) {
@@ -463,9 +460,8 @@ void FakeVimExCommandsPage::resetTargetIdentifier()
     QTreeWidgetItem *current = commandList()->currentItem();
     if (!current)
         return;
-    UniqueIDManager *uidm = UniqueIDManager::instance();
     int id = current->data(0, CommandRole).toInt();
-    const QString name = uidm->stringForUniqueIdentifier(id);
+    const QString name = Id::fromUniqueIdentifier(id).toString();
     QString regex;
     if (defaultExCommandMap().contains(name))
         regex = defaultExCommandMap()[name].pattern();
@@ -479,7 +475,6 @@ void FakeVimExCommandsPage::removeTargetIdentifier()
 
 void FakeVimExCommandsPage::defaultAction()
 {
-    UniqueIDManager *uidm = UniqueIDManager::instance();
     int n = commandList()->topLevelItemCount();
     for (int i = 0; i != n; ++i) {
         QTreeWidgetItem *section = commandList()->topLevelItem(i);
@@ -487,7 +482,7 @@ void FakeVimExCommandsPage::defaultAction()
         for (int j = 0; j != m; ++j) {
             QTreeWidgetItem *item = section->child(j);
             const int id = item->data(0, CommandRole).toInt();
-            const QString name = uidm->stringForUniqueIdentifier(id);
+            const QString name = Id::fromUniqueIdentifier(id).toString();
             QString regex;
             if (defaultExCommandMap().contains(name))
                 regex = defaultExCommandMap()[name].pattern();

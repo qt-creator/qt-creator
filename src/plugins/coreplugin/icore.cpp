@@ -110,13 +110,6 @@
 */
 
 /*!
-    \fn UniqueIDManager *ICore::uniqueIDManager() const
-    \brief Returns the application's id manager.
-
-    The unique ID manager transforms strings in unique integers and the other way round.
-*/
-
-/*!
     \fn MessageManager *ICore::messageManager() const
     \brief Returns the application's message manager.
 

@@ -1359,7 +1359,7 @@ void ProjectExplorerPlugin::updateWelcomePage()
 
 void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *oldMode)
 {
-    if (mode && mode->id() == Core::Id(Core::Constants::MODE_WELCOME))
+    if (mode && mode->id() == Core::Id(Core::Constants::MODE_WELCOME).toString())
         updateWelcomePage();
     if (oldMode == d->m_projectsMode)
         savePersistentSettings();
@@ -1746,7 +1746,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
             if (!pro || !pro->activeTarget())
                 continue;
             BuildStepList *bsl = 0;
-            if (id == Core::Id(Constants::BUILDSTEPS_DEPLOY)
+            if (id == Core::Id(Constants::BUILDSTEPS_DEPLOY).toString()
                 && pro->activeTarget()->activeDeployConfiguration())
                 bsl = pro->activeTarget()->activeDeployConfiguration()->stepList();
             else if (pro->activeTarget()->activeBuildConfiguration())

@@ -73,7 +73,7 @@ ActionMacroHandler::ActionMacroHandler():
     QList<Core::Command *> commands = am->commands();
     foreach (Core::Command *command, commands) {
         if (command->isScriptable()) {
-            QString id = Core::UniqueIDManager::instance()->stringForUniqueIdentifier(command->id());
+            QString id = Core::Id::fromUniqueIdentifier(command->id()).toString();
             registerCommand(id);
         }
     }

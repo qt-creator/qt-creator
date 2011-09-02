@@ -442,7 +442,7 @@ void HelpPlugin::setupUi()
 
     ContentWindow *contentWindow = new ContentWindow();
     contentWindow->setWindowTitle(tr(SB_CONTENTS));
-    m_contentItem = new Core::SideBarItem(contentWindow, Core::Id(SB_CONTENTS));
+    m_contentItem = new Core::SideBarItem(contentWindow, SB_CONTENTS);
     connect(contentWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
 

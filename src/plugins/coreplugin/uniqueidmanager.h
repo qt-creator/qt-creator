@@ -36,56 +36,31 @@
 #include "core_global.h"
 
 #include <QtCore/QString>
-#include <QtCore/QHash>
 
 namespace Core {
-
-// FIXME: The intention is to use this class instead of the
-// generic QString to identify actions.
 
 class CORE_EXPORT Id
 {
 public:
     Id() {}
-    Id(const char *name) : m_name(QLatin1String(name)) {}
+    Id(const char *name) : m_name(name) {}
     // FIXME: Replace with QByteArray
-    Id(const QString &name) : m_name(name) {}
-    // FIXME: Remove.
-    operator QString() const { return m_name; }
-    // FIXME: Replace with QByteArray
-    QString name() const { return m_name; }
+    Id(const QString &name) : m_name(name.toLatin1()) {}
+    QByteArray name() const { return m_name; }
+    QString toString() const { return QString::fromLatin1(m_name); }
     bool isValid() const { return !m_name.isEmpty(); }
     bool operator==(const Id &id) const { return m_name == id.m_name; }
     bool operator!=(const Id &id) const { return m_name != id.m_name; }
+    int uniqueIdentifier() const;
+    static Id fromUniqueIdentifier(int uid);
 
 private:
     // Intentionally unimplemented
     Id(const QLatin1String &);
-    // FIXME: Replace with QByteArray
-    QString m_name;
+    QByteArray m_name;
 };
 
-inline uint qHash(const Id &id)
-{
-    return qHash(id.name());
-}
-
-class CORE_EXPORT UniqueIDManager
-{
-public:
-    UniqueIDManager();
-    ~UniqueIDManager();
-
-    static UniqueIDManager *instance() { return m_instance; }
-
-    bool hasUniqueIdentifier(const Id &id) const;
-    int uniqueIdentifier(const Id &id);
-    QString stringForUniqueIdentifier(int uid) const;
-
-private:
-    QHash<Id, int> m_uniqueIdentifiers;
-    static UniqueIDManager *m_instance;
-};
+uint qHash(const Id &id);
 
 } // namespace Core
 

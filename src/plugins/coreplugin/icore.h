@@ -60,7 +60,6 @@ class ModeManager;
 class ProgressManager;
 class ScriptManager;
 class SettingsDatabase;
-class UniqueIDManager;
 class VariableManager;
 class VcsManager;
 
@@ -90,7 +89,6 @@ public:
 
     virtual ActionManager *actionManager() const = 0;
     virtual FileManager *fileManager() const = 0;
-    virtual UniqueIDManager *uniqueIDManager() const = 0;
     virtual MessageManager *messageManager() const = 0;
     virtual EditorManager *editorManager() const = 0;
     virtual ProgressManager *progressManager() const = 0;

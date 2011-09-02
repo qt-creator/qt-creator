@@ -32,61 +32,57 @@
 
 #include "uniqueidmanager.h"
 #include "coreconstants.h"
+#include "icontext.h"
 
-using namespace Core;
+#include <QtCore/QHash>
 
-UniqueIDManager *UniqueIDManager::m_instance = 0;
+namespace Core {
 
-UniqueIDManager::UniqueIDManager()
+/*!
+    \class Core::Id
+
+    \brief The class Id encapsulates an identifier. It is used as a type-safe
+    helper class instead of a \c QString or \c QByteArray. The internal
+    representation of the id is assumed to be plain 7-bit-clean ASCII.
+
+*/
+
+uint qHash(const Core::Id &id) { return qHash(id.name()); }
+
+static QHash<Core::Id, int> &theUniqueIdentifiers()
 {
-    m_instance = this;
+    static QHash<Core::Id, int> data;
+    return data;
 }
 
-UniqueIDManager::~UniqueIDManager()
+int Id::uniqueIdentifier() const
 {
-    m_instance = 0;
-}
+    if (theUniqueIdentifiers().contains(*this))
+        return theUniqueIdentifiers().value(*this);
 
-bool UniqueIDManager::hasUniqueIdentifier(const Id &id) const
-{
-    return m_uniqueIdentifiers.contains(id);
-}
-
-int UniqueIDManager::uniqueIdentifier(const Id &id)
-{
-    if (hasUniqueIdentifier(id))
-        return m_uniqueIdentifiers.value(id);
-
-    int uid = m_uniqueIdentifiers.count() + 1;
-    m_uniqueIdentifiers.insert(id, uid);
+    const int uid = theUniqueIdentifiers().count() + 1;
+    theUniqueIdentifiers().insert(*this, uid);
     return uid;
 }
 
-QString UniqueIDManager::stringForUniqueIdentifier(int uid) const
+Id Id::fromUniqueIdentifier(int uid)
 {
-    return m_uniqueIdentifiers.key(uid);
-}
-
-// FIXME: Move to some better place.
-#include "icontext.h"
-
-static int toId(const char *id)
-{
-    return UniqueIDManager::instance()->uniqueIdentifier(id);
+    return theUniqueIdentifiers().key(uid);
 }
 
 Context::Context(const char *id, int offset)
 {
-    d.append(UniqueIDManager::instance()
-        -> uniqueIdentifier(Id(QString(id) + QString::number(offset))));
+    d.append(Id(QString(id) + QString::number(offset)).uniqueIdentifier());
 }
 
 void Context::add(const char *id)
 {
-    d.append(toId(id));
+    d.append(Id(id).uniqueIdentifier());
 }
 
 bool Context::contains(const char *id) const
 {
-    return d.contains(toId(id));
+    return d.contains(Id(id).uniqueIdentifier());
 }
+
+} // namespace Core

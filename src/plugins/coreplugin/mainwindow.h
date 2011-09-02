@@ -64,7 +64,6 @@ class NavigationWidget;
 class RightPaneWidget;
 class ScriptManager;
 class SettingsDatabase;
-class UniqueIDManager;
 class VariableManager;
 class VcsManager;
 
@@ -103,7 +102,6 @@ public:
 
     Core::ActionManager *actionManager() const;
     Core::FileManager *fileManager() const;
-    Core::UniqueIDManager *uniqueIDManager() const;
     Core::MessageManager *messageManager() const;
     Core::EditorManager *editorManager() const;
     Core::ProgressManager *progressManager() const;
@@ -180,7 +178,6 @@ private:
     void writeSettings();
 
     CoreImpl *m_coreImpl;
-    UniqueIDManager *m_uniqueIDManager;
     Context m_additionalContexts;
     QSettings *m_settings;
     QSettings *m_globalSettings;

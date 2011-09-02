@@ -135,8 +135,6 @@ QMap<QString, QKeySequence> CommandsFile::importCommands() const
 
 bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
 {
-    const UniqueIDManager *idmanager = UniqueIDManager::instance();
-
     Utils::FileSaver saver(m_filename, QIODevice::Text);
     if (!saver.hasError()) {
         const Context ctx;
@@ -150,13 +148,13 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
                            QDateTime::currentDateTime().toString(Qt::ISODate)));
         w.writeStartElement(ctx.mappingElement);
         foreach (const ShortcutItem *item, items) {
-            const QString id = idmanager->stringForUniqueIdentifier(item->m_cmd->id());
+            const Id id = Id::fromUniqueIdentifier(item->m_cmd->id());
             if (item->m_key.isEmpty()) {
                 w.writeEmptyElement(ctx.shortCutElement);
-                w.writeAttribute(ctx.idAttribute, id);
+                w.writeAttribute(ctx.idAttribute, id.toString());
             } else {
                 w.writeStartElement(ctx.shortCutElement);
-                w.writeAttribute(ctx.idAttribute, id);
+                w.writeAttribute(ctx.idAttribute, id.toString());
                 w.writeEmptyElement(ctx.keyElement);
                 w.writeAttribute(ctx.valueAttribute, item->m_key.toString());
                 w.writeEndElement(); // Shortcut

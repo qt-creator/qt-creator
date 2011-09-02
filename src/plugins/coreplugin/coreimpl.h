@@ -61,7 +61,6 @@ public:
 
     ActionManager *actionManager() const;
     FileManager *fileManager() const ;
-    UniqueIDManager *uniqueIDManager() const;
     MessageManager *messageManager() const;
     EditorManager *editorManager() const;
     ProgressManager *progressManager() const;

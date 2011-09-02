@@ -102,11 +102,6 @@ FileManager *CoreImpl::fileManager() const
     return m_mainwindow->fileManager();
 }
 
-UniqueIDManager *CoreImpl::uniqueIDManager() const
-{
-    return m_mainwindow->uniqueIDManager();
-}
-
 MessageManager *CoreImpl::messageManager() const
 {
     return m_mainwindow->messageManager();

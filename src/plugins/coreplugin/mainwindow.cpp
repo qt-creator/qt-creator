@@ -127,7 +127,6 @@ enum { debugMainWindow = 0 };
 MainWindow::MainWindow() :
     EventFilteringMainWindow(),
     m_coreImpl(new CoreImpl(this)),
-    m_uniqueIDManager(new UniqueIDManager()),
     m_additionalContexts(Constants::C_GLOBAL),
     m_settings(ExtensionSystem::PluginManager::instance()->settings()),
     m_globalSettings(new QSettings(QSettings::IniFormat, QSettings::SystemScope,
@@ -280,8 +279,6 @@ MainWindow::~MainWindow()
     m_settings = 0;
     delete m_printer;
     m_printer = 0;
-    delete m_uniqueIDManager;
-    m_uniqueIDManager = 0;
     delete m_vcsManager;
     m_vcsManager = 0;
     //we need to delete editormanager and statusbarmanager explicitly before the end of the destructor,
@@ -1025,11 +1022,6 @@ ActionManager *MainWindow::actionManager() const
 FileManager *MainWindow::fileManager() const
 {
     return m_fileManager;
-}
-
-UniqueIDManager *MainWindow::uniqueIDManager() const
-{
-    return m_uniqueIDManager;
 }
 
 MessageManager *MainWindow::messageManager() const
