@@ -34,14 +34,14 @@
 #ifndef IMAGEVIEWERACTIONHANDLER_H
 #define IMAGEVIEWERACTIONHANDLER_H
 
-#include "coreplugin/icontext.h"
+#include "coreplugin/uniqueidmanager.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
-class QAction;
 class QKeySequence;
+class QSignalMapper;
 QT_END_NAMESPACE
 
 namespace ImageViewer {
@@ -53,8 +53,6 @@ class ImageViewerActionHandler : public QObject
 
 public:
     explicit ImageViewerActionHandler(QObject *parent = 0);
-    ~ImageViewerActionHandler();
-
     void createActions();
 
 public slots:
@@ -70,11 +68,11 @@ protected:
       \param key Key sequence for the command
       \return Created and registered action, 0 if something goes wrong
      */
-    QAction *registerNewAction(int actionId, const QString &id, const QString &title,
-                               const Core::Context &context, const QKeySequence &key);
+    void registerNewAction(int actionId, const Core::Id &id, const QString &title,
+                           const QKeySequence &key);
 
 private:
-    QScopedPointer<struct ImageViewerActionHandlerPrivate> d;
+    QSignalMapper *m_signalMapper;
 };
 
 } // namespace Internal
