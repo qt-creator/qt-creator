@@ -102,9 +102,7 @@ void InspectorPlugin::extensionsInitialized()
 
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(objectAdded(QObject*)));
     connect(pluginManager, SIGNAL(aboutToRemoveObject(QObject*)), SLOT(aboutToRemoveObject(QObject*)));
-
-    Core::ICore *core = Core::ICore::instance();
-    connect(core->modeManager(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
             this, SLOT(modeAboutToChange(Core::IMode*)));
 }
 
@@ -151,9 +149,8 @@ void InspectorPlugin::modeAboutToChange(Core::IMode *newMode)
     if (newMode->id() == Debugger::Constants::MODE_DEBUG) {
         m_inspectorUi->setupUi();
 
-        // make sure we're not called again
-        Core::ICore *core = Core::ICore::instance();
-        disconnect(core->modeManager(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
+        // Make sure we're not called again.
+        disconnect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
                    this, SLOT(modeAboutToChange(Core::IMode*)));
     }
 }

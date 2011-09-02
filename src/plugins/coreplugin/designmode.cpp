@@ -191,7 +191,6 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
         return;
 
     bool mimeEditorAvailable = false;
-    Core::ICore *core = Core::ICore::instance();
 
     if (editor && editor->file()) {
         const QString mimeType = editor->file()->mimeType();
@@ -216,8 +215,8 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
 
     if (!mimeEditorAvailable) {
         setActiveContext(Context());
-        if (core->modeManager()->currentMode() == this)
-            core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+        if (ModeManager::instance()->currentMode() == this)
+            ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
         setEnabled(false);
         d->m_currentEditor = QWeakPointer<Core::IEditor>();
         emit actionsUpdated(d->m_currentEditor.data());

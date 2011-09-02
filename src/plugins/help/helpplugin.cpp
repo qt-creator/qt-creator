@@ -112,14 +112,14 @@ const char * const SB_OPENPAGES = "OpenPages";
 #   define DOCPATH "/../share/doc/qtcreator/"
 #endif
 
-namespace {
-    QToolButton* toolButton(QAction *action)
-    {
-        QToolButton *button = new QToolButton;
-        button->setDefaultAction(action);
-        button->setPopupMode(QToolButton::DelayedPopup);
-        return button;
-    }
+using namespace Core;
+
+static QToolButton *toolButton(QAction *action)
+{
+    QToolButton *button = new QToolButton;
+    button->setDefaultAction(action);
+    button->setPopupMode(QToolButton::DelayedPopup);
+    return button;
 }
 
 HelpPlugin::HelpPlugin()
@@ -361,7 +361,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(switchToHelpMode(QUrl)));
 
     QDesktopServices::setUrlHandler("qthelp", this, "handleHelpRequest");
-    connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*,
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,
         Core::IMode*)), this, SLOT(modeChanged(Core::IMode*, Core::IMode*)));
 
     m_externalWindow = new ExternalHelpWindow;
@@ -665,7 +665,7 @@ void HelpPlugin::resetRightPaneScale()
 void HelpPlugin::activateHelpMode()
 {
     if (contextHelpOption() != Help::Constants::ExternalHelpAlways)
-        m_core->modeManager()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
+        Core::ModeManager::instance()->activateMode(QLatin1String(Constants::ID_MODE_HELP));
     else
         showExternalWindow();
 }
@@ -787,8 +787,8 @@ void HelpPlugin::contextHelpOptionChanged()
                 m_externalWindow->show();
                 connectExternalHelpWindow();
 
-                if (m_oldMode && m_mode == m_core->modeManager()->currentMode())
-                    m_core->modeManager()->activateMode(m_oldMode->id());
+                if (m_oldMode && m_mode == ModeManager::instance()->currentMode())
+                    ModeManager::instance()->activateMode(m_oldMode->id());
             }
         }
     } else if (modeWidget != m_splitter
@@ -822,12 +822,10 @@ void HelpPlugin::setupHelpEngineIfNeeded()
         m_helpManager->setupGuiHelpEngine();
 }
 
-HelpViewer* HelpPlugin::viewerForContextMode()
+HelpViewer *HelpPlugin::viewerForContextMode()
 {
-    using namespace Core;
-
-    if (m_core->modeManager()->currentMode()->id() == Core::Constants::MODE_WELCOME)
-        m_core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+    if (ModeManager::instance()->currentMode()->id() == Core::Constants::MODE_WELCOME)
+        ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
 
     bool showSideBySide = false;
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
@@ -870,14 +868,14 @@ HelpViewer* HelpPlugin::viewerForContextMode()
 
 void HelpPlugin::activateContext()
 {
-    using namespace Core;
     createRightPaneContextViewer();
 
-    RightPanePlaceHolder* placeHolder = RightPanePlaceHolder::current();
+    RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
     if (placeHolder && m_helpViewerForSideBar->hasFocus()) {
         switchToHelpMode();
         return;
-    } else if (m_core->modeManager()->currentMode() == m_mode)
+    }
+    if (ModeManager::instance()->currentMode() == m_mode)
         return;
 
     // Find out what to show

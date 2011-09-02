@@ -439,9 +439,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Core::ActionContainer *menubar =
         am->actionContainer(Core::Constants::MENU_BAR);
 
-    // mode manager (for fancy actions)
-    Core::ModeManager *modeManager = core->modeManager();
-
     // build menu
     Core::ActionContainer *mbuild =
         am->createMenu(Constants::M_BUILDPROJECT);
@@ -689,7 +686,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
 
     // Add to mode bar
-    modeManager->addAction(cmd->action(), Constants::P_ACTION_BUILDPROJECT);
+    Core::ModeManager::instance()->addAction(cmd->action(), Constants::P_ACTION_BUILDPROJECT);
 
     // rebuild action
     d->m_rebuildAction = new Utils::ParameterAction(tr("Rebuild Project"), tr("Rebuild Project \"%1\""),
@@ -779,7 +776,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
-    modeManager->addAction(cmd->action(), Constants::P_ACTION_RUN);
+    Core::ModeManager::instance()->addAction(cmd->action(), Constants::P_ACTION_RUN);
 
     d->m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
     cmd = am->registerAction(d->m_runActionContextMenu, Constants::RUNCONTEXTMENU, projecTreeContext);
@@ -880,7 +877,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QWidget *mainWindow = Core::ICore::instance()->mainWindow();
     d->m_targetSelector = new Internal::MiniProjectTargetSelector(d->m_projectSelectorAction, mainWindow);
     connect(d->m_projectSelectorAction, SIGNAL(triggered()), d->m_targetSelector, SLOT(show()));
-    modeManager->addProjectSelector(d->m_projectSelectorAction);
+    Core::ModeManager::instance()->addProjectSelector(d->m_projectSelectorAction);
 
     d->m_projectSelectorActionMenu = new QAction(this);
     d->m_projectSelectorActionMenu->setEnabled(false);
@@ -1392,7 +1389,7 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
         d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
 
     if (!d->m_sessionToRestoreAtStartup.isNull())
-        Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+        Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
 }
 
 /*!
@@ -1420,9 +1417,9 @@ void ProjectExplorerPlugin::restoreSession()
     }
 
     // update welcome page
-    Core::ModeManager *modeManager = Core::ModeManager::instance();
-    connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*, Core::IMode*)),
-            this, SLOT(currentModeChanged(Core::IMode*, Core::IMode*)));
+    connect(Core::ModeManager::instance(),
+            SIGNAL(currentModeChanged(Core::IMode*, Core::IMode*)),
+            SLOT(currentModeChanged(Core::IMode*, Core::IMode*)));
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProjectWelcomePage(QString)));
 

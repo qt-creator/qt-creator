@@ -71,6 +71,8 @@ namespace {
     bool debug = false;
 }
 
+using namespace Core;
+
 /* SessionFile definitions */
 namespace ProjectExplorer {
 namespace Internal {
@@ -323,7 +325,7 @@ SessionManager::SessionManager(QObject *parent)
     m_sessionNode(new Internal::SessionNodeImpl(this)),
     m_virginSession(true)
 {
-    connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*)),
+    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(saveActiveMode(Core::IMode*)));
 
     Core::EditorManager *em = m_core->editorManager();
@@ -554,8 +556,8 @@ bool SessionManager::createImpl(const QString &fileName)
         setStartupProject(0);
 
         if (!isDefaultVirgin()) {
-            m_core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
-            m_core->modeManager()->setFocusToCurrentMode();
+            ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
+            ModeManager::instance()->setFocusToCurrentMode();
         }
     }
 
@@ -625,8 +627,8 @@ bool SessionManager::loadImpl(const QString &fileName)
         if (modeIdentifier.isEmpty())
             modeIdentifier = Core::Constants::MODE_EDIT;
 
-        m_core->modeManager()->activateMode(modeIdentifier);
-        m_core->modeManager()->setFocusToCurrentMode();
+        ModeManager::instance()->activateMode(modeIdentifier);
+        ModeManager::instance()->setFocusToCurrentMode();
     }
 
     if (debug)

@@ -938,8 +938,7 @@ void TestConfig::onProjectSettingsChanged()
     if (!m_activeProject)
         return;
 
-    Core::ICore *core = Core::ICore::instance();
-    Core::ModeManager *mgr = core->modeManager();
+    Core::ModeManager *mgr = Core::ModeManager::instance();
     if ((mgr && (mgr->currentMode()->id() != QLatin1String("Edit"))) || TestConfigurations::instance().updatesDelayed()) {
         // Try again later.
         emitConfigChanged();

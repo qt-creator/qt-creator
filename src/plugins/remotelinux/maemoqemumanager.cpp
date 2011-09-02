@@ -102,8 +102,7 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     qemuCommand->setAttribute(Core::Command::CA_UpdateText);
     qemuCommand->setAttribute(Core::Command::CA_UpdateIcon);
 
-    Core::ModeManager *modeManager = core->modeManager();
-    modeManager->addAction(qemuCommand->action(), 1);
+    Core::ModeManager::instance()->addAction(qemuCommand->action(), 1);
     m_qemuAction->setEnabled(false);
     m_qemuAction->setVisible(false);
 

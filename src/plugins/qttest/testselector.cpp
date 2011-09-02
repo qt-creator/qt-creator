@@ -738,8 +738,7 @@ void TestSelector::showSystemTests(bool show)
 
 void TestSelector::init()
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::ModeManager *mgr = core->modeManager();
+    Core::ModeManager *mgr = Core::ModeManager::instance();
     if (mgr && mgr->currentMode()->id() == "Edit") {
         TestConfigurations *tc = &TestConfigurations::instance();
         if (tc->activeConfiguration()) {

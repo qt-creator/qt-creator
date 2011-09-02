@@ -444,7 +444,7 @@ void OutputPaneManager::showPage(int idx, bool focus)
         if (!OutputPanePlaceHolder::getCurrent()) {
             // In this mode we don't have a placeholder
             // switch to the output mode and switch the page
-            ICore::instance()->modeManager()->activateMode(Constants::MODE_EDIT);
+            ModeManager::instance()->activateMode(Constants::MODE_EDIT);
         }
         if (OutputPanePlaceHolder::getCurrent()) {
             // make the page visible
