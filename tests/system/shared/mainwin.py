@@ -10,7 +10,7 @@ def openQmakeProject(projectPath):
     type(findObject("{name='fileNameEdit' type='QLineEdit'}"), projectPath)
     clickButton(findObject("{text='Open' type='QPushButton'}"))
     waitForObject("{type='Qt4ProjectManager::Internal::ProjectLoadWizard' visible='1' windowTitle='Project Setup'}")
-    selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox", "per Qt Version a Debug and Release")
+    selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox", "For Each Qt Version One Debug And One Release")
     clickButton(findObject("{text='Finish' type='QPushButton'}"))
 
 def openCmakeProject(projectPath):
