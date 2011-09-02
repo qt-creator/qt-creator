@@ -142,6 +142,7 @@ private:
     Status _status;
     QList<QmlDirParser::Component> _components;
     QList<QmlDirParser::Plugin> _plugins;
+    QList<QmlDirParser::TypeInfo> _typeinfos;
     typedef QList<LanguageUtils::FakeMetaObject::ConstPtr> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
 
@@ -158,6 +159,9 @@ public:
 
     QList<QmlDirParser::Plugin> plugins() const
     { return _plugins; }
+
+    QList<QmlDirParser::TypeInfo> typeInfos() const
+    { return _typeinfos; }
 
     FakeMetaObjectList metaObjects() const
     { return _metaObjects; }

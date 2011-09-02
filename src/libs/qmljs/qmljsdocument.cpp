@@ -373,6 +373,7 @@ LibraryInfo::LibraryInfo(const QmlDirParser &parser)
     : _status(Found)
     , _components(parser.components())
     , _plugins(parser.plugins())
+    , _typeinfos(parser.typeInfos())
     , _dumpStatus(NoTypeInfo)
 {
 }

@@ -83,13 +83,11 @@ private:
         QString importPath;
         QString importUri;
         QString importVersion;
-
-        bool hasPredumpedQmlTypesFile() const;
-        QString predumpedQmlTypesFilePath() const;
+        QStringList typeInfoPaths;
     };
 
     void dump(const Plugin &plugin);
-    void loadQmltypesFile(const QString &qmltypesFilePath,
+    void loadQmltypesFile(const QStringList &qmltypesFilePaths,
                           const QString &libraryPath,
                           QmlJS::LibraryInfo libraryInfo);
     QString resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
