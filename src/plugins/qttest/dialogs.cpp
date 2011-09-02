@@ -34,10 +34,7 @@
 #include "qsystem.h"
 
 #include <QTimer>
-#include <QMessageBox>
-#include <QFileDialog>
 #include <QAbstractItemView>
-#include <QHeaderView>
 #include <QTableWidgetItem>
 #include <QResizeEvent>
 #include <QScrollBar>

@@ -35,12 +35,8 @@
 
 #include <projectexplorer/project.h>
 
-#include <QtCore/QTextCodec>
-#include <QDebug>
-#include <QPlainTextEdit>
-#include <QMessageBox>
 #include <QFileDialog>
-#include <QRegExp>
+#include <QDebug>
 
 using namespace QtTest;
 using namespace QtTest::Internal;

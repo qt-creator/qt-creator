@@ -34,10 +34,12 @@
 #define TESTRESULTUPLOADER_H
 
 #include "testsettings.h"
-#include "testconfigurations.h"
 
 #include <QObject>
 #include <QProcess>
+#include <QFile>
+
+class TestConfig;
 
 class TestResultUploader : public QObject
 {

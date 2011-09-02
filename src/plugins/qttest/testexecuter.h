@@ -47,6 +47,7 @@
 
 #include <QtCore/QFutureWatcher>
 #include <QProcess>
+#include <QVariantMap>
 
 #define NO_X_SERVER_AVAILABLE "No X-server available for testing"
 #define COMPILE_ERROR "Compile error"

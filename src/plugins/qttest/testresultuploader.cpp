@@ -33,6 +33,7 @@
 #include "testresultuploader.h"
 #include "testoutputwindow.h"
 #include "qsystem.h"
+#include "testconfigurations.h"
 
 #include <QFileInfo>
 #include <QTextEdit>

@@ -37,7 +37,6 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDir>
-#include <QDateTime>
 #include <QMessageBox>
 #include <QDebug>
 

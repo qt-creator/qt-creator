@@ -32,13 +32,8 @@
 
 #include "qsystem.h"
 
-#include <QApplication>
-#include <QProcess>
 #include <QFile>
 #include <QDir>
-#include <QDateTime>
-#include <QtNetwork/QUdpSocket>
-#include <QTimer>
 #include <QHostInfo>
 
 #include <stdlib.h>

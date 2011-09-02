@@ -35,11 +35,6 @@
 
 #include "testsettings.h"
 
-#include "extensionsystem/iplugin.h"
-#include "projectexplorer/projectexplorer.h"
-
-#include <QString>
-
 namespace Core {
 class IEditor;
 }

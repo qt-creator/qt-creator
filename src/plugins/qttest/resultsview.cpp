@@ -42,7 +42,6 @@
 
 #include <QHeaderView>
 #include <QResizeEvent>
-#include <QSize>
 #include <QTimer>
 #include <QFileInfo>
 #include <QDesktopServices>

@@ -35,9 +35,9 @@
 
 #include "testsuite.h"
 
+#include <projectexplorer/project.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <extensionsystem/iplugin.h>
-#include <QtCore/QObject>
 
 class TestContextMenu;
 class TestResultsWindow;

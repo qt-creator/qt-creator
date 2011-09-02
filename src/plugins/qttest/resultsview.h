@@ -39,7 +39,6 @@
 #include <coreplugin/ioutputpane.h>
 
 #include <QTableWidget>
-#include <QBrush>
 
 class ResultsView;
 class TestResultsWindow;

@@ -40,6 +40,7 @@
 #include "testcontextmenu.h"
 #include "testsuite.h"
 #include "testoutputwindow.h"
+#include "testconfigurations.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -60,6 +61,7 @@
 #include <utils/linecolumnlabel.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerengine.h>
@@ -69,12 +71,9 @@
 # include <debugger/qtuitest/qtuitestengine.h>
 #endif
 
-#include <QtCore/QDebug>
 #include <QtCore/QtPlugin>
-#include <QtGui/QAction>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
 #include <QMenuBar>
 #include <QDebug>
 #include <QToolButton>

@@ -33,17 +33,13 @@
 #ifndef TESTCODE_H
 #define TESTCODE_H
 
-#include "testconfigurations.h"
-
 #include <qmljs/qmljsdocument.h>
 #include <cplusplus/CppDocument.h>
 
-#include <QStringList>
-#include <QDate>
+#include <QDateTime>
 #include <QPointer>
 #include <QTimer>
 
-class QVConfig;
 class TestCollectionPrivate;
 
 namespace Core {

@@ -70,8 +70,6 @@
 #include <QIODevice>
 #include <QRegExp>
 #include <QDebug>
-#include <QMessageBox>
-#include <QMetaMethod>
 
 class SystemTestCodeSync : protected QmlJS::AST::Visitor
 {

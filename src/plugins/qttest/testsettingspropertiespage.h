@@ -34,11 +34,9 @@
 #define TESTSETTINGSPROPERTIESPAGE_H
 
 #include "testsettings.h"
+#include "ui_testsettingspropertiespage.h"
 
 #include <projectexplorer/iprojectproperties.h>
-#include <ui_testsettingspropertiespage.h>
-
-#include <QStringList>
 
 class TestConfig;
 

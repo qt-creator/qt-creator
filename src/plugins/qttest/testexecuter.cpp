@@ -33,7 +33,6 @@
 #include "testexecuter.h"
 #include "testgenerator.h"
 #include "qsystem.h"
-#include "testcode.h"
 #include "testsuite.h"
 #include "testoutputwindow.h"
 #include "resultsview.h"
@@ -57,9 +56,7 @@
 #include <sys/types.h>
 #include <signal.h>
 
-#include <QApplication>
 #include <QDir>
-#include <QBuffer>
 #include <QTimer>
 #include <QProcess>
 #include <QMessageBox>

@@ -54,23 +54,12 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
 
-#include <QHeaderView>
 #include <QDir>
 #include <QPixmap>
 #include <QStringList>
-#include <QApplication>
-#include <QMessageBox>
 #include <QMouseEvent>
-#include <QTextStream>
-#include <QKeySequence>
-#include <QMenuBar>
 #include <QMenu>
-#include <QProcess>
 #include <QDebug>
-#include <QLabel>
-#include <QLineEdit>
-#include <QRadioButton>
-#include <QContextMenuEvent>
 
 static const char *childAssigned_xpm[] = {
     "8 8 3 1",

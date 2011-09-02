@@ -44,6 +44,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <QDir>
+
 TestContextMenuPrivate *TestContextMenu::m_instance = 0;
 int TestContextMenu::m_refCount = 0;
 

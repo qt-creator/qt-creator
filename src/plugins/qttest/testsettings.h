@@ -34,7 +34,6 @@
 #define TESTSETTINGS_H
 
 #include <QObject>
-#include <QString>
 
 // class TestSettingsPrivate;
 class TestSettingsPrivate : public QObject

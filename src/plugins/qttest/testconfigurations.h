@@ -33,14 +33,9 @@
 #ifndef TESTCONFIGURATIONS_H
 #define TESTCONFIGURATIONS_H
 
-#ifndef QTTEST_PLUGIN_LEAN
-# include "testcontrol.h"
-#endif
+#include <projectexplorer/project.h>
+#include <utils/ssh/sshconnection.h>
 
-#include "projectexplorer/project.h"
-#include <../../libs/utils/ssh/sshconnection.h>
-
-#include <QStringList>
 #include <QPointer>
 #include <QTimer>
 

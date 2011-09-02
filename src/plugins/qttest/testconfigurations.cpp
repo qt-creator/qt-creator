@@ -53,7 +53,6 @@
 #include <QDir>
 #include <QProcess>
 #include <QMessageBox>
-#include <QApplication>
 #include <QRegExp>
 #include <QStringList>
 #include <QDebug>

@@ -34,11 +34,9 @@
 #include "ui_newtestcasedlg.h"
 #include "testgenerator.h"
 
-#include <QPushButton>
 #include <QFileDialog>
 #include <QRegExpValidator>
 #include <QRegExp>
-#include <QDir>
 #include <QDebug>
 
 NewTestCaseDlg::NewTestCaseDlg(const QString &path, QWidget *parent) :
