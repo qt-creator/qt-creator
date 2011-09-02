@@ -53,7 +53,6 @@ namespace Utils {
 class FileIterator;
 }
 namespace Find {
-class SearchResultWindow;
 struct SearchResultItem;
 class IFindSupport;
 }
@@ -65,7 +64,7 @@ class TEXTEDITOR_EXPORT BaseFileFind : public Find::IFindFilter
     Q_OBJECT
 
 public:
-    explicit BaseFileFind(Find::SearchResultWindow *resultWindow);
+    explicit BaseFileFind();
     ~BaseFileFind();
 
     bool isEnabled() const;
@@ -101,7 +100,8 @@ private:
     void runNewSearch(const QString &txt, Find::FindFlags findFlags,
                       Find::SearchResultWindow::SearchMode searchMode);
 
-    Find::SearchResultWindow *m_resultWindow;
+    Find::SearchResult *m_currentSearch;
+    int m_currentSearchCount;
 
     QFutureWatcher<Utils::FileSearchResultList> m_watcher;
     bool m_isSearching;

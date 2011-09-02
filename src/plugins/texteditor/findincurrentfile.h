@@ -38,7 +38,6 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <find/ifindfilter.h>
-#include <find/searchresultwindow.h>
 
 #include <QtCore/QPointer>
 #include <QtGui/QLabel>
@@ -54,7 +53,7 @@ class FindInCurrentFile : public BaseFileFind
     Q_OBJECT
 
 public:
-    explicit FindInCurrentFile(Find::SearchResultWindow *resultWindow);
+    explicit FindInCurrentFile();
 
     QString id() const;
     QString displayName() const;

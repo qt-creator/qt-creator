@@ -35,7 +35,6 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
-#include <QtCore/QPointer>
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
 #include <utils/filesearch.h>
@@ -44,8 +43,8 @@
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Find {
-    class SearchResultWindow;
     struct SearchResultItem;
+    class SearchResult;
 } // namespace Find
 
 namespace QmlJSEditor {
@@ -90,7 +89,7 @@ private Q_SLOTS:
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
 
 private:
-    Find::SearchResultWindow *_resultWindow;
+    Find::SearchResult *m_currentSearch;
     QFutureWatcher<Usage> m_watcher;
 };
 

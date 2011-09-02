@@ -400,12 +400,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ProcessStepFactory *processStepFactory = new ProcessStepFactory;
     addAutoReleasedObject(processStepFactory);
 
-    AllProjectsFind *allProjectsFind = new AllProjectsFind(this,
-        Find::SearchResultWindow::instance());
+    AllProjectsFind *allProjectsFind = new AllProjectsFind(this);
     addAutoReleasedObject(allProjectsFind);
 
-    CurrentProjectFind *currentProjectFind = new CurrentProjectFind(this,
-        Find::SearchResultWindow::instance());
+    CurrentProjectFind *currentProjectFind = new CurrentProjectFind(this);
     addAutoReleasedObject(currentProjectFind);
 
     addAutoReleasedObject(new LocalApplicationRunControlFactory);

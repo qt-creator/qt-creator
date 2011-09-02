@@ -336,19 +336,19 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &p
     return pathNodes;
 }
 
-void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode)
+void SearchResultTreeModel::addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
 {
     if (!m_currentParent)
         return;
 
-    if (mode == SearchResultWindow::AddOrdered) {
+    if (mode == SearchResult::AddOrdered) {
         // this is the mode for e.g. text search
         beginInsertRows(m_currentIndex, m_currentParent->childrenCount(), m_currentParent->childrenCount() + items.count());
         foreach (const SearchResultItem &item, items) {
             m_currentParent->appendChild(item);
         }
         endInsertRows();
-    } else if (mode == SearchResultWindow::AddSorted) {
+    } else if (mode == SearchResult::AddSorted) {
         foreach (const SearchResultItem &item, items) {
             SearchResultTreeItem *existingItem;
             const int insertionIndex = m_currentParent->insertionIndex(item, &existingItem);
@@ -386,7 +386,7 @@ static bool lessThanByPath(const SearchResultItem &a, const SearchResultItem &b)
  * Adds the search result to the list of results, creating nodes for the path when
  * necessary.
  */
-QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode)
+QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
 {
     QSet<SearchResultTreeItem *> pathNodes;
     QList<SearchResultItem> sortedItems = items;

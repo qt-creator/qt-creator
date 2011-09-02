@@ -46,8 +46,8 @@
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Find {
-    class SearchResultWindow;
     struct SearchResultItem;
+    class SearchResult;
 } // namespace Find
 
 namespace CPlusPlus {
@@ -92,7 +92,7 @@ private:
 
 private:
     QPointer<CPlusPlus::CppModelManagerInterface> _modelManager;
-    Find::SearchResultWindow *_resultWindow;
+    Find::SearchResult *m_currentSearch;
     QFutureWatcher<CPlusPlus::Usage> m_watcher;
 
     mutable QMutex m_depsLock;

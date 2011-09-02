@@ -68,7 +68,7 @@ public:
     QModelIndex next(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = 0) const;
     QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = 0) const;
 
-    QList<QModelIndex> addResults(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode);
+    QList<QModelIndex> addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
 
     QModelIndex find(const QRegExp &expr, const QModelIndex &index,
                      QTextDocument::FindFlags flags, bool *wrapped = 0);
@@ -84,7 +84,7 @@ public slots:
 
 private:
     QModelIndex index(SearchResultTreeItem *item) const;
-    void addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResultWindow::AddMode mode);
+    void addResultsToCurrentParent(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
     QSet<SearchResultTreeItem *> addPath(const QStringList &path);
     QVariant data(const SearchResultTreeItem *row, int role) const;
     bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);

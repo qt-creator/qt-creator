@@ -44,8 +44,8 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
 
-CurrentProjectFind::CurrentProjectFind(ProjectExplorerPlugin *plugin, SearchResultWindow *resultWindow)
-  : AllProjectsFind(plugin, resultWindow),
+CurrentProjectFind::CurrentProjectFind(ProjectExplorerPlugin *plugin)
+  : AllProjectsFind(plugin),
     m_plugin(plugin)
 {
     connect(m_plugin, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),

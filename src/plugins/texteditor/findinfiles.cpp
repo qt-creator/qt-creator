@@ -45,9 +45,8 @@
 using namespace Find;
 using namespace TextEditor;
 
-FindInFiles::FindInFiles(SearchResultWindow *resultWindow)
-  : BaseFileFind(resultWindow),
-    m_configWidget(0),
+FindInFiles::FindInFiles()
+  : m_configWidget(0),
     m_directory(0)
 {
 }

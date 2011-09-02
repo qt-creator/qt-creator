@@ -47,9 +47,8 @@ using namespace Find;
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-FindInCurrentFile::FindInCurrentFile(SearchResultWindow *resultWindow)
-  : BaseFileFind(resultWindow),
-    m_configWidget(0),
+FindInCurrentFile::FindInCurrentFile()
+  : m_configWidget(0),
     m_currentFile(0)
 {
     connect(Core::ICore::instance()->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),

@@ -36,7 +36,6 @@
 #include "basefilefind.h"
 
 #include <find/ifindfilter.h>
-#include <find/searchresultwindow.h>
 
 #include <QtCore/QPointer>
 #include <QtGui/QLabel>
@@ -51,7 +50,7 @@ class TEXTEDITOR_EXPORT FindInFiles : public BaseFileFind
     Q_OBJECT
 
 public:
-    explicit FindInFiles(Find::SearchResultWindow *resultWindow);
+    explicit FindInFiles();
 
     QString id() const;
     QString displayName() const;

@@ -52,10 +52,9 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
 
-AllProjectsFind::AllProjectsFind(ProjectExplorerPlugin *plugin, SearchResultWindow *resultWindow)
-    : BaseFileFind(resultWindow),
-    m_plugin(plugin),
-    m_configWidget(0)
+AllProjectsFind::AllProjectsFind(ProjectExplorerPlugin *plugin)
+    : m_plugin(plugin),
+      m_configWidget(0)
 {
     connect(m_plugin, SIGNAL(fileListChanged()), this, SIGNAL(changed()));
 }

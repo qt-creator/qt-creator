@@ -182,8 +182,8 @@ void TextEditorPlugin::extensionsInitialized()
 
     updateSearchResultsFont(m_settings->fontSettings());
 
-    addAutoReleasedObject(new FindInFiles(Find::SearchResultWindow::instance()));
-    addAutoReleasedObject(new FindInCurrentFile(Find::SearchResultWindow::instance()));
+    addAutoReleasedObject(new FindInFiles);
+    addAutoReleasedObject(new FindInCurrentFile);
 
     Core::VariableManager *vm = Core::VariableManager::instance();
     vm->registerVariable(QLatin1String(kCurrentDocumentSelection),

@@ -414,8 +414,7 @@ SearchResultWindow *SearchResultWindow::instance()
 
 /*!
     \fn void SearchResultWindow::setTextToReplace(const QString &textToReplace)
-    \brief Sets the value in the UI element that allows the user to type
-    the text that should replace text in search results to \a textToReplace.
+    \internal
 */
 void SearchResultWindow::setTextToReplace(const QString &textToReplace)
 {
@@ -424,7 +423,7 @@ void SearchResultWindow::setTextToReplace(const QString &textToReplace)
 
 /*!
     \fn QString SearchResultWindow::textToReplace() const
-    \brief Returns the text that should replace the text in search results.
+    \internal
 */
 QString SearchResultWindow::textToReplace() const
 {
@@ -534,8 +533,7 @@ SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndRep
 
 /*!
     \fn void SearchResultWindow::finishSearch()
-    \brief Notifies the search result window that the current search
-    has finished, and the UI should reflect that.
+    \internal
 */
 void SearchResultWindow::finishSearch()
 {
@@ -580,16 +578,6 @@ void SearchResultWindow::showNoMatchesFound()
 bool SearchResultWindow::isEmpty() const
 {
     return (d->m_searchResultTreeView->model()->rowCount() < 1);
-}
-
-/*!
-    \fn int SearchResultWindow::numberOfResults() const
-    Returns the number of search results currently shown in the search
-    results window.
-*/
-int SearchResultWindow::numberOfResults() const
-{
-    return d->m_itemCount;
 }
 
 /*!
@@ -653,15 +641,7 @@ void SearchResultWindow::handleJumpToSearchResult(const SearchResultItem &item)
 
 /*!
     \fn void SearchResultWindow::addResult(const QString &fileName, int lineNumber, const QString &rowText, int searchTermStart, int searchTermLength, const QVariant &userData)
-    \brief Adds a single result line to the search results.
-
-    The \a fileName, \a lineNumber and \a rowText are shown in the result line.
-    \a searchTermStart and \a searchTermLength specify the region that
-    should be visually marked (string position and length in \a rowText).
-    You can attach arbitrary \a userData to the search result, which can
-    be used e.g. when reacting to the signals of the SearchResult for your search.
-
-    \sa addResults()
+    \internal
 */
 void SearchResultWindow::addResult(const QString &fileName, int lineNumber, const QString &rowText,
     int searchTermStart, int searchTermLength, const QVariant &userData)
@@ -674,17 +654,14 @@ void SearchResultWindow::addResult(const QString &fileName, int lineNumber, cons
     item.textMarkLength = searchTermLength;
     item.useTextEditorFont = true;
     item.userData = userData;
-    addResults(QList<SearchResultItem>() << item, AddOrdered);
+    addResults(QList<SearchResultItem>() << item, SearchResult::AddOrdered);
 }
 
 /*!
-    \fn void SearchResultWindow::addResults(QList<SearchResultItem> &items, AddMode mode)
-    \brief Adds all of the given search result \a items to the search
-    results window.
-
-    \sa addResult()
+    \fn void SearchResultWindow::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
+    \internal
 */
-void SearchResultWindow::addResults(QList<SearchResultItem> &items, AddMode mode)
+void SearchResultWindow::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
 {
     bool firstItems = (d->m_itemCount == 0);
     d->m_itemCount += items.size();
@@ -843,6 +820,93 @@ void SearchResultWindow::goToPrev()
 bool SearchResultWindow::canNavigate()
 {
     return true;
+}
+
+/*!
+    \fn void SearchResult::setUserData(const QVariant &data)
+    \brief Attach some random \a data to this search, that you can use later.
+
+    \sa userData()
+*/
+void SearchResult::setUserData(const QVariant &data)
+{
+    m_userData = data;
+}
+
+/*!
+    \fn void SearchResult::userData()
+    \brief Return the data that was attached to this search by calling setUserData().
+
+    \sa setUserData()
+*/
+QVariant SearchResult::userData() const
+{
+    return m_userData;
+}
+
+/*!
+    \fn QString SearchResult::textToReplace() const
+    \brief Returns the text that should replace the text in search results.
+*/
+QString SearchResult::textToReplace() const
+{
+    // TODO: should point to associated SearchResultWidget
+    return SearchResultWindow::instance()->textToReplace();
+}
+
+/*!
+    \fn void SearchResult::addResult(const QString &fileName, int lineNumber, const QString &rowText, int searchTermStart, int searchTermLength, const QVariant &userData)
+    \brief Adds a single result line to the search results.
+
+    The \a fileName, \a lineNumber and \a rowText are shown in the result line.
+    \a searchTermStart and \a searchTermLength specify the region that
+    should be visually marked (string position and length in \a rowText).
+    You can attach arbitrary \a userData to the search result, which can
+    be used e.g. when reacting to the signals of the SearchResult for your search.
+
+    \sa addResults()
+*/
+void SearchResult::addResult(const QString &fileName, int lineNumber, const QString &lineText,
+                             int searchTermStart, int searchTermLength, const QVariant &userData)
+{
+    // TODO: should point to associated SearchResultWidget
+    SearchResultWindow::instance()->addResult(fileName, lineNumber, lineText,
+                                              searchTermStart, searchTermLength, userData);
+}
+
+/*!
+    \fn void SearchResult::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
+    \brief Adds all of the given search result \a items to the search
+    results window.
+
+    \sa addResult()
+*/
+void SearchResult::addResults(const QList<SearchResultItem> &items, AddMode mode)
+{
+    // TODO: should point to associated SearchResultWidget
+    SearchResultWindow::instance()->addResults(items, mode);
+}
+
+/*!
+    \fn void SearchResult::finishSearch()
+    \brief Notifies the search result window that the current search
+    has finished, and the UI should reflect that.
+*/
+void SearchResult::finishSearch()
+{
+    // TODO: should point to associated SearchResultWidget
+    SearchResultWindow::instance()->finishSearch();
+}
+
+/*!
+    \fn void SearchResult::setTextToReplace(const QString &textToReplace)
+    \brief Sets the value in the UI element that allows the user to type
+    the text that should replace text in search results to \a textToReplace.
+*/
+void SearchResult::setTextToReplace(const QString &textToReplace)
+{
+    // TODO: should point to associated SearchResultWidget
+    SearchResultWindow::instance()->setTextToReplace(textToReplace);
 }
 
 } // namespace Find

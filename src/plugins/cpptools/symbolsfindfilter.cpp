@@ -102,10 +102,11 @@ namespace {
 
 SymbolsFindFilter::SymbolsFindFilter(CppModelManager *manager)
     : m_manager(manager),
-    m_isRunning(false),
-    m_enabled(true),
-    m_symbolsToSearch(SearchSymbols::AllTypes),
-    m_scope(SearchProjectsOnly)
+      m_isRunning(false),
+      m_enabled(true),
+      m_currentSearch(0),
+      m_symbolsToSearch(SearchSymbols::AllTypes),
+      m_scope(SearchProjectsOnly)
 {
     // for disabling while parser is running
     connect(Core::ICore::instance()->progressManager(), SIGNAL(taskStarted(QString)),
@@ -154,8 +155,8 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
     m_isRunning = true;
     emit changed();
     Find::SearchResultWindow *window = Find::SearchResultWindow::instance();
-    Find::SearchResult *result = window->startNewSearch();
-    connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
+    m_currentSearch = window->startNewSearch();
+    connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
     window->popup(true);
 
     m_search.setSymbolsToSearchFor(m_symbolsToSearch);
@@ -179,17 +180,16 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
 
 void SymbolsFindFilter::addResults(int begin, int end)
 {
-    Find::SearchResultWindow *window = Find::SearchResultWindow::instance();
     QList<Find::SearchResultItem> items;
     for (int i = begin; i < end; ++i)
         items << m_watcher.resultAt(i);
-    window->addResults(items, Find::SearchResultWindow::AddSorted);
+    m_currentSearch->addResults(items, Find::SearchResult::AddSorted);
 }
 
 void SymbolsFindFilter::finish()
 {
-    Find::SearchResultWindow *window = Find::SearchResultWindow::instance();
-    window->finishSearch();
+    m_currentSearch->finishSearch();
+    m_currentSearch = 0;
     m_isRunning = false;
     emit changed();
 }

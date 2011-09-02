@@ -89,8 +89,21 @@ class FIND_EXPORT SearchResult : public QObject
     Q_OBJECT
 
 public:
-    void setUserData(const QVariant &data) { m_userData = data; }
-    QVariant userData() const { return m_userData; }
+    enum AddMode {
+        AddSorted,
+        AddOrdered
+    };
+
+    void setUserData(const QVariant &data);
+    QVariant userData() const;
+    QString textToReplace() const;
+
+public slots:
+    void addResult(const QString &fileName, int lineNumber, const QString &lineText,
+                   int searchTermStart, int searchTermLength, const QVariant &userData = QVariant());
+    void addResults(const QList<SearchResultItem> &items, AddMode mode);
+    void finishSearch();
+    void setTextToReplace(const QString &textToReplace);
 
 signals:
     void activated(const Find::SearchResultItem &item);
@@ -113,10 +126,6 @@ public:
         SearchAndReplace
     };
 
-    enum AddMode {
-        AddSorted,
-        AddOrdered
-    };
 
     SearchResultWindow();
     virtual ~SearchResultWindow();
@@ -129,7 +138,6 @@ public:
     int priorityInStatusBar() const;
     void visibilityChanged(bool visible);
     bool isEmpty() const;
-    int numberOfResults() const;
     bool hasFocus();
     bool canFocus();
     void setFocus();
@@ -142,20 +150,12 @@ public:
 
     void setTextEditorFont(const QFont &font);
 
-    void setTextToReplace(const QString &textToReplace);
-    QString textToReplace() const;
-
     // search result object only lives till next startnewsearch call
     SearchResult *startNewSearch(SearchMode searchOrSearchAndReplace = SearchOnly,
                                  const QString &cfgGroup = QString());
 
-    void addResults(QList<SearchResultItem> &items, AddMode mode);
-
 public slots:
     void clearContents();
-    void addResult(const QString &fileName, int lineNumber, const QString &lineText,
-                   int searchTermStart, int searchTermLength, const QVariant &userData = QVariant());
-    void finishSearch();
 
 private slots:
     void handleExpandCollapseToolButton(bool checked);
@@ -165,6 +165,15 @@ private slots:
     void hideNoUndoWarning();
 
 private:
+    // TODO: move to the new SearchResultWidget
+    void addResult(const QString &fileName, int lineNumber, const QString &lineText,
+                   int searchTermStart, int searchTermLength, const QVariant &userData);
+    void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode); // TODO: move to SearchResultWidget)
+    void finishSearch();
+    void setTextToReplace(const QString &textToReplace);
+    QString textToReplace() const;
+
+
     void setShowReplaceUI(bool show);
     void readSettings();
     void writeSettings();
@@ -174,6 +183,7 @@ private:
 
     Internal::SearchResultWindowPrivate *d;
     static SearchResultWindow *m_instance;
+    friend class SearchResult;
 };
 
 } // namespace Find
