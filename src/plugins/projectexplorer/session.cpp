@@ -165,7 +165,10 @@ bool SessionFile::load(const QString &fileName)
     // Keep projects that failed to load in the session!
     m_failedProjects = fileList;
     if (!fileList.isEmpty()) {
-        QList<Project *> projects = ProjectExplorerPlugin::instance()->openProjects(fileList);
+        QString errors;
+        QList<Project *> projects = ProjectExplorerPlugin::instance()->openProjects(fileList, &errors);
+        if (!errors.isEmpty())
+            QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("Failed to open project"), errors);
         foreach (Project *p, projects)
             m_failedProjects.removeAll(p->file()->fileName());
     }

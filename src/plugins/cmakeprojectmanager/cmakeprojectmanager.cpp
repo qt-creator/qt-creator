@@ -131,8 +131,9 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
     }
 }
 
-ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName)
+ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QString *errorString)
 {
+    Q_UNUSED(errorString)
     // TODO check whether this project is already opened
     return new CMakeProject(this, fileName);
 }

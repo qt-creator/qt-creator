@@ -65,7 +65,7 @@ class CMakeManager : public ProjectExplorer::IProjectManager
 public:
     CMakeManager(CMakeSettingsPage *cmakeSettingsPage);
 
-    virtual ProjectExplorer::Project *openProject(const QString &fileName);
+    virtual ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
     virtual QString mimeType() const;
 
     QString cmakeExecutable() const;

@@ -77,8 +77,9 @@ public:
 
     static ProjectExplorerPlugin *instance();
 
-    Q_SLOT bool openProject(const QString &fileName);
-    QList<Project *> openProjects(const QStringList &fileNames);
+    bool openProject(const QString &fileName, QString *error);
+    QList<Project *> openProjects(const QStringList &fileNames, QString *error);
+    Q_SLOT void openProjectWelcomePage(const QString &fileName);
 
     SessionManager *session() const;
 

@@ -189,9 +189,7 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
         return QString();
     // Open. Do not use a busy cursor here as additional wizards might pop up
     const QString projectFile = projectFiles.front().absoluteFilePath();
-    if (!pe->openProject(projectFile)) {
-        *errorMessage = tr("Unable to open the project '%1'.").
-                        arg(QDir::toNativeSeparators(projectFile));
+    if (!pe->openProject(projectFile, errorMessage)) {
         return QString();
     }
     return projectFile;

@@ -35,7 +35,6 @@
 #include "genericproject.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
@@ -52,7 +51,7 @@ QString Manager::mimeType() const
     return QLatin1String(Constants::GENERICMIMETYPE);
 }
 
-ProjectExplorer::Project *Manager::openProject(const QString &fileName)
+ProjectExplorer::Project *Manager::openProject(const QString &fileName, QString *errorString)
 {
     if (!QFileInfo(fileName).isFile())
         return 0;
@@ -60,9 +59,9 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName)
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     foreach (ProjectExplorer::Project *pi, projectExplorer->session()->projects()) {
         if (fileName == pi->file()->fileName()) {
-            Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
-            messageManager->printToOutputPanePopup(tr("Failed opening project '%1': Project already open")
-                                                   .arg(QDir::toNativeSeparators(fileName)));
+            if (errorString)
+                *errorString = tr("Failed opening project '%1': Project already open")
+                    .arg(QDir::toNativeSeparators(fileName));
             return 0;
         }
     }

@@ -77,7 +77,7 @@ QString ProjectFileFactory::displayName() const
 Core::IFile *ProjectFileFactory::open(const QString &fileName)
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    pe->openProject(fileName);
+    pe->openProject(fileName, 0);
     return 0;
 }
 

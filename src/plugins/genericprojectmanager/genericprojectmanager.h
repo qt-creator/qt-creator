@@ -48,7 +48,7 @@ public:
     Manager();
 
     virtual QString mimeType() const;
-    virtual ProjectExplorer::Project *openProject(const QString &fileName);
+    virtual ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
 
     void notifyChanged(const QString &fileName);
 

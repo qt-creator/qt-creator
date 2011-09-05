@@ -1018,7 +1018,11 @@ void ProjectExplorerPlugin::loadAction()
                                                     d->m_projectFilterString);
     if (filename.isEmpty())
         return;
-    openProject(filename);
+    QString errorMessage;
+    openProject(filename, &errorMessage);
+
+    if (!errorMessage.isEmpty())
+        QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("Failed to open project"), errorMessage);
     updateActions();
 }
 
@@ -1229,12 +1233,20 @@ void ProjectExplorerPlugin::savePersistentSettings()
     }
 }
 
-bool ProjectExplorerPlugin::openProject(const QString &fileName)
+void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
+{
+    QString errorMessage;
+    openProject(fileName, &errorMessage);
+    if (!errorMessage.isEmpty())
+        QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("Failed to open project"), errorMessage);
+}
+
+bool ProjectExplorerPlugin::openProject(const QString &fileName, QString *errorString)
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::openProject";
 
-    QList<Project *> list = openProjects(QStringList() << fileName);
+    QList<Project *> list = openProjects(QStringList() << fileName, errorString);
     if (!list.isEmpty()) {
         addToRecentProjects(fileName, list.first()->displayName());
         d->m_session->setStartupProject(list.first());
@@ -1249,7 +1261,7 @@ static inline QList<IProjectManager*> allProjectManagers()
     return pm->getObjects<IProjectManager>();
 }
 
-QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileNames)
+QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileNames, QString *errorString)
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin - opening projects " << fileNames;
@@ -1261,7 +1273,8 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
         if (const Core::MimeType mt = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName))) {
             foreach (IProjectManager *manager, projectManagers) {
                 if (manager->mimeType() == mt.type()) {
-                    if (Project *pro = manager->openProject(fileName)) {
+                    QString tmp;
+                    if (Project *pro = manager->openProject(fileName, &tmp)) {
                         if (pro->restoreSettings()) {
                             connect(pro, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
                             d->m_session->addProject(pro);
@@ -1272,6 +1285,11 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
                         } else {
                             delete pro;
                         }
+                    }
+                    if (errorString) {
+                        if (!errorString->isEmpty() && !tmp.isEmpty())
+                            errorString->append('\n');
+                        errorString->append(tmp);
                     }
                     d->m_session->reportProjectLoadingProgress();
                     break;
@@ -1406,7 +1424,7 @@ void ProjectExplorerPlugin::restoreSession()
     connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*, Core::IMode*)),
             this, SLOT(currentModeChanged(Core::IMode*, Core::IMode*)));
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
-    connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProject(QString)));
+    connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProjectWelcomePage(QString)));
 
     QStringList combinedList;
     // Converts "filename" "+45" or "filename" ":23"
@@ -2296,7 +2314,10 @@ void ProjectExplorerPlugin::openRecentProject()
         return;
     QString fileName = a->data().toString();
     if (!fileName.isEmpty()) {
-        openProject(fileName);
+        QString errorMessage;
+        openProject(fileName, &errorMessage);
+        if (!errorMessage.isEmpty())
+            QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("Failed to open project"), errorMessage);
     }
 }
 

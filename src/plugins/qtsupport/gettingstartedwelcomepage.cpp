@@ -219,10 +219,13 @@ void GettingStartedWelcomePage::openProject(const QString &projectFile, const QS
         proFile = copyToAlternativeLocation(proFileInfo, filesToOpen);
 
     // don't try to load help and files if loading the help request is being cancelled
-    if (!proFile.isEmpty() && ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile)) {
+    QString errorMessage;
+    if (!proFile.isEmpty() && ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile, &errorMessage)) {
         Core::ICore::instance()->openFiles(filesToOpen);
         Core::ICore::instance()->helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
     }
+    if (!errorMessage.isEmpty())
+        QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("Failed to open project"), errorMessage);
 }
 
 void GettingStartedWelcomePage::updateTagsModel()

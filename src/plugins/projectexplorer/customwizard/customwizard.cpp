@@ -585,10 +585,7 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
     // Post-Generate: Open the project and the editors as desired
     foreach(const Core::GeneratedFile &file, l) {
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
-            if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(file.path())) {
-                if (errorMessage)
-                    *errorMessage = tr("The project %1 could not be opened.").
-                                    arg(QDir::toNativeSeparators(file.path()));
+            if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(file.path(), errorMessage)) {
                 return false;
             }
         }

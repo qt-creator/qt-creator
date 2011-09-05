@@ -46,7 +46,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/basefilewizard.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -232,10 +231,8 @@ static void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QStri
     }
 }
 
-ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName)
+ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName, QString *errorString)
 {
-    Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
-
     // TODO Make all file paths relative & remove this hack
     // We convert the path to an absolute one here because qt4project.cpp
     // && profileevaluator use absolute/canonical file paths all over the place
@@ -243,13 +240,15 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName)
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
     if (canonicalFilePath.isEmpty()) {
-        messageManager->printToOutputPane(tr("Failed opening project '%1': Project file does not exist").arg(QDir::toNativeSeparators(canonicalFilePath)));
+        if (errorString)
+         *errorString = tr("Failed opening project '%1': Project file does not exist").arg(QDir::toNativeSeparators(fileName));
         return 0;
     }
 
     foreach (ProjectExplorer::Project *pi, projectExplorer()->session()->projects()) {
         if (canonicalFilePath == pi->file()->fileName()) {
-            messageManager->printToOutputPane(tr("Failed opening project '%1': Project already open").arg(QDir::toNativeSeparators(canonicalFilePath)));
+            if (errorString)
+                *errorString = tr("Failed opening project '%1': Project already open").arg(QDir::toNativeSeparators(canonicalFilePath));
             return 0;
         }
     }

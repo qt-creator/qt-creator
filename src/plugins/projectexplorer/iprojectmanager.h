@@ -53,7 +53,7 @@ public:
     IProjectManager() {}
 
     virtual QString mimeType() const = 0;
-    virtual Project *openProject(const QString &fileName) = 0;
+    virtual Project *openProject(const QString &fileName, QString *errorString) = 0;
 };
 
 } // namespace ProjectExplorer
