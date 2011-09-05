@@ -2,11 +2,11 @@ TEMPLATE  = subdirs
 CONFIG   += ordered
 QT += core gui
 
+# aggregation and extensionsystem are directly in src.pro
+# because of dependencies of app
 SUBDIRS   = \
     3rdparty \
     qtconcurrent \
-    aggregation \
-    extensionsystem \
     utils \
     utils/process_stub.pro \
     languageutils \
