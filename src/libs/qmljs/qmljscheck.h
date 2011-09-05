@@ -91,6 +91,7 @@ protected:
     virtual bool visit(AST::UiObjectBinding *ast);
     virtual bool visit(AST::UiScriptBinding *ast);
     virtual bool visit(AST::UiArrayBinding *ast);
+    virtual bool visit(AST::UiPublicMember *ast);
     virtual bool visit(AST::IdentifierExpression *ast);
     virtual bool visit(AST::FieldMemberExpression *ast);
     virtual bool visit(AST::FunctionDeclaration *ast);
@@ -151,6 +152,8 @@ QMLJS_EXPORT AST::SourceLocation fullLocationForQualifiedId(AST::UiQualifiedId *
 
 QMLJS_EXPORT DiagnosticMessage errorMessage(const AST::SourceLocation &loc,
                                             const QString &message);
+
+QMLJS_EXPORT bool isValidBuiltinPropertyType(const QString &name);
 
 template <class T>
 DiagnosticMessage errorMessage(const T *node, const QString &message)

@@ -94,6 +94,42 @@ DiagnosticMessage QmlJS::errorMessage(const AST::SourceLocation &loc, const QStr
 }
 
 namespace {
+class SharedData
+{
+public:
+    SharedData()
+    {
+        validBuiltinPropertyNames.insert(QLatin1String("action"));
+        validBuiltinPropertyNames.insert(QLatin1String("bool"));
+        validBuiltinPropertyNames.insert(QLatin1String("color"));
+        validBuiltinPropertyNames.insert(QLatin1String("date"));
+        validBuiltinPropertyNames.insert(QLatin1String("double"));
+        validBuiltinPropertyNames.insert(QLatin1String("enumeration"));
+        validBuiltinPropertyNames.insert(QLatin1String("font"));
+        validBuiltinPropertyNames.insert(QLatin1String("int"));
+        validBuiltinPropertyNames.insert(QLatin1String("list"));
+        validBuiltinPropertyNames.insert(QLatin1String("point"));
+        validBuiltinPropertyNames.insert(QLatin1String("real"));
+        validBuiltinPropertyNames.insert(QLatin1String("rect"));
+        validBuiltinPropertyNames.insert(QLatin1String("size"));
+        validBuiltinPropertyNames.insert(QLatin1String("string"));
+        validBuiltinPropertyNames.insert(QLatin1String("time"));
+        validBuiltinPropertyNames.insert(QLatin1String("url"));
+        validBuiltinPropertyNames.insert(QLatin1String("variant"));
+        validBuiltinPropertyNames.insert(QLatin1String("vector3d"));
+    }
+
+    QSet<QString> validBuiltinPropertyNames;
+};
+} // anonymous namespace
+Q_GLOBAL_STATIC(SharedData, sharedData)
+
+bool QmlJS::isValidBuiltinPropertyType(const QString &name)
+{
+    return sharedData()->validBuiltinPropertyNames.contains(name);
+}
+
+namespace {
 
 class AssignmentCheck : public ValueVisitor
 {
@@ -594,6 +630,19 @@ bool Check::visit(UiArrayBinding *ast)
     checkScopeObjectMember(ast->qualifiedId);
     checkProperty(ast->qualifiedId);
 
+    return true;
+}
+
+bool Check::visit(UiPublicMember *ast)
+{
+    // check if the member type is valid
+    if (ast->memberType) {
+        const QString name = ast->memberType->asString();
+        if (!name.isEmpty() && name.at(0).isLower()) {
+            if (!isValidBuiltinPropertyType(name))
+                error(ast->typeToken, tr("'%1' is not a valid property type").arg(name));
+        }
+    }
     return true;
 }
 
