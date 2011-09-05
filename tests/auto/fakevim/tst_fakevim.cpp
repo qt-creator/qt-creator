@@ -55,7 +55,7 @@ public:
 
 public slots:
     void changeStatusData(const QString &info) { m_statusData = info; }
-    void changeStatusMessage(const QString &info) { m_statusMessage = info; }
+    void changeStatusMessage(const QString &info, int) { m_statusMessage = info; }
     void changeExtraInformation(const QString &info) { m_infoMessage = info; }
 
 private slots:
@@ -195,8 +195,8 @@ void tst_FakeVim::setup()
         m_handler = new FakeVimHandler(m_plaintextedit);
     }
 
-    QObject::connect(m_handler, SIGNAL(commandBufferChanged(QString)),
-        this, SLOT(changeStatusMessage(QString)));
+    QObject::connect(m_handler, SIGNAL(commandBufferChanged(QString,int)),
+        this, SLOT(changeStatusMessage(QString,int)));
     QObject::connect(m_handler, SIGNAL(extraInformationChanged(QString)),
         this, SLOT(changeExtraInformation(QString)));
     QObject::connect(m_handler, SIGNAL(statusDataChanged(QString)),
