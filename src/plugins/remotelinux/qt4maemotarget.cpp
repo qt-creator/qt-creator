@@ -55,6 +55,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtCore/QBuffer>
+#include <QtCore/QDateTime>
+#include <QtCore/QLocale>
 #include <QtCore/QRegExp>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -412,8 +414,50 @@ bool AbstractDebBasedQt4MaemoTarget::setProjectVersionInternal(const QString &ve
     if (!reader.fetch(filePath, error))
         return false;
     QString content = QString::fromUtf8(reader.data());
-    content.replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
-        QLatin1Char('(') + version + QLatin1Char(')'));
+    if (content.contains(QLatin1Char('(') + version + QLatin1Char(')'))) {
+        if (error) {
+            *error = tr("Refusing to update changelog file: Already contains version '%1'.")
+                .arg(version);
+        }
+        return false;
+    }
+
+    int maintainerOffset = content.indexOf(QLatin1String("\n -- "));
+    const int eolOffset = content.indexOf(QLatin1Char('\n'), maintainerOffset+1);
+    if (maintainerOffset == -1 || eolOffset == -1) {
+        if (error) {
+            *error = tr("Cannot update changelog: Invalid format (no maintainer entry found).");
+        }
+        return false;
+    }
+
+    ++maintainerOffset;
+    const QDateTime currentDateTime = QDateTime::currentDateTime();
+    QDateTime utcDateTime = QDateTime(currentDateTime);
+    utcDateTime.setTimeSpec(Qt::UTC);
+    int utcOffsetSeconds = currentDateTime.secsTo(utcDateTime);
+    QChar sign;
+    if (utcOffsetSeconds < 0) {
+        utcOffsetSeconds = -utcOffsetSeconds;
+        sign = QLatin1Char('-');
+    } else {
+        sign = QLatin1Char('+');
+    }
+    const int utcOffsetMinutes = (utcOffsetSeconds / 60) % 60;
+    const int utcOffsetHours = utcOffsetSeconds / 3600;
+    const QString dateString = QString::fromLatin1("%1 %2%3%4")
+        .arg(currentDateTime.toString(QLatin1String("ddd, dd MMM yyyy hh:mm:ss"))).arg(sign)
+        .arg(utcOffsetHours, 2, 10, QLatin1Char('0'))
+        .arg(utcOffsetMinutes, 2, 10, QLatin1Char('0'));
+    const QString maintainerLine = content.mid(maintainerOffset, eolOffset - maintainerOffset + 1)
+        .replace(QRegExp(QLatin1String(">  [^\\n]*\n")),
+                 QString::fromLocal8Bit(">  %1").arg(dateString));
+    QString versionLine = content.left(content.indexOf(QLatin1Char('\n')))
+        .replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
+                 QLatin1Char('(') + version + QLatin1Char(')'));
+    const QString newEntry = versionLine + QLatin1String("\n  * <Add change description here>\n\n")
+        + maintainerLine + QLatin1String("\n\n");
+    content.prepend(newEntry);
     Core::FileChangeBlocker update(filePath);
     Utils::FileSaver saver(filePath);
     saver.write(content.toUtf8());
@@ -664,6 +708,7 @@ void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
         if (QFileInfo(iconPath).exists())
             setPackageManagerIcon(iconPath);
     }
+
     m_filesWatcher->addDirectory(debianDirPath(), Utils::FileSystemWatcher::WatchAllChanges);
     m_controlFile = new WatchableFile(controlFilePath(), this);
     connect(m_controlFile, SIGNAL(modified()), SIGNAL(controlChanged()));
@@ -870,7 +915,6 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIcon(const QString &iconFi
     }
     return success;
 }
-
 
 AbstractRpmBasedQt4MaemoTarget::AbstractRpmBasedQt4MaemoTarget(Qt4Project *parent,
     const QString &id) : AbstractQt4MaemoTarget(parent, id)
