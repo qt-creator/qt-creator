@@ -92,7 +92,27 @@ def checkLastBuild(expectedToFail=False):
 def handleBuildFinished(object, success):
     global buildFinished, buildSucceeded
     buildFinished = True
-    buildSucceeded = checkLastBuild()
+    if success:
+        buildSucceeded = checkLastBuild()
+    else:
+        test.fatal("Build failed")
+        buildSucceeded = success
+        checkCompile()
+        checkLastBuild()
+
+# helper function to check the compilation when build wasn't successful
+def checkCompile():
+    toggleCompOutput = waitForObject("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
+                                      "window=':Qt Creator_Core::Internal::MainWindow' occurrence='4'}", 20000)
+    if not toggleCompOutput.checked:
+        clickButton(toggleCompOutput)
+    output = waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1' windowTitle='Compile Output'"
+                                 " window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    waitFor("len(str(output.plainText))>0",5000)
+    if str(output.plainText).lower().find("error")==-1:
+        test.log("Compile Output:\n%s" % output.plainText)
+    else:
+        test.fatal("Compile Output:\n%s" % output.plainText)
 
 # after starting to build an application this function can be used to synchronize the following tests
 # make sure to set global variable buildFinished to False before starting to build
