@@ -269,45 +269,41 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         return objectValue;
     }
 
-    const Value *value = valueOwner()->undefinedValue();
     if (typeName == QLatin1String("QByteArray")
             || typeName == QLatin1String("string")
             || typeName == QLatin1String("QString")) {
-        value = valueOwner()->stringValue();
+        return valueOwner()->stringValue();
     } else if (typeName == QLatin1String("QUrl")) {
-        value = valueOwner()->urlValue();
+        return valueOwner()->urlValue();
     } else if (typeName == QLatin1String("bool")) {
-        value = valueOwner()->booleanValue();
+        return valueOwner()->booleanValue();
     } else if (typeName == QLatin1String("int")
                || typeName == QLatin1String("long")) {
-        value = valueOwner()->intValue();
+        return valueOwner()->intValue();
     }  else if (typeName == QLatin1String("float")
                 || typeName == QLatin1String("double")
                 || typeName == QLatin1String("qreal")) {
         // ### Review: more types here?
-        value = valueOwner()->realValue();
+        return valueOwner()->realValue();
     } else if (typeName == QLatin1String("QFont")) {
-        value = valueOwner()->qmlFontObject();
+        return valueOwner()->qmlFontObject();
     } else if (typeName == QLatin1String("QPoint")
             || typeName == QLatin1String("QPointF")
             || typeName == QLatin1String("QVector2D")) {
-        value = valueOwner()->qmlPointObject();
+        return valueOwner()->qmlPointObject();
     } else if (typeName == QLatin1String("QSize")
             || typeName == QLatin1String("QSizeF")) {
-        value = valueOwner()->qmlSizeObject();
+        return valueOwner()->qmlSizeObject();
     } else if (typeName == QLatin1String("QRect")
             || typeName == QLatin1String("QRectF")) {
-        value = valueOwner()->qmlRectObject();
+        return valueOwner()->qmlRectObject();
     } else if (typeName == QLatin1String("QVector3D")) {
-        value = valueOwner()->qmlVector3DObject();
+        return valueOwner()->qmlVector3DObject();
     } else if (typeName == QLatin1String("QColor")) {
-        value = valueOwner()->colorValue();
+        return valueOwner()->colorValue();
     } else if (typeName == QLatin1String("QDeclarativeAnchorLine")) {
-        value = valueOwner()->anchorLineValue();
+        return valueOwner()->anchorLineValue();
     }
-
-    if (value)
-        return value;
 
     // might be an enum
     const QmlObjectValue *base = this;
@@ -317,10 +313,11 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         typeName = components.last();
     }
     if (base) {
-        value = base->getEnumValue(typeName);
+        if (const QmlEnumValue *value = base->getEnumValue(typeName))
+            return value;
     }
 
-    return value;
+    return valueOwner()->undefinedValue();
 }
 
 const QmlObjectValue *QmlObjectValue::prototype() const
@@ -377,18 +374,34 @@ bool QmlObjectValue::isListProperty(const QString &propertyName) const
     return false;
 }
 
-FakeMetaEnum QmlObjectValue::getEnum(const QString &typeName) const
+FakeMetaEnum QmlObjectValue::getEnum(const QString &typeName, const QmlObjectValue **foundInScope) const
 {
-    const int index = _metaObject->enumeratorIndex(typeName);
-    if (index == -1)
-        return FakeMetaEnum();
-
-    return _metaObject->enumerator(index);
+    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+        FakeMetaObject::ConstPtr iter = it->_metaObject;
+        const int index = iter->enumeratorIndex(typeName);
+        if (index != -1) {
+            if (foundInScope)
+                *foundInScope = it;
+            return iter->enumerator(index);
+        }
+    }
+    if (foundInScope)
+        *foundInScope = 0;
+    return FakeMetaEnum();
 }
 
-const QmlEnumValue *QmlObjectValue::getEnumValue(const QString &typeName) const
+const QmlEnumValue *QmlObjectValue::getEnumValue(const QString &typeName, const QmlObjectValue **foundInScope) const
 {
-    return _enums.value(typeName, 0);
+    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+        if (const QmlEnumValue *e = it->_enums.value(typeName)) {
+            if (foundInScope)
+                *foundInScope = it;
+            return e;
+        }
+    }
+    if (foundInScope)
+        *foundInScope = 0;
+    return 0;
 }
 
 bool QmlObjectValue::isWritable(const QString &propertyName) const

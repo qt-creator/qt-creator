@@ -667,18 +667,8 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const QString &propertyName) const
             return false;
     }
 
-    QList<const ObjectValue *> objects;
-    objects = PrototypeIterator(getNearestQmlObjectValue(), context()).all();
-
-    //We have to run the prototype chain
-    foreach (const ObjectValue *ov, objects) {
-        if (const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(ov)) {
-            if (qmlValue->getEnum(propertyType(propertyName)).isValid())
-                return true;
-        }
-    }
-
-    return false;
+    const QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    return qmlObjectValue->getEnum(propertyType(propertyName)).isValid();
 }
 
 QString NodeMetaInfoPrivate::propertyEnumScope(const QString &propertyName) const
@@ -703,16 +693,11 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const QString &propertyName) cons
             return QString();
     }
 
-    QList<const ObjectValue *> objects;
-    objects = PrototypeIterator(getNearestQmlObjectValue(), context()).all();
-
-    //We have to run the prototype chain
-    foreach (const ObjectValue *ov, objects) {
-        if (const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(ov)) {
-            if (qmlValue->getEnum(propertyType(propertyName)).isValid())
-                return qmlValue->className();
-        }
-    }
+    const QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    const QmlObjectValue *definedIn = 0;
+    qmlObjectValue->getEnum(propertyType(propertyName), &definedIn);
+    if (definedIn)
+        return definedIn->className();
 
     return QString();
 }

@@ -441,8 +441,8 @@ public:
     bool hasProperty(const QString &typeName) const;
     bool hasChildInPackage() const;
 
-    LanguageUtils::FakeMetaEnum getEnum(const QString &typeName) const;
-    const QmlEnumValue *getEnumValue(const QString &typeName) const;
+    LanguageUtils::FakeMetaEnum getEnum(const QString &typeName, const QmlObjectValue **foundInScope = 0) const;
+    const QmlEnumValue *getEnumValue(const QString &typeName, const QmlObjectValue **foundInScope = 0) const;
 protected:
     const Value *findOrCreateSignature(int index, const LanguageUtils::FakeMetaMethod &method,
                                        QString *methodName) const;
