@@ -186,6 +186,16 @@ void FindPlugin::openFindFilter()
     d->m_findDialog->open(filter);
 }
 
+void FindPlugin::openFindDialog(IFindFilter *filter)
+{
+    if (d->m_currentDocumentFind->candidateIsEnabled())
+        d->m_currentDocumentFind->acceptCandidate();
+    QString currentFindString = (d->m_currentDocumentFind->isEnabled() ? d->m_currentDocumentFind->currentFindString() : "");
+    if (!currentFindString.isEmpty())
+        d->m_findDialog->setFindText(currentFindString);
+    d->m_findDialog->open(filter);
+}
+
 void FindPlugin::setupMenu()
 {
     Core::ActionManager *am = Core::ICore::instance()->actionManager();

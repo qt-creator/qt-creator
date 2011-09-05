@@ -45,9 +45,8 @@
 
 
 namespace TextEditor {
-namespace Internal {
 
-class FindInFiles : public BaseFileFind
+class TEXTEDITOR_EXPORT FindInFiles : public BaseFileFind
 {
     Q_OBJECT
 
@@ -60,6 +59,8 @@ public:
     QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);
     void readSettings(QSettings *settings);
+
+    void setDirectory(const QString &directory);
 
 protected:
     Utils::FileIterator *files() const;
@@ -74,7 +75,6 @@ private:
     QPointer<QComboBox> m_directory;
 };
 
-} // namespace Internal
 } // namespace TextEditor
 
 #endif // FINDINFILES_H

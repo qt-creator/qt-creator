@@ -79,6 +79,7 @@ public:
     QStringListModel *replaceCompletionModel() const;
     void setUseFakeVim(bool on);
     void openFindToolBar(FindDirection direction);
+    void openFindDialog(IFindFilter *filter);
 
 public slots:
     void setCaseSensitive(bool sensitive);

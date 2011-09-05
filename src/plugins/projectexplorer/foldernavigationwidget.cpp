@@ -34,6 +34,8 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/filemanager.h>
@@ -41,6 +43,10 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileutils.h>
 
+#include <find/findplugin.h>
+#include <texteditor/findinfiles.h>
+
+#include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
@@ -312,6 +318,8 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actionTerminal = menu.addAction(Core::FileUtils::msgTerminalAction());
     actionTerminal->setEnabled(hasCurrentItem);
 
+    QAction *actionFind = menu.addAction(msgFindOnFileSystem());
+    actionFind->setEnabled(hasCurrentItem);
     // open with...
     if (!m_fileSystemModel->isDir(current)) {
         QMenu *openWith = menu.addMenu(tr("Open with"));
@@ -345,8 +353,36 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         Core::FileUtils::showInGraphicalShell(this, m_fileSystemModel->filePath(current));
         return;
     }
+    if (action == actionFind) {
+        QFileInfo info = m_fileSystemModel->fileInfo(current);
+        if (m_fileSystemModel->isDir(current))
+            findOnFileSystem(info.absoluteFilePath());
+        else
+            findOnFileSystem(info.absolutePath());
+        return;
+    }
     ProjectExplorerPlugin::openEditorFromAction(action,
                                                 m_fileSystemModel->filePath(current));
+}
+
+QString FolderNavigationWidget::msgFindOnFileSystem()
+{
+    return tr("Find in this directory...");
+}
+
+void FolderNavigationWidget::findOnFileSystem(const QString &pathIn)
+{
+    const QFileInfo fileInfo(pathIn);
+    const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.absolutePath();
+
+    TextEditor::FindInFiles *fif = ExtensionSystem::PluginManager::instance()->getObject<TextEditor::FindInFiles>();
+    if (!fif)
+        return;
+    Find::FindPlugin *plugin = Find::FindPlugin::instance();
+    if (!plugin)
+        return;
+    fif->setDirectory(folder);
+    Find::FindPlugin::instance()->openFindDialog(fif);
 }
 
 // --------------------FolderNavigationWidgetFactory

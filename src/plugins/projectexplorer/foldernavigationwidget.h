@@ -64,6 +64,8 @@ public:
 
     bool autoSynchronization() const;
 
+    static void findOnFileSystem(const QString &pathIn);
+    static QString msgFindOnFileSystem();
 public slots:
     void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();

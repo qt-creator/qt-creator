@@ -206,6 +206,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_renameFileAction;
     QAction *m_openFileAction;
     QAction *m_projectTreeCollapseAllAction;
+    QAction *m_searchOnFileSystem;
     QAction *m_showInGraphicalShell;
     QAction *m_openTerminalHere;
     QAction *m_setStartupProjectAction;
@@ -585,6 +586,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
 
+    d->m_searchOnFileSystem = new QAction(FolderNavigationWidget::msgFindOnFileSystem(), this);
+    cmd = am->registerAction(d->m_searchOnFileSystem, ProjectExplorer::Constants::SEARCHONFILESYSTEM, projecTreeContext);
+    mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_CONFIG);
+    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+
     d->m_showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), this);
     cmd = am->registerAction(d->m_showInGraphicalShell, ProjectExplorer::Constants::SHOWINGRAPHICALSHELL,
                        projecTreeContext);
@@ -959,6 +966,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_addNewSubprojectAction, SIGNAL(triggered()), this, SLOT(addNewSubproject()));
     connect(d->m_removeProjectAction, SIGNAL(triggered()), this, SLOT(removeProject()));
     connect(d->m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
+    connect(d->m_searchOnFileSystem, SIGNAL(triggered()), this, SLOT(searchOnFileSystem()));
     connect(d->m_showInGraphicalShell, SIGNAL(triggered()), this, SLOT(showInGraphicalShell()));
     connect(d->m_openTerminalHere, SIGNAL(triggered()), this, SLOT(openTerminalHere()));
     connect(d->m_removeFileAction, SIGNAL(triggered()), this, SLOT(removeFile()));
@@ -2521,6 +2529,12 @@ void ProjectExplorerPlugin::openFile()
     QTC_ASSERT(d->m_currentNode, return)
     Core::EditorManager *em = Core::EditorManager::instance();
     em->openEditor(d->m_currentNode->path(), QString(), Core::EditorManager::ModeSwitch);
+}
+
+void ProjectExplorerPlugin::searchOnFileSystem()
+{
+    QTC_ASSERT(d->m_currentNode, return)
+    FolderNavigationWidget::findOnFileSystem(pathFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::showInGraphicalShell()

@@ -74,6 +74,7 @@ const char * const ADDEXISTINGFILES     = "ProjectExplorer.AddExistingFiles";
 const char * const ADDNEWSUBPROJECT     = "ProjectExplorer.AddNewSubproject";
 const char * const REMOVEPROJECT        = "ProjectExplorer.RemoveProject";
 const char * const OPENFILE             = "ProjectExplorer.OpenFile";
+const char * const SEARCHONFILESYSTEM   = "ProjectExplorer.SearchOnFileSystem";
 const char * const SHOWINGRAPHICALSHELL = "ProjectExplorer.ShowInGraphicalShell";
 const char * const OPENTERMIANLHERE     = "ProjectExplorer.OpenTerminalHere";
 const char * const REMOVEFILE           = "ProjectExplorer.RemoveFile";

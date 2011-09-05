@@ -188,6 +188,7 @@ private slots:
     void addNewSubproject();
     void removeProject();
     void openFile();
+    void searchOnFileSystem();
     void showInGraphicalShell();
     void removeFile();
     void deleteFile();

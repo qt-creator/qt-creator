@@ -43,7 +43,7 @@
 #include <QtGui/QVBoxLayout>
 
 using namespace Find;
-using namespace TextEditor::Internal;
+using namespace TextEditor;
 
 FindInFiles::FindInFiles(SearchResultWindow *resultWindow)
   : BaseFileFind(resultWindow),
@@ -145,3 +145,9 @@ void FindInFiles::readSettings(QSettings *settings)
     settings->endGroup();
     syncComboWithSettings(m_directory, m_directorySetting);
 }
+
+void FindInFiles::setDirectory(const QString &directory)
+{
+    syncComboWithSettings(m_directory, directory);
+}
+
