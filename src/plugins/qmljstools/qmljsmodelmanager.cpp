@@ -521,15 +521,6 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
     }
 }
 
-static bool suffixMatches(const QString &fileName, const Core::MimeType &mimeType)
-{
-    foreach (const QString &suffix, mimeType.suffixes()) {
-        if (fileName.endsWith(suffix, Qt::CaseInsensitive))
-            return true;
-    }
-    return false;
-}
-
 void ModelManager::parse(QFutureInterface<void> &future,
                             WorkingCopy workingCopy,
                             QStringList files,
