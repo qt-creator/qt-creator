@@ -164,7 +164,7 @@ ModelNode ModelMerger::insertModel(const ModelNode &modelNode)
     QList<Import> newImports;
 
     foreach (const Import &import, modelNode.model()->imports()) {
-        if (!view()->model()->hasImport(import, true)) {
+        if (!view()->model()->hasImport(import, true, true)) {
             newImports.append(import);
         }
     }
