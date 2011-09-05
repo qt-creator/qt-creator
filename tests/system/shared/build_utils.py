@@ -126,8 +126,15 @@ def createTasksFile(list):
     global tasksFileDir, tasksFileCount
     model = list.model()
     if tasksFileDir == None:
-        tasksFileDir = tempDir()
-    appCtxt = currentApplicationContext()
+            tasksFileDir = os.getcwd() + "/tasks"
+            tasksFileDir = os.path.abspath(tasksFileDir)
+    if not os.path.exists(tasksFileDir):
+        try:
+            os.makedirs(tasksFileDir)
+        except OSError:
+            test.log("Could not create %s - falling back to a temporary directory" % tasksFileDir)
+            tasksFileDir = tempDir()
+
     tasksFileCount += 1
     outfile = os.path.join(tasksFileDir, os.path.basename(squishinfo.testCase)+"_%d.tasks" % tasksFileCount)
     file = codecs.open(outfile, "w", "utf-8")
