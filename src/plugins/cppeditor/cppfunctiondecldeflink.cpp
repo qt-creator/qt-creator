@@ -300,8 +300,10 @@ void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
     if (targetInitial == newTargetFile->textOf(targetStart, targetEnd)) {
         const Utils::ChangeSet changeset = changes(snapshot, targetStart);
         newTargetFile->setChangeSet(changeset);
-        if (jumpToMatch)
-            newTargetFile->setOpenEditor(true, targetStart);
+        if (jumpToMatch) {
+            const int jumpTarget = newTargetFile->position(targetFunction->line(), targetFunction->column());
+            newTargetFile->setOpenEditor(true, jumpTarget);
+        }
         newTargetFile->apply();
     } else {
         TextEditor::ToolTip::instance()->show(
