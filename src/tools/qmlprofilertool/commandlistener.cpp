@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "commandlistener.h"
+#include "constants.h"
 #include <QTextStream>
 
 CommandListener::CommandListener(QObject *parent)
@@ -46,7 +47,11 @@ void CommandListener::run()
     do {
         line = in.readLine();
         line = line.trimmed();
-        if (!line.isEmpty())
+        if (!line.isEmpty()) {
             emit command(line);
+            if (line == QLatin1String(Constants::CMD_QUIT)
+                    || line == QLatin1String(Constants::CMD_QUIT2))
+                return;
+        }
     } while (!m_stopRequested && !line.isNull());
 }

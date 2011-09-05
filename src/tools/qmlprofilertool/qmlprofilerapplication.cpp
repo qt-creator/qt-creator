@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "qmlprofilerapplication.h"
+#include "constants.h"
 #include <utils/qtcassert.h>
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
@@ -204,11 +205,15 @@ QString QmlProfilerApplication::traceFileName() const
 void QmlProfilerApplication::userCommand(const QString &command)
 {
     QString cmd = command.trimmed();
-    if (cmd == "help" || cmd == "h" || cmd == "?") {
+    if (cmd == Constants::CMD_HELP
+            || cmd == Constants::CMD_HELP2
+            || cmd == Constants::CMD_HELP3) {
         printCommands();
-    } else if (cmd == "r" || cmd == "record") {
+    } else if (cmd == Constants::CMD_RECORD
+               || cmd == Constants::CMD_RECORD2) {
         m_traceClient.setRecording(!m_traceClient.isRecording());
-    } else if (cmd == "q" || cmd == "quit") {
+    } else if (cmd == Constants::CMD_QUIT
+               || cmd == Constants::CMD_QUIT2) {
         if (m_traceClient.isRecording()) {
             m_quitAfterSave = true;
             m_traceClient.setRecording(false);

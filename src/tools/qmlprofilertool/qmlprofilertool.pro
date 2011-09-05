@@ -19,6 +19,8 @@ SOURCES += main.cpp \
 
 HEADERS += \
     qmlprofilerapplication.h \
-    commandlistener.h
+    commandlistener.h \
+    constants.h
+
 
 

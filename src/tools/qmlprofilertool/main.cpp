@@ -47,8 +47,9 @@ int main(int argc, char *argv[])
     listener.start();
 
     int exitValue = app.exec();
-    listener.terminate();
+    // wait for listener to exit
     listener.wait();
+
 
     return exitValue;
 }
