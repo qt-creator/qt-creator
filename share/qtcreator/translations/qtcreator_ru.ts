@@ -1483,6 +1483,10 @@ Local pulls are not applied to the master branch.</source>
         <translation>Генератор для Unix (%1)</translation>
     </message>
     <message>
+        <source>No generator selected.</source>
+        <translation>Генератор не выбран.</translation>
+    </message>
+    <message>
         <source>No valid cmake executable specified.</source>
         <translation>Не указана корректная программа cmake.</translation>
     </message>
@@ -9354,7 +9358,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     <name>FlowSpecifics</name>
     <message>
         <source>Flow</source>
-        <translation type="unfinished">Перетекание</translation>
+        <translation>Перетекание</translation>
     </message>
     <message>
         <source>Spacing</source>
@@ -11152,7 +11156,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Flow</source>
-        <translation type="unfinished">Перетекание</translation>
+        <translation>Перетекание</translation>
     </message>
     <message>
         <source>Spacing</source>
@@ -11183,11 +11187,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Resize wraps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Перенос при изменении размера</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Определяет, меняет ли сетка навигацию клавишами.</translation>
     </message>
     <message>
         <source>Snap mode</source>
@@ -11243,7 +11247,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Flow</source>
-        <translation type="unfinished">Перетекание</translation>
+        <translation>Перетекание</translation>
     </message>
     <message>
         <source>Grid View Highlight</source>
@@ -11907,11 +11911,11 @@ QML.</translation>
     </message>
     <message>
         <source>Navigation wraps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Перенос при перемещениях</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Определяет, меняет ли сетка навигацию клавишами.</translation>
     </message>
     <message>
         <source>Orientation of the list.</source>
@@ -18033,6 +18037,14 @@ Please build the debugging helpers on the Qt version options page.</source>
         <translation>QML Profiler предназначен для поиска узких мест в приложениях использующих QML.</translation>
     </message>
     <message>
+        <source>The QML profiler requires Qt 4.7.4 or newer.
+The Qt version configured in your active build configuration is too old.
+Do you want to continue?</source>
+        <translation>Профилеру QML требуется Qt версии 4.7.4 или выше.
+Версия Qt настроенная для текущей конфигурации сборки слишком старая.
+Продолжить?</translation>
+    </message>
+    <message>
         <source>Events</source>
         <translation>События</translation>
     </message>
@@ -20785,8 +20797,32 @@ Reason: %2</source>
         <translation>Добавить сборку</translation>
     </message>
     <message>
+        <source>Create Build Configurations:</source>
+        <translation>Создать конфигурации сборки:</translation>
+    </message>
+    <message>
+        <source>For Each Qt Version One Debug And One Release</source>
+        <translation>Одну отладочную и одну релизную для каждого профиля Qt</translation>
+    </message>
+    <message>
+        <source>For One Qt Version One Debug And One Release</source>
+        <translation>Одну отладочную и одну релизную для одного профиля Qt</translation>
+    </message>
+    <message>
+        <source>Manually</source>
+        <translation>Вручную</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Не создавать</translation>
+    </message>
+    <message>
         <source>Use Shadow Building</source>
         <translation>Использовать теневую сборку</translation>
+    </message>
+    <message>
+        <source>Qt Version:</source>
+        <translation>Профиль Qt:</translation>
     </message>
     <message>
         <source>debug</source>
@@ -27141,7 +27177,7 @@ Influences the indentation of continuation lines.
     <name>Valgrind::Callgrind::ParseData</name>
     <message>
         <source>Last-level</source>
-        <translation type="unfinished">Последний уровень</translation>
+        <translation>Последний уровень</translation>
     </message>
     <message>
         <source>Instruction</source>
