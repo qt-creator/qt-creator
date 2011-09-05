@@ -37,6 +37,7 @@
 #include "cppinsertqtpropertymembers.h"
 #include "cppquickfixassistant.h"
 #include "cppcompleteswitch.h"
+#include "cppfunctiondecldeflink.h"
 
 #include <ASTVisitor.h>
 #include <AST.h>
@@ -1693,4 +1694,5 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new InsertQtPropertyMembers);
     plugIn->addAutoReleasedObject(new DeclFromDef);
     plugIn->addAutoReleasedObject(new DefFromDecl);
+    plugIn->addAutoReleasedObject(new ApplyDeclDefLinkChanges);
 }

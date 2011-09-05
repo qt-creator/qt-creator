@@ -33,6 +33,8 @@
 #ifndef CPPFUNCTIONDECLDEFLINK_H
 #define CPPFUNCTIONDECLDEFLINK_H
 
+#include "cppquickfix.h"
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ASTfwd.h>
 
@@ -119,6 +121,13 @@ private:
     bool hasMarker;
 
     friend class FunctionDeclDefLinkFinder;
+};
+
+class ApplyDeclDefLinkChanges: public CppQuickFixFactory
+{
+public:
+    virtual QList<CppQuickFixOperation::Ptr>
+        match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
 };
 
 } // namespace Internal

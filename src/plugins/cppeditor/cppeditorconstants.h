@@ -65,8 +65,6 @@ const char * const WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("CppEditor", "C++");
 
 const char * const CPP_SNIPPETS_GROUP_ID = "C++";
 
-const char * const FUNCTION_DECL_DEF_LINK_PROPERTY_NAME = "inCppFunctionDeclDefLink";
-
 } // namespace Constants
 } // namespace CppEditor
 

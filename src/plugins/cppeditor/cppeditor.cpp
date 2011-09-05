@@ -1473,10 +1473,9 @@ bool CPPEditorWidget::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::ShortcutOverride:
-        // handle escape manually if a rename or func decl/def link is active
+        // handle escape manually if a rename is active
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape
-                && (m_currentRenameSelection != NoCurrentRenameSelection
-                    || m_declDefLink)) {
+                && m_currentRenameSelection != NoCurrentRenameSelection) {
             e->accept();
             return true;
         }
@@ -1551,23 +1550,6 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     if (m_currentRenameSelection == NoCurrentRenameSelection) {
-        // key handling for linked function declarations/definitions
-        if (m_declDefLink && m_declDefLink->isMarkerVisible()) {
-            switch (e->key()) {
-            case Qt::Key_Enter:
-            case Qt::Key_Return:
-                applyDeclDefLinkChanges(/*jump tp change*/ e->modifiers() & Qt::ShiftModifier);
-                e->accept();
-                return;
-            case Qt::Key_Escape:
-                abortDeclDefLink();
-                e->accept();
-                return;
-            default:
-                break;
-            }
-        }
-
         TextEditor::BaseTextEditorWidget::keyPressEvent(e);
         return;
     }
@@ -2151,6 +2133,11 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
     return 0;
 }
 
+QSharedPointer<FunctionDeclDefLink> CPPEditorWidget::declDefLink() const
+{
+    return m_declDefLink;
+}
+
 void CPPEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker)
 {
     if (marker.data.canConvert<FunctionDeclDefLink::Marker>())
@@ -2207,7 +2194,6 @@ void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
 {
     abortDeclDefLink();
     m_declDefLink = link;
-    setProperty(Constants::FUNCTION_DECL_DEF_LINK_PROPERTY_NAME, true);
 
     // disable the link if content of the target editor changes
     TextEditor::BaseTextEditorWidget *targetEditor =
@@ -2240,7 +2226,6 @@ void CPPEditorWidget::abortDeclDefLink()
                    this, SLOT(abortDeclDefLink()));
     }
 
-    setProperty(Constants::FUNCTION_DECL_DEF_LINK_PROPERTY_NAME, false);
     m_declDefLink->hideMarker(this);
     m_declDefLink.clear();
 }

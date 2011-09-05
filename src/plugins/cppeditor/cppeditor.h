@@ -195,6 +195,9 @@ public:
     virtual TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind kind,
                                                                 TextEditor::AssistReason reason) const;
 
+    QSharedPointer<FunctionDeclDefLink> declDefLink() const;
+    void applyDeclDefLinkChanges(bool jumpToMatch);
+
 Q_SIGNALS:
     void outlineModelIndexChanged(const QModelIndex &index);
 
@@ -268,7 +271,6 @@ private:
     void finishRename();
     void abortRename();
 
-    void applyDeclDefLinkChanges(bool jumpToMatch);
     Q_SLOT void abortDeclDefLink();
 
     Link attemptFuncDeclDef(const QTextCursor &cursor,

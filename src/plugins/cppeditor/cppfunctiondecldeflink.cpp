@@ -33,6 +33,7 @@
 #include "cppfunctiondecldeflink.h"
 
 #include "cppeditor.h"
+#include "cppquickfixassistant.h"
 
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/ASTPath.h>
@@ -670,4 +671,49 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     }
 
     return changes;
+}
+
+class ApplyDeclDefLinkOperation : public CppQuickFixOperation
+{
+public:
+    explicit ApplyDeclDefLinkOperation(
+            const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+            const QSharedPointer<FunctionDeclDefLink> &link,
+            int priority = -1)
+        : CppQuickFixOperation(interface, priority)
+        , m_link(link)
+    {}
+
+    virtual void perform()
+    {
+        CPPEditorWidget *editor = assistInterface()->editor();
+        QSharedPointer<FunctionDeclDefLink> link = editor->declDefLink();
+        if (link != m_link)
+            return;
+
+        return editor->applyDeclDefLinkChanges(true);
+    }
+
+protected:
+    virtual void performChanges(const CppTools::CppRefactoringFilePtr &, const CppTools::CppRefactoringChanges &)
+    { /* never called since perform is overridden */ }
+
+private:
+    QSharedPointer<FunctionDeclDefLink> m_link;
+};
+
+QList<CppQuickFixOperation::Ptr> ApplyDeclDefLinkChanges::match(const QSharedPointer<const CppQuickFixAssistInterface> &interface)
+{
+    QList<CppQuickFixOperation::Ptr> results;
+
+    QSharedPointer<FunctionDeclDefLink> link = interface->editor()->declDefLink();
+    if (!link || !link->isMarkerVisible())
+        return results;
+
+    QSharedPointer<ApplyDeclDefLinkOperation> op(new ApplyDeclDefLinkOperation(interface, link));
+    op->setDescription(FunctionDeclDefLink::tr("Apply function signature changes"));
+    op->setPriority(0);
+    results += op;
+
+    return results;
 }
