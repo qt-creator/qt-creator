@@ -102,7 +102,7 @@
     <name>BINEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
@@ -245,7 +245,7 @@
     <name>Bookmarks::Internal::BookmarksPlugin</name>
     <message>
         <source>&amp;Bookmarks</source>
-        <translation>书签(&amp;B)</translation>
+        <translation>书签</translation>
     </message>
     <message>
         <source>Toggle Bookmark</source>
@@ -756,7 +756,7 @@
     <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
-        <translation>粘贴代码(&amp;C)</translation>
+        <translation>粘贴代码</translation>
     </message>
     <message>
         <source>Paste Snippet...</source>
@@ -1216,7 +1216,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Save %1 &amp;As...</source>
-        <translation>%1 另存为(&amp;A)...</translation>
+        <translation>%1 另存为...</translation>
     </message>
     <message>
         <source>Goto Other Split</source>
@@ -1332,7 +1332,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Ad&amp;vanced</source>
-        <translation>高级(&amp;v)</translation>
+        <translation>高级</translation>
     </message>
     <message>
         <source>Full path of the current document including file name.</source>
@@ -1757,11 +1757,11 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>&amp;New File or Project...</source>
-        <translation>新建文件或工程(&amp;N)...</translation>
+        <translation>新建文件或工程...</translation>
     </message>
     <message>
         <source>&amp;Open File or Project...</source>
-        <translation>打开文件或工程(&amp;O)...</translation>
+        <translation>打开文件或工程...</translation>
     </message>
     <message>
         <source>&amp;Open File With...</source>
@@ -1773,19 +1773,20 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Open File &amp;With...</source>
-        <translation>用...打开文件(&amp;W)...</translation>
+        <translatorcomment>不需要快捷键</translatorcomment>
+        <translation>用...打开文件</translation>
     </message>
     <message>
         <source>Recent &amp;Files</source>
-        <translation>最近访问的文件(&amp;F)</translation>
+        <translation>最近访问的文件</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation>保存(&amp;S)</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation>另存为(&amp;A)...</translation>
+        <translation>另存为...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -1793,15 +1794,15 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Save A&amp;ll</source>
-        <translation>保存所有文件(&amp;l)</translation>
+        <translation>保存所有文件</translation>
     </message>
     <message>
         <source>&amp;Print...</source>
-        <translation>打印(&amp;P)...</translation>
+        <translation>打印...</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation>退出(&amp;x)</translation>
+        <translation>退出</translation>
     </message>
     <message>
         <source>Ctrl+Q</source>
@@ -1809,7 +1810,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
@@ -1817,23 +1818,23 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation>剪切(&amp;t)</translation>
+        <translation>剪切</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>复制(&amp;C)</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation>粘贴(&amp;P)</translation>
+        <translation>粘贴</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation>全选(&amp;A)</translation>
+        <translation>全选</translation>
     </message>
     <message>
         <source>&amp;Go to Line...</source>
-        <translation>转到行(&amp;G)...</translation>
+        <translation>转到行...</translation>
     </message>
     <message>
         <source>&amp;Select All</source>
@@ -1849,7 +1850,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>&amp;Options...</source>
-        <translation>选项(&amp;O)...</translation>
+        <translation>选项...</translation>
     </message>
     <message>
         <source>Minimize</source>
@@ -1869,19 +1870,19 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>&amp;Views</source>
-        <translation>视图(&amp;V)</translation>
+        <translation>视图</translation>
     </message>
     <message>
         <source>About &amp;Qt Creator</source>
-        <translation>关于 Qt Creator(&amp;Q)</translation>
+        <translation>关于 Qt Creator</translation>
     </message>
     <message>
         <source>About &amp;Qt Creator...</source>
-        <translation>关于 Qt Creator(&amp;Q)...</translation>
+        <translation>关于 Qt Creator...</translation>
     </message>
     <message>
         <source>About &amp;Plugins...</source>
-        <translation>关于插件(&amp;P)...</translation>
+        <translation>关于插件...</translation>
     </message>
     <message>
         <source>New</source>
@@ -2058,7 +2059,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Output &amp;Panes</source>
-        <translation>输出窗口(&amp;P)</translation>
+        <translation>输出窗口</translation>
     </message>
 </context>
 <context>
@@ -2990,7 +2991,7 @@ Would you like to overwrite them?</source>
     <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
-        <translation>C++(&amp;C)</translation>
+        <translation>C++</translation>
     </message>
     <message>
         <source>Switch Header/Source</source>
@@ -9039,11 +9040,11 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>重做(&amp;R)</translation>
+        <translation>重做</translation>
     </message>
     <message>
         <source>Could not find working directory</source>
@@ -9453,7 +9454,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Technical Support</source>
-        <translation>计数支持</translation>
+        <translation>技术支持</translation>
     </message>
     <message>
         <source>Report Bug</source>
@@ -10181,11 +10182,11 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>重做(&amp;R)</translation>
+        <translation>重做</translation>
     </message>
     <message>
         <source>p4 revert</source>
@@ -11757,7 +11758,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>&amp;Start Debugging</source>
-        <translation>开始调试(&amp;S)</translation>
+        <translation>开始调试</translation>
     </message>
     <message>
         <source>Open With</source>
@@ -11809,7 +11810,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Recent P&amp;rojects</source>
-        <translation>最近使用的项目(&amp;r)</translation>
+        <translation>最近使用的项目</translation>
     </message>
     <message>
         <source>Close Project</source>
@@ -14506,11 +14507,11 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>重做(&amp;R)</translation>
+        <translation>重做</translation>
     </message>
 </context>
 <context>
@@ -15096,11 +15097,11 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>重做(&amp;R)</translation>
+        <translation>重做</translation>
     </message>
     <message>
         <source>Closing Subversion Editor</source>
@@ -15595,7 +15596,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>&amp;Visualize whitespace</source>
-        <translation>标示空白(&amp;V)</translation>
+        <translation>标示空白</translation>
     </message>
     <message>
         <source>Highlight current &amp;line</source>
@@ -15607,7 +15608,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Enable text &amp;wrapping</source>
-        <translation>开启文字折行(&amp;w)</translation>
+        <translation>开启文字折行</translation>
     </message>
     <message>
         <source>Display right &amp;margin at column:</source>
@@ -15881,11 +15882,11 @@ The following encodings are likely to fit:</source>
     <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>重做(&amp;R)</translation>
+        <translation>重做</translation>
     </message>
     <message>
         <source>Select Encoding...</source>
@@ -15893,7 +15894,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>Auto-&amp;indent Selection</source>
-        <translation>选中的文字自动缩进(&amp;i)</translation>
+        <translation>选中的文字自动缩进</translation>
     </message>
     <message>
         <source>Ctrl+I</source>
@@ -15913,7 +15914,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>&amp;Visualize Whitespace</source>
-        <translation>标示空白符(&amp;V)</translation>
+        <translation>标示空白</translation>
     </message>
     <message>
         <source>Clean Whitespace</source>
@@ -15921,7 +15922,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>Enable Text &amp;Wrapping</source>
-        <translation>开启文字折行(&amp;W)</translation>
+        <translation>开启文字折行</translation>
     </message>
     <message>
         <source>(Un)Comment &amp;Selection</source>
@@ -15985,7 +15986,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>&amp;Rewrap Paragraph</source>
-        <translation>段落重新折行(&amp;R)</translation>
+        <translation>段落重新折行</translation>
     </message>
     <message>
         <source>%1+E, %2+V</source>
@@ -15997,7 +15998,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>Toggle Comment &amp;Selection</source>
-        <translation>选中评论选择(&amp;S)</translation>
+        <translation>选中区域注释/反注释</translation>
     </message>
     <message>
         <source>Cut &amp;Line</source>
@@ -16069,7 +16070,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>Toggle &amp;Fold All</source>
-        <translation>选择 折叠/展开所有(&amp;F)</translation>
+        <translation>选择 折叠/展开所有</translation>
     </message>
     <message>
         <source>Ctrl+}</source>
@@ -18339,11 +18340,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>重做(&amp;R)</translation>
+        <translation>重做</translation>
     </message>
     <message>
         <source>Closing CVS Editor</source>
@@ -20817,11 +20818,11 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>重做(&amp;R)</translation>
+        <translation>重做</translation>
     </message>
     <message>
         <source>There are no changes to commit.</source>
@@ -22150,11 +22151,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Save P&amp;ublic Key...</source>
-        <translation>保存公钥文件(&amp;u)...</translation>
+        <translation>保存公钥文件...</translation>
     </message>
     <message>
         <source>Save Pr&amp;ivate Key...</source>
-        <translation>保存私钥文件(&amp;i)...</translation>
+        <translation>保存私钥文件...</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -23226,7 +23227,7 @@ Previous decimal signed value (big endian): %4</source>
     <name>Find::FindPlugin</name>
     <message>
         <source>&amp;Find/Replace</source>
-        <translation>查找/替换(&amp;F)</translation>
+        <translation>查找/替换</translation>
     </message>
     <message>
         <source>Advanced Find</source>
@@ -24173,11 +24174,11 @@ Ids must begin with a lowercase letter.</source>
     <name>QmlDesigner::Internal::DesignModeWidget</name>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>重做(&amp;R)</translation>
+        <translation>重做</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -24189,7 +24190,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation>剪切(&amp;t)</translation>
+        <translation>剪切</translation>
     </message>
     <message>
         <source>Cut &quot;%1&quot;</source>
@@ -24197,7 +24198,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>复制(&amp;C)</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <source>Copy &quot;%1&quot;</source>
@@ -24205,7 +24206,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation>粘贴(&amp;P)</translation>
+        <translation>粘贴</translation>
     </message>
     <message>
         <source>Paste &quot;%1&quot;</source>
@@ -24213,7 +24214,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation>全选(&amp;A)</translation>
+        <translation>全选</translation>
     </message>
     <message>
         <source>Select All &quot;%1&quot;</source>
@@ -24268,7 +24269,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <source>&amp;Save %1</source>
-        <translation>保存%1(&amp;S)</translation>
+        <translation>保存%1</translation>
     </message>
     <message>
         <source>Revert %1 to Saved</source>
@@ -30329,7 +30330,7 @@ instead of its installation directory when run outside git bash.</source>
     <message>
         <source>&amp;Copy</source>
         <comment>Name of the action triggering the copytaskhandler</comment>
-        <translation>复制(&amp;C)</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <source>Copy task to clipboard</source>
@@ -34612,11 +34613,11 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>撤销(&amp;U)</translation>
+        <translation>撤销</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation>重做(&amp;R)</translation>
+        <translation>重做</translation>
     </message>
     <message>
         <source>There are no changes to commit.</source>
@@ -34894,7 +34895,7 @@ Note: This might remove the local file.</source>
     </message>
     <message>
         <source>&amp;Refactor</source>
-        <translation>重构(&amp;R)</translation>
+        <translation>重构</translation>
     </message>
     <message>
         <source>Unused variable</source>
