@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef UNIQUEIDMANAGER_H
-#define UNIQUEIDMANAGER_H
+#ifndef CORE_ID_H
+#define CORE_ID_H
 
 #include "core_global.h"
 
@@ -39,6 +39,7 @@
 
 namespace Core {
 
+// FIXME: Make this a wrapper around an int, not around a QByteArray.
 class CORE_EXPORT Id
 {
 public:
@@ -60,8 +61,8 @@ private:
     QByteArray m_name;
 };
 
-uint qHash(const Id &id);
+CORE_EXPORT uint qHash(const Id &id);
 
 } // namespace Core
 
-#endif // UNIQUEIDMANAGER_H
+#endif // CORE_ID_H

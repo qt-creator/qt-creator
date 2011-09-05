@@ -41,7 +41,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/findplaceholder.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 
 #include <extensionsystem/pluginmanager.h>
 

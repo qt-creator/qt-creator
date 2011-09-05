@@ -34,7 +34,7 @@
 #define ACTIONMANAGER_H
 
 #include "coreplugin/core_global.h"
-#include "coreplugin/uniqueidmanager.h"
+#include "coreplugin/id.h"
 #include <coreplugin/actionmanager/command.h>
 #include "coreplugin/icontext.h"
 

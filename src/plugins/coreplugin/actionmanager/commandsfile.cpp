@@ -36,7 +36,7 @@
 
 #include <app/app_version.h>
 
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 
 #include <utils/qtcassert.h>
 

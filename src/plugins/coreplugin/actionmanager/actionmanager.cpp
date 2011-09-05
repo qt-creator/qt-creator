@@ -34,7 +34,7 @@
 #include "mainwindow.h"
 #include "actioncontainer_p.h"
 #include "command_p.h"
-#include "uniqueidmanager.h"
+#include "id.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

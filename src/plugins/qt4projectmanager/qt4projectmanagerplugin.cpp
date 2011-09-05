@@ -60,7 +60,7 @@
 #include "qt-desktop/simulatorqtversionfactory.h"
 #include "winceqtversionfactory.h"
 
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>

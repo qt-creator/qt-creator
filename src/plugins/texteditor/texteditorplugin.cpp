@@ -54,7 +54,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditoractionhandler.h>

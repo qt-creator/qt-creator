@@ -38,7 +38,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QtPlugin>

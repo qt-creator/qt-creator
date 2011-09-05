@@ -52,7 +52,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 
 #include <QHeaderView>
 #include <QDir>

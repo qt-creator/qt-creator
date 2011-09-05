@@ -47,7 +47,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 
 #include <extensionsystem/pluginmanager.h>
 

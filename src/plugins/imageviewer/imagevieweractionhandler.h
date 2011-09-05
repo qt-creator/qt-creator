@@ -34,7 +34,7 @@
 #ifndef IMAGEVIEWERACTIONHANDLER_H
 #define IMAGEVIEWERACTIONHANDLER_H
 
-#include "coreplugin/uniqueidmanager.h"
+#include "coreplugin/id.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QScopedPointer>

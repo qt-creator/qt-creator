@@ -34,7 +34,7 @@
 
 #include "icore.h"
 #include "icontext.h"
-#include "uniqueidmanager.h"
+#include "id.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>

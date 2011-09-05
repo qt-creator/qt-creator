@@ -42,7 +42,7 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/submiteditorwidget.h>
 #include <utils/checkablemessagebox.h>

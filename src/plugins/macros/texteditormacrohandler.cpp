@@ -42,7 +42,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 
 #include <QtGui/QWidget>
 #include <QtGui/QKeyEvent>

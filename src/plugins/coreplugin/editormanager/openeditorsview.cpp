@@ -39,7 +39,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/filemanager.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/qtcassert.h>
 

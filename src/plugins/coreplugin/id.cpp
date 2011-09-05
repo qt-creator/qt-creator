@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "uniqueidmanager.h"
+#include "id.h"
 #include "coreconstants.h"
 #include "icontext.h"
 

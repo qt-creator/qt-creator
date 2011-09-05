@@ -49,7 +49,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <debugger/debuggerconstants.h>

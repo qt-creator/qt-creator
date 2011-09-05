@@ -48,7 +48,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <coreplugin/statusbarwidget.h>
 #include <coreplugin/statusbarmanager.h>
 

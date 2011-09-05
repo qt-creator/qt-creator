@@ -22,7 +22,7 @@ SOURCES += mainwindow.cpp \
     fancytabwidget.cpp \
     generalsettings.cpp \
     filemanager.cpp \
-    uniqueidmanager.cpp \
+    id.cpp \
     messagemanager.cpp \
     messageoutputwindow.cpp \
     outputpane.cpp \
@@ -101,7 +101,7 @@ HEADERS += mainwindow.h \
     fancytabwidget.h \
     generalsettings.h \
     filemanager.h \
-    uniqueidmanager.h \
+    id.h \
     messagemanager.h \
     messageoutputwindow.h \
     outputpane.h \

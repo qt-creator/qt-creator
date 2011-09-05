@@ -38,7 +38,7 @@
 #include "coreconstants.h"
 #include "filemanager.h"
 #include "icore.h"
-#include "uniqueidmanager.h"
+#include "id.h"
 
 #include <utils/treewidgetcolumnstretcher.h>
 

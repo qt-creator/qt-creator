@@ -39,7 +39,7 @@
 #include "modemanager.h"
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
-#include "uniqueidmanager.h"
+#include "id.h"
 
 #include <extensionsystem/pluginmanager.h>
 

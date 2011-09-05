@@ -35,7 +35,7 @@
 #include "imageviewer.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 
 #include <utils/reloadpromptutils.h>
 

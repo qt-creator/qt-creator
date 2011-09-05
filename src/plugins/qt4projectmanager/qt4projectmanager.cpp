@@ -46,7 +46,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/basefilewizard.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/variablemanager.h>

@@ -63,7 +63,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/manhattanstyle.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <utils/linecolumnlabel.h>

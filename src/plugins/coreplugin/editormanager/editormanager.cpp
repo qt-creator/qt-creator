@@ -57,7 +57,7 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/variablemanager.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <coreplugin/fileutils.h>
 
 #include <extensionsystem/pluginmanager.h>

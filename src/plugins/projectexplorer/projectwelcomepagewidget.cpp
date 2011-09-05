@@ -35,7 +35,7 @@
 #include "ui_projectwelcomepagewidget.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/iwizard.h>

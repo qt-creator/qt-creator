@@ -47,7 +47,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>

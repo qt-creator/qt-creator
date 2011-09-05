@@ -36,7 +36,7 @@
 #include "command_p.h"
 
 #include "coreconstants.h"
-#include "uniqueidmanager.h"
+#include "id.h"
 
 #include <utils/qtcassert.h>
 
