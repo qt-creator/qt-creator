@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 win32:SUBDIRS = qtcdebugger
 SUBDIRS += qtpromaker \
-    qmlprofiler
+    qmlprofilertool
 SUBDIRS += qmlpuppet
 
 !win32 {
