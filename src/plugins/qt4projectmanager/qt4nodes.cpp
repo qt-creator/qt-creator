@@ -248,7 +248,8 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
           m_project(project),
           m_qt4ProFileNode(qt4ProFileNode),
           m_projectFilePath(QDir::fromNativeSeparators(filePath)),
-          m_projectDir(QFileInfo(filePath).absolutePath())
+          m_projectDir(QFileInfo(filePath).absolutePath()),
+          m_includedInExactParse(true)
 {
     Q_ASSERT(project);
     m_qt4PriFile = new Qt4PriFile(this);
@@ -766,6 +767,27 @@ bool Qt4PriFileNode::deploysFolder(const QString &folder) const
 QList<ProjectExplorer::RunConfiguration *> Qt4PriFileNode::runConfigurationsFor(Node *node)
 {
     return m_project->activeTarget()->runConfigurationsForNode(node);
+}
+
+QList<Qt4PriFileNode *> Qt4PriFileNode::subProjectNodesExact() const
+{
+    QList<Qt4PriFileNode *> nodes;
+    foreach (ProjectNode *node, subProjectNodes()) {
+        Qt4PriFileNode *n = qobject_cast<Qt4PriFileNode *>(node);
+        if (n && n->includedInExactParse())
+            nodes << n;
+    }
+    return nodes;
+}
+
+bool Qt4PriFileNode::includedInExactParse() const
+{
+    return m_includedInExactParse;
+}
+
+void Qt4PriFileNode::setIncludedInExactParse(bool b)
+{
+    m_includedInExactParse = b;
 }
 
 QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) const
@@ -1618,10 +1640,13 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
     QStringList newProjectFilesExact;
     QHash<QString, ProFile*> includeFilesExact;
+    QSet<QString> exactSubdirs;
     ProFile *fileForCurrentProjectExact = 0;
     if (evalResult == EvalOk) {
-        if (m_projectType == SubDirsTemplate)
+        if (m_projectType == SubDirsTemplate) {
             newProjectFilesExact = subDirsPaths(m_readerExact);
+            exactSubdirs = newProjectFilesExact.toSet();
+        }
         foreach (ProFile *includeFile, m_readerExact->includeFiles()) {
             if (includeFile->fileName() == m_projectFilePath) { // this file
                 fileForCurrentProjectExact = includeFile;
@@ -1718,15 +1743,20 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             ProFile *fileExact = includeFilesExact.value((*existingIt)->path());
             ProFile *fileCumlative = includeFilesCumlative.value((*existingIt)->path());
             if (fileExact || fileCumlative) {
-                static_cast<Qt4PriFileNode *>(*existingIt)->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative);
+                Qt4PriFileNode *priFileNode = static_cast<Qt4PriFileNode *>(*existingIt);
+                priFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative);
+                priFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
             } else {
                 // We always parse exactly, because we later when async parsing don't know whether
                 // the .pro file is included in this .pro file
                 // So to compare that later parse with the sync one
+                Qt4ProFileNode *proFileNode = static_cast<Qt4ProFileNode *>(*existingIt);
+                // TODO that could be made faster...
+                proFileNode->setIncludedInExactParse(exactSubdirs.contains(proFileNode->path()) && includedInExactParse());
                 if (async)
-                    static_cast<Qt4ProFileNode *>(*existingIt)->asyncUpdate();
+                    proFileNode->asyncUpdate();
                 else
-                    static_cast<Qt4ProFileNode *>(*existingIt)->update();
+                    proFileNode->update();
             }
             ++existingIt;
             // newCumalativeIt and newExactIt are already incremented
@@ -1752,11 +1782,13 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             } else if (fileExact || fileCumlative) {
                 Qt4PriFileNode *qt4PriFileNode = new Qt4PriFileNode(m_project, this, nodeToAdd);
                 qt4PriFileNode->setParentFolderNode(this); // Needed for loop detection
+                qt4PriFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
                 qt4PriFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative);
                 toAdd << qt4PriFileNode;
             } else {
                 Qt4ProFileNode *qt4ProFileNode = new Qt4ProFileNode(m_project, nodeToAdd);
                 qt4ProFileNode->setParentFolderNode(this); // Needed for loop detection
+                qt4ProFileNode->setIncludedInExactParse(exactSubdirs.contains(qt4ProFileNode->path()) && includedInExactParse());
                 if (async)
                     qt4ProFileNode->asyncUpdate();
                 else

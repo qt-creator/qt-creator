@@ -151,7 +151,13 @@ public:
     bool deploysFolder(const QString &folder) const;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
+    QList<Qt4PriFileNode*> subProjectNodesExact() const;
+
+    // Set by parent
+    bool includedInExactParse() const;
+
 protected:
+    void setIncludedInExactParse(bool b);
     void clear();
     static QStringList varNames(FileType type);
     static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative);
@@ -197,6 +203,7 @@ private:
     QMap<ProjectExplorer::FileType, QSet<QString> > m_files;
     QSet<QString> m_recursiveEnumerateFiles;
     QSet<QString> m_watchedFolders;
+    bool m_includedInExactParse;
 
     // managed by Qt4ProFileNode
     friend class Qt4ProjectManager::Qt4ProFileNode;
