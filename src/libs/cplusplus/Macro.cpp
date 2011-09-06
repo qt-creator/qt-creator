@@ -62,7 +62,7 @@ Macro::Macro()
       _state(0)
 { }
 
-QString Macro::toString() const
+QString Macro::decoratedName() const
 {
     QString text;
     if (f._hidden)
@@ -85,6 +85,25 @@ QString Macro::toString() const
         text += QLatin1Char(')');
     }
     text += QLatin1Char(' ');
-    text += QString::fromUtf8(_definition.constData(), _definition.size());
+    return text;
+}
+
+QString Macro::toString() const
+{
+    QString text = decoratedName();
+    text.append(QString::fromUtf8(_definition.constData(), _definition.size()));
+    return text;
+}
+
+QString Macro::toStringWithLineBreaks() const
+{
+    if (_lineBreaks.isEmpty())
+        return toString();
+
+    QString text = decoratedName();
+    QString definitionWithBreaks = QString::fromUtf8(_definition.constData(), _definition.size());
+    foreach (unsigned pos, _lineBreaks)
+        definitionWithBreaks[pos] = '\n';
+    text.append(definitionWithBreaks);
     return text;
 }

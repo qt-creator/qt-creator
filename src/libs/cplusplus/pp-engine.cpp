@@ -59,6 +59,7 @@
 
 #include <QtDebug>
 #include <algorithm>
+#include <QtCore/QList>
 
 namespace CPlusPlus {
 
@@ -1227,11 +1228,33 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
         // ### make me fast!
         const char *startOfDefinition = startOfToken(*tk);
         const char *endOfDefinition = endOfToken(lastToken[- 1]);
-        QByteArray definition(startOfDefinition,
-                              endOfDefinition - startOfDefinition);
-        definition.replace("\\\n", " ");
-        definition.replace('\n', ' ');
-        macro.setDefinition(definition.trimmed());
+        // It could be that the start is not really before that end, so the check...
+        if (startOfDefinition < endOfDefinition) {
+            QList<unsigned> lineBreaks;
+            lineBreaks.reserve(4); // A reasonable guess...?
+            QByteArray definition;
+            definition.reserve(endOfDefinition - startOfDefinition);
+            while (startOfDefinition != endOfDefinition) {
+                bool replace = false;
+                if (*startOfDefinition == '\n'
+                        || (startOfDefinition + 1 != endOfDefinition
+                            && *startOfDefinition == '\\'
+                            && *(startOfDefinition + 1) == '\n')) {
+                    replace = true;
+                    if (*startOfDefinition != '\n')
+                        ++startOfDefinition;
+                }
+                if (replace) {
+                    definition.append(' ');
+                    lineBreaks.append(definition.length() - 1);
+                } else {
+                    definition.append(*startOfDefinition);
+                }
+                ++startOfDefinition;
+            }
+            macro.setDefinition(definition.trimmed());
+            macro.setLineBreaks(lineBreaks);
+        }
     }
 
     env->bind(macro);

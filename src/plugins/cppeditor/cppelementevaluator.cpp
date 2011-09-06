@@ -320,7 +320,7 @@ CppMacro::CppMacro(const Macro &macro) : CppElement()
     setHelpIdCandidates(QStringList(macro.name()));
     setHelpMark(macro.name());
     setLink(CPPEditorWidget::Link(macro.fileName(), macro.line()));
-    setTooltip(macro.toString());
+    setTooltip(macro.toStringWithLineBreaks());
 }
 
 CppMacro::~CppMacro()
