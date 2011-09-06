@@ -165,7 +165,10 @@ static const char pp_configuration[] =
     "#define __RPC_FAR\n"
     "#define APIENTRY\n"
     "#define __declspec(a)\n"
-    "#define STDMETHOD(method) virtual HRESULT STDMETHODCALLTYPE method\n";
+    "#define STDMETHOD(method) virtual HRESULT STDMETHODCALLTYPE method\n"
+    "#define __try try\n"
+    "#define __except catch\n"
+    "#define __finally\n";
 
 #ifndef ICHECK_BUILD
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
