@@ -293,7 +293,7 @@ static bool hasFullImplementedListInterface(const QDeclarativeListReference &lis
 #if QT_VERSION<0x050000
     return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
 #else
-    return list.isManipulatable();
+    return list.isChangeable();
 #endif
 }
 
