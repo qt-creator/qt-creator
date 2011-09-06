@@ -50,30 +50,30 @@ public:
 
     QString type() const;
 
-    virtual bool isValid() const;
-    virtual QString invalidReason() const;
+    bool isValid() const;
+    QString invalidReason() const;
 
-    virtual bool toolChainAvailable(const QString &id) const;
+    bool toolChainAvailable(const QString &id) const;
 
-    virtual void restoreLegacySettings(QSettings *s);
-    virtual void fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
+    void restoreLegacySettings(QSettings *s);
+    void fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
 
-    virtual QList<ProjectExplorer::Abi> qtAbis() const;
+    QList<ProjectExplorer::Abi> qtAbis() const;
 
-    virtual bool supportsTargetId(const QString &id) const;
-    virtual QSet<QString> supportedTargetIds() const;
+    bool supportsTargetId(const QString &id) const;
+    QSet<QString> supportedTargetIds() const;
 
-    virtual QString description() const;
+    QString description() const;
 
-    virtual bool supportsShadowBuilds() const;
-    virtual bool supportsBinaryDebuggingHelper() const;
-    virtual void addToEnvironment(Utils::Environment &env) const;
-    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPathes() const;
+    bool supportsShadowBuilds() const;
+    bool supportsBinaryDebuggingHelper() const;
+    void addToEnvironment(Utils::Environment &env) const;
+    QList<ProjectExplorer::HeaderPath> systemHeaderPathes() const;
 
-    virtual ProjectExplorer::IOutputParser *createOutputParser() const;
+    ProjectExplorer::IOutputParser *createOutputParser() const;
 
-    virtual QString systemRoot() const;
+    QString systemRoot() const;
     void setSystemRoot(const QString &);
 
     bool isBuildWithSymbianSbsV2() const;
@@ -81,7 +81,7 @@ public:
     QString sbsV2Directory() const;
     void setSbsV2Directory(const QString &directory);
 
-    virtual QtSupport::QtConfigWidget *createConfigurationWidget() const;
+    QtSupport::QtConfigWidget *createConfigurationWidget() const;
 
 protected:
     QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir);

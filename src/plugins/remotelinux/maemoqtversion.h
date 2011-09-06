@@ -47,18 +47,18 @@ public:
     void fromMap(const QVariantMap &map);
     MaemoQtVersion *clone() const;
 
-    virtual QString type() const;
-    virtual bool isValid() const;
-    virtual QString systemRoot() const;
-    virtual QList<ProjectExplorer::Abi> qtAbis() const;
+    QString type() const;
+    bool isValid() const;
+    QString systemRoot() const;
+    QList<ProjectExplorer::Abi> qtAbis() const;
     void addToEnvironment(Utils::Environment &env) const;
 
-    virtual bool supportsTargetId(const QString &id) const;
-    virtual QSet<QString> supportedTargetIds() const;
+    bool supportsTargetId(const QString &id) const;
+    QSet<QString> supportedTargetIds() const;
 
-    virtual QString description() const;
+    QString description() const;
 
-    virtual bool supportsShadowBuilds() const;
+    bool supportsShadowBuilds() const;
     QString osType() const;
 private:
     mutable QString m_systemRoot;

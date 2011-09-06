@@ -48,10 +48,10 @@ public:
 
     QString type() const;
 
-    virtual QList<ProjectExplorer::Abi> qtAbis() const;
+    QList<ProjectExplorer::Abi> qtAbis() const;
 
-    virtual bool supportsTargetId(const QString &id) const;
-    virtual QSet<QString> supportedTargetIds() const;
+    bool supportsTargetId(const QString &id) const;
+    QSet<QString> supportedTargetIds() const;
 
     QString description() const;
 };
