@@ -398,6 +398,7 @@ public:
         OtherSelection,
         SnippetPlaceholderSelection,
         ObjCSelection,
+        DebuggerExceptionSelection,
         NExtraSelectionKinds
     };
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);

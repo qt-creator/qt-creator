@@ -44,6 +44,10 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/basetexteditor.h>
+
+#include <QtGui/QTextBlock>
 #include <QtCore/QVariant>
 #include <QtCore/QFileInfo>
 #include <QtGui/QTextDocument>
@@ -51,20 +55,31 @@
 
 #define INITIALPARAMS "seq" << ':' << ++d->sequence << ',' << "type" << ':' << "request"
 
+using namespace Core;
 using namespace Json;
 
 namespace Debugger {
 namespace Internal {
 
+struct ExceptionInfo
+{
+    int sourceLine;
+    QString filePath;
+    QString errorMessage;
+};
+
 class QmlV8DebuggerClientPrivate
 {
 public:
     explicit QmlV8DebuggerClientPrivate(QmlV8DebuggerClient *) :
-        sequence(0), ping(0), engine(0)
+        handleException(false),
+        sequence(0),
+        ping(0),
+        engine(0)
     {
-
     }
 
+    bool handleException;
     int sequence;
     int ping;
     QmlEngine *engine;
@@ -73,6 +88,7 @@ public:
     QHash<int,QByteArray> locals;
     QHash<int,QByteArray> watches;
     QByteArray frames;
+    QScopedPointer<ExceptionInfo> exceptionInfo;
 };
 
 QmlV8DebuggerClient::QmlV8DebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client)
@@ -86,7 +102,7 @@ QmlV8DebuggerClient::~QmlV8DebuggerClient()
     delete d;
 }
 
-QByteArray QmlV8DebuggerClient::packMessage(QByteArray& message)
+QByteArray QmlV8DebuggerClient::packMessage(const QByteArray &message)
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
@@ -95,88 +111,157 @@ QByteArray QmlV8DebuggerClient::packMessage(QByteArray& message)
     return reply;
 }
 
-void QmlV8DebuggerClient::executeStep()
+void QmlV8DebuggerClient::breakOnException(Exceptions exceptionsType, bool enabled)
 {
+    //TODO: Have to deal with NoExceptions
     QByteArray request;
 
     JsonInputStream(request) << '{' << INITIALPARAMS ;
-    JsonInputStream(request) << ',' << "command" << ':' << "continue";
+    JsonInputStream(request) << ',' << "command" << ':' << "setexceptionbreak";
 
     JsonInputStream(request) << ',' << "arguments" << ':';
-    JsonInputStream(request) << '{' << "stepaction" << ':' << "in";
+    if (exceptionsType == AllExceptions)
+        JsonInputStream(request) << '{' << "type" << ':' << "all";
+    else if (exceptionsType == UncaughtExceptions)
+        JsonInputStream(request) << '{' << "type" << ':' << "uncaught";
+
+    JsonInputStream(request) << ',' << "enabled" << ':' << enabled;
     JsonInputStream(request) << '}';
 
     JsonInputStream(request) << '}';
 
 
     sendMessage(packMessage(request));
+}
+
+void QmlV8DebuggerClient::storeExceptionInformation(const QByteArray &message)
+{
+    JsonValue response(message);
+
+    JsonValue body = response.findChild("body");
+
+    d->exceptionInfo.reset(new ExceptionInfo);
+    d->exceptionInfo->sourceLine = body.findChild("sourceLine").toVariant().toInt();
+    QUrl fileUrl(body.findChild("script").findChild("name").toVariant().toString());
+    d->exceptionInfo->filePath = d->engine->toFileInProject(fileUrl);
+    d->exceptionInfo->errorMessage = body.findChild("exception").findChild("text").toVariant().toString();
+}
+
+void QmlV8DebuggerClient::handleException()
+{
+    EditorManager *editorManager = EditorManager::instance();
+    QList<IEditor *> openedEditors = editorManager->openedEditors();
+
+    // set up the format for the errors
+    QTextCharFormat errorFormat;
+    errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+    errorFormat.setUnderlineColor(Qt::red);
+
+    foreach (IEditor *editor, openedEditors) {
+        if (editor->file()->fileName() == d->exceptionInfo->filePath) {
+            TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
+            if (!ed)
+                continue;
+
+            QList<QTextEdit::ExtraSelection> selections;
+            QTextEdit::ExtraSelection sel;
+            sel.format = errorFormat;
+            QTextCursor c(ed->document()->findBlockByNumber(d->exceptionInfo->sourceLine));
+            const QString text = c.block().text();
+            for (int i = 0; i < text.size(); ++i) {
+                if (! text.at(i).isSpace()) {
+                    c.setPosition(c.position() + i);
+                    break;
+                }
+            }
+            c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+            sel.cursor = c;
+
+            sel.format.setToolTip(d->exceptionInfo->errorMessage);
+
+            selections.append(sel);
+            ed->setExtraSelections(TextEditor::BaseTextEditorWidget::DebuggerExceptionSelection, selections);
+
+            d->engine->showMessage(d->exceptionInfo->errorMessage, ScriptConsoleOutput);
+        }
+    }
+
+    //Delete the info even if the code hasnt been highlighted
+    d->exceptionInfo.reset();
+}
+
+void QmlV8DebuggerClient::clearExceptionSelection()
+{
+    //Check if break was due to exception
+    if (d->handleException) {
+        EditorManager *editorManager = EditorManager::instance();
+        QList<IEditor *> openedEditors = editorManager->openedEditors();
+        QList<QTextEdit::ExtraSelection> selections;
+
+        foreach (IEditor *editor, openedEditors) {
+            TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
+            if (!ed)
+                continue;
+
+            ed->setExtraSelections(TextEditor::BaseTextEditorWidget::DebuggerExceptionSelection, selections);
+        }
+        d->handleException = false;
+    }
+}
+
+void QmlV8DebuggerClient::continueDebugging(StepAction type)
+{
+    clearExceptionSelection();
+
+    QByteArray request;
+
+    JsonInputStream(request) << '{' << INITIALPARAMS ;
+    JsonInputStream(request) << ',' << "command" << ':' << "continue";
+
+    if (type != Continue) {
+        JsonInputStream(request) << ',' << "arguments" << ':';
+
+        switch (type) {
+        case In: JsonInputStream(request) << '{' << "stepaction" << ':' << "in";
+            break;
+        case Out: JsonInputStream(request) << '{' << "stepaction" << ':' << "out";
+            break;
+        case Next: JsonInputStream(request) << '{' << "stepaction" << ':' << "next";
+            break;
+        default:break;
+        }
+
+        JsonInputStream(request) << '}';
+    }
+
+    JsonInputStream(request) << '}';
+
+    sendMessage(packMessage(request));
+}
+
+void QmlV8DebuggerClient::executeStep()
+{
+    continueDebugging(In);
 }
 
 void QmlV8DebuggerClient::executeStepOut()
 {
-    QByteArray request;
-
-    JsonInputStream(request) << '{' << INITIALPARAMS ;
-    JsonInputStream(request) << ',' << "command" << ':' << "continue";
-
-    JsonInputStream(request) << ',' << "arguments" << ':';
-    JsonInputStream(request) << '{' << "stepaction" << ':' << "out";
-    JsonInputStream(request) << '}';
-
-    JsonInputStream(request) << '}';
-
-
-    sendMessage(packMessage(request));
-
+    continueDebugging(Out);
 }
 
 void QmlV8DebuggerClient::executeNext()
 {
-    QByteArray request;
-
-    JsonInputStream(request) << '{' << INITIALPARAMS ;
-    JsonInputStream(request) << ',' << "command" << ':' << "continue";
-
-    JsonInputStream(request) << ',' << "arguments" << ':';
-    JsonInputStream(request) << '{' << "stepaction" << ':' << "next";
-    JsonInputStream(request) << '}';
-
-    JsonInputStream(request) << '}';
-
-
-    sendMessage(packMessage(request));
-
+    continueDebugging(Next);
 }
 
 void QmlV8DebuggerClient::executeStepI()
 {
-    QByteArray request;
-
-    JsonInputStream(request) << '{' << INITIALPARAMS ;
-    JsonInputStream(request) << ',' << "command" << ':' << "continue";
-
-    JsonInputStream(request) << ',' << "arguments" << ':';
-    JsonInputStream(request) << '{' << "stepaction" << ':' << "in";
-    JsonInputStream(request) << '}';
-
-    JsonInputStream(request) << '}';
-
-
-    sendMessage(packMessage(request));
-
+    continueDebugging(In);
 }
 
 void QmlV8DebuggerClient::continueInferior()
 {
-    QByteArray request;
-
-    JsonInputStream(request) << '{' << INITIALPARAMS ;
-    JsonInputStream(request) << ',' << "command" << ':' << "continue";
-    JsonInputStream(request) << '}';
-
-
-    sendMessage(packMessage(request));
-
+    continueDebugging(Continue);
 }
 
 void QmlV8DebuggerClient::interruptInferior()
@@ -194,6 +279,10 @@ void QmlV8DebuggerClient::interruptInferior()
 
 void QmlV8DebuggerClient::startSession()
 {
+    //Set up Exception Handling first
+    //TODO: For now we enable breaks for all exceptions
+    breakOnException(AllExceptions, true);
+
     QByteArray request;
 
     JsonInputStream(request) << '{' << INITIALPARAMS ;
@@ -206,6 +295,8 @@ void QmlV8DebuggerClient::startSession()
 
 void QmlV8DebuggerClient::endSession()
 {
+    clearExceptionSelection();
+
     QByteArray request;
 
     JsonInputStream(request) << '{' << INITIALPARAMS ;
@@ -418,12 +509,17 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
             if (event == "break") {
                 d->engine->inferiorSpontaneousStop();
                 listBreakpoints();
+            } else if (event == "exception") {
+                d->handleException = true;
+                d->engine->inferiorSpontaneousStop();
+                storeExceptionInformation(response);
+                backtrace();
             }
         }
     }
 }
 
-void QmlV8DebuggerClient::setStackFrames(QByteArray &message)
+void QmlV8DebuggerClient::setStackFrames(const QByteArray &message)
 {
     d->frames = message;
     JsonValue response(message);
@@ -468,6 +564,9 @@ void QmlV8DebuggerClient::setStackFrames(QByteArray &message)
         d->engine->gotoLocation(ideStackFrames.value(0));
     }
 
+    if (d->handleException) {
+        handleException();
+    }
 }
 
 void QmlV8DebuggerClient::setLocals(int frameIndex)
@@ -533,7 +632,7 @@ void QmlV8DebuggerClient::setLocals(int frameIndex)
     }
 }
 
-void QmlV8DebuggerClient::expandLocal(QByteArray &message)
+void QmlV8DebuggerClient::expandLocal(const QByteArray &message)
 {
     JsonValue response(message);
 
@@ -553,7 +652,7 @@ void QmlV8DebuggerClient::expandLocal(QByteArray &message)
     }
 }
 
-void QmlV8DebuggerClient::setExpression(QByteArray &message)
+void QmlV8DebuggerClient::setExpression(const QByteArray &message)
 {
     JsonValue response(message);
     JsonValue body = response.findChild("body");
@@ -569,7 +668,7 @@ void QmlV8DebuggerClient::setExpression(QByteArray &message)
     //TODO: For watch point
 }
 
-void QmlV8DebuggerClient::updateBreakpoints(QByteArray &message)
+void QmlV8DebuggerClient::updateBreakpoints(const QByteArray &message)
 {
     JsonValue response(message);
 
@@ -600,7 +699,7 @@ void QmlV8DebuggerClient::updateBreakpoints(QByteArray &message)
     }
 }
 
-void QmlV8DebuggerClient::setPropertyValue(JsonValue &refs, JsonValue &property, QByteArray &prepend)
+void QmlV8DebuggerClient::setPropertyValue(const JsonValue &refs, const JsonValue &property, const QByteArray &prepend)
 {
     WatchData data;
     data.exp = property.findChild("name").toVariant().toByteArray();
