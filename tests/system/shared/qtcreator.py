@@ -13,9 +13,11 @@ testSettings.logScreenshotOnFail = True
 source("../../shared/utils.py")
 source("../../shared/build_utils.py")
 source("../../shared/mainwin.py")
+source("../../shared/qtquick.py")
 
 def removeTmpSettingsDir():
-    snooze(5)
+    appCtxt = currentApplicationContext()
+    waitFor("appCtxt.isRunning==False")
     deleteDirIfExists(os.path.dirname(tmpSettingsDir))
 
 if platform.system() in ('Windows', 'Microsoft'):
@@ -34,3 +36,4 @@ shutil.copytree(cwd, tmpSettingsDir)
 # the following only doesn't work if the test ends in an exception
 atexit.register(removeTmpSettingsDir)
 SettingsPath = " -settingspath %s" % tmpSettingsDir
+

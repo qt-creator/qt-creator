@@ -1,7 +1,7 @@
 import tempfile, shutil, os
 
 def tempDir():
-    return tempfile.mkdtemp()
+    return tempfile.mkdtemp(prefix="qtcreator_")
 
 def deleteDirIfExists(path):
     shutil.rmtree(path, True)
@@ -61,4 +61,9 @@ def which(program):
                     return exe_file  + ".exe"
 
     return None
+
+def replaceLineEditorContent(lineEditor, newcontent):
+    type(lineEditor, "<Ctrl+A>")
+    type(lineEditor, "<Delete>")
+    type(lineEditor, newcontent)
 

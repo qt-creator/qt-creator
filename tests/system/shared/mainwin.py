@@ -21,3 +21,13 @@ def openCmakeProject(projectPath):
     clickButton(waitForObject(":CMake Wizard.Next_QPushButton", 20000))
     clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton", 20000))
     clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))
+
+def logApplicationOutput():
+    # make sure application output is shown
+    toggleAppOutput = waitForObject("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
+                                      "window=':Qt Creator_Core::Internal::MainWindow' occurrence='3'}", 20000)
+    if not toggleAppOutput.checked:
+        clickButton(toggleAppOutput)
+    output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
+    test.log("Application Output:\n%s" % output.plainText)
+
