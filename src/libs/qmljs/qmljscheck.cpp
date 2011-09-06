@@ -408,9 +408,10 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     , _scopeChain(doc, _context)
     , _scopeBuilder(&_scopeChain)
     , _options(WarnDangerousNonStrictEqualityChecks | WarnBlocks | WarnWith
-          | WarnVoid | WarnCommaExpression | WarnExpressionStatement
-          | WarnAssignInCondition | WarnUseBeforeDeclaration | WarnDuplicateDeclaration
-          | WarnCaseWithoutFlowControlEnd | ErrCheckTypeErrors)
+               | WarnVoid | WarnCommaExpression | WarnExpressionStatement
+               | WarnAssignInCondition | WarnUseBeforeDeclaration | WarnDuplicateDeclaration
+               | WarnCaseWithoutFlowControlEnd | WarnNonCapitalizedNew
+               | WarnCallsOfCapitalizedFunctions | ErrCheckTypeErrors)
     , _lastValue(0)
 {
 }
@@ -888,6 +889,60 @@ bool Check::visit(CaseClause *ast)
 bool Check::visit(DefaultClause *ast)
 {
     checkEndsWithControlFlow(ast->statements, ast->defaultToken);
+    return true;
+}
+
+static QString functionName(ExpressionNode *ast, SourceLocation *location)
+{
+    if (IdentifierExpression *id = cast<IdentifierExpression *>(ast)) {
+        if (id->name) {
+            *location = id->identifierToken;
+            return id->name->asString();
+        }
+    } else if (FieldMemberExpression *fme = cast<FieldMemberExpression *>(ast)) {
+        if (fme->name) {
+            *location = fme->identifierToken;
+            return fme->name->asString();
+        }
+    }
+    return QString();
+}
+
+void Check::checkNewExpression(ExpressionNode *ast)
+{
+    if (!(_options & WarnNonCapitalizedNew))
+        return;
+    SourceLocation location;
+    const QString name = functionName(ast, &location);
+    if (name.isEmpty())
+        return;
+    if (!name.at(0).isUpper()) {
+        warning(location, tr("'new' should only be used with functions that start with an uppercase letter"));
+    }
+}
+
+bool Check::visit(NewExpression *ast)
+{
+    checkNewExpression(ast->expression);
+    return true;
+}
+
+bool Check::visit(NewMemberExpression *ast)
+{
+    checkNewExpression(ast->base);
+    return true;
+}
+
+bool Check::visit(CallExpression *ast)
+{
+    // check for capitalized function name being called
+    if (_options & WarnCallsOfCapitalizedFunctions) {
+        SourceLocation location;
+        const QString name = functionName(ast->base, &location);
+        if (!name.isEmpty() && name.at(0).isUpper()) {
+            warning(location, tr("calls of functions that start with an uppercase letter should use 'new'"));
+        }
+    }
     return true;
 }
 
