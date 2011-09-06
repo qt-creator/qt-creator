@@ -99,6 +99,7 @@ public:
     uint qmlDebugServerPort() const;
     void setQmlDebugServerPort(uint port);
 
+    virtual bool fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
 
     QList<IRunConfigurationAspect *> extraAspects() const;
@@ -127,8 +128,6 @@ protected:
 
     /// convenience method to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
-
-    virtual bool fromMap(const QVariantMap &map);
 
 private:
     void addExtraAspects();
