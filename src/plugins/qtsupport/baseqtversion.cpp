@@ -543,8 +543,10 @@ QString BaseQtVersion::findQtBinary(BINARIES binary) const
     QStringList possibleCommands;
     switch (binary) {
     case QmlViewer:
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC)
         possibleCommands << QLatin1String("QMLViewer");
+#elif defined(Q_OS_WIN)
+        possibleCommands << QLatin1String("qmlviewer.exe");
 #else
         possibleCommands << QLatin1String("qmlviewer");
 #endif
