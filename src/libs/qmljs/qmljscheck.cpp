@@ -243,7 +243,7 @@ public:
     ExpressionNode *_ast;
 };
 
-class FunctionBodyCheck : protected Visitor
+class DeclarationsCheck : protected Visitor
 {
 public:
     QList<DiagnosticMessage> operator()(FunctionExpression *function, Check::Options options)
@@ -310,20 +310,14 @@ protected:
             return true;
         const QString name = ast->name->asString();
 
-        if (_formalParameterNames.contains(name)) {
-            if (_options & Check::WarnDuplicateDeclaration)
+        if (_options & Check::WarnDuplicateDeclaration) {
+            if (_formalParameterNames.contains(name)) {
                 warning(ast->identifierToken, Check::tr("already a formal parameter"));
-            return true;
-        }
-        if (_declaredFunctions.contains(name)) {
-            if (_options & Check::WarnDuplicateDeclaration)
+            } else if (_declaredFunctions.contains(name)) {
                 warning(ast->identifierToken, Check::tr("already declared as function"));
-            return true;
-        }
-        if (_declaredVariables.contains(name)) {
-            if (_options & Check::WarnDuplicateDeclaration)
+            } else if (_declaredVariables.contains(name)) {
                 warning(ast->identifierToken, Check::tr("duplicate declaration"));
-            return true;
+            }
         }
 
         if (_possiblyUndeclaredUses.contains(name)) {
@@ -354,20 +348,14 @@ protected:
             return false;
         const QString name = ast->name->asString();
 
-        if (_formalParameterNames.contains(name)) {
-            if (_options & Check::WarnDuplicateDeclaration)
+        if (_options & Check::WarnDuplicateDeclaration) {
+            if (_formalParameterNames.contains(name)) {
                 warning(ast->identifierToken, Check::tr("already a formal parameter"));
-            return false;
-        }
-        if (_declaredVariables.contains(name)) {
-            if (_options & Check::WarnDuplicateDeclaration)
+            } else if (_declaredVariables.contains(name)) {
                 warning(ast->identifierToken, Check::tr("already declared as var"));
-            return false;
-        }
-        if (_declaredFunctions.contains(name)) {
-            if (_options & Check::WarnDuplicateDeclaration)
+            } else if (_declaredFunctions.contains(name)) {
                 warning(ast->identifierToken, Check::tr("duplicate declaration"));
-            return false;
+            }
         }
 
         if (FunctionDeclaration *decl = cast<FunctionDeclaration *>(ast)) {
@@ -614,7 +602,7 @@ bool Check::visit(UiScriptBinding *ast)
     }
 
     if (Block *block = cast<Block *>(ast->statement)) {
-        FunctionBodyCheck bodyCheck;
+        DeclarationsCheck bodyCheck;
         _messages.append(bodyCheck(block->statements, _options));
         Node::accept(ast->qualifiedId, this);
         _scopeBuilder.push(ast);
@@ -697,7 +685,7 @@ bool Check::visit(FunctionDeclaration *ast)
 
 bool Check::visit(FunctionExpression *ast)
 {
-    FunctionBodyCheck bodyCheck;
+    DeclarationsCheck bodyCheck;
     _messages.append(bodyCheck(ast, _options));
 
     Node::accept(ast->formals, this);
