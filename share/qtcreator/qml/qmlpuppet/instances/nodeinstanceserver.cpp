@@ -1045,7 +1045,7 @@ PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<
     QVector<ImageContainer> imageVector;
 
     foreach (const ServerNodeInstance &instance, instanceList) {
-        if (instance.isValid())
+        if (instance.isValid() && instance.hasContent())
             imageVector.append(ImageContainer(instance.instanceId(), instance.renderImage()));
     }
 
