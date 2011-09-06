@@ -163,7 +163,7 @@ QVariantMap SymbianQtVersion::toMap() const
     return result;
 }
 
-QList<ProjectExplorer::Abi> SymbianQtVersion::qtAbis() const
+QList<ProjectExplorer::Abi> SymbianQtVersion::detectQtAbis() const
 {
     return QList<ProjectExplorer::Abi>()
             << ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::SymbianOS,

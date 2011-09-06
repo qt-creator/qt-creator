@@ -65,7 +65,7 @@ QString WinCeQtVersion::type() const
     return QtSupport::Constants::WINCEQT;
 }
 
-QList<ProjectExplorer::Abi> WinCeQtVersion::qtAbis() const
+QList<ProjectExplorer::Abi> WinCeQtVersion::detectQtAbis() const
 {
     return QList<ProjectExplorer::Abi>()
             << ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture,

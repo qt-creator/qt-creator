@@ -50,7 +50,7 @@ public:
     QString type() const;
     bool isValid() const;
     QString systemRoot() const;
-    QList<ProjectExplorer::Abi> qtAbis() const;
+    QList<ProjectExplorer::Abi> detectQtAbis() const;
     void addToEnvironment(Utils::Environment &env) const;
 
     bool supportsTargetId(const QString &id) const;

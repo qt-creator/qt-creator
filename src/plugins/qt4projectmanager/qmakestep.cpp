@@ -146,8 +146,9 @@ QString QMakeStep::allArguments(bool shorted)
             }
         }
     }
-    if (!userProvidedMkspec)
-        arguments << "-spec" << mkspec();
+    QString specArg = mkspec();
+    if (!userProvidedMkspec && !specArg.isEmpty())
+        arguments << "-spec" << specArg;
 
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
@@ -454,12 +455,17 @@ QString QMakeStep::mkspec()
         }
     }
 
+    QtSupport::BaseQtVersion *version = bc->qtVersion();
+    // We do not know which abi the Qt version has, so let's stick with the defaults
+    if (version && version->qtAbis().count() == 1 && version->qtAbis().first().isNull())
+        return QString();
+
     const QString tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : QString();
-    if (!bc->qtVersion())
+    if (!version)
         return tcSpec;
-    if (!tcSpec.isEmpty() && bc->qtVersion()->hasMkspec(tcSpec))
+    if (!tcSpec.isEmpty() && version->hasMkspec(tcSpec))
         return tcSpec;
-    return bc->qtVersion()->mkspec();
+    return version->mkspec();
 }
 
 QVariantMap QMakeStep::toMap() const

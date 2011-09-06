@@ -46,7 +46,7 @@ public:
     SymbianQtVersion *clone() const;
     ~SymbianQtVersion();
 
-    virtual bool equals(BaseQtVersion *other);
+    bool equals(BaseQtVersion *other);
 
     QString type() const;
 
@@ -59,7 +59,7 @@ public:
     void fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
-    QList<ProjectExplorer::Abi> qtAbis() const;
+    QList<ProjectExplorer::Abi> detectQtAbis() const;
 
     bool supportsTargetId(const QString &id) const;
     QSet<QString> supportedTargetIds() const;

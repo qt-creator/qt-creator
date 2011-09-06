@@ -56,6 +56,7 @@ class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 public:
     QString typeName() const;
     Abi targetAbi() const;
+    QString version() const;
     QList<Abi> supportedAbis() const;
     void setTargetAbi(const Abi &);
 
@@ -91,6 +92,7 @@ protected:
     void updateId();
 
     virtual QList<Abi> detectSupportedAbis() const;
+    virtual QString detectVersion() const;
 
     mutable QByteArray m_predefinedMacros;
 
@@ -105,6 +107,7 @@ private:
     Abi m_targetAbi;
     mutable QList<Abi> m_supportedAbis;
     mutable QList<HeaderPath> m_headerPathes;
+    mutable QString m_version;
 
     friend class Internal::GccToolChainFactory;
     friend class ToolChainFactory;

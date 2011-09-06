@@ -110,7 +110,7 @@ QString MaemoQtVersion::systemRoot() const
     return m_systemRoot;
 }
 
-QList<ProjectExplorer::Abi> MaemoQtVersion::qtAbis() const
+QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
 {
     QList<ProjectExplorer::Abi> result;
     if (!m_isvalidVersion)

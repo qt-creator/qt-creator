@@ -49,20 +49,14 @@ public:
 
     QString type() const;
 
-    bool isValid() const;
-    QString invalidReason() const;
     QString warningReason() const;
 
-    QList<ProjectExplorer::Abi> qtAbis() const;
+    QList<ProjectExplorer::Abi> detectQtAbis() const;
 
     bool supportsTargetId(const QString &id) const;
     QSet<QString> supportedTargetIds() const;
 
     QString description() const;
-
-private:
-    mutable bool m_qtAbisUpToDate;
-    mutable QList<ProjectExplorer::Abi> m_qtAbis;
 };
 
 }

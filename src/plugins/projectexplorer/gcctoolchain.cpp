@@ -273,6 +273,12 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &path, const QStrin
     return guessGccAbi(machine);
 }
 
+static QString gccVersion(const QString &path, const QStringList &env)
+{
+    QStringList arguments(QLatin1String("-dumpversion"));
+    return QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
+}
+
 // --------------------------------------------------------------------------
 // GccToolChain
 // --------------------------------------------------------------------------
@@ -320,6 +326,13 @@ QString GccToolChain::typeName() const
 Abi GccToolChain::targetAbi() const
 {
     return m_targetAbi;
+}
+
+QString GccToolChain::version() const
+{
+    if (m_version.isEmpty())
+        m_version = detectVersion();
+    return m_version;
 }
 
 void GccToolChain::setTargetAbi(const Abi &abi)
@@ -389,10 +402,30 @@ QString GccToolChain::debuggerCommand() const
 QString GccToolChain::mkspec() const
 {
     Abi abi = targetAbi();
-    if (abi.os() == Abi::MacOS)
+    if (abi.os() == Abi::MacOS) {
+        QString v = version();
+        // prefer versioned g++ on mac. This is required to enable building for older Mac OS versions
+        if (v.startsWith(QLatin1String("4.0")))
+            return QLatin1String("macx-g++40");
+        if (v.startsWith(QLatin1String("4.2")))
+            return QLatin1String("macx-g++42");
         return QLatin1String("macx-g++");
-    if (abi.os() == Abi::LinuxOS)
+    }
+
+    Abi gccAbi = Abi::abisOfBinary(m_compilerPath);
+    if (gccAbi.architecture() != abi.architecture()
+            || gccAbi.os() != abi.os()
+            || gccAbi.osFlavor() != abi.osFlavor()) {
+        // Note: This can fail:-(
+        return QString(); // this is a cross-compiler, leave the mkspec alone!
+    }
+    if (abi.os() == Abi::LinuxOS) {
+        if (abi.osFlavor() != Abi::GenericLinuxFlavor)
+            return QString(); // most likely not a desktop, so leave the mkspec alone.
+        if (abi.wordWidth() == gccAbi.wordWidth())
+            return QLatin1String("linux-g++"); // no need to explicitly set the word width
         return QLatin1String("linux-g++-") + QString::number(m_targetAbi.wordWidth());
+    }
     if (abi.os() == Abi::BsdOS && abi.osFlavor() == Abi::FreeBsdFlavor)
         return QLatin1String("freebsd-g++");
     return QString();
@@ -505,6 +538,13 @@ QList<Abi> GccToolChain::detectSupportedAbis() const
     Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
     return guessGccAbi(m_compilerPath, env.toStringList());
+}
+
+QString GccToolChain::detectVersion() const
+{
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    addToEnvironment(env);
+    return gccVersion(m_compilerPath, env.toStringList());
 }
 
 // --------------------------------------------------------------------------
@@ -734,11 +774,12 @@ QString ClangToolChain::makeCommand() const
 
 QString ClangToolChain::mkspec() const
 {
-    if (targetAbi().os() == Abi::MacOS)
+    Abi abi = targetAbi();
+    if (abi.os() == Abi::MacOS)
         return QLatin1String("unsupported/macx-clang");
-    else if (targetAbi().os() == Abi::LinuxOS)
+    else if (abi.os() == Abi::LinuxOS)
         return QLatin1String("unsupported/linux-clang");
-    return QLatin1String("unsupported/win32-clang"); // Note: Not part of Qt yet!
+    return QString(); // Note: Not supported by Qt yet, so default to the mkspec the Qt was build with
 }
 
 IOutputParser *ClangToolChain::outputParser() const

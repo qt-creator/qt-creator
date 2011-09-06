@@ -125,7 +125,8 @@ public:
 
     virtual bool supportsTargetId(const QString &id) const = 0;
     virtual QSet<QString> supportedTargetIds() const = 0;
-    virtual QList<ProjectExplorer::Abi> qtAbis() const = 0;
+    QList<ProjectExplorer::Abi> qtAbis() const;
+    virtual QList<ProjectExplorer::Abi> detectQtAbis() const = 0;
 
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     virtual QHash<QString,QString> versionInfo() const;
@@ -268,6 +269,7 @@ private:
     mutable QString m_qmlviewerCommand;
 
     mutable bool m_qmakeIsExecutable;
+    mutable QList<ProjectExplorer::Abi> m_qtAbis;
 };
 }
 

@@ -299,7 +299,7 @@ bool BaseQtVersion::isValid() const
     return  !qmakeCommand().isEmpty()
             && !m_notInstalled
             && m_versionInfo.contains("QT_INSTALL_BINS")
-            && (!m_mkspecFullPath.isEmpty() || !m_mkspecUpToDate)
+            && !m_mkspecFullPath.isEmpty()
             && m_qmakeIsExecutable;
 }
 
@@ -340,6 +340,15 @@ bool BaseQtVersion::toolChainAvailable(const QString &id) const
         if (!ProjectExplorer::ToolChainManager::instance()->findToolChains(abi).isEmpty())
             return true;
     return false;
+}
+
+QList<ProjectExplorer::Abi> BaseQtVersion::qtAbis() const
+{
+    if (m_qtAbis.isEmpty())
+        m_qtAbis = detectQtAbis();
+    if (m_qtAbis.isEmpty())
+        m_qtAbis.append(ProjectExplorer::Abi()); // add empty ABI by default: This is compatible with all TCs.
+    return m_qtAbis;
 }
 
 bool BaseQtVersion::equals(BaseQtVersion *other)
@@ -1199,11 +1208,5 @@ QString BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, con
 
 QList<ProjectExplorer::Abi> BaseQtVersion::qtAbisFromLibrary(const QString &coreLibrary)
 {
-    QList<ProjectExplorer::Abi> qtAbis = ProjectExplorer::Abi::abisOfBinary(coreLibrary);
-    if (qtAbis.isEmpty() && !coreLibrary.isEmpty()) {
-        qWarning("Warning: Could not find ABI for '%s'"
-                 "Qt Creator does not know about the system includes, "
-                 "nor the system defines.", qPrintable(coreLibrary));
-    }
-    return qtAbis;
+    return ProjectExplorer::Abi::abisOfBinary(coreLibrary);
 }

@@ -44,15 +44,13 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 DesktopQtVersion::DesktopQtVersion()
-    : BaseQtVersion(),
-      m_qtAbisUpToDate(false)
+    : BaseQtVersion()
 {
 
 }
 
 DesktopQtVersion::DesktopQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
-    : BaseQtVersion(path, isAutodetected, autodetectionSource),
-      m_qtAbisUpToDate(false)
+    : BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
 
 }
@@ -72,38 +70,19 @@ QString DesktopQtVersion::type() const
     return QtSupport::Constants::DESKTOPQT;
 }
 
-bool DesktopQtVersion::isValid() const
-{
-    if (!BaseQtVersion::isValid())
-        return false;
-    if (qtAbis().isEmpty())
-        return false;
-    return true;
-}
-
-QString DesktopQtVersion::invalidReason() const
-{
-    QString tmp = BaseQtVersion::invalidReason();
-    if (tmp.isEmpty() && qtAbis().isEmpty())
-        return QCoreApplication::translate("QtVersion", "Failed to detect the ABI(s) used by the Qt version.");
-    return tmp;
-}
-
 QString DesktopQtVersion::warningReason() const
 {
+    if (qtAbis().count() == 1 && qtAbis().first().isNull())
+        return QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty())
         return QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
     return QString();
 }
 
-QList<ProjectExplorer::Abi> DesktopQtVersion::qtAbis() const
+QList<ProjectExplorer::Abi> DesktopQtVersion::detectQtAbis() const
 {
-    if (!m_qtAbisUpToDate) {
-        m_qtAbisUpToDate = true;
-        ensureMkSpecParsed();
-        m_qtAbis = qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
-    }
-    return m_qtAbis;
+    ensureMkSpecParsed();
+    return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
 bool DesktopQtVersion::supportsTargetId(const QString &id) const

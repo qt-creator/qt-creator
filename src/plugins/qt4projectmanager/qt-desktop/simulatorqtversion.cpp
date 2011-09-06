@@ -44,15 +44,13 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 SimulatorQtVersion::SimulatorQtVersion()
-    : QtSupport::BaseQtVersion(),
-      m_qtAbisUpToDate(false)
+    : QtSupport::BaseQtVersion()
 {
 
 }
 
 SimulatorQtVersion::SimulatorQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
-    : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource),
-      m_qtAbisUpToDate(false)
+    : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
 
 }
@@ -72,38 +70,19 @@ QString SimulatorQtVersion::type() const
     return QtSupport::Constants::SIMULATORQT;
 }
 
-bool SimulatorQtVersion::isValid() const
-{
-    if (!BaseQtVersion::isValid())
-        return false;
-    if (qtAbis().isEmpty())
-        return false;
-    return true;
-}
-
-QString SimulatorQtVersion::invalidReason() const
-{
-    QString tmp = BaseQtVersion::invalidReason();
-    if (tmp.isEmpty() && qtAbis().isEmpty())
-        return QCoreApplication::translate("QtVersion", "Failed to detect the ABI(s) used by the Qt version.");
-    return tmp;
-}
-
 QString SimulatorQtVersion::warningReason() const
 {
+    if (qtAbis().count() == 1 && qtAbis().first().isNull())
+        return QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty())
         return QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
     return QString();
 }
 
-QList<ProjectExplorer::Abi> SimulatorQtVersion::qtAbis() const
+QList<ProjectExplorer::Abi> SimulatorQtVersion::detectQtAbis() const
 {
-    if (!m_qtAbisUpToDate) {
-        m_qtAbisUpToDate = true;
-        ensureMkSpecParsed();
-        m_qtAbis = qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
-    }
-    return m_qtAbis;
+    ensureMkSpecParsed();
+    return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
 bool SimulatorQtVersion::supportsTargetId(const QString &id) const
@@ -120,4 +99,3 @@ QString SimulatorQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion", "Qt Simulator", "Qt Version is meant for Qt Simulator");
 }
-

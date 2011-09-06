@@ -48,7 +48,7 @@ public:
 
     QString type() const;
 
-    QList<ProjectExplorer::Abi> qtAbis() const;
+    QList<ProjectExplorer::Abi> detectQtAbis() const;
 
     bool supportsTargetId(const QString &id) const;
     QSet<QString> supportedTargetIds() const;
