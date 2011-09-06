@@ -1375,8 +1375,9 @@ void Preprocessor::processIfdef(bool checkUndefined,
 
             } else if (env->isBuiltinMacro(macroName)) {
                 value = true;
+            } else if (macroName == "Q_CREATOR_RUN") {
+                value = true;
             }
-
 
             if (checkUndefined)
                 value = ! value;
