@@ -56,14 +56,18 @@ QWidget {
                     minimumValue: 0;
                     maximumValue: 1000;
                 }
-                IntEditor {
-                    backendValue: backendValues.keyNavigationWraps
-                    caption: qsTr("Navigation wraps")
-                    toolTip: qsTr("Determines whether the grid wraps key navigation.")
-                    baseStateFlag: isBaseState;
-                    step: 1;
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                QWidget {
+                    layout: HorizontalLayout {
+                        Label {
+                            text: qsTr("Navigation wraps")
+                        }
+                        CheckBox {
+                            backendValue: backendValues.keyNavigationWraps
+                            toolTip: qsTr("Determines whether the grid wraps key navigation.")
+                            baseStateFlag: isBaseState;
+                            checkable: True
+                        }
+                    }
                 }
                 //                Qt namespace enums not supported by the rewriter
                 //                QWidget {
