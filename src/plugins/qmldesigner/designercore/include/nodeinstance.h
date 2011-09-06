@@ -83,6 +83,8 @@ public:
     qint32 parentId() const;
     qint32 instanceId() const;
 
+    QPixmap renderPixmap() const;
+
 protected:
     void setProperty(const QString &name, const QVariant &value);
     InformationName setInformation(InformationName name,
@@ -108,7 +110,7 @@ protected:
     InformationName setInformationHasBindingForProperty(const QString &property, bool hasProperty);
 
     void setParentId(qint32 instanceId);
-    void setRenderImage(const QImage &image);
+    void setRenderPixmap(const QImage &image);
     NodeInstance(ProxyNodeInstanceData *d);
 
 private:

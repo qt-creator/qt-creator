@@ -112,7 +112,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(separatorAction);
     upperActions.append(separatorAction);
 
-    m_showBoundingRectAction = new QAction(tr("Show bounding rectangles (A)"), this);
+    m_showBoundingRectAction = new QAction(tr("Show bounding rectangles and stripes for empty items (Press Key A)"), this);
     m_showBoundingRectAction->setShortcut(Qt::Key_A);
     m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_showBoundingRectAction->setCheckable(true);

@@ -1069,7 +1069,7 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
-                instance.setRenderImage(container.image());
+                instance.setRenderPixmap(container.image());
                 renderImageChangeSet.insert(instance.modelNode());
             }
         }

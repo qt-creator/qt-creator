@@ -133,6 +133,7 @@ private: // variables
     bool m_highlightBoundingRect;
     bool m_isContentVisible;
     bool m_isFormEditorVisible;
+    static QPixmap s_invisibleItemPixmap;
 };
 
 

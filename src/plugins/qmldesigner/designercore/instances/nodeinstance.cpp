@@ -75,7 +75,7 @@ public:
     QHash<QString, bool> hasAnchors;
     QHash<QString, QString> instanceTypes;
 
-    QImage renderImage;
+    QPixmap renderPixmap;
     QHash<QString, QPair<QString, qint32> > anchors;
 };
 
@@ -249,8 +249,8 @@ int NodeInstance::penWidth() const
 
 void NodeInstance::paint(QPainter *painter)
 {
-    if (isValid() && !d->renderImage.isNull())
-        painter->drawImage(boundingRect().topLeft(), d->renderImage);
+    if (isValid() && !d->renderPixmap.isNull())
+        painter->drawPixmap(boundingRect().topLeft(), d->renderPixmap);
 }
 
 QVariant NodeInstance::property(const QString &name) const
@@ -307,9 +307,15 @@ void NodeInstance::setProperty(const QString &name, const QVariant &value)
     d->propertyValues.insert(name, value);
 }
 
-void NodeInstance::setRenderImage(const QImage &image)
+QPixmap NodeInstance::renderPixmap() const
 {
-    d->renderImage = image;
+    return d->renderPixmap;
+}
+
+void NodeInstance::setRenderPixmap(const QImage &image)
+{
+    if (!image.isNull())
+        d->renderPixmap = QPixmap::fromImage(image);
 }
 
 void NodeInstance::setParentId(qint32 instanceId)

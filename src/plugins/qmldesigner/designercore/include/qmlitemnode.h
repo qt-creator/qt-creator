@@ -84,6 +84,7 @@ public:
     QPointF instancePosition() const;
     QSizeF instanceSize() const;
     int instancePenWidth() const;
+    bool instanceIsRenderPixmapNull() const;
 
 
     void paintInstance(QPainter *painter);

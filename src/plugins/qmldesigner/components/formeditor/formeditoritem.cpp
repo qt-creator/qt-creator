@@ -53,7 +53,7 @@
 
 namespace QmlDesigner {
 
-
+QPixmap FormEditorItem::s_invisibleItemPixmap = QPixmap();
 
 FormEditorScene *FormEditorItem::scene() const {
     return qobject_cast<FormEditorScene*>(QGraphicsItem::scene());
@@ -242,6 +242,7 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
 
     QPen pen;
     pen.setJoinStyle(Qt::MiterJoin);
+    pen.setStyle(Qt::DotLine);
 
     switch(scene()->paintMode()) {
         case FormEditorScene::AnchorMode: {
@@ -280,8 +281,55 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     painter->save();
 
-    if (isContentVisible())
+    if (qmlItemNode().instanceIsRenderPixmapNull()) {
+        if (scene()->showBoundingRects()) {
+            if (s_invisibleItemPixmap.isNull()) {
+                QImage invisibleItemImage(14, 14, QImage::Format_ARGB32_Premultiplied);
+
+                invisibleItemImage.fill(0xFF999999);
+                QPainter fillPainter(&invisibleItemImage);
+                fillPainter.setCompositionMode(QPainter::CompositionMode_Source);
+                fillPainter.rotate(-45);
+                fillPainter.translate(-10, 0);
+                fillPainter.fillRect(0, -4, 20, 7, QColor(100, 100, 100, 0));
+                fillPainter.translate(0, 10);
+                fillPainter.fillRect(0, -4, 20, 7, QColor(100, 100, 100, 0));
+                fillPainter.translate(0, 9);
+                fillPainter.fillRect(0, -3, 20, 6, QColor(100, 100, 100, 0));
+
+
+
+
+                s_invisibleItemPixmap = QPixmap::fromImage(invisibleItemImage);
+            }
+
+            painter->drawTiledPixmap(boundingRect(), s_invisibleItemPixmap);
+
+
+
+            QString displayText = qmlItemNode().id();
+
+            if (displayText.isEmpty())
+                displayText = qmlItemNode().simplifiedTypeName();
+
+            QTextOption textOption;
+            textOption.setAlignment(Qt::AlignCenter);
+            textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+
+            painter->save();
+
+            QFont font;
+            font.setPixelSize(18);
+            painter->setFont(font);
+
+            painter->drawText(boundingRect(), displayText, textOption);
+
+            painter->restore();
+        }
+
+    } else {
         qmlItemNode().paintInstance(painter);
+    }
 
     if (!qmlItemNode().isRootModelNode())
         paintBoundingRect(painter);

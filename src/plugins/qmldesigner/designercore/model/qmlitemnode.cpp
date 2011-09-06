@@ -270,6 +270,11 @@ int QmlItemNode::instancePenWidth() const
     return nodeInstance().penWidth();
 }
 
+bool QmlItemNode::instanceIsRenderPixmapNull() const
+{
+    return nodeInstance().renderPixmap().isNull();
+}
+
 void QmlItemNode::paintInstance(QPainter *painter)
 {
     if (nodeInstance().isValid())

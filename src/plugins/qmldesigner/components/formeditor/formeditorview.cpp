@@ -285,6 +285,12 @@ FormEditorWidget *FormEditorView::widget() const
 void FormEditorView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
 {
     QmlModelView::nodeIdChanged(node, newId, oldId);
+    QmlItemNode itemNode(node);
+
+    if (itemNode.isValid()) {
+        FormEditorItem *item = m_scene->itemForQmlItemNode(itemNode);
+        item->update();
+    }
 }
 
 void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
