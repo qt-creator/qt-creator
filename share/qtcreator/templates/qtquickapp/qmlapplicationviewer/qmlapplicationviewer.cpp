@@ -66,11 +66,7 @@ QString QmlApplicationViewerPrivate::adjustPath(const QString &path)
                 + QLatin1String("/../Resources/") + path;
 #else
     QString pathInInstallDir;
-#ifdef HARMATTAN_BOOSTER
-    QString applicationDirPath = MDeclarativeCache::applicationDirPath();
-#else
-    QString applicationDirPath = QCoreApplication::applicationDirPath();
-#endif
+    const QString applicationDirPath = QCoreApplication::applicationDirPath();
     pathInInstallDir = QString::fromAscii("%1/../%2").arg(applicationDirPath, path);
 
     if (QFileInfo(pathInInstallDir).exists())
