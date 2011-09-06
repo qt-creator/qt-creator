@@ -120,6 +120,7 @@ public:
     bool isCompatibleWith(const Abi &other) const;
 
     bool isValid() const;
+    bool isNull() const;
 
     Architecture architecture() const { return m_architecture; }
     OS os() const { return m_os; }

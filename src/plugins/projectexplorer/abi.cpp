@@ -485,6 +485,15 @@ bool Abi::isValid() const
             && m_wordWidth != 0;
 }
 
+bool Abi::isNull() const
+{
+    return m_architecture == UnknownArchitecture
+            && m_os == UnknownOS
+            && m_osFlavor == UnknownFlavor
+            && m_binaryFormat == UnknownFormat
+            && m_wordWidth == 0;
+}
+
 QString Abi::toString(const Architecture &a)
 {
     switch (a) {
