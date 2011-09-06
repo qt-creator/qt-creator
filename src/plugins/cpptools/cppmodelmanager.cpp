@@ -332,7 +332,7 @@ bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *resu
         return false;
 
     QFile file(absoluteFilePath);
-    if (file.open(QFile::ReadOnly)) {
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
         m_included.insert(absoluteFilePath);
         QTextStream stream(&file);
         const QString contents = stream.readAll();
