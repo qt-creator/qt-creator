@@ -17,7 +17,8 @@ HEADERS += findtoolwindow.h \
     searchresulttreeitems.h \
     searchresulttreemodel.h \
     searchresulttreeview.h \
-    searchresultwindow.h
+    searchresultwindow.h \
+    searchresultwidget.h
 SOURCES += findtoolwindow.cpp \
     currentdocumentfind.cpp \
     basetextfind.cpp \
@@ -29,7 +30,10 @@ SOURCES += findtoolwindow.cpp \
     searchresulttreeview.cpp \
     searchresultwindow.cpp \
     ifindfilter.cpp \
-    ifindsupport.cpp
+    ifindsupport.cpp \
+    searchresultwidget.cpp
 FORMS += findwidget.ui \
     finddialog.ui
 RESOURCES += find.qrc
+
+

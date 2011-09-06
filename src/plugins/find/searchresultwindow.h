@@ -49,6 +49,7 @@ namespace Find {
 namespace Internal {
     class SearchResultTreeView;
     struct SearchResultWindowPrivate;
+    class SearchResultWidget;
 }
 class SearchResultWindow;
 
@@ -110,9 +111,12 @@ signals:
     void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
     void visibilityChanged(bool visible);
 
-    friend class SearchResultWindow;
+private:
+    SearchResult(Internal::SearchResultWidget *widget);
+    friend class SearchResultWindow; // for the constructor
 
 private:
+    Internal::SearchResultWidget *m_widget;
     QVariant m_userData;
 };
 
@@ -137,7 +141,6 @@ public:
     QString displayName() const { return tr("Search Results"); }
     int priorityInStatusBar() const;
     void visibilityChanged(bool visible);
-    bool isEmpty() const;
     bool hasFocus();
     bool canFocus();
     void setFocus();
@@ -159,31 +162,13 @@ public slots:
 
 private slots:
     void handleExpandCollapseToolButton(bool checked);
-    void handleJumpToSearchResult(const SearchResultItem &item);
-    void handleReplaceButton();
-    void showNoMatchesFound();
-    void hideNoUndoWarning();
 
 private:
-    // TODO: move to the new SearchResultWidget
-    void addResult(const QString &fileName, int lineNumber, const QString &lineText,
-                   int searchTermStart, int searchTermLength, const QVariant &userData);
-    void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode); // TODO: move to SearchResultWidget)
-    void finishSearch();
-    void setTextToReplace(const QString &textToReplace);
-    QString textToReplace() const;
-
-
-    void setShowReplaceUI(bool show);
     void readSettings();
     void writeSettings();
-    QList<SearchResultItem> checkedItems() const;
-    bool showWarningMessage() const;
-    void setShowWarningMessage(bool showWarningMessage);
 
     Internal::SearchResultWindowPrivate *d;
     static SearchResultWindow *m_instance;
-    friend class SearchResult;
 };
 
 } // namespace Find
