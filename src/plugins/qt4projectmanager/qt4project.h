@@ -54,18 +54,17 @@ class ProFileReader;
 
 namespace Qt4ProjectManager {
 class Qt4ProFileNode;
+class Qt4PriFileNode;
 class Qt4BaseTarget;
 class Qt4BuildConfiguration;
 
 namespace Internal {
     class DeployHelperRunStep;
     class FileItem;
-    class Qt4PriFileNode;
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
     class Qt4ProjectFile;
-    class Qt4PriFileNode;
     class Qt4NodesWatcher;
 }
 
@@ -133,8 +132,8 @@ public:
     // For Qt4ProFileNode after a on disk change
     void updateFileList();
 
-    void watchFolders(const QStringList &l, Internal::Qt4PriFileNode *node);
-    void unwatchFolders(const QStringList &l, Internal::Qt4PriFileNode *node);
+    void watchFolders(const QStringList &l, Qt4PriFileNode *node);
+    void unwatchFolders(const QStringList &l, Qt4PriFileNode *node);
 
 signals:
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
@@ -167,7 +166,7 @@ private:
     static void collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node);
     static void collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node);
     static void findProFile(const QString& fileName, Qt4ProFileNode *root, QList<Qt4ProFileNode *> &list);
-    static bool hasSubNode(Internal::Qt4PriFileNode *root, const QString &path);
+    static bool hasSubNode(Qt4PriFileNode *root, const QString &path);
 
     static bool equalFileList(const QStringList &a, const QStringList &b);
 

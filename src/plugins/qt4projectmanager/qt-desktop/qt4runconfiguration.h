@@ -64,9 +64,9 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 class Qt4BaseTarget;
 class Qt4ProFileNode;
+class Qt4PriFileNode;
 
 namespace Internal {
-class Qt4PriFileNode;
 class Qt4RunConfigurationFactory;
 
 class Qt4RunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration

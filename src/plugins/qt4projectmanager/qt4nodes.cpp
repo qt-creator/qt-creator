@@ -88,22 +88,22 @@ struct FileTypeDataStorage {
 
 static const FileTypeDataStorage fileTypeDataStorage[] = {
     { ProjectExplorer::HeaderType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Headers"),
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Headers"),
       ":/qt4projectmanager/images/headers.png" },
     { ProjectExplorer::SourceType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Sources"),
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Sources"),
       ":/qt4projectmanager/images/sources.png" },
     { ProjectExplorer::FormType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Forms"),
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Forms"),
       ":/qt4projectmanager/images/forms.png" },
     { ProjectExplorer::ResourceType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Resources"),
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Resources"),
       ":/qt4projectmanager/images/qt_qrc.png" },
     { ProjectExplorer::QMLType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "QML"),
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "QML"),
       ":/qt4projectmanager/images/qml.ico" }, // TODO icon
     { ProjectExplorer::UnknownFileType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Other files"),
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Other files"),
       ":/qt4projectmanager/images/unknown.png" }
 };
 
@@ -140,7 +140,7 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(Qt4NodeStaticData, qt4NodeStaticData, {
                                                     overlayIcon, desiredSize);
         QIcon folderIcon;
         folderIcon.addPixmap(folderPixmap);
-        const QString desc = Qt4ProjectManager::Internal::Qt4PriFileNode::tr(fileTypeDataStorage[i].typeName);
+        const QString desc = Qt4ProjectManager::Qt4PriFileNode::tr(fileTypeDataStorage[i].typeName);
         x->fileTypeData.push_back(Qt4NodeStaticData::FileTypeData(fileTypeDataStorage[i].type,
                                                                   desc, folderIcon));
     }
@@ -162,8 +162,8 @@ static void clearQt4NodeStaticData()
 
 enum { debug = 0 };
 
-namespace Qt4ProjectManager {
-namespace Internal {
+using namespace Qt4ProjectManager;
+using namespace Qt4ProjectManager::Internal;
 
 Qt4PriFile::Qt4PriFile(Qt4PriFileNode *qt4PriFile)
     : IFile(qt4PriFile), m_priFile(qt4PriFile)
@@ -266,6 +266,8 @@ void Qt4PriFileNode::scheduleUpdate()
     m_qt4ProFileNode->scheduleUpdate();
 }
 
+namespace Qt4ProjectManager {
+namespace Internal {
 struct InternalNode
 {
     QMap<QString, InternalNode*> subnodes;
@@ -482,7 +484,8 @@ struct InternalNode
             projectNode->addFileNodes(filesToAdd, folder);
     }
 };
-
+}
+}
 
 QStringList Qt4PriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir)
 {
@@ -1331,9 +1334,6 @@ Qt4NodesWatcher::Qt4NodesWatcher(QObject *parent)
 {
 }
 
-} // namespace Internal
-
-
 const Qt4ProFileNode *Qt4ProFileNode::findProFileFor(const QString &fileName) const
 {
     if (fileName == path())
@@ -1609,7 +1609,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     if (debug)
         qDebug() << "Qt4ProFileNode - updating files for file " << m_projectFilePath;
 
-    Qt4ProjectType projectType = Internal::proFileTemplateTypeToProjectType(
+    Qt4ProjectType projectType = proFileTemplateTypeToProjectType(
                 (evalResult == EvalOk ? m_readerExact : m_readerCumulative)->templateType());
     if (projectType != m_projectType) {
         Qt4ProjectType oldType = m_projectType;
@@ -1885,7 +1885,7 @@ QStringList Qt4ProFileNode::updateUiFiles()
         return QStringList();
 
     // Find all ui files
-    Internal::FindUiFileNodesVisitor uiFilesVisitor;
+    FindUiFileNodesVisitor uiFilesVisitor;
     this->accept(&uiFilesVisitor);
     const QList<ProjectExplorer::FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
@@ -2329,7 +2329,7 @@ void Qt4ProFileNode::createUiCodeModelSupport()
     // Only those two project types can have ui files for us
     if (m_projectType == ApplicationTemplate || m_projectType == LibraryTemplate) {
         // Find all ui files
-        Internal::FindUiFileNodesVisitor uiFilesVisitor;
+        FindUiFileNodesVisitor uiFilesVisitor;
         this->accept(&uiFilesVisitor);
         const QList<ProjectExplorer::FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
@@ -2361,5 +2361,3 @@ void Qt4ProFileNode::createUiCodeModelSupport()
         delete it.value();
     }
 }
-
-} // namespace Qt4ProjectManager

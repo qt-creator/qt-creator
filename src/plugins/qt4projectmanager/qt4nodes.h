@@ -92,8 +92,6 @@ enum Qt4Variable {
     SymbianCapabilities
 };
 
-namespace Internal {
-
 // Import base classes into namespace
 using ProjectExplorer::Node;
 using ProjectExplorer::FileNode;
@@ -112,12 +110,15 @@ using ProjectExplorer::ProjectFileType;
 
 using ProjectExplorer::FileType;
 
+namespace Internal {
 class Qt4UiCodeModelSupport;
 class ProFileReader;
 class Qt4PriFile;
+struct InternalNode;
+}
 
 // Implements ProjectNode for qt4 pro files
-class Qt4PriFileNode : public ProjectExplorer::ProjectNode
+class QT4PROJECTMANAGER_EXPORT Qt4PriFileNode : public ProjectExplorer::ProjectNode
 {
     Q_OBJECT
 
@@ -195,7 +196,7 @@ private:
     QString m_projectFilePath;
     QString m_projectDir;
 
-    QMap<QString, Qt4UiCodeModelSupport *> m_uiCodeModelSupport;
+    QMap<QString, Internal::Qt4UiCodeModelSupport *> m_uiCodeModelSupport;
     Internal::Qt4PriFile *m_qt4PriFile;
 
     // Memory is cheap...
@@ -207,11 +208,12 @@ private:
 
     // managed by Qt4ProFileNode
     friend class Qt4ProjectManager::Qt4ProFileNode;
-    friend class Qt4PriFile; // for scheduling updates on modified
+    friend class Internal::Qt4PriFile; // for scheduling updates on modified
     // internal temporary subtree representation
-    friend struct InternalNode;
+    friend struct Internal::InternalNode;
 };
 
+namespace Internal {
 class Qt4PriFile : public Core::IFile
 {
     Q_OBJECT
@@ -316,7 +318,7 @@ struct QT4PROJECTMANAGER_EXPORT ProjectVersion {
 };
 
 // Implements ProjectNode for qt4 pro files
-class QT4PROJECTMANAGER_EXPORT Qt4ProFileNode : public Internal::Qt4PriFileNode
+class QT4PROJECTMANAGER_EXPORT Qt4ProFileNode : public Qt4PriFileNode
 {
     Q_OBJECT
 
