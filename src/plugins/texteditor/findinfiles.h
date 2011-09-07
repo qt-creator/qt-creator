@@ -50,7 +50,7 @@ class TEXTEDITOR_EXPORT FindInFiles : public BaseFileFind
     Q_OBJECT
 
 public:
-    explicit FindInFiles();
+    FindInFiles();
 
     QString id() const;
     QString displayName() const;

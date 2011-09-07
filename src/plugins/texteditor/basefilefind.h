@@ -64,7 +64,7 @@ class TEXTEDITOR_EXPORT BaseFileFind : public Find::IFindFilter
     Q_OBJECT
 
 public:
-    explicit BaseFileFind();
+    BaseFileFind();
     ~BaseFileFind();
 
     bool isEnabled() const;

@@ -53,7 +53,7 @@ class FindInCurrentFile : public BaseFileFind
     Q_OBJECT
 
 public:
-    explicit FindInCurrentFile();
+    FindInCurrentFile();
 
     QString id() const;
     QString displayName() const;
