@@ -333,8 +333,14 @@ void AbstractRemoteLinuxApplicationRunner::emitError(const QString &errorMsg, bo
 
 void AbstractRemoteLinuxApplicationRunner::handlePortsGathererError(const QString &errorMsg)
 {
-    if (m_d->state != Inactive)
-        emitError(errorMsg);
+    if (m_d->state != Inactive) {
+        if (connection()->errorState() != SshNoError) {
+            emitError(errorMsg);
+        } else {
+            emit reportProgress(tr("Gathering ports failed: %1\nContinuing anyway.").arg(errorMsg));
+            handleUsedPortsAvailable();
+        }
+    }
 }
 
 void AbstractRemoteLinuxApplicationRunner::handleUsedPortsAvailable()

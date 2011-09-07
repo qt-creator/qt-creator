@@ -161,8 +161,8 @@ void RemoteLinuxUsedPortsGatherer::handleProcessClosed(int exitStatus)
         if (m_d->procRunner->process()->exitCode() == 0) {
             setupUsedPorts();
         } else {
-            errMsg = tr("Remote process failed: %1")
-                .arg(m_d->procRunner->process()->errorString());
+            errMsg = tr("Remote process failed; exit code was %1.")
+                .arg(m_d->procRunner->process()->exitCode());
         }
         break;
     default:
