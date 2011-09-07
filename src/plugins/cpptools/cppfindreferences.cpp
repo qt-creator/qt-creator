@@ -228,7 +228,8 @@ static void find_helper(QFutureInterface<Usage> &future,
 void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
 {
     m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(Find::SearchResultWindow::SearchOnly);
-
+    Overview overview;
+    m_currentSearch->setInfo(tr("C++ Usages:"), QString(), overview(context.fullyQualifiedName(symbol)));
     connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
 
@@ -244,6 +245,8 @@ void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus:
 
         m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(
                 Find::SearchResultWindow::SearchAndReplace, QLatin1String("CppEditor"));
+        Overview overview;
+        m_currentSearch->setInfo(tr("C++ Usages:"), QString(), overview(context.fullyQualifiedName(symbol)));
         m_currentSearch->setTextToReplace(textToReplace);
 
         connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
@@ -415,6 +418,7 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
 void CppFindReferences::findMacroUses(const Macro &macro)
 {
     m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(Find::SearchResultWindow::SearchOnly);
+    m_currentSearch->setInfo(tr("C++ Macro Usages:"), QString(), QString::fromLocal8Bit(macro.name()));
 
     Find::SearchResultWindow::instance()->popup(true);
 

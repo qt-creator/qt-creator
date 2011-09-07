@@ -80,6 +80,10 @@ public:
 
 protected:
     virtual Utils::FileIterator *files() const = 0;
+    virtual QString label() const = 0; // see Find::SearchResult::setInfo
+    virtual QString toolTip() const = 0; // see Find::SearchResult::setInfo,
+                                         // add %1 placeholder where the find flags should be put
+
     void writeCommonSettings(QSettings *settings);
     void readCommonSettings(QSettings *settings, const QString &defaultFilter);
     QWidget *createPatternWidget();

@@ -64,6 +64,8 @@ public:
 
 protected:
     Utils::FileIterator *files() const;
+    QString label() const;
+    QString toolTip() const;
 
 private slots:
     void handleFileChange(Core::IEditor *editor);

@@ -98,6 +98,7 @@ public:
     void setUserData(const QVariant &data);
     QVariant userData() const;
     QString textToReplace() const;
+    void setInfo(const QString &label, const QString &toolTip, const QString &term);
 
 public slots:
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,

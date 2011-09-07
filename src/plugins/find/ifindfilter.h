@@ -36,6 +36,8 @@
 #include "find_global.h"
 #include "textfindconstants.h"
 
+#include <QtGui/QPixmap>
+
 QT_BEGIN_NAMESPACE
 class QWidget;
 class QSettings;
@@ -69,6 +71,8 @@ public:
     virtual void writeSettings(QSettings *settings) { Q_UNUSED(settings) }
     virtual void readSettings(QSettings *settings) { Q_UNUSED(settings) }
 
+    static QPixmap pixmapForFindFlags(FindFlags flags);
+    static QString descriptionForFindFlags(FindFlags flags);
 signals:
     void changed();
 };

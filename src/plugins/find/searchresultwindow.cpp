@@ -230,7 +230,7 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 */
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>() << d->m_expandCollapseButton << d->m_searchResultWidget->toolBarWidgets();
+    return QList<QWidget*>() << d->m_expandCollapseButton;
 }
 
 /*!
@@ -443,6 +443,23 @@ QVariant SearchResult::userData() const
 QString SearchResult::textToReplace() const
 {
     return m_widget->textToReplace();
+}
+
+/*!
+    \fn void SearchResult::setInfo(const QString &label, const QString &toolTip, const QString &term)
+    \brief Set the information about the search that is show in the top-left corner of
+    the search result window.
+
+    The \a label should be a string that shortly describes the
+    search, i.e. search filter and a most relevant search options, followed by a colon ':'.
+    E.g. \code{Project 'myproject':}
+    The search \a term will be shown behind the colon.
+    The \a toolTip should elaborate on the search parameters, like file patterns that are searched and
+    find flags.
+*/
+void SearchResult::setInfo(const QString &label, const QString &toolTip, const QString &term)
+{
+    m_widget->setInfo(label, toolTip, term);
 }
 
 /*!

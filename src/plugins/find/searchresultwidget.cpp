@@ -43,6 +43,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
 
 namespace Find {
 namespace Internal {
@@ -214,10 +215,17 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     layout->setSpacing(0);
     setLayout(layout);
 
-    m_noMatchesFoundDisplay = new QListWidget(this);
-    m_noMatchesFoundDisplay->addItem(tr("No matches found!"));
-    m_noMatchesFoundDisplay->setFrameStyle(QFrame::NoFrame);
-    m_noMatchesFoundDisplay->hide();
+    QFrame *topWidget = new QFrame;
+    QPalette pal = topWidget->palette();
+    pal.setColor(QPalette::Window, QColor(255, 255, 225));
+    pal.setColor(QPalette::WindowText, Qt::black);
+    topWidget->setPalette(pal);
+    topWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    topWidget->setLineWidth(1);
+    topWidget->setAutoFillBackground(true);
+    QHBoxLayout *topLayout = new QHBoxLayout(topWidget);
+    topLayout->setMargin(2);
+    topWidget->setLayout(topLayout);
 
     m_searchResultTreeView = new Internal::SearchResultTreeView(this);
     m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
@@ -226,27 +234,56 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     agg->add(m_searchResultTreeView);
     agg->add(new SearchResultFindSupport(m_searchResultTreeView));
 
-    layout->addWidget(m_noMatchesFoundDisplay);
+    layout->addWidget(topWidget);
     layout->addWidget(m_searchResultTreeView);
 
-    m_infoBarDisplay.setTarget(layout, 0);
+    m_infoBarDisplay.setTarget(layout, 1);
     m_infoBarDisplay.setInfoBar(&m_infoBar);
 
-    m_replaceLabel = new QLabel(tr("Replace with:"), parent);
-    m_replaceLabel->setContentsMargins(12, 0, 5, 0);
-    m_replaceTextEdit = new WideEnoughLineEdit(parent);
-    m_replaceButton = new QToolButton(parent);
+    m_descriptionContainer = new QWidget(topWidget);
+    QHBoxLayout *descriptionLayout = new QHBoxLayout(m_descriptionContainer);
+    m_descriptionContainer->setLayout(descriptionLayout);
+    descriptionLayout->setMargin(0);
+    m_label = new QLabel(m_descriptionContainer);
+    m_label->setVisible(false);
+    m_searchTerm = new QLabel(m_descriptionContainer);
+    m_searchTerm->setVisible(false);
+    descriptionLayout->addWidget(m_label);
+    descriptionLayout->addWidget(m_searchTerm);
+
+    m_replaceLabel = new QLabel(tr("Replace with:"), topWidget);
+    m_replaceTextEdit = new WideEnoughLineEdit(topWidget);
+    m_replaceButton = new QToolButton(topWidget);
     m_replaceButton->setToolTip(tr("Replace all occurrences"));
     m_replaceButton->setText(tr("Replace"));
     m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_replaceButton->setAutoRaise(true);
     m_replaceTextEdit->setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
+
+    m_matchesFoundLabel = new QLabel(topWidget);
+    updateMatchesFoundLabel();
+
+    topLayout->addWidget(m_descriptionContainer);
+    topLayout->addWidget(m_replaceLabel);
+    topLayout->addWidget(m_replaceTextEdit);
+    topLayout->addWidget(m_replaceButton);
+    topLayout->addStretch(2);
+    topLayout->addWidget(m_matchesFoundLabel);
     setShowReplaceUI(false);
 
     connect(m_searchResultTreeView, SIGNAL(jumpToSearchResult(SearchResultItem)),
             this, SLOT(handleJumpToSearchResult(SearchResultItem)));
     connect(m_replaceTextEdit, SIGNAL(returnPressed()), this, SLOT(handleReplaceButton()));
     connect(m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
+}
+
+void SearchResultWidget::setInfo(const QString &label, const QString &toolTip, const QString &term)
+{
+    m_label->setText(label);
+    m_label->setVisible(!label.isEmpty());
+    m_descriptionContainer->setToolTip(toolTip);
+    m_searchTerm->setText(term);
+    m_searchTerm->setVisible(!term.isEmpty());
 }
 
 void SearchResultWidget::addResult(const QString &fileName, int lineNumber, const QString &rowText,
@@ -286,6 +323,7 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
         m_searchResultTreeView->selectionModel()->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()), QItemSelectionModel::Select);
         emit navigateStateChanged();
     }
+    updateMatchesFoundLabel();
 }
 
 int SearchResultWidget::count() const
@@ -398,11 +436,8 @@ void SearchResultWidget::goToPrevious()
 
 void SearchResultWidget::finishSearch()
 {
-    if (m_count > 0) {
-        m_replaceButton->setEnabled(true);
-    } else {
-        showNoMatchesFound();
-    }
+    m_replaceTextEdit->setEnabled(m_count > 0);
+    m_replaceButton->setEnabled(m_count > 0);
 }
 
 void SearchResultWidget::clear()
@@ -412,15 +447,10 @@ void SearchResultWidget::clear()
     m_replaceTextEdit->clear();
     m_searchResultTreeView->clear();
     m_count = 0;
-    m_noMatchesFoundDisplay->hide();
+    m_label->setVisible(false);
+    m_searchTerm->setVisible(false);
+    updateMatchesFoundLabel();
     m_infoBar.clear();
-}
-
-void SearchResultWidget::showNoMatchesFound()
-{
-    m_replaceTextEdit->setEnabled(false);
-    m_replaceButton->setEnabled(false);
-    m_noMatchesFoundDisplay->show();
 }
 
 void SearchResultWidget::hideNoUndoWarning()
@@ -484,6 +514,14 @@ QList<SearchResultItem> SearchResultWidget::checkedItems() const
         }
     }
     return result;
+}
+
+void SearchResultWidget::updateMatchesFoundLabel()
+{
+    if (m_count == 0)
+        m_matchesFoundLabel->setText(tr("No matches found."));
+    else
+        m_matchesFoundLabel->setText(tr("%n matches found.", 0, m_count));
 }
 
 #include "searchresultwidget.moc"

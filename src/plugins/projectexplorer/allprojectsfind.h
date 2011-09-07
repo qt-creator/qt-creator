@@ -63,6 +63,9 @@ public:
 protected:
     virtual QList<Project *> projects() const;
     Utils::FileIterator *files() const;
+    QString label() const;
+    QString toolTip() const;
+
 
 private:
     ProjectExplorerPlugin *m_plugin;

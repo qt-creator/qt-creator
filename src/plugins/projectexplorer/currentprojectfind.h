@@ -63,6 +63,7 @@ public:
 
 protected:
     QList<Project *> projects() const;
+    QString label() const;
 
 private:
     ProjectExplorerPlugin *m_plugin;

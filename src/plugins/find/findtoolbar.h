@@ -133,10 +133,6 @@ private:
     QAction *m_regularExpressionAction;
     Find::FindFlags m_findFlags;
 
-    QPixmap m_casesensitiveIcon;
-    QPixmap m_regexpIcon;
-    QPixmap m_wholewordsIcon;
-
     QTimer m_findIncrementalTimer;
     QTimer m_findStepTimer;
     bool m_useFakeVim;

@@ -52,6 +52,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
 #include <QtGui/QPushButton>
@@ -122,6 +123,9 @@ void BaseFileFind::runNewSearch(const QString &txt, Find::FindFlags findFlags,
                                                      ? QString::fromLatin1("TextEditor")
                                                      : QString());
     m_currentSearch->setTextToReplace(txt);
+    m_currentSearch->setInfo(label(),
+                             toolTip().arg(Find::IFindFilter::descriptionForFindFlags(findFlags)),
+                             txt);
     QVariantList searchParameters;
     searchParameters << qVariantFromValue(txt) << qVariantFromValue(findFlags);
     m_currentSearch->setUserData(searchParameters);

@@ -91,6 +91,9 @@ private slots:
     void onAllTasksFinished(const QString &type);
 
 private:
+    QString label() const;
+    QString toolTip(Find::FindFlags findFlags) const;
+
     CppModelManager *m_manager;
     bool m_isRunning;
     bool m_enabled;

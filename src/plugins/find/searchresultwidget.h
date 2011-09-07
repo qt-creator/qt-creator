@@ -39,7 +39,6 @@
 
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
-#include <QtGui/QListWidget>
 #include <QtGui/QToolButton>
 #include <QtGui/QWidget>
 
@@ -53,6 +52,8 @@ class SearchResultWidget : public QWidget
     Q_OBJECT
 public:
     explicit SearchResultWidget(QWidget *parent = 0);
+
+    void setInfo(const QString &label, const QString &toolTip, const QString &term);
 
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,
                    int searchTermStart, int searchTermLength, const QVariant &userData = QVariant());
@@ -82,13 +83,9 @@ public:
     void goToNext();
     void goToPrevious();
 
-    // TODO: temporary
-    QList<QWidget*> toolBarWidgets() const { return QList<QWidget*>() << m_replaceLabel << m_replaceTextEdit << m_replaceButton; }
-
 public slots:
     void finishSearch();
     void clear();
-    void showNoMatchesFound();
 
 signals:
     void activated(const Find::SearchResultItem &item);
@@ -106,17 +103,21 @@ private:
     bool showWarningMessage() const;
     void setShowWarningMessage(bool showWarningMessage);
     QList<SearchResultItem> checkedItems() const;
+    void updateMatchesFoundLabel();
 
     SearchResultTreeView *m_searchResultTreeView;
     int m_count;
     QString m_dontAskAgainGroup;
     Core::InfoBar m_infoBar;
     Core::InfoBarDisplay m_infoBarDisplay;
-    QListWidget *m_noMatchesFoundDisplay;
     bool m_isShowingReplaceUI;
     QLabel *m_replaceLabel;
     QLineEdit *m_replaceTextEdit;
     QToolButton *m_replaceButton;
+    QWidget *m_descriptionContainer;
+    QLabel *m_label;
+    QLabel *m_searchTerm;
+    QLabel *m_matchesFoundLabel;
 };
 
 } // Internal

@@ -61,6 +61,7 @@
 #include <QtCore/QtConcurrentMap>
 #include <QtCore/QDir>
 #include <QtGui/QApplication>
+#include <QtGui/QLabel>
 #include <qtconcurrent/runextensions.h>
 
 #include <functional>
@@ -849,7 +850,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     future.setProgressRange(0, files.size());
 
     // report a dummy usage to indicate the search is starting
-    FindReferences::Usage searchStarting(replacement, QString(), 0, 0, 0);
+    FindReferences::Usage searchStarting(replacement, name, 0, 0, 0);
 
     if (findTarget.typeKind() == findTarget.TypeKind){
         const ObjectValue *typeValue = value_cast<const ObjectValue*>(findTarget.targetValue());
@@ -868,6 +869,8 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         scope->lookupMember(name, context, &scope);
         if (!scope)
             return;
+        if (!scope->className().isEmpty())
+            searchStarting.lineText.prepend(scope->className() + QLatin1Char('.'));
         future.reportResult(searchStarting);
 
         ProcessFile process(context, name, scope);
@@ -912,6 +915,7 @@ void FindReferences::displayResults(int first, int last)
     if (first == 0) {
         Usage dummy = m_watcher.future().resultAt(0);
         QString replacement = dummy.path;
+        QString symbolName = dummy.lineText;
 
         if (replacement.isEmpty()) {
             m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(Find::SearchResultWindow::SearchOnly);
@@ -921,6 +925,7 @@ void FindReferences::displayResults(int first, int last)
             connect(m_currentSearch, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
                     SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
         }
+        m_currentSearch->setInfo(tr("Usages:"), QString(), symbolName);
         connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
                 this, SLOT(openEditor(Find::SearchResultItem)));
         Find::SearchResultWindow::instance()->popup(true);

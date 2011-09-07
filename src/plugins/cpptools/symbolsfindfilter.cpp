@@ -156,6 +156,7 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
     emit changed();
     Find::SearchResultWindow *window = Find::SearchResultWindow::instance();
     m_currentSearch = window->startNewSearch();
+    m_currentSearch->setInfo(label(), toolTip(findFlags), txt);
     connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
     window->popup(true);
 
@@ -242,6 +243,28 @@ void SymbolsFindFilter::onAllTasksFinished(const QString &type)
         m_enabled = true;
         emit changed();
     }
+}
+
+QString SymbolsFindFilter::label() const
+{
+    return tr("C++ Symbols:");
+}
+
+QString SymbolsFindFilter::toolTip(Find::FindFlags findFlags) const
+{
+    QStringList types;
+    if (m_symbolsToSearch & SearchSymbols::Classes)
+        types.append(tr("Classes"));
+    if (m_symbolsToSearch & SearchSymbols::Functions)
+        types.append(tr("Methods"));
+    if (m_symbolsToSearch & SearchSymbols::Enums)
+        types.append(tr("Enums"));
+    if (m_symbolsToSearch & SearchSymbols::Declarations)
+        types.append(tr("Declarations"));
+    return tr("Scope: %1\nTypes: %2\nFlags: %3")
+            .arg(searchScope() == SearchGlobal ? tr("All") : tr("Projects"))
+            .arg(types.join(tr(", ")))
+            .arg(Find::IFindFilter::descriptionForFindFlags(findFlags));
 }
 
 // #pragma mark -- SymbolsFindFilterConfigWidget

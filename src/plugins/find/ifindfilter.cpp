@@ -32,6 +32,8 @@
 
 #include "ifindfilter.h"
 
+#include <QtGui/QPainter>
+
 /*!
     \class Find::IFindFilter
     \brief The IFindFilter class is the base class for find implementations
@@ -219,4 +221,53 @@ Find::FindFlags Find::IFindFilter::supportedFindFlags() const
 {
     return Find::FindCaseSensitively
             | Find::FindRegularExpression | Find::FindWholeWords;
+}
+
+QPixmap Find::IFindFilter::pixmapForFindFlags(Find::FindFlags flags)
+{
+    static const QPixmap casesensitiveIcon(":/find/images/casesensitively.png");
+    static const QPixmap regexpIcon(":/find/images/regexp.png");
+    static const QPixmap wholewordsIcon(":/find/images/wholewords.png");
+    bool casesensitive = flags & Find::FindCaseSensitively;
+    bool wholewords = flags & Find::FindWholeWords;
+    bool regexp = flags & Find::FindRegularExpression;
+    int width = 0;
+    if (casesensitive) width += 6;
+    if (wholewords) width += 6;
+    if (regexp) width += 6;
+    if (width > 0) --width;
+    QPixmap pixmap(width, 17);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    int x = 0;
+
+    if (casesensitive) {
+        painter.drawPixmap(x - 6, 0, casesensitiveIcon);
+        x += 6;
+    }
+    if (wholewords) {
+        painter.drawPixmap(x - 6, 0, wholewordsIcon);
+        x += 6;
+    }
+    if (regexp) {
+        painter.drawPixmap(x - 6, 0, regexpIcon);
+    }
+    return pixmap;
+}
+
+QString Find::IFindFilter::descriptionForFindFlags(Find::FindFlags flags)
+{
+    QStringList flagStrings;
+    if (flags & Find::FindCaseSensitively)
+        flagStrings.append(tr("Case sensitive"));
+    if (flags & Find::FindWholeWords)
+        flagStrings.append(tr("Whole words"));
+    if (flags & Find::FindRegularExpression)
+        flagStrings.append(tr("Regular expressions"));
+    QString description = tr("Flags: %1");
+    if (flagStrings.isEmpty())
+        description = description.arg(tr("None"));
+    else
+        description = description.arg(flagStrings.join(tr(", ")));
+    return description;
 }

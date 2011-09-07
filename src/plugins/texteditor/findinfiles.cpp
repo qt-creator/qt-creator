@@ -40,6 +40,7 @@
 #include <QtCore/QDirIterator>
 #include <QtGui/QPushButton>
 #include <QtGui/QFileDialog>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 
 using namespace Find;
@@ -72,6 +73,17 @@ Utils::FileIterator *FindInFiles::files() const
     return new Utils::SubDirFileIterator(QStringList() << m_directory->currentText(),
                                          fileNameFilters(),
                                          Core::EditorManager::instance()->defaultTextCodec());
+}
+
+QString FindInFiles::label() const
+{
+    return tr("Directory '%1':").arg(QFileInfo(m_directory->currentText()).fileName());
+}
+
+QString FindInFiles::toolTip() const
+{
+    return tr("Path: %1\nFilter: %2\n%3").arg(QFileInfo(m_directory->currentText()).absoluteFilePath())
+            .arg(fileNameFilters().join(QLatin1String(",")));
 }
 
 QWidget *FindInFiles::createConfigWidget()

@@ -77,6 +77,16 @@ Utils::FileIterator *FindInCurrentFile::files() const
     return new Utils::FileIterator(QStringList() << fileName, QList<QTextCodec *>() << codec);
 }
 
+QString FindInCurrentFile::label() const
+{
+    return tr("File '%1':").arg(QFileInfo(m_currentFile->fileName()).fileName());
+}
+
+QString FindInCurrentFile::toolTip() const
+{
+    return tr("File path: %1\n%2").arg(QDir::toNativeSeparators(m_currentFile->fileName()));
+}
+
 bool FindInCurrentFile::isEnabled() const
 {
     return m_currentFile && !m_currentFile->fileName().isEmpty();
