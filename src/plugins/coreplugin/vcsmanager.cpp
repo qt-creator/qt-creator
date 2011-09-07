@@ -140,7 +140,7 @@ public:
 
 VcsManager::VcsManager(QObject *parent) :
    QObject(parent),
-   m_d(new VcsManagerPrivate)
+   d(new VcsManagerPrivate)
 {
 }
 
@@ -148,7 +148,7 @@ VcsManager::VcsManager(QObject *parent) :
 
 VcsManager::~VcsManager()
 {
-    delete m_d;
+    delete d;
 }
 
 void VcsManager::extensionsInitialized()
@@ -177,7 +177,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     // Make sure we a clean absolute path:
     const QString directory = QDir(inputDirectory).absolutePath();
 
-    VcsManagerPrivate::VcsInfo *cachedData = m_d->findInCache(directory);
+    VcsManagerPrivate::VcsInfo *cachedData = d->findInCache(directory);
     if (cachedData) {
         if (topLevelDirectory)
             *topLevelDirectory = cachedData->topLevel;
@@ -199,7 +199,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     qSort(allThatCanManage.begin(), allThatCanManage.end(), longerThanPath);
 
     if (allThatCanManage.isEmpty()) {
-        m_d->cache(0, QString(), directory); // register that nothing was found!
+        d->cache(0, QString(), directory); // register that nothing was found!
 
         // report result;
         if (topLevelDirectory)
@@ -211,7 +211,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     QString tmpDir = directory;
     for (QList<QPair<QString, IVersionControl *> >::const_iterator i = allThatCanManage.constBegin();
          i != allThatCanManage.constEnd(); ++i) {
-        m_d->cache(i->second, i->first, tmpDir);
+        d->cache(i->second, i->first, tmpDir);
         tmpDir = i->first;
         tmpDir = tmpDir.left(tmpDir.lastIndexOf(SLASH));
     }
@@ -237,7 +237,7 @@ IVersionControl *VcsManager::checkout(const QString &versionControlType,
         if (versionControl->displayName() == versionControlType
             && versionControl->supportsOperation(Core::IVersionControl::CheckoutOperation)) {
             if (versionControl->vcsCheckout(directory, url)) {
-                m_d->cache(versionControl, directory, directory);
+                d->cache(versionControl, directory, directory);
                 return versionControl;
             }
             return 0;

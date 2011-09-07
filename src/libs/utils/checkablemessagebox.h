@@ -100,7 +100,7 @@ private slots:
    void slotClicked(QAbstractButton *b);
 
 private:
-   CheckableMessageBoxPrivate *m_d;
+   CheckableMessageBoxPrivate *d;
 };
 
 } // namespace Utils

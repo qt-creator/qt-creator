@@ -59,39 +59,39 @@ FileWizardPagePrivate::FileWizardPagePrivate() :
 
 FileWizardPage::FileWizardPage(QWidget *parent) :
     QWizardPage(parent),
-    m_d(new FileWizardPagePrivate)
+    d(new FileWizardPagePrivate)
 {
-    m_d->m_ui.setupUi(this);
-    connect(m_d->m_ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
-    connect(m_d->m_ui.nameLineEdit, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
+    d->m_ui.setupUi(this);
+    connect(d->m_ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
+    connect(d->m_ui.nameLineEdit, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
 
-    connect(m_d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
-    connect(m_d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
+    connect(d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
+    connect(d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
 }
 
 FileWizardPage::~FileWizardPage()
 {
-    delete m_d;
+    delete d;
 }
 
 QString FileWizardPage::fileName() const
 {
-    return m_d->m_ui.nameLineEdit->text();
+    return d->m_ui.nameLineEdit->text();
 }
 
 QString FileWizardPage::path() const
 {
-    return m_d->m_ui.pathChooser->path();
+    return d->m_ui.pathChooser->path();
 }
 
 void FileWizardPage::setPath(const QString &path)
 {
-    m_d->m_ui.pathChooser->setPath(path);
+    d->m_ui.pathChooser->setPath(path);
 }
 
 void FileWizardPage::setFileName(const QString &name)
 {
-    m_d->m_ui.nameLineEdit->setText(name);
+    d->m_ui.nameLineEdit->setText(name);
 }
 
 void FileWizardPage::changeEvent(QEvent *e)
@@ -99,7 +99,7 @@ void FileWizardPage::changeEvent(QEvent *e)
     QWizardPage::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
-        m_d->m_ui.retranslateUi(this);
+        d->m_ui.retranslateUi(this);
         break;
     default:
         break;
@@ -108,31 +108,31 @@ void FileWizardPage::changeEvent(QEvent *e)
 
 bool FileWizardPage::isComplete() const
 {
-    return m_d->m_complete;
+    return d->m_complete;
 }
 
 void FileWizardPage::setFileNameLabel(const QString &label)
 {
-    m_d->m_ui.nameLabel->setText(label);
+    d->m_ui.nameLabel->setText(label);
 }
 
 void FileWizardPage::setPathLabel(const QString &label)
 {
-    m_d->m_ui.pathLabel->setText(label);
+    d->m_ui.pathLabel->setText(label);
 }
 
 void FileWizardPage::slotValidChanged()
 {
-    const bool newComplete = m_d->m_ui.pathChooser->isValid() && m_d->m_ui.nameLineEdit->isValid();
-    if (newComplete != m_d->m_complete) {
-        m_d->m_complete = newComplete;
+    const bool newComplete = d->m_ui.pathChooser->isValid() && d->m_ui.nameLineEdit->isValid();
+    if (newComplete != d->m_complete) {
+        d->m_complete = newComplete;
         emit completeChanged();
     }
 }
 
 void FileWizardPage::slotActivated()
 {
-    if (m_d->m_complete)
+    if (d->m_complete)
         emit activated();
 }
 

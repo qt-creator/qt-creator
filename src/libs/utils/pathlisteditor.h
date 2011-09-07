@@ -38,10 +38,6 @@
 #include <QtGui/QWidget>
 #include <QtCore/QStringList>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
 namespace Utils {
 
 struct PathListEditorPrivate;
@@ -91,7 +87,7 @@ private slots:
     void slotInsert();
 
 private:
-    PathListEditorPrivate *m_d;
+    PathListEditorPrivate *d;
 };
 
 } // namespace Utils

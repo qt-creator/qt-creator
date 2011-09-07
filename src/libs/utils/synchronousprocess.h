@@ -43,7 +43,6 @@
 QT_BEGIN_NAMESPACE
 class QTextCodec;
 class QDebug;
-class QByteArray;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -165,7 +164,7 @@ private:
     static QString convertStdErr(const QByteArray &);
     QString convertStdOut(const QByteArray &) const;
 
-    SynchronousProcessPrivate *m_d;
+    SynchronousProcessPrivate *d;
 };
 
 } // namespace Utils

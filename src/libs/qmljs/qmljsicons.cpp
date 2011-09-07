@@ -61,18 +61,18 @@ public:
 } // namespace QmlJS
 
 Icons::Icons()
-    : m_d(new IconsPrivate)
+    : d(new IconsPrivate)
 {
-    m_d->elementIcon = QIcon(QLatin1String(":/qmljs/images/element.png"));
-    m_d->propertyIcon = QIcon(QLatin1String(":/qmljs/images/property.png"));
-    m_d->publicMemberIcon = QIcon(QLatin1String(":/qmljs/images/publicmember.png"));
-    m_d->functionDeclarationIcon = QIcon(QLatin1String(":/qmljs/images/func.png"));
+    d->elementIcon = QIcon(QLatin1String(":/qmljs/images/element.png"));
+    d->propertyIcon = QIcon(QLatin1String(":/qmljs/images/property.png"));
+    d->publicMemberIcon = QIcon(QLatin1String(":/qmljs/images/publicmember.png"));
+    d->functionDeclarationIcon = QIcon(QLatin1String(":/qmljs/images/func.png"));
 }
 
 Icons::~Icons()
 {
     m_instance = 0;
-    delete m_d;
+    delete d;
 }
 
 Icons *Icons::instance()
@@ -84,10 +84,10 @@ Icons *Icons::instance()
 
 void Icons::setIconFilesPath(const QString &iconPath)
 {
-    if (iconPath == m_d->resourcePath)
+    if (iconPath == d->resourcePath)
         return;
 
-    m_d->resourcePath = iconPath;
+    d->resourcePath = iconPath;
 
     if (debug)
         qDebug() << "QmlJSIcons -" << "parsing" << iconPath;
@@ -107,7 +107,7 @@ void Icons::setIconFilesPath(const QString &iconPath)
             if (debug)
                 qDebug() << "QmlJSIcons - adding" << packageName << iconFile.baseName() << "icon to database";
             QPair<QString,QString> element(packageName, iconFile.baseName());
-            m_d->iconHash.insert(element, icon);
+            d->iconHash.insert(element, icon);
         }
     }
 }
@@ -116,8 +116,8 @@ QIcon Icons::icon(const QString &packageName, const QString typeName) const
 {
     QPair<QString,QString> element(packageName, typeName);
     if (debug)
-        qDebug() << "QmlJSIcons - icon for" << packageName << typeName << "requested" << m_d->iconHash.contains(element);
-    return m_d->iconHash.value(element);
+        qDebug() << "QmlJSIcons - icon for" << packageName << typeName << "requested" << d->iconHash.contains(element);
+    return d->iconHash.value(element);
 }
 
 QIcon Icons::icon(Node *node) const
@@ -134,20 +134,20 @@ QIcon Icons::icon(Node *node) const
 
 QIcon Icons::objectDefinitionIcon() const
 {
-    return m_d->elementIcon;
+    return d->elementIcon;
 }
 
 QIcon Icons::scriptBindingIcon() const
 {
-    return m_d->propertyIcon;
+    return d->propertyIcon;
 }
 
 QIcon Icons::publicMemberIcon() const
 {
-    return m_d->publicMemberIcon;
+    return d->publicMemberIcon;
 }
 
 QIcon Icons::functionDeclarationIcon() const
 {
-    return m_d->functionDeclarationIcon;
+    return d->functionDeclarationIcon;
 }

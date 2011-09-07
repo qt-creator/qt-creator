@@ -146,7 +146,7 @@ private:
     bool hasSelection() const;
     int checkedFilesCount() const;
 
-    SubmitEditorWidgetPrivate *m_d;
+    SubmitEditorWidgetPrivate *d;
 };
 
 } // namespace Utils

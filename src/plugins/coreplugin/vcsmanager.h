@@ -38,10 +38,6 @@
 #include <QtCore/QString>
 #include <QtCore/QObject>
 
-QT_BEGIN_NAMESPACE
-class QDebug;
-QT_END_NAMESPACE
-
 namespace Core {
 
 class VcsManagerPrivate;
@@ -62,6 +58,7 @@ class IVersionControl;
 class CORE_EXPORT VcsManager : public QObject
 {
     Q_OBJECT
+
 public:
     explicit VcsManager(QObject *parent = 0);
     virtual ~VcsManager();
@@ -88,7 +85,7 @@ signals:
     void repositoryChanged(const QString &repository);
 
 private:
-    VcsManagerPrivate *m_d;
+    VcsManagerPrivate *d;
 };
 
 } // namespace Core

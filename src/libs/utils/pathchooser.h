@@ -144,7 +144,7 @@ private slots:
     void slotBrowse();
 
 private:
-    PathChooserPrivate *m_d;
+    PathChooserPrivate *d;
 };
 
 } // namespace Utils

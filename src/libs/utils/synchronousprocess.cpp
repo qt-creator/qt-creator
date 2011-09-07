@@ -237,127 +237,127 @@ void SynchronousProcessPrivate::clearForRun()
 
 // ----------- SynchronousProcess
 SynchronousProcess::SynchronousProcess() :
-    m_d(new SynchronousProcessPrivate)
+    d(new SynchronousProcessPrivate)
 {
-    m_d->m_timer.setInterval(1000);
-    connect(&m_d->m_timer, SIGNAL(timeout()), this, SLOT(slotTimeout()));
-    connect(&m_d->m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
-    connect(&m_d->m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
-    connect(&m_d->m_process, SIGNAL(readyReadStandardOutput()),
+    d->m_timer.setInterval(1000);
+    connect(&d->m_timer, SIGNAL(timeout()), this, SLOT(slotTimeout()));
+    connect(&d->m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
+    connect(&d->m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
+    connect(&d->m_process, SIGNAL(readyReadStandardOutput()),
             this, SLOT(stdOutReady()));
-    connect(&m_d->m_process, SIGNAL(readyReadStandardError()),
+    connect(&d->m_process, SIGNAL(readyReadStandardError()),
             this, SLOT(stdErrReady()));
 }
 
 SynchronousProcess::~SynchronousProcess()
 {
-    disconnect(&m_d->m_timer, 0, this, 0);
-    disconnect(&m_d->m_process, 0, this, 0);
-    delete m_d;
+    disconnect(&d->m_timer, 0, this, 0);
+    disconnect(&d->m_process, 0, this, 0);
+    delete d;
 }
 
 void SynchronousProcess::setTimeout(int timeoutMS)
 {
     if (timeoutMS >= 0) {
-        m_d->m_maxHangTimerCount = qMax(2, timeoutMS / 1000);
+        d->m_maxHangTimerCount = qMax(2, timeoutMS / 1000);
     } else {
-        m_d->m_maxHangTimerCount = INT_MAX;
+        d->m_maxHangTimerCount = INT_MAX;
     }
 }
 
 int SynchronousProcess::timeout() const
 {
-    return m_d->m_maxHangTimerCount == INT_MAX ? -1 : 1000 * m_d->m_maxHangTimerCount;
+    return d->m_maxHangTimerCount == INT_MAX ? -1 : 1000 * d->m_maxHangTimerCount;
 }
 
 void SynchronousProcess::setStdOutCodec(QTextCodec *c)
 {
-    m_d->m_stdOutCodec = c;
+    d->m_stdOutCodec = c;
 }
 
 QTextCodec *SynchronousProcess::stdOutCodec() const
 {
-    return m_d->m_stdOutCodec;
+    return d->m_stdOutCodec;
 }
 
 bool SynchronousProcess::stdOutBufferedSignalsEnabled() const
 {
-    return m_d->m_stdOut.bufferedSignalsEnabled;
+    return d->m_stdOut.bufferedSignalsEnabled;
 }
 
 void SynchronousProcess::setStdOutBufferedSignalsEnabled(bool v)
 {
-    m_d->m_stdOut.bufferedSignalsEnabled = v;
+    d->m_stdOut.bufferedSignalsEnabled = v;
 }
 
 bool SynchronousProcess::stdErrBufferedSignalsEnabled() const
 {
-    return m_d->m_stdErr.bufferedSignalsEnabled;
+    return d->m_stdErr.bufferedSignalsEnabled;
 }
 
 void SynchronousProcess::setStdErrBufferedSignalsEnabled(bool v)
 {
-    m_d->m_stdErr.bufferedSignalsEnabled = v;
+    d->m_stdErr.bufferedSignalsEnabled = v;
 }
 
 QStringList SynchronousProcess::environment() const
 {
-    return m_d->m_process.environment();
+    return d->m_process.environment();
 }
 
 bool SynchronousProcess::timeOutMessageBoxEnabled() const
 {
-    return m_d->m_timeOutMessageBoxEnabled;
+    return d->m_timeOutMessageBoxEnabled;
 }
 
 void SynchronousProcess::setTimeOutMessageBoxEnabled(bool v)
 {
-    m_d->m_timeOutMessageBoxEnabled = v;
+    d->m_timeOutMessageBoxEnabled = v;
 }
 
 void SynchronousProcess::setEnvironment(const QStringList &e)
 {
-    m_d->m_process.setEnvironment(e);
+    d->m_process.setEnvironment(e);
 }
 
 void SynchronousProcess::setProcessEnvironment(const QProcessEnvironment &environment)
 {
-    m_d->m_process.setProcessEnvironment(environment);
+    d->m_process.setProcessEnvironment(environment);
 }
 
 QProcessEnvironment SynchronousProcess::processEnvironment() const
 {
-    return m_d->m_process.processEnvironment();
+    return d->m_process.processEnvironment();
 }
 
 unsigned SynchronousProcess::flags() const
 {
-    return m_d->m_process.flags();
+    return d->m_process.flags();
 }
 
 void SynchronousProcess::setFlags(unsigned tc)
 {
-    m_d->m_process.setFlags(tc);
+    d->m_process.setFlags(tc);
 }
 
 void SynchronousProcess::setWorkingDirectory(const QString &workingDirectory)
 {
-    m_d->m_process.setWorkingDirectory(workingDirectory);
+    d->m_process.setWorkingDirectory(workingDirectory);
 }
 
 QString SynchronousProcess::workingDirectory() const
 {
-    return m_d->m_process.workingDirectory();
+    return d->m_process.workingDirectory();
 }
 
 QProcess::ProcessChannelMode SynchronousProcess::processChannelMode () const
 {
-    return m_d->m_process.processChannelMode();
+    return d->m_process.processChannelMode();
 }
 
 void SynchronousProcess::setProcessChannelMode(QProcess::ProcessChannelMode m)
 {
-    m_d->m_process.setProcessChannelMode(m);
+    d->m_process.setProcessChannelMode(m);
 }
 
 SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
@@ -366,33 +366,33 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     if (debug)
         qDebug() << '>' << Q_FUNC_INFO << binary << args;
 
-    m_d->clearForRun();
+    d->clearForRun();
 
     // On Windows, start failure is triggered immediately if the
     // executable cannot be found in the path. Do not start the
     // event loop in that case.
-    m_d->m_binary = binary;
-    m_d->m_process.start(binary, args, QIODevice::ReadOnly);
-    m_d->m_process.closeWriteChannel();
-    if (!m_d->m_startFailure) {
-        m_d->m_timer.start();
+    d->m_binary = binary;
+    d->m_process.start(binary, args, QIODevice::ReadOnly);
+    d->m_process.closeWriteChannel();
+    if (!d->m_startFailure) {
+        d->m_timer.start();
         QApplication::setOverrideCursor(Qt::WaitCursor);
-        m_d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
-        if (m_d->m_result.result == SynchronousProcessResponse::Finished || m_d->m_result.result == SynchronousProcessResponse::FinishedError) {
+        d->m_eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+        if (d->m_result.result == SynchronousProcessResponse::Finished || d->m_result.result == SynchronousProcessResponse::FinishedError) {
             processStdOut(false);
             processStdErr(false);
         }
 
-        m_d->m_result.stdOut = convertStdOut(m_d->m_stdOut.data);
-        m_d->m_result.stdErr = convertStdErr(m_d->m_stdErr.data);
+        d->m_result.stdOut = convertStdOut(d->m_stdOut.data);
+        d->m_result.stdErr = convertStdErr(d->m_stdErr.data);
 
-        m_d->m_timer.stop();
+        d->m_timer.stop();
         QApplication::restoreOverrideCursor();
     }
 
     if (debug)
-        qDebug() << '<' << Q_FUNC_INFO << binary << m_d->m_result;
-    return  m_d->m_result;
+        qDebug() << '<' << Q_FUNC_INFO << binary << d->m_result;
+    return  d->m_result;
 }
 
 static inline bool askToKill(const QString &binary = QString())
@@ -415,19 +415,19 @@ static inline bool askToKill(const QString &binary = QString())
 
 void SynchronousProcess::slotTimeout()
 {
-    if (++m_d->m_hangTimerCount > m_d->m_maxHangTimerCount) {
+    if (++d->m_hangTimerCount > d->m_maxHangTimerCount) {
         if (debug)
             qDebug() << Q_FUNC_INFO << "HANG detected, killing";
-        const bool terminate = !m_d->m_timeOutMessageBoxEnabled || askToKill(m_d->m_binary);
+        const bool terminate = !d->m_timeOutMessageBoxEnabled || askToKill(d->m_binary);
         if (terminate) {
-            SynchronousProcess::stopProcess(m_d->m_process);
-            m_d->m_result.result = SynchronousProcessResponse::Hang;
+            SynchronousProcess::stopProcess(d->m_process);
+            d->m_result.result = SynchronousProcessResponse::Hang;
         } else {
-            m_d->m_hangTimerCount = 0;
+            d->m_hangTimerCount = 0;
         }
     } else {
         if (debug)
-            qDebug() << Q_FUNC_INFO << m_d->m_hangTimerCount;
+            qDebug() << Q_FUNC_INFO << d->m_hangTimerCount;
     }
 }
 
@@ -435,43 +435,43 @@ void SynchronousProcess::finished(int exitCode, QProcess::ExitStatus e)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << exitCode << e;
-    m_d->m_hangTimerCount = 0;
+    d->m_hangTimerCount = 0;
     switch (e) {
     case QProcess::NormalExit:
-        m_d->m_result.result = exitCode ? SynchronousProcessResponse::FinishedError : SynchronousProcessResponse::Finished;
-        m_d->m_result.exitCode = exitCode;
+        d->m_result.result = exitCode ? SynchronousProcessResponse::FinishedError : SynchronousProcessResponse::Finished;
+        d->m_result.exitCode = exitCode;
         break;
     case QProcess::CrashExit:
         // Was hang detected before and killed?
-        if (m_d->m_result.result != SynchronousProcessResponse::Hang)
-            m_d->m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
-        m_d->m_result.exitCode = -1;
+        if (d->m_result.result != SynchronousProcessResponse::Hang)
+            d->m_result.result = SynchronousProcessResponse::TerminatedAbnormally;
+        d->m_result.exitCode = -1;
         break;
     }
-    m_d->m_eventLoop.quit();
+    d->m_eventLoop.quit();
 }
 
 void SynchronousProcess::error(QProcess::ProcessError e)
 {
-    m_d->m_hangTimerCount = 0;
+    d->m_hangTimerCount = 0;
     if (debug)
         qDebug() << Q_FUNC_INFO << e;
     // Was hang detected before and killed?
-    if (m_d->m_result.result != SynchronousProcessResponse::Hang)
-        m_d->m_result.result = SynchronousProcessResponse::StartFailed;
-    m_d->m_startFailure = true;
-    m_d->m_eventLoop.quit();
+    if (d->m_result.result != SynchronousProcessResponse::Hang)
+        d->m_result.result = SynchronousProcessResponse::StartFailed;
+    d->m_startFailure = true;
+    d->m_eventLoop.quit();
 }
 
 void SynchronousProcess::stdOutReady()
 {
-    m_d->m_hangTimerCount = 0;
+    d->m_hangTimerCount = 0;
     processStdOut(true);
 }
 
 void SynchronousProcess::stdErrReady()
 {
-    m_d->m_hangTimerCount = 0;
+    d->m_hangTimerCount = 0;
     processStdErr(true);
 }
 
@@ -482,28 +482,28 @@ QString SynchronousProcess::convertStdErr(const QByteArray &ba)
 
 QString SynchronousProcess::convertStdOut(const QByteArray &ba) const
 {
-    QString stdOut = m_d->m_stdOutCodec ? m_d->m_stdOutCodec->toUnicode(ba) : QString::fromLocal8Bit(ba.constData(), ba.size());
+    QString stdOut = d->m_stdOutCodec ? d->m_stdOutCodec->toUnicode(ba) : QString::fromLocal8Bit(ba.constData(), ba.size());
     return stdOut.remove(QLatin1Char('\r'));
 }
 
 void SynchronousProcess::processStdOut(bool emitSignals)
 {
     // Handle binary data
-    const QByteArray ba = m_d->m_process.readAllStandardOutput();
+    const QByteArray ba = d->m_process.readAllStandardOutput();
     if (debug > 1)
         qDebug() << Q_FUNC_INFO << emitSignals << ba;
     if (!ba.isEmpty()) {
-        m_d->m_stdOut.data += ba;
+        d->m_stdOut.data += ba;
         if (emitSignals) {
             // Emit binary signals
-            emit stdOut(ba, m_d->m_stdOut.firstData);
-            m_d->m_stdOut.firstData = false;
+            emit stdOut(ba, d->m_stdOut.firstData);
+            d->m_stdOut.firstData = false;
             // Buffered. Emit complete lines?
-            if (m_d->m_stdOut.bufferedSignalsEnabled) {
-                const QByteArray lines = m_d->m_stdOut.linesRead();
+            if (d->m_stdOut.bufferedSignalsEnabled) {
+                const QByteArray lines = d->m_stdOut.linesRead();
                 if (!lines.isEmpty()) {
-                    emit stdOutBuffered(convertStdOut(lines), m_d->m_stdOut.firstBuffer);
-                    m_d->m_stdOut.firstBuffer = false;
+                    emit stdOutBuffered(convertStdOut(lines), d->m_stdOut.firstBuffer);
+                    d->m_stdOut.firstBuffer = false;
                 }
             }
         }
@@ -513,21 +513,21 @@ void SynchronousProcess::processStdOut(bool emitSignals)
 void SynchronousProcess::processStdErr(bool emitSignals)
 {
     // Handle binary data
-    const QByteArray ba = m_d->m_process.readAllStandardError();
+    const QByteArray ba = d->m_process.readAllStandardError();
     if (debug > 1)
         qDebug() << Q_FUNC_INFO << emitSignals << ba;
     if (!ba.isEmpty()) {
-        m_d->m_stdErr.data += ba;
+        d->m_stdErr.data += ba;
         if (emitSignals) {
             // Emit binary signals
-            emit stdErr(ba, m_d->m_stdErr.firstData);
-            m_d->m_stdErr.firstData = false;
-            if (m_d->m_stdErr.bufferedSignalsEnabled) {
+            emit stdErr(ba, d->m_stdErr.firstData);
+            d->m_stdErr.firstData = false;
+            if (d->m_stdErr.bufferedSignalsEnabled) {
                 // Buffered. Emit complete lines?
-                const QByteArray lines = m_d->m_stdErr.linesRead();
+                const QByteArray lines = d->m_stdErr.linesRead();
                 if (!lines.isEmpty()) {
-                    emit stdErrBuffered(convertStdErr(lines), m_d->m_stdErr.firstBuffer);
-                    m_d->m_stdErr.firstBuffer = false;
+                    emit stdErrBuffered(convertStdErr(lines), d->m_stdErr.firstBuffer);
+                    d->m_stdErr.firstBuffer = false;
                 }
             }
         }

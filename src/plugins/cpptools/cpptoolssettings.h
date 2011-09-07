@@ -69,7 +69,7 @@ public:
     TextEditor::TabPreferences *tabPreferences() const;
 
 private:
-    Internal::CppToolsSettingsPrivate *m_d;
+    Internal::CppToolsSettingsPrivate *d;
 
     static CppToolsSettings *m_instance;
 };

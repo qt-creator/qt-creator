@@ -68,28 +68,28 @@ ClassNameValidatingLineEditPrivate:: ClassNameValidatingLineEditPrivate() :
 // --------------------- ClassNameValidatingLineEdit
 ClassNameValidatingLineEdit::ClassNameValidatingLineEdit(QWidget *parent) :
     Utils::BaseValidatingLineEdit(parent),
-    m_d(new ClassNameValidatingLineEditPrivate)
+    d(new ClassNameValidatingLineEditPrivate)
 {
 }
 
 ClassNameValidatingLineEdit::~ClassNameValidatingLineEdit()
 {
-    delete m_d;
+    delete d;
 }
 
 bool ClassNameValidatingLineEdit::namespacesEnabled() const
 {
-    return m_d->m_namespacesEnabled;
+    return d->m_namespacesEnabled;
 }
 
 void ClassNameValidatingLineEdit::setNamespacesEnabled(bool b)
 {
-    m_d->m_namespacesEnabled = b;
+    d->m_namespacesEnabled = b;
 }
 
 bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
 {
-    if (!m_d->m_namespacesEnabled && value.contains(QLatin1Char(':'))) {
+    if (!d->m_namespacesEnabled && value.contains(QLatin1Char(':'))) {
         if (errorMessage)
             *errorMessage = tr("The class name must not contain namespace delimiters.");
         return false;
@@ -97,7 +97,7 @@ bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorM
         if (errorMessage)
             *errorMessage = tr("Please enter a class name.");
         return false;
-    } else if (!m_d->m_nameRegexp.exactMatch(value)) {
+    } else if (!d->m_nameRegexp.exactMatch(value)) {
         if (errorMessage)
             *errorMessage = tr("The class name contains invalid characters.");
         return false;
@@ -110,11 +110,11 @@ void ClassNameValidatingLineEdit::slotChanged(const QString &t)
     Utils::BaseValidatingLineEdit::slotChanged(t);
     if (isValid()) {
         // Suggest file names, strip namespaces
-        QString fileName = m_d->m_lowerCaseFileName ? t.toLower() : t;
-        if (m_d->m_namespacesEnabled) {
-            const int namespaceIndex = fileName.lastIndexOf(m_d->m_namespaceDelimiter);
+        QString fileName = d->m_lowerCaseFileName ? t.toLower() : t;
+        if (d->m_namespacesEnabled) {
+            const int namespaceIndex = fileName.lastIndexOf(d->m_namespaceDelimiter);
             if (namespaceIndex != -1)
-                fileName.remove(0, namespaceIndex + m_d->m_namespaceDelimiter.size());
+                fileName.remove(0, namespaceIndex + d->m_namespaceDelimiter.size());
         }
         emit updateFileName(fileName);
     }
@@ -148,12 +148,12 @@ QString ClassNameValidatingLineEdit::createClassName(const QString &name)
 
 bool ClassNameValidatingLineEdit::lowerCaseFileName() const
 {
-    return m_d->m_lowerCaseFileName;
+    return d->m_lowerCaseFileName;
 }
 
 void ClassNameValidatingLineEdit::setLowerCaseFileName(bool v)
 {
-    m_d->m_lowerCaseFileName = v;
+    d->m_lowerCaseFileName = v;
 }
 
 } // namespace Utils

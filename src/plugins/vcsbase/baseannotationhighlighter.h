@@ -59,7 +59,7 @@ private:
     // Implement this to return the change number of a line
     virtual QString changeNumber(const QString &block) const = 0;
 
-    BaseAnnotationHighlighterPrivate *m_d;
+    BaseAnnotationHighlighterPrivate *d;
 };
 
 } // namespace VCSBase

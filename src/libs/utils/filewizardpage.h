@@ -78,7 +78,7 @@ protected:
     virtual void changeEvent(QEvent *e);
 
 private:
-    FileWizardPagePrivate *m_d;
+    FileWizardPagePrivate *d;
 };
 
 } // namespace Utils

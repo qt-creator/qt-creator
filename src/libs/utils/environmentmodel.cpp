@@ -93,26 +93,26 @@ public:
 
 EnvironmentModel::EnvironmentModel(QObject *parent) :
     QAbstractTableModel(parent),
-    m_d(new Internal::EnvironmentModelPrivate)
+    d(new Internal::EnvironmentModelPrivate)
 { }
 
 EnvironmentModel::~EnvironmentModel()
 {
-    delete m_d;
+    delete d;
 }
 
 QString EnvironmentModel::indexToVariable(const QModelIndex &index) const
 {
-    return m_d->m_resultEnvironment.key(m_d->m_resultEnvironment.constBegin() + index.row());
+    return d->m_resultEnvironment.key(d->m_resultEnvironment.constBegin() + index.row());
 }
 
 void EnvironmentModel::setBaseEnvironment(const Utils::Environment &env)
 {
-    if (m_d->m_baseEnvironment == env)
+    if (d->m_baseEnvironment == env)
         return;
     beginResetModel();
-    m_d->m_baseEnvironment = env;
-    m_d->updateResultEnvironment();
+    d->m_baseEnvironment = env;
+    d->updateResultEnvironment();
     endResetModel();
 }
 
@@ -121,7 +121,7 @@ int EnvironmentModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_d->m_resultEnvironment.size();
+    return d->m_resultEnvironment.size();
 }
 int EnvironmentModel::columnCount(const QModelIndex &parent) const
 {
@@ -133,7 +133,7 @@ int EnvironmentModel::columnCount(const QModelIndex &parent) const
 
 bool EnvironmentModel::changes(const QString &name) const
 {
-    return m_d->findInChanges(name) >= 0;
+    return d->findInChanges(name) >= 0;
 }
 
 QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
@@ -143,20 +143,20 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole || role == Qt::EditRole || role == Qt::ToolTipRole) {
         if (index.column() == 0) {
-            return m_d->m_resultEnvironment.key(m_d->m_resultEnvironment.constBegin() + index.row());
+            return d->m_resultEnvironment.key(d->m_resultEnvironment.constBegin() + index.row());
         } else if (index.column() == 1) {
             // Do not return "<UNSET>" when editing a previously unset variable:
             if (role == Qt::EditRole) {
-                int pos = m_d->findInChanges(indexToVariable(index));
+                int pos = d->findInChanges(indexToVariable(index));
                 if (pos >= 0)
-                    return m_d->m_items.at(pos).value;
+                    return d->m_items.at(pos).value;
             }
-            return m_d->m_resultEnvironment.value(m_d->m_resultEnvironment.constBegin() + index.row());
+            return d->m_resultEnvironment.value(d->m_resultEnvironment.constBegin() + index.row());
         }
     }
     if (role == Qt::FontRole) {
         // check whether this environment variable exists in m_d->m_items
-        if (changes(m_d->m_resultEnvironment.key(m_d->m_resultEnvironment.constBegin() + index.row()))) {
+        if (changes(d->m_resultEnvironment.key(d->m_resultEnvironment.constBegin() + index.row()))) {
             QFont f;
             f.setBold(true);
             return QVariant(f);
@@ -184,7 +184,7 @@ QVariant EnvironmentModel::headerData(int section, Qt::Orientation orientation, 
 /// *****************
 QModelIndex EnvironmentModel::variableToIndex(const QString &name) const
 {
-    int row = m_d->findInResult(name);
+    int row = d->findInResult(name);
     if (row == -1)
         return QModelIndex();
     return index(row, 0);
@@ -201,7 +201,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 
     const QString oldName = data(this->index(index.row(), 0, QModelIndex())).toString();
     const QString oldValue = data(this->index(index.row(), 1, QModelIndex())).toString();
-    int changesPos = m_d->findInChanges(oldName);
+    int changesPos = d->findInChanges(oldName);
 
     if (index.column() == 0) {
         //fail if a variable with the same name already exists
@@ -211,7 +211,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         const QString &newName = value.toString();
 #endif
         // Does the new name exist already?
-        if (m_d->m_resultEnvironment.hasKey(newName))
+        if (d->m_resultEnvironment.hasKey(newName))
             return false;
 
         Utils::EnvironmentItem newVariable(newName, oldValue);
@@ -227,19 +227,19 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         const QString stringValue = value.toString();
         if (changesPos != -1) {
             // We have already changed this value
-            if (stringValue == m_d->m_baseEnvironment.value(oldName)) {
+            if (stringValue == d->m_baseEnvironment.value(oldName)) {
                 // ... and now went back to the base value
-                m_d->m_items.removeAt(changesPos);
+                d->m_items.removeAt(changesPos);
             } else {
                 // ... and changed it again
-                m_d->m_items[changesPos].value = stringValue;
-                m_d->m_items[changesPos].unset = false;
+                d->m_items[changesPos].value = stringValue;
+                d->m_items[changesPos].unset = false;
             }
         } else {
             // Add a new change item:
-            m_d->m_items.append(Utils::EnvironmentItem(oldName, stringValue));
+            d->m_items.append(Utils::EnvironmentItem(oldName, stringValue));
         }
-        m_d->updateResultEnvironment();
+        d->updateResultEnvironment();
         emit dataChanged(index, index);
         emit userChangesChanged();
         return true;
@@ -259,28 +259,28 @@ QModelIndex EnvironmentModel::addVariable(const Utils::EnvironmentItem &item)
 {
 
     // Return existing index if the name is already in the result set:
-    int pos = m_d->findInResult(item.name);
-    if (pos >= 0 && pos < m_d->m_resultEnvironment.size())
+    int pos = d->findInResult(item.name);
+    if (pos >= 0 && pos < d->m_resultEnvironment.size())
         return index(pos, 0, QModelIndex());
 
-    int insertPos = m_d->findInResultInsertPosition(item.name);
-    int changePos = m_d->findInChanges(item.name);
-    if (m_d->m_baseEnvironment.hasKey(item.name)) {
+    int insertPos = d->findInResultInsertPosition(item.name);
+    int changePos = d->findInChanges(item.name);
+    if (d->m_baseEnvironment.hasKey(item.name)) {
         // We previously unset this!
         Q_ASSERT(changePos >= 0);
         // Do not insert a line here as we listed the variable as <UNSET> before!
-        Q_ASSERT(m_d->m_items.at(changePos).name == item.name);
-        Q_ASSERT(m_d->m_items.at(changePos).unset);
-        Q_ASSERT(m_d->m_items.at(changePos).value.isEmpty());
-        m_d->m_items[changePos] = item;
+        Q_ASSERT(d->m_items.at(changePos).name == item.name);
+        Q_ASSERT(d->m_items.at(changePos).unset);
+        Q_ASSERT(d->m_items.at(changePos).value.isEmpty());
+        d->m_items[changePos] = item;
         emit dataChanged(index(insertPos, 0, QModelIndex()), index(insertPos, 1, QModelIndex()));
     } else {
         // We add something that is not in the base environment
         // Insert a new line!
         beginInsertRows(QModelIndex(), insertPos, insertPos);
         Q_ASSERT(changePos < 0);
-        m_d->m_items.append(item);
-        m_d->updateResultEnvironment();
+        d->m_items.append(item);
+        d->updateResultEnvironment();
         endInsertRows();
     }
     emit userChangesChanged();
@@ -289,24 +289,24 @@ QModelIndex EnvironmentModel::addVariable(const Utils::EnvironmentItem &item)
 
 void EnvironmentModel::resetVariable(const QString &name)
 {
-    int rowInChanges = m_d->findInChanges(name);
+    int rowInChanges = d->findInChanges(name);
     if (rowInChanges < 0)
         return;
 
-    int rowInResult = m_d->findInResult(name);
+    int rowInResult = d->findInResult(name);
     if (rowInResult < 0)
         return;
 
-    if (m_d->m_baseEnvironment.hasKey(name)) {
-        m_d->m_items.removeAt(rowInChanges);
-        m_d->updateResultEnvironment();
+    if (d->m_baseEnvironment.hasKey(name)) {
+        d->m_items.removeAt(rowInChanges);
+        d->updateResultEnvironment();
         emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
         emit userChangesChanged();
     } else {
         // Remove the line completely!
         beginRemoveRows(QModelIndex(), rowInResult, rowInResult);
-        m_d->m_items.removeAt(rowInChanges);
-        m_d->updateResultEnvironment();
+        d->m_items.removeAt(rowInChanges);
+        d->updateResultEnvironment();
         endRemoveRows();
         emit userChangesChanged();
     }
@@ -316,55 +316,55 @@ void EnvironmentModel::unsetVariable(const QString &name)
 {
     // This does not change the number of rows as we will display a <UNSET>
     // in place of the original variable!
-    int row = m_d->findInResult(name);
+    int row = d->findInResult(name);
     if (row < 0)
         return;
 
     // look in m_d->m_items for the variable
-    int pos = m_d->findInChanges(name);
+    int pos = d->findInChanges(name);
     if (pos != -1) {
-        m_d->m_items[pos].unset = true;
-        m_d->m_items[pos].value.clear();
-        m_d->updateResultEnvironment();
+        d->m_items[pos].unset = true;
+        d->m_items[pos].value.clear();
+        d->updateResultEnvironment();
         emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
         emit userChangesChanged();
         return;
     }
     Utils::EnvironmentItem item(name, QString());
     item.unset = true;
-    m_d->m_items.append(item);
-    m_d->updateResultEnvironment();
+    d->m_items.append(item);
+    d->updateResultEnvironment();
     emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
     emit userChangesChanged();
 }
 
 bool EnvironmentModel::canUnset(const QString &name)
 {
-    int pos = m_d->findInChanges(name);
+    int pos = d->findInChanges(name);
     if (pos != -1)
-        return m_d->m_items.at(pos).unset;
+        return d->m_items.at(pos).unset;
     else
         return false;
 }
 
 bool EnvironmentModel::canReset(const QString &name)
 {
-    return m_d->m_baseEnvironment.hasKey(name);
+    return d->m_baseEnvironment.hasKey(name);
 }
 
 QList<Utils::EnvironmentItem> EnvironmentModel::userChanges() const
 {
-    return m_d->m_items;
+    return d->m_items;
 }
 
 void EnvironmentModel::setUserChanges(QList<Utils::EnvironmentItem> list)
 {
     // We assume nobody is reordering the items here.
-    if (list == m_d->m_items)
+    if (list == d->m_items)
         return;
     beginResetModel();
-    m_d->m_items = list;
-    m_d->updateResultEnvironment();
+    d->m_items = list;
+    d->updateResultEnvironment();
     endResetModel();
 }
 

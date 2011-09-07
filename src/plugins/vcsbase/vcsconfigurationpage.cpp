@@ -60,37 +60,37 @@ public:
 
 VcsConfigurationPage::VcsConfigurationPage(const Core::IVersionControl *vc, QWidget *parent) :
     QWizardPage(parent),
-    m_d(new VcsConfigurationPagePrivate)
+    d(new VcsConfigurationPagePrivate)
 {
     Q_ASSERT(vc);
     setTitle(tr("Configuration"));
     setSubTitle(tr("Please configure <b>%1</b> now.").arg(vc->displayName()));
 
-    m_d->m_versionControl = vc;
+    d->m_versionControl = vc;
 
-    connect(m_d->m_versionControl, SIGNAL(configurationChanged()),
+    connect(d->m_versionControl, SIGNAL(configurationChanged()),
             this, SIGNAL(completeChanged()));
 
-    m_d->m_ui->setupUi(this);
+    d->m_ui->setupUi(this);
 
-    connect(m_d->m_ui->configureButton, SIGNAL(clicked()),
+    connect(d->m_ui->configureButton, SIGNAL(clicked()),
             this, SLOT(openConfiguration()));
 }
 
 VcsConfigurationPage::~VcsConfigurationPage()
 {
-    delete m_d->m_ui;
+    delete d->m_ui;
 }
 
 bool VcsConfigurationPage::isComplete() const
 {
-    return m_d->m_versionControl->isConfigured();
+    return d->m_versionControl->isConfigured();
 }
 
 void VcsConfigurationPage::openConfiguration()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(VCSBase::Constants::VCS_SETTINGS_CATEGORY, m_d->m_versionControl->id());
+    core->showOptionsDialog(VCSBase::Constants::VCS_SETTINGS_CATEGORY, d->m_versionControl->id());
 }
 
 } // namespace VCSBase

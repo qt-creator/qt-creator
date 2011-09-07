@@ -61,7 +61,7 @@ IpAddressLineEditPrivate::IpAddressLineEditPrivate()
 
 IpAddressLineEdit::IpAddressLineEdit(QWidget* parent) :
     BaseValidatingLineEdit(parent),
-    m_d(new IpAddressLineEditPrivate())
+    d(new IpAddressLineEditPrivate())
 {
     const char * ipAddressRegExpPattern = "^\\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
@@ -70,19 +70,19 @@ IpAddressLineEdit::IpAddressLineEdit(QWidget* parent) :
             "((:)(6553[0-5]|655[0-2]\\d|65[0-4]\\d\\d|6[0-4]\\d{3}|[1-5]\\d{4}|[1-9]\\d{0,3}|0))?$";
 
     QRegExp ipAddressRegExp(ipAddressRegExpPattern);
-    m_d->m_ipAddressValidator = new QRegExpValidator(ipAddressRegExp, this);
+    d->m_ipAddressValidator = new QRegExpValidator(ipAddressRegExp, this);
 }
 
 IpAddressLineEdit::~IpAddressLineEdit()
 {
-    delete m_d;
+    delete d;
 }
 
 bool IpAddressLineEdit::validate(const QString &value, QString *errorMessage) const
 {
     QString copy = value;
     int offset = 0;
-    bool isValid = m_d->m_ipAddressValidator->validate(copy, offset) == QValidator::Acceptable;
+    bool isValid = d->m_ipAddressValidator->validate(copy, offset) == QValidator::Acceptable;
     if (!isValid) {
         *errorMessage =  tr("The IP address is not valid.");
         return false;

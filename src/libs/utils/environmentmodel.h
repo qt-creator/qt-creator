@@ -81,7 +81,7 @@ signals:
     void focusIndex(const QModelIndex &index);
 
 private:
-    Internal::EnvironmentModelPrivate *m_d;
+    Internal::EnvironmentModelPrivate *d;
 };
 
 } // namespace Utils

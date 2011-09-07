@@ -70,7 +70,7 @@ protected:
     virtual void slotChanged(const QString &t);
 
 private:
-    ClassNameValidatingLineEditPrivate *m_d;
+    ClassNameValidatingLineEditPrivate *d;
 };
 
 } // namespace Utils

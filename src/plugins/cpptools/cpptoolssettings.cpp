@@ -62,7 +62,7 @@ CppToolsSettings *CppToolsSettings::m_instance = 0;
 
 CppToolsSettings::CppToolsSettings(QObject *parent)
     : QObject(parent)
-    , m_d(new Internal::CppToolsSettingsPrivate)
+    , d(new Internal::CppToolsSettingsPrivate)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
@@ -70,28 +70,28 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
     if (const QSettings *s = Core::ICore::instance()->settings()) {
         TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
         TextEditor::TabPreferences *tabPrefs = textEditorSettings->tabPreferences();
-        m_d->m_tabPreferences
+        d->m_tabPreferences
                 = new TextEditor::TabPreferences(QList<TextEditor::IFallbackPreferences *>()
                                                  << tabPrefs, this);
-        m_d->m_tabPreferences->setCurrentFallback(tabPrefs);
-        m_d->m_tabPreferences->setFallbackEnabled(tabPrefs, false);
-        m_d->m_tabPreferences->fromSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
-        m_d->m_tabPreferences->setDisplayName(tr("Global C++", "Settings"));
-        m_d->m_tabPreferences->setId(idKey);
-        textEditorSettings->registerLanguageTabPreferences(CppTools::Constants::CPP_SETTINGS_ID, m_d->m_tabPreferences);
+        d->m_tabPreferences->setCurrentFallback(tabPrefs);
+        d->m_tabPreferences->setFallbackEnabled(tabPrefs, false);
+        d->m_tabPreferences->fromSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
+        d->m_tabPreferences->setDisplayName(tr("Global C++", "Settings"));
+        d->m_tabPreferences->setId(idKey);
+        textEditorSettings->registerLanguageTabPreferences(CppTools::Constants::CPP_SETTINGS_ID, d->m_tabPreferences);
 
-        m_d->m_cppCodeStylePreferences
+        d->m_cppCodeStylePreferences
                 = new CppCodeStylePreferences(QList<TextEditor::IFallbackPreferences *>(), this);
-        m_d->m_cppCodeStylePreferences->fromSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
-        m_d->m_cppCodeStylePreferences->setDisplayName(tr("Global C++", "Settings"));
-        m_d->m_cppCodeStylePreferences->setId(idKey);
-        textEditorSettings->registerLanguageCodeStylePreferences(CppTools::Constants::CPP_SETTINGS_ID, m_d->m_cppCodeStylePreferences);
+        d->m_cppCodeStylePreferences->fromSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
+        d->m_cppCodeStylePreferences->setDisplayName(tr("Global C++", "Settings"));
+        d->m_cppCodeStylePreferences->setId(idKey);
+        textEditorSettings->registerLanguageCodeStylePreferences(CppTools::Constants::CPP_SETTINGS_ID, d->m_cppCodeStylePreferences);
     }
 }
 
 CppToolsSettings::~CppToolsSettings()
 {
-    delete m_d;
+    delete d;
 
     m_instance = 0;
 }
@@ -103,12 +103,12 @@ CppToolsSettings *CppToolsSettings::instance()
 
 CppCodeStylePreferences *CppToolsSettings::cppCodeStylePreferences() const
 {
-    return m_d->m_cppCodeStylePreferences;
+    return d->m_cppCodeStylePreferences;
 }
 
 TextEditor::TabPreferences *CppToolsSettings::tabPreferences() const
 {
-    return m_d->m_tabPreferences;
+    return d->m_tabPreferences;
 }
 
 

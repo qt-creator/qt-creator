@@ -241,30 +241,30 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
 
 PathChooser::PathChooser(QWidget *parent) :
     QWidget(parent),
-    m_d(new PathChooserPrivate(this))
+    d(new PathChooserPrivate(this))
 {
-    m_d->m_hLayout->setContentsMargins(0, 0, 0, 0);
+    d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
-    connect(m_d->m_lineEdit, SIGNAL(validReturnPressed()), this, SIGNAL(returnPressed()));
-    connect(m_d->m_lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(changed(QString)));
-    connect(m_d->m_lineEdit, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
-    connect(m_d->m_lineEdit, SIGNAL(validChanged(bool)), this, SIGNAL(validChanged(bool)));
-    connect(m_d->m_lineEdit, SIGNAL(editingFinished()), this, SIGNAL(editingFinished()));
+    connect(d->m_lineEdit, SIGNAL(validReturnPressed()), this, SIGNAL(returnPressed()));
+    connect(d->m_lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(changed(QString)));
+    connect(d->m_lineEdit, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
+    connect(d->m_lineEdit, SIGNAL(validChanged(bool)), this, SIGNAL(validChanged(bool)));
+    connect(d->m_lineEdit, SIGNAL(editingFinished()), this, SIGNAL(editingFinished()));
 
-    m_d->m_lineEdit->setMinimumWidth(200);
-    m_d->m_hLayout->addWidget(m_d->m_lineEdit);
-    m_d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
+    d->m_lineEdit->setMinimumWidth(200);
+    d->m_hLayout->addWidget(d->m_lineEdit);
+    d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
     addButton(tr(browseButtonLabel), this, SLOT(slotBrowse()));
 
-    setLayout(m_d->m_hLayout);
-    setFocusProxy(m_d->m_lineEdit);
+    setLayout(d->m_hLayout);
+    setFocusProxy(d->m_lineEdit);
     setEnvironment(Environment::systemEnvironment());
 }
 
 PathChooser::~PathChooser()
 {
-    delete m_d;
+    delete d;
 }
 
 void PathChooser::addButton(const QString &text, QObject *receiver, const char *slotFunc)
@@ -272,7 +272,7 @@ void PathChooser::addButton(const QString &text, QObject *receiver, const char *
     QPushButton *button = new QPushButton;
     button->setText(text);
     connect(button, SIGNAL(clicked()), receiver, slotFunc);
-    m_d->m_hLayout->addWidget(button);
+    d->m_hLayout->addWidget(button);
 }
 
 QAbstractButton *PathChooser::buttonAtIndex(int index) const
@@ -282,45 +282,45 @@ QAbstractButton *PathChooser::buttonAtIndex(int index) const
 
 QString PathChooser::baseDirectory() const
 {
-    return m_d->m_baseDirectory;
+    return d->m_baseDirectory;
 }
 
 void PathChooser::setBaseDirectory(const QString &directory)
 {
-    m_d->m_baseDirectory = directory;
+    d->m_baseDirectory = directory;
 }
 
 void PathChooser::setEnvironment(const Utils::Environment &env)
 {
     QString oldExpand = path();
-    m_d->m_environment = env;
+    d->m_environment = env;
     if (path() != oldExpand)
         emit changed(rawPath());
 }
 
 QString PathChooser::path() const
 {
-    return m_d->expandedPath(QDir::fromNativeSeparators(m_d->m_lineEdit->text()));
+    return d->expandedPath(QDir::fromNativeSeparators(d->m_lineEdit->text()));
 }
 
 QString PathChooser::rawPath() const
 {
-    return QDir::fromNativeSeparators(m_d->m_lineEdit->text());
+    return QDir::fromNativeSeparators(d->m_lineEdit->text());
 }
 
 void PathChooser::setPath(const QString &path)
 {
-    m_d->m_lineEdit->setText(QDir::toNativeSeparators(path));
+    d->m_lineEdit->setText(QDir::toNativeSeparators(path));
 }
 
 bool PathChooser::isReadOnly() const
 {
-    return m_d->m_lineEdit->isReadOnly();
+    return d->m_lineEdit->isReadOnly();
 }
 
 void PathChooser::setReadOnly(bool b)
 {
-    m_d->m_lineEdit->setReadOnly(b);
+    d->m_lineEdit->setReadOnly(b);
     const QList<QAbstractButton *> &allButtons = findChildren<QAbstractButton *>();
     foreach (QAbstractButton *button, allButtons)
         button->setEnabled(!b);
@@ -332,15 +332,15 @@ void PathChooser::slotBrowse()
 
     QString predefined = path();
     if ((predefined.isEmpty() || !QFileInfo(predefined).isDir())
-            && !m_d->m_initialBrowsePathOverride.isNull()) {
-        predefined = m_d->m_initialBrowsePathOverride;
+            && !d->m_initialBrowsePathOverride.isNull()) {
+        predefined = d->m_initialBrowsePathOverride;
         if (!QFileInfo(predefined).isDir())
             predefined.clear();
     }
 
     // Prompt for a file/dir
     QString newPath;
-    switch (m_d->m_acceptingKind) {
+    switch (d->m_acceptingKind) {
     case PathChooser::Directory:
     case PathChooser::ExistingDirectory:
         newPath = QFileDialog::getExistingDirectory(this,
@@ -350,12 +350,12 @@ void PathChooser::slotBrowse()
     case PathChooser::Command:
         newPath = QFileDialog::getOpenFileName(this,
                 makeDialogTitle(tr("Choose Executable")), predefined,
-                m_d->m_dialogFilter);
+                d->m_dialogFilter);
         break;
     case PathChooser::File: // fall through
         newPath = QFileDialog::getOpenFileName(this,
                 makeDialogTitle(tr("Choose File")), predefined,
-                m_d->m_dialogFilter);
+                d->m_dialogFilter);
         break;
     case PathChooser::Any: {
         QFileDialog dialog(this);
@@ -365,7 +365,7 @@ void PathChooser::slotBrowse()
         if (fi.exists())
             dialog.setDirectory(fi.absolutePath());
         // FIXME: fix QFileDialog so that it filters properly: lib*.a
-        dialog.setNameFilter(m_d->m_dialogFilter);
+        dialog.setNameFilter(d->m_dialogFilter);
         if (dialog.exec() == QDialog::Accepted) {
             // probably loop here until the *.framework dir match
             QStringList paths = dialog.selectedFiles();
@@ -388,22 +388,22 @@ void PathChooser::slotBrowse()
     }
 
     emit browsingFinished();
-    m_d->m_lineEdit->triggerChanged();
+    d->m_lineEdit->triggerChanged();
 }
 
 bool PathChooser::isValid() const
 {
-    return m_d->m_lineEdit->isValid();
+    return d->m_lineEdit->isValid();
 }
 
 QString PathChooser::errorMessage() const
 {
-    return m_d->m_lineEdit->errorMessage();
+    return d->m_lineEdit->errorMessage();
 }
 
 bool PathChooser::validatePath(const QString &path, QString *errorMessage)
 {
-    QString expandedPath = m_d->expandedPath(path);
+    QString expandedPath = d->expandedPath(path);
 
     if (path.isEmpty()) {
         if (errorMessage)
@@ -419,7 +419,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     const QFileInfo fi(expandedPath);
 
     // Check if existing
-    switch (m_d->m_acceptingKind) {
+    switch (d->m_acceptingKind) {
     case PathChooser::ExistingDirectory: // fall through
         if (!fi.exists()) {
             if (errorMessage)
@@ -471,7 +471,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     }
 
     // Check expected kind
-    switch (m_d->m_acceptingKind) {
+    switch (d->m_acceptingKind) {
     case PathChooser::ExistingDirectory:
         if (!fi.isDir()) {
             if (errorMessage)
@@ -528,56 +528,56 @@ QString PathChooser::homePath()
 
 void PathChooser::setExpectedKind(Kind expected)
 {
-    if (m_d->m_acceptingKind == expected)
+    if (d->m_acceptingKind == expected)
         return;
-    m_d->m_acceptingKind = expected;
-    m_d->m_lineEdit->triggerChanged();
+    d->m_acceptingKind = expected;
+    d->m_lineEdit->triggerChanged();
 }
 
 PathChooser::Kind PathChooser::expectedKind() const
 {
-    return m_d->m_acceptingKind;
+    return d->m_acceptingKind;
 }
 
 void PathChooser::setPromptDialogTitle(const QString &title)
 {
-    m_d->m_dialogTitleOverride = title;
+    d->m_dialogTitleOverride = title;
 }
 
 QString PathChooser::promptDialogTitle() const
 {
-    return m_d->m_dialogTitleOverride;
+    return d->m_dialogTitleOverride;
 }
 
 void PathChooser::setPromptDialogFilter(const QString &filter)
 {
-    m_d->m_dialogFilter = filter;
+    d->m_dialogFilter = filter;
 }
 
 QString PathChooser::promptDialogFilter() const
 {
-    return m_d->m_dialogFilter;
+    return d->m_dialogFilter;
 }
 
 void PathChooser::setInitialBrowsePathBackup(const QString &path)
 {
-    m_d->m_initialBrowsePathOverride = path;
+    d->m_initialBrowsePathOverride = path;
 }
 
 QString PathChooser::makeDialogTitle(const QString &title)
 {
-    if (m_d->m_dialogTitleOverride.isNull())
+    if (d->m_dialogTitleOverride.isNull())
         return title;
     else
-        return m_d->m_dialogTitleOverride;
+        return d->m_dialogTitleOverride;
 }
 
 QLineEdit *PathChooser::lineEdit() const
 {
     // HACK: Make it work with HistoryCompleter.
-    if (m_d->m_lineEdit->objectName().isEmpty())
-        m_d->m_lineEdit->setObjectName(objectName() + QLatin1String("LineEdit"));
-    return m_d->m_lineEdit;
+    if (d->m_lineEdit->objectName().isEmpty())
+        d->m_lineEdit->setObjectName(objectName() + QLatin1String("LineEdit"));
+    return d->m_lineEdit;
 }
 
 QString PathChooser::toolVersion(const QString &binary, const QStringList &arguments)
@@ -593,22 +593,22 @@ void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList
 
 QStringList PathChooser::commandVersionArguments() const
 {
-    return m_d->m_binaryVersionToolTipEventFilter ?
-           m_d->m_binaryVersionToolTipEventFilter->arguments() :
+    return d->m_binaryVersionToolTipEventFilter ?
+           d->m_binaryVersionToolTipEventFilter->arguments() :
            QStringList();
 }
 
 void PathChooser::setCommandVersionArguments(const QStringList &arguments)
 {
     if (arguments.isEmpty()) {
-        if (m_d->m_binaryVersionToolTipEventFilter) {
-            delete m_d->m_binaryVersionToolTipEventFilter;
-            m_d->m_binaryVersionToolTipEventFilter = 0;
+        if (d->m_binaryVersionToolTipEventFilter) {
+            delete d->m_binaryVersionToolTipEventFilter;
+            d->m_binaryVersionToolTipEventFilter = 0;
         }
     } else {
-        if (!m_d->m_binaryVersionToolTipEventFilter)
-            m_d->m_binaryVersionToolTipEventFilter = new PathChooserBinaryVersionToolTipEventFilter(this);
-        m_d->m_binaryVersionToolTipEventFilter->setArguments(arguments);
+        if (!d->m_binaryVersionToolTipEventFilter)
+            d->m_binaryVersionToolTipEventFilter = new PathChooserBinaryVersionToolTipEventFilter(this);
+        d->m_binaryVersionToolTipEventFilter->setArguments(arguments);
     }
 }
 

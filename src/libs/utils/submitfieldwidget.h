@@ -87,9 +87,9 @@ private:
     bool comboIndexChange(int fieldNumber, int index);
     void createField(const QString &f);
 
-    SubmitFieldWidgetPrivate *m_d;
+    SubmitFieldWidgetPrivate *d;
 };
 
-}
+} // namespace Utils
 
 #endif // SUBMITFIELDWIDGET_H

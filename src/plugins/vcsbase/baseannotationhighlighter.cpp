@@ -64,19 +64,19 @@ struct BaseAnnotationHighlighterPrivate {
 BaseAnnotationHighlighter::BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                              QTextDocument *document) :
     TextEditor::SyntaxHighlighter(document),
-    m_d(new BaseAnnotationHighlighterPrivate)
+    d(new BaseAnnotationHighlighterPrivate)
 {
     setChangeNumbers(changeNumbers);
 }
 
 BaseAnnotationHighlighter::~BaseAnnotationHighlighter()
 {
-    delete m_d;
+    delete d;
 }
 
 void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumbers)
 {
-    m_d->m_changeNumberMap.clear();
+    d->m_changeNumberMap.clear();
     if (!changeNumbers.isEmpty()) {
         // Assign a color gradient to annotation change numbers. Give
         // each change number a unique color.
@@ -95,7 +95,7 @@ void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumb
         for (ChangeNumbers::const_iterator it =  changeNumbers.constBegin(); it != cend; ++it) {
             QTextCharFormat format;
             format.setForeground(colors.at(m));
-            m_d->m_changeNumberMap.insert(*it, format);
+            d->m_changeNumberMap.insert(*it, format);
             m += cstep;
         }
     }
@@ -103,11 +103,11 @@ void BaseAnnotationHighlighter::setChangeNumbers(const ChangeNumbers &changeNumb
 
 void BaseAnnotationHighlighter::highlightBlock(const QString &text)
 {
-    if (text.isEmpty() || m_d->m_changeNumberMap.empty())
+    if (text.isEmpty() || d->m_changeNumberMap.empty())
         return;
     const QString change = changeNumber(text);
-    const ChangeNumberFormatMap::const_iterator it = m_d->m_changeNumberMap.constFind(change);
-    if (it != m_d->m_changeNumberMap.constEnd())
+    const ChangeNumberFormatMap::const_iterator it = d->m_changeNumberMap.constFind(change);
+    if (it != d->m_changeNumberMap.constEnd())
         setFormat(0, text.length(), it.value());
 }
 

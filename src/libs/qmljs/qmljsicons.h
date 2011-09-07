@@ -61,7 +61,7 @@ public:
 private:
     Icons();
     static Icons *m_instance;
-    IconsPrivate *m_d;
+    IconsPrivate *d;
 };
 
 } // namespace QmlJS

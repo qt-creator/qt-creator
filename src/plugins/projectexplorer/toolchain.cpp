@@ -73,46 +73,46 @@ public:
 // --------------------------------------------------------------------------
 
 ToolChain::ToolChain(const QString &id, bool autodetect) :
-    m_d(new Internal::ToolChainPrivate(id, autodetect))
+    d(new Internal::ToolChainPrivate(id, autodetect))
 { }
 
 ToolChain::ToolChain(const ToolChain &other) :
-    m_d(new Internal::ToolChainPrivate(other.id(), false))
+    d(new Internal::ToolChainPrivate(other.id(), false))
 {
     // leave the autodetection bit at false.
-    m_d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
+    d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
             .arg(other.displayName());
 }
 
 ToolChain::~ToolChain()
 {
-    delete m_d;
+    delete d;
 }
 
 QString ToolChain::displayName() const
 {
-    if (m_d->m_displayName.isEmpty())
+    if (d->m_displayName.isEmpty())
         return typeName();
-    return m_d->m_displayName;
+    return d->m_displayName;
 }
 
 void ToolChain::setDisplayName(const QString &name)
 {
-    if (m_d->m_displayName == name)
+    if (d->m_displayName == name)
         return;
 
-    m_d->m_displayName = name;
+    d->m_displayName = name;
     toolChainUpdated();
 }
 
 bool ToolChain::isAutoDetected() const
 {
-    return m_d->m_autodetect;
+    return d->m_autodetect;
 }
 
 QString ToolChain::id() const
 {
-    return m_d->m_id;
+    return d->m_id;
 }
 
 /*!
@@ -165,10 +165,10 @@ QVariantMap ToolChain::toMap() const
 void ToolChain::setId(const QString &id)
 {
     Q_ASSERT(!id.isEmpty());
-    if (m_d->m_id == id)
+    if (d->m_id == id)
         return;
 
-    m_d->m_id = id;
+    d->m_id = id;
     toolChainUpdated();
 }
 
@@ -179,9 +179,9 @@ void ToolChain::toolChainUpdated()
 
 void ToolChain::setAutoDetected(bool autodetect)
 {
-    if (m_d->m_autodetect == autodetect)
+    if (d->m_autodetect == autodetect)
         return;
-    m_d->m_autodetect = autodetect;
+    d->m_autodetect = autodetect;
     toolChainUpdated();
 }
 
@@ -195,7 +195,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
 {
     Q_ASSERT(!isAutoDetected());
     // do not read the id: That is already set anyway.
-    m_d->m_displayName = data.value(QLatin1String(DISPLAY_NAME_KEY)).toString();
+    d->m_displayName = data.value(QLatin1String(DISPLAY_NAME_KEY)).toString();
 
     return true;
 }

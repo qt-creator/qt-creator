@@ -160,7 +160,7 @@ private:
     void setFormInputCheckable(bool checkable, bool force);
 
     QString fixSuffix(const QString &suffix);
-    NewClassWidgetPrivate *m_d;
+    NewClassWidgetPrivate *d;
 };
 
 } // namespace Utils

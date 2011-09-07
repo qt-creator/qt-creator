@@ -57,7 +57,7 @@ protected:
     virtual void slotChanged(const QString &t);
 
 private:
-    IpAddressLineEditPrivate *m_d;
+    IpAddressLineEditPrivate *d;
 };
 
 } // namespace Utils

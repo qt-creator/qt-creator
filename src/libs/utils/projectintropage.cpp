@@ -83,58 +83,58 @@ ProjectIntroPagePrivate::  ProjectIntroPagePrivate() :
 
 ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     QWizardPage(parent),
-    m_d(new ProjectIntroPagePrivate)
+    d(new ProjectIntroPagePrivate)
 {
-    m_d->m_ui.setupUi(this);
+    d->m_ui.setupUi(this);
     hideStatusLabel();
-    m_d->m_ui.nameLineEdit->setInitialText(tr("<Enter_Name>"));
-    m_d->m_ui.nameLineEdit->setFocus();
-    connect(m_d->m_ui.pathChooser, SIGNAL(changed(QString)), this, SLOT(slotChanged()));
-    connect(m_d->m_ui.nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
-    connect(m_d->m_ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
-    connect(m_d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
-    connect(m_d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
+    d->m_ui.nameLineEdit->setInitialText(tr("<Enter_Name>"));
+    d->m_ui.nameLineEdit->setFocus();
+    connect(d->m_ui.pathChooser, SIGNAL(changed(QString)), this, SLOT(slotChanged()));
+    connect(d->m_ui.nameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
+    connect(d->m_ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
+    connect(d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
+    connect(d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
 }
 
 void ProjectIntroPage::insertControl(int row, QWidget *label, QWidget *control)
 {
-    m_d->m_ui.formLayout->insertRow(row, label, control);
+    d->m_ui.formLayout->insertRow(row, label, control);
 }
 
 ProjectIntroPage::~ProjectIntroPage()
 {
-    delete m_d;
+    delete d;
 }
 
 QString ProjectIntroPage::projectName() const
 {
-    return m_d->m_ui.nameLineEdit->text();
+    return d->m_ui.nameLineEdit->text();
 }
 
 QString ProjectIntroPage::path() const
 {
-    return m_d->m_ui.pathChooser->path();
+    return d->m_ui.pathChooser->path();
 }
 
 void ProjectIntroPage::setPath(const QString &path)
 {
-    m_d->m_ui.pathChooser->setPath(path);
+    d->m_ui.pathChooser->setPath(path);
 }
 
 void ProjectIntroPage::setProjectName(const QString &name)
 {
-    m_d->m_ui.nameLineEdit->setText(name);
-    m_d->m_ui.nameLineEdit->selectAll();
+    d->m_ui.nameLineEdit->setText(name);
+    d->m_ui.nameLineEdit->selectAll();
 }
 
 QString ProjectIntroPage::description() const
 {
-    return m_d->m_ui.descriptionLabel->text();
+    return d->m_ui.descriptionLabel->text();
 }
 
 void ProjectIntroPage::setDescription(const QString &description)
 {
-    m_d->m_ui.descriptionLabel->setText(description);
+    d->m_ui.descriptionLabel->setText(description);
 }
 
 void ProjectIntroPage::changeEvent(QEvent *e)
@@ -142,7 +142,7 @@ void ProjectIntroPage::changeEvent(QEvent *e)
     QWizardPage::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
-        m_d->m_ui.retranslateUi(this);
+        d->m_ui.retranslateUi(this);
         break;
     default:
         break;
@@ -151,22 +151,22 @@ void ProjectIntroPage::changeEvent(QEvent *e)
 
 bool ProjectIntroPage::isComplete() const
 {
-    return m_d->m_complete;
+    return d->m_complete;
 }
 
 bool ProjectIntroPage::validate()
 {
     // Validate and display status
-    if (!m_d->m_ui.pathChooser->isValid()) {
-        displayStatusMessage(Error, m_d->m_ui.pathChooser->errorMessage());
+    if (!d->m_ui.pathChooser->isValid()) {
+        displayStatusMessage(Error, d->m_ui.pathChooser->errorMessage());
         return false;
     }
 
     // Name valid? Ignore 'DisplayingInitialText' state.
     bool nameValid = false;
-    switch (m_d->m_ui.nameLineEdit->state()) {
+    switch (d->m_ui.nameLineEdit->state()) {
     case BaseValidatingLineEdit::Invalid:
-        displayStatusMessage(Error, m_d->m_ui.nameLineEdit->errorMessage());
+        displayStatusMessage(Error, d->m_ui.nameLineEdit->errorMessage());
         return false;
     case BaseValidatingLineEdit::DisplayingInitialText:
         break;
@@ -178,7 +178,7 @@ bool ProjectIntroPage::validate()
     // Check existence of the directory
     QString projectDir = path();
     projectDir += QDir::separator();
-    projectDir += m_d->m_ui.nameLineEdit->text();
+    projectDir += d->m_ui.nameLineEdit->text();
     const QFileInfo projectDirFile(projectDir);
     if (!projectDirFile.exists()) { // All happy
         hideStatusLabel();
@@ -197,15 +197,15 @@ bool ProjectIntroPage::validate()
 void ProjectIntroPage::slotChanged()
 {
     const bool newComplete = validate();
-    if (newComplete != m_d->m_complete) {
-        m_d->m_complete = newComplete;
+    if (newComplete != d->m_complete) {
+        d->m_complete = newComplete;
         emit completeChanged();
     }
 }
 
 void ProjectIntroPage::slotActivated()
 {
-    if (m_d->m_complete)
+    if (d->m_complete)
         emit activated();
 }
 
@@ -218,16 +218,16 @@ void ProjectIntroPage::displayStatusMessage(StatusLabelMode m, const QString &s)
 {
     switch (m) {
     case Error:
-        m_d->m_ui.stateLabel->setStyleSheet(m_d->m_errorStyleSheet);
+        d->m_ui.stateLabel->setStyleSheet(d->m_errorStyleSheet);
         break;
     case Warning:
-        m_d->m_ui.stateLabel->setStyleSheet(m_d->m_warningStyleSheet);
+        d->m_ui.stateLabel->setStyleSheet(d->m_warningStyleSheet);
         break;
     case Hint:
-        m_d->m_ui.stateLabel->setStyleSheet(m_d->m_hintStyleSheet);
+        d->m_ui.stateLabel->setStyleSheet(d->m_hintStyleSheet);
         break;
     }
-    m_d->m_ui.stateLabel->setText(s);
+    d->m_ui.stateLabel->setText(s);
 }
 
 void ProjectIntroPage::hideStatusLabel()
@@ -237,12 +237,12 @@ void ProjectIntroPage::hideStatusLabel()
 
 bool ProjectIntroPage::useAsDefaultPath() const
 {
-    return m_d->m_ui.projectsDirectoryCheckBox->isChecked();
+    return d->m_ui.projectsDirectoryCheckBox->isChecked();
 }
 
 void ProjectIntroPage::setUseAsDefaultPath(bool u)
 {
-    m_d->m_ui.projectsDirectoryCheckBox->setChecked(u);
+    d->m_ui.projectsDirectoryCheckBox->setChecked(u);
 }
 
 } // namespace Utils

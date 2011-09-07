@@ -88,7 +88,7 @@ private:
     void displayStatusMessage(StatusLabelMode m, const QString &);
     void hideStatusLabel();
 
-    ProjectIntroPagePrivate *m_d;
+    ProjectIntroPagePrivate *d;
 };
 
 } // namespace Utils

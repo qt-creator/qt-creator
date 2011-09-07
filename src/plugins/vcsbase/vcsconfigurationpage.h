@@ -57,7 +57,7 @@ public:
 private slots:
     void openConfiguration();
 private:
-    VcsConfigurationPagePrivate *const m_d;
+    VcsConfigurationPagePrivate *const d;
 };
 
 } // namespace VCSBase
