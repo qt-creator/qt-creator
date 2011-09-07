@@ -75,9 +75,21 @@ unsigned Literal::hashCode() const
 
 unsigned Literal::hashCode(const char *chars, unsigned size)
 {
-    unsigned h = 0;
-    for (unsigned i = 0; i < size; ++i)
-        h = (h >> 5) - h + chars[i];
+    /* Hash taken from QtCore's qHash for strings, which in turn has the note:
+
+    These functions are based on Peter J. Weinberger's hash function
+    (from the Dragon Book). The constant 24 in the original function
+    was replaced with 23 to produce fewer collisions on input such as
+    "a", "aa", "aaa", "aaaa", ...
+    */
+
+    uint h = 0;
+
+    while (size--) {
+        h = (h << 4) + *chars++;
+        h ^= (h & 0xf0000000) >> 23;
+        h &= 0x0fffffff;
+    }
     return h;
 }
 
