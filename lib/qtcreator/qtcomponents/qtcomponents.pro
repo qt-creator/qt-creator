@@ -52,6 +52,6 @@ DATA_FILE_PATTERNS = \
 
 !macx {
     qmlfiles.files = $$PWD/*.qml $$PWD/qmldir $$PWD/images $$PWD/custom
-    qmlfiles.path = /lib/qtcreator/qtcomponents
+    qmlfiles.path = /$${IDE_LIBRARY_BASENAME}/qtcreator/qtcomponents
     INSTALLS += qmlfiles
 }
