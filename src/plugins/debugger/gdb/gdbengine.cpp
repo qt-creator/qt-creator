@@ -1790,6 +1790,8 @@ void GdbEngine::handleExecuteContinue(const GdbResponse &response)
         QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
         showStatusMessage(tr("Stopped."), 5000);
         reloadStack(true);
+    } else if (msg.startsWith("Cannot access memory at address")) {
+        // Happens on single step on ARM prolog and epilogs.
     } else if (msg.startsWith("\"finish\" not meaningful in the outermost frame")) {
         notifyInferiorRunFailed();
         if (isDying())
@@ -2075,7 +2077,8 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
     }
     QByteArray msg = response.data.findChild("msg").data();
     if (msg.startsWith("Cannot find bounds of current function")
-            || msg.contains("Error accessing memory address")) {
+            || msg.contains("Error accessing memory address")
+            || msg.startsWith("Cannot access memory at address")) {
         // On S40: "40^error,msg="Warning:\nCannot insert breakpoint -39.\n"
         //" Error accessing memory address 0x11673fc: Input/output error.\n"
         notifyInferiorRunFailed();
