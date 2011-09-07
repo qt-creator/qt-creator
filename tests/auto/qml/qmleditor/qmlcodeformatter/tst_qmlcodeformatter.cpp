@@ -87,7 +87,7 @@ private Q_SLOTS:
     void objectLiteral2();
     void objectLiteral3();
     void objectLiteral4();
-    void objectLiteral5();
+    void propertyWithStatement();
     void keywordStatement();
     void namespacedObjects();
 };
@@ -1031,24 +1031,28 @@ void tst_QMLCodeFormatter::objectLiteral4()
     checkIndent(data);
 }
 
-void tst_QMLCodeFormatter::objectLiteral5()
+void tst_QMLCodeFormatter::propertyWithStatement()
 {
     QList<Line> data;
     data << Line("Rectangle {")
-         << Line("    property int x: { a: 12, b: 13 }")
+         << Line("    property int x: { if (a) break }")
          << Line("    property int y: {")
-         << Line("        a: 1 +")
-         << Line("           2 + 3")
-         << Line("           + 4")
+         << Line("        if (a)")
+         << Line("            break")
+         << Line("        switch (a) {")
+         << Line("        case 1:")
+         << Line("        case 2:")
+         << Line("            continue")
+         << Line("        }")
          << Line("    }")
-         << Line("    property int y: {")
-         << Line("        a: 1 +")
-         << Line("           2 + 3")
-         << Line("           + 4,")
-         << Line("        b: {")
-         << Line("            adef: 1 +")
-         << Line("                  2 + 3")
-         << Line("                  + 4,")
+         << Line("    property int y:")
+         << Line("    {")
+         << Line("        if (a)")
+         << Line("            break")
+         << Line("        switch (a) {")
+         << Line("        case 1:")
+         << Line("        case 2:")
+         << Line("            continue")
          << Line("        }")
          << Line("    }")
          << Line("}")

@@ -166,21 +166,6 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             default:            enter(expression); continue;
             } break;
 
-        // property inits don't take statements
-        case property_initializer:
-            switch (kind) {
-            case Semicolon:     leave(true); break;
-            case LeftBrace:     enter(objectliteral_open); break;
-            case On:
-            case As:
-            case List:
-            case Import:
-            case Signal:
-            case Property:
-            case Identifier:    enter(expression_or_objectdefinition); break;
-            default:            enter(expression); continue;
-            } break;
-
         case objectdefinition_open:
             switch (kind) {
             case RightBrace:    leave(true); break;
@@ -222,7 +207,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case property_maybe_initializer:
             switch (kind) {
-            case Colon:         enter(property_initializer); break;
+            case Colon:         turnInto(binding_assignment); break;
             default:            leave(true); continue;
             } break;
 
