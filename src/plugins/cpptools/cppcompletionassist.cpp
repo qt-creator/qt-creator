@@ -776,6 +776,7 @@ IAssistProposal *CppCompletionAssistProcessor::createContentProposal()
                 }
             }
         } else {
+            delete *it;
             it = m_completions.erase(it);
         }
     }
