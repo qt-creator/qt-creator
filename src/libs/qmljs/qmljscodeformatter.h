@@ -133,6 +133,7 @@ public: // must be public to make Q_GADGET introspection work
         expression_continuation, // at the end of the line, when the next line definitely is a continuation
         expression_maybe_continuation, // at the end of the line, when the next line may be an expression
         expression_or_objectdefinition, // after a binding starting with an identifier ("x: foo")
+        expression_or_label, // when expecting a statement and getting an identifier
 
         paren_open, // opening ( in expression
         bracket_open, // opening [ in expression
@@ -148,7 +149,7 @@ public: // must be public to make Q_GADGET introspection work
         jsblock_open,
 
         empty_statement, // for a ';', will be popped directly
-        breakcontinue_statement, // for continue/break, will be popped directly
+        breakcontinue_statement, // for continue/break, may be followed by identifier
 
         if_statement, // After 'if'
         maybe_else, // after the first substatement in an if
@@ -159,6 +160,8 @@ public: // must be public to make Q_GADGET introspection work
 
         substatement, // The first line after a conditional or loop construct.
         substatement_open, // The brace that opens a substatement block.
+
+        labelled_statement, // after a label
 
         return_statement, // After 'return'
         throw_statement, // After 'throw'

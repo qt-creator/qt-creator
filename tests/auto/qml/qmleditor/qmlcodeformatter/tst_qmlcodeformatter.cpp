@@ -62,6 +62,7 @@ private Q_SLOTS:
     void ifBinding3();
     void ifStatementWithoutBraces1();
     void ifStatementWithoutBraces2();
+    void ifStatementWithoutBraces3();
     void ifStatementWithBraces1();
     void ifStatementWithBraces2();
     void ifStatementWithBraces3();
@@ -90,6 +91,9 @@ private Q_SLOTS:
     void propertyWithStatement();
     void keywordStatement();
     void namespacedObjects();
+    void labelledStatements1();
+    void labelledStatements2();
+    void labelledStatements3();
 };
 
 struct Line {
@@ -462,8 +466,8 @@ void tst_QMLCodeFormatter::ifBinding2()
          << Line("              + 5")
          << Line("    x: if (a)")
          << Line("           b")
-         << Line("               + 5")
-         << Line("               + 5")
+         << Line("                   + 5")
+         << Line("                   + 5")
          << Line("}")
          ;
     checkIndent(data);
@@ -513,7 +517,7 @@ void tst_QMLCodeFormatter::ifStatementWithoutBraces1()
          << Line("                   foo;")
          << Line("               else")
          << Line("                   a + b + ")
-         << Line("                       c")
+         << Line("                           c")
          << Line("       else")
          << Line("           foo;")
          << Line("    y: 2")
@@ -545,6 +549,38 @@ void tst_QMLCodeFormatter::ifStatementWithoutBraces2()
          << Line("                    e")
          << Line("        else")
          << Line("            foo;")
+         << Line("    }")
+         << Line("    foo: bar")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::ifStatementWithoutBraces3()
+{
+    QList<Line> data;
+    data << Line("Rectangle {")
+         << Line("    x: {")
+         << Line("        if (a)")
+         << Line("            while (b)")
+         << Line("                foo;")
+         << Line("        while (a) if (a) b();")
+         << Line("        if (a) while (a) b; else")
+         << Line("            while (c)")
+         << Line("                while (d) break")
+         << Line("        while (a)")
+         << Line("            if (b)")
+         << Line("                for (;;) {}")
+         << Line("            else if (c)")
+         << Line("                for (;;) e")
+         << Line("            else")
+         << Line("                if (d)")
+         << Line("                    foo;")
+         << Line("                else")
+         << Line("                    e")
+         << Line("        if (a) ; else")
+         << Line("            while (true)")
+         << Line("                f")
          << Line("    }")
          << Line("    foo: bar")
          << Line("}")
@@ -689,7 +725,7 @@ void tst_QMLCodeFormatter::strayElse()
     QList<Line> data;
     data << Line("Rectangle {")
          << Line("onClicked: {", 4)
-         << Line("    while( true ) {}")
+         << Line("    while ( true ) {}")
          << Line("    else", -1)
          << Line("    else {", -1)
          << Line("    }", -1)
@@ -776,14 +812,14 @@ void tst_QMLCodeFormatter::doWhile()
 {
     QList<Line> data;
     data << Line("function foo() {")
-         << Line("    do { if (c) foo; } while(a);")
+         << Line("    do { if (c) foo; } while (a);")
          << Line("    do {")
-         << Line("        if(a);")
-         << Line("    } while(a);")
+         << Line("        if (a);")
+         << Line("    } while (a);")
          << Line("    do")
          << Line("        foo;")
-         << Line("    while(a);")
-         << Line("    do foo; while(a);")
+         << Line("    while (a);")
+         << Line("    do foo; while (a);")
          << Line("};")
          ;
     checkIndent(data);
@@ -847,7 +883,7 @@ void tst_QMLCodeFormatter::ternary()
          << Line("            ? b")
          << Line("            : c;")
          << Line("    var i = a ?")
-         << Line("            b : c;")
+         << Line("                b : c;")
          << Line("    var i = aooo ? b")
          << Line("                 : c +")
          << Line("                   2;")
@@ -1089,6 +1125,75 @@ void tst_QMLCodeFormatter::namespacedObjects()
          << Line("            x: 12")
          << Line("        }")
          << Line("    }")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::labelledStatements1()
+{
+    QList<Line> data;
+    data << Line("lab: while (1) {")
+         << Line("    while (1)")
+         << Line("        break lab")
+         << Line("}")
+         << Line("for (;;) {")
+         << Line("    lab: do {")
+         << Line("        while (1) {")
+         << Line("            break lab")
+         << Line("        }")
+         << Line("    }")
+         << Line("}")
+         << Line("var x = function() {")
+         << Line("    x + 1;")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::labelledStatements2()
+{
+    QList<Line> data;
+    data << Line("function a() {")
+         << Line("    lab: while (1)")
+         << Line("        break lab")
+         << Line("    if (a)")
+         << Line("        lab: while (1)")
+         << Line("            break lab")
+         << Line("    var a;")
+         << Line("    if (a)")
+         << Line("        lab: while (1)")
+         << Line("            break lab")
+         << Line("    else")
+         << Line("        lab: switch (a) {")
+         << Line("        case 1:")
+         << Line("        }")
+         << Line("}")
+         << Line("var x")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::labelledStatements3()
+{
+    QList<Line> data;
+    data << Line("function a() {")
+         << Line("    lab: while (1)")
+         << Line("        break lab")
+         << Line("    if (a) {")
+         << Line("        lab: while (1)")
+         << Line("            break lab")
+         << Line("    }")
+         << Line("    var a;")
+         << Line("    if (a) {")
+         << Line("        lab: while (1)")
+         << Line("            break lab")
+         << Line("    } else {")
+         << Line("        lab: switch (a) {")
+         << Line("        case 1:")
+         << Line("        }")
+         << Line("    }")
+         << Line("}")
+         << Line("var x")
          ;
     checkIndent(data);
 }
