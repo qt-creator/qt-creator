@@ -53,7 +53,6 @@
 
 namespace QmlDesigner {
 
-QPixmap FormEditorItem::s_invisibleItemPixmap = QPixmap();
 
 FormEditorScene *FormEditorItem::scene() const {
     return qobject_cast<FormEditorScene*>(QGraphicsItem::scene());
@@ -281,31 +280,20 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     painter->save();
 
+    const int invisiblePixmapWidth = 14;
+
     if (qmlItemNode().instanceIsRenderPixmapNull()) {
         if (scene()->showBoundingRects()) {
-            if (s_invisibleItemPixmap.isNull()) {
-                QImage invisibleItemImage(14, 14, QImage::Format_ARGB32_Premultiplied);
 
-                invisibleItemImage.fill(0xFF999999);
-                QPainter fillPainter(&invisibleItemImage);
-                fillPainter.setCompositionMode(QPainter::CompositionMode_Source);
-                fillPainter.rotate(-45);
-                fillPainter.translate(-10, 0);
-                fillPainter.fillRect(0, -4, 20, 7, QColor(100, 100, 100, 0));
-                fillPainter.translate(0, 10);
-                fillPainter.fillRect(0, -4, 20, 7, QColor(100, 100, 100, 0));
-                fillPainter.translate(0, 9);
-                fillPainter.fillRect(0, -3, 20, 6, QColor(100, 100, 100, 0));
+            qreal stripesWidth = 12;
 
+            QRegion innerRegion = QRegion(boundingRect().adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
+            QRegion outerRegion  = QRegion(boundingRect().toRect()) - innerRegion;
 
-
-
-                s_invisibleItemPixmap = QPixmap::fromImage(invisibleItemImage);
-            }
-
-            painter->drawTiledPixmap(boundingRect(), s_invisibleItemPixmap);
-
-
+            painter->setClipRegion(outerRegion);
+            painter->setClipping(true);
+            painter->fillRect(boundingRect().adjusted(1, 1, -1, -1), Qt::BDiagPattern);
+            painter->setClipping(false);
 
             QString displayText = qmlItemNode().id();
 
@@ -319,9 +307,17 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
             painter->save();
 
             QFont font;
-            font.setPixelSize(18);
+            font.setStyleHint(QFont::SansSerif);
+            font.setBold(true);
+            font.setPixelSize(14);
             painter->setFont(font);
+            painter->setPen(QColor(255, 255, 255, 128));
+            painter->setCompositionMode(QPainter::CompositionMode_Exclusion);
 
+            painter->drawText(boundingRect().adjusted(-2, -2, 0,0), displayText, textOption);
+
+            painter->setFont(font);
+            painter->setPen(QColor(0, 0, 0, 255));
             painter->drawText(boundingRect(), displayText, textOption);
 
             painter->restore();
