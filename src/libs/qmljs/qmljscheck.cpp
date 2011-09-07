@@ -737,6 +737,7 @@ bool Check::visit(Block *ast)
     if (Node *p = parent()) {
         if (_options & WarnBlocks
                 && !cast<UiScriptBinding *>(p)
+                && !cast<UiPublicMember *>(p)
                 && !cast<TryStatement *>(p)
                 && !cast<Catch *>(p)
                 && !cast<Finally *>(p)
@@ -750,6 +751,12 @@ bool Check::visit(Block *ast)
                 && !cast<SwitchStatement *>(p)
                 && !cast<WithStatement *>(p)) {
             warning(ast->lbraceToken, tr("blocks do not introduce a new scope, avoid"));
+        }
+        if (!ast->statements
+                && (cast<UiPublicMember *>(p)
+                    || cast<UiScriptBinding *>(p))) {
+            warning(locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()),
+                    tr("unintentional empty block, use ({}) for empty object literal"));
         }
     }
     return true;
