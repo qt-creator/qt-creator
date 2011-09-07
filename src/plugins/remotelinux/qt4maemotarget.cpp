@@ -704,7 +704,7 @@ void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
         // Such a file is created by the mobile wizards.
         const QString iconPath = project()->projectDirectory()
             + QLatin1Char('/') + project()->displayName()
-            + QLatin1String(".png");
+            + QLatin1String("64.png");
         if (QFileInfo(iconPath).exists())
             setPackageManagerIcon(iconPath);
     }
