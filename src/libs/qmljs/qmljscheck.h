@@ -74,7 +74,8 @@ public:
         WarnCaseWithoutFlowControlEnd        = 1 << 11,
         WarnNonCapitalizedNew                = 1 << 12,
         WarnCallsOfCapitalizedFunctions      = 1 << 13,
-        ErrCheckTypeErrors                   = 1 << 14
+        WarnUnreachablecode                  = 1 << 14,
+        ErrCheckTypeErrors                   = 1 << 15
     };
     Q_DECLARE_FLAGS(Options, Option)
 
@@ -127,6 +128,7 @@ private:
     void checkEndsWithControlFlow(AST::StatementList *statements, AST::SourceLocation errorLoc);
     void checkProperty(QmlJS::AST::UiQualifiedId *);
     void checkNewExpression(AST::ExpressionNode *node);
+    void checkBindingRhs(AST::Statement *statement);
 
     void warning(const AST::SourceLocation &loc, const QString &message);
     void error(const AST::SourceLocation &loc, const QString &message);

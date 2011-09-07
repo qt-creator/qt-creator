@@ -243,6 +243,196 @@ public:
     ExpressionNode *_ast;
 };
 
+class ReachesEndCheck : protected Visitor
+{
+public:
+    bool operator()(Node *node)
+    {
+        _labels.clear();
+        _labelledBreaks.clear();
+        return check(node) == ReachesEnd;
+    }
+
+protected:
+    // Sorted by how much code will be reachable from that state, i.e.
+    // ReachesEnd is guaranteed to reach more code than Break and so on.
+    enum State
+    {
+        ReachesEnd = 0,
+        Break = 1,
+        Continue = 2,
+        ReturnOrThrow = 3
+    };
+    State _state;
+    QMap<QString, Node *> _labels;
+    QSet<Node *> _labelledBreaks;
+
+    virtual void onUnreachable(Node *)
+    {}
+
+    virtual State check(Node *node)
+    {
+        _state = ReachesEnd;
+        Node::accept(node, this);
+        return _state;
+    }
+
+    virtual bool preVisit(Node *ast)
+    {
+        if (ast->expressionCast())
+            return false;
+        if (_state == ReachesEnd)
+            return true;
+        if (Statement *stmt = ast->statementCast())
+            onUnreachable(stmt);
+        if (FunctionSourceElement *fun = cast<FunctionSourceElement *>(ast))
+            onUnreachable(fun->declaration);
+        if (StatementSourceElement *stmt = cast<StatementSourceElement *>(ast))
+            onUnreachable(stmt->statement);
+        return false;
+    }
+
+    virtual bool visit(LabelledStatement *ast)
+    {
+        // get the target statement
+        Statement *end = ast->statement;
+        forever {
+            if (LabelledStatement *label = cast<LabelledStatement *>(end))
+                end = label->statement;
+            else
+                break;
+        }
+        if (ast->label)
+            _labels[ast->label->asString()] = end;
+        return true;
+    }
+
+    virtual bool visit(BreakStatement *ast)
+    {
+        _state = Break;
+        if (ast->label) {
+            if (Node *target = _labels.value(ast->label->asString()))
+                _labelledBreaks.insert(target);
+        }
+        return false;
+    }
+
+    // labelled continues don't change control flow...
+    virtual bool visit(ContinueStatement *) { _state = Continue; return false; }
+
+    virtual bool visit(ReturnStatement *) { _state = ReturnOrThrow; return false; }
+    virtual bool visit(ThrowStatement *) { _state = ReturnOrThrow; return false; }
+
+    virtual bool visit(IfStatement *ast)
+    {
+        State ok = check(ast->ok);
+        State ko = check(ast->ko);
+        _state = qMin(ok, ko);
+        return false;
+    }
+
+    void handleClause(StatementList *statements, State *result, bool *fallthrough)
+    {
+        State clauseResult = check(statements);
+        if (clauseResult == ReachesEnd) {
+            *fallthrough = true;
+        } else {
+            *fallthrough = false;
+            *result = qMin(*result, clauseResult);
+        }
+    }
+
+    virtual bool visit(SwitchStatement *ast)
+    {
+        if (!ast->block)
+            return false;
+        State result = ReturnOrThrow;
+        bool lastWasFallthrough = false;
+
+        for (CaseClauses *it = ast->block->clauses; it; it = it->next) {
+            if (it->clause)
+                handleClause(it->clause->statements, &result, &lastWasFallthrough);
+        }
+        if (ast->block->defaultClause)
+            handleClause(ast->block->defaultClause->statements, &result, &lastWasFallthrough);
+        for (CaseClauses *it = ast->block->moreClauses; it; it = it->next) {
+            if (it->clause)
+                handleClause(it->clause->statements, &result, &lastWasFallthrough);
+        }
+
+        if (lastWasFallthrough)
+            result = ReachesEnd;
+        if (result == Break || _labelledBreaks.contains(ast))
+            result = ReachesEnd;
+        _state = result;
+        return false;
+    }
+
+    virtual bool visit(TryStatement *ast)
+    {
+        State tryBody = check(ast->statement);
+        State catchBody = check(ast->catchExpression->statement);
+        State finallyBody = check(ast->finallyExpression->statement);
+
+        _state = qMax(qMin(tryBody, catchBody), finallyBody);
+        return false;
+    }
+
+    bool loopStatement(Node *loop, Statement *body)
+    {
+        check(body);
+        if (_state != ReturnOrThrow || _labelledBreaks.contains(loop))
+            _state = ReachesEnd;
+        return false;
+    }
+
+    virtual bool visit(WhileStatement *ast) { return loopStatement(ast, ast->statement); }
+    virtual bool visit(ForStatement *ast) { return loopStatement(ast, ast->statement); }
+    virtual bool visit(ForEachStatement *ast) { return loopStatement(ast, ast->statement); }
+    virtual bool visit(DoWhileStatement *ast) { return loopStatement(ast, ast->statement); }
+    virtual bool visit(LocalForStatement *ast) { return loopStatement(ast, ast->statement); }
+    virtual bool visit(LocalForEachStatement *ast) { return loopStatement(ast, ast->statement); }
+};
+
+class MarkUnreachableCode : protected ReachesEndCheck
+{
+    QList<DiagnosticMessage> _messages;
+    bool _emittedWarning;
+
+public:
+    QList<DiagnosticMessage> operator()(Node *ast)
+    {
+        _messages.clear();
+        check(ast);
+        return _messages;
+    }
+
+protected:
+    virtual State check(Node *node)
+    {
+        bool oldwarning = _emittedWarning;
+        _emittedWarning = false;
+        State s = ReachesEndCheck::check(node);
+        _emittedWarning = oldwarning;
+        return s;
+    }
+
+    virtual void onUnreachable(Node *node)
+    {
+        if (_emittedWarning)
+            return;
+        _emittedWarning = true;
+
+        DiagnosticMessage message(DiagnosticMessage::Warning, SourceLocation(), Check::tr("unreachable"));
+        if (Statement *statement = node->statementCast())
+            message.loc = locationFromRange(statement->firstSourceLocation(), statement->lastSourceLocation());
+        else if (ExpressionNode *expr = node->expressionCast())
+            message.loc = locationFromRange(expr->firstSourceLocation(), expr->lastSourceLocation());
+        if (message.loc.isValid())
+            _messages += message;
+    }
+};
+
 class DeclarationsCheck : protected Visitor
 {
 public:
@@ -259,11 +449,11 @@ public:
         return _messages;
     }
 
-    QList<DiagnosticMessage> operator()(StatementList *statements, Check::Options options)
+    QList<DiagnosticMessage> operator()(Node *node, Check::Options options)
     {
         clear();
         _options = options;
-        Node::accept(statements, this);
+        Node::accept(node, this);
         return _messages;
     }
 
@@ -400,7 +590,8 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
                | WarnVoid | WarnCommaExpression | WarnExpressionStatement
                | WarnAssignInCondition | WarnUseBeforeDeclaration | WarnDuplicateDeclaration
                | WarnCaseWithoutFlowControlEnd | WarnNonCapitalizedNew
-               | WarnCallsOfCapitalizedFunctions | ErrCheckTypeErrors)
+               | WarnCallsOfCapitalizedFunctions | WarnUnreachablecode
+               | ErrCheckTypeErrors)
     , _lastValue(0)
 {
 }
@@ -601,17 +792,14 @@ bool Check::visit(UiScriptBinding *ast)
             _messages += message;
     }
 
-    if (Block *block = cast<Block *>(ast->statement)) {
-        DeclarationsCheck bodyCheck;
-        _messages.append(bodyCheck(block->statements, _options));
-        Node::accept(ast->qualifiedId, this);
-        _scopeBuilder.push(ast);
-        Node::accept(block->statements, this);
-        _scopeBuilder.pop();
-        return false;
-    }
+    checkBindingRhs(ast->statement);
 
-    return true;
+    Node::accept(ast->qualifiedId, this);
+    _scopeBuilder.push(ast);
+    Node::accept(ast->statement, this);
+    _scopeBuilder.pop();
+
+    return false;
 }
 
 bool Check::visit(UiArrayBinding *ast)
@@ -632,7 +820,15 @@ bool Check::visit(UiPublicMember *ast)
                 error(ast->typeToken, tr("'%1' is not a valid property type").arg(name));
         }
     }
-    return true;
+
+    checkBindingRhs(ast->statement);
+
+    _scopeBuilder.push(ast);
+    Node::accept(ast->statement, this);
+    Node::accept(ast->binding, this);
+    _scopeBuilder.pop();
+
+    return false;
 }
 
 bool Check::visit(IdentifierExpression *ast)
@@ -686,7 +882,11 @@ bool Check::visit(FunctionDeclaration *ast)
 bool Check::visit(FunctionExpression *ast)
 {
     DeclarationsCheck bodyCheck;
-    _messages.append(bodyCheck(ast, _options));
+    _messages += bodyCheck(ast, _options);
+    if (_options & WarnUnreachablecode) {
+        MarkUnreachableCode unreachableCheck;
+        _messages += unreachableCheck(ast->body);
+    }
 
     Node::accept(ast->formals, this);
     _scopeBuilder.push(ast);
@@ -917,6 +1117,19 @@ void Check::checkNewExpression(ExpressionNode *ast)
     }
 }
 
+void Check::checkBindingRhs(Statement *statement)
+{
+    if (!statement)
+        return;
+
+    DeclarationsCheck bodyCheck;
+    _messages += bodyCheck(statement, _options);
+    if (_options & WarnUnreachablecode) {
+        MarkUnreachableCode unreachableCheck;
+        _messages += unreachableCheck(statement);
+    }
+}
+
 bool Check::visit(NewExpression *ast)
 {
     checkNewExpression(ast->expression);
@@ -1037,19 +1250,12 @@ void Check::checkAssignInCondition(AST::ExpressionNode *condition)
 
 void Check::checkEndsWithControlFlow(StatementList *statements, SourceLocation errorLoc)
 {
-    // full flow analysis would be neat
     if (!statements || !(_options & WarnCaseWithoutFlowControlEnd))
         return;
 
-    Statement *lastStatement = 0;
-    for (StatementList *slist = statements; slist; slist = slist->next)
-        lastStatement = slist->statement;
-
-    if (!cast<ReturnStatement *>(lastStatement)
-            && !cast<ThrowStatement *>(lastStatement)
-            && !cast<BreakStatement *>(lastStatement)
-            && !cast<ContinueStatement *>(lastStatement)) {
-        warning(errorLoc, tr("case does not end with return, break, continue or throw"));
+    ReachesEndCheck check;
+    if (check(statements)) {
+        warning(errorLoc, tr("case is not terminated and not empty"));
     }
 }
 
