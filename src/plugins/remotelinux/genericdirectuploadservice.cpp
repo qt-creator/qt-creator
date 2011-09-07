@@ -54,8 +54,10 @@ enum State { Inactive, InitializingSftp, Uploading };
 class GenericDirectUploadServicePrivate
 {
 public:
-    GenericDirectUploadServicePrivate() : stopRequested(false), state(Inactive) {}
+    GenericDirectUploadServicePrivate()
+        : incremental(false), stopRequested(false), state(Inactive) {}
 
+    bool incremental;
     bool stopRequested;
     State state;
     QList<DeployableFile> filesToUpload;
@@ -77,6 +79,11 @@ GenericDirectUploadService::GenericDirectUploadService(QObject *parent)
 void GenericDirectUploadService::setDeployableFiles(const QList<DeployableFile> &deployableFiles)
 {
     m_d->deployableFiles = deployableFiles;
+}
+
+void GenericDirectUploadService::setIncrementalDeployment(bool incremental)
+{
+    m_d->incremental = incremental;
 }
 
 bool GenericDirectUploadService::isDeploymentNecessary() const
@@ -259,15 +266,13 @@ void GenericDirectUploadService::stopDeployment()
     handleDeploymentDone();
 }
 
-// Note: time stamp checks disabled for now; it's too much hassle for the user to force
-// deployment in case the device has changed.
 void GenericDirectUploadService::checkDeploymentNeeded(const DeployableFile &deployable) const
 {
     QFileInfo fileInfo(deployable.localFilePath);
     if (fileInfo.isDir()) {
         const QStringList files = QDir(deployable.localFilePath)
             .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-        if (files.isEmpty() /* && hasChangedSinceLastDeployment(deployable) */)
+        if (files.isEmpty() && (!m_d->incremental || hasChangedSinceLastDeployment(deployable)))
             m_d->filesToUpload << deployable;
         foreach (const QString &fileName, files) {
             const QString localFilePath = deployable.localFilePath
@@ -276,7 +281,7 @@ void GenericDirectUploadService::checkDeploymentNeeded(const DeployableFile &dep
                 + fileInfo.fileName();
             checkDeploymentNeeded(DeployableFile(localFilePath, remoteDir));
         }
-    } else  /* if (hasChangedSinceLastDeployment(deployable)) */ {
+    } else  if (!m_d->incremental || hasChangedSinceLastDeployment(deployable)) {
         m_d->filesToUpload << deployable;
     }
 }

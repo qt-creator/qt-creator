@@ -51,6 +51,8 @@ public:
     QString summaryText() const;
     QString displayName() const { return QString(); }
 
+    AbstractRemoteLinuxDeployStep *step() const { return m_step; }
+
 private:
     Q_SLOT void handleStepToBeRemoved(int step);
 

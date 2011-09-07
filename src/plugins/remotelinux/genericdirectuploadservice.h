@@ -52,6 +52,7 @@ public:
     GenericDirectUploadService(QObject *parent = 0);
 
     void setDeployableFiles(const QList<DeployableFile> &deployableFiles);
+    void setIncrementalDeployment(bool incremental);
 
 private slots:
     void handleSftpInitialized();

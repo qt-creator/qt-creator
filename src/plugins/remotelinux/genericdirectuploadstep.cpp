@@ -35,17 +35,64 @@
 #include "deploymentinfo.h"
 #include "genericdirectuploadservice.h"
 #include "remotelinuxdeployconfiguration.h"
+#include "remotelinuxdeploystepwidget.h"
 
+#include <QtGui/QCheckBox>
+#include <QtGui/QVBoxLayout>
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
 
+using namespace ProjectExplorer;
+
 namespace RemoteLinux {
 namespace Internal {
+namespace {
+const char IncrementalKey[] = "RemoteLinux.GenericDirectUploadStep.Incremental";
+
+class ConfigWidget : public BuildStepConfigWidget
+{
+    Q_OBJECT
+public:
+    ConfigWidget(GenericDirectUploadStep *step) : m_widget(step)
+    {
+        m_incrementalCheckBox.setText(tr("Incremental deployment"));
+        QVBoxLayout *mainLayout = new QVBoxLayout(this);
+        mainLayout->setMargin(0);
+        mainLayout->addWidget(&m_widget);
+        mainLayout->addWidget(&m_incrementalCheckBox);
+        m_incrementalCheckBox.setChecked(step->incrementalDeployment());
+        connect(&m_widget, SIGNAL(updateSummary()), SIGNAL(updateSummary()));
+        connect(&m_incrementalCheckBox, SIGNAL(toggled(bool)),
+            SLOT(handleIncrementalChanged(bool)));
+    }
+
+private:
+    QString summaryText() const { return m_widget.summaryText(); }
+    QString displayName() const { return m_widget.displayName(); }
+
+    GenericDirectUploadStep *myStep() const {
+        return qobject_cast<GenericDirectUploadStep *>(m_widget.step());
+    }
+
+    Q_SLOT void handleIncrementalChanged(bool incremental) {
+        myStep()->setIncrementalDeployment(incremental);
+    }
+
+    RemoteLinuxDeployStepWidget m_widget;
+    QCheckBox m_incrementalCheckBox;
+};
+
+} // anonymous namespace
+
 class GenericDirectUploadStepPrivate
 {
 public:
+    GenericDirectUploadStepPrivate() : incremental(true) {}
+
     GenericDirectUploadService deployService;
+    bool incremental;
 };
+
 } // namespace Internal
 
 GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, const QString &id)
@@ -65,6 +112,11 @@ GenericDirectUploadStep::~GenericDirectUploadStep()
     delete m_d;
 }
 
+BuildStepConfigWidget *GenericDirectUploadStep::createConfigWidget()
+{
+    return new Internal::ConfigWidget(this);
+}
+
 bool GenericDirectUploadStep::isDeploymentPossible(QString *whyNot) const
 {
     QList<DeployableFile> deployableFiles;
@@ -73,6 +125,7 @@ bool GenericDirectUploadStep::isDeploymentPossible(QString *whyNot) const
     for (int i = 0; i < deployableCount; ++i)
         deployableFiles << deploymentInfo->deployableAt(i);
     m_d->deployService.setDeployableFiles(deployableFiles);
+    m_d->deployService.setIncrementalDeployment(incrementalDeployment());
     return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
 }
 
@@ -81,10 +134,35 @@ AbstractRemoteLinuxDeployService *GenericDirectUploadStep::deployService() const
     return &m_d->deployService;
 }
 
+bool GenericDirectUploadStep::fromMap(const QVariantMap &map)
+{
+    if (!AbstractRemoteLinuxDeployStep::fromMap(map))
+        return false;
+    setIncrementalDeployment(map.value(QLatin1String(Internal::IncrementalKey), true).toBool());
+    return true;
+}
+
+QVariantMap GenericDirectUploadStep::toMap() const
+{
+    QVariantMap map = AbstractRemoteLinuxDeployStep::toMap();
+    map.insert(QLatin1String(Internal::IncrementalKey), incrementalDeployment());
+    return map;
+}
+
 void GenericDirectUploadStep::ctor()
 {
     setDefaultDisplayName(displayName());
     m_d = new Internal::GenericDirectUploadStepPrivate;
+}
+
+void GenericDirectUploadStep::setIncrementalDeployment(bool incremental)
+{
+    m_d->incremental = incremental;
+}
+
+bool GenericDirectUploadStep::incrementalDeployment() const
+{
+    return m_d->incremental;
 }
 
 QString GenericDirectUploadStep::stepId()
@@ -98,3 +176,5 @@ QString GenericDirectUploadStep::displayName()
 }
 
 } //namespace RemoteLinux
+
+#include "genericdirectuploadstep.moc"

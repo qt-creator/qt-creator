@@ -49,13 +49,19 @@ public:
     GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, GenericDirectUploadStep *other);
     ~GenericDirectUploadStep();
 
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     bool isDeploymentPossible(QString *whyNot = 0) const;
+
+    void setIncrementalDeployment(bool incremental);
+    bool incrementalDeployment() const;
 
     static QString stepId();
     static QString displayName();
 
 private:
     AbstractRemoteLinuxDeployService *deployService() const;
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
 
     void ctor();
 
