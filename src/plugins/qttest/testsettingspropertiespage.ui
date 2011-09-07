@@ -295,7 +295,7 @@
         <item>
          <widget class="QLineEdit" name="qmakespec">
           <property name="toolTip">
-           <string>The reference for the plaform under test, e.g: &lt;MkSpec&gt;</string>
+           <string>The reference for the platform under test, e.g: &lt;MkSpec&gt;</string>
           </property>
          </widget>
         </item>

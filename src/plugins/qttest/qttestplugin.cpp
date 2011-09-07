@@ -48,7 +48,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/id.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -306,11 +305,9 @@ void QtTestPlugin::insertTestFunction()
     if (currentTest) {
         QString prompt = QLatin1String("<b>") + currentTest->testTypeString()
             +  QLatin1String(" Test: </b>") + currentTest->testCase();
-        NewTestFunctionDlg dlg(prompt);
-        dlg.exec();
-
-        if (dlg.result() == QDialog::Accepted) {
-            QString testFunc = dlg.testFunctionName->text();
+        QPointer<NewTestFunctionDlg> dlg = new NewTestFunctionDlg(prompt);
+        if (dlg->exec() == QDialog::Accepted) {
+            QString testFunc = dlg->testFunctionName->text();
             // check for duplicate
             if (TestFunctionInfo *functionInfo = currentTest->findFunction(testFunc)) {
                 QMessageBox::critical(0, tr("Error"),
@@ -318,8 +315,9 @@ void QtTestPlugin::insertTestFunction()
                 currentTest->gotoLine(functionInfo->testStartLine());
                 return;
             }
-            currentTest->addTestFunction(testFunc, QString(), dlg.insertAtCursor->isChecked());
+            currentTest->addTestFunction(testFunc, QString(), dlg->insertAtCursor->isChecked());
         }
+        delete dlg;
     }
 }
 

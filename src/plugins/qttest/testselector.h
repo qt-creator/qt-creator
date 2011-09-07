@@ -104,6 +104,11 @@ private:
     uint m_parentAssigned;
     bool m_assigned;
     bool m_isTestSuite;
+
+    static const QPixmap m_selectpxm;
+    static const QPixmap m_unselectpxm;
+    static const QPixmap m_parentAssignpxm;
+    static const QPixmap m_childAssignpxm;
 };
 
 class TestSelector : public QTreeWidget

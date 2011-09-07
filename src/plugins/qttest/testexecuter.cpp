@@ -601,7 +601,7 @@ void TestExecuter::parseOutput()
             }
         } else {
             if (m_xmlMode) {
-                if (line.startsWith("<?xml version")) {
+                if (line.startsWith(QLatin1String("<?xml version"))) {
                     m_xmlTestfunction.clear();
                     m_xmlTestcase.clear();
                     m_xmlDatatag.clear();
@@ -670,7 +670,7 @@ void TestExecuter::parseOutput()
 
                         xmlLineVariable(line,"line=",m_xmlLine);
 
-                        if (line.endsWith("/>")) {
+                        if (line.endsWith(QLatin1String("/>"))) {
                             line = m_xmlResult.toUpper();
                             while (line.length() < 7)
                                 line += QLatin1Char(' ');
@@ -703,14 +703,14 @@ void TestExecuter::parseOutput()
                         m_killTestRequested = true;
                         QTimer::singleShot(1500, this, SLOT(onKillTestRequested()));
 
-                    } else if (line.startsWith("</Environment>")) {
+                    } else if (line.startsWith(QLatin1String("</Environment>"))) {
                         line = "Config: Using QTest library " + m_xmlQtestVersion
                             + ", Qt " + m_xmlQtVersion;
 
                     } else if (xmlLineStartsWith(line, "<TestCase name=\"", m_xmlTestcase)) {
                         line = "********* Start testing of " + m_xmlTestcase + " *********";
 
-                    } else if (line.startsWith("<Environment>")) {
+                    } else if (line.startsWith(QLatin1String("<Environment>"))) {
                         continue;
 
                     } else if (xmlLineStartsWith(line, "<TestFunction name=\"", m_xmlTestfunction)
@@ -718,7 +718,7 @@ void TestExecuter::parseOutput()
                         || xmlLineStartsWith(line,"<QTestVersion>",m_xmlQtestVersion)) {
                         continue;
 
-                    } else if (line.startsWith("<anonymous>()@")) {
+                    } else if (line.startsWith(QLatin1String("<anonymous>()@"))) {
                         m_xmlFile = line.mid(line.indexOf(QLatin1Char('@'))+1);
                         m_xmlLine = m_xmlFile.mid(m_xmlFile.indexOf(QLatin1Char(':'))+1);
                         m_xmlFile = m_xmlFile.left(m_xmlFile.indexOf(QLatin1Char(':')));
@@ -1261,10 +1261,9 @@ void TestExecuter::eventRecordingStarted(const QString &file, int line, const QS
         tmp->openTestInEditor(QString());
         tmp->gotoLine(line);
     }
-
-    QDialog recordWindow;
+    QPointer<QDialog> recordWindow = new QDialog;
     Ui::RecordDialog ui;
-    ui.setupUi(&recordWindow);
+    ui.setupUi(recordWindow);
 
     if (!manualSteps.isEmpty()) {
         ui.steps_view->setPlainText(manualSteps);
@@ -1277,12 +1276,13 @@ void TestExecuter::eventRecordingStarted(const QString &file, int line, const QS
         "or 'Abort' to abandon recording.");
     m_recordedEventsEdit = ui.codeEdit;
 
-    connect(ui.abort_button, SIGNAL(clicked()), &recordWindow, SLOT(close()));
+    connect(ui.abort_button, SIGNAL(clicked()), recordWindow, SLOT(close()));
     connect(ui.abort_button, SIGNAL(clicked()), this, SLOT(abortRecording()));
     m_abortRecording = false;
 
     m_recordingEvents = true;
-    recordWindow.exec();
+    recordWindow->exec();
+    delete recordWindow;
     m_recordingEvents = false;
     if (m_abortRecording)
         return;

@@ -36,7 +36,6 @@
 #include "qsystem.h"
 #include "testsuite.h"
 #include "testexecuter.h"
-#include "testcode.h"
 #include "testoutputwindow.h"
 
 #include <coreplugin/icore.h>
@@ -316,9 +315,9 @@ void TestContextMenuPrivate::editorChanged(Core::IEditor *iface)
 
     if (iface) {
         QString fname = iface->displayName();
-        isTestcase = ((fname.endsWith(".qtt") || fname.endsWith(".cpp"))
-            && (fname.startsWith("tst_") || fname.startsWith("sys_")
-            || fname.startsWith("int_") || fname.startsWith("prf_")));
+        isTestcase = ((fname.endsWith(QLatin1String(".qtt")) || fname.endsWith(QLatin1String(".cpp")))
+            && (fname.startsWith(QLatin1String("tst_")) || fname.startsWith(QLatin1String("sys_"))
+            || fname.startsWith(QLatin1String("int_")) || fname.startsWith(QLatin1String("prf_"))));
     }
 
     if (isTestcase) {

@@ -53,7 +53,7 @@
 # include <time.h>
 #endif
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
 # include <windows.h>
 # include <stdlib.h>
 #endif
@@ -89,14 +89,16 @@ QString QSystem::userName()
 
 #if defined Q_OS_TEMP
     userName = QLatin1String("WinCE");
-#elif defined Q_OS_WIN32
+#elif defined Q_OS_WIN
     userName = QString::fromLocal8Bit(qgetenv("USERNAME"));
 #elif defined Q_OS_UNIX
     userName = QString::fromLocal8Bit(qgetenv("USER"));
     if (userName.isEmpty())
         userName = QString::fromLocal8Bit(qgetenv("LOGNAME"));
 #elif defined Q_OS_MAC
-    userName = getenv(); // TODO?
+    userName = QString::fromLocal8Bit(qgetenv("USER"));
+    if (userName.isEmpty())
+        userName = QString::fromLocal8Bit(qgetenv("LOGNAME"));
 #endif
 
     return userName.toLower();
