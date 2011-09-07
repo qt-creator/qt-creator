@@ -39,6 +39,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/messagemanager.h>
 
@@ -64,9 +65,9 @@ QStringList ProjectFileFactory::mimeTypes() const
     return m_mimeTypes;
 }
 
-QString ProjectFileFactory::id() const
+Core::Id ProjectFileFactory::id() const
 {
-    return QLatin1String(Constants::FILE_FACTORY_ID);
+    return Constants::FILE_FACTORY_ID;
 }
 
 QString ProjectFileFactory::displayName() const

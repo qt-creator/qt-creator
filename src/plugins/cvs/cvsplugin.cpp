@@ -631,7 +631,7 @@ void CVSPlugin::cvsDiff(const CvsDiffParameters &p)
 
 CVSSubmitEditor *CVSPlugin::openCVSSubmitEditor(const QString &fileName)
 {
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::CVSCOMMITEDITOR_ID),
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, Constants::CVSCOMMITEDITOR_ID,
                                                                         Core::EditorManager::ModeSwitch);
     CVSSubmitEditor *submitEditor = qobject_cast<CVSSubmitEditor*>(editor);
     QTC_CHECK(submitEditor);

@@ -34,12 +34,8 @@
 #define PLAINTEXTEDITORFACTORY_H
 
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <QtCore/QStringList>
 
-namespace Core {
-class IEditor;
-class IFile;
-}
+#include <QtCore/QStringList>
 
 namespace TextEditor {
 class  TextEditorActionHandler;
@@ -56,7 +52,7 @@ public:
     void addMimeType(const QString &type);
     virtual QStringList mimeTypes() const;
     //Core::IEditorFactory
-    QString id() const;
+    Core::Id id() const;
     QString displayName() const;
 
     Core::IFile *open(const QString &fileName);

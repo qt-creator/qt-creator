@@ -42,7 +42,7 @@ struct BaseVCSSubmitEditorFactoryPrivate
     BaseVCSSubmitEditorFactoryPrivate(const VCSBaseSubmitEditorParameters *parameters);
 
     const VCSBaseSubmitEditorParameters *m_parameters;
-    const QString m_id;
+    const Core::Id m_id;
     const QString m_displayName;
     const QStringList m_mimeTypes;
 };
@@ -70,7 +70,7 @@ Core::IEditor *BaseVCSSubmitEditorFactory::createEditor(QWidget *parent)
     return createBaseSubmitEditor(m_d->m_parameters, parent);
 }
 
-QString BaseVCSSubmitEditorFactory::id() const
+Core::Id BaseVCSSubmitEditorFactory::id() const
 {
     return m_d->m_id;
 }

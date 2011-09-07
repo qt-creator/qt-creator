@@ -42,9 +42,9 @@ class IEditor;
 class CORE_EXPORT IEditorFactory : public Core::IFileFactory
 {
     Q_OBJECT
+
 public:
     IEditorFactory(QObject *parent = 0) : IFileFactory(parent) {}
-    virtual ~IEditorFactory() {}
 
     virtual IEditor *createEditor(QWidget *parent) = 0;
 };

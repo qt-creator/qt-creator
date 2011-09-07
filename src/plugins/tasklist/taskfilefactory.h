@@ -34,7 +34,6 @@
 #define TASKFILEFACTORY_H
 
 #include <coreplugin/ifilefactory.h>
-
 #include <coreplugin/ifile.h>
 
 #include <QtCore/QStringList>
@@ -55,7 +54,7 @@ public:
 
     QStringList mimeTypes() const;
 
-    QString id() const;
+    Core::Id id() const;
     QString displayName() const;
 
     Core::IFile *open(const QString &fileName);

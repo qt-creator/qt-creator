@@ -122,7 +122,7 @@ QStringList ExternalQtEditor::mimeTypes() const
     return m_mimeTypes;
 }
 
-QString ExternalQtEditor::id() const
+Core::Id ExternalQtEditor::id() const
 {
     return m_id;
 }
@@ -156,7 +156,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
         data->binary = Utils::SynchronousProcess::locateBinary(fallbackBinary);
     }
     if (data->binary.isEmpty()) {
-        *errorMessage = msgAppNotFound(id());
+        *errorMessage = msgAppNotFound(id().toString());
         return false;
     }
     // Setup binary + arguments, use Mac Open if appropriate

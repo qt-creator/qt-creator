@@ -637,7 +637,7 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
     Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName,
-                                                                        QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_ID),
+                                                                        Constants::SUBVERSIONCOMMITEDITOR_ID,
                                                                         Core::EditorManager::ModeSwitch);
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_CHECK(submitEditor);

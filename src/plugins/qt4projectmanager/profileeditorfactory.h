@@ -37,10 +37,6 @@
 
 #include <QtCore/QStringList>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
 namespace TextEditor {
 class TextEditorActionHandler;
 }
@@ -59,13 +55,14 @@ public:
     ProFileEditorFactory(Qt4Manager *parent, TextEditor::TextEditorActionHandler *handler);
     ~ProFileEditorFactory();
 
-    virtual QStringList mimeTypes() const;
-    virtual QString id() const;
-    virtual QString displayName() const;
+    // IEditorFactory
+    QStringList mimeTypes() const;
+    Core::Id id() const;
+    QString displayName() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
-    inline Qt4Manager *qt4ProjectManager() const { return m_manager; }
+    Qt4Manager *qt4ProjectManager() const { return m_manager; }
 
 private:
     const QStringList m_mimeTypes;

@@ -280,10 +280,10 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
         return;
     if (IFile *file = item->data(0, Qt::UserRole).value<IFile*>()) {
         EditorView *view = item->data(0, Qt::UserRole+1).value<EditorView*>();
-        EditorManager::instance()->activateEditorForFile(view, file, Core::EditorManager::ModeSwitch);
+        EditorManager::instance()->activateEditorForFile(view, file, EditorManager::ModeSwitch);
     } else {
         if (!EditorManager::instance()->openEditor(
-                    item->toolTip(0), item->data(0, Qt::UserRole+2).toByteArray(),
+                    item->toolTip(0), item->data(0, Qt::UserRole+2).value<Core::Id>(),
                     Core::EditorManager::ModeSwitch)) {
             EditorManager::instance()->openedEditorsModel()->removeEditor(item->toolTip(0));
             delete item;

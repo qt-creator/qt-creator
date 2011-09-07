@@ -598,7 +598,7 @@ void MercurialPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::Statu
     }
 
     Core::IEditor *editor = core->editorManager()->openEditor(changeLog->fileName(),
-                                                              QLatin1String(Constants::COMMIT_ID),
+                                                              Constants::COMMIT_ID,
                                                               Core::EditorManager::ModeSwitch);
     if (!editor) {
         outputWindow->appendError(tr("Unable to create an editor for the commit."));

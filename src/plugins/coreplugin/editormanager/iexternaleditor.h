@@ -39,17 +39,18 @@
 
 namespace Core {
 
+class Id;
+
 class CORE_EXPORT IExternalEditor : public QObject
 {
     Q_OBJECT
+
 public:
     explicit IExternalEditor(QObject *parent = 0) : QObject(parent) {}
-    virtual ~IExternalEditor() {}
 
     virtual QStringList mimeTypes() const = 0;
-    virtual QString id() const = 0;
+    virtual Id id() const = 0;
     virtual QString displayName() const = 0;
-
     virtual bool startEditor(const QString &fileName, QString *errorMessage) = 0;
 };
 

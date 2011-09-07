@@ -48,13 +48,9 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager, TextEditor::TextEd
 
 }
 
-CMakeEditorFactory::~CMakeEditorFactory()
+Core::Id CMakeEditorFactory::id() const
 {
-}
-
-QString CMakeEditorFactory::id() const
-{
-    return QLatin1String(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
+    return CMakeProjectManager::Constants::CMAKE_EDITOR_ID;
 }
 
 QString CMakeEditorFactory::displayName() const

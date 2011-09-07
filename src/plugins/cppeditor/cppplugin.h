@@ -116,12 +116,11 @@ class CppEditorFactory : public Core::IEditorFactory
 public:
     CppEditorFactory(CppPlugin *owner);
 
-    virtual QStringList mimeTypes() const;
-
+    // IEditorFactory
+    QStringList mimeTypes() const;
     Core::IEditor *createEditor(QWidget *parent);
-
-    virtual QString id() const;
-    virtual QString displayName() const;
+    Core::Id id() const;
+    QString displayName() const;
     Core::IFile *open(const QString &fileName);
 
 private:

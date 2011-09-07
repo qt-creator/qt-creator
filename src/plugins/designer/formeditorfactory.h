@@ -37,25 +37,20 @@
 
 #include <QtCore/QStringList>
 
-namespace Core {
-class IEditor;
-class IFile;
-}
-
 namespace Designer {
 namespace Internal {
 
 class FormEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
+
 public:
     FormEditorFactory();
 
-    virtual QStringList mimeTypes() const;
-
     // IEditorFactory
-    virtual QString id() const;
-    virtual QString displayName() const;
+    QStringList mimeTypes() const;
+    Core::Id id() const;
+    QString displayName() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 

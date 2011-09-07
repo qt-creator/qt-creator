@@ -54,7 +54,7 @@ public:
     virtual QStringList mimeTypes() const;
     // IEditorFactory
 
-    virtual QString id() const;
+    virtual Core::Id id() const;
     virtual QString displayName() const;
 
     virtual Core::IFile *open(const QString &fileName);

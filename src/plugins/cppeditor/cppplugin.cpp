@@ -101,9 +101,9 @@ CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
 #endif
 }
 
-QString CppEditorFactory::id() const
+Core::Id CppEditorFactory::id() const
 {
-    return QLatin1String(CppEditor::Constants::CPPEDITOR_ID);
+    return CppEditor::Constants::CPPEDITOR_ID;
 }
 
 QString CppEditorFactory::displayName() const

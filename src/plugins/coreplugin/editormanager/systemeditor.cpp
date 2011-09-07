@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "systemeditor.h"
+#include "id.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QUrl>
@@ -49,9 +50,9 @@ QStringList SystemEditor::mimeTypes() const
     return QStringList() << QLatin1String("application/octet-stream");
 }
 
-QString SystemEditor::id() const
+Id SystemEditor::id() const
 {
-    return QLatin1String("CorePlugin.OpenWithSystemEditor");
+    return Id("CorePlugin.OpenWithSystemEditor");
 }
 
 QString SystemEditor::displayName() const

@@ -35,6 +35,7 @@
 
 #include "../core_global.h"
 
+#include <coreplugin/id.h>
 #include <coreplugin/ifile.h> // enumerations
 
 #include <QtCore/QList>
@@ -99,8 +100,8 @@ class CORE_EXPORT EditorManager : public QWidget
     Q_OBJECT
 
 public:
-    typedef QList<IEditorFactory*> EditorFactoryList;
-    typedef QList<IExternalEditor*> ExternalEditorList;
+    typedef QList<IEditorFactory *> EditorFactoryList;
+    typedef QList<IExternalEditor *> ExternalEditorList;
 
     explicit EditorManager(ICore *core, QWidget *parent);
     virtual ~EditorManager();
@@ -117,18 +118,15 @@ public:
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
-    IEditor *openEditor(const QString &fileName,
-                        const QString &editorId = QString(),
-                        OpenEditorFlags flags = 0,
-                        bool *newEditor = 0);
-    IEditor *openEditorWithContents(const QString &editorId,
-                     QString *titlePattern = 0,
-                     const QString &contents = QString());
+    IEditor *openEditor(const QString &fileName, const Id &editorId = Id(),
+        OpenEditorFlags flags = 0, bool *newEditor = 0);
+    IEditor *openEditorWithContents(const Id &editorId,
+        QString *titlePattern = 0, const QString &contents = QString());
 
-    bool openExternalEditor(const QString &fileName, const QString &editorId);
+    bool openExternalEditor(const QString &fileName, const Id &editorId);
 
     QStringList getOpenFileNames() const;
-    QString getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0) const;
+    Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0) const;
 
     bool hasEditor(const QString &fileName) const;
     QList<IEditor *> editorsForFileName(const QString &filename) const;
@@ -241,8 +239,7 @@ public slots:
 
 private:
     QList<IFile *> filesForEditors(QList<IEditor *> editors) const;
-    IEditor *createEditor(const QString &mimeType = QString(),
-                          const QString &fileName = QString());
+    IEditor *createEditor(const Id &id = Id(), const QString &fileName = QString());
     void addEditor(IEditor *editor, bool isDuplicate = false);
     void removeEditor(IEditor *editor);
 
@@ -255,9 +252,7 @@ private:
     IEditor *activateEditor(Internal::EditorView *view, IEditor *editor, OpenEditorFlags flags = 0);
     void activateEditorForIndex(Internal::EditorView *view, const QModelIndex &index, OpenEditorFlags = 0);
     IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
-                        const QString &editorId = QString(),
-                        OpenEditorFlags flags = 0,
-                        bool *newEditor = 0);
+        const Id &id = Id(), OpenEditorFlags flags = 0, bool *newEditor = 0);
     Internal::SplitterOrView *currentSplitterOrView() const;
 
     void closeEditor(IEditor *editor);

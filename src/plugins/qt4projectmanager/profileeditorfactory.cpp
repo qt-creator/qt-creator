@@ -68,9 +68,9 @@ ProFileEditorFactory::~ProFileEditorFactory()
 {
 }
 
-QString ProFileEditorFactory::id() const
+Core::Id ProFileEditorFactory::id() const
 {
-    return QLatin1String(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
+    return Qt4ProjectManager::Constants::PROFILE_EDITOR_ID;
 }
 
 QString ProFileEditorFactory::displayName() const

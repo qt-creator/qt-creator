@@ -713,7 +713,7 @@ void GitPlugin::startCommit(bool amend)
 
 Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd, bool amend)
 {
-    Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, QLatin1String(Constants::GITSUBMITEDITOR_ID),
+    Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, Constants::GITSUBMITEDITOR_ID,
                                                                 Core::EditorManager::ModeSwitch);
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << fileName << editor;

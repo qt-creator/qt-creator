@@ -34,6 +34,7 @@
 #define DESIGNEREXTERNALEDITOR_H
 
 #include <coreplugin/editormanager/iexternaleditor.h>
+#include <coreplugin/id.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
@@ -49,11 +50,9 @@ class BaseQtVersion;
 }
 
 namespace Qt4ProjectManager {
-
-
 namespace Internal {
 
-/* Convience parametrizable base class for Qt editors/binaries
+/* Convenience parametrizable base class for Qt editors/binaries
  * Provides convenience methods that
  * try to retrieve the binary of the editor from the Qt version
  * of the project the file belongs to, falling back to path search
@@ -62,9 +61,10 @@ namespace Internal {
 class ExternalQtEditor : public Core::IExternalEditor
 {
     Q_OBJECT
+
 public:
     virtual QStringList mimeTypes() const;
-    virtual QString id() const;
+    virtual Core::Id id() const;
     virtual QString displayName() const;
 
 protected:
@@ -99,7 +99,7 @@ protected:
 
 private:
     const QStringList m_mimeTypes;
-    const QString m_id;
+    const Core::Id m_id;
     const QString m_displayName;
 };
 

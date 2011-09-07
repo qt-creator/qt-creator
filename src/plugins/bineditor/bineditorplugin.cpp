@@ -416,9 +416,9 @@ BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
 {
 }
 
-QString BinEditorFactory::id() const
+Core::Id BinEditorFactory::id() const
 {
-    return QLatin1String(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
+    return Core::Constants::K_DEFAULT_BINARY_EDITOR_ID;
 }
 
 QString BinEditorFactory::displayName() const

@@ -36,6 +36,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <coreplugin/filemanager.h>
 
 #include <QtGui/QMainWindow>
@@ -60,9 +61,9 @@ QStringList TaskFileFactory::mimeTypes() const
     return m_mimeTypes;
 }
 
-QString TaskFileFactory::id() const
+Core::Id TaskFileFactory::id() const
 {
-    return QLatin1String("ProjectExplorer.TaskFileFactory");
+    return "ProjectExplorer.TaskFileFactory";
 }
 
 QString TaskFileFactory::displayName() const

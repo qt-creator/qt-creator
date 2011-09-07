@@ -44,20 +44,19 @@ QT_END_NAMESPACE
 namespace Core {
 
 class IFile;
+class Id;
 
 class CORE_EXPORT IFileFactory : public QObject
 {
     Q_OBJECT
+
 public:
     IFileFactory(QObject *parent = 0) : QObject(parent) {}
-    virtual ~IFileFactory() {}
 
     virtual QStringList mimeTypes() const = 0;
-
-    virtual QString id() const = 0;
+    virtual Id id() const = 0;
     virtual QString displayName() const = 0;
-
-    virtual Core::IFile *open(const QString &fileName) = 0;
+    virtual IFile *open(const QString &fileName) = 0;
 };
 
 } // namespace Core

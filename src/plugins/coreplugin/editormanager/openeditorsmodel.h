@@ -34,6 +34,7 @@
 #define OPENEDITORSMODEL_H
 
 #include "../core_global.h"
+#include "../id.h"
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QScopedPointer>
@@ -71,10 +72,10 @@ public:
         IEditor *editor;
         QString fileName() const;
         QString displayName() const;
-        QString id() const;
+        Id id() const;
         QString m_fileName;
         QString m_displayName;
-        QString m_id;
+        Id m_id;
     };
     QList<Entry> entries() const;
 

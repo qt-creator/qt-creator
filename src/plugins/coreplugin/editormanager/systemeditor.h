@@ -40,18 +40,19 @@ namespace Internal {
 
 class SystemEditor : public IExternalEditor
 {
-Q_OBJECT
+    Q_OBJECT
+
 public:
     explicit SystemEditor(QObject *parent = 0);
 
     QStringList mimeTypes() const;
-    QString id() const;
+    Id id() const;
     QString displayName() const;
 
     bool startEditor(const QString &fileName, QString *errorMessage);
 };
 
-}
-}
+} // namespace Internal
+} // namespace Core
 
 #endif // SYSTEMEDITOR_H

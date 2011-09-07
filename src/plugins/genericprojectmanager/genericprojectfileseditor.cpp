@@ -75,9 +75,9 @@ QStringList ProjectFilesFactory::mimeTypes() const
     return m_mimeTypes;
 }
 
-QString ProjectFilesFactory::id() const
+Core::Id ProjectFilesFactory::id() const
 {
-    return QLatin1String(Constants::FILES_EDITOR_ID);
+    return Constants::FILES_EDITOR_ID;
 }
 
 QString ProjectFilesFactory::displayName() const

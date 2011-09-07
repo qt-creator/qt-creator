@@ -37,14 +37,8 @@
 
 #include <QtCore/QStringList>
 
-namespace TextEditor {
-class TextEditorActionHandler;
-}
-
 namespace QmlJSEditor {
 namespace Internal {
-
-class QmlJSEditorActionHandler;
 
 class QmlJSEditorFactory : public Core::IEditorFactory
 {
@@ -52,11 +46,10 @@ class QmlJSEditorFactory : public Core::IEditorFactory
 
 public:
     QmlJSEditorFactory(QObject *parent);
-    ~QmlJSEditorFactory();
 
-    virtual QStringList mimeTypes() const;
     // IEditorFactory
-    QString id() const;
+    QStringList mimeTypes() const;
+    Core::Id id() const;
     QString displayName() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);

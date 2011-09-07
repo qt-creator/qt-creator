@@ -315,7 +315,7 @@ void CppFileSettingsWidget::slotEdit()
         setLicenseTemplatePath(path);
     }
     // Edit (now) existing file with C++
-    Core::EditorManager::instance()->openEditor(path, QLatin1String(CppEditor::Constants::CPPEDITOR_ID),
+    Core::EditorManager::instance()->openEditor(path, CppEditor::Constants::CPPEDITOR_ID,
                                                 Core::EditorManager::ModeSwitch);
 }
 

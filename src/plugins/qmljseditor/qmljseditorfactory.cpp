@@ -95,13 +95,9 @@ QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
             ;
 }
 
-QmlJSEditorFactory::~QmlJSEditorFactory()
+Core::Id QmlJSEditorFactory::id() const
 {
-}
-
-QString QmlJSEditorFactory::id() const
-{
-    return QLatin1String(C_QMLJSEDITOR_ID);
+    return C_QMLJSEDITOR_ID;
 }
 
 QString QmlJSEditorFactory::displayName() const

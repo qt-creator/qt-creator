@@ -65,9 +65,9 @@ PlainTextEditorFactory::~PlainTextEditorFactory()
     delete m_actionHandler;
 }
 
-QString PlainTextEditorFactory::id() const
+Core::Id PlainTextEditorFactory::id() const
 {
-    return QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
+    return Core::Constants::K_DEFAULT_TEXT_EDITOR_ID;
 }
 
 QString PlainTextEditorFactory::displayName() const

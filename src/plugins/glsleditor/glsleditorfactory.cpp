@@ -65,20 +65,15 @@ GLSLEditorFactory::GLSLEditorFactory(QObject *parent)
             ;
 }
 
-GLSLEditorFactory::~GLSLEditorFactory()
+Core::Id GLSLEditorFactory::id() const
 {
-}
-
-QString GLSLEditorFactory::id() const
-{
-    return QLatin1String(C_GLSLEDITOR_ID);
+    return C_GLSLEDITOR_ID;
 }
 
 QString GLSLEditorFactory::displayName() const
 {
     return tr(C_GLSLEDITOR_DISPLAY_NAME);
 }
-
 
 Core::IFile *GLSLEditorFactory::open(const QString &fileName)
 {

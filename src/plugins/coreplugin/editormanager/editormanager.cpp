@@ -1148,8 +1148,7 @@ EditorManager::ExternalEditorList
 /* For something that has a 'QString id' (IEditorFactory
  * or IExternalEditor), find the one matching a id. */
 template <class EditorFactoryLike>
-        inline EditorFactoryLike *findById(ExtensionSystem::PluginManager *pm,
-                                             const QString &id)
+EditorFactoryLike *findById(ExtensionSystem::PluginManager *pm, const Core::Id &id)
 {
     const QList<EditorFactoryLike *> factories = pm->template getObjects<EditorFactoryLike>();
     foreach(EditorFactoryLike *efl, factories)
@@ -1158,20 +1157,19 @@ template <class EditorFactoryLike>
     return 0;
 }
 
-IEditor *EditorManager::createEditor(const QString &editorId,
-                                     const QString &fileName)
+IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName)
 {
     if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << editorId << fileName;
+        qDebug() << Q_FUNC_INFO << editorId.name() << fileName;
 
     EditorFactoryList factories;
-    if (editorId.isEmpty()) {
+    if (!editorId.isValid()) {
         const QFileInfo fileInfo(fileName);
         // Find by mime type
         MimeType mimeType = d->m_core->mimeDatabase()->findByFile(fileInfo);
         if (!mimeType) {
             qWarning("%s unable to determine mime type of %s/%s. Falling back to text/plain",
-                     Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.toUtf8().constData());
+                     Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.name().constData());
             mimeType = d->m_core->mimeDatabase()->findByType(QLatin1String("text/plain"));
         }
         // open text files > 48 MB in binary editor
@@ -1185,7 +1183,7 @@ IEditor *EditorManager::createEditor(const QString &editorId,
     }
     if (factories.empty()) {
         qWarning("%s: unable to find an editor factory for the file '%s', editor Id '%s'.",
-                 Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.toUtf8().constData());
+                 Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.name().constData());
         return 0;
     }
 
@@ -1217,7 +1215,7 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
 
 // Run the OpenWithDialog and return the editor id
 // selected by the user.
-QString EditorManager::getOpenWithEditorId(const QString &fileName,
+Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
                                            bool *isExternalEditor) const
 {
     // Collect editors that can open the file
@@ -1230,14 +1228,14 @@ QString EditorManager::getOpenWithEditorId(const QString &fileName,
     const EditorFactoryList editors = editorFactories(mt, false);
     const int size = editors.size();
     for (int i = 0; i < size; i++) {
-        allEditorIds.push_back(editors.at(i)->id());
+        allEditorIds.push_back(editors.at(i)->id().toString());
     }
     // External editors
     const ExternalEditorList exEditors = externalEditors(mt, false);
     const int esize = exEditors.size();
     for (int i = 0; i < esize; i++) {
-        externalEditorIds.push_back(exEditors.at(i)->id());
-        allEditorIds.push_back(exEditors.at(i)->id());
+        externalEditorIds.push_back(exEditors.at(i)->id().toString());
+        allEditorIds.push_back(exEditors.at(i)->id().toString());
     }
     if (allEditorIds.empty())
         return QString();
@@ -1253,7 +1251,7 @@ QString EditorManager::getOpenWithEditorId(const QString &fileName,
     return selectedId;
 }
 
-IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorId,
+IEditor *EditorManager::openEditor(const QString &fileName, const Id &editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
     return openEditor(currentEditorView(), fileName, editorId, flags, newEditor);
@@ -1284,10 +1282,10 @@ static QString autoSaveName(const QString &fileName)
 }
 
 IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QString &fileName,
-                        const QString &editorId, OpenEditorFlags flags, bool *newEditor)
+                        const Id &editorId, OpenEditorFlags flags, bool *newEditor)
 {
     if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << fileName << editorId;
+        qDebug() << Q_FUNC_INFO << fileName << editorId.name();
 
     QString fn = fileName;
     int lineNumber = -1;
@@ -1350,7 +1348,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     return result;
 }
 
-bool EditorManager::openExternalEditor(const QString &fileName, const QString &editorId)
+bool EditorManager::openExternalEditor(const QString &fileName, const Core::Id &editorId)
 {
     IExternalEditor *ee = findById<IExternalEditor>(pluginManager(), editorId);
     if (!ee)
@@ -1389,12 +1387,12 @@ void EditorManager::switchToPreferedMode()
     ModeManager::instance()->activateModeType(preferedMode);
 }
 
-IEditor *EditorManager::openEditorWithContents(const QString &editorId,
+IEditor *EditorManager::openEditorWithContents(const Id &editorId,
                                         QString *titlePattern,
                                         const QString &contents)
 {
     if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << editorId << titlePattern << contents;
+        qDebug() << Q_FUNC_INFO << editorId.name() << titlePattern << contents;
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -1905,7 +1903,7 @@ QByteArray EditorManager::saveState() const
 
     foreach (const OpenEditorsModel::Entry &entry, entries) {
         if (!entry.editor || !entry.editor->isTemporary())
-            stream << entry.fileName() << entry.displayName() << entry.id().toUtf8();
+            stream << entry.fileName() << entry.displayName() << entry.id().name();
     }
 
     stream << d->m_splitter->saveState();

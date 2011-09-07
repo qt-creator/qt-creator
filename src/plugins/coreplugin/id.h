@@ -35,6 +35,7 @@
 
 #include "core_global.h"
 
+#include <QtCore/QMetaType>
 #include <QtCore/QString>
 
 namespace Core {
@@ -64,5 +65,7 @@ private:
 CORE_EXPORT uint qHash(const Id &id);
 
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::Id);
 
 #endif // CORE_ID_H

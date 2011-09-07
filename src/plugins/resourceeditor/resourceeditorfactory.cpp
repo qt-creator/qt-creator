@@ -54,9 +54,9 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
                                                QLatin1String("qrc"));
 }
 
-QString ResourceEditorFactory::id() const
+Core::Id ResourceEditorFactory::id() const
 {
-    return QLatin1String(RESOURCEEDITOR_ID);
+    return RESOURCEEDITOR_ID;
 }
 
 QString ResourceEditorFactory::displayName() const

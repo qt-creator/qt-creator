@@ -85,7 +85,7 @@ QStringList BaseVCSEditorFactory::mimeTypes() const
     return m_d->m_mimeTypes;
 }
 
-QString BaseVCSEditorFactory::id() const
+Core::Id BaseVCSEditorFactory::id() const
 {
     return m_d->m_id;
 }

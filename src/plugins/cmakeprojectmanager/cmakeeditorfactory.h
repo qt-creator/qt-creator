@@ -33,21 +33,17 @@
 #ifndef CMAKEEDITORFACTORY_H
 #define CMAKEEDITORFACTORY_H
 
-#include <coreplugin/editormanager/ieditorfactory.h>
 #include "cmakeprojectmanager.h"
 
-#include <QtCore/QStringList>
+#include <coreplugin/editormanager/ieditorfactory.h>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
+#include <QtCore/QStringList>
 
 namespace TextEditor {
 class TextEditorActionHandler;
 }
 
 namespace CMakeProjectManager {
-
 namespace Internal {
 
 class CMakeEditorFactory : public Core::IEditorFactory
@@ -56,11 +52,11 @@ class CMakeEditorFactory : public Core::IEditorFactory
 
 public:
     CMakeEditorFactory(CMakeManager *parent, TextEditor::TextEditorActionHandler *handler);
-    ~CMakeEditorFactory();
 
-    virtual QStringList mimeTypes() const;
-    virtual QString id() const;
-    virtual QString displayName() const;
+    // IEditorFactory
+    QStringList mimeTypes() const;
+    Core::Id id() const;
+    QString displayName() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 

@@ -82,6 +82,7 @@ ImageViewerFactory::ImageViewerFactory(QObject *parent) :
 
 ImageViewerFactory::~ImageViewerFactory()
 {
+    delete d;
 }
 
 Core::IEditor *ImageViewerFactory::createEditor(QWidget *parent)
@@ -94,9 +95,9 @@ QStringList ImageViewerFactory::mimeTypes() const
     return d->mimeTypes;
 }
 
-QString ImageViewerFactory::id() const
+Core::Id ImageViewerFactory::id() const
 {
-    return QLatin1String(Constants::IMAGEVIEWER_ID);
+    return Constants::IMAGEVIEWER_ID;
 }
 
 QString ImageViewerFactory::displayName() const
