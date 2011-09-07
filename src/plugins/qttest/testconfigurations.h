@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
-class TestConfigurations_p;
+class TestConfigurationsPrivate;
 
 class TestConfig : public QObject
 {
@@ -172,7 +172,7 @@ private:
     QString m_qmakeCommand;
 
 private:
-    friend class TestConfigurations_p;
+    friend class TestConfigurationsPrivate;
 
     void loadLine(QTextStream *s, const QString &id, QString &value);
     void loadLine(QTextStream *s, const QString &id, int &value);
@@ -217,7 +217,7 @@ signals:
 private:
     static TestConfigurations *m_instance;
 
-    TestConfigurations_p *d;
+    TestConfigurationsPrivate *d;
 };
 
 #endif

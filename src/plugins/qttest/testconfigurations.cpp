@@ -65,12 +65,12 @@ using namespace Qt4ProjectManager::Internal;
 
 TestConfigurations *TestConfigurations::m_instance = 0;
 
-class TestConfigurations_p : public QObject
+class TestConfigurationsPrivate : public QObject
 {
     Q_OBJECT
 public:
-    TestConfigurations_p();
-    ~TestConfigurations_p();
+    TestConfigurationsPrivate();
+    ~TestConfigurationsPrivate();
 
     QList<TestConfig*> m_configList;
 
@@ -114,31 +114,31 @@ private:
 
 #include "testconfigurations.moc"
 
-TestConfigurations_p::TestConfigurations_p()
+TestConfigurationsPrivate::TestConfigurationsPrivate()
 {
     load();
     m_delayConfigUpdates = false;
 }
 
-TestConfigurations_p::~TestConfigurations_p()
+TestConfigurationsPrivate::~TestConfigurationsPrivate()
 {
     save();
     clear();
 }
 
-void TestConfigurations_p::clear()
+void TestConfigurationsPrivate::clear()
 {
     while (!m_configList.isEmpty())
         delete m_configList.takeFirst();
 }
 
-bool TestConfigurations_p::load()
+bool TestConfigurationsPrivate::load()
 {
     return load(QDir::homePath() + QDir::separator() + QLatin1String(".qttest")
         + QDir::separator() + QLatin1String("saved_configurations"));
 }
 
-bool TestConfigurations_p::load(const QString &fileName)
+bool TestConfigurationsPrivate::load(const QString &fileName)
 {
     clear();
     int version = 0;
@@ -176,14 +176,14 @@ bool TestConfigurations_p::load(const QString &fileName)
 }
 
 
-bool TestConfigurations_p::save()
+bool TestConfigurationsPrivate::save()
 {
     QDir().mkpath(QDir::homePath() + QDir::separator() + QLatin1String(".qttest"));
     return save(QDir::homePath() + QDir::separator() + QLatin1String(".qttest")
         + QDir::separator() + QLatin1String("saved_configurations"));
 }
 
-bool TestConfigurations_p::save(const QString &fileName)
+bool TestConfigurationsPrivate::save(const QString &fileName)
 {
     uint curVersion = 9;
     QFile f(fileName);
@@ -201,7 +201,7 @@ bool TestConfigurations_p::save(const QString &fileName)
     return false;
 }
 
-TestConfig *TestConfigurations_p::activeConfiguration()
+TestConfig *TestConfigurationsPrivate::activeConfiguration()
 {
     TestConfig *cfg = 0;
     for (int i = 0; i < m_configList.count(); ++i) {
@@ -212,7 +212,7 @@ TestConfig *TestConfigurations_p::activeConfiguration()
     return 0;
 }
 
-void TestConfigurations_p::setActiveConfiguration(ProjectExplorer::Project *project)
+void TestConfigurationsPrivate::setActiveConfiguration(ProjectExplorer::Project *project)
 {
     TestCollection tc;
     tc.removeAll();
@@ -237,7 +237,7 @@ void TestConfigurations_p::setActiveConfiguration(ProjectExplorer::Project *proj
     emit activeConfigurationChanged();
 }
 
-TestConfig *TestConfigurations_p::config(const QString &cfgName)
+TestConfig *TestConfigurationsPrivate::config(const QString &cfgName)
 {
     TestConfig *cfg = 0;
     for (int i = 0; i < m_configList.count(); ++i) {
@@ -256,7 +256,7 @@ TestConfig *TestConfigurations_p::config(const QString &cfgName)
     return cfg;
 }
 
-TestConfig *TestConfigurations_p::findConfig(const QString &srcPath)
+TestConfig *TestConfigurationsPrivate::findConfig(const QString &srcPath)
 {
     for (int i = 0; i < m_configList.count(); ++i) {
         TestConfig *tmp = m_configList.at(i);
@@ -281,7 +281,7 @@ TestConfig *TestConfigurations_p::findConfig(const QString &srcPath)
     return 0;
 }
 
-QStringList TestConfigurations_p::selectedTests()
+QStringList TestConfigurationsPrivate::selectedTests()
 {
     QStringList ret;
     for (int i = 0; i < m_configList.count(); ++i) {
@@ -292,7 +292,7 @@ QStringList TestConfigurations_p::selectedTests()
     return ret;
 }
 
-void TestConfigurations_p::setSelectedTests(const QStringList &list)
+void TestConfigurationsPrivate::setSelectedTests(const QStringList &list)
 {
     // split up the list into lists *per* test configuration
     // then save each smaller list into it's specific configuration
@@ -324,14 +324,14 @@ void TestConfigurations_p::setSelectedTests(const QStringList &list)
     save();
 }
 
-void TestConfigurations_p::setCurrentTest(const QString &testCase, const QString &testFunction)
+void TestConfigurationsPrivate::setCurrentTest(const QString &testCase, const QString &testFunction)
 {
     TestConfig *tmp = activeConfiguration();
     if (tmp)
         tmp->setCurrentTest(testCase, testFunction);
 }
 
-QString TestConfigurations_p::currentTestCase()
+QString TestConfigurationsPrivate::currentTestCase()
 {
     TestConfig *tmp = activeConfiguration();
     if (tmp)
@@ -339,7 +339,7 @@ QString TestConfigurations_p::currentTestCase()
     return QString();
 }
 
-QString TestConfigurations_p::currentTestFunction()
+QString TestConfigurationsPrivate::currentTestFunction()
 {
     for (int i = 0; i < m_configList.count(); ++i) {
         TestConfig *tmp = m_configList.at(i);
@@ -349,7 +349,7 @@ QString TestConfigurations_p::currentTestFunction()
     return QString();
 }
 
-void TestConfigurations_p::rescan()
+void TestConfigurationsPrivate::rescan()
 {
     m_testCollection.removeAll();
 
@@ -360,17 +360,17 @@ void TestConfigurations_p::rescan()
     }
 }
 
-void TestConfigurations_p::delayConfigUpdates(bool delay)
+void TestConfigurationsPrivate::delayConfigUpdates(bool delay)
 {
     m_delayConfigUpdates = delay;
 }
 
-void TestConfigurations_p::onActiveConfigurationChanged()
+void TestConfigurationsPrivate::onActiveConfigurationChanged()
 {
     emit activeConfigurationChanged();
 }
 
-void TestConfigurations_p::onTestSelectionChanged(const QStringList& selection, QObject *originator)
+void TestConfigurationsPrivate::onTestSelectionChanged(const QStringList& selection, QObject *originator)
 {
     setSelectedTests(selection);
     emit testSelectionChanged(selection, originator);
@@ -1044,7 +1044,7 @@ TestConfigurations::TestConfigurations()
 
     m_instance = this;
 
-    d = new TestConfigurations_p;
+    d = new TestConfigurationsPrivate;
     connect(d, SIGNAL(activeConfigurationChanged()), this, SIGNAL(activeConfigurationChanged()));
     connect(d, SIGNAL(testSelectionChanged(QStringList, QObject*)),
         this, SIGNAL(testSelectionChanged(QStringList, QObject*)));

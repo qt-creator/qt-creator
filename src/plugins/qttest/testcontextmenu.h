@@ -49,7 +49,7 @@ class QAction;
 class QMenu;
 QT_END_NAMESPACE
 
-class TestContextMenu_p;
+class TestContextMenuPrivate;
 
 class TestContextMenu : public QObject
 {
@@ -70,16 +70,16 @@ signals:
     void toggleSelection();
 
 private:
-    static TestContextMenu_p *m_instance;
+    static TestContextMenuPrivate *m_instance;
     static int m_refCount;
 };
 
-class TestContextMenu_p : public QObject
+class TestContextMenuPrivate : public QObject
 {
     Q_OBJECT
 public:
-    TestContextMenu_p(QObject *widget);
-    ~TestContextMenu_p();
+    TestContextMenuPrivate(QObject *widget);
+    ~TestContextMenuPrivate();
 
     void init(QMenu *testMenu, int mode, QObject *widget);
     void languageChange();

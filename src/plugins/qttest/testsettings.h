@@ -36,14 +36,14 @@
 #include <QObject>
 #include <QString>
 
-// class TestSettings_p;
-class TestSettings_p : public QObject
+// class TestSettingsPrivate;
+class TestSettingsPrivate : public QObject
 {
     Q_OBJECT
 
 public:
-    TestSettings_p();
-    ~TestSettings_p();
+    TestSettingsPrivate();
+    ~TestSettingsPrivate();
 
     void load();
     void save();
@@ -106,7 +106,7 @@ signals:
     void changed();
 
 private:
-    static TestSettings_p *d;
+    static TestSettingsPrivate *d;
     static int m_refCount;
 };
 

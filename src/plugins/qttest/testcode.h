@@ -44,7 +44,7 @@
 #include <QTimer>
 
 class QVConfig;
-class TestCollection_p;
+class TestCollectionPrivate;
 
 namespace Core {
     class IEditor;
@@ -249,17 +249,17 @@ signals:
     void changed();
 
 private:
-    static TestCollection_p *d;
+    static TestCollectionPrivate *d;
     static int m_refCount;
 };
 
 
-class TestCollection_p : public QObject
+class TestCollectionPrivate : public QObject
 {
     Q_OBJECT
 public:
-    TestCollection_p();
-    virtual ~TestCollection_p();
+    TestCollectionPrivate();
+    virtual ~TestCollectionPrivate();
 
     TestCode *currentEditedTest();
     void setCurrentEditedTest(TestCode *code);

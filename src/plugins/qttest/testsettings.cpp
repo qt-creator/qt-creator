@@ -224,9 +224,9 @@ bool TestIniFile::write(const QString &comment, const QString &key, QDateTime va
 }
 
 int TestSettings::m_refCount = 0;
-TestSettings_p *TestSettings::d = 0;
+TestSettingsPrivate *TestSettings::d = 0;
 
-TestSettings_p::TestSettings_p()
+TestSettingsPrivate::TestSettingsPrivate()
 {
     // Clear out the settings first incase there is no ini file or it's missing values
     m_showPassedResults = true;
@@ -237,17 +237,17 @@ TestSettings_p::TestSettings_p()
     load();
 }
 
-TestSettings_p::~TestSettings_p()
+TestSettingsPrivate::~TestSettingsPrivate()
 {
     save();
 }
 
-void TestSettings_p::emitChanged()
+void TestSettingsPrivate::emitChanged()
 {
     emit changed();
 }
 
-void TestSettings_p::load()
+void TestSettingsPrivate::load()
 {
     TestIniFile ini(QDir ::homePath() + QDir::separator() + ".qttest"
         + QDir::separator() + "saved_settings");
@@ -271,7 +271,7 @@ void TestSettings_p::load()
     m_showSkippedResults = showSkippedResults;
 }
 
-void TestSettings_p::save()
+void TestSettingsPrivate::save()
 {
     QDir().mkpath(QDir::homePath() + QDir::separator() + ".qttest");
     TestIniFile ini(QDir::homePath() + QDir::separator() + ".qttest" + QDir::separator() + "saved_settings");
@@ -291,7 +291,7 @@ void TestSettings_p::save()
 TestSettings::TestSettings()
 {
     if (m_refCount++ == 0) {
-        d = new TestSettings_p();
+        d = new TestSettingsPrivate();
         Q_ASSERT(d);
         d->load();
     }

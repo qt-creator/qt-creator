@@ -683,7 +683,7 @@ QString TestCode::execFileName()
 
 // ***************************************************************************
 
-TestCollection_p::TestCollection_p() :
+TestCollectionPrivate::TestCollectionPrivate() :
     m_currentEditedTest(0),
     m_qmlJSModelManager(0),
     m_cppModelManager(0)
@@ -691,12 +691,12 @@ TestCollection_p::TestCollection_p() :
     QTimer::singleShot(0, this, SLOT(initModelManager()));
 }
 
-TestCollection_p::~TestCollection_p()
+TestCollectionPrivate::~TestCollectionPrivate()
 {
     removeAll();
 }
 
-void TestCollection_p::initModelManager()
+void TestCollectionPrivate::initModelManager()
 {
     m_qmlJSModelManager =
         ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
@@ -712,7 +712,7 @@ void TestCollection_p::initModelManager()
     }
 }
 
-void TestCollection_p::onDocumentUpdated(QmlJS::Document::Ptr doc)
+void TestCollectionPrivate::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     TestCode *code;
 
@@ -729,7 +729,7 @@ void TestCollection_p::onDocumentUpdated(QmlJS::Document::Ptr doc)
         code->setDocument(doc);
 }
 
-void TestCollection_p::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
+void TestCollectionPrivate::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
 {
     const CPlusPlus::Snapshot snapshot = m_cppModelManager->snapshot();
     TestCode *code;
@@ -750,14 +750,14 @@ void TestCollection_p::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
         code->setDocument(doc);
 }
 
-bool TestCollection_p::isUnitTestCase(const CPlusPlus::Document::Ptr &doc,
+bool TestCollectionPrivate::isUnitTestCase(const CPlusPlus::Document::Ptr &doc,
     const CPlusPlus::Snapshot &snapshot)
 {
     QStringList visited;
     return isUnitTestCase(doc, snapshot, visited);
 }
 
-bool TestCollection_p::isUnitTestCase(const CPlusPlus::Document::Ptr &doc,
+bool TestCollectionPrivate::isUnitTestCase(const CPlusPlus::Document::Ptr &doc,
     const CPlusPlus::Snapshot &snapshot, QStringList &visited)
 {
     // If a source file #includes QtTest/QTest, assume it is a testcase
@@ -779,7 +779,7 @@ bool TestCollection_p::isUnitTestCase(const CPlusPlus::Document::Ptr &doc,
     return false;
 }
 
-void TestCollection_p::removeAll()
+void TestCollectionPrivate::removeAll()
 {
     while (m_codeList.count() > 0)
         delete m_codeList.takeFirst();
@@ -788,7 +788,7 @@ void TestCollection_p::removeAll()
     m_cppDocumentMap.clear();
 }
 
-void TestCollection_p::removeCode(const QString &fileName)
+void TestCollectionPrivate::removeCode(const QString &fileName)
 {
     TestCode *tmp;
     for (int i = 0; i < m_codeList.count(); ++i) {
@@ -801,7 +801,7 @@ void TestCollection_p::removeCode(const QString &fileName)
     }
 }
 
-void TestCollection_p::removePath(const QString &srcPath)
+void TestCollectionPrivate::removePath(const QString &srcPath)
 {
     if (srcPath.isEmpty() || m_codeList.count() <= 0)
         return;
@@ -816,7 +816,7 @@ void TestCollection_p::removePath(const QString &srcPath)
     }
 }
 
-void TestCollection_p::addPath(const QString &srcPath)
+void TestCollectionPrivate::addPath(const QString &srcPath)
 {
     m_currentScanRoot = srcPath;
     m_currentExtraBase.clear();
@@ -824,14 +824,14 @@ void TestCollection_p::addPath(const QString &srcPath)
     emit changed();
 }
 
-void TestCollection_p::addExtraPath(const QString &srcPath)
+void TestCollectionPrivate::addExtraPath(const QString &srcPath)
 {
     m_currentExtraBase = srcPath;
     scanTests(srcPath);
     emit changed();
 }
 
-void TestCollection_p::scanTests(const QString &suitePath)
+void TestCollectionPrivate::scanTests(const QString &suitePath)
 {
     if (suitePath.isEmpty())
         return;
@@ -876,17 +876,17 @@ void TestCollection_p::scanTests(const QString &suitePath)
     }
 }
 
-TestCode *TestCollection_p::currentEditedTest()
+TestCode *TestCollectionPrivate::currentEditedTest()
 {
     return m_currentEditedTest;
 }
 
-void TestCollection_p::setCurrentEditedTest(TestCode *code)
+void TestCollectionPrivate::setCurrentEditedTest(TestCode *code)
 {
     m_currentEditedTest = code;
 }
 
-TestCode *TestCollection_p::findCode(const QString &fileName, const QString &basePath,
+TestCode *TestCollectionPrivate::findCode(const QString &fileName, const QString &basePath,
     const QString &extraPath)
 {
     TestCode *tmp;
@@ -921,7 +921,7 @@ TestCode *TestCollection_p::findCode(const QString &fileName, const QString &bas
     return 0;
 }
 
-TestCode *TestCollection_p::findCodeByVisibleName(const QString &fileName, bool componentMode)
+TestCode *TestCollectionPrivate::findCodeByVisibleName(const QString &fileName, bool componentMode)
 {
     TestCode *tmp;
     for (int i = 0; i < m_codeList.count(); ++i) {
@@ -932,7 +932,7 @@ TestCode *TestCollection_p::findCodeByVisibleName(const QString &fileName, bool 
     return 0;
 }
 
-TestCode *TestCollection_p::findCodeByTestCaseName(const QString &testCaseName)
+TestCode *TestCollectionPrivate::findCodeByTestCaseName(const QString &testCaseName)
 {
     TestCode *tmp;
     for (int i = 0; i < m_codeList.count(); ++i) {
@@ -943,19 +943,19 @@ TestCode *TestCollection_p::findCodeByTestCaseName(const QString &testCaseName)
     return 0;
 }
 
-TestCode* TestCollection_p::testCode(int index)
+TestCode* TestCollectionPrivate::testCode(int index)
 {
     if (index < m_codeList.count())
         return m_codeList.at(index);
     return 0;
 }
 
-int TestCollection_p::count()
+int TestCollectionPrivate::count()
 {
     return m_codeList.count();
 }
 
-QStringList TestCollection_p::testFiles()
+QStringList TestCollectionPrivate::testFiles()
 {
     QStringList ret;
     TestCode *tmp;
@@ -967,7 +967,7 @@ QStringList TestCollection_p::testFiles()
     return ret;
 }
 
-QStringList TestCollection_p::manualTests(const QString &startPath, bool componentMode)
+QStringList TestCollectionPrivate::manualTests(const QString &startPath, bool componentMode)
 {
     QStringList ret;
     TestCode *tmp;
@@ -989,13 +989,13 @@ QStringList TestCollection_p::manualTests(const QString &startPath, bool compone
 
 // ***************************************************************************
 
-TestCollection_p *TestCollection::d = 0;
+TestCollectionPrivate *TestCollection::d = 0;
 int TestCollection::m_refCount = 0;
 
 TestCollection::TestCollection()
 {
     if (m_refCount++ == 0) {
-        d = new TestCollection_p();
+        d = new TestCollectionPrivate();
     }
     connect(d, SIGNAL(changed()), this, SIGNAL(changed()));
     connect(d, SIGNAL(testChanged(TestCode*)), this, SIGNAL(testChanged(TestCode*)));
