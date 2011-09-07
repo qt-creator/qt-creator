@@ -2523,7 +2523,7 @@ case $rule_number: {
   node->ifToken = loc(1);
   node->lparenToken = loc(2);
   node->rparenToken = loc(4);
-  node->elseToken = loc(5);
+  node->elseToken = loc(6);
   sym(1).Node = node;
 } break;
 ./
