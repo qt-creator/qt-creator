@@ -89,10 +89,7 @@ QString AbstractUploadAndInstallPackageService::packageFilePath() const
 
 QString AbstractUploadAndInstallPackageService::uploadDir() const
 {
-    const QString uname = deviceConfiguration()->sshParameters().userName;
-    return uname == QLatin1String("root")
-        ? QString::fromLatin1("/root")
-        : QLatin1String("/home/") + uname;
+    return QLatin1String("/tmp");
 }
 
 bool AbstractUploadAndInstallPackageService::isDeploymentNecessary() const
