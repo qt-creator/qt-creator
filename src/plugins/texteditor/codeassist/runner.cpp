@@ -34,6 +34,7 @@
 #include "iassistprocessor.h"
 #include "iassistproposal.h"
 #include "iassistinterface.h"
+#include "iassistproposalmodel.h"
 
 using namespace TextEditor;
 using namespace Internal;
@@ -48,8 +49,11 @@ ProcessorRunner::ProcessorRunner()
 ProcessorRunner::~ProcessorRunner()
 {
     delete m_processor;
-    if (m_discardProposal)
+    if (m_discardProposal && m_proposal) {
+        // Proposal doesn't own the model, so we need to delete both.
+        delete m_proposal->model();
         delete m_proposal;
+    }
 }
 
 void ProcessorRunner::setProcessor(IAssistProcessor *computer)
