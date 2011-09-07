@@ -62,14 +62,13 @@ class AbstractRemoteLinuxDebugSupportPrivate
 public:
     AbstractRemoteLinuxDebugSupportPrivate(RemoteLinuxRunConfiguration *runConfig,
             DebuggerEngine *engine)
-        : engine(engine), runConfig(runConfig), deviceConfig(runConfig->deviceConfig()),
+        : engine(engine), deviceConfig(runConfig->deviceConfig()),
           debuggingType(runConfig->debuggingType()), state(Inactive),
           gdbServerPort(-1), qmlPort(-1)
     {
     }
 
     const QPointer<Debugger::DebuggerEngine> engine;
-    const QPointer<RemoteLinuxRunConfiguration> runConfig;
     const LinuxDeviceConfiguration::ConstPtr deviceConfig;
     const RemoteLinuxRunConfiguration::DebuggingType debuggingType;
 
