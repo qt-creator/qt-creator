@@ -122,13 +122,11 @@ void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)
         m_d->listModels << new DeployableFilesPerProFile(proFileNode, this);
         break;
     case SubDirsTemplate: {
-        const QList<ProjectExplorer::ProjectNode *> &subProjects
-            = proFileNode->subProjectNodes();
+        const QList<Qt4PriFileNode *> &subProjects = proFileNode->subProjectNodesExact();
         foreach (const ProjectExplorer::ProjectNode * const subProject, subProjects) {
             const Qt4ProFileNode * const qt4SubProject
                 = qobject_cast<const Qt4ProFileNode *>(subProject);
-            if (qt4SubProject && !qt4SubProject->path()
-                .endsWith(QLatin1String(".pri")))
+            if (qt4SubProject && !qt4SubProject->path().endsWith(QLatin1String(".pri")))
                 createModels(qt4SubProject);
         }
     }
