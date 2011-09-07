@@ -137,7 +137,7 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     const QString pluginPath = QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner";
 #else
     const QString pluginPath = QCoreApplication::applicationDirPath() + "/../"
-                               + QLatin1String(IDE_LIBRARY_BASENAME) + "/qmldesigner";
+                               + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/qmldesigner";
 #endif
 
     m_designerCore->pluginManager()->setPluginPaths(QStringList() << pluginPath);
