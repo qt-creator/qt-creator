@@ -70,7 +70,6 @@ CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString
     S60RunControlBase(runConfiguration, mode),
     m_port(0),
     m_state(StateUninit),
-    m_codaFlags(0),
     m_stopAfterConnect(false)
 {
     const S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
@@ -167,7 +166,7 @@ void CodaRunControl::doStop()
     case StateProcessRunning:
         QTC_ASSERT(!m_runningProcessId.isEmpty(), return);
         m_codaDevice->sendRunControlTerminateCommand(CodaCallback(),
-                                                       m_runningProcessId.toAscii());
+                                                     m_runningProcessId.toAscii());
         break;
     default:
         if (debug)
@@ -226,10 +225,7 @@ void CodaRunControl::slotCodaEvent(const CodaEvent &event)
 
 void CodaRunControl::initCommunication()
 {
-    if (m_codaFlags & OptionsUseDebugSession)
-        m_codaDevice->sendDebugSessionControlSessionStartCommand(CodaCallback(this, &CodaRunControl::handleDebugSessionStarted));
-    else
-        m_codaDevice->sendLoggingAddListenerCommand(CodaCallback(this, &CodaRunControl::handleAddListener));
+    m_codaDevice->sendDebugSessionControlSessionStartCommand(CodaCallback(this, &CodaRunControl::handleDebugSessionStarted));
 }
 
 void CodaRunControl::handleConnected(const CodaEvent &event)
@@ -241,8 +237,6 @@ void CodaRunControl::handleConnected(const CodaEvent &event)
     setProgress(maxProgress()*0.80);
 
     m_codaServices = static_cast<const CodaLocatorHelloEvent &>(event).services();
-    if (m_codaServices.contains(QLatin1String("DebugSessionControl")))
-        m_codaFlags |= OptionsUseDebugSession;
 
     emit connected();
     if (!m_stopAfterConnect)
@@ -255,11 +249,7 @@ void CodaRunControl::handleContextRemoved(const CodaEvent &event)
             = static_cast<const CodaRunControlContextRemovedEvent &>(event).ids();
     if (!m_runningProcessId.isEmpty()
             && removedItems.contains(m_runningProcessId.toAscii())) {
-        appendMessage(tr("Process has finished.\n"), Utils::NormalMessageFormat);
-        if (m_codaFlags & OptionsUseDebugSession)
-            m_codaDevice->sendDebugSessionControlSessionEndCommand(CodaCallback(this, &CodaRunControl::handleDebugSessionEnded));
-        else
-            finishRunControl();
+        m_codaDevice->sendDebugSessionControlSessionEndCommand(CodaCallback(this, &CodaRunControl::handleDebugSessionEnded));
     }
 }
 
@@ -355,7 +345,7 @@ void CodaRunControl::handleFindProcesses(const CodaCommandResult &result)
                                               executableUid(),
                                               commandLineArguments().split(' '),
                                               QString(),
-                                              !(m_codaFlags & OptionsUseDebugSession));
+                                              true);
         appendMessage(tr("Launching: %1\n").arg(executableName()), Utils::NormalMessageFormat);
     }
 }
@@ -365,17 +355,14 @@ void CodaRunControl::handleCreateProcess(const CodaCommandResult &result)
     const bool ok = result.type == CodaCommandResult::SuccessReply;
     bool processCreated = false;
     if (ok) {
-        if (m_codaFlags & OptionsUseDebugSession) {
-            if (result.values.size()) {
-                JsonValue id = result.values.at(0).findChild("ID");
-                if (id.isValid()) {
-                    m_state = StateProcessRunning;
-                    m_runningProcessId = id.data();
-                    processCreated = true;
-                }
+        if (result.values.size()) {
+            JsonValue id = result.values.at(0).findChild("ID");
+            if (id.isValid()) {
+                m_state = StateProcessRunning;
+                m_runningProcessId = id.data();
+                processCreated = true;
             }
-        } else // If no DebugSession is present the process will already be created by now
-            processCreated = true;
+        }
     }
     if (processCreated) {
         setProgress(maxProgress());
