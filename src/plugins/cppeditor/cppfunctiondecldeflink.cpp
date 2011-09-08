@@ -437,10 +437,17 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     // parse the current source declaration
     TypeOfExpression typeOfExpression; // ### just need to preprocess...
     typeOfExpression.init(sourceDocument, snapshot);
-    const QString newDecl = typeOfExpression.preprocess(
-                linkSelection.selectedText()) + QLatin1String("{}");
+
+    QString newDeclText = linkSelection.selectedText();
+    for (int i = 0; i < newDeclText.size(); ++i) {
+        if (newDeclText.at(i).toAscii() == 0)
+            newDeclText[i] = QLatin1Char('\n');
+    }
+    newDeclText.append(QLatin1String("{}"));
+    const QString newDeclTextPreprocessed = typeOfExpression.preprocess(newDeclText);
+
     Document::Ptr newDeclDoc = Document::create(QLatin1String("<decl>"));
-    newDeclDoc->setSource(newDecl.toUtf8());
+    newDeclDoc->setSource(newDeclTextPreprocessed.toUtf8());
     newDeclDoc->parse(Document::ParseDeclaration);
     newDeclDoc->check();
 
