@@ -45,7 +45,8 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmlprofiler \
             plugin_remotelinux \
             plugin_qttest \
-            plugin_valgrind
+            plugin_valgrind \
+            plugin_updateinfo
 
 linux-* {
      SUBDIRS += debugger/ptracepreload.pro
@@ -79,6 +80,9 @@ contains(QT_CONFIG, declarative) {
 include (debugger/lldb/guest/qtcreator-lldb.pri)
 
 plugin_coreplugin.subdir = coreplugin
+
+plugin_updateinfo.subdir = updateinfo
+plugin_updateinfo.depends = plugin_coreplugin
 
 plugin_welcome.subdir = welcome
 plugin_welcome.depends = plugin_coreplugin

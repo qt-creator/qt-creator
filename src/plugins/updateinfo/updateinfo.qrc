@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/updateinfo">
+        <file>images/update_available_logo.png</file>
+    </qresource>
+</RCC>
