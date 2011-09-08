@@ -321,6 +321,10 @@ void CodaRunControl::handleAddListener(const CodaCommandResult &result)
 void CodaRunControl::handleDebugSessionStarted(const CodaCommandResult &result)
 {
     Q_UNUSED(result)
+    if (m_codaDevice.isNull()) {
+        finishRunControl();
+        return;
+    }
     m_state = StateDebugSessionStarted;
     m_codaDevice->sendLoggingAddListenerCommand(CodaCallback(this, &CodaRunControl::handleAddListener));
 }
