@@ -168,22 +168,31 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
     if (line.startsWith("0x")) {
         // Address line.
         int pos1 = line.indexOf('<') + 1;
-        int pos2 = line.indexOf('+', pos1);
-        int pos3 = line.indexOf('>', pos1);
-        if (pos1 < pos2 && pos2 < pos3) {
-            QString function = line.mid(pos1, pos2 - pos1);
-            if (function != m_lastFunction) {
-                DisassemblerLine dl;
-                dl.data = _("Function: ") + function;
-                m_data.append(dl);
-                m_lastFunction = function;
-            }
-        }
+        int posc = line.indexOf(':');
         DisassemblerLine dl;
-        dl.address = line.left(pos1 - 1).toULongLong(0, 0);
-        dl.function = m_lastFunction;
-        dl.offset = line.mid(pos2, pos3 - pos2).toUInt();
-        dl.data = line.mid(pos3 + 3).trimmed();
+        if (pos1 && line.indexOf("<UNDEFINED> instruction:") == -1) {
+            int pos2 = line.indexOf('+', pos1);
+            int pos3 = line.indexOf('>', pos1);
+            if (pos1 < pos2 && pos2 < pos3) {
+                QString function = line.mid(pos1, pos2 - pos1);
+                if (function != m_lastFunction) {
+                    DisassemblerLine dl;
+                    dl.data = _("Function: ") + function;
+                    m_data.append(dl);
+                    m_lastFunction = function;
+                }
+            }
+            dl.address = line.left(pos1 - 1).toULongLong(0, 0);
+            dl.function = m_lastFunction;
+            dl.offset = line.mid(pos2, pos3 - pos2).toUInt();
+            dl.data = line.mid(pos3 + 3).trimmed();
+        } else {
+            // Plain data like "0x0000cd64:\tadd\tlr, pc, lr\n"
+            dl.address = line.left(posc).toULongLong(0, 0);
+            dl.function = m_lastFunction;
+            dl.offset = 0;
+            dl.data = line.mid(posc + 1).trimmed();
+        }
         m_rowCache[dl.address] = m_data.size() + 1;
         m_data.append(dl);
     } else {
