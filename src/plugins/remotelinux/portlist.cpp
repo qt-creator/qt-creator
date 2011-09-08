@@ -163,6 +163,15 @@ void PortList::addRange(int startPort, int endPort)
 
 bool PortList::hasMore() const { return !m_d->ranges.isEmpty(); }
 
+bool PortList::contains(int port) const
+{
+    foreach (const Internal::Range &r, m_d->ranges) {
+        if (port >= r.first && port <= r.second)
+            return true;
+    }
+    return false;
+}
+
 int PortList::count() const
 {
     int n = 0;

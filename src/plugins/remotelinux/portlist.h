@@ -51,6 +51,7 @@ public:
     void addPort(int port);
     void addRange(int startPort, int endPort);
     bool hasMore() const;
+    bool contains(int port) const;
     int count() const;
     int getNext();
     QString toString() const;

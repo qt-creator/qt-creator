@@ -48,6 +48,7 @@ class RemoteLinuxUsedPortsGathererPrivate
     RemoteLinuxUsedPortsGathererPrivate() : running(false) {}
 
     SshRemoteProcessRunner::Ptr procRunner;
+    PortList portsToCheck;
     QList<int> usedPorts;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
@@ -73,6 +74,7 @@ void RemoteLinuxUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connec
 {
     if (m_d->running)
         qWarning("Unexpected call of %s in running state", Q_FUNC_INFO);
+    m_d->portsToCheck = devConf->freePorts();
     m_d->usedPorts.clear();
     m_d->remoteStdout.clear();
     m_d->remoteStderr.clear();
@@ -85,8 +87,8 @@ void RemoteLinuxUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connec
         SLOT(handleRemoteStdOut(QByteArray)));
     connect(m_d->procRunner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdErr(QByteArray)));
-    const QString command = QLatin1String("lsof -nPi4tcp:") + devConf->freePorts().toString()
-        + QLatin1String(" -F n |grep '^n' |sed -r 's/[^:]*:([[:digit:]]+).*/\\1/g' |sort -n |uniq");
+    const QString command = QLatin1String("sed "
+        "'s/.*: [[:xdigit:]]\\{8\\}:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp");
     m_d->procRunner->run(command.toUtf8());
     m_d->running = true;
 }
@@ -118,14 +120,16 @@ QList<int> RemoteLinuxUsedPortsGatherer::usedPorts() const
 
 void RemoteLinuxUsedPortsGatherer::setupUsedPorts()
 {
-    const QList<QByteArray> &portStrings = m_d->remoteStdout.split('\n');
+    QList<QByteArray> portStrings = m_d->remoteStdout.split('\n');
+    portStrings.removeFirst();
     foreach (const QByteArray &portString, portStrings) {
         if (portString.isEmpty())
             continue;
         bool ok;
-        const int port = portString.toInt(&ok);
+        const int port = portString.toInt(&ok, 16);
         if (ok) {
-            m_d->usedPorts << port;
+            if (m_d->portsToCheck.contains(port) && !m_d->usedPorts.contains(port))
+                m_d->usedPorts << port;
         } else {
             qWarning("%s: Unexpected string '%s' is not a port.",
                 Q_FUNC_INFO, portString.data());
