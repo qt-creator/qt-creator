@@ -412,10 +412,14 @@ QString GccToolChain::mkspec() const
         return QLatin1String("macx-g++");
     }
 
-    Abi gccAbi = Abi::abisOfBinary(m_compilerPath);
-    if (gccAbi.architecture() != abi.architecture()
-            || gccAbi.os() != abi.os()
-            || gccAbi.osFlavor() != abi.osFlavor()) {
+    QList<Abi> gccAbiList = Abi::abisOfBinary(m_compilerPath);
+    Abi gccAbi;
+    if (!gccAbiList.isEmpty())
+        gccAbi  = gccAbiList.first();
+    if (!gccAbi.isNull()
+            && (gccAbi.architecture() != abi.architecture()
+                || gccAbi.os() != abi.os()
+                || gccAbi.osFlavor() != abi.osFlavor())) {
         // Note: This can fail:-(
         return QString(); // this is a cross-compiler, leave the mkspec alone!
     }
