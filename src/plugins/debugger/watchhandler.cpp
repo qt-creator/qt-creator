@@ -71,9 +71,6 @@ enum { debugModel = 0 };
 #define MODEL_DEBUG(s) do { if (debugModel) qDebug() << s; } while (0)
 #define MODEL_DEBUGX(s) qDebug() << s
 
-static int watcherCounter = 0;
-static int generationCounter = 0;
-
 QHash<QByteArray, int> WatchHandler::m_watcherNames;
 QHash<QByteArray, int> WatchHandler::m_typeFormats;
 
@@ -132,7 +129,8 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 WatchModel::WatchModel(WatchHandler *handler, WatchType type)
-    : QAbstractItemModel(handler), m_handler(handler), m_type(type)
+    : QAbstractItemModel(handler), m_handler(handler), m_type(type),
+      m_generationCounter(0)
 {
     m_root = new WatchItem;
     m_root->hasChildren = 1;
@@ -188,8 +186,11 @@ void WatchModel::emitAllChanged()
     emit layoutChanged();
 }
 
-void WatchModel::beginCycle()
+void WatchModel::beginCycle(bool fullCycle)
 {
+    if (fullCycle)
+        m_generationCounter++;
+
     emit enableUpdates(false);
 }
 
@@ -234,7 +235,7 @@ void WatchModel::removeOutdated()
 
 void WatchModel::removeOutdatedHelper(WatchItem *item)
 {
-    if (item->generation < generationCounter) {
+    if (item->generation < m_generationCounter) {
         destroyItem(item);
     } else {
         foreach (WatchItem *child, item->children)
@@ -1011,7 +1012,7 @@ void WatchModel::insertData(const WatchData &data)
         // Overwrite old entry.
         oldItem->setData(data);
         oldItem->changed = data.hasChanged(*oldItem);
-        oldItem->generation = generationCounter;
+        oldItem->generation = m_generationCounter;
         QModelIndex idx = watchIndex(oldItem);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
 
@@ -1029,7 +1030,7 @@ void WatchModel::insertData(const WatchData &data)
         // Add new entry.
         WatchItem *item = new WatchItem(data);
         item->parent = parent;
-        item->generation = generationCounter;
+        item->generation = m_generationCounter;
         item->changed = true;
         const int n = findInsertPosition(parent->children, item);
         beginInsertRows(index, n, n);
@@ -1091,12 +1092,12 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
         Iterator it = newList.find(oldSortKey);
         if (it == newList.end()) {
             WatchData data = *oldItem;
-            data.generation = generationCounter;
+            data.generation = m_generationCounter;
             newList.insert(oldSortKey, data);
         } else {
             it->changed = it->hasChanged(*oldItem);
             if (it->generation == -1)
-                it->generation = generationCounter;
+                it->generation = m_generationCounter;
         }
     }
 
@@ -1114,7 +1115,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
                 << " WITH " << it->iname << it->generation;
             parent->children[i]->setData(*it);
             if (parent->children[i]->generation == -1)
-                parent->children[i]->generation = generationCounter;
+                parent->children[i]->generation = m_generationCounter;
             //emit dataChanged(idx.sibling(i, 0), idx.sibling(i, 2));
         } else {
             //qDebug() << "SKIPPING REPLACEMENT" << parent->children.at(i)->iname;
@@ -1131,7 +1132,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
             qDebug() << "ADDING" << it->iname;
             item->parent = parent;
             if (item->generation == -1)
-                item->generation = generationCounter;
+                item->generation = m_generationCounter;
             item->changed = true;
             parent->children.append(item);
         }
@@ -1184,6 +1185,7 @@ void WatchModel::formatRequests(QByteArray *out, const WatchItem *item) const
 ///////////////////////////////////////////////////////////////////////
 
 WatchHandler::WatchHandler(DebuggerEngine *engine)
+    : m_watcherCounter(0)
 {
     m_engine = engine;
     m_inChange = false;
@@ -1203,15 +1205,13 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
 
 void WatchHandler::beginCycle(bool fullCycle)
 {
-    if (fullCycle)
-        ++generationCounter;
-    m_return->beginCycle();
-    m_locals->beginCycle();
-    m_watchers->beginCycle();
-    m_tooltips->beginCycle();
+    m_return->beginCycle(fullCycle);
+    m_locals->beginCycle(fullCycle);
+    m_watchers->beginCycle(fullCycle);
+    m_tooltips->beginCycle(fullCycle);
 }
 
-void WatchHandler::endCycle(bool /*fullCycle*/)
+void WatchHandler::endCycle()
 {
     m_return->endCycle();
     m_locals->endCycle();
@@ -1346,7 +1346,7 @@ void WatchHandler::watchExpression(const QString &exp)
     WatchData data;
     data.exp = exp.toLatin1();
     data.name = exp;
-    m_watcherNames[data.exp] = watcherCounter++;
+    m_watcherNames[data.exp] = m_watcherCounter++;
     saveWatchers();
 
     if (exp.isEmpty())
@@ -1469,7 +1469,7 @@ void WatchHandler::clearWatches()
     for (int i = watches.size() - 1; i >= 0; i--)
         m_watchers->destroyItem(watches.at(i));
     m_watcherNames.clear();
-    watcherCounter = 0;
+    m_watcherCounter = 0;
     updateWatchersWindow();
     emitAllChanged();
     saveWatchers();

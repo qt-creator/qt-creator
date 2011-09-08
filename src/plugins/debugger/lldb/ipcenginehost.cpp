@@ -498,7 +498,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                     break;
                 wh->beginCycle(fullCycle);
                 wh->insertBulkData(wd);
-                wh->endCycle(fullCycle);
+                wh->endCycle();
             }
             break;
         case IPCEngineGuest::NotifyAddBreakpointOk:
