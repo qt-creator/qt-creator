@@ -548,7 +548,6 @@ static InsertionLocation nextToSurroundingDefinitions(Declaration *declaration, 
     return InsertionLocation(definition->fileName(), prefix, suffix, line, column);
 }
 
-/// Currently, we return the end of fileName.cpp
 QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     Declaration *declaration) const
 {
