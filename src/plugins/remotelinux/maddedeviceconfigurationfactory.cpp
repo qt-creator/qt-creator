@@ -35,10 +35,10 @@
 #include "maemoconstants.h"
 #include "maemodeviceconfigwizard.h"
 #include "publickeydeploymentdialog.h"
-#include "madderemoteprocesslist.h"
 
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/remotelinuxprocessesdialog.h>
+#include <remotelinux/remotelinuxprocesslist.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/qtcassert.h>
 
@@ -108,7 +108,7 @@ QDialog *MaddeDeviceConfigurationFactory::createDeviceAction(const QString &acti
     if (actionId == QLatin1String(MaddeDeviceTestActionId))
         return new LinuxDeviceTestDialog(deviceConfig, new MaddeDeviceTester, parent);
     if (actionId == QLatin1String(MaddeRemoteProcessesActionId))
-        return new RemoteLinuxProcessesDialog(new MaddeRemoteProcessList(deviceConfig), parent);
+        return new RemoteLinuxProcessesDialog(new GenericRemoteLinuxProcessList(deviceConfig), parent);
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
         return new PublicKeyDeploymentDialog(deviceConfig, parent);
     return 0; // Can't happen.

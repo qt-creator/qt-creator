@@ -44,6 +44,7 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 enum State { Inactive, Listing, Killing };
+const char Delimiter[] = "-----";
 } // anonymous namespace
 
 class AbstractRemoteLinuxProcessListPrivate
@@ -225,7 +226,8 @@ GenericRemoteLinuxProcessList::GenericRemoteLinuxProcessList(const LinuxDeviceCo
 
 QString GenericRemoteLinuxProcessList::listProcessesCommandLine() const
 {
-    return QLatin1String("ps -eo pid,args");
+    return QString::fromLocal8Bit("for dir in `ls -d /proc/[0123456789]*`; "
+        "do echo $dir%1`cat $dir/cmdline`%1`cat $dir/stat`; done").arg(Delimiter);
 }
 
 QString GenericRemoteLinuxProcessList::killProcessCommandLine(const RemoteProcess &process) const
@@ -236,21 +238,37 @@ QString GenericRemoteLinuxProcessList::killProcessCommandLine(const RemoteProces
 QList<AbstractRemoteLinuxProcessList::RemoteProcess> GenericRemoteLinuxProcessList::buildProcessList(const QString &listProcessesReply) const
 {
     QList<RemoteProcess> processes;
-    QStringList lines = listProcessesReply.split(QLatin1Char('\n'));
-    lines.removeFirst(); // column headers
+    const QStringList &lines = listProcessesReply.split(QLatin1Char('\n'));
     foreach (const QString &line, lines) {
-        const QString &trimmedLine = line.trimmed();
-        const int pidEndPos = trimmedLine.indexOf(QLatin1Char(' '));
-        if (pidEndPos == -1)
-            continue;
-        bool isNumber;
-        const int pid = trimmedLine.left(pidEndPos).toInt(&isNumber);
-        if (!isNumber) {
-            qDebug("%s: Non-integer value where pid was expected. Line was: '%s'",
-                Q_FUNC_INFO, qPrintable(trimmedLine));
+        const QStringList elements = line.split(QString::fromLocal8Bit(Delimiter));
+        if (elements.count() < 3) {
+            qDebug("%s: Expected three list elements, got %d.", Q_FUNC_INFO, elements.count());
             continue;
         }
-        processes << RemoteProcess(pid, trimmedLine.mid(pidEndPos));
+        bool ok;
+        const int pid = elements.first().mid(6).toInt(&ok);
+        if (!ok) {
+            qDebug("%s: Expected number in %s.", Q_FUNC_INFO, qPrintable(elements.first()));
+            continue;
+        }
+        QString command = elements.at(1);
+        if (command.isEmpty()) {
+            const QString &statString = elements.at(2);
+            const int openParenPos = statString.indexOf(QLatin1Char('('));
+            const int closedParenPos = statString.indexOf(QLatin1Char(')'), openParenPos);
+            if (openParenPos == -1 || closedParenPos == -1)
+                continue;
+            command = QLatin1Char('[')
+                + statString.mid(openParenPos + 1, closedParenPos - openParenPos - 1)
+                + QLatin1Char(']');
+        }
+
+        int insertPos;
+        for (insertPos = 0; insertPos < processes.count(); ++insertPos) {
+            if (pid < processes.at(insertPos).pid)
+                break;
+        }
+        processes.insert(insertPos, RemoteProcess(pid, command));
     }
 
     return processes;

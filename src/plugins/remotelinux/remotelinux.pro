@@ -87,7 +87,6 @@ HEADERS += \
     remotelinux_constants.h \
     linuxdevicetestdialog.h \
     remotelinuxprocesslist.h \
-    madderemoteprocesslist.h \
     remotelinuxprocessesdialog.h \
     remotelinuxdeploystepwidget.h \
     linuxdeviceconfigurationssettingswidget.h \
@@ -180,7 +179,6 @@ SOURCES += \
     maddedevicetester.cpp \
     linuxdevicetestdialog.cpp \
     remotelinuxprocesslist.cpp \
-    madderemoteprocesslist.cpp \
     remotelinuxprocessesdialog.cpp \
     remotelinuxdeploystepwidget.cpp \
     linuxdeviceconfigurationssettingswidget.cpp \
@@ -220,3 +218,5 @@ FORMS += \
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII
 DEFINES += REMOTELINUX_LIBRARY
+
+
