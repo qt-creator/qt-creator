@@ -117,6 +117,7 @@ public:
         validBuiltinPropertyNames.insert(QLatin1String("url"));
         validBuiltinPropertyNames.insert(QLatin1String("variant"));
         validBuiltinPropertyNames.insert(QLatin1String("vector3d"));
+        validBuiltinPropertyNames.insert(QLatin1String("alias"));
     }
 
     QSet<QString> validBuiltinPropertyNames;
