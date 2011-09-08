@@ -1778,6 +1778,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
 
         if (Function *fun = decl->type()->asFunctionType()) {
             fun->setScope(_scope);
+            fun->setSourceLocation(sourceLocation, translationUnit());
 
             setDeclSpecifiers(fun, type);
             if (declaratorId && declaratorId->name)
