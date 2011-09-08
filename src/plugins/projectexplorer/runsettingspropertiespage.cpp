@@ -386,7 +386,8 @@ void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc)
     if (!rc)
         return;
     m_runConfigurationWidget = rc->createConfigurationWidget();
-    m_runLayout->addWidget(m_runConfigurationWidget);
+    if (m_runConfigurationWidget)
+        m_runLayout->addWidget(m_runConfigurationWidget);
 
     addRunControlWidgets();
 }
