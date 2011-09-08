@@ -168,7 +168,9 @@ static const char pp_configuration[] =
     "#define STDMETHOD(method) virtual HRESULT STDMETHODCALLTYPE method\n"
     "#define __try try\n"
     "#define __except catch\n"
-    "#define __finally\n";
+    "#define __finally\n"
+    "#define __inline inline\n"
+    "#define __forceinline inline\n";
 
 #ifndef ICHECK_BUILD
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
