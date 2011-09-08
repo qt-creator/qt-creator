@@ -1614,40 +1614,38 @@ bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::Looku
                     continue;
                 else if (! wantSignals && ! fun->isSlot())
                     continue;
-                BasicProposalItem *item = toCompletionItem(fun);
-                if (item) {
-                    unsigned count = fun->argumentCount();
-                    while (true) {
-                        BasicProposalItem *ci = item;
 
-                        QString signature;
-                        signature += Overview().prettyName(fun->name());
-                        signature += QLatin1Char('(');
-                        for (unsigned i = 0; i < count; ++i) {
-                            Symbol *arg = fun->argumentAt(i);
-                            if (i != 0)
-                                signature += QLatin1Char(',');
-                            signature += o.prettyType(arg->type());
-                        }
-                        signature += QLatin1Char(')');
-
-                        const QByteArray normalized =
-                                QMetaObject::normalizedSignature(signature.toLatin1());
-
-                        signature = QString::fromLatin1(normalized, normalized.size());
-
-                        if (! signatures.contains(signature)) {
-                            signatures.insert(signature);
-
-                            ci->setText(signature); // fix the completion item.
-                            m_completions.append(ci);
-                        }
-
-                        if (count && fun->argumentAt(count - 1)->asArgument()->hasInitializer())
-                            --count;
-                        else
-                            break;
+                unsigned count = fun->argumentCount();
+                while (true) {
+                    QString signature;
+                    signature += Overview().prettyName(fun->name());
+                    signature += QLatin1Char('(');
+                    for (unsigned i = 0; i < count; ++i) {
+                        Symbol *arg = fun->argumentAt(i);
+                        if (i != 0)
+                            signature += QLatin1Char(',');
+                        signature += o.prettyType(arg->type());
                     }
+                    signature += QLatin1Char(')');
+
+                    const QByteArray normalized =
+                            QMetaObject::normalizedSignature(signature.toLatin1());
+
+                    signature = QString::fromLatin1(normalized, normalized.size());
+
+                    if (! signatures.contains(signature)) {
+                        BasicProposalItem *ci = toCompletionItem(fun);
+                        if (!ci)
+                            break;
+                        signatures.insert(signature);
+                        ci->setText(signature); // fix the completion item.
+                        m_completions.append(ci);
+                    }
+
+                    if (count && fun->argumentAt(count - 1)->asArgument()->hasInitializer())
+                        --count;
+                    else
+                        break;
                 }
             }
         }
