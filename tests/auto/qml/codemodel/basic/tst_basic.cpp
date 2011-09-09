@@ -41,8 +41,8 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsbind.h>
-#include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljscontext.h>
+#include <qmljs/qmljslink.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -99,7 +99,7 @@ void tst_Basic::initTestCase()
     // the resource path is wrong, have to load things manually
     QFileInfo builtins(resourcePath() + "/qml-type-descriptions/builtins.qmltypes");
     QStringList errors, warnings;
-    Interpreter::CppQmlTypesLoader::defaultQtObjects = Interpreter::CppQmlTypesLoader::loadQmlTypes(QFileInfoList() << builtins, &errors, &warnings);
+    CppQmlTypesLoader::defaultQtObjects = CppQmlTypesLoader::loadQmlTypes(QFileInfoList() << builtins, &errors, &warnings);
 }
 
 void tst_Basic::cleanupTestCase()
@@ -121,10 +121,10 @@ void tst_Basic::basicObjectTests()
     Document::Ptr doc = snapshot.document(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/usingmybutton.qml");
     QVERIFY(doc && doc->isQmlDocument());
 
-    LookupContext::Ptr lookupContext = LookupContext::create(doc, snapshot, QList<AST::Node*>());
-    QVERIFY(lookupContext);
+    ContextPtr context = Link(snapshot, QStringList(), LibraryInfo())();
+    QVERIFY(context);
 
-    Interpreter::QmlObjectValue *rectangleValue = lookupContext->valueOwner()->cppQmlTypes().typeByQualifiedName(
+    QmlObjectValue *rectangleValue = context->valueOwner()->cppQmlTypes().typeByQualifiedName(
                 "Qt", "Rectangle", LanguageUtils::ComponentVersion(4, 7));
     QVERIFY(rectangleValue);
     QVERIFY(!rectangleValue->isWritable("border"));
@@ -133,28 +133,28 @@ void tst_Basic::basicObjectTests()
     QVERIFY(rectangleValue->isWritable("color"));
     QVERIFY(!rectangleValue->isPointer("color"));
 
-    const Interpreter::ObjectValue *ovItem = lookupContext->context()->lookupType(doc.data(), QStringList() << "Item");
+    const ObjectValue *ovItem = context->lookupType(doc.data(), QStringList() << "Item");
     QCOMPARE(ovItem->className(), QString("Item"));
-    QCOMPARE(lookupContext->context()->imports(doc.data())->info("Item", lookupContext->context().data()).name(), QString("Qt"));
-    const Interpreter::ObjectValue *ovButton = lookupContext->context()->lookupType(doc.data(), QStringList() << "MyButton");
+    QCOMPARE(context->imports(doc.data())->info("Item", context.data()).name(), QString("Qt"));
+    const ObjectValue *ovButton = context->lookupType(doc.data(), QStringList() << "MyButton");
     QCOMPARE(ovButton->className(), QString("MyButton"));
-    QCOMPARE(ovButton->prototype(lookupContext->context())->className(), QString("Rectangle"));
+    QCOMPARE(ovButton->prototype(context)->className(), QString("Rectangle"));
 
-    const Interpreter::ObjectValue *ovProperty = lookupContext->context()->lookupType(doc.data(), QStringList() << "Item" << "states");
+    const ObjectValue *ovProperty = context->lookupType(doc.data(), QStringList() << "Item" << "states");
     QVERIFY(ovProperty);
     QCOMPARE(ovProperty->className(), QString("State"));
 
-    const Interpreter::QmlObjectValue * qmlItemValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ovItem);
+    const QmlObjectValue * qmlItemValue = dynamic_cast<const QmlObjectValue *>(ovItem);
     QVERIFY(qmlItemValue);
     QCOMPARE(qmlItemValue->defaultPropertyName(), QString("data"));
     QCOMPARE(qmlItemValue->propertyType("state"), QString("string"));
 
-    const Interpreter::ObjectValue *ovState = lookupContext->context()->lookupType(doc.data(), QStringList() << "State");
-    const Interpreter::QmlObjectValue * qmlState2Value = dynamic_cast<const Interpreter::QmlObjectValue *>(ovState);
+    const ObjectValue *ovState = context->lookupType(doc.data(), QStringList() << "State");
+    const QmlObjectValue * qmlState2Value = dynamic_cast<const QmlObjectValue *>(ovState);
     QCOMPARE(qmlState2Value->className(), QString("State"));
 
-    const Interpreter::ObjectValue *ovImage = lookupContext->context()->lookupType(doc.data(), QStringList() << "Image");
-    const Interpreter::QmlObjectValue * qmlImageValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ovImage);
+    const ObjectValue *ovImage = context->lookupType(doc.data(), QStringList() << "Image");
+    const QmlObjectValue * qmlImageValue = dynamic_cast<const QmlObjectValue *>(ovImage);
     QCOMPARE(qmlImageValue->className(), QString("Image"));
     QCOMPARE(qmlImageValue->propertyType("source"), QString("QUrl"));
 }
@@ -248,7 +248,7 @@ using namespace QmlDesigner;
 //    QVERIFY(text.localProperties().contains("horizontalAlignment"));
 //    QVERIFY(text.isPropertyEnum("horizontalAlignment"));
 
-//    foreach (Interpreter::ImportInfo import, doc->bind()->imports()) {
+//    foreach (ImportInfo import, doc->bind()->imports()) {
 //        QCOMPARE(import.name(), QString("Qt"));
 //    }
 //}
