@@ -110,6 +110,7 @@ public slots:
 signals:
     void activated(const Find::SearchResultItem &item);
     void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
+    void cancelled();
     void visibilityChanged(bool visible);
 
 private:
@@ -132,7 +133,7 @@ public:
     };
 
 
-    SearchResultWindow();
+    SearchResultWindow(QWidget *newSearchPanel);
     virtual ~SearchResultWindow();
     static SearchResultWindow *instance();
 
@@ -153,8 +154,9 @@ public:
     bool canNavigate();
 
     void setTextEditorFont(const QFont &font);
+    void openNewSearchPanel();
 
-    // search result object only lives till next startnewsearch call
+    // search result object is guaranteed to live till its finishSearch method is called
     SearchResult *startNewSearch(SearchMode searchOrSearchAndReplace = SearchOnly,
                                  const QString &cfgGroup = QString());
 

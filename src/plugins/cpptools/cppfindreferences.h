@@ -83,6 +83,7 @@ public:
 private Q_SLOTS:
     void displayResults(int first, int last);
     void searchFinished();
+    void cancel();
     void openEditor(const Find::SearchResultItem &item);
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
 

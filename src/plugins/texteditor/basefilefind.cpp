@@ -83,11 +83,6 @@ bool BaseFileFind::isEnabled() const
     return !m_isSearching;
 }
 
-bool BaseFileFind::canCancel() const
-{
-    return m_isSearching;
-}
-
 void BaseFileFind::cancel()
 {
     m_watcher.cancel();
@@ -143,6 +138,7 @@ void BaseFileFind::runNewSearch(const QString &txt, Find::FindFlags findFlags,
         m_watcher.setFuture(Utils::findInFiles(txt, files(),
             textDocumentFlagsForFindFlags(findFlags), ITextEditor::openedTextEditorsContents()));
     }
+    connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
     Core::FutureProgress *progress =
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
                                                                         tr("Search"),

@@ -250,6 +250,11 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_searchTerm->setVisible(false);
     descriptionLayout->addWidget(m_label);
     descriptionLayout->addWidget(m_searchTerm);
+    m_cancelButton = new QToolButton(topWidget);
+    m_cancelButton->setText(tr("Cancel"));
+    m_cancelButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(cancel()));
+    m_cancelButton->setVisible(false);
 
     m_replaceLabel = new QLabel(tr("Replace with:"), topWidget);
     m_replaceTextEdit = new WideEnoughLineEdit(topWidget);
@@ -257,24 +262,32 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_replaceButton->setToolTip(tr("Replace all occurrences"));
     m_replaceButton->setText(tr("Replace"));
     m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    m_replaceButton->setAutoRaise(true);
     m_replaceTextEdit->setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
 
     m_matchesFoundLabel = new QLabel(topWidget);
     updateMatchesFoundLabel();
 
     topLayout->addWidget(m_descriptionContainer);
+    topLayout->addWidget(m_cancelButton);
     topLayout->addWidget(m_replaceLabel);
     topLayout->addWidget(m_replaceTextEdit);
     topLayout->addWidget(m_replaceButton);
     topLayout->addStretch(2);
     topLayout->addWidget(m_matchesFoundLabel);
+    topWidget->setMinimumHeight(m_cancelButton->sizeHint().height()
+                                + topLayout->contentsMargins().top() + topLayout->contentsMargins().bottom()
+                                + topWidget->lineWidth());
     setShowReplaceUI(false);
 
     connect(m_searchResultTreeView, SIGNAL(jumpToSearchResult(SearchResultItem)),
             this, SLOT(handleJumpToSearchResult(SearchResultItem)));
     connect(m_replaceTextEdit, SIGNAL(returnPressed()), this, SLOT(handleReplaceButton()));
     connect(m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
+}
+
+void SearchResultWidget::startSearch()
+{
+    m_cancelButton->setVisible(true);
 }
 
 void SearchResultWidget::setInfo(const QString &label, const QString &toolTip, const QString &term)
@@ -438,6 +451,7 @@ void SearchResultWidget::finishSearch()
 {
     m_replaceTextEdit->setEnabled(m_count > 0);
     m_replaceButton->setEnabled(m_count > 0);
+    m_cancelButton->setVisible(false);
 }
 
 void SearchResultWidget::clear()
@@ -449,6 +463,7 @@ void SearchResultWidget::clear()
     m_count = 0;
     m_label->setVisible(false);
     m_searchTerm->setVisible(false);
+    m_cancelButton->setVisible(false);
     updateMatchesFoundLabel();
     m_infoBar.clear();
 }
@@ -472,6 +487,12 @@ void SearchResultWidget::handleReplaceButton()
         m_infoBar.clear();
         emit replaceButtonClicked(m_replaceTextEdit->text(), checkedItems());
     }
+}
+
+void SearchResultWidget::cancel()
+{
+    m_cancelButton->setVisible(false);
+    emit cancelled();
 }
 
 bool SearchResultWidget::showWarningMessage() const

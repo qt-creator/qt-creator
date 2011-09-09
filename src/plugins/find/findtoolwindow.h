@@ -45,18 +45,19 @@ class FindPlugin;
 
 namespace Internal {
 
-class FindToolWindow : public QDialog
+class FindToolWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FindToolWindow(FindPlugin *plugin);
+    explicit FindToolWindow(FindPlugin *plugin, QWidget *parent = 0);
     ~FindToolWindow();
+    static FindToolWindow *instance();
 
     void setFindFilters(const QList<IFindFilter *> &filters);
 
     void setFindText(const QString &text);
-    void open(IFindFilter *filter);
+    void setCurrentFilter(IFindFilter *filter);
     void readSettings();
     void writeSettings();
 
@@ -66,7 +67,6 @@ protected:
 private slots:
     void search();
     void replace();
-    void cancelSearch();
     void setCurrentFilter(int index);
     void updateButtonStates();
 

@@ -48,7 +48,6 @@ struct FindPluginPrivate;
 
 namespace Internal {
 class FindToolBar;
-class FindToolWindow;
 class CurrentDocumentFind;
 } // namespace Internal
 

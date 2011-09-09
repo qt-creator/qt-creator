@@ -135,11 +135,6 @@ bool SymbolsFindFilter::isEnabled() const
     return !m_isRunning && m_enabled;
 }
 
-bool SymbolsFindFilter::canCancel() const
-{
-    return m_isRunning;
-}
-
 void SymbolsFindFilter::cancel()
 {
     m_watcher.cancel();
@@ -174,6 +169,7 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
         Find::FindFlags, CPlusPlus::Snapshot,
         SearchSymbols *, QSet<QString> >(runSearch, txt, findFlags, m_manager->snapshot(),
                                     &m_search, projectFileNames));
+    connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
     Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
                                                         tr("Searching"),
                                                         Find::Constants::TASK_SEARCH);

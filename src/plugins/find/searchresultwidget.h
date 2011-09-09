@@ -53,6 +53,7 @@ class SearchResultWidget : public QWidget
 public:
     explicit SearchResultWidget(QWidget *parent = 0);
 
+    void startSearch();
     void setInfo(const QString &label, const QString &toolTip, const QString &term);
 
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,
@@ -90,6 +91,7 @@ public slots:
 signals:
     void activated(const Find::SearchResultItem &item);
     void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
+    void cancelled();
     void visibilityChanged(bool visible);
 
     void navigateStateChanged();
@@ -98,6 +100,7 @@ private slots:
     void hideNoUndoWarning();
     void handleJumpToSearchResult(const SearchResultItem &item);
     void handleReplaceButton();
+    void cancel();
 
 private:
     bool showWarningMessage() const;
@@ -117,6 +120,7 @@ private:
     QWidget *m_descriptionContainer;
     QLabel *m_label;
     QLabel *m_searchTerm;
+    QToolButton *m_cancelButton;
     QLabel *m_matchesFoundLabel;
 };
 

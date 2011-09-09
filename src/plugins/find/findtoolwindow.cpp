@@ -44,23 +44,27 @@
 using namespace Find;
 using namespace Find::Internal;
 
-FindToolWindow::FindToolWindow(FindPlugin *plugin)
-    : QDialog(Core::ICore::instance()->mainWindow()),
+static FindToolWindow *m_instance = 0;
+
+FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
+    : QWidget(parent),
     m_plugin(plugin),
     m_findCompleter(new QCompleter(this)),
     m_currentFilter(0),
     m_configWidget(0)
 {
+    m_instance = this;
     m_ui.setupUi(this);
-    connect(m_ui.closeButton, SIGNAL(clicked()), this, SLOT(reject()));
+    setFocusProxy(m_ui.searchTerm);
+
     connect(m_ui.searchButton, SIGNAL(clicked()), this, SLOT(search()));
     connect(m_ui.replaceButton, SIGNAL(clicked()), this, SLOT(replace()));
-    connect(m_ui.cancelButton, SIGNAL(clicked()), this, SLOT(cancelSearch()));
     connect(m_ui.matchCase, SIGNAL(toggled(bool)), m_plugin, SLOT(setCaseSensitive(bool)));
     connect(m_ui.wholeWords, SIGNAL(toggled(bool)), m_plugin, SLOT(setWholeWord(bool)));
     connect(m_ui.regExp, SIGNAL(toggled(bool)), m_plugin, SLOT(setRegularExpression(bool)));
     connect(m_ui.filterList, SIGNAL(activated(int)), this, SLOT(setCurrentFilter(int)));
     connect(m_ui.searchTerm, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStates()));
+    connect(m_ui.searchTerm, SIGNAL(returnPressed()), this, SLOT(search()));
 
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_ui.searchTerm->setCompleter(m_findCompleter);
@@ -77,6 +81,11 @@ FindToolWindow::~FindToolWindow()
     qDeleteAll(m_configWidgets);
 }
 
+FindToolWindow *FindToolWindow::instance()
+{
+    return m_instance;
+}
+
 bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == m_ui.searchTerm && event->type() == QEvent::KeyPress) {
@@ -85,7 +94,7 @@ bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
             m_findCompleter->complete();
         }
     }
-    return QDialog::eventFilter(obj, event);
+    return QWidget::eventFilter(obj, event);
 }
 
 void FindToolWindow::updateButtonStates()
@@ -105,7 +114,6 @@ void FindToolWindow::updateButtonStates()
     m_ui.regExp->setEnabled(filterEnabled
                             && (m_currentFilter->supportedFindFlags() & Find::FindRegularExpression));
     m_ui.searchTerm->setEnabled(filterEnabled);
-    m_ui.cancelButton->setEnabled(m_currentFilter && m_currentFilter->canCancel());
 }
 
 void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
@@ -129,7 +137,7 @@ void FindToolWindow::setFindText(const QString &text)
     m_ui.searchTerm->setText(text);
 }
 
-void FindToolWindow::open(IFindFilter *filter)
+void FindToolWindow::setCurrentFilter(IFindFilter *filter)
 {
     if (!filter)
         filter = m_currentFilter;
@@ -143,7 +151,6 @@ void FindToolWindow::open(IFindFilter *filter)
 
     m_ui.searchTerm->setFocus();
     m_ui.searchTerm->selectAll();
-    exec();
 }
 
 void FindToolWindow::setCurrentFilter(int index)
@@ -172,7 +179,6 @@ void FindToolWindow::acceptAndGetParameters(QString *term, IFindFilter **filter)
 {
     if (filter)
         *filter = 0;
-    accept();
     m_plugin->updateFindCompletion(m_ui.searchTerm->text());
     int index = m_ui.filterList->currentIndex();
     QString searchTerm = m_ui.searchTerm->text();
@@ -199,12 +205,6 @@ void FindToolWindow::replace()
     IFindFilter *filter;
     acceptAndGetParameters(&term, &filter);
     filter->replaceAll(term, m_plugin->findFlags());
-}
-
-void FindToolWindow::cancelSearch()
-{
-    if (m_currentFilter)
-        m_currentFilter->cancel();
 }
 
 void FindToolWindow::writeSettings()

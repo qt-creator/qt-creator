@@ -274,7 +274,7 @@ void CppFindReferences::findAll_helper(Symbol *symbol, const LookupContext &cont
 
     result = QtConcurrent::run(&find_helper, workingCopy, context, this, symbol);
     m_watcher.setFuture(result);
-
+    connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
                                                               CppTools::Constants::TASK_SEARCH);
 
@@ -308,6 +308,11 @@ void CppFindReferences::searchFinished()
     m_currentSearch->finishSearch();
     m_currentSearch = 0;
     emit changed();
+}
+
+void CppFindReferences::cancel()
+{
+    m_watcher.cancel();
 }
 
 void CppFindReferences::openEditor(const Find::SearchResultItem &item)
@@ -439,6 +444,7 @@ void CppFindReferences::findMacroUses(const Macro &macro)
     QFuture<Usage> result;
     result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, this, macro);
     m_watcher.setFuture(result);
+    connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),

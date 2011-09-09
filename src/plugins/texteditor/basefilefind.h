@@ -68,8 +68,6 @@ public:
     ~BaseFileFind();
 
     bool isEnabled() const;
-    bool canCancel() const;
-    void cancel();
     bool isReplaceSupported() const { return true; }
     void findAll(const QString &txt, Find::FindFlags findFlags);
     void replaceAll(const QString &txt, Find::FindFlags findFlags);
@@ -94,6 +92,7 @@ protected:
 private slots:
     void displayResult(int index);
     void searchFinished();
+    void cancel();
     void openEditor(const Find::SearchResultItem &item);
     void doReplace(const QString &txt,
                     const QList<Find::SearchResultItem> &items);

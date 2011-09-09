@@ -32,6 +32,7 @@
 
 #include "searchresultwindow.h"
 #include "searchresultwidget.h"
+#include "findtoolwindow.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -46,6 +47,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QFont>
 #include <QtGui/QAction>
+#include <QtGui/QStackedWidget>
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
 static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
@@ -61,7 +63,7 @@ namespace Internal {
         QToolButton *m_expandCollapseButton;
         QAction *m_expandCollapseAction;
         static const bool m_initiallyExpand = false;
-        QWidget *m_widget;
+        QStackedWidget *m_widget;
         SearchResult *m_currentSearch;
     };
 
@@ -152,19 +154,17 @@ SearchResultWindow *SearchResultWindow::m_instance = 0;
     \fn SearchResultWindow::SearchResultWindow()
     \internal
 */
-SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
+SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
+    : d(new SearchResultWindowPrivate)
 {
     m_instance = this;
-    d->m_widget = new QWidget;
+    d->m_widget = new QStackedWidget;
     d->m_widget->setWindowTitle(displayName());
 
-    d->m_searchResultWidget = new Internal::SearchResultWidget(d->m_widget);
+    d->m_widget->addWidget(newSearchPanel);
 
-    QVBoxLayout *vlay = new QVBoxLayout;
-    d->m_widget->setLayout(vlay);
-    vlay->setMargin(0);
-    vlay->setSpacing(0);
-    vlay->addWidget(d->m_searchResultWidget);
+    d->m_searchResultWidget = new Internal::SearchResultWidget(d->m_widget);
+    d->m_widget->addWidget(d->m_searchResultWidget);
 
     d->m_expandCollapseButton = new QToolButton(d->m_widget);
     d->m_expandCollapseButton->setAutoRaise(true);
@@ -250,6 +250,8 @@ SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndRep
     clearContents();
     d->m_searchResultWidget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
     d->m_searchResultWidget->setDontAskAgainGroup(cfgGroup);
+    d->m_searchResultWidget->startSearch();
+    d->m_widget->setCurrentWidget(d->m_searchResultWidget);
     delete d->m_currentSearch;
     d->m_currentSearch = new SearchResult(d->m_searchResultWidget);
     return d->m_currentSearch;
@@ -289,7 +291,11 @@ bool SearchResultWindow::canFocus()
 */
 void SearchResultWindow::setFocus()
 {
-    d->m_searchResultWidget->setFocusInternally();
+    int stackIndex = d->m_widget->currentIndex();
+    if (stackIndex == 0)
+        d->m_widget->currentWidget()->setFocus();
+    else
+        d->m_searchResultWidget->setFocusInternally();
 }
 
 /*!
@@ -299,6 +305,12 @@ void SearchResultWindow::setFocus()
 void SearchResultWindow::setTextEditorFont(const QFont &font)
 {
     d->m_searchResultWidget->setTextEditorFont(font);
+}
+
+void SearchResultWindow::openNewSearchPanel()
+{
+    d->m_widget->setCurrentIndex(0);
+    popup();
 }
 
 /*!
@@ -410,6 +422,8 @@ SearchResult::SearchResult(SearchResultWidget *widget)
             this, SIGNAL(activated(Find::SearchResultItem)));
     connect(widget, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
             this, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+    connect(widget, SIGNAL(cancelled()),
+            this, SIGNAL(cancelled()));
     connect(widget, SIGNAL(visibilityChanged(bool)),
             this, SIGNAL(visibilityChanged(bool)));
 }

@@ -57,8 +57,6 @@ public:
     virtual QString displayName() const = 0;
     ///
     virtual bool isEnabled() const = 0;
-    virtual bool canCancel() const = 0;
-    virtual void cancel() = 0;
     virtual QKeySequence defaultShortcut() const;
     virtual bool isReplaceSupported() const { return false; }
     virtual FindFlags supportedFindFlags() const;

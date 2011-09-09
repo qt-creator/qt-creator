@@ -928,6 +928,7 @@ void FindReferences::displayResults(int first, int last)
         m_currentSearch->setInfo(tr("Usages:"), QString(), symbolName);
         connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
                 this, SLOT(openEditor(Find::SearchResultItem)));
+        connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
         Find::SearchResultWindow::instance()->popup(true);
 
         Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
@@ -954,6 +955,11 @@ void FindReferences::searchFinished()
     m_currentSearch->finishSearch();
     m_currentSearch = 0;
     emit changed();
+}
+
+void FindReferences::cancel()
+{
+    m_watcher.cancel();
 }
 
 void FindReferences::openEditor(const Find::SearchResultItem &item)
