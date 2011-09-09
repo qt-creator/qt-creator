@@ -430,6 +430,43 @@ static bool hasCommentedName(
     return commentArgNameRegexp()->indexIn(text) != -1;
 }
 
+static bool canReplaceSpecifier(TranslationUnit *translationUnit, SpecifierAST *specifier)
+{
+    if (SimpleSpecifierAST *simple = specifier->asSimpleSpecifier()) {
+        switch (translationUnit->tokenAt(simple->specifier_token).kind()) {
+        case T_CONST:
+        case T_VOLATILE:
+        case T_CHAR:
+        case T_WCHAR_T:
+        case T_BOOL:
+        case T_SHORT:
+        case T_INT:
+        case T_LONG:
+        case T_SIGNED:
+        case T_UNSIGNED:
+        case T_FLOAT:
+        case T_DOUBLE:
+        case T_VOID:
+        case T_AUTO:
+        case T___TYPEOF__:
+        case T___ATTRIBUTE__:
+            return true;
+        default:
+            return false;
+        }
+    }
+    return false;
+}
+
+static SpecifierAST *findFirstReplaceableSpecifier(TranslationUnit *translationUnit, SpecifierListAST *list)
+{
+    for (SpecifierListAST *it = list; it; it = it->next) {
+        if (canReplaceSpecifier(translationUnit, it->value))
+            return it->value;
+    }
+    return 0;
+}
+
 Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffset)
 {
     Utils::ChangeSet changes;
@@ -484,21 +521,24 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         Control *control = sourceContext.control().data();
 
         // get return type start position and declarator info from declaration
-        int returnTypeStart = 0;
         DeclaratorAST *declarator = 0;
+        SpecifierAST *firstReplaceableSpecifier = 0;
+        TranslationUnit *targetTranslationUnit = targetFile->cppDocument()->translationUnit();
         if (SimpleDeclarationAST *simple = targetDeclaration->asSimpleDeclaration()) {
             declarator = simple->declarator_list->value;
-            if (simple->decl_specifier_list)
-                returnTypeStart = targetFile->startOf(simple->decl_specifier_list->value);
-            else
-                returnTypeStart = targetFile->startOf(declarator);
+            firstReplaceableSpecifier = findFirstReplaceableSpecifier(
+                        targetTranslationUnit, simple->decl_specifier_list);
         } else if (FunctionDefinitionAST *def = targetDeclaration->asFunctionDefinition()) {
             declarator = def->declarator;
-            if (def->decl_specifier_list)
-                returnTypeStart = targetFile->startOf(def->decl_specifier_list->value);
-            else
-                returnTypeStart = targetFile->startOf(declarator);
+            firstReplaceableSpecifier = findFirstReplaceableSpecifier(
+                        targetTranslationUnit, def->decl_specifier_list);
         }
+
+        int returnTypeStart = 0;
+        if (firstReplaceableSpecifier)
+            returnTypeStart = targetFile->startOf(firstReplaceableSpecifier);
+        else
+            returnTypeStart = targetFile->startOf(declarator);
 
         if (!newFunction->returnType().isEqualTo(sourceFunction->returnType())
                 && !newFunction->returnType().isEqualTo(targetFunction->returnType())) {
