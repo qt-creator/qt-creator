@@ -136,9 +136,9 @@ void AbstractRemoteLinuxDeployStep::handleErrorMessage(const QString &message)
 void AbstractRemoteLinuxDeployStep::handleFinished()
 {
     if (m_d->hasError)
-        emit addOutput(tr("Deployment failed."), ErrorMessageOutput);
+        emit addOutput(tr("Deploy step failed."), ErrorMessageOutput);
     else
-        emit addOutput(tr("Deployment finished."), MessageOutput);
+        emit addOutput(tr("Deploy step finished."), MessageOutput);
     disconnect(deployService(), 0, this, 0);
     m_d->future.reportResult(!m_d->hasError);
     emit finished();
