@@ -14,7 +14,9 @@ def main():
     global buildSucceeded, buildFinished, refreshFinishedCount
     test.verify(os.path.exists(SpeedCrunchPath))
     startApplication("qtcreator" + SettingsPath)
+    installLazySignalHandler("{type='CppTools::Internal::CppModelManager'}", "sourceFilesRefreshed(QStringList)", "handleRefreshFinished")
     openQmakeProject(SpeedCrunchPath)
+    waitFor("refreshFinishedCount == 1", 300000)
 
     # Test that some of the expected items are in the navigation tree
     for row, record in enumerate(testData.dataset("speedcrunch_tree.tsv")):
