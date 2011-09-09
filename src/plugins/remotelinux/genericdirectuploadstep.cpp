@@ -124,12 +124,12 @@ bool GenericDirectUploadStep::isDeploymentPossible(QString *whyNot) const
     const int deployableCount = deploymentInfo->deployableCount();
     for (int i = 0; i < deployableCount; ++i)
         deployableFiles << deploymentInfo->deployableAt(i);
-    m_d->deployService.setDeployableFiles(deployableFiles);
-    m_d->deployService.setIncrementalDeployment(incrementalDeployment());
+    deployService()->setDeployableFiles(deployableFiles);
+    deployService()->setIncrementalDeployment(incrementalDeployment());
     return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
 }
 
-AbstractRemoteLinuxDeployService *GenericDirectUploadStep::deployService() const
+GenericDirectUploadService *GenericDirectUploadStep::deployService() const
 {
     return &m_d->deployService;
 }

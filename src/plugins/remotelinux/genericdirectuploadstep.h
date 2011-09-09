@@ -32,7 +32,8 @@
 #ifndef DIRECTUPLOADSTEP_H
 #define DIRECTUPLOADSTEP_H
 
-#include <abstractremotelinuxdeploystep.h>
+#include "abstractremotelinuxdeploystep.h"
+#include "genericdirectuploadservice.h"
 #include "remotelinux_export.h"
 
 namespace RemoteLinux {
@@ -59,7 +60,7 @@ public:
     static QString displayName();
 
 private:
-    AbstractRemoteLinuxDeployService *deployService() const;
+    GenericDirectUploadService *deployService() const;
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
