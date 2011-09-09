@@ -537,6 +537,11 @@ QString QMakeStepConfigWidget::summaryText() const
     return m_summaryText;
 }
 
+QString QMakeStepConfigWidget::additionalSummaryText() const
+{
+    return m_additionalSummaryText;
+}
+
 QString QMakeStepConfigWidget::displayName() const
 {
     return m_step->displayName();
@@ -664,18 +669,24 @@ void QMakeStepConfigWidget::updateSummaryLabel()
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     QtSupport::BaseQtVersion *qtVersion = qt4bc->qtVersion();
     if (!qtVersion) {
-        m_summaryText = tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
-        emit updateSummary();
+        setSummaryText(tr("<b>qmake:</b> No Qt version set. Cannot run qmake."));
         return;
     }
-
     // We don't want the full path to the .pro file
     QString args = m_step->allArguments(true);
     // And we only use the .pro filename not the full path
     QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-    m_summaryText = tr("<b>qmake:</b> %1 %2").arg(program, args);
-    emit updateSummary();
+    setSummaryText(tr("<b>qmake:</b> %1 %2").arg(program, args));
 
+    ToolChain *tc = qt4bc->toolChain();
+    if (!tc)
+        return;
+
+    QString tcSpec = tc->mkspec();
+    if (!tcSpec.isEmpty() && tcSpec != m_step->mkspec())
+        setAdditionalSummaryText(tr("<b>Warning:</b> The tool chain suggested \"%1\" as mkspec.").arg(tcSpec));
+    else
+        setAdditionalSummaryText(QString());
 }
 
 void QMakeStepConfigWidget::updateQmlDebuggingOption()
@@ -721,6 +732,22 @@ void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
         stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         ProjectExplorerPlugin::instance()->buildManager()->buildLists(stepLists);
     }
+}
+
+void QMakeStepConfigWidget::setSummaryText(const QString &text)
+{
+    if (text == m_summaryText)
+        return;
+    m_summaryText = text;
+    emit updateSummary();
+}
+
+void QMakeStepConfigWidget::setAdditionalSummaryText(const QString &text)
+{
+    if (text == m_additionalSummaryText)
+        return;
+    m_additionalSummaryText = text;
+    emit updateAdditionalSummary();
 }
 
 ////

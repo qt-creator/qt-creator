@@ -136,9 +136,12 @@ public:
         : QWidget()
         {}
     virtual QString summaryText() const = 0;
+    virtual QString additionalSummaryText() const { return QString(); }
     virtual QString displayName() const = 0;
+
 signals:
     void updateSummary();
+    void updateAdditionalSummary();
 };
 
 } // namespace ProjectExplorer

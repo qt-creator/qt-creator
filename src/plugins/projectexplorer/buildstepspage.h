@@ -85,6 +85,7 @@ private slots:
     void triggerAddBuildStep();
     void addBuildStep(int pos);
     void updateSummary();
+    void updateAdditionalSummary();
     void triggerStepMoveUp(int pos);
     void stepMoved(int from, int to);
     void triggerStepMoveDown(int pos);

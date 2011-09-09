@@ -140,6 +140,19 @@ void BuildStepListWidget::updateSummary()
     }
 }
 
+void BuildStepListWidget::updateAdditionalSummary()
+{
+    BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(sender());
+    if (widget) {
+        foreach (const BuildStepsWidgetData *s, m_buildStepsData) {
+            if (s->widget == widget) {
+                s->detailsWidget->setAdditionalSummaryText(widget->additionalSummaryText());
+                break;
+            }
+        }
+    }
+}
+
 void BuildStepListWidget::init(BuildStepList *bsl)
 {
     Q_ASSERT(bsl);
@@ -222,6 +235,8 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
 
     connect(s->widget, SIGNAL(updateSummary()),
             this, SLOT(updateSummary()));
+    connect(s->widget, SIGNAL(updateAdditionalSummary()),
+            this, SLOT(updateAdditionalSummary()));
 
     connect(s->upButton, SIGNAL(clicked()),
             m_upMapper, SLOT(map()));

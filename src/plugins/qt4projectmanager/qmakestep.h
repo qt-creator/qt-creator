@@ -143,6 +143,7 @@ public:
     QMakeStepConfigWidget(QMakeStep *step);
     ~QMakeStepConfigWidget();
     QString summaryText() const;
+    QString additionalSummaryText() const;
     QString displayName() const;
 private slots:
     // slots for handling buildconfiguration/step signals
@@ -167,9 +168,14 @@ private:
     void updateSummaryLabel();
     void updateQmlDebuggingOption();
     void updateEffectiveQMakeCall();
+
+    void setSummaryText(const QString &);
+    void setAdditionalSummaryText(const QString &);
+
     Ui::QMakeStep *m_ui;
     QMakeStep *m_step;
     QString m_summaryText;
+    QString m_additionalSummaryText;
     bool m_ignoreChange;
 };
 
