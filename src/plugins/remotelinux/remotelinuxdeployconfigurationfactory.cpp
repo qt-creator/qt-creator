@@ -31,11 +31,10 @@
 **************************************************************************/
 #include "remotelinuxdeployconfigurationfactory.h"
 
+#include "genericdirectuploadstep.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxutils.h"
 #include "remotelinux_constants.h"
-#include "tarpackagecreationstep.h"
-#include "uploadandinstalltarpackagestep.h"
 
 #include <QtCore/QCoreApplication>
 
@@ -45,7 +44,7 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 QString genericLinuxDisplayName() {
-    return QCoreApplication::translate("RemoteLinux", "Build Tarball and Install to Linux Host");
+    return QCoreApplication::translate("RemoteLinux", "Deploy to Remote Linux Host");
 }
 } // anonymous namespace
 
@@ -80,8 +79,8 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::create(Target *paren
 
     DeployConfiguration * const dc = new RemoteLinuxDeployConfiguration(parent, id,
         genericLinuxDisplayName(), QLatin1String(Constants::GenericLinuxOsType));
-    dc->stepList()->insertStep(0, new TarPackageCreationStep(dc->stepList()));
-    dc->stepList()->insertStep(1, new UploadAndInstallTarPackageStep(dc->stepList()));
+    dc->stepList()->insertStep(0, new GenericDirectUploadStep(dc->stepList(),
+        GenericDirectUploadStep::stepId()));
     return dc;
 }
 
