@@ -357,7 +357,12 @@ Import Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
     if (!importFound && importInfo.ast()) {
         error(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
                                      importInfo.ast()->lastSourceLocation()),
-              tr("package not found"));
+              tr("QML module not found\n\n"
+                 "Import paths:\n"
+                 "%1\n\n"
+                 "For qmake projects, use the QML_IMPORT_PATH variable to add import paths.\n"
+                 "For qmlproject projects, use the importPaths property to add import paths.").arg(
+                  d->importPaths.join(QLatin1String("\n"))));
     }
 
     return import;
@@ -403,7 +408,7 @@ bool Link::importLibrary(Document::Ptr doc,
             }
             if (errorLoc.isValid()) {
                 warning(doc, errorLoc,
-                        tr("Library contains C++ plugins, type dump is in progress."));
+                        tr("QML module contains C++ plugins, currently reading type information..."));
             }
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError
                    || libraryInfo.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileError) {
