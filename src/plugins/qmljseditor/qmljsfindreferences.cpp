@@ -51,6 +51,7 @@
 #include <qmljs/qmljscontext.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljstools/qmljsmodelmanager.h>
 
 #include "qmljseditorconstants.h"
 
@@ -799,11 +800,19 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     QHashIterator< QString, QPair<QString, int> > it(workingCopy.all());
     while (it.hasNext()) {
         it.next();
-        Document::Ptr oldDoc = snapshot.document(it.key());
+        const QString fileName = it.key();
+        Document::Ptr oldDoc = snapshot.document(fileName);
         if (oldDoc && oldDoc->editorRevision() == it.value().second)
             continue;
 
-        Document::Ptr newDoc = snapshot.documentFromSource(it.key(), it.value().first);
+        Document::Language language;
+        if (oldDoc)
+            language = oldDoc->language();
+        else
+            language = QmlJSTools::languageOfFile(fileName);
+
+        Document::Ptr newDoc = snapshot.documentFromSource(it.value().first, fileName,
+                                                           language);
         newDoc->parse();
         snapshot.insert(newDoc);
     }

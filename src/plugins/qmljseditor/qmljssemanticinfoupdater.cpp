@@ -37,6 +37,7 @@
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslink.h>
+#include <qmljstools/qmljsmodelmanager.h>
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -122,7 +123,12 @@ SemanticInfo SemanticInfoUpdater::semanticInfo(const SemanticInfoUpdaterSource &
 
     if (! doc) {
         snapshot = source.snapshot;
-        doc = snapshot.documentFromSource(source.code, source.fileName);
+        QmlJS::Document::Language language;
+        if (m_lastSemanticInfo.document)
+            language = m_lastSemanticInfo.document->language();
+        else
+            language = QmlJSTools::languageOfFile(source.fileName);
+        doc = snapshot.documentFromSource(source.code, source.fileName, language);
         doc->setEditorRevision(source.revision);
         doc->parse();
         snapshot.insert(doc);

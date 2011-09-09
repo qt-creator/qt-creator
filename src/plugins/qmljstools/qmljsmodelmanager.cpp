@@ -71,6 +71,47 @@ using namespace QmlJSTools::Internal;
 
 static QStringList environmentImportPaths();
 
+QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
+{
+    QStringList jsSuffixes("js");
+    QStringList qmlSuffixes("qml");
+
+    if (Core::ICore::instance()) {
+        Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+        Core::MimeType jsSourceTy = db->findByType(Constants::JS_MIMETYPE);
+        jsSuffixes = jsSourceTy.suffixes();
+        Core::MimeType qmlSourceTy = db->findByType(Constants::QML_MIMETYPE);
+        qmlSuffixes = qmlSourceTy.suffixes();
+    }
+
+    const QFileInfo info(fileName);
+    const QString fileSuffix = info.suffix();
+    if (jsSuffixes.contains(fileSuffix))
+        return QmlJS::Document::JavaScriptLanguage;
+    if (qmlSuffixes.contains(fileSuffix))
+        return QmlJS::Document::QmlLanguage;
+    return QmlJS::Document::UnknownLanguage;
+}
+
+QStringList QmlJSTools::qmlAndJsGlobPatterns()
+{
+    QStringList pattern;
+    if (Core::ICore::instance()) {
+        Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+        Core::MimeType jsSourceTy = db->findByType(Constants::JS_MIMETYPE);
+        Core::MimeType qmlSourceTy = db->findByType(Constants::QML_MIMETYPE);
+
+        QStringList pattern;
+        foreach (const Core::MimeGlobPattern &glob, jsSourceTy.globPatterns())
+            pattern << glob.regExp().pattern();
+        foreach (const Core::MimeGlobPattern &glob, qmlSourceTy.globPatterns())
+            pattern << glob.regExp().pattern();
+    } else {
+        pattern << "*.qml" << "*.js";
+    }
+    return pattern;
+}
+
 ModelManager::ModelManager(QObject *parent):
         ModelManagerInterface(parent),
         m_core(Core::ICore::instance()),
@@ -349,22 +390,7 @@ void ModelManager::updateLibraryInfo(const QString &path, const LibraryInfo &inf
 
 static QStringList qmlFilesInDirectory(const QString &path)
 {
-    QStringList pattern;
-    if (Core::ICore::instance()) {
-        // ### It would suffice to build pattern once. This function needs to be thread-safe.
-        Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
-        Core::MimeType jsSourceTy = db->findByType(Constants::JS_MIMETYPE);
-        Core::MimeType qmlSourceTy = db->findByType(Constants::QML_MIMETYPE);
-
-        QStringList pattern;
-        foreach (const Core::MimeGlobPattern &glob, jsSourceTy.globPatterns())
-            pattern << glob.regExp().pattern();
-        foreach (const Core::MimeGlobPattern &glob, qmlSourceTy.globPatterns())
-            pattern << glob.regExp().pattern();
-    } else {
-        pattern << "*.qml" << "*.js";
-    }
-
+    const QStringList pattern = qmlAndJsGlobPatterns();
     QStringList files;
 
     const QDir dir(path);
@@ -527,15 +553,6 @@ void ModelManager::parse(QFutureInterface<void> &future,
                             ModelManager *modelManager,
                             bool emitDocChangedOnDisk)
 {
-    Core::MimeDatabase *db = 0;
-    Core::MimeType jsSourceTy;
-    Core::MimeType qmlSourceTy;
-    if (Core::ICore::instance()) {
-        db = Core::ICore::instance()->mimeDatabase();
-        jsSourceTy = db->findByType(QLatin1String("application/javascript"));
-        qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
-    }
-
     int progressRange = files.size();
     future.setProgressRange(0, progressRange);
 
@@ -548,6 +565,10 @@ void ModelManager::parse(QFutureInterface<void> &future,
         future.setProgressValue(qreal(i) / files.size() * progressRange);
 
         const QString fileName = files.at(i);
+
+        Document::Language language = languageOfFile(fileName);
+        if (language == Document::UnknownLanguage)
+            continue;
 
         QString contents;
         int documentRevision = 0;
@@ -566,7 +587,7 @@ void ModelManager::parse(QFutureInterface<void> &future,
             }
         }
 
-        Document::Ptr doc = Document::create(fileName);
+        Document::Ptr doc = Document::create(fileName, language);
         doc->setEditorRevision(documentRevision);
         doc->setSource(contents);
         doc->parse();

@@ -33,6 +33,7 @@
 #include "qmljsrefactoringchanges.h"
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljstoolsconstants.h"
+#include "qmljsmodelmanager.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -112,7 +113,11 @@ QmlJSRefactoringChangesData *QmlJSRefactoringChanges::data() const
 
 QmlJSRefactoringFile::QmlJSRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data)
     : RefactoringFile(fileName, data)
-{ }
+{
+    // the RefactoringFile is invalid if its not for a file with qml or js code
+    if (languageOfFile(fileName) == Document::UnknownLanguage)
+        m_fileName.clear();
+}
 
 QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::BaseTextEditorWidget *editor, QmlJS::Document::Ptr document)
     : RefactoringFile(editor)
@@ -128,7 +133,7 @@ Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
         const QString name = fileName();
         const Snapshot &snapshot = data()->m_snapshot;
 
-        m_qmljsDocument = snapshot.documentFromSource(source, name);
+        m_qmljsDocument = snapshot.documentFromSource(source, name, languageOfFile(name));
         m_qmljsDocument->parse();
     }
 

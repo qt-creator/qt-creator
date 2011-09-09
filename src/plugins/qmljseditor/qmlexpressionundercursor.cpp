@@ -136,7 +136,7 @@ QmlJS::AST::ExpressionNode *QmlExpressionUnderCursor::operator()(const QTextCurs
     ExpressionUnderCursor expressionUnderCursor;
     _text = expressionUnderCursor(cursor);
 
-    exprDoc = Document::create(QLatin1String("<expression>"));
+    exprDoc = Document::create(QLatin1String("<expression>"), Document::JavaScriptLanguage);
     exprDoc->setSource(_text);
     exprDoc->parseExpression();
 

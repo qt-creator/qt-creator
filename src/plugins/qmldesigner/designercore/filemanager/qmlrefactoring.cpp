@@ -61,7 +61,7 @@ bool QmlRefactoring::reparseDocument()
 
 //    qDebug() << "QmlRefactoring::reparseDocument() new QML source:" << newSource;
 
-    Document::Ptr tmpDocument(Document::create("<ModelToTextMerger>"));
+    Document::Ptr tmpDocument(Document::create("<ModelToTextMerger>", Document::QmlLanguage));
     tmpDocument->setSource(newSource);
 
     if (tmpDocument->parseQml()) {

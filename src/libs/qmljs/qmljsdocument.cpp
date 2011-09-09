@@ -83,23 +83,20 @@ using namespace QmlJS::AST;
 */
 
 
-Document::Document(const QString &fileName)
+Document::Document(const QString &fileName, Language language)
     : _engine(0)
     , _pool(0)
     , _ast(0)
     , _bind(0)
-    , _isQmlDocument(false)
-    , _editorRevision(0)
-    , _parsedCorrectly(false)
     , _fileName(QDir::cleanPath(fileName))
+    , _editorRevision(0)
+    , _language(language)
+    , _parsedCorrectly(false)
 {
     QFileInfo fileInfo(fileName);
     _path = QDir::cleanPath(fileInfo.absolutePath());
 
-    // ### Should use mime type
-    if (fileInfo.suffix() == QLatin1String("qml")
-            || fileInfo.suffix() == QLatin1String("qmlproject")) {
-        _isQmlDocument = true;
+    if (language == QmlLanguage) {
         _componentName = fileInfo.baseName();
 
         if (! _componentName.isEmpty()) {
@@ -123,9 +120,9 @@ Document::~Document()
         delete _pool;
 }
 
-Document::Ptr Document::create(const QString &fileName)
+Document::Ptr Document::create(const QString &fileName, Language language)
 {
-    Document::Ptr doc(new Document(fileName));
+    Document::Ptr doc(new Document(fileName, language));
     doc->_ptr = doc;
     return doc;
 }
@@ -137,12 +134,17 @@ Document::Ptr Document::ptr() const
 
 bool Document::isQmlDocument() const
 {
-    return _isQmlDocument;
+    return _language == QmlLanguage;
 }
 
 bool Document::isJSDocument() const
 {
-    return ! _isQmlDocument;
+    return _language == JavaScriptLanguage;
+}
+
+Document::Language Document::language() const
+{
+    return _language;
 }
 
 AST::UiProgram *Document::qmlProgram() const
@@ -422,9 +424,10 @@ void Snapshot::remove(const QString &fileName)
 }
 
 Document::Ptr Snapshot::documentFromSource(const QString &code,
-                                           const QString &fileName) const
+                                           const QString &fileName,
+                                           Document::Language language) const
 {
-    Document::Ptr newDoc = Document::create(fileName);
+    Document::Ptr newDoc = Document::create(fileName, language);
 
     if (Document::Ptr thisDocument = document(fileName)) {
         newDoc->_editorRevision = thisDocument->_editorRevision;

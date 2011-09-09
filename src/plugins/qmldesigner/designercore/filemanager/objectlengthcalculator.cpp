@@ -39,7 +39,7 @@ using namespace QmlDesigner;
 using namespace QmlJS::AST;
 
 ObjectLengthCalculator::ObjectLengthCalculator():
-        m_doc(Document::create("<internal>"))
+        m_doc(Document::create("<internal>", Document::QmlLanguage))
 {
 }
 

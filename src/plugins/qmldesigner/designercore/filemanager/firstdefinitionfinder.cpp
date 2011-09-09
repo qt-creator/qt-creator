@@ -41,7 +41,7 @@ using namespace QmlDesigner;
 using namespace QmlJS::AST;
 
 FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
-        m_doc(Document::create("<internal>"))
+        m_doc(Document::create("<internal>", Document::QmlLanguage))
 {
     m_doc->setSource(text);
     bool ok = m_doc->parseQml();

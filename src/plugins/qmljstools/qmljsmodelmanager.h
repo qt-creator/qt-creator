@@ -55,6 +55,10 @@ class CppModelManagerInterface;
 }
 
 namespace QmlJSTools {
+
+QMLJSTOOLS_EXPORT QmlJS::Document::Language languageOfFile(const QString &fileName);
+QMLJSTOOLS_EXPORT QStringList qmlAndJsGlobPatterns();
+
 namespace Internal {
 
 class PluginDumper;

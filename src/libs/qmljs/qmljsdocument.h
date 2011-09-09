@@ -56,18 +56,26 @@ class QMLJS_EXPORT Document
 public:
     typedef QSharedPointer<Document> Ptr;
 
+    enum Language
+    {
+        QmlLanguage = 0,
+        JavaScriptLanguage = 1,
+        UnknownLanguage = 2
+    };
+
 protected:
-    Document(const QString &fileName);
+    Document(const QString &fileName, Language language);
 
 public:
     ~Document();
 
-    static Document::Ptr create(const QString &fileName);
+    static Document::Ptr create(const QString &fileName, Language language);
 
     Document::Ptr ptr() const;
 
     bool isQmlDocument() const;
     bool isJSDocument() const;
+    Language language() const;
 
     AST::UiProgram *qmlProgram() const;
     AST::Program *jsProgram() const;
@@ -107,15 +115,15 @@ private:
     NodePool *_pool;
     AST::Node *_ast;
     Bind *_bind;
-    bool _isQmlDocument;
-    int _editorRevision;
-    bool _parsedCorrectly;
     QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
     QString _fileName;
     QString _path;
     QString _componentName;
     QString _source;
     QWeakPointer<Document> _ptr;
+    int _editorRevision;
+    Language _language : 2;
+    bool _parsedCorrectly : 1;
 
     // for documentFromSource
     friend class Snapshot;
@@ -211,7 +219,8 @@ public:
     LibraryInfo libraryInfo(const QString &path) const;
 
     Document::Ptr documentFromSource(const QString &code,
-                                     const QString &fileName) const;
+                                     const QString &fileName,
+                                     Document::Language language) const;
 };
 
 } // namespace QmlJS
