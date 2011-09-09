@@ -113,14 +113,10 @@ void BaseFileFind::runNewSearch(const QString &txt, Find::FindFlags findFlags,
         updateComboEntries(m_filterCombo, true);
     m_watcher.setFuture(QFuture<FileSearchResultList>());
     m_currentSearchCount = 0;
-    m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(searchMode,
-                                                     searchMode == SearchResultWindow::SearchAndReplace
-                                                     ? QString::fromLatin1("TextEditor")
-                                                     : QString());
+    m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(label(),
+                           toolTip().arg(Find::IFindFilter::descriptionForFindFlags(findFlags)),
+                           txt, searchMode, QString::fromLatin1("TextEditor"));
     m_currentSearch->setTextToReplace(txt);
-    m_currentSearch->setInfo(label(),
-                             toolTip().arg(Find::IFindFilter::descriptionForFindFlags(findFlags)),
-                             txt);
     QVariantList searchParameters;
     searchParameters << qVariantFromValue(txt) << qVariantFromValue(findFlags);
     m_currentSearch->setUserData(searchParameters);
@@ -169,6 +165,10 @@ void BaseFileFind::doReplace(const QString &text,
 }
 
 void BaseFileFind::displayResult(int index) {
+    if (!m_currentSearch) {
+        m_watcher.cancel();
+        return;
+    }
     Utils::FileSearchResultList results = m_watcher.future().resultAt(index);
     QList<Find::SearchResultItem> items;
     foreach (const Utils::FileSearchResult &result, results) {
@@ -190,7 +190,8 @@ void BaseFileFind::displayResult(int index) {
 
 void BaseFileFind::searchFinished()
 {
-    m_currentSearch->finishSearch();
+    if (m_currentSearch)
+        m_currentSearch->finishSearch();
     m_currentSearch = 0;
     m_isSearching = false;
     m_resultLabel = 0;

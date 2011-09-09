@@ -776,8 +776,7 @@ public:
 } // end of anonymous namespace
 
 FindReferences::FindReferences(QObject *parent)
-    : QObject(parent),
-      m_currentSearch(0)
+    : QObject(parent)
 {
     m_watcher.setPendingResultsLimit(1);
     connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
@@ -914,18 +913,20 @@ void FindReferences::displayResults(int first, int last)
     // the first usage is always a dummy to indicate we now start searching
     if (first == 0) {
         Usage dummy = m_watcher.future().resultAt(0);
-        QString replacement = dummy.path;
-        QString symbolName = dummy.lineText;
+        const QString replacement = dummy.path;
+        const QString symbolName = dummy.lineText;
+        const QString label = tr("QML/JS Usages:");
 
         if (replacement.isEmpty()) {
-            m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(Find::SearchResultWindow::SearchOnly);
+            m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(
+                        label, QString(), symbolName, Find::SearchResultWindow::SearchOnly);
         } else {
-            m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
+            m_currentSearch = Find::SearchResultWindow::instance()->startNewSearch(
+                        label, QString(), symbolName, Find::SearchResultWindow::SearchAndReplace);
             m_currentSearch->setTextToReplace(replacement);
             connect(m_currentSearch, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
                     SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
         }
-        m_currentSearch->setInfo(tr("Usages:"), QString(), symbolName);
         connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
                 this, SLOT(openEditor(Find::SearchResultItem)));
         connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
@@ -940,6 +941,10 @@ void FindReferences::displayResults(int first, int last)
         ++first;
     }
 
+    if (!m_currentSearch) {
+        m_watcher.cancel();
+        return;
+    }
     for (int index = first; index != last; ++index) {
         Usage result = m_watcher.future().resultAt(index);
         m_currentSearch->addResult(result.path,
@@ -952,7 +957,8 @@ void FindReferences::displayResults(int first, int last)
 
 void FindReferences::searchFinished()
 {
-    m_currentSearch->finishSearch();
+    if (m_currentSearch)
+        m_currentSearch->finishSearch();
     m_currentSearch = 0;
     emit changed();
 }

@@ -53,7 +53,6 @@ class SearchResultWidget : public QWidget
 public:
     explicit SearchResultWidget(QWidget *parent = 0);
 
-    void startSearch();
     void setInfo(const QString &label, const QString &toolTip, const QString &term);
 
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,

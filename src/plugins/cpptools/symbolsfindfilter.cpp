@@ -104,7 +104,6 @@ SymbolsFindFilter::SymbolsFindFilter(CppModelManager *manager)
     : m_manager(manager),
       m_isRunning(false),
       m_enabled(true),
-      m_currentSearch(0),
       m_symbolsToSearch(SearchSymbols::AllTypes),
       m_scope(SearchProjectsOnly)
 {
@@ -150,8 +149,7 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
     m_isRunning = true;
     emit changed();
     Find::SearchResultWindow *window = Find::SearchResultWindow::instance();
-    m_currentSearch = window->startNewSearch();
-    m_currentSearch->setInfo(label(), toolTip(findFlags), txt);
+    m_currentSearch = window->startNewSearch(label(), toolTip(findFlags), txt);
     connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
     window->popup(true);
 
@@ -177,6 +175,10 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
 
 void SymbolsFindFilter::addResults(int begin, int end)
 {
+    if (!m_currentSearch) {
+        m_watcher.cancel();
+        return;
+    }
     QList<Find::SearchResultItem> items;
     for (int i = begin; i < end; ++i)
         items << m_watcher.resultAt(i);
@@ -185,7 +187,8 @@ void SymbolsFindFilter::addResults(int begin, int end)
 
 void SymbolsFindFilter::finish()
 {
-    m_currentSearch->finishSearch();
+    if (m_currentSearch)
+        m_currentSearch->finishSearch();
     m_currentSearch = 0;
     m_isRunning = false;
     emit changed();

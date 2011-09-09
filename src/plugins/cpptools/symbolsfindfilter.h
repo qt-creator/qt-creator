@@ -40,6 +40,7 @@
 
 #include <QtCore/QFutureInterface>
 #include <QtCore/QFutureWatcher>
+#include <QtCore/QPointer>
 #include <QtGui/QWidget>
 #include <QtGui/QCheckBox>
 #include <QtGui/QRadioButton>
@@ -97,7 +98,7 @@ private:
     bool m_isRunning;
     bool m_enabled;
     QFutureWatcher<Find::SearchResultItem> m_watcher;
-    Find::SearchResult *m_currentSearch;
+    QPointer<Find::SearchResult> m_currentSearch;
     SearchSymbols::SymbolTypes m_symbolsToSearch;
     SearchSymbols m_search;
     SearchScope m_scope;

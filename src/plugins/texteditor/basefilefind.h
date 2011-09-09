@@ -78,8 +78,8 @@ public:
 
 protected:
     virtual Utils::FileIterator *files() const = 0;
-    virtual QString label() const = 0; // see Find::SearchResult::setInfo
-    virtual QString toolTip() const = 0; // see Find::SearchResult::setInfo,
+    virtual QString label() const = 0; // see Find::SearchResultWindow::startNewSearch
+    virtual QString toolTip() const = 0; // see Find::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
 
     void writeCommonSettings(QSettings *settings);
@@ -103,7 +103,7 @@ private:
     void runNewSearch(const QString &txt, Find::FindFlags findFlags,
                       Find::SearchResultWindow::SearchMode searchMode);
 
-    Find::SearchResult *m_currentSearch;
+    QPointer<Find::SearchResult> m_currentSearch;
     int m_currentSearchCount;
 
     QFutureWatcher<Utils::FileSearchResultList> m_watcher;

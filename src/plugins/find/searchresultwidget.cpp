@@ -254,7 +254,6 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_cancelButton->setText(tr("Cancel"));
     m_cancelButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(cancel()));
-    m_cancelButton->setVisible(false);
 
     m_replaceLabel = new QLabel(tr("Replace with:"), topWidget);
     m_replaceTextEdit = new WideEnoughLineEdit(topWidget);
@@ -283,11 +282,6 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
             this, SLOT(handleJumpToSearchResult(SearchResultItem)));
     connect(m_replaceTextEdit, SIGNAL(returnPressed()), this, SLOT(handleReplaceButton()));
     connect(m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
-}
-
-void SearchResultWidget::startSearch()
-{
-    m_cancelButton->setVisible(true);
 }
 
 void SearchResultWidget::setInfo(const QString &label, const QString &toolTip, const QString &term)
@@ -319,7 +313,7 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
     m_count += items.size();
     m_searchResultTreeView->addResults(items, mode);
     if (firstItems) {
-        if (!m_dontAskAgainGroup.isEmpty() && showWarningMessage()) {
+        if (showWarningMessage()) {
             Core::InfoBarEntry info("warninglabel", tr("This change cannot be undone."));
             info.setCustomButtonInfo(tr("Do not warn again"), this, SLOT(hideNoUndoWarning()));
             m_infoBar.addInfo(info);
@@ -497,6 +491,8 @@ void SearchResultWidget::cancel()
 
 bool SearchResultWidget::showWarningMessage() const
 {
+    if (m_dontAskAgainGroup.isEmpty())
+        return false;
     // read settings
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(m_dontAskAgainGroup);

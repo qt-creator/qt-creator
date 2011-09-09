@@ -37,6 +37,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
+#include <QtCore/QPointer>
 #include <utils/filesearch.h>
 #include <qmljs/qmljsdocument.h>
 
@@ -90,7 +91,7 @@ private Q_SLOTS:
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
 
 private:
-    Find::SearchResult *m_currentSearch;
+    QPointer<Find::SearchResult> m_currentSearch;
     QFutureWatcher<Usage> m_watcher;
 };
 

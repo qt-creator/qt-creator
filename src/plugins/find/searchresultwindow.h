@@ -48,7 +48,7 @@ QT_END_NAMESPACE
 namespace Find {
 namespace Internal {
     class SearchResultTreeView;
-    struct SearchResultWindowPrivate;
+    class SearchResultWindowPrivate;
     class SearchResultWidget;
 }
 class SearchResultWindow;
@@ -98,7 +98,6 @@ public:
     void setUserData(const QVariant &data);
     QVariant userData() const;
     QString textToReplace() const;
-    void setInfo(const QString &label, const QString &toolTip, const QString &term);
 
 public slots:
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,
@@ -156,8 +155,14 @@ public:
     void setTextEditorFont(const QFont &font);
     void openNewSearchPanel();
 
-    // search result object is guaranteed to live till its finishSearch method is called
-    SearchResult *startNewSearch(SearchMode searchOrSearchAndReplace = SearchOnly,
+    // The search result window owns the returned SearchResult
+    // and might delete it any time, even while the search is running
+    // (e.g. when the user clears the search result pane, or if the user opens so many other searches
+    // that this search falls out of the history).
+    SearchResult *startNewSearch(const QString &label,
+                                 const QString &toolTip,
+                                 const QString &searchTerm,
+                                 SearchMode searchOrSearchAndReplace = SearchOnly,
                                  const QString &cfgGroup = QString());
 
 public slots:

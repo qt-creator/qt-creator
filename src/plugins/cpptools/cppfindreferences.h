@@ -94,7 +94,7 @@ private:
 
 private:
     QPointer<CPlusPlus::CppModelManagerInterface> _modelManager;
-    Find::SearchResult *m_currentSearch;
+    QPointer<Find::SearchResult> m_currentSearch;
     QFutureWatcher<CPlusPlus::Usage> m_watcher;
 
     mutable QMutex m_depsLock;

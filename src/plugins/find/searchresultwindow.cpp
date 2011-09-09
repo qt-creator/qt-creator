@@ -47,6 +47,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QFont>
 #include <QtGui/QAction>
+#include <QtGui/QComboBox>
 #include <QtGui/QStackedWidget>
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
@@ -56,20 +57,59 @@ namespace Find {
 
 namespace Internal {
 
-    struct SearchResultWindowPrivate {
-        SearchResultWindowPrivate();
+    class SearchResultWindowPrivate : public QObject {
+        Q_OBJECT
+    public:
+        SearchResultWindowPrivate(SearchResultWindow *window);
+        bool isSearchVisible() const;
+        int visibleSearchIndex() const;
 
-        Internal::SearchResultWidget *m_searchResultWidget;
+        SearchResultWindow *q;
+        QList<Internal::SearchResultWidget *> m_searchResultWidgets;
         QToolButton *m_expandCollapseButton;
         QAction *m_expandCollapseAction;
         static const bool m_initiallyExpand = false;
+        QWidget *m_spacer;
+        QComboBox *m_recentSearchesBox;
         QStackedWidget *m_widget;
-        SearchResult *m_currentSearch;
+        QList<SearchResult *> m_searchResults;
+        int m_currentIndex;
+
+    public slots:
+        void setCurrentIndex(int index);
     };
 
-    SearchResultWindowPrivate::SearchResultWindowPrivate()
-        : m_currentSearch(0)
+    SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window)
+        : q(window)
     {
+    }
+
+    bool SearchResultWindowPrivate::isSearchVisible() const
+    {
+        return m_currentIndex > 0;
+    }
+
+    int SearchResultWindowPrivate::visibleSearchIndex() const
+    {
+        return m_currentIndex - 1;
+    }
+
+    void SearchResultWindowPrivate::setCurrentIndex(int index)
+    {
+        if (isSearchVisible())
+            m_searchResultWidgets.at(visibleSearchIndex())->notifyVisibilityChanged(false);
+        m_currentIndex = index;
+        m_widget->setCurrentIndex(index);
+        m_recentSearchesBox->setCurrentIndex(index);
+        if (!isSearchVisible()) {
+            m_widget->currentWidget()->setFocus();
+            m_expandCollapseButton->setEnabled(false);
+        } else {
+            m_searchResultWidgets.at(visibleSearchIndex())->setFocusInternally();
+            m_searchResultWidgets.at(visibleSearchIndex())->notifyVisibilityChanged(true);
+            m_expandCollapseButton->setEnabled(true);
+        }
+        q->navigateStateChanged();
     }
 }
 
@@ -155,16 +195,21 @@ SearchResultWindow *SearchResultWindow::m_instance = 0;
     \internal
 */
 SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
-    : d(new SearchResultWindowPrivate)
+    : d(new SearchResultWindowPrivate(this))
 {
     m_instance = this;
+    d->m_spacer = new QWidget;
+    d->m_spacer->setMinimumWidth(30);
+    d->m_recentSearchesBox = new QComboBox;
+    d->m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    d->m_recentSearchesBox->addItem(tr("New Search"));
+    connect(d->m_recentSearchesBox, SIGNAL(activated(int)), d, SLOT(setCurrentIndex(int)));
+
     d->m_widget = new QStackedWidget;
     d->m_widget->setWindowTitle(displayName());
 
     d->m_widget->addWidget(newSearchPanel);
-
-    d->m_searchResultWidget = new Internal::SearchResultWidget(d->m_widget);
-    d->m_widget->addWidget(d->m_searchResultWidget);
+    d->m_currentIndex = 0;
 
     d->m_expandCollapseButton = new QToolButton(d->m_widget);
     d->m_expandCollapseButton->setAutoRaise(true);
@@ -179,7 +224,6 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     d->m_expandCollapseButton->setDefaultAction(cmd->action());
 
     connect(d->m_expandCollapseAction, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
-    connect(d->m_searchResultWidget, SIGNAL(navigateStateChanged()), this, SLOT(navigateStateChanged()));
     readSettings();
 }
 
@@ -190,8 +234,7 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
 SearchResultWindow::~SearchResultWindow()
 {
     writeSettings();
-    delete d->m_currentSearch;
-    d->m_currentSearch = 0;
+    qDeleteAll(d->m_searchResults);
     delete d->m_widget;
     d->m_widget = 0;
     delete d;
@@ -212,7 +255,8 @@ SearchResultWindow *SearchResultWindow::instance()
 */
 void SearchResultWindow::visibilityChanged(bool visible)
 {
-    d->m_searchResultWidget->notifyVisibilityChanged(visible);
+    if (d->isSearchVisible())
+        d->m_searchResultWidgets.at(d->visibleSearchIndex())->notifyVisibilityChanged(visible);
 }
 
 /*!
@@ -230,31 +274,56 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 */
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>() << d->m_expandCollapseButton;
+    return QList<QWidget*>() << d->m_expandCollapseButton << d->m_spacer << d->m_recentSearchesBox;
 }
 
 /*!
     \brief Tells the search results window to start a new search.
 
-    This will clear the contents of the previous search and initialize the UI
-    with regard to showing the replace UI or not (depending on the search mode
-    in \a searchOrSearchAndReplace).
+    The \a label should be a string that shortly describes the type of
+    search, i.e. search filter and possibly a most relevant search option, followed by a colon ':'.
+    E.g. \code{Project 'myproject':}
+    The \a searchTerm will be shown behind the colon.
+    The \a toolTip should elaborate on the search parameters, like file patterns that are searched and
+    find flags.
     If \a cfgGroup is not empty, it will be used for storing the "do not ask again"
     setting of a "this change cannot be undone" warning (which is implicitly requested
     by passing a non-empty group).
     Returns a SearchResult object that is used for signaling user interaction
     with the results of this search.
+    The search result window owns the returned SearchResult
+    and might delete it any time, even while the search is running
+    (e.g. when the user clears the search result pane, or if the user opens so many other searches
+    that this search falls out of the history).
+
 */
-SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndReplace, const QString &cfgGroup)
+SearchResult *SearchResultWindow::startNewSearch(const QString &label,
+                                                 const QString &toolTip,
+                                                 const QString &searchTerm,
+                                                 SearchMode searchOrSearchAndReplace,
+                                                 const QString &cfgGroup)
 {
-    clearContents();
-    d->m_searchResultWidget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
-    d->m_searchResultWidget->setDontAskAgainGroup(cfgGroup);
-    d->m_searchResultWidget->startSearch();
-    d->m_widget->setCurrentWidget(d->m_searchResultWidget);
-    delete d->m_currentSearch;
-    d->m_currentSearch = new SearchResult(d->m_searchResultWidget);
-    return d->m_currentSearch;
+    if (d->m_searchResults.size() >= 5) {
+        d->m_searchResultWidgets.last()->notifyVisibilityChanged(false);
+        delete d->m_searchResults.takeLast();
+        delete d->m_searchResultWidgets.takeLast();
+        d->m_recentSearchesBox->removeItem(d->m_recentSearchesBox->count()-1);
+    }
+    Internal::SearchResultWidget *widget = new Internal::SearchResultWidget;
+    d->m_searchResultWidgets.prepend(widget);
+    d->m_widget->insertWidget(1, widget);
+    connect(widget, SIGNAL(navigateStateChanged()), this, SLOT(navigateStateChanged()));
+    widget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
+    widget->setInfo(label, toolTip, searchTerm);
+    if (searchOrSearchAndReplace == SearchAndReplace)
+        widget->setDontAskAgainGroup(cfgGroup);
+    SearchResult *result = new SearchResult(widget);
+    d->m_searchResults.prepend(result);
+    d->m_recentSearchesBox->insertItem(1, tr("%1 %2").arg(label, searchTerm));
+    if (d->m_currentIndex > 0)
+        ++d->m_currentIndex; // so setCurrentIndex still knows about the right "currentIndex" and its widget
+    d->setCurrentIndex(1);
+    return result;
 }
 
 /*!
@@ -263,7 +332,18 @@ SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndRep
 */
 void SearchResultWindow::clearContents()
 {
-    d->m_searchResultWidget->clear();
+    for (int i = d->m_recentSearchesBox->count() - 1; i > 0 /* don't want i==0 */; --i)
+        d->m_recentSearchesBox->removeItem(i);
+    foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
+        widget->notifyVisibilityChanged(false);
+    qDeleteAll(d->m_searchResultWidgets);
+    d->m_searchResultWidgets.clear();
+    qDeleteAll(d->m_searchResults);
+    d->m_searchResults.clear();
+
+    d->m_currentIndex = 0;
+    d->m_widget->currentWidget()->setFocus();
+    d->m_expandCollapseButton->setEnabled(false);
     navigateStateChanged();
 }
 
@@ -273,7 +353,7 @@ void SearchResultWindow::clearContents()
 */
 bool SearchResultWindow::hasFocus()
 {
-    return d->m_searchResultWidget->hasFocusInternally();
+    return d->m_widget->focusWidget() && d->m_widget->focusWidget()->hasFocus();
 }
 
 /*!
@@ -282,7 +362,9 @@ bool SearchResultWindow::hasFocus()
 */
 bool SearchResultWindow::canFocus()
 {
-    return d->m_searchResultWidget->canFocusInternally();
+    if (d->isSearchVisible())
+        return d->m_searchResultWidgets.at(d->visibleSearchIndex())->canFocusInternally();
+    return true;
 }
 
 /*!
@@ -291,11 +373,10 @@ bool SearchResultWindow::canFocus()
 */
 void SearchResultWindow::setFocus()
 {
-    int stackIndex = d->m_widget->currentIndex();
-    if (stackIndex == 0)
+    if (!d->isSearchVisible())
         d->m_widget->currentWidget()->setFocus();
     else
-        d->m_searchResultWidget->setFocusInternally();
+        d->m_searchResultWidgets.at(d->visibleSearchIndex())->setFocusInternally();
 }
 
 /*!
@@ -304,12 +385,13 @@ void SearchResultWindow::setFocus()
 */
 void SearchResultWindow::setTextEditorFont(const QFont &font)
 {
-    d->m_searchResultWidget->setTextEditorFont(font);
+    foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
+        widget->setTextEditorFont(font);
 }
 
 void SearchResultWindow::openNewSearchPanel()
 {
-    d->m_widget->setCurrentIndex(0);
+    d->setCurrentIndex(0);
     popup();
 }
 
@@ -319,13 +401,15 @@ void SearchResultWindow::openNewSearchPanel()
 */
 void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
 {
-    d->m_searchResultWidget->setAutoExpandResults(checked);
+    if (!d->isSearchVisible())
+        return;
+    d->m_searchResultWidgets.at(d->visibleSearchIndex())->setAutoExpandResults(checked);
     if (checked) {
         d->m_expandCollapseAction->setText(tr("Collapse All"));
-        d->m_searchResultWidget->expandAll();
+        d->m_searchResultWidgets.at(d->visibleSearchIndex())->expandAll();
     } else {
         d->m_expandCollapseAction->setText(tr("Expand All"));
-        d->m_searchResultWidget->collapseAll();
+        d->m_searchResultWidgets.at(d->visibleSearchIndex())->collapseAll();
     }
 }
 
@@ -372,7 +456,9 @@ int SearchResultWindow::priorityInStatusBar() const
 */
 bool SearchResultWindow::canNext()
 {
-    return d->m_searchResultWidget->count() > 0;
+    if (d->isSearchVisible())
+        return d->m_searchResultWidgets.at(d->visibleSearchIndex())->count() > 0;
+    return false;
 }
 
 /*!
@@ -381,7 +467,7 @@ bool SearchResultWindow::canNext()
 */
 bool SearchResultWindow::canPrevious()
 {
-    return d->m_searchResultWidget->count() > 0;
+    return canNext();
 }
 
 /*!
@@ -390,7 +476,9 @@ bool SearchResultWindow::canPrevious()
 */
 void SearchResultWindow::goToNext()
 {
-    d->m_searchResultWidget->goToNext();
+    int index = d->m_widget->currentIndex();
+    if (index != 0)
+        d->m_searchResultWidgets.at(index-1)->goToNext();
 }
 
 /*!
@@ -399,7 +487,9 @@ void SearchResultWindow::goToNext()
 */
 void SearchResultWindow::goToPrev()
 {
-    d->m_searchResultWidget->goToPrevious();
+    int index = d->m_widget->currentIndex();
+    if (index != 0)
+        d->m_searchResultWidgets.at(index-1)->goToPrevious();
 }
 
 /*!
@@ -460,23 +550,6 @@ QString SearchResult::textToReplace() const
 }
 
 /*!
-    \fn void SearchResult::setInfo(const QString &label, const QString &toolTip, const QString &term)
-    \brief Set the information about the search that is show in the top-left corner of
-    the search result window.
-
-    The \a label should be a string that shortly describes the
-    search, i.e. search filter and a most relevant search options, followed by a colon ':'.
-    E.g. \code{Project 'myproject':}
-    The search \a term will be shown behind the colon.
-    The \a toolTip should elaborate on the search parameters, like file patterns that are searched and
-    find flags.
-*/
-void SearchResult::setInfo(const QString &label, const QString &toolTip, const QString &term)
-{
-    m_widget->setInfo(label, toolTip, term);
-}
-
-/*!
     \fn void SearchResult::addResult(const QString &fileName, int lineNumber, const QString &rowText, int searchTermStart, int searchTermLength, const QVariant &userData)
     \brief Adds a single result line to the search results.
 
@@ -528,3 +601,5 @@ void SearchResult::setTextToReplace(const QString &textToReplace)
 }
 
 } // namespace Find
+
+#include "searchresultwindow.moc"
