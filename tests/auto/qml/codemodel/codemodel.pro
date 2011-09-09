@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS += basic
+SUBDIRS += basic check
