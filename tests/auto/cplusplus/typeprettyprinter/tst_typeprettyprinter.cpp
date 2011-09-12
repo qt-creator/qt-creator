@@ -194,6 +194,14 @@ void tst_TypePrettyPrinter::basic_data()
     // simple functions
     addRow(ptr(fnTy("foo", voidTy(), intTy())), "void (*foo)(int)", "foo");
     addRow(ptr(fnTy("foo", voidTy(), ptr(voidTy()))), "void (*foo)(void *)", "foo");
+    addRow(fnTy("foo", voidTy(), intTy()), "void foo(int)", "foo");
+    addRow(fnTy("foo", voidTy(), ptr(voidTy())), "void foo(void *)", "foo");
+
+    // functions with ptr or ref returns
+    addRow(ptr(fnTy("foo", ptr(voidTy()), intTy())), "void *(*foo)(int)", "foo");
+    addRow(ptr(fnTy("foo", ref(voidTy()), ptr(voidTy()))), "void &(*foo)(void *)", "foo");
+    addRow(fnTy("foo", ptr(voidTy()), intTy()), "void *foo(int)", "foo");
+    addRow(fnTy("foo", ref(voidTy()), ptr(voidTy())), "void &foo(void *)", "foo");
 }
 
 void tst_TypePrettyPrinter::basic()

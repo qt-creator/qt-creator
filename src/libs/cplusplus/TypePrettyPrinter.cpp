@@ -289,6 +289,12 @@ void TypePrettyPrinter::visit(ArrayType *type)
     acceptType(type->elementType());
 }
 
+static bool endsWithPtrOrRef(const QString &type)
+{
+    return type.endsWith(QLatin1Char('*'))
+            || type.endsWith(QLatin1Char('&'));
+}
+
 void TypePrettyPrinter::visit(Function *type)
 {
     if (_needsParens) {
@@ -309,7 +315,8 @@ void TypePrettyPrinter::visit(Function *type)
     if (_overview->showReturnTypes()) {
         const QString returnType = _overview->prettyType(type->returnType());
         if (!returnType.isEmpty()) {
-            _text.prepend(QLatin1Char(' '));
+            if (!endsWithPtrOrRef(returnType))
+                _text.prepend(QLatin1Char(' '));
             _text.prepend(returnType);
         }
     }
