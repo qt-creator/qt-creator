@@ -227,10 +227,9 @@ void QmlEngine::setupInferior()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     if (startParameters().startMode == AttachToRemote) {
+        emit requestRemoteSetup();
         if (startParameters().qmlServerPort != quint16(-1))
             notifyInferiorSetupOk();
-        else
-            emit requestRemoteSetup();
     } else {
         d->m_applicationLauncher.setEnvironment(startParameters().environment);
         d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
