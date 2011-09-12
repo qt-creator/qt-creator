@@ -980,7 +980,7 @@ bool FakeVimPluginPrivate::initialize()
 
     Core::Command *cmd = 0;
     cmd = actionManager->registerAction(theFakeVimSetting(ConfigUseFakeVim),
-        Constants::INSTALL_HANDLER, globalcontext);
+        Constants::INSTALL_HANDLER, globalcontext, true);
     cmd->setDefaultKeySequence(QKeySequence(Constants::INSTALL_KEY));
 
     ActionContainer *advancedMenu =
