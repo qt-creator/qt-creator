@@ -137,6 +137,7 @@ public:
     void unwatchFolders(const QStringList &l, Qt4PriFileNode *node);
 
 signals:
+    void proParsingDone();
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
     void buildDirectoryInitialized();
     void fromMapFinished();

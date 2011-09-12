@@ -648,6 +648,7 @@ void Qt4Project::update()
         qDebug()<<"State is now Base";
     m_asyncUpdateState = Base;
     activeTarget()->activeQt4BuildConfiguration()->setEnabled(true);
+    emit proParsingDone();
 }
 
 void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
@@ -793,14 +794,15 @@ void Qt4Project::decrementPendingEvaluateFutures()
             m_asyncUpdateTimer.start();
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After being done, we need to call:
+            m_asyncUpdateState = Base;
             activeTarget()->activeQt4BuildConfiguration()->setEnabled(true);
             foreach (Target *t, targets())
                 static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles();
             updateFileList();
             updateCodeModels();
+            emit proParsingDone();
             if (debug)
                 qDebug()<<"  Setting state to Base";
-            m_asyncUpdateState = Base;
         }
     }
 }
