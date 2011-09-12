@@ -268,9 +268,10 @@ static QList<Abi> abiOf(const QByteArray &data)
         // Windows PE: values are LE (except for a few exceptions which we will not use here).
 
         // MZ header first (ZM is also allowed, but rarely used)
-        if (!getUint8(data, 0) == 'M' || !getUint8(data, 1) == 'Z')
-            if (!getUint8(data, 0) == 'Z' || !getUint8(data, 1) == 'M')
-                return result;
+        const quint8 firstChar = getUint8(data, 0);
+        const quint8 secondChar = getUint8(data, 1);
+        if ((firstChar != 'M' || secondChar != 'Z') && (firstChar != 'Z' || secondChar != 'M'))
+            return result;
 
         // Get PE/COFF header position from MZ header:
         qint32 pePos = getLEUint32(data, 60);
