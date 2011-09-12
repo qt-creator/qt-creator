@@ -742,7 +742,7 @@ public:
         if (link != m_link)
             return;
 
-        return editor->applyDeclDefLinkChanges(true);
+        return editor->applyDeclDefLinkChanges(/*don't jump*/false);
     }
 
 protected:
