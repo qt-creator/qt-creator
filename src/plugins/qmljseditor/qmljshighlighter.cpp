@@ -166,54 +166,6 @@ void Highlighter::highlightBlock(const QString &text)
                         break;
                     }
                 }
-
-                if (!spell.isEmpty() && spell.at(0).isUpper())
-                    setFormat(token.offset, token.length, m_formats[TypeFormat]);
-
-                if (index + 1 < tokens.size()) {
-                    bool maybeBinding = (index == 0 || checkStartOfBinding(tokens.at(index - 1)));
-                    bool maybeOnBinding = false;
-                    if (index > 0) {
-                        const Token &previousToken = tokens.at(index - 1);
-                        if (text.midRef(previousToken.offset, previousToken.length) == QLatin1String("on")) {
-                            maybeOnBinding = true;
-                            maybeBinding = false;
-                        }
-                    }
-
-                    if (maybeBinding || maybeOnBinding) {
-                        Token::Kind expectedTerminator = Token::Colon;
-                        if (maybeOnBinding)
-                            expectedTerminator = Token::LeftBrace;
-
-                        const int start = index;
-
-                        // put index on last identifier not followed by .identifier
-                        while (index + 2 < tokens.size() &&
-                               tokens.at(index + 1).is(Token::Dot) &&
-                               tokens.at(index + 2).is(Token::Identifier)) {
-                            index += 2;
-                        }
-
-                        if (index + 1 < tokens.size() && tokens.at(index + 1).is(expectedTerminator)) {
-                            // it's a binding.
-                            for (int i = start; i <= index; ++i) {
-                                const Token &tok = tokens.at(i);
-                                if (tok.kind == Token::Dot)
-                                    continue;
-                                const QStringRef tokSpell = text.midRef(tok.offset, tok.length);
-                                if (!tokSpell.isEmpty() && tokSpell.at(0).isUpper()) {
-                                    setFormat(tok.offset, tok.length, m_formats[TypeFormat]);
-                                } else {
-                                    setFormat(tok.offset, tok.length, m_formats[FieldFormat]);
-                                }
-                            }
-                            break;
-                        } else {
-                            index = start;
-                        }
-                    }
-                }
             }   break;
 
             case Token::Delimiter:

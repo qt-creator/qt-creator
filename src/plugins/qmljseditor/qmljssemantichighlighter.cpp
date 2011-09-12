@@ -40,6 +40,7 @@
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
+#include <qmljs/qmljscheck.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -249,26 +250,57 @@ protected:
             addUse(location, type);
     }
 
+    void processTypeId(UiQualifiedId *typeId)
+    {
+        if (!typeId)
+            return;
+        if (m_scopeChain.context()->lookupType(m_scopeChain.document().data(), typeId))
+            addUse(fullLocationForQualifiedId(typeId), SemanticHighlighter::QmlTypeType);
+    }
+
+    void processBindingName(UiQualifiedId *localId)
+    {
+        if (!localId)
+            return;
+        addUse(fullLocationForQualifiedId(localId), SemanticHighlighter::BindingNameType);
+    }
+
     bool visit(UiObjectDefinition *ast)
     {
+        if (m_scopeChain.document()->bind()->isGroupedPropertyBinding(ast)) {
+            processBindingName(ast->qualifiedTypeNameId);
+        } else {
+            processTypeId(ast->qualifiedTypeNameId);
+        }
         scopedAccept(ast, ast->initializer);
         return false;
     }
 
     bool visit(UiObjectBinding *ast)
     {
+        processTypeId(ast->qualifiedTypeNameId);
+        processBindingName(ast->qualifiedId);
         scopedAccept(ast, ast->initializer);
         return false;
     }
 
     bool visit(UiScriptBinding *ast)
     {
+        processBindingName(ast->qualifiedId);
         scopedAccept(ast, ast->statement);
         return false;
     }
 
+    bool visit(UiArrayBinding *ast)
+    {
+        processBindingName(ast->qualifiedId);
+        return true;
+    }
+
     bool visit(UiPublicMember *ast)
     {
+        if (ast->identifierToken.isValid())
+            addUse(ast->identifierToken, SemanticHighlighter::BindingNameType);
         scopedAccept(ast, ast->statement);
         return false;
     }
@@ -436,6 +468,8 @@ void SemanticHighlighter::updateFontSettings(const TextEditor::FontSettings &fon
     m_formats[JsImportType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_JS_IMPORT_VAR));
     m_formats[JsGlobalType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_JS_GLOBAL_VAR));
     m_formats[LocalStateNameType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_STATE_NAME));
+    m_formats[BindingNameType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_BINDING));
+    m_formats[FieldType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_FIELD));
 }
 
 int SemanticHighlighter::startRevision() const

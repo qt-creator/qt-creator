@@ -69,7 +69,9 @@ public:
         JsScopeType, // var or function in local js scope
         JsImportType, // name of js import
         JsGlobalType, // in global scope
-        LocalStateNameType // name of a state in the current file
+        LocalStateNameType, // name of a state in the current file
+        BindingNameType, // name on the left hand side of a binding
+        FieldType // member of an object
     };
 
     typedef TextEditor::SemanticHighlighter::Result Use;

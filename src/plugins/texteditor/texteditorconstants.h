@@ -138,6 +138,7 @@ const char * const C_JS_SCOPE_VAR        = "JsScopeVar";
 const char * const C_JS_IMPORT_VAR       = "JsImportVar";
 const char * const C_JS_GLOBAL_VAR       = "JsGlobalVar";
 const char * const C_QML_STATE_NAME      = "QmlStateName";
+const char * const C_BINDING             = "Binding";
 
 
 const char * const C_DISABLED_CODE       = "DisabledCode";

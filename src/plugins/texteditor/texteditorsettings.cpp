@@ -146,6 +146,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     virtualMethodFormatDescriptor.format().setItalic(true);
     formatDescriptions.append(virtualMethodFormatDescriptor);
 
+    formatDescriptions.append(FormatDescription(QLatin1String(C_BINDING), tr("QML Binding"), Qt::darkRed));
+
     Format qmlLocalNameFormat;
     qmlLocalNameFormat.setItalic(true);
     formatDescriptions.append(FormatDescription(QLatin1String(C_QML_LOCAL_ID), tr("QML Local Id"), qmlLocalNameFormat));
