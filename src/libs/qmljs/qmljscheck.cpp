@@ -895,22 +895,24 @@ bool Check::visit(FunctionExpression *ast)
     return false;
 }
 
-static bool shouldAvoidNonStrictEqualityCheck(ExpressionNode *exp, const Value *other)
+static bool shouldAvoidNonStrictEqualityCheck(const Value *lhs, const Value *rhs)
 {
-    if (NumericLiteral *literal = cast<NumericLiteral *>(exp)) {
-        if (literal->value == 0 && !other->asNumberValue())
-            return true;
-    } else if ((cast<TrueLiteral *>(exp) || cast<FalseLiteral *>(exp)) && !other->asBooleanValue()) {
+    // we currently use undefined as a "we don't know" value
+    if (lhs->asUndefinedValue() || rhs->asUndefinedValue())
         return true;
-    } else if (cast<NullExpression *>(exp)) {
-        return true;
-    } else if (IdentifierExpression *ident = cast<IdentifierExpression *>(exp)) {
-        if (ident->name && ident->name->asString() == QLatin1String("undefined"))
-            return true;
-    } else if (StringLiteral *literal = cast<StringLiteral *>(exp)) {
-        if ((!literal->value || literal->value->asString().isEmpty()) && !other->asStringValue())
-            return true;
-    }
+
+    if (lhs->asStringValue() && rhs->asNumberValue())
+        return true; // coerces string to number
+
+    if (lhs->asObjectValue() && rhs->asNumberValue())
+        return true; // coerces object to primitive
+
+    if (lhs->asObjectValue() && rhs->asStringValue())
+        return true; // coerces object to primitive
+
+    if (lhs->asBooleanValue() && !rhs->asBooleanValue())
+        return true; // coerces bool to number
+
     return false;
 }
 
@@ -922,8 +924,8 @@ bool Check::visit(BinaryExpression *ast)
             Evaluate eval(&_scopeChain);
             const Value *lhs = eval(ast->left);
             const Value *rhs = eval(ast->right);
-            warn = shouldAvoidNonStrictEqualityCheck(ast->left, rhs)
-                    || shouldAvoidNonStrictEqualityCheck(ast->right, lhs);
+            warn = shouldAvoidNonStrictEqualityCheck(lhs, rhs)
+                    || shouldAvoidNonStrictEqualityCheck(rhs, lhs);
         }
         if (warn) {
             warning(ast->operatorToken, tr("== and != perform type coercion, use === or !== instead to avoid"));

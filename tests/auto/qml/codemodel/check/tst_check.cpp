@@ -171,9 +171,10 @@ void tst_Check::test()
                     message);
     }
 
-    QCOMPARE(expectedMessages.size(), messages.size());
     for (int i = 0; i < messages.size(); ++i) {
-        DiagnosticMessage expected = expectedMessages.at(i);
+        DiagnosticMessage expected;
+        if (i < expectedMessages.size())
+            expected = expectedMessages.at(i);
         DiagnosticMessage actual = messages.at(i);
         bool fail = false;
         fail |= !QCOMPARE_NOEXIT(actual.message, expected.message);
@@ -188,6 +189,11 @@ void tst_Check::test()
             qDebug() << "Failed for message on line" << actual.loc.startLine << actual.message;
             return;
         }
+    }
+    if (expectedMessages.size() > messages.size()) {
+        DiagnosticMessage missingMessage = expectedMessages.at(messages.size());
+        qDebug() << "expected more messages: " << missingMessage.loc.startLine << missingMessage.message;
+        QFAIL("more messages expected");
     }
 }
 

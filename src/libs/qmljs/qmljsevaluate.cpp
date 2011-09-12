@@ -267,6 +267,8 @@ bool Evaluate::visit(AST::ArrayLiteral *)
 
 bool Evaluate::visit(AST::ObjectLiteral *)
 {
+    // ### properties
+    _result = _valueOwner->newObject();
     return false;
 }
 
