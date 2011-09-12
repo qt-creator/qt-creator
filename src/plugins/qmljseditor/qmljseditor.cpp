@@ -1015,6 +1015,8 @@ void QmlJSTextEditorWidget::showTextMarker()
 
 void QmlJSTextEditorWidget::updateUses()
 {
+    if (m_semanticHighlighter->startRevision() != editorRevision())
+        m_semanticHighlighter->cancel();
     m_updateUsesTimer->start();
 }
 

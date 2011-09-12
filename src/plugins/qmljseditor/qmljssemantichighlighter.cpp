@@ -386,6 +386,11 @@ void SemanticHighlighter::rerun(const ScopeChain &scopeChain)
     m_watcher.setFuture(f);
 }
 
+void SemanticHighlighter::cancel()
+{
+    m_watcher.cancel();
+}
+
 void SemanticHighlighter::applyResults(int from, int to)
 {
     if (m_watcher.isCanceled())
@@ -432,3 +437,7 @@ void SemanticHighlighter::updateFontSettings(const TextEditor::FontSettings &fon
     m_formats[LocalStateNameType] = fontSettings.toTextCharFormat(QLatin1String(TextEditor::Constants::C_QML_STATE_NAME));
 }
 
+int SemanticHighlighter::startRevision() const
+{
+    return m_startRevision;
+}

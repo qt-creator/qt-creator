@@ -77,6 +77,9 @@ public:
     SemanticHighlighter(QmlJSTextEditorWidget *editor);
 
     void rerun(const QmlJS::ScopeChain &scopeChain);
+    void cancel();
+
+    int startRevision() const;
 
     void updateFontSettings(const TextEditor::FontSettings &fontSettings);
 
