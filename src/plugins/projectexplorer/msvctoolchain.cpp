@@ -610,17 +610,30 @@ bool MsvcToolChainConfigWidget::isDirty() const
 
 void MsvcToolChainConfigWidget::autoDetectDebugger()
 {
-    QStringList directories;
-    const QString cdbExecutable = MsvcToolChain::autoDetectCdbDebugger(&directories);
-    if (cdbExecutable.isEmpty()) {
-        const QString msg = tr("The CDB debugger could not be found in %1").arg(directories.join(QLatin1String(", ")));
-        setErrorMessage(msg);
-    } else {
-        clearErrorMessage();
-        if (cdbExecutable != debuggerCommand()) {
-            setDebuggerCommand(cdbExecutable);
-            emitDirty();
+    clearErrorMessage();
+
+    MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
+    QTC_ASSERT(tc, return);
+    ProjectExplorer::Abi abi = tc->targetAbi();
+
+    const QPair<QString, QString> cdbExecutables = MsvcToolChain::autoDetectCdbDebugger();
+    QString debugger;
+    if (abi.wordWidth() == 32) {
+        if (cdbExecutables.first.isEmpty()) {
+            setErrorMessage(tr("No CDB debugger detected (neither 32bit nor 64bit)."));
+            return;
         }
+        debugger = cdbExecutables.first;
+    } else if (abi.wordWidth() == 64) {
+        if (cdbExecutables.second.isEmpty()) {
+            setErrorMessage(tr("No 64bit CDB debugger detected."));
+            return;
+        }
+        debugger = cdbExecutables.second;
+    }
+    if (debugger != debuggerCommand()) {
+        setDebuggerCommand(debugger);
+        emitDirty();
     }
 }
 
@@ -745,70 +758,50 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
     }
 #endif
     if (!results.isEmpty()) { // Detect debugger
-        const QString cdbDebugger = MsvcToolChain::autoDetectCdbDebugger();
-        if (!cdbDebugger.isEmpty()) {
-            foreach (ToolChain *tc, results)
-                static_cast<MsvcToolChain *>(tc)->setDebuggerCommand(cdbDebugger);
-        }
+        const QPair<QString, QString> cdbDebugger = MsvcToolChain::autoDetectCdbDebugger();
+        foreach (ToolChain *tc, results)
+            static_cast<MsvcToolChain *>(tc)->setDebuggerCommand(tc->targetAbi().wordWidth() == 32 ? cdbDebugger.first : cdbDebugger.second);
     }
     return results;
 }
 
-// Check the CDB executable and accumulate the list of checked paths
-// for reporting.
-static QString checkCdbExecutable(const QString &programDir, const QString &postfix,
-                                  QStringList *checkedDirectories = 0)
+QPair<QString, QString> MsvcToolChain::autoDetectCdbDebugger()
 {
-    QString executable = programDir;
-    executable += QLatin1String("/Debugging Tools For Windows");
-    executable += postfix;
-    if (checkedDirectories)
-        checkedDirectories->push_back(QDir::toNativeSeparators(executable));
-    executable += QLatin1String("/cdb.exe");
-    const QFileInfo fi(executable);
-    return fi.isFile() && fi.isExecutable() ? fi.absoluteFilePath() : QString();
-}
+    QPair<QString, QString> result;
+    QStringList cdbs;
 
-QString MsvcToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /* = 0 */)
-{
-    // Look for $ProgramFiles/"Debugging Tools For Windows <bit-idy>/cdb.exe" and its
-    // " (x86)", " (x64)" variations.
-    static const char *postFixes[] = {"", " (x64)", " 64-bit", " (x86)", " (x32)" };
+    QStringList programDirs;
+    programDirs.append(QString::fromLocal8Bit(qgetenv("ProgramFiles")));
+    programDirs.append(QString::fromLocal8Bit(qgetenv("ProgramFiles(x86)")));
+    programDirs.append(QString::fromLocal8Bit(qgetenv("ProgramW6432")));
 
-    if (checkedDirectories)
-        checkedDirectories->clear();
-
-    const QString programDir = QString::fromLocal8Bit(qgetenv("ProgramFiles"));
-    if (programDir.isEmpty())
-        return QString();
-
-    // Try the post fixes
-    QString outPath;
-    for (unsigned i = 0; i < sizeof(postFixes)/sizeof(const char*); ++i) {
-        outPath = checkCdbExecutable(programDir, QLatin1String(postFixes[i]), checkedDirectories);
-        if (!outPath.isEmpty())
-            return outPath;
-    }
-    // A 32bit-compile running on a 64bit system sees the 64 bit installation
-    // as "$ProgramFiles (x64)/Debugging Tools..." and (untested), a 64 bit-
-    // compile running on a 64bit system sees the 32 bit installation as
-    // "$ProgramFiles (x86)/Debugging Tools..." (assuming this works at all)
-#ifdef Q_OS_WIN64
-    outPath = checkCdbExecutable(programDir + QLatin1String(" (x32)"), QString(), checkedDirectories);
-    if (!outPath.isEmpty())
-        return QString();
-#else
-    // A 32bit process on 64 bit sees "ProgramFiles\Debg.. (x64)".
-    if (programDir.endsWith(QLatin1String(" (x86)"))) {
-        const QString programDir64 = programDir.left(programDir.size() - 6);
-        for (unsigned i = 0; i < sizeof(postFixes)/sizeof(const char*); ++i) {
-            outPath = checkCdbExecutable(programDir64, QLatin1String(postFixes[i]), checkedDirectories);
-            if (!outPath.isEmpty())
-                return outPath;
+    foreach (const QString &dirName, programDirs) {
+        if (dirName.isEmpty())
+            continue;
+        QDir dir(dirName);
+        foreach (const QFileInfo &fi, dir.entryInfoList(QStringList(QLatin1String("Debugging Tools for Windows*")),
+                                                        QDir::Dirs | QDir::NoDotAndDotDot)) {
+            const QString filePath = fi.absoluteFilePath() + QLatin1String("/cdb.exe");
+            if (!cdbs.contains(filePath))
+                cdbs.append(fi.absoluteFilePath() + QLatin1String("/cdb.exe"));
         }
     }
-#endif
-    return QString();
+
+    foreach (const QString &cdb, cdbs) {
+        QList<ProjectExplorer::Abi> abis = ProjectExplorer::Abi::abisOfBinary(cdb);
+        if (abis.isEmpty())
+            continue;
+        if (abis.first().wordWidth() == 32)
+            result.first = cdb;
+        else if (abis.first().wordWidth() == 64)
+            result.second = cdb;
+    }
+
+    // prefer 64bit debugger, even for 32bit binaries:
+    if (!result.second.isEmpty())
+        result.first = result.second;
+
+    return result;
 }
 
 bool MsvcToolChainFactory::canRestore(const QVariantMap &data)

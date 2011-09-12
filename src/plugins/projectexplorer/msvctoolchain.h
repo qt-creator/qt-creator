@@ -84,7 +84,7 @@ public:
     QString varsBat() const { return m_varsBat; }
     QString varsBatArg() const { return m_varsBatArg; }
 
-    static QString autoDetectCdbDebugger(QStringList *checkedDirectories = 0);
+    static QPair<QString, QString> autoDetectCdbDebugger();
 
 private:
     MsvcToolChain();
