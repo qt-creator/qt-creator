@@ -296,7 +296,7 @@ public:
     virtual void accept(ValueVisitor *) const;
 
 private:
-    virtual const Value *value(const ReferenceContext *referenceContext) const;
+    virtual const Value *value(ReferenceContext *referenceContext) const;
 
     ValueOwner *_valueOwner;
     friend class ReferenceContext;
@@ -699,7 +699,7 @@ public:
     AST::UiQualifiedId *qmlTypeName() const;
 
 private:    
-    virtual const Value *value(const ReferenceContext *referenceContext) const;
+    virtual const Value *value(ReferenceContext *referenceContext) const;
 
     AST::UiQualifiedId *_qmlTypeName;
     const Document *_doc;
@@ -715,7 +715,7 @@ public:
     virtual ~ASTVariableReference();
 
 private:
-    virtual const Value *value(const ReferenceContext *referenceContext) const;
+    virtual const Value *value(ReferenceContext *referenceContext) const;
 };
 
 class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
@@ -755,7 +755,7 @@ public:
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 
 private:
-    virtual const Value *value(const ReferenceContext *referenceContext) const;
+    virtual const Value *value(ReferenceContext *referenceContext) const;
 };
 
 class QMLJS_EXPORT ASTSignalReference: public Reference
@@ -774,7 +774,7 @@ public:
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 
 private:
-    virtual const Value *value(const ReferenceContext *referenceContext) const;
+    virtual const Value *value(ReferenceContext *referenceContext) const;
 };
 
 class QMLJS_EXPORT ASTObjectValue: public ObjectValue

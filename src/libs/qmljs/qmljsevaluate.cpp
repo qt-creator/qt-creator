@@ -39,9 +39,10 @@
 
 using namespace QmlJS;
 
-Evaluate::Evaluate(const ScopeChain *scopeChain)
+Evaluate::Evaluate(const ScopeChain *scopeChain, ReferenceContext *referenceContext)
     : _valueOwner(scopeChain->context()->valueOwner()),
       _context(scopeChain->context()),
+      _referenceContext(referenceContext),
       _scopeChain(scopeChain),
       _scope(_valueOwner->globalObject()),
       _result(0)
@@ -61,8 +62,12 @@ const Value *Evaluate::value(AST::Node *ast)
 {
     const Value *result = reference(ast);
 
-    if (const Reference *ref = value_cast<const Reference *>(result))
-        result = _context->lookupReference(ref);
+    if (const Reference *ref = value_cast<const Reference *>(result)) {
+        if (_referenceContext)
+            result = _referenceContext->lookupReference(ref);
+        else
+            result = _context->lookupReference(ref);
+    }
 
     if (! result)
         result = _valueOwner->undefinedValue();

@@ -727,7 +727,7 @@ void Reference::accept(ValueVisitor *visitor) const
     visitor->visit(this);
 }
 
-const Value *Reference::value(const ReferenceContext *) const
+const Value *Reference::value(ReferenceContext *) const
 {
     return _valueOwner->undefinedValue();
 }
@@ -1745,7 +1745,7 @@ ASTVariableReference::~ASTVariableReference()
 {
 }
 
-const Value *ASTVariableReference::value(const ReferenceContext *referenceContext) const
+const Value *ASTVariableReference::value(ReferenceContext *referenceContext) const
 {
     if (!_ast->expression)
         return valueOwner()->undefinedValue();
@@ -1755,7 +1755,7 @@ const Value *ASTVariableReference::value(const ReferenceContext *referenceContex
     ScopeBuilder builder(&scopeChain);
     builder.push(ScopeAstPath(doc)(_ast->expression->firstSourceLocation().begin()));
 
-    Evaluate evaluator(&scopeChain);
+    Evaluate evaluator(&scopeChain, referenceContext);
     return evaluator(_ast->expression);
 }
 
@@ -1832,7 +1832,7 @@ UiQualifiedId *QmlPrototypeReference::qmlTypeName() const
     return _qmlTypeName;
 }
 
-const Value *QmlPrototypeReference::value(const ReferenceContext *referenceContext) const
+const Value *QmlPrototypeReference::value(ReferenceContext *referenceContext) const
 {
     return referenceContext->context()->lookupType(_doc, _qmlTypeName);
 }
@@ -1859,7 +1859,7 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
     return true;
 }
 
-const Value *ASTPropertyReference::value(const ReferenceContext *referenceContext) const
+const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) const
 {
     if (_ast->statement
             && (!_ast->memberType || _ast->memberType->asString() == QLatin1String("variant")
@@ -1875,7 +1875,7 @@ const Value *ASTPropertyReference::value(const ReferenceContext *referenceContex
         int offset = _ast->statement->firstSourceLocation().begin();
         builder.push(ScopeAstPath(doc)(offset));
 
-        Evaluate evaluator(&scopeChain);
+        Evaluate evaluator(&scopeChain, referenceContext);
         return evaluator(_ast->statement);
     }
 
@@ -1906,7 +1906,7 @@ bool ASTSignalReference::getSourceLocation(QString *fileName, int *line, int *co
     return true;
 }
 
-const Value *ASTSignalReference::value(const ReferenceContext *) const
+const Value *ASTSignalReference::value(ReferenceContext *) const
 {
     return valueOwner()->undefinedValue();
 }
