@@ -1424,7 +1424,6 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
           m_readerExact(0),
           m_readerCumulative(0)
 {
-
     if (parent)
         setParent(parent);
 
@@ -1490,7 +1489,7 @@ QStringList Qt4ProFileNode::variableValue(const Qt4Variable var) const
     return m_varValues.value(var);
 }
 
-void Qt4ProFileNode::emitProFileUpdated()
+void Qt4ProFileNode::emitProFileUpdatedRecursive()
 {
     foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
         if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
@@ -1498,24 +1497,34 @@ void Qt4ProFileNode::emitProFileUpdated()
 
     foreach (ProjectNode *subNode, subProjectNodes()) {
         if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
-            node->emitProFileUpdated();
+            node->emitProFileUpdatedRecursive();
         }
     }
+}
+
+void Qt4ProFileNode::setParseInProgressRecursive(bool b)
+{
+    setParseInProgress(b);
+    foreach (ProjectNode *subNode, subProjectNodes()) {
+        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
+            node->setParseInProgressRecursive(b);
+        }
+    }
+}
+
+void Qt4ProFileNode::setParseInProgress(bool b)
+{
+    if (m_parseInProgress == b)
+        return;
+    m_parseInProgress = b;
+    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
+            emit qt4Watcher->proFileUpdated(this, m_validParse, m_parseInProgress);
 }
 
 bool Qt4ProFileNode::validParse() const
 {
     return m_validParse;
-}
-
-void Qt4ProFileNode::setParseInProgressRecursive()
-{
-    m_parseInProgress = true;
-    foreach (ProjectNode *subNode, subProjectNodes()) {
-        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
-            node->setParseInProgressRecursive();
-        }
-    }
 }
 
 bool Qt4ProFileNode::parseInProgress() const
@@ -1525,8 +1534,7 @@ bool Qt4ProFileNode::parseInProgress() const
 
 void Qt4ProFileNode::scheduleUpdate()
 {
-    setParseInProgressRecursive();
-    emitProFileUpdated();
+    setParseInProgressRecursive(true);
     m_project->scheduleAsyncUpdate(this);
 }
 
@@ -1541,11 +1549,7 @@ void Qt4ProFileNode::asyncUpdate()
 
 void Qt4ProFileNode::update()
 {
-    m_parseInProgress = true;
-    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
-        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-            emit qt4Watcher->proFileUpdated(this, m_validParse, m_parseInProgress);
-
+    setParseInProgressRecursive(true);
     setupReader();
     EvalResult evalResult = evaluate();
     applyEvaluate(evalResult, false);
@@ -1601,9 +1605,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
             invalidate();
         }
-        foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
-            if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-                emit qt4Watcher->proFileUpdated(this, false, false);
+        setParseInProgressRecursive(false);
         return;
     }
 
@@ -1857,14 +1859,10 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         }
     } // evalResult == EvalOk
 
-    m_parseInProgress = false;
+    setParseInProgress(false);
 
     createUiCodeModelSupport();
     updateUiFiles();
-
-    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
-        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-            emit qt4Watcher->proFileUpdated(this, true, false);
 
     m_project->destroyProFileReader(m_readerExact);
     m_project->destroyProFileReader(m_readerCumulative);

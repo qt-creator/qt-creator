@@ -358,14 +358,14 @@ public:
     void update();
     void scheduleUpdate();
 
-    void emitProFileUpdated();
-
     bool validParse() const;
     bool parseInProgress() const;
 
     bool hasBuildTargets(Qt4ProjectType projectType) const;
 
-    void setParseInProgressRecursive();
+    void setParseInProgress(bool b);
+    void setParseInProgressRecursive(bool b);
+    void emitProFileUpdatedRecursive();
 public slots:
     void asyncUpdate();
 
