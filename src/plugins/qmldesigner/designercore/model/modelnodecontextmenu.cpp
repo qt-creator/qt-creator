@@ -71,7 +71,7 @@ static inline bool checkIfNodeIsAView(const ModelNode &node)
 
 static inline bool isItem(const ModelNode &node)
 {
-    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("QtQuick.Item", -1, -1);
+    return node.isValid() && node.metaInfo().isValid() && node.metaInfo().isSubclassOf("QtQuick.Item", -1, -1);
 }
 
 static inline QList<QmlItemNode> siblingsForNode(const QmlItemNode &itemNode)
@@ -251,7 +251,7 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
         editMenu->addAction(action);
         action = createModelNodeAction(tr("Visibility"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ModelNodeVisibility, singleSelected);
         editMenu->addAction(action);
-        if (!isItem(currentSingleNode))
+        if (singleSelected && !isItem(currentSingleNode))
             action->setDisabled(true);
 
     } else {
