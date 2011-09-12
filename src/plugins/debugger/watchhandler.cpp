@@ -129,8 +129,8 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 WatchModel::WatchModel(WatchHandler *handler, WatchType type)
-    : QAbstractItemModel(handler), m_handler(handler), m_type(type),
-      m_generationCounter(0)
+    : QAbstractItemModel(handler), m_generationCounter(0),
+      m_handler(handler), m_type(type)
 {
     m_root = new WatchItem;
     m_root->hasChildren = 1;
