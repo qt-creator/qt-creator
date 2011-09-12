@@ -112,6 +112,7 @@ public:
 protected:
     AbstractFormEditorTool* tool() const;
     void paintBoundingRect(QPainter *painter) const;
+    void paintPlaceHolderForInvisbleItem(QPainter *painter) const;
 
 private slots:
     void changeAttention(qreal value);

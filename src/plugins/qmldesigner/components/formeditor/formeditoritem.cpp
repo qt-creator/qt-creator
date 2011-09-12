@@ -273,6 +273,56 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     painter->drawRect(boundingRect().adjusted(0., 0., -1., -1.));
 }
 
+void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
+{
+    qreal stripesWidth = 12;
+
+    QRegion innerRegion = QRegion(boundingRect().adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
+    QRegion outerRegion  = QRegion(boundingRect().toRect()) - innerRegion;
+
+    painter->setClipRegion(outerRegion);
+    painter->setClipping(true);
+    painter->fillRect(boundingRect().adjusted(1, 1, -1, -1), Qt::BDiagPattern);
+    painter->setClipping(false);
+
+    QString displayText = qmlItemNode().id();
+
+    if (displayText.isEmpty())
+        displayText = qmlItemNode().simplifiedTypeName();
+
+    QTextOption textOption;
+    textOption.setAlignment(Qt::AlignCenter);
+    textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+
+    if (boundingRect().width() > 60) {
+        painter->save();
+
+        QFont font;
+        font.setStyleHint(QFont::SansSerif);
+        font.setBold(true);
+        font.setPixelSize(14);
+        painter->setFont(font);
+
+        QFontMetrics fm(font);
+        if (fm.width(displayText) > (boundingRect().width() - 22) && displayText.length() > 4) {
+
+            displayText = fm.elidedText(displayText, Qt::ElideRight, boundingRect().width() - 22, Qt::TextShowMnemonic);
+        }
+
+        painter->setPen(QColor(255, 255, 255, 128));
+        painter->setCompositionMode(QPainter::CompositionMode_Exclusion);
+
+        painter->drawText(boundingRect().adjusted(-2, -2, 0,0), displayText, textOption);
+
+        painter->setFont(font);
+        painter->setPen(QColor(0, 0, 0, 255));
+        painter->drawText(boundingRect(), displayText, textOption);
+
+        painter->restore();
+    }
+}
+
+
 void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     if (!qmlItemNode().isValid())
@@ -280,49 +330,9 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     painter->save();
 
-    const int invisiblePixmapWidth = 14;
-
     if (qmlItemNode().instanceIsRenderPixmapNull()) {
-        if (scene()->showBoundingRects()) {
-
-            qreal stripesWidth = 12;
-
-            QRegion innerRegion = QRegion(boundingRect().adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
-            QRegion outerRegion  = QRegion(boundingRect().toRect()) - innerRegion;
-
-            painter->setClipRegion(outerRegion);
-            painter->setClipping(true);
-            painter->fillRect(boundingRect().adjusted(1, 1, -1, -1), Qt::BDiagPattern);
-            painter->setClipping(false);
-
-            QString displayText = qmlItemNode().id();
-
-            if (displayText.isEmpty())
-                displayText = qmlItemNode().simplifiedTypeName();
-
-            QTextOption textOption;
-            textOption.setAlignment(Qt::AlignCenter);
-            textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-
-            painter->save();
-
-            QFont font;
-            font.setStyleHint(QFont::SansSerif);
-            font.setBold(true);
-            font.setPixelSize(14);
-            painter->setFont(font);
-            painter->setPen(QColor(255, 255, 255, 128));
-            painter->setCompositionMode(QPainter::CompositionMode_Exclusion);
-
-            painter->drawText(boundingRect().adjusted(-2, -2, 0,0), displayText, textOption);
-
-            painter->setFont(font);
-            painter->setPen(QColor(0, 0, 0, 255));
-            painter->drawText(boundingRect(), displayText, textOption);
-
-            painter->restore();
-        }
-
+        if (scene()->showBoundingRects() && boundingRect().width() > 15 && boundingRect().height() > 15)
+            paintPlaceHolderForInvisbleItem(painter);
     } else {
         qmlItemNode().paintInstance(painter);
     }
