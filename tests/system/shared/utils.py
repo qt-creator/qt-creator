@@ -67,3 +67,20 @@ def replaceLineEditorContent(lineEditor, newcontent):
     type(lineEditor, "<Delete>")
     type(lineEditor, newcontent)
 
+signalObjects = {}
+
+def callbackFunction(object, *args):
+    global signalObjects
+#    test.log("callbackFunction: "+objectMap.realName(object))
+    signalObjects[objectMap.realName(object)] += 1
+
+def waitForSignal(object, signal, timeout=30000):
+    global signalObjects
+    overrideInstallLazySignalHandler()
+    realName = objectMap.realName(object)
+#    test.log("waitForSignal: "+realName)
+    if not (realName in signalObjects):
+        signalObjects[realName] = 0
+    beforeCount = signalObjects[realName]
+    installLazySignalHandler(object, signal, "callbackFunction")
+    waitFor("signalObjects[realName] > beforeCount", timeout)

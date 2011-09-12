@@ -1,21 +1,17 @@
 source("../../shared/qtcreator.py")
 
-refreshFinishedCount = 0
-
-def handleRefreshFinished(object, fileList):
-    global refreshFinishedCount
-    refreshFinishedCount += 1
-
 def main():
     test.verify(os.path.exists(SDKPath + "/creator/qtcreator.pro"))
     test.verify(os.path.exists(SDKPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro"))
 
     startApplication("qtcreator" + SettingsPath)
 
-    installLazySignalHandler("{type='CppTools::Internal::CppModelManager'}", "sourceFilesRefreshed(QStringList)", "handleRefreshFinished")
-
     openQmakeProject(SDKPath + "/creator/qtcreator.pro")
     openQmakeProject(SDKPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro")
+
+    # Wait for parsing to complete
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
 
     # Test that some of the expected items are in the navigation tree
     for row, record in enumerate(testData.dataset("creator_tree.tsv")):
@@ -27,10 +23,6 @@ def main():
         node = testData.field(record, "node")
         value = testData.field(record, "value")
         test.compare(waitForObject(node).text, value)
-
-    # Wait for parsing to complete
-    waitFor("refreshFinishedCount == 2", 300000)
-    test.compare(refreshFinishedCount, 2)
 
     # Now check some basic lookups in the search box
 
