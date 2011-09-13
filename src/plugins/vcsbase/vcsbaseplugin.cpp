@@ -209,6 +209,8 @@ StateListener::StateListener(QObject *parent) :
             this, SLOT(slotStateChanged()));
     connect(core->editorManager()->instance(), SIGNAL(currentEditorStateChanged(Core::IEditor*)),
             this, SLOT(slotStateChanged()));
+    connect(core->vcsManager(), SIGNAL(repositoryChanged(QString)),
+            this, SLOT(slotStateChanged()));
 
     if (ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance())
         connect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),

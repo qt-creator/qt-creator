@@ -46,6 +46,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/vcsmanager.h>
 #include <coreplugin/id.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/iversioncontrol.h>
@@ -965,6 +966,11 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
     outputWindow()->append(commandOutputFromLocal8Bit(outputText));
     if (!rc)
         outputWindow()->appendError(commandOutputFromLocal8Bit(errorText));
+    else {
+        // TODO: Turn this into a VCSBaseClient and use resetCachedVcsInfo(...)
+        Core::VcsManager *vcsManager = m_core->vcsManager();
+        vcsManager->resetVersionControlForDirectory(workingDirectory);
+    }
     return rc;
 }
 
@@ -2371,7 +2377,10 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         workingDirectory.cdUp();
         const Utils::SynchronousProcessResponse resp =
                 synchronousGit(workingDirectory.path(), arguments, flags);
-        return resp.result == Utils::SynchronousProcessResponse::Finished;
+        // TODO: Turn this into a VCSBaseClient and use resetCachedVcsInfo(...)
+        Core::VcsManager *vcsManager = m_core->vcsManager();
+        vcsManager->resetVersionControlForDirectory(workingDirectory.absolutePath());
+        return (resp.result == Utils::SynchronousProcessResponse::Finished);
     }
 }
 

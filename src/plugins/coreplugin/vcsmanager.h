@@ -65,6 +65,7 @@ public:
 
     void extensionsInitialized();
 
+    void resetVersionControlForDirectory(const QString &inputDirectory);
     IVersionControl *findVersionControlForDirectory(const QString &directory,
                                                     QString *topLevelDirectory = 0);
     IVersionControl *checkout(const QString &versionControlType,

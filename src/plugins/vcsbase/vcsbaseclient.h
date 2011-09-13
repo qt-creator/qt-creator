@@ -37,14 +37,11 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
-#include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QScopedPointer>
-#include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
-class QVariant;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -178,6 +175,8 @@ protected:
                                                   const QString &source, bool setSourceCodec,
                                                   const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
+
+    void resetCachedVcsInfo(const QString &workingDir);
 
 private:
     friend class VCSBaseClientPrivate;

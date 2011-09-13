@@ -39,6 +39,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -166,6 +167,9 @@ bool VCSBaseClient::synchronousCreateRepository(const QString &workingDirectory,
     QString output = QString::fromLocal8Bit(outputData);
     output.remove(QLatin1Char('\r'));
     VCSBase::VCSBaseOutputWindow::instance()->append(output);
+
+    resetCachedVcsInfo(workingDirectory);
+
     return true;
 }
 
@@ -178,7 +182,9 @@ bool VCSBaseClient::synchronousClone(const QString &workingDir,
     args << vcsCommandString(CloneCommand)
          << extraOptions << srcLocation << dstLocation;
     QByteArray stdOut;
-    return vcsFullySynchronousExec(workingDir, args, &stdOut);
+    const bool cloneOk = vcsFullySynchronousExec(workingDir, args, &stdOut);
+    resetCachedVcsInfo(workingDir);
+    return cloneOk;
 }
 
 bool VCSBaseClient::synchronousAdd(const QString &workingDir, const QString &filename,
@@ -565,6 +571,12 @@ VCSBase::VCSBaseEditorWidget *VCSBaseClient::createVCSEditor(const QString &kind
     baseEditor->setForceReadOnly(true);
     d->m_core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     return baseEditor;
+}
+
+void VCSBaseClient::resetCachedVcsInfo(const QString &workingDir)
+{
+    Core::VcsManager *vcsManager = d->m_core->vcsManager();
+    vcsManager->resetVersionControlForDirectory(workingDir);
 }
 
 void VCSBaseClient::enqueueJob(const QSharedPointer<VCSJob> &job)

@@ -85,9 +85,13 @@ public:
         qDeleteAll(m_vcsInfoList);
     }
 
-    VcsInfo *findInCache(const QString &directory)
+    VcsInfo *findInCache(const QString &dir)
     {
-        const QMap<QString, VcsInfo *>::const_iterator it = m_cachedMatches.constFind(directory);
+        Q_ASSERT(QDir(dir).isAbsolute());
+        Q_ASSERT(!dir.endsWith(QLatin1Char('/')));
+        Q_ASSERT(QDir::fromNativeSeparators(dir) == dir);
+
+        const QMap<QString, VcsInfo *>::const_iterator it = m_cachedMatches.constFind(dir);
         if (it != m_cachedMatches.constEnd())
             return it.value();
         return 0;
@@ -108,9 +112,25 @@ public:
         return result;
     }
 
-    void cache(IVersionControl *vc, const QString topLevel, const QString directory)
+    void resetCache(const QString &dir)
     {
-        Q_ASSERT(directory.startsWith(topLevel));
+        Q_ASSERT(QDir(dir).isAbsolute());
+        Q_ASSERT(!dir.endsWith(QLatin1Char('/')));
+        Q_ASSERT(QDir::fromNativeSeparators(dir) == dir);
+
+        const QString dirSlash = dir + QLatin1Char('/');
+        foreach (const QString &key, m_cachedMatches.keys()) {
+            if (key == dir || key.startsWith(dirSlash))
+                m_cachedMatches.remove(key);
+        }
+    }
+
+    void cache(IVersionControl *vc, const QString topLevel, const QString dir)
+    {
+        Q_ASSERT(QDir(dir).isAbsolute());
+        Q_ASSERT(!dir.endsWith(QLatin1Char('/')));
+        Q_ASSERT(QDir::fromNativeSeparators(dir) == dir);
+        Q_ASSERT(dir.startsWith(topLevel));
 
         VcsInfo *newInfo = new VcsInfo(vc, topLevel);
         bool createdNewInfo(true);
@@ -126,7 +146,7 @@ public:
         if (createdNewInfo)
             m_vcsInfoList.append(newInfo);
 
-        QString tmpDir = directory;
+        QString tmpDir = dir;
         while (tmpDir.count() >= topLevel.count() && tmpDir.count() > 0) {
             m_cachedMatches.insert(tmpDir, newInfo);
             int slashPos = tmpDir.lastIndexOf(SLASH);
@@ -166,6 +186,17 @@ void VcsManager::extensionsInitialized()
 static bool longerThanPath(QPair<QString, IVersionControl *> &pair1, QPair<QString, IVersionControl *> &pair2)
 {
     return pair1.first.size() > pair2.first.size();
+}
+
+void VcsManager::resetVersionControlForDirectory(const QString &inputDirectory)
+{
+    if (inputDirectory.isEmpty())
+        return;
+
+    const QString directory = QDir(inputDirectory).absolutePath();
+
+    d->resetCache(directory);
+    emit repositoryChanged(directory);
 }
 
 IVersionControl* VcsManager::findVersionControlForDirectory(const QString &inputDirectory,
