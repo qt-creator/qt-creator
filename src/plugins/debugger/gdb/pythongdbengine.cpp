@@ -208,7 +208,7 @@ void GdbEngine::updateAllPython()
     if (m_gdbAdapter->isCodaAdapter())
         m_gdbAdapter->codaReloadThreads();
     else
-        postCommand("-thread-list-ids", CB(handleThreadListIds), 0);
+        postCommand("-thread-info", CB(handleThreadInfo), 0);
     reloadRegisters();
     updateLocals();
 }
