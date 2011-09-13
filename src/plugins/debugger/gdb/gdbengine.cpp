@@ -3603,7 +3603,7 @@ void GdbEngine::reloadRegisters()
     if (m_gdbAdapter->isCodaAdapter()) {
         m_gdbAdapter->codaReloadRegisters();
     } else {
-        postCommand("-data-list-register-values x",
+        postCommand("-data-list-register-values r",
                     Discardable, CB(handleRegisterListValues));
     }
 }
@@ -3646,42 +3646,15 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
         return;
 
     Registers registers = registerHandler()->registers();
-    int registerCount = registers.size();
+    const int registerCount = registers.size();
 
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
     const GdbMi values = response.data.findChild("register-values");
     QTC_ASSERT(registerCount == values.children().size(), return);
     for (int i = 0; i != registerCount; ++i) {
-        const GdbMi &item =  values.children().at(i);
-        Register &reg = registers[i];
+        const GdbMi &item = values.children().at(i);
         GdbMi val = item.findChild("value");
-        QByteArray ba;
-        if (val.data().startsWith('{')) {
-            int pos1 = val.data().indexOf("v2_int32");
-            if (pos1 == -1)
-                pos1 = val.data().indexOf("v4_int32");
-            if (pos1 == -1)
-                pos1 = val.data().indexOf("u32 = {");
-            if (pos1 != -1) {
-                // FIXME: This block wastes cycles.
-                pos1 = val.data().indexOf('{', pos1 + 1) + 1;
-                int pos2 = val.data().indexOf('}', pos1);
-                QByteArray ba2 = val.data().mid(pos1, pos2 - pos1);
-                foreach (QByteArray ba3, ba2.split(',')) {
-                    ba3 = ba3.trimmed();
-                    QTC_ASSERT(ba3.size() >= 3, continue);
-                    QTC_ASSERT(ba3.size() <= 10, continue);
-                    ba.prepend(QByteArray(10 - ba3.size(), '0'));
-                    ba.prepend(ba3.mid(2));
-                }
-                ba.prepend("0x");
-                reg.value = _(ba);
-            } else {
-                reg.value = _(val.data());
-            }
-        } else {
-            reg.value = _(val.data());
-        }
+        registers[i].value = _(val.data());
     }
     registerHandler()->setAndMarkRegisters(registers);
 }
