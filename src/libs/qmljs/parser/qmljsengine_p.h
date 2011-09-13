@@ -46,6 +46,7 @@
 
 #include "qmljsglobal_p.h"
 #include "qmljsastfwd_p.h"
+#include "qmljsmemorypool_p.h"
 
 #include <QString>
 #include <QSet>
@@ -53,54 +54,9 @@
 QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
-class QML_PARSER_EXPORT NameId
-{
-    QString _text;
-
-public:
-    NameId(const QChar *u, int s)
-        : _text(u, s)
-    { }
-
-    const QString asString() const
-    { return _text; }
-
-    bool operator == (const NameId &other) const
-    { return _text == other._text; }
-
-    bool operator != (const NameId &other) const
-    { return _text != other._text; }
-
-    bool operator < (const NameId &other) const
-    { return _text < other._text; }
-};
-
-uint qHash(const QmlJS::NameId &id);
-
-} // end of namespace QmlJS
-
-namespace QmlJS {
 
 class Lexer;
-class NodePool;
-
-namespace Ecma {
-
-class QML_PARSER_EXPORT RegExp
-{
-public:
-    enum RegExpFlag {
-        Global     = 0x01,
-        IgnoreCase = 0x02,
-        Multiline  = 0x04
-    };
-
-public:
-    static int flagFromChar(const QChar &);
-    static QString flagsToString(int flags);
-};
-
-} // end of namespace Ecma
+class MemoryPool;
 
 class QML_PARSER_EXPORT DiagnosticMessage
 {
@@ -127,29 +83,32 @@ public:
 class QML_PARSER_EXPORT Engine
 {
     Lexer *_lexer;
-    NodePool *_nodePool;
-    QSet<NameId> _literals;
-    QList<QmlJS::AST::SourceLocation> _comments;
+    MemoryPool _pool;
+    QList<AST::SourceLocation> _comments;
+    QString _extraCode;
+    QString _code;
 
 public:
     Engine();
     ~Engine();
 
-    QSet<NameId> literals() const;
+    void setCode(const QString &code);
 
     void addComment(int pos, int len, int line, int col);
-    QList<QmlJS::AST::SourceLocation> comments() const;
-
-    NameId *intern(const QChar *u, int s);
-
-    static QString toString(NameId *id);
+    QList<AST::SourceLocation> comments() const;
 
     Lexer *lexer() const;
     void setLexer(Lexer *lexer);
 
-    NodePool *nodePool() const;
-    void setNodePool(NodePool *nodePool);
+    MemoryPool *pool();
+
+    inline QStringRef midRef(int position, int size) { return _code.midRef(position, size); }
+
+    QStringRef newStringRef(const QString &s);
+    QStringRef newStringRef(const QChar *chars, int size);
 };
+
+double integerFromString(const char *buf, int size, int radix);
 
 } // end of namespace QmlJS
 

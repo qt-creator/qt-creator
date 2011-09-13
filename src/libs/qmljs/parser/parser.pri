@@ -8,11 +8,12 @@ HEADERS += \
     $$PWD/qmljsgrammar_p.h \
     $$PWD/qmljslexer_p.h \
     $$PWD/qmljsmemorypool_p.h \
-    $$PWD/qmljsnodepool_p.h \
     $$PWD/qmljsparser_p.h \
     $$PWD/qmljsglobal_p.h \
     $$PWD/qmldirparser_p.h \
-    $$PWD/qmlerror.h
+    $$PWD/qmlutils_p.h \
+    $$PWD/qmlerror.h \
+    $$PWD/qmljskeywords_p.h
 
 SOURCES += \
     $$PWD/qmljsast.cpp \

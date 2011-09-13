@@ -7,6 +7,7 @@ s/Q_DECLARATIVE_EXPORT //g
 # adjust pri file
 s/    \$\$PWD\/qmljsglobal_p.h/    $$PWD\/qmljsglobal_p.h \\\
     $$PWD\/qmldirparser_p.h \\\
+    $$PWD\/qmlutils_p.h \\\
     $$PWD\/qmlerror.h/
 s/    \$\$PWD\/qmljsparser.cpp/    $$PWD\/qmljsparser.cpp \\\
     $$PWD\/qmldirparser.cpp \\\

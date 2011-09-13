@@ -63,6 +63,9 @@ public:
     QUrl url() const;
     void setUrl(const QUrl &url);
 
+    QString fileSource() const;
+    void setFileSource(const QString &filePath);
+
     QString source() const;
     void setSource(const QString &source);
 
@@ -70,7 +73,7 @@ public:
     bool parse();
 
     bool hasError() const;
-    QList<QmlError> errors() const;
+    QList<QmlError> errors(const QString &uri) const;
 
     struct Plugin
     {
@@ -88,11 +91,11 @@ public:
         Component()
             : majorVersion(0), minorVersion(0), internal(false) {}
 
-        Component(const QString &typeName, const QString &fileName, int majorVersion, int minorVersion)
+        Component(const QByteArray &typeName, const QString &fileName, int majorVersion, int minorVersion)
             : typeName(typeName), fileName(fileName), majorVersion(majorVersion), minorVersion(minorVersion),
             internal(false) {}
 
-        QString typeName;
+        QByteArray typeName;
         QString fileName;
         int majorVersion;
         int minorVersion;
@@ -122,6 +125,7 @@ private:
     QList<QmlError> _errors;
     QUrl _url;
     QString _source;
+    QString _filePathSouce;
     QList<Component> _components;
     QList<Plugin> _plugins;
 #ifdef QT_CREATOR

@@ -54,8 +54,8 @@ class QmlJSGrammar
 public:
   enum VariousConstants {
     EOF_SYMBOL = 0,
-    REDUCE_HERE = 100,
-    SHIFT_THERE = 99,
+    REDUCE_HERE = 101,
+    SHIFT_THERE = 100,
     T_AND = 1,
     T_AND_AND = 2,
     T_AND_EQ = 3,
@@ -80,13 +80,14 @@ public:
     T_EQ = 17,
     T_EQ_EQ = 18,
     T_EQ_EQ_EQ = 19,
+    T_ERROR = 93,
     T_FALSE = 83,
-    T_FEED_JS_EXPRESSION = 96,
-    T_FEED_JS_PROGRAM = 98,
-    T_FEED_JS_SOURCE_ELEMENT = 97,
-    T_FEED_JS_STATEMENT = 95,
-    T_FEED_UI_OBJECT_MEMBER = 94,
-    T_FEED_UI_PROGRAM = 93,
+    T_FEED_JS_EXPRESSION = 97,
+    T_FEED_JS_PROGRAM = 99,
+    T_FEED_JS_SOURCE_ELEMENT = 98,
+    T_FEED_JS_STATEMENT = 96,
+    T_FEED_UI_OBJECT_MEMBER = 95,
+    T_FEED_UI_PROGRAM = 94,
     T_FINALLY = 20,
     T_FOR = 21,
     T_FUNCTION = 22,
@@ -158,12 +159,12 @@ public:
     ACCEPT_STATE = 640,
     RULE_COUNT = 345,
     STATE_COUNT = 641,
-    TERMINAL_COUNT = 101,
+    TERMINAL_COUNT = 102,
     NON_TERMINAL_COUNT = 107,
 
     GOTO_INDEX_OFFSET = 641,
-    GOTO_INFO_OFFSET = 2787,
-    GOTO_CHECK_OFFSET = 2787
+    GOTO_INFO_OFFSET = 2818,
+    GOTO_CHECK_OFFSET = 2818
   };
 
   static const char  *const    spell [];

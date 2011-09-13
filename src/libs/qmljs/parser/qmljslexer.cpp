@@ -30,1053 +30,50 @@
 **
 **************************************************************************/
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "qmljslexer_p.h"
-
-#include "qmljsglobal_p.h"
 #include "qmljsengine_p.h"
-#include "qmljsgrammar_p.h"
+#include "qmljsmemorypool_p.h"
 
-#include <QtCore/qcoreapplication.h>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QVarLengthArray>
+#include <QtCore/QDebug>
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#ifndef QMLJS_NO_FTW
+#include <qmlutils_p.h>
+#else
+namespace QmlUtils {
+inline bool isUpper(const QChar &qc){ return qc.isUpper(); }
+inline bool isLower(const QChar &qc) { return qc.isLower(); }
+inline bool isLetter(const QChar &qc) { return qc.isLetter(); }
+inline bool isDigit(const QChar &qc) { return qc.isDigit(); }
+inline bool isLetterOrNumber(const QChar &qc) { return qc.isLetterOrNumber(); }
+inline bool isSpace(const QChar &qc) { return qc.isSpace(); }
+} // namespace QmlUtils
+#endif
 
 QT_BEGIN_NAMESPACE
 Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
 QT_END_NAMESPACE
 
-QT_QML_BEGIN_NAMESPACE
-
-#define shiftWindowsLineBreak() \
-    do { \
-        if (((current == '\r') && (next1 == '\n')) \
-            || ((current == '\n') && (next1 == '\r'))) { \
-            shift(1); \
-        } \
-    } \
-    while (0)
-
-namespace QmlJS {
-extern double integerFromString(const char *buf, int size, int radix);
-}
-
 using namespace QmlJS;
 
-Lexer::Lexer(Engine *eng, bool tokenizeComments)
-    : driver(eng),
-      yylineno(0),
-      done(false),
-      size8(128), size16(128),
-      pos8(0), pos16(0),
-      terminator(false),
-      restrKeyword(false),
-      delimited(false),
-      stackToken(-1),
-      state(Start),
-      pos(0),
-      code(0), length(0),
-      yycolumn(0),
-      startpos(0),
-      startlineno(0), startcolumn(0),
-      bol(true),
-      current(0), next1(0), next2(0), next3(0),
-      err(NoError),
-      wantRx(false),
-      check_reserved(true),
-      parenthesesState(IgnoreParentheses),
-      parenthesesCount(0),
-      prohibitAutomaticSemicolon(false),
-      tokenizeComments(tokenizeComments)
+enum RegExpFlag {
+    Global     = 0x01,
+    IgnoreCase = 0x02,
+    Multiline  = 0x04
+};
+
+static int flagFromChar(const QChar &ch)
 {
-    if (driver) driver->setLexer(this);
-    // allocate space for read buffers
-    buffer8 = new char[size8];
-    buffer16 = new QChar[size16];
-    pattern = 0;
-    flags = 0;
-
-}
-
-Lexer::~Lexer()
-{
-    delete [] buffer8;
-    delete [] buffer16;
-}
-
-void Lexer::setCode(const QString &c, int lineno)
-{
-    errmsg.clear();
-    yylineno = lineno;
-    yycolumn = 1;
-    restrKeyword = false;
-    delimited = false;
-    stackToken = -1;
-    pos = 0;
-    code = c.unicode();
-    length = c.length();
-    bol = true;
-
-    // read first characters
-    current = (length > 0) ? code[0].unicode() : 0;
-    next1 = (length > 1) ? code[1].unicode() : 0;
-    next2 = (length > 2) ? code[2].unicode() : 0;
-    next3 = (length > 3) ? code[3].unicode() : 0;
-}
-
-void Lexer::shift(uint p)
-{
-    while (p--) {
-        ++pos;
-        ++yycolumn;
-        current = next1;
-        next1 = next2;
-        next2 = next3;
-        next3 = (pos + 3 < length) ? code[pos+3].unicode() : 0;
+    switch (ch.unicode()) {
+    case 'g': return Global;
+    case 'i': return IgnoreCase;
+    case 'm': return Multiline;
     }
+    return 0;
 }
 
-void Lexer::setDone(State s)
-{
-    state = s;
-    done = true;
-}
-
-int Lexer::findReservedWord(const QChar *c, int size) const
-{
-    switch (size) {
-    case 2: {
-        if (c[0] == QLatin1Char('d') && c[1] == QLatin1Char('o'))
-            return QmlJSGrammar::T_DO;
-        else if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('f'))
-            return QmlJSGrammar::T_IF;
-        else if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('n'))
-            return QmlJSGrammar::T_IN;
-        else if (c[0] == QLatin1Char('a') && c[1] == QLatin1Char('s'))
-            return QmlJSGrammar::T_AS;
-        else if (c[0] == QLatin1Char('o') && c[1] == QLatin1Char('n'))
-            return QmlJSGrammar::T_ON;
-    }   break;
-
-    case 3: {
-        if (c[0] == QLatin1Char('f') && c[1] == QLatin1Char('o') && c[2] == QLatin1Char('r'))
-            return QmlJSGrammar::T_FOR;
-        else if (c[0] == QLatin1Char('n') && c[1] == QLatin1Char('e') && c[2] == QLatin1Char('w'))
-            return QmlJSGrammar::T_NEW;
-        else if (c[0] == QLatin1Char('t') && c[1] == QLatin1Char('r') && c[2] == QLatin1Char('y'))
-            return QmlJSGrammar::T_TRY;
-        else if (c[0] == QLatin1Char('v') && c[1] == QLatin1Char('a') && c[2] == QLatin1Char('r'))
-            return QmlJSGrammar::T_VAR;
-        else if (check_reserved) {
-            if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('n') && c[2] == QLatin1Char('t'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-        }
-    }   break;
-
-    case 4: {
-        if (c[0] == QLatin1Char('c') && c[1] == QLatin1Char('a')
-                && c[2] == QLatin1Char('s') && c[3] == QLatin1Char('e'))
-            return QmlJSGrammar::T_CASE;
-        else if (c[0] == QLatin1Char('e') && c[1] == QLatin1Char('l')
-                && c[2] == QLatin1Char('s') && c[3] == QLatin1Char('e'))
-            return QmlJSGrammar::T_ELSE;
-        else if (c[0] == QLatin1Char('t') && c[1] == QLatin1Char('h')
-                && c[2] == QLatin1Char('i') && c[3] == QLatin1Char('s'))
-            return QmlJSGrammar::T_THIS;
-        else if (c[0] == QLatin1Char('v') && c[1] == QLatin1Char('o')
-                && c[2] == QLatin1Char('i') && c[3] == QLatin1Char('d'))
-            return QmlJSGrammar::T_VOID;
-        else if (c[0] == QLatin1Char('w') && c[1] == QLatin1Char('i')
-                && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('h'))
-            return QmlJSGrammar::T_WITH;
-        else if (c[0] == QLatin1Char('t') && c[1] == QLatin1Char('r')
-                && c[2] == QLatin1Char('u') && c[3] == QLatin1Char('e'))
-            return QmlJSGrammar::T_TRUE;
-        else if (c[0] == QLatin1Char('n') && c[1] == QLatin1Char('u')
-                && c[2] == QLatin1Char('l') && c[3] == QLatin1Char('l'))
-            return QmlJSGrammar::T_NULL;
-        else if (check_reserved) {
-            if (c[0] == QLatin1Char('e') && c[1] == QLatin1Char('n')
-                    && c[2] == QLatin1Char('u') && c[3] == QLatin1Char('m'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('b') && c[1] == QLatin1Char('y')
-                    && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('e'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('l') && c[1] == QLatin1Char('o')
-                    && c[2] == QLatin1Char('n') && c[3] == QLatin1Char('g'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('c') && c[1] == QLatin1Char('h')
-                    && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('r'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('g') && c[1] == QLatin1Char('o')
-                    && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('o'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-        }
-    }   break;
-
-    case 5: {
-        if (c[0] == QLatin1Char('b') && c[1] == QLatin1Char('r')
-                && c[2] == QLatin1Char('e') && c[3] == QLatin1Char('a')
-                && c[4] == QLatin1Char('k'))
-            return QmlJSGrammar::T_BREAK;
-        else if (c[0] == QLatin1Char('c') && c[1] == QLatin1Char('a')
-                && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('c')
-                && c[4] == QLatin1Char('h'))
-            return QmlJSGrammar::T_CATCH;
-        else if (c[0] == QLatin1Char('t') && c[1] == QLatin1Char('h')
-                && c[2] == QLatin1Char('r') && c[3] == QLatin1Char('o')
-                && c[4] == QLatin1Char('w'))
-            return QmlJSGrammar::T_THROW;
-        else if (c[0] == QLatin1Char('w') && c[1] == QLatin1Char('h')
-                && c[2] == QLatin1Char('i') && c[3] == QLatin1Char('l')
-                && c[4] == QLatin1Char('e'))
-            return QmlJSGrammar::T_WHILE;
-        else if (c[0] == QLatin1Char('c') && c[1] == QLatin1Char('o')
-                && c[2] == QLatin1Char('n') && c[3] == QLatin1Char('s')
-                && c[4] == QLatin1Char('t'))
-            return QmlJSGrammar::T_CONST;
-        else if (c[0] == QLatin1Char('f') && c[1] == QLatin1Char('a')
-                && c[2] == QLatin1Char('l') && c[3] == QLatin1Char('s')
-                && c[4] == QLatin1Char('e'))
-            return QmlJSGrammar::T_FALSE;
-        else if (check_reserved) {
-            if (c[0] == QLatin1Char('s') && c[1] == QLatin1Char('h')
-                    && c[2] == QLatin1Char('o') && c[3] == QLatin1Char('r')
-                    && c[4] == QLatin1Char('t'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('s') && c[1] == QLatin1Char('u')
-                    && c[2] == QLatin1Char('p') && c[3] == QLatin1Char('e')
-                    && c[4] == QLatin1Char('r'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('f') && c[1] == QLatin1Char('i')
-                    && c[2] == QLatin1Char('n') && c[3] == QLatin1Char('a')
-                    && c[4] == QLatin1Char('l'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('c') && c[1] == QLatin1Char('l')
-                    && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('s')
-                    && c[4] == QLatin1Char('s'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('f') && c[1] == QLatin1Char('l')
-                    && c[2] == QLatin1Char('o') && c[3] == QLatin1Char('a')
-                    && c[4] == QLatin1Char('t'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-        }
-    }   break;
-
-    case 6: {
-        if (c[0] == QLatin1Char('d') && c[1] == QLatin1Char('e')
-                && c[2] == QLatin1Char('l') && c[3] == QLatin1Char('e')
-                && c[4] == QLatin1Char('t') && c[5] == QLatin1Char('e'))
-            return QmlJSGrammar::T_DELETE;
-        else if (c[0] == QLatin1Char('r') && c[1] == QLatin1Char('e')
-                && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('u')
-                && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('n'))
-            return QmlJSGrammar::T_RETURN;
-        else if (c[0] == QLatin1Char('s') && c[1] == QLatin1Char('w')
-                && c[2] == QLatin1Char('i') && c[3] == QLatin1Char('t')
-                && c[4] == QLatin1Char('c') && c[5] == QLatin1Char('h'))
-            return QmlJSGrammar::T_SWITCH;
-        else if (c[0] == QLatin1Char('t') && c[1] == QLatin1Char('y')
-                && c[2] == QLatin1Char('p') && c[3] == QLatin1Char('e')
-                && c[4] == QLatin1Char('o') && c[5] == QLatin1Char('f'))
-            return QmlJSGrammar::T_TYPEOF;
-        else if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('m')
-            && c[2] == QLatin1Char('p') && c[3] == QLatin1Char('o')
-            && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('t'))
-            return QmlJSGrammar::T_IMPORT;
-        else if (c[0] == QLatin1Char('s') && c[1] == QLatin1Char('i')
-            && c[2] == QLatin1Char('g') && c[3] == QLatin1Char('n')
-            && c[4] == QLatin1Char('a') && c[5] == QLatin1Char('l'))
-            return QmlJSGrammar::T_SIGNAL;
-        else if (check_reserved) {
-            if (c[0] == QLatin1Char('e') && c[1] == QLatin1Char('x')
-                    && c[2] == QLatin1Char('p') && c[3] == QLatin1Char('o')
-                    && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('t'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('s') && c[1] == QLatin1Char('t')
-                    && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('t')
-                    && c[4] == QLatin1Char('i') && c[5] == QLatin1Char('c'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('d') && c[1] == QLatin1Char('o')
-                    && c[2] == QLatin1Char('u') && c[3] == QLatin1Char('b')
-                    && c[4] == QLatin1Char('l') && c[5] == QLatin1Char('e'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('m')
-                    && c[2] == QLatin1Char('p') && c[3] == QLatin1Char('o')
-                    && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('t'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('p') && c[1] == QLatin1Char('u')
-                    && c[2] == QLatin1Char('b') && c[3] == QLatin1Char('l')
-                    && c[4] == QLatin1Char('i') && c[5] == QLatin1Char('c'))
-                return QmlJSGrammar::T_PUBLIC;
-            else if (c[0] == QLatin1Char('n') && c[1] == QLatin1Char('a')
-                    && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('i')
-                    && c[4] == QLatin1Char('v') && c[5] == QLatin1Char('e'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('t') && c[1] == QLatin1Char('h')
-                    && c[2] == QLatin1Char('r') && c[3] == QLatin1Char('o')
-                    && c[4] == QLatin1Char('w') && c[5] == QLatin1Char('s'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-        }
-    }   break;
-
-    case 7: {
-        if (c[0] == QLatin1Char('d') && c[1] == QLatin1Char('e')
-                && c[2] == QLatin1Char('f') && c[3] == QLatin1Char('a')
-                && c[4] == QLatin1Char('u') && c[5] == QLatin1Char('l')
-                && c[6] == QLatin1Char('t'))
-            return QmlJSGrammar::T_DEFAULT;
-        else if (c[0] == QLatin1Char('f') && c[1] == QLatin1Char('i')
-                && c[2] == QLatin1Char('n') && c[3] == QLatin1Char('a')
-                && c[4] == QLatin1Char('l') && c[5] == QLatin1Char('l')
-                && c[6] == QLatin1Char('y'))
-            return QmlJSGrammar::T_FINALLY;
-        else if (check_reserved) {
-            if (c[0] == QLatin1Char('b') && c[1] == QLatin1Char('o')
-                    && c[2] == QLatin1Char('o') && c[3] == QLatin1Char('l')
-                    && c[4] == QLatin1Char('e') && c[5] == QLatin1Char('a')
-                    && c[6] == QLatin1Char('n'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('e') && c[1] == QLatin1Char('x')
-                    && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('e')
-                    && c[4] == QLatin1Char('n') && c[5] == QLatin1Char('d')
-                    && c[6] == QLatin1Char('s'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('p') && c[1] == QLatin1Char('a')
-                    && c[2] == QLatin1Char('c') && c[3] == QLatin1Char('k')
-                    && c[4] == QLatin1Char('a') && c[5] == QLatin1Char('g')
-                    && c[6] == QLatin1Char('e'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('p') && c[1] == QLatin1Char('r')
-                    && c[2] == QLatin1Char('i') && c[3] == QLatin1Char('v')
-                    && c[4] == QLatin1Char('a') && c[5] == QLatin1Char('t')
-                    && c[6] == QLatin1Char('e'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-        }
-    }   break;
-
-    case 8: {
-        if (c[0] == QLatin1Char('c') && c[1] == QLatin1Char('o')
-                && c[2] == QLatin1Char('n') && c[3] == QLatin1Char('t')
-                && c[4] == QLatin1Char('i') && c[5] == QLatin1Char('n')
-                && c[6] == QLatin1Char('u') && c[7] == QLatin1Char('e'))
-            return QmlJSGrammar::T_CONTINUE;
-        else if (c[0] == QLatin1Char('f') && c[1] == QLatin1Char('u')
-                && c[2] == QLatin1Char('n') && c[3] == QLatin1Char('c')
-                && c[4] == QLatin1Char('t') && c[5] == QLatin1Char('i')
-                && c[6] == QLatin1Char('o') && c[7] == QLatin1Char('n'))
-            return QmlJSGrammar::T_FUNCTION;
-        else if (c[0] == QLatin1Char('d') && c[1] == QLatin1Char('e')
-                && c[2] == QLatin1Char('b') && c[3] == QLatin1Char('u')
-                && c[4] == QLatin1Char('g') && c[5] == QLatin1Char('g')
-                && c[6] == QLatin1Char('e') && c[7] == QLatin1Char('r'))
-            return QmlJSGrammar::T_DEBUGGER;
-        else if (c[0] == QLatin1Char('p') && c[1] == QLatin1Char('r')
-                && c[2] == QLatin1Char('o') && c[3] == QLatin1Char('p')
-                && c[4] == QLatin1Char('e') && c[5] == QLatin1Char('r')
-                && c[6] == QLatin1Char('t') && c[7] == QLatin1Char('y'))
-            return QmlJSGrammar::T_PROPERTY;
-        else if (c[0] == QLatin1Char('r') && c[1] == QLatin1Char('e')
-                && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('d')
-                && c[4] == QLatin1Char('o') && c[5] == QLatin1Char('n')
-                && c[6] == QLatin1Char('l') && c[7] == QLatin1Char('y'))
-            return QmlJSGrammar::T_READONLY;
-        else if (check_reserved) {
-            if (c[0] == QLatin1Char('a') && c[1] == QLatin1Char('b')
-                    && c[2] == QLatin1Char('s') && c[3] == QLatin1Char('t')
-                    && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('a')
-                    && c[6] == QLatin1Char('c') && c[7] == QLatin1Char('t'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('v') && c[1] == QLatin1Char('o')
-                    && c[2] == QLatin1Char('l') && c[3] == QLatin1Char('a')
-                    && c[4] == QLatin1Char('t') && c[5] == QLatin1Char('i')
-                    && c[6] == QLatin1Char('l') && c[7] == QLatin1Char('e'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-        }
-    }   break;
-
-    case 9: {
-        if (check_reserved) {
-            if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('n')
-                    && c[2] == QLatin1Char('t') && c[3] == QLatin1Char('e')
-                    && c[4] == QLatin1Char('r') && c[5] == QLatin1Char('f')
-                    && c[6] == QLatin1Char('a') && c[7] == QLatin1Char('c')
-                    && c[8] == QLatin1Char('e'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('t') && c[1] == QLatin1Char('r')
-                    && c[2] == QLatin1Char('a') && c[3] == QLatin1Char('n')
-                    && c[4] == QLatin1Char('s') && c[5] == QLatin1Char('i')
-                    && c[6] == QLatin1Char('e') && c[7] == QLatin1Char('n')
-                    && c[8] == QLatin1Char('t'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-            else if (c[0] == QLatin1Char('p') && c[1] == QLatin1Char('r')
-                    && c[2] == QLatin1Char('o') && c[3] == QLatin1Char('t')
-                    && c[4] == QLatin1Char('e') && c[5] == QLatin1Char('c')
-                    && c[6] == QLatin1Char('t') && c[7] == QLatin1Char('e')
-                    && c[8] == QLatin1Char('d'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-        }
-    }   break;
-
-    case 10: {
-        if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('n')
-                && c[2] == QLatin1Char('s') && c[3] == QLatin1Char('t')
-                && c[4] == QLatin1Char('a') && c[5] == QLatin1Char('n')
-                && c[6] == QLatin1Char('c') && c[7] == QLatin1Char('e')
-                && c[8] == QLatin1Char('o') && c[9] == QLatin1Char('f'))
-            return QmlJSGrammar::T_INSTANCEOF;
-        else if (check_reserved) {
-            if (c[0] == QLatin1Char('i') && c[1] == QLatin1Char('m')
-                    && c[2] == QLatin1Char('p') && c[3] == QLatin1Char('l')
-                    && c[4] == QLatin1Char('e') && c[5] == QLatin1Char('m')
-                    && c[6] == QLatin1Char('e') && c[7] == QLatin1Char('n')
-                    && c[8] == QLatin1Char('t') && c[9] == QLatin1Char('s'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-        }
-    }   break;
-
-    case 12: {
-        if (check_reserved) {
-            if (c[0] == QLatin1Char('s') && c[1] == QLatin1Char('y')
-                    && c[2] == QLatin1Char('n') && c[3] == QLatin1Char('c')
-                    && c[4] == QLatin1Char('h') && c[5] == QLatin1Char('r')
-                    && c[6] == QLatin1Char('o') && c[7] == QLatin1Char('n')
-                    && c[8] == QLatin1Char('i') && c[9] == QLatin1Char('z')
-                    && c[10] == QLatin1Char('e') && c[11] == QLatin1Char('d'))
-                return QmlJSGrammar::T_RESERVED_WORD;
-        }
-    }   break;
-
-    } // switch
-
-    return -1;
-}
-
-int Lexer::lex()
-{
-    int token = 0;
-    state = Start;
-    ushort stringType = 0; // either single or double quotes
-    bool multiLineString = false;
-    pos8 = pos16 = 0;
-    done = false;
-    terminator = false;
-
-    // did we push a token on the stack previously ?
-    // (after an automatic semicolon insertion)
-    if (stackToken >= 0) {
-        setDone(Other);
-        token = stackToken;
-        stackToken = -1;
-    }
-
-    bool identifierWithEscapedUnicode = false;
-
-    while (!done) {
-        switch (state) {
-        case Start:
-            if (isWhiteSpace()) {
-                // do nothing
-            } else if (current == '/' && next1 == '/') {
-                recordStartPos();
-                shift(1);
-                state = InSingleLineComment;
-            } else if (current == '/' && next1 == '*') {
-                recordStartPos();
-                shift(1);
-                state = InMultiLineComment;
-            } else if (current == 0) {
-                syncProhibitAutomaticSemicolon();
-                if (!terminator && !delimited && !prohibitAutomaticSemicolon) {
-                    // automatic semicolon insertion if program incomplete
-                    token = QmlJSGrammar::T_SEMICOLON;
-                    stackToken = 0;
-                    setDone(Other);
-                } else {
-                    setDone(Eof);
-                }
-            } else if (isLineTerminator()) {
-                if (restrKeyword) {
-                    // automatic semicolon insertion
-                    recordStartPos();
-                    token = QmlJSGrammar::T_SEMICOLON;
-                    setDone(Other);
-                } else {
-                    shiftWindowsLineBreak();
-                    yylineno++;
-                    yycolumn = 0;
-                    bol = true;
-                    terminator = true;
-                    syncProhibitAutomaticSemicolon();
-                }
-            } else if (current == '"' || current == '\'') {
-                recordStartPos();
-                state = InString;
-                multiLineString = false;
-                stringType = current;
-            } else if (current == '\\' && next1 == 'u') {
-                identifierWithEscapedUnicode = true;
-                recordStartPos();
-
-                shift(2); // skip the unicode escape prefix `\u'
-
-                if (isHexDigit(current) && isHexDigit(next1) &&
-                     isHexDigit(next2) && isHexDigit(next3)) {
-                    record16(convertUnicode(current, next1, next2, next3));
-                    shift(3);
-                    state = InIdentifier;
-                } else {
-                    setDone(Bad);
-                    err = IllegalUnicodeEscapeSequence;
-                    errmsg = QCoreApplication::translate("QmlParser", "Illegal unicode escape sequence");
-                    break;
-                }
-
-            } else if (isIdentLetter(current)) {
-                identifierWithEscapedUnicode = false;
-                recordStartPos();
-                record16(current);
-                state = InIdentifier;
-            } else if (current == '0') {
-                recordStartPos();
-                record8(current);
-                state = InNum0;
-            } else if (isDecimalDigit(current)) {
-                recordStartPos();
-                record8(current);
-                state = InNum;
-            } else if (current == '.' && isDecimalDigit(next1)) {
-                recordStartPos();
-                record8(current);
-                state = InDecimal;
-            } else {
-                recordStartPos();
-                token = matchPunctuator(current, next1, next2, next3);
-                if (token != -1) {
-                    if (terminator && !delimited && !prohibitAutomaticSemicolon
-                        && (token == QmlJSGrammar::T_PLUS_PLUS
-                            || token == QmlJSGrammar::T_MINUS_MINUS)) {
-                        // automatic semicolon insertion
-                        stackToken = token;
-                        token = QmlJSGrammar::T_SEMICOLON;
-                    }
-                    setDone(Other);
-                }
-                else {
-                    setDone(Bad);
-                    err = IllegalCharacter;
-                    errmsg = QCoreApplication::translate("QmlParser", "Illegal character");
-                }
-            }
-            break;
-        case InString:
-            if (current == stringType) {
-                shift(1);
-                setDone(String);
-            } else if (isLineTerminator()) {
-                multiLineString = true;
-                record16(current);
-            } else if (current == 0 || isLineTerminator()) {
-                setDone(Bad);
-                err = UnclosedStringLiteral;
-                errmsg = QCoreApplication::translate("QmlParser", "Unclosed string at end of line");
-            } else if (current == '\\') {
-                state = InEscapeSequence;
-            } else {
-                record16(current);
-            }
-            break;
-            // Escape Sequences inside of strings
-        case InEscapeSequence:
-            if (isOctalDigit(current)) {
-                if (current >= '0' && current <= '3' &&
-                     isOctalDigit(next1) && isOctalDigit(next2)) {
-                    record16(convertOctal(current, next1, next2));
-                    shift(2);
-                    state = InString;
-                } else if (isOctalDigit(current) &&
-                            isOctalDigit(next1)) {
-                    record16(convertOctal('0', current, next1));
-                    shift(1);
-                    state = InString;
-                } else if (isOctalDigit(current)) {
-                    record16(convertOctal('0', '0', current));
-                    state = InString;
-                } else {
-                    setDone(Bad);
-                    err = IllegalEscapeSequence;
-                    errmsg = QCoreApplication::translate("QmlParser", "Illegal escape sequence");
-                }
-            } else if (current == 'x')
-                state = InHexEscape;
-            else if (current == 'u')
-                state = InUnicodeEscape;
-            else {
-                if (isLineTerminator()) {
-                    shiftWindowsLineBreak();
-                    yylineno++;
-                    yycolumn = 0;
-                    bol = true;
-                } else {
-                    record16(singleEscape(current));
-                }
-                state = InString;
-            }
-            break;
-        case InHexEscape:
-            if (isHexDigit(current) && isHexDigit(next1)) {
-                state = InString;
-                record16(QLatin1Char(convertHex(current, next1)));
-                shift(1);
-            } else if (current == stringType) {
-                record16(QLatin1Char('x'));
-                shift(1);
-                setDone(String);
-            } else {
-                record16(QLatin1Char('x'));
-                record16(current);
-                state = InString;
-            }
-            break;
-        case InUnicodeEscape:
-            if (isHexDigit(current) && isHexDigit(next1) &&
-                 isHexDigit(next2) && isHexDigit(next3)) {
-                record16(convertUnicode(current, next1, next2, next3));
-                shift(3);
-                state = InString;
-            } else if (current == stringType) {
-                record16(QLatin1Char('u'));
-                shift(1);
-                setDone(String);
-            } else {
-                setDone(Bad);
-                err = IllegalUnicodeEscapeSequence;
-                errmsg = QCoreApplication::translate("QmlParser", "Illegal unicode escape sequence");
-            }
-            break;
-        case InSingleLineComment:
-            if (isLineTerminator()) {
-                shiftWindowsLineBreak();
-                yylineno++;
-                yycolumn = 0;
-                terminator = true;
-                bol = true;
-                if (restrKeyword) {
-                    token = QmlJSGrammar::T_SEMICOLON;
-                    setDone(Other);
-                } else
-                    state = Start;
-                if (driver) driver->addComment(startpos+2, tokenLength()-2, startlineno, startcolumn+2);
-            } else if (current == 0) {
-                if (driver) driver->addComment(startpos+2, tokenLength()-2, startlineno, startcolumn+2);
-                setDone(Eof);
-            }
-
-            break;
-        case InMultiLineComment:
-            if (current == 0) {
-                setDone(Bad);
-                err = UnclosedComment;
-                errmsg = QCoreApplication::translate("QmlParser", "Unclosed comment at end of file");
-                if (driver) driver->addComment(startpos+2, tokenLength()-2, startlineno, startcolumn+2);
-            } else if (isLineTerminator()) {
-                shiftWindowsLineBreak();
-                yylineno++;
-            } else if (current == '*' && next1 == '/') {
-                state = Start;
-                shift(1);
-                if (driver) driver->addComment(startpos+2, tokenLength()-3, startlineno, startcolumn+2);
-            }
-
-            break;
-        case InIdentifier:
-            if (isIdentLetter(current) || isDecimalDigit(current)) {
-                record16(current);
-                break;
-            } else if (current == '\\' && next1 == 'u') {
-                identifierWithEscapedUnicode = true;
-                shift(2); // skip the unicode escape prefix `\u'
-
-                if (isHexDigit(current) && isHexDigit(next1) &&
-                     isHexDigit(next2) && isHexDigit(next3)) {
-                    record16(convertUnicode(current, next1, next2, next3));
-                    shift(3);
-                    break;
-                } else {
-                    setDone(Bad);
-                    err = IllegalUnicodeEscapeSequence;
-                    errmsg = QCoreApplication::translate("QmlParser", "Illegal unicode escape sequence");
-                    break;
-                }
-            }
-            setDone(Identifier);
-            break;
-        case InNum0:
-            if (current == 'x' || current == 'X') {
-                record8(current);
-                state = InHex;
-            } else if (current == '.') {
-                record8(current);
-                state = InDecimal;
-            } else if (current == 'e' || current == 'E') {
-                record8(current);
-                state = InExponentIndicator;
-            } else if (isOctalDigit(current)) {
-                record8(current);
-                state = InOctal;
-            } else if (isDecimalDigit(current)) {
-                record8(current);
-                state = InDecimal;
-            } else {
-                setDone(Number);
-            }
-            break;
-        case InHex:
-            if (isHexDigit(current))
-                record8(current);
-            else
-                setDone(Hex);
-            break;
-        case InOctal:
-            if (isOctalDigit(current)) {
-                record8(current);
-            } else if (isDecimalDigit(current)) {
-                record8(current);
-                state = InDecimal;
-            } else {
-                setDone(Octal);
-            }
-            break;
-        case InNum:
-            if (isDecimalDigit(current)) {
-                record8(current);
-            } else if (current == '.') {
-                record8(current);
-                state = InDecimal;
-            } else if (current == 'e' || current == 'E') {
-                record8(current);
-                state = InExponentIndicator;
-            } else {
-                setDone(Number);
-            }
-            break;
-        case InDecimal:
-            if (isDecimalDigit(current)) {
-                record8(current);
-            } else if (current == 'e' || current == 'E') {
-                record8(current);
-                state = InExponentIndicator;
-            } else {
-                setDone(Number);
-            }
-            break;
-        case InExponentIndicator:
-            if (current == '+' || current == '-') {
-                record8(current);
-            } else if (isDecimalDigit(current)) {
-                record8(current);
-                state = InExponent;
-            } else {
-                setDone(Bad);
-                err = IllegalExponentIndicator;
-                errmsg = QCoreApplication::translate("QmlParser", "Illegal syntax for exponential number");
-            }
-            break;
-        case InExponent:
-            if (isDecimalDigit(current)) {
-                record8(current);
-            } else {
-                setDone(Number);
-            }
-            break;
-        default:
-            Q_ASSERT_X(0, "Lexer::lex", "Unhandled state in switch statement");
-        }
-
-        // move on to the next character
-        if (!done)
-            shift(1);
-        if (state != Start && state != InSingleLineComment)
-            bol = false;
-    }
-
-    // no identifiers allowed directly after numeric literal, e.g. "3in" is bad
-    if ((state == Number || state == Octal || state == Hex)
-         && isIdentLetter(current)) {
-        state = Bad;
-        err = IllegalIdentifier;
-        errmsg = QCoreApplication::translate("QmlParser", "Identifier cannot start with numeric literal");
-    }
-
-    // terminate string
-    buffer8[pos8] = '\0';
-
-    double dval = 0;
-    if (state == Number) {
-        dval = qstrtod(buffer8, 0, 0);
-    } else if (state == Hex) { // scan hex numbers
-        dval = integerFromString(buffer8, pos8, 16);
-        state = Number;
-    } else if (state == Octal) {   // scan octal number
-        dval = integerFromString(buffer8, pos8, 8);
-        state = Number;
-    }
-
-    restrKeyword = false;
-    delimited = false;
-
-    switch (parenthesesState) {
-    case IgnoreParentheses:
-        break;
-    case CountParentheses:
-        if (token == QmlJSGrammar::T_RPAREN) {
-            --parenthesesCount;
-            if (parenthesesCount == 0)
-                parenthesesState = BalancedParentheses;
-        } else if (token == QmlJSGrammar::T_LPAREN) {
-            ++parenthesesCount;
-        }
-        break;
-    case BalancedParentheses:
-        parenthesesState = IgnoreParentheses;
-        break;
-    }
-
-    switch (state) {
-    case Eof:
-        return 0;
-    case Other:
-        if (token == QmlJSGrammar::T_RBRACE || token == QmlJSGrammar::T_SEMICOLON)
-            delimited = true;
-        return token;
-    case Identifier:
-        token = -1;
-        if (! identifierWithEscapedUnicode)
-            token = findReservedWord(buffer16, pos16);
-
-        if (token < 0) {
-            /* TODO: close leak on parse error. same holds true for String */
-            if (driver)
-                qsyylval.ustr = driver->intern(buffer16, pos16);
-            else
-                qsyylval.ustr = 0;
-            return QmlJSGrammar::T_IDENTIFIER;
-        }
-        if (token == QmlJSGrammar::T_CONTINUE || token == QmlJSGrammar::T_BREAK
-            || token == QmlJSGrammar::T_RETURN || token == QmlJSGrammar::T_THROW) {
-            restrKeyword = true;
-        } else if (token == QmlJSGrammar::T_IF || token == QmlJSGrammar::T_FOR
-                   || token == QmlJSGrammar::T_WHILE || token == QmlJSGrammar::T_WITH) {
-            parenthesesState = CountParentheses;
-            parenthesesCount = 0;
-        } else if (token == QmlJSGrammar::T_DO) {
-            parenthesesState = BalancedParentheses;
-        }
-        return token;
-    case String:
-        if (driver)
-            qsyylval.ustr = driver->intern(buffer16, pos16);
-        else
-            qsyylval.ustr = 0;
-        return multiLineString?QmlJSGrammar::T_MULTILINE_STRING_LITERAL:QmlJSGrammar::T_STRING_LITERAL;
-    case Number:
-        qsyylval.dval = dval;
-        return QmlJSGrammar::T_NUMERIC_LITERAL;
-    case Bad:
-        return -1;
-    default:
-        Q_ASSERT(!"unhandled numeration value in switch");
-        return -1;
-    }
-}
-
-bool Lexer::isWhiteSpace() const
-{
-    return (current == ' ' || current == '\t' ||
-             current == 0x0b || current == 0x0c);
-}
-
-bool Lexer::isLineTerminator() const
-{
-    return (current == '\n' || current == '\r');
-}
-
-bool Lexer::isIdentLetter(ushort c)
-{
-    // ASCII-biased, since all reserved words are ASCII, aand hence the
-    // bulk of content to be parsed.
-    if ((c >= 'a' && c <= 'z')
-            || (c >= 'A' && c <= 'Z')
-            || c == '$'
-            || c == '_')
-        return true;
-    if (c < 128)
-        return false;
-    return QChar(c).isLetterOrNumber();
-}
-
-bool Lexer::isDecimalDigit(ushort c)
-{
-    return (c >= '0' && c <= '9');
-}
-
-bool Lexer::isHexDigit(ushort c) const
-{
-    return ((c >= '0' && c <= '9')
-            || (c >= 'a' && c <= 'f')
-            || (c >= 'A' && c <= 'F'));
-}
-
-bool Lexer::isOctalDigit(ushort c) const
-{
-    return (c >= '0' && c <= '7');
-}
-
-int Lexer::matchPunctuator(ushort c1, ushort c2,
-                            ushort c3, ushort c4)
-{
-    if (c1 == '>' && c2 == '>' && c3 == '>' && c4 == '=') {
-        shift(4);
-        return QmlJSGrammar::T_GT_GT_GT_EQ;
-    } else if (c1 == '=' && c2 == '=' && c3 == '=') {
-        shift(3);
-        return QmlJSGrammar::T_EQ_EQ_EQ;
-    } else if (c1 == '!' && c2 == '=' && c3 == '=') {
-        shift(3);
-        return QmlJSGrammar::T_NOT_EQ_EQ;
-    } else if (c1 == '>' && c2 == '>' && c3 == '>') {
-        shift(3);
-        return QmlJSGrammar::T_GT_GT_GT;
-    } else if (c1 == '<' && c2 == '<' && c3 == '=') {
-        shift(3);
-        return QmlJSGrammar::T_LT_LT_EQ;
-    } else if (c1 == '>' && c2 == '>' && c3 == '=') {
-        shift(3);
-        return QmlJSGrammar::T_GT_GT_EQ;
-    } else if (c1 == '<' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_LE;
-    } else if (c1 == '>' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_GE;
-    } else if (c1 == '!' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_NOT_EQ;
-    } else if (c1 == '+' && c2 == '+') {
-        shift(2);
-        return QmlJSGrammar::T_PLUS_PLUS;
-    } else if (c1 == '-' && c2 == '-') {
-        shift(2);
-        return QmlJSGrammar::T_MINUS_MINUS;
-    } else if (c1 == '=' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_EQ_EQ;
-    } else if (c1 == '+' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_PLUS_EQ;
-    } else if (c1 == '-' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_MINUS_EQ;
-    } else if (c1 == '*' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_STAR_EQ;
-    } else if (c1 == '/' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_DIVIDE_EQ;
-    } else if (c1 == '&' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_AND_EQ;
-    } else if (c1 == '^' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_XOR_EQ;
-    } else if (c1 == '%' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_REMAINDER_EQ;
-    } else if (c1 == '|' && c2 == '=') {
-        shift(2);
-        return QmlJSGrammar::T_OR_EQ;
-    } else if (c1 == '<' && c2 == '<') {
-        shift(2);
-        return QmlJSGrammar::T_LT_LT;
-    } else if (c1 == '>' && c2 == '>') {
-        shift(2);
-        return QmlJSGrammar::T_GT_GT;
-    } else if (c1 == '&' && c2 == '&') {
-        shift(2);
-        return QmlJSGrammar::T_AND_AND;
-    } else if (c1 == '|' && c2 == '|') {
-        shift(2);
-        return QmlJSGrammar::T_OR_OR;
-    }
-
-    switch(c1) {
-        case '=': shift(1); return QmlJSGrammar::T_EQ;
-        case '>': shift(1); return QmlJSGrammar::T_GT;
-        case '<': shift(1); return QmlJSGrammar::T_LT;
-        case ',': shift(1); return QmlJSGrammar::T_COMMA;
-        case '!': shift(1); return QmlJSGrammar::T_NOT;
-        case '~': shift(1); return QmlJSGrammar::T_TILDE;
-        case '?': shift(1); return QmlJSGrammar::T_QUESTION;
-        case ':': shift(1); return QmlJSGrammar::T_COLON;
-        case '.': shift(1); return QmlJSGrammar::T_DOT;
-        case '+': shift(1); return QmlJSGrammar::T_PLUS;
-        case '-': shift(1); return QmlJSGrammar::T_MINUS;
-        case '*': shift(1); return QmlJSGrammar::T_STAR;
-        case '/': shift(1); return QmlJSGrammar::T_DIVIDE_;
-        case '&': shift(1); return QmlJSGrammar::T_AND;
-        case '|': shift(1); return QmlJSGrammar::T_OR;
-        case '^': shift(1); return QmlJSGrammar::T_XOR;
-        case '%': shift(1); return QmlJSGrammar::T_REMAINDER;
-        case '(': shift(1); return QmlJSGrammar::T_LPAREN;
-        case ')': shift(1); return QmlJSGrammar::T_RPAREN;
-        case '{': shift(1); return QmlJSGrammar::T_LBRACE;
-        case '}': shift(1); return QmlJSGrammar::T_RBRACE;
-        case '[': shift(1); return QmlJSGrammar::T_LBRACKET;
-        case ']': shift(1); return QmlJSGrammar::T_RBRACKET;
-        case ';': shift(1); return QmlJSGrammar::T_SEMICOLON;
-
-        default: return -1;
-    }
-}
-
-ushort Lexer::singleEscape(ushort c) const
-{
-    switch(c) {
-    case 'b':
-        return 0x08;
-    case 't':
-        return 0x09;
-    case 'n':
-        return 0x0A;
-    case 'v':
-        return 0x0B;
-    case 'f':
-        return 0x0C;
-    case 'r':
-        return 0x0D;
-    case '"':
-        return 0x22;
-    case '\'':
-        return 0x27;
-    case '\\':
-        return 0x5C;
-    default:
-        return c;
-    }
-}
-
-ushort Lexer::convertOctal(ushort c1, ushort c2,
-                            ushort c3) const
-{
-    return ((c1 - '0') * 64 + (c2 - '0') * 8 + c3 - '0');
-}
-
-unsigned char Lexer::convertHex(ushort c)
+static unsigned char convertHex(ushort c)
 {
     if (c >= '0' && c <= '9')
         return (c - '0');
@@ -1086,164 +83,969 @@ unsigned char Lexer::convertHex(ushort c)
         return (c - 'A' + 10);
 }
 
-unsigned char Lexer::convertHex(ushort c1, ushort c2)
+static QChar convertHex(QChar c1, QChar c2)
 {
-    return ((convertHex(c1) << 4) + convertHex(c2));
+    return QChar((convertHex(c1.unicode()) << 4) + convertHex(c2.unicode()));
 }
 
-QChar Lexer::convertUnicode(ushort c1, ushort c2,
-                             ushort c3, ushort c4)
+static QChar convertUnicode(QChar c1, QChar c2, QChar c3, QChar c4)
 {
-    return QChar((convertHex(c3) << 4) + convertHex(c4),
-                  (convertHex(c1) << 4) + convertHex(c2));
+    return QChar((convertHex(c3.unicode()) << 4) + convertHex(c4.unicode()),
+                 (convertHex(c1.unicode()) << 4) + convertHex(c2.unicode()));
 }
 
-void Lexer::record8(ushort c)
+Lexer::Lexer(Engine *engine)
+    : _engine(engine)
+    , _codePtr(0)
+    , _lastLinePtr(0)
+    , _tokenLinePtr(0)
+    , _tokenStartPtr(0)
+    , _char(QLatin1Char('\n'))
+    , _errorCode(NoError)
+    , _currentLineNumber(0)
+    , _tokenValue(0)
+    , _parenthesesState(IgnoreParentheses)
+    , _parenthesesCount(0)
+    , _stackToken(-1)
+    , _patternFlags(0)
+    , _tokenKind(0)
+    , _tokenLength(0)
+    , _tokenLine(0)
+    , _validTokenText(false)
+    , _prohibitAutomaticSemicolon(false)
+    , _restrictedKeyword(false)
+    , _terminator(false)
+    , _delimited(false)
+    , _qmlMode(true)
 {
-    Q_ASSERT(c <= 0xff);
+    if (engine)
+        engine->setLexer(this);
+}
 
-    // enlarge buffer if full
-    if (pos8 >= size8 - 1) {
-        char *tmp = new char[2 * size8];
-        memcpy(tmp, buffer8, size8 * sizeof(char));
-        delete [] buffer8;
-        buffer8 = tmp;
-        size8 *= 2;
+QString Lexer::code() const
+{
+    return _code;
+}
+
+void Lexer::setCode(const QString &code, int lineno, bool qmlMode)
+{
+    if (_engine)
+        _engine->setCode(code);
+
+    _qmlMode = qmlMode;
+    _code = code;
+    _tokenText.clear();
+    _tokenText.reserve(1024);
+    _errorMessage.clear();
+    _tokenSpell = QStringRef();
+
+    _codePtr = code.unicode();
+    _lastLinePtr = _codePtr;
+    _tokenLinePtr = _codePtr;
+    _tokenStartPtr = _codePtr;
+
+    _char = QLatin1Char('\n');
+    _errorCode = NoError;
+
+    _currentLineNumber = lineno;
+    _tokenValue = 0;
+
+    // parentheses state
+    _parenthesesState = IgnoreParentheses;
+    _parenthesesCount = 0;
+
+    _stackToken = -1;
+
+    _patternFlags = 0;
+    _tokenLength = 0;
+    _tokenLine = lineno;
+
+    _validTokenText = false;
+    _prohibitAutomaticSemicolon = false;
+    _restrictedKeyword = false;
+    _terminator = false;
+    _delimited = false;
+}
+
+void Lexer::scanChar()
+{
+    _char = *_codePtr++;
+
+    if (_char == QLatin1Char('\n')) {
+        _lastLinePtr = _codePtr; // points to the first character after the newline
+        ++_currentLineNumber;
+    }
+}
+
+int Lexer::lex()
+{
+    _tokenSpell = QStringRef();
+    _tokenKind = scanToken();
+    _tokenLength = _codePtr - _tokenStartPtr - 1;
+
+    _delimited = false;
+    _restrictedKeyword = false;
+
+    // update the flags
+    switch (_tokenKind) {
+    case T_LBRACE:
+    case T_SEMICOLON:
+        _delimited = true;
+        break;
+
+    case T_IF:
+    case T_FOR:
+    case T_WHILE:
+    case T_WITH:
+        _parenthesesState = CountParentheses;
+        _parenthesesCount = 0;
+        break;
+
+    case T_DO:
+        _parenthesesState = BalancedParentheses;
+        break;
+
+    case T_CONTINUE:
+    case T_BREAK:
+    case T_RETURN:
+    case T_THROW:
+        _restrictedKeyword = true;
+        break;
+    } // switch
+
+    // update the parentheses state
+    switch (_parenthesesState) {
+    case IgnoreParentheses:
+        break;
+
+    case CountParentheses:
+        if (_tokenKind == T_RPAREN) {
+            --_parenthesesCount;
+            if (_parenthesesCount == 0)
+                _parenthesesState = BalancedParentheses;
+        } else if (_tokenKind == T_LPAREN) {
+            ++_parenthesesCount;
+        }
+        break;
+
+    case BalancedParentheses:
+        _parenthesesState = IgnoreParentheses;
+        break;
+    } // switch
+
+    return _tokenKind;
+}
+
+bool Lexer::isUnicodeEscapeSequence(const QChar *chars)
+{
+    if (isHexDigit(chars[0]) && isHexDigit(chars[1]) && isHexDigit(chars[2]) && isHexDigit(chars[3]))
+        return true;
+
+    return false;
+}
+
+QChar Lexer::decodeUnicodeEscapeCharacter(bool *ok)
+{
+    if (_char == QLatin1Char('u') && isUnicodeEscapeSequence(&_codePtr[0])) {
+        scanChar(); // skip u
+
+        const QChar c1 = _char;
+        scanChar();
+
+        const QChar c2 = _char;
+        scanChar();
+
+        const QChar c3 = _char;
+        scanChar();
+
+        const QChar c4 = _char;
+        scanChar();
+
+        if (ok)
+            *ok = true;
+
+        return convertUnicode(c1, c2, c3, c4);
     }
 
-    buffer8[pos8++] = (char) c;
+    *ok = false;
+    return QChar();
 }
 
-void Lexer::record16(QChar c)
+int Lexer::scanToken()
 {
-    // enlarge buffer if full
-    if (pos16 >= size16 - 1) {
-        QChar *tmp = new QChar[2 * size16];
-        memcpy(tmp, buffer16, size16 * sizeof(QChar));
-        delete [] buffer16;
-        buffer16 = tmp;
-        size16 *= 2;
+    if (_stackToken != -1) {
+        int tk = _stackToken;
+        _stackToken = -1;
+        return tk;
     }
 
-    buffer16[pos16++] = c;
-}
+    _terminator = false;
 
-void Lexer::recordStartPos()
-{
-    startpos = pos;
-    startlineno = yylineno;
-    startcolumn = yycolumn;
+again:
+    _validTokenText = false;
+    _tokenLinePtr = _lastLinePtr;
+
+    while (QmlUtils::isSpace(_char)) {
+        if (_char == QLatin1Char('\n')) {
+            _tokenLinePtr = _codePtr;
+
+            if (_restrictedKeyword) {
+                // automatic semicolon insertion
+                _tokenLine = _currentLineNumber;
+                _tokenStartPtr = _codePtr - 1; // ### TODO: insert it before the optional \r sequence.
+                return T_SEMICOLON;
+            } else {
+                _terminator = true;
+                syncProhibitAutomaticSemicolon();
+            }
+        }
+
+        scanChar();
+    }
+
+    _tokenStartPtr = _codePtr - 1;
+    _tokenLine = _currentLineNumber;
+
+    if (_char.isNull())
+        return EOF_SYMBOL;
+
+    const QChar ch = _char;
+    scanChar();
+
+    switch (ch.unicode()) {
+    case '~': return T_TILDE;
+    case '}': return T_RBRACE;
+
+    case '|':
+        if (_char == QLatin1Char('|')) {
+            scanChar();
+            return T_OR_OR;
+        } else if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_OR_EQ;
+        }
+        return T_OR;
+
+    case '{': return T_LBRACE;
+
+    case '^':
+        if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_XOR_EQ;
+        }
+        return T_XOR;
+
+    case ']': return T_RBRACKET;
+    case '[': return T_LBRACKET;
+    case '?': return T_QUESTION;
+
+    case '>':
+        if (_char == QLatin1Char('>')) {
+            scanChar();
+            if (_char == QLatin1Char('>')) {
+                scanChar();
+                if (_char == QLatin1Char('=')) {
+                    scanChar();
+                    return T_GT_GT_GT_EQ;
+                }
+                return T_GT_GT_GT;
+            } else if (_char == QLatin1Char('=')) {
+                scanChar();
+                return T_GT_GT_EQ;
+            }
+            return T_GT_GT;
+        } else if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_GE;
+        }
+        return T_GT;
+
+    case '=':
+        if (_char == QLatin1Char('=')) {
+            scanChar();
+            if (_char == QLatin1Char('=')) {
+                scanChar();
+                return T_EQ_EQ_EQ;
+            }
+            return T_EQ_EQ;
+        }
+        return T_EQ;
+
+    case '<':
+        if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_LE;
+        } else if (_char == QLatin1Char('<')) {
+            scanChar();
+            if (_char == QLatin1Char('=')) {
+                scanChar();
+                return T_LT_LT_EQ;
+            }
+            return T_LT_LT;
+        }
+        return T_LT;
+
+    case ';': return T_SEMICOLON;
+    case ':': return T_COLON;
+
+    case '/':
+        if (_char == QLatin1Char('*')) {
+            scanChar();
+            while (!_char.isNull()) {
+                if (_char == QLatin1Char('*')) {
+                    scanChar();
+                    if (_char == QLatin1Char('/')) {
+                        scanChar();
+
+                        if (_engine) {
+                            _engine->addComment(tokenOffset() + 2, _codePtr - _tokenStartPtr - 1 - 4,
+                                                tokenStartLine(), tokenStartColumn() + 2);
+                        }
+
+                        goto again;
+                    }
+                } else {
+                    scanChar();
+                }
+            }
+        } else if (_char == QLatin1Char('/')) {
+            while (!_char.isNull() && _char != QLatin1Char('\n')) {
+                scanChar();
+            }
+            if (_engine) {
+                _engine->addComment(tokenOffset() + 2, _codePtr - _tokenStartPtr - 1 - 2,
+                                    tokenStartLine(), tokenStartColumn() + 2);
+            }
+            goto again;
+        } if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_DIVIDE_EQ;
+        }
+        return T_DIVIDE_;
+
+    case '.':
+        if (QmlUtils::isDigit(_char)) {
+            QVarLengthArray<char,32> chars;
+
+            chars.append(ch.unicode()); // append the `.'
+
+            while (QmlUtils::isDigit(_char)) {
+                chars.append(_char.unicode());
+                scanChar();
+            }
+
+            if (_char == QLatin1Char('e') || _char == QLatin1Char('E')) {
+                if (QmlUtils::isDigit(_codePtr[0]) || ((_codePtr[0] == QLatin1Char('+') || _codePtr[0] == QLatin1Char('-')) &&
+                                              QmlUtils::isDigit(_codePtr[1]))) {
+
+                    chars.append(_char.unicode());
+                    scanChar(); // consume `e'
+
+                    if (_char == QLatin1Char('+') || _char == QLatin1Char('-')) {
+                        chars.append(_char.unicode());
+                        scanChar(); // consume the sign
+                    }
+
+                    while (QmlUtils::isDigit(_char)) {
+                        chars.append(_char.unicode());
+                        scanChar();
+                    }
+                }
+            }
+
+            chars.append('\0');
+
+            const char *begin = chars.constData();
+            const char *end = 0;
+            bool ok = false;
+
+            _tokenValue = qstrtod(begin, &end, &ok);
+
+            if (end - begin != chars.size() - 1) {
+                _errorCode = IllegalExponentIndicator;
+                _errorMessage = QCoreApplication::translate("QmlParser", "Illegal syntax for exponential number");
+                return T_ERROR;
+            }
+
+            return T_NUMERIC_LITERAL;
+        }
+        return T_DOT;
+
+    case '-':
+        if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_MINUS_EQ;
+        } else if (_char == QLatin1Char('-')) {
+            scanChar();
+
+            if (_terminator && !_delimited && !_prohibitAutomaticSemicolon) {
+                _stackToken = T_PLUS_PLUS;
+                return T_SEMICOLON;
+            }
+
+            return T_MINUS_MINUS;
+        }
+        return T_MINUS;
+
+    case ',': return T_COMMA;
+
+    case '+':
+        if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_PLUS_EQ;
+        } else if (_char == QLatin1Char('+')) {
+            scanChar();
+
+            if (_terminator && !_delimited && !_prohibitAutomaticSemicolon) {
+                _stackToken = T_PLUS_PLUS;
+                return T_SEMICOLON;
+            }
+
+            return T_PLUS_PLUS;
+        }
+        return T_PLUS;
+
+    case '*':
+        if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_STAR_EQ;
+        }
+        return T_STAR;
+
+    case ')': return T_RPAREN;
+    case '(': return T_LPAREN;
+
+    case '&':
+        if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_AND_EQ;
+        } else if (_char == QLatin1Char('&')) {
+            scanChar();
+            return T_AND_AND;
+        }
+        return T_AND;
+
+    case '%':
+        if (_char == QLatin1Char('=')) {
+            scanChar();
+            return T_REMAINDER_EQ;
+        }
+        return T_REMAINDER;
+
+    case '!':
+        if (_char == QLatin1Char('=')) {
+            scanChar();
+            if (_char == QLatin1Char('=')) {
+                scanChar();
+                return T_NOT_EQ_EQ;
+            }
+            return T_NOT_EQ;
+        }
+        return T_NOT;
+
+    case '\'':
+    case '"': {
+        const QChar quote = ch;
+        bool multilineStringLiteral = false;
+
+        const QChar *startCode = _codePtr;
+
+        if (_engine) {
+            while (!_char.isNull()) {
+                if (_char == QLatin1Char('\n') || _char == QLatin1Char('\\')) {
+                    break;
+                } else if (_char == quote) {
+                    _tokenSpell = _engine->midRef(startCode - _code.unicode() - 1, _codePtr - startCode);
+                    scanChar();
+
+                    return T_STRING_LITERAL;
+                }
+                scanChar();
+            }
+        }
+
+        _validTokenText = true;
+        _tokenText.resize(0);
+        startCode--;
+        while (startCode != _codePtr - 1) 
+            _tokenText += *startCode++;
+
+        while (! _char.isNull()) {
+            if (_char == QLatin1Char('\n')) {
+                multilineStringLiteral = true;
+                _tokenText += _char;
+                scanChar();
+            } else if (_char == quote) {
+                scanChar();
+
+                if (_engine)
+                    _tokenSpell = _engine->newStringRef(_tokenText);
+
+                return multilineStringLiteral ? T_MULTILINE_STRING_LITERAL : T_STRING_LITERAL;
+            } else if (_char == QLatin1Char('\\')) {
+                scanChar();
+
+                QChar u;
+                bool ok = false;
+
+                switch (_char.unicode()) {
+                // unicode escape sequence
+                case 'u':
+                    u = decodeUnicodeEscapeCharacter(&ok);
+                    if (! ok)
+                        u = _char;
+                    break;
+
+                // hex escape sequence
+                case 'x':
+                case 'X':
+                    if (isHexDigit(_codePtr[0]) && isHexDigit(_codePtr[1])) {
+                        scanChar();
+
+                        const QChar c1 = _char;
+                        scanChar();
+
+                        const QChar c2 = _char;
+                        scanChar();
+
+                        u = convertHex(c1, c2);
+                    } else {
+                        u = _char;
+                    }
+                    break;
+
+                // single character escape sequence
+                case '\\': u = QLatin1Char('\\'); scanChar(); break;
+                case '\'': u = QLatin1Char('\''); scanChar(); break;
+                case '\"': u = QLatin1Char('\"'); scanChar(); break;
+                case 'b':  u = QLatin1Char('\b'); scanChar(); break;
+                case 'f':  u = QLatin1Char('\f'); scanChar(); break;
+                case 'n':  u = QLatin1Char('\n'); scanChar(); break;
+                case 'r':  u = QLatin1Char('\r'); scanChar(); break;
+                case 't':  u = QLatin1Char('\t'); scanChar(); break;
+                case 'v':  u = QLatin1Char('\v'); scanChar(); break;
+
+                case '0':
+                    if (! _codePtr[1].isDigit()) {
+                        scanChar();
+                        u = QLatin1Char('\0');
+                    } else {
+                        // ### parse deprecated octal escape sequence ?
+                        u = _char;
+                    }
+                    break;
+
+                case '\r':
+                    while (_char == QLatin1Char('\r'))
+                        scanChar();
+
+                    if (_char == QLatin1Char('\n')) {
+                        u = _char;
+                        scanChar();
+                    } else {
+                        u = QLatin1Char('\n');
+                    }
+
+                    break;
+
+                case '\n':
+                    u = _char;
+                    scanChar();
+                    break;
+
+                default:
+                    // non escape character
+                    u = _char;
+                    scanChar();
+                }
+
+                _tokenText += u;
+            } else {
+                _tokenText += _char;
+                scanChar();
+            }
+        }
+
+        _errorCode = UnclosedStringLiteral;
+        _errorMessage = QCoreApplication::translate("QmlParser", "Unclosed string at end of line");
+        return T_ERROR;
+    }
+
+    default:
+        if (QmlUtils::isLetter(ch) || ch == QLatin1Char('$') || ch == QLatin1Char('_') || (ch == QLatin1Char('\\') && _char == QLatin1Char('u'))) {
+            bool identifierWithEscapeChars = false;
+            if (ch == QLatin1Char('\\')) {
+                identifierWithEscapeChars = true;
+                _tokenText.resize(0);
+                bool ok = false;
+                _tokenText += decodeUnicodeEscapeCharacter(&ok);
+                _validTokenText = true;
+                if (! ok) {
+                    _errorCode = IllegalUnicodeEscapeSequence;
+                    _errorMessage = QCoreApplication::translate("QmlParser", "Illegal unicode escape sequence");
+                    return T_ERROR;
+                }
+            }
+            while (true) {
+                if (QmlUtils::isLetterOrNumber(_char) || _char == QLatin1Char('$') || _char == QLatin1Char('_')) {
+                    if (identifierWithEscapeChars)
+                        _tokenText += _char;
+
+                    scanChar();
+                } else if (_char == QLatin1Char('\\') && _codePtr[0] == QLatin1Char('u')) {
+                    if (! identifierWithEscapeChars) {
+                        identifierWithEscapeChars = true;
+                        _tokenText.resize(0);
+                        _tokenText.insert(0, _tokenStartPtr, _codePtr - _tokenStartPtr - 1);
+                        _validTokenText = true;
+                    }
+
+                    scanChar(); // skip '\\'
+                    bool ok = false;
+                    _tokenText += decodeUnicodeEscapeCharacter(&ok);
+                    if (! ok) {
+                        _errorCode = IllegalUnicodeEscapeSequence;
+                        _errorMessage = QCoreApplication::translate("QmlParser", "Illegal unicode escape sequence");
+                        return T_ERROR;
+                    }
+                } else {
+                    _tokenLength = _codePtr - _tokenStartPtr - 1;
+
+                    int kind = T_IDENTIFIER;
+
+                    if (! identifierWithEscapeChars)
+                        kind = classify(_tokenStartPtr, _tokenLength, _qmlMode);
+
+                    if (_engine) {
+                        if (kind == T_IDENTIFIER && identifierWithEscapeChars)
+                            _tokenSpell = _engine->newStringRef(_tokenText);
+                        else
+                            _tokenSpell = _engine->midRef(_tokenStartPtr - _code.unicode(), _tokenLength);
+                    }
+
+                    return kind;
+                }
+            }
+        } else if (QmlUtils::isDigit(ch)) {
+            if (ch != QLatin1Char('0')) {
+                double integer = ch.unicode() - '0';
+
+                QChar n = _char;
+                const QChar *code = _codePtr;
+                while (QmlUtils::isDigit(n)) {
+                    integer = integer * 10 + (n.unicode() - '0');
+                    n = *code++;
+                }
+
+                if (n != QLatin1Char('.') && n != QLatin1Char('e') && n != QLatin1Char('E')) {
+                    if (code != _codePtr) {
+                        _codePtr = code - 1;
+                        scanChar();
+                    }
+                    _tokenValue = integer;
+                    return T_NUMERIC_LITERAL;
+                }
+            }
+
+            QVarLengthArray<char,32> chars;
+            chars.append(ch.unicode());
+
+            if (ch == QLatin1Char('0') && (_char == QLatin1Char('x') || _char == QLatin1Char('X'))) {
+                // parse hex integer literal
+
+                chars.append(_char.unicode());
+                scanChar(); // consume `x'
+
+                while (isHexDigit(_char)) {
+                    chars.append(_char.unicode());
+                    scanChar();
+                }
+
+                _tokenValue = integerFromString(chars.constData(), chars.size(), 16);
+                return T_NUMERIC_LITERAL;
+            }
+
+            // decimal integer literal
+            while (QmlUtils::isDigit(_char)) {
+                chars.append(_char.unicode());
+                scanChar(); // consume the digit
+            }
+
+            if (_char == QLatin1Char('.')) {
+                chars.append(_char.unicode());
+                scanChar(); // consume `.'
+
+                while (QmlUtils::isDigit(_char)) {
+                    chars.append(_char.unicode());
+                    scanChar();
+                }
+
+                if (_char == QLatin1Char('e') || _char == QLatin1Char('E')) {
+                    if (QmlUtils::isDigit(_codePtr[0]) || ((_codePtr[0] == QLatin1Char('+') || _codePtr[0] == QLatin1Char('-')) &&
+                                                  QmlUtils::isDigit(_codePtr[1]))) {
+
+                        chars.append(_char.unicode());
+                        scanChar(); // consume `e'
+
+                        if (_char == QLatin1Char('+') || _char == QLatin1Char('-')) {
+                            chars.append(_char.unicode());
+                            scanChar(); // consume the sign
+                        }
+
+                        while (QmlUtils::isDigit(_char)) {
+                            chars.append(_char.unicode());
+                            scanChar();
+                        }
+                    }
+                }
+            } else if (_char == QLatin1Char('e') || _char == QLatin1Char('E')) {
+                if (QmlUtils::isDigit(_codePtr[0]) || ((_codePtr[0] == QLatin1Char('+') || _codePtr[0] == QLatin1Char('-')) &&
+                                              QmlUtils::isDigit(_codePtr[1]))) {
+
+                    chars.append(_char.unicode());
+                    scanChar(); // consume `e'
+
+                    if (_char == QLatin1Char('+') || _char == QLatin1Char('-')) {
+                        chars.append(_char.unicode());
+                        scanChar(); // consume the sign
+                    }
+
+                    while (QmlUtils::isDigit(_char)) {
+                        chars.append(_char.unicode());
+                        scanChar();
+                    }
+                }
+            }
+
+            chars.append('\0');
+
+            const char *begin = chars.constData();
+            const char *end = 0;
+            bool ok = false;
+
+            _tokenValue = qstrtod(begin, &end, &ok);
+
+            if (end - begin != chars.size() - 1) {
+                _errorCode = IllegalExponentIndicator;
+                _errorMessage = QCoreApplication::translate("QmlParser", "Illegal syntax for exponential number");
+                return T_ERROR;
+            }
+
+            return T_NUMERIC_LITERAL;
+        }
+
+        break;
+    }
+
+    return T_ERROR;
 }
 
 bool Lexer::scanRegExp(RegExpBodyPrefix prefix)
 {
-    pos16 = 0;
-    pattern = 0;
+    _tokenText.resize(0);
+    _validTokenText = true;
+    _patternFlags = 0;
 
     if (prefix == EqualPrefix)
-        record16(QLatin1Char('='));
+        _tokenText += QLatin1Char('=');
 
     while (true) {
-        switch (current) {
-
+        switch (_char.unicode()) {
         case 0: // eof
         case '\n': case '\r': // line terminator
-            errmsg = QCoreApplication::translate("QmlParser", "Unterminated regular expression literal");
+            _errorMessage = QCoreApplication::translate("QmlParser", "Unterminated regular expression literal");
             return false;
 
         case '/':
-            shift(1);
-
-            if (driver) // create the pattern
-                pattern = driver->intern(buffer16, pos16);
+            scanChar();
 
             // scan the flags
-            pos16 = 0;
-            flags = 0;
-            while (isIdentLetter(current)) {
-                int flag = Ecma::RegExp::flagFromChar(current);
+            _patternFlags = 0;
+            while (isIdentLetter(_char)) {
+                int flag = flagFromChar(_char);
                 if (flag == 0) {
-                    errmsg = QCoreApplication::translate("QmlParser", "Invalid regular expression flag '%0'")
-                             .arg(QChar(current));
+                    _errorMessage = QCoreApplication::translate("QmlParser", "Invalid regular expression flag '%0'")
+                             .arg(QChar(_char));
                     return false;
                 }
-                flags |= flag;
-                record16(current);
-                shift(1);
+                _patternFlags |= flag;
+                scanChar();
             }
+
+            _tokenLength = _codePtr - _tokenStartPtr - 1;
             return true;
 
         case '\\':
             // regular expression backslash sequence
-            record16(current);
-            shift(1);
+            _tokenText += _char;
+            scanChar();
 
-            if (! current || isLineTerminator()) {
-                errmsg = QCoreApplication::translate("QmlParser", "Unterminated regular expression backslash sequence");
+            if (_char.isNull() || isLineTerminator()) {
+                _errorMessage = QCoreApplication::translate("QmlParser", "Unterminated regular expression backslash sequence");
                 return false;
             }
 
-            record16(current);
-            shift(1);
+            _tokenText += _char;
+            scanChar();
             break;
 
         case '[':
             // regular expression class
-            record16(current);
-            shift(1);
+            _tokenText += _char;
+            scanChar();
 
-            while (current && ! isLineTerminator()) {
-                if (current == ']')
+            while (! _char.isNull() && ! isLineTerminator()) {
+                if (_char == QLatin1Char(']'))
                     break;
-                else if (current == '\\') {
+                else if (_char == QLatin1Char('\\')) {
                     // regular expression backslash sequence
-                    record16(current);
-                    shift(1);
+                    _tokenText += _char;
+                    scanChar();
 
-                    if (! current || isLineTerminator()) {
-                        errmsg = QCoreApplication::translate("QmlParser", "Unterminated regular expression backslash sequence");
+                    if (_char.isNull() || isLineTerminator()) {
+                        _errorMessage = QCoreApplication::translate("QmlParser", "Unterminated regular expression backslash sequence");
                         return false;
                     }
 
-                    record16(current);
-                    shift(1);
+                    _tokenText += _char;
+                    scanChar();
                 } else {
-                    record16(current);
-                    shift(1);
+                    _tokenText += _char;
+                    scanChar();
                 }
             }
 
-            if (current != ']') {
-                errmsg = QCoreApplication::translate("QmlParser", "Unterminated regular expression class");
+            if (_char != QLatin1Char(']')) {
+                _errorMessage = QCoreApplication::translate("QmlParser", "Unterminated regular expression class");
                 return false;
             }
 
-            record16(current);
-            shift(1); // skip ]
+            _tokenText += _char;
+            scanChar(); // skip ]
             break;
 
         default:
-            record16(current);
-            shift(1);
+            _tokenText += _char;
+            scanChar();
         } // switch
     } // while
 
     return false;
 }
 
+bool Lexer::isLineTerminator() const
+{
+    return (_char == QLatin1Char('\n') || _char == QLatin1Char('\r'));
+}
+
+bool Lexer::isIdentLetter(QChar ch)
+{
+    // ASCII-biased, since all reserved words are ASCII, aand hence the
+    // bulk of content to be parsed.
+    if ((ch >= QLatin1Char('a') && ch <= QLatin1Char('z'))
+            || (ch >= QLatin1Char('A') && ch <= QLatin1Char('Z'))
+            || ch == QLatin1Char('$')
+            || ch == QLatin1Char('_'))
+        return true;
+    if (ch.unicode() < 128)
+        return false;
+    return ch.isLetterOrNumber();
+}
+
+bool Lexer::isDecimalDigit(ushort c)
+{
+    return (c >= '0' && c <= '9');
+}
+
+bool Lexer::isHexDigit(QChar c)
+{
+    return ((c >= QLatin1Char('0') && c <= QLatin1Char('9'))
+            || (c >= QLatin1Char('a') && c <= QLatin1Char('f'))
+            || (c >= QLatin1Char('A') && c <= QLatin1Char('F')));
+}
+
+bool Lexer::isOctalDigit(ushort c)
+{
+    return (c >= '0' && c <= '7');
+}
+
+int Lexer::tokenOffset() const
+{
+    return _tokenStartPtr - _code.unicode();
+}
+
+int Lexer::tokenLength() const
+{
+    return _tokenLength;
+}
+
+int Lexer::tokenStartLine() const
+{
+    return _tokenLine;
+}
+
+int Lexer::tokenStartColumn() const
+{
+    return _tokenStartPtr - _tokenLinePtr + 1;
+}
+
+int Lexer::tokenEndLine() const
+{
+    return _currentLineNumber;
+}
+
+int Lexer::tokenEndColumn() const
+{
+    return _codePtr - _lastLinePtr;
+}
+
+QStringRef Lexer::tokenSpell() const
+{
+    return _tokenSpell;
+}
+
+double Lexer::tokenValue() const
+{
+    return _tokenValue;
+}
+
+QString Lexer::tokenText() const
+{
+    if (_validTokenText)
+        return _tokenText;
+
+    if (_tokenKind == T_STRING_LITERAL)
+        return QString(_tokenStartPtr + 1, _tokenLength - 2);
+
+    return QString(_tokenStartPtr, _tokenLength);
+}
+
+Lexer::Error Lexer::errorCode() const
+{
+    return _errorCode;
+}
+
+QString Lexer::errorMessage() const
+{
+    return _errorMessage;
+}
+
 void Lexer::syncProhibitAutomaticSemicolon()
 {
-    if (parenthesesState == BalancedParentheses) {
+    if (_parenthesesState == BalancedParentheses) {
         // we have seen something like "if (foo)", which means we should
         // never insert an automatic semicolon at this point, since it would
         // then be expanded into an empty statement (ECMA-262 7.9.1)
-        prohibitAutomaticSemicolon = true;
-        parenthesesState = IgnoreParentheses;
+        _prohibitAutomaticSemicolon = true;
+        _parenthesesState = IgnoreParentheses;
     } else {
-        prohibitAutomaticSemicolon = false;
+        _prohibitAutomaticSemicolon = false;
     }
 }
 
-QT_QML_END_NAMESPACE
+bool Lexer::prevTerminator() const
+{
+    return _terminator;
+}
 
-
+#include "qmljskeywords_p.h"

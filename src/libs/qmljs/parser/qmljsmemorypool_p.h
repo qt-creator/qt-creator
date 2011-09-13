@@ -48,8 +48,9 @@
 
 #include <QtCore/qglobal.h>
 #include <QtCore/qshareddata.h>
+#include <QtCore/qdebug.h>
 
-#include <string.h>
+#include <cstring>
 
 QT_QML_BEGIN_NAMESPACE
 
@@ -57,64 +58,103 @@ namespace QmlJS {
 
 class QML_PARSER_EXPORT MemoryPool : public QSharedData
 {
+    MemoryPool(const MemoryPool &other);
+    void operator =(const MemoryPool &other);
+
 public:
-    enum { maxBlockCount = -1 };
-    enum { defaultBlockSize = 1 << 12 };
+    MemoryPool()
+        : _blocks(0),
+          _allocatedBlocks(0),
+          _blockCount(-1),
+          _ptr(0),
+          _end(0)
+    { }
 
-    MemoryPool() {
-        m_blockIndex = maxBlockCount;
-        m_currentIndex = 0;
-        m_storage = 0;
-        m_currentBlock = 0;
-        m_currentBlockSize = 0;
+    ~MemoryPool()
+    {
+        if (_blocks) {
+            for (int i = 0; i < _allocatedBlocks; ++i) {
+                if (char *b = _blocks[i])
+                    qFree(b);
+            }
+
+            qFree(_blocks);
+        }
     }
 
-    virtual ~MemoryPool() {
-        for (int index = 0; index < m_blockIndex + 1; ++index)
-            qFree(m_storage[index]);
-
-        qFree(m_storage);
+    inline void *allocate(size_t size)
+    {
+        size = (size + 7) & ~7;
+        if (_ptr && (_ptr + size < _end)) {
+            void *addr = _ptr;
+            _ptr += size;
+            return addr;
+        }
+        return allocate_helper(size);
     }
 
-    char *allocate(int bytes) {
-        bytes += (8 - bytes) & 7; // ensure multiple of 8 bytes (maintain alignment)
-        if (m_currentBlock == 0 || m_currentBlockSize < m_currentIndex + bytes) {
-            ++m_blockIndex;
-            m_currentBlockSize = defaultBlockSize << m_blockIndex;
+    void reset()
+    {
+        _blockCount = -1;
+        _ptr = _end = 0;
+    }
 
-            m_storage = reinterpret_cast<char**>(qRealloc(m_storage, sizeof(char*) * (1 + m_blockIndex)));
-            m_currentBlock = m_storage[m_blockIndex] = reinterpret_cast<char*>(qMalloc(m_currentBlockSize));
-            ::memset(m_currentBlock, 0, m_currentBlockSize);
+private:
+    void *allocate_helper(size_t size)
+    {
+        Q_ASSERT(size < BLOCK_SIZE);
 
-            m_currentIndex = (8 - quintptr(m_currentBlock)) & 7; // ensure first chunk is 64-bit aligned
-            Q_ASSERT(m_currentIndex + bytes <= m_currentBlockSize);
+        if (++_blockCount == _allocatedBlocks) {
+            if (! _allocatedBlocks)
+                _allocatedBlocks = DEFAULT_BLOCK_COUNT;
+            else
+                _allocatedBlocks *= 2;
+
+            _blocks = (char **) qRealloc(_blocks, sizeof(char *) * _allocatedBlocks);
+
+            for (int index = _blockCount; index < _allocatedBlocks; ++index)
+                _blocks[index] = 0;
         }
 
-        char *p = reinterpret_cast<char *>
-            (m_currentBlock + m_currentIndex);
+        char *&block = _blocks[_blockCount];
 
-        m_currentIndex += bytes;
+        if (! block)
+            block = (char *) qMalloc(BLOCK_SIZE);
 
-        return p;
-    }
+        _ptr = block;
+        _end = _ptr + BLOCK_SIZE;
 
-    int bytesAllocated() const {
-        int bytes = 0;
-        for (int index = 0; index < m_blockIndex; ++index)
-            bytes += (defaultBlockSize << index);
-        bytes += m_currentIndex;
-        return bytes;
+        void *addr = _ptr;
+        _ptr += size;
+        return addr;
     }
 
 private:
-    int m_blockIndex;
-    int m_currentIndex;
-    char *m_currentBlock;
-    int m_currentBlockSize;
-    char **m_storage;
+    char **_blocks;
+    int _allocatedBlocks;
+    int _blockCount;
+    char *_ptr;
+    char *_end;
 
-private:
-    Q_DISABLE_COPY(MemoryPool)
+    enum
+    {
+        BLOCK_SIZE = 8 * 1024,
+        DEFAULT_BLOCK_COUNT = 8
+    };
+};
+
+class QML_PARSER_EXPORT Managed
+{
+    Managed(const Managed &other);
+    void operator = (const Managed &other);
+
+public:
+    Managed() {}
+    ~Managed() {}
+
+    void *operator new(size_t size, MemoryPool *pool) { return pool->allocate(size); }
+    void operator delete(void *) {}
+    void operator delete(void *, MemoryPool *) {}
 };
 
 } // namespace QmlJS

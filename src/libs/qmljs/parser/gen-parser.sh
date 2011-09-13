@@ -10,8 +10,14 @@ for i in $QTDIR/src/declarative/qml/qdeclarative{error.{h,cpp},dirparser{_p.h,.c
     sed -f $me/cmd.sed $i > $me/$(echo $(basename $i) | sed s/qdeclarative/qml/)
 done
 
+for i in $QTDIR/src/declarative/qml/ftw/qdeclarativeutils_p.h; do
+    sed -f $me/cmd.sed $i > $me/$(echo $(basename $i) | sed s/qdeclarative/qml/)
+done
+
 # export QmlDirParser
 perl -p -0777 -i -e 's/QT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QmlDirParser/#include "qmljsglobal_p.h"\n\nQT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QML_PARSER_EXPORT QmlDirParser/' qmldirparser_p.h
+# replace qmlglobal_p.h include with needed declaration
+perl -p -0777 -i -e 's/#include \<qmlglobal_p.h\>/bool Qml_isFileCaseCorrect(const QString &) { return true; }/' qmldirparser.cpp
 
 ./changeLicense.py $me/../qmljs_global.h qml*.{cpp,h}
 

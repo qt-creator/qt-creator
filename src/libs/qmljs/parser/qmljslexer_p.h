@@ -45,7 +45,7 @@
 //
 
 #include "qmljsglobal_p.h"
-
+#include "qmljsgrammar_p.h"
 #include <QtCore/QString>
 
 QT_QML_BEGIN_NAMESPACE
@@ -53,55 +53,41 @@ QT_QML_BEGIN_NAMESPACE
 namespace QmlJS {
 
 class Engine;
-class NameId;
 
-class QML_PARSER_EXPORT Lexer
+class QML_PARSER_EXPORT Lexer: public QmlJSGrammar
 {
 public:
-    Lexer(Engine *eng, bool tokenizeComments = false);
-    ~Lexer();
-
-    void setCode(const QString &c, int lineno);
-    int lex();
-
-    int currentLineNo() const { return yylineno; }
-    int currentColumnNo() const { return yycolumn; }
-
-    int tokenOffset() const { return startpos; }
-    int tokenLength() const { return pos - startpos; }
-
-    int startLineNo() const { return startlineno; }
-    int startColumnNo() const { return startcolumn; }
-
-    int endLineNo() const { return currentLineNo(); }
-    int endColumnNo() const
-    { int col = currentColumnNo(); return (col > 0) ? col - 1 : col; }
-
-    bool prevTerminator() const { return terminator; }
-
-    enum State { Start,
-                 Identifier,
-                 InIdentifier,
-                 InSingleLineComment,
-                 InMultiLineComment,
-                 InNum,
-                 InNum0,
-                 InHex,
-                 InOctal,
-                 InDecimal,
-                 InExponentIndicator,
-                 InExponent,
-                 Hex,
-                 Octal,
-                 Number,
-                 String,
-                 Eof,
-                 InString,
-                 InEscapeSequence,
-                 InHexEscape,
-                 InUnicodeEscape,
-                 Other,
-                 Bad };
+    enum {
+        T_ABSTRACT = T_RESERVED_WORD,
+        T_BOOLEAN = T_RESERVED_WORD,
+        T_BYTE = T_RESERVED_WORD,
+        T_CHAR = T_RESERVED_WORD,
+        T_CLASS = T_RESERVED_WORD,
+        T_DOUBLE = T_RESERVED_WORD,
+        T_ENUM = T_RESERVED_WORD,
+        T_EXPORT = T_RESERVED_WORD,
+        T_EXTENDS = T_RESERVED_WORD,
+        T_FINAL = T_RESERVED_WORD,
+        T_FLOAT = T_RESERVED_WORD,
+        T_GOTO = T_RESERVED_WORD,
+        T_IMPLEMENTS = T_RESERVED_WORD,
+        T_INT = T_RESERVED_WORD,
+        T_INTERFACE = T_RESERVED_WORD,
+        T_LET = T_RESERVED_WORD,
+        T_LONG = T_RESERVED_WORD,
+        T_NATIVE = T_RESERVED_WORD,
+        T_PACKAGE = T_RESERVED_WORD,
+        T_PRIVATE = T_RESERVED_WORD,
+        T_PROTECTED = T_RESERVED_WORD,
+        T_SHORT = T_RESERVED_WORD,
+        T_STATIC = T_RESERVED_WORD,
+        T_SUPER = T_RESERVED_WORD,
+        T_SYNCHRONIZED = T_RESERVED_WORD,
+        T_THROWS = T_RESERVED_WORD,
+        T_TRANSIENT = T_RESERVED_WORD,
+        T_VOLATILE = T_RESERVED_WORD,
+        T_YIELD = T_RESERVED_WORD
+    };
 
     enum Error {
         NoError,
@@ -114,127 +100,104 @@ public:
         IllegalIdentifier
     };
 
+    enum RegExpBodyPrefix {
+        NoPrefix,
+        EqualPrefix
+    };
+
+public:
+    Lexer(Engine *engine);
+
+    QString code() const;
+    void setCode(const QString &code, int lineno, bool qmlMode = true);
+
+    int lex();
+
+    bool scanRegExp(RegExpBodyPrefix prefix = NoPrefix);
+
+    int regExpFlags() const { return _patternFlags; }
+    QString regExpPattern() const { return _tokenText; }
+
+    int tokenOffset() const;
+    int tokenLength() const;
+
+    int tokenStartLine() const;
+    int tokenStartColumn() const;
+
+    int tokenEndLine() const;
+    int tokenEndColumn() const;
+
+    QStringRef tokenSpell() const;
+    double tokenValue() const;
+    QString tokenText() const;
+
+    Error errorCode() const;
+    QString errorMessage() const;
+
+    bool prevTerminator() const;
+
     enum ParenthesesState {
         IgnoreParentheses,
         CountParentheses,
         BalancedParentheses
     };
 
-    enum RegExpBodyPrefix {
-        NoPrefix,
-        EqualPrefix
-    };
-
-    bool scanRegExp(RegExpBodyPrefix prefix = NoPrefix);
-
-    NameId *pattern;
-    int flags;
-
-    State lexerState() const
-        { return state; }
-
-    QString errorMessage() const
-        { return errmsg; }
-    void setErrorMessage(const QString &err)
-        { errmsg = err; }
-    void setErrorMessage(const char *err)
-        { setErrorMessage(QString::fromLatin1(err)); }
-
-    Error error() const
-        { return err; }
-    void clearError()
-        { err = NoError; }
-
 private:
-    Engine *driver;
-    int yylineno;
-    bool done;
-    char *buffer8;
-    QChar *buffer16;
-    uint size8, size16;
-    uint pos8, pos16;
-    bool terminator;
-    bool restrKeyword;
-    // encountered delimiter like "'" and "}" on last run
-    bool delimited;
-    int stackToken;
+    inline void scanChar();
+    int scanToken();
 
-    State state;
-    void setDone(State s);
-    uint pos;
-    void shift(uint p);
-    int lookupKeyword(const char *);
+    int classify(const QChar *s, int n, bool qmlMode);
 
-    bool isWhiteSpace() const;
     bool isLineTerminator() const;
-    bool isHexDigit(ushort c) const;
-    bool isOctalDigit(ushort c) const;
-
-    int matchPunctuator(ushort c1, ushort c2,
-                         ushort c3, ushort c4);
-    ushort singleEscape(ushort c) const;
-    ushort convertOctal(ushort c1, ushort c2,
-                         ushort c3) const;
-public:
-    static unsigned char convertHex(ushort c1);
-    static unsigned char convertHex(ushort c1, ushort c2);
-    static QChar convertUnicode(ushort c1, ushort c2,
-                                 ushort c3, ushort c4);
-    static bool isIdentLetter(ushort c);
+    static bool isIdentLetter(QChar c);
     static bool isDecimalDigit(ushort c);
-
-    inline int ival() const { return qsyylval.ival; }
-    inline double dval() const { return qsyylval.dval; }
-    inline NameId *ustr() const { return qsyylval.ustr; }
-
-    const QChar *characterBuffer() const { return buffer16; }
-    int characterCount() const { return pos16; }
-
-private:
-    void record8(ushort c);
-    void record16(QChar c);
-    void recordStartPos();
-
-    int findReservedWord(const QChar *buffer, int size) const;
+    static bool isHexDigit(QChar c);
+    static bool isOctalDigit(ushort c);
+    static bool isUnicodeEscapeSequence(const QChar *chars);
 
     void syncProhibitAutomaticSemicolon();
+    QChar decodeUnicodeEscapeCharacter(bool *ok);
 
-    const QChar *code;
-    uint length;
-    int yycolumn;
-    int startpos;
-    int startlineno;
-    int startcolumn;
-    int bol;     // begin of line
+private:
+    Engine *_engine;
 
-    union {
-        int ival;
-        double dval;
-        NameId *ustr;
-    } qsyylval;
+    QString _code;
+    QString _tokenText;
+    QString _errorMessage;
+    QStringRef _tokenSpell;
 
-    // current and following unicode characters
-    ushort current, next1, next2, next3;
+    const QChar *_codePtr;
+    const QChar *_lastLinePtr;
+    const QChar *_tokenLinePtr;
+    const QChar *_tokenStartPtr;
 
-    struct keyword {
-        const char *name;
-        int token;
-    };
+    QChar _char;
+    Error _errorCode;
 
-    QString errmsg;
-    Error err;
+    int _currentLineNumber;
+    double _tokenValue;
 
-    bool wantRx;
-    bool check_reserved;
+    // parentheses state
+    ParenthesesState _parenthesesState;
+    int _parenthesesCount;
 
-    ParenthesesState parenthesesState;
-    int parenthesesCount;
-    bool prohibitAutomaticSemicolon;
-    bool tokenizeComments;
+    int _stackToken;
+
+    int _patternFlags;
+    int _tokenKind;
+    int _tokenLength;
+    int _tokenLine;
+
+    bool _validTokenText;
+    bool _prohibitAutomaticSemicolon;
+    bool _restrictedKeyword;
+    bool _terminator;
+    bool _delimited;
+    bool _qmlMode;
 };
 
-} // namespace QmlJS
+} // end of namespace QmlJS
 
 QT_QML_END_NAMESPACE
 
-#endif
+#endif // LEXER_H
