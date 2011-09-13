@@ -51,7 +51,6 @@ class LinkPrivate;
 class QMLJS_EXPORT Link
 {
     Q_DISABLE_COPY(Link)
-    Q_DECLARE_PRIVATE(Link)
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
 
 public:
@@ -67,36 +66,8 @@ public:
     ~Link();
 
 private:
-    static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
-
-    Context::ImportsPerDocument linkImports();
-
-    void populateImportedTypes(Imports *imports, Document::Ptr doc);
-    Import importFileOrDirectory(
-        Document::Ptr doc,
-        const ImportInfo &importInfo);
-    Import importNonFile(
-        Document::Ptr doc,
-        const ImportInfo &importInfo);
-    void importObject(Bind *bind, const QString &name, ObjectValue *object, NameId *targetNamespace);
-
-    bool importLibrary(Document::Ptr doc,
-                       const QString &libraryPath,
-                       Import *import,
-                       const QString &importPath = QString());
-    void loadQmldirComponents(ObjectValue *import,
-                              LanguageUtils::ComponentVersion version,
-                              const LibraryInfo &libraryInfo,
-                              const QString &libraryPath);
-    void loadImplicitDirectoryImports(Imports *imports, Document::Ptr doc);
-    void loadImplicitDefaultImports(Imports *imports);
-
-    void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
-    void warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
-    void appendDiagnostic(const Document::Ptr &doc, const DiagnosticMessage &message);
-
-private:
-    QScopedPointer<LinkPrivate> d_ptr;
+    LinkPrivate *d;
+    friend class LinkPrivate;
 };
 
 } // namespace QmlJS
