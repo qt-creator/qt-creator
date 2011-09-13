@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
             qWarning() << "Usage: " << qPrintable(args.at(0))
                 << " [-f] [-o out.pro] [dir...]"
                 << "\n\n"
-                << "Argumnents:\n"
+                << "Arguments:\n"
                 << "  -f, --force             overwrite existing files\n"
                 << "  -d, --depth <n>         recursion depth for sub-projects\n"
                 << "  -s, --separator <char>  separator for sub-project names\n"
