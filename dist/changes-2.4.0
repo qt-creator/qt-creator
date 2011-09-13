@@ -1,0 +1,50 @@
+Qt Creator version 2.4 contains bug fixes and new features.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.3.1...origin/2.4
+
+General
+
+Editing
+
+Managing Projects
+
+Debugging
+
+Debugging QML/JS
+
+Analyzing Code
+   * Standalone qmlprofiler command line tool allows you to retrieve & store QML tracing data
+
+C++ Support
+
+QML/JS Support
+
+Qt Quick Designer
+
+Help
+
+Platform Specific
+
+Mac
+
+Linux (GNOME and KDE)
+
+Windows
+
+Symbian Target
+
+Remote Linux Support
+
+Qt Designer
+
+FakeVim
+
+Version control plugins
+
+Additional credits go to:
+
