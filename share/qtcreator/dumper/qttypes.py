@@ -1938,7 +1938,7 @@ def qedit__std__string(expr, value):
     gdb.execute(cmd)
 
 def qedit__string(expr, value):
-    qdump__std__string(expr, value)
+    qedit__std__string(expr, value)
 
 def qdump__string(d, value):
     qdump__std__string(d, value)
