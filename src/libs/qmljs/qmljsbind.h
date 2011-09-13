@@ -102,6 +102,7 @@ private:
     ObjectValue *_rootObjectValue;
 
     QHash<AST::Node *, ObjectValue *> _qmlObjects;
+    QMultiHash<QString, const ObjectValue *> _qmlObjectsByPrototypeName;
     QSet<AST::Node *> _groupedPropertyBindings;
     QHash<AST::Node *, ObjectValue *> _attachedJSScopes;
     QStringList _includedScripts;
