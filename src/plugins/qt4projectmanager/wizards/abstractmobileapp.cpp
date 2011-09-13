@@ -207,10 +207,10 @@ QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage, int fil
     QByteArray desktopFileContent;
     if (!readTemplate(DesktopOrigin, &desktopFileContent, errorMessage))
         return QByteArray();
-    if (fileType == AbstractGeneratedFileInfo::DesktopFileFremantle) {
+    if (fileType == AbstractGeneratedFileInfo::DesktopFremantleFile) {
         desktopFileContent.replace("Icon=thisApp",
             "Icon=" + projectName().toUtf8() + "64");
-    } else if (fileType == AbstractGeneratedFileInfo::DesktopFileHarmattan) {
+    } else if (fileType == AbstractGeneratedFileInfo::DesktopHarmattanFile) {
         desktopFileContent.replace("Icon=thisApp",
             "Icon=/usr/share/icons/hicolor/80x80/apps/" + projectName().toUtf8() + "80.png");
         if (m_supportsMeegoBooster)
@@ -410,10 +410,10 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
     files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     files << file(generateFile(AbstractGeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp));
     files << file(generateFile(AbstractGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon));
-    files << file(generateFile(AbstractGeneratedFileInfo::pngIconFile64, errorMessage), path(PngIcon64));
-    files << file(generateFile(AbstractGeneratedFileInfo::pngIconFile80, errorMessage), path(PngIcon80));
-    files << file(generateFile(AbstractGeneratedFileInfo::DesktopFileFremantle, errorMessage), path(DesktopFremantle));
-    files << file(generateFile(AbstractGeneratedFileInfo::DesktopFileHarmattan, errorMessage), path(DesktopHarmattan));
+    files << file(generateFile(AbstractGeneratedFileInfo::PngIcon64File, errorMessage), path(PngIcon64));
+    files << file(generateFile(AbstractGeneratedFileInfo::PngIcon80File, errorMessage), path(PngIcon80));
+    files << file(generateFile(AbstractGeneratedFileInfo::DesktopFremantleFile, errorMessage), path(DesktopFremantle));
+    files << file(generateFile(AbstractGeneratedFileInfo::DesktopHarmattanFile, errorMessage), path(DesktopHarmattan));
     return files;
 }
 #endif // CREATORLESSTEST
@@ -465,14 +465,14 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
         case AbstractGeneratedFileInfo::SymbianSvgIconFile:
             data = readBlob(path(SymbianSvgIconOrigin), errorMessage);
             break;
-        case AbstractGeneratedFileInfo::pngIconFile64:
+        case AbstractGeneratedFileInfo::PngIcon64File:
             data = readBlob(path(PngIconOrigin64), errorMessage);
             break;
-        case AbstractGeneratedFileInfo::pngIconFile80:
+        case AbstractGeneratedFileInfo::PngIcon80File:
             data = readBlob(path(PngIconOrigin80), errorMessage);
             break;
-        case AbstractGeneratedFileInfo::DesktopFileFremantle:
-        case AbstractGeneratedFileInfo::DesktopFileHarmattan:
+        case AbstractGeneratedFileInfo::DesktopFremantleFile:
+        case AbstractGeneratedFileInfo::DesktopHarmattanFile:
             data = generateDesktopFile(errorMessage, fileType);
             break;
         case AbstractGeneratedFileInfo::DeploymentPriFile:

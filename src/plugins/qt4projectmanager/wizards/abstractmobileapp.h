@@ -57,10 +57,10 @@ struct
         AppProFile,
         DeploymentPriFile,
         SymbianSvgIconFile,
-        pngIconFile64,
-        pngIconFile80,
-        DesktopFileFremantle,
-        DesktopFileHarmattan,
+        PngIcon64File,
+        PngIcon80File,
+        DesktopFremantleFile,
+        DesktopHarmattanFile,
         ExtendedFile
     };
 
