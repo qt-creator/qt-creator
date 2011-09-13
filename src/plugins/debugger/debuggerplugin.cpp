@@ -723,6 +723,7 @@ public slots:
     void startExternalApplication();
     void startRemoteCdbSession();
     void startRemoteApplication();
+    void attachToQmlPort();
     void startRemoteEngine();
     void attachExternalApplication();
     Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
@@ -1021,6 +1022,7 @@ public:
     QAction *m_startAction;
     QAction *m_startExternalAction;
     QAction *m_startRemoteAction;
+    QAction *m_attachToQmlPortAction;
     QAction *m_startRemoteCdbAction;
     QAction *m_startRemoteLldbAction;
     QAction *m_attachExternalAction;
@@ -1137,6 +1139,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_startAction = 0;
     m_startExternalAction = 0;
     m_startRemoteAction = 0;
+    m_attachToQmlPortAction = 0;
     m_startRemoteCdbAction = 0;
     m_startRemoteLldbAction = 0;
     m_attachExternalAction = 0;
@@ -1373,6 +1376,7 @@ void DebuggerPluginPrivate::languagesChanged()
     m_attachCoreAction->setVisible(debuggerIsCPP);
     m_startRemoteAction->setVisible(debuggerIsCPP);
     m_detachAction->setVisible(debuggerIsCPP);
+    m_attachToQmlPortAction->setVisible(m_mainWindow->activeDebugLanguages() & QmlLanguage);
 }
 
 void DebuggerPluginPrivate::debugProject()
@@ -1601,6 +1605,39 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
     sp.sysroot = dlg.sysroot();
+    if (RunControl *rc = createDebugger(sp))
+        startDebugger(rc);
+}
+
+void DebuggerPluginPrivate::attachToQmlPort()
+{
+    DebuggerStartParameters sp;
+    AttachToQmlPortDialog dlg(mainWindow());
+
+    const QVariant qmlServerAddress = configValue(_("LastQmlServerAddress"));
+    if (qmlServerAddress.isValid()) {
+        dlg.setHost(qmlServerAddress.toString());
+    } else {
+        dlg.setHost(sp.qmlServerAddress);
+    }
+
+    const QVariant qmlServerPort = configValue(_("LastQmlServerPort"));
+    if (qmlServerPort.isValid()) {
+        dlg.setPort(qmlServerPort.toInt());
+    } else {
+        dlg.setPort(sp.qmlServerPort);
+    }
+
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    setConfigValue(_("LastQmlServerAddress"), dlg.host());
+    setConfigValue(_("LastQmlServerPort"), dlg.port());
+
+    sp.serverAddress = dlg.host();
+    sp.serverPort = dlg.port();
+
+    sp.startMode = AttachToQmlPort;
     if (RunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1971,6 +2008,7 @@ void DebuggerPluginPrivate::setInitialState()
 
     m_startExternalAction->setEnabled(true);
     m_attachExternalAction->setEnabled(true);
+    m_attachToQmlPortAction->setEnabled(true);
     m_attachCoreAction->setEnabled(true);
     m_startRemoteAction->setEnabled(true);
     m_detachAction->setEnabled(false);
@@ -2086,6 +2124,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     }
 
     m_startExternalAction->setEnabled(true);
+    m_attachToQmlPortAction->setEnabled(true);
     m_attachExternalAction->setEnabled(true);
     m_attachCoreAction->setEnabled(true);
     m_startRemoteAction->setEnabled(true);
@@ -2833,6 +2872,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Start and Attach to Remote Application..."));
     connect(act, SIGNAL(triggered()), SLOT(startRemoteApplication()));
 
+    act = m_attachToQmlPortAction = new QAction(this);
+    act->setText(tr("Attach to QML Port..."));
+    connect(act, SIGNAL(triggered()), SLOT(attachToQmlPort()));
+
 #ifdef Q_OS_WIN
     m_startRemoteCdbAction = new QAction(tr("Attach to Remote CDB Session..."), this);
     connect(m_startRemoteCdbAction, SIGNAL(triggered()),
@@ -2879,6 +2922,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_startRemoteAction,
         "Debugger.AttachRemote", globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+
+    cmd = am->registerAction(m_attachToQmlPortAction,
+        "Debugger.AttachToQmlPort", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 

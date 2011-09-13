@@ -39,6 +39,7 @@
 #include <utils/ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QMetaType>
 
@@ -65,7 +66,7 @@ public:
         useTerminal(false),
         breakOnMain(false),
         qmlServerAddress(QLatin1String("127.0.0.1")),
-        qmlServerPort(0),
+        qmlServerPort(ProjectExplorer::Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
         useServerStartScript(false),
         connParams(Utils::SshConnectionParameters::NoProxy),
         startMode(NoStartMode),

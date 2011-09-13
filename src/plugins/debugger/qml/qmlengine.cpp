@@ -331,7 +331,8 @@ void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    if (!isSlaveEngine() && startParameters().startMode != AttachToRemote)
+    if (!isSlaveEngine() && startParameters().startMode != AttachToRemote
+            && startParameters().startMode != AttachToQmlPort)
         startApplicationLauncher();
     d->m_noDebugOutputTimer.start();
 }

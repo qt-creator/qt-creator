@@ -47,6 +47,7 @@ class AttachCoreDialog;
 class AttachExternalDialog;
 class StartExternalDialog;
 class StartRemoteDialog;
+class AttachToQmlPortDialog;
 class StartRemoteEngineDialog;
 } // namespace Ui
 
@@ -214,6 +215,24 @@ private slots:
 
 private:
     Ui::StartRemoteDialog *m_ui;
+};
+
+class AttachToQmlPortDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit AttachToQmlPortDialog(QWidget *parent);
+    ~AttachToQmlPortDialog();
+
+    QString host() const;
+    void setHost(const QString &host);
+
+    int port() const;
+    void setPort(const int port);
+
+private:
+    Ui::AttachToQmlPortDialog *m_ui;
 };
 
 class StartRemoteCdbDialog : public QDialog

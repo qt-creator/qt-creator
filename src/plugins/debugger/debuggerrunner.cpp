@@ -475,6 +475,9 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
         // For now thats the only supported IPC engine.
         result.push_back(LldbEngineType);
         break;
+    case AttachToQmlPort:
+        result.push_back(QmlEngineType); // Only QML can do this
+        break;
     }
     return result;
 }

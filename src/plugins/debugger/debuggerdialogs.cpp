@@ -40,6 +40,7 @@
 #include "ui_startexternaldialog.h"
 #include "ui_startremotedialog.h"
 #include "ui_startremoteenginedialog.h"
+#include "ui_attachtoqmlportdialog.h"
 
 #ifdef Q_OS_WIN
 #  include "shared/dbgwinutils.h"
@@ -803,6 +804,49 @@ void StartRemoteDialog::updateState()
     bool enabled = m_ui->useServerStartScriptCheckBox->isChecked();
     m_ui->serverStartScriptLabel->setEnabled(enabled);
     m_ui->serverStartScript->setEnabled(enabled);
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// AttachToQmlPortDialog
+//
+///////////////////////////////////////////////////////////////////////
+
+AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
+  : QDialog(parent),
+    m_ui(new Ui::AttachToQmlPortDialog)
+{
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    m_ui->setupUi(this);
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+AttachToQmlPortDialog::~AttachToQmlPortDialog()
+{
+    delete m_ui;
+}
+
+void AttachToQmlPortDialog::setHost(const QString &host)
+{
+    m_ui->hostLineEdit->setText(host);
+}
+
+QString AttachToQmlPortDialog::host() const
+{
+    return m_ui->hostLineEdit->text();
+}
+
+void AttachToQmlPortDialog::setPort(const int port)
+{
+    m_ui->portSpinBox->setValue(port);
+}
+
+int AttachToQmlPortDialog::port() const
+{
+    return m_ui->portSpinBox->value();
 }
 
 // --------- StartRemoteCdbDialog
