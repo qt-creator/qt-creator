@@ -107,6 +107,7 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
     case WatchpointAtExpression:
     case BreakpointAtSysCall:
     case WatchpointAtAddress:
+    case BreakpointOnSignalHandler:
         break;
     case BreakpointAtExec: { // Emulate by breaking on CreateProcessW().
         BreakpointParameters rc(BreakpointByFunction);
@@ -163,6 +164,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     case BreakpointAtCatch:
     case BreakpointAtThrow:
     case BreakpointAtMain:
+    case BreakpointOnSignalHandler:
         QTC_ASSERT(false, return QByteArray(); )
         break;
     case BreakpointByAddress:

@@ -139,7 +139,8 @@ enum BreakpointType
     //BreakpointAtVFork,
     BreakpointAtSysCall,
     WatchpointAtAddress,
-    WatchpointAtExpression
+    WatchpointAtExpression,
+    BreakpointOnSignalHandler
 };
 
 //! \enum Debugger::Internal::BreakpointState

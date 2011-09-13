@@ -65,13 +65,14 @@ public:
 
     virtual void activateFrame(int index) = 0;
 
-    virtual void insertBreakpoint(BreakpointModelId id) = 0;
-    virtual void removeBreakpoint(BreakpointModelId id) = 0;
-    virtual void changeBreakpoint(BreakpointModelId id) = 0;
+    virtual bool acceptsBreakpoint(const BreakpointModelId &id);
+    virtual void insertBreakpoint(const BreakpointModelId &id) = 0;
+    virtual void removeBreakpoint(const BreakpointModelId &id) = 0;
+    virtual void changeBreakpoint(const BreakpointModelId &id) = 0;
     virtual void updateBreakpoints() = 0;
 
     virtual void assignValueInDebugger(const QByteArray expr, const quint64 &id,
-                                       const QString &property, const QString value) = 0;
+                                       const QString &property, const QString &value) = 0;
 
     virtual void updateWatchData(const WatchData *data) = 0;
     virtual void executeDebuggerCommand(const QString &command) = 0;

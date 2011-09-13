@@ -216,7 +216,7 @@ void QScriptDebuggerClient::activateFrame(int index)
     sendMessage(reply);
 }
 
-void QScriptDebuggerClient::insertBreakpoint(BreakpointModelId id)
+void QScriptDebuggerClient::insertBreakpoint(const BreakpointModelId &id)
 {
     BreakHandler *handler = d->engine->breakHandler();
     JSAgentBreakpointData bp;
@@ -226,7 +226,7 @@ void QScriptDebuggerClient::insertBreakpoint(BreakpointModelId id)
     d->breakpoints.insert(bp);
 }
 
-void QScriptDebuggerClient::removeBreakpoint(BreakpointModelId id)
+void QScriptDebuggerClient::removeBreakpoint(const BreakpointModelId &id)
 {
     BreakHandler *handler = d->engine->breakHandler();
     JSAgentBreakpointData bp;
@@ -236,7 +236,7 @@ void QScriptDebuggerClient::removeBreakpoint(BreakpointModelId id)
     d->breakpoints.remove(bp);
 }
 
-void QScriptDebuggerClient::changeBreakpoint(BreakpointModelId /*id*/)
+void QScriptDebuggerClient::changeBreakpoint(const BreakpointModelId &/*id*/)
 {
 }
 
@@ -251,7 +251,7 @@ void QScriptDebuggerClient::updateBreakpoints()
 }
 
 void QScriptDebuggerClient::assignValueInDebugger(const QByteArray expr, const quint64 &id,
-                                                  const QString &property, const QString value)
+                                                  const QString &property, const QString &value)
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);

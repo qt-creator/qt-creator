@@ -64,13 +64,13 @@ public:
 
     void activateFrame(int index);
 
-    void insertBreakpoint(BreakpointModelId id);
-    void removeBreakpoint(BreakpointModelId id);
-    void changeBreakpoint(BreakpointModelId id);
+    void insertBreakpoint(const BreakpointModelId &id);
+    void removeBreakpoint(const BreakpointModelId &id);
+    void changeBreakpoint(const BreakpointModelId &id);
     void updateBreakpoints();
 
     void assignValueInDebugger(const QByteArray expr, const quint64 &id,
-                                       const QString &property, const QString value);
+                                       const QString &property, const QString &value);
 
     void updateWatchData(const WatchData *data);
     void executeDebuggerCommand(const QString &command);

@@ -312,7 +312,13 @@ void QmlV8DebuggerClient::activateFrame(int index)
     setLocals(index);
 }
 
-void QmlV8DebuggerClient::insertBreakpoint(BreakpointModelId id)
+bool QmlV8DebuggerClient::acceptsBreakpoint(const BreakpointModelId &id)
+{
+    BreakpointType type = d->engine->breakHandler()->breakpointData(id).type;
+    return ((type == BreakpointOnSignalHandler) || (type == BreakpointByFunction));
+}
+
+void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
 {
     BreakHandler *handler = d->engine->breakHandler();
     QByteArray request;
@@ -327,6 +333,9 @@ void QmlV8DebuggerClient::insertBreakpoint(BreakpointModelId id)
     } else if (handler->breakpointData(id).type == BreakpointByFunction) {
         JsonInputStream(request) << "type" << ':' << "function";
         JsonInputStream(request) << ',' << "target" << ':' << handler->functionName(id).toUtf8();
+    } else if (handler->breakpointData(id).type == BreakpointOnSignalHandler) {
+        JsonInputStream(request) << "type" << ':' << "event";
+        JsonInputStream(request) << ',' << "target" << ':' << handler->functionName(id).toUtf8();
     }
     JsonInputStream(request) << '}';
     JsonInputStream(request) << '}';
@@ -335,7 +344,7 @@ void QmlV8DebuggerClient::insertBreakpoint(BreakpointModelId id)
     sendMessage(packMessage(request));
 }
 
-void QmlV8DebuggerClient::removeBreakpoint(BreakpointModelId id)
+void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
 {
     int breakpoint = d->breakpoints.value(id);
     d->breakpoints.remove(id);
@@ -354,7 +363,7 @@ void QmlV8DebuggerClient::removeBreakpoint(BreakpointModelId id)
     sendMessage(packMessage(request));
 }
 
-void QmlV8DebuggerClient::changeBreakpoint(BreakpointModelId /*id*/)
+void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &/*id*/)
 {
 }
 
@@ -363,7 +372,7 @@ void QmlV8DebuggerClient::updateBreakpoints()
 }
 
 void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const quint64 &/*id*/,
-                                                const QString &/*property*/, const QString /*value*/)
+                                                const QString &/*property*/, const QString &/*value*/)
 {
     //TODO::
 }
@@ -468,7 +477,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
         ds >> response;
 
         JsonValue value(response);
-        QString type = value.findChild("type").toVariant().toString();
+        const QString type = value.findChild("type").toVariant().toString();
 
         if (type == "response") {
 
@@ -478,7 +487,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 return;
             }
 
-            QString debugCommand(value.findChild("command").toVariant().toString());
+            const QString debugCommand(value.findChild("command").toVariant().toString());
             if (debugCommand == "backtrace") {
                 setStackFrames(response);
 
@@ -490,6 +499,12 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 int breakpoint = value.findChild("body").findChild("breakpoint").toVariant().toInt();
                 BreakpointModelId id = d->breakpointsSync.take(sequence);
                 d->breakpoints.insert(id,breakpoint);
+
+                //If this is an event breakpoint then set state = BreakpointInsertOk
+                const QString breakpointType = value.findChild("body").findChild("type").toVariant().toString();
+                if (breakpointType == "event") {
+                    d->engine->breakHandler()->notifyBreakpointInsertOk(id);
+                }
 
             } else if (debugCommand == "evaluate") {
                 setExpression(response);
@@ -504,7 +519,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
             }
 
         } else if (type == "event") {
-            QString event(value.findChild("event").toVariant().toString());
+            const QString event(value.findChild("event").toVariant().toString());
 
             if (event == "break") {
                 d->engine->inferiorSpontaneousStop();

@@ -30,6 +30,7 @@
 **
 **************************************************************************/
 #include "qmldebuggerclient.h"
+#include "breakpoint.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -52,6 +53,11 @@ QmlDebuggerClient::QmlDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnecti
 QmlDebuggerClient::~QmlDebuggerClient()
 {
     delete d;
+}
+
+bool QmlDebuggerClient::acceptsBreakpoint(const BreakpointModelId &/*id*/)
+{
+    return false;
 }
 
 void QmlDebuggerClient::statusChanged(Status status)

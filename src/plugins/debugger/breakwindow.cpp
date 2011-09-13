@@ -119,8 +119,10 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
           << tr("Break when a new process is executed")
           << tr("Break when a system call is executed")
           << tr("Break on data access at fixed address")
-          << tr("Break on data access at address given by expression");
-    QTC_ASSERT(types.size() == WatchpointAtExpression, return; )
+          << tr("Break on data access at address given by expression")
+          << tr("Break on QML signal handler");
+
+    QTC_ASSERT(types.size() == BreakpointOnSignalHandler, return; )
     m_ui.comboBoxType->addItems(types);
     m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
     connect(m_ui.comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
@@ -358,6 +360,8 @@ void BreakpointDialog::typeChanged(int)
     case WatchpointAtExpression:
         getParts(ExpressionPart|AllConditionParts|TracePointPart, &m_savedParameters);
         break;
+    case BreakpointOnSignalHandler:
+        getParts(FunctionPart, &m_savedParameters);
     }
 
     // Enable and set up new state from saved values.
@@ -399,6 +403,10 @@ void BreakpointDialog::typeChanged(int)
         setPartsEnabled(ExpressionPart|AllConditionParts|TracePointPart|TracePointPart);
         clearOtherParts(ExpressionPart|AllConditionParts|TracePointPart);
         break;
+    case BreakpointOnSignalHandler:
+        setParts(FunctionPart, m_savedParameters);
+        setPartsEnabled(FunctionPart);
+        clearOtherParts(FunctionPart);
     }
 }
 

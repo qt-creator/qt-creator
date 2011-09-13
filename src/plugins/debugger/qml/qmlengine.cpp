@@ -603,7 +603,18 @@ void QmlEngine::attemptBreakpointSynchronization()
 
 bool QmlEngine::acceptsBreakpoint(BreakpointModelId id) const
 {
-    return !DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id));
+    if (!DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id)))
+            return true;
+
+    //If it is a Cpp Breakpoint query if the type can be also handled by the debugger client
+    //TODO: enable setting of breakpoints before start of debug session
+    //For now, the event breakpoint can be set after the activeDebuggerClient is known
+    //This is because the older client does not support BreakpointOnSignalHandler
+    bool acceptBreakpoint = false;
+    if (d->m_adapter.activeDebuggerClient()) {
+        acceptBreakpoint = d->m_adapter.activeDebuggerClient()->acceptsBreakpoint(id);
+    }
+    return acceptBreakpoint;
 }
 
 void QmlEngine::loadSymbols(const QString &moduleName)
