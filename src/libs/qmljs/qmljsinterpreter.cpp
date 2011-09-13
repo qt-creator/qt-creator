@@ -1667,12 +1667,12 @@ ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
         for (UiObjectMemberList *it = _initializer->members; it; it = it->next) {
             UiObjectMember *member = it->member;
             if (UiPublicMember *def = cast<UiPublicMember *>(member)) {
-                if (def->type == UiPublicMember::Property && def->name && def->memberType) {
+                if (def->type == UiPublicMember::Property && !def->name.isEmpty() && !def->memberType.isEmpty()) {
                     ASTPropertyReference *ref = new ASTPropertyReference(def, _doc, valueOwner);
                     _properties.append(ref);
                     if (def->defaultToken.isValid())
                         _defaultPropertyRef = ref;
-                } else if (def->type == UiPublicMember::Signal && def->name) {
+                } else if (def->type == UiPublicMember::Signal && !def->name.isEmpty()) {
                     ASTSignalReference *ref = new ASTSignalReference(def, _doc, valueOwner);
                     _signals.append(ref);
                 }
@@ -1696,12 +1696,12 @@ bool ASTObjectValue::getSourceLocation(QString *fileName, int *line, int *column
 void ASTObjectValue::processMembers(MemberProcessor *processor) const
 {
     foreach (ASTPropertyReference *ref, _properties) {
-        processor->processProperty(ref->ast()->name->asString(), ref);
+        processor->processProperty(ref->ast()->name.toString(), ref);
         // ### Should get a different value?
         processor->processGeneratedSlot(ref->onChangedSlotName(), ref);
     }
     foreach (ASTSignalReference *ref, _signals) {
-        processor->processSignal(ref->ast()->name->asString(), ref);
+        processor->processSignal(ref->ast()->name.toString(), ref);
         // ### Should get a different value?
         processor->processGeneratedSlot(ref->slotName(), ref);
     }
@@ -1713,8 +1713,8 @@ QString ASTObjectValue::defaultPropertyName() const
 {
     if (_defaultPropertyRef) {
         UiPublicMember *prop = _defaultPropertyRef->ast();
-        if (prop && prop->name)
-            return prop->name->asString();
+        if (prop)
+            return prop->name.toString();
     }
     return QString();
 }
@@ -1773,7 +1773,7 @@ ASTFunctionValue::ASTFunctionValue(FunctionExpression *ast, const Document *doc,
     setPrototype(valueOwner->functionPrototype());
 
     for (FormalParameterList *it = ast->formals; it; it = it->next)
-        _argumentNames.append(it->name);
+        _argumentNames.append(it->name.toString());
 }
 
 ASTFunctionValue::~ASTFunctionValue()
@@ -1803,8 +1803,9 @@ const Value *ASTFunctionValue::argument(int) const
 QString ASTFunctionValue::argumentName(int index) const
 {
     if (index < _argumentNames.size()) {
-        if (NameId *nameId = _argumentNames.at(index))
-            return nameId->asString();
+        const QString &name = _argumentNames.at(index);
+        if (!name.isEmpty())
+            return name;
     }
 
     return FunctionValue::argumentName(index);
@@ -1848,7 +1849,7 @@ const Value *QmlPrototypeReference::value(ReferenceContext *referenceContext) co
 ASTPropertyReference::ASTPropertyReference(UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner)
     : Reference(valueOwner), _ast(ast), _doc(doc)
 {
-    const QString propertyName = ast->name->asString();
+    const QString &propertyName = ast->name.toString();
     _onChangedSlotName = QLatin1String("on");
     _onChangedSlotName += propertyName.at(0).toUpper();
     _onChangedSlotName += propertyName.midRef(1);
@@ -1870,8 +1871,8 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
 const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) const
 {
     if (_ast->statement
-            && (!_ast->memberType || _ast->memberType->asString() == QLatin1String("variant")
-                || _ast->memberType->asString() == QLatin1String("alias"))) {
+            && (_ast->memberType.isEmpty() || _ast->memberType == QLatin1String("variant")
+                || _ast->memberType == QLatin1String("alias"))) {
 
         // Adjust the context for the current location - expensive!
         // ### Improve efficiency by caching the 'use chain' constructed in ScopeBuilder.
@@ -1887,8 +1888,8 @@ const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) con
         return evaluator(_ast->statement);
     }
 
-    if (_ast->memberType)
-        return valueOwner()->defaultValueForBuiltinType(_ast->memberType->asString());
+    if (!_ast->memberType.isEmpty())
+        return valueOwner()->defaultValueForBuiltinType(_ast->memberType.toString());
 
     return valueOwner()->undefinedValue();
 }
@@ -1896,7 +1897,7 @@ const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) con
 ASTSignalReference::ASTSignalReference(UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner)
     : Reference(valueOwner), _ast(ast), _doc(doc)
 {
-    const QString signalName = ast->name->asString();
+    const QString &signalName = ast->name.toString();
     _slotName = QLatin1String("on");
     _slotName += signalName.at(0).toUpper();
     _slotName += signalName.midRef(1);
@@ -1951,8 +1952,8 @@ QString ImportInfo::name() const
 
 QString ImportInfo::id() const
 {
-    if (_ast && _ast->importId)
-        return _ast->importId->asString();
+    if (_ast)
+        return _ast->importId.toString();
     return QString();
 }
 

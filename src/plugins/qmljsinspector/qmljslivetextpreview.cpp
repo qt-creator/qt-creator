@@ -498,9 +498,9 @@ protected:
         if (unsyncronizableChanges == QmlJSLiveTextPreview::NoUnsyncronizableChanges) {
             UiObjectDefinition *parentDefinition = cast<UiObjectDefinition *>(parent);
             if (parentDefinition && parentDefinition->qualifiedTypeNameId
-                       && parentDefinition->qualifiedTypeNameId->name)
+                       && !parentDefinition->qualifiedTypeNameId->name.isEmpty())
             {
-                unsyncronizableElementName = parentDefinition->qualifiedTypeNameId->name->asString();
+                unsyncronizableElementName = parentDefinition->qualifiedTypeNameId->name.toString();
                 unsyncronizableChanges = QmlJSLiveTextPreview::ElementChangeWarning;
                 unsyncronizableChangeLine = parentDefinition->firstSourceLocation().startLine;
                 unsyncronizableChangeColumn = parentDefinition->firstSourceLocation().startColumn;

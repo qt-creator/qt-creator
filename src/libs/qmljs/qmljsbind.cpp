@@ -124,9 +124,10 @@ bool Bind::usesQmlPrototype(ObjectValue *prototype,
     // if there are no renamed imports and the document does not use
     // the className string anywhere, it's out
     if (possibleNames.isEmpty()) {
-        NameId nameId(componentName.data(), componentName.size());
-        if (!_doc->engine()->literals().contains(nameId))
-            return false;
+        // ### FIXME!
+//        NameId nameId(componentName.data(), componentName.size());
+//        if (!_doc->engine()->literals().contains(nameId))
+//            return false;
     }
 
     QHashIterator<Node *, ObjectValue *> it(_qmlObjects);
@@ -148,12 +149,12 @@ bool Bind::usesQmlPrototype(ObjectValue *prototype,
         // optimize the common case of no renamed imports
         if (possibleNames.isEmpty()) {
             for (UiQualifiedId *idIt = id; idIt; idIt = idIt->next) {
-                if (!idIt->next && idIt->name->asString() != componentName)
+                if (!idIt->next && idIt->name != componentName)
                     skip = true;
             }
         } else {
             for (UiQualifiedId *idIt = id; idIt; idIt = idIt->next) {
-                if (!idIt->next && !possibleNames.contains(idIt->name->asString()))
+                if (!idIt->next && !possibleNames.contains(idIt->name.toString()))
                     skip = true;
             }
         }
@@ -195,8 +196,7 @@ QString Bind::toString(UiQualifiedId *qualifiedId, QChar delimiter)
         if (iter != qualifiedId)
             result += delimiter;
 
-        if (iter->name)
-            result += iter->name->asString();
+        result += iter->name;
     }
 
     return result;
@@ -267,10 +267,11 @@ bool Bind::visit(UiImport *ast)
             _diagnosticMessages->append(
                         errorMessage(ast, tr("package import requires a version number")));
         }
-    } else if (ast->fileName) {
-        QFileInfo importFileInfo(ast->fileName->asString());
+    } else if (!ast->fileName.isEmpty()) {
+        const QString &fileName = ast->fileName.toString();
+        QFileInfo importFileInfo(fileName);
         if (!importFileInfo.isAbsolute()) {
-            importFileInfo=QFileInfo(_doc->path() + QDir::separator() + ast->fileName->asString());
+            importFileInfo=QFileInfo(_doc->path() + QDir::separator() + fileName);
         }
         name = importFileInfo.absoluteFilePath();
         if (importFileInfo.isFile())
@@ -306,8 +307,8 @@ bool Bind::visit(UiObjectDefinition *ast)
     // an UiObjectDefinition may be used to group property bindings
     // think anchors { ... }
     bool isGroupedBinding = ast->qualifiedTypeNameId
-            && ast->qualifiedTypeNameId->name
-            && ast->qualifiedTypeNameId->name->asString().at(0).isLower();
+            && !ast->qualifiedTypeNameId->name.isEmpty()
+            && ast->qualifiedTypeNameId->name.at(0).isLower();
 
     if (!isGroupedBinding) {
         ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
@@ -338,8 +339,8 @@ bool Bind::visit(UiScriptBinding *ast)
     if (_currentObjectValue && toString(ast->qualifiedId) == QLatin1String("id")) {
         if (ExpressionStatement *e = cast<ExpressionStatement*>(ast->statement))
             if (IdentifierExpression *i = cast<IdentifierExpression*>(e->expression))
-                if (i->name)
-                    _idEnvironment->setMember(i->name->asString(), _currentObjectValue);
+                if (!i->name.isEmpty())
+                    _idEnvironment->setMember(i->name.toString(), _currentObjectValue);
     }
     const Block *block = AST::cast<const Block*>(ast->statement);
     if (block) {
@@ -363,12 +364,12 @@ bool Bind::visit(UiArrayBinding *)
 
 bool Bind::visit(VariableDeclaration *ast)
 {
-    if (! ast->name)
+    if (ast->name.isEmpty())
         return false;
 
     ASTVariableReference *ref = new ASTVariableReference(ast, _doc, &_valueOwner);
     if (_currentObjectValue)
-        _currentObjectValue->setMember(ast->name->asString(), ref);
+        _currentObjectValue->setMember(ast->name.toString(), ref);
     return true;
 }
 
@@ -379,8 +380,8 @@ bool Bind::visit(FunctionExpression *ast)
     //    return false;
 
     ASTFunctionValue *function = new ASTFunctionValue(ast, _doc, &_valueOwner);
-    if (_currentObjectValue && ast->name && cast<FunctionDeclaration *>(ast))
-        _currentObjectValue->setMember(ast->name->asString(), function);
+    if (_currentObjectValue && !ast->name.isEmpty() && cast<FunctionDeclaration *>(ast))
+        _currentObjectValue->setMember(ast->name.toString(), function);
 
     // build function scope
     ObjectValue *functionScope = _valueOwner.newObject(/*prototype=*/0);
@@ -392,8 +393,8 @@ bool Bind::visit(FunctionExpression *ast)
 
     // 1. Function formal arguments
     for (FormalParameterList *it = ast->formals; it; it = it->next) {
-        if (it->name)
-            functionScope->setMember(it->name->asString(), _valueOwner.undefinedValue());
+        if (!it->name.isEmpty())
+            functionScope->setMember(it->name.toString(), _valueOwner.undefinedValue());
     }
 
     // 2. Functions defined inside the function body

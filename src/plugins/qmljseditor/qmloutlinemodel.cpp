@@ -271,7 +271,7 @@ private:
         AST::IdentifierExpression *lhsIdent = AST::cast<AST::IdentifierExpression *>(binExp->left);
         AST::ObjectLiteral *rhsObjLit = AST::cast<AST::ObjectLiteral *>(binExp->right);
 
-        if (lhsIdent && rhsObjLit && (lhsIdent->name->asString() == "testcase")
+        if (lhsIdent && rhsObjLit && (lhsIdent->name == "testcase")
             && (binExp->op == QSOperator::Assign)) {
             QModelIndex index = m_model->enterTestCase(rhsObjLit);
             m_nodeToIndex.insert(rhsObjLit, index);
@@ -553,8 +553,8 @@ QModelIndex QmlOutlineModel::enterPublicMember(AST::UiPublicMember *publicMember
 {
     QMap<int, QVariant> objectData;
 
-    if (publicMember->name)
-        objectData.insert(Qt::DisplayRole, publicMember->name->asString());
+    if (!publicMember->name.isEmpty())
+        objectData.insert(Qt::DisplayRole, publicMember->name.toString());
     objectData.insert(AnnotationRole, getAnnotation(publicMember->statement));
     objectData.insert(ItemTypeRole, NonElementBindingType);
 
@@ -572,7 +572,8 @@ QModelIndex QmlOutlineModel::enterFunctionDeclaration(AST::FunctionDeclaration *
 {
     QMap<int, QVariant> objectData;
 
-    objectData.insert(Qt::DisplayRole, functionDeclaration->name->asString());
+    if (!functionDeclaration->name.isEmpty())
+        objectData.insert(Qt::DisplayRole, functionDeclaration->name.toString());
     objectData.insert(ItemTypeRole, ElementBindingType);
 
     QmlOutlineItem *item = enterNode(objectData, functionDeclaration, 0, m_icons->functionDeclarationIcon());
@@ -606,7 +607,7 @@ QModelIndex QmlOutlineModel::enterTestCaseProperties(AST::PropertyNameAndValueLi
 {
     QMap<int, QVariant> objectData;
     if (AST::IdentifierPropertyName *propertyName = AST::cast<AST::IdentifierPropertyName *>(propertyNameAndValueList->name)) {
-        objectData.insert(Qt::DisplayRole, propertyName->id->asString());
+        objectData.insert(Qt::DisplayRole, propertyName->id.toString());
         objectData.insert(ItemTypeRole, ElementBindingType);
         QmlOutlineItem *item;
         if (propertyNameAndValueList->value->kind == AST::Node::Kind_FunctionExpression) {
@@ -895,8 +896,8 @@ QString QmlOutlineModel::asString(AST::UiQualifiedId *id)
 {
     QString text;
     for (; id; id = id->next) {
-        if (id->name)
-            text += id->name->asString();
+        if (!id->name.isEmpty())
+            text += id->name;
         else
             text += QLatin1Char('?');
 

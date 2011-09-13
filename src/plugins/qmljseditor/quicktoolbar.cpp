@@ -75,7 +75,7 @@ static inline const ObjectValue * getPropertyChangesTarget(Node *node, const Sco
         for (UiObjectMemberList *members = initializer->members; members; members = members->next) {
             if (UiScriptBinding *scriptBinding = cast<UiScriptBinding *>(members->member)) {
                 if (scriptBinding->qualifiedId
-                        && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
+                        && scriptBinding->qualifiedId->name == QLatin1String("target")
                         && ! scriptBinding->qualifiedId->next) {
                     Evaluate evaluator(&scopeChain);
                     const Value *targetValue = evaluator(scriptBinding->statement);
@@ -184,12 +184,12 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
         quint32 end = 0;
         UiObjectInitializer *initializer = 0;
         if (objectDefinition) {
-            name = objectDefinition->qualifiedTypeNameId->name->asString();
+            name = objectDefinition->qualifiedTypeNameId->name.toString();
             initializer = objectDefinition->initializer;
             offset = objectDefinition->firstSourceLocation().offset;
             end = objectDefinition->lastSourceLocation().end();
         } else if (objectBinding) {
-            name = objectBinding->qualifiedTypeNameId->name->asString();
+            name = objectBinding->qualifiedTypeNameId->name.toString();
             initializer = objectBinding->initializer;
             offset = objectBinding->firstSourceLocation().offset;
             end = objectBinding->lastSourceLocation().end();
@@ -274,10 +274,10 @@ bool QuickToolBar::isAvailable(TextEditor::BaseTextEditor *, Document::Ptr docum
     UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node);
     UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node);
     if (objectDefinition) {
-        name = objectDefinition->qualifiedTypeNameId->name->asString();
+        name = objectDefinition->qualifiedTypeNameId->name.toString();
 
     } else if (objectBinding) {
-        name = objectBinding->qualifiedTypeNameId->name->asString();
+        name = objectBinding->qualifiedTypeNameId->name.toString();
     }
 
     QStringList prototypes;

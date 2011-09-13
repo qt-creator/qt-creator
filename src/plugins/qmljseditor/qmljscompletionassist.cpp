@@ -452,11 +452,11 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
                 break;
             const ObjectValue *newScopeType = qmlScopeType;
             for (AST::UiQualifiedId *it = objDef->qualifiedTypeNameId; it; it = it->next) {
-                if (!newScopeType || !it->name) {
+                if (!newScopeType || it->name.isEmpty()) {
                     newScopeType = 0;
                     break;
                 }
-                const Value *v = newScopeType->lookupMember(it->name->asString(), context);
+                const Value *v = newScopeType->lookupMember(it->name.toString(), context);
                 v = context->lookupReference(v);
                 newScopeType = value_cast<const ObjectValue *>(v);
             }

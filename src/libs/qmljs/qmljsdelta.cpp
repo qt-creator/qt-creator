@@ -83,11 +83,11 @@ static QString label(UiQualifiedId *id)
 {
     QString str;
     for (; id ; id = id->next) {
-        if (!id->name)
+        if (id->name.isEmpty())
             return QString();
         if (!str.isEmpty())
             str += QLatin1Char('.');
-        str += id->name->asString();
+        str += id->name;
     }
     return str;
 }
@@ -284,10 +284,10 @@ static QString _propertyName(UiQualifiedId *id)
     QString s;
 
     for (; id; id = id->next) {
-        if (! id->name)
+        if (id->name.isEmpty())
             return QString();
 
-        s += id->name->asString();
+        s += id->name;
 
         if (id->next)
             s += QLatin1Char('.');
@@ -300,7 +300,7 @@ static QString _methodName(UiSourceElement *source)
 {
     if (source) {
         if (FunctionDeclaration *declaration = cast<FunctionDeclaration*>(source->sourceElement)) {
-            return declaration->name->asString();
+            return declaration->name.toString();
         }
     }
     return QString();

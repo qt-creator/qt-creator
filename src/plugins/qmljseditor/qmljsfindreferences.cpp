@@ -104,8 +104,7 @@ protected:
 
     virtual bool visit(AST::UiPublicMember *node)
     {
-        if (node->name
-                && node->name->asString() == _name
+        if (node->name == _name
                 && _scopeChain.qmlScopeObjects().contains(_scope)) {
             _usages.append(node->identifierToken);
         }
@@ -130,7 +129,7 @@ protected:
     {
         if (node->qualifiedId
                 && !node->qualifiedId->next
-                && node->qualifiedId->name->asString() == _name
+                && node->qualifiedId->name == _name
                 && checkQmlScope()) {
             _usages.append(node->qualifiedId->identifierToken);
         }
@@ -145,7 +144,7 @@ protected:
     {
         if (node->qualifiedId
                 && !node->qualifiedId->next
-                && node->qualifiedId->name->asString() == _name
+                && node->qualifiedId->name == _name
                 && checkQmlScope()) {
             _usages.append(node->qualifiedId->identifierToken);
         }
@@ -163,7 +162,7 @@ protected:
     {
         if (node->qualifiedId
                 && !node->qualifiedId->next
-                && node->qualifiedId->name->asString() == _name
+                && node->qualifiedId->name == _name
                 && checkQmlScope()) {
             _usages.append(node->qualifiedId->identifierToken);
         }
@@ -172,7 +171,7 @@ protected:
 
     virtual bool visit(AST::IdentifierExpression *node)
     {
-        if (!node->name || node->name->asString() != _name)
+        if (node->name.isEmpty() || node->name != _name)
             return false;
 
         const ObjectValue *scope;
@@ -203,7 +202,7 @@ protected:
 
     virtual bool visit(AST::FieldMemberExpression *node)
     {
-        if (!node->name || node->name->asString() != _name)
+        if (node->name != _name)
             return true;
 
         Evaluate evaluate(&_scopeChain);
@@ -224,7 +223,7 @@ protected:
 
     virtual bool visit(AST::FunctionExpression *node)
     {
-        if (node->name && node->name->asString() == _name) {
+        if (node->name == _name) {
             if (checkLookup())
                 _usages.append(node->identifierToken);
         }
@@ -237,7 +236,7 @@ protected:
 
     virtual bool visit(AST::VariableDeclaration *node)
     {
-        if (node->name && node->name->asString() == _name) {
+        if (node->name == _name) {
             if (checkLookup())
                 _usages.append(node->identifierToken);
         }
@@ -330,7 +329,7 @@ protected:
 
     virtual bool visit(AST::UiPublicMember *node)
     {
-        if (node->memberType && node->memberType->asString() == _name){
+        if (node->memberType == _name){
             const ObjectValue * tVal = _context->lookupType(_doc.data(), QStringList(_name));
             if (tVal == _typeValue)
                 _usages.append(node->typeToken);
@@ -376,7 +375,7 @@ protected:
 
     virtual bool visit(AST::IdentifierExpression *node)
     {
-        if (!node->name || node->name->asString() != _name)
+        if (node->name != _name)
             return false;
 
         const ObjectValue *scope;
@@ -388,7 +387,7 @@ protected:
 
     virtual bool visit(AST::FieldMemberExpression *node)
     {
-        if (!node->name || node->name->asString() != _name)
+        if (node->name != _name)
             return true;
         Evaluate evaluate(&_scopeChain);
         const Value *lhsValue = evaluate(node->base);
@@ -422,7 +421,7 @@ protected:
 
     virtual bool visit(UiImport *ast)
     {
-        if (ast && ast->importId && ast->importId->asString() == _name) {
+        if (ast && ast->importId == _name) {
             const Imports *imp = _context->imports(_doc.data());
             if (!imp)
                 return false;
@@ -437,7 +436,7 @@ private:
     bool checkTypeName(UiQualifiedId *id)
     {
         for (UiQualifiedId *att = id; att; att = att->next){
-            if (att->name && att->name->asString() == _name) {
+            if (att->name == _name) {
                 const ObjectValue *objectValue = _context->lookupType(_doc.data(), id, att->next);
                 if (_typeValue == objectValue){
                     _usages.append(att->identifierToken);
@@ -522,7 +521,7 @@ protected:
     virtual bool visit(IdentifierExpression *node)
     {
         if (containsOffset(node->identifierToken)) {
-            _name = node->name->asString();
+            _name = node->name.toString();
             if ((!_name.isEmpty()) && _name.at(0).isUpper()) {
                 // a possible type
                 _targetValue = _scopeChain->lookup(_name, &_scope);
@@ -537,7 +536,7 @@ protected:
     {
         if (containsOffset(node->identifierToken)) {
             setScope(node->base);
-            _name = node->name->asString();
+            _name = node->name.toString();
             if ((!_name.isEmpty()) && _name.at(0).isUpper()) {
                 // a possible type
                 Evaluate evaluate(_scopeChain);
@@ -592,8 +591,8 @@ protected:
     virtual bool visit(UiPublicMember *node)
     {
         if (containsOffset(node->typeToken)){
-            if (node->memberType){
-                _name = node->memberType->asString();
+            if (!node->memberType.isEmpty()) {
+                _name = node->memberType.toString();
                 _targetValue = _scopeChain->context()->lookupType(_doc.data(), QStringList(_name));
                 _scope = 0;
                 _typeKind = TypeKind;
@@ -601,7 +600,7 @@ protected:
             return false;
         } else if (containsOffset(node->identifierToken)) {
             _scope = _doc->bind()->findQmlObject(_objectNode);
-            _name = node->name->asString();
+            _name = node->name.toString();
             return false;
         }
         return true;
@@ -615,7 +614,7 @@ protected:
     virtual bool visit(FunctionExpression *node)
     {
         if (containsOffset(node->identifierToken)) {
-            _name = node->name->asString();
+            _name = node->name.toString();
             return false;
         }
         return true;
@@ -624,7 +623,7 @@ protected:
     virtual bool visit(VariableDeclaration *node)
     {
         if (containsOffset(node->identifierToken)) {
-            _name = node->name->asString();
+            _name = node->name.toString();
             return false;
         }
         return true;
@@ -643,9 +642,9 @@ private:
 
     bool checkBindingName(UiQualifiedId *id)
     {
-        if (id && id->name && !id->next && containsOffset(id->identifierToken)) {
+        if (id && !id->name.isEmpty() && !id->next && containsOffset(id->identifierToken)) {
             _scope = _doc->bind()->findQmlObject(_objectNode);
-            _name = id->name->asString();
+            _name = id->name.toString();
             return true;
         }
         return false;
@@ -654,10 +653,10 @@ private:
     bool checkTypeName(UiQualifiedId *id)
     {
         for (UiQualifiedId *att = id; att; att = att->next) {
-            if (att->name && containsOffset(att->identifierToken)) {
+            if (!att->name.isEmpty() && containsOffset(att->identifierToken)) {
                 _targetValue = _scopeChain->context()->lookupType(_doc.data(), id, att->next);
                 _scope = 0;
-                _name = att->name->asString();
+                _name = att->name.toString();
                 _typeKind = TypeKind;
                 return true;
             }

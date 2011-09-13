@@ -35,7 +35,6 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsparser_p.h>
-#include <qmljs/parser/qmljsnodepool_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <QtCore/QDir>
 
@@ -85,7 +84,6 @@ using namespace QmlJS::AST;
 
 Document::Document(const QString &fileName, Language language)
     : _engine(0)
-    , _pool(0)
     , _ast(0)
     , _bind(0)
     , _fileName(QDir::cleanPath(fileName))
@@ -115,9 +113,6 @@ Document::~Document()
 
     if (_engine)
         delete _engine;
-
-    if (_pool)
-        delete _pool;
 }
 
 Document::Ptr Document::create(const QString &fileName, Language language)
@@ -219,12 +214,10 @@ QString Document::componentName() const
 bool Document::parse_helper(int startToken)
 {
     Q_ASSERT(! _engine);
-    Q_ASSERT(! _pool);
     Q_ASSERT(! _ast);
     Q_ASSERT(! _bind);
 
     _engine = new Engine();
-    _pool = new NodePool(_fileName, _engine);
 
     Lexer lexer(_engine);
     Parser parser(_engine);
@@ -233,7 +226,7 @@ bool Document::parse_helper(int startToken)
     if (startToken == QmlJSGrammar::T_FEED_JS_PROGRAM)
         extractPragmas(&source);
 
-    lexer.setCode(source, /*line = */ 1);
+    lexer.setCode(source, /*line = */ 1, /*qmlMode = */_language == QmlLanguage);
 
     switch (startToken) {
     case QmlJSGrammar::T_FEED_UI_PROGRAM:

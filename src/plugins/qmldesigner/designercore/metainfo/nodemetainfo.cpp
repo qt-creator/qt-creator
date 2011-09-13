@@ -99,8 +99,8 @@ public:
         const ASTPropertyReference *ref = dynamic_cast<const ASTPropertyReference*>(value);
         if (ref) {
             QString type = "unknown";
-            if (ref->ast()->memberType)
-                type = ref->ast()->memberType->asString();
+            if (!ref->ast()->memberType.isEmpty())
+                type = ref->ast()->memberType.toString();
             m_properties.append(qMakePair(name, type));
         } else {
             if (const QmlObjectValue * ov = dynamic_cast<const QmlObjectValue *>(value)) {

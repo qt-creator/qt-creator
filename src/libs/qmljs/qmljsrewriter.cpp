@@ -259,8 +259,7 @@ QString Rewriter::flatten(UiQualifiedId *first)
         if (current != first)
             flatId += '.';
 
-        if (current->name)
-            flatId += current->name->asString();
+        flatId += current->name;
     }
 
     return flatId;
@@ -357,7 +356,7 @@ bool Rewriter::isMatchingPropertyMember(const QString &propertyName,
                                         UiObjectMember *member)
 {
     if (UiPublicMember *publicMember = cast<UiPublicMember*>(member))
-        return publicMember->name->asString() == propertyName;
+        return publicMember->name == propertyName;
     else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
         return flatten(objectBinding->qualifiedId) == propertyName;
     else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
@@ -529,8 +528,8 @@ void Rewriter::includeLeadingEmptyLine(const QString &source, int &start)
 
 void Rewriter::includeEmptyGroupedProperty(UiObjectDefinition *groupedProperty, UiObjectMember *memberToBeRemoved, int &start, int &end)
 {
-    if (groupedProperty->qualifiedTypeNameId
-            && groupedProperty->qualifiedTypeNameId->name->asString().at(0).isLower()) {
+    if (groupedProperty->qualifiedTypeNameId && !groupedProperty->qualifiedTypeNameId->name.isEmpty()
+            && groupedProperty->qualifiedTypeNameId->name.at(0).isLower()) {
         // grouped property
         UiObjectMemberList *memberIter = groupedProperty->initializer->members;
         while (memberIter) {

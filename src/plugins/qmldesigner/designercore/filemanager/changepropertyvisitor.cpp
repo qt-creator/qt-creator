@@ -182,7 +182,7 @@ bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
     } else if (UiArrayBinding *arrayBinding = AST::cast<UiArrayBinding *>(member)) {
         return propName == flatten(arrayBinding->qualifiedId);
     } else if (UiPublicMember *publicMember = AST::cast<UiPublicMember *>(member)) {
-        return propName == publicMember->name->asString();
+        return propName == publicMember->name;
     } else {
         return false;
     }

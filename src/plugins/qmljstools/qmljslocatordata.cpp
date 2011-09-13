@@ -62,14 +62,14 @@ static QString findId(UiObjectInitializer *initializer)
         return QString();
     for (UiObjectMemberList *member = initializer->members; member; member = member->next) {
         if (UiScriptBinding *script = cast<UiScriptBinding *>(member->member)) {
-            if (!script->qualifiedId || !script->qualifiedId->name || script->qualifiedId->next)
+            if (!script->qualifiedId || script->qualifiedId->name.isEmpty() || script->qualifiedId->next)
                 continue;
-            if (script->qualifiedId->name->asString() != QLatin1String("id"))
+            if (script->qualifiedId->name != QLatin1String("id"))
                 continue;
             if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(script->statement)) {
                 if (IdentifierExpression *identExp = cast<IdentifierExpression *>(expStmt->expression)) {
-                    if (identExp->name)
-                        return identExp->name->asString();
+                    if (!identExp->name.isEmpty())
+                        return identExp->name.toString();
                 }
             }
         }
@@ -132,19 +132,19 @@ protected:
 
     bool visit(FunctionExpression *ast)
     {
-        if (!ast->name)
+        if (ast->name.isEmpty())
             return true;
 
         LocatorData::Entry entry = basicEntry(ast->identifierToken);
 
         entry.type = LocatorData::Function;
-        entry.displayName = ast->name->asString();
+        entry.displayName = ast->name.toString();
         entry.displayName += QLatin1Char('(');
         for (FormalParameterList *it = ast->formals; it; it = it->next) {
             if (it != ast->formals)
                 entry.displayName += QLatin1String(", ");
-            if (it->name)
-                entry.displayName += it->name->asString();
+            if (!it->name.isEmpty())
+                entry.displayName += it->name.toString();
         }
         entry.displayName += QLatin1Char(')');
         entry.symbolName = entry.displayName;

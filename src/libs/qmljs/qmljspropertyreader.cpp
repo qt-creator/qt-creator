@@ -131,13 +131,13 @@ static inline QString flatten(UiQualifiedId *qualifiedId)
     QString result;
 
     for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
-        if (!iter->name)
+        if (iter->name.isEmpty())
             continue;
 
         if (!result.isEmpty())
             result.append(QLatin1Char('.'));
 
-        result.append(iter->name->asString());
+        result.append(iter->name);
     }
     return result;
 }
@@ -203,7 +203,7 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
                  m_bindingOrEnum.append(propertyName);
             }
         } else if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(member)) { //font { bold: true }
-            const QString propertyName = objectDefinition->qualifiedTypeNameId->name->asString();
+            const QString propertyName = objectDefinition->qualifiedTypeNameId->name.toString();
             if (!propertyName.isEmpty() && !propertyName.at(0).isUpper()) {
                 for (UiObjectMemberList *iter = objectDefinition->initializer->members; iter; iter = iter->next) {
                     UiObjectMember *objectMember = iter->member;
@@ -226,7 +226,7 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
             const QString astValue = cleanupSemicolon(textAt(doc,
                               initializer->lbraceToken,
                               initializer->rbraceToken));
-            const QString propertyName = objectBinding->qualifiedId->name->asString();
+            const QString propertyName = objectBinding->qualifiedId->name.toString();
             m_properties.insert(propertyName, QVariant(astValue));
         }
     }
@@ -247,8 +247,8 @@ QLinearGradient PropertyReader::parseGradient(const QString &propertyName,  bool
             const QString astValue = cleanupSemicolon(textAt(m_doc,
                                                              initializer->lbraceToken,
                                                              initializer->rbraceToken));
-            const QString objectPropertyName = objectBinding->qualifiedId->name->asString();
-            const QString typeName = objectBinding->qualifiedTypeNameId->name->asString();
+            const QString objectPropertyName = objectBinding->qualifiedId->name.toString();
+            const QString typeName = objectBinding->qualifiedTypeNameId->name.toString();
             if (objectPropertyName == propertyName && typeName.contains("Gradient")) {
                 QLinearGradient gradient;
                 QVector<QGradientStop> stops;

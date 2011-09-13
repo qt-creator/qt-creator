@@ -35,7 +35,6 @@
 #include "parser/qmljsparser_p.h"
 #include "parser/qmljslexer_p.h"
 #include "parser/qmljsengine_p.h"
-#include "parser/qmljsnodepool_p.h"
 #include "parser/qmljsast_p.h"
 #include "parser/qmljsastvisitor_p.h"
 
@@ -61,14 +60,12 @@ TypeDescriptionReader::~TypeDescriptionReader()
 
 bool TypeDescriptionReader::operator()(QHash<QString, FakeMetaObject::ConstPtr> *objects)
 {
-    QString fileName("typeDescription");
     Engine engine;
-    NodePool pool(fileName, &engine);
 
     Lexer lexer(&engine);
     Parser parser(&engine);
 
-    lexer.setCode(_source, /*line = */ 1);
+    lexer.setCode(_source, /*line = */ 1, /*qmlMode = */true);
 
     if (!parser.parse()) {
         _errorMessage = QString("%1:%2: %3").arg(
@@ -386,7 +383,7 @@ QString TypeDescriptionReader::readStringBinding(UiScriptBinding *ast)
         return QString();
     }
 
-    return stringLit->value->asString();
+    return stringLit->value.toString();
 }
 
 bool TypeDescriptionReader::readBoolBinding(AST::UiScriptBinding *ast)
@@ -472,7 +469,7 @@ void TypeDescriptionReader::readExports(UiScriptBinding *ast, FakeMetaObject::Pt
             addError(arrayLit->firstSourceLocation(), "Expected array literal with only string literal members");
             return;
         }
-        QString exp = stringLit->value->asString();
+        QString exp = stringLit->value.toString();
         int slashIdx = exp.indexOf(QLatin1Char('/'));
         int spaceIdx = exp.indexOf(QLatin1Char(' '));
         ComponentVersion version(exp.mid(spaceIdx + 1));
@@ -524,6 +521,6 @@ void TypeDescriptionReader::readEnumValues(AST::UiScriptBinding *ast, LanguageUt
         double v = value->value;
         if (minus)
             v = -v;
-        fme->addKey(propName->id->asString(), v);
+        fme->addKey(propName->id.toString(), v);
     }
 }

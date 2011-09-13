@@ -197,8 +197,8 @@ bool HoverHandler::matchColorItem(const ScopeChain &scopeChain,
         }
     } else if (const AST::UiPublicMember *publicMember =
                AST::cast<const AST::UiPublicMember *>(member)) {
-        if (publicMember->name && posIsInSource(pos, publicMember->statement)) {
-            value = scopeChain.lookup(publicMember->name->asString());
+        if (!publicMember->name.isEmpty() && posIsInSource(pos, publicMember->statement)) {
+            value = scopeChain.lookup(publicMember->name.toString());
             if (const Reference *ref = value->asReference())
                 value = scopeChain.context()->lookupReference(ref);
             if (value && value->asColorValue()) {
@@ -317,14 +317,14 @@ static const ObjectValue *isMember(const ScopeChain &scopeChain,
 {
     const ObjectValue *owningObject = 0;
     if (AST::IdentifierExpression *identExp = AST::cast<AST::IdentifierExpression *>(node)) {
-        if (!identExp->name)
+        if (identExp->name.isEmpty())
             return 0;
-        *name = identExp->name->asString();
+        *name = identExp->name.toString();
         scopeChain.lookup(*name, &owningObject);
     } else if (AST::FieldMemberExpression *fme = AST::cast<AST::FieldMemberExpression *>(node)) {
-        if (!fme->base || !fme->name)
+        if (!fme->base || fme->name.isEmpty())
             return 0;
-        *name = fme->name->asString();
+        *name = fme->name.toString();
         const Value *base = scopeChain.evaluate(fme->base);
         if (!base)
             return 0;
@@ -332,17 +332,17 @@ static const ObjectValue *isMember(const ScopeChain &scopeChain,
         if (owningObject)
             owningObject->lookupMember(*name, scopeChain.context(), &owningObject);
     } else if (AST::UiQualifiedId *qid = AST::cast<AST::UiQualifiedId *>(node)) {
-        if (!qid->name)
+        if (qid->name.isEmpty())
             return 0;
-        *name = qid->name->asString();
+        *name = qid->name.toString();
         const Value *value = scopeChain.lookup(*name, &owningObject);
         for (AST::UiQualifiedId *it = qid->next; it; it = it->next) {
             if (!value)
                 return 0;
             const ObjectValue *next = value->asObjectValue();
-            if (!next || !it->name)
+            if (!next || it->name.isEmpty())
                 return 0;
-            *name = it->name->asString();
+            *name = it->name.toString();
             value = next->lookupMember(*name, scopeChain.context(), &owningObject);
         }
     }

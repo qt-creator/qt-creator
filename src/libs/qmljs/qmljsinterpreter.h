@@ -723,7 +723,7 @@ class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
 {
     AST::FunctionExpression *_ast;
     const Document *_doc;
-    QList<NameId *> _argumentNames;
+    QList<QString> _argumentNames;
 
 public:
     ASTFunctionValue(AST::FunctionExpression *ast, const Document *doc, ValueOwner *valueOwner);

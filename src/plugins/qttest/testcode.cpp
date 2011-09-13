@@ -91,7 +91,7 @@ public:
 private:
     bool visit(QmlJS::AST::IdentifierExpression *identifier)
     {
-        QString name = identifier->name->asString();
+        const QStringRef &name = identifier->name;
         m_foundTestCase = (name == QLatin1String("testcase"));
         if (!m_foundTestCase && (name == QLatin1String("prompt") || name == QLatin1String("manualTest")))
             m_testCode->setManualTest(identifier->identifierToken.offset);
@@ -120,7 +120,7 @@ private:
             if (properties->name->kind == QmlJS::AST::Node::Kind_IdentifierPropertyName) {
                 QmlJS::AST::IdentifierPropertyName *name =
                     static_cast<QmlJS::AST::IdentifierPropertyName*>(properties->name);
-                QString nameString = name->id->asString();
+                const QString &nameString = name->id.toString();
                 if (properties->value->kind == QmlJS::AST::Node::Kind_FunctionExpression) {
                     int startLine = name->propertyNameToken.startLine;
                     int start = name->propertyNameToken.offset;

@@ -168,19 +168,19 @@ protected:
     {
         if (!m_inStateType)
             return false;
-        if (!ast->qualifiedId || ! ast->qualifiedId->name || ast->qualifiedId->next)
+        if (!ast->qualifiedId || ast->qualifiedId->name.isEmpty() || ast->qualifiedId->next)
             return false;
-        if (ast->qualifiedId->name->asString() != QLatin1String("name"))
+        if (ast->qualifiedId->name != QLatin1String("name"))
             return false;
 
         ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement);
         if (!expStmt)
             return false;
         StringLiteral *strLit = cast<StringLiteral *>(expStmt->expression);
-        if (!strLit || !strLit->value)
+        if (!strLit || strLit->value.isEmpty())
             return false;
 
-        m_stateNames += strLit->value->asString();
+        m_stateNames += strLit->value.toString();
 
         return false;
     }
@@ -211,12 +211,12 @@ protected:
         m_scopeBuilder.pop();
     }
 
-    void processName(NameId *name, SourceLocation location)
+    void processName(const QStringRef &name, SourceLocation location)
     {
-        if (!name)
+        if (name.isEmpty())
             return;
 
-        const QString nameStr = name->asString();
+        const QString &nameStr = name.toString();
         const ObjectValue *scope = 0;
         const Value *value = m_scopeChain.lookup(nameStr, &scope);
         if (!value || !scope)
@@ -299,10 +299,10 @@ protected:
 
     bool visit(StringLiteral *ast)
     {
-        if (!ast->value)
+        if (ast->value.isEmpty())
             return false;
 
-        const QString value = ast->value->asString();
+        const QString &value = ast->value.toString();
         if (m_stateNames.contains(value)) {
             addUse(ast->literalToken, SemanticHighlighter::LocalStateNameType);
         }

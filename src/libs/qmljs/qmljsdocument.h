@@ -112,7 +112,6 @@ private:
 
 private:
     QmlJS::Engine *_engine;
-    NodePool *_pool;
     AST::Node *_ast;
     Bind *_bind;
     QList<QmlJS::DiagnosticMessage> _diagnosticMessages;

@@ -145,7 +145,7 @@ void RemovePropertyVisitor::removeMember(UiObjectMember *member)
 bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propertyName, UiObjectMember *ast)
 {
     if (UiPublicMember *publicMember = cast<UiPublicMember*>(ast))
-        return publicMember->name->asString() == propertyName;
+        return publicMember->name == propertyName;
     else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(ast))
         return flatten(objectBinding->qualifiedId) == propertyName;
     else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(ast))

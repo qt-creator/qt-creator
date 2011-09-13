@@ -80,7 +80,7 @@ SourceLocation QmlJS::fullLocationForQualifiedId(AST::UiQualifiedId *qualifiedId
     SourceLocation end = qualifiedId->identifierToken;
 
     for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
-        if (iter->name)
+        if (iter->identifierToken.isValid())
             end = iter->identifierToken;
     }
 
@@ -160,7 +160,7 @@ public:
     {
         if (const QmlEnumValue *enumValue = dynamic_cast<const QmlEnumValue *>(value)) {
             if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
-                const QString valueName = stringLiteral->value->asString();
+                const QString valueName = stringLiteral->value.toString();
 
                 if (!enumValue->keys().contains(valueName)) {
                     _message.message = Check::tr("unknown value for enum");
@@ -201,7 +201,7 @@ public:
 
         if (value && value->asUrlValue()) {
             if (StringLiteral *literal = cast<StringLiteral *>(_ast)) {
-                QUrl url(literal->value->asString());
+                QUrl url(literal->value.toString());
                 if (!url.isValid() && !url.isEmpty()) {
                     _message.message = Check::tr("not a valid url");
                 } else {
@@ -224,7 +224,7 @@ public:
     virtual void visit(const ColorValue *)
     {
         if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
-            if (!toQColor(stringLiteral->value->asString()).isValid())
+            if (!toQColor(stringLiteral->value.toString()).isValid())
                 _message.message = Check::tr("not a valid color");
         } else {
             visit((StringValue *)0);
@@ -302,16 +302,16 @@ protected:
             else
                 break;
         }
-        if (ast->label)
-            _labels[ast->label->asString()] = end;
+        if (!ast->label.isEmpty())
+            _labels[ast->label.toString()] = end;
         return true;
     }
 
     virtual bool visit(BreakStatement *ast)
     {
         _state = Break;
-        if (ast->label) {
-            if (Node *target = _labels.value(ast->label->asString()))
+        if (!ast->label.isEmpty()) {
+            if (Node *target = _labels.value(ast->label.toString()))
                 _labelledBreaks.insert(target);
         }
         return false;
@@ -441,8 +441,8 @@ public:
         clear();
         _options = options;
         for (FormalParameterList *plist = function->formals; plist; plist = plist->next) {
-            if (plist->name)
-                _formalParameterNames += plist->name->asString();
+            if (!plist->name.isEmpty())
+                _formalParameterNames += plist->name.toString();
         }
 
         Node::accept(function->body, this);
@@ -478,9 +478,9 @@ protected:
 
     bool visit(IdentifierExpression *ast)
     {
-        if (!ast->name)
+        if (ast->name.isEmpty())
             return false;
-        const QString name = ast->name->asString();
+        const QString &name = ast->name.toString();
         if (!_declaredFunctions.contains(name) && !_declaredVariables.contains(name))
             _possiblyUndeclaredUses[name].append(ast->identifierToken);
         return false;
@@ -496,9 +496,9 @@ protected:
 
     bool visit(VariableDeclaration *ast)
     {
-        if (!ast->name)
+        if (ast->name.isEmpty())
             return true;
-        const QString name = ast->name->asString();
+        const QString &name = ast->name.toString();
 
         if (_options & Check::WarnDuplicateDeclaration) {
             if (_formalParameterNames.contains(name)) {
@@ -534,9 +534,9 @@ protected:
 
     bool visit(FunctionExpression *ast)
     {
-        if (!ast->name)
+        if (ast->name.isEmpty())
             return false;
-        const QString name = ast->name->asString();
+        const QString &name = ast->name.toString();
 
         if (_options & Check::WarnDuplicateDeclaration) {
             if (_formalParameterNames.contains(name)) {
@@ -627,10 +627,10 @@ bool Check::visit(UiObjectInitializer *)
 {
     m_propertyStack.push(StringSet());
     UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(parent());
-    if (objectDefinition && objectDefinition->qualifiedTypeNameId->name->asString() == "Component")
+    if (objectDefinition && objectDefinition->qualifiedTypeNameId->name == "Component")
         m_idStack.push(StringSet());
     UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
-    if (objectBinding && objectBinding->qualifiedTypeNameId->name->asString() == "Component")
+    if (objectBinding && objectBinding->qualifiedTypeNameId->name == "Component")
         m_idStack.push(StringSet());
     if (m_idStack.isEmpty())
         m_idStack.push(StringSet());
@@ -641,10 +641,10 @@ void Check::endVisit(UiObjectInitializer *)
 {
     m_propertyStack.pop();
     UiObjectDefinition *objectDenition = cast<UiObjectDefinition *>(parent());
-    if (objectDenition && objectDenition->qualifiedTypeNameId->name->asString() == "Component")
+    if (objectDenition && objectDenition->qualifiedTypeNameId->name == "Component")
         m_idStack.pop();
     UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
-    if (objectBinding && objectBinding->qualifiedTypeNameId->name->asString() == "Component")
+    if (objectBinding && objectBinding->qualifiedTypeNameId->name == "Component")
         m_idStack.pop();
 }
 
@@ -738,7 +738,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 bool Check::visit(UiScriptBinding *ast)
 {
     // special case for id property
-    if (ast->qualifiedId->name->asString() == QLatin1String("id") && ! ast->qualifiedId->next) {
+    if (ast->qualifiedId->name == QLatin1String("id") && ! ast->qualifiedId->next) {
         if (! ast->statement)
             return false;
 
@@ -753,16 +753,16 @@ bool Check::visit(UiScriptBinding *ast)
 
         QString id;
         if (IdentifierExpression *idExp = cast<IdentifierExpression *>(expStmt->expression)) {
-            id = idExp->name->asString();
+            id = idExp->name.toString();
         } else if (StringLiteral *strExp = cast<StringLiteral *>(expStmt->expression)) {
-            id = strExp->value->asString();
+            id = strExp->value.toString();
             warning(loc, Check::tr("using string literals for ids is discouraged"));
         } else {
             error(loc, Check::tr("expected id"));
             return false;
         }
 
-        if (id.isEmpty() || (!id[0].isLower() && id[0] != '_')) {
+        if (id.isEmpty() || (!id.at(0).isLower() && id.at(0) != '_')) {
             error(loc, Check::tr("ids must be lower case or start with underscore"));
             return false;
         }
@@ -813,8 +813,8 @@ bool Check::visit(UiArrayBinding *ast)
 bool Check::visit(UiPublicMember *ast)
 {
     // check if the member type is valid
-    if (ast->memberType) {
-        const QString name = ast->memberType->asString();
+    if (!ast->memberType.isEmpty()) {
+        const QString &name = ast->memberType.toString();
         if (!name.isEmpty() && name.at(0).isLower()) {
             if (!isValidBuiltinPropertyType(name))
                 error(ast->typeToken, tr("'%1' is not a valid property type").arg(name));
@@ -837,7 +837,7 @@ bool Check::visit(IdentifierExpression *ast)
     return true;
 
     _lastValue = 0;
-    if (ast->name) {
+    if (!ast->name.isEmpty()) {
         Evaluate evaluator(&_scopeChain);
         _lastValue = evaluator.reference(ast);
         if (!_lastValue)
@@ -864,11 +864,11 @@ bool Check::visit(FieldMemberExpression *ast)
         error(locationFromRange(ast->base->firstSourceLocation(), ast->base->lastSourceLocation()),
               tr("does not have members"));
     }
-    if (!obj || !ast->name) {
+    if (!obj || ast->name.isEmpty()) {
         _lastValue = 0;
         return false;
     }
-    _lastValue = obj->lookupMember(ast->name->asString(), _context);
+    _lastValue = obj->lookupMember(ast->name.toString(), _context);
     if (!_lastValue)
         error(ast->identifierToken, tr("unknown member"));
     return false;
@@ -1093,14 +1093,14 @@ bool Check::visit(DefaultClause *ast)
 static QString functionName(ExpressionNode *ast, SourceLocation *location)
 {
     if (IdentifierExpression *id = cast<IdentifierExpression *>(ast)) {
-        if (id->name) {
+        if (!id->name.isEmpty()) {
             *location = id->identifierToken;
-            return id->name->asString();
+            return id->name.toString();
         }
     } else if (FieldMemberExpression *fme = cast<FieldMemberExpression *>(ast)) {
-        if (fme->name) {
+        if (!fme->name.isEmpty()) {
             *location = fme->identifierToken;
-            return fme->name->asString();
+            return fme->name.toString();
         }
     }
     return QString();
@@ -1169,10 +1169,10 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     if (! id)
         return 0; // ### error?
 
-    if (! id->name) // possible after error recovery
+    if (id->name.isEmpty()) // possible after error recovery
         return 0;
 
-    QString propertyName = id->name->asString();
+    QString propertyName = id->name.toString();
 
     if (propertyName == QLatin1String("id") && ! id->next)
         return 0; // ### should probably be a special value
@@ -1219,14 +1219,14 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
             return 0;
         }
 
-        if (! idPart->next->name) {
+        if (idPart->next->name.isEmpty()) {
             // somebody typed "id." and error recovery still gave us a valid tree,
             // so just bail out here.
             return 0;
         }
 
         idPart = idPart->next;
-        propertyName = idPart->name->asString();
+        propertyName = idPart->name.toString();
 
         value = objectValue->lookupMember(propertyName, _context);
         if (! value) {

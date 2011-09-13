@@ -99,7 +99,7 @@ bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &impor
     if (import.isLibraryImport()) {
         return flatten(ast->importUri) == import.url();
     } else if (import.isFileImport()) {
-        return ast->fileName->asString() == import.file();
+        return ast->fileName == import.file();
     } else {
         return false;
     }

@@ -126,8 +126,8 @@ protected:
     {
         QString text;
         for (; id; id = id->next) {
-            if (id->name)
-                text += id->name->asString();
+            if (!id->name.isEmpty())
+                text += id->name;
             else
                 text += QLatin1Char('?');
 
@@ -149,8 +149,8 @@ protected:
         if (asString(node->qualifiedId) == QLatin1String("id")) {
             if (AST::ExpressionStatement *stmt = AST::cast<AST::ExpressionStatement*>(node->statement)) {
                 if (AST::IdentifierExpression *idExpr = AST::cast<AST::IdentifierExpression *>(stmt->expression)) {
-                    if (idExpr->name) {
-                        const QString id = idExpr->name->asString();
+                    if (!idExpr->name.isEmpty()) {
+                        const QString &id = idExpr->name.toString();
                         QList<AST::SourceLocation> *locs = &_ids[id];
                         locs->append(idExpr->firstSourceLocation());
                         locs->append(_maybeIds.value(id));
@@ -168,8 +168,8 @@ protected:
 
     virtual bool visit(AST::IdentifierExpression *node)
     {
-        if (node->name) {
-            const QString name = node->name->asString();
+        if (!node->name.isEmpty()) {
+            const QString &name = node->name.toString();
 
             if (_ids.contains(name))
                 _ids[name].append(node->identifierToken);
@@ -206,8 +206,8 @@ protected:
     {
         QString text;
         for (; id; id = id->next) {
-            if (id->name)
-                text += id->name->asString();
+            if (!id->name.isEmpty())
+                text += id->name;
             else
                 text += QLatin1Char('?');
 
@@ -320,19 +320,19 @@ protected:
 
     virtual bool visit(AST::FunctionDeclaration *ast)
     {
-        if (! ast->name)
+        if (ast->name.isEmpty())
             return false;
 
         Declaration decl;
         init(&decl, ast);
 
         decl.text.fill(QLatin1Char(' '), _depth);
-        decl.text += ast->name->asString();
+        decl.text += ast->name;
 
         decl.text += QLatin1Char('(');
         for (FormalParameterList *it = ast->formals; it; it = it->next) {
-            if (it->name)
-                decl.text += it->name->asString();
+            if (!it->name.isEmpty())
+                decl.text += it->name;
 
             if (it->next)
                 decl.text += QLatin1String(", ");
@@ -347,12 +347,12 @@ protected:
 
     virtual bool visit(AST::VariableDeclaration *ast)
     {
-        if (! ast->name)
+        if (ast->name.isEmpty())
             return false;
 
         Declaration decl;
         decl.text.fill(QLatin1Char(' '), _depth);
-        decl.text += ast->name->asString();
+        decl.text += ast->name;
 
         const SourceLocation first = ast->identifierToken;
         decl.startLine = first.startLine;
@@ -568,8 +568,8 @@ QmlJS::AST::Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) 
    AST::Node *node = rangeAt(cursorPosition);
 
    if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node)) {
-       QString name = objectDefinition->qualifiedTypeNameId->name->asString();
-       if (!name.isNull() && name.at(0).isLower()) {
+       const QString &name = objectDefinition->qualifiedTypeNameId->name.toString();
+       if (!name.isEmpty() && name.at(0).isLower()) {
            QList<AST::Node *> path = rangePath(cursorPosition);
            if (path.size() > 1)
                return path.at(path.size() - 2);
@@ -579,7 +579,7 @@ QmlJS::AST::Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) 
                return path.at(path.size() - 3);
        }
    } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node)) {
-       QString name = objectBinding->qualifiedTypeNameId->name->asString();
+       const QString &name = objectBinding->qualifiedTypeNameId->name.toString();
        if (name.contains("Gradient")) {
            QList<AST::Node *> path = rangePath(cursorPosition);
            if (path.size() > 1)
@@ -1085,7 +1085,7 @@ protected:
             id = binding->qualifiedTypeNameId;
 
         if (id) {
-            QString name = id->name->asString();
+            const QStringRef &name = id->name;
             if (!name.isEmpty() && name.at(0).isUpper()) {
                 return true;
             }
@@ -1108,12 +1108,12 @@ protected:
         if (UiScriptBinding *script = cast<UiScriptBinding *>(member)) {
             if (! script->qualifiedId)
                 return false;
-            else if (! script->qualifiedId->name)
+            else if (script->qualifiedId->name.isEmpty())
                 return false;
             else if (script->qualifiedId->next)
                 return false;
 
-            const QString propertyName = script->qualifiedId->name->asString();
+            const QStringRef &propertyName = script->qualifiedId->name;
 
             if (propertyName == QLatin1String("id"))
                 return true;
@@ -1313,7 +1313,7 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
 
     // string literals that could refer to a file link to them
     if (StringLiteral *literal = cast<StringLiteral *>(node)) {
-        const QString text = literal->value->asString();
+        const QString &text = literal->value.toString();
         BaseTextEditorWidget::Link link;
         link.begin = literal->literalToken.begin();
         link.end = literal->literalToken.end();

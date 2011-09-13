@@ -207,7 +207,7 @@ QString QMLRewriter::flatten(UiQualifiedId *first)
         if (current != first)
             flatId += '.';
 
-        flatId += current->name->asString();
+        flatId += current->name;
     }
 
     return flatId;
