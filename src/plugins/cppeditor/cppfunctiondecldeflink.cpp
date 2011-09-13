@@ -48,6 +48,10 @@
 #include <texteditor/tooltip/tooltip.h>
 #include <texteditor/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
+#include <utils/proxyaction.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <QtCore/QtConcurrentRun>
 
@@ -357,6 +361,12 @@ void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
         message = tr("Apply changes to definition");
     else
         message = tr("Apply changes to declaration");
+
+    Core::ActionManager *actionManager = Core::ICore::instance()->actionManager();
+    Core::Command *quickfixCommand = actionManager->command(TextEditor::Constants::QUICKFIX_THIS);
+    if (quickfixCommand)
+        message = Utils::ProxyAction::stringWithAppendedShortcut(message, quickfixCommand->keySequence());
+
     marker.tooltip = message;
     marker.data = QVariant::fromValue(Marker());
     markers += marker;
