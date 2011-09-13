@@ -455,7 +455,9 @@ static bool canReplaceSpecifier(TranslationUnit *translationUnit, SpecifierAST *
             return false;
         }
     }
-    return false;
+    if (specifier->asAttributeSpecifier())
+        return false;
+    return true;
 }
 
 static SpecifierAST *findFirstReplaceableSpecifier(TranslationUnit *translationUnit, SpecifierListAST *list)
