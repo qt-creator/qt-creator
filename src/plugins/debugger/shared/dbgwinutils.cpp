@@ -172,34 +172,6 @@ unsigned long winGetCurrentProcessId()
     return GetCurrentProcessId();
 }
 
-// Helper for normalizing file names:
-// Map the device paths in  a file name to back to drive letters
-// "/Device/HarddiskVolume1/file.cpp" -> "C:/file.cpp"
-
-static bool mapDeviceToDriveLetter(QString *s)
-{
-    enum { bufSize = 512 };
-    // Retrieve drive letters and get their device names.
-    // Do not cache as it may change due to removable/network drives.
-    TCHAR driveLetters[bufSize];
-    if (!GetLogicalDriveStrings(bufSize-1, driveLetters))
-        return false;
-
-    TCHAR driveName[MAX_PATH];
-    TCHAR szDrive[3] = TEXT(" :");
-    for (const TCHAR *driveLetter = driveLetters; *driveLetter; driveLetter++) {
-        szDrive[0] = *driveLetter; // Look up each device name
-        if (QueryDosDevice(szDrive, driveName, MAX_PATH)) {
-            const QString deviceName = QString::fromWCharArray(driveName);
-            if (s->startsWith(deviceName)) {
-                s->replace(0, deviceName.size(), QString::fromWCharArray(szDrive));
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 bool isWinProcessBeingDebugged(unsigned long pid)
 {
     HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
