@@ -106,14 +106,14 @@ using namespace Core;
 namespace FakeVim {
 namespace Constants {
 
-const char * const INSTALL_HANDLER                = "TextEditor.FakeVimHandler";
-const char * const MINI_BUFFER                    = "TextEditor.FakeVimMiniBuffer";
-const char * const INSTALL_KEY                    = "Alt+V,Alt+V";
-const char * const SETTINGS_CATEGORY              = "D.FakeVim";
-const char * const SETTINGS_CATEGORY_FAKEVIM_ICON = ":/core/images/category_fakevim.png";
-const char * const SETTINGS_ID                    = "A.General";
-const char * const SETTINGS_EX_CMDS_ID            = "B.ExCommands";
-const char * const SETTINGS_USER_CMDS_ID          = "C.UserCommands";
+const char INSTALL_HANDLER[]                = "TextEditor.FakeVimHandler";
+const char MINI_BUFFER[]                    = "TextEditor.FakeVimMiniBuffer";
+const char INSTALL_KEY[]                    = "Alt+V,Alt+V";
+const char SETTINGS_CATEGORY[]              = "D.FakeVim";
+const char SETTINGS_CATEGORY_FAKEVIM_ICON[] = ":/core/images/category_fakevim.png";
+const char SETTINGS_ID[]                    = "A.General";
+const char SETTINGS_EX_CMDS_ID[]            = "B.ExCommands";
+const char SETTINGS_USER_CMDS_ID[]          = "C.UserCommands";
 
 } // namespace Constants
 } // namespace FakeVim
@@ -1039,11 +1039,11 @@ void FakeVimPluginPrivate::userActionTriggered()
         handler->handleInput(cmd);
 }
 
-static const char *exCommandMapGroup = "FakeVimExCommand";
-static const char *userCommandMapGroup = "FakeVimUserCommand";
-static const char *reKey = "RegEx";
-static const char *cmdKey = "Cmd";
-static const char *idKey = "Command";
+static const char exCommandMapGroup[] = "FakeVimExCommand";
+static const char userCommandMapGroup[] = "FakeVimUserCommand";
+static const char reKey[] = "RegEx";
+static const char cmdKey[] = "Cmd";
+static const char idKey[] = "Command";
 
 void FakeVimPluginPrivate::writeSettings()
 {
