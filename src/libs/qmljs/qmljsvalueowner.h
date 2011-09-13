@@ -94,6 +94,7 @@ public:
     const ObjectValue *qmlRectObject();
     const ObjectValue *qmlVector3DObject();
 
+    // converts builtin types, such as int, string to a Value
     const Value *defaultValueForBuiltinType(const QString &typeName) const;
 
     // global object

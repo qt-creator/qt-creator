@@ -928,21 +928,24 @@ const ObjectValue *ValueOwner::qmlVector3DObject()
     return _qmlVector3DObject;
 }
 
-const Value *ValueOwner::defaultValueForBuiltinType(const QString &typeName) const
+const Value *ValueOwner::defaultValueForBuiltinType(const QString &name) const
 {
-    if (typeName == QLatin1String("string"))
-        return stringValue();
-    else if (typeName == QLatin1String("url"))
-        return urlValue();
-    else if (typeName == QLatin1String("bool"))
+    if (name == QLatin1String("int")) {
+            return intValue();
+    } else if (name == QLatin1String("bool")) {
         return booleanValue();
-    else if (typeName == QLatin1String("int"))
-        return intValue();
-    else if (typeName == QLatin1String("real"))
+    }  else if (name == QLatin1String("double")
+                || name == QLatin1String("real")) {
         return realValue();
-    else if (typeName == QLatin1String("color"))
+    } else if (name == QLatin1String("string")) {
+        return stringValue();
+    } else if (name == QLatin1String("url")) {
+        return urlValue();
+    } else if (name == QLatin1String("color")) {
         return colorValue();
-    // ### more types...
-
+    } else if (name == QLatin1String("date")) {
+        return datePrototype();
+    }
+    // ### variant
     return undefinedValue();
 }

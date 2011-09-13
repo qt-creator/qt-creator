@@ -156,8 +156,10 @@ private:
         return true;
     }
 
-    virtual bool processSignal(const QString &, const Value *)
+    virtual bool processSignal(const QString &name, const Value *value)
     {
+        if (_globalCompletion)
+            insertProperty(name, value);
         return true;
     }
 

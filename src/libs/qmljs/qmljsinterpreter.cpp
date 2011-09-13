@@ -269,21 +269,22 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         return objectValue;
     }
 
+    // try qml builtin type names
+    if (const Value *v = valueOwner()->defaultValueForBuiltinType(typeName)) {
+        if (!v->asUndefinedValue())
+            return v;
+    }
+
+    // map other C++ types
     if (typeName == QLatin1String("QByteArray")
-            || typeName == QLatin1String("string")
             || typeName == QLatin1String("QString")) {
         return valueOwner()->stringValue();
     } else if (typeName == QLatin1String("QUrl")) {
         return valueOwner()->urlValue();
-    } else if (typeName == QLatin1String("bool")) {
-        return valueOwner()->booleanValue();
-    } else if (typeName == QLatin1String("int")
-               || typeName == QLatin1String("long")) {
+    } else if (typeName == QLatin1String("long")) {
         return valueOwner()->intValue();
     }  else if (typeName == QLatin1String("float")
-                || typeName == QLatin1String("double")
                 || typeName == QLatin1String("qreal")) {
-        // ### Review: more types here?
         return valueOwner()->realValue();
     } else if (typeName == QLatin1String("QFont")) {
         return valueOwner()->qmlFontObject();
@@ -1673,7 +1674,7 @@ ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
                     if (def->defaultToken.isValid())
                         _defaultPropertyRef = ref;
                 } else if (def->type == UiPublicMember::Signal && !def->name.isEmpty()) {
-                    ASTSignalReference *ref = new ASTSignalReference(def, _doc, valueOwner);
+                    ASTSignal *ref = new ASTSignal(def, _doc, valueOwner);
                     _signals.append(ref);
                 }
             }
@@ -1700,7 +1701,7 @@ void ASTObjectValue::processMembers(MemberProcessor *processor) const
         // ### Should get a different value?
         processor->processGeneratedSlot(ref->onChangedSlotName(), ref);
     }
-    foreach (ASTSignalReference *ref, _signals) {
+    foreach (ASTSignal *ref, _signals) {
         processor->processSignal(ref->ast()->name.toString(), ref);
         // ### Should get a different value?
         processor->processGeneratedSlot(ref->slotName(), ref);
@@ -1894,8 +1895,8 @@ const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) con
     return valueOwner()->undefinedValue();
 }
 
-ASTSignalReference::ASTSignalReference(UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner)
-    : Reference(valueOwner), _ast(ast), _doc(doc)
+ASTSignal::ASTSignal(UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner)
+    : FunctionValue(valueOwner), _ast(ast), _doc(doc)
 {
     const QString &signalName = ast->name.toString();
     _slotName = QLatin1String("on");
@@ -1903,11 +1904,39 @@ ASTSignalReference::ASTSignalReference(UiPublicMember *ast, const Document *doc,
     _slotName += signalName.midRef(1);
 }
 
-ASTSignalReference::~ASTSignalReference()
+ASTSignal::~ASTSignal()
 {
 }
 
-bool ASTSignalReference::getSourceLocation(QString *fileName, int *line, int *column) const
+int ASTSignal::argumentCount() const
+{
+    int count = 0;
+    for (UiParameterList *it = _ast->parameters; it; it = it->next)
+        ++count;
+    return count;
+}
+
+const Value *ASTSignal::argument(int index) const
+{
+    UiParameterList *param = _ast->parameters;
+    for (int i = 0; param && i < index; ++i)
+        param = param->next;
+    if (!param || param->type.isEmpty())
+        return valueOwner()->undefinedValue();
+    return valueOwner()->defaultValueForBuiltinType(param->type.toString());
+}
+
+QString ASTSignal::argumentName(int index) const
+{
+    UiParameterList *param = _ast->parameters;
+    for (int i = 0; param && i < index; ++i)
+        param = param->next;
+    if (!param || param->name.isEmpty())
+        return FunctionValue::argumentName(index);
+    return param->name.toString();
+}
+
+bool ASTSignal::getSourceLocation(QString *fileName, int *line, int *column) const
 {
     *fileName = _doc->fileName();
     *line = _ast->identifierToken.startLine;
@@ -1915,10 +1944,6 @@ bool ASTSignalReference::getSourceLocation(QString *fileName, int *line, int *co
     return true;
 }
 
-const Value *ASTSignalReference::value(ReferenceContext *) const
-{
-    return valueOwner()->undefinedValue();
-}
 
 ImportInfo::ImportInfo()
     : _type(InvalidImport)
