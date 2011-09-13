@@ -259,6 +259,7 @@ PathChooser::PathChooser(QWidget *parent) :
 
     setLayout(d->m_hLayout);
     setFocusProxy(d->m_lineEdit);
+    setFocusPolicy(d->m_lineEdit->focusPolicy());
     setEnvironment(Environment::systemEnvironment());
 }
 
