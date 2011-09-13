@@ -48,7 +48,7 @@ static const char usageTextC[] =
 "    qmlprofiler [options] [program] [program-options]\n"
 "    qmlprofiler [options] -attach [hostname]\n"
 "\n"
-"QML Profiler is used to retrieve QML tracing data from a running application.\n"
+"QML Profiler retrieves QML tracing data from a running application.\n"
 "The data collected can then be visualized in Qt Creator.\n"
 "\n"
 "The application to be profiled has to enable QML debugging. See the Qt Creator\n"
@@ -78,7 +78,7 @@ QmlProfilerApplication::QmlProfilerApplication(int &argc, char **argv) :
     QCoreApplication(argc, argv),
     m_runMode(LaunchMode),
     m_process(0),
-    m_tracePrefix("trace"),
+    m_tracePrefix(QLatin1String("trace")),
     m_hostName(QLatin1String("127.0.0.1")),
     m_port(3768),
     m_verbose(false),
@@ -121,13 +121,13 @@ bool QmlProfilerApplication::parseArguments()
 {
     for (int argPos = 1; argPos < arguments().size(); ++argPos) {
         const QString arg = arguments().at(argPos);
-        if (arg == "-attach" || arg == "-a") {
+        if (arg == QLatin1String("-attach") || arg == QLatin1String("-a")) {
             if (argPos + 1 == arguments().size()) {
                 return false;
             }
             m_hostName = arguments().at(++argPos);
             m_runMode = AttachMode;
-        } else if (arg == "-port" || arg == "-p") {
+        } else if (arg == QLatin1String("-port") || arg == QLatin1String("-p")) {
             if (argPos + 1 == arguments().size()) {
                 return false;
             }
@@ -138,13 +138,13 @@ bool QmlProfilerApplication::parseArguments()
                 logError(QString("'%1' is not a valid port").arg(portStr));
                 return false;
             }
-        } else if (arg == "-fromStart") {
+        } else if (arg == QLatin1String("-fromStart")) {
             m_traceClient.setRecording(true);
-        } else if (arg == "-help" || arg == "-h" || arg == "/h" || arg == "/?") {
+        } else if (arg == QLatin1String("-help") || arg == QLatin1String("-h") || arg == QLatin1String("/h") || arg == QLatin1String("/?")) {
             return false;
-        } else if (arg == "-verbose" || arg == "-v") {
+        } else if (arg == QLatin1String("-verbose") || arg == QLatin1String("-v")) {
             m_verbose = true;
-        } else if (arg == "-version") {
+        } else if (arg == QLatin1String("-version")) {
             print(QString("QML Profiler based on Qt %1.").arg(qVersion()));
             ::exit(1);
             return false;
@@ -189,7 +189,7 @@ void QmlProfilerApplication::printCommands()
 QString QmlProfilerApplication::traceFileName() const
 {
     QString fileName = m_tracePrefix + "_" +
-            QDateTime::currentDateTime().toString("yyMMdd_hhmmss") + TraceFileExtension;
+            QDateTime::currentDateTime().toString(QLatin1String("yyMMdd_hhmmss")) + TraceFileExtension;
     if (QFileInfo(fileName).exists()) {
         QString baseName;
         int suffixIndex = 0;
@@ -231,7 +231,7 @@ void QmlProfilerApplication::run()
     if (m_runMode == LaunchMode) {
         m_process = new QProcess(this);
         QStringList arguments;
-        arguments << QString(QLatin1String("-qmljsdebugger=port:%1,block")).arg(m_port);
+        arguments << QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_port);
         arguments << m_programArguments;
 
         m_process->setProcessChannelMode(QProcess::MergedChannels);
@@ -322,7 +322,7 @@ void QmlProfilerApplication::traceClientEnabled()
 void QmlProfilerApplication::traceFinished()
 {
     const QString fileName = traceFileName();
-    print("Saving trace to " + fileName);
+    print(QString("Saving trace to %1.").arg(fileName));
     m_eventList.save(fileName);
     if (m_quitAfterSave)
         quit();
