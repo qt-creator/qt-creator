@@ -65,6 +65,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/helpmanager.h>
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60deployconfiguration.h>
@@ -515,12 +516,20 @@ void QmlProfilerTool::tryToConnect()
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
 
-        if (d->m_client) {
-            logError("QML Profiler: Failed to connect! " + d->m_client->errorString());
-        } else {
-            logError("QML Profiler: Failed to connect!");
-        }
-        emit connectionFailed();
+        Core::ICore * const core = Core::ICore::instance();
+        QMessageBox *infoBox = new QMessageBox(core->mainWindow());
+        infoBox->setIcon(QMessageBox::Critical);
+        infoBox->setWindowTitle(tr("Qt Creator"));
+        infoBox->setText(tr("Could not connect to the in-process QML profiler.\n"
+                            "Do you want to retry?"));
+        infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
+        infoBox->setDefaultButton(QMessageBox::Retry);
+        infoBox->setModal(true);
+
+        connect(infoBox, SIGNAL(finished(int)),
+                this, SLOT(retryMessageBoxFinished(int)));
+
+        infoBox->show();
     } else {
         connectToClient();
     }
@@ -637,4 +646,30 @@ void QmlProfilerTool::showErrorDialog(const QString &error)
     errorDialog->setDefaultButton(QMessageBox::Ok);
     errorDialog->setModal(false);
     errorDialog->show();
+}
+
+void QmlProfilerTool::retryMessageBoxFinished(int result)
+{
+    switch (result) {
+    case QMessageBox::Retry: {
+        d->m_connectionAttempts = 0;
+        d->m_connectionTimer.start();
+        break;
+    }
+    case QMessageBox::Help: {
+        Core::HelpManager *helpManager = Core::HelpManager::instance();
+        helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html");
+        // fall through
+    }
+    default: {
+        if (d->m_client) {
+            logStatus("QML Profiler: Failed to connect! " + d->m_client->errorString());
+        } else {
+            logStatus("QML Profiler: Failed to connect!");
+        }
+
+        emit connectionFailed();
+        break;
+    }
+    }
 }
