@@ -111,7 +111,11 @@ public:
             return;
         IntegerWatchLineEdit *lineEdit = qobject_cast<IntegerWatchLineEdit*>(editor);
         QTC_ASSERT(lineEdit, return);
-        currentEngine()->setRegisterValue(index.row(), lineEdit->text());
+        const int base = currentHandler()->numberBase();
+        QString value = lineEdit->text();
+        if (base == 16 && !value.startsWith("0x"))
+            value = "0x" + value;
+        currentEngine()->setRegisterValue(index.row(), value);
     }
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,

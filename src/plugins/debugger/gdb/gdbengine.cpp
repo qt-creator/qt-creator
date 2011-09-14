@@ -3611,14 +3611,7 @@ void GdbEngine::reloadRegisters()
 void GdbEngine::setRegisterValue(int nr, const QString &value)
 {
     Register reg = registerHandler()->registers().at(nr);
-    //qDebug() << "NOT IMPLEMENTED: CHANGE REGISTER " << nr << reg.name << ":"
-    //    << value;
-    postCommand("-var-delete \"R@\"");
-    postCommand("-var-create \"R@\" * $" + reg.name);
-    postCommand("-var-assign \"R@\" " + value.toLatin1());
-    postCommand("-var-delete \"R@\"");
-    //postCommand("-data-list-register-values d",
-    //            Discardable, CB(handleRegisterListValues));
+    postCommand("set $" + reg.name  + "=" + value.toLatin1());
     reloadRegisters();
 }
 
