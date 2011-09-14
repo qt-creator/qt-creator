@@ -65,21 +65,6 @@ void Highlighter::setQmlEnabled(bool qmlEnabled)
     m_qmlEnabled = qmlEnabled;
 }
 
-static bool checkStartOfBinding(const Token &token)
-{
-    switch (token.kind) {
-    case Token::Semicolon:
-    case Token::LeftBrace:
-    case Token::RightBrace:
-    case Token::LeftBracket:
-    case Token::RightBracket:
-        return true;
-
-    default:
-        return false;
-    } // end of switch
-}
-
 void Highlighter::setFormats(const QVector<QTextCharFormat> &formats)
 {
     QTC_ASSERT(formats.size() == NumFormats, return);
