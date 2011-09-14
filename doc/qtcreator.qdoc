@@ -2283,8 +2283,12 @@
     Text Editor > Fonts & Color}. In the \gui {Color Scheme} list, select
     \gui {Vim (dark)}.
 
-    To quit the FakeVim mode, click \gui {Quit FakeVim} or press
-    \key{Alt+V,Alt+V}.
+    To quit the FakeVim mode, unselect \gui{Tools} > \gui(Options...} >
+    \gui{FakeVim} > \gui {Use FakeVim} or press \key{Alt+V,Alt+V}.
+
+    You can temporarily escape FakeVim mode to access the normal Qt Creator
+    keyboard shortcuts like \key{Ctrl-R} for \gui{Run} by pressing
+    \key{,} first.
 
     */
 
