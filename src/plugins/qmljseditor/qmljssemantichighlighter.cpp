@@ -240,12 +240,13 @@ protected:
                 type = SemanticHighlighter::ExternalIdType;
             } else if (scope == chain->rootObjectScope()) {
                 type = SemanticHighlighter::RootObjectPropertyType;
+            } else  { // check for this?
+                type = SemanticHighlighter::ExternalObjectPropertyType;
             }
-        } else { // check for this?
-            type = SemanticHighlighter::ExternalObjectPropertyType;
         }
 
-        addUse(location, type);
+        if (type != SemanticHighlighter::UnknownType)
+            addUse(location, type);
     }
 
     bool visit(UiObjectDefinition *ast)
