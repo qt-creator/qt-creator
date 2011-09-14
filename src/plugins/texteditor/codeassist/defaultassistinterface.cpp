@@ -69,7 +69,7 @@ QString DefaultAssistInterface::textAt(int pos, int length) const
 
 void DefaultAssistInterface::detach(QThread *destination)
 {
-    m_document = new QTextDocument(m_document->toPlainText());
+    m_document = m_document->clone();
     m_document->moveToThread(destination);
     m_detached = true;
 }
