@@ -1759,6 +1759,14 @@ const Value *ASTVariableReference::value(ReferenceContext *referenceContext) con
     return evaluator(_ast->expression);
 }
 
+bool ASTVariableReference::getSourceLocation(QString *fileName, int *line, int *column) const
+{
+    *fileName = _doc->fileName();
+    *line = _ast->identifierToken.startLine;
+    *column = _ast->identifierToken.startColumn;
+    return true;
+}
+
 ASTFunctionValue::ASTFunctionValue(FunctionExpression *ast, const Document *doc, ValueOwner *valueOwner)
     : FunctionValue(valueOwner), _ast(ast), _doc(doc)
 {

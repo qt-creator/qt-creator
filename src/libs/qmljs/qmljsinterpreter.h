@@ -716,6 +716,7 @@ public:
 
 private:
     virtual const Value *value(ReferenceContext *referenceContext) const;
+    virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 };
 
 class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
