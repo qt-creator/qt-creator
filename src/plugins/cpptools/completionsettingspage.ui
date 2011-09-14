@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
-    <height>244</height>
+    <width>363</width>
+    <height>241</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -27,7 +27,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
+      <item row="0" column="1">
        <widget class="QComboBox" name="caseSensitivity">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -52,7 +52,7 @@
         </item>
        </widget>
       </item>
-      <item row="0" column="3" colspan="2">
+      <item row="0" column="2" colspan="2">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -65,14 +65,14 @@
         </property>
        </spacer>
       </item>
-      <item row="1" column="0" colspan="2">
+      <item row="1" column="0">
        <widget class="QLabel" name="completionTriggerLabel">
         <property name="text">
          <string>Activate completion:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="2" colspan="2">
+      <item row="1" column="1" colspan="2">
        <widget class="QComboBox" name="completionTrigger">
         <item>
          <property name="text">
@@ -91,7 +91,7 @@
         </item>
        </widget>
       </item>
-      <item row="1" column="4">
+      <item row="1" column="3">
        <spacer name="horizontalSpacer_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -103,29 +103,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item row="3" column="0" colspan="3">
-       <widget class="QCheckBox" name="autoInsertBrackets">
-        <property name="toolTip">
-         <string>Automatically insert brackets and semicolons when appropriate.</string>
-        </property>
-        <property name="text">
-         <string>&amp;Automatically insert brackets</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="3">
-       <widget class="QCheckBox" name="spaceAfterFunctionName">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Insert &amp;space after function name</string>
-        </property>
-       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QCheckBox" name="partiallyComplete">
@@ -139,6 +116,82 @@
          <bool>true</bool>
         </property>
        </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="autoInsertBrackets">
+        <property name="toolTip">
+         <string>Automatically insert brackets and semicolons when appropriate.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Automatically insert brackets</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="surroundSelectedText">
+          <property name="toolTip">
+           <string>Automatically surround text selections with brackets.</string>
+          </property>
+          <property name="text">
+           <string>Surround selected &amp;text</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="spaceAfterFunctionName">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>Insert &amp;space after function name</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -167,12 +220,28 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>132</y>
+     <x>267</x>
+     <y>131</y>
     </hint>
     <hint type="destinationlabel">
-     <x>246</x>
-     <y>164</y>
+     <x>265</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>autoInsertBrackets</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>surroundSelectedText</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>109</x>
+     <y>123</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>

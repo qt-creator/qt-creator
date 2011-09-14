@@ -5536,7 +5536,8 @@ void BaseTextEditorWidget::setStorageSettings(const StorageSettings &storageSett
 void BaseTextEditorWidget::setCompletionSettings(const TextEditor::CompletionSettings &completionSettings)
 {
     d->m_autoCompleter->setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
-    d->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets);
+    d->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets
+                                               && completionSettings.m_surroundingAutoBrackets);
 }
 
 void BaseTextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)

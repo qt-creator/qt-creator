@@ -69,6 +69,7 @@ public:
     CaseSensitivity m_caseSensitivity;
     CompletionTrigger m_completionTrigger;
     bool m_autoInsertBrackets;
+    bool m_surroundingAutoBrackets;
     bool m_partiallyComplete;
     bool m_spaceAfterFunctionName;
 };

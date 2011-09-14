@@ -38,6 +38,7 @@ static const char groupPostfix[] = "Completion";
 static const char caseSensitivityKey[] = "CaseSensitivity";
 static const char completionTriggerKey[] = "CompletionTrigger";
 static const char autoInsertBracesKey[] = "AutoInsertBraces";
+static const char surroundingAutoBracketsKey[] = "SurroundingAutoBrackets";
 static const char partiallyCompleteKey[] = "PartiallyComplete";
 static const char spaceAfterFunctionNameKey[] = "SpaceAfterFunctionName";
 
@@ -47,6 +48,7 @@ CompletionSettings::CompletionSettings()
     : m_caseSensitivity(CaseInsensitive)
     , m_completionTrigger(AutomaticCompletion)
     , m_autoInsertBrackets(true)
+    , m_surroundingAutoBrackets(true)
     , m_partiallyComplete(true)
     , m_spaceAfterFunctionName(false)
 {
@@ -62,6 +64,7 @@ void CompletionSettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(caseSensitivityKey), (int) m_caseSensitivity);
     s->setValue(QLatin1String(completionTriggerKey), (int) m_completionTrigger);
     s->setValue(QLatin1String(autoInsertBracesKey), m_autoInsertBrackets);
+    s->setValue(QLatin1String(surroundingAutoBracketsKey), m_surroundingAutoBrackets);
     s->setValue(QLatin1String(partiallyCompleteKey), m_partiallyComplete);
     s->setValue(QLatin1String(spaceAfterFunctionNameKey), m_spaceAfterFunctionName);
     s->endGroup();
@@ -79,6 +82,7 @@ void CompletionSettings::fromSettings(const QString &category, const QSettings *
     m_caseSensitivity = (CaseSensitivity) s->value(group + QLatin1String(caseSensitivityKey), m_caseSensitivity).toInt();
     m_completionTrigger = (CompletionTrigger) s->value(group + QLatin1String(completionTriggerKey), m_completionTrigger).toInt();
     m_autoInsertBrackets = s->value(group + QLatin1String(autoInsertBracesKey), m_autoInsertBrackets).toBool();
+    m_surroundingAutoBrackets = s->value(group + QLatin1String(surroundingAutoBracketsKey), m_surroundingAutoBrackets).toBool();
     m_partiallyComplete = s->value(group + QLatin1String(partiallyCompleteKey), m_partiallyComplete).toBool();
     m_spaceAfterFunctionName = s->value(group + QLatin1String(spaceAfterFunctionNameKey), m_spaceAfterFunctionName).toBool();
 }
@@ -88,6 +92,7 @@ bool CompletionSettings::equals(const CompletionSettings &cs) const
     return m_caseSensitivity == cs.m_caseSensitivity
         && m_completionTrigger == cs.m_completionTrigger
         && m_autoInsertBrackets == cs.m_autoInsertBrackets
+        && m_surroundingAutoBrackets == cs.m_surroundingAutoBrackets
         && m_partiallyComplete == cs.m_partiallyComplete
         && m_spaceAfterFunctionName == cs.m_spaceAfterFunctionName
         ;
