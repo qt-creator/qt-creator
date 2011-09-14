@@ -67,8 +67,9 @@
                 \o \l{Creating a Project}
                 \o \l{Opening a Project}
                 \o \l{Adding Libraries to Projects}
-                \o \l{Connecting Maemo and MeeGo Harmattan Devices}
+                \o \l{Connecting MeeGo Harmattan Devices}
                 \o \l{Connecting Generic Linux Devices}
+                \o \l{Connecting Maemo Devices}
                 \o \l{Connecting Symbian Devices}
                 \o \l{Managing Sessions}
             \endlist
@@ -3317,7 +3318,8 @@
         \o \l{Creating a Project}
         \o \l{Opening a Project}
         \o \l{Adding Libraries to Projects}
-        \o \l{Connecting Maemo and MeeGo Harmattan Devices}
+        \o \l{Connecting Maemo Devices}
+        \o \l{Connecting MeeGo Harmattan Devices}
         \o \l{Connecting Generic Linux Devices}
         \o \l{Connecting Symbian Devices}
         \o \l{Managing Sessions}
@@ -4259,7 +4261,7 @@
     \contentspage index.html
     \previouspage creator-project-opening.html
     \page creator-project-qmake-libraries.html
-    \nextpage creator-developing-maemo.html
+    \nextpage creator-developing-meego.html
 
     \title Adding Libraries to Projects
 
@@ -4587,7 +4589,8 @@
         \list 1
 
         \o  Configure the device and specify a connection to it. For more
-            information, see \l{Connecting Maemo and MeeGo Harmattan Devices}.
+            information, see \l{Connecting Maemo Devices} and
+            \l{Connecting MeeGo Harmattan Devices}.
 
         \o Connect the device to the development PC.
 
@@ -5063,7 +5066,8 @@
     create connections
     from the development PC to the devices. Click \gui {Manage device
     configurations} to create connections. For more information, see
-    \l {Configuring Connections in Qt Creator}.
+    \l{Configuring Connections to Maemo Devices} and
+    \l{Configuring Connections to Harmattan Devices}.
 
     When you run the application on the \gui{Maemo5} or \gui Harmattan target,
     Qt Creator generates

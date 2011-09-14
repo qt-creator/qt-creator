@@ -1,0 +1,25 @@
+    \section2 Generating SSH Keys
+
+    If you do not have an SSH public and private key pair, you can generate it
+    in Qt Creator. You can specify key length and the key algorithm, RSA or DSA.
+    If you only use the keys to protect connections to the emulator or
+    device, you can use the default values.
+
+    \list 1
+
+        \o  Select \gui {Tools > Options... > Linux Devices > Device
+            Configurations > Generate SSH Key...}.
+
+        \o  Click \gui {Generate SSH Key}.
+
+            \image qtcreator-ssh-key-configuration.png "SSH Key Configuration dialog"
+
+        \o  Click \gui {Save Public Key...} to select the location to save the
+            public key.
+
+        \o  Click \gui {Save Private Key...} to specify the location to save the
+            private key.
+
+        \o  Click \gui Close to close the dialog.
+
+    \endlist
