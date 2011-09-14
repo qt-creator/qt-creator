@@ -88,10 +88,9 @@ private slots:
     void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
     void clientStatusChanged(QDeclarativeDebugClient::Status status);
     void connectionStateChanged();
-    void pollInferior();
+    void checkConnectionState();
 
 private:
-    void connectToViewer();
     void createDebuggerClients();
     void showConnectionStatusMessage(const QString &message);
     void showConnectionErrorMessage(const QString &message);

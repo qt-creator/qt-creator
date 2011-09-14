@@ -137,10 +137,14 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
         SIGNAL(processExited(int)),
         SLOT(disconnected()));
     connect(&d->m_applicationLauncher,
-        SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-        SLOT(appendMessage(QString,Utils::OutputFormat)));
+        SIGNAL(appendMessage(QString, Utils::OutputFormat)),
+        SLOT(appendMessage(QString, Utils::OutputFormat)));
+    connect(&d->m_applicationLauncher,
+            SIGNAL(processStarted()),
+            &d->m_noDebugOutputTimer,
+            SLOT(start()));
 
-// Only wait 8 seconds for the 'Waiting for connection' on application ouput, then just try to connect
+    // Only wait 8 seconds for the 'Waiting for connection' on application ouput, then just try to connect
     // (application output might be redirected / blocked)
     d->m_noDebugOutputTimer.setSingleShot(true);
     d->m_noDebugOutputTimer.setInterval(8000);
@@ -167,6 +171,9 @@ void QmlEngine::setupInferior()
         emit requestRemoteSetup();
         if (startParameters().qmlServerPort != quint16(-1))
             notifyInferiorSetupOk();
+    } if (startParameters().startMode == AttachToQmlPort) {
+            notifyInferiorSetupOk();
+
     } else {
         d->m_applicationLauncher.setEnvironment(startParameters().environment);
         d->m_applicationLauncher.setWorkingDirectory(startParameters().workingDirectory);
@@ -197,6 +204,7 @@ void QmlEngine::connectionEstablished()
 void QmlEngine::beginConnection()
 {
     d->m_noDebugOutputTimer.stop();
+    showMessage(tr("QML Debugger connecting..."), StatusBar);
     d->m_adapter.beginConnection();
 }
 
@@ -240,6 +248,9 @@ void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
 {
     if (socketError == QAbstractSocket::RemoteHostClosedError)
         showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
+
+    notifyInferiorSpontaneousStop();
+    notifyInferiorIll();
 }
 
 void QmlEngine::serviceConnectionError(const QString &serviceName)
@@ -333,7 +344,9 @@ void QmlEngine::runEngine()
     if (!isSlaveEngine() && startParameters().startMode != AttachToRemoteServer
             && startParameters().startMode != AttachToQmlPort)
         startApplicationLauncher();
-    d->m_noDebugOutputTimer.start();
+
+    if (startParameters().startMode == AttachToQmlPort)
+        beginConnection();
 }
 
 void QmlEngine::startApplicationLauncher()
@@ -375,7 +388,10 @@ void QmlEngine::handleRemoteSetupFailed(const QString &message)
 
 void QmlEngine::shutdownInferior()
 {
-    d->m_adapter.activeDebuggerClient()->endSession();
+    d->m_noDebugOutputTimer.stop();
+
+    if (d->m_adapter.activeDebuggerClient())
+        d->m_adapter.activeDebuggerClient()->endSession();
 
     if (isSlaveEngine()) {
         resetLocation();
@@ -409,8 +425,10 @@ void QmlEngine::setupEngine()
 void QmlEngine::continueInferior()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    logMessage(LogSend, "CONTINUE");
-    d->m_adapter.activeDebuggerClient()->continueInferior();
+    if (d->m_adapter.activeDebuggerClient()) {
+        logMessage(LogSend, "CONTINUE");
+        d->m_adapter.activeDebuggerClient()->continueInferior();
+    }
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -418,15 +436,19 @@ void QmlEngine::continueInferior()
 
 void QmlEngine::interruptInferior()
 {
-    logMessage(LogSend, "INTERRUPT");
-    d->m_adapter.activeDebuggerClient()->interruptInferior();
+    if (d->m_adapter.activeDebuggerClient()) {
+        logMessage(LogSend, "INTERRUPT");
+        d->m_adapter.activeDebuggerClient()->interruptInferior();
+    }
     notifyInferiorStopOk();
 }
 
 void QmlEngine::executeStep()
 {
-    logMessage(LogSend, "STEPINTO");
-    d->m_adapter.activeDebuggerClient()->executeStep();
+    if (d->m_adapter.activeDebuggerClient()) {
+        logMessage(LogSend, "STEPINTO");
+        d->m_adapter.activeDebuggerClient()->executeStep();
+    }
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -434,8 +456,10 @@ void QmlEngine::executeStep()
 
 void QmlEngine::executeStepI()
 {
-    logMessage(LogSend, "STEPINTO");
-    d->m_adapter.activeDebuggerClient()->executeStepI();
+    if (d->m_adapter.activeDebuggerClient()) {
+        logMessage(LogSend, "STEPINTO");
+        d->m_adapter.activeDebuggerClient()->executeStepI();
+    }
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -443,8 +467,10 @@ void QmlEngine::executeStepI()
 
 void QmlEngine::executeStepOut()
 {
-    logMessage(LogSend, "STEPOUT");
-    d->m_adapter.activeDebuggerClient()->executeStepOut();
+    if (d->m_adapter.activeDebuggerClient()) {
+        logMessage(LogSend, "STEPOUT");
+        d->m_adapter.activeDebuggerClient()->executeStepOut();
+    }
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -452,8 +478,10 @@ void QmlEngine::executeStepOut()
 
 void QmlEngine::executeNext()
 {
-    logMessage(LogSend, "STEPOVER");
-    d->m_adapter.activeDebuggerClient()->executeNext();
+    if (d->m_adapter.activeDebuggerClient()) {
+        logMessage(LogSend, "STEPOVER");
+        d->m_adapter.activeDebuggerClient()->executeNext();
+    }
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -484,8 +512,10 @@ void QmlEngine::executeJumpToLine(const ContextData &data)
 
 void QmlEngine::activateFrame(int index)
 {
-    logMessage(LogSend, QString("%1 %2").arg(QString("ACTIVATE_FRAME"), QString::number(index)));
-    d->m_adapter.activeDebuggerClient()->activateFrame(index);
+    if (d->m_adapter.activeDebuggerClient()) {
+        logMessage(LogSend, QString("%1 %2").arg(QString("ACTIVATE_FRAME"), QString::number(index)));
+        d->m_adapter.activeDebuggerClient()->activateFrame(index);
+    }
     gotoLocation(stackHandler()->frames().value(index));
 }
 
@@ -660,10 +690,10 @@ void QmlEngine::assignValueInDebugger(const WatchData *data,
     const QString &expression, const QVariant &valueV)
 {
     quint64 objectId =  data->id;
-    if (objectId > 0 && !expression.isEmpty()) {
+    if (objectId > 0 && !expression.isEmpty() && d->m_adapter.activeDebuggerClient()) {
         logMessage(LogSend, QString("%1 %2 %3 %4 %5").arg(
-                             QString("SET_PROPERTY"), QString::number(objectId), QString(expression),
-                             valueV.toString()));
+                       QString("SET_PROPERTY"), QString::number(objectId), QString(expression),
+                       valueV.toString()));
         d->m_adapter.activeDebuggerClient()->assignValueInDebugger(expression.toUtf8(), objectId, expression, valueV.toString());
     }
 }
@@ -675,15 +705,16 @@ void QmlEngine::updateWatchData(const WatchData &data,
     //watchHandler()->rebuildModel();
     showStatusMessage(tr("Stopped."), 5000);
 
-    if (!data.name.isEmpty() && data.isValueNeeded()) {
-        logMessage(LogSend, QString("%1 %2 %3").arg(QString("EXEC"), QString(data.iname),
-                                                          QString(data.name)));
-         d->m_adapter.activeDebuggerClient()->updateWatchData(&data);
-    }
-
-    if (!data.name.isEmpty() && data.isChildrenNeeded()
-            && watchHandler()->isExpandedIName(data.iname)) {
-        d->m_adapter.activeDebuggerClient()->expandObject(data.iname, data.id);
+    if (!data.name.isEmpty() && d->m_adapter.activeDebuggerClient()) {
+        if (data.isValueNeeded()) {
+            logMessage(LogSend, QString("%1 %2 %3").arg(QString("EXEC"), QString(data.iname),
+                                                        QString(data.name)));
+            d->m_adapter.activeDebuggerClient()->updateWatchData(&data);
+        }
+        if (data.isChildrenNeeded()
+                && watchHandler()->isExpandedIName(data.iname)) {
+            d->m_adapter.activeDebuggerClient()->expandObject(data.iname, data.id);
+        }
     }
 
     synchronizeWatchers();
@@ -722,9 +753,11 @@ unsigned QmlEngine::debuggerCapabilities() const
 
 QString QmlEngine::toFileInProject(const QUrl &fileUrl)
 {
-    if (d->fileFinder.projectDirectory().isEmpty()) {
-        d->fileFinder.setProjectDirectory(startParameters().projectSourceDirectory);
-        d->fileFinder.setProjectFiles(startParameters().projectSourceFiles);
+    if (startParameters().startMode != AttachToQmlPort) {
+        if (d->fileFinder.projectDirectory().isEmpty()) {
+            d->fileFinder.setProjectDirectory(startParameters().projectSourceDirectory);
+            d->fileFinder.setProjectFiles(startParameters().projectSourceFiles);
+        }
     }
 
     return d->fileFinder.findFile(fileUrl);
@@ -753,9 +786,11 @@ void QmlEngine::wrongSetupMessageBoxFinished(int result)
 
 void QmlEngine::executeDebuggerCommand(const QString& command)
 {
-    logMessage(LogSend, QString("%1 %2 %3").arg(QString("EXEC"), QString("console"),
-                                                      QString(command)));
-    d->m_adapter.activeDebuggerClient()->executeDebuggerCommand(command);
+    if (d->m_adapter.activeDebuggerClient()) {
+        logMessage(LogSend, QString("%1 %2 %3").arg(QString("EXEC"), QString("console"),
+                                                          QString(command)));
+        d->m_adapter.activeDebuggerClient()->executeDebuggerCommand(command);
+    }
 }
 
 

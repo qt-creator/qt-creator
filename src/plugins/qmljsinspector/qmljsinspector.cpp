@@ -152,7 +152,6 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_clientProxy(0)
     , m_qmlEngine(0)
     , m_debugQuery(0)
-    , m_debugProject(0)
     , m_selectionCallbackExpected(false)
     , m_cursorPositionChangedExternally(false)
 {
@@ -310,11 +309,12 @@ void InspectorUi::connected(ClientProxy *clientProxy)
         it.value()->resetInitialDoc(doc);
     }
 
-    m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-
-    connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
-    m_projectFinder.setProjectDirectory(m_debugProject->projectDirectory());
-    m_projectFinder.setProjectFiles(m_debugProject->files(ProjectExplorer::Project::AllFiles));
+    // project is needed for matching filenames, esp. with shadow builds.
+    ProjectExplorer::Project *debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    if (debugProject) {
+        m_projectFinder.setProjectDirectory(debugProject->projectDirectory());
+        m_projectFinder.setProjectFiles(debugProject->files(ProjectExplorer::Project::AllFiles));
+    }
 
     connectSignals();
     enable();
@@ -335,7 +335,6 @@ void InspectorUi::disconnected()
     disconnectSignals();
     disable();
 
-    m_debugProject = 0;
     m_qmlEngine = 0;
     resetViews();
 
@@ -487,11 +486,6 @@ QmlJSLiveTextPreview *InspectorUi::createPreviewForEditor(Core::IEditor *newEdit
     }
 
     return preview;
-}
-
-void InspectorUi::currentDebugProjectRemoved()
-{
-    m_debugProject = 0;
 }
 
 void InspectorUi::resetViews()

@@ -54,19 +54,15 @@ public:
     explicit QmlAdapterPrivate(DebuggerEngine *engine)
         : m_engine(engine)
         , m_qmlClient(0)
-        , m_connectionAttempts(0)
-        , m_maxConnectionAttempts(50) // overall time: 50 x 200ms
         , m_conn(0)
     {
-        m_connectionTimer.setInterval(200);
+        m_connectionTimer.setInterval(4000);
+        m_connectionTimer.setSingleShot(true);
     }
 
     QWeakPointer<DebuggerEngine> m_engine;
     QmlDebuggerClient *m_qmlClient;
-
     QTimer m_connectionTimer;
-    int m_connectionAttempts;
-    int m_maxConnectionAttempts;
     QDeclarativeDebugConnection *m_conn;
     QHash<QString, QmlDebuggerClient*> debugClients;
 };
@@ -76,7 +72,7 @@ public:
 QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
     : QObject(parent), d(new Internal::QmlAdapterPrivate(engine))
 {
-    connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(pollInferior()));
+    connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(checkConnectionState()));
     d->m_conn = new QDeclarativeDebugConnection(this);
     connect(d->m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             SLOT(connectionStateChanged()));
@@ -86,6 +82,8 @@ QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
     ExtensionSystem::PluginManager *pluginManager =
         ExtensionSystem::PluginManager::instance();
     pluginManager->addObject(this);
+
+    createDebuggerClients();
 }
 
 QmlAdapter::~QmlAdapter()
@@ -99,38 +97,6 @@ QmlAdapter::~QmlAdapter()
 }
 
 void QmlAdapter::beginConnection()
-{
-    d->m_connectionAttempts = 0;
-    d->m_connectionTimer.start();
-}
-
-void QmlAdapter::closeConnection()
-{
-    if (d->m_connectionTimer.isActive()) {
-        d->m_connectionTimer.stop();
-    } else {
-        if (d->m_conn)
-            d->m_conn->close();
-    }
-}
-
-void QmlAdapter::pollInferior()
-{
-    ++d->m_connectionAttempts;
-
-    if (isConnected()) {
-        d->m_connectionTimer.stop();
-        d->m_connectionAttempts = 0;
-    } else if (d->m_connectionAttempts == d->m_maxConnectionAttempts) {
-        d->m_connectionTimer.stop();
-        d->m_connectionAttempts = 0;
-        emit connectionStartupFailed();
-    } else {
-        connectToViewer();
-    }
-}
-
-void QmlAdapter::connectToViewer()
 {
     if (d->m_engine.isNull()
             || (d->m_conn && d->m_conn->state() != QAbstractSocket::UnconnectedState))
@@ -147,6 +113,20 @@ void QmlAdapter::connectToViewer()
         showConnectionStatusMessage(tr("Connecting to debug server %1:%2").arg(address).arg(QString::number(port)));
         d->m_conn->connectToHost(address, port);
     }
+
+    //A timeout to check the connection state
+    d->m_connectionTimer.start();
+}
+
+void QmlAdapter::closeConnection()
+{
+    if (d->m_connectionTimer.isActive()) {
+        d->m_connectionTimer.stop();
+    } else {
+        if (d->m_conn) {
+            d->m_conn->close();
+        }
+    }
 }
 
 void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketError)
@@ -155,8 +135,12 @@ void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketErro
                                 .arg(socketError).arg(d->m_conn->errorString()));
 
     // this is only an error if we are already connected and something goes wrong.
-    if (isConnected())
+    if (isConnected()) {
         emit connectionError(socketError);
+    } else {
+        d->m_connectionTimer.stop();
+        emit connectionStartupFailed();
+    }
 }
 
 void QmlAdapter::clientStatusChanged(QDeclarativeDebugClient::Status status)
@@ -194,8 +178,7 @@ void QmlAdapter::connectionStateChanged()
     {
         showConnectionStatusMessage(tr("connected.\n"));
 
-        if (!d->m_qmlClient)
-            createDebuggerClients();
+        d->m_connectionTimer.stop();
 
         //reloadEngines();
         emit connected();
@@ -207,6 +190,14 @@ void QmlAdapter::connectionStateChanged()
     case QAbstractSocket::BoundState:
     case QAbstractSocket::ListeningState:
         break;
+    }
+}
+
+void QmlAdapter::checkConnectionState()
+{
+    if (!isConnected()) {
+        closeConnection();
+        emit connectionStartupFailed();
     }
 }
 

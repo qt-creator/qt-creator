@@ -1670,8 +1670,8 @@ void DebuggerPluginPrivate::attachToQmlPort()
     setConfigValue(_("LastQmlServerAddress"), dlg.host());
     setConfigValue(_("LastQmlServerPort"), dlg.port());
 
-    sp.serverAddress = dlg.host();
-    sp.serverPort = dlg.port();
+    sp.qmlServerAddress = dlg.host();
+    sp.qmlServerPort = dlg.port();
 
     sp.startMode = AttachToQmlPort;
     if (RunControl *rc = createDebugger(sp))

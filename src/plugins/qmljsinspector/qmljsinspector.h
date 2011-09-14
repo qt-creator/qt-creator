@@ -131,7 +131,6 @@ private slots:
     void disableLivePreview();
     void crumblePathElementClicked(const QVariant &data);
 
-    void currentDebugProjectRemoved();
     void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);
     void showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
     void debugQueryUpdated(QDeclarativeDebugQuery::State);
@@ -166,9 +165,6 @@ private:
     // Qml/JS integration
     QHash<QString, QmlJSLiveTextPreview *> m_textPreviews;
     QmlJS::Snapshot m_loadedSnapshot; //the snapshot loaded by the viewer
-
-    // project is needed for matching filenames, esp. with shadow builds.
-    ProjectExplorer::Project *m_debugProject;
 
     QStringList m_pendingPreviewDocumentNames;
     Utils::FileInProjectFinder m_projectFinder;
