@@ -423,9 +423,9 @@ public:
         VCSBase::VCSBaseEditorParameterWidget(parent), m_client(client), m_params(p)
     {
         mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore whitespace")),
-                   &client->settings()->diffIgnoreWhiteSpace);
+                   client->settings()->boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
         mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore blank lines")),
-                   &client->settings()->diffIgnoreBlankLines);
+                   client->settings()->boolPointer(MercurialSettings::diffIgnoreBlankLinesKey));
     }
 
     void executeCommand()

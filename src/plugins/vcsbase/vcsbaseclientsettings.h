@@ -36,6 +36,8 @@
 #include "vcsbase_global.h"
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QVariant>
+#include <QtCore/QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -43,56 +45,55 @@ QT_END_NAMESPACE
 
 namespace VCSBase {
 
+class VCSBaseClientSettingsPrivate;
+
 class VCSBASE_EXPORT VCSBaseClientSettings
 {
 public:
+    static const QLatin1String binaryPathKey;
+    static const QLatin1String userNameKey;
+    static const QLatin1String userEmailKey;
+    static const QLatin1String logCountKey;
+    static const QLatin1String promptOnSubmitKey;
+    static const QLatin1String timeoutKey; // Seconds
+
     VCSBaseClientSettings();
+    VCSBaseClientSettings(const VCSBaseClientSettings &other);
+    VCSBaseClientSettings &operator=(const VCSBaseClientSettings &other);
     virtual ~VCSBaseClientSettings();
 
-    QString binary() const;
-    void setBinary(const QString &);
+    void writeSettings(QSettings *settings) const;
+    void readSettings(const QSettings *settings);
 
-    // Calculated
-    QStringList standardArguments() const;
+    bool equals(const VCSBaseClientSettings &rhs) const;
 
-    QString userName() const;
-    void setUserName(const QString &);
+    QStringList keys() const;
+    bool hasKey(const QString &key) const;
 
-    QString email() const;
-    void setEmail(const QString &);
+    int *intPointer(const QString &key);
+    int intValue(const QString &key, int defaultValue = 0) const;
 
-    int logCount() const;
-    void setLogCount(int l);
+    bool *boolPointer(const QString &key);
+    bool boolValue(const QString &key, bool defaultValue = false) const;
 
-    bool prompt() const;
-    void setPrompt(bool b);
+    QString *stringPointer(const QString &key);
+    QString stringValue(const QString &key, const QString &defaultValue = QString()) const;
 
-    int timeoutMilliSeconds() const;
-    int timeoutSeconds() const;
-    void setTimeoutSeconds(int s);
+    QVariant value(const QString &key) const;
+    void setValue(const QString &key, const QVariant &v);
+    QVariant::Type valueType(const QString &key) const;
 
+protected:
     QString settingsGroup() const;
     void setSettingsGroup(const QString &group);
 
-    virtual void writeSettings(QSettings *settings) const;
-    virtual void readSettings(const QSettings *settings);
-
-    virtual bool equals(const VCSBaseClientSettings &rhs) const;
-
-protected:
-    QString defaultBinary() const;
-    void setDefaultBinary(const QString &bin);
+    void declareKey(const QString &key, const QVariant &defaultValue);
+    QVariant keyDefaultValue(const QString &key) const;
 
 private:
-    QString m_binary;
-    QString m_defaultBinary;
-    QStringList m_standardArguments;
-    QString m_user;
-    QString m_mail;
-    int m_logCount;
-    bool m_prompt;
-    int m_timeoutSeconds;
-    QString m_settingsGroup;
+    friend bool equals(const VCSBaseClientSettings &rhs);
+    friend class VCSBaseClientSettingsPrivate;
+    QSharedDataPointer<VCSBaseClientSettingsPrivate> d;
 };
 
 inline bool operator==(const VCSBaseClientSettings &s1, const VCSBaseClientSettings &s2)

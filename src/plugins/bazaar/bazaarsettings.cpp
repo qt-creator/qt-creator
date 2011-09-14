@@ -38,81 +38,30 @@
 namespace Bazaar {
 namespace Internal {
 
-const QLatin1String diffIgnoreWhiteSpaceKey("diffIgnoreWhiteSpace");
-const QLatin1String diffIgnoreBlankLinesKey("diffIgnoreBlankLines");
-const QLatin1String logVerboseKey("logVerbose");
-const QLatin1String logForwardKey("logForward");
-const QLatin1String logIncludeMergesKey("logIncludeMerges");
-const QLatin1String logFormatKey("logFormat");
+const QLatin1String BazaarSettings::diffIgnoreWhiteSpaceKey("diffIgnoreWhiteSpace");
+const QLatin1String BazaarSettings::diffIgnoreBlankLinesKey("diffIgnoreBlankLines");
+const QLatin1String BazaarSettings::logVerboseKey("logVerbose");
+const QLatin1String BazaarSettings::logForwardKey("logForward");
+const QLatin1String BazaarSettings::logIncludeMergesKey("logIncludeMerges");
+const QLatin1String BazaarSettings::logFormatKey("logFormat");
 
-BazaarSettings::BazaarSettings() :
-    diffIgnoreWhiteSpace(false),
-    diffIgnoreBlankLines(false),
-    logVerbose(false),
-    logForward(false),
-    logIncludeMerges(false),
-    logFormat(QLatin1String("long"))
+BazaarSettings::BazaarSettings()
 {
     setSettingsGroup(QLatin1String(Constants::BAZAAR));
-    setDefaultBinary(QLatin1String(Constants::BAZAARDEFAULT));
-}
-
-BazaarSettings& BazaarSettings::operator=(const BazaarSettings& other)
-{
-    VCSBase::VCSBaseClientSettings::operator=(other);
-    if (this != &other) {
-        diffIgnoreWhiteSpace = other.diffIgnoreWhiteSpace;
-        diffIgnoreBlankLines = other.diffIgnoreBlankLines;
-        logVerbose = other.logVerbose;
-        logForward = other.logForward;
-        logIncludeMerges = other.logIncludeMerges;
-        logFormat = other.logFormat;
-    }
-    return *this;
+    // Override default binary path
+    declareKey(binaryPathKey, QLatin1String(Constants::BAZAARDEFAULT));
+    declareKey(diffIgnoreWhiteSpaceKey, false);
+    declareKey(diffIgnoreBlankLinesKey, false);
+    declareKey(logVerboseKey, false);
+    declareKey(logForwardKey, false);
+    declareKey(logIncludeMergesKey, false);
+    declareKey(logFormatKey, QLatin1String("long"));
 }
 
 bool BazaarSettings::sameUserId(const BazaarSettings& other) const
 {
-    return userName() == other.userName() && email() == other.email();
-}
-
-void BazaarSettings::writeSettings(QSettings *settings) const
-{
-    VCSBaseClientSettings::writeSettings(settings);
-    settings->beginGroup(settingsGroup());
-    settings->setValue(diffIgnoreWhiteSpaceKey, diffIgnoreWhiteSpace);
-    settings->setValue(diffIgnoreBlankLinesKey, diffIgnoreBlankLines);
-    settings->setValue(logVerboseKey, logVerbose);
-    settings->setValue(logForwardKey, logForward);
-    settings->setValue(logIncludeMergesKey, logIncludeMerges);
-    settings->setValue(logFormatKey, logFormat);
-    settings->endGroup();
-}
-
-void BazaarSettings::readSettings(const QSettings *settings)
-{
-    VCSBaseClientSettings::readSettings(settings);
-    const QString keyRoot = settingsGroup() + QLatin1Char('/');
-    diffIgnoreWhiteSpace = settings->value(keyRoot + diffIgnoreWhiteSpaceKey, false).toBool();
-    diffIgnoreBlankLines = settings->value(keyRoot + diffIgnoreBlankLinesKey, false).toBool();
-    logVerbose = settings->value(keyRoot + logVerboseKey, false).toBool();
-    logForward = settings->value(keyRoot + logForwardKey, false).toBool();
-    logIncludeMerges = settings->value(keyRoot + logIncludeMergesKey, false).toBool();
-    logFormat = settings->value(keyRoot + logFormatKey, QLatin1String("long")).toString();
-}
-
-bool BazaarSettings::equals(const VCSBaseClientSettings &rhs) const
-{
-    const BazaarSettings *bzrRhs = dynamic_cast<const BazaarSettings *>(&rhs);
-    if (bzrRhs == 0)
-        return false;
-    return VCSBaseClientSettings::equals(rhs)
-            && diffIgnoreWhiteSpace == bzrRhs->diffIgnoreWhiteSpace
-            && diffIgnoreBlankLines == bzrRhs->diffIgnoreBlankLines
-            && logVerbose == bzrRhs->logVerbose
-            && logForward == bzrRhs->logForward
-            && logIncludeMerges == bzrRhs->logIncludeMerges
-            && logFormat == bzrRhs->logFormat;
+    return stringValue(userNameKey) == other.stringValue(userNameKey) &&
+            stringValue(userEmailKey) == other.stringValue(userEmailKey);
 }
 
 } // namespace Internal

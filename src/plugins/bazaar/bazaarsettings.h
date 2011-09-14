@@ -41,21 +41,15 @@ namespace Internal {
 class BazaarSettings : public VCSBase::VCSBaseClientSettings
 {
 public:
+    static const QLatin1String diffIgnoreWhiteSpaceKey;
+    static const QLatin1String diffIgnoreBlankLinesKey;
+    static const QLatin1String logVerboseKey;
+    static const QLatin1String logForwardKey;
+    static const QLatin1String logIncludeMergesKey;
+    static const QLatin1String logFormatKey;
+
     BazaarSettings();
-    BazaarSettings& operator=(const BazaarSettings& other);
     bool sameUserId(const BazaarSettings& other) const;
-
-    virtual void writeSettings(QSettings *settings) const;
-    virtual void readSettings(const QSettings *settings);
-    virtual bool equals(const VCSBaseClientSettings &rhs) const;
-
-    bool diffIgnoreWhiteSpace;
-    bool diffIgnoreBlankLines;
-
-    bool logVerbose;
-    bool logForward;
-    bool logIncludeMerges;
-    QString logFormat;
 };
 
 } // namespace Internal

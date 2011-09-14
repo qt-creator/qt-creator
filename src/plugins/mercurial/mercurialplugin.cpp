@@ -203,11 +203,6 @@ void MercurialPlugin::setSettings(const MercurialSettings &settings)
     }
 }
 
-QStringList MercurialPlugin::standardArguments() const
-{
-    return mercurialSettings.standardArguments();
-}
-
 void MercurialPlugin::createMenu()
 {
     Core::Context context(Core::Constants::C_GLOBAL);
@@ -614,8 +609,9 @@ void MercurialPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::Statu
 
     QString branch = m_client->branchQuerySync(m_submitRepository);
 
-    commitEditor->setFields(m_submitRepository, branch, mercurialSettings.userName(),
-                            mercurialSettings.email(), status);
+    commitEditor->setFields(m_submitRepository, branch,
+                            mercurialSettings.stringValue(MercurialSettings::userNameKey),
+                            mercurialSettings.stringValue(MercurialSettings::userEmailKey), status);
 
     commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);
     connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
@@ -646,11 +642,11 @@ bool MercurialPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *sub
     if (!editorFile || !commitEditor)
         return true;
 
-    bool dummyPrompt = mercurialSettings.prompt();
+    bool dummyPrompt = mercurialSettings.boolValue(MercurialSettings::promptOnSubmitKey);
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult response =
             commitEditor->promptSubmit(tr("Close Commit Editor"), tr("Do you want to commit the changes?"),
                                        tr("Message check failed. Do you want to proceed?"),
-                                       &dummyPrompt, mercurialSettings.prompt());
+                                       &dummyPrompt, dummyPrompt);
 
     switch (response) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:

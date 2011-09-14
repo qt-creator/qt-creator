@@ -109,7 +109,11 @@ public:
     // Set environment for a VCS process to run in locale "C"
     static void setProcessEnvironment(QProcess *p);
 
-    void setSettings(const QString &bin, const QStringList &stdArgs, int timeoutMsec);
+    const QString &binary() const;
+    void setBinary(const QString &bin);
+
+    int timeoutMs() const;
+    void setTimeoutMs(int msec);
 
 protected:
     void run();

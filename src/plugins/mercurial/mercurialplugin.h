@@ -91,8 +91,6 @@ public:
     static MercurialPlugin *instance() { return m_instance; }
     MercurialClient *client() const { return m_client; }
 
-    QStringList standardArguments() const;
-
     const MercurialSettings &settings() const;
     void setSettings(const MercurialSettings &settings);
 

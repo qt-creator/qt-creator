@@ -41,15 +41,10 @@ namespace Internal {
 class MercurialSettings : public VCSBase::VCSBaseClientSettings
 {
 public:
+    static const QLatin1String diffIgnoreWhiteSpaceKey;
+    static const QLatin1String diffIgnoreBlankLinesKey;
+
     MercurialSettings();
-    MercurialSettings& operator=(const MercurialSettings& other);
-
-    virtual void writeSettings(QSettings *settings) const;
-    virtual void readSettings(const QSettings *settings);
-    virtual bool equals(const VCSBaseClientSettings &rhs) const;
-
-    bool diffIgnoreWhiteSpace;
-    bool diffIgnoreBlankLines;
 };
 
 } // namespace Internal

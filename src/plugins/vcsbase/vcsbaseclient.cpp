@@ -35,8 +35,6 @@
 #include "vcsbaseclientsettings.h"
 #include "vcsbaseeditorparameterwidget.h"
 
-#include <QtDebug>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/vcsmanager.h>
@@ -88,6 +86,8 @@ public:
     void annotateRevision(QString source, QString change, int lineNumber);
     void saveSettings();
 
+    void updateJobRunnerSettings();
+
     VCSJobRunner *m_jobManager;
     Core::ICore *m_core;
     VCSBaseClientSettings *m_clientSettings;
@@ -130,6 +130,14 @@ void VCSBaseClientPrivate::annotateRevision(QString source, QString change, int 
 void VCSBaseClientPrivate::saveSettings()
 {
     m_clientSettings->writeSettings(m_core->settings());
+}
+
+void VCSBaseClientPrivate::updateJobRunnerSettings()
+{
+    if (m_jobManager && m_clientSettings) {
+        m_jobManager->setBinary(m_clientSettings->stringValue(VCSBaseClientSettings::binaryPathKey));
+        m_jobManager->setTimeoutMs(m_clientSettings->intValue(VCSBaseClientSettings::timeoutKey) * 1000);
+    }
 }
 
 VCSBaseClient::StatusItem::StatusItem()
@@ -257,13 +265,12 @@ bool VCSBaseClient::vcsFullySynchronousExec(const QString &workingDir,
         vcsProcess.setWorkingDirectory(workingDir);
     VCSJobRunner::setProcessEnvironment(&vcsProcess);
 
-    const QString binary = settings()->binary();
-    const QStringList arguments = settings()->standardArguments() + args;
+    const QString binary = settings()->stringValue(VCSBaseClientSettings::binaryPathKey);
 
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     outputWindow->appendCommand(workingDir, binary, args);
 
-    vcsProcess.start(binary, arguments);
+    vcsProcess.start(binary, args);
 
     if (!vcsProcess.waitForStarted()) {
         outputWindow->appendError(VCSJobRunner::msgStartFailed(binary, vcsProcess.errorString()));
@@ -273,10 +280,11 @@ bool VCSBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     vcsProcess.closeWriteChannel();
 
     QByteArray stdErr;
-    if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, settings()->timeoutMilliSeconds(),
+    const int timeoutSec = settings()->intValue(VCSBaseClientSettings::timeoutKey);
+    if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, timeoutSec * 1000,
                                                         output, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(vcsProcess);
-        outputWindow->appendError(VCSJobRunner::msgTimeout(binary, settings()->timeoutSeconds()));
+        outputWindow->appendError(VCSJobRunner::msgTimeout(binary, timeoutSec));
         return false;
     }
     if (!stdErr.isEmpty())
@@ -291,11 +299,10 @@ Utils::SynchronousProcessResponse VCSBaseClient::vcsSynchronousExec(
     unsigned flags,
     QTextCodec *outputCodec)
 {
-    const QString binary = settings()->binary();
-    const QStringList arguments = settings()->standardArguments() + args;
-    return VCSBase::VCSBasePlugin::runVCS(workingDirectory, binary, arguments,
-                                          settings()->timeoutMilliSeconds(),
-                                          flags, outputCodec);
+    const QString binary = settings()->stringValue(VCSBaseClientSettings::binaryPathKey);
+    const int timeoutSec = settings()->intValue(VCSBaseClientSettings::timeoutKey);
+    return VCSBase::VCSBasePlugin::runVCS(workingDirectory, binary, args,
+                                          timeoutSec * 1000, flags, outputCodec);
 }
 
 void VCSBaseClient::annotate(const QString &workingDir, const QString &file,
@@ -509,9 +516,7 @@ VCSBaseClientSettings *VCSBaseClient::settings() const
 void VCSBaseClient::handleSettingsChanged()
 {
     if (d->m_jobManager) {
-        d->m_jobManager->setSettings(settings()->binary(),
-                                     settings()->standardArguments(),
-                                     settings()->timeoutMilliSeconds());
+        d->updateJobRunnerSettings();
         d->m_jobManager->restart();
     }
 }
@@ -538,7 +543,8 @@ VCSBaseEditorParameterWidget *VCSBaseClient::createLogEditor(const QString &work
 
 QString VCSBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {
-    return QFileInfo(settings()->binary()).baseName() +
+    const QString binary = settings()->stringValue(VCSBaseClientSettings::binaryPathKey);
+    return QFileInfo(binary).baseName() +
             QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') +
             QFileInfo(sourceId).fileName();
 }
@@ -583,9 +589,7 @@ void VCSBaseClient::enqueueJob(const QSharedPointer<VCSJob> &job)
 {
     if (!d->m_jobManager) {
         d->m_jobManager = new VCSJobRunner();
-        d->m_jobManager->setSettings(settings()->binary(),
-                                     settings()->standardArguments(),
-                                     settings()->timeoutMilliSeconds());
+        d->updateJobRunnerSettings();
         d->m_jobManager->start();
     }
     d->m_jobManager->enqueueJob(job);

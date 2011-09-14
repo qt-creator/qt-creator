@@ -182,12 +182,11 @@ public:
     QWaitCondition m_waiter;
     bool m_keepRunning;
     QString m_binary;
-    QStringList m_standardArguments;
-    int m_timeoutMS;
+    int m_timeoutMs;
 };
 
 VCSJobRunnerPrivate::VCSJobRunnerPrivate() :
-    m_keepRunning(true), m_timeoutMS(30000)
+    m_keepRunning(true), m_timeoutMs(30000)
 {
 }
 
@@ -278,13 +277,24 @@ void VCSJobRunner::setProcessEnvironment(QProcess *p)
     p->setProcessEnvironment(env);
 }
 
-void VCSJobRunner::setSettings(const QString &bin,
-                               const QStringList &stdArgs,
-                               int timeoutMsec)
+const QString &VCSJobRunner::binary() const
+{
+    return d->m_binary;
+}
+
+void VCSJobRunner::setBinary(const QString &bin)
 {
     d->m_binary = bin;
-    d->m_standardArguments = stdArgs;
-    d->m_timeoutMS = timeoutMsec;
+}
+
+int VCSJobRunner::timeoutMs() const
+{
+    return d->m_timeoutMs;
+}
+
+void VCSJobRunner::setTimeoutMs(int msec)
+{
+    d->m_timeoutMs = msec;
 }
 
 void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
@@ -319,8 +329,14 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
     DisconnectSignalHelper autoDisconnectOutputSig(this, SIGNAL(output(QByteArray)));
     Q_UNUSED(autoDisconnectOutputSig);
 
-    const QStringList args = d->m_standardArguments + taskData->arguments();
-    emit commandStarted(VCSBase::VCSBaseOutputWindow::msgExecutionLogEntry(taskData->workingDirectory(), d->m_binary, args));
+    // Check that the binary path is not empty
+    if (binary().trimmed().isEmpty()) {
+        emit error(tr("Unable to start process, binary is empty"));
+        return;
+    }
+
+    const QStringList args = taskData->arguments();
+    emit commandStarted(VCSBase::VCSBaseOutputWindow::msgExecutionLogEntry(taskData->workingDirectory(), binary(), args));
     //infom the user of what we are going to try and perform
 
     if (Constants::Internal::debug)
@@ -336,10 +352,10 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
     vcsProcess->setWorkingDirectory(taskData->workingDirectory());
     VCSJobRunner::setProcessEnvironment(vcsProcess.data());
 
-    vcsProcess->start(d->m_binary, args);
+    vcsProcess->start(binary(), args);
 
     if (!vcsProcess->waitForStarted()) {
-        emit error(msgStartFailed(d->m_binary, vcsProcess->errorString()));
+        emit error(msgStartFailed(binary(), vcsProcess->errorString()));
         return;
     }
 
@@ -348,9 +364,9 @@ void VCSJobRunner::task(const QSharedPointer<VCSJob> &job)
     QByteArray stdOutput;
     QByteArray stdErr;
 
-    if (!Utils::SynchronousProcess::readDataFromProcess(*vcsProcess, d->m_timeoutMS, &stdOutput, &stdErr, false)) {
+    if (!Utils::SynchronousProcess::readDataFromProcess(*vcsProcess, timeoutMs(), &stdOutput, &stdErr, false)) {
         Utils::SynchronousProcess::stopProcess(*vcsProcess);
-        emit error(msgTimeout(d->m_binary, d->m_timeoutMS / 1000));
+        emit error(msgTimeout(binary(), timeoutMs() / 1000));
         return;
     }
 

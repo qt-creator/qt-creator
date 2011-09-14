@@ -34,9 +34,147 @@
 
 #include <QtCore/QSettings>
 
-using namespace VCSBase;
+namespace {
 
-enum { timeOutDefaultSeconds = 30 };
+class SettingValue
+{
+public:
+    union Composite
+    {
+        QString *strPtr; // Union can't store class objects ...
+        int intValue;
+        bool boolValue;
+    };
+
+    SettingValue() :
+        m_type(QVariant::Invalid)
+    {
+    }
+
+    explicit SettingValue(const QVariant &v) :
+        m_type(v.type())
+    {
+        switch (v.type()) {
+        case QVariant::UInt:
+            m_type = QVariant::Int;
+        case QVariant::Int:
+            m_comp.intValue = v.toInt();
+            break;
+        case QVariant::Bool:
+            m_comp.boolValue = v.toBool();
+            break;
+        case QVariant::String:
+            m_comp.strPtr = new QString(v.toString());
+            break;
+        default:
+            m_type = QVariant::Invalid;
+            break;
+        }
+    }
+
+    SettingValue(const SettingValue &other) :
+        m_comp(other.m_comp),
+        m_type(other.type())
+    {
+        copyInternalString(other);
+    }
+
+    ~SettingValue()
+    {
+        deleteInternalString();
+    }
+
+    SettingValue &operator=(const SettingValue &other)
+    {
+        if (this != &other) {
+            deleteInternalString();
+            m_type = other.type();
+            m_comp = other.m_comp;
+            copyInternalString(other);
+        }
+        return *this;
+    }
+
+    QString stringValue(const QString &defaultString = QString()) const
+    {
+        if (type() == QVariant::String && m_comp.strPtr != 0)
+            return *(m_comp.strPtr);
+        return defaultString;
+    }
+
+    QVariant::Type type() const
+    {
+        return m_type;
+    }
+
+    static bool isUsableVariantType(QVariant::Type varType)
+    {
+        return varType == QVariant::UInt || varType == QVariant::Int ||
+                varType == QVariant::Bool || varType == QVariant::String;
+    }
+
+    Composite m_comp;
+
+private:
+    void deleteInternalString()
+    {
+        if (m_type == QVariant::String && m_comp.strPtr != 0) {
+            delete m_comp.strPtr;
+            m_comp.strPtr = 0;
+        }
+    }
+
+    void copyInternalString(const SettingValue &other)
+    {
+        if (type() == QVariant::String) {
+            const QString *otherString = other.m_comp.strPtr;
+            m_comp.strPtr = new QString(otherString != 0 ? *otherString : QString());
+        }
+    }
+
+    QVariant::Type m_type;
+};
+
+bool operator==(const SettingValue &lhs, const SettingValue &rhs)
+{
+    if (lhs.type() == rhs.type()) {
+        switch (lhs.type()) {
+        case QVariant::Int:
+            return lhs.m_comp.intValue == rhs.m_comp.intValue;
+        case QVariant::Bool:
+            return lhs.m_comp.boolValue == rhs.m_comp.boolValue;
+        case QVariant::String:
+            return lhs.stringValue() == rhs.stringValue();
+        default:
+            return false;
+        }
+    }
+    return false;
+}
+
+} // Anonymous namespace
+
+namespace VCSBase {
+
+class VCSBaseClientSettingsPrivate : public QSharedData
+{
+public:
+    VCSBaseClientSettingsPrivate()
+    {
+    }
+
+    VCSBaseClientSettingsPrivate(const VCSBaseClientSettingsPrivate &other) :
+        QSharedData(other),
+        m_valueHash(other.m_valueHash),
+        m_defaultValueHash(other.m_defaultValueHash),
+        m_settingsGroup(other.m_settingsGroup)
+    {
+    }
+
+    QHash<QString, SettingValue> m_valueHash;
+    QVariantHash m_defaultValueHash;
+    QString m_settingsGroup;
+};
 
 /*!
     \class VCSBase::VCSBaseClientSettings
@@ -46,137 +184,182 @@ enum { timeOutDefaultSeconds = 30 };
     \sa VCSBase::VCSBaseClient
 */
 
+const QLatin1String VCSBaseClientSettings::binaryPathKey("BinaryPath");
+const QLatin1String VCSBaseClientSettings::userNameKey("Username");
+const QLatin1String VCSBaseClientSettings::userEmailKey("UserEmail");
+const QLatin1String VCSBaseClientSettings::logCountKey("LogCount");
+const QLatin1String VCSBaseClientSettings::promptOnSubmitKey("PromptOnSubmit");
+const QLatin1String VCSBaseClientSettings::timeoutKey("Timeout");
+
 VCSBaseClientSettings::VCSBaseClientSettings() :
-    m_logCount(0),
-    m_prompt(true),
-    m_timeoutSeconds(timeOutDefaultSeconds)
+    d(new VCSBaseClientSettingsPrivate)
 {
+    declareKey(binaryPathKey, QLatin1String(""));
+    declareKey(userNameKey, QLatin1String(""));
+    declareKey(userEmailKey, QLatin1String(""));
+    declareKey(logCountKey, 100);
+    declareKey(promptOnSubmitKey, true);
+    declareKey(timeoutKey, 30);
+}
+
+VCSBaseClientSettings::VCSBaseClientSettings(const VCSBaseClientSettings &other) :
+    d(other.d)
+{
+}
+
+VCSBaseClientSettings &VCSBaseClientSettings::operator=(const VCSBaseClientSettings &other)
+{
+    if (this != &other)
+      d = other.d;
+    return *this;
 }
 
 VCSBaseClientSettings::~VCSBaseClientSettings()
-{ }
-
-QString VCSBaseClientSettings::binary() const
 {
-    if (m_binary.isEmpty())
-        return defaultBinary(); // Fallback binary if not specified
-    return m_binary;
-}
-
-void VCSBaseClientSettings::setBinary(const QString &b)
-{
-    m_binary = b;
-}
-
-QStringList VCSBaseClientSettings::standardArguments() const
-{
-    return m_standardArguments;
-}
-
-QString VCSBaseClientSettings::userName() const
-{
-    return m_user;
-}
-
-void VCSBaseClientSettings::setUserName(const QString &u)
-{
-    m_user = u;
-}
-
-QString VCSBaseClientSettings::email() const
-{
-    return m_mail;
-}
-
-void VCSBaseClientSettings::setEmail(const QString &m)
-{
-    m_mail = m;
-}
-
-int VCSBaseClientSettings::logCount() const
-{
-    return m_logCount;
-}
-
-void VCSBaseClientSettings::setLogCount(int l)
-{
-    m_logCount = l;
-}
-
-bool VCSBaseClientSettings::prompt() const
-{
-    return m_prompt;
-}
-
-void VCSBaseClientSettings::setPrompt(bool b)
-{
-    m_prompt = b;
-}
-
-int VCSBaseClientSettings::timeoutMilliSeconds() const
-{
-    //return timeout is in Ms
-    return m_timeoutSeconds * 1000;
-}
-
-int VCSBaseClientSettings::timeoutSeconds() const
-{
-    //return timeout in seconds (as the user specifies on the options page
-    return m_timeoutSeconds;
-}
-
-void VCSBaseClientSettings::setTimeoutSeconds(int s)
-{
-    m_timeoutSeconds = s;
-}
-
-QString VCSBaseClientSettings::settingsGroup() const
-{
-    return m_settingsGroup;
-}
-
-void VCSBaseClientSettings::setSettingsGroup(const QString &group)
-{
-    m_settingsGroup = group;
 }
 
 void VCSBaseClientSettings::writeSettings(QSettings *settings) const
 {
     settings->beginGroup(settingsGroup());
-    settings->setValue(QLatin1String("VCS_Path"), m_binary);
-    settings->setValue(QLatin1String("VCS_Username"), m_user);
-    settings->setValue(QLatin1String("VCS_Email"), m_mail);
-    settings->setValue(QLatin1String("VCS_LogCount"), m_logCount);
-    settings->setValue(QLatin1String("VCS_PromptOnSubmit"), m_prompt);
-    settings->setValue(QLatin1String("VCS_Timeout"), m_timeoutSeconds);
+    foreach (const QString &key, keys())
+        settings->setValue(key, value(key));
     settings->endGroup();
 }
 
 void VCSBaseClientSettings::readSettings(const QSettings *settings)
 {
     const QString keyRoot = settingsGroup() + QLatin1Char('/');
-    m_binary = settings->value(keyRoot + QLatin1String("VCS_Path"), defaultBinary()).toString();
-    m_user = settings->value(keyRoot + QLatin1String("VCS_Username"), QString()).toString();
-    m_mail = settings->value(keyRoot + QLatin1String("VCS_Email"), QString()).toString();
-    m_logCount = settings->value(keyRoot + QLatin1String("VCS_LogCount"), QString()).toInt();
-    m_prompt = settings->value(keyRoot + QLatin1String("VCS_PromptOnSubmit"), QString()).toBool();
-    m_timeoutSeconds = settings->value(keyRoot + QLatin1String("VCS_Timeout"), timeOutDefaultSeconds).toInt();
+    foreach (const QString &key, keys()) {
+        const QVariant value = settings->value(keyRoot + key, keyDefaultValue(key));
+        // For some reason QSettings always return QVariant(QString) when the
+        // key exists. The type is explicited to avoid wrong conversions
+        switch (valueType(key)) {
+        case QVariant::Int:
+            setValue(key, value.toInt());
+            break;
+        case QVariant::Bool:
+            setValue(key, value.toBool());
+            break;
+        case QVariant::String:
+            setValue(key, value.toString());
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 bool VCSBaseClientSettings::equals(const VCSBaseClientSettings &rhs) const
 {
-    return m_binary == rhs.m_binary && m_standardArguments == rhs.m_standardArguments
-            && m_user == rhs.m_user && m_mail == rhs.m_mail
-            && m_logCount == rhs.m_logCount && m_prompt == rhs.m_prompt
-            && m_timeoutSeconds == rhs.m_timeoutSeconds;
+    if (this == &rhs)
+        return true;
+    return d->m_valueHash == rhs.d->m_valueHash;
 }
 
-QString VCSBaseClientSettings::defaultBinary() const
+QStringList VCSBaseClientSettings::keys() const
 {
-    return m_defaultBinary;
+    return d->m_valueHash.keys();
 }
 
-void VCSBaseClientSettings::setDefaultBinary(const QString &bin)
+bool VCSBaseClientSettings::hasKey(const QString &key) const
 {
-    m_defaultBinary = bin;
+    return d->m_valueHash.contains(key);
 }
+
+int *VCSBaseClientSettings::intPointer(const QString &key)
+{
+    if (hasKey(key))
+        return &(d->m_valueHash[key].m_comp.intValue);
+    return 0;
+}
+
+bool *VCSBaseClientSettings::boolPointer(const QString &key)
+{
+    if (hasKey(key))
+        return &(d->m_valueHash[key].m_comp.boolValue);
+    return 0;
+}
+
+QString *VCSBaseClientSettings::stringPointer(const QString &key)
+{
+    if (hasKey(key))
+        return d->m_valueHash[key].m_comp.strPtr;
+    return 0;
+}
+
+int VCSBaseClientSettings::intValue(const QString &key, int defaultValue) const
+{
+    if (hasKey(key))
+        return d->m_valueHash[key].m_comp.intValue;
+    return defaultValue;
+}
+
+bool VCSBaseClientSettings::boolValue(const QString &key, bool defaultValue) const
+{
+    if (hasKey(key))
+        return d->m_valueHash[key].m_comp.boolValue;
+    return defaultValue;
+}
+
+QString VCSBaseClientSettings::stringValue(const QString &key, const QString &defaultValue) const
+{
+    if (hasKey(key))
+        return d->m_valueHash[key].stringValue(defaultValue);
+    return defaultValue;
+}
+
+QVariant VCSBaseClientSettings::value(const QString &key) const
+{
+    switch (valueType(key)) {
+    case QVariant::Int:
+        return intValue(key);
+    case QVariant::Bool:
+        return boolValue(key);
+    case QVariant::String:
+        return stringValue(key);
+    case QVariant::Invalid:
+        return QVariant();
+    default:
+        return QVariant();
+    }
+}
+
+void VCSBaseClientSettings::setValue(const QString &key, const QVariant &v)
+{
+    if (SettingValue::isUsableVariantType(valueType(key)))
+        d->m_valueHash.insert(key, SettingValue(v));
+}
+
+QVariant::Type VCSBaseClientSettings::valueType(const QString &key) const
+{
+    if (hasKey(key))
+        return d->m_valueHash[key].type();
+    return QVariant::Invalid;
+}
+
+QString VCSBaseClientSettings::settingsGroup() const
+{
+    return d->m_settingsGroup;
+}
+
+void VCSBaseClientSettings::setSettingsGroup(const QString &group)
+{
+    d->m_settingsGroup = group;
+}
+
+void VCSBaseClientSettings::declareKey(const QString &key, const QVariant &defaultValue)
+{
+    if (SettingValue::isUsableVariantType(defaultValue.type())) {
+        d->m_valueHash.insert(key, SettingValue(defaultValue));
+        d->m_defaultValueHash.insert(key, defaultValue);
+    }
+}
+
+QVariant VCSBaseClientSettings::keyDefaultValue(const QString &key) const
+{
+    if (d->m_defaultValueHash.contains(key))
+        return d->m_defaultValueHash.value(key);
+    return QVariant(valueType(key));
+}
+
+} // namespace VCSBase

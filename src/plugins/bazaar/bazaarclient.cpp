@@ -62,7 +62,9 @@ bool BazaarClient::synchronousSetUserId()
 {
     QStringList args;
     args << QLatin1String("whoami")
-         << QString("%1 <%2>").arg(settings()->userName()).arg(settings()->email());
+         << QString("%1 <%2>")
+            .arg(settings()->stringValue(BazaarSettings::userNameKey))
+            .arg(settings()->stringValue(BazaarSettings::userEmailKey));
     QByteArray stdOut;
     return vcsFullySynchronousExec(QDir::currentPath(), args, &stdOut);
 }
@@ -217,9 +219,9 @@ public:
         VCSBase::VCSBaseEditorParameterWidget(parent), m_client(client), m_params(p)
     {
         mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore whitespace")),
-                   &client->settings()->diffIgnoreWhiteSpace);
+                   client->settings()->boolPointer(BazaarSettings::diffIgnoreWhiteSpaceKey));
         mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore blank lines")),
-                   &client->settings()->diffIgnoreBlankLines);
+                   client->settings()->boolPointer(BazaarSettings::diffIgnoreBlankLinesKey));
     }
 
     QStringList arguments() const
@@ -262,13 +264,13 @@ public:
     {
         mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
                                    tr("Show files changed in each revision")),
-                   &m_client->settings()->logVerbose);
+                   m_client->settings()->boolPointer(BazaarSettings::logVerboseKey));
         mapSetting(addToggleButton(QLatin1String("--forward"), tr("Forward"),
                                    tr("Show from oldest to newest")),
-                   &m_client->settings()->logForward);
+                   m_client->settings()->boolPointer(BazaarSettings::logForwardKey));
         mapSetting(addToggleButton(QLatin1String("--include-merges"), tr("Include merges"),
                                    tr("Show merged revisions")),
-                   &m_client->settings()->logIncludeMerges);
+                   m_client->settings()->boolPointer(BazaarSettings::logIncludeMergesKey));
 
         QList<ComboBoxItem> logChoices;
         logChoices << ComboBoxItem(tr("Detailed"), QLatin1String("long"))
@@ -276,7 +278,7 @@ public:
                    << ComboBoxItem(tr("One line"), QLatin1String("line"))
                    << ComboBoxItem(tr("GNU ChangeLog"), QLatin1String("gnu-changelog"));
         mapSetting(addComboBox(QLatin1String("--log-format"), logChoices),
-                   &m_client->settings()->logFormat);
+                   m_client->settings()->stringPointer(BazaarSettings::logFormatKey));
     }
 
     void executeCommand()
