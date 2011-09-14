@@ -665,6 +665,8 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_ui->debuggerPathChooser->setExpectedKind(PathChooser::File);
     m_ui->debuggerPathChooser->setPromptDialogTitle(tr("Select Debugger"));
+    m_ui->debuginfoPathChooser->setExpectedKind(PathChooser::File);
+    m_ui->debuginfoPathChooser->setPromptDialogTitle(tr("Select Location of Debugging Information"));
     m_ui->executablePathChooser->setExpectedKind(PathChooser::File);
     m_ui->executablePathChooser->setPromptDialogTitle(tr("Select Executable"));
     m_ui->sysrootPathChooser->setPromptDialogTitle(tr("Select Sysroot"));
@@ -718,6 +720,16 @@ void StartRemoteDialog::setDebugger(const QString &debugger)
 QString StartRemoteDialog::debugger() const
 {
     return m_ui->debuggerPathChooser->path();
+}
+
+void StartRemoteDialog::setDebugInfoLocation(const QString &location)
+{
+    m_ui->debuginfoPathChooser->setPath(location);
+}
+
+QString StartRemoteDialog::debugInfoLocation() const
+{
+    return m_ui->debuginfoPathChooser->path();
 }
 
 void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)

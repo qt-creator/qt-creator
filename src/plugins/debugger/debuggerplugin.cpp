@@ -1585,6 +1585,7 @@ bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, b
     dlg.setUseServerStartScript(
             configValue(_("LastUseServerStartScript")).toBool());
     dlg.setSysroot(configValue(_("LastSysroot")).toString());
+    dlg.setDebugInfoLocation(configValue(_("LastDebugInfoLocation")).toString());
     if (dlg.exec() != QDialog::Accepted)
         return false;
     setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
@@ -1596,6 +1597,7 @@ bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, b
     setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
     setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
     setConfigValue(_("LastSysroot"), dlg.sysroot());
+    setConfigValue(_("LastDebugInfoLocation"), dlg.debugInfoLocation());
     sp.remoteChannel = dlg.remoteChannel();
     sp.remoteArchitecture = dlg.remoteArchitecture();
     sp.gnuTarget = dlg.gnuTarget();
@@ -1609,6 +1611,9 @@ bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, b
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
     sp.sysroot = dlg.sysroot();
+    sp.debugInfoLocation = dlg.debugInfoLocation();
+    if (sp.debugInfoLocation.isEmpty())
+        sp.debugInfoLocation = sp.sysroot + "/usr/lib/debug";
     return true;
 }
 

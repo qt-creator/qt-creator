@@ -210,6 +210,9 @@ public:
     QString debugger() const;
     void setDebugger(const QString &debugger);
 
+    void setDebugInfoLocation(const QString &location);
+    QString debugInfoLocation() const;
+
 private slots:
     void updateState();
 

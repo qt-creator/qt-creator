@@ -108,6 +108,7 @@ public:
     bool useServerStartScript;
     QString serverStartScript;
     QString sysroot;
+    QString debugInfoLocation;
     QByteArray remoteDumperLib;
     QByteArray remoteSourcesDir;
     QString remoteMountPoint;
