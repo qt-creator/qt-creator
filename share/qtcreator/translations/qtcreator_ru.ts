@@ -3865,7 +3865,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Shortcut</source>
-        <translation>Комбинация клавиш</translation>
+        <translation>Сочетание клавиш</translation>
     </message>
     <message>
         <source>Import Keyboard Mapping Scheme</source>
@@ -6986,16 +6986,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>%1 debugger activated</source>
         <translation>Отладчик %1 активирован</translation>
-    </message>
-    <message>
-        <source>QML/C++ Debugging</source>
-        <translation type="obsolete">Отладка QML/C++</translation>
-    </message>
-    <message>
-        <source>Cannot stop execution before QML engine is started. Skipping breakpoint.
-Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or switch to C++ only debugging.</source>
-        <translation type="obsolete">Невозможно прекратить выполнение пока запущен движок QML. Пропуск точки останова.
-Рекомендуется переустановить точку останова после инициализации QmlApplicationViewer или переключиться в режим отладки только C++.</translation>
     </message>
 </context>
 <context>
@@ -11187,11 +11177,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Resize wraps</source>
-        <translation type="unfinished">Перенос при изменении размера</translation>
+        <translation>Перенос при изменении размера</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
-        <translation type="unfinished">Определяет, меняет ли сетка навигацию клавишами.</translation>
+        <translation>Определяет, меняет ли сетка навигацию клавишами.</translation>
     </message>
     <message>
         <source>Snap mode</source>
@@ -11911,11 +11901,11 @@ QML.</translation>
     </message>
     <message>
         <source>Navigation wraps</source>
-        <translation type="unfinished">Перенос при перемещениях</translation>
+        <translation>Перенос при перемещениях</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
-        <translation type="unfinished">Определяет, меняет ли сетка навигацию клавишами.</translation>
+        <translation>Определяет, меняет ли сетка навигацию клавишами.</translation>
     </message>
     <message>
         <source>Orientation of the list.</source>
@@ -13654,14 +13644,33 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
 </context>
 <context>
+    <name>MobileAppWizardHarmattanOptionsPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Application icon (80x80):</source>
+        <translation>Значок приложения (80x80):</translation>
+    </message>
+    <message>
+        <source>Generate code to speed up the launching on the device.</source>
+        <translation>Создать код для ускорения запуска на устройстве.</translation>
+    </message>
+    <message>
+        <source>Make application boostable</source>
+        <translation>Делать приложение быстрее</translation>
+    </message>
+</context>
+<context>
     <name>MobileAppWizardMaemoOptionsPage</name>
     <message>
         <source>WizardPage</source>
         <translation></translation>
     </message>
     <message>
-        <source>Application icon (%%w%%x%%h%%):</source>
-        <translation>Значок приложения (%%w%%x%%h%%):</translation>
+        <source>Application icon (64x64):</source>
+        <translation>Значок приложения (64x64):</translation>
     </message>
 </context>
 <context>
@@ -13879,7 +13888,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Path View Highlight</source>
-        <translation type="unfinished">Подсветка вида кривой</translation>
+        <translation>Подсветка вида кривой</translation>
     </message>
     <message>
         <source>Highlight range</source>
@@ -18264,7 +18273,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     <message>
         <source>QML Viewer</source>
         <comment>QMLRunConfiguration display name.</comment>
-        <translation>Просмотр QML</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -18272,7 +18281,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
-        <translation>Просмотр QML</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -19124,33 +19133,6 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
-    <message>
-        <source>Invalid Icon</source>
-        <translation>Неверный значок</translation>
-    </message>
-    <message>
-        <source>The file is not a valid image.</source>
-        <translation>Файл не является изображением.</translation>
-    </message>
-    <message>
-        <source>Wrong Icon Size</source>
-        <translation>Неверный размер значка</translation>
-    </message>
-    <message>
-        <source>The icon needs to be %1x%2 pixels big, but is not. Do you want Creator to scale it?</source>
-        <translation>Значок должен быть размером %1х%2. Желаете, чтобы Qt Creator подогнал размер?</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Ошибка файла</translation>
-    </message>
-    <message>
-        <source>Could not copy icon file: %1</source>
-        <translation>Не удалось скопировать файл значка: %1</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
@@ -19166,6 +19148,25 @@ Adds the library and include paths to the .pro file.</source>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>Создание нескольких библиотек виджетов (%1, %2) в одном проекте (%3) не поддерживается.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::PngIconScaler</name>
+    <message>
+        <source>Wrong Icon Size</source>
+        <translation>Неверный размер значка</translation>
+    </message>
+    <message>
+        <source>The icon needs to be %1x%2 pixels big, but is not. Do you want Qt Creator to scale it?</source>
+        <translation>Значок должен быть размером в %1x%2 пикселей. Должен ли Qt Creator изменить его масштаб?</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>Ошибка файла</translation>
+    </message>
+    <message>
+        <source>Could not copy icon file: %1</source>
+        <translation>Не удалось скопировать файл значка: %1</translation>
     </message>
 </context>
 <context>
@@ -19939,6 +19940,10 @@ Use a developer certificate or any other signing option to prevent this patching
     <message>
         <source>Qt Quick components version: </source>
         <translation>Версия элементов Qt Quick: </translation>
+    </message>
+    <message>
+        <source>QML Viewer version: </source>
+        <translation>Версия QML Viewer: </translation>
     </message>
     <message>
         <source>Screen size:</source>
@@ -21706,10 +21711,6 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
         <translation>Выполнение внешнего процесса завершено. Код завершения %1.
 </translation>
     </message>
-    <message>
-        <source>Remote Execution Failure</source>
-        <translation>Ошибка внешнего выполнения</translation>
-    </message>
 </context>
 <context>
     <name>RemoteLinux::CreateTarStepWidget</name>
@@ -21765,6 +21766,14 @@ In addition, device connectivity will be tested.</source>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
         <translation>Файл журнала изменений Debian «%1» имеет неожиданный формат.</translation>
+    </message>
+    <message>
+        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
+        <translation>Не удалось обновить файл changelog: Уже содержит версию «%1».</translation>
+    </message>
+    <message>
+        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
+        <translation>Не удалось обновить changelog: Неверный формат (нет записи о разработчике).</translation>
     </message>
     <message>
         <source>Invalid icon data in Debian control file.</source>
