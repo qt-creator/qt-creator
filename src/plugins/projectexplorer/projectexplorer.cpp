@@ -2627,7 +2627,7 @@ void ProjectExplorerPlugin::deleteFile()
 
     projectNode->deleteFiles(fileNode->fileType(), QStringList(filePath));
 
-    core->fileManager()->expectFileChange(fileNode->path());
+    core->fileManager()->expectFileChange(filePath);
     if (Core::IVersionControl *vc =
             core->vcsManager()->findVersionControlForDirectory(QFileInfo(filePath).absolutePath())) {
         vc->vcsDelete(filePath);
@@ -2638,7 +2638,7 @@ void ProjectExplorerPlugin::deleteFile()
             QMessageBox::warning(core->mainWindow(), tr("Deleting File Failed"),
                                  tr("Could not delete file %1.").arg(filePath));
     }
-    core->fileManager()->unexpectFileChange(fileNode->path());
+    core->fileManager()->unexpectFileChange(filePath);
 }
 
 void ProjectExplorerPlugin::renameFile()
