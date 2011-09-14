@@ -656,7 +656,7 @@ void StartExternalDialog::changed()
 //
 ///////////////////////////////////////////////////////////////////////
 
-StartRemoteDialog::StartRemoteDialog(QWidget *parent)
+StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
   : QDialog(parent),
     m_ui(new Ui::StartRemoteDialog)
 {
@@ -670,14 +670,17 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     m_ui->sysrootPathChooser->setPromptDialogTitle(tr("Select Sysroot"));
     m_ui->overrideStartScriptPathChooser->setExpectedKind(PathChooser::File);
     m_ui->overrideStartScriptPathChooser->setPromptDialogTitle(tr("Select GDB Start Script"));
-    m_ui->serverStartScript->setExpectedKind(PathChooser::File);
-    m_ui->serverStartScript->setPromptDialogTitle(tr("Select Server Start Script"));
+    m_ui->serverStartScriptPathChooser->setExpectedKind(PathChooser::File);
+    m_ui->serverStartScriptPathChooser->setPromptDialogTitle(tr("Select Server Start Script"));
+    m_ui->serverStartScriptPathChooser->setVisible(enableStartScript);
+    m_ui->serverStartScriptLabel->setVisible(enableStartScript);
+    m_ui->useServerStartScriptCheckBox->setVisible(enableStartScript);
+    m_ui->useServerStartScriptLabel->setVisible(enableStartScript);
 
     connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)),
-        this, SLOT(updateState()));
-
-    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+        SLOT(updateState()));
+    connect(m_ui->buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), SLOT(reject()));
 
     updateState();
 }
@@ -771,12 +774,12 @@ void StartRemoteDialog::setOverrideStartScript(const QString &scriptName)
 
 void StartRemoteDialog::setServerStartScript(const QString &scriptName)
 {
-    m_ui->serverStartScript->setPath(scriptName);
+    m_ui->serverStartScriptPathChooser->setPath(scriptName);
 }
 
 QString StartRemoteDialog::serverStartScript() const
 {
-    return m_ui->serverStartScript->path();
+    return m_ui->serverStartScriptPathChooser->path();
 }
 
 void StartRemoteDialog::setUseServerStartScript(bool on)
@@ -803,7 +806,7 @@ void StartRemoteDialog::updateState()
 {
     bool enabled = m_ui->useServerStartScriptCheckBox->isChecked();
     m_ui->serverStartScriptLabel->setEnabled(enabled);
-    m_ui->serverStartScript->setEnabled(enabled);
+    m_ui->serverStartScriptPathChooser->setEnabled(enabled);
 }
 
 ///////////////////////////////////////////////////////////////////////

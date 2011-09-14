@@ -179,7 +179,7 @@ class StartRemoteDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit StartRemoteDialog(QWidget *parent);
+    explicit StartRemoteDialog(QWidget *parent, bool enableStartScript);
     ~StartRemoteDialog();
 
     QString localExecutable() const;

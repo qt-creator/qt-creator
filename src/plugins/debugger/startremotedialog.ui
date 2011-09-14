@@ -109,7 +109,7 @@
      <item row="6" column="0">
       <widget class="QLabel" name="overrideStartScriptLabel">
        <property name="text">
-        <string>Override s&amp;tart script:</string>
+        <string>Override host GDB s&amp;tart script:</string>
        </property>
        <property name="buddy">
         <cstring>overrideStartScriptPathChooser</cstring>
@@ -138,12 +138,12 @@
         <string>&amp;Server start script:</string>
        </property>
        <property name="buddy">
-        <cstring>serverStartScript</cstring>
+        <cstring>serverStartScriptPathChooser</cstring>
        </property>
       </widget>
      </item>
      <item row="8" column="1">
-      <widget class="Utils::PathChooser" name="serverStartScript"/>
+      <widget class="Utils::PathChooser" name="serverStartScriptPathChooser"/>
      </item>
     </layout>
    </item>
