@@ -507,6 +507,11 @@ protected:
 
     void maybeClearSomeExtraSelections(const QTextCursor &cursor);
 
+    /*!
+      Reimplement this function to change the default replacement text.
+      */
+    virtual QString foldReplacementText(const QTextBlock &block) const;
+
 protected slots:
     virtual void slotUpdateExtraAreaWidth();
     virtual void slotModificationChanged(bool);

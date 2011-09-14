@@ -216,6 +216,7 @@ protected:
     TextEditor::BaseTextEditor *createEditor();
     void createToolBar(QmlJSEditorEditable *editable);
     TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
+    QString foldReplacementText(const QTextBlock &block) const;
 
 private:
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;

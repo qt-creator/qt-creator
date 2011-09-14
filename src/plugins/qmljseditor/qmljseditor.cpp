@@ -1692,3 +1692,31 @@ TextEditor::IAssistInterface *QmlJSTextEditorWidget::createAssistInterface(
     }
     return 0;
 }
+
+QString QmlJSTextEditorWidget::foldReplacementText(const QTextBlock &block) const
+{
+    int curlyIndex = block.text().indexOf(QLatin1Char('{'));
+
+    if ((curlyIndex == -1) || !m_semanticInfo.isValid())
+        return TextEditor::BaseTextEditorWidget::foldReplacementText(block);
+
+    int pos = block.position() + curlyIndex;
+    Node *node = m_semanticInfo.rangeAt(pos);
+
+    if (node)  {
+        UiObjectInitializer *objectInitializer = 0;
+        if (UiObjectDefinition *def = cast<UiObjectDefinition *>(node))
+            objectInitializer = def->initializer;
+        else if (UiObjectBinding *binding = cast<UiObjectBinding *>(node))
+            objectInitializer = binding->initializer;
+
+        // Get the id value, if it exists, and display it
+        if (objectInitializer) {
+            QString objectId = idOfObject(objectInitializer);
+            if (!objectId.isEmpty())
+                return QLatin1String("id: ") + objectId + QLatin1String("...");
+        }
+    }
+
+    return TextEditor::BaseTextEditorWidget::foldReplacementText(block);
+}
