@@ -54,7 +54,7 @@ public:
      * base=0 to QString::toULongLong() should work (C-language conventions).
      * Values that cannot be converted (such as 128bit MMX-registers) are
      * passed through. */
-    QString value;
+    QByteArray value;
     int type;
     bool changed;
 };

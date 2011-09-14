@@ -3651,10 +3651,10 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
     const GdbMi values = response.data.findChild("register-values");
     QTC_ASSERT(registerCount == values.children().size(), return);
-    for (int i = 0; i != registerCount; ++i) {
-        const GdbMi &item = values.children().at(i);
-        GdbMi val = item.findChild("value");
-        registers[i].value = _(val.data());
+    foreach (const GdbMi &item, values.children()) {
+        const int number = item.findChild("number").data().toInt();
+        if (number >= 0 && number < registerCount)
+            registers[number].value = item.findChild("value").data();
     }
     registerHandler()->setAndMarkRegisters(registers);
 }

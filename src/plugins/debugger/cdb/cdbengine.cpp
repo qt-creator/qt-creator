@@ -1802,8 +1802,8 @@ void CdbEngine::handlePid(const CdbExtensionCommandPtr &reply)
     }
 }
 
-// Parse CDB gdbmi register syntax
-static inline Register parseRegister(const GdbMi &gdbmiReg)
+// Parse CDB gdbmi register syntax.
+static Register parseRegister(const GdbMi &gdbmiReg)
 {
     Register reg;
     reg.name = gdbmiReg.findChild("name").data();
@@ -1813,7 +1813,7 @@ static inline Register parseRegister(const GdbMi &gdbmiReg)
         reg.name += description.data();
         reg.name += ')';
     }
-    reg.value = QString::fromAscii(gdbmiReg.findChild("value").data());
+    reg.value = gdbmiReg.findChild("value").data();
     return reg;
 }
 
