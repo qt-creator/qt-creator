@@ -113,7 +113,7 @@ void tst_Check::test()
     QFETCH(QString, path);
 
     Snapshot snapshot;
-    Document::Ptr doc = Document::create(path);
+    Document::Ptr doc = Document::create(path, Document::QmlLanguage);
     QFile file(doc->fileName());
     file.open(QFile::ReadOnly | QFile::Text);
     doc->setSource(file.readAll());
