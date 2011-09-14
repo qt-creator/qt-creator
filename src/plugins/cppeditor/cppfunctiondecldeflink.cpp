@@ -510,7 +510,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     if (!newFunction)
         return changes;
 
-    const LookupContext &sourceContext = typeOfExpression.context();
+    LookupContext sourceContext(sourceDocument, snapshot);
     LookupContext targetContext(targetFile->cppDocument(), snapshot);
 
     Overview overview;
