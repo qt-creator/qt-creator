@@ -45,7 +45,8 @@ class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
 
 public:
     QmlProfilerEngine(Analyzer::IAnalyzerTool *tool,
-        ProjectExplorer::RunConfiguration *runConfiguration);
+                      const Analyzer::AnalyzerStartParameters &sp,
+                      ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerEngine();
 
     static void showNonmodalWarning(const QString &warningMsg);

@@ -50,9 +50,8 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(errorString)
     addAutoReleasedObject(new QmlProfilerRunControlFactory());
     StartModes modes;
-    // They are handled the same actually.
-    //modes.append(StartMode(StartRemote));
     modes.append(StartMode(StartLocal));
+    modes.append(StartMode(StartRemote));
     AnalyzerManager::addTool(new QmlProfilerTool(this), modes);
     return true;
 }

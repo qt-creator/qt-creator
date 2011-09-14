@@ -91,7 +91,6 @@ signals:
 
 private slots:
     void updateProjectFileList();
-    void attach();
     void tryToConnect();
     void connectionStateChanged();
     void showSaveDialog();

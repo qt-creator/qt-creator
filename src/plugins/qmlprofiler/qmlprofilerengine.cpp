@@ -92,6 +92,8 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
                                                           QObject *parent)
 {
     AbstractQmlProfilerRunner *runner = 0;
+    if (!runConfiguration) // attaching
+        return 0;
     if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
         // This is a "plain" .qmlproject.
@@ -129,8 +131,9 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
 //
 
 QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
-         ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(tool, runConfiguration)
+                                     const Analyzer::AnalyzerStartParameters &sp,
+                                     ProjectExplorer::RunConfiguration *runConfiguration)
+    : IAnalyzerEngine(tool, sp, runConfiguration)
     , d(new QmlProfilerEnginePrivate(this))
 {
     d->m_running = false;
@@ -178,12 +181,16 @@ bool QmlProfilerEngine::start()
         }
     }
 
-    connect(d->m_runner, SIGNAL(stopped()), this, SLOT(stopped()));
-    connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-            this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
+    if (d->m_runner) {
+        connect(d->m_runner, SIGNAL(stopped()), this, SLOT(stopped()));
+        connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+                this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
+        d->m_runner->start();
+        d->m_noDebugOutputTimer.start();
+    } else {
+        emit processRunning(startParameters().connParams.port);
+    }
 
-    d->m_noDebugOutputTimer.start();
-    d->m_runner->start();
 
     d->m_running = true;
     d->m_delayedDelete = false;
@@ -246,7 +253,8 @@ void QmlProfilerEngine::finishProcess()
     // user stop?
     if (d->m_running) {
         d->m_running = false;
-        d->m_runner->stop();
+        if (d->m_runner)
+            d->m_runner->stop();
         emit finished();
     }
 }
