@@ -733,6 +733,7 @@ void Qt4PriFileNode::folderChanged(const QString &folder)
 
     contents.updateSubFolders(this, this);
     m_project->updateFileList();
+    m_project->updateCodeModels();
 
     // The files to be packaged are listed inside the symbian build system.
     // We need to regenerate that list by running qmake

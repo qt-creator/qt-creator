@@ -131,6 +131,7 @@ public:
 
     // For Qt4ProFileNode after a on disk change
     void updateFileList();
+    void updateCodeModels();
 
     void watchFolders(const QStringList &l, Qt4PriFileNode *node);
     void unwatchFolders(const QStringList &l, Qt4PriFileNode *node);
@@ -158,7 +159,6 @@ private slots:
 private:
     void scheduleAsyncUpdate();
 
-    void updateCodeModels();
     void updateCppCodeModel();
     void updateQmlJSCodeModel();
 
