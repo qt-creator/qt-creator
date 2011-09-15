@@ -165,6 +165,8 @@ private slots:
     void onGoBackClicked();
     void onGoForwardClicked();
 
+    void onCrumblePathElementClicked(const QVariant &data);
+
 protected:
     void resizeEvent(QResizeEvent *event);
 

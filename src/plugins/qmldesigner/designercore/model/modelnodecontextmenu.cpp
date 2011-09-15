@@ -47,11 +47,15 @@
 #include <rewritertransaction.h>
 #include <designmodewidget.h>
 #include <qmlanchors.h>
-#include <designdocumentcontroller.h>
 
 const QString auxDataString = QLatin1String("anchors_");
 
 namespace QmlDesigner {
+
+static inline DesignDocumentController* designDocumentController()
+{
+    return Internal::DesignModeWidget::instance()->currentDesignDocumentController();
+}
 
 static inline QString captionForModelNode(const ModelNode &modelNode)
 {
@@ -188,15 +192,82 @@ static inline bool isFileComponent(const ModelNode &node)
     return false;
 }
 
+static inline void getWidthHeight(const ModelNode &node, int &width, int &height)
+{
+    QmlItemNode itemNode(node);
+    if (itemNode.isValid()) {
+        width = itemNode.instanceValue("width").toInt();
+        height = itemNode.instanceValue("height").toInt();
+    }
+}
+
+static inline void getProperties(const ModelNode node, QHash<QString, QVariant> &propertyHash)
+{
+    if (QmlObjectNode(node).isValid()) {
+        foreach (const QString &propertyName, node.propertyNames()) {
+            if (node.property(propertyName).isVariantProperty() ||
+                    node.property(propertyName).isBindingProperty() &&
+                    !propertyName.contains(QLatin1String("anchors."))) {
+                propertyHash.insert(propertyName, QmlObjectNode(node).instanceValue(propertyName));
+            }
+        }
+    }
+    QmlItemNode itemNode(node);
+    if (itemNode.isValid()) {
+        propertyHash.insert(QLatin1String("width"), itemNode.instanceValue(QLatin1String("width")));
+        propertyHash.insert(QLatin1String("height"), itemNode.instanceValue(QLatin1String("height")));
+        propertyHash.remove(QLatin1String("x"));
+        propertyHash.remove(QLatin1String("y"));
+        propertyHash.remove(QLatin1String("rotation"));
+        propertyHash.remove(QLatin1String("opacity"));
+    }
+}
+
+static inline void applyProperties(ModelNode &node, const QHash<QString, QVariant> &propertyHash)
+{
+    QHash<QString, QVariant> auxiliaryData  = node.auxiliaryData();
+    foreach (const QString propertyName, auxiliaryData.keys()) {
+        node.setAuxiliaryData(propertyName, QVariant());
+    }
+
+    QHashIterator<QString, QVariant> i(propertyHash);
+    while (i.hasNext()) {
+        i.next();
+        if (i.key() == QLatin1String("width") || i.key() == QLatin1String("height")) {
+            node.setAuxiliaryData(i.key(), i.value());
+        } else if (node.property(i.key()).isDynamic() &&
+                   node.property(i.key()).dynamicTypeName() == QLatin1String("alias") &&
+                   node.property(i.key()).isBindingProperty()) {
+            AbstractProperty targetProperty = node.bindingProperty(i.key()).resolveToProperty();
+            if (targetProperty.isValid()) {
+                targetProperty.parentModelNode().setAuxiliaryData(targetProperty.name() + QLatin1String("@NodeInstance"), i.value());
+            }
+        } else {
+            node.setAuxiliaryData(i.key() + QLatin1String("@NodeInstance"), i.value());
+        }
+    }
+}
+
 static inline void openFileForComponent(const ModelNode &node)
 {
+    //int width = 0;
+    //int height = 0;
+    QHash<QString, QVariant> propertyHash;
     if (node.metaInfo().isComponent()) {
-        Core::EditorManager::instance()->openEditor(node.metaInfo().componentFileName());
+        //getWidthHeight(node, width, height);
+        getProperties(node, propertyHash);
+        designDocumentController()->changeToExternalSubComponent(node.metaInfo().componentFileName());
     } else if (checkIfNodeIsAView(node) &&
                node.hasNodeProperty("delegate") &&
                node.nodeProperty("delegate").modelNode().metaInfo().isComponent()) {
-        Core::EditorManager::instance()->openEditor(node.nodeProperty("delegate").modelNode().metaInfo().componentFileName());
+        //getWidthHeight(node, width, height);
+        getProperties(node, propertyHash);
+        designDocumentController()->changeToExternalSubComponent(node.nodeProperty("delegate").modelNode().metaInfo().componentFileName());
     }
+    ModelNode rootModelNode = designDocumentController()->model()->rewriterView()->rootModelNode();
+    applyProperties(rootModelNode, propertyHash);
+    //rootModelNode.setAuxiliaryData("width", width);
+    //rootModelNode.setAuxiliaryData("height", height);
 }
 
 static inline void openInlineComponent(const ModelNode &node)
@@ -204,16 +275,30 @@ static inline void openInlineComponent(const ModelNode &node)
     if (!node.isValid() || !node.metaInfo().isValid())
         return;
 
-    if (!DesignDocumentController::instance())
+    if (!designDocumentController())
         return;
 
-    if (node.nodeSourceType() == ModelNode::NodeWithComponentSource)
-        DesignDocumentController::instance()->changeCurrentModelTo(node);
-    if (checkIfNodeIsAView(node) &&
-        node.hasNodeProperty("delegate")) {
-        if (node.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
-            DesignDocumentController::instance()->changeCurrentModelTo(node.nodeProperty("delegate").modelNode());
+    //int width = 0;
+    //int height = 0;
+    QHash<QString, QVariant> propertyHash;
+
+    if (node.nodeSourceType() == ModelNode::NodeWithComponentSource) {
+        //getWidthHeight(node, width, height);
+        getProperties(node, propertyHash);
+        designDocumentController()->changeToSubComponent(node);
+    } else if (checkIfNodeIsAView(node) &&
+               node.hasNodeProperty("delegate")) {
+        if (node.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource) {
+            //getWidthHeight(node, width, height);
+            getProperties(node, propertyHash);
+            designDocumentController()->changeToSubComponent(node.nodeProperty("delegate").modelNode());
+        }
     }
+
+    ModelNode rootModelNode = designDocumentController()->model()->rewriterView()->rootModelNode();
+    applyProperties(rootModelNode, propertyHash);
+    //rootModelNode.setAuxiliaryData("width", width);
+    //rootModelNode.setAuxiliaryData("height", height);
 }
 
 static inline bool modelNodesHaveProperty(const QList<ModelNode> &modelNodeList, const QString &propertyName)

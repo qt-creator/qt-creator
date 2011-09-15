@@ -59,6 +59,7 @@
 #include <utils/parameteraction.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/crumblepath.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QEvent>
@@ -333,7 +334,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
 
             newDocument->setFileName(fileName);
 
-            document = newDocument;          
+            document = newDocument;
 
             m_documentHash.insert(textEdit, document);
         }
@@ -702,8 +703,9 @@ void DesignModeWidget::setup()
     m_itemLibraryView = new ItemLibraryView(this);
 
     m_statesEditorView = new StatesEditorView(this);
-    
+
     m_formEditorView = new FormEditorView(this);
+    connect(m_formEditorView->widget()->toolBox()->crumblePath(), SIGNAL(elementClicked(QVariant)), this, SLOT(onCrumblePathElementClicked(QVariant)));
 
     m_componentView = new ComponentView(this);
     m_formEditorView->widget()->toolBox()->addLeftSideAction(m_componentView->action());

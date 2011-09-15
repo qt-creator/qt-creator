@@ -46,6 +46,7 @@
 #include <formeditorview.h>
 #include <propertyeditor.h>
 #include <formeditorwidget.h>
+#include <toolbox.h>
 #include <basetexteditmodifier.h>
 #include <componenttextmodifier.h>
 #include <metainfo.h>
@@ -59,8 +60,10 @@
 #include <variantproperty.h>
 #include <rewritingexception.h>
 #include <model/modelnodecontextmenu.h>
+#include <designmodewidget.h>
 
 #include <utils/fileutils.h>
+#include <utils/crumblepath.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -118,13 +121,20 @@ public:
     QmlDesigner::ComponentTextModifier *componentTextModifier;
     QWeakPointer<SubComponentManager> subComponentManager;
     QWeakPointer<Internal::ViewLogger> viewLogger;
+    ModelNode componentNode;
 
     QString fileName;
     QUrl searchPath;
     bool documentLoaded;
     bool syncBlocked;
     int qt_versionId;
+    static bool clearCrumblePath;
+    static bool pushCrumblePath;
 };
+
+
+bool DesignDocumentControllerPrivate::clearCrumblePath = true;
+bool DesignDocumentControllerPrivate::pushCrumblePath = true;
 
 
 /**
@@ -191,6 +201,15 @@ void DesignDocumentController::changeToMasterModel()
     d->rewriterView->setTextModifier(d->textModifier);
     d->model = d->masterModel;
     d->model->attachView(d->rewriterView.data());
+    d->componentNode = d->rewriterView->rootModelNode();
+}
+
+QVariant DesignDocumentController::createCrumbleBarInfo()
+{
+    CrumbleBarInfo info;
+    info.fileName = fileName();
+    info.modelNode = d->componentNode;
+    return QVariant::fromValue<CrumbleBarInfo>(info);
 }
 
 QWidget *DesignDocumentController::centralWidget() const
@@ -302,7 +321,27 @@ void DesignDocumentController::setComponentView(ComponentView *componentView)
     connect(d->componentView->action(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));
 }
 
+static inline bool compareCrumbleBarInfo(const CrumbleBarInfo &crumbleBarInfo1, const CrumbleBarInfo &crumbleBarInfo2)
 {
+    return crumbleBarInfo1.fileName == crumbleBarInfo2.fileName && crumbleBarInfo1.modelNode == crumbleBarInfo2.modelNode;
+}
+
+void DesignDocumentController::setCrumbleBarInfo(const CrumbleBarInfo &crumbleBarInfo)
+{
+    DesignDocumentControllerPrivate::clearCrumblePath = false;
+    DesignDocumentControllerPrivate::pushCrumblePath = false;
+    while (!compareCrumbleBarInfo(d->formEditorView->widget()->toolBox()->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(), crumbleBarInfo))
+        d->formEditorView->widget()->toolBox()->crumblePath()->popElement();
+    Core::EditorManager::instance()->openEditor(crumbleBarInfo.fileName);
+    DesignDocumentControllerPrivate::pushCrumblePath = true;
+    Internal::DesignModeWidget::instance()->currentDesignDocumentController()->changeToSubComponent(crumbleBarInfo.modelNode);
+    DesignDocumentControllerPrivate::clearCrumblePath = true;
+}
+
+void DesignDocumentController::setBlockCrumbleBar(bool b)
+{
+    DesignDocumentControllerPrivate::clearCrumblePath = !b;
+    DesignDocumentControllerPrivate::pushCrumblePath = !b;
 }
 
 QString DesignDocumentController::displayName() const
@@ -311,6 +350,22 @@ QString DesignDocumentController::displayName() const
         return tr("-New Form-");
     else
         return fileName();
+}
+
+QString DesignDocumentController::simplfiedDisplayName() const
+{
+    if (!d->componentNode.isRootNode()) {
+        if (d->componentNode.id().isEmpty()) {
+            if (d->formEditorView->rootModelNode().id().isEmpty()) {
+                return d->formEditorView->rootModelNode().simplifiedTypeName();
+            }
+            return d->formEditorView->rootModelNode().id();
+        }
+        return d->componentNode.id();
+    }
+
+    QStringList list = displayName().split("/");
+    return list.last();
 }
 
 QString DesignDocumentController::fileName() const
@@ -374,6 +429,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 
     d->masterModel->attachView(d->rewriterView.data());
     d->model = d->masterModel;
+    d->componentNode = d->rewriterView->rootModelNode();
 
     d->subComponentManager = new SubComponentManager(d->masterModel.data(), this);
     d->subComponentManager->update(d->searchPath, d->model->imports());
@@ -385,7 +441,22 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     return d->rewriterView->errors();
 }
 
-void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNode)
+void DesignDocumentController::changeCurrentModelTo(const ModelNode &node)
+{
+    if (d->componentNode == node)
+        return;
+    if (Internal::DesignModeWidget::instance()->currentDesignDocumentController() != this)
+        return;
+    DesignDocumentControllerPrivate::clearCrumblePath = false;
+    while (!d->formEditorView->widget()->toolBox()->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isRootNode())
+        d->formEditorView->widget()->toolBox()->crumblePath()->popElement();
+    if (node.isRootNode())
+        d->formEditorView->widget()->toolBox()->crumblePath()->popElement();
+    changeToSubComponent(node);
+    DesignDocumentControllerPrivate::clearCrumblePath = true;
+}
+
+void DesignDocumentController::changeToSubComponent(const ModelNode &componentNode)
 {
     Q_ASSERT(d->masterModel);
     QWeakPointer<Model> oldModel = d->model;
@@ -405,6 +476,7 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
         explicitComponent = true;
     }
 
+    d->componentNode = componentNode;
     if (!componentNode.isRootNode()) {
         Q_ASSERT(d->model == d->masterModel);
         Q_ASSERT(componentNode.isValid());
@@ -449,6 +521,13 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
     d->componentView->setComponentNode(componentNode);
 }
 
+void DesignDocumentController::changeToExternalSubComponent(const QString &fileName)
+{
+    DesignDocumentControllerPrivate::clearCrumblePath = false;
+    Core::EditorManager::instance()->openEditor(fileName);
+    DesignDocumentControllerPrivate::clearCrumblePath = true;
+}
+
 void DesignDocumentController::goIntoComponent()
 {
     if (!d->model)
@@ -469,6 +548,7 @@ void DesignDocumentController::loadCurrentModel()
     Q_ASSERT(d->masterModel);
     Q_ASSERT(d->model);
     d->model->setMasterModel(d->masterModel.data());
+    d->masterModel->attachView(d->componentView.data());
 
     d->nodeInstanceView->setPathToQt(pathToQt());
     d->model->attachView(d->nodeInstanceView.data());
@@ -485,6 +565,15 @@ void DesignDocumentController::loadCurrentModel()
     d->model->attachView(d->statesEditorView.data());
 
     d->model->attachView(d->propertyEditorView.data());
+
+
+    if (DesignDocumentControllerPrivate::clearCrumblePath)
+        d->formEditorView->widget()->toolBox()->crumblePath()->clear();
+
+    if (DesignDocumentControllerPrivate::pushCrumblePath &&
+            !compareCrumbleBarInfo(d->formEditorView->widget()->toolBox()->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(),
+                                   createCrumbleBarInfo().value<CrumbleBarInfo>()))
+        d->formEditorView->widget()->toolBox()->crumblePath()->pushElement(simplfiedDisplayName(), createCrumbleBarInfo());
 
     d->documentLoaded = true;
     Q_ASSERT(d->masterModel);
@@ -738,7 +827,7 @@ void DesignDocumentController::paste()
             }
 
             view.setSelectedModelNodes(pastedNodeList);
-        } catch (RewritingException &e) { 
+        } catch (RewritingException &e) {
             qWarning() << e.description(); //silent error
         }
     } else {
@@ -774,7 +863,7 @@ void DesignDocumentController::paste()
             NodeMetaInfo::clearCache();
 
             view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
-        } catch (RewritingException &e) { 
+        } catch (RewritingException &e) {
             qWarning() << e.description(); //silent error
         }
     }
