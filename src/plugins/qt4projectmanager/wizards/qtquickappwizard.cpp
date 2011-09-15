@@ -114,16 +114,16 @@ class QtQuickAppWizardPrivate
 
 QtQuickAppWizard::QtQuickAppWizard()
     : AbstractMobileAppWizard(parameters())
-    , m_d(new QtQuickAppWizardPrivate)
+    , d(new QtQuickAppWizardPrivate)
 {
-    m_d->app = new QtQuickApp;
-    m_d->wizardDialog = 0;
+    d->app = new QtQuickApp;
+    d->wizardDialog = 0;
 }
 
 QtQuickAppWizard::~QtQuickAppWizard()
 {
-    delete m_d->app;
-    delete m_d;
+    delete d->app;
+    delete d;
 }
 
 Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
@@ -148,14 +148,14 @@ Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
 
 AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
-    m_d->wizardDialog = new QtQuickAppWizardDialog(parent);
-    m_d->wizardDialog->m_componentOptionsPage->setComponentSet(m_d->app->componentSet());
-    return m_d->wizardDialog;
+    d->wizardDialog = new QtQuickAppWizardDialog(parent);
+    d->wizardDialog->m_componentOptionsPage->setComponentSet(d->app->componentSet());
+    return d->wizardDialog;
 }
 
 void QtQuickAppWizard::projectPathChanged(const QString &path) const
 {
-    m_d->wizardDialog->targetsPage()->setProFilePath(path);
+    d->wizardDialog->targetsPage()->setProFilePath(path);
 }
 
 void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
@@ -164,29 +164,29 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
     Q_UNUSED(errorMessage)
     const QtQuickAppWizardDialog *wizard = qobject_cast<const QtQuickAppWizardDialog*>(w);
     if (wizard->m_componentOptionsPage->mainQmlMode() == QtQuickApp::ModeGenerate) {
-        m_d->app->setMainQml(QtQuickApp::ModeGenerate);
+        d->app->setMainQml(QtQuickApp::ModeGenerate);
     } else {
         const QString mainQmlFile = wizard->m_componentOptionsPage->mainQmlFile();
-        m_d->app->setMainQml(QtQuickApp::ModeImport, mainQmlFile);
+        d->app->setMainQml(QtQuickApp::ModeImport, mainQmlFile);
     }
-    m_d->app->setComponentSet(wizard->m_componentOptionsPage->componentSet());
-    if (m_d->app->componentSet() == QtQuickApp::Symbian10Components)
-        m_d->app->setOrientation(AbstractMobileApp::ScreenOrientationImplicit);
+    d->app->setComponentSet(wizard->m_componentOptionsPage->componentSet());
+    if (d->app->componentSet() == QtQuickApp::Symbian10Components)
+        d->app->setOrientation(AbstractMobileApp::ScreenOrientationImplicit);
 }
 
 QString QtQuickAppWizard::fileToOpenPostGeneration() const
 {
-    return m_d->app->path(QtQuickApp::MainQml);
+    return d->app->path(QtQuickApp::MainQml);
 }
 
 AbstractMobileApp *QtQuickAppWizard::app() const
 {
-    return m_d->app;
+    return d->app;
 }
 
 AbstractMobileAppWizardDialog *QtQuickAppWizard::wizardDialog() const
 {
-    return m_d->wizardDialog;
+    return d->wizardDialog;
 }
 
 } // namespace Internal

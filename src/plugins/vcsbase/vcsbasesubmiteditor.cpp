@@ -151,10 +151,10 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
 
 VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
                                          Utils::SubmitEditorWidget *editorWidget) :
-    m_d(new VCSBaseSubmitEditorPrivate(parameters, editorWidget, this))
+    d(new VCSBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
     setContext(Core::Context(parameters->context));
-    setWidget(m_d->m_widget);
+    setWidget(d->m_widget);
 
     // Message font according to settings
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::instance()->fontSettings();
@@ -163,31 +163,31 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
     font.setPointSize(fs.fontSize());
     editorWidget->descriptionEdit()->setFont(font);
 
-    m_d->m_file->setModified(false);
+    d->m_file->setModified(false);
     // We are always clean to prevent the editor manager from asking to save.
-    connect(m_d->m_file, SIGNAL(saveMe(QString*, QString, bool)),
+    connect(d->m_file, SIGNAL(saveMe(QString*, QString, bool)),
             this, SLOT(save(QString*, QString, bool)));
 
-    connect(m_d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVCSFiles(QStringList)));
-    connect(m_d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
+    connect(d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVCSFiles(QStringList)));
+    connect(d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
 
     const Internal::CommonVcsSettings settings = Internal::VCSPlugin::instance()->settings();
     // Add additional context menu settings
     if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameMailMap.isEmpty()) {
         QAction *sep = new QAction(this);
         sep->setSeparator(true);
-        m_d->m_widget->addDescriptionEditContextMenuAction(sep);
+        d->m_widget->addDescriptionEditContextMenuAction(sep);
         // Run check action
         if (!settings.submitMessageCheckScript.isEmpty()) {
             QAction *checkAction = new QAction(tr("Check Message"), this);
             connect(checkAction, SIGNAL(triggered()), this, SLOT(slotCheckSubmitMessage()));
-            m_d->m_widget->addDescriptionEditContextMenuAction(checkAction);
+            d->m_widget->addDescriptionEditContextMenuAction(checkAction);
         }
         // Insert nick
         if (!settings.nickNameMailMap.isEmpty()) {
             QAction *insertAction = new QAction(tr("Insert Name..."), this);
             connect(insertAction, SIGNAL(triggered()), this, SLOT(slotInsertNickName()));
-            m_d->m_widget->addDescriptionEditContextMenuAction(insertAction);
+            d->m_widget->addDescriptionEditContextMenuAction(insertAction);
         }
     }
     // Do we have user fields?
@@ -201,15 +201,15 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
             this, SLOT(slotUpdateEditorSettings(VCSBase::Internal::CommonVcsSettings)));
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
-    aggregate->add(new Find::BaseTextFind(m_d->m_widget->descriptionEdit()));
+    aggregate->add(new Find::BaseTextFind(d->m_widget->descriptionEdit()));
     aggregate->add(this);
 }
 
 VCSBaseSubmitEditor::~VCSBaseSubmitEditor()
 {
-    delete m_d->m_toolWidget;
-    delete m_d->m_widget;
-    delete m_d;
+    delete d->m_toolWidget;
+    delete d->m_widget;
+    delete d;
 }
 
 void VCSBaseSubmitEditor::slotUpdateEditorSettings(const Internal::CommonVcsSettings &s)
@@ -251,72 +251,72 @@ void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
     fieldWidget->setAllowDuplicateFields(true);
     fieldWidget->setHasBrowseButton(true);
     fieldWidget->setFields(fields);
-    m_d->m_widget->addSubmitFieldWidget(fieldWidget);
+    d->m_widget->addSubmitFieldWidget(fieldWidget);
 }
 
 void VCSBaseSubmitEditor::registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
                                           QAction *submitAction, QAction *diffAction)\
 {
-    m_d->m_widget->registerActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
-    m_d->m_diffAction = diffAction;
-    m_d->m_submitAction = submitAction;
+    d->m_widget->registerActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
+    d->m_diffAction = diffAction;
+    d->m_submitAction = submitAction;
 }
 
 void VCSBaseSubmitEditor::unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
                            QAction *submitAction, QAction *diffAction)
 {
-    m_d->m_widget->unregisterActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
-    m_d->m_diffAction = m_d->m_submitAction = 0;
+    d->m_widget->unregisterActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
+    d->m_diffAction = d->m_submitAction = 0;
 }
 
 int VCSBaseSubmitEditor::fileNameColumn() const
 {
-    return m_d->m_widget->fileNameColumn();
+    return d->m_widget->fileNameColumn();
 }
 
 void VCSBaseSubmitEditor::setFileNameColumn(int c)
 {
-    m_d->m_widget->setFileNameColumn(c);
+    d->m_widget->setFileNameColumn(c);
 }
 
 QAbstractItemView::SelectionMode VCSBaseSubmitEditor::fileListSelectionMode() const
 {
-    return m_d->m_widget->fileListSelectionMode();
+    return d->m_widget->fileListSelectionMode();
 }
 
 void VCSBaseSubmitEditor::setFileListSelectionMode(QAbstractItemView::SelectionMode sm)
 {
-    m_d->m_widget->setFileListSelectionMode(sm);
+    d->m_widget->setFileListSelectionMode(sm);
 }
 
 bool VCSBaseSubmitEditor::isEmptyFileListEnabled() const
 {
-    return m_d->m_widget->isEmptyFileListEnabled();
+    return d->m_widget->isEmptyFileListEnabled();
 }
 
 void VCSBaseSubmitEditor::setEmptyFileListEnabled(bool e)
 {
-    m_d->m_widget->setEmptyFileListEnabled(e);
+    d->m_widget->setEmptyFileListEnabled(e);
 }
 
 bool VCSBaseSubmitEditor::lineWrap() const
 {
-    return m_d->m_widget->lineWrap();
+    return d->m_widget->lineWrap();
 }
 
 void VCSBaseSubmitEditor::setLineWrap(bool w)
 {
-    m_d->m_widget->setLineWrap(w);
+    d->m_widget->setLineWrap(w);
 }
 
 int VCSBaseSubmitEditor::lineWrapWidth() const
 {
-    return m_d->m_widget->lineWrapWidth();
+    return d->m_widget->lineWrapWidth();
 }
 
 void VCSBaseSubmitEditor::setLineWrapWidth(int w)
 {
-    m_d->m_widget->setLineWrapWidth(w);
+    d->m_widget->setLineWrapWidth(w);
 }
 
 void VCSBaseSubmitEditor::slotDescriptionChanged()
@@ -342,37 +342,37 @@ bool VCSBaseSubmitEditor::open(QString *errorString, const QString &fileName, co
     if (!createNew(text))
         return false;
 
-    m_d->m_file->setFileName(QFileInfo(fileName).absoluteFilePath());
-    m_d->m_file->setModified(fileName != realFileName);
+    d->m_file->setFileName(QFileInfo(fileName).absoluteFilePath());
+    d->m_file->setModified(fileName != realFileName);
     return true;
 }
 
 Core::IFile *VCSBaseSubmitEditor::file()
 {
-    return m_d->m_file;
+    return d->m_file;
 }
 
 QString VCSBaseSubmitEditor::displayName() const
 {
-    if (m_d->m_displayName.isEmpty())
-        m_d->m_displayName = QCoreApplication::translate("VCS", m_d->m_parameters->displayName);
-    return m_d->m_displayName;
+    if (d->m_displayName.isEmpty())
+        d->m_displayName = QCoreApplication::translate("VCS", d->m_parameters->displayName);
+    return d->m_displayName;
 }
 
 void VCSBaseSubmitEditor::setDisplayName(const QString &title)
 {
-    m_d->m_displayName = title;
+    d->m_displayName = title;
     emit changed();
 }
 
 QString VCSBaseSubmitEditor::checkScriptWorkingDirectory() const
 {
-    return m_d->m_checkScriptWorkingDirectory;
+    return d->m_checkScriptWorkingDirectory;
 }
 
 void VCSBaseSubmitEditor::setCheckScriptWorkingDirectory(const QString &s)
 {
-    m_d->m_checkScriptWorkingDirectory = s;
+    d->m_checkScriptWorkingDirectory = s;
 }
 
 bool VCSBaseSubmitEditor::duplicateSupported() const
@@ -387,7 +387,7 @@ Core::IEditor *VCSBaseSubmitEditor::duplicate(QWidget * /*parent*/)
 
 QString VCSBaseSubmitEditor::id() const
 {
-    return m_d->m_parameters->id;
+    return d->m_parameters->id;
 }
 
 static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction, QAction *diffAction)
@@ -411,15 +411,15 @@ QWidget *VCSBaseSubmitEditor::toolBar()
     if (!wantToolBar)
         return 0;
 
-    if (m_d->m_toolWidget)
-        return m_d->m_toolWidget;
+    if (d->m_toolWidget)
+        return d->m_toolWidget;
 
-    if (!m_d->m_diffAction && !m_d->m_submitAction)
+    if (!d->m_diffAction && !d->m_submitAction)
         return 0;
 
     // Create
-    m_d->m_toolWidget = createToolBar(m_d->m_widget, m_d->m_submitAction, m_d->m_diffAction);
-    return m_d->m_toolWidget;
+    d->m_toolWidget = createToolBar(d->m_widget, d->m_submitAction, d->m_diffAction);
+    return d->m_toolWidget;
 }
 
 QByteArray VCSBaseSubmitEditor::saveState() const
@@ -434,17 +434,17 @@ bool VCSBaseSubmitEditor::restoreState(const QByteArray &/*state*/)
 
 QStringList VCSBaseSubmitEditor::checkedFiles() const
 {
-    return m_d->m_widget->checkedFiles();
+    return d->m_widget->checkedFiles();
 }
 
 void VCSBaseSubmitEditor::setFileModel(QAbstractItemModel *m)
 {
-    m_d->m_widget->setFileModel(m);
+    d->m_widget->setFileModel(m);
 }
 
 QAbstractItemModel *VCSBaseSubmitEditor::fileModel() const
 {
-    return m_d->m_widget->fileModel();
+    return d->m_widget->fileModel();
 }
 
 void VCSBaseSubmitEditor::slotDiffSelectedVCSFiles(const QStringList &rawList)
@@ -454,7 +454,7 @@ void VCSBaseSubmitEditor::slotDiffSelectedVCSFiles(const QStringList &rawList)
 
 bool VCSBaseSubmitEditor::save(QString *errorString, const QString &fileName, bool autoSave)
 {
-    const QString fName = fileName.isEmpty() ? m_d->m_file->fileName() : fileName;
+    const QString fName = fileName.isEmpty() ? d->m_file->fileName() : fileName;
     Utils::FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(fileContents().toLocal8Bit());
     if (!saver.finalize(errorString))
@@ -462,19 +462,19 @@ bool VCSBaseSubmitEditor::save(QString *errorString, const QString &fileName, bo
     if (autoSave)
         return true;
     const QFileInfo fi(fName);
-    m_d->m_file->setFileName(fi.absoluteFilePath());
-    m_d->m_file->setModified(false);
+    d->m_file->setFileName(fi.absoluteFilePath());
+    d->m_file->setModified(false);
     return true;
 }
 
 QString VCSBaseSubmitEditor::fileContents() const
 {
-    return m_d->m_widget->descriptionText();
+    return d->m_widget->descriptionText();
 }
 
 bool VCSBaseSubmitEditor::setFileContents(const QString &contents)
 {
-    m_d->m_widget->setDescriptionText(contents);
+    d->m_widget->setDescriptionText(contents);
     return true;
 }
 
@@ -554,10 +554,10 @@ VCSBaseSubmitEditor::PromptSubmitResult
 
 QString VCSBaseSubmitEditor::promptForNickName()
 {
-    if (!m_d->m_nickNameDialog)
-        m_d->m_nickNameDialog = new Internal::NickNameDialog(Internal::VCSPlugin::instance()->nickNameModel(), m_d->m_widget);
-    if (m_d->m_nickNameDialog->exec() == QDialog::Accepted)
-       return m_d->m_nickNameDialog->nickName();
+    if (!d->m_nickNameDialog)
+        d->m_nickNameDialog = new Internal::NickNameDialog(Internal::VCSPlugin::instance()->nickNameModel(), d->m_widget);
+    if (d->m_nickNameDialog->exec() == QDialog::Accepted)
+       return d->m_nickNameDialog->nickName();
     return QString();
 }
 
@@ -565,12 +565,12 @@ void VCSBaseSubmitEditor::slotInsertNickName()
 {
     const QString nick = promptForNickName();
     if (!nick.isEmpty())
-        m_d->m_widget->descriptionEdit()->textCursor().insertText(nick);
+        d->m_widget->descriptionEdit()->textCursor().insertText(nick);
 }
 
 void VCSBaseSubmitEditor::slotSetFieldNickName(int i)
 {
-    if (Utils::SubmitFieldWidget *sfw  =m_d->m_widget->submitFieldWidgets().front()) {
+    if (Utils::SubmitFieldWidget *sfw  =d->m_widget->submitFieldWidgets().front()) {
         const QString nick = promptForNickName();
         if (!nick.isEmpty())
             sfw->setFieldValue(i, nick);
@@ -582,7 +582,7 @@ void VCSBaseSubmitEditor::slotCheckSubmitMessage()
     QString errorMessage;
     if (!checkSubmitMessage(&errorMessage)) {
         QMessageBox msgBox(QMessageBox::Warning, tr("Submit Message Check Failed"),
-                           errorMessage, QMessageBox::Ok, m_d->m_widget);
+                           errorMessage, QMessageBox::Ok, d->m_widget);
         msgBox.setMinimumWidth(checkDialogMinimumWidth);
         msgBox.exec();
     }
@@ -621,10 +621,10 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
         return false;
     // Run check process
     VCSBaseOutputWindow *outputWindow = VCSBaseOutputWindow::instance();
-    outputWindow->appendCommand(msgCheckScript(m_d->m_checkScriptWorkingDirectory, checkScript));
+    outputWindow->appendCommand(msgCheckScript(d->m_checkScriptWorkingDirectory, checkScript));
     QProcess checkProcess;
-    if (!m_d->m_checkScriptWorkingDirectory.isEmpty())
-        checkProcess.setWorkingDirectory(m_d->m_checkScriptWorkingDirectory);
+    if (!d->m_checkScriptWorkingDirectory.isEmpty())
+        checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
     checkProcess.start(checkScript, QStringList(saver.fileName()));
     checkProcess.closeWriteChannel();
     if (!checkProcess.waitForStarted()) {

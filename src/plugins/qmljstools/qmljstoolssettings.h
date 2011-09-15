@@ -66,7 +66,7 @@ public:
     TextEditor::TabPreferences *tabPreferences() const;
 
 private:
-    Internal::QmlJSToolsSettingsPrivate *m_d;
+    Internal::QmlJSToolsSettingsPrivate *d;
 
     static QmlJSToolsSettings *m_instance;
 };

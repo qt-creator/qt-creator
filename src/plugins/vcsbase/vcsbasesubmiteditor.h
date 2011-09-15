@@ -179,7 +179,7 @@ private:
     bool runSubmitMessageCheckScript(const QString &script, QString *errorMessage) const;
     QString promptForNickName();
 
-    VCSBaseSubmitEditorPrivate *m_d;
+    VCSBaseSubmitEditorPrivate *d;
 };
 
 } // namespace VCSBase

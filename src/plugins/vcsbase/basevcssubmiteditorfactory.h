@@ -66,7 +66,7 @@ private:
         *createBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
                                 QWidget *parent) = 0;
 
-    BaseVCSSubmitEditorFactoryPrivate *m_d;
+    BaseVCSSubmitEditorFactoryPrivate *d;
 };
 
 // Utility template to create an editor that has a constructor taking the

@@ -59,7 +59,7 @@ private:
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const;
 
-    class Html5AppWizardPrivate *m_d;
+    class Html5AppWizardPrivate *d;
 };
 
 } // namespace Internal

@@ -134,13 +134,13 @@ DiffFormats DiffHighlighterPrivate::analyzeLine(const QString &text) const
 DiffHighlighter::DiffHighlighter(const QRegExp &filePattern,
                                  QTextDocument *document) :
     TextEditor::SyntaxHighlighter(document),
-    m_d(new Internal::DiffHighlighterPrivate(filePattern))
+    d(new Internal::DiffHighlighterPrivate(filePattern))
 {
 }
 
 DiffHighlighter::~DiffHighlighter()
 {
-    delete m_d;
+    delete d;
 }
 
 // Check trailing spaces
@@ -164,20 +164,20 @@ void DiffHighlighter::highlightBlock(const QString &text)
         return;
 
     const int length = text.length();
-    const Internal::DiffFormats format = m_d->analyzeLine(text);
+    const Internal::DiffFormats format = d->analyzeLine(text);
     switch (format) {
     case Internal::DiffTextFormat:
         break;
     case Internal::DiffInFormat: {
             // Mark trailing whitespace.
             const int trimmedLen = trimmedLength(text);
-            setFormat(0, trimmedLen, m_d->m_formats[format]);
+            setFormat(0, trimmedLen, d->m_formats[format]);
             if (trimmedLen != length)
-                setFormat(trimmedLen, length - trimmedLen, m_d->m_addedTrailingWhiteSpaceFormat);
+                setFormat(trimmedLen, length - trimmedLen, d->m_addedTrailingWhiteSpaceFormat);
         }
         break;
     default:
-        setFormat(0, length, m_d->m_formats[format]);
+        setFormat(0, length, d->m_formats[format]);
         break;
     }
 
@@ -186,22 +186,22 @@ void DiffHighlighter::highlightBlock(const QString &text)
             TextEditor::BaseTextDocumentLayout::userData(currentBlock());
     QTC_ASSERT(data, return; );
     if (!TextEditor::BaseTextDocumentLayout::testUserData(currentBlock().previous()))
-        m_d->m_foldingState = Internal::StartOfFile;
+        d->m_foldingState = Internal::StartOfFile;
 
-    switch (m_d->m_foldingState) {
+    switch (d->m_foldingState) {
     case Internal::StartOfFile:
     case Internal::Header:
         switch (format) {
         case Internal::DiffFileFormat:
-            m_d->m_foldingState = Internal::File;
+            d->m_foldingState = Internal::File;
             TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), BASE_LEVEL);
             break;
         case Internal::DiffLocationFormat:
-            m_d->m_foldingState = Internal::Location;
+            d->m_foldingState = Internal::Location;
             TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
             break;
         default:
-            m_d->m_foldingState = Internal::Header;
+            d->m_foldingState = Internal::Header;
             TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), BASE_LEVEL);
             break;
         }
@@ -212,7 +212,7 @@ void DiffHighlighter::highlightBlock(const QString &text)
             TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
             break;
         case Internal::DiffLocationFormat:
-            m_d->m_foldingState = Internal::Location;
+            d->m_foldingState = Internal::Location;
             TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
             break;
         default:
@@ -223,7 +223,7 @@ void DiffHighlighter::highlightBlock(const QString &text)
     case Internal::Location:
         switch (format) {
         case Internal::DiffFileFormat:
-            m_d->m_foldingState = Internal::File;
+            d->m_foldingState = Internal::File;
             TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), BASE_LEVEL);
             break;
         case Internal::DiffLocationFormat:
@@ -248,10 +248,10 @@ static inline QTextCharFormat invertedColorFormat(const QTextCharFormat &in)
 void DiffHighlighter::setFormats(const QVector<QTextCharFormat> &s)
 {
     if (s.size() == Internal::NumDiffFormats) {
-        qCopy(s.constBegin(), s.constEnd(), m_d->m_formats);
+        qCopy(s.constBegin(), s.constEnd(), d->m_formats);
         // Display trailing blanks with colors swapped
-        m_d->m_addedTrailingWhiteSpaceFormat =
-                invertedColorFormat(m_d->m_formats[Internal::DiffInFormat]);
+        d->m_addedTrailingWhiteSpaceFormat =
+                invertedColorFormat(d->m_formats[Internal::DiffInFormat]);
     } else {
         qWarning("%s: insufficient setting size: %d", Q_FUNC_INFO, s.size());
     }
@@ -259,7 +259,7 @@ void DiffHighlighter::setFormats(const QVector<QTextCharFormat> &s)
 
 QRegExp DiffHighlighter::filePattern() const
 {
-    return m_d->m_filePattern;
+    return d->m_filePattern;
 }
 
 } // namespace VCSBase

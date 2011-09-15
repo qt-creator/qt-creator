@@ -63,7 +63,7 @@ public:
 
 private:
     // not used atm
-    IWelcomePagePrivate *m_d;
+    IWelcomePagePrivate *d;
 };
 
 }

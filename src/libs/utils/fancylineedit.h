@@ -113,7 +113,7 @@ private:
     void updateButtonPositions();
     friend class Utils::FancyLineEditPrivate;
 
-    FancyLineEditPrivate *m_d;
+    FancyLineEditPrivate *d;
     QString m_oldText;
 };
 

@@ -143,7 +143,7 @@ protected:
     static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = 0);
 
 private:
-    BaseFileWizardPrivate *m_d;
+    BaseFileWizardPrivate *d;
 };
 
 class CORE_EXPORT StandardFileWizard : public BaseFileWizard

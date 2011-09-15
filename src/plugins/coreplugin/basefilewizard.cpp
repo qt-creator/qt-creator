@@ -345,48 +345,48 @@ struct BaseFileWizardPrivate
 BaseFileWizard::BaseFileWizard(const BaseFileWizardParameters &parameters,
                        QObject *parent) :
     IWizard(parent),
-    m_d(new BaseFileWizardPrivate(parameters))
+    d(new BaseFileWizardPrivate(parameters))
 {
 }
 
 BaseFileWizard::~BaseFileWizard()
 {
-    delete m_d;
+    delete d;
 }
 
 IWizard::WizardKind  BaseFileWizard::kind() const
 {
-    return m_d->m_parameters.kind();
+    return d->m_parameters.kind();
 }
 
 QIcon BaseFileWizard::icon() const
 {
-    return m_d->m_parameters.icon();
+    return d->m_parameters.icon();
 }
 
 QString BaseFileWizard::description() const
 {
-    return m_d->m_parameters.description();
+    return d->m_parameters.description();
 }
 
 QString BaseFileWizard::displayName() const
 {
-    return m_d->m_parameters.displayName();
+    return d->m_parameters.displayName();
 }
 
 QString BaseFileWizard::id() const
 {
-    return m_d->m_parameters.id();
+    return d->m_parameters.id();
 }
 
 QString BaseFileWizard::category() const
 {
-    return m_d->m_parameters.category();
+    return d->m_parameters.category();
 }
 
 QString BaseFileWizard::displayCategory() const
 {
-    return m_d->m_parameters.displayCategory();
+    return d->m_parameters.displayCategory();
 }
 
 void BaseFileWizard::runWizard(const QString &path, QWidget *parent)

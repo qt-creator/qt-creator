@@ -77,16 +77,16 @@ class MobileAppWizardPrivate
 
 MobileAppWizard::MobileAppWizard()
     : AbstractMobileAppWizard(parameters())
-    , m_d(new MobileAppWizardPrivate)
+    , d(new MobileAppWizardPrivate)
 {
-    m_d->mobileApp = new MobileApp;
-    m_d->wizardDialog = 0;
+    d->mobileApp = new MobileApp;
+    d->wizardDialog = 0;
 }
 
 MobileAppWizard::~MobileAppWizard()
 {
-    delete m_d->mobileApp;
-    delete m_d;
+    delete d->mobileApp;
+    delete d;
 }
 
 Core::BaseFileWizardParameters MobileAppWizard::parameters()
@@ -104,13 +104,13 @@ Core::BaseFileWizardParameters MobileAppWizard::parameters()
 
 AbstractMobileAppWizardDialog *MobileAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
-    m_d->wizardDialog = new MobileAppWizardDialog(parent);
-    return m_d->wizardDialog;
+    d->wizardDialog = new MobileAppWizardDialog(parent);
+    return d->wizardDialog;
 }
 
 void MobileAppWizard::projectPathChanged(const QString &path) const
 {
-    m_d->wizardDialog->targetsPage()->setProFilePath(path);
+    d->wizardDialog->targetsPage()->setProFilePath(path);
 }
 
 void MobileAppWizard::prepareGenerateFiles(const QWizard *w,
@@ -127,12 +127,12 @@ QString MobileAppWizard::fileToOpenPostGeneration() const
 
 AbstractMobileApp *MobileAppWizard::app() const
 {
-    return m_d->mobileApp;
+    return d->mobileApp;
 }
 
 AbstractMobileAppWizardDialog *MobileAppWizard::wizardDialog() const
 {
-    return m_d->wizardDialog;
+    return d->wizardDialog;
 }
 
 } // namespace Internal

@@ -155,7 +155,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
         }
     }
     if (role == Qt::FontRole) {
-        // check whether this environment variable exists in m_d->m_items
+        // check whether this environment variable exists in d->m_items
         if (changes(d->m_resultEnvironment.key(d->m_resultEnvironment.constBegin() + index.row()))) {
             QFont f;
             f.setBold(true);
@@ -320,7 +320,7 @@ void EnvironmentModel::unsetVariable(const QString &name)
     if (row < 0)
         return;
 
-    // look in m_d->m_items for the variable
+    // look in d->m_items for the variable
     int pos = d->findInChanges(name);
     if (pos != -1) {
         d->m_items[pos].unset = true;

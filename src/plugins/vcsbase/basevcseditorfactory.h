@@ -66,7 +66,7 @@ private:
     virtual VCSBaseEditorWidget *createVCSBaseEditor(const VCSBaseEditorParameters *type,
                                                QWidget *parent) = 0;
 
-    BaseVCSEditorFactoryPrivate *m_d;
+    BaseVCSEditorFactoryPrivate *d;
 };
 
 // Utility template to create an editor.

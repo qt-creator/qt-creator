@@ -79,16 +79,16 @@ class Html5AppWizardPrivate
 
 Html5AppWizard::Html5AppWizard()
     : AbstractMobileAppWizard(parameters())
-    , m_d(new Html5AppWizardPrivate)
+    , d(new Html5AppWizardPrivate)
 {
-    m_d->app = new Html5App;
-    m_d->wizardDialog = 0;
+    d->app = new Html5App;
+    d->wizardDialog = 0;
 }
 
 Html5AppWizard::~Html5AppWizard()
 {
-    delete m_d->app;
-    delete m_d;
+    delete d->app;
+    delete d;
 }
 
 Core::BaseFileWizardParameters Html5AppWizard::parameters()
@@ -111,15 +111,15 @@ Core::BaseFileWizardParameters Html5AppWizard::parameters()
 
 AbstractMobileAppWizardDialog *Html5AppWizard::createWizardDialogInternal(QWidget *parent) const
 {
-    m_d->wizardDialog = new Html5AppWizardDialog(parent);
-    m_d->wizardDialog->m_htmlOptionsPage->setTouchOptimizationEndabled(
-                m_d->app->touchOptimizedNavigationEnabled());
-    return m_d->wizardDialog;
+    d->wizardDialog = new Html5AppWizardDialog(parent);
+    d->wizardDialog->m_htmlOptionsPage->setTouchOptimizationEndabled(
+                d->app->touchOptimizedNavigationEnabled());
+    return d->wizardDialog;
 }
 
 void Html5AppWizard::projectPathChanged(const QString &path) const
 {
-    m_d->wizardDialog->targetsPage()->setProFilePath(path);
+    d->wizardDialog->targetsPage()->setProFilePath(path);
 }
 
 void Html5AppWizard::prepareGenerateFiles(const QWizard *w,
@@ -127,27 +127,27 @@ void Html5AppWizard::prepareGenerateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
     const Html5AppWizardDialog *wizard = qobject_cast<const Html5AppWizardDialog*>(w);
-    m_d->app->setMainHtml(wizard->m_htmlOptionsPage->mainHtmlMode(),
+    d->app->setMainHtml(wizard->m_htmlOptionsPage->mainHtmlMode(),
                           wizard->m_htmlOptionsPage->mainHtmlData());
-    m_d->app->setTouchOptimizedNavigationEnabled(
+    d->app->setTouchOptimizedNavigationEnabled(
                 wizard->m_htmlOptionsPage->touchOptimizationEndabled());
 }
 
 QString Html5AppWizard::fileToOpenPostGeneration() const
 {
-    return m_d->app->mainHtmlMode() == Html5App::ModeUrl ?
-                m_d->app->path(AbstractMobileApp::MainCpp)
-              : m_d->app->path(Html5App::MainHtml);
+    return d->app->mainHtmlMode() == Html5App::ModeUrl ?
+                d->app->path(AbstractMobileApp::MainCpp)
+              : d->app->path(Html5App::MainHtml);
 }
 
 AbstractMobileApp *Html5AppWizard::app() const
 {
-    return m_d->app;
+    return d->app;
 }
 
 AbstractMobileAppWizardDialog *Html5AppWizard::wizardDialog() const
 {
-    return m_d->wizardDialog;
+    return d->wizardDialog;
 }
 
 } // namespace Internal
