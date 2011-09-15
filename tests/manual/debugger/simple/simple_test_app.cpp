@@ -2130,7 +2130,8 @@ namespace qvariant {
         var.setValue(my);
         // FIXME: Known to break
         //QString type = var.typeName();
-        var.setValue(my); BREAK_HERE;
+        var.setValue(my);
+        BREAK_HERE;
         var.setValue(my);
         var.setValue(my);
         var.setValue(my);
@@ -2139,20 +2140,42 @@ namespace qvariant {
 
     void testQVariant6()
     {
+        QList<int> list;
+        list << 1 << 2 << 3;
+        QVariant variant = qVariantFromValue(list);
+        BREAK_HERE;
+        list.clear();
+        list = qVariantValue<QList<int> >(variant);
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
+
+    void testQVariantList()
+    {
         QVariantList vl;
+        BREAK_HERE;
         vl.append(QVariant(1));
         vl.append(QVariant(2));
         vl.append(QVariant("Some String"));
         vl.append(QVariant(21));
         vl.append(QVariant(22));
         vl.append(QVariant("2Some String"));
+        BREAK_HERE;
+        dummyStatement(&vl);
+    }
 
-        QList<int> list;
-        list << 1 << 2 << 3;
-        QVariant variant = qVariantFromValue(list);
-        list.clear();
-        list = qVariantValue<QList<int> >(variant);
-        dummyStatement(&list);
+    void testQVariantMap()
+    {
+        QVariantMap vm;
+        BREAK_HERE;
+        vm["a"] = QVariant(1);
+        vm["b"] = QVariant(2);
+        vm["c"] = QVariant("Some String");
+        vm["d"] = QVariant(21);
+        vm["e"] = QVariant(22);
+        vm["f"] = QVariant("2Some String");
+        BREAK_HERE;
+        dummyStatement(&vm);
     }
 
     void testQVariant()
@@ -2163,6 +2186,8 @@ namespace qvariant {
         testQVariant4();
         testQVariant5();
         testQVariant6();
+        testQVariantList();
+        testQVariantMap();
     }
 
 } // namespace qvariant
