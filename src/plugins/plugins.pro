@@ -172,6 +172,7 @@ plugin_bookmarks.depends += plugin_texteditor
 plugin_debugger.subdir = debugger
 plugin_debugger.depends = plugin_projectexplorer
 plugin_debugger.depends += plugin_coreplugin
+plugin_debugger.depends += plugin_cpptools
 
 plugin_fakevim.subdir = fakevim
 plugin_fakevim.depends = plugin_coreplugin
