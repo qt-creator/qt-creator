@@ -239,6 +239,9 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
         || (QGraphicsItem::parentItem() == scene()->formLayerItem() && qFuzzyIsNull(m_borderWidth)))
           return;
 
+     if (boundingRect().width() < 8 || boundingRect().height() < 8)
+         return;
+
     QPen pen;
     pen.setJoinStyle(Qt::MiterJoin);
     pen.setStyle(Qt::DotLine);
