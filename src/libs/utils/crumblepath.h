@@ -53,6 +53,7 @@ public:
 
     void selectIndex(int index);
     QVariant dataForIndex(int index) const;
+    QVariant dataForLastIndex() const;
 
 public slots:
     void pushElement(const QString &title, const QVariant &data = QVariant());
