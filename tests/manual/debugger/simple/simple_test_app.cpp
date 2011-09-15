@@ -116,6 +116,7 @@ void dummyStatement(...) {}
 
 #include <deque>
 #include <iostream>
+#include <iterator>
 #include <map>
 #include <list>
 #include <set>
@@ -673,92 +674,130 @@ void testQLocale()
     //QString s = loc.name();
     //QVariant v = loc;
     QLocale::MeasurementSystem m = loc.measurementSystem();
-    Q_UNUSED(m);
+    BREAK_HERE;
+    dummyStatement(&loc, &m);
 }
 
-void testQList()
-{
-    QList<int> big;
-    for (int i = 0; i < 10000; ++i)
-        big.push_back(i);
+namespace qlist {
 
-    QList<Foo> flist;
-    for (int i = 0; i < 100; ++i)
-        flist.push_back(i + 15);
-    flist.push_back(1000);
-    flist.push_back(1001);
-    flist.push_back(1002);
-#if 1
-    QList<int> li;
-    QList<uint> lu;
-
-    for (int i = 0; i != 30; ++i) {
-        li.append(i);
+    void testQListInt()
+    {
+        QList<int> big;
+        BREAK_HERE;
+        for (int i = 0; i < 10000; ++i)
+            big.push_back(i);
+        BREAK_HERE;
+        dummyStatement(&big);
     }
-    li.append(101);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
-    li.append(102);
 
-    QList<int *> lpi;
-    lpi.append(new int(1));
-    lpi.append(new int(2));
-    lpi.append(new int(3));
-
-
-    for (int i = 0; i != 3; ++i) {
-        lu.append(i);
+    void testQListIntStar()
+    {
+        QList<int *> l;
+        BREAK_HERE;
+        l.append(new int(1));
+        l.append(new int(2));
+        l.append(new int(3));
+        BREAK_HERE;
+        dummyStatement(&l);
     }
-    lu.append(101);
-    lu.append(102);
-    lu.append(102);
-    lu.append(102);
 
-    QList<uint> i;
-    i.append(42);
-    i.append(43);
-    i.append(44);
-    i.append(45);
+    void testQListUInt()
+    {
+        QList<uint> l;
+        BREAK_HERE;
+        l.append(101);
+        l.append(102);
+        l.append(102);
+        BREAK_HERE;
+        dummyStatement(&l);
+    }
 
-    QList<ushort> ls;
-    ls.append(42);
-    ls.append(43);
-    ls.append(44);
-    ls.append(45);
+    void testQListUShort()
+    {
+        QList<ushort> l;
+        BREAK_HERE;
+        l.append(101);
+        l.append(102);
+        l.append(102);
+        BREAK_HERE;
+        dummyStatement(&l);
+    }
 
-    QList<QChar> lc;
-    lc.append(QChar('a'));
-    lc.append(QChar('b'));
-    lc.append(QChar('c'));
-    lc.append(QChar('d'));
+    void testQListQChar()
+    {
+        QList<QChar> l;
+        BREAK_HERE;
+        l.append(QChar('a'));
+        l.append(QChar('b'));
+        l.append(QChar('c'));
+        BREAK_HERE;
+        dummyStatement(&l);
+    }
 
-    QList<qulonglong> l;
-    l.append(42);
-    l.append(43);
-    l.append(44);
-    l.append(45);
+    void testQListQULongLong()
+    {
+        QList<qulonglong> l;
+        BREAK_HERE;
+        l.append(101);
+        l.append(102);
+        l.append(102);
+        BREAK_HERE;
+        dummyStatement(&l);
+    }
 
-    QList<Foo> f;
-    f.append(Foo(1));
-    f.append(Foo(2));
+    void testQListStdString()
+    {
+        QList<std::string> l;
+        BREAK_HERE;
+        l.push_back("aa");
+        l.push_back("bb");
+        l.push_back("cc");
+        l.push_back("dd");
+        BREAK_HERE;
+        dummyStatement(&l);
+    }
 
-    QList<std::string> v;
-    v.push_back("aa");
-    v.push_back("bb");
-    v.push_back("cc");
-    v.push_back("dd");
-#endif
- }
+    void testQListFoo()
+    {
+        QList<Foo> l;
+        BREAK_HERE;
+        for (int i = 0; i < 100; ++i)
+            l.push_back(i + 15);
+        BREAK_HERE;
+        l.push_back(1000);
+        l.push_back(1001);
+        l.push_back(1002);
+        BREAK_HERE;
+        dummyStatement(&l);
+    }
+
+    void testQListReverse()
+    {
+        QList<int> l = QList<int>() << 1 << 2 << 3;
+        typedef std::reverse_iterator<QList<int>::iterator> Reverse;
+        Reverse rit(l.end());
+        Reverse rend(l.begin());
+        QList<int> r;
+        while (rit != rend)
+            r.append(*rit++);
+        BREAK_HERE;
+        dummyStatement();
+    }
+
+    void testQList()
+    {
+        testQListInt();
+        testQListIntStar();
+        testQListUInt();
+        testQListUShort();
+        testQListQChar();
+        testQListQULongLong();
+        testQListStdString();
+        testQListFoo();
+        testQListReverse();
+    }
+
+} // namespace qlist
 
 namespace nsA {
 namespace nsB {
@@ -911,7 +950,8 @@ namespace qobject {
         test.setMyProp2("WORLD");
         QString s = test.myProp1();
         s += test.myProp2();
-        Q_UNUSED(s);
+        BREAK_HERE;
+        dummyStatement(&s);
     #endif
 
     #if 0
@@ -1098,8 +1138,8 @@ void testQPixmap()
     pain.drawLine(2, 2, 130, 130);
     pain.end();
     QPixmap pm = QPixmap::fromImage(im);
-    int i = 1;
-    Q_UNUSED(i);
+    BREAK_HERE;
+    dummyStatement(&im, &pm);
 }
 
 
@@ -1273,7 +1313,7 @@ void testQSet()
     QObject ob;
     QSet<QPointer<QObject> > hash;
     QPointer<QObject> ptr(&ob);
-    Q_UNUSED(ptr);
+    dummyStatement(&ptr);
     //hash.insert(ptr);
     //hash.insert(ptr);
     //hash.insert(ptr);
@@ -1406,7 +1446,7 @@ namespace qxml {
 
 void stringRefTest(const QString &refstring)
 {
-    Q_UNUSED(refstring);
+    dummyStatement(&refstring);
 }
 
 void testStdDeque()
@@ -1577,42 +1617,42 @@ namespace stdstack {
     void testStdStack1()
     {
         // This does not work with the compiled dumpers.
-        std::stack<int *> plist1;
+        std::stack<int *> s;
         BREAK_HERE;
-        plist1.push(new int(1));
-        plist1.push(0);
-        plist1.push(new int(2));
-        plist1.pop();
-        plist1.pop();
-        plist1.pop();
-        dummyStatement(&plist1);
+        s.push(new int(1));
+        s.push(0);
+        s.push(new int(2));
+        s.pop();
+        s.pop();
+        s.pop();
+        dummyStatement(&s);
     }
 
     void testStdStack2()
     {
-        std::stack<int> flist2;
+        std::stack<int> s;
         BREAK_HERE;
-        flist2.push(1);
-        flist2.push(2);
-        dummyStatement(&flist2);
+        s.push(1);
+        s.push(2);
+        dummyStatement(&s);
     }
 
     void testStdStack3()
     {
-        std::stack<Foo *> plist;
+        std::stack<Foo *> s;
         BREAK_HERE;
-        plist.push(new Foo(1));
-        plist.push(new Foo(2));
-        dummyStatement(&plist);
+        s.push(new Foo(1));
+        s.push(new Foo(2));
+        dummyStatement(&s);
     }
 
     void testStdStack4()
     {
-        std::stack<Foo> flist;
+        std::stack<Foo> s;
         BREAK_HERE;
-        flist.push(1);
-        flist.push(2);
-        dummyStatement(&flist);
+        s.push(1);
+        s.push(2);
+        dummyStatement(&s);
     }
 
     void testStdStack()
@@ -1719,26 +1759,26 @@ namespace stdvector {
 
     void testStdVector4()
     {
-        std::vector<Foo> flist;
-        flist.push_back(1);
-        flist.push_back(2);
-        flist.push_back(3);
-        flist.push_back(4);
+        std::vector<Foo> v;
+        v.push_back(1);
+        v.push_back(2);
+        v.push_back(3);
+        v.push_back(4);
         BREAK_HERE;
         // Expand v.[0].x
-        dummyStatement(&flist);
+        dummyStatement(&v);
     }
 
     void testStdVector5()
     {
-        std::vector<bool> vec;
-        vec.push_back(true);
-        vec.push_back(false);
-        vec.push_back(false);
-        vec.push_back(true);
-        vec.push_back(false);
+        std::vector<bool> v;
+        v.push_back(true);
+        v.push_back(false);
+        v.push_back(false);
+        v.push_back(true);
+        v.push_back(false);
         BREAK_HERE;
-        dummyStatement(&vec);
+        dummyStatement(&v);
     }
 
     void testStdVector6()
@@ -1948,8 +1988,7 @@ void testQTextCursor()
     tc = doc.find("all");
     int pos = tc.position();
     int anc = tc.anchor();
-    Q_UNUSED(pos);
-    Q_UNUSED(anc);
+    dummyStatement(&pos, &anc);
 }
 
 
@@ -2154,14 +2193,14 @@ namespace qvector {
     void testQVector2()
     {
         // This tests the display of a vector of pointers to custom structs.
-        QVector<Foo> flist;
+        QVector<Foo> v;
         BREAK_HERE;
         // step over, check display.
-        flist.append(1);
-        flist.append(2);
-        flist.append(3);
-        flist.append(4);
-        dummyStatement(&flist);
+        v.append(1);
+        v.append(2);
+        v.append(3);
+        v.append(4);
+        dummyStatement(&v);
     }
 
     typedef QVector<Foo> FooVector;
@@ -2398,11 +2437,7 @@ void testQHash1()
 void testPointer()
 {
     Foo *f = new Foo();
-    Q_UNUSED(f);
-    int i = 0;
-    ++i;
-    ++i;
-    ++i;
+    dummyStatement(f);
 }
 
 class Z : public QObject
@@ -3617,7 +3652,7 @@ int main(int argc, char *argv[])
     namespc::testNamespace();
 
     testPlugin();
-    testQList();
+    qlist::testQList();
     testQLinkedList();
     testQHash();
     testQImage();
