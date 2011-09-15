@@ -140,7 +140,7 @@ private:
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
     void setSystemEnvironment(const Utils::Environment &environment);
 
-    Internal::RemoteLinuxRunConfigurationPrivate * const m_d;
+    Internal::RemoteLinuxRunConfigurationPrivate * const d;
 };
 
 } // namespace RemoteLinux

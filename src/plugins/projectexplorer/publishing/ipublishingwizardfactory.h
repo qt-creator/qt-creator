@@ -67,19 +67,19 @@ public:
       A short, one-line description of the type of wizard that this
       factory can create.
     */
-    virtual QString displayName() const=0;
+    virtual QString displayName() const = 0;
 
     /*!
       A longer description explaining the exact purpose of the wizard
       created by this factory.
     */
-    virtual QString description() const=0;
+    virtual QString description() const = 0;
 
     /*!
       Returns true iff the type of wizard that this factory can create
       is available for the given project.
     */
-    virtual bool canCreateWizard(const Project *project) const=0;
+    virtual bool canCreateWizard(const Project *project) const = 0;
 
     /*!
       Creates a wizard that can publish the given project.
@@ -88,7 +88,7 @@ public:
       \return The newly created publishing wizard
       \sa canCreateWizard()
     */
-    virtual QWizard *createWizard(const Project *project) const=0;
+    virtual QWizard *createWizard(const Project *project) const = 0;
 
 protected:
     IPublishingWizardFactory(QObject *parent = 0) : QObject(parent) {}

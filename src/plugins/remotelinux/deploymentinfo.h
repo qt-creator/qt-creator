@@ -74,7 +74,7 @@ private:
     Q_SLOT void createModels();
     void createModels(const Qt4ProjectManager::Qt4ProFileNode *proFileNode);
 
-    Internal::DeploymentInfoPrivate * const m_d;
+    Internal::DeploymentInfoPrivate * const d;
 };
 
 } // namespace RemoteLinux

@@ -53,7 +53,7 @@ public:
 private:
     AbstractRemoteLinuxPackageInstaller *packageInstaller() const;
 
-    Internal::UploadAndInstallTarPackageServicePrivate *m_d;
+    Internal::UploadAndInstallTarPackageServicePrivate *d;
 };
 
 

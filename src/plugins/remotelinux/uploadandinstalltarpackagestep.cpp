@@ -52,18 +52,18 @@ using namespace Internal;
 
 UploadAndInstallTarPackageService::UploadAndInstallTarPackageService(QObject *parent)
     : AbstractUploadAndInstallPackageService(parent),
-      m_d(new UploadAndInstallTarPackageServicePrivate)
+      d(new UploadAndInstallTarPackageServicePrivate)
 {
 }
 
 UploadAndInstallTarPackageService::~UploadAndInstallTarPackageService()
 {
-    delete m_d;
+    delete d;
 }
 
 AbstractRemoteLinuxPackageInstaller *UploadAndInstallTarPackageService::packageInstaller() const
 {
-    return &m_d->installer;
+    return &d->installer;
 }
 
 

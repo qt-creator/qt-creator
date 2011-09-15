@@ -50,21 +50,21 @@ public:
 } // namespace Internal
 
 SshKeyDeployer::SshKeyDeployer(QObject *parent)
-    : QObject(parent), m_d(new Internal::SshKeyDeployerPrivate)
+    : QObject(parent), d(new Internal::SshKeyDeployerPrivate)
 {
 }
 
 SshKeyDeployer::~SshKeyDeployer()
 {
     cleanup();
-    delete m_d;
+    delete d;
 }
 
 void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
     const QString &keyFilePath)
 {
     cleanup();
-    m_d->deployProcess = SshRemoteProcessRunner::create(sshParams);
+    d->deployProcess = SshRemoteProcessRunner::create(sshParams);
 
     Utils::FileReader reader;
     if (!reader.fetch(keyFilePath)) {
@@ -72,21 +72,21 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
         return;
     }
 
-    connect(m_d->deployProcess.data(), SIGNAL(connectionError(Utils::SshError)), this,
+    connect(d->deployProcess.data(), SIGNAL(connectionError(Utils::SshError)), this,
         SLOT(handleConnectionFailure()));
-    connect(m_d->deployProcess.data(), SIGNAL(processClosed(int)), this,
+    connect(d->deployProcess.data(), SIGNAL(processClosed(int)), this,
         SLOT(handleKeyUploadFinished(int)));
     const QByteArray command = "test -d .ssh "
         "|| mkdir .ssh && chmod 0700 .ssh && echo '"
         + reader.data() + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
-    m_d->deployProcess->run(command);
+    d->deployProcess->run(command);
 }
 
 void SshKeyDeployer::handleConnectionFailure()
 {
-    if (!m_d->deployProcess)
+    if (!d->deployProcess)
         return;
-    const QString errorMsg = m_d->deployProcess->connection()->errorString();
+    const QString errorMsg = d->deployProcess->connection()->errorString();
     cleanup();
     emit error(tr("Connection failed: %1").arg(errorMsg));
 }
@@ -97,11 +97,11 @@ void SshKeyDeployer::handleKeyUploadFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (!m_d->deployProcess)
+    if (!d->deployProcess)
         return;
 
-    const int exitCode = m_d->deployProcess->process()->exitCode();
-    const QString errorMsg = m_d->deployProcess->process()->errorString();
+    const int exitCode = d->deployProcess->process()->exitCode();
+    const QString errorMsg = d->deployProcess->process()->errorString();
     cleanup();
     if (exitStatus == SshRemoteProcess::ExitedNormally && exitCode == 0)
         emit finishedSuccessfully();
@@ -116,9 +116,9 @@ void SshKeyDeployer::stopDeployment()
 
 void SshKeyDeployer::cleanup()
 {
-    if (m_d->deployProcess) {
-        disconnect(m_d->deployProcess.data(), 0, this, 0);
-        m_d->deployProcess.clear();
+    if (d->deployProcess) {
+        disconnect(d->deployProcess.data(), 0, this, 0);
+        d->deployProcess.clear();
     }
 }
 

@@ -62,7 +62,7 @@ private slots:
 private:
     void addText(const QString &text, const QString &color, bool bold);
 
-    Internal::LinuxDeviceTestDialogPrivate * const m_d;
+    Internal::LinuxDeviceTestDialogPrivate * const d;
 };
 
 } // namespace RemoteLinux

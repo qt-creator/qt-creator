@@ -88,7 +88,7 @@ private:
         LinuxDeviceConfigurations *target, bool deep);
     void ensureOneDefaultConfigurationPerOsType();
 
-    Internal::LinuxDeviceConfigurationsPrivate * const m_d;
+    Internal::LinuxDeviceConfigurationsPrivate * const d;
 };
 
 } // namespace RemoteLinux

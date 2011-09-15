@@ -53,32 +53,32 @@ public:
 using namespace Utils;
 
 GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent) :
-    QWizardPage(parent), m_d(new Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate)
+    QWizardPage(parent), d(new Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate)
 {
-    m_d->ui.setupUi(this);
+    d->ui.setupUi(this);
     setTitle(tr("Connection Data"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-    m_d->ui.privateKeyPathChooser->setExpectedKind(PathChooser::File);
-    connect(m_d->ui.nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
-    connect(m_d->ui.hostNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
-    connect(m_d->ui.userNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
-    connect(m_d->ui.privateKeyPathChooser, SIGNAL(validChanged()), SIGNAL(completeChanged()));
-    connect(m_d->ui.passwordButton, SIGNAL(toggled(bool)), SLOT(handleAuthTypeChanged()));
+    d->ui.privateKeyPathChooser->setExpectedKind(PathChooser::File);
+    connect(d->ui.nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
+    connect(d->ui.hostNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
+    connect(d->ui.userNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
+    connect(d->ui.privateKeyPathChooser, SIGNAL(validChanged()), SIGNAL(completeChanged()));
+    connect(d->ui.passwordButton, SIGNAL(toggled(bool)), SLOT(handleAuthTypeChanged()));
 }
 
 GenericLinuxDeviceConfigurationWizardSetupPage::~GenericLinuxDeviceConfigurationWizardSetupPage()
 {
-    delete m_d;
+    delete d;
 }
 
 void GenericLinuxDeviceConfigurationWizardSetupPage::initializePage()
 {
-    m_d->ui.nameLineEdit->setText(QLatin1String("(New Configuration)"));
-    m_d->ui.hostNameLineEdit->setText(defaultHostName());
-    m_d->ui.userNameLineEdit->setText(defaultUserName());
-    m_d->ui.passwordButton->setChecked(true);
-    m_d->ui.passwordLineEdit->setText(defaultPassWord());
-    m_d->ui.privateKeyPathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
+    d->ui.nameLineEdit->setText(QLatin1String("(New Configuration)"));
+    d->ui.hostNameLineEdit->setText(defaultHostName());
+    d->ui.userNameLineEdit->setText(defaultUserName());
+    d->ui.passwordButton->setChecked(true);
+    d->ui.passwordLineEdit->setText(defaultPassWord());
+    d->ui.privateKeyPathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
     handleAuthTypeChanged();
 }
 
@@ -86,39 +86,39 @@ bool GenericLinuxDeviceConfigurationWizardSetupPage::isComplete() const
 {
     return !configurationName().isEmpty() && !hostName().isEmpty() && !userName().isEmpty()
             && (authenticationType() == SshConnectionParameters::AuthenticationByPassword
-                || m_d->ui.privateKeyPathChooser->isValid());
+                || d->ui.privateKeyPathChooser->isValid());
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::configurationName() const
 {
-    return m_d->ui.nameLineEdit->text().trimmed();
+    return d->ui.nameLineEdit->text().trimmed();
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::hostName() const
 {
-    return m_d->ui.hostNameLineEdit->text().trimmed();
+    return d->ui.hostNameLineEdit->text().trimmed();
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::userName() const
 {
-    return m_d->ui.userNameLineEdit->text().trimmed();
+    return d->ui.userNameLineEdit->text().trimmed();
 }
 
 SshConnectionParameters::AuthenticationType GenericLinuxDeviceConfigurationWizardSetupPage::authenticationType() const
 {
-    return m_d->ui.passwordButton->isChecked()
+    return d->ui.passwordButton->isChecked()
         ? SshConnectionParameters::AuthenticationByPassword
         : SshConnectionParameters::AuthenticationByKey;
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::password() const
 {
-    return m_d->ui.passwordLineEdit->text();
+    return d->ui.passwordLineEdit->text();
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::privateKeyFilePath() const
 {
-    return m_d->ui.privateKeyPathChooser->path();
+    return d->ui.privateKeyPathChooser->path();
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultHostName() const
@@ -138,30 +138,30 @@ QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultPassWord() const
 
 void GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged()
 {
-    m_d->ui.passwordLineEdit->setEnabled(authenticationType() == SshConnectionParameters::AuthenticationByPassword);
-    m_d->ui.privateKeyPathChooser->setEnabled(authenticationType() == SshConnectionParameters::AuthenticationByKey);
+    d->ui.passwordLineEdit->setEnabled(authenticationType() == SshConnectionParameters::AuthenticationByPassword);
+    d->ui.privateKeyPathChooser->setEnabled(authenticationType() == SshConnectionParameters::AuthenticationByKey);
     emit completeChanged();
 }
 
 
 GenericLinuxDeviceConfigurationWizardFinalPage::GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent)
-    : QWizardPage(parent), m_d(new Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate)
+    : QWizardPage(parent), d(new Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate)
 {
     setTitle(tr("Setup Finished"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-    m_d->infoLabel.setWordWrap(true);
+    d->infoLabel.setWordWrap(true);
     QVBoxLayout * const layout = new QVBoxLayout(this);
-    layout->addWidget(&m_d->infoLabel);
+    layout->addWidget(&d->infoLabel);
 }
 
 GenericLinuxDeviceConfigurationWizardFinalPage::~GenericLinuxDeviceConfigurationWizardFinalPage()
 {
-    delete m_d;
+    delete d;
 }
 
 void GenericLinuxDeviceConfigurationWizardFinalPage::initializePage()
 {
-    m_d->infoLabel.setText(infoText());
+    d->infoLabel.setText(infoText());
 }
 
 QString GenericLinuxDeviceConfigurationWizardFinalPage::infoText() const

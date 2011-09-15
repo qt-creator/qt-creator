@@ -60,7 +60,7 @@ private slots:
     void handleSelectionChanged();
 
 private:
-    Internal::RemoteLinuxProcessesDialogPrivate * const m_d;
+    Internal::RemoteLinuxProcessesDialogPrivate * const d;
 };
 
 } // namespace RemoteLinux

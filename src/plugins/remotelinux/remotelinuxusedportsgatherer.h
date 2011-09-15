@@ -77,7 +77,7 @@ private slots:
 private:
     void setupUsedPorts();
 
-    Internal::RemoteLinuxUsedPortsGathererPrivate * const m_d;
+    Internal::RemoteLinuxUsedPortsGathererPrivate * const d;
 };
 
 } // namespace RemoteLinux

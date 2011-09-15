@@ -121,12 +121,12 @@ private:
     virtual bool postGenerateFiles(const QWizard *w,
         const Core::GeneratedFiles &l, QString *errorMessage);
 
-    virtual AbstractMobileApp *app() const=0;
-    virtual AbstractMobileAppWizardDialog *wizardDialog() const=0;
-    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const=0;
-    virtual void projectPathChanged(const QString &path) const=0;
+    virtual AbstractMobileApp *app() const = 0;
+    virtual AbstractMobileAppWizardDialog *wizardDialog() const = 0;
+    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent) const = 0;
+    virtual void projectPathChanged(const QString &path) const = 0;
     virtual void prepareGenerateFiles(const QWizard *wizard,
-        QString *errorMessage) const=0;
+        QString *errorMessage) const = 0;
 };
 
 } // namespace Qt4ProjectManager

@@ -174,12 +174,12 @@ private:
     QByteArray generateProFile(QString *errorMessage) const;
 
     virtual QByteArray generateFileExtended(int fileType,
-        bool *versionAndCheckSum, QString *comment, QString *errorMessage) const=0;
-    virtual QString pathExtended(int fileType) const=0;
-    virtual QString originsRoot() const=0;
-    virtual QString mainWindowClassName() const=0;
-    virtual int stubVersionMinor() const=0;
-    virtual bool adaptCurrentMainCppTemplateLine(QString &line) const=0;
+        bool *versionAndCheckSum, QString *comment, QString *errorMessage) const = 0;
+    virtual QString pathExtended(int fileType) const = 0;
+    virtual QString originsRoot() const = 0;
+    virtual QString mainWindowClassName() const = 0;
+    virtual int stubVersionMinor() const = 0;
+    virtual bool adaptCurrentMainCppTemplateLine(QString &line) const = 0;
     virtual void handleCurrentProFileTemplateLine(const QString &line,
         QTextStream &proFileTemplate, QTextStream &proFile,
         bool &commentOutNextLine) const = 0;

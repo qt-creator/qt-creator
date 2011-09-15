@@ -84,14 +84,14 @@ private:
         int role = Qt::DisplayRole) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    virtual QString listProcessesCommandLine() const=0;
-    virtual QString killProcessCommandLine(const RemoteProcess &process) const=0;
-    virtual QList<RemoteProcess> buildProcessList(const QString &listProcessesReply) const=0;
+    virtual QString listProcessesCommandLine() const = 0;
+    virtual QString killProcessCommandLine(const RemoteProcess &process) const = 0;
+    virtual QList<RemoteProcess> buildProcessList(const QString &listProcessesReply) const = 0;
 
     void startProcess(const QString &cmdLine);
     void setFinished();
 
-    Internal::AbstractRemoteLinuxProcessListPrivate * const m_d;
+    Internal::AbstractRemoteLinuxProcessListPrivate * const d;
 };
 
 

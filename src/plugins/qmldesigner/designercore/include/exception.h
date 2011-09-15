@@ -48,7 +48,7 @@ public:
               const QString &file);
     virtual ~Exception();
 
-    virtual QString type() const=0;
+    virtual QString type() const = 0;
     virtual QString description() const;
 
     int line() const;

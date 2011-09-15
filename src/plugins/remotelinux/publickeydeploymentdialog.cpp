@@ -52,15 +52,15 @@ using namespace Internal;
 
 PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const LinuxDeviceConfiguration::ConstPtr &deviceConfig,
         QWidget *parent)
-    : QProgressDialog(parent), m_d(new PublicKeyDeploymentDialogPrivate)
+    : QProgressDialog(parent), d(new PublicKeyDeploymentDialogPrivate)
 {
     setAutoReset(false);
     setAutoClose(false);
     setMinimumDuration(0);
     setMaximum(1);
 
-    m_d->keyDeployer = new SshKeyDeployer(this);
-    m_d->done = false;
+    d->keyDeployer = new SshKeyDeployer(this);
+    d->done = false;
 
     setLabelText(tr("Waiting for file name..."));
     const Utils::SshConnectionParameters sshParams = deviceConfig->sshParameters();
@@ -76,21 +76,21 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const LinuxDeviceConfigurat
     setLabelText(tr("Deploying..."));
     setValue(0);
     connect(this, SIGNAL(canceled()), SLOT(handleCanceled()));
-    connect(m_d->keyDeployer, SIGNAL(error(QString)), SLOT(handleDeploymentError(QString)));
-    connect(m_d->keyDeployer, SIGNAL(finishedSuccessfully()), SLOT(handleDeploymentSuccess()));
-    m_d->keyDeployer->deployPublicKey(sshParams, publicKeyFileName);
+    connect(d->keyDeployer, SIGNAL(error(QString)), SLOT(handleDeploymentError(QString)));
+    connect(d->keyDeployer, SIGNAL(finishedSuccessfully()), SLOT(handleDeploymentSuccess()));
+    d->keyDeployer->deployPublicKey(sshParams, publicKeyFileName);
 }
 
 PublicKeyDeploymentDialog::~PublicKeyDeploymentDialog()
 {
-    delete m_d;
+    delete d;
 }
 
 void PublicKeyDeploymentDialog::handleDeploymentSuccess()
 {
     handleDeploymentFinished(QString());
     setValue(1);
-    m_d->done = true;
+    d->done = true;
 }
 
 void PublicKeyDeploymentDialog::handleDeploymentError(const QString &errorMsg)
@@ -115,9 +115,9 @@ void PublicKeyDeploymentDialog::handleDeploymentFinished(const QString &errorMsg
 
 void PublicKeyDeploymentDialog::handleCanceled()
 {
-    disconnect(m_d->keyDeployer, 0, this, 0);
-    m_d->keyDeployer->stopDeployment();
-    if (m_d->done)
+    disconnect(d->keyDeployer, 0, this, 0);
+    d->keyDeployer->stopDeployment();
+    if (d->done)
         accept();
     else
         reject();

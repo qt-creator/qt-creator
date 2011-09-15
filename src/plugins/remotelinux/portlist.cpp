@@ -135,17 +135,17 @@ public:
 
 } // namespace Internal
 
-PortList::PortList() : m_d(new Internal::PortListPrivate)
+PortList::PortList() : d(new Internal::PortListPrivate)
 {
 }
 
-PortList::PortList(const PortList &other) : m_d(new Internal::PortListPrivate(*other.m_d))
+PortList::PortList(const PortList &other) : d(new Internal::PortListPrivate(*other.d))
 {
 }
 
 PortList &PortList::operator=(const PortList &other)
 {
-    *m_d = *other.m_d;
+    *d = *other.d;
     return *this;
 }
 
@@ -158,14 +158,14 @@ void PortList::addPort(int port) { addRange(port, port); }
 
 void PortList::addRange(int startPort, int endPort)
 {
-    m_d->ranges << Internal::Range(startPort, endPort);
+    d->ranges << Internal::Range(startPort, endPort);
 }
 
-bool PortList::hasMore() const { return !m_d->ranges.isEmpty(); }
+bool PortList::hasMore() const { return !d->ranges.isEmpty(); }
 
 bool PortList::contains(int port) const
 {
-    foreach (const Internal::Range &r, m_d->ranges) {
+    foreach (const Internal::Range &r, d->ranges) {
         if (port >= r.first && port <= r.second)
             return true;
     }
@@ -175,26 +175,26 @@ bool PortList::contains(int port) const
 int PortList::count() const
 {
     int n = 0;
-    foreach (const Internal::Range &r, m_d->ranges)
+    foreach (const Internal::Range &r, d->ranges)
         n += r.second - r.first + 1;
     return n;
 }
 
 int PortList::getNext()
 {
-    Q_ASSERT(!m_d->ranges.isEmpty());
+    Q_ASSERT(!d->ranges.isEmpty());
 
-    Internal::Range &firstRange = m_d->ranges.first();
+    Internal::Range &firstRange = d->ranges.first();
     const int next = firstRange.first++;
     if (firstRange.first > firstRange.second)
-        m_d->ranges.removeFirst();
+        d->ranges.removeFirst();
     return next;
 }
 
 QString PortList::toString() const
 {
     QString stringRep;
-    foreach (const Internal::Range &range, m_d->ranges) {
+    foreach (const Internal::Range &range, d->ranges) {
         stringRep += QString::number(range.first);
         if (range.second != range.first)
             stringRep += QLatin1Char('-') + QString::number(range.second);

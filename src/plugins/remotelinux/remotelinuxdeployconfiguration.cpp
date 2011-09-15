@@ -62,9 +62,9 @@ using namespace Internal;
 
 RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
         const QString &id, const QString &defaultDisplayName, const QString &supportedOsType)
-    : DeployConfiguration(target, id), m_d(new RemoteLinuxDeployConfigurationPrivate)
+    : DeployConfiguration(target, id), d(new RemoteLinuxDeployConfigurationPrivate)
 {
-    m_d->supportedOsType = supportedOsType;
+    d->supportedOsType = supportedOsType;
     setDefaultDisplayName(defaultDisplayName);
 
     // A DeploymentInfo object is only dependent on the active build
@@ -77,14 +77,14 @@ RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::
         const RemoteLinuxDeployConfiguration * const mdc
             = qobject_cast<const RemoteLinuxDeployConfiguration *>(dc);
         if (mdc) {
-            m_d->deploymentInfo = mdc->deploymentInfo();
-            m_d->devConfModel = mdc->m_d->devConfModel;
+            d->deploymentInfo = mdc->deploymentInfo();
+            d->devConfModel = mdc->d->devConfModel;
             break;
         }
     }
-    if (!m_d->deploymentInfo) {
-        m_d->deploymentInfo = QSharedPointer<DeploymentInfo>(new DeploymentInfo(qobject_cast<Qt4BaseTarget *>(target)));
-        m_d->devConfModel = QSharedPointer<TypeSpecificDeviceConfigurationListModel>
+    if (!d->deploymentInfo) {
+        d->deploymentInfo = QSharedPointer<DeploymentInfo>(new DeploymentInfo(qobject_cast<Qt4BaseTarget *>(target)));
+        d->devConfModel = QSharedPointer<TypeSpecificDeviceConfigurationListModel>
             (new TypeSpecificDeviceConfigurationListModel(supportedOsType));
     }
 
@@ -93,34 +93,34 @@ RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::
 
 RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
         RemoteLinuxDeployConfiguration *source)
-    : DeployConfiguration(target, source), m_d(new RemoteLinuxDeployConfigurationPrivate)
+    : DeployConfiguration(target, source), d(new RemoteLinuxDeployConfigurationPrivate)
 {
-    m_d->supportedOsType = source->supportedOsType();
-    m_d->deploymentInfo = source->deploymentInfo();
-    m_d->devConfModel = source->deviceConfigModel();
+    d->supportedOsType = source->supportedOsType();
+    d->deploymentInfo = source->deploymentInfo();
+    d->devConfModel = source->deviceConfigModel();
     initialize();
 }
 
 RemoteLinuxDeployConfiguration::~RemoteLinuxDeployConfiguration()
 {
-    delete m_d;
+    delete d;
 }
 
 void RemoteLinuxDeployConfiguration::initialize()
 {
-    m_d->deviceConfiguration = deviceConfigModel()->defaultDeviceConfig();
+    d->deviceConfiguration = deviceConfigModel()->defaultDeviceConfig();
     connect(deviceConfigModel().data(), SIGNAL(updated()),
         SLOT(handleDeviceConfigurationListUpdated()));
 }
 
 void RemoteLinuxDeployConfiguration::handleDeviceConfigurationListUpdated()
 {
-    setDeviceConfig(LinuxDeviceConfigurations::instance()->internalId(m_d->deviceConfiguration));
+    setDeviceConfig(LinuxDeviceConfigurations::instance()->internalId(d->deviceConfiguration));
 }
 
 void RemoteLinuxDeployConfiguration::setDeviceConfig(LinuxDeviceConfiguration::Id internalId)
 {
-    m_d->deviceConfiguration = deviceConfigModel()->find(internalId);
+    d->deviceConfiguration = deviceConfigModel()->find(internalId);
     emit deviceConfigurationListChanged();
     emit currentDeviceConfigurationChanged();
 }
@@ -138,15 +138,15 @@ QVariantMap RemoteLinuxDeployConfiguration::toMap() const
 {
     QVariantMap map = DeployConfiguration::toMap();
     map.insert(QLatin1String(DeviceIdKey),
-        LinuxDeviceConfigurations::instance()->internalId(m_d->deviceConfiguration));
+        LinuxDeviceConfigurations::instance()->internalId(d->deviceConfiguration));
     return map;
 }
 
 void RemoteLinuxDeployConfiguration::setDeviceConfiguration(int index)
 {
     const LinuxDeviceConfiguration::ConstPtr &newDevConf = deviceConfigModel()->deviceAt(index);
-    if (m_d->deviceConfiguration != newDevConf) {
-        m_d->deviceConfiguration = newDevConf;
+    if (d->deviceConfiguration != newDevConf) {
+        d->deviceConfiguration = newDevConf;
         emit currentDeviceConfigurationChanged();
     }
 }
@@ -158,22 +158,22 @@ DeployConfigurationWidget *RemoteLinuxDeployConfiguration::configurationWidget()
 
 QSharedPointer<DeploymentInfo> RemoteLinuxDeployConfiguration::deploymentInfo() const
 {
-    return m_d->deploymentInfo;
+    return d->deploymentInfo;
 }
 
 QSharedPointer<TypeSpecificDeviceConfigurationListModel> RemoteLinuxDeployConfiguration::deviceConfigModel() const
 {
-    return m_d->devConfModel;
+    return d->devConfModel;
 }
 
 LinuxDeviceConfiguration::ConstPtr RemoteLinuxDeployConfiguration::deviceConfiguration() const
 {
-    return m_d->deviceConfiguration;
+    return d->deviceConfiguration;
 }
 
 QString RemoteLinuxDeployConfiguration::supportedOsType() const
 {
-    return m_d->supportedOsType;
+    return d->supportedOsType;
 }
 
 } // namespace RemoteLinux

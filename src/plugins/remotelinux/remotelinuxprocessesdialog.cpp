@@ -58,32 +58,32 @@ using namespace Internal;
 
 RemoteLinuxProcessesDialog::RemoteLinuxProcessesDialog(AbstractRemoteLinuxProcessList *processList,
         QWidget *parent)
-    : QDialog(parent), m_d(new RemoteLinuxProcessesDialogPrivate(processList))
+    : QDialog(parent), d(new RemoteLinuxProcessesDialogPrivate(processList))
 {
     processList->setParent(this);
 
-    m_d->ui.setupUi(this);
-    m_d->ui.tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_d->proxyModel.setSourceModel(m_d->processList);
-    m_d->proxyModel.setDynamicSortFilter(true);
-    m_d->proxyModel.setFilterKeyColumn(1);
-    m_d->ui.tableView->setModel(&m_d->proxyModel);
-    connect(m_d->ui.processFilterLineEdit, SIGNAL(textChanged(QString)),
-        &m_d->proxyModel, SLOT(setFilterRegExp(QString)));
+    d->ui.setupUi(this);
+    d->ui.tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    d->proxyModel.setSourceModel(d->processList);
+    d->proxyModel.setDynamicSortFilter(true);
+    d->proxyModel.setFilterKeyColumn(1);
+    d->ui.tableView->setModel(&d->proxyModel);
+    connect(d->ui.processFilterLineEdit, SIGNAL(textChanged(QString)),
+        &d->proxyModel, SLOT(setFilterRegExp(QString)));
 
-    connect(m_d->ui.tableView->selectionModel(),
+    connect(d->ui.tableView->selectionModel(),
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
         SLOT(handleSelectionChanged()));
-    connect(m_d->ui.updateListButton, SIGNAL(clicked()),
+    connect(d->ui.updateListButton, SIGNAL(clicked()),
         SLOT(updateProcessList()));
-    connect(m_d->ui.killProcessButton, SIGNAL(clicked()), SLOT(killProcess()));
-    connect(m_d->processList, SIGNAL(error(QString)),
+    connect(d->ui.killProcessButton, SIGNAL(clicked()), SLOT(killProcess()));
+    connect(d->processList, SIGNAL(error(QString)),
         SLOT(handleRemoteError(QString)));
-    connect(m_d->processList, SIGNAL(modelReset()),
+    connect(d->processList, SIGNAL(modelReset()),
         SLOT(handleProcessListUpdated()));
-    connect(m_d->processList, SIGNAL(processKilled()),
+    connect(d->processList, SIGNAL(processKilled()),
         SLOT(handleProcessKilled()), Qt::QueuedConnection);
-    connect(&m_d->proxyModel, SIGNAL(layoutChanged()),
+    connect(&d->proxyModel, SIGNAL(layoutChanged()),
         SLOT(handleProcessListUpdated()));
     handleSelectionChanged();
     updateProcessList();
@@ -91,39 +91,39 @@ RemoteLinuxProcessesDialog::RemoteLinuxProcessesDialog(AbstractRemoteLinuxProces
 
 RemoteLinuxProcessesDialog::~RemoteLinuxProcessesDialog()
 {
-    delete m_d;
+    delete d;
 }
 
 void RemoteLinuxProcessesDialog::handleRemoteError(const QString &errorMsg)
 {
     QMessageBox::critical(this, tr("Remote Error"), errorMsg);
-    m_d->ui.updateListButton->setEnabled(true);
+    d->ui.updateListButton->setEnabled(true);
     handleSelectionChanged();
 }
 
 void RemoteLinuxProcessesDialog::handleProcessListUpdated()
 {
-    m_d->ui.updateListButton->setEnabled(true);
-    m_d->ui.tableView->resizeRowsToContents();
+    d->ui.updateListButton->setEnabled(true);
+    d->ui.tableView->resizeRowsToContents();
     handleSelectionChanged();
 }
 
 void RemoteLinuxProcessesDialog::updateProcessList()
 {
-    m_d->ui.updateListButton->setEnabled(false);
-    m_d->ui.killProcessButton->setEnabled(false);
-    m_d->processList->update();
+    d->ui.updateListButton->setEnabled(false);
+    d->ui.killProcessButton->setEnabled(false);
+    d->processList->update();
 }
 
 void RemoteLinuxProcessesDialog::killProcess()
 {
     const QModelIndexList &indexes
-        = m_d->ui.tableView->selectionModel()->selectedIndexes();
+        = d->ui.tableView->selectionModel()->selectedIndexes();
     if (indexes.empty())
         return;
-    m_d->ui.updateListButton->setEnabled(false);
-    m_d->ui.killProcessButton->setEnabled(false);
-    m_d->processList->killProcess(m_d->proxyModel.mapToSource(indexes.first()).row());
+    d->ui.updateListButton->setEnabled(false);
+    d->ui.killProcessButton->setEnabled(false);
+    d->processList->killProcess(d->proxyModel.mapToSource(indexes.first()).row());
 }
 
 void RemoteLinuxProcessesDialog::handleProcessKilled()
@@ -133,7 +133,7 @@ void RemoteLinuxProcessesDialog::handleProcessKilled()
 
 void RemoteLinuxProcessesDialog::handleSelectionChanged()
 {
-    m_d->ui.killProcessButton->setEnabled(m_d->ui.tableView->selectionModel()->hasSelection());
+    d->ui.killProcessButton->setEnabled(d->ui.tableView->selectionModel()->hasSelection());
 }
 
 } // namespace RemoteLinux

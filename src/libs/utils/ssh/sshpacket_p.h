@@ -120,8 +120,8 @@ public:
 protected:
     AbstractSshPacket();
 
-    virtual quint32 cipherBlockSize() const=0;
-    virtual quint32 macLength() const=0;
+    virtual quint32 cipherBlockSize() const = 0;
+    virtual quint32 macLength() const = 0;
     virtual void calculateLength() const;
 
     quint32 length() const;

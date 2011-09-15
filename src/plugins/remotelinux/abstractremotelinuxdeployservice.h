@@ -96,7 +96,7 @@ private slots:
 private:
     Q_SIGNAL void finished();
 
-    virtual bool isDeploymentNecessary() const=0;
+    virtual bool isDeploymentNecessary() const = 0;
 
     // Should do things needed *before* connecting. Call handleDeviceSetupDone() afterwards.
     virtual void doDeviceSetup()=0;
@@ -107,7 +107,7 @@ private:
 
     void setFinished();
 
-    Internal::AbstractRemoteLinuxDeployServicePrivate * const m_d;
+    Internal::AbstractRemoteLinuxDeployServicePrivate * const d;
 };
 
 } // namespace RemoteLinux

@@ -61,7 +61,7 @@ public:
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     RemoteLinuxDeployConfiguration *deployConfiguration() const;
 
-    virtual AbstractRemoteLinuxDeployService *deployService() const=0;
+    virtual AbstractRemoteLinuxDeployService *deployService() const = 0;
     virtual bool isDeploymentPossible(QString *whyNot = 0) const;
 
 protected:

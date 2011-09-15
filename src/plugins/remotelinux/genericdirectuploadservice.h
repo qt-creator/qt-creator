@@ -76,7 +76,7 @@ private:
     void setFinished();
     void uploadNextFile();
 
-    Internal::GenericDirectUploadServicePrivate * const m_d;
+    Internal::GenericDirectUploadServicePrivate * const d;
 };
 
 } //namespace RemoteLinux

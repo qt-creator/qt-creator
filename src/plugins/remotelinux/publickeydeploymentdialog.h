@@ -63,7 +63,7 @@ private slots:
 private:
     void handleDeploymentFinished(const QString &errorMsg);
 
-    Internal::PublicKeyDeploymentDialogPrivate * const m_d;
+    Internal::PublicKeyDeploymentDialogPrivate * const d;
 };
 
 } // namespace RemoteLinux

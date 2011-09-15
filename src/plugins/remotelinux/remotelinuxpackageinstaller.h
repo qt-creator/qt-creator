@@ -73,15 +73,15 @@ private slots:
     void handleInstallerErrorOutput(const QByteArray &output);
 
 private:
-    virtual QString installCommandLine(const QString &packageFilePath) const=0;
-    virtual QString cancelInstallationCommandLine() const=0;
+    virtual QString installCommandLine(const QString &packageFilePath) const = 0;
+    virtual QString cancelInstallationCommandLine() const = 0;
 
     virtual void prepareInstallation() {}
     virtual QString errorString() const { return QString(); }
 
     void setFinished();
 
-    Internal::AbstractRemoteLinuxPackageInstallerPrivate * const m_d;
+    Internal::AbstractRemoteLinuxPackageInstallerPrivate * const d;
 };
 
 

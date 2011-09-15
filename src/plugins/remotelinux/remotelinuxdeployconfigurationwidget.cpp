@@ -58,102 +58,102 @@ public:
 using namespace Internal;
 
 RemoteLinuxDeployConfigurationWidget::RemoteLinuxDeployConfigurationWidget(QWidget *parent) :
-    DeployConfigurationWidget(parent), m_d(new RemoteLinuxDeployConfigurationWidgetPrivate)
+    DeployConfigurationWidget(parent), d(new RemoteLinuxDeployConfigurationWidgetPrivate)
 {
-    m_d->ui.setupUi(this);
+    d->ui.setupUi(this);
 }
 
 RemoteLinuxDeployConfigurationWidget::~RemoteLinuxDeployConfigurationWidget()
 {
-    delete m_d;
+    delete d;
 }
 
 void RemoteLinuxDeployConfigurationWidget::init(DeployConfiguration *dc)
 {
-    m_d->deployConfiguration = qobject_cast<RemoteLinuxDeployConfiguration *>(dc);
-    Q_ASSERT(m_d->deployConfiguration);
+    d->deployConfiguration = qobject_cast<RemoteLinuxDeployConfiguration *>(dc);
+    Q_ASSERT(d->deployConfiguration);
 
-    connect(m_d->ui.manageDevConfsLabel, SIGNAL(linkActivated(QString)),
+    connect(d->ui.manageDevConfsLabel, SIGNAL(linkActivated(QString)),
         SLOT(showDeviceConfigurations()));
 
-    m_d->ui.deviceConfigsComboBox->setModel(m_d->deployConfiguration->deviceConfigModel().data());
-    connect(m_d->ui.deviceConfigsComboBox, SIGNAL(activated(int)),
+    d->ui.deviceConfigsComboBox->setModel(d->deployConfiguration->deviceConfigModel().data());
+    connect(d->ui.deviceConfigsComboBox, SIGNAL(activated(int)),
         SLOT(handleSelectedDeviceConfigurationChanged(int)));
-    connect(m_d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()),
+    connect(d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()),
         SLOT(handleDeviceConfigurationListChanged()));
     handleDeviceConfigurationListChanged();
 
-    m_d->ui.projectsComboBox->setModel(m_d->deployConfiguration->deploymentInfo().data());
-    connect(m_d->deployConfiguration->deploymentInfo().data(), SIGNAL(modelAboutToBeReset()),
+    d->ui.projectsComboBox->setModel(d->deployConfiguration->deploymentInfo().data());
+    connect(d->deployConfiguration->deploymentInfo().data(), SIGNAL(modelAboutToBeReset()),
         SLOT(handleModelListToBeReset()));
 
     // Queued connection because of race condition with combo box's reaction
     // to modelReset().
-    connect(m_d->deployConfiguration->deploymentInfo().data(), SIGNAL(modelReset()),
+    connect(d->deployConfiguration->deploymentInfo().data(), SIGNAL(modelReset()),
         SLOT(handleModelListReset()), Qt::QueuedConnection);
 
-    connect(m_d->ui.projectsComboBox, SIGNAL(currentIndexChanged(int)), SLOT(setModel(int)));
+    connect(d->ui.projectsComboBox, SIGNAL(currentIndexChanged(int)), SLOT(setModel(int)));
     handleModelListReset();
 }
 
 RemoteLinuxDeployConfiguration *RemoteLinuxDeployConfigurationWidget::deployConfiguration() const
 {
-    return m_d->deployConfiguration;
+    return d->deployConfiguration;
 }
 
 DeployableFilesPerProFile *RemoteLinuxDeployConfigurationWidget::currentModel() const
 {
-    const int modelRow = m_d->ui.projectsComboBox->currentIndex();
+    const int modelRow = d->ui.projectsComboBox->currentIndex();
     if (modelRow == -1)
         return 0;
-    return m_d->deployConfiguration->deploymentInfo()->modelAt(modelRow);
+    return d->deployConfiguration->deploymentInfo()->modelAt(modelRow);
 }
 
 void RemoteLinuxDeployConfigurationWidget::handleModelListToBeReset()
 {
-    m_d->ui.tableView->setModel(0);
+    d->ui.tableView->setModel(0);
 }
 
 void RemoteLinuxDeployConfigurationWidget::handleModelListReset()
 {
-    QTC_ASSERT(m_d->deployConfiguration->deploymentInfo()->modelCount()
-        == m_d->ui.projectsComboBox->count(), return);
+    QTC_ASSERT(d->deployConfiguration->deploymentInfo()->modelCount()
+        == d->ui.projectsComboBox->count(), return);
 
-    if (m_d->deployConfiguration->deploymentInfo()->modelCount() > 0) {
-        if (m_d->ui.projectsComboBox->currentIndex() == -1)
-            m_d->ui.projectsComboBox->setCurrentIndex(0);
+    if (d->deployConfiguration->deploymentInfo()->modelCount() > 0) {
+        if (d->ui.projectsComboBox->currentIndex() == -1)
+            d->ui.projectsComboBox->setCurrentIndex(0);
         else
-            setModel(m_d->ui.projectsComboBox->currentIndex());
+            setModel(d->ui.projectsComboBox->currentIndex());
     }
 }
 
 void RemoteLinuxDeployConfigurationWidget::setModel(int row)
 {
     DeployableFilesPerProFile * const proFileInfo = row == -1
-        ? 0 : m_d->deployConfiguration->deploymentInfo()->modelAt(row);
-    m_d->ui.tableView->setModel(proFileInfo);
+        ? 0 : d->deployConfiguration->deploymentInfo()->modelAt(row);
+    d->ui.tableView->setModel(proFileInfo);
     if (proFileInfo)
-        m_d->ui.tableView->resizeRowsToContents();
+        d->ui.tableView->resizeRowsToContents();
     emit currentModelChanged(proFileInfo);
 }
 
 void RemoteLinuxDeployConfigurationWidget::handleSelectedDeviceConfigurationChanged(int index)
 {
-    disconnect(m_d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()), this,
+    disconnect(d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()), this,
         SLOT(handleDeviceConfigurationListChanged()));
-    m_d->deployConfiguration->setDeviceConfiguration(index);
-    connect(m_d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()),
+    d->deployConfiguration->setDeviceConfiguration(index);
+    connect(d->deployConfiguration, SIGNAL(deviceConfigurationListChanged()),
         SLOT(handleDeviceConfigurationListChanged()));
 }
 
 void RemoteLinuxDeployConfigurationWidget::handleDeviceConfigurationListChanged()
 {
     const LinuxDeviceConfiguration::ConstPtr &devConf
-        = m_d->deployConfiguration->deviceConfiguration();
+        = d->deployConfiguration->deviceConfiguration();
     const LinuxDeviceConfiguration::Id internalId
         = LinuxDeviceConfigurations::instance()->internalId(devConf);
-    const int newIndex = m_d->deployConfiguration->deviceConfigModel()->indexForInternalId(internalId);
-    m_d->ui.deviceConfigsComboBox->setCurrentIndex(newIndex);
+    const int newIndex = d->deployConfiguration->deviceConfigModel()->indexForInternalId(internalId);
+    d->ui.deviceConfigsComboBox->setCurrentIndex(newIndex);
 }
 
 void RemoteLinuxDeployConfigurationWidget::showDeviceConfigurations()

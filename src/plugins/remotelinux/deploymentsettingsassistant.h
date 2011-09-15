@@ -64,7 +64,7 @@ private slots:
 private:
     bool addLinesToProFile(const DeployableFilesPerProFile *proFileInfo, const QStringList &lines);
 
-    Internal::DeploymentSettingsAssistantInternal * const m_d;
+    Internal::DeploymentSettingsAssistantInternal * const d;
 };
 
 } // namespace RemoteLinux

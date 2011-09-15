@@ -60,7 +60,7 @@ public:
     static QString regularExpression();
 
 private:
-    Internal::PortListPrivate * const m_d;
+    Internal::PortListPrivate * const d;
 };
 
 } // namespace RemoteLinux

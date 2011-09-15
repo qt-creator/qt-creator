@@ -82,7 +82,7 @@ private:
     void addGenericWidgets(QVBoxLayout *mainLayout);
     void addEnvironmentWidgets(QVBoxLayout *mainLayout);
 
-    Internal::RemoteLinuxRunConfigurationWidgetPrivate * const m_d;
+    Internal::RemoteLinuxRunConfigurationWidgetPrivate * const d;
 };
 
 } // namespace RemoteLinux

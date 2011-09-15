@@ -69,7 +69,7 @@ private slots:
     void showDeviceConfigurations();
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const m_d;
+    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
 };
 
 } // namespace RemoteLinux

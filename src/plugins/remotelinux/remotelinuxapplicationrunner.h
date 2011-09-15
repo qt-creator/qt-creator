@@ -105,7 +105,7 @@ private slots:
 
 private:
 
-    virtual QString killApplicationCommandLine() const=0;
+    virtual QString killApplicationCommandLine() const = 0;
 
     // Implement to do custom setup of the device *before* connecting.
     // Call handleDeviceSetupDone() afterwards.
@@ -127,7 +127,7 @@ private:
     void emitError(const QString &errorMsg, bool force = false);
     void cleanup();
 
-    Internal::AbstractRemoteLinuxApplicationRunnerPrivate * const m_d;
+    Internal::AbstractRemoteLinuxApplicationRunnerPrivate * const d;
 };
 
 

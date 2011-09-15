@@ -81,39 +81,39 @@ public:
 using namespace Internal;
 
 AbstractRemoteLinuxDeployService::AbstractRemoteLinuxDeployService(QObject *parent)
-    : QObject(parent), m_d(new AbstractRemoteLinuxDeployServicePrivate)
+    : QObject(parent), d(new AbstractRemoteLinuxDeployServicePrivate)
 {
 }
 
 AbstractRemoteLinuxDeployService::~AbstractRemoteLinuxDeployService()
 {
-    delete m_d;
+    delete d;
 }
 
 const Qt4BuildConfiguration *AbstractRemoteLinuxDeployService::qt4BuildConfiguration() const
 {
-    return m_d->buildConfiguration;
+    return d->buildConfiguration;
 }
 
 LinuxDeviceConfiguration::ConstPtr AbstractRemoteLinuxDeployService::deviceConfiguration() const
 {
-    return m_d->deviceConfiguration;
+    return d->deviceConfiguration;
 }
 
 SshConnection::Ptr AbstractRemoteLinuxDeployService::connection() const
 {
-    return m_d->connection;
+    return d->connection;
 }
 
 void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableFile &deployableFile)
 {
-    m_d->lastDeployed.insert(DeployablePerHost(deployableFile,
+    d->lastDeployed.insert(DeployablePerHost(deployableFile,
         deviceConfiguration()->sshParameters().host), QDateTime::currentDateTime());
 }
 
 bool AbstractRemoteLinuxDeployService::hasChangedSinceLastDeployment(const DeployableFile &deployableFile) const
 {
-    const QDateTime &lastDeployed = m_d->lastDeployed.value(DeployablePerHost(deployableFile,
+    const QDateTime &lastDeployed = d->lastDeployed.value(DeployablePerHost(deployableFile,
         deviceConfiguration()->sshParameters().host));
     return !lastDeployed.isValid()
         || QFileInfo(deployableFile.localFilePath).lastModified() > lastDeployed;
@@ -121,17 +121,17 @@ bool AbstractRemoteLinuxDeployService::hasChangedSinceLastDeployment(const Deplo
 
 void AbstractRemoteLinuxDeployService::setDeviceConfiguration(const LinuxDeviceConfiguration::ConstPtr &deviceConfiguration)
 {
-    m_d->deviceConfiguration = deviceConfiguration;
+    d->deviceConfiguration = deviceConfiguration;
 }
 
 void AbstractRemoteLinuxDeployService::setBuildConfiguration(Qt4BuildConfiguration *bc)
 {
-    m_d->buildConfiguration = bc;
+    d->buildConfiguration = bc;
 }
 
 void AbstractRemoteLinuxDeployService::start()
 {
-    QTC_ASSERT(m_d->state == Inactive, return);
+    QTC_ASSERT(d->state == Inactive, return);
 
     QString errorMsg;
     if (!isDeploymentPossible(&errorMsg)) {
@@ -146,27 +146,27 @@ void AbstractRemoteLinuxDeployService::start()
         return;
     }
 
-    m_d->state = SettingUpDevice;
+    d->state = SettingUpDevice;
     doDeviceSetup();
 }
 
 void AbstractRemoteLinuxDeployService::stop()
 {
-    if (m_d->stopRequested)
+    if (d->stopRequested)
         return;
 
-    switch (m_d->state) {
+    switch (d->state) {
     case Inactive:
         break;
     case SettingUpDevice:
-        m_d->stopRequested = true;
+        d->stopRequested = true;
         stopDeviceSetup();
         break;
     case Connecting:
         setFinished();
         break;
     case Deploying:
-        m_d->stopRequested = true;
+        d->stopRequested = true;
         stopDeployment();
         break;
     }
@@ -190,7 +190,7 @@ QVariantMap AbstractRemoteLinuxDeployService::exportDeployTimes() const
     QVariantList remotePathList;
     QVariantList timeList;
     typedef QHash<DeployablePerHost, QDateTime>::ConstIterator DepIt;
-    for (DepIt it = m_d->lastDeployed.begin(); it != m_d->lastDeployed.end(); ++it) {
+    for (DepIt it = d->lastDeployed.begin(); it != d->lastDeployed.end(); ++it) {
         fileList << it.key().first.localFilePath;
         remotePathList << it.key().first.remoteDir;
         hostList << it.key().second;
@@ -214,64 +214,64 @@ void AbstractRemoteLinuxDeployService::importDeployTimes(const QVariantMap &map)
         = qMin(qMin(hostList.size(), fileList.size()),
             qMin(remotePathList.size(), timeList.size()));
     for (int i = 0; i < elemCount; ++i) {
-        const DeployableFile d(fileList.at(i).toString(), remotePathList.at(i).toString());
-        m_d->lastDeployed.insert(DeployablePerHost(d, hostList.at(i).toString()),
+        const DeployableFile df(fileList.at(i).toString(), remotePathList.at(i).toString());
+        d->lastDeployed.insert(DeployablePerHost(df, hostList.at(i).toString()),
             timeList.at(i).toDateTime());
     }
 }
 
 void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)
 {
-    QTC_ASSERT(m_d->state == SettingUpDevice, return);
+    QTC_ASSERT(d->state == SettingUpDevice, return);
 
-    if (!success || m_d->stopRequested) {
+    if (!success || d->stopRequested) {
         setFinished();
         return;
     }
 
-    m_d->state = Connecting;
-    m_d->connection = SshConnectionManager::instance().acquireConnection(m_d->deviceConfiguration->sshParameters());
-    connect(m_d->connection.data(), SIGNAL(error(Utils::SshError)),
+    d->state = Connecting;
+    d->connection = SshConnectionManager::instance().acquireConnection(d->deviceConfiguration->sshParameters());
+    connect(d->connection.data(), SIGNAL(error(Utils::SshError)),
         SLOT(handleConnectionFailure()));
-    if (m_d->connection->state() == SshConnection::Connected) {
+    if (d->connection->state() == SshConnection::Connected) {
         handleConnected();
     } else {
-        connect(m_d->connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
+        connect(d->connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
         emit progressMessage(tr("Connecting to device..."));
-        if (m_d->connection->state() == SshConnection::Unconnected)
-            m_d->connection->connectToHost();
+        if (d->connection->state() == SshConnection::Unconnected)
+            d->connection->connectToHost();
     }
 }
 
 void AbstractRemoteLinuxDeployService::handleDeploymentDone()
 {
-    QTC_ASSERT(m_d->state == Deploying, return);
+    QTC_ASSERT(d->state == Deploying, return);
 
     setFinished();
 }
 
 void AbstractRemoteLinuxDeployService::handleConnected()
 {
-    QTC_ASSERT(m_d->state == Connecting, return);
+    QTC_ASSERT(d->state == Connecting, return);
 
-    if (m_d->stopRequested) {
+    if (d->stopRequested) {
         setFinished();
         return;
     }
 
-    m_d->state = Deploying;
+    d->state = Deploying;
     doDeploy();
 }
 
 void AbstractRemoteLinuxDeployService::handleConnectionFailure()
 {
-    switch (m_d->state) {
+    switch (d->state) {
     case Inactive:
     case SettingUpDevice:
-        qWarning("%s: Unexpected state %d.", Q_FUNC_INFO, m_d->state);
+        qWarning("%s: Unexpected state %d.", Q_FUNC_INFO, d->state);
         break;
     case Connecting: {
-        QString errorMsg = tr("Could not connect to host: %1").arg(m_d->connection->errorString());
+        QString errorMsg = tr("Could not connect to host: %1").arg(d->connection->errorString());
         if (deviceConfiguration()->deviceType() == LinuxDeviceConfiguration::Emulator)
             errorMsg += tr("\nDid the emulator fail to start?");
         else
@@ -281,20 +281,20 @@ void AbstractRemoteLinuxDeployService::handleConnectionFailure()
         break;
     }
     case Deploying:
-        emit errorMessage(tr("Connection error: %1").arg(m_d->connection->errorString()));
+        emit errorMessage(tr("Connection error: %1").arg(d->connection->errorString()));
         stopDeployment();
     }
 }
 
 void AbstractRemoteLinuxDeployService::setFinished()
 {
-    m_d->state = Inactive;
-    if (m_d->connection) {
-        disconnect(m_d->connection.data(), 0, this, 0);
-        SshConnectionManager::instance().releaseConnection(m_d->connection);
-        m_d->connection = SshConnection::Ptr();
+    d->state = Inactive;
+    if (d->connection) {
+        disconnect(d->connection.data(), 0, this, 0);
+        SshConnectionManager::instance().releaseConnection(d->connection);
+        d->connection = SshConnection::Ptr();
     }
-    m_d->stopRequested = false;
+    d->stopRequested = false;
     emit finished();
 }
 

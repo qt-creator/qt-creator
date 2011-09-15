@@ -68,23 +68,23 @@ using namespace Internal;
 
 AbstractUploadAndInstallPackageService::AbstractUploadAndInstallPackageService(QObject *parent)
     : AbstractRemoteLinuxDeployService(parent),
-      m_d(new AbstractUploadAndInstallPackageServicePrivate)
+      d(new AbstractUploadAndInstallPackageServicePrivate)
 {
 }
 
 AbstractUploadAndInstallPackageService::~AbstractUploadAndInstallPackageService()
 {
-    delete m_d;
+    delete d;
 }
 
 void AbstractUploadAndInstallPackageService::setPackageFilePath(const QString &filePath)
 {
-    m_d->packageFilePath = filePath;
+    d->packageFilePath = filePath;
 }
 
 QString AbstractUploadAndInstallPackageService::packageFilePath() const
 {
-    return m_d->packageFilePath;
+    return d->packageFilePath;
 }
 
 QString AbstractUploadAndInstallPackageService::uploadDir() const
@@ -99,38 +99,38 @@ bool AbstractUploadAndInstallPackageService::isDeploymentNecessary() const
 
 void AbstractUploadAndInstallPackageService::doDeviceSetup()
 {
-    QTC_ASSERT(m_d->state == Inactive, return);
+    QTC_ASSERT(d->state == Inactive, return);
 
     handleDeviceSetupDone(true);
 }
 
 void AbstractUploadAndInstallPackageService::stopDeviceSetup()
 {
-    QTC_ASSERT(m_d->state == Inactive, return);
+    QTC_ASSERT(d->state == Inactive, return);
 
     handleDeviceSetupDone(false);
 }
 
 void AbstractUploadAndInstallPackageService::doDeploy()
 {
-    QTC_ASSERT(m_d->state == Inactive, return);
+    QTC_ASSERT(d->state == Inactive, return);
 
-    m_d->state = Uploading;
+    d->state = Uploading;
     const QString fileName = QFileInfo(packageFilePath()).fileName();
     const QString remoteFilePath = uploadDir() + QLatin1Char('/') + fileName;
-    connect(m_d->uploader, SIGNAL(progress(QString)), SIGNAL(progressMessage(QString)));
-    connect(m_d->uploader, SIGNAL(uploadFinished(QString)), SLOT(handleUploadFinished(QString)));
-    m_d->uploader->uploadPackage(connection(), packageFilePath(), remoteFilePath);
+    connect(d->uploader, SIGNAL(progress(QString)), SIGNAL(progressMessage(QString)));
+    connect(d->uploader, SIGNAL(uploadFinished(QString)), SLOT(handleUploadFinished(QString)));
+    d->uploader->uploadPackage(connection(), packageFilePath(), remoteFilePath);
 }
 
 void AbstractUploadAndInstallPackageService::stopDeployment()
 {
-    switch (m_d->state) {
+    switch (d->state) {
     case Inactive:
         qWarning("%s: Unexpected state 'Inactive'.", Q_FUNC_INFO);
         break;
     case Uploading:
-        m_d->uploader->cancelUpload();
+        d->uploader->cancelUpload();
         setFinished();
         break;
     case Installing:
@@ -142,7 +142,7 @@ void AbstractUploadAndInstallPackageService::stopDeployment()
 
 void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString &errorMsg)
 {
-    QTC_ASSERT(m_d->state == Uploading, return);
+    QTC_ASSERT(d->state == Uploading, return);
 
     if (!errorMsg.isEmpty()) {
         emit errorMessage(errorMsg);
@@ -153,7 +153,7 @@ void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString 
     emit progressMessage(tr("Successfully uploaded package file."));
     const QString remoteFilePath = uploadDir() + QLatin1Char('/')
         + QFileInfo(packageFilePath()).fileName();
-    m_d->state = Installing;
+    d->state = Installing;
     emit progressMessage(tr("Installing package to device..."));
     connect(packageInstaller(), SIGNAL(stdoutData(QString)), SIGNAL(stdOutData(QString)));
     connect(packageInstaller(), SIGNAL(stderrData(QString)), SIGNAL(stdErrData(QString)));
@@ -164,7 +164,7 @@ void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString 
 
 void AbstractUploadAndInstallPackageService::handleInstallationFinished(const QString &errorMsg)
 {
-    QTC_ASSERT(m_d->state == Installing, return);
+    QTC_ASSERT(d->state == Installing, return);
 
     if (errorMsg.isEmpty()) {
         saveDeploymentTimeStamp(DeployableFile(packageFilePath(), QString()));
@@ -177,8 +177,8 @@ void AbstractUploadAndInstallPackageService::handleInstallationFinished(const QS
 
 void AbstractUploadAndInstallPackageService::setFinished()
 {
-    m_d->state = Inactive;
-    disconnect(m_d->uploader, 0, this, 0);
+    d->state = Inactive;
+    disconnect(d->uploader, 0, this, 0);
     disconnect(packageInstaller(), 0, this, 0);
     handleDeploymentDone();
 }

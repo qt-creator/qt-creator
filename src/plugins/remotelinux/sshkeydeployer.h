@@ -67,7 +67,7 @@ private slots:
 private:
     void cleanup();
 
-    Internal::SshKeyDeployerPrivate * const m_d;
+    Internal::SshKeyDeployerPrivate * const d;
 };
 
 } // namespace RemoteLinux

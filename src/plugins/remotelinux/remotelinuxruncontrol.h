@@ -54,7 +54,7 @@ public:
     virtual bool isRunning() const;
     virtual QIcon icon() const;
 
-    virtual AbstractRemoteLinuxApplicationRunner *runner() const=0;
+    virtual AbstractRemoteLinuxApplicationRunner *runner() const = 0;
 
 private slots:
     void startExecution();

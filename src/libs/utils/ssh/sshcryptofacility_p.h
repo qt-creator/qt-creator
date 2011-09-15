@@ -75,15 +75,15 @@ private:
     SshAbstractCryptoFacility(const SshAbstractCryptoFacility &);
     SshAbstractCryptoFacility &operator=(const SshAbstractCryptoFacility &);
 
-    virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const=0;
-    virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const=0;
+    virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const = 0;
+    virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const = 0;
     virtual Botan::BlockCipherMode *makeCipherMode(Botan::BlockCipher *cipher,
         Botan::BlockCipherModePaddingMethod *paddingMethod,
         const Botan::InitializationVector &iv,
         const Botan::SymmetricKey &key)=0;
-    virtual char ivChar() const=0;
-    virtual char keyChar() const=0;
-    virtual char macChar() const=0;
+    virtual char ivChar() const = 0;
+    virtual char keyChar() const = 0;
+    virtual char macChar() const = 0;
 
     QByteArray generateHash(const SshKeyExchange &kex, char c, quint32 length);
     void checkInvariant() const;

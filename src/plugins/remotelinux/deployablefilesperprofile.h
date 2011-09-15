@@ -80,7 +80,7 @@ private:
 
     QStringList localLibraryFilePaths() const;
 
-    Internal::DeployableFilesPerProFilePrivate * const m_d;
+    Internal::DeployableFilesPerProFilePrivate * const d;
 };
 
 } // namespace RemoteLinux

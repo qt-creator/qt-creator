@@ -72,74 +72,74 @@ public:
 using namespace Internal;
 
 GenericDirectUploadService::GenericDirectUploadService(QObject *parent)
-    : AbstractRemoteLinuxDeployService(parent), m_d(new GenericDirectUploadServicePrivate)
+    : AbstractRemoteLinuxDeployService(parent), d(new GenericDirectUploadServicePrivate)
 {
 }
 
 void GenericDirectUploadService::setDeployableFiles(const QList<DeployableFile> &deployableFiles)
 {
-    m_d->deployableFiles = deployableFiles;
+    d->deployableFiles = deployableFiles;
 }
 
 void GenericDirectUploadService::setIncrementalDeployment(bool incremental)
 {
-    m_d->incremental = incremental;
+    d->incremental = incremental;
 }
 
 bool GenericDirectUploadService::isDeploymentNecessary() const
 {
-    m_d->filesToUpload.clear();
-    for (int i = 0; i < m_d->deployableFiles.count(); ++i)
-        checkDeploymentNeeded(m_d->deployableFiles.at(i));
-    return !m_d->filesToUpload.isEmpty();
+    d->filesToUpload.clear();
+    for (int i = 0; i < d->deployableFiles.count(); ++i)
+        checkDeploymentNeeded(d->deployableFiles.at(i));
+    return !d->filesToUpload.isEmpty();
 }
 
 void GenericDirectUploadService::doDeviceSetup()
 {
-    QTC_ASSERT(m_d->state == Inactive, return);
+    QTC_ASSERT(d->state == Inactive, return);
 
     handleDeviceSetupDone(true);
 }
 
 void GenericDirectUploadService::stopDeviceSetup()
 {
-    QTC_ASSERT(m_d->state == Inactive, return);
+    QTC_ASSERT(d->state == Inactive, return);
 
     handleDeviceSetupDone(false);
 }
 
 void GenericDirectUploadService::doDeploy()
 {
-    QTC_ASSERT(m_d->state == Inactive, setFinished(); return);
+    QTC_ASSERT(d->state == Inactive, setFinished(); return);
 
-    m_d->uploader = connection()->createSftpChannel();
-    connect(m_d->uploader.data(), SIGNAL(initialized()), SLOT(handleSftpInitialized()));
-    connect(m_d->uploader.data(), SIGNAL(initializationFailed(QString)),
+    d->uploader = connection()->createSftpChannel();
+    connect(d->uploader.data(), SIGNAL(initialized()), SLOT(handleSftpInitialized()));
+    connect(d->uploader.data(), SIGNAL(initializationFailed(QString)),
         SLOT(handleSftpInitializationFailed(QString)));
-    m_d->uploader->initialize();
-    m_d->state = InitializingSftp;
+    d->uploader->initialize();
+    d->state = InitializingSftp;
 }
 
 void GenericDirectUploadService::handleSftpInitialized()
 {
-    QTC_ASSERT(m_d->state == InitializingSftp, setFinished(); return);
+    QTC_ASSERT(d->state == InitializingSftp, setFinished(); return);
 
-    if (m_d->stopRequested) {
+    if (d->stopRequested) {
         setFinished();
         handleDeploymentDone();
         return;
     }
 
-    Q_ASSERT(!m_d->filesToUpload.isEmpty());
-    connect(m_d->uploader.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
+    Q_ASSERT(!d->filesToUpload.isEmpty());
+    connect(d->uploader.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
         SLOT(handleUploadFinished(Utils::SftpJobId,QString)));
-    m_d->state = Uploading;
+    d->state = Uploading;
     uploadNextFile();
 }
 
 void GenericDirectUploadService::handleSftpInitializationFailed(const QString &message)
 {
-    QTC_ASSERT(m_d->state == InitializingSftp, setFinished(); return);
+    QTC_ASSERT(d->state == InitializingSftp, setFinished(); return);
 
     emit errorMessage(tr("SFTP initialization failed: %1").arg(message));
     setFinished();
@@ -150,26 +150,26 @@ void GenericDirectUploadService::handleUploadFinished(Utils::SftpJobId jobId, co
 {
     Q_UNUSED(jobId);
 
-    QTC_ASSERT(m_d->state == Uploading, setFinished(); return);
+    QTC_ASSERT(d->state == Uploading, setFinished(); return);
 
-    if (m_d->stopRequested) {
+    if (d->stopRequested) {
         setFinished();
         handleDeploymentDone();
     }
 
-    const DeployableFile d = m_d->filesToUpload.takeFirst();
+    const DeployableFile df = d->filesToUpload.takeFirst();
     if (!errorMsg.isEmpty()) {
         emit errorMessage(tr("Upload of file '%1' failed: %2")
-            .arg(QDir::toNativeSeparators(d.localFilePath), errorMsg));
+            .arg(QDir::toNativeSeparators(df.localFilePath), errorMsg));
         setFinished();
         handleDeploymentDone();
     } else {
-        saveDeploymentTimeStamp(d);
+        saveDeploymentTimeStamp(df);
 
         // Terrible hack for Windows.
-        if (d.remoteDir.contains(QLatin1String("bin"))) {
-            const QString remoteFilePath = d.remoteDir + QLatin1Char('/')
-                + QFileInfo(d.localFilePath).fileName();
+        if (df.remoteDir.contains(QLatin1String("bin"))) {
+            const QString remoteFilePath = df.remoteDir + QLatin1Char('/')
+                + QFileInfo(df.localFilePath).fileName();
             const QString command = QLatin1String("chmod a+x ") + remoteFilePath;
             connection()->createRemoteProcess(command.toUtf8())->start();
         }
@@ -180,63 +180,63 @@ void GenericDirectUploadService::handleUploadFinished(Utils::SftpJobId jobId, co
 
 void GenericDirectUploadService::handleLnFinished(int exitStatus)
 {
-    QTC_ASSERT(m_d->state == Uploading, setFinished(); return);
+    QTC_ASSERT(d->state == Uploading, setFinished(); return);
 
-    if (m_d->stopRequested) {
+    if (d->stopRequested) {
         setFinished();
         handleDeploymentDone();
     }
 
-    const DeployableFile d = m_d->filesToUpload.takeFirst();
-    const QString nativePath = QDir::toNativeSeparators(d.localFilePath);
-    if (exitStatus != SshRemoteProcess::ExitedNormally || m_d->lnProc->exitCode() != 0) {
+    const DeployableFile df = d->filesToUpload.takeFirst();
+    const QString nativePath = QDir::toNativeSeparators(df.localFilePath);
+    if (exitStatus != SshRemoteProcess::ExitedNormally || d->lnProc->exitCode() != 0) {
         emit errorMessage(tr("Failed to upload file '%1'.").arg(nativePath));
         setFinished();
         handleDeploymentDone();
         return;
     } else {
-        saveDeploymentTimeStamp(d);
+        saveDeploymentTimeStamp(df);
         uploadNextFile();
     }
 }
 
 void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
 {
-    QTC_ASSERT(m_d->state == Uploading, setFinished(); return);
+    QTC_ASSERT(d->state == Uploading, setFinished(); return);
 
-    if (m_d->stopRequested) {
+    if (d->stopRequested) {
         setFinished();
         handleDeploymentDone();
     }
 
-    const DeployableFile &d = m_d->filesToUpload.first();
-    QFileInfo fi(d.localFilePath);
-    const QString nativePath = QDir::toNativeSeparators(d.localFilePath);
-    if (exitStatus != SshRemoteProcess::ExitedNormally || m_d->mkdirProc->exitCode() != 0) {
+    const DeployableFile &df = d->filesToUpload.first();
+    QFileInfo fi(df.localFilePath);
+    const QString nativePath = QDir::toNativeSeparators(df.localFilePath);
+    if (exitStatus != SshRemoteProcess::ExitedNormally || d->mkdirProc->exitCode() != 0) {
         emit errorMessage(tr("Failed to upload file '%1'.").arg(nativePath));
         setFinished();
         handleDeploymentDone();
     } else if (fi.isDir()) {
-        saveDeploymentTimeStamp(d);
-        m_d->filesToUpload.removeFirst();
+        saveDeploymentTimeStamp(df);
+        d->filesToUpload.removeFirst();
         uploadNextFile();
     } else {
-        const QString remoteFilePath = d.remoteDir + QLatin1Char('/')  + fi.fileName();
+        const QString remoteFilePath = df.remoteDir + QLatin1Char('/')  + fi.fileName();
         if (fi.isSymLink()) {
              const QString target = fi.dir().relativeFilePath(fi.symLinkTarget()); // see QTBUG-5817.
              const QString command = QLatin1String("ln -vsf ") + target + QLatin1Char(' ')
                  + remoteFilePath;
 
              // See comment in SftpChannel::createLink as to why we can't use it.
-             m_d->lnProc = connection()->createRemoteProcess(command.toUtf8());
-             connect(m_d->lnProc.data(), SIGNAL(closed(int)), SLOT(handleLnFinished(int)));
-             connect(m_d->lnProc.data(), SIGNAL(outputAvailable(QByteArray)),
+             d->lnProc = connection()->createRemoteProcess(command.toUtf8());
+             connect(d->lnProc.data(), SIGNAL(closed(int)), SLOT(handleLnFinished(int)));
+             connect(d->lnProc.data(), SIGNAL(outputAvailable(QByteArray)),
                  SLOT(handleStdOutData(QByteArray)));
-             connect(m_d->lnProc.data(), SIGNAL(errorOutputAvailable(QByteArray)),
+             connect(d->lnProc.data(), SIGNAL(errorOutputAvailable(QByteArray)),
                  SLOT(handleStdErrData(QByteArray)));
-             m_d->lnProc->start();
+             d->lnProc->start();
         } else {
-            const SftpJobId job = m_d->uploader->uploadFile(d.localFilePath, remoteFilePath,
+            const SftpJobId job = d->uploader->uploadFile(df.localFilePath, remoteFilePath,
                 SftpOverwriteExisting);
             if (job == SftpInvalidJob) {
                 emit errorMessage(tr("Failed to upload file '%1': "
@@ -260,7 +260,7 @@ void GenericDirectUploadService::handleStdErrData(const QByteArray &data)
 
 void GenericDirectUploadService::stopDeployment()
 {
-    QTC_ASSERT(m_d->state == InitializingSftp || m_d->state == Uploading, setFinished(); return);
+    QTC_ASSERT(d->state == InitializingSftp || d->state == Uploading, setFinished(); return);
 
     setFinished();
     handleDeploymentDone();
@@ -272,8 +272,8 @@ void GenericDirectUploadService::checkDeploymentNeeded(const DeployableFile &dep
     if (fileInfo.isDir()) {
         const QStringList files = QDir(deployable.localFilePath)
             .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-        if (files.isEmpty() && (!m_d->incremental || hasChangedSinceLastDeployment(deployable)))
-            m_d->filesToUpload << deployable;
+        if (files.isEmpty() && (!d->incremental || hasChangedSinceLastDeployment(deployable)))
+            d->filesToUpload << deployable;
         foreach (const QString &fileName, files) {
             const QString localFilePath = deployable.localFilePath
                 + QLatin1Char('/') + fileName;
@@ -281,49 +281,49 @@ void GenericDirectUploadService::checkDeploymentNeeded(const DeployableFile &dep
                 + fileInfo.fileName();
             checkDeploymentNeeded(DeployableFile(localFilePath, remoteDir));
         }
-    } else  if (!m_d->incremental || hasChangedSinceLastDeployment(deployable)) {
-        m_d->filesToUpload << deployable;
+    } else  if (!d->incremental || hasChangedSinceLastDeployment(deployable)) {
+        d->filesToUpload << deployable;
     }
 }
 
 void GenericDirectUploadService::setFinished()
 {
-    m_d->stopRequested = false;
-    m_d->state = Inactive;
-    if (m_d->mkdirProc)
-        disconnect(m_d->mkdirProc.data(), 0, this, 0);
-    if (m_d->lnProc)
-        disconnect(m_d->lnProc.data(), 0, this, 0);
-    if (m_d->uploader) {
-        disconnect(m_d->uploader.data(), 0, this, 0);
-        m_d->uploader->closeChannel();
+    d->stopRequested = false;
+    d->state = Inactive;
+    if (d->mkdirProc)
+        disconnect(d->mkdirProc.data(), 0, this, 0);
+    if (d->lnProc)
+        disconnect(d->lnProc.data(), 0, this, 0);
+    if (d->uploader) {
+        disconnect(d->uploader.data(), 0, this, 0);
+        d->uploader->closeChannel();
     }
 }
 
 void GenericDirectUploadService::uploadNextFile()
 {
-    if (m_d->filesToUpload.isEmpty()) {
+    if (d->filesToUpload.isEmpty()) {
         emit progressMessage(tr("All files successfully deployed."));
         setFinished();
         handleDeploymentDone();
         return;
     }
 
-    const DeployableFile &d = m_d->filesToUpload.first();
-    QString dirToCreate = d.remoteDir;
-    QFileInfo fi(d.localFilePath);
+    const DeployableFile &df = d->filesToUpload.first();
+    QString dirToCreate = df.remoteDir;
+    QFileInfo fi(df.localFilePath);
     if (fi.isDir())
         dirToCreate += QLatin1Char('/') + fi.fileName();
     const QString command = QLatin1String("mkdir -p ") + dirToCreate;
-    m_d->mkdirProc = connection()->createRemoteProcess(command.toUtf8());
-    connect(m_d->mkdirProc.data(), SIGNAL(closed(int)), SLOT(handleMkdirFinished(int)));
-    connect(m_d->mkdirProc.data(), SIGNAL(outputAvailable(QByteArray)),
+    d->mkdirProc = connection()->createRemoteProcess(command.toUtf8());
+    connect(d->mkdirProc.data(), SIGNAL(closed(int)), SLOT(handleMkdirFinished(int)));
+    connect(d->mkdirProc.data(), SIGNAL(outputAvailable(QByteArray)),
         SLOT(handleStdOutData(QByteArray)));
-    connect(m_d->mkdirProc.data(), SIGNAL(errorOutputAvailable(QByteArray)),
+    connect(d->mkdirProc.data(), SIGNAL(errorOutputAvailable(QByteArray)),
         SLOT(handleStdErrData(QByteArray)));
     emit progressMessage(tr("Uploading file '%1'...")
-        .arg(QDir::toNativeSeparators(d.localFilePath)));
-    m_d->mkdirProc->start();
+        .arg(QDir::toNativeSeparators(df.localFilePath)));
+    d->mkdirProc->start();
 }
 
 } //namespace RemoteLinux

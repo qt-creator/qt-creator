@@ -65,7 +65,7 @@ private slots:
     void handleInstallerStderr();
 
 private:
-    virtual QStringList madArguments() const=0;
+    virtual QStringList madArguments() const = 0;
 
     QProcess *m_installerProcess;
 };

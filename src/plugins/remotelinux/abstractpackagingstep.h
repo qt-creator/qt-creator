@@ -71,7 +71,7 @@ private slots:
     void handleBuildConfigurationChanged();
 
 private:
-    virtual QString packageFileName() const=0;
+    virtual QString packageFileName() const = 0;
 
     void ctor();
 

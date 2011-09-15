@@ -68,7 +68,7 @@ public:
 private:
     Q_SLOT void handleAuthTypeChanged();
 
-    Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate * const m_d;
+    Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate * const d;
 };
 
 
@@ -85,7 +85,7 @@ protected:
     virtual QString infoText() const;
 
 private:
-    Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate * const m_d;
+    Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate * const d;
 };
 
 } // namespace RemoteLinux

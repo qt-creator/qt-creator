@@ -50,7 +50,7 @@ public:
     LinuxDeviceConfiguration::Ptr deviceConfiguration();
 
 private:
-    Internal::GenericLinuxDeviceConfigurationWizardPrivate * const m_d;
+    Internal::GenericLinuxDeviceConfigurationWizardPrivate * const d;
 };
 
 } // namespace RemoteLinux

@@ -80,14 +80,14 @@ DeploymentSettingsAssistant::DeploymentSettingsAssistant(const QString &qmakeSco
         const QString &installPrefix, const QSharedPointer<DeploymentInfo> &deploymentInfo,
         QObject *parent)
     : QObject(parent),
-      m_d(new DeploymentSettingsAssistantInternal(qmakeScope, installPrefix, deploymentInfo))
+      d(new DeploymentSettingsAssistantInternal(qmakeScope, installPrefix, deploymentInfo))
 {
-    connect(m_d->deploymentInfo.data(), SIGNAL(modelReset()), SLOT(handleDeploymentInfoUpdated()));
+    connect(d->deploymentInfo.data(), SIGNAL(modelReset()), SLOT(handleDeploymentInfoUpdated()));
 }
 
 DeploymentSettingsAssistant::~DeploymentSettingsAssistant()
 {
-    delete m_d;
+    delete d;
 }
 
 bool DeploymentSettingsAssistant::addDeployableToProFile(const DeployableFilesPerProFile *proFileInfo,
@@ -106,7 +106,7 @@ bool DeploymentSettingsAssistant::addLinesToProFile(const DeployableFilesPerProF
     Core::FileChangeBlocker update(proFileInfo->proFilePath());
 
     const QString separator = QLatin1String("\n    ");
-    const QString proFileString = QLatin1Char('\n') + m_d->qmakeScope + QLatin1String(" {")
+    const QString proFileString = QLatin1Char('\n') + d->qmakeScope + QLatin1String(" {")
         + separator + lines.join(separator) + QLatin1String("\n}\n");
     Utils::FileSaver saver(proFileInfo->proFilePath(), QIODevice::Append);
     saver.write(proFileString.toLocal8Bit());
@@ -117,12 +117,12 @@ void DeploymentSettingsAssistant::handleDeploymentInfoUpdated()
 {
     QList<DeployableFilesPerProFile *> proFilesToAskAbout;
     QList<DeployableFilesPerProFile *> proFilesToUpdate;
-    for (int i = 0; i < m_d->deploymentInfo->modelCount(); ++i) {
-        DeployableFilesPerProFile * const proFileInfo = m_d->deploymentInfo->modelAt(i);
+    for (int i = 0; i < d->deploymentInfo->modelCount(); ++i) {
+        DeployableFilesPerProFile * const proFileInfo = d->deploymentInfo->modelAt(i);
         if (proFileInfo->projectType() != AuxTemplate && !proFileInfo->hasTargetPath()) {
             const UpdateSettingsMap::ConstIterator it
-                = m_d->updateSettings.find(proFileInfo->proFilePath());
-            if (it == m_d->updateSettings.constEnd())
+                = d->updateSettings.find(proFileInfo->proFilePath());
+            if (it == d->updateSettings.constEnd())
                 proFilesToAskAbout << proFileInfo;
             else if (it.value() == UpdateProFile)
                 proFilesToUpdate << proFileInfo;
@@ -136,7 +136,7 @@ void DeploymentSettingsAssistant::handleDeploymentInfoUpdated()
         foreach (const ProFilesUpdateDialog::UpdateSetting &setting, settings) {
             const ProFileUpdateSetting updateSetting = setting.second
                 ? UpdateProFile : DontUpdateProFile;
-            m_d->updateSettings.insert(setting.first->proFilePath(), updateSetting);
+            d->updateSettings.insert(setting.first->proFilePath(), updateSetting);
             if (updateSetting == UpdateProFile)
                 proFilesToUpdate << setting.first;
         }
@@ -145,7 +145,7 @@ void DeploymentSettingsAssistant::handleDeploymentInfoUpdated()
     foreach (const DeployableFilesPerProFile * const proFileInfo, proFilesToUpdate) {
         const QString remoteDirSuffix = QLatin1String(proFileInfo->projectType() == LibraryTemplate
                 ? "/lib" : "/bin");
-        const QString remoteDir = QLatin1String("target.path = ") + m_d->installPrefix
+        const QString remoteDir = QLatin1String("target.path = ") + d->installPrefix
             + QLatin1Char('/') + proFileInfo->projectName() + remoteDirSuffix;
         const QStringList deployInfo = QStringList() << remoteDir
             << QLatin1String("INSTALLS += target");

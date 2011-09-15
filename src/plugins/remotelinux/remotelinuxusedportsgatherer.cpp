@@ -60,54 +60,54 @@ class RemoteLinuxUsedPortsGathererPrivate
 using namespace Internal;
 
 RemoteLinuxUsedPortsGatherer::RemoteLinuxUsedPortsGatherer(QObject *parent) :
-    QObject(parent), m_d(new RemoteLinuxUsedPortsGathererPrivate)
+    QObject(parent), d(new RemoteLinuxUsedPortsGathererPrivate)
 {
 }
 
 RemoteLinuxUsedPortsGatherer::~RemoteLinuxUsedPortsGatherer()
 {
-    delete m_d;
+    delete d;
 }
 
 void RemoteLinuxUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connection,
     const LinuxDeviceConfiguration::ConstPtr &devConf)
 {
-    if (m_d->running)
+    if (d->running)
         qWarning("Unexpected call of %s in running state", Q_FUNC_INFO);
-    m_d->portsToCheck = devConf->freePorts();
-    m_d->usedPorts.clear();
-    m_d->remoteStdout.clear();
-    m_d->remoteStderr.clear();
-    m_d->procRunner = SshRemoteProcessRunner::create(connection);
-    connect(m_d->procRunner.data(), SIGNAL(connectionError(Utils::SshError)),
+    d->portsToCheck = devConf->freePorts();
+    d->usedPorts.clear();
+    d->remoteStdout.clear();
+    d->remoteStderr.clear();
+    d->procRunner = SshRemoteProcessRunner::create(connection);
+    connect(d->procRunner.data(), SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
-    connect(m_d->procRunner.data(), SIGNAL(processClosed(int)),
+    connect(d->procRunner.data(), SIGNAL(processClosed(int)),
         SLOT(handleProcessClosed(int)));
-    connect(m_d->procRunner.data(), SIGNAL(processOutputAvailable(QByteArray)),
+    connect(d->procRunner.data(), SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdOut(QByteArray)));
-    connect(m_d->procRunner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
+    connect(d->procRunner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdErr(QByteArray)));
     const QString command = QLatin1String("sed "
         "'s/.*: [[:xdigit:]]\\{8\\}:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp");
-    m_d->procRunner->run(command.toUtf8());
-    m_d->running = true;
+    d->procRunner->run(command.toUtf8());
+    d->running = true;
 }
 
 void RemoteLinuxUsedPortsGatherer::stop()
 {
-    if (!m_d->running)
+    if (!d->running)
         return;
-    m_d->running = false;
-    disconnect(m_d->procRunner->connection().data(), 0, this, 0);
-    if (m_d->procRunner->process())
-        m_d->procRunner->process()->closeChannel();
+    d->running = false;
+    disconnect(d->procRunner->connection().data(), 0, this, 0);
+    if (d->procRunner->process())
+        d->procRunner->process()->closeChannel();
 }
 
 int RemoteLinuxUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
 {
     while (freePorts->hasMore()) {
         const int port = freePorts->getNext();
-        if (!m_d->usedPorts.contains(port))
+        if (!d->usedPorts.contains(port))
             return port;
     }
     return -1;
@@ -115,12 +115,12 @@ int RemoteLinuxUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
 
 QList<int> RemoteLinuxUsedPortsGatherer::usedPorts() const
 {
-    return m_d->usedPorts;
+    return d->usedPorts;
 }
 
 void RemoteLinuxUsedPortsGatherer::setupUsedPorts()
 {
-    QList<QByteArray> portStrings = m_d->remoteStdout.split('\n');
+    QList<QByteArray> portStrings = d->remoteStdout.split('\n');
     portStrings.removeFirst();
     foreach (const QByteArray &portString, portStrings) {
         if (portString.isEmpty())
@@ -128,8 +128,8 @@ void RemoteLinuxUsedPortsGatherer::setupUsedPorts()
         bool ok;
         const int port = portString.toInt(&ok, 16);
         if (ok) {
-            if (m_d->portsToCheck.contains(port) && !m_d->usedPorts.contains(port))
-                m_d->usedPorts << port;
+            if (d->portsToCheck.contains(port) && !d->usedPorts.contains(port))
+                d->usedPorts << port;
         } else {
             qWarning("%s: Unexpected string '%s' is not a port.",
                 Q_FUNC_INFO, portString.data());
@@ -140,33 +140,33 @@ void RemoteLinuxUsedPortsGatherer::setupUsedPorts()
 
 void RemoteLinuxUsedPortsGatherer::handleConnectionError()
 {
-    if (!m_d->running)
+    if (!d->running)
         return;
     emit error(tr("Connection error: %1").
-        arg(m_d->procRunner->connection()->errorString()));
+        arg(d->procRunner->connection()->errorString()));
     stop();
 }
 
 void RemoteLinuxUsedPortsGatherer::handleProcessClosed(int exitStatus)
 {
-    if (!m_d->running)
+    if (!d->running)
         return;
     QString errMsg;
     switch (exitStatus) {
     case SshRemoteProcess::FailedToStart:
         errMsg = tr("Could not start remote process: %1")
-            .arg(m_d->procRunner->process()->errorString());
+            .arg(d->procRunner->process()->errorString());
         break;
     case SshRemoteProcess::KilledBySignal:
         errMsg = tr("Remote process crashed: %1")
-            .arg(m_d->procRunner->process()->errorString());
+            .arg(d->procRunner->process()->errorString());
         break;
     case SshRemoteProcess::ExitedNormally:
-        if (m_d->procRunner->process()->exitCode() == 0) {
+        if (d->procRunner->process()->exitCode() == 0) {
             setupUsedPorts();
         } else {
             errMsg = tr("Remote process failed; exit code was %1.")
-                .arg(m_d->procRunner->process()->exitCode());
+                .arg(d->procRunner->process()->exitCode());
         }
         break;
     default:
@@ -174,9 +174,9 @@ void RemoteLinuxUsedPortsGatherer::handleProcessClosed(int exitStatus)
     }
 
     if (!errMsg.isEmpty()) {
-        if (!m_d->remoteStderr.isEmpty()) {
+        if (!d->remoteStderr.isEmpty()) {
             errMsg += tr("\nRemote error output was: %1")
-                .arg(QString::fromUtf8(m_d->remoteStderr));
+                .arg(QString::fromUtf8(d->remoteStderr));
         }
         emit error(errMsg);
     }
@@ -185,12 +185,12 @@ void RemoteLinuxUsedPortsGatherer::handleProcessClosed(int exitStatus)
 
 void RemoteLinuxUsedPortsGatherer::handleRemoteStdOut(const QByteArray &output)
 {
-    m_d->remoteStdout += output;
+    d->remoteStdout += output;
 }
 
 void RemoteLinuxUsedPortsGatherer::handleRemoteStdErr(const QByteArray &output)
 {
-    m_d->remoteStderr += output;
+    d->remoteStderr += output;
 }
 
 } // namespace RemoteLinux

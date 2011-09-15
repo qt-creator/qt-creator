@@ -60,7 +60,7 @@ private slots:
     void handleInstallationFinished(const QString &errorMsg);
 
 private:
-    virtual AbstractRemoteLinuxPackageInstaller *packageInstaller() const=0;
+    virtual AbstractRemoteLinuxPackageInstaller *packageInstaller() const = 0;
     virtual QString uploadDir() const; // Defaults to remote user's home directory.
 
     bool isDeploymentNecessary() const;
@@ -71,7 +71,7 @@ private:
 
     void setFinished();
 
-    Internal::AbstractUploadAndInstallPackageServicePrivate * const m_d;
+    Internal::AbstractUploadAndInstallPackageServicePrivate * const d;
 };
 
 } // namespace RemoteLinux

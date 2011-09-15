@@ -94,7 +94,7 @@ private slots:
 private:
     void setFinished(TestResult result);
 
-    Internal::GenericLinuxDeviceTesterPrivate * const m_d;
+    Internal::GenericLinuxDeviceTesterPrivate * const d;
 };
 
 } // namespace RemoteLinux

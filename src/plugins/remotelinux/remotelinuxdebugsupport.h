@@ -75,7 +75,7 @@ private slots:
 
 private:
 
-    virtual AbstractRemoteLinuxApplicationRunner *runner() const=0;
+    virtual AbstractRemoteLinuxApplicationRunner *runner() const = 0;
 
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();
@@ -83,7 +83,7 @@ private:
     bool setPort(int &port);
     void showMessage(const QString &msg, int channel);
 
-    Internal::AbstractRemoteLinuxDebugSupportPrivate * const m_d;
+    Internal::AbstractRemoteLinuxDebugSupportPrivate * const d;
 };
 
 
@@ -97,7 +97,7 @@ public:
 private:
     AbstractRemoteLinuxApplicationRunner *runner() const;
 
-    Internal::RemoteLinuxDebugSupportPrivate * const m_d;
+    Internal::RemoteLinuxDebugSupportPrivate * const d;
 };
 
 } // namespace RemoteLinux

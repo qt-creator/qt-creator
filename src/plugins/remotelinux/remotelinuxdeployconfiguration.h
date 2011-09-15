@@ -94,7 +94,7 @@ private:
     void setDeviceConfig(LinuxDeviceConfiguration::Id internalId);
     Q_SLOT void handleDeviceConfigurationListUpdated();
 
-    Internal::RemoteLinuxDeployConfigurationPrivate * const m_d;
+    Internal::RemoteLinuxDeployConfigurationPrivate * const d;
 };
 
 } // namespace RemoteLinux

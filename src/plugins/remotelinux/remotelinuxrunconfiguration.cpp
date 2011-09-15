@@ -99,7 +99,7 @@ using namespace Internal;
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent, const QString &id,
         const QString &proFilePath)
     : RunConfiguration(parent, id),
-      m_d(new RemoteLinuxRunConfigurationPrivate(proFilePath, parent))
+      d(new RemoteLinuxRunConfigurationPrivate(proFilePath, parent))
 {
     init();
 }
@@ -107,7 +107,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent, 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent,
         RemoteLinuxRunConfiguration *source)
     : RunConfiguration(parent, source),
-      m_d(new RemoteLinuxRunConfigurationPrivate(source->m_d))
+      d(new RemoteLinuxRunConfigurationPrivate(source->d))
 {
     init();
 }
@@ -144,33 +144,33 @@ Qt4BuildConfiguration *RemoteLinuxRunConfiguration::activeQt4BuildConfiguration(
 
 bool RemoteLinuxRunConfiguration::isEnabled() const
 {
-    if (m_d->parseInProgress) {
-        m_d->disabledReason = tr("The .pro file is being parsed.");
+    if (d->parseInProgress) {
+        d->disabledReason = tr("The .pro file is being parsed.");
         return false;
     }
-    if (!m_d->validParse) {
-        m_d->disabledReason = tr("The .pro file could not be parsed.");
+    if (!d->validParse) {
+        d->disabledReason = tr("The .pro file could not be parsed.");
         return false;
     }
     if (!deviceConfig()) {
-        m_d->disabledReason = tr("No device configuration set.");
+        d->disabledReason = tr("No device configuration set.");
         return false;
     }
     if (!activeQt4BuildConfiguration()) {
-        m_d->disabledReason = tr("No active build configuration.");
+        d->disabledReason = tr("No active build configuration.");
         return false;
     }
     if (remoteExecutableFilePath().isEmpty()) {
-        m_d->disabledReason = tr("Don't know what to run.");
+        d->disabledReason = tr("Don't know what to run.");
         return false;
     }
-    m_d->disabledReason.clear();
+    d->disabledReason.clear();
     return true;
 }
 
 QString RemoteLinuxRunConfiguration::disabledReason() const
 {
-    return m_d->disabledReason;
+    return d->disabledReason;
 }
 
 QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()
@@ -185,10 +185,10 @@ Utils::OutputFormatter *RemoteLinuxRunConfiguration::createOutputFormatter() con
 
 void RemoteLinuxRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
-    if (m_d->proFilePath == pro->path()) {
+    if (d->proFilePath == pro->path()) {
         bool enabled = isEnabled();
-        m_d->validParse = success;
-        m_d->parseInProgress = parseInProgress;
+        d->validParse = success;
+        d->parseInProgress = parseInProgress;
         if (enabled != isEnabled())
             updateEnabledState();
         if (!parseInProgress)
@@ -199,12 +199,12 @@ void RemoteLinuxRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNod
 QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(QLatin1String(ArgumentsKey), m_d->arguments);
+    map.insert(QLatin1String(ArgumentsKey), d->arguments);
     const QDir dir = QDir(target()->project()->projectDirectory());
-    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(m_d->proFilePath));
-    map.insert(QLatin1String(BaseEnvironmentBaseKey), m_d->baseEnvironmentType);
+    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(d->proFilePath));
+    map.insert(QLatin1String(BaseEnvironmentBaseKey), d->baseEnvironmentType);
     map.insert(QLatin1String(UserEnvironmentChangesKey),
-        Utils::EnvironmentItem::toStringList(m_d->userEnvironmentChanges));
+        Utils::EnvironmentItem::toStringList(d->userEnvironmentChanges));
     return map;
 }
 
@@ -213,17 +213,17 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    m_d->arguments = map.value(QLatin1String(ArgumentsKey)).toString();
+    d->arguments = map.value(QLatin1String(ArgumentsKey)).toString();
     const QDir dir = QDir(target()->project()->projectDirectory());
-    m_d->proFilePath = dir.filePath(map.value(QLatin1String(ProFileKey)).toString());
-    m_d->userEnvironmentChanges =
+    d->proFilePath = dir.filePath(map.value(QLatin1String(ProFileKey)).toString());
+    d->userEnvironmentChanges =
         Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(UserEnvironmentChangesKey))
         .toStringList());
-    m_d->baseEnvironmentType = static_cast<BaseEnvironmentType>(map.value(QLatin1String(BaseEnvironmentBaseKey),
+    d->baseEnvironmentType = static_cast<BaseEnvironmentType>(map.value(QLatin1String(BaseEnvironmentBaseKey),
         SystemBaseEnvironment).toInt());
 
-    m_d->validParse = qt4Target()->qt4Project()->validParse(m_d->proFilePath);
-    m_d->parseInProgress = qt4Target()->qt4Project()->parseInProgress(m_d->proFilePath);
+    d->validParse = qt4Target()->qt4Project()->validParse(d->proFilePath);
+    d->parseInProgress = qt4Target()->qt4Project()->parseInProgress(d->proFilePath);
 
     setDefaultDisplayName(defaultDisplayName());
 
@@ -232,8 +232,8 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 
 QString RemoteLinuxRunConfiguration::defaultDisplayName()
 {
-    if (!m_d->proFilePath.isEmpty())
-        return (QFileInfo(m_d->proFilePath).completeBaseName()) + QLatin1String(" (remote)");
+    if (!d->proFilePath.isEmpty())
+        return (QFileInfo(d->proFilePath).completeBaseName()) + QLatin1String(" (remote)");
     //: Remote Linux run configuration default display name
     return tr("Run on remote device");
 }
@@ -256,7 +256,7 @@ RemoteLinuxDeployConfiguration *RemoteLinuxRunConfiguration::deployConfig() cons
 
 QString RemoteLinuxRunConfiguration::arguments() const
 {
-    return m_d->arguments;
+    return d->arguments;
 }
 
 QString RemoteLinuxRunConfiguration::environmentPreparationCommand() const
@@ -279,7 +279,7 @@ QString RemoteLinuxRunConfiguration::commandPrefix() const
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
 {
     TargetInformation ti = qt4Target()->qt4Project()->rootQt4ProjectNode()
-        ->targetInformation(m_d->proFilePath);
+        ->targetInformation(d->proFilePath);
     if (!ti.valid)
         return QString();
 
@@ -303,7 +303,7 @@ PortList RemoteLinuxRunConfiguration::freePorts() const
 
 void RemoteLinuxRunConfiguration::setArguments(const QString &args)
 {
-    m_d->arguments = args;
+    d->arguments = args;
 }
 
 RemoteLinuxRunConfiguration::DebuggingType RemoteLinuxRunConfiguration::debuggingType() const
@@ -355,22 +355,22 @@ void RemoteLinuxRunConfiguration::handleDeployablesUpdated()
 
 QString RemoteLinuxRunConfiguration::baseEnvironmentText() const
 {
-    if (m_d->baseEnvironmentType == CleanBaseEnvironment)
+    if (d->baseEnvironmentType == CleanBaseEnvironment)
         return tr("Clean Environment");
-    else  if (m_d->baseEnvironmentType == SystemBaseEnvironment)
+    else  if (d->baseEnvironmentType == SystemBaseEnvironment)
         return tr("System Environment");
     return QString();
 }
 
 RemoteLinuxRunConfiguration::BaseEnvironmentType RemoteLinuxRunConfiguration::baseEnvironmentType() const
 {
-    return m_d->baseEnvironmentType;
+    return d->baseEnvironmentType;
 }
 
 void RemoteLinuxRunConfiguration::setBaseEnvironmentType(BaseEnvironmentType env)
 {
-    if (m_d->baseEnvironmentType != env) {
-        m_d->baseEnvironmentType = env;
+    if (d->baseEnvironmentType != env) {
+        d->baseEnvironmentType = env;
         emit baseEnvironmentChanged();
     }
 }
@@ -384,13 +384,13 @@ Utils::Environment RemoteLinuxRunConfiguration::environment() const
 
 Utils::Environment RemoteLinuxRunConfiguration::baseEnvironment() const
 {
-    return (m_d->baseEnvironmentType == SystemBaseEnvironment ? systemEnvironment()
+    return (d->baseEnvironmentType == SystemBaseEnvironment ? systemEnvironment()
         : Utils::Environment());
 }
 
 QList<Utils::EnvironmentItem> RemoteLinuxRunConfiguration::userEnvironmentChanges() const
 {
-    return m_d->userEnvironmentChanges;
+    return d->userEnvironmentChanges;
 }
 
 QString RemoteLinuxRunConfiguration::userEnvironmentChangesAsString() const
@@ -405,33 +405,33 @@ QString RemoteLinuxRunConfiguration::userEnvironmentChangesAsString() const
 void RemoteLinuxRunConfiguration::setUserEnvironmentChanges(
     const QList<Utils::EnvironmentItem> &diff)
 {
-    if (m_d->userEnvironmentChanges != diff) {
-        m_d->userEnvironmentChanges = diff;
+    if (d->userEnvironmentChanges != diff) {
+        d->userEnvironmentChanges = diff;
         emit userEnvironmentChangesChanged(diff);
     }
 }
 
 Utils::Environment RemoteLinuxRunConfiguration::systemEnvironment() const
 {
-    return m_d->systemEnvironment;
+    return d->systemEnvironment;
 }
 
 void RemoteLinuxRunConfiguration::setSystemEnvironment(const Utils::Environment &environment)
 {
-    if (m_d->systemEnvironment.size() == 0 || m_d->systemEnvironment != environment) {
-        m_d->systemEnvironment = environment;
+    if (d->systemEnvironment.size() == 0 || d->systemEnvironment != environment) {
+        d->systemEnvironment = environment;
         emit systemEnvironmentChanged();
     }
 }
 
 QString RemoteLinuxRunConfiguration::proFilePath() const
 {
-    return m_d->proFilePath;
+    return d->proFilePath;
 }
 
 void RemoteLinuxRunConfiguration::setDisabledReason(const QString &reason) const
 {
-    m_d->disabledReason = reason;
+    d->disabledReason = reason;
 }
 
 const QString RemoteLinuxRunConfiguration::Id = QLatin1String("RemoteLinuxRunConfiguration");

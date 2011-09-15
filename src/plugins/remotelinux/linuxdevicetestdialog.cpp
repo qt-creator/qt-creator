@@ -58,27 +58,27 @@ using namespace Internal;
 
 LinuxDeviceTestDialog::LinuxDeviceTestDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
         AbstractLinuxDeviceTester *deviceTester, QWidget *parent)
-    : QDialog(parent), m_d(new LinuxDeviceTestDialogPrivate(deviceTester))
+    : QDialog(parent), d(new LinuxDeviceTestDialogPrivate(deviceTester))
 {
-    m_d->ui.setupUi(this);
+    d->ui.setupUi(this);
 
-    m_d->deviceTester->setParent(this);
-    connect(m_d->deviceTester, SIGNAL(progressMessage(QString)), SLOT(handleProgressMessage(QString)));
-    connect(m_d->deviceTester, SIGNAL(errorMessage(QString)), SLOT(handleErrorMessage(QString)));
-    connect(m_d->deviceTester, SIGNAL(finished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)),
+    d->deviceTester->setParent(this);
+    connect(d->deviceTester, SIGNAL(progressMessage(QString)), SLOT(handleProgressMessage(QString)));
+    connect(d->deviceTester, SIGNAL(errorMessage(QString)), SLOT(handleErrorMessage(QString)));
+    connect(d->deviceTester, SIGNAL(finished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)),
         SLOT(handleTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult)));
-    m_d->deviceTester->testDevice(deviceConfiguration);
+    d->deviceTester->testDevice(deviceConfiguration);
 }
 
 LinuxDeviceTestDialog::~LinuxDeviceTestDialog()
 {
-    delete m_d;
+    delete d;
 }
 
 void LinuxDeviceTestDialog::reject()
 {
-    if (!m_d->finished)
-        m_d->deviceTester->stopTest();
+    if (!d->finished)
+        d->deviceTester->stopTest();
     QDialog::reject();
 }
 
@@ -94,8 +94,8 @@ void LinuxDeviceTestDialog::handleErrorMessage(const QString &message)
 
 void LinuxDeviceTestDialog::handleTestFinished(AbstractLinuxDeviceTester::TestResult result)
 {
-    m_d->finished = true;
-    m_d->ui.buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
+    d->finished = true;
+    d->ui.buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
 
     if (result == AbstractLinuxDeviceTester::TestSuccess)
         addText(tr("Device test finished successfully."), QLatin1String("blue"), true);
@@ -105,13 +105,13 @@ void LinuxDeviceTestDialog::handleTestFinished(AbstractLinuxDeviceTester::TestRe
 
 void LinuxDeviceTestDialog::addText(const QString &text, const QString &color, bool bold)
 {
-    QTextCharFormat format = m_d->ui.textEdit->currentCharFormat();
+    QTextCharFormat format = d->ui.textEdit->currentCharFormat();
     format.setForeground(QBrush(QColor(color)));
     QFont font = format.font();
     font.setBold(bold);
     format.setFont(font);
-    m_d->ui.textEdit->setCurrentCharFormat(format);
-    m_d->ui.textEdit->appendPlainText(text);
+    d->ui.textEdit->setCurrentCharFormat(format);
+    d->ui.textEdit->appendPlainText(text);
 }
 
 } // namespace RemoteLinux
