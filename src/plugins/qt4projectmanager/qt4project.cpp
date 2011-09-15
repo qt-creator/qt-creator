@@ -353,6 +353,7 @@ void Qt4Project::updateFileList()
     if (newFiles != *m_projectFiles) {
         *m_projectFiles = newFiles;
         emit fileListChanged();
+        updateCodeModels();
         if (debug)
             qDebug() << Q_FUNC_INFO << *m_projectFiles;
     }
@@ -392,8 +393,6 @@ bool Qt4Project::fromMap(const QVariantMap &map)
 
     update();
     updateFileList();
-    // This might be incorrect, need a full update
-    updateCodeModels();
 
     foreach (Target *t, targets())
         static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles();
@@ -799,7 +798,6 @@ void Qt4Project::decrementPendingEvaluateFutures()
             foreach (Target *t, targets())
                 static_cast<Qt4BaseTarget *>(t)->createApplicationProFiles();
             updateFileList();
-            updateCodeModels();
             if (debug)
                 qDebug()<<"  Setting state to Base";
             m_asyncUpdateState = Base;
