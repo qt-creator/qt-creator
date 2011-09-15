@@ -62,13 +62,13 @@ public:
 };
 
 WidgetPluginManager::WidgetPluginManager() :
-        m_d(new WidgetPluginManagerPrivate)
+        d(new WidgetPluginManagerPrivate)
 {
 }
 
 WidgetPluginManager::~WidgetPluginManager()
 {
-    delete m_d;
+    delete d;
 }
 
 WidgetPluginManager::IWidgetPluginList WidgetPluginManager::instances()
@@ -76,8 +76,8 @@ WidgetPluginManager::IWidgetPluginList WidgetPluginManager::instances()
     if (debug)
         qDebug() << '>' << Q_FUNC_INFO << QLibraryInfo::buildKey();
     IWidgetPluginList rc;
-    const WidgetPluginManagerPrivate::PluginPathList::iterator end = m_d->m_paths.end();
-    for (WidgetPluginManagerPrivate::PluginPathList::iterator it = m_d->m_paths.begin(); it != end; ++it)
+    const WidgetPluginManagerPrivate::PluginPathList::iterator end = d->m_paths.end();
+    for (WidgetPluginManagerPrivate::PluginPathList::iterator it = d->m_paths.begin(); it != end; ++it)
         it->getInstances(&rc);
     if (debug)
         qDebug() << '<' << Q_FUNC_INFO << rc.size();
@@ -89,15 +89,15 @@ bool WidgetPluginManager::addPath(const QString &path)
     const QDir dir(path);
     if (!dir.exists())
         return false;
-    m_d->m_paths.push_back(WidgetPluginPath(dir));
+    d->m_paths.push_back(WidgetPluginPath(dir));
     return true;
 }
 
 QAbstractItemModel *WidgetPluginManager::createModel(QObject *parent)
 {
     QStandardItemModel *model = new QStandardItemModel(parent);
-    const WidgetPluginManagerPrivate::PluginPathList::iterator end = m_d->m_paths.end();
-    for (WidgetPluginManagerPrivate::PluginPathList::iterator it = m_d->m_paths.begin(); it != end; ++it)
+    const WidgetPluginManagerPrivate::PluginPathList::iterator end = d->m_paths.end();
+    for (WidgetPluginManagerPrivate::PluginPathList::iterator it = d->m_paths.begin(); it != end; ++it)
         model->appendRow(it->createModelItem());
     return model;
 }

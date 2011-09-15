@@ -71,7 +71,7 @@ public:
     QAbstractItemModel *createModel(QObject *parent = 0);
 
 private:
-    WidgetPluginManagerPrivate *m_d;
+    WidgetPluginManagerPrivate *d;
 };
 
 } // namespace Internal

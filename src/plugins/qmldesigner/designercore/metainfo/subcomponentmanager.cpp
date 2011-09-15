@@ -372,23 +372,23 @@ Model *SubComponentManagerPrivate::model() const
 
 SubComponentManager::SubComponentManager(Model *model, QObject *parent) :
         QObject(parent),
-        m_d(new Internal::SubComponentManagerPrivate(model, this))
+        d(new Internal::SubComponentManagerPrivate(model, this))
 {
 }
 
 SubComponentManager::~SubComponentManager()
 {
-    delete m_d;
+    delete d;
 }
 
 QStringList SubComponentManager::directories() const
 {
-    return m_d->m_watcher.directories();
+    return d->m_watcher.directories();
 }
 
 QStringList SubComponentManager::qmlFiles() const
 {
-    return m_d->m_watcher.files();
+    return d->m_watcher.files();
 }
 
 void SubComponentManager::update(const QUrl &filePath, const QList<Import> &imports)
@@ -398,8 +398,8 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
 
     QFileInfo oldDir, newDir;
 
-    if (!m_d->m_filePath.isEmpty()) {
-        const QString file = m_d->m_filePath.toLocalFile();
+    if (!d->m_filePath.isEmpty()) {
+        const QString file = d->m_filePath.toLocalFile();
         oldDir = QFileInfo(QFileInfo(file).path());
     }
     if (!filePath.isEmpty()) {
@@ -407,20 +407,20 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
         newDir = QFileInfo(QFileInfo(file).path());
     }
 
-    m_d->m_filePath = filePath;
+    d->m_filePath = filePath;
 
     //
     // (implicit) import of local directory
     //
     if (oldDir != newDir) {
         if (!oldDir.filePath().isEmpty()) {
-            m_d->m_dirToQualifier.remove(oldDir.canonicalFilePath(), QString());
-            if (!m_d->m_dirToQualifier.contains(oldDir.canonicalFilePath()))
-                m_d->m_watcher.removePath(oldDir.filePath());
+            d->m_dirToQualifier.remove(oldDir.canonicalFilePath(), QString());
+            if (!d->m_dirToQualifier.contains(oldDir.canonicalFilePath()))
+                d->m_watcher.removePath(oldDir.filePath());
         }
 
         if (!newDir.filePath().isEmpty()) {
-            m_d->m_dirToQualifier.insertMulti(newDir.canonicalFilePath(), QString());
+            d->m_dirToQualifier.insertMulti(newDir.canonicalFilePath(), QString());
         }
     }
 
@@ -430,20 +430,20 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
 
     // skip first list items until the lists differ
     int i = 0;
-    while (i < qMin(imports.size(), m_d->m_imports.size())) {
-        if (!(imports.at(i) == m_d->m_imports.at(i)))
+    while (i < qMin(imports.size(), d->m_imports.size())) {
+        if (!(imports.at(i) == d->m_imports.at(i)))
             break;
         ++i;
     }
 
-    for (int ii = m_d->m_imports.size() - 1; ii >= i; --ii)
-        m_d->removeImport(ii);
+    for (int ii = d->m_imports.size() - 1; ii >= i; --ii)
+        d->removeImport(ii);
 
     for (int ii = i; ii < imports.size(); ++ii) {
-        m_d->addImport(ii, imports.at(ii));
+        d->addImport(ii, imports.at(ii));
     }
 
-    m_d->parseDirectories();
+    d->parseDirectories();
 }
 
 } // namespace QmlDesigner

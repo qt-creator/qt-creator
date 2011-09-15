@@ -63,7 +63,7 @@ public:
 
 private:
     friend class Internal::SubComponentManagerPrivate;
-    Internal::SubComponentManagerPrivate *m_d;
+    Internal::SubComponentManagerPrivate *d;
 };
 
 } // namespace QmlDesigner

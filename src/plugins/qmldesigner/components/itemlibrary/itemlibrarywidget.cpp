@@ -137,49 +137,49 @@ ItemLibraryWidgetPrivate::ItemLibraryWidgetPrivate(QObject *object) :
 
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QFrame(parent),
-    m_d(new ItemLibraryWidgetPrivate(this)),
+    d(new ItemLibraryWidgetPrivate(this)),
     m_filterFlag(QtBasic)
 {
     setWindowTitle(tr("Library", "Title of library view"));
 
     /* create Items view and its model */
-    m_d->m_itemsView = new QDeclarativeView(this);
-    m_d->m_itemsView->setAttribute(Qt::WA_OpaquePaintEvent);
-    m_d->m_itemsView->setAttribute(Qt::WA_NoSystemBackground);
-    m_d->m_itemsView->setAcceptDrops(false);
-    m_d->m_itemsView->setFocusPolicy(Qt::ClickFocus);
-    m_d->m_itemsView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    m_d->m_itemLibraryModel = new Internal::ItemLibraryModel(QDeclarativeEnginePrivate::getScriptEngine(m_d->m_itemsView->engine()), this);
-    m_d->m_itemLibraryModel->setItemIconSize(m_d->m_itemIconSize);
+    d->m_itemsView = new QDeclarativeView(this);
+    d->m_itemsView->setAttribute(Qt::WA_OpaquePaintEvent);
+    d->m_itemsView->setAttribute(Qt::WA_NoSystemBackground);
+    d->m_itemsView->setAcceptDrops(false);
+    d->m_itemsView->setFocusPolicy(Qt::ClickFocus);
+    d->m_itemsView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    d->m_itemLibraryModel = new Internal::ItemLibraryModel(QDeclarativeEnginePrivate::getScriptEngine(d->m_itemsView->engine()), this);
+    d->m_itemLibraryModel->setItemIconSize(d->m_itemIconSize);
 
-    QDeclarativeContext *rootContext = m_d->m_itemsView->rootContext();
-    rootContext->setContextProperty(QLatin1String("itemLibraryModel"), m_d->m_itemLibraryModel);
-    rootContext->setContextProperty(QLatin1String("itemLibraryIconWidth"), m_d->m_itemIconSize.width());
-    rootContext->setContextProperty(QLatin1String("itemLibraryIconHeight"), m_d->m_itemIconSize.height());
+    QDeclarativeContext *rootContext = d->m_itemsView->rootContext();
+    rootContext->setContextProperty(QLatin1String("itemLibraryModel"), d->m_itemLibraryModel);
+    rootContext->setContextProperty(QLatin1String("itemLibraryIconWidth"), d->m_itemIconSize.width());
+    rootContext->setContextProperty(QLatin1String("itemLibraryIconHeight"), d->m_itemIconSize.height());
 
     QColor highlightColor = palette().highlight().color();
     if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
         highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
-    m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
+    d->m_itemsView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
 
     // loading the qml has to come after all needed context properties are set
-    m_d->m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
+    d->m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
 
-    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_d->m_itemsView->rootObject());
+    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(d->m_itemsView->rootObject());
     connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
     connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));
     connect(this, SIGNAL(scrollItemsView(QVariant)), rootItem, SLOT(scrollView(QVariant)));
     connect(this, SIGNAL(resetItemsView()), rootItem, SLOT(resetView()));
 
     /* create Resources view and its model */
-    m_d->m_resourcesFileSystemModel = new QFileSystemModel(this);
-    m_d->m_resourcesFileSystemModel->setIconProvider(&m_d->m_iconProvider);
-    m_d->m_resourcesView = new Internal::ItemLibraryTreeView(this);
-    m_d->m_resourcesView->setModel(m_d->m_resourcesFileSystemModel);
-    m_d->m_resourcesView->setIconSize(m_d->m_resIconSize);
+    d->m_resourcesFileSystemModel = new QFileSystemModel(this);
+    d->m_resourcesFileSystemModel->setIconProvider(&d->m_iconProvider);
+    d->m_resourcesView = new Internal::ItemLibraryTreeView(this);
+    d->m_resourcesView->setModel(d->m_resourcesFileSystemModel);
+    d->m_resourcesView->setIconSize(d->m_resIconSize);
 
     /* create image provider for loading item icons */
-    m_d->m_itemsView->engine()->addImageProvider(QLatin1String("qmldesigner_itemlibrary"), new Internal::ItemLibraryImageProvider);
+    d->m_itemsView->engine()->addImageProvider(QLatin1String("qmldesigner_itemlibrary"), new Internal::ItemLibraryImageProvider);
 
     /* other widgets */
     QTabBar *tabBar = new QTabBar(this);
@@ -187,12 +187,12 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     tabBar->addTab(tr("Resources", "Title of library resources view"));
     tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    m_d->m_lineEdit = new Utils::FilterLineEdit(this);
-    m_d->m_lineEdit->setObjectName(QLatin1String("itemLibrarySearchInput"));
-    m_d->m_lineEdit->setPlaceholderText(tr("<Filter>", "Library search input hint text"));
-    m_d->m_lineEdit->setDragEnabled(false);
-    m_d->m_lineEdit->setMinimumWidth(75);
-    m_d->m_lineEdit->setTextMargins(0, 0, 20, 0);
+    d->m_lineEdit = new Utils::FilterLineEdit(this);
+    d->m_lineEdit->setObjectName(QLatin1String("itemLibrarySearchInput"));
+    d->m_lineEdit->setPlaceholderText(tr("<Filter>", "Library search input hint text"));
+    d->m_lineEdit->setDragEnabled(false);
+    d->m_lineEdit->setMinimumWidth(75);
+    d->m_lineEdit->setTextMargins(0, 0, 20, 0);
     QWidget *lineEditFrame = new QWidget(this);
     lineEditFrame->setObjectName(QLatin1String("itemLibrarySearchInputFrame"));
     QGridLayout *lineEditLayout = new QGridLayout(lineEditFrame);
@@ -200,15 +200,15 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     lineEditLayout->setSpacing(0);
     lineEditLayout->addItem(new QSpacerItem(5, 3, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 0, 1, 3);
     lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 0);
-    lineEditLayout->addWidget(m_d->m_lineEdit, 1, 1, 1, 1);
+    lineEditLayout->addWidget(d->m_lineEdit, 1, 1, 1, 1);
     lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 2);
-    connect(m_d->m_lineEdit, SIGNAL(filterChanged(QString)), this, SLOT(setSearchFilter(QString)));
+    connect(d->m_lineEdit, SIGNAL(filterChanged(QString)), this, SLOT(setSearchFilter(QString)));
 
-    m_d->m_stackedWidget = new QStackedWidget(this);
-    m_d->m_stackedWidget->addWidget(m_d->m_itemsView);
-    m_d->m_stackedWidget->addWidget(m_d->m_resourcesView);
+    d->m_stackedWidget = new QStackedWidget(this);
+    d->m_stackedWidget->addWidget(d->m_itemsView);
+    d->m_stackedWidget->addWidget(d->m_resourcesView);
     connect(tabBar, SIGNAL(currentChanged(int)),
-            m_d->m_stackedWidget, SLOT(setCurrentIndex(int)));
+            d->m_stackedWidget, SLOT(setCurrentIndex(int)));
     connect(tabBar, SIGNAL(currentChanged(int)),
             this, SLOT(updateSearch()));
 
@@ -222,14 +222,14 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     layout->addWidget(tabBar, 0, 0, 1, 1);
     layout->addWidget(spacer, 1, 0);
     layout->addWidget(lineEditFrame, 2, 0, 1, 1);
-    layout->addWidget(m_d->m_stackedWidget, 3, 0, 1, 1);
+    layout->addWidget(d->m_stackedWidget, 3, 0, 1, 1);
 
     setResourcePath(QDir::currentPath());
     setSearchFilter(QString());
 
     /* style sheets */
     setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
-    m_d->m_resourcesView->setStyleSheet(
+    d->m_resourcesView->setStyleSheet(
             QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 }
 
@@ -237,22 +237,22 @@ ItemLibraryWidget::~ItemLibraryWidget()
 {
     /* workaround: delete the items view before the model is deleted.
        This prevents qml warnings when the item library is destructed. */
-    delete m_d->m_itemsView;
-    delete m_d->m_resourcesView;
-    delete m_d;
+    delete d->m_itemsView;
+    delete d->m_resourcesView;
+    delete d;
 }
 
 void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
 {
-    if (m_d->m_itemLibraryInfo.data() == itemLibraryInfo)
+    if (d->m_itemLibraryInfo.data() == itemLibraryInfo)
         return;
 
-    if (m_d->m_itemLibraryInfo)
-        disconnect(m_d->m_itemLibraryInfo.data(), SIGNAL(entriesChanged()),
+    if (d->m_itemLibraryInfo)
+        disconnect(d->m_itemLibraryInfo.data(), SIGNAL(entriesChanged()),
                    this, SLOT(updateModel()));
-    m_d->m_itemLibraryInfo = itemLibraryInfo;
+    d->m_itemLibraryInfo = itemLibraryInfo;
     if (itemLibraryInfo)
-        connect(m_d->m_itemLibraryInfo.data(), SIGNAL(entriesChanged()),
+        connect(d->m_itemLibraryInfo.data(), SIGNAL(entriesChanged()),
                 this, SLOT(updateModel()));
 
     updateModel();
@@ -263,9 +263,9 @@ void ItemLibraryWidget::updateImports()
 {
     FilterChangeFlag filter;
     filter = QtBasic;
-    if (m_d->model) {
+    if (d->model) {
         QStringList imports;
-        foreach (const Import &import, m_d->model->imports())
+        foreach (const Import &import, d->model->imports())
             if (import.isLibraryImport())
                 imports << import.url();
         if (imports.contains("com.nokia.symbian", Qt::CaseInsensitive))
@@ -319,10 +319,10 @@ QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
 
 void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
 {
-    if (m_d->m_stackedWidget->currentIndex() == 0) {
-        m_d->m_itemLibraryModel->setSearchText(searchFilter);
+    if (d->m_stackedWidget->currentIndex() == 0) {
+        d->m_itemLibraryModel->setSearchText(searchFilter);
         emit resetItemsView();
-        m_d->m_itemsView->update();
+        d->m_itemsView->update();
     } else {
         QStringList nameFilterList;
         if (searchFilter.contains('.')) {
@@ -333,17 +333,17 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
             }
         }
 
-        m_d->m_resourcesFileSystemModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
-        m_d->m_resourcesFileSystemModel->setNameFilterDisables(false);
-        m_d->m_resourcesFileSystemModel->setNameFilters(nameFilterList);
-        m_d->m_resourcesView->expandToDepth(1);
-        m_d->m_resourcesView->scrollToTop();
+        d->m_resourcesFileSystemModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+        d->m_resourcesFileSystemModel->setNameFilterDisables(false);
+        d->m_resourcesFileSystemModel->setNameFilters(nameFilterList);
+        d->m_resourcesView->expandToDepth(1);
+        d->m_resourcesView->scrollToTop();
     }
 }
 
 void ItemLibraryWidget::setModel(Model *model)
 {
-    m_d->model = model;
+    d->model = model;
     if (!model)
         return;
     setItemLibraryInfo(model->metaInfo().itemLibraryInfo());
@@ -352,14 +352,14 @@ void ItemLibraryWidget::setModel(Model *model)
 
 void ItemLibraryWidget::emitImportChecked()
 {
-    if (!m_d->model)
+    if (!d->model)
         return;
 
     bool qtOnlyImport = false;
     bool meegoImport = false;
     bool symbianImport = false;
 
-    foreach (const Import &import, m_d->model->imports()) {
+    foreach (const Import &import, d->model->imports()) {
         if (import.isLibraryImport()) {
             if (import.url().contains(QString("meego"), Qt::CaseInsensitive))
                 meegoImport = true;
@@ -383,7 +383,7 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
     return;
 
     static bool block = false;
-    if (!m_d->model)
+    if (!d->model)
         return;
     if (flag == m_filterFlag)
         return;
@@ -443,36 +443,36 @@ void ItemLibraryWidget::onSymbianChecked(bool b)
 
 void ItemLibraryWidget::updateModel()
 {
-    m_d->m_itemLibraryModel->update(m_d->m_itemLibraryInfo.data(), m_d->model);
+    d->m_itemLibraryModel->update(d->m_itemLibraryInfo.data(), d->model);
     updateImports();
     updateSearch();
 }
 
 void ItemLibraryWidget::updateSearch()
 {
-    setSearchFilter(m_d->m_lineEdit->text());
+    setSearchFilter(d->m_lineEdit->text());
 }
 
 void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
 {
-    if (m_d->m_resourcesView->model() == m_d->m_resourcesFileSystemModel) {
-        m_d->m_resourcesFileSystemModel->setRootPath(resourcePath);
-        m_d->m_resourcesView->setRootIndex(m_d->m_resourcesFileSystemModel->index(resourcePath));
+    if (d->m_resourcesView->model() == d->m_resourcesFileSystemModel) {
+        d->m_resourcesFileSystemModel->setRootPath(resourcePath);
+        d->m_resourcesView->setRootIndex(d->m_resourcesFileSystemModel->index(resourcePath));
     }
     updateSearch();
 }
 
 void ItemLibraryWidget::startDragAndDrop(int itemLibId)
 {
-    QMimeData *mimeData = m_d->m_itemLibraryModel->getMimeData(itemLibId);
+    QMimeData *mimeData = d->m_itemLibraryModel->getMimeData(itemLibId);
     CustomItemLibraryDrag *drag = new CustomItemLibraryDrag(this);
     const QImage image = qvariant_cast<QImage>(mimeData->imageData());
 
-    drag->setPixmap(m_d->m_itemLibraryModel->getIcon(itemLibId).pixmap(32, 32));
+    drag->setPixmap(d->m_itemLibraryModel->getIcon(itemLibId).pixmap(32, 32));
     drag->setPreview(QPixmap::fromImage(image));
     drag->setMimeData(mimeData);
 
-    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_d->m_itemsView->rootObject());
+    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(d->m_itemsView->rootObject());
     connect(rootItem, SIGNAL(stopDragAndDrop()), drag, SLOT(stopDrag()));
 
     drag->exec();
@@ -485,8 +485,8 @@ void ItemLibraryWidget::showItemInfo(int /*itemLibId*/)
 
 void ItemLibraryWidget::wheelEvent(QWheelEvent *event)
 {
-    if (m_d->m_stackedWidget->currentIndex() == 0 &&
-        m_d->m_itemsView->rect().contains(event->pos())) {
+    if (d->m_stackedWidget->currentIndex() == 0 &&
+        d->m_itemsView->rect().contains(event->pos())) {
         emit scrollItemsView(event->delta());
         event->accept();
     } else
@@ -495,22 +495,22 @@ void ItemLibraryWidget::wheelEvent(QWheelEvent *event)
 
  void ItemLibraryWidget::removeImport(const QString &name)
  {
-     if (!m_d->model)
+     if (!d->model)
          return;
 
      QList<Import> toBeRemovedImportList;
-     foreach (const Import &import, m_d->model->imports())
+     foreach (const Import &import, d->model->imports())
          if (import.isLibraryImport() && import.url().compare(name, Qt::CaseInsensitive) == 0)
              toBeRemovedImportList.append(import);
 
-     m_d->model->changeImports(QList<Import>(), toBeRemovedImportList);
+     d->model->changeImports(QList<Import>(), toBeRemovedImportList);
  }
 
  void ItemLibraryWidget::addImport(const QString &name, const QString &version)
  {
-     if (!m_d->model)
+     if (!d->model)
          return;
-     m_d->model->changeImports(QList<Import>() << Import::createLibraryImport(name, version), QList<Import>());
+     d->model->changeImports(QList<Import>() << Import::createLibraryImport(name, version), QList<Import>());
  }
 
 }

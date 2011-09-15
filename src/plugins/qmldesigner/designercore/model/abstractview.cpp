@@ -85,7 +85,7 @@ ModelNode AbstractView::createModelNode(const QString &typeString,
                             const QString &nodeSource,
                             ModelNode::NodeSourceType nodeSourceType)
 {
-    return ModelNode(model()->m_d->createNode(typeString, majorVersion, minorVersion, propertyList, auxPropertyList, nodeSource, nodeSourceType), model(), this);
+    return ModelNode(model()->d->createNode(typeString, majorVersion, minorVersion, propertyList, auxPropertyList, nodeSource, nodeSourceType), model(), this);
 }
 
 
@@ -97,7 +97,7 @@ ModelNode AbstractView::createModelNode(const QString &typeString,
 const ModelNode AbstractView::rootModelNode() const
 {
     Q_ASSERT(model());
-    return ModelNode(model()->m_d->rootNode(), model(), const_cast<AbstractView*>(this));
+    return ModelNode(model()->d->rootNode(), model(), const_cast<AbstractView*>(this));
 }
 
 
@@ -109,7 +109,7 @@ const ModelNode AbstractView::rootModelNode() const
 ModelNode AbstractView::rootModelNode()
 {
     Q_ASSERT(model());
-    return  ModelNode(model()->m_d->rootNode(), model(), this);
+    return  ModelNode(model()->d->rootNode(), model(), this);
 }
 
 /*!
@@ -276,7 +276,7 @@ QList<Internal::InternalNode::Pointer> toInternalNodeList(const QList<ModelNode>
 */
 void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeList)
 {
-    model()->m_d->setSelectedNodes(toInternalNodeList(selectedNodeList));
+    model()->d->setSelectedNodes(toInternalNodeList(selectedNodeList));
 }
 
 /*!
@@ -284,7 +284,7 @@ void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeLis
 */
 void AbstractView::clearSelectedModelNodes()
 {
-    model()->m_d->clearSelectedNodes();
+    model()->d->clearSelectedNodes();
 }
 
 /*!
@@ -293,7 +293,7 @@ void AbstractView::clearSelectedModelNodes()
 */
 QList<ModelNode> AbstractView::selectedModelNodes() const
 {
-    return toModelNodeList(model()->m_d->selectedNodes());
+    return toModelNodeList(model()->d->selectedNodes());
 }
 
 /*!
@@ -302,7 +302,7 @@ QList<ModelNode> AbstractView::selectedModelNodes() const
 */
 void AbstractView::selectModelNode(const ModelNode &node)
 {
-    model()->m_d->selectNode(node.internalNode());
+    model()->d->selectNode(node.internalNode());
 }
 
 /*!
@@ -311,27 +311,27 @@ void AbstractView::selectModelNode(const ModelNode &node)
 */
 void AbstractView::deselectModelNode(const ModelNode &node)
 {
-    model()->m_d->deselectNode(node.internalNode());
+    model()->d->deselectNode(node.internalNode());
 }
 
 ModelNode AbstractView::modelNodeForId(const QString &id)
 {
-    return ModelNode(model()->m_d->nodeForId(id), model(), this);
+    return ModelNode(model()->d->nodeForId(id), model(), this);
 }
 
 bool AbstractView::hasId(const QString &id) const
 {
-    return model()->m_d->hasId(id);
+    return model()->d->hasId(id);
 }
 
 ModelNode AbstractView::modelNodeForInternalId(qint32 internalId)
 {
-     return ModelNode(model()->m_d->nodeForInternalId(internalId), model(), this);
+     return ModelNode(model()->d->nodeForInternalId(internalId), model(), this);
 }
 
 bool AbstractView::hasModelNodeForInternalId(qint32 internalId) const
 {
-    return model()->m_d->hasNodeForInternalId(internalId);
+    return model()->d->hasNodeForInternalId(internalId);
 }
 
 QmlModelView *AbstractView::toQmlModelView()
@@ -342,7 +342,7 @@ QmlModelView *AbstractView::toQmlModelView()
 NodeInstanceView *AbstractView::nodeInstanceView() const
 {
     if (model()) {
-        return model()->m_d->nodeInstanceView();
+        return model()->d->nodeInstanceView();
     } else {
         return 0;
     }
@@ -351,7 +351,7 @@ NodeInstanceView *AbstractView::nodeInstanceView() const
 RewriterView *AbstractView::rewriterView() const
 {
     if (model()) {
-        return model()->m_d->rewriterView();
+        return model()->d->rewriterView();
     } else {
         return 0;
     }
@@ -369,7 +369,7 @@ void AbstractView::resetView()
 
 QList<ModelNode> AbstractView::allModelNodes()
 {
-   return toModelNodeList(model()->m_d->allNodes());
+   return toModelNodeList(model()->d->allNodes());
 }
 
 void AbstractView::emitCustomNotification(const QString &identifier)
@@ -384,49 +384,49 @@ void AbstractView::emitCustomNotification(const QString &identifier, const QList
 
 void AbstractView::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
-    model()->m_d->notifyCustomNotification(this, identifier, nodeList, data);
+    model()->d->notifyCustomNotification(this, identifier, nodeList, data);
 }
 
 void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
 {
     if (model() && nodeInstanceView() == this)
-        model()->m_d->notifyInstancePropertyChange(propertyList);
+        model()->d->notifyInstancePropertyChange(propertyList);
 }
 
 void AbstractView::emitInstancesCompleted(const QVector<ModelNode> &nodeVector)
 {
     if (model() && nodeInstanceView() == this)
-        model()->m_d->notifyInstancesCompleted(nodeVector);
+        model()->d->notifyInstancesCompleted(nodeVector);
 }
 
 void AbstractView::emitInstanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     if (model() && nodeInstanceView() == this)
-        model()->m_d->notifyInstancesInformationsChange(informationChangeHash);
+        model()->d->notifyInstancesInformationsChange(informationChangeHash);
 }
 
 void AbstractView::emitInstancesRenderImageChanged(const QVector<ModelNode> &nodeVector)
 {
     if (model() && nodeInstanceView() == this)
-        model()->m_d->notifyInstancesRenderImageChanged(nodeVector);
+        model()->d->notifyInstancesRenderImageChanged(nodeVector);
 }
 
 void AbstractView::emitInstancesPreviewImageChanged(const QVector<ModelNode> &nodeVector)
 {
     if (model() && nodeInstanceView() == this)
-        model()->m_d->notifyInstancesPreviewImageChanged(nodeVector);
+        model()->d->notifyInstancesPreviewImageChanged(nodeVector);
 }
 
 void AbstractView::emitInstancesChildrenChanged(const QVector<ModelNode> &nodeVector)
 {
     if (model() && nodeInstanceView() == this)
-        model()->m_d->notifyInstancesChildrenChanged(nodeVector);
+        model()->d->notifyInstancesChildrenChanged(nodeVector);
 }
 
 void AbstractView::emitRewriterBeginTransaction()
 {
     if (model())
-        model()->m_d->notifyRewriterBeginTransaction();
+        model()->d->notifyRewriterBeginTransaction();
 }
 
 void AbstractView::sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector)
@@ -438,33 +438,33 @@ void AbstractView::sendTokenToInstances(const QString &token, int number, const 
 void AbstractView::emitInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
 {
     if (nodeInstanceView())
-        model()->m_d->notifyInstanceToken(token, number, nodeVector);
+        model()->d->notifyInstanceToken(token, number, nodeVector);
 }
 
 void AbstractView::emitRewriterEndTransaction()
 {
     if (model())
-        model()->m_d->notifyRewriterEndTransaction();
+        model()->d->notifyRewriterEndTransaction();
 }
 
 void AbstractView::setAcutalStateNode(const ModelNode &node)
 {
     Internal::WriteLocker locker(m_model.data());
     if (model())
-        model()->m_d->notifyActualStateChanged(node);
+        model()->d->notifyActualStateChanged(node);
 }
 
 void AbstractView::changeRootNodeType(const QString &type, int majorVersion, int minorVersion)
 {
     Internal::WriteLocker locker(m_model.data());
 
-    m_model.data()->m_d->changeRootNodeType(type, majorVersion, minorVersion);
+    m_model.data()->d->changeRootNodeType(type, majorVersion, minorVersion);
 }
 
 ModelNode AbstractView::actualStateNode() const
 {
     if (model())
-        return ModelNode(m_model.data()->m_d->actualStateNode(), m_model.data(), const_cast<AbstractView*>(this));
+        return ModelNode(m_model.data()->d->actualStateNode(), m_model.data(), const_cast<AbstractView*>(this));
 
     return ModelNode();
 }

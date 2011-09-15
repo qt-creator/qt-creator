@@ -126,10 +126,10 @@ Model *ModelPrivate::create(QString type, int major, int minor, Model *metaInfoP
 {
     Model *model = new Model;
 
-    model->m_d->m_metaInfoProxyModel = metaInfoPropxyModel;
-    model->m_d->rootNode()->setType(type);
-    model->m_d->rootNode()->setMajorVersion(major);
-    model->m_d->rootNode()->setMinorVersion(minor);
+    model->d->m_metaInfoProxyModel = metaInfoPropxyModel;
+    model->d->rootNode()->setType(type);
+    model->d->rootNode()->setMajorVersion(major);
+    model->d->rootNode()->setMinorVersion(minor);
 
     return model;
 }
@@ -1659,9 +1659,9 @@ WriteLocker::WriteLocker(ModelPrivate *model)
 }
 
 WriteLocker::WriteLocker(Model *model)
-    : m_model(model->m_d)
+    : m_model(model->d)
 {
-    Q_ASSERT(model->m_d);
+    Q_ASSERT(model->d);
     if (m_model->m_writeLock)
         qWarning() << "QmlDesigner: Misbehaving view calls back to model!!!";
     // FIXME: Enable it again
@@ -1716,14 +1716,14 @@ WriteLocker::~WriteLocker()
 
 Model::Model()  :
    QObject(),
-   m_d(new Internal::ModelPrivate(this))
+   d(new Internal::ModelPrivate(this))
 {
 }
 
 
 Model::~Model()
 {
-    delete m_d;
+    delete d;
 }
 
 
@@ -1755,12 +1755,12 @@ Model *Model::create(QString type, int major, int minor, Model *metaInfoPropxyMo
 //            = componentNode.baseNodeState().m_internalNodeState->propertyLocation("data");
 //
 //    TextModifier *textModifier
-//            = new Internal::ComponentTextModifier(m_d->m_rewriter->textModifier(),
+//            = new Internal::ComponentTextModifier(d->m_rewriter->textModifier(),
 //                                                  componentRootLocation,
-//                                                  m_d->m_rootInternalNode->baseNodeState()->location());
+//                                                  d->m_rootInternalNode->baseNodeState()->location());
 //
 //    QList<QDeclarativeError> errors;
-//    Model *subModel = create(textModifier, m_d->m_fileUrl, &errors);
+//    Model *subModel = create(textModifier, d->m_fileUrl, &errors);
 //
 //    Q_ASSERT(subModel);
 //    Q_ASSERT(errors.size() == 0); // should never happen, after all it was already compiled!
@@ -1772,12 +1772,12 @@ Model *Model::create(QString type, int major, int minor, Model *metaInfoPropxyMo
 
 QList<Import> Model::imports() const
 {
-    return m_d->imports();
+    return d->imports();
 }
 
 void Model::changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved)
 {
-    m_d->changeImports(importsToBeAdded, importsToBeRemoved);
+    d->changeImports(importsToBeAdded, importsToBeRemoved);
 }
 
 
@@ -1832,7 +1832,7 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
 
 RewriterView *Model::rewriterView() const
 {
-    return m_d->rewriterView();
+    return d->rewriterView();
 }
 
 /*!
@@ -1841,8 +1841,8 @@ RewriterView *Model::rewriterView() const
 */
 Model *Model::metaInfoProxyModel()
 {
-    if (m_d->m_metaInfoProxyModel)
-        return m_d->m_metaInfoProxyModel->metaInfoProxyModel();
+    if (d->m_metaInfoProxyModel)
+        return d->m_metaInfoProxyModel->metaInfoProxyModel();
     else
         return this;
 }
@@ -1862,12 +1862,12 @@ Model *Model::create(const QString &rootType)
 
 Model *Model::masterModel() const
 {
-    return m_d->m_masterModel.data();
+    return d->m_masterModel.data();
 }
 
 void Model::setMasterModel(Model *model)
 {
-    m_d->m_masterModel = model;
+    d->m_masterModel = model;
 }
 
 /*!
@@ -1876,7 +1876,7 @@ void Model::setMasterModel(Model *model)
   */
 QUrl Model::fileUrl() const
 {
-    return m_d->fileUrl();
+    return d->fileUrl();
 }
 
 /*!
@@ -1885,8 +1885,8 @@ QUrl Model::fileUrl() const
   */
 void Model::setFileUrl(const QUrl &url)
 {
-    Internal::WriteLocker locker(m_d);
-    m_d->setFileUrl(url);
+    Internal::WriteLocker locker(d);
+    d->setFileUrl(url);
 }
 
 /*!
@@ -1894,7 +1894,7 @@ void Model::setFileUrl(const QUrl &url)
   */
 const MetaInfo Model::metaInfo() const
 {
-    return m_d->metaInfo();
+    return d->metaInfo();
 }
 
 bool Model::hasNodeMetaInfo(const QString &typeName, int majorVersion, int minorVersion)
@@ -1912,7 +1912,7 @@ NodeMetaInfo Model::metaInfo(const QString &typeName, int majorVersion, int mino
   */
 MetaInfo Model::metaInfo()
 {
-    return m_d->metaInfo();
+    return d->metaInfo();
 }
 
 /*! \name Undo Redo Interface
@@ -1936,20 +1936,20 @@ The view is informed that it has been registered within the model by a call to A
 */
 void Model::attachView(AbstractView *view)
 {
-//    Internal::WriteLocker locker(m_d);
+//    Internal::WriteLocker locker(d);
     RewriterView *rewriterView = qobject_cast<RewriterView*>(view);
     if (rewriterView) {
-        m_d->setRewriterView(rewriterView);
+        d->setRewriterView(rewriterView);
         return;
     }
 
     NodeInstanceView *nodeInstanceView = qobject_cast<NodeInstanceView*>(view);
     if (nodeInstanceView) {
-        m_d->setNodeInstanceView(nodeInstanceView);
+        d->setNodeInstanceView(nodeInstanceView);
         return;
     }
 
-    m_d->attachView(view);
+    d->attachView(view);
 }
 
 /*!
@@ -1962,22 +1962,22 @@ void Model::attachView(AbstractView *view)
 */
 void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
 {
-//    Internal::WriteLocker locker(m_d);
+//    Internal::WriteLocker locker(d);
     bool emitNotify = (emitDetachNotify == NotifyView);
 
     RewriterView *rewriterView = qobject_cast<RewriterView*>(view);
     if (rewriterView) {
-        m_d->setRewriterView(0);
+        d->setRewriterView(0);
         return;
     }
 
     NodeInstanceView *nodeInstanceView = qobject_cast<NodeInstanceView*>(view);
     if (nodeInstanceView) {
-        m_d->setNodeInstanceView(0);
+        d->setNodeInstanceView(0);
         return;
     }
 
-    m_d->detachView(view, emitNotify);
+    d->detachView(view, emitNotify);
 }
 
 

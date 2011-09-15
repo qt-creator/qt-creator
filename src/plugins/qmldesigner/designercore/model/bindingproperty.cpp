@@ -81,9 +81,9 @@ void BindingProperty::setExpression(const QString &expression)
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        model()->m_d->removeProperty(internalNode()->property(name()));
+        model()->d->removeProperty(internalNode()->property(name()));
 
-    model()->m_d->setBindingProperty(internalNode(), name(), expression);
+    model()->d->setBindingProperty(internalNode(), name(), expression);
 }
 
 QString BindingProperty::expression() const
@@ -229,9 +229,9 @@ void BindingProperty::setDynamicTypeNameAndExpression(const QString &typeName, c
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        model()->m_d->removeProperty(internalNode()->property(name()));
+        model()->d->removeProperty(internalNode()->property(name()));
 
-     model()->m_d->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
+     model()->d->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
 }
 
 BindingProperty& BindingProperty::operator= (const QPair<QString, QString> &typeExpressionPair)

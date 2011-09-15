@@ -200,7 +200,7 @@ void ModelNode::setId(const QString& id)
     if (view()->hasId(id))
         throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, InvalidIdException::DuplicateId);
 
-    m_model.data()->m_d->changeNodeId(internalNode(), id);
+    m_model.data()->d->changeNodeId(internalNode(), id);
 }
 
 /*! \brief the fully-qualified type name of the node is represented as string
@@ -565,10 +565,10 @@ void ModelNode::removeProperty(const QString &name)
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    model()->m_d->checkPropertyName(name);
+    model()->d->checkPropertyName(name);
 
     if (internalNode()->hasProperty(name))
-        model()->m_d->removeProperty(internalNode()->property(name));
+        model()->d->removeProperty(internalNode()->property(name));
 }
 
 
@@ -613,7 +613,7 @@ void ModelNode::destroy()
     }
 
     removeModelNodeFromSelection(*this);
-    model()->m_d->removeNode(internalNode());
+    model()->d->removeNode(internalNode());
 }
 //\}
 
@@ -906,7 +906,7 @@ QVariant ModelNode::auxiliaryData(const QString &name) const
 void ModelNode::setAuxiliaryData(const QString &name, const QVariant &data) const
 {
     Internal::WriteLocker locker(m_model.data());
-    m_model.data()->m_d->setAuxiliaryData(internalNode(), name, data);
+    m_model.data()->d->setAuxiliaryData(internalNode(), name, data);
 }
 
 bool ModelNode::hasAuxiliaryData(const QString &name) const
@@ -929,7 +929,7 @@ QHash<QString, QVariant> ModelNode::auxiliaryData() const
 
 void  ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)
 {
-    model()->m_d->setScriptFunctions(internalNode(), scriptFunctionList);
+    model()->d->setScriptFunctions(internalNode(), scriptFunctionList);
 }
 
 QStringList  ModelNode::scriptFunctions() const
@@ -957,7 +957,7 @@ void ModelNode::setNodeSource(const QString &newNodeSource)
     if (internalNode()->nodeSource() == newNodeSource)
         return;
 
-    m_model.data()->m_d->setNodeSource(internalNode(), newNodeSource);
+    m_model.data()->d->setNodeSource(internalNode(), newNodeSource);
 }
 
 QString ModelNode::nodeSource() const

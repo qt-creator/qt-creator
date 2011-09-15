@@ -77,9 +77,9 @@ void VariantProperty::setValue(const QVariant &value)
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isVariantProperty())
-        model()->m_d->removeProperty(internalNode()->property(name()));
+        model()->d->removeProperty(internalNode()->property(name()));
 
-    model()->m_d->setVariantProperty(internalNode(), name(), value);
+    model()->d->setVariantProperty(internalNode(), name(), value);
 }
 
 QVariant VariantProperty::value() const
@@ -119,9 +119,9 @@ void VariantProperty::setDynamicTypeNameAndValue(const QString &type, const QVar
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isVariantProperty())
-        model()->m_d->removeProperty(internalNode()->property(name()));
+        model()->d->removeProperty(internalNode()->property(name()));
 
-     model()->m_d->setDynamicVariantProperty(internalNode(), name(), type, value);
+     model()->d->setDynamicVariantProperty(internalNode(), name(), type, value);
 }
 
 VariantProperty& VariantProperty::operator= (const QPair<QString, QVariant> &typeValuePair)

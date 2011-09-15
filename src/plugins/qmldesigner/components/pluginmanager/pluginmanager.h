@@ -73,7 +73,7 @@ private:
     // dialog. Forces plugin initialization.
     QAbstractItemModel *createModel(QObject *parent = 0);
 
-    PluginManagerPrivate *m_d;
+    PluginManagerPrivate *d;
 };
 
 } // namespace QmlDesigner

@@ -96,7 +96,7 @@ signals:
     void symbianChecked(bool b);
 
 private:
-    ItemLibraryWidgetPrivate *m_d;
+    ItemLibraryWidgetPrivate *d;
     FilterChangeFlag m_filterFlag;
 };
 

@@ -144,7 +144,7 @@ private:
     QWidget *centralWidget() const;
     QString pathToQt() const;
 
-    class DesignDocumentControllerPrivate *m_d;
+    class DesignDocumentControllerPrivate *d;
 
     static DesignDocumentController* m_this;
 };

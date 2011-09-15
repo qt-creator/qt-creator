@@ -118,7 +118,7 @@ signals:
 private:
     ItemLibraryInfo(QObject *parent = 0);
     void setBaseInfo(ItemLibraryInfo *baseInfo);
-    QScopedPointer<Internal::ItemLibraryInfoPrivate> m_d;
+    QScopedPointer<Internal::ItemLibraryInfoPrivate> d;
 };
 
 } // namespace QmlDesigner

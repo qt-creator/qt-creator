@@ -71,7 +71,7 @@ IntegrationCore *CorePrivate::m_instance = 0;
 */
 
 IntegrationCore::IntegrationCore() :
-   m_d(new CorePrivate)
+   d(new CorePrivate)
 {
     Q_ASSERT(CorePrivate::m_instance == 0);
     CorePrivate::m_instance = this;
@@ -80,7 +80,7 @@ IntegrationCore::IntegrationCore() :
 IntegrationCore::~IntegrationCore()
 {
     CorePrivate::m_instance = 0;
-    delete m_d;
+    delete d;
 }
 
 IntegrationCore *IntegrationCore::instance()
@@ -91,7 +91,7 @@ IntegrationCore *IntegrationCore::instance()
 
 PluginManager *IntegrationCore::pluginManager() const
 {
-    return &m_d->m_pluginManager;
+    return &d->m_pluginManager;
 }
 
 }

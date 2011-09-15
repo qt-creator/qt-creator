@@ -114,7 +114,7 @@ protected:
     Model();
 
 public:
-    Internal::ModelPrivate *m_d;
+    Internal::ModelPrivate *d;
 };
 
 }
