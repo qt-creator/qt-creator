@@ -551,14 +551,17 @@ QString BaseQtVersion::findQtBinary(BINARIES binary) const
 
     QStringList possibleCommands;
     switch (binary) {
-    case QmlViewer:
-#if defined(Q_OS_MAC)
-        possibleCommands << QLatin1String("QMLViewer");
-#elif defined(Q_OS_WIN)
-        possibleCommands << QLatin1String("qmlviewer.exe");
+    case QmlViewer: {
+        if (qtVersion() < QtVersionNumber(5, 0, 0)) {
+            possibleCommands << possibleGuiBinaries(QLatin1String("qmlviewer"));
+        } else {
+#if defined(Q_OS_WIN)
+            possibleCommands << QLatin1String("qmlscene.exe");
 #else
-        possibleCommands << QLatin1String("qmlviewer");
+            possibleCommands << QLatin1String("qmlscene");
 #endif
+        }
+    }
         break;
     case Designer:
         possibleCommands << possibleGuiBinaries(QLatin1String("designer"));
