@@ -64,7 +64,13 @@ public:
          ResetPosition,
          GoIntoComponent,
          SetId,
-         ResetZ
+         ResetZ,
+         AnchorReset,
+         AnchorFill,
+         LayoutRow,
+         LayoutColumn,
+         LayoutGrid,
+         LayoutFlow
      };
 
 
@@ -94,6 +100,12 @@ private:
      void goIntoComponent();
      void setId();
      void resetZ();
+     void anchorsFill();
+     void anchorsReset();
+     void layoutRow();
+     void layoutColumn();
+     void layoutGrid();
+     void layoutFlow();
 
      QmlModelView *m_view;
      QList<ModelNode> m_modelNodeList;
