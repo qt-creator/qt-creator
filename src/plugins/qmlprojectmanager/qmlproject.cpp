@@ -42,6 +42,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/filemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qtsupport/qmldumptool.h>
 #include <qtsupport/baseqtversion.h>
@@ -60,10 +61,8 @@ namespace QmlProjectManager {
 QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>()),
-      m_fileWatcher(new Utils::FileSystemWatcher(this))
+      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>())
 {
-    m_fileWatcher->setObjectName(QLatin1String("QmlProjectWatcher"));
     setProjectContext(Core::Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguage(Core::Context(QmlProjectManager::Constants::LANG_QML));
 
@@ -73,9 +72,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     m_file = new Internal::QmlProjectFile(this, fileName);
     m_rootNode = new Internal::QmlProjectNode(this, m_file);
 
-    m_fileWatcher->addFile(fileName, Utils::FileSystemWatcher::WatchModifiedDate);
-    connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
-            this, SLOT(refreshProjectFile()));
+    Core::FileManager::instance()->addFile(m_file, true);
 
     m_manager->registerProject(this);
 }
@@ -83,6 +80,8 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
 QmlProject::~QmlProject()
 {
     m_manager->unregisterProject(this);
+
+    Core::FileManager::instance()->removeFile(m_file);
 
     delete m_projectItem.data();
     delete m_rootNode;

@@ -100,8 +100,9 @@ public:
 
     bool addFiles(const QStringList &filePaths);
 
-private slots:
     void refreshProjectFile();
+
+private slots:
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
 
 protected:
@@ -124,7 +125,6 @@ private:
     // qml based, new format
     QDeclarativeEngine m_engine;
     QWeakPointer<QmlProjectItem> m_projectItem;
-    Utils::FileSystemWatcher *m_fileWatcher;
 
     Internal::QmlProjectNode *m_rootNode;
 };

@@ -33,6 +33,7 @@
 #include "qmlprojectfile.h"
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
+#include <utils/qtcassert.h>
 
 namespace QmlProjectManager {
 namespace Internal {
@@ -41,10 +42,14 @@ QmlProjectFile::QmlProjectFile(QmlProject *parent, QString fileName)
     : Core::IFile(parent),
       m_project(parent),
       m_fileName(fileName)
-{ }
+{
+    QTC_CHECK(m_project);
+    QTC_CHECK(!fileName.isEmpty());
+}
 
 QmlProjectFile::~QmlProjectFile()
-{ }
+{
+}
 
 bool QmlProjectFile::save(QString *, const QString &, bool)
 {
@@ -104,7 +109,10 @@ bool QmlProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
 {
     Q_UNUSED(errorString)
     Q_UNUSED(flag)
-    Q_UNUSED(type)
+
+    if (type == TypeContents)
+        m_project->refreshProjectFile();
+
     return true;
 }
 
