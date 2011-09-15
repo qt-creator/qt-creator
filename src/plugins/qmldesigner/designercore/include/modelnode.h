@@ -103,6 +103,7 @@ public:
     QString simplifiedTypeName() const;
     int minorVersion() const;
     int majorVersion() const;
+    int majorQtQuickVersion() const;
 
     bool isValid() const;
     bool isInHierarchy() const;

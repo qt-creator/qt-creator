@@ -35,6 +35,7 @@
 #include <abstractview.h>
 #include <model.h>
 #include <metainfo.h>
+#include <nodemetainfo.h>
 #include "internalnode_p.h"
 #include <QHash>
 #include <QTextStream>
@@ -237,6 +238,29 @@ int ModelNode::majorVersion() const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
     return m_internalNode->majorVersion();
+}
+
+/*! \brief major number of the QtQuick version used
+\return major number of QtQuickVersion
+*/
+int ModelNode::majorQtQuickVersion() const
+{
+    if (!isValid()) {
+        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    }
+
+    if (metaInfo().isValid()) {
+        NodeMetaInfo superClass = metaInfo().directSuperClass();
+
+        while (superClass.isValid()) {
+            if (superClass.typeName() == "QtQuick.Item")
+                return superClass.majorVersion();
+            superClass = superClass.directSuperClass();
+        }
+        return 1; //default
+    }
+    return 1; //default
 }
 
 

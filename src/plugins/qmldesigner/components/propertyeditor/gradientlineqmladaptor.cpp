@@ -131,7 +131,7 @@ void GradientLineQmlAdaptor::writeGradient()
                 modelNode.removeProperty(gradientName());
             }
 
-            ModelNode gradientNode = gradientNode= modelNode.view()->createModelNode("QtQuick.Gradient", modelNode.majorVersion(), 0);
+            ModelNode gradientNode= modelNode.view()->createModelNode("QtQuick.Gradient", modelNode.majorQtQuickVersion(), 0);
             modelNode.nodeProperty(gradientName()).reparentHere(gradientNode);
 
             RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
