@@ -39,6 +39,10 @@ QT_BEGIN_NAMESPACE
 class QToolBar;
 QT_END_NAMESPACE
 
+namespace Utils {
+class CrumblePath;
+}
+
 namespace QmlDesigner {
 
 class ToolBox : public Utils::StyledBar
@@ -50,10 +54,13 @@ public:
     void addLeftSideAction(QAction *action);
     void addRightSideAction(QAction *action);
     QList<QAction*> actions() const;
+    Utils::CrumblePath *crumblePath() const;
+
 
 private:
     QToolBar *m_leftToolBar;
     QToolBar *m_rightToolBar;
+    Utils::CrumblePath *m_crumblePath;
 };
 
 } // namespace QmlDesigner
