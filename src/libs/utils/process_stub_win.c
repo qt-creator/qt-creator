@@ -118,6 +118,7 @@ int main()
     PROCESS_INFORMATION pi;
     DEBUG_EVENT dbev;
     enum RunMode mode = Run;
+    HANDLE image = NULL;
 
     argv = CommandLineToArgvW(GetCommandLine(), &argc);
 
@@ -196,6 +197,8 @@ int main()
         do {
             if (!WaitForDebugEvent (&dbev, INFINITE))
                 systemError("Cannot fetch debug event, error %d\n");
+            if (dbev.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT)
+                image = dbev.u.CreateProcessInfo.hFile;
             if (dbev.dwDebugEventCode == EXCEPTION_DEBUG_EVENT) {
                 /* The first exception to be delivered is a trap
                    which indicates completion of startup. */
@@ -207,6 +210,8 @@ int main()
         } while (dbev.dwDebugEventCode != EXCEPTION_DEBUG_EVENT);
         if (!DebugActiveProcessStop(dbev.dwProcessId))
             systemError("Cannot detach from debugee, error %d\n");
+        if (image)
+            CloseHandle(image);
     }
 
     SetConsoleCtrlHandler(ctrlHandler, TRUE);
@@ -216,6 +221,8 @@ int main()
 
     if (WaitForSingleObject(pi.hProcess, INFINITE) == WAIT_FAILED)
         systemError("Wait for debugee failed, error %d\n");
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
     doExit(0);
     return 0;
 }
