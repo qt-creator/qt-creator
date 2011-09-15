@@ -146,6 +146,7 @@ signals:
 private slots:
     void qtVersionsChanged(const QList<int> &changedVersions);
     void emitBuildDirectoryChanged();
+    void proFileUpdated();
 
 protected:
     Qt4BuildConfiguration(Qt4BaseTarget *target, Qt4BuildConfiguration *source);

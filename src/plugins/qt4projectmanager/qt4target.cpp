@@ -37,6 +37,7 @@
 #include "qmakestep.h"
 #include "qt4project.h"
 #include "qt4basetargetfactory.h"
+#include "qt4nodes.h"
 #include "qt4projectconfigwidget.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4buildconfiguration.h"
@@ -263,8 +264,20 @@ QList<ProjectExplorer::ToolChain *> Qt4BaseTarget::possibleToolChains(ProjectExp
     QList<ProjectExplorer::ToolChain *> result;
 
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(bc);
-    if (!qt4bc || !qt4bc->qtVersion() || !qt4bc->qtVersion()->isValid())
+    if (!qt4bc || !qt4bc->qtVersion())
         return tmp;
+
+    QList<Qt4ProFileNode *> profiles = qt4Project()->allProFiles();
+    bool qtUsed = false;
+    foreach (Qt4ProFileNode *pro, profiles) {
+        if (!pro->variableValue(QtVar).isEmpty()) {
+            qtUsed = true;
+            break;
+        }
+    }
+
+    if (!qtUsed || !qt4bc->qtVersion()->isValid())
+        return ProjectExplorer::ToolChainManager::instance()->toolChains();
 
     QList<ProjectExplorer::Abi> abiList = qt4bc->qtVersion()->qtAbis();
     foreach (const ProjectExplorer::Abi &abi, abiList)

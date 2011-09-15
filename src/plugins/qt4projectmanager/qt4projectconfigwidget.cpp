@@ -122,6 +122,9 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BaseTarget *target)
     connect(target->qt4Project(), SIGNAL(buildDirectoryInitialized()),
             this, SLOT(updateImportLabel()));
 
+    connect(target->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(updateToolChainCombo()));
+
     connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
             this, SLOT(updateToolChainCombo()));
 }

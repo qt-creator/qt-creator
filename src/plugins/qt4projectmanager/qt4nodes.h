@@ -87,6 +87,7 @@ enum Qt4Variable {
     PrecompiledHeaderVar,
     LibDirectoriesVar,
     ConfigVar,
+    QtVar,
     QmlImportPathVar,
     Makefile,
     SymbianCapabilities

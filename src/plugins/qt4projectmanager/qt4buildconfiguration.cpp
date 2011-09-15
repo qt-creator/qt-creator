@@ -188,6 +188,8 @@ void Qt4BuildConfiguration::ctor()
             this, SLOT(emitBuildDirectoryChanged()));
     connect(this, SIGNAL(environmentChanged()),
             this, SLOT(emitProFileEvaluateNeeded()));
+    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdated()));
 
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
@@ -200,6 +202,14 @@ void Qt4BuildConfiguration::emitBuildDirectoryChanged()
         m_lastEmmitedBuildDirectory = buildDirectory();
         emit buildDirectoryChanged();
     }
+}
+
+void Qt4BuildConfiguration::proFileUpdated()
+{
+    // Changing the included Qt modules from 0 to at least one might have caused the
+    // tool chain to become invalid.
+    if (!qt4Target()->possibleToolChains(this).contains(toolChain()))
+        setToolChain(qt4Target()->preferredToolChain(this));
 }
 
 Qt4BaseTarget *Qt4BuildConfiguration::qt4Target() const

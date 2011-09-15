@@ -1836,6 +1836,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                     QLatin1String("QML_IMPORT_PATH"), m_projectDir);
         newVarValues[Makefile] = m_readerExact->values("MAKEFILE");
         newVarValues[SymbianCapabilities] = m_readerExact->values("TARGET.CAPABILITY");
+        newVarValues[QtVar] = m_readerExact->values(QLatin1String("QT"));
 
         m_isDeployable = false;
         if (m_projectType == ApplicationTemplate) {
