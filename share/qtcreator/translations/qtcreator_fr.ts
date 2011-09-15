@@ -34965,7 +34965,7 @@ Influence l&apos;indentation des lignes de continuation.
     <name>Analyzer::Internal::AnalyzerMode</name>
     <message>
         <source>Analyze</source>
-        <translation>Analise</translation>
+        <translation>Analyse</translation>
     </message>
 </context>
 <context>
