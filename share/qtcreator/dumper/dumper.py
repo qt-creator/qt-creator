@@ -1274,6 +1274,16 @@ class Dumper:
         type = value.type.unqualified()
         typeName = str(type)
 
+        try:
+            if value.is_optimized_out:
+                self.putValue("<optimized out>")
+                self.putType(typeName)
+                self.putNumChild(0)
+                return
+        except:
+            pass
+
+
         # FIXME: Gui shows references stripped?
         #warn(" ")
         #warn("REAL INAME: %s " % self.currentIName)
