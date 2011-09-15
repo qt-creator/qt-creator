@@ -217,6 +217,10 @@ const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
 // Default directory to run custom (build) commands in.
 const char DEFAULT_WORKING_DIR[] = "%{buildDir}";
 
+// Settings files keys
+const char SHARED_SETTINGS_KEYS_KEY[] = "ProjectExplorer.SharedSettingsKeysKey";
+const char ALL_SETTINGS_KEYS_KEY[] = "ProjectExplorer.AllSettingsKeysKey";
+
 } // namespace Constants
 } // namespace ProjectExplorer
 

@@ -134,9 +134,22 @@ signals:
     void aboutToSaveSettings();
 
 protected:
-    // restore all data from the map.
+    // The methods toMap/fromMap are used for serialization of settings data. By default, all
+    // settings are saved in the .user file. For shared settings, one needs to explicitly
+    // specify which keys from a particular map should be saved in the .shared file. This is
+    // done in the following way:
     //
-    // Note: Do not forget to call your base class' fromMap method!
+    //  - Create an item in the map with the key SHARED_SETTINGS_KEYS_KEY and a QStringList
+    //    as a value. If everything from this particular map should be shared simply add
+    //    the unique item ALL_SETTINGS_KEYS_KEY to the QStringList. Otherwise, add to the
+    //    QStringList the keys that should be shared.
+    //
+    // Notice that the sharing process is smart enough in terms of recursion and grouping of
+    // keys. This means that shared keys from deeply nested maps don't need to be propagated
+    // anyhow to the top-level map. Simply add them from within the map they actually belong.
+    //
+    // The other thing to notice is that shared keys are not really excluded from the user
+    // settings file. More details about that in the SettingsAcessor.
     virtual bool fromMap(const QVariantMap &map);
 
     virtual void setProjectContext(Core::Context context);
