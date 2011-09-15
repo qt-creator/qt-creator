@@ -116,11 +116,6 @@ private:
         StateDebugSessionEnded
     };
 
-    enum Options {
-        OptionsNone = 0,
-        OptionsUseDebugSession = 1
-    };
-
     QSharedPointer<Coda::CodaDevice> m_codaDevice;
 
     QString m_address;
@@ -130,7 +125,6 @@ private:
     QStringList m_codaServices;
 
     State m_state;
-    quint32 m_codaFlags;
     bool m_stopAfterConnect;
 };
 

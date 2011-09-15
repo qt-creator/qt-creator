@@ -133,6 +133,10 @@ public:
     QString path(int fileType) const;
     QString error() const;
 
+    bool canSupportMeegoBooster() const;
+    bool supportsMeegoBooster() const;
+    void setSupportsMeegoBooster(bool supportBooster);
+
 #ifndef CREATORLESSTEST
     virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
 #else
@@ -168,6 +172,8 @@ protected:
     static const int StubVersion;
 
     QString m_error;
+    bool m_canSupportMeegoBooster;
+
 private:
     QByteArray generateDesktopFile(QString *errorMessage, int fileType) const;
     QByteArray generateMainCpp(QString *errorMessage) const;
@@ -194,6 +200,7 @@ private:
     QString m_symbianTargetUid;
     ScreenOrientation m_orientation;
     bool m_networkEnabled;
+    bool m_supportsMeegoBooster;
 };
 
 } // namespace Qt4ProjectManager

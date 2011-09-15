@@ -5,6 +5,7 @@ OBJECTS_DIR =
 PRE_TARGETDEPS = $$PWD/qtcreator.sh
 
 QMAKE_LINK = cp $$PWD/qtcreator.sh $@ && : IGNORE REST OF LINE:
+QMAKE_STRIP =
 
 QMAKE_CLEAN = qtcreator.sh
 

@@ -102,6 +102,7 @@ QtQuickApp::QtQuickApp()
     , m_mainQmlMode(ModeGenerate)
     , m_componentSet(QtQuick10Components)
 {
+    m_canSupportMeegoBooster = true;
 }
 
 QtQuickApp::~QtQuickApp()
@@ -226,16 +227,16 @@ QString QtQuickApp::mainWindowClassName() const
 bool QtQuickApp::adaptCurrentMainCppTemplateLine(QString &line) const
 {
     const QLatin1Char quote('"');
-    bool adaptLine = true;
+
     if (line.contains(QLatin1String("// MAINQML"))) {
         insertParameter(line, quote + path(MainQmlDeployed) + quote);
     } else if (line.contains(QLatin1String("// ADDIMPORTPATH"))) {
         if (m_modules.isEmpty())
-            adaptLine = false;
+            return false;
         else
             insertParameter(line, quote + path(ModulesDir) + quote);
     }
-    return adaptLine;
+    return true;
 }
 
 void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
@@ -261,6 +262,11 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
     } else if (line.contains(QLatin1String("# QTQUICKCOMPONENTS"))) {
         QString nextLine = proFileTemplate.readLine(); // eats '# CONFIG += qtquickcomponents'
         if (componentSet() == Symbian10Components)
+            nextLine.remove(0, 2); // remove comment
+        proFile << nextLine << endl;
+    } else if (line.contains(QLatin1String("# HARMATTAN_BOOSTABLE"))) {
+        QString nextLine = proFileTemplate.readLine(); // eats '# CONFIG += qdeclarative-boostable'
+        if (supportsMeegoBooster())
             nextLine.remove(0, 2); // remove comment
         proFile << nextLine << endl;
     }
@@ -460,7 +466,7 @@ QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
     }
 }
 
-const int QtQuickApp::StubVersion = 15;
+const int QtQuickApp::StubVersion = 16;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

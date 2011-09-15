@@ -42,6 +42,7 @@
 #endif // CREATORLESSTEST
 
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 namespace Qt4ProjectManager {
 
@@ -62,8 +63,11 @@ const QString AbstractMobileApp::FileStubVersion(QLatin1String("version"));
 const int AbstractMobileApp::StubVersion = 6;
 
 AbstractMobileApp::AbstractMobileApp()
-    : m_orientation(ScreenOrientationAuto)
+    : QObject()
+    , m_canSupportMeegoBooster(false)
+    , m_orientation(ScreenOrientationAuto)
     , m_networkEnabled(true)
+    , m_supportsMeegoBooster(false)
 {
 }
 
@@ -209,7 +213,10 @@ QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage, int fil
     } else if (fileType == AbstractGeneratedFileInfo::DesktopFileHarmattan) {
         desktopFileContent.replace("Icon=thisApp",
             "Icon=/usr/share/icons/hicolor/80x80/apps/" + projectName().toUtf8() + "80.png");
-        desktopFileContent.replace("Exec=", "Exec=/usr/bin/single-instance ");
+        if (m_supportsMeegoBooster)
+            desktopFileContent.replace("Exec=", "Exec=/usr/bin/invoker --type=d -s ");
+        else
+            desktopFileContent.replace("Exec=", "Exec=/usr/bin/single-instance ");
     }
     return desktopFileContent.replace("thisApp", projectName().toUtf8());
 }
@@ -414,6 +421,22 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
 QString AbstractMobileApp::error() const
 {
     return m_error;
+}
+
+bool AbstractMobileApp::canSupportMeegoBooster() const
+{
+    return m_canSupportMeegoBooster;
+}
+
+bool AbstractMobileApp::supportsMeegoBooster() const
+{
+    return m_supportsMeegoBooster;
+}
+
+void AbstractMobileApp::setSupportsMeegoBooster(bool supportMeegoBooster)
+{
+    QTC_ASSERT(canSupportMeegoBooster(), return);
+    m_supportsMeegoBooster = supportMeegoBooster;
 }
 
 QByteArray AbstractMobileApp::readBlob(const QString &filePath,

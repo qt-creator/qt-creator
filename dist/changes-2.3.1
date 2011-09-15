@@ -1,0 +1,59 @@
+Qt Creator version 2.3.1 contains bug fixes on top of 2.3.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.3.0..origin/2.3
+
+General
+
+Editing
+
+Managing Projects
+   * Respect qmake arguments for imported build
+
+Debugging
+
+Debugging QML/JS
+   * Fix debugging of a Qt Quick UI project with C++ language (QTCREATORBUG-5957)
+
+Analyzing Code
+
+C++ Support
+
+QML/JS Support
+
+Qt Quick Designer
+   * Fix problems on 64bit linux
+
+Help
+
+Platform Specific
+
+Mac
+
+Linux (GNOME and KDE)
+
+Windows
+
+Symbian Target
+   * Warn if EPOCROOT is on different drive from the sources
+   * Fix several debugging issues with CODA 4.0.23
+   * Qt Quick Application wizard: Fix qmake dependency to Qt Quick Components for Symbian (QTCREATORBUG-6075)
+
+Remote Linux Support
+   * Harmattan: Include Aegis manifest file in list of files to add to project
+   * Harmattan: Use Meego booster for Qt Quick Applications
+
+Qt Designer
+
+FakeVim
+
+Version control plugins
+
+Additional credits go to:
+   * Axasia for updating the Japanese translations
+   * Beaver Xu for updating the Chinese translations
+   * Sergey Belyashov for updating the Russian translations

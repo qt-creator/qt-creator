@@ -33,6 +33,7 @@
 #include "mobileappwizardpages.h"
 #include "ui_mobileappwizardgenericoptionspage.h"
 #include "ui_mobileappwizardmaemooptionspage.h"
+#include "ui_mobileappwizardharmattanoptionspage.h"
 #include "ui_mobileappwizardsymbianoptionspage.h"
 #include <coreplugin/coreconstants.h>
 #include <utils/fileutils.h>
@@ -65,6 +66,14 @@ class MobileAppWizardMaemoOptionsPagePrivate
     QSize iconSize;
     QString pngIcon;
     friend class MobileAppWizardMaemoOptionsPage;
+};
+
+class MobileAppWizardHarmattanOptionsPagePrivate
+{
+    Ui::MobileAppWizardHarmattanOptionsPage ui;
+    QSize iconSize;
+    QString pngIcon;
+    friend class MobileAppWizardHarmattanOptionsPage;
 };
 
 MobileAppWizardGenericOptionsPage::MobileAppWizardGenericOptionsPage(QWidget *parent)
@@ -167,18 +176,12 @@ void MobileAppWizardSymbianOptionsPage::openSvgIcon()
         setSvgIcon(svgIcon);
 }
 
-
-MobileAppWizardMaemoOptionsPage::MobileAppWizardMaemoOptionsPage(int appIconSize,
-        QWidget *parent)
+MobileAppWizardMaemoOptionsPage::MobileAppWizardMaemoOptionsPage(QWidget *parent)
     : QWizardPage(parent)
     , m_d(new MobileAppWizardMaemoOptionsPagePrivate)
 {
     m_d->ui.setupUi(this);
-    QString iconLabelText = m_d->ui.appIconLabel->text();
-    iconLabelText.replace(QLatin1String("%%w%%"), QString::number(appIconSize));
-    iconLabelText.replace(QLatin1String("%%h%%"), QString::number(appIconSize));
-    m_d->ui.appIconLabel->setText(iconLabelText);
-    m_d->iconSize = QSize(appIconSize, appIconSize);
+    m_d->iconSize = QSize(64, 64);
     m_d->ui.pngIconButton->setIconSize(m_d->iconSize);
     connect(m_d->ui.pngIconButton, SIGNAL(clicked()), this, SLOT(openPngIcon()));
 }
@@ -193,42 +196,66 @@ QString MobileAppWizardMaemoOptionsPage::pngIcon() const
     return m_d->pngIcon;
 }
 
-void MobileAppWizardMaemoOptionsPage::setPngIcon(const QString &icon)
+
+class PngIconScaler : public QObject
 {
-    QString error;
-    QPixmap iconPixmap(icon);
-    if (iconPixmap.isNull()) {
-        QMessageBox::critical(this, tr("Invalid Icon"),
-            tr("The file is not a valid image."));
-        return;
+    Q_OBJECT
+public:
+    PngIconScaler(const QSize &expectedSize, const QString &iconPath)
+        : m_expectedSize(expectedSize)
+        , m_iconPath(iconPath)
+        , m_pixmap(iconPath)
+    {
     }
 
-    QString actualIconPath;
-    if (iconPixmap.size() == m_d->iconSize) {
-        actualIconPath = icon;
-    } else {
-        const QMessageBox::StandardButton button = QMessageBox::warning(this,
-            tr("Wrong Icon Size"), tr("The icon needs to be %1x%2 pixels big, "
-                "but is not. Do you want Creator to scale it?")
-                .arg(m_d->iconSize.width()).arg(m_d->iconSize.height()),
-            QMessageBox::Ok | QMessageBox::Cancel);
+    bool hasRightSize() const { return m_expectedSize == m_pixmap.size(); }
+    QPixmap pixmap() const { return m_pixmap; }
+
+    bool scale(QString *newPath) {
+        const QMessageBox::StandardButton button
+                = QMessageBox::warning(QApplication::activeWindow(),
+                                       tr("Wrong Icon Size"),
+                                       tr("The icon needs to be %1x%2 pixels big, "
+                                          "but is not. Do you want Qt Creator to scale it?")
+                                       .arg(m_expectedSize.width()).arg(m_expectedSize.height()),
+                                       QMessageBox::Ok | QMessageBox::Cancel);
         if (button != QMessageBox::Ok)
-            return;
-        iconPixmap = iconPixmap.scaled(m_d->iconSize);
+            return false;
+
+        m_pixmap = m_pixmap.scaled(m_expectedSize);
         Utils::TempFileSaver saver;
         saver.setAutoRemove(false);
         if (!saver.hasError())
-            saver.setResult(iconPixmap.save(
-                    saver.file(), QFileInfo(icon).suffix().toAscii().constData()));
+            saver.setResult(m_pixmap.save(
+                                saver.file(), QFileInfo(m_iconPath).suffix().toAscii().constData()));
         if (!saver.finalize()) {
-            QMessageBox::critical(this, tr("File Error"),
-                tr("Could not copy icon file: %1").arg(saver.errorString()));
-            return;
+            QMessageBox::critical(QApplication::activeWindow(),
+                                  tr("File Error"),
+                                  tr("Could not copy icon file: %1").arg(saver.errorString()));
+            return false;
         }
-        actualIconPath = saver.fileName();
+        *newPath = saver.fileName();
+        return true;
+    }
+private:
+    QSize m_expectedSize;
+    QString m_iconPath;
+    QPixmap m_pixmap;
+};
+
+
+void MobileAppWizardMaemoOptionsPage::setPngIcon(const QString &icon)
+{
+    QString actualIconPath;
+    PngIconScaler scaler(m_d->iconSize, icon);
+    if (scaler.hasRightSize()) {
+        actualIconPath = icon;
+    } else {
+        if (!scaler.scale(&actualIconPath))
+            return;
     }
 
-    m_d->ui.pngIconButton->setIcon(iconPixmap);
+    m_d->ui.pngIconButton->setIcon(scaler.pixmap());
     m_d->pngIcon = actualIconPath;
 }
 
@@ -241,5 +268,62 @@ void MobileAppWizardMaemoOptionsPage::openPngIcon()
         setPngIcon(iconPath);
 }
 
+MobileAppWizardHarmattanOptionsPage::MobileAppWizardHarmattanOptionsPage(QWidget *parent)
+    : QWizardPage(parent)
+    , m_d(new MobileAppWizardHarmattanOptionsPagePrivate)
+{
+    m_d->ui.setupUi(this);
+    m_d->iconSize = QSize(80, 80);
+    m_d->ui.pngIconButton->setIconSize(m_d->iconSize);
+    connect(m_d->ui.pngIconButton, SIGNAL(clicked()), this, SLOT(openPngIcon()));
+}
+
+MobileAppWizardHarmattanOptionsPage::~MobileAppWizardHarmattanOptionsPage()
+{
+    delete m_d;
+}
+
+QString MobileAppWizardHarmattanOptionsPage::pngIcon() const
+{
+    return m_d->pngIcon;
+}
+
+void MobileAppWizardHarmattanOptionsPage::setPngIcon(const QString &icon)
+{
+    QString actualIconPath;
+    PngIconScaler scaler(m_d->iconSize, icon);
+    if (scaler.hasRightSize()) {
+        actualIconPath = icon;
+    } else {
+        if (!scaler.scale(&actualIconPath))
+            return;
+    }
+
+    m_d->ui.pngIconButton->setIcon(scaler.pixmap());
+    m_d->pngIcon = actualIconPath;
+}
+
+void MobileAppWizardHarmattanOptionsPage::openPngIcon()
+{
+    const QString iconPath = QFileDialog::getOpenFileName(this,
+        m_d->ui.appIconLabel->text(), m_d->pngIcon,
+        QLatin1String("*.png"));
+    if (!iconPath.isEmpty())
+        setPngIcon(iconPath);
+}
+
+void MobileAppWizardHarmattanOptionsPage::setBoosterOptionEnabled(bool enable)
+{
+    m_d->ui.makeBoostableCheckBox->setEnabled(enable);
+    m_d->ui.makeBoostableCheckBox->setChecked(enable);
+}
+
+bool MobileAppWizardHarmattanOptionsPage::supportsBooster() const
+{
+    return m_d->ui.makeBoostableCheckBox->isChecked();
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager
+
+#include "mobileappwizardpages.moc"

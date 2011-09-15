@@ -1,0 +1,462 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+    /*!
+
+    \contentspage index.html
+    \if defined(qcmanual)
+    \previouspage creator-project-qmake-libraries.html
+    \else
+    \previouspage creator-developing-symbian.html
+    \endif
+    \page creator-developing-meego.html
+    \if defined(qcmanual)
+    \nextpage creator-developing-generic-linux.html
+    \else
+    \nextpage creator-developing-maemo.html
+    \endif
+
+    \title Connecting MeeGo Harmattan Devices
+
+    MeeGo Harmattan is a Linux-based software platform developed by Nokia for
+    mobile devices. It allows developers to create applications using the Qt
+    framework. You can install and configure the whole tool chain that you need
+    to create, build, debug, run, and deploy Harmattan applications as part of
+    the \QSDK.
+
+    \if defined(qcmanual)
+    For more information about the Harmattan platform, see
+    \l{http://library.developer.nokia.com/topic/MeeGo_1.2_Harmattan_API/html/guide/html/Developer_Library_Harmattan_overview_5dcf.html}
+    {Harmattan Overview} in the MeeGo 1.2 Harmattan Developer Library.
+    \endif
+
+
+    \note \QSDK does not contain the tool chains for building applications for
+    other MeeGo devices than MeeGo Harmattan. You can try to run applications
+    from Qt Creator on other MeeGo devices, but it has not been extensively
+    tested, and the instructions might not always apply.
+
+    \note The only supported build system for Harmattan in Qt Creator is qmake.
+
+    \section1 Setting Up Connectivity in Harmattan Devices
+
+    To build and run Qt applications for Harmattan, you need a Harmattan device:
+    Nokia N950 or Nokia N9.
+
+    You can connect your device to your development PC using either a USB or
+    WLAN connection.
+
+    For the device, you need to use the SDK Connectivity tool that is
+    preinstalled on the device to create the device-side end point for USB and
+    WLAN connections. It provides no diagnostics functions but is essential for
+    creating connections between the device and your development PC.
+
+    To use a WLAN connection, you must activate WLAN on the device and connect
+    it to the same WLAN as the development PC. The network address is displayed
+    in the connectivity tool.
+
+    To use a USB connection, you might need to set up the device as a network
+    device on the development PC. However, on Linux, Mac OS X, and Windows 7,
+    the USB interface is usually automatically configured.
+
+    \note If you plan to connect your development PC to the device only over
+    WLAN, you can ignore the USB-specific parts in the following sections.
+
+    \section2 Starting SDK Connectivity
+
+    SDK Connectivity application is preinstalled in Harmattan devices and
+    available in developer mode.
+
+    To start SDK Connectivity:
+
+    \list
+
+        \o  On the device, select \gui {Settings > Security > Developer
+            mode} to turn on developer mode.
+
+        \o  Select \gui {Applications > SDK Connectivity} to start the SDK
+            Connectivity application.
+
+        \o  Select \gui {Select Connection} and then select the type of the
+            connection to create: \gui WLAN or \gui USB.
+
+        \o  For a USB connection, select the operating system of the
+            development PC in \gui {Select Module}.
+
+    \endlist
+
+    \gui {Connectivity Details} displays the IP address and developer password.
+    The address 192.168.2.15 is used by default. You must enter the password in
+    Qt Creator. For more information, see
+    \l{Configuring Connections to Harmattan Devices}.
+
+    \section1 Setting Up Network Connectivity on Development PC
+
+    Use the network configuration tools on your platform to specify the
+    connection to the device on the development PC. You need to do this
+    only if you use a USB connection.
+
+    The device uses the IP address 192.168.2.15 with the subnet 255.255.255.0
+    for its USB connection by default, so you can create the network interface
+    with a different address inside the same subnet too.
+
+    \note If you have changed the IP address of the device in the connectivity
+    tool, you need to reflect those changes in your development PC USB
+    network settings.
+
+    \section2 Linux
+
+    The USB interface is automatically configured. If, for some reason, that is
+    not the case, run the following command in a shell as root user to create a
+    new network interface:
+
+    \c{ifconfig usb0 192.168.2.14 up}
+
+    \section2 Mac OS X
+
+    The USB interface is automatically configured. If, for some reason, that is
+    not the case, create a new network interface manually:
+
+    \list
+
+        \o  Open the network settings.
+
+        \o  Click the + button on the network settings panel.
+
+        \o  When the interface is available, select \gui {Configure IPv4 > Using
+            DHCP with manual address}.
+
+        \o Enter the address 192.168.2.14 into the IP address field.
+
+        \o Click \gui Apply.
+
+        The network connection between your device and workstation is now
+        configured.
+
+    \endlist
+
+    \section2 Windows 7
+
+    When you connect your device to your Windows 7 computer, Windows installs a
+    driver for the Linux USB Ethernet connection automatically. If the
+    installation does not start, unplug the USB cable and try another USB port
+    on your computer.
+
+    \note Driver installation takes some time.
+
+    The USB interface is automatically configured. If, for some reason, that is
+    not the case, create a new network interface manually:
+
+    \list 1
+
+        \o  Open the \gui {Network and Sharing Center} and select \gui {Change
+            adapter settings}.
+
+            The Linux USB Ethernet connection you just installed is displayed
+            as a new \gui {Local Area Connection Linux USB Ethernet/RNDIS
+            gadget}.
+
+            \note If you cannot see \gui {Linux USB Ethernet/RNDIS gadget}, try
+            to unplug and replug the USB cable.
+
+        \o  Right-click \gui {Linux USB Ethernet/RNDIS gadget} and select
+            \gui Properties.
+
+    \o  Edit the \gui {Internet Protocol Version 4 (TCP/IPv4)} properties
+        to specify the IP address for the connection. In the \gui {Use the
+        following IP address} field, enter the following values:
+
+        \list
+
+           \o  \gui {IP Address}: \bold {192.168.2.14}
+           \o  \gui SubnetMask: \bold {255.255.255.0}
+           \o  \gui {Default gateway}: leave this field empty
+
+        \endlist
+
+    \endlist
+
+    \section2 Windows XP
+
+    If you develop on Windows XP and use a USB connection to run applications on
+    the device, you need the Nokia USB drivers that are installed as part of the
+    \QSDK.
+
+    When you connect the device to your Windows PC, Windows tries to install a
+    driver for the Linux USB Ethernet connection. In the
+    \gui{Found New Hardware Wizard}, select \gui{No, not this time} in the
+    first dialog and \gui{Install the software automatically} in the second
+    dialog.
+
+    To specify a network connection:
+
+    \list 1
+
+    \o  Open the Network Connections window.
+
+    \o  Select the Linux USB Ethernet connection that is displayed as a new
+        Local Area Connection.
+
+    \o  Edit the \gui {Internet Protocol Version 4 (TCP/IPv4)} properties
+        to specify the IP address for the connection. In the \gui {Use the
+        following IP address} field, enter the following values:
+
+        \list
+
+           \o  \gui {IP Address}: \bold {192.168.2.14}
+           \o  \gui SubnetMask: \bold {255.255.255.0}
+           \o  \gui {Default gateway}: leave this field empty
+
+        \endlist
+
+    \endlist
+
+    Depending on your version of Microsoft Windows you may have to unplug and
+    re-plug the device to reload the driver with its configuration accordingly.
+
+    \section1 Configuring Connections to Harmattan Devices
+
+    To be able to run and debug applications on the emulator and devices, you
+    must set up connections to the emulator and devices in the Qt Creator build
+    and run settings. If you install \QSDK, the connection to the emulator is
+    configured automatically and you only need to configure a connection to the
+    device.
+
+    You use a wizard to create the connections. You can edit the settings later
+    in \gui {Tools > Options... > Linux Devices > Device Configurations}.
+
+    \image qtcreator-meego-device-configurations.png "MeeGo Device Configurations dialog"
+
+    By default, you create the connection as the \e developer user. This
+    protects real user data on the device from getting corrupted during testing.
+    If you write applications that use Qt Mobility APIs, you might want to test
+    them with real user data. To create a connection as a user, specify the
+    \gui Username and \gui Password in Qt Creator. For more information, see
+    \if defined(qcmanual)
+    \l{Testing with User Data on MeeGo Devices}.
+    \else
+    \l{http://doc.qt.nokia.com/qtcreator/creator-developing-meego.html#testing-with-user-data-on-meego-devices}
+    {Testing with User Data on MeeGo Devices}.
+    \endif
+
+
+    You can protect the connections between Qt Creator and a device by using
+    either a password or an SSH key. If you use a password, you must generate it
+    in the connectivity tool and enter it in Qt Creator every time you start the
+    connectivity tool.
+
+    If you do not have an SSH key, you can create it in Qt Creator. Encrypted
+    keys are not supported. For more information, see
+    \if defined(qcmanual)
+    \l{Generating SSH Keys}.
+    \else
+    \l{http://doc.qt.nokia.com/qtcreator/creator-developing-meego.html#generating-ssh-keys}
+    {Generating SSH Keys}.
+    \endif
+
+
+    You can view processes running on devices and kill them. For more
+    information, see
+    \if defined(qcmanual)
+    \l{Managing Device Processes}.
+    \else
+    \l{http://doc.qt.nokia.com/qtcreator/creator-developing-meego.html#managing-device-processes}
+    {Managing Device Processes}.
+    \endif
+
+
+    To configure connections between Qt Creator and a device:
+
+    \list 1
+
+        \o  To deploy applications and run them remotely on devices,
+            specify parameters for accessing devices:
+
+            \list a
+
+                \o  Connect your device to the development PC via a USB cable or
+                    a WLAN. For a USB connection, you are prompted to select the
+                    mode to use. Choose \gui{PC suite mode}.
+
+                    \note If you experience connection problems due to a USB
+                    port issue, switch to a different port or use WLAN to
+                    connect to the device.
+
+                \o  Select \gui {Tools > Options... > Linux Devices > Device
+                    Configurations > Add}, and add a new configuration for a
+                    hardware device.
+
+                    \image qtcreator-screenshot-devconf.png
+
+                \o  In the \gui {The name to identify this configuration} field,
+                    enter a name for the connection.
+
+                \o  In the \gui {The system running on the device} field, select
+                    the software platform of the device.
+
+                \o  In the \gui {The kind of device} field, select
+                    \gui {Hardware device}.
+
+                \o  In the \gui {The device's host name or IP address} field,
+                    enter the IP address from the connectivity tool on the
+                    device.
+
+                \o  In the \gui {The SSH server port} field, enter the port
+                    number to use for SSH connections.
+
+                \o  Click \gui Next.
+
+                \o  Follow the instructions of the wizard to create the
+                    connection.
+
+            \endlist
+
+        \if defined(qcmanual)
+
+        \o  To test applications on the emulator (QEMU), you must
+            create a connection to it from the development PC. If you installed
+            \QSDK, the connection is created automatically and you can omit this
+            step.
+
+            \list a
+
+                \o  In Qt Creator, select \gui {Tools > Options... > Linux
+                    Devices > Device Configurations > Add} to add a new
+                    configuration.
+
+                    \image qtcreator-meego-emulator-connection.png
+
+                \o  In the \gui {The name to identify this configuration} field,
+                    enter a name for the connection.
+
+                \o  In the \gui {The system running on the device} field, select
+                    the software platform to emulate.
+
+                \o  In the \gui {The kind of device} field, select
+                    \gui {Emulator (Qemu)}.
+
+                \o  Click \gui Next.
+
+                \o  Follow the instructions of the wizard to create the
+                    connection.
+
+                    SDK Connectivity is not needed for emulator connections, and
+                    therefore, you do nt need to authenticate the emulator
+                    connection.
+
+            \endlist
+
+        \endif
+
+            \o  To specify build and run settings:
+
+                \list a
+
+                    \o  Open a project for an application you want to develop
+                        for your device.
+
+                    \o  Click \gui Projects to open the projects mode.
+
+                    \o  In the \gui{Build Settings} section, choose the MADDE Qt
+                        version that was registered by the installation program.
+
+                        \image qtcreator-screenshot-build-settings.png
+
+                    \o  In the \gui {Device configuration} field, select the
+                        device connection or the emulator connection.
+                        \image qtcreator-screenshot-run-settings.png
+
+                 \endlist
+
+                \note The new application wizards automatically set the folder
+                where the file is installed on the device in the \gui {Remote
+                Directory} field. For example, \c {/opt/usr/bin}. If the text
+                \gui {<no target path set>} is displayed, click it to specify a
+                folder.
+
+        \endlist
+
+    \if defined(qcmanual)
+
+    \section2 Testing with User Data on MeeGo Devices
+
+    To run your application as the default user, you must first assign a
+    password for the user account and then create the connection to the device
+    as the user:
+
+    \list 1
+
+        \o  On the device, select \gui Terminal to open a
+            terminal window.
+
+        \o  To specify the password, enter the following command:
+            \c{/usr/lib/mad-developer/devrootsh passwd user}
+
+        \o  In Qt Creator, select \gui {Tools > Options... Linux Devices >
+            Device Configurations}.
+
+        \o  Specify the username \c user and the password in the device
+            configuration.
+
+    \endlist
+
+    \input linuxdev-keys.qdocinc
+    \input linuxdev-processes.qdocinc
+
+    \endif
+
+    \section1 Troubleshooting Harmattan Connections
+
+    The addresses used in this example might be reserved by some other
+    application in your network. If you cannot establish a connection, try the
+    following optional configurations:
+
+    \table
+
+        \header
+            \o IP Address and Network on Device
+            \o USB Network on Development PC
+            \o Host Name in Qt Creator Build Settings
+
+        \row
+            \o 172.30.7.15 255.255.255.0
+            \o 172.30.7.14 255.255.255.0
+            \o 172.30.7.15
+
+        \row
+            \o 10.133.133.15
+            \o 10.133.133.14
+            \o 10.133.133.15
+
+        \row
+            \o 192.168.133.15
+            \o 192.168.133.14
+            \o 192.168.133.15
+
+            \note You cannot use the value localhost for connections to a
+            device.
+
+        \endtable
+
+    \note VPN connections might block the device connection.
+
+*/
+

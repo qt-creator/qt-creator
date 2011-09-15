@@ -13,8 +13,13 @@ include(macros.qdocconf)
 include(qt-cpp-ignore.qdocconf)
 include(qt-defines.qdocconf)
 
-sources.fileextensions  = "qtcreator.qdoc maemodev.qdoc symbiandev.qdoc addressbook-sdk.qdoc qtcreator-faq.qdoc linuxdev.qdoc"
-
+sources.fileextensions  =   "qtcreator.qdoc \
+                            maemodev.qdoc \
+                            symbiandev.qdoc \
+                            addressbook-sdk.qdoc \
+                            qtcreator-faq.qdoc \
+                            linuxdev.qdoc \
+                            meegodev.qdoc"
 
 qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp

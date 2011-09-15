@@ -82,8 +82,7 @@ class MobileAppWizardMaemoOptionsPage : public QWizardPage
     Q_OBJECT
 
 public:
-    explicit MobileAppWizardMaemoOptionsPage(int appIconSize,
-        QWidget *parent = 0);
+    explicit MobileAppWizardMaemoOptionsPage(QWidget *parent = 0);
     virtual ~MobileAppWizardMaemoOptionsPage();
 
     QString pngIcon() const;
@@ -94,6 +93,27 @@ private slots:
 
 private:
     class MobileAppWizardMaemoOptionsPagePrivate *m_d;
+};
+
+class MobileAppWizardHarmattanOptionsPage : public QWizardPage
+{
+    Q_OBJECT
+
+public:
+    explicit MobileAppWizardHarmattanOptionsPage(QWidget *parent = 0);
+    virtual ~MobileAppWizardHarmattanOptionsPage();
+
+    QString pngIcon() const;
+    void setPngIcon(const QString &icon);
+
+    void setBoosterOptionEnabled(bool enable);
+    bool supportsBooster() const;
+
+private slots:
+    void openPngIcon();
+
+private:
+    class MobileAppWizardHarmattanOptionsPagePrivate *m_d;
 };
 
 } // namespace Internal

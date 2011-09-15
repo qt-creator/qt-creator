@@ -77,6 +77,7 @@ const char LAST_DRIVE_LETTER = 'Z';
 static const quint32 CODA_UID = 0x20021F96;
 static const quint32 QTMOBILITY_UID = 0x2002AC89;
 static const quint32 QTCOMPONENTS_UID = 0x200346DE;
+static const quint32 QMLVIEWER_UID = 0x20021317;
 
 QString formatDriveText(const S60DeployConfiguration::DeviceDrive &drive)
 {
@@ -597,6 +598,7 @@ void S60DeployConfigurationWidget::getRomInfoResult(const Coda::CodaCommandResul
     packagesOfInterest.append(CODA_UID);
     packagesOfInterest.append(QTMOBILITY_UID);
     packagesOfInterest.append(QTCOMPONENTS_UID);
+    packagesOfInterest.append(QMLVIEWER_UID);
     if (m_codaInfoDevice)
         m_codaInfoDevice->sendSymbianInstallGetPackageInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getInstalledPackagesResult), packagesOfInterest);
 }
@@ -640,6 +642,10 @@ void S60DeployConfigurationWidget::getInstalledPackagesResult(const Coda::CodaCo
                 break;
                 case QTCOMPONENTS_UID: {
                     addToTable(str, tr("Qt Quick components version: "), error ? tr("Not installed") : versionString);
+                }
+                break;
+                case QMLVIEWER_UID: {
+                    addToTable(str, tr("QML Viewer version: "), error ? tr("Not installed") : versionString);
                 }
                 break;
                 default: break;

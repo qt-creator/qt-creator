@@ -57,6 +57,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtCore/QBuffer>
+#include <QtCore/QDateTime>
+#include <QtCore/QLocale>
 #include <QtCore/QRegExp>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -276,6 +278,23 @@ void AbstractQt4MaemoTarget::handleTargetAdded(ProjectExplorer::Target *target)
     if (status == ActionSuccessful) // Don't do this when the packaging data already exists.
         initPackagingSettingsFromOtherTarget();
     handleTargetAddedSpecial();
+    if (status == ActionSuccessful) {
+        const QStringList &files = packagingFilePaths();
+        if (!files.isEmpty()) {
+            const QString list = QLatin1String("<ul><li>") + files.join(QLatin1String("</li><li>"))
+                + QLatin1String("</li></ul>");
+            QMessageBox::StandardButton button = QMessageBox::question(Core::ICore::instance()->mainWindow(),
+                tr("Add Packaging Files to Project"),
+                tr("<html>Qt Creator has set up the following files to enable "
+                   "packaging:\n   %1\nDo you want to add them to the project?</html>")
+                   .arg(list), QMessageBox::Yes | QMessageBox::No);
+            if (button == QMessageBox::Yes) {
+                ProjectExplorer::ProjectExplorerPlugin::instance()
+                    ->addExistingFiles(project()->rootProjectNode(), files);
+            }
+        }
+    }
+
     m_isInitialized = true;
 }
 
@@ -327,27 +346,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractQt4MaemoTarget::createTemplates()
         return ActionFailed;
     }
 
-    const ActionStatus actionStatus = createSpecialTemplates();
-    if (actionStatus == ActionFailed)
-        return ActionFailed;
-    if (actionStatus == ActionSuccessful) {
-        const QStringList &files = packagingFilePaths();
-        if (!files.isEmpty()) {
-            const QString list = QLatin1String("<ul><li>")
-                + files.join(QLatin1String("</li><li>")) + QLatin1String("</li></ul>");
-            QMessageBox::StandardButton button
-                = QMessageBox::question(Core::ICore::instance()->mainWindow(),
-                      tr("Add Packaging Files to Project"),
-                      tr("<html>Qt Creator has set up the following files to enable "
-                         "packaging:\n   %1\nDo you want to add them to the project?</html>")
-                         .arg(list), QMessageBox::Yes | QMessageBox::No);
-            if (button == QMessageBox::Yes) {
-                ProjectExplorer::ProjectExplorerPlugin::instance()
-                    ->addExistingFiles(project()->rootProjectNode(), files);
-            }
-        }
-    }
-    return actionStatus;
+    return createSpecialTemplates();
 }
 
 bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
@@ -416,8 +415,50 @@ bool AbstractDebBasedQt4MaemoTarget::setProjectVersionInternal(const QString &ve
     if (!reader.fetch(filePath, error))
         return false;
     QString content = QString::fromUtf8(reader.data());
-    content.replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
-        QLatin1Char('(') + version + QLatin1Char(')'));
+    if (content.contains(QLatin1Char('(') + version + QLatin1Char(')'))) {
+        if (error) {
+            *error = tr("Refusing to update changelog file: Already contains version '%1'.")
+                .arg(version);
+        }
+        return false;
+    }
+
+    int maintainerOffset = content.indexOf(QLatin1String("\n -- "));
+    const int eolOffset = content.indexOf(QLatin1Char('\n'), maintainerOffset+1);
+    if (maintainerOffset == -1 || eolOffset == -1) {
+        if (error) {
+            *error = tr("Cannot update changelog: Invalid format (no maintainer entry found).");
+        }
+        return false;
+    }
+
+    ++maintainerOffset;
+    const QDateTime currentDateTime = QDateTime::currentDateTime();
+    QDateTime utcDateTime = QDateTime(currentDateTime);
+    utcDateTime.setTimeSpec(Qt::UTC);
+    int utcOffsetSeconds = currentDateTime.secsTo(utcDateTime);
+    QChar sign;
+    if (utcOffsetSeconds < 0) {
+        utcOffsetSeconds = -utcOffsetSeconds;
+        sign = QLatin1Char('-');
+    } else {
+        sign = QLatin1Char('+');
+    }
+    const int utcOffsetMinutes = (utcOffsetSeconds / 60) % 60;
+    const int utcOffsetHours = utcOffsetSeconds / 3600;
+    const QString dateString = QString::fromLatin1("%1 %2%3%4")
+        .arg(currentDateTime.toString(QLatin1String("ddd, dd MMM yyyy hh:mm:ss"))).arg(sign)
+        .arg(utcOffsetHours, 2, 10, QLatin1Char('0'))
+        .arg(utcOffsetMinutes, 2, 10, QLatin1Char('0'));
+    const QString maintainerLine = content.mid(maintainerOffset, eolOffset - maintainerOffset + 1)
+        .replace(QRegExp(QLatin1String(">  [^\\n]*\n")),
+                 QString::fromLocal8Bit(">  %1").arg(dateString));
+    QString versionLine = content.left(content.indexOf(QLatin1Char('\n')))
+        .replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
+                 QLatin1Char('(') + version + QLatin1Char(')'));
+    const QString newEntry = versionLine + QLatin1String("\n  * <Add change description here>\n\n")
+        + maintainerLine + QLatin1String("\n\n");
+    content.prepend(newEntry);
     Core::FileChangeBlocker update(filePath);
     Utils::FileSaver saver(filePath);
     saver.write(content.toUtf8());
@@ -664,10 +705,11 @@ void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
         // Such a file is created by the mobile wizards.
         const QString iconPath = project()->projectDirectory()
             + QLatin1Char('/') + project()->displayName()
-            + QLatin1String(".png");
+            + QLatin1String("64.png");
         if (QFileInfo(iconPath).exists())
             setPackageManagerIcon(iconPath);
     }
+
     m_filesWatcher->addDirectory(debianDirPath(), Utils::FileSystemWatcher::WatchAllChanges);
     m_controlFile = new WatchableFile(controlFilePath(), this);
     connect(m_controlFile, SIGNAL(modified()), SIGNAL(controlChanged()));
@@ -874,7 +916,6 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIcon(const QString &iconFi
     }
     return success;
 }
-
 
 AbstractRpmBasedQt4MaemoTarget::AbstractRpmBasedQt4MaemoTarget(Qt4Project *parent,
     const QString &id) : AbstractQt4MaemoTarget(parent, id)

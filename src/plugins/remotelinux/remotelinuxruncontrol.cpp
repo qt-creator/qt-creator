@@ -37,10 +37,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtGui/QIcon>
-#include <QtGui/QMessageBox>
-
 #include <QtCore/QString>
+#include <QtGui/QIcon>
 
 using namespace ProjectExplorer;
 
@@ -137,7 +135,6 @@ void AbstractRemoteLinuxRunControl::handleError(const QString &errString)
 {
     stop();
     appendMessage(errString, Utils::ErrorMessageFormat);
-    QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
 }
 
 void AbstractRemoteLinuxRunControl::setFinished()

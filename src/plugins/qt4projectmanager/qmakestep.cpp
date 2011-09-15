@@ -180,7 +180,7 @@ QStringList QMakeStep::moreArguments()
         if (!bc->qtVersion()->needsQmlDebuggingLibrary()) {
             // This Qt version has the QML debugging services built in, however
             // they still need to be enabled at compile time
-            arguments << QLatin1String("CONFIG+=declarative_debug");
+            arguments << QLatin1String(Constants::QMAKEVAR_DECLARATIVE_DEBUG);
         } else {
             QString qmlDebuggingHelperLibrary = bc->qtVersion()->qmlDebuggingHelperLibrary(true);
             if (!qmlDebuggingHelperLibrary.isEmpty()) {

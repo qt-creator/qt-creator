@@ -1500,6 +1500,10 @@ Local pulls are not applied to the master branch.</source>
         <translation>Unix ジェネレータ (%1)</translation>
     </message>
     <message>
+        <source>No generator selected.</source>
+        <translation>ジェネレータが選択されていません。</translation>
+    </message>
+    <message>
         <source>CMake exited with errors. Please check CMake output.</source>
         <translation>CMake は異常終了しました。CMake の出力を確認して下さい。</translation>
     </message>
@@ -17871,7 +17875,15 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
-        <translation>jQML プロファイラは、QML を使っているアプリケーションの性能のボトルネックを探すのに使用する事ができます。</translation>
+        <translation>QML プロファイラは、QML を使っているアプリケーションの性能のボトルネックを探すのに使用する事ができます。</translation>
+    </message>
+    <message>
+        <source>The QML profiler requires Qt 4.7.4 or newer.
+The Qt version configured in your active build configuration is too old.
+Do you want to continue?</source>
+        <translation>QML プロファイラは Qt 4.7.4 以降を要求しますが
+アクティブなビルド構成で構成されている Qt バージョンは古すぎます。
+続行しますか？</translation>
     </message>
     <message>
         <source>Events</source>
@@ -20623,8 +20635,32 @@ Reason: %2</source>
         <translation>ビルドを追加</translation>
     </message>
     <message>
+        <source>Create Build Configurations:</source>
+        <translation>ビルド構成の作成:</translation>
+    </message>
+    <message>
+        <source>For Each Qt Version One Debug And One Release</source>
+        <translation>Qt バージョン毎に Debug と Release を1つずつ</translation>
+    </message>
+    <message>
+        <source>For One Qt Version One Debug And One Release</source>
+        <translation>1つの Qt バージョンで Debug と Release を1つずつ</translation>
+    </message>
+    <message>
+        <source>Manually</source>
+        <translation>手動</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>なし</translation>
+    </message>
+    <message>
         <source>Use Shadow Building</source>
         <translation>シャドウビルドを使用</translation>
+    </message>
+    <message>
+        <source>Qt Version:</source>
+        <translation>Qt バージョン:</translation>
     </message>
     <message>
         <source>debug</source>
@@ -27850,6 +27886,69 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>text</source>
         <translation>text</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::ExternalTool</name>
+    <message>
+        <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
+        <translation>ts ファイルからアプリケーションが利用する事ができる qm ファイルを作成します</translation>
+    </message>
+    <message>
+        <source>Release Translations (lrelease)</source>
+        <translation>翻訳をリリース (lrelease)</translation>
+    </message>
+    <message>
+        <source>Linguist</source>
+        <translation>Linguist</translation>
+    </message>
+    <message>
+        <source>Synchronizes translator&apos;s ts files with the program code</source>
+        <translation>プログラムコードと ts ファイルを同期します</translation>
+    </message>
+    <message>
+        <source>Update Translations (lupdate)</source>
+        <translation>翻訳を更新 (lupdate)</translation>
+    </message>
+    <message>
+        <source>Opens the current file in Notepad</source>
+        <translation>現在のファイルをメモ帳で開きます</translation>
+    </message>
+    <message>
+        <source>Edit with Notepad</source>
+        <translation>メモ帳で編集</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>テキスト</translation>
+    </message>
+    <message>
+        <source>Runs the current QML file with qmlviewer</source>
+        <translation>現在の QML ファイルを qmlviewer で実行します</translation>
+    </message>
+    <message>
+        <source>Preview (qmlviewer)</source>
+        <translation>プレビュー (qmlviewer)</translation>
+    </message>
+    <message>
+        <source>Qt Quick</source>
+        <translation>Qt Quick</translation>
+    </message>
+    <message>
+        <source>Sorts the selected text</source>
+        <translation>選択しているテキストをソートします</translation>
+    </message>
+    <message>
+        <source>Sort Selection</source>
+        <translation>選択をソート</translation>
+    </message>
+    <message>
+        <source>Opens the current file in vi</source>
+        <translation>現在のファイルを vi で開きます</translation>
+    </message>
+    <message>
+        <source>Edit with vi</source>
+        <translation>vi で編集</translation>
     </message>
 </context>
 </TS>

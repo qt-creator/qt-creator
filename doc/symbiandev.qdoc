@@ -22,7 +22,7 @@
 /*!
     \contentspage index.html
     \if defined(qcmanual)
-    \previouspage creator-developing-generic-linux.html
+    \previouspage creator-developing-maemo.html
     \else
     \previouspage sdk-gs.html
     \endif
@@ -30,30 +30,47 @@
     \if defined(qcmanual)
     \nextpage creator-project-managing-sessions.html
     \else
-    \nextpage creator-developing-maemo.html
+    \nextpage creator-developing-meego.html
     \endif
 
     \title Connecting Symbian Devices
 
     When you install \QSDK, the build and run settings for Symbian devices
-    are set up automatically. You only need to connect the devices to the
-    development PC.
+    are set up automatically in Qt Creator. You only need to install and launch
+    the CODA on-device debugging agent on the devices and connect the devices
+    to the development PC.
 
+    Make sure that PC Suite or Ovi Suite are installed on the development PC.
     Connect the device to the development PC with an USB cable in
     PC Suite Mode. If you have not previously used the device with Ovi Suite
     or PC Suite, all the necessary drivers are installed automatically.
     This takes approximately one minute.
 
-    To run Qt applications on Symbian devices, you must install the software
-    that Qt applications require, typically Qt, Qt Mobility, QtWebkit, and Open C.
-    The \QSDK installation program creates shortcuts for installing
-    the required applications on Symbian devices. You can also use any of
-    the standard methods for installing applications.
+    As with every supported platform, Qt strives to maintain application
+    behavior and binary compatibility throughout the lifetime of the Qt 4.x
+    major version and on the Symbian devices that support Qt. Symbian
+    support in \QSDK and Ovi Store were introduced with Qt 4.6. Each Qt release
+    contains bug fixes that might change the API behavior and thereby affect
+    application compatibility.
 
-    To debug applications on Symbian devices by using the Qt Creator \gui Debug
-    mode, you must install the CODA on-device debugging agent on the device.
-    For more information,
-    see
+    In addition, Symbian devices have different input methods, such as different
+    keyboard styles or touch input, screen sizes, memory, and CPU and GPU
+    capabilities. Therefore, you must test applications on specific target
+    devices to ensure compatibility. In order to build applications that are
+    supported also on earlier devices, select the target in \QSDK carefully.
+    Generally, an earlier target (such as S60 5th Edition) is supported on a
+    larger number of devices than a later target (such as Symbian Belle).
+
+    You can run Qt applications on Symbian devices if the software that Qt
+    applications require (typically Qt, Qt Mobility, QtWebkit, and Open C) is
+    installed on the device. On Symbian^3 and later devices, some version of Qt
+    is pre-installed. On earlier devices, you must install the modules that Qt
+    applications require. For more information, see
+    \l{Installing Required Applications on Devices}.
+
+    To run and debug applications on Symbian devices from Qt Creator, you must
+    install the CODA on-device debugging agent on the device. For more
+    information, see
     \if defined(qcmanual)
     \l{Using On-device Debugging Agents}.
     \else
@@ -65,34 +82,20 @@
     The tool chain for building applications locally on the development PC for
     the \gui {Symbian Device} target is only supported on Windows.
     If you develop on Linux or Mac OS, you must use the Remote Compiler
-    interface to a compilation service at Nokia Developer.
+    interface to a compilation service at Nokia Developer. You can install
+    Remote Compiler as part of the \QSDK. For more information, see
+    \if defined(qcmanual)
+    \l{Building with Remote Compiler}.
+    \else
+    \l{http://doc.qt.nokia.com/qtcreator-snapshot/creator-remote-compiler.html}
+    {Building with Remote Compiler}.
+    \endif
+
 
     For more information about developing applications for the Symbian
     platform, select \gui {Help > Index} and look for \gui {Platform Notes},
     or see
     \l{http://doc.qt.nokia.com/4.7/platform-notes-symbian.html}{Platform Notes - Symbian}.
-
-    \section1 Hardware and Software Requirements
-
-    For deploying and running applications on the device, you need the
-    following:
-    \list
-        \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
-        \o The \e CODA on-device debugging agent installed on
-           the device
-         \o \e {Qt libraries} installed on the device
-         \o \e {Qt Mobility libraries} installed on the device, if you use them in
-         applications
-        \o \e {QtWebKit} installed on the device, if you use web functionality
-         in applications
-    \endlist
-
-    In addition, you can install example applications, demos, and utility
-    applications, such as Nokia Energy Profiler and Nokia Performance Manager,
-    on devices.
-
-    The \QSDK installation program creates shortcuts for installing
-    the applications on Symbian devices.
 
     \if defined(qcmanual)
     To run your applications in the Symbian emulator, you also need
@@ -102,64 +105,128 @@
 
     \section1 Installing Required Applications on Devices
 
-    Separate installation packages are provided for Symbian^3 and Symbian^1
-    devices. To check the Symbian platform version of your device, see
+    Generally, when developing for Symbian^3 or later devices, you do not need
+    to install Qt on devices. However, you might want to upgrade or downgrade
+    the Qt version on a device to test your application on a particular Qt
+    version. Use the installation packages delivered with \QSDK
+    (\c {<QtSDK_install_path>\Symbian\sis}). Keep in mind that this might
+    replace the pre-installed Qt on the device.
+
+    \note Earlier Qt for Symbian versions, such as Qt 4.6.3 for Symbian, are
+    only available in the \QSDK online installer. For more information, see
+    \if defined(qcmanual)
+    \l{http://doc.qt.nokia.com/sdk-1.1/sdk-installing.html}{Installing Qt SDK}.
+    \else
+    {Installing Qt SDK}.
+    \endif
+
+
+    Qt is supported on different Symbian platforms as follows:
+
+    \list
+
+        \o  Symbian Belle devices contain Qt 4.7.4 libraries as part of device
+            firmware (ROM). To upgrade the Qt version, update the device
+            firmware. You cannot downgrade the Qt version on Belle devices.
+
+            \omit
+            To develop applications using Qt 4.8 or later, you can install Qt
+            4.8 or later libraries to Belle devices. The Qt in Belle firmware is
+            not overwritten. It is eclipsed by the installed Qt on the C: drive.
+            \endomit
+
+        \o  Symbian Anna devices have Qt 4.7.3 pre-installed.
+
+        \o  Symbian^3 devices have Qt 4.6 pre-installed.
+
+        \o  S60 5th Edition and later devices support Qt 4.6.3 and 4.7.3.
+
+        \o  S60 3rd Edition feature pack 1 and later devices support Qt 4.6 for
+            Symbian through Nokia Smart Installer for Symbian.
+
+    \endlist
+
+    To check the Symbian platform version of your device, see
     \l{http://www.developer.nokia.com/Devices/Device_specifications/}
-    {Device Specifications}.
+    {Device Specifications}. The site contains information about the content
+    that can be published for the device to the Ovi Store (\e General section)
+    and the Qt libraries that are pre-installed on the device (\e API section).
 
-    \note You can also copy the .sis files from
-    \c {<QtSDK_install_path>\Symbian\sis} to the device using USB storage
-    mode and install them from the file manager on the device.
+    If the device does not have the necessary Qt libraries pre-installed, you
+    can use Nokia Smart Installer for Symbian to deploy them during application
+    installation. Smart Installer ensures that the necessary libraries are
+    available in the target Symbian device before installing the actual
+    application. For more information about which Qt modules are supported
+    on-demand for different Symbian device models and how to enable Smart
+    Installer support in Qt applications, see
+    \l{http://www.developer.nokia.com/Community/Wiki/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}.
 
-    \section2 Developing for Symbian^3
+    \section2 Supported Configurations
 
-    \note The command names and paths depend on the \QSDK version that is
-    installed.
+    When you select the Qt version to build the application with, consider
+    which version provides the application with the widest support on different
+    Symbian platforms. The binary compatibility promise of Qt and Symbian means
+    that applications that are built against Qt 4.6.3 also run on Qt 4.7.3.
+    Similarly, applications that are supported on S60 5th Edition are also
+    supported
+    on Symbian^3. However, dependencies, such as QML or Qt Mobility API
+    versions might restrict the choice of Qt versions that you have.
 
-    \list 1
+    In general, if you use only Qt widgets and APIs in the application, you
+    can use \gui {Qt 4.6.3 for Symbian^1} to build it.
+    The application is supported on both Symbian^1 and Symbian^3 devices.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install Qt 4.7.3 for
-        Symbian^3 on Device}. Follow the instructions on the screen to install Qt
-        libraries to the device.
+    If you use QML in the application, you can use \gui {Qt 4.7.3 for
+    Symbian^1} to build it. The application is supported on both Symbian^1 and
+    Symbian^3 devices.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install QtMobility 1.1.2 for
-        Symbian^3 on Device}
-        and follow the instructions on the screen to install Qt
-        mobility libraries to the device.
+    If you use native Symbian APIs, you must check that they are available on
+    the target devices. For more information about the API differences between
+    Symbian^1 (S60 5th Edition) and Symbian^3, see the \bold {Symbian
+    Reference Documentation for Qt}, which is delivered together with \QSDK
+    and which you can view in the \gui Help mode.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install QtWebKit
-        for for Qt 4.7.3 on Symbian^3 Device} and follow the
-        instructions on the screen to install QtWebKit to the device.
+    The following table summarizes the supported configurations for each Qt
+    version available in Qt Creator build settings:
 
-    \endlist
-
-    \section2 Developing for Symbian^1
-
-    Symbian^1 incorporates Symbian OS and S60 5th Edition (S60 5.0), which is
-    built on Symbian OS v9.4.
-
-    \note The command names and paths depend on the \QSDK version that is
-    installed.
-
-    \list 1
-
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install Qt 4.7.3
-        for Symbian^1 on Device}. Follow the instructions on the screen to install Qt
-        libraries to the device.
-
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install QtMobility 1.1.2
-        for Symbian^1 on Device} and follow the instructions on the screen to install Qt
-        mobility libraries to the device.
-
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install QtWebKit
-        for for Qt 4.7.3 on Symbian^1 Device} and follow the
-        instructions on the screen to install QtWebKit to the device.
-
-    \endlist
-
-    In addition, you can install an example application and demos to Symbian^1
-    devices.
-
+    \table
+        \header
+            \i  Qt Version
+            \i  QML
+            \i  Qt Mobility Version
+            \i  Native Symbian C++ APIs
+            \i  Open GL
+        \row
+            \i  Qt 4.6.3 for Symbian^1 (S60 5th Edition)
+            \i  No
+            \i  1.0.2
+            \i  No
+            \i  No
+        \row
+            \i  Qt 4.6.3 for Symbian^3
+            \i  No
+            \i  1.0.2
+            \i  Yes
+            \i  No
+        \row
+            \i  Qt 4.7.3 for Symbian^1
+            \i  Yes
+            \i  1.1.3
+            \i  No
+            \i  No
+        \row
+            \i  Qt 4.7.3 for Symbian^3
+            \i  Yes
+            \i  1.1.3
+            \i  Yes
+            \i  Yes
+        \row
+            \i  Qt 4.7.4 for Symbian Belle
+            \i  Yes
+            \i  1.2
+            \i  Yes
+            \i  Yes
+    \endtable
 
     \if defined(qcmanual)
     \section1 Using On-device Debugging Agents
@@ -181,26 +248,14 @@
 
     \section2 Installing Debugging Agents
 
-    You can download CODA from the
+    CODA installation packages are delivered together with the \QSDK. On
+    Windows, you can use \gui Start menu commands to install CODA on Symbian
+    devices.
+
+    You can also download CODA from the
     \l{http://tools.ext.nokia.com/coda/}{CODA download server}.
 
-    \section1 Adding Symbian Platform SDKs
-
-    \QSDK contains all the tools you need for developing Qt applications for
-    Symbian devices. To use Symbian APIs directly in your applications, you can
-    install additional Symbian Platform SDKs:
-
-    \list
-        \o \l{http://www.forum.nokia.com/info/sw.nokia.com/id/ec866fab-4b76-49f6-b5a5-af0631419e9c/S60_All_in_One_SDKs.html}
-           {S60 Platform SDK 3rd Edition FP1 or higher}.
-        \o Either the GCCE ARM Toolchain that is included in the Symbian
-           SDKs, or RVCT 2.2 [build 686] or later (which requires a license).
-        \o Qt for Symbian 4.6.2 or later, installed into the Symbian SDKs you want
-           to use.
-
-    \endlist
-
-    \section2 Setting Up Qt Creator
+    \section1 Setting Up Qt Creator
 
     When you run Qt Creator after installing the Symbian SDK and Qt for
     Symbian, the installed SDKs and their corresponding Qt versions are

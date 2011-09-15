@@ -72,7 +72,6 @@ void MaemoPackageCreationWidget::initGui()
 {
     m_ui->shortDescriptionLineEdit->setMaxLength(60);
     updateVersionInfo();
-    versionInfoChanged();
     const AbstractDebBasedQt4MaemoTarget * const debBasedMaemoTarget
         = m_step->debBasedMaemoTarget();
     if (debBasedMaemoTarget) {
@@ -142,9 +141,17 @@ void MaemoPackageCreationWidget::updateVersionInfo()
     }
     const QStringList list = versionString.split(QLatin1Char('.'),
         QString::SkipEmptyParts);
+    const bool blocked = m_ui->major->signalsBlocked();
+    m_ui->major->blockSignals(true);
+    m_ui->minor->blockSignals(true);
+    m_ui->patch->blockSignals(true);
     m_ui->major->setValue(list.value(0, QLatin1String("0")).toInt());
     m_ui->minor->setValue(list.value(1, QLatin1String("0")).toInt());
     m_ui->patch->setValue(list.value(2, QLatin1String("0")).toInt());
+    m_ui->major->blockSignals(blocked);
+    m_ui->minor->blockSignals(blocked);
+    m_ui->patch->blockSignals(blocked);
+    updateSummary();
 }
 
 void MaemoPackageCreationWidget::handleControlFileUpdate()
@@ -249,8 +256,10 @@ void MaemoPackageCreationWidget::versionInfoChanged()
     const bool success = m_step->setVersionString(m_ui->major->text()
         + QLatin1Char('.') + m_ui->minor->text() + QLatin1Char('.')
         + m_ui->patch->text(), &error);
-    if (!success)
+    if (!success) {
         QMessageBox::critical(this, tr("Could Not Set Version Number"), error);
+        updateVersionInfo();
+    }
 }
 
 void MaemoPackageCreationWidget::editDebianFile()
