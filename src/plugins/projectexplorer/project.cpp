@@ -217,14 +217,12 @@ Target *Project::target(const QString &id) const
 void Project::saveSettings()
 {
     emit aboutToSaveSettings();
-    UserFileAccessor accessor;
-    accessor.saveSettings(this, toMap());
+    SettingsAccessor::instance()->saveSettings(this, toMap());
 }
 
 bool Project::restoreSettings()
 {
-    UserFileAccessor accessor;
-    QVariantMap map(accessor.restoreSettings(this));
+    QVariantMap map(SettingsAccessor::instance()->restoreSettings(this));
     bool ok = fromMap(map);
     if (ok)
         emit settingsLoaded();

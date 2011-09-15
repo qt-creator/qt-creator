@@ -35,46 +35,72 @@
 
 #include <QtCore/QVariantMap>
 
+
 namespace ProjectExplorer {
 
 class Project;
 
-class UserFileVersionHandler
+namespace Internal {
+class UserFileVersionHandler;
+}
+
+class SettingsAccessor
 {
 public:
-    UserFileVersionHandler();
-    virtual ~UserFileVersionHandler();
+    ~SettingsAccessor();
 
-    // The user file version this handler accepts for input.
-    virtual int userFileVersion() const = 0;
-    virtual QString displayUserFileVersion() const = 0;
-    // Update from userFileVersion() to userFileVersion() + 1
-    virtual QVariantMap update(Project *project, const QVariantMap &map) = 0;
+    static SettingsAccessor *instance();
 
-protected:
-    typedef QPair<QLatin1String,QLatin1String> Change;
-    QVariantMap renameKeys(const QList<Change> &changes, QVariantMap map);
-};
-
-class UserFileAccessor
-{
-public:
-    UserFileAccessor();
-    ~UserFileAccessor();
-    QVariantMap restoreSettings(Project * project);
-    bool saveSettings(Project * project, const QVariantMap &map);
-
-    int latestUserFileVersion() const;
-
-    QString mapIdTo(const QString &id, int version);
+    QVariantMap restoreSettings(Project *project) const;
+    bool saveSettings(const Project *project, const QVariantMap &map) const;
 
 private:
-    // Takes ownership of the handler!
-    void addVersionHandler(UserFileVersionHandler *handler);
+    SettingsAccessor();
 
-    QMap<int, UserFileVersionHandler *> m_handlers;
+    // Takes ownership of the handler!
+    void addVersionHandler(Internal::UserFileVersionHandler *handler);
+
+    // The relevant data from the settings currently in use.
+    class SettingsData
+    {
+    public:
+        SettingsData() : m_version(-1), m_usingBackup(false) {}
+        SettingsData(const QVariantMap &map) : m_version(-1), m_usingBackup(false), m_map(map) {}
+
+        int m_version;
+        bool m_usingBackup;
+        QVariantMap m_map;
+        QString m_fileName;
+    };
+
+    // The entity which actually reads/writes to the settings file.
+    class FileAccessor
+    {
+    public:
+        FileAccessor(const QByteArray &id,
+                     const QString &defaultSuffix,
+                     const QString &environmentSuffix,
+                     bool envSpecific);
+
+        bool readFile(Project *project, SettingsData *settings) const;
+        bool writeFile(const Project *project, const SettingsData *settings) const;
+
+    private:
+        void assignSuffix(const QString &defaultSuffix, const QString &environmentSuffix);
+        QString assembleFileName(const Project *project) const;
+        bool findNewestCompatibleSetting(SettingsData *settings) const;
+
+        QByteArray m_id;
+        QString m_suffix;
+        bool m_environmentSpecific;
+    };
+
+    static bool verifyEnvironmentId(const QString &id);
+
+    QMap<int, Internal::UserFileVersionHandler *> m_handlers;
     int m_firstVersion;
     int m_lastVersion;
+    const FileAccessor m_userFileAcessor;
 };
 
 } // namespace ProjectExplorer
