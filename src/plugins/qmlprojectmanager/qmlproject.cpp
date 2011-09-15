@@ -152,9 +152,8 @@ void QmlProject::refresh(RefreshOptions options)
         QList<ProjectExplorer::ToolChain *> tcList;
         if (version && !version->qtAbis().isEmpty())
               tcList = ProjectExplorer::ToolChainManager::instance()->findToolChains(version->qtAbis().at(0));
-        if (tcList.isEmpty())
-            return;
-        QtSupport::QmlDumpTool::pathAndEnvironment(this, version, tcList.first(), false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
+        if (!tcList.isEmpty())
+            QtSupport::QmlDumpTool::pathAndEnvironment(this, version, tcList.first(), false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
     }
     if (version) {
         pinfo.qtImportsPath = version->versionInfo().value("QT_INSTALL_IMPORTS");
