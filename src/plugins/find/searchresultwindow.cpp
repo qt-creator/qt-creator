@@ -308,6 +308,10 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
         delete d->m_searchResults.takeLast();
         delete d->m_searchResultWidgets.takeLast();
         d->m_recentSearchesBox->removeItem(d->m_recentSearchesBox->count()-1);
+        if (d->m_currentIndex >= d->m_recentSearchesBox->count()) {
+            // temporarily set the index to the last existing
+            d->m_currentIndex = d->m_recentSearchesBox->count() - 1;
+        }
     }
     Internal::SearchResultWidget *widget = new Internal::SearchResultWidget;
     d->m_searchResultWidgets.prepend(widget);
