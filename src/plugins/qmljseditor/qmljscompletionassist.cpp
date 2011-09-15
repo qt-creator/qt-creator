@@ -558,7 +558,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
                     dynamic_cast<const QmlEnumValue *>(value)) {
                 foreach (const QString &key, enumValue->keys())
                     addCompletion(key, m_interface->symbolIcon(),
-                                  EnumValueOrder, QString("\"%1\"").arg(key));
+                                  EnumValueOrder, QString("%1.%2").arg(enumValue->owner()->className(), key));
             }
         }
 

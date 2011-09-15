@@ -394,17 +394,21 @@ private:
     Error m_error;
 };
 
+class QmlObjectValue;
+
 class QMLJS_EXPORT QmlEnumValue: public NumberValue
 {
 public:
-    QmlEnumValue(const LanguageUtils::FakeMetaEnum &metaEnum, ValueOwner *valueOwner);
+    QmlEnumValue(const QmlObjectValue *owner, int index);
     virtual ~QmlEnumValue();
 
     QString name() const;
     QStringList keys() const;
+    const QmlObjectValue *owner() const;
 
 private:
-    LanguageUtils::FakeMetaEnum *_metaEnum;
+    const QmlObjectValue *_owner;
+    int _enumIndex;
 };
 
 

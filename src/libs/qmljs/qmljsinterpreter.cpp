@@ -162,14 +162,13 @@ QmlObjectValue::QmlObjectValue(FakeMetaObject::ConstPtr metaObject, const QStrin
       _attachedType(0),
       _metaObject(metaObject),
       _packageName(packageName),
-      _componentVersion(version),
-      _enums()
+      _componentVersion(version)
 {
     setClassName(className);
     int nEnums = metaObject->enumeratorCount();
     for (int i = 0; i < nEnums; ++i) {
         FakeMetaEnum fEnum = metaObject->enumerator(i);
-        _enums[fEnum.name()] = new QmlEnumValue(fEnum, valueOwner);
+        _enums[fEnum.name()] = new QmlEnumValue(this, i);
     }
 }
 
@@ -481,26 +480,30 @@ bool QmlObjectValue::isDerivedFrom(FakeMetaObject::ConstPtr base) const
     return false;
 }
 
-QmlEnumValue::QmlEnumValue(const FakeMetaEnum &metaEnum, ValueOwner *valueOwner)
-    : NumberValue(),
-      _metaEnum(new FakeMetaEnum(metaEnum))
+QmlEnumValue::QmlEnumValue(const QmlObjectValue *owner, int enumIndex)
+    : _owner(owner)
+    , _enumIndex(enumIndex)
 {
-    valueOwner->registerValue(this);
+    owner->valueOwner()->registerValue(this);
 }
 
 QmlEnumValue::~QmlEnumValue()
 {
-    delete _metaEnum;
 }
 
 QString QmlEnumValue::name() const
 {
-    return _metaEnum->name();
+    return _owner->metaObject()->enumerator(_enumIndex).name();
 }
 
 QStringList QmlEnumValue::keys() const
 {
-    return _metaEnum->keys();
+    return _owner->metaObject()->enumerator(_enumIndex).keys();
+}
+
+const QmlObjectValue *QmlEnumValue::owner() const
+{
+    return _owner;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
