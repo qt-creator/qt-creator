@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/debuggerlanguagechooser.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
@@ -279,7 +280,7 @@ void QmlProjectRunConfigurationWidget::qmlDebugServerPortChanged(uint port)
 void QmlProjectRunConfigurationWidget::manageQtVersions()
 {
     ICore *core = ICore::instance();
-    core->showOptionsDialog(QtSupport::Constants::QT_SETTINGS_CATEGORY,
+    core->showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
                             QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 

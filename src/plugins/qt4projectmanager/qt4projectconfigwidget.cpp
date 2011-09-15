@@ -180,13 +180,13 @@ void Qt4ProjectConfigWidget::updateShadowBuildUi()
 void Qt4ProjectConfigWidget::manageQtVersions()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(QtSupport::Constants::QT_SETTINGS_CATEGORY, QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
+    core->showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY, QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
 void Qt4ProjectConfigWidget::manageToolChains()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY,
+    core->showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
                             ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
 }
 

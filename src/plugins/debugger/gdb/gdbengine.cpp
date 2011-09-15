@@ -4504,16 +4504,16 @@ bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
     const QString binary = gdbBinary(sp);
     if (gdbBinary(sp).isEmpty()) {
         check->errorDetails.push_back(msgNoGdbBinaryForToolChain(sp.toolChainAbi));
-        check->settingsCategory = _(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
-        check->settingsPage = _(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsCategory = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+        check->settingsPage = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
         return false;
     }
     if (sp.toolChainAbi.os() == Abi::WindowsOS &&  !QFileInfo(binary).isAbsolute()) {
     // See initialization below, we need an absolute path to be able to locate Python on Windows.
         check->errorDetails.push_back(GdbEngine::tr("The gdb location must be given as an "
                 "absolute path in the debugger settings (%1).").arg(binary));
-        check->settingsCategory = _(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
-        check->settingsPage = _(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsCategory = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+        check->settingsPage = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
         return false;
     }
     return true;

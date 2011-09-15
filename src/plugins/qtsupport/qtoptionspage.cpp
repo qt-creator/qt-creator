@@ -50,6 +50,7 @@
 #include <utils/pathchooser.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qtconcurrent/runextensions.h>
 
 #include <QtCore/QDir>
@@ -84,17 +85,18 @@ QString QtOptionsPage::displayName() const
 
 QString QtOptionsPage::category() const
 {
-    return QLatin1String(Constants::QT_SETTINGS_CATEGORY);
+    return QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
 }
 
 QString QtOptionsPage::displayCategory() const
 {
-    return QCoreApplication::translate("Qt4ProjectManager", Constants::QT_SETTINGS_TR_CATEGORY);
+    return QCoreApplication::translate("ProjectExplorer",
+                                       ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
 }
 
 QIcon QtOptionsPage::categoryIcon() const
 {
-    return QIcon(QLatin1String(Constants::QT_SETTINGS_CATEGORY_ICON));
+    return QIcon(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON);
 }
 
 QWidget *QtOptionsPage::createPage(QWidget *parent)

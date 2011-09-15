@@ -47,7 +47,6 @@
         <file>images/category_core.png</file>
         <file>images/category_texteditor.png</file>
         <file>images/category_help.png</file>
-        <file>images/category_project.png</file>
         <file>images/category_design.png</file>
         <file>images/category_qt.png</file>
         <file>editormanager/BinFiles.mimetypes.xml</file>
@@ -65,6 +64,7 @@
         <file>images/category_cpp.png</file>
         <file>images/category_vcs.png</file>
         <file>images/category_qml.png</file>
-	<file>images/filtericon.png</file>
+        <file>images/filtericon.png</file>
+        <file>images/category_buildrun.png</file>
     </qresource>
 </RCC>

@@ -49,6 +49,7 @@
 #include <texteditor/texteditoractionhandler.h>
 
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <qtsupport/qtsupportconstants.h>
 
@@ -116,7 +117,7 @@ void QmlProjectPlugin::showQmlObserverToolWarning()
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
         Core::ICore::instance()->showOptionsDialog(
-                    QtSupport::Constants::QT_SETTINGS_CATEGORY,
+                    ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
                     QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
     }
 }

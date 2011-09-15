@@ -2511,7 +2511,7 @@ void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
         ICore::instance()->showOptionsDialog(
-            _(QtSupport::Constants::QT_SETTINGS_CATEGORY),
+            _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
             _(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
     } else if (dialog.clickedButton() == helperOff) {
         action(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);

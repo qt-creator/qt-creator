@@ -393,7 +393,7 @@ void SettingsDialog::createGui()
     mainGridLayout->addWidget(buttonBox,        2, 0, 1, 2);
     mainGridLayout->setColumnStretch(1, 4);
     setLayout(mainGridLayout);
-    setMinimumSize(1070, 680);
+    setMinimumSize(1000, 550);
 }
 
 SettingsDialog::~SettingsDialog()

@@ -467,17 +467,18 @@ QString ToolChainOptionsPage::displayName() const
 
 QString ToolChainOptionsPage::category() const
 {
-    return QLatin1String(Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+    return QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
 }
 
 QString ToolChainOptionsPage::displayCategory() const
 {
-    return tr("Tool Chains");
+    return QCoreApplication::translate("ProjectExplorer",
+                                       Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
 }
 
 QIcon ToolChainOptionsPage::categoryIcon() const
 {
-    return QIcon(QLatin1String(Constants::ICON_TOOLCHAIN_SETTINGS_CATEGORY));
+    return QIcon(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON);
 }
 
 QWidget *ToolChainOptionsPage::createPage(QWidget *parent)

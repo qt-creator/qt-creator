@@ -165,7 +165,6 @@ const char ICON_RUN_SMALL[]       = ":/projectexplorer/images/run_small.png";
 const char ICON_DEBUG_SMALL[]     = ":/projectexplorer/images/debugger_start_small.png";
 const char ICON_STOP[]            = ":/projectexplorer/images/stop.png";
 const char ICON_STOP_SMALL[]      = ":/projectexplorer/images/stop_small.png";
-const char ICON_TOOLCHAIN_SETTINGS_CATEGORY[] = ":projectexplorer/images/build.png"; // FIXME: Need an icon!
 const char ICON_WINDOW[]          = ":/projectexplorer/images/window.png";
 
 const char TASK_BUILD[]           = "ProjectExplorer.Task.Build";
@@ -181,10 +180,9 @@ const char RESOURCE_MIMETYPE[]    = "application/vnd.nokia.xml.qt.resource";
 
 // Settings page
 const char PROJECTEXPLORER_SETTINGS_CATEGORY[]  = "K.ProjectExplorer";
-const char PROJECTEXPLORER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Projects");
-const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/core/images/category_project.png";
-const char PROJECTEXPLORER_SETTINGS_ID[] = "ProjectExplorer.ProjectExplorer";
-const char TOOLCHAIN_SETTINGS_CATEGORY[] = "ProjectExplorer.Settings.ToolChains";
+const char PROJECTEXPLORER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Build & Run");
+const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/core/images/category_buildrun.png";
+const char PROJECTEXPLORER_SETTINGS_ID[] = "A.ProjectExplorer.ProjectExplorer";
 const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
 
 // Task categories
