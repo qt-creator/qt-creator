@@ -15,3 +15,8 @@ HEADERS += $$PWD/symbianplugin.h  $$PWD/../designercore/include/iwidgetplugin.h
 RESOURCES += $$PWD/symbianplugin.qrc
 
 OTHER_FILES += $$PWD/symbian.metainfo
+
+!macx {
+    target.path  = /$$IDE_LIBRARY_BASENAME/qmldesigner
+    INSTALLS    += target
+}
