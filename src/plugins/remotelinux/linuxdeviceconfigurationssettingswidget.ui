@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>726</width>
-    <height>421</height>
+    <height>473</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -67,6 +67,12 @@
            </sizepolicy>
           </property>
           <layout class="QFormLayout" name="formLayout_2">
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="deviceNameLabel">
              <property name="text">
@@ -80,10 +86,31 @@
            <item row="0" column="1">
             <widget class="QLineEdit" name="nameLineEdit"/>
            </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="oSTypeLabel">
+             <property name="text">
+              <string>OS type:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="osTypeValueLabel">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="deviceTypeLabel">
              <property name="text">
               <string>Device type:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="deviceTypeValueLabel">
+             <property name="text">
+              <string/>
              </property>
             </widget>
            </item>
@@ -141,24 +168,24 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QLineEdit" name="hostLineEdit">
-             <property name="placeholderText">
-              <string>IP or host name of the device</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="sshPortLabel">
-             <property name="text">
-              <string>&amp;SSH port:</string>
-             </property>
-             <property name="buddy">
-              <cstring>sshPortSpinBox</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QLineEdit" name="hostLineEdit">
+               <property name="placeholderText">
+                <string>IP or host name of the device</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="sshPortLabel">
+               <property name="text">
+                <string>&amp;SSH port:</string>
+               </property>
+               <property name="buddy">
+                <cstring>sshPortSpinBox</cstring>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QSpinBox" name="sshPortSpinBox">
                <property name="minimum">
@@ -171,19 +198,6 @@
                 <number>22</number>
                </property>
               </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </item>
@@ -209,37 +223,20 @@
              <item>
               <widget class="QLabel" name="portsWarningLabel">
                <property name="text">
-                <string>TextLabel</string>
+                <string/>
                </property>
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+              <widget class="QLabel" name="connectionTimeoutLabel">
+               <property name="text">
+                <string>Timeout:</string>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
+               <property name="buddy">
+                <cstring>timeoutSpinBox</cstring>
                </property>
-              </spacer>
+              </widget>
              </item>
-            </layout>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="connectionTimeoutLabel">
-             <property name="text">
-              <string>Connection time&amp;out:</string>
-             </property>
-             <property name="buddy">
-              <cstring>timeoutSpinBox</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
               <widget class="QSpinBox" name="timeoutSpinBox">
                <property name="suffix">
@@ -256,22 +253,9 @@
                </property>
               </widget>
              </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
             </layout>
            </item>
-           <item row="8" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="userNameLabel">
              <property name="text">
               <string>&amp;Username:</string>
@@ -281,10 +265,10 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
+           <item row="7" column="1">
             <widget class="QLineEdit" name="userLineEdit"/>
            </item>
-           <item row="9" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="passwordLabel">
              <property name="text">
               <string>&amp;Password:</string>
@@ -294,7 +278,7 @@
              </property>
             </widget>
            </item>
-           <item row="9" column="1">
+           <item row="8" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
               <widget class="QLineEdit" name="pwdLineEdit">
@@ -312,17 +296,17 @@
              </item>
             </layout>
            </item>
-           <item row="10" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="keyLabel">
              <property name="text">
               <string>Private key file:</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="1">
+           <item row="9" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <widget class="Utils::PathChooser" name="keyFileLineEdit"/>
+              <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
              </item>
              <item>
               <widget class="QPushButton" name="makeKeyFileDefaultButton">
@@ -332,27 +316,6 @@
               </widget>
              </item>
             </layout>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLabel" name="deviceTypeValueLabel">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="oSTypeLabel">
-             <property name="text">
-              <string>OS type:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="osTypeValueLabel">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
            </item>
           </layout>
          </widget>

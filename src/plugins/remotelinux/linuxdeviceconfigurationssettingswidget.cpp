@@ -136,7 +136,6 @@ QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
         << ' ' << m_ui->nameLineEdit->text()
         << ' ' << m_ui->passwordLabel->text()
         << ' ' << m_ui->freePortsLabel->text()
-        << ' ' << m_ui->portsWarningLabel->text()
         << ' ' << m_ui->pwdLineEdit->text()
         << ' ' << m_ui->timeoutSpinBox->value()
         << ' ' << m_ui->userLineEdit->text()
@@ -148,9 +147,13 @@ QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
 void LinuxDeviceConfigurationsSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
+    m_ui->portsWarningLabel->setPixmap(QPixmap(":/projectexplorer/images/compile_error.png"));
+    m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
+        + tr("You will need at least one port.") + QLatin1String("</font>"));
     m_ui->configurationComboBox->setModel(m_devConfigs.data());
     m_ui->nameLineEdit->setValidator(m_nameValidator);
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
+    m_ui->keyFileLineEdit->lineEdit()->setMinimumWidth(0);
     QRegExpValidator * const portsValidator
         = new QRegExpValidator(QRegExp(PortList::regularExpression()), this);
     m_ui->portsLineEdit->setValidator(portsValidator);
@@ -398,12 +401,7 @@ void LinuxDeviceConfigurationsSettingsWidget::clearDetails()
 
 void LinuxDeviceConfigurationsSettingsWidget::updatePortsWarningLabel()
 {
-    if (currentConfig()->freePorts().hasMore()) {
-        m_ui->portsWarningLabel->clear();
-    } else {
-        m_ui->portsWarningLabel->setText(QLatin1String("<font color=\"red\">")
-            + tr("You will need at least one port.") + QLatin1String("</font>"));
-    }
+    m_ui->portsWarningLabel->setVisible(!currentConfig()->freePorts().hasMore());
 }
 
 const ILinuxDeviceConfigurationFactory *LinuxDeviceConfigurationsSettingsWidget::factoryForCurrentConfig() const
