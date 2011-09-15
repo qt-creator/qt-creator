@@ -146,7 +146,6 @@ private:
 
     class DesignDocumentControllerPrivate *d;
 
-    static DesignDocumentController* m_this;
 };
 
 } // namespace QmlDesigner
