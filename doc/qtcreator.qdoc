@@ -5709,7 +5709,8 @@
     \list 1
 
         \o Select \gui Projects to select the Qt version to build the
-        application. For more information, see \l{Supported Configurations}.
+        application. For more information, see
+        \l{Selecting Qt Versions in Qt Creator}.
 
         \o Select the \gui {Symbian Device} build target for your project.
 
@@ -6453,7 +6454,8 @@
     \list 1
 
         \o On the \gui Welcome page, select the \gui {Show Examples and Demos}
-        check box, and then select \gui {Clocks} in the list of examples.
+        check box, and then search for \gui {Toys: Clocks Example} in the list
+        of examples.
 
         \image qtcreator-gs-build-example-open.png "Selecting an example"
 

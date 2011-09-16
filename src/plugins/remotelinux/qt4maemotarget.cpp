@@ -1143,7 +1143,9 @@ QString Qt4HarmattanTarget::aegisManifestFileName()
 void Qt4HarmattanTarget::handleTargetAddedSpecial()
 {
     AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial();
-    QFile(debianDirPath() + QLatin1Char('/') + aegisManifestFileName()).open(QIODevice::WriteOnly);
+    QFile aegisFile(debianDirPath() + QLatin1Char('/') + aegisManifestFileName());
+    if (!aegisFile.exists())
+        aegisFile.open(QIODevice::WriteOnly);
 }
 
 void Qt4HarmattanTarget::addAdditionalControlFileFields(QByteArray &controlContents)
