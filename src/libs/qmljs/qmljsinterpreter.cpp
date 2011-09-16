@@ -1280,7 +1280,7 @@ template QList<QmlObjectValue *> CppQmlTypes::load< QHash<QString, FakeMetaObjec
 
 QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, ComponentVersion version) const
 {
-    QMap<QString, QmlObjectValue *> objectValuesByName;
+    QHash<QString, QmlObjectValue *> objectValuesByName;
 
     foreach (QmlObjectValue *qmlObjectValue, _typesByPackage.value(packageName)) {
         if (qmlObjectValue->version() <= version) {

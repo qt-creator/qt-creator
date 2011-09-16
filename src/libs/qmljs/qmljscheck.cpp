@@ -264,7 +264,7 @@ protected:
         ReturnOrThrow = 3
     };
     State _state;
-    QMap<QString, Node *> _labels;
+    QHash<QString, Node *> _labels;
     QSet<Node *> _labelledBreaks;
 
     virtual void onUnreachable(Node *)

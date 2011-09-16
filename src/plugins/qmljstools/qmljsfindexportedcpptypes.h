@@ -37,7 +37,7 @@
 #include <languageutils/fakemetaobject.h>
 
 #include <QtCore/QCoreApplication>
-#include <QtCore/QMap>
+#include <QtCore/QHash>
 
 namespace QmlJSTools {
 
@@ -51,14 +51,14 @@ public:
     void operator()(const CPlusPlus::Document::Ptr &document);
 
     QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedTypes() const;
-    QMap<QString, QString> contextProperties() const;
+    QHash<QString, QString> contextProperties() const;
 
     static bool maybeExportsTypes(const CPlusPlus::Document::Ptr &document);
 
 private:
     CPlusPlus::Snapshot m_snapshot;
     QList<LanguageUtils::FakeMetaObject::ConstPtr> m_exportedTypes;
-    QMap<QString, QString> m_contextProperties;
+    QHash<QString, QString> m_contextProperties;
 };
 
 } // namespace QmlJSTools

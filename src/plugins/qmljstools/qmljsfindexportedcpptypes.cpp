@@ -642,7 +642,7 @@ static void buildContextProperties(
         TypeOfExpression &typeOf,
         const QList<ContextProperty> &contextPropertyDescriptions,
         QHash<Class *, LanguageUtils::FakeMetaObject::Ptr> *fakeMetaObjects,
-        QMap<QString, QString> *contextProperties)
+        QHash<QString, QString> *contextProperties)
 {
     using namespace LanguageUtils;
 
@@ -735,7 +735,7 @@ QList<LanguageUtils::FakeMetaObject::ConstPtr> FindExportedCppTypes::exportedTyp
     return m_exportedTypes;
 }
 
-QMap<QString, QString> FindExportedCppTypes::contextProperties() const
+QHash<QString, QString> FindExportedCppTypes::contextProperties() const
 {
     return m_contextProperties;
 }

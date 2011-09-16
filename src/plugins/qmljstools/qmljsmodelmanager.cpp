@@ -736,7 +736,7 @@ void ModelManager::startCppQmlTypeUpdate()
 
 void ModelManager::updateCppQmlTypes(ModelManager *qmlModelManager,
                                      CPlusPlus::CppModelManagerInterface *cppModelManager,
-                                     QMap<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents)
+                                     QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents)
 {
     CppDataHash newData = qmlModelManager->cppData();
 
@@ -756,7 +756,7 @@ void ModelManager::updateCppQmlTypes(ModelManager *qmlModelManager,
         finder(doc);
 
         QList<LanguageUtils::FakeMetaObject::ConstPtr> exported = finder.exportedTypes();
-        QMap<QString, QString> contextProperties = finder.contextProperties();
+        QHash<QString, QString> contextProperties = finder.contextProperties();
         if (exported.isEmpty() && contextProperties.isEmpty()) {
             newData.remove(fileName);
         } else {

@@ -39,7 +39,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
-#include <QtCore/QMap>
+#include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QFutureWatcher>
 #include <QtCore/QTimer>
@@ -93,7 +93,7 @@ private:
 
 private:
     ProjectExplorer::TaskHub *m_taskHub;
-    QMap<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
+    QHash<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
     QFutureWatcher<FileErrorMessages> m_messageCollector;
     QTimer m_updateDelay;
     bool m_updatingSemantic;

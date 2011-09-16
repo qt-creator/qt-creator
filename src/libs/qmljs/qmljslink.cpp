@@ -159,7 +159,7 @@ Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const Libra
         // populate global object with context properties from C++
         ObjectValue *global = d->valueOwner->globalObject();
         foreach (const ModelManagerInterface::CppData &cppData, cppDataHash) {
-            QMapIterator<QString, QString> it(cppData.contextProperties);
+            QHashIterator<QString, QString> it(cppData.contextProperties);
             while (it.hasNext()) {
                 it.next();
                 const Value *value = 0;

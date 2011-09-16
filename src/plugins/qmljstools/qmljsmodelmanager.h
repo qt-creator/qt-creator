@@ -131,7 +131,7 @@ private:
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
     static void updateCppQmlTypes(ModelManager *qmlModelManager,
                                   CPlusPlus::CppModelManagerInterface *cppModelManager,
-                                  QMap<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents);
+                                  QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents);
 
     mutable QMutex m_mutex;
     Core::ICore *m_core;
@@ -143,7 +143,7 @@ private:
     QFutureSynchronizer<void> m_synchronizer;
 
     QTimer *m_updateCppQmlTypesTimer;
-    QMap<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
+    QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
 
     CppDataHash m_cppDataHash;
     mutable QMutex m_cppDataMutex;

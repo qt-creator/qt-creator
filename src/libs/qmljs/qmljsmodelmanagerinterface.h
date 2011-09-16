@@ -114,7 +114,7 @@ public:
     {
     public:
         QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedTypes;
-        QMap<QString, QString> contextProperties;
+        QHash<QString, QString> contextProperties;
     };
 
     typedef QHash<QString, CppData> CppDataHash;

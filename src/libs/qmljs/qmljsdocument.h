@@ -33,7 +33,6 @@
 #define QMLDOCUMENT_H
 
 #include <QtCore/QList>
-#include <QtCore/QMap>
 #include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
