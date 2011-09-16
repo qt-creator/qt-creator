@@ -65,6 +65,9 @@ public:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *keyEvent);
 
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent * event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent * event);
+
     void itemsAboutToRemoved(const QList<FormEditorItem*> &itemList);
 
     void selectedItemsChanged(const QList<FormEditorItem*> &itemList);

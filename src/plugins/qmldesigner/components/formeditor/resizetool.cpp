@@ -112,6 +112,17 @@ void ResizeTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
     }
 }
 
+void ResizeTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+{
+
+}
+
+void ResizeTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+{
+
+}
+
+
 void ResizeTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                                               QGraphicsSceneMouseEvent *event)
 {

@@ -123,6 +123,16 @@ void ItemCreatorTool::keyReleaseEvent(QKeyEvent * /*keyEvent*/)
 
 }
 
+void ItemCreatorTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+{
+
+}
+
+void ItemCreatorTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+{
+
+}
+
 void ItemCreatorTool::itemsAboutToRemoved(const QList<FormEditorItem*> &/*itemList*/)
 {
 

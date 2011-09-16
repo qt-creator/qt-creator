@@ -57,6 +57,10 @@ public:
                                        QGraphicsSceneMouseEvent *event);
     void hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
                         QGraphicsSceneMouseEvent *event);
+
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent * event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent * event);
+
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *keyEvent);
 
