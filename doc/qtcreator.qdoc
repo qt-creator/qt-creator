@@ -4269,7 +4269,7 @@
     when you add it.
 
     For your own libraries and 3rd party libraries, you need to specify
-    the paths. Qt Creator tries to quess the include path for an external library,
+    the paths. Qt Creator tries to guess the include path for an external library,
     but you need to check it and modify it if necessary. Qt Creator automatically
     adds the include path for an internal library.
 
