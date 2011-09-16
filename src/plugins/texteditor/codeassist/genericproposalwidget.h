@@ -35,16 +35,14 @@
 
 #include "iassistproposalwidget.h"
 
-#include <QtCore/QScopedPointer>
-
 namespace TextEditor {
 
 class GenericProposalWidgetPrivate;
 
 class GenericProposalWidget : public IAssistProposalWidget
 {
-    friend class GenericProposalWidgetPrivate;
     Q_OBJECT
+    friend class GenericProposalWidgetPrivate;
 
 public:
     GenericProposalWidget();
@@ -72,7 +70,7 @@ protected:
     virtual bool eventFilter(QObject *o, QEvent *e);
 
 private:
-    QScopedPointer<GenericProposalWidgetPrivate> m_d;
+    GenericProposalWidgetPrivate *d;
 };
 
 } // TextEditor

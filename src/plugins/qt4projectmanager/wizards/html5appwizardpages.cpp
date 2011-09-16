@@ -50,32 +50,32 @@ class Html5AppWizardOptionsPagePrivate
 
 Html5AppWizardOptionsPage::Html5AppWizardOptionsPage(QWidget *parent)
     : QWizardPage(parent)
-    , m_d(new Html5AppWizardOptionsPagePrivate)
+    , d(new Html5AppWizardOptionsPagePrivate)
 {
-    m_d->ui.setupUi(this);
-    m_d->ui.importLineEdit->setExpectedKind(Utils::PathChooser::File);
-    m_d->ui.importLineEdit->setPromptDialogFilter(QLatin1String("*.html"));
-    m_d->ui.importLineEdit->setPromptDialogTitle(tr("Select HTML File"));
-    connect(m_d->ui.importLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
-    connect(m_d->ui.importRadioButton,
+    d->ui.setupUi(this);
+    d->ui.importLineEdit->setExpectedKind(Utils::PathChooser::File);
+    d->ui.importLineEdit->setPromptDialogFilter(QLatin1String("*.html"));
+    d->ui.importLineEdit->setPromptDialogTitle(tr("Select HTML File"));
+    connect(d->ui.importLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
+    connect(d->ui.importRadioButton,
             SIGNAL(toggled(bool)), SIGNAL(completeChanged()));
-    connect(m_d->ui.generateRadioButton, SIGNAL(toggled(bool)), SLOT(setLineEditsEnabled()));
-    connect(m_d->ui.importRadioButton, SIGNAL(toggled(bool)), SLOT(setLineEditsEnabled()));
-    connect(m_d->ui.urlRadioButton, SIGNAL(toggled(bool)), SLOT(setLineEditsEnabled()));
-    m_d->ui.generateRadioButton->setChecked(true);
+    connect(d->ui.generateRadioButton, SIGNAL(toggled(bool)), SLOT(setLineEditsEnabled()));
+    connect(d->ui.importRadioButton, SIGNAL(toggled(bool)), SLOT(setLineEditsEnabled()));
+    connect(d->ui.urlRadioButton, SIGNAL(toggled(bool)), SLOT(setLineEditsEnabled()));
+    d->ui.generateRadioButton->setChecked(true);
 }
 
 Html5AppWizardOptionsPage::~Html5AppWizardOptionsPage()
 {
-    delete m_d;
+    delete d;
 }
 
 Html5App::Mode Html5AppWizardOptionsPage::mainHtmlMode() const
 {
     Html5App::Mode result = Html5App::ModeGenerate;
-    if (m_d->ui.importRadioButton->isChecked())
+    if (d->ui.importRadioButton->isChecked())
         result = Html5App::ModeImport;
-    else if (m_d->ui.urlRadioButton->isChecked())
+    else if (d->ui.urlRadioButton->isChecked())
         result = Html5App::ModeUrl;
     return result;
 }
@@ -83,8 +83,8 @@ Html5App::Mode Html5AppWizardOptionsPage::mainHtmlMode() const
 QString Html5AppWizardOptionsPage::mainHtmlData() const
 {
     switch (mainHtmlMode()) {
-    case Html5App::ModeImport: return m_d->ui.importLineEdit->path();
-    case Html5App::ModeUrl: return m_d->ui.urlLineEdit->text();
+    case Html5App::ModeImport: return d->ui.importLineEdit->path();
+    case Html5App::ModeUrl: return d->ui.urlLineEdit->text();
     default:
     case Html5App::ModeGenerate: return QString();
     }
@@ -92,23 +92,23 @@ QString Html5AppWizardOptionsPage::mainHtmlData() const
 
 void Html5AppWizardOptionsPage::setTouchOptimizationEndabled(bool enabled)
 {
-    m_d->ui.touchOptimizationCheckBox->setChecked(enabled);
+    d->ui.touchOptimizationCheckBox->setChecked(enabled);
 }
 
 bool Html5AppWizardOptionsPage::touchOptimizationEndabled() const
 {
-    return m_d->ui.touchOptimizationCheckBox->isChecked();
+    return d->ui.touchOptimizationCheckBox->isChecked();
 }
 
 bool Html5AppWizardOptionsPage::isComplete() const
 {
-    return mainHtmlMode() != Html5App::ModeImport || m_d->ui.importLineEdit->isValid();
+    return mainHtmlMode() != Html5App::ModeImport || d->ui.importLineEdit->isValid();
 }
 
 void Html5AppWizardOptionsPage::setLineEditsEnabled()
 {
-    m_d->ui.importLineEdit->setEnabled(m_d->ui.importRadioButton->isChecked());
-    m_d->ui.urlLineEdit->setEnabled(m_d->ui.urlRadioButton->isChecked());
+    d->ui.importLineEdit->setEnabled(d->ui.importRadioButton->isChecked());
+    d->ui.urlLineEdit->setEnabled(d->ui.urlRadioButton->isChecked());
 }
 
 } // namespace Internal

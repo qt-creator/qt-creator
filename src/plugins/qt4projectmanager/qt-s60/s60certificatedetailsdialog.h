@@ -51,7 +51,7 @@ public:
     void setText(const QString &text);
 
 private:
-    S60CertificateDetailsDialogPrivate *m_d;
+    S60CertificateDetailsDialogPrivate *d;
 };
 
 } // namespace Internal

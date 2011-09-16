@@ -93,7 +93,7 @@ private:
     void notifyAboutUpdate(ProjectExplorer::ToolChain *);
 
 
-    Internal::ToolChainManagerPrivate *const m_d;
+    Internal::ToolChainManagerPrivate *const d;
 
     static ToolChainManager *m_instance;
 

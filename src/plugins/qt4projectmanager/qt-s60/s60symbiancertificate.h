@@ -66,7 +66,7 @@ private:
     QDateTime parseTime(const QByteArray &time);
 
 protected:
-    S60SymbianCertificatePrivate const *m_d;
+    S60SymbianCertificatePrivate const *d;
     QString m_errorString;
 };
 

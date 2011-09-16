@@ -157,7 +157,8 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
 }
 
 CodeAssistantPrivate::~CodeAssistantPrivate()
-{}
+{
+}
 
 void CodeAssistantPrivate::configure(BaseTextEditor *textEditor)
 {
@@ -481,40 +482,42 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
 // -------------
 // CodeAssistant
 // -------------
-CodeAssistant::CodeAssistant() : m_d(new CodeAssistantPrivate(this))
+CodeAssistant::CodeAssistant() : d(new CodeAssistantPrivate(this))
 {}
 
 CodeAssistant::~CodeAssistant()
-{}
+{
+    delete d;
+}
 
 void CodeAssistant::configure(BaseTextEditor *textEditor)
 {
-    m_d->configure(textEditor);
+    d->configure(textEditor);
 }
 
 void CodeAssistant::process()
 {
-    m_d->process();
+    d->process();
 }
 
 void CodeAssistant::notifyChange()
 {
-    m_d->notifyChange();
+    d->notifyChange();
 }
 
 bool CodeAssistant::hasContext() const
 {
-    return m_d->hasContext();
+    return d->hasContext();
 }
 
 void CodeAssistant::destroyContext()
 {
-    m_d->destroyContext();
+    d->destroyContext();
 }
 
 void CodeAssistant::invoke(AssistKind kind, IAssistProvider *provider)
 {
-    m_d->invoke(kind, provider);
+    d->invoke(kind, provider);
 }
 
 #include "codeassistant.moc"

@@ -91,7 +91,7 @@ private slots:
     void slotEncodingBoxChanged(int index);
 
 private:
-    BehaviorSettingsWidgetPrivate *m_d;
+    BehaviorSettingsWidgetPrivate *d;
 };
 
 } // TextEditor

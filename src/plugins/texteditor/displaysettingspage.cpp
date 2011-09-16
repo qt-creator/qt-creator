@@ -63,49 +63,49 @@ DisplaySettingsPage::DisplaySettingsPagePrivate::DisplaySettingsPagePrivate
 DisplaySettingsPage::DisplaySettingsPage(const DisplaySettingsPageParameters &p,
                                          QObject *parent)
   : TextEditorOptionsPage(parent),
-    m_d(new DisplaySettingsPagePrivate(p))
+    d(new DisplaySettingsPagePrivate(p))
 {
 }
 
 DisplaySettingsPage::~DisplaySettingsPage()
 {
-    delete m_d;
+    delete d;
 }
 
 QString DisplaySettingsPage::id() const
 {
-    return m_d->m_parameters.id;
+    return d->m_parameters.id;
 }
 
 QString DisplaySettingsPage::displayName() const
 {
-    return m_d->m_parameters.displayName;
+    return d->m_parameters.displayName;
 }
 
 QWidget *DisplaySettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
-    m_d->m_page = new Ui::DisplaySettingsPage;
-    m_d->m_page->setupUi(w);
+    d->m_page = new Ui::DisplaySettingsPage;
+    d->m_page->setupUi(w);
     settingsToUI();
-    if (m_d->m_searchKeywords.isEmpty()) {
-        QTextStream(&m_d->m_searchKeywords) << m_d->m_page->displayLineNumbers->text()
-          << ' ' << m_d->m_page->highlightCurrentLine->text()
-          << ' ' << m_d->m_page->displayFoldingMarkers->text()
-          << ' ' << m_d->m_page->highlightBlocks->text()
-          << ' ' << m_d->m_page->visualizeWhitespace->text()
-          << ' ' << m_d->m_page->animateMatchingParentheses->text()
-          << ' ' << m_d->m_page->enableTextWrapping->text()
-          << ' ' << m_d->m_page->autoFoldFirstComment->text()
-          << ' ' << m_d->m_page->centerOnScroll->text();
-        m_d->m_searchKeywords.remove(QLatin1Char('&'));
+    if (d->m_searchKeywords.isEmpty()) {
+        QTextStream(&d->m_searchKeywords) << d->m_page->displayLineNumbers->text()
+          << ' ' << d->m_page->highlightCurrentLine->text()
+          << ' ' << d->m_page->displayFoldingMarkers->text()
+          << ' ' << d->m_page->highlightBlocks->text()
+          << ' ' << d->m_page->visualizeWhitespace->text()
+          << ' ' << d->m_page->animateMatchingParentheses->text()
+          << ' ' << d->m_page->enableTextWrapping->text()
+          << ' ' << d->m_page->autoFoldFirstComment->text()
+          << ' ' << d->m_page->centerOnScroll->text();
+        d->m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
 }
 
 void DisplaySettingsPage::apply()
 {
-    if (!m_d->m_page) // page was never shown
+    if (!d->m_page) // page was never shown
         return;
     DisplaySettings newDisplaySettings;
 
@@ -115,57 +115,57 @@ void DisplaySettingsPage::apply()
 
 void DisplaySettingsPage::finish()
 {
-    if (!m_d->m_page) // page was never shown
+    if (!d->m_page) // page was never shown
         return;
-    delete m_d->m_page;
-    m_d->m_page = 0;
+    delete d->m_page;
+    d->m_page = 0;
 }
 
 void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings) const
 {
-    displaySettings.m_displayLineNumbers = m_d->m_page->displayLineNumbers->isChecked();
-    displaySettings.m_textWrapping = m_d->m_page->enableTextWrapping->isChecked();
-    displaySettings.m_showWrapColumn = m_d->m_page->showWrapColumn->isChecked();
-    displaySettings.m_wrapColumn = m_d->m_page->wrapColumn->value();
-    displaySettings.m_visualizeWhitespace = m_d->m_page->visualizeWhitespace->isChecked();
-    displaySettings.m_displayFoldingMarkers = m_d->m_page->displayFoldingMarkers->isChecked();
-    displaySettings.m_highlightCurrentLine = m_d->m_page->highlightCurrentLine->isChecked();
-    displaySettings.m_highlightBlocks = m_d->m_page->highlightBlocks->isChecked();
-    displaySettings.m_animateMatchingParentheses = m_d->m_page->animateMatchingParentheses->isChecked();
-    displaySettings.m_markTextChanges = m_d->m_page->markTextChanges->isChecked();
-    displaySettings.m_autoFoldFirstComment = m_d->m_page->autoFoldFirstComment->isChecked();
-    displaySettings.m_centerCursorOnScroll = m_d->m_page->centerOnScroll->isChecked();
+    displaySettings.m_displayLineNumbers = d->m_page->displayLineNumbers->isChecked();
+    displaySettings.m_textWrapping = d->m_page->enableTextWrapping->isChecked();
+    displaySettings.m_showWrapColumn = d->m_page->showWrapColumn->isChecked();
+    displaySettings.m_wrapColumn = d->m_page->wrapColumn->value();
+    displaySettings.m_visualizeWhitespace = d->m_page->visualizeWhitespace->isChecked();
+    displaySettings.m_displayFoldingMarkers = d->m_page->displayFoldingMarkers->isChecked();
+    displaySettings.m_highlightCurrentLine = d->m_page->highlightCurrentLine->isChecked();
+    displaySettings.m_highlightBlocks = d->m_page->highlightBlocks->isChecked();
+    displaySettings.m_animateMatchingParentheses = d->m_page->animateMatchingParentheses->isChecked();
+    displaySettings.m_markTextChanges = d->m_page->markTextChanges->isChecked();
+    displaySettings.m_autoFoldFirstComment = d->m_page->autoFoldFirstComment->isChecked();
+    displaySettings.m_centerCursorOnScroll = d->m_page->centerOnScroll->isChecked();
 }
 
 void DisplaySettingsPage::settingsToUI()
 {
-    const DisplaySettings &displaySettings = m_d->m_displaySettings;
-    m_d->m_page->displayLineNumbers->setChecked(displaySettings.m_displayLineNumbers);
-    m_d->m_page->enableTextWrapping->setChecked(displaySettings.m_textWrapping);
-    m_d->m_page->showWrapColumn->setChecked(displaySettings.m_showWrapColumn);
-    m_d->m_page->wrapColumn->setValue(displaySettings.m_wrapColumn);
-    m_d->m_page->visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
-    m_d->m_page->displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);
-    m_d->m_page->highlightCurrentLine->setChecked(displaySettings.m_highlightCurrentLine);
-    m_d->m_page->highlightBlocks->setChecked(displaySettings.m_highlightBlocks);
-    m_d->m_page->animateMatchingParentheses->setChecked(displaySettings.m_animateMatchingParentheses);
-    m_d->m_page->markTextChanges->setChecked(displaySettings.m_markTextChanges);
-    m_d->m_page->autoFoldFirstComment->setChecked(displaySettings.m_autoFoldFirstComment);
-    m_d->m_page->centerOnScroll->setChecked(displaySettings.m_centerCursorOnScroll);
+    const DisplaySettings &displaySettings = d->m_displaySettings;
+    d->m_page->displayLineNumbers->setChecked(displaySettings.m_displayLineNumbers);
+    d->m_page->enableTextWrapping->setChecked(displaySettings.m_textWrapping);
+    d->m_page->showWrapColumn->setChecked(displaySettings.m_showWrapColumn);
+    d->m_page->wrapColumn->setValue(displaySettings.m_wrapColumn);
+    d->m_page->visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
+    d->m_page->displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);
+    d->m_page->highlightCurrentLine->setChecked(displaySettings.m_highlightCurrentLine);
+    d->m_page->highlightBlocks->setChecked(displaySettings.m_highlightBlocks);
+    d->m_page->animateMatchingParentheses->setChecked(displaySettings.m_animateMatchingParentheses);
+    d->m_page->markTextChanges->setChecked(displaySettings.m_markTextChanges);
+    d->m_page->autoFoldFirstComment->setChecked(displaySettings.m_autoFoldFirstComment);
+    d->m_page->centerOnScroll->setChecked(displaySettings.m_centerCursorOnScroll);
 }
 
 const DisplaySettings &DisplaySettingsPage::displaySettings() const
 {
-    return m_d->m_displaySettings;
+    return d->m_displaySettings;
 }
 
 void DisplaySettingsPage::setDisplaySettings(const DisplaySettings &newDisplaySettings)
 {
-    if (newDisplaySettings != m_d->m_displaySettings) {
-        m_d->m_displaySettings = newDisplaySettings;
+    if (newDisplaySettings != d->m_displaySettings) {
+        d->m_displaySettings = newDisplaySettings;
         Core::ICore *core = Core::ICore::instance();
         if (QSettings *s = core->settings())
-            m_d->m_displaySettings.toSettings(m_d->m_parameters.settingsPrefix, s);
+            d->m_displaySettings.toSettings(d->m_parameters.settingsPrefix, s);
 
         emit displaySettingsChanged(newDisplaySettings);
     }
@@ -173,5 +173,5 @@ void DisplaySettingsPage::setDisplaySettings(const DisplaySettings &newDisplaySe
 
 bool DisplaySettingsPage::matches(const QString &s) const
 {
-    return m_d->m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    return d->m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

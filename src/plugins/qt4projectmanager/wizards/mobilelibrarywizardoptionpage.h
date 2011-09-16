@@ -55,7 +55,7 @@ public:
     void setLibraryType(int type);
 
 private:
-    class MobileLibraryWizardOptionPagePrivate *m_d;
+    class MobileLibraryWizardOptionPagePrivate *d;
 };
 
 } // namespace Internal

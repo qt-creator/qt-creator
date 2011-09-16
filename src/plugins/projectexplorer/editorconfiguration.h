@@ -37,7 +37,6 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QVariantMap>
-#include <QtCore/QScopedPointer>
 
 namespace TextEditor {
 class ITextEditor;
@@ -104,7 +103,7 @@ private:
                                const OldSenderT *oldSender,
                                TextEditor::BaseTextEditorWidget *baseTextEditor) const;
 
-    QScopedPointer<EditorConfigurationPrivate> m_d;
+    EditorConfigurationPrivate *d;
 };
 
 // Return the editor settings in the case it's not null. Otherwise, try to find the project

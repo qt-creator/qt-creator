@@ -35,8 +35,6 @@
 
 #include "ioptionspage.h"
 
-#include <QtCore/QScopedPointer>
-
 namespace Core {
 namespace Internal {
 
@@ -62,7 +60,7 @@ public:
     virtual void finish();
 
 private:
-    QScopedPointer<MimeTypeSettingsPrivate> m_d;
+    MimeTypeSettingsPrivate *d;
 };
 
 } // Internal

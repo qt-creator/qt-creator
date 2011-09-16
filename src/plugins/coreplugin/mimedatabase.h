@@ -316,7 +316,7 @@ public:
 private:
     MimeType findByFileUnlocked(const QFileInfo &f) const;
 
-    MimeDatabasePrivate *m_d;
+    MimeDatabasePrivate *d;
     mutable QMutex m_mutex;
 };
 

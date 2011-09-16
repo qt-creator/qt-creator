@@ -37,8 +37,6 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <QtCore/QScopedPointer>
-
 namespace TextEditor {
 
 class CodeAssistantPrivate;
@@ -61,7 +59,7 @@ public:
     void invoke(AssistKind assistKind, IAssistProvider *provider = 0);
 
 private:
-    QScopedPointer<CodeAssistantPrivate> m_d;
+    CodeAssistantPrivate *d;
 };
 
 } //TextEditor

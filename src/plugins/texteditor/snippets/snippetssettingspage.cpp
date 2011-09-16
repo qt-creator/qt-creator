@@ -564,44 +564,44 @@ void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings
 // SnippetsSettingsPage
 SnippetsSettingsPage::SnippetsSettingsPage(const QString &id, QObject *parent) :
     TextEditorOptionsPage(parent),
-    m_d(new SnippetsSettingsPagePrivate(id))
+    d(new SnippetsSettingsPagePrivate(id))
 {}
 
 SnippetsSettingsPage::~SnippetsSettingsPage()
 {
-    delete m_d;
+    delete d;
 }
 
 QString SnippetsSettingsPage::id() const
 {
-    return m_d->id();
+    return d->id();
 }
 
 QString SnippetsSettingsPage::displayName() const
 {
-    return m_d->displayName();
+    return d->displayName();
 }
 
 bool SnippetsSettingsPage::matches(const QString &s) const
 {
-    return m_d->isKeyword(s);
+    return d->isKeyword(s);
 }
 
 QWidget *SnippetsSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
-    m_d->configureUi(w);
+    d->configureUi(w);
     return w;
 }
 
 void SnippetsSettingsPage::apply()
 {
-    m_d->apply();
+    d->apply();
 }
 
 void SnippetsSettingsPage::finish()
 {
-    m_d->finish();
+    d->finish();
 }
 
 } // Internal

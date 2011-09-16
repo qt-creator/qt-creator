@@ -33,9 +33,9 @@
 #ifndef TEXTEDITOROPTIONSPAGE_H
 #define TEXTEDITOROPTIONSPAGE_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include "texteditor_global.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace TextEditor {
 

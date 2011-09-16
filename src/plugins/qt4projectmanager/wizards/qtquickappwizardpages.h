@@ -33,8 +33,9 @@
 #ifndef QTQUICKAPPWIZARDPAGES_H
 #define QTQUICKAPPWIZARDPAGES_H
 
-#include <QtGui/QWizardPage>
 #include "qtquickapp.h"
+
+#include <QtGui/QWizardPage>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -58,7 +59,7 @@ private slots:
     void radioButtonChecked(int index);
 
 private:
-    class QtQuickComponentSetOptionsPagePrivate *m_d;
+    class QtQuickComponentSetOptionsPagePrivate *d;
 };
 
 } // namespace Internal

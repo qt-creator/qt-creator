@@ -78,25 +78,25 @@ class MobileAppWizardHarmattanOptionsPagePrivate
 
 MobileAppWizardGenericOptionsPage::MobileAppWizardGenericOptionsPage(QWidget *parent)
     : QWizardPage(parent)
-    , m_d(new MobileAppWizardGenericOptionsPagePrivate)
+    , d(new MobileAppWizardGenericOptionsPagePrivate)
 {
-    m_d->ui.setupUi(this);
-    m_d->ui.orientationBehaviorComboBox->addItem(tr("Automatically Rotate Orientation"),
+    d->ui.setupUi(this);
+    d->ui.orientationBehaviorComboBox->addItem(tr("Automatically Rotate Orientation"),
         AbstractMobileApp::ScreenOrientationAuto);
-    m_d->ui.orientationBehaviorComboBox->addItem(tr("Lock to Landscape Orientation"),
+    d->ui.orientationBehaviorComboBox->addItem(tr("Lock to Landscape Orientation"),
         AbstractMobileApp::ScreenOrientationLockLandscape);
-    m_d->ui.orientationBehaviorComboBox->addItem(tr("Lock to Portrait Orientation"),
+    d->ui.orientationBehaviorComboBox->addItem(tr("Lock to Portrait Orientation"),
         AbstractMobileApp::ScreenOrientationLockPortrait);
 }
 
 MobileAppWizardGenericOptionsPage::~MobileAppWizardGenericOptionsPage()
 {
-    delete m_d;
+    delete d;
 }
 
 void MobileAppWizardGenericOptionsPage::setOrientation(AbstractMobileApp::ScreenOrientation orientation)
 {
-    QComboBox *const comboBox = m_d->ui.orientationBehaviorComboBox;
+    QComboBox *const comboBox = d->ui.orientationBehaviorComboBox;
     for (int i = 0; i < comboBox->count(); ++i) {
         if (comboBox->itemData(i).toInt() == static_cast<int>(orientation)) {
             comboBox->setCurrentIndex(i);
@@ -107,7 +107,7 @@ void MobileAppWizardGenericOptionsPage::setOrientation(AbstractMobileApp::Screen
 
 AbstractMobileApp::ScreenOrientation MobileAppWizardGenericOptionsPage::orientation() const
 {
-    QComboBox *const comboBox = m_d->ui.orientationBehaviorComboBox;
+    QComboBox *const comboBox = d->ui.orientationBehaviorComboBox;
     const int index = comboBox->currentIndex();
     return static_cast<AbstractMobileApp::ScreenOrientation>(comboBox->itemData(index).toInt());
 }
@@ -115,22 +115,22 @@ AbstractMobileApp::ScreenOrientation MobileAppWizardGenericOptionsPage::orientat
 
 MobileAppWizardSymbianOptionsPage::MobileAppWizardSymbianOptionsPage(QWidget *parent)
     : QWizardPage(parent)
-    , m_d(new MobileAppWizardSymbianOptionsPagePrivate)
+    , d(new MobileAppWizardSymbianOptionsPagePrivate)
 {
-    m_d->ui.setupUi(this);
+    d->ui.setupUi(this);
     const QIcon open = QApplication::style()->standardIcon(QStyle::SP_DirOpenIcon);
-    m_d->ui.appIconLoadToolButton->setIcon(open);
-    connect(m_d->ui.appIconLoadToolButton, SIGNAL(clicked()), SLOT(openSvgIcon()));
+    d->ui.appIconLoadToolButton->setIcon(open);
+    connect(d->ui.appIconLoadToolButton, SIGNAL(clicked()), SLOT(openSvgIcon()));
 }
 
 MobileAppWizardSymbianOptionsPage::~MobileAppWizardSymbianOptionsPage()
 {
-    delete m_d;
+    delete d;
 }
 
 QString MobileAppWizardSymbianOptionsPage::svgIcon() const
 {
-    return m_d->svgIcon;
+    return d->svgIcon;
 }
 
 void MobileAppWizardSymbianOptionsPage::setSvgIcon(const QString &icon)
@@ -140,36 +140,36 @@ void MobileAppWizardSymbianOptionsPage::setSvgIcon(const QString &icon)
         const int symbianIconSize = 44;
         if (iconPixmap.height() > symbianIconSize || iconPixmap.width() > symbianIconSize)
             iconPixmap = iconPixmap.scaledToHeight(symbianIconSize, Qt::SmoothTransformation);
-        m_d->ui.appIconPreview->setPixmap(iconPixmap);
-        m_d->svgIcon = icon;
+        d->ui.appIconPreview->setPixmap(iconPixmap);
+        d->svgIcon = icon;
     }
 }
 
 QString MobileAppWizardSymbianOptionsPage::symbianUid() const
 {
-    return m_d->ui.uid3LineEdit->text();
+    return d->ui.uid3LineEdit->text();
 }
 
 void MobileAppWizardSymbianOptionsPage::setSymbianUid(const QString &uid)
 {
-    m_d->ui.uid3LineEdit->setText(uid);
+    d->ui.uid3LineEdit->setText(uid);
 }
 
 void MobileAppWizardSymbianOptionsPage::setNetworkEnabled(bool enableIt)
 {
-    m_d->ui.enableNetworkCheckBox->setChecked(enableIt);
+    d->ui.enableNetworkCheckBox->setChecked(enableIt);
 }
 
 bool MobileAppWizardSymbianOptionsPage::networkEnabled() const
 {
-    return m_d->ui.enableNetworkCheckBox->isChecked();
+    return d->ui.enableNetworkCheckBox->isChecked();
 }
 
 void MobileAppWizardSymbianOptionsPage::openSvgIcon()
 {
     const QString svgIcon = QFileDialog::getOpenFileName(
             this,
-            m_d->ui.appIconLabel->text(),
+            d->ui.appIconLabel->text(),
             QDesktopServices::storageLocation(QDesktopServices::PicturesLocation),
             QLatin1String("*.svg"));
     if (!svgIcon.isEmpty())
@@ -178,22 +178,22 @@ void MobileAppWizardSymbianOptionsPage::openSvgIcon()
 
 MobileAppWizardMaemoOptionsPage::MobileAppWizardMaemoOptionsPage(QWidget *parent)
     : QWizardPage(parent)
-    , m_d(new MobileAppWizardMaemoOptionsPagePrivate)
+    , d(new MobileAppWizardMaemoOptionsPagePrivate)
 {
-    m_d->ui.setupUi(this);
-    m_d->iconSize = QSize(64, 64);
-    m_d->ui.pngIconButton->setIconSize(m_d->iconSize);
-    connect(m_d->ui.pngIconButton, SIGNAL(clicked()), this, SLOT(openPngIcon()));
+    d->ui.setupUi(this);
+    d->iconSize = QSize(64, 64);
+    d->ui.pngIconButton->setIconSize(d->iconSize);
+    connect(d->ui.pngIconButton, SIGNAL(clicked()), this, SLOT(openPngIcon()));
 }
 
 MobileAppWizardMaemoOptionsPage::~MobileAppWizardMaemoOptionsPage()
 {
-    delete m_d;
+    delete d;
 }
 
 QString MobileAppWizardMaemoOptionsPage::pngIcon() const
 {
-    return m_d->pngIcon;
+    return d->pngIcon;
 }
 
 
@@ -247,7 +247,7 @@ private:
 void MobileAppWizardMaemoOptionsPage::setPngIcon(const QString &icon)
 {
     QString actualIconPath;
-    PngIconScaler scaler(m_d->iconSize, icon);
+    PngIconScaler scaler(d->iconSize, icon);
     if (scaler.hasRightSize()) {
         actualIconPath = icon;
     } else {
@@ -255,14 +255,14 @@ void MobileAppWizardMaemoOptionsPage::setPngIcon(const QString &icon)
             return;
     }
 
-    m_d->ui.pngIconButton->setIcon(scaler.pixmap());
-    m_d->pngIcon = actualIconPath;
+    d->ui.pngIconButton->setIcon(scaler.pixmap());
+    d->pngIcon = actualIconPath;
 }
 
 void MobileAppWizardMaemoOptionsPage::openPngIcon()
 {
     const QString iconPath = QFileDialog::getOpenFileName(this,
-        m_d->ui.appIconLabel->text(), m_d->pngIcon,
+        d->ui.appIconLabel->text(), d->pngIcon,
         QLatin1String("*.png"));
     if (!iconPath.isEmpty())
         setPngIcon(iconPath);
@@ -270,28 +270,28 @@ void MobileAppWizardMaemoOptionsPage::openPngIcon()
 
 MobileAppWizardHarmattanOptionsPage::MobileAppWizardHarmattanOptionsPage(QWidget *parent)
     : QWizardPage(parent)
-    , m_d(new MobileAppWizardHarmattanOptionsPagePrivate)
+    , d(new MobileAppWizardHarmattanOptionsPagePrivate)
 {
-    m_d->ui.setupUi(this);
-    m_d->iconSize = QSize(80, 80);
-    m_d->ui.pngIconButton->setIconSize(m_d->iconSize);
-    connect(m_d->ui.pngIconButton, SIGNAL(clicked()), this, SLOT(openPngIcon()));
+    d->ui.setupUi(this);
+    d->iconSize = QSize(80, 80);
+    d->ui.pngIconButton->setIconSize(d->iconSize);
+    connect(d->ui.pngIconButton, SIGNAL(clicked()), this, SLOT(openPngIcon()));
 }
 
 MobileAppWizardHarmattanOptionsPage::~MobileAppWizardHarmattanOptionsPage()
 {
-    delete m_d;
+    delete d;
 }
 
 QString MobileAppWizardHarmattanOptionsPage::pngIcon() const
 {
-    return m_d->pngIcon;
+    return d->pngIcon;
 }
 
 void MobileAppWizardHarmattanOptionsPage::setPngIcon(const QString &icon)
 {
     QString actualIconPath;
-    PngIconScaler scaler(m_d->iconSize, icon);
+    PngIconScaler scaler(d->iconSize, icon);
     if (scaler.hasRightSize()) {
         actualIconPath = icon;
     } else {
@@ -299,14 +299,14 @@ void MobileAppWizardHarmattanOptionsPage::setPngIcon(const QString &icon)
             return;
     }
 
-    m_d->ui.pngIconButton->setIcon(scaler.pixmap());
-    m_d->pngIcon = actualIconPath;
+    d->ui.pngIconButton->setIcon(scaler.pixmap());
+    d->pngIcon = actualIconPath;
 }
 
 void MobileAppWizardHarmattanOptionsPage::openPngIcon()
 {
     const QString iconPath = QFileDialog::getOpenFileName(this,
-        m_d->ui.appIconLabel->text(), m_d->pngIcon,
+        d->ui.appIconLabel->text(), d->pngIcon,
         QLatin1String("*.png"));
     if (!iconPath.isEmpty())
         setPngIcon(iconPath);
@@ -314,13 +314,13 @@ void MobileAppWizardHarmattanOptionsPage::openPngIcon()
 
 void MobileAppWizardHarmattanOptionsPage::setBoosterOptionEnabled(bool enable)
 {
-    m_d->ui.makeBoostableCheckBox->setEnabled(enable);
-    m_d->ui.makeBoostableCheckBox->setChecked(enable);
+    d->ui.makeBoostableCheckBox->setEnabled(enable);
+    d->ui.makeBoostableCheckBox->setChecked(enable);
 }
 
 bool MobileAppWizardHarmattanOptionsPage::supportsBooster() const
 {
-    return m_d->ui.makeBoostableCheckBox->isChecked();
+    return d->ui.makeBoostableCheckBox->isChecked();
 }
 
 } // namespace Internal

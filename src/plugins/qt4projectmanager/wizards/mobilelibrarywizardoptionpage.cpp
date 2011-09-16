@@ -53,56 +53,56 @@ class MobileLibraryWizardOptionPagePrivate
 
 MobileLibraryWizardOptionPage::MobileLibraryWizardOptionPage(QWidget *parent)
     : QWizardPage(parent)
-    , m_d(new MobileLibraryWizardOptionPagePrivate)
+    , d(new MobileLibraryWizardOptionPagePrivate)
 {
-    m_d->ui.setupUi(this);
+    d->ui.setupUi(this);
 }
 
 MobileLibraryWizardOptionPage::~MobileLibraryWizardOptionPage()
 {
-    delete m_d;
+    delete d;
 }
 
 QString MobileLibraryWizardOptionPage::symbianUid() const
 {
-    return m_d->ui.symbianTargetUid3LineEdit->text();
+    return d->ui.symbianTargetUid3LineEdit->text();
 }
 
 void MobileLibraryWizardOptionPage::setSymbianUid(const QString &uid)
 {
-    m_d->ui.symbianTargetUid3LineEdit->setText(uid);
+    d->ui.symbianTargetUid3LineEdit->setText(uid);
 }
 
 void MobileLibraryWizardOptionPage::setNetworkEnabled(bool enableIt)
 {
-    m_d->ui.symbianEnableNetworkCheckBox->setChecked(enableIt);
+    d->ui.symbianEnableNetworkCheckBox->setChecked(enableIt);
 }
 
 bool MobileLibraryWizardOptionPage::networkEnabled() const
 {
-    return m_d->ui.symbianEnableNetworkCheckBox->isChecked();
+    return d->ui.symbianEnableNetworkCheckBox->isChecked();
 }
 
 QString MobileLibraryWizardOptionPage::qtPluginDirectory() const
 {
-    return m_d->ui.qtPluginLocationLineEdit->text();
+    return d->ui.qtPluginLocationLineEdit->text();
 }
 
 void MobileLibraryWizardOptionPage::setQtPluginDirectory(const QString &directory)
 {
-    m_d->ui.qtPluginLocationLineEdit->setText(directory);
+    d->ui.qtPluginLocationLineEdit->setText(directory);
 }
 
 void MobileLibraryWizardOptionPage::setLibraryType(int type)
 {
-    m_d->libraryType = static_cast<QtProjectParameters::Type>(type);
+    d->libraryType = static_cast<QtProjectParameters::Type>(type);
 
     if (type != QtProjectParameters::Qt4Plugin) {
-        m_d->ui.qtPluginLocationLineEdit->setVisible(false);
-        m_d->ui.qtPluginLocationLabel->setVisible(false);
-        m_d->ui.formLayout_2->removeItem(m_d->ui.horizontalLayout_2);
-        delete m_d->ui.horizontalLayout_2;
-        m_d->ui.horizontalLayout_2 = 0;
+        d->ui.qtPluginLocationLineEdit->setVisible(false);
+        d->ui.qtPluginLocationLabel->setVisible(false);
+        d->ui.formLayout_2->removeItem(d->ui.horizontalLayout_2);
+        delete d->ui.horizontalLayout_2;
+        d->ui.horizontalLayout_2 = 0;
     }
 }
 

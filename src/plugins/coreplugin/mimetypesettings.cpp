@@ -548,11 +548,13 @@ void MimeTypeSettingsPrivate::resetMimeTypes()
 // MimeTypeSettingsPage
 MimeTypeSettings::MimeTypeSettings(QObject *parent)
     : IOptionsPage(parent)
-    , m_d(new MimeTypeSettingsPrivate)
+    , d(new MimeTypeSettingsPrivate)
 {}
 
 MimeTypeSettings::~MimeTypeSettings()
-{}
+{
+    delete d;
+}
 
 QString MimeTypeSettings::id() const
 {
@@ -581,43 +583,43 @@ QIcon MimeTypeSettings::categoryIcon() const
 
 bool MimeTypeSettings::matches(const QString &s) const
 {
-    return m_d->m_keywords.contains(s, Qt::CaseInsensitive);
+    return d->m_keywords.contains(s, Qt::CaseInsensitive);
 }
 
 QWidget *MimeTypeSettings::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
-    m_d->configureUi(w);
+    d->configureUi(w);
     return w;
 }
 
 void MimeTypeSettings::apply()
 {
-    if (!m_d->m_modifiedMimeTypes.isEmpty()) {
+    if (!d->m_modifiedMimeTypes.isEmpty()) {
         const QModelIndex &modelIndex =
-            m_d->m_ui.mimeTypesTableView->selectionModel()->currentIndex();
+            d->m_ui.mimeTypesTableView->selectionModel()->currentIndex();
         if (modelIndex.isValid()) {
-            if (m_d->m_mimeForPatternSync == modelIndex.row())
-                m_d->syncMimePattern();
-            if (m_d->m_mimeForMagicSync == modelIndex.row())
-                m_d->syncMimeMagic();
+            if (d->m_mimeForPatternSync == modelIndex.row())
+                d->syncMimePattern();
+            if (d->m_mimeForMagicSync == modelIndex.row())
+                d->syncMimeMagic();
         }
-        m_d->clearSyncData();
+        d->clearSyncData();
     }
 
-    if (!m_d->m_persist)
-        m_d->m_persist = true;
+    if (!d->m_persist)
+        d->m_persist = true;
 }
 
 void MimeTypeSettings::finish()
 {
-    if (m_d->m_persist) {
-        if (m_d->m_reset)
+    if (d->m_persist) {
+        if (d->m_reset)
             ICore::instance()->mimeDatabase()->clearUserModifiedMimeTypes();
         else
-            m_d->updateMimeDatabase();
+            d->updateMimeDatabase();
     }
-    m_d->resetState();
+    d->resetState();
 }
 
 } // Internal

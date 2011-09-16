@@ -52,7 +52,7 @@ public:
     AbstractMobileApp::ScreenOrientation orientation() const;
 
 private:
-    class MobileAppWizardGenericOptionsPagePrivate *m_d;
+    class MobileAppWizardGenericOptionsPagePrivate *d;
 };
 
 class MobileAppWizardSymbianOptionsPage : public QWizardPage
@@ -74,7 +74,7 @@ private slots:
     void openSvgIcon(); // Via file open dialog
 
 private:
-    class MobileAppWizardSymbianOptionsPagePrivate *m_d;
+    class MobileAppWizardSymbianOptionsPagePrivate *d;
 };
 
 class MobileAppWizardMaemoOptionsPage : public QWizardPage
@@ -92,7 +92,7 @@ private slots:
     void openPngIcon();
 
 private:
-    class MobileAppWizardMaemoOptionsPagePrivate *m_d;
+    class MobileAppWizardMaemoOptionsPagePrivate *d;
 };
 
 class MobileAppWizardHarmattanOptionsPage : public QWizardPage
@@ -113,7 +113,7 @@ private slots:
     void openPngIcon();
 
 private:
-    class MobileAppWizardHarmattanOptionsPagePrivate *m_d;
+    class MobileAppWizardHarmattanOptionsPagePrivate *d;
 };
 
 } // namespace Internal

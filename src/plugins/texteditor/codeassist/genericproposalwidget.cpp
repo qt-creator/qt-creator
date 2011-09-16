@@ -304,30 +304,30 @@ void GenericProposalWidgetPrivate::maybeShowInfoTip()
 // GenericProposalWidget
 // ------------------------
 GenericProposalWidget::GenericProposalWidget()
-    : m_d(new GenericProposalWidgetPrivate(this))
+    : d(new GenericProposalWidgetPrivate(this))
 {
 #ifdef Q_WS_MAC
-    if (m_d->m_completionListView->horizontalScrollBar())
-        m_d->m_completionListView->horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
-    if (m_d->m_completionListView->verticalScrollBar())
-        m_d->m_completionListView->verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+    if (d->m_completionListView->horizontalScrollBar())
+        d->m_completionListView->horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+    if (d->m_completionListView->verticalScrollBar())
+        d->m_completionListView->verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
 #else
     // This improves the look with QGTKStyle.
-    setFrameStyle(m_d->m_completionListView->frameStyle());
+    setFrameStyle(d->m_completionListView->frameStyle());
 #endif
-    m_d->m_completionListView->setFrameStyle(QFrame::NoFrame);
-    m_d->m_completionListView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_d->m_completionListView->setUniformItemSizes(true);
-    m_d->m_completionListView->setSelectionBehavior(QAbstractItemView::SelectItems);
-    m_d->m_completionListView->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_d->m_completionListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_d->m_completionListView->setMinimumSize(1, 1);
+    d->m_completionListView->setFrameStyle(QFrame::NoFrame);
+    d->m_completionListView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    d->m_completionListView->setUniformItemSizes(true);
+    d->m_completionListView->setSelectionBehavior(QAbstractItemView::SelectItems);
+    d->m_completionListView->setSelectionMode(QAbstractItemView::SingleSelection);
+    d->m_completionListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    d->m_completionListView->setMinimumSize(1, 1);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
-    layout->addWidget(m_d->m_completionListView);
+    layout->addWidget(d->m_completionListView);
 
-    m_d->m_completionListView->installEventFilter(this);
+    d->m_completionListView->installEventFilter(this);
 
     setObjectName(QLatin1String("m_popupFrame"));
     setMinimumSize(1, 1);
@@ -335,62 +335,63 @@ GenericProposalWidget::GenericProposalWidget()
 
 GenericProposalWidget::~GenericProposalWidget()
 {
-    delete m_d->m_model;
+    delete d->m_model;
+    delete d;
 }
 
 void GenericProposalWidget::setAssistant(CodeAssistant *assistant)
 {
-    m_d->m_assistant = assistant;
+    d->m_assistant = assistant;
 }
 
 void GenericProposalWidget::setReason(AssistReason reason)
 {
-    m_d->m_reason = reason;
-    if (m_d->m_reason == ExplicitlyInvoked)
-        m_d->m_justInvoked = true;
+    d->m_reason = reason;
+    if (d->m_reason == ExplicitlyInvoked)
+        d->m_justInvoked = true;
 }
 
 void GenericProposalWidget::setKind(AssistKind kind)
 {
-    m_d->m_kind = kind;
+    d->m_kind = kind;
 }
 
 void GenericProposalWidget::setUnderlyingWidget(const QWidget *underlyingWidget)
 {
     setFont(underlyingWidget->font());
-    m_d->m_underlyingWidget = underlyingWidget;
+    d->m_underlyingWidget = underlyingWidget;
 }
 
 void GenericProposalWidget::setModel(IAssistProposalModel *model)
 {
-    delete m_d->m_model;
-    m_d->m_model = static_cast<IGenericProposalModel *>(model);
-    m_d->m_completionListView->setModel(new ModelAdapter(m_d->m_model, m_d->m_completionListView));
+    delete d->m_model;
+    d->m_model = static_cast<IGenericProposalModel *>(model);
+    d->m_completionListView->setModel(new ModelAdapter(d->m_model, d->m_completionListView));
 
-    connect(m_d->m_completionListView->selectionModel(),
+    connect(d->m_completionListView->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            &m_d->m_infoTimer,
+            &d->m_infoTimer,
             SLOT(start()));
 }
 
 void GenericProposalWidget::setDisplayRect(const QRect &rect)
 {
-    m_d->m_displayRect = rect;
+    d->m_displayRect = rect;
 }
 
 void GenericProposalWidget::setIsSynchronized(bool isSync)
 {
-    m_d->m_isSynchronized = isSync;
+    d->m_isSynchronized = isSync;
 }
 
 void GenericProposalWidget::showProposal(const QString &prefix)
 {
     ensurePolished();
-    m_d->m_model->removeDuplicates();
+    d->m_model->removeDuplicates();
     if (!updateAndCheck(prefix))
         return;
     show();
-    m_d->m_completionListView->setFocus();
+    d->m_completionListView->setFocus();
 }
 
 void GenericProposalWidget::updateProposal(const QString &prefix)
@@ -408,7 +409,7 @@ void GenericProposalWidget::closeProposal()
 void GenericProposalWidget::notifyActivation(int index)
 {
     abort();
-    emit proposalItemActivated(m_d->m_model->proposalItem(index));
+    emit proposalItemActivated(d->m_model->proposalItem(index));
 }
 
 void GenericProposalWidget::abort()
@@ -422,62 +423,62 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
 {
     // Keep track in the case there has been an explicit selection.
     int preferredItemId = -1;
-    if (m_d->m_explicitlySelected)
+    if (d->m_explicitlySelected)
         preferredItemId =
-                m_d->m_model->persistentId(m_d->m_completionListView->currentIndex().row());
+                d->m_model->persistentId(d->m_completionListView->currentIndex().row());
 
     // Filter, sort, etc.
-    m_d->m_model->reset();
+    d->m_model->reset();
     if (!prefix.isEmpty())
-        m_d->m_model->filter(prefix);
-    if (m_d->m_model->size() == 0
-            || (!m_d->m_model->keepPerfectMatch(m_d->m_reason)
-                && isPerfectMatch(prefix, m_d->m_model))) {
+        d->m_model->filter(prefix);
+    if (d->m_model->size() == 0
+            || (!d->m_model->keepPerfectMatch(d->m_reason)
+                && isPerfectMatch(prefix, d->m_model))) {
         abort();
         return false;
     }
-    if (m_d->m_model->isSortable())
-        m_d->m_model->sort();
-    m_d->m_completionListView->reset();
+    if (d->m_model->isSortable())
+        d->m_model->sort();
+    d->m_completionListView->reset();
 
     // Try to find the previosly explicit selection (if any). If we can find the item set it
     // as the current. Otherwise (it might have been filtered out) select the first row.
-    if (m_d->m_explicitlySelected) {
+    if (d->m_explicitlySelected) {
         Q_ASSERT(preferredItemId != -1);
-        for (int i = 0; i < m_d->m_model->size(); ++i) {
-            if (m_d->m_model->persistentId(i) == preferredItemId) {
-                m_d->m_completionListView->selectRow(i);
+        for (int i = 0; i < d->m_model->size(); ++i) {
+            if (d->m_model->persistentId(i) == preferredItemId) {
+                d->m_completionListView->selectRow(i);
                 break;
             }
         }
     }
-    if (!m_d->m_completionListView->currentIndex().isValid()) {
-        m_d->m_completionListView->selectFirstRow();
-        if (m_d->m_explicitlySelected)
-            m_d->m_explicitlySelected = false;
+    if (!d->m_completionListView->currentIndex().isValid()) {
+        d->m_completionListView->selectFirstRow();
+        if (d->m_explicitlySelected)
+            d->m_explicitlySelected = false;
     }
 
     if (TextEditorSettings::instance()->completionSettings().m_partiallyComplete
-            && m_d->m_kind == Completion
-            && m_d->m_justInvoked
-            && m_d->m_isSynchronized) {
-        if (m_d->m_model->size() == 1) {
-            IAssistProposalItem *item = m_d->m_model->proposalItem(0);
+            && d->m_kind == Completion
+            && d->m_justInvoked
+            && d->m_isSynchronized) {
+        if (d->m_model->size() == 1) {
+            IAssistProposalItem *item = d->m_model->proposalItem(0);
             if (item->implicitlyApplies()) {
                 abort();
                 emit proposalItemActivated(item);
                 return false;
             }
         }
-        if (m_d->m_model->supportsPrefixExpansion()) {
-            const QString &proposalPrefix = m_d->m_model->proposalPrefix();
+        if (d->m_model->supportsPrefixExpansion()) {
+            const QString &proposalPrefix = d->m_model->proposalPrefix();
             if (proposalPrefix.length() > prefix.length())
                 emit prefixExpanded(proposalPrefix);
         }
     }
 
-    if (m_d->m_justInvoked)
-        m_d->m_justInvoked = false;
+    if (d->m_justInvoked)
+        d->m_justInvoked = false;
 
     updatePositionAndSize();
     return true;
@@ -485,7 +486,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
 
 void GenericProposalWidget::updatePositionAndSize()
 {
-    const QSize &shint = m_d->m_completionListView->calculateSize();
+    const QSize &shint = d->m_completionListView->calculateSize();
     const int fw = frameWidth();
     const int width = shint.width() + fw * 2 + 30;
     const int height = shint.height() + fw * 2;
@@ -493,15 +494,15 @@ void GenericProposalWidget::updatePositionAndSize()
     // Determine the position, keeping the popup on the screen
     const QDesktopWidget *desktop = QApplication::desktop();
 #ifdef Q_WS_MAC
-    const QRect screen = desktop->availableGeometry(desktop->screenNumber(m_d->m_underlyingWidget));
+    const QRect screen = desktop->availableGeometry(desktop->screenNumber(d->m_underlyingWidget));
 #else
-    const QRect screen = desktop->screenGeometry(desktop->screenNumber(m_d->m_underlyingWidget));
+    const QRect screen = desktop->screenGeometry(desktop->screenNumber(d->m_underlyingWidget));
 #endif
 
-    QPoint pos = m_d->m_displayRect.bottomLeft();
+    QPoint pos = d->m_displayRect.bottomLeft();
     pos.rx() -= 16 + fw;    // Space for the icons
     if (pos.y() + height > screen.bottom())
-        pos.setY(m_d->m_displayRect.top() - height);
+        pos.setY(d->m_displayRect.top() - height);
     if (pos.x() + width > screen.right())
         pos.setX(screen.right() - width);
     setGeometry(pos.x(), pos.y(), width, height);
@@ -516,13 +517,13 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         if (fe->reason() == Qt::OtherFocusReason) {
             // Qt/carbon workaround
             // focus out is received before the key press event.
-            if (m_d->m_completionListView->currentIndex().isValid())
-                emit proposalItemActivated(m_d->m_model->proposalItem(
-                                              m_d->m_completionListView->currentIndex().row()));
+            if (d->m_completionListView->currentIndex().isValid())
+                emit proposalItemActivated(d->m_model->proposalItem(
+                                              d->m_completionListView->currentIndex().row()));
         }
 #endif
-        if (m_d->m_infoFrame)
-            m_d->m_infoFrame->close();
+        if (d->m_infoFrame)
+            d->m_infoFrame->close();
         return true;
     } else if (e->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
@@ -544,14 +545,14 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_N:
         case Qt::Key_P:
             // select next/previous completion
-            m_d->m_explicitlySelected = true;
+            d->m_explicitlySelected = true;
             if (ke->modifiers() == Qt::ControlModifier) {
                 int change = (ke->key() == Qt::Key_N) ? 1 : -1;
-                int nrows = m_d->m_model->size();
-                int row = m_d->m_completionListView->currentIndex().row();
+                int nrows = d->m_model->size();
+                int row = d->m_completionListView->currentIndex().row();
                 int newRow = (row + change + nrows) % nrows;
                 if (newRow == row + change || !ke->isAutoRepeat())
-                    m_d->m_completionListView->selectRow(newRow);
+                    d->m_completionListView->selectRow(newRow);
                 return true;
             }
             break;
@@ -560,24 +561,24 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_Return:
 #if defined(QT_MAC_USE_COCOA) || !defined(Q_OS_DARWIN)
             abort();
-            if (m_d->m_completionListView->currentIndex().isValid())
-                emit proposalItemActivated(m_d->m_model->proposalItem(
-                                              m_d->m_completionListView->currentIndex().row()));
+            if (d->m_completionListView->currentIndex().isValid())
+                emit proposalItemActivated(d->m_model->proposalItem(
+                                              d->m_completionListView->currentIndex().row()));
 #endif
             return true;
 
         case Qt::Key_Up:
-            m_d->m_explicitlySelected = true;
-            if (!ke->isAutoRepeat() && m_d->m_completionListView->isFirstRowSelected()) {
-                m_d->m_completionListView->selectLastRow();
+            d->m_explicitlySelected = true;
+            if (!ke->isAutoRepeat() && d->m_completionListView->isFirstRowSelected()) {
+                d->m_completionListView->selectLastRow();
                 return true;
             }
             return false;
 
         case Qt::Key_Down:
-            m_d->m_explicitlySelected = true;
-            if (!ke->isAutoRepeat() && m_d->m_completionListView->isLastRowSelected()) {
-                m_d->m_completionListView->selectFirstRow();
+            d->m_explicitlySelected = true;
+            if (!ke->isAutoRepeat() && d->m_completionListView->isLastRowSelected()) {
+                d->m_completionListView->selectFirstRow();
                 return true;
             }
             return false;
@@ -603,22 +604,22 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         }
 
         if (ke->text().length() == 1
-                && m_d->m_completionListView->currentIndex().isValid()
+                && d->m_completionListView->currentIndex().isValid()
                 && qApp->focusWidget() == o) {
             const QChar &typedChar = ke->text().at(0);
             IAssistProposalItem *item =
-                m_d->m_model->proposalItem(m_d->m_completionListView->currentIndex().row());
+                d->m_model->proposalItem(d->m_completionListView->currentIndex().row());
             if (item->prematurelyApplies(typedChar)
-                    && (m_d->m_reason == ExplicitlyInvoked || item->text().endsWith(typedChar))) {
+                    && (d->m_reason == ExplicitlyInvoked || item->text().endsWith(typedChar))) {
                 abort();
                 emit proposalItemActivated(item);
                 return true;
             }
         }
 
-        QApplication::sendEvent(const_cast<QWidget *>(m_d->m_underlyingWidget), e);
+        QApplication::sendEvent(const_cast<QWidget *>(d->m_underlyingWidget), e);
         if (isVisible())
-            m_d->m_assistant->notifyChange();
+            d->m_assistant->notifyChange();
 
         return true;
     }

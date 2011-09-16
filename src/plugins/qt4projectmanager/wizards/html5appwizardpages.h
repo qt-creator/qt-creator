@@ -57,7 +57,7 @@ private slots:
     void setLineEditsEnabled();
 
 private:
-    class Html5AppWizardOptionsPagePrivate *m_d;
+    class Html5AppWizardOptionsPagePrivate *d;
 };
 
 } // namespace Internal

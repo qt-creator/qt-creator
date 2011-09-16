@@ -68,24 +68,24 @@ public:
 // --------------------------------------------------------------------------
 
 ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
-    m_d(new Internal::ToolChainConfigWidgetPrivate(tc))
+    d(new Internal::ToolChainConfigWidgetPrivate(tc))
 {
 }
 
 void ToolChainConfigWidget::setDisplayName(const QString &name)
 {
-    m_d->m_toolChain->setDisplayName(name);
+    d->m_toolChain->setDisplayName(name);
 }
 
 ToolChain *ToolChainConfigWidget::toolChain() const
 {
-    return m_d->m_toolChain;
+    return d->m_toolChain;
 }
 
 void ToolChainConfigWidget::makeReadOnly()
 {
-    if (m_d->m_debuggerPathChooser)
-        m_d->m_debuggerPathChooser->setEnabled(false);
+    if (d->m_debuggerPathChooser)
+        d->m_debuggerPathChooser->setEnabled(false);
 }
 
 void ToolChainConfigWidget::emitDirty()
@@ -97,7 +97,7 @@ void ToolChainConfigWidget::addDebuggerCommandControls(QFormLayout *lt,
                                                        const QStringList &versionArguments)
 {
     ensureDebuggerPathChooser(versionArguments);
-    lt->addRow(tr("&Debugger:"), m_d->m_debuggerPathChooser);
+    lt->addRow(tr("&Debugger:"), d->m_debuggerPathChooser);
 }
 
 void ToolChainConfigWidget::addDebuggerCommandControls(QGridLayout *lt,
@@ -106,76 +106,76 @@ void ToolChainConfigWidget::addDebuggerCommandControls(QGridLayout *lt,
 {
     ensureDebuggerPathChooser(versionArguments);
     QLabel *label = new QLabel(tr("&Debugger:"));
-    label->setBuddy(m_d->m_debuggerPathChooser);
+    label->setBuddy(d->m_debuggerPathChooser);
     lt->addWidget(label, row, column);
-    lt->addWidget(m_d->m_debuggerPathChooser, row, column + 1);
+    lt->addWidget(d->m_debuggerPathChooser, row, column + 1);
 }
 
 void ToolChainConfigWidget::ensureDebuggerPathChooser(const QStringList &versionArguments)
 {
-    if (m_d->m_debuggerPathChooser)
+    if (d->m_debuggerPathChooser)
         return;
-    m_d->m_debuggerPathChooser = new Utils::PathChooser;
-    m_d->m_debuggerPathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    d->m_debuggerPathChooser = new Utils::PathChooser;
+    d->m_debuggerPathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     if (!versionArguments.isEmpty())
-        m_d->m_debuggerPathChooser->setCommandVersionArguments(versionArguments);
-    connect(m_d->m_debuggerPathChooser, SIGNAL(changed(QString)), this, SLOT(emitDirty()));
+        d->m_debuggerPathChooser->setCommandVersionArguments(versionArguments);
+    connect(d->m_debuggerPathChooser, SIGNAL(changed(QString)), this, SLOT(emitDirty()));
 }
 
 void ToolChainConfigWidget::addDebuggerAutoDetection(QObject *receiver, const char *autoDetectSlot)
 {
-    QTC_ASSERT(m_d->m_debuggerPathChooser, return; )
-    m_d->m_debuggerPathChooser->addButton(tr("Autodetect"), receiver, autoDetectSlot);
+    QTC_ASSERT(d->m_debuggerPathChooser, return; )
+    d->m_debuggerPathChooser->addButton(tr("Autodetect"), receiver, autoDetectSlot);
 }
 
 QString ToolChainConfigWidget::debuggerCommand() const
 {
-    QTC_ASSERT(m_d->m_debuggerPathChooser, return QString(); )
-    return m_d->m_debuggerPathChooser->path();
+    QTC_ASSERT(d->m_debuggerPathChooser, return QString(); )
+    return d->m_debuggerPathChooser->path();
 }
 
-void ToolChainConfigWidget::setDebuggerCommand(const QString &d)
+void ToolChainConfigWidget::setDebuggerCommand(const QString &debugger)
 {
-    QTC_ASSERT(m_d->m_debuggerPathChooser, return; )
-    m_d->m_debuggerPathChooser->setPath(d);
+    QTC_ASSERT(d->m_debuggerPathChooser, return; )
+    d->m_debuggerPathChooser->setPath(debugger);
 }
 
 void ToolChainConfigWidget::addErrorLabel(QFormLayout *lt)
 {
-    if (!m_d->m_errorLabel) {
-        m_d->m_errorLabel = new QLabel;
-        m_d->m_errorLabel->setVisible(false);
+    if (!d->m_errorLabel) {
+        d->m_errorLabel = new QLabel;
+        d->m_errorLabel->setVisible(false);
     }
-    lt->addRow(m_d->m_errorLabel);
+    lt->addRow(d->m_errorLabel);
 }
 
 void ToolChainConfigWidget::addErrorLabel(QGridLayout *lt, int row, int column, int colSpan)
 {
-    if (!m_d->m_errorLabel) {
-        m_d->m_errorLabel = new QLabel;
-        m_d->m_errorLabel->setVisible(false);
+    if (!d->m_errorLabel) {
+        d->m_errorLabel = new QLabel;
+        d->m_errorLabel->setVisible(false);
     }
-    lt->addWidget(m_d->m_errorLabel, row, column, 1, colSpan);
+    lt->addWidget(d->m_errorLabel, row, column, 1, colSpan);
 }
 
 void ToolChainConfigWidget::setErrorMessage(const QString &m)
 {
-    QTC_ASSERT(m_d->m_errorLabel, return; )
+    QTC_ASSERT(d->m_errorLabel, return; )
     if (m.isEmpty()) {
         clearErrorMessage();
     } else {
-        m_d->m_errorLabel->setText(m);
-        m_d->m_errorLabel->setStyleSheet(QLatin1String("background-color: \"red\""));
-        m_d->m_errorLabel->setVisible(true);
+        d->m_errorLabel->setText(m);
+        d->m_errorLabel->setStyleSheet(QLatin1String("background-color: \"red\""));
+        d->m_errorLabel->setVisible(true);
     }
 }
 
 void ToolChainConfigWidget::clearErrorMessage()
 {
-    QTC_ASSERT(m_d->m_errorLabel, return; )
-    m_d->m_errorLabel->clear();
-    m_d->m_errorLabel->setStyleSheet(QString());
-    m_d->m_errorLabel->setVisible(false);
+    QTC_ASSERT(d->m_errorLabel, return; )
+    d->m_errorLabel->clear();
+    d->m_errorLabel->setStyleSheet(QString());
+    d->m_errorLabel->setVisible(false);
 }
 
 } // namespace ProjectExplorer

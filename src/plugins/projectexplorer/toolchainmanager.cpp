@@ -90,7 +90,7 @@ ToolChainManager *ToolChainManager::instance()
 
 ToolChainManager::ToolChainManager(QObject *parent) :
     QObject(parent),
-    m_d(new Internal::ToolChainManagerPrivate)
+    d(new Internal::ToolChainManagerPrivate)
 {
     Q_ASSERT(!m_instance);
     m_instance = this;
@@ -127,11 +127,11 @@ void ToolChainManager::restoreToolChains()
 ToolChainManager::~ToolChainManager()
 {
     // Deregister tool chains
-    QList<ToolChain *> copy = m_d->m_toolChains;
+    QList<ToolChain *> copy = d->m_toolChains;
     foreach (ToolChain *tc, copy)
         deregisterToolChain(tc);
 
-    delete m_d;
+    delete d;
     m_instance = 0;
 }
 
@@ -141,7 +141,7 @@ void ToolChainManager::saveToolChains()
     writer.saveValue(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 1);
 
     int count = 0;
-    foreach (ToolChain *tc, m_d->m_toolChains) {
+    foreach (ToolChain *tc, d->m_toolChains) {
         if (!tc->isAutoDetected() && tc->isValid()) {
             QVariantMap tmp = tc->toMap();
             if (tmp.isEmpty())
@@ -177,7 +177,7 @@ void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetec
         const QString pathKey = QString::fromLatin1(DEFAULT_DEBUGGER_PATH_KEY) + QString::number(i);
         if (!data.contains(pathKey))
             continue;
-        m_d->m_abiToDebugger.insert(data.value(abiKey).toString(), data.value(pathKey).toString());
+        d->m_abiToDebugger.insert(data.value(abiKey).toString(), data.value(pathKey).toString());
     }
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
@@ -212,13 +212,13 @@ void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetec
 
 QList<ToolChain *> ToolChainManager::toolChains() const
 {
-    return m_d->m_toolChains;
+    return d->m_toolChains;
 }
 
 QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi) const
 {
     QList<ToolChain *> result;
-    foreach (ToolChain *tc, m_d->m_toolChains) {
+    foreach (ToolChain *tc, d->m_toolChains) {
         Abi targetAbi = tc->targetAbi();
         if (targetAbi.isCompatibleWith(abi))
             result.append(tc);
@@ -228,7 +228,7 @@ QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi) const
 
 ToolChain *ToolChainManager::findToolChain(const QString &id) const
 {
-    foreach (ToolChain *tc, m_d->m_toolChains) {
+    foreach (ToolChain *tc, d->m_toolChains) {
         if (tc->id() == id)
             return tc;
     }
@@ -237,35 +237,35 @@ ToolChain *ToolChainManager::findToolChain(const QString &id) const
 
 QString ToolChainManager::defaultDebugger(const Abi &abi) const
 {
-    return m_d->m_abiToDebugger.value(abi.toString());
+    return d->m_abiToDebugger.value(abi.toString());
 }
 
 void ToolChainManager::notifyAboutUpdate(ProjectExplorer::ToolChain *tc)
 {
-    if (!tc || !m_d->m_toolChains.contains(tc))
+    if (!tc || !d->m_toolChains.contains(tc))
         return;
     emit toolChainUpdated(tc);
 }
 
 bool ToolChainManager::registerToolChain(ToolChain *tc)
 {
-    if (!tc || m_d->m_toolChains.contains(tc))
+    if (!tc || d->m_toolChains.contains(tc))
         return true;
-    foreach (ToolChain *current, m_d->m_toolChains) {
+    foreach (ToolChain *current, d->m_toolChains) {
         if (*tc == *current)
             return false;
     }
 
-    m_d->m_toolChains.append(tc);
+    d->m_toolChains.append(tc);
     emit toolChainAdded(tc);
     return true;
 }
 
 void ToolChainManager::deregisterToolChain(ToolChain *tc)
 {
-    if (!tc || !m_d->m_toolChains.contains(tc))
+    if (!tc || !d->m_toolChains.contains(tc))
         return;
-    m_d->m_toolChains.removeOne(tc);
+    d->m_toolChains.removeOne(tc);
     emit toolChainRemoved(tc);
     delete tc;
 }

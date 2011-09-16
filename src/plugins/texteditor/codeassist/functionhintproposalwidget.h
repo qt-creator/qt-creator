@@ -35,8 +35,6 @@
 
 #include "iassistproposalwidget.h"
 
-#include <QtCore/QScopedPointer>
-
 namespace TextEditor {
 
 struct FunctionHintProposalWidgetPrivate;
@@ -75,7 +73,7 @@ private:
     void abort();
 
 private:
-    QScopedPointer<FunctionHintProposalWidgetPrivate> m_d;
+    FunctionHintProposalWidgetPrivate *d;
 };
 
 } // TextEditor

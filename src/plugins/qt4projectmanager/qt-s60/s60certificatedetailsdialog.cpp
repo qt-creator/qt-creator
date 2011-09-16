@@ -44,18 +44,18 @@ struct S60CertificateDetailsDialogPrivate
 
 S60CertificateDetailsDialog::S60CertificateDetailsDialog(QWidget *parent) :
     QDialog(parent),
-    m_d(new S60CertificateDetailsDialogPrivate)
+    d(new S60CertificateDetailsDialogPrivate)
 {
-    m_d->m_ui.setupUi(this);
-    connect(m_d->m_ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(close()));
+    d->m_ui.setupUi(this);
+    connect(d->m_ui.buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(close()));
 }
 
 S60CertificateDetailsDialog::~S60CertificateDetailsDialog()
 {
-    delete m_d;
+    delete d;
 }
 
 void S60CertificateDetailsDialog::setText(const QString &text)
 {
-    m_d->m_ui.textBrowser->setText(text);
+    d->m_ui.textBrowser->setText(text);
 }

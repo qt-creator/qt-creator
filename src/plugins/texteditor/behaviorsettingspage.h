@@ -90,7 +90,7 @@ private:
 
     QList<QTextCodec *> m_codecs;
     struct BehaviorSettingsPagePrivate;
-    BehaviorSettingsPagePrivate *m_d;
+    BehaviorSettingsPagePrivate *d;
 };
 
 } // namespace TextEditor

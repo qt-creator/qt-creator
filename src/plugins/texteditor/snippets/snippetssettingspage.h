@@ -43,6 +43,7 @@ class SnippetsSettingsPagePrivate;
 class SnippetsSettingsPage : public TextEditorOptionsPage
 {
     Q_OBJECT
+
 public:
     SnippetsSettingsPage(const QString &id, QObject *parent);
     virtual ~SnippetsSettingsPage();
@@ -55,7 +56,7 @@ public:
     virtual void finish();
 
 private:
-    SnippetsSettingsPagePrivate *m_d;
+    SnippetsSettingsPagePrivate *d;
 };
 
 } // Internal

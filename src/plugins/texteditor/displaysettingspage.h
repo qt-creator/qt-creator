@@ -64,7 +64,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
-    virtual bool matches(const QString &s) const;
+    bool matches(const QString &s) const;
 
     const DisplaySettings &displaySettings() const;
 
@@ -77,7 +77,7 @@ private:
     void setDisplaySettings(const DisplaySettings &);
 
     struct DisplaySettingsPagePrivate;
-    DisplaySettingsPagePrivate *m_d;
+    DisplaySettingsPagePrivate *d;
 };
 
 } // namespace TextEditor

@@ -62,10 +62,9 @@ public:
     void setDisplayName(const QString &);
     virtual void apply() = 0;
     virtual void discard() = 0;
+    virtual bool isDirty() const = 0;
 
     ProjectExplorer::ToolChain *toolChain() const;
-
-    virtual bool isDirty() const = 0;
 
     virtual void makeReadOnly();
 
@@ -88,12 +87,12 @@ protected:
     void addErrorLabel(QGridLayout *lt, int row = 0, int column = 0, int colSpan = 1);
 
     QString debuggerCommand() const;
-    void setDebuggerCommand(const QString &d);
+    void setDebuggerCommand(const QString &debugger);
 
 private:
     void ensureDebuggerPathChooser(const QStringList &versionArguments);
 
-    Internal::ToolChainConfigWidgetPrivate *m_d;
+    Internal::ToolChainConfigWidgetPrivate *d;
 };
 
 } // namespace ProjectExplorer

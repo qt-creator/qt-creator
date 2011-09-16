@@ -743,7 +743,7 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
     d->m_editorModel->removeAllRestoredEditors();
     if (closeEditors(openedEditors(), askAboutModifiedEditors)) {
-//        m_d->clearNavigationHistory();
+//        d->clearNavigationHistory();
         return true;
     }
     return false;
