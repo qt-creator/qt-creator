@@ -39,7 +39,6 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/runconfiguration.h>
 
-#include <QtCore/QScopedPointer>
 #include <QtCore/QPair>
 #include <QtCore/QStringList>
 
@@ -116,7 +115,7 @@ protected:
 
 private:
     friend class Internal::DebuggerRunControlFactory;
-    QScopedPointer<Internal::DebuggerRunControlPrivate> d;
+    Internal::DebuggerRunControlPrivate *d;
 };
 
 } // namespace Debugger

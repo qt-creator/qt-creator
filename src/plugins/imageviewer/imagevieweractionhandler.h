@@ -37,7 +37,6 @@
 #include "coreplugin/id.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QKeySequence;

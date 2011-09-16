@@ -36,10 +36,6 @@
 #include <texteditor/texteditor_global.h>
 #include <texteditor/basetexteditor.h>
 
-#include <QtCore/QScopedPointer>
-
-QT_FORWARD_DECLARE_CLASS(QFocusEvent)
-
 namespace TextEditor {
 
 class SnippetEditorWidget;

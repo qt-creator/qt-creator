@@ -39,7 +39,8 @@
 
 namespace Core {
 
-struct OpenEditorsModelPrivate {
+struct OpenEditorsModelPrivate
+{
     OpenEditorsModelPrivate();
 
     const QIcon m_lockedIcon;
@@ -67,6 +68,7 @@ OpenEditorsModel::OpenEditorsModel(QObject *parent) :
 
 OpenEditorsModel::~OpenEditorsModel()
 {
+    delete d;
 }
 
 QIcon OpenEditorsModel::lockedIcon() const

@@ -36,7 +36,6 @@
 #include <coreplugin/minisplitter.h>
 
 #include <QtCore/QHash>
-#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -57,8 +56,9 @@ class NavigationSubWidget;
 
 class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
 {
-    friend class Core::NavigationWidget;
     Q_OBJECT
+    friend class Core::NavigationWidget;
+
 public:
     explicit NavigationWidgetPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
     virtual ~NavigationWidgetPlaceHolder();
@@ -76,6 +76,7 @@ private:
 class CORE_EXPORT NavigationWidget : public MiniSplitter
 {
     Q_OBJECT
+
 public:
     enum FactoryModelRoles {
         FactoryObjectRole = Qt::UserRole,
@@ -123,7 +124,7 @@ private:
     Internal::NavigationSubWidget *insertSubItem(int position, int index);
     int factoryIndex(const QString &id);
 
-    QScopedPointer<NavigationWidgetPrivate> d;
+    NavigationWidgetPrivate *d;
 };
 
 } // namespace Core

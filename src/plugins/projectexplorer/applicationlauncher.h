@@ -91,7 +91,7 @@ private slots:
     void bringToForeground();
 
 private:
-    QScopedPointer<ApplicationLauncherPrivate> d;
+    ApplicationLauncherPrivate *d;
 };
 
 } // namespace ProjectExplorer

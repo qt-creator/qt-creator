@@ -106,12 +106,12 @@ Project::~Project()
 {
     qDeleteAll(d->m_targets);
     delete d->m_editorConfiguration;
+    delete d;
 }
 
 bool Project::hasActiveBuildSettings() const
 {
-    return activeTarget() &&
-           activeTarget()->buildConfigurationFactory();
+    return activeTarget() && activeTarget()->buildConfigurationFactory();
 }
 
 QString Project::makeUnique(const QString &preferredName, const QStringList &usedNames)

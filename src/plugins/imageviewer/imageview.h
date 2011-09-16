@@ -46,10 +46,6 @@
 #include <QtGui/QGraphicsView>
 #include <QtCore/QScopedPointer>
 
-QT_BEGIN_NAMESPACE
-class QWheelEvent;
-QT_END_NAMESPACE
-
 namespace ImageViewer {
 namespace Internal {
 
@@ -83,7 +79,7 @@ protected:
     void wheelEvent(QWheelEvent *event);
 
 private:
-    QScopedPointer<struct ImageViewPrivate> d;
+    struct ImageViewPrivate *d;
 };
 
 } // namespace Internal

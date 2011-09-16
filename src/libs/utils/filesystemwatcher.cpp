@@ -221,6 +221,7 @@ FileSystemWatcher::~FileSystemWatcher()
         if (debug)
               qDebug() << this << "Deleted watcher" << d->m_id;
     }
+    delete d;
 }
 
 bool FileSystemWatcher::watchesFile(const QString &file) const

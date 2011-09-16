@@ -83,6 +83,7 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
             om->hide();
         }
     }
+    delete d;
 }
 
 void OutputPanePlaceHolder::currentModeChanged(Core::IMode *mode)

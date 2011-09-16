@@ -202,6 +202,7 @@ VCSJobRunner::VCSJobRunner() : d(new VCSJobRunnerPrivate)
 VCSJobRunner::~VCSJobRunner()
 {
     stop();
+    delete d;
 }
 
 void VCSJobRunner::stop()

@@ -97,7 +97,7 @@ private:
     bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
 
 private:
-    QScopedPointer<struct ImageViewerPrivate> d;
+    struct ImageViewerPrivate *d;
 };
 
 } // namespace Internal

@@ -36,7 +36,6 @@
 #include "core_global.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QScopedPointer>
 #include <QtCore/QString>
 
 namespace Utils {

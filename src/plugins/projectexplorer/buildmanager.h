@@ -49,6 +49,7 @@ struct BuildManagerPrivate;
 class PROJECTEXPLORER_EXPORT BuildManager : public QObject
 {
     Q_OBJECT
+
 public:
     explicit BuildManager(ProjectExplorerPlugin *parent);
     virtual ~BuildManager();
@@ -105,7 +106,7 @@ private:
     void decrementActiveBuildSteps(Project *pro);
     void disconnectOutput(BuildStep *bs);
 
-    QScopedPointer<BuildManagerPrivate> d;
+    BuildManagerPrivate *d;
 };
 } // namespace ProjectExplorer
 

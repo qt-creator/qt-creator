@@ -37,7 +37,6 @@
 #include "../id.h"
 
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QScopedPointer>
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
 
@@ -50,6 +49,7 @@ class IFile;
 class CORE_EXPORT OpenEditorsModel : public QAbstractItemModel
 {
     Q_OBJECT
+
 public:
     explicit OpenEditorsModel(QObject *parent);
     virtual ~OpenEditorsModel();
@@ -107,7 +107,7 @@ private:
     int findFileName(const QString &filename) const;
     void removeEditor(int idx);
 
-    QScopedPointer<OpenEditorsModelPrivate> d;
+    OpenEditorsModelPrivate *d;
 };
 
 } // namespace Core

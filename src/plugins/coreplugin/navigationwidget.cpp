@@ -176,6 +176,7 @@ NavigationWidget::NavigationWidget(QAction *toggleSideBarAction) :
 NavigationWidget::~NavigationWidget()
 {
     NavigationWidgetPrivate::m_instance = 0;
+    delete d;
 }
 
 NavigationWidget *NavigationWidget::instance()

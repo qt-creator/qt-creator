@@ -50,6 +50,7 @@ class EnvironmentWidgetPrivate;
 class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget = 0);
     virtual ~EnvironmentWidget();
@@ -77,7 +78,7 @@ private slots:
     void linkActivated(const QString &link);
 
 private:
-    QScopedPointer<EnvironmentWidgetPrivate> d;
+    EnvironmentWidgetPrivate *d;
 };
 
 } // namespace ProjectExplorer

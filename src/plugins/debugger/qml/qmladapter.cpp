@@ -93,9 +93,9 @@ QmlAdapter::~QmlAdapter()
     ExtensionSystem::PluginManager *pluginManager =
         ExtensionSystem::PluginManager::instance();
 
-    if (pluginManager->allObjects().contains(this)) {
+    if (pluginManager->allObjects().contains(this))
         pluginManager->removeObject(this);
-    }
+    delete d;
 }
 
 void QmlAdapter::beginConnection()
@@ -109,9 +109,8 @@ void QmlAdapter::closeConnection()
     if (d->m_connectionTimer.isActive()) {
         d->m_connectionTimer.stop();
     } else {
-        if (d->m_conn) {
+        if (d->m_conn)
             d->m_conn->close();
-        }
     }
 }
 

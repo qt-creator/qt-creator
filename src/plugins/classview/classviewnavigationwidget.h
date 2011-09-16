@@ -34,7 +34,6 @@
 #define CLASSVIEWNAVIGATIONWIDGET_H
 
 #include <QtCore/QList>
-#include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
 
 #include <QtGui/QStandardItem>

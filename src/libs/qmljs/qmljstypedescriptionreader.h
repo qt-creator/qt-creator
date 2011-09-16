@@ -35,8 +35,6 @@
 
 #include <languageutils/fakemetaobject.h>
 
-#include <QtCore/QScopedPointer>
-
 // for Q_DECLARE_TR_FUNCTIONS
 #include <QtCore/QCoreApplication>
 

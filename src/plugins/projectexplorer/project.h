@@ -147,7 +147,7 @@ private slots:
     void changeBuildConfigurationEnabled();
 
 private:
-    QScopedPointer<ProjectPrivate> d;
+    ProjectPrivate *d;
 };
 
 } // namespace ProjectExplorer

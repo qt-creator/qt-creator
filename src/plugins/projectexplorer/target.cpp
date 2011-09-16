@@ -110,6 +110,7 @@ Target::~Target()
 {
     qDeleteAll(d->m_buildConfigurations);
     qDeleteAll(d->m_runConfigurations);
+    delete d;
 }
 
 void Target::changeEnvironment()

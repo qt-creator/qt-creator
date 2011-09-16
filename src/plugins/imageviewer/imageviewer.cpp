@@ -109,6 +109,7 @@ ImageViewer::~ImageViewer()
 {
     delete d->imageView;
     delete d->toolbar;
+    delete d;
 }
 
 bool ImageViewer::createNew(const QString &contents)

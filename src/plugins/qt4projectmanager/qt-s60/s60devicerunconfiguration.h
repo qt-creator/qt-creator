@@ -37,7 +37,6 @@
 #include <qt4projectmanager/qt4projectmanager_global.h>
 
 #include <QtCore/QFutureInterface>
-#include <QtCore/QScopedPointer>
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
@@ -55,7 +54,8 @@ class Qt4SymbianTarget;
 
 class S60DeviceRunConfigurationFactory;
 
-class QT4PROJECTMANAGER_EXPORT S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration {
+class QT4PROJECTMANAGER_EXPORT S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
+{
     Q_OBJECT
     friend class S60DeviceRunConfigurationFactory;
 

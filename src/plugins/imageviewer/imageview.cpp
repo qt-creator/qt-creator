@@ -94,7 +94,7 @@ ImageView::ImageView(QWidget *parent)
 
 ImageView::~ImageView()
 {
-
+    delete d;
 }
 
 void ImageView::drawBackground(QPainter *p, const QRectF &)

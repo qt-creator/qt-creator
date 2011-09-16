@@ -117,6 +117,7 @@ SideBar::~SideBar()
         if (!iter.value().isNull())
             delete iter.value().data();
     }
+    delete d;
 }
 
 QString SideBar::idForTitle(const QString &title) const

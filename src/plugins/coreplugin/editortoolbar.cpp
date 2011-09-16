@@ -179,6 +179,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
 EditorToolBar::~EditorToolBar()
 {
+    delete d;
 }
 
 void EditorToolBar::removeToolbarForEditor(IEditor *editor)

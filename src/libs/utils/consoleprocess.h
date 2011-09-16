@@ -41,7 +41,6 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
-#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -130,7 +129,7 @@ private:
     void cleanupInferior();
 #endif
 
-    QScopedPointer<ConsoleProcessPrivate> d;
+    ConsoleProcessPrivate *d;
 };
 
 } //namespace Utils

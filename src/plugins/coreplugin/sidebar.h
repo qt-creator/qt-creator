@@ -38,7 +38,6 @@
 
 #include <QtCore/QMap>
 #include <QtCore/QList>
-#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -83,21 +82,20 @@ public:
 
 private:
     const QString m_id;
-
-    QWidget *m_widget;    
+    QWidget *m_widget;
 };
 
 class CORE_EXPORT SideBar : public MiniSplitter
 {
     Q_OBJECT
+
 public:
     /*
      * The SideBar takes explicit ownership of the SideBarItems
      * if you have one SideBar, or shared ownership in case
      * of multiple SideBars.
      */
-    explicit SideBar(QList< SideBarItem*> widgetList,
-            QList< SideBarItem*> defaultVisible);
+    SideBar(QList<SideBarItem *> widgetList, QList<SideBarItem *> defaultVisible);
     virtual ~SideBar();
 
     QStringList availableItemIds() const;
@@ -117,8 +115,8 @@ public:
     void closeAllWidgets();
     void activateItem(SideBarItem *item);
 
-    void setShortcutMap(const QMap<QString, Core::Command*> &shortcutMap);
-    QMap<QString, Core::Command*> shortcutMap() const;
+    void setShortcutMap(const QMap<QString, Core::Command *> &shortcutMap);
+    QMap<QString, Core::Command *> shortcutMap() const;
 
 signals:
     void availableItemsChanged();
@@ -133,7 +131,7 @@ private:
                                                  const QString &title = QString());
     void removeSideBarWidget(Internal::SideBarWidget *widget);
 
-    QScopedPointer<SideBarPrivate> d;
+    SideBarPrivate *d;
 };
 
 } // namespace Core

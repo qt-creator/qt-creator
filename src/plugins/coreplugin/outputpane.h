@@ -37,8 +37,6 @@
 
 #include <QtGui/QWidget>
 
-#include <QtCore/QScopedPointer>
-
 QT_BEGIN_NAMESPACE
 class QSplitter;
 QT_END_NAMESPACE
@@ -54,8 +52,9 @@ struct OutputPanePlaceHolderPrivate;
 
 class CORE_EXPORT OutputPanePlaceHolder : public QWidget
 {
-    friend class Core::Internal::OutputPaneManager; // needs to set m_visible and thus access m_current
     Q_OBJECT
+    friend class Core::Internal::OutputPaneManager; // needs to set m_visible and thus access m_current
+
 public:
     explicit OutputPanePlaceHolder(Core::IMode *mode, QSplitter *parent = 0);
     ~OutputPanePlaceHolder();
@@ -73,7 +72,7 @@ private:
     bool canMaximizeOrMinimize() const;
     void maximizeOrMinimize(bool maximize);
 
-    QScopedPointer<OutputPanePlaceHolderPrivate> d;
+    OutputPanePlaceHolderPrivate *d;
 };
 
 } // namespace Core

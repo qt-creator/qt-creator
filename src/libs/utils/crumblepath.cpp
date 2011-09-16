@@ -261,6 +261,7 @@ CrumblePath::~CrumblePath()
 {
     qDeleteAll(d->m_buttons);
     d->m_buttons.clear();
+    delete d;
 }
 
 void CrumblePath::selectIndex(int index)

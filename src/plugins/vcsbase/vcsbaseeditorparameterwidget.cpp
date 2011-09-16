@@ -122,6 +122,7 @@ VCSBaseEditorParameterWidget::VCSBaseEditorParameterWidget(QWidget *parent) :
 
 VCSBaseEditorParameterWidget::~VCSBaseEditorParameterWidget()
 {
+    delete d;
 }
 
 QStringList VCSBaseEditorParameterWidget::baseArguments() const

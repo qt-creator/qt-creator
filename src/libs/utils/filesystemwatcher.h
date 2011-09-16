@@ -86,7 +86,7 @@ signals:
 private:
     void init();
 
-    QScopedPointer<FileSystemWatcherPrivate> d;
+    FileSystemWatcherPrivate *d;
 };
 
 } // namespace Utils

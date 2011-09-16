@@ -156,8 +156,10 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
 
 void BuildManager::extensionsInitialized()
 {
-    d->m_taskHub->addCategory(Constants::TASK_CATEGORY_COMPILE, tr("Compile", "Category for compiler isses listened under 'Build Issues'"));
-    d->m_taskHub->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM, tr("Build System", "Category for build system isses listened under 'Build Issues'"));
+    d->m_taskHub->addCategory(Constants::TASK_CATEGORY_COMPILE,
+        tr("Compile", "Category for compiler isses listened under 'Build Issues'"));
+    d->m_taskHub->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM,
+        tr("Build System", "Category for build system isses listened under 'Build Issues'"));
 }
 
 BuildManager::~BuildManager()
@@ -170,6 +172,8 @@ BuildManager::~BuildManager()
 
     pm->removeObject(d->m_outputWindow);
     delete d->m_outputWindow;
+
+    delete d;
 }
 
 void BuildManager::aboutToRemoveProject(ProjectExplorer::Project *p)

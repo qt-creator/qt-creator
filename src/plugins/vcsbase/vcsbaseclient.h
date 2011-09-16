@@ -38,7 +38,6 @@
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -59,6 +58,7 @@ class VCSBaseEditorParameterWidget;
 class VCSBASE_EXPORT VCSBaseClient : public QObject
 {
     Q_OBJECT
+
 public:
     struct VCSBASE_EXPORT StatusItem
     {
@@ -180,7 +180,7 @@ protected:
 
 private:
     friend class VCSBaseClientPrivate;
-    QScopedPointer<VCSBaseClientPrivate> d;
+    VCSBaseClientPrivate *d;
 
     Q_PRIVATE_SLOT(d, void statusParser(QByteArray))
     Q_PRIVATE_SLOT(d, void annotateRevision(QString, QString, int))

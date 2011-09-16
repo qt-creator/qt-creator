@@ -58,6 +58,7 @@ class CORESHARED_EXPORT ItemLibraryEntry
     //friend class QmlDesigner::Internal::MetaInfoParser;
     friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry);
     friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry);
+
 public:
     ItemLibraryEntry();
     ~ItemLibraryEntry();
@@ -118,7 +119,7 @@ signals:
 private:
     ItemLibraryInfo(QObject *parent = 0);
     void setBaseInfo(ItemLibraryInfo *baseInfo);
-    QScopedPointer<Internal::ItemLibraryInfoPrivate> d;
+    Internal::ItemLibraryInfoPrivate *d;
 };
 
 } // namespace QmlDesigner

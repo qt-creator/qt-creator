@@ -36,8 +36,6 @@
 #include <coreplugin/core_global.h>
 
 #include <QtCore/QString>
-#include <QtCore/QScopedPointer>
-
 #include <QtCore/QFuture>
 #include <QtGui/QWidget>
 
@@ -96,7 +94,7 @@ private slots:
     void fadeAway();
 
 private:
-    QScopedPointer<FutureProgressPrivate> d;
+    FutureProgressPrivate *d;
 };
 
 } // namespace Core

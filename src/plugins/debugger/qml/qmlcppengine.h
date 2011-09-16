@@ -35,8 +35,6 @@
 
 #include "debuggerengine.h"
 
-#include <QtCore/QScopedPointer>
-
 namespace Debugger {
 namespace Internal {
 
@@ -131,7 +129,7 @@ private:
     void readyToExecuteQmlStep();
 
 private:
-    QScopedPointer<QmlCppEnginePrivate> d;
+    QmlCppEnginePrivate *d;
 };
 
 } // namespace Internal

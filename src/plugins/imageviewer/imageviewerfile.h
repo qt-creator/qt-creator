@@ -40,6 +40,7 @@
 
 namespace ImageViewer {
 namespace Internal {
+
 class ImageViewer;
 
 class ImageViewerFile : public Core::IFile
@@ -67,10 +68,10 @@ public:
     void setFileName(const QString &filename);
 
 private:
-    QScopedPointer<struct ImageViewerFilePrivate> d_ptr;
+    struct ImageViewerFilePrivate *d;
 };
 
-}
-}
+} // namespace Internal
+} // namespace ImageViewer
 
 #endif // IMAGEVIEWERFILE_H

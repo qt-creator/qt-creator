@@ -37,6 +37,7 @@ namespace Utils {
 ConsoleProcess::~ConsoleProcess()
 {
     stop();
+    delete d;
 }
 
 void ConsoleProcess::setMode(Mode m)

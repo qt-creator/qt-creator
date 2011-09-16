@@ -263,6 +263,7 @@ ItemLibraryInfo::ItemLibraryInfo(QObject *parent) :
 
 ItemLibraryInfo::~ItemLibraryInfo()
 {
+    delete d;
 }
 
 QList<ItemLibraryEntry> ItemLibraryInfo::entriesForType(const QString &typeName, int majorVersion, int minorVersion) const

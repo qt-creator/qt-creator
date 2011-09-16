@@ -158,10 +158,9 @@ VCSBaseClient::VCSBaseClient(VCSBaseClientSettings *settings) :
 
 VCSBaseClient::~VCSBaseClient()
 {
-    if (d->m_jobManager) {
-        delete d->m_jobManager;
-        d->m_jobManager = 0;
-    }
+    delete d->m_jobManager;
+    d->m_jobManager = 0;
+    delete d;
 }
 
 bool VCSBaseClient::synchronousCreateRepository(const QString &workingDirectory,

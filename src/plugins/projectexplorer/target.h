@@ -63,7 +63,6 @@ public:
     virtual ~Target();
 
     virtual BuildConfigWidget *createConfigWidget() = 0;
-
     virtual Project *project() const;
 
     // Build configuration
@@ -158,7 +157,7 @@ private slots:
     void changeBuildConfigurationEnabled();
 
 private:
-    QScopedPointer<TargetPrivate> d;
+    TargetPrivate *d;
 };
 
 class PROJECTEXPLORER_EXPORT ITargetFactory :

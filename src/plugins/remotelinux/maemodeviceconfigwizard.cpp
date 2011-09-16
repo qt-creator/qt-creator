@@ -94,6 +94,7 @@ enum PageId {
 class MaemoDeviceConfigWizardStartPage : public QWizardPage
 {
     Q_OBJECT
+
 public:
     MaemoDeviceConfigWizardStartPage(QWidget *parent = 0)
         : QWizardPage(parent), m_ui(new Ui::MaemoDeviceConfigWizardStartPage)
@@ -549,7 +550,10 @@ MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(QWidget *parent)
     d->finalPage.setCommitPage(true);
 }
 
-MaemoDeviceConfigWizard::~MaemoDeviceConfigWizard() {}
+MaemoDeviceConfigWizard::~MaemoDeviceConfigWizard()
+{
+    delete d;
+}
 
 LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
 {

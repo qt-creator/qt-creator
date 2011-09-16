@@ -40,7 +40,6 @@
 #include <QtCore/QString>
 #include <QtCore/QPointer>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QScopedPointer>
 #include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
@@ -54,6 +53,7 @@ class VCSJobRunnerPrivate;
 class VCSBASE_EXPORT VCSJob : public QObject
 {
     Q_OBJECT
+
 public:
     enum DataEmitMode {
         NoDataEmitMode,
@@ -61,11 +61,9 @@ public:
         EditorDataEmitMode
     };
 
-    VCSJob(const QString &workingDir,
-           const QStringList &args,
+    VCSJob(const QString &workingDir, const QStringList &args,
            DataEmitMode emitMode = NoDataEmitMode);
-    VCSJob(const QString &workingDir,
-           const QStringList &args,
+    VCSJob(const QString &workingDir, const QStringList &args,
            VCSBase::VCSBaseEditorWidget *editor);
 
     DataEmitMode dataEmitMode() const;
@@ -97,6 +95,7 @@ private:
 class VCSBASE_EXPORT VCSJobRunner : public QThread
 {
     Q_OBJECT
+
 public:
     VCSJobRunner();
     ~VCSJobRunner();
@@ -127,7 +126,7 @@ private:
     void task(const QSharedPointer<VCSJob> &job);
     void stop();
 
-    QScopedPointer<VCSJobRunnerPrivate> d;
+    VCSJobRunnerPrivate *d;
 };
 
 } //namespace VCSBase

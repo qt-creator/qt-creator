@@ -156,6 +156,7 @@ EnvironmentWidget::~EnvironmentWidget()
 {
     delete d->m_model;
     d->m_model = 0;
+    delete d;
 }
 
 void EnvironmentWidget::focusIndex(const QModelIndex &index)

@@ -37,7 +37,6 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QtPlugin>
-#include <QtCore/QScopedPointer>
 
 namespace ImageViewer {
 
@@ -56,7 +55,7 @@ public:
     void extensionsInitialized();
 
 private:
-    QScopedPointer<struct ImageViewerPluginPrivate> d_ptr;
+    struct ImageViewerPluginPrivate *d;
 };
 
 } // namespace Internal

@@ -130,6 +130,7 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
 
 ApplicationLauncher::~ApplicationLauncher()
 {
+    delete d;
 }
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)

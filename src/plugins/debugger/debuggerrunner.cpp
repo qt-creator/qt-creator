@@ -212,6 +212,7 @@ DebuggerRunControl::~DebuggerRunControl()
         engine->disconnect();
         delete engine;
     }
+    delete d;
 }
 
 const DebuggerStartParameters &DebuggerRunControl::startParameters() const
