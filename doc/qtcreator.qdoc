@@ -9020,11 +9020,6 @@
                     p += 1
     \endcode
 
-
-
-    \endlist
-
-
     \section2 Dumper Class
 
     For each line in the \gui{Locals and Expressions} view, a string like the
