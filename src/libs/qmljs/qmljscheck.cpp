@@ -371,8 +371,12 @@ protected:
     virtual bool visit(TryStatement *ast)
     {
         State tryBody = check(ast->statement);
-        State catchBody = check(ast->catchExpression->statement);
-        State finallyBody = check(ast->finallyExpression->statement);
+        State catchBody = ReturnOrThrow;
+        if (ast->catchExpression)
+            catchBody = check(ast->catchExpression->statement);
+        State finallyBody = ReachesEnd;
+        if (ast->finallyExpression)
+            finallyBody = check(ast->finallyExpression->statement);
 
         _state = qMax(qMin(tryBody, catchBody), finallyBody);
         return false;
