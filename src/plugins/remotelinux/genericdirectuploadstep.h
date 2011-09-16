@@ -66,7 +66,7 @@ private:
 
     void ctor();
 
-    Internal::GenericDirectUploadStepPrivate *m_d;
+    Internal::GenericDirectUploadStepPrivate *d;
 };
 
 } //namespace RemoteLinux

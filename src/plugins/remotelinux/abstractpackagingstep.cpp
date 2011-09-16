@@ -74,7 +74,7 @@ AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, AbstractPackagi
 
 void AbstractPackagingStep::ctor()
 {
-    m_d = new Internal::AbstractPackagingStepPrivate;
+    d = new Internal::AbstractPackagingStepPrivate;
     connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
         SLOT(handleBuildConfigurationChanged()));
     handleBuildConfigurationChanged();
@@ -82,16 +82,16 @@ void AbstractPackagingStep::ctor()
 
 AbstractPackagingStep::~AbstractPackagingStep()
 {
-    delete m_d;
+    delete d;
 }
 
 void AbstractPackagingStep::handleBuildConfigurationChanged()
 {
-    if (m_d->currentBuildConfiguration)
-        disconnect(m_d->currentBuildConfiguration, 0, this, 0);
-    m_d->currentBuildConfiguration = target()->activeBuildConfiguration();
-    if (m_d->currentBuildConfiguration) {
-        connect(m_d->currentBuildConfiguration, SIGNAL(buildDirectoryChanged()), this,
+    if (d->currentBuildConfiguration)
+        disconnect(d->currentBuildConfiguration, 0, this, 0);
+    d->currentBuildConfiguration = target()->activeBuildConfiguration();
+    if (d->currentBuildConfiguration) {
+        connect(d->currentBuildConfiguration, SIGNAL(buildDirectoryChanged()), this,
             SIGNAL(packageFilePathChanged()));
     }
     emit packageFilePathChanged();
@@ -106,10 +106,10 @@ QString AbstractPackagingStep::packageFilePath() const
 
 QString AbstractPackagingStep::packageDirectory() const
 {
-    if (m_d->running)
-        return m_d->cachedPackageDirectory;
-    return m_d->currentBuildConfiguration
-        ? m_d->currentBuildConfiguration->buildDirectory() : QString();
+    if (d->running)
+        return d->cachedPackageDirectory;
+    return d->currentBuildConfiguration
+        ? d->currentBuildConfiguration->buildDirectory() : QString();
 }
 
 RemoteLinuxDeployConfiguration *AbstractPackagingStep::deployConfiguration() const
@@ -136,18 +136,18 @@ bool AbstractPackagingStep::isPackagingNeeded() const
 
 bool AbstractPackagingStep::init()
 {
-    m_d->cachedPackageDirectory = packageDirectory();
+    d->cachedPackageDirectory = packageDirectory();
     return true;
 }
 
 void AbstractPackagingStep::setPackagingStarted()
 {
-    m_d->running = true;
+    d->running = true;
 }
 
 void AbstractPackagingStep::setPackagingFinished(bool success)
 {
-    m_d->running = false;
+    d->running = false;
     if (success)
         deployConfiguration()->deploymentInfo()->setUnmodified();
 }

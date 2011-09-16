@@ -89,7 +89,7 @@ using namespace Internal;
 
 LinuxDeviceConfiguration::~LinuxDeviceConfiguration()
 {
-    delete m_d;
+    delete d;
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QSettings &settings,
@@ -113,62 +113,62 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &na
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QString &osType,
         DeviceType deviceType, const PortList &freePorts, const SshConnectionParameters &sshParams,
         Origin origin)
-    : m_d(new LinuxDeviceConfigurationPrivate(sshParams))
+    : d(new LinuxDeviceConfigurationPrivate(sshParams))
 {
-    m_d->name = name;
-    m_d->osType = osType;
-    m_d->deviceType = deviceType;
-    m_d->freePorts = freePorts;
-    m_d->isDefault = false;
-    m_d->origin = origin;
+    d->name = name;
+    d->osType = osType;
+    d->deviceType = deviceType;
+    d->freePorts = freePorts;
+    d->isDefault = false;
+    d->origin = origin;
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings, Id &nextId)
-    : m_d(new LinuxDeviceConfigurationPrivate(SshConnectionParameters::NoProxy))
+    : d(new LinuxDeviceConfigurationPrivate(SshConnectionParameters::NoProxy))
 {
-    m_d->origin = ManuallyAdded;
-    m_d->name = settings.value(NameKey).toString();
-    m_d->osType = settings.value(OsTypeKey).toString();
-    m_d->deviceType = static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt());
-    m_d->isDefault = settings.value(IsDefaultKey, false).toBool();
-    m_d->internalId = settings.value(InternalIdKey, nextId).toULongLong();
+    d->origin = ManuallyAdded;
+    d->name = settings.value(NameKey).toString();
+    d->osType = settings.value(OsTypeKey).toString();
+    d->deviceType = static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt());
+    d->isDefault = settings.value(IsDefaultKey, false).toBool();
+    d->internalId = settings.value(InternalIdKey, nextId).toULongLong();
 
-    if (m_d->internalId == nextId)
+    if (d->internalId == nextId)
         ++nextId;
 
     // Convert from version < 2.3.
-    if (m_d->osType.isEmpty()) {
+    if (d->osType.isEmpty()) {
         const int oldOsType = settings.value(OldOsVersionKey, -1).toInt();
         switch (oldOsType) {
-        case 0: m_d->osType = QLatin1String("Maemo5OsType"); break;
-        case 1: m_d->osType = QLatin1String("HarmattanOsType"); break;
-        case 2: m_d->osType = QLatin1String("MeeGoOsType"); break;
-        default: m_d->osType = QLatin1String(Constants::GenericLinuxOsType);
+        case 0: d->osType = QLatin1String("Maemo5OsType"); break;
+        case 1: d->osType = QLatin1String("HarmattanOsType"); break;
+        case 2: d->osType = QLatin1String("MeeGoOsType"); break;
+        default: d->osType = QLatin1String(Constants::GenericLinuxOsType);
         }
     }
 
-    m_d->freePorts = PortList::fromString(settings.value(PortsSpecKey, QLatin1String("10000-10100")).toString());
-    m_d->sshParameters.host = settings.value(HostKey).toString();
-    m_d->sshParameters.port = settings.value(SshPortKey, 22).toInt();
-    m_d->sshParameters.userName = settings.value(UserNameKey).toString();
-    m_d->sshParameters.authenticationType
+    d->freePorts = PortList::fromString(settings.value(PortsSpecKey, QLatin1String("10000-10100")).toString());
+    d->sshParameters.host = settings.value(HostKey).toString();
+    d->sshParameters.port = settings.value(SshPortKey, 22).toInt();
+    d->sshParameters.userName = settings.value(UserNameKey).toString();
+    d->sshParameters.authenticationType
         = static_cast<AuthType>(settings.value(AuthKey, DefaultAuthType).toInt());
-    m_d->sshParameters.password = settings.value(PasswordKey).toString();
-    m_d->sshParameters.privateKeyFile
+    d->sshParameters.password = settings.value(PasswordKey).toString();
+    d->sshParameters.privateKeyFile
         = settings.value(KeyFileKey, defaultPrivateKeyFilePath()).toString();
-    m_d->sshParameters.timeout = settings.value(TimeoutKey, DefaultTimeout).toInt();
+    d->sshParameters.timeout = settings.value(TimeoutKey, DefaultTimeout).toInt();
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguration::ConstPtr &other)
-    : m_d(new LinuxDeviceConfigurationPrivate(other->m_d->sshParameters))
+    : d(new LinuxDeviceConfigurationPrivate(other->d->sshParameters))
 {
-    m_d->name = other->m_d->name;
-    m_d->osType = other->m_d->osType;
-    m_d->deviceType = other->deviceType();
-    m_d->freePorts = other->freePorts();
-    m_d->isDefault = other->m_d->isDefault;
-    m_d->origin = other->m_d->origin;
-    m_d->internalId = other->m_d->internalId;
+    d->name = other->d->name;
+    d->osType = other->d->osType;
+    d->deviceType = other->deviceType();
+    d->freePorts = other->freePorts();
+    d->isDefault = other->d->isDefault;
+    d->origin = other->d->origin;
+    d->internalId = other->d->internalId;
 }
 
 QString LinuxDeviceConfiguration::defaultPrivateKeyFilePath()
@@ -184,59 +184,59 @@ QString LinuxDeviceConfiguration::defaultPublicKeyFilePath()
 
 void LinuxDeviceConfiguration::save(QSettings &settings) const
 {
-    settings.setValue(NameKey, m_d->name);
-    settings.setValue(OsTypeKey, m_d->osType);
-    settings.setValue(TypeKey, m_d->deviceType);
-    settings.setValue(HostKey, m_d->sshParameters.host);
-    settings.setValue(SshPortKey, m_d->sshParameters.port);
-    settings.setValue(PortsSpecKey, m_d->freePorts.toString());
-    settings.setValue(UserNameKey, m_d->sshParameters.userName);
-    settings.setValue(AuthKey, m_d->sshParameters.authenticationType);
-    settings.setValue(PasswordKey, m_d->sshParameters.password);
-    settings.setValue(KeyFileKey, m_d->sshParameters.privateKeyFile);
-    settings.setValue(TimeoutKey, m_d->sshParameters.timeout);
-    settings.setValue(IsDefaultKey, m_d->isDefault);
-    settings.setValue(InternalIdKey, m_d->internalId);
+    settings.setValue(NameKey, d->name);
+    settings.setValue(OsTypeKey, d->osType);
+    settings.setValue(TypeKey, d->deviceType);
+    settings.setValue(HostKey, d->sshParameters.host);
+    settings.setValue(SshPortKey, d->sshParameters.port);
+    settings.setValue(PortsSpecKey, d->freePorts.toString());
+    settings.setValue(UserNameKey, d->sshParameters.userName);
+    settings.setValue(AuthKey, d->sshParameters.authenticationType);
+    settings.setValue(PasswordKey, d->sshParameters.password);
+    settings.setValue(KeyFileKey, d->sshParameters.privateKeyFile);
+    settings.setValue(TimeoutKey, d->sshParameters.timeout);
+    settings.setValue(IsDefaultKey, d->isDefault);
+    settings.setValue(InternalIdKey, d->internalId);
 }
 
 SshConnectionParameters LinuxDeviceConfiguration::sshParameters() const
 {
-    return m_d->sshParameters;
+    return d->sshParameters;
 }
 
 LinuxDeviceConfiguration::DeviceType LinuxDeviceConfiguration::deviceType() const
 {
-    return m_d->deviceType;
+    return d->deviceType;
 }
 
 LinuxDeviceConfiguration::Id LinuxDeviceConfiguration::internalId() const
 {
-    return m_d->internalId;
+    return d->internalId;
 }
 
 void LinuxDeviceConfiguration::setSshParameters(const SshConnectionParameters &sshParameters)
 {
-    m_d->sshParameters = sshParameters;
+    d->sshParameters = sshParameters;
 }
 
 void LinuxDeviceConfiguration::setFreePorts(const PortList &freePorts)
 {
-    m_d->freePorts = freePorts;
+    d->freePorts = freePorts;
 }
 
 bool LinuxDeviceConfiguration::isAutoDetected() const
 {
-    return m_d->origin == AutoDetected;
+    return d->origin == AutoDetected;
 }
 
-PortList LinuxDeviceConfiguration::freePorts() const { return m_d->freePorts; }
-QString LinuxDeviceConfiguration::name() const { return m_d->name; }
-QString LinuxDeviceConfiguration::osType() const { return m_d->osType; }
-bool LinuxDeviceConfiguration::isDefault() const { return m_d->isDefault; }
+PortList LinuxDeviceConfiguration::freePorts() const { return d->freePorts; }
+QString LinuxDeviceConfiguration::name() const { return d->name; }
+QString LinuxDeviceConfiguration::osType() const { return d->osType; }
+bool LinuxDeviceConfiguration::isDefault() const { return d->isDefault; }
 
-void LinuxDeviceConfiguration::setName(const QString &name) { m_d->name = name; }
-void LinuxDeviceConfiguration::setInternalId(Id id) { m_d->internalId = id; }
-void LinuxDeviceConfiguration::setDefault(bool isDefault) { m_d->isDefault = isDefault; }
+void LinuxDeviceConfiguration::setName(const QString &name) { d->name = name; }
+void LinuxDeviceConfiguration::setInternalId(Id id) { d->internalId = id; }
+void LinuxDeviceConfiguration::setDefault(bool isDefault) { d->isDefault = isDefault; }
 
 const LinuxDeviceConfiguration::Id LinuxDeviceConfiguration::InvalidId = 0;
 

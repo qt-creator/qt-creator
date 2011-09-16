@@ -107,7 +107,7 @@ private:
     void setFreePorts(const PortList &freePorts);
     void save(QSettings &settings) const;
 
-    Internal::LinuxDeviceConfigurationPrivate *m_d;
+    Internal::LinuxDeviceConfigurationPrivate *d;
 };
 
 

@@ -109,7 +109,7 @@ GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList 
 
 GenericDirectUploadStep::~GenericDirectUploadStep()
 {
-    delete m_d;
+    delete d;
 }
 
 BuildStepConfigWidget *GenericDirectUploadStep::createConfigWidget()
@@ -131,7 +131,7 @@ bool GenericDirectUploadStep::isDeploymentPossible(QString *whyNot) const
 
 GenericDirectUploadService *GenericDirectUploadStep::deployService() const
 {
-    return &m_d->deployService;
+    return &d->deployService;
 }
 
 bool GenericDirectUploadStep::fromMap(const QVariantMap &map)
@@ -152,17 +152,17 @@ QVariantMap GenericDirectUploadStep::toMap() const
 void GenericDirectUploadStep::ctor()
 {
     setDefaultDisplayName(displayName());
-    m_d = new Internal::GenericDirectUploadStepPrivate;
+    d = new Internal::GenericDirectUploadStepPrivate;
 }
 
 void GenericDirectUploadStep::setIncrementalDeployment(bool incremental)
 {
-    m_d->incremental = incremental;
+    d->incremental = incremental;
 }
 
 bool GenericDirectUploadStep::incrementalDeployment() const
 {
-    return m_d->incremental;
+    return d->incremental;
 }
 
 QString GenericDirectUploadStep::stepId()

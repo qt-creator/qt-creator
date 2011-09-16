@@ -53,13 +53,13 @@ public:
 } // namespace Internal
 
 AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl, const QString &id)
-    : BuildStep(bsl, id), m_d(new Internal::AbstractRemoteLinuxDeployStepPrivate)
+    : BuildStep(bsl, id), d(new Internal::AbstractRemoteLinuxDeployStepPrivate)
 {
 }
 
 AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl,
         AbstractRemoteLinuxDeployStep *other)
-    : BuildStep(bsl, other), m_d(new Internal::AbstractRemoteLinuxDeployStepPrivate)
+    : BuildStep(bsl, other), d(new Internal::AbstractRemoteLinuxDeployStepPrivate)
 {
 }
 
@@ -96,18 +96,18 @@ void AbstractRemoteLinuxDeployStep::run(QFutureInterface<bool> &fi)
     connect(deployService(), SIGNAL(stdErrData(QString)), SLOT(handleStdErrData(QString)));
     connect(deployService(), SIGNAL(finished()), SLOT(handleFinished()));
 
-    m_d->hasError = false;
-    m_d->future = fi;
+    d->hasError = false;
+    d->future = fi;
     deployService()->start();
 }
 
 void AbstractRemoteLinuxDeployStep::cancel()
 {
-    if (m_d->hasError)
+    if (d->hasError)
         return;
 
     emit addOutput(tr("User requests deployment to stop; cleaning up."), MessageOutput);
-    m_d->hasError = true;
+    d->hasError = true;
     deployService()->stop();
 }
 
@@ -130,17 +130,17 @@ void AbstractRemoteLinuxDeployStep::handleErrorMessage(const QString &message)
 {
     emit addTask(Task(Task::Error, message, QString(), -1,
         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-    m_d->hasError = true;
+    d->hasError = true;
 }
 
 void AbstractRemoteLinuxDeployStep::handleFinished()
 {
-    if (m_d->hasError)
+    if (d->hasError)
         emit addOutput(tr("Deploy step failed."), ErrorMessageOutput);
     else
         emit addOutput(tr("Deploy step finished."), MessageOutput);
     disconnect(deployService(), 0, this, 0);
-    m_d->future.reportResult(!m_d->hasError);
+    d->future.reportResult(!d->hasError);
     emit finished();
 }
 

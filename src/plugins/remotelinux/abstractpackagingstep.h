@@ -45,7 +45,7 @@ class AbstractPackagingStepPrivate;
 class REMOTELINUX_EXPORT AbstractPackagingStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
-    Q_DISABLE_COPY(AbstractPackagingStep)
+
 public:
     AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, const QString &id);
     AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, AbstractPackagingStep *other);
@@ -75,7 +75,7 @@ private:
 
     void ctor();
 
-    Internal::AbstractPackagingStepPrivate *m_d;
+    Internal::AbstractPackagingStepPrivate *d;
 };
 
 } // namespace RemoteLinux
