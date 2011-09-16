@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "userfileaccessor.h"
+#include "settingsaccessor.h"
 
 #include "buildconfiguration.h"
 #include "project.h"

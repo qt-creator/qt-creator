@@ -38,7 +38,7 @@
 #include "projectexplorerconstants.h"
 #include "projectnodes.h"
 #include "target.h"
-#include "userfileaccessor.h"
+#include "settingsaccessor.h"
 
 #include <coreplugin/ifile.h>
 #include <coreplugin/icontext.h>
