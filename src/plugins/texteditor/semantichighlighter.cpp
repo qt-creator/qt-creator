@@ -125,8 +125,13 @@ void TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
     }
 
     QTextDocument *doc = highlighter->document();
-    QTC_ASSERT(lastBlockNumber + 1 < doc->blockCount(), return);
-    QTextBlock b = doc->findBlockByNumber(lastBlockNumber + 1);
+
+    const int firstBlockToClear = lastBlockNumber + 1;
+    if (firstBlockToClear == doc->blockCount())
+        return;
+    QTC_ASSERT(firstBlockToClear < doc->blockCount(), return);
+
+    QTextBlock b = doc->findBlockByNumber(firstBlockToClear);
 
     while (b.isValid()) {
         highlighter->setExtraAdditionalFormats(b, QList<QTextLayout::FormatRange>());
