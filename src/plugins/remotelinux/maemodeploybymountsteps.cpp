@@ -74,9 +74,9 @@ private slots:
 
 private:
     virtual QList<MaemoMountSpecification> mountSpecifications() const=0;
-    virtual void doInstall()=0;
-    virtual void cancelInstallation()=0;
-    virtual void handleInstallationSuccess()=0;
+    virtual void doInstall() = 0;
+    virtual void cancelInstallation() = 0;
+    virtual void handleInstallationSuccess() = 0;
 
     void doDeviceSetup();
     void stopDeviceSetup();

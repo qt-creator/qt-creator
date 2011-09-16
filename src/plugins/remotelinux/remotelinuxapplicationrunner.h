@@ -109,19 +109,19 @@ private:
 
     // Implement to do custom setup of the device *before* connecting.
     // Call handleDeviceSetupDone() afterwards.
-    virtual void doDeviceSetup()=0;
+    virtual void doDeviceSetup() = 0;
 
     // Implement to do additional pre-run cleanup and call handleInitialCleanupDone().
-    virtual void doAdditionalInitialCleanup()=0;
+    virtual void doAdditionalInitialCleanup() = 0;
 
     // Implement to do additional initializations right before the application is ready.
     // Call handleInitializationsDone() afterwards.
-    virtual void doAdditionalInitializations()=0;
+    virtual void doAdditionalInitializations() = 0;
 
     // Implement to do cleanups after application exit and call handlePostRunCleanupDone();
-    virtual void doPostRunCleanup()=0;
+    virtual void doPostRunCleanup() = 0;
 
-    virtual void doAdditionalConnectionErrorHandling()=0;
+    virtual void doAdditionalConnectionErrorHandling() = 0;
 
     void setInactive();
     void emitError(const QString &errorMsg, bool force = false);

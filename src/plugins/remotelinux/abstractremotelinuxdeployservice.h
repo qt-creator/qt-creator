@@ -99,11 +99,11 @@ private:
     virtual bool isDeploymentNecessary() const = 0;
 
     // Should do things needed *before* connecting. Call handleDeviceSetupDone() afterwards.
-    virtual void doDeviceSetup()=0;
-    virtual void stopDeviceSetup()=0;
+    virtual void doDeviceSetup() = 0;
+    virtual void stopDeviceSetup() = 0;
 
-    virtual void doDeploy()=0;
-    virtual void stopDeployment()=0;
+    virtual void doDeploy() = 0;
+    virtual void stopDeployment() = 0;
 
     void setFinished();
 

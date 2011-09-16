@@ -125,7 +125,7 @@ class REMOTELINUX_EXPORT ILinuxDeviceConfigurationWizard : public QWizard
     Q_OBJECT
 
 public:
-    virtual LinuxDeviceConfiguration::Ptr deviceConfiguration()=0;
+    virtual LinuxDeviceConfiguration::Ptr deviceConfiguration() = 0;
 
 protected:
     ILinuxDeviceConfigurationWizard(QWidget *parent) : QWizard(parent) {}

@@ -95,18 +95,18 @@ private slots:
 
 private:
     virtual bool setProjectVersionInternal(const QString &version,
-        QString *error = 0)=0;
-    virtual bool setPackageNameInternal(const QString &packageName)=0;
-    virtual bool setShortDescriptionInternal(const QString &description)=0;
-    virtual ActionStatus createSpecialTemplates()=0;
-    virtual void handleTargetAddedSpecial()=0;
+        QString *error = 0) = 0;
+    virtual bool setPackageNameInternal(const QString &packageName) = 0;
+    virtual bool setShortDescriptionInternal(const QString &description) = 0;
+    virtual ActionStatus createSpecialTemplates() = 0;
+    virtual void handleTargetAddedSpecial() = 0;
     virtual bool targetCanBeRemoved() const = 0;
-    virtual void removeTarget()=0;
+    virtual void removeTarget() = 0;
     virtual QStringList packagingFilePaths() const = 0;
 
     ActionStatus createTemplates();
     bool initPackagingSettingsFromOtherTarget();
-    virtual bool initAdditionalPackagingSettingsFromOtherTarget()=0;
+    virtual bool initAdditionalPackagingSettingsFromOtherTarget() = 0;
 
     Qt4ProjectManager::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
     bool m_isInitialized;
@@ -162,7 +162,7 @@ private:
     virtual bool initAdditionalPackagingSettingsFromOtherTarget();
     virtual QStringList packagingFilePaths() const;
 
-    virtual void addAdditionalControlFileFields(QByteArray &controlContents)=0;
+    virtual void addAdditionalControlFileFields(QByteArray &controlContents) = 0;
     virtual QByteArray packageManagerNameFieldName() const = 0;
     virtual QByteArray defaultSection() const = 0;
 

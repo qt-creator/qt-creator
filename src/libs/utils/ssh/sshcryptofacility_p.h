@@ -80,7 +80,7 @@ private:
     virtual Botan::BlockCipherMode *makeCipherMode(Botan::BlockCipher *cipher,
         Botan::BlockCipherModePaddingMethod *paddingMethod,
         const Botan::InitializationVector &iv,
-        const Botan::SymmetricKey &key)=0;
+        const Botan::SymmetricKey &key) = 0;
     virtual char ivChar() const = 0;
     virtual char keyChar() const = 0;
     virtual char macChar() const = 0;

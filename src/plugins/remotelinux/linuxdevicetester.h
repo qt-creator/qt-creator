@@ -57,8 +57,8 @@ class REMOTELINUX_EXPORT AbstractLinuxDeviceTester : public QObject
 public:
     enum TestResult { TestSuccess, TestFailure };
 
-    virtual void testDevice(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration)=0;
-    virtual void stopTest()=0;
+    virtual void testDevice(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration) = 0;
+    virtual void stopTest() = 0;
 
 signals:
     void progressMessage(const QString &message);

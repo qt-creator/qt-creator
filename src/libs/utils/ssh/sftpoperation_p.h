@@ -59,7 +59,7 @@ struct AbstractSftpOperation
     AbstractSftpOperation(SftpJobId jobId);
     virtual ~AbstractSftpOperation();
     virtual Type type() const = 0;
-    virtual SftpOutgoingPacket &initialPacket(SftpOutgoingPacket &packet)=0;
+    virtual SftpOutgoingPacket &initialPacket(SftpOutgoingPacket &packet) = 0;
 
     const SftpJobId jobId;
 

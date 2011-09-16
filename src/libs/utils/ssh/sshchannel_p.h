@@ -64,10 +64,10 @@ public:
     quint32 localChannelId() const { return m_localChannel; }
     quint32 remoteChannel() const { return m_remoteChannel; }
 
-    virtual void handleChannelSuccess()=0;
-    virtual void handleChannelFailure()=0;
+    virtual void handleChannelSuccess() = 0;
+    virtual void handleChannelFailure() = 0;
 
-    virtual void closeHook()=0;
+    virtual void closeHook() = 0;
 
     void handleOpenSuccess(quint32 remoteChannelId, quint32 remoteWindowSize,
         quint32 remoteMaxPacketSize);
@@ -100,13 +100,13 @@ protected:
     QTimer * const m_timeoutTimer;
 
 private:
-    virtual void handleOpenSuccessInternal()=0;
-    virtual void handleOpenFailureInternal()=0;
-    virtual void handleChannelDataInternal(const QByteArray &data)=0;
+    virtual void handleOpenSuccessInternal() = 0;
+    virtual void handleOpenFailureInternal() = 0;
+    virtual void handleChannelDataInternal(const QByteArray &data) = 0;
     virtual void handleChannelExtendedDataInternal(quint32 type,
-        const QByteArray &data)=0;
-    virtual void handleExitStatus(const SshChannelExitStatus &exitStatus)=0;
-    virtual void handleExitSignal(const SshChannelExitSignal &signal)=0;
+        const QByteArray &data) = 0;
+    virtual void handleExitStatus(const SshChannelExitStatus &exitStatus) = 0;
+    virtual void handleExitSignal(const SshChannelExitSignal &signal) = 0;
 
     void setState(ChannelState newState);
     void flushSendBuffer();
