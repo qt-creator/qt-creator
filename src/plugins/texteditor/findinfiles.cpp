@@ -70,19 +70,24 @@ void FindInFiles::findAll(const QString &txt, Find::FindFlags findFlags)
 
 Utils::FileIterator *FindInFiles::files() const
 {
-    return new Utils::SubDirFileIterator(QStringList() << m_directory->currentText(),
+    return new Utils::SubDirFileIterator(QStringList() << QDir::fromNativeSeparators(m_directory->currentText()),
                                          fileNameFilters(),
                                          Core::EditorManager::instance()->defaultTextCodec());
 }
 
 QString FindInFiles::label() const
 {
-    return tr("Directory '%1':").arg(QFileInfo(m_directory->currentText()).fileName());
+    const QStringList &nonEmptyComponents = QDir::cleanPath(
+                QFileInfo(QDir::fromNativeSeparators(m_directory->currentText())).absoluteFilePath())
+            .split(QLatin1Char('/'), QString::SkipEmptyParts);
+    return tr("Directory '%1':").arg(nonEmptyComponents.isEmpty() ? "/" : nonEmptyComponents.last());
 }
 
 QString FindInFiles::toolTip() const
 {
-    return tr("Path: %1\nFilter: %2\n%3").arg(QFileInfo(m_directory->currentText()).absoluteFilePath())
+    // %3 is filled by BaseFileFind::runNewSearch
+    return tr("Path: %1\nFilter: %2\n%3")
+            .arg(QDir::toNativeSeparators(QFileInfo(m_directory->currentText()).absoluteFilePath()))
             .arg(fileNameFilters().join(QLatin1String(",")));
 }
 

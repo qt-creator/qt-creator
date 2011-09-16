@@ -84,6 +84,7 @@ QString FindInCurrentFile::label() const
 
 QString FindInCurrentFile::toolTip() const
 {
+    // %2 is filled by BaseFileFind::runNewSearch
     return tr("File path: %1\n%2").arg(QDir::toNativeSeparators(m_currentFile->fileName()));
 }
 
