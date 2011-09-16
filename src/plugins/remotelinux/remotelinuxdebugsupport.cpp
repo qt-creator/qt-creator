@@ -105,7 +105,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
         if (runConfig->activeQt4BuildConfiguration()->qtVersion())
             params.sysroot = runConfig->activeQt4BuildConfiguration()->qtVersion()->systemRoot();
         params.toolChainAbi = runConfig->abi();
-        params.startMode = AttachToRemote;
+        params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
         params.debuggerCommand = runConfig->gdbCmd();
         params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
@@ -118,7 +118,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
         params.gnuTarget = QLatin1String(abi.architecture() == ProjectExplorer::Abi::ArmArchitecture
             ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
     } else {
-        params.startMode = AttachToRemote;
+        params.startMode = AttachToRemoteServer;
     }
     params.displayName = runConfig->displayName();
 

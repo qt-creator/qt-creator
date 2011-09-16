@@ -125,7 +125,8 @@ enum DebuggerStartMode
     AttachExternal,        // Attach to running process by process id
     AttachCrashedExternal, // Attach to crashed process by process id
     AttachCore,            // Attach to a core file
-    AttachToRemote,        // Start and attach to a remote process
+    AttachToRemoteServer,  // Attach to a running remote server
+    StartRemote,           // Start and attach to a remote process
     AttachToQmlPort,       // Attach to QML debugging port
     StartRemoteGdb,        // Start gdb itself remotely
     StartRemoteEngine      // Start ipc guest engine on other machine

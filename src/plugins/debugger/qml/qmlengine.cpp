@@ -163,7 +163,7 @@ void QmlEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
-    if (startParameters().startMode == AttachToRemote) {
+    if (startParameters().startMode == AttachToRemoteServer) {
         emit requestRemoteSetup();
         if (startParameters().qmlServerPort != quint16(-1))
             notifyInferiorSetupOk();
@@ -330,7 +330,7 @@ void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    if (!isSlaveEngine() && startParameters().startMode != AttachToRemote
+    if (!isSlaveEngine() && startParameters().startMode != AttachToRemoteServer
             && startParameters().startMode != AttachToQmlPort)
         startApplicationLauncher();
     d->m_noDebugOutputTimer.start();

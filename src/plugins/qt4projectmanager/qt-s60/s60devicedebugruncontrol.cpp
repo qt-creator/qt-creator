@@ -85,7 +85,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.remoteChannel = activeDeployConf->serialPortName();
     sp.processArgs = rc->commandLineArguments();
     if (rc->useQmlDebugger() && !rc->useCppDebugger())
-        sp.startMode = Debugger::AttachToRemote;
+        sp.startMode = Debugger::AttachToRemoteServer;
     else
         sp.startMode = Debugger::StartInternal;
 

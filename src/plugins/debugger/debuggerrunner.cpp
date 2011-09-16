@@ -459,7 +459,7 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
     case StartRemoteGdb:
         result.push_back(GdbEngineType);
         break;
-    case AttachToRemote:
+    case AttachToRemoteServer:
         if (!hardConstraintsOnly) {
 #ifdef Q_OS_WIN
             result.push_back(CdbEngineType);
@@ -509,7 +509,7 @@ static QList<DebuggerEngineType> engineTypes(const DebuggerStartParameters &sp)
         return result;
     }
 
-    if (sp.startMode != AttachToRemote && !sp.executable.isEmpty())
+    if (sp.startMode != AttachToRemoteServer && !sp.executable.isEmpty())
         result = enginesForExecutable(sp.executable);
     if (!result.isEmpty())
         return result;

@@ -181,8 +181,10 @@ void RemoteGdbServerAdapter::setupInferior()
         m_engine->postCommand("set gnutarget " + gnuTarget);
     if (!sysroot.isEmpty())
         m_engine->postCommand("set sysroot " + sysroot);
-    if (!sysroot.isEmpty())
+    if (!debugInfoLocation.isEmpty())
         m_engine->postCommand("set debug-file-directory " + debugInfoLocation);
+    foreach (const QString &src, sp.debugSourceLocation)
+        m_engine->postCommand("directory " + src.toLocal8Bit());
     if (!solibPath.isEmpty())
         m_engine->postCommand("set solib-search-path " + solibPath);
     if (!args.isEmpty())
@@ -291,7 +293,10 @@ void RemoteGdbServerAdapter::handleInterruptInferior(const GdbResponse &response
 
 void RemoteGdbServerAdapter::shutdownInferior()
 {
-    m_engine->defaultInferiorShutdown("kill");
+    if (m_engine->startParameters().startMode == AttachToRemoteServer)
+        m_engine->defaultInferiorShutdown("detach");
+    else
+        m_engine->defaultInferiorShutdown("kill");
 }
 
 void RemoteGdbServerAdapter::shutdownAdapter()

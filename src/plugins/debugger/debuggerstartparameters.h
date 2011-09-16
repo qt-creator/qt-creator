@@ -109,6 +109,7 @@ public:
     QString serverStartScript;
     QString sysroot;
     QString debugInfoLocation;
+    QStringList debugSourceLocation;
     QByteArray remoteDumperLib;
     QByteArray remoteSourcesDir;
     QString remoteMountPoint;

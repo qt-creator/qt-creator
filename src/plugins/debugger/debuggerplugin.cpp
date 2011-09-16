@@ -1215,7 +1215,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             sp.startMessage = tr("Attaching to local process %1.").arg(sp.attachPID);
             sp.toolChainAbi = Abi::hostAbi();
         } else if (port) {
-            sp.startMode = AttachToRemote;
+            sp.startMode = AttachToRemoteServer;
             sp.remoteChannel = remoteChannel;
             sp.executable = it->section('@', 1, 1);
             if (sp.remoteChannel.isEmpty()) {
@@ -1521,7 +1521,7 @@ void DebuggerPluginPrivate::attachRemote(const QString &spec)
     sp.executable = spec.section('@', 1, 1);
     sp.remoteArchitecture = spec.section('@', 2, 2);
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
-    sp.startMode = AttachToRemote;
+    sp.startMode = AttachToRemoteServer;
     sp.toolChainAbi = anyAbiOfBinary(sp.executable);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
@@ -1537,7 +1537,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
                                            ProjectExplorer::Abi::WindowsMsvc2010Flavor,
                                            ProjectExplorer::Abi::PEFormat,
                                            hostAbi.wordWidth());
-    sp.startMode = AttachToRemote;
+    sp.startMode = AttachToRemoteServer;
     StartRemoteCdbDialog dlg(mainWindow());
     QString previousConnection = configValue(connectionKey).toString();
     if (previousConnection.isEmpty())
@@ -1606,7 +1606,6 @@ bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, b
     sp.debuggerCommand = dlg.debugger(); // Override toolchain-detection.
     if (!sp.debuggerCommand.isEmpty())
         sp.toolChainAbi = ProjectExplorer::Abi();
-    sp.startMode = AttachToRemote;
     sp.overrideStartScript = dlg.overrideStartScript();
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
@@ -1614,12 +1613,21 @@ bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, b
     sp.debugInfoLocation = dlg.debugInfoLocation();
     if (sp.debugInfoLocation.isEmpty())
         sp.debugInfoLocation = sp.sysroot + "/usr/lib/debug";
+    if (sp.debugSourceLocation.isEmpty()) {
+        QString base = sp.sysroot + "/usr/src/debug/";
+        sp.debugSourceLocation.append(base + "qt5base/src/corelib");
+        sp.debugSourceLocation.append(base + "qt5base/src/gui");
+        sp.debugSourceLocation.append(base + "qt5base/src/network");
+        sp.debugSourceLocation.append(base + "qt5base/src/v8");
+        sp.debugSourceLocation.append(base + "qtdeclarative/src/declarative/qml");
+    }
     return true;
 }
 
 void DebuggerPluginPrivate::startRemoteApplication()
 {
     DebuggerStartParameters sp;
+    sp.startMode = StartRemote;
     if (queryRemoteParameters(sp, true))
         if (RunControl *rc = createDebugger(sp))
             startDebugger(rc);
@@ -1630,6 +1638,7 @@ void DebuggerPluginPrivate::attachRemoteApplication()
     DebuggerStartParameters sp;
     if (!queryRemoteParameters(sp, false))
         return;
+    sp.startMode = AttachToRemoteServer;
     sp.useServerStartScript = false;
     sp.serverStartScript.clear();
     if (RunControl *rc = createDebugger(sp))

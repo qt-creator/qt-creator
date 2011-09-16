@@ -1955,7 +1955,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     switch (sp.startMode) {
     case AttachCore:
         return new CoreGdbAdapter(this);
-    case AttachToRemote:
+    case AttachToRemoteServer:
         return new RemoteGdbServerAdapter(this);
     case StartRemoteGdb:
         return new RemotePlainGdbAdapter(this);
@@ -4774,29 +4774,29 @@ void GdbEngine::handleInferiorPrepared()
 {
     typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
     typedef SourcePathMap::const_iterator SourcePathMapIterator;
+    const DebuggerStartParameters &sp = startParameters();
 
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     // Apply source path mappings from global options.
     const SourcePathMap sourcePathMap =
-            DebuggerSourcePathMappingWidget::mergePlatformQtPath(
-                startParameters().qtInstallPath,
+        DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp.qtInstallPath,
                 debuggerCore()->globalDebuggerOptions()->sourcePathMap);
-
-    if (!sourcePathMap.isEmpty()) {
-        const SourcePathMapIterator cend = sourcePathMap.constEnd();
-        for (SourcePathMapIterator it = sourcePathMap.constBegin(); it != cend; ++it) {
-            QByteArray command = "set substitute-path ";
-            command += it.key().toLocal8Bit();
-            command += ' ';
-            command += it.value().toLocal8Bit();
-            postCommand(command);
-        }
+    const SourcePathMapIterator cend = sourcePathMap.constEnd();
+    SourcePathMapIterator it = sourcePathMap.constBegin();
+    for ( ; it != cend; ++it) {
+        QByteArray command = "set substitute-path ";
+        command += it.key().toLocal8Bit();
+        command += ' ';
+        command += it.value().toLocal8Bit();
+        postCommand(command);
     }
 
+    if (!sp.sysroot.isEmpty())
+        postCommand("set substitute-path / " + sp.sysroot.toLocal8Bit());
+
     // Initial attempt to set breakpoints.
-    if (startParameters().startMode != AttachCore
-            && !isSlaveEngine()) {
+    if (sp.startMode != AttachCore && !isSlaveEngine()) {
         showStatusMessage(tr("Setting breakpoints..."));
         showMessage(tr("Setting breakpoints..."));
         attemptBreakpointSynchronization();
