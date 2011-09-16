@@ -100,7 +100,7 @@ public:
     CollectStateNames(const ScopeChain &scopeChain)
         : m_scopeChain(scopeChain)
     {
-        m_statePrototype = scopeChain.context()->valueOwner()->cppQmlTypes().typeByCppName(QLatin1String("QDeclarativeState"));
+        m_statePrototype = scopeChain.context()->valueOwner()->cppQmlTypes().objectByCppName(QLatin1String("QDeclarativeState"));
     }
 
     QStringList operator()(Node *ast)

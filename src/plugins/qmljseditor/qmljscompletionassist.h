@@ -109,20 +109,6 @@ private:
                           const QString &fileName,
                           const QStringList &patterns = QStringList());
 
-    void addCompletion(const QString &text,
-                       const QIcon &icon,
-                       int order,
-                       const QVariant &data = QVariant());
-    void addCompletions(const QHash<QString, const QmlJS::Value *> &newCompletions,
-                        const QIcon &icon,
-                        int order);
-    void addCompletions(const QStringList &newCompletions, const QIcon &icon, int order);
-    void addCompletionsPropertyLhs(const QHash<QString,
-                                        const QmlJS::Value *> &newCompletions,
-                                   const QIcon &icon,
-                                   int order,
-                                   bool afterOn);
-
     int m_startPosition;
     QScopedPointer<const QmlJSCompletionAssistInterface> m_interface;
     QList<TextEditor::BasicProposalItem *> m_completions;

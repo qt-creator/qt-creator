@@ -153,7 +153,7 @@ Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const Libra
 
         // populate engine with types from C++
         foreach (const ModelManagerInterface::CppData &cppData, cppDataHash) {
-            d->valueOwner->cppQmlTypes().load(d->valueOwner, cppData.exportedTypes);
+            d->valueOwner->cppQmlTypes().load(cppData.exportedTypes);
         }
 
         // populate global object with context properties from C++
@@ -165,7 +165,7 @@ Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const Libra
                 const Value *value = 0;
                 const QString cppTypeName = it.value();
                 if (!cppTypeName.isEmpty())
-                    value = d->valueOwner->cppQmlTypes().typeByCppName(cppTypeName);
+                    value = d->valueOwner->cppQmlTypes().objectByCppName(cppTypeName);
                 if (!value)
                     value = d->valueOwner->undefinedValue();
                 global->setMember(it.key(), value);
@@ -199,18 +199,18 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
     // load builtin objects
     if (builtins.pluginTypeInfoStatus() == LibraryInfo::DumpDone
             || builtins.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileDone) {
-        valueOwner->cppQmlTypes().load(valueOwner, builtins.metaObjects());
+        valueOwner->cppQmlTypes().load(builtins.metaObjects());
     } else {
-        valueOwner->cppQmlTypes().load(valueOwner, CppQmlTypesLoader::defaultQtObjects);
+        valueOwner->cppQmlTypes().load(CppQmlTypesLoader::defaultQtObjects);
     }
 
     // load library objects shipped with Creator
-    valueOwner->cppQmlTypes().load(valueOwner, CppQmlTypesLoader::defaultLibraryObjects);
+    valueOwner->cppQmlTypes().load(CppQmlTypesLoader::defaultLibraryObjects);
 
     // the 'Qt' object is dumped even though it is not exported
     // it contains useful information, in particular on enums - add the
     // object as a prototype to our custom Qt object to offer these for completion
-    const_cast<ObjectValue *>(valueOwner->qtObject())->setPrototype(valueOwner->cppQmlTypes().typeByCppName(QLatin1String("Qt")));
+    const_cast<ObjectValue *>(valueOwner->qtObject())->setPrototype(valueOwner->cppQmlTypes().objectByCppName(QLatin1String("Qt")));
 
     if (document) {
         // do it on document first, to make sure import errors are shown
@@ -363,10 +363,10 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     }
 
     // if there are cpp-based types for this package, use them too
-    if (valueOwner->cppQmlTypes().hasPackage(packageName)) {
+    if (valueOwner->cppQmlTypes().hasModule(packageName)) {
         importFound = true;
-        foreach (QmlObjectValue *object,
-                 valueOwner->cppQmlTypes().typesForImport(packageName, version)) {
+        foreach (const QmlObjectValue *object,
+                 valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
             import.object->setMember(object->className(), object);
         }
     }
@@ -432,16 +432,14 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
             QString packageName;
             if (ast && ast->importUri)
                 packageName = Bind::toString(importInfo.ast()->importUri, '.');
-            if (errorLoc.isValid() && (packageName.isEmpty() || !valueOwner->cppQmlTypes().hasPackage(packageName))) {
+            if (errorLoc.isValid() && (packageName.isEmpty() || !valueOwner->cppQmlTypes().hasModule(packageName))) {
                 error(doc, errorLoc, libraryInfo.pluginTypeInfoError());
             }
-        } else {
-            QList<QmlObjectValue *> loadedObjects =
-                    valueOwner->cppQmlTypes().load(valueOwner, libraryInfo.metaObjects());
-            foreach (QmlObjectValue *object, loadedObjects) {
-                if (object->packageName().isEmpty()) {
-                    import->object->setMember(object->className(), object);
-                }
+        } else if (ast && ast->importUri) {
+            const QString packageName = Bind::toString(importInfo.ast()->importUri, '.');
+            valueOwner->cppQmlTypes().load(libraryInfo.metaObjects(), packageName);
+            foreach (const QmlObjectValue *object, valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
+                import->object->setMember(object->className(), object);
             }
         }
     }
@@ -526,14 +524,14 @@ void LinkPrivate::loadImplicitDirectoryImports(Imports *imports, Document::Ptr d
 void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
 {
     const QString defaultPackage = CppQmlTypes::defaultPackage;
-    if (valueOwner->cppQmlTypes().hasPackage(defaultPackage)) {
+    if (valueOwner->cppQmlTypes().hasModule(defaultPackage)) {
         ImportInfo info(ImportInfo::LibraryImport, defaultPackage);
         Import import = importCache.value(ImportCacheKey(info));
         if (!import.object) {
             import.info = info;
             import.object = new ObjectValue(valueOwner);
-            foreach (QmlObjectValue *object,
-                     valueOwner->cppQmlTypes().typesForImport(
+            foreach (const QmlObjectValue *object,
+                     valueOwner->cppQmlTypes().createObjectsForImport(
                          defaultPackage,
                          ComponentVersion(ComponentVersion::MaxVersion, ComponentVersion::MaxVersion))) {
                 import.object->setMember(object->className(), object);

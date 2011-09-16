@@ -43,6 +43,7 @@
 #include "parser/qmljsast_p.h"
 
 #include <languageutils/fakemetaobject.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>
@@ -53,6 +54,8 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QProcess>
 #include <QtCore/QDebug>
+
+#include <algorithm>
 
 using namespace LanguageUtils;
 using namespace QmlJS;
@@ -157,12 +160,14 @@ public:
 } // end of anonymous namespace
 
 QmlObjectValue::QmlObjectValue(FakeMetaObject::ConstPtr metaObject, const QString &className,
-                               const QString &packageName, const ComponentVersion version, ValueOwner *valueOwner)
+                               const QString &packageName, const ComponentVersion &componentVersion,
+                               const ComponentVersion &importVersion, ValueOwner *valueOwner)
     : ObjectValue(valueOwner),
       _attachedType(0),
       _metaObject(metaObject),
-      _packageName(packageName),
-      _componentVersion(version)
+      _moduleName(packageName),
+      _componentVersion(componentVersion),
+      _importVersion(importVersion)
 {
     setClassName(className);
     int nEnums = metaObject->enumeratorCount();
@@ -258,15 +263,18 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
 const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
 {
     QString typeName = prop.typeName();
+    const CppQmlTypes &cppTypes = valueOwner()->cppQmlTypes();
 
-    // ### Verify type resolving.
-    QmlObjectValue *objectValue = valueOwner()->cppQmlTypes().typeByCppName(typeName);
-    if (objectValue) {
-        FakeMetaObject::Export exp = objectValue->metaObject()->exportInPackage(packageName());
-        if (exp.isValid())
-            objectValue = valueOwner()->cppQmlTypes().typeByQualifiedName(exp.packageNameVersion);
+    // check in the same package/version first
+    const QmlObjectValue *objectValue = cppTypes.objectByQualifiedName(
+                _moduleName, typeName, _importVersion);
+    if (objectValue)
         return objectValue;
-    }
+
+    // fallback to plain cpp name
+    objectValue = cppTypes.objectByCppName(typeName);
+    if (objectValue)
+        return objectValue;
 
     // try qml builtin type names
     if (const Value *v = valueOwner()->defaultValueForBuiltinType(typeName)) {
@@ -309,7 +317,7 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
     const QmlObjectValue *base = this;
     const QStringList components = typeName.split(QLatin1String("::"));
     if (components.size() == 2) {
-        base = valueOwner()->cppQmlTypes().typeByCppName(components.first());
+        base = valueOwner()->cppQmlTypes().objectByCppName(components.first());
         typeName = components.last();
     }
     if (base) {
@@ -341,11 +349,14 @@ FakeMetaObject::ConstPtr QmlObjectValue::metaObject() const
     return _metaObject;
 }
 
-QString QmlObjectValue::packageName() const
-{ return _packageName; }
+QString QmlObjectValue::moduleName() const
+{ return _moduleName; }
 
-ComponentVersion QmlObjectValue::version() const
+ComponentVersion QmlObjectValue::componentVersion() const
 { return _componentVersion; }
+
+ComponentVersion QmlObjectValue::importVersion() const
+{ return _importVersion; }
 
 QString QmlObjectValue::defaultPropertyName() const
 { return _metaObject->defaultPropertyName(); }
@@ -443,28 +454,6 @@ bool QmlObjectValue::hasProperty(const QString &propertyName) const
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
             return true;
-        }
-    }
-    return false;
-}
-
-// Returns true if this object is in a package or if there is an object that
-// has this one in its prototype chain and is itself in a package.
-bool QmlObjectValue::hasChildInPackage() const
-{
-    if (!packageName().isEmpty()
-            && packageName() != CppQmlTypes::cppPackage)
-        return true;
-    QHashIterator<QString, QmlObjectValue *> it(valueOwner()->cppQmlTypes().types());
-    while (it.hasNext()) {
-        it.next();
-        FakeMetaObject::ConstPtr otherMeta = it.value()->_metaObject;
-        // if it has only a cpp-package export, it is not really exported
-        if (otherMeta->exports().size() <= 1)
-            continue;
-        for (const QmlObjectValue *other = it.value(); other; other = other->prototype()) {
-            if (other->metaObject() == _metaObject) // this object is a parent of other
-                return true;
         }
     }
     return false;
@@ -1248,172 +1237,145 @@ void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &xml,
     *warningMessage = reader.warningMessage();
 }
 
+CppQmlTypes::CppQmlTypes(ValueOwner *valueOwner)
+    : _valueOwner(valueOwner)
+{
+}
+
 const QLatin1String CppQmlTypes::defaultPackage("<default>");
 const QLatin1String CppQmlTypes::cppPackage("<cpp>");
 
 template <typename T>
-QList<QmlObjectValue *> CppQmlTypes::load(ValueOwner *valueOwner, const T &objects)
+void CppQmlTypes::load(const T &fakeMetaObjects, const QString &overridePackage)
 {
-    // load
-    QList<QmlObjectValue *> loadedObjects;
-    QList<QmlObjectValue *> newObjects;
-    foreach (FakeMetaObject::ConstPtr metaObject, objects) {
-        foreach (const FakeMetaObject::Export &exp, metaObject->exports()) {
-            bool wasCreated;
-            QmlObjectValue *loadedObject = getOrCreate(valueOwner, metaObject, exp, &wasCreated);
-            loadedObjects += loadedObject;
-            if (wasCreated)
-                newObjects += loadedObject;
-        }
-    }
+    QList<QmlObjectValue *> newCppTypes;
+    foreach (const FakeMetaObject::ConstPtr &fmo, fakeMetaObjects) {
+        foreach (const FakeMetaObject::Export &exp, fmo->exports()) {
+            QString package = exp.package;
+            if (package.isEmpty())
+                package = overridePackage;
+            _fakeMetaObjectsByPackage[package].insert(fmo);
 
-    // set prototypes
-    foreach (QmlObjectValue *object, newObjects) {
-        setPrototypes(object);
-    }
-
-    return loadedObjects;
-}
-// explicitly instantiate load for list and hash
-template QList<QmlObjectValue *> CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(ValueOwner *, const QList<FakeMetaObject::ConstPtr> &);
-template QList<QmlObjectValue *> CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(ValueOwner *, const QHash<QString, FakeMetaObject::ConstPtr> &);
-
-QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, ComponentVersion version) const
-{
-    QHash<QString, QmlObjectValue *> objectValuesByName;
-
-    foreach (QmlObjectValue *qmlObjectValue, _typesByPackage.value(packageName)) {
-        if (qmlObjectValue->version() <= version) {
-            // we got a candidate.
-            const QString typeName = qmlObjectValue->className();
-            QmlObjectValue *previousCandidate = objectValuesByName.value(typeName, 0);
-            if (previousCandidate) {
-                // check if our new candidate is newer than the one we found previously
-                if (previousCandidate->version() < qmlObjectValue->version()) {
-                    // the new candidate has a higher version no. than the one we found previously, so replace it
-                    objectValuesByName.insert(typeName, qmlObjectValue);
-                }
-            } else {
-                objectValuesByName.insert(typeName, qmlObjectValue);
+            // make versionless cpp types directly
+            // needed for access to property types that are not exported, like QDeclarativeAnchors
+            if (exp.package == cppPackage) {
+                QTC_ASSERT(exp.version == ComponentVersion(), continue);
+                QTC_ASSERT(exp.type == fmo->className(), continue);
+                QmlObjectValue *cppValue = new QmlObjectValue(
+                            fmo, fmo->className(), cppPackage, ComponentVersion(), ComponentVersion(), _valueOwner);
+                _objectsByQualifiedName[exp.packageNameVersion] = cppValue;
+                newCppTypes += cppValue;
             }
         }
     }
 
-    return objectValuesByName.values();
+    // set prototypes of cpp types
+    foreach (QmlObjectValue *object, newCppTypes) {
+        const QString &protoCppName = object->metaObject()->superclassName();
+        const QmlObjectValue *proto = objectByCppName(protoCppName);
+        if (proto)
+            object->setPrototype(proto);
+    }
 }
+// explicitly instantiate load for list and hash
+template void CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(const QList<FakeMetaObject::ConstPtr> &, const QString &);
+template void CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(const QHash<QString, FakeMetaObject::ConstPtr> &, const QString &);
 
-QmlObjectValue *CppQmlTypes::typeByCppName(const QString &cppName) const
+QList<const QmlObjectValue *> CppQmlTypes::createObjectsForImport(const QString &package, ComponentVersion version)
 {
-    return typeByQualifiedName(cppPackage, cppName, ComponentVersion());
+    QList<const QmlObjectValue *> exportedObjects;
+
+    // make new exported objects
+    foreach (const FakeMetaObject::ConstPtr &fmo, _fakeMetaObjectsByPackage.value(package)) {
+        // find the highest-version export
+        FakeMetaObject::Export bestExport;
+        foreach (const FakeMetaObject::Export &exp, fmo->exports()) {
+            if (exp.package != package || (version.isValid() && exp.version > version))
+                continue;
+            if (!bestExport.isValid() || exp.version > bestExport.version)
+                bestExport = exp;
+        }
+        if (!bestExport.isValid())
+            continue;
+
+        // if it already exists, skip
+        const QString key = qualifiedName(package, fmo->className(), version);
+        if (_objectsByQualifiedName.contains(key))
+            continue;
+
+        QmlObjectValue *newObject = new QmlObjectValue(
+                    fmo, bestExport.type, package, bestExport.version, version, _valueOwner);
+
+        // use package.cppname importversion as key
+        _objectsByQualifiedName.insert(key, newObject);
+        exportedObjects += newObject;
+    }
+
+    // set their prototypes, creating them if necessary
+    foreach (const QmlObjectValue *cobject, exportedObjects) {
+        QmlObjectValue *object = const_cast<QmlObjectValue *>(cobject);
+        while (!object->prototype()) {
+            const QString &protoCppName = object->metaObject()->superclassName();
+            if (protoCppName.isEmpty())
+                break;
+
+            // if the prototype already exists, done
+            const QString key = qualifiedName(object->moduleName(), protoCppName, version);
+            if (const QmlObjectValue *proto = _objectsByQualifiedName.value(key)) {
+                object->setPrototype(proto);
+                break;
+            }
+
+            // get the fmo via the cpp name
+            const QmlObjectValue *cppProto = objectByCppName(protoCppName);
+            if (!cppProto)
+                break;
+            FakeMetaObject::ConstPtr protoFmo = cppProto->metaObject();
+
+            // make a new object
+            QmlObjectValue *proto = new QmlObjectValue(
+                        protoFmo, protoCppName, object->moduleName(), ComponentVersion(),
+                        object->importVersion(), _valueOwner);
+            _objectsByQualifiedName.insert(key, proto);
+            object->setPrototype(proto);
+
+            // maybe set prototype of prototype
+            object = proto;
+        }
+    }
+
+    return exportedObjects;
 }
 
-bool CppQmlTypes::hasPackage(const QString &package) const
+bool CppQmlTypes::hasModule(const QString &module) const
 {
-    return _typesByPackage.contains(package);
+    return _fakeMetaObjectsByPackage.contains(module);
 }
 
-QString CppQmlTypes::qualifiedName(const QString &package, const QString &type, ComponentVersion version)
+QString CppQmlTypes::qualifiedName(const QString &module, const QString &type, ComponentVersion version)
 {
     return QString("%1/%2 %3").arg(
-                package, type,
+                module, type,
                 version.toString());
 
 }
 
-QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &name) const
+const QmlObjectValue *CppQmlTypes::objectByQualifiedName(const QString &name) const
 {
-    return _typesByFullyQualifiedName.value(name);
+    return _objectsByQualifiedName.value(name);
 }
 
-QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &package, const QString &type, ComponentVersion version) const
+const QmlObjectValue *CppQmlTypes::objectByQualifiedName(const QString &package, const QString &type,
+                                                         ComponentVersion version) const
 {
-    return typeByQualifiedName(qualifiedName(package, type, version));
+    return objectByQualifiedName(qualifiedName(package, type, version));
 }
 
-QmlObjectValue *CppQmlTypes::getOrCreate(
-    ValueOwner *valueOwner,
-    FakeMetaObject::ConstPtr metaObject,
-    const LanguageUtils::FakeMetaObject::Export &exp,
-    bool *wasCreated)
+const QmlObjectValue *CppQmlTypes::objectByCppName(const QString &cppName) const
 {
-    // make sure we're not loading duplicate objects
-    if (QmlObjectValue *existing = _typesByFullyQualifiedName.value(exp.packageNameVersion)) {
-        if (wasCreated)
-            *wasCreated = false;
-        return existing;
-    }
-
-    QmlObjectValue *objectValue = new QmlObjectValue(
-                metaObject, exp.type, exp.package, exp.version, valueOwner);
-    _typesByPackage[exp.package].append(objectValue);
-    _typesByFullyQualifiedName[exp.packageNameVersion] = objectValue;
-
-    if (wasCreated)
-        *wasCreated = true;
-    return objectValue;
+    return objectByQualifiedName(qualifiedName(cppPackage, cppName, ComponentVersion()));
 }
 
-void CppQmlTypes::setPrototypes(QmlObjectValue *object)
-{
-    if (!object)
-        return;
-
-    FakeMetaObject::ConstPtr fmo = object->metaObject();
-
-    // resolve attached type
-    // don't do it if the attached type name is the object itself (happens for QDeclarativeKeysAttached)
-    if (!fmo->attachedTypeName().isEmpty()
-            && fmo->className() != fmo->attachedTypeName()) {
-        QmlObjectValue *attachedObject = typeByCppName(fmo->attachedTypeName());
-        if (attachedObject && attachedObject != object)
-            object->setAttachedType(attachedObject);
-    }
-
-    const QString targetPackage = object->packageName();
-
-    // set prototypes for whole chain, creating new QmlObjectValues if necessary
-    // for instance, if an type isn't exported in the package of the super type
-    // Example: QObject (Qt, QtQuick) -> Positioner (not exported) -> Column (Qt, QtQuick)
-    // needs to create Positioner (Qt) and Positioner (QtQuick)
-    QmlObjectValue *v = object;
-    while (!v->prototype() && !fmo->superclassName().isEmpty()) {
-        QmlObjectValue *superValue = getOrCreateForPackage(targetPackage, fmo->superclassName());
-        if (!superValue)
-            return;
-        v->setPrototype(superValue);
-        v = superValue;
-        fmo = v->metaObject();
-    }
-}
-
-QmlObjectValue *CppQmlTypes::getOrCreateForPackage(const QString &package, const QString &cppName)
-{
-    // first get the cpp object value
-    QmlObjectValue *cppObject = typeByCppName(cppName);
-    if (!cppObject) {
-        // ### disabled for now, should be communicated to the user somehow.
-        //qWarning() << "QML type system: could not find '" << cppName << "'";
-        return 0;
-    }
-
-    FakeMetaObject::ConstPtr metaObject = cppObject->metaObject();
-    FakeMetaObject::Export exp = metaObject->exportInPackage(package);
-    QmlObjectValue *object = 0;
-    if (exp.isValid()) {
-        object = getOrCreate(cppObject->valueOwner(), metaObject, exp);
-    } else {
-        // make a convenience object that does not get added to _typesByPackage
-        const QString qname = qualifiedName(package, cppName, ComponentVersion());
-        object = typeByQualifiedName(qname);
-        if (!object) {
-            object = new QmlObjectValue(
-                        metaObject, cppName, package, ComponentVersion(), cppObject->valueOwner());
-            _typesByFullyQualifiedName[qname] = object;
-        }
-    }
-
-    return object;
-}
 
 ConvertToNumber::ConvertToNumber(ValueOwner *valueOwner)
     : _valueOwner(valueOwner), _result(0)

@@ -271,7 +271,8 @@ ValueOwner::ValueOwner()
       _qmlVector3DObject(0),
       _convertToNumber(this),
       _convertToString(this),
-      _convertToObject(this)
+      _convertToObject(this),
+      _cppQmlTypes(this)
 {
     initializePrototypes();
 }

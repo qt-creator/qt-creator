@@ -154,8 +154,8 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
             if ((qmlMetaObject->className() == QLatin1String("ListElement")
                     || qmlMetaObject->className() == QLatin1String("Connections")
-                    ) && (qmlMetaObject->packageName() == QLatin1String("Qt")
-                          || qmlMetaObject->packageName() == QLatin1String("QtQuick"))) {
+                    ) && (qmlMetaObject->moduleName() == QLatin1String("Qt")
+                          || qmlMetaObject->moduleName() == QLatin1String("QtQuick"))) {
                 qmlScopeObjects.clear();
                 break;
             }
@@ -231,8 +231,8 @@ const ObjectValue *ScopeBuilder::isPropertyChangesObject(const ContextPtr &conte
         const ObjectValue *prototype = iter.next();
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
             if (qmlMetaObject->className() == QLatin1String("PropertyChanges")
-                    && (qmlMetaObject->packageName() == QLatin1String("Qt")
-                        || qmlMetaObject->packageName() == QLatin1String("QtQuick")))
+                    && (qmlMetaObject->moduleName() == QLatin1String("Qt")
+                        || qmlMetaObject->moduleName() == QLatin1String("QtQuick")))
                 return prototype;
         }
     }

@@ -362,11 +362,11 @@ public:
 
         const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(value);
         if (qmlValue) {
-            typeName = fixUpPackeNameForQt(qmlValue->packageName()) + QLatin1String(".") + qmlValue->className();
+            typeName = fixUpPackeNameForQt(qmlValue->moduleName()) + QLatin1String(".") + qmlValue->className();
 
             //### todo this is just a hack to support QtQuick 1.0
-            majorVersion = fixUpMajorVersionForQt(qmlValue->packageName(), qmlValue->version().majorVersion());
-            minorVersion = fixUpMinorVersionForQt(qmlValue->packageName(), qmlValue->version().minorVersion());
+            majorVersion = fixUpMajorVersionForQt(qmlValue->moduleName(), qmlValue->componentVersion().majorVersion());
+            minorVersion = fixUpMinorVersionForQt(qmlValue->moduleName(), qmlValue->componentVersion().minorVersion());
         } else {
             for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->next && !iter->name.isEmpty())

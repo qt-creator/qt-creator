@@ -418,7 +418,8 @@ class QMLJS_EXPORT QmlObjectValue: public ObjectValue
 {
 public:
     QmlObjectValue(LanguageUtils::FakeMetaObject::ConstPtr metaObject, const QString &className,
-                   const QString &packageName, const LanguageUtils::ComponentVersion version,
+                   const QString &moduleName, const LanguageUtils::ComponentVersion &componentVersion,
+                   const LanguageUtils::ComponentVersion &importVersion,
                    ValueOwner *valueOwner);
     virtual ~QmlObjectValue();
 
@@ -433,8 +434,9 @@ public:
 
     LanguageUtils::FakeMetaObject::ConstPtr metaObject() const;
 
-    QString packageName() const;
-    LanguageUtils::ComponentVersion version() const;
+    QString moduleName() const;
+    LanguageUtils::ComponentVersion componentVersion() const;
+    LanguageUtils::ComponentVersion importVersion() const;
 
     QString defaultPropertyName() const;
     QString propertyType(const QString &propertyName) const;
@@ -443,7 +445,6 @@ public:
     bool isPointer(const QString &propertyName) const;
     bool hasLocalProperty(const QString &typeName) const;
     bool hasProperty(const QString &typeName) const;
-    bool hasChildInPackage() const;
 
     LanguageUtils::FakeMetaEnum getEnum(const QString &typeName, const QmlObjectValue **foundInScope = 0) const;
     const QmlEnumValue *getEnumValue(const QString &typeName, const QmlObjectValue **foundInScope = 0) const;
@@ -455,8 +456,12 @@ protected:
 private:
     QmlObjectValue *_attachedType;
     LanguageUtils::FakeMetaObject::ConstPtr _metaObject;
-    const QString _packageName;
+    const QString _moduleName;
+    // _componentVersion is the version of the export
+    // _importVersion is the version it's imported as, used to find correct prototypes
+    // needed in cases when B 1.0 has A 1.1 as prototype when imported as 1.1
     const LanguageUtils::ComponentVersion _componentVersion;
+    const LanguageUtils::ComponentVersion _importVersion;
     mutable QHash<int, const Value *> _metaSignature;
     QHash<QString, const QmlEnumValue * > _enums;
 };
@@ -571,38 +576,32 @@ public:
 class QMLJS_EXPORT CppQmlTypes
 {
 public:
+    CppQmlTypes(ValueOwner *valueOwner);
+
     // package name for objects that should be always available
     static const QLatin1String defaultPackage;
     // package name for objects with their raw cpp name
     static const QLatin1String cppPackage;
 
     template <typename T>
-    QList<QmlObjectValue *> load(ValueOwner *interpreter, const T &objects);
+    void load(const T &fakeMetaObjects, const QString &overridePackage = QString());
 
-    QList<QmlObjectValue *> typesForImport(const QString &prefix, LanguageUtils::ComponentVersion version) const;
-    QmlObjectValue *typeByCppName(const QString &cppName) const;
+    QList<const QmlObjectValue *> createObjectsForImport(const QString &package, LanguageUtils::ComponentVersion version);
+    bool hasModule(const QString &module) const;
 
-    bool hasPackage(const QString &package) const;
-
-    QHash<QString, QmlObjectValue *> types() const
-    { return _typesByFullyQualifiedName; }
-
-    static QString qualifiedName(const QString &package, const QString &type, LanguageUtils::ComponentVersion version);
-    QmlObjectValue *typeByQualifiedName(const QString &fullyQualifiedName) const;
-    QmlObjectValue *typeByQualifiedName(const QString &package, const QString &type,
-                                        LanguageUtils::ComponentVersion version) const;
+    static QString qualifiedName(const QString &module, const QString &type,
+                                 LanguageUtils::ComponentVersion version);
+    const QmlObjectValue *objectByQualifiedName(const QString &fullyQualifiedName) const;
+    const QmlObjectValue *objectByQualifiedName(
+            const QString &package, const QString &type,
+            LanguageUtils::ComponentVersion version) const;
+    const QmlObjectValue *objectByCppName(const QString &cppName) const;
 
 private:
-    void setPrototypes(QmlObjectValue *object);
-    QmlObjectValue *getOrCreate(ValueOwner *valueOwner,
-                                LanguageUtils::FakeMetaObject::ConstPtr metaObject,
-                                const LanguageUtils::FakeMetaObject::Export &exp,
-                                bool *wasCreated = 0);
-    QmlObjectValue *getOrCreateForPackage(const QString &package, const QString &cppName);
-
-
-    QHash<QString, QList<QmlObjectValue *> > _typesByPackage;
-    QHash<QString, QmlObjectValue *> _typesByFullyQualifiedName;
+    // "Package.CppName ImportVersion" ->  QmlObjectValue
+    QHash<QString, const QmlObjectValue *> _objectsByQualifiedName;
+    QHash<QString, QSet<LanguageUtils::FakeMetaObject::ConstPtr> > _fakeMetaObjectsByPackage;
+    ValueOwner *_valueOwner;
 };
 
 class ConvertToNumber: protected ValueVisitor // ECMAScript ToInt()

@@ -79,23 +79,114 @@ enum CompletionOrder {
     TypeOrder = -30
 };
 
-class EnumerateProperties: private MemberProcessor
+static void addCompletion(QList<TextEditor::BasicProposalItem *> *completions,
+                          const QString &text,
+                          const QIcon &icon,
+                          int order,
+                          const QVariant &data = QVariant())
+{
+    if (text.isEmpty())
+        return;
+
+    BasicProposalItem *item = new QmlJSAssistProposalItem;
+    item->setText(text);
+    item->setIcon(icon);
+    item->setOrder(order);
+    item->setData(data);
+    completions->append(item);
+}
+
+static void addCompletions(QList<TextEditor::BasicProposalItem *> *completions,
+                           const QStringList &newCompletions,
+                           const QIcon &icon,
+                           int order)
+{
+    foreach (const QString &text, newCompletions)
+        addCompletion(completions, text, icon, order);
+}
+
+class PropertyProcessor
+{
+public:
+    virtual void operator()(const Value *base, const QString &name, const Value *value) = 0;
+};
+
+class CompletionAdder : public PropertyProcessor
+{
+protected:
+    QList<TextEditor::BasicProposalItem *> *completions;
+
+public:
+    CompletionAdder(QList<TextEditor::BasicProposalItem *> *completions,
+                    const QIcon &icon, int order)
+        : completions(completions)
+        , icon(icon)
+        , order(order)
+    {}
+
+    virtual void operator()(const Value *base, const QString &name, const Value *value)
+    {
+        Q_UNUSED(base)
+        Q_UNUSED(value)
+        addCompletion(completions, name, icon, order);
+    }
+
+    QIcon icon;
+    int order;
+};
+
+class LhsCompletionAdder : public CompletionAdder
+{
+public:
+    LhsCompletionAdder(QList<TextEditor::BasicProposalItem *> *completions,
+                       const QIcon &icon,
+                       int order,
+                       bool afterOn)
+        : CompletionAdder(completions, icon, order)
+        , afterOn(afterOn)
+    {}
+
+    virtual void operator ()(const Value *base, const QString &name, const Value *)
+    {
+        const QmlObjectValue *qmlBase = dynamic_cast<const QmlObjectValue *>(base);
+
+        QString itemText = name;
+        QString postfix;
+        if (!itemText.isEmpty() && itemText.at(0).isLower())
+            postfix = QLatin1String(": ");
+        if (afterOn)
+            postfix = QLatin1String(" {");
+
+        // readonly pointer properties (anchors, ...) always get a .
+        if (qmlBase && !qmlBase->isWritable(name) && qmlBase->isPointer(name))
+            postfix = QLatin1Char('.');
+
+        itemText.append(postfix);
+
+        addCompletion(completions, itemText, icon, order);
+    }
+
+    bool afterOn;
+};
+
+class ProcessProperties: private MemberProcessor
 {
     QSet<const ObjectValue *> _processed;
-    QHash<QString, const Value *> _properties;
     bool _globalCompletion;
     bool _enumerateGeneratedSlots;
     bool _enumerateSlots;
     const ScopeChain *_scopeChain;
     const ObjectValue *_currentObject;
+    PropertyProcessor *_propertyProcessor;
 
 public:
-    EnumerateProperties(const ScopeChain *scopeChain)
+    ProcessProperties(const ScopeChain *scopeChain)
         : _globalCompletion(false),
           _enumerateGeneratedSlots(false),
           _enumerateSlots(true),
           _scopeChain(scopeChain),
-          _currentObject(0)
+          _currentObject(0),
+          _propertyProcessor(0)
     {
     }
 
@@ -114,59 +205,53 @@ public:
         _enumerateSlots = enumerate;
     }
 
-    QHash<QString, const Value *> operator ()(const Value *value)
+    void operator ()(const Value *value, PropertyProcessor *processor)
     {
         _processed.clear();
-        _properties.clear();
-        _currentObject = value_cast<const ObjectValue *>(value);
+        _propertyProcessor = processor;
 
-        enumerateProperties(value);
-
-        return _properties;
+        processProperties(value);
     }
 
-    QHash<QString, const Value *> operator ()()
+    void operator ()(PropertyProcessor *processor)
     {
         _processed.clear();
-        _properties.clear();
-        _currentObject = 0;
+        _propertyProcessor = processor;
 
         foreach (const ObjectValue *scope, _scopeChain->all())
-            enumerateProperties(scope);
-
-        return _properties;
+            processProperties(scope);
     }
 
 private:
-    void insertProperty(const QString &name, const Value *value)
+    void process(const QString &name, const Value *value)
     {
-        _properties.insert(name, value);
+        (*_propertyProcessor)(_currentObject, name, value);
     }
 
     virtual bool processProperty(const QString &name, const Value *value)
     {
-        insertProperty(name, value);
+        process(name, value);
         return true;
     }
 
     virtual bool processEnumerator(const QString &name, const Value *value)
     {
         if (! _globalCompletion)
-            insertProperty(name, value);
+            process(name, value);
         return true;
     }
 
     virtual bool processSignal(const QString &name, const Value *value)
     {
         if (_globalCompletion)
-            insertProperty(name, value);
+            process(name, value);
         return true;
     }
 
     virtual bool processSlot(const QString &name, const Value *value)
     {
         if (_enumerateSlots)
-            insertProperty(name, value);
+            process(name, value);
         return true;
     }
 
@@ -174,29 +259,31 @@ private:
     {
         if (_enumerateGeneratedSlots || (_currentObject && _currentObject->className().endsWith(QLatin1String("Keys")))) {
             // ### FIXME: add support for attached properties.
-            insertProperty(name, value);
+            process(name, value);
         }
         return true;
     }
 
-    void enumerateProperties(const Value *value)
+    void processProperties(const Value *value)
     {
         if (! value)
             return;
         else if (const ObjectValue *object = value->asObjectValue()) {
-            enumerateProperties(object);
+            processProperties(object);
         }
     }
 
-    void enumerateProperties(const ObjectValue *object)
+    void processProperties(const ObjectValue *object)
     {
         if (! object || _processed.contains(object))
             return;
 
         _processed.insert(object);
-        enumerateProperties(object->prototype(_scopeChain->context()));
+        processProperties(object->prototype(_scopeChain->context()));
 
+        _currentObject = object;
         object->processMembers(this);
+        _currentObject = 0;
     }
 };
 
@@ -523,10 +610,10 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             doJsKeywordCompletion = false;
             doQmlTypeCompletion = true;
 
-            EnumerateProperties enumerateProperties(&scopeChain);
-            enumerateProperties.setGlobalCompletion(true);
-            enumerateProperties.setEnumerateGeneratedSlots(true);
-            enumerateProperties.setEnumerateSlots(false);
+            ProcessProperties processProperties(&scopeChain);
+            processProperties.setGlobalCompletion(true);
+            processProperties.setEnumerateGeneratedSlots(true);
+            processProperties.setEnumerateSlots(false);
 
             // id: is special
             BasicProposalItem *idProposalItem = new QmlJSAssistProposalItem;
@@ -535,16 +622,16 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             idProposalItem->setOrder(PropertyOrder);
             m_completions.append(idProposalItem);
 
-            addCompletionsPropertyLhs(enumerateProperties(qmlScopeType),
-                                      m_interface->symbolIcon(),
-                                      PropertyOrder,
-                                      contextFinder.isAfterOnInLhsOfBinding());
+            {
+                LhsCompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(),
+                                                   PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
+                processProperties(qmlScopeType, &completionAdder);
+            }
 
             if (ScopeBuilder::isPropertyChangesObject(context, qmlScopeType)
                     && scopeChain.qmlScopeObjects().size() == 2) {
-                addCompletions(enumerateProperties(scopeChain.qmlScopeObjects().first()),
-                               m_interface->symbolIcon(),
-                               SymbolOrder);
+                CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), SymbolOrder);
+                processProperties(scopeChain.qmlScopeObjects().first(), &completionAdder);
             }
         }
 
@@ -557,7 +644,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             if (const QmlEnumValue *enumValue =
                     dynamic_cast<const QmlEnumValue *>(value)) {
                 foreach (const QString &key, enumValue->keys())
-                    addCompletion(key, m_interface->symbolIcon(),
+                    addCompletion(&m_completions, key, m_interface->symbolIcon(),
                                   EnumValueOrder, QString("%1.%2").arg(enumValue->owner()->className(), key));
             }
         }
@@ -567,21 +654,23 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
 
         if (doQmlTypeCompletion) {
             if (const ObjectValue *qmlTypes = scopeChain.qmlTypes()) {
-                EnumerateProperties enumerateProperties(&scopeChain);
-                addCompletions(enumerateProperties(qmlTypes), m_interface->symbolIcon(), TypeOrder);
+                ProcessProperties processProperties(&scopeChain);
+                CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), TypeOrder);
+                processProperties(qmlTypes, &completionAdder);
             }
         }
 
         if (doGlobalCompletion) {
             // It's a global completion.
-            EnumerateProperties enumerateProperties(&scopeChain);
-            enumerateProperties.setGlobalCompletion(true);
-            addCompletions(enumerateProperties(), m_interface->symbolIcon(), SymbolOrder);
+            ProcessProperties processProperties(&scopeChain);
+            processProperties.setGlobalCompletion(true);
+            CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), SymbolOrder);
+            processProperties(&completionAdder);
         }
 
         if (doJsKeywordCompletion) {
             // add js keywords
-            addCompletions(Scanner::keywords(), m_interface->keywordIcon(), KeywordOrder);
+            addCompletions(&m_completions, Scanner::keywords(), m_interface->keywordIcon(), KeywordOrder);
         }
 
         // add qml extra words
@@ -598,9 +687,9 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             if (qmlWordsAlsoInJs.isEmpty())
                 qmlWordsAlsoInJs << QLatin1String("default") << QLatin1String("function");
 
-            addCompletions(qmlWords, m_interface->keywordIcon(), KeywordOrder);
+            addCompletions(&m_completions, qmlWords, m_interface->keywordIcon(), KeywordOrder);
             if (!doJsKeywordCompletion)
-                addCompletions(qmlWordsAlsoInJs, m_interface->keywordIcon(), KeywordOrder);
+                addCompletions(&m_completions, qmlWordsAlsoInJs, m_interface->keywordIcon(), KeywordOrder);
         }
     }
 
@@ -621,15 +710,16 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             //qDebug() << "type:" << interp->typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
-                EnumerateProperties enumerateProperties(&scopeChain);
+                ProcessProperties processProperties(&scopeChain);
                 if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
-                    enumerateProperties.setEnumerateGeneratedSlots(true);
-                    addCompletionsPropertyLhs(enumerateProperties(value),
-                                              m_interface->symbolIcon(),
-                                              PropertyOrder,
-                                              contextFinder.isAfterOnInLhsOfBinding());
-                } else
-                    addCompletions(enumerateProperties(value), m_interface->symbolIcon(), SymbolOrder);
+                    LhsCompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(),
+                                                       PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
+                    processProperties.setEnumerateGeneratedSlots(true);
+                    processProperties(value, &completionAdder);
+                } else {
+                    CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), SymbolOrder);
+                    processProperties(value, &completionAdder);
+                }
             } else if (value
                        && completionOperator == QLatin1Char('(')
                        && m_startPosition == m_interface->position()) {
@@ -766,74 +856,6 @@ bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath
         return false;
 
     return completeFileName(relativeBasePath, fileName);
-}
-
-void QmlJSCompletionAssistProcessor::addCompletionsPropertyLhs(const QHash<QString,
-                                                               const QmlJS::Value *> &newCompletions,
-                                                               const QIcon &icon,
-                                                               int order,
-                                                               bool afterOn)
-{
-    QHashIterator<QString, const Value *> it(newCompletions);
-    while (it.hasNext()) {
-        it.next();
-
-        QString itemText = it.key();
-        QString postfix;
-        if (!itemText.isEmpty() && itemText.at(0).isLower())
-            postfix = QLatin1String(": ");
-        if (afterOn)
-            postfix = QLatin1String(" {");
-        if (const QmlObjectValue *qmlValue =
-                dynamic_cast<const QmlObjectValue *>(it.value())) {
-            // to distinguish "anchors." from "gradient:" we check if the right hand side
-            // type is instantiatable or is the prototype of an instantiatable object
-            if (qmlValue->hasChildInPackage())
-                itemText.append(postfix);
-            else
-                itemText.append(QLatin1Char('.'));
-        } else {
-            itemText.append(postfix);
-        }
-
-        addCompletion(itemText, icon, order);
-    }
-}
-
-void QmlJSCompletionAssistProcessor::addCompletion(const QString &text,
-                                                   const QIcon &icon,
-                                                   int order,
-                                                   const QVariant &data)
-{
-    if (text.isEmpty())
-        return;
-
-    BasicProposalItem *item = new QmlJSAssistProposalItem;
-    item->setText(text);
-    item->setIcon(icon);
-    item->setOrder(order);
-    item->setData(data);
-    m_completions.append(item);
-}
-
-void QmlJSCompletionAssistProcessor::addCompletions(const QHash<QString,
-                                                    const QmlJS::Value *> &newCompletions,
-                                                    const QIcon &icon,
-                                                    int order)
-{
-    QHashIterator<QString, const Value *> it(newCompletions);
-    while (it.hasNext()) {
-        it.next();
-        addCompletion(it.key(), icon, order);
-    }
-}
-
-void QmlJSCompletionAssistProcessor::addCompletions(const QStringList &newCompletions,
-                                                    const QIcon &icon,
-                                                    int order)
-{
-    foreach (const QString &text, newCompletions)
-        addCompletion(text, icon, order);
 }
 
 // ------------------------------
