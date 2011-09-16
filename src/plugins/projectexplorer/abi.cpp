@@ -472,7 +472,7 @@ bool Abi::isCompatibleWith(const Abi &other) const
     // We leave it to the specific targets to catch filter out the tool chains that do not
     // work for them.
     if (!isCompat && (architecture() == other.architecture() || other.architecture() == Abi::UnknownArchitecture)
-                  && (os() == other.os() == LinuxOS)
+                  && ((os() == other.os()) && (os() == LinuxOS))
                   && (osFlavor() == GenericLinuxFlavor || other.osFlavor() == GenericLinuxFlavor)
                   && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == Abi::UnknownFormat)
                   && ((wordWidth() == other.wordWidth() && wordWidth() != 0) || other.wordWidth() == 0))
