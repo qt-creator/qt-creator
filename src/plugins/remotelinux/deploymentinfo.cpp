@@ -53,8 +53,6 @@ public:
 
     QList<DeployableFilesPerProFile *> listModels;
     const Qt4ProjectManager::Qt4BaseTarget * const target;
-    QTimer updateTimer;
-
 };
 } // namespace Internal
 
@@ -62,25 +60,13 @@ using namespace Internal;
 
 DeploymentInfo::DeploymentInfo(const Qt4BaseTarget *target) : d(new DeploymentInfoPrivate(target))
 {
-    Qt4Project * const pro = d->target->qt4Project();
-    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-        SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
-    d->updateTimer.setInterval(1500);
-    d->updateTimer.setSingleShot(true);
-    connect(&d->updateTimer, SIGNAL(timeout()), this, SLOT(createModels()));
+    connect (d->target->qt4Project(), SIGNAL(proParsingDone()), SLOT(createModels()));
     createModels();
 }
 
 DeploymentInfo::~DeploymentInfo()
 {
     delete d;
-}
-
-void DeploymentInfo::startTimer(Qt4ProjectManager::Qt4ProFileNode*, bool success, bool parseInProgress)
-{
-    Q_UNUSED(success)
-    if (!parseInProgress)
-        d->updateTimer.start();
 }
 
 void DeploymentInfo::createModels()
@@ -99,18 +85,13 @@ void DeploymentInfo::createModels()
         = d->target->qt4Project()->rootQt4ProjectNode();
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
-    d->updateTimer.stop();
-    disconnect(d->target->qt4Project(),
-        SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-        this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    disconnect(d->target->qt4Project(), SIGNAL(proParsingDone()), this, SLOT(createModels()));
     beginResetModel();
     qDeleteAll(d->listModels);
     d->listModels.clear();
     createModels(rootNode);
     endResetModel();
-    connect(d->target->qt4Project(),
-            SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    connect (d->target->qt4Project(), SIGNAL(proParsingDone()), SLOT(createModels()));
 }
 
 void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)
