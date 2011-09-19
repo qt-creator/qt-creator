@@ -106,7 +106,7 @@ private:
     QPointer<Find::SearchResult> m_currentSearch;
     int m_currentSearchCount;
 
-    QFutureWatcher<Utils::FileSearchResultList> m_watcher;
+    QFutureWatcher<Utils::FileSearchResultList> *m_watcher;
     bool m_isSearching;
     QPointer<Find::IFindSupport> m_currentFindSupport;
 
