@@ -437,6 +437,7 @@ GitClient::~GitClient()
 }
 
 const char *GitClient::noColorOption = "--no-color";
+const char *GitClient::decorateOption = "--decorate";
 
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
@@ -632,7 +633,7 @@ void GitClient::status(const QString &workingDirectory)
             Qt::QueuedConnection);
 }
 
-static const char graphLogFormatC[] = "%h %an %s %ci";
+static const char graphLogFormatC[] = "%h %d %an %s %ci";
 
 // Create a graphical log.
 void GitClient::graphLog(const QString &workingDirectory, const QString & branch)
@@ -669,7 +670,8 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
         qDebug() << "log" << workingDirectory << fileNames;
 
     QStringList arguments;
-    arguments << QLatin1String("log") << QLatin1String(noColorOption);
+    arguments << QLatin1String("log") << QLatin1String(noColorOption)
+              << QLatin1String(decorateOption);
 
     if (m_settings.logCount > 0)
          arguments << QLatin1String("-n") << QString::number(m_settings.logCount);
@@ -725,6 +727,7 @@ void GitClient::show(const QString &source, const QString &id, const QStringList
 
     QStringList arguments;
     arguments << QLatin1String("show") << QLatin1String(noColorOption);
+    arguments << QLatin1String(decorateOption);
     arguments.append(userArgs);
     arguments << id;
 
@@ -1369,7 +1372,7 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
         return false;
     }
     QStringList args(QLatin1String("show"));
-    args << QLatin1String(noColorOption) << id;
+    args << QLatin1String(decorateOption) << QLatin1String(noColorOption) << id;
     QByteArray outputText;
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
