@@ -74,7 +74,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
 
-enum { debug = 1 };
+enum { debug = 0 };
 
 namespace Qt4ProjectManager {
 namespace Internal {
