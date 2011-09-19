@@ -630,6 +630,8 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const QString &propertyName) const
     }
 
     const QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    if (!qmlObjectValue)
+        return false;
     return qmlObjectValue->getEnum(propertyType(propertyName)).isValid();
 }
 
@@ -656,6 +658,8 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const QString &propertyName) cons
     }
 
     const QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    if (!qmlObjectValue)
+        return QString();
     const QmlObjectValue *definedIn = 0;
     qmlObjectValue->getEnum(propertyType(propertyName), &definedIn);
     if (definedIn)
@@ -682,8 +686,12 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
     if (packageName() == package)
         return QString(package + '.' + typeName) == qualfiedTypeName();
 
+    const QmlObjectValue *qmlObjectValue = getQmlObjectValue();
+    if (!qmlObjectValue)
+        return false;
+
     const LanguageUtils::FakeMetaObject::Export exp =
-            getQmlObjectValue()->metaObject()->exportInPackage(package);
+            qmlObjectValue->metaObject()->exportInPackage(package);
     const QString convertedName = exp.type;
 
     return typeName == convertedName;
@@ -731,13 +739,18 @@ QStringList NodeMetaInfoPrivate::keysForEnum(const QString &enumName) const
     if (!isValid())
         return QStringList();
 
-    return getNearestQmlObjectValue()->getEnum(enumName).keys();
+    const QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    if (!qmlObjectValue)
+        return QStringList();
+    return qmlObjectValue->getEnum(enumName).keys();
 }
 
 QString NodeMetaInfoPrivate::packageName() const
 {
-    if (!isComponent())
-        return getQmlObjectValue()->moduleName();
+    if (!isComponent()) {
+        if (const QmlObjectValue *qmlObject = getQmlObjectValue())
+            return qmlObject->moduleName();
+    }
     return QString();
 }
 
