@@ -896,6 +896,7 @@ public:
     void append(const Import &import);
 
     ImportInfo info(const QString &name, const Context *context) const;
+    QString nameForImportedObject(const ObjectValue *value, const Context *context) const;
     QList<Import> all() const;
 
     const TypeScope *typeScope() const;

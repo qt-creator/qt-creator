@@ -643,9 +643,16 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
                     getPropertyValue(qmlScopeType, contextFinder.bindingPropertyName(), context);
             if (const QmlEnumValue *enumValue =
                     dynamic_cast<const QmlEnumValue *>(value)) {
-                foreach (const QString &key, enumValue->keys())
+                const QString &name = context->imports(document.data())->nameForImportedObject(enumValue->owner(), context.data());
+                foreach (const QString &key, enumValue->keys()) {
+                    QString completion;
+                    if (name.isEmpty())
+                        completion = QString("\"%1\"").arg(key);
+                    else
+                        completion = QString("%1.%2").arg(name, key);
                     addCompletion(&m_completions, key, m_interface->symbolIcon(),
-                                  EnumValueOrder, QString("%1.%2").arg(enumValue->owner()->className(), key));
+                                  EnumValueOrder, completion);
+                }
             }
         }
 

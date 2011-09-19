@@ -2118,6 +2118,33 @@ ImportInfo Imports::info(const QString &name, const Context *context) const
     return ImportInfo();
 }
 
+QString Imports::nameForImportedObject(const ObjectValue *value, const Context *context) const
+{
+    QListIterator<Import> it(_imports);
+    it.toBack();
+    while (it.hasPrevious()) {
+        const Import &i = it.previous();
+        const ObjectValue *import = i.object;
+        const ImportInfo &info = i.info;
+
+        if (info.type() == ImportInfo::FileImport) {
+            if (import == value)
+                return import->className();
+        } else {
+            const Value *v = import->lookupMember(value->className(), context);
+            if (v == value) {
+                QString result = value->className();
+                if (!info.id().isEmpty()) {
+                    result.prepend(QLatin1Char('.'));
+                    result.prepend(info.id());
+                }
+                return result;
+            }
+        }
+    }
+    return QString();
+}
+
 QList<Import> Imports::all() const
 {
     return _imports;
