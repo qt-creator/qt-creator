@@ -32,7 +32,7 @@
       </size>
      </property>
      <property name="text">
-      <string>Sc&amp;ope:</string>
+      <string>Sco&amp;pe:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -80,7 +80,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Search &amp;for:</string>
+      <string>Sear&amp;ch for:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -102,21 +102,21 @@
       <item>
        <widget class="QCheckBox" name="matchCase">
         <property name="text">
-         <string>&amp;Case sensitive</string>
+         <string>Case sensiti&amp;ve</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="wholeWords">
         <property name="text">
-         <string>&amp;Whole words only</string>
+         <string>Whole words o&amp;nly</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="regExp">
         <property name="text">
-         <string>Use regular e&amp;xpressions</string>
+         <string>Use re&amp;gular expressions</string>
         </property>
        </widget>
       </item>
@@ -174,7 +174,7 @@
      <item>
       <widget class="QPushButton" name="replaceButton">
        <property name="text">
-        <string>Search &amp;&amp; Replace</string>
+        <string>Search &amp;&amp; &amp;Replace</string>
        </property>
       </widget>
      </item>
