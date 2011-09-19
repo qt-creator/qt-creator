@@ -844,9 +844,11 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *declaration, bool strict) const
                 }
             }
 
-            if (!strict && ! best)
-                best = viableFunctions.first();
+            if (strict && ! best)
+                continue;
 
+            if (! best)
+                best = viableFunctions.first();
             return best;
         }
     }
