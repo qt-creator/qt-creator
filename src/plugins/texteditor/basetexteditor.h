@@ -205,6 +205,9 @@ public:
     void setConstrainTooltips(bool b);
     bool constrainTooltips() const;
 
+    void setCamelCaseNavigationEnabled(bool b);
+    bool camelCaseNavigationEnabled() const;
+
     void setRevisionsVisible(bool b);
     bool revisionsVisible() const;
 

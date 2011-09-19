@@ -314,7 +314,7 @@ Specifies how backspace interacts with indentation.
      <item>
       <widget class="QGroupBox" name="groupBoxMouse">
        <property name="title">
-        <string>Mouse</string>
+        <string>Mouse and Keyboard</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -335,6 +335,13 @@ Specifies how backspace interacts with indentation.
          <widget class="QCheckBox" name="constrainTooltips">
           <property name="text">
            <string>Enable &amp;tooltips only when Shift key is down</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="camelCaseNavigation">
+          <property name="text">
+           <string>Enable built-in camel case &amp;navigation</string>
           </property>
          </widget>
         </item>

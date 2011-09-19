@@ -63,6 +63,7 @@ public:
     bool m_mouseNavigation;
     bool m_scrollWheelZooming;
     bool m_constrainTooltips;
+    bool m_camelCaseNavigation;
 };
 
 inline bool operator==(const BehaviorSettings &t1, const BehaviorSettings &t2) { return t1.equals(t2); }

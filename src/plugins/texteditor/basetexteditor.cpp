@@ -1498,9 +1498,9 @@ bool BaseTextEditorWidget::cursorMoveKeyEvent(QKeyEvent *e)
     bool visualNavigation = cursor.visualNavigation();
     cursor.setVisualNavigation(true);
 
-    if (op == QTextCursor::WordRight) {
+    if (camelCaseNavigationEnabled() && op == QTextCursor::WordRight) {
         camelCaseRight(cursor, mode);
-    } else if (op == QTextCursor::WordLeft) {
+    } else if (camelCaseNavigationEnabled() && op == QTextCursor::WordLeft) {
         camelCaseLeft(cursor, mode);
     } else {
         cursor.movePosition(op, mode);
@@ -1643,7 +1643,10 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         e->accept();
         QTextCursor c = textCursor();
         int pos = c.position();
-        camelCaseLeft(c, QTextCursor::MoveAnchor);
+        if (camelCaseNavigationEnabled())
+            camelCaseLeft(c, QTextCursor::MoveAnchor);
+        else
+            c.movePosition(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
         int targetpos = c.position();
         forever {
             handleBackspaceKey();
@@ -1656,13 +1659,19 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     } else if (!ro && e == QKeySequence::DeleteStartOfWord && !textCursor().hasSelection()) {
         e->accept();
         QTextCursor c = textCursor();
-        camelCaseLeft(c, QTextCursor::KeepAnchor);
+        if (camelCaseNavigationEnabled())
+            camelCaseLeft(c, QTextCursor::KeepAnchor);
+        else
+            c.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
         c.removeSelectedText();
         return;
     } else if (!ro && e == QKeySequence::DeleteEndOfWord && !textCursor().hasSelection()) {
         e->accept();
         QTextCursor c = textCursor();
-        camelCaseRight(c, QTextCursor::KeepAnchor);
+        if (camelCaseNavigationEnabled())
+            camelCaseRight(c, QTextCursor::KeepAnchor);
+        else
+            c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
         c.removeSelectedText();
         return;
     } else switch (e->key()) {
@@ -2306,6 +2315,16 @@ void BaseTextEditorWidget::setConstrainTooltips(bool b)
 bool BaseTextEditorWidget::constrainTooltips() const
 {
     return d->m_behaviorSettings.m_constrainTooltips;
+}
+
+void BaseTextEditorWidget::setCamelCaseNavigationEnabled(bool b)
+{
+    d->m_behaviorSettings.m_camelCaseNavigation = b;
+}
+
+bool BaseTextEditorWidget::camelCaseNavigationEnabled() const
+{
+    return d->m_behaviorSettings.m_camelCaseNavigation;
 }
 
 void BaseTextEditorWidget::setRevisionsVisible(bool b)

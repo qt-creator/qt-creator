@@ -99,6 +99,8 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
             this, SLOT(slotBehaviorSettingsChanged()));
     connect(d->m_ui.constrainTooltips, SIGNAL(clicked()),
             this, SLOT(slotBehaviorSettingsChanged()));
+    connect(d->m_ui.camelCaseNavigation, SIGNAL(clicked()),
+            this, SLOT(slotBehaviorSettingsChanged()));
     connect(d->m_ui.utf8BomBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotExtraEncodingChanged()));
     connect(d->m_ui.encodingBox, SIGNAL(currentIndexChanged(int)),
@@ -176,6 +178,7 @@ void BehaviorSettingsWidget::setAssignedBehaviorSettings(const BehaviorSettings 
     d->m_ui.mouseNavigation->setChecked(behaviorSettings.m_mouseNavigation);
     d->m_ui.scrollWheelZooming->setChecked(behaviorSettings.m_scrollWheelZooming);
     d->m_ui.constrainTooltips->setChecked(behaviorSettings.m_constrainTooltips);
+    d->m_ui.camelCaseNavigation->setChecked(behaviorSettings.m_camelCaseNavigation);
 }
 
 void BehaviorSettingsWidget::assignedBehaviorSettings(BehaviorSettings *behaviorSettings) const
@@ -183,6 +186,7 @@ void BehaviorSettingsWidget::assignedBehaviorSettings(BehaviorSettings *behavior
     behaviorSettings->m_mouseNavigation = d->m_ui.mouseNavigation->isChecked();
     behaviorSettings->m_scrollWheelZooming = d->m_ui.scrollWheelZooming->isChecked();
     behaviorSettings->m_constrainTooltips = d->m_ui.constrainTooltips->isChecked();
+    behaviorSettings->m_camelCaseNavigation = d->m_ui.camelCaseNavigation->isChecked();
 }
 
 void BehaviorSettingsWidget::setAssignedExtraEncodingSettings(
@@ -216,6 +220,7 @@ QString BehaviorSettingsWidget::collectUiKeywords() const
         << sep << d->m_ui.mouseNavigation->text()
         << sep << d->m_ui.scrollWheelZooming->text()
         << sep << d->m_ui.constrainTooltips->text()
+        << sep << d->m_ui.camelCaseNavigation->text()
         << sep << d->m_ui.groupBoxStorageSettings->title()
         << sep << d->m_ui.groupBoxEncodings->title()
         << sep << d->m_ui.groupBoxMouse->title();
