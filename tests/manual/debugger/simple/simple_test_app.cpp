@@ -2687,6 +2687,17 @@ namespace basic {
         dummyStatement(&f);
     }
 
+    void testUnion()
+    {
+        union U
+        {
+          int a;
+          int b;
+        } u;
+        BREAK_HERE;
+        dummyStatement(&u);
+    }
+
     void testUninitialized()
     {
         // This tests the display of uninitialized data.
@@ -2903,6 +2914,7 @@ namespace basic {
         testTypedef();
         testPtrTypedef();
         testStruct();
+        testUnion();
         testUninitialized();
         testTypeFormats();
         testStringWithNewline();

@@ -1487,7 +1487,7 @@ class Dumper:
                 self.listAnonymous(value, "#%d" % self.anonNumber, type)
             return
 
-        if type.code != StructCode:
+        if type.code != StructCode and type.code != UnionCode:
             warn("WRONG ASSUMPTION HERE: %s " % type.code)
             check(False)
 
