@@ -504,7 +504,7 @@ void NodeInstanceView::instancesToken(const QString &/*tokenName*/, int /*tokenN
 
 void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)
 {
-    if (node.isRootNode() && (name == "width" || name == "height")) {
+    if ((node.isRootNode() && (name == "width" || name == "height")) || name.endsWith(QLatin1String("@NodeInstance"))) {
         if (hasInstanceForNode(node)) {
             NodeInstance instance = instanceForNode(node);
             QVariant value = data;
