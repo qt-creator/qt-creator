@@ -190,6 +190,16 @@ void AnchorTool::keyReleaseEvent(QKeyEvent *)
 {
 }
 
+void AnchorTool::dragLeaveEvent(QGraphicsSceneDragDropEvent *)
+{
+
+}
+
+void AnchorTool::dragMoveEvent(QGraphicsSceneDragDropEvent *)
+{
+
+}
+
 void AnchorTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItems)
 {
     QList<FormEditorItem*> newItemList = items().toSet().subtract(removedItems.toSet()).toList();

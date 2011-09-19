@@ -225,6 +225,14 @@ void SelectionTool::keyReleaseEvent(QKeyEvent * /*keyEvent*/)
 
 }
 
+void SelectionTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+{
+}
+
+void SelectionTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+{
+}
+
 void SelectionTool::setSelectOnlyContentItems(bool selectOnlyContentItems)
 {
     m_selectOnlyContentItems = selectOnlyContentItems;

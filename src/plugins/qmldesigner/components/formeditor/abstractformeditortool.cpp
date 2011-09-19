@@ -184,16 +184,6 @@ void AbstractFormEditorTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
     }
 }
 
-void AbstractFormEditorTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * /* event */)
-{
-    Q_ASSERT(false);
-}
-
-void AbstractFormEditorTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /* event */)
-{
-    Q_ASSERT(false);
-}
-
 static inline bool checkIfNodeIsAView(const ModelNode &node)
 {
     return node.metaInfo().isValid() &&
