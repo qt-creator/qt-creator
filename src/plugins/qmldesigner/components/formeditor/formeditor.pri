@@ -36,7 +36,6 @@ SOURCES += formeditoritem.cpp \
     anchorcontroller.cpp \
     anchorhandleitem.cpp \
     dragtool.cpp \
-    itemcreatortool.cpp \
     toolbox.cpp \
     zoomaction.cpp \
     formeditorgraphicsview.cpp \
@@ -76,7 +75,6 @@ HEADERS += formeditorscene.h \
     anchorcontroller.h \
     anchorhandleitem.h \
     dragtool.h \
-    itemcreatortool.cpp \
     toolbox.h \
     zoomaction.h \
     formeditorgraphicsview.h \

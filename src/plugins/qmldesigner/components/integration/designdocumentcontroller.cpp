@@ -480,8 +480,6 @@ void DesignDocumentController::loadCurrentModel()
     d->model->attachView(d->navigator.data());
     d->itemLibraryView->widget()->setResourcePath(QFileInfo(d->fileName).absolutePath());
 
-    connect(d->itemLibraryView->widget(), SIGNAL(itemActivated(const QString&)), d->formEditorView.data(), SLOT(activateItemCreator(const QString&)));
-
     d->model->attachView(d->formEditorView.data());
     d->model->attachView(d->itemLibraryView.data());
 

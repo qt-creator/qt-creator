@@ -35,7 +35,6 @@
 #include "resizetool.h"
 #include "anchortool.h"
 #include "dragtool.h"
-#include "itemcreatortool.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
 #include "formeditornodeinstanceview.h"
@@ -70,7 +69,6 @@ FormEditorView::FormEditorView(QObject *parent)
       m_resizeTool(new ResizeTool(this)),
       m_anchorTool(new AnchorTool(this)),
       m_dragTool(new DragTool(this)),
-      m_itemCreatorTool(new ItemCreatorTool(this)),
       m_currentTool(m_selectionTool),
       m_transactionCounter(0)
 {
@@ -389,20 +387,6 @@ void FormEditorView::changeToSelectionTool()
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
 }
 
-void FormEditorView::changeToItemCreatorTool()
-{
-    if(m_currentTool == m_itemCreatorTool)
-        return;
-
-    scene()->setPaintMode(FormEditorScene::NormalMode);
-    m_scene->updateAllFormEditorItems();
-    m_currentTool->clear();
-    m_currentTool = m_itemCreatorTool;
-    m_currentTool->clear();
-    setSelectedQmlItemNodes(QList<QmlItemNode>());
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
-}
-
 void FormEditorView::changeToSelectionTool(QGraphicsSceneMouseEvent *event)
 {
     if (m_currentTool == m_selectionTool)
@@ -574,24 +558,6 @@ double FormEditorView::margins() const
 double FormEditorView::spacing() const
 {
     return m_formEditorWidget->spacing();
-}
-
-void FormEditorView::activateItemCreator(const QString &name)
-{
-    if (m_currentTool == m_itemCreatorTool) {
-        m_itemCreatorTool->setItemString(name);
-        return;
-    }
-    changeToItemCreatorTool();
-    m_itemCreatorTool->setItemString(name);
-}
-
-void FormEditorView::deActivateItemCreator()
-{
-    if (m_currentTool == m_itemCreatorTool) {
-        changeToSelectionTool();
-        emit ItemCreatorDeActivated();
-    }
 }
 
 QList<ModelNode> FormEditorView::adjustStatesForModelNodes(const QList<ModelNode> &nodeList) const
