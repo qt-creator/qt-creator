@@ -388,7 +388,7 @@ def qdump__QHash(d, value):
         innerType = e_ptr.dereference().type
         childType = innerType
         if isSimpleKey and isSimpleValue:
-            childType = isSimpleValue
+            childType = valueType
         with Children(d, size, maxNumChild=1000, childType=childType):
             for i in d.childRange():
                 it = node.dereference().cast(innerType)
