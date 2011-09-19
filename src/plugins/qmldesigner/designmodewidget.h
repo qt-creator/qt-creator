@@ -133,6 +133,9 @@ public:
 
     TextEditor::ITextEditor *textEditor() const {return m_textEditor.data(); }
 
+    static DesignModeWidget *instance();
+    DesignDocumentController *currentDesignDocumentController() const {return m_currentDesignDocumentController.data(); }
+
 private slots:
     void undo();
     void redo();
@@ -166,9 +169,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
-    DesignDocumentController *currentDesignDocumentController() const {return m_currentDesignDocumentController.data(); }
     void setCurrentDocument(DesignDocumentController *newDesignDocumentController);
-
     //QStackedWidget *m_documentWidgetStack;
     QHash<QPlainTextEdit*,QWeakPointer<DesignDocumentController> > m_documentHash;
     QWeakPointer<DesignDocumentController> m_currentDesignDocumentController;
@@ -222,6 +223,8 @@ private:
     QStringList m_navigatorHistory;
     int m_navigatorHistoryCounter;
     bool m_keepNavigatorHistory;
+
+    static DesignModeWidget *s_instance;
 };
 
 } // namespace Internal

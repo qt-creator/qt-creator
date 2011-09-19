@@ -1,6 +1,8 @@
 TEMPLATE = lib
 TARGET = QmlDesigner
 
+INCLUDEPATH += $$PWD
+
 include(../../qtcreatorplugin.pri)
 include(../../private_headers.pri)
 include(qmldesigner_dependencies.pri)
