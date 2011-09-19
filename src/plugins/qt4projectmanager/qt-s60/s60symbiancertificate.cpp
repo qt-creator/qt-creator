@@ -281,9 +281,8 @@ void S60Extensions::decode_from(BER_Decoder& from_source)
         if (OIDS::name_of(oid, CERT_CAPABILITY_FIELD_NAME))
             ext = new S60CapabilityConstraint();
 
-        if(!ext)
-        {
-            if(!critical || !should_throw)
+        if (!ext) {
+            if (!critical || !should_throw)
                 continue;
 
             throw Decoding_Error("Encountered unknown X.509 extension marked "

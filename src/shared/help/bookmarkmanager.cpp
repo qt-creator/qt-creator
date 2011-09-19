@@ -565,7 +565,7 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
             if (index.isValid()) {
                 QMouseEvent *me = static_cast<QMouseEvent*>(e);
                 bool controlPressed = me->modifiers() & Qt::ControlModifier;
-                if(((me->button() == Qt::LeftButton) && controlPressed)
+                if (((me->button() == Qt::LeftButton) && controlPressed)
                     || (me->button() == Qt::MidButton)) {
                         QString data = index.data(Qt::UserRole + 10).toString();
                         if (!data.isEmpty() && data != QLatin1String("Folder"))

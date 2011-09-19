@@ -1298,8 +1298,7 @@ bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &u
     QStringList args = QStringList(QLatin1String("checkout"));
     args << QLatin1String(nonInteractiveOptionC) ;
 
-    if(!username.isEmpty() && !password.isEmpty())
-    {
+    if (!username.isEmpty() && !password.isEmpty()) {
         // If url contains username and password we have to use separate username and password
         // arguments instead of passing those in the url. Otherwise the subversion 'non-interactive'
         // authentication will always fail (if the username and password data are not stored locally),

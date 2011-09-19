@@ -96,7 +96,7 @@ static QString label(UiQualifiedId *id)
 static QString label(UiObjectMember *member, Document::Ptr doc)
 {
     QString str;
-    if(!member)
+    if (!member)
         return str;
 
     if (UiObjectDefinition* foo = cast<UiObjectDefinition *>(member)) {

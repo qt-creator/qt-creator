@@ -100,7 +100,7 @@ void Qt4RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                     ServerNodeInstance instance = instanceForObject(graphicsObject);
                     QGraphicsItemPrivate *d = QGraphicsItemPrivate::get(item);
 
-                    if((d->dirty && d->notifyBoundingRectChanged) || (d->dirty && !d->dirtySceneTransform) || nonInstanceChildIsDirty(graphicsObject))
+                    if ((d->dirty && d->notifyBoundingRectChanged) || (d->dirty && !d->dirtySceneTransform) || nonInstanceChildIsDirty(graphicsObject))
                         m_dirtyInstanceSet.insert(instance);
 
                     if (d->geometryChanged) {

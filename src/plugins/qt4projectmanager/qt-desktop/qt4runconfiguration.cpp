@@ -566,7 +566,7 @@ QString Qt4RunConfiguration::baseWorkingDirectory() const
     // else what the pro file reader tells us
     Qt4Project *pro = qt4Target()->qt4Project();
     TargetInformation ti = pro->rootQt4ProjectNode()->targetInformation(m_proFilePath);
-    if(!ti.valid)
+    if (!ti.valid)
         return QString();
     return ti.workingDir;
 }

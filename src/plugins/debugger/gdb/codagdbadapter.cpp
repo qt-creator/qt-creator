@@ -203,7 +203,7 @@ static QPair<QString, unsigned short> splitIpAddressSpec(const QString &addressS
     const QString address = addressSpec.left(pos);
     bool ok;
     const unsigned short port = addressSpec.mid(pos + 1).toUShort(&ok);
-    if(!ok) {
+    if (!ok) {
         qWarning("Invalid IP address specification: '%s', defaulting to port %hu.", qPrintable(addressSpec), defaultPort);
         return QPair<QString, unsigned short>(addressSpec, defaultPort);
     }

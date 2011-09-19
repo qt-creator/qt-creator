@@ -190,16 +190,16 @@ void SearchWidget::indexingFinished()
     m_progress = NULL;
 }
 
-bool SearchWidget::eventFilter(QObject* o, QEvent *e)
+bool SearchWidget::eventFilter(QObject *o, QEvent *e)
 {
-    QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
+    QTextBrowser *browser = qFindChild<QTextBrowser *>(resultWidget);
     if (browser && o == browser->viewport()
         && e->type() == QEvent::MouseButtonRelease){
-        QMouseEvent *me = static_cast<QMouseEvent*>(e);
+        QMouseEvent *me = static_cast<QMouseEvent *>(e);
         QUrl link = resultWidget->linkAt(me->pos());
         if (!link.isEmpty() || link.isValid()) {
             bool controlPressed = me->modifiers() & Qt::ControlModifier;
-            if((me->button() == Qt::LeftButton && controlPressed)
+            if ((me->button() == Qt::LeftButton && controlPressed)
                 || (me->button() == Qt::MidButton)) {
                     OpenPagesManager::instance().createPageFromSearch(link);
             }
@@ -210,7 +210,7 @@ bool SearchWidget::eventFilter(QObject* o, QEvent *e)
 
 void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 {
-    QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
+    QTextBrowser *browser = qFindChild<QTextBrowser *>(resultWidget);
     if (!browser)
         return;
 

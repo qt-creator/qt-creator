@@ -249,7 +249,7 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
     m_ipAddress->setMinimumWidth(30);
     m_ipAddress->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
 
-    if(!m_deployConfiguration->deviceAddress().isEmpty())
+    if( !m_deployConfiguration->deviceAddress().isEmpty())
         m_ipAddress->setText(QString("%1:%2")
                              .arg(m_deployConfiguration->deviceAddress())
                              .arg(m_deployConfiguration->devicePort()));

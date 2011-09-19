@@ -121,7 +121,7 @@ static IMAGE_NT_HEADERS *getNtHeader(void *fileMemory, QString *errorMessage)
 static bool getFileOffsetFromRVA(IMAGE_NT_HEADERS *ntHeaders, DWORD rva, DWORD* fileOffset)
 {
     IMAGE_SECTION_HEADER *sectionHeader = IMAGE_FIRST_SECTION(ntHeaders);
-    for( int i = 0; i < ntHeaders->FileHeader.NumberOfSections; i++, sectionHeader++ ) {
+    for (int i = 0; i < ntHeaders->FileHeader.NumberOfSections; i++, sectionHeader++) {
         const DWORD sectionSize = sectionHeader->Misc.VirtualSize ?
                                   sectionHeader->Misc.VirtualSize : sectionHeader->SizeOfRawData;
         if ((rva >= sectionHeader->VirtualAddress) && (rva < sectionHeader->VirtualAddress + sectionSize)) {
@@ -134,11 +134,8 @@ static bool getFileOffsetFromRVA(IMAGE_NT_HEADERS *ntHeaders, DWORD rva, DWORD* 
 }
 
 // Retrieve debug directory and number of entries
-static bool getDebugDirectory(IMAGE_NT_HEADERS *ntHeaders,
-			      void *fileMemory,
-                              IMAGE_DEBUG_DIRECTORY **debugDir,
-			      int *count,
-			      QString *errorMessage)
+static bool getDebugDirectory(IMAGE_NT_HEADERS *ntHeaders, void *fileMemory,
+    IMAGE_DEBUG_DIRECTORY **debugDir, int *count, QString *errorMessage)
 {
     DWORD debugDirRva = 0;
     DWORD debugDirSize;
@@ -249,7 +246,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
         }
 
         fileMemory = MapViewOfFile(hFileMap, FILE_MAP_READ, 0, 0, 0);
-        if(!fileMemory) {
+        if (!fileMemory) {
             *errorMessage = QString::fromLatin1("Cannot map '%1': %2").arg(peExecutableFileName, winErrorMessage(GetLastError()));
             break;
         }
@@ -265,7 +262,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
         if (debugSectionCount)
             collectPDBfiles(fileMemory, debugDir, debugSectionCount, rc);
         success = true;
-    }  while(false);
+    } while(false);
 
     if (fileMemory)
         UnmapViewOfFile(fileMemory);

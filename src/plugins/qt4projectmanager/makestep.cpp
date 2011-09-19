@@ -168,7 +168,7 @@ bool MakeStep::init()
 
     if (bc->subNodeBuild()) {
         QString makefile = bc->subNodeBuild()->makefile();
-        if(!makefile.isEmpty()) {
+        if (!makefile.isEmpty()) {
             Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
             Utils::QtcProcess::addArg(&args, makefile);
             m_makeFileToCheck = QDir(workingDirectory).filePath(makefile);

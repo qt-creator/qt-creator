@@ -266,7 +266,7 @@ void S60PublishingSisSettingsPageOvi::capabilitiesChanged()
     //Check for certified Signed capabilities
     QStringList capabilitesNeedingCertifiedSigned;
     foreach (const QString &capability, capabilities) {
-       if( m_publisher->isCapabilityOneOf(capability, S60PublisherOvi::CertifiedSigned)) {
+       if (m_publisher->isCapabilityOneOf(capability, S60PublisherOvi::CertifiedSigned)) {
             capabilitesNeedingCertifiedSigned.append(capability);
             capabilities.removeOne(capability);
         }
@@ -281,7 +281,7 @@ void S60PublishingSisSettingsPageOvi::capabilitiesChanged()
     QStringList capabilitiesNeedingManufacturerApproved;
 
     foreach (const QString &capability, capabilities) {
-       if( m_publisher->isCapabilityOneOf(capability, S60PublisherOvi::ManufacturerApproved))
+       if (m_publisher->isCapabilityOneOf(capability, S60PublisherOvi::ManufacturerApproved))
             capabilitiesNeedingManufacturerApproved.append(capability);
     }
 

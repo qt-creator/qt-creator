@@ -247,7 +247,7 @@ bool Function::isEqualTo(const Type *other) const
 #ifdef ICHECK_BUILD
 bool Function::isEqualTo(const Function* fct, bool ignoreName/* = false*/) const
 {
-    if(!ignoreName)
+    if (!ignoreName)
         return isEqualTo((Type*)fct);
 
     if (! fct)

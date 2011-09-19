@@ -158,7 +158,7 @@ void GitCommand::run()
             qDebug() << "GitCommand::run" << j << '/' << count << m_jobs.at(j).arguments;
 
         process->start(m_binaryPath, m_jobs.at(j).arguments);
-        if(!process->waitForStarted()) {
+        if (!process->waitForStarted()) {
             ok = false;
             error += QString::fromLatin1("Error: \"%1\" could not be started: %2").arg(m_binaryPath, process->errorString());
             break;

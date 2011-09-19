@@ -147,7 +147,7 @@ void CMakeTarget::updateRunConfigurations()
     }
     QMultiMap<QString, CMakeRunConfiguration *>::const_iterator it =
             existingRunConfigurations.constBegin();
-    for( ; it != existingRunConfigurations.constEnd(); ++it) {
+    for ( ; it != existingRunConfigurations.constEnd(); ++it) {
         CMakeRunConfiguration *rc = it.value();
         // The executables for those runconfigurations aren't build by the current buildconfiguration
         // We just set a disable flag and show that in the display name

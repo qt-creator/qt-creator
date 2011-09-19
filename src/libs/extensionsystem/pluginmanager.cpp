@@ -656,7 +656,7 @@ void PluginManager::startTests()
         }
         QTest::qExec(pluginSpec->plugin(), methods);
     }
-    if(!d->testSpecs.isEmpty())
+    if (!d->testSpecs.isEmpty())
         QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));
 #endif
 }

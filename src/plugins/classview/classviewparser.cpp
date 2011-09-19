@@ -462,10 +462,9 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
         && d->cachedDocTreesRevision[fileName] == doc->revision()) {
         d->docLocker.unlock();
         return d->cachedDocTrees[fileName];
-    } else {
-        d->docLocker.unlock();
-        return getParseDocumentTree(doc);
     }
+    d->docLocker.unlock();
+    return getParseDocumentTree(doc);
 }
 
 void Parser::parseDocument(const CPlusPlus::Document::Ptr &doc)
@@ -527,7 +526,7 @@ void Parser::removeFiles(const QStringList &fileList)
 
     QWriteLocker lockerPrj(&d->prjLocker);
     QWriteLocker lockerDoc(&d->docLocker);
-    foreach(const QString &name, fileList) {
+    foreach (const QString &name, fileList) {
         d->fileList.remove(name);
         d->cachedDocTrees.remove(name);
         d->cachedDocTreesRevision.remove(name);
@@ -549,7 +548,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     // copy snapshot's documents
     CPlusPlus::Snapshot::const_iterator cur = snapshot.begin();
     CPlusPlus::Snapshot::const_iterator end = snapshot.end();
-    for(; cur != end; cur++)
+    for (; cur != end; cur++)
         d->documentList[cur.key()] = cur.value();
 
     d->docLocker.unlock();
@@ -559,7 +558,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
 
     // check all projects
     QList<ProjectExplorer::Project *> projects = getProjectList();
-    foreach(const ProjectExplorer::Project *prj, projects) {
+    foreach (const ProjectExplorer::Project *prj, projects) {
         if (prj)
             fileList += prj->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
     }

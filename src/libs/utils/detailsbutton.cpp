@@ -120,7 +120,7 @@ void DetailsButton::paintEvent(QPaintEvent *e)
     QPainter p(this);
 #ifndef Q_WS_MAC
     // draw hover animation
-    if(!isDown() && m_fader>0)
+    if (!isDown() && m_fader > 0)
         p.fillRect(rect().adjusted(1, 1, -2, -2), QColor(255, 255, 255, int(m_fader*180)));
 #endif
 
@@ -152,7 +152,7 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
     p.setRenderHint(QPainter::Antialiasing, true);
     p.translate(0.5, 0.5);
     p.setPen(Qt::NoPen);
-    if(!checked) {
+    if (!checked) {
         lg.setColorAt(0, QColor(0, 0, 0, 10));
         lg.setColorAt(1, QColor(0, 0, 0, 16));
     } else {
