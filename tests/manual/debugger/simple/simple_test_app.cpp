@@ -1997,18 +1997,24 @@ namespace qthread {
     class Thread : public QThread
     {
     public:
-        Thread(int id) : m_id(id) {}
+        Thread() {}
+
+        void setId(int id) { m_id = id; }
 
         void run()
         {
             int j = 2;
             ++j;
-            for (int i = 0; i != 100000; ++i) {
+            for (int i = 0; i != 1000; ++i) {
                 //sleep(1);
                 std::cerr << m_id;
             }
             if (m_id == 2) {
                 ++j;
+            }
+            if (m_id == 3) {
+                BREAK_HERE;
+                dummyStatement(this);
             }
             std::cerr << j;
         }
@@ -2019,15 +2025,19 @@ namespace qthread {
 
     void testQThread()
     {
-        Thread thread1(1);
-        Thread thread2(2);
-        thread1.setObjectName("This is the first thread");
-        thread2.setObjectName("This is another thread");
-        thread1.start();
-        thread2.start();
-        thread1.wait();
-        thread2.wait();
-        dummyStatement(&thread1);
+        //return;
+        const int N = 14;
+        Thread thread[N];
+        for (int i = 0; i != N; ++i) {
+            thread[i].setId(i);
+            thread[i].setObjectName("This is thread #" + QString::number(i));
+            thread[i].start();
+        }
+        BREAK_HERE;
+        for (int i = 0; i != N; ++i) {
+            thread[i].wait();
+        }
+        dummyStatement(&thread);
     }
 }
 
@@ -3689,7 +3699,7 @@ int main(int argc, char *argv[])
     qsharedpointer::testQSharedPointer();
     qstringlist::testQStringList();
     testQScriptValue(argc, argv);
-    //qthread::testQThread();
+    qthread::testQThread();
     qvariant::testQVariant();
     qvector::testQVector();
 

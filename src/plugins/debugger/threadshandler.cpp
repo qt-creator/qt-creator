@@ -178,7 +178,7 @@ QVariant ThreadsHandler::headerData
         return QVariant();
     switch (section) {
     case ThreadData::IdColumn:
-        return QString(QLatin1String("  ") + tr("Id"));
+        return QString(QLatin1String("  ") + tr("Id") + QLatin1String("  "));
     case ThreadData::FunctionColumn:
         return tr("Function");
     case ThreadData::FileColumn:
