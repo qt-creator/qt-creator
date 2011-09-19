@@ -311,8 +311,10 @@ protected:
     {
         _state = Break;
         if (!ast->label.isEmpty()) {
-            if (Node *target = _labels.value(ast->label.toString()))
+            if (Node *target = _labels.value(ast->label.toString())) {
                 _labelledBreaks.insert(target);
+                _state = ReturnOrThrow; // unwind until label is hit
+            }
         }
         return false;
     }
@@ -360,7 +362,7 @@ protected:
                 handleClause(it->clause->statements, &result, &lastWasFallthrough);
         }
 
-        if (lastWasFallthrough)
+        if (lastWasFallthrough || !ast->block->defaultClause)
             result = ReachesEnd;
         if (result == Break || _labelledBreaks.contains(ast))
             result = ReachesEnd;
@@ -382,20 +384,29 @@ protected:
         return false;
     }
 
-    bool loopStatement(Node *loop, Statement *body)
+    bool preconditionLoopStatement(Node *, Statement *body)
     {
         check(body);
-        if (_state != ReturnOrThrow || _labelledBreaks.contains(loop))
-            _state = ReachesEnd;
+        _state = ReachesEnd; // condition could be false...
         return false;
     }
 
-    virtual bool visit(WhileStatement *ast) { return loopStatement(ast, ast->statement); }
-    virtual bool visit(ForStatement *ast) { return loopStatement(ast, ast->statement); }
-    virtual bool visit(ForEachStatement *ast) { return loopStatement(ast, ast->statement); }
-    virtual bool visit(DoWhileStatement *ast) { return loopStatement(ast, ast->statement); }
-    virtual bool visit(LocalForStatement *ast) { return loopStatement(ast, ast->statement); }
-    virtual bool visit(LocalForEachStatement *ast) { return loopStatement(ast, ast->statement); }
+    virtual bool visit(WhileStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
+    virtual bool visit(ForStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
+    virtual bool visit(ForEachStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
+    virtual bool visit(LocalForStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
+    virtual bool visit(LocalForEachStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
+
+    virtual bool visit(DoWhileStatement *ast)
+    {
+        check(ast->statement);
+        // not necessarily an infinite loop due to labelled breaks
+        if (_state == Continue)
+            _state = ReturnOrThrow;
+        if (_state == Break || _labelledBreaks.contains(ast))
+            _state = ReachesEnd;
+        return false;
+    }
 };
 
 class MarkUnreachableCode : protected ReachesEndCheck
