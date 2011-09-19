@@ -54,6 +54,28 @@ namespace QmlJS {
 
 class Engine;
 
+class QML_PARSER_EXPORT Directives {
+public:
+    virtual ~Directives() {}
+
+    virtual void pragmaLibrary()
+    {
+    }
+
+    virtual void importFile(const QString &jsfile, const QString &module)
+    {
+        Q_UNUSED(jsfile);
+        Q_UNUSED(module);
+    }
+
+    virtual void importModule(const QString &uri, const QString &version, const QString &module)
+    {
+        Q_UNUSED(uri);
+        Q_UNUSED(version);
+        Q_UNUSED(module);
+    }
+};
+
 class QML_PARSER_EXPORT Lexer: public QmlJSGrammar
 {
 public:
@@ -105,6 +127,12 @@ public:
         EqualPrefix
     };
 
+    enum RegExpFlag {
+        RegExp_Global     = 0x01,
+        RegExp_IgnoreCase = 0x02,
+        RegExp_Multiline  = 0x04
+    };
+
 public:
     Lexer(Engine *engine);
 
@@ -114,10 +142,12 @@ public:
     int lex();
 
     bool scanRegExp(RegExpBodyPrefix prefix = NoPrefix);
+    bool scanDirectives(Directives *directives);
 
     int regExpFlags() const { return _patternFlags; }
     QString regExpPattern() const { return _tokenText; }
 
+    int tokenKind() const;
     int tokenOffset() const;
     int tokenLength() const;
 
@@ -135,6 +165,8 @@ public:
     QString errorMessage() const;
 
     bool prevTerminator() const;
+    bool followsClosingBrace() const;
+    bool canInsertAutomaticSemicolon(int token) const;
 
     enum ParenthesesState {
         IgnoreParentheses,
@@ -192,6 +224,7 @@ private:
     bool _prohibitAutomaticSemicolon;
     bool _restrictedKeyword;
     bool _terminator;
+    bool _followsClosingBrace;
     bool _delimited;
     bool _qmlMode;
 };

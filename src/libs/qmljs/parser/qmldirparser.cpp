@@ -33,7 +33,6 @@
 #include "qmldirparser_p.h"
 #include "qmlerror.h"
 bool Qml_isFileCaseCorrect(const QString &) { return true; }
-#include <qmlutils_p.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QFile>
@@ -132,9 +131,9 @@ bool QmlDirParser::parse()
         while (index != length) {
             const QChar ch = line.at(index);
 
-            if (QmlUtils::isSpace(ch)) {
+            if (ch.isSpace()) {
                 do { ++index; }
-                while (index != length && QmlUtils::isSpace(line.at(index)));
+                while (index != length && line.at(index).isSpace());
 
             } else if (ch == QLatin1Char('#')) {
                 // recognized a comment
@@ -144,7 +143,7 @@ bool QmlDirParser::parse()
                 const int start = index;
 
                 do { ++index; }
-                while (index != length && !QmlUtils::isSpace(line.at(index)));
+                while (index != length && !line.at(index).isSpace());
 
                 const QString lexeme = line.mid(start, index - start);
 

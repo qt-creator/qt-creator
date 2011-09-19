@@ -38,37 +38,18 @@
 #include <QtCore/QVarLengthArray>
 #include <QtCore/QDebug>
 
-#ifndef QMLJS_NO_FTW
-#include <qmlutils_p.h>
-#else
-namespace QmlUtils {
-inline bool isUpper(const QChar &qc){ return qc.isUpper(); }
-inline bool isLower(const QChar &qc) { return qc.isLower(); }
-inline bool isLetter(const QChar &qc) { return qc.isLetter(); }
-inline bool isDigit(const QChar &qc) { return qc.isDigit(); }
-inline bool isLetterOrNumber(const QChar &qc) { return qc.isLetterOrNumber(); }
-inline bool isSpace(const QChar &qc) { return qc.isSpace(); }
-} // namespace QmlUtils
-#endif
-
 QT_BEGIN_NAMESPACE
 Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
 QT_END_NAMESPACE
 
 using namespace QmlJS;
 
-enum RegExpFlag {
-    Global     = 0x01,
-    IgnoreCase = 0x02,
-    Multiline  = 0x04
-};
-
-static int flagFromChar(const QChar &ch)
+static int regExpFlagFromChar(const QChar &ch)
 {
     switch (ch.unicode()) {
-    case 'g': return Global;
-    case 'i': return IgnoreCase;
-    case 'm': return Multiline;
+    case 'g': return Lexer::RegExp_Global;
+    case 'i': return Lexer::RegExp_IgnoreCase;
+    case 'm': return Lexer::RegExp_Multiline;
     }
     return 0;
 }
@@ -115,6 +96,7 @@ Lexer::Lexer(Engine *engine)
     , _prohibitAutomaticSemicolon(false)
     , _restrictedKeyword(false)
     , _terminator(false)
+    , _followsClosingBrace(false)
     , _delimited(false)
     , _qmlMode(true)
 {
@@ -164,6 +146,7 @@ void Lexer::setCode(const QString &code, int lineno, bool qmlMode)
     _prohibitAutomaticSemicolon = false;
     _restrictedKeyword = false;
     _terminator = false;
+    _followsClosingBrace = false;
     _delimited = false;
 }
 
@@ -179,12 +162,15 @@ void Lexer::scanChar()
 
 int Lexer::lex()
 {
+    const int previousTokenKind = _tokenKind;
+
     _tokenSpell = QStringRef();
     _tokenKind = scanToken();
     _tokenLength = _codePtr - _tokenStartPtr - 1;
 
     _delimited = false;
     _restrictedKeyword = false;
+    _followsClosingBrace = (previousTokenKind == T_RBRACE);
 
     // update the flags
     switch (_tokenKind) {
@@ -285,7 +271,7 @@ again:
     _validTokenText = false;
     _tokenLinePtr = _lastLinePtr;
 
-    while (QmlUtils::isSpace(_char)) {
+    while (_char.isSpace()) {
         if (_char == QLatin1Char('\n')) {
             _tokenLinePtr = _codePtr;
 
@@ -424,19 +410,19 @@ again:
         return T_DIVIDE_;
 
     case '.':
-        if (QmlUtils::isDigit(_char)) {
+        if (_char.isDigit()) {
             QVarLengthArray<char,32> chars;
 
             chars.append(ch.unicode()); // append the `.'
 
-            while (QmlUtils::isDigit(_char)) {
+            while (_char.isDigit()) {
                 chars.append(_char.unicode());
                 scanChar();
             }
 
             if (_char == QLatin1Char('e') || _char == QLatin1Char('E')) {
-                if (QmlUtils::isDigit(_codePtr[0]) || ((_codePtr[0] == QLatin1Char('+') || _codePtr[0] == QLatin1Char('-')) &&
-                                              QmlUtils::isDigit(_codePtr[1]))) {
+                if (_codePtr[0].isDigit() || ((_codePtr[0] == QLatin1Char('+') || _codePtr[0] == QLatin1Char('-')) &&
+                                              _codePtr[1].isDigit())) {
 
                     chars.append(_char.unicode());
                     scanChar(); // consume `e'
@@ -446,7 +432,7 @@ again:
                         scanChar(); // consume the sign
                     }
 
-                    while (QmlUtils::isDigit(_char)) {
+                    while (_char.isDigit()) {
                         chars.append(_char.unicode());
                         scanChar();
                     }
@@ -672,7 +658,7 @@ again:
     }
 
     default:
-        if (QmlUtils::isLetter(ch) || ch == QLatin1Char('$') || ch == QLatin1Char('_') || (ch == QLatin1Char('\\') && _char == QLatin1Char('u'))) {
+        if (ch.isLetter() || ch == QLatin1Char('$') || ch == QLatin1Char('_') || (ch == QLatin1Char('\\') && _char == QLatin1Char('u'))) {
             bool identifierWithEscapeChars = false;
             if (ch == QLatin1Char('\\')) {
                 identifierWithEscapeChars = true;
@@ -687,7 +673,7 @@ again:
                 }
             }
             while (true) {
-                if (QmlUtils::isLetterOrNumber(_char) || _char == QLatin1Char('$') || _char == QLatin1Char('_')) {
+                if (_char.isLetterOrNumber() || _char == QLatin1Char('$') || _char == QLatin1Char('_')) {
                     if (identifierWithEscapeChars)
                         _tokenText += _char;
 
@@ -726,13 +712,13 @@ again:
                     return kind;
                 }
             }
-        } else if (QmlUtils::isDigit(ch)) {
+        } else if (ch.isDigit()) {
             if (ch != QLatin1Char('0')) {
                 double integer = ch.unicode() - '0';
 
                 QChar n = _char;
                 const QChar *code = _codePtr;
-                while (QmlUtils::isDigit(n)) {
+                while (n.isDigit()) {
                     integer = integer * 10 + (n.unicode() - '0');
                     n = *code++;
                 }
@@ -766,7 +752,7 @@ again:
             }
 
             // decimal integer literal
-            while (QmlUtils::isDigit(_char)) {
+            while (_char.isDigit()) {
                 chars.append(_char.unicode());
                 scanChar(); // consume the digit
             }
@@ -775,14 +761,14 @@ again:
                 chars.append(_char.unicode());
                 scanChar(); // consume `.'
 
-                while (QmlUtils::isDigit(_char)) {
+                while (_char.isDigit()) {
                     chars.append(_char.unicode());
                     scanChar();
                 }
 
                 if (_char == QLatin1Char('e') || _char == QLatin1Char('E')) {
-                    if (QmlUtils::isDigit(_codePtr[0]) || ((_codePtr[0] == QLatin1Char('+') || _codePtr[0] == QLatin1Char('-')) &&
-                                                  QmlUtils::isDigit(_codePtr[1]))) {
+                    if (_codePtr[0].isDigit() || ((_codePtr[0] == QLatin1Char('+') || _codePtr[0] == QLatin1Char('-')) &&
+                                                  _codePtr[1].isDigit())) {
 
                         chars.append(_char.unicode());
                         scanChar(); // consume `e'
@@ -792,15 +778,15 @@ again:
                             scanChar(); // consume the sign
                         }
 
-                        while (QmlUtils::isDigit(_char)) {
+                        while (_char.isDigit()) {
                             chars.append(_char.unicode());
                             scanChar();
                         }
                     }
                 }
             } else if (_char == QLatin1Char('e') || _char == QLatin1Char('E')) {
-                if (QmlUtils::isDigit(_codePtr[0]) || ((_codePtr[0] == QLatin1Char('+') || _codePtr[0] == QLatin1Char('-')) &&
-                                              QmlUtils::isDigit(_codePtr[1]))) {
+                if (_codePtr[0].isDigit() || ((_codePtr[0] == QLatin1Char('+') || _codePtr[0] == QLatin1Char('-')) &&
+                                              _codePtr[1].isDigit())) {
 
                     chars.append(_char.unicode());
                     scanChar(); // consume `e'
@@ -810,7 +796,7 @@ again:
                         scanChar(); // consume the sign
                     }
 
-                    while (QmlUtils::isDigit(_char)) {
+                    while (_char.isDigit()) {
                         chars.append(_char.unicode());
                         scanChar();
                     }
@@ -862,7 +848,7 @@ bool Lexer::scanRegExp(RegExpBodyPrefix prefix)
             // scan the flags
             _patternFlags = 0;
             while (isIdentLetter(_char)) {
-                int flag = flagFromChar(_char);
+                int flag = regExpFlagFromChar(_char);
                 if (flag == 0) {
                     _errorMessage = QCoreApplication::translate("QmlParser", "Invalid regular expression flag '%0'")
                              .arg(QChar(_char));
@@ -969,6 +955,11 @@ bool Lexer::isOctalDigit(ushort c)
     return (c >= '0' && c <= '7');
 }
 
+int Lexer::tokenKind() const
+{
+    return _tokenKind;
+}
+
 int Lexer::tokenOffset() const
 {
     return _tokenStartPtr - _code.unicode();
@@ -1046,6 +1037,115 @@ void Lexer::syncProhibitAutomaticSemicolon()
 bool Lexer::prevTerminator() const
 {
     return _terminator;
+}
+
+bool Lexer::followsClosingBrace() const
+{
+    return _followsClosingBrace;
+}
+
+bool Lexer::canInsertAutomaticSemicolon(int token) const
+{
+    return token == T_RBRACE
+            || token == EOF_SYMBOL
+            || _terminator
+            || _followsClosingBrace;
+}
+
+bool Lexer::scanDirectives(Directives *directives)
+{
+    if (_qmlMode) {
+        // the directives are a Javascript-only extension.
+        return false;
+    }
+
+    lex(); // fetch the first token
+
+    if (_tokenKind != T_DOT)
+        return true;
+
+    do {
+        lex(); // skip T_DOT
+
+        const int lineNumber = tokenStartLine();
+
+        if (! (_tokenKind == T_IDENTIFIER || _tokenKind == T_RESERVED_WORD))
+            return false; // expected a valid QML/JS directive
+
+        const QString directiveName = tokenText();
+
+        if (! (directiveName == QLatin1String("pragma") ||
+               directiveName == QLatin1String("import")))
+            return false; // not a valid directive name
+
+        // it must be a pragma or an import directive.
+        if (directiveName == QLatin1String("pragma")) {
+            // .pragma library
+            if (! (lex() == T_IDENTIFIER && tokenText() == QLatin1String("library")))
+                return false; // expected `library
+
+            // we found a .pragma library directive
+            directives->pragmaLibrary();
+
+        } else {
+            Q_ASSERT(directiveName == QLatin1String("import"));
+            lex(); // skip .import
+
+            QString pathOrUri;
+            QString version;
+            bool fileImport = false; // file or uri import
+
+            if (_tokenKind == T_STRING_LITERAL) {
+                // .import T_STRING_LITERAL as T_IDENTIFIER
+
+                fileImport = true;
+                pathOrUri = tokenText();
+
+            } else if (_tokenKind == T_IDENTIFIER) {
+                // .import T_IDENTIFIER (. T_IDENTIFIER)* T_NUMERIC_LITERAL as T_IDENTIFIER
+
+                pathOrUri = tokenText();
+
+                lex(); // skip the first T_IDENTIFIER
+                for (; _tokenKind == T_DOT; lex()) {
+                    if (lex() != T_IDENTIFIER)
+                        return false;
+
+                    pathOrUri += QLatin1Char('.');
+                    pathOrUri += tokenText();
+                }
+
+                if (_tokenKind != T_NUMERIC_LITERAL)
+                    return false; // expected the module version number
+
+                version = tokenText();
+            }
+
+            //
+            // recognize the mandatory `as' followed by the module name
+            //
+            if (! (lex() == T_RESERVED_WORD && tokenText() == QLatin1String("as")))
+                return false; // expected `as'
+
+            if (lex() != T_IDENTIFIER)
+                return false; // expected module name
+
+            const QString module = tokenText();
+
+            if (fileImport)
+                directives->importFile(pathOrUri, module);
+            else
+                directives->importModule(pathOrUri, version, module);
+        }
+
+        if (tokenStartLine() != lineNumber)
+            return false; // the directives cannot span over multiple lines
+
+        // fetch the first token after the .pragma/.import directive
+        lex();
+    } while (_tokenKind == T_DOT);
+
+    return true;
 }
 
 #include "qmljskeywords_p.h"
