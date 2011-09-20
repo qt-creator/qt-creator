@@ -65,6 +65,17 @@
 
 ////////////// No further global configuration below ////////////////
 
+#if QT_SCRIPT_LIB
+#define USE_SCRIPTLIB 1
+#else
+#define USE_SCRIPTLIB 0
+#endif
+
+#if QT_VERSION >= 0x040500
+#define USE_SHARED_POINTER 1
+#else
+#define USE_SHARED_POINTER 0
+#endif
 
 void dummyStatement(...) {}
 
@@ -87,7 +98,7 @@ void dummyStatement(...) {}
 #include <QtCore/QVariant>
 #include <QtCore/QVector>
 #include <QtCore/QUrl>
-#if QT_VERSION >= 0x040500
+#if USE_SHARED_POINTER
 #include <QtCore/QSharedPointer>
 #endif
 
@@ -106,8 +117,10 @@ void dummyStatement(...) {}
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextDocument>
 
+#if USE_SCRIPTLIB
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValue>
+#endif
 
 #include <QtXml/QXmlAttributes>
 
@@ -139,7 +152,13 @@ void dummyStatement(...) {}
 #endif
 
 #if USE_PRIVATE
+#if QT_VERSION == 0x050000
+#include <QtCore/5.0.0/QtCore/private/qobject_p.h>
+#elif QT_VERSION >= 0x050001
+#include <QtCore/5.0.1/QtCore/private/qobject_p.h>
+#else
 #include <QtCore/private/qobject_p.h>
+#endif
 #endif
 
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(Q_OS_MAC)
@@ -1319,7 +1338,7 @@ void testQSet()
     //hash.insert(ptr);
 }
 
-#if QT_VERSION >= 0x040500
+#if USE_SHARED_POINTER
 class EmployeeData : public QSharedData
 {
 public:
@@ -1359,11 +1378,7 @@ public:
 
 namespace qsharedpointer {
 
-    #if QT_VERSION < 0x040500
-
-    void testQSharedPointer() {}
-
-    #else
+    #if USE_SHARED_POINTER
 
     void testQSharedPointer1()
     {
@@ -1422,6 +1437,10 @@ namespace qsharedpointer {
         testQSharedPointer5();
     }
 
+    #else
+
+    void testQSharedPointer() {}
+
     #endif
 
 } // namespace qsharedpointer
@@ -1443,11 +1462,6 @@ namespace qxml {
 
 } // namespace qxml
 
-
-void stringRefTest(const QString &refstring)
-{
-    dummyStatement(&refstring);
-}
 
 void testStdDeque()
 {
@@ -1861,43 +1875,66 @@ void testQUrl()
     dummyStatement(&url);
 }
 
-void testQString()
-{
-    QString str1("Hello Qt"); // --> Value: "Hello Qt"
-    QString str2("Hello\nQt"); // --> Value: ""Hello\nQt"" (double quote not expected)
-    QString str3("Hello\rQt"); // --> Value: ""HelloQt"" (double quote and missing \r not expected)
-    QString str4("Hello\tQt"); // --> Value: "Hello\9Qt" (expected \t instead of \9)
 
-    QString str = "Hello ";
-    str += " big, ";
-    str += "\t";
-    str += "\r";
-    str += "\n";
-    str += QLatin1Char(0);
-    str += QLatin1Char(1);
-    str += " fat ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-    str += " World ";
-}
+namespace qstring  {
 
-void testQString3()
-{
-    QString str = "Hello ";
-    str += " big, ";
-    str += " fat ";
-    str += " World ";
+    void testQStringQuotes()
+    {
+        QString str1("Hello Qt"); // --> Value: "Hello Qt"
+        QString str2("Hello\nQt"); // --> Value: ""Hello\nQt"" (double quote not expected)
+        QString str3("Hello\rQt"); // --> Value: ""HelloQt"" (double quote and missing \r not expected)
+        QString str4("Hello\tQt"); // --> Value: "Hello\9Qt" (expected \t instead of \9)
+        BREAK_HERE;
+        dummyStatement(&str1, &str2, &str3, &str4);
+    }
 
-    QString string("String Test");
-    QString *pstring = new QString("Pointer String Test");
-    stringRefTest(QString("Ref String Test"));
-    string = "Hi";
-    string += "Du";
-    qDebug() << string;
-    delete pstring;
-}
+    void testQString1()
+    {
+        QString str = "Hello ";
+        str += " big, ";
+        str += "\t";
+        str += "\r";
+        str += "\n";
+        str += QLatin1Char(0);
+        str += QLatin1Char(1);
+        str += " fat ";
+        str += " World ";
+        str += " World ";
+        BREAK_HERE;
+        dummyStatement(&str);
+    }
+
+    void stringRefTest(const QString &refstring)
+    {
+        dummyStatement(&refstring);
+    }
+
+    void testQString3()
+    {
+        QString str = "Hello ";
+        str += " big, ";
+        str += " fat ";
+        str += " World ";
+
+        QString string("String Test");
+        QString *pstring = new QString("Pointer String Test");
+        stringRefTest(QString("Ref String Test"));
+        string = "Hi";
+        string += "Du";
+        qDebug() << string;
+        delete pstring;
+        BREAK_HERE;
+        dummyStatement(&str, &string, pstring);
+    }
+
+    void testQString()
+    {
+        testQString1();
+        testQString3();
+        testQStringQuotes();
+    }
+
+} // namespace qstring
 
 
 namespace qstringlist {
@@ -3043,6 +3080,7 @@ namespace sse {
 
 void testQScriptValue(int argc, char *argv[])
 {
+#if USE_SCRIPTLIB
     BREAK_UNINITIALIZED_HERE;
     QCoreApplication app(argc, argv);
     QScriptEngine engine;
@@ -3067,6 +3105,8 @@ void testQScriptValue(int argc, char *argv[])
     s.setProperty("a", QScriptValue());
     QScriptValue d = s.data();
     dummyStatement(&x1, &v, &s, &app);
+#endif
+    dummyStatement(&argc, &argv);
 }
 
 
@@ -3705,7 +3745,7 @@ int main(int argc, char *argv[])
     testQImage();
     testQMap();
     testQMultiMap();
-    testQString();
+    qstring::testQString();
     testQUrl();
     testQSet();
     qsharedpointer::testQSharedPointer();
