@@ -95,7 +95,7 @@ private:
 };
 
 
-class GenericRemoteLinuxProcessList : public AbstractRemoteLinuxProcessList
+class REMOTELINUX_EXPORT GenericRemoteLinuxProcessList : public AbstractRemoteLinuxProcessList
 {
     Q_OBJECT
 public:

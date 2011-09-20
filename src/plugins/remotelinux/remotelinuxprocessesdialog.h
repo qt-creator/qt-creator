@@ -42,7 +42,7 @@ namespace Internal {
 class RemoteLinuxProcessesDialogPrivate;
 } // namespace Internal
 
-class RemoteLinuxProcessesDialog : public QDialog
+class REMOTELINUX_EXPORT RemoteLinuxProcessesDialog : public QDialog
 {
     Q_OBJECT
 public:
