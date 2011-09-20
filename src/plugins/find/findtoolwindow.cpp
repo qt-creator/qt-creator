@@ -64,7 +64,6 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
     connect(m_ui.regExp, SIGNAL(toggled(bool)), m_plugin, SLOT(setRegularExpression(bool)));
     connect(m_ui.filterList, SIGNAL(activated(int)), this, SLOT(setCurrentFilter(int)));
     connect(m_ui.searchTerm, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStates()));
-    connect(m_ui.searchTerm, SIGNAL(returnPressed()), this, SLOT(search()));
 
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_ui.searchTerm->setCompleter(m_findCompleter);
@@ -84,6 +83,20 @@ FindToolWindow::~FindToolWindow()
 FindToolWindow *FindToolWindow::instance()
 {
     return m_instance;
+}
+
+bool FindToolWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if ((ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter)
+                && ke->modifiers() == Qt::NoModifier) {
+            ke->accept();
+            search();
+            return true;
+        }
+    }
+    return QWidget::event(event);
 }
 
 bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)

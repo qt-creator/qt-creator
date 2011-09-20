@@ -62,6 +62,7 @@ public:
     void writeSettings();
 
 protected:
+    bool event(QEvent *event);
     bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
