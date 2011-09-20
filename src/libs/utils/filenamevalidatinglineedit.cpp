@@ -68,8 +68,7 @@ static const QRegExp &windowsDeviceSubDirPattern()
 // ----------- FileNameValidatingLineEdit
 FileNameValidatingLineEdit::FileNameValidatingLineEdit(QWidget *parent) :
     BaseValidatingLineEdit(parent),
-    m_allowDirectories(false),
-    m_unused(0)
+    m_allowDirectories(false)
 {
 }
 
@@ -143,7 +142,46 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
 
 bool  FileNameValidatingLineEdit::validate(const QString &value, QString *errorMessage) const
 {
-    return validateFileName(value, m_allowDirectories, errorMessage);
+    return validateFileNameExtension(value, requiredExtensions(), errorMessage)
+            && validateFileName(value, allowDirectories(), errorMessage);
+}
+
+
+bool FileNameValidatingLineEdit::validateFileNameExtension(const QString &fileName,
+                                                           const QStringList &requiredExtensions,
+                                                           QString *errorMessage)
+{
+    // file extension
+    if (!requiredExtensions.isEmpty()) {
+        foreach (const QString &requiredExtension, requiredExtensions) {
+            QString extension = QLatin1String(".") + requiredExtension;
+            if (fileName.endsWith(extension, Qt::CaseSensitive) && extension.count() < fileName.count()) {
+                return true;
+            }
+        }
+
+        if (errorMessage) {
+            if (requiredExtensions.count() == 1) {
+                *errorMessage = tr("File extension %1 is required:").arg(requiredExtensions.first());
+            } else {
+                *errorMessage = tr("File extensions %1 are required:").arg(requiredExtensions.join(", "));
+            }
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+QStringList FileNameValidatingLineEdit::requiredExtensions() const
+{
+    return m_requiredExtensionList;
+}
+
+void FileNameValidatingLineEdit::setRequiredExtensions(const QStringList &extensions)
+{
+    m_requiredExtensionList = extensions;
 }
 
 } // namespace Utils

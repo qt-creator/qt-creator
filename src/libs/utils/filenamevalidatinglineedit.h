@@ -41,6 +41,7 @@ class QTCREATOR_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidatingL
 {
     Q_OBJECT
     Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
+    Q_PROPERTY(QStringList requiredExtensions READ requiredExtensions WRITE setRequiredExtensions)
 
 public:
     explicit FileNameValidatingLineEdit(QWidget *parent = 0);
@@ -49,6 +50,10 @@ public:
                                  bool allowDirectories = false,
                                  QString *errorMessage = 0);
 
+    static bool validateFileNameExtension(const QString &name,
+                                          const QStringList &requiredExtensions = QStringList(),
+                                          QString *errorMessage = 0);
+
     /**
      * Sets whether entering directories is allowed. This will enable the user
      * to enter slashes in the filename. Default is off.
@@ -56,12 +61,19 @@ public:
     bool allowDirectories() const;
     void setAllowDirectories(bool v);
 
+    /**
+     * Sets a requred extension. If the extension is empty no extension is required.
+     * Default is empty.
+     */
+    QStringList requiredExtensions() const;
+    void setRequiredExtensions(const QStringList &extensionList);
+
 protected:
     virtual bool validate(const QString &value, QString *errorMessage) const;
 
 private:
     bool m_allowDirectories;
-    void *m_unused;
+    QStringList m_requiredExtensionList;
 };
 
 } // namespace Utils
