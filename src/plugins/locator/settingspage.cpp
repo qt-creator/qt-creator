@@ -37,6 +37,7 @@
 #include "ilocatorfilter.h"
 #include "directoryfilter.h"
 
+#include <coreplugin/coreconstants.h>
 #include <qtconcurrent/QtConcurrentTools>
 #include <utils/qtcassert.h>
 
@@ -64,17 +65,17 @@ QString SettingsPage::displayName() const
 
 QString SettingsPage::category() const
 {
-    return QLatin1String(Constants::LOCATOR_CATEGORY);
+    return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
 }
 
 QString SettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("Locator", Locator::Constants::LOCATOR_TR_CATEGORY);
+    return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
 }
 
 QIcon SettingsPage::categoryIcon() const
 {
-    return QIcon(QLatin1String(Locator::Constants::SETTINGS_CATEGORY_LOCATOR_ICON));
+    return QIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

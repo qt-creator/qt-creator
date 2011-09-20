@@ -38,10 +38,7 @@
 namespace Locator {
 namespace Constants {
 
-const char * const FILTER_OPTIONS_PAGE = QT_TRANSLATE_NOOP("Locator", "Filters");
-const char * const LOCATOR_CATEGORY = "G.Locator";
-const char * const LOCATOR_TR_CATEGORY = QT_TRANSLATE_NOOP("Locator", "Locator");
-const char * const SETTINGS_CATEGORY_LOCATOR_ICON = ":/core/images/category_locator.png";
+const char * const FILTER_OPTIONS_PAGE = QT_TRANSLATE_NOOP("Locator", "Locator");
 const char * const TASK_INDEX = "Locator.Task.Index";
 
 } // namespace Constants

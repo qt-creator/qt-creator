@@ -38,6 +38,7 @@
 #include "ilocatorfilter.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -616,6 +617,6 @@ void LocatorWidget::showEvent(QShowEvent *event)
 
 void LocatorWidget::showConfigureDialog()
 {
-    Core::ICore::instance()->showOptionsDialog(Constants::LOCATOR_CATEGORY,
+    Core::ICore::instance()->showOptionsDialog(Core::Constants::SETTINGS_CATEGORY_CORE,
           Constants::FILTER_OPTIONS_PAGE);
 }

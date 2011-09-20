@@ -30,9 +30,10 @@
 **
 **************************************************************************/
 
-#include <qmldesigner/qmldesignerconstants.h>
 #include "quicktoolbarsettingspage.h"
+#include "qmljseditorconstants.h"
 
+#include <qmldesigner/qmldesignerconstants.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
@@ -140,12 +141,12 @@ QString QuickToolBarSettingsPage::displayName() const
 
 QString QuickToolBarSettingsPage::category() const
 {
-    return QLatin1String("Qt Quick");
+    return QLatin1String(Constants::SETTINGS_CATEGORY_QML);
 }
 
 QString QuickToolBarSettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("Qt Quick", "Qt Quick");
+    return QCoreApplication::translate("QmlJSEditor", QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML);
 }
 
 QIcon QuickToolBarSettingsPage::categoryIcon() const

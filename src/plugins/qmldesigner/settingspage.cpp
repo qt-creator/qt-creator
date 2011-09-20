@@ -35,6 +35,8 @@
 #include "qmldesignerplugin.h"
 #include "settingspage.h"
 
+#include <qmljseditor/qmljseditorconstants.h>
+
 #include <QtCore/QTextStream>
 #include <QtGui/QCheckBox>
 
@@ -94,12 +96,12 @@ QString SettingsPage::displayName() const
 
 QString SettingsPage::category() const
 {
-    return QLatin1String("Qt Quick");
+    return QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
 }
 
 QString SettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("Qt Quick", "Qt Quick");
+    return QCoreApplication::translate("QmlJSEditor", QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML);
 }
 
 QIcon SettingsPage::categoryIcon() const
