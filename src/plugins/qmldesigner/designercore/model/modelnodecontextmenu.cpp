@@ -96,7 +96,7 @@ static inline bool itemsHaveSameParent(const QList<ModelNode> &siblingList)
     if (item.isRootModelNode())
         return false;
 
-    QmlItemNode parent = item.instanceParent();
+    QmlItemNode parent = item.instanceParent().toQmlItemNode();
     if (!parent.isValid())
         return false;
 
@@ -104,7 +104,7 @@ static inline bool itemsHaveSameParent(const QList<ModelNode> &siblingList)
         QmlItemNode currentItem(node);
         if (!currentItem.isValid())
             return false;
-        QmlItemNode currentParent = currentItem.instanceParent();
+        QmlItemNode currentParent = currentItem.instanceParent().toQmlItemNode();
         if (!currentParent.isValid())
             return false;
         if (currentItem.instanceIsInPositioner())
@@ -766,7 +766,7 @@ void ModelNodeAction::layoutRow()
     {
         RewriterTransaction transaction(m_view);
 
-        QmlItemNode parent = QmlItemNode(m_modelNodeList.first()).instanceParent();
+        QmlItemNode parent = QmlItemNode(m_modelNodeList.first()).instanceParent().toQmlItemNode();
         if (!parent.isValid())
             return;
 
@@ -794,7 +794,7 @@ void ModelNodeAction::layoutColumn()
     {
         RewriterTransaction transaction(m_view);
 
-        QmlItemNode parent = QmlItemNode(m_modelNodeList.first()).instanceParent();
+        QmlItemNode parent = QmlItemNode(m_modelNodeList.first()).instanceParent().toQmlItemNode();
         if (!parent.isValid())
             return;
 
@@ -822,7 +822,7 @@ void ModelNodeAction::layoutGrid()
     {
         RewriterTransaction transaction(m_view);
 
-        QmlItemNode parent = QmlItemNode(m_modelNodeList.first()).instanceParent();
+        QmlItemNode parent = QmlItemNode(m_modelNodeList.first()).instanceParent().toQmlItemNode();
         if (!parent.isValid())
             return;
 
@@ -851,7 +851,7 @@ void ModelNodeAction::layoutFlow()
     {
         RewriterTransaction transaction(m_view);
 
-        QmlItemNode parent = QmlItemNode(m_modelNodeList.first()).instanceParent();
+        QmlItemNode parent = QmlItemNode(m_modelNodeList.first()).instanceParent().toQmlItemNode();
         if (!parent.isValid())
             return;
 
