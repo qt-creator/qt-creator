@@ -235,13 +235,13 @@ QDeclarativeDebugConnection *QmlAdapter::connection() const
 void QmlAdapter::showConnectionStatusMessage(const QString &message)
 {
     if (!d->m_engine.isNull())
-        d->m_engine.data()->showMessage(QLatin1String("QmlDebugger: ") + message, LogStatus);
+        d->m_engine.data()->showMessage(QLatin1String("QML Debugger: ") + message, LogStatus);
 }
 
 void QmlAdapter::showConnectionErrorMessage(const QString &message)
 {
     if (!d->m_engine.isNull())
-        d->m_engine.data()->showMessage(QLatin1String("QmlDebugger: ") + message, LogError);
+        d->m_engine.data()->showMessage(QLatin1String("QML Debugger: ") + message, LogError);
 }
 
 bool QmlAdapter::disableJsDebugging(bool block)
@@ -277,17 +277,16 @@ void QmlAdapter::logServiceStatusChange(const QString &service,
 {
     switch (newStatus) {
     case QDeclarativeDebugClient::Unavailable: {
-        showConnectionStatusMessage(tr("Debug service '%1' became unavailable.").arg(service));
-        emit serviceConnectionError(service);
+        showConnectionStatusMessage(tr("Status of '%1' changed to 'unavailable'.").arg(service));
         break;
     }
     case QDeclarativeDebugClient::Enabled: {
-        showConnectionStatusMessage(tr("Connected to debug service '%1'.").arg(service));
+        showConnectionStatusMessage(tr("Status of '%1' changed to 'enabled'.").arg(service));
         break;
     }
 
     case QDeclarativeDebugClient::NotConnected: {
-        showConnectionStatusMessage(tr("Not connected to debug service '%1'.").arg(service));
+        showConnectionStatusMessage(tr("Status of '%1' changed to 'not connected'.").arg(service));
         break;
     }
     }
