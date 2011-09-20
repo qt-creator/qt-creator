@@ -40,6 +40,10 @@ class QGraphicsScene;
 class QGraphicsSceneMouseEvent;
 QT_END_NAMESPACE
 
+namespace Utils {
+class CrumblePath;
+}
+
 namespace QmlDesigner {
 
 class FormEditorWidget;
@@ -117,6 +121,8 @@ public:
     void deActivateItemCreator();
 
     void actualStateChanged(const ModelNode &node);
+
+    Utils::CrumblePath *crumblePath() const;
 
 protected:
     void reset();

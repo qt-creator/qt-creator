@@ -705,7 +705,7 @@ void DesignModeWidget::setup()
     m_statesEditorView = new StatesEditorView(this);
 
     m_formEditorView = new FormEditorView(this);
-    connect(m_formEditorView->widget()->toolBox()->crumblePath(), SIGNAL(elementClicked(QVariant)), this, SLOT(onCrumblePathElementClicked(QVariant)));
+    connect(m_formEditorView->crumblePath(), SIGNAL(elementClicked(QVariant)), this, SLOT(onCrumblePathElementClicked(QVariant)));
 
     m_componentView = new ComponentView(this);
     m_formEditorView->widget()->toolBox()->addLeftSideAction(m_componentView->action());

@@ -330,8 +330,8 @@ void DesignDocumentController::setCrumbleBarInfo(const CrumbleBarInfo &crumbleBa
 {
     DesignDocumentControllerPrivate::clearCrumblePath = false;
     DesignDocumentControllerPrivate::pushCrumblePath = false;
-    while (!compareCrumbleBarInfo(d->formEditorView->widget()->toolBox()->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(), crumbleBarInfo))
-        d->formEditorView->widget()->toolBox()->crumblePath()->popElement();
+    while (!compareCrumbleBarInfo(d->formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(), crumbleBarInfo))
+        d->formEditorView->crumblePath()->popElement();
     Core::EditorManager::instance()->openEditor(crumbleBarInfo.fileName);
     DesignDocumentControllerPrivate::pushCrumblePath = true;
     Internal::DesignModeWidget::instance()->currentDesignDocumentController()->changeToSubComponent(crumbleBarInfo.modelNode);
@@ -448,10 +448,10 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &node)
     if (Internal::DesignModeWidget::instance()->currentDesignDocumentController() != this)
         return;
     DesignDocumentControllerPrivate::clearCrumblePath = false;
-    while (!d->formEditorView->widget()->toolBox()->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isRootNode())
-        d->formEditorView->widget()->toolBox()->crumblePath()->popElement();
+    while (!d->formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isRootNode())
+        d->formEditorView->crumblePath()->popElement();
     if (node.isRootNode())
-        d->formEditorView->widget()->toolBox()->crumblePath()->popElement();
+        d->formEditorView->crumblePath()->popElement();
     changeToSubComponent(node);
     DesignDocumentControllerPrivate::clearCrumblePath = true;
 }
@@ -568,12 +568,12 @@ void DesignDocumentController::loadCurrentModel()
 
 
     if (DesignDocumentControllerPrivate::clearCrumblePath)
-        d->formEditorView->widget()->toolBox()->crumblePath()->clear();
+        d->formEditorView->crumblePath()->clear();
 
     if (DesignDocumentControllerPrivate::pushCrumblePath &&
-            !compareCrumbleBarInfo(d->formEditorView->widget()->toolBox()->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(),
+            !compareCrumbleBarInfo(d->formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(),
                                    createCrumbleBarInfo().value<CrumbleBarInfo>()))
-        d->formEditorView->widget()->toolBox()->crumblePath()->pushElement(simplfiedDisplayName(), createCrumbleBarInfo());
+        d->formEditorView->crumblePath()->pushElement(simplfiedDisplayName(), createCrumbleBarInfo());
 
     d->documentLoaded = true;
     Q_ASSERT(d->masterModel);

@@ -40,6 +40,7 @@
 #include "formeditornodeinstanceview.h"
 #include "formeditoritem.h"
 #include "formeditorscene.h"
+#include "toolbox.h"
 #include <rewritertransaction.h>
 #include <modelnode.h>
 #include <itemlibraryinfo.h>
@@ -639,6 +640,14 @@ void FormEditorView::actualStateChanged(const ModelNode &node)
 //    FormEditorItem *item = m_scene->itemForQmlItemNode(fxObjectNode);
 //
 //    m_currentTool->formEditorItemsChanged(itemList);
+}
+
+Utils::CrumblePath *FormEditorView::crumblePath() const
+{
+    if (widget() && widget()->toolBox()) {
+        return widget()->toolBox()->crumblePath();
+    }
+    return 0;
 }
 
 void FormEditorView::reset()
