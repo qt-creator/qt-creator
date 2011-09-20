@@ -457,6 +457,7 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
 #endif
         result.push_back(GdbEngineType);
         break;
+    case StartRemote:
     case StartRemoteGdb:
         result.push_back(GdbEngineType);
         break;
