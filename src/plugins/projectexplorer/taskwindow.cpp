@@ -36,6 +36,7 @@
 #include "projectexplorerconstants.h"
 #include "task.h"
 #include "taskhub.h"
+#include "taskmodel.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -78,93 +79,6 @@ public:
     TaskWindowContext(QWidget *widget);
 };
 
-class TaskModel : public QAbstractItemModel
-{
-public:
-    // Model stuff
-    TaskModel();
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Task task(const QModelIndex &index) const;
-
-    QStringList categoryIds() const;
-    QString categoryDisplayName(const QString &categoryId) const;
-    void addCategory(const QString &categoryId, const QString &categoryName);
-
-    QList<Task> tasks(const QString &categoryId = QString()) const;
-    void addTask(const Task &task);
-    void removeTask(const Task &task);
-    void clearTasks(const QString &categoryId = QString());
-
-    int sizeOfFile(const QFont &font);
-    int sizeOfLineNumber(const QFont &font);
-    void setFileNotFound(const QModelIndex &index, bool b);
-
-    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category, Icon, Task_t };
-
-    QIcon taskTypeIcon(Task::TaskType t) const;
-
-    int taskCount();
-    int errorTaskCount();
-    int warningTaskCount();
-
-    bool hasFile(const QModelIndex &index) const;
-
-private:
-    QHash<QString,QString> m_categories; // category id -> display name
-    QList<Task> m_tasks;   // all tasks (in order of insertion)
-    QMap<QString,QList<Task> > m_tasksInCategory; // categoryId->tasks
-
-    QHash<QString,bool> m_fileNotFound;
-    int m_maxSizeOfFileName;
-    QString m_fileMeasurementFont;
-    const QIcon m_errorIcon;
-    const QIcon m_warningIcon;
-    int m_taskCount;
-    int m_errorTaskCount;
-    int m_warningTaskCount;
-    int m_sizeOfLineNumber;
-    QString m_lineMeasurementFont;
-};
-
-class TaskFilterModel : public QSortFilterProxyModel
-{
-public:
-    TaskFilterModel(TaskModel *sourceModel, QObject *parent = 0);
-
-    TaskModel *taskModel() const;
-
-    bool filterIncludesUnknowns() const { return m_includeUnknowns; }
-    void setFilterIncludesUnknowns(bool b) { m_includeUnknowns = b; invalidateFilter(); }
-
-    bool filterIncludesWarnings() const { return m_includeWarnings; }
-    void setFilterIncludesWarnings(bool b) { m_includeWarnings = b; invalidateFilter(); }
-
-    bool filterIncludesErrors() const { return m_includeErrors; }
-    void setFilterIncludesErrors(bool b) { m_includeErrors = b; invalidateFilter(); }
-
-    QStringList filteredCategories() const { return m_categoryIds; }
-    void setFilteredCategories(const QStringList &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
-
-    Task task(const QModelIndex &index) const
-    { return static_cast<TaskModel *>(sourceModel())->task(mapToSource(index)); }
-
-    bool hasFile(const QModelIndex &index) const
-    { return static_cast<TaskModel *>(sourceModel())->hasFile(mapToSource(index)); }
-
-protected:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
-
-private:
-    bool m_includeUnknowns;
-    bool m_includeWarnings;
-    bool m_includeErrors;
-    QStringList m_categoryIds;
-};
-
 class TaskDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -183,6 +97,9 @@ public slots:
 
 private:
     void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
+
+    mutable int m_cachedHeight;
+    mutable QFont m_cachedFont;
 
     /*
       Collapsed:
@@ -285,313 +202,6 @@ void TaskView::keyPressEvent(QKeyEvent *e)
 }
 
 /////
-// TaskModel
-/////
-
-TaskModel::TaskModel() :
-    m_maxSizeOfFileName(0),
-    m_errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png")),
-    m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png")),
-    m_taskCount(0),
-    m_errorTaskCount(0),
-    m_warningTaskCount(0),
-    m_sizeOfLineNumber(0)
-{
-}
-
-int TaskModel::taskCount()
-{
-    return m_taskCount;
-}
-
-int TaskModel::errorTaskCount()
-{
-    return m_errorTaskCount;
-}
-
-int TaskModel::warningTaskCount()
-{
-    return m_warningTaskCount;
-}
-
-bool TaskModel::hasFile(const QModelIndex &index) const
-{
-    int row = index.row();
-    if (!index.isValid() || row < 0 || row >= m_tasks.count())
-        return false;
-    return !m_tasks.at(row).file.isEmpty();
-}
-
-QIcon TaskModel::taskTypeIcon(Task::TaskType t) const
-{
-    switch (t) {
-    case Task::Warning:
-        return m_warningIcon;
-    case Task::Error:
-        return m_errorIcon;
-    case Task::Unknown:
-        break;
-    }
-    return QIcon();
-}
-
-void TaskModel::addCategory(const QString &categoryId, const QString &categoryName)
-{
-    Q_ASSERT(!categoryId.isEmpty());
-    m_categories.insert(categoryId, categoryName);
-}
-
-QList<Task> TaskModel::tasks(const QString &categoryId) const
-{
-    if (categoryId.isEmpty()) {
-        return m_tasks;
-    } else {
-        return m_tasksInCategory.value(categoryId);
-    }
-}
-
-void TaskModel::addTask(const Task &task)
-{
-    Q_ASSERT(m_categories.keys().contains(task.category));
-
-    if (m_tasksInCategory.contains(task.category)) {
-        m_tasksInCategory[task.category].append(task);
-    } else {
-        QList<Task> temp;
-        temp.append(task);
-        m_tasksInCategory.insert(task.category, temp);
-    }
-
-    beginInsertRows(QModelIndex(), m_tasks.size(), m_tasks.size());
-    m_tasks.append(task);
-    endInsertRows();
-
-    m_maxSizeOfFileName = 0;
-    ++m_taskCount;
-    if (task.type == Task::Error)
-        ++m_errorTaskCount;
-    if (task.type == Task::Warning)
-        ++m_warningTaskCount;
-}
-
-void TaskModel::removeTask(const Task &task)
-{
-    if (m_tasks.contains(task)) {
-        int index = m_tasks.indexOf(task);
-        beginRemoveRows(QModelIndex(), index, index);
-        m_tasks.removeAt(index);
-        --m_taskCount;
-        if (task.type == Task::Error)
-            --m_errorTaskCount;
-        if (task.type == Task::Warning)
-            --m_warningTaskCount;
-        endRemoveRows();
-    }
-}
-
-void TaskModel::clearTasks(const QString &categoryId)
-{
-    if (categoryId.isEmpty()) {
-        if (m_tasks.size() == 0)
-            return;
-        beginRemoveRows(QModelIndex(), 0, m_tasks.size() -1);
-        m_tasks.clear();
-        m_tasksInCategory.clear();
-        m_taskCount = 0;
-        m_errorTaskCount = 0;
-        m_warningTaskCount = 0;
-        endRemoveRows();
-        m_maxSizeOfFileName = 0;
-    } else {
-        int index = 0;
-        int start = 0;
-        int subErrorTaskCount = 0;
-        int subWarningTaskCount = 0;
-        while (index < m_tasks.size()) {
-            while (index < m_tasks.size() && m_tasks.at(index).category != categoryId) {
-                ++start;
-                ++index;
-            }
-            if (index == m_tasks.size())
-                break;
-            while (index < m_tasks.size() && m_tasks.at(index).category == categoryId) {
-                if (m_tasks.at(index).type == Task::Error)
-                    ++subErrorTaskCount;
-                if (m_tasks.at(index).type == Task::Warning)
-                    ++subWarningTaskCount;
-                ++index;
-            }
-            // Index is now on the first non category
-            beginRemoveRows(QModelIndex(), start, index - 1);
-
-            for (int i = start; i < index; ++i) {
-                m_tasksInCategory[categoryId].removeOne(m_tasks.at(i));
-            }
-
-            m_tasks.erase(m_tasks.begin() + start, m_tasks.begin() + index);
-
-            m_taskCount -= index - start;
-            m_errorTaskCount -= subErrorTaskCount;
-            m_warningTaskCount -= subWarningTaskCount;
-
-            endRemoveRows();
-            index = start;
-        }
-        // what to do with m_maxSizeOfFileName ?
-    }
-}
-
-
-QModelIndex TaskModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return QModelIndex();
-    return createIndex(row, column, 0);
-}
-
-QModelIndex TaskModel::parent(const QModelIndex &child) const
-{
-    Q_UNUSED(child)
-    return QModelIndex();
-}
-
-int TaskModel::rowCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : m_tasks.count();
-}
-
-int TaskModel::columnCount(const QModelIndex &parent) const
-{
-        return parent.isValid() ? 0 : 1;
-}
-
-QVariant TaskModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || index.row() >= m_tasks.size() || index.column() != 0)
-        return QVariant();
-
-    if (role == TaskModel::File) {
-        return m_tasks.at(index.row()).file;
-    } else if (role == TaskModel::Line) {
-        if (m_tasks.at(index.row()).line <= 0)
-            return QVariant();
-        else
-            return m_tasks.at(index.row()).line;
-    } else if (role == TaskModel::Description) {
-        return m_tasks.at(index.row()).description;
-    } else if (role == TaskModel::FileNotFound) {
-        return m_fileNotFound.value(m_tasks.at(index.row()).file);
-    } else if (role == TaskModel::Type) {
-        return (int)m_tasks.at(index.row()).type;
-    } else if (role == TaskModel::Category) {
-        return m_tasks.at(index.row()).category;
-    } else if (role == TaskModel::Icon) {
-        return taskTypeIcon(m_tasks.at(index.row()).type);
-    } else if (role == TaskModel::Task_t) {
-        return QVariant::fromValue(task(index));
-    }
-    return QVariant();
-}
-
-Task TaskModel::task(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return Task();
-    return m_tasks.at(index.row());
-}
-
-QStringList TaskModel::categoryIds() const
-{
-    return m_categories.keys();
-}
-
-QString TaskModel::categoryDisplayName(const QString &categoryId) const
-{
-    return m_categories.value(categoryId);
-}
-
-int TaskModel::sizeOfFile(const QFont &font)
-{
-    QString fontKey = font.key();
-    if (m_maxSizeOfFileName > 0 && fontKey == m_fileMeasurementFont)
-        return m_maxSizeOfFileName;
-
-    QFontMetrics fm(font);
-    m_fileMeasurementFont = fontKey;
-
-    foreach (const Task & t, m_tasks) {
-        QString filename = t.file;
-        const int pos = filename.lastIndexOf(QLatin1Char('/'));
-        if (pos != -1)
-            filename = filename.mid(pos +1);
-
-        m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.width(filename));
-    }
-    return m_maxSizeOfFileName;
-}
-
-int TaskModel::sizeOfLineNumber(const QFont &font)
-{
-    QString fontKey = font.key();
-    if (m_sizeOfLineNumber == 0 || fontKey != m_lineMeasurementFont) {
-        QFontMetrics fm(font);
-        m_lineMeasurementFont = fontKey;
-        m_sizeOfLineNumber = fm.width("88888");
-    }
-    return m_sizeOfLineNumber;
-}
-
-void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
-{
-    if (idx.isValid() && idx.row() < m_tasks.size()) {
-        m_fileNotFound.insert(m_tasks[idx.row()].file, b);
-        emit dataChanged(idx, idx);
-    }
-}
-
-/////
-// TaskFilterModel
-/////
-
-TaskFilterModel::TaskFilterModel(TaskModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
-{
-    setSourceModel(sourceModel);
-    setDynamicSortFilter(true);
-    m_includeUnknowns = m_includeWarnings = m_includeErrors = true;
-}
-
-TaskModel *TaskFilterModel::taskModel() const
-{
-    return static_cast<TaskModel*>(sourceModel());
-}
-
-bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
-{
-    bool accept = true;
-
-    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-    Task::TaskType type = Task::TaskType(index.data(TaskModel::Type).toInt());
-    switch (type) {
-    case Task::Unknown:
-        accept = m_includeUnknowns;
-        break;
-    case Task::Warning:
-        accept = m_includeWarnings;
-        break;
-    case Task::Error:
-        accept = m_includeErrors;
-        break;
-    }
-
-    const QString &categoryId = index.data(TaskModel::Category).toString();
-    if (m_categoryIds.contains(categoryId))
-        accept = false;
-
-    return accept;
-}
-
-/////
 // TaskWindow
 /////
 
@@ -629,7 +239,7 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
 {
     d->m_defaultHandler = 0;
 
-    d->m_model = new Internal::TaskModel;
+    d->m_model = new Internal::TaskModel(this);
     d->m_filter = new Internal::TaskFilterModel(d->m_model);
     d->m_listview = new Internal::TaskView;
 
@@ -745,7 +355,6 @@ void TaskWindow::visibilityChanged(bool /* b */)
 
 void TaskWindow::addCategory(const QString &categoryId, const QString &displayName, bool visible)
 {
-    Q_ASSERT(!categoryId.isEmpty());
     d->m_model->addCategory(categoryId, displayName);
     if (!visible) {
         QStringList filters = d->m_filter->filteredCategories();
@@ -878,36 +487,17 @@ void TaskWindow::filterCategoryTriggered(QAction *action)
 
 int TaskWindow::taskCount(const QString &category) const
 {
-    if (category.isEmpty())
-        return d->m_model->taskCount();
-
-    return d->m_model->tasks(category).size();
+    return d->m_model->taskCount(category);
 }
 
 int TaskWindow::errorTaskCount(const QString &category) const
 {
-    if (category.isEmpty())
-        return d->m_model->errorTaskCount();
-
-    int count = 0;
-    foreach (const Task &task, d->m_model->tasks(category)) {
-        if (task.type == Task::Error)
-            ++count;
-    }
-    return count;
+    return d->m_model->errorTaskCount(category);
 }
 
 int TaskWindow::warningTaskCount(const QString &category) const
 {
-    if (category.isEmpty())
-        return d->m_model->warningTaskCount();
-
-    int count = 0;
-    foreach (const Task &task, d->m_model->tasks(category)) {
-        if (task.type == Task::Warning)
-            ++count;
-    }
-    return count;
+    return d->m_model->warningTaskCount(category);
 }
 
 int TaskWindow::priorityInStatusBar() const
@@ -1007,10 +597,10 @@ bool TaskWindow::canNavigate() const
 // Delegate
 /////
 
-TaskDelegate::TaskDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
-{
-}
+TaskDelegate::TaskDelegate(QObject *parent) :
+    QStyledItemDelegate(parent),
+    m_cachedHeight(0)
+{ }
 
 TaskDelegate::~TaskDelegate()
 {
@@ -1021,17 +611,24 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     QStyleOptionViewItemV4 opt = option;
     initStyleOption(&opt, index);
 
+    const QAbstractItemView * view = qobject_cast<const QAbstractItemView *>(opt.widget);
+    const bool selected = (view->selectionModel()->currentIndex() == index);
+    QSize s;
+    s.setWidth(option.rect.width());
+
+    if (!selected && option.font == m_cachedFont && m_cachedHeight > 0) {
+        s.setHeight(m_cachedHeight);
+        return s;
+    }
+
     QFontMetrics fm(option.font);
     int fontHeight = fm.height();
     int fontLeading = fm.leading();
 
-    const QAbstractItemView * view = qobject_cast<const QAbstractItemView *>(opt.widget);
     TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
     Positions positions(option, model);
 
-    QSize s;
-    s.setWidth(option.rect.width());
-    if (view->selectionModel()->currentIndex() == index) {
+    if (selected) {
         QString description = index.data(TaskModel::Description).toString();
         // Layout the description
         int leading = fontLeading;
@@ -1056,6 +653,12 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     }
     if (s.height() < positions.minimumHeight())
         s.setHeight(positions.minimumHeight());
+
+    if (!selected) {
+        m_cachedHeight = s.height();
+        m_cachedFont = option.font;
+    }
+
     return s;
 }
 
@@ -1101,7 +704,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
     painter->setPen(textColor);
 
-    TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
+    TaskModel *model = static_cast<TaskModel *>(view->model());
     Positions positions(opt, model);
 
     // Paint TaskIconArea:

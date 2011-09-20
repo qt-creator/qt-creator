@@ -30,6 +30,7 @@ HEADERS += projectexplorer.h \
     showoutputtaskhandler.h \
     vcsannotatetaskhandler.h \
     taskwindow.h \
+    taskmodel.h \
     projectfilewizardextension.h \
     session.h \
     dependenciespanel.h \
@@ -126,6 +127,7 @@ SOURCES += projectexplorer.cpp \
     showoutputtaskhandler.cpp \
     vcsannotatetaskhandler.cpp \
     taskwindow.cpp \
+    taskmodel.cpp \
     projectfilewizardextension.cpp \
     session.cpp \
     dependenciespanel.cpp \
