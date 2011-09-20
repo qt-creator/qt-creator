@@ -318,6 +318,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     d->m_widget->insertWidget(1, widget);
     connect(widget, SIGNAL(navigateStateChanged()), this, SLOT(navigateStateChanged()));
     widget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
+    widget->setAutoExpandResults(d->m_expandCollapseAction->isChecked());
     widget->setInfo(label, toolTip, searchTerm);
     if (searchOrSearchAndReplace == SearchAndReplace)
         widget->setDontAskAgainGroup(cfgGroup);
