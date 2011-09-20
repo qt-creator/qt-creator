@@ -184,7 +184,10 @@ void NodeInstanceClientProxy::readDataStream()
         in >> command;
         m_blockSize = 0;
 
-        Q_ASSERT(in.status() == QDataStream::Ok);
+        if (in.status() != QDataStream::Ok) {
+            qWarning() << "Stream is no ok!!!";
+            exit(1);
+        }
 
         commandList.append(command);
     }
