@@ -43,8 +43,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/target.h>
-#include <remotelinux/maemorunconfiguration.h>
 #include <remotelinux/linuxdeviceconfigurations.h>
+#include <remotelinux/remotelinuxrunconfiguration.h>
 #include <qt4projectmanager/qt-desktop/qt4runconfiguration.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 
@@ -547,14 +547,14 @@ bool TestConfig::isRemoteTarget(QString &deviceName, QString &testDeviceType,
     if (m_activeProject && m_activeProject->activeTarget()) {
         ProjectExplorer::RunConfiguration *r = m_activeProject->activeTarget()->activeRunConfiguration();
         if (r) {
-            if (r->id() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration")) {
-                RemoteLinux::Internal::MaemoRunConfiguration *mr = static_cast<RemoteLinux::Internal::MaemoRunConfiguration*>(r);
+            if (r->id() == QLatin1String("RemoteLinuxRunConfiguration")) {
+                RemoteLinux::RemoteLinuxRunConfiguration *mr = static_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(r);
                 if (mr) {
                     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> mc = mr->deviceConfig();
                     if (mc){
                         deviceName = mc->name();
                         sshParameters = mc->sshParameters();
-                        testDeviceType = QLatin1String("Maemo");//Qt4Test::TestController::Maemo;
+                        testDeviceType = QLatin1String("RemoteLinux");//Qt4Test::TestController::Maemo;
                         return true;
                     }else{
                         qWarning() << "Invalid remote" << deviceName;
@@ -989,9 +989,9 @@ QStringList *TestConfig::runEnvironment()
             } else if (rc->id() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration")) {
                 m_runEnvironment =
                     static_cast<ProjectExplorer::CustomExecutableRunConfiguration*>(rc)->environment().toStringList();
-            } else if (rc->id() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration")) {
+            } else if (rc->id() == QLatin1String("RemoteLinuxRunConfiguration")) {
                 m_runEnvironment =
-                    static_cast<RemoteLinux::Internal::MaemoRunConfiguration*>(rc)->environment().toStringList();
+                    static_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(rc)->environment().toStringList();
             }
         }
     }

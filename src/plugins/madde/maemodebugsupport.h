@@ -28,50 +28,31 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMODEBUGSUPPORT_H
+#define MAEMODEBUGSUPPORT_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <remotelinux/remotelinuxdebugsupport.h>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class MaemoRunConfiguration;
+class MaemoSshRunner;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoDebugSupport : public RemoteLinux::AbstractRemoteLinuxDebugSupport
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
+    ~MaemoDebugSupport();
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    RemoteLinux::AbstractRemoteLinuxApplicationRunner *runner() const;
+
+    MaemoSshRunner * const m_runner;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMODEBUGSUPPORT_H

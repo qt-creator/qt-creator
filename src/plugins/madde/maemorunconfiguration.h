@@ -28,50 +28,54 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#ifndef MAEMORUNCONFIGURATION_H
+#define MAEMORUNCONFIGURATION_H
 
-#include "remotelinux_export.h"
+#include <remotelinux/remotelinuxrunconfiguration.h>
 
-#include <projectexplorer/deployconfiguration.h>
-
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class AbstractQt4MaemoTarget;
+class MaemoRemoteMountsModel;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    MaemoRunConfiguration(AbstractQt4MaemoTarget *parent, const QString &proFilePath);
+    MaemoRunConfiguration(AbstractQt4MaemoTarget *parent, MaemoRunConfiguration *source);
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map);
+    bool isEnabled() const;
+    QWidget *createConfigurationWidget();
+    QString environmentPreparationCommand() const;
+    QString commandPrefix() const;
+    RemoteLinux::PortList freePorts() const;
+    DebuggingType debuggingType() const;
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
+    Internal::MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
+    bool hasEnoughFreePorts(const QString &mode) const;
+    QString localDirToMountForRemoteGdb() const;
+    QString remoteProjectSourcesMountPoint() const;
+
+    static const QString Id;
 
 signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+    void remoteMountsChanged();
 
 private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    void handleRemoteMountsChanged();
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    void init();
+    const AbstractQt4MaemoTarget *maemoTarget() const;
+
+    MaemoRemoteMountsModel *m_remoteMounts;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMORUNCONFIGURATION_H

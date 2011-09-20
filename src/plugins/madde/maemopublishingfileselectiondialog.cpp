@@ -28,50 +28,38 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#include "maemopublishingfileselectiondialog.h"
+#include "ui_maemopublishingfileselectiondialog.h"
 
-#include <projectexplorer/deployconfiguration.h>
+#include "maemopublishedprojectmodel.h"
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+MaemoPublishingFileSelectionDialog::MaemoPublishingFileSelectionDialog(const QString &projectPath,
+    QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::MaemoPublishingFileSelectionDialog)
 {
-    Q_OBJECT
+    ui->setupUi(this);
+    m_projectModel = new MaemoPublishedProjectModel(this);
+    const QModelIndex rootIndex = m_projectModel->setRootPath(projectPath);
+    m_projectModel->initFilesToExclude();
+    ui->projectView->setModel(m_projectModel);
+    ui->projectView->setRootIndex(rootIndex);
+    ui->projectView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
+}
 
-public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+MaemoPublishingFileSelectionDialog::~MaemoPublishingFileSelectionDialog()
+{
+    delete ui;
+}
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+QStringList MaemoPublishingFileSelectionDialog::filesToExclude() const
+{
+    return m_projectModel->filesToExclude();
+}
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
-
-private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
-};
-
-} // namespace RemoteLinux
-
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+} // namespace Internal
+} // namespace Madde

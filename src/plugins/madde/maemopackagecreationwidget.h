@@ -28,50 +28,56 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOPACKAGECREATIONWIDGET_H
+#define MAEMOPACKAGECREATIONWIDGET_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/buildstep.h>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+QT_BEGIN_NAMESPACE
+namespace Ui { class MaemoPackageCreationWidget; }
+QT_END_NAMESPACE
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class AbstractMaemoPackageCreationStep;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoPackageCreationWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    MaemoPackageCreationWidget(AbstractMaemoPackageCreationStep *step);
+    ~MaemoPackageCreationWidget();
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+    virtual QString summaryText() const;
+    virtual QString displayName() const;
 
 private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    void editDebianFile();
+    void editSpecFile();
+    void versionInfoChanged();
+    void initGui();
+    void updateDebianFileList();
+    void updateVersionInfo();
+    void handleControlFileUpdate();
+    void handleSpecFileUpdate();
+    void setPackageManagerIcon();
+    void setPackageManagerName();
+    void setPackageName();
+    void setShortDescription();
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    void updatePackageManagerIcon();
+    void updatePackageName();
+    void updatePackageManagerName();
+    void updateShortDescription();
+    void editFile(const QString &filePath);
+
+    AbstractMaemoPackageCreationStep * const m_step;
+    Ui::MaemoPackageCreationWidget * const m_ui;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOPACKAGECREATIONWIDGET_H

@@ -28,50 +28,41 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOPACKAGECREATIONFACTORY_H
+#define MAEMOPACKAGECREATIONFACTORY_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/buildstep.h>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoPackageCreationFactory : public ProjectExplorer::IBuildStepFactory
 {
-    Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    MaemoPackageCreationFactory(QObject *parent = 0);
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+    virtual QStringList availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
+    virtual QString displayNameForId(const QString &id) const;
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
+    virtual bool canCreate(ProjectExplorer::BuildStepList *parent,
+                           const QString &id) const;
+    virtual ProjectExplorer::BuildStep *
+            create(ProjectExplorer::BuildStepList *parent, const QString &id);
 
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+    virtual bool canRestore(ProjectExplorer::BuildStepList *parent,
+                            const QVariantMap &map) const;
+    virtual ProjectExplorer::BuildStep *
+            restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
 
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
-
-private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    virtual bool canClone(ProjectExplorer::BuildStepList *parent,
+                          ProjectExplorer::BuildStep *product) const;
+    virtual ProjectExplorer::BuildStep *
+            clone(ProjectExplorer::BuildStepList *parent,
+                  ProjectExplorer::BuildStep *product);
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOPACKAGECREATIONFACTORY_H

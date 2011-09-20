@@ -28,50 +28,39 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMORUNCONTROL_H
+#define MAEMORUNCONTROL_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <remotelinux/remotelinuxruncontrol.h>
 
 namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+class RemoteLinuxRunConfiguration;
+}
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class MaemoSshRunner;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoRunControl : public RemoteLinux::AbstractRemoteLinuxRunControl
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfig);
+    virtual ~MaemoRunControl();
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+    void start();
 
 private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    void handleMountDebugOutput(const QString &output);
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    virtual RemoteLinux::AbstractRemoteLinuxApplicationRunner *runner() const;
+
+    MaemoSshRunner * const m_runner;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMORUNCONTROL_H

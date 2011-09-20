@@ -28,50 +28,38 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOCONSTANTS_H
+#define MAEMOCONSTANTS_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <QtCore/QLatin1String>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
+
+const char Maemo5OsType[] = "Maemo5OsType";
+const char HarmattanOsType[] = "HarmattanOsType";
+const char MeeGoOsType[] = "MeeGoOsType";
+
+#define PREFIX "Qt4ProjectManager.MaemoRunConfiguration"
+
+#ifdef Q_OS_WIN32
+#define EXEC_SUFFIX ".exe"
+#else
+#define EXEC_SUFFIX ""
+#endif
+
+static const QLatin1String MAEMO_RC_ID(PREFIX);
+static const QLatin1String MAEMO_RC_ID_PREFIX(PREFIX ".");
+
+static const QLatin1String LastDeployedHostsKey(PREFIX ".LastDeployedHosts");
+static const QLatin1String LastDeployedFilesKey(PREFIX ".LastDeployedFiles");
+static const QLatin1String LastDeployedRemotePathsKey(PREFIX ".LastDeployedRemotePaths");
+static const QLatin1String LastDeployedTimesKey(PREFIX ".LastDeployedTimes");
+static const QLatin1String ExportedLocalDirsKey(PREFIX ".ExportedLocalDirs");
+static const QLatin1String RemoteMountPointsKey(PREFIX ".RemoteMountPoints");
+
 } // namespace Internal
+} // namespace Madde
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
-{
-    Q_OBJECT
-
-public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
-
-private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
-};
-
-} // namespace RemoteLinux
-
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif  // MAEMOCONSTANTS_H

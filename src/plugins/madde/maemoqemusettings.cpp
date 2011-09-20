@@ -28,50 +28,44 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#include "maemoqemusettings.h"
 
-#include <projectexplorer/deployconfiguration.h>
+#include <coreplugin/icore.h>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+#include <QtCore/QSettings>
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+namespace {
+const QString SettingsGroup = QLatin1String("Maemo Qemu Settings");
+const QString OpenGlModeKey = QLatin1String("OpenGl Mode");
+} // anonymous namespace
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+MaemoQemuSettings::OpenGlMode MaemoQemuSettings::openGlMode()
 {
-    Q_OBJECT
+    if (!m_initialized) {
+        QSettings *settings = Core::ICore::instance()->settings();
+        settings->beginGroup(SettingsGroup);
+        m_openGlMode = static_cast<OpenGlMode>(settings->value(OpenGlModeKey, AutoDetect).toInt());
+        settings->endGroup();
+        m_initialized = true;
+    }
+    return m_openGlMode;
+}
 
-public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+void MaemoQemuSettings::setOpenGlMode(OpenGlMode openGlMode)
+{
+    Q_ASSERT(m_initialized);
+    m_openGlMode = openGlMode;
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup(SettingsGroup);
+    settings->setValue(OpenGlModeKey, m_openGlMode);
+    settings->endGroup();
+}
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+bool MaemoQemuSettings::m_initialized = false;
+MaemoQemuSettings::OpenGlMode MaemoQemuSettings::m_openGlMode;
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
-
-private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
-};
-
-} // namespace RemoteLinux
-
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+} // namespace Internal
+} // namespace Madde

@@ -28,50 +28,29 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOQEMUSETTINGS_H
+#define MAEMOQEMUSETTINGS_H
 
-#include <projectexplorer/deployconfiguration.h>
-
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoQemuSettings
 {
-    Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    enum OpenGlMode { HardwareAcceleration, SoftwareRendering, AutoDetect };
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    static OpenGlMode openGlMode();
+    static void setOpenGlMode(OpenGlMode openGlMode);
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    MaemoQemuSettings();
+
+    static bool m_initialized;
+    static OpenGlMode m_openGlMode;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOQEMUSETTINGS_H

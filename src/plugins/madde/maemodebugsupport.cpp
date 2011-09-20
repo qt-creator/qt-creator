@@ -28,50 +28,29 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#include "maemodebugsupport.h"
 
-#include "remotelinux_export.h"
+#include "maemorunconfiguration.h"
+#include "maemosshrunner.h"
 
-#include <projectexplorer/deployconfiguration.h>
+#include <remotelinux/linuxdeviceconfiguration.h>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+using namespace RemoteLinux;
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine)
+    : AbstractRemoteLinuxDebugSupport(runConfig, engine),
+      m_runner(new MaemoSshRunner(this, runConfig))
 {
-    Q_OBJECT
+}
 
-public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+MaemoDebugSupport::~MaemoDebugSupport()
+{
+}
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+AbstractRemoteLinuxApplicationRunner *MaemoDebugSupport::runner() const { return m_runner; }
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
-
-private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
-};
-
-} // namespace RemoteLinux
-
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+} // namespace Internal
+} // namespace Madde

@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,50 +29,31 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#ifndef MADDEDEVICECONFIGURATIONFACTORY_H
+#define MADDEDEVICECONFIGURATIONFACTORY_H
 
-#include "remotelinux_export.h"
+#include <remotelinux/linuxdeviceconfiguration.h>
 
-#include <projectexplorer/deployconfiguration.h>
-
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaddeDeviceConfigurationFactory : public RemoteLinux::ILinuxDeviceConfigurationFactory
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    MaddeDeviceConfigurationFactory(QObject *parent = 0);
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
-
-private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    QString displayName() const;
+    RemoteLinux::ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent) const;
+    bool supportsOsType(const QString &osType) const;
+    QString displayNameForOsType(const QString &osType) const;
+    QStringList supportedDeviceActionIds() const;
+    QString displayNameForActionId(const QString &actionId) const;
+    QDialog *createDeviceAction(const QString &actionId,
+        const RemoteLinux::LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent) const;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MADDEDEVICECONFIGURATIONFACTORY_H

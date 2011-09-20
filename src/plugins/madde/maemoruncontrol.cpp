@@ -28,50 +28,41 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#include "maemoruncontrol.h"
 
-#include <projectexplorer/deployconfiguration.h>
+#include "maemoglobal.h"
+#include "maemorunconfiguration.h"
+#include "maemosshrunner.h"
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+using namespace RemoteLinux;
+using ProjectExplorer::RunConfiguration;
+
+MaemoRunControl::MaemoRunControl(RunConfiguration *rc)
+    : AbstractRemoteLinuxRunControl(rc)
+    , m_runner(new MaemoSshRunner(this, qobject_cast<MaemoRunConfiguration *>(rc)))
 {
-    Q_OBJECT
+}
 
-public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+MaemoRunControl::~MaemoRunControl()
+{
+}
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+void MaemoRunControl::start()
+{
+    AbstractRemoteLinuxRunControl::start();
+    connect(m_runner, SIGNAL(mountDebugOutput(QString)), SLOT(handleMountDebugOutput(QString)));
+}
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
+void MaemoRunControl::handleMountDebugOutput(const QString &output)
+{
+    appendMessage(output, Utils::StdErrFormatSameLine);
+}
 
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+AbstractRemoteLinuxApplicationRunner *MaemoRunControl::runner() const { return m_runner; }
 
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
-
-private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
-};
-
-} // namespace RemoteLinux
-
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+} // namespace Internal
+} // namespace Madde

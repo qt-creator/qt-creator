@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,50 +29,44 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#ifndef MAEMOQTVERSION_H
+#define MAEMOQTVERSION_H
 
-#include "remotelinux_export.h"
+#include <qtsupport/baseqtversion.h>
 
-#include <projectexplorer/deployconfiguration.h>
-
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoQtVersion : public QtSupport::BaseQtVersion
 {
-    Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    MaemoQtVersion();
+    MaemoQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    ~MaemoQtVersion();
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+    void fromMap(const QVariantMap &map);
+    MaemoQtVersion *clone() const;
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
+    QString type() const;
+    bool isValid() const;
+    QString systemRoot() const;
+    QList<ProjectExplorer::Abi> detectQtAbis() const;
+    void addToEnvironment(Utils::Environment &env) const;
 
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+    bool supportsTargetId(const QString &id) const;
+    QSet<QString> supportedTargetIds() const;
 
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    QString description() const;
 
+    bool supportsShadowBuilds() const;
+    QString osType() const;
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    mutable QString m_systemRoot;
+    mutable QString m_osType;
+    mutable bool m_isvalidVersion;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOQTVERSION_H

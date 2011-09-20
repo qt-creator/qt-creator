@@ -28,50 +28,55 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOSSHRUNNER_H
+#define MAEMOSSHRUNNER_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include "maemomountspecification.h"
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+#include <remotelinux/remotelinuxapplicationrunner.h>
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class MaemoRemoteMounter;
+class MaemoRunConfiguration;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoSshRunner : public RemoteLinux::AbstractRemoteLinuxApplicationRunner
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
+    MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig);
+    ~MaemoSshRunner();
 
 signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+    void mountDebugOutput(const QString &output);
 
 private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    void handleMounted();
+    void handleUnmounted();
+    void handleMounterError(const QString &errorMsg);
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    enum MountState { InactiveMountState, InitialUnmounting, Mounting, Mounted, PostRunUnmounting };
+
+    bool canRun(QString &whyNot) const;
+    void doDeviceSetup();
+    void doAdditionalInitialCleanup();
+    void doAdditionalInitializations();
+    void doPostRunCleanup();
+    void doAdditionalConnectionErrorHandling();
+    QString killApplicationCommandLine() const;
+
+    void mount();
+    void unmount();
+
+    MaemoRemoteMounter * const m_mounter;
+    QList<MaemoMountSpecification> m_mountSpecs;
+    MountState m_mountState;
+    int m_qtId;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOSSHRUNNER_H

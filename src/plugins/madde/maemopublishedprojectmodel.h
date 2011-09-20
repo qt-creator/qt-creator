@@ -28,50 +28,41 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOPUBLISHEDPROJECTMODEL_H
+#define MAEMOPUBLISHEDPROJECTMODEL_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <QtCore/QSet>
+#include <QtCore/QStringList>
+#include <QtGui/QFileSystemModel>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoPublishedProjectModel : public QFileSystemModel
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    explicit MaemoPublishedProjectModel(QObject *parent = 0);
+    void initFilesToExclude();
+    QStringList filesToExclude() const { return m_filesToExclude.toList(); }
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    virtual int columnCount(const QModelIndex &parent) const;
+    virtual int rowCount(const QModelIndex &parent) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation,
+        int role) const;
+    virtual QVariant data(const QModelIndex &index, int role) const;
+    virtual bool setData(const QModelIndex &index, const QVariant &value,
+        int role);
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    void initFilesToExclude(const QString &filePath);
+
+    QSet<QString> m_filesToExclude;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOPUBLISHEDPROJECTMODEL_H

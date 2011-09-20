@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,50 +29,46 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef ABSTRACTMAEMOPACKAGEINSTALLER_H
+#define ABSTRACTMAEMOPACKAGEINSTALLER_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <remotelinux/remotelinuxpackageinstaller.h>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoDebianPackageInstaller: public RemoteLinux::AbstractRemoteLinuxPackageInstaller
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+    explicit MaemoDebianPackageInstaller(QObject *parent);
 
 private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    void handleInstallerErrorOutput(const QString &output);
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    void prepareInstallation();
+    QString errorString() const;
+    QString installCommandLine(const QString &packageFilePath) const;
+    QString cancelInstallationCommandLine() const;
+
+    QString m_installerStderr;
 };
 
-} // namespace RemoteLinux
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+class MaemoRpmPackageInstaller : public RemoteLinux::AbstractRemoteLinuxPackageInstaller
+{
+    Q_OBJECT
+public:
+    MaemoRpmPackageInstaller(QObject *parent);
+
+private:
+    QString installCommandLine(const QString &packageFilePath) const;
+    QString cancelInstallationCommandLine() const;
+};
+
+} // namespace Internal
+} // namespace Madde
+
+#endif // ABSTRACTMAEMOPACKAGEINSTALLER_H

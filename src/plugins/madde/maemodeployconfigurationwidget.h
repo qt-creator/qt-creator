@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,50 +29,56 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMODEPLOYCONFIGURATIONWIDGET_H
+#define MAEMODEPLOYCONFIGURATIONWIDGET_H
 
 #include <projectexplorer/deployconfiguration.h>
 
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class MaemoDeployConfigurationWidget;
+}
+QT_END_NAMESPACE
+
 namespace RemoteLinux {
 class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+class RemoteLinuxDeployConfigurationWidget;
+}
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class Qt4MaemoDeployConfiguration;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoDeployConfigurationWidget : public ProjectExplorer::DeployConfigurationWidget
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    explicit MaemoDeployConfigurationWidget(QWidget *parent = 0);
+    ~MaemoDeployConfigurationWidget();
 
     void init(ProjectExplorer::DeployConfiguration *dc);
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+    Qt4MaemoDeployConfiguration *deployConfiguration() const;
 
 private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    void addDesktopFile();
+    void addIcon();
+    void handleDeploymentInfoToBeReset();
+    void handleCurrentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    bool canAddDesktopFile(const RemoteLinux::DeployableFilesPerProFile *proFileInfo) const;
+    bool canAddIcon(const RemoteLinux::DeployableFilesPerProFile *proFileInfo) const;
+    QString remoteIconFilePath(const RemoteLinux::DeployableFilesPerProFile *proFileInfo) const;
+    QString remoteIconDir() const;
+
+    Ui::MaemoDeployConfigurationWidget *ui;
+    RemoteLinux::RemoteLinuxDeployConfigurationWidget * const m_remoteLinuxWidget;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMODEPLOYCONFIGURATIONWIDGET_H

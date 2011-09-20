@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,50 +29,32 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#ifndef MAEMOPUBLISHINGSERVICE_H
+#define MAEMOPUBLISHINGSERVICE_H
 
-#include "remotelinux_export.h"
+#include <projectexplorer/publishing/ipublishingwizardfactory.h>
 
-#include <projectexplorer/deployconfiguration.h>
+namespace Core {
+class SshRemoteProcessRunner;
+}
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoPublishingWizardFactoryFremantleFree
+    : public ProjectExplorer::IPublishingWizardFactory
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
-
+    explicit MaemoPublishingWizardFactoryFremantleFree(QObject *parent =0);
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    virtual QString displayName() const;
+    virtual QString description() const;
+    virtual bool canCreateWizard(const ProjectExplorer::Project *project) const;
+    virtual QWizard *createWizard(const ProjectExplorer::Project *project) const;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOPUBLISHINGSERVICE_H

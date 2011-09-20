@@ -35,19 +35,7 @@
 #include "deployablefile.h"
 #include "genericlinuxdeviceconfigurationfactory.h"
 #include "genericremotelinuxdeploystepfactory.h"
-#include "maddedeviceconfigurationfactory.h"
-#include "maemoconstants.h"
-#include "maemodeploystepfactory.h"
 #include "linuxdeviceconfigurations.h"
-#include "maemopackagecreationfactory.h"
-#include "maemopublishingwizardfactories.h"
-#include "maemoqemumanager.h"
-#include "maemorunfactories.h"
-#include "maemosettingspages.h"
-#include "maemotoolchain.h"
-#include "qt4maemodeployconfiguration.h"
-#include "maemoqtversionfactory.h"
-#include "qt4maemotargetfactory.h"
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
 #include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxrunconfigurationfactory.h"
@@ -73,22 +61,10 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    MaemoQemuManager::instance(this);
     LinuxDeviceConfigurations::instance(this);
 
-    addAutoReleasedObject(new MaemoRunControlFactory);
-    addAutoReleasedObject(new MaemoRunConfigurationFactory);
-    addAutoReleasedObject(new MaemoToolChainFactory);
-    addAutoReleasedObject(new Qt4MaemoDeployConfigurationFactory);
-    addAutoReleasedObject(new MaemoPackageCreationFactory);
-    addAutoReleasedObject(new MaemoDeployStepFactory);
     addAutoReleasedObject(new LinuxDeviceConfigurationsSettingsPage);
-    addAutoReleasedObject(new MaemoQemuSettingsPage);
-    addAutoReleasedObject(new MaemoPublishingWizardFactoryFremantleFree);
-    addAutoReleasedObject(new Qt4MaemoTargetFactory);
-    addAutoReleasedObject(new MaemoQtVersionFactory);
     addAutoReleasedObject(new GenericLinuxDeviceConfigurationFactory);
-    addAutoReleasedObject(new MaddeDeviceConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunControlFactory);
     addAutoReleasedObject(new RemoteLinuxDeployConfigurationFactory);

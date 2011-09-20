@@ -28,50 +28,38 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOPUBLISHINGFILESELECTIONDIALOG_H
+#define MAEMOPUBLISHINGFILESELECTIONDIALOG_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <QtCore/QStringList>
+#include <QtGui/QDialog>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+QT_BEGIN_NAMESPACE
+namespace Ui {
+    class MaemoPublishingFileSelectionDialog;
+}
+QT_END_NAMESPACE
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoPublishingFileSelectionDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    explicit MaemoPublishingFileSelectionDialog(const QString &projectPath,
+        QWidget *parent = 0);
+    ~MaemoPublishingFileSelectionDialog();
+    QStringList filesToExclude() const;
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    Ui::MaemoPublishingFileSelectionDialog *ui;
+    class MaemoPublishedProjectModel *m_projectModel;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOPUBLISHINGFILESELECTIONDIALOG_H

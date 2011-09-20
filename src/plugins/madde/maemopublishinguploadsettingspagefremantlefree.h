@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,50 +29,45 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#ifndef MAEMOPUBLISHINGUPLOADSETTINGSWIZARDPAGE_H
+#define MAEMOPUBLISHINGUPLOADSETTINGSWIZARDPAGE_H
 
-#include "remotelinux_export.h"
+#include <QtGui/QWizardPage>
 
-#include <projectexplorer/deployconfiguration.h>
+QT_BEGIN_NAMESPACE
+namespace Ui {
+    class MaemoPublishingUploadSettingsPageFremantleFree;
+}
+QT_END_NAMESPACE
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class MaemoPublisherFremantleFree;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoPublishingUploadSettingsPageFremantleFree : public QWizardPage
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    explicit MaemoPublishingUploadSettingsPageFremantleFree(MaemoPublisherFremantleFree *publisher,
+        QWidget *parent = 0);
+    ~MaemoPublishingUploadSettingsPageFremantleFree();
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    virtual void initializePage();
+    virtual bool isComplete() const;
+    virtual bool validatePage();
+
+    QString garageAccountName() const;
+    QString privateKeyFilePath() const;
+    QString serverName() const;
+    QString directoryOnServer() const;
+
+    MaemoPublisherFremantleFree * const m_publisher;
+    Ui::MaemoPublishingUploadSettingsPageFremantleFree *ui;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOPUBLISHINGUPLOADSETTINGSWIZARDPAGE_H

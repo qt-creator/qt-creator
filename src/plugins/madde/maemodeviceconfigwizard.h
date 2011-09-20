@@ -28,50 +28,34 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMODEVICECONFIGWIZARD_H
+#define MAEMODEVICECONFIGWIZARD_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <remotelinux/linuxdeviceconfiguration.h>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+struct MaemoDeviceConfigWizardPrivate;
+
+class MaemoDeviceConfigWizard : public RemoteLinux::ILinuxDeviceConfigurationWizard
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    explicit MaemoDeviceConfigWizard(QWidget *parent = 0);
+    ~MaemoDeviceConfigWizard();
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+    RemoteLinux::LinuxDeviceConfiguration::Ptr deviceConfiguration();
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    virtual int nextId() const;
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    MaemoDeviceConfigWizardPrivate *d;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMODEVICECONFIGWIZARD_H

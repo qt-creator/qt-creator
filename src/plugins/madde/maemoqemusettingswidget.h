@@ -28,50 +28,36 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOQEMUSETTINGSWIDGET_H
+#define MAEMOQEMUSETTINGSWIDGET_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <QtGui/QWidget>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+QT_BEGIN_NAMESPACE
+namespace Ui {
+    class MaemoQemuSettingsWidget;
+}
+QT_END_NAMESPACE
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoQemuSettingsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    explicit MaemoQemuSettingsWidget(QWidget *parent = 0);
+    ~MaemoQemuSettingsWidget();
+    void saveSettings();
+    QString keywords() const;
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    Ui::MaemoQemuSettingsWidget *ui;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOQEMUSETTINGSWIDGET_H

@@ -28,50 +28,41 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOPUBLISHINGWIZARDFREMANTLEFREE_H
+#define MAEMOPUBLISHINGWIZARDFREMANTLEFREE_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <utils/wizard.h>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+namespace ProjectExplorer {
+class Project;
+}
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class MaemoPublishingResultPageFremantleFree;
+class MaemoPublisherFremantleFree;
+class MaemoPublishingUploadSettingsPageFremantleFree;
+class MaemoPublishingBuildSettingsPageFremantleFree;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoPublishingWizardFremantleFree : public Utils::Wizard
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    explicit MaemoPublishingWizardFremantleFree(const ProjectExplorer::Project *project,
+        QWidget *parent = 0);
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    virtual int nextId() const;
+
+    const ProjectExplorer::Project * const m_project;
+    MaemoPublisherFremantleFree * const m_publisher;
+    MaemoPublishingBuildSettingsPageFremantleFree *m_buildSettingsPage;
+    MaemoPublishingUploadSettingsPageFremantleFree *m_uploadSettingsPage;
+    MaemoPublishingResultPageFremantleFree *m_resultPage;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOPUBLISHINGWIZARDFREMANTLEFREE_H

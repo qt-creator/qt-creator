@@ -28,50 +28,43 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMOSETTINGSPAGES_H
+#define MAEMOSETTINGSPAGES_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
+namespace Madde{
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class MaemoQemuSettingsWidget;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoQemuSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    MaemoQemuSettingsPage(QObject *parent = 0);
+    ~MaemoQemuSettingsPage();
 
-    void init(ProjectExplorer::DeployConfiguration *dc);
+    virtual QString id() const;
+    virtual QString displayName() const;
+    virtual QString category() const;
+    virtual QString displayCategory() const;
+    virtual QIcon categoryIcon() const;
+    virtual bool matches(const QString &searchKeyWord) const;
+    virtual QWidget *createPage(QWidget *parent);
+    virtual void apply();
+    virtual void finish();
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
-private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    static void showQemuCrashDialog();
+    static QString pageId();
+    static QString pageCategory();
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    QString m_keywords;
+    MaemoQemuSettingsWidget *m_widget;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMOSETTINGSPAGES_H

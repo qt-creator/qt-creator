@@ -28,50 +28,59 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
 
-#include "remotelinux_export.h"
+#ifndef MAEMORUNCONFIGURATIONWIDGET_H
+#define MAEMORUNCONFIGURATIONWIDGET_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QModelIndex;
+class QTableView;
+class QToolButton;
+class QVBoxLayout;
+QT_END_NAMESPACE
+
+namespace Utils { class DetailsWidget; }
 
 namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
+class RemoteLinuxRunConfigurationWidget;
+}
 
+namespace Madde {
 namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+class MaemoRunConfiguration;
 
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::DeployConfigurationWidget
+class MaemoRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
-
-    void init(ProjectExplorer::DeployConfiguration *dc);
-
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
+    explicit MaemoRunConfigurationWidget(MaemoRunConfiguration *runConfiguration,
+        QWidget *parent = 0);
 
 private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void handleSelectedDeviceConfigurationChanged(int index);
-    void handleDeviceConfigurationListChanged();
-    void showDeviceConfigurations();
+    void addMount();
+    void removeMount();
+    void changeLocalMountDir(const QModelIndex &index);
+    void enableOrDisableRemoveMountSpecButton();
+    void handleRemoteMountsChanged();
+    void updateMountWarning();
+    void runConfigurationEnabledChange(bool enabled);
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    void addMountWidgets(QVBoxLayout *mainLayout);
+
+    QWidget *m_subWidget;
+    QLabel *m_mountWarningLabel;
+    QTableView *m_mountView;
+    QToolButton *m_removeMountButton;
+    Utils::DetailsWidget *m_mountDetailsContainer;
+    RemoteLinux::RemoteLinuxRunConfigurationWidget *m_remoteLinuxRunConfigWidget;
+    MaemoRunConfiguration *m_runConfiguration;
 };
 
-} // namespace RemoteLinux
+} // namespace Internal
+} // namespace Madde
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // MAEMORUNCONFIGURATIONWIDGET_H
