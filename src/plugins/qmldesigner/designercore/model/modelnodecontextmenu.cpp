@@ -206,8 +206,8 @@ static inline void getProperties(const ModelNode node, QHash<QString, QVariant> 
     if (QmlObjectNode(node).isValid()) {
         foreach (const QString &propertyName, node.propertyNames()) {
             if (node.property(propertyName).isVariantProperty() ||
-                    node.property(propertyName).isBindingProperty() &&
-                    !propertyName.contains(QLatin1String("anchors."))) {
+                    (node.property(propertyName).isBindingProperty() &&
+                     !propertyName.contains(QLatin1String("anchors.")))) {
                 propertyHash.insert(propertyName, QmlObjectNode(node).instanceValue(propertyName));
             }
         }
