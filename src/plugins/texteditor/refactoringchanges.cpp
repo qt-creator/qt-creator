@@ -37,7 +37,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QSet>
@@ -120,10 +120,12 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     }
 
     if (!editor) {
-        Utils::FileSaver saver(fileName);
-        saver.write(document->toPlainText().toUtf8());
+        Utils::TextFileFormat format;
+        format.codec = Core::EditorManager::instance()->defaultTextCodec();
+        QString error;
+        bool saveOk = format.writeFile(fileName, document->toPlainText(), &error);
         delete document;
-        if (!saver.finalize(Core::ICore::instance()->mainWindow()))
+        if (!saveOk)
             return false;
     }
 
@@ -219,11 +221,19 @@ QTextDocument *RefactoringFile::mutableDocument() const
         return m_editor->document();
     else if (!m_document) {
         QString fileContents;
-        if (!m_fileName.isEmpty() && QFile::exists(m_fileName)) {
-            Utils::FileReader reader;
-            if (reader.fetch(m_fileName, Core::ICore::instance()->mainWindow()))
-                fileContents = QString::fromUtf8(reader.data());
+        if (!m_fileName.isEmpty()) {
+            QString error;
+            QTextCodec *defaultCodec = Core::EditorManager::instance()->defaultTextCodec();
+            Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
+                        m_fileName, defaultCodec,
+                        &fileContents, &m_textFileFormat,
+                        &error);
+            if (result != Utils::TextFileFormat::ReadSuccess) {
+                qWarning() << "Could not read " << m_fileName << ". Error: " << error;
+                m_textFileFormat.codec = 0;
+            }
         }
+        // always make a QTextDocument to avoid excessive null checks
         m_document = new QTextDocument(fileContents);
     }
     return m_document;
@@ -325,7 +335,10 @@ void RefactoringFile::apply()
     // apply changes, if any
     if (m_data && !(m_indentRanges.isEmpty() && m_changes.isEmpty())) {
         QTextDocument *doc = mutableDocument();
-        if (doc) {
+        if (!doc)
+            return;
+
+        {
             QTextCursor c(doc);
             c.beginEditBlock();
 
@@ -346,10 +359,11 @@ void RefactoringFile::apply()
         }
 
         // if this document doesn't have an editor, write the result to a file
-        if (!m_editor && !m_fileName.isEmpty()) {
-            Utils::FileSaver saver(m_fileName);
-            saver.write(doc->toPlainText().toUtf8());
-            saver.finalize(Core::ICore::instance()->mainWindow());
+        if (!m_editor && m_textFileFormat.codec) {
+            QTC_ASSERT(!m_fileName.isEmpty(), return);
+            QString error;
+            if (!m_textFileFormat.writeFile(m_fileName, doc->toPlainText(), &error))
+                qWarning() << "Could not apply changes to" << m_fileName << ". Error: " << error;
         }
 
         fileChanged();

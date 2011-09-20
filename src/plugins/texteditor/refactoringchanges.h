@@ -34,6 +34,7 @@
 #define REFACTORINGCHANGES_H
 
 #include <utils/changeset.h>
+#include <utils/textfileformat.h>
 #include <texteditor/texteditor_global.h>
 
 #include <QtCore/QList>
@@ -83,7 +84,10 @@ public:
     void apply();
 
 protected:
+    // users may only get const access to RefactoringFiles created through
+    // this constructor, because it can't be used to apply changes
     RefactoringFile(QTextDocument *document, const QString &fileName);
+
     RefactoringFile(BaseTextEditorWidget *editor);
     RefactoringFile(const QString &fileName, const QSharedPointer<RefactoringChangesData> &data);
 
@@ -94,6 +98,7 @@ protected:
 protected:
     QString m_fileName;
     QSharedPointer<RefactoringChangesData> m_data;
+    mutable Utils::TextFileFormat m_textFileFormat;
     mutable QTextDocument *m_document;
     BaseTextEditorWidget *m_editor;
     Utils::ChangeSet m_changes;
