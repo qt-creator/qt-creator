@@ -161,8 +161,8 @@ struct CrumbleBarInfo {
     QString fileName;
 };
 
-Q_DECLARE_METATYPE(CrumbleBarInfo)
-
 } // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::CrumbleBarInfo)
 
 #endif // DesignDocumentController_h
