@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>387</width>
-    <height>334</height>
+    <width>691</width>
+    <height>341</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -16,15 +16,15 @@
      <property name="title">
       <string>Behavior</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="0" colspan="2">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
        <widget class="QCheckBox" name="checkBoxUseAlternatingRowColors">
         <property name="text">
          <string>Use alternating row colors in debug views</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="0" column="1">
        <widget class="QCheckBox" name="checkBoxFontSizeFollowsEditor">
         <property name="toolTip">
          <string>Change the font size in the debugger views when the font size in the main editor changes.</string>
@@ -34,14 +34,14 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="1" column="0">
        <widget class="QCheckBox" name="checkBoxUseToolTipsInMainEditor">
         <property name="text">
          <string>Use tooltips in main editor while debugging</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="1" column="1">
        <widget class="QCheckBox" name="checkBoxListSourceFiles">
         <property name="toolTip">
          <string>Populate the source file view automatically. This might slow down debugger startup considerably.</string>
@@ -51,17 +51,7 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxRegisterForPostMortem">
-        <property name="toolTip">
-         <string>Register Qt Creator for debugging crashed applications.</string>
-        </property>
-        <property name="text">
-         <string>Use Qt Creator for post-mortem debugging</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" colspan="2">
+      <item row="2" column="0">
        <widget class="QCheckBox" name="checkBoxCloseBuffersOnExit">
         <property name="toolTip">
          <string>Close temporary buffers on debugger exit.</string>
@@ -71,7 +61,7 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
+      <item row="2" column="1">
        <widget class="QCheckBox" name="checkBoxSwitchModeOnExit">
         <property name="toolTip">
          <string>Switch to previous mode on debugger exit.</string>
@@ -81,21 +71,31 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="labelMaximalStackDepth">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="checkBoxRegisterForPostMortem">
+        <property name="toolTip">
+         <string>Register Qt Creator for debugging crashed applications.</string>
         </property>
         <property name="text">
-         <string>Maximum stack depth:</string>
+         <string>Use Qt Creator for post-mortem debugging</string>
         </property>
        </widget>
       </item>
-      <item row="9" column="1">
+      <item row="4" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="labelMaximalStackDepth">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Maximum stack depth:</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QSpinBox" name="spinBoxMaximalStackDepth">
           <property name="sizePolicy">
