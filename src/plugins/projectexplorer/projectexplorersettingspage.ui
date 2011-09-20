@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>447</width>
-    <height>491</height>
+    <width>831</width>
+    <height>507</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -20,9 +20,6 @@
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::ExpandingFieldsGrow</enum>
       </property>
-      <item row="1" column="1">
-       <widget class="Utils::PathChooser" name="projectsDirectoryPathChooser"/>
-      </item>
       <item row="0" column="0" colspan="2">
        <widget class="QRadioButton" name="currentDirectoryRadioButton">
         <property name="text">
@@ -46,6 +43,9 @@
         </attribute>
        </widget>
       </item>
+      <item row="1" column="1">
+       <widget class="Utils::PathChooser" name="projectsDirectoryPathChooser"/>
+      </item>
      </layout>
     </widget>
    </item>
@@ -54,50 +54,29 @@
      <property name="title">
       <string>Build and Run</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
        <widget class="QCheckBox" name="saveAllFilesCheckBox">
         <property name="text">
          <string>Save all files before build</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="buildProjectBeforeDeployCheckBox">
-        <property name="text">
-         <string>Always build project before deploying it</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="deployProjectBeforeRunCheckBox">
-        <property name="text">
-         <string>Always deploy project before running it</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="showCompileOutputCheckBox">
-        <property name="text">
-         <string>Open compiler output pane when building</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="showRunOutputCheckBox">
-        <property name="text">
-         <string>Open application output pane when running</string>
-        </property>
-       </widget>
-      </item>
-      <item>
+      <item row="0" column="1">
        <widget class="QCheckBox" name="cleanOldAppOutputCheckBox">
         <property name="text">
          <string>Clear old application output on a new run</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="buildProjectBeforeDeployCheckBox">
+        <property name="text">
+         <string>Always build project before deploying it</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
        <widget class="QCheckBox" name="mergeStdErrAndStdOutCheckBox">
         <property name="toolTip">
          <string>Enabling this option ensures that the order of interleaved messages from stdout and stderr is preserved, at the cost of disabling highlighting of stderr.</string>
@@ -107,14 +86,28 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="deployProjectBeforeRunCheckBox">
+        <property name="text">
+         <string>Always deploy project before running it</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
        <widget class="QCheckBox" name="wrapAppOutputCheckBox">
         <property name="text">
          <string>Word-wrap application output</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="showCompileOutputCheckBox">
+        <property name="text">
+         <string>Open compiler output pane when building</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" rowspan="2">
        <widget class="QWidget" name="widget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="margin">
@@ -150,23 +143,17 @@
            </property>
           </widget>
          </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
         </layout>
        </widget>
       </item>
-      <item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="showRunOutputCheckBox">
+        <property name="text">
+         <string>Open application output pane when running</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
        <widget class="QCheckBox" name="promptToStopRunControlCheckBox">
         <property name="toolTip">
          <string>Ask before terminating the running application in response to clicking the stop button in Application Output.</string>
@@ -176,7 +163,7 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="6" column="0" colspan="2">
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
          <number>0</number>
@@ -210,6 +197,20 @@
        </layout>
       </item>
      </layout>
+     <zorder>saveAllFilesCheckBox</zorder>
+     <zorder>buildProjectBeforeDeployCheckBox</zorder>
+     <zorder>deployProjectBeforeRunCheckBox</zorder>
+     <zorder>showCompileOutputCheckBox</zorder>
+     <zorder>showRunOutputCheckBox</zorder>
+     <zorder>cleanOldAppOutputCheckBox</zorder>
+     <zorder>mergeStdErrAndStdOutCheckBox</zorder>
+     <zorder>wrapAppOutputCheckBox</zorder>
+     <zorder>widget</zorder>
+     <zorder>promptToStopRunControlCheckBox</zorder>
+     <zorder>label</zorder>
+     <zorder>maxAppOutputBox</zorder>
+     <zorder>label_2</zorder>
+     <zorder>jomCheckbox</zorder>
     </widget>
    </item>
    <item>
