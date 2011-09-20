@@ -1,0 +1,21 @@
+
+Running test.sh tests several replacement patterns for a typical case
+of polymorphism, and creates some statistics of the output.
+
+The 'critical' case is where the implementation is only instantiated
+from a single location.
+
+'Symbols' refers to the number of additional symbols created by the
+pattern (relevant for relocation on application startup and debugger
+performance)
+
+'Size' refers to the size of the '.text' section, i.e. the 'generated
+code'.
+
+'Debug' is the size of the .debug_info section in the binary.
+
+
+Note that the numbers are not directly comparable. As the 'Slim'
+versions push code from the implementation to the user side, the
+ratio will be "better" when the the implementation is instantiated
+from more than one place.

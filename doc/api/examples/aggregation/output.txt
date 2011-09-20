@@ -1,0 +1,35 @@
+Interface/Implementation (out of line)
+
+Symbols:  13
+Size:     2388	  
+Debug:    4541
+
+
+Interface/Implementation (non-virtual)
+
+Symbols:  13
+Size:     2388	  
+Debug:    4431
+
+
+Interface/Implementation (inline)
+
+Symbols:  12
+Size:     2643	  
+Debug:    4402
+
+
+Merged
+
+Symbols:  7
+Size:     2447	  
+Debug:    4342
+
+
+Slimmest possible
+
+Symbols:  0
+Size:     1971	  
+Debug:    4246
+
+
