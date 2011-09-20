@@ -68,6 +68,8 @@ void ClientProxy::connectToServer()
     m_engineClient = new QDeclarativeEngineDebug(m_adapter.data()->connection(), this);
 
     connect(m_engineClient, SIGNAL(newObjects()), this, SLOT(newObjects()));
+    connect(m_engineClient, SIGNAL(statusChanged(QDeclarativeDebugClient::Status)),
+            this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
 
     m_inspectorClient = new QmlJSInspectorClient(m_adapter.data()->connection(), this);
 
@@ -104,8 +106,8 @@ void ClientProxy::connectToServer()
 void ClientProxy::clientStatusChanged(QDeclarativeDebugClient::Status status)
 {
     QString serviceName;
-    if (QDeclarativeDebugClient *client = qobject_cast<QDeclarativeDebugClient*>(sender())) {
-        serviceName = client->name();
+    if (sender()) {
+        serviceName = sender()->objectName();
     }
 
     if (m_adapter)
@@ -613,7 +615,7 @@ void ClientProxy::reparentQmlObject(int debugId, int newParent)
 void ClientProxy::updateConnected()
 {
     bool isConnected = m_inspectorClient && m_inspectorClient->status() == QDeclarativeDebugClient::Enabled
-            && m_engineClient && m_engineClient->status() == QDeclarativeEngineDebug::Enabled;
+            && m_engineClient && m_engineClient->status() == QDeclarativeDebugClient::Enabled;
 
     if (isConnected != m_isConnected) {
         m_isConnected = isConnected;

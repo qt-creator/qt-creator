@@ -45,6 +45,7 @@ QmlJSInspectorClient::QmlJSInspectorClient(QDeclarativeDebugConnection *client,
     : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client) ,
     m_connection(client)
 {
+    setObjectName(name());
 }
 
 void QmlJSInspectorClient::statusChanged(Status status)

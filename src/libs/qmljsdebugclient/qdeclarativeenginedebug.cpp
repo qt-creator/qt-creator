@@ -56,7 +56,7 @@ public:
     QDeclarativeEngineDebugPrivate(QDeclarativeEngineDebug *, QDeclarativeDebugConnection *);
     ~QDeclarativeEngineDebugPrivate();
 
-    void statusChanged(QDeclarativeEngineDebug::Status status);
+    void statusChanged(QDeclarativeDebugClient::Status status);
     void message(const QByteArray &);
 
     QDeclarativeEngineDebugClient *client;
@@ -90,7 +90,7 @@ QDeclarativeEngineDebugClient::QDeclarativeEngineDebugClient(QDeclarativeDebugCo
 void QDeclarativeEngineDebugClient::statusChanged(Status status)
 {
     if (priv)
-        priv->statusChanged(static_cast<QDeclarativeEngineDebug::Status>(status));
+        priv->statusChanged(status);
 }
 
 void QDeclarativeEngineDebugClient::messageReceived(const QByteArray &data)
@@ -313,7 +313,7 @@ void QDeclarativeEngineDebugPrivate::decode(QDataStream &ds, QDeclarativeDebugCo
     }
 }
 
-void QDeclarativeEngineDebugPrivate::statusChanged(QDeclarativeEngineDebug::Status status)
+void QDeclarativeEngineDebugPrivate::statusChanged(QDeclarativeDebugClient::Status status)
 {
     emit q_ptr->statusChanged(status);
 }
@@ -438,17 +438,18 @@ void QDeclarativeEngineDebugPrivate::message(const QByteArray &data)
 QDeclarativeEngineDebug::QDeclarativeEngineDebug(QDeclarativeDebugConnection *client, QObject *parent)
     : QObject(parent), d_ptr(new QDeclarativeEngineDebugPrivate(this, client))
 {
+    setObjectName(d_ptr->client->name());
 }
 
 QDeclarativeEngineDebug::~QDeclarativeEngineDebug()
 {
 }
 
-QDeclarativeEngineDebug::Status QDeclarativeEngineDebug::status() const
+QDeclarativeDebugClient::Status QDeclarativeEngineDebug::status() const
 {
     Q_D(const QDeclarativeEngineDebug);
 
-    return static_cast<QDeclarativeEngineDebug::Status>(d->client->status());
+    return d->client->status();
 }
 
 QDeclarativeDebugPropertyWatch *QDeclarativeEngineDebug::addWatch(const QDeclarativeDebugPropertyReference &property, QObject *parent)

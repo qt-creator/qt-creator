@@ -33,6 +33,7 @@
 #define QDECLARATIVEENGINEDEBUG_H
 
 #include "qmljsdebugclient_global.h"
+#include "qdeclarativedebugclient.h"
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qvariant.h>
@@ -58,12 +59,10 @@ class QMLJSDEBUGCLIENT_EXPORT QDeclarativeEngineDebug : public QObject
 {
     Q_OBJECT
 public:
-    enum Status { NotConnected, Unavailable, Enabled };
-
     explicit QDeclarativeEngineDebug(QDeclarativeDebugConnection *, QObject * = 0);
     ~QDeclarativeEngineDebug();
 
-    Status status() const;
+    QDeclarativeDebugClient::Status status() const;
 
     QDeclarativeDebugPropertyWatch *addWatch(const QDeclarativeDebugPropertyReference &,
                                              QObject *parent = 0);
@@ -96,7 +95,7 @@ public:
 
 Q_SIGNALS:
     void newObjects();
-    void statusChanged(Status status);
+    void statusChanged(QDeclarativeDebugClient::Status status);
 
 private:
     Q_DECLARE_PRIVATE(QDeclarativeEngineDebug)
