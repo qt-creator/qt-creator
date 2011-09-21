@@ -1,7 +1,10 @@
 import tempfile, shutil, os
 
 def tempDir():
-    return tempfile.mkdtemp(prefix="qtcreator_")
+    Result = os.path.abspath(os.getcwd()+"/../../testing")
+    if not os.path.exists(Result):
+        os.mkdir(Result)
+    return tempfile.mkdtemp(prefix="qtcreator_", dir=Result)
 
 def deleteDirIfExists(path):
     shutil.rmtree(path, True)
