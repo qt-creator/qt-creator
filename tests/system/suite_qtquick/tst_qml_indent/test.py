@@ -37,7 +37,7 @@ def createNewQtQuickApplication():
     if cbDefaultLocation.checked:
         clickButton(cbDefaultLocation)
     # now there's the 'untitled' project inside a temporary directory - step forward...!
-    nextButton = waitForObject("{text='Next' type='QPushButton' visible='1'}", 20000)
+    nextButton = waitForObject("{text?='Next*' type='QPushButton' visible='1'}", 20000)
     clickButton(nextButton)
     chooseComponents()
     clickButton(nextButton)
@@ -99,8 +99,7 @@ def testReIndent():
     if originalText==textAfterReIndent:
         test.passes("Text successfully reindented...")
     else:
-        # remove the 2nd parameter of the following???
-        # (it's huge output that takes long time to finish & screenshot is taken either!)
+        # shrink the texts - it's huge output that takes long time to finish & screenshot is taken as well
         originalText = shrinkText(originalText, 20)
         textAfterReIndent = shrinkText(textAfterReIndent, 20)
         test.fail("Re-indent of text unsuccessful...",
@@ -120,8 +119,7 @@ def shrinkText(txt, lines=10):
 def cleanup():
     global workingDir
     # waiting for a clean exit - for a full-remove of the temp directory
-    appCtxt = currentApplicationContext()
-    waitFor("appCtxt.isRunning==False")
+    waitForCleanShutdown()
     if workingDir!=None:
         deleteDirIfExists(workingDir)
 

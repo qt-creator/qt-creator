@@ -12,14 +12,8 @@ def main():
     createNewQtQuickApplication()
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
-    test.log("Building project")
-    invokeMenuItem("Build","Build All")
-    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
-    checkCompile()
-    checkLastBuild()
-    test.log("Running project (includes build)")
-    if runAndCloseApp():
-        logApplicationOutput()
+    testRenameId()
+
     invokeMenuItem("File", "Exit")
 
 def prepareTemplate():
@@ -32,9 +26,14 @@ def prepareTemplate():
 def createNewQtQuickApplication():
     global workingDir,templateDir
     invokeMenuItem("File", "New File or Project...")
-    clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
-    clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick Application", 5, 5, 0, Qt.LeftButton)
+    clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000),
+              "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
+    clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000),
+              "Qt Quick Application", 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    baseLineEd = waitForObject("{name='nameLineEdit' visible='1' "
+                               "type='Utils::ProjectNameValidatingLineEdit'}", 20000)
+    replaceLineEditorContent(baseLineEd, "untitled")
     baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
     replaceLineEditorContent(baseLineEd, workingDir)
     stateLabel = findObject("{type='QLabel' name='stateLabel'}")
@@ -57,9 +56,38 @@ def createNewQtQuickApplication():
     clickButton(nextButton)
     clickButton(waitForObject("{type='QPushButton' text='Finish' visible='1'}", 20000))
 
+def testRenameId():
+    test.log("Testing rename of id")
+    navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
+                            "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    model = navTree.model()
+    treeElement = ("untitled.QML.%s/qml.textselection\\.qml" %
+                   templateDir.replace("\\", "/").replace("_", "\\_"))
+    waitForObjectItem(navTree, treeElement)
+    doubleClickItem(navTree, treeElement, 5, 5, 0, Qt.LeftButton)
+    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
+                           "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    originalText = "%s" % editor.plainText
+    line = "TextEdit\s*\{"
+    if not placeCursorToLine(editor, line, True):
+        test.fatal("File seems to have changed... Canceling current test")
+        return False
+    type(editor, "<Down>")
+    openContextMenuOnTextCursorPosition(editor)
+    activateItem(waitForObjectItem("{type='QMenu' visible='1' unnamed='1'}", "Rename Symbol Under Cursor"))
+    type(waitForObject("{leftWidget={text='Replace with:' type='QLabel' unnamed='1' visible='1'} "
+                       "type='Find::Internal::WideEnoughLineEdit' unnamed='1' visible='1' "
+                       "window=':Qt Creator_Core::Internal::MainWindow'}"), "halloballo")
+    clickButton(waitForObject("{text='Replace' type='QToolButton' unnamed='1' visible='1' "
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    modifiedText = "%s" % editor.plainText
+    originalText = "%s" % (originalText.replace("editor", "__EDITOR__").replace("edit", "halloballo")
+                    .replace("__EDITOR__", "editor"))
+    test.compare(originalText,modifiedText)
+    type(editor, "<Ctrl+S>")
+
 def cleanup():
-    global workingDir,templateDir
-    # waiting for a clean exit - for a full-remove of the temp directory
+    global workingDir, templateDir
     waitForCleanShutdown()
     if workingDir!=None:
         deleteDirIfExists(workingDir)

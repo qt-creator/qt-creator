@@ -1,22 +1,13 @@
 source("../../shared/qtcreator.py")
 
-refreshFinishedCount = 0
-
-def handleRefreshFinished(object, fileList):
-    global refreshFinishedCount
-    refreshFinishedCount += 1
-
 def main():
     test.verify(os.path.exists(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro"))
 
     startApplication("qtcreator" + SettingsPath)
 
-    ## leave this one like this, it's too fast for delayed installation of signal handler
-    installLazySignalHandler("{type='CppTools::Internal::CppModelManager'}", "sourceFilesRefreshed(QStringList)", "handleRefreshFinished")
+    prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     openQmakeProject(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
-
-    waitFor("refreshFinishedCount == 1", 20000)
-    test.compare(refreshFinishedCount, 1)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
 
     mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 5, 5, 0, Qt.LeftButton)
     type(waitForObject(":*Qt Creator_Utils::FilterLineEdit"), "dummy.cpp")

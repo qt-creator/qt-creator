@@ -33,7 +33,7 @@ def createNewQmlExtension():
     if cbDefaultLocation.checked:
         clickButton(cbDefaultLocation)
     # now there's the 'untitled' project inside a temporary directory - step forward...!
-    nextButton = waitForObject("{text='Next' type='QPushButton' visible='1'}", 20000)
+    nextButton = waitForObject("{text?='Next*' type='QPushButton' visible='1'}", 20000)
     clickButton(nextButton)
     chooseDestination()
     clickButton(nextButton)
@@ -50,8 +50,7 @@ def createNewQmlExtension():
 def cleanup():
     global workingDir
     # waiting for a clean exit - for a full-remove of the temp directory
-    appCtxt = currentApplicationContext()
-    waitFor("appCtxt.isRunning==False")
+    waitForCleanShutdown()
     if workingDir!=None:
         deleteDirIfExists(workingDir)
 

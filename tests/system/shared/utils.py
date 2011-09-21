@@ -72,29 +72,24 @@ def replaceLineEditorContent(lineEditor, newcontent):
 
 signalObjects = {}
 
-def callbackFunction(object, *args):
+def __callbackFunction__(object, *args):
     global signalObjects
-#    test.log("callbackFunction: "+objectMap.realName(object))
+#    test.log("__callbackFunction__: "+objectMap.realName(object))
     signalObjects[objectMap.realName(object)] += 1
 
 def waitForSignal(object, signal, timeout=30000):
+    global signalObjects
+    realName = prepareForSignal(object, signal)
+    beforeCount = signalObjects[realName]
+    waitFor("signalObjects[realName] > beforeCount", timeout)
+
+def prepareForSignal(object, signal):
     global signalObjects
     overrideInstallLazySignalHandler()
     realName = objectMap.realName(object)
 #    test.log("waitForSignal: "+realName)
     if not (realName in signalObjects):
         signalObjects[realName] = 0
-    beforeCount = signalObjects[realName]
-    installLazySignalHandler(object, signal, "callbackFunction")
-    waitFor("signalObjects[realName] > beforeCount", timeout)
-
-def markText(editor, startPosition, endPosition):
-    cursor = editor.textCursor()
-    cursor.setPosition(startPosition)
-    cursor.movePosition(QTextCursor.StartOfLine)
-    editor.setTextCursor(cursor)
-    cursor.movePosition(QTextCursor.Right, QTextCursor.KeepAnchor, endPosition-startPosition)
-    cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
-    cursor.setPosition(endPosition, QTextCursor.KeepAnchor)
-    editor.setTextCursor(cursor)
+    installLazySignalHandler(object, signal, "__callbackFunction__")
+    return realName
 

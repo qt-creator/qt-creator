@@ -44,11 +44,11 @@ class QtQuickConstants:
         else:
             return None
 
-def handleProcessStarted(object):
+def __handleProcessStarted__(object):
     global processStarted
     processStarted = True
 
-def handleProcessExited(object, exitCode):
+def __handleProcessExited__(object, exitCode):
     global processExited
     processExited = True
 
@@ -87,8 +87,8 @@ def chooseDestination(destination=QtQuickConstants.Destinations.DESKTOP):
 def runAndCloseApp():
     global processStarted, processExited
     processStarted = processExited = False
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "handleProcessStarted")
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processExited(int)", "handleProcessExited")
+    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "__handleProcessStarted__")
+    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processExited(int)", "__handleProcessExited__")
     runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}", 20000)
     clickButton(runButton)
     waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
@@ -103,24 +103,22 @@ def runAndCloseApp():
         invokeMenuItem("File", "Exit")
         return False
     # the following is currently a work-around for not using hooking into subprocesses
-    setWindowState(waitForObject(":Qt Creator_Core::Internal::MainWindow", 20000), WindowState.Minimize)
-    nativeType("<Alt+F4>")
-    waitFor("processExited==True",10000)
-    setWindowState(waitForObject(":Qt Creator_Core::Internal::MainWindow", 20000), WindowState.Normal)
+    if (waitForObject(":Qt Creator_Core::Internal::OutputPaneToggleButton").checked!=True):
+        clickButton(":Qt Creator_Core::Internal::OutputPaneToggleButton")
+    clickButton(":Qt Creator.Stop_QToolButton")
     return True
 
 def runAndCloseQtQuickUI():
     global processStarted, processExited
     processStarted = processExited = False
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "handleProcessStarted")
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processExited(int)", "handleProcessExited")
+    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "__handleProcessStarted__")
+    installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processExited(int)", "__handleProcessExited__")
     runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}", 20000)
     clickButton(runButton)
     waitFor("processStarted==True", 10000)
     # the following is currently a work-around for not using hooking into subprocesses
-    setWindowState(waitForObject(":Qt Creator_Core::Internal::MainWindow", 20000), WindowState.Minimize)
-    nativeType("<Alt+F4>")
-    waitFor("processExited==True", 10000)
-    setWindowState(waitForObject(":Qt Creator_Core::Internal::MainWindow", 20000), WindowState.Normal)
+    if (waitForObject(":Qt Creator_Core::Internal::OutputPaneToggleButton").checked!=True):
+        clickButton(":Qt Creator_Core::Internal::OutputPaneToggleButton")
+    clickButton(":Qt Creator.Stop_QToolButton")
     return True
 

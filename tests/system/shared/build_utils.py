@@ -16,11 +16,11 @@ def overrideInstallLazySignalHandler():
         return
     overridenInstallLazySignalHandlers = True
     global installLazySignalHandler
-    installLazySignalHandler = addSignalHandlerDict(installLazySignalHandler)
+    installLazySignalHandler = __addSignalHandlerDict__(installLazySignalHandler)
 
 # avoids adding a handler to a signal twice or more often
 # do not call this function directly - use overrideInstallLazySignalHandler() instead
-def addSignalHandlerDict(lazySignalHandlerFunction):
+def __addSignalHandlerDict__(lazySignalHandlerFunction):
     global installedSignalHandlers
     def wrappedFunction(name, signalSignature, handlerFunctionName):
         handlers = installedSignalHandlers.get("%s____%s" % (name,signalSignature))

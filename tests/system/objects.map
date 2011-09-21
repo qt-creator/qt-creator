@@ -27,3 +27,5 @@
 :projects_QModelIndex	{column='0' container=':Qt Creator_Utils::NavigationTreeView' text='projects' type='QModelIndex'}
 :scrollArea.Create Build Configurations:_QComboBox	{container=':Project Setup.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Create Build Configurations:_QLabel	{container=':Project Setup.scrollArea_QScrollArea' text='Create Build Configurations:' type='QLabel' unnamed='1' visible='1'}
+:Qt Creator.Stop_QToolButton	{text='Stop' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Core::Internal::OutputPaneToggleButton	{occurrence='3' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
