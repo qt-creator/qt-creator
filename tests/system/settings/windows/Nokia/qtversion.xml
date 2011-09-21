@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorQtVersions>
-<!-- Written by Qt Creator 2.2.81, 2011-05-30T15:44:21. -->
+<!-- Written by Qt Creator 2.3.81, 2011-09-20T17:17:57. -->
 <qtcreator>
  <data>
   <variable>QtVersion.0</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">2</value>
-   <value type="QString" key="Name">Qt 4.7.3 for Desktop - MinGW 4.4 (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/desktop/qt/4.7.3/mingw/bin/qmake.exe</value>
+   <value type="int" key="Id">5</value>
+   <value type="QString" key="Name">Qt 4.7.4 (qt)</value>
+   <value type="QString" key="QMakePath">c:/depot/builddir/qt/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>
@@ -15,90 +15,132 @@
  <data>
   <variable>QtVersion.1</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">3</value>
-   <value type="QString" key="Name">Simulator Qt for Visual Studio 2008 (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/simulator/qt/msvc2008/bin/qmake.exe</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Simulator</value>
+   <value type="int" key="Id">7</value>
+   <value type="QString" key="Name">Qt 4.7.4 for Desktop - MSVC2008 (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/desktop/qt/4.7.4/msvc2008/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="QString" key="autodetectionSource">SDK.Desktop4.7.4.msvc2008</value>
+   <value type="bool" key="isAutodetected">true</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.10</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">16</value>
+   <value type="QString" key="Name">Qt for Fremantle PR1.3 Devices (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/maemo/4.6.2/targets/fremantle-pr13/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
+   <value type="QString" key="autodetectionSource">SDK.Maemo4.7.0</value>
+   <value type="bool" key="isAutodetected">true</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.11</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">17</value>
+   <value type="QString" key="Name">Qt 4.8.0 (qt64)</value>
+   <value type="QString" key="QMakePath">c:/depot/builddir/qt64/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>
  </data>
  <data>
   <variable>QtVersion.2</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">4</value>
-   <value type="QString" key="Name">Qt 4.7.3 for Desktop - MSVC2005 (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/desktop/qt/4.7.3/msvc2005/bin/qmake.exe</value>
+   <value type="int" key="Id">8</value>
+   <value type="QString" key="Name">Qt 4.7.4 for Desktop - MinGW 4.4 (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/desktop/qt/4.7.4/mingw/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
-   <value type="bool" key="isAutodetected">false</value>
+   <value type="QString" key="autodetectionSource">SDK.Desktop4.7.4.mingw44</value>
+   <value type="bool" key="isAutodetected">true</value>
   </valuemap>
  </data>
  <data>
   <variable>QtVersion.3</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">5</value>
-   <value type="QString" key="Name">Simulator Qt for Visual Studio 2005 (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/simulator/qt/msvc2005/bin/qmake.exe</value>
+   <value type="int" key="Id">9</value>
+   <value type="QString" key="Name">Simulator Qt for MinGW 4.4 (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/simulator/qt/mingw/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Simulator</value>
-   <value type="bool" key="isAutodetected">false</value>
+   <value type="QString" key="autodetectionSource">SDK.Simulator.mingw</value>
+   <value type="bool" key="isAutodetected">true</value>
   </valuemap>
  </data>
  <data>
   <variable>QtVersion.4</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">6</value>
-   <value type="QString" key="Name">Qt 4.7.3 for Desktop - MSVC2008 (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/desktop/qt/4.7.3/msvc2008/bin/qmake.exe</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
-   <value type="bool" key="isAutodetected">false</value>
+   <value type="int" key="Id">10</value>
+   <value type="QString" key="Name">Simulator Qt for Visual Studio 2008 (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/simulator/qt/msvc2008/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Simulator</value>
+   <value type="QString" key="autodetectionSource">SDK.Simulator.msvc2008</value>
+   <value type="bool" key="isAutodetected">true</value>
   </valuemap>
  </data>
  <data>
   <variable>QtVersion.5</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">7</value>
-   <value type="QString" key="Name">Qt for Fremantle PR1.3 Devices (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/maemo/4.6.2/targets/fremantle-pr13/bin/qmake.exe</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
-   <value type="bool" key="isAutodetected">false</value>
+   <value type="int" key="Id">11</value>
+   <value type="QString" key="Name">Qt 4.7.4 for Symbian Belle (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/symbian/sdks/symbiansr1qt474/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Symbian</value>
+   <value type="QString" key="SBSv2Directory">C:/QtSDK/Symbian/tools/sbs/bin</value>
+   <value type="QString" key="SystemRoot">C:/QtSDK/Symbian/SDKs/SymbianSR1Qt474/</value>
+   <value type="QString" key="autodetectionSource">SDK.C:/QtSDK/Symbian/SDKs/SymbianSR1Qt474</value>
+   <value type="bool" key="isAutodetected">true</value>
   </valuemap>
  </data>
  <data>
   <variable>QtVersion.6</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">8</value>
-   <value type="QString" key="Name">Simulator Qt for MinGW 4.4 (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/simulator/qt/mingw/bin/qmake.exe</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Simulator</value>
-   <value type="bool" key="isAutodetected">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>QtVersion.7</variable>
-  <valuemap type="QVariantMap">
-   <value type="int" key="Id">9</value>
-   <value type="QString" key="Name">Qt 4.7.3 for Symbian^1 (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/symbian/sdks/symbian1qt473/bin/qmake.exe</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Symbian</value>
-   <value type="QString" key="SBSv2Directory"></value>
-   <value type="QString" key="SystemRoot">C:/QtSDK/Symbian/SDKs/Symbian1Qt473/</value>
-   <value type="bool" key="isAutodetected">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>QtVersion.8</variable>
-  <valuemap type="QVariantMap">
-   <value type="int" key="Id">10</value>
+   <value type="int" key="Id">12</value>
    <value type="QString" key="Name">Qt 4.7.3 for Symbian^3 (Qt SDK)</value>
    <value type="QString" key="QMakePath">c:/qtsdk/symbian/sdks/symbian3qt473/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Symbian</value>
    <value type="QString" key="SBSv2Directory">C:/QtSDK/Symbian/tools/sbs/bin</value>
    <value type="QString" key="SystemRoot">C:/QtSDK/Symbian/SDKs/Symbian3Qt473/</value>
-   <value type="bool" key="isAutodetected">false</value>
+   <value type="QString" key="autodetectionSource">SDK.C:/QtSDK/Symbian/SDKs/Symbian3Qt473</value>
+   <value type="bool" key="isAutodetected">true</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.7</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">13</value>
+   <value type="QString" key="Name">Qt 4.7.3 for Symbian^1 (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/symbian/sdks/symbian1qt473/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Symbian</value>
+   <value type="QString" key="SBSv2Directory"></value>
+   <value type="QString" key="SystemRoot">C:/QtSDK/Symbian/SDKs/Symbian1Qt473/</value>
+   <value type="QString" key="autodetectionSource">SDK.C:/QtSDK/Symbian/SDKs/Symbian1Qt473</value>
+   <value type="bool" key="isAutodetected">true</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.8</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">14</value>
+   <value type="QString" key="Name">Harmattan Platform API (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/madde/targets/harmattan-platform-api/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
+   <value type="QString" key="autodetectionSource">SDK.Harmattan_Platform_API</value>
+   <value type="bool" key="isAutodetected">true</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.9</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">15</value>
+   <value type="QString" key="Name">MeeGo 1.2 Harmattan API (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/madde/targets/harmattan-nokia-meego-api/bin/qmake.exe</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
+   <value type="QString" key="autodetectionSource">SDK.MeeGo_1.2_Harmattan_API</value>
+   <value type="bool" key="isAutodetected">true</value>
   </valuemap>
  </data>
  <data>
   <variable>QtVersion.Count</variable>
-  <value type="int">9</value>
+  <value type="int">12</value>
  </data>
  <data>
   <variable>Version</variable>
