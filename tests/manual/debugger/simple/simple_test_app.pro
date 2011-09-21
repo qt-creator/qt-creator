@@ -9,6 +9,7 @@ SOURCES +=  simple_test_app.cpp
 QT += network
 QT += script
 QT += xml
+QT += core-private
 #unix: QMAKE_CXXFLAGS += -msse2
 #DEFINES += USE_BOOST=1
 

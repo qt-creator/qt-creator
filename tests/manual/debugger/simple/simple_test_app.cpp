@@ -152,13 +152,7 @@ void dummyStatement(...) {}
 #endif
 
 #if USE_PRIVATE
-#if QT_VERSION == 0x050000
-#include <QtCore/5.0.0/QtCore/private/qobject_p.h>
-#elif QT_VERSION >= 0x050001
-#include <QtCore/5.0.1/QtCore/private/qobject_p.h>
-#else
 #include <QtCore/private/qobject_p.h>
-#endif
 #endif
 
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(Q_OS_MAC)
