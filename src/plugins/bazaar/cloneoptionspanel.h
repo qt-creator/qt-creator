@@ -39,7 +39,7 @@ namespace Bazaar {
 namespace Internal {
 
 namespace Ui {
-    class CloneOptionsPanel;
+class CloneOptionsPanel;
 }
 
 class CloneOptionsPanel : public QWidget
@@ -58,6 +58,7 @@ public:
     bool isHardLinkOptionEnabled() const;
     bool isNoTreeOptionEnabled() const;
     QString revision() const;
+
 private:
     Ui::CloneOptionsPanel *m_ui;
 };

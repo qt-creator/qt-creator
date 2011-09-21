@@ -68,9 +68,9 @@ QString CloneWizard::displayName() const
     return tr("Bazaar Clone (Or Branch)");
 }
 
-QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)
+QList<QWizardPage *> CloneWizard::createParameterPages(const QString &path)
 {
-    QList<QWizardPage*> wizardPageList;
+    QList<QWizardPage *> wizardPageList;
     const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
     if (!vc->isConfigured())
         wizardPageList.append(new VCSBase::VcsConfigurationPage(vc));

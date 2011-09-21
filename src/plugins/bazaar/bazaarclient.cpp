@@ -287,7 +287,7 @@ public:
     }
 
 private:
-    BazaarClient* m_client;
+    BazaarClient *m_client;
     const BazaarCommandParameters m_params;
 };
 

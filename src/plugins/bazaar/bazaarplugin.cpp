@@ -449,7 +449,7 @@ void BazaarPlugin::createRepositoryActions(const Core::Context &context)
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    QAction* createRepositoryAction = new QAction(tr("Create Repository..."), this);
+    QAction *createRepositoryAction = new QAction(tr("Create Repository..."), this);
     command = m_actionManager->registerAction(createRepositoryAction, Core::Id(Constants::CREATE_REPOSITORY), context);
     connect(createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     m_bazaarContainer->addAction(command);
@@ -654,7 +654,7 @@ bool BazaarPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submit
                 *iFile = parts.last();
         }
 
-        const BazaarCommitWidget* commitWidget = commitEditor->commitWidget();
+        const BazaarCommitWidget *commitWidget = commitEditor->commitWidget();
         QStringList extraOptions;
         // Author
         if (!commitWidget->committer().isEmpty())

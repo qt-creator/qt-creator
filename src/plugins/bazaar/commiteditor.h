@@ -49,6 +49,7 @@ class BazaarCommitWidget;
 class CommitEditor : public VCSBase::VCSBaseSubmitEditor
 {
     Q_OBJECT
+
 public:
     explicit CommitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
                           QWidget *parent);

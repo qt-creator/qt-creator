@@ -58,7 +58,7 @@ BazaarSettings::BazaarSettings()
     declareKey(logFormatKey, QLatin1String("long"));
 }
 
-bool BazaarSettings::sameUserId(const BazaarSettings& other) const
+bool BazaarSettings::sameUserId(const BazaarSettings &other) const
 {
     return stringValue(userNameKey) == other.stringValue(userNameKey) &&
             stringValue(userEmailKey) == other.stringValue(userEmailKey);

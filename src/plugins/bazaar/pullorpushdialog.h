@@ -45,6 +45,7 @@ class PullOrPushDialog;
 class PullOrPushDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     enum Mode {
         PullMode,

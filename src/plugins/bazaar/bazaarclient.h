@@ -45,6 +45,7 @@ class BazaarSettings;
 class BazaarClient : public VCSBase::VCSBaseClient
 {
     Q_OBJECT
+
 public:
     BazaarClient(BazaarSettings *settings);
 
@@ -71,6 +72,7 @@ protected:
                                                            const QStringList &files,
                                                            const QStringList &extraOptions);
     StatusItem parseStatusLine(const QString &line) const;
+
 private:
     friend class CloneWizard;
 };

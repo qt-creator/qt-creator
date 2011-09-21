@@ -49,6 +49,7 @@ class BazaarClient;
 class BazaarControl: public Core::IVersionControl
 {
     Q_OBJECT
+
 public:
     explicit BazaarControl(BazaarClient *bazaarClient);
 
@@ -75,7 +76,7 @@ public slots:
     // To be connected to the VCSTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
     // String -> repository, StringList -> files
-    void changed(const QVariant&);
+    void changed(const QVariant &);
     void emitConfigurationChanged();
 
 private:

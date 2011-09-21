@@ -51,7 +51,7 @@ CommitEditor::CommitEditor(const VCSBase::VCSBaseSubmitEditorParameters *paramet
 
 const BazaarCommitWidget *CommitEditor::commitWidget() const
 {
-    CommitEditor* nonConstThis = const_cast<CommitEditor*>(this);
+    CommitEditor *nonConstThis = const_cast<CommitEditor *>(this);
     return static_cast<const BazaarCommitWidget *>(nonConstThis->widget());
 }
 

@@ -49,7 +49,7 @@ public:
     static const QLatin1String logFormatKey;
 
     BazaarSettings();
-    bool sameUserId(const BazaarSettings& other) const;
+    bool sameUserId(const BazaarSettings &other) const;
 };
 
 } // namespace Internal

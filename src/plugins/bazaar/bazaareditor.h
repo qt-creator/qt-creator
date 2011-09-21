@@ -43,6 +43,7 @@ namespace Internal {
 class BazaarEditor : public VCSBase::VCSBaseEditorWidget
 {
     Q_OBJECT
+
 public:
     explicit BazaarEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent);
 
@@ -59,4 +60,5 @@ private:
 
 } // namespace Internal
 } // namespace Bazaar
+
 #endif // BAZAAREDITOR_H
