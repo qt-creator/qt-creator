@@ -200,6 +200,7 @@ bool Bind::visit(UiImport *ast)
 {
     ComponentVersion version;
     ImportInfo::Type type = ImportInfo::InvalidImport;
+    QString path;
     QString name;
 
     if (ast->versionToken.isValid()) {
@@ -213,19 +214,27 @@ bool Bind::visit(UiImport *ast)
 
     if (ast->importUri) {
         type = ImportInfo::LibraryImport;
-        name = toString(ast->importUri, QDir::separator());
+        path = toString(ast->importUri, QDir::separator());
+        name = toString(ast->importUri, QLatin1Char(','));
+
+        // treat Qt 4.7 as QtQuick 1.0
+        if (path == QLatin1String("Qt") && version == ComponentVersion(4, 7)) {
+            path = QLatin1String("QtQuick");
+            name = path;
+            version = ComponentVersion(1, 0);
+        }
 
         if (!version.isValid()) {
             _diagnosticMessages->append(
                         errorMessage(ast, tr("package import requires a version number")));
         }
     } else if (!ast->fileName.isEmpty()) {
-        const QString &fileName = ast->fileName.toString();
-        QFileInfo importFileInfo(fileName);
+        name = ast->fileName.toString();
+        QFileInfo importFileInfo(name);
         if (!importFileInfo.isAbsolute()) {
-            importFileInfo=QFileInfo(_doc->path() + QDir::separator() + fileName);
+            importFileInfo = QFileInfo(_doc->path() + QDir::separator() + name);
         }
-        name = importFileInfo.absoluteFilePath();
+        path = importFileInfo.absoluteFilePath();
         if (importFileInfo.isFile())
             type = ImportInfo::FileImport;
         else if (importFileInfo.isDir())
@@ -234,7 +243,7 @@ bool Bind::visit(UiImport *ast)
             type = ImportInfo::UnknownFileImport;
         }
     }
-    _imports += ImportInfo(type, name, version, ast);
+    _imports += ImportInfo(type, path, name, version, ast);
 
     return false;
 }

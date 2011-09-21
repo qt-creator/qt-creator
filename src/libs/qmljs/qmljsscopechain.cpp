@@ -266,7 +266,7 @@ void ScopeChain::initializeRootScope()
         // add scope chains for all components that import this file
         foreach (Document::Ptr otherDoc, snapshot) {
             foreach (const ImportInfo &import, otherDoc->bind()->imports()) {
-                if (import.type() == ImportInfo::FileImport && m_document->fileName() == import.name()) {
+                if (import.type() == ImportInfo::FileImport && m_document->fileName() == import.path()) {
                     QmlComponentChain *component = new QmlComponentChain(otherDoc);
                     componentScopes.insert(otherDoc.data(), component);
                     chain->addInstantiatingComponent(component);

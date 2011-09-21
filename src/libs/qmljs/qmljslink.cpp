@@ -52,27 +52,27 @@ class ImportCacheKey
 public:
     explicit ImportCacheKey(const ImportInfo &info)
         : type(info.type())
-        , name(info.name())
+        , path(info.path())
         , majorVersion(info.version().majorVersion())
         , minorVersion(info.version().minorVersion())
     {}
 
     int type;
-    QString name;
+    QString path;
     int majorVersion;
     int minorVersion;
 };
 
 uint qHash(const ImportCacheKey &info)
 {
-    return ::qHash(info.type) ^ ::qHash(info.name) ^
+    return ::qHash(info.type) ^ ::qHash(info.path) ^
             ::qHash(info.majorVersion) ^ ::qHash(info.minorVersion);
 }
 
 bool operator==(const ImportCacheKey &i1, const ImportCacheKey &i2)
 {
     return i1.type == i2.type
-            && i1.name == i2.name
+            && i1.path == i2.path
             && i1.majorVersion == i2.majorVersion
             && i1.minorVersion == i2.minorVersion;
 }
@@ -291,7 +291,7 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
     import.info = importInfo;
     import.object = 0;
 
-    const QString &path = importInfo.name();
+    const QString &path = importInfo.path();
 
     if (importInfo.type() == ImportInfo::DirectoryImport
             || importInfo.type() == ImportInfo::ImplicitDirectoryImport) {
@@ -326,12 +326,12 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     import.info = importInfo;
     import.object = new ObjectValue(valueOwner);
 
-    const QString packageName = Bind::toString(importInfo.ast()->importUri, '.');
+    const QString packageName = importInfo.name();
     const ComponentVersion version = importInfo.version();
 
     bool importFound = false;
 
-    const QString &packagePath = importInfo.name();
+    const QString &packagePath = importInfo.path();
     // check the filesystem with full version
     foreach (const QString &importPath, importPaths) {
         QString libraryPath = QString("%1/%2.%3").arg(importPath, packagePath, version.toString());
@@ -410,8 +410,8 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
             ModelManagerInterface *modelManager = ModelManagerInterface::instance();
             if (modelManager) {
                 if (importInfo.type() == ImportInfo::LibraryImport) {
-                    if (importInfo.version().isValid()) {
-                        const QString uri = importInfo.name().replace(QDir::separator(), QLatin1Char('.'));
+                    if (version.isValid()) {
+                        const QString uri = importInfo.name();
                         modelManager->loadPluginTypes(
                                     libraryPath, importPath,
                                     uri, version.toString());
@@ -429,14 +429,12 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError
                    || libraryInfo.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileError) {
             // Only underline import if package isn't described in .qmltypes anyway
-            QString packageName;
-            if (ast && ast->importUri)
-                packageName = Bind::toString(importInfo.ast()->importUri, '.');
+            QString packageName = importInfo.name();
             if (errorLoc.isValid() && (packageName.isEmpty() || !valueOwner->cppQmlTypes().hasModule(packageName))) {
                 error(doc, errorLoc, libraryInfo.pluginTypeInfoError());
             }
-        } else if (ast && ast->importUri) {
-            const QString packageName = Bind::toString(importInfo.ast()->importUri, '.');
+        } else {
+            const QString packageName = importInfo.name();
             valueOwner->cppQmlTypes().load(libraryInfo.metaObjects(), packageName);
             foreach (const QmlObjectValue *object, valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
                 import->object->setMember(object->className(), object);

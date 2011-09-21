@@ -418,7 +418,7 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
 {
     // scan files and directories that are explicitly imported
     foreach (const ImportInfo &import, doc->bind()->imports()) {
-        const QString &importName = import.name();
+        const QString &importName = import.path();
         if (import.type() == ImportInfo::FileImport) {
             if (! snapshot.document(importName))
                 *importedFiles += importName;
@@ -530,7 +530,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
     const QStringList importPaths = modelManager->importPaths();
     foreach (const ImportInfo &import, doc->bind()->imports()) {
         if (import.type() == ImportInfo::DirectoryImport) {
-            const QString targetPath = import.name();
+            const QString targetPath = import.path();
             findNewQmlLibraryInPath(targetPath, snapshot, modelManager,
                                     importedFiles, scannedPaths, newLibraries);
         }
@@ -539,7 +539,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
             if (!import.version().isValid())
                 continue;
             foreach (const QString &importPath, importPaths) {
-                const QString targetPath = QDir(importPath).filePath(import.name());
+                const QString targetPath = QDir(importPath).filePath(import.path());
                 findNewQmlLibrary(targetPath, import.version(), snapshot, modelManager,
                                   importedFiles, scannedPaths, newLibraries);
             }

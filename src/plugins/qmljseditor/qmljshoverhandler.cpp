@@ -253,7 +253,7 @@ void HoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport *nod
                 }
                 setToolTip(msg);
             } else {
-                setToolTip(import.info.name());
+                setToolTip(import.info.path());
             }
             break;
         }

@@ -199,10 +199,14 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 fmo->setDefaultPropertyName(readStringBinding(script));
             } else if (name == "exports") {
                 readExports(script, fmo);
+            } else if (name == "exportMetaObjectRevisions") {
+                readMetaObjectRevisions(script, fmo);
             } else if (name == "attachedType") {
                 fmo->setAttachedTypeName(readStringBinding(script));
             } else {
-                addWarning(script->firstSourceLocation(), "Expected only name, prototype, defaultProperty, attachedType and exports script bindings");
+                addWarning(script->firstSourceLocation(),
+                           "Expected only name, prototype, defaultProperty, attachedType, exports"
+                           "and exportMetaObjectRevisions script bindings");
             }
         } else {
             addWarning(member->firstSourceLocation(), "Expected only script bindings and object definitions");
@@ -485,6 +489,50 @@ void TypeDescriptionReader::readExports(UiScriptBinding *ast, FakeMetaObject::Pt
 
         // ### relocatable exports where package is empty?
         fmo->addExport(name, package, version);
+    }
+}
+
+void TypeDescriptionReader::readMetaObjectRevisions(UiScriptBinding *ast, FakeMetaObject::Ptr fmo)
+{
+    if (!ast || !ast->statement) {
+        addError(ast->colonToken, "Expected array of numbers after colon");
+        return;
+    }
+
+    ExpressionStatement *expStmt = dynamic_cast<ExpressionStatement *>(ast->statement);
+    if (!expStmt) {
+        addError(ast->statement->firstSourceLocation(), "Expected array of numbers after colon");
+        return;
+    }
+
+    ArrayLiteral *arrayLit = dynamic_cast<ArrayLiteral *>(expStmt->expression);
+    if (!arrayLit) {
+        addError(expStmt->firstSourceLocation(), "Expected array of numbers after colon");
+        return;
+    }
+
+    int exportIndex = 0;
+    const int exportCount = fmo->exports().size();
+    for (ElementList *it = arrayLit->elements; it; it = it->next, ++exportIndex) {
+        NumericLiteral *numberLit = cast<NumericLiteral *>(it->expression);
+        if (!numberLit) {
+            addError(arrayLit->firstSourceLocation(), "Expected array literal with only number literal members");
+            return;
+        }
+
+        if (exportIndex >= exportCount) {
+            addError(numberLit->firstSourceLocation(), "Meta object revision without matching export");
+            return;
+        }
+
+        const double v = numberLit->value;
+        const int metaObjectRevision = static_cast<int>(v);
+        if (metaObjectRevision != v) {
+            addError(numberLit->firstSourceLocation(), "Expected integer");
+            return;
+        }
+
+        fmo->setExportMetaObjectRevision(exportIndex, metaObjectRevision);
     }
 }
 

@@ -1302,7 +1302,7 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
         // if it's a file import, link to the file
         foreach (const ImportInfo &import, semanticInfo.document->bind()->imports()) {
             if (import.ast() == importAst && import.type() == ImportInfo::FileImport) {
-                BaseTextEditorWidget::Link link(import.name());
+                BaseTextEditorWidget::Link link(import.path());
                 link.begin = importAst->firstSourceLocation().begin();
                 link.end = importAst->lastSourceLocation().end();
                 return link;

@@ -386,12 +386,12 @@ public:
             const Imports *imports = m_context->imports(m_doc.data());
             ImportInfo importInfo = imports->info(fullTypeName, m_context.data());
             if (importInfo.isValid() && importInfo.type() == ImportInfo::LibraryImport) {
-                QString name = importInfo.name().replace("\\", ".");
+                QString name = importInfo.name();
                 majorVersion = importInfo.version().majorVersion();
                 minorVersion = importInfo.version().minorVersion();
                 typeName.prepend(name + ".");
             } else if (importInfo.isValid() && importInfo.type() == ImportInfo::DirectoryImport) {
-                QString path = importInfo.name();
+                QString path = importInfo.path();
                 QDir dir(m_doc->path());
                 QString relativeDir = dir.relativeFilePath(path);
                 QString name = relativeDir.replace("/", ".");               

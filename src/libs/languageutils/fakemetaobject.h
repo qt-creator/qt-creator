@@ -139,10 +139,12 @@ public:
 
     class LANGUAGEUTILS_EXPORT Export {
     public:
+        Export();
+
         QString package;
         QString type;
         ComponentVersion version;
-        QString packageNameVersion;
+        int metaObjectRevision;
 
         bool isValid() const;
     };
@@ -166,6 +168,7 @@ public:
     void setClassName(const QString &name);
 
     void addExport(const QString &name, const QString &package, ComponentVersion version);
+    void setExportMetaObjectRevision(int exportIndex, int metaObjectRevision);
     QList<Export> exports() const;
     Export exportInPackage(const QString &package) const;
 

@@ -473,7 +473,7 @@ const QmlJS::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue() const
 
     // otherwise get the qml object value that's available in the document
     foreach (const QmlJS::Import &import, context()->imports(document())->all()) {
-        if (import.info.name() != module)
+        if (import.info.path() != module)
             continue;
         const Value *lookupResult = import.object->lookupMember(type, context());
         if ((value = dynamic_cast<const QmlObjectValue *>(lookupResult)))
@@ -692,7 +692,9 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
 
     const LanguageUtils::FakeMetaObject::Export exp =
             qmlObjectValue->metaObject()->exportInPackage(package);
-    const QString convertedName = exp.type;
+    QString convertedName = exp.type;
+    if (convertedName.isEmpty())
+        convertedName = qmlObjectValue->className();
 
     return typeName == convertedName;
 }

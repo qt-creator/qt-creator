@@ -78,6 +78,7 @@ private:
     double readNumericBinding(AST::UiScriptBinding *ast);
     int readIntBinding(AST::UiScriptBinding *ast);
     void readExports(AST::UiScriptBinding *ast, LanguageUtils::FakeMetaObject::Ptr fmo);
+    void readMetaObjectRevisions(AST::UiScriptBinding *ast, LanguageUtils::FakeMetaObject::Ptr fmo);
     void readEnumValues(AST::UiScriptBinding *ast, LanguageUtils::FakeMetaEnum *fme);
 
     void addError(const AST::SourceLocation &loc, const QString &message);

@@ -419,7 +419,7 @@ class QMLJS_EXPORT QmlObjectValue: public ObjectValue
 public:
     QmlObjectValue(LanguageUtils::FakeMetaObject::ConstPtr metaObject, const QString &className,
                    const QString &moduleName, const LanguageUtils::ComponentVersion &componentVersion,
-                   const LanguageUtils::ComponentVersion &importVersion,
+                   const LanguageUtils::ComponentVersion &importVersion, int metaObjectRevision,
                    ValueOwner *valueOwner);
     virtual ~QmlObjectValue();
 
@@ -464,6 +464,7 @@ private:
     const LanguageUtils::ComponentVersion _importVersion;
     mutable QHash<int, const Value *> _metaSignature;
     QHash<QString, const QmlEnumValue * > _enums;
+    int _metaObjectRevision;
 };
 
 class QMLJS_EXPORT Activation
@@ -823,16 +824,20 @@ public:
     };
 
     ImportInfo();
-    ImportInfo(Type type, const QString &name,
+    ImportInfo(Type type, const QString &path, const QString &name = QString(),
                LanguageUtils::ComponentVersion version = LanguageUtils::ComponentVersion(),
                AST::UiImport *ast = 0);
 
     bool isValid() const;
     Type type() const;
 
-    // LibraryImport: uri with '/' separator
-    // Other: absoluteFilePath
+    // LibraryImport: uri with ',' separator
+    // Other: non-absolute path
     QString name() const;
+
+    // LibraryImport: uri with QDir::separator separator
+    // Other: absoluteFilePath
+    QString path() const;
 
     // null if the import has no 'as', otherwise the target id
     QString id() const;
@@ -843,6 +848,7 @@ public:
 private:
     Type _type;
     QString _name;
+    QString _path;
     LanguageUtils::ComponentVersion _version;
     AST::UiImport *_ast;
 };
