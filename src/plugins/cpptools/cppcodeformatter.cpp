@@ -1342,7 +1342,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     if (topState.type == multiline_comment_start
             || topState.type == multiline_comment_cont) {
         if (!tokens.isEmpty()) {
-            *indentDepth = tokens.at(0).begin();
+            *indentDepth = column(tokens.at(0).begin());
             return;
         }
     }
