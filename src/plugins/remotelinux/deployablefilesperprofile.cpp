@@ -154,22 +154,26 @@ QString DeployableFilesPerProFile::localExecutableFilePath() const
 
 QStringList DeployableFilesPerProFile::localLibraryFilePaths() const
 {
+    QStringList list;
+
     if (!d->targetInfo.valid || d->projectType != LibraryTemplate)
-        return QStringList();
+        return list;
     QString basePath = d->targetInfo.workingDir + QLatin1String("/lib");
     const bool isStatic = d->config.contains(QLatin1String("static"))
             || d->config.contains(QLatin1String("staticlib"));
     basePath += d->targetInfo.target + QLatin1String(isStatic ? ".a" : ".so");
     basePath = QDir::cleanPath(basePath);
-    const QChar dot(QLatin1Char('.'));
-    const QString filePathMajor = basePath + dot
-        + QString::number(d->projectVersion.major);
-    const QString filePathMinor = filePathMajor + dot
-         + QString::number(d->projectVersion.minor);
-    const QString filePathPatch  = filePathMinor + dot
-         + QString::number(d->projectVersion.patch);
-    return QStringList() << filePathPatch << filePathMinor << filePathMajor
-        << basePath;
+    if (!isStatic && !d->config.contains(QLatin1String("plugin"))) {
+        const QChar dot(QLatin1Char('.'));
+        const QString filePathMajor = basePath + dot
+                + QString::number(d->projectVersion.major);
+        const QString filePathMinor = filePathMajor + dot
+                + QString::number(d->projectVersion.minor);
+        const QString filePathPatch  = filePathMinor + dot
+                + QString::number(d->projectVersion.patch);
+        list << filePathPatch << filePathMinor << filePathMajor;
+    }
+    return list << basePath;
 }
 
 QString DeployableFilesPerProFile::remoteExecutableFilePath() const
