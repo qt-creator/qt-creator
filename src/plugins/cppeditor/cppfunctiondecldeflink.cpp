@@ -510,14 +510,21 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     if (!newFunction)
         return changes;
 
-    LookupContext sourceContext(sourceDocument, snapshot);
-    LookupContext targetContext(targetFile->cppDocument(), snapshot);
-
     Overview overview;
     overview.setShowReturnTypes(true);
     overview.setShowTemplateParameters(true);
     overview.setShowArgumentNames(true);
     overview.setShowFunctionSignatures(true);
+
+    // abort if the name of the newly parsed function is not the expected one
+    DeclaratorIdAST *newDeclId = getDeclaratorId(newDef->declarator);
+    if (!newDeclId || !newDeclId->name || !newDeclId->name->name
+            || overview(newDeclId->name->name) != nameInitial) {
+        return changes;
+    }
+
+    LookupContext sourceContext(sourceDocument, snapshot);
+    LookupContext targetContext(targetFile->cppDocument(), snapshot);
 
     // sync return type
     {
