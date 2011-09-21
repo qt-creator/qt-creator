@@ -699,6 +699,11 @@ DebuggerEngine *QmlCppEngine::cppEngine() const
     return d->m_cppEngine;
 }
 
+DebuggerEngine *QmlCppEngine::qmlEngine() const
+{
+    return d->m_qmlEngine;
+}
+
 } // namespace Internal
 } // namespace Debugger
 

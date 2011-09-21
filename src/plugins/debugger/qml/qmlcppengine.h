@@ -87,6 +87,8 @@ public:
         const QString &expr, const QVariant &value);
 
     DebuggerEngine *cppEngine() const;
+    DebuggerEngine *qmlEngine() const;
+
     void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     void handleRemoteSetupFailed(const QString &message);
 

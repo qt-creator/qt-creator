@@ -62,6 +62,8 @@
 #include "watchwindow.h"
 #include "watchutils.h"
 #include "debuggertooltipmanager.h"
+#include "qml/qmlengine.h"
+#include "qml/qmlcppengine.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -2230,7 +2232,16 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         || state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
 
-    m_scriptConsoleWindow->setEnabled(stopped);
+    //Console should be enabled only for QML
+    QmlEngine *qmlEngine = qobject_cast<QmlEngine *>(engine);
+    QmlCppEngine *qmlCppEngine = qobject_cast<QmlCppEngine *>(engine);
+    if (qmlCppEngine)
+        qmlEngine = qobject_cast<QmlEngine *>(qmlCppEngine->qmlEngine());
+
+    if (qmlEngine) {
+        m_scriptConsoleWindow->setEnabled(stopped);
+    }
+
 }
 
 void DebuggerPluginPrivate::updateDebugActions()
