@@ -63,6 +63,7 @@
 #include <qtsupport/qmldumptool.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/profilereader.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -615,22 +616,33 @@ void Qt4Project::updateQmlJSCodeModel()
     foreach (Qt4ProFileNode *node, proFiles) {
         projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
     }
+
     bool preferDebugDump = false;
+    projectInfo.tryQmlDump = false;
     if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
         preferDebugDump = activeTarget()->activeQt4BuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
         QtSupport::BaseQtVersion *qtVersion = activeTarget()->activeQt4BuildConfiguration()->qtVersion();
         if (qtVersion && qtVersion->isValid()) {
+            projectInfo.tryQmlDump = qtVersion->type() == QtSupport::Constants::DESKTOPQT
+                    || qtVersion->type() == QtSupport::Constants::SIMULATORQT;
             projectInfo.qtImportsPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
             if (!projectInfo.qtImportsPath.isEmpty())
                 projectInfo.importPaths += projectInfo.qtImportsPath;
             projectInfo.qtVersionString = qtVersion->qtVersionString();
         }
-
     }
-    const Qt4BuildConfiguration *bc = activeTarget()->activeQt4BuildConfiguration();
-    QtSupport::QmlDumpTool::pathAndEnvironment(this, bc->qtVersion(), bc->toolChain(),
-                                               preferDebugDump, &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
     projectInfo.importPaths.removeDuplicates();
+
+    if (projectInfo.tryQmlDump) {
+        const Qt4BuildConfiguration *bc = activeTarget()->activeQt4BuildConfiguration();
+        if (bc) {
+            QtSupport::QmlDumpTool::pathAndEnvironment(this, bc->qtVersion(), bc->toolChain(),
+                                                       preferDebugDump, &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
+        }
+    } else {
+        projectInfo.qmlDumpPath.clear();
+        projectInfo.qmlDumpEnvironment.clear();
+    }
 
     modelManager->updateProjectInfo(projectInfo);
 }

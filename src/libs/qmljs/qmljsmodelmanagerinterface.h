@@ -61,6 +61,7 @@ public:
     {
     public:
         ProjectInfo()
+            : tryQmlDump(false)
         { }
 
         ProjectInfo(QPointer<ProjectExplorer::Project> project)
@@ -80,8 +81,12 @@ public:
         QPointer<ProjectExplorer::Project> project;
         QStringList sourceFiles;
         QStringList importPaths;
+
+        // whether trying to run qmldump makes sense
+        bool tryQmlDump;
         QString qmlDumpPath;
         Utils::Environment qmlDumpEnvironment;
+
         QString qtImportsPath;
         QString qtVersionString;
     };

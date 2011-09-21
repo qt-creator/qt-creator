@@ -220,31 +220,34 @@ void PluginDumper::dumpAllPlugins()
     }
 }
 
-static QString qmldumpErrorPreamble()
+static QString noTypeinfoError(const QString &libraryPath)
 {
-    return PluginDumper::tr("QML module does not contain information about components contained in plugins.\n"
-                            "See \"Using QML Modules with Plugins\" in the documentation.") + QLatin1String("\n\n");
+    return PluginDumper::tr("QML module at:\n"
+                            "%1\n"
+                            "does not contain information about components contained in plugins.\n"
+                            "See \"Using QML Modules with Plugins\" in the documentation.").arg(
+                libraryPath);
 }
 
 static QString qmldumpErrorMessage(const QString &libraryPath, const QString &error)
 {
-    return qmldumpErrorPreamble() +
-            PluginDumper::tr("Automatic type dump of QML module in %1 failed.\nErrors:\n%2\n").
-            arg(libraryPath, error);
+    return noTypeinfoError(libraryPath) + QLatin1String("\n\n") +
+            PluginDumper::tr("Automatic type dump of QML module failed.\nErrors:\n%1\n").
+            arg(error);
 }
 
 static QString qmldumpFailedMessage(const QString &libraryPath, const QString &error)
 {
     QString firstLines =
             QStringList(error.split(QLatin1Char('\n')).mid(0, 10)).join(QLatin1String("\n"));
-    return qmldumpErrorPreamble() +
-            PluginDumper::tr("Automatic type dump of QML module in %1 failed.\n"
+    return noTypeinfoError(libraryPath) + QLatin1String("\n\n") +
+            PluginDumper::tr("Automatic type dump of QML module failed.\n"
                              "First 10 lines or errors:\n"
                              "\n"
-                             "%2"
+                             "%1"
                              "\n"
                              "Check 'General Messages' output pane for details."
-                             ).arg(libraryPath, firstLines);
+                             ).arg(firstLines);
 }
 
 static void printParseWarnings(const QString &libraryPath, const QString &warning)
@@ -400,16 +403,22 @@ void PluginDumper::dump(const Plugin &plugin)
 
     ModelManagerInterface::ProjectInfo info = m_modelManager->projectInfo(activeProject);
 
-    if (info.qmlDumpPath.isEmpty()) {
+    if (!info.tryQmlDump || info.qmlDumpPath.isEmpty()) {
         const Snapshot snapshot = m_modelManager->snapshot();
         LibraryInfo libraryInfo = snapshot.libraryInfo(plugin.qmldirPath);
         if (!libraryInfo.isValid())
             return;
 
-        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
-                                            qmldumpErrorMessage(plugin.qmldirPath,
+        QString errorMessage;
+        if (!info.tryQmlDump) {
+            errorMessage = noTypeinfoError(plugin.qmldirPath);
+        } else {
+            errorMessage = qmldumpErrorMessage(plugin.qmldirPath,
                     tr("Could not locate the helper application for dumping type information from C++ plugins.\n"
-                       "Please build the qmldump applcation on the Qt version options page.")));
+                       "Please build the qmldump applcation on the Qt version options page."));
+        }
+
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, errorMessage);
         m_modelManager->updateLibraryInfo(plugin.qmldirPath, libraryInfo);
         return;
     }
