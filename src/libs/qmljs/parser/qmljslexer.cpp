@@ -465,7 +465,7 @@ again:
             scanChar();
 
             if (_terminator && !_delimited && !_prohibitAutomaticSemicolon) {
-                _stackToken = T_PLUS_PLUS;
+                _stackToken = T_MINUS_MINUS;
                 return T_SEMICOLON;
             }
 
