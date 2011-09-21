@@ -19,6 +19,12 @@ def openCmakeProject(projectPath):
     type(findObject("{name='fileNameEdit' type='QLineEdit'}"), projectPath)
     clickButton(findObject("{text='Open' type='QPushButton'}"))
     clickButton(waitForObject(":CMake Wizard.Next_QPushButton", 20000))
+    generatorCombo = waitForObject(":Generator:_QComboBox")
+    index = generatorCombo.findText("MinGW Generator (MinGW from SDK)")
+    if index == -1:
+        index = generatorCombo.findText("NMake Generator (Microsoft Visual C++ Compiler 9.0 (x86))")
+    if index != -1:
+        generatorCombo.setCurrentIndex(index)
     clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton", 20000))
     clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))
 
