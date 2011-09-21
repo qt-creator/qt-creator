@@ -67,10 +67,12 @@ public:
     void resetAssignment();
     void assign();
     void unassign();
-    void childAssign();
-    void childUnassign();
-    void parentAssign(bool local);
-    void parentUnassign(bool local);
+    void updateParentState();
+    void updateChildState(bool local);
+
+    void setSavedState(Qt::CheckState state) { m_savedState = state; }
+
+    Qt::CheckState savedState() const { return m_savedState; }
 
     virtual bool findChild(const QString &className, TestViewItem *&item);
 
@@ -92,23 +94,20 @@ public:
         TestFunctionItemType
     };
 
+    TestViewItem *parentTestViewItem() { return static_cast<TestViewItem *>(parent()); }
+
 protected:
     void updatePixmap();
 
     QString m_name;
-    TestViewItem *m_parent;
     bool m_errored;
 
 private:
     uint m_childAssigned;
     uint m_parentAssigned;
     bool m_assigned;
+    Qt::CheckState m_savedState;
     bool m_isTestSuite;
-
-    static const QPixmap m_selectpxm;
-    static const QPixmap m_unselectpxm;
-    static const QPixmap m_parentAssignpxm;
-    static const QPixmap m_childAssignpxm;
 };
 
 class TestSelector : public QTreeWidget
@@ -166,7 +165,7 @@ public slots:
 
     void onChanged(TestCode *testCode);
     void onRemoved(TestCode *testCode);
-    void onSelectionChanged();
+    void onItemChanged(QTreeWidgetItem *item, int column);
     void onItemDoubleClicked(QTreeWidgetItem *, int);
     void onActiveConfigurationChanged();
     void onTestSelectionChanged(const QStringList &, QObject *);

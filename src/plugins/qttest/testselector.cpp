@@ -61,67 +61,7 @@
 #include <QMenu>
 #include <QDebug>
 
-static const char *childAssigned_xpm[] = {
-    "8 8 3 1",
-    "         c #FFFFFF",
-    ".        c #020202",
-    "+        c #EF0928",
-    "........",
-    ".     +.",
-    ".    ++.",
-    ".   +++.",
-    ".  ++++.",
-    ". +++++.",
-    ".++++++.",
-    "........"
-};
-
-static const char *parentAssigned_xpm[] = {
-    "8 8 3 1",
-    "         c #FFFFFF",
-    ".        c #020202",
-    "+        c #EF0928",
-    "........",
-    ".++++++.",
-    ".+++++ .",
-    ".++++  .",
-    ".+++   .",
-    ".++    .",
-    ".+     .",
-    "........"
-};
-
-static const char *selected_xpm[] = {
-    "8 8 3 1",
-    "         c #FFFFFF",
-    ".        c #020202",
-    "+        c #EF0928",
-    "........",
-    ".++++++.",
-    ".++++++.",
-    ".++++++.",
-    ".++++++.",
-    ".++++++.",
-    ".++++++.",
-    "........"
-};
-
-static const char *unselected_xpm[] = {
-    "8 8 3 1",
-    "         c #FFFFFF",
-    ".        c #020202",
-    "+        c #EF0928",
-    "........",
-    ".      .",
-    ".      .",
-    ".      .",
-    ".      .",
-    ".      .",
-    ".      .",
-    "........"
-};
-
-#define NEXT_SIBLING(B,A) {\
+#define NEXT_SIBLING(B, A) {\
     if (A->parent()) {\
         A = (B*)A->parent()->child(A ## Ind++);\
     } else {\
@@ -165,31 +105,30 @@ public:
     int m_startLine;
 };
 
-const QPixmap TestViewItem::m_selectpxm(selected_xpm);
-const QPixmap TestViewItem::m_unselectpxm(unselected_xpm);
-const QPixmap TestViewItem::m_parentAssignpxm(parentAssigned_xpm);
-const QPixmap TestViewItem::m_childAssignpxm(childAssigned_xpm);
-
 TestViewItem::TestViewItem(TestViewItem *parent, const QString &name, bool testSuite, int type) :
     QTreeWidgetItem(parent, QStringList() << name, type),
-    m_errored(false)
+    m_errored(false),
+    m_savedState(Qt::Unchecked)
 {
-    m_parent = parent;
     m_name = name;
     m_isTestSuite = testSuite;
     resetAssignment();
     if (parent && parent->isAssigned())
-        parentAssign(false);
+        updateChildState(false);
+    setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    setCheckState(0, Qt::Unchecked);
 }
 
 TestViewItem::TestViewItem(QTreeWidget *parent, const QString &name, bool testSuite, int type) :
     QTreeWidgetItem(parent, QStringList() << name, type),
-    m_errored(false)
+    m_errored(false),
+    m_savedState(Qt::Unchecked)
 {
-    m_parent = 0;
     m_name = name;
     m_isTestSuite = testSuite;
     resetAssignment();
+    setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    setCheckState(0, Qt::Unchecked);
 }
 
 TestViewItem::~TestViewItem()
@@ -206,16 +145,16 @@ TestCaseItem::~TestCaseItem()
 
 QString TestViewItem::baseSuiteName()
 {
-    if (m_parent)
-        return m_parent->baseSuiteName();
+    if (parentTestViewItem())
+        return parentTestViewItem()->baseSuiteName();
     return m_name;
 }
 
 QString TestViewItem::suiteName()
 {
     QString ret;
-    if (m_parent != 0)
-        ret = m_parent->suiteName();
+    if (parentTestViewItem())
+        ret = parentTestViewItem()->suiteName();
     if (m_isTestSuite) {
         if (!ret.isEmpty()) ret += QLatin1Char('/');
         ret += m_name;
@@ -234,10 +173,11 @@ QString TestViewItem::fullName()
 
 void TestViewItem::toggle()
 {
-    if (m_assigned)
-        unassign();
-    else
+    if ((checkState(0) == Qt::Unchecked) || (checkState(0) == Qt::PartiallyChecked))
         assign();
+    else
+        unassign();
+    m_savedState = checkState(0);
 }
 
 void TestViewItem::resetAssignment()
@@ -250,75 +190,72 @@ void TestViewItem::resetAssignment()
 
 void TestViewItem::assign()
 {
-    if (!m_assigned) {
-        m_assigned = true;
-        if (parent())
-            static_cast<TestViewItem *>(parent())->childAssign();
-        parentAssign(true);
-        updatePixmap();
+    if ((checkState(0) == Qt::Unchecked) || (checkState(0) == Qt::PartiallyChecked)) {
+        updateChildState(false);
+        if (parentTestViewItem())
+            parentTestViewItem()->updateParentState();
     }
 }
 
 void TestViewItem::unassign()
 {
-    if (m_assigned) {
-        m_assigned = false;
-        if (parent())
-            static_cast<TestViewItem *>(parent())->childUnassign();
-        parentUnassign(true);
-        updatePixmap();
+    // PartiallyChecked is filtered outside
+    if (checkState(0) == Qt::Checked) {
+        updateChildState(true);
+        if (parentTestViewItem())
+            parentTestViewItem()->updateParentState();
     }
 }
 
-void TestViewItem::childAssign()
+/*!
+    Update state of items of item's parent, this method will check recursively untill topLevelItem,
+    so that the state show children check states.
+*/
+void TestViewItem::updateParentState()
 {
-    ++m_childAssigned;
-    if (parent())
-        static_cast<TestViewItem *>(parent())->childAssign();
-    if (m_childAssigned == 1)
-        updatePixmap();
+    int seletedCnt = 0;
+    int partialCnt = 0;
+    int childCnt = childCount();
+    for (int i = 0; i < childCnt; ++i) {
+        if (child(i)->checkState(0) == Qt::PartiallyChecked)
+            ++partialCnt;
+
+        if (child(i)->checkState(0) == Qt::Checked)
+            ++seletedCnt;
+    }
+    Qt::CheckState state;
+
+    if (seletedCnt == childCnt)
+        state = Qt::Checked;
+    else if ((partialCnt == 0) && (seletedCnt == 0))
+        state = Qt::Unchecked;
+    else
+        state = Qt::PartiallyChecked;
+
+    // Set savedState first to prevent updating (in onItemChanged())
+    setSavedState(state);
+    setCheckState(0, state);
+
+    if (parentTestViewItem())
+        parentTestViewItem()->updateParentState();
 }
 
-void TestViewItem::childUnassign()
+
+/*!
+    Set check state to all children of item to \code state \endcode recursively.
+    \param checked, whether states of children are about to be checked or unchecked.
+*/
+void TestViewItem::updateChildState(bool checked)
 {
-    if (m_childAssigned > 0) {
-        --m_childAssigned;
-        if (parent())
-            static_cast<TestViewItem *>(parent())->childUnassign();
+    int childIndex = 0;
+    TestViewItem *childItem = 0;
+    while ((childItem = static_cast<TestViewItem *>(child(childIndex++)))){
+        Qt::CheckState state = checked ? Qt::Checked : Qt::Unchecked;
+        // Set savedState first to prevent updating (in onItemChanged())
+        childItem->setSavedState(state);
+        childItem->setCheckState(0, state);
+        childItem->updateChildState(checked);
     }
-    if (m_childAssigned == 0)
-        updatePixmap();
-}
-
-void TestViewItem::parentAssign(bool local)
-{
-    if (!local)
-        ++m_parentAssigned;
-
-    int mychildInd = 1;
-    TestViewItem *mychild = static_cast<TestViewItem *>(child(0));
-    while (mychild != 0) {
-        mychild->parentAssign(false);
-        mychild = static_cast<TestViewItem *>(child(mychildInd++));
-    }
-    if (m_parentAssigned == 1)
-        updatePixmap();
-}
-
-void TestViewItem::parentUnassign(bool local)
-{
-    if ((m_parentAssigned > 0) && (!local))
-        --m_parentAssigned;
-
-    int mychildInd = 1;
-    TestViewItem *mychild = static_cast<TestViewItem *>(child(0));
-    while (mychild != 0) {
-        mychild->parentUnassign(false);
-        mychild = static_cast<TestViewItem *>(child(mychildInd++));
-    }
-
-    if (m_parentAssigned == 0)
-        updatePixmap();
 }
 
 bool TestViewItem::findChild(const QString &className, TestViewItem *&item)
@@ -353,14 +290,10 @@ void TestViewItem::updatePixmap()
     if (m_errored)
         return;
 
-    if (m_assigned)
-        setIcon(0, QIcon(m_selectpxm));
-    else if (m_parentAssigned > 0)
-        setIcon(0, QIcon(m_parentAssignpxm));
-    else if (m_childAssigned > 0)
-        setIcon(0, QIcon(m_childAssignpxm));
-    else
-        setIcon(0, QIcon(m_unselectpxm));
+    if (checkState(0) == Qt::Checked)
+        m_assigned = true;
+    else if ((checkState(0) == Qt::Unchecked) || (checkState(0) == Qt::PartiallyChecked))
+        m_assigned = false;
 }
 
 void TestViewItem::removeAllChildren()
@@ -375,21 +308,19 @@ bool TestViewItem::isTestSuite()
 
 TestSuiteItem *TestViewItem::parentSuite()
 {
-    if (m_parent != 0 && m_parent->isTestSuite())
-        return static_cast<TestSuiteItem *>(m_parent);
+    if (parentTestViewItem() != 0 && parentTestViewItem()->isTestSuite())
+        return static_cast<TestSuiteItem *>(parentTestViewItem());
     return 0;
 }
 
 TestSuiteItem::TestSuiteItem(const QString &name, QTreeWidget *parent) :
     TestViewItem(parent, name, true, TestViewItem::TestSuiteItemType)
 {
-    m_parent = 0;
 }
 
 TestSuiteItem::TestSuiteItem(const QString &name, TestSuiteItem *parent) :
     TestViewItem(parent, name, true, TestViewItem::TestSuiteItemType)
 {
-    m_parent = parent;
 }
 
 QString TestSuiteItem::key(int column, bool /*ascending*/) const
@@ -423,8 +354,8 @@ TestSuiteItem *TestSuiteItem::addSuite(const QString &suiteName)
 
     if (!suite) {
         suite = new TestSuiteItem(sn, this);
+        suite->setCheckState(0, Qt::Unchecked);
         addChild(suite);
-        sortChildren(0, Qt::AscendingOrder);
     }
 
     if (next.isEmpty())
@@ -490,7 +421,6 @@ TestCaseItem::TestCaseItem(TestCode *code, TestSuiteItem *parent) :
     TestViewItem(parent, code->baseFileName(), false, TestViewItem::TestCaseItemType)
 {
     m_code = code;
-    m_parent = parent;
     if (code && code->isErrored()) {
         m_errored = true;
         setForeground(0, QBrush(QColor(192,192,192)));
@@ -577,16 +507,15 @@ TestSelector::TestSelector(QWidget *parent) :
     m_curTest.m_line = -1;
     m_curTest.m_code = 0;
 
-    connect(this, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-        this, SLOT(onSelectionChanged()), Qt::DirectConnection);
+    connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
+        this, SLOT(onItemChanged(QTreeWidgetItem*,int)));
     connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
         this, SLOT(onItemDoubleClicked(QTreeWidgetItem*,int)), Qt::DirectConnection);
     connect(&m_testCollection, SIGNAL(testChanged(TestCode*)),
         this, SLOT(onChanged(TestCode*)));
     connect(&m_testCollection, SIGNAL(testRemoved(TestCode*)),
         this, SLOT(onRemoved(TestCode*)));
-    connect(&m_testCollection, SIGNAL(changed()),
-        this, SLOT(init()));
+    connect(&m_testCollection, SIGNAL(changed()), this, SLOT(init()));
     connect(&TestConfigurations::instance(), SIGNAL(activeConfigurationChanged()),
         this, SLOT(onActiveConfigurationChanged()));
     connect(this, SIGNAL(activeConfigurationChanged()),
@@ -668,7 +597,7 @@ void TestSelector::onTestSelectionChanged(const QStringList &selection, QObject 
         while (*it) {
             child = recastItem(*it);
             if (child)
-                child->unassign();
+                child->setCheckState(0, Qt::Unchecked);
             ++it;
         }
         setSelectedTests(false, selection);
@@ -777,8 +706,22 @@ void TestSelector::setGeometry (int x, int y, int w, int h)
     setColumnWidth(0, w-4);
 }
 
-void TestSelector::onSelectionChanged()
+void TestSelector::onItemChanged(QTreeWidgetItem *item, int column)
 {
+    Q_UNUSED(column)
+    if (TestViewItem *testItem = static_cast<TestViewItem *>(item)) {
+        if (testItem->savedState() != item->checkState(column)) {
+            testItem->toggle();
+            emit testSelectionChanged(selectedTests());
+        }
+    }
+}
+
+void TestSelector::onItemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    Q_UNUSED(column)
+    m_curItem = recastItem(item);
+
     bool selected = false;
     bool multiSelection = false;
     m_testCollection.setCurrentEditedTest(0);
@@ -810,13 +753,9 @@ void TestSelector::onSelectionChanged()
                 m_curTest.m_testFunction);
         }
     }
-}
-
-void TestSelector::onItemDoubleClicked(QTreeWidgetItem *item, int column)
-{
-    Q_UNUSED(column)
-    m_curItem = recastItem(item);
-    toggleSelection();
+    // todo fix this: walkaroud to prevent folding/unfolding test cases.
+    if (m_curItem->type() == TestViewItem::TestCaseItemType)
+        m_curItem->setExpanded(!m_curItem->isExpanded());
 }
 
 void TestSelector::updateActions()
@@ -845,7 +784,8 @@ void TestSelector::selectGroup()
                         dlg->addSelectableItems(inf->testGroups()
                             .split(QLatin1Char(','), QString::SkipEmptyParts));
                         groupsList.append(tc->testCase() + "::" + inf->functionName()
-                            + QLatin1Char('@') + inf->testGroups().split(QLatin1Char(','), QString::SkipEmptyParts).join(QString(QLatin1Char('@'))));
+                            + QLatin1Char('@') + inf->testGroups().split(QLatin1Char(','),
+                            QString::SkipEmptyParts).join(QString(QLatin1Char('@'))));
                     }
                 }
             }
@@ -974,7 +914,7 @@ QStringList TestSelector::selectedTests()
     return list;
 }
 
-void TestSelector::getSelectedTests(TestSuiteItem *base, QStringList &list, bool isAssigned)
+void TestSelector::getSelectedTests(TestSuiteItem *base, QStringList &list, bool forceAdd)
 {
     TestViewItem *tmpViewItem;
     int tmpViewItemInd = 1;
@@ -987,14 +927,12 @@ void TestSelector::getSelectedTests(TestSuiteItem *base, QStringList &list, bool
         if (tmpViewItem->isTestSuite()) {
 
             TestSuiteItem *T = static_cast<TestSuiteItem *>(tmpViewItem);
-            getSelectedTests(T, list, isAssigned || T->isAssigned());
+            getSelectedTests(T, list, forceAdd || T->isAssigned());
 
         } else {
-
             int testFunctionInd = 1;
             TestCaseItem *testCase = static_cast<TestCaseItem *>(tmpViewItem);
-            if (isAssigned || testCase->isAssigned()) {
-
+            if (forceAdd || testCase->checkState(0) == Qt::Checked) {
                 TestFunctionItem *testFunction = static_cast<TestFunctionItem *>(testCase->child(0));
                 while (testFunction != 0) {
                     if (testCase->m_code) {
@@ -1002,19 +940,6 @@ void TestSelector::getSelectedTests(TestSuiteItem *base, QStringList &list, bool
                             + "::" + testFunction->name());
                     }
                     NEXT_SIBLING(TestFunctionItem, testFunction);
-                }
-            } else {
-                if (testCase->childAssigned()) {
-                    TestFunctionItem *testFunction = static_cast<TestFunctionItem *>(testCase->child(0));
-                    while (testFunction != 0) {
-                        if (testFunction->isAssigned()) {
-                            if (testCase->m_code) {
-                                list.append(testCase->m_code->testCase()
-                                    + "::" + testFunction->name());
-                            }
-                        }
-                        NEXT_SIBLING(TestFunctionItem, testFunction);
-                    }
                 }
             }
         }
@@ -1027,6 +952,8 @@ void TestSelector::setSelectedTests(bool save, const QStringList &list)
     foreach (const QString &sel, list) {
         QString tcName = sel.left(sel.indexOf("::"));
         QString function = sel.mid(sel.indexOf("::")+2);
+        // todo saving selected tests is based on file,
+        // need to be changed to be based on function
         TestCode *tmp = m_testCollection.findCodeByTestCaseName(tcName);
         if (tmp) {
             QString fname = tmp->visualFileName(m_testSettings.componentViewMode());
@@ -1035,13 +962,17 @@ void TestSelector::setSelectedTests(bool save, const QStringList &list)
             TestCaseItem *testCase = findCase(fname);
             if (testCase) {
                 TestFunctionItem *testFunction = static_cast<TestFunctionItem *>(testCase->child(0));
+                bool found = false;
                 while (testFunction != 0) {
                     if (testFunction->name() == function) {
-                        testFunction->assign();
+                        testFunction->setCheckState(0, Qt::Checked);
+                        found = true;
                         break;
                     }
                     NEXT_SIBLING(TestFunctionItem, testFunction);
                 }
+                if (found)
+                    break;
             }
         }
     }
@@ -1089,7 +1020,7 @@ void TestSelector::mousePressEvent(QMouseEvent *e)
                 updateActions();
                 QString cmd;
                 if (m_curItem) {
-                    if (m_curItem->isAssigned())
+                    if (m_curItem->checkState(0) == Qt::Checked)
                         cmd = tr("Unselect '%1'").arg(m_curItem->name());
                     else
                         cmd = tr("Select '%1'").arg(m_curItem->name());
@@ -1123,8 +1054,11 @@ void TestSelector::mouseReleaseEvent(QMouseEvent *e)
 
 void TestSelector::toggleSelection()
 {
-    if (m_curItem)
-        m_curItem->toggle();
+    if (m_curItem->checkState(0) != Qt::Checked)
+        m_curItem->setCheckState(0, Qt::Checked);
+    else
+        m_curItem->setCheckState(0, Qt::Unchecked);
+
     emit testSelectionChanged(selectedTests());
 }
 
@@ -1177,13 +1111,11 @@ void TestSelector::select(TestCode *tc, const QString &funcName)
                     expandItem(testFunction);
                     scrollToItem(testFunction);
                     testFunction->setSelected(true);
-                    onSelectionChanged();
                 }
             } else {
                 expandItem(testCase);
                 scrollToItem(testCase);
                 testCase->setSelected(true);
-                onSelectionChanged();
             }
         } else {
             TestSuiteItem *testSuite = findSuite(tcFileName);
@@ -1191,7 +1123,6 @@ void TestSelector::select(TestCode *tc, const QString &funcName)
                 expandItem(testSuite);
                 scrollToItem(testSuite);
                 testSuite->setSelected(true);
-                onSelectionChanged();
             }
         }
     }
@@ -1211,8 +1142,11 @@ TestSuiteItem *TestSelector::addSuite(TestCode *code)
     QString rest = code->fullVisualSuitePath(m_testSettings.componentViewMode()).mid(bs.length()+1);
     if (rest.isEmpty())
         return base;
-    if (base)
-        return base->addSuite(rest);
+    if (base) {
+        TestSuiteItem *addedSuite = base->addSuite(rest);
+        addedSuite->sortChildren(0, Qt::AscendingOrder);
+        return addedSuite;
+    }
     return 0;
 }
 
@@ -1277,10 +1211,10 @@ bool TestSelector::removeSuite2(TestSuiteItem *base, const QString &suiteName, b
     return false;
 }
 
-TestSuiteItem* TestSelector::findSuite(const QString &suiteName)
+TestSuiteItem *TestSelector::findSuite(const QString &suiteName)
 {
     int tsInd = 0;
-    TestSuiteItem *item = static_cast<TestSuiteItem *>(topLevelItem(tsInd));
+    TestSuiteItem *item = static_cast<TestSuiteItem *>(topLevelItem(0));
     while (item != 0) {
         if (suiteName == item->suiteName()) {
             return item;
@@ -1375,7 +1309,7 @@ void TestSelector::assignAll()
         if ((*it)->childCount() == 0) {
             child = recastItem(*it);
             if (child)
-                child->assign();
+                child->setCheckState(0, Qt::Checked);
         }
         ++it;
     }
@@ -1389,7 +1323,7 @@ void TestSelector::unassignAll()
     while (*it) {
         child = recastItem(*it);
         if (child)
-            child->unassign();
+            child->setCheckState(0, Qt::Unchecked);
         ++it;
     }
     emit testSelectionChanged(QStringList());
