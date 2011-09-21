@@ -1,26 +1,22 @@
 source("../../shared/qtcreator.py")
 
-refreshFinishedCount = 0
 workingDir = None
 templateDir = None
 
-def handleRefreshFinished(object, fileList):
-    global refreshFinishedCount
-    refreshFinishedCount += 1
-
 def main():
-    global workingDir,templateDir,buildFinished,buildSucceeded
+    global workingDir,templateDir
     startApplication("qtcreator" + SettingsPath)
-    installLazySignalHandler("{type='CppTools::Internal::CppModelManager'}", "sourceFilesRefreshed(QStringList)", "handleRefreshFinished")
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
     prepareTemplate()
     createNewQtQuickApplication()
     # wait for parsing to complete
-    waitFor("refreshFinishedCount == 1", 10000)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
     test.log("Building project")
     invokeMenuItem("Build","Build All")
-    waitForBuildFinished()
+    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+    checkCompile()
+    checkLastBuild()
     test.log("Running project (includes build)")
     if runAndCloseApp():
         logApplicationOutput()

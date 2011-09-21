@@ -85,13 +85,14 @@ def chooseDestination(destination=QtQuickConstants.Destinations.DESKTOP):
                 test.fail("Failed to check destination '%s'" % QtQuickConstants.getStringForDestination(current))
 
 def runAndCloseApp():
-    global buildSucceeded, buildFinished, processStarted, processExited
-    buildSucceeded = buildFinished = processStarted = processExited = False
+    global processStarted, processExited
+    processStarted = processExited = False
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "handleProcessStarted")
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processExited(int)", "handleProcessExited")
     runButton = waitForObject("{type='Core::Internal::FancyToolButton' text='Run' visible='1'}", 20000)
     clickButton(runButton)
-    waitForBuildFinished()
+    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+    buildSucceeded = checkLastBuild()
     waitFor("processStarted==True", 10000)
     if not buildSucceeded:
         test.log("Build inside run wasn't successful - leaving test")

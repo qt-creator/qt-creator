@@ -11,6 +11,7 @@ def main():
 
     startApplication("qtcreator" + SettingsPath)
 
+    ## leave this one like this, it's too fast for delayed installation of signal handler
     installLazySignalHandler("{type='CppTools::Internal::CppModelManager'}", "sourceFilesRefreshed(QStringList)", "handleRefreshFinished")
     openQmakeProject(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
 

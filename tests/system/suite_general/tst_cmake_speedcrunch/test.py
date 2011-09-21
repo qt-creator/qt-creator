@@ -13,7 +13,7 @@ def main():
 
     openCmakeProject(SpeedCrunchPath)
 
-    waitFor("object.exists(':speedcrunch_QModelIndex')", 20000)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
 
     # Test that some of the expected items are in the navigation tree
     for row, record in enumerate(testData.dataset("speedcrunch_tree.tsv")):
@@ -25,7 +25,9 @@ def main():
     invokeMenuItem("Build", "Rebuild All")
 
     # Wait for, and test if the build succeeded
-    waitForBuildFinished(300000)
+    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+    checkCompile()
+    checkLastBuild()
 
     invokeMenuItem("File", "Exit")
 

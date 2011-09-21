@@ -1,14 +1,9 @@
 source("../../shared/qtcreator.py")
 
-refreshFinishedCount = 0
 workingDir = None
 
-def handleRefreshFinished(object, fileList):
-    global refreshFinishedCount
-    refreshFinishedCount += 1
-
 def main():
-    global workingDir,buildFinished,buildSucceeded
+    global workingDir
     startApplication("qtcreator" + SettingsPath)
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
