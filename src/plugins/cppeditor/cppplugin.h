@@ -62,7 +62,7 @@ public:
 
     static CppPlugin *instance();
 
-    bool initialize(const QStringList &arguments, QString *error_message = 0);
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 

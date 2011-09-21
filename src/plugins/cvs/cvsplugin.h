@@ -86,7 +86,7 @@ public:
     CVSPlugin();
     ~CVSPlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *error_message);
+    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
 
     void cvsDiff(const QString &workingDir, const QStringList &files);
 

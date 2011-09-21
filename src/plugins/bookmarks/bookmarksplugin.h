@@ -66,7 +66,7 @@ public:
 
     static BookmarksPlugin *instance() { return m_instance; }
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
 public slots:

@@ -64,10 +64,10 @@ MacrosPlugin::~MacrosPlugin()
 {
 }
 
-bool MacrosPlugin::initialize(const QStringList &arguments, QString *error_message)
+bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments);
-    Q_UNUSED(error_message);
+    Q_UNUSED(errorMessage);
 
     addAutoReleasedObject(new MacroOptionsPage);
     addAutoReleasedObject(new MacroLocatorFilter);

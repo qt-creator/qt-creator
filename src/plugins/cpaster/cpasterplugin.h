@@ -68,7 +68,7 @@ public:
     CodepasterPlugin();
     ~CodepasterPlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *error_message);
+    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
     virtual void extensionsInitialized();
     virtual ShutdownFlag aboutToShutdown();
 

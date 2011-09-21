@@ -50,7 +50,7 @@ class WelcomePlugin : public ExtensionSystem::IPlugin
 public:
     WelcomePlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *error_message);
+    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
     virtual void extensionsInitialized();
 
 private:

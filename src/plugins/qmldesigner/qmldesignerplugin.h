@@ -71,7 +71,7 @@ public:
     virtual ~BauhausPlugin();
 
     //Plugin
-    virtual bool initialize(const QStringList &arguments, QString *error_message = 0);
+    virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     virtual void extensionsInitialized();
 
     static BauhausPlugin *pluginInstance();

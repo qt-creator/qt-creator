@@ -152,7 +152,7 @@ MercurialPlugin::~MercurialPlugin()
     m_instance = 0;
 }
 
-bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * /*error_message */)
+bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * /*errorMessage */)
 {
     typedef VCSBase::VCSEditorFactory<MercurialEditor> MercurialEditorFactory;
 

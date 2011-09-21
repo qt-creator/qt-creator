@@ -86,7 +86,7 @@ class MercurialPlugin : public VCSBase::VCSBasePlugin
 public:
     MercurialPlugin();
     virtual ~MercurialPlugin();
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
 
     static MercurialPlugin *instance() { return m_instance; }
     MercurialClient *client() const { return m_client; }

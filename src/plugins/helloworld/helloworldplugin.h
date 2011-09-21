@@ -47,7 +47,7 @@ public:
     HelloWorldPlugin();
     ~HelloWorldPlugin();
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
 
     void extensionsInitialized();
 

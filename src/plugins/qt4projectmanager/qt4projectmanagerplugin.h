@@ -60,7 +60,7 @@ class Qt4ProjectManagerPlugin : public ExtensionSystem::IPlugin
 
 public:
     ~Qt4ProjectManagerPlugin();
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
 private slots:

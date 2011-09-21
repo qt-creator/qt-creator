@@ -107,10 +107,10 @@ Core::Command *createSeparator(Core::ActionManager *am,
     return am->registerAction(separator, Core::Id(id), context);
 }
 
-bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *error_message)
+bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), error_message))
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), errorMessage))
         return false;
 
     parseGlslFile(QLatin1String("glsl_120.frag"), &m_glsl_120_frag);
@@ -162,7 +162,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    error_message->clear();
+    errorMessage->clear();
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();

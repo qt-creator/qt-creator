@@ -49,7 +49,7 @@ public:
     MacrosPlugin();
     ~MacrosPlugin();
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
 private:

@@ -68,10 +68,10 @@ RemoteLinuxPlugin::~RemoteLinuxPlugin()
 }
 
 bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
-    QString *error_message)
+    QString *errorMessage)
 {
     Q_UNUSED(arguments)
-    Q_UNUSED(error_message)
+    Q_UNUSED(errorMessage)
 
     MaemoQemuManager::instance(this);
     LinuxDeviceConfigurations::instance(this);

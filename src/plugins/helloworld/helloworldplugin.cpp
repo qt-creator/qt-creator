@@ -88,13 +88,13 @@ HelloWorldPlugin::~HelloWorldPlugin()
 /*! Initializes the plugin. Returns true on success.
     Plugins want to register objects with the plugin manager here.
 
-    \a error_message can be used to pass an error message to the plugin system,
+    \a errorMessage can be used to pass an error message to the plugin system,
        if there was any.
 */
-bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_message)
+bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-    Q_UNUSED(error_message)
+    Q_UNUSED(errorMessage)
 
     // Get the primary access point to the workbench.
     Core::ICore *core = Core::ICore::instance();

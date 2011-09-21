@@ -178,7 +178,7 @@ public:
     QTestLibPlugin();
     virtual ~QTestLibPlugin();
 
-    bool init(const QStringList &args, QString *error_message);
+    bool init(const QStringList &args, QString *errorMessage);
     void extensionsInitialized();
 
     // IApplicationOutput

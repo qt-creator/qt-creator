@@ -116,7 +116,7 @@ void UpdateInfoPlugin::stopCurrentCheckTimer()
 /*! Initializes the plugin. Returns true on success.
     Plugins want to register objects with the plugin manager here.
 
-    \a error_message can be used to pass an error message to the plugin system,
+    \a errorMessage can be used to pass an error message to the plugin system,
        if there was any.
 */
 bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString * /* errorMessage */)

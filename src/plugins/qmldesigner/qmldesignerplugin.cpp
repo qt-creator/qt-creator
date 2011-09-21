@@ -117,7 +117,7 @@ BauhausPlugin::~BauhausPlugin()
 // INHERITED FROM ExtensionSystem::Plugin
 //
 ////////////////////////////////////////////////////
-bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error_message/* = 0*/) // =0;
+bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/) // =0;
 {
     Core::ICore *core = Core::ICore::instance();
 
@@ -150,7 +150,7 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
 
     m_settings.fromSettings(core->settings());
 
-    error_message->clear();
+    errorMessage->clear();
 
     return true;
 }

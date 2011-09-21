@@ -48,7 +48,7 @@ class QtSupportPlugin : public ExtensionSystem::IPlugin
 
 public:
     ~QtSupportPlugin();
-    bool initialize(const QStringList &arguments, QString *error_message);
+    bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
 private slots:
