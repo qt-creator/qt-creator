@@ -215,7 +215,6 @@ protected:
     QStringList m_knownTestFunctions;
 };
 
-
 TestFunctionInfo::TestFunctionInfo() : QObject()
 {
     reset();
@@ -566,13 +565,17 @@ void TestCode::parseDocument()
     if (m_codeEditor) {
         contents = m_codeEditor->contents();
     } else {
-        QFile F(m_fileName);
-        if (F.open(QIODevice::ReadOnly)) {
-            QTextStream S(&F);
-            contents = S.readAll();
-            F.close();
+        if (m_testType == TypeSystemTest) {
+            contents = m_qmlJSDoc->source();
         } else {
-            return;
+            QFile F(m_fileName);
+            if (F.open(QIODevice::ReadOnly)) {
+                QTextStream S(&F);
+                contents = S.readAll();
+                F.close();
+            } else {
+                return;
+            }
         }
     }
 
@@ -838,18 +841,33 @@ void TestCollectionPrivate::scanTests(const QString &suitePath)
     if (!D.exists())
         return;
 
+    m_unitTestScanList.clear();
+    m_systemTestScanList.clear();
+
+    scanPotentialFiles(suitePath);
+
+    if (!m_systemTestScanList.isEmpty())
+        m_qmlJSModelManager->updateSourceFiles(m_systemTestScanList, true);
+    if (!m_unitTestScanList.isEmpty())
+        m_cppModelManager->updateSourceFiles(m_unitTestScanList);
+}
+
+void TestCollectionPrivate::scanPotentialFiles(const QString &suitePath)
+{
+    if (suitePath.isEmpty())
+        return;
+
+    QDir D(suitePath);
+    if (!D.exists())
+        return;
+
     QFileInfoList qttTestFiles = D.entryInfoList(QStringList(QLatin1String("*.qtt")), QDir::Files);
-    QStringList qttTests;
     foreach (const QFileInfo &qttTestFile, qttTestFiles) {
-        qttTests << qttTestFile.absoluteFilePath();
+        m_systemTestScanList.append(qttTestFile.absoluteFilePath());
         m_qttDocumentMap[qttTestFile.absoluteFilePath()] = 0;
     }
 
-    if (!qttTests.isEmpty())
-        m_qmlJSModelManager->updateSourceFiles(qttTests, true);
-
     QFileInfoList cppTestFiles = D.entryInfoList(QStringList(QLatin1String("*.cpp")), QDir::Files);
-    QStringList cppTests;
     const CPlusPlus::Snapshot snapshot = m_cppModelManager->snapshot();
     foreach (const QFileInfo &cppTestFile, cppTestFiles) {
         m_cppDocumentMap[cppTestFile.absoluteFilePath()] = 0;
@@ -857,20 +875,16 @@ void TestCollectionPrivate::scanTests(const QString &suitePath)
             CPlusPlus::Document::Ptr doc = snapshot.find(cppTestFile.absoluteFilePath()).value();
             onDocumentUpdated(doc);
         } else {
-            cppTests << cppTestFile.absoluteFilePath();
+            m_unitTestScanList.append(cppTestFile.absoluteFilePath());
         }
     }
 
-    if (!cppTests.isEmpty())
-        m_cppModelManager->updateSourceFiles(cppTests);
-
     QStringList potentialSubdirs =
         D.entryList(QStringList(QString(QLatin1Char('*'))), QDir::Dirs|QDir::NoDotAndDotDot);
-
     foreach (const QString &dname, potentialSubdirs) {
         // stop scanning subdirs if we've ended up in a testdata subdir
         if (dname != QLatin1String("testdata"))
-            scanTests(suitePath + QDir::separator() + dname);
+            scanPotentialFiles(suitePath + QDir::separator() + dname);
     }
 }
 
@@ -898,12 +912,17 @@ TestCode *TestCollectionPrivate::findCode(const QString &fileName, const QString
         QFileInfo inf(fileName);
         if (inf.exists() && inf.isFile()) {
             tmp = new TestCode(basePath, extraPath, fileName);
+
+            if (m_cppDocumentMap[fileName])
+                delete m_cppDocumentMap[fileName];
+
             if (fileName.endsWith(QLatin1String(".qtt"))) {
                 m_qttDocumentMap[fileName] = tmp;
                 m_qmlJSModelManager->updateSourceFiles(QStringList(fileName), true);
             } else {
                 m_cppDocumentMap[fileName] = tmp;
-                m_cppModelManager->updateSourceFiles(QStringList(fileName));
+                if (!m_cppModelManager->snapshot().contains(fileName))
+                    m_cppModelManager->updateSourceFiles(QStringList(fileName));
             }
             if (tmp) {
                 m_codeList.append(tmp);

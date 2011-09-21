@@ -282,6 +282,7 @@ public slots:
 
 private:
     void scanTests(const QString &suitePath);
+    void scanPotentialFiles(const QString &suitePath);
     bool isUnitTestCase(const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot);
     bool isUnitTestCase(const CPlusPlus::Document::Ptr &doc,
         const CPlusPlus::Snapshot &snapshot, QStringList &visited);
@@ -302,6 +303,9 @@ private:
 
     QMap<QString, TestCode*> m_qttDocumentMap;
     QMap<QString, TestCode*> m_cppDocumentMap;
+
+    QList<QString> m_unitTestScanList;
+    QList<QString> m_systemTestScanList;
 };
 
 #endif  // TESTCODE_H
