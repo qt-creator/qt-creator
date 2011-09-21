@@ -42,7 +42,7 @@ leave room for the Qt 4 target page.
         id="R.QMake Console" category="I.Projects">
     <icon>console.png</icon>
     <description>Creates a pure console project using QMake, not using the Qt library.</description>
-    <displayname>QMake Console</displayname>;
+    <displayname>Plain C++ Project</displayname>;
     <displaycategory>Other Project</displaycategory>
     <files>
         <file source="main.cpp" openeditor="true"/>
