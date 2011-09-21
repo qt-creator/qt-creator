@@ -90,6 +90,7 @@ public:
 signals:
     void checked(bool);
     void linkActivated(const QString &link);
+    void expanded(bool);
 
 private slots:
     void setExpanded(bool);

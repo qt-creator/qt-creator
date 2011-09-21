@@ -118,6 +118,7 @@ private slots:
     void selectedToolChainChanged(int index);
 
     void qtVersionsDumpUpdated(const QString &qmakeCommand);
+    void handleDebuggingHelperExpanded(bool expanded);
 
 private:
     struct ValidityInfo {

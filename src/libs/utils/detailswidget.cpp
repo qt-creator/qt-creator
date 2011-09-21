@@ -331,6 +331,7 @@ void DetailsWidget::setState(State state)
         return;
     d->m_state = state;
     d->updateControls();
+    emit expanded(d->m_state == Expanded);
 }
 
 void DetailsWidget::setExpanded(bool expanded)

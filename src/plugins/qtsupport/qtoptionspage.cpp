@@ -151,6 +151,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     m_ui->versionInfoWidget->setState(Utils::DetailsWidget::NoSummary);
 
     m_ui->debuggingHelperWidget->setWidget(debuggingHelperDetailsWidget);
+    connect(m_ui->debuggingHelperWidget, SIGNAL(expanded(bool)),
+            this, SLOT(handleDebuggingHelperExpanded(bool)));
 
     // setup parent items for auto-detected and manual versions
     m_ui->qtdirList->header()->setResizeMode(QHeaderView::ResizeToContents);
@@ -367,6 +369,11 @@ void QtOptionsPageWidget::qtVersionsDumpUpdated(const QString &qmakeCommand)
         updateDescriptionLabel();
         updateDebuggingHelperUi();
     }
+}
+
+void QtOptionsPageWidget::handleDebuggingHelperExpanded(bool expanded)
+{
+    m_ui->versionInfoWidget->setVisible(!expanded);
 }
 
 QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const BaseQtVersion *version)
