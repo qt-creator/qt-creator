@@ -195,7 +195,7 @@ void StartGdbServerDialog::handleProcessErrorOutput(const QByteArray &ba)
     // "Listening on port 10000"
     int pos = ba.indexOf("Listening on port");
     if (pos != -1) {
-        int port = ba.mid(pos + 18).toInt();
+        int port = ba.mid(pos + 18).trimmed().toInt();
         d->ui.textBrowser->append(tr("Port %1 is now accessible.").arg(port));
         emit portOpened(port);
     }
