@@ -44,7 +44,7 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 enum State { Inactive, Listing, Killing };
-const char Delimiter[] = "-----";
+const char Delimiter[] = "x-----";
 } // anonymous namespace
 
 class AbstractRemoteLinuxProcessListPrivate
@@ -176,8 +176,10 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
         break;
     case SshRemoteProcess::ExitedNormally:
         if (d->process->process()->exitCode() == 0) {
-            if (d->state == Listing)
-                d->remoteProcesses = buildProcessList(QString::fromUtf8(d->remoteStdout));
+            if (d->state == Listing) {
+                d->remoteProcesses = buildProcessList(QString::fromUtf8(d->remoteStdout.data(),
+                    d->remoteStdout.count()));
+            }
         } else {
             d->errorMsg = tr("Remote process failed.");
         }
@@ -232,7 +234,8 @@ GenericRemoteLinuxProcessList::GenericRemoteLinuxProcessList(const LinuxDeviceCo
 QString GenericRemoteLinuxProcessList::listProcessesCommandLine() const
 {
     return QString::fromLocal8Bit("for dir in `ls -d /proc/[0123456789]*`; "
-        "do echo $dir%1`cat $dir/cmdline`%1`cat $dir/stat`; done").arg(Delimiter);
+        "do printf \"${dir}%1\";cat $dir/cmdline; printf '%1';cat $dir/stat;printf '\\n'; done")
+        .arg(Delimiter);
 }
 
 QString GenericRemoteLinuxProcessList::killProcessCommandLine(const RemoteProcess &process) const
@@ -243,7 +246,7 @@ QString GenericRemoteLinuxProcessList::killProcessCommandLine(const RemoteProces
 QList<AbstractRemoteLinuxProcessList::RemoteProcess> GenericRemoteLinuxProcessList::buildProcessList(const QString &listProcessesReply) const
 {
     QList<RemoteProcess> processes;
-    const QStringList &lines = listProcessesReply.split(QLatin1Char('\n'));
+    const QStringList &lines = listProcessesReply.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     foreach (const QString &line, lines) {
         const QStringList elements = line.split(QString::fromLocal8Bit(Delimiter));
         if (elements.count() < 3) {
@@ -257,6 +260,7 @@ QList<AbstractRemoteLinuxProcessList::RemoteProcess> GenericRemoteLinuxProcessLi
             continue;
         }
         QString command = elements.at(1);
+        command.replace(QLatin1Char('\0'), QLatin1Char(' '));
         if (command.isEmpty()) {
             const QString &statString = elements.at(2);
             const int openParenPos = statString.indexOf(QLatin1Char('('));
