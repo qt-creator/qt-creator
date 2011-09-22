@@ -126,7 +126,6 @@ private:
     void ctor();
 
     // last values
-    QStringList m_lastEnv;
     bool m_forced;
     bool m_needToRunQMake; // set in init(), read in run()
     QString m_userArgs;
