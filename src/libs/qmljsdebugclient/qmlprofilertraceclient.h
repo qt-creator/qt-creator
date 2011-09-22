@@ -66,6 +66,8 @@ public:
         FramePaint,
         Mouse,
         Key,
+        AnimationFrame,
+        EndTrace,
 
         MaximumEventType
     };
@@ -91,6 +93,7 @@ signals:
     void complete();
     void gap(qint64 time);
     void event(int event, qint64 time);
+    void traceFinished( qint64 time );
     void range(int type, qint64 startTime, qint64 length,
                const QStringList &data, const QString &fileName, int line);
 

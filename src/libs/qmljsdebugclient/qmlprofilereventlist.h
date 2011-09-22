@@ -140,6 +140,8 @@ public slots:
     void setFilename(const QString &filename);
     void load();
 
+    void setTraceEndTime( qint64 time );
+
 private slots:
     void postProcess();
     void sortEndTimes();

@@ -106,6 +106,7 @@ TraceWindow::TraceWindow(QWidget *parent)
 
     m_eventList = new QmlProfilerEventList(this);
     connect(this,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)), m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
+    connect(this, SIGNAL(traceFinished(qint64)), m_eventList, SLOT(setTraceEndTime(qint64)));
     connect(this,SIGNAL(viewUpdated()), m_eventList, SLOT(complete()));
     m_view->rootContext()->setContextProperty("qmlEventList", m_eventList);
 
@@ -139,6 +140,7 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     m_v8plugin = new QV8ProfilerClient(conn);
     connect(m_v8plugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
     connect(m_v8plugin.data(), SIGNAL(v8range(int,QString,QString,int,double,double)), this, SIGNAL(v8range(int,QString,QString,int,double,double)));
+    connect(m_plugin.data(), SIGNAL(traceFinished(qint64)), this, SIGNAL(traceFinished(qint64)));
 
     m_view->rootContext()->setContextProperty("connection", m_plugin.data());
     m_view->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));

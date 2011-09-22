@@ -78,9 +78,9 @@ signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void timeChanged(qreal newTime);
     void range(int type, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
-
     void v8range(int depth,const QString &function,const QString &filename,
                int lineNumber, double totalTime, double selfTime);
+    void traceFinished(qint64);
 
     void internalClearDisplay();
     void jumpToPrev();

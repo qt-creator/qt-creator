@@ -68,7 +68,7 @@ function drawData(canvas, ctxt, region)
     var width = canvas.canvasSize.width - xmargin;
     var height = canvas.height - ymargin;
 
-    var sumValue = qmlEventList.lastTimeMark() - qmlEventList.firstTimeMark();
+    var sumValue = qmlEventList.traceEndTime() - qmlEventList.traceStartTime();
     var spacing = width / sumValue;
 
     ctxt.fillStyle = "rgba(0,0,0,1)";
@@ -77,7 +77,7 @@ function drawData(canvas, ctxt, region)
     //### only draw those in range
     for (var ii = 0; ii < qmlEventList.count(); ++ii) {
 
-        var xx = (qmlEventList.getStartTime(ii) - qmlEventList.firstTimeMark()) * spacing + xmargin;
+        var xx = (qmlEventList.getStartTime(ii) - qmlEventList.traceStartTime()) * spacing + xmargin;
         if (xx > region.x + region.width)
             continue;
 
@@ -110,7 +110,7 @@ function xScale(canvas)
 
     var width = canvas.canvasSize.width - xmargin;
 
-    var sumValue = qmlEventList.lastTimeMark() - qmlEventList.firstTimeMark();
+    var sumValue = qmlEventList.traceEndTime() - qmlEventList.traceStartTime();
     var spacing = sumValue / width;
     return spacing;
 }

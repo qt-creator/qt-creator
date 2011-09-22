@@ -84,7 +84,7 @@ Rectangle {
                 && selectedEventIndex > -1 && selectedEventIndex < eventCount) {
             // re-center flickable if necessary
             var xs = Plotter.xScale(canvas);
-            var startTime = qmlEventList.firstTimeMark();
+            var startTime = qmlEventList.traceStartTime();
             var eventStartTime = qmlEventList.getStartTime(selectedEventIndex);
             var eventDuration = qmlEventList.getDuration(selectedEventIndex);
             if (rangeMover.value + startTime > eventStartTime) {
@@ -146,7 +146,7 @@ Rectangle {
                 root.clearAll();
             if (eventCount > 1) {
                 root.progress = Math.min(1.0,
-                    (qmlEventList.lastTimeMark() - qmlEventList.firstTimeMark()) / root.elapsedTime * 1e-9 ) * 0.5;
+                    (qmlEventList.traceEndTime() - qmlEventList.traceStartTime()) / root.elapsedTime * 1e-9 ) * 0.5;
             } else
             root.progress = 0;
         }
@@ -191,8 +191,8 @@ Rectangle {
         height: flick.height + labels.y
         anchors.left: flick.left
         anchors.right: flick.right
-        startTime: rangeMover.x * Plotter.xScale(canvas) + qmlEventList.firstTimeMark();
-        endTime: (rangeMover.x + rangeMover.zoomWidth) * Plotter.xScale(canvas) + qmlEventList.firstTimeMark();
+        startTime: rangeMover.x * Plotter.xScale(canvas) + qmlEventList.traceStartTime();
+        endTime: (rangeMover.x + rangeMover.zoomWidth) * Plotter.xScale(canvas) + qmlEventList.traceStartTime();
     }
 
     function hideRangeDetails() {

@@ -190,7 +190,6 @@ QmlProfilerEventList::QmlProfilerEventList(QObject *parent) :
     d->m_parsingStatus = DoneStatus;
     setObjectName("QmlProfilerEventStatistics");
 
-    // todo: read from client
     d->m_traceEndTime = 0;
 }
 
@@ -212,6 +211,7 @@ void QmlProfilerEventList::clear()
     d->m_v8EventList.clear();
     d->m_v8parents.clear();
 
+    d->m_traceEndTime = 0;
     emit countChanged();
 }
 
@@ -348,6 +348,11 @@ void QmlProfilerEventList::QmlProfilerEventListPrivate::collectV8Statistics()
         v8event->totalPercent = v8event->totalTime * 100.0 / totalTimes;
         v8event->selfPercent = v8event->selfTime * 100.0 / selfTimes;
     }
+}
+
+void QmlProfilerEventList::setTraceEndTime( qint64 time )
+{
+    d->m_traceEndTime = time;
 }
 
 void QmlProfilerEventList::complete()
