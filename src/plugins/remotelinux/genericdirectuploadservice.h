@@ -64,6 +64,7 @@ private slots:
     void handleStdErrData(const QByteArray &data);
 
 private:
+    bool isDeploymentPossible(QString *whyNot) const;
     bool isDeploymentNecessary() const;
 
     void doDeviceSetup();

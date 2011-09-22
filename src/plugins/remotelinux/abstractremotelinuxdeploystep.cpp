@@ -78,7 +78,11 @@ QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
 
 bool AbstractRemoteLinuxDeployStep::init()
 {
-    return isDeploymentPossible();
+    QString error;
+    const bool canDeploy = isDeploymentPossible(&error);
+    if (!canDeploy)
+        emit addOutput(tr("Deployment failed: %1").arg(error), ErrorMessageOutput);
+    return canDeploy;
 }
 
 bool AbstractRemoteLinuxDeployStep::isDeploymentPossible(QString *whyNot) const

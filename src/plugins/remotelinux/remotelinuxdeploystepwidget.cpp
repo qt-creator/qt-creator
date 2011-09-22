@@ -32,6 +32,7 @@
 #include "remotelinuxdeploystepwidget.h"
 
 #include "abstractremotelinuxdeploystep.h"
+#include "deploymentinfo.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxutils.h"
 
@@ -55,10 +56,11 @@ RemoteLinuxDeployStepWidget::RemoteLinuxDeployStepWidget(AbstractRemoteLinuxDepl
         SLOT(handleStepToBeRemoved(int)));
 
     // TODO: Move this knowledge into the deploy step itself.
-    connect(qobject_cast<Qt4Project *>(m_step->target()->project()),
-        SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *, bool, bool)),
+    connect(qobject_cast<Qt4Project *>(m_step->target()->project()), SIGNAL(proParsingDone()),
         SIGNAL(updateSummary()));
     connect(m_step->deployConfiguration(), SIGNAL(currentDeviceConfigurationChanged()),
+        SIGNAL(updateSummary()));
+    connect(m_step->deployConfiguration()->deploymentInfo().data(), SIGNAL(modelReset()),
         SIGNAL(updateSummary()));
 }
 
