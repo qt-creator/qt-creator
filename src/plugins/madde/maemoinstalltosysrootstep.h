@@ -51,7 +51,7 @@ class AbstractMaemoInstallPackageToSysrootStep : public ProjectExplorer::BuildSt
 {
     Q_OBJECT
 public:
-    virtual bool init() { return true; }
+    virtual bool init();
     virtual void run(QFutureInterface<bool> &fi);
 
     RemoteLinux::RemoteLinuxDeployConfiguration *deployConfiguration() const;
@@ -70,6 +70,8 @@ private:
     virtual QStringList madArguments() const = 0;
 
     QProcess *m_installerProcess;
+    QString m_qmakeCommand;
+    QString m_packageFilePath;
 };
 
 class MaemoInstallDebianPackageToSysrootStep : public AbstractMaemoInstallPackageToSysrootStep
@@ -112,12 +114,14 @@ public:
     MaemoCopyToSysrootStep(ProjectExplorer::BuildStepList *bsl,
         MaemoCopyToSysrootStep *other);
 
-    virtual bool init() { return true; }
+    virtual bool init();
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
     static const QString Id;
     static QString displayName();
+private:
+    QString m_systemRoot;
 };
 
 class MaemoMakeInstallToSysrootStep : public ProjectExplorer::AbstractProcessStep

@@ -155,16 +155,14 @@ RemoteLinuxDeployConfiguration *AbstractMaemoInstallPackageToSysrootStep::deploy
     return qobject_cast<RemoteLinuxDeployConfiguration *>(BuildStep::deployConfiguration());
 }
 
-
-void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
+bool AbstractMaemoInstallPackageToSysrootStep::init()
 {
     const Qt4BuildConfiguration * const bc
         = qobject_cast<Qt4BaseTarget *>(target())->activeQt4BuildConfiguration();
     if (!bc) {
         addOutput(tr("Cannot install to sysroot without build configuration."),
             ErrorMessageOutput);
-        fi.reportResult(false);
-        return;
+        return false;
     }
 
     const AbstractMaemoPackageCreationStep * const pStep
@@ -172,17 +170,22 @@ void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
     if (!pStep) {
         addOutput(tr("Cannot install package to sysroot without packaging step."),
             ErrorMessageOutput);
-        fi.reportResult(false);
-        return;
+        return false;
     }
 
     if (!bc->qtVersion()) {
         addOutput(tr("Cannot install package to sysroot without a Qt version."),
             ErrorMessageOutput);
-        fi.reportResult(false);
-        return;
+        return false;
     }
 
+    m_qmakeCommand = bc->qtVersion()->qmakeCommand();
+    m_packageFilePath = pStep->packageFilePath();
+    return true;
+}
+
+void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
+{
     m_installerProcess = new QProcess;
     connect(m_installerProcess, SIGNAL(readyReadStandardOutput()),
         SLOT(handleInstallerStdout()));
@@ -190,11 +193,9 @@ void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
         SLOT(handleInstallerStderr()));
 
     emit addOutput(tr("Installing package to sysroot ..."), MessageOutput);
-    const QtSupport::BaseQtVersion * const qtVersion = bc->qtVersion();
-    const QString packageFilePath = pStep->packageFilePath();
-    const int packageFileSize = QFileInfo(packageFilePath).size() / (1024*1024);
-    const QStringList args = madArguments() << packageFilePath;
-    MaemoGlobal::callMadAdmin(*m_installerProcess, args, qtVersion->qmakeCommand(), true);
+    const int packageFileSize = QFileInfo(m_packageFilePath).size() / (1024*1024);
+    const QStringList args = madArguments() << m_packageFilePath;
+    MaemoGlobal::callMadAdmin(*m_installerProcess, args, m_qmakeCommand, true);
     if (!m_installerProcess->waitForFinished((2*packageFileSize + 10)*1000)
             || m_installerProcess->exitStatus() != QProcess::NormalExit
             || m_installerProcess->exitCode() != 0) {
@@ -303,34 +304,37 @@ MaemoCopyToSysrootStep::MaemoCopyToSysrootStep(BuildStepList *bsl,
     setDisplayName(displayName());
 }
 
-void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
+bool MaemoCopyToSysrootStep::init()
 {
     const Qt4BuildConfiguration * const bc
         = qobject_cast<Qt4BaseTarget *>(target())->activeQt4BuildConfiguration();
     if (!bc) {
         addOutput(tr("Cannot copy to sysroot without build configuration."),
             ErrorMessageOutput);
-        fi.reportResult(false);
-        return;
+        return false;
     }
 
     const MaemoQtVersion * const qtVersion = dynamic_cast<MaemoQtVersion *>(bc->qtVersion());
     if (!qtVersion) {
         addOutput(tr("Cannot copy to sysroot without valid Qt version."),
             ErrorMessageOutput);
-        fi.reportResult(false);
-        return;
+        return false;
     }
+    m_systemRoot = qtVersion->systemRoot();
+    return true;
+}
 
+void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
+{
     emit addOutput(tr("Copying files to sysroot ..."), MessageOutput);
-    QDir sysrootDir(qtVersion->systemRoot());
+    QDir sysrootDir(m_systemRoot);
     const QSharedPointer<DeploymentInfo> deploymentInfo
         = qobject_cast<RemoteLinuxDeployConfiguration *>(deployConfiguration())->deploymentInfo();
     const QChar sep = QLatin1Char('/');
     for (int i = 0; i < deploymentInfo->deployableCount(); ++i) {
         const DeployableFile &deployable = deploymentInfo->deployableAt(i);
         const QFileInfo localFileInfo(deployable.localFilePath);
-        const QString targetFilePath = qtVersion->systemRoot() + sep
+        const QString targetFilePath = m_systemRoot + sep
             + deployable.remoteDir + sep + localFileInfo.fileName();
         sysrootDir.mkpath(deployable.remoteDir.mid(1));
         QString errorMsg;
