@@ -90,6 +90,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui->scriptFileChooser);
     m_group.insert(debuggerCore()->action(LoadGdbInit),
         m_ui->checkBoxLoadGdbInit);
+    m_group.insert(debuggerCore()->action(AutoEnrichParameters),
+        m_ui->checkBoxAutoEnrichParameters);
     m_group.insert(debuggerCore()->action(TargetAsync),
         m_ui->checkBoxTargetAsync);
     m_group.insert(debuggerCore()->action(AdjustBreakpointLocations),

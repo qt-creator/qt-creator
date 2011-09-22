@@ -1187,6 +1187,23 @@ static QString msgParameterMissing(const QString &a)
     return DebuggerPlugin::tr("Option '%1' is missing the parameter.").arg(a);
 }
 
+
+static void maybeEnrichParameters(DebuggerStartParameters *sp)
+{
+    if (!theDebuggerCore->boolSetting(AutoEnrichParameters))
+        return;
+    if (sp->debugInfoLocation.isEmpty())
+        sp->debugInfoLocation = sp->sysroot + "/usr/lib/debug";
+    if (sp->debugSourceLocation.isEmpty()) {
+        QString base = sp->sysroot + "/usr/src/debug/";
+        sp->debugSourceLocation.append(base + "qt5base/src/corelib");
+        sp->debugSourceLocation.append(base + "qt5base/src/gui");
+        sp->debugSourceLocation.append(base + "qt5base/src/network");
+        sp->debugSourceLocation.append(base + "qt5base/src/v8");
+        sp->debugSourceLocation.append(base + "qtdeclarative/src/declarative/qml");
+    }
+}
+
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
     const QStringList::const_iterator &cend,
     unsigned *enabledEngines, QString *errorMessage)
@@ -1467,6 +1484,7 @@ void DebuggerPluginPrivate::attachExternalApplication()
     sp.startMode = AttachExternal;
     sp.toolChainAbi = dlg.abi();
     sp.debuggerCommand = dlg.debuggerCommand();
+    maybeEnrichParameters(&sp);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1478,6 +1496,7 @@ void DebuggerPluginPrivate::attachExternalApplication(ProjectExplorer::RunContro
     sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
     sp.startMode = AttachExternal;
     sp.toolChainAbi = rc->abi();
+    maybeEnrichParameters(&sp);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1509,6 +1528,7 @@ void DebuggerPluginPrivate::attachCore()
     sp.toolChainAbi = dlg.abi();
     sp.sysroot = dlg.sysroot();
     sp.overrideStartScript = dlg.overrideStartScript();
+    maybeEnrichParameters(&sp);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1523,6 +1543,7 @@ void DebuggerPluginPrivate::attachRemote(const QString &spec)
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemoteServer;
     sp.toolChainAbi = anyAbiOfBinary(sp.executable);
+    maybeEnrichParameters(&sp);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1611,16 +1632,6 @@ bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, b
     sp.serverStartScript = dlg.serverStartScript();
     sp.sysroot = dlg.sysroot();
     sp.debugInfoLocation = dlg.debugInfoLocation();
-    if (sp.debugInfoLocation.isEmpty())
-        sp.debugInfoLocation = sp.sysroot + "/usr/lib/debug";
-    if (sp.debugSourceLocation.isEmpty()) {
-        QString base = sp.sysroot + "/usr/src/debug/";
-        sp.debugSourceLocation.append(base + "qt5base/src/corelib");
-        sp.debugSourceLocation.append(base + "qt5base/src/gui");
-        sp.debugSourceLocation.append(base + "qt5base/src/network");
-        sp.debugSourceLocation.append(base + "qt5base/src/v8");
-        sp.debugSourceLocation.append(base + "qtdeclarative/src/declarative/qml");
-    }
     return true;
 }
 
@@ -1628,9 +1639,11 @@ void DebuggerPluginPrivate::startRemoteApplication()
 {
     DebuggerStartParameters sp;
     sp.startMode = StartRemote;
-    if (queryRemoteParameters(sp, true))
-        if (RunControl *rc = createDebugger(sp))
-            startDebugger(rc);
+    if (!queryRemoteParameters(sp, true))
+        return;
+    maybeEnrichParameters(&sp);
+    if (RunControl *rc = createDebugger(sp))
+        startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::attachRemoteApplication()
@@ -1641,6 +1654,7 @@ void DebuggerPluginPrivate::attachRemoteApplication()
     sp.startMode = AttachToRemoteServer;
     sp.useServerStartScript = false;
     sp.serverStartScript.clear();
+    maybeEnrichParameters(&sp);
     if (RunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }

@@ -4759,6 +4759,12 @@ void GdbEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     showStatusMessage(tr("Setting up inferior..."));
+    const DebuggerStartParameters &sp = startParameters();
+    const QByteArray debugInfoLocation = sp.debugInfoLocation.toLocal8Bit();
+    if (!debugInfoLocation.isEmpty())
+        postCommand("set debug-file-directory " + debugInfoLocation);
+    foreach (const QString &src, sp.debugSourceLocation)
+        postCommand("directory " + src.toLocal8Bit());
     m_gdbAdapter->setupInferior();
 }
 

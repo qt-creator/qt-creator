@@ -350,6 +350,14 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(LoadGdbInit, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("AutoEnrichParameters"));
+    item->setDefaultValue(QString());
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    insertItem(AutoEnrichParameters, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("TargetAsync"));
     item->setCheckable(true);
     item->setDefaultValue(false);

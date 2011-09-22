@@ -55,17 +55,18 @@ public:
 
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);
-    bool equals(const GlobalDebuggerOptions &rhs) const { return sourcePathMap == rhs.sourcePathMap; }
+    bool operator==(const GlobalDebuggerOptions &rhs) const
+        { return sourcePathMap == rhs.sourcePathMap; }
+    bool operator!=(const GlobalDebuggerOptions &rhs) const
+        { return sourcePathMap != rhs.sourcePathMap; }
 
     SourcePathMap sourcePathMap;
 };
 
-inline bool operator==(const GlobalDebuggerOptions &o1, const GlobalDebuggerOptions &o2) { return o1.equals(o2); }
-inline bool operator!=(const GlobalDebuggerOptions &o1, const GlobalDebuggerOptions &o2) { return !o1.equals(o2); }
-
 class DebuggerSettings : public QObject
 {
     Q_OBJECT // For tr().
+
 public:
     explicit DebuggerSettings(QSettings *setting);
     ~DebuggerSettings();
@@ -118,6 +119,7 @@ enum DebuggerActionCode
     LoadGdbInit,
     GdbScriptFile,
     GdbWatchdogTimeout,
+    AutoEnrichParameters,
     TargetAsync,
 
     // Stack

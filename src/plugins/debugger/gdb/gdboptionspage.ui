@@ -123,20 +123,30 @@ on slow machines. In this case, the value should be increased.</string>
        </widget>
       </item>
       <item row="7" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxAutoEnrichParameters">
+        <property name="toolTip">
+         <string>This adds common paths to locations of debug information at debugger startup.</string>
+        </property>
+        <property name="text">
+         <string>Use common locations for debug information automatically</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxBreakOnWarning">
         <property name="text">
          <string>Stop when a qWarning is issued</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="0" colspan="2">
+      <item row="9" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxBreakOnFatal">
         <property name="text">
          <string>Stop when a qFatal is issued</string>
         </property>
        </widget>
       </item>
-      <item row="9" column="0" colspan="2">
+      <item row="10" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</string>
