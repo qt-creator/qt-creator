@@ -51,6 +51,15 @@ FileWizardDialog::FileWizardDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setOption(QWizard::NoCancelButton, false);
     setOption(QWizard::NoDefaultButton, false);
+#ifdef Q_OS_MAC
+    setButtonLayout(QList<QWizard::WizardButton>()
+                    << QWizard::CancelButton
+                    << QWizard::Stretch
+                    << QWizard::BackButton
+                    << QWizard::NextButton
+                    << QWizard::CommitButton
+                    << QWizard::FinishButton);
+#endif
     const int filePageId = addPage(m_filePage);
     wizardProgress()->item(filePageId)->setTitle(tr("Location"));
     connect(m_filePage, SIGNAL(activated()), button(QWizard::FinishButton), SLOT(animateClick()));

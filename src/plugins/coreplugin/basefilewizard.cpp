@@ -539,6 +539,16 @@ void BaseFileWizard::setupWizard(QWizard *w)
     w->setOption(QWizard::NoDefaultButton, false);
     w->setOption(QWizard::NoBackButtonOnStartPage, true);
     w->setWindowFlags(w->windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+#ifdef Q_OS_MAC
+    w->setButtonLayout(QList<QWizard::WizardButton>()
+                    << QWizard::CancelButton
+                    << QWizard::Stretch
+                    << QWizard::BackButton
+                    << QWizard::NextButton
+                    << QWizard::CommitButton
+                    << QWizard::FinishButton);
+#endif
 }
 
 /*!
