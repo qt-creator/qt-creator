@@ -4513,8 +4513,11 @@ void BaseTextEditorWidget::handleHomeKey(bool anchor)
 void BaseTextEditorWidget::handleBackspaceKey()
 {
     QTextCursor cursor = textCursor();
-    int pos = cursor.position();
     QTC_ASSERT(!cursor.hasSelection(), return);
+
+    const int pos = cursor.position();
+    if (!pos)
+        return;
 
     bool cursorWithinSnippet = false;
     if (d->m_snippetOverlay->isVisible()) {
@@ -4570,7 +4573,8 @@ void BaseTextEditorWidget::handleBackspaceKey()
             }
         }
     } else if (tabSettings.m_smartBackspaceBehavior == TabSettings::BackspaceUnindents) {
-        if (!pos || !characterAt(pos - 1).isSpace()) {
+        const QChar &c = characterAt(pos - 1);
+        if (!(c == QLatin1Char(' ') || c == QLatin1Char('\t'))) {
             if (cursorWithinSnippet)
                 cursor.beginEditBlock();
             cursor.deletePreviousChar();
