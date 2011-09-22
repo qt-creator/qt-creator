@@ -72,7 +72,6 @@ ProcessStep::ProcessStep(BuildStepList *bsl, ProcessStep *bs) :
     m_command(bs->m_command),
     m_arguments(bs->m_arguments),
     m_workingDirectory(bs->m_workingDirectory),
-    m_env(bs->m_env),
     m_enabled(bs->m_enabled)
 {
     ctor();
