@@ -105,6 +105,11 @@ void AbstractRemoteLinuxProcessList::killProcess(int row)
     startProcess(killProcessCommandLine(d->remoteProcesses.at(row)));
 }
 
+int AbstractRemoteLinuxProcessList::pidAt(int row) const
+{
+    return d->remoteProcesses.at(row).pid;
+}
+
 int AbstractRemoteLinuxProcessList::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : d->remoteProcesses.count();

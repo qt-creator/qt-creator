@@ -3016,6 +3016,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
         mstart->addAction(cmd, CC::G_DEFAULT_ONE);
     }
 
+    QAction *sep = new QAction(this);
+    sep->setSeparator(true);
+    cmd = am->registerAction(sep, "Debugger.Sep.Start", globalcontext);
+    mstart->addAction(cmd);
+
     cmd = am->registerAction(m_detachAction,
         "Debugger.Detach", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
@@ -3051,7 +3056,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDefaultText(tr("Reset Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    QAction *sep = new QAction(this);
+    sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, "Debugger.Sep.Step", globalcontext);
     debugMenu->addAction(cmd);

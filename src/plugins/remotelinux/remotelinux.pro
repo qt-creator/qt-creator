@@ -54,7 +54,8 @@ HEADERS += \
     remotelinuxutils.h \
     deploymentsettingsassistant.h \
     remotelinuxdeployconfigurationwidget.h \
-    profilesupdatedialog.h
+    profilesupdatedialog.h \
+    startgdbserverdialog.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -103,7 +104,8 @@ SOURCES += \
     remotelinuxutils.cpp \
     deploymentsettingsassistant.cpp \
     remotelinuxdeployconfigurationwidget.cpp \
-    profilesupdatedialog.cpp
+    profilesupdatedialog.cpp \
+    startgdbserverdialog.cpp
 
 FORMS += \
     linuxdevicefactoryselectiondialog.ui \
@@ -113,7 +115,8 @@ FORMS += \
     linuxdeviceconfigurationssettingswidget.ui \
     sshkeycreationdialog.ui \
     remotelinuxdeployconfigurationwidget.ui \
-    profilesupdatedialog.ui
+    profilesupdatedialog.ui \
+    startgdbserverdialog.ui
 
 DEFINES += QT_NO_CAST_TO_ASCII
 DEFINES += REMOTELINUX_LIBRARY

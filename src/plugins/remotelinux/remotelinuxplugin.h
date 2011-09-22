@@ -41,12 +41,15 @@ namespace Internal {
 class RemoteLinuxPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+
 public:
     RemoteLinuxPlugin();
-    ~RemoteLinuxPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
+
+private slots:
+    void startGdbServer();
 };
 
 } // namespace Internal

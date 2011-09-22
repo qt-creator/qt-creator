@@ -41,17 +41,22 @@
 #include "remotelinuxrunconfigurationfactory.h"
 #include "remotelinuxruncontrolfactory.h"
 #include "remotelinuxsettingspages.h"
+#include "startgdbserverdialog.h"
+
+#include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QtPlugin>
+#include <QtGui/QAction>
 
 namespace RemoteLinux {
 namespace Internal {
 
 RemoteLinuxPlugin::RemoteLinuxPlugin()
-{
-}
-
-RemoteLinuxPlugin::~RemoteLinuxPlugin()
 {
 }
 
@@ -77,6 +82,28 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
 
 void RemoteLinuxPlugin::extensionsInitialized()
 {
+    using namespace Core;
+    ICore *core = ICore::instance();
+    ActionManager *am = core->actionManager();
+    ActionContainer *mstart = am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
+
+    const Context globalcontext(Core::Constants::C_GLOBAL);
+
+    QAction *startGdbServerAction = new QAction(tr("Start Remote Debug Server"), 0);
+    Command *cmd = am->registerAction(startGdbServerAction, "StartGdbServer", globalcontext);
+    cmd->setDefaultText(tr("Start Gdbserver"));
+    mstart->addAction(cmd, Constants::G_DEFAULT_TWO);
+
+    connect(startGdbServerAction, SIGNAL(triggered()), SLOT(startGdbServer()));
+}
+
+void RemoteLinuxPlugin::startGdbServer()
+{
+    StartGdbServerDialog dlg;
+    int result = dlg.exec();
+    if (result == QDialog::Rejected)
+        return;
+    dlg.startGdbServer();
 }
 
 } // namespace Internal
