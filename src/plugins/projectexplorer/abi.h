@@ -52,6 +52,7 @@ public:
         ItaniumArchitecture,
         MipsArchitecture,
         PowerPCArchitecture,
+        ShArchitecture,
         UnknownArchitecture
     };
 

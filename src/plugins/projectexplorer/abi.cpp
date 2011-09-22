@@ -225,6 +225,9 @@ static QList<Abi> abiOf(const QByteArray &data)
         case 62: // EM_X86_64
             result.append(Abi(Abi::X86Architecture, os, flavor, Abi::ElfFormat, 64));
             break;
+        case 42: // EM_SH
+            result.append(Abi(Abi::ShArchitecture, os, flavor, Abi::ElfFormat, 32));
+            break;
         case 50: // EM_IA_64
             result.append(Abi(Abi::ItaniumArchitecture, os, flavor, Abi::ElfFormat, 64));
             break;
@@ -340,6 +343,8 @@ Abi::Abi(const QString &abiString) :
             m_architecture = PowerPCArchitecture;
         else if (abiParts.at(0) == QLatin1String("itanium"))
             m_architecture = ItaniumArchitecture;
+        else if (abiParts.at(0) == QLatin1String("sh"))
+            m_architecture = ShArchitecture;
         else
             return;
     }
@@ -511,6 +516,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("ppc");
     case ItaniumArchitecture:
         return QLatin1String("itanium");
+    case ShArchitecture:
+        return QLatin1String("sh    ");
     case UnknownArchitecture: // fall through!
     default:
         return QLatin1String("unknown");
@@ -818,6 +825,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("dynamic QtCore: arm linux 32bit (angstrom)")
             << QString::fromLatin1("%1/dynamic/arm-angstrom-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
+    QTest::newRow("dynamic QtCore: sh4 linux 32bit")
+            << QString::fromLatin1("%1/dynamic/sh4-linux.so").arg(prefix)
+            << (QStringList() << QString::fromLatin1("sh-linux-generic-elf-32bit"));
     QTest::newRow("dynamic QtCore: mips linux 32bit")
             << QString::fromLatin1("%1/dynamic/mips-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("mips-linux-generic-elf-32bit"));
@@ -833,6 +843,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("dynamic QtCore: x86 freebsd 32bit")
             << QString::fromLatin1("%1/dynamic/freebsd-elf-32bit.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-bsd-freebsd-elf-32bit"));
+
+    QTest::newRow("executable: x86 win 32bit cygwin executable")
+            << QString::fromLatin1("%1/executable/cygwin-32bit.exe").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()
