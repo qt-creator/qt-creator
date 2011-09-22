@@ -68,12 +68,12 @@ public:
 
     ProcessParameters *processParameters() { return &m_param; }
 
+    bool ignoreReturnValue();
     void setIgnoreReturnValue(bool b);
 
     void setOutputParser(ProjectExplorer::IOutputParser *parser);
     void appendOutputParser(ProjectExplorer::IOutputParser *parser);
     ProjectExplorer::IOutputParser *outputParser() const;
-
 protected:
     AbstractProcessStep(BuildStepList *bsl, const QString &id);
     AbstractProcessStep(BuildStepList *bsl, AbstractProcessStep *bs);

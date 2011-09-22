@@ -152,6 +152,11 @@ ProjectExplorer::IOutputParser *AbstractProcessStep::outputParser() const
     return m_outputParserChain;
 }
 
+bool AbstractProcessStep::ignoreReturnValue()
+{
+    return m_ignoreReturnValue;
+}
+
 /*!
     \brief If ignoreReturnValue is set to true, then the abstractprocess step will
     return success even if the return value indicates otherwise.
