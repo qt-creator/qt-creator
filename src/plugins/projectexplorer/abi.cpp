@@ -847,6 +847,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("executable: x86 win 32bit cygwin executable")
             << QString::fromLatin1("%1/executable/cygwin-32bit.exe").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
+    QTest::newRow("executable: x86 win 32bit mingw executable")
+            << QString::fromLatin1("%1/executable/mingw-32bit.exe").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()
