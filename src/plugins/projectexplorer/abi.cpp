@@ -517,7 +517,7 @@ QString Abi::toString(const Architecture &a)
     case ItaniumArchitecture:
         return QLatin1String("itanium");
     case ShArchitecture:
-        return QLatin1String("sh    ");
+        return QLatin1String("sh");
     case UnknownArchitecture: // fall through!
     default:
         return QLatin1String("unknown");
