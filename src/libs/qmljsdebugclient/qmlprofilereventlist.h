@@ -118,6 +118,9 @@ public:
     Q_INVOKABLE int getLine(int index) const;
     Q_INVOKABLE QString getDetails(int index) const;
 
+    Q_INVOKABLE qint64 traceStartTime() const;
+    Q_INVOKABLE qint64 traceEndTime() const;
+
     void showErrorDialog(const QString &st ) const;
 signals:
     void dataReady();

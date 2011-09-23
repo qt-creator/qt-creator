@@ -173,6 +173,8 @@ public:
     QV8EventDescriptions m_v8EventList;
     QHash<int, QV8EventData *> m_v8parents;
 
+    qint64 m_traceEndTime;
+
     // file to load
     QString m_filename;
     ParsingStatus m_parsingStatus;
@@ -187,6 +189,9 @@ QmlProfilerEventList::QmlProfilerEventList(QObject *parent) :
 {
     d->m_parsingStatus = DoneStatus;
     setObjectName("QmlProfilerEventStatistics");
+
+    // todo: read from client
+    d->m_traceEndTime = 0;
 }
 
 QmlProfilerEventList::~QmlProfilerEventList()
@@ -722,6 +727,16 @@ qint64 QmlProfilerEventList::lastTimeMark() const
     else {
         return d->m_endTimeSortedList.last().endTime;
     }
+}
+
+qint64 QmlProfilerEventList::traceStartTime() const
+{
+    return 0;
+}
+
+qint64 QmlProfilerEventList::traceEndTime() const
+{
+    return d->m_traceEndTime ? d->m_traceEndTime : lastTimeMark();
 }
 
 int QmlProfilerEventList::count() const

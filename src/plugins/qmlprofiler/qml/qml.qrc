@@ -16,5 +16,7 @@
         <file>recordOff.png</file>
         <file>recordOn.png</file>
         <file>StatusDisplay.qml</file>
+        <file>lock_closed.png</file>
+        <file>lock_open.png</file>
     </qresource>
 </RCC>

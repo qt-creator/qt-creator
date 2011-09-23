@@ -184,9 +184,6 @@ TiledCanvas {
             setStartTime(mouseX);
         }
 
-        onEntered: {
-            root.hideRangeDetails();
-        }
         onExited: {
             if ((!pressed) && (!timeDisplayEnd.visible)) {
                 timeDisplayLabel.hideAll();

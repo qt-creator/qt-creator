@@ -97,7 +97,7 @@ void TimelineView::updateTimeline(bool updateStartX)
     if (!m_eventList)
         return;
 
-    qreal totalRange = m_eventList->lastTimeMark() - m_eventList->firstTimeMark();
+    qreal totalRange = m_eventList->traceEndTime() - m_eventList->traceStartTime();
     qreal window = m_endTime - m_startTime;
 
     if (window == 0)    //###

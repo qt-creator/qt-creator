@@ -43,6 +43,8 @@ BorderImage {
     property string file
     property int line
 
+    property bool locked: !root.mouseOverSelection
+
     source: "popup.png"
     border {
         left: 10; top: 10
@@ -50,9 +52,11 @@ BorderImage {
     }
 
     width: col.width + 45
-    height: childrenRect.height + 30
+    height: childrenRect.height
     z: 1
     visible: false
+    x: 200
+    y: 200
 
     //title
     Text {
@@ -102,6 +106,44 @@ BorderImage {
                 return (file.length !== 0) ? (file + ":" + rangeDetails.line) : "";
             }
             onLinkActivated: Qt.openUrlExternally(url)
+        }
+    }
+
+    Image {
+        id: lockIcon
+        source: locked?"lock_closed.png" : "lock_open.png"
+        anchors.top: closeIcon.top
+        anchors.right: closeIcon.left
+        anchors.rightMargin: 4
+        width: 8
+        height: 12
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.mouseOverSelection = !root.mouseOverSelection;
+        }
+    }
+
+    Text {
+        id: closeIcon
+        x: col.width + 20
+        y: 10
+        text:"X"
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.hideRangeDetails();
+        }
+    }
+
+    MouseArea {
+        width: col.width
+        height: col.height + typeTitle.height + 30
+        drag.target: parent
+        onClicked: {
+            // force reload of selected item
+            var selectedItem = root.selectedEventIndex;
+            root.selectedEventIndex = -1;
+            root.selectedEventIndex = selectedItem;
+            root.gotoSourceLocation(file, line);
         }
     }
 }
