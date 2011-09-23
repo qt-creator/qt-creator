@@ -256,7 +256,7 @@ private:
 
     mutable bool m_versionInfoUpToDate;
     mutable QHash<QString,QString> m_versionInfo;
-    mutable bool m_notInstalled;
+    mutable bool m_installed;
     mutable bool m_hasExamples;
     mutable bool m_hasDemos;
     mutable bool m_hasDocumentation;
