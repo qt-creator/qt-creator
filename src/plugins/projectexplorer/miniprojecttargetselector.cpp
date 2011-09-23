@@ -162,22 +162,6 @@ QSize ProjectListWidget::sizeHint() const
     return size;
 }
 
-void ProjectListWidget::setRunComboPopup()
-{
-    QWidget *w = itemWidget(currentItem());
-    MiniTargetWidget *mtw = qobject_cast<MiniTargetWidget*>(w);
-    if (mtw->runSettingsComboBox())
-        mtw->runSettingsComboBox()->showPopup();
-}
-
-void ProjectListWidget::setBuildComboPopup()
-{
-    QWidget *w = itemWidget(currentItem());
-    MiniTargetWidget *mtw = qobject_cast<MiniTargetWidget*>(w);
-    if (mtw->buildSettingsComboBox())
-        mtw->buildSettingsComboBox()->showPopup();
-}
-
 void ProjectListWidget::setTarget(int index)
 {
     MiniTargetWidget *mtw = qobject_cast<MiniTargetWidget *>(itemWidget(item(index)));

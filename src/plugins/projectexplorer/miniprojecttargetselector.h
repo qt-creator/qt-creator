@@ -64,9 +64,6 @@ public:
 
     QSize sizeHint() const;
 
-    void setBuildComboPopup();
-    void setRunComboPopup();
-
     ProjectExplorer::Project *project() const;
 
 private slots:
