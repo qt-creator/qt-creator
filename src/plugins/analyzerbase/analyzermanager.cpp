@@ -639,6 +639,8 @@ void AnalyzerManagerPrivate::selectMenuAction()
     QTC_ASSERT(action, return);
     IAnalyzerTool *tool = m_toolFromAction.value(action);
     StartMode mode = m_modeFromAction.value(action);
+
+    AnalyzerManager::showMode();
     selectTool(tool, mode);
     tool->startTool(mode);
 }
