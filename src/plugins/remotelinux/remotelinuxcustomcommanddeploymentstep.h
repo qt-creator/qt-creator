@@ -29,57 +29,47 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef ABSTRACTREMOTELINUXDEPLOYSTEP_H
-#define ABSTRACTREMOTELINUXDEPLOYSTEP_H
+#ifndef REMOTELINUXCUSTOMCOMMANDDEPLOYMENTSTEP_H
+#define REMOTELINUXCUSTOMCOMMANDDEPLOYMENTSTEP_H
 
-#include "remotelinux_export.h"
-
-#include <projectexplorer/buildstep.h>
-
-#include <QtCore/QVariantMap>
+#include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
-class AbstractRemoteLinuxDeployService;
-class RemoteLinuxDeployConfiguration;
-
 namespace Internal {
-class AbstractRemoteLinuxDeployStepPrivate;
-}
+class RemoteLinuxCustomCommandDeploymentStepPrivate;
+} // namespace Internal
 
-class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer::BuildStep
+class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeploymentStep
+    : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
-
 public:
+    RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
+    RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
+        RemoteLinuxCustomCommandDeploymentStep *other);
+    ~RemoteLinuxCustomCommandDeploymentStep();
+
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
-    bool init();
-    void run(QFutureInterface<bool> &fi);
-    bool runInGuiThread() const { return true; }
-    void cancel();
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
 
-    virtual AbstractRemoteLinuxDeployService *deployService() const = 0;
+    void setCommandLine(const QString &commandLine);
+    QString commandLine() const;
+
+    static QString stepId();
+    static QString stepDisplayName();
 
 protected:
-    AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, const QString &id);
-    AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl,
-        AbstractRemoteLinuxDeployStep *other);
-
-    virtual bool isDeploymentPossible(QString *whyNot = 0) const;
-
-private slots:
-    void handleProgressMessage(const QString &message);
-    void handleErrorMessage(const QString &message);
-    void handleFinished();
-    void handleStdOutData(const QString &data);
-    void handleStdErrData(const QString &data);
+    bool isDeploymentPossible(QString *whyNot = 0) const;
 
 private:
-    Internal::AbstractRemoteLinuxDeployStepPrivate *d;
+    void ctor();
+
+    AbstractRemoteLinuxDeployService *deployService() const;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+
+    Internal::RemoteLinuxCustomCommandDeploymentStepPrivate *d;
 };
 
 } // namespace RemoteLinux
 
-#endif // ABSTRACTREMOTELINUXDEPLOYSTEP_H
+#endif // REMOTELINUXCUSTOMCOMMANDDEPLOYMENTSTEP_H

@@ -33,6 +33,7 @@
 
 #include "genericdirectuploadstep.h"
 #include "remotelinuxdeployconfigurationfactory.h"
+#include "remotelinuxcustomcommanddeploymentstep.h"
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
 
@@ -56,7 +57,7 @@ QStringList GenericRemoteLinuxDeployStepFactory::availableCreationIds(BuildStepL
     if (!dc || dc->id() != RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId())
         return ids;
     ids << TarPackageCreationStep::stepId() << UploadAndInstallTarPackageStep::stepId()
-        << GenericDirectUploadStep::stepId();
+        << GenericDirectUploadStep::stepId() << RemoteLinuxCustomCommandDeploymentStep::stepId();
     return ids;
 }
 
@@ -68,6 +69,8 @@ QString GenericRemoteLinuxDeployStepFactory::displayNameForId(const QString &id)
         return UploadAndInstallTarPackageStep::displayName();
     if (id == GenericDirectUploadStep::stepId())
         return GenericDirectUploadStep::displayName();
+    if (id == RemoteLinuxCustomCommandDeploymentStep::stepId())
+        return RemoteLinuxCustomCommandDeploymentStep::stepDisplayName();
     return QString();
 }
 
@@ -86,6 +89,8 @@ BuildStep *GenericRemoteLinuxDeployStepFactory::create(BuildStepList *parent, co
         return new UploadAndInstallTarPackageStep(parent);
     if (id == GenericDirectUploadStep::stepId())
         return new GenericDirectUploadStep(parent, GenericDirectUploadStep::stepId());
+    if (id == RemoteLinuxCustomCommandDeploymentStep::stepId())
+        return new RemoteLinuxCustomCommandDeploymentStep(parent);
     return 0;
 }
 
@@ -121,6 +126,8 @@ BuildStep *GenericRemoteLinuxDeployStepFactory::clone(BuildStepList *parent, Bui
         return new UploadAndInstallTarPackageStep(parent, other);
     if (GenericDirectUploadStep * const other = qobject_cast<GenericDirectUploadStep *>(product))
         return new GenericDirectUploadStep(parent, other);
+    if (RemoteLinuxCustomCommandDeploymentStep * const other = qobject_cast<RemoteLinuxCustomCommandDeploymentStep *>(product))
+        return new RemoteLinuxCustomCommandDeploymentStep(parent, other);
     return 0;
 }
 

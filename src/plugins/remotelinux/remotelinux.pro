@@ -55,7 +55,9 @@ HEADERS += \
     deploymentsettingsassistant.h \
     remotelinuxdeployconfigurationwidget.h \
     profilesupdatedialog.h \
-    startgdbserverdialog.h
+    startgdbserverdialog.h \
+    remotelinuxcustomcommanddeployservice.h \
+    remotelinuxcustomcommanddeploymentstep.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -105,7 +107,9 @@ SOURCES += \
     deploymentsettingsassistant.cpp \
     remotelinuxdeployconfigurationwidget.cpp \
     profilesupdatedialog.cpp \
-    startgdbserverdialog.cpp
+    startgdbserverdialog.cpp \
+    remotelinuxcustomcommanddeployservice.cpp \
+    remotelinuxcustomcommanddeploymentstep.cpp
 
 FORMS += \
     linuxdevicefactoryselectiondialog.ui \

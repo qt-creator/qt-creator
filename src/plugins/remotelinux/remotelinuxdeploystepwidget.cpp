@@ -55,12 +55,7 @@ RemoteLinuxDeployStepWidget::RemoteLinuxDeployStepWidget(AbstractRemoteLinuxDepl
     connect(list, SIGNAL(aboutToRemoveStep(int)),
         SLOT(handleStepToBeRemoved(int)));
 
-    // TODO: Move this knowledge into the deploy step itself.
-    connect(qobject_cast<Qt4Project *>(m_step->target()->project()), SIGNAL(proParsingDone()),
-        SIGNAL(updateSummary()));
     connect(m_step->deployConfiguration(), SIGNAL(currentDeviceConfigurationChanged()),
-        SIGNAL(updateSummary()));
-    connect(m_step->deployConfiguration()->deploymentInfo().data(), SIGNAL(modelReset()),
         SIGNAL(updateSummary()));
 }
 
@@ -79,12 +74,6 @@ void RemoteLinuxDeployStepWidget::handleStepToBeRemoved(int step)
 
 QString RemoteLinuxDeployStepWidget::summaryText() const
 {
-    QString error;
-    if (!m_step->isDeploymentPossible(&error)) {
-        return QLatin1String("<font color=\"red\">")
-            + tr("Cannot deploy: %1").arg(error)
-            + QLatin1String("</font>");
-    }
     return tr("<b>%1 using device</b>: %2").arg(m_step->displayName(),
         RemoteLinuxUtils::deviceConfigurationName(m_step->deployConfiguration()->deviceConfiguration()));
 }
