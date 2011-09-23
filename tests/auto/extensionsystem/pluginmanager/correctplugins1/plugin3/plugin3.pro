@@ -14,9 +14,9 @@ COPYFILES = $$OTHER_FILES
 include(../../../copy.pri)
 
 TARGET = $$qtLibraryName(plugin3)
+DESTDIR = $$OUT_PWD
 
-DESTDIR = $$OUT_PWD/../lib
-LIBS += -L$$OUT_PWD/../lib
+LIBS += -L$$OUT_PWD/../plugin2
 LIBS += -l$$qtLibraryName(plugin2)
 
 macx {

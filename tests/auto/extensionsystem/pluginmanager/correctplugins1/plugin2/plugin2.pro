@@ -14,9 +14,7 @@ COPYFILES = $$OTHER_FILES
 include(../../../copy.pri)
 
 TARGET = $$qtLibraryName(plugin2)
-
-DESTDIR = $$OUT_PWD/../lib
-LIBS += -L$$OUT_PWD/../lib
+DESTDIR = $$OUT_PWD
 
 macx {
     QMAKE_LFLAGS_SONAME = -Wl,-install_name,$${OUT_PWD}/
