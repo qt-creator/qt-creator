@@ -42,7 +42,7 @@ def main():
 
 def init():
     global SpeedCrunchPath
-    SpeedCrunchPath = SDKPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro"
+    SpeedCrunchPath = srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro"
     cleanup()
 
 def cleanup():
@@ -50,8 +50,8 @@ def cleanup():
     if os.access(SpeedCrunchPath + ".user", os.F_OK):
         os.remove(SpeedCrunchPath + ".user")
 
-    BuildPath = glob.glob(SDKPath + "/creator-test-data/speedcrunch/speedcrunch-build-*")
-    BuildPath += glob.glob(SDKPath + "/creator-test-data/speedcrunch/qtcreator-build-*")
+    BuildPath = glob.glob(srcPath + "/creator-test-data/speedcrunch/speedcrunch-build-*")
+    BuildPath += glob.glob(srcPath + "/creator-test-data/speedcrunch/qtcreator-build-*")
 
     if BuildPath:
         for dir in BuildPath:

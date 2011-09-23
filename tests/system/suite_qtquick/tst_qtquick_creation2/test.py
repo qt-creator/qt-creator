@@ -26,7 +26,7 @@ def prepareTemplate():
     global templateDir
     templateDir = tempDir()
     templateDir = os.path.abspath(templateDir + "/template")
-    sourceExample = os.path.abspath(SDKPath + "/../Examples/4.7/declarative/text/textselection")
+    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
     shutil.copytree(sourceExample, templateDir)
 
 def createNewQtQuickApplication():

@@ -1,12 +1,12 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    test.verify(os.path.exists(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro"))
+    test.verify(os.path.exists(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro"))
 
     startApplication("qtcreator" + SettingsPath)
 
     prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
-    openQmakeProject(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
+    openQmakeProject(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
 
     mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 5, 5, 0, Qt.LeftButton)
@@ -81,11 +81,11 @@ def init():
 def cleanup():
     # Make sure the .user files are gone
 
-    if os.access(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro.user", os.F_OK):
-        os.remove(SDKPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro.user")
+    if os.access(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro.user", os.F_OK):
+        os.remove(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro.user")
 
-    BuildPath = glob.glob(SDKPath + "/qtcreator-build-*")
-    BuildPath += glob.glob(SDKPath + "/projects-build-*")
+    BuildPath = glob.glob(srcPath + "/qtcreator-build-*")
+    BuildPath += glob.glob(srcPath + "/projects-build-*")
 
     for dir in BuildPath:
         if os.access(dir, os.F_OK):

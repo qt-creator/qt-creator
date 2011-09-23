@@ -1,13 +1,13 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    test.verify(os.path.exists(SDKPath + "/creator/qtcreator.pro"))
-    test.verify(os.path.exists(SDKPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro"))
+    test.verify(os.path.exists(srcPath + "/creator/qtcreator.pro"))
+    test.verify(os.path.exists(srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro"))
 
     startApplication("qtcreator" + SettingsPath)
 
-    openQmakeProject(SDKPath + "/creator/qtcreator.pro")
-    openQmakeProject(SDKPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro")
+    openQmakeProject(srcPath + "/creator/qtcreator.pro")
+    openQmakeProject(srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro")
 
     # Wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
@@ -41,7 +41,7 @@ def init():
 def cleanup():
     # Make sure the .user files are gone
 
-    if os.access(SDKPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro.user", os.F_OK):
-        os.remove(SDKPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro.user")
-    if os.access(SDKPath + "/creator/qtcreator.pro.user", os.F_OK):
-        os.remove(SDKPath + "/creator/qtcreator.pro.user")
+    if os.access(srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro.user", os.F_OK):
+        os.remove(srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro.user")
+    if os.access(srcPath + "/creator/qtcreator.pro.user", os.F_OK):
+        os.remove(srcPath + "/creator/qtcreator.pro.user")

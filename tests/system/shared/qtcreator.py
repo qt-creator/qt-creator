@@ -8,7 +8,7 @@ import subprocess;
 import errno;
 from datetime import datetime,timedelta;
 
-SDKPath = ''
+srcPath = ''
 SettingsPath = ''
 tmpSettingsDir = ''
 testSettings.logScreenshotOnFail = True
@@ -50,13 +50,14 @@ def __removeTmpSettingsDir__():
     deleteDirIfExists(os.path.dirname(tmpSettingsDir))
 
 if platform.system() in ('Windows', 'Microsoft'):
-    SDKPath = "C:/QtSDK/src"
+    sdkPath = "C:/QtSDK"
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
     cwd+="/../../settings/windows"
 else:
-    SDKPath = os.path.expanduser("~/QtSDK/src")
+    sdkPath = os.path.expanduser("~/QtSDK")
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
     cwd+="/../../settings/unix"
+srcPath = sdkPath + "/src"
 
 cwd = os.path.abspath(cwd)
 tmpSettingsDir = tempDir()

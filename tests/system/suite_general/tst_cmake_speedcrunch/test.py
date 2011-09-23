@@ -33,7 +33,7 @@ def main():
 
 def init():
     global SpeedCrunchPath
-    SpeedCrunchPath = SDKPath + "/creator-test-data/speedcrunch/src/CMakeLists.txt"
+    SpeedCrunchPath = srcPath + "/creator-test-data/speedcrunch/src/CMakeLists.txt"
     cleanup()
 
 def cleanup():
@@ -41,12 +41,12 @@ def cleanup():
     if os.access(SpeedCrunchPath + ".user", os.F_OK):
         os.remove(SpeedCrunchPath + ".user")
 
-    BuildPath = SDKPath + "/creator-test-data/speedcrunch/src/qtcreator-build"
+    BuildPath = srcPath + "/creator-test-data/speedcrunch/src/qtcreator-build"
 
     if os.access(BuildPath, os.F_OK):
         shutil.rmtree(BuildPath)
     # added because creator uses this one for me
-    BuildPath = SDKPath + "/creator-test-data/speedcrunch/qtcreator-build"
+    BuildPath = srcPath + "/creator-test-data/speedcrunch/qtcreator-build"
 
     if os.access(BuildPath, os.F_OK):
         shutil.rmtree(BuildPath)
