@@ -58,4 +58,11 @@ public:
 <snippet group="C++" trigger="while" id="cpp_while">while ($condition$) {
     $$
 }</snippet>
+<snippet group="C++" trigger="switch" id="cpp_switch">switch ($control$) {
+case $value$:
+    $$
+    break;
+default:
+    break;
+}</snippet>
 </snippets>
