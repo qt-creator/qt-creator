@@ -5128,6 +5128,36 @@ void BaseTextEditorWidget::deleteLine()
     textCursor().removeSelectedText();
 }
 
+void BaseTextEditorWidget::deleteEndOfWord()
+{
+    moveCursor(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    textCursor().removeSelectedText();
+    setTextCursor(textCursor());
+}
+
+void BaseTextEditorWidget::deleteEndOfWordCamelCase()
+{
+    QTextCursor c = textCursor();
+    camelCaseRight(c, QTextCursor::KeepAnchor);
+    c.removeSelectedText();
+    setTextCursor(c);
+}
+
+void BaseTextEditorWidget::deleteStartOfWord()
+{
+    moveCursor(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+    textCursor().removeSelectedText();
+    setTextCursor(textCursor());
+}
+
+void BaseTextEditorWidget::deleteStartOfWordCamelCase()
+{
+    QTextCursor c = textCursor();
+    camelCaseLeft(c, QTextCursor::KeepAnchor);
+    c.removeSelectedText();
+    setTextCursor(c);
+}
+
 void BaseTextEditorWidget::setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections)
 {
     if (selections.isEmpty() && d->m_extraSelections[kind].isEmpty())

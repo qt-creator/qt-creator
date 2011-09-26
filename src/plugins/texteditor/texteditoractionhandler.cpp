@@ -78,6 +78,10 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_cutLineAction(0),
     m_copyLineAction(0),
     m_deleteLineAction(0),
+    m_deleteEndOfWordAction(0),
+    m_deleteEndOfWordCamelCaseAction(0),
+    m_deleteStartOfWordAction(0),
+    m_deleteStartOfWordCamelCaseAction(0),
     m_selectEncodingAction(0),
     m_increaseFontSizeAction(0),
     m_decreaseFontSizeAction(0),
@@ -220,6 +224,26 @@ void TextEditorActionHandler::createActions()
     m_modifyingActions << m_deleteLineAction;
     command = am->registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId, true);
     connect(m_deleteLineAction, SIGNAL(triggered()), this, SLOT(deleteLine()));
+
+    m_deleteEndOfWordAction = new QAction(tr("Delete Word From The Cursor On"), this);
+    m_modifyingActions << m_deleteEndOfWordAction;
+    am->registerAction(m_deleteEndOfWordAction, Constants::DELETE_END_OF_WORD, m_contextId, true);
+    connect(m_deleteEndOfWordAction, SIGNAL(triggered()), this, SLOT(deleteEndOfWord()));
+
+    m_deleteEndOfWordCamelCaseAction = new QAction(tr("Delete Word Camel Case From The Cursor On"), this);
+    m_modifyingActions << m_deleteEndOfWordCamelCaseAction;
+    am->registerAction(m_deleteEndOfWordCamelCaseAction, Constants::DELETE_END_OF_WORD_CAMEL_CASE, m_contextId, true);
+    connect(m_deleteEndOfWordCamelCaseAction, SIGNAL(triggered()), this, SLOT(deleteEndOfWordCamelCase()));
+
+    m_deleteStartOfWordAction = new QAction(tr("Delete Word Up To The Cursor"), this);
+    m_modifyingActions << m_deleteStartOfWordAction;
+    am->registerAction(m_deleteStartOfWordAction, Constants::DELETE_START_OF_WORD, m_contextId, true);
+    connect(m_deleteStartOfWordAction, SIGNAL(triggered()), this, SLOT(deleteStartOfWord()));
+
+    m_deleteStartOfWordCamelCaseAction = new QAction(tr("Delete Word Camel Case Up To The Cursor"), this);
+    m_modifyingActions << m_deleteStartOfWordCamelCaseAction;
+    am->registerAction(m_deleteStartOfWordCamelCaseAction, Constants::DELETE_START_OF_WORD_CAMEL_CASE, m_contextId, true);
+    connect(m_deleteStartOfWordCamelCaseAction, SIGNAL(triggered()), this, SLOT(deleteStartOfWordCamelCase()));
 
     m_foldAction = new QAction(tr("Fold"), this);
     command = am->registerAction(m_foldAction, Constants::FOLD, m_contextId, true);
@@ -552,6 +576,10 @@ FUNCTION(unCommentSelection)
 FUNCTION(cutLine)
 FUNCTION(copyLine)
 FUNCTION(deleteLine)
+FUNCTION(deleteEndOfWord)
+FUNCTION(deleteEndOfWordCamelCase)
+FUNCTION(deleteStartOfWord)
+FUNCTION(deleteStartOfWordCamelCase)
 FUNCTION(unfoldAll)
 FUNCTION(fold)
 FUNCTION(unfold)

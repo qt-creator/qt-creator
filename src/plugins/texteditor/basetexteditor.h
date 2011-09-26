@@ -260,6 +260,10 @@ public slots:
     void cutLine();
     void copyLine();
     void deleteLine();
+    void deleteEndOfWord();
+    void deleteEndOfWordCamelCase();
+    void deleteStartOfWord();
+    void deleteStartOfWordCamelCase();
     void unfoldAll();
     void fold();
     void unfold();

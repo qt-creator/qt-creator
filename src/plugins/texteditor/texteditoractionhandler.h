@@ -112,6 +112,10 @@ private slots:
     void cutLine();
     void copyLine();
     void deleteLine();
+    void deleteEndOfWord();
+    void deleteEndOfWordCamelCase();
+    void deleteStartOfWord();
+    void deleteStartOfWordCamelCase();
     void selectEncoding();
     void increaseFontSize();
     void decreaseFontSize();
@@ -176,6 +180,10 @@ private:
     QAction *m_cutLineAction;
     QAction *m_copyLineAction;
     QAction *m_deleteLineAction;
+    QAction *m_deleteEndOfWordAction;
+    QAction *m_deleteEndOfWordCamelCaseAction;
+    QAction *m_deleteStartOfWordAction;
+    QAction *m_deleteStartOfWordCamelCaseAction;
     QAction *m_selectEncodingAction;
     QAction *m_increaseFontSizeAction;
     QAction *m_decreaseFontSizeAction;
