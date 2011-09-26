@@ -31,7 +31,6 @@
 **************************************************************************/
 #include "remotelinuxcustomcommanddeploymentstep.h"
 
-#include "remotelinuxcustomcommanddeployservice.h"
 #include "remotelinuxdeploystepwidget.h"
 
 #include <QtCore/QString>
@@ -52,7 +51,8 @@ class ConfigWidget : public BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    ConfigWidget(RemoteLinuxCustomCommandDeploymentStep *step) : m_step(step), m_widget(step)
+    ConfigWidget(AbstractRemoteLinuxCustomCommandDeploymentStep *step)
+        : m_step(step), m_widget(step)
     {
         QVBoxLayout * const mainLayout = new QVBoxLayout(this);
         mainLayout->setMargin(0);
@@ -78,18 +78,23 @@ private:
         m_step->setCommandLine(m_commandLineEdit.text().trimmed());
     }
 
-    RemoteLinuxCustomCommandDeploymentStep * const m_step;
+    AbstractRemoteLinuxCustomCommandDeploymentStep * const m_step;
     QLineEdit m_commandLineEdit;
     RemoteLinuxDeployStepWidget m_widget;
 };
 
 } // anonymous namespace
 
-class RemoteLinuxCustomCommandDeploymentStepPrivate
+class AbstractRemoteLinuxCustomCommandDeploymentStepPrivate
 {
 public:
-    RemoteLinuxCustomCommandDeployservice service;
     QString commandLine;
+};
+
+class GenericRemoteLinuxCustomCommandDeploymentStepPrivate
+{
+public:
+    RemoteLinuxCustomCommandDeployService service;
 };
 
 } // namespace Internal
@@ -97,31 +102,31 @@ public:
 using namespace Internal;
 
 
-RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl)
-    : AbstractRemoteLinuxDeployStep(bsl, stepId())
+AbstractRemoteLinuxCustomCommandDeploymentStep::AbstractRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl,
+        const QString &id)
+    : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     ctor();
 }
 
-RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl,
-        RemoteLinuxCustomCommandDeploymentStep *other)
+AbstractRemoteLinuxCustomCommandDeploymentStep::AbstractRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl,
+        AbstractRemoteLinuxCustomCommandDeploymentStep *other)
     : AbstractRemoteLinuxDeployStep(bsl, other)
 {
     ctor();
 }
 
-RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep()
+AbstractRemoteLinuxCustomCommandDeploymentStep::~AbstractRemoteLinuxCustomCommandDeploymentStep()
 {
     delete d;
 }
 
-void RemoteLinuxCustomCommandDeploymentStep::ctor()
+void AbstractRemoteLinuxCustomCommandDeploymentStep::ctor()
 {
-    d = new RemoteLinuxCustomCommandDeploymentStepPrivate;
-    setDisplayName(stepDisplayName());
+    d = new AbstractRemoteLinuxCustomCommandDeploymentStepPrivate;
 }
 
-bool RemoteLinuxCustomCommandDeploymentStep::fromMap(const QVariantMap &map)
+bool AbstractRemoteLinuxCustomCommandDeploymentStep::fromMap(const QVariantMap &map)
 {
     if (!AbstractRemoteLinuxDeployStep::fromMap(map))
         return false;
@@ -129,45 +134,70 @@ bool RemoteLinuxCustomCommandDeploymentStep::fromMap(const QVariantMap &map)
     return true;
 }
 
-QVariantMap RemoteLinuxCustomCommandDeploymentStep::toMap() const
+QVariantMap AbstractRemoteLinuxCustomCommandDeploymentStep::toMap() const
 {
     QVariantMap map = AbstractRemoteLinuxDeployStep::toMap();
     map.insert(QLatin1String(CommandLineKey), d->commandLine);
     return map;
 }
 
-void RemoteLinuxCustomCommandDeploymentStep::setCommandLine(const QString &commandLine)
+void AbstractRemoteLinuxCustomCommandDeploymentStep::setCommandLine(const QString &commandLine)
 {
     d->commandLine = commandLine;
 }
 
-QString RemoteLinuxCustomCommandDeploymentStep::commandLine() const
+QString AbstractRemoteLinuxCustomCommandDeploymentStep::commandLine() const
 {
     return d->commandLine;
 }
 
-bool RemoteLinuxCustomCommandDeploymentStep::isDeploymentPossible(QString *whyNot) const
+bool AbstractRemoteLinuxCustomCommandDeploymentStep::isDeploymentPossible(QString *whyNot) const
 {
-    d->service.setCommandLine(d->commandLine);
+    deployService()->setCommandLine(d->commandLine);
     return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
 }
 
-AbstractRemoteLinuxDeployService *RemoteLinuxCustomCommandDeploymentStep::deployService() const
-{
-    return &d->service;
-}
-
-BuildStepConfigWidget *RemoteLinuxCustomCommandDeploymentStep::createConfigWidget()
+BuildStepConfigWidget *AbstractRemoteLinuxCustomCommandDeploymentStep::createConfigWidget()
 {
     return new ConfigWidget(this);
 }
 
-QString RemoteLinuxCustomCommandDeploymentStep::stepId()
+
+GenericRemoteLinuxCustomCommandDeploymentStep::GenericRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl)
+    : AbstractRemoteLinuxCustomCommandDeploymentStep(bsl, stepId())
 {
-    return QLatin1String("RemoteLinuxCustomCommandDeploymentStep");
+    ctor();
 }
 
-QString RemoteLinuxCustomCommandDeploymentStep::stepDisplayName()
+GenericRemoteLinuxCustomCommandDeploymentStep::GenericRemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl,
+        GenericRemoteLinuxCustomCommandDeploymentStep *other)
+    : AbstractRemoteLinuxCustomCommandDeploymentStep(bsl, other)
+{
+    ctor();
+}
+
+GenericRemoteLinuxCustomCommandDeploymentStep::~GenericRemoteLinuxCustomCommandDeploymentStep()
+{
+    delete d;
+}
+
+void GenericRemoteLinuxCustomCommandDeploymentStep::ctor()
+{
+    d = new GenericRemoteLinuxCustomCommandDeploymentStepPrivate;
+    setDefaultDisplayName(stepDisplayName());
+}
+
+RemoteLinuxCustomCommandDeployService *GenericRemoteLinuxCustomCommandDeploymentStep::deployService() const
+{
+    return &d->service;
+}
+
+QString GenericRemoteLinuxCustomCommandDeploymentStep::stepId()
+{
+    return QLatin1String("RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep");
+}
+
+QString GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName()
 {
     return tr("Run custom remote command");
 }

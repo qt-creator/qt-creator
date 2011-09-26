@@ -59,24 +59,24 @@ public:
 using namespace Internal;
 
 
-RemoteLinuxCustomCommandDeployservice::RemoteLinuxCustomCommandDeployservice(QObject *parent)
+RemoteLinuxCustomCommandDeployService::RemoteLinuxCustomCommandDeployService(QObject *parent)
     : AbstractRemoteLinuxDeployService(parent), d(new RemoteLinuxCustomCommandDeployservicePrivate)
 {
 }
 
-RemoteLinuxCustomCommandDeployservice::~RemoteLinuxCustomCommandDeployservice()
+RemoteLinuxCustomCommandDeployService::~RemoteLinuxCustomCommandDeployService()
 {
     delete d;
 }
 
-void RemoteLinuxCustomCommandDeployservice::setCommandLine(const QString &commandLine)
+void RemoteLinuxCustomCommandDeployService::setCommandLine(const QString &commandLine)
 {
     QTC_ASSERT(d->state == Inactive, return);
 
     d->commandLine = commandLine;
 }
 
-bool RemoteLinuxCustomCommandDeployservice::isDeploymentPossible(QString *whyNot) const
+bool RemoteLinuxCustomCommandDeployService::isDeploymentPossible(QString *whyNot) const
 {
     QTC_ASSERT(d->state == Inactive, return false);
 
@@ -91,7 +91,7 @@ bool RemoteLinuxCustomCommandDeployservice::isDeploymentPossible(QString *whyNot
     return true;
 }
 
-void RemoteLinuxCustomCommandDeployservice::doDeploy()
+void RemoteLinuxCustomCommandDeployService::doDeploy()
 {
     QTC_ASSERT(d->state == Inactive, handleDeploymentDone());
 
@@ -107,7 +107,7 @@ void RemoteLinuxCustomCommandDeployservice::doDeploy()
     d->runner->run(d->commandLine.toUtf8());
 }
 
-void RemoteLinuxCustomCommandDeployservice::stopDeployment()
+void RemoteLinuxCustomCommandDeployService::stopDeployment()
 {
     QTC_ASSERT(d->state == Running, return);
 
@@ -118,17 +118,17 @@ void RemoteLinuxCustomCommandDeployservice::stopDeployment()
     handleDeploymentDone();
 }
 
-void RemoteLinuxCustomCommandDeployservice::handleStdout(const QByteArray &output)
+void RemoteLinuxCustomCommandDeployService::handleStdout(const QByteArray &output)
 {
     emit stdOutData(QString::fromUtf8(output));
 }
 
-void RemoteLinuxCustomCommandDeployservice::handleStderr(const QByteArray &output)
+void RemoteLinuxCustomCommandDeployService::handleStderr(const QByteArray &output)
 {
     emit stdErrData(QString::fromUtf8(output));
 }
 
-void RemoteLinuxCustomCommandDeployservice::handleProcessClosed(int exitStatus)
+void RemoteLinuxCustomCommandDeployService::handleProcessClosed(int exitStatus)
 {
     QTC_ASSERT(d->state == Running, return);
 

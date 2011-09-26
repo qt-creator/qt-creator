@@ -57,7 +57,8 @@ QStringList GenericRemoteLinuxDeployStepFactory::availableCreationIds(BuildStepL
     if (!dc || dc->id() != RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId())
         return ids;
     ids << TarPackageCreationStep::stepId() << UploadAndInstallTarPackageStep::stepId()
-        << GenericDirectUploadStep::stepId() << RemoteLinuxCustomCommandDeploymentStep::stepId();
+        << GenericDirectUploadStep::stepId()
+        << GenericRemoteLinuxCustomCommandDeploymentStep::stepId();
     return ids;
 }
 
@@ -69,8 +70,8 @@ QString GenericRemoteLinuxDeployStepFactory::displayNameForId(const QString &id)
         return UploadAndInstallTarPackageStep::displayName();
     if (id == GenericDirectUploadStep::stepId())
         return GenericDirectUploadStep::displayName();
-    if (id == RemoteLinuxCustomCommandDeploymentStep::stepId())
-        return RemoteLinuxCustomCommandDeploymentStep::stepDisplayName();
+    if (id == GenericRemoteLinuxCustomCommandDeploymentStep::stepId())
+        return GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName();
     return QString();
 }
 
@@ -89,8 +90,8 @@ BuildStep *GenericRemoteLinuxDeployStepFactory::create(BuildStepList *parent, co
         return new UploadAndInstallTarPackageStep(parent);
     if (id == GenericDirectUploadStep::stepId())
         return new GenericDirectUploadStep(parent, GenericDirectUploadStep::stepId());
-    if (id == RemoteLinuxCustomCommandDeploymentStep::stepId())
-        return new RemoteLinuxCustomCommandDeploymentStep(parent);
+    if (id == GenericRemoteLinuxCustomCommandDeploymentStep::stepId())
+        return new GenericRemoteLinuxCustomCommandDeploymentStep(parent);
     return 0;
 }
 
@@ -126,8 +127,8 @@ BuildStep *GenericRemoteLinuxDeployStepFactory::clone(BuildStepList *parent, Bui
         return new UploadAndInstallTarPackageStep(parent, other);
     if (GenericDirectUploadStep * const other = qobject_cast<GenericDirectUploadStep *>(product))
         return new GenericDirectUploadStep(parent, other);
-    if (RemoteLinuxCustomCommandDeploymentStep * const other = qobject_cast<RemoteLinuxCustomCommandDeploymentStep *>(product))
-        return new RemoteLinuxCustomCommandDeploymentStep(parent, other);
+    if (GenericRemoteLinuxCustomCommandDeploymentStep * const other = qobject_cast<GenericRemoteLinuxCustomCommandDeploymentStep *>(product))
+        return new GenericRemoteLinuxCustomCommandDeploymentStep(parent, other);
     return 0;
 }
 

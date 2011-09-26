@@ -39,13 +39,13 @@ namespace Internal {
 class RemoteLinuxCustomCommandDeployservicePrivate;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployservice
+class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployService
     : public AbstractRemoteLinuxDeployService
 {
     Q_OBJECT
 public:
-    explicit RemoteLinuxCustomCommandDeployservice(QObject *parent = 0);
-    ~RemoteLinuxCustomCommandDeployservice();
+    explicit RemoteLinuxCustomCommandDeployService(QObject *parent = 0);
+    ~RemoteLinuxCustomCommandDeployService();
 
     void setCommandLine(const QString &commandLine);
 

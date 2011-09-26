@@ -33,21 +33,21 @@
 #define REMOTELINUXCUSTOMCOMMANDDEPLOYMENTSTEP_H
 
 #include "abstractremotelinuxdeploystep.h"
+#include "remotelinuxcustomcommanddeployservice.h"
 
 namespace RemoteLinux {
 namespace Internal {
-class RemoteLinuxCustomCommandDeploymentStepPrivate;
+class AbstractRemoteLinuxCustomCommandDeploymentStepPrivate;
+class GenericRemoteLinuxCustomCommandDeploymentStepPrivate;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeploymentStep
+
+class REMOTELINUX_EXPORT AbstractRemoteLinuxCustomCommandDeploymentStep
     : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 public:
-    RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
-    RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
-        RemoteLinuxCustomCommandDeploymentStep *other);
-    ~RemoteLinuxCustomCommandDeploymentStep();
+    ~AbstractRemoteLinuxCustomCommandDeploymentStep();
 
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
@@ -55,19 +55,42 @@ public:
     void setCommandLine(const QString &commandLine);
     QString commandLine() const;
 
-    static QString stepId();
-    static QString stepDisplayName();
-
 protected:
+    AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
+        const QString &id);
+    AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
+        AbstractRemoteLinuxCustomCommandDeploymentStep *other);
+
     bool isDeploymentPossible(QString *whyNot = 0) const;
 
 private:
     void ctor();
 
-    AbstractRemoteLinuxDeployService *deployService() const;
+    RemoteLinuxCustomCommandDeployService *deployService() const = 0;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    Internal::RemoteLinuxCustomCommandDeploymentStepPrivate *d;
+    Internal::AbstractRemoteLinuxCustomCommandDeploymentStepPrivate *d;
+};
+
+
+class REMOTELINUX_EXPORT GenericRemoteLinuxCustomCommandDeploymentStep
+    : public AbstractRemoteLinuxCustomCommandDeploymentStep
+{
+    Q_OBJECT
+public:
+    GenericRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
+    GenericRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
+        GenericRemoteLinuxCustomCommandDeploymentStep *other);
+    ~GenericRemoteLinuxCustomCommandDeploymentStep();
+
+    static QString stepId();
+    static QString stepDisplayName();
+
+private:
+    RemoteLinuxCustomCommandDeployService *deployService() const;
+    void ctor();
+
+    Internal::GenericRemoteLinuxCustomCommandDeploymentStepPrivate *d;
 };
 
 } // namespace RemoteLinux
