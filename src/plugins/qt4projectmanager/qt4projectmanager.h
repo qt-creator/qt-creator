@@ -33,6 +33,8 @@
 #ifndef QT4PROJECTMANAGER_H
 #define QT4PROJECTMANAGER_H
 
+#include "qt4projectmanager_global.h"
+
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
@@ -64,7 +66,7 @@ class Qt4ProjectManagerPlugin;
 
 class Qt4Project;
 
-class Qt4Manager : public ProjectExplorer::IProjectManager
+class QT4PROJECTMANAGER_EXPORT Qt4Manager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 
