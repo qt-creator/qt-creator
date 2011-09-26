@@ -460,8 +460,8 @@ void splitSharedSettings(QVariantMap *sharedMap, const QVariantMap &fullMap)
         *sharedMap = fullMap;
     } else {
         const QSet<QString> &shared = QSet<QString>::fromList(controlKey);
-        QVariantMap::iterator it = fullMap.begin();
-        QVariantMap::iterator eit = fullMap.end();
+        QVariantMap::const_iterator it = fullMap.begin();
+        QVariantMap::const_iterator eit = fullMap.end();
         for (; it != eit; ++it) {
             const QString &key = it.key();
             const QVariant &value = it.value();
