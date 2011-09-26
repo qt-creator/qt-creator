@@ -3,7 +3,6 @@ TEMPLATE = lib
 QT += network xml
 
 HEADERS += updateinfoplugin.h \
-    updateinfo_global.h \
     updateinfobutton.h
 SOURCES += updateinfoplugin.cpp \
     updateinfobutton.cpp
