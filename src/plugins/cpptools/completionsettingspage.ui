@@ -117,13 +117,13 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="autoInsertBrackets">
         <property name="toolTip">
-         <string>Automatically insert brackets and semicolons when appropriate.</string>
+         <string>Automatically insert semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</string>
         </property>
         <property name="text">
-         <string>&amp;Automatically insert brackets</string>
+         <string>&amp;Automatically insert matching characters</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -151,10 +151,10 @@
         <item>
          <widget class="QCheckBox" name="surroundSelectedText">
           <property name="toolTip">
-           <string>Automatically surround text selections with brackets.</string>
+           <string>When typing a matching character and there is a text selection, instead of removing the selection, surround it with the corresponding characters.</string>
           </property>
           <property name="text">
-           <string>Surround selected &amp;text</string>
+           <string>Surround &amp;text selections</string>
           </property>
           <property name="checked">
            <bool>true</bool>
