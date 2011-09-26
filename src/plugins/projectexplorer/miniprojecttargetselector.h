@@ -34,7 +34,7 @@
 #define MINIPROJECTTARGETSELECTOR_H
 
 #include <QtGui/QListWidget>
-
+#include <QtCore/QDateTime>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -45,100 +45,133 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 class Project;
 class Target;
-class RunConfiguration;
-class Target;
 class BuildConfiguration;
+class DeployConfiguration;
+class ProjectConfiguration;
+class RunConfiguration;
+class SessionManager;
 
 namespace Internal {
 
 // helper classes
 
-class ProjectListWidget : public QListWidget
+class ListWidget : public QListWidget
 {
     Q_OBJECT
-private:
-    ProjectExplorer::Project* m_project;
-
 public:
-    explicit ProjectListWidget(ProjectExplorer::Project *project, QWidget *parent = 0);
-
+    ListWidget(QWidget *parent);
     QSize sizeHint() const;
-
-    ProjectExplorer::Project *project() const;
-
-private slots:
-    void setTarget(int index);
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void setMaxCount(int maxCount);
+private:
+    int m_maxCount;
 };
 
-class MiniTargetWidget : public QWidget
+class ProjectListWidget : public ListWidget
 {
     Q_OBJECT
 public:
-    explicit MiniTargetWidget(ProjectExplorer::Target *target, QWidget *parent = 0);
-    ProjectExplorer::Target *target() const;
-
-    bool hasBuildConfiguration() const;
-
+    explicit ProjectListWidget(SessionManager *sessionManager, QWidget *parent = 0);
 private slots:
-    void addRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
-    void removeRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
-    void addBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfig);
-    void removeBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfig);
-
-    void setActiveBuildConfiguration(int index);
-    void setActiveRunConfiguration(int index);
-    void setActiveBuildConfiguration();
-    void setActiveRunConfiguration();
-
-    void updateIcon();
-
-signals:
-    void changed();
-
+    void addProject(ProjectExplorer::Project *project);
+    void removeProject(ProjectExplorer::Project *project);
+    void changeStartupProject(ProjectExplorer::Project *project);
+    void setProject(int index);
 private:
-    QLabel *m_targetName;
-    QLabel *m_targetIcon;
-    QComboBox *m_runComboBox;
-    QComboBox *m_buildComboBox;
-    ProjectExplorer::Target *m_target;
+    QListWidgetItem *itemForProject(Project *project);
+    QString fullName(ProjectExplorer::Project *project);
+    SessionManager *m_sessionManager;
+    bool m_ignoreIndexChange;
+};
 
+class GenericListWidget : public ListWidget
+{
+    Q_OBJECT
 public:
-    QComboBox *runSettingsComboBox() const { return m_runComboBox; }
-    QComboBox *buildSettingsComboBox() const { return m_buildComboBox; }
+    GenericListWidget(QWidget *parent = 0);
+signals:
+    void changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration *dc);
+public:
+    void setProjectConfigurations(const QList<ProjectConfiguration *> &list, ProjectConfiguration *active);
+    void setActiveProjectConfiguration(ProjectConfiguration *active);
+    void addProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void removeProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+private slots:
+    void rowChanged(int index);
+    void displayNameChanged();
+private:
+    QListWidgetItem *itemForProjectConfiguration(ProjectConfiguration *pc);
+    bool m_ignoreIndexChange;
 };
 
 // main class
-
 class MiniProjectTargetSelector : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MiniProjectTargetSelector(QAction *projectAction, QWidget *parent = 0);
+    explicit MiniProjectTargetSelector(QAction *projectAction, SessionManager *sessionManager, QWidget *parent = 0);
     void setVisible(bool visible);
 
-signals:
-    void startupProjectChanged(ProjectExplorer::Project *project);
+    void keyReleaseEvent(QKeyEvent *ke);
+    QSize sizeHint() const;
+public slots:
+    void toggleVisible();
+    void nextOrShow();
 
 private slots:
-    void addProject(ProjectExplorer::Project *project);
-    void removeProject(ProjectExplorer::Project *project);
-    void addTarget(ProjectExplorer::Target *target, bool isActiveTarget = false);
-    void removeTarget(ProjectExplorer::Target *target);
-    void changeActiveTarget(ProjectExplorer::Target *target);
-    void emitStartupProjectChanged(int index);
+    void projectAdded(ProjectExplorer::Project *project);
+    void projectRemoved(ProjectExplorer::Project *project);
+    void addedTarget(ProjectExplorer::Target *target);
+    void removedTarget(ProjectExplorer::Target *target);
+    void addedBuildConfiguration(ProjectExplorer::BuildConfiguration* bc);
+    void removedBuildConfiguration(ProjectExplorer::BuildConfiguration* bc);
+    void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
+    void removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
+    void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+
     void changeStartupProject(ProjectExplorer::Project *project);
-    void updateAction();
+    void activeTargetChanged(ProjectExplorer::Target *target);
+    void activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
+    void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
+    void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
+
+    void setActiveTarget(ProjectExplorer::ProjectConfiguration *pc);
+    void setActiveBuildConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+
+    void delayedHide();
+    void updateActionAndSummary();
+private:
+    void updateProjectListVisible();
+    void updateTargetListVisible();
+    void updateBuildListVisible();
+    void updateDeployListVisible();
+    void updateRunListVisible();
+    void updateSummary();
+    void updateSeparatorVisible();
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *);
 
-private:
-    QString fullName(ProjectExplorer::Project *project);
-    int indexFor(ProjectExplorer::Project *project) const;
-
     QAction *m_projectAction;
-    QComboBox *m_projectsBox;
-    QStackedWidget *m_widgetStack;
-    bool m_ignoreIndexChange;
+    SessionManager *m_sessionManager;
+
+    enum TYPES { PROJECT = 0, TARGET = 1, BUILD = 2, DEPLOY = 3, RUN = 4, LAST = 5 };
+    ProjectListWidget *m_projectListWidget;
+    QVector<GenericListWidget *> m_listWidgets;
+    QVector<QWidget *> m_titleWidgets;
+    QVector<QWidget *> m_separators;
+    QLabel *m_summaryLabel;
+
+    Project *m_project;
+    Target *m_target;
+    BuildConfiguration *m_buildConfiguration;
+    DeployConfiguration *m_deployConfiguration;
+    RunConfiguration *m_runConfiguration;
+    bool m_hideOnRelease;
+    QDateTime m_earliestHidetime;
 };
 
 } // namespace Internal

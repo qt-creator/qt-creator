@@ -31,8 +31,6 @@
 **************************************************************************/
 
 #include "miniprojecttargetselector.h"
-#include "buildconfigurationmodel.h"
-#include "runconfigurationmodel.h"
 #include "target.h"
 
 #include <utils/qtcassert.h>
@@ -46,22 +44,20 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/runconfiguration.h>
 
+#include <QtCore/QTimer>
 #include <QtGui/QLayout>
-#include <QtGui/QFormLayout>
 #include <QtGui/QLabel>
-#include <QtGui/QComboBox>
 #include <QtGui/QListWidget>
 #include <QtGui/QStatusBar>
-#include <QtGui/QStackedWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QAction>
 #include <QtGui/QItemDelegate>
 #include <QtGui/QMainWindow>
-
 #include <QtGui/QApplication>
 
 static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
@@ -85,20 +81,31 @@ static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+////////
+// TargetSelectorDelegate
+////////
 class TargetSelectorDelegate : public QItemDelegate
 {
 public:
     TargetSelectorDelegate(QObject *parent) : QItemDelegate(parent) { }
 private:
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void paint(QPainter *painter,
                const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
     mutable QImage selectionGradient;
 };
 
+QSize TargetSelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    Q_UNUSED(option)
+    Q_UNUSED(index)
+    return QSize(190, 30);
+}
+
 void TargetSelectorDelegate::paint(QPainter *painter,
                                    const QStyleOptionViewItem &option,
-                                   const QModelIndex &) const
+                                   const QModelIndex &index) const
 {
     painter->save();
     painter->setClipping(false);
@@ -119,11 +126,25 @@ void TargetSelectorDelegate::paint(QPainter *painter,
         painter->setPen(QColor(0, 0, 0, 80));
         painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
     }
+
+    QFontMetrics fm(option.font);
+    QString text = index.data(Qt::DisplayRole).toString();
+    painter->setPen(QColor(255, 255, 255, 160));
+    QString elidedText = fm.elidedText(text, Qt::ElideMiddle, option.rect.width() - 12);
+    if (elidedText != text)
+        const_cast<QAbstractItemModel *>(index.model())->setData(index, text, Qt::ToolTipRole);
+    else
+        const_cast<QAbstractItemModel *>(index.model())->setData(index, "", Qt::ToolTipRole);
+    painter->drawText(option.rect.left() + 6, option.rect.top() + (option.rect.height() - fm.height()) / 2 + fm.ascent(), elidedText);
+
     painter->restore();
 }
 
-ProjectListWidget::ProjectListWidget(ProjectExplorer::Project *project, QWidget *parent)
-    : QListWidget(parent), m_project(project)
+////////
+// ListWidget
+////////
+ListWidget::ListWidget(QWidget *parent)
+    : QListWidget(parent), m_maxCount(0)
 {
     setFocusPolicy(Qt::NoFocus);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -131,23 +152,15 @@ ProjectListWidget::ProjectListWidget(ProjectExplorer::Project *project, QWidget 
     setFocusPolicy(Qt::WheelFocus);
     setItemDelegate(new TargetSelectorDelegate(this));
     setAttribute(Qt::WA_MacShowFocusRect, false);
-
-    connect(this, SIGNAL(currentRowChanged(int)), SLOT(setTarget(int)));
+    setStyleSheet(QString::fromLatin1("QListWidget { background: #464646; border-style: none; }"));
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 }
 
-ProjectExplorer::Project *ProjectListWidget::project() const
-{
-    return m_project;
-}
 
-QSize ProjectListWidget::sizeHint() const
+QSize ListWidget::sizeHint() const
 {
-    int height = 0;
-    int width = 0;
-    for (int itemPos = 0; itemPos < count(); ++itemPos) {
-        height += item(itemPos)->sizeHint().height();
-        width = qMax(width, item(itemPos)->sizeHint().width());
-    }
+    int height = m_maxCount * 30;
+    int width = 190;
 
     // We try to keep the height of the popup equal to the actionbar
     QSize size(width, height);
@@ -156,195 +169,309 @@ QSize ProjectListWidget::sizeHint() const
     Q_ASSERT(actionBar);
 
     QMargins popupMargins = window()->contentsMargins();
-    if (actionBar)
-        size.setHeight(qMax(actionBar->height() - statusBar->height() -
-                            (popupMargins.top() + popupMargins.bottom()), height));
+    int alignedWithActionHeight
+            = actionBar->height() - statusBar->height() - (popupMargins.top() + popupMargins.bottom());
+    size.setHeight(qBound(alignedWithActionHeight, height, 2 * alignedWithActionHeight));
     return size;
 }
 
-void ProjectListWidget::setTarget(int index)
+void ListWidget::keyPressEvent(QKeyEvent *event)
 {
-    MiniTargetWidget *mtw = qobject_cast<MiniTargetWidget *>(itemWidget(item(index)));
-    if (!mtw)
+    if (event->key() == Qt::Key_Left)
+        focusPreviousChild();
+    else if (event->key() == Qt::Key_Right)
+        focusNextChild();
+    else
+        QListWidget::keyPressEvent(event);
+}
+
+void ListWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() != Qt::LeftArrow && event->key() != Qt::RightArrow)
+        QListWidget::keyReleaseEvent(event);
+}
+
+void ListWidget::setMaxCount(int maxCount)
+{
+    // Note: the current assumption is that, this is not called while the listwidget is visible
+    // Otherwise we would need to add code to MiniProjectTargetSelector reacting to the
+    // updateGeometry (which then would jump ugly)
+    m_maxCount = maxCount;
+    updateGeometry();
+}
+
+////////
+// ProjectListWidget
+////////
+ProjectListWidget::ProjectListWidget(SessionManager *sessionManager, QWidget *parent)
+    : ListWidget(parent), m_sessionManager(sessionManager), m_ignoreIndexChange(false)
+{
+    connect(m_sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(addProject(ProjectExplorer::Project*)));
+    connect(m_sessionManager, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+            this, SLOT(removeProject(ProjectExplorer::Project*)));
+    connect(m_sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(changeStartupProject(ProjectExplorer::Project*)));
+    connect(this, SIGNAL(currentRowChanged(int)),
+            this, SLOT(setProject(int)));
+}
+
+QListWidgetItem *ProjectListWidget::itemForProject(Project *project)
+{
+    for (int i = 0; i < count(); ++i) {
+        QListWidgetItem *currentItem = item(i);
+        if (currentItem->data(Qt::UserRole).value<Project*>() == project)
+            return currentItem;
+    }
+    return 0;
+}
+
+QString ProjectListWidget::fullName(ProjectExplorer::Project *project)
+{
+    return tr("%1 (%2)").arg(project->displayName(), project->file()->fileName());
+}
+
+void ProjectListWidget::addProject(Project *project)
+{
+    m_ignoreIndexChange = true;
+
+    QString sortName = fullName(project);
+    int pos = 0;
+    for (int i=0; i < count(); ++i) {
+        Project *p = item(i)->data(Qt::UserRole).value<Project*>();
+        QString itemSortName = fullName(p);
+        if (itemSortName > sortName)
+            pos = i;
+    }
+
+    bool useFullName = false;
+    for (int i = 0; i < count(); ++i) {
+        Project *p = item(i)->data(Qt::UserRole).value<Project*>();
+        if (p->displayName() == project->displayName()) {
+            useFullName = true;
+            item(i)->setText(fullName(p));
+        }
+    }
+
+    QString displayName = useFullName ? fullName(project) : project->displayName();
+    QListWidgetItem *item = new QListWidgetItem();
+    item->setData(Qt::UserRole, QVariant::fromValue(project));
+    item->setText(displayName);
+    insertItem(pos, item);
+
+    if (project == ProjectExplorerPlugin::instance()->startupProject()) {
+        setCurrentItem(item);
+    }
+
+    m_ignoreIndexChange = false;
+}
+
+void ProjectListWidget::removeProject(Project *project)
+{
+    m_ignoreIndexChange = true;
+
+    QListWidgetItem *listItem = itemForProject(project);
+    delete listItem;
+
+    // Update display names
+    QString name = project->displayName();
+    int countDisplayName = 0;
+    int otherIndex = -1;
+    for (int i = 0; i < count(); ++i) {
+        Project *p = item(i)->data(Qt::UserRole).value<Project *>();
+        if (p->displayName() == name) {
+            ++countDisplayName;
+            otherIndex = i;
+        }
+    }
+    if (countDisplayName == 1) {
+        Project *p = item(otherIndex)->data(Qt::UserRole).value<Project *>();
+        item(otherIndex)->setText(p->displayName());
+    }
+
+    m_ignoreIndexChange = false;
+
+}
+
+void ProjectListWidget::setProject(int index)
+{
+    if (m_ignoreIndexChange)
         return;
-    m_project->setActiveTarget(mtw->target());
+    if (index < 0)
+        return;
+    Project *p = item(index)->data(Qt::UserRole).value<Project *>();
+    m_sessionManager->setStartupProject(p);
 }
 
-MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
-    QWidget(parent), m_target(target)
+void ProjectListWidget::changeStartupProject(Project *project)
 {
-    Q_ASSERT(m_target);
+    setCurrentItem(itemForProject(project));
+}
 
-    if (hasBuildConfiguration()) {
-        m_buildComboBox = new QComboBox;
-        m_buildComboBox->setProperty("alignarrow", true);
-        m_buildComboBox->setProperty("hideborder", true);
-        m_buildComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        m_buildComboBox->setToolTip(tr("Select active build configuration"));
-        m_buildComboBox->setModel(new BuildConfigurationModel(m_target, this));
-    } else {
-        m_buildComboBox = 0;
+/////////
+// GenericListWidget
+/////////
+
+GenericListWidget::GenericListWidget(QWidget *parent)
+    : ListWidget(parent), m_ignoreIndexChange(false)
+{
+    connect(this, SIGNAL(currentRowChanged(int)),
+            this, SLOT(rowChanged(int)));
+}
+
+void GenericListWidget::setProjectConfigurations(const QList<ProjectConfiguration *> &list, ProjectConfiguration *active)
+{
+    m_ignoreIndexChange = true;
+    clear();
+    for (int i = 0; i < count(); ++i) {
+        ProjectConfiguration *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
+        disconnect(p, SIGNAL(displayNameChanged()),
+                   this, SLOT(displayNameChanged()));
     }
- 
-    m_runComboBox = new QComboBox;
-    m_runComboBox ->setProperty("alignarrow", true);
-    m_runComboBox ->setProperty("hideborder", true);
-    m_runComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-    m_runComboBox->setToolTip(tr("Select active run configuration"));
-    RunConfigurationModel *model = new RunConfigurationModel(m_target, this);
-    m_runComboBox->setModel(model);
-    int fontSize = font().pointSize();
-    setStyleSheet(QString::fromLatin1("QLabel { font-size: %2pt; color: white; } "
-                                      "#target { font: bold %1pt;} "
-                                      "#buildLabel{ font: bold; color: rgba(255, 255, 255, 160)} "
-                                      "#runLabel { font: bold ; color: rgba(255, 255, 255, 160)} "
-                                      ).arg(fontSize).arg(fontSize - 2));
+    foreach (ProjectConfiguration *pc, list)
+        addProjectConfiguration(pc);
+    setActiveProjectConfiguration(active);
+    m_ignoreIndexChange = false;
+}
 
-    QGridLayout *gridLayout = new QGridLayout(this);
+void GenericListWidget::setActiveProjectConfiguration(ProjectConfiguration *active)
+{
+    QListWidgetItem *item = itemForProjectConfiguration(active);
+    setCurrentItem(item);
+}
 
-    m_targetName = new QLabel(m_target->displayName());
-    m_targetName->setObjectName(QString::fromUtf8("target"));
-    m_targetIcon = new QLabel();
-    updateIcon();
-    if (hasBuildConfiguration()) {
-        Q_FOREACH(BuildConfiguration* bc, m_target->buildConfigurations())
-                addBuildConfiguration(bc);
+void GenericListWidget::addProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+{
+    m_ignoreIndexChange = true;
+    QListWidgetItem *lwi = new QListWidgetItem();
+    lwi->setText(pc->displayName());
+    lwi->setData(Qt::UserRole, QVariant::fromValue(pc));
 
-        BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildComboBox->model());
-        m_buildComboBox->setCurrentIndex(model->indexFor(m_target->activeBuildConfiguration()).row());
-
-        connect(m_target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-                SLOT(addBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-        connect(m_target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-                SLOT(removeBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-
-        connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                SLOT(setActiveBuildConfiguration()));
-        connect(m_buildComboBox, SIGNAL(currentIndexChanged(int)), SLOT(setActiveBuildConfiguration(int)));
+    // Figure out pos
+    int pos = count();
+    for (int i = 0; i < count(); ++i) {
+        ProjectConfiguration *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
+        if (pc->displayName() < p->displayName()) {
+            pos = i;
+            break;
+        }
     }
+    insertItem(pos, lwi);
 
-    m_runComboBox->setEnabled(m_target->runConfigurations().count() > 1);
-    m_runComboBox->setCurrentIndex(model->indexFor(m_target->activeRunConfiguration()).row());
+    connect(pc, SIGNAL(displayNameChanged()),
+            this, SLOT(displayNameChanged()));
+    m_ignoreIndexChange = false;
+}
 
-    connect(m_target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            SLOT(addRunConfiguration(ProjectExplorer::RunConfiguration*)));
-    connect(m_target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            SLOT(removeRunConfiguration(ProjectExplorer::RunConfiguration*)));
+void GenericListWidget::removeProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+{
+    m_ignoreIndexChange = true;
+    disconnect(pc, SIGNAL(displayNameChanged()),
+               this, SLOT(displayNameChanged()));
+    delete itemForProjectConfiguration(pc);
+    m_ignoreIndexChange = false;
+}
 
-    connect(m_runComboBox, SIGNAL(currentIndexChanged(int)), SLOT(setActiveRunConfiguration(int)));
+void GenericListWidget::rowChanged(int index)
+{
+    if (m_ignoreIndexChange)
+        return;
+    if (index < 0)
+        return;
+    emit changeActiveProjectConfiguration(item(index)->data(Qt::UserRole).value<ProjectConfiguration *>());
+}
 
-    connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
-            SLOT(setActiveRunConfiguration()));
-    connect(m_target, SIGNAL(iconChanged()), this, SLOT(updateIcon()));
-
-    QHBoxLayout *buildHelperLayout = 0;
-    if (hasBuildConfiguration()) {
-        buildHelperLayout= new QHBoxLayout;
-        buildHelperLayout->setMargin(0);
-        buildHelperLayout->setSpacing(0);
-        buildHelperLayout->addWidget(m_buildComboBox);
+void GenericListWidget::displayNameChanged()
+{
+    m_ignoreIndexChange = true;
+    ProjectConfiguration *pc = qobject_cast<ProjectConfiguration *>(sender());
+    int index = -1;
+    int i = 0;
+    for (; i < count(); ++i) {
+        QListWidgetItem *lwi = item(i);
+        if (lwi->data(Qt::UserRole).value<ProjectConfiguration *>() == pc) {
+            index = i;
+            break;
+        }
     }
-
-    QHBoxLayout *runHelperLayout = new QHBoxLayout;
-    runHelperLayout->setMargin(0);
-    runHelperLayout->setSpacing(0);
-    runHelperLayout->addWidget(m_runComboBox);
-
-    QFormLayout *formLayout = new QFormLayout;
-    formLayout->setLabelAlignment(Qt::AlignRight);
-    QLabel *lbl;
-    int indent = 10;
-    if (hasBuildConfiguration()) {
-        lbl = new QLabel(tr("Build:"));
-        lbl->setObjectName(QString::fromUtf8("buildLabel"));
-        lbl->setMinimumWidth(lbl->fontMetrics().width(lbl->text()) + indent + 4);
-        lbl->setIndent(indent);
-
-        formLayout->addRow(lbl, buildHelperLayout);
+    if (index == -1)
+        return;
+    QListWidgetItem *lwi = takeItem(i);
+    lwi->setText(pc->displayName());
+    int pos = count();
+    for (int i = 0; i < count(); ++i) {
+        ProjectConfiguration *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
+        if (pc->displayName() < p->displayName()) {
+            pos = i;
+            break;
+        }
     }
-    lbl = new QLabel(tr("Run:"));
-    lbl->setObjectName(QString::fromUtf8("runLabel"));
-    lbl->setMinimumWidth(lbl->fontMetrics().width(lbl->text()) + indent + 4);
-    lbl->setIndent(indent);
-    formLayout->addRow(lbl, runHelperLayout);
-
-    gridLayout->addWidget(m_targetName, 0, 0);
-    gridLayout->addWidget(m_targetIcon, 0, 1, 2, 1, Qt::AlignTop|Qt::AlignHCenter);
-    gridLayout->addLayout(formLayout, 1, 0);
+    insertItem(pos, lwi);
+    m_ignoreIndexChange = false;
 }
 
-void MiniTargetWidget::updateIcon()
+QListWidgetItem *GenericListWidget::itemForProjectConfiguration(ProjectConfiguration *pc)
 {
-    m_targetIcon->setPixmap(createCenteredIcon(m_target->icon(), QIcon()).pixmap(Core::Constants::TARGET_ICON_SIZE));
+    for (int i = 0; i < count(); ++i) {
+        QListWidgetItem *lwi = item(i);
+        if (lwi->data(Qt::UserRole).value<ProjectConfiguration *>() == pc) {
+            return lwi;
+        }
+    }
+    return 0;
 }
 
-ProjectExplorer::Target *MiniTargetWidget::target() const
+QWidget *createTitleLabel(const QString &text)
 {
-    return m_target;
+    Utils::StyledBar *bar = new Utils::StyledBar;
+    bar->setSingleRow(true);
+    QVBoxLayout *toolLayout = new QVBoxLayout(bar);
+    toolLayout->setMargin(0);
+    toolLayout->setSpacing(0);
+
+    QLabel *l = new QLabel(text);
+    l->setIndent(6);
+    QFont f = l->font();
+    f.setBold(true);
+    l->setFont(f);
+    toolLayout->addWidget(l);
+
+    int panelHeight = l->fontMetrics().height() + 12;
+    bar->ensurePolished(); // Required since manhattanstyle overrides height
+    bar->setFixedHeight(panelHeight);
+    return bar;
 }
 
-void MiniTargetWidget::setActiveBuildConfiguration(int index)
+class OnePixelGreyLine : public QWidget
 {
-    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildComboBox->model());
-    m_target->setActiveBuildConfiguration(model->buildConfigurationAt(index));
-    emit changed();
-}
+public:
+    OnePixelGreyLine(QWidget *parent)
+        : QWidget(parent)
+    {
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+        setMinimumWidth(1);
+        setMaximumWidth(1);
+    }
+    void paintEvent(QPaintEvent *e)
+    {
+        Q_UNUSED(e);
+        QPainter p(this);
+        p.fillRect(contentsRect(), QColor(160, 160, 160, 255));
+    }
+};
 
-void MiniTargetWidget::setActiveRunConfiguration(int index)
+MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorAction, SessionManager *sessionManager, QWidget *parent) :
+    QWidget(parent), m_projectAction(targetSelectorAction), m_sessionManager(sessionManager),
+    m_project(0),
+    m_target(0),
+    m_buildConfiguration(0),
+    m_deployConfiguration(0),
+    m_runConfiguration(0),
+    m_hideOnRelease(false)
 {
-    RunConfigurationModel *model = static_cast<RunConfigurationModel *>(m_runComboBox->model());
-    m_target->setActiveRunConfiguration(model->runConfigurationAt(index));
-    updateIcon();
-    emit changed();
-}
-
-void MiniTargetWidget::setActiveBuildConfiguration()
-{
-    QTC_ASSERT(m_buildComboBox, return);
-    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildComboBox->model());
-    m_buildComboBox->setCurrentIndex(model->indexFor(m_target->activeBuildConfiguration()).row());
-}
-
-void MiniTargetWidget::setActiveRunConfiguration()
-{
-    RunConfigurationModel *model = static_cast<RunConfigurationModel *>(m_runComboBox->model());
-    m_runComboBox->setCurrentIndex(model->indexFor(m_target->activeRunConfiguration()).row());
-}
-
-void MiniTargetWidget::addRunConfiguration(ProjectExplorer::RunConfiguration* rc)
-{
-    Q_UNUSED(rc);
-    m_runComboBox->setEnabled(m_target->runConfigurations().count()>1);
-}
-
-void MiniTargetWidget::removeRunConfiguration(ProjectExplorer::RunConfiguration* rc)
-{
-    Q_UNUSED(rc);
-    m_runComboBox->setEnabled(m_target->runConfigurations().count()>1);
-}
-
-void MiniTargetWidget::addBuildConfiguration(ProjectExplorer::BuildConfiguration* bc)
-{
-    Q_UNUSED(bc);
-    connect(bc, SIGNAL(displayNameChanged()), SIGNAL(changed()), Qt::UniqueConnection);
-    m_buildComboBox->setEnabled(m_target->buildConfigurations().count() > 1);
-}
-
-void MiniTargetWidget::removeBuildConfiguration(ProjectExplorer::BuildConfiguration* bc)
-{
-    Q_UNUSED(bc);
-    QTC_ASSERT(m_buildComboBox, return);
-    m_buildComboBox->setEnabled(m_target->buildConfigurations().count() > 1);
-}
-
-bool MiniTargetWidget::hasBuildConfiguration() const
-{
-    return (m_target->buildConfigurationFactory() != 0);
-}
-
-MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorAction, QWidget *parent) :
-    QWidget(parent), m_projectAction(targetSelectorAction), m_ignoreIndexChange(false)
-{
+    QPalette p = palette();
+    p.setColor(QPalette::Text, QColor(255, 255, 255, 160));
+    setPalette(p);
     setProperty("panelwidget", true);
     setContentsMargins(QMargins(0, 1, 1, 8));
     setWindowFlags(Qt::Popup);
@@ -352,68 +479,538 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     targetSelectorAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
     targetSelectorAction->setProperty("titledAction", true);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setMargin(0);
-    layout->setSpacing(0);
+    QGridLayout *grid = new QGridLayout(this);
+    grid->setMargin(0);
+    grid->setSpacing(0);
 
-    Utils::StyledBar *bar = new Utils::StyledBar;
-    bar->setSingleRow(true);
-    layout->addWidget(bar);
-    QHBoxLayout *toolLayout = new QHBoxLayout(bar);
-    toolLayout->setMargin(0);
-    toolLayout->setSpacing(0);
+    m_summaryLabel = new QLabel(this);
+    m_summaryLabel->setMargin(3);
+    m_summaryLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    m_summaryLabel->setStyleSheet(QString::fromLatin1("background: #464646;"));
 
-    QLabel *lbl = new QLabel(tr("Project"));
-    lbl->setIndent(6);
-    QFont f = lbl->font();
-    f.setBold(true);
-    lbl->setFont(f);
+    grid->addWidget(m_summaryLabel, 0, 0, 1, 2 * LAST - 1);
 
-    int panelHeight = lbl->fontMetrics().height() + 12;
-    bar->ensurePolished(); // Required since manhattanstyle overrides height
-    bar->setFixedHeight(panelHeight);
+    m_listWidgets.resize(LAST);
+    m_titleWidgets.resize(LAST);
+    m_separators.resize(LAST);
+    m_listWidgets[PROJECT] = 0; //project is not a generic list widget
 
-    m_projectsBox = new QComboBox;
-    m_projectsBox->setToolTip(tr("Select active project"));
-    m_projectsBox->setFocusPolicy(Qt::TabFocus);
-    f.setBold(false);
-    m_projectsBox->setFont(f);
-    m_projectsBox->ensurePolished();
-    m_projectsBox->setFixedHeight(panelHeight);
-    m_projectsBox->setProperty("hideborder", true);
-    m_projectsBox->setObjectName(QString::fromUtf8("ProjectsBox"));
-    m_projectsBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    m_projectsBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    m_titleWidgets[PROJECT] = createTitleLabel(tr("Project"));
+    grid->addWidget(m_titleWidgets[PROJECT], 1, 0, 1, 2);
+    m_projectListWidget = new ProjectListWidget(m_sessionManager, this);
+    grid->addWidget(m_projectListWidget, 2, 0);
+    m_separators[PROJECT] = new OnePixelGreyLine(this);
+    grid->addWidget(m_separators[PROJECT], 2, 1);
 
-    toolLayout->addWidget(lbl);
-    toolLayout->addWidget(new Utils::StyledSeparator);
-    toolLayout->addWidget(m_projectsBox);
+    QStringList titles;
+    titles << tr("Target") << tr("Build")
+           << tr("Deploy") << tr("Run");
 
-    m_widgetStack = new QStackedWidget;
-    m_widgetStack->setFocusPolicy(Qt::NoFocus);
-    layout->addWidget(m_widgetStack);
+    for (int i = TARGET; i < LAST; ++i) {
+        m_titleWidgets[i] = createTitleLabel(titles.at(i -1));
+        grid->addWidget(m_titleWidgets[i], 1, 2 * i, 1, 2);
+        m_listWidgets[i] = new GenericListWidget(this);
+        grid->addWidget(m_listWidgets[i], 2, 2 *i);
+        m_separators[i] = new OnePixelGreyLine(this);
+        grid->addWidget(m_separators[i], 2, 1 + 2 * i);
+    }
 
-    connect(m_projectsBox, SIGNAL(activated(int)),
-            SLOT(emitStartupProjectChanged(int)));
+    changeStartupProject(m_sessionManager->startupProject());
+    if (m_sessionManager->startupProject())
+        activeTargetChanged(m_sessionManager->startupProject()->activeTarget());
+
+    connect(m_sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(changeStartupProject(ProjectExplorer::Project*)));
+
+    connect(m_sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(projectAdded(ProjectExplorer::Project*)));
+    connect(m_sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(projectRemoved(ProjectExplorer::Project*)));
+
+    connect(m_listWidgets[TARGET], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
+            this, SLOT(setActiveTarget(ProjectExplorer::ProjectConfiguration *)));
+    connect(m_listWidgets[BUILD], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
+            this, SLOT(setActiveBuildConfiguration(ProjectExplorer::ProjectConfiguration *)));
+    connect(m_listWidgets[DEPLOY], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
+            this, SLOT(setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration *)));
+    connect(m_listWidgets[RUN], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
+            this, SLOT(setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration *)));
+}
+
+void MiniProjectTargetSelector::setActiveTarget(ProjectExplorer::ProjectConfiguration *pc)
+{
+    m_project->setActiveTarget(static_cast<Target *>(pc));
+}
+
+void MiniProjectTargetSelector::setActiveBuildConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+{
+    m_target->setActiveBuildConfiguration(static_cast<BuildConfiguration *>(pc));
+}
+
+void MiniProjectTargetSelector::setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+{
+    m_target->setActiveDeployConfiguration(static_cast<DeployConfiguration *>(pc));
+}
+
+void MiniProjectTargetSelector::setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+{
+    m_target->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
+}
+
+void MiniProjectTargetSelector::projectAdded(ProjectExplorer::Project *project)
+{
+    connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
+            this, SLOT(addedTarget(ProjectExplorer::Target*)));
+
+    connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
+            this, SLOT(removedTarget(ProjectExplorer::Target*)));
+
+    foreach (Target *t, project->targets())
+        addedTarget(t);
+
+    updateProjectListVisible();
+    updateTargetListVisible();
+    updateBuildListVisible();
+    updateDeployListVisible();
+    updateRunListVisible();
+}
+
+void MiniProjectTargetSelector::projectRemoved(ProjectExplorer::Project *project)
+{
+    disconnect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
+               this, SLOT(addedTarget(ProjectExplorer::Target*)));
+
+    disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
+               this, SLOT(removedTarget(ProjectExplorer::Target*)));
+
+    foreach (Target *t, project->targets())
+        removedTarget(t);
+
+    updateProjectListVisible();
+    updateTargetListVisible();
+    updateBuildListVisible();
+    updateDeployListVisible();
+    updateRunListVisible();
+}
+
+void MiniProjectTargetSelector::addedTarget(ProjectExplorer::Target *target)
+{
+    connect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    connect(target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+
+    connect(target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
+            this, SLOT(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+    connect(target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
+            this, SLOT(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+
+    connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    connect(target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+
+    if (target->project() == m_project)
+        m_listWidgets[TARGET]->addProjectConfiguration(target);
+
+    foreach (BuildConfiguration *bc, target->buildConfigurations())
+        addedBuildConfiguration(bc);
+    foreach (DeployConfiguration *dc, target->deployConfigurations())
+        addedDeployConfiguration(dc);
+    foreach (RunConfiguration *rc, target->runConfigurations())
+        addedRunConfiguration(rc);
+
+    updateTargetListVisible();
+    updateBuildListVisible();
+    updateDeployListVisible();
+    updateRunListVisible();
+}
+
+void MiniProjectTargetSelector::removedTarget(ProjectExplorer::Target *target)
+{
+    disconnect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+               this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    disconnect(target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+               this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+
+    disconnect(target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
+               this, SLOT(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+    disconnect(target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
+               this, SLOT(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+
+    disconnect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+               this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    disconnect(target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+               this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+
+    if (target->project() == m_project)
+        m_listWidgets[TARGET]->removeProjectConfiguration(target);
+
+    foreach (BuildConfiguration *bc, target->buildConfigurations())
+        removedBuildConfiguration(bc);
+    foreach (DeployConfiguration *dc, target->deployConfigurations())
+        removedDeployConfiguration(dc);
+    foreach (RunConfiguration *rc, target->runConfigurations())
+        removedRunConfiguration(rc);
+
+    updateTargetListVisible();
+    updateBuildListVisible();
+    updateDeployListVisible();
+    updateRunListVisible();
+}
+
+void MiniProjectTargetSelector::addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+{
+    if (bc->target() == m_target)
+        m_listWidgets[BUILD]->addProjectConfiguration(bc);
+    updateBuildListVisible();
+}
+
+void MiniProjectTargetSelector::removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+{
+    if (bc->target() == m_target)
+        m_listWidgets[BUILD]->removeProjectConfiguration(bc);
+    updateBuildListVisible();
+}
+
+void MiniProjectTargetSelector::addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+{
+    if (dc->target() == m_target)
+        m_listWidgets[DEPLOY]->addProjectConfiguration(dc);
+    updateDeployListVisible();
+}
+
+void MiniProjectTargetSelector::removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+{
+    if (dc->target() == m_target)
+        m_listWidgets[DEPLOY]->removeProjectConfiguration(dc);
+    updateDeployListVisible();
+}
+
+void MiniProjectTargetSelector::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+{
+    if (rc->target() == m_target)
+        m_listWidgets[RUN]->addProjectConfiguration(rc);
+    updateRunListVisible();
+}
+
+void MiniProjectTargetSelector::removedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+{
+    if (rc->target() == m_target)
+        m_listWidgets[RUN]->removeProjectConfiguration(rc);
+    updateRunListVisible();
+}
+
+void MiniProjectTargetSelector::updateProjectListVisible()
+{
+    bool visible = m_sessionManager->projects().size() > 1;
+
+    m_projectListWidget->setVisible(visible);
+    m_projectListWidget->setMaxCount(m_sessionManager->projects().size());
+    m_titleWidgets[PROJECT]->setVisible(visible);
+
+    updateSummary();
+    updateSeparatorVisible();
+}
+
+void MiniProjectTargetSelector::updateTargetListVisible()
+{
+    int maxCount = 0;
+    foreach (Project *p, m_sessionManager->projects())
+        maxCount = qMax(p->targets().size(), maxCount);
+
+    bool visible = maxCount > 1;
+    m_listWidgets[TARGET]->setVisible(visible);
+    m_listWidgets[TARGET]->setMaxCount(maxCount);
+    m_titleWidgets[TARGET]->setVisible(visible);
+    updateSummary();
+    updateSeparatorVisible();
+}
+
+void MiniProjectTargetSelector::updateBuildListVisible()
+{
+    int maxCount = 0;
+    foreach (Project *p, m_sessionManager->projects())
+        foreach (Target *t, p->targets())
+            maxCount = qMax(t->buildConfigurations().size(), maxCount);
+
+    bool visible = maxCount > 1;
+    m_listWidgets[BUILD]->setVisible(visible);
+    m_listWidgets[BUILD]->setMaxCount(maxCount);
+    m_titleWidgets[BUILD]->setVisible(visible);
+    updateSummary();
+    updateSeparatorVisible();
+}
+
+void MiniProjectTargetSelector::updateDeployListVisible()
+{
+    int maxCount = 0;
+    foreach (Project *p, m_sessionManager->projects())
+        foreach (Target *t, p->targets())
+            maxCount = qMax(t->deployConfigurations().size(), maxCount);
+
+    bool visible = maxCount > 1;
+    m_listWidgets[DEPLOY]->setVisible(visible);
+    m_listWidgets[DEPLOY]->setMaxCount(maxCount);
+    m_titleWidgets[DEPLOY]->setVisible(visible);
+    updateSummary();
+    updateSeparatorVisible();
+}
+
+void MiniProjectTargetSelector::updateRunListVisible()
+{
+    int maxCount = 0;
+    foreach (Project *p, m_sessionManager->projects())
+        foreach (Target *t, p->targets())
+            maxCount = qMax(t->runConfigurations().size(), maxCount);
+
+    bool visible = maxCount > 1;
+    m_listWidgets[RUN]->setVisible(visible);
+    m_listWidgets[RUN]->setMaxCount(maxCount);
+    m_titleWidgets[RUN]->setVisible(visible);
+    updateSummary();
+    updateSeparatorVisible();
+}
+
+void MiniProjectTargetSelector::changeStartupProject(ProjectExplorer::Project *project)
+{
+    if (m_project) {
+        disconnect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+                   this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
+    }
+    m_project = project;
+    if (m_project) {
+        connect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+                this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
+        activeTargetChanged(m_project->activeTarget());
+    } else {
+        activeTargetChanged(0);
+    }
+
+    if (project) {
+        QList<ProjectConfiguration *> list;
+        foreach (Target *t, project->targets())
+            list.append(t);
+        m_listWidgets[TARGET]->setProjectConfigurations(list, project->activeTarget());
+    } else {
+        m_listWidgets[TARGET]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
+    }
+
+    updateActionAndSummary();
+}
+
+void MiniProjectTargetSelector::activeTargetChanged(ProjectExplorer::Target *target)
+{
+    if (m_target) {
+        disconnect(m_target, SIGNAL(displayNameChanged()),
+                   this, SLOT(updateActionAndSummary()));
+        disconnect(m_target, SIGNAL(toolTipChanged()),
+                   this, SLOT(updateActionAndSummary()));
+        disconnect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                   this, SLOT(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)));
+        disconnect(m_target, SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
+                   this, SLOT(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)));
+        disconnect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+                   this, SLOT(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)));
+    }
+
+    m_target = target;
+
+    if (m_buildConfiguration)
+        disconnect(m_buildConfiguration, SIGNAL(displayNameChanged()),
+                   this, SLOT(updateActionAndSummary()));
+    if (m_deployConfiguration)
+        disconnect(m_deployConfiguration, SIGNAL(displayNameChanged()),
+                   this, SLOT(updateActionAndSummary()));
+
+    if (m_runConfiguration)
+        disconnect(m_runConfiguration, SIGNAL(displayNameChanged()),
+                   this, SLOT(updateActionAndSummary()));
+
+    if (m_target) {
+        QList<ProjectConfiguration *> bl;
+        foreach (BuildConfiguration *bc, target->buildConfigurations())
+            bl.append(bc);
+        m_listWidgets[BUILD]->setProjectConfigurations(bl, target->activeBuildConfiguration());
+
+        QList<ProjectConfiguration *> dl;
+        foreach (DeployConfiguration *dc, target->deployConfigurations())
+            dl.append(dc);
+        m_listWidgets[DEPLOY]->setProjectConfigurations(dl, target->activeDeployConfiguration());
+
+        QList<ProjectConfiguration *> rl;
+        foreach (RunConfiguration *rc, target->runConfigurations())
+            rl.append(rc);
+        m_listWidgets[RUN]->setProjectConfigurations(rl, target->activeRunConfiguration());
+
+        m_buildConfiguration = m_target->activeBuildConfiguration();
+        if (m_buildConfiguration)
+            connect(m_buildConfiguration, SIGNAL(displayNameChanged()),
+                    this, SLOT(updateActionAndSummary()));
+        m_deployConfiguration = m_target->activeDeployConfiguration();
+        if (m_deployConfiguration)
+            connect(m_deployConfiguration, SIGNAL(displayNameChanged()),
+                    this, SLOT(updateActionAndSummary()));
+        m_runConfiguration = m_target->activeRunConfiguration();
+        if (m_runConfiguration)
+            connect(m_runConfiguration, SIGNAL(displayNameChanged()),
+                    this, SLOT(updateActionAndSummary()));
+
+        connect(m_target, SIGNAL(displayNameChanged()),
+                this, SLOT(updateActionAndSummary()));
+        connect(m_target, SIGNAL(toolTipChanged()),
+                this, SLOT(updateActionAndSummary()));
+        connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                this, SLOT(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)));
+        connect(m_target, SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
+                this, SLOT(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)));
+        connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+                this, SLOT(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)));
+    } else {
+        m_listWidgets[BUILD]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
+        m_listWidgets[DEPLOY]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
+        m_listWidgets[RUN]->setProjectConfigurations(QList<ProjectConfiguration *>(), 0);
+        m_buildConfiguration = 0;
+        m_deployConfiguration = 0;
+        m_runConfiguration = 0;
+    }
+    updateActionAndSummary();
+}
+
+void MiniProjectTargetSelector::activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc)
+{
+    if (m_buildConfiguration)
+        disconnect(m_buildConfiguration, SIGNAL(displayNameChanged()),
+                   this, SLOT(updateActionAndSummary()));
+    m_buildConfiguration = bc;
+    if (m_buildConfiguration)
+        connect(m_buildConfiguration, SIGNAL(displayNameChanged()),
+                this, SLOT(updateActionAndSummary()));
+    m_listWidgets[BUILD]->setActiveProjectConfiguration(bc);
+    updateActionAndSummary();
+}
+
+void MiniProjectTargetSelector::activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc)
+{
+    if (m_deployConfiguration)
+        disconnect(m_deployConfiguration, SIGNAL(displayNameChanged()),
+                   this, SLOT(updateActionAndSummary()));
+    m_deployConfiguration = dc;
+    if (m_deployConfiguration)
+        connect(m_deployConfiguration, SIGNAL(displayNameChanged()),
+                this, SLOT(updateActionAndSummary()));
+    m_listWidgets[DEPLOY]->setActiveProjectConfiguration(dc);
+}
+
+void MiniProjectTargetSelector::activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc)
+{
+    if (m_runConfiguration)
+        disconnect(m_runConfiguration, SIGNAL(displayNameChanged()),
+                   this, SLOT(updateActionAndSummary()));
+    m_runConfiguration = rc;
+    if (m_runConfiguration)
+        connect(m_runConfiguration, SIGNAL(displayNameChanged()),
+                this, SLOT(updateActionAndSummary()));
+    m_listWidgets[RUN]->setActiveProjectConfiguration(rc);
+    updateActionAndSummary();
+}
+
+void MiniProjectTargetSelector::updateSeparatorVisible()
+{
+    QVector<bool> visibility;
+    visibility.resize(LAST);
+    visibility[PROJECT] = m_projectListWidget->isVisibleTo(this);
+    for (int i = TARGET; i < LAST; ++i)
+        visibility[i] = m_listWidgets[i]->isVisibleTo(this);
+    int lastVisible = visibility.lastIndexOf(true);
+    if (lastVisible != -1)
+        visibility[lastVisible] = false;
+
+    for (int i = PROJECT; i < LAST; ++i)
+        m_separators[i]->setVisible(visibility[i]);
 }
 
 void MiniProjectTargetSelector::setVisible(bool visible)
 {
     if (visible) {
-        QSize sh = sizeHint();
-        resize(sh);
         QStatusBar *statusBar = Core::ICore::instance()->statusBar();
         QPoint moveTo = statusBar->mapToGlobal(QPoint(0,0));
-        moveTo -= QPoint(0, sh.height());
+        moveTo -= QPoint(0, sizeHint().height());
         move(moveTo);
+        if (!focusWidget() || !focusWidget()->isVisibleTo(this)) { // Does the second part actually work?
+            if (m_projectListWidget->isVisibleTo(this))
+                m_projectListWidget->setFocus();
+            for (int i = TARGET; i < LAST; ++i) {
+                if (m_listWidgets[i]->isVisibleTo(this)) {
+                    m_listWidgets[i]->setFocus();
+                    break;
+                }
+            }
+        }
     }
 
     QWidget::setVisible(visible);
-
-    if (m_widgetStack->currentWidget())
-        m_widgetStack->currentWidget()->setFocus();
-
     m_projectAction->setChecked(visible);
+}
+
+void MiniProjectTargetSelector::toggleVisible()
+{
+    setVisible(!isVisible());
+}
+
+void MiniProjectTargetSelector::nextOrShow()
+{
+    if (!isVisible()) {
+        show();
+    } else {
+        m_hideOnRelease = true;
+        m_earliestHidetime = QDateTime::currentDateTime().addMSecs(800);
+        if (ListWidget *lw = qobject_cast<ListWidget *>(focusWidget())) {
+            if (lw->currentRow() < lw->count() -1)
+                lw->setCurrentRow(lw->currentRow() + 1);
+            else
+                lw->setCurrentRow(0);
+        }
+    }
+}
+
+void MiniProjectTargetSelector::keyReleaseEvent(QKeyEvent *ke)
+{
+    if (m_hideOnRelease) {
+        if (ke->modifiers() == 0
+                /*HACK this is to overcome some event inconsistencies between platforms*/
+                || (ke->modifiers() == Qt::AltModifier
+                    && (ke->key() == Qt::Key_Alt || ke->key() == -1))) {
+            delayedHide();
+            m_hideOnRelease = false;
+        }
+    }
+    QWidget::keyReleaseEvent(ke);
+}
+
+QSize MiniProjectTargetSelector::sizeHint() const
+{
+    static QStatusBar *statusBar = Core::ICore::instance()->statusBar();
+    static QWidget *actionBar = Core::ICore::instance()->mainWindow()->findChild<QWidget*>("actionbar");
+    Q_ASSERT(actionBar);
+
+    int alignedWithActionHeight
+            = actionBar->height() - statusBar->height();
+    QSize s = QWidget::sizeHint();
+    if (s.height() < alignedWithActionHeight)
+        s.setHeight(alignedWithActionHeight);
+    return s;
+}
+
+void MiniProjectTargetSelector::delayedHide()
+{
+    QDateTime current = QDateTime::currentDateTime();
+    if (m_earliestHidetime > current) {
+        // schedule for later
+        QTimer::singleShot(current.msecsTo(m_earliestHidetime) + 50, this, SLOT(delayedHide()));
+    } else {
+        hide();
+    }
 }
 
 // This is a workaround for the problem that Windows
@@ -429,217 +1026,32 @@ void MiniProjectTargetSelector::mousePressEvent(QMouseEvent *e)
     QWidget::mousePressEvent(e);
 }
 
-QString MiniProjectTargetSelector::fullName(ProjectExplorer::Project *project)
+void MiniProjectTargetSelector::updateActionAndSummary()
 {
-    return project->displayName() + " (" + project->file()->fileName() + QLatin1Char(')');
-}
-
-void MiniProjectTargetSelector::addProject(ProjectExplorer::Project *project)
-{
-    QTC_ASSERT(project, return);
-    ProjectListWidget *targetList = new ProjectListWidget(project);
-    targetList->setStyleSheet(QString::fromLatin1("QListWidget { background: %1; border: none; }")
-                              .arg(QColor(70, 70, 70).name()));
-
-    m_ignoreIndexChange = true;
-
-    QString sortName = fullName(project);
-    int pos = 0;
-    for (int i=0; i < m_projectsBox->count(); ++i) {
-        Project *p = m_projectsBox->itemData(i).value<Project*>();
-        QString itemSortName = fullName(p);
-        if (itemSortName > sortName)
-            pos = i;
-    }
-
-    m_widgetStack->insertWidget(pos, targetList);
-
-    bool useFullName = false;
-    for (int i = 0; i < m_projectsBox->count(); ++i) {
-        Project *p = m_projectsBox->itemData(i).value<Project*>();
-        if (p->displayName() == project->displayName()) {
-            useFullName = true;
-            m_projectsBox->setItemText(i, fullName(p));
-        }
-    }
-
-    QString displayName = useFullName ? fullName(project) : project->displayName();
-    m_projectsBox->insertItem(pos, displayName, QVariant::fromValue(project));
-
-    connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            SLOT(updateAction()));
-
-    connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            SLOT(addTarget(ProjectExplorer::Target*)));
-    connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
-            SLOT(removeTarget(ProjectExplorer::Target*)));
-    connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-            SLOT(changeActiveTarget(ProjectExplorer::Target*)));
-
-    if (project == ProjectExplorerPlugin::instance()->startupProject()) {
-        m_projectsBox->setCurrentIndex(pos);
-        m_widgetStack->setCurrentIndex(pos);
-    }
-
-    m_ignoreIndexChange = false;
-
-    foreach (Target *t, project->targets())
-        addTarget(t, t == project->activeTarget());
-
-    m_projectsBox->setEnabled(m_projectsBox->count() > 1);
-    m_projectsBox->parentWidget()->layout()->activate();
-}
-
-void MiniProjectTargetSelector::removeProject(ProjectExplorer::Project* project)
-{
-    int index = indexFor(project);
-    if (index < 0)
-        return;
-    ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
-
-    // We don't want to emit a startUpProject changed, even if we remove the current startup project
-    // The ProjectExplorer takes care of setting a new startup project.
-    m_ignoreIndexChange = true;
-    m_projectsBox->removeItem(index);
-    m_projectsBox->setEnabled(m_projectsBox->count() > 1);
-    delete plw;
-
-    // Update display names
-    QString name = project->displayName();
-    int count = 0;
-    int otherIndex = -1;
-    for (int i = 0; i < m_projectsBox->count(); ++i) {
-        Project *p = m_projectsBox->itemData(i).value<Project*>();
-        if (p->displayName() == name) {
-            ++count;
-            otherIndex = i;
-        }
-    }
-    if (count == 1) {
-        Project *p = m_projectsBox->itemData(otherIndex).value<Project*>();
-        m_projectsBox->setItemText(otherIndex, p->displayName());
-    }
-
-    m_ignoreIndexChange = false;
-    m_projectsBox->parentWidget()->layout()->activate();
-}
-
-void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool activeTarget)
-{
-    QTC_ASSERT(target, return);
-
-    int index = indexFor(target->project());
-    if (index < 0)
-        return;
-
-    connect(target, SIGNAL(toolTipChanged()), this, SLOT(updateAction()));
-    connect(target, SIGNAL(iconChanged()), this, SLOT(updateAction()));
-    connect(target, SIGNAL(overlayIconChanged()), this, SLOT(updateAction()));
-    ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
-    QListWidgetItem *lwi = new QListWidgetItem();
-
-    // Sort on insert:
-    for (int idx = 0; idx <= plw->count(); ++idx) {
-        QListWidgetItem *itm(plw->item(idx));
-        MiniTargetWidget *mtw(qobject_cast<MiniTargetWidget *>(plw->itemWidget(itm)));
-        if (!mtw && idx < plw->count())
-            continue;
-        if (idx == plw->count() ||
-            mtw->target()->displayName() > target->displayName()) {
-            plw->insertItem(idx, lwi);
-            break;
-        }
-    }
-
-    MiniTargetWidget *targetWidget = new MiniTargetWidget(target);
-    connect(targetWidget, SIGNAL(changed()), this, SLOT(updateAction()));
-    targetWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    lwi->setSizeHint(targetWidget->sizeHint());
-    plw->setItemWidget(lwi, targetWidget);
-
-    if (activeTarget)
-        plw->setCurrentItem(lwi, QItemSelectionModel::SelectCurrent);
-
-    m_widgetStack->updateGeometry();
-}
-
-void MiniProjectTargetSelector::removeTarget(ProjectExplorer::Target *target)
-{
-    QTC_ASSERT(target, return);
-
-    int index = indexFor(target->project());
-    if (index < 0)
-        return;
-
-    ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
-    for (int i = 0; i < plw->count(); ++i) {
-        QListWidgetItem *itm(plw->item(i));
-        MiniTargetWidget *mtw(qobject_cast<MiniTargetWidget *>(plw->itemWidget(itm)));
-        if (!mtw)
-            continue;
-        if (target != mtw->target())
-            continue;
-        delete plw->takeItem(i);
-        delete mtw;
-    }
-
-    disconnect(target, SIGNAL(toolTipChanged()), this, SLOT(updateAction()));
-    disconnect(target, SIGNAL(iconChanged()), this, SLOT(updateAction()));
-    disconnect(target, SIGNAL(overlayIconChanged()), this, SLOT(updateAction()));
-
-    m_widgetStack->updateGeometry();
-}
-
-void MiniProjectTargetSelector::changeActiveTarget(ProjectExplorer::Target *target)
-{
-    int index = indexFor(target->project());
-    if (index < 0)
-        return;
-    ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
-
-    for (int i = 0; i < plw->count(); ++i) {
-        QListWidgetItem *itm = plw->item(i);
-        MiniTargetWidget *mtw = qobject_cast<MiniTargetWidget*>(plw->itemWidget(itm));
-        if (mtw->target() == target) {
-            plw->setCurrentItem(itm);
-            break;
-        }
-    }
-}
-
-void MiniProjectTargetSelector::updateAction()
-{
-    Project *project = ProjectExplorerPlugin::instance()->startupProject();
-
-    QString projectName;;
+    QString projectName;
     QString targetName;
     QString targetToolTipText;
     QString buildConfig;
+    QString deployConfig;
     QString runConfig;
     QIcon targetIcon = style()->standardIcon(QStyle::SP_ComputerIcon);
 
-    const int extrawidth = 110; // Size of margins + icon width
-    // Some fudge numbers to ensure the menu does not grow unbounded
-    int maxLength = fontMetrics().averageCharWidth() * 140;
-
+    Project *project = ProjectExplorerPlugin::instance()->startupProject();
     if (project) {
         projectName = project->displayName();
 
         if (Target *target = project->activeTarget()) {
-            if (project->targets().count() > 1) {
-                targetName = project->activeTarget()->displayName();
-            }
-            if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-                buildConfig = bc->displayName();
-                int minimumWidth = fontMetrics().width(bc->displayName() + tr("Build:")) + extrawidth;
-                m_widgetStack->setMinimumWidth(qMin(maxLength, qMax(minimumWidth, m_widgetStack->minimumWidth())));
-            }
+            targetName = project->activeTarget()->displayName();
 
-            if (RunConfiguration *rc = target->activeRunConfiguration()) {
+            if (BuildConfiguration *bc = target->activeBuildConfiguration())
+                buildConfig = bc->displayName();
+
+            if (DeployConfiguration *dc = target->activeDeployConfiguration())
+                deployConfig = dc->displayName();
+
+            if (RunConfiguration *rc = target->activeRunConfiguration())
                 runConfig = rc->displayName();
-                int minimumWidth = fontMetrics().width(rc->displayName() + tr("Run:")) + extrawidth;
-                m_widgetStack->setMinimumWidth(qMin(maxLength, qMax(minimumWidth, m_widgetStack->minimumWidth())));
-            }
+
             targetToolTipText = target->toolTip();
             targetIcon = createCenteredIcon(target->icon(), target->overlayIcon());
         }
@@ -647,45 +1059,41 @@ void MiniProjectTargetSelector::updateAction()
     m_projectAction->setProperty("heading", projectName);
     m_projectAction->setProperty("subtitle", buildConfig);
     m_projectAction->setIcon(targetIcon);
-    QString toolTip = tr("<html><nobr><b>Project:</b> %1<br/>%2%3<b>Run:</b> %4%5</html>");
     QString targetTip = targetName.isEmpty() ? QLatin1String("")
         : tr("<b>Target:</b> %1<br/>").arg(targetName);
     QString buildTip = buildConfig.isEmpty() ? QLatin1String("")
-        : tr("<b>Build:</b> %2<br/>").arg(buildConfig);
+        : tr("<b>Build:</b> %1<br/>").arg(buildConfig);
+    QString deployTip = deployConfig.isEmpty() ? QLatin1String("")
+        : tr("<b>Deploy:</b>%1<br/>").arg(deployConfig);
     QString targetToolTip = targetToolTipText.isEmpty() ? QLatin1String("")
         : tr("<br/>%1").arg(targetToolTipText);
-    m_projectAction->setToolTip(toolTip.arg(projectName, targetTip, buildTip, runConfig, targetToolTip));
+    QString toolTip = tr("<html><nobr><b>Project:</b> %1<br/>%2%3%4<b>Run:</b> %5%6</html>");
+    m_projectAction->setToolTip(toolTip.arg(projectName, targetTip, buildTip, deployTip, runConfig, targetToolTip));
+    updateSummary();
 }
 
-int MiniProjectTargetSelector::indexFor(ProjectExplorer::Project *project) const
+void MiniProjectTargetSelector::updateSummary()
 {
-    for (int i = 0; i < m_widgetStack->count(); ++i) {
-        ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(i));
-        if (plw && plw->project() == project)
-            return i;
-    }
-    return -1;
-}
-
-void MiniProjectTargetSelector::emitStartupProjectChanged(int index)
-{
-    if (m_ignoreIndexChange)
-        return;
-    Project *project = m_projectsBox->itemData(index).value<Project*>();
-    QTC_ASSERT(project, return;)
-    emit startupProjectChanged(project);
-}
-
-void MiniProjectTargetSelector::changeStartupProject(ProjectExplorer::Project *project)
-{
-    for (int i = 0; i < m_widgetStack->count(); ++i) {
-        ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(i));
-        if (plw && plw->project() == project) {
-            m_projectsBox->setCurrentIndex(i);
-            m_widgetStack->setCurrentIndex(i);
+    QString summary;
+    if (Project *startupProject = m_sessionManager->startupProject()) {
+        if (!m_projectListWidget->isVisibleTo(this))
+            summary.append(tr("Project: <b>%1</b><br/>").arg(startupProject->displayName()));
+        if (Target *activeTarget = m_sessionManager->startupProject()->activeTarget()) {
+            if (!m_listWidgets[TARGET]->isVisibleTo(this))
+                summary.append(tr("Target: <b>%1</b><br/>").arg( activeTarget->displayName()));
+            if (!m_listWidgets[BUILD]->isVisibleTo(this) && activeTarget->activeBuildConfiguration())
+                summary.append(tr("Build: <b>%1</b><br/>").arg(
+                                   activeTarget->activeBuildConfiguration()->displayName()));
+            if (!m_listWidgets[DEPLOY]->isVisibleTo(this) && activeTarget->activeDeployConfiguration())
+                summary.append(tr("Deploy: <b>%1</b><br/>").arg(
+                                   activeTarget->activeDeployConfiguration()->displayName()));
+            if (!m_listWidgets[RUN]->isVisibleTo(this) && activeTarget->activeRunConfiguration())
+                summary.append(tr("Run: <b>%1</b><br/>").arg(
+                                   activeTarget->activeRunConfiguration()->displayName()));
         }
     }
-    updateAction();
+    m_summaryLabel->setText(summary);
+
 }
 
 void MiniProjectTargetSelector::paintEvent(QPaintEvent *)

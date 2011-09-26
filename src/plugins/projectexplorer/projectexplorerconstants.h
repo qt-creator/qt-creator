@@ -91,6 +91,7 @@ const char SHOW_TASK_OUTPUT[]     = "ProjectExplorer.ShowTaskOutput";
 // Run modes
 const char RUNMODE[]              = "ProjectExplorer.RunMode";
 const char SELECTTARGET[]         = "ProjectExplorer.SelectTarget";
+const char SELECTTARGETQUICK[]    = "ProjectExplorer.SelectTargetQuick";
 
 // Action priorities
 const int  P_ACTION_RUN            = 100;

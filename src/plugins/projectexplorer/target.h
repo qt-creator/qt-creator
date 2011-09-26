@@ -185,4 +185,6 @@ signals:
 
 } // namespace ProjectExplorer
 
+Q_DECLARE_METATYPE(ProjectExplorer::Target *)
+
 #endif // TARGET_H

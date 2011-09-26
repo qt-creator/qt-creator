@@ -213,6 +213,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_setStartupProjectAction;
     QAction *m_projectSelectorAction;
     QAction *m_projectSelectorActionMenu;
+    QAction *m_projectSelectorActionQuick;
     QAction *m_runSubProject;
 
     Internal::ProjectWindow *m_proWindow;
@@ -884,27 +885,24 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectSelectorAction->setCheckable(true);
     d->m_projectSelectorAction->setEnabled(false);
     QWidget *mainWindow = Core::ICore::instance()->mainWindow();
-    d->m_targetSelector = new Internal::MiniProjectTargetSelector(d->m_projectSelectorAction, mainWindow);
+    d->m_targetSelector = new Internal::MiniProjectTargetSelector(d->m_projectSelectorAction, d->m_session, mainWindow);
     connect(d->m_projectSelectorAction, SIGNAL(triggered()), d->m_targetSelector, SLOT(show()));
     Core::ModeManager::instance()->addProjectSelector(d->m_projectSelectorAction);
 
     d->m_projectSelectorActionMenu = new QAction(this);
     d->m_projectSelectorActionMenu->setEnabled(false);
     d->m_projectSelectorActionMenu->setText(tr("Open Build/Run Target Selector..."));
-    connect(d->m_projectSelectorActionMenu, SIGNAL(triggered()), d->m_targetSelector, SLOT(show()));
+    connect(d->m_projectSelectorActionMenu, SIGNAL(triggered()), d->m_targetSelector, SLOT(toggleVisible()));
     cmd = am->registerAction(d->m_projectSelectorActionMenu, ProjectExplorer::Constants::SELECTTARGET,
                        globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+T")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
-    connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            d->m_targetSelector, SLOT(addProject(ProjectExplorer::Project*)));
-    connect(d->m_session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
-            d->m_targetSelector, SLOT(removeProject(ProjectExplorer::Project*)));
-    connect(d->m_targetSelector, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(setStartupProject(ProjectExplorer::Project*)));
-    connect(d->m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-            d->m_targetSelector, SLOT(changeStartupProject(ProjectExplorer::Project*)));
+    d->m_projectSelectorActionQuick = new QAction(this);
+    d->m_projectSelectorActionQuick->setEnabled(false);
+    d->m_projectSelectorActionQuick->setText(tr("Quick Switch Target Selector"));
+    connect(d->m_projectSelectorActionQuick, SIGNAL(triggered()), d->m_targetSelector, SLOT(nextOrShow()));
+    cmd = am->registerAction(d->m_projectSelectorActionQuick, ProjectExplorer::Constants::SELECTTARGETQUICK, globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+T")));
 
     connect(core, SIGNAL(saveSettingsRequested()),
         this, SLOT(savePersistentSettings()));
@@ -1709,6 +1707,7 @@ void ProjectExplorerPlugin::updateActions()
 
     d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
     d->m_projectSelectorActionMenu->setEnabled(!session()->projects().isEmpty());
+    d->m_projectSelectorActionQuick->setEnabled(!session()->projects().isEmpty());
 
     updateDeployActions();
     updateRunWithoutDeployMenu();
