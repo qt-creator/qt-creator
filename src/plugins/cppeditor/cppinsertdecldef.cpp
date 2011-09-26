@@ -293,7 +293,6 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(
     const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface)
 {
     const QList<AST *> &path = interface->path();
-    CppRefactoringFilePtr file = interface->currentFile();
 
     int idx = path.size() - 1;
     for (; idx >= 0; --idx) {
@@ -306,17 +305,14 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(
                                 && !decl->type()->asFunctionType()->isPureVirtual()
                                 && decl->enclosingScope()
                                 && decl->enclosingScope()->isClass()) {
-                            DeclaratorAST *declarator = simpleDecl->declarator_list->value;
-                            if (file->isCursorOn(declarator->core_declarator)) {
-                                CppRefactoringChanges refactoring(interface->snapshot());
-                                InsertionPointLocator locator(refactoring);
-                                QList<CppQuickFixOperation::Ptr> results;
-                                foreach (const InsertionLocation &loc, locator.methodDefinition(decl)) {
-                                    if (loc.isValid())
-                                        results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(interface, idx, decl, loc)));
-                                }
-                                return results;
+                            CppRefactoringChanges refactoring(interface->snapshot());
+                            InsertionPointLocator locator(refactoring);
+                            QList<CppQuickFixOperation::Ptr> results;
+                            foreach (const InsertionLocation &loc, locator.methodDefinition(decl)) {
+                                if (loc.isValid())
+                                    results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(interface, idx, decl, loc)));
                             }
+                            return results;
                         }
                     }
                 }
