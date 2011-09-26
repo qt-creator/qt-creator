@@ -4763,8 +4763,11 @@ void GdbEngine::setupInferior()
     const QByteArray debugInfoLocation = sp.debugInfoLocation.toLocal8Bit();
     if (!debugInfoLocation.isEmpty())
         postCommand("set debug-file-directory " + debugInfoLocation);
+    // Spaces just will not work.
     foreach (const QString &src, sp.debugSourceLocation)
-        postCommand("directory " + src.toLocal8Bit());
+        postCommand("directory " + src.toLocal8Bit()); 
+    if (!sp.solibSearchPath.isEmpty())
+        postCommand("set solib-search-path " + sp.solibSearchPath.toLocal8Bit());
     m_gdbAdapter->setupInferior();
 }
 

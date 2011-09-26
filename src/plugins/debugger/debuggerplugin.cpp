@@ -1014,6 +1014,9 @@ public slots:
     DebuggerToolTipManager *toolTipManager() const { return m_toolTipManager; }
     virtual QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const { return m_globalDebuggerOptions; }
 
+    // FIXME: Remove.
+    void maybeEnrichParameters(DebuggerStartParameters *sp);
+
 public:
     DebuggerMainWindow *m_mainWindow;
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
@@ -1189,14 +1192,21 @@ static QString msgParameterMissing(const QString &a)
     return DebuggerPlugin::tr("Option '%1' is missing the parameter.").arg(a);
 }
 
-
-static void maybeEnrichParameters(DebuggerStartParameters *sp)
+void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
 {
-    if (!theDebuggerCore->boolSetting(AutoEnrichParameters))
+    if (!boolSetting(AutoEnrichParameters))
         return;
+    if (sp->sysroot.isEmpty() && (sp->startMode == AttachToRemoteServer
+            || sp->startMode == StartRemote)) {
+        // FIXME: Get from BaseQtVersion
+        sp->sysroot = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_SYSROOT"));
+        //if (sp->sysroot.isEmpty())
+        //    sp->sysroot = debuggerCore()->configValue(_("LastSysroot")).toString();
+        showMessage("### USING FAKE SYSROOT ###" + sp->sysroot.toLocal8Bit(), LogWarning);
+    }
     if (sp->debugInfoLocation.isEmpty())
         sp->debugInfoLocation = sp->sysroot + "/usr/lib/debug";
-    if (sp->debugSourceLocation.isEmpty()) {
+    if (false && sp->debugSourceLocation.isEmpty()) {
         QString base = sp->sysroot + "/usr/src/debug/";
         sp->debugSourceLocation.append(base + "qt5base/src/corelib");
         sp->debugSourceLocation.append(base + "qt5base/src/gui");
@@ -1204,6 +1214,10 @@ static void maybeEnrichParameters(DebuggerStartParameters *sp)
         sp->debugSourceLocation.append(base + "qt5base/src/v8");
         sp->debugSourceLocation.append(base + "qtdeclarative/src/declarative/qml");
     }
+    //if (sp->solibSearchPath.isEmpty()) {
+    //    sp->solibSearchPath = sp->sysroot + "/usr/lib/debug";
+    //    // was: QFileInfo(sp.dumperLibrary).path().toLocal8Bit();
+    //}
 }
 
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
@@ -1486,7 +1500,6 @@ void DebuggerPluginPrivate::attachExternalApplication()
     sp.startMode = AttachExternal;
     sp.toolChainAbi = dlg.abi();
     sp.debuggerCommand = dlg.debuggerCommand();
-    maybeEnrichParameters(&sp);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1498,7 +1511,6 @@ void DebuggerPluginPrivate::attachExternalApplication(ProjectExplorer::RunContro
     sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
     sp.startMode = AttachExternal;
     sp.toolChainAbi = rc->abi();
-    maybeEnrichParameters(&sp);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1530,7 +1542,6 @@ void DebuggerPluginPrivate::attachCore()
     sp.toolChainAbi = dlg.abi();
     sp.sysroot = dlg.sysroot();
     sp.overrideStartScript = dlg.overrideStartScript();
-    maybeEnrichParameters(&sp);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1545,7 +1556,6 @@ void DebuggerPluginPrivate::attachRemote(const QString &spec)
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemoteServer;
     sp.toolChainAbi = anyAbiOfBinary(sp.executable);
-    maybeEnrichParameters(&sp);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1643,7 +1653,6 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.startMode = StartRemote;
     if (!queryRemoteParameters(sp, true))
         return;
-    maybeEnrichParameters(&sp);
     if (RunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1656,7 +1665,6 @@ void DebuggerPluginPrivate::attachRemoteApplication()
     sp.startMode = AttachToRemoteServer;
     sp.useServerStartScript = false;
     sp.serverStartScript.clear();
-    maybeEnrichParameters(&sp);
     if (RunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1926,8 +1934,10 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
 }
 
 DebuggerRunControl *DebuggerPluginPrivate::createDebugger
-    (const DebuggerStartParameters &sp, RunConfiguration *rc)
+    (const DebuggerStartParameters &sp0, RunConfiguration *rc)
 {
+    DebuggerStartParameters sp = sp0;
+    maybeEnrichParameters(&sp);
     return m_debuggerRunControlFactory->create(sp, rc);
 }
 
@@ -2525,12 +2535,14 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     str << "Start parameters: '" << sp.displayName << "' mode: " << sp.startMode
         << "\nABI: " << sp.toolChainAbi.toString() << '\n';
     if (!sp.executable.isEmpty()) {
-        str << "Executable: " << QDir::toNativeSeparators(sp.executable) << ' ' << sp.processArgs;
+        str << "Executable: " << QDir::toNativeSeparators(sp.executable)
+            << ' ' << sp.processArgs;
         if (sp.useTerminal)
             str << " [terminal]";
         str << '\n';
         if (!sp.workingDirectory.isEmpty())
-            str << "Directory: " << QDir::toNativeSeparators(sp.workingDirectory) << '\n';
+            str << "Directory: " << QDir::toNativeSeparators(sp.workingDirectory)
+                << '\n';
         if (sp.executableUid) {
             str << "UID: 0x";
             str.setIntegerBase(16);
@@ -2547,36 +2559,38 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     if (!sp.projectSourceDirectory.isEmpty()) {
         str << "Project: " << QDir::toNativeSeparators(sp.projectSourceDirectory);
         if (!sp.projectBuildDirectory.isEmpty())
-            str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDirectory) << ')';
+            str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDirectory)
+                << ')';
         str << '\n';
     }
     if (!sp.qtInstallPath.isEmpty())
         str << "Qt: " << QDir::toNativeSeparators(sp.qtInstallPath) << '\n';
     if (!sp.qmlServerAddress.isEmpty())
-        str << "QML server: " << sp.qmlServerAddress << ':' << sp.qmlServerPort << '\n';
+        str << "QML server: " << sp.qmlServerAddress << ':'
+            << sp.qmlServerPort << '\n';
     if (!sp.remoteChannel.isEmpty()) {
-        str << "Remote: " << sp.remoteChannel << ", " << sp.remoteArchitecture << '\n';
+        str << "Remote: " << sp.remoteChannel << ", "
+            << sp.remoteArchitecture << '\n';
         if (!sp.remoteDumperLib.isEmpty())
             str << "Remote dumpers: " << sp.remoteDumperLib << '\n';
         if (!sp.remoteSourcesDir.isEmpty())
             str << "Remote sources: " << sp.remoteSourcesDir << '\n';
         if (!sp.remoteMountPoint.isEmpty())
-            str << "Remote mount point: " << sp.remoteMountPoint << " Local: " << sp.localMountDir << '\n';
+            str << "Remote mount point: " << sp.remoteMountPoint
+                << " Local: " << sp.localMountDir << '\n';
     }
     if (!sp.gnuTarget.isEmpty())
         str << "Gnu target: " << sp.gnuTarget << '\n';
-    if (!sp.sysroot.isEmpty())
-        str << "Sysroot: " << sp.sysroot << '\n';
-    if (!sp.symbolFileName.isEmpty())
-        str << "Symbol file: " << sp.symbolFileName << '\n';
+    str << "Sysroot: " << sp.sysroot << '\n';
+    str << "Solib Search Path: " << sp.solibSearchPath << '\n';
+    str << "Debug Source Loaction: " << sp.debugSourceLocation.join(":") << '\n';
+    str << "Symbol file: " << sp.symbolFileName << '\n';
     if (sp.useServerStartScript)
         str << "Using server start script: " << sp.serverStartScript;
-    if (!sp.dumperLibrary.isEmpty()) {
-        str << "Dumper libraries: " << QDir::toNativeSeparators(sp.dumperLibrary);
-        foreach (const QString &dl, sp.dumperLibraryLocations)
-            str << ' ' << QDir::toNativeSeparators(dl);
-        str << '\n';
-    }
+    str << "Dumper libraries: " << QDir::toNativeSeparators(sp.dumperLibrary);
+    foreach (const QString &dl, sp.dumperLibraryLocations)
+        str << ' ' << QDir::toNativeSeparators(dl);
+    str << '\n';
     return rc;
 }
 
@@ -2636,17 +2650,17 @@ QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType
         switch (et) {
         case CdbEngineType:
             searchAbis.clear();
-            searchAbis.push_back(Abi(abi.architecture(), abi.os(), Abi::WindowsMsvc2010Flavor,
-                                     abi.binaryFormat(), abi.wordWidth()));
-            searchAbis.push_back(Abi(abi.architecture(), abi.os(), Abi::WindowsMsvc2008Flavor,
-                                     abi.binaryFormat(), abi.wordWidth()));
-            searchAbis.push_back(Abi(abi.architecture(), abi.os(), Abi::WindowsMsvc2005Flavor,
-                                     abi.binaryFormat(), abi.wordWidth()));
+            searchAbis.push_back(Abi(abi.architecture(), abi.os(),
+                Abi::WindowsMsvc2010Flavor, abi.binaryFormat(), abi.wordWidth()));
+            searchAbis.push_back(Abi(abi.architecture(), abi.os(),
+                Abi::WindowsMsvc2008Flavor, abi.binaryFormat(), abi.wordWidth()));
+            searchAbis.push_back(Abi(abi.architecture(), abi.os(),
+                Abi::WindowsMsvc2005Flavor, abi.binaryFormat(), abi.wordWidth()));
             break;
         case GdbEngineType:
             searchAbis.clear();
-            searchAbis.push_back(Abi(abi.architecture(), abi.os(), Abi::WindowsMSysFlavor,
-                                     abi.binaryFormat(), abi.wordWidth()));
+            searchAbis.push_back(Abi(abi.architecture(), abi.os(),
+                Abi::WindowsMSysFlavor, abi.binaryFormat(), abi.wordWidth()));
             break;
         default:
             break;
@@ -2657,7 +2671,8 @@ QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType
                  << searchAbis.front().toString() << et;
 
     foreach (const Abi &searchAbi, searchAbis) {
-        const QList<ToolChain *> toolchains = ToolChainManager::instance()->findToolChains(searchAbi);
+        const QList<ToolChain *> toolchains =
+            ToolChainManager::instance()->findToolChains(searchAbi);
         // Find manually configured ones first
         for (int i = toolchains.size() - 1; i >= 0; i--) {
             const QString debugger = toolchains.at(i)->debuggerCommand();

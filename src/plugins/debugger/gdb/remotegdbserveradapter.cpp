@@ -169,10 +169,8 @@ void RemoteGdbServerAdapter::setupInferior()
         fileName = fi.absoluteFilePath();
     }
     const QByteArray sysroot = sp.sysroot.toLocal8Bit();
-    const QByteArray debugInfoLocation = sp.debugInfoLocation.toLocal8Bit();
     const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
     const QByteArray gnuTarget = sp.gnuTarget.toLatin1();
-    const QByteArray solibPath = QFileInfo(sp.dumperLibrary).path().toLocal8Bit();
     const QString args = sp.processArgs;
 
     if (!remoteArch.isEmpty())
@@ -181,12 +179,6 @@ void RemoteGdbServerAdapter::setupInferior()
         m_engine->postCommand("set gnutarget " + gnuTarget);
     if (!sysroot.isEmpty())
         m_engine->postCommand("set sysroot " + sysroot);
-    if (!debugInfoLocation.isEmpty())
-        m_engine->postCommand("set debug-file-directory " + debugInfoLocation);
-    foreach (const QString &src, sp.debugSourceLocation)
-        m_engine->postCommand("directory " + src.toLocal8Bit());
-    if (!solibPath.isEmpty())
-        m_engine->postCommand("set solib-search-path " + solibPath);
     if (!args.isEmpty())
         m_engine->postCommand("-exec-arguments " + args.toLocal8Bit());
 
