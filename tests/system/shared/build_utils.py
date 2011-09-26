@@ -65,12 +65,10 @@ def checkLastBuild(expectedToFail=False):
     if warnings == "":
         warnings = "none"
     gotErrors = errors != "none" and errors != "0"
-    if (gotErrors and expectedToFail) or (not expectedToFail and not gotErrors):
-        test.passes("Errors: %s" % errors)
-        test.passes("Warnings: %s" % warnings)
+    if not (gotErrors ^ expectedToFail):
+        test.passes("Errors: %s | Warnings: %s" % (errors, warnings))
     else:
-        test.fail("Errors: %s" % errors)
-        test.fail("Warnings: %s" % warnings)
+        test.fail("Errors: %s | Warnings: %s" % (errors, warnings))
     # additional stuff - could be removed... or improved :)
     toggleBuildIssues = waitForObject("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' "
                                       "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 20000)

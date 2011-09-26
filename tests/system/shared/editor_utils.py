@@ -56,3 +56,8 @@ def markText(editor, startPosition, endPosition):
     cursor.setPosition(endPosition, QTextCursor.KeepAnchor)
     editor.setTextCursor(cursor)
 
+# works for all standard editors
+def replaceEditorContent(editor, newcontent):
+    type(editor, "<Ctrl+A>")
+    type(editor, "<Delete>")
+    type(editor, newcontent)

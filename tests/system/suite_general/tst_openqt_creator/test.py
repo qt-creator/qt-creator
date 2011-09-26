@@ -29,7 +29,7 @@ def main():
     # Now check some basic lookups in the search box
 
     mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 5, 5, 0, Qt.LeftButton)
-    replaceLineEditorContent(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), ": Qlist::QList")
+    replaceEditorContent(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), ": Qlist::QList")
     type(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), "<Return>")
 
     test.compare(wordUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "QList")

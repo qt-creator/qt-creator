@@ -24,7 +24,7 @@ def createNewQmlExtension():
     clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Custom QML Extension Plugin", 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
     baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
-    replaceLineEditorContent(baseLineEd, workingDir)
+    replaceEditorContent(baseLineEd, workingDir)
     stateLabel = findObject("{type='QLabel' name='stateLabel'}")
     labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
     test.verify(labelCheck, "Project name and base directory without warning or error")
@@ -40,10 +40,10 @@ def createNewQmlExtension():
 #    buddy = waitForObject("{type='QLabel' text='Object Class-name:' unnamed='1' visible='1'}", 20000)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
                                "type='QLineEdit' unnamed='1' visible='1'}", 20000)
-    replaceLineEditorContent(nameLineEd, "TestItem")
+    replaceEditorContent(nameLineEd, "TestItem")
     uriLineEd = waitForObject("{buddy={type='QLabel' text='URI:' unnamed='1' visible='1'} "
                               "type='QLineEdit' unnamed='1' visible='1'}", 20000)
-    replaceLineEditorContent(uriLineEd, "com.nokia.test.qmlcomponents")
+    replaceEditorContent(uriLineEd, "com.nokia.test.qmlcomponents")
     clickButton(nextButton)
     clickButton(waitForObject("{type='QPushButton' text='Finish' visible='1'}", 20000))
 

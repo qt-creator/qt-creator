@@ -38,7 +38,7 @@ def createNewQtQuickApplication():
     clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick Application", 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
     baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
-    replaceLineEditorContent(baseLineEd, workingDir)
+    replaceEditorContent(baseLineEd, workingDir)
     stateLabel = findObject("{type='QLabel' name='stateLabel'}")
     labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
     test.verify(labelCheck, "Project name and base directory without warning or error")

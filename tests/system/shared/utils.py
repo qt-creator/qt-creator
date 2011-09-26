@@ -71,11 +71,6 @@ def which(program):
 
     return None
 
-def replaceLineEditorContent(lineEditor, newcontent):
-    type(lineEditor, "<Ctrl+A>")
-    type(lineEditor, "<Delete>")
-    type(lineEditor, newcontent)
-
 signalObjects = {}
 
 def __callbackFunction__(object, *args):
