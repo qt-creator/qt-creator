@@ -182,17 +182,6 @@ QmlObjectValue::QmlObjectValue(FakeMetaObject::ConstPtr metaObject, const QStrin
 QmlObjectValue::~QmlObjectValue()
 {}
 
-const Value *QmlObjectValue::findOrCreateSignature(int index, const FakeMetaMethod &method, QString *methodName) const
-{
-    *methodName = method.methodName();
-    const Value *value = _metaSignature.value(index);
-    if (! value) {
-        value = new MetaFunction(method, valueOwner());
-        _metaSignature.insert(index, value);
-    }
-    return value;
-}
-
 void QmlObjectValue::processMembers(MemberProcessor *processor) const
 {
     // process the meta enums
@@ -207,6 +196,19 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
     // all explicitly defined signal names
     QSet<QString> explicitSignals;
 
+    // make MetaFunction instances lazily when first needed
+    QList<const Value *> *signatures = _metaSignatures;
+    if (!signatures) {
+        signatures = new QList<const Value *>;
+        signatures->reserve(_metaObject->methodCount());
+        for (int index = 0; index < _metaObject->methodCount(); ++index)
+            signatures->append(new MetaFunction(_metaObject->method(index), valueOwner()));
+        if (!_metaSignatures.testAndSetOrdered(0, signatures)) {
+            delete signatures;
+            signatures = _metaSignatures;
+        }
+    }
+
     // process the meta methods
     for (int index = 0; index < _metaObject->methodCount(); ++index) {
         const FakeMetaMethod method = _metaObject->method(index);
@@ -214,7 +216,7 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
             continue;
 
         QString methodName;
-        const Value *signature = findOrCreateSignature(index, method, &methodName);
+        const Value *signature = signatures->at(index);
 
         if (method.methodType() == FakeMetaMethod::Slot && method.access() == FakeMetaMethod::Public) {
             processor->processSlot(methodName, signature);

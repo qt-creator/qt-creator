@@ -449,8 +449,6 @@ public:
     LanguageUtils::FakeMetaEnum getEnum(const QString &typeName, const QmlObjectValue **foundInScope = 0) const;
     const QmlEnumValue *getEnumValue(const QString &typeName, const QmlObjectValue **foundInScope = 0) const;
 protected:
-    const Value *findOrCreateSignature(int index, const LanguageUtils::FakeMetaMethod &method,
-                                       QString *methodName) const;
     bool isDerivedFrom(LanguageUtils::FakeMetaObject::ConstPtr base) const;
 
 private:
@@ -462,7 +460,7 @@ private:
     // needed in cases when B 1.0 has A 1.1 as prototype when imported as 1.1
     const LanguageUtils::ComponentVersion _componentVersion;
     const LanguageUtils::ComponentVersion _importVersion;
-    mutable QHash<int, const Value *> _metaSignature;
+    mutable QAtomicPointer< QList<const Value *> > _metaSignatures;
     QHash<QString, const QmlEnumValue * > _enums;
     int _metaObjectRevision;
 };

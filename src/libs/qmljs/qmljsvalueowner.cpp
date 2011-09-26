@@ -453,6 +453,7 @@ const ObjectValue *ValueOwner::qtObject() const
 
 void ValueOwner::registerValue(Value *value)
 {
+    // ### get rid of this lock
     QMutexLocker locker(&_mutex);
     _registeredValues.append(value);
 }
