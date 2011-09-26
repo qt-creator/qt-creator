@@ -174,7 +174,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     jsGlobalFormat.setForeground(QColor(0, 85, 175)); // light blue
     jsGlobalFormat.setItalic(true);
     formatDescriptions.append(FormatDescription(QLatin1String(C_JS_IMPORT_VAR), tr("JavaScript Import"), jsGlobalFormat));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_GLOBAL_VAR), tr("JavaScript Global Var"), jsGlobalFormat));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_JS_GLOBAL_VAR), tr("JavaScript Global Variable"), jsGlobalFormat));
 
     formatDescriptions.append(FormatDescription(QLatin1String(C_KEYWORD), tr("Keyword"), Qt::darkYellow));
     formatDescriptions.append(FormatDescription(QLatin1String(C_OPERATOR), tr("Operator")));

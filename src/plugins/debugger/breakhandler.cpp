@@ -1429,7 +1429,7 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     QString rc;
     QTextStream str(&rc);
     str << "<html><body><table>"
-        //<< "<tr><td>" << tr("Id:") << "</td><td>" << m_id << "</td></tr>"
+        //<< "<tr><td>" << tr("ID:") << "</td><td>" << m_id << "</td></tr>"
         << "<tr><td>" << tr("State:")
         << "</td><td>" << (data.enabled ? tr("Enabled") : tr("Disabled"));
     if (response.pending)

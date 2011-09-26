@@ -415,7 +415,7 @@ void PluginDumper::dump(const Plugin &plugin)
         } else {
             errorMessage = qmldumpErrorMessage(plugin.qmldirPath,
                     tr("Could not locate the helper application for dumping type information from C++ plugins.\n"
-                       "Please build the qmldump applcation on the Qt version options page."));
+                       "Please build the qmldump application on the Qt version options page."));
         }
 
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, errorMessage);
