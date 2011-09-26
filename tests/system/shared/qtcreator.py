@@ -50,9 +50,9 @@ def __removeTmpSettingsDir__():
     deleteDirIfExists(os.path.dirname(tmpSettingsDir))
 
 if platform.system() in ('Windows', 'Microsoft'):
-    sdkPath = "C:/QtSDK"
+    sdkPath = "C:\\QtSDK"
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
-    cwd+="/../../settings/windows"
+    cwd+="\\..\\..\\settings\\windows"
 else:
     sdkPath = os.path.expanduser("~/QtSDK")
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
