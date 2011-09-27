@@ -77,6 +77,8 @@ private slots:
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &userChanges);
     void handleDebuggingTypeChanged();
     void handleDeploySpecsChanged();
+    void handleUseAlternateCommandChanged();
+    void handleAlternateCommandChanged();
 
 private:
     void addGenericWidgets(QVBoxLayout *mainLayout);

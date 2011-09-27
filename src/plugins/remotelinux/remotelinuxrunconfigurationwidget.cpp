@@ -47,6 +47,7 @@
 #include <QtGui/QButtonGroup>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
+#include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>
@@ -85,6 +86,8 @@ public:
     QLineEdit argsLineEdit;
     QLabel localExecutableLabel;
     QLabel remoteExecutableLabel;
+    QCheckBox useAlternateCommandBox;
+    QLineEdit alternateCommand;
     QLabel devConfLabel;
     QLabel debuggingLanguagesLabel;
     QRadioButton debugCppOnlyButton;
@@ -177,6 +180,16 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     d->localExecutableLabel.setText(d->runConfiguration->localExecutableFilePath());
     formLayout->addRow(tr("Executable on host:"), &d->localExecutableLabel);
     formLayout->addRow(tr("Executable on device:"), &d->remoteExecutableLabel);
+    QWidget * const altRemoteExeWidget = new QWidget;
+    QHBoxLayout * const altRemoteExeLayout = new QHBoxLayout(altRemoteExeWidget);
+    altRemoteExeLayout->setContentsMargins(0, 0, 0, 0);
+    d->alternateCommand.setText(d->runConfiguration->alternateRemoteExecutable());
+    altRemoteExeLayout->addWidget(&d->alternateCommand);
+    d->useAlternateCommandBox.setText(tr("Use this command instead"));
+    d->useAlternateCommandBox.setChecked(d->runConfiguration->useAlternateExecutable());
+    altRemoteExeLayout->addWidget(&d->useAlternateCommandBox);
+    formLayout->addRow(tr("Alternate executable on device:"), altRemoteExeWidget);
+
     d->argsLineEdit.setText(d->runConfiguration->arguments());
     formLayout->addRow(tr("Arguments:"), &d->argsLineEdit);
 
@@ -214,7 +227,12 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     connect(d->runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(d->runConfiguration, SIGNAL(deploySpecsChanged()), SLOT(handleDeploySpecsChanged()));
+    connect(&d->useAlternateCommandBox, SIGNAL(toggled(bool)),
+        SLOT(handleUseAlternateCommandChanged()));
+    connect(&d->alternateCommand, SIGNAL(textEdited(QString)),
+        SLOT(handleAlternateCommandChanged()));
     handleDeploySpecsChanged();
+    handleUseAlternateCommandChanged();
 }
 
 void RemoteLinuxRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
@@ -267,7 +285,20 @@ void RemoteLinuxRunConfigurationWidget::updateTargetInformation()
 
 void RemoteLinuxRunConfigurationWidget::handleDeploySpecsChanged()
 {
-    d->remoteExecutableLabel.setText(d->runConfiguration->remoteExecutableFilePath());
+    d->remoteExecutableLabel.setText(d->runConfiguration->defaultRemoteExecutableFilePath());
+}
+
+void RemoteLinuxRunConfigurationWidget::handleUseAlternateCommandChanged()
+{
+    const bool useAltExe = d->useAlternateCommandBox.isChecked();
+    d->remoteExecutableLabel.setEnabled(!useAltExe);
+    d->alternateCommand.setEnabled(useAltExe);
+    d->runConfiguration->setUseAlternateExecutable(useAltExe);
+}
+
+void RemoteLinuxRunConfigurationWidget::handleAlternateCommandChanged()
+{
+    d->runConfiguration->setAlternateRemoteExecutable(d->alternateCommand.text().trimmed());
 }
 
 void RemoteLinuxRunConfigurationWidget::showDeviceConfigurationsDialog(const QString &link)

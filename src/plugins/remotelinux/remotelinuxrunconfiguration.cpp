@@ -60,6 +60,9 @@ const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
 const char BaseEnvironmentBaseKey[] = "Qt4ProjectManager.MaemoRunConfiguration.BaseEnvironmentBase";
 const char UserEnvironmentChangesKey[]
     = "Qt4ProjectManager.MaemoRunConfiguration.UserEnvironmentChanges";
+const char UseAlternateExeKey[] = "RemoteLinux.RunConfig.UseAlternateRemoteExecutable";
+const char AlternateExeKey[] = "RemoteLinux.RunConfig.AlternateRemoteExecutable";
+
 } // anonymous namespace
 
 class RemoteLinuxRunConfigurationPrivate {
@@ -68,7 +71,8 @@ public:
         : proFilePath(proFilePath),
           baseEnvironmentType(RemoteLinuxRunConfiguration::SystemBaseEnvironment),
           validParse(target->qt4Project()->validParse(proFilePath)),
-          parseInProgress(target->qt4Project()->parseInProgress(proFilePath))
+          parseInProgress(target->qt4Project()->parseInProgress(proFilePath)),
+          useAlternateRemoteExecutable(false)
     {
     }
 
@@ -78,7 +82,9 @@ public:
           systemEnvironment(other->systemEnvironment),
           userEnvironmentChanges(other->userEnvironmentChanges),
           validParse(other->validParse),
-          parseInProgress(other->parseInProgress)
+          parseInProgress(other->parseInProgress),
+          useAlternateRemoteExecutable(other->useAlternateRemoteExecutable),
+          alternateRemoteExecutable(other->alternateRemoteExecutable)
     {
     }
 
@@ -91,7 +97,10 @@ public:
     bool validParse;
     bool parseInProgress;
     QString disabledReason;
+    bool useAlternateRemoteExecutable;
+    QString alternateRemoteExecutable;
 };
+
 } // namespace Internal
 
 using namespace Internal;
@@ -205,6 +214,8 @@ QVariantMap RemoteLinuxRunConfiguration::toMap() const
     map.insert(QLatin1String(BaseEnvironmentBaseKey), d->baseEnvironmentType);
     map.insert(QLatin1String(UserEnvironmentChangesKey),
         Utils::EnvironmentItem::toStringList(d->userEnvironmentChanges));
+    map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
+    map.insert(QLatin1String(AlternateExeKey), d->alternateRemoteExecutable);
     return map;
 }
 
@@ -221,6 +232,8 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
         .toStringList());
     d->baseEnvironmentType = static_cast<BaseEnvironmentType>(map.value(QLatin1String(BaseEnvironmentBaseKey),
         SystemBaseEnvironment).toInt());
+    d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();
+    d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
 
     d->validParse = qt4Target()->qt4Project()->validParse(d->proFilePath);
     d->parseInProgress = qt4Target()->qt4Project()->parseInProgress(d->proFilePath);
@@ -286,11 +299,17 @@ QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
     return QDir::cleanPath(ti.workingDir + QLatin1Char('/') + ti.target);
 }
 
-QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
+QString RemoteLinuxRunConfiguration::defaultRemoteExecutableFilePath() const
 {
     return deployConfig()
         ? deployConfig()->deploymentInfo()->remoteExecutableFilePath(localExecutableFilePath())
         : QString();
+}
+
+QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
+{
+    return d->useAlternateRemoteExecutable
+        ? alternateRemoteExecutable() : defaultRemoteExecutableFilePath();
 }
 
 PortList RemoteLinuxRunConfiguration::freePorts() const
@@ -304,6 +323,26 @@ PortList RemoteLinuxRunConfiguration::freePorts() const
 void RemoteLinuxRunConfiguration::setArguments(const QString &args)
 {
     d->arguments = args;
+}
+
+void RemoteLinuxRunConfiguration::setUseAlternateExecutable(bool useAlternate)
+{
+    d->useAlternateRemoteExecutable = useAlternate;
+}
+
+bool RemoteLinuxRunConfiguration::useAlternateExecutable() const
+{
+    return d->useAlternateRemoteExecutable;
+}
+
+void RemoteLinuxRunConfiguration::setAlternateRemoteExecutable(const QString &exe)
+{
+    d->alternateRemoteExecutable = exe;
+}
+
+QString RemoteLinuxRunConfiguration::alternateRemoteExecutable() const
+{
+    return d->alternateRemoteExecutable;
 }
 
 RemoteLinuxRunConfiguration::DebuggingType RemoteLinuxRunConfiguration::debuggingType() const

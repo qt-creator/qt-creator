@@ -89,9 +89,14 @@ public:
     virtual DebuggingType debuggingType() const;
 
     QString localExecutableFilePath() const;
+    QString defaultRemoteExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
     QString arguments() const;
     void setArguments(const QString &args);
+    void setAlternateRemoteExecutable(const QString &exe);
+    QString alternateRemoteExecutable() const;
+    void setUseAlternateExecutable(bool useAlternate);
+    bool useAlternateExecutable() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const;
     QString gdbCmd() const;
 
