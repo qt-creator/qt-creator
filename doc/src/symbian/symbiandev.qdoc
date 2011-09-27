@@ -1,0 +1,251 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \if defined(qcmanual)
+    \previouspage creator-developing-maemo.html
+    \else
+    \previouspage sdk-gs.html
+    \endif
+    \page creator-developing-symbian.html
+    \if defined(qcmanual)
+    \nextpage creator-project-managing-sessions.html
+    \else
+    \nextpage creator-developing-meego.html
+    \endif
+
+    \title Connecting Symbian Devices
+
+    When you install \QSDK, the build and run settings for Symbian devices
+    are set up automatically in \QC. You only need to install and launch
+    the CODA on-device debugging agent on the devices and connect the devices
+    to the development PC.
+
+    Make sure that PC Suite or Ovi Suite are installed on the development PC.
+    Connect the device to the development PC with an USB cable in
+    PC Suite or Ovi Suite Mode. If you have not previously used the device with
+    Ovi Suite
+    or PC Suite, all the necessary drivers are installed automatically.
+    This takes approximately one minute.
+
+    You can run Qt applications on Symbian devices if the software that Qt
+    applications require (typically Qt, Qt Mobility, QtWebkit, and Open C) is
+    installed on the device. On Symbian^3 and later devices, some version of Qt
+    is pre-installed. To deploy applications to earlier devices, you can package
+    the application with Nokia Smart Installer for Symbian to automatically
+    install the modules that Qt applications require. For more information about
+    which Qt modules are supported on-demand for different Symbian device
+    models, see
+    \l{http://www.developer.nokia.com/Community/Wiki/Nokia_Smart_Installer_for_Symbian}
+    {Nokia Smart Installer for Symbian}.
+
+
+
+    To run and debug applications on Symbian devices from \QC, you must
+    install the CODA on-device debugging agent on the device. For more
+    information, see
+    \if defined(qcmanual)
+    \l{Using On-device Debugging Agents}.
+    \else
+    \l{http://doc.qt.nokia.com/qtcreator/creator-developing-symbian.html#using-on-device-debugging-agents}
+    {Using On-device Debugging Agents}.
+    \endif
+
+
+    The tool chain for building applications locally on the development PC for
+    the \gui {Symbian Device} target is only supported on Windows.
+    If you develop on Linux or Mac OS, you must use the Remote Compiler
+    interface to a compilation service at Nokia Developer. You can install
+    Remote Compiler as part of the \QSDK. For more information, see
+    \if defined(qcmanual)
+    \l{Building with Remote Compiler}.
+    \else
+    \l{http://doc.qt.nokia.com/qtcreator/creator-remote-compiler.html}
+    {Building with Remote Compiler}.
+    \endif
+
+
+    For more information about developing applications for the Symbian
+    platform, select \gui {Help > Index} and look for \gui {Platform Notes},
+    or see
+    \l{http://doc.qt.nokia.com/4.7/platform-notes-symbian.html}{Platform Notes - Symbian}.
+
+    \if defined(qcmanual)
+    To run your applications in the Symbian emulator, you also need
+    to install Carbide.c++ v2.0.0 or higher.
+    \endif
+
+    \section1 Using On-device Debugging Agents
+
+    Support for the App TRK on-device debugging agent has been removed from
+    \QC 2.3. Only CODA is supported. It offers the following benefits:
+
+    \list
+
+        \o  Extensive error information
+
+        \o  Debugging over WLAN
+
+        \o  Extensive information about the device
+
+    \endlist
+
+    \note CODA does not support debugging over a Bluetooth connection.
+
+    \section2 Installing Debugging Agents
+
+    CODA installation packages are delivered together with the \QSDK. On
+    Windows, you can use \gui Start menu commands to install CODA on Symbian
+    devices.
+
+    You can also download CODA from the
+    \l{http://tools.ext.nokia.com/coda/}{CODA download server}.
+
+    \section1 Setting Up Qt Creator
+
+    When you run \QC after installing the Symbian SDK and Qt for
+    Symbian, the installed SDKs and their corresponding Qt versions are
+    automatically detected. For each detected Symbian SDK with Qt, a special entry
+    is made in the Qt version management settings in \gui{Tools} >
+    \gui{Options} > \gui{Qt4} > \gui{Qt Versions}.
+
+    If you manually add a Qt version for Symbian, you must
+    also manually specify the Symbian SDK to use for this version.
+
+    For more information about adding Qt versions and tool chains, see
+    \l{Setting Up Qt for Symbian Versions} and \l{Adding Tool Chains}.
+
+    \section1 Building and Running Applications
+
+    You can test your application on a device by building and running
+    it from \QC for the \gui {Symbian Device} target.
+
+    \list 1
+
+        \o Connect the device to the development PC through a USB cable.
+        The target selector displays a green check mark when a
+        device is connected.
+
+        \image qtcreator-qt4-symbian-device-connected.png
+
+        The tool tip of the target selector shows more details about the actual
+        device that will be used when you run your application.
+
+        \o Start the CODA debugging agent on the device.
+
+        \o Select \gui Options to select USB as connection type.
+
+        \o Click \gui Projects to edit the \gui {Build Settings} for the
+        \gui {Symbian Device} target. Select the Qt version to use for building
+        the application. For more information, see
+        \l{Selecting Qt for Symbian Versions}.
+
+        \o Click the \gui Run button in \QC.
+
+    \endlist
+
+    \section2 Selecting Qt for Symbian Versions
+
+    When you select the Qt for Symbian version to build the application with, consider
+    which version provides the application with the widest support on different
+    Symbian platforms. The binary compatibility promise of Qt and Symbian means
+    that applications that are built against Qt 4.6.3 also run on Qt 4.7.3.
+    Similarly, applications that are supported on S60 5th Edition are also
+    supported
+    on Symbian^3. However, dependencies, such as Qt Quick or Qt Mobility API
+    versions might restrict the choice of Qt versions that you have.
+
+    In general, if you use only Qt 4.6 APIs in the application, you
+    can use \gui {Qt 4.6.3 for Symbian^1} to build it.
+    The application is supported on both Symbian^1 and Symbian^3 devices.
+
+    If you use Qt Quick in the application, you can use \gui {Qt 4.7.3 for
+    Symbian^1} to build it. The application is supported on both Symbian^1 and
+    Symbian^3 devices.
+
+    \note The tool chains for developing applications for S60 3rd Edition
+    devices have been removed from \QSDK 1.1. To develop for these early
+    devices, use an earlier version of \QSDK.
+
+    If you use native Symbian APIs, you must check that they are available on
+    the target devices. For more information about the API differences between
+    Symbian platforms, see the \bold {Symbian
+    Reference Documentation for Qt}, which is delivered together with \QSDK
+    and which you can view in the \gui Help mode.
+
+    You can use a set of ready-made UI components called Qt Quick Components
+    for Symbian that enforce a Nokia UI look and feel.
+    \omit
+    \note We recomment that you use Qt Quick Components version 1.1, because
+    they contain usability and other improvements. The same set of devices
+    supports both 1.0 and 1.1.
+    \endomit
+
+    The following table summarizes the supported configurations for each Qt
+    version available in \QC build settings:
+
+    \table
+        \header
+            \i  Qt Version
+            \i  Qt Quick
+            \i  Qt Quick Components
+            \i  Qt Mobility Version
+            \i  Native Symbian C++ APIs
+            \i  OpenGL
+        \row
+            \i  Qt 4.6.3 for Symbian^1 (S60 5th Edition)
+            \i  No
+            \i  No
+            \i  1.0.2
+            \i  No
+            \i  No
+        \row
+            \i  Qt 4.6.3 for Symbian^3
+            \i  No
+            \i  No
+            \i  1.0.2
+            \i  Yes
+            \i  No
+        \row
+            \i  Qt 4.7.3 for Symbian^1
+            \i  1.0
+            \i  No
+            \i  1.1.3
+            \i  No
+            \i  No
+        \row
+            \i  Qt 4.7.3 for Symbian^3 and Symbian Anna
+            \i  1.0
+            \i  Yes \omit 1.0 \endomit
+            \i  1.1.3
+            \i  Yes
+            \i  Yes
+        \row
+            \i  Qt 4.7.4 for Symbian Belle
+            \i  1.1
+            \i  Yes \omit 1.1 \endomit
+            \i  1.2
+            \i  Yes
+            \i  Yes
+    \endtable
+
+*/
