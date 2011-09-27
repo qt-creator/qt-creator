@@ -281,10 +281,8 @@ void ConsoleProcess::stubExited()
 
 QString ConsoleProcess::defaultTerminalEmulator()
 {
-// FIXME: enable this once runInTerminal works nicely
-#if 0 //def Q_OS_MAC
-    return QDir::cleanPath(QCoreApplication::applicationDirPath()
-                           + QLatin1String("/../Resources/runInTerminal.command"));
+#ifdef Q_OS_MAC
+    return QLatin1String("/usr/X11/bin/xterm");
 #else
     return QLatin1String("xterm");
 #endif
