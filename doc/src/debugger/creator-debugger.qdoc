@@ -1,0 +1,1537 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-build-dependencies.html
+    \page creator-debugging.html
+    \nextpage creator-debugging-example.html
+
+    \title Debugging
+
+    \QC provides a debugger plugin that acts as an interface between the \QC
+    core and external native debuggers such as the GNU Symbolic Debugger (GDB),
+    the Microsoft Console Debugger (CDB), and a QML/JavaScript debugger.
+
+    The following sections describe debugging with \QC:
+
+    \list
+
+        \o  \l{Debugging the Example Application} uses an example application
+            to illustrate how to debug Qt C++ applications in the \gui Debug
+            mode.
+
+        \o  \l{Launching the Debugger} describes the
+            operating modes in which the debugger plugin runs, depending on
+            where and how the process is started and run.
+
+        \o  \l{Interacting with the Debugger} describes the views and functions
+            available in the \gui Debug mode.
+
+        \o  \l{Setting Up Debugger} summarizes the support for debugging C++
+            code and requirements for installation. Typically, the interaction
+            between \QC and the native debugger is set up automatically
+            and you do not need to do anything.
+
+        \o  \l{Using Debugging Helpers} describes how to get more detailed data
+            on complex data.
+
+        \o  \l{Debugging Qt Quick Projects} describes how to debug Qt Quick
+            projects.
+
+        \o  \l{Troubleshooting Debugger} lists some typical problems that you
+            might encounter while debugging and solutions to them.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging-example.html
+    \page creator-debugger-operating-modes.html
+    \nextpage creator-debug-mode.html
+
+    \title Launching the Debugger
+
+    To start a program under the control of the debugger, select \gui{Debug} >
+    \gui{Start Debugging} > \gui{Start Debugging}, or press \key{F5}.
+    \QC checks whether the compiled program is up-to-date, and rebuilds
+    it if necessary. The debugger then takes over and starts the program.
+
+    \note Starting a program in the debugger can take a long
+    time, typically in the range of several seconds to minutes if complex
+    features (like QtWebKit) are used.
+
+    The debugger is launched in the appropriate operating mode (plain, terminal,
+    or on-device), based on the build and run settings for the active project.
+    Select \gui Debug menu options to launch the debugger in other modes.
+
+    \note Debugging QML and JavaScript is supported only in plain mode.
+
+    \section1 Launching the Debugger in Different Modes
+
+    The debugger plugin runs in different operating modes depending on where and
+    how the process is started and run. Some of the modes are only available for
+    a particular operating system or platform.
+
+    You can launch the debugger in the following modes:
+
+    \list
+
+       \o  \bold Plain to debug locally started applications, such as a
+            Qt based GUI application.
+
+       \o  \bold Terminal to debug locally started processes that need a
+            console, typically without a GUI.
+
+       \o  \bold Attach to debug local processes started outside \QC.
+
+       \o  \bold Remote to debug a process running on a different machine.
+
+       \o  \bold Core to debug crashed processes on Unix.
+
+       \o  \bold Post-mortem to debug crashed processes on Windows.
+
+       \o  \bold On-device to debug processes running on a mobile device.
+
+    \endlist
+
+    \note Debugging QML and JavaScript is supported only in plain mode.
+
+    \section2 Launching in Plain Mode
+
+    To launch the debugger in the plain mode, click the \gui {Start Debugging}
+    button for the active project, or choose
+    \gui {Debug > Start Debugging > Start and Debug External Application}
+    and specify an executable.
+
+    \section2 Launching in Terminal Mode
+
+    To launch the debugger in the terminal mode, select \gui {Projects > Run
+    Settings} and select the \gui {Run in terminal} check box. Then click the
+    \gui {Start Debugging} button for the active project.
+
+    \section2 Launching in Attach Mode
+
+    To launch the debugger in the attach mode, select
+    \gui {Debug > Start Debugging >  Attach to Running External Application},
+    and then select a process by its name or process ID to attach to.
+
+    You can load the source project in advance and set breakpoints in it before
+    attaching to an already running process. For more information, see
+    \l{Setting Breakpoints}.
+
+    \section2 Launching in Remote Mode
+
+    The remote mode allows you to debug processes that run on remote machines.
+
+    \section3 Using GDB
+
+    In remote mode, the local GDB process talks to a GDB server
+    process running on the remote machine that controls the process to be
+    debugged.
+
+    The GDB server process is started on the remote machines by passing a port
+    number and the executable:
+
+    \code
+    gdbserver :1234 <executable>
+    \endcode
+
+    It then typically responds:
+    \code
+    Process bin/qtcreator created; pid = 5159
+    Listening on port 1234
+    \endcode
+
+    On the local machine that runs \QC:
+
+    \list 1
+
+        \o  Select \gui {Debug > Start Debugging > Start and Attach to Remote
+            Application}.
+
+        \o  In the \gui {Host and port} field, enter the name of the remote
+            machine and the port number to use.
+
+        \o  Select \gui{OK} to start debugging.
+
+    \endlist
+
+    \section3 Using CDB
+
+    In remote mode, the local CDB process talks to a CDB process that
+    runs on the remote machine. The process is started with special
+    command line options that switch it into server mode. The remote CDB
+    process must load the \QC CDB extension library that is shipped with
+    \QC:
+
+    \list 1
+
+        \o  Install the \e{Debugging Tools for Windows} on the remote machine.
+            The installation folder contains the CDB command line executable
+            (cdb.exe).
+
+        \o  Copy the \QC CDB extension library from the Qt installation
+            directory to the a new folder on the remote machine
+            (32 or 64 bit version depending on the version of the Debugging
+            Tools for Windows
+            used):
+
+        \list
+
+            \o  \c {\lib\qtcreatorcdbext32\qtcreatorcdbext.dll} (32 bit)
+
+            \o  \c {\lib\qtcreatorcdbext64\qtcreatorcdbext.dll} (64 bit)
+
+        \endlist
+
+        \o  Set the _NT_DEBUGGER_EXTENSION_PATH environment variable to point
+            to that folder.
+
+        \o  To use TCP/IP as communication protocol, launch remote CDB as
+            follows:
+
+            \code
+            cdb.exe -server tcp:port=1234 <executable>
+            \endcode
+
+        \o  On the local machine running \QC, select
+            \gui {Debug > Start Debugging > Attach to Remote CDB Session}
+
+
+        \o  In the \gui Connection field enter the connection parameters.
+            For example, for TCP/IP:
+
+            \code
+            Server:Port
+            \endcode
+
+            If you chose some other protocol, specify one of the alternative
+            formats:
+
+            \code
+            tcp:server=Server,port=Port[,password=Password][,ipversion=6]
+            tcp:clicon=Server,port=Port[,password=Password][,ipversion=6]
+            npipe:server=Server,pipe=PipeName[,password=Password]
+            com:port=COMPort,baud=BaudRate,channel=COMChannel[,password=Password]
+            spipe:proto=Protocol,{certuser=Cert|machuser=Cert},server=Server,pipe=PipeName[,password=Password]
+            ssl:proto=Protocol,{certuser=Cert|machuser=Cert},server=Server,port=Socket[,password=Password]
+            ssl:proto=Protocol,{certuser=Cert|machuser=Cert},clicon=Server,port=Socket[,password=Password]
+            \endcode
+
+            \o Click \gui{OK} to start debugging.
+
+    \endlist
+
+    \section2 Launching in Core Mode
+
+    The core mode it used to debug \e {core} files (crash dumps) that are
+    generated from crashed processes if the system is set up to allow this.
+
+    To enable the dumping of core files on a Unix system enter the following
+    command in the shell from which the application will be launched:
+
+    \code
+    ulimit -c unlimited
+    \endcode
+
+    To launch the debugger in the core mode, select \gui{Debug > Start Debugging
+    >  Attach to Core}.
+
+    \section2 Launching in Post-Mortem Mode
+
+    The post-mortem mode is available only on Windows, if you have installed
+    the debugging tools for Windows.
+
+    The \QC installation program asks you whether you want to
+    register \QC as a post-mortem debugger. To change the setting, select
+    \gui{Tools > Options  > Debugger > Common > Use Creator for post-mortem
+    debugging}.
+
+    You can launch the debugger in the post-mortem mode if an application
+    crashes on Windows. Click the \gui {Debug in \QC} button in the error
+    message that is displayed by the Windows operating system.
+
+    \section2 Launching in On-device Mode
+
+    The on-device mode is a special mode available for run configurations
+    targeting mobile devices. It debugs processes running on mobile
+    devices using on-device debugging agents, such as CODA on Symbian and
+    gdbserver on Linux-based devices.
+
+    To launch the debugger in the on-device mode, open the project, select a
+    run configuration that targets a mobile device, and click the
+    \gui {Start Debugging} button.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debug-mode.html
+    \page creator-debugger-engines.html
+    \nextpage creator-debugging-helpers.html
+
+    \title Setting Up Debugger
+
+    \note The information in this section applies only to debugging the C++
+    language.
+
+    Typically, the interaction between \QC and the native debugger is set up
+    automatically and you do not need to do anything. However, you might have an
+    unsupported GDB version installed, your Linux environment might not have GDB
+    installed at all, or you might want to use the debugging tools for Windows.
+
+    \note To use the debugging tools for Windows, you must install them and add
+    the Symbol Server provided by Microsoft to the symbol search path of the
+    debugger. For more information, see \l{Setting the Symbol Server in Windows}.
+
+    \note To use the Free Software Foundation (FSF) GDB on Mac OS, you must
+    sign it and add it to \QC as a tool chain.
+
+    This section explains the options you have for debugging C++ code and
+    provides installation notes for the supported native debuggers.
+
+    \section1 Supported Native Debugger Versions
+
+    The debugger plugin supports different builds of the GDB debugger, both
+    with and without the ability to use Python scripting. Use a Python enabled
+    version if one is available.
+    On Windows, Symbian, Maemo, and MeeGo Harmattan, only the Python version is
+    supported.
+
+    The non-Python versions use the compiled version of the debugging helpers,
+    that you must enable separately. For more information, see
+    \l{Debugging Helpers Based on C++}.
+
+    The Python version uses a script version of the debugging helpers
+    that does not need any special setup.
+
+    The CDB native debugger has similar funtionality to the non-Python GDB
+    debugger engine. Specifically, it also uses compiled C++ code for the
+    debugging helper library.
+
+    The following table summarizes the support for debugging C++ code:
+
+    \table
+        \header
+            \o Platform
+            \o Compiler
+            \o Native Debugger
+            \o Python
+            \o Debugger Modes
+        \row
+            \o Linux
+            \o GCC
+            \o GDB
+            \o Yes
+            \o Plain, Terminal, Attach, Remote, Core
+        \row
+            \o Unix
+            \o GCC
+            \o GDB
+            \o Yes
+            \o Plain, Terminal, Attach, Remote, Core
+        \row
+            \o Mac OS/GDB
+            \o GCC
+            \o GDB
+            \o No
+            \o Plain, Terminal, Attach, Core
+        \row
+            \o Mac OS/FSF GDB (experimental)
+            \o GCC
+            \o FSF GDB
+            \o Yes
+            \o Plain, Terminal, Attach, Core
+        \row
+            \o Windows/MinGW
+            \o GCC
+            \o GDB
+            \o Yes
+            \o Plain, Terminal, Attach, Remote, Core
+        \row
+            \o Windows/MSVC
+            \o Microsoft Visual C++ Compiler
+            \o Debugging Tools for Windows/CDB
+            \o Not applicable
+            \o Plain, Terminal, Attach, Post-Mortem
+        \row
+            \o Symbian
+            \o GCC
+            \o GDB
+            \o Yes
+            \o On-device
+        \row
+            \o Maemo
+            \o GCC
+            \o GDB
+            \o Yes
+            \o On-device
+        \row
+            \o MeeGo Harmattan
+            \o GCC
+            \o GDB
+            \o Yes
+            \o On-device
+    \endtable
+
+    For more information on the debugger modes, see
+    \l{Launching the Debugger in Different Modes}.
+
+    \omit
+
+    \section2 GDB Adapter Modes
+
+    [Advanced Topic]
+
+    The GDB native debugger used internally by the debugger plugin runs in
+    different adapter modes to cope with the variety of supported platforms and
+    environments. All GDB adapters inherit from  AbstractGdbAdapter:
+
+    \list
+
+        \o  PlainGdbAdapter debugs locally started GUI processes. It is
+            physically split into parts that are relevant only when Python is
+            available, parts relevant only when Python is not available, and
+            mixed code.
+
+        \o  TermGdbAdapter debugs locally started processes that need a
+            console.
+
+        \o  AttachGdbAdapter debugs local processes started outside \QC.
+
+        \o  CoreGdbAdapter debugs core files generated from crashes.
+
+        \o  RemoteGdbAdapter interacts with the gdbserver running on Linux.
+
+        \o  CodaGdbAdapter interacts with Symbian devices. The GDB protocol and
+            the GDB serial protocol are used between GDB and the adapter. The
+            target communication framework (TCF) protocol is used between the
+            adapter and the CODA debugging agent running on the device.
+
+    \endlist
+
+    \endomit
+
+    \section1 Installing Native Debuggers
+
+    There are various reasons why the debugger plugin may fail to automatically
+    pick up a suitable native debugger. The native debugger might be missing
+    (which is usually the case for the CDB debugger on Windows which always
+    needs to be installed manually by the user) or the installed version is not
+    supported.
+    Check the table below for the supported versions and other important
+    information about installing native debuggers.
+
+    \table
+        \header
+            \o Native Debugger
+            \o Notes
+        \row
+            \o GDB
+            \o On Linux and Windows, use the Python-enabled GDB versions that
+            are installed when you install \QC and Qt SDK. On Mac OS X,
+            use the GDB provided with Xcode.
+            For a custom target, you can build your own Python-enabled GDB.
+            Follow the instructions on
+            \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}{Building GDB}.
+            You must use at least Python version 2.5, but we recommend that you
+            use version 2.6.
+
+        \row
+            \o Debugging tools for Windows
+            \o Using this engine requires you to install the
+               \e{Debugging tools for Windows}
+               \l{http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx}
+               or
+               \l{http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx}
+               package (Version 6.12 for the 32-bit or the 64-bit version
+               of \QC, respectively),
+               which are freely available for download from the
+               \l{http://msdn.microsoft.com/en-us/default.aspx}{Microsoft Developer Network}.
+
+               The \QC help browser does
+               not allow you to download files, and therefore, you must copy
+               the above links to a browser.
+
+               \note Visual Studio does not include the Debugging tools needed,
+               and therefore, you must install them separately.
+
+               The pre-built \QSDK for Windows makes use of the library if it
+               is present on the system. When manually building \QC using
+               the Microsoft Visual C++ Compiler, the build process checks for the
+               required files in \c{"%ProgramFiles%\Debugging Tools for Windows"}.
+
+               It is highly recommended that you add the Symbol Server provided
+               by Microsoft to the symbol search path of the debugger. The Symbol
+               Server provides you with debugging informaton for the operating
+               system libraries for debugging Windows applications. For more
+               information, see \l{Setting the Symbol Server in Windows}.
+
+       \row
+           \o Debugging tools for Mac OS X
+           \o The Qt binary distribution contains both debug and release
+              variants of the libraries. But you have to explicitly tell the
+              runtime linker that you want to use the debug libraries even if
+              your application is compiled as debug, as release is the default
+              library.
+
+              If you use a qmake based project in \QC,  you can set a
+              flag in your run configuration, in \gui Projects mode. In the run
+              configuration, select \gui{Use debug version of frameworks}.
+
+              For more detailed information about debugging on the Mac OS X, see:
+              \l{http://developer.apple.com/library/mac/#technotes/tn2124/_index.html#//apple_ref/doc/uid/DTS10003391}
+              {Mac OS X Debugging Magic}.
+
+              You can download an experimental version of FSF GDB that
+              supports Python from
+              \l{ftp://ftp.qt.nokia.com/misc/gdb/7.2/gdb72_mac_platform.tar.bz2}.
+              To use FSF GDB on Mac OS, you must sign it and add it to the \QC
+              tool chains. For more information, see
+              \l{Setting up FSF GDB for Mac OS}.
+
+              \note The Mac OS X Snow Leopard (10.6) has a bug that might cause the
+              application to crash. For a workaround, see:
+              \l{https://bugreports.qt.nokia.com/browse/QTBUG-4962}{QTBUG-4962}.
+
+    \endtable
+
+    \section1 Setting the Symbol Server in Windows
+
+    To obtain debugging information for the operating system libraries for
+    debugging Windows applications, add the Symbol Server provided
+    by Microsoft to the symbol search path of the debugger:
+
+    \list 1
+
+        \o  Select \gui Tools > \gui{Options} > \gui Debugger > \gui CDB.
+
+        \o  In the \gui {Symbol paths} field, open the \gui{Insert} menu
+            and select \gui{Symbol Server}.
+
+        \o  Select a directory where you want to store the cached information
+            and click \gui OK.
+
+            Use a subfolder in a temporary directory, such as
+            \c {C:\temp\symbolcache}.
+
+    \endlist
+
+    \note Populating the cache might take a long time on a slow network
+    connection.
+
+    \note The first time you start debugging by using the Debugging tools for
+    Windows, \QC prompts you to add the Symbol Server.
+
+    \section1 Setting up FSF GDB for Mac OS
+
+    To use FSF GDB on Mac OS, you must sign it and add it to the \QC tool
+    chains.
+
+    \list 1
+
+        \o  To create a key for signing FSF GDB, select \gui {Keychain Access >
+            Certificate Assistant > Create a Certificate}:
+
+        \list 1
+
+            \o  In the \gui {Certificate Type} field, select
+                \gui {Code Signing}.
+
+            \o  Select the \gui {Let me override defaults} check box.
+
+            \o  Select \gui Continue, and follow the instructions of the
+                wizard (use the default settings), until the \gui {Select a
+                Location for the Certificate} dialog opens.
+
+            \o  In the \gui Keychain field, select \gui System.
+
+            \o  Select \gui {Keychain Access > System}, and locate the
+                certificate.
+
+            \o  Double click the certificate to view certificate information.
+
+            \o  In the \gui Trust field, select \gui {Always Trust}.
+
+        \endlist
+
+        \o  To sign the binary, enter the following command in the terminal,
+            where $USER is the name of the certificate (which is the same as the
+            user name, by default):
+
+            \code
+            codesign -f -s "$USER" $INSTALL_LOCATION/fsfgdb
+            \endcode
+
+        \o  In \QC, select \gui {Tools > Preferences… > Tool Chains}, to
+            add a tool chain that uses the debugger:
+
+        \list 1
+
+            \o  Select a native tool chain (usually, a x86 64-bit tool chain)
+                and click \gui Clone to clone it.
+
+            \o  In the \gui Debugger field, specify the path to FSF GDB
+                (\c $HOME/gdb72/bin/fsfgdb, but with an explicit value for
+                \c $HOME).
+
+        \endlist
+
+        \o  To use the debugger, select the tool chain in the \gui {Tool chain}
+            field in the \gui {Build Settings} of the project.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugger-operating-modes.html
+    \page creator-debug-mode.html
+    \nextpage creator-debugger-engines.html
+
+    \title Interacting with the Debugger
+
+    In \gui Debug mode, you can use several views to interact with the
+    program you are debugging. The availability of views depends on whether
+    you are debugging C++ or QML. Frequently used views are shown by
+    default and rarely used ones are hidden. To change the default settings,
+    select \gui {Window > Views}, and then select views to display or hide.
+
+    \image qtcreator-debugger-views.png "Debug mode views"
+
+    By default, the views are locked into place in the workspace. Select
+    \gui {Window > Views > Locked} to unlock the views. Drag and drop the
+    views into new positions on the screen. Drag view borders to resize the
+    views. The size and position of views are saved for future sessions. Select
+    \gui {Window > Views > Reset to Default Layout} to reset the views to
+    their original sizes and positions.
+
+    \section1 Using the Debugger
+
+    Once the program starts running under the control of the debugger, it
+    behaves and performs as usual. You can interrupt a running C++ program by
+    selecting \gui{Debug} > \gui {Interrupt}. The program is automatically
+    interrupted when a breakpoint is hit.
+
+    Once the program stops, \QC:
+
+    \list
+
+        \o  Retrieves data representing the call stack at the program's current
+            position.
+
+        \o  Retrieves the contents of local variables.
+
+        \o  Examines \gui Expressions.
+
+        \o  Updates the \gui Registers, \gui Modules, and \gui Disassembler
+            views if you are debugging the C++ based applications.
+
+    \endlist
+
+    You can use the \gui Debug mode views to examine the data in more detail.
+
+    You can use the following keyboard shortcuts:
+
+    \list
+
+       \o  To finish debugging, press \key{Shift+F5}.
+
+       \o  To execute a line of code as a whole, press \key{F10}.
+
+       \o  To step into a function or a subfunction, press \key{F11}.
+
+       \o  To continue running the program, press \key{F5}.
+
+       \o  To run to the selected function when you are stepping into a nested
+           function, press \key{Ctrl+F6}.
+
+    \endlist
+
+    It is also possible to continue executing the program until the current
+    function completes or jump to an arbitrary position in the current function.
+
+    \section1 Setting Breakpoints
+
+    A breakpoint represents a position or sets of positions in the code that,
+    when executed, interrupts the program being debugged and passes the control
+    to you. You can then examine the state of the interrupted program, or
+    continue execution either line-by-line or continuously.
+
+    \QC shows breakpoints in the \gui{Breakpoints} view which is enabled
+    by default. The \gui{Breakpoints} view is also accessible when the debugger
+    and the program being debugged is not running.
+
+    \image qtcreator-debug-breakpoints.png "Breakpoints view"
+
+    You can associate breakpoints with:
+
+    \list
+
+        \o  Source code files and lines
+
+        \o  Functions
+
+        \o  Addresses
+
+        \o  Throwing and catching exceptions
+
+        \o  Executing and forking processes
+
+        \o  Executing some system calls
+
+        \o  Changes in a block of memory at a particular address when a
+            program is running
+
+    \endlist
+
+    The interruption of a program by a breakpoint can be restricted with
+    certain conditions.
+
+    To set a breakpoint at a particular line you want the program to stop,
+    click the left margin or press \key F9 (\key F8 for Mac OS X).
+
+    To set breakpoints, select \gui {Add Breakpoint} in
+    the context menu in the \gui Breakpoints view.
+
+    \image qtcreator-add-breakpoint.png "Add Breakpoints" dialog
+
+    \note You can remove a breakpoint:
+
+    \list
+
+        \o  By clicking the breakpoint marker in the text editor.
+
+        \o  By selecting the breakpoint in the breakpoint view and pressing
+            \key{Delete}.
+
+        \o  By selecting \gui{Delete Breakpoint} from the context
+            menu in the \gui Breakpoints view.
+
+    \endlist
+
+    You can set and delete breakpoints before the program starts running or
+    while it is running under the debugger's control. Breakpoints are saved
+    together with a session.
+
+    \section2 Setting Data Breakpoints
+
+    To set a data breakpoint at an address:
+
+    \list 1
+
+        \o  Right-click in the \gui Breakpoints view to open the context menu,
+            and select \gui {Add Breakpoint}.
+
+        \o  In the \gui {Breakpoint type} field, select \gui {Break on data
+            access at fixed address}.
+
+        \o  In the \gui Address field, specify the address of the memory block.
+
+        \o  Select \gui OK.
+
+    \endlist
+
+    If the address is displayed in the \gui {Locals and Expressions} view, you
+    can select \gui {Add Data Breakpoint at Object's Address} in the context
+    menu to set the data breakpoint.
+
+    \section1 Viewing Call Stack Trace
+
+    When the program being debugged is interrupted, \QC displays the
+    nested function calls leading to the current position as a call stack
+    trace. This stack trace is built up from call stack frames, each
+    representing a particular function. For each function, \QC tries
+    to retrieve the file name and line number of the corresponding source
+    file. This data is shown in the \gui Stack view.
+
+    \image qtcreator-debug-stack.png
+
+    Since the call stack leading to the current position may originate or go
+    through code for which no debug information is available, not all stack
+    frames have corresponding source locations. Stack frames without
+    corresponding source locations are grayed out in the \gui{Stack} view.
+
+    If you click a frame with a known source location, the text editor
+    jumps to the corresponding location and updates the \gui{Locals and Expressions}
+    view, making it seem like the program was interrupted before entering the
+    function.
+
+    \section1 Locals and Expressions
+
+    Whenever a program stops under the control of the debugger, it retrieves
+    information about the topmost stack frame and displays it in the
+    \gui{Locals and Expressions} view. The \gui{Locals and Expressions} view
+    typically includes information about parameters of the function in that
+    frame as well as the local variables.
+
+    \image qtcreator-locals-expressions.png "Locals and Expressions view"
+
+    Compound variables of struct or class type are displayed as
+    expandable in the view. Expand entries to show
+    all members. Together with the display of value and type, you can
+    examine and traverse the low-level layout of object data.
+
+
+    \table
+        \row
+            \i  \bold{Note:}
+
+        \row
+            \i  GDB, and therefore \QC's debugger works for optimized
+                builds on Linux and Mac OS X. Optimization can lead to
+                re-ordering of instructions or removal of some local variables,
+                causing the \gui{Locals and Expressions} view to show unexpected
+                data.
+        \row
+            \i  The debug information provided by GCC does not include enough
+                information about the time when a variable is initialized.
+                Therefore, \QC can not tell whether the contents of a
+                local variable contains "real data", or "initial noise". If a
+                QObject appears uninitialized, its value is reported as
+                \gui {not in scope}. Not all uninitialized objects, however, can be
+                recognized as such.
+    \endtable
+
+
+    The \gui{Locals and Expressions} view also provides access to the most
+    powerful feature of the debugger: comprehensive display of data belonging
+    to Qt's basic objects.
+
+    To enable Qt's basic objects data display feature:
+
+    \list
+
+        \o  Select \gui Tools > \gui {Options} > \gui Debugger >
+            \gui{Debugging Helper} and check the \gui{Use Debugging Helper}
+            checkbox.
+
+        \o  The \gui{Locals and Expressions} view is reorganized to provide a
+            high-level view of the objects.
+
+    \endlist
+
+    For example, in case of QObject, instead of displaying a pointer to some
+    private data structure, you see a list of children, signals and slots.
+
+    Similarly, instead of displaying many pointers and integers, \QC's
+    debugger displays the contents of a QHash or QMap in an orderly manner.
+    Also, the debugger displays access data for QFileInfo and provides
+    access to the "real" contents of QVariant.
+
+    You can use the \gui{Locals and Expressions} view to change the contents of
+    variables of simple data types, for example, \c int or \c float when the
+    program is interrupted. To do so, click the \gui Value column, modify
+    the value with the inplace editor, and press \key Enter (or \key Return).
+
+    You can enable tooltips in the main editor displaying this information.
+    For more information, see \l{Showing Tooltips in Debug Mode}.
+
+    \note The set of evaluated expressions is saved in your session.
+
+    \section1 Directly Interacting with Native Debuggers
+
+    In some cases, it is convenient to directly interact with the command
+    line of the native debugger. In \QC, you can use the left
+    pane of the \gui {Debugger Log} view for that purpose. When you press
+    \key {Ctrl+Return}, the contents of the line under the text cursor
+    are sent directly to the native debugger. Alternatively, you
+    can use the line edit at the bottom of the view. Output is displayed in the
+    right pane of the \gui {Debugger Log} view.
+
+    \note Usually, you do not need this feature, because \QC provides
+    you with better ways to handle the task. For example, instead of using the
+    GDB \c print command from the command line, you can evaluate an expression
+    in the \gui{Locals and Expressions} view.
+
+    \section1 Debugging C++ Based Applications
+
+    The following sections describe additional debugging functions that apply
+    only to debugging C++.
+
+    \section2 Starting the Debugger from the Command Line
+
+    You can use the \QC debugger interface from the command line. To
+    attach it to a running process, specify the process ID as a parameter for
+    the \c {-debug} option. To examine a core file, specify the file name.
+    \QC executes all the necessary steps, such as searching for
+    the binary that belongs to a core file.
+
+    For example:
+
+    \list
+
+        \o \c {C:\qtcreator\bin>qtcreator -debug 2000}
+
+        \o \c {C:\qtcreator\bin>qtcreator -debug core.2000}
+
+    \endlist
+
+    For more information, see \l{Using Command Line Options}.
+
+    \section2 Stepping into Frameworks in Mac OS
+
+    In Mac OS X, external libraries are usually built into so-called Frameworks,
+    which may contain both release and debug versions of the library. When you run
+    applications on the Mac OS desktop, the release version of Frameworks is used
+    by default. To step into Frameworks, select the \gui {Use debug versions of
+    Frameworks} option in the project run settings for \gui Desktop and
+    \gui {Qt Simulator} targets.
+
+    \section2 Viewing Threads
+
+    If a multi-threaded program is interrupted, the \gui Thread view or the
+    combobox named \gui Thread in the debugger's status bar can be used to
+    switch from one thread to another. The \gui Stack view adjusts itself
+    accordingly.
+
+    \section2 Viewing Modules
+
+    The \gui{Modules} view displays information that the debugger plugin has
+    about modules included in the application that is being debugged. A module
+    is a dynamic link library (.dll) in Windows, a shared object (.so) in
+    Linux, and a dynamic shared library (.dylib) in Mac OS.
+
+    In addition, the view displays symbols within the modules and indicates
+    where each module was loaded.
+
+    Right-click the view to open a context menu that contains menu items for:
+
+    \list
+
+        \o  Updating the module list
+
+        \o  Loading symbols for modules
+
+        \o  Examining modules
+
+        \o  Editing module files
+
+        \o  Showing symbols in modules
+
+        \o  Showing dependencies between modules (Windows only)
+
+    \endlist
+
+    By default, the \gui{Modules} view is hidden.
+
+    \section2 Viewing Source Files
+
+    The \gui{Source Files} view lists all the source files included in the project.
+    If you cannot step into an instruction, you can check whether the source file is
+    actually part of the project, or whether it was compiled
+    elsewhere. The view shows the path to each file in the file system.
+
+    Right-click the view to open a context menu that contains menu items for
+    reloading data and opening files.
+
+    By default, the \gui{Source Files} view is hidden.
+
+    \section2 Viewing Disassembled Code and Register State
+
+    The \gui{Disassembler} view displays disassembled code for the current
+    function. The \gui{Registers} view displays the current state of the CPU's
+    registers.
+
+    The \gui{Disassembler} view and the \gui{Registers} view are both useful
+    for low-level commands for checking single instructions, such as \gui{Step Into}
+    and \gui{Step Over}. By default, both \gui{Disassembler} and
+    \gui{Registers} view are hidden.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging.html
+    \page creator-debugging-example.html
+    \nextpage creator-debugger-operating-modes.html
+
+    \title Debugging the Example Application
+
+    This section uses the \l{Creating a Qt Widget Based Application}{TextFinder}
+    example to illustrate how to debug Qt C++ applications in the \gui Debug
+    mode.
+
+    TextFinder reads a text file into QString and then displays it with
+    QTextEdit. To look at the TextFinder class and see the stored data, place
+    a breakpoint in textfinder.cpp, as follows:
+
+    \list 1
+
+        \o  Click in between the line number and the window border on the line
+            where we change the cursor position to set a breakpoint.
+
+            \image qtcreator-setting-breakpoint1.png
+
+        \o  Select \gui{Debug > Start Debugging > Start Debugging} or press
+            \key{F5}.
+
+        \o  To view the breakpoint, click the \gui{Breakpoints} tab.
+
+            \image qtcreator-setting-breakpoint2.png
+
+        \o  To remove a breakpoint, right-click it and select
+            \gui{Delete Breakpoint}.
+
+
+        \o  To view the base classes and data members of the TextFinder class,
+            go to the \gui{Locals and Expressions} view.
+
+            \image qtcreator-watcher.png
+
+    \endlist
+
+    Modify the \c{on_findButton_clicked()} function to move back to
+    the start of the document and continue searching once the cursor hits the
+    end of the document. Add the following code snippet:
+
+    \code
+    void TextFinder::on_findButton_clicked()
+    {
+        QString searchString = ui->lineEdit->text();
+
+        QTextDocument *document = ui->textEdit->document();
+        QTextCursor cursor = ui->textEdit->textCursor();
+        cursor = document->find(searchString, cursor,
+            QTextDocument::FindWholeWords);
+        ui->textEdit->setTextCursor(cursor);
+
+        bool found = cursor.isNull();
+
+        if (!found && previouslyFound) {
+            int ret = QMessageBox::question(this, tr("End of Document"),
+            tr("I have reached the end of the document. Would you like "
+            "me to start searching from the beginning of the document?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+            if (ret == QMessageBox::Yes) {
+                cursor = document->find(searchString,
+                    QTextDocument::FindWholeWords);
+                ui->textEdit->setTextCursor(cursor);
+            } else
+                return;
+        }
+        previouslyFound = found;
+    }
+    \endcode
+
+    If you compile and run the above code, however, the application does not
+    work correctly due to a logic error. To locate this logic error, step
+    through the code using the following buttons:
+
+    \image qtcreator-debugging-buttons.png
+
+ */
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugger-engines.html
+    \page creator-debugging-helpers.html
+    \nextpage creator-debugging-qml.html
+
+    \title Using Debugging Helpers
+
+    \QC is able to show complex data types in a customized,
+    user-extensible manner. For this purpose, it takes advantage of
+    two technologies, collectively referred to as \e{Debugging Helpers}.
+
+    Using the debugging helpers is not \e essential for debugging
+    with \QC, but they enhance the user's ability to quickly
+    examine complex data significantly.
+
+    \section1 Debugging Helpers Based on C++
+
+    This is the first and original approach to display complex data
+    types. While it has been superseded on most platforms by the more
+    robust and more flexible second approch using Python scripting,
+    it is the only feasible one on Windows/MSVC, Mac OS, and
+    old Linux distributions. Moreover, this approach will automatically
+    be chosen as fallback in case the Python based approach fails.
+
+    During debugging with the C++ based debugging helpers,
+    \QC dynamically loads a helper library in form of a DLL or a
+    shared object into the debugged process.
+    The \QSDK package already contains a prebuilt debugging helper
+    library. To create your own debugging helper library, select \gui{Tools} >
+    \gui{Options} > \gui{Qt4} > \gui{Qt Versions}. As the internal data
+    structures of Qt can change between versions, the debugging helper
+    library is built for each Qt version.
+
+
+    \section1 Debugging Helpers Based on Python
+
+    \QC uses GDB builds that enable Python scripting to display
+    information in the \gui {Locals and Expressions} view. When Python scripting
+    is used, code (Debugging helpers) does not need to be injected into the
+    debugged process to nicely display QStringList or \c std::map contents, for
+    example.
+
+    The code injection caused problems and put an extra stress on the debugged
+    process. You can now easily extend the debugging helpers to other types. No
+    compilation is required, just adding a few lines of Python.
+
+    Python scripting vastly reduces the communication overhead compared
+    with the previous solution. However, there are some obstacles:
+
+    \list
+
+        \o  There is no Python-enabled GDB for Mac OS. Mac OS continues
+            injection with C++ based debugging helpers.
+
+        \o  On the Symbian platform, an on-device debugging agent restricts the
+            communication between GDB and the device. Therefore, extracting
+            QObject properties, for example, is not possible.
+
+        \o  There is no GDB to communicate with MSVC compiled applications on
+            Windows. So information can be displayed nicely only in a limited
+            fashion by using a cdb extension DLL.
+
+    \endlist
+
+    \section2 Extending the Python Based Debugging Helpers
+
+    On platforms featuring a Python-enabled version of the GDB debugger,
+    the data extraction is done by a Python script. This is more robust
+    as the script execution is separated from the debugged process. It
+    is also easier to extend as the script is less dependent on the
+    actual Qt version and does not need compilation.
+
+    To extend the shipped Python based debugging helpers for custom types,
+    define one Python function per user defined type in the
+    GDB startup file. By default, the following startup file is used:
+    \c{~/.gdbinit}. To use another file, select \gui {Tools > Options >
+    Debugger > GDB}
+    and specify a filename in the \gui {GDB startup script} field.
+
+    The function name has to be qdump__NS__Foo, where NS::Foo is the class
+    or class template to be examined. Nested namespaces are possible.
+
+    The debugger plugin calls this function whenever you want to
+    display an object of this type. The function is passed the following
+    parameters:
+
+    \list
+
+       \o  \c d of type \c Dumper
+
+       \o  \c value of type \c gdb.Value
+
+    \endlist
+
+    The function has to feed the Dumper object with certain information
+    which is used to build up the object and its children's display in the
+    \gui{Locals and Expressions} view.
+
+    Example:
+
+    \code
+    def qdump__QVector(d, value):
+        d_ptr = value["d"]
+        p_ptr = value["p"]
+        alloc = d_ptr["alloc"]
+        size = d_ptr["size"]
+
+        check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
+        checkRef(d_ptr["ref"])
+
+        innerType = templateArgument(value.type, 0)
+        d.putItemCount(size)
+        d.putNumChild(size)
+        if d.isExpanded():
+            p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
+            charPtr = lookupType("char").pointer()
+            d.putField("size", size)
+            with Children(d, size, maxNumChild=2000, childType=innerType, addrBase=p,
+                    addrStep=(p+1).cast(charPtr) - p.cast(charPtr)):
+                for i in d.childRange():
+                    d.putSubItem(i, p.dereference())
+                    p += 1
+    \endcode
+
+    \section2 Dumper Class
+
+    For each line in the \gui{Locals and Expressions} view, a string like the
+    following needs to be created and channeled to the debugger plugin.
+    \code
+    "{iname='some internal name',           # optional
+      addr='object address in memory',      # optional
+      name='contents of the name column',   # optional
+      value='contents of the value column',
+      type='contents of the type column',
+      numchild='number of children',        # zero/nonzero is sufficient
+      childtype='default type of children', # optional
+      childnumchild='default number of grandchildren', # optional
+      children=[              # only needed if item is expanded in view
+         {iname='internal name of first child',
+           },
+         {iname='internal name of second child',
+           },
+
+      ]}"
+    \endcode
+
+    The value of the \gui{iname} field is the internal name of the object,
+    constituting a dot-separated list of identifiers, corresponding to the
+    position of the object's representation in the view. If it is not
+    present, is it generated by concatenating the parent object's iname,
+    a dot, and a sequential number.
+
+    The value of the\gui{name} field is displayed in the \gui{name} column
+    of the view. If it is not specified, a simple number in brackets
+    is used instead.
+
+    While in theory, you can build up the entire string above manually, it is
+    easier to employ the Dumper Python class for that purpose. The Dumper
+    Python class contains a complete framework to take care of the \c iname and
+    \c addr fields, to handle children of simple types, references, pointers,
+    enums, known and unknown structs as well as some convenience methods to
+    handle common situations.
+
+    The member functions of the \gui{Dumper} class are the following:
+
+    \list
+
+        \o  \gui{__init__(self)} - Initializes the output to an empty string and
+            empties the child stack. This should not be used in user code.
+
+        \o  \gui{put(self, value)} - Low level method to directly append to the
+            output string. That is also the fastest way to append output.
+
+        \o  \gui{putField(self, name, value)} - Appends a name='value' field.
+
+        \o  \gui{childRange(self)} - Returns the range of children specified in
+            the current \c Children scope.
+
+        \o  \gui{putItemCount(self, count)} - Appends a field
+            \c {value='<%d items'} to the output.
+
+        \o  \gui{putEllipsis(self)} - Appends fields
+            \c {'{name="<incomplete>",value="",type="",numchild="0"}'}. This is
+            automatically done by \c endChildren if the number of children to
+            print is smaller than the number of actual children.
+
+        \o  \gui{putName(self, name)} - Appends a \c {name=''} field.
+
+        \o  \gui{putType(self, type, priority=0)} - Appends a field \c {type=''}
+            unless the \a type coincides with the parent's default child type or
+            \c putType was already called for the current item with a higher
+            value of \c priority.
+
+        \o  \gui{putBetterType(self, type)} - Overrides the last recorded
+            \c type.
+
+        \o  \gui{putNumChild(self, numchild)} - Appends a field \c {numchild=''}
+            unless the \c numchild coincides with the parent's default child
+            numchild value.
+
+        \o  \gui{putValue(self, value, encoding = None)} - Append a file \c {value=''},
+            optionally followed by a field \c {valueencoding=''}. The \c value
+            needs to be convertible to a string entirely consisting of
+            alphanumerical values. The \c encoding parameter can be used to
+            specify the encoding in case the real value had to be encoded in some
+            way to meet the alphanumerical-only requirement.
+            Currently the following encodings are supported:
+
+        \list
+
+            \o  0: unencoded 8 bit data, interpreted as Latin1.
+
+            \o  1: base64 encoded 8 bit data, used for QByteArray,
+                double quotes are added.
+
+            \o  2: base64 encoded 16 bit data, used for QString,
+                double quotes are added.
+
+            \o  3: base64 encoded 32 bit data,
+                double quotes are added.
+
+            \o  4: base64 encoded 16 bit data, without quotes (see 2)
+
+            \o  5: base64 encoded 8 bit data, without quotes (see 1)
+
+            \o  6: %02x encoded 8 bit data (as with \c QByteArray::toHex),
+                double quotes are added.
+
+            \o  7: %04x encoded 16 bit data (as with \c QByteArray::toHex),
+                double quotes are added.
+        \endlist
+
+        \o  \gui{putStringValue(self, value)} - Encodes a QString and calls
+            \c putValue with the correct \c encoding setting.
+
+        \o  \gui{putByteArrayValue(self, value)} - Encodes a QByteArray and calls
+            \c putValue with the correct \c encoding setting.
+
+        \o  \gui{isExpanded()} - Checks whether the current item
+            is expanded in the view.
+
+        \o  \gui{putIntItem(self, name, value)} - Equivalent to:
+            \code
+            with SubItem(self, name):
+                self.putValue(value)
+                self.putAddress(value.address)
+                self.putType("int")
+                self.putNumChild(0)
+            \endcode
+
+        \o  \gui{putBoolItem(self, name, value)} - Equivalent to:
+            \code
+            with SubItem(self, name):
+                self.putValue(value)
+                self.putType("bool")
+                self.putNumChild(0)
+            \endcode
+
+        \o  \gui{putCallItem(self, name, value, func, *args)} -
+            Uses GDB to call the function \c func on the value specified by
+            \a {value} and output the resulting item. This function is
+            not available when debugging core dumps and it is not available
+            on the Symbian platform due to restrictions imposed by the on-device
+            debugging agent.
+
+        \o  \gui{putItem(self, value)} - The "master function", handling
+            basic types, references, pointers and enums directly, iterates
+            over base classes and class members of compound types and calls
+            \c qdump__* functions whenever appropriate.
+
+        \o  \gui{putSubItem(self, component, value)} - Equivalent to:
+            \code
+            with SubItem(self, component):
+                self.putItem(value)
+            \endcode
+
+            Exceptions raised by nested function calls are caught and all
+            output produced by \c putItem is replaced by the output of:
+
+            \code
+           except RuntimeError:
+                d.put('value="<invalid>",type="<unknown>",numchild="0",')
+            \endcode
+
+    \endlist
+
+    \section2 Children and SubItem Class
+
+    The attempt to create child items might lead to errors if data is
+    uninitialized or corrupted. To gracefully recover in such situations,
+    use \c Children and \c SubItem \e{Context Managers} to create the nested
+    items.
+
+    The \c Children constructor \gui{__init__(self, dumper, numChild = 1,
+    childType = None, childNumChild = None, maxNumChild = None, addrBase = None,
+    addrStep = None)} uses one mandatory argument and several
+    optional arguments.  The mandatory argument refers to the current \c Dumper
+    object.  The optional arguments can be used to specify the number \c numChild
+    of children, with type \c childType_ and \c childNumChild_ grandchildren
+    each. If \c maxNumChild is specified, only that many children are displayed.
+    This should be used when dumping container contents that might take
+    overly long otherwise. The parameters \c addrBase and \c addrStep
+    can be used to reduce the amount of data produced by the child dumpers.
+    Address printing for the \e{n}th child item will be suppressed if its address
+    equals with \e{addrBase + n * addrStep}.
+
+    Example:
+    \code
+    d.putNumChild(2)  # Annouce children to make the item expandable in the view.
+    if d.isExpanded():
+        with Children(d):
+            with SubItem(d):
+                d.putName("key")
+                d.putItem(key)
+            with SubItem(d):
+                d.putName("value")
+                d.putItem(value)
+    \endcode
+
+    Note that this can be written more conveniently as:
+    \code
+    d.putNumChild(2)
+    if d.isExpanded():
+        with Children(d):
+            d.putSubItem("key", key)
+            d.putSubItem("value", value)
+    \endcode
+
+
+    \section1 Debugging Helpers for QML
+
+    The debugging helpers for QML provide you with code completion for custom modules
+    (\c qmldump) and debugging Qt Quick UI projects (\c qmlobserver).
+
+    You have to build the QML Inspector once for each Qt version that you want
+    to debug
+    with. Select \gui{Tools > Options > Qt4 > Qt Versions}.
+
+    \note QML Inspector requires Qt 4.7.1 or later.
+
+    \section1 Enabling Debugging Helpers for Qt's Bootstrapped Applications
+
+    Qt's bootstrapped applications (such as moc and qmake) are built in a way
+    that is incompatible with the default build of the debugging helpers. To
+    work around this, add \c{dumper.cpp} to the compiled sources in the
+    application Makefile.
+
+    Choose \gui {Tools > Options > Debugger > Debugging Helper > Use debugging
+    helper from custom location}, and specify an invalid location, such as
+    \c{/dev/null}.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging-qml.html
+    \page creator-troubleshooting-debugging.html
+    \nextpage creator-analyze-mode.html
+
+    \title Troubleshooting Debugger
+
+    This section lists some typical problems that you might encounter while
+    debugging and solutions to them.
+
+    \section1 Cannot Launch Debugger
+
+    Some anti-virus applications do not allow debuggers to retrieve data. For
+    example, on Windows, launching the debugger might fail with the following
+    message if the Avira AntiVir is installed on the development PC: \e{The
+    inferior stopped because it received a signal from the operating system.
+    Signal name:? signal meaning: Unknown signal.}
+
+    Some versions of Avira AntiVir Desktop-Products contain known issues in
+    various development environments, including \QC. To fix the problem,
+    Avira instructs you to update to version \c {avipbb.sys 10.0.22.22}. For
+    more information, see
+    \l{http://www.avira.com/en/support-for-business-knowledgebase-detail/kbid/805}
+    {Restricted Usability of IDE/Debuggers since 2010-12-08}.
+
+   \section1 Debugger Does Not Hit Breakpoints
+
+    You might have created a release build that does not contain debug
+    information. A GNU Compiler Collection (GCC) debug build has the \c {-g}
+    option on the compiler command line. Check that this option is present in
+    the \gui {Compile Output} pane. If it is not, adjust your build settings
+    in the \gui {Projects} mode.
+
+    \section1 Debugger Does Not Work
+
+    If the debugger does not work properly, try the following:
+
+    \list 1
+
+        \o  Make sure you use at least \QC 2.1.
+
+        \o  Make sure the debugger is set up properly. For more information,
+            see \l{Setting Up Debugger}.
+
+        \o  In the \gui Debug mode, select \gui {Windows > Views > Debugger
+            Log} to open the \gui {Debugger Log} view. Browse the contents of
+            the pane on the right hand side to find out what went wrong.
+            Always attach the contents of the pane to debugger-related
+            questions to the \QC mailing list (qt-creator@trolltech.com)
+            or paste them to
+            \l{http://creator.pastebin.com}{creator.pastebin.com} before
+            asking questions in the IRC (on the #qt-creator channel at
+            FreeNode).
+
+    \endlist
+
+    \section1 Pointer Variable Members Are Not Displayed Directly
+
+    When you use the \gui {Locals and Expressions} view to inspect a pointer
+    variable and expand the variable tree item, another tree item level
+    is displayed. To directly display the members of the pointer variable,
+    select \gui {Dereference Pointers Automatically} in the context menu in the
+    \gui {Locals and Expressions} view.
+
+    \section1 Structure Members Are Not Sorted According to Structure Layout
+
+    By default, structure members are displayed in alphabetic order.
+    To inspect the real layout in memory, deselect \gui {Sort Members of
+    Classes and Structs Alphabetically} in the context menu in the
+    \gui {Locals and Expressions} view.
+
+    \section1 Built-in Debugger Is Slow During Startup and Runtime
+
+    The \QC for Windows installation packages install GDB from MinGW.
+    Unfortunately, GDB is quite slow on Windows. \QC does not cause
+    this, as it interacts with GDB and adds custom dumpers for Qt types.
+
+    \note You can use \QC with MSVC on Windows for debugging.
+
+    \section1 Debugger Displays <not in scope> Message
+
+    The message is created by the debugging helpers. \QC posts an
+    expression to the GDB command line to invoke the debugging helpers.
+    The expression includes the address of the object to examine. This
+    address might be modified by GDB before the helper function is called. It
+    is unclear why and when this happens, but if it happens, the debugging
+    helpers operate on wrong data and come to wrong conclusions. Most likely,
+    they find garbage and declare the variable to be <not in scope>.
+
+    \section1 Application Crashes when Debugging on Mac OS X Snow Leopard
+
+    You must use a workaround to use the DYLD_IMAGE_SUFFIX option in the
+    \gui Projects tab on Mac OS X  Snow Leopard. For more information on the
+    issue, see
+    \l{http://wimleers.com/blog/dyld-image-suffix-causing-havoc-on-mac-os-x-snow-leopard}
+    {DYLD_IMAGE_SUFFIX causing havoc on Mac OS X Snow Leopard}.
+
+    To use the option, enter the following commands in the Terminal
+    application:
+           \code
+           sudo mv /usr/lib/libSystem.B_debug.dylib /usr/lib/libSystem.B_debug.dylib.backup
+           sudo cp /usr/lib/libSystem.B.dylib /usr/lib/libSystem.B_debug.dylib.backup
+           \endcode
+
+     \section1 Debugger Cannot Attach to Running Process on Linux
+
+    GDB uses \c ptrace to attach to running processes. Some Linux distributions
+    do not allow this, which stops all attempts to either directly attach to an
+    existing process or use the \gui {Run in terminal} option in \QC.
+
+    The reasons for this are described in
+    \l{https://wiki.ubuntu.com/SecurityTeam/Roadmap/KernelHardening#ptrace%20Protection}
+    {KernelHardening}.
+
+    However, the usefulness of this security measure seems dubious,
+    because this feature can be easily disabled. With root permissions, you can
+    disable the feature immediately by writing \c{0} into
+    \c{/proc/sys/kernel/yama/ptrace_scope}. Even if you do not have elevated
+    permissions, you can disable the feature later by adding a library that
+    calls \c{prctl(0x59616d61, getppid(), 0, 0, 0);}, such as the one in
+    \c{$QTCREATORDIR/lib/libptracepreload.so} to the LD_PRELOAD environment.
+
+*/
