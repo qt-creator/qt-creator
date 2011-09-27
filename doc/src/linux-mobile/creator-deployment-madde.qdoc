@@ -1,0 +1,97 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-deployment-symbian.html
+    \page creator-deployment-maemo.html
+    \nextpage creator-publishing-to-maemo-extras.html
+
+    \title Deploying Applications to Maemo or MeeGo Harmattan Devices
+
+    You can specify settings for deploying applications to Maemo 5 and MeeGo
+    Harmattan devices in the project .pro file. You can view the settings in the
+    \gui {Run Settings}.
+
+    \image qtcreator-maemo-deployment.png "Deploy to device"
+
+    The files to be installed are listed in the \gui {Deploy to Device} step,
+    the \gui {Files to install for subproject} field. The \gui {Local File Path}
+    field displays the location of the file on the development PC. The
+    \gui {Remote Directory} field displays the folder where the file is
+    installed on the device. Text in red color indicates that the information is
+    missing. Select the red text to edit it and add the missing information.
+
+    You can use desktop files to display icons on the home screen of the
+    device. To add desktop files to the project file, select \gui {Add Desktop
+    File}. To specify the icon file to display, select \gui {Add Launcher
+    Icon}. To remove desktop files and icons, delete the definitions from
+    the project file.
+
+    If you develop your own libraries, \QC needs to be able to find them when
+    you compile projects depending on them. When you install MADDE, an instance
+    of the device file system, called sysroot, is installed to the development
+    PC. Libraries are copied to sysroot if the \gui {Also deploy to sysroot}
+    check box is selected.
+
+    \section1 Creating Debian Installation Packages
+
+    When you run the application on the \gui{Maemo5} or \gui Harmattan target,
+    \QC generates a Debian installation package in the build directory by
+    default. You can deliver the installation package to users for installation
+    on devices that are of the same type and run the same firmware as the
+    connected device.
+
+    \image qtcreator-maemo-deb-package.png "Create installation package"
+
+    The name of the installation package is displayed in the \gui {Package name}
+    field in the \gui {Create Package} step. You can change the version number
+    in the \gui {Package version} field.
+
+    You can specify information that users see on a delivery channel, such as
+    Ovi Store or Maemo.org. You can specify a short description of the
+    application, package name, and application icon.
+
+    The Debian control file contains an application icon in encoded form. To add
+    the application icon to the file, select it in the \gui {Icon to be
+    displayed in Package Manager} field. For more information about icon files
+    and adding them manually, see
+    \l{ http://wiki.maemo.org/Packaging#Displaying_an_icon_in_the_Application_Manager_next_to_your_package}
+    {Displaying an icon in the Application Manager next to your package}.
+
+    \note \QC automates this process for you.
+
+    \QC provides templates for a set of files that must be included in Debian
+    packages. When you create a \gui Maemo5 or \gui Harmattan target for a
+    project, \QC asks whether packaging files are to be added to the project and
+    to version control. If you plan to edit the packaging files, add them to
+    version control.
+
+    To edit the files, select a file in \gui {Adapt Debian file} and click
+    \gui Edit. The file opens in the text editor.
+
+*/

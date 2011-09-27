@@ -1,0 +1,35 @@
+    \section1 Running on Generic Linux Devices
+
+    \list 1
+
+        \o  Build and run the application for \l{Running on Qt Simulator}
+            {Qt Simulator}.
+
+        \o  Build and run the application for a device:
+
+        \list 1
+
+            \o  Specify a connection to the device. For more information, see
+                \l{Connecting Generic Linux Devices}.
+
+            \o  Click the \gui Run button.
+
+        \endlist
+
+    \endlist
+
+    \QC uses the compiler specified in the project build settings
+    (tool chain) to build the application.
+
+    \QC generates an installation package, installs it on the
+    device, and executes the selected application. The application views are
+    displayed on the device. Command-line output is visible in the \QC
+    \gui {Application Output} view.
+
+    Choose \gui {Projects > Desktop > Run} to view the settings for deploying
+    the application on the connected device and creating the installation
+    package. For more information, see
+    \l{Specifying Run Settings for Generic Linux Devices}.
+
+    Debugging works transparently if GDB server is installed on the device and
+    it is compatible with the GDB on the host.

@@ -1,0 +1,92 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-deployment-maemo.html
+    \page creator-publishing-to-maemo-extras.html
+    \nextpage creator-publish-ovi.html
+
+    \title Publishing Maemo Applications to Extras-devel
+
+    Extras is the primary repository for Maemo applications where most
+    community software can be found. You can browse the applications available
+    in Extras at \l{http://maemo.org/downloads/Maemo5/}{Maemo Downloads}.
+
+    You can publish both free and commercial applications to Extras. Free
+    applications must be open source and pass through a QA process.
+    Commercial applications are usually closed, binary only, and the publisher
+    is responsible for assuring their quality and security.
+
+    You can upload free applications as Debian packages to
+    \l{http://wiki.maemo.org/Extras-devel}{Extras-devel} at Maemo.org to share
+    new updates to your application and to start the community QA process.
+    You need a \l{https://garage.maemo.org/}{Garage} account for the uploads,
+    but the package itself does not need to be hosted in the Garage.
+
+    You can use the \gui {Publish for Fremantle Extras-devel Free Repository}
+    wizard to create a source archive and, optionally, upload it to a build
+    server for compiling and packaging. The package is then moved to the
+    Extras-devel repository. From there on, you must follow the standard
+    Maemo processes to get the application published to Extras.
+
+    The wizard checks that the package contains all the information that is
+    required to publish applications on Extras: package description and
+    Package Manager icon. For more information about entering this information,
+    see \l{Creating Debian Installation Packages}.
+
+    To use the publishing wizard:
+
+    \list 1
+
+        \o  Select the \gui {Maemo5} build target for your project.
+
+        \o  Choose \gui {Build > Publish Project}.
+
+        \o  Select \gui {Publish for Fremantle Extras-devel Free Repository},
+            and then select \gui {Start Wizard}.
+
+        \o  Select the Qt version and device type to build against and click
+            \gui Next.
+
+            To create a source archive without uploading it to the build
+            server, select the \gui {Only create source package, do not upload}
+            check box.
+
+        \o  In the \gui {Garage account name} field, enter your login name, or
+            select \gui {Get an account} to create a new account.
+
+            \image qtcreator-publish-maemo-extras.png "Upload Settings dialog"
+
+            You can also select \gui {Request upload rights} to use the Maemo
+            Extras Assistant to validate your Garage account.
+
+        \o  Select \gui Commit to publish the application.
+
+    \endlist
+
+*/

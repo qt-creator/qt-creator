@@ -1,0 +1,17 @@
+    \section2 Specifying Run Settings for Generic Linux Devices
+
+    To run an application on a generic Linux device (without MADDE support),
+    create and select a device configuration in the Desktop run settings for
+    your project. You can also pass command line arguments to your application.
+
+    \image qtcreator-run-settings-linux-devices.png "Run settings for Generic Linux devices"
+
+    In addition, you must create a connection from the development PC to the
+    device.  Click \gui {Manage device configurations} to create connections.
+    For more information, see \l {Connecting Generic Linux Devices}.
+
+    When you run the application on the \gui Desktop target, \QC
+    generates an installation package in the build directory. The name of the
+    directory is displayed in the \gui {Create tarball} step. \QC copies
+    the tarball to devices by using the SSH file transfer protocol (SFTP) and
+    extracts it.

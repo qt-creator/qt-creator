@@ -1,0 +1,21 @@
+    \section2 Specifying Run Settings for Maemo and MeeGo Harmattan Devices
+
+    To run an application on a Maemo or MeeGo Harmattan device, create and
+    select a device configuration in the Maemo 5 or Harmattan run settings for
+    your project.
+    You can also pass command line arguments to your application.
+
+    \image qtcreator-screenshot-run-settings-maemo.png "Run settings for Maemo devices"
+
+    To run and debug applications on Maemo or MeeGo Harmattan devices, you must
+    create connections from the development PC to the devices. Click
+    \gui {Manage device configurations} to create connections. For more
+    information, see \l{Configuring Connections to Maemo Devices} and
+    \l{Configuring Connections to Harmattan Devices}.
+
+    When you run the application on the \gui{Maemo5} or \gui Harmattan target,
+    \QC generates a Debian installation package in the build directory by
+    default. You can deliver the installation package to users for installation
+    on devices that are of the same type and run the same firmware as the
+    connected device. For more information, see
+    \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}.

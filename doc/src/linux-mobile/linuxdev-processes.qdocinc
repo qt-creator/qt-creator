@@ -1,8 +1,8 @@
     \section2 Managing Device Processes
 
     You can view processes running on devices and kill them. Select
-    \gui {Tools > Options... > Linux Devices > Device Configurations >
-    Remote Processes...}.
+    \gui {Tools > Options > Linux Devices > Device Configurations >
+    Remote Processes}.
 
     You can filter the processes by name in the \gui {List of Remote Processes}
     dialog.

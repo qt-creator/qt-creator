@@ -51,10 +51,10 @@
 
     \note \QSDK does not contain the tool chains for building applications for
     other MeeGo devices than MeeGo Harmattan. You can try to run applications
-    from Qt Creator on other MeeGo devices, but it has not been extensively
+    from \QC on other MeeGo devices, but it has not been extensively
     tested, and the instructions might not always apply.
 
-    \note The only supported build system for Harmattan in Qt Creator is qmake.
+    \note The only supported build system for Harmattan in \QC is qmake.
 
     \section1 Setting Up Connectivity in Harmattan Devices
 
@@ -105,7 +105,7 @@
 
     \gui {Connectivity Details} displays the IP address and developer password.
     The address 192.168.2.15 is used by default. You must enter the password in
-    Qt Creator. For more information, see
+    \QC. For more information, see
     \l{Configuring Connections to Harmattan Devices}.
 
     \section1 Setting Up Network Connectivity on Development PC
@@ -235,13 +235,13 @@
     \section1 Configuring Connections to Harmattan Devices
 
     To be able to run and debug applications on the emulator and devices, you
-    must set up connections to the emulator and devices in the Qt Creator build
+    must set up connections to the emulator and devices in the \QC build
     and run settings. If you install \QSDK, the connection to the emulator is
     configured automatically and you only need to configure a connection to the
     device.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \gui {Tools > Options... > Linux Devices > Device Configurations}.
+    in \gui {Tools > Options > Linux Devices > Device Configurations}.
 
     \image qtcreator-meego-device-configurations.png "MeeGo Device Configurations dialog"
 
@@ -249,7 +249,7 @@
     protects real user data on the device from getting corrupted during testing.
     If you write applications that use Qt Mobility APIs, you might want to test
     them with real user data. To create a connection as a user, specify the
-    \gui Username and \gui Password in Qt Creator. For more information, see
+    \gui Username and \gui Password in \QC. For more information, see
     \if defined(qcmanual)
     \l{Testing with User Data on MeeGo Devices}.
     \else
@@ -258,12 +258,12 @@
     \endif
 
 
-    You can protect the connections between Qt Creator and a device by using
+    You can protect the connections between \QC and a device by using
     either a password or an SSH key. If you use a password, you must generate it
-    in the connectivity tool and enter it in Qt Creator every time you start the
+    in the connectivity tool and enter it in \QC every time you start the
     connectivity tool.
 
-    If you do not have an SSH key, you can create it in Qt Creator. Encrypted
+    If you do not have an SSH key, you can create it in \QC. Encrypted
     keys are not supported. For more information, see
     \if defined(qcmanual)
     \l{Generating SSH Keys}.
@@ -283,7 +283,7 @@
     \endif
 
 
-    To configure connections between Qt Creator and a device:
+    To configure connections between \QC and a device:
 
     \list 1
 
@@ -300,7 +300,7 @@
                     port issue, switch to a different port or use WLAN to
                     connect to the device.
 
-                \o  Select \gui {Tools > Options... > Linux Devices > Device
+                \o  Select \gui {Tools > Options > Linux Devices > Device
                     Configurations > Add}, and add a new configuration for a
                     hardware device.
 
@@ -338,7 +338,7 @@
 
             \list a
 
-                \o  In Qt Creator, select \gui {Tools > Options... > Linux
+                \o  In \QC, select \gui {Tools > Options > Linux
                     Devices > Device Configurations > Add} to add a new
                     configuration.
 
@@ -410,7 +410,7 @@
         \o  To specify the password, enter the following command:
             \c{/usr/lib/mad-developer/devrootsh passwd user}
 
-        \o  In Qt Creator, select \gui {Tools > Options... Linux Devices >
+        \o  In \QC, select \gui {Tools > Options Linux Devices >
             Device Configurations}.
 
         \o  Specify the username \c user and the password in the device
@@ -418,8 +418,8 @@
 
     \endlist
 
-    \input linuxdev-keys.qdocinc
-    \input linuxdev-processes.qdocinc
+    \input linux-mobile/linuxdev-keys.qdocinc
+    \input linux-mobile/linuxdev-processes.qdocinc
 
     \endif
 
@@ -434,7 +434,7 @@
         \header
             \o IP Address and Network on Device
             \o USB Network on Development PC
-            \o Host Name in Qt Creator Build Settings
+            \o Host Name in \QC Build Settings
 
         \row
             \o 172.30.7.15 255.255.255.0

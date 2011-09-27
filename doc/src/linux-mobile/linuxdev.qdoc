@@ -29,35 +29,35 @@
     \title Connecting Generic Linux Devices
 
     You can connect generic Linux devices to the development PC to build, run,
-    debug, and analyze applications on them from Qt Creator.
+    debug, and analyze applications on them from \QC.
 
     If you have the tool chain for building applications for generic Linux
     devices (with no MADDE support) installed on the development PC, you can add
-    it to Qt Creator.
+    it to \QC.
 
     To be able to run and debug applications on generic Linux devices, you must
-    create device configurations and select them in the Qt Creator run
+    create device configurations and select them in the \QC run
     settings.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \gui {Tools > Options... > Linux Devices > Device Configurations}.
+    in \gui {Tools > Options > Linux Devices > Device Configurations}.
 
     \image qtcreator-linux-device-configurations.png "Device Configurations dialog"
 
-    You can protect the connections between Qt Creator and a device by using
+    You can protect the connections between \QC and a device by using
     either a password or an SSH key. If you do not have an SSH key, you can
-    create it in Qt Creator. For more information, see \l {Generating SSH Keys}.
+    create it in \QC. For more information, see \l {Generating SSH Keys}.
 
-    To configure connections between Qt Creator and generic Linux devices:
+    To configure connections between \QC and generic Linux devices:
 
     \list 1
 
         \o  Make sure that your device can be reached via an IP address.
 
-        \o  Select \gui {Tools > Options... > Qt4 > Add} to add the Qt version
+        \o  Select \gui {Tools > Options > Qt4 > Add} to add the Qt version
             for the generic Linux.
 
-        \o  Select \gui {Tools > Options... > Tool Chains > Add} to add the tool
+        \o  Select \gui {Tools > Options > Tool Chains > Add} to add the tool
             chain for building the applications.
 
         \o  To deploy applications and run them remotely on devices, specify
@@ -65,7 +65,7 @@
 
             \list 1
 
-                \o  Select \gui {Tools > Options... > Linux Devices > Device
+                \o  Select \gui {Tools > Options > Linux Devices > Device
                     Configurations > Add > Generic Linux Device}.
 
                     \image qtcreator-screenshot-devconf-linux.png "Connection Data wizard"
@@ -117,12 +117,12 @@
 
         \endlist
 
-        When you run the project, Qt Creator creates an installation package in
+        When you run the project, \QC creates an installation package in
         the build directory. The name of the directory is displayed in the
         \gui {Create tarball} step.
 
         The \gui {Deploy tarball via SFTP upload using device} step specifies
-        that Qt Creator uploads the tarball to the device and extracts it.
+        that \QC uploads the tarball to the device and extracts it.
                 You can add custom deploy steps and remove the default step if
                 it is incompatible with your steps.
                 To only create a tarball and not copy the files to the device,

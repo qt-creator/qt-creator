@@ -78,7 +78,7 @@
 
     \endlist
 
-    \note The only supported build system for Maemo 5 in Qt Creator is qmake.
+    \note The only supported build system for Maemo 5 in \QC is qmake.
 
     \section1 Setting Up Connectivity in Maemo Devices
 
@@ -140,7 +140,7 @@
        \o Select \gui{Developer Password} to generate a password for a freshly
           created user called \bold developer. The password stays valid for as long
           as the password generation dialog is open. You enter the password when
-          you configure the connection in Qt Creator.
+          you configure the connection in \QC.
 
           \image qtcreator-mad-developer-screenshot.png
     \endlist
@@ -223,12 +223,12 @@
 
     To be able to run and debug applications on the Maemo
     emulator and devices, you must set up connections to the emulator and
-    devices in the Qt Creator build and run settings. If you install \QSDK, the
+    devices in the \QC build and run settings. If you install \QSDK, the
     connection to the emulator is configured automatically and you
     only need to configure a connection to the device.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \gui {Tools > Options... > Linux Devices > Device Configurations}.
+    in \gui {Tools > Options > Linux Devices > Device Configurations}.
 
     \image qtcreator-maemo-device-configurations.png "Maemo Device Configurations dialog"
 
@@ -236,7 +236,7 @@
     protects real user data on the device from getting corrupted during
     testing. If you write applications that use Qt Mobility APIs, you might want
     to test them with real user data. To create a connection as a user, specify
-    the \gui Username and \gui Password in Qt Creator. For more information, see
+    the \gui Username and \gui Password in \QC. For more information, see
     \if defined(qcmanual)
     \l{Testing with User Data on Maemo Devices}.
     \else
@@ -245,12 +245,12 @@
     \endif
 
 
-    You can protect the connections between Qt Creator and
+    You can protect the connections between \QC and
     a device by using either a password or an SSH key. If you use a password, you
-    must generate it in the connectivity tool and enter it in Qt Creator every time
+    must generate it in the connectivity tool and enter it in \QC every time
     you start the connectivity tool.
 
-    If you do not have an SSH key, you can create it in Qt Creator.
+    If you do not have an SSH key, you can create it in \QC.
     Encrypted keys are not supported. For more
     information, see
     \if defined(qcmanual)
@@ -271,7 +271,7 @@
     \endif
 
 
-    To configure connections between Qt Creator and a
+    To configure connections between \QC and a
     device:
 
     \list 1
@@ -288,7 +288,7 @@
             \note If you experience connection problems due to a USB port issue,
             switch to a different port or use WLAN to connect to the device.
 
-            \o Select \gui {Tools > Options... > Linux Devices > Device
+            \o Select \gui {Tools > Options > Linux Devices > Device
             Configurations > Add}, and add a new configuration for a
             hardware device.
 
@@ -324,7 +324,7 @@
 
             \list a
 
-                \o In Qt Creator, select \gui {Tools > Options... > Linux
+                \o In \QC, select \gui {Tools > Options > Linux
                 Devices > Device Configurations > Add} to add a new
                 configuration.
 
@@ -392,7 +392,7 @@
         \o  To specify the password, enter the following command:
             \c{/usr/lib/mad-developer/devrootsh passwd user}
 
-        \o  In Qt Creator, select \gui {Tools > Options... Linux Devices >
+        \o  In \QC, select \gui {Tools > Options Linux Devices >
             Device Configurations}.
 
         \o  Specify the username \c user and the password in the device
@@ -411,7 +411,7 @@
         \header
             \o IP Address and Network on Device
             \o USB Network on Development PC
-            \o Host Name in Qt Creator Build Settings
+            \o Host Name in \QC Build Settings
 
         \row
             \o 172.30.7.15 255.255.255.0
