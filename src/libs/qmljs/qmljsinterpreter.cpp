@@ -1932,14 +1932,66 @@ ImportInfo::ImportInfo()
 {
 }
 
-ImportInfo::ImportInfo(Type type, const QString &path, const QString &name,
-                       ComponentVersion version, UiImport *ast)
-    : _type(type)
-    , _name(name)
-    , _path(path)
-    , _version(version)
-    , _ast(ast)
+ImportInfo ImportInfo::moduleImport(QString uri, ComponentVersion version,
+                                    const QString &as, UiImport *ast)
 {
+    // treat Qt 4.7 as QtQuick 1.0
+    if (uri == QLatin1String("Qt") && version == ComponentVersion(4, 7)) {
+        uri = QLatin1String("QtQuick");
+        version = ComponentVersion(1, 0);
+    }
+
+    ImportInfo info;
+    info._type = LibraryImport;
+    info._name = uri;
+    info._path = uri;
+    info._path.replace(QLatin1Char('.'), QDir::separator());
+    info._version = version;
+    info._as = as;
+    info._ast = ast;
+    return info;
+}
+
+ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
+                                  ComponentVersion version, const QString &as, UiImport *ast)
+{
+    ImportInfo info;
+    info._name = path;
+
+    QFileInfo importFileInfo(path);
+    if (!importFileInfo.isAbsolute()) {
+        importFileInfo = QFileInfo(docPath + QDir::separator() + path);
+    }
+    info._path = importFileInfo.absoluteFilePath();
+
+    if (importFileInfo.isFile()) {
+        info._type = FileImport;
+    } else if (importFileInfo.isDir()) {
+        info._type = DirectoryImport;
+    } else {
+        info._type = UnknownFileImport;
+    }
+
+    info._version = version;
+    info._as = as;
+    info._ast = ast;
+    return info;
+}
+
+ImportInfo ImportInfo::invalidImport(UiImport *ast)
+{
+    ImportInfo info;
+    info._type = InvalidImport;
+    info._ast = ast;
+    return info;
+}
+
+ImportInfo ImportInfo::implicitDirectoryImport(const QString &directory)
+{
+    ImportInfo info;
+    info._type = ImplicitDirectoryImport;
+    info._path = directory;
+    return info;
 }
 
 bool ImportInfo::isValid() const
@@ -1962,11 +2014,9 @@ QString ImportInfo::path() const
     return _path;
 }
 
-QString ImportInfo::id() const
+QString ImportInfo::as() const
 {
-    if (_ast)
-        return _ast->importId.toString();
-    return QString();
+    return _as;
 }
 
 ComponentVersion ImportInfo::version() const
@@ -2003,8 +2053,8 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
         if (info.type() == ImportInfo::FileImport)
             continue;
 
-        if (!info.id().isEmpty()) {
-            if (info.id() == name) {
+        if (!info.as().isEmpty()) {
+            if (info.as() == name) {
                 if (foundInObject)
                     *foundInObject = this;
                 return import;
@@ -2033,8 +2083,8 @@ void TypeScope::processMembers(MemberProcessor *processor) const
         if (info.type() == ImportInfo::FileImport)
             continue;
 
-        if (!info.id().isEmpty()) {
-            processor->processProperty(info.id(), import);
+        if (!info.as().isEmpty()) {
+            processor->processProperty(info.as(), import);
         } else {
             import->processMembers(processor);
         }
@@ -2061,7 +2111,7 @@ const Value *JSImportScope::lookupMember(const QString &name, const Context *,
         if (info.type() != ImportInfo::FileImport)
             continue;
 
-        if (info.id() == name) {
+        if (info.as() == name) {
             if (foundInObject)
                 *foundInObject = this;
             return import;
@@ -2082,7 +2132,7 @@ void JSImportScope::processMembers(MemberProcessor *processor) const
         const ImportInfo &info = i.info;
 
         if (info.type() == ImportInfo::FileImport)
-            processor->processProperty(info.id(), import);
+            processor->processProperty(info.as(), import);
     }
 }
 
@@ -2094,12 +2144,12 @@ Imports::Imports(ValueOwner *valueOwner)
 void Imports::append(const Import &import)
 {
     // when doing lookup, imports with 'as' clause are looked at first
-    if (!import.info.id().isEmpty()) {
+    if (!import.info.as().isEmpty()) {
         _imports.append(import);
     } else {
         // find first as-import and prepend
         for (int i = 0; i < _imports.size(); ++i) {
-            if (!_imports.at(i).info.id().isEmpty()) {
+            if (!_imports.at(i).info.as().isEmpty()) {
                 _imports.insert(i, import);
                 return;
             }
@@ -2123,8 +2173,8 @@ ImportInfo Imports::info(const QString &name, const Context *context) const
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
-        if (!info.id().isEmpty()) {
-            if (info.id() == firstId)
+        if (!info.as().isEmpty()) {
+            if (info.as() == firstId)
                 return info;
             continue;
         }
@@ -2156,9 +2206,9 @@ QString Imports::nameForImportedObject(const ObjectValue *value, const Context *
             const Value *v = import->lookupMember(value->className(), context);
             if (v == value) {
                 QString result = value->className();
-                if (!info.id().isEmpty()) {
+                if (!info.as().isEmpty()) {
                     result.prepend(QLatin1Char('.'));
-                    result.prepend(info.id());
+                    result.prepend(info.as());
                 }
                 return result;
             }
@@ -2230,7 +2280,7 @@ void Imports::dump() const
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
-        qDebug() << "  " << info.path() << " " << info.version().toString() << " as " << info.id() << " : " << import;
+        qDebug() << "  " << info.path() << " " << info.version().toString() << " as " << info.as() << " : " << import;
         MemberDumper dumper;
         import->processMembers(&dumper);
     }

@@ -52,9 +52,11 @@ class QMLJS_EXPORT Bind: protected AST::Visitor
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Bind)
 
 public:
-    Bind(Document *doc, QList<DiagnosticMessage> *messages);
+    Bind(Document *doc, QList<DiagnosticMessage> *messages,
+         bool isJsLibrary, const QList<ImportInfo> &jsImports);
     virtual ~Bind();
 
+    bool isJsLibrary() const;
     QList<ImportInfo> imports() const;
 
     ObjectValue *idEnvironment() const;
@@ -105,8 +107,8 @@ private:
     QMultiHash<QString, const ObjectValue *> _qmlObjectsByPrototypeName;
     QSet<AST::Node *> _groupedPropertyBindings;
     QHash<AST::Node *, ObjectValue *> _attachedJSScopes;
-    QStringList _includedScripts;
 
+    bool _isJsLibrary;
     QList<ImportInfo> _imports;
 
     QList<DiagnosticMessage> *_diagnosticMessages;

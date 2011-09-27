@@ -211,6 +211,35 @@ QString Document::componentName() const
     return _componentName;
 }
 
+namespace {
+class CollectDirectives : public Directives
+{
+    QString documentPath;
+public:
+    CollectDirectives(const QString &documentPath)
+        : documentPath(documentPath)
+        , isLibrary(false)
+
+    {}
+
+    virtual void pragmaLibrary() { isLibrary = true; }
+    virtual void importFile(const QString &jsfile, const QString &module)
+    {
+        imports += ImportInfo::pathImport(
+                    documentPath, jsfile, LanguageUtils::ComponentVersion(), module);
+    }
+
+    virtual void importModule(const QString &uri, const QString &version, const QString &module)
+    {
+        imports += ImportInfo::moduleImport(uri, LanguageUtils::ComponentVersion(version), module);
+    }
+
+    bool isLibrary;
+    QList<ImportInfo> imports;
+};
+
+} // anonymous namespace
+
 bool Document::parse_helper(int startToken)
 {
     Q_ASSERT(! _engine);
@@ -225,11 +254,8 @@ bool Document::parse_helper(int startToken)
     QString source = _source;
     lexer.setCode(source, /*line = */ 1, /*qmlMode = */_language == QmlLanguage);
 
-    if (startToken == QmlJSGrammar::T_FEED_JS_PROGRAM) {
-        // ### use directives
-        Directives directives;
-        lexer.scanDirectives(&directives);
-    }
+    CollectDirectives collectDirectives(path());
+    _engine->setDirectives(&collectDirectives);
 
     switch (startToken) {
     case QmlJSGrammar::T_FEED_UI_PROGRAM:
@@ -248,7 +274,7 @@ bool Document::parse_helper(int startToken)
     _ast = parser.rootNode();
     _diagnosticMessages = parser.diagnosticMessages();
 
-    _bind = new Bind(this, &_diagnosticMessages);
+    _bind = new Bind(this, &_diagnosticMessages, collectDirectives.isLibrary, collectDirectives.imports);
 
     return _parsedCorrectly;
 }

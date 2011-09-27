@@ -60,11 +60,13 @@ using namespace QmlJS::AST;
     It allows AST to code model lookup through findQmlObject() and findFunctionScope().
 */
 
-Bind::Bind(Document *doc, QList<DiagnosticMessage> *messages)
+Bind::Bind(Document *doc, QList<DiagnosticMessage> *messages, bool isJsLibrary, const QList<ImportInfo> &jsImports)
     : _doc(doc),
       _currentObjectValue(0),
       _idEnvironment(0),
       _rootObjectValue(0),
+      _isJsLibrary(isJsLibrary),
+      _imports(jsImports),
       _diagnosticMessages(messages)
 {
     if (_doc)
@@ -73,6 +75,11 @@ Bind::Bind(Document *doc, QList<DiagnosticMessage> *messages)
 
 Bind::~Bind()
 {
+}
+
+bool Bind::isJsLibrary() const
+{
+    return _isJsLibrary;
 }
 
 QList<ImportInfo> Bind::imports() const
@@ -199,10 +206,6 @@ bool Bind::visit(AST::Program *)
 bool Bind::visit(UiImport *ast)
 {
     ComponentVersion version;
-    ImportInfo::Type type = ImportInfo::InvalidImport;
-    QString path;
-    QString name;
-
     if (ast->versionToken.isValid()) {
         const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
         version = ComponentVersion(versionString);
@@ -213,37 +216,18 @@ bool Bind::visit(UiImport *ast)
     }
 
     if (ast->importUri) {
-        type = ImportInfo::LibraryImport;
-        path = toString(ast->importUri, QDir::separator());
-        name = toString(ast->importUri, QLatin1Char('.'));
-
-        // treat Qt 4.7 as QtQuick 1.0
-        if (path == QLatin1String("Qt") && version == ComponentVersion(4, 7)) {
-            path = QLatin1String("QtQuick");
-            name = path;
-            version = ComponentVersion(1, 0);
-        }
-
         if (!version.isValid()) {
             _diagnosticMessages->append(
                         errorMessage(ast, tr("package import requires a version number")));
         }
+        _imports += ImportInfo::moduleImport(toString(ast->importUri), version,
+                                             ast->importId.toString(), ast);
     } else if (!ast->fileName.isEmpty()) {
-        name = ast->fileName.toString();
-        QFileInfo importFileInfo(name);
-        if (!importFileInfo.isAbsolute()) {
-            importFileInfo = QFileInfo(_doc->path() + QDir::separator() + name);
-        }
-        path = importFileInfo.absoluteFilePath();
-        if (importFileInfo.isFile())
-            type = ImportInfo::FileImport;
-        else if (importFileInfo.isDir())
-            type = ImportInfo::DirectoryImport;
-        else {
-            type = ImportInfo::UnknownFileImport;
-        }
+        _imports += ImportInfo::pathImport(_doc->path(), ast->fileName.toString(),
+                                           version, ast->importId.toString(), ast);
+    } else {
+        _imports += ImportInfo::invalidImport(ast);
     }
-    _imports += ImportInfo(type, path, name, version, ast);
 
     return false;
 }

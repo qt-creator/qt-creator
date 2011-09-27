@@ -254,28 +254,29 @@ void ScopeChain::initializeRootScope()
     QmlComponentChain *chain = new QmlComponentChain(m_document);
     m_qmlComponentScope = QSharedPointer<const QmlComponentChain>(chain);
 
+    if (const Imports *imports = m_context->imports(m_document.data())) {
+        m_qmlTypes = imports->typeScope();
+        m_jsImports = imports->jsImportScope();
+    }
+
     if (m_document->qmlProgram()) {
         componentScopes.insert(m_document.data(), chain);
         makeComponentChain(chain, snapshot, &componentScopes);
-
-        if (const Imports *imports = m_context->imports(m_document.data())) {
-            m_qmlTypes = imports->typeScope();
-            m_jsImports = imports->jsImportScope();
-        }
     } else {
         // add scope chains for all components that import this file
-        foreach (Document::Ptr otherDoc, snapshot) {
-            foreach (const ImportInfo &import, otherDoc->bind()->imports()) {
-                if (import.type() == ImportInfo::FileImport && m_document->fileName() == import.path()) {
-                    QmlComponentChain *component = new QmlComponentChain(otherDoc);
-                    componentScopes.insert(otherDoc.data(), component);
-                    chain->addInstantiatingComponent(component);
-                    makeComponentChain(component, snapshot, &componentScopes);
+        // unless there's .pragma library
+        if (!m_document->bind()->isJsLibrary()) {
+            foreach (Document::Ptr otherDoc, snapshot) {
+                foreach (const ImportInfo &import, otherDoc->bind()->imports()) {
+                    if (import.type() == ImportInfo::FileImport && m_document->fileName() == import.path()) {
+                        QmlComponentChain *component = new QmlComponentChain(otherDoc);
+                        componentScopes.insert(otherDoc.data(), component);
+                        chain->addInstantiatingComponent(component);
+                        makeComponentChain(component, snapshot, &componentScopes);
+                    }
                 }
             }
         }
-
-        // ### TODO: Which type environment do scripts see?
 
         if (bind->rootObjectValue())
             m_jsScopes += bind->rootObjectValue();

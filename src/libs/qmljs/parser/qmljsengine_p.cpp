@@ -113,7 +113,7 @@ double integerFromString(const QString &str, int radix)
 
 
 Engine::Engine()
-    : _lexer(0)
+    : _lexer(0), _directives(0)
 { }
 
 Engine::~Engine()
@@ -133,6 +133,12 @@ Lexer *Engine::lexer() const
 
 void Engine::setLexer(Lexer *lexer)
 { _lexer = lexer; }
+
+void Engine::setDirectives(Directives *directives)
+{ _directives = directives; }
+
+Directives *Engine::directives() const
+{ return _directives; }
 
 MemoryPool *Engine::pool()
 { return &_pool; }

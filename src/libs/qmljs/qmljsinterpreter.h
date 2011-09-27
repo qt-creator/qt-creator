@@ -822,9 +822,14 @@ public:
     };
 
     ImportInfo();
-    ImportInfo(Type type, const QString &path, const QString &name = QString(),
-               LanguageUtils::ComponentVersion version = LanguageUtils::ComponentVersion(),
-               AST::UiImport *ast = 0);
+
+    static ImportInfo moduleImport(QString uri, LanguageUtils::ComponentVersion version,
+                                   const QString &as, AST::UiImport *ast = 0);
+    static ImportInfo pathImport(const QString &docPath, const QString &path,
+                                 LanguageUtils::ComponentVersion version,
+                                 const QString &as, AST::UiImport *ast = 0);
+    static ImportInfo invalidImport(AST::UiImport *ast = 0);
+    static ImportInfo implicitDirectoryImport(const QString &directory);
 
     bool isValid() const;
     Type type() const;
@@ -838,7 +843,7 @@ public:
     QString path() const;
 
     // null if the import has no 'as', otherwise the target id
-    QString id() const;
+    QString as() const;
 
     LanguageUtils::ComponentVersion version() const;
     AST::UiImport *ast() const;
@@ -848,6 +853,7 @@ private:
     QString _name;
     QString _path;
     LanguageUtils::ComponentVersion _version;
+    QString _as;
     AST::UiImport *_ast;
 };
 

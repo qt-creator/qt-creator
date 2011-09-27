@@ -56,6 +56,7 @@ QT_QML_BEGIN_NAMESPACE
 namespace QmlJS {
 
 class Lexer;
+class Directives;
 class MemoryPool;
 
 class QML_PARSER_EXPORT DiagnosticMessage
@@ -83,6 +84,7 @@ public:
 class QML_PARSER_EXPORT Engine
 {
     Lexer *_lexer;
+    Directives *_directives;
     MemoryPool _pool;
     QList<AST::SourceLocation> _comments;
     QString _extraCode;
@@ -99,6 +101,9 @@ public:
 
     Lexer *lexer() const;
     void setLexer(Lexer *lexer);
+
+    void setDirectives(Directives *directives);
+    Directives *directives() const;
 
     MemoryPool *pool();
 
