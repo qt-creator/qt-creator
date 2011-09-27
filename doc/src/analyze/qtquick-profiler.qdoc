@@ -1,0 +1,183 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-analyze-mode.html
+    \page creator-qml-performance-monitor.html
+    \nextpage creator-analyzer.html
+
+    \title Profiling QML Applications
+
+    To monitor the performance of an application in the QML Profiler:
+
+    \list 1
+
+        \o  To be able to profile an application, you must set up QML debugging
+            for the project. For more information, see
+            \l{Setting Up QML Debugging}.
+
+        \o  In the \gui Projects mode, select Qt 4.7.4 in the \gui {Qt version}
+            field.
+
+            \note To profile applications on devices, you must install Qt 4.7.4
+            or later libraries on them.
+
+        \o  Select \gui {Analyze > QML Profiler} to profile the current
+            application.
+
+            \image qtcreator-qml-performance-monitor-toolbar.png "QML Profiler toolbar"
+
+        \o  Select the
+            \inlineimage qtcreator-analyze-start-button.png "Start button"
+            button to start the application from the QML Profiler.
+
+            \note If data collection does not start automatically, select the
+            \inlineimage qtcreator-analyzer-button.png "Analyzer button"
+            button.
+
+    \endlist
+
+    When you start analyzing an application, the application is launched, and
+    the QML Profiler immediately begins to collect data. This is indicated by
+    the time running in the \gui Elapsed field.
+
+    Data is collected until you select the
+    \inlineimage qtcreator-analyzer-stop-button.png "Stop button"
+    button. Data collection takes time, and therefore, there might be a delay
+    before the data is displayed.
+
+    Do not use application commands to exit the application, because data is
+    sent to the QML Profiler when you select the \gui Stop button.
+    The application continues to run for some seconds, after which it is stopped
+    automatically. If you exit the application, the data is not sent.
+
+    Select the \inlineimage qtcreator-analyzer-button.png "Analyzer button"
+    button to disable the automatic start of the data collection when an
+    application is launched. Data collection starts when you select the button
+    again.
+
+    \section1 Analyzing Collected Data
+
+    The \gui Timeline view displays graphical representations of:
+
+    \list
+
+        \o  Painting operations
+
+        \o  Compiling the QML sources
+
+        \o  Creating elements
+
+        \o  Binding evaluations
+
+        \o  Signal handling
+
+        \o  Summary of the recorded period
+
+    \endlist
+
+    \image qtcreator-qml-performance-monitor.png "QML Profiler"
+
+    The outline summarizes the period for which data was collected. Drag the
+    zoom range or click the outline to move on the outline. You can also move
+    between events by clicking the \gui Previous and \gui Next buttons.
+
+    Click the zoom buttons or drag the zoom handles to zoom in and out.
+
+    You can define an event range to view the frame rate of events and to
+    compare it with the frame rate of similar events. Click on the timeline to
+    specify the beginning of the event range. Drag the cursor to define the end
+    of the range. The length of the range indicates the frame rate of the event.
+    You can drag the timeline below the event range to compare events.
+
+    Additional information is displayed on the rows above the outline.
+    Each row in the timeline describes a type of QML events that were recorded.
+    Move the cursor on an event on a row to see how long it takes and where
+    in the source it is being called.
+
+    On the \gui Binding row, you can see when a binding is evaluated and how
+    long the evaluation takes. Move the mouse over the binding for details
+    about the binding: location in the source code, duration, and source
+    code.
+
+    Click the binding to move the cursor in the code editor to the part of the
+    code where the binding is called.
+
+    The time bar at the top of the \gui Timeline view displays the time in
+    seconds. To see the time in milliseconds, move the mouse on the time bar.
+
+    \section1 Viewing Events
+
+    The \gui Events view displays the number of times each binding is called
+    and the time the calls take. This allows you to examine which events you
+    need to optimize. A high number of calls might indicate that a binding is
+    called unnecessarily. Click on a binding to move to it in the source code
+    in the code editor.
+
+    \image qtcreator-analyzer-bindings.png "Events view"
+
+    \section1 Viewing Calling and Called Events
+
+    The \gui Callees and \gui Callers views show dependencies between events.
+    They allow you to examine the internal functions of the application.
+
+    The \gui Callees view summarizes the QML events that a binding triggers.
+    This tells you which QML events are affected if you change a binding.
+
+    \image qtcreator-qml-performance-monitor-callees.png "Callees view"
+
+    The \gui Callers view summarizes the QML events that trigger a binding.
+    This tells you what caused a change in a binding.
+
+    \image qtcreator-qml-performance-monitor-callers.png "Callers view"
+
+    Click on a binding to move to it in the source code in the code editor.
+
+    \section2 Viewing More Data
+
+    The QML JavaScript engine optimizes trivial bindings. The QML Profiler
+    does not receive information about optimized bindings, and
+    therefore, it displays the text \gui {<bytecode>} and the message
+    \gui {Source code not available} in the \gui Callees and \gui {Callers}
+    views.
+
+    To inspect the optimized bindings, turn off the QML optimizer by setting the
+    environment variable QML_DISABLE_OPTIMIZER to 1. To set the environment
+    variable for the current project in the project settings:
+
+    \list 1
+
+        \o  Select \gui {Projects > Run}.
+
+        \o  In \gui {Run Environment}, click \gui Add.
+
+        \o  Add the QML_DISABLE_OPTIMIZER variable and set its value to 1.
+
+    \endlist
+
+*/

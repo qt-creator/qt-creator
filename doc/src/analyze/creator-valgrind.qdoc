@@ -1,0 +1,246 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-qml-performance-monitor.html
+    \page creator-analyzer.html
+    \nextpage creator-cache-profiler.html
+
+    \title Detecting Memory Leaks
+
+    You can use the Memcheck tool included in the
+    \l{http://valgrind.org/info/tools.html}{Valgrind tool suite} to detect
+    problems that are related to memory management in applications.
+
+    \note Memcheck is supported locally on Linux and Mac OS. You can run it on
+    a remote host from Windows.
+
+    After you download and install Valgrind tools, you can use Memcheck from
+    \QC.
+
+    To analyze applications:
+
+    \list 1
+
+        \o  In the \gui Projects mode, select a release build configuration.
+
+        \o  Select \gui Analyze to open the \gui Analyze mode.
+
+        \o  Select \gui {Analyze Memory} on the toolbar.
+
+        \o  Select the
+            \inlineimage qtcreator-analyze-start-button.png "Start button"
+            button to start the application.
+
+        \o  Use the application to analyze it.
+
+        \o  Select the
+            \inlineimage qtcreator-analyzer-stop-button.png "Stop button"
+            button to view the results of the analysis in the
+            \gui {Analysis} view.
+
+    \endlist
+
+    While the application is running, Memcheck checks all reads and writes of
+    memory and intercepts calls that allocate or free memory or create or
+    delete memory blocks. When you stop Memcheck, it displays the results in
+    the \gui Analysis view. Click a line to view where a memory leak
+    occurred and a stack trace that shows what caused it.
+
+    \image analyzer-issues.png "Analysis view"
+
+    Move the mouse on on a row to view more information about the function.
+
+    For more information about using Memcheck, see
+    \l{http://valgrind.org/docs/manual/quick-start.html#quick-start.mcrun}
+    {Interpreting Memcheck's Output} in the Valgrind documentation.
+
+    \section1 Selecting Options for Memory Analysis
+
+    Stack traces can get quite large and confusing, and therefore, reading them
+    from the bottom up can help. If the stack trace is not big enough or it is
+    too big, select \gui {Tools > Options > Analyzer}.
+    Define the length of the stack trace in the \gui {Backtrace frame count}
+    field.
+
+    \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
+
+    Memcheck also reports uses of uninitialised values, most commonly with the
+    message \gui {Conditional jump or move depends on uninitialised value(s).}
+    To determine the root cause of these errors, the \gui {Track origins of
+    uninitialized memory} check box is selected by default. You can deselect it
+    to make Memcheck run faster.
+
+    Memcheck detects numerous problems in the system libraries, such as the C
+    library, which come pre-installed with your OS. As you cannot easily fix
+    them, you want to suppress them. Valgrind reads a list of errors to suppress
+    at startup. A default suppression file is created by the ./configure script
+    when the system is built.
+
+    You can write your own suppression files if parts of your project contain
+    errors you cannot fix and you do not want to be reminded of them. Click
+    \gui Add in the \gui {Memory Analysis} dialog to add the suppression files.
+    For more information about writing suppression files, see
+    \l{http://valgrind.org/docs/manual/manual-core.html#manual-core.suppress}
+    {Suppressing Errors} in the Valgrind documentation.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-analyzer.html
+    \page creator-cache-profiler.html
+    \nextpage creator-running-valgrind-remotely.html
+
+    \title Profiling Function Execution
+
+    You can use the Callgrind tool included in the
+    \l{http://valgrind.org/info/tools.html}{Valgrind tool suite} to detect
+    problems that are related to executing functions.
+
+    After you download and install Valgrind tools, you can use Callgrind from
+    \QC.
+
+    \note Callgrind is supported locally on Linux and Mac OS. You can run it on
+    a remote host from Windows.
+
+    To analyze applications:
+
+    \list 1
+
+        \o  In the \gui Projects mode, select a release build configuration.
+
+        \o  Select \gui Analyze to open the \gui Analyze mode.
+
+        \o  Select \gui Profile on the toolbar.
+
+        \o  Select the
+            \inlineimage qtcreator-analyze-start-button.png "Start button"
+            button to start the application.
+
+        \o  Use the application to analyze it.
+
+        \o  Select the
+            \inlineimage qtcreator-analyzer-stop-button.png "Stop button"
+            button to view the results of the analysis in the \gui Profile
+            view.
+
+    \endlist
+
+    Callgrind records the call history of functions that are executed when the
+    application is run. It collects the number of instructions that are
+    executed, their relationship to source lines, the relationships of the
+    caller and callee between functions, and the numbers of such calls. You can
+    also use cache simulation or branch prediction to gather information about
+    the runtime behavior of an application.
+
+    Double-click a function to view information about the calling functions in
+    the \gui Callers view and about the called functions in the \gui Callees
+    view.
+
+    \image qtcreator-valgrind-callgrind.png "Profile view"
+
+    \section1 Selecting Profiling Options
+
+    To specify settings for Valgrind, select \gui {Tools > Options >
+    Analyzer}. The \gui {Profiling Options} group contains Callgrind options.
+
+    \image qtcreator-valgrind-callgrind-options.png "Valgrind options"
+
+    In the \gui {Result view: Minimum event cost}
+    field, limit the amount of results the profiler gives you to increase
+    profiler performance.
+
+    You can collect information about the system call times and the number of
+    global bus events of the event type \c Ge that are executed.
+
+    \section2 Enabling Full Cache Simulation
+
+    By default, only instruction read accesses (Ir) are counted. To fully
+    simulate the cache, select the \gui {Enable cache simulation} check box.
+    This enables the following additional event counters:
+
+    \list
+
+        \o  Cache misses on instruction reads (I1mr/I2mr)
+
+        \o  Data read accesses (Dr) and related cache misses (D1mr/D2mr)
+
+        \o  Data write accesses (Dw) and related cache misses (D1mw/D2mw)
+
+    \endlist
+
+    \section2 Enabling Branch Prediction Simulation
+
+    To enable the following additional event counters, select the
+    \gui {Enable branch prediction simulation} check box:
+
+    \list
+
+        \o  Number of conditional branches executed and related predictor misses
+            (Bc/Bcm)
+
+        \o  Executed indirect jumps and related misses of the jump address
+            predictor (Bi/Bim)
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-cache-profiler.html
+    \page creator-running-valgrind-remotely.html
+    \nextpage creator-deployment.html
+
+    \title Running Valgrind Tools Remotely
+
+    \QC integrates Valgrind code analysis tools for detecting memory
+    leaks and profiling function execution. These tools are supported locally
+    only on Linux and Mac OS, but you can run them on a remote host from
+    Windows.
+
+    To run the Valgrind tools on a remote host over SSH:
+
+    \list 1
+
+        \o  Select \gui {Analyze > Valgrind Analyze Memory (Remote)} or
+            \gui {Valgrind Function Profile (Remote)}.
+
+            \image qtcreator-valgrind-remote-settings.png "Start Debugger dialog"
+
+        \o  In the \gui Remote group, specify the connection to the remote host.
+
+        \o  In the \gui Target group, specify the application to run and analyze
+            on the remote host.
+
+    \endlist
+
+*/
