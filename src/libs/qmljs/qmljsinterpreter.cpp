@@ -215,7 +215,7 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
         if (_metaObjectRevision < method.revision())
             continue;
 
-        QString methodName;
+        const QString &methodName = _metaObject->method(index).methodName();
         const Value *signature = signatures->at(index);
 
         if (method.methodType() == FakeMetaMethod::Slot && method.access() == FakeMetaMethod::Public) {
