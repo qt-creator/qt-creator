@@ -215,7 +215,7 @@ bool Bind::visit(UiImport *ast)
     if (ast->importUri) {
         type = ImportInfo::LibraryImport;
         path = toString(ast->importUri, QDir::separator());
-        name = toString(ast->importUri, QLatin1Char(','));
+        name = toString(ast->importUri, QLatin1Char('.'));
 
         // treat Qt 4.7 as QtQuick 1.0
         if (path == QLatin1String("Qt") && version == ComponentVersion(4, 7)) {
