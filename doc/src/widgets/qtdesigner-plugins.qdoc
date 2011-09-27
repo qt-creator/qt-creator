@@ -1,0 +1,149 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-version-control.html
+    \page adding-plugins.html
+    \nextpage creator-editor-external.html
+
+    \title Adding Qt Designer Plugins
+
+    You can use Qt APIs to create plugins that extend Qt applications.
+    This allows you to add your own widgets to \QD.
+    The most flexible way to include a plugin with an application is to compile
+    it into a dynamic library that is shipped separately, and detected and
+    loaded at runtime.
+
+    The applications can detect plugins that are stored in the standard plugin
+    subdirectories. For more information on how to create and locate plugins
+    and to change the default plugin path, see \l{How to Create Qt Plugins}.
+
+    For more information about how to create plugins for \QD, see
+    \l{http://doc.qt.nokia.com/4.7/designer-using-custom-widgets.html}
+    {Creating and Using Components for Qt Designer}.
+
+    \section1 Locating Qt Designer Plugins
+
+    \QD fetches plugins from the standard locations and loads the plugins
+    that match its build key. \QD is delivered both as a standalone application
+    and as part of the SDK, where it is integrated into \QC. The correct folder
+    to place the plugins depends on which one you use.
+
+    The integrated \QD fetches plugins from the \c {%SDK%\bin\designer} folder
+    on Windows and Linux. For information about how to configure plugins on
+    Mac OS, see \l{Configuring Qt Designer Plugins on Mac OS}.
+
+    To check which plugins
+    were loaded successfully and which failed, choose \gui{Tools > Form Editor >
+    About Qt Designer Plugins}.
+
+    The standalone \QD is part of the Qt library used for building projects,
+    located under \c {%SDK%\qt}. Therefore, it fetches plugins from the
+    following folder: \c {%SDK%\qt\plugins\designer}. To check which plugins
+    were loaded successfully and which failed, choose \gui{Help >
+    About Plugins}.
+
+    \section2 Configuring Qt Designer Plugins on Mac OS
+
+    On the Mac, a GUI application must be built and run from a bundle. A bundle
+    is a directory structure that appears as a single entity when viewed in the
+    Finder. A bundle for an application typcially contains the executable and
+    all the resources it needs.
+
+    \QC uses its own set of Qt Libraries located in the bundle, and therefore,
+    you need to configure the \QD plugins that you want to use with \QC.
+    Fore more information about how to deploy applications on Mac OS, see
+    \l{http://doc.qt.nokia.com/4.7/deployment-mac.html}
+    {Deploying an Application on Mac OS X}.
+
+    The following example illustrates how to configure version 5.2.1 of the
+    \l{http://qwt.sourceforge.net/}{Qwt - Qt Widgets for Technical Applications}
+    library for use with \QC:
+
+    \list 1
+
+        \o  To check the paths used in the Qwt library, enter the following
+            \c otool command:
+
+            \snippet examples/doc_src_plugins.qdoc 0
+
+            The output for Qwt 5.2.1 indicates that the plugin uses Qt core
+            libraries (QtDesigner, QtScript, QtXml, QtGui and QtCore) and
+            libqwt.5.dylib:
+
+            \snippet examples/doc_src_plugins.qdoc 1
+
+
+        \o  You must copy the \QD plugin and the Qwt library files to the
+            following locations:
+
+            \list
+
+                \o  \c {libqwt_designer_plugin.dylib} to
+                    \c {QtCreator.app/Contents/MacOS/designer}
+
+                \o \c {libqwt.*.dylib} to \c {QtCreator.app/Contents/Frameworks}
+
+            \endlist
+
+            Enter the following commands:
+
+            \snippet examples/doc_src_plugins.qdoc 4
+
+        \o  Enter the following \c otool command to check the libraries that are
+            used by the Qwt library:
+
+            \snippet examples/doc_src_plugins.qdoc 2
+
+            The command returns the following output:
+
+            \snippet examples/doc_src_plugins.qdoc 3
+
+        \o  Enter the following \c install_name_tool command to fix the
+            references of the libraries:
+
+            \snippet examples/doc_src_plugins.qdoc 5
+
+    \endlist
+
+    \section1 Matching Build Keys
+
+    The \QC that is included in pre-built SDK packages on Windows is built with
+    the Microsoft Visual Studio compiler, whereas the version of Qt shipped for
+    building applications is configured and built to use the MinGW/g++ compiler.
+    Plugins built by using this version of Qt cannot be loaded by \QC because
+    the build-keys do not match. The plugins can only be used in the standalone
+    version of \QD. Choose \gui{Help > About \QC} to check the Qt version \QC
+    was built with.
+
+    To use \QD plugins that were built for the shipped Qt version, make sure
+    that \QC is built with the same compiler by either recompiling \QC using
+    MinGW or recompiling Qt with Microsoft Visual Studio, depending on which
+    configuration you want to use for your applications.
+
+*/

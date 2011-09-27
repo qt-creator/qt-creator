@@ -1,0 +1,132 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-qml-modules-with-plugins.html
+    \page creator-using-qt-designer.html
+    \nextpage creator-usability.html
+
+    \title Developing Widget Based Applications
+
+    Widgets and forms created with \QD are integrated seamlessly with programmed
+    code by using the Qt signals and slots mechanism that allows you to easily
+    assign behavior to graphical elements. All properties set in \QD can be
+    changed dynamically within the code. Furthermore, features such as widget
+    promotion and custom plugins allow you to use your own widgets with \QD. For
+    more information, see \l{Adding Qt Designer Plugins}.
+
+    \QC automatically opens all .ui files in the integrated \QD, in \gui Design
+    mode.
+
+    \image qtcreator-formedit.png
+
+    For more information about \QD, see the
+    \l{http://doc.qt.nokia.com/4.7/designer-manual.html}{Qt Designer Manual}.
+
+    Generally, the integrated \QD contains the same functions as the standalone
+    \QD. The following sections describe the differences.
+
+    \section1 Code Editor Integration
+
+    To switch between forms (\gui Design mode) and code (\gui Edit mode),
+    press \key Shift+F4.
+
+    You can use \QC to create stub implementations of slot functions. In the
+    \gui Design mode, right-click a widget to open a context menu, and then
+    select \gui {Go to Slot}. Select a signal in the list to go to an existing
+    slot function or to create a new slot function.
+
+    \section1 Managing Image Resources
+
+    In standalone \QD, image resources are created using the built-in
+    \gui {Resource Editor}. In \QC, .ui files are usually part of a project,
+    which may contain several resource files (.qrc). They are created and
+    maintained by using the \QC Resource Editor. The \QD \gui {Resource Editor}
+    is de-activated and the image resources are displayed in the \QD
+    \gui {Resource Browser}.
+
+    \section1 Specifying Settings for Qt Designer
+
+    To change the layout of \QD user interface elements:
+
+    \list 1
+
+        \o  Select \gui Tools > \gui{Form Editor} > \gui Views > \gui Locked.
+
+            When this option is not checked, you can change the layout.
+
+        \o  Click the header of an element and drag the element to a new
+            position.
+
+    \endlist
+
+    To specify settings for \QD:
+
+    \list
+
+        \o  Select \gui Tools > \gui Options > \gui Designer.
+
+        \o  Specify settins for generating classes and code in \gui {Class
+            Generation}.
+
+        \o  Specify embedded device profiles, that determine style, font, and
+            screen resolution, for example, in \gui{Embedded Design}.
+
+        \o  Specify settings for the grid and previewing forms in \gui Forms.
+
+        \o  Specify an additional folder for saving templates in \gui{Template
+            Paths}.
+
+    \endlist
+
+    To preview the settings, select \gui Tools > \gui{Form Editor} >
+    \gui Preview, or press \key Alt+Shift+R.
+
+    \section1 Previewing Forms Using Device Skins
+
+    A \e {device skin} is a set of configuration files that describe a mobile
+    device. It includes a border image that surrounds the form and depicts a
+    mobile device with its buttons.
+
+    To preview your form using device skins:
+
+    \list 1
+
+        \o  Select \gui Tools > \gui Options > \gui Designer.
+
+        \o  Select the \gui{Print/Preview Configuration} check box.
+
+        \o  In the \gui {Device skin} field, select a device skin.
+
+        \o  When the form is open in \gui Design mode, press \key Alt+Shift+R.
+
+        \o  To end the preview, right-click the skin and select \gui Close in
+            the context menu.
+
+    \endlist
+*/
