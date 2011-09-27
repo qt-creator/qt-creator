@@ -301,7 +301,7 @@ bool MaemoDebianPackageCreationStep::createPackage(QProcess *buildProc,
         QFile::remove(changesTargetFilePath);
         if (!QFile::rename(packageSourceFilePath, packageFilePath())
                 || !QFile::rename(changesSourceFilePath, changesTargetFilePath)) {
-            raiseError(tr("Packaging failed: Could not move package files from '%1'' to '%2'.")
+            raiseError(tr("Packaging failed: Could not move package files from '%1' to '%2'.")
                 .arg(packageSourceDir, packageDirectory()));
             return false;
         }

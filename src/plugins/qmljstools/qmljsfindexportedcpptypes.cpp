@@ -233,9 +233,9 @@ protected:
                         _doc->fileName(),
                         line, column,
                         FindExportedCppTypes::tr(
-                            "The module uri cannot be determined by static analysis. The type will be available\n"
+                            "The module URI cannot be determined by static analysis. The type will be available\n"
                             "globally in the QML editor. You can add a \"// @uri My.Module.Uri\" annotation to let\n"
-                            "Qt Creator know about a likely uri."));
+                            "Qt Creator know about a likely URI."));
         }
 
         // second and third argument must be integer literals
@@ -365,7 +365,7 @@ protected:
                         _doc->fileName(),
                         line, column,
                         FindExportedCppTypes::tr(
-                            "must be a string literal to be available in qml editor"));
+                            "must be a string literal to be available in the QML editor"));
             return false;
         }
 
