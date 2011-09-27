@@ -1,0 +1,112 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-refactoring.html
+    \page qt-quick-toolbars.html
+    \nextpage creator-editor-locator.html
+
+    \title Using Qt Quick Toolbars
+
+    When you edit QML code in the code editor, you specify the properties
+    of QML components. For some properties, such as colors and font names,
+    this is not a trivial task. For example, few people can visualize the
+    color #18793f.
+
+    To easily edit these properties, you can use the Qt Quick Toolbars.
+    When you select a component in the code and a toolbar is available,
+     a light bulb icon appears:
+    \inlineimage qml-toolbar-indicator.png
+    . Select the icon to open the toolbar.
+
+    To open toolbars immediately when you select a component, select
+    \gui{Tools > Options > Qt Quick > Qt Quick Toolbar > Always show Quick
+    Toolbar}.
+
+    Drag the toolbar to pin it to another location. Select
+    \inlineimage qml-toolbar-pin.png
+    to unpin the toolbar and move it to its default location. To pin toolbars
+    by default, select \gui{Tools > Options > Qt Quick > Qt Quick Toolbar
+    > Pin Quick Toolbar}.
+
+    \section1 Previewing Images
+
+    The Qt Quick Toolbar for images allows you to edit the properties of
+    \l{http://doc.qt.nokia.com/latest/qml-borderimage.html}{Border Image}
+    and \l{http://doc.qt.nokia.com/latest/qml-image.html}{Image} components.
+    You can scale and tile the images, replace them with other images,
+    preview them, and change the image margins.
+
+    \image qml-toolbar-image.png "Qt Quick Toolbar for images"
+
+    To preview an image, double-click it on the toolbar. In the preview
+    dialog, you can zoom the image. Drag the image margins to change them.
+
+    \image qml-toolbar-image-preview.png "Image preview dialog"
+
+    \section1 Formatting Text
+
+    The Qt Quick Toolbar for text allows you to edit the properties of
+    \l{http://doc.qt.nokia.com/latest/qml-text.html}{Text} components.
+    You can change the font family and size as well as text formatting, style,
+    alignment, and color.
+
+    If a property is assigned an expression instead of a value, you
+    cannot use the toolbar to edit it. The button for editing the property
+    is disabled.
+
+    \image qml-toolbar-text.png "Qt Quick Toolbar for text"
+
+    By default, font size is specified as pixels. To use points, instead,
+    change \gui px to \gui pt in the size field.
+
+    \section1 Previewing Animation
+
+    The Qt Quick Toolbar for animation allows you to edit the properties of
+    \l{http://doc.qt.nokia.com/4.7/qml-propertyanimation.html}
+    {PropertyAnimation} components and the components that inherit it. You can
+    change the easing curve type and duration. For some curves, you can also
+    specify amplitude, period, and overshoot values.
+
+    \image qml-toolbar-animation.png "Qt Quick Toolbar for animation"
+
+    Select the play button to preview your changes.
+
+    \section1 Editing Rectangles
+
+    The Qt Quick Toolbar for rectangles allows you to edit the properties of
+    \l{http://doc.qt.nokia.com/4.7/qml-rectangle.html}{Rectangle}
+    components. You can change the fill and border colors and add
+    gradients.
+
+    \image qml-toolbar-rectangle.png "Qt Quick Toolbar for rectangles"
+
+    To add gradient stop points, click above the gradient bar. To remove
+    stop points, drag them upwards.
+
+*/

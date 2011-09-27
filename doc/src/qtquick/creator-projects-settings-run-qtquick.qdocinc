@@ -1,0 +1,28 @@
+    \section1 Specifying Run Settings for Qt Quick UI Projects
+
+    You can specify run settings for the \gui Desktop target:
+
+    \list
+
+        \o  In the \gui {Qt version} field, select a Qt version that has support
+            for QML.
+
+        \o  In the \gui Arguments field, you can specify command line arguments
+            to be passed to the executable.
+
+        \o  In the \gui {Main QML file}, select the file that \QQV will be
+            started with.
+
+        \o  In the \gui Debugger group, select the languages to debug:
+            \gui{C++} and \gui QML. \gui {Debug port} is the port to access
+            \QQV. You can use any free port in the registered port range.
+            For more information, see \l{Debugging Qt Quick Projects}.
+
+    \endlist
+
+    \note Opening a socket at a well-known port presents a security risk. Anyone
+    on the Internet could connect to the application that you are debugging and
+    execute any JavaScript functions. Therefore, you must make sure that the
+    port is properly protected by a firewall.
+
+    \image qmldesigner-run-settings.png "Run settings for Qt Quick UI projects"

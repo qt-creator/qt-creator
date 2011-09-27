@@ -1,0 +1,334 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-build-example-application.html
+    \page creator-qml-application.html
+    \nextpage creator-qml-components-example.html
+
+    \title Creating a Qt Quick Application
+
+    \note To complete this tutorial, you must have Qt 4.7 or later installed.
+
+    This tutorial uses basic elements and illustrates basic concepts of
+    \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
+
+    This tutorial describes how to use the \QC to implement the
+    \l{http://doc.qt.nokia.com/4.7/declarative-animation-states.html}
+    {states and transitions example application}. The example application
+     displays a Qt logo that moves between three rectangles on the page when you
+    click them.
+
+    \image qmldesigner-tutorial.png "States and transitions example"
+
+    For more information about using \QMLD, see
+    \l{Developing Qt Quick Applications}.
+
+    \section1 Creating the Project
+
+    \list 1
+
+        \o  Select \gui{File > New File or Project > Qt Quick Project > Qt Quick
+            Application > Choose}.
+
+        \o  Follow the instructions of the wizard to create a project called
+            Transitions.
+
+        \o  Press \key {Ctrl+R} to run the application.
+
+    \endlist
+
+    \QC generates a default QML file that you can modify to create the main view
+    of the application.
+
+    \image qmldesigner-tutorial-project.png "Transitions project in Edit mode"
+
+    \section1 Creating the Main View
+
+    The main view of the application displays a Qt logo in the top left corner
+    of the screen and two empty rectangles.
+
+    To use the states.png image in your application, you must copy it to the
+    project directory (same subdirectory as the QML file) from the examples
+    directory in the Qt installation directory. For example:
+    \c {C:\QtSDK\Examples\4.7\declarative\animation\states}. The image appears
+    in the \gui Resources pane. You can also use any other image or a QML
+    element, instead.
+
+    \list 1
+
+        \o  In the \gui Projects view, double-click the main.qml file
+            to open it in the code editor.
+
+        \o  Click \gui Design to open the file in \QMLD.
+
+            \image qmldesigner-tutorial-desing-mode.png "Transitions project in Design Mode"
+
+        \o  In the \gui Navigator pane, select \gui Text and press \key Delete to
+            delete it.
+
+        \o  Select \gui Rectangle to edit its properties.
+
+            \image qmldesigner-tutorial-page.png "Page properties"
+
+        \list a
+
+            \o  In the \gui Id field, enter \e page, to be able to reference the
+                rectangle from other places.
+
+            \o  In the \gui Colors group, \gui Rectangle field, set the color to
+                #343434.
+
+        \endlist
+
+        \o  In the \gui Library view, \gui Resources tab, select states.png and
+            drag and drop it to the canvas.
+
+            \image qmldesigner-tutorial-user-icon.png "Image properties"
+
+        \list a
+
+            \o  In the \gui Id field, enter \e icon.
+
+            \o  In the \gui Position field, set \gui X to 10 and \gui Y to 20.
+
+        \endlist
+
+        \o  In the \gui Library view, \gui Items tab, select \gui Rectangle,
+            drag and drop it to the canvas, and edit its properties.
+
+            \image qmldesigner-tutorial-topleftrect.png "Rectangle properties"
+
+        \list a
+
+            \o  In the \gui Id field, enter \e topLeftRect.
+
+            \o  In the \gui Size field, set \gui W and \gui H to 64, for the
+                rectangle size to match the image size.
+
+            \o  In the \gui Colors group, \gui Rectangle field, click the
+                \inlineimage qmldesigner-transparent-button.png
+                button to make the rectangle transparent.
+
+            \o  In the \gui Border field, set the border color to #808080.
+
+            \o  In the \gui Rectangle group, \gui Border field, set the border
+                width to 1.
+
+                \note If the \gui Border field does not appear after you set the
+                border color, try setting the border color to solid by clicking
+                the
+                \inlineimage qmldesigner-solid-color-button.png
+                button.
+
+            \o  In the \gui Radius field, select 6 to create rounded corners for
+                the rectangle.
+
+            \o  Click \gui {Layout}, and then click the top and left anchor
+                buttons to anchor the rectangle to the top left corner of the
+                page.
+
+                \image qmldesigner-tutorial-topleftrect-layout.png "Layout tab"
+
+            \o  In the \gui Margin field, select 20 for the top anchor and 10
+                for the left anchor.
+
+        \endlist
+
+        \o  In the \gui Navigator pane, drag and drop the \gui {Mouse Area}
+            element from \e page to \e topLeftRect to make it apply only to the
+            rectangle and not to the whole page.
+
+        \o Edit \gui {Mouse Area} properties:
+
+        \list a
+
+            \o  Click \gui {Layout}, and then click the
+                \inlineimage qmldesigner-anchor-fill-screen.png
+                button to anchor the mouse area to the rectangle.
+
+            \o  In the code editor, edit the pointer to the clicked expression
+                in the mouse area element, as illustrated by the following code
+                snippet:
+
+                \qml
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: page.state = ''
+                }
+                \endqml
+
+                The expression sets the state to the base state and returns the
+                image to its initial position.
+
+        \endlist
+
+        \o  In the \gui Navigator pane, copy topLeftRect (by pressing
+            \key {Ctrl+C}) and paste it to the canvas twice (by pressing
+            \key {Ctrl+V}). \QC renames the new instances of the element
+            topLeftRect1 and topLeftRect2.
+
+        \o Select topLeftRect1 and edit its properties:
+
+        \list a
+
+            \o  In the \gui Id field, enter \e middleRightRect.
+
+            \o  In \gui {Layout}, select the vertical center anchor button and
+                then the right anchor button to
+                anchor the rectangle to the middle right margin of the screen.
+
+            \o  In the \gui Margin field, select 10 for the right anchor and 0
+                for the vertical center anchor.
+
+            \o  In the code editor,add a pointer to a clicked expression to the
+                mouse area element. The following expression sets the state to
+                \e State1:
+
+                \c {onClicked: page.state = 'State1'}
+
+                You will create State1 later.
+
+        \endlist
+
+        \o  Select topLeftRect2 and edit its properties:
+
+        \list a
+
+            \o  In the \gui Id field, enter \e bottomLeftRect.
+
+            \o  In \gui {Layout}, select the bottom and left anchor buttons to
+                anchor the rectangle to the bottom left margin of the screen.
+
+            \o  In the \gui Margin field, select 20 for the bottom anchor and 10
+                for the left anchor.
+
+            \o  In the code editor, add a pointer to a clicked expression to the
+                mouse area element. The following expression sets the state to
+                \e State2:
+
+                \c {onClicked: page.state = 'State2'}
+
+                You will create State2 later.
+
+        \endlist
+
+        \o  Press \key {Ctrl+S} to save the changes.
+
+        \o  Press \key {Ctrl+R} to run the application.
+
+    \endlist
+
+    \image qmldesigner-tutorial.png "States and transitions example"
+
+    You should see the Qt logo in the top left rectangle, and two additional
+    rectangles in the center right and bottom left of the screen.
+
+    You can now create additional states to add views to the application.
+
+    \section1 Adding Views
+
+    In the .qml file, you already created pointers to two additional states:
+    State1 and State2. To create the states:
+
+    \list 1
+
+        \o  Click the empty slot in the \gui States pane to create State1.
+
+        \o  Click the empty slot in the \gui States pane to create State2.
+
+        \o  In the code editor, bind the position of the Qt logo to the
+            rectangle to make sure that the logo is displayed within the
+            rectangle when the view is scaled on different sizes of screens. Set
+            expressions for the x and y properties, as illustrated by the
+            following code snippet:
+
+            \snippet snippets/qml/states-properties.qml states
+
+            \image qmldesigner-tutorial-state1.png "States"
+
+            \note When you set the expressions, drag and drop is disabled for
+            the icon in \QMLD.
+
+        \o  Press \key {Ctrl+R} to run the application.
+
+    \endlist
+
+    Click the rectangles to move the Qt logo from one rectangle to another.
+
+    \section1 Adding Animation to the View
+
+    Add transitions to define how the properties change when the Qt logo moves
+    between states. The transitions apply animations to the Qt logo. For example,
+    the Qt logo bounces back when it moves to the middleRightRect and eases into
+    bottomLeftRect. Add the transitions in the code editor.
+
+    \list 1
+
+        \o  In the code editor, add the following code to specify that when
+            moving to State1, the x and y coordinates of the Qt logo change
+            linearly over a duration of 1 second:
+
+            \snippet snippets/qml/list-of-transitions.qml first transition
+
+        \o  You can use the Qt Quick toolbar for animation to change the easing
+            curve type from linear to OutBounce:
+
+        \list a
+
+            \o  Click \gui NumberAnimation in the code editor to display the
+                \inlineimage qml-toolbar-indicator.png
+                icon, and then click the icon to open the toolbar:
+
+                \image qmldesigner-tutorial-quick-toolbar.png "Qt Quick toolbar for animation"
+
+            \o  In the \gui Easing field, select \gui Bounce.
+
+            \o  In the \gui Subtype field, select \gui Out.
+
+        \endlist
+
+        \o  Add the following code to specify that when moving to State2, the x
+            and y coordinates of the Qt logo change over a duration of 2
+            seconds, and an InOutQuad easing function is used:
+
+            \snippet snippets/qml/list-of-transitions.qml second transition
+
+        \o  Add the following code to specify that for any other state changes,
+            the x and y coordinates of the Qt logo change linearly over a
+            duration of 200 milliseconds:
+
+            \snippet snippets/qml/list-of-transitions.qml default transition
+
+        \o  Press \key {Ctrl+R} to run the application.
+
+    \endlist
+
+    Click the rectangles to view the animated transitions.
+
+*/
