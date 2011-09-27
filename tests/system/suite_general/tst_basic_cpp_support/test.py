@@ -74,16 +74,14 @@ def main():
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "Dummy::Dummy(int)")
 
     invokeMenuItem("File", "Exit")
-
+    waitForCleanShutdown()
 
 def init():
     cleanup()
 
 def cleanup():
     # Make sure the .user files are gone
-
-    if os.access(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro.user", os.F_OK):
-        os.remove(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro.user")
+    cleanUpUserFiles(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
 
     BuildPath = glob.glob(srcPath + "/qtcreator-build-*")
     BuildPath += glob.glob(srcPath + "/projects-build-*")

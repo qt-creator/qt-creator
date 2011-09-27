@@ -40,6 +40,7 @@ def main():
     # Add a new run configuration
 
     invokeMenuItem("File", "Exit")
+    waitForCleanShutdown()
 
 def init():
     global SpeedCrunchPath
@@ -48,8 +49,7 @@ def init():
 
 def cleanup():
     # Make sure the .user files are gone
-    if os.access(SpeedCrunchPath + ".user", os.F_OK):
-        os.remove(SpeedCrunchPath + ".user")
+    cleanUpUserFiles(SpeedCrunchPath)
 
     BuildPath = glob.glob(srcPath + "/creator-test-data/speedcrunch/speedcrunch-build-*")
     BuildPath += glob.glob(srcPath + "/creator-test-data/speedcrunch/qtcreator-build-*")

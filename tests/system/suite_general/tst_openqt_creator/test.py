@@ -35,15 +35,13 @@ def main():
     test.compare(wordUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "QList")
 
     invokeMenuItem("File", "Exit")
-
+    waitForCleanShutdown()
 
 def init():
     cleanup()
 
 def cleanup():
     # Make sure the .user files are gone
+    cleanUpUserFiles([srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro",
+                      srcPath + "/creator/qtcreator.pro"])
 
-    if os.access(srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro.user", os.F_OK):
-        os.remove(srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro.user")
-    if os.access(srcPath + "/creator/qtcreator.pro.user", os.F_OK):
-        os.remove(srcPath + "/creator/qtcreator.pro.user")

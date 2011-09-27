@@ -1,4 +1,4 @@
-import tempfile, shutil, os
+import tempfile
 
 def neededFilePresent(path):
     found = os.path.exists(path)
@@ -93,4 +93,29 @@ def prepareForSignal(object, signal):
         signalObjects[realName] = 0
     installLazySignalHandler(object, signal, "__callbackFunction__")
     return realName
+
+# this function removes the user files of given pro file(s)
+# can be called with a single string object or a list of strings holding path(s) to
+# the pro file(s) returns False if it could not remove all user files or has been
+# called with an unsupported object
+def cleanUpUserFiles(pathsToProFiles=None):
+    if pathsToProFiles==None:
+        return False
+    if className(pathsToProFiles) in ("str", "unicode"):
+        filelist = glob.glob(pathsToProFiles+".user*")
+    elif className(pathsToProFiles)=="list":
+        filelist = []
+        for p in pathsToProFiles:
+            filelist.extend(glob.glob(p+".user*"))
+    else:
+        test.fatal("Got an unsupported object.")
+        return False
+    doneWithoutErrors = True
+    for file in filelist:
+        try:
+            file = os.path.abspath(file)
+            os.remove(file)
+        except:
+            doneWithoutErrors = False
+    return doneWithoutErrors
 
