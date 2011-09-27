@@ -1,0 +1,133 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-wizards.html
+    \page creator-project-cmake.html
+    \nextpage creator-project-generic.html
+
+    \title Setting Up a CMake Project
+
+    CMake is an alternative to qmake for automating the generation of build
+    configurations. It controls the software compilation process by using simple
+    configuration files, called \c{CMakeLists.txt} files. CMake generates native
+    build configurations and workspaces that you can use in the compiler
+    environment of your choice.
+
+    Since \QC 1.1, CMake configuration files are supported. Since \QC 1.3, the
+    Microsoft tool chain is supported if the CMake version is at least 2.8.
+
+    \section1 Setting the Path for CMake
+
+    You can set the path for the \c CMake executable in \gui{Tools} >
+    \gui{Options > Projects > CMake}.
+
+    \image qtcreator-cmakeexecutable.png
+
+    \note Before you open a \c CMake project, you must modify the \c{PATH}
+    environment variable to include the bin folders of \c mingw and \QC in
+    the \QSDK.
+
+    For instance, if the \QSDK is installed in \c {C:\SDK}, you would use the
+    following command to set the environment variables in the command line
+    prompt:
+    \code
+    set PATH=C:\sdk\mingw\bin;C:\sdk\qt\bin;
+    \endcode
+    Then start \QC by typing:
+    \code
+    C:\sdk\bin\qtcreator.exe
+    \endcode
+
+    \section1 Opening CMake Projects
+
+    To open a \c CMake project:
+
+    \list 1
+
+        \o  Select \gui{File} > \gui{Open File or Project}.
+
+        \o  Select the \c{CMakeLists.txt} file from your \c CMake project.
+
+    \endlist
+
+    A wizard guides you through the rest of the process.
+
+    \note If the \c CMake project does not have an in-place build, \QC
+    lets you specify the directory in which the project is built
+    (\l{glossary-shadow-build}{shadow build}).
+
+    \image qtcreator-cmake-import-wizard1.png
+
+    The screenshot below shows how you can specify command line arguments to
+    \c CMake for your project.
+
+    \image qtcreator-cmake-import-wizard2.png
+
+    Normally, there is no need to pass any command line arguments for projects
+    that are already built, as \c CMake caches that information.
+
+    \section1 Building CMake Projects
+
+    \QC builds \c CMake projects by running \c make, \c mingw32-make, or
+    \c nmake depending on your platform. The build errors and warnings are
+    parsed and displayed in the \gui{Build Issues} output pane.
+
+    By default, \QC builds the \bold{all} target. You can specify which
+    targets to build in \gui{Project} mode, under \gui{Build Settings}.
+
+    \image qtcreator-cmake-build-settings.png
+
+    \QC supports multiple build configurations. You can change the build
+    directory after the initial import.
+
+    \section1 Running CMake Projects
+
+    \QC automatically adds \gui{Run Configurations} for all targets specified
+    in the \c CMake project file.
+
+    For more information about known issues for the current version, see
+    \l{Known Issues}.
+
+    \section1 Adding External Libraries to CMake Projects
+
+    Through external libraries, \QC can support code completion and syntax
+    highlighting as if they were part of the current project or the Qt library.
+
+    \QC detects the external libraries using the \c FIND_PACKAGE()
+    macro. Some libraries come with the CMake installation. You can find those
+    in the \c {Modules} directory of your CMake installation.
+
+    \note If you provide your own libraries, you also need to provide your own
+    \c FindFoo.cmake file. For more information, see
+    \l{http://vtk.org/Wiki/CMake_FAQ#Writing_FindXXX.cmake_files}{CMake FAQ}.
+
+    Syntax completion and highlighting work once your project successfully
+    builds and links against the external library.
+
+*/

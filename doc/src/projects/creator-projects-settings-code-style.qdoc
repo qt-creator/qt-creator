@@ -1,0 +1,70 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-settings.html
+    \page creator-code-style-settings.html
+    \nextpage creator-build-dependencies.html
+
+    \title Specifying Code Style Settings
+
+    \QC uses the \l{Editing MIME Types}{MIME type} of the file to
+    determine which mode and editor to use for opening the file.
+    \QC opens C++ files in \gui Edit mode in the C++ code editor and
+    QML files in the Qt Quick editor.
+
+    You can configure the code style according to your needs. You can specify
+    code style either globally for all projects or separately for each
+    project. To specify global code style for C++ files, select \gui {Tools >
+    Options > C++}.
+
+    To specify global code style for QML files, select \gui {Tools > Options
+    > Qt Quick}.
+
+    To configure the editor behavior for the current project:
+
+    \list
+
+        \o  Select \gui {Projects > Code Style Settings}.
+
+        \o  In the \gui Language field, select \gui C++ or \gui Qt Quick.
+
+        \o  Deselect the \gui {Use global settings} check box.
+
+        \o  In the \gui Settings field, select \gui Custom.
+
+        \o  Specify code style settings for the project. Only \gui General
+            settings are available for QML files.
+
+    \endlist
+
+    \image qtcreator-code-style-settings.png "Code Style Settings view"
+
+    For more information about the settings, see \l{Indenting Code}.
+
+*/

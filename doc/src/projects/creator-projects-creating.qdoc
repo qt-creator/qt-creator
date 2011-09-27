@@ -1,0 +1,213 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-managing.html
+    \page creator-project-creating.html
+    \nextpage creator-project-opening.html
+
+    \title Creating Projects
+
+    \image qtcreator-new-project.png
+
+    You can use wizards to create following types of projects:
+
+    \list
+
+        \o  Qt Quick Project
+
+            Use QML elements or Qt Quick Components to define the user interface
+            and, optionally, C++ or JavaScript to define the application logic.
+
+        \if defined(qcmanual)
+        \o  Qt Widget Project
+
+            Use \QD forms to define a Qt widget based user interface and C++ to
+            define the application logic
+        \endif
+
+        \o  Other Project
+
+        \list
+
+            \o  HTML5 based applications
+
+            \o  Qt console applications
+
+            \o  Shared or static C++ libraries
+
+            \o  Qt unit tests
+
+            \if defined(qcmanual)
+            \o  Qt Custom Designer Widgets
+            \endif
+
+            \o  Subprojects
+
+        \endlist
+
+        \o  Project from Version Control
+
+            Import a project from a supported version control system. For more
+            information on how version control systems are integrated in
+            \QC, see \l{Using Version Control Systems}.
+
+    \endlist
+
+    To create a new project, select \gui File > \gui{New File or Project} and
+    select the type of your project. The contents of the wizard dialogs depend
+    on the project type and the build targets that you select in the
+    \gui {Target Setup} dialog. Follow the instructions of the wizard.
+
+    For examples of creating different types of projects, see
+    \l{Getting Started}.
+
+    For more information about creating Qt Quick projects, see
+    \l {Creating Qt Quick Projects}.
+
+    To change the location of the project directory, and to specify settings
+    for building and running projects, select \gui{Tools} > \gui{Options} >
+    \gui{Projects} > \gui{General}.
+
+    To specify build and run settings for different target platforms, select
+    \gui Projects.
+
+    \section1 Adding Files to Projects
+
+    You can use wizards also to add individual files to your projects.
+    You can create the following types of files:
+
+    \list
+
+        \o  Qt resource files, which allow you to store binary files in the
+            application executable
+
+        \if defined(qcmanual)
+        \o  \QD forms and \QD form classes, which specify parts of user
+            interfaces in Qt widget based projects
+        \endif
+
+        \o  QML files, which specify elements in Qt Quick projects
+
+        \o  GLSL files that define fragment and vertex shaders in both Qt Quick
+            projects and Qt widget based projects
+
+        \o  C++ class, source, or header files that you can use to write the
+            application logic in both Qt Quick projects and
+            \if defined(qcmanual)
+            Qt widget based projects
+            \endif
+
+        \o  JavaScript files that you can use to write the application logic in
+            Qt Quick projects
+
+        \o  Text files
+
+    \endlist
+
+    \section2 Creating C++ Classes
+
+    The \gui {C++ Class Wizard} allows you to create a C++ header and source
+    file for a new class that you can add to a C++ project. Specify the class
+    name, base class, and header and source files for the class.
+
+    The  wizard supports namespaces. To use a namespace, enter a qualified
+    class name in the \gui {Class name} field. For example:
+    MyNamespace::MySubNamespace::MyClass.
+
+    \image qtcreator-cpp-class-wizard.png "Enter Class Name dialog"
+
+    The names of the header and source file are based on the class name. To
+    change the default suffix of a file, click \gui Configure.
+
+    You can create your own project and class wizards. For more information,
+    see \l{Adding New Custom Wizards}.
+
+    \section2 Creating OpenGL Fragment and Vertex Shaders
+
+    Qt provides support for integration with OpenGL implementations on all
+    platforms, which allows you to display hardware accelerated 3D graphics
+    alongside a more conventional user interface. For more information, see
+    \l{http://doc.qt.nokia.com/4.7/qtopengl.html}{QtOpenGL Module}.
+
+    You can use the QGLShader class to compile OpenGL shaders written in the
+    OpenGL Shading Language (GLSL) and in the OpenGL/ES Shading Language
+    (GLSL/ES). QGLShader and QGLShaderProgram shelter you from the details of
+    compiling and linking vertex and fragment shaders.
+
+    You can use \QC code editor to write fragment and vertex shaders
+    in GLSL or GLSL/ES. The code editor provides syntax highlighting and code
+    completion for the files.
+
+    \image qtcreator-new-opengl-file.png "New OpenGL file wizard"
+
+    \section2 Displaying Additional File Types in Projects Pane
+
+    \QC determines whether to display files from the project folder
+    in the \gui Projects pane depending on the file type (.pro, .pri, .cpp,
+    .h, .qrc, and so on). To display other types of files, edit the
+    project file. Add filenames as values of the \c {OTHER_FILES} variable.
+    You can also use wildcards.
+
+    For example, the following code specifies that text files are displayed
+    in the \gui Projects pane:
+
+    \code
+
+    OTHER_FILES += *.txt
+
+    \endcode
+
+    This also makes the files available in the \gui Locator.
+
+    \section1 Adding Subprojects to Projects
+
+    When you create a new project, you can add it to another project as a
+    subproject in the \gui{Project Management} dialog. However, the root project
+    must specify that qmake uses the \c subdirs template to build the project.
+
+    To create a root project, select \gui {File > New File or Project >
+    Other Project > Subdirs Project > Choose}.
+
+    On the \gui Summary page, select \gui {Finish & Add Subproject} to create
+    the root project and to add another project, such as a C++ library.
+
+    The wizard creates a project file (.pro) that defines a \c subdirs template
+    and the subproject that you add as a value of the
+    \l{http://doc.qt.nokia.com/4.7/qmake-variable-reference.html#subdirs}
+    {SUBDIRS variable}. It also adds all the necessary files for the subproject.
+
+    To add more subprojects, right-click the project name in the \gui Projects
+    pane, and select \gui {New Subproject} in the context menu.
+
+    To remove subprojects, right-click the project name in the \gui Projects
+    pane, and select \gui {Remove Subproject} in the context menu.
+
+    To specify dependencies, use the \gui{Add Library} wizard. For more
+    information, see \l{Adding Libraries to Projects}.
+*/

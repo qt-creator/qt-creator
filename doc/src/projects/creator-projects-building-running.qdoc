@@ -1,0 +1,66 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-usability.html
+    \page creator-building-running.html
+    \nextpage creator-building-targets.html
+
+    \title Building and Running Applications
+
+    \QC provides support for building, running, and deploying Qt applications
+    for different \l{glossary-development-target}{targets}.
+
+    You can set up the following configurations:
+
+    \list
+
+        \o  \e {Build configuration}, which contains everything you need to
+            compile the sources into binaries.
+
+        \o  \e {Deploy configuration}, which handles the packaging and copying
+            of the necessary files to a location you want to run the executable
+            at. The files can be copied to a location in the file system of the
+            development PC or a mobile device.
+
+        \o  \e {Run configuration}, which starts the application in the location
+            where it was stored by the deploy configuration.
+
+    \endlist
+
+    By default, when you select the \gui Run function, \QC builds, deploys, and
+    runs the project. To specify the relationship between the release, build,
+    and deploy configurations, select \gui {Tools > Options > Project}. By
+    default, the \gui {Always build project before deploying it} and the
+    \gui {Always deploy project before running it} options are enabled.
+    Therefore, when you select the \gui Run function, \QC builds, deploys, and
+    runs the project.
+
+    \image qtcreator-project-options-deploy.png "Project General Options"
+
+*/

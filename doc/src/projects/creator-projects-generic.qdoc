@@ -1,0 +1,144 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-cmake.html
+    \page creator-project-generic.html
+    \nextpage creator-version-control.html
+
+    \title Setting Up a Generic Project
+
+    \QC supports generic projects, so you can import existing projects
+    that do not use qmake or CMake and \QC ignores your build system.
+
+    Generic project support allows you to use \QC as a code editor. You
+    can change the way your project is built by modifying the \c make command
+    in the \gui{Projects} mode under \gui{Build Settings}.
+
+    When you import a project, \QC creates the following files that
+    allow you to specify which files belong to your project and which include
+    directories or defines you want to pass to your compiler:
+    \tt{.files}, \tt{.includes}, and \tt{.config}.
+
+    \section1 Importing a Generic Project
+
+    To import an existing generic project:
+
+    \list 1
+
+        \o  Select \gui File > \gui{New File or Project} > \gui{Other Project}
+            > \gui{Import Existing Project}.
+
+        \o  In \gui{Import Existing Project}, enter the project name
+            and select the location of the project file you want to import.
+
+           \QC automatically generates the following files in the
+           project directory:
+
+           \list
+
+               \o   \l{Specifying Files}{.files}
+
+               \o   \l{Specifying Include Paths}{.includes}
+
+               \o   \l{Specifying Defines}{.config}
+
+               \o   .creator
+
+           \endlist
+
+    \endlist
+
+    When the project is successfully imported, \QC creates the project
+    tree in the sidebar.
+
+    After importing a generic project into \QC, open it by selecting the
+    \tt{.creator} file.
+
+    \section1 Working with Generic Project Files
+
+    For a generic project, you have to manually specify which files belong to
+    your project and which include directories or defines you want to pass to
+    your compiler.
+
+    \section1 Specifying Files
+
+    The list of files for a generic project is specified in the \tt{.files}
+    file. When you first create a generic project, \QC adds any files it
+    recognizes to your project.
+
+    To add or remove files, edit the \tt{.files} file in \QC.
+    \QC recreates your project tree when you save the \tt{.files} file.
+    Alternatively, you can add and remove files using the context menu in the
+    project tree.
+
+    If you frequently need to update the \tt{.files} file, you can do so
+    efficiently by using a script that updates the file for you. If the file
+    is modified externally, you have to restart \QC for the changes to
+    take effect.
+
+    To update the \tt{.files} on the \gui Git repository use the following
+    script:
+
+    \code
+    git ls-files "*.cpp" "*.h" > MyProject.files
+    \endcode
+
+    \section1 Specifying Include Paths
+
+    The include paths are specified in the \tt{.includes} file, one include
+    path per line. The paths can be either absolute or relative to the
+    \tt{.includes} file.
+
+    \section1 Specifying Defines
+
+    The defines are specified in the \tt{.config} file. The \tt{.config} file is
+    a regular C++ file, prepended to all your source files when they are parsed.
+    Only use the \tt{.config} file to add lines as in the example below:
+
+    \code
+    #define NAME value
+    \endcode
+
+    \section1 Creating a Run Configuration
+
+    \QC cannot automatically determine which executable to run.
+
+    In the \gui{Projects} mode under \gui{Run Settings}, define the executable
+    file to run:
+
+    \list 1
+
+        \o  Click \gui Add and select \gui{Custom Executable}.
+
+        \o  Define the configuration name, the location of the executable, any
+            additional arguments and the working directory.
+
+    \endlist
+
+*/

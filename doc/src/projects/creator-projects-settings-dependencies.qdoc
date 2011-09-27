@@ -1,0 +1,66 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-code-style-settings.html
+    \page creator-build-dependencies.html
+    \nextpage creator-debugging.html
+
+    \title Specifying Dependencies
+
+    If you have multiple projects loaded in a session, you can define the
+    order in which they are built. For example, if project A depends on project
+    B, project B must be built first.
+
+    \note The build order is stored as a property of a session, not a project.
+    You must open the session for these settings to take effect. For more
+    information, see \l{Managing Sessions}.
+
+    \image qtcreator-build-dependencies.png "Dependencies view"
+
+    To define the build order of projects within a session:
+
+    \list 1
+
+        \o  In \gui Projects, select a project.
+
+        \o  Click \gui Dependencies.
+
+        \o  Select projects that must be built before the current project is
+            built.
+
+    \endlist
+
+    \QC calculates the build order based on the dependencies that you
+    specify for the projects loaded in the session.
+
+    \note You cannot use this view to specify subprojects for projects.
+    For more information on how to add subprojects, see \l{Adding Subprojects
+    to Projects}.
+
+*/

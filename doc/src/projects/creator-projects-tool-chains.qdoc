@@ -1,0 +1,148 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-qmake.html
+    \page creator-tool-chains.html
+    \nextpage creator-run-settings.html
+
+    \title Adding Tool Chains
+
+    A \e {tool chain} specifies a compiler and a debugger and other necessary
+    tools for building an application that is \l{glossary-development-target}
+    {targeted} for a particular platform. \QC automatically detects the tool
+    chains that are registered by your system or by \QSDK.
+
+    You can add tool chains to build applications by using other compilers or
+    with different versions of the automatically detected compilers:
+
+    \list
+
+        \o  GNU Compiler Collection (GCC) is a compiler for Linux and
+            Mac OS X.
+
+        \o  MinGW (Minimalist GNU for Windows) is a native software port of GCC
+            and GNU Binutils for use in the development of native Microsoft
+            Windows applications on Windows. MinGW is
+            distributed together with \QC and Qt SDK for Windows.
+
+        \o  Linux ICC (Intel C++ Compiler) is a group of C and C++ compilers
+            for Linux.
+
+        \o  Clang is a C, C++, Objective C, and Objective C++ front-end for the
+            LLVM compiler for Windows, Linux, Mac OS X, and Symbian.
+
+        \o  GCCE (GNU Compiler Collection for Embedded) is an ARM-based
+            compiler used in Symbian OS 9 and distributed together with \QSDK.
+
+        \if defined(qcmanual)
+        \o  RVCT is an ARM-based compiler for building applications for Symbian
+            devices (requires a license).
+
+        \o  WINSCW is a compiler for building applications that can be run or
+            debugged on the Symbian Emulator. It is distributed together with
+            Symbian SDKs (but not with the \QSDK).
+        \endif
+
+    \endlist
+
+    To build an application using GCC, MinGW, GCCE, or Clang, specify the paths
+    to the directories where the compiler and debugger are located and select
+    the application binary interface (ABI) version from the list of available
+    versions. You can also create a custom ABI definition.
+
+    \QC allows you to select a tool chain that matches the Qt version
+    in the \gui Projects mode \gui {Build Settins}.
+
+    To add tool chains:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options Tool Chains > Add} and select a
+            compiler in the list.
+
+            \image qtcreator-toolchains.png
+
+            To clone the selected tool chain, select \gui {Clone}.
+
+        \o  In the \gui Name column, double-click the name to change it.
+
+        \o  In the \gui{Compiler path} field, enter the path to the directory
+            where the compiler is located.
+            \if defined(qcmanual)
+            For WINSCW, enter the path to the Carbide C++ installation directory
+            here.
+            \endif
+
+            The other settings to specify depend on the tool chain.
+
+        \if defined(qcmanual)
+        \o  For RVCT, select the ARM version to use in the \gui {ARM version}
+            field. RVCT 2.2 is supported on Symbian^3 and earlier. RVCT 4.0 b902
+            or later is required for Symbian Belle.
+        \endif
+
+    \endlist
+
+    \section2 Troubleshooting MinGW Compilation Errors
+
+    If error messages displayed in the \gui {Compile Output} pane contain
+    paths where slashes are missing (for example, C:QtSDK),
+    check your PATH variable. At the command line, enter the following commands:
+
+    \code
+        where sh.exe
+        where make.exe
+        where mingw32-make.exe
+    \endcode
+
+    If these commands show paths, they have been added to the global PATH
+    variable during the installation of a tool chain based on Cygwin or MinGW,
+    even though this is against Windows conventions.
+
+    To keep working with the third-party tool chain, create a new shell link
+    that adds the required paths (as Visual Studio and Qt do). The shell link
+    must point to cmd.exe, as illustrated by the following example:
+
+    \c {C:\Windows\System32\cmd.exe /K C:\path_to\myenv.bat}
+
+    where the /K parameter carries out the command specified in the bat file.
+
+    Create the myenv.bat file at \e path_to, which should be in a convenient
+    location. In the file, specify the paths to the tool chains. For example,
+
+    \c  {set PATH=C:\path1;C:\path2;%PATH%}
+
+    where \e path1 and \e path2 are paths to the tool chains.
+
+    Finally, remove the paths from the global PATH, reboot the computer, and
+    run the \c where commands again to verify that the global PATH is now clean.
+
+    You can use the shell link to run the tools in the third-party tool chains.
+
+*/

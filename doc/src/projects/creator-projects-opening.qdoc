@@ -1,0 +1,102 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-creating.html
+    \page creator-project-opening.html
+    \nextpage creator-project-qmake-libraries.html
+
+    \title Opening Projects
+
+    \QC stores information that it needs to build projects in a .user file. If
+    \QC cannot find the file when you open an existing project, it prompts you
+    to enter the information. If you created the project by using another \QC
+    instance, \QC asks whether you want to use the old settings. The settings
+    are specific to the development environment, and should not be copied from
+    one environment to another. Therefore, we recommend that you click \gui No
+    and enter the information again in the \gui {Project Setup} dialog.
+
+    The \gui {Project Setup} dialog displays a list of development environments
+    for target platforms that are installed on the development PC. Select the Qt
+    versions that you want to use to build the project for each target.
+
+    \image qtcreator-open-project-targets.png "Target Setup dialog"
+
+    If \QC cannot find an existing build for a particular development
+    environment (Qt version) and target, it starts out from a clean slate, and
+    creates a new build in the specified directory. \QC suggests a name
+    and location for the directory that you can change.
+
+    By default, \QC does a \l{glossary-shadow-build}{shadow build} and also
+    creates the directory. However, shadow building is not supported for the
+    following targets on Windows:
+
+    \list
+
+        \o  Maemo5
+
+        \o  MeeGo Harmattan
+
+        \if defined(qcmanual)
+        \o  Symbian Devices
+        \endif
+
+    \endlist
+
+    If you have built the project before, \QC can use the existing build
+    configuration to make the exact same build as found in the directory
+    available to \QC.
+
+    If you know you have a build, but it is not listed, click \gui {Add Build}
+    to locate it. Select a directory, and \QC scans it (including
+    subdirectories) for additional builds of the project. \QC adds the found
+    builds to the target list.
+
+    You can edit the build configuration later. For more information, see
+    \l{Editing Build Configurations}.
+
+    To open a project:
+
+    \list 1
+
+        \o  Select \gui File > \gui{Open File or Project} and select the project
+            to open.
+
+        \o  In the \gui {Project Setup} dialog, select the Qt versions to use as
+            build targets for your project, and click \gui{Finish}.
+
+            \note If you have only one development environment installed, this
+            dialog is skipped.
+
+    \endlist
+
+    \QC parses all the source files in the project and performs a semantic
+    analysis to build up the information that it needs for functions such as
+    navigation and finding usages. A progress bar is displayed during parsing.
+
+*/

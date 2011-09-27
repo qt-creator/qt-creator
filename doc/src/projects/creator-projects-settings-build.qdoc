@@ -1,0 +1,217 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-running-targets.html
+    \page creator-build-settings.html
+    \nextpage creator-project-qmake.html
+
+    \title Specifying Build Settings
+
+    Different build configurations allow you to quickly switch between
+    different build settings. By default, \QC creates \bold debug
+    and \bold release build configurations. A debug build contains additional
+    debug symbols that you need for debugging the application but that you
+    can leave out from the release version. Generally, you use the debug
+    configuration for testing and the release configuration for creating
+    the final installation file.
+
+    You specify build settings in the \gui Projects mode.
+
+    \image qtcreator-projectpane.png
+
+    To add a new build configuration, click \gui Add and select the type of
+    configuration you would like to add. You can add as many build
+    configurations as you need.
+
+    To delete the build configuration currently selected, click \gui Remove.
+
+    \section1 Editing Build Configurations
+
+    To edit a build configuration:
+
+    \list 1
+
+        \o  Select the build configuration you want to edit in
+            \gui{Edit Build Configuration}.
+
+        \o  In the \gui {Qt version} field, select the Qt version to use for
+            building project. You can add Qt versions to the list if they are
+            installed on the development PC, but were not detected
+            automatically. For more information, see \l{Adding Qt Versions}.
+
+        \o  In the \gui {Tool chain} field, select the tool chain required
+            to build the project. The tool chains that are compatible with the
+            selected Qt version are listed. You can add tool chains to the list
+            if they are not automatically detected. For more information, see
+            \l{Adding Tool Chains}.
+
+        \o  In the \gui {Build directory} field, specify the build directory for
+            the project. By default, projects are built in a separate directory
+            from the source directory, as \l{glossary-shadow-build}
+            {shadow builds}. This keeps the files generated for each
+            \l{glossary-development-target}{target} platform separate.
+            If you only build for one target platform, you can deselect the
+            \gui{Shadow build} checkbox.
+
+            \if defined(qcmanual)
+            \note Shadow building is not supported for Maemo or MeeGo Harmattan
+            on Windows. Also, shadow building is not supported by the Symbian
+            build system.
+            \endif
+
+
+    \endlist
+
+    \if defined(qcmanual)
+    \note The build configuration for the \gui{Symbian Device} target
+    uses the GCCE tool chain by default. If you want to build
+    for the device using RVCT, install the RVCT tool chain, and then
+    select it in the \gui {Tool chain} field. RVCT 2.2 is supported on Symbian^3
+    and earlier. RVCT 4.0 b902 or later is required for Symbian Belle.
+    \endif
+
+
+    \section1 Starting External Processes
+
+    \QC executes external processes to accomplish tasks such as building
+    and running applications. To execute the processes, \QC uses shell
+    commands that are native to the system. It constructs the commands from
+    an executable name and optional command line arguments.
+
+    The executable name is specified in the executable fields: \gui qmake,
+    \gui Make, \gui Command, or \gui Executable. It is either derived from the
+    project or specified manually. When you specify executables manually, you
+    can reference environment variables and \QC variables. However, no
+    quoting rules
+    apply.
+
+    You can specify command-line arguments in the arguments fields:
+    \gui {Additional arguments}, \gui {Command arguments},
+    \gui {Make arguments}, or \gui Arguments. You can create shell command lines
+    that can contain redirection and other advanced constructs. However, some
+    more complex use cases, such as piping test data into the application being
+    tested or grouping commands, are not supported because the value of the
+    \gui Executable field is always placed first when constructing the command.
+
+    \section2 Using Environment Variables
+
+    You can use any environment variables as values in the fields. For a list
+    of variable names, click \gui {Build Environment > Details} in the
+    \gui {Build Settings}. Environment variables are referenced using the native
+    syntax: $VARNAME or ${VARNAME} on Unix and %VARNAME% on Windows.
+
+    \section2 Using Qt Creator Variables
+
+    You can use \QC variables in arguments, executable paths, and working
+    directories. The variables take care of quoting their expansions, so you do
+    not need to put them in quotes.
+
+    The following \QC variables are available:
+
+    \list
+
+        \o %{buildDir}
+
+        \o %{sourceDir}
+
+    \endlist
+
+    \section1 Build Steps
+
+    The build system of \QC is built on qmake and make. In \gui{Build Steps} you
+    can change the settings for qmake and make. \QC runs the make command using
+    the Qt version defined for the current build configuration.
+
+    \image qtcreator-build-steps.png "Build steps"
+
+    To override the shell command that \QC constructs by default, remove
+    the build step and add a custom build step that specifies another shell
+    command.
+
+    \section2 Adding Custom Build Steps
+
+    To add custom steps to the build settings, select \gui {Add Build Step >
+    Custom Process Step}.
+
+    By default, custom steps are disabled. To activate a custom step, select
+    the \gui{Enable custom process step} check-box.
+
+    \image qtcreator-build-steps-custom.png "Custom Process Step"
+
+    \section1 Clean Steps
+
+    You can use the cleaning process to remove intermediate files. This process
+    might help you to fix obscure issues during the process of building a
+    project.
+
+    \image qtcreator-clean-steps.png "Clean steps"
+
+    You can define the cleaning steps for your builds in the \gui{Clean Steps}:
+
+    \list
+
+        \o  To add a clean step using make or a custom process, click
+            \gui{Add Clean Step} and select the type of step you want to add.
+
+            By default, custom steps are disabled. To activate a custom step,
+            select the \gui{Enable custom process step} check-box.
+
+        \o  To remove a clean step, click \gui{Remove Item}.
+
+        \o  To change the order of steps, click
+            \inlineimage qtcreator-movestep.png
+            .
+    \endlist
+
+    \section1 Build Environment
+
+    You can specify the environment you want to use for building in the
+    \bold{Build Environment} section. By default, the environment in which \QC
+    was started is used and modified to include the Qt version.
+    Depending on the selected Qt version, \QC automatically sets the
+    necessary environment variables. You can edit existing environment
+    variables or add, reset and unset new variables based on your project
+    requirements.
+
+    \image qtcreator-build-environment.png "Build Environment"
+
+    \note The changes are stored in the local project specific \c{.pro.user}
+    file. Therefore, they are not suitable for sharing between developers or
+    development PCs. To share settings, incorporate them into the build system.
+    For example, if you use qmake, make the changes in the \c{.pro} file.
+
+    \section2 Clearing the System Environment
+
+    To build with a clean system environment, select the \gui {Clear system
+    environment} check box. \QC discards the current environment, and
+    populates a clean system environment with the environment variables that the
+    compilers and tools need. Therefore, the environment is never totally empty,
+    even after you clear it.
+
+*/

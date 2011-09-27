@@ -1,0 +1,148 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-opening.html
+    \page creator-project-qmake-libraries.html
+    \nextpage creator-developing-meego.html
+
+    \title Adding Libraries to Projects
+
+    In addition to Qt libraries, you can add other libraries to your projects.
+    The way the library is added depends on whether it is a system library or
+    your own library or a 3rd party library located in the build tree of the
+    current project or in another build tree.
+
+    \image qtcreator-add-library-wizard.png "Add Library wizard"
+
+    Because system libraries do not typically change and are often found by
+    default, you do not need to specify the path to the library or to its
+    includes when you add it.
+
+    For your own libraries and 3rd party libraries, you need to specify
+    the paths. \QC tries to guess the include path for an external library,
+    but you need to check it and modify it if necessary. \QC automatically
+    adds the include path for an internal library.
+
+    For all libraries, select the target platforms for the application, library,
+    or plugin.
+
+    Specify whether the library is statically or dynamically linked. For a
+    statically linked internal library, \QC adds dependencies
+    (PRE_TARGETDEPS) in the project file.
+
+    Depending on the development platform, some options might be detected
+    automatically. For example, on Mac OS, the library type (\gui Library or
+    \gui Framework) is detected automatically and the option is hidden. However,
+    if you develop on another platform than Mac OS and want to build your
+    project for the Mac OS, you must specify the library type.
+
+    The default convention on Windows is that the debug and release versions
+    of a library have the same name, but are placed in different subdirectories,
+    usually called \e debug and \e release. If the library path does not contain
+    either of these folders, you cannot select the option to place the libraries
+    in separate folders.
+
+    Alternatively, the letter \e d can be added to the library name for the
+    debug version. For example, if the release version is called example.lib,
+    the debug version is called exampled.lib. You can specify that the letter
+    is added for the debug version and removed for the release version.
+    If the library name ends in \e d, deselect the \gui {Remove "d" suffix
+    for release version} option.
+
+    \QC supports code completion and syntax highlighting for the added
+    libraries once your project successfully builds and links to them.
+
+    \section1 To Add Libraries
+
+    \list 1
+
+        \o  In the \gui Projects pane, open the project file (.pro).
+
+        \o  Right-click in the code editor to open the context menu and select
+            \gui {Add Library}.
+
+        \o  Follow the instructions of the wizard.
+
+    \endlist
+
+    For more information about the project file settings, see
+    \l{http://doc.qt.nokia.com/4.7/qmake-project-files.html#declaring-other-libraries}
+    {Declaring Other Libraries}.
+
+    \section1 Example of Adding Internal Libraries
+
+    The following example describes how to add a statically linked internal
+    library to your project.
+
+    \list 1
+
+        \o  Choose \gui {File > New File or Project > Other Projects >
+            C++ Library} to create the library.
+
+            The \gui {Introduction and Product Location} dialog opens.
+
+            \image qtcreator-add-library-wizard-ex-1.png "Introduction and Product Location dialog"
+
+        \o  In the \gui Type field, select \gui {Statically Linked Library}.
+
+        \o  In the \gui Name field, give a name for the library. For example,
+            \bold mylib.
+
+        \o  Follow the instructions of the wizard until you get to the
+            \gui {Project Management} dialog. In the \gui {Add to project}
+            list, select a project. For example, \bold myapp.
+
+        \o  In the \gui Projects pane, open the project file (.pro).
+            For example, \bold myapp.pro.
+
+        \o  Right-click in the code editor to open the context menu and select
+            \gui {Add Library > Internal Library > Next}.
+
+        \o  In the \gui Library field, select \bold mylib and click \gui Next.
+
+        \o  Click \gui Finish to add the following library declaration to the
+            project file:
+
+            \code
+            win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/release/ -lmylib
+            else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/debug/ -lmylib
+            else:symbian: LIBS += -lmylib
+            else:unix: LIBS += -L$$OUT_PWD/../../../projects/mylib/ -lmylib
+
+            INCLUDEPATH += $$PWD/../../../projects/mylib
+            DEPENDPATH += $$PWD/../../../projects/mylib
+
+            win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/release/mylib.lib
+            else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/debug/mylib.lib
+            else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
+            \endcode
+
+    \endlist
+
+*/

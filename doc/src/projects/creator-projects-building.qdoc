@@ -1,0 +1,65 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-building-running.html
+    \page creator-building-targets.html
+    \nextpage creator-running-targets.html
+
+    \title Building Applications for Multiple Targets
+
+    You can build applications for multiple \l{glossary-development-target}
+    {targets}. By default, when you run the application on a target, you
+    automatically build it for the target and deploy it to the target first.
+    However, you can also perform each operation separately.
+
+    To check that the application code can be compiled and linked for a target,
+    you can build the project. The build errors and warnings are displayed in
+    the \gui {Build Issues} output pane. More detailed information is displayed
+    in the \gui {Compile Output} pane.
+
+    To build an application:
+
+    \list 1
+
+        \o Select a target for the project.
+
+        \image qtcreator-target-selector.png "Target selector"
+
+        \o Choose \gui {Build > Build Project} or press \key {Ctrl+B}.
+
+    \endlist
+
+    For more information on the options you have, see
+    \l{Specifying Build Settings}.
+
+    \if defined(qcmanual)
+    \input symbian/creator-projects-building-symbian.qdocinc
+    \endif
+
+*/

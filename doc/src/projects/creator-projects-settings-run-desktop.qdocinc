@@ -1,0 +1,15 @@
+    \section2 Specifying Run Settings for Desktop Targets
+
+    You can specify command line arguments to be passed to the executable
+    and the working directory to use. The working directory defaults to
+    the directory of the build result.
+
+    For console applications, check the \gui{Run in Terminal} check box.
+    If you need to run with special environment variables set up, you
+    also do it in the run configuration settings.
+
+    \image qtcreator-pprunsettings.png
+
+    You can also create custom executable run configurations where you
+    can set the executable to be run. For more information, see
+    \l{Specifying a Custom Executable to Run}.

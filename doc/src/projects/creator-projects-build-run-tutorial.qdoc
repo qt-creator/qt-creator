@@ -1,0 +1,92 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-getting-started.html
+    \page creator-build-example-application.html
+    \nextpage creator-qml-application.html
+
+    \title Building and Running an Example Application
+
+    You can test that your installation is successful by opening an existing
+    example application project.
+
+    \list 1
+
+        \o  On the \gui Welcome page, select the \gui {Show Examples and Demos}
+            check box, and then search for \gui {Toys: Clocks Example} in the
+            list of examples.
+
+            \image qtcreator-gs-build-example-open.png "Selecting an example"
+
+        \o  Select targets for the project. Select at least Qt Simulator
+            and one of the mobile targets, Symbian Device, Maemo 5, or
+            MeeGo Harmattan, depending on the device you develop for.
+
+            \image qtcreator-gs-build-example-targets.png "Selecting targets"
+
+            \note You can add targets later in the \gui Projects mode.
+
+        \o  To test the application in Qt Simulator, click the \gui {Target
+            Selector} and select \gui {Qt Simulator}.
+
+            \image {qtcreator-gs-build-example-select-qs.png} "Selecting Qt Simulator as target"
+
+        \o  Click
+            \inlineimage{qtcreator-run.png}
+            to build the application and run it in Qt Simulator.
+
+        \o  To see the compilation progress, press \key{Alt+4} to open the
+            \gui {Compile Output} pane.
+
+            The \gui Build progress bar on the toolbar turns green when the
+            project is successfully built. The application opens in
+            Qt Simulator.
+
+            \image {qt-simulator.png} "Qt Simulator"
+
+        \o  Change the settings in the \gui Model view. For example, rotate the
+            device by clicking the \gui {Orientation} buttons or choose from the
+            various mobile device configurations in the \gui {Device} field. You
+            can also simulate various mobile functions and create your own
+            scripts.
+
+        \if defined(qcmanual)
+        \o  To test the application on a Symbian device, check that the required
+            Qt libraries and a debugging agent are installed on the device. For
+            more information, see \l{Connecting Symbian Devices}.
+
+        \o  Click the \gui {Target Selector} and select \gui {Symbian Device}.
+
+        \o  Click \gui Run to build the application and run it on the Symbian
+            device.
+        \endif
+
+    \endlist
+
+*/

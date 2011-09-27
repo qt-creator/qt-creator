@@ -1,0 +1,90 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-build-settings.html
+    \page creator-project-qmake.html
+    \nextpage creator-tool-chains.html
+
+    \title Adding Qt Versions
+
+    \QC allows you to have multiple versions of Qt installed on your development
+    PC and use different versions to build your projects for different targets.
+    For example, \QSDK contains special Qt versions for developing applications
+    for mobile devices.
+
+    \QC checks the directories listed in the \c{PATH} environment
+    variable for the qmake executable. If a qmake executable is found, it is
+    referred to as \bold{Qt in PATH} and selected as the Qt version to use
+    in the \gui Projects mode in the \gui {Build Settings}. If \QC
+    cannot find qmake, the value in the \gui {Qt version} field might be
+    invalid and you might need to change it.
+
+    \QC automatically detects the Qt versions that are registered by
+    your system or by \QSDK. To view the settings for each Qt version, move the
+    mouse pointer over it in the list. To add Qt versions, select
+    \gui {Tools > Options > Qt4 > Qt Versions}.
+
+    Typically, you select the Qt versions for a project when you use project
+    wizards to create the project. You can add Qt versions for a project in
+    \gui {Build Settings}.
+
+    \section2 Setting Up New Qt Versions
+
+    To add a Qt version:
+
+        \list 1
+
+            \o  Select \gui Tools > \gui Options > \gui Qt4 > \gui Add.
+
+                \image qtcreator-qt4-qtversions-add.png
+
+            \o  In the \gui{qmake location} field, enter the path to the
+                directory where the qmake executable is located.
+
+            \o  In the \gui{Version name} field, edit the name that \QC
+                suggests for the Qt version.
+
+                \QC automatically determines the path to the binaries in
+                the Qt installation and displays it in the dialog.
+
+            \o  In the \gui Helpers section, you can build the debugging
+                helpers that are available for the Qt version. This is
+                necessary, because the internal data structures of Qt can
+                change between versions. For more information, see
+                \l{Using Debugging Helpers}.
+
+        \endlist
+
+    \if defined(qcmanual)
+    \input symbian/creator-projects-qt-versions-symbian.qdocinc
+    \endif
+
+*/
+
+

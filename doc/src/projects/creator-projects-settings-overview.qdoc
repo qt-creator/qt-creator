@@ -1,0 +1,82 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-usability.html
+    \page creator-configuring-projects.html
+    \nextpage creator-building-targets.html
+
+    \title Configuring Projects
+
+    When you install the \QSDK, the build and run settings for the tool chains
+    delivered with the \QSDK are set up automatically.
+
+    To view and modify the settings for currently open projects, switch to the
+    \gui Projects mode by pressing \key Ctrl+5.
+
+    \image qtcreator-projectpane.png
+
+    You can add a target if the development environment for the target platform
+    is installed on the development PC and the Qt version is configured. Click
+    \inlineimage qtcreator-qt4-addbutton.png "Add Target button"
+    and select from a list of available targets. To remove a target, select it
+    and click
+    \inlineimage qtcreator-target-remove.png "Remove Target button"
+    .
+
+    You can select the targets and use the \gui Build menu commands to build,
+    deploy, and run projects.
+
+    The project pane consists of the following tabs:
+
+    \list
+
+        \o  \l{Running Applications on Multiple Targets}{Targets}
+            (If you have installed the development environment for only one
+            target, the \gui Targets tab is replaced by a \gui Build tab and a
+            \gui Run tab.)
+
+        \o  \l{Specifying Build Settings}{Build Settings}
+
+        \o  \l{Specifying Run Settings}{Run Settings}
+
+        \o  \l{Specifying Editor Settings}{Editor Settings}
+
+        \o  \l{Specifying Code Style Settings}{Code Style Settings}
+
+        \o  \l{Specifying Dependencies}{Dependencies}
+
+    \endlist
+
+    Use the \gui Build and \gui Run buttons to switch between the build and
+    run settings for the active project.
+
+    If you have multiple projects open in \QC, use the tabs at the top of the
+    window to navigate between their settings.
+
+*/

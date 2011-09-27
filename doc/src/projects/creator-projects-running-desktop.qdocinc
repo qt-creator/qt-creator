@@ -1,0 +1,11 @@
+    \section1 Running on Desktop
+
+    \list 1
+
+        \o  Select \gui Desktop as the target.
+
+            \image qtcreator-target-selector.png "Target selector"
+
+        \o  Click the \gui Run button.
+
+    \endlist
