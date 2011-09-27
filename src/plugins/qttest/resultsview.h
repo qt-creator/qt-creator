@@ -132,25 +132,25 @@ public:
 
     static TestResultsWindow *instance();
 
-    virtual QString displayName() const { return "Test Results"; }
+    virtual QString displayName() const { return tr("Test Results"); }
 
     QWidget *outputWidget(QWidget *parent);
-    QList<QWidget*> toolBarWidgets() const;
+    QList<QWidget *> toolBarWidgets() const;
 
     QString name() const;
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
 
-    bool canFocus();
-    bool hasFocus();
+    bool canFocus() const;
+    bool hasFocus() const;
     void setFocus();
 
-    virtual bool canNext();
-    virtual bool canPrevious();
+    virtual bool canNext() const;
+    virtual bool canPrevious() const;
     virtual void goToNext();
     virtual void goToPrev();
-    bool canNavigate();
+    bool canNavigate() const;
     ResultsView *resultsView() { return m_resultsView; }
 
     void addResult(const QString &result, const QString &test, const QString &reason,

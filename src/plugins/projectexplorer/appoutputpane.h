@@ -63,20 +63,20 @@ public:
     virtual ~AppOutputPane();
 
     QWidget *outputWidget(QWidget *);
-    QList<QWidget*> toolBarWidgets() const;
+    QList<QWidget *> toolBarWidgets() const;
     QString displayName() const;
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool);
-    bool canFocus();
-    bool hasFocus();
+    bool canFocus() const;
+    bool hasFocus() const;
     void setFocus();
 
-    bool canNext();
-    bool canPrevious();
+    bool canNext() const;
+    bool canPrevious() const;
     void goToNext();
     void goToPrev();
-    bool canNavigate();
+    bool canNavigate() const;
 
     void createNewOutputWindow(RunControl *rc);
     void showTabFor(RunControl *rc);

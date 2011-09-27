@@ -62,21 +62,21 @@ public:
     ~CompileOutputWindow();
 
     QWidget *outputWidget(QWidget *);
-    QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
+    QList<QWidget *> toolBarWidgets() const { return QList<QWidget *>(); }
     QString displayName() const { return tr("Compile Output"); }
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
     void appendText(const QString &text, ProjectExplorer::BuildStep::OutputFormat format);
-    bool canFocus();
-    bool hasFocus();
+    bool canFocus() const;
+    bool hasFocus() const;
     void setFocus();
 
-    bool canNext();
-    bool canPrevious();
+    bool canNext() const;
+    bool canPrevious() const;
     void goToNext();
     void goToPrev();
-    bool canNavigate();
+    bool canNavigate() const;
 
     void registerPositionOf(const Task &task);
     bool knowsPositionOf(const Task &task);

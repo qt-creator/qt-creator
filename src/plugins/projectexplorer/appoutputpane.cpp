@@ -280,12 +280,12 @@ void AppOutputPane::visibilityChanged(bool /* b */)
 {
 }
 
-bool AppOutputPane::hasFocus()
+bool AppOutputPane::hasFocus() const
 {
     return m_tabWidget->currentWidget() && m_tabWidget->currentWidget()->hasFocus();
 }
 
-bool AppOutputPane::canFocus()
+bool AppOutputPane::canFocus() const
 {
     return m_tabWidget->currentWidget();
 }
@@ -571,12 +571,12 @@ bool AppOutputPane::isRunning() const
     return false;
 }
 
-bool AppOutputPane::canNext()
+bool AppOutputPane::canNext() const
 {
     return false;
 }
 
-bool AppOutputPane::canPrevious()
+bool AppOutputPane::canPrevious() const
 {
     return false;
 }
@@ -591,7 +591,7 @@ void AppOutputPane::goToPrev()
 
 }
 
-bool AppOutputPane::canNavigate()
+bool AppOutputPane::canNavigate() const
 {
     return false;
 }

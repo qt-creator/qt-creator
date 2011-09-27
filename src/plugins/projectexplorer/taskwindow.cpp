@@ -922,12 +922,12 @@ void TaskWindow::clearContents()
     d->m_taskHub->clearTasks(QString());
 }
 
-bool TaskWindow::hasFocus()
+bool TaskWindow::hasFocus() const
 {
     return d->m_listview->hasFocus();
 }
 
-bool TaskWindow::canFocus()
+bool TaskWindow::canFocus() const
 {
     return d->m_filter->rowCount();
 }
@@ -942,12 +942,12 @@ void TaskWindow::setFocus()
     }
 }
 
-bool TaskWindow::canNext()
+bool TaskWindow::canNext() const
 {
     return d->m_filter->rowCount();
 }
 
-bool TaskWindow::canPrevious()
+bool TaskWindow::canPrevious() const
 {
     return d->m_filter->rowCount();
 }
@@ -998,7 +998,7 @@ void TaskWindow::goToPrev()
     triggerDefaultHandler(currentIndex);
 }
 
-bool TaskWindow::canNavigate()
+bool TaskWindow::canNavigate() const
 {
     return true;
 }

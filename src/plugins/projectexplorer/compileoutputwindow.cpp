@@ -93,12 +93,12 @@ void CompileOutputWindow::updateWordWrapMode()
     m_outputWindow->setWordWrapEnabled(ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput);
 }
 
-bool CompileOutputWindow::hasFocus()
+bool CompileOutputWindow::hasFocus() const
 {
     return m_outputWindow->hasFocus();
 }
 
-bool CompileOutputWindow::canFocus()
+bool CompileOutputWindow::canFocus() const
 {
     return true;
 }
@@ -161,12 +161,12 @@ int CompileOutputWindow::priorityInStatusBar() const
     return 50;
 }
 
-bool CompileOutputWindow::canNext()
+bool CompileOutputWindow::canNext() const
 {
     return false;
 }
 
-bool CompileOutputWindow::canPrevious()
+bool CompileOutputWindow::canPrevious() const
 {
     return false;
 }
@@ -181,7 +181,7 @@ void CompileOutputWindow::goToPrev()
 
 }
 
-bool CompileOutputWindow::canNavigate()
+bool CompileOutputWindow::canNavigate() const
 {
     return false;
 }

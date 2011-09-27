@@ -356,7 +356,7 @@ void SearchResultWindow::clearContents()
     \fn bool SearchResultWindow::hasFocus()
     \internal
 */
-bool SearchResultWindow::hasFocus()
+bool SearchResultWindow::hasFocus() const
 {
     return d->m_widget->focusWidget() && d->m_widget->focusWidget()->hasFocus();
 }
@@ -365,7 +365,7 @@ bool SearchResultWindow::hasFocus()
     \fn bool SearchResultWindow::canFocus()
     \internal
 */
-bool SearchResultWindow::canFocus()
+bool SearchResultWindow::canFocus() const
 {
     if (d->isSearchVisible())
         return d->m_searchResultWidgets.at(d->visibleSearchIndex())->canFocusInternally();
@@ -459,7 +459,7 @@ int SearchResultWindow::priorityInStatusBar() const
     \fn bool SearchResultWindow::canNext()
     \internal
 */
-bool SearchResultWindow::canNext()
+bool SearchResultWindow::canNext() const
 {
     if (d->isSearchVisible())
         return d->m_searchResultWidgets.at(d->visibleSearchIndex())->count() > 0;
@@ -470,7 +470,7 @@ bool SearchResultWindow::canNext()
     \fn bool SearchResultWindow::canPrevious()
     \internal
 */
-bool SearchResultWindow::canPrevious()
+bool SearchResultWindow::canPrevious() const
 {
     return canNext();
 }
@@ -501,7 +501,7 @@ void SearchResultWindow::goToPrev()
     \fn bool SearchResultWindow::canNavigate()
     \internal
 */
-bool SearchResultWindow::canNavigate()
+bool SearchResultWindow::canNavigate() const
 {
     return true;
 }

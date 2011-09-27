@@ -57,15 +57,15 @@ public:
     void visibilityChanged(bool visible);
 
     void append(const QString &text);
-    bool canFocus();
-    bool hasFocus();
+    bool canFocus() const;
+    bool hasFocus() const;
     void setFocus();
 
-    virtual bool canNext();
-    virtual bool canPrevious();
+    virtual bool canNext() const;
+    virtual bool canPrevious() const;
     virtual void goToNext();
     virtual void goToPrev();
-    bool canNavigate();
+    bool canNavigate() const;
 
 private:
     OutputWindow *m_widget;

@@ -142,15 +142,15 @@ public:
     QString displayName() const { return tr("Search Results"); }
     int priorityInStatusBar() const;
     void visibilityChanged(bool visible);
-    bool hasFocus();
-    bool canFocus();
+    bool hasFocus() const;
+    bool canFocus() const;
     void setFocus();
 
-    bool canNext();
-    bool canPrevious();
+    bool canNext() const;
+    bool canPrevious() const;
     void goToNext();
     void goToPrev();
-    bool canNavigate();
+    bool canNavigate() const;
 
     void setTextEditorFont(const QFont &font);
     void openNewSearchPanel();

@@ -540,12 +540,12 @@ TestResultsWindow::~TestResultsWindow()
     _testResultsInstance = 0;
 }
 
-bool TestResultsWindow::hasFocus()
+bool TestResultsWindow::hasFocus() const
 {
     return m_resultsView->hasFocus();
 }
 
-bool TestResultsWindow::canFocus()
+bool TestResultsWindow::canFocus() const
 {
     return true;
 }
@@ -583,7 +583,7 @@ int TestResultsWindow::priorityInStatusBar() const
     return 50;
 }
 
-bool TestResultsWindow::canNext()
+bool TestResultsWindow::canNext() const
 {
     for (int i = m_resultsView->currentRow() + 1; i < m_resultsView->rowCount(); ++i) {
         if (!m_resultsView->isRowHidden(i))
@@ -592,7 +592,7 @@ bool TestResultsWindow::canNext()
     return false;
 }
 
-bool TestResultsWindow::canPrevious()
+bool TestResultsWindow::canPrevious() const
 {
     for (int i = m_resultsView->currentRow() - 1; i >= 0; --i) {
         if (!m_resultsView->isRowHidden(i))
@@ -621,7 +621,7 @@ void TestResultsWindow::goToPrev()
     }
 }
 
-bool TestResultsWindow::canNavigate()
+bool TestResultsWindow::canNavigate() const
 {
     return true;
 }

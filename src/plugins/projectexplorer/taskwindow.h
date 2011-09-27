@@ -63,20 +63,20 @@ public:
 
     // IOutputPane
     QWidget *outputWidget(QWidget *);
-    QList<QWidget*> toolBarWidgets() const;
+    QList<QWidget *> toolBarWidgets() const;
 
     QString displayName() const { return tr("Build Issues"); }
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
 
-    bool canFocus();
-    bool hasFocus();
+    bool canFocus() const;
+    bool hasFocus() const;
     void setFocus();
 
-    bool canNavigate();
-    bool canNext();
-    bool canPrevious();
+    bool canNavigate() const;
+    bool canNext() const;
+    bool canPrevious() const;
     void goToNext();
     void goToPrev();
 

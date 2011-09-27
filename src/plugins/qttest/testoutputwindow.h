@@ -50,22 +50,22 @@ public:
     virtual QString displayName() const { return "Test Output"; }
 
     QWidget *outputWidget(QWidget *parent);
-    QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
+    QList<QWidget *> toolBarWidgets() const { return QList<QWidget *>(); }
 
     QString name() const;
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
 
-    bool canFocus();
-    bool hasFocus();
+    bool canFocus() const;
+    bool hasFocus() const;
     void setFocus();
 
-    virtual bool canNext();
-    virtual bool canPrevious();
+    virtual bool canNext() const;
+    virtual bool canPrevious() const;
     virtual void goToNext();
     virtual void goToPrev();
-    bool canNavigate();
+    bool canNavigate() const;
 
     QTextEdit *m_widget;
 };

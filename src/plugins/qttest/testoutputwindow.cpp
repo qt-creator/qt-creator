@@ -57,12 +57,12 @@ TestOutputWindow::~TestOutputWindow()
     m_instance = 0;
 }
 
-bool TestOutputWindow::hasFocus()
+bool TestOutputWindow::hasFocus() const
 {
     return m_widget->hasFocus();
 }
 
-bool TestOutputWindow::canFocus()
+bool TestOutputWindow::canFocus() const
 {
     return true;
 }
@@ -97,12 +97,12 @@ int TestOutputWindow::priorityInStatusBar() const
     return 50;
 }
 
-bool TestOutputWindow::canNext()
+bool TestOutputWindow::canNext() const
 {
     return false;
 }
 
-bool TestOutputWindow::canPrevious()
+bool TestOutputWindow::canPrevious() const
 {
     return false;
 }
@@ -117,7 +117,7 @@ void TestOutputWindow::goToPrev()
 
 }
 
-bool TestOutputWindow::canNavigate()
+bool TestOutputWindow::canNavigate() const
 {
     return false;
 }

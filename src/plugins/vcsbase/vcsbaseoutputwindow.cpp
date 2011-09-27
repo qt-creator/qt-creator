@@ -318,27 +318,27 @@ void VCSBaseOutputWindow::setFocus()
 {
 }
 
-bool VCSBaseOutputWindow::hasFocus()
+bool VCSBaseOutputWindow::hasFocus() const
 {
     return false;
 }
 
-bool VCSBaseOutputWindow::canFocus()
+bool VCSBaseOutputWindow::canFocus() const
 {
     return false;
 }
 
-bool VCSBaseOutputWindow::canNavigate()
+bool VCSBaseOutputWindow::canNavigate() const
 {
     return false;
 }
 
-bool VCSBaseOutputWindow::canNext()
+bool VCSBaseOutputWindow::canNext() const
 {
     return false;
 }
 
-bool VCSBaseOutputWindow::canPrevious()
+bool VCSBaseOutputWindow::canPrevious() const
 {
     return false;
 }

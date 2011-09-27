@@ -50,12 +50,12 @@ MessageOutputWindow::~MessageOutputWindow()
     delete m_widget;
 }
 
-bool MessageOutputWindow::hasFocus()
+bool MessageOutputWindow::hasFocus() const
 {
     return m_widget->hasFocus();
 }
 
-bool MessageOutputWindow::canFocus()
+bool MessageOutputWindow::canFocus() const
 {
     return true;
 }
@@ -95,12 +95,12 @@ int MessageOutputWindow::priorityInStatusBar() const
     return -1;
 }
 
-bool MessageOutputWindow::canNext()
+bool MessageOutputWindow::canNext() const
 {
     return false;
 }
 
-bool MessageOutputWindow::canPrevious()
+bool MessageOutputWindow::canPrevious() const
 {
     return false;
 }
@@ -115,7 +115,7 @@ void MessageOutputWindow::goToPrev()
 
 }
 
-bool MessageOutputWindow::canNavigate()
+bool MessageOutputWindow::canNavigate() const
 {
     return false;
 }
