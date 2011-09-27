@@ -1,5 +1,11 @@
 import tempfile, shutil, os
 
+def neededFilePresent(path):
+    found = os.path.exists(path)
+    if not found:
+        test.fatal("Missing file or directory: " + path)
+    return found
+
 def tempDir():
     Result = os.path.abspath(os.getcwd()+"/../../testing")
     if not os.path.exists(Result):

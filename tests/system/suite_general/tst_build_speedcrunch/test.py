@@ -4,7 +4,8 @@ import re;
 SpeedCrunchPath = ""
 
 def main():
-    test.verify(os.path.exists(SpeedCrunchPath))
+    if not neededFilePresent(SpeedCrunchPath):
+        return
     startApplication("qtcreator" + SettingsPath)
     openQmakeProject(SpeedCrunchPath)
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)

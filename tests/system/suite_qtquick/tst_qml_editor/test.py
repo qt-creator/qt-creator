@@ -5,10 +5,13 @@ templateDir = None
 
 def main():
     global workingDir,templateDir
+    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/keyinteraction/focus")
+    if not neededFilePresent(sourceExample):
+        return
     startApplication("qtcreator" + SettingsPath)
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
-    prepareTemplate()
+    prepareTemplate(sourceExample)
     createNewQtQuickApplication()
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
@@ -16,11 +19,10 @@ def main():
 
     invokeMenuItem("File", "Exit")
 
-def prepareTemplate():
+def prepareTemplate(sourceExample):
     global templateDir
     templateDir = tempDir()
     templateDir = os.path.abspath(templateDir + "/template")
-    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/keyinteraction/focus")
     shutil.copytree(sourceExample, templateDir)
 
 def createNewQtQuickApplication():

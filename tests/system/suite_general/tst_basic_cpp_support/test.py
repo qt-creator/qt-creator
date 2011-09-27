@@ -1,7 +1,8 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    test.verify(os.path.exists(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro"))
+    if not neededFilePresent(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro"):
+        return
 
     startApplication("qtcreator" + SettingsPath)
 

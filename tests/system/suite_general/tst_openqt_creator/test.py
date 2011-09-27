@@ -1,13 +1,15 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    test.verify(os.path.exists(srcPath + "/creator/qtcreator.pro"))
-    test.verify(os.path.exists(srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro"))
+    pathCreator = srcPath + "/creator/qtcreator.pro"
+    pathSpeedcrunch = srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro"
+    if not neededFilePresent(pathCreator) or not neededFilePresent(pathSpeedcrunch):
+        return
 
     startApplication("qtcreator" + SettingsPath)
 
-    openQmakeProject(srcPath + "/creator/qtcreator.pro")
-    openQmakeProject(srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro")
+    openQmakeProject(pathCreator)
+    openQmakeProject(pathSpeedcrunch)
 
     # Wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)

@@ -6,8 +6,8 @@ def main():
     if(which("cmake") == None):
         test.fatal("cmake not found")
         return
-
-    test.verify(os.path.exists(SpeedCrunchPath))
+    if not neededFilePresent(SpeedCrunchPath):
+        return
 
     startApplication("qtcreator" + SettingsPath)
 
