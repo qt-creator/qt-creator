@@ -1,0 +1,174 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-tips.html
+    \page creator-known-issues.html
+    \nextpage technical-support.html
+
+    \title Known Issues
+
+    This section lists known issues in \QC version \qtcversion. The development
+    team is aware of them, and therefore, you do not need to report them as
+    bugs.
+
+    For a list of fixed issues and added features, see the changelog file in
+    the \c{qtcreator\dist} folder or the \l{https://bugreports.qt.nokia.com}
+    {Qt Bug Tracker}.
+
+    \section1 General Issues
+
+    \list
+
+        \o  If you change the Input Languages in Windows, \QC might not
+            respond for 30 seconds. This is a known issue in the Advanced Text
+            Service of Microsoft Windows.
+
+        \o  \QC uses SQLite for storing some of its settings. SQLite is
+            known to have problems with certain NFS servers (most notably the
+            nfs-user-server 2.2beta), since they can lock up the application
+            when it tries to lock the database. If your home directory is on an
+            NFS share and you encounter this issue, one option would be to
+            switch to the nfs-kernel-server, or create a symlink so that the
+            settings are stored locally.
+
+        \o  The Okteta KDE custom widget plugin might be installed as part of
+            some Linux distributions. It can cause Qt Designer to crash. For
+            more information, see:
+
+            \list
+
+                \o  \l{https://bugs.launchpad.net/ubuntu/+source/kdeutils/+bug/662005}
+                    {Ubuntu bug 662005}
+
+                \o  \l{https://bugreports.qt.nokia.com/browse/QTBUG-12025}
+                    {QTBUG-12025}
+
+           \endlist
+
+            To resolve the issue, enter the following command to remove the
+            package:
+            \code
+            sudo apt-get remove okteta
+            \endcode
+            Or delete the following file:
+            \c /usr/lib/kde4/plugins/designer/oktetadesignerplugin.so.
+
+    \endlist
+
+    \section1 Editing Issues
+
+    \list
+
+        \o Code completion does not support typedefs for nested classes.
+
+    \endlist
+
+    \section1 Projects Issues
+
+    \list
+
+        \o  Paths or file names containing spaces or special characters
+            (such as colons, dollar signs, and hash marks) may cause problems.
+            This is because some of the tools \QC uses in the background have
+            restrictions on the characters allowed in file and directory names.
+            To be on the safe side, we recommend creating projects and project
+            items with names consisting of plain characters, numbers,
+            underscores, and hyphens.
+
+        \o  Creating new CMake projects with \QC is not supported.
+
+        \if defined(qcmanual)
+        \o  On Windows, you must create projects for Maemo 5 and Harmattan
+            targets on the same partition where you installed \QSDK, \QC, and
+            MADDE.
+        \endif
+
+        \o  If error messages displayed in the \gui {Compile Output} pane contain
+            paths where slashes are missing (for example, C:QtSDK),
+            check your PATH variable. For more information, see
+            \l{Troubleshooting MinGW Compilation Errors}.
+
+    \endlist
+
+    \section1 Debugging Issues
+
+    \list
+
+        \o  Debugging large applications on Symbian devices using the Symbian^3
+            operating system might not work, because the on-device debugging
+            agent might not be able to access memory when the operating system
+            starts paging. This causes breakpoint handling and symbol resolution
+            to fail. For more information, see
+            \l{https://bugreports.qt.nokia.com/browse/QTCREATORBUG-2158}
+            {QTCREATORBUG-2158}.
+
+            As a workaround, add the following section to the application .pro
+            file to disable paging:
+
+            \code
+            debug {
+                MMP_RULES -= PAGED
+                MMP_RULES *= UNPAGED
+            }
+            \endcode
+
+            \note You must completely clean and rebuild the project for the
+            setting to take effect.
+
+        \o  When debugging executables created by the GNU Compiler version 4.5.0
+            (all platforms), some data types will not be displayed in the
+            \gui{Locals and Expressions} view due to missing debug information.
+
+        \o  GDB on Windows may not work if the 'Embassy \reg Security Center'
+            software by 'Wave \reg Systems' is installed and active (causing
+            crashes in \c{vxvault.dll)}).
+
+        \o  GDB may take long to load debugging symbols, especially from large
+            libraries.
+
+        \o  Setting breakpoints in code that is compiled into the binary more
+            than once does not work.
+
+        \o  Setting breakpoints in files that do not have unique absolute
+            paths may fail. For example, remounting parts of a file system
+            using the --bind mount option.
+
+    \endlist
+
+    \section1 Qt Quick Designer Issues
+
+    \list
+
+        \o  \QMLD uses external processes (QML Puppet) to render and preview
+            images and to collect data. Executing C++ code might cause the QML
+            Puppet to crash. If it crashes, an error message is displayed and
+            you can continue editing the QML file in the code editor.
+
+    \endlist
+*/

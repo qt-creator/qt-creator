@@ -1,0 +1,68 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-publishing-to-maemo-extras.html
+    \page creator-publish-ovi.html
+    \nextpage creator-publish-ovi-symbian.html
+
+    \title Publishing Applications to Ovi Store
+
+    Ovi Store is the global content market of Nokia, which reaches millions of
+    people worldwide. Consumers can access Ovi Store through either of these
+    platforms:
+
+    \list
+
+        \o  Ovi Store applications on mobile devices
+
+        \o  Web browsers on desktop computers, laptops, netbooks, and tablets
+
+    \endlist
+
+    Consumers have access to a wide selection of content and can download
+    content in a few easy clicks.
+
+    The process and requirements to publish Qt applications to Ovi Store are
+    described in the
+    \l {http://www.developer.nokia.com/Community/Wiki/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}
+    {Guide to Publishing Qt Applications to the Ovi Store} wiki.
+
+    This section describes how to generate installation packages that you can
+    publish to Ovi Store.
+
+    \if defined(qcmanual)
+    \list
+
+        \o  \l{Publishing Qt Content for Symbian Devices}
+        \o  \l{Publishing Qt Content for Maemo Devices}
+        \o  \l{Publishing Qt Content for MeeGo Harmattan Devices}
+
+    \endlist
+    \endif
+*/

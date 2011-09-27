@@ -1,0 +1,60 @@
+    \section1 Target Platforms
+
+    You can develop applications for the following platforms:
+
+    \list
+
+        \o  Desktop
+
+        \o  Qt Simulator
+
+        \o  Maemo 5
+
+        \o  MeeGo Harmattan
+
+        \o  Generic remote Linux
+
+        \o  Symbian
+
+    \endlist
+
+    The following table summarizes operating system support for developing
+    applications for mobile device platforms.
+
+    \table
+        \header
+            \o  {1,6} Operating system
+            \o  {6,1} Platform
+        \header
+            \o  Desktop
+            \o  Qt Simulator
+            \o  Maemo 5
+            \o  MeeGo Harmattan
+            \o  Generic Remote Linux
+            \o  Symbian
+
+        \row
+            \o  Windows
+            \o  Yes
+            \o  Yes
+            \o  Yes
+            \o  Yes
+            \o  Yes
+            \o  Yes
+        \row
+            \o  Linux
+            \o  Yes
+            \o  Yes
+            \o  Yes
+            \o  Yes
+            \o  Yes
+            \o  Yes (by using Remote Compiler for building)
+        \row
+            \o  Mac OS X
+            \o  Yes
+            \o  Yes
+            \o  Yes
+            \o  Yes
+            \o  Yes
+            \o  Yes (by using Remote Compiler for building)
+    \endtable

@@ -1,0 +1,89 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage technical-support.html
+    \page creator-glossary.html
+    \nextpage creator-acknowledgements.html
+
+    \title Glossary
+
+    \table
+        \header
+            \o  Term
+            \o  Meaning
+
+        \row
+            \o
+                \raw HTML
+                Qt&nbsp;in&nbsp;PATH
+                \endraw
+                \target glossary-system-qt
+            \o  This is the Qt
+                version for the \c qmake command found in your \c PATH
+                environment variable.
+                This is likely to be the system's Qt version.
+
+
+        \row
+            \o
+                \raw HTML
+                Project&nbsp;Qt
+                \endraw
+                \target glossary-project-qt
+            \o  The version of Qt configured in the \gui{Projects} mode,
+                \gui {Build Settings}, \gui {Qt Version} field. This is the Qt
+                version that is actually used by a particular project.
+
+        \row
+            \o
+                \raw HTML
+                Shadow&nbsp;build
+                \endraw
+                \target glossary-shadow-build
+            \o  Shadow building means building a project in a separate
+                directory, the \e{build directory}. The build directory is
+                different from the source directory. One of the benefits of
+                shadow building is that it keeps your source directory clean.
+                Shadow building is the best practice if you need many build
+                configurations for a single set of source.
+
+        \row
+            \o
+                \raw HTML
+                Target
+                \endraw
+                \target glossary-development-target
+            \o  Target means the software platform for which you develop an
+                application. Qt Creator groups platform specific settings (such
+                as build configurations, compatible tool chains, and supported
+                Qt versions) as targets to make cross-platform development
+                easier.
+    \endtable
+
+*/

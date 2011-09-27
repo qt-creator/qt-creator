@@ -1,0 +1,70 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-known-issues.html
+    \page technical-support.html
+    \nextpage creator-glossary.html
+
+    \title Technical Support
+
+    The following table lists Qt support sites and other useful links.
+
+    \table
+        \header
+            \o  What Do You Want to Do
+            \o  Where to Go
+
+        \row
+            \o  Learn more about Qt
+            \o  \l{http://qt.nokia.com/developer/learning/online/training/specialized-elearning/}
+                {Specialized eLearning Modules Based on Qt Training Modules}
+
+        \row
+            \o  Develop Qt applications for desktop and mobile devices
+            \o  \l{http://developer.qt.nokia.com/}{Qt Developer Network}
+
+        \row
+            \o  Develop Qt applications for Nokia mobile devices
+            \o  \l{http://www.developer.nokia.com/Develop/Qt/}
+                {Nokia Developer - Qt}
+
+        \row
+            \o  Participate in Qt development
+            \o  \l{http://qt.gitorious.org/}{Qt Git Hosting}
+
+        \row
+            \o  Find free Qt-based applications
+            \o  \l{http://qt-apps.org/}{Qt Apps}
+
+        \row
+            \o  Buy commercial Qt support from Digia
+            \o  \l{http://qt.digia.com/}{Qt Commercial}
+    \endtable
+
+*/

@@ -1,0 +1,71 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-help.html
+    \page creator-advanced.html
+    \nextpage creator-os-supported-platforms.html
+
+    \title Advanced Use
+
+    \QC attempts to meet your development needs, whether you are an
+    experienced Qt developer or a newcomer to Qt. When you install \QC
+    as a part of \QSDK, the default configuration allows you to start coding,
+    building, running and debugging applications with very little effort.
+
+    However, you can easily change or extend the default configuration, by
+    choosing a different build system, adding project wizards, integrating
+    external tools, or editing the standard MIME types that \QC uses
+    to recognize your files.
+
+    You can start \QC and specify some options for running it from the
+    command line.
+
+    This following topics describe advanced use of \QC:
+
+    \list
+        \o  \l{Supported Platforms}
+        \o  \l{Adding New Custom Wizards}
+        \o  \l{Setting Up a CMake Project}
+        \o  \l{Setting Up a Generic Project}
+        \o  \l{Using Version Control Systems}
+        \if defined(qcmanual)
+        \o  \l{Adding Qt Designer Plugins}
+        \endif
+        \o  \l{Using External Tools}
+        \if defined(qcmanual)
+        \o  \l{Using Maemo or MeeGo Harmattan Emulator}
+        \endif
+        \o  \l{Editing MIME Types}
+        \o  \l{Showing Task List Files in the Build Issues Pane}
+        \o  \l{Using Command Line Options}
+        \o  \l{Keyboard Shortcuts}
+        \o  \l{Glossary}
+    \endlist
+
+*/

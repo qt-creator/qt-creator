@@ -1,0 +1,74 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-fakevim.html
+    \page creator-design-mode.html
+    \nextpage creator-visual-editor.html
+
+    \title Developing Application UI
+
+    Large high-resolution screens, touch input, and significant graphics power
+    are becoming common in portable consumer devices, such as mobile phones,
+    media players, set-top boxes, and netbooks. To fully benefit from these
+    features and to create intuitive, modern-looking, fluid user interfaces,
+    you can use \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
+
+    Qt Quick consists of a rich set of user interface elements, a declarative
+    language for describing user interfaces, and a language runtime. A
+    collection of C++ APIs is used to integrate these high level features with
+    classic Qt applications.
+
+    You can edit QML code in the code editor or in the integrated \QMLD.
+
+    \image qtcreator-design-mode.png "Design mode"
+
+    The integration includes project management and code completion.
+
+    \if defined(qcmanual)
+    If you need a traditional user interface that is clearly structured and
+    enforces a platform look and feel, you can use the integrated \QD. You can
+    compose and customize your widgets or dialogs and test them using different
+    styles and resolutions.
+    \endif
+
+    The following sections describe how to develop application UI:
+
+       \list
+
+           \o \l{Developing Qt Quick Applications}
+
+           \if defined(qcmanual)
+           \o \l{Developing Widget Based Applications}
+           \endif
+
+           \o \l{Optimizing Applications for Mobile Devices}
+
+       \endlist
+
+*/

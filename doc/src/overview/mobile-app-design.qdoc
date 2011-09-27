@@ -1,0 +1,127 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-using-qt-designer.html
+    \page creator-usability.html
+    \nextpage creator-building-running.html
+
+    \title Optimizing Applications for Mobile Devices
+
+    Before starting application development, analyze and define the
+    requirements, scope, and functionality of the application to ensure
+    efficient functionality and a smooth user experience. Design the application
+    for a single purpose and analyze how it can best serve its users. Mobile
+    devices have been designed for use when mobile. Keep the characteristics
+    of mobile devices in mind when you create applications for them.
+
+    The following guidelines help you design and develop usable applications for
+    mobile devices with varying characteristics, such as screen size and support
+    for input methods:
+
+    \list
+
+        \o  Know your users
+
+            Find out who will use the application, what they will use it for,
+            and which mobile devices they have. Then design the application to
+            fit a specific context of use.
+
+        \o  Design for small screens
+
+            The screen size of mobile devices is significantly smaller than that
+            available on desktop devices. Carefully consider what is the most
+            relevant content to present on the application UI, as it might not
+            be reasonable to try and fit as much content into the screen as you
+            might have in a desktop application.
+
+        \o  Design for multiple screen sizes
+
+            Relate the position and size of each control to the dimensions of
+            the display. This enables the same set of information to be
+            presented on the screen in all resolutions; higher resolution
+            devices just display finer graphics.
+
+        \o  Design for changing screen orientation
+
+            Some devices support screen rotation. On these devices, applications
+            can be displayed in portrait or landscape orientation. Account for
+            orientation and dynamically adjust the display when the screen is
+            rotated.
+
+        \o  Design intuitive ways of moving within applications
+
+            Mobile devices lack a mouse and full-size keyboard, so users must
+            use the touch screen or five way navigation pad to move within
+            applications. In addition, many users control the devices with one
+            hand. To create an optimized user experience, allow users to access
+            information with one click; do not make them scroll and type.
+
+        \o  Design for limited input methods
+
+            Applications collect information from users on the task at hand. In
+            addition to touch screen input, some devices contain physical keys
+            such as a five way navigation pad, a keypad, and a keyboard. Users
+            enter information by using screen controls, such as lists, check
+            boxes, radio buttons, and text fields.
+
+        \o  Keep response times short
+
+            Latency can cause delays in user interaction. If users perceive
+            an application as being slow, they are likely to get frustrated and
+            stop using it.
+
+        \o  Save battery time
+
+            Mobile devices are not constantly connected to a power source but
+            run on battery power. Optimize power consumption to keep the total
+            consumption at an acceptable level and to prevent users from running
+            out of battery time.
+
+        \o  Consider network issues
+
+            If users do not have a flat-rate data plan or WLAN support, mobile
+            network connections cost them money. Also, when users move around
+            with the devices, the networks available for connections constantly
+            change.
+
+        \o  Remember the processing limits of the device
+
+            The memory available on devices is limited and you should use it
+            carefully. Although all mobile devices have common functionality,
+            each device is individual in terms of both the resources available
+            and extra features. Therefore, you must consider the constraints of
+            all the target devices.
+
+    \endlist
+
+    For more information about user experience techniques for mobile devices,
+    see the \l{http://www.developer.nokia.com/Resources/Library/Design_and_UX}
+    on Nokia Developer.
+
+ */
