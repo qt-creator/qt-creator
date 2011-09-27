@@ -58,6 +58,8 @@ public:
         Type,
         Percent,
         TotalDuration,
+        SelfPercent,
+        SelfDuration,
         CallCount,
         TimePerCall,
         MaxTime,
@@ -74,6 +76,7 @@ public:
         EventsView,
         CallersView,
         CalleesView,
+        V8ProfileView,
 
         MaxViewTypes
     };

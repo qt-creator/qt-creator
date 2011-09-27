@@ -102,6 +102,7 @@ public:
     QmlProfilerEventsView *m_eventsView;
     QmlProfilerEventsView *m_calleeView;
     QmlProfilerEventsView *m_callerView;
+    QmlProfilerEventsView *m_v8profilerView;
     Project *m_project;
     Utils::FileInProjectFinder m_projectFinder;
     RunConfiguration *m_runConfiguration;
@@ -305,6 +306,11 @@ QWidget *QmlProfilerTool::createWidgets()
             this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_callerView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
+    d->m_v8profilerView = new QmlProfilerEventsView(mw, d->m_traceWindow->getEventList());
+    d->m_v8profilerView->setViewType(QmlProfilerEventsView::V8ProfileView);
+    connect(d->m_v8profilerView, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_v8profilerView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (this, tr("Events"), d->m_eventsView, Qt::BottomDockWidgetArea);
     QDockWidget *timelineDock = AnalyzerManager::createDockWidget
@@ -313,16 +319,20 @@ QWidget *QmlProfilerTool::createWidgets()
             (this, tr("Callees"), d->m_calleeView, Qt::BottomDockWidgetArea);
     QDockWidget *callerDock = AnalyzerManager::createDockWidget
             (this, tr("Callers"), d->m_callerView, Qt::BottomDockWidgetArea);
+    QDockWidget *v8profilerDock = AnalyzerManager::createDockWidget
+            (this, tr("JavaScript"), d->m_v8profilerView, Qt::BottomDockWidgetArea);
 
     eventsDock->show();
     timelineDock->show();
     calleeDock->show();
     callerDock->show();
+    v8profilerDock->show();
 
     mw->splitDockWidget(mw->toolBarDockWidget(), eventsDock, Qt::Vertical);
     mw->tabifyDockWidget(eventsDock, timelineDock);
     mw->tabifyDockWidget(timelineDock, calleeDock);
     mw->tabifyDockWidget(calleeDock, callerDock);
+    mw->tabifyDockWidget(callerDock, v8profilerDock);
 
     //
     // Toolbar
@@ -484,6 +494,7 @@ void QmlProfilerTool::clearDisplay()
     d->m_eventsView->clear();
     d->m_calleeView->clear();
     d->m_callerView->clear();
+    d->m_v8profilerView->clear();
 }
 
 static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)

@@ -60,8 +60,23 @@ struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
     qint64 medianTime;
 };
 
+struct QMLJSDEBUGCLIENT_EXPORT QV8EventData
+{
+    QString displayName;
+    QString filename;
+    QString functionName;
+    int line;
+    double totalTime; // given in milliseconds
+    double totalPercent;
+    double selfTime;
+    double selfPercent;
+    QList< QV8EventData *> parentList;
+    QList< QV8EventData *> childrenList;
+};
+
 typedef QHash<QString, QmlEventData *> QmlEventHash;
 typedef QList<QmlEventData *> QmlEventDescriptions;
+typedef QList<QV8EventData *> QV8EventDescriptions;
 
 enum ParsingStatus {
     GettingDataStatus = 0,
@@ -81,6 +96,7 @@ public:
     ~QmlProfilerEventList();
 
     QmlEventDescriptions getEventDescriptions() const;
+    const QV8EventDescriptions& getV8Events() const;
 
     int findFirstIndex(qint64 startTime) const;
     int findLastIndex(qint64 endTime) const;
@@ -114,6 +130,8 @@ public slots:
     void addRangedEvent(int type, qint64 startTime, qint64 length,
                         const QStringList &data, const QString &fileName, int line);
     void complete();
+
+    void addV8Event(int depth,const QString &function,const QString &filename, int lineNumber, double totalTime, double selfTime);
     void save(const QString &filename);
     void load(const QString &filename);
     void setFilename(const QString &filename);

@@ -36,6 +36,8 @@
 #include <qmljsdebugclient/qmlprofilertraceclient.h>
 #include <qmljsdebugclient/qmlprofilereventlist.h>
 
+#include <qmljsdebugclient/qv8profilerclient.h>
+
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
@@ -68,11 +70,17 @@ public slots:
     void clearDisplay();
     void updateToolbar();
 
+    void qmlComplete();
+    void v8Complete();
+
 signals:
     void viewUpdated();
     void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void timeChanged(qreal newTime);
     void range(int type, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
+
+    void v8range(int depth,const QString &function,const QString &filename,
+               int lineNumber, double totalTime, double selfTime);
 
     void internalClearDisplay();
     void jumpToPrev();
@@ -88,10 +96,13 @@ private:
 
 private:
     QWeakPointer<QmlJsDebugClient::QmlProfilerTraceClient> m_plugin;
+    QWeakPointer<QmlJsDebugClient::QV8ProfilerClient> m_v8plugin;
     QSize m_sizeHint;
 
     QDeclarativeView *m_view;
     QmlJsDebugClient::QmlProfilerEventList *m_eventList;
+    bool m_qmlDataReady;
+    bool m_v8DataReady;
 };
 
 } // namespace Internal

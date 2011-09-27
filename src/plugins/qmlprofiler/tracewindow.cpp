@@ -109,6 +109,8 @@ TraceWindow::TraceWindow(QWidget *parent)
     connect(this,SIGNAL(viewUpdated()), m_eventList, SLOT(complete()));
     m_view->rootContext()->setContextProperty("qmlEventList", m_eventList);
 
+    connect(this, SIGNAL(v8range(int,QString,QString,int,double,double)), m_eventList, SLOT(addV8Event(int,QString,QString,int,double,double)));
+
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
 }
@@ -116,17 +118,27 @@ TraceWindow::TraceWindow(QWidget *parent)
 TraceWindow::~TraceWindow()
 {
     delete m_plugin.data();
+    delete m_v8plugin.data();
 }
 
 void TraceWindow::reset(QDeclarativeDebugConnection *conn)
 {
     if (m_plugin)
-        disconnect(m_plugin.data(), SIGNAL(complete()), this, SIGNAL(viewUpdated()));
+        disconnect(m_plugin.data(), SIGNAL(complete()), this, SLOT(qmlComplete()));
     delete m_plugin.data();
     m_plugin = new QmlProfilerTraceClient(conn);
-    connect(m_plugin.data(), SIGNAL(complete()), this, SIGNAL(viewUpdated()));
+    connect(m_plugin.data(), SIGNAL(complete()), this, SLOT(qmlComplete()));
     connect(m_plugin.data(), SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),
             this, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)));
+
+    if (m_v8plugin) {
+        disconnect(m_v8plugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
+        disconnect(m_v8plugin.data(), SIGNAL(v8range(int,QString,QString,int,double,double)), this, SIGNAL(v8range(int,QString,QString,int,double,double)));
+    }
+    delete m_v8plugin.data();
+    m_v8plugin = new QV8ProfilerClient(conn);
+    connect(m_v8plugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
+    connect(m_v8plugin.data(), SIGNAL(v8range(int,QString,QString,int,double,double)), this, SIGNAL(v8range(int,QString,QString,int,double,double)));
 
     m_view->rootContext()->setContextProperty("connection", m_plugin.data());
     m_view->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));
@@ -142,6 +154,9 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     connect(this, SIGNAL(zoomOut()), m_view->rootObject(), SLOT(zoomOut()));
 
     connect(this, SIGNAL(internalClearDisplay()), m_view->rootObject(), SLOT(clearAll()));
+
+    m_v8DataReady = false;
+    m_qmlDataReady = false;
 }
 
 QmlProfilerEventList *TraceWindow::getEventList() const
@@ -171,6 +186,8 @@ void TraceWindow::clearDisplay()
 
     if (m_plugin)
         m_plugin.data()->clearData();
+    if (m_v8plugin)
+        m_v8plugin.data()->clearData();
 
     emit internalClearDisplay();
 }
@@ -182,13 +199,34 @@ void TraceWindow::updateToolbar()
 
 void TraceWindow::setRecording(bool recording)
 {
+    if (recording) {
+        m_v8DataReady = false;
+        m_qmlDataReady = false;
+    }
     if (m_plugin)
         m_plugin.data()->setRecording(recording);
+    if (m_v8plugin)
+        m_v8plugin.data()->setRecording(recording);
 }
 
 bool TraceWindow::isRecording() const
 {
     return m_plugin.data()->isRecording();
+}
+
+void TraceWindow::qmlComplete()
+{
+    m_qmlDataReady = true;
+
+    if (!m_v8plugin || m_v8plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_v8DataReady)
+        emit viewUpdated();
+}
+
+void TraceWindow::v8Complete()
+{
+    m_v8DataReady = true;
+    if (!m_plugin || m_plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_qmlDataReady)
+        emit viewUpdated();
 }
 
 } // namespace Internal

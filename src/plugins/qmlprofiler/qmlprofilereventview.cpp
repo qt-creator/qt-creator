@@ -83,6 +83,7 @@ public:
     QmlProfilerEventsViewPrivate(QmlProfilerEventsView *qq) : q(qq) {}
 
     void buildModelFromList(const QmlEventDescriptions &list, QStandardItem *parentItem, const QmlEventDescriptions &visitedFunctionsList = QmlEventDescriptions() );
+    void buildV8ModelFromList( const QV8EventDescriptions &list );
     int getFieldCount();
     QString displayTime(double time) const;
     QString nameForType(int typeNumber) const;
@@ -92,6 +93,7 @@ public:
 
     QmlProfilerEventsView *q;
 
+    QmlProfilerEventsView::ViewTypes m_viewType;
     QmlProfilerEventList *m_eventStatistics;
     QStandardItemModel *m_model;
     QList<bool> m_fieldShown;
@@ -137,7 +139,8 @@ void QmlProfilerEventsView::setEventStatisticsModel( QmlProfilerEventList *model
     if (d->m_eventStatistics)
         disconnect(d->m_eventStatistics,SIGNAL(dataReady()),this,SLOT(buildModel()));
     d->m_eventStatistics = model;
-    connect(d->m_eventStatistics,SIGNAL(dataReady()),this,SLOT(buildModel()));
+    if (model)
+        connect(d->m_eventStatistics,SIGNAL(dataReady()),this,SLOT(buildModel()));
 }
 
 void QmlProfilerEventsView::setFieldViewable(Fields field, bool show)
@@ -154,6 +157,7 @@ void QmlProfilerEventsView::setFieldViewable(Fields field, bool show)
 
 void QmlProfilerEventsView::setViewType(ViewTypes type)
 {
+    d->m_viewType = type;
     switch (type) {
     case EventsView: {
         setObjectName("QmlProfilerEventsView");
@@ -161,15 +165,18 @@ void QmlProfilerEventsView::setViewType(ViewTypes type)
         setFieldViewable(Type, true);
         setFieldViewable(Percent, true);
         setFieldViewable(TotalDuration, true);
+        setFieldViewable(SelfPercent, false);
+        setFieldViewable(SelfDuration, false);
         setFieldViewable(CallCount, true);
         setFieldViewable(TimePerCall, true);
         setFieldViewable(MaxTime, true);
         setFieldViewable(MinTime, true);
         setFieldViewable(MedianTime, true);
-        setFieldViewable(Details, false);
+        setFieldViewable(Details, true);
         setFieldViewable(Parents, false);
         setFieldViewable(Children, false);
         setShowAnonymousEvents(false);
+        setToolTip(QString());
         break;
     }
     case CallersView: {
@@ -178,6 +185,8 @@ void QmlProfilerEventsView::setViewType(ViewTypes type)
         setFieldViewable(Type, true);
         setFieldViewable(Percent, false);
         setFieldViewable(TotalDuration, false);
+        setFieldViewable(SelfPercent, false);
+        setFieldViewable(SelfDuration, false);
         setFieldViewable(CallCount, false);
         setFieldViewable(TimePerCall, false);
         setFieldViewable(MaxTime, false);
@@ -187,6 +196,7 @@ void QmlProfilerEventsView::setViewType(ViewTypes type)
         setFieldViewable(Parents, true);
         setFieldViewable(Children, false);
         setShowAnonymousEvents(true);
+        setToolTip(QString());
         break;
     }
     case CalleesView: {
@@ -195,6 +205,8 @@ void QmlProfilerEventsView::setViewType(ViewTypes type)
         setFieldViewable(Type, true);
         setFieldViewable(Percent, false);
         setFieldViewable(TotalDuration, false);
+        setFieldViewable(SelfPercent, false);
+        setFieldViewable(SelfDuration, false);
         setFieldViewable(CallCount, false);
         setFieldViewable(TimePerCall, false);
         setFieldViewable(MaxTime, false);
@@ -204,6 +216,27 @@ void QmlProfilerEventsView::setViewType(ViewTypes type)
         setFieldViewable(Parents, false);
         setFieldViewable(Children, true);
         setShowAnonymousEvents(true);
+        setToolTip(QString());
+        break;
+    }
+    case V8ProfileView: {
+        setObjectName("QmlProfilerV8ProfileView");
+        setFieldViewable(Name, true);
+        setFieldViewable(Type, false);
+        setFieldViewable(Percent, true);
+        setFieldViewable(TotalDuration, true);
+        setFieldViewable(SelfPercent, true);
+        setFieldViewable(SelfDuration, true);
+        setFieldViewable(CallCount, false);
+        setFieldViewable(TimePerCall, false);
+        setFieldViewable(MaxTime, false);
+        setFieldViewable(MinTime, false);
+        setFieldViewable(MedianTime, false);
+        setFieldViewable(Details, true);
+        setFieldViewable(Parents, false);
+        setFieldViewable(Children, false);
+        setShowAnonymousEvents(true);
+        setToolTip(tr("Trace information from the v8 JavaScript engine. Available only in Qt5 based applications"));
         break;
     }
     default: break;
@@ -234,6 +267,10 @@ void QmlProfilerEventsView::setHeaderLabels()
         d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Time in Percent")));
     if (d->m_fieldShown[TotalDuration])
         d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Total Time")));
+    if (d->m_fieldShown[SelfPercent])
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Self Time in Percent")));
+    if (d->m_fieldShown[SelfDuration])
+        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Self Time")));
     if (d->m_fieldShown[CallCount])
         d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(tr("Calls")));
     if (d->m_fieldShown[TimePerCall])
@@ -270,7 +307,10 @@ void QmlProfilerEventsView::buildModel()
 {
     if (d->m_eventStatistics) {
         clear();
-        d->buildModelFromList( d->m_eventStatistics->getEventDescriptions(), d->m_model->invisibleRootItem() );
+        if (d->m_viewType == V8ProfileView)
+            d->buildV8ModelFromList( d->m_eventStatistics->getV8Events() );
+        else
+            d->buildModelFromList( d->m_eventStatistics->getEventDescriptions(), d->m_model->invisibleRootItem() );
 
         bool hasBranches = d->m_fieldShown[Parents] || d->m_fieldShown[Children];
         setRootIsDecorated(hasBranches);
@@ -377,6 +417,56 @@ void QmlProfilerEventsView::QmlProfilerEventsViewPrivate::buildModelFromList( co
 
                 buildModelFromList(binding->childrenList, newRow.at(0), newChildrenList);
             }
+        }
+    }
+}
+
+void QmlProfilerEventsView::QmlProfilerEventsViewPrivate::buildV8ModelFromList(const QV8EventDescriptions &list)
+{
+    foreach (QV8EventData *v8event, list) {
+
+        QList<QStandardItem *> newRow;
+
+        if (m_fieldShown[Name]) {
+            newRow << new EventsViewItem(v8event->displayName);
+        }
+
+        if (m_fieldShown[Percent]) {
+            newRow << new EventsViewItem(QString::number(v8event->totalPercent,'f',2)+QLatin1String(" %"));
+            newRow.last()->setData(QVariant(v8event->totalPercent));
+        }
+
+        if (m_fieldShown[TotalDuration]) {
+            newRow << new EventsViewItem(displayTime(v8event->totalTime));
+            newRow.last()->setData(QVariant(v8event->totalTime));
+        }
+
+        if (m_fieldShown[SelfPercent]) {
+            newRow << new EventsViewItem(QString::number(v8event->selfPercent,'f',2)+QLatin1String(" %"));
+            newRow.last()->setData(QVariant(v8event->selfPercent));
+        }
+
+        if (m_fieldShown[SelfDuration]) {
+            newRow << new EventsViewItem(displayTime(v8event->selfTime));
+            newRow.last()->setData(QVariant(v8event->selfTime));
+        }
+
+        if (m_fieldShown[Details]) {
+            newRow << new EventsViewItem(v8event->functionName);
+            newRow.last()->setData(QVariant(v8event->functionName));
+        }
+
+        if (!newRow.isEmpty()) {
+            // no edit
+            foreach (QStandardItem *item, newRow)
+                item->setEditable(false);
+
+            // metadata
+            newRow.at(0)->setData(QVariant(v8event->filename),FilenameRole);
+            newRow.at(0)->setData(QVariant(v8event->line),LineRole);
+
+            // append
+            m_model->invisibleRootItem()->appendRow(newRow);
         }
     }
 }

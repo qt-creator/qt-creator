@@ -169,6 +169,10 @@ public:
     QList<QmlEventEndTimeData> m_endTimeSortedList;
     QList<QmlEventStartTimeData> m_startTimeSortedList;
 
+    void collectV8Statistics();
+    QV8EventDescriptions m_v8EventList;
+    QHash<int, QV8EventData *> m_v8parents;
+
     // file to load
     QString m_filename;
     ParsingStatus m_parsingStatus;
@@ -198,12 +202,22 @@ void QmlProfilerEventList::clear()
 
     d->m_endTimeSortedList.clear();
     d->m_startTimeSortedList.clear();
+
+    qDeleteAll(d->m_v8EventList);
+    d->m_v8EventList.clear();
+    d->m_v8parents.clear();
+
     emit countChanged();
 }
 
 QList <QmlEventData *> QmlProfilerEventList::getEventDescriptions() const
 {
     return d->m_eventDescriptions.values();
+}
+
+const QV8EventDescriptions& QmlProfilerEventList::getV8Events() const
+{
+    return d->m_v8EventList;
 }
 
 void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 length,
@@ -269,8 +283,71 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
     emit countChanged();
 }
 
+void QmlProfilerEventList::addV8Event(int depth, const QString &function, const QString &filename, int lineNumber, double totalTime, double selfTime)
+{
+    QString displayName = filename.mid(filename.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') + QString::number(lineNumber);
+    QV8EventData *newData = 0;
+
+    // time is given in milliseconds, but internally we store it in microseconds
+    totalTime *= 1e6;
+    selfTime *= 1e6;
+
+    // cumulate information
+    foreach (QV8EventData *v8event, d->m_v8EventList) {
+        if (v8event->displayName == displayName && v8event->functionName == function)
+            newData = v8event;
+    }
+
+    if (!newData) {
+        newData = new QV8EventData();
+        newData->displayName = displayName;
+        newData->filename = filename;
+        newData->functionName = function;
+        newData->line = lineNumber;
+        newData->totalTime = totalTime;
+        newData->selfTime = selfTime;
+        d->m_v8EventList << newData;
+    } else {
+        newData->totalTime += totalTime;
+        newData->selfTime += selfTime;
+    }
+    d->m_v8parents[depth] = newData;
+
+    if (depth > 0) {
+        QV8EventData* parentEvent = d->m_v8parents.value(depth-1);
+        if (parentEvent) {
+            if (!newData->parentList.contains(parentEvent))
+                newData->parentList << parentEvent;
+            if (!parentEvent->childrenList.contains(newData))
+                parentEvent->childrenList << newData;
+        }
+    }
+}
+
+void QmlProfilerEventList::QmlProfilerEventListPrivate::collectV8Statistics()
+{
+    double totalTimes = 0;
+    double selfTimes = 0;
+    foreach (QV8EventData *v8event, m_v8EventList) {
+        totalTimes += v8event->totalTime;
+        selfTimes += v8event->selfTime;
+    }
+
+    // prevent divisions by 0
+    if (totalTimes == 0)
+        totalTimes = 1;
+    if (selfTimes == 0)
+        selfTimes = 1;
+
+    foreach (QV8EventData *v8event, m_v8EventList) {
+        v8event->totalPercent = v8event->totalTime * 100.0 / totalTimes;
+        v8event->selfPercent = v8event->selfTime * 100.0 / selfTimes;
+    }
+}
+
 void QmlProfilerEventList::complete()
 {
+    d->collectV8Statistics();
     postProcess();
 }
 
@@ -699,6 +776,31 @@ void QmlProfilerEventList::save(const QString &filename)
     }
     stream.writeEndElement(); // eventList
 
+    stream.writeStartElement("v8profile"); // v8 profiler output
+    foreach (QV8EventData *v8event, d->m_v8EventList) {
+        stream.writeStartElement("event");
+        stream.writeAttribute("index", QString::number(d->m_v8EventList.indexOf(v8event)));
+        stream.writeTextElement("displayname", v8event->displayName);
+        stream.writeTextElement("functionname", v8event->functionName);
+        if (!v8event->filename.isEmpty()) {
+            stream.writeTextElement("filename", v8event->filename);
+            stream.writeTextElement("line", QString::number(v8event->line));
+        }
+        stream.writeTextElement("totalTime", QString::number(v8event->totalTime));
+        stream.writeTextElement("selfTime", QString::number(v8event->selfTime));
+        if (!v8event->childrenList.isEmpty()) {
+            stream.writeStartElement("childrenEvents");
+            QStringList childrenIndexes;
+            foreach (QV8EventData *v8child, v8event->childrenList) {
+                childrenIndexes << QString::number(d->m_v8EventList.indexOf(v8child));
+            }
+            stream.writeAttribute("list", childrenIndexes.join(QString(", ")));
+            stream.writeEndElement();
+        }
+        stream.writeEndElement();
+    }
+    stream.writeEndElement(); // v8 profiler output
+
     stream.writeEndElement(); // trace
     stream.writeEndDocument();
 
@@ -733,8 +835,13 @@ void QmlProfilerEventList::load()
     // erase current
     clear();
 
+    bool readingQmlEvents = false;
+    bool readingV8Events = false;
     QHash <int, QmlEventData *> descriptionBuffer;
     QmlEventData *currentEvent = 0;
+    QHash <int, QV8EventData *> v8eventBuffer;
+    QHash <int, QString> childrenIndexes;
+    QV8EventData *v8event = 0;
     bool startTimesAreSorted = true;
 
     QXmlStreamReader stream(&file);
@@ -745,16 +852,14 @@ void QmlProfilerEventList::load()
         switch (token) {
             case QXmlStreamReader::StartDocument :  continue;
             case QXmlStreamReader::StartElement : {
-                if (elementName == "event") {
-                    QXmlStreamAttributes attributes = stream.attributes();
-                    if (attributes.hasAttribute("index")) {
-                        int ndx = attributes.value("index").toString().toInt();
-                        if (!descriptionBuffer.value(ndx))
-                            descriptionBuffer[ndx] = new QmlEventData;
-                        currentEvent = descriptionBuffer[ndx];
-                    }
+                if (elementName == "eventData" && !readingV8Events) {
+                    readingQmlEvents = true;
                     break;
                 }
+                if (elementName == "v8profile" && !readingQmlEvents) {
+                    readingV8Events = true;
+                }
+
                 if (elementName == "range") {
                     QmlEventStartTimeData rangedEvent;
                     QXmlStreamAttributes attributes = stream.attributes();
@@ -783,41 +888,127 @@ void QmlProfilerEventList::load()
                     break;
                 }
 
-                // the remaining are eventdata elements
-                if (!currentEvent)
-                    break;
-                stream.readNext();
-                if (stream.tokenType() != QXmlStreamReader::Characters)
-                    break;
+                if (readingQmlEvents) {
+                    if (elementName == "event") {
+                        QXmlStreamAttributes attributes = stream.attributes();
+                        if (attributes.hasAttribute("index")) {
+                            int ndx = attributes.value("index").toString().toInt();
+                            if (!descriptionBuffer.value(ndx))
+                                descriptionBuffer[ndx] = new QmlEventData;
+                            currentEvent = descriptionBuffer[ndx];
+                        } else {
+                            currentEvent = 0;
+                        }
+                        break;
+                    }
 
-                QString readData = stream.text().toString();
+                    // the remaining are eventdata or v8eventdata elements
+                    if (!currentEvent)
+                        break;
 
-                if (elementName == "displayname") {
-                    currentEvent->displayname = readData;
-                    break;
+                    stream.readNext();
+                    if (stream.tokenType() != QXmlStreamReader::Characters)
+                        break;
+                    QString readData = stream.text().toString();
+
+                    if (elementName == "displayname") {
+                        currentEvent->displayname = readData;
+                        break;
+                    }
+                    if (elementName == "type") {
+                        currentEvent->eventType = qmlEventType(readData);
+                        break;
+                    }
+                    if (elementName == "filename") {
+                        currentEvent->filename = readData;
+                        break;
+                    }
+                    if (elementName == "line") {
+                        currentEvent->line = readData.toInt();
+                        break;
+                    }
+                    if (elementName == "details") {
+                        currentEvent->details = readData;
+                        break;
+                    }
                 }
-                if (elementName == "type") {
-                    currentEvent->eventType = qmlEventType(readData);
-                    break;
+
+                if (readingV8Events) {
+                    if (elementName == "event") {
+                        QXmlStreamAttributes attributes = stream.attributes();
+                        if (attributes.hasAttribute("index")) {
+                            int ndx = attributes.value("index").toString().toInt();
+                            if (!v8eventBuffer.value(ndx))
+                                v8eventBuffer[ndx] = new QV8EventData;
+                            v8event = v8eventBuffer[ndx];
+                        } else {
+                            v8event = 0;
+                        }
+                        break;
+                    }
+
+                    // the remaining are eventdata or v8eventdata elements
+                    if (!v8event)
+                        break;
+
+                    if (elementName == "childrenEvents") {
+                        QXmlStreamAttributes attributes = stream.attributes();
+                        if (attributes.hasAttribute("list")) {
+                            // store for later parsing (we haven't read all the events yet)
+                            childrenIndexes[v8eventBuffer.key(v8event)] = attributes.value("list").toString();
+                        }
+                    }
+
+                    stream.readNext();
+                    if (stream.tokenType() != QXmlStreamReader::Characters)
+                        break;
+                    QString readData = stream.text().toString();
+
+                    if (elementName == "displayname") {
+                        v8event->displayName = readData;
+                        break;
+                    }
+
+                    if (elementName == "functionname") {
+                        v8event->functionName = readData;
+                        break;
+                    }
+
+                    if (elementName == "filename") {
+                        v8event->filename = readData;
+                        break;
+                    }
+
+                    if (elementName == "line") {
+                        v8event->line = readData.toInt();
+                        break;
+                    }
+
+                    if (elementName == "totalTime") {
+                        v8event->totalTime = readData.toDouble();
+                        break;
+                    }
+
+                    if (elementName == "selfTime") {
+                        v8event->selfTime = readData.toDouble();
+                        break;
+                    }
                 }
-                if (elementName == "filename") {
-                    currentEvent->filename = readData;
-                    break;
-                }
-                if (elementName == "line") {
-                    currentEvent->line = readData.toInt();
-                    break;
-                }
-                if (elementName == "details") {
-                    currentEvent->details = readData;
-                    break;
-                }
+
                 break;
             }
             case QXmlStreamReader::EndElement : {
-                if (elementName == "event")
+                if (elementName == "event") {
                     currentEvent = 0;
-                break;
+                    break;
+                }
+                if (elementName == "eventData") {
+                    readingQmlEvents = false;
+                    break;
+                }
+                if (elementName == "v8profile") {
+                    readingV8Events = false;
+                }
             }
             default: break;
         }
@@ -850,12 +1041,27 @@ void QmlProfilerEventList::load()
         qSort(d->m_endTimeSortedList.begin(), d->m_endTimeSortedList.end(), compareStartIndexes);
     }
 
+    // find v8events' children and parents
+    foreach (int parentIndex, childrenIndexes.keys()) {
+        QStringList childrenStrings = childrenIndexes.value(parentIndex).split((","));
+        foreach (const QString &childString, childrenStrings) {
+            int childIndex = childString.toInt();
+            if (v8eventBuffer.value(childIndex)) {
+                v8eventBuffer[parentIndex]->childrenList << v8eventBuffer[childIndex];
+                v8eventBuffer[childIndex]->parentList << v8eventBuffer[parentIndex];
+            }
+        }
+    }
+    // store v8 events
+    d->m_v8EventList = v8eventBuffer.values();
+
     emit countChanged();
 
     setParsingStatus(SortingEndsStatus);
 
     descriptionBuffer.clear();
 
+    d->collectV8Statistics();
     postProcess();
 }
 

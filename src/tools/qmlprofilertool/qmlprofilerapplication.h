@@ -40,6 +40,7 @@
 #include <qdeclarativedebugclient.h>
 #include <qmlprofilertraceclient.h>
 #include <qmlprofilereventlist.h>
+#include <qv8profilerclient.h>
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
 
@@ -53,6 +54,9 @@ public:
     bool parseArguments();
     void printUsage();
     int exec();
+
+signals:
+    void done();
 
 public slots:
     void userCommand(const QString &command);
@@ -74,6 +78,9 @@ private slots:
     void print(const QString &line);
     void logError(const QString &error);
     void logStatus(const QString &status);
+
+    void qmlComplete();
+    void v8Complete();
 
 private:
     void printCommands();
@@ -97,9 +104,13 @@ private:
 
     QmlJsDebugClient::QDeclarativeDebugConnection m_connection;
     QmlJsDebugClient::QmlProfilerTraceClient m_traceClient;
+    QmlJsDebugClient::QV8ProfilerClient m_v8profilerClient;
     QmlJsDebugClient::QmlProfilerEventList m_eventList;
     QTimer m_connectTimer;
     uint m_connectionAttempts;
+
+    bool m_qmlDataReady;
+    bool m_v8DataReady;
 };
 
 #endif // QMLPROFILERAPPLICATION_H

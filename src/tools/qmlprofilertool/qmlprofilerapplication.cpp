@@ -84,6 +84,7 @@ QmlProfilerApplication::QmlProfilerApplication(int &argc, char **argv) :
     m_verbose(false),
     m_quitAfterSave(false),
     m_traceClient(&m_connection),
+    m_v8profilerClient(&m_connection),
     m_connectionAttempts(0)
 {
     m_connectTimer.setInterval(1000);
@@ -96,11 +97,15 @@ QmlProfilerApplication::QmlProfilerApplication(int &argc, char **argv) :
     connect(&m_traceClient, SIGNAL(enabled()), this, SLOT(traceClientEnabled()));
     connect(&m_traceClient, SIGNAL(recordingChanged(bool)), this, SLOT(recordingChanged()));
     connect(&m_traceClient, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)), &m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
-    connect(&m_traceClient, SIGNAL(complete()), &m_eventList, SLOT(complete()));
+    connect(&m_traceClient, SIGNAL(complete()), this, SLOT(qmlComplete()));
+
+    connect(&m_v8profilerClient, SIGNAL(v8range(int,QString,QString,int,double,double)), &m_eventList, SLOT(addV8Event(int,QString,QString,int,double,double)));
+    connect(&m_v8profilerClient, SIGNAL(v8complete()), this, SLOT(v8complete()));
 
     connect(&m_eventList, SIGNAL(error(QString)), this, SLOT(logError(QString)));
     connect(&m_eventList, SIGNAL(dataReady()), this, SLOT(traceFinished()));
     connect(&m_eventList, SIGNAL(parsingStatusChanged()), this, SLOT(parsingStatusChanged()));
+    connect(this, SIGNAL(done()), &m_eventList, SLOT(complete()));
 }
 
 QmlProfilerApplication::~QmlProfilerApplication()
@@ -140,6 +145,7 @@ bool QmlProfilerApplication::parseArguments()
             }
         } else if (arg == QLatin1String("-fromStart")) {
             m_traceClient.setRecording(true);
+            m_v8profilerClient.setRecording(true);
         } else if (arg == QLatin1String("-help") || arg == QLatin1String("-h") || arg == QLatin1String("/h") || arg == QLatin1String("/?")) {
             return false;
         } else if (arg == QLatin1String("-verbose") || arg == QLatin1String("-v")) {
@@ -212,11 +218,16 @@ void QmlProfilerApplication::userCommand(const QString &command)
     } else if (cmd == Constants::CMD_RECORD
                || cmd == Constants::CMD_RECORD2) {
         m_traceClient.setRecording(!m_traceClient.isRecording());
+        m_qmlDataReady = false;
+        m_v8DataReady = false;
     } else if (cmd == Constants::CMD_QUIT
                || cmd == Constants::CMD_QUIT2) {
         if (m_traceClient.isRecording()) {
             m_quitAfterSave = true;
+            m_qmlDataReady = false;
+            m_v8DataReady = false;
             m_traceClient.setRecording(false);
+            m_v8profilerClient.setRecording(false);
         } else {
             quit();
         }
@@ -382,4 +393,18 @@ void QmlProfilerApplication::logStatus(const QString &status)
         return;
     QTextStream err(stderr);
     err << status << endl;
+}
+
+void QmlProfilerApplication::qmlComplete()
+{
+    m_qmlDataReady = true;
+    if (m_v8profilerClient.status() != QDeclarativeDebugClient::Enabled || m_v8DataReady)
+        emit done();
+}
+
+void QmlProfilerApplication::v8Complete()
+{
+    m_v8DataReady = true;
+    if (m_traceClient.status() != QDeclarativeDebugClient::Enabled || m_qmlDataReady)
+        emit done();
 }
