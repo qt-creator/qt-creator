@@ -75,17 +75,22 @@ using namespace TextEditor;
 using namespace Internal;
 
 Manager::Manager() :
-    m_downloadingDefinitions(false),
-    m_registeringMimeTypes(false),
-    m_queuedMimeTypeRegistrations(0)
+    m_isDownloadingDefinitionsSpec(false),
+    m_hasQueuedRegistration(false)
 {
-    connect(&m_mimeTypeWatcher, SIGNAL(resultReadyAt(int)), this, SLOT(registerMimeType(int)));
-    connect(&m_mimeTypeWatcher, SIGNAL(finished()), this, SLOT(registerMimeTypesFinished()));
+    connect(&m_registeringWatcher, SIGNAL(finished()), this, SLOT(registerMimeTypesFinished()));
     connect(&m_downloadWatcher, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
 }
 
 Manager::~Manager()
-{}
+{
+    disconnect(&m_registeringWatcher);
+    disconnect(&m_downloadWatcher);
+    if (m_registeringWatcher.isRunning())
+        m_registeringWatcher.cancel();
+    if (m_downloadWatcher.isRunning())
+        m_downloadWatcher.cancel();
+}
 
 Manager *Manager::instance()
 {
@@ -94,10 +99,14 @@ Manager *Manager::instance()
 }
 
 QString Manager::definitionIdByName(const QString &name) const
-{ return m_idByName.value(name); }
+{
+    return m_register.m_idByName.value(name);
+}
 
 QString Manager::definitionIdByMimeType(const QString &mimeType) const
-{ return m_idByMimeType.value(mimeType); }
+{
+    return m_register.m_idByMimeType.value(mimeType);
+}
 
 QString Manager::definitionIdByAnyMimeType(const QStringList &mimeTypes) const
 {
@@ -123,13 +132,13 @@ QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
         QXmlInputSource source(&definitionFile);
         QXmlSimpleReader reader;
         reader.setContentHandler(&handler);
-        m_isBuilding.insert(id);
+        m_isBuildingDefinition.insert(id);
         try {
             reader.parse(source);
         } catch (HighlighterException &) {
             definition.clear();
         }
-        m_isBuilding.remove(id);
+        m_isBuildingDefinition.remove(id);
         definitionFile.close();
 
         m_definitions.insert(id, definition);
@@ -139,31 +148,64 @@ QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
 }
 
 QSharedPointer<HighlightDefinitionMetaData> Manager::definitionMetaData(const QString &id) const
-{ return m_definitionsMetaData.value(id); }
-
-bool Manager::isBuildingDefinition(const QString &id) const
-{ return m_isBuilding.contains(id); }
-
-void Manager::registerMimeTypes()
 {
-    if (!m_registeringMimeTypes) {
-        m_registeringMimeTypes = true;
-        clear();
-        QFuture<Core::MimeType> future =
-            QtConcurrent::run(&Manager::gatherDefinitionsMimeTypes, this);
-        m_mimeTypeWatcher.setFuture(future);
-        Core::ICore::instance()->progressManager()->addTask(future,
-                                                            tr("Registering definitions"),
-                                                            Constants::TASK_REGISTER_DEFINITIONS);
-    } else {
-        // QFutures returned from QConcurrent::run cannot be cancelled. So the queue.
-        ++m_queuedMimeTypeRegistrations;
-    }
+    return m_register.m_definitionsMetaData.value(id);
 }
 
-void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future)
+bool Manager::isBuildingDefinition(const QString &id) const
 {
-    // Please be aware of the following limitation in the current implementation.
+    return m_isBuildingDefinition.contains(id);
+}
+
+namespace TextEditor {
+namespace Internal {
+
+class ManagerProcessor : public QObject
+{
+    Q_OBJECT
+public:
+    ManagerProcessor();
+    void process(QFutureInterface<QPair<Manager::RegisterData,
+                                        QList<Core::MimeType> > > &future);
+
+    QStringList m_definitionsPaths;
+    QSet<QString> m_knownMimeTypes;
+    QSet<QString> m_knownSuffixes;
+    QHash<QString, Core::MimeType> m_userModified;
+    static const int kMaxProgress;
+
+    struct PriorityComp
+    {
+        bool operator()(const QSharedPointer<HighlightDefinitionMetaData> &a,
+                        const QSharedPointer<HighlightDefinitionMetaData> &b) {
+            return a->priority() > b->priority();
+        }
+    };
+};
+
+const int ManagerProcessor::kMaxProgress = 200;
+
+ManagerProcessor::ManagerProcessor()
+    : m_knownSuffixes(QSet<QString>::fromList(Core::ICore::instance()->mimeDatabase()->suffixes()))
+{
+    const HighlighterSettings &settings = TextEditorSettings::instance()->highlighterSettings();
+    m_definitionsPaths.append(settings.definitionFilesPath());
+    if (settings.useFallbackLocation())
+        m_definitionsPaths.append(settings.fallbackDefinitionFilesPath());
+
+    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    foreach (const Core::MimeType &userMimeType, mimeDatabase->readUserModifiedMimeTypes())
+        m_userModified.insert(userMimeType.type(), userMimeType);
+    foreach (const Core::MimeType &mimeType, mimeDatabase->mimeTypes())
+        m_knownMimeTypes.insert(mimeType.type());
+}
+
+void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
+                                                      QList<Core::MimeType> > > &future)
+{
+    future.setProgressRange(0, kMaxProgress);
+
+    // @TODO: Improve MIME database to handle the following limitation.
     // The generic highlighter only register its types after all other plugins
     // have populated Creator's MIME database (so it does not override anything).
     // When the generic highlighter settings change only its internal data is cleaned-up
@@ -174,32 +216,20 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
     // (considering hierarchies, aliases, etc) of the MIME database whenever there
     // is a change in the generic highlighter settings.
 
-    QStringList definitionsPaths;
-    const HighlighterSettings &settings = TextEditorSettings::instance()->highlighterSettings();
-    definitionsPaths.append(settings.definitionFilesPath());
-    if (settings.useFallbackLocation())
-        definitionsPaths.append(settings.fallbackDefinitionFilesPath());
+    Manager::RegisterData data;
+    QList<Core::MimeType> newMimeTypes;
 
-    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
-    QSet<QString> knownSuffixes = QSet<QString>::fromList(mimeDatabase->suffixes());
-
-    QHash<QString, Core::MimeType> userModified;
-    const QList<Core::MimeType> &userMimeTypes = mimeDatabase->readUserModifiedMimeTypes();
-    foreach (const Core::MimeType &userMimeType, userMimeTypes)
-        userModified.insert(userMimeType.type(), userMimeType);
-
-    foreach (const QString &path, definitionsPaths) {
+    foreach (const QString &path, m_definitionsPaths) {
         if (path.isEmpty())
             continue;
 
         QDir definitionsDir(path);
         QStringList filter(QLatin1String("*.xml"));
         definitionsDir.setNameFilters(filter);
-
         QList<QSharedPointer<HighlightDefinitionMetaData> > allMetaData;
-        const QFileInfoList &filesInfo = definitionsDir.entryInfoList();
-        foreach (const QFileInfo &fileInfo, filesInfo) {
-            const QSharedPointer<HighlightDefinitionMetaData> &metaData = parseMetadata(fileInfo);
+        foreach (const QFileInfo &fileInfo, definitionsDir.entryInfoList()) {
+            const QSharedPointer<HighlightDefinitionMetaData> &metaData =
+                    Manager::parseMetadata(fileInfo);
             if (!metaData.isNull())
                 allMetaData.append(metaData);
         }
@@ -208,29 +238,33 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
         qSort(allMetaData.begin(), allMetaData.end(), PriorityComp());
 
         foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
-            if (m_idByName.contains(metaData->name()))
+            if (future.isCanceled())
+                return;
+            if (future.progressValue() < kMaxProgress - 1)
+                future.setProgressValue(future.progressValue() + 1);
+
+            if (data.m_idByName.contains(metaData->name()))
                 // Name already exists... This is a fallback item, do not consider it.
                 continue;
 
             const QString &id = metaData->id();
-            m_idByName.insert(metaData->name(), id);
-            m_definitionsMetaData.insert(id, metaData);
+            data.m_idByName.insert(metaData->name(), id);
+            data.m_definitionsMetaData.insert(id, metaData);
 
             static const QStringList textPlain(QLatin1String("text/plain"));
 
-            // A definition can specify multiple MIME types and file extensions/patterns.
-            // However, each thing is done with a single string. There is no direct way to
-            // tell which patterns belong to which MIME types nor whether a MIME type is just
-            // an alias for the other. Currently, I associate all patterns with all MIME
-            // types from a definition.
+            // A definition can specify multiple MIME types and file extensions/patterns,
+            // but all on a single string. So associate all patterns with all MIME types.
             QList<Core::MimeGlobPattern> globPatterns;
             foreach (const QString &type, metaData->mimeTypes()) {
-                if (m_idByMimeType.contains(type))
+                if (data.m_idByMimeType.contains(type))
                     continue;
 
-                m_idByMimeType.insert(type, id);
-                Core::MimeType mimeType = mimeDatabase->findByType(type);
-                if (mimeType.isNull()) {
+                data.m_idByMimeType.insert(type, id);
+                if (!m_knownMimeTypes.contains(type)) {
+                    m_knownMimeTypes.insert(type);
+
+                    Core::MimeType mimeType;
                     mimeType.setType(type);
                     mimeType.setSubClassesOf(textPlain);
                     mimeType.setComment(metaData->name());
@@ -239,15 +273,15 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
                     // modified patterns and rule-based matchers. If not, just consider what
                     // is specified in the definition file.
                     QHash<QString, Core::MimeType>::const_iterator it =
-                        userModified.find(mimeType.type());
-                    if (it == userModified.end()) {
+                        m_userModified.find(mimeType.type());
+                    if (it == m_userModified.end()) {
                         if (globPatterns.isEmpty()) {
                             foreach (const QString &pattern, metaData->patterns()) {
                                 static const QLatin1String mark("*.");
                                 if (pattern.startsWith(mark)) {
                                     const QString &suffix = pattern.right(pattern.length() - 2);
-                                    if (!knownSuffixes.contains(suffix))
-                                        knownSuffixes.insert(suffix);
+                                    if (!m_knownSuffixes.contains(suffix))
+                                        m_knownSuffixes.insert(suffix);
                                     else
                                         continue;
                                 }
@@ -261,27 +295,56 @@ void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &futur
                         mimeType.setMagicRuleMatchers(it.value().magicRuleMatchers());
                     }
 
-                    mimeDatabase->addMimeType(mimeType);
-                    future.reportResult(mimeType);
+                    newMimeTypes.append(mimeType);
                 }
             }
         }
     }
+
+    future.reportResult(qMakePair(data, newMimeTypes));
 }
 
-void Manager::registerMimeType(int index) const
+} // Internal
+} // TextEditor
+
+
+void Manager::registerMimeTypes()
 {
-    const Core::MimeType &mimeType = m_mimeTypeWatcher.resultAt(index);
-    TextEditorPlugin::instance()->editorFactory()->addMimeType(mimeType.type());
+    if (!m_registeringWatcher.isRunning()) {
+        clear();
+
+        ManagerProcessor *processor = new ManagerProcessor;
+        QFuture<QPair<RegisterData, QList<Core::MimeType> > > future =
+            QtConcurrent::run(&ManagerProcessor::process, processor);
+        m_registeringWatcher.setFuture(future);
+        connect(&m_registeringWatcher, SIGNAL(finished()), processor, SLOT(deleteLater()));
+
+        Core::ICore::instance()->progressManager()->addTask(future,
+                                                            tr("Registering definitions"),
+                                                            Constants::TASK_REGISTER_DEFINITIONS);
+    } else {
+        m_hasQueuedRegistration = true;
+        m_registeringWatcher.cancel();
+    }
 }
 
 void Manager::registerMimeTypesFinished()
 {
-    m_registeringMimeTypes = false;
-    if (m_queuedMimeTypeRegistrations > 0) {
-        --m_queuedMimeTypeRegistrations;
+    if (m_hasQueuedRegistration) {
+        m_hasQueuedRegistration = false;
         registerMimeTypes();
-    } else {
+    } else if (!m_registeringWatcher.isCanceled()) {
+        const QPair<RegisterData, QList<Core::MimeType> > &result = m_registeringWatcher.result();
+        m_register = result.first;
+
+        PlainTextEditorFactory *factory = TextEditorPlugin::instance()->editorFactory();
+        const QSet<QString> &inFactory = factory->mimeTypes().toSet();
+        foreach (const Core::MimeType &mimeType, result.second) {
+            Core::ICore::instance()->mimeDatabase()->addMimeType(mimeType);
+            if (!inFactory.contains(mimeType.type()))
+                factory->addMimeType(mimeType.type());
+        }
+
         emit mimeTypesRegistered();
     }
 }
@@ -389,7 +452,7 @@ void Manager::downloadDefinitions(const QList<QUrl> &urls, const QString &savePa
     foreach (const QUrl &url, urls)
         m_downloaders.append(new DefinitionDownloader(url, savePath));
 
-    m_downloadingDefinitions = true;
+    m_isDownloadingDefinitionsSpec = true;
     QFuture<void> future = QtConcurrent::map(m_downloaders, DownloaderStarter());
     m_downloadWatcher.setFuture(future);
     Core::ICore::instance()->progressManager()->addTask(future,
@@ -422,18 +485,20 @@ void Manager::downloadDefinitionsFinished()
         QMessageBox::critical(0, tr("Download Error"), text);
     }
 
-    m_downloadingDefinitions = false;
+    m_isDownloadingDefinitionsSpec = false;
 }
 
 bool Manager::isDownloadingDefinitions() const
 {
-    return m_downloadingDefinitions;
+    return m_isDownloadingDefinitionsSpec;
 }
 
 void Manager::clear()
 {
-    m_idByName.clear();
-    m_idByMimeType.clear();
+    m_register.m_idByName.clear();
+    m_register.m_idByMimeType.clear();
+    m_register.m_definitionsMetaData.clear();
     m_definitions.clear();
-    m_definitionsMetaData.clear();
 }
+
+#include "manager.moc"

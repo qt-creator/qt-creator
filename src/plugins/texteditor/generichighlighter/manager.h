@@ -42,6 +42,7 @@
 #include <QtCore/QSet>
 #include <QtCore/QUrl>
 #include <QtCore/QList>
+#include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFutureWatcher>
 
@@ -59,6 +60,7 @@ namespace Internal {
 
 class HighlightDefinition;
 class DefinitionDownloader;
+class ManagerProcessor;
 
 // This is the generic highlighter manager. It is not thread-safe.
 
@@ -74,7 +76,6 @@ public:
     QString definitionIdByAnyMimeType(const QStringList &mimeTypes) const;
 
     bool isBuildingDefinition(const QString &id) const;
-
     QSharedPointer<HighlightDefinition> definition(const QString &id);
     QSharedPointer<HighlightDefinitionMetaData> definitionMetaData(const QString &id) const;
 
@@ -88,7 +89,6 @@ public slots:
     void registerMimeTypes();
 
 private slots:
-    void registerMimeType(int index) const;
     void registerMimeTypesFinished();
     void downloadAvailableDefinitionsListFinished();
     void downloadDefinitionsFinished();
@@ -99,33 +99,27 @@ signals:
 private:
     Manager();
 
-    void gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future);
-    QList<HighlightDefinitionMetaData> parseAvailableDefinitionsList(QIODevice *device) const;
     void clear();
 
-    bool m_downloadingDefinitions;
-    bool m_registeringMimeTypes;
-    int m_queuedMimeTypeRegistrations;
-
-    QHash<QString, QString> m_idByName;
-    QHash<QString, QString> m_idByMimeType;
-    QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
-    QHash<QString, QSharedPointer<HighlightDefinitionMetaData> > m_definitionsMetaData;
-    QSet<QString> m_isBuilding;
-
+    bool m_isDownloadingDefinitionsSpec;
     QList<DefinitionDownloader *> m_downloaders;
-    Utils::NetworkAccessManager m_networkManager;
-
     QFutureWatcher<void> m_downloadWatcher;
-    QFutureWatcher<Core::MimeType> m_mimeTypeWatcher;
+    Utils::NetworkAccessManager m_networkManager;
+    QList<HighlightDefinitionMetaData> parseAvailableDefinitionsList(QIODevice *device) const;
 
-    struct PriorityComp
+    QSet<QString> m_isBuildingDefinition;
+    QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
+
+    struct RegisterData
     {
-        bool operator()(const QSharedPointer<HighlightDefinitionMetaData> &a,
-                        const QSharedPointer<HighlightDefinitionMetaData> &b) {
-            return a->priority() > b->priority();
-        }
+        QHash<QString, QString> m_idByName;
+        QHash<QString, QString> m_idByMimeType;
+        QHash<QString, QSharedPointer<HighlightDefinitionMetaData> > m_definitionsMetaData;
     };
+    RegisterData m_register;
+    bool m_hasQueuedRegistration;
+    QFutureWatcher<QPair<RegisterData, QList<Core::MimeType> > > m_registeringWatcher;
+    friend class ManagerProcessor;
 
 signals:
     void definitionsMetaDataReady(const QList<Internal::HighlightDefinitionMetaData>&);
