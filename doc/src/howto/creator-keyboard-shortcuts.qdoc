@@ -1,0 +1,544 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-cli.html
+    \page creator-keyboard-shortcuts.html
+    \nextpage creator-faq.html
+
+    \title Keyboard Shortcuts
+
+    \QC provides various keyboard shortcuts to speed up your development
+    process.
+
+    \section1 Configuring Keyboard Shortcuts
+
+    To customize a keyboard shortcut:
+
+    \list 1
+
+        \o  Select \gui Tools > \gui Options > \gui Environment > \gui Keyboard.
+
+        \o  Select an action from the list.
+
+        \o  In \gui{Key Sequence} enter the shortcut key you want to associate
+            with the selected action.
+
+    \endlist
+
+    \QC allows you to use different keyboard shortcut mapping schemes:
+
+    \list
+
+        \o  To import a keyboard shortcut mapping scheme, click \gui Import
+            and select the kms file containing keyboard shortcut mapping scheme
+            you want to import.
+
+        \o  To export the current keyboard shortcut mapping scheme, click
+            \gui Export and select the location where you want to save the
+            exported kms file.
+
+    \endlist
+
+    \section1 Default Keyboard Shortcuts
+
+    The following tables list the default keyboard shortcuts. They are
+    categorized by actions.
+
+    \section2 General Keyboard Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
+        \row
+            \o Open file or project
+            \o Ctrl+O
+        \row
+            \o New file or project
+            \o Ctrl+N
+        \row
+            \o Open in external editor
+            \o Alt+V, Alt+I
+        \row
+            \o Cut
+            \o Ctrl+X
+        \row
+            \o Copy
+            \o Ctrl+C
+        \row
+            \o Paste
+            \o Ctrl+V
+        \row
+            \o Redo
+            \o Ctrl+Y
+        \row
+            \o Save
+            \o Ctrl+S
+        \row
+            \o Save all
+            \o Ctrl+A
+        \row
+            \o Close window
+            \o Ctrl+W
+        \row
+            \o Close all
+            \o Ctrl+Shift+W
+        \row
+            \o Go back
+            \o Alt+Left
+        \row
+            \o Go forward
+            \o Alt+Right
+        \row
+            \o Go to line
+            \o Ctrl+L
+        \row
+            \o Next open document in history
+            \o Ctrl+Shift+Tab
+        \row
+            \o Goto other split
+            \o Ctrl+E, O
+        \row
+            \o Previous open document in history
+            \o Ctrl+Tab
+        \row
+            \o Activate \gui Locator
+            \o Ctrl+K
+        \row
+            \o Switch to \gui Welcome mode
+            \o Ctrl+1
+        \row
+            \o Switch to \gui Edit mode
+            \o Ctrl+2
+        \row
+            \o Switch to \gui Design mode
+            \o Ctrl+3
+        \row
+            \o Switch to \gui Debug mode
+            \o Ctrl+4
+        \row
+            \o Switch to \gui Projects mode
+            \o Ctrl+5
+        \row
+            \o Switch to \gui Help mode
+            \o Ctrl+6
+        \row
+            \o Toggle \gui{Build Issues} pane
+            \o Alt+1 (Cmd+1 on Mac OS X)
+        \row
+            \o Toggle \gui{Search Results} pane
+            \o Alt+2 (Cmd+2 on Mac OS X)
+        \row
+            \o Toggle \gui{Application Output} pane
+            \o Alt+3 (Cmd+3 on Mac OS X)
+        \row
+            \o Toggle \gui{Compile Output} pane
+            \o Alt+4 (Cmd+4 on Mac OS X)
+        \row
+            \o Activate \gui Bookmarks pane
+            \o Alt+M
+        \row
+            \o Activate \gui{File System} pane
+            \o Alt+Y
+        \row
+            \o Activate \gui{Open Documents} pane
+            \o Alt+O
+        \row
+            \o Activate \gui Projects pane
+            \o Alt+X
+        \row
+            \o Full screen
+            \o Ctrl+Shift+F11
+        \row
+            \o Toggle the sidebar
+            \o Alt+0 (Cmd+0 on Mac OS X)
+        \row
+            \o Undo
+            \o Ctrl+Z
+        \row
+            \o Move to \gui Edit mode
+
+               In \gui Edit mode:
+               \list
+                \o The first press moves focus to the editor
+                \o The second press closes secondary windows
+               \endlist
+            \o Esc
+    \endtable
+
+    \section2 Editing Keyboard Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
+        \row
+            \o Auto-indent selection
+            \o Ctrl+I
+        \row
+            \o Collapse
+            \o Ctrl+<
+        \row
+            \o Expand
+            \o Ctrl+>
+        \row
+            \o Trigger a completion in this scope
+            \o Ctrl+Space
+        \row
+            \o Copy line down
+            \o Ctrl+Alt+Down
+        \row
+            \o Copy line up
+            \o Ctrl+Alt+Up
+        \row
+            \o Cut line
+            \o Shift+Del
+        \row
+            \o Join lines
+            \o Ctrl+J
+        \row
+            \o Decrease font size
+            \o Ctrl+- (Ctrl+Roll mouse wheel down)
+        \row
+            \o Increase font size
+            \o Ctrl++ (Ctrl+Roll mouse wheel up)
+        \row
+            \o Toggle Vim-style editing
+            \o Alt+V, Alt+V
+        \row
+            \o Split
+            \o Ctrl+E, 2
+        \row
+            \o Split side by side
+            \o Ctrl+E, 3
+        \row
+            \o Remove all splits
+            \o Ctrl+E, 1
+        \row
+            \o Remove current split
+            \o Ctrl+E, 0
+        \row
+            \o Select all
+            \o Ctrl+A
+        \row
+            \o Go to block end
+            \o Ctrl+]
+        \row
+            \o Go to block start
+            \o Ctrl+[
+        \row
+            \o Go to block end with selection
+            \o Ctrl+}
+        \row
+            \o Go to block start with selection
+            \o Ctrl+{
+        \row
+            \o Move current line down
+            \o Ctrl+Shift+Down
+        \row
+            \o Move current line up
+            \o Ctrl+Shift+Up
+        \row
+            \o Trigger a quick fix in this scope
+            \o Alt+Return
+        \row
+            \o Rewrap paragraph
+            \o Ctrl+E, R
+        \row
+            \o Select the current block
+
+               The second press extends the selection to the parent block
+            \o Ctrl+U
+        \row
+            \o Enable text wrapping
+            \o Ctrl+E, Ctrl+W
+        \row
+            \o Toggle comment for selection
+            \o Ctrl+/
+        \row
+            \o Visualize whitespace
+            \o Ctrl+E, Ctrl+V
+        \row
+            \o Delete
+            \o Del
+        \row
+            \o Adjust size
+            \o Ctrl+J
+        \row
+            \o Lay out in a grid
+            \o Ctrl+G
+        \row
+            \o Lay out horizontally
+            \o Ctrl+H
+        \row
+            \o Lay out vertically
+            \o Ctrl+L
+        \row
+            \o Preview
+            \o Alt+Shift+R
+        \row
+            \o Edit signals and slots
+            \o F4
+        \row
+            \o Edit widgets
+            \o F3
+        \row
+            \o Toggle bookmark
+            \o Ctrl+M
+        \row
+            \o Go to next bookmark
+            \o Ctrl+.
+        \row
+            \o Go to previous bookmark
+            \o Ctrl+,
+        \row
+            \o Fetch snippet
+            \o Alt+C, Alt+F
+        \row
+            \o Paste snippet
+            \o Alt+C, Alt+P
+        \row
+            \o Find usages
+            \o Ctrl+Shift+U
+        \row
+            \o Follow symbol under cursor
+
+               Works with namespaces, classes, methods, variables, include
+               statements and macros
+            \o F2
+        \row
+            \o Rename symbol under cursor
+            \o Ctrl+Shift+R
+        \row
+            \o Switch between method declaration and definition
+            \o Shift+F2
+        \row
+            \o Open type hierarchy
+            \o Ctrl+Shift+T
+        \row
+            \o Switch between header and source file
+            \o F4
+        \row
+            \o Turn selected text into lowercase
+            \o Alt+U
+        \row
+            \o Turn selected text into uppercase
+            \o Alt+Shift+U
+    \endtable
+
+    \section2 Debugging Keyboard Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
+        \row
+            \o Start debugging
+            \o F5
+        \row
+            \o Stop or interrupt debugger
+            \o Shift+F5
+        \row
+            \o Reset debugger
+            \o Ctrl+Shift+F5
+        \row
+            \o Step over
+            \o F10
+        \row
+            \o Step into
+            \o F11
+        \row
+            \o Step out
+            \o Shift+F11
+        \row
+            \o Toggle breakpoint
+            \o F9
+        \row
+            \o Run to selected function
+            \o Ctrl+F6
+    \endtable
+
+    \section2 Project Keyboard Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
+        \row
+            \o Build project
+            \o Ctrl+B
+        \row
+            \o Build all
+            \o Ctrl+Shift+B
+        \row
+            \o New project
+            \o Ctrl+Shift+N
+        \row
+            \o Run
+            \o Ctrl+R
+    \endtable
+
+    \section2 Help Keyboard Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
+        \row
+            \o View context-sensitive help
+            \o F1
+        \row
+            \o Activate contents in \gui Help mode
+            \o Ctrl+T
+        \row
+            \o Add bookmark in \gui Help mode
+            \o Ctrl+M
+        \row
+            \o Activate index in \gui Help mode
+            \o Ctrl+I
+        \row
+            \o Reset font size in \gui Help mode
+            \o Ctrl+0
+        \row
+            \o Activate search in \gui Help mode
+            \o Ctrl+S
+    \endtable
+
+    \section2 Version Control Keyboard Shortcuts
+
+    \table
+        \header
+            \o {1,2} Action
+            \o {5,1} Version control system
+        \header
+            \o CVS
+            \o Git
+            \o Perforce
+            \o Subversion
+            \o Mercurial
+        \row
+            \o Add
+            \o Alt+C, Alt+A
+            \o Alt+G, Alt+A
+            \o
+            \o Alt+S, Alt+A
+            \o
+        \row
+            \o Commit
+            \o Alt+C, Alt+C
+            \o Alt+G, Alt+C
+            \o
+            \o
+            \o Alt+H, Alt+C
+        \row
+            \o Diff
+            \o Alt+C, Alt+D
+            \o Alt+G, Alt+D
+            \o
+            \o Alt+S, Alt+D
+            \o Alt+H, Alt+D
+        \row
+            \o Diff project
+            \o
+            \o Alt+G, Alt+Shift+D
+            \o Alt+P, Alt+D
+            \o
+            \o
+        \row
+            \o Blame
+            \o
+            \o Alt+G, Alt+B
+            \o
+            \o
+            \o
+        \row
+            \o Log
+            \o
+            \o Alt+G, Alt+L
+            \o Alt+P, Alt+F
+            \o
+            \o Alt+H, Alt+L
+        \row
+            \o Log project
+            \o
+            \o Alt+G, Alt+K
+            \o
+            \o
+            \o
+        \row
+            \o Status
+            \o
+            \o Alt+G, Alt+S
+            \o
+            \o
+            \o Alt+H, Alt+S
+        \row
+            \o Undo changes
+            \o
+            \o Alt+G, Alt+U
+            \o
+            \o
+            \o
+        \row
+            \o Diff project
+            \o
+            \o Alt+G, Alt+Shift+D
+            \o Alt+P, Alt+D
+            \o
+            \o
+        \row
+            \o Edit
+            \o
+            \o
+            \o Alt+P, Alt+E
+            \o
+            \o
+        \row
+            \o Opened
+            \o
+            \o
+            \o Alt+P, Alt+O
+            \o
+            \o
+        \row
+            \o Revert
+            \o
+            \o
+            \o Alt+P, Alt+R
+            \o
+            \o
+        \row
+            \o Submit
+            \o
+            \o
+            \o Alt+P, Alt+S
+            \o
+            \o
+    \endtable
+*/

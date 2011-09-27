@@ -1,0 +1,77 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-developing-symbian.html
+    \page creator-project-managing-sessions.html
+    \nextpage creator-coding.html
+
+    \title Managing Sessions
+
+    When you exit \QC, a snapshot of your current workspace is stored as a
+    \e session. To restore the session automatically when you start \QC,
+    select \gui {File > Session Manager > Restore last session on startup}.
+
+    A session is an arbitrary collection of:
+
+    \list
+
+        \o  Open projects with their dependencies (including SUBDIRS projects)
+
+        \o  Open editors
+
+        \o  Breakpoints and expressions
+
+        \o  Bookmarks
+
+    \endlist
+
+    A session is  personal, that is, not meant to be shared. It is not supposed
+    to reflect the project structure. It contains personal data, such as
+    bookmarks and breakpoints that are usually not of interest to other
+    developers working on the same projects.
+
+    For example, if you work on a project and need to switch to another project
+    for a while, you can save your workspace as a session. This makes it easier
+    to return to working on the first project later.
+
+    To create a new session or remove existing sessions, select \gui File >
+    \gui{Session Manager}.
+
+    \image qtcreator-session-manager.png
+
+    To switch between sessions, choose \gui {File > Session Manager}. If you do
+    not create or select a session, \QC always uses the default session, which
+    was created the last time you exited \QC.
+
+    When you launch \QC, a list of existing sessions is displayed on the
+    \gui{Welcome screen}.
+
+    \image qtcreator-welcome-session.png
+
+*/

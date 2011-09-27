@@ -1,0 +1,563 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-generic.html
+    \page creator-version-control.html
+    \nextpage adding-plugins.html
+
+    \title Using Version Control Systems
+
+    Version control systems supported by \QC are:
+    \table
+        \header
+            \i Version Control System
+            \i Address
+            \i Notes
+        \row
+            \i  Bazaar
+            \i  \l{http://bazaar.canonical.com/}
+            \i  \QC 2.2 and later
+        \row
+            \i  CVS
+            \i  \l{http://www.cvshome.org}
+            \i
+        \row
+            \i  Git
+            \i  \l{http://git-scm.com/}
+            \i
+        \row
+            \i  Mercurial
+            \i  \l{http://mercurial.selenic.com/}
+            \i  \QC 2.0 and later
+        \row
+            \i  Perforce
+            \i  \l{http://www.perforce.com}
+            \i  Server version 2006.1 and later
+        \row
+            \i  Subversion
+            \i  \l{http://subversion.apache.org/}
+            \i
+    \endtable
+
+    \section1 Setting Up Version Control Systems
+
+    \QC uses the version control system's command line clients to access your
+    repositories. To allow access, make sure that the command line clients can
+    be located using the \c{PATH} environment variable or specify the path to
+    the command line client executables in \gui{Tools} > \gui{Options} >
+    \gui {Version Control}.
+
+    After you set up the version control system, use the command line to check
+    that everything works (for example, use the status command). If no issues
+    arise, you should be ready to use the system also from \QC.
+
+    \section2 Using msysGit on Windows
+
+    If you configure Git for use with \c {git bash}, only, and use SSH
+    authorization, Git looks for the SSH keys in the directory where the
+    \c HOME environment points to. The variable is always set by \c {git bash}.
+
+    However, the variable is typically not set in a Windows command prompt. When
+    you run Git from a Windows command prompt, it looks for the SSH keys in its
+    installation directory, and therefore, the authorization fails.
+
+    You can set the \c HOME environment variable from \QC. Select \gui {Tools >
+    Options > Version Control > Git}. Select the \gui {Environment Variables}
+    and the \gui {Set "HOME" environment variable} check boxes. \c HOME is set
+    to \c %HOMEDRIVE%%HOMEPATH% when the Git executable is run and authorization
+    works as it would with \c {git bash}.
+
+    \section1 Setting Up Common Options
+
+    Select \gui{Tools} > \gui{Options} > \gui{Version Control} > \gui{Common}
+    to specify settings for submit messages:
+
+    \list
+
+        \o  \gui{Submit message check script} is a script or program that
+            can be used to perform checks on the submit message before
+            submitting. The submit message is passed in as the script's first
+            parameter. If there is an error, the script should output a
+            message on standard error and return a non-zero exit code.
+
+        \o  \gui{User/alias configuration file} takes a file in mailmap format
+            that lists user names and aliases. For example:
+
+            \code
+            Jon Doe <Jon.Doe@company.com>
+            Hans Mustermann <Hans.Mustermann@company.com> hm <info@company.com>
+            \endcode
+
+            \note The second line above specifies the alias \e{hm} and the
+            corresponding email address for \e{Hans Mustermann}. If the
+            user/alias configuration file is present, the submit editor
+            displays a context menu with \gui{Insert name} that pops up a
+            dialog letting the user select a name.
+
+        \o  \gui{User fields configuration file} is a simple text file
+            consisting of lines specifying submit message fields that take
+            user names, for example:
+
+            \code
+            Reviewed-by:
+            Signed-off-by:
+            \endcode
+
+            The fields above appear below the submit message. They provide
+            completion for the aliases/public user names specified in the
+            \e{User/alias configuration file} as well as a button that opens the
+            aforementioned user name dialog.
+
+        \o  \gui{SSH prompt command} specifies an ssh-askpass command that you
+            can use (on Linux) to prompt the user for a password when using SSH.
+            For example, \c ssh-askpass or \c x11-ssh-askpass, depending on the
+            ssh-askpass implementation that you use.
+
+    \endlist
+
+    \section1 Creating VCS Repositories for New Projects
+
+    \QC allows you to create repositories for version control systems that
+    support local repository creation, such as Git, Mercurial, or Bazaar.
+    When creating a new project by selecting \gui File > \gui{New File or
+    Project}, you can choose a version control system on the final wizard page.
+
+    You can also select \gui Tools and then select \gui {Create Repository}
+    in the submenu for the version control system.
+
+    To import a project that is under version control, choose \gui {File >
+    New File or Project > Project from Version Control} and select the
+    version control system that you use. Follow the instructions of the
+    wizard to import the project.
+
+    \section1 Using Version Control Systems
+
+    The \gui{Tools} menu contains a submenu for each supported version
+    control system.
+
+    The \gui{Version Control} output pane displays the commands that are
+    executed, a timestamp, and the relevant output. Select \gui {Window > Output
+    Panes > Version Control} to open the pane.
+
+    \image qtcreator-vcs-pane.png
+
+    \section2 Adding Files
+
+    When you create a new file or a new project, the wizard displays a page
+    asking whether the files should be added to a version control system.
+    This happens when the parent directory or the project is already
+    under version control and the system supports the concept of adding files,
+    for example, Perforce and Subversion. Alternatively, you can
+    add files later by using the version control tool menus.
+
+    With Git, there is no concept of adding files. Instead, all modified
+    files must be staged for a commit.
+
+    \section2 Viewing Diff Output
+
+    All version control systems provide menu options to \e{diff} the current
+    file or project: to compare it with the latest version stored in the
+    repository and to display the differences. In \QC, a diff is displayed in a
+    read-only editor. If the file is accessible, you can double-click on a
+    selected diff chunk and \QC opens an editor displaying the file, scrolled to
+    the line in question.
+
+    \image qtcreator-vcs-diff.png
+
+    \section2 Viewing Versioning History and Change Details
+
+    Display the versioning history of a file by selecting \gui{Log}
+    or \gui{Filelog}. Typically, the log output contains the date, the commit
+    message, and a change or revision identifier. Click on the identifier to
+    display a description of the change including the diff.
+    Right-clicking on an identifier brings up a context menu that lets you
+    show annotation views of previous versions (see \l{Annotating Files}).
+
+    \image qtcreator-vcs-log.png
+
+    \section2 Annotating Files
+
+    Annotation views are obtained by selecting \gui{Annotate} or \gui{Blame}.
+    Selecting \gui{Annotate} or \gui{Blame} displays the lines of the file
+    prepended by the change identifier they originate from. Clicking on the
+    change identifier shows a detailed description of the change.
+
+    To show the annotation of a previous version, right-click on the
+    version identifier at the beginning of a line and choose one of the
+    revisions shown at the bottom of the context menu. This allows you to
+    navigate through the history of the file and obtain previous versions of
+    it. It also works for Git and Mercurial using SHA's.
+
+    The same context menu is available when right-clicking on a version
+    identifier in the file log view of a single file.
+
+    \section2 Committing Changes
+
+    Once you have finished making changes, submit them to the version control
+    system by choosing \gui{Commit} or \gui{Submit}. \QC displays a
+    commit page containing a text editor where you can enter your commit
+    message and a checkable list of modified files to be included.
+
+    \image qtcreator-vcs-commit.png
+
+    When you have finished filling out the commit page information, click on
+    \gui{Commit} to start committing.
+
+    The \gui{Diff Selected Files} button brings up a diff view of the
+    files selected in the file list. Since the commit page is just another
+    editor, you can go back to it by closing the diff view. You can also check
+    a diff view from the editor combo box showing the \gui{Opened files}.
+
+    \section2 Reverting Changes
+
+    All supported version control system support reverting your project to
+    known states. This functionality is generally called \e reverting.
+
+    The changes discarded depend on the version control system.
+
+    A version control system can replace the \gui Revert menu option with other
+    options.
+
+    \section3 Reverting Changes Using Git
+
+    The Git version control system has an index that is used to stage
+    changes. The index is commited on the next commit. Git allows you to revert
+    back to the state of the last commit as well as to the state staged in the
+    index.
+
+    \list
+
+        \o  \gui{Undo Unstaged Changes} reverts all changes and resets the
+            working directory to the state of the index.
+
+        \o  \gui{Undo Uncommitted Changes} reverts all changes, discarding the
+            index. This returns your working copy to the state it was in right
+            after the last commit.
+
+    \endlist
+
+    \section2 Viewing Status
+
+    You can select \gui{Status} to view the status of the project or
+    repository.
+
+    \section2 Updating the Working Tree
+
+    You can select \gui Update to update your working tree with the latest
+    changes from the branch. Some version control systems allow you to choose
+    between updating the current project and updating all projects.
+
+    With Git, you stash your changes and then pull the changes from the
+    repository.
+
+    \section2 Deleting Files
+
+    You can select \gui Delete to delete obsolete files from the repository.
+
+    With Git, you delete the files from the working tree and then stage the
+    deleted files for a commit.
+
+    \section2 Using Additional Bazaar Functions
+
+    Bazaar is a free version control system sponsored by Canonical.
+
+    The \gui Bazaar submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Pull}
+            \i  Turn the branch into a mirror of another branch.
+        \row
+            \i  \gui{Push}
+            \i  Update a mirror of the branch.
+
+    \endtable
+
+    \section2 Using Additional CVS Functions
+
+    CVS is an open source version control system.
+
+    The \gui CVS submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Edit}
+            \i  Open a file for editing.
+        \row
+            \i  \gui{Push}
+            \i  Push changes to the remote repository.
+        \row
+            \i  \gui{Unedit}
+            \i  Discard the changes that you made in a file.
+
+    \endtable
+
+    \section2 Using Additional Git Functions
+
+    Git is a fast decentralized version control system. Git is available
+    for Windows, Linux and Mac.
+
+    The \gui Git submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui {Patch > Apply from Editor/Apply from File}
+            \i  Patches are rewriting instructions that can be applied to a set
+                of files. You can either apply a patch file that is open in \QC
+                or select the patch file to apply from the file system.
+        \row
+            \i  \gui{Pull}
+            \i  Pull changes from the remote repository. If there are locally
+                modified files, you are prompted to stash those changes. Select
+                \gui{Tools > Options > Version Control > Git} and select the
+                \gui {Pull with rebase} check box to perform a rebase operation
+                while pulling.
+
+        \row
+            \i  \gui{Clean/Clean Project}
+            \i  All files that are not under version control (with the exception
+                of patches and project files) are displayed in the \gui {Clean
+                Repository} dialog. Select the files to delete and click
+                \gui Delete. This allows you to clean a build completely.
+        \row
+            \i  \gui{Launch gitk}
+            \i  Start the commit viewer for Git, gitk.
+        \row
+            \i  \gui{Branches}
+            \i  Manage local and remote branches.
+        \row
+            \i  \gui Remotes
+            \i  Manage remote repositories available in Git.
+        \row
+            \i  \gui {Stage File for Commit}
+            \i  Mark new or modified files for committing to the repository.
+                To undo this function, select \gui {Unstage File from Commit}.
+        \row
+            \i  \gui{Show Commit}
+            \i  Select a commit to view. Enter the SHA of the commit
+                in the \gui Change field.
+        \row
+            \i  \gui Stash
+            \i  Store local changes temporarily.
+        \row
+            \i  \gui{Amend Last Commit}
+            \i  Revert the last commit.
+
+    \endtable
+
+    \section3 Working with Branches
+
+    To work with Git branches, select \gui{Branches}. The checked out branch
+    is shown in bold and underlined in the list of branches. Double-click branch
+    names to edit them.
+
+    \image qtcreator-vcs-gitbranch.png "Branches dialog"
+
+    The following operations are supported:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Add}
+            \i  Create new tracking and non-tracking branches.
+        \row
+            \i  \gui{Checkout}
+            \i  Check out the selected branch and make it current.
+        \row
+            \i  \gui{Remove}
+            \i  Remove a local branch. You cannot delete remote branches.
+        \row
+            \i  \gui{Diff}
+            \i  Show the differences between the selected and the current
+                branch.
+        \row
+            \i  \gui{Log}
+            \i  Show the changes in a branch.
+        \row
+            \i  \gui{Refresh}
+            \i  Refresh the list of branches.
+    \endtable
+
+    \section3 Working with Remote Repositories
+
+    To manage remote repositories available in Git, select \gui{Remotes}.
+    Double-click the names and URLs of the remote repositories to edit them.
+
+    The following operations are supported:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Add}
+            \i  Add a new remote repository.
+        \row
+            \i  \gui{Fetch}
+            \i  Fetch all the branches and change information from a remote
+                repository.
+        \row
+            \i  \gui{Remove}
+            \i  Remove a remote repository.
+        \row
+            \i  \gui{Refresh}
+            \i  Refresh the list of remote repositories.
+    \endtable
+
+
+    \section3 Using Stashes
+
+    With Git, you can put your current set of changes onto a virtual shelf
+    called a \e stash. Stashes are useful, for example, to put aside a set of
+    changes to work on higher priority tasks or to pull in new chages from
+    another repository.
+
+    \QC exposes this functionality in the \gui{Tools > Git > Stash} menu.
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Stashes}
+            \i  Display a dialog that shows all known stashes with options to
+                restore, display or delete them.
+        \row
+            \i  \gui{Stash}
+            \i  Stash all local changes. The working copy is then reset to
+                the state it had right after the last commit.
+        \row
+            \i  \gui{Stash Snapshot}
+            \i  Save a snapshot of your current work under a name for later
+                reference. The working copy is unchanged.
+
+                For example, if you want to try something and find out later
+                that it does not work, you can discard it and return to the
+                state of the snapshot.
+        \row
+            \i  \gui{Stash Pop}
+            \i  Remove a single stashed state from the stash list and apply it
+                on top of the current working tree state.
+    \endtable
+
+    \section2 Using Additional Mercurial Functionality
+
+    Mercurial is a free, distributed source control management tool.
+
+    The \gui Mercurial submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Import}
+            \i  Apply changes from a patch file.
+        \row
+            \i  \gui{Incoming}
+            \i  Monitor the status of a remote repository by listing
+                the changes that will be pulled.
+        \row
+            \i  \gui{Outgoing}
+            \i  Monitor the status of a remote repository by listing
+                the changes that will be pushed.
+        \row
+            \i  \gui{Pull}
+            \i  Pull changes from the remote repository.
+        \row
+            \i  \gui{Push}
+            \i  Push changes to the remote repository.
+     \endtable
+
+    \section2 Using Additional Perforce Functions
+
+    Perforce is a fast software configuration management system developed by
+    Perforce Software.
+
+    When you start \QC, it looks for the executable specified
+    in the \gui{P4 command} field in \gui{Tools > Options > Version
+    Control > Perforce}. If the file is not found, the following error
+    message is displayed in the \gui {Version Control} output pane:
+    \gui {Perforce: Unable to determine the repository: "p4.exe"
+    terminated with exit code 1}. If you use Perforce, check that the
+    path to the executable is specified correctly in the \gui{P4 command}
+    field.
+
+    If you do not use Perforce, you can disable the Perforce plugin to
+    get rid of the error message. Choose \gui {Help > About Plugins} and
+    deselect the \gui Load check box for the \gui Perforce plugin in the
+    \gui {Version Control} group.
+
+    The \gui Perforce submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Describe}
+            \i  View information about changelists and the files in them.
+        \row
+            \i  \gui{Edit File}
+            \i  Open a file for editing.
+        \row
+            \i  \gui{Opened}
+            \i  List files that are open for editing.
+        \row
+            \i  \gui{Pending Changes}
+            \i  Group files for commit.
+    \endtable
+
+    \section2 Using Additional Subversion Functions
+
+    Subversion is an open source version control system.
+
+    The \gui Subversion submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Describe}
+            \i  Display commit log messages for a revision.
+    \endtable
+
+*/

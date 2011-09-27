@@ -1,0 +1,131 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-task-lists.html
+    \page creator-cli.html
+    \nextpage creator-keyboard-shortcuts.html
+
+    \title Using Command Line Options
+
+    You can start \QC and specify some options from the command line.
+    For example, you can open a file to any line.
+
+    To specify command line options, enter the following command in the \QC
+    installation or build directory:
+
+    \c {qtcreator [option] [filename[:line_number]]}
+
+    \note You can use either a colon (:) or a plus sign (+) as a separator
+    between the filename and line number. You can also use a space between the
+    separator and the line number.
+
+    For example:
+
+    \list
+
+        \o  \c {C:\qtcreator\bin>qtcreator -help}
+
+        \o  \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
+
+        \o  \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
+
+    \endlist
+
+    The following table summarizes the available options:
+
+    \table
+        \header
+            \o Option
+            \o Description
+
+        \row
+            \o -help
+            \o Display help on command line options.
+
+        \row
+            \o -version
+            \o Display \QC version.
+
+        \row
+            \o -client
+            \o Attempt to connect to an already running instance of \QC.
+
+        \row
+            \o -noload <plugin>
+            \o Do not load the specified plugin.
+
+        \row
+            \o -profile
+            \o Output plugin start up and shut down profiling data.
+
+        \row
+            \o -settingspath <path>
+            \o Override the default path where user settings are stored.
+
+        \row
+            \o -color <color>
+            \o Core plugin: override the selected UI color.
+
+        \row
+            \o -disable-cdb
+            \o Debugger plugin: disable the Microsoft Console Debugger (CDB)
+            engine. For more information, see \l{Debugging}.
+
+        \row
+            \o -disable-gdb
+            \o Debugger plugin: disable the GNU Symbolic Debugger (GDB) engine.
+
+        \row
+            \o -disable-sdb
+            \o Debugger plugin: disable the Qt Script debugger engine.
+
+        \row
+            \o -debug <PID-or-corefile>
+            \o Debugger plugin: attach to process ID or core file.
+
+        \row
+            \o -wincrashevent <event-handle>
+            \o Debugger plugin: Attach to crashed processes by using the specified
+            event handle.
+
+        \row
+            \o -customwizard-verbose
+            \o ProjectExplorer plugin: display additional information when loading
+            custom wizards. For more information about custom wizards, see
+            \l{Adding New Custom Wizards}
+
+        \row
+            \o -lastsession
+            \o ProjectExplorer plugin: load the last session when \QC starts.
+            Open the projects and files that were open when you last exited \QC.
+            For more information about managing sessions, see \l{Managing Sessions}.
+
+    \endtable
+
+    */

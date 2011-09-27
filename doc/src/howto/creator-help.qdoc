@@ -1,0 +1,187 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-remote-compiler.html
+    \page creator-help.html
+    \nextpage creator-advanced.html
+
+    \title Getting Help
+
+    \QC comes fully integrated with Qt documentation and examples using the Qt
+    Help plugin.
+
+    \list
+
+        \o  To view documentation, switch to \gui Help mode.
+
+        \o  To obtain context sensitive help, move the text cursor to a Qt class
+            or function and press \key F1. The documentation is displayed in a
+            pane next to the code editor, or, if there is not enough vertical
+            space, in the fullscreen \gui Help mode.
+
+        \o  To select and configure how the documentation is displayed in the
+            \gui Help mode, select \gui Tools > \gui Options > \gui Help.
+
+    \endlist
+
+    The following image displays the \gui Search pane in the \gui Help mode.
+
+    \image qtcreator-help-search.png
+
+    The following image displays the context sensitive help in the \gui Edit
+    mode.
+
+    \image qtcreator-context-sensitive-help.png
+
+    \section1 Finding Information in Qt Documentation
+
+    \QC, \QSDK and other Qt deliverables contain documentation
+    as .qch files. All the documentation is accessible in the \gui Help mode.
+
+    To find information in the documentation, select:
+
+    \list
+
+        \o  \gui Bookmarks to view a list of pages on which you have added
+            bookmarks.
+
+        \o  \gui Contents to see all the documentation installed on the
+            development PC and to browse the documentation contents.
+
+        \o  \gui Index to find information based on a list of keywords in all
+            the installed documents.
+
+        \o  \gui {Open Pages} to view a list of currently open documentation
+            pages.
+
+        \o  \gui Search to search from all the installed documents.
+
+    \endlist
+
+    \section2 Adding Bookmarks to Help Pages
+
+    You can add bookmarks to useful help pages to easily find them later
+    in the \gui Bookmarks view. You can either use the page title as the
+    bookmark or change it to any text. You can organize the bookmarks in
+    folders in the view.
+
+    \image qtcreator-help-add-bookmark-dlg.png "Add Bookmark dialog"
+
+    To add a bookmark to an open help page:
+
+    \list 1
+
+        \o  Click the
+            \inlineimage qtcreator-help-add-bookmark.png
+            (\gui {Add Bookmark}) button on the toolbar.
+
+        \o  In the \gui {Add Bookmark} dialog, click \gui OK to save the
+            page title as a bookmark in the \gui Bookmarks folder.
+
+    \endlist
+
+    To import and export bookmarks, select \gui {Tools > Options > Help >
+    General Settings > Import} or \gui Export.
+
+    \section1 Adding External Documentation
+
+    You can display external documentation in the \gui Help mode.
+    To augment or replace the documentation that ships with \QC and Qt:
+
+    \list 1
+
+        \o  Create a .qch file from your documentation.
+
+            For information on how to prepare your documentation and create a
+            .qch file, see
+            \l{http://doc.qt.nokia.com/4.7/qthelp-framework.html}
+            {The Qt Help Framework}.
+
+        \o  To add the .qch file to \QC, select \gui Tools > \gui Options >
+            \gui Help > \gui Documentation > \gui Add.
+
+    \endlist
+
+    \section1 Detaching the Help Window
+
+    By default, context-sensitive help is opened in a window next to the
+    code editor when you press \key F1. If there is not enough vertical
+    space, the help opens in the full-screen help mode.
+
+    You can specify that the help always opens in full-screen mode or
+    is detached to an external window. Select \gui {Tools > Options > Help >
+    General Settings} and specify settings for displaying context-sensitive help
+    in the \gui {On context help} field. To detach the help window, select
+    \gui {Always Show Help in External Window}.
+
+    You can select the help page to open upon startup in the \gui {Home Page}
+    field.
+
+    \section1 Using Documentation Filters
+
+    You can filter the documents displayed in the \gui Help mode to find
+    relevant information faster. Select from a list of filters in the
+    \gui {Filtered by} field. The contents of the \gui Index and \gui Contents
+    pane in the sidebar change accordingly.
+
+    \image qtcreator-help-filters.png "Help filters"
+
+    You can modify the filters to include external documentation, for example,
+    or you can define your own filters. To construct filters, you can use the
+    filter attributes that are specified in the documentation. Each document
+    contains at least one filter attribute. If several documents contain the
+    same filter attribute, such as \c tools, you can use that attribute to
+    include all those documents.
+
+    To add filters:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options > Help > Filters > Add}.
+
+        \o  Enter a name for the filter and press \gui {OK}.
+
+        \o  In \gui Attributes, select the documents that you want to include
+            in the filter.
+
+            \image qtcreator-help-filter-attributes.png "Help filter attributes"
+
+        \o  Click \gui OK.
+
+        \o  In the \gui Help mode, select the filter in the \gui {Filtered by}
+            field to see the filtered documentation in the sidebar.
+
+    \endlist
+
+    To modify filters, select a filter in \gui Filters, select the attributes,
+    and then click \gui Apply.
+
+    To remove filters, select them in \gui Filters, and click \gui Remove.
+
+*/

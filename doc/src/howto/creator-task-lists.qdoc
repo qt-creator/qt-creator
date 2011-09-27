@@ -1,0 +1,96 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-mime-types.html
+    \page creator-task-lists.html
+    \nextpage creator-cli.html
+
+    \title Showing Task List Files in the Build Issues Pane
+
+    Code scanning and analysis tools create report files in ASCII format.
+    Usually, the report files consist of lines that contain a file name, a line
+    number, and an error message. A similar format is used for stack traces
+    obtained from crash reports. Traditionally, you would fix the errors by
+    manually navigating to them and correcting them, which is tedious.
+
+    \QC makes this very easy by providing a way to load these files into
+    the \gui{Build Issues} pane. You can navigate to the corresponding source
+    code by clicking the error message. But first you must convert the files to
+    the \l{Task List File Format} by using conversion scripts that based on
+    standard text processing tools of the operating system.
+
+    In addition, you can generate task list files from code. For an example of a
+    script that checks new lines of code and matches them against regular
+    expressions to generate a task list, see \c{scripts\mytasks.pl} in the \QC
+    repository.
+
+    To open task list files, choose \gui{File} > \gui{Open}.
+
+    \section1 Task List File Format
+
+    The filename extension must be .tasks for \QC to recognize a file as a
+    task list file.
+
+    Each line in a task list file is treated as a tab-separated list of strings
+    with \c{\t}, \c{\n}, and \c{\\} used as escape characters. The strings are
+    used to create one task per line. The lines can have one of the following
+    formats:
+
+    \list
+
+        \o  \c description
+
+        \o  \c{type\tdescription}
+
+        \o  \c{file\ttype\tdescription}
+
+        \o  \c{file\tline\ttype\tdescription}
+
+    \endlist
+
+    The task type can have one of the following values:
+
+    \list
+
+        \o  A string starting with \c err, which displays the error icon in the
+            beginning of the line
+
+        \o  A string starting with \c warn, which displays the warning icon
+
+        \o  Any other value, which sets the task type to Unknown and does not
+            display an icon
+
+    \endlist
+
+    The values are not case sensitive.
+
+    Lines starting with the hash mark character (#) in the first column are
+    ignored.
+
+*/

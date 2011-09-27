@@ -1,0 +1,242 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-faq.html
+    \page creator-tips.html
+    \nextpage creator-known-issues.html
+
+    \title Tips and Tricks
+
+    \section1 Switching Between Modes
+
+    \QC uses different modes for different purposes. You can quickly
+    switch between these modes with the following keyboard shortcuts:
+
+    \list
+
+        \o  \gui Welcome mode \key Ctrl+1
+        \o  \gui Edit mode \key Ctrl+2
+        \o  \gui Design mode \key Ctrl+3
+        \o  \gui Debug mode \key Ctrl+4
+        \o  \gui Projects mode \key Ctrl+5
+        \o  \gui Help mode \key Ctrl+6
+
+    \endlist
+
+    For more information about \QC modes, see \l {Modes}.
+
+    \section1 Moving Between Open Files
+
+    To quickly move between currently open files, press
+    \key Ctrl+Tab.
+
+    To move forward in the location history, press \key {Alt+Right}
+    (\key {Cmd+Opt+Right} on Mac OS). To move backward, press \key {Alt+Left}
+    (\key {Cmd+Opt+Left} on Mac OS). For example, if you use the \gui Locator
+    to jump to a symbol in the same file, you can jump back to your original
+    location in that file by pressing \key {Alt+Left}.
+
+    \section1 Moving To the Edit Mode
+
+    To move to the \gui Edit mode and currently active file, press
+    \key Esc.
+
+    If you already are in the \gui Edit mode:
+
+    \list
+
+        \o  The first press moves focus to the editor
+
+        \o  The second press closes secondary windows
+
+    \endlist
+
+    \section1 Using the Filter in Options Dialog
+
+    To find specific settings you require in \gui{Tools} > \gui{Options}
+    use the filter located at the top left of the \gui Options dialog box.
+
+    \section1 Opening Output Panes
+
+    The output panes provide a list of errors and warnings encountered during
+    a build, detailed output from the compiler, status of a program when it is
+    executed and debug output, as well as search results.
+
+    To open output panes, use the following shortcuts:
+
+    \list
+
+        \o  \gui{Build Issues} pane Alt+1 (Cmd+1 on Mac OS X)
+
+        \o  \gui{Search Results} pane Alt+2 (Cmd+2 on Mac OS X)
+
+        \o  \gui{Application Output} pane Alt+3 (Cmd+3 on Mac OS X)
+
+        \o  \gui{Compile Output} pane Alt+4 (Cmd+4 on Mac OS X)
+
+    \endlist
+
+    For more information about output panes, see \l{Viewing Output}.
+
+    \section1 Using Keyboard Shortcuts
+
+    \QC provides \l{Keyboard Shortcuts}{many useful keyboard shortcuts}.
+    You can see the keyboard shortcut for a menu command in the menu
+    or the tooltip for a button.
+
+    To customize, import or export keyboard shortcuts, select \gui Tools >
+    \gui Options > \gui Environment > \gui Keyboard.
+
+    \section1 Running \QC From Command Line
+
+    You can launch \QC from command line using the name of an
+    existing session or \c .pro file by giving the name as the command
+    argument.
+
+    For example, running \tt{qtcreator somesession}, launches \QC and
+    loads session somesession.
+
+    \note Make sure \QC is included in the PATH environment variable.
+    This can be done by typing the following in the command line:
+    \code
+    set PATH=c:\qtsdk\mingw\bin;c:\qtsdk\qt\bin;%PATH%
+    \endcode
+
+    \section1 Showing and Hiding the Sidebar
+
+    To toggle the sidebar in the \gui Edit and \gui Debug modes, click
+    \inlineimage qtcreator-togglebutton.png
+    or press \key Alt+0 (\key Cmd+0 on Mac OS X).
+
+    For more information on using the sidebar, see
+    \l {Browsing Project Contents}.
+
+    \section1 Moving To Symbols
+
+    To move straight to a symbol used in a project, select the symbol in the
+    \gui Editor toolbar drop-down menu. For more information on the editor
+    toolbar, see \l {Using the Editor Toolbar}.
+
+    To jump to a symbol in the current file, press \key {Ctrl+K} to open the
+    \gui Locator, enter a period (.), and start typing the symbol name. Then
+    select the symbol in the list. For more information on using the locator,
+    see \l{Searching With the Locator}.
+
+    Press \key Ctrl (\key Cmd on Mac OS) and click a symbol to move directly to
+    the definition or the declaration of the symbol. You can also move the
+    on the symbol and press \key {F2}. For more information, see
+    cursor \l{Moving to Symbol Definition or Declaration}.
+
+    \section1 Displaying Signals and Slots
+
+    If an instance of a class is derived from QObject, and you would like to
+    find all other objects connected to one of your object's slots using
+    Qt's signals and slots mechanism, select \gui Tools > \gui Options
+    > \gui{Debugger} > \gui{Debugging Helper} > \gui{Use Debugging Helper}.
+
+    In the \gui{Locals and Expressions} view, expand the object's entry and open
+    the slot in the \e slots subitem. The objects connected to this slot are
+    shown as children of the slot. This method works with signals too.
+
+    For more information about the \gui{Locals and Expressions} view, see
+    \l{Locals and Expressions}.
+
+    \section1 Displaying Low Level Data
+
+    If special debugging of Qt objects fails due to data corruption within the
+    debugged objects, you can switch off the debugging helpers. When debugging
+    helpers are switched off low-level structures become visible.
+
+    To switch off the debugging helpers:
+    \list 1
+
+        \o  Select \gui Tools > \gui Options > \gui Debugger >
+            \gui{Debugging Helper}.
+
+        \o  Uncheck the \gui{Use Debugging Helper} checkbox.
+
+    \endlist
+
+    \section1 Showing Tooltips in Debug Mode
+
+    To inspect the value of variables from the editor, you can turn
+    on tooltips. Tooltips are hidden by default for performance reasons.
+
+    \list 1
+
+        \o  Select \gui Tools > \gui Options > \gui Debugger > \gui General.
+
+        \o  Select the \gui {Use tooltips in main editor while debugging} check
+            box.
+
+    \endlist
+
+    When you hover over a variable in the code editor in \gui Debug mode, a
+    tooltip is displayed. To keep the tooltip visible, click the pin button.
+    You can expand pinned tooltips to view their full content.
+
+    \image qtcreator-pin-tooltip.png
+
+    Pinned tooltips are stored in the session. To close all pinned tooltips,
+    select \gui {Close Editor Tooltips} in the context menu in the \gui {Locals
+    and Expressions} view.
+
+    \section1 Locating Files
+
+    The \gui Locator provides one of the easiest ways in \QC to browse
+    through projects, files, classes, methods, documentation and file systems.
+    To quickly access files not directly mentioned in your project, you can
+    create your own locator filters. That way you can locate files in a
+    directory structure you have defined.
+
+    To create locator filters, select \gui {Tools > Options > Locator > Add}.
+
+    For more information, see \l{Creating Locator Filters}.
+
+    \section1 Adding a License Header Template for C++ Code
+
+    A file containing a license header for C++ can be specified under
+    \gui{Tools > Options > C++ > License Template}. It may contain special
+    placeholders enclosed in \c{%%} that are replaced when generating a
+    new file:
+
+    \list 1
+
+        \o  \c %YEAR%: Year
+        \o  \c %MONTH%: Month
+        \o  \c %DAY%: Day of the month
+        \o  \c %DATE%: Date
+        \o  \c %USER%: User name
+        \o  \c %FILENAME%: File name
+        \o  \c %CLASS%: Class name (if applicable)
+        \o  \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.
+
+    \endlist
+
+*/

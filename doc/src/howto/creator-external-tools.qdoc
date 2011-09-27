@@ -1,0 +1,150 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage adding-plugins.html
+    \page creator-editor-external.html
+    \nextpage creator-maemo-emulator.html
+
+    \title Using External Tools
+
+    You can use external tools directly from \QC. Qt Linguist,
+    QML Viewer, the
+    default text editor for your system, and the \c sort tool are preconfigured
+    for use. You can change their default configurations and configure new
+    tools.
+
+    \section1 Using Qt Linguist
+
+    You can use the Qt Linguist release manager tools, lupdate and lrelease,
+    directly from \QC. The lupdate tool is used to synchronize source
+    code and translations. The lrelease tool is used to create run-time
+    translation files for use by the released application.
+
+    To synchronize ts files from a translator with the application code,
+    select \gui {Tools > External > Text > Linguist > Update Translations
+    (lupdate)}.
+
+    To generate from the ts files qm translation files that can be used by an
+    application, select \gui {Tools > External > Text > Linguist > Release
+    Translations (lrelease)}.
+
+    By default, the project .pro file is passed to the tools as an argument. To
+    specify other command line arguments for the tools, select \gui {Tools >
+    External > Configure}.
+
+    For more information about Qt Linguist, see
+    \l{http://doc.qt.nokia.com/4.7/linguist-manual.html}{Qt Linguist Manual}.
+
+    \section1 Using QML Viewer
+
+    You can preview the current QML document in the QML Viewer. The QML Viewer
+    invokes the QML runtime to load QML documents and also includes additional
+    features useful for the development of QML-based applications.
+
+    To preview the currently active QML file, select \gui {Tools > External >
+    Qt Quick > Preview (qmlviewer)}.
+
+    \section1 Using External Text Editors
+
+    You can open files for editing in the default text editor for your system:
+    Notepad on Windows and vi on Linux and Mac OS.
+    To open the file you are currently viewing in an external editor, select
+    \gui {Tools > External > Text > Notepad} or \gui vi, depending on your
+    system.
+
+    \QC looks for the editor path in the PATH environment variable
+    of your operating system.
+
+    \section1 Sorting Text Alphabetically
+
+    To sort selected text alphabetically, select \gui {Tools > External > Text
+    > Sort Selection}. The \c sort tool takes the selected text as input and
+    returns it in alphabetic order. By default, the output replaces the
+    original selection in the code editor.
+
+    To change the default configuration, select \gui {Tools > External >
+    Configure}.
+
+    \section1 Configuring External Tools
+
+    You can change the configuration of preconfigured tools and configure
+    additional tools in \QC \gui Options.
+
+    You can use \QC variables in the fields that you can select from
+    lists of available \QC variables.
+
+    \image qtcreator-external-tools.png "External Tools options"
+
+    To configure external tools:
+
+    \list 1
+
+        \o  Select \gui {Tools > External > Configure}.
+
+        \o  Select \gui {Add > Add Tool}
+            to add a new tool. You can also select \gui {Add Category} to add a
+            new category.
+
+        \o  In the \gui Executable field, specify the executable to run. If the
+            executable is found in your system PATH variable, do not specify
+            the path to it.
+
+        \o  In the \gui Arguments field, specify optional arguments for running
+            the executable.
+
+        \o  In the \gui {Working directory} field, specify the path to the
+            working directory.
+
+        \o  In the \gui {Output pane}, select how to handle output from the
+            tool. You can ignore the output, view it in the \gui {General
+            Messages} output pane, or replace the selected text with the
+            output in the code editor.
+
+        \o  In the \gui {Error output pane}, select how to handle error messages
+            from the tool.
+
+        \o  In the \gui Input field, specify text that is passed as standard
+            input to the tool.
+
+    \endlist
+
+    The category and tool are added to the \gui {Tools > External} menu.
+
+    If you change the configuration of preconfigured tools, you can later
+    revert the changes by selecting the \gui Revert button.
+
+    The tool configurations that you add and modify are stored in XML format in
+    the user configuration folder. For example,
+    \c {~/config/Nokia/qtcreator/externaltools}
+    on Linux and Mac OS and
+    \c {C:\Users\username\AppData\Roaming\Nokia\qtcreator\externaltools}
+    in Windows. To share a configuration with other users, copy an XML
+    configuration file to the folder.
+
+*/

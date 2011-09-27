@@ -33,17 +33,17 @@
 
     \title FAQ
 
-    This section contains answers to some frequently asked questions about Qt
-    Creator. You might also find answers to your questions in the
+    This section contains answers to some frequently asked questions about \QC.
+    You might also find answers to your questions in the
     \l{Known Issues} and \l{Tips and Tricks} sections, or the Troubleshooting
     sections for a special area, such as
     \l{Troubleshooting Debugger}{debugging}.
 
     \section1 General Questions
 
-    \bold {How do I reset all Qt Creator settings?}
+    \bold {How do I reset all \QC settings?}
 
-    Qt Creator creates two files and a directory:
+    \QC creates two files and a directory:
 
     \list
 
@@ -64,58 +64,51 @@
     \c {<drive>:\Users\<username>\AppData\Roaming\Nokia}.
     For all versions, try the path \c{APPDATA\Nokia}.
 
-    \bold {Qt Creator comes with MinGW, should I use this version with Qt?}
+    \bold {\QC comes with MinGW, should I use this version with Qt?}
 
     Use the version that was built against the Qt version.
 
-    \bold {Qt Creator does not find a helper application, such as Git or a
+    \bold {\QC does not find a helper application, such as Git or a
     compiler. What should I do?}
 
-    Make sure that the application is in your system PATH when starting Qt
-    Creator. Also select \gui {Tools > Options} to check the settings specified
+    Make sure that the application is in your system PATH when starting \QC.
+    Also select \gui {Tools > Options} to check the settings specified
     for the application. Many plugins specify either the path to the tool they
     need or the environment they run in.
 
     This is especially relevant for the Mac OS where \c {/usr/local/bin} might
-    not be in the path when Qt Creator is started.
+    not be in the path when \QC is started.
 
-    \bold {How do I change the interface language for Qt Creator?}
+    \bold {How do I change the interface language for \QC?}
 
-    Qt Creator has been localized into several languages. If the system
+    \QC has been localized into several languages. If the system
     language is one of the supported languages, it is automatically selected.
     To change the language, select \gui {Tools > Options > Environment} and
     select a language in the \gui Language field. The change takes effect after
-    you restart Qt Creator.
+    you restart \QC.
 
     \bold {Has a reported issue been addressed?}
 
     You can look up any issue in the
     \l{https://bugreports.qt.nokia.com/}{Qt bug tracker}.
 
-    \section1 Qt Designer Integration Questions
-
-    \bold {Why are custom widgets not loaded in Design mode even though it
-    works in standalone Qt Designer?}
-
-    Qt Designer fetches plugins from standard locations and loads the plugins
-    that match its build key. The locations are different for standalone and
-    integrated Qt Designer.
-
-    For more information, see \l{Adding Qt Designer Plugins}.
+    \if defined(qcmanual)
+    \input widgets/creator-faq-qtdesigner.qdocinc
+    \endif
 
     \section1 Help Questions
 
     \bold {The Qt API Reference Documentation is missing and context help does
     not find topics. What can I do?}
 
-    Qt Creator comes fully integrated with Qt documentation and examples using
+    \QC comes fully integrated with Qt documentation and examples using
     the Qt Help plugin. The integrated Qt Reference Documentation is available
-    for Qt 4.4 and later. Qt Creator, \QSDK, and other Qt deliverables contain
+    for Qt 4.4 and later. \QC, \QSDK, and other Qt deliverables contain
     documentation as .qch files. All the documentation is accessible in the
     \gui Help mode.
 
     To view the documentation that is available and to add documentation,
-    select \gui {Tools > Options... > Help > Documentation}. For more
+    select \gui {Tools > Options > Help > Documentation}. For more
     information, see \l{Adding External Documentation}.
 
     \section1 Debugger Questions
@@ -126,7 +119,7 @@
     \bold {If I have a choice of GDB versions, which should I use?}
 
     On Linux and Windows, use the Python-enabled GDB versions that are
-    installed when you install Qt Creator and Qt SDK. On Mac OS X, use the GDB
+    installed when you install \QC and Qt SDK. On Mac OS X, use the GDB
     provided with Xcode. For a custom target, you can build your own
     Python-enabled GDB. Follow the instructions in
     \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}{Building GDB}.
@@ -136,7 +129,7 @@
 
     For more information on setting up debugger, see \l{Setting Up Debugger}.
 
-    \bold {How do I generate a core file in Qt Creator?}
+    \bold {How do I generate a core file in \QC?}
 
     To trigger the GDB command that generates a core file while debugging,
     select \gui {Window > Views > Debugger Log}. In the \gui Command field,
@@ -157,7 +150,7 @@
 
     \section1 Compiler Questions
 
-    \bold {How can I make use of my multi-core CPU with Qt Creator?}
+    \bold {How can I make use of my multi-core CPU with \QC?}
 
     On Linux and Mac OS X, go to \gui Project mode, select your configuration
     in the \gui {Build Settings}, locate the \gui {Build Steps}, and add the
@@ -197,7 +190,7 @@
 
     \section1 Platform Releated Questions
 
-    \bold {Where is application output shown in Qt Creator?}
+    \bold {Where is application output shown in \QC?}
 
     \bold {On Unix (Linux and Mac OS):} \c qDebug() and related functions use
     the standard output and error output. When you run or debug the
@@ -214,7 +207,7 @@
     When you run a console application, you can view the output in the console
     window of the calling application. If the
     calling application is a GUI application (for example, a release-built
-    version of Qt Creator), a new console window is opened.  For this
+    version of \QC), a new console window is opened.  For this
     type of application, \c qDebug() and related functions use standard output
     and error output.
 
@@ -229,19 +222,9 @@
     \l{http://technet.microsoft.com/en-us/sysinternals/bb896647}{DebugView for Windows}
     to display output from GUI applications.
 
-    \bold {On Symbian OS}: \c qDebug() and related functions use the native
-    \c RDebug::Print functionality.
-
-    When you use the Symbian emulator on Windows, the output is redirected to
-    standard debug output. To view it, you can use a Windows debug output
-    viewer, such as the DebugView for Windows.
-
-    On devices, the \c RDebug output is intercepted by \e CODA or \e {App TRK}
-    and then propagated to Qt Creator, which displays it in the
-    \gui {Application Output} pane.
-
-    Symbian OS provides no support for differentiating between standard output
-    and error output.
+    \if defined(qcmanual)
+    \input symbian/creator-faq-debug-output-symbian.qdocinc
+    \endif
 
     \section1 Questions about New Features
 
@@ -252,7 +235,7 @@
     \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/dist}{changes file}
     for the upcoming release.
 
-    \bold {Why does Qt Creator not use tabs for editors?}
+    \bold {Why does \QC not use tabs for editors?}
 
     This question comes up from time to time, so we have considered it
     carefully. Here are our main reasons for not using tabs:
@@ -287,7 +270,7 @@
 
     Typically, users also work on multiple classes or functions that are
     related, even though they are defined or declared in different files.
-    Qt Creator provides two shortcuts for that: \key F2 to follow the symbol
+    \QC provides two shortcuts for that: \key F2 to follow the symbol
     and \key Ctrl+Shift+U to find usages.
 
     In addition, developers can:
@@ -298,7 +281,7 @@
 
         \o  Press \key Alt+Left to move backwards in the navigation history.
 
-        \o  Use the locator (Ctrl+K) to simply tell Qt Creator where to go.
+        \o  Use the locator (Ctrl+K) to simply tell \QC where to go.
 
     \endlist
 
@@ -313,7 +296,7 @@
     in the tab bar, find our that the function is inline, fix the problem, and
     forget where they came from.
 
-    With Qt Creator, developers can type \c {Ctrl+K m AMet} to find the method.
+    With \QC, developers can type \c {Ctrl+K m AMet} to find the method.
     Typically, they only need to type 3 to 4 characters of the method name.
     They can then fix the problem and press \key Alt+Back to go back to where
     they were.
