@@ -22,7 +22,8 @@ defineReplace(qdoc) {
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
 QCH_FILE = $$IDE_DOC_PATH/qtcreator.qch
 
-HELP_DEP_FILES = $$PWD/qtcreator.qdoc \
+HELP_DEP_FILES = $$PWD/src/qtcreator.qdoc \
+                 $$PWD/src \
                  $$PWD/addressbook-sdk.qdoc \
                  $$PWD/config/compat.qdocconf \
                  $$PWD/config/macros.qdocconf \

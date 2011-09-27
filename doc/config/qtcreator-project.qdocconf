@@ -2,7 +2,7 @@ project     = "Qt Creator"
 description = "Qt Creator Manual"
 
 headerdirs = 
-sourcedirs = $SRCDIR
+sourcedirs = $SRCDIR/src $SRCDIR/src
 imagedirs = $SRCDIR/images $SRCDIR/templates/images
 outputdir = $OUTDIR
 exampledirs = $SRCDIR
@@ -13,13 +13,7 @@ include(macros.qdocconf)
 include(qt-cpp-ignore.qdocconf)
 include(qt-defines.qdocconf)
 
-sources.fileextensions  =   "qtcreator.qdoc \
-                            maemodev.qdoc \
-                            symbiandev.qdoc \
-                            addressbook-sdk.qdoc \
-                            qtcreator-faq.qdoc \
-                            linuxdev.qdoc \
-                            meegodev.qdoc"
+sources.fileextensions         = "*.qdoc"
 
 qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp
