@@ -1,0 +1,1819 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-managing-sessions.html
+    \page creator-coding.html
+    \nextpage creator-editor-using.html
+
+    \title Coding
+
+    Writing, editing, and navigating in source code are core tasks in
+    application development. Therefore, the code editor is one of the key
+    components of \QC. You can use the code editor in the \gui Edit
+    mode.
+
+    The following sections describe coding with \QC:
+
+    \list
+
+        \o  \l{Using the Editor} describes how to work in the code editor, use
+            the editor toolbar, split the view, add bookmarks, and move between
+            symbol definitions and declarations.
+
+        \o  \l{Semantic Highlighting} describes highlighting code elements and
+            blocks, as well as using syntax highlighting also for other types
+            of files than C++ or QML.
+
+        \o  \l{Checking Code Syntax} describes how errors are visualized
+            while you write code.
+
+        \o  \l{Completing Code} describes how code and code snippets are
+            completed for elements, properties, an IDs.
+
+        \o  \l{Indenting Code} describes how to specify indentation either
+            globally for all files or separately for: text, C++, or QML files.
+
+        \o  \l{Finding and Replacing} describes the incremental search that
+            highlights the matching strings in the window while typing and the
+            advanced search that allows you to search from currently open
+            projects or files on the file system. In addition, you can search
+            for symbols when you want to refactor code.
+
+        \o  \l{Refactoring} describes the features that help you improve the
+            internal quality or your application, its performance and
+            extendibility, and code readability and maintainability, as well as
+            to simplify code structure.
+
+        \o  \l{Using Qt Quick Toolbars} describes how to use the Qt Quick
+            Toolbars to edit the properties of QML elements in the code editor.
+
+        \o  \l{Searching With the Locator} describes how to browse through
+            projects, files, classes, methods, documentation and file systems.
+
+        \o  \l{Pasting and Fetching Code Snippets} describes how to cooperate
+            with other developers by pasting and fetching snippets of code from
+            a server.
+
+        \o  \l{Using Text Editing Macros} describes how to record and play
+            text editing macros.
+
+        \o  \l{Configuring the Editor} describes how to change the text editor
+            options to suit your specific needs.
+
+        \o  \l{Using FakeVim Mode} describes how to run the main editor in a
+            manner similar to the Vim editor.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-coding.html
+    \page creator-editor-using.html
+    \nextpage creator-highlighting.html
+
+    \title Using the Editor
+
+    \QC's code editor is designed to aid you in creating, editing and
+    navigating code.  \QC's code editor is fully equipped with syntax
+    checking, code completion, context sensitive help and in-line error
+    indicators while you are typing.
+
+    \image qtcreator-edit-mode.png "Edit mode"
+
+    \section1 Using the Editor Toolbar
+
+    The editor toolbar is located at the top of the editor view. The editor
+    toolbar is context sensitive and shows items relevant to the file currently
+    open in the editor.
+
+    \image qtcreator-editortoolbar-symbols.png
+
+    Use the toolbar to navigate between open files and symbols in use.
+    To browse forward or backward through your location history, click
+           \inlineimage qtcreator-back.png
+           and \inlineimage qtcreator-forward.png
+           .
+
+    To go to any open file, select it from the \gui{Open files} drop-down menu.
+    Right-click the menu title and select \gui {Copy Full Path to Clipboard} to
+    copy the path and name of the current file to the clipboard.
+
+    To jump to any symbol used in the current file, select it from the
+    \gui Symbols drop-down menu. By default, the symbols are displayed in the
+    order in which they appear in the file. Right-click the menu title and
+    select \gui {Sort Alphabetically} to arrange the symbols in alphabetic
+    order.
+
+    \section1 Splitting the Editor View
+
+    Split the editor view when you want to work on and view multiple files on
+    the same screen.
+
+    \image qtcreator-spliteditorview.png
+
+    You can split the editor view in the following ways:
+
+    \list
+
+        \o  To split the editor view into a top and bottom view, select
+            \gui Window > \gui Split or press \key{Ctrl+E, 2}.
+
+            Split command creates views below the currently active editor view.
+
+        \o  To split the editor view into adjacent views, select
+            \gui Window > \gui{Split Side by Side} or press \key{Ctrl+E, 3}.
+
+           Side by side split command creates views to the right of the
+           currently active editor view.
+
+    \endlist
+
+    To move between split views, select \gui Window > \gui{Go to Next Split} or
+    press \key{Ctrl+E, O}.
+
+    To remove a split view, place the cursor within the view you want to
+    remove and select \gui Window > \gui{Remove Current Split} or press
+    \key{Ctrl+E, 0}. To remove all but the currently selected split view,
+    select \gui Window > \gui{Remove All Splits} or press \key{Ctrl+E, 1}.
+
+    \section1 Using Bookmarks
+
+    To insert or delete a bookmark right-click the line number and select
+    \gui{Toggle Bookmark} or press \key{Ctrl+M}.
+
+    \image qtcreator-togglebookmark.png
+
+    To go to previous bookmark in the current session, press \key{Ctrl+,}.
+
+    To go to next bookmark in the current session, press \key{Ctrl+.}.
+
+    \section1 Moving to Symbol Definition or Declaration
+
+    You can move directly to the definition or the declaration of a symbol by
+    holding the \key Ctrl and clicking the symbol.
+
+    To enable this moving function, in \gui Tools > \gui{Options} >
+    \gui{Text Editor} > \gui Behavior, select \gui{Enable mouse navigation}.
+
+    You can also select the symbol and press \key F2, or right-click the symbol
+    and select \gui {Follow Symbol Under Cursor} to move to its definition or
+    declaration. This feature is supported for namespaces, classes, methods,
+    variables, include statements, and macros.
+
+    To switch between the definition and declaration of a symbol, press
+    \key {Shift+F2} or right-click the symbol and select \gui {Switch Between
+    Method Declaration/Definition}.
+
+    \section1 Using Update Code Model
+
+    To refresh the internal information in \QC pertaining to your code,
+    select \gui{Tools} > \gui{C++} > \gui{Update Code Model}.
+
+    \note In \QC indexing updates the code automatically. Use
+    \gui{Update Code Model} only as an emergency command.
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-using.html
+    \page creator-highlighting.html
+    \nextpage creator-checking-code-syntax.html
+
+    \title Semantic Highlighting
+
+    \QC understands the C++ and QML languages as code, not as plain text.
+    It reads the source code, analyzes it, and highlights it based on the
+    semantic checks that it does for the following code elements:
+
+    \list
+
+        \o  Types (such as classes, structs, and type definitions)
+
+        \o  Local variables
+
+        \o  Class fields
+
+        \o  Virtual methods
+
+    \endlist
+
+    To specify the color scheme to use for semantic highlighting, select
+    \gui {Tools > Options > Text Editor > Fonts & Color}.
+
+    \QC supports syntax highlighting also for other types of files than
+    C++ or QML.
+
+    \section1 Generic Highlighting
+
+    Generic highlighting is based on highlight definition files that are
+    provided by the
+    \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
+    {Kate Editor}. You can download highlight definition files for use with \QC.
+
+    If you have a Unix installation that comes with the Kate Editor, you might
+    already have the definition files installed. Typically, the files are
+    located in a read-only directory, and therefore, you cannot manage them. \QC
+    can try to locate them and use them as fallback files, when the
+    primary location does not contain the definition for the current file type.
+    You can also specify the directory that contains preinstalled highlight
+    definition files as the primary location.
+
+    When you open a file for editing and the editor cannot find the highlight
+    definition for it, an alert appears. You can turn off the alerts. You can
+    also specify patterns for ignoring files. The editor will not alert you if
+    highlight definitions for the ignored files are not found.
+
+    To download highlight definition files:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options > Text Editor > Generic
+            Highlighter}.
+
+            \image qtcreator-generic-highlighter.png "Generic Highlighter options"
+
+        \o  In the \gui Location field, specify the path to the primary
+            location for highlight definition files.
+
+        \o  Click \gui {Download Definitions} to open a list of highlight
+            definition files available for download.
+
+            \image qtcreator-manage-definitions.png "Download Definitions dialog"
+
+        \o  Select highlight definition files in the list and click
+            \gui {Download Selected Definitions}.
+
+        \o  Select the \gui {Use fallback location} check box to specify the
+            secondary location where the editor will look for highlight
+            definition files.
+
+        \o  Click \gui Autodetect to allow \QC to look for highlight
+            definition files on your system, or click \gui Browse to locate
+            them in the file system yourself.
+
+        \o  In the \gui {Ignored file patterns} field, specify file patterns.
+            You will not receive alerts if the highlight definitions for the
+            specified files are not found.
+
+        \o  Click \gui OK to save your changes.
+
+    \endlist
+
+    \section1 Highlighting and Folding Blocks
+
+    Use block highlighting to visually separate parts of the code that belong
+    together. For example, when you place the cursor within the braces,
+    the code enclosed in braces is highlighted.
+
+    \image qtcreator-blockhighlighting.png
+
+    To enable block highlighting, select \gui Tools > \gui{Options} >
+    \gui{Text Editor} > \gui Display > \gui{Highlight blocks}.
+
+    Use the folding markers to collapse and expand blocks of code within
+    braces. Click the folding marker to collapse or expand a block. In the
+    figure above, the folding markers are located between the line number and
+    the text pane.
+
+    To show the folding markers, select \gui Tools > \gui{Options} >
+    \gui{Text Editor} > \gui Display > \gui{Display folding markers}. This
+    option is enabled by default.
+
+    When the cursor is on a brace, the matching brace is animated
+    by default. To turn off the animation and just highlight the block and
+    the braces, select \gui {Tools > Options > Text Editor > Display} and
+    deselect \gui {Animate matching parentheses}.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-highlighting.html
+    \page creator-checking-code-syntax.html
+    \nextpage creator-completing-code.html
+
+    \title Checking Code Syntax
+
+    As you write code \QC checks code syntax. When \QC spots a syntax error in
+    your code it underlines it and shows error details when you move the mouse
+    pointer over the error.
+
+    \list
+
+        \o  Syntax errors are underlined in red.
+
+            In the following figure, a semicolon is missing at the end of the
+            line.
+
+            \image qtcreator-syntaxerror.png
+
+        \o  Semantic errors and warnings are underlined in olive.
+
+            In the following figure, the type is unknown.
+
+            \image qtcreator-semanticerror.png
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-checking-code-syntax.html
+    \page creator-completing-code.html
+    \nextpage creator-indenting-code.html
+
+    \title Completing Code
+
+    As you write code, \QC suggests properties, IDs, and code snippets to
+    complete the code. It provides a list of context-sensitive suggestions to
+    the statement currently under your cursor. Press \key Tab
+    or \key Enter to accept the selected suggestion and complete the code.
+
+    \image qtcreator-codecompletion.png
+
+    To open the list of suggestions at any time, press \key{Ctrl+Space}.
+    If only one option is available, \QC inserts it automatically.
+
+    When completion is invoked manually, \QC completes the common prefix
+    of the list of suggestions. This is especially useful for classes with
+    several similarly named members. To disable this functionality, uncheck
+    \gui{Autocomplete common prefix} in the code completion preferences.
+    Select \gui Tools > \gui{Options} > \gui{Text Editor} > \gui Completion.
+
+    By default, code completion considers only the first letter case-sensitive.
+    To apply full or no case-sensitivity, select the option in the
+    \gui {Case-sensitivity} field.
+
+    \section2 Summary of Available Types
+
+    The following table lists available types for code completion and icon
+    used for each.
+
+    \table
+        \header
+            \o Icon
+            \o Description
+        \row
+            \i  \inlineimage completion/class.png
+            \i  A class
+        \row
+            \i  \inlineimage completion/enum.png
+            \i  An enum
+        \row
+            \i  \inlineimage completion/enumerator.png
+            \i  An enumerator (value of an enum)
+        \row
+            \i  \inlineimage completion/func.png
+            \i  A function
+        \row
+            \i  \inlineimage completion/func_priv.png
+            \i  A private function
+        \row
+            \i  \inlineimage completion/func_prot.png
+            \i  A protected function
+        \row
+            \i  \inlineimage completion/var.png
+            \i  A variable
+        \row
+            \i  \inlineimage completion/var_priv.png
+            \i  A private variable
+        \row
+            \i  \inlineimage completion/var_prot.png
+            \i  A protected variable
+        \row
+            \i  \inlineimage completion/signal.png
+            \i  A signal
+        \row
+            \i  \inlineimage completion/slot.png
+            \i  A slot
+        \row
+            \i  \inlineimage completion/slot_priv.png
+            \i  A private slot
+        \row
+            \i  \inlineimage completion/slot_prot.png
+            \i  A protected slot
+        \row
+            \i  \inlineimage completion/keyword.png
+            \i  A C++ keyword
+        \row
+            \i  \inlineimage completion/snippet.png
+            \i  A C++ code snippet
+        \row
+            \i  \inlineimage completion/element.png
+            \i  A QML element
+        \row
+            \i  \inlineimage completion/qmlsnippet.png
+            \i  A QML code snippet
+        \row
+            \i  \inlineimage completion/macro.png
+            \i  A macro
+        \row
+            \i  \inlineimage completion/namespace.png
+            \i  A namespace
+    \endtable
+
+    \section2 Completing Code Snippets
+
+    Code snippets can consist of multiple
+    variables that you specify values for. Select an item in the list and press
+    \key Tab or \key Enter to complete the code. Press \key Tab to
+    move between the variables and specify values for them. When you specify a
+    value for a variable, all instances of the variable within the snippet
+    are renamed.
+
+    \image qmldesigner-code-completion.png "Completing QML code"
+
+    \section2 Editing Code Snippets
+
+    Code snippets specify C++ or QML code constructs. You can add, modify,
+    and remove snippets in the snippet editor. To open the editor, select
+    \gui {Tools > Options > Text Editor > Snippets}.
+
+    \image qtcreator-edit-code-snippets.png "Snippet options"
+
+    \QC provides you with built-in snippets in the following categories:
+
+    \list
+
+        \o  Text snippets, which can contain any text string. For example, code
+            comments
+
+        \o  C++ code snippets, which specify C++ code constructs
+
+        \o  QML code snippets, which specify QML code constructs
+
+    \endlist
+
+    \section3 Adding and Editing Snippets
+
+    Select a snippet in the list to edit it in the snippet editor. To add a new
+    snippet, select \gui Add. Specify a trigger and, if the trigger is already
+    in use, an optional variant, which appear in the list of suggestions when
+    you write code. Also specify a text string or C++ or QML code construct in
+    the snippet editor, depending on the snippet category.
+
+    The snippet editor provides you with:
+
+    \list
+
+        \o  Highlighting
+
+        \o  Indentation
+
+        \o  Parentheses matching
+
+        \o  Basic code completion
+
+    \endlist
+
+    Specify the variables for the snippets in the following format:
+
+    \c $variable$
+
+    Use unique variable names within a snippet, because all instances of a
+    variable are renamed when you specify a value for it.
+
+    The snippet editor does not check the syntax of the snippets that you edit
+    or add. However, when you use the snippets, the code editor marks any
+    errors by underlining them in red.
+
+    To discard the changes you made to a built-in snippet, select \gui {Revert
+    Built-in}.
+
+    \section3 Removing Snippets
+
+    Several similar built-in snippets might be provided for different use
+    cases. To make the list of suggestions shorter when you write code, remove
+    the built-in snippets that you do not need. If you need them later, you
+    can restore them.
+
+    To remove snippets, select a snippet in the list, and then select
+    \gui Remove. To restore the removed snippets, select \gui {Restore Removed
+    Built-ins}.
+
+    \section3 Resetting Snippets
+
+    To remove all added snippets and to restore all removed snippets, select
+    \gui {Reset All}.
+
+    \note If you now select \gui OK or \gui Apply, you permanently lose all
+    your own snippets.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-locator.html
+    \page creator-editor-codepasting.html
+    \nextpage creator-macros.html
+
+    \title Pasting and Fetching Code Snippets
+
+    In \QC, you can paste snippets of code to a server or fetch snippets of code
+    from the server. To paste and fetch snippets of code, \QC uses the
+    following:
+
+    \list
+
+        \o  \gui{CodePaster}
+
+        \o  \gui{Pastebin.Com}
+
+        \o  \gui{Pastebin.Ca}
+
+    \endlist
+
+    To configure the server, select \gui{Tools} > \gui{Options} >
+    \gui{Code Pasting}.
+
+    To paste a snippet of code onto the server, select \gui{Tools} >
+    \gui{Code Pasting} > \gui{Paste Snippet} or press \key{Alt+C,Alt+P}.
+
+    To fetch a snippet of code from the server, select \gui{Tools} >
+    \gui{Code Pasting} > \gui{Fetch Snippet} or press \key{Alt+C,Alt+F}.
+
+    \note To use \gui{Pastebin.Com}, configure the domain
+    prefix in \gui{Tools} > \gui{Options} > \gui{Code Pasting} >
+    \gui{Pastebin.com}.
+
+    For example, you might ask colleagues to review a change that you plan to
+    submit to a version control system. If you use the Git version control
+    system, you can create a \e{diff} view by selecting \gui{Tools > Git >
+    Diff Repository}. You can then upload its contents to the server by choosing
+    \gui{Tools} > \gui{Code Pasting} > \gui{Paste Snippet}. The reviewers can
+    retrieve the code snippet by selecting \gui{Tools > Code Pasting >
+    Fetch Snippet}. If they have the project currently opened in \QC, they can
+    apply and test the change by choosing \gui{Tools > Git > Apply Patch}.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-codepasting.html
+    \page creator-macros.html
+    \nextpage creator-editor-options.html
+
+    \title Using Text Editing Macros
+
+    When you have a file open in the code editor, you can record a keyboard
+    sequence as a macro. You can then play the macro to repeat the sequence.
+    You can save the latest macro and assign a keyboard shortcut for running
+    it or run it from the locator.
+
+    To record a text editing macro, select \gui {Tools > Macros > Record Macro}
+    or press \key {Alt+(}. To stop recording, select \gui {Tools > Macros >
+    Stop Recording Macro} or press \key {Alt+)}.
+
+    To play the last macro, select \gui {Tools > Macros > Play Last Macro} or
+    press \key {Alt+R}.
+
+    To save the last macro, select \gui {Tools > Macros > Save Last Macro}.
+
+    To assign a keyboard shortcut to a text editing macro, select \gui {Tools >
+    Options > Environment > Keyboard}. For more information, see
+    \l{Configuring Keyboard Shortcuts}.
+
+    You can also use the \c rm locator filter to run a macro. For more
+    information, see \l{Searching With the Locator}.
+
+    To view and remove saved macros, select \gui {Tools > Options > Text
+    Editor > Macros}.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-options.html
+    \page creator-editor-fakevim.html
+    \nextpage creator-design-mode.html
+
+    \title Using FakeVim Mode
+
+    In the \gui{FakeVim} mode, you can run the main editor in a manner similar
+    to the Vim editor. To run the editor in the \gui{FakeVim} mode, select
+    \gui{Edit} > \gui{Advanced} > \gui{Use Vim-style Editing} or press
+    \key{Alt+V,Alt+V}.
+
+    In the \gui{FakeVim} mode, most keystrokes in the main editor will be
+    intercepted and interpreted in a way that resembles Vim. Documentation for
+    Vim is not included in \QC. For more information on using Vim,
+    see \l{http://www.vim.org/docs.php}{Documentation} on the Vim web site.
+
+    To map commands entered on the \gui{FakeVim} command line to actions of the
+    \QC core, select \gui{Tools} > \gui{Options} > \gui{FakeVim} >
+    \gui{Ex Command Mapping}.
+
+    To make changes to the Vim-style settings, select \gui{Tools} >
+    \gui{Options} > \gui FakeVim > \gui{General}.
+
+    To use a Vim-style color scheme, select \gui {Tools > Options >
+    Text Editor > Fonts & Color}. In the \gui {Color Scheme} list, select
+    \gui {Vim (dark)}.
+
+    To quit the FakeVim mode, unselect \gui{Tools} > \gui(Options} >
+    \gui{FakeVim} > \gui {Use FakeVim} or press \key{Alt+V,Alt+V}.
+
+    You can temporarily escape FakeVim mode to access the normal \QC
+    keyboard shortcuts like \key{Ctrl-R} for \gui{Run} by pressing
+    \key{,} first.
+
+    */
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-macros.html
+    \page creator-editor-options.html
+    \nextpage creator-editor-fakevim.html
+
+    \title Configuring the Editor
+
+    \QC allows you to configure the text editor to suit your specific
+    needs. To configure the editor, select  \gui Tools > \gui{Options} >
+    \gui{Text Editor}.
+
+    These settings apply to all projects. To specify editor behavior for an
+    open project, select \gui {Projects > Editor Settings}. For more
+    information, see \l{Specifying Editor Settings}.
+
+    You can also specify indentation settings separately for C++ and QML files
+    either globally or for the open project. For more information, see
+    \l{Indenting Code}.
+
+    \image qtcreator-font-colors.png "Text editor options"
+
+    You can perform the following configuration actions:
+
+    \list
+
+        \o  Set the font preferences and apply color schemes for syntax
+            highlighting in \gui{Font & Colors}.
+
+        \o  Specify \l{Generic Highlighting}
+            {definition files for syntax highlighting} for other types of files
+             than C++ or QML in \gui{Generic Highlighter}.
+
+        \o  Set tabs, indentation, the handling of whitespace, and mouse
+            operations in \gui Behavior. For more information, see
+            \l{Indenting Code}.
+
+        \o  Set various display properties, for example,
+            \l{Highlighting and folding blocks}
+            {highlighting and folding blocks}, text wrapping or
+            \l{Moving to symbol definition or declaration}
+            {moving to symbol definition or declaration} in \gui Display.
+
+        \o  Add, modify, and remove \l{Editing Code Snippets}{code snippets} in
+            \gui Snippets.
+
+        \o  View and remove \l{Using Text Editing Macros}{text editing macros}
+            in \gui Macros.
+
+        \o  Configure \l{Completing Code}{code completion} in \gui Completion.
+
+    \endlist
+
+    \section2 Configuring Fonts
+
+    You can select the font family and size. You can specify a zoom setting in
+    percentage for viewing the text. You can also zoom in or out by pressing
+    \key {Ctrl++} or \key {Ctrl +-}, or by pressing \key Ctrl and rolling
+    the mouse button up or down. To disable the mouse wheel function, select
+    \gui {Tools > Options > Text Editor > Behavior} and deselect the
+    \gui {Enable scroll wheel zooming} check box.
+
+    Antialiasing is used by default to make text look smoother and more
+    readable on the screen. Deselect the \gui Antialias check box to
+    turn off antialiasing.
+
+    \section2 Defining Color Schemes
+
+    You can select one of the predefined color schemes for syntax highlighting
+    or create customized color schemes. The color schemes apply to highlighting
+    both C++ and QML files and generic files.
+
+    To create a color scheme:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options > Text Editor > Fonts & Color > Copy}.
+
+        \o  Enter a name for the color scheme and click \gui OK.
+
+        \o  In the \gui Foreground field, specify the color of the selected
+            code element.
+
+        \o  In the \gui Background field, select the background
+            color for the code element.
+
+        The backgound of the \gui Text element determines the background of the
+        code editor.
+
+    \endlist
+
+    When you copy code from \QC, it is copied in both plain text and HTML
+    format. The latter makes sure that syntax highlighting is preserved when
+    pasting to a rich-text editor.
+
+    \section2 File Encoding
+
+    To define the default file encoding, select the desired encoding in
+    \gui {Default encoding}. By default, \QC uses the file encoding
+    used by your system.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-completing-code.html
+    \page creator-indenting-code.html
+    \nextpage creator-editor-finding.html
+
+    \title Indenting Code
+
+    When you type code, it is indented automatically according to the selected
+    text editor and code style options. Select a block to indent it when you
+    press \key Tab. Press \key {Shift+Tab} to decrease the indentation. You
+    can disable automatic indentation.
+
+    When you press \gui Backspace, the indentation is decreased by one level
+    in leading white space, by default. You can disable this setting.
+
+    Continuation lines are aligned with the previous line by using spaces. You
+    can disable automatic alignment to have them indented to the logical depth.
+    You can always use spaces for alignment or use spaces or tabs depending on
+    the other options you selected.
+
+    You can specify indentation either globally for all files or separately
+    for:
+
+    \list
+
+        \o  Text files
+
+        \o  C++ files
+
+        \o  QML files
+
+    \endlist
+
+    You can specify indentation either globally for all files of a particular
+    type or separately for each project.
+
+    \section1 Indenting Text Files
+
+    To specify global indentation settings for the text editor, select
+    \gui {Tools > Options > Text Editor > Behavior}. You can also use these
+    settings globally for all editors and files.
+
+    \image qtcreator-indentation.png "Text Editor Behavior options"
+
+    To specify settings for a particular project, select \gui {Projects >
+    Editor Settings}.
+
+    \section1 Indenting C++ Files
+
+    To specify global indentation settings for the C++ editor, select
+    \gui {Tools > Options > C++}.
+
+    \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
+
+    To specify the settings for a particular project, select \gui {Projects >
+    Code Style Settings}.
+
+    You can specify how to:
+
+    \list
+
+        \o  Interpret the \key Tab and \key Backspace key presses.
+
+        \o  Indent the contents of classes, methods, blocks, and namespaces.
+
+        \o  Indent braces in classes, namespaces, enums, methods, and blocks.
+
+        \o  Control switch statements and their contents.
+
+        \o  Align continuation lines.
+
+    \endlist
+
+    You can use the live preview to see how the options change the indentation.
+
+    \section1 Indenting QML Files
+
+    To specify global settings for the Qt Quick editor, select \gui {Tools >
+    Options > Qt Quick}.
+
+    \image qtcreator-options-code-style-qml.png "QML Code Style options"
+
+    To specify the settings for a particular project, select \gui {Projects >
+    Code Style Settings}.
+
+    You can specify how to interpret the \key Tab and \key Backspace key
+    presses.
+
+    \section1 Specifying Tab Settings
+
+    You can specify tab settings at the following levels:
+
+    \list
+
+        \o  Global settings for all files
+
+        \o  Global C++ settings for C++ files
+
+        \o  Global Qt Quick settings for QML files
+
+        \o  Project specific settings for all editors of files in the project
+
+        \o  Project specific settings for C++ files in the project
+
+        \o  Project specific settings for QML files in the project
+
+    \endlist
+
+    By default, the tab-length in code editor is 8 spaces. You can specify the
+    tab length separately for each project and for
+    different types of files.
+
+    The code editor can also determine whether tabs or spaces are used
+    on the previous or next line and copy the style.
+
+    The \key Tab key can automatically indent text when you press it, or only
+    when the cursor is located within leading white space.
+
+    \section1 Specifying Settings for Content
+
+    You can indent public, protected, and private statements and declarations
+    related to them within classes.
+
+    You can also indent statements within methods and blocks and declarations
+    within namespaces.
+
+    \image qtcreator-code-style-content.png "Content options"
+
+    \section1 Specifying Settings for Braces
+
+    You can indent class, namespace, enum and method declarations and code
+    blocks.
+
+    \image qtcreator-code-style-braces.png "Braces options"
+
+    \section1 Specifying Settings for Switch Statements
+
+    You can indent case or default statements, or statements or blocks related
+    to them within switch statements.
+
+    \image qtcreator-code-style-switch.png "Switch options"
+
+    \section1 Specifying Alignment
+
+    To align continuation lines to tokens after assignments, such as = or
+    +=, select the \gui {Align after assignments} check box. You can specify
+    additional settings for aligning continuation lines in the \gui General
+    tab.
+
+    You can also add spaces to conditional statements, so that they are not
+    aligned with the following line. Usually, this only affects \c if
+    statements.
+
+    \image qtcreator-code-style-alignment.png "Alignment options"
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-indenting-code.html
+    \page creator-editor-finding.html
+    \nextpage creator-editor-refactoring.html
+
+    \title Finding and Replacing
+
+    To search through the currently open file:
+
+    \list 1
+
+        \o  Press \key Ctrl+F or select \gui Edit > \gui Find/Replace >
+            \gui{Find/Replace}.
+
+        \o  Enter the text you are looking for.
+
+            If the text is found, all occurrences are highlighted as you type.
+
+        \o  To go to the next occurrence, click \inlineimage qtcreator-next.png
+            , or press \key F3. To go to the previous occurrence click
+            \inlineimage qtcreator-previous.png
+            , or press \key Shift+F3.
+
+    \endlist
+
+    You can restrict the search in the \gui Find field by selecting one
+    or several search criteria:
+
+    \list
+
+        \o  To make your search case sensitive, select
+            \inlineimage qtcreator-editor-casesensitive.png
+            .
+
+        \o  To search only whole words, select
+            \inlineimage qtcreator-editor-wholewords.png
+            .
+
+        \o  To search using regular expressions, select
+            \inlineimage qtcreator-editor-regularexpressions.png
+            .
+            Regular expressions used in \QC are modeled on Perl regular
+            expressions. For more information on using regular expressions, see
+            \l {http://doc.qt.nokia.com/4.7/qregexp.html#details}
+            {Detailed Description} in the QRegExp Class Reference.
+
+    \endlist
+
+    \note If you have selected text before selecting \gui Find/Replace, the
+    search is conducted within the selection.
+
+    To replace occurrences of the existing text, enter the new text in the
+    \gui{Replace with} field.
+
+    \list
+
+        \o  To replace the selected occurrence and move to the next one,
+            click \inlineimage qtcreator-next.png
+            or press \key Ctrl+=.
+
+        \o  To replace the selected occurrence and move to the previous one,
+            click \inlineimage qtcreator-previous.png
+            .
+
+        \o  To replace all occurrences in the file, click \gui{Replace All}.
+
+    \endlist
+
+    \section1 Advanced Search
+
+    To search through projects, files on a file system or the currently open
+    file:
+
+    \list 1
+
+        \o  Press \key Ctrl+Shift+F or select \gui Edit > \gui Find/Replace >
+            \gui{Advanced Find} > \gui{Open Advanced Find}.
+
+        \o  Select the scope of your search:
+
+            \list
+
+                \o  \gui{All Projects} searches files matching the defined file
+                    pattern in all currently open projects.
+
+                    For example, to search for \tt previewer only in \tt .cpp
+                    and \tt .h files, enter in \gui{File pattern}
+                    \tt *.cpp,*.h.
+
+                    \image qtcreator-search-allprojects.png
+
+                \o  \gui{Current Project} searches files matching the defined
+                    file pattern only in the project you are currently editing.
+
+                \o  \gui{Files on File System} recursively searches files
+                    matching the defined file pattern in the selected directory.
+
+                \o  \gui{Current File} searches only the current file.
+
+            \endlist
+
+        \o  Enter the text you are looking for and click \gui Search.
+
+            \image qtcreator-searchresults.png
+
+             A list of files containing the searched text is displayed in the
+            \gui{Search Results} pane.
+
+            \list
+
+                \o  To see all occurrences in a file, double-click the file name
+                    in the list.
+
+                \o  To go to an occurrence, double-click it.
+
+            \endlist
+
+    \endlist
+
+    \note You can use \gui{Advanced Find} also to search for symbols. For more
+    information, see \l{Finding Symbols}.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-finding.html
+    \page creator-editor-refactoring.html
+    \nextpage qt-quick-toolbars.html
+
+    \title Refactoring
+
+    Code refactoring is the process of changing the code without modifying the
+    existing functionality of your application. By refactoring your code you
+    can:
+
+    \list
+
+        \o  Improve internal quality of your application
+
+        \o  Improve performance and extensibility
+
+        \o  Improve code readability and maintainability
+
+        \o  Simplify code structure
+
+    \endlist
+
+    \section1 Finding Symbols
+
+    To find the use of a specific symbol in your Qt C++ or Qt Quick project:
+
+    \list 1
+
+        \o In the editor, place the cursor on the symbol, and select:
+
+        \list
+
+            \o  \gui {Tools > C++ > Find Usages}
+
+            \o  \gui {Tools > QML > Find Usages}
+
+            \o  \key Ctrl+Shift+U
+
+        \endlist
+
+        \QC  looks for the symbol in the following locations:
+
+        \list
+
+            \o  Files listed as a part of the project
+
+            \o  Files directly used by the project files (for example, generated
+                files)
+
+            \o  Header files of used frameworks and libraries
+
+        \endlist
+
+        \note You can also select \gui{Edit > Find/Replace > Advanced Find >
+        C++ Symbols} to search for classes, methods, enums, and declarations
+        either from files listed as part of the project or from all files that
+        are used by the code, such as include files.
+
+        \image qtcreator-search-cpp-symbols.png
+
+        \o  The \gui{Search Results} pane opens and shows the location and
+            number of instances of the symbol in the current project.
+
+            \image qtcreator-refactoring-find.png
+
+    \endlist
+
+    You can browse the search results in the following ways:
+
+    \list
+
+        \o  To go directly to an instance, double-click the instance in the
+            \gui{Search Results} pane.
+
+        \o  To move between instances, click
+            \inlineimage qtcreator-forward.png
+            and
+            \inlineimage qtcreator-back.png
+            in the \gui{Search Results} pane.
+
+        \o  To expand and collapse the list of all instances, click
+            \inlineimage qtcreator-expand.png
+            .
+
+        \o  To clear the search results, click \inlineimage qtcreator-clear.png
+            .
+
+    \endlist
+
+    \section1 Renaming Symbols
+
+    To rename a specific symbol in a Qt project:
+
+    \list 1
+
+        \o  In the editor, place the cursor on the symbol you would like to
+            change and select \gui Tools > \gui C++ >
+            \gui{Rename Symbol Under Cursor} or \gui Tools > \gui QML/JS >
+            \gui{Rename Symbol Under Cursor}. Alternatively, press
+            \key Ctrl+Shift+R.
+
+            The \gui{Search Results} pane opens and shows the location and
+            number of instances of the symbol in the current project.
+
+            \image qtcreator-refactoring-replace.png
+
+        \o  To replace all selected instances, enter the name of the new symbol
+            in the \gui{Replace with} text box and click \gui Replace.
+
+            To omit an instance, uncheck the check-box next to the instance.
+
+            \note This action replaces all selected instances of the symbol in
+            all files listed in the \gui{Search Results} pane. You cannot
+            undo this action.
+
+    \endlist
+
+    \note Renaming local symbols does not open the \gui{Search Results} pane.
+    The instances of the symbol are highlighted in code and you can edit the
+    symbol. All instances of the local symbol are changed as you type.
+
+    \section1 Applying Refactoring Actions
+
+    \QC allows you to quickly and conveniently apply actions to refactor
+    your code by selecting them in a context menu. The actions available depend
+    on the position of the cursor in the code editor and on whether you are
+    writing C++ or QML code.
+
+    To apply refactoring actions to C++ code, right-click an operand,
+    conditional statement, string, or name to open a context menu. In QML code,
+    click an element ID or name.
+
+    In the context menu, select \gui {Refactoring} and then select a refactoring
+    action.
+
+    You can also press \gui {Alt+Enter} to open a context menu that contains
+    refactoring actions available in the current cursor position.
+
+   \section2 Refactoring C++ Code
+
+   You can apply the following types of refactoring actions to C++ code:
+
+   \list
+
+        \o  Change binary operands
+
+        \o  Simplify if and while conditions (for example, move declarations out
+            of if conditions)
+
+        \o  Modify strings (for example, set the encoding for a string to
+            Latin-1, mark strings translatable, and convert symbol names to
+            camel case)
+
+        \o  Create variable declarations
+
+        \o  Create method declarations and definitions
+
+   \endlist
+
+    The following table summarizes the refactoring actions for C++ code. The
+    action is available when the cursor is in the position described in the
+    Activation column.
+
+    \table
+        \header
+            \i Refactoring Action
+            \i Description
+            \i Activation
+        \row
+            \i Add Curly Braces
+            \i Adds curly braces to an if statement that does not contain a
+            compound statement. For example, rewrites
+
+    \code
+    if (a)
+        b;
+    \endcode
+
+            as
+
+    \code
+    if (a) {
+        b;
+    }
+    \endcode
+            \i if
+        \row
+            \i Move Declaration out of Condition
+            \i Moves a declaration out of an if or while condition to simplify the
+            condition. For example, rewrites
+
+    \code
+    if (Type name = foo()) {}
+    \endcode
+
+            as
+
+    \code
+    Type name = foo;
+    if (name) {}
+    \endcode
+            \i Name of the introduced variable
+        \row
+            \i Rewrite Condition Using ||
+            \i Rewrites the expression according to De Morgan's laws. For example,
+             rewrites:
+    \code
+    !a && !b
+    \endcode
+
+            as
+
+    \code
+    !(a || b)
+    \endcode
+            \i &&
+        \row
+            \i Rewrite Using \e operator
+            \i Rewrites an expression negating it and using the inverse operator. For
+            example, rewrites:
+
+            \list
+
+    \o     \code
+    a op b
+    \endcode
+
+    as
+
+    \code
+    !(a invop b)
+    \endcode
+
+    \o     \code
+    (a op b)
+    \endcode
+
+    as
+
+    \code
+    !(a invop b)
+    \endcode
+
+    \o    \code
+    !(a op b)
+    \endcode
+
+    as
+
+    \code
+    (a invob b)
+    \endcode
+
+    \endlist
+
+            \i <= < > >= == !=
+        \row
+            \i Split Declaration
+            \i Splits a simple declaration into several declarations. For example,
+            rewrites:
+    \code
+    int *a, b;
+    \endcode
+
+    as
+
+    \code
+    int *a;
+    int b;
+    \endcode
+            \i Type name or variable name
+        \row
+            \i Split if Statement
+            \i Splits an if statement into several statements. For example, rewrites:
+    \code
+    if (something && something_else) {
+    }
+    \endcode
+
+    as
+
+    \code
+    if (something) {
+       if (something_else) {
+       }
+    }
+    \endcode
+
+    and
+
+    \code
+    if (something || something_else)
+        x;
+    \endcode
+
+    with
+
+    \code
+    if (something)
+        x;
+    else if (something_else)
+        x;
+    \endcode
+
+            \i && ||
+        \row
+            \i Swap Operands
+            \i Rewrites an expression in the inverse order using the inverse operator.
+            For example, rewrites:
+    \code
+    a op b
+    \endcode
+
+    as
+    \code
+    b flipop a
+    \endcode
+            \i <= < > >= == != && ||
+        \row
+            \i Convert to Decimal
+            \i Converts an integer literal to decimal representation
+            \i Numeric literal
+        \row
+            \i Convert to Hexadecimal
+            \i Converts an integer literal to hexadecimal representation
+            \i Numeric literal
+        \row
+            \i Convert to Octal
+            \i Converts an integer literal to octal representation
+            \i Numeric literal
+        \row
+            \i Convert to Objective-C String Literal
+            \i Converts a string literal to an Objective-C string literal
+            if the file type is Objective-C(++). For example, rewrites the following strings
+
+    \code
+    "abcd"
+    QLatin1String("abcd")
+    QLatin1Literal("abcd")
+    \endcode
+
+    as
+
+    \code
+    @"abcd"
+    \endcode
+            \i String literal
+        \row
+            \i Enclose in QLatin1Char()
+            \i Sets the encoding for a character to Latin-1, unless the character is
+            already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
+            QLatin1Literal, or QLatin1String. For example, rewrites
+
+    \code
+    'a'
+    \endcode
+
+    as
+
+    \code
+    QLatin1Char('a')
+    \endcode
+            \i String literal
+        \row
+            \i Enclose in QLatin1String()
+            \i Sets the encoding for a string to Latin-1, unless the string is
+            already enclosed in QLatin1Char, QT_TRANSLATE_NOOP, tr, trUtf8,
+            QLatin1Literal, or QLatin1String. For example, rewrites
+    \code
+    "abcd"
+    \endcode
+
+    as
+
+    \code
+    QLatin1String("abcd")
+    \endcode
+
+            \i String literal
+
+        \row
+            \i Mark as Translatable
+            \i Marks a string translatable. For example, rewrites \c "abcd" with
+            one of the following options, depending on which of them is available:
+
+    \code
+    tr("abcd")
+    QCoreApplication::translate("CONTEXT", "abcd")
+    QT_TRANSLATE_NOOP("GLOBAL", "abcd")
+    \endcode
+
+            \i String literal
+
+        \row
+            \i #include Header File
+            \i Adds the matching #include statement for a forward-declared class or struct
+            \i Forward-declared class or struct
+        \row
+            \i Add Definition in 'filename'
+            \i Inserts a definition stub for a member function declaration in the
+            implementation file
+            \i Method name
+        \row
+            \i Add 'Function' Declaration
+            \i Inserts the member function declaration that matches the member function
+            definition into the class declaration. The function can be public,
+            protected, private, public slot, protected slot, or private slot.
+            \i Method name
+        \row
+            \i Add Local Declaration
+            \i
+            Adds the type of an assignee, if the type of the right-hand side of the assignment
+            is known. For example, rewrites
+
+    \code
+    a = foo();
+    \endcode
+
+    as
+
+    \code
+    Type a = foo();
+    \endcode
+
+    where Type is the return type of \c {foo()}
+
+            \i Assignee
+
+        \row
+            \i Convert to Camel Case
+            \i Converts a symbol name to camel case, where elements of the name are joined
+            without delimiter characters and the initial character of each element is
+            capitalized. For example, rewrites \c an_example_symbol
+            as \c anExampleSymbol and \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
+            \i Identifier
+        \row
+            \i Complete Switch Statement
+            \i Adds all possible cases to a switch statement of the type \c enum
+            \i Switch
+        \row
+            \i Generate Missing Q_PROPERTY Members
+            \i Adds missing members to a Q_PROPERTY:
+            \list
+                \o \c read method
+                \o \c write method, if there is a WRITE
+                \o \c {onChanged} signal, if there is a NOTIFY
+                \o data member with the name \c {m_<propertyName>}
+            \endlist
+            \i Q_PROPERTY
+    \endtable
+
+   \section2 Refactoring QML Code
+
+   You can apply the following types of refactoring actions to QML code:
+
+   \list
+
+        \o Rename IDs
+
+        \o Split initializers
+
+        \o Move a QML element into a separate file to reuse it in other
+        .qml files
+
+   \endlist
+
+    The following table summarizes the refactoring actions for QML code. The
+    action is available when the cursor is in the position described in the
+    Activation column.
+
+    \table
+        \header
+            \i Refactoring Action
+            \i Description
+            \i Activation
+
+        \row
+            \i Move Component into 'filename.qml'
+            \i Moves a QML element into a separate file
+            \i Element name
+        \row
+            \i Rename id
+            \i Renames all instances of an element ID in the currently open file
+            \i Element ID
+        \row
+            \i Split Initializer
+            \i Reformats a one-line element into a multi-line element. For example,
+            rewrites
+
+    \code
+    Item { x: 10; y: 20; width: 10 }
+    \endcode
+
+    as
+
+    \code
+    Item {
+        x: 10;
+        y: 20;
+        width: 10
+    }
+    \endcode
+            \i Element property
+
+    \endtable
+   */
+
+
+/*!
+    \contentspage index.html
+    \previouspage qt-quick-toolbars.html
+    \page creator-editor-locator.html
+    \nextpage creator-editor-codepasting.html
+
+    \title Searching With the Locator
+
+    The locator provides one of the easiest ways in \QC to browse through
+    projects, files, classes, methods, documentation and file systems. You can
+    find the locator in the bottom left of the \QC window.
+
+    To activate the locator, press \key Ctrl+K (\key Cmd+K on Mac OS X) or
+    select \gui Tools > \gui Locate.
+
+    \image qtcreator-locator.png
+
+    To edit the currently open project's main.cpp file using the locator:
+
+    \list 1
+
+        \o  Activate the locator by pressing \key Ctrl+K.
+
+        \o  Enter \tt{main.cpp}.
+
+            \image qtcreator-locator-open.png
+
+        \o  Press \key Return.
+
+            The main.cpp file opens in the editor.
+
+    \endlist
+
+    It is also possible to enter only a part of a search string. As you type,
+    the locator shows the occurrences of that string regardless of where in the
+    name of an component it appears.
+
+    To narrow down the search results, you can use the following wildcard
+    characters:
+
+    \list
+
+        \o  To match any number of any or no characters, enter \bold{*}.
+
+        \o  To match a single instance of any character, enter \bold{?}.
+
+    \endlist
+
+    \section1 Using the Locator Filters
+
+    The locator allows you to browse not only files, but any items defined by
+    \bold{locator filters}. By default, the locator contains filters for:
+
+    \list
+
+        \o  Locating any open document
+
+        \o  Locating files anywhere on your file system
+
+        \o  Locating iles belonging to your project, such as source, header
+            resource, and .ui files
+
+        \o  Locating class and method definitions in your project or anywhere
+            referenced from your project
+
+        \o  Locating class and method definitions in the current document
+
+        \o  Locating a specific line in the document displayed in your editor
+
+        \o  Opening help topics, including Qt documentation
+
+        \o  Performing web searches
+
+        \o  Running text editing macros that you record and save. For more
+            information, see \l{Using Text Editing Macros}
+
+    \endlist
+
+    To use a specific locator filter, type the assigned prefix followed by
+    \key Space. The prefix is usually a single character.
+
+    For example, to locate symbols matching QDataStream:
+
+    \list 1
+
+        \o  Activate the locator.
+
+        \o  Enter \tt{\bold{: QDataStream}} (: (colon) followed by a
+            \key Space and the symbol name (QDataStream)).
+
+            The locator lists the results.
+
+            \image qtcreator-navigate-popup.png
+
+    \endlist
+
+    By default, the following filters are enabled and you do not need to use
+    their prefixes explicitly:
+
+    \list
+
+        \o  Going to a line in the current file (l).
+
+        \o  Going to an open file (o).
+
+        \o  Going to a file in any open project (a).
+
+    \endlist
+
+    \section2 Using the Default Locator Filters
+
+    The following locator filters are available by default:
+
+    \table
+        \header
+            \o  Function
+            \o  Enter in locator
+            \o  Example
+        \row
+            \o  Go to a line in the current file.
+            \o  \tt{\bold{l \e{Line number}}}
+            \o  \image qtcreator-locator-line.png
+        \row
+            \o  Go to a symbol definition.
+            \o  \tt{\bold{: \e{Symbol name}}}
+            \o  \image qtcreator-locator-symbols.png
+        \row
+            \o  Go to a symbol definition in the current file.
+            \o  \tt{\bold{. \e{Symbol name}}}
+            \o  \image qtcreator-locator-method-list.png
+        \row
+            \o  Go to a help topic.
+            \o  \tt{\bold{? \e{Help topic}}}
+            \o  \image qtcreator-locator-help.png
+        \row
+            \o  Search for a term by using a web search engine.
+            \o  \tt{\bold{r \e{Search term}}}
+            \o  \image qtcreator-locator-web.png
+        \row
+            \o  Go to an open file.
+            \o  \tt{\bold{o \e{File name}}}
+            \o  \image qtcreator-locator-opendocs.png
+        \row
+            \o  Go to a file in the file system (browse the file system).
+            \o  \tt{\bold{f \e{File name}}}
+            \o  \image qtcreator-locator-filesystem.png
+        \row
+            \o  Go to a file in any project currently open.
+            \o  \tt{\bold{a \e{File name}}}
+            \o  \image qtcreator-locator-files.png
+        \row
+            \o  Go to a file in the current project.
+            \o  \tt{\bold{p \e{File name}}}
+            \o  \image qtcreator-locator-current-project.png
+        \row
+            \o  Go to a class definition.
+            \o  \tt{\bold{c \e{Class name}}}
+            \o  \image qtcreator-locator-classes.png
+        \row
+            \o  Go to a method definition.
+            \o  \tt{\bold{m \e{Method name}}}
+            \o  \image qtcreator-locator-methods.png
+        \row
+            \o  Execute a text editing macro.
+            \o  \tt{\bold{rm \e{Macro name}}}
+            \o  \image qtcreator-locator-macros.png
+    \endtable
+
+    \section2 Creating Locator Filters
+
+    To quickly access files not directly mentioned in your project, you can
+    create your own locator filters. That way you can locate files in a
+    directory structure you have defined.
+
+    To create a locator filter:
+
+    \list 1
+
+        \o  In the locator, click \inlineimage qtcreator-locator-magnify.png
+            and select \gui Configure. to open the \gui Locator options.
+
+            \image qtcreator-locator-customize.png
+
+        \o  Click \gui Add.
+
+        \o  In the \gui{Filter Configuration} dialog:
+
+        \list
+
+            \o  Name your filter.
+
+            \o  Select at least one directory. The locator searches directories
+                recursively.
+
+            \o  Define the file pattern as a comma separated list. For example,
+                to search all .h and .cpp files, enter \bold{*.h,*.cpp}
+
+            \o  Specify the prefix string.
+
+                To show only results matching this filter, select
+                \gui{Limit to prefix}.
+
+                \image qtcreator-navigate-customfilter.png
+
+        \endlist
+
+        \o Click OK.
+
+    \endlist
+
+    \section2 Adding Web Search Engines
+
+    You can use the \gui {Web Search (\c r)} locator filter to perform
+    web searches. URLs and search commands for Bing, Google, Yahoo! Search,
+    cplusplus.com, and Wikipedia are configured by default.
+
+    To find out the format of the search command to use for your favorite
+    web search engine, perform a search in your browser and copy the resulting
+    URL to the locator filter configuration. Replace the search term with the
+    variable \c {%1}.
+
+    To add URLs and search commands to the list:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options > Locator > Web Search (prefix: r) >
+            Edit}.
+
+        \o  Select \gui Add to add a new entry to the list.
+
+            \image qtcreator-add-online-doc.png "Filter Configuration dialog"
+
+        \o  Double-click the new entry to specify a URL and a search command.
+            For example, http://www.google.com/search?q=%1.
+
+        \o  Click \gui OK.
+
+    \endlist
+
+    \section2 Configuring the Locator Cache
+
+    The locator searches the files matching your file pattern in the
+    directories you have selected and caches that information. The cache for
+    all default filters is updated as you write your code. By default,
+    \QC updates the filters created by you once an hour.
+
+    To update the cached information manually, click
+    \inlineimage qtcreator-locator-magnify.png
+    and select \gui Refresh.
+
+    To set a new cache update time:
+
+    \list 1
+
+        \o  Select \gui Tools > \gui Options > \gui Locator.
+
+        \o  In \gui{Refresh interval}, define new time in minutes.
+
+    \endlist
+
+*/
+

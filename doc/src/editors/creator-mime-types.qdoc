@@ -1,0 +1,94 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-maemo-emulator.html
+    \page creator-mime-types.html
+    \nextpage creator-task-lists.html
+
+    \title Editing MIME Types
+
+    \QC uses the \l{http://en.wikipedia.org/wiki/Internet_media_type}
+    {Internet media type} (MIME type) of the file to determine which mode and
+    editor to use for opening the file. For example, \QC opens C++ source and
+    header files in the C++ editor, and Qt widget based UI files (.ui) in \QD.
+
+    To identify the MIME type of a file, \QC uses matching by pattern and
+    matching by contents. First, \QC looks at the filename to check whether it
+    matches the patterns specified for any MIME type. If no match is found, it
+    checks the contents of the file for magic headers specified for the file.
+
+    The magic headers can contain text strings or bytes. The type of the header
+    value, string or byte, determines how \QC interprets the value. \QC
+    searches for the value within a specified range in the files and takes the
+    priority of the magic header into account. If you specify wide search
+    ranges, openging files in \QC might take a long time. Therefore, you are
+    advised to use the recommended values for the range and priority of the
+    magic header.
+
+    If your files do not match the predefined MIME types, you can edit the
+    MIME types to add filename extensions and magic headers. You cannot add
+    new MIME types, however.
+
+    To edit MIME types:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options > Environment > MIME Types}.
+
+            \image qtcreator-mime-types.png "MIME Types"
+
+        \o  In \gui {MIME Type}, select a MIME type.
+
+        \o  In \gui Patterns, add the filename extension for the type of files
+            that you want to identify as having this MIME type.
+
+        \o  Click \gui Add to add \gui {Magic Headers}.
+
+            \image qtcreator-mime-types-magic-header.png "Magic Header"
+
+        \o  In the \gui Value field, specify a text string or bytes that
+            appear in the files.
+
+        \o  In the \gui Type field, select the type of the value.
+
+            \note You are recommended not to change the range and priority,
+            because it might cause problems when opening files in \QC.
+
+        \o  Click \gui OK.
+
+    \endlist
+
+    To revert all the changes you have made to the MIME type definitions,
+    select \gui {Reset All}.
+
+    \note If you now select \gui OK or \gui Apply, you permanently lose all
+    your own patterns and magic headers. The changes are reverted the next
+    time you start \QC.
+
+*/
