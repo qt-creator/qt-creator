@@ -61,6 +61,7 @@ public:
     QString password() const;
     QString privateKeyFilePath() const;
 
+    virtual QString defaultConfigurationName() const;
     virtual QString defaultHostName() const;
     virtual QString defaultUserName() const;
     virtual QString defaultPassWord() const;

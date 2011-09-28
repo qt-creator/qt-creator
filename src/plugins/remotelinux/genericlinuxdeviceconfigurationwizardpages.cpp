@@ -73,7 +73,7 @@ GenericLinuxDeviceConfigurationWizardSetupPage::~GenericLinuxDeviceConfiguration
 
 void GenericLinuxDeviceConfigurationWizardSetupPage::initializePage()
 {
-    d->ui.nameLineEdit->setText(QLatin1String("(New Configuration)"));
+    d->ui.nameLineEdit->setText(defaultConfigurationName());
     d->ui.hostNameLineEdit->setText(defaultHostName());
     d->ui.userNameLineEdit->setText(defaultUserName());
     d->ui.passwordButton->setChecked(true);
@@ -119,6 +119,11 @@ QString GenericLinuxDeviceConfigurationWizardSetupPage::password() const
 QString GenericLinuxDeviceConfigurationWizardSetupPage::privateKeyFilePath() const
 {
     return d->ui.privateKeyPathChooser->path();
+}
+
+QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultConfigurationName() const
+{
+    return QLatin1String("Generic Linux Device");
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultHostName() const

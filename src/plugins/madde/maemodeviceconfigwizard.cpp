@@ -118,7 +118,7 @@ public:
         connect(buttonGroup, SIGNAL(buttonClicked(int)),
            SLOT(handleDeviceTypeChanged()));
 
-        m_ui->nameLineEdit->setText(QLatin1String("(New Configuration)"));
+        m_ui->nameLineEdit->setText(QLatin1String("MeeGo Device"));
         m_ui->osTypeComboBox->setCurrentIndex(m_ui->osTypeComboBox->findData(QLatin1String(HarmattanOsType)));
         m_ui->hwButton->setChecked(true);
         handleDeviceTypeChanged();
