@@ -648,7 +648,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 
 void QtCreatorIntegration::slotSyncSettingsToDesigner()
 {
-#if QT_VERSION >= 0x040800
+#if QT_VERSION > 0x040800
     // Set promotion-relevant parameters on integration.
     const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
     setHeaderSuffix(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
