@@ -53,10 +53,12 @@ if platform.system() in ('Windows', 'Microsoft'):
     sdkPath = "C:\\QtSDK"
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
     cwd+="\\..\\..\\settings\\windows"
+    defaultQtVersion = "Qt 4.7.4 for Desktop - MinGW 4.4 (Qt SDK)"
 else:
     sdkPath = os.path.expanduser("~/QtSDK")
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
     cwd+="/../../settings/unix"
+    defaultQtVersion = "Desktop Qt 4.7.4 for GCC (Qt SDK)"
 srcPath = sdkPath + "/src"
 
 cwd = os.path.abspath(cwd)
