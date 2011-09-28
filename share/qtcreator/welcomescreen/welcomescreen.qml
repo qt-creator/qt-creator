@@ -52,9 +52,23 @@ Rectangle {
         anchors.topMargin: -1
         anchors.top: inner_background.bottom
         anchors.left: parent.left
-        anchors.right: news.left
+        anchors.right: parent.right
         anchors.bottomMargin: 4
         model: tabs.model
+    }
+
+
+    TabWidget {
+        id: tabs
+        property int current: root.current
+        anchors.rightMargin: 0
+        anchors.leftMargin: 0
+        model: pagesModel
+        anchors.top: feedback.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: news.left
+        anchors.margins: 0
     }
 
     Item {
@@ -67,9 +81,10 @@ Rectangle {
         anchors.right: parent.right
         id: news
         opacity: 0.7
-        anchors.top: navigationAndDevLinks.top
+        anchors.top: navigationAndDevLinks.bottom
         anchors.bottom: parent.bottom
         width: 220
+        anchors.topMargin: -1
 
         FeaturedAndNewsListing {
             anchors.fill: parent
@@ -96,19 +111,6 @@ Rectangle {
             color: "black"
             anchors.left: parent.left
         }
-    }
-
-    TabWidget {
-        id: tabs
-        property int current: root.current
-        anchors.rightMargin: 0
-        anchors.leftMargin: 0
-        model: pagesModel
-        anchors.top: feedback.bottom
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: news.left
-        anchors.margins: 0
     }
 
     Feedback {
