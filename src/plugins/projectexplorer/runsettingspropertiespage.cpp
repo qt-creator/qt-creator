@@ -233,7 +233,7 @@ void RunSettingsWidget::removeRunConfiguration()
                        QMessageBox::Yes|QMessageBox::No, this);
     msgBox.setDefaultButton(QMessageBox::No);
     msgBox.setEscapeButton(QMessageBox::No);
-    if (!this || msgBox.exec() == QMessageBox::No)
+    if (msgBox.exec() == QMessageBox::No)
         return;
 
     m_target->removeRunConfiguration(rc);
@@ -260,7 +260,7 @@ void RunSettingsWidget::renameRunConfiguration()
                                             arg(m_target->activeRunConfiguration()->displayName()),
                                          QLineEdit::Normal,
                                          m_target->activeRunConfiguration()->displayName(), &ok);
-    if (!ok || !this)
+    if (!ok)
         return;
 
     name = uniqueRCName(name);
@@ -329,7 +329,7 @@ void RunSettingsWidget::removeDeployConfiguration()
                        QMessageBox::Yes|QMessageBox::No, this);
     msgBox.setDefaultButton(QMessageBox::No);
     msgBox.setEscapeButton(QMessageBox::No);
-    if (!this || msgBox.exec() == QMessageBox::No)
+    if (msgBox.exec() == QMessageBox::No)
         return;
 
     m_target->removeDeployConfiguration(dc);
@@ -349,7 +349,7 @@ void RunSettingsWidget::renameDeployConfiguration()
                                             arg(m_target->activeDeployConfiguration()->displayName()),
                                          QLineEdit::Normal,
                                          m_target->activeDeployConfiguration()->displayName(), &ok);
-    if (!ok || !this)
+    if (!ok)
         return;
 
     name = uniqueDCName(name);

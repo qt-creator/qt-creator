@@ -304,7 +304,7 @@ void BuildSettingsWidget::deleteConfiguration()
                        QMessageBox::Yes|QMessageBox::No, this);
     msgBox.setDefaultButton(QMessageBox::No);
     msgBox.setEscapeButton(QMessageBox::No);
-    if (!this || msgBox.exec() == QMessageBox::No)
+    if (msgBox.exec() == QMessageBox::No)
         return;
 
     deleteConfiguration(m_buildConfiguration);
@@ -333,7 +333,7 @@ void BuildSettingsWidget::renameConfiguration()
                                             arg(m_buildConfiguration->displayName()),
                                          QLineEdit::Normal,
                                          m_buildConfiguration->displayName(), &ok);
-    if (!ok || !this)
+    if (!ok)
         return;
 
     name = uniqueName(name);
