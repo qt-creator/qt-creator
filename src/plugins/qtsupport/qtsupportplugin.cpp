@@ -68,6 +68,10 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     m_welcomePage = new GettingStartedWelcomePage;
     addObject(m_welcomePage);
 
+    m_welcomePage = new GettingStartedWelcomePage;
+    m_welcomePage->setShowExamples(true);
+    addObject(m_welcomePage);
+
     return true;
 }
 

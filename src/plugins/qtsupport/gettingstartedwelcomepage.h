@@ -55,9 +55,11 @@ class GettingStartedWelcomePage : public Utils::IWelcomePage
 public:
     GettingStartedWelcomePage();
 
+    void setShowExamples(bool showExamples);
     QUrl pageLocation() const;
-    QString title() const { return tr("Getting Started");}
-    int priority() const { return 10; }
+    QString title() const;
+    int priority() const;
+    bool hasSearchBar() const;
     void facilitateQml(QDeclarativeEngine *);
     Q_INVOKABLE QStringList tagList() const;
 
@@ -70,9 +72,10 @@ public slots:
     void updateTagsModel();
 
 private:
+    ExamplesListModel *examplesModel() const;
     QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen);
-    ExamplesListModel *m_examplesModel;
     QDeclarativeEngine *m_engine;
+    bool m_showExamples;
 };
 
 } // namespace Internal

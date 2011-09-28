@@ -136,6 +136,7 @@ public slots:
     }
 
     void parseSearchString(const QString& arg);
+    void setShowTutorialsOnly(bool showTutorialsOnly);
 
 signals:
     void showTutorialsOnlyChanged();
@@ -143,9 +144,6 @@ signals:
     void filterTagsChanged(const QStringList& arg);
 
     void searchStrings(const QStringList& arg);
-
-private slots:
-    void setShowTutorialsOnly(bool showTutorialsOnly);
 
 private:
     bool m_showTutorialsOnly;

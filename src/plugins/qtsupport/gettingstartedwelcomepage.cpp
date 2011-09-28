@@ -44,18 +44,24 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
+#include <QtCore/QWeakPointer>
 #include <QtGui/QGraphicsProxyWidget>
 #include <QtGui/QScrollBar>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtSql/QSqlQueryModel>
 #include <QtSql/QSqlQuery>
 #include <QtDeclarative>
-#include <QDebug>
 
 namespace QtSupport {
 namespace Internal {
 
-const char *C_FALLBACK_ROOT = "ProjectsFallbackRoot";
+const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
+
+QWeakPointer<ExamplesListModel> &examplesModelStatic()
+{
+    static QWeakPointer<ExamplesListModel> s_examplesModel;
+    return s_examplesModel;
+}
 
 class Fetcher : public QObject
 {
@@ -104,29 +110,66 @@ private:
 };
 
 GettingStartedWelcomePage::GettingStartedWelcomePage()
-    : m_examplesModel(0), m_engine(0)
+    : m_engine(0),  m_showExamples(false)
 {
 }
 
+void GettingStartedWelcomePage::setShowExamples(bool showExamples)
+{
+    m_showExamples = showExamples;
+}
+
+QString GettingStartedWelcomePage::title() const
+{
+    if (m_showExamples)
+        return tr("Demos and Examples");
+    else
+        return tr("Getting Started");
+}
+
+ int GettingStartedWelcomePage::priority() const
+ {
+     if (m_showExamples)
+         return 30;
+     else
+         return 10;
+ }
+
+ bool GettingStartedWelcomePage::hasSearchBar() const
+ {
+     if (m_showExamples)
+         return true;
+     else
+         return false;
+ }
+
 QUrl GettingStartedWelcomePage::pageLocation() const
 {
-    return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"));
+    if (m_showExamples)
+        return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/examples.qml"));
+    else
+        return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"));
 }
 
 void GettingStartedWelcomePage::facilitateQml(QDeclarativeEngine *engine)
 {
     m_engine = engine;
     m_engine->addImageProvider(QLatin1String("helpimage"), new HelpImageProvider);
-    m_examplesModel = new ExamplesListModel(this);
-    connect (m_examplesModel, SIGNAL(tagsUpdated()), SLOT(updateTagsModel()));
+    connect (examplesModel(), SIGNAL(tagsUpdated()), SLOT(updateTagsModel()));
     ExamplesListModelFilter *proxy = new ExamplesListModelFilter(this);
-    proxy->setSourceModel(m_examplesModel);
+    proxy->setSourceModel(examplesModel());
+
     proxy->setDynamicSortFilter(true);
     proxy->sort(0);
     proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     QDeclarativeContext *rootContenxt = m_engine->rootContext();
-    rootContenxt->setContextProperty(QLatin1String("examplesModel"), proxy);
+    if (m_showExamples) {
+        proxy->setShowTutorialsOnly(false);
+        rootContenxt->setContextProperty(QLatin1String("examplesModel"), proxy);
+    } else {
+        rootContenxt->setContextProperty(QLatin1String("tutorialsModel"), proxy);
+    }
     rootContenxt->setContextProperty(QLatin1String("gettingStarted"), this);
 }
 
@@ -137,7 +180,7 @@ void GettingStartedWelcomePage::openSplitHelp(const QUrl &help)
 
 QStringList GettingStartedWelcomePage::tagList() const
 {
-    return m_examplesModel->tags();
+    return examplesModel()->tags();
 }
 
 QString GettingStartedWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen)
@@ -230,8 +273,17 @@ void GettingStartedWelcomePage::openProject(const QString &projectFile, const QS
 
 void GettingStartedWelcomePage::updateTagsModel()
 {
-    m_engine->rootContext()->setContextProperty(QLatin1String("tagsList"), m_examplesModel->tags());
+    m_engine->rootContext()->setContextProperty(QLatin1String("tagsList"), examplesModel()->tags());
     emit tagsUpdated();
+}
+
+ExamplesListModel *GettingStartedWelcomePage::examplesModel() const
+{
+    if (examplesModelStatic())
+        return examplesModelStatic().data();
+
+    examplesModelStatic() = new ExamplesListModel(const_cast<GettingStartedWelcomePage*>(this));
+    return examplesModelStatic().data();
 }
 
 } // namespace Internal
