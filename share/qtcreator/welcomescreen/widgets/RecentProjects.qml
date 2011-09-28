@@ -36,12 +36,21 @@ import qtcomponents 1.0 as Components
 HeaderItemView {
     header: qsTr("Recently Edited Projects")
     model: projectList
-    delegate: Rectangle {
+    delegate: Item {
         Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
-        height: 60
+        height: 40
         width: dataSection.width
 
-        color: mousearea.containsMouse ? "#f9f9f9" : "white"
+
+        Rectangle {
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.margins: 2
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            color: mousearea.containsMouse ? "#f9f9f9" : "white"
+        }
 
         Image {
             id: arrowImage;

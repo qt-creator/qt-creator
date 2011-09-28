@@ -38,7 +38,7 @@ HeaderItemView {
     model: sessionList
 
     delegate: Rectangle {
-        height: 60
+        height: 28
         width: dataSection.width
 
         color: mousearea.containsMouse ? "#f9f9f9" : "white"
@@ -62,6 +62,7 @@ HeaderItemView {
         }
 
         Text {
+            font.bold: true
             id: fileNameText
             text: parent.fullSessionName()
             elide: Text.ElideMiddle
