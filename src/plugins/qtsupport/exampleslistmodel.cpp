@@ -76,10 +76,10 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
 static inline QString fixSTringForTags(const QString &string)
 {
     QString returnString = string;
-    returnString.replace(QLatin1String("<i>"), QChar());
-    returnString.replace(QLatin1String("</i>"), QChar());
-    returnString.replace(QLatin1String("<tt>"), QChar());
-    returnString.replace(QLatin1String("</tt>"), QChar());
+    returnString.remove(QLatin1String("<i>"));
+    returnString.remove(QLatin1String("</i>"));
+    returnString.remove(QLatin1String("<tt>"));
+    returnString.remove(QLatin1String("</tt>"));
     return returnString;
 }
 
