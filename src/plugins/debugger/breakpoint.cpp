@@ -260,7 +260,7 @@ QString BreakpointParameters::toString() const
            << " PathUsage: " << pathUsage;
         break;
     case BreakpointByFunction:
-    case BreakpointOnSignalHandler:
+    case BreakpointOnQmlSignalHandler:
         ts << " FunctionName: " << functionName;
         break;
     case BreakpointByAddress:

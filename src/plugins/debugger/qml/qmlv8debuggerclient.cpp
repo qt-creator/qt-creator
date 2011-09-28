@@ -315,7 +315,7 @@ void QmlV8DebuggerClient::activateFrame(int index)
 bool QmlV8DebuggerClient::acceptsBreakpoint(const BreakpointModelId &id)
 {
     BreakpointType type = d->engine->breakHandler()->breakpointData(id).type;
-    return ((type == BreakpointOnSignalHandler) || (type == BreakpointByFunction));
+    return (type == BreakpointOnQmlSignalHandler || type == BreakpointByFunction);
 }
 
 void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
@@ -333,7 +333,7 @@ void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
     } else if (handler->breakpointData(id).type == BreakpointByFunction) {
         JsonInputStream(request) << "type" << ':' << "function";
         JsonInputStream(request) << ',' << "target" << ':' << handler->functionName(id).toUtf8();
-    } else if (handler->breakpointData(id).type == BreakpointOnSignalHandler) {
+    } else if (handler->breakpointData(id).type == BreakpointOnQmlSignalHandler) {
         JsonInputStream(request) << "type" << ':' << "event";
         JsonInputStream(request) << ',' << "target" << ':' << handler->functionName(id).toUtf8();
     }

@@ -122,7 +122,7 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
           << tr("Break on data access at address given by expression")
           << tr("Break on QML signal handler");
 
-    QTC_ASSERT(types.size() == BreakpointOnSignalHandler, return; )
+    QTC_ASSERT(types.size() == BreakpointOnQmlSignalHandler, return; )
     m_ui.comboBoxType->addItems(types);
     m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
     connect(m_ui.comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
@@ -360,7 +360,7 @@ void BreakpointDialog::typeChanged(int)
     case WatchpointAtExpression:
         getParts(ExpressionPart|AllConditionParts|TracePointPart, &m_savedParameters);
         break;
-    case BreakpointOnSignalHandler:
+    case BreakpointOnQmlSignalHandler:
         getParts(FunctionPart, &m_savedParameters);
     }
 
@@ -403,7 +403,7 @@ void BreakpointDialog::typeChanged(int)
         setPartsEnabled(ExpressionPart|AllConditionParts|TracePointPart|TracePointPart);
         clearOtherParts(ExpressionPart|AllConditionParts|TracePointPart);
         break;
-    case BreakpointOnSignalHandler:
+    case BreakpointOnQmlSignalHandler:
         setParts(FunctionPart, m_savedParameters);
         setPartsEnabled(FunctionPart);
         clearOtherParts(FunctionPart);
