@@ -123,7 +123,7 @@ QString GenericLinuxDeviceConfigurationWizardSetupPage::privateKeyFilePath() con
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultConfigurationName() const
 {
-    return QLatin1String("Generic Linux Device");
+    return tr("Generic Linux Device");
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultHostName() const
