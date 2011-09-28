@@ -26,19 +26,6 @@
      <item>
       <widget class="QLineEdit" name="nameLineEdit"/>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
    </item>
    <item row="1" column="0">
@@ -174,7 +161,7 @@
    <item row="5" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
-      <widget class="Utils::PathChooser" name="privateKeyPathChooser"/>
+      <widget class="Utils::PathChooser" name="privateKeyPathChooser" native="true"/>
      </item>
      <item>
       <spacer name="horizontalSpacer">
