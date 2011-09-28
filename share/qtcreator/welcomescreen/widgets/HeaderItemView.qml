@@ -40,7 +40,7 @@ Item {
     property Component delegate
 
     Rectangle {
-        id: rectangle1
+        id: header
         color: "#f2f2f2"
         width: parent.width
         height: 51
@@ -53,24 +53,25 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width
             font.bold: true
-            font.pointSize: 16
+            font.pointSize: 14
             color: "#444"
             elide: Text.ElideRight
-    }
+        }
     }
     Rectangle {
         height: 1
         color: "#000000"
-        anchors.bottom: dataSection.top
+        anchors.top: header.bottom
         width: parent.width
     }
 
     Column {
         id: dataSection
-        anchors.topMargin: 0
-        anchors.top: rectangle1.bottom
+        anchors.top: header.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+        anchors.leftMargin: 16
+        anchors.topMargin: 16
 
         Repeater {
             model: root.model
