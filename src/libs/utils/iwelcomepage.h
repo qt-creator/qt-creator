@@ -51,6 +51,7 @@ class QTCREATOR_UTILS_EXPORT IWelcomePage : public QObject
     Q_PROPERTY(QString title READ title CONSTANT)
     Q_PROPERTY(QUrl pageLocation READ pageLocation CONSTANT)
     Q_PROPERTY(int priority READ priority CONSTANT)
+    Q_PROPERTY(bool hasSearchBar READ hasSearchBar CONSTANT)
 
 public:
     IWelcomePage();
@@ -60,6 +61,7 @@ public:
     virtual QString title() const = 0;
     virtual int priority() const { return 0; }
     virtual void facilitateQml(QDeclarativeEngine *) {}
+    virtual bool hasSearchBar() const { return false; }
 
 private:
     // not used atm
