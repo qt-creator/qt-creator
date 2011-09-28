@@ -316,8 +316,8 @@ void Manager::registerMimeTypes()
         ManagerProcessor *processor = new ManagerProcessor;
         QFuture<QPair<RegisterData, QList<Core::MimeType> > > future =
             QtConcurrent::run(&ManagerProcessor::process, processor);
-        m_registeringWatcher.setFuture(future);
         connect(&m_registeringWatcher, SIGNAL(finished()), processor, SLOT(deleteLater()));
+        m_registeringWatcher.setFuture(future);
 
         Core::ICore::instance()->progressManager()->addTask(future,
                                                             tr("Registering definitions"),
