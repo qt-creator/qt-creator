@@ -37,6 +37,8 @@
 #include "qmljsutils.h"
 #include "parser/qmljsast_p.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtGui/QColor>
@@ -44,13 +46,14 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
+using namespace QmlJS::StaticAnalysis;
 
 namespace {
 
 class AssignmentCheck : public ValueVisitor
 {
 public:
-    DiagnosticMessage operator()(
+    Message operator()(
             const Document::Ptr &document,
             const SourceLocation &location,
             const Value *lhsValue,
@@ -58,8 +61,8 @@ public:
             Node *ast)
     {
         _doc = document;
-        _message = DiagnosticMessage(DiagnosticMessage::Error, location, QString());
         _rhsValue = rhsValue;
+        _location = location;
         if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast))
             _ast = expStmt->expression;
         else
@@ -71,6 +74,11 @@ public:
         return _message;
     }
 
+    void setMessage(Type type)
+    {
+        _message = Message(type, _location);
+    }
+
     virtual void visit(const NumberValue *value)
     {
         if (const QmlEnumValue *enumValue = dynamic_cast<const QmlEnumValue *>(value)) {
@@ -78,16 +86,16 @@ public:
                 const QString valueName = stringLiteral->value.toString();
 
                 if (!enumValue->keys().contains(valueName)) {
-                    _message.message = Check::tr("unknown value for enum");
+                    setMessage(ErrInvalidEnumValue);
                 }
             } else if (! _rhsValue->asStringValue() && ! _rhsValue->asNumberValue()
                        && ! _rhsValue->asUndefinedValue()) {
-                _message.message = Check::tr("enum value is not a string or number");
+                setMessage(ErrEnumValueMustBeStringOrNumber);
             }
         } else {
             if (cast<TrueLiteral *>(_ast)
                     || cast<FalseLiteral *>(_ast)) {
-                _message.message = Check::tr("numerical value expected");
+                setMessage(ErrNumberValueExpected);
             }
         }
     }
@@ -99,7 +107,7 @@ public:
         if (cast<StringLiteral *>(_ast)
                 || cast<NumericLiteral *>(_ast)
                 || (unaryMinus && cast<NumericLiteral *>(unaryMinus->expression))) {
-            _message.message = Check::tr("boolean value expected");
+            setMessage(ErrBooleanValueExpected);
         }
     }
 
@@ -111,14 +119,14 @@ public:
                 || (unaryMinus && cast<NumericLiteral *>(unaryMinus->expression))
                 || cast<TrueLiteral *>(_ast)
                 || cast<FalseLiteral *>(_ast)) {
-            _message.message = Check::tr("string value expected");
+            setMessage(ErrStringValueExpected);
         }
 
         if (value && value->asUrlValue()) {
             if (StringLiteral *literal = cast<StringLiteral *>(_ast)) {
                 QUrl url(literal->value.toString());
                 if (!url.isValid() && !url.isEmpty()) {
-                    _message.message = Check::tr("not a valid url");
+                    setMessage(ErrInvalidUrl);
                 } else {
                     QString fileName = url.toLocalFile();
                     if (!fileName.isEmpty()) {
@@ -127,8 +135,7 @@ public:
                             fileName.prepend(_doc->path());
                         }
                         if (!QFileInfo(fileName).exists()) {
-                            _message.message = Check::tr("file or directory does not exist");
-                            _message.kind = DiagnosticMessage::Warning;
+                            setMessage(WarnFileOrDirectoryDoesNotExist);
                         }
                     }
                 }
@@ -140,7 +147,7 @@ public:
     {
         if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
             if (!toQColor(stringLiteral->value.toString()).isValid())
-                _message.message = Check::tr("not a valid color");
+                setMessage(ErrInvalidColor);
         } else {
             visit((StringValue *)0);
         }
@@ -149,11 +156,12 @@ public:
     virtual void visit(const AnchorLineValue *)
     {
         if (! (_rhsValue->asAnchorLineValue() || _rhsValue->asUndefinedValue()))
-            _message.message = Check::tr("expected anchor line");
+            setMessage(ErrAnchorLineExpected);
     }
 
     Document::Ptr _doc;
-    DiagnosticMessage _message;
+    Message _message;
+    SourceLocation _location;
     const Value *_rhsValue;
     ExpressionNode *_ast;
 };
@@ -326,11 +334,11 @@ protected:
 
 class MarkUnreachableCode : protected ReachesEndCheck
 {
-    QList<DiagnosticMessage> _messages;
+    QList<Message> _messages;
     bool _emittedWarning;
 
 public:
-    QList<DiagnosticMessage> operator()(Node *ast)
+    QList<Message> operator()(Node *ast)
     {
         _messages.clear();
         check(ast);
@@ -353,12 +361,12 @@ protected:
             return;
         _emittedWarning = true;
 
-        DiagnosticMessage message(DiagnosticMessage::Warning, SourceLocation(), Check::tr("unreachable"));
+        Message message(WarnUnreachable, SourceLocation());
         if (Statement *statement = node->statementCast())
-            message.loc = locationFromRange(statement->firstSourceLocation(), statement->lastSourceLocation());
+            message.location = locationFromRange(statement->firstSourceLocation(), statement->lastSourceLocation());
         else if (ExpressionNode *expr = node->expressionCast())
-            message.loc = locationFromRange(expr->firstSourceLocation(), expr->lastSourceLocation());
-        if (message.loc.isValid())
+            message.location = locationFromRange(expr->firstSourceLocation(), expr->lastSourceLocation());
+        if (message.isValid())
             _messages += message;
     }
 };
@@ -366,10 +374,9 @@ protected:
 class DeclarationsCheck : protected Visitor
 {
 public:
-    QList<DiagnosticMessage> operator()(FunctionExpression *function, Check::Options options)
+    QList<Message> operator()(FunctionExpression *function)
     {
         clear();
-        _options = options;
         for (FormalParameterList *plist = function->formals; plist; plist = plist->next) {
             if (!plist->name.isEmpty())
                 _formalParameterNames += plist->name.toString();
@@ -379,10 +386,9 @@ public:
         return _messages;
     }
 
-    QList<DiagnosticMessage> operator()(Node *node, Check::Options options)
+    QList<Message> operator()(Node *node)
     {
         clear();
-        _options = options;
         Node::accept(node, this);
         return _messages;
     }
@@ -418,8 +424,8 @@ protected:
 
     bool visit(VariableStatement *ast)
     {
-        if (_options & Check::WarnDeclarationsNotStartOfFunction && _seenNonDeclarationStatement) {
-            warning(ast->declarationKindToken, Check::tr("declarations should be at the start of a function"));
+        if (_seenNonDeclarationStatement) {
+            addMessage(HintDeclarationsShouldBeAtStartOfFunction, ast->declarationKindToken);
         }
         return true;
     }
@@ -430,21 +436,17 @@ protected:
             return true;
         const QString &name = ast->name.toString();
 
-        if (_options & Check::WarnDuplicateDeclaration) {
-            if (_formalParameterNames.contains(name)) {
-                warning(ast->identifierToken, Check::tr("already a formal parameter"));
-            } else if (_declaredFunctions.contains(name)) {
-                warning(ast->identifierToken, Check::tr("already declared as function"));
-            } else if (_declaredVariables.contains(name)) {
-                warning(ast->identifierToken, Check::tr("duplicate declaration"));
-            }
+        if (_formalParameterNames.contains(name)) {
+            addMessage(WarnAlreadyFormalParameter, ast->identifierToken, name);
+        } else if (_declaredFunctions.contains(name)) {
+            addMessage(WarnAlreadyFunction, ast->identifierToken, name);
+        } else if (_declaredVariables.contains(name)) {
+            addMessage(WarnDuplicateDeclaration, ast->identifierToken, name);
         }
 
         if (_possiblyUndeclaredUses.contains(name)) {
-            if (_options & Check::WarnUseBeforeDeclaration) {
-                foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
-                    warning(loc, Check::tr("variable is used before being declared"));
-                }
+            foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
+                addMessage(WarnVarUsedBeforeDeclaration, loc, name);
             }
             _possiblyUndeclaredUses.remove(name);
         }
@@ -455,8 +457,8 @@ protected:
 
     bool visit(FunctionDeclaration *ast)
     {
-        if (_options & Check::WarnDeclarationsNotStartOfFunction &&_seenNonDeclarationStatement) {
-            warning(ast->functionToken, Check::tr("declarations should be at the start of a function"));
+        if (_seenNonDeclarationStatement) {
+            addMessage(HintDeclarationsShouldBeAtStartOfFunction, ast->functionToken);
         }
 
         return visit(static_cast<FunctionExpression *>(ast));
@@ -468,22 +470,18 @@ protected:
             return false;
         const QString &name = ast->name.toString();
 
-        if (_options & Check::WarnDuplicateDeclaration) {
-            if (_formalParameterNames.contains(name)) {
-                warning(ast->identifierToken, Check::tr("already a formal parameter"));
-            } else if (_declaredVariables.contains(name)) {
-                warning(ast->identifierToken, Check::tr("already declared as var"));
-            } else if (_declaredFunctions.contains(name)) {
-                warning(ast->identifierToken, Check::tr("duplicate declaration"));
-            }
+        if (_formalParameterNames.contains(name)) {
+            addMessage(WarnAlreadyFormalParameter, ast->identifierToken, name);
+        } else if (_declaredVariables.contains(name)) {
+            addMessage(WarnAlreadyVar, ast->identifierToken, name);
+        } else if (_declaredFunctions.contains(name)) {
+            addMessage(WarnDuplicateDeclaration, ast->identifierToken, name);
         }
 
         if (FunctionDeclaration *decl = cast<FunctionDeclaration *>(ast)) {
             if (_possiblyUndeclaredUses.contains(name)) {
-                if (_options & Check::WarnUseBeforeDeclaration) {
-                    foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
-                        warning(loc, Check::tr("function is used before being declared"));
-                    }
+                foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
+                    addMessage(WarnFunctionUsedBeforeDeclaration, loc, name);
                 }
                 _possiblyUndeclaredUses.remove(name);
             }
@@ -494,13 +492,12 @@ protected:
     }
 
 private:
-    void warning(const SourceLocation &loc, const QString &message)
+    void addMessage(Type type, const SourceLocation &loc, const QString &arg1 = QString())
     {
-        _messages.append(DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
+        _messages.append(Message(type, loc, arg1));
     }
 
-    Check::Options _options;
-    QList<DiagnosticMessage> _messages;
+    QList<Message> _messages;
     QStringList _formalParameterNames;
     QHash<QString, VariableDeclaration *> _declaredVariables;
     QHash<QString, FunctionDeclaration *> _declaredFunctions;
@@ -510,31 +507,38 @@ private:
 
 } // end of anonymous namespace
 
-
 Check::Check(Document::Ptr doc, const ContextPtr &context)
     : _doc(doc)
     , _context(context)
     , _scopeChain(doc, _context)
     , _scopeBuilder(&_scopeChain)
-    , _options(WarnDangerousNonStrictEqualityChecks | WarnBlocks | WarnWith
-               | WarnVoid | WarnCommaExpression | WarnExpressionStatement
-               | WarnAssignInCondition | WarnUseBeforeDeclaration | WarnDuplicateDeclaration
-               | WarnCaseWithoutFlowControlEnd | WarnNonCapitalizedNew
-               | WarnCallsOfCapitalizedFunctions | WarnUnreachablecode
-               | ErrCheckTypeErrors)
     , _lastValue(0)
 {
+    _enabledMessages = Message::allMessageTypes().toSet();
+    disableMessage(HintAnonymousFunctionSpacing);
+    disableMessage(HintDeclareVarsInOneLine);
+    disableMessage(HintDeclarationsShouldBeAtStartOfFunction);
 }
 
 Check::~Check()
 {
 }
 
-QList<DiagnosticMessage> Check::operator()()
+QList<Message> Check::operator()()
 {
     _messages.clear();
     Node::accept(_doc->ast(), this);
     return _messages;
+}
+
+void Check::enableMessage(Type type)
+{
+    _enabledMessages.insert(type);
+}
+
+void Check::disableMessage(Type type)
+{
+    _enabledMessages.remove(type);
 }
 
 bool Check::preVisit(Node *ast)
@@ -583,8 +587,7 @@ void Check::checkProperty(UiQualifiedId *qualifiedId)
     const QString id = toString(qualifiedId);
     if (id.at(0).isLower()) {
         if (m_propertyStack.top().contains(id)) {
-            error(fullLocationForQualifiedId(qualifiedId),
-                  Check::tr("properties can only be assigned once"));
+            addMessage(ErrPropertiesCanOnlyHaveOneBinding, fullLocationForQualifiedId(qualifiedId));
         }
         m_propertyStack.top().insert(id);
     }
@@ -622,32 +625,25 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     const ObjectValue *prototype = _context->lookupType(_doc.data(), typeId);
     if (!prototype) {
         typeError = true;
-        if (_options & ErrCheckTypeErrors)
-            error(typeErrorLocation,
-                  Check::tr("unknown type"));
+        addMessage(ErrUnknownComponent, typeErrorLocation);
     } else {
         PrototypeIterator iter(prototype, _context);
         QList<const ObjectValue *> prototypes = iter.all();
         if (iter.error() != PrototypeIterator::NoError)
             typeError = true;
-        if (_options & ErrCheckTypeErrors) {
-            const ObjectValue *lastPrototype = prototypes.last();
-            if (iter.error() == PrototypeIterator::ReferenceResolutionError) {
-                if (const QmlPrototypeReference *ref =
-                        dynamic_cast<const QmlPrototypeReference *>(lastPrototype->prototype())) {
-                    error(typeErrorLocation,
-                          Check::tr("could not resolve the prototype %1 of %2").arg(
-                              toString(ref->qmlTypeName()), lastPrototype->className()));
-                } else {
-                    error(typeErrorLocation,
-                          Check::tr("could not resolve the prototype of %1").arg(
-                              lastPrototype->className()));
-                }
-            } else if (iter.error() == PrototypeIterator::CycleError) {
-                error(typeErrorLocation,
-                      Check::tr("prototype cycle, the last non-repeated object is %1").arg(
-                          lastPrototype->className()));
+        const ObjectValue *lastPrototype = prototypes.last();
+        if (iter.error() == PrototypeIterator::ReferenceResolutionError) {
+            if (const QmlPrototypeReference *ref =
+                    dynamic_cast<const QmlPrototypeReference *>(lastPrototype->prototype())) {
+                addMessage(ErrCouldNotResolvePrototypeOf, typeErrorLocation,
+                           toString(ref->qmlTypeName()), lastPrototype->className());
+            } else {
+                addMessage(ErrCouldNotResolvePrototype, typeErrorLocation,
+                           lastPrototype->className());
             }
+        } else if (iter.error() == PrototypeIterator::CycleError) {
+            addMessage(ErrPrototypeCycle, typeErrorLocation,
+                       lastPrototype->className());
         }
     }
 
@@ -677,7 +673,7 @@ bool Check::visit(UiScriptBinding *ast)
 
         ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement);
         if (!expStmt) {
-            error(loc, Check::tr("expected id"));
+            addMessage(ErrIdExpected, loc);
             return false;
         }
 
@@ -686,19 +682,19 @@ bool Check::visit(UiScriptBinding *ast)
             id = idExp->name.toString();
         } else if (StringLiteral *strExp = cast<StringLiteral *>(expStmt->expression)) {
             id = strExp->value.toString();
-            warning(loc, Check::tr("using string literals for ids is discouraged"));
+            addMessage(ErrInvalidId, loc);
         } else {
-            error(loc, Check::tr("expected id"));
+            addMessage(ErrIdExpected, loc);
             return false;
         }
 
         if (id.isEmpty() || (!id.at(0).isLower() && id.at(0) != '_')) {
-            error(loc, Check::tr("ids must be lower case or start with underscore"));
+            addMessage(ErrInvalidId, loc);
             return false;
         }
 
         if (m_idStack.top().contains(id)) {
-            error(loc, Check::tr("ids must be unique"));
+            addMessage(ErrDuplicateId, loc);
             return false;
         }
         m_idStack.top().insert(id);
@@ -717,9 +713,9 @@ bool Check::visit(UiScriptBinding *ast)
         const SourceLocation loc = locationFromRange(ast->statement->firstSourceLocation(),
                                                      ast->statement->lastSourceLocation());
         AssignmentCheck assignmentCheck;
-        DiagnosticMessage message = assignmentCheck(_doc, loc, lhsValue, rhsValue, ast->statement);
-        if (! message.message.isEmpty())
-            _messages += message;
+        Message message = assignmentCheck(_doc, loc, lhsValue, rhsValue, ast->statement);
+        if (message.isValid())
+            addMessage(message);
     }
 
     checkBindingRhs(ast->statement);
@@ -747,7 +743,7 @@ bool Check::visit(UiPublicMember *ast)
         const QString &name = ast->memberType.toString();
         if (!name.isEmpty() && name.at(0).isLower()) {
             if (!isValidBuiltinPropertyType(name))
-                error(ast->typeToken, tr("'%1' is not a valid property type").arg(name));
+                addMessage(ErrInvalidPropertyType, ast->typeToken, name);
         }
     }
 
@@ -761,47 +757,47 @@ bool Check::visit(UiPublicMember *ast)
     return false;
 }
 
-bool Check::visit(IdentifierExpression *ast)
+bool Check::visit(IdentifierExpression *)
 {
     // currently disabled: too many false negatives
     return true;
 
-    _lastValue = 0;
-    if (!ast->name.isEmpty()) {
-        Evaluate evaluator(&_scopeChain);
-        _lastValue = evaluator.reference(ast);
-        if (!_lastValue)
-            error(ast->identifierToken, tr("unknown identifier"));
-        if (const Reference *ref = value_cast<const Reference *>(_lastValue)) {
-            _lastValue = _context->lookupReference(ref);
-            if (!_lastValue)
-                error(ast->identifierToken, tr("could not resolve"));
-        }
-    }
-    return false;
+//    _lastValue = 0;
+//    if (!ast->name.isEmpty()) {
+//        Evaluate evaluator(&_scopeChain);
+//        _lastValue = evaluator.reference(ast);
+//        if (!_lastValue)
+//            addMessage(ErrUnknownIdentifier, ast->identifierToken);
+//        if (const Reference *ref = value_cast<const Reference *>(_lastValue)) {
+//            _lastValue = _context->lookupReference(ref);
+//            if (!_lastValue)
+//                error(ast->identifierToken, tr("could not resolve"));
+//        }
+//    }
+//    return false;
 }
 
-bool Check::visit(FieldMemberExpression *ast)
+bool Check::visit(FieldMemberExpression *)
 {
     // currently disabled: too many false negatives
     return true;
 
-    Node::accept(ast->base, this);
-    if (!_lastValue)
-        return false;
-    const ObjectValue *obj = _lastValue->asObjectValue();
-    if (!obj) {
-        error(locationFromRange(ast->base->firstSourceLocation(), ast->base->lastSourceLocation()),
-              tr("does not have members"));
-    }
-    if (!obj || ast->name.isEmpty()) {
-        _lastValue = 0;
-        return false;
-    }
-    _lastValue = obj->lookupMember(ast->name.toString(), _context);
-    if (!_lastValue)
-        error(ast->identifierToken, tr("unknown member"));
-    return false;
+//    Node::accept(ast->base, this);
+//    if (!_lastValue)
+//        return false;
+//    const ObjectValue *obj = _lastValue->asObjectValue();
+//    if (!obj) {
+//        error(locationFromRange(ast->base->firstSourceLocation(), ast->base->lastSourceLocation()),
+//              tr("does not have members"));
+//    }
+//    if (!obj || ast->name.isEmpty()) {
+//        _lastValue = 0;
+//        return false;
+//    }
+//    _lastValue = obj->lookupMember(ast->name.toString(), _context);
+//    if (!_lastValue)
+//        error(ast->identifierToken, tr("unknown member"));
+//    return false;
 }
 
 bool Check::visit(FunctionDeclaration *ast)
@@ -812,11 +808,10 @@ bool Check::visit(FunctionDeclaration *ast)
 bool Check::visit(FunctionExpression *ast)
 {
     DeclarationsCheck bodyCheck;
-    _messages += bodyCheck(ast, _options);
-    if (_options & WarnUnreachablecode) {
-        MarkUnreachableCode unreachableCheck;
-        _messages += unreachableCheck(ast->body);
-    }
+    addMessages(bodyCheck(ast));
+
+    MarkUnreachableCode unreachableCheck;
+    addMessages(unreachableCheck(ast->body));
 
     Node::accept(ast->formals, this);
     _scopeBuilder.push(ast);
@@ -849,16 +844,12 @@ static bool shouldAvoidNonStrictEqualityCheck(const Value *lhs, const Value *rhs
 bool Check::visit(BinaryExpression *ast)
 {
     if (ast->op == QSOperator::Equal || ast->op == QSOperator::NotEqual) {
-        bool warn = _options & WarnAllNonStrictEqualityChecks;
-        if (!warn && _options & WarnDangerousNonStrictEqualityChecks) {
-            Evaluate eval(&_scopeChain);
-            const Value *lhs = eval(ast->left);
-            const Value *rhs = eval(ast->right);
-            warn = shouldAvoidNonStrictEqualityCheck(lhs, rhs)
-                    || shouldAvoidNonStrictEqualityCheck(rhs, lhs);
-        }
-        if (warn) {
-            warning(ast->operatorToken, tr("== and != perform type coercion, use === or !== instead to avoid"));
+        Evaluate eval(&_scopeChain);
+        const Value *lhs = eval(ast->left);
+        const Value *rhs = eval(ast->right);
+        if (shouldAvoidNonStrictEqualityCheck(lhs, rhs)
+                || shouldAvoidNonStrictEqualityCheck(rhs, lhs)) {
+            addMessage(MaybeWarnEqualityTypeCoercion, ast->operatorToken);
         }
     }
     return true;
@@ -867,8 +858,7 @@ bool Check::visit(BinaryExpression *ast)
 bool Check::visit(Block *ast)
 {
     if (Node *p = parent()) {
-        if (_options & WarnBlocks
-                && !cast<UiScriptBinding *>(p)
+        if (!cast<UiScriptBinding *>(p)
                 && !cast<UiPublicMember *>(p)
                 && !cast<TryStatement *>(p)
                 && !cast<Catch *>(p)
@@ -882,13 +872,12 @@ bool Check::visit(Block *ast)
                 && !cast<IfStatement *>(p)
                 && !cast<SwitchStatement *>(p)
                 && !cast<WithStatement *>(p)) {
-            warning(ast->lbraceToken, tr("blocks do not introduce a new scope, avoid"));
+            addMessage(WarnBlock, ast->lbraceToken);
         }
         if (!ast->statements
                 && (cast<UiPublicMember *>(p)
                     || cast<UiScriptBinding *>(p))) {
-            warning(locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()),
-                    tr("unintentional empty block, use ({}) for empty object literal"));
+            addMessage(WarnUnintentinalEmptyBlock, ast->firstSourceLocation());
         }
     }
     return true;
@@ -896,25 +885,23 @@ bool Check::visit(Block *ast)
 
 bool Check::visit(WithStatement *ast)
 {
-    if (_options & WarnWith)
-        warning(ast->withToken, tr("use of the with statement is not recommended, use a var instead"));
+    addMessage(WarnWith, ast->withToken);
     return true;
 }
 
 bool Check::visit(VoidExpression *ast)
 {
-    if (_options & WarnVoid)
-        warning(ast->voidToken, tr("use of void is usually confusing and not recommended"));
+    addMessage(WarnVoid, ast->voidToken);
     return true;
 }
 
 bool Check::visit(Expression *ast)
 {
-    if (_options & WarnCommaExpression && ast->left && ast->right) {
+    if (ast->left && ast->right) {
         Node *p = parent();
         if (!cast<ForStatement *>(p)
                 && !cast<LocalForStatement *>(p)) {
-            warning(ast->commaToken, tr("avoid comma expressions"));
+            addMessage(WarnComma, ast->commaToken);
         }
     }
     return true;
@@ -922,7 +909,7 @@ bool Check::visit(Expression *ast)
 
 bool Check::visit(ExpressionStatement *ast)
 {
-    if (_options & WarnExpressionStatement && ast->expression) {
+    if (ast->expression) {
         bool ok = cast<CallExpression *>(ast->expression)
                 || cast<DeleteExpression *>(ast->expression)
                 || cast<PreDecrementExpression *>(ast->expression)
@@ -966,8 +953,8 @@ bool Check::visit(ExpressionStatement *ast)
         }
 
         if (!ok) {
-            warning(locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()),
-                    tr("expression statements should be assignments, calls or delete expressions only"));
+            addMessage(WarnConfusingExpressionStatement,
+                       locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
         }
     }
     return true;
@@ -1038,14 +1025,12 @@ static QString functionName(ExpressionNode *ast, SourceLocation *location)
 
 void Check::checkNewExpression(ExpressionNode *ast)
 {
-    if (!(_options & WarnNonCapitalizedNew))
-        return;
     SourceLocation location;
     const QString name = functionName(ast, &location);
     if (name.isEmpty())
         return;
     if (!name.at(0).isUpper()) {
-        warning(location, tr("'new' should only be used with functions that start with an uppercase letter"));
+        addMessage(WarnNewWithLowercaseFunction, location);
     }
 }
 
@@ -1055,11 +1040,27 @@ void Check::checkBindingRhs(Statement *statement)
         return;
 
     DeclarationsCheck bodyCheck;
-    _messages += bodyCheck(statement, _options);
-    if (_options & WarnUnreachablecode) {
-        MarkUnreachableCode unreachableCheck;
-        _messages += unreachableCheck(statement);
-    }
+    addMessages(bodyCheck(statement));
+
+    MarkUnreachableCode unreachableCheck;
+    addMessages(unreachableCheck(statement));
+}
+
+void Check::addMessages(const QList<Message> &messages)
+{
+    foreach (const Message &msg, messages)
+        addMessage(msg);
+}
+
+void Check::addMessage(const Message &message)
+{
+    if (message.isValid() && _enabledMessages.contains(message.type))
+        _messages += message;
+}
+
+void Check::addMessage(Type type, const SourceLocation &location, const QString &arg1, const QString &arg2)
+{
+    addMessage(Message(type, location, arg1, arg2));
 }
 
 bool Check::visit(NewExpression *ast)
@@ -1077,12 +1078,10 @@ bool Check::visit(NewMemberExpression *ast)
 bool Check::visit(CallExpression *ast)
 {
     // check for capitalized function name being called
-    if (_options & WarnCallsOfCapitalizedFunctions) {
-        SourceLocation location;
-        const QString name = functionName(ast->base, &location);
-        if (!name.isEmpty() && name.at(0).isUpper()) {
-            warning(location, tr("calls of functions that start with an uppercase letter should use 'new'"));
-        }
+    SourceLocation location;
+    const QString name = functionName(ast->base, &location);
+    if (!name.isEmpty() && name.at(0).isUpper()) {
+        addMessage(WarnExpectedNewWithUppercaseFunction, location);
     }
     return true;
 }
@@ -1126,8 +1125,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
             break;
     }
     if (!value) {
-        error(id->identifierToken,
-              Check::tr("'%1' is not a valid property name").arg(propertyName));
+        addMessage(ErrInvalidPropertyName, id->identifierToken, propertyName);
         return 0;
     }
 
@@ -1144,8 +1142,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     while (idPart->next) {
         const ObjectValue *objectValue = value_cast<const ObjectValue *>(value);
         if (! objectValue) {
-            error(idPart->identifierToken,
-                  Check::tr("'%1' does not have members").arg(propertyName));
+            addMessage(ErrDoesNotHaveMembers, idPart->identifierToken, propertyName);
             return 0;
         }
 
@@ -1160,9 +1157,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 
         value = objectValue->lookupMember(propertyName, _context);
         if (! value) {
-            error(idPart->identifierToken,
-                  Check::tr("'%1' is not a member of '%2'").arg(
-                          propertyName, objectValue->className()));
+            addMessage(ErrInvalidMember, idPart->identifierToken, propertyName, objectValue->className());
             return 0;
         }
     }
@@ -1172,33 +1167,21 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 
 void Check::checkAssignInCondition(AST::ExpressionNode *condition)
 {
-    if (_options & WarnAssignInCondition) {
-        if (BinaryExpression *binary = cast<BinaryExpression *>(condition)) {
-            if (binary->op == QSOperator::Assign)
-                warning(binary->operatorToken, tr("avoid assignments in conditions"));
-        }
+    if (BinaryExpression *binary = cast<BinaryExpression *>(condition)) {
+        if (binary->op == QSOperator::Assign)
+            addMessage(WarnAssignmentInCondition, binary->operatorToken);
     }
 }
 
 void Check::checkEndsWithControlFlow(StatementList *statements, SourceLocation errorLoc)
 {
-    if (!statements || !(_options & WarnCaseWithoutFlowControlEnd))
+    if (!statements)
         return;
 
     ReachesEndCheck check;
     if (check(statements)) {
-        warning(errorLoc, tr("case is not terminated and not empty"));
+        addMessage(WarnCaseWithoutFlowControl, errorLoc);
     }
-}
-
-void Check::error(const AST::SourceLocation &loc, const QString &message)
-{
-    _messages.append(DiagnosticMessage(DiagnosticMessage::Error, loc, message));
-}
-
-void Check::warning(const AST::SourceLocation &loc, const QString &message)
-{
-    _messages.append(DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
 }
 
 Node *Check::parent(int distance)

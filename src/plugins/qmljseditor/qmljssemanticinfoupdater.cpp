@@ -147,7 +147,9 @@ SemanticInfo SemanticInfoUpdater::semanticInfo(const SemanticInfoUpdaterSource &
     semanticInfo.m_rootScopeChain = QSharedPointer<const QmlJS::ScopeChain>(scopeChain);
 
     QmlJS::Check checker(doc, semanticInfo.context);
-    semanticInfo.semanticMessages.append(checker());
+    foreach (const QmlJS::StaticAnalysis::Message &msg, checker()) {
+        semanticInfo.semanticMessages += msg.toDiagnosticMessage();
+    }
 
     return semanticInfo;
 }

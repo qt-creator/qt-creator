@@ -1,8 +1,8 @@
 import Qt 4.7
-// DEFAULTMSG == and != perform type coercion, use === or !== instead to avoid
+
 Rectangle {
     onXChanged: {
-        if (0 == undefined) {} // W 15 16
+        if (0 == undefined) {} // 126 15 16
     }
 
     function foo() {
@@ -14,47 +14,47 @@ Rectangle {
         var o = {}
 
         if (s == s) {}
-        if (s == n) {} // W 15 16
+        if (s == n) {} // 126 15 16
         if (s == N) {} // ### should warn: always false
-        if (s == u) {} // W 15 16
-        if (s == b) {} // W 15 16
-        if (s == o) {} // W 15 16
+        if (s == u) {} // 126 15 16
+        if (s == b) {} // 126 15 16
+        if (s == o) {} // 126 15 16
 
-        if (n == s) {} // W 15 16
+        if (n == s) {} // 126 15 16
         if (n == n) {}
         if (n == N) {} // ### should warn: always false
-        if (n == u) {} // W 15 16
-        if (n == b) {} // W 15 16
-        if (n == o) {} // W 15 16
+        if (n == u) {} // 126 15 16
+        if (n == b) {} // 126 15 16
+        if (n == o) {} // 126 15 16
 
         if (N == s) {} // ### should warn: always false
         if (N == n) {} // ### should warn: always false
         if (N == N) {}
-        if (N == u) {} // W 15 16
+        if (N == u) {} // 126 15 16
         // ### should warn: always false
-        if (N == b) {} // W 15 16
+        if (N == b) {} // 126 15 16
         if (N == o) {} // ### should warn: always false
 
-        if (u == s) {} // W 15 16
-        if (u == n) {} // W 15 16
-        if (u == N) {} // W 15 16
-        if (u == u) {} // W 15 16
-        if (u == b) {} // W 15 16
-        if (u == o) {} // W 15 16
+        if (u == s) {} // 126 15 16
+        if (u == n) {} // 126 15 16
+        if (u == N) {} // 126 15 16
+        if (u == u) {} // 126 15 16
+        if (u == b) {} // 126 15 16
+        if (u == o) {} // 126 15 16
 
-        if (b == s) {} // W 15 16
-        if (b == n) {} // W 15 16
+        if (b == s) {} // 126 15 16
+        if (b == n) {} // 126 15 16
         // ### should warn: always false
-        if (b == N) {} // W 15 16
-        if (b == u) {} // W 15 16
+        if (b == N) {} // 126 15 16
+        if (b == u) {} // 126 15 16
         if (b == b) {}
-        if (b == o) {} // W 15 16
+        if (b == o) {} // 126 15 16
 
-        if (o == s) {} // W 15 16
-        if (o == n) {} // W 15 16
+        if (o == s) {} // 126 15 16
+        if (o == n) {} // 126 15 16
         if (o == N) {} // ### should warn: always false
-        if (o == u) {} // W 15 16
-        if (o == b) {} // W 15 16
+        if (o == u) {} // 126 15 16
+        if (o == b) {} // 126 15 16
         if (o == o) {}
     }
 }

@@ -3,13 +3,13 @@ import Qt 4.7
 Item {
     function foo() {
         return
-        x() // W 9 11
+        x() // 28 9 11
         x()
     }
 
     function foo() {
         throw new Object()
-        x() // W 9 11
+        x() // 28 9 11
         x()
     }
 
@@ -26,14 +26,14 @@ Item {
             return
         else
             return
-        x() // W 9 11
+        x() // 28 9 11
     }
 
     function foo() {
         try {
             throw 1
         } finally {}
-        x() // W 9 11
+        x() // 28 9 11
     }
 
     function foo() {
@@ -41,7 +41,7 @@ Item {
         } finally {
             return
         }
-        x() // W 9 11
+        x() // 28 9 11
     }
 
     function foo() {
@@ -60,7 +60,7 @@ Item {
         } catch(a) {
             return
         }
-        x() // W 9 11
+        x() // 28 9 11
     }
 
     function foo() {
@@ -85,7 +85,7 @@ Item {
         default:
             return
         }
-        x() // W 9 11
+        x() // 28 9 11
     }
 
     function foo() {
@@ -97,7 +97,7 @@ Item {
             l3: do {
                 break l1
             } while (b);
-            x() // W 13 15
+            x() // 28 13 15
         } while (a);
         x() // reachable via break
     }

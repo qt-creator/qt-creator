@@ -37,6 +37,7 @@
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/qmljsscopechain.h>
+#include <qmljs/qmljsstaticanalysismessage.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
 #include <QtCore/QCoreApplication>
@@ -57,33 +58,10 @@ public:
     Check(Document::Ptr doc, const ContextPtr &context);
     virtual ~Check();
 
-    QList<DiagnosticMessage> operator()();
+    QList<StaticAnalysis::Message> operator()();
 
-    enum Option {
-        WarnDangerousNonStrictEqualityChecks = 1 << 0,
-        WarnAllNonStrictEqualityChecks       = 1 << 1,
-        WarnBlocks                           = 1 << 2,
-        WarnWith                             = 1 << 3,
-        WarnVoid                             = 1 << 4,
-        WarnCommaExpression                  = 1 << 5,
-        WarnExpressionStatement              = 1 << 6,
-        WarnAssignInCondition                = 1 << 7,
-        WarnUseBeforeDeclaration             = 1 << 8,
-        WarnDuplicateDeclaration             = 1 << 9,
-        WarnDeclarationsNotStartOfFunction   = 1 << 10,
-        WarnCaseWithoutFlowControlEnd        = 1 << 11,
-        WarnNonCapitalizedNew                = 1 << 12,
-        WarnCallsOfCapitalizedFunctions      = 1 << 13,
-        WarnUnreachablecode                  = 1 << 14,
-        ErrCheckTypeErrors                   = 1 << 15
-    };
-    Q_DECLARE_FLAGS(Options, Option)
-
-    const Options options() const
-    { return _options; }
-
-    void setOptions(Options options)
-    { _options = options; }
+    void enableMessage(StaticAnalysis::Type type);
+    void disableMessage(StaticAnalysis::Type type);
 
 protected:
     virtual bool preVisit(AST::Node *ast);
@@ -130,8 +108,10 @@ private:
     void checkNewExpression(AST::ExpressionNode *node);
     void checkBindingRhs(AST::Statement *statement);
 
-    void warning(const AST::SourceLocation &loc, const QString &message);
-    void error(const AST::SourceLocation &loc, const QString &message);
+    void addMessages(const QList<StaticAnalysis::Message> &messages);
+    void addMessage(const StaticAnalysis::Message &message);
+    void addMessage(StaticAnalysis::Type type, const AST::SourceLocation &location,
+                    const QString &arg1 = QString(), const QString &arg2 = QString());
 
     AST::Node *parent(int distance = 0);
 
@@ -141,9 +121,8 @@ private:
     ScopeChain _scopeChain;
     ScopeBuilder _scopeBuilder;
 
-    QList<DiagnosticMessage> _messages;
-
-    Options _options;
+    QList<StaticAnalysis::Message> _messages;
+    QSet<StaticAnalysis::Type> _enabledMessages;
 
     const Value *_lastValue;
     QList<AST::Node *> _chain;

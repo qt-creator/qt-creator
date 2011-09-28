@@ -87,6 +87,14 @@ static QList<ProjectExplorer::Task> convertToTasks(const QList<DiagnosticMessage
     return result;
 }
 
+static QList<ProjectExplorer::Task> convertToTasks(const QList<StaticAnalysis::Message> &messages, const QString &fileName, const QString &category)
+{
+    QList<DiagnosticMessage> diagnostics;
+    foreach (const StaticAnalysis::Message &msg, messages)
+        diagnostics += msg.toDiagnosticMessage();
+    return convertToTasks(diagnostics, fileName, category);
+}
+
 void QmlTaskManager::collectMessages(
         QFutureInterface<FileErrorMessages> &future,
         Snapshot snapshot, QList<ModelManagerInterface::ProjectInfo> projectInfos,

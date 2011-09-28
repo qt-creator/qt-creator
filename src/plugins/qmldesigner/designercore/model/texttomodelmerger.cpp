@@ -765,10 +765,13 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         if (view()->checkSemanticErrors()) {
             Check check(doc, m_scopeChain->context());
-            check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
-            foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check()) {
-                if (diagnosticMessage.isError())
-                    errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+            check.disableMessage(StaticAnalysis::ErrUnknownComponent);
+            check.disableMessage(StaticAnalysis::ErrPrototypeCycle);
+            check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototype);
+            check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
+            foreach (const StaticAnalysis::Message &message, check()) {
+                if (message.severity == StaticAnalysis::Error)
+                    errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
             }
 
             if (!errors.isEmpty()) {

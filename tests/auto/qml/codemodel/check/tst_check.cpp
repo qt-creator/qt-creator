@@ -51,6 +51,7 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
+using namespace QmlJS::StaticAnalysis;
 
 class tst_Check : public QObject
 {
@@ -89,9 +90,9 @@ void tst_Check::initTestCase()
     CppQmlTypesLoader::defaultQtObjects = CppQmlTypesLoader::loadQmlTypes(QFileInfoList() << builtins, &errors, &warnings);
 }
 
-static bool offsetComparator(DiagnosticMessage lhs, DiagnosticMessage rhs)
+static bool offsetComparator(const Message &lhs, const Message &rhs)
 {
-    return lhs.loc.offset < rhs.loc.offset;
+    return lhs.location.offset < rhs.location.offset;
 }
 
 #define QCOMPARE_NOEXIT(actual, expected) \
@@ -127,72 +128,52 @@ void tst_Check::test()
     ContextPtr context = Link(snapshot, QStringList(), LibraryInfo())();
 
     Check checker(doc, context);
-    QList<DiagnosticMessage> messages = checker();
+    QList<Message> messages = checker();
     std::sort(messages.begin(), messages.end(), &offsetComparator);
 
-    const QRegExp errorPattern(" E (\\d+) (\\d+)(.*)");
-    const QRegExp warningPattern(" W (\\d+) (\\d+)(.*)");
-    const QRegExp defaultmsgPattern(" DEFAULTMSG (.*)");
+    const QRegExp messagePattern(" (\\d+) (\\d+) (\\d+)");
 
-    QList<DiagnosticMessage> expectedMessages;
-    QString defaultMessage;
+    QList<Message> expectedMessages;
     foreach (const AST::SourceLocation &comment, doc->engine()->comments()) {
         const QString text = doc->source().mid(comment.begin(), comment.end() - comment.begin());
 
-        if (defaultmsgPattern.indexIn(text) != -1) {
-            defaultMessage = defaultmsgPattern.cap(1);
+        if (messagePattern.indexIn(text) == -1)
             continue;
-        }
+        const int type = messagePattern.cap(1).toInt();
+        const int columnStart = messagePattern.cap(2).toInt();
+        const int columnEnd = messagePattern.cap(3).toInt() + 1;
 
-        const QRegExp *match = 0;
-        DiagnosticMessage::Kind kind = DiagnosticMessage::Error;
-        if (errorPattern.indexIn(text) != -1) {
-            match = &errorPattern;
-        } else if (warningPattern.indexIn(text) != -1) {
-            kind = DiagnosticMessage::Warning;
-            match = &warningPattern;
-        }
-        if (!match)
-            continue;
-        const int columnStart = match->cap(1).toInt();
-        const int columnEnd = match->cap(2).toInt() + 1;
-        QString message = match->cap(3);
-        if (message.isEmpty())
-            message = defaultMessage;
-        else
-            message = message.mid(1);
-        expectedMessages += DiagnosticMessage(
-                    kind,
-                    SourceLocation(
-                        comment.offset - comment.startColumn + columnStart,
-                        columnEnd - columnStart,
-                        comment.startLine,
-                        columnStart),
-                    message);
+        Message message;
+        message.location = SourceLocation(
+                    comment.offset - comment.startColumn + columnStart,
+                    columnEnd - columnStart,
+                    comment.startLine,
+                    columnStart),
+        message.type = static_cast<Type>(type);
+        expectedMessages += message;
     }
 
     for (int i = 0; i < messages.size(); ++i) {
-        DiagnosticMessage expected;
+        Message expected;
         if (i < expectedMessages.size())
             expected = expectedMessages.at(i);
-        DiagnosticMessage actual = messages.at(i);
+        Message actual = messages.at(i);
         bool fail = false;
-        fail |= !QCOMPARE_NOEXIT(actual.message, expected.message);
-        fail |= !QCOMPARE_NOEXIT(actual.loc.startLine, expected.loc.startLine);
+        fail |= !QCOMPARE_NOEXIT(actual.location.startLine, expected.location.startLine);
         if (fail)
             return;
-        fail |= !QCOMPARE_NOEXIT(actual.kind, expected.kind);
-        fail |= !QCOMPARE_NOEXIT(actual.loc.startColumn, expected.loc.startColumn);
-        fail |= !QCOMPARE_NOEXIT(actual.loc.offset, expected.loc.offset);
-        fail |= !QCOMPARE_NOEXIT(actual.loc.length, expected.loc.length);
+        fail |= !QCOMPARE_NOEXIT(actual.type, expected.type);
+        fail |= !QCOMPARE_NOEXIT(actual.location.startColumn, expected.location.startColumn);
+        fail |= !QCOMPARE_NOEXIT(actual.location.offset, expected.location.offset);
+        fail |= !QCOMPARE_NOEXIT(actual.location.length, expected.location.length);
         if (fail) {
-            qDebug() << "Failed for message on line" << actual.loc.startLine << actual.message;
+            qDebug() << "Failed for message on line" << actual.location.startLine << actual.message;
             return;
         }
     }
     if (expectedMessages.size() > messages.size()) {
-        DiagnosticMessage missingMessage = expectedMessages.at(messages.size());
-        qDebug() << "expected more messages: " << missingMessage.loc.startLine << missingMessage.message;
+        Message missingMessage = expectedMessages.at(messages.size());
+        qDebug() << "expected more messages: " << missingMessage.location.startLine << missingMessage.message;
         QFAIL("more messages expected");
     }
 }
