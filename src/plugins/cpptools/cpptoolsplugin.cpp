@@ -170,24 +170,24 @@ void CppToolsPlugin::switchHeaderSource()
         editorManager->openEditor(otherFile);
 }
 
-QFileInfo CppToolsPlugin::findFile(const QDir &dir, const QString &name,
-                                   const ProjectExplorer::Project *project) const
+static QFileInfo findFileInProject(const QString &name,
+                                   const ProjectExplorer::Project *project)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << dir << name;
+        qDebug() << Q_FUNC_INFO << name << project;
 
-    QFileInfo fileInSameDir(dir, name);
-    if (project && !fileInSameDir.isFile()) {
-        QString pattern = QString(1, QLatin1Char('/'));
-        pattern += name;
-        const QStringList projectFiles = project->files(ProjectExplorer::Project::AllFiles);
-        const QStringList::const_iterator pcend = projectFiles.constEnd();
-        for (QStringList::const_iterator it = projectFiles.constBegin(); it != pcend; ++it)
-            if (it->endsWith(pattern))
-                return QFileInfo(*it);
+    if (!project)
         return QFileInfo();
+
+    QString pattern = QString(1, QLatin1Char('/'));
+    pattern += name;
+    const QStringList projectFiles = project->files(ProjectExplorer::Project::AllFiles);
+    const QStringList::const_iterator pcend = projectFiles.constEnd();
+    for (QStringList::const_iterator it = projectFiles.constBegin(); it != pcend; ++it) {
+        if (it->endsWith(pattern))
+            return QFileInfo(*it);
     }
-    return fileInSameDir;
+    return QFileInfo();
 }
 
 // Figure out file type
@@ -237,6 +237,19 @@ static QStringList matchingCandidateSuffixes(const Core::MimeDatabase *mimeDatas
     return QStringList();
 }
 
+static QStringList baseNameWithAllSuffixes(const QString &baseName, const QStringList &suffixes)
+{
+    QStringList result;
+    const QChar dot = QLatin1Char('.');
+    foreach (const QString &suffix, suffixes) {
+        QString fileName = baseName;
+        fileName += dot;
+        fileName += suffix;
+        result += fileName;
+    }
+    return result;
+}
+
 QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) const
 {
     const Core::ICore *core = Core::ICore::instance();
@@ -254,49 +267,41 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
     if (type == UnknownType)
         return QString();
 
-    const QDir absoluteDir = fi.absoluteDir();
     const QString baseName = fi.completeBaseName();
+    const QString privateHeaderSuffix = QLatin1String("_p");
     const QStringList suffixes = matchingCandidateSuffixes(mimeDatase, type);
 
-    const QString privateHeaderSuffix = QLatin1String("_p");
-    const QChar dot = QLatin1Char('.');
-    // Check base matches 'source.h'-> 'source.cpp' and vice versa
-    const QStringList::const_iterator scend = suffixes.constEnd();
-    for (QStringList::const_iterator it = suffixes.constBegin(); it != scend; ++it) {
-        QString candidate = baseName;
-        candidate += dot;
-        candidate += *it;
-        const QFileInfo candidateFi = findFile(absoluteDir, candidate, project);
-        if (candidateFi.isFile())
-            return candidateFi.absoluteFilePath();
-    }
+    QStringList candidateFileNames = baseNameWithAllSuffixes(baseName, suffixes);
     if (type == HeaderFile) {
-        // 'source_p.h': try 'source.cpp'
         if (baseName.endsWith(privateHeaderSuffix)) {
             QString sourceBaseName = baseName;
             sourceBaseName.truncate(sourceBaseName.size() - privateHeaderSuffix.size());
-            for (QStringList::const_iterator it = suffixes.constBegin(); it != scend; ++it) {
-                QString candidate = sourceBaseName;
-                candidate += dot;
-                candidate += *it;
-                const QFileInfo candidateFi = findFile(absoluteDir, candidate, project);
-                if (candidateFi.isFile())
-                    return candidateFi.absoluteFilePath();
-            }
+            candidateFileNames += baseNameWithAllSuffixes(sourceBaseName, suffixes);
         }
     } else {
-        // 'source.cpp': try 'source_p.h'
-        const QStringList::const_iterator scend = suffixes.constEnd();
-        for (QStringList::const_iterator it = suffixes.constBegin(); it != scend; ++it) {
-            QString candidate = baseName;
-            candidate += privateHeaderSuffix;
-            candidate += dot;
-            candidate += *it;
-            const QFileInfo candidateFi = findFile(absoluteDir, candidate, project);
+        QString privateHeaderBaseName = baseName;
+        privateHeaderBaseName.append(privateHeaderSuffix);
+        candidateFileNames += baseNameWithAllSuffixes(privateHeaderBaseName, suffixes);
+    }
+
+    const QDir absoluteDir = fi.absoluteDir();
+
+    // Try to find a file in the same directory first
+    foreach (const QString &fileName, candidateFileNames) {
+        const QFileInfo candidateFi(absoluteDir, fileName);
+        if (candidateFi.isFile())
+            return candidateFi.absoluteFilePath();
+    }
+
+    // Find files in the project
+    if (project) {
+        foreach (const QString &fileName, candidateFileNames) {
+            const QFileInfo candidateFi = findFileInProject(fileName, project);
             if (candidateFi.isFile())
                 return candidateFi.absoluteFilePath();
         }
     }
+
     return QString();
 }
 

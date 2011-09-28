@@ -78,7 +78,6 @@ private slots:
 
 private:
     QString correspondingHeaderOrSourceI(const QString &fileName) const;
-    QFileInfo findFile(const QDir &dir, const QString &name, const ProjectExplorer::Project *project) const;
 
     CppModelManager *m_modelManager;
     QSharedPointer<CppFileSettings> m_fileSettings;
