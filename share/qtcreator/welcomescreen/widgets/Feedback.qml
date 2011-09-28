@@ -49,7 +49,6 @@ Rectangle {
         id: feedbackButton
         x: 510
         y: 2
-        width: 100
         text: qsTr("Feedback")
         anchors.rightMargin: 8
         anchors.right: parent.right
@@ -79,7 +78,6 @@ Rectangle {
     Button {
         id: openProjectButton
         y: 2
-        width: 100
         height: 28
         text: qsTr("Open Project...")
         anchors.left: parent.left
@@ -93,7 +91,6 @@ Rectangle {
     Button {
         id: createProjectButton
         y: 2
-        width: 100
         text: qsTr("Create Project...")
         anchors.left: openProjectButton.right
         anchors.leftMargin: 8

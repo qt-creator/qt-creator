@@ -40,7 +40,7 @@ Item {
     property int offset: 0;
     y: offset
 
-    width: 140
+    width: text.width + 48
 
     Rectangle {
         color: "#a6a6a6"
@@ -63,7 +63,6 @@ Item {
 
     Rectangle {
         id: item
-        width: 40
         height: root.height
         radius: 16
         opacity: 0
@@ -80,8 +79,8 @@ Item {
                 color: "#4d4c4c"
             }
         }
-        anchors.rightMargin: 12
-        anchors.leftMargin: 12
+        anchors.rightMargin: -16
+        anchors.leftMargin: -16
         smooth: true
         border.width: 1
         border.color: "#d1d1d1"
@@ -96,7 +95,7 @@ Item {
     Text {
         id: text
         horizontalAlignment: Qt.AlignHCenter; verticalAlignment: Qt.AlignVCenter
-        anchors.fill: parent
+        anchors.centerIn: parent
         text: model.modelData.title
         elide: Text.ElideRight
         color: "black"
@@ -121,12 +120,9 @@ Item {
             name: "active"
             id: activeState; when: tabBar.current === index
             PropertyChanges { target: text; color: "#f3f3f3" }
-            PropertyChanges { target: root; offset: 0 }
-            PropertyChanges { target: bottomLine; visible: false }
 
             PropertyChanges {
                 target: item
-                border.color: "#3a3a3a"
                 opacity: 1
             }
 
