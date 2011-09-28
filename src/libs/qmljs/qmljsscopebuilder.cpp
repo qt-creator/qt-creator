@@ -38,6 +38,8 @@
 #include "qmljsscopechain.h"
 #include "parser/qmljsast_p.h"
 
+#include <utils/qtcassert.h>
+
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
@@ -58,8 +60,11 @@ void ScopeBuilder::push(AST::Node *node)
     Node *qmlObject = cast<UiObjectDefinition *>(node);
     if (! qmlObject)
         qmlObject = cast<UiObjectBinding *>(node);
-    if (qmlObject)
+    if (qmlObject) {
+        // save the previous scope objects
+        _qmlScopeObjects.push(_scopeChain->qmlScopeObjects());
         setQmlScopeObject(qmlObject);
+    }
 
     // JS scopes
     switch (node->kind) {
@@ -114,9 +119,11 @@ void ScopeBuilder::pop()
     }
 
     // QML scope object
-    if (! _nodes.isEmpty()
-        && (cast<UiObjectDefinition *>(toRemove) || cast<UiObjectBinding *>(toRemove)))
-        setQmlScopeObject(_nodes.last());
+    if (cast<UiObjectDefinition *>(toRemove) || cast<UiObjectBinding *>(toRemove)) {
+        // restore the previous scope objects
+        QTC_ASSERT(!_qmlScopeObjects.isEmpty(), return);
+        _scopeChain->setQmlScopeObjects(_qmlScopeObjects.pop());
+    }
 }
 
 void ScopeBuilder::setQmlScopeObject(Node *node)

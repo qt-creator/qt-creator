@@ -36,6 +36,7 @@
 #include <qmljs/qmljsdocument.h>
 
 #include <QtCore/QList>
+#include <QtCore/QStack>
 
 namespace QmlJS {
 
@@ -68,6 +69,7 @@ private:
 
     ScopeChain *_scopeChain;
     QList<AST::Node *> _nodes;
+    QStack< QList<const ObjectValue *> > _qmlScopeObjects;
 };
 
 } // namespace QmlJS
