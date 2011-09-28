@@ -39,68 +39,9 @@ Rectangle {
     height: 42
     color: "#f3f3f3"
 
-
     Rectangle { color: "#444"; width: parent.width; height: 1; anchors.top: parent.top; anchors.left: parent.left; anchors.topMargin: -1 }
 
-    // whitelist
     property bool _hasDesktopTheme: welcomeMode.platform() === "linux"
-
-    Button {
-        id: feedbackButton
-        x: 510
-        y: 2
-        text: qsTr("Feedback")
-        anchors.rightMargin: 8
-        anchors.right: parent.right
-        anchors.verticalCenterOffset: 0
-        height: 28
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.margins: 5
-        onClicked: welcomeMode.sendFeedback()
-        tooltip: qsTr("Help us make Qt Creator even better")
-    }
-
-
-
-    LineEdit {
-        id: lineEdit
-        height: 26
-        anchors.rightMargin: 8
-        anchors.right: feedbackButton.left
-        anchors.leftMargin: 8
-        placeholderText: qsTr("Search in Tutorials, Examples and Demos")
-        focus: true
-        anchors.left: createProjectButton.right
-        anchors.verticalCenter: parent.verticalCenter
-        onTextChanged: examplesModel.parseSearchString(text)
-    }
-
-    Button {
-        id: openProjectButton
-        y: 2
-        height: 28
-        text: qsTr("Open Project...")
-        anchors.left: parent.left
-        anchors.leftMargin: 8
-        focus: false
-        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
-        onClicked: welcomeMode.openProject();
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
-    Button {
-        id: createProjectButton
-        y: 2
-        text: qsTr("Create Project...")
-        anchors.left: openProjectButton.right
-        anchors.leftMargin: 8
-        anchors.verticalCenterOffset: 0
-        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
-        onClicked: welcomeMode.newProject();
-        height: 28
-        anchors.margins: 5
-        anchors.verticalCenter: parent.verticalCenter
-    }
 
     Rectangle {
         color: "black"
@@ -110,4 +51,87 @@ Rectangle {
         anchors.bottom: parent.bottom
     }
 
+    Item {
+        id: item
+        states: [
+            State {
+                name: "invisble"
+                when: item.width < 400
+                PropertyChanges {
+                    target: item
+                    opacity: 0
+                }
+            }
+        ]
+
+        transitions: [
+            Transition {
+                PropertyAnimation {
+                    property: "opacity"
+                    duration: 50
+                }
+            }
+        ]
+
+        anchors.fill: parent
+
+        // whitelist
+
+        Button {
+            id: feedbackButton
+            x: 510
+            y: 2
+            text: qsTr("Feedback")
+            anchors.rightMargin: 8
+            anchors.right: parent.right
+            anchors.verticalCenterOffset: 0
+            height: 28
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.margins: 5
+            onClicked: welcomeMode.sendFeedback()
+            tooltip: qsTr("Help us make Qt Creator even better")
+        }
+
+
+
+        LineEdit {
+            id: lineEdit
+            height: 26
+            anchors.rightMargin: 8
+            anchors.right: feedbackButton.left
+            anchors.leftMargin: 8
+            placeholderText: qsTr("Search in Tutorials, Examples and Demos")
+            focus: true
+            anchors.left: createProjectButton.right
+            anchors.verticalCenter: parent.verticalCenter
+            onTextChanged: examplesModel.parseSearchString(text)
+        }
+
+        Button {
+            id: openProjectButton
+            y: 2
+            height: 28
+            text: qsTr("Open Project...")
+            anchors.left: parent.left
+            anchors.leftMargin: 8
+            focus: false
+            iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
+            onClicked: welcomeMode.openProject();
+            anchors.verticalCenter: parent.verticalCenter
+        }
+
+        Button {
+            id: createProjectButton
+            y: 2
+            text: qsTr("Create Project...")
+            anchors.left: openProjectButton.right
+            anchors.leftMargin: 8
+            anchors.verticalCenterOffset: 0
+            iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
+            onClicked: welcomeMode.newProject();
+            height: 28
+            anchors.margins: 5
+            anchors.verticalCenter: parent.verticalCenter
+        }
+    }
 }
