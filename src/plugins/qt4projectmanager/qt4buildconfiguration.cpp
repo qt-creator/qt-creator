@@ -378,6 +378,9 @@ void Qt4BuildConfiguration::setToolChain(ProjectExplorer::ToolChain *tc)
     if (tc != 0 && !qt4Target()->possibleToolChains(this).contains(tc))
         return;
 
+    if (toolChain() != tc)
+        return;
+
     BuildConfiguration::setToolChain(tc);
 
     emit proFileEvaluateNeeded(this);
