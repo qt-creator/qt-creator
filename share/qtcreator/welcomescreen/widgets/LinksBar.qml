@@ -30,55 +30,83 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import qtcomponents 1.0 as Components
 
-Row {
+Item {
     id: tabBar
-    height: 25
 
+    height: 62
+    width: parent.width
     property alias model: tabs.model
     property int tabWidth: Math.floor(tabBar.width/tabs.count)
-    Repeater {
-        id: tabs
-        height: tabBar.height
-        model: parent.model
-        delegate: Item {
-            Components.QStyleItem { cursor: "pointinghandcursor"; anchors.fill: parent }
-            height: tabBar.height
+    property url inactiveSource: "qrc:welcome/images/tab_inactive.png"
+    property url activeSource: "qrc:welcome/images/tab_active.png"
 
-            width: tabs.count-1 === index ? tabWidth : tabWidth + tabBar.width%tabs.count
-            BorderImage {
-                id: tabBackground
-                anchors.fill: parent
-                border { top: 1; bottom: 1}
-                source: "qrc:welcome/images/tab_inactive.png"
-            }
+    Row {
+        id: row
+        height: 24
+        width: parent.width
+
+        BorderImage {
+            id: active
+            width: 100
+            height: parent.height
+            border { top: 2; bottom: 2; left: 2; right: 2}
+            source: activeSource
             Text {
                 id: text
                 horizontalAlignment: Qt.AlignHCenter; verticalAlignment: Qt.AlignVCenter
                 anchors.fill: parent
-                text: model.modelData.title
+                text: qsTr("Qt Creator")
                 elide: Text.ElideRight
                 color: "black"
             }
-            MouseArea {
-                id: mouseArea
-                hoverEnabled: true
-                anchors.fill: parent
-                onClicked: tabBar.current = index
+        }
+
+        BorderImage {
+            anchors.left: active.right
+            anchors.right: parent.right
+            height: parent.height
+            border { top: 2; bottom: 2; left: 2; right: 2}
+            source: inactiveSource
+        }
+    }
+    Rectangle {
+        id: background
+        height: 38
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: "#e4e4e4"
             }
-            states: [
-                State {
-                    id: hoverState; when: mouseArea.containsMouse && tabBar.current != index
-                    PropertyChanges { target: tabBackground; source:"qrc:welcome/images/tab_hover.png" }
-                },
-                State {
-                    id: activeState; when: tabBar.current == index
-                    PropertyChanges { target: tabBackground; source:"qrc:welcome/images/tab_active.png" }
-                    PropertyChanges { target: text; color: "white" }
-                }
-            ]
+
+            GradientStop {
+                position: 1
+                color: "#cecece"
+            }
+        }
+        width: parent.width
+        anchors.top: row.bottom
+        Rectangle {
+            color: "black"
+            height: 1
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+        }
+    }
+
+    Row {
+        height: background.height
+        anchors.top: row.bottom
+        anchors.topMargin: 6
+        width: parent.width
+        Repeater {
+            id: tabs
+            height: parent.height
+            model: tabBar.model
+            delegate: SingleTab { }
         }
     }
 }

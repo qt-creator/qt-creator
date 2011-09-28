@@ -30,7 +30,13 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import "widgets" as Widgets
 
-Widgets.ExampleBrowser {}
+Item {
+    Widgets.ExampleBrowser {
+        model: tutorialsModel
+        anchors.fill: parent
+        anchors.margins: 8
+    }
+}

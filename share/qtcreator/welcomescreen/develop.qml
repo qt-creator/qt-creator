@@ -30,43 +30,119 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import "widgets" as Widgets
 import qtcomponents 1.0 as Components
 
 Item {
-    id: root
-    property int margin: 8
+    id: floater
 
-    Components.ScrollArea {
-        id: scrollArea
-        anchors.fill:  parent
-        anchors.margins: - margin
-        frame: false
-        Item {
-            id: baseitem
-            height: Math.max(recentSessions.height, recentProjects.height)
-            width: root.width
-            Widgets.RecentSessions {
-                id: recentSessions
-                width: Math.floor(root.width / 2.5)
-                anchors.left: parent.left
+    Image {
+        source: "qrc:welcome/images/welcomebg.png"
+        anchors.fill: parent
+        opacity: 0.8
+    }
+
+    property int proposedWidth: 920
+    property int proposedHeight: 600
+
+    Rectangle {
+        id: rectangle1
+        height: 26
+        opacity: 0.9
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: "#cff7f7f7"
             }
-            Widgets.RecentProjects {
-                id: recentProjects
-                anchors.left:  recentSessions.right
-                anchors.right: parent.right
-                anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 :
-                                         -scrollArea.verticalScrollBar.width
+
+            GradientStop {
+                position: 1
+                color: "#04f7f7f7"
             }
+        }
+        anchors.rightMargin: -1
+        anchors.topMargin: -4
+        anchors.right: root.right
+        anchors.left: root.left
+        anchors.top: root.bottom
+        Rectangle {
+            width: 1
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: "#a41c1b1b"
+                }
+
+                GradientStop {
+                    position: 1
+                    color: "#0a1c1b1b"
+                }
+            }
+            anchors.top: parent.top
+            anchors.topMargin: 0
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.leftMargin: 0
+
+        }
+        Rectangle {
+            width: 1
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: "#a41c1b1b"
+                }
+
+                GradientStop {
+                    position: 1
+                    color: "#0a000000"
+                }
+            }
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.top: parent.top
 
         }
     }
+
     Rectangle {
-        anchors.top: scrollArea.top
-        height: root.height + 2 * margin
-        width: 1
-        color: "#ccc"
-        x: recentProjects.x - margin
+
+        width: Math.min(floater.width, floater.proposedWidth)
+        height: Math.min(floater.height, floater.proposedHeight)
+        id: root
+        property int margin: 8
+        anchors.centerIn: floater
+
+        Components.ScrollArea {
+            id: scrollArea
+            anchors.fill:  parent
+            anchors.margins: - margin
+            frame: true
+            Item {
+                id: baseitem
+                height: Math.max(recentSessions.height, recentProjects.height)
+                width: root.width - 20
+                Widgets.RecentSessions {
+                    id: recentSessions
+                    width: Math.floor(root.width / 2.5)
+                    anchors.left: parent.left
+                }
+                Widgets.RecentProjects {
+                    id: recentProjects
+                    anchors.left:  recentSessions.right
+                    anchors.right: parent.right
+                    anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 :
+                                                                                -scrollArea.verticalScrollBar.width - 2
+                }
+
+            }
+        }
+        BorderImage {
+            anchors.top: scrollArea.top
+            height: root.height + 2 * margin
+            width: 1
+            x: recentProjects.x - margin
+        }
     }
 }

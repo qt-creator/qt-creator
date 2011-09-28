@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import qtcomponents 1.0 as Components
 
 HeaderItemView {
@@ -38,15 +38,8 @@ HeaderItemView {
     model: sessionList
 
     delegate: Rectangle {
-        height: 30
+        height: 60
         width: dataSection.width
-
-        Rectangle {
-            height: 1
-            color: "#eee"
-            anchors.bottom: parent.bottom
-            width: parent.width
-        }
 
         color: mousearea.containsMouse ? "#f9f9f9" : "white"
 

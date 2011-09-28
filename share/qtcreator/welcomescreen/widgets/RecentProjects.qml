@@ -41,12 +41,6 @@ HeaderItemView {
         height: 60
         width: dataSection.width
 
-        Rectangle {
-            height: 1
-            color: "#eee"
-            anchors.bottom: parent.bottom
-            width: parent.width
-        }
         color: mousearea.containsMouse ? "#f9f9f9" : "white"
 
         Image {

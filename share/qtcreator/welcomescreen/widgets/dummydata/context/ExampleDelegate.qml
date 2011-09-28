@@ -30,41 +30,13 @@
 **
 **************************************************************************/
 
-import QtQuick 1.1
+import QtQuick 1.0
+import QmlDesigner 1.0
 
-Item {
-    id: tabWidget
-    property alias model: contentRepeater.model
-    property bool currentHasSearchBar
-
-    Item {
-        id: stack
-
-        anchors.margins: 0
-        width: parent.width
-        height: parent.height
-
-        Repeater {
-            id: contentRepeater
-            Loader {
-                property bool active: index == tabWidget.current
-                id: pageLoader
-                visible: active
-                anchors.fill: parent
-                anchors.margins: 0
-                onActiveChanged: {
-                    if (active && source == "") {
-                        source = model.modelData.pageLocation
-                    }
-                    if (active) {
-                        tabWidget.currentHasSearchBar = model.modelData.hasSearchBar
-                    }
-                }
-
-                onStatusChanged: {
-                    if (pageLoader.status == Loader.Error) console.debug(source + ' failed to load')
-                }
-            }
-        }
+DummyContextObject {
+    property variant model: QtObject {
+        property string name: "Calculator"
+        property string description: "his demo shows how to write a simple calculator application in QML and JavaScript."
+        property string imageSource: "http://doc.qt.nokia.com/4.7/images/qml-calculator-example-small.png"
     }
 }

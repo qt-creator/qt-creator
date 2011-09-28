@@ -38,19 +38,39 @@ Custom.Button {
 
     width: Math.max(50, labelItem.contentsWidth+20)
     height: 32
+    property url pressedSource: "qrc:welcome/images/btn_26_pressed.png"
+    property url hoverSource: "qrc:welcome/images/btn_26_hover.png"
+    property url backgroundSource: "qrc:welcome/images/btn_26.png"
+
 
     background: BorderImage {
-        source: {
-            if (pressed || checked )
-                return "qrc:/welcome/images/btn_26_pressed.png"
-            else
-                if (containsMouse)
-                    return "qrc:/welcome/images/btn_26_hover.png"
-                else
-                    return "qrc:/welcome/images/btn_26.png"
-        }
-
+        id: borderImage
+        source: button.backgroundSource
         border { left: 5; right: 5; top: 5; bottom: 5 }
+
+        property bool isPressedOrChecked: (button.pressed || button.checked)
+
+        property bool isHovered: !borderImage.isPressedOrChecked && !button.containsMouse
+
+        states: [
+            State {
+                name: "pressed"
+                when: borderImage.isPressedOrChecked
+                PropertyChanges {
+                    target: borderImage
+                    source:button.pressedSource
+                }
+            },
+            State {
+                when: borderImage.isHovered
+                name: "hovered"
+                PropertyChanges {
+                    target: borderImage
+                    source:button.hoverSource
+                }
+            }
+
+        ]
     }
 
     label: Item {

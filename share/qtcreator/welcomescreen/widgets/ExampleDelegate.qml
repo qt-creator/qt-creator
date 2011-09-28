@@ -30,132 +30,287 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
-import qtcomponents 1.0 as Components
+import QtQuick 1.1
 
-Rectangle {
-    property int textItemsCombinedHeight: title.paintedHeight + description.paintedHeight + tagLine.height
-    id: root
-    height: textItemsCombinedHeight + 30
-    color: "#00ffffff"
-    property variant tags : model.tags
+Item {
+    id: delegate
+    width: GridView.view.cellWidth
+    height: GridView.view.cellHeight
+
+    property variant tags : model.tags === undefined ? mockupTags : model.tags
     signal tagClicked(string tag)
 
-    Components.QStyleItem { cursor: "pointinghandcursor" ; anchors.fill: parent }
 
-    Item {
-        visible: parent.state=="hover"
+
+    Rectangle {
+        id: background
+        radius: 3
+        opacity: 0
+        anchors.leftMargin: 4
+        anchors.bottomMargin: 4
+        anchors.topMargin: 4
+        anchors.rightMargin: 4
+        border.width: 0
+        border.color: "#a8a8a8"
         anchors.fill: parent
-        Rectangle{
-            height: 1
-            color: "#eee"
-            anchors.top: parent.top
-            width:parent.width
-        }
-        Rectangle {
-            height: 1
-            color: "#eee"
-            anchors.bottom: parent.bottom
-            width:parent.width
-        }
     }
 
     Text {
-        id: title
-        anchors.left: parent.left
-        anchors.leftMargin: 10
-        anchors.right: imageWrapper.left
-        anchors.rightMargin: 10
-        anchors.top: parent.top
-        anchors.topMargin: 10
-        text: model.name
-        font.bold: true
-        font.pixelSize: 14
-        elide: Text.ElideRight
-
-    }
-    RatingBar { id: rating; anchors.top: parent.top; anchors.topMargin: 10; anchors.right: parent.right; anchors.rightMargin: 10; rating: model.difficulty; visible: model.difficulty !== 0 }
-
-    Item {
-        id: imageWrapper
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        width: 90
-        anchors.rightMargin: 30
-        Image {
-            property bool hideImage : model.imageUrl === "" || status === Image.Error
-            id: image
-            smooth: true
-            anchors.centerIn: parent
-            width: parent.width
-            height: textItemsCombinedHeight
-            asynchronous: true
-            fillMode: Image.PreserveAspectFit
-            source: model.imageUrl !== "" ? "image://helpimage/" + encodeURI(model.imageUrl) : ""
-        }
-    }
-
-    Text {
+        clip: true
         id: description
-        anchors.left: parent.left
-        anchors.right: imageWrapper.left
-        anchors.leftMargin: 10
-        anchors.top: rating.bottom
-        wrapMode: Text.WordWrap
+        color: "#292828"
         text: model.description
-        color:"#444"
+        anchors.top: image.bottom
+        anchors.topMargin: 8
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 8
+        anchors.right: parent.right
+        anchors.rightMargin: 26
+        anchors.left: parent.left
+        anchors.leftMargin: 26
+
+        wrapMode: TextEdit.WordWrap
+        font.pixelSize: 13
+        elide: Text.ElideRight
+        textFormat: Text.PlainText
+        maximumLineCount: 6
+
+        Text {
+            id: more
+            x: 0
+            color: "#70747c"
+            text: "[...]"
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: -16
+            font.pixelSize: 12
+            font.bold: false
+            visible: description.truncated
+        }
+
     }
 
     MouseArea {
-        id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
         onClicked: {
-            if (model.hasSourceCode)
-                gettingStarted.openProject(model.projectPath, model.filesToOpen, model.docUrl)
-            else
-                gettingStarted.openSplitHelp(model.docUrl);
+            delegate.state = "clicked"
         }
         onEntered: parent.state = "hover"
-        onExited: parent.state = ""
+        onExited: if (parent.state === "hover") parent.state = ""
     }
 
-    Flow {
-        id: tagLine;
-        anchors.topMargin: 5
-        anchors.bottomMargin: 20
-        anchors.top: description.bottom
+    Rectangle {
+        id: image
+        x: 20
+        y: 52
+        anchors.top: parent.top
+        anchors.topMargin: 52
+        height: 232
+        radius: 3
+        smooth: true
+        anchors.right: parent.right
+        anchors.rightMargin: 20
         anchors.left: parent.left
-        anchors.leftMargin: 10
-        anchors.rightMargin: 26
-        anchors.right: imageWrapper.left
-        spacing: 4
-        Text { id: labelText; text: qsTr("Tags:") ; color: "#999"; font.pixelSize: 11}
-        Repeater {
-            model: tags;
-            Text {
-                states: [ State { name: "hover"; PropertyChanges { target: tagText; color: "black" } } ]
-                id: tagText
-                text: model.modelData
-                color: "#bbb"
-                font.pixelSize: 11
-                MouseArea {
-                    anchors.fill: parent;
-                    hoverEnabled: true;
-                    onEntered: {
-                        root.state = "hover"
-                        parent.state = "hover"
+        anchors.leftMargin: 20
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: "#e6e6e6"
+            }
+
+            GradientStop {
+                position: 1
+                color: "#e4e4e4"
+            }
+        }
+        border.color: "#b5b1b1"
+
+        Rectangle {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.topMargin: 1
+            anchors.leftMargin: 2
+            anchors.rightMargin: 2
+            height: 1
+        }
+
+
+
+        Image {
+            property bool hideImage : model.imageUrl === "" || status === Image.Error
+            fillMode: Image.PreserveAspectFit
+            property string mockupSource: model.imageSource
+            property string realSource: model.imageUrl !== "" ? "image://helpimage/" + encodeURI(model.imageUrl) : ""
+
+            source: mockupSource === "" ? realSource : mockupSource
+            asynchronous: true
+            smooth: true
+
+            anchors.top: parent.top
+            anchors.topMargin: 46
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 16
+            anchors.left: parent.left
+            anchors.leftMargin: 16
+            anchors.right: parent.right
+            anchors.rightMargin: 16
+        }
+
+        Rectangle {
+            id: tagLine;
+            radius: 3
+            anchors.top: parent.top
+            anchors.topMargin: 10
+            smooth: true
+            height: 32
+            color: "#00000000"
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+            anchors.left: parent.left
+            anchors.leftMargin: 8
+
+            Flow {
+                x: 38
+                y: 0
+                width: 256
+                height: 32
+                anchors.left: text1.right
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.top: parent.top
+                anchors.leftMargin: 4
+                spacing: 2
+                Repeater {
+                    id: repeater
+                    model: tags
+                    Text {
+                        states: [ State { name: "hover"; PropertyChanges { target: tagText; color: "black" } } ]
+                        transitions: [
+                            Transition {
+                                PropertyAnimation { target: tagText; property: "color"; duration: 80 }
+                            }
+                        ]
+                        id: tagText
+                        property string delimiter: index === (repeater.count - 1) ? "" : ", "
+                        text: model.modelData + delimiter
+                        font.italic: true
+                        color: "#a6a6a6"
+                        font.pixelSize: 12
+                        smooth: true
+                        MouseArea {
+                            anchors.fill: parent;
+                            hoverEnabled: true;
+                            onEntered: {
+                                delegate.state = "hover"
+                                parent.state = "hover"
+                            }
+                            onExited:{
+                                delegate.state = ""
+                                parent.state = ""
+                            }
+                            onClicked: {
+                                delegate.tagClicked(model.modelData)
+                            }
+                        }
                     }
-                    onExited:{
-                        root.state = ""
-                        parent.state = ""
+                }
+
+            }
+
+            Text { id: text1; x: 0; y: 0; text: qsTr("Tags:") ; font.bold: true; font.italic: true; color: "#8b8b8b"; font.pixelSize: 12}
+        }
+    }
+
+
+
+
+    Caption {
+        text: model.name
+        id: caption
+        y: 16
+    }
+
+//    Rectangle {
+//        anchors.top: parent.top
+//        height: 14
+//        anchors.left: parent.left
+//        anchors.right: parent.right
+//        gradient: Gradient {
+//            GradientStop {
+//                position: 0.00;
+//                color: "#ffffff";
+//            }
+//            GradientStop {
+//                position: 1.00;
+//                color: "#00ffffff";
+//            }
+//        }
+//    }
+
+
+
+    states: [
+        State {
+            name: "hover";
+
+            PropertyChanges {
+                target: background
+                color: "#dddddd"
+                opacity: 1
+                border.width: 1
+            }
+
+        },
+        State {
+            name: "clicked"
+            PropertyChanges {
+                target: background
+                color: "#e8e8e8"
+                opacity: 1
+                border.width: 1
+            }
+        }
+    ]
+
+    transitions: [
+        Transition {
+            from: ""
+            to: "hover"
+            reversible: true
+            PropertyAnimation { target: background; properties: "opacity, color"; duration: 60 }
+        },
+        Transition {
+            from: "clicked"
+            to: ""
+            PropertyAnimation { target: background; properties: "opacity, color"; duration: 60 }
+        },
+        Transition {
+            from: "hover"
+            to: "clicked"
+            SequentialAnimation {
+                PropertyAnimation { target: background; properties: "opacity, color"; duration: 60 }
+                ScriptAction {
+                    script: {
+                        delegate.state = "";
+                        if (model.hasSourceCode)
+                            gettingStarted.openProject(model.projectPath, model.filesToOpen, model.docUrl)
+                        else
+                            gettingStarted.openSplitHelp(model.docUrl);
                     }
-                    onClicked: root.tagClicked(model.modelData)
                 }
             }
         }
-    }
-
-    states: [ State { name: "hover"; PropertyChanges { target: root; color: "#f9f9f9" } } ]
+    ]
+    //    Rectangle {
+    //        id: line
+    //        height: 6
+    //        color: "#eaeaea"
+    //        anchors.rightMargin: -20
+    //        anchors.leftMargin: -20
+    //        anchors.bottom: parent.bottom
+    //        anchors.bottomMargin: -4
+    //        anchors.left: parent.left
+    //        anchors.right: parent.right
+    //    }
 }

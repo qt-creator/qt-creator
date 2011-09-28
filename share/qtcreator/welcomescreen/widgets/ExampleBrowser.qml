@@ -30,115 +30,74 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import qtcomponents 1.0 as Components
 
 Item {
+    property alias model: gridView.model
     id: exampleBrowserRoot
     function appendTag(tag) {
         var tagStr = "tag:" + '"' + tag + '"'
-        if (lineEdit.text == "")
-            lineEdit.text = tagStr
+        if (exampleLineEdit.lineEdit.text === "")
+            exampleLineEdit.lineEdit.text = tagStr
         else
-            lineEdit.text += " " + tagStr
+            exampleLineEdit.lineEdit.text += " " + tagStr
     }
 
-
-    Rectangle {
-        id : lineEditRoot
-        color:"#f4f4f4"
-        width: parent.width
-        height: lineEdit.height + 6
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottomMargin: - 8
-        anchors.leftMargin: -8
-        anchors.rightMargin: -8
-
-
-        CheckBox {
-            id: checkBox
-            text: qsTr("Show Examples and Demos")
-            checked: false
-            anchors.left: parent.left
-            anchors.leftMargin: 6
-            anchors.verticalCenter: lineEdit.verticalCenter
-            height: lineEdit.height
-            onCheckedChanged: examplesModel.showTutorialsOnly = !checked;
-        }
-
-        LineEdit {
-            id: lineEdit
-            placeholderText: !checkBox.checked ? qsTr("Search in Tutorials") : qsTr("Search in Tutorials, Examples and Demos")
-            focus: true
-            anchors.left: checkBox.right
-            anchors.leftMargin: 6
-            anchors.verticalCenter: parent.verticalCenter
-            width: Math.max(lineEditRoot.width - checkBox.width - 21 - tagFilterButton.width, 100)
-            onTextChanged: examplesModel.parseSearchString(text)
-        }
-
-        Button {
-            id: tagFilterButton
-            property string tag
-            property Item browser;
-            onTagChanged: exampleBrowserRoot.appendTag(tag)
-            anchors.left: lineEdit.right
-            anchors.leftMargin: 6
-            anchors.verticalCenter: lineEdit.verticalCenter
-            text: qsTr("Tag List")
-            checkable: true
-            Connections {
-                target: tagBrowserLoader.item
-                onVisibleChanged: tagFilterButton.checked = tagBrowserLoader.item.visible
-            }
-
-            onCheckedChanged: {
-                if (checked) {
-                    tagBrowserLoader.source = "TagBrowser.qml"
-                    var item = tagBrowserLoader.item;
-                    item.bottomMargin = lineEditRoot.height
-                    item.visible = true
-                } else { tagBrowserLoader.item.visible = false }
-            }
-        }
+    Image {
+        source: "qrc:welcome/images/welcomebg.png"
+        anchors.fill: parent
+        opacity: 0.2
     }
+
     Components.ScrollArea  {
         id: scrollArea
-        anchors.bottomMargin: lineEditRoot.height - 8
-        anchors.margins:-8
+        anchors.topMargin: - 8
+        anchors.margins: -8
         anchors.fill: parent
         frame: false
-        Column {
-            Repeater {
-                id: repeater
-                model: examplesModel
-                delegate: ExampleDelegate { width: scrollArea.width; onTagClicked: exampleBrowserRoot.appendTag(tag) }
-            }
+        ExampleGridView {
+            id: gridView
+            y: 16
         }
     }
 
     Rectangle {
         anchors.bottom: scrollArea.bottom
-        height:4
+        height: 16
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        gradient: Gradient {
+            GradientStop {
+                position: 0.00;
+                color: "#00ffffff";
+            }
+            GradientStop {
+                position: 1.00;
+                color: "#ffffff";
+            }
+        }
         anchors.left: scrollArea.left
         anchors.right: scrollArea.right
-        anchors.rightMargin: scrollArea.verticalScrollBar.visible ?
-                               scrollArea.verticalScrollBar.width : 0
-        width:parent.width
-        gradient: Gradient{
-            GradientStop{position:1 ; color:"#10000000"}
-            GradientStop{position:0 ; color:"#00000000"}
-        }
-        Rectangle{
-            height:1
-            color:"#ccc"
-            anchors.bottom: parent.bottom
-            width:parent.width
+    }
+    Rectangle {
+        anchors.top: scrollArea.top
+        height: 16
+        anchors.left: scrollArea.left
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        anchors.right: scrollArea.right
+        gradient: Gradient {
+            GradientStop {
+                position: 0.00;
+                color: "#ffffff";
+            }
+            GradientStop {
+                position: 1.00;
+                color: "#00ffffff";
+            }
         }
     }
-
 
     Loader {
         id: tagBrowserLoader

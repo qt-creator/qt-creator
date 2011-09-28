@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 
 Text {
     property color mainColor: "darkgrey"

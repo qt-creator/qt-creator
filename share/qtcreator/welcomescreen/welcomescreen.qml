@@ -36,6 +36,8 @@ import qtcomponents 1.0 as Components
 
 Rectangle {
     id: root
+    width: 1024
+    height: 768
     color: "white"
     // work around the fact that we can't use
     // a property alias to welcomeMode.activePlugin
@@ -43,44 +45,32 @@ Rectangle {
     onCurrentChanged: welcomeMode.activePlugin = current
     Component.onCompleted: current = welcomeMode.activePlugin
 
-    BorderImage {
-        id: inner_background
-        Image {
-            id: header;
-            source: "qrc:welcome/images/center_frame_header.png";
-            anchors.verticalCenter: parent.verticalCenter;
-            anchors.horizontalCenter: parent.horizontalCenter;
-            anchors.topMargin: 2
-        }
-        anchors.top: root.top
-        source: "qrc:welcome/images/background_center_frame_v2.png"
-        width: parent.width
-        height: 60
-        border.right: 2
-        border.left: 2
-        border.top: 2
-        border.bottom: 10
-    }
 
     LinksBar {
         id: navigationAndDevLinks
         property alias current: root.current
+        anchors.topMargin: -1
         anchors.top: inner_background.bottom
-        anchors.left: news.right
-        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.right: news.left
         anchors.bottomMargin: 4
-        anchors.topMargin: -2
         model: tabs.model
     }
 
-    Rectangle {
-        color: "#eee"
+    Item {
+        Image {
+            source: "qrc:welcome/images/welcomebg.png"
+            anchors.fill: parent
+            opacity: 0.5
+        }
+
+        anchors.right: parent.right
         id: news
         opacity: 0.7
         anchors.top: navigationAndDevLinks.top
-        anchors.bottom: feedback.top
-        anchors.left: parent.left
-        width: 270
+        anchors.bottom: parent.bottom
+        width: 220
+
         FeaturedAndNewsListing {
             anchors.fill: parent
         }
@@ -100,31 +90,48 @@ Rectangle {
             color: "#ccc"
         }
         Rectangle{
-            anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            width:1
+            width: 1
             color: "black"
+            anchors.left: parent.left
         }
     }
 
     TabWidget {
         id: tabs
         property int current: root.current
-        model: pagesModel
-        anchors.top: navigationAndDevLinks.bottom
-        anchors.bottom: feedback.top
-        anchors.left: news.right
-        anchors.right: parent.right
-        anchors.leftMargin: 0
         anchors.rightMargin: 0
-        anchors.margins: 4
+        anchors.leftMargin: 0
+        model: pagesModel
+        anchors.top: feedback.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: news.left
+        anchors.margins: 0
     }
 
     Feedback {
         id: feedback
-        anchors.bottom: parent.bottom
-        width: parent.width
+        height: 38
+        anchors.top: navigationAndDevLinks.bottom
+        anchors.left: parent.left
+        anchors.right: news.left
+        searchVisible: tabs.currentHasSearchBar
     }
 
+    BorderImage {
+        id: inner_background
+        x: 0
+        y: 0
+        anchors.top: root.top
+        source: "qrc:welcome/images/background_center_frame_v2.png"
+        width: parent.width
+        height: 0
+        anchors.topMargin: 0
+        border.right: 2
+        border.left: 2
+        border.top: 2
+        border.bottom: 10
+    }
 }

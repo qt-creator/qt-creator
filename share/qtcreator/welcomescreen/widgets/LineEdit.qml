@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import qtcomponents.custom 1.0 as Custom
 
 
@@ -40,10 +40,11 @@ Custom.TextField {
     rightMargin: 6
     topMargin: 6
     bottomMargin: 6
+    property url backgroundSource: "qrc:welcome/images/lineedit.png"
 
     background: BorderImage {
         anchors.fill: parent
-        source: "qrc:welcome/images/lineedit.png"
+        source: backgroundSource
         border.left: 5; border.top: 5
         border.right: 5; border.bottom: 5
 

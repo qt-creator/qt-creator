@@ -32,39 +32,17 @@
 
 import QtQuick 1.1
 
-Item {
-    id: tabWidget
-    property alias model: contentRepeater.model
-    property bool currentHasSearchBar
+GridView {
+    interactive: false
+    width: scrollArea.width
+    property int columns:  Math.max(Math.floor(width / cellWidth), 1)
+    height: 400 * (count - columns) / columns + 800
+    cellHeight: 400
+    cellWidth: 350
 
-    Item {
-        id: stack
+    x: Math.max((width - (cellWidth * columns)) / 2, 0);
 
-        anchors.margins: 0
-        width: parent.width
-        height: parent.height
-
-        Repeater {
-            id: contentRepeater
-            Loader {
-                property bool active: index == tabWidget.current
-                id: pageLoader
-                visible: active
-                anchors.fill: parent
-                anchors.margins: 0
-                onActiveChanged: {
-                    if (active && source == "") {
-                        source = model.modelData.pageLocation
-                    }
-                    if (active) {
-                        tabWidget.currentHasSearchBar = model.modelData.hasSearchBar
-                    }
-                }
-
-                onStatusChanged: {
-                    if (pageLoader.status == Loader.Error) console.debug(source + ' failed to load')
-                }
-            }
-        }
+    delegate: ExampleDelegate {
+        onTagClicked: exampleBrowserRoot.appendTag(tag)
     }
 }

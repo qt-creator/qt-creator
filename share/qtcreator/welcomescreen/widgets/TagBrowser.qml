@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 
 Rectangle {
     property int bottomMargin : 0
@@ -108,7 +108,7 @@ Rectangle {
                         id: mouseArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        onClicked: { tagChooser.visible = false; tagFilterButton.tag = model.value }
+                        onClicked: { tagChooser.visible = false; exampleLineEdit.tagFilterButton.tag = model.value }
                     }
 
                     states: [
