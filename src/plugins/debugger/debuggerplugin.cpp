@@ -1202,7 +1202,7 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
         sp->sysroot = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_SYSROOT"));
         //if (sp->sysroot.isEmpty())
         //    sp->sysroot = debuggerCore()->configValue(_("LastSysroot")).toString();
-        showMessage("### USING FAKE SYSROOT ###" + sp->sysroot.toLocal8Bit(), LogWarning);
+        showMessage(QLatin1String("### USING FAKE SYSROOT ###") + sp->sysroot, LogWarning);
     }
     if (sp->debugInfoLocation.isEmpty())
         sp->debugInfoLocation = sp->sysroot + "/usr/lib/debug";
