@@ -114,13 +114,11 @@ void BuildSettingsWidget::setupUi()
     vbox->setContentsMargins(0, 0, 0, 0);
 
     if (!m_target->buildConfigurationFactory()) {
-        QLabel * noSettingsLabel(new QLabel(this));
+        QLabel *noSettingsLabel = new QLabel(this);
         noSettingsLabel->setText(tr("No build settings available"));
-        {
-            QFont f(noSettingsLabel->font());
-            f.setPointSizeF(f.pointSizeF() * 1.2);
-            noSettingsLabel->setFont(f);
-        }
+        QFont f = noSettingsLabel->font();
+        f.setPointSizeF(f.pointSizeF() * 1.2);
+        noSettingsLabel->setFont(f);
         vbox->addWidget(noSettingsLabel);
         return;
     }

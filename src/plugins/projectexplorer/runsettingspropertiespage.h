@@ -55,7 +55,7 @@ class RunConfigWidget;
 
 namespace Internal {
 
-const char * const RUNSETTINGS_PANEL_ID = "ProjectExplorer.RunSettingsPanel";
+const char RUNSETTINGS_PANEL_ID[] = "ProjectExplorer.RunSettingsPanel";
 
 namespace Ui {
 class RunSettingsPropertiesPage;

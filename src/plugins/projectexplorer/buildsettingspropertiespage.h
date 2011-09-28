@@ -53,7 +53,7 @@ class IBuildStepFactory;
 
 namespace Internal {
 
-const char * const BUILDSETTINGS_PANEL_ID("ProjectExplorer.BuildSettingsPanel");
+const char BUILDSETTINGS_PANEL_ID[] = "ProjectExplorer.BuildSettingsPanel";
 
 class BuildSettingsPanelFactory : public ITargetPanelFactory
 {
