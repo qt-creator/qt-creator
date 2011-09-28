@@ -43,6 +43,9 @@ Item {
         opacity: 0.8
     }
 
+    width: 920
+    height: 600
+
     property int proposedWidth: 920
     property int proposedHeight: 600
 
@@ -133,7 +136,7 @@ Item {
                     anchors.left:  recentSessions.right
                     anchors.right: parent.right
                     anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 :
-                                                                                -scrollArea.verticalScrollBar.width - 2
+                                                                                -scrollArea.verticalScrollBar.width - 6
                 }
 
             }
