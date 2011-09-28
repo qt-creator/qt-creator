@@ -39,8 +39,11 @@
 #include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
-class QMenu;
+class QComboBox;
+class QGridLayout;
 class QLabel;
+class QMenu;
+class QPushButton;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
@@ -56,10 +59,6 @@ class RunConfigWidget;
 namespace Internal {
 
 const char RUNSETTINGS_PANEL_ID[] = "ProjectExplorer.RunSettingsPanel";
-
-namespace Ui {
-class RunSettingsPropertiesPage;
-}
 
 class BuildStepListWidget;
 
@@ -106,7 +105,6 @@ private:
     Target *m_target;
     RunConfigurationModel *m_runConfigurationsModel;
     DeployConfigurationModel *m_deployConfigurationModel;
-    Ui::RunSettingsPropertiesPage *m_ui;
     QWidget *m_runConfigurationWidget;
     QVBoxLayout *m_runLayout;
     DeployConfigurationWidget *m_deployConfigurationWidget;
@@ -117,6 +115,18 @@ private:
     bool m_ignoreChange;
     typedef QPair<RunConfigWidget *, QLabel *> RunConfigItem;
     QList<RunConfigItem> m_subWidgets;
+
+    QGridLayout *m_gridLayout;
+    QComboBox *m_deployConfigurationCombo;
+    QWidget *m_deployWidget;
+    QComboBox *m_runConfigurationCombo;
+    QPushButton *m_addDeployToolButton;
+    QPushButton *m_removeDeployToolButton;
+    QPushButton *m_renameDeployToolButton;
+    QPushButton *m_addRunToolButton;
+    QPushButton *m_removeRunToolButton;
+    QPushButton *m_renameRunButton;
+    QPushButton *m_renameDeployButton;
 };
 
 } // namespace Internal

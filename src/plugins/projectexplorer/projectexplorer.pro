@@ -191,7 +191,6 @@ SOURCES += projectexplorer.cpp \
 FORMS += processstep.ui \
     toolchainoptionspage.ui \
     editorsettingspropertiespage.ui \
-    runsettingspropertiespage.ui \
     sessiondialog.ui \
     projectwizardpage.ui \
     removefiledialog.ui \
