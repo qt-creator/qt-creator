@@ -47,7 +47,6 @@ class QtSupportPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
-    ~QtSupportPlugin();
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
@@ -56,8 +55,6 @@ private slots:
     void testQtOutputParser_data();
     void testQtOutputParser();
 #endif
-private:
-    GettingStartedWelcomePage *m_welcomePage;
 };
 
 } // namespace Internal

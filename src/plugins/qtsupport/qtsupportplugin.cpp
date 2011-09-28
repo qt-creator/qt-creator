@@ -47,12 +47,6 @@
 using namespace QtSupport;
 using namespace QtSupport::Internal;
 
-QtSupportPlugin::~QtSupportPlugin()
-{
-    removeObject(m_welcomePage);
-    delete m_welcomePage;
-}
-
 bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments);
@@ -65,12 +59,13 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     addAutoReleasedObject(mgr);
     addAutoReleasedObject(new QtOptionsPage);
 
-    m_welcomePage = new GettingStartedWelcomePage;
-    addObject(m_welcomePage);
+    GettingStartedWelcomePage *welcomePage;
+    welcomePage = new GettingStartedWelcomePage;
+    addAutoReleasedObject(welcomePage);
 
-    m_welcomePage = new GettingStartedWelcomePage;
-    m_welcomePage->setShowExamples(true);
-    addObject(m_welcomePage);
+    welcomePage = new GettingStartedWelcomePage;
+    welcomePage->setShowExamples(true);
+    addAutoReleasedObject(welcomePage);
 
     return true;
 }
