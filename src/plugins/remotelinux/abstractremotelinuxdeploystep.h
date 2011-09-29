@@ -72,6 +72,7 @@ protected:
 private slots:
     void handleProgressMessage(const QString &message);
     void handleErrorMessage(const QString &message);
+    void handleWarningMessage(const QString &message);
     void handleFinished();
     void handleStdOutData(const QString &data);
     void handleStdErrData(const QString &data);

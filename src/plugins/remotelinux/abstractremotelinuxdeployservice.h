@@ -75,6 +75,7 @@ public:
 signals:
     void errorMessage(const QString &message);
     void progressMessage(const QString &message);
+    void warningMessage(const QString &message);
     void stdOutData(const QString &data);
     void stdErrData(const QString &data);
 

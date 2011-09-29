@@ -86,23 +86,6 @@ void GenericDirectUploadService::setIncrementalDeployment(bool incremental)
     d->incremental = incremental;
 }
 
-bool GenericDirectUploadService::isDeploymentPossible(QString *whyNot) const
-{
-    if (!AbstractRemoteLinuxDeployService::isDeploymentPossible(whyNot))
-        return false;
-    foreach (const DeployableFile &df, d->deployableFiles) {
-        if (df.remoteDir.isEmpty()) {  // Can happen with targets.
-            if (whyNot) {
-                *whyNot = tr("Don't know where to deploy local file '%1'.")
-                    .arg(QFileInfo(df.localFilePath).fileName());
-            }
-            return false;
-        }
-    }
-
-    return true;
-}
-
 bool GenericDirectUploadService::isDeploymentNecessary() const
 {
     d->filesToUpload.clear();
@@ -328,6 +311,14 @@ void GenericDirectUploadService::uploadNextFile()
 
     const DeployableFile &df = d->filesToUpload.first();
     QString dirToCreate = df.remoteDir;
+    if (dirToCreate.isEmpty()) {
+        emit warningMessage(tr("Warning: No remote path set for local file '%1'. Skipping upload.")
+            .arg(QDir::toNativeSeparators(df.localFilePath)));
+        d->filesToUpload.takeFirst();
+        uploadNextFile();
+        return;
+    }
+
     QFileInfo fi(df.localFilePath);
     if (fi.isDir())
         dirToCreate += QLatin1Char('/') + fi.fileName();

@@ -55,7 +55,6 @@ public:
     void setIncrementalDeployment(bool incremental);
 
   protected:
-    bool isDeploymentPossible(QString *whyNot) const;
     bool isDeploymentNecessary() const;
 
     void doDeviceSetup();
