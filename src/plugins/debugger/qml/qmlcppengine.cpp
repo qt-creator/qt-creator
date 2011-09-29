@@ -501,7 +501,6 @@ void QmlCppEngine::slaveEngineStateChanged
     switch (newState) {
 
     case DebuggerNotReady:
-    case InferiorUnrunnable:
         break;
 
     case EngineSetupRequested:
@@ -547,12 +546,10 @@ void QmlCppEngine::slaveEngineStateChanged
             notifyEngineRunFailed();
         break;
 
-
-    case InferiorRunRequested:
+    case InferiorUnrunnable:
         break;
 
-    case InferiorRunFailed:
-        notifyInferiorRunFailed();
+    case InferiorRunRequested:
         break;
 
     case InferiorRunOk:
@@ -578,12 +575,11 @@ void QmlCppEngine::slaveEngineStateChanged
         }
         break;
 
-
-    case InferiorStopRequested:
+    case InferiorRunFailed:
+        notifyInferiorRunFailed();
         break;
 
-    case InferiorStopFailed:
-        notifyInferiorStopFailed();
+    case InferiorStopRequested:
         break;
 
     case InferiorStopOk:
@@ -616,6 +612,9 @@ void QmlCppEngine::slaveEngineStateChanged
         }
         break;
 
+    case InferiorStopFailed:
+        notifyInferiorStopFailed();
+        break;
 
     case InferiorExitOk:
         break;
@@ -646,7 +645,6 @@ void QmlCppEngine::slaveEngineStateChanged
         }
         break;
 
-
     case EngineShutdownRequested:
         break;
 
@@ -660,7 +658,6 @@ void QmlCppEngine::slaveEngineStateChanged
         else
             EDEBUG("... WAITING FOR OTHER ENGINE SHUTDOWN...");
         break;
-
 
     case DebuggerFinished:
         if (otherEngine->state() == DebuggerFinished)
