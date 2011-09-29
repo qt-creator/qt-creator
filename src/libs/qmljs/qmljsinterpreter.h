@@ -866,6 +866,8 @@ public:
     ImportInfo info;
     // uri imports: path to library, else empty
     QString libraryPath;
+    // whether the import succeeded
+    bool valid;
 };
 
 class Imports;
@@ -904,9 +906,12 @@ public:
     Imports(ValueOwner *valueOwner);
 
     void append(const Import &import);
+    void setImportFailed();
 
     ImportInfo info(const QString &name, const Context *context) const;
     QString nameForImportedObject(const ObjectValue *value, const Context *context) const;
+    bool importFailed() const;
+
     QList<Import> all() const;
 
     const TypeScope *typeScope() const;
@@ -922,6 +927,7 @@ private:
     QList<Import> _imports;
     TypeScope *_typeScope;
     JSImportScope *_jsImportScope;
+    bool _importFailed;
 };
 
 } // namespace QmlJS

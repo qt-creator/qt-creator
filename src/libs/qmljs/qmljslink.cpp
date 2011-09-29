@@ -257,6 +257,7 @@ void LinkPrivate::populateImportedTypes(Imports *imports, Document::Ptr doc)
                 import = importNonFile(doc, info);
                 break;
             case ImportInfo::UnknownFileImport:
+                imports->setImportFailed();
                 if (info.ast()) {
                     error(doc, info.ast()->fileNameToken,
                           Link::tr("file or directory not found"));
@@ -288,6 +289,7 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
     Import import;
     import.info = importInfo;
     import.object = 0;
+    import.valid = true;
 
     const QString &path = importInfo.path();
 
@@ -323,6 +325,7 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     Import import;
     import.info = importInfo;
     import.object = new ObjectValue(valueOwner);
+    import.valid = true;
 
     const QString packageName = importInfo.name();
     const ComponentVersion version = importInfo.version();
@@ -370,6 +373,7 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     }
 
     if (!importFound && importInfo.ast()) {
+        import.valid = false;
         error(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
                                      importInfo.ast()->lastSourceLocation()),
               Link::tr(
@@ -422,6 +426,7 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
             if (errorLoc.isValid()) {
                 warning(doc, errorLoc,
                         Link::tr("QML module contains C++ plugins, currently reading type information..."));
+                import->valid = false;
             }
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError
                    || libraryInfo.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileError) {
@@ -429,6 +434,7 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
             QString packageName = importInfo.name();
             if (errorLoc.isValid() && (packageName.isEmpty() || !valueOwner->cppQmlTypes().hasModule(packageName))) {
                 error(doc, errorLoc, libraryInfo.pluginTypeInfoError());
+                import->valid = false;
             }
         } else {
             const QString packageName = importInfo.name();
@@ -513,6 +519,7 @@ void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
         const ImportInfo info = ImportInfo::moduleImport(defaultPackage, maxVersion, QString());
         Import import = importCache.value(ImportCacheKey(info));
         if (!import.object) {
+            import.valid = true;
             import.info = info;
             import.object = new ObjectValue(valueOwner);
             foreach (const QmlObjectValue *object,

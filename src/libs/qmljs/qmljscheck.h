@@ -129,6 +129,8 @@ private:
     QList<AST::Node *> _chain;
     QStack<StringSet> m_idStack;
     QStack<StringSet> m_propertyStack;
+
+    bool _importsOk;
 };
 
 } // namespace QmlJS

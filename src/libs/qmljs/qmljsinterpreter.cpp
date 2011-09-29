@@ -2141,6 +2141,7 @@ void JSImportScope::processMembers(MemberProcessor *processor) const
 Imports::Imports(ValueOwner *valueOwner)
     : _typeScope(new TypeScope(this, valueOwner))
     , _jsImportScope(new JSImportScope(this, valueOwner))
+    , _importFailed(false)
 {}
 
 void Imports::append(const Import &import)
@@ -2159,6 +2160,14 @@ void Imports::append(const Import &import)
         // not found, append
         _imports.append(import);
     }
+
+    if (!import.valid)
+        _importFailed = true;
+}
+
+void Imports::setImportFailed()
+{
+    _importFailed = true;
 }
 
 ImportInfo Imports::info(const QString &name, const Context *context) const
@@ -2217,6 +2226,11 @@ QString Imports::nameForImportedObject(const ObjectValue *value, const Context *
         }
     }
     return QString();
+}
+
+bool Imports::importFailed() const
+{
+    return _importFailed;
 }
 
 QList<Import> Imports::all() const

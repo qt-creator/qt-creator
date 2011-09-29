@@ -513,7 +513,12 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     , _scopeChain(doc, _context)
     , _scopeBuilder(&_scopeChain)
     , _lastValue(0)
+    , _importsOk(false)
 {
+    const Imports *imports = context->imports(doc.data());
+    if (imports && !imports->importFailed())
+        _importsOk = true;
+
     _enabledMessages = Message::allMessageTypes().toSet();
     disableMessage(HintAnonymousFunctionSpacing);
     disableMessage(HintDeclareVarsInOneLine);
@@ -623,29 +628,31 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     }
 
     bool typeError = false;
-    const SourceLocation typeErrorLocation = fullLocationForQualifiedId(typeId);
-    const ObjectValue *prototype = _context->lookupType(_doc.data(), typeId);
-    if (!prototype) {
-        typeError = true;
-        addMessage(ErrUnknownComponent, typeErrorLocation);
-    } else {
-        PrototypeIterator iter(prototype, _context);
-        QList<const ObjectValue *> prototypes = iter.all();
-        if (iter.error() != PrototypeIterator::NoError)
+    if (_importsOk) {
+        const SourceLocation typeErrorLocation = fullLocationForQualifiedId(typeId);
+        const ObjectValue *prototype = _context->lookupType(_doc.data(), typeId);
+        if (!prototype) {
             typeError = true;
-        const ObjectValue *lastPrototype = prototypes.last();
-        if (iter.error() == PrototypeIterator::ReferenceResolutionError) {
-            if (const QmlPrototypeReference *ref =
-                    dynamic_cast<const QmlPrototypeReference *>(lastPrototype->prototype())) {
-                addMessage(ErrCouldNotResolvePrototypeOf, typeErrorLocation,
-                           toString(ref->qmlTypeName()), lastPrototype->className());
-            } else {
-                addMessage(ErrCouldNotResolvePrototype, typeErrorLocation,
+            addMessage(ErrUnknownComponent, typeErrorLocation);
+        } else {
+            PrototypeIterator iter(prototype, _context);
+            QList<const ObjectValue *> prototypes = iter.all();
+            if (iter.error() != PrototypeIterator::NoError)
+                typeError = true;
+            const ObjectValue *lastPrototype = prototypes.last();
+            if (iter.error() == PrototypeIterator::ReferenceResolutionError) {
+                if (const QmlPrototypeReference *ref =
+                        dynamic_cast<const QmlPrototypeReference *>(lastPrototype->prototype())) {
+                    addMessage(ErrCouldNotResolvePrototypeOf, typeErrorLocation,
+                               toString(ref->qmlTypeName()), lastPrototype->className());
+                } else {
+                    addMessage(ErrCouldNotResolvePrototype, typeErrorLocation,
+                               lastPrototype->className());
+                }
+            } else if (iter.error() == PrototypeIterator::CycleError) {
+                addMessage(ErrPrototypeCycle, typeErrorLocation,
                            lastPrototype->className());
             }
-        } else if (iter.error() == PrototypeIterator::CycleError) {
-            addMessage(ErrPrototypeCycle, typeErrorLocation,
-                       lastPrototype->className());
         }
     }
 
@@ -1197,6 +1204,9 @@ bool Check::visit(StatementList *ast)
 /// ### Maybe put this into the context as a helper method.
 const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
+    if (!_importsOk)
+        return 0;
+
     QList<const ObjectValue *> scopeObjects = _scopeChain.qmlScopeObjects();
     if (scopeObjects.isEmpty())
         return 0;
