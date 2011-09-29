@@ -4804,7 +4804,7 @@ void GdbEngine::handleInferiorPrepared()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     // Initial attempt to set breakpoints.
-    if (sp.startMode != AttachCore && !isSlaveEngine()) {
+    if (sp.startMode != AttachCore) {
         showStatusMessage(tr("Setting breakpoints..."));
         showMessage(tr("Setting breakpoints..."));
         attemptBreakpointSynchronization();
