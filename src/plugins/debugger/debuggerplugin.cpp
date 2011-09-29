@@ -1205,7 +1205,7 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
     }
     if (sp->debugInfoLocation.isEmpty())
         sp->debugInfoLocation = sp->sysroot + "/usr/lib/debug";
-    if (false && sp->debugSourceLocation.isEmpty()) {
+    if (sp->debugSourceLocation.isEmpty()) {
         QString base = sp->sysroot + "/usr/src/debug/";
         sp->debugSourceLocation.append(base + "qt5base/src/corelib");
         sp->debugSourceLocation.append(base + "qt5base/src/gui");
@@ -1213,10 +1213,6 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
         sp->debugSourceLocation.append(base + "qt5base/src/v8");
         sp->debugSourceLocation.append(base + "qtdeclarative/src/declarative/qml");
     }
-    //if (sp->solibSearchPath.isEmpty()) {
-    //    sp->solibSearchPath = sp->sysroot + "/usr/lib/debug";
-    //    // was: QFileInfo(sp.dumperLibrary).path().toLocal8Bit();
-    //}
 }
 
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
@@ -2581,7 +2577,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     if (!sp.gnuTarget.isEmpty())
         str << "Gnu target: " << sp.gnuTarget << '\n';
     str << "Sysroot: " << sp.sysroot << '\n';
-    str << "Solib Search Path: " << sp.solibSearchPath << '\n';
     str << "Debug Source Loaction: " << sp.debugSourceLocation.join(":") << '\n';
     str << "Symbol file: " << sp.symbolFileName << '\n';
     if (sp.useServerStartScript)

@@ -4770,16 +4770,9 @@ void GdbEngine::setupInferior()
                 debuggerCore()->globalDebuggerOptions()->sourcePathMap);
     const SourcePathMapIterator cend = sourcePathMap.constEnd();
     SourcePathMapIterator it = sourcePathMap.constBegin();
-    for ( ; it != cend; ++it) {
-        QByteArray command = "set substitute-path ";
-        command += it.key().toLocal8Bit();
-        command += ' ';
-        command += it.value().toLocal8Bit();
-        postCommand(command);
-    }
-
-    if (!sp.sysroot.isEmpty())
-        postCommand("set substitute-path / " + sp.sysroot.toLocal8Bit());
+    for ( ; it != cend; ++it)
+        postCommand("set substitute-path " + it.key().toLocal8Bit()
+            + " " + it.value().toLocal8Bit());
 
     const QByteArray debugInfoLocation = sp.debugInfoLocation.toLocal8Bit();
     if (!debugInfoLocation.isEmpty())
@@ -4788,14 +4781,10 @@ void GdbEngine::setupInferior()
     // Spaces just will not work.
     foreach (const QString &src, sp.debugSourceLocation)
         postCommand("directory " + src.toLocal8Bit());
-    if (!sp.solibSearchPath.isEmpty())
-        postCommand("set solib-search-path " + sp.solibSearchPath.toLocal8Bit());
 
-    // Take locations of actual breakpoints into account.
-    if (debuggerCore()->boolSetting(AutoEnrichParameters)) {
-        foreach (const QString &src, breakHandler()->engineBreakpointPaths(this))
-            postCommand("directory " + src.toLocal8Bit());
-    }
+    //QByteArray ba = QFileInfo(sp.dumperLibrary).path().toLocal8Bit();
+    //if (!ba.isEmpty())
+    //    postCommand("set solib-search-path " + ba);
 
     m_gdbAdapter->setupInferior();
 }

@@ -198,10 +198,10 @@ void RemoteGdbServerAdapter::setupInferior()
     // "run"/"attach", I think..
 
 
-    // ~"/build/buildd/gdb-7.2/gdb/mi/mi-main.c:1958: internal-error:
+    // gdb/mi/mi-main.c:1958: internal-error:
     // mi_execute_async_cli_command: Assertion `is_running (inferior_ptid)'
     // failed.\nA problem internal to GDB has been detected,[...]
-    //m_engine->postCommand("set target-async on", CB(handleSetTargetAsync));
+    m_engine->postCommand("set target-async on", CB(handleSetTargetAsync));
 
     if (fileName.isEmpty()) {
         showMessage(tr("No symbol file given."), StatusBar);

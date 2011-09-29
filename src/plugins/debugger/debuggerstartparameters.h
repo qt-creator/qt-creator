@@ -109,7 +109,6 @@ public:
     QString serverStartScript;
     QString sysroot;
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
-    QString solibSearchPath; // Gdb "set solib-search-path".
     QStringList debugSourceLocation; // Gdb "directory"
     QByteArray remoteDumperLib;
     QByteArray remoteSourcesDir;
