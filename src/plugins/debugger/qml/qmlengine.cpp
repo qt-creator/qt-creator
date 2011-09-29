@@ -249,8 +249,10 @@ void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
     if (socketError == QAbstractSocket::RemoteHostClosedError)
         showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
 
-    notifyInferiorSpontaneousStop();
-    notifyInferiorIll();
+    if (!isSlaveEngine()) { // normal flow for slave engine when gdb exits
+        notifyInferiorSpontaneousStop();
+        notifyInferiorIll();
+    }
 }
 
 void QmlEngine::serviceConnectionError(const QString &serviceName)

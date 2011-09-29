@@ -1208,6 +1208,12 @@ void DebuggerEngine::quitDebugger()
     case InferiorRunOk:
         d->doInterruptInferior();
         break;
+    case EngineRunRequested:
+        notifyEngineRunFailed();
+        break;
+    case EngineRunFailed:
+    case DebuggerFinished:
+        break;
     default:
         // FIXME: We should disable the actions connected to that.
         notifyInferiorIll();
