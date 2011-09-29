@@ -4758,34 +4758,11 @@ void GdbEngine::handleAdapterStarted()
 void GdbEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    showStatusMessage(tr("Setting up inferior..."));
-    const DebuggerStartParameters &sp = startParameters();
-    const QByteArray debugInfoLocation = sp.debugInfoLocation.toLocal8Bit();
-    if (!debugInfoLocation.isEmpty())
-        postCommand("set debug-file-directory " + debugInfoLocation);
-    // Spaces just will not work.
-    foreach (const QString &src, sp.debugSourceLocation)
-        postCommand("directory " + src.toLocal8Bit()); 
-    if (!sp.solibSearchPath.isEmpty())
-        postCommand("set solib-search-path " + sp.solibSearchPath.toLocal8Bit());
-    m_gdbAdapter->setupInferior();
-}
-
-void GdbEngine::notifyInferiorSetupFailed()
-{
-    // FIXME: that's not enough to stop gdb from getting confused
-    // by a timeout of the adapter.
-    //resetCommandQueue();
-    DebuggerEngine::notifyInferiorSetupFailed();
-}
-
-void GdbEngine::handleInferiorPrepared()
-{
     typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
     typedef SourcePathMap::const_iterator SourcePathMapIterator;
-    const DebuggerStartParameters &sp = startParameters();
 
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    showStatusMessage(tr("Setting up inferior..."));
+    const DebuggerStartParameters &sp = startParameters();
 
     // Apply source path mappings from global options.
     const SourcePathMap sourcePathMap =
@@ -4803,6 +4780,39 @@ void GdbEngine::handleInferiorPrepared()
 
     if (!sp.sysroot.isEmpty())
         postCommand("set substitute-path / " + sp.sysroot.toLocal8Bit());
+
+    const QByteArray debugInfoLocation = sp.debugInfoLocation.toLocal8Bit();
+    if (!debugInfoLocation.isEmpty())
+        postCommand("set debug-file-directory " + debugInfoLocation);
+
+    // Spaces just will not work.
+    foreach (const QString &src, sp.debugSourceLocation)
+        postCommand("directory " + src.toLocal8Bit());
+    if (!sp.solibSearchPath.isEmpty())
+        postCommand("set solib-search-path " + sp.solibSearchPath.toLocal8Bit());
+
+    // Take locations of actual breakpoints into account.
+    if (debuggerCore()->boolSetting(AutoEnrichParameters)) {
+        foreach (const QString &src, breakHandler()->engineBreakpointPaths(this))
+            postCommand("directory " + src.toLocal8Bit());
+    }
+
+    m_gdbAdapter->setupInferior();
+}
+
+void GdbEngine::notifyInferiorSetupFailed()
+{
+    // FIXME: that's not enough to stop gdb from getting confused
+    // by a timeout of the adapter.
+    //resetCommandQueue();
+    DebuggerEngine::notifyInferiorSetupFailed();
+}
+
+void GdbEngine::handleInferiorPrepared()
+{
+    const DebuggerStartParameters &sp = startParameters();
+
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     // Initial attempt to set breakpoints.
     if (sp.startMode != AttachCore && !isSlaveEngine()) {

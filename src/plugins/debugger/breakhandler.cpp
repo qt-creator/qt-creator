@@ -1259,6 +1259,19 @@ BreakpointModelIds BreakHandler::engineBreakpointIds(DebuggerEngine *engine) con
     return ids;
 }
 
+QStringList BreakHandler::engineBreakpointPaths(DebuggerEngine *engine) const
+{
+    QSet<QString> set;
+    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
+    for ( ; it != et; ++it) {
+        if (it->engine == engine) {
+            if (it->data.type == BreakpointByFileAndLine)
+                set.insert(QFileInfo(it->data.fileName).dir().path());
+        }
+    }
+    return set.toList();
+}
+
 void BreakHandler::cleanupBreakpoint(BreakpointModelId id)
 {
     QTC_ASSERT(state(id) == BreakpointDead, qDebug() << state(id));

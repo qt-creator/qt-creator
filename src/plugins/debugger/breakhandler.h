@@ -79,6 +79,7 @@ public:
     BreakpointModelIds engineBreakpointIds(DebuggerEngine *engine) const;
     BreakpointModelIds unclaimedBreakpointIds() const;
     int size() const { return m_storage.size(); }
+    QStringList engineBreakpointPaths(DebuggerEngine *engine) const;
 
     // Find a breakpoint matching approximately the data in needle.
     BreakpointModelId findSimilarBreakpoint(const BreakpointResponse &needle) const;

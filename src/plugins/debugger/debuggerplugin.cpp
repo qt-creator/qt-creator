@@ -1198,11 +1198,10 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
         return;
     if (sp->sysroot.isEmpty() && (sp->startMode == AttachToRemoteServer
             || sp->startMode == StartRemote)) {
-        // FIXME: Get from BaseQtVersion
+        // FIXME: Get from BaseQtVersion.
         sp->sysroot = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_SYSROOT"));
-        //if (sp->sysroot.isEmpty())
-        //    sp->sysroot = debuggerCore()->configValue(_("LastSysroot")).toString();
-        showMessage(QLatin1String("### USING FAKE SYSROOT ###") + sp->sysroot, LogWarning);
+        showMessage(QString::fromLatin1("USING QTC_DEBUGGER_SYSROOT %1")
+            .arg(sp->sysroot), LogWarning);
     }
     if (sp->debugInfoLocation.isEmpty())
         sp->debugInfoLocation = sp->sysroot + "/usr/lib/debug";
