@@ -211,6 +211,8 @@ void BaseQtVersion::ctor(const QString& qmakePath)
 #ifdef Q_OS_WIN
     m_qmakeCommand = m_qmakeCommand.toLower();
 #endif
+    if (m_qmakeCommand.startsWith('~'))
+        m_qmakeCommand.remove(0, 1).prepend(QDir::homePath());
     m_designerCommand.clear();
     m_linguistCommand.clear();
     m_qmlviewerCommand.clear();
