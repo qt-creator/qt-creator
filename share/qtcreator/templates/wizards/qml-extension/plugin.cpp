@@ -5,6 +5,7 @@
 
 void %ProjectName:s%Plugin::registerTypes(const char *uri)
 {
+    // @uri %Uri%
     qmlRegisterType<%ObjectName%>(uri, 1, 0, "%ObjectName%");
 }
 
