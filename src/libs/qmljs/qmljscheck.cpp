@@ -518,6 +518,7 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     disableMessage(HintAnonymousFunctionSpacing);
     disableMessage(HintDeclareVarsInOneLine);
     disableMessage(HintDeclarationsShouldBeAtStartOfFunction);
+    disableMessage(HintBinaryOperatorSpacing);
 }
 
 Check::~Check()
@@ -853,12 +854,22 @@ static bool shouldAvoidNonStrictEqualityCheck(const Value *lhs, const Value *rhs
 
 bool Check::visit(BinaryExpression *ast)
 {
+    const QString source = _doc->source();
+
+    // check spacing
+    SourceLocation op = ast->operatorToken;
+    if ((op.begin() > 0 && !source.at(op.begin() - 1).isSpace())
+            || (int(op.end()) < source.size() && !source.at(op.end()).isSpace())) {
+        addMessage(HintBinaryOperatorSpacing, op);
+    }
+
+    // check ==, !=
     if (ast->op == QSOperator::Equal || ast->op == QSOperator::NotEqual) {
         Evaluate eval(&_scopeChain);
-        const Value *lhs = eval(ast->left);
-        const Value *rhs = eval(ast->right);
-        if (shouldAvoidNonStrictEqualityCheck(lhs, rhs)
-                || shouldAvoidNonStrictEqualityCheck(rhs, lhs)) {
+        const Value *lhsValue = eval(ast->left);
+        const Value *rhsValue = eval(ast->right);
+        if (shouldAvoidNonStrictEqualityCheck(lhsValue, rhsValue)
+                || shouldAvoidNonStrictEqualityCheck(rhsValue, lhsValue)) {
             addMessage(MaybeWarnEqualityTypeCoercion, ast->operatorToken);
         }
     }
