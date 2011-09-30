@@ -807,6 +807,16 @@ bool Check::visit(FunctionDeclaration *ast)
 
 bool Check::visit(FunctionExpression *ast)
 {
+    if (ast->name.isEmpty()) {
+        SourceLocation locfunc = ast->functionToken;
+        SourceLocation loclparen = ast->lparenToken;
+        if (locfunc.isValid() && loclparen.isValid()
+                && (locfunc.startLine != loclparen.startLine
+                    || locfunc.end() + 1 != loclparen.begin())) {
+            addMessage(HintAnonymousFunctionSpacing, locationFromRange(locfunc, loclparen));
+        }
+    }
+
     DeclarationsCheck bodyCheck;
     addMessages(bodyCheck(ast));
 
