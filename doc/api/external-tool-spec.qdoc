@@ -174,7 +174,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <externaltool id="sort">
     <description>Sorts the selected text</description>
-    <description xml:lang="de">Sortiert den ausgewählten Text</description>
+    <description xml:lang="de">Sortiert den ausgewaehlten Text</description>
     <displayname>Sort Selection</displayname>
     <displayname xml:lang="de">Auswahl Sortieren</displayname>
     <category>Text</category>
