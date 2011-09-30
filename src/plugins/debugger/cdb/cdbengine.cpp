@@ -2688,7 +2688,8 @@ void CdbEngine::attemptBreakpointSynchronization()
         }
         switch (handler->state(id)) {
         case BreakpointInsertRequested:
-            if (parameters.type == BreakpointByFileAndLine) {
+            if (parameters.type == BreakpointByFileAndLine
+                && m_options->breakpointCorrection) {
                 if (lineCorrection.isNull())
                     lineCorrection.reset(new BreakpointCorrectionContext(debuggerCore()->cppCodeModelSnapshot(),
                                                                          CPlusPlus::CppModelManagerInterface::instance()->workingCopy()));

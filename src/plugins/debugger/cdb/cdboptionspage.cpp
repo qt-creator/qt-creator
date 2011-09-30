@@ -55,17 +55,17 @@ struct EventsDescription {
 // Parameters of the "sxe" command
 const EventsDescription eventDescriptions[] =
 {
-    {"eh", false, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+    {"eh", false, QT_TRANSLATE_NOOP("Debugger::Internal::CdbBreakEventWidget",
                                     "C++ exception")},
-    {"ct", false, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+    {"ct", false, QT_TRANSLATE_NOOP("Debugger::Internal::CdbBreakEventWidget",
                                     "Thread creation")},
-    {"et", false, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+    {"et", false, QT_TRANSLATE_NOOP("Debugger::Internal::CdbBreakEventWidget",
                                     "Thread exit")},
-    {"ld", true,  QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+    {"ld", true,  QT_TRANSLATE_NOOP("Debugger::Internal::CdbBreakEventWidget",
                                     "Load module:")},
-    {"ud", true,  QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+    {"ud", true,  QT_TRANSLATE_NOOP("Debugger::Internal::CdbBreakEventWidget",
                                     "Unload module:")},
-    {"out", true, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
+    {"out", true, QT_TRANSLATE_NOOP("Debugger::Internal::CdbBreakEventWidget",
                                     "Output:")}
 };
 
@@ -83,6 +83,7 @@ CdbBreakEventWidget::CdbBreakEventWidget(QWidget *parent) : QWidget(parent)
     // 1 column with checkboxes only,
     // further columns with checkbox + parameter
     QHBoxLayout *mainLayout = new QHBoxLayout;
+    mainLayout->setMargin(0);
     QVBoxLayout *leftLayout = new QVBoxLayout;
     QFormLayout *parameterLayout = 0;
     mainLayout->addLayout(leftLayout);
@@ -98,7 +99,7 @@ CdbBreakEventWidget::CdbBreakEventWidget(QWidget *parent) : QWidget(parent)
             }
             le = new QLineEdit;
             parameterLayout->addRow(cb, le);
-            if (parameterLayout->count() >= 4) // New column
+            if (parameterLayout->count() >= 6) // New column
                 parameterLayout = 0;
         } else {
             leftLayout->addWidget(cb);
@@ -162,8 +163,19 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     QWidget(parent), m_breakEventWidget(new CdbBreakEventWidget)
 {
     m_ui.setupUi(this);
+    // Squeeze the groupbox layouts vertically to
+    // accommodate all options. This page only shows on
+    // Windows, which has large margins by default.
+
+    const int margin = m_ui.verticalLayout->margin();
+    const QMargins margins(margin, margin / 3, margin, margin / 3);
+
+    m_ui.startupFormLayout->setContentsMargins(margins);
+    m_ui.pathFormLayout->setContentsMargins(margins);
+    m_ui.breakpointLayout->setContentsMargins(margins);
 
     QVBoxLayout *eventLayout = new QVBoxLayout;
+    eventLayout->setContentsMargins(margins);
     eventLayout->addWidget(m_breakEventWidget);
     m_ui.eventGroupBox->setLayout(eventLayout);
 }
@@ -175,6 +187,7 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
     m_breakEventWidget->setBreakEvents(o.breakEvents);
     m_ui.consoleCheckBox->setChecked(o.cdbConsole);
+    m_ui.breakpointCorrectionCheckBox->setChecked(o.breakpointCorrection);
 }
 
 CdbOptions CdbOptionsPageWidget::options() const
@@ -185,6 +198,7 @@ CdbOptions CdbOptionsPageWidget::options() const
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
     rc.breakEvents = m_breakEventWidget->breakEvents();
     rc.cdbConsole = m_ui.consoleCheckBox->isChecked();
+    rc.breakpointCorrection = m_ui.breakpointCorrectionCheckBox->isChecked();
     return rc;
 }
 

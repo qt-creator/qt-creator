@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>334</width>
-    <height>317</height>
+    <width>629</width>
+    <height>807</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -24,7 +24,7 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <layout class="QFormLayout" name="formLayout">
+       <layout class="QFormLayout" name="startupFormLayout">
         <property name="fieldGrowthPolicy">
          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
         </property>
@@ -61,7 +61,7 @@
      <property name="title">
       <string>Debugger Paths</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_2">
+     <layout class="QFormLayout" name="pathFormLayout">
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
       </property>
@@ -90,6 +90,25 @@
       </item>
       <item row="1" column="1">
        <widget class="Utils::PathListEditor" name="sourcePathListEditor" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="breakpointsGroupBox">
+     <property name="title">
+      <string>Breakpoints</string>
+     </property>
+     <layout class="QVBoxLayout" name="breakpointLayout">
+      <item>
+       <widget class="QCheckBox" name="breakpointCorrectionCheckBox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Correct breakpoint location</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

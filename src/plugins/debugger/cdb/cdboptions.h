@@ -64,7 +64,10 @@ public:
     QStringList sourcePaths;
     // Events to break on (Command 'sxe' with abbreviation and optional parameter)
     QStringList breakEvents;
+    // Launch CDB's own console instead of Qt Creator's
     bool cdbConsole;
+    // Perform code-model based correction of breakpoint location.
+    bool breakpointCorrection;
 };
 
 inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)

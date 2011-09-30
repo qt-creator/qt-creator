@@ -40,11 +40,12 @@ static const char sourcePathsKeyC[] = "SourcePaths";
 static const char breakEventKeyC[] = "BreakEvent";
 static const char additionalArgumentsKeyC[] = "AdditionalArguments";
 static const char cdbConsoleKeyC[] = "CDB_Console";
+static const char breakpointCorrectionKeyC[] = "BreakpointCorrection";
 
 namespace Debugger {
 namespace Internal {
 
-CdbOptions::CdbOptions() : cdbConsole(false)
+CdbOptions::CdbOptions() : cdbConsole(false), breakpointCorrection(true)
 {
 }
 
@@ -74,6 +75,7 @@ void CdbOptions::fromSettings(QSettings *s)
     sourcePaths = s->value(keyRoot + QLatin1String(sourcePathsKeyC), QStringList()).toStringList();
     breakEvents = s->value(keyRoot + QLatin1String(breakEventKeyC), QStringList()).toStringList();
     cdbConsole = s->value(keyRoot + QLatin1String(cdbConsoleKeyC), QVariant(false)).toBool();
+    breakpointCorrection = s->value(keyRoot + QLatin1String(breakpointCorrectionKeyC), QVariant(true)).toBool();
 }
 
 void CdbOptions::toSettings(QSettings *s) const
@@ -84,12 +86,14 @@ void CdbOptions::toSettings(QSettings *s) const
     s->setValue(QLatin1String(breakEventKeyC), breakEvents);
     s->setValue(QLatin1String(additionalArgumentsKeyC), additionalArguments);
     s->setValue(QLatin1String(cdbConsoleKeyC), QVariant(cdbConsole));
+    s->setValue(QLatin1String(breakpointCorrectionKeyC), QVariant(breakpointCorrection));
     s->endGroup();
 }
 
 bool CdbOptions::equals(const CdbOptions &rhs) const
 {
     return cdbConsole == rhs.cdbConsole
+            && breakpointCorrection == rhs.breakpointCorrection
             && additionalArguments == rhs.additionalArguments
             && symbolPaths == rhs.symbolPaths
             && sourcePaths == rhs.sourcePaths
