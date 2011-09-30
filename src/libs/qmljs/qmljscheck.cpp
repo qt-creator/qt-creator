@@ -519,6 +519,7 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     disableMessage(HintDeclareVarsInOneLine);
     disableMessage(HintDeclarationsShouldBeAtStartOfFunction);
     disableMessage(HintBinaryOperatorSpacing);
+    disableMessage(HintOneStatementPerLine);
 }
 
 Check::~Check()
@@ -1162,6 +1163,32 @@ bool Check::visit(CallExpression *ast)
     }
     if (cast<IdentifierExpression *>(ast->base) && name == QLatin1String("eval"))
         addMessage(WarnEval, location);
+    return true;
+}
+
+bool Check::visit(StatementList *ast)
+{
+    SourceLocation warnStart;
+    SourceLocation warnEnd;
+    unsigned currentLine = 0;
+    for (StatementList *it = ast; it; it = it->next) {
+        if (!it->statement)
+            continue;
+        const SourceLocation itLoc = it->statement->firstSourceLocation();
+        if (itLoc.startLine != currentLine) { // first statement on a line
+            if (warnStart.isValid())
+                addMessage(HintOneStatementPerLine, locationFromRange(warnStart, warnEnd));
+            warnStart = SourceLocation();
+            currentLine = itLoc.startLine;
+        } else { // other statements on the same line
+            if (!warnStart.isValid())
+                warnStart = itLoc;
+            warnEnd = it->statement->lastSourceLocation();
+        }
+    }
+    if (warnStart.isValid())
+        addMessage(HintOneStatementPerLine, locationFromRange(warnStart, warnEnd));
+
     return true;
 }
 

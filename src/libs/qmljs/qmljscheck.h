@@ -95,6 +95,7 @@ protected:
     virtual bool visit(AST::NewExpression *ast);
     virtual bool visit(AST::NewMemberExpression *ast);
     virtual bool visit(AST::CallExpression *ast);
+    virtual bool visit(AST::StatementList *ast);
 
     virtual void endVisit(QmlJS::AST::UiObjectInitializer *);
 
