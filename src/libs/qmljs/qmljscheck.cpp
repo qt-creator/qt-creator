@@ -873,6 +873,35 @@ bool Check::visit(BinaryExpression *ast)
             addMessage(MaybeWarnEqualityTypeCoercion, ast->operatorToken);
         }
     }
+
+    // check odd + ++ combinations
+    const QLatin1Char newline('\n');
+    if (ast->op == QSOperator::Add || ast->op == QSOperator::Sub) {
+        QChar match;
+        Type msg;
+        if (ast->op == QSOperator::Add) {
+            match = QLatin1Char('+');
+            msg = WarnConfusingPluses;
+        } else {
+            QTC_CHECK(ast->op == QSOperator::Sub);
+            match = QLatin1Char('-');
+            msg = WarnConfusingMinuses;
+        }
+
+        if (int(op.end()) + 1 < source.size()) {
+            const QChar next = source.at(op.end());
+            if (next.isSpace() && next != newline
+                    && source.at(op.end() + 1) == match)
+                addMessage(msg, SourceLocation(op.begin(), 3, op.startLine, op.startColumn));
+        }
+        if (op.begin() >= 2) {
+            const QChar prev = source.at(op.begin() - 1);
+            if (prev.isSpace() && prev != newline
+                    && source.at(op.begin() - 2) == match)
+                addMessage(msg, SourceLocation(op.begin() - 2, 3, op.startLine, op.startColumn - 2));
+        }
+    }
+
     return true;
 }
 

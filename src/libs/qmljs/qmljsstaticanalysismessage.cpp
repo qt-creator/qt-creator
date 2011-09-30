@@ -146,12 +146,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("do not use void expressions"));
     newMsg(WarnConfusingPluses, Warning,
            tr("confusing pluses"));
-    newMsg(WarnConfusingPreincrement, Warning,
-           tr("confusing preincrement"));
     newMsg(WarnConfusingMinuses, Warning,
            tr("confusing minuses"));
-    newMsg(WarnConfusingPredecrement, Warning,
-           tr("confusing predecrement"));
     newMsg(HintDeclareVarsInOneLine, Hint,
            tr("declare all function vars on a single line"));
     // unused

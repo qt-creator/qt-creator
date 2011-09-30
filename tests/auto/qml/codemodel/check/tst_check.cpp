@@ -162,7 +162,7 @@ void tst_Check::test()
         fail |= !QCOMPARE_NOEXIT(actual.location.startLine, expected.location.startLine);
         if (fail)
             return;
-        fail |= !QCOMPARE_NOEXIT(actual.type, expected.type);
+        fail |= !QCOMPARE_NOEXIT((int)actual.type, (int)expected.type);
         fail |= !QCOMPARE_NOEXIT(actual.location.startColumn, expected.location.startColumn);
         fail |= !QCOMPARE_NOEXIT(actual.location.offset, expected.location.offset);
         fail |= !QCOMPARE_NOEXIT(actual.location.length, expected.location.length);
