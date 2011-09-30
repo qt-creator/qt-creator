@@ -32,6 +32,7 @@
 
 #include "remotegdbserveradapter.h"
 
+#include "debuggeractions.h"
 #include "debuggerstartparameters.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
@@ -201,7 +202,8 @@ void RemoteGdbServerAdapter::setupInferior()
     // gdb/mi/mi-main.c:1958: internal-error:
     // mi_execute_async_cli_command: Assertion `is_running (inferior_ptid)'
     // failed.\nA problem internal to GDB has been detected,[...]
-    m_engine->postCommand("set target-async on", CB(handleSetTargetAsync));
+    if (debuggerCore()->boolSetting(TargetAsync))
+        m_engine->postCommand("set target-async on", CB(handleSetTargetAsync));
 
     if (fileName.isEmpty()) {
         showMessage(tr("No symbol file given."), StatusBar);

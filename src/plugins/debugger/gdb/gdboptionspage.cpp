@@ -140,7 +140,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     }
 
     // FIXME: Not fully working on the gdb side yet.
-    m_ui->checkBoxTargetAsync->hide();
+    //m_ui->checkBoxTargetAsync->hide();
 
     return w;
 }
