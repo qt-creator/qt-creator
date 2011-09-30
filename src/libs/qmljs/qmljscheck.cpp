@@ -1160,6 +1160,8 @@ bool Check::visit(CallExpression *ast)
     if (!name.isEmpty() && name.at(0).isUpper()) {
         addMessage(WarnExpectedNewWithUppercaseFunction, location);
     }
+    if (cast<IdentifierExpression *>(ast->base) && name == QLatin1String("eval"))
+        addMessage(WarnEval, location);
     return true;
 }
 
