@@ -74,6 +74,11 @@ using namespace TextEditor;
 using namespace CPlusPlus;
 using namespace Utils;
 
+static inline bool isQtStringLiteral(const QByteArray &id)
+{
+    return id == "QLatin1String" || id == "QLatin1Literal" || id == "QStringLiteral";
+}
+
 namespace {
 
 /*
@@ -897,6 +902,13 @@ private:
 
     Activates on: the string literal
 */
+
+static inline QString msgQtStringLiteralDescription(const QString &replacement, int qtVersion)
+{
+    return QApplication::translate("CppTools::QuickFix", "Enclose in %1(...) (Qt %2)")
+           .arg(replacement).arg(qtVersion);
+}
+
 class WrapStringLiteral: public CppQuickFixFactory
 {
 public:
@@ -932,7 +944,7 @@ public:
                             const QByteArray id(file->tokenAt(functionName->identifier_token).identifier->chars());
 
                             if (id == "QT_TRANSLATE_NOOP" || id == "tr" || id == "trUtf8"
-                                    || (type == TypeString && (id == "QLatin1String" || id == "QLatin1Literal"))
+                                    || (type == TypeString && isQtStringLiteral(id))
                                     || (type == TypeChar && id == "QLatin1Char"))
                                 return noResult(); // skip it
                         }
@@ -945,53 +957,68 @@ public:
             if (file->charAt(file->startOf(literal)) == QLatin1Char('@'))
                 type = TypeObjCString;
         }
-        return singleResult(new Operation(interface,
-                                          path.size() - 1, // very high priority
-                                          type,
-                                          literal));
+
+        QList<CppQuickFixOperation::Ptr> result;
+
+        const int priority = path.size() - 1; // very high priority
+        if (type == TypeChar) {
+            const QString replacement = QLatin1String("QLatin1Char");
+            const QString description =
+                QApplication::translate("CppTools::QuickFix", "Enclose in %1(...)")
+                           .arg(replacement);
+
+            result.push_back(CppQuickFixOperation::Ptr(new Operation(interface, priority, type,
+                                                       replacement, description, literal)));
+        } else {
+            QString replacement = QLatin1String("QLatin1String");
+            result.push_back(CppQuickFixOperation::Ptr(new Operation(interface, priority, type,
+                                                                     replacement, msgQtStringLiteralDescription(replacement, 4),
+                                                                     literal)));
+            replacement = QLatin1String("QStringLiteral");
+            result.push_back(CppQuickFixOperation::Ptr(new Operation(interface, priority, type,
+                                                                     replacement, msgQtStringLiteralDescription(replacement, 5),
+                                                                     literal)));
+        }
+        return result;
     }
 
 private:
     class Operation: public CppQuickFixOperation
     {
     public:
-        Operation(const QSharedPointer<const CppQuickFixAssistInterface> &interface, int priority, Type type,
+        Operation(const QSharedPointer<const CppQuickFixAssistInterface> &interface, int priority,
+                  Type type, const QString &replacement, const QString &description,
                   ExpressionAST *literal)
             : CppQuickFixOperation(interface, priority)
-            , type(type)
+            , type(type), replacement(replacement)
             , literal(literal)
         {
-            if (type == TypeChar)
-                setDescription(QApplication::translate("CppTools::QuickFix",
-                                                       "Enclose in QLatin1Char(...)"));
-            else
-                setDescription(QApplication::translate("CppTools::QuickFix",
-                                                       "Enclose in QLatin1String(...)"));
-        }
+            setDescription(description);
+       }
 
         virtual void performChanges(const CppRefactoringFilePtr &currentFile, const CppRefactoringChanges &)
         {
             ChangeSet changes;
 
             const int startPos = currentFile->startOf(literal);
-            QLatin1String replacement = (type == TypeChar ? QLatin1String("QLatin1Char(")
-                                                          : QLatin1String("QLatin1String("));
-
+            const QString fullReplacement = replacement + QLatin1Char('(');
             if (type == TypeObjCString)
-                changes.replace(startPos, startPos + 1, replacement);
+                changes.replace(startPos, startPos + 1, fullReplacement);
             else
-                changes.insert(startPos, replacement);
+                changes.insert(startPos, fullReplacement);
 
-            changes.insert(currentFile->endOf(literal), ")");
+            changes.insert(currentFile->endOf(literal), QLatin1String(")"));
 
             currentFile->setChangeSet(changes);
             currentFile->apply();
         }
 
     private:
-        Type type;
+        const Type type;
+        const QString replacement;
         ExpressionAST *literal;
     };
+
 };
 
 /*
@@ -1035,7 +1062,7 @@ public:
                             if (id == "tr" || id == "trUtf8"
                                     || id == "translate"
                                     || id == "QT_TRANSLATE_NOOP"
-                                    || id == "QLatin1String" || id == "QLatin1Literal")
+                                    || isQtStringLiteral(id))
                                 return noResult(); // skip it
                         }
                     }
@@ -1164,7 +1191,7 @@ public:
                         if (SimpleNameAST *functionName = idExpr->name->asSimpleName()) {
                             const QByteArray id(interface->currentFile()->tokenAt(functionName->identifier_token).identifier->chars());
 
-                            if (id == "QLatin1String" || id == "QLatin1Literal")
+                            if (isQtStringLiteral(id))
                                 qlatin1Call = call;
                         }
                     }
