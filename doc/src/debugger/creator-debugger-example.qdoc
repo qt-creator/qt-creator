@@ -1,0 +1,108 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging.html
+    \page creator-debugging-example.html
+    \nextpage creator-debugger-operating-modes.html
+
+    \title Debugging the Example Application
+
+    This section uses the \l{Creating a Qt Widget Based Application}{TextFinder}
+    example to illustrate how to debug Qt C++ applications in the \gui Debug
+    mode.
+
+    TextFinder reads a text file into QString and then displays it with
+    QTextEdit. To look at the TextFinder class and see the stored data, place
+    a breakpoint in textfinder.cpp, as follows:
+
+    \list 1
+
+        \o  Click in between the line number and the window border on the line
+            where we change the cursor position to set a breakpoint.
+
+            \image qtcreator-setting-breakpoint1.png
+
+        \o  Select \gui{Debug > Start Debugging > Start Debugging} or press
+            \key{F5}.
+
+        \o  To view the breakpoint, click the \gui{Breakpoints} tab.
+
+            \image qtcreator-setting-breakpoint2.png
+
+        \o  To remove a breakpoint, right-click it and select
+            \gui{Delete Breakpoint}.
+
+
+        \o  To view the base classes and data members of the TextFinder class,
+            go to the \gui{Locals and Expressions} view.
+
+            \image qtcreator-watcher.png
+
+    \endlist
+
+    Modify the \c{on_findButton_clicked()} function to move back to
+    the start of the document and continue searching once the cursor hits the
+    end of the document. Add the following code snippet:
+
+    \code
+    void TextFinder::on_findButton_clicked()
+    {
+        QString searchString = ui->lineEdit->text();
+
+        QTextDocument *document = ui->textEdit->document();
+        QTextCursor cursor = ui->textEdit->textCursor();
+        cursor = document->find(searchString, cursor,
+            QTextDocument::FindWholeWords);
+        ui->textEdit->setTextCursor(cursor);
+
+        bool found = cursor.isNull();
+
+        if (!found && previouslyFound) {
+            int ret = QMessageBox::question(this, tr("End of Document"),
+            tr("I have reached the end of the document. Would you like "
+            "me to start searching from the beginning of the document?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+            if (ret == QMessageBox::Yes) {
+                cursor = document->find(searchString,
+                    QTextDocument::FindWholeWords);
+                ui->textEdit->setTextCursor(cursor);
+            } else
+                return;
+        }
+        previouslyFound = found;
+    }
+    \endcode
+
+    If you compile and run the above code, however, the application does not
+    work correctly due to a logic error. To locate this logic error, step
+    through the code using the following buttons:
+
+    \image qtcreator-debugging-buttons.png
+*/
