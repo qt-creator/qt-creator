@@ -4761,7 +4761,7 @@ void BaseTextEditorWidget::highlightSearchResults(const QString &txt, Find::Find
                                        Qt::CaseSensitive : Qt::CaseInsensitive);
     d->m_findFlags = findFlags;
 
-    d->m_delayedUpdateTimer->start(10);
+    d->m_delayedUpdateTimer->start(50);
 }
 
 int BaseTextEditorWidget::verticalBlockSelectionFirstColumn() const
