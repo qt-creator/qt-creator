@@ -1122,6 +1122,33 @@ bool Check::visit(NewExpression *ast)
 bool Check::visit(NewMemberExpression *ast)
 {
     checkNewExpression(ast->base);
+
+    // check for Number, Boolean, etc constructor usage
+    if (IdentifierExpression *idExp = cast<IdentifierExpression *>(ast->base)) {
+        const QStringRef name = idExp->name;
+        if (name == QLatin1String("Number")) {
+            addMessage(WarnNumberConstructor, idExp->identifierToken);
+        } else if (name == QLatin1String("Boolean")) {
+            addMessage(WarnBooleanConstructor, idExp->identifierToken);
+        } else if (name == QLatin1String("String")) {
+            addMessage(WarnStringConstructor, idExp->identifierToken);
+        } else if (name == QLatin1String("Object")) {
+            addMessage(WarnObjectConstructor, idExp->identifierToken);
+        } else if (name == QLatin1String("Array")) {
+            bool ok = false;
+            if (ast->arguments && ast->arguments->expression && !ast->arguments->next) {
+                Evaluate evaluate(&_scopeChain);
+                const Value *arg = evaluate(ast->arguments->expression);
+                if (arg->asNumberValue() || arg->asUndefinedValue())
+                    ok = true;
+            }
+            if (!ok)
+                addMessage(WarnArrayConstructor, idExp->identifierToken);
+        } else if (name == QLatin1String("Function")) {
+            addMessage(WarnFunctionConstructor, idExp->identifierToken);
+        }
+    }
+
     return true;
 }
 

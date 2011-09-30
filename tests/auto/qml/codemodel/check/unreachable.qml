@@ -8,7 +8,7 @@ Item {
     }
 
     function foo() {
-        throw new Object()
+        throw {}
         x() // 28 9 11
         x()
     }
