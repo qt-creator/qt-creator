@@ -30,30 +30,42 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_MODULESWINDOW_H
-#define DEBUGGER_MODULESWINDOW_H
+#ifndef DEBUGGER_BASEWINDOW_H
+#define DEBUGGER_BASEWINDOW_H
 
-#include "basewindow.h"
+#include <QtGui/QTreeView>
 
 namespace Debugger {
 namespace Internal {
 
-class ModulesWindow : public BaseWindow
+class BaseWindow : public QTreeView
 {
     Q_OBJECT
 
 public:
-    explicit ModulesWindow(QWidget *parent = 0);
+    BaseWindow(QWidget *parent = 0);
+
+    void setAlwaysAdjustColumnsAction(QAction *action);
+    void addBaseContextActions(QMenu *menu);
+    bool handleBaseContextAction(QAction *action);
+
+    void setModel(QAbstractItemModel *model);
+    virtual void rowActivated(const QModelIndex &) {}
+
+public slots:
+    void resizeColumnsToContents();
+    void setAlwaysResizeColumnsToContents(bool on);
 
 private slots:
-    void moduleActivated(const QModelIndex &index);
+    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
+    void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
 
 private:
-    void contextMenuEvent(QContextMenuEvent *ev);
+    QAction *m_alwaysAdjustColumnsAction;
+    QAction *m_adjustColumnsAction;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_MODULESWINDOW_H
-
+#endif // DEBUGGER_BASEWINDOW_H

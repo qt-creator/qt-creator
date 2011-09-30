@@ -34,13 +34,12 @@
 #define DEBUGGER_BREAKWINDOW_H
 
 #include "breakpoint.h"
-
-#include <QtGui/QTreeView>
+#include "basewindow.h"
 
 namespace Debugger {
 namespace Internal {
 
-class BreakWindow : public QTreeView
+class BreakWindow : public BaseWindow
 {
     Q_OBJECT
 
@@ -51,15 +50,10 @@ public:
     void setModel(QAbstractItemModel *model);
 
 private slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-
-    void rowActivated(const QModelIndex &index);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void showAddressColumn(bool on);
 
 private:
-    void resizeEvent(QResizeEvent *ev);
+    void rowActivated(const QModelIndex &index);
     void contextMenuEvent(QContextMenuEvent *ev);
     void keyPressEvent(QKeyEvent *ev);
     void mouseDoubleClickEvent(QMouseEvent *ev);

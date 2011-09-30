@@ -16,7 +16,9 @@ QT += gui \
     network \
     script
 
-HEADERS += breakhandler.h \
+HEADERS += \
+    basewindow.h \
+    breakhandler.h \
     breakpoint.h \
     breakpointmarker.h \
     breakwindow.h \
@@ -67,7 +69,9 @@ HEADERS += breakhandler.h \
     debuggersourcepathmappingwidget.h \
     memoryview.h
 
-SOURCES += breakhandler.cpp \
+SOURCES += \
+    basewindow.cpp \
+    breakhandler.cpp \
     breakpoint.cpp \
     breakpointmarker.cpp \
     breakwindow.cpp \

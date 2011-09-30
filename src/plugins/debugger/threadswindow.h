@@ -33,27 +33,20 @@
 #ifndef DEBUGGER_THREADWINDOW_H
 #define DEBUGGER_THREADWINDOW_H
 
-#include <QtGui/QTreeView>
+#include "basewindow.h"
 
 namespace Debugger {
 namespace Internal {
 
-class ThreadsWindow : public QTreeView
+class ThreadsWindow : public BaseWindow
 {
     Q_OBJECT
 
 public:
     ThreadsWindow(QWidget *parent = 0);
 
-public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-
-private slots:
-    void rowActivated(const QModelIndex &index);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-
 private:
+    void rowActivated(const QModelIndex &index);
     void setModel(QAbstractItemModel *model);
     void contextMenuEvent(QContextMenuEvent *ev);
 };

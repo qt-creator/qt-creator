@@ -33,23 +33,20 @@
 #ifndef DEBUGGER_SOURCEFILEWINDOW_H
 #define DEBUGGER_SOURCEFILEWINDOW_H
 
-#include <QtGui/QTreeView>
+#include "basewindow.h"
 
 namespace Debugger {
 namespace Internal {
 
-class SourceFilesWindow : public QTreeView
+class SourceFilesWindow : public BaseWindow
 {
     Q_OBJECT
 
 public:
     SourceFilesWindow(QWidget *parent = 0);
 
-private slots:
-    void sourceFileActivated(const QModelIndex &index);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-
 private:
+    void rowActivated(const QModelIndex &index);
     void contextMenuEvent(QContextMenuEvent *ev);
 };
 

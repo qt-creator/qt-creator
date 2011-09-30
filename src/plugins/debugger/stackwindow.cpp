@@ -46,9 +46,9 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
+#include <QtGui/QContextMenuEvent>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
-#include <QtGui/QResizeEvent>
 
 namespace Debugger {
 namespace Internal {
@@ -59,33 +59,17 @@ static DebuggerEngine *currentEngine()
 }
 
 StackWindow::StackWindow(QWidget *parent)
-    : QTreeView(parent)
+    : BaseWindow(parent)
 {
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setFrameStyle(QFrame::NoFrame);
-
-    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setWindowTitle(tr("Stack"));
+    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustStackColumnWidths));
 
-    setAlternatingRowColors(act->isChecked());
-    setRootIsDecorated(false);
-    setIconSize(QSize(10, 10));
-
-    header()->setDefaultAlignment(Qt::AlignLeft);
-
-    connect(this, SIGNAL(activated(QModelIndex)),
-        SLOT(rowActivated(QModelIndex)));
-    connect(act, SIGNAL(toggled(bool)),
-        SLOT(setAlternatingRowColorsHelper(bool)));
     connect(debuggerCore()->action(UseAddressInStackView), SIGNAL(toggled(bool)),
         SLOT(showAddressColumn(bool)));
     connect(debuggerCore()->action(ExpandStack), SIGNAL(triggered()),
         SLOT(reloadFullStack()));
     connect(debuggerCore()->action(MaximalStackDepth), SIGNAL(triggered()),
         SLOT(reloadFullStack()));
-    connect(debuggerCore()->action(AlwaysAdjustStackColumnWidths),
-        SIGNAL(triggered(bool)),
-        SLOT(setAlwaysResizeColumnsToContents(bool)));
     showAddressColumn(false);
 }
 
@@ -101,14 +85,9 @@ void StackWindow::rowActivated(const QModelIndex &index)
 
 void StackWindow::setModel(QAbstractItemModel *model)
 {
-    QTreeView::setModel(model);
-    //resizeColumnsToContents();
+    BaseWindow::setModel(model);
     resizeColumnToContents(0);
     resizeColumnToContents(3);
-    if (header()) {
-        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustStackColumnWidths);
-        setAlwaysResizeColumnsToContents(adjust);
-    }
 }
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -162,20 +141,12 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 #endif
     menu.addAction(debuggerCore()->action(UseAddressInStackView));
 
-    QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
-    menu.addAction(debuggerCore()->action(AlwaysAdjustStackColumnWidths));
-    menu.addSeparator();
-
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    addBaseContextActions(&menu);
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (!act)
-        ;
-    else if (act == actCopyContents)
+    if (act == actCopyContents)
         copyContentsToClipboard();
-    else if (act == actAdjust)
-        resizeColumnsToContents();
     else if (act == actShowMemory) {
         const QString title = tr("Memory at Frame #%1 (%2) 0x%3").
         arg(row).arg(frame.function).arg(address, 0, 16);
@@ -193,6 +164,8 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         engine->openDisassemblerView(frame);
     else if (act == actLoadSymbols)
         engine->loadSymbolsForStack();
+    else
+        handleBaseContextAction(act);
 }
 
 void StackWindow::copyContentsToClipboard()
@@ -218,20 +191,6 @@ void StackWindow::copyContentsToClipboard()
 void StackWindow::reloadFullStack()
 {
     currentEngine()->reloadFullStack();
-}
-
-void StackWindow::resizeColumnsToContents()
-{
-    for (int i = model()->columnCount(); --i >= 0; )
-        resizeColumnToContents(i);
-}
-
-void StackWindow::setAlwaysResizeColumnsToContents(bool on)
-{
-    QHeaderView::ResizeMode mode =
-        on ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    for (int i = model()->columnCount(); --i >= 0; )
-        header()->setResizeMode(i, mode);
 }
 
 } // namespace Internal

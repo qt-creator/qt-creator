@@ -478,14 +478,11 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
 /////////////////////////////////////////////////////////////////////
 
 WatchWindow::WatchWindow(Type type, QWidget *parent)
-  : QTreeView(parent),
+  : BaseWindow(parent),
     m_type(type)
 {
     setObjectName(QLatin1String("WatchWindow"));
     m_grabbing = false;
-
-    setFrameStyle(QFrame::NoFrame);
-    setAttribute(Qt::WA_MacShowFocusRect, false);
     setWindowTitle(tr("Locals and Expressions"));
     setIndentation(indentation() * 9/10);
     setUniformRowHeights(true);
@@ -493,16 +490,8 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
     setDragEnabled(true);
     setAcceptDrops(true);
     setDropIndicatorShown(true);
+    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustLocalsColumnWidths));
 
-    QAction *useColors = debuggerCore()->action(UseAlternatingRowColors);
-    setAlternatingRowColors(useColors->isChecked());
-
-    QAction *adjustColumns = debuggerCore()->action(AlwaysAdjustLocalsColumnWidths);
-
-    connect(useColors, SIGNAL(toggled(bool)),
-        SLOT(setAlternatingRowColorsHelper(bool)));
-    connect(adjustColumns, SIGNAL(triggered(bool)),
-        SLOT(setAlwaysResizeColumnsToContents(bool)));
     connect(this, SIGNAL(expanded(QModelIndex)),
         SLOT(expandNode(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)),
@@ -864,11 +853,6 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(debuggerCore()->action(ShowQtNamespace));
     menu.addAction(debuggerCore()->action(SortStructMembers));
 
-    QAction *actAdjustColumnWidths =
-        menu.addAction(tr("Adjust Column Widths to Contents"));
-    menu.addAction(debuggerCore()->action(AlwaysAdjustLocalsColumnWidths));
-    menu.addSeparator();
-
     QAction *actClearCodeModelSnapshot
         = new QAction(tr("Refresh Code Model Snapshot"), &menu);
     actClearCodeModelSnapshot->setEnabled(actionsEnabled
@@ -885,20 +869,17 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     actCloseEditorToolTips->setEnabled(DebuggerToolTipManager::instance()->hasToolTips());
     menu.addAction(actCloseEditorToolTips);
 
-    QAction *act = menu.exec(ev->globalPos());
-    if (act == 0)
-        return;
+    addBaseContextActions(&menu);
 
-    if (act == actAdjustColumnWidths) {
-        resizeColumnsToContents();
-    } else if (act == actInsertNewWatchItem) {
+    QAction *act = menu.exec(ev->globalPos());
+
+    if (act == actInsertNewWatchItem) {
         bool ok;
         QString newExp = QInputDialog::getText(this, tr("Enter watch expression"),
                                    tr("Expression:"), QLineEdit::Normal,
                                    QString(), &ok);
-        if (ok && !newExp.isEmpty()) {
+        if (ok && !newExp.isEmpty())
             watchExpression(newExp);
-        }
     } else if (act == actOpenMemoryEditAtVariableAddress) {
         addVariableMemoryView(currentEngine(), false, mi0, false, ev->globalPos(), this);
     } else if (act == actOpenMemoryEditAtPointerValue) {
@@ -953,6 +934,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         handler->setUnprintableBase(16);
     } else if (act == actCloseEditorToolTips) {
         DebuggerToolTipManager::instance()->closeAllToolTips();
+    } else if (handleBaseContextAction(act)) {
+        ;
     } else {
         for (int i = 0; i != typeFormatActions.size(); ++i) {
             if (act == typeFormatActions.at(i))
@@ -963,22 +946,6 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
                 setModelData(LocalsIndividualFormatRole, i, mi1);
         }
     }
-}
-
-void WatchWindow::resizeColumnsToContents()
-{
-    resizeColumnToContents(0);
-    resizeColumnToContents(1);
-}
-
-void WatchWindow::setAlwaysResizeColumnsToContents(bool on)
-{
-    if (!header())
-        return;
-    QHeaderView::ResizeMode mode = on
-        ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    header()->setResizeMode(0, mode);
-    header()->setResizeMode(1, mode);
 }
 
 bool WatchWindow::event(QEvent *ev)
@@ -999,12 +966,9 @@ void WatchWindow::editItem(const QModelIndex &idx)
 
 void WatchWindow::setModel(QAbstractItemModel *model)
 {
-    QTreeView::setModel(model);
-
+    BaseWindow::setModel(model);
     setRootIsDecorated(true);
     if (header()) {
-        setAlwaysResizeColumnsToContents(
-            debuggerCore()->boolSetting(AlwaysAdjustLocalsColumnWidths));
         header()->setDefaultAlignment(Qt::AlignLeft);
         if (m_type != LocalsType)
             header()->hide();

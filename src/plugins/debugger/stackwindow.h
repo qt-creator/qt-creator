@@ -33,29 +33,24 @@
 #ifndef DEBUGGER_STACKWINDOW_H
 #define DEBUGGER_STACKWINDOW_H
 
-#include <QtGui/QTreeView>
+#include "basewindow.h"
 
 namespace Debugger {
 namespace Internal {
 
-class StackWindow : public QTreeView
+class StackWindow : public BaseWindow
 {
     Q_OBJECT
 
 public:
     explicit StackWindow(QWidget *parent = 0);
 
-public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-
 private slots:
-    void rowActivated(const QModelIndex &index);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void showAddressColumn(bool on);
     void reloadFullStack();
 
 private:
+    void rowActivated(const QModelIndex &index);
     void setModel(QAbstractItemModel *model);
     void contextMenuEvent(QContextMenuEvent *ev);
     void copyContentsToClipboard();

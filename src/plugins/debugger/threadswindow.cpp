@@ -49,26 +49,11 @@ namespace Debugger {
 namespace Internal {
 
 ThreadsWindow::ThreadsWindow(QWidget *parent)
-    : QTreeView(parent)
+    : BaseWindow(parent)
 {
-    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
-
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Thread"));
-    setAlternatingRowColors(act->isChecked());
-    setRootIsDecorated(false);
-    setIconSize(QSize(10, 10));
-
-    header()->setDefaultAlignment(Qt::AlignLeft);
-
-    connect(this, SIGNAL(activated(QModelIndex)),
-        SLOT(rowActivated(QModelIndex)));
-    connect(act, SIGNAL(toggled(bool)),
-        SLOT(setAlternatingRowColorsHelper(bool)));
-    connect(debuggerCore()->action(AlwaysAdjustThreadsColumnWidths),
-        SIGNAL(toggled(bool)),
-        SLOT(setAlwaysResizeColumnsToContents(bool)));
+    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustThreadsColumnWidths));
+    setObjectName(QLatin1String("ThreadsWindow"));
 }
 
 void ThreadsWindow::rowActivated(const QModelIndex &index)
@@ -78,48 +63,20 @@ void ThreadsWindow::rowActivated(const QModelIndex &index)
 
 void ThreadsWindow::setModel(QAbstractItemModel *model)
 {
-    QTreeView::setModel(model);
+    BaseWindow::setModel(model);
     resizeColumnToContents(ThreadData::IdColumn);
     resizeColumnToContents(ThreadData::LineColumn);
     resizeColumnToContents(ThreadData::NameColumn);
     resizeColumnToContents(ThreadData::StateColumn);
     resizeColumnToContents(ThreadData::TargetIdColumn);
-    if (header()) {
-        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustThreadsColumnWidths);
-        setAlwaysResizeColumnsToContents(adjust);
-    }
 }
 
 void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    QAction *adjustColumnAction =
-        menu.addAction(tr("Adjust Column Widths to Contents"));
-    menu.addAction(debuggerCore()->action(AlwaysAdjustThreadsColumnWidths));
-    menu.addSeparator();
-
-    menu.addAction(debuggerCore()->action(SettingsDialog));
-
+    addBaseContextActions(&menu);
     QAction *act = menu.exec(ev->globalPos());
-    if (!act)
-        return;
-
-    if (act == adjustColumnAction)
-        resizeColumnsToContents();
-}
-
-void ThreadsWindow::resizeColumnsToContents()
-{
-    const int columnCount = model()->columnCount();
-    for (int c = 0 ; c != columnCount; ++c)
-        resizeColumnToContents(c);
-}
-
-void ThreadsWindow::setAlwaysResizeColumnsToContents(bool on)
-{
-    QHeaderView::ResizeMode mode = on
-        ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    header()->setResizeMode(0, mode);
+    handleBaseContextAction(act);
 }
 
 } // namespace Internal

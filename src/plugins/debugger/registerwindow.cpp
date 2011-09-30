@@ -164,21 +164,11 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 RegisterWindow::RegisterWindow(QWidget *parent)
-  : QTreeView(parent)
+    : BaseWindow(parent)
 {
-    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
-    setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Registers"));
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setAlternatingRowColors(act->isChecked());
-    setRootIsDecorated(false);
+    setAlwaysAdjustColumnsAction(debuggerCore()->action(UseAlternatingRowColors));
     setItemDelegate(new RegisterDelegate(this));
-
-    connect(act, SIGNAL(toggled(bool)),
-        SLOT(setAlternatingRowColorsHelper(bool)));
-    connect(debuggerCore()->action(AlwaysAdjustRegistersColumnWidths),
-        SIGNAL(toggled(bool)),
-        SLOT(setAlwaysResizeColumnsToContents(bool)));
     setObjectName(QLatin1String("RegisterWindow"));
 }
 
@@ -245,20 +235,13 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act2 = menu.addAction(tr("Binary"));
     act2->setCheckable(true);
     act2->setChecked(base == 2);
-    menu.addSeparator();
 
-    QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
-    menu.addAction(debuggerCore()->action(AlwaysAdjustRegistersColumnWidths));
-    menu.addSeparator();
-
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    addBaseContextActions(&menu);
 
     const QPoint position = ev->globalPos();
     QAction *act = menu.exec(position);
 
-    if (act == actAdjust)
-        resizeColumnsToContents();
-    else if (act == actReload)
+    if (act == actReload)
         engine->reloadRegisters();
     else if (act == actEditMemory) {
         const QString registerName = QString::fromAscii(aRegister.name, address);
@@ -285,29 +268,8 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         handler->setNumberBase(8);
     else if (act == act2)
         handler->setNumberBase(2);
-}
-
-void RegisterWindow::resizeColumnsToContents()
-{
-    resizeColumnToContents(0);
-    resizeColumnToContents(1);
-}
-
-void RegisterWindow::setAlwaysResizeColumnsToContents(bool on)
-{
-    QHeaderView::ResizeMode mode = on
-        ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    header()->setResizeMode(0, mode);
-    header()->setResizeMode(1, mode);
-}
-
-void RegisterWindow::setModel(QAbstractItemModel *model)
-{
-    QTreeView::setModel(model);
-    if (header()) {
-        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustRegistersColumnWidths);
-        setAlwaysResizeColumnsToContents(adjust);
-    }
+    else
+        handleBaseContextAction(act);
 }
 
 void RegisterWindow::reloadRegisters()

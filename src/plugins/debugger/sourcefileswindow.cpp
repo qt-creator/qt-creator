@@ -43,9 +43,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 
-#include <QtGui/QHeaderView>
+#include <QtGui/QContextMenuEvent>
 #include <QtGui/QMenu>
-#include <QtGui/QResizeEvent>
 
 
 //////////////////////////////////////////////////////////////////
@@ -57,41 +56,22 @@
 namespace Debugger {
 namespace Internal {
 
-static DebuggerEngine *currentEngine()
-{
-    return debuggerCore()->currentEngine();
-}
-
 SourceFilesWindow::SourceFilesWindow(QWidget *parent)
-    : QTreeView(parent)
+    : BaseWindow(parent)
 {
-    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
-
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Source Files"));
-    setSortingEnabled(true);
-    setAlternatingRowColors(act->isChecked());
-    setRootIsDecorated(false);
-    setIconSize(QSize(10, 10));
-    //header()->setDefaultAlignment(Qt::AlignLeft);
-
-    connect(this, SIGNAL(activated(QModelIndex)),
-        SLOT(sourceFileActivated(QModelIndex)));
-    connect(act, SIGNAL(toggled(bool)),
-        SLOT(setAlternatingRowColorsHelper(bool)));
 }
 
-void SourceFilesWindow::sourceFileActivated(const QModelIndex &index)
+void SourceFilesWindow::rowActivated(const QModelIndex &index)
 {
-    DebuggerEngine *engine = currentEngine();
+    DebuggerEngine *engine = debuggerCore()->currentEngine();
     QTC_ASSERT(engine, return);
     engine->gotoLocation(index.data().toString());
 }
 
 void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    DebuggerEngine *engine = currentEngine();
+    DebuggerEngine *engine = debuggerCore()->currentEngine();
     QTC_ASSERT(engine, return);
     QModelIndex index = indexAt(ev->pos());
     index = index.sibling(index.row(), 0);
@@ -114,8 +94,7 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(act1);
     menu.addAction(act2);
-    menu.addSeparator();
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    addBaseContextActions(&menu);
 
     QAction *act = menu.exec(ev->globalPos());
 
@@ -123,6 +102,8 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
         engine->reloadSourceFiles();
     else if (act == act2)
         engine->gotoLocation(name);
+    else
+        handleBaseContextAction(act);
 }
 
 } // namespace Internal

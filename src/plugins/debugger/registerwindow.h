@@ -33,27 +33,23 @@
 #ifndef DEBUGGER_REGISTERWINDOW_H
 #define DEBUGGER_REGISTERWINDOW_H
 
-#include <QtGui/QTreeView>
+#include "basewindow.h"
 
 namespace Debugger {
 namespace Internal {
 
-class RegisterWindow : public QTreeView
+class RegisterWindow : public BaseWindow
 {
     Q_OBJECT
 
 public:
     explicit RegisterWindow(QWidget *parent = 0);
-    void setModel(QAbstractItemModel *model);
 
 public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void reloadRegisters();
 
 private:
-    virtual void contextMenuEvent(QContextMenuEvent *ev);
+    void contextMenuEvent(QContextMenuEvent *ev);
 };
 
 } // namespace Internal

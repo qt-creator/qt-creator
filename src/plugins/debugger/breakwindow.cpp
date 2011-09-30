@@ -469,28 +469,15 @@ MultiBreakPointsDialog::MultiBreakPointsDialog(unsigned engineCapabilities, QWid
 ///////////////////////////////////////////////////////////////////////
 
 BreakWindow::BreakWindow(QWidget *parent)
-    : QTreeView(parent)
+    : BaseWindow(parent)
 {
-    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
-    setFrameStyle(QFrame::NoFrame);
-    setAttribute(Qt::WA_MacShowFocusRect, false);
     setWindowTitle(tr("Breakpoints"));
+    setObjectName(QLatin1String("ThreadsWindow"));
     setWindowIcon(QIcon(QLatin1String(":/debugger/images/debugger_breakpoints.png")));
-    setAlternatingRowColors(act->isChecked());
-    setRootIsDecorated(false);
-    setIconSize(QSize(10, 10));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-
-    connect(this, SIGNAL(activated(QModelIndex)),
-        SLOT(rowActivated(QModelIndex)));
-    connect(act, SIGNAL(toggled(bool)),
-        SLOT(setAlternatingRowColorsHelper(bool)));
+    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustBreakpointsColumnWidths));
     connect(debuggerCore()->action(UseAddressInBreakpointsView),
-        SIGNAL(toggled(bool)),
-        SLOT(showAddressColumn(bool)));
-    connect(debuggerCore()->action(AlwaysAdjustBreakpointsColumnWidths),
-        SIGNAL(toggled(bool)),
-        SLOT(setAlwaysResizeColumnsToContents(bool)));
+        SIGNAL(toggled(bool)), SLOT(showAddressColumn(bool)));
 }
 
 void BreakWindow::showAddressColumn(bool on)
@@ -514,11 +501,6 @@ void BreakWindow::keyPressEvent(QKeyEvent *ev)
     QTreeView::keyPressEvent(ev);
 }
 
-void BreakWindow::resizeEvent(QResizeEvent *ev)
-{
-    QTreeView::resizeEvent(ev);
-}
-
 void BreakWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     QModelIndex indexUnderMouse = indexAt(ev->pos());
@@ -531,14 +513,10 @@ void BreakWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 
 void BreakWindow::setModel(QAbstractItemModel *model)
 {
-    QTreeView::setModel(model);
+    BaseWindow::setModel(model);
     resizeColumnToContents(0); // Number
     resizeColumnToContents(3); // Line
     resizeColumnToContents(6); // Ignore count
-    if (header()) {
-        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustBreakpointsColumnWidths);
-        setAlwaysResizeColumnsToContents(adjust);
-    }
     connect(model, SIGNAL(layoutChanged()), this, SLOT(expandAll()));
 }
 
@@ -631,10 +609,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
     menu.addAction(debuggerCore()->action(UseToolTipsInBreakpointsView));
     menu.addAction(debuggerCore()->action(UseAddressInBreakpointsView));
-    menu.addAction(adjustColumnAction);
-    menu.addAction(debuggerCore()->action(AlwaysAdjustBreakpointsColumnWidths));
-    menu.addSeparator();
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    addBaseContextActions(&menu);
 
     QAction *act = menu.exec(ev->globalPos());
 
@@ -656,6 +631,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         setBreakpointsEnabled(selectedIds, !enabled);
     else if (act == addBreakpointAction)
         addBreakpoint();
+    else
+        handleBaseContextAction(act);
 }
 
 void BreakWindow::setBreakpointsEnabled(const BreakpointModelIds &ids, bool enabled)
@@ -741,20 +718,6 @@ void BreakWindow::associateBreakpoint(const BreakpointModelIds &ids, int threadI
     BreakHandler *handler = breakHandler();
     foreach (const BreakpointModelId id, ids)
         handler->setThreadSpec(id, threadId);
-}
-
-void BreakWindow::resizeColumnsToContents()
-{
-    for (int i = model()->columnCount(); --i >= 0; )
-        resizeColumnToContents(i);
-}
-
-void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
-{
-    QHeaderView::ResizeMode mode = on
-        ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    for (int i = model()->columnCount(); --i >= 0; )
-        header()->setResizeMode(i, mode);
 }
 
 void BreakWindow::rowActivated(const QModelIndex &index)

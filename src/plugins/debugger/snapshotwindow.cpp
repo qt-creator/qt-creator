@@ -59,24 +59,8 @@ namespace Internal {
 SnapshotWindow::SnapshotWindow(SnapshotHandler *handler)
 {
     m_snapshotHandler = handler;
-
-    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     setWindowTitle(tr("Snapshots"));
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-    setFrameStyle(QFrame::NoFrame);
-    setAlternatingRowColors(act->isChecked());
-    setRootIsDecorated(false);
-    setIconSize(QSize(10, 10));
-
-    header()->setDefaultAlignment(Qt::AlignLeft);
-
-    connect(this, SIGNAL(activated(QModelIndex)),
-        SLOT(rowActivated(QModelIndex)));
-    connect(act, SIGNAL(toggled(bool)),
-        SLOT(setAlternatingRowColorsHelper(bool)));
-    connect(debuggerCore()->action(AlwaysAdjustSnapshotsColumnWidths),
-        SIGNAL(toggled(bool)),
-        SLOT(setAlwaysResizeColumnsToContents(bool)));
+    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustSnapshotsColumnWidths));
 }
 
 void SnapshotWindow::rowActivated(const QModelIndex &index)
@@ -112,13 +96,8 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *actRemove = menu.addAction(tr("Remove Snapshot"));
     actRemove->setEnabled(idx.isValid());
-    menu.addSeparator();
-
-    QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
-    menu.addAction(debuggerCore()->action(AlwaysAdjustSnapshotsColumnWidths));
-    menu.addSeparator();
-
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    
+    addBaseContextActions(&menu);
 
     QAction *act = menu.exec(ev->globalPos());
 
@@ -126,37 +105,13 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
         m_snapshotHandler->createSnapshot(idx.row());
     else if (act == actRemove)
         removeSnapshot(idx.row());
-    else if (act == actAdjust)
-        resizeColumnsToContents();
+    else
+        handleBaseContextAction(act);
 }
 
 void SnapshotWindow::removeSnapshot(int i)
 {
     m_snapshotHandler->at(i)->quitDebugger();
-}
-
-void SnapshotWindow::setModel(QAbstractItemModel *model)
-{
-    QTreeView::setModel(model);
-    setAlwaysResizeColumnsToContents(true);
-    if (header()) {
-        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustSnapshotsColumnWidths);
-        setAlwaysResizeColumnsToContents(adjust);
-    }
-}
-
-void SnapshotWindow::resizeColumnsToContents()
-{
-    for (int i = model()->columnCount(); --i >= 0; )
-        resizeColumnToContents(i);
-}
-
-void SnapshotWindow::setAlwaysResizeColumnsToContents(bool on)
-{
-    QHeaderView::ResizeMode mode =
-        on ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    for (int i = model()->columnCount(); --i >= 0; )
-        header()->setResizeMode(i, mode);
 }
 
 } // namespace Internal

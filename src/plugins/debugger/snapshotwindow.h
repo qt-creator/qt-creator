@@ -33,33 +33,25 @@
 #ifndef DEBUGGER_SNAPSHOTWINDOW_H
 #define DEBUGGER_SNAPSHOTWINDOW_H
 
-#include <QtGui/QTreeView>
+#include "basewindow.h"
 
 namespace Debugger {
 namespace Internal {
 
 class SnapshotHandler;
 
-class SnapshotWindow : public QTreeView
+class SnapshotWindow : public BaseWindow
 {
     Q_OBJECT
 
 public:
     explicit SnapshotWindow(SnapshotHandler *handler);
 
-public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
-
-private slots:
-    void rowActivated(const QModelIndex &index);
-    void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-
 private:
+    void rowActivated(const QModelIndex &index);
     void removeSnapshot(int i);
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
-    void setModel(QAbstractItemModel *model);
 
     SnapshotHandler *m_snapshotHandler;
 };
