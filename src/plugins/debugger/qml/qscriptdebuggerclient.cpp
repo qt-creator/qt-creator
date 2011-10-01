@@ -416,6 +416,8 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
                 QString processedFilename = handler->fileName(id);
 
                 if (processedFilename == file && handler->lineNumber(id) == line) {
+                    if (handler->state(id) == BreakpointInsertProceeding)
+                        handler->notifyBreakpointInsertOk(id);
                     QTC_CHECK(handler->state(id) == BreakpointInserted);
                     BreakpointResponse br = handler->response(id);
                     br.fileName = file;

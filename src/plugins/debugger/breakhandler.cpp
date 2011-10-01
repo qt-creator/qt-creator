@@ -842,7 +842,8 @@ static bool isAllowedTransition(BreakpointState from, BreakpointState to)
     case BreakpointInsertProceeding:
         return to == BreakpointInserted
             || to == BreakpointDead
-            || to == BreakpointChangeRequested;
+            || to == BreakpointChangeRequested
+            || to == BreakpointRemoveRequested;
     case BreakpointChangeRequested:
         return to == BreakpointChangeProceeding;
     case BreakpointChangeProceeding:
@@ -1011,6 +1012,7 @@ void BreakHandler::removeBreakpoint(BreakpointModelId id)
     BREAK_ASSERT(it != m_storage.end(), return);
     switch (it->state) {
     case BreakpointInserted:
+    case BreakpointInsertProceeding:
         setState(id, BreakpointRemoveRequested);
         scheduleSynchronization();
         break;
