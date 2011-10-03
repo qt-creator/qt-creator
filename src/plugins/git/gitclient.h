@@ -215,6 +215,8 @@ public:
                            QString *errorMessage = 0, bool *onBranch = 0);
 
     void launchGitK(const QString &workingDirectory);
+    void launchRepositoryBrowser(const QString &workingDirectory);
+
     QStringList synchronousRepositoryBranches(const QString &repositoryURL);
 
     GitSettings *settings() const;

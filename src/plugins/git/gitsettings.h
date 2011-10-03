@@ -56,6 +56,7 @@ public:
     static const QLatin1String showPrettyFormatKey;
     static const QLatin1String gitkOptionsKey;
     static const QLatin1String logDiffKey;
+    static const QLatin1String repositoryBrowserCmd;
 
     QString gitBinaryPath(bool *ok = 0, QString *errorMessage = 0) const;
 
