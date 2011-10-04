@@ -87,8 +87,18 @@ void RemoteLinuxUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connec
         SLOT(handleRemoteStdOut(QByteArray)));
     connect(d->procRunner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdErr(QByteArray)));
-    const QString command = QLatin1String("sed "
-        "'s/.*: [[:xdigit:]]\\{8\\}:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp");
+    QString procFilePath;
+    int addressLength;
+    if (connection->ipProtocolVersion() == QAbstractSocket::IPv4Protocol) {
+        procFilePath = QLatin1String("/proc/net/tcp");
+        addressLength = 8;
+    } else {
+        procFilePath = QLatin1String("/proc/net/tcp6");
+        addressLength = 32;
+    }
+    const QString command = QString::fromLocal8Bit("sed "
+        "'s/.*: [[:xdigit:]]\\{%1\\}:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' %2")
+        .arg(addressLength).arg(procFilePath);
     d->procRunner->run(command.toUtf8());
     d->running = true;
 }
