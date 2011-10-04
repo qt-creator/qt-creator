@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Subversion::Internal::SettingsPage</class>
  <widget class="QWidget" name="Subversion::Internal::SettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>314</width>
+    <height>330</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="generalGroupBox">
@@ -17,7 +25,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="pathChooser"/>
+       <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
       </item>
      </layout>
     </widget>
@@ -63,10 +71,37 @@
      <property name="title">
       <string>Miscellaneous</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_2">
-      <property name="fieldGrowthPolicy">
-       <enum>QFormLayout::ExpandingFieldsGrow</enum>
-      </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="logCountLabel">
+        <property name="text">
+         <string>Log count:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="logCountSpinBox">
+        <property name="maximum">
+         <number>10000</number>
+        </property>
+        <property name="value">
+         <number>1000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>127</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="timeOutLabel">
         <property name="text">
@@ -87,31 +122,17 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="2" column="0" colspan="3">
        <widget class="QCheckBox" name="promptToSubmitCheckBox">
         <property name="text">
          <string>Prompt on submit</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="3" column="0" colspan="3">
        <widget class="QCheckBox" name="spaceIgnorantAnnotationCheckBox">
         <property name="text">
          <string>Ignore whitespace changes in annotation</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="logCountLabel">
-        <property name="text">
-         <string>Log count:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QSpinBox" name="logCountSpinBox">
-        <property name="maximum">
-         <number>10000</number>
         </property>
        </widget>
       </item>
