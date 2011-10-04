@@ -41,6 +41,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
+#include <QtNetwork/QAbstractSocket>
 
 namespace Utils {
 class SftpChannel;
@@ -86,6 +87,7 @@ public:
     SshError errorState() const;
     QString errorString() const;
     SshConnectionParameters connectionParameters() const;
+    QAbstractSocket::NetworkLayerProtocol ipProtocolVersion() const;
     ~SshConnection();
 
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);

@@ -165,6 +165,11 @@ SshConnectionParameters SshConnection::connectionParameters() const
     return d->m_connParams;
 }
 
+QAbstractSocket::NetworkLayerProtocol SshConnection::ipProtocolVersion() const
+{
+    return d->m_socket->localAddress().protocol();
+}
+
 SshConnection::~SshConnection()
 {
     disconnect();
