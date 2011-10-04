@@ -66,16 +66,13 @@ public:
         Q_ASSERT(m_objDef != 0);
 
         m_idName = idOfObject(m_objDef);
-
-        if (m_idName.isEmpty()) {
-            setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                       "Move Component into separate file"));
-        } else {
+        if (!m_idName.isEmpty()) {
             m_componentName = m_idName;
             m_componentName[0] = m_componentName.at(0).toUpper();
-            setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                       "Move Component into '%1.qml'").arg(m_componentName));
         }
+
+        setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
+                                                   "Move Component into separate file"));
     }
 
     virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
@@ -83,9 +80,7 @@ public:
     {
         QString componentName = m_componentName;
         QString path = QFileInfo(fileName()).path();
-        if (componentName.isEmpty()) {
-            ComponentNameDialog::go(&componentName, &path, assistInterface()->widget());
-        }
+        ComponentNameDialog::go(&componentName, &path, assistInterface()->widget());
 
         if (componentName.isEmpty() || path.isEmpty())
             return;
