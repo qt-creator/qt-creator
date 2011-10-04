@@ -49,6 +49,7 @@ private slots:
     void diagnosticClient_warning();
 
     void findBreakpoints();
+    void findBreakpoints2();
 };
 
 void tst_Misc::diagnosticClient_error()
@@ -101,8 +102,8 @@ void tst_Misc::findBreakpoints()
                          "  {\n"                // line 5
                          "  }\n"
                          "  void empty()\n"     // line 7
-                         "  {\n"
-                         "  }\n"                // line 9
+                         "  {\n"                // line 8
+                         "  }\n"
                          "  void misc()    \n"
                          "  {              \n"  // line 11
                          "    if (         \n"  // line 12
@@ -138,10 +139,42 @@ void tst_Misc::findBreakpoints()
     FindCdbBreakpoint findBreakpoint(doc->translationUnit());
 
     QCOMPARE(findBreakpoint(0), 5U);
-    QCOMPARE(findBreakpoint(7), 9U);
+    QCOMPARE(findBreakpoint(7), 8U);
     QCOMPARE(findBreakpoint(11), 16U);
     QCOMPARE(findBreakpoint(17), 23U);
     QCOMPARE(findBreakpoint(18), 23U);
+}
+
+void tst_Misc::findBreakpoints2()
+{
+    const QByteArray src("\n"                   // line 0
+                         "void foo() {\n"
+                         "  int a = 2;\n"       // line 2
+                         "  switch (x) {\n"     // line 3
+                         "  case 1: {\n"        // line 4
+                         "      int y = 2;\n"   // line 5
+                         "      y++;\n"
+                         "      break;\n"       // line 7
+                         "  }\n"
+                         "  }\n"
+                         "}\n"
+                         );
+    Document::Ptr doc = Document::create("findContstructorBreakpoint");
+    QVERIFY(!doc.isNull());
+    doc->setSource(src);
+    bool success = doc->parse();
+    QVERIFY(success);
+    QCOMPARE(doc->diagnosticMessages().size(), 0);
+    FindCdbBreakpoint findBreakpoint(doc->translationUnit());
+
+    QCOMPARE(findBreakpoint(0), 2U);
+    QCOMPARE(findBreakpoint(1), 2U);
+    QCOMPARE(findBreakpoint(2), 2U);
+    QCOMPARE(findBreakpoint(3), 3U);
+    QCOMPARE(findBreakpoint(4), 5U);
+    QCOMPARE(findBreakpoint(5), 5U);
+    QCOMPARE(findBreakpoint(6), 6U);
+    QCOMPARE(findBreakpoint(7), 7U);
 }
 
 QTEST_MAIN(tst_Misc)

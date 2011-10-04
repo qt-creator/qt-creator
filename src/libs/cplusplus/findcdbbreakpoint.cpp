@@ -107,12 +107,6 @@ bool FindCdbBreakpoint::visit(QtMemberDeclarationAST *ast)
     return false;
 }
 
-bool FindCdbBreakpoint::visit(CaseStatementAST *ast)
-{
-    foundLine(ast->lastToken() - 1);
-    return false;
-}
-
 bool FindCdbBreakpoint::visit(CompoundStatementAST *ast)
 {
     accept(ast->statement_list);

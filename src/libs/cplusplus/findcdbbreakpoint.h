@@ -73,7 +73,6 @@ protected:
 
     // Statements:
     bool visit(QtMemberDeclarationAST *ast);
-    bool visit(CaseStatementAST *ast);
     bool visit(CompoundStatementAST *ast);
     bool visit(DeclarationStatementAST *ast);
     bool visit(DoStatementAST *ast);
