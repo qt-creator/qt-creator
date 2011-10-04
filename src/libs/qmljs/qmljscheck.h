@@ -96,6 +96,10 @@ protected:
     virtual bool visit(AST::NewMemberExpression *ast);
     virtual bool visit(AST::CallExpression *ast);
     virtual bool visit(AST::StatementList *ast);
+    virtual bool visit(AST::ReturnStatement *ast);
+    virtual bool visit(AST::ThrowStatement *ast);
+    virtual bool visit(AST::DeleteExpression *ast);
+    virtual bool visit(AST::TypeOfExpression *ast);
 
     virtual void endVisit(QmlJS::AST::UiObjectInitializer *);
 
@@ -108,6 +112,7 @@ private:
     void checkProperty(QmlJS::AST::UiQualifiedId *);
     void checkNewExpression(AST::ExpressionNode *node);
     void checkBindingRhs(AST::Statement *statement);
+    void checkExtraParentheses(AST::ExpressionNode *expression);
 
     void addMessages(const QList<StaticAnalysis::Message> &messages);
     void addMessage(const StaticAnalysis::Message &message);

@@ -150,9 +150,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("confusing minuses"));
     newMsg(HintDeclareVarsInOneLine, Hint,
            tr("declare all function vars on a single line"));
-    // unused
-//    newMsg(HintExtraParentheses, Hint,
-//           tr(""));
+    newMsg(HintExtraParentheses, Hint,
+           tr("unnecessary parentheses"));
     newMsg(MaybeWarnEqualityTypeCoercion, MaybeWarning,
            tr("== and != may perform type coercion, use === or !== to avoid"));
     newMsg(WarnConfusingExpressionStatement, Warning,

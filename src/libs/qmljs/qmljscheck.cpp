@@ -525,6 +525,7 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     disableMessage(HintDeclarationsShouldBeAtStartOfFunction);
     disableMessage(HintBinaryOperatorSpacing);
     disableMessage(HintOneStatementPerLine);
+    disableMessage(HintExtraParentheses);
 }
 
 Check::~Check()
@@ -1104,6 +1105,13 @@ void Check::checkBindingRhs(Statement *statement)
     addMessages(unreachableCheck(statement));
 }
 
+void Check::checkExtraParentheses(ExpressionNode *expression)
+{
+    if (NestedExpression *nested = cast<NestedExpression *>(expression)) {
+        addMessage(HintExtraParentheses, nested->lparenToken);
+    }
+}
+
 void Check::addMessages(const QList<Message> &messages)
 {
     foreach (const Message &msg, messages)
@@ -1196,6 +1204,30 @@ bool Check::visit(StatementList *ast)
     if (warnStart.isValid())
         addMessage(HintOneStatementPerLine, locationFromRange(warnStart, warnEnd));
 
+    return true;
+}
+
+bool Check::visit(ReturnStatement *ast)
+{
+    checkExtraParentheses(ast->expression);
+    return true;
+}
+
+bool Check::visit(ThrowStatement *ast)
+{
+    checkExtraParentheses(ast->expression);
+    return true;
+}
+
+bool Check::visit(DeleteExpression *ast)
+{
+    checkExtraParentheses(ast->expression);
+    return true;
+}
+
+bool Check::visit(TypeOfExpression *ast)
+{
+    checkExtraParentheses(ast->expression);
     return true;
 }
 
