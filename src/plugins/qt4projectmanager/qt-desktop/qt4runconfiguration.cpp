@@ -619,7 +619,7 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
     if (node) {
         const QStringList libDirectories = node->variableValue(LibDirectoriesVar);
         if (!libDirectories.isEmpty()) {
-            const QString proDirectory = QFileInfo(node->path()).absolutePath();
+            const QString proDirectory = node->buildDir();
             foreach (QString dir, libDirectories) {
                 // Fix up relative entries like "LIBS+=-L.."
                 const QFileInfo fi(dir);
