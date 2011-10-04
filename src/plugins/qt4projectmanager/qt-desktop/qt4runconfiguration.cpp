@@ -153,8 +153,14 @@ QString Qt4RunConfiguration::disabledReason() const
 
 void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
-    if (m_proFilePath != pro->path())
+    if (m_proFilePath != pro->path()) {
+        if (!parseInProgress) {
+            // We depend on all .pro files for the LD_LIBRARY_PATH so we emit a signal for all .pro files
+            // This can be optimized by checking whether LD_LIBRARY_PATH changed
+            emit baseEnvironmentChanged();
+        }
         return;
+    }
 
     bool enabled = isEnabled();
     m_parseSuccess = success;
