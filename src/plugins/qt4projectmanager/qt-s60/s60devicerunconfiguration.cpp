@@ -166,7 +166,7 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
 {
     const QDir projectDir = QDir(target()->project()->projectDirectory());
 
-    m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
+    m_proFilePath = QDir::cleanPath(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toString();
 
     if (m_proFilePath.isEmpty())

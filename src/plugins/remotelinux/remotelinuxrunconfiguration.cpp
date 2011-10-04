@@ -226,7 +226,7 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 
     d->arguments = map.value(QLatin1String(ArgumentsKey)).toString();
     const QDir dir = QDir(target()->project()->projectDirectory());
-    d->proFilePath = dir.filePath(map.value(QLatin1String(ProFileKey)).toString());
+    d->proFilePath = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
     d->userEnvironmentChanges =
         Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(UserEnvironmentChangesKey))
         .toStringList());
