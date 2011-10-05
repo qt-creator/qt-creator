@@ -36,7 +36,7 @@ GridView {
     interactive: false
     width: scrollArea.width
     property int columns:  Math.max(Math.floor(width / cellWidth), 1)
-    height: 400 * (count - columns) / columns + 800
+    height: 400 * Math.ceil(count / columns)
     cellHeight: 400
     cellWidth: 350
 
