@@ -14,18 +14,45 @@
 :CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard	{type='CMakeProjectManager::Internal::CMakeOpenProjectWizard' unnamed='1' visible='1' windowTitle='CMake Wizard'}
 :Desktop_QLabel	{container=':QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget' name='target' text='Desktop' type='QLabel' visible='1'}
 :Generator:_QComboBox	{buddy=':CMake Wizard.Generator:_QLabel' type='QComboBox' unnamed='1' visible='1'}
+:New.Choose..._QPushButton	{text='Choose...' type='QPushButton' unnamed='1' visible='1' window=':New_Core::Internal::NewDialog'}
+:New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
+:New.templatesView_QListView	{name='templatesView' type='QListView' visible='1' window=':New_Core::Internal::NewDialog'}
+:New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle='New'}
 :Project Setup.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard'}
 :Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard	{type='Qt4ProjectManager::Internal::ProjectLoadWizard' unnamed='1' visible='1' windowTitle='Project Setup'}
 :Qt Creator.QtCreator.MenuBar_QMenuBar	{name='QtCreator.MenuBar' type='QMenuBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Stop_QToolButton	{text='Stop' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' visible='1' windowTitle?='*Qt Creator'}
+:Qt Creator_Core::Internal::OutputPaneToggleButton	{occurrence='3' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QToolButton	{occurrence='13' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::IconButton	{occurrence='2' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::NavigationTreeView	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Gui Application.Finish_QPushButton	{text='Finish' type='QPushButton' unnamed='1' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
+:Qt Gui Application.Form file:_QLabel	{name='formLabel' text='Form file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
+:Qt Gui Application.Header file:_QLabel	{name='headerLabel' text='Header file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
+:Qt Gui Application.Next_QPushButton	{name='__qt__passive_wizardbutton1' text?='Next*' type='QPushButton' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
+:Qt Gui Application.Source file:_QLabel	{name='sourceLabel' text='Source file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
+:Qt Gui Application.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
+:Qt Gui Application.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
+:Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog	{type='Qt4ProjectManager::Internal::GuiAppWizardDialog' unnamed='1' visible='1' windowTitle='Qt Gui Application'}
 :QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector	{type='ProjectExplorer::Internal::MiniProjectTargetSelector'}
 :QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget	{type='ProjectExplorer::Internal::ProjectListWidget' window=':QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector'}
+:formFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Form file:_QLabel' name='formFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
+:frame.nameLineEdit_Utils::ProjectNameValidatingLineEdit	{container=':Qt Gui Application.frame_QFrame' name='nameLineEdit' type='Utils::ProjectNameValidatingLineEdit' visible='1'}
+:frame_Utils::BaseValidatingLineEdit	{container=':Qt Gui Application.frame_QFrame' type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}
+:headerFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Header file:_QLabel' name='headerFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :projects.projects.pro_QModelIndex	{column='0' container=':projects_QModelIndex' text='projects.pro' type='QModelIndex'}
 :projects_QModelIndex	{column='0' container=':Qt Creator_Utils::NavigationTreeView' text='projects' type='QModelIndex'}
 :scrollArea.Create Build Configurations:_QComboBox	{container=':Project Setup.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel' type='QComboBox' unnamed='1' visible='1'}
+:scrollArea.Create Build Configurations:_QComboBox_2	{container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel_2' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Create Build Configurations:_QLabel	{container=':Project Setup.scrollArea_QScrollArea' text='Create Build Configurations:' type='QLabel' unnamed='1' visible='1'}
-:Qt Creator.Stop_QToolButton	{text='Stop' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_Core::Internal::OutputPaneToggleButton	{occurrence='3' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:scrollArea.Create Build Configurations:_QLabel_2	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Create Build Configurations:' type='QLabel' unnamed='1' visible='1'}
+:scrollArea.Desktop_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Desktop' type='QCheckBox' unnamed='1' visible='1'}
+:scrollArea.Files to be added	{container=':Qt Gui Application.scrollArea_QScrollArea' name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>' type='QLabel' visible='1'}
+:scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text?='*Qt 4.* for *(Qt SDK) debug' type='QCheckBox' unnamed='1' visible='1'}
+:scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text?='*Qt 4.* for *(Qt SDK) release' type='QCheckBox' unnamed='1' visible='1'}
+:scrollArea.Qt Version:_QComboBox	{aboveWidget=':scrollArea.Use Shadow Building_QCheckBox' container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Qt Version:_QLabel' type='QComboBox' unnamed='1' visible='1'}
+:scrollArea.Qt Version:_QLabel	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Qt Version:' type='QLabel' unnamed='1' visible='1'}
+:scrollArea.Use Shadow Building_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Use Shadow Building' type='QCheckBox' unnamed='1' visible='1'}
+:sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Source file:_QLabel' name='sourceFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}

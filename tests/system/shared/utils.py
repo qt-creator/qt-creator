@@ -20,9 +20,10 @@ def verifyChecked(objectName):
     test.compare(object.checked, True)
     return object
 
-def verifyEnabled(objectName):
-    object = waitForObject(objectName, 20000)
-    test.compare(object.enabled, True)
+def verifyEnabled(objectName, expectedState = True):
+    waitFor("object.exists('" + objectName + "')", 20000)
+    object = findObject(objectName)
+    test.compare(object.enabled, expectedState)
     return object
 
 def selectFromCombo(objectName, itemName):
