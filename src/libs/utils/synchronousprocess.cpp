@@ -400,7 +400,7 @@ static inline bool askToKill(const QString &binary = QString())
     const QString title = SynchronousProcess::tr("Process not Responding");
     QString msg = binary.isEmpty() ?
                   SynchronousProcess::tr("The process is not responding.") :
-                  SynchronousProcess::tr("The process '%1' is not responding.").arg(binary);
+                  SynchronousProcess::tr("The process '%1' is not responding.").arg(QDir::toNativeSeparators(binary));
     msg += QLatin1Char(' ');
     msg += SynchronousProcess::tr("Would you like to terminate it?");
     // Restore the cursor that is set to wait while running.
