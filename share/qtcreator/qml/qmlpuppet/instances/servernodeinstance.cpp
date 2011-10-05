@@ -230,7 +230,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
 #if QT_VERSION >= 0x050000
         object = Internal::ObjectNodeInstance::createPrimitive("QSGItem", 2, 0, nodeInstanceServer->context());
 #else
-        object = Internal::ObjectNodeInstance::createPrimitive("QDeclarativeItem", 2, 0, nodeInstanceServer->context());
+        object = Internal::ObjectNodeInstance::createPrimitive("QtQuick/Item", 1, 0, nodeInstanceServer->context());
 #endif
 
     ServerNodeInstance instance(createInstance(object));
