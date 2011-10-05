@@ -229,6 +229,7 @@ public:
 
 public slots:
     void show(const QString &source, const QString &id, const QStringList &args = QStringList());
+    void saveSettings();
 
 private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);

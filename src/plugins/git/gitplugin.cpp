@@ -1070,6 +1070,7 @@ void GitPlugin::setSettings(const GitSettings &s)
         return;
 
     m_settings = s;
+    m_gitClient->saveSettings();
     static_cast<GitVersionControl *>(versionControl())->emitConfigurationChanged();
 }
 

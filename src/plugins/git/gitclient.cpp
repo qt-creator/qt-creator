@@ -309,6 +309,7 @@ GitClient::GitClient(GitSettings *settings) :
     m_settings(settings)
 {
     Q_ASSERT(settings);
+    connect(m_core, SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
 }
 
 GitClient::~GitClient()
@@ -601,6 +602,11 @@ void GitClient::show(const QString &source, const QString &id, const QStringList
     const QFileInfo sourceFi(source);
     const QString workDir = sourceFi.isDir() ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
     executeGit(workDir, arguments, editor);
+}
+
+void GitClient::saveSettings()
+{
+    settings()->writeSettings(m_core->settings());
 }
 
 void GitClient::slotBlameRevisionRequested(const QString &source, QString change, int lineNumber)
