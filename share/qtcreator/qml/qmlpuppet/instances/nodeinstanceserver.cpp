@@ -47,6 +47,7 @@
 #include <QMutableVectorIterator>
 
 #include "servernodeinstance.h"
+#include "objectnodeinstance.h"
 #include "childrenchangeeventfilter.h"
 #include "propertyabstractcontainer.h"
 #include "propertybindingcontainer.h"
@@ -800,7 +801,7 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
         }
 
         if (valueContainer.isDynamic() && valueContainer.instanceId() == 0 && engine())
-            rootContext()->setContextProperty(name, value);
+            rootContext()->setContextProperty(name, Internal::ObjectNodeInstance::fixResourcePaths(value));
     }
 }
 

@@ -391,12 +391,64 @@ QVariant ObjectNodeInstance::convertSpecialCharacter(const QVariant& value) cons
     return specialCharacterConvertedValue;
 }
 
+
+QVariant ObjectNodeInstance::fixResourcePaths(const QVariant &value)
+{
+    if (value.type() == QVariant::Url)
+    {
+        const QUrl url = value.toUrl();
+        if (url.scheme() == QLatin1String("qrc")) {
+            const QString path = QLatin1String("qrc:") +  url.path();
+            QString qrcSearchPath = qgetenv("QMLDESIGNER_RC_PATHS");
+            if (!qrcSearchPath.isEmpty()) {
+                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
+                foreach (const QString &qrcPath, searchPaths) {
+                    const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
+                    if (qrcDefintion.count() == 2) {
+                        QString fixedPath = path;
+                        fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
+                        if (QFileInfo(fixedPath).exists()) {
+                            fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
+                            fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
+                            return QUrl(fixedPath);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (value.type() == QVariant::String) {
+        const QString str = value.toString();
+        if (str.contains(QLatin1String("qrc:"))) {
+            QString qrcSearchPath = qgetenv("QMLDESIGNER_RC_PATHS");
+            if (!qrcSearchPath.isEmpty()) {
+                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
+                foreach (const QString &qrcPath, searchPaths) {
+                    const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
+                    if (qrcDefintion.count() == 2) {
+                        QString fixedPath = str;
+                        fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
+                        if (QFileInfo(fixedPath).exists()) {
+                            fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
+                            fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
+                            return fixedPath;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return value;
+}
+
 void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
     QDeclarativeProperty property(object(), name, context());
 
     if (!property.isValid())
         return;
+
+    QVariant fixedValue = fixResourcePaths(value);
 
     QVariant oldValue = property.read();
     if (oldValue.type() == QVariant::Url) {
@@ -410,10 +462,10 @@ void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant 
         QDeclarativePropertyPrivate::setBinding(property, 0, QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
     }
 
-    bool isWritten = property.write(convertSpecialCharacter(value));
+    bool isWritten = property.write(convertSpecialCharacter(fixedValue));
 
     if (!isWritten)
-        qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << value;
+        qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << fixedValue;
 
     QVariant newValue = property.read();
     if (newValue.type() == QVariant::Url) {
@@ -764,6 +816,55 @@ static void disableTiledBackingStore(QObject *object)
 #endif
 }
 
+QStringList propertyNameForWritableProperties(QObject *object, const QString &baseName = QString(), QObjectList *inspectedObjects = new QObjectList())
+{
+    QStringList propertyNameList;
+
+    if (inspectedObjects == 0 || inspectedObjects->contains(object))
+        return propertyNameList;
+
+    inspectedObjects->append(object);
+
+    const QMetaObject *metaObject = object->metaObject();
+    for (int index = 0; index < metaObject->propertyCount(); ++index) {
+        QMetaProperty metaProperty = metaObject->property(index);
+        QDeclarativeProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
+        if (declarativeProperty.isValid() && !declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QDeclarativeProperty::Object) {
+            if (declarativeProperty.name() != "parent") {
+                QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
+                if (childObject)
+                    propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+            }
+        } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {
+            QDeclarativeValueType *valueType = QDeclarativeValueTypeFactory::valueType(metaProperty.userType());
+            valueType->setValue(metaProperty.read(object));
+            propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
+        } else if (metaProperty.isReadable() && metaProperty.isWritable()) {
+            propertyNameList.append(baseName + QString::fromUtf8(metaProperty.name()));
+        }
+    }
+
+    return propertyNameList;
+}
+
+static void fixResourcePathsForObject(QObject *object)
+{
+    if (qgetenv("QMLDESIGNER_RC_PATHS").isEmpty())
+        return;
+
+    QStringList propertyNameList = propertyNameForWritableProperties(object);
+
+    foreach (const QString &propertyName, propertyNameList) {
+        QDeclarativeProperty property(object, propertyName, QDeclarativeEngine::contextForObject(object));
+
+        const QVariant value  = property.read();
+        const QVariant fixedValue = ObjectNodeInstance::fixResourcePaths(value);
+        if (value != fixedValue) {
+            property.write(fixedValue);
+        }
+    }
+}
+
 void tweakObjects(QObject *object)
 {
     QObjectList objectList;
@@ -771,6 +872,7 @@ void tweakObjects(QObject *object)
     foreach(QObject* childObject, objectList) {
         disableTiledBackingStore(childObject);
         stopAnimation(childObject);
+        fixResourcePathsForObject(childObject);
     }
 }
 
@@ -962,37 +1064,6 @@ void ObjectNodeInstance::activateState()
 
 void ObjectNodeInstance::deactivateState()
 {
-}
-
-QStringList propertyNameForWritableProperties(QObject *object, const QString &baseName = QString(), QObjectList *inspectedObjects = new QObjectList())
-{
-    QStringList propertyNameList;
-
-    if (inspectedObjects == 0 || inspectedObjects->contains(object))
-        return propertyNameList;
-
-    inspectedObjects->append(object);
-
-    const QMetaObject *metaObject = object->metaObject();
-    for (int index = 0; index < metaObject->propertyCount(); ++index) {
-        QMetaProperty metaProperty = metaObject->property(index);
-        QDeclarativeProperty declarativeProperty(object, QLatin1String(metaProperty.name()));
-        if (declarativeProperty.isValid() && !declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QDeclarativeProperty::Object) {
-            if (declarativeProperty.name() != "parent") {
-                QObject *childObject = QDeclarativeMetaType::toQObject(declarativeProperty.read());
-                if (childObject)
-                    propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
-            }
-        } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {
-            QDeclarativeValueType *valueType = QDeclarativeValueTypeFactory::valueType(metaProperty.userType());
-            valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.', inspectedObjects));
-        } else if (metaProperty.isReadable() && metaProperty.isWritable()) {
-            propertyNameList.append(baseName + QString::fromUtf8(metaProperty.name()));
-        }
-    }
-
-    return propertyNameList;
 }
 
 void ObjectNodeInstance::populateResetHashes()

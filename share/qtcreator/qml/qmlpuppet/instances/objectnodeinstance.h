@@ -182,6 +182,8 @@ public:
 
     virtual void setNodeSource(const QString &source);
 
+    static QVariant fixResourcePaths(const QVariant &value);
+
 protected:
     void doResetProperty(const QString &propertyName);
     void removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty);
