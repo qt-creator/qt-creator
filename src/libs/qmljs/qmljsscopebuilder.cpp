@@ -67,6 +67,35 @@ void ScopeBuilder::push(AST::Node *node)
         setQmlScopeObject(qmlObject);
     }
 
+    // JS signal handler scope
+    if (UiScriptBinding *script = cast<UiScriptBinding *>(node)) {
+        QString name;
+        if (script->qualifiedId)
+            name = script->qualifiedId->name.toString();
+        if (!_scopeChain->qmlScopeObjects().isEmpty()
+                && name.startsWith(QLatin1String("on"))
+                && !script->qualifiedId->next) {
+            const ObjectValue *owner = 0;
+            const Value *value = 0;
+            // try to find the name on the scope objects
+            foreach (const ObjectValue *scope, _scopeChain->qmlScopeObjects()) {
+                value = scope->lookupMember(name, _scopeChain->context(), &owner);
+                if (value)
+                    break;
+            }
+            // signals defined in QML
+            if (const ASTSignal *astsig = dynamic_cast<const ASTSignal *>(value)) {
+                _scopeChain->appendJsScope(astsig->bodyScope());
+            }
+            // signals defined in C++
+            else if (const QmlObjectValue *qmlObject = dynamic_cast<const QmlObjectValue *>(owner)) {
+                if (const ObjectValue *scope = qmlObject->signalScope(name)) {
+                    _scopeChain->appendJsScope(scope);
+                }
+            }
+        }
+    }
+
     // JS scopes
     switch (node->kind) {
     case Node::Kind_UiScriptBinding:
@@ -75,11 +104,8 @@ void ScopeBuilder::push(AST::Node *node)
     case Node::Kind_UiPublicMember:
     {
         ObjectValue *scope = _scopeChain->document()->bind()->findAttachedJSScope(node);
-        if (scope) {
-            QList<const ObjectValue *> jsScopes = _scopeChain->jsScopes();
-            jsScopes += scope;
-            _scopeChain->setJsScopes(jsScopes);
-        }
+        if (scope)
+            _scopeChain->appendJsScope(scope);
         break;
     }
     default:

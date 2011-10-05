@@ -100,6 +100,7 @@ public:
 
     QList<const ObjectValue *> jsScopes() const;
     void setJsScopes(const QList<const ObjectValue *> &jsScopes);
+    void appendJsScope(const ObjectValue *scope);
 
     QList<const ObjectValue *> all() const;
 

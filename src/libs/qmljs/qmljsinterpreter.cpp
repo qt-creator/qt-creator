@@ -180,7 +180,18 @@ QmlObjectValue::QmlObjectValue(FakeMetaObject::ConstPtr metaObject, const QStrin
 }
 
 QmlObjectValue::~QmlObjectValue()
-{}
+{
+    delete _metaSignatures;
+    delete _signalScopes;
+}
+
+static QString generatedSlotName(const QString &base)
+{
+    QString slotName = QLatin1String("on");
+    slotName += base.at(0).toUpper();
+    slotName += base.midRef(1);
+    return slotName;
+}
 
 void QmlObjectValue::processMembers(MemberProcessor *processor) const
 {
@@ -226,11 +237,8 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
             processor->processSignal(methodName, signature);
             explicitSignals.insert(methodName);
 
-            QString slotName = QLatin1String("on");
-            slotName += methodName.at(0).toUpper();
-            slotName += methodName.midRef(1);
-
             // process the generated slot
+            const QString &slotName = generatedSlotName(methodName);
             processor->processGeneratedSlot(slotName, signature);
         }
     }
@@ -242,18 +250,15 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
             continue;
 
         const QString propertyName = prop.name();
-        processor->processProperty(propertyName, propertyValue(prop));
+        processor->processProperty(propertyName, valueForCppName(prop.typeName()));
 
         // every property always has a onXyzChanged slot, even if the NOTIFY
         // signal has a different name
         QString signalName = propertyName;
         signalName += QLatin1String("Changed");
         if (!explicitSignals.contains(signalName)) {
-            QString slotName = QLatin1String("on");
-            slotName += signalName.at(0).toUpper();
-            slotName += signalName.midRef(1);
-
             // process the generated slot
+            const QString &slotName = generatedSlotName(signalName);
             processor->processGeneratedSlot(slotName, valueOwner()->undefinedValue());
         }
     }
@@ -264,9 +269,8 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
     ObjectValue::processMembers(processor);
 }
 
-const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
+const Value *QmlObjectValue::valueForCppName(const QString &typeName) const
 {
-    QString typeName = prop.typeName();
     const CppQmlTypes &cppTypes = valueOwner()->cppQmlTypes();
 
     // check in the same package/version first
@@ -322,10 +326,9 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
     const QStringList components = typeName.split(QLatin1String("::"));
     if (components.size() == 2) {
         base = valueOwner()->cppQmlTypes().objectByCppName(components.first());
-        typeName = components.last();
     }
     if (base) {
-        if (const QmlEnumValue *value = base->getEnumValue(typeName))
+        if (const QmlEnumValue *value = base->getEnumValue(components.last()))
             return value;
     }
 
@@ -417,6 +420,41 @@ const QmlEnumValue *QmlObjectValue::getEnumValue(const QString &typeName, const 
     if (foundInScope)
         *foundInScope = 0;
     return 0;
+}
+
+const ObjectValue *QmlObjectValue::signalScope(const QString &signalName) const
+{
+    QHash<QString, const ObjectValue *> *scopes = _signalScopes;
+    if (!scopes) {
+        scopes = new QHash<QString, const ObjectValue *>;
+        // usually not all methods are signals
+        scopes->reserve(_metaObject->methodCount() / 2);
+        for (int index = 0; index < _metaObject->methodCount(); ++index) {
+            const FakeMetaMethod &method = _metaObject->method(index);
+            if (method.methodType() != FakeMetaMethod::Signal || method.access() == FakeMetaMethod::Private)
+                continue;
+
+            const QStringList &parameterNames = method.parameterNames();
+            const QStringList &parameterTypes = method.parameterTypes();
+            QTC_ASSERT(parameterNames.size() == parameterTypes.size(), continue);
+
+            ObjectValue *scope = valueOwner()->newObject(/*prototype=*/0);
+            for (int i = 0; i < parameterNames.size(); ++i) {
+                const QString &name = parameterNames.at(i);
+                const QString &type = parameterTypes.at(i);
+                if (name.isEmpty())
+                    continue;
+                scope->setMember(name, valueForCppName(type));
+            }
+            scopes->insert(generatedSlotName(method.methodName()), scope);
+        }
+        if (!_signalScopes.testAndSetOrdered(0, scopes)) {
+            delete _signalScopes;
+            scopes = _signalScopes;
+        }
+    }
+
+    return scopes->value(signalName);
 }
 
 bool QmlObjectValue::isWritable(const QString &propertyName) const
@@ -1832,9 +1870,7 @@ ASTPropertyReference::ASTPropertyReference(UiPublicMember *ast, const Document *
     : Reference(valueOwner), _ast(ast), _doc(doc)
 {
     const QString &propertyName = ast->name.toString();
-    _onChangedSlotName = QLatin1String("on");
-    _onChangedSlotName += propertyName.at(0).toUpper();
-    _onChangedSlotName += propertyName.midRef(1);
+    _onChangedSlotName = generatedSlotName(propertyName);
     _onChangedSlotName += QLatin1String("Changed");
 }
 
@@ -1882,9 +1918,14 @@ ASTSignal::ASTSignal(UiPublicMember *ast, const Document *doc, ValueOwner *value
     : FunctionValue(valueOwner), _ast(ast), _doc(doc)
 {
     const QString &signalName = ast->name.toString();
-    _slotName = QLatin1String("on");
-    _slotName += signalName.at(0).toUpper();
-    _slotName += signalName.midRef(1);
+    _slotName = generatedSlotName(signalName);
+
+    ObjectValue *v = valueOwner->newObject(/*prototype=*/0);
+    for (UiParameterList *it = ast->parameters; it; it = it->next) {
+        if (!it->name.isEmpty())
+            v->setMember(it->name.toString(), valueOwner->defaultValueForBuiltinType(it->type.toString()));
+    }
+    _bodyScope = v;
 }
 
 ASTSignal::~ASTSignal()

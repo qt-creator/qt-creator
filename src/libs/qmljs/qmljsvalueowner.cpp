@@ -932,6 +932,7 @@ const ObjectValue *ValueOwner::qmlVector3DObject()
 
 const Value *ValueOwner::defaultValueForBuiltinType(const QString &name) const
 {
+    // this list is defined in ProcessAST::visit(UiPublicMember) in qdeclarativescript.cpp
     if (name == QLatin1String("int")) {
             return intValue();
     } else if (name == QLatin1String("bool")) {

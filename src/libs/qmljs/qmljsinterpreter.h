@@ -424,7 +424,7 @@ public:
     virtual ~QmlObjectValue();
 
     virtual void processMembers(MemberProcessor *processor) const;
-    const Value *propertyValue(const LanguageUtils::FakeMetaProperty &prop) const;
+    const Value *valueForCppName(const QString &typeName) const;
 
     using ObjectValue::prototype;
     const QmlObjectValue *prototype() const;
@@ -448,6 +448,8 @@ public:
 
     LanguageUtils::FakeMetaEnum getEnum(const QString &typeName, const QmlObjectValue **foundInScope = 0) const;
     const QmlEnumValue *getEnumValue(const QString &typeName, const QmlObjectValue **foundInScope = 0) const;
+
+    const ObjectValue *signalScope(const QString &signalName) const;
 protected:
     bool isDerivedFrom(LanguageUtils::FakeMetaObject::ConstPtr base) const;
 
@@ -461,6 +463,7 @@ private:
     const LanguageUtils::ComponentVersion _componentVersion;
     const LanguageUtils::ComponentVersion _importVersion;
     mutable QAtomicPointer< QList<const Value *> > _metaSignatures;
+    mutable QAtomicPointer< QHash<QString, const ObjectValue *> > _signalScopes;
     QHash<QString, const QmlEnumValue * > _enums;
     int _metaObjectRevision;
 };
@@ -766,6 +769,7 @@ class QMLJS_EXPORT ASTSignal: public FunctionValue
     AST::UiPublicMember *_ast;
     const Document *_doc;
     QString _slotName;
+    const ObjectValue *_bodyScope;
 
 public:
     ASTSignal(AST::UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner);
@@ -773,6 +777,7 @@ public:
 
     AST::UiPublicMember *ast() const { return _ast; }
     QString slotName() const { return _slotName; }
+    const ObjectValue *bodyScope() const { return _bodyScope; }
 
     // FunctionValue interface
     virtual int argumentCount() const;

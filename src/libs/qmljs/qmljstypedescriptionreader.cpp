@@ -350,9 +350,9 @@ void TypeDescriptionReader::readParameter(UiObjectDefinition *ast, FakeMetaMetho
             continue;
         }
 
-        QString id = toString(script->qualifiedId);
+        const QString id = toString(script->qualifiedId);
         if (id == "name") {
-            id = readStringBinding(script);
+            name = readStringBinding(script);
         } else if (id == "type") {
             type = readStringBinding(script);
         } else if (id == "isPointer") {

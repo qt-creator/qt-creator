@@ -187,6 +187,12 @@ void ScopeChain::setJsScopes(const QList<const ObjectValue *> &jsScopes)
     m_jsScopes = jsScopes;
 }
 
+void ScopeChain::appendJsScope(const ObjectValue *scope)
+{
+    m_modified = true;
+    m_jsScopes += scope;
+}
+
 QList<const ObjectValue *> ScopeChain::all() const
 {
     if (m_modified)
