@@ -418,8 +418,8 @@ static inline QString msgParseFilesFailed()
 
 const char *GitClient::stashNamePrefix = "stash@{";
 
-GitClient::GitClient(GitPlugin* plugin)
-  : m_msgWait(tr("Waiting for data...")),
+GitClient::GitClient(GitPlugin* plugin) :
+    m_msgWait(tr("Waiting for data...")),
     m_plugin(plugin),
     m_core(Core::ICore::instance()),
     m_repositoryChangedSignalMapper(0),
@@ -447,7 +447,7 @@ QString GitClient::findRepositoryForDirectory(const QString &dir)
 }
 
 VCSBase::VCSBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
-                                                         const QString &dynamicPropertyValue) const
+                                                               const QString &dynamicPropertyValue) const
 {
     VCSBase::VCSBaseEditorWidget *rc = 0;
     Core::IEditor *outputEditor = locateEditor(m_core, registerDynamicProperty, dynamicPropertyValue);
@@ -468,14 +468,14 @@ VCSBase::VCSBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
  * existing instance and to reuse it (in case, say, 'git diff foo' is
  * already open). */
 VCSBase::VCSBaseEditorWidget *GitClient::createVCSEditor(const QString &id,
-                                                   QString title,
-                                                   // Source file or directory
-                                                   const QString &source,
-                                                   bool setSourceCodec,
-                                                   // Dynamic property and value to identify that editor
-                                                   const char *registerDynamicProperty,
-                                                   const QString &dynamicPropertyValue,
-                                                   QWidget *configWidget) const
+                                                         QString title,
+                                                         // Source file or directory
+                                                         const QString &source,
+                                                         bool setSourceCodec,
+                                                         // Dynamic property and value to identify that editor
+                                                         const char *registerDynamicProperty,
+                                                         const QString &dynamicPropertyValue,
+                                                         QWidget *configWidget) const
 {
     VCSBase::VCSBaseEditorWidget *rc = 0;
     Q_ASSERT(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
@@ -735,8 +735,8 @@ void GitClient::slotBlameRevisionRequested(const QString &source, QString change
 void GitClient::blame(const QString &workingDirectory,
                       const QStringList &args,
                       const QString &fileName,
-                      const QString &revision /* = QString() */,
-                      int lineNumber /* = -1 */)
+                      const QString &revision,
+                      int lineNumber)
 {
     const QString editorId = QLatin1String(Git::Constants::GIT_BLAME_EDITOR_ID);
     const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDirectory, QStringList(fileName), revision);
@@ -773,8 +773,8 @@ void GitClient::checkoutBranch(const QString &workingDirectory, const QString &b
 }
 
 bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
-                                    const QString &branch,
-                                    QString *errorMessage /* = 0 */)
+                                          const QString &branch,
+                                          QString *errorMessage /* = 0 */)
 {
     QByteArray outputText;
     QByteArray errorText;
@@ -1055,17 +1055,17 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
 static const char defaultShortLogFormatC[] = "%h (%an \"%s\")";
 
 bool GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
-                                    QString *description, QString *errorMessage)
+                                            QString *description, QString *errorMessage)
 {
     // Short SHA 1, author, subject
     return synchronousShortDescription(workingDirectory, revision,
-                               QLatin1String(defaultShortLogFormatC),
-                               description, errorMessage);
+                                       QLatin1String(defaultShortLogFormatC),
+                                       description, errorMessage);
 }
 
 // Convenience working on a list of revisions
 bool GitClient::synchronousShortDescriptions(const QString &workingDirectory, const QStringList &revisions,
-                                            QStringList *descriptions, QString *errorMessage)
+                                             QStringList *descriptions, QString *errorMessage)
 {
     descriptions->clear();
     foreach (const QString &revision, revisions) {
@@ -1085,10 +1085,8 @@ static inline QString msgCannotDetermineBranch(const QString &workingDirectory, 
 }
 
 // Retrieve head revision/branch
-bool GitClient::synchronousTopRevision(const QString &workingDirectory,
-                                       QString *revision /* = 0 */,
-                                       QString *branch /* = 0 */,
-                                       QString *errorMessageIn /* = 0 */)
+bool GitClient::synchronousTopRevision(const QString &workingDirectory, QString *revision,
+                                       QString *branch, QString *errorMessageIn)
 {
     QByteArray outputTextData;
     QByteArray errorText;
@@ -1147,11 +1145,9 @@ bool GitClient::synchronousTopRevision(const QString &workingDirectory,
 }
 
 // Format an entry in a one-liner for selection list using git log.
-bool GitClient::synchronousShortDescription(const QString &workingDirectory,
-                                    const QString &revision,
-                                    const QString &format,
-                                    QString *description,
-                                    QString *errorMessage)
+bool GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
+                                            const QString &format, QString *description,
+                                            QString *errorMessage)
 {
     QByteArray outputTextData;
     QByteArray errorText;
@@ -1189,10 +1185,8 @@ static inline QString creatorStashMessage(const QString &keyword = QString())
  * StashImmediateRestore: Immediately re-apply this stash (used for snapshots), user keeps on working
  * StashIgnoreUnchanged: Be quiet about unchanged repositories (used for IVersionControl's snapshots). */
 
-QString GitClient::synchronousStash(const QString &workingDirectory,
-                                    const QString &messageKeyword /*  = QString() */,
-                                    unsigned flags,
-                                    bool *unchanged /* =0 */)
+QString GitClient::synchronousStash(const QString &workingDirectory, const QString &messageKeyword,
+                                    unsigned flags, bool *unchanged)
 {
     if (unchanged)
         *unchanged = false;
@@ -1234,8 +1228,8 @@ QString GitClient::synchronousStash(const QString &workingDirectory,
 }
 
 bool GitClient::executeSynchronousStash(const QString &workingDirectory,
-                                 const QString &message,
-                                 QString *errorMessage /* = 0*/)
+                                        const QString &message,
+                                        QString *errorMessage)
 {
     QByteArray outputText;
     QByteArray errorText;
@@ -1261,7 +1255,7 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
 // Resolve a stash name from message
 bool GitClient::stashNameFromMessage(const QString &workingDirectory,
                                      const QString &message, QString *name,
-                                     QString *errorMessage /* = 0 */)
+                                     QString *errorMessage)
 {
     // All happy
     if (message.startsWith(QLatin1String(stashNamePrefix))) {
@@ -1380,9 +1374,9 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
 
 // Factory function to create an asynchronous command
 GitCommand *GitClient::createCommand(const QString &workingDirectory,
-                             VCSBase::VCSBaseEditorWidget* editor,
-                             bool outputToWindow,
-                             int editorLineNumber)
+                                     VCSBase::VCSBaseEditorWidget* editor,
+                                     bool outputToWindow,
+                                     int editorLineNumber)
 {
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     GitCommand* command = new GitCommand(binary(), workingDirectory, processEnvironment(), QVariant(editorLineNumber));
@@ -1459,11 +1453,10 @@ QProcessEnvironment GitClient::processEnvironment() const
 
 // Synchronous git execution using Utils::SynchronousProcess, with
 // log windows updating.
-Utils::SynchronousProcessResponse
-        GitClient::synchronousGit(const QString &workingDirectory,
-                                  const QStringList &gitArguments,
-                                  unsigned flags,
-                                  QTextCodec *stdOutCodec)
+Utils::SynchronousProcessResponse GitClient::synchronousGit(const QString &workingDirectory,
+                                                            const QStringList &gitArguments,
+                                                            unsigned flags,
+                                                            QTextCodec *stdOutCodec)
 {
     return VCSBase::VCSBasePlugin::runVCS(workingDirectory, binary(), gitArguments,
                                           m_settings.timeoutSeconds * 1000,
@@ -1505,12 +1498,11 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
-static inline int
-        askWithDetailedText(QWidget *parent,
-                            const QString &title, const QString &msg,
-                            const QString &inf,
-                            QMessageBox::StandardButton defaultButton,
-                            QMessageBox::StandardButtons buttons = QMessageBox::Yes|QMessageBox::No)
+static inline int askWithDetailedText(QWidget *parent,
+                                      const QString &title, const QString &msg,
+                                      const QString &inf,
+                                      QMessageBox::StandardButton defaultButton,
+                                      QMessageBox::StandardButtons buttons = QMessageBox::Yes|QMessageBox::No)
 {
     QMessageBox msgBox(QMessageBox::Question, title, msg, buttons, parent);
     msgBox.setDetailedText(inf);
@@ -1698,11 +1690,10 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
         process->setProcessEnvironment(env);
         process->start(binary, arguments);
         success = process->waitForStarted();
-        if (success) {
+        if (success)
             connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
-        } else {
+        else
             delete process;
-        }
     } else {
         success = QProcess::startDetached(binary, arguments, workingDirectory);
     }
@@ -2132,11 +2123,10 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
                                         QString *errorMessage)
 {
     QStringList arguments(QLatin1String("stash"));
-    if (branch.isEmpty()) {
+    if (branch.isEmpty())
         arguments << QLatin1String("apply") << stash;
-    } else {
+    else
         arguments << QLatin1String("branch") << branch << stash;
-    }
     QByteArray outputText;
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
@@ -2148,11 +2138,10 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
                             arg(nativeWorkingDir, stdErr) :
                             tr("Cannot restore stash \"%1\" to branch \"%2\": %3").
                             arg(nativeWorkingDir, branch, stdErr);
-        if (errorMessage) {
+        if (errorMessage)
             *errorMessage = msg;
-        } else {
+        else
             outputWindow()->append(msg);
-        }
         return false;
     }
     QString output = commandOutputFromLocal8Bit(outputText);
@@ -2183,11 +2172,10 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
                             arg(nativeWorkingDir, stdErr) :
                             tr("Cannot remove stash \"%1\" of \"%2\": %3").
                             arg(stash, nativeWorkingDir, stdErr);
-        if (errorMessage) {
+        if (errorMessage)
             *errorMessage = msg;
-        } else {
+        else
             outputWindow()->append(msg);
-        }
         return false;
     }
     QString output = commandOutputFromLocal8Bit(outputText);
@@ -2314,9 +2302,8 @@ QString GitClient::vcsGetRepositoryURL(const QString &directory)
 
     arguments << QLatin1String("remote.origin.url");
 
-    if (fullySynchronousGit(directory, arguments, &outputText, 0, false)) {
+    if (fullySynchronousGit(directory, arguments, &outputText, 0, false))
         return commandOutputFromLocal8Bit(outputText);
-    }
     return QString();
 }
 
@@ -2352,7 +2339,7 @@ void GitClient::connectRepositoryChanged(const QString & repository, GitCommand 
 }
 
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::gitVersion(bool silent, QString *errorMessage  /* = 0 */)
+unsigned GitClient::gitVersion(bool silent, QString *errorMessage)
 {
     if (!m_hasCachedGitVersion) {
         // Do not execute repeatedly if that fails (due to git
@@ -2376,7 +2363,7 @@ QString GitClient::gitVersionString(bool silent, QString *errorMessage)
 }
 
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage /* = 0 */)
+unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage)
 {
     // run git --version
     QByteArray outputText;
