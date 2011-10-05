@@ -1173,7 +1173,12 @@ bool Check::visit(CallExpression *ast)
     // check for capitalized function name being called
     SourceLocation location;
     const QString name = functionName(ast->base, &location);
-    if (!name.isEmpty() && name.at(0).isUpper()) {
+    if (!name.isEmpty() && name.at(0).isUpper()
+            && name != QLatin1String("String")
+            && name != QLatin1String("Boolean")
+            && name != QLatin1String("Date")
+            && name != QLatin1String("Number")
+            && name != QLatin1String("Object")) {
         addMessage(WarnExpectedNewWithUppercaseFunction, location);
     }
     if (cast<IdentifierExpression *>(ast->base) && name == QLatin1String("eval"))

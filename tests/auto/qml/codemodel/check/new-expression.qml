@@ -11,5 +11,9 @@ Item {
     function foo() {
         a = A() // 306 13 13
         a = a()
+        a = Number("abc")
+        a = String(12)
+        a = Boolean(12)
+        a = Date()
     }
 }
