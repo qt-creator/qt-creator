@@ -198,6 +198,26 @@ bool CppAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
     return false;
 }
 
+static bool isDereferenced(TextEditor::BaseTextEditor *editor, int basePosition)
+{
+    QTextCursor cursor = editor->editorWidget()->textCursor();
+    cursor.setPosition(basePosition);
+
+    BackwardsScanner scanner(cursor);
+    for (int pos = scanner.startToken()-1; pos >= 0; pos--) {
+        switch (scanner[pos].kind()) {
+        case T_COLON_COLON:
+        case T_IDENTIFIER:
+            //Ignore scope specifiers
+            break;
+
+        case T_AMPER: return true;
+        default:      return false;
+        }
+    }
+    return false;
+}
+
 void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *editor,
                                                     int basePosition) const
 {
@@ -249,7 +269,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
                         extraChars += QLatin1Char('<');
                     }
 #endif
-                } else if (! function->isAmbiguous()) {
+                } else if (!isDereferenced(editor, basePosition) && ! function->isAmbiguous()) {
                     // When the user typed the opening parenthesis, he'll likely also type the closing one,
                     // in which case it would be annoying if we put the cursor after the already automatically
                     // inserted closing parenthesis.
