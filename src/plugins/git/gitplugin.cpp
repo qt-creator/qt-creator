@@ -695,9 +695,6 @@ void GitPlugin::startCommit(bool amend)
     m_submitOrigCommitFiles = data.stagedFileNames();
     m_submitOrigDeleteFiles = data.stagedFileNames("deleted");
 
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << data << commitTemplate;
-
     // Start new temp file with message template
     Utils::TempFileSaver saver;
     // Keep the file alive, else it removes self and forgets its name
@@ -715,8 +712,6 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
 {
     Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, Constants::GITSUBMITEDITOR_ID,
                                                                 Core::EditorManager::ModeSwitch);
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << fileName << editor;
     GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     // The actions are for some reason enabled by the context switching
@@ -779,8 +774,6 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
         m_gitClient->setSettings(settings);
     // Go ahead!
     const QStringList fileList = editor->checkedFiles();
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << fileList;
     bool closeEditor = true;
     if (!fileList.empty() || !m_commitAmendSHA1.isEmpty()) {
         // get message & commit

@@ -111,9 +111,6 @@ void GitCommand::addJob(const QStringList &arguments, int timeout)
 
 void GitCommand::execute()
 {
-    if (Git::Constants::debug)
-        qDebug() << "GitCommand::execute" << m_workingDirectory << m_jobs.size();
-
     if (m_jobs.empty())
         return;
 
@@ -132,10 +129,6 @@ QString GitCommand::msgTimeout(int seconds)
 
 void GitCommand::run()
 {
-    if (Git::Constants::debug)
-        qDebug() << "GitCommand::run" << m_workingDirectory << m_jobs.size()
-                 << "terminal_disabled" << m_unixTerminalDisabled;
-
     const unsigned processFlags = m_unixTerminalDisabled ?
                             unsigned(Utils::SynchronousProcess::UnixTerminalDisabled) :
                             unsigned(0);
@@ -154,9 +147,6 @@ void GitCommand::run()
     int exitCode = -1;
     bool ok = true;
     for (int j = 0; j < count; j++) {
-        if (Git::Constants::debug)
-            qDebug() << "GitCommand::run" << j << '/' << count << m_jobs.at(j).arguments;
-
         process->start(m_binaryPath, m_jobs.at(j).arguments);
         if (!process->waitForStarted()) {
             ok = false;

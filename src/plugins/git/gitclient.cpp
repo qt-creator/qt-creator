@@ -505,10 +505,6 @@ void GitClient::diff(const QString &workingDirectory,
                      const QStringList &unstagedFileNames,
                      const QStringList &stagedFileNames)
 {
-
-    if (Git::Constants::debug)
-        qDebug() << "diff" << workingDirectory << unstagedFileNames << stagedFileNames;
-
     const QString binary = QLatin1String(Constants::GIT_BINARY);
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     const QString title = tr("Git Diff");
@@ -598,9 +594,6 @@ void GitClient::diffBranch(const QString &workingDirectory,
                            const QStringList &diffArgs,
                            const QString &branchName)
 {
-    if (Git::Constants::debug)
-        qDebug() << "diffBranch" << workingDirectory << branchName;
-
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     const QString title = tr("Git Diff Branch \"%1\"").arg(branchName);
     const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, QStringList());
@@ -638,9 +631,6 @@ static const char graphLogFormatC[] = "%h %d %an %s %ci";
 // Create a graphical log.
 void GitClient::graphLog(const QString &workingDirectory, const QString & branch)
 {
-    if (Git::Constants::debug)
-        qDebug() << "log" << workingDirectory;
-
     QStringList arguments;
     arguments << QLatin1String("log") << QLatin1String(noColorOption);
 
@@ -666,9 +656,6 @@ void GitClient::graphLog(const QString &workingDirectory, const QString & branch
 
 void GitClient::log(const QString &workingDirectory, const QStringList &fileNames, bool enableAnnotationContextMenu)
 {
-    if (Git::Constants::debug)
-        qDebug() << "log" << workingDirectory << fileNames;
-
     QStringList arguments;
     arguments << QLatin1String("log") << QLatin1String(noColorOption)
               << QLatin1String(decorateOption);
@@ -708,8 +695,6 @@ static inline QString msgCannotShow(const QString &sha)
 
 void GitClient::show(const QString &source, const QString &id, const QStringList &args)
 {
-    if (Git::Constants::debug)
-        qDebug() << "show" << source << id;
     if (!canShow(id)) {
         outputWindow()->append(msgCannotShow(id));
         return;
@@ -753,9 +738,6 @@ void GitClient::blame(const QString &workingDirectory,
                       const QString &revision /* = QString() */,
                       int lineNumber /* = -1 */)
 {
-    if (Git::Constants::debug)
-        qDebug() << "blame" << workingDirectory << fileName << lineNumber << args;
-
     const QString editorId = QLatin1String(Git::Constants::GIT_BLAME_EDITOR_ID);
     const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDirectory, QStringList(fileName), revision);
     const QString title = tr("Git Blame \"%1\"").arg(id);
@@ -853,8 +835,6 @@ bool GitClient::synchronousAdd(const QString &workingDirectory,
                                bool intendToAdd,
                                const QStringList &files)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << files;
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
@@ -876,8 +856,6 @@ bool GitClient::synchronousDelete(const QString &workingDirectory,
                                   bool force,
                                   const QStringList &files)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << files;
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
@@ -898,8 +876,6 @@ bool GitClient::synchronousMove(const QString &workingDirectory,
                                 const QString &from,
                                 const QString &to)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << from << to;
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
@@ -919,8 +895,6 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
                                  const QStringList &files,
                                  QString *errorMessage)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << files;
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
@@ -957,8 +931,6 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
 // Initialize repository
 bool GitClient::synchronousInit(const QString &workingDirectory)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory;
     QByteArray outputText;
     QByteArray errorText;
     const QStringList arguments(QLatin1String("init"));
@@ -985,8 +957,6 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
                                          QString *errorMessage /* = 0 */,
                                          bool revertStaging /* = true */)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << files;
     if (revertStaging && revision.isEmpty())
         revision = QLatin1String("HEAD");
     if (files.isEmpty())
@@ -1056,8 +1026,6 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
                                            QStringList *parents,
                                            QString *errorMessage)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << revision;
     QByteArray outputTextData;
     QByteArray errorText;
     QStringList arguments;
@@ -1080,8 +1048,6 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
         *errorMessage = msgParentRevisionFailed(workingDirectory, revision, msgInvalidRevision());
         return false;
     }
-    if (Git::Constants::debug)
-        qDebug() << workingDirectory << files << revision << "->" << *parents;
     return true;
 }
 
@@ -1124,8 +1090,6 @@ bool GitClient::synchronousTopRevision(const QString &workingDirectory,
                                        QString *branch /* = 0 */,
                                        QString *errorMessageIn /* = 0 */)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory;
     QByteArray outputTextData;
     QByteArray errorText;
     QStringList arguments;
@@ -1189,8 +1153,6 @@ bool GitClient::synchronousShortDescription(const QString &workingDirectory,
                                     QString *description,
                                     QString *errorMessage)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << revision;
     QByteArray outputTextData;
     QByteArray errorText;
     QStringList arguments;
@@ -1268,8 +1230,6 @@ QString GitClient::synchronousStash(const QString &workingDirectory,
     }
     if (!success)
         message.clear();
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << '\n' << workingDirectory << messageKeyword << "returns" << message;
     return message;
 }
 
@@ -1277,8 +1237,6 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
                                  const QString &message,
                                  QString *errorMessage /* = 0*/)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory;
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
@@ -1333,8 +1291,6 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
 bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
                                      QString *output, QString *errorMessage)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << branchArgs;
     branchArgs.push_front(QLatin1String("branch"));
     QByteArray outputText;
     QByteArray errorText;
@@ -1365,8 +1321,6 @@ bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringLis
 bool GitClient::synchronousShow(const QString &workingDirectory, const QString &id,
                                  QString *output, QString *errorMessage)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << id;
     if (!canShow(id)) {
         *errorMessage = msgCannotShow(id);
         return false;
@@ -1388,8 +1342,6 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
 bool GitClient::synchronousCleanList(const QString &workingDirectory,
                                      QStringList *files, QString *errorMessage)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory;
     files->clear();
     QStringList args;
     args << QLatin1String("clean") << QLatin1String("--dry-run") << QLatin1String("-dxf");
@@ -1411,8 +1363,6 @@ bool GitClient::synchronousCleanList(const QString &workingDirectory,
 bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
                                       const QString &file, QString *errorMessage)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory;
     QStringList args;
     args << QLatin1String("apply") << QLatin1String("--whitespace=fix") << file;
     QByteArray outputText;
@@ -1434,9 +1384,6 @@ GitCommand *GitClient::createCommand(const QString &workingDirectory,
                              bool outputToWindow,
                              int editorLineNumber)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << editor;
-
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     GitCommand* command = new GitCommand(binary(), workingDirectory, processEnvironment(), QVariant(editorLineNumber));
     if (editor)
@@ -1502,8 +1449,6 @@ QProcessEnvironment GitClient::processEnvironment() const
 #ifdef Q_OS_WIN
     if (m_settings.winSetHomeEnvironment) {
         const QString home = fakeWinHome(environment);
-        if (Constants::debug)
-            qDebug("Setting home '%s'", qPrintable(home));
         environment.insert(QLatin1String("HOME"), home);
     }
 #endif // Q_OS_WIN
@@ -1520,8 +1465,6 @@ Utils::SynchronousProcessResponse
                                   unsigned flags,
                                   QTextCodec *stdOutCodec)
 {
-    if (Git::Constants::debug)
-        qDebug() << "synchronousGit" << workingDirectory << gitArguments;
     return VCSBase::VCSBasePlugin::runVCS(workingDirectory, binary(), gitArguments,
                                           m_settings.timeoutSeconds * 1000,
                                           processEnvironment(),
@@ -1534,9 +1477,6 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
                                     QByteArray* errorText,
                                     bool logCommandToWindow)
 {
-    if (Git::Constants::debug)
-        qDebug() << "fullySynchronousGit" << workingDirectory << gitArguments;
-
     if (logCommandToWindow)
         outputWindow()->appendCommand(workingDirectory, m_binaryPath, gitArguments);
 
@@ -1562,8 +1502,6 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
         return false;
     }
 
-    if (Git::Constants::debug)
-        qDebug() << "synchronousGit ex=" << process.exitStatus() << process.exitCode();
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
@@ -1784,9 +1722,6 @@ bool GitClient::getCommitData(const QString &workingDirectory,
                               CommitData *commitData,
                               QString *errorMessage)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory;
-
     commitData->clear();
 
     // Find repo
@@ -1920,8 +1855,6 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
                              const QStringList &origCommitFiles,
                              const QStringList &origDeletedFiles)
 {
-    if (Git::Constants::debug)
-        qDebug() << "GitClient::addAndCommit:" << repositoryDirectory << checkedFiles << origCommitFiles;
     const QString renamedSeparator = QLatin1String(" -> ");
     const bool amend = !amendSHA1.isEmpty();
 
@@ -1988,9 +1921,6 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
                                            QString *errorMessage,
                                            bool revertStaging)
 {
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << files;
-
     if (files.empty())
         return RevertCanceled;
 
@@ -2045,9 +1975,6 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
         stagedFiles = allStagedFiles.toSet().intersect(filesSet).toList();
         unstagedFiles = allUnstagedFiles.toSet().intersect(filesSet).toList();
     }
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << data.stagedFiles << data.unstagedFiles << allStagedFiles << allUnstagedFiles << stagedFiles << unstagedFiles;
-
     if ((!revertStaging || stagedFiles.empty()) && unstagedFiles.empty())
         return RevertUnchanged;
 
@@ -2161,9 +2088,6 @@ void GitClient::synchronousSubversionFetch(const QString &workingDirectory)
 
 void GitClient::subversionLog(const QString &workingDirectory)
 {
-    if (Git::Constants::debug)
-        qDebug() << "subversionLog" << workingDirectory;
-
     QStringList arguments;
     arguments << QLatin1String("svn") << QLatin1String("log");
     if (m_settings.logCount > 0)
@@ -2311,8 +2235,6 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     foreach(const QString &line, commandOutputLinesFromLocal8Bit(outputText))
         if (stash.parseStashLine(line))
             stashes->push_back(stash);
-    if (Git::Constants::debug)
-        qDebug() << Q_FUNC_INFO << *stashes;
     return true;
 }
 

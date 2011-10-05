@@ -71,8 +71,6 @@ GitEditor::GitEditor(const VCSBase::VCSBaseEditorParameters *type,
     QTC_ASSERT(m_changeNumberPattern40.isValid(), return);
     setAnnotateRevisionTextFormat(tr("Blame %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Blame parent revision %1"));
-    if (Git::Constants::debug)
-        qDebug() << "GitEditor::GitEditor" << type->type << type->id;
 }
 
 QSet<QString> GitEditor::annotationChanges() const
@@ -94,8 +92,6 @@ QSet<QString> GitEditor::annotationChanges() const
             changes.insert(r.cap(1));
         }
     }
-    if (Git::Constants::debug)
-        qDebug() << "GitEditor::annotationChanges() returns #" << changes.size();
     return changes;
 }
 
@@ -107,8 +103,6 @@ QString GitEditor::changeUnderCursor(const QTextCursor &c) const
     if (!cursor.hasSelection())
         return QString();
     const QString change = cursor.selectedText();
-    if (Git::Constants::debug > 1)
-        qDebug() << "GitEditor:::changeUnderCursor:" << change;
     if (m_changeNumberPattern8.exactMatch(change))
         return change;
     if (m_changeNumberPattern40.exactMatch(change))
