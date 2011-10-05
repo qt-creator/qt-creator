@@ -37,6 +37,8 @@
 #include "qmljseditorconstants.h"
 #include "qmljseditorplugin.h"
 
+#include <qmljstools/qmljstoolsconstants.h>
+
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
@@ -90,8 +92,9 @@ QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
   : Core::IEditorFactory(parent)
 {
     m_mimeTypes
-            << QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
-            << QLatin1String(QmlJSEditor::Constants::JS_MIMETYPE)
+            << QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
+            << QLatin1String(QmlJSTools::Constants::JS_MIMETYPE)
+            << QLatin1String(QmlJSTools::Constants::JSON_MIMETYPE)
             ;
 }
 

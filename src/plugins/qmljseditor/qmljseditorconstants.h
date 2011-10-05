@@ -58,9 +58,6 @@ const char * const RENAME_USAGES = "QmlJSEditor.RenameUsages";
 const char * const RUN_SEMANTIC_SCAN = "QmlJSEditor.RunSemanticScan";
 const char * const SHOW_QT_QUICK_HELPER = "QmlJSEditor.ShowQtQuickHelper";
 
-const char * const QML_MIMETYPE = "application/x-qml";
-const char * const JS_MIMETYPE = "application/javascript";
-
 const char *const TASK_CATEGORY_QML = "Task.Category.Qml";
 const char *const TASK_CATEGORY_QML_ANALYSIS = "Task.Category.QmlAnalysis";
 

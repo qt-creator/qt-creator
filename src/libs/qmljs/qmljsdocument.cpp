@@ -132,11 +132,6 @@ bool Document::isQmlDocument() const
     return _language == QmlLanguage;
 }
 
-bool Document::isJSDocument() const
-{
-    return _language == JavaScriptLanguage;
-}
-
 Document::Language Document::language() const
 {
     return _language;

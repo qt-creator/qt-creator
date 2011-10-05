@@ -75,6 +75,7 @@ QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
 {
     QStringList jsSuffixes("js");
     QStringList qmlSuffixes("qml");
+    QStringList jsonSuffixes("json");
 
     if (Core::ICore::instance()) {
         Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
@@ -82,6 +83,8 @@ QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
         jsSuffixes = jsSourceTy.suffixes();
         Core::MimeType qmlSourceTy = db->findByType(Constants::QML_MIMETYPE);
         qmlSuffixes = qmlSourceTy.suffixes();
+        Core::MimeType jsonSourceTy = db->findByType(Constants::JSON_MIMETYPE);
+        jsonSuffixes = jsonSourceTy.suffixes();
     }
 
     const QFileInfo info(fileName);
@@ -90,6 +93,8 @@ QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
         return QmlJS::Document::JavaScriptLanguage;
     if (qmlSuffixes.contains(fileSuffix))
         return QmlJS::Document::QmlLanguage;
+    if (jsonSuffixes.contains(fileSuffix))
+        return QmlJS::Document::JsonLanguage;
     return QmlJS::Document::UnknownLanguage;
 }
 

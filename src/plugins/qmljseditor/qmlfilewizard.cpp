@@ -30,8 +30,9 @@
 **
 **************************************************************************/
 
-#include "qmljseditorconstants.h"
 #include "qmlfilewizard.h"
+
+#include <qmljstools/qmljstoolsconstants.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
@@ -49,7 +50,7 @@ Core::GeneratedFiles QmlFileWizard::generateFilesFromPath(const QString &path,
                                                           QString * /*errorMessage*/) const
 
 {
-    const QString mimeType = QLatin1String(Constants::QML_MIMETYPE);
+    const QString mimeType = QLatin1String(QmlJSTools::Constants::QML_MIMETYPE);
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);

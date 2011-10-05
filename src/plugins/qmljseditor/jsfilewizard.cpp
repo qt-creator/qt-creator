@@ -30,8 +30,9 @@
 **
 **************************************************************************/
 
-#include "qmljseditorconstants.h"
 #include "jsfilewizard.h"
+
+#include <qmljstools/qmljstoolsconstants.h>
 
 #include <utils/filewizarddialog.h>
 #include <utils/qtcassert.h>
@@ -104,7 +105,7 @@ Core::GeneratedFiles JsFileWizard::generateFiles(const QWizard *w,
     const QString path = wizardDialog->path();
     const QString name = wizardDialog->fileName();
 
-    const QString mimeType = QLatin1String(Constants::JS_MIMETYPE);
+    const QString mimeType = QLatin1String(QmlJSTools::Constants::JS_MIMETYPE);
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);

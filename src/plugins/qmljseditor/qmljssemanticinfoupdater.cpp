@@ -146,9 +146,10 @@ SemanticInfo SemanticInfoUpdater::semanticInfo(const SemanticInfoUpdaterSource &
     QmlJS::ScopeChain *scopeChain = new QmlJS::ScopeChain(doc, semanticInfo.context);
     semanticInfo.m_rootScopeChain = QSharedPointer<const QmlJS::ScopeChain>(scopeChain);
 
-    QmlJS::Check checker(doc, semanticInfo.context);
-    foreach (const QmlJS::StaticAnalysis::Message &msg, checker()) {
-        semanticInfo.semanticMessages += msg.toDiagnosticMessage();
+    if (doc->language() != QmlJS::Document::JsonLanguage) {
+        QmlJS::Check checker(doc, semanticInfo.context);
+        foreach (const QmlJS::StaticAnalysis::Message &msg, checker()) {
+            semanticInfo.semanticMessages += msg.toDiagnosticMessage();
     }
 
     return semanticInfo;

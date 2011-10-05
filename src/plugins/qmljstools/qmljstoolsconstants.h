@@ -40,6 +40,7 @@ namespace Constants {
 
 const char * const QML_MIMETYPE = "application/x-qml";
 const char * const JS_MIMETYPE = "application/javascript";
+const char * const JSON_MIMETYPE = "application/json";
 
 const char * const TASK_INDEX = "QmlJSEditor.TaskIndex";
 

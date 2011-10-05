@@ -17,4 +17,9 @@
         <glob pattern="*.qs"/>
         <glob pattern="*.qtt"/>
     </mime-type>
+    <mime-type type="application/json">
+        <sub-class-of type="text/plain"/>
+        <comment>JSON file</comment>
+        <glob pattern="*.json"/>
+    </mime-type>
 </mime-info>

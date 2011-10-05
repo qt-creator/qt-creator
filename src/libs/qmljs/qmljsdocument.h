@@ -55,11 +55,13 @@ class QMLJS_EXPORT Document
 public:
     typedef QSharedPointer<Document> Ptr;
 
+    // used in a 3-bit bitfield
     enum Language
     {
         QmlLanguage = 0,
         JavaScriptLanguage = 1,
-        UnknownLanguage = 2
+        JsonLanguage = 2,
+        UnknownLanguage = 3
     };
 
 protected:
@@ -73,7 +75,6 @@ public:
     Document::Ptr ptr() const;
 
     bool isQmlDocument() const;
-    bool isJSDocument() const;
     Language language() const;
 
     AST::UiProgram *qmlProgram() const;
@@ -119,7 +120,7 @@ private:
     QString _source;
     QWeakPointer<Document> _ptr;
     int _editorRevision;
-    Language _language : 2;
+    Language _language : 3;
     bool _parsedCorrectly : 1;
 
     // for documentFromSource

@@ -119,6 +119,9 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
     textEditorSettings->registerMimeTypeForLanguageId(
                 QLatin1String(Constants::JS_MIMETYPE),
                 Constants::QML_JS_SETTINGS_ID);
+    textEditorSettings->registerMimeTypeForLanguageId(
+                QLatin1String(Constants::JSON_MIMETYPE),
+                Constants::QML_JS_SETTINGS_ID);
 }
 
 QmlJSToolsSettings::~QmlJSToolsSettings()

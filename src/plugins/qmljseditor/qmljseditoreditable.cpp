@@ -34,6 +34,7 @@
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 
+#include <qmljstools/qmljstoolsconstants.h>
 #include <texteditor/texteditorconstants.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -64,7 +65,7 @@ static bool openInDesignMode()
     if (!bauhausDetected) {
         if (const Core::IMode *dm = Core::ModeManager::instance()->mode(QLatin1String(Core::Constants::MODE_DESIGN)))
             if (const Core::DesignMode *designMode = qobject_cast<const Core::DesignMode *>(dm))
-                bauhausPresent = designMode->registeredMimeTypes().contains(QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE));
+                bauhausPresent = designMode->registeredMimeTypes().contains(QLatin1String(QmlJSTools::Constants::QML_MIMETYPE));
         bauhausDetected =  true;
     }
     if (!bauhausPresent)
@@ -86,7 +87,7 @@ QString QmlJSEditorEditable::preferredModeType() const
     // if we are in other mode than edit or design, use the hard-coded default.
     // because the editor opening decision is modal, it would be confusing to
     // have the user also access to this failsafe setting.
-    if (editorWidget()->mimeType() == QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
+    if (editorWidget()->mimeType() == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
         && openInDesignMode())
         return QLatin1String(Core::Constants::MODE_DESIGN_TYPE);
     return QString();
