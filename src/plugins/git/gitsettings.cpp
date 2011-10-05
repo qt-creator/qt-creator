@@ -31,105 +31,46 @@
 **************************************************************************/
 
 #include "gitsettings.h"
-#include "gitconstants.h"
 
 #include <utils/synchronousprocess.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
-
-static const char groupC[] = "Git";
-static const char sysEnvKeyC[] = "SysEnv";
-static const char pathKeyC[] = "Path";
-static const char logCountKeyC[] = "LogCount";
-static const char timeoutKeyC[] = "TimeOut";
-static const char pullRebaseKeyC[] = "PullRebase";
-static const char promptToSubmitKeyC[] = "PromptForSubmit";
-static const char omitAnnotationDateKeyC[] = "OmitAnnotationDate";
-static const char ignoreSpaceChangesBlameKeyC[] = "SpaceIgnorantBlame";
-static const char ignoreSpaceChangesDiffKeyC[] = "SpaceIgnorantDiff";
-static const char diffPatienceKeyC[] = "DiffPatience";
-static const char winSetHomeEnvironmentKeyC[] = "WinSetHomeEnvironment";
-static const char gitkOptionsKeyC[] = "GitKOptions";
-static const char showPrettyFormatC[] = "DiffPrettyFormat";
-
-enum {
-    defaultPullRebase = 0,
-    defaultLogCount = 100,
-#ifdef Q_OS_WIN
-    defaultTimeOut = 60
-#else	
-    defaultTimeOut = 30
-#endif	
-};
 
 namespace Git {
 namespace Internal {
 
-GitSettings::GitSettings() :
-    adoptPath(false),
-    logCount(defaultLogCount),
-    timeoutSeconds(defaultTimeOut),
-    pullRebase(bool(defaultPullRebase)),
-    promptToSubmit(true),
-    omitAnnotationDate(false),
-    ignoreSpaceChangesInDiff(false),
-    ignoreSpaceChangesInBlame(true),
-    diffPatience(true),
-    winSetHomeEnvironment(false),
-    showPrettyFormat(5)
-{
-}
+const QLatin1String GitSettings::adoptPathKey("SysEnv");
+const QLatin1String GitSettings::pathKey("Path");
+const QLatin1String GitSettings::pullRebaseKey("PullRebase");
+const QLatin1String GitSettings::omitAnnotationDateKey("OmitAnnotationDate");
+const QLatin1String GitSettings::ignoreSpaceChangesInDiffKey("SpaceIgnorantDiff");
+const QLatin1String GitSettings::ignoreSpaceChangesInBlameKey("SpaceIgnorantBlame");
+const QLatin1String GitSettings::diffPatienceKey("DiffPatience");
+const QLatin1String GitSettings::winSetHomeEnvironmentKey("WinSetHomeEnvironment");
+const QLatin1String GitSettings::showPrettyFormatKey("DiffPrettyFormat");
+const QLatin1String GitSettings::gitkOptionsKey("GitKOptions");
 
-void GitSettings::fromSettings(QSettings *settings)
+GitSettings::GitSettings()
 {
-    settings->beginGroup(QLatin1String(groupC));
-    adoptPath = settings->value(QLatin1String(sysEnvKeyC), false).toBool();
-    path = settings->value(QLatin1String(pathKeyC), QString()).toString();
-    logCount = settings->value(QLatin1String(logCountKeyC), defaultLogCount).toInt();
-    timeoutSeconds = settings->value(QLatin1String(timeoutKeyC), defaultTimeOut).toInt();
-    pullRebase = settings->value(QLatin1String(pullRebaseKeyC), bool(defaultPullRebase)).toBool();
-    promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
-    omitAnnotationDate = settings->value(QLatin1String(omitAnnotationDateKeyC), false).toBool();
-    ignoreSpaceChangesInDiff = settings->value(QLatin1String(ignoreSpaceChangesDiffKeyC), true).toBool();
-    ignoreSpaceChangesInBlame = settings->value(QLatin1String(ignoreSpaceChangesBlameKeyC), true).toBool();
-    diffPatience = settings->value(QLatin1String(diffPatienceKeyC), true).toBool();
-    winSetHomeEnvironment = settings->value(QLatin1String(winSetHomeEnvironmentKeyC), false).toBool();
-    gitkOptions = settings->value(QLatin1String(gitkOptionsKeyC)).toString();
-    showPrettyFormat = settings->value(QLatin1String(showPrettyFormatC), 5).toInt();
-    settings->endGroup();
-}
+    setSettingsGroup(QLatin1String("Git"));
 
-void GitSettings::toSettings(QSettings *settings) const
-{
-    settings->beginGroup(QLatin1String(groupC));
-    settings->setValue(QLatin1String(sysEnvKeyC), adoptPath);
-    settings->setValue(QLatin1String(pathKeyC), path);
-    settings->setValue(QLatin1String(logCountKeyC), logCount);
-    settings->setValue(QLatin1String(timeoutKeyC), timeoutSeconds);
-    settings->setValue(QLatin1String(pullRebaseKeyC), pullRebase);
-    settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
-    settings->setValue(QLatin1String(omitAnnotationDateKeyC), omitAnnotationDate);
-    settings->setValue(QLatin1String(ignoreSpaceChangesDiffKeyC), ignoreSpaceChangesInDiff);
-    settings->setValue(QLatin1String(ignoreSpaceChangesBlameKeyC), ignoreSpaceChangesInBlame);
-    settings->setValue(QLatin1String(diffPatienceKeyC), diffPatience);
-    settings->setValue(QLatin1String(winSetHomeEnvironmentKeyC), winSetHomeEnvironment);
-    settings->setValue(QLatin1String(gitkOptionsKeyC), gitkOptions);
-    settings->setValue(QLatin1String(showPrettyFormatC), showPrettyFormat);
-    settings->endGroup();
-}
-
-bool GitSettings::equals(const GitSettings &s) const
-{
-    return adoptPath == s.adoptPath && path == s.path && logCount == s.logCount
-           && timeoutSeconds == s.timeoutSeconds && promptToSubmit == s.promptToSubmit
-           && pullRebase == s.pullRebase
-           && omitAnnotationDate == s.omitAnnotationDate
-           && ignoreSpaceChangesInBlame == s.ignoreSpaceChangesInBlame
-           && ignoreSpaceChangesInDiff == s.ignoreSpaceChangesInDiff
-           && diffPatience == s.diffPatience && winSetHomeEnvironment == s.winSetHomeEnvironment
-           && gitkOptions == s.gitkOptions && showPrettyFormat == s.showPrettyFormat;
+#ifdef Q_OS_WIN
+    declareKey(binaryPathKey, QLatin1String("git.exe"));
+    declareKey(timeoutKey, 60);
+#else
+    declareKey(binaryPathKey, QLatin1String("git"));
+    declareKey(timeoutKey, 30);
+#endif
+    declareKey(adoptPathKey, false);
+    declareKey(pathKey, QString());
+    declareKey(pullRebaseKey, false);
+    declareKey(omitAnnotationDateKey, false);
+    declareKey(ignoreSpaceChangesInDiffKey, true);
+    declareKey(ignoreSpaceChangesInBlameKey, true);
+    declareKey(diffPatienceKey, true);
+    declareKey(winSetHomeEnvironmentKey, false);
+    declareKey(gitkOptionsKey, QString());
+    declareKey(showPrettyFormatKey, 5);
 }
 
 QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
@@ -140,22 +81,31 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
         *ok = true;
     if (errorMessage)
         errorMessage->clear();
-    const QString binary = QLatin1String(Constants::GIT_BINARY);
-    QString currentPath = path;
-    // Easy, git is assumed to be elsewhere accessible
-    if (!adoptPath)
-        currentPath = QString::fromLocal8Bit(qgetenv("PATH"));
-    // Search in path?
-    const QString pathBinary = Utils::SynchronousProcess::locateBinary(currentPath, binary);
-    if (pathBinary.isEmpty()) {
-        if (ok)
-            *ok = false;
-        if (errorMessage)
-            *errorMessage = QCoreApplication::translate("Git::Internal::GitSettings",
-                                                        "The binary '%1' could not be located in the path '%2'").arg(binary, path);
-        return binary;
+
+    if (m_binaryPath.isEmpty()) {
+        const QString binary = stringValue(binaryPathKey);
+        QString currentPath = stringValue(pathKey);
+        // Easy, git is assumed to be elsewhere accessible
+        if (!boolValue(adoptPathKey))
+            currentPath = QString::fromLocal8Bit(qgetenv("PATH"));
+        // Search in path?
+        m_binaryPath = Utils::SynchronousProcess::locateBinary(currentPath, binary);
+        if (m_binaryPath.isEmpty()) {
+            if (ok)
+                *ok = false;
+            if (errorMessage)
+                *errorMessage = QCoreApplication::translate("Git::Internal::GitSettings",
+                                                            "The binary '%1' could not be located in the path '%2'")
+                    .arg(binary, currentPath);
+        }
     }
-    return pathBinary;
+    return m_binaryPath;
+}
+
+GitSettings &GitSettings::operator = (const GitSettings &s)
+{
+    VCSBaseClientSettings::operator =(s);
+    m_binaryPath.clear();
 }
 
 } // namespace Internal

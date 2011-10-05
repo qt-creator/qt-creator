@@ -144,7 +144,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
      const QString checkoutDir = directory();
      *checkoutPath = workingDirectory + QLatin1Char('/') + checkoutDir;
 
-     const QString binary = client->binary();
+     const QString binary = client->gitBinaryPath();
 
      VCSBase::ProcessCheckoutJob *job = new VCSBase::ProcessCheckoutJob;
      const QProcessEnvironment env = client->processEnvironment();

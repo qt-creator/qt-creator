@@ -122,11 +122,6 @@ void GitCommand::execute()
                                      QLatin1String("Git.action"));
 }
 
-QString GitCommand::msgTimeout(int seconds)
-{
-    return tr("Error: Git timed out after %1s.").arg(seconds);
-}
-
 void GitCommand::run()
 {
     const unsigned processFlags = m_unixTerminalDisabled ?
@@ -160,7 +155,7 @@ void GitCommand::run()
                                                             &stdOut, &stdErr, false)) {
             Utils::SynchronousProcess::stopProcess(*process);
             ok = false;
-            error += msgTimeout(timeOutSeconds);
+            error += tr("Error: Git timed out after %1s.").arg(timeOutSeconds);
             break;
         }
 
@@ -232,7 +227,6 @@ QVariant GitCommand::cookie() const
 {
     return m_cookie;
 }
-
 
 } // namespace Internal
 } // namespace Git

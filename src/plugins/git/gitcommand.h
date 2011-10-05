@@ -73,8 +73,6 @@ public:
     bool unixTerminalDisabled() const;
     void setUnixTerminalDisabled(bool);
 
-    static QString msgTimeout(int seconds);
-
     void setCookie(const QVariant &cookie);
     QVariant cookie() const;
 

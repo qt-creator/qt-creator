@@ -65,7 +65,7 @@ QString GitVersionControl::id() const
 bool GitVersionControl::isConfigured() const
 {
     bool ok = false;
-    m_client->settings().gitBinaryPath(&ok);
+    m_client->gitBinaryPath(&ok);
     return ok;
 }
 

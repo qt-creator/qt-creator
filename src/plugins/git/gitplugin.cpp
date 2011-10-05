@@ -44,6 +44,7 @@
 #include "clonewizard.h"
 #include "gitoriousclonewizard.h"
 #include "stashdialog.h"
+#include "settingspage.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -280,7 +281,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(errorMessage)
 
     m_core = Core::ICore::instance();
-    m_gitClient = new GitClient(this);
+    m_settings.readSettings(m_core->settings());
+
+    m_gitClient = new GitClient(&m_settings);
 
     typedef VCSBase::VCSEditorFactory<GitEditor> GitEditorFactory;
     typedef VCSBase::VCSSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
@@ -753,13 +756,12 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
         return true;
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    GitSettings settings = m_gitClient->settings();
-    const bool wantedPrompt = settings.promptToSubmit;
+    bool *promptData = m_settings.boolPointer(GitSettings::promptOnSubmitKey);
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
             editor->promptSubmit(tr("Closing Git Editor"),
                                  tr("Do you want to commit the change?"),
                                  tr("Git will not accept this commit. Do you want to continue to edit it?"),
-                                 &settings.promptToSubmit, !m_submitActionTriggered, false);
+                                 promptData, !m_submitActionTriggered, false);
     m_submitActionTriggered = false;
     switch (answer) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
@@ -770,8 +772,6 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     default:
         break;
     }
-    if (wantedPrompt != settings.promptToSubmit)
-        m_gitClient->setSettings(settings);
     // Go ahead!
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
@@ -1059,14 +1059,18 @@ void GitPlugin::showCommit()
     m_gitClient->show(m_changeSelectionDialog->repository(), change);
 }
 
-GitSettings GitPlugin::settings() const
+const GitSettings &GitPlugin::settings() const
 {
-    return m_gitClient->settings();
+    return m_settings;
 }
 
 void GitPlugin::setSettings(const GitSettings &s)
 {
-    m_gitClient->setSettings(s);
+    if (s == m_settings)
+        return;
+
+    m_settings = s;
+    static_cast<GitVersionControl *>(versionControl())->emitConfigurationChanged();
 }
 
 GitClient *GitPlugin::gitClient() const

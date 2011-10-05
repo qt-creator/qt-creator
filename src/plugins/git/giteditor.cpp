@@ -197,7 +197,7 @@ void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
     QByteArray array = a;
     // If desired, filter out the date from annotation
     const bool omitAnnotationDate = contentType() == VCSBase::AnnotateOutput
-                                    && GitPlugin::instance()->settings().omitAnnotationDate;
+                                    && GitPlugin::instance()->settings().boolValue(GitSettings::omitAnnotationDateKey);
     if (omitAnnotationDate)
         array = removeAnnotationDate(a);
     setPlainTextData(array);

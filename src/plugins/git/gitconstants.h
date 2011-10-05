@@ -57,7 +57,6 @@ const char * const GITSUBMITEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Git 
 const char * const SUBMIT_CURRENT = "Git.SubmitCurrentLog";
 const char * const DIFF_SELECTED = "Git.DiffSelectedFilesInLog";
 const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.git.submit";
-const char * const GIT_BINARY = "git";
 
 } // namespace Constants
 } // namespace Git

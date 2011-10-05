@@ -33,7 +33,8 @@
 #ifndef GITPLUGIN_H
 #define GITPLUGIN_H
 
-#include "settingspage.h"
+#include "gitsettings.h"
+
 #include "vcsbase/vcsbaseplugin.h"
 
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -69,13 +70,11 @@ namespace Locator {
 namespace Git {
 namespace Internal {
 
-class GitPlugin;
 class GitVersionControl;
 class GitClient;
 class ChangeSelectionDialog;
 class GitSubmitEditor;
 class CommitData;
-class GitSettings;
 class StashDialog;
 class BranchDialog;
 class RemoteDialog;
@@ -99,7 +98,7 @@ public:
 
     GitVersionControl *gitVersionControl() const;
 
-    GitSettings settings() const;
+    const GitSettings &settings() const;
     void setSettings(const GitSettings &s);
 
     GitClient *gitClient() const;
@@ -213,6 +212,7 @@ private:
     QString                     m_commitAmendSHA1;
     bool                        m_submitActionTriggered;
 
+    GitSettings m_settings;
 };
 
 } // namespace Git

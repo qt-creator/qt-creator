@@ -843,26 +843,25 @@ static Utils::SynchronousProcessResponse
 
 
 Utils::SynchronousProcessResponse
-        VCSBasePlugin::runVCS(const QString &workingDir,
-                              const QString &binary,
-                              const QStringList &arguments,
-                              int timeOutMS,
-                              unsigned flags,
-                              QTextCodec *outputCodec /* = 0 */)
+VCSBasePlugin::runVCS(const QString &workingDir,
+                      const QString &binary,
+                      const QStringList &arguments,
+                      int timeOutMS,
+                      unsigned flags,
+                      QTextCodec *outputCodec)
 {
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     return runVCS(workingDir, binary, arguments, timeOutMS, env,
                   flags, outputCodec);
 }
 
-Utils::SynchronousProcessResponse
-        VCSBasePlugin::runVCS(const QString &workingDir,
-                              const QString &binary,
-                              const QStringList &arguments,
-                              int timeOutMS,
-                              QProcessEnvironment env,
-                              unsigned flags,
-                              QTextCodec *outputCodec /* = 0 */)
+Utils::SynchronousProcessResponse VCSBasePlugin::runVCS(const QString &workingDir,
+                                                        const QString &binary,
+                                                        const QStringList &arguments,
+                                                        int timeOutMS,
+                                                        QProcessEnvironment env,
+                                                        unsigned flags,
+                                                        QTextCodec *outputCodec)
 {
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
 
@@ -948,6 +947,45 @@ Utils::SynchronousProcessResponse
     }
 
     return response;
+}
+
+bool VCSBasePlugin::runFullySynchronous(const QString &workingDirectory,
+                                        const QString &binary,
+                                        const QStringList &arguments,
+                                        const QProcessEnvironment &env,
+                                        QByteArray* outputText,
+                                        QByteArray* errorText,
+                                        int timeoutMS,
+                                        bool logCommandToWindow)
+{
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+
+    if (logCommandToWindow)
+        outputWindow->appendCommand(workingDirectory, binary, arguments);
+
+    QProcess process;
+    process.setWorkingDirectory(workingDirectory);
+    process.setProcessEnvironment(env);
+
+    process.start(binary, arguments);
+    process.closeWriteChannel();
+    if (!process.waitForStarted()) {
+        if (errorText) {
+            const QString msg = QString::fromLatin1("Unable to execute '%1': %2:")
+                                .arg(binary, process.errorString());
+            *errorText = msg.toLocal8Bit();
+        }
+        return false;
+    }
+
+    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeoutMS,
+                                                        outputText, errorText, true)) {
+        errorText->append(tr("Error: Executable timed out after %1s.").arg(timeoutMS / 1000).toLocal8Bit());
+        Utils::SynchronousProcess::stopProcess(process);
+        return false;
+    }
+
+    return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
 bool VCSBasePlugin::runPatch(const QByteArray &input, const QString &workingDirectory,

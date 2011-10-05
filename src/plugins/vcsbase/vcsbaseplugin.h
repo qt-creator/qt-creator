@@ -173,22 +173,28 @@ public:
                                         // triggered by file watchers).
     };
 
-    static Utils::SynchronousProcessResponse
-            runVCS(const QString &workingDir,
-                   const QString &binary,
-                   const QStringList &arguments,
-                   int timeOutMS,
-                   QProcessEnvironment env,
-                   unsigned flags = 0,
-                   QTextCodec *outputCodec = 0);
+    static Utils::SynchronousProcessResponse runVCS(const QString &workingDir,
+                                                    const QString &binary,
+                                                    const QStringList &arguments,
+                                                    int timeOutMS,
+                                                    QProcessEnvironment env,
+                                                    unsigned flags = 0,
+                                                    QTextCodec *outputCodec = 0);
 
-    static Utils::SynchronousProcessResponse
-            runVCS(const QString &workingDir,
-                   const QString &binary,
-                   const QStringList &arguments,
-                   int timeOutMS,
-                   unsigned flags = 0,
-                   QTextCodec *outputCodec = 0);
+    static Utils::SynchronousProcessResponse runVCS(const QString &workingDir,
+                                                    const QString &binary,
+                                                    const QStringList &arguments,
+                                                    int timeOutMS,
+                                                    unsigned flags = 0,
+                                                    QTextCodec *outputCodec = 0);
+
+    // Make sure to not pass through the event loop at all:
+    static bool runFullySynchronous(const QString &workingDirectory,
+                                    const QString &binary,
+                                    const QStringList &arguments,
+                                    const QProcessEnvironment &env,
+                                    QByteArray* outputText,
+                                    QByteArray *errorText, int timeoutMS, bool logCommandToWindow);
 
     // Utility to run the 'patch' command
     static bool runPatch(const QByteArray &input, const QString &workingDirectory = QString(),
