@@ -170,6 +170,9 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         if (parentState.type == expression && state(1).type == binding_assignment) {
             *savedIndentDepth = state(2).savedIndentDepth;
             *indentDepth = *savedIndentDepth + m_indentSize;
+        } else if (parentState.type == objectliteral_assignment) {
+            *savedIndentDepth = parentState.savedIndentDepth;
+            *indentDepth = *savedIndentDepth + m_indentSize;
         } else if (!lastToken) {
             *indentDepth = tokenPosition + 1;
         } else {

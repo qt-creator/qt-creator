@@ -94,6 +94,7 @@ private Q_SLOTS:
     void labelledStatements1();
     void labelledStatements2();
     void labelledStatements3();
+    void json1();
 };
 
 struct Line {
@@ -1194,6 +1195,33 @@ void tst_QMLCodeFormatter::labelledStatements3()
          << Line("    }")
          << Line("}")
          << Line("var x")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::json1()
+{
+    QList<Line> data;
+    data << Line("{")
+         << Line("    \"lab\": \"abc\",")
+         << Line("    \"foo\": \"baroooo\",")
+         << Line("    \"foo\": [ \"baroooo\", \"foo\" ],")
+         << Line("    \"foo\": [")
+         << Line("        \"baroooo\",")
+         << Line("        \"doo\"")
+         << Line("    ],")
+         << Line("    \"lab\": \"abc\",")
+         << Line("    \"object\": {")
+         << Line("        \"lab\": \"abc\",")
+         << Line("        \"foo\": \"baroooo\",")
+         << Line("        \"foo\": [ \"baroooo\", \"foo\" ],")
+         << Line("        \"foo\": [")
+         << Line("            \"baroooo\",")
+         << Line("            \"doo\"")
+         << Line("        ],")
+         << Line("        \"lab\": \"abc\"")
+         << Line("    }")
+         << Line("}")
          ;
     checkIndent(data);
 }

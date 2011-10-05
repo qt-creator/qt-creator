@@ -90,6 +90,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case Identifier:    enter(objectdefinition_or_js); continue;
             case Import:        enter(top_qml); continue;
+            case LeftBrace:     enter(top_js); enter(expression); continue; // if a file starts with {, it's likely json
             default:            enter(top_js); continue;
             } break;
 
