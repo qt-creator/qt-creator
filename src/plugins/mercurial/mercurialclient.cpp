@@ -33,11 +33,11 @@
 #include "mercurialclient.h"
 #include "constants.h"
 
+#include <vcsbase/command.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-#include <vcsbase/vcsjobrunner.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -277,12 +277,10 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
 
     VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, repositoryRoot,
                                                      true, "incoming", id);
-
-    QSharedPointer<VCSBase::VCSJob> job(new VCSBase::VCSJob(repositoryRoot, args, editor));
-    // Suppress SSH prompting.
+    VCSBase::Command *cmd = createCommand(repository, editor);
     if (!repository.isEmpty() && VCSBase::VCSBasePlugin::isSshPromptConfigured())
-        job->setUnixTerminalDisabled(true);
-    enqueueJob(job);
+        cmd->setUnixTerminalDisabled(true);
+    enqueueJob(cmd, args);
 }
 
 void MercurialClient::outgoing(const QString &repositoryRoot)
@@ -297,10 +295,9 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, repositoryRoot, true,
                                                      "outgoing", repositoryRoot);
 
-    QSharedPointer<VCSBase::VCSJob> job(new VCSBase::VCSJob(repositoryRoot, args, editor));
-    // Suppress SSH prompting
-    job->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
-    enqueueJob(job);
+    VCSBase::Command *cmd = createCommand(repositoryRoot, editor);
+    cmd->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
+    enqueueJob(cmd, args);
 }
 
 void MercurialClient::annotate(const QString &workingDir, const QString &file,

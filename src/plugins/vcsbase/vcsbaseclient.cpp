@@ -30,8 +30,9 @@
 **
 **************************************************************************/
 
+#include "command.h"
 #include "vcsbaseclient.h"
-#include "vcsjobrunner.h"
+#include "vcsbaseconstants.h"
 #include "vcsbaseclientsettings.h"
 #include "vcsbaseeditorparameterwidget.h"
 
@@ -49,6 +50,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
+#include <QtCore/QSignalMapper>
 #include <QtCore/QTextCodec>
 #include <QtCore/QtDebug>
 #include <QtCore/QFileInfo>
@@ -75,6 +77,15 @@ inline Core::IEditor *locateEditor(const Core::ICore *core, const char *property
     return 0;
 }
 
+namespace {
+
+VCSBase::VCSBaseOutputWindow *vcsOutputWindow()
+{
+    return VCSBase::VCSBaseOutputWindow::instance();
+}
+
+}
+
 namespace VCSBase {
 
 class VCSBaseClientPrivate
@@ -86,18 +97,22 @@ public:
     void annotateRevision(QString source, QString change, int lineNumber);
     void saveSettings();
 
-    void updateJobRunnerSettings();
+    void bindCommandToEditor(Command *cmd, VCSBaseEditorWidget *editor);
+    void commandFinishedGotoLine(QObject *editorObject);
 
-    VCSJobRunner *m_jobManager;
     Core::ICore *m_core;
     VCSBaseClientSettings *m_clientSettings;
+    QSignalMapper *m_cmdFinishedMapper;
 
 private:
     VCSBaseClient *m_client;
 };
 
 VCSBaseClientPrivate::VCSBaseClientPrivate(VCSBaseClient *client, VCSBaseClientSettings *settings) :
-    m_jobManager(0), m_core(Core::ICore::instance()), m_clientSettings(settings), m_client(client)
+    m_core(Core::ICore::instance()),
+    m_clientSettings(settings),
+    m_cmdFinishedMapper(new QSignalMapper(client)),
+    m_client(client)
 {
 }
 
@@ -132,11 +147,23 @@ void VCSBaseClientPrivate::saveSettings()
     m_clientSettings->writeSettings(m_core->settings());
 }
 
-void VCSBaseClientPrivate::updateJobRunnerSettings()
+void VCSBaseClientPrivate::bindCommandToEditor(Command *cmd, VCSBaseEditorWidget *editor)
 {
-    if (m_jobManager && m_clientSettings) {
-        m_jobManager->setBinary(m_clientSettings->stringValue(VCSBaseClientSettings::binaryPathKey));
-        m_jobManager->setTimeoutMs(m_clientSettings->intValue(VCSBaseClientSettings::timeoutKey) * 1000);
+    QObject::connect(cmd, SIGNAL(finished(bool,int,QVariant)), m_cmdFinishedMapper, SLOT(map()));
+    m_cmdFinishedMapper->setMapping(cmd, editor);
+}
+
+void VCSBaseClientPrivate::commandFinishedGotoLine(QObject *editorObject)
+{
+    VCSBase::VCSBaseEditorWidget *editor = qobject_cast<VCSBase::VCSBaseEditorWidget *>(editorObject);
+    Command *cmd = qobject_cast<Command *>(m_cmdFinishedMapper->mapping(editor));
+    if (editor && cmd) {
+        if (cmd->lastExecutionSuccess() && cmd->cookie().type() == QVariant::Int) {
+            const int line = cmd->cookie().toInt();
+            if (line >= 0)
+                editor->gotoLine(line);
+        }
+        m_cmdFinishedMapper->removeMappings(cmd);
     }
 }
 
@@ -154,12 +181,11 @@ VCSBaseClient::VCSBaseClient(VCSBaseClientSettings *settings) :
 {
     qRegisterMetaType<QVariant>();
     connect(d->m_core, SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    connect(d->m_cmdFinishedMapper, SIGNAL(mapped(QObject*)), this, SLOT(commandFinishedGotoLine(QObject*)));
 }
 
 VCSBaseClient::~VCSBaseClient()
 {
-    delete d->m_jobManager;
-    d->m_jobManager = 0;
     delete d;
 }
 
@@ -173,7 +199,7 @@ bool VCSBaseClient::synchronousCreateRepository(const QString &workingDirectory,
         return false;
     QString output = QString::fromLocal8Bit(outputData);
     output.remove(QLatin1Char('\r'));
-    VCSBase::VCSBaseOutputWindow::instance()->append(output);
+    ::vcsOutputWindow()->append(output);
 
     resetCachedVcsInfo(workingDirectory);
 
@@ -262,17 +288,17 @@ bool VCSBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     QProcess vcsProcess;
     if (!workingDir.isEmpty())
         vcsProcess.setWorkingDirectory(workingDir);
-    VCSJobRunner::setProcessEnvironment(&vcsProcess);
+    vcsProcess.setProcessEnvironment(processEnvironment());
 
     const QString binary = settings()->stringValue(VCSBaseClientSettings::binaryPathKey);
 
-    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
-    outputWindow->appendCommand(workingDir, binary, args);
+    ::vcsOutputWindow()->appendCommand(workingDir, binary, args);
 
     vcsProcess.start(binary, args);
 
     if (!vcsProcess.waitForStarted()) {
-        outputWindow->appendError(VCSJobRunner::msgStartFailed(binary, vcsProcess.errorString()));
+        ::vcsOutputWindow()->appendError(tr("Unable to start process '%1': %2")
+                                         .arg(QDir::toNativeSeparators(binary), vcsProcess.errorString()));
         return false;
     }
 
@@ -283,20 +309,21 @@ bool VCSBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, timeoutSec * 1000,
                                                         output, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(vcsProcess);
-        outputWindow->appendError(VCSJobRunner::msgTimeout(binary, timeoutSec));
+        ::vcsOutputWindow()->appendError(tr("Timed out after %1s waiting for the process %2 to finish.")
+                                         .arg(timeoutSec).arg(binary));
         return false;
     }
     if (!stdErr.isEmpty())
-        outputWindow->append(QString::fromLocal8Bit(stdErr));
+        ::vcsOutputWindow()->append(QString::fromLocal8Bit(stdErr));
 
     return vcsProcess.exitStatus() == QProcess::NormalExit && vcsProcess.exitCode() == 0;
 }
 
 Utils::SynchronousProcessResponse VCSBaseClient::vcsSynchronousExec(
-    const QString &workingDirectory,
-    const QStringList &args,
-    unsigned flags,
-    QTextCodec *outputCodec)
+        const QString &workingDirectory,
+        const QStringList &args,
+        unsigned flags,
+        QTextCodec *outputCodec)
 {
     const QString binary = settings()->stringValue(VCSBaseClientSettings::binaryPathKey);
     const int timeoutSec = settings()->intValue(VCSBaseClientSettings::timeoutKey);
@@ -321,8 +348,9 @@ void VCSBaseClient::annotate(const QString &workingDir, const QString &file,
     VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, source, true,
                                                            vcsCmdString.toLatin1().constData(), id);
 
-    QSharedPointer<VCSJob> job(new VCSJob(workingDir, args, editor));
-    enqueueJob(job);
+    Command *cmd = createCommand(workingDir, editor);
+    cmd->setCookie(lineNumber);
+    enqueueJob(cmd, args);
 }
 
 void VCSBaseClient::diff(const QString &workingDir, const QStringList &files,
@@ -348,8 +376,7 @@ void VCSBaseClient::diff(const QString &workingDir, const QStringList &files,
     QStringList args;
     const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
     args << vcsCmdString << extraOptions << paramArgs << files;
-    QSharedPointer<VCSJob> job(new VCSJob(workingDir, args, editor));
-    enqueueJob(job);
+    enqueueJob(createCommand(workingDir, editor), args);
 }
 
 void VCSBaseClient::log(const QString &workingDir, const QStringList &files,
@@ -373,8 +400,7 @@ void VCSBaseClient::log(const QString &workingDir, const QStringList &files,
     QStringList args;
     const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
     args << vcsCmdString << extraOptions << paramArgs << files;
-    QSharedPointer<VCSJob> job(new VCSJob(workingDir, args, editor));
-    enqueueJob(job);
+    enqueueJob(createCommand(workingDir, editor), args);
 }
 
 void VCSBaseClient::revertFile(const QString &workingDir,
@@ -385,11 +411,10 @@ void VCSBaseClient::revertFile(const QString &workingDir,
     QStringList args(vcsCommandString(RevertCommand));
     args << revisionSpec(revision) << extraOptions << file;
     // Indicate repository change or file list
-    QSharedPointer<VCSJob> job(new VCSJob(workingDir, args));
-    job->setCookie(QStringList(workingDir + QLatin1Char('/') + file));
-    connect(job.data(), SIGNAL(succeeded(QVariant)),
-            this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
-    enqueueJob(job);
+    Command *cmd = createCommand(workingDir);
+    cmd->setCookie(QStringList(workingDir + QLatin1Char('/') + file));
+    connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
+    enqueueJob(cmd, args);
 }
 
 void VCSBaseClient::revertAll(const QString &workingDir, const QString &revision,
@@ -398,10 +423,10 @@ void VCSBaseClient::revertAll(const QString &workingDir, const QString &revision
     QStringList args(vcsCommandString(RevertCommand));
     args << revisionSpec(revision) << extraOptions;
     // Indicate repository change or file list
-    QSharedPointer<VCSJob> job(new VCSJob(workingDir, args));
-    connect(job.data(), SIGNAL(succeeded(QVariant)),
-            this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
-    enqueueJob(job);
+    Command *cmd = createCommand(workingDir);
+    cmd->setCookie(QStringList(workingDir));
+    connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
+    enqueueJob(createCommand(workingDir), args);
 }
 
 void VCSBaseClient::status(const QString &workingDir, const QString &file,
@@ -409,21 +434,20 @@ void VCSBaseClient::status(const QString &workingDir, const QString &file,
 {
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions << file;
-    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
-    outwin->setRepository(workingDir);
-    QSharedPointer<VCSJob> job(new VCSJob(workingDir, args));
-    connect(job.data(), SIGNAL(succeeded(QVariant)),
-            outwin, SLOT(clearRepository()), Qt::QueuedConnection);
-    enqueueJob(job);
+    ::vcsOutputWindow()->setRepository(workingDir);
+    Command *cmd = createCommand(workingDir, 0, VcsWindowOutputBind);
+    connect(cmd, SIGNAL(finished(bool,int,QVariant)), ::vcsOutputWindow(), SLOT(clearRepository()),
+            Qt::QueuedConnection);
+    enqueueJob(cmd, args);
 }
 
 void VCSBaseClient::emitParsedStatus(const QString &repository, const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions;
-    QSharedPointer<VCSJob> job(new VCSJob(repository, args, VCSJob::RawDataEmitMode));
-    connect(job.data(), SIGNAL(rawData(QByteArray)), this, SLOT(statusParser(QByteArray)));
-    enqueueJob(job);
+    Command *cmd = createCommand(repository);
+    connect(cmd, SIGNAL(outputData(QByteArray)), this, SLOT(statusParser(QByteArray)));
+    enqueueJob(cmd, args);
 }
 
 QString VCSBaseClient::vcsCommandString(VCSCommand cmd) const
@@ -453,8 +477,7 @@ void VCSBaseClient::import(const QString &repositoryRoot, const QStringList &fil
 {
     QStringList args(vcsCommandString(ImportCommand));
     args << extraOptions << files;
-    QSharedPointer<VCSJob> job(new VCSJob(repositoryRoot, args));
-    enqueueJob(job);
+    enqueueJob(createCommand(repositoryRoot), args);
 }
 
 void VCSBaseClient::view(const QString &source, const QString &id,
@@ -470,8 +493,7 @@ void VCSBaseClient::view(const QString &source, const QString &id,
 
     const QFileInfo fi(source);
     const QString workingDirPath = fi.isFile() ? fi.absolutePath() : source;
-    QSharedPointer<VCSJob> job(new VCSJob(workingDirPath, args, editor));
-    enqueueJob(job);
+    enqueueJob(createCommand(workingDirPath, editor), args);
 }
 
 void VCSBaseClient::update(const QString &repositoryRoot, const QString &revision,
@@ -479,12 +501,11 @@ void VCSBaseClient::update(const QString &repositoryRoot, const QString &revisio
 {
     QStringList args(vcsCommandString(UpdateCommand));
     args << revisionSpec(revision) << extraOptions;
-    QSharedPointer<VCSJob> job(new VCSJob(repositoryRoot, args));
-    job->setCookie(repositoryRoot);
-    // Suppress SSH prompting
-    job->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
-    connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
-    enqueueJob(job);
+    Command *cmd = createCommand(repositoryRoot);
+    cmd->setCookie(repositoryRoot);
+    cmd->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
+    connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
+    enqueueJob(cmd, args);
 }
 
 void VCSBaseClient::commit(const QString &repositoryRoot,
@@ -503,21 +524,12 @@ void VCSBaseClient::commit(const QString &repositoryRoot,
     Q_UNUSED(commitMessageFile);
     QStringList args(vcsCommandString(CommitCommand));
     args << extraOptions << files;
-    QSharedPointer<VCSJob> job(new VCSJob(repositoryRoot, args));
-    enqueueJob(job);
+    enqueueJob(createCommand(repositoryRoot), args);
 }
 
 VCSBaseClientSettings *VCSBaseClient::settings() const
 {
     return d->m_clientSettings;
-}
-
-void VCSBaseClient::handleSettingsChanged()
-{
-    if (d->m_jobManager) {
-        d->updateJobRunnerSettings();
-        d->m_jobManager->restart();
-    }
 }
 
 VCSBaseEditorParameterWidget *VCSBaseClient::createDiffEditor(const QString &workingDir,
@@ -578,20 +590,58 @@ VCSBase::VCSBaseEditorWidget *VCSBaseClient::createVCSEditor(const QString &kind
     return baseEditor;
 }
 
+QProcessEnvironment VCSBaseClient::processEnvironment() const
+{
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    VCSBase::VCSBasePlugin::setProcessEnvironment(&environment, false);
+    return environment;
+}
+
+Command *VCSBaseClient::createCommand(const QString &workingDirectory,
+                                      VCSBase::VCSBaseEditorWidget *editor,
+                                      JobOutputBindMode mode)
+{
+    if (Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << editor;
+
+    Command *cmd = new Command(d->m_clientSettings->stringValue(VCSBaseClientSettings::binaryPathKey),
+                               workingDirectory, processEnvironment());
+    cmd->setDefaultTimeout(d->m_clientSettings->intValue(VCSBaseClientSettings::timeoutKey));
+    if (editor)
+        d->bindCommandToEditor(cmd, editor);
+    if (mode == VcsWindowOutputBind) {
+        if (editor) { // assume that the commands output is the important thing
+            connect(cmd, SIGNAL(outputData(QByteArray)),
+                    ::vcsOutputWindow(), SLOT(appendDataSilently(QByteArray)));
+        }
+        else {
+            connect(cmd, SIGNAL(outputData(QByteArray)),
+                    ::vcsOutputWindow(), SLOT(appendData(QByteArray)));
+        }
+    }
+    else if (editor) {
+        connect(cmd, SIGNAL(outputData(QByteArray)),
+                editor, SLOT(setPlainTextData(QByteArray)));
+    }
+
+    if (::vcsOutputWindow())
+        connect(cmd, SIGNAL(errorText(QString)),
+                ::vcsOutputWindow(), SLOT(appendError(QString)));
+    return cmd;
+}
+
+void VCSBaseClient::enqueueJob(Command *cmd, const QStringList &args)
+{
+    const QString binary = QFileInfo(d->m_clientSettings->stringValue(VCSBaseClientSettings::binaryPathKey)).baseName();
+    ::vcsOutputWindow()->appendCommand(cmd->workingDirectory(), binary, args);
+    cmd->addJob(args);
+    cmd->execute();
+}
+
 void VCSBaseClient::resetCachedVcsInfo(const QString &workingDir)
 {
     Core::VcsManager *vcsManager = d->m_core->vcsManager();
     vcsManager->resetVersionControlForDirectory(workingDir);
-}
-
-void VCSBaseClient::enqueueJob(const QSharedPointer<VCSJob> &job)
-{
-    if (!d->m_jobManager) {
-        d->m_jobManager = new VCSJobRunner();
-        d->updateJobRunnerSettings();
-        d->m_jobManager->start();
-    }
-    d->m_jobManager->enqueueJob(job);
 }
 
 } // namespace VCSBase

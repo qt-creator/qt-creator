@@ -29,7 +29,7 @@ HEADERS += vcsbase_global.h \
     vcsbaseoutputwindow.h \
     cleandialog.h \
     vcsbaseoptionspage.h \
-    vcsjobrunner.h \
+    command.h \
     vcsbaseclient.h \
     vcsbaseclientsettings.h \
     vcsbaseeditorparameterwidget.h
@@ -58,7 +58,7 @@ SOURCES += vcsplugin.cpp \
     vcsbaseoutputwindow.cpp \
     cleandialog.cpp \
     vcsbaseoptionspage.cpp \
-    vcsjobrunner.cpp \
+    command.cpp \
     vcsbaseclient.cpp \
     vcsbaseclientsettings.cpp \
     vcsbaseeditorparameterwidget.cpp

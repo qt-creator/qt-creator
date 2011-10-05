@@ -166,8 +166,6 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     addAutoReleasedObject(optionsPage);
     mercurialSettings.readSettings(core->settings());
 
-    connect(optionsPage, SIGNAL(settingsChanged()), m_client, SLOT(handleSettingsChanged()));
-
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
 
     static const char *describeSlot = SLOT(view(QString,QString));

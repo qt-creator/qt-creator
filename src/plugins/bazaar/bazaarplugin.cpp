@@ -163,7 +163,6 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     addAutoReleasedObject(m_optionsPage);
     m_bazaarSettings.readSettings(m_core->settings());
 
-    connect(m_optionsPage, SIGNAL(settingsChanged()), m_client, SLOT(handleSettingsChanged()));
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
 
     static const char *describeSlot = SLOT(view(QString,QString));

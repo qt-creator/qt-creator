@@ -38,6 +38,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QVariant>
+#include <QtCore/QProcessEnvironment>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -49,6 +51,7 @@ struct SynchronousProcessResponse;
 
 namespace VCSBase {
 
+class Command;
 class VCSBaseEditorWidget;
 class VCSBaseClientSettings;
 class VCSJob;
@@ -126,7 +129,6 @@ signals:
 public slots:
     virtual void view(const QString &source, const QString &id,
                       const QStringList &extraOptions = QStringList());
-    void handleSettingsChanged();
 
 protected:
     enum VCSCommand
@@ -160,7 +162,6 @@ protected:
     virtual StatusItem parseStatusLine(const QString &line) const = 0;
 
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;
-    void enqueueJob(const QSharedPointer<VCSJob> &);
     // Fully synchronous VCS execution (QProcess-based)
     bool vcsFullySynchronousExec(const QString &workingDir,
                                  const QStringList &args,
@@ -176,6 +177,17 @@ protected:
                                                   const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
 
+    virtual QProcessEnvironment processEnvironment() const;
+
+    enum JobOutputBindMode {
+        NoOutputBind,
+        VcsWindowOutputBind
+    };
+    Command *createCommand(const QString &workingDirectory,
+                           VCSBase::VCSBaseEditorWidget *editor = 0,
+                           JobOutputBindMode mode = NoOutputBind);
+    void enqueueJob(Command *cmd, const QStringList &args);
+
     void resetCachedVcsInfo(const QString &workingDir);
 
 private:
@@ -185,6 +197,7 @@ private:
     Q_PRIVATE_SLOT(d, void statusParser(QByteArray))
     Q_PRIVATE_SLOT(d, void annotateRevision(QString, QString, int))
     Q_PRIVATE_SLOT(d, void saveSettings())
+    Q_PRIVATE_SLOT(d, void commandFinishedGotoLine(QObject *))
 };
 
 } //namespace VCSBase
