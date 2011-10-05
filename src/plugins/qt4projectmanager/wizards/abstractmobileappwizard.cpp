@@ -83,7 +83,7 @@ void AbstractMobileAppWizardDialog::addMobilePages()
     m_symbianOptionsPageId = addPageWithTitle(m_symbianOptionsPage,
         QLatin1String("    ") + tr("Symbian Specific"));
     m_maemoOptionsPageId = addPageWithTitle(m_maemoOptionsPage,
-        QLatin1String("    ") + tr("Maemo5 And Meego Specific"));
+        QLatin1String("    ") + tr("Maemo5 And MeeGo Specific"));
     m_harmattanOptionsPageId = addPageWithTitle(m_harmattanOptionsPage,
         QLatin1String("    ") + tr("Harmattan Specific"));
 

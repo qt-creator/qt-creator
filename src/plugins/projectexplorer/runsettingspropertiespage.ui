@@ -41,7 +41,7 @@
    <item row="0" column="4">
     <widget class="QPushButton" name="renameDeployButton">
      <property name="text">
-      <string>Rename</string>
+      <string>Rename ...</string>
      </property>
     </widget>
    </item>
@@ -97,7 +97,7 @@
    <item row="2" column="4">
     <widget class="QPushButton" name="renameRunButton">
      <property name="text">
-      <string>Rename</string>
+      <string>Rename ...</string>
      </property>
     </widget>
    </item>
