@@ -44,13 +44,21 @@
 
             \image qtcreator-gs-build-example-open.png "Selecting an example"
 
-        \o  Select targets for the project. Select at least Qt Simulator
+        \o  Select \l{glossary-development-target}{targets} for the project.
+            Select at least Qt Simulator
             and one of the mobile targets, Symbian Device, Maemo 5, or
             MeeGo Harmattan, depending on the device you develop for.
 
             \image qtcreator-gs-build-example-targets.png "Selecting targets"
 
-            \note You can add targets later in the \gui Projects mode.
+            \note If you have only one target installed, this dialog is
+            skipped. You can add installed targets later in the \gui Projects
+            mode.
+
+            \note The project opens in the \gui Edit mode, and the documentation
+            for the example hides these instructions. To return to these
+            instructions, select \gui {Previous Page} on the toolbar or
+            press \key {Alt+Left}.
 
         \o  To test the application in Qt Simulator, click the \gui {Target
             Selector} and select \gui {Qt Simulator}.
