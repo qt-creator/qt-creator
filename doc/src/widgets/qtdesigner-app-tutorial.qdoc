@@ -43,10 +43,6 @@
 
     \section1 Creating the Text Finder Project
 
-    \note Create the project with two instances of \QC open and the \gui{Help}
-    mode active in one of them so that you can follow these instructions while
-    you work.
-
     \list 1
 
         \o  Select \gui{File > New File or Project > Qt Widget Project > Qt Gui
@@ -96,6 +92,9 @@
             project.
 
     \endlist
+
+    \note The project opens in the \gui Edit mode, and these instructions are
+    hidden. To return to these instructions, open the \gui Help mode.
 
     The TextFinder project now contains the following files:
 
