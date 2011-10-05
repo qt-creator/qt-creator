@@ -81,21 +81,21 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="labelMaximalStackDepth">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Maximum stack depth:</string>
-        </property>
-       </widget>
-      </item>
       <item row="9" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="labelMaximalStackDepth">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Maximum stack depth:</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QSpinBox" name="spinBoxMaximalStackDepth">
           <property name="sizePolicy">
