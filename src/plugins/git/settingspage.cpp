@@ -38,6 +38,7 @@
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -58,8 +59,8 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
             = tr("Set the environment variable HOME to '%1'\n(%2).\n"
                  "This causes msysgit to look for the SSH-keys in that location\n"
                  "instead of its installation directory when run outside git bash.").
-            arg(GitClient::fakeWinHome(QProcessEnvironment::systemEnvironment()),
-                currentHome.isEmpty() ? tr("not currently set") :
+              arg(QDir::homePath(),
+                  currentHome.isEmpty() ? tr("not currently set") :
                                         tr("currently set to '%1'").arg(QString::fromLocal8Bit(currentHome)));
     m_ui.winHomeCheckBox->setToolTip(toolTip);
 #else
