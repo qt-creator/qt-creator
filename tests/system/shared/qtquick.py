@@ -120,5 +120,8 @@ def runAndCloseQtQuickUI():
     if (waitForObject(":Qt Creator_Core::Internal::OutputPaneToggleButton").checked!=True):
         clickButton(":Qt Creator_Core::Internal::OutputPaneToggleButton")
     clickButton(":Qt Creator.Stop_QToolButton")
+    if platform.system()=="Darwin":
+        snooze(2)
+        nativeType("<Escape>")
     return True
 

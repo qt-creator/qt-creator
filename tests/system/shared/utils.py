@@ -74,6 +74,7 @@ def which(program):
 
 signalObjects = {}
 
+# do not call this function directly - it's only a helper
 def __callbackFunction__(object, *args):
     global signalObjects
 #    test.log("__callbackFunction__: "+objectMap.realName(object))

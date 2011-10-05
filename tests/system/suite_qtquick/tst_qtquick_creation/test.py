@@ -36,14 +36,14 @@ def createNewQtQuickApplication():
     if cbDefaultLocation.checked:
         clickButton(cbDefaultLocation)
     # now there's the 'untitled' project inside a temporary directory - step forward...!
-    nextButton = waitForObject("{text?='Next*' type='QPushButton' visible='1'}", 20000)
+    nextButton = waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000)
     clickButton(nextButton)
     chooseComponents()
     clickButton(nextButton)
     chooseDestination(QtQuickConstants.Destinations.DESKTOP)
     snooze(1)
     clickButton(nextButton)
-    clickButton(waitForObject("{type='QPushButton' text='Finish' visible='1'}", 20000))
+    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
 
 def cleanup():
     global workingDir

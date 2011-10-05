@@ -34,7 +34,7 @@ def main():
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "    xi")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
     type(cppwindow, "<F2>")
-    test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "extern int xi;")
+    test.compare(lineUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "extern int xi;")
 
 #    - Move the cursor to a function call.
 #    - Press F2 or select from the menu: Tools / C++ / Follow Symbol under Cursor
@@ -44,7 +44,7 @@ def main():
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "freefunc2")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
     type(cppwindow, "<F2>")
-    test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "int freefunc2(double)")
+    test.compare(lineUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "int freefunc2(double)")
 
 #    - Move the cursor to a function declaration
 #    - Press Shift+F2 or select from menu: Tools / C++ / Switch Between Method Declaration/Definition
@@ -68,9 +68,10 @@ def main():
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "Dummy::Dummy")
     # Take us to the second instance
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
-    type(cppwindow, "<Shift+F2>")
+    cppWindowRealName = objectMap.realName(cppwindow)
+    type(cppWindowRealName, "<Shift+F2>")
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "    Dummy(int a);")
-    type(cppwindow, "<Shift+F2>")
+    type(cppWindowRealName, "<Shift+F2>")
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "Dummy::Dummy(int)")
 
     invokeMenuItem("File", "Exit")

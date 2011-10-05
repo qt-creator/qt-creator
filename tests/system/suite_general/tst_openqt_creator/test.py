@@ -8,11 +8,11 @@ def main():
 
     startApplication("qtcreator" + SettingsPath)
 
-    openQmakeProject(pathCreator)
     openQmakeProject(pathSpeedcrunch)
-
     # Wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
+    openQmakeProject(pathCreator)
+    # Wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
 
     # Test that some of the expected items are in the navigation tree
