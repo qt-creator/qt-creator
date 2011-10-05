@@ -20,7 +20,6 @@ HEADERS += gitplugin.h \
     gitsettings.h \
     branchdialog.h \
     branchmodel.h \
-    gitcommand.h \
     clonewizard.h \
     clonewizardpage.h \
     stashdialog.h \
@@ -42,7 +41,6 @@ SOURCES += gitplugin.cpp \
     gitsettings.cpp \
     branchdialog.cpp \
     branchmodel.cpp \
-    gitcommand.cpp \
     clonewizard.cpp \
     clonewizardpage.cpp \
     stashdialog.cpp \

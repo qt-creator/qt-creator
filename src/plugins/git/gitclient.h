@@ -34,9 +34,9 @@
 #define GITCLIENT_H
 
 #include "gitsettings.h"
-#include "gitcommand.h"
 
 #include <coreplugin/editormanager/ieditor.h>
+#include <vcsbase/command.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -68,7 +68,6 @@ namespace Internal {
 
 class GitPlugin;
 class GitOutputWindow;
-class GitCommand;
 class CommitData;
 struct GitSubmitEditorPanelData;
 class Stash;
@@ -245,16 +244,16 @@ private:
                                             const QString &dynamicPropertyValue,
                                             QWidget *configWidget) const;
 
-    GitCommand *createCommand(const QString &workingDirectory,
+    VCSBase::Command *createCommand(const QString &workingDirectory,
                              VCSBase::VCSBaseEditorWidget* editor = 0,
                              bool useOutputToWindow = false,
                              int editorLineNumber = -1);
 
-    GitCommand *executeGit(const QString &workingDirectory,
+    VCSBase::Command *executeGit(const QString &workingDirectory,
                            const QStringList &arguments,
                            VCSBase::VCSBaseEditorWidget* editor = 0,
                            bool useOutputToWindow = false,
-                           GitCommand::TerminationReportMode tm = GitCommand::NoReport,
+                           VCSBase::Command::TerminationReportMode tm = VCSBase::Command::NoReport,
                            int editorLineNumber = -1,
                            bool unixTerminalDisabled = false);
 
@@ -279,7 +278,7 @@ private:
                          bool *isDirectory,
                          QString *errorMessage,
                          bool revertStaging);
-    void connectRepositoryChanged(const QString & repository, GitCommand *cmd);
+    void connectRepositoryChanged(const QString & repository, VCSBase::Command *cmd);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     void syncAbortPullRebase(const QString &workingDir);
     bool tryLauchingGitK(const QProcessEnvironment &env,

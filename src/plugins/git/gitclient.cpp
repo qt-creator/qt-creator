@@ -31,7 +31,6 @@
 **************************************************************************/
 
 #include "gitclient.h"
-#include "gitcommand.h"
 #include "gitutils.h"
 
 #include "commitdata.h"
@@ -57,6 +56,7 @@
 #include <utils/synchronousprocess.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <vcsbase/command.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
@@ -406,7 +406,7 @@ void GitClient::diff(const QString &workingDirectory,
     // Create a batch of 2 commands to be run after each other in case
     // we have a mixture of staged/unstaged files as is the case
     // when using the submit dialog.
-    GitCommand *command = createCommand(workingDirectory, editor);
+    VCSBase::Command *command = createCommand(workingDirectory, editor);
     // Directory diff?
 
     QStringList cmdArgs;
@@ -500,7 +500,7 @@ void GitClient::status(const QString &workingDirectory)
     statusArgs << QLatin1String("-u");
     VCSBase::VCSBaseOutputWindow *outwin = outputWindow();
     outwin->setRepository(workingDirectory);
-    GitCommand *command = executeGit(workingDirectory, statusArgs, 0, true);
+    VCSBase::Command *command = executeGit(workingDirectory, statusArgs, 0, true);
     connect(command, SIGNAL(finished(bool,int,QVariant)), outwin, SLOT(clearRepository()),
             Qt::QueuedConnection);
 }
@@ -643,14 +643,14 @@ void GitClient::blame(const QString &workingDirectory,
     arguments << QLatin1String("--") << fileName;
     if (!revision.isEmpty())
         arguments << revision;
-    executeGit(workingDirectory, arguments, editor, false, GitCommand::NoReport, lineNumber);
+    executeGit(workingDirectory, arguments, editor, false, VCSBase::Command::NoReport, lineNumber);
 }
 
 void GitClient::checkoutBranch(const QString &workingDirectory, const QString &branch)
 {
     QStringList arguments(QLatin1String("checkout"));
     arguments <<  branch;
-    GitCommand *cmd = executeGit(workingDirectory, arguments, 0, true);
+    VCSBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
     connectRepositoryChanged(workingDirectory, cmd);
 }
 
@@ -700,7 +700,7 @@ void GitClient::hardReset(const QString &workingDirectory, const QString &commit
     if (!commit.isEmpty())
         arguments << commit;
 
-    GitCommand *cmd = executeGit(workingDirectory, arguments, 0, true);
+    VCSBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
     connectRepositoryChanged(workingDirectory, cmd);
 }
 
@@ -1253,12 +1253,13 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
 }
 
 // Factory function to create an asynchronous command
-GitCommand *GitClient::createCommand(const QString &workingDirectory,
-                                     VCSBase::VCSBaseEditorWidget* editor,
-                                     bool useOutputToWindow,
-                                     int editorLineNumber)
+VCSBase::Command *GitClient::createCommand(const QString &workingDirectory,
+                                           VCSBase::VCSBaseEditorWidget* editor,
+                                           bool useOutputToWindow,
+                                           int editorLineNumber)
 {
-    GitCommand *command = new GitCommand(gitBinaryPath(), workingDirectory, processEnvironment(), QVariant(editorLineNumber));
+    VCSBase::Command *command = new VCSBase::Command(gitBinaryPath(), workingDirectory, processEnvironment());
+    command->setCookie(QVariant(editorLineNumber));
     if (editor)
         connect(command, SIGNAL(finished(bool,int,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
     if (useOutputToWindow) {
@@ -1277,16 +1278,16 @@ GitCommand *GitClient::createCommand(const QString &workingDirectory,
 }
 
 // Execute a single command
-GitCommand *GitClient::executeGit(const QString &workingDirectory,
-                                  const QStringList &arguments,
-                                  VCSBase::VCSBaseEditorWidget* editor,
-                                  bool useOutputToWindow,
-                                  GitCommand::TerminationReportMode tm,
-                                  int editorLineNumber,
-                                  bool unixTerminalDisabled)
+VCSBase::Command *GitClient::executeGit(const QString &workingDirectory,
+                                        const QStringList &arguments,
+                                        VCSBase::VCSBaseEditorWidget* editor,
+                                        bool useOutputToWindow,
+                                        VCSBase::Command::TerminationReportMode tm,
+                                        int editorLineNumber,
+                                        bool unixTerminalDisabled)
 {
     outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
-    GitCommand *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
+    VCSBase::Command *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
     command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
     command->setTerminationReportMode(tm);
     command->setUnixTerminalDisabled(unixTerminalDisabled);
@@ -1415,7 +1416,7 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     if (untracked)
         statusArgs << QLatin1String("-u");
     const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
-    GitCommand::removeColorCodes(&outputText);
+    VCSBase::Command::removeColorCodes(&outputText);
     if (output)
         *output = commandOutputFromLocal8Bit(outputText);
     const bool branchKnown = outputText.contains(kBranchIndicatorC);
@@ -1941,7 +1942,7 @@ void GitClient::stashPop(const QString &workingDirectory)
 {
     QStringList arguments(QLatin1String("stash"));
     arguments << QLatin1String("pop");
-    GitCommand *cmd = executeGit(workingDirectory, arguments, 0, true);
+    VCSBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true);
     connectRepositoryChanged(workingDirectory, cmd);
 }
 
@@ -2140,7 +2141,7 @@ GitSettings *GitClient::settings() const
     return m_settings;
 }
 
-void GitClient::connectRepositoryChanged(const QString & repository, GitCommand *cmd)
+void GitClient::connectRepositoryChanged(const QString & repository, VCSBase::Command *cmd)
 {
     // Bind command success termination with repository to changed signal
     if (!m_repositoryChangedSignalMapper) {
