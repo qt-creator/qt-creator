@@ -46,7 +46,6 @@ namespace Utils {
 namespace Qt4ProjectManager {
 class Qt4BaseTarget;
 class Qt4BuildConfiguration;
-class Qt4Target;
 
 namespace Internal {
 namespace Ui {
