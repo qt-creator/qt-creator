@@ -106,6 +106,7 @@ GitSettings &GitSettings::operator = (const GitSettings &s)
 {
     VCSBaseClientSettings::operator =(s);
     m_binaryPath.clear();
+    return *this;
 }
 
 } // namespace Internal

@@ -1255,7 +1255,7 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
 // Factory function to create an asynchronous command
 GitCommand *GitClient::createCommand(const QString &workingDirectory,
                                      VCSBase::VCSBaseEditorWidget* editor,
-                                     bool outputToWindow,
+                                     bool useOutputToWindow,
                                      int editorLineNumber)
 {
     GitCommand *command = new GitCommand(gitBinaryPath(), workingDirectory, processEnvironment(), QVariant(editorLineNumber));
