@@ -726,6 +726,11 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.executable = rc->executable();
     sp.processArgs = rc->commandLineArguments();
     sp.toolChainAbi = rc->abi();
+    if (!sp.toolChainAbi.isValid()) {
+        QList<Abi> abis = Abi::abisOfBinary(sp.executable);
+        if (!abis.isEmpty())
+            sp.toolChainAbi = abis.at(0);
+    }
     sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp.dumperLibrary = rc->dumperLibrary();
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();

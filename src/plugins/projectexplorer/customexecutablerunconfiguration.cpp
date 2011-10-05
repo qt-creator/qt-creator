@@ -337,7 +337,7 @@ QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
 
 ProjectExplorer::Abi CustomExecutableRunConfiguration::abi() const
 {
-    return ProjectExplorer::Abi::hostAbi();
+    return Abi(); // return an invalid ABI: We do not know what we will end up running!
 }
 
 // Factory
