@@ -108,15 +108,6 @@ Item {
     }
     states: [
         State {
-            name: "hover"
-            id: hoverState; when: mouseArea.containsMouse && tabBar.current !== index
-
-            PropertyChanges {
-                target: item
-                opacity: 0.100
-            }
-        },
-        State {
             name: "active"
             id: activeState; when: tabBar.current === index
             PropertyChanges { target: text; color: "#f3f3f3" }
