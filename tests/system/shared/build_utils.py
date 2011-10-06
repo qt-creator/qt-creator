@@ -44,7 +44,7 @@ def getInstalledSignalHandlers(name, signalSignature):
     return installedSignalHandlers.get("%s____%s" % (name,signalSignature))
 
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
-# lines within the Build Issues output
+# lines within the Issues output
 # optional parameter can be used to tell this function if the build was expected to fail or not
 def checkLastBuild(expectedToFail=False):
     try:
@@ -70,14 +70,14 @@ def checkLastBuild(expectedToFail=False):
     else:
         test.fail("Errors: %s | Warnings: %s" % (errors, warnings))
     # additional stuff - could be removed... or improved :)
-    toggleBuildIssues = waitForObject("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' "
+    toggleIssues = waitForObject("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' "
                                       "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
-    if not toggleBuildIssues.checked:
-        clickButton(toggleBuildIssues)
+    if not toggleIssues.checked:
+        clickButton(toggleIssues)
     list=waitForObject("{type='QListView' unnamed='1' visible='1' "
-                       "window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Build Issues'}", 20000)
+                       "window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Issues'}", 20000)
     model = list.model()
-    test.log("Rows inside build-issues: %d" % model.rowCount())
+    test.log("Rows inside issues: %d" % model.rowCount())
     if gotErrors and createTasksFileOnError:
         createTasksFile(list)
     return not gotErrors
@@ -96,7 +96,7 @@ def checkCompile():
     else:
         test.fatal("Compile Output:\n%s" % output.plainText)
 
-# helper method that parses the Build Issues output and writes a tasks file
+# helper method that parses the Issues output and writes a tasks file
 def createTasksFile(list):
     global tasksFileDir, tasksFileCount
     model = list.model()
