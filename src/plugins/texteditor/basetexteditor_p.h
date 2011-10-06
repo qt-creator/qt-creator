@@ -243,6 +243,8 @@ public:
     uint m_highlightCurrentLine : 1;
     uint m_requestMarkEnabled : 1;
     uint m_lineSeparatorsAllowed : 1;
+    uint autoParenthesisOverwriteBackup : 1;
+    uint surroundWithEnabledOverwriteBackup : 1;
     int m_visibleWrapColumn;
 
     QTextCharFormat m_linkFormat;

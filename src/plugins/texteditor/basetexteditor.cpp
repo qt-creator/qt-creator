@@ -1534,6 +1534,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     }
 
     bool ro = isReadOnly();
+    const bool inOverwriteMode = overwriteMode();
 
     if (d->m_inBlockSelectionMode) {
         if (e == QKeySequence::Cut) {
@@ -1768,6 +1769,24 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             return;
         }
         break;
+    case Qt::Key_Insert:
+        if (ro) break;
+        if ((e->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) == 0) {
+            if (inOverwriteMode) {
+                d->m_autoCompleter->setAutoParenthesesEnabled(d->autoParenthesisOverwriteBackup);
+                d->m_autoCompleter->setSurroundWithEnabled(d->surroundWithEnabledOverwriteBackup);
+                setOverwriteMode(false);
+            } else {
+                d->autoParenthesisOverwriteBackup = d->m_autoCompleter->isAutoParenthesesEnabled();
+                d->surroundWithEnabledOverwriteBackup = d->m_autoCompleter->isSurroundWithEnabled();
+                d->m_autoCompleter->setAutoParenthesesEnabled(false);
+                d->m_autoCompleter->setSurroundWithEnabled(false);
+                setOverwriteMode(true);
+            }
+            e->accept();
+            return;
+        }
+        break;
 
     default:
         break;
@@ -1836,7 +1855,19 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (doEditBlock)
             cursor.beginEditBlock();
 
-        cursor.insertText(text);
+        if (inOverwriteMode) {
+            if (!doEditBlock)
+                cursor.beginEditBlock();
+            QTextBlock block = cursor.block();
+            int eolPos = block.position() + block.length() - 1;
+            int selEndPos = qMin(cursor.position() + text.length(), eolPos);
+            cursor.setPosition(selEndPos, QTextCursor::KeepAnchor);
+            cursor.insertText(text);
+            if (!doEditBlock)
+                cursor.endEditBlock();
+        } else {
+            cursor.insertText(text);
+        }
 
         if (!autoText.isEmpty()) {
             int pos = cursor.position();
@@ -1865,8 +1896,10 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
         d->m_parenthesesMatchingTimer->start(50);
 
-    if (!ro && d->m_contentsChanged && !e->text().isEmpty() && e->text().at(0).isPrint())
+    if (!ro && d->m_contentsChanged && !e->text().isEmpty()
+            && e->text().at(0).isPrint() && !inOverwriteMode) {
         d->m_codeAssistant->process();
+    }
 }
 
 void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
@@ -6297,6 +6330,8 @@ void BaseTextEditorWidget::inSnippetMode(bool *active)
 
 void BaseTextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
 {
+    if (overwriteMode())
+        return;
     d->m_codeAssistant->invoke(kind, provider);
 }
 
