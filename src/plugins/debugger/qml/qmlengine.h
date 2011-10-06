@@ -40,6 +40,9 @@
 #include <QtNetwork/QAbstractSocket>
 
 namespace Debugger {
+
+class QmlAdapter;
+
 namespace Internal {
 
 class QmlEnginePrivate;
@@ -70,6 +73,8 @@ public:
     void inferiorSpontaneousStop();
 
     void logMessage(LogDirection direction, const QString &str);
+
+    QmlAdapter *adapter() const;
 
 public slots:
     void disconnected();

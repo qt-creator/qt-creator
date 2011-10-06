@@ -73,6 +73,13 @@ public:
     Internal::QmlDebuggerClient *activeDebuggerClient();
     QHash<QString, Internal::QmlDebuggerClient*> debuggerClients();
 
+    QmlJsDebugClient::QDeclarativeEngineDebug *engineDebugClient() const;
+    void setEngineDebugClient(QmlJsDebugClient::QDeclarativeEngineDebug *client);
+
+    int currentSelectedDebugId() const;
+    QString currentSelectedDisplayName() const;
+    void setCurrentSelectedDebugInfo(int debugId, const QString &displayName = QString());
+
 public slots:
     void logServiceStatusChange(const QString &service, QDeclarativeDebugClient::Status newStatus);    
     void logServiceActivity(const QString &service, const QString &logMessage);
@@ -83,6 +90,7 @@ signals:
     void connectionStartupFailed();
     void connectionError(QAbstractSocket::SocketError socketError);
     void serviceConnectionError(const QString serviceName);
+    void selectionChanged();
 
 private slots:
     void connectionErrorOccurred(QAbstractSocket::SocketError socketError);

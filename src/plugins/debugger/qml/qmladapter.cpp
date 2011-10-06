@@ -54,7 +54,9 @@ public:
     explicit QmlAdapterPrivate(DebuggerEngine *engine)
         : m_engine(engine)
         , m_qmlClient(0)
+        , m_engineDebugClient(0)
         , m_conn(0)
+        , m_currentSelectedDebugId(-1)
     {
         m_connectionTimer.setInterval(4000);
         m_connectionTimer.setSingleShot(true);
@@ -62,9 +64,12 @@ public:
 
     QWeakPointer<DebuggerEngine> m_engine;
     QmlDebuggerClient *m_qmlClient;
+    QmlJsDebugClient::QDeclarativeEngineDebug *m_engineDebugClient;
     QTimer m_connectionTimer;
     QDeclarativeDebugConnection *m_conn;
     QHash<QString, QmlDebuggerClient*> debugClients;
+    int m_currentSelectedDebugId;
+    QString m_currentSelectedDebugName;
 };
 
 } // namespace Internal
@@ -272,6 +277,34 @@ QHash<QString, Internal::QmlDebuggerClient*> QmlAdapter::debuggerClients()
 {
     return d->debugClients;
 }
+
+QmlJsDebugClient::QDeclarativeEngineDebug *QmlAdapter::engineDebugClient() const
+{
+    return d->m_engineDebugClient;
+}
+
+void QmlAdapter::setEngineDebugClient(QmlJsDebugClient::QDeclarativeEngineDebug *client)
+{
+    d->m_engineDebugClient = client;
+}
+
+int QmlAdapter::currentSelectedDebugId() const
+{
+    return d->m_currentSelectedDebugId;
+}
+
+QString QmlAdapter::currentSelectedDisplayName() const
+{
+    return d->m_currentSelectedDebugName;
+}
+
+void QmlAdapter::setCurrentSelectedDebugInfo(int currentDebugId, const QString &displayName)
+{
+    d->m_currentSelectedDebugId = currentDebugId;
+    d->m_currentSelectedDebugName = displayName;
+    emit selectionChanged();
+}
+
 void QmlAdapter::logServiceStatusChange(const QString &service,
                                         QDeclarativeDebugClient::Status newStatus)
 {

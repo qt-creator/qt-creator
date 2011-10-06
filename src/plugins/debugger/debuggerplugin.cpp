@@ -112,7 +112,7 @@
 #include <utils/statuslabel.h>
 #include <utils/fileutils.h>
 
-#include <qml/scriptconsole.h>
+#include <qml/qmljsscriptconsole.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/QtPlugin>
@@ -785,7 +785,7 @@ public slots:
     void aboutToSaveSession();
 
     void executeDebuggerCommand(const QString &command);
-    void scriptExpressionEntered(const QString &expression);
+    void evaluateExpression(const QString &expression);
     void coreShutdown();
 
 public slots:
@@ -1079,7 +1079,7 @@ public:
     QAbstractItemView *m_stackWindow;
     QAbstractItemView *m_threadsWindow;
     LogWindow *m_logWindow;
-    ScriptConsole *m_scriptConsoleWindow;
+    QmlJSScriptConsoleWidget *m_scriptConsoleWindow;
 
     bool m_busy;
     QString m_lastPermanentStatusMessage;
@@ -1972,6 +1972,16 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     //m_threadBox->setModel(engine->threadsModel());
     //m_threadBox->setModelColumn(ThreadData::ComboNameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
+
+    //Initialize QmlJSConsole
+    QmlEngine *qmlEngine = qobject_cast<QmlEngine *>(engine);
+    QmlCppEngine *qmlCppEngine = qobject_cast<QmlCppEngine *>(engine);
+    if (qmlCppEngine)
+        qmlEngine = qobject_cast<QmlEngine *>(qmlCppEngine->qmlEngine());
+    if (qmlEngine) {
+        m_scriptConsoleWindow->setQmlAdapter(qmlEngine->adapter());
+    }
+
     engine->watchHandler()->rebuildModel();
 }
 
@@ -2047,7 +2057,6 @@ void DebuggerPluginPrivate::setBusyCursor(bool busy)
     m_threadsWindow->setCursor(cursor);
     m_watchersWindow->setCursor(cursor);
     m_snapshotWindow->setCursor(cursor);
-    m_scriptConsoleWindow->setCursor(cursor);
 }
 
 void DebuggerPluginPrivate::setInitialState()
@@ -2239,8 +2248,11 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     if (qmlCppEngine)
         qmlEngine = qobject_cast<QmlEngine *>(qmlCppEngine->qmlEngine());
 
-    if (qmlEngine) {
-        m_scriptConsoleWindow->setEnabled(stopped);
+    if (qmlEngine && (state == InferiorRunOk || state == InferiorStopOk)) {
+        m_scriptConsoleWindow->setEnabled(true);
+        m_scriptConsoleWindow->setInferiorStopped(state == InferiorStopOk);
+    } else {
+        m_scriptConsoleWindow->setEnabled(false);
     }
 
 }
@@ -2387,7 +2399,7 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
     m_statusLabel->showStatusMessage(msg, timeout);
 }
 
-void DebuggerPluginPrivate::scriptExpressionEntered(const QString &expression)
+void DebuggerPluginPrivate::evaluateExpression(const QString &expression)
 {
     currentEngine()->executeDebuggerCommand(expression);
 }
@@ -2757,11 +2769,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_localsWindow->setObjectName(QLatin1String("CppDebugLocals"));
     m_watchersWindow = new WatchWindow(WatchWindow::WatchersType);
     m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
-    m_scriptConsoleWindow = new ScriptConsole;
+    m_scriptConsoleWindow = new QmlJSScriptConsoleWidget;
     m_scriptConsoleWindow->setWindowTitle(tr("QML Script Console"));
     m_scriptConsoleWindow->setObjectName(DOCKWIDGET_QML_SCRIPTCONSOLE);
-    connect(m_scriptConsoleWindow, SIGNAL(expressionEntered(QString)),
-        SLOT(scriptExpressionEntered(QString)));
+    connect(m_scriptConsoleWindow, SIGNAL(evaluateExpression(QString)),
+        SLOT(evaluateExpression(QString)));
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;

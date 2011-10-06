@@ -676,7 +676,7 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
 bool QmlEngine::setToolTipExpression(const QPoint &mousePos,
     TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
 {
-    // This is processed by QML inspector, which has dependencies to 
+    // This is processed by QML inspector, which has dependencies to
     // the qml js editor. Makes life easier.
     emit tooltipRequested(mousePos, editor, ctx.position);
     return true;
@@ -809,6 +809,11 @@ void QmlEngine::logMessage(LogDirection direction, const QString &message)
     }
     msg += message;
     showMessage(msg, LogDebug);
+}
+
+QmlAdapter *QmlEngine::adapter() const
+{
+    return &d->m_adapter;
 }
 
 QmlEngine *createQmlEngine(const DebuggerStartParameters &sp,

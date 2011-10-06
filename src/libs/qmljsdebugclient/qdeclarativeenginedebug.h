@@ -170,7 +170,7 @@ public:
     bool isWaiting() const;
 
 Q_SIGNALS:
-    void stateChanged(QDeclarativeDebugQuery::State);
+    void stateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State);
 
 protected:
     QDeclarativeDebugQuery(QObject *);

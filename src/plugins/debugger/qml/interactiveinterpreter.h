@@ -30,57 +30,42 @@
 **
 **************************************************************************/
 
-#ifndef QMLJSSCRIPTCONSOLE_H
-#define QMLJSSCRIPTCONSOLE_H
+#ifndef INTERACTIVEINTERPRETER_H
+#define INTERACTIVEINTERPRETER_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QToolButton>
-#include <QtGui/QPlainTextEdit>
+#include <qmljs/parser/qmljslexer_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
 
-#include <utils/fancylineedit.h>
-
-namespace QmlJSEditor {
-class Highlighter;
-}
+#include <QtCore/QVector>
+#include <QtCore/QString>
+#include <QtCore/QList>
 
 namespace Debugger {
 namespace Internal {
 
-class ScriptConsole : public QWidget
+class InteractiveInterpreter: QmlJS::Lexer
 {
-    Q_OBJECT
 public:
-    ScriptConsole(QWidget *parent = 0);
+    InteractiveInterpreter()
+        : Lexer(&m_engine),
+          m_stateStack(128)
+    {
 
-public slots:
-    void appendResult(const QString &result);
-signals:
-    void expressionEntered(const QString &expr);
+    }
 
-protected slots:
-    void clearTextEditor();
-    void executeExpression();
+    void clearText() { m_code.clear(); }
+    void appendText(const QString &text) { m_code += text; }
 
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-    void setFontSettings();
-    void clear();
+    QString code() const { return m_code; }
+    bool canEvaluate();
 
-//    QToolButton *m_clearButton;
-    QPlainTextEdit *m_textEdit;
-    Utils::FancyLineEdit *m_lineEdit;
-    QString m_prompt;
-    QString m_expr;
-    QString m_lastExpr;
-
-    QString m_title;
-    QmlJSEditor::Highlighter *m_highlighter;
-
+private:
+    QmlJS::Engine m_engine;
+    QVector<int> m_stateStack;
+    QList<int> m_tokens;
+    QString m_code;
 };
 
-
 }
-} //end namespaces
-
-
-#endif
+}
+#endif // INTERACTIVEINTERPRETER_H

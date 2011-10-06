@@ -58,6 +58,7 @@ class ClientProxy : public QObject
 
 public:
     explicit ClientProxy(Debugger::QmlAdapter *adapter, QObject *parent = 0);
+    ~ClientProxy();
 
     bool setBindingForObject(int objectDebugId,
                              const QString &propertyName,
@@ -137,12 +138,13 @@ public slots:
 private slots:
     void connectToServer();
     void clientStatusChanged(QDeclarativeDebugClient::Status status);
+    void engineClientStatusChanged(QDeclarativeDebugClient::Status status);
 
     void contextChanged();
 
     void onCurrentObjectsChanged(const QList<int> &debugIds, bool requestIfNeeded = true);
     void updateEngineList();
-    void objectTreeFetched(QDeclarativeDebugQuery::State state = QDeclarativeDebugQuery::Completed);
+    void objectTreeFetched(QmlJsDebugClient::QDeclarativeDebugQuery::State state = QmlJsDebugClient::QDeclarativeDebugQuery::Completed);
     void fetchContextObjectRecursive(const QmlJsDebugClient::QDeclarativeDebugContextReference& context);
     void newObjects();
     void objectWatchTriggered(const QByteArray &propertyName, const QVariant &propertyValue);

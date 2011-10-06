@@ -48,6 +48,7 @@
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
+#include <debugger/qml/qmladapter.h>
 
 #include <utils/filterlineedit.h>
 #include <utils/qtcassert.h>
@@ -272,13 +273,13 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
 
         if (!query.isEmpty()) {
             m_debugQuery = m_clientProxy->queryExpressionResult(ref.debugId(), query);
-            connect(m_debugQuery, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
-                    this, SLOT(debugQueryUpdated(QDeclarativeDebugQuery::State)));
+            connect(m_debugQuery, SIGNAL(stateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)),
+                    this, SLOT(debugQueryUpdated(QmlJsDebugClient::QDeclarativeDebugQuery::State)));
         }
     }
 }
 
-void InspectorUi::debugQueryUpdated(QDeclarativeDebugQuery::State newState)
+void InspectorUi::debugQueryUpdated(QmlJsDebugClient::QDeclarativeDebugQuery::State newState)
 {
     if (newState != QDeclarativeDebugExpressionQuery::Completed)
         return;
@@ -289,8 +290,8 @@ void InspectorUi::debugQueryUpdated(QDeclarativeDebugQuery::State newState)
     if (!text.isEmpty())
         QToolTip::showText(QCursor::pos(), text);
 
-    disconnect(m_debugQuery, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
-               this, SLOT(debugQueryUpdated(QDeclarativeDebugQuery::State)));
+    disconnect(m_debugQuery, SIGNAL(stateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)),
+               this, SLOT(debugQueryUpdated(QmlJsDebugClient::QDeclarativeDebugQuery::State)));
 }
 
 bool InspectorUi::isConnected() const
@@ -525,24 +526,6 @@ inline QDeclarativeDebugObjectReference findParentRecursive( int goalDebugId,
     return QDeclarativeDebugObjectReference();
 }
 
-void InspectorUi::selectItems(const QList<QDeclarativeDebugObjectReference> &objectReferences)
-{
-    foreach (const QDeclarativeDebugObjectReference &objref, objectReferences) {
-        if (objref.debugId() != -1) {
-            // select only the first valid element of the list
-
-            m_clientProxy->removeAllObjectWatches();
-            m_clientProxy->addObjectWatch(objref.debugId());
-            QList <QDeclarativeDebugObjectReference> selectionList;
-            selectionList << objref;
-            m_propertyInspector->setCurrentObjects(selectionList);
-            populateCrumblePath(objref);
-            gotoObjectReferenceDefinition(objref);
-            return;
-        }
-    }
-}
-
 inline QString displayName(const QDeclarativeDebugObjectReference &obj)
 {
     // special! state names
@@ -564,6 +547,26 @@ inline QString displayName(const QDeclarativeDebugObjectReference &obj)
         objTypeName = objTypeName.mid(declarativeString.length()).section('_',0,0);
     }
     return QString("<%1>").arg(objTypeName);
+}
+
+void InspectorUi::selectItems(const QList<QDeclarativeDebugObjectReference> &objectReferences)
+{
+    foreach (const QDeclarativeDebugObjectReference &objref, objectReferences) {
+        int debugId = objref.debugId();
+        if (debugId != -1) {
+            // select only the first valid element of the list
+
+            m_clientProxy->removeAllObjectWatches();
+            m_clientProxy->addObjectWatch(debugId);
+            QList <QDeclarativeDebugObjectReference> selectionList;
+            selectionList << objref;
+            m_propertyInspector->setCurrentObjects(selectionList);
+            populateCrumblePath(objref);
+            gotoObjectReferenceDefinition(objref);
+            m_clientProxy->qmlAdapter()->setCurrentSelectedDebugInfo(debugId, displayName(objref));
+            break;
+        }
+    }
 }
 
 bool InspectorUi::isRoot(const QDeclarativeDebugObjectReference &obj) const

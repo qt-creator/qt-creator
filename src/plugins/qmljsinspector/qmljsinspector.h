@@ -133,7 +133,7 @@ private slots:
 
     void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);
     void showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos);
-    void debugQueryUpdated(QDeclarativeDebugQuery::State);
+    void debugQueryUpdated(QmlJsDebugClient::QDeclarativeDebugQuery::State);
 
 private:
     bool addQuotesForData(const QVariant &value) const;
