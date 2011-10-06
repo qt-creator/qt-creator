@@ -54,11 +54,10 @@ GitSettings::GitSettings()
 {
     setSettingsGroup(QLatin1String("Git"));
 
+    declareKey(binaryPathKey, QLatin1String("git"));
 #ifdef Q_OS_WIN
-    declareKey(binaryPathKey, QLatin1String("git.exe"));
     declareKey(timeoutKey, 60);
 #else
-    declareKey(binaryPathKey, QLatin1String("git"));
     declareKey(timeoutKey, 30);
 #endif
     declareKey(adoptPathKey, false);
