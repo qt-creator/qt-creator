@@ -13,11 +13,13 @@ def main():
     test.log("Building project")
     invokeMenuItem("Build","Build All")
     waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
-    checkCompile()
-    checkLastBuild()
-    test.log("Running project (includes build)")
-    if runAndCloseApp():
-        logApplicationOutput()
+    if not checkCompile():
+        test.fatal("Compile failed")
+    else:
+        checkLastBuild()
+        test.log("Running project (includes build)")
+        if runAndCloseApp():
+            logApplicationOutput()
     invokeMenuItem("File", "Exit")
 
 def createNewQtQuickApplication():
