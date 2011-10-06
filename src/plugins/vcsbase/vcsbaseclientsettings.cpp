@@ -282,21 +282,21 @@ bool *VCSBaseClientSettings::boolPointer(const QString &key)
 
 QString *VCSBaseClientSettings::stringPointer(const QString &key)
 {
-    if (hasKey(key))
+    if (hasKey(key) && valueType(key) == QVariant::String)
         return d->m_valueHash[key].m_comp.strPtr;
     return 0;
 }
 
 int VCSBaseClientSettings::intValue(const QString &key, int defaultValue) const
 {
-    if (hasKey(key))
+    if (hasKey(key) && valueType(key) == QVariant::Int)
         return d->m_valueHash[key].m_comp.intValue;
     return defaultValue;
 }
 
 bool VCSBaseClientSettings::boolValue(const QString &key, bool defaultValue) const
 {
-    if (hasKey(key))
+    if (hasKey(key) && valueType(key) == QVariant::Bool)
         return d->m_valueHash[key].m_comp.boolValue;
     return defaultValue;
 }
