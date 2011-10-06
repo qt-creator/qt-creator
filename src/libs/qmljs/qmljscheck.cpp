@@ -115,7 +115,8 @@ public:
         validBuiltinPropertyNames.insert(QLatin1String("string"));
         validBuiltinPropertyNames.insert(QLatin1String("time"));
         validBuiltinPropertyNames.insert(QLatin1String("url"));
-        validBuiltinPropertyNames.insert(QLatin1String("variant"));
+        validBuiltinPropertyNames.insert(QLatin1String("var"));
+        validBuiltinPropertyNames.insert(QLatin1String("variant")); // obsolete in Qt 5
         validBuiltinPropertyNames.insert(QLatin1String("vector3d"));
         validBuiltinPropertyNames.insert(QLatin1String("alias"));
     }

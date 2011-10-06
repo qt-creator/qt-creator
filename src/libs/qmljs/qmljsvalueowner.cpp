@@ -948,6 +948,6 @@ const Value *ValueOwner::defaultValueForBuiltinType(const QString &name) const
     } else if (name == QLatin1String("date")) {
         return datePrototype();
     }
-    // ### variant
+    // ### variant or var
     return undefinedValue();
 }

@@ -266,6 +266,8 @@ bool Highlighter::maybeQmlBuiltinType(const QStringRef &text) const
         return true;
     } else if (ch == QLatin1Char('v') && text == QLatin1String("variant")) {
         return true;
+    } else if (ch == QLatin1Char('v') && text == QLatin1String("var")) {
+        return true;
     } else if (ch == QLatin1Char('v') && text == QLatin1String("vector3d")) {
         return true;
     } else {

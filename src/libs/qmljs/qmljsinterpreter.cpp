@@ -1853,7 +1853,9 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
 const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) const
 {
     if (_ast->statement
-            && (_ast->memberType.isEmpty() || _ast->memberType == QLatin1String("variant")
+            && (_ast->memberType.isEmpty()
+                || _ast->memberType == QLatin1String("variant")
+                || _ast->memberType == QLatin1String("var")
                 || _ast->memberType == QLatin1String("alias"))) {
 
         // Adjust the context for the current location - expensive!
