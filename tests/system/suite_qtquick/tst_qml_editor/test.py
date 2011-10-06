@@ -96,7 +96,7 @@ def testRenameId():
 
 def doubleClickFile(navTree, file):
     treeElement = ("untitled.QML.%s/qml.%s" %
-                   (templateDir.replace("\\", "/").replace("_", "\\_"),file))
+                   (templateDir.replace("\\", "/").replace("_", "\\_").replace(".","\\."),file))
     waitForObjectItem(navTree, treeElement)
     doubleClickItem(navTree, treeElement, 5, 5, 0, Qt.LeftButton)
 
