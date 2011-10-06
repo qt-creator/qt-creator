@@ -270,8 +270,12 @@ const QList<VCSBaseEditorParameterWidget::OptionMapping> &VCSBaseEditorParameter
 QStringList VCSBaseEditorParameterWidget::argumentsForOption(const OptionMapping &mapping) const
 {
     const QToolButton *tb = qobject_cast<const QToolButton *>(mapping.widget);
-    if (tb && tb->isChecked())
-        return QStringList(mapping.optionName);
+    if (tb && tb->isChecked()) {
+        if (!mapping.optionName.isEmpty())
+            return QStringList(mapping.optionName);
+        else
+            return QStringList();
+    }
 
     const QComboBox *cb = qobject_cast<const QComboBox *>(mapping.widget);
     if (cb) {
