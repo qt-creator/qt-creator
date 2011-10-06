@@ -37,13 +37,17 @@
 
     \bold {How do I reset all \QC settings?}
 
-    \QC creates two files and a directory:
+    \QC creates the following files and a directories:
 
     \list
 
         \o  QtCreator.db
 
         \o  QtCreator.ini
+
+        \o  qtversion.xml
+
+        \o  toolChains.xml
 
         \o  qtcreator
 
