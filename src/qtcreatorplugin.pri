@@ -10,13 +10,19 @@ isEmpty(PROVIDER) {
 isEmpty(USE_USER_DESTDIR) {
     DESTDIR = $$IDE_PLUGIN_PATH/$$PROVIDER
 } else {
-    win32:DESTDIRBASE = "$$(LOCALAPPDATA)"
-    else:macx: DESTDIRBASE = "$$(HOME)/Library/Application Support"
-    else:unix {
+    win32 {
+        DESTDIRAPPNAME = "qtcreator"
+        DESTDIRBASE = "$$(LOCALAPPDATA)"
+        isEmpty(DESTDIRBASE):DESTDIRBASE="$$(USERPROFILE)\Local Settings\Application Data"
+    } else:macx {
+        DESTDIRAPPNAME = "Qt Creator"
+        DESTDIRBASE = "$$(HOME)/Library/Application Support"
+    } else:unix {
+        DESTDIRAPPNAME = "qtcreator"
         DESTDIRBASE = "$$(XDG_DATA_HOME)"
         isEmpty(DESTDIRBASE):DESTDIRBASE = "$$(HOME)/.local/share"
     }
-    DESTDIR = "$$DESTDIRBASE/Nokia/QtCreator/plugins/$$QTCREATOR_VERSION/$$PROVIDER"
+    DESTDIR = "$$DESTDIRBASE/Nokia/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/$$PROVIDER"
 }
 LIBS += -L$$DESTDIR
 

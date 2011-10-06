@@ -27,9 +27,9 @@ isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=%QtCreatorBuild%
 ## uncomment to build plugin into user config directory
 ## <localappdata>/plugins/<ideversion>
 ##    where <localappdata> is e.g.
-##    <drive>:\Users\<username>\AppData\Local\Nokia\QtCreator on Windows Vista and later
-##    $XDG_DATA_HOME/Nokia/QtCreator or ~/.local/share/Nokia/QtCreator on Linux
-##    ~/Library/Application Support/Nokia/QtCreator on Mac
+##    "%LOCALAPPDATA%\Nokia\qtcreator" on Windows Vista and later
+##    "$XDG_DATA_HOME/Nokia/qtcreator" or "~/.local/share/Nokia/qtcreator" on Linux
+##    "~/Library/Application Support/Nokia/Qt Creator" on Mac
 %DestDir%USE_USER_DESTDIR = yes
 
 PROVIDER = %VendorName%
