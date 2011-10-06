@@ -205,9 +205,9 @@ StateListener::StateListener(QObject *parent) :
         QObject(parent)
 {
     Core::ICore *core = Core::ICore::instance();
-    connect(core->fileManager(), SIGNAL(currentFileChanged(QString)),
+    connect(core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(slotStateChanged()));
-    connect(core->editorManager()->instance(), SIGNAL(currentEditorStateChanged(Core::IEditor*)),
+    connect(core->editorManager(), SIGNAL(currentEditorStateChanged(Core::IEditor*)),
             this, SLOT(slotStateChanged()));
     connect(core->vcsManager(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(slotStateChanged()));
@@ -235,7 +235,11 @@ void StateListener::slotStateChanged()
     // temporary path prefix or does the file contains a hash, indicating a project
     // folder?
     State state;
-    state.currentFile = core->fileManager()->currentFile();
+    Core::EditorManager *em = core->editorManager();
+    if (!em || !em->currentEditor() || !em->currentEditor()->file())
+        state.currentFile.clear();
+    else
+        state.currentFile = em->currentEditor()->file()->fileName();
     QScopedPointer<QFileInfo> currentFileInfo; // Instantiate QFileInfo only once if required.
     if (!state.currentFile.isEmpty()) {
         const bool isTempFile = state.currentFile.startsWith(QDir::tempPath());
