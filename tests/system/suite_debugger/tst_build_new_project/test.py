@@ -8,7 +8,7 @@ def main():
     createProject_Qt_GUI(projectsPath, project, defaultQtVersion, 1)
     clickButton(verifyEnabled(":*Qt Creator.Run_Core::Internal::FancyToolButton"))
     waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
-    playButton = verifyEnabled(":Qt Creator_QToolButton", False)
+    playButton = verifyEnabled(":Qt Creator.ReRun_QToolButton", False)
     stopButton = verifyEnabled(":Qt Creator.Stop_QToolButton")
     clickButton(stopButton)
     test.verify(playButton.enabled)
