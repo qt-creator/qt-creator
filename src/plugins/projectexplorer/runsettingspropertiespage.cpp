@@ -89,7 +89,7 @@ QString RunSettingsPanelFactory::id() const
 
 QString RunSettingsPanelFactory::displayName() const
 {
-    return tr("Run Settings");
+    return RunSettingsWidget::tr("Run Settings");
 }
 
 bool RunSettingsPanelFactory::supports(Target *target)
@@ -108,8 +108,8 @@ PropertiesPanel *RunSettingsPanelFactory::createPanel(Target *target)
     l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     l->setContentsMargins(QMargins());
     panel->setWidget(w);
-    panel->setIcon(QIcon(":/projectexplorer/images/RunSettings.png"));
-    panel->setDisplayName(tr("Run Settings"));
+    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/RunSettings.png")));
+    panel->setDisplayName(RunSettingsWidget::tr("Run Settings"));
     return panel;
 }
 
