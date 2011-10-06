@@ -147,6 +147,11 @@ def lookupType(typestring):
         type = gdb.lookup_type(ts)
     except RuntimeError, error:
         #warn("LOOKING UP '%s': %s" % (ts, error))
+        if type is None:
+            pos = typestring.find("<unnamed>")
+            if pos != -1:
+                # See http://sourceware.org/bugzilla/show_bug.cgi?id=13269
+                return lookupType(typestring.replace("<unnamed>", "(anonymous namespace)"))
         # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
         exp = "(class '%s'*)0" % ts
         try:
