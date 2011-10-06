@@ -42,35 +42,42 @@ namespace VCSBase {
 
 namespace Internal {
 
-struct SettingMappingData
+class SettingMappingData
 {
+public:
     enum Type
     {
         Invalid,
         Bool,
-        String
+        String,
+        Int
     };
 
-    SettingMappingData() : boolSetting(0), stringSetting(0)
+    SettingMappingData() : boolSetting(0), m_type(Invalid)
     { }
 
-    SettingMappingData(bool *setting) : boolSetting(setting), stringSetting(0)
+    SettingMappingData(bool *setting) : boolSetting(setting), m_type(Bool)
     { }
 
-    SettingMappingData(QString *setting) : boolSetting(0), stringSetting(setting)
+    SettingMappingData(QString *setting) : stringSetting(setting), m_type(String)
+    { }
+
+    SettingMappingData(int *setting) : intSetting(setting), m_type(Int)
     { }
 
     Type type() const
     {
-        if (boolSetting)
-            return Bool;
-        if (stringSetting)
-            return String;
-        return Invalid;
+        return m_type;
     }
 
-    bool *boolSetting;
-    QString *stringSetting;
+    union {
+        bool *boolSetting;
+        QString *stringSetting;
+        int *intSetting;
+    };
+
+private:
+    Type m_type;
 };
 
 } // namespace Internal
@@ -196,6 +203,21 @@ void VCSBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, QString *sett
     }
 }
 
+void VCSBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, int *setting)
+{
+    if (d->m_settingMapping.contains(comboBox) || !comboBox)
+        return;
+
+    d->m_settingMapping.insert(comboBox, Internal::SettingMappingData(setting));
+
+    if (!setting || *setting < 0 || *setting >= comboBox->count())
+        return;
+
+    comboBox->blockSignals(true);
+    comboBox->setCurrentIndex(*setting);
+    comboBox->blockSignals(false);
+}
+
 /*!
     \brief This property holds the format (template) of assignable command line
     options (like --file=<file> for example)
@@ -285,6 +307,13 @@ void VCSBaseEditorParameterWidget::updateMappedSettings()
                 const QComboBox *cb = qobject_cast<const QComboBox *>(optMapping.widget);
                 if (cb && cb->currentIndex() != -1)
                     *settingData.stringSetting = cb->itemData(cb->currentIndex()).toString();
+                break;
+            }
+            case Internal::SettingMappingData::Int:
+            {
+                const QComboBox *cb = qobject_cast<const QComboBox *>(optMapping.widget);
+                if (cb && cb->currentIndex() != -1)
+                    *settingData.intSetting = cb->currentIndex();
                 break;
             }
             case Internal::SettingMappingData::Invalid : break;
