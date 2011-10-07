@@ -222,6 +222,12 @@ qint64 QDeclarativeDebugConnection::writeData(const char *data, qint64 maxSize)
     return d->device->write(data, maxSize);
 }
 
+void QDeclarativeDebugConnection::internalError(QAbstractSocket::SocketError socketError)
+{
+    setErrorString(d->device->errorString());
+    emit error(socketError);
+}
+
 qint64 QDeclarativeDebugConnection::bytesAvailable() const
 {
     return d->device->bytesAvailable();
@@ -300,7 +306,7 @@ void QDeclarativeDebugConnection::connectToHost(const QString &hostName, quint16
     d->connectDeviceSignals();
     d->gotHello = false;
     connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SIGNAL(error(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(internalError(QAbstractSocket::SocketError)));
     connect(socket, SIGNAL(connected()), this, SIGNAL(connected()));
     socket->connectToHost(hostName, port);
     QIODevice::open(ReadWrite | Unbuffered);
