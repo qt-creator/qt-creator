@@ -155,7 +155,7 @@ static inline int askMsgSendFailed()
                                  QMessageBox::Retry);
 }
 
-static inline QStringList getPluginPaths(QSettings *settings)
+static inline QStringList getPluginPaths()
 {
     QStringList rc;
     // Figure out root:  Up one from 'bin'
@@ -289,7 +289,7 @@ int main(int argc, char **argv)
 #endif
 #endif
     // Load
-    const QStringList pluginPaths = getPluginPaths(settings);
+    const QStringList pluginPaths = getPluginPaths();
     pluginManager.setPluginPaths(pluginPaths);
 
     QMap<QString, QString> foundAppOptions;
