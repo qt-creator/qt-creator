@@ -21,11 +21,13 @@ source("../../shared/editor_utils.py")
 
 def waitForCleanShutdown(timeOut=10):
     appCtxt = currentApplicationContext()
-    shutdownDone = False
+    shutdownDone = (str(appCtxt)=="")
     if platform.system() in ('Windows','Microsoft'):
         endtime = datetime.utcnow() + timedelta(seconds=timeOut)
         while not shutdownDone:
             # following work-around because os.kill() works for win not until python 2.7
+            if appCtxt.pid==-1:
+                break
             tasks = subprocess.Popen("tasklist /FI \"PID eq %d\"" % appCtxt.pid, shell=True,stdout=subprocess.PIPE)
             output = tasks.communicate()[0]
             tasks.stdout.close()
@@ -47,7 +49,7 @@ def waitForCleanShutdown(timeOut=10):
 
 def __removeTmpSettingsDir__():
     waitForCleanShutdown()
-    deleteDirIfExists(os.path.dirname(tmpSettingsDir))
+    deleteDirIfExists(os.path.dirname(os.path.dirname(tmpSettingsDir)))
 
 if platform.system() in ('Windows', 'Microsoft'):
     sdkPath = "C:\\QtSDK"
@@ -67,5 +69,5 @@ tmpSettingsDir = os.path.abspath(tmpSettingsDir+"/settings")
 shutil.copytree(cwd, tmpSettingsDir)
 # the following only doesn't work if the test ends in an exception
 atexit.register(__removeTmpSettingsDir__)
-SettingsPath = " -settingspath %s" % tmpSettingsDir
+SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
 
