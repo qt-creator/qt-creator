@@ -127,3 +127,36 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
         test.verify(os.path.exists(h_path), "Checking if '" + h_path + "' was created")
         test.verify(os.path.exists(ui_path), "Checking if '" + ui_path + "' was created")
         test.verify(os.path.exists(pro_path), "Checking if '" + pro_path + "' was created")
+
+def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, destination = QtQuickConstants.Destinations.DESKTOP):
+    invokeMenuItem("File", "New File or Project...")
+    clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
+    clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick Application", 5, 5, 0, Qt.LeftButton)
+    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    if projectName!=None:
+        baseLineEd = waitForObject("{name='nameLineEdit' visible='1' "
+                                   "type='Utils::ProjectNameValidatingLineEdit'}", 20000)
+        replaceEditorContent(baseLineEd, projectName)
+    baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+    replaceEditorContent(baseLineEd, workingDir)
+    stateLabel = findObject("{type='QLabel' name='stateLabel'}")
+    labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
+    test.verify(labelCheck, "Project name and base directory without warning or error")
+    # make sure this is not set as default location
+    cbDefaultLocation = waitForObject("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", 20000)
+    if cbDefaultLocation.checked:
+        clickButton(cbDefaultLocation)
+    nextButton = waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000)
+    clickButton(nextButton)
+    if (templateFile==None):
+        chooseComponents()
+    else:
+        chooseComponents(QtQuickConstants.Components.EXISTING_QML)
+        # define the existing qml file to import
+        baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+        type(baseLineEd, templateFile)
+    clickButton(nextButton)
+    chooseDestination(destination)
+    snooze(1)
+    clickButton(nextButton)
+    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
