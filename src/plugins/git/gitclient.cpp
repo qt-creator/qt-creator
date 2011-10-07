@@ -192,7 +192,7 @@ public:
                       << ComboBoxItem(tr("email"), QLatin1String("email"))
                       << ComboBoxItem(tr("raw"), QLatin1String("raw"));
         mapSetting(addComboBox(QLatin1String("--pretty"), prettyChoices),
-                   m_client->settings()->stringPointer(GitSettings::showPrettyFormatKey));
+                   m_client->settings()->intPointer(GitSettings::showPrettyFormatKey));
     }
 
     void executeCommand()

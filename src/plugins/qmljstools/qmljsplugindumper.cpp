@@ -222,9 +222,8 @@ void PluginDumper::dumpAllPlugins()
 
 static QString noTypeinfoError(const QString &libraryPath)
 {
-    return PluginDumper::tr("QML module at:\n"
-                            "%1\n"
-                            "does not contain information about components contained in plugins.\n"
+    return PluginDumper::tr("QML module does not contain information about components contained in plugins\n\n"
+                            "Module path: %1\n"
                             "See \"Using QML Modules with Plugins\" in the documentation.").arg(
                 libraryPath);
 }

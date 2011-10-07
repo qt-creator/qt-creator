@@ -46,7 +46,7 @@ def createNewQtQuickApplication():
     if cbDefaultLocation.checked:
         clickButton(cbDefaultLocation)
     # now there's the 'untitled' project inside a temporary directory - step forward...!
-    nextButton = waitForObject("{text?='Next*' type='QPushButton' visible='1'}", 20000)
+    nextButton = waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000)
     clickButton(nextButton)
     chooseComponents(QtQuickConstants.Components.EXISTING_QML)
     # define the existing qml file to import
@@ -56,7 +56,7 @@ def createNewQtQuickApplication():
     chooseDestination()
     snooze(1)
     clickButton(nextButton)
-    clickButton(waitForObject("{type='QPushButton' text='Finish' visible='1'}", 20000))
+    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
 
 def testRenameId():
     test.log("Testing rename of id")
@@ -78,7 +78,8 @@ def testRenameId():
         return False
     type(editor, "<Down>")
     openContextMenuOnTextCursorPosition(editor)
-    activateItem(waitForObjectItem("{type='QMenu' visible='1' unnamed='1'}", "Rename Symbol Under Cursor"))
+    ctxtMenu = waitForObject("{type='QMenu' visible='1' unnamed='1'}")
+    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Rename Symbol Under Cursor"))
     type(waitForObject("{leftWidget={text='Replace with:' type='QLabel' unnamed='1' visible='1'} "
                        "type='Find::Internal::WideEnoughLineEdit' unnamed='1' visible='1' "
                        "window=':Qt Creator_Core::Internal::MainWindow'}"), "renamedView")
@@ -91,11 +92,11 @@ def testRenameId():
         modifiedText = "%s" % editor.plainText
         originalText = originalTexts.get(file).replace("mainView", "renamedView")
         test.compare(originalText,modifiedText)
-        type(editor, "<Ctrl+S>")
+    invokeMenuItem("File","Save All")
 
 def doubleClickFile(navTree, file):
     treeElement = ("untitled.QML.%s/qml.%s" %
-                   (templateDir.replace("\\", "/").replace("_", "\\_"),file))
+                   (templateDir.replace("\\", "/").replace("_", "\\_").replace(".","\\."),file))
     waitForObjectItem(navTree, treeElement)
     doubleClickItem(navTree, treeElement, 5, 5, 0, Qt.LeftButton)
 

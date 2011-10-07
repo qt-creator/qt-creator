@@ -571,7 +571,7 @@ void QmlCppEngine::slaveEngineStateChanged
                     notifyInferiorStopOk();
             } else {
                 if (d->m_activeEngine != cppEngine()) {
-                    showStatusMessage(tr("Cpp debugger activated"));
+                    showStatusMessage(tr("C++ debugger activated"));
                     d->m_activeEngine = cppEngine();
                 }
                 switch (state()) {

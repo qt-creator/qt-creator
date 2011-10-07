@@ -324,7 +324,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     ParameterActionCommandPair parameterActionCommand
             = createFileAction(actionManager, gitContainer,
-                               tr("Blame"), tr("Blame for \"%1\""),
+                               tr("Blame Current File"), tr("Blame for \"%1\""),
                                QLatin1String("Git.Blame"),
                                globalcontext, true, SLOT(blameFile()));
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+B")));

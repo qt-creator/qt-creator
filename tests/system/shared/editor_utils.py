@@ -12,6 +12,7 @@ def placeCursorToLine(editor,line,isRegex=False):
     found = False
     if isRegex:
         regex = re.compile(line)
+    editorRealName = objectMap.realName(editor)
     while not found:
         currentLine = str(lineUnderCursor(editor)).strip()
         if isRegex:
@@ -26,7 +27,7 @@ def placeCursorToLine(editor,line,isRegex=False):
             if currentLine==line:
                 found = True
             else:
-                type(editor, "<Down>")
+                type(editorRealName, "<Down>")
                 if oldPosition==editor.textCursor().position():
                     break
                 oldPosition = editor.textCursor().position()

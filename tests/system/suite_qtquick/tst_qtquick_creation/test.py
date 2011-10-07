@@ -13,11 +13,13 @@ def main():
     test.log("Building project")
     invokeMenuItem("Build","Build All")
     waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
-    checkCompile()
-    checkLastBuild()
-    test.log("Running project (includes build)")
-    if runAndCloseApp():
-        logApplicationOutput()
+    if not checkCompile():
+        test.fatal("Compile failed")
+    else:
+        checkLastBuild()
+        test.log("Running project (includes build)")
+        if runAndCloseApp():
+            logApplicationOutput()
     invokeMenuItem("File", "Exit")
 
 def createNewQtQuickApplication():
@@ -36,14 +38,14 @@ def createNewQtQuickApplication():
     if cbDefaultLocation.checked:
         clickButton(cbDefaultLocation)
     # now there's the 'untitled' project inside a temporary directory - step forward...!
-    nextButton = waitForObject("{text?='Next*' type='QPushButton' visible='1'}", 20000)
+    nextButton = waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000)
     clickButton(nextButton)
     chooseComponents()
     clickButton(nextButton)
     chooseDestination(QtQuickConstants.Destinations.DESKTOP)
     snooze(1)
     clickButton(nextButton)
-    clickButton(waitForObject("{type='QPushButton' text='Finish' visible='1'}", 20000))
+    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
 
 def cleanup():
     global workingDir

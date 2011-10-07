@@ -73,6 +73,7 @@ public:
 
     void mapSetting(QToolButton *button, bool *setting);
     void mapSetting(QComboBox *comboBox, QString *setting);
+    void mapSetting(QComboBox *comboBox, int *setting);
 
     QStringList comboBoxOptionTemplate() const;
     void setComboBoxOptionTemplate(const QStringList &optTemplate) const;

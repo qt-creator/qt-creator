@@ -55,19 +55,29 @@
 
         \list
 
-            \o  HTML5 based applications
+            \o  HTML5 based applications that contain both HTML5 and C++ code
+                and include a WebKit view
 
-            \o  Qt console applications
+            \o  Qt console applications that contain a single main.cpp file with
+                a stub implementation
 
             \o  Shared or static C++ libraries
 
-            \o  Qt unit tests
+            \o  Plain C or C++ projects that use qmake but do not use the Qt
+                library
+
+            \o  Qt unit tests for features or classes
 
             \if defined(qcmanual)
             \o  Qt Custom Designer Widgets
             \endif
 
-            \o  Subprojects
+            \o  \QC plugins
+
+            \o  Empty Qt projects that are based on qmake but do not use any
+                default classes
+
+            \o  Subprojects to structure your qmake projects as a tree hierarchy
 
         \endlist
 
