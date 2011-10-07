@@ -355,6 +355,7 @@ public:
     QString makefile() const;
     QStringList symbianCapabilities() const;
     bool isDeployable() const;
+    QString resolvedMkspecPath() const;
 
     void update();
     void scheduleUpdate();
@@ -404,6 +405,7 @@ private:
 
     QMap<QString, QDateTime> m_uitimestamps;
     TargetInformation m_qt4targetInformation;
+    QString m_resolvedMkspecPath;
     InstallsList m_installsList;
     ProjectVersion m_projectVersion;
     friend class Qt4NodeHierarchy;

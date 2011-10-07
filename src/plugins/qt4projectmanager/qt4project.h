@@ -118,6 +118,8 @@ public:
     /// \internal
     QtSupport::ProFileReader *createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
     /// \internal
+    ProFileOption *proFileOption();
+    /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
     /// \internal

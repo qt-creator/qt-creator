@@ -1813,6 +1813,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
         // update TargetInformation
         m_qt4targetInformation = targetInformation(m_readerExact);
+        m_resolvedMkspecPath = m_project->proFileOption()->qmakespec;
 
         setupInstallsList(m_readerExact);
         setupProjectVersion(m_readerExact);
@@ -2139,6 +2140,11 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
 TargetInformation Qt4ProFileNode::targetInformation() const
 {
     return m_qt4targetInformation;
+}
+
+QString Qt4ProFileNode::resolvedMkspecPath() const
+{
+    return m_resolvedMkspecPath;
 }
 
 void Qt4ProFileNode::setupInstallsList(const QtSupport::ProFileReader *reader)
