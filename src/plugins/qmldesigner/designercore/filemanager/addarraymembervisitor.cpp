@@ -56,10 +56,10 @@ void AddArrayMemberVisitor::findArrayBindingAndInsert(const QString &m_propertyN
 {
     for (UiObjectMemberList *iter = ast; iter; iter = iter->next) {
         if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(iter->member)) {
-            if (flatten(arrayBinding->qualifiedId) == m_propertyName)
+            if (toString(arrayBinding->qualifiedId) == m_propertyName)
                 insertInto(arrayBinding);
         } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(iter->member)) {
-            if (flatten(objectBinding->qualifiedId) == m_propertyName && willConvertObjectBindingIntoArrayBinding())
+            if (toString(objectBinding->qualifiedId) == m_propertyName && willConvertObjectBindingIntoArrayBinding())
                 convertAndAdd(objectBinding);
         }
     }

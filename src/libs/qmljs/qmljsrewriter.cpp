@@ -34,6 +34,7 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
+#include <qmljs/qmljsutils.h>
 #include <utils/changeset.h>
 
 // ### FIXME: remove these includes:
@@ -160,11 +161,11 @@ UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *memb
         if (cast<UiObjectDefinition*>(member))
             lastObjectDef = iter;
         else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
-            idx = propertyOrder.indexOf(flatten(arrayBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(arrayBinding->qualifiedId));
         else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
-            idx = propertyOrder.indexOf(flatten(objectBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(objectBinding->qualifiedId));
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
-            idx = propertyOrder.indexOf(flatten(scriptBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(scriptBinding->qualifiedId));
         else if (cast<UiPublicMember*>(member))
             idx = propertyOrder.indexOf(QLatin1String("property"));
 
@@ -193,11 +194,11 @@ UiArrayMemberList *Rewriter::searchMemberToInsertAfter(UiArrayMemberList *member
         if (cast<UiObjectDefinition*>(member))
             lastObjectDef = iter;
         else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
-            idx = propertyOrder.indexOf(flatten(arrayBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(arrayBinding->qualifiedId));
         else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
-            idx = propertyOrder.indexOf(flatten(objectBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(objectBinding->qualifiedId));
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
-            idx = propertyOrder.indexOf(flatten(scriptBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(scriptBinding->qualifiedId));
         else if (cast<UiPublicMember*>(member))
             idx = propertyOrder.indexOf(QLatin1String("property"));
 
@@ -224,13 +225,13 @@ UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *memb
         UiObjectMember *member = iter->member;
 
         if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
-            orderedMembers[flatten(arrayBinding->qualifiedId)] = iter;
+            orderedMembers[toString(arrayBinding->qualifiedId)] = iter;
         else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
-            orderedMembers[flatten(objectBinding->qualifiedId)] = iter;
+            orderedMembers[toString(objectBinding->qualifiedId)] = iter;
         else if (cast<UiObjectDefinition*>(member))
             orderedMembers[QString::null] = iter;
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
-            orderedMembers[flatten(scriptBinding->qualifiedId)] = iter;
+            orderedMembers[toString(scriptBinding->qualifiedId)] = iter;
         else if (cast<UiPublicMember*>(member))
             orderedMembers[QLatin1String("property")] = iter;
     }
@@ -249,20 +250,6 @@ UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *memb
     }
 
     return 0;
-}
-
-QString Rewriter::flatten(UiQualifiedId *first)
-{
-    QString flatId;
-
-    for (UiQualifiedId* current = first; current; current = current->next) {
-        if (current != first)
-            flatId += '.';
-
-        flatId += current->name;
-    }
-
-    return flatId;
 }
 
 void Rewriter::changeBinding(UiObjectInitializer *ast,
@@ -304,7 +291,7 @@ void Rewriter::changeBinding(UiObjectInitializer *ast,
         // for grouped properties:
         else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-                if (flatten(def->qualifiedTypeNameId) == prefix) {
+                if (toString(def->qualifiedTypeNameId) == prefix) {
                     changeBinding(def->initializer, suffix, newValue, binding);
                 }
             }
@@ -358,11 +345,11 @@ bool Rewriter::isMatchingPropertyMember(const QString &propertyName,
     if (UiPublicMember *publicMember = cast<UiPublicMember*>(member))
         return publicMember->name == propertyName;
     else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
-        return flatten(objectBinding->qualifiedId) == propertyName;
+        return toString(objectBinding->qualifiedId) == propertyName;
     else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
-        return flatten(scriptBinding->qualifiedId) == propertyName;
+        return toString(scriptBinding->qualifiedId) == propertyName;
     else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
-        return flatten(arrayBinding->qualifiedId) == propertyName;
+        return toString(arrayBinding->qualifiedId) == propertyName;
     else
         return false;
 }
@@ -410,7 +397,7 @@ void Rewriter::removeBindingByName(UiObjectInitializer *ast, const QString &prop
         // check for grouped properties:
         else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-                if (flatten(def->qualifiedTypeNameId) == prefix) {
+                if (toString(def->qualifiedTypeNameId) == prefix) {
                     removeGroupedProperty(def, propertyName);
                 }
             }
@@ -558,11 +545,11 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
         if (cast<UiObjectDefinition*>(member))
             lastObjectDef = iter;
         else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
-            idx = propertyOrder.indexOf(flatten(arrayBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(arrayBinding->qualifiedId));
         else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
-            idx = propertyOrder.indexOf(flatten(objectBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(objectBinding->qualifiedId));
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
-            idx = propertyOrder.indexOf(flatten(scriptBinding->qualifiedId));
+            idx = propertyOrder.indexOf(toString(scriptBinding->qualifiedId));
         else if (cast<UiPublicMember*>(member))
             idx = propertyOrder.indexOf(QLatin1String("property"));
 
@@ -587,13 +574,13 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
         UiObjectMember *member = iter->member;
 
         if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
-            orderedMembers[flatten(arrayBinding->qualifiedId)] = iter;
+            orderedMembers[toString(arrayBinding->qualifiedId)] = iter;
         else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
-            orderedMembers[flatten(objectBinding->qualifiedId)] = iter;
+            orderedMembers[toString(objectBinding->qualifiedId)] = iter;
         else if (cast<UiObjectDefinition*>(member))
             orderedMembers[QString::null] = iter;
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
-            orderedMembers[flatten(scriptBinding->qualifiedId)] = iter;
+            orderedMembers[toString(scriptBinding->qualifiedId)] = iter;
         else if (cast<UiPublicMember*>(member))
             orderedMembers[QLatin1String("property")] = iter;
     }

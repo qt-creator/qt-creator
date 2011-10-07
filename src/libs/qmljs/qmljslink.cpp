@@ -35,7 +35,7 @@
 #include "parser/qmljsast_p.h"
 #include "qmljsdocument.h"
 #include "qmljsbind.h"
-#include "qmljscheck.h"
+#include "qmljsutils.h"
 #include "qmljsmodelmanagerinterface.h"
 
 #include <QtCore/QFileInfo>
@@ -93,8 +93,6 @@ public:
     QList<DiagnosticMessage> *diagnosticMessages;
 
     QHash<QString, QList<DiagnosticMessage> > *allDiagnosticMessages;
-
-    static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 
     Context::ImportsPerDocument linkImports();
 
@@ -444,16 +442,6 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
     loadQmldirComponents(import->object, version, libraryInfo, libraryPath);
 
     return true;
-}
-
-UiQualifiedId *LinkPrivate::qualifiedTypeNameId(Node *node)
-{
-    if (UiObjectBinding *binding = AST::cast<UiObjectBinding *>(node))
-        return binding->qualifiedTypeNameId;
-    else if (UiObjectDefinition *binding = AST::cast<UiObjectDefinition *>(node))
-        return binding->qualifiedTypeNameId;
-    else
-        return 0;
 }
 
 void LinkPrivate::error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message)

@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "qmljsdelta.h"
+#include "qmljsutils.h"
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
@@ -168,14 +169,8 @@ struct Map {
 static QList<UiObjectMember *> children(UiObjectMember *ast)
 {
     QList<UiObjectMember *> ret;
-    if (UiObjectDefinition* foo = cast<UiObjectDefinition *>(ast)) {
-        UiObjectMemberList* list = foo->initializer->members;
-        while (list) {
-            ret.append(list->member);
-            list = list->next;
-        }
-    } else if(UiObjectBinding *foo = cast<UiObjectBinding *>(ast)) {
-        UiObjectMemberList* list = foo->initializer->members;
+    if (UiObjectInitializer * foo = QmlJS::initializerOfObject(ast)) {
+        UiObjectMemberList* list = foo->members;
         while (list) {
             ret.append(list->member);
             list = list->next;
@@ -308,10 +303,8 @@ static QString _methodName(UiSourceElement *source)
 
 static UiObjectMemberList *objectMembers(UiObjectMember *object)
 {
-    if (UiObjectDefinition *def = cast<UiObjectDefinition *>(object))
-        return def->initializer->members;
-    else if (UiObjectBinding *binding = cast<UiObjectBinding *>(object))
-        return binding->initializer->members;
+    if (UiObjectInitializer *init = QmlJS::initializerOfObject(object))
+        return init->members;
 
     return 0;
 }

@@ -111,7 +111,7 @@ private:
             UiObjectMember *member = iter->member;
 
             if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member)) {
-                if (flatten(arrayBinding->qualifiedId) == targetPropertyName) {
+                if (toString(arrayBinding->qualifiedId) == targetPropertyName) {
                     appendToArray(arrayBinding);
 
                     setDidRewriting(true);

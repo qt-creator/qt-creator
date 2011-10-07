@@ -40,7 +40,7 @@
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
-#include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsutils.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <texteditor/syntaxhighlighter.h>

@@ -53,6 +53,7 @@
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QtCore/QSet>
@@ -169,23 +170,6 @@ static inline QVariant cleverConvert(const QString &value)
     if (flag)
         return QVariant(d);
     return QVariant(value);
-}
-
-static QString flatten(UiQualifiedId *qualifiedId)
-{
-    QString result;
-
-    for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
-        if (iter->name.isEmpty())
-            continue;
-
-        if (!result.isEmpty())
-            result.append(QLatin1Char('.'));
-
-        result.append(iter->name);
-    }
-
-    return result;
 }
 
 static bool isLiteralValue(ExpressionNode *expr)
@@ -532,7 +516,7 @@ public:
         const ObjectValue *containingObject = 0;
         QString name;
         if (!lookupProperty(propertyPrefix, propertyId, &property, &containingObject, &name)) {
-            qWarning() << "Unknown property" << propertyPrefix + QLatin1Char('.') + flatten(propertyId)
+            qWarning() << "Unknown property" << propertyPrefix + QLatin1Char('.') + toString(propertyId)
                        << "on line" << propertyId->identifierToken.startLine
                        << "column" << propertyId->identifierToken.startColumn;
             return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
@@ -718,7 +702,7 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
             if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
         } else {
-            QString importUri = flatten(import->importUri);
+            QString importUri = toString(import->importUri);
             if (importUri == QLatin1String("Qt") && version == QLatin1String("4.7")) {
                 importUri = QLatin1String("QtQuick");
                 version = QLatin1String("1.0");
@@ -824,15 +808,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                                  ReadingContext *context,
                                  DifferenceHandler &differenceHandler)
 {
-    UiQualifiedId *astObjectType = 0;
-    UiObjectInitializer *astInitializer = 0;
-    if (UiObjectDefinition *def = cast<UiObjectDefinition *>(astNode)) {
-        astObjectType = def->qualifiedTypeNameId;
-        astInitializer = def->initializer;
-    } else if (UiObjectBinding *bin = cast<UiObjectBinding *>(astNode)) {
-        astObjectType = bin->qualifiedTypeNameId;
-        astInitializer = bin->initializer;
-    }
+    UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
+    UiObjectInitializer *astInitializer = initializerOfObject(astNode);
 
     if (!astObjectType || !astInitializer)
         return;
@@ -847,7 +824,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         defaultPropertyName = modelNode.metaInfo().defaultPropertyName();
 
     if (typeName.isEmpty()) {
-        qWarning() << "Skipping node with unknown type" << flatten(astObjectType);
+        qWarning() << "Skipping node with unknown type" << toString(astObjectType);
         return;
     }
 
@@ -893,7 +870,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             continue;
 
         if (UiArrayBinding *array = cast<UiArrayBinding *>(member)) {
-            const QString astPropertyName = flatten(array->qualifiedId);
+            const QString astPropertyName = toString(array->qualifiedId);
             if (isPropertyChangesType(typeName) || context->lookupProperty(QString(), array->qualifiedId)) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName);
                 QList<UiObjectMember *> arrayMembers;
@@ -921,7 +898,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 defaultPropertyItems.append(member);
             }
         } else if (UiObjectBinding *binding = cast<UiObjectBinding *>(member)) {
-            const QString astPropertyName = flatten(binding->qualifiedId);
+            const QString astPropertyName = toString(binding->qualifiedId);
             if (binding->hasOnToken) {
                 // skip value sources
             } else {
@@ -1009,7 +986,7 @@ QString TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
-    QString astPropertyName = flatten(script->qualifiedId);
+    QString astPropertyName = toString(script->qualifiedId);
     if (!prefix.isEmpty())
         astPropertyName.prepend(prefix + QLatin1Char('.'));
 
@@ -1101,7 +1078,7 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
     context->lookup(binding->qualifiedTypeNameId, typeName, majorVersion, minorVersion, dummy);
 
     if (typeName.isEmpty()) {
-        qWarning() << "Skipping node with unknown type" << flatten(binding->qualifiedTypeNameId);
+        qWarning() << "Skipping node with unknown type" << toString(binding->qualifiedTypeNameId);
         return;
     }
 
@@ -1206,12 +1183,7 @@ ModelNode TextToModelMerger::createModelNode(const QString &typeName,
 {
     QString nodeSource;
 
-    UiQualifiedId *astObjectType = 0;
-    if (UiObjectDefinition *def = cast<UiObjectDefinition *>(astNode)) {
-        astObjectType = def->qualifiedTypeNameId;
-    } else if (UiObjectBinding *bin = cast<UiObjectBinding *>(astNode)) {
-        astObjectType = bin->qualifiedTypeNameId;
-    }
+    UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
 
     if (isCustomParserType(typeName))
         nodeSource = textAt(context->doc(),
@@ -1525,7 +1497,7 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
     context->lookup(astObjectType, typeName, majorVersion, minorVersion, dummy);
 
     if (typeName.isEmpty()) {
-        qWarning() << "Skipping node with unknown type" << flatten(astObjectType);
+        qWarning() << "Skipping node with unknown type" << toString(astObjectType);
         return ModelNode();
     }
 

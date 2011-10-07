@@ -36,6 +36,7 @@
 #include "qmljscontext.h"
 #include "qmljsevaluate.h"
 #include "qmljsscopechain.h"
+#include "qmljsutils.h"
 #include "parser/qmljsast_p.h"
 
 #include <utils/qtcassert.h>
@@ -174,11 +175,7 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
     prototype = isPropertyChangesObject(_scopeChain->context(), prototype);
     // find the target script binding
     if (prototype) {
-        UiObjectInitializer *initializer = 0;
-        if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(node))
-            initializer = definition->initializer;
-        if (UiObjectBinding *binding = cast<UiObjectBinding *>(node))
-            initializer = binding->initializer;
+        UiObjectInitializer *initializer = initializerOfObject(node);
         if (initializer) {
             for (UiObjectMemberList *m = initializer->members; m; m = m->next) {
                 if (UiScriptBinding *scriptBinding = cast<UiScriptBinding *>(m->member)) {

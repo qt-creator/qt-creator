@@ -49,6 +49,7 @@
 #include <qmljs/qmljsicontextpane.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsscopebuilder.h>
+#include <qmljs/qmljsutils.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
@@ -944,15 +945,6 @@ void QmlJSTextEditorWidget::updateOutlineIndexNow()
     }
 }
 
-static UiQualifiedId *qualifiedTypeNameId(Node *m)
-{
-    if (UiObjectDefinition *def = cast<UiObjectDefinition *>(m))
-        return def->qualifiedTypeNameId;
-    else if (UiObjectBinding *binding = cast<UiObjectBinding *>(m))
-        return binding->qualifiedTypeNameId;
-    return 0;
-}
-
 class QtQuickToolbarMarker {};
 Q_DECLARE_METATYPE(QtQuickToolbarMarker)
 
@@ -1078,12 +1070,7 @@ protected:
 
     bool isSelectable(UiObjectMember *member) const
     {
-        UiQualifiedId *id = 0;
-        if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member))
-            id = def->qualifiedTypeNameId;
-        else if (UiObjectBinding *binding = cast<UiObjectBinding *>(member))
-            id = binding->qualifiedTypeNameId;
-
+        UiQualifiedId *id = qualifiedTypeNameId(member);
         if (id) {
             const QStringRef &name = id->name;
             if (!name.isEmpty() && name.at(0).isUpper()) {
@@ -1092,15 +1079,6 @@ protected:
         }
 
         return false;
-    }
-
-    inline UiObjectInitializer *initializer(UiObjectMember *member) const
-    {
-        if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member))
-            return def->initializer;
-        else if (UiObjectBinding *binding = cast<UiObjectBinding *>(member))
-            return binding->initializer;
-        return 0;
     }
 
     inline bool isIdBinding(UiObjectMember *member) const
@@ -1149,7 +1127,7 @@ protected:
             if ((isRangeSelected() && intersectsCursor(begin, end))
             || (!isRangeSelected() && containsCursor(begin, end)))
             {
-                if (initializer(member) && isSelectable(member)) {
+                if (initializerOfObject(member) && isSelectable(member)) {
                     m_selectedMembers << member;
                     // move start towards end; this facilitates multiselection so that root is usually ignored.
                     m_cursorPositionStart = qMin(end, m_cursorPositionEnd);

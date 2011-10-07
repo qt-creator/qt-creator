@@ -69,8 +69,6 @@ public:
     ObjectValue *findAttachedJSScope(AST::Node *node) const;
     bool isGroupedPropertyBinding(AST::Node *node) const;
 
-    static QString toString(AST::UiQualifiedId *qualifiedId, QChar delimiter = QChar('.'));
-
 protected:
     using AST::Visitor::visit;
 

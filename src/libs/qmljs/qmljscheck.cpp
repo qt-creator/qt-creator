@@ -34,6 +34,7 @@
 #include "qmljsbind.h"
 #include "qmljscontext.h"
 #include "qmljsevaluate.h"
+#include "qmljsutils.h"
 #include "parser/qmljsast_p.h"
 
 #include <QtCore/QDebug>
@@ -43,93 +44,6 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-
-QColor QmlJS::toQColor(const QString &qmlColorString)
-{
-    QColor color;
-    if (qmlColorString.size() == 9 && qmlColorString.at(0) == QLatin1Char('#')) {
-        bool ok;
-        const int alpha = qmlColorString.mid(1, 2).toInt(&ok, 16);
-        if (ok) {
-            QString name(qmlColorString.at(0));
-            name.append(qmlColorString.right(6));
-            if (QColor::isValidColor(name)) {
-                color.setNamedColor(name);
-                color.setAlpha(alpha);
-            }
-        }
-    } else {
-        if (QColor::isValidColor(qmlColorString))
-            color.setNamedColor(qmlColorString);
-    }
-    return color;
-}
-
-SourceLocation QmlJS::locationFromRange(const SourceLocation &start,
-                                        const SourceLocation &end)
-{
-    return SourceLocation(start.offset,
-                          end.end() - start.begin(),
-                          start.startLine,
-                          start.startColumn);
-}
-
-SourceLocation QmlJS::fullLocationForQualifiedId(AST::UiQualifiedId *qualifiedId)
-{
-    SourceLocation start = qualifiedId->identifierToken;
-    SourceLocation end = qualifiedId->identifierToken;
-
-    for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
-        if (iter->identifierToken.isValid())
-            end = iter->identifierToken;
-    }
-
-    return locationFromRange(start, end);
-}
-
-
-DiagnosticMessage QmlJS::errorMessage(const AST::SourceLocation &loc, const QString &message)
-{
-    return DiagnosticMessage(DiagnosticMessage::Error, loc, message);
-}
-
-namespace {
-class SharedData
-{
-public:
-    SharedData()
-    {
-        validBuiltinPropertyNames.insert(QLatin1String("action"));
-        validBuiltinPropertyNames.insert(QLatin1String("bool"));
-        validBuiltinPropertyNames.insert(QLatin1String("color"));
-        validBuiltinPropertyNames.insert(QLatin1String("date"));
-        validBuiltinPropertyNames.insert(QLatin1String("double"));
-        validBuiltinPropertyNames.insert(QLatin1String("enumeration"));
-        validBuiltinPropertyNames.insert(QLatin1String("font"));
-        validBuiltinPropertyNames.insert(QLatin1String("int"));
-        validBuiltinPropertyNames.insert(QLatin1String("list"));
-        validBuiltinPropertyNames.insert(QLatin1String("point"));
-        validBuiltinPropertyNames.insert(QLatin1String("real"));
-        validBuiltinPropertyNames.insert(QLatin1String("rect"));
-        validBuiltinPropertyNames.insert(QLatin1String("size"));
-        validBuiltinPropertyNames.insert(QLatin1String("string"));
-        validBuiltinPropertyNames.insert(QLatin1String("time"));
-        validBuiltinPropertyNames.insert(QLatin1String("url"));
-        validBuiltinPropertyNames.insert(QLatin1String("var"));
-        validBuiltinPropertyNames.insert(QLatin1String("variant")); // obsolete in Qt 5
-        validBuiltinPropertyNames.insert(QLatin1String("vector3d"));
-        validBuiltinPropertyNames.insert(QLatin1String("alias"));
-    }
-
-    QSet<QString> validBuiltinPropertyNames;
-};
-} // anonymous namespace
-Q_GLOBAL_STATIC(SharedData, sharedData)
-
-bool QmlJS::isValidBuiltinPropertyType(const QString &name)
-{
-    return sharedData()->validBuiltinPropertyNames.contains(name);
-}
 
 namespace {
 
@@ -666,7 +580,7 @@ void Check::endVisit(UiObjectInitializer *)
 
 void Check::checkProperty(UiQualifiedId *qualifiedId)
 {
-    const QString id = Bind::toString(qualifiedId);
+    const QString id = toString(qualifiedId);
     if (id.at(0).isLower()) {
         if (m_propertyStack.top().contains(id)) {
             error(fullLocationForQualifiedId(qualifiedId),
@@ -723,7 +637,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
                         dynamic_cast<const QmlPrototypeReference *>(lastPrototype->prototype())) {
                     error(typeErrorLocation,
                           Check::tr("could not resolve the prototype %1 of %2").arg(
-                              Bind::toString(ref->qmlTypeName()), lastPrototype->className()));
+                              toString(ref->qmlTypeName()), lastPrototype->className()));
                 } else {
                     error(typeErrorLocation,
                           Check::tr("could not resolve the prototype of %1").arg(

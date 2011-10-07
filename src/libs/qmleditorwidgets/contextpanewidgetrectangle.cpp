@@ -34,7 +34,7 @@
 #include "ui_contextpanewidgetrectangle.h"
 #include "contextpanewidget.h"
 #include <qmljs/qmljspropertyreader.h>
-#include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsutils.h>
 #include <customcolordialog.h>
 #include <QtCore/QDebug>
 

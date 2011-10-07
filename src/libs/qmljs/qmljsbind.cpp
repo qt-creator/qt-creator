@@ -32,7 +32,7 @@
 
 #include "parser/qmljsast_p.h"
 #include "qmljsbind.h"
-#include "qmljscheck.h"
+#include "qmljsutils.h"
 #include "qmljsdocument.h"
 
 #include <languageutils/componentversion.h>
@@ -139,20 +139,6 @@ ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
     ObjectValue *oldObjectValue = _currentObjectValue;
     _currentObjectValue = newObjectValue;
     return oldObjectValue;
-}
-
-QString Bind::toString(UiQualifiedId *qualifiedId, QChar delimiter)
-{
-    QString result;
-
-    for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
-        if (iter != qualifiedId)
-            result += delimiter;
-
-        result += iter->name;
-    }
-
-    return result;
 }
 
 ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)

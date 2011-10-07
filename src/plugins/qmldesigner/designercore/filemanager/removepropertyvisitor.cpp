@@ -93,7 +93,7 @@ void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
         // check for grouped properties:
         else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-                if (flatten(def->qualifiedTypeNameId) == prefix) {
+                if (toString(def->qualifiedTypeNameId) == prefix) {
                     removeGroupedProperty(def);
                 }
             }
@@ -147,11 +147,11 @@ bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propert
     if (UiPublicMember *publicMember = cast<UiPublicMember*>(ast))
         return publicMember->name == propertyName;
     else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(ast))
-        return flatten(objectBinding->qualifiedId) == propertyName;
+        return toString(objectBinding->qualifiedId) == propertyName;
     else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(ast))
-        return flatten(scriptBinding->qualifiedId) == propertyName;
+        return toString(scriptBinding->qualifiedId) == propertyName;
     else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(ast))
-        return flatten(arrayBinding->qualifiedId) == propertyName;
+        return toString(arrayBinding->qualifiedId) == propertyName;
     else
         return false;
 }

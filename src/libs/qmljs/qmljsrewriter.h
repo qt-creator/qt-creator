@@ -88,7 +88,6 @@ public:
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QStringList &propertyOrder);
     static AST::UiArrayMemberList *searchMemberToInsertAfter(AST::UiArrayMemberList *members, const QStringList &propertyOrder);
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QString &propertyName, const QStringList &propertyOrder);
-    static QString flatten(AST::UiQualifiedId *first);
 
     static bool includeSurroundingWhitespace(const QString &source, int &start, int &end);
     static void includeLeadingEmptyLine(const QString &source, int &start);

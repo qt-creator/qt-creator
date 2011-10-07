@@ -151,27 +151,6 @@ private:
     QStack<StringSet> m_propertyStack;
 };
 
-QMLJS_EXPORT QColor toQColor(const QString &qmlColorString);
-
-QMLJS_EXPORT AST::SourceLocation locationFromRange(const AST::SourceLocation &start,
-                                                   const AST::SourceLocation &end);
-
-QMLJS_EXPORT AST::SourceLocation fullLocationForQualifiedId(AST::UiQualifiedId *);
-
-QMLJS_EXPORT DiagnosticMessage errorMessage(const AST::SourceLocation &loc,
-                                            const QString &message);
-
-QMLJS_EXPORT bool isValidBuiltinPropertyType(const QString &name);
-
-template <class T>
-DiagnosticMessage errorMessage(const T *node, const QString &message)
-{
-    return DiagnosticMessage(DiagnosticMessage::Error,
-                             locationFromRange(node->firstSourceLocation(),
-                                               node->lastSourceLocation()),
-                             message);
-}
-
 } // namespace QmlJS
 
 #endif // QMLJSCHECK_H

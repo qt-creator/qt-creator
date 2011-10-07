@@ -85,7 +85,7 @@ public:
         // whether trying to run qmldump makes sense
         bool tryQmlDump;
         QString qmlDumpPath;
-        Utils::Environment qmlDumpEnvironment;
+        ::Utils::Environment qmlDumpEnvironment;
 
         QString qtImportsPath;
         QString qtVersionString;

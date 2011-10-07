@@ -97,7 +97,7 @@ bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &impo
 bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &import)
 {
     if (import.isLibraryImport()) {
-        return flatten(ast->importUri) == import.url();
+        return toString(ast->importUri) == import.url();
     } else if (import.isFileImport()) {
         return ast->fileName == import.file();
     } else {

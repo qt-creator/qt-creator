@@ -36,6 +36,7 @@
 #include "textmodifier.h"
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmljsutils.h>
 
 #include <QtCore/QStack>
 #include <QtCore/QString>
@@ -74,7 +75,6 @@ protected:
     static QmlJS::AST::SourceLocation calculateLocation(QmlJS::AST::UiQualifiedId *id);
     static bool isMissingSemicolon(QmlJS::AST::UiObjectMember *member);
     static bool isMissingSemicolon(QmlJS::AST::Statement *stmt);
-    static QString flatten(QmlJS::AST::UiQualifiedId *first);
 
     QmlDesigner::TextModifier *textModifier() const
     { return m_textModifier; }

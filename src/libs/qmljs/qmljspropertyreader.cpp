@@ -33,7 +33,7 @@
 #include "qmljspropertyreader.h"
 #include "qmljsdocument.h"
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsutils.h>
 
 #include <QtGui/QLinearGradient>
 
@@ -126,22 +126,6 @@ static inline int propertyType(const QString &typeName)
         return -1;
 }
 
-static inline QString flatten(UiQualifiedId *qualifiedId)
-{
-    QString result;
-
-    for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
-        if (iter->name.isEmpty())
-            continue;
-
-        if (!result.isEmpty())
-            result.append(QLatin1Char('.'));
-
-        result.append(iter->name);
-    }
-    return result;
-}
-
 static bool isEnum(AST::Statement *ast);
 
 bool isEnum(AST::ExpressionNode *ast)
@@ -192,7 +176,7 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
         if (UiScriptBinding *property = AST::cast<UiScriptBinding *>(member)) {
             if (!property->qualifiedId)
                 continue; // better safe than sorry.
-            const QString propertyName = flatten(property->qualifiedId);
+            const QString propertyName = toString(property->qualifiedId);
             const QString astValue = cleanupSemicolon(textAt(doc,
                               property->statement->firstSourceLocation(),
                               property->statement->lastSourceLocation()));
@@ -208,7 +192,7 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
                 for (UiObjectMemberList *iter = objectDefinition->initializer->members; iter; iter = iter->next) {
                     UiObjectMember *objectMember = iter->member;
                     if (UiScriptBinding *property = cast<UiScriptBinding *>(objectMember)) {
-                        const QString propertyNamePart2 = flatten(property->qualifiedId);
+                        const QString propertyNamePart2 = toString(property->qualifiedId);
                         const QString astValue = cleanupSemicolon(textAt(doc,
                             property->statement->firstSourceLocation(),
                             property->statement->lastSourceLocation()));

@@ -40,6 +40,7 @@
 
 #include "qmljsbind.h"
 #include "qmljsinterpreter.h"
+#include "qmljsutils.h"
 
 #include <QtCore/QIODevice>
 #include <QtCore/QBuffer>
@@ -104,7 +105,7 @@ void TypeDescriptionReader::readDocument(UiProgram *ast)
     }
 
     UiImport *import = ast->imports->import;
-    if (Bind::toString(import->importUri) != QLatin1String("QtQuick.tooling")) {
+    if (toString(import->importUri) != QLatin1String("QtQuick.tooling")) {
         addError(import->importToken, "Expected import of QtQuick.tooling");
         return;
     }
@@ -132,7 +133,7 @@ void TypeDescriptionReader::readDocument(UiProgram *ast)
         return;
     }
 
-    if (Bind::toString(module->qualifiedTypeNameId) != "Module") {
+    if (toString(module->qualifiedTypeNameId) != "Module") {
         addError(SourceLocation(), "Expected document to contain a Module {} member");
         return;
     }
@@ -145,7 +146,7 @@ void TypeDescriptionReader::readModule(UiObjectDefinition *ast)
     for (UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
         UiObjectMember *member = it->member;
         UiObjectDefinition *component = dynamic_cast<UiObjectDefinition *>(member);
-        if (!component || Bind::toString(component->qualifiedTypeNameId) != "Component") {
+        if (!component || toString(component->qualifiedTypeNameId) != "Component") {
             addWarning(member->firstSourceLocation(), "Expected only 'Component' object definitions");
             continue;
         }
@@ -179,7 +180,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
         UiObjectDefinition *component = dynamic_cast<UiObjectDefinition *>(member);
         UiScriptBinding *script = dynamic_cast<UiScriptBinding *>(member);
         if (component) {
-            QString name = Bind::toString(component->qualifiedTypeNameId);
+            QString name = toString(component->qualifiedTypeNameId);
             if (name == "Property") {
                 readProperty(component, fmo);
             } else if (name == "Method" || name == "Signal") {
@@ -190,7 +191,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 addWarning(component->firstSourceLocation(), "Expected only Property, Method, Signal and Enum object definitions");
             }
         } else if (script) {
-            QString name = Bind::toString(script->qualifiedId);
+            QString name = toString(script->qualifiedId);
             if (name == "name") {
                 fmo->setClassName(readStringBinding(script));
             } else if (name == "prototype") {
@@ -237,14 +238,14 @@ void TypeDescriptionReader::readSignalOrMethod(UiObjectDefinition *ast, bool isM
         UiObjectDefinition *component = dynamic_cast<UiObjectDefinition *>(member);
         UiScriptBinding *script = dynamic_cast<UiScriptBinding *>(member);
         if (component) {
-            QString name = Bind::toString(component->qualifiedTypeNameId);
+            QString name = toString(component->qualifiedTypeNameId);
             if (name == "Parameter") {
                 readParameter(component, &fmm);
             } else {
                 addWarning(component->firstSourceLocation(), "Expected only Parameter object definitions");
             }
         } else if (script) {
-            QString name = Bind::toString(script->qualifiedId);
+            QString name = toString(script->qualifiedId);
             if (name == "name") {
                 fmm.setMethodName(readStringBinding(script));
             } else if (name == "type") {
@@ -285,7 +286,7 @@ void TypeDescriptionReader::readProperty(UiObjectDefinition *ast, FakeMetaObject
             continue;
         }
 
-        QString id = Bind::toString(script->qualifiedId);
+        QString id = toString(script->qualifiedId);
         if (id == "name") {
             name = readStringBinding(script);
         } else if (id == "type") {
@@ -323,7 +324,7 @@ void TypeDescriptionReader::readEnum(UiObjectDefinition *ast, FakeMetaObject::Pt
             continue;
         }
 
-        QString name = Bind::toString(script->qualifiedId);
+        QString name = toString(script->qualifiedId);
         if (name == "name") {
             fme.setName(readStringBinding(script));
         } else if (name == "values") {
@@ -349,7 +350,7 @@ void TypeDescriptionReader::readParameter(UiObjectDefinition *ast, FakeMetaMetho
             continue;
         }
 
-        QString id = Bind::toString(script->qualifiedId);
+        QString id = toString(script->qualifiedId);
         if (id == "name") {
             id = readStringBinding(script);
         } else if (id == "type") {

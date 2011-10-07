@@ -123,7 +123,7 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
         // for grouped properties:
         else if (!prefix.isEmpty()) {
             if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
-                if (flatten(def->qualifiedTypeNameId) == prefix) {
+                if (toString(def->qualifiedTypeNameId) == prefix) {
                     replaceInMembers(def->initializer, suffix);
                 }
             }
@@ -176,11 +176,11 @@ bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
                                                      UiObjectMember *member)
 {
     if (UiObjectBinding *objectBinding = AST::cast<UiObjectBinding *>(member)) {
-        return propName == flatten(objectBinding->qualifiedId);
+        return propName == toString(objectBinding->qualifiedId);
     } else if (UiScriptBinding *scriptBinding = AST::cast<UiScriptBinding *>(member)) {
-        return propName == flatten(scriptBinding->qualifiedId);
+        return propName == toString(scriptBinding->qualifiedId);
     } else if (UiArrayBinding *arrayBinding = AST::cast<UiArrayBinding *>(member)) {
-        return propName == flatten(arrayBinding->qualifiedId);
+        return propName == toString(arrayBinding->qualifiedId);
     } else if (UiPublicMember *publicMember = AST::cast<UiPublicMember *>(member)) {
         return propName == publicMember->name;
     } else {
