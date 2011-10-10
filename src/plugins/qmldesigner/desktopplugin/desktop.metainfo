@@ -2,52 +2,44 @@
   <node name="QtDesktop.Button" icon=":/desktopplugin/images/button16.png">
     <itemlibraryentry name="Button"  category="Components Desktop" libraryIcon=":/desktopplugin/images/button.png"  version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="Button"/>
     </itemlibraryentry>
   </node>
   <node name="QtDesktop.ComboBox" icon=":/desktopplugin/images/button16.png">
     <itemlibraryentry name="ComboBox"  category="Components Desktop" libraryIcon=":/desktopplugin/images/button.png"  version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="30"/>
     </itemlibraryentry>
   </node>
   <node name="QtDesktop.ToolButton" icon=":/desktopplugin/images/button16.png">
     <itemlibraryentry name="ToolButton"  category="Components Desktop" libraryIcon=":/desktopplugin/images/button.png"  version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="Button"/>
     </itemlibraryentry>
   </node>
   <node name="QtDesktop.CheckBox" icon=":/desktopplugin/images/checkbox16.png">
     <itemlibraryentry name="CheckBox" category="Components Desktop" libraryIcon=":/desktopplugin/images/checkbox.png"  version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="CheckBox"/>
     </itemlibraryentry>
   </node>
   <node name="QtDesktop.ChoiceList" icon=":/desktopplugin/images/choicelist16.png">
     <itemlibraryentry name="ChoiceList" category="Components Desktop" libraryIcon=":/desktopplugin/images/choicelist.png"  version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="40"/>
     </itemlibraryentry>
   </node>
   <node name="QtDesktop.ProgressBar" icon=":/desktopplugin/images/progressbar16.png">
     <itemlibraryentry name="ProgressBar"  category="Components Desktop" libraryIcon=":/desktopplugin/images/progressbar.png"  version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="30"/>
     </itemlibraryentry>
   </node>
   <node name="QtDesktop.SpinBox">
     <itemlibraryentry name="SpinBox"  category="Components Desktop" version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="30"/>
     </itemlibraryentry>
   </node>
   <node name="QtDesktop.Dial">
     <itemlibraryentry name="Dial"  category="Components Desktop" version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="100"/>
-      <property name="height" type="int" value="100"/>
     </itemlibraryentry>
   </node>
   <node name="QtDesktop.SplitterRow">
@@ -59,7 +51,6 @@
   <node name="QtDesktop.RadioButton" icon=":/desktopplugin/images/radiobutton16.png">
     <itemlibraryentry name="RadioButton" category="Components Desktop" libraryIcon=":/desktopplugin/images/radiobutton.png"  version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="RadioButton"/>
     </itemlibraryentry>
   </node>
@@ -83,11 +74,9 @@
   <node name="QtDesktop.Slider" icon=":/desktopplugin/images/slider16.png">
     <itemlibraryentry name="Slider (horizontal)" category="Components Desktop" libraryIcon=":/desktopplugin/images/slider.png"  version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="30"/>
       <property name="orientation" type="int" value="1"/>
     </itemlibraryentry>
     <itemlibraryentry name="Slider (vertical)" category="Components Desktop" libraryIcon=":/desktopplugin/images/sliderh.png" version="0.1" requiredImport="QtDesktop">
-      <property name="width" type="int" value="30"/>
       <property name="height" type="int" value="180"/>
       <property name="orientation" type="int" value="2"/>
     </itemlibraryentry>
@@ -95,11 +84,9 @@
   <node name="QtDesktop.ScrollBar">
     <itemlibraryentry name="ScrollBar (horizontal)" category="Components Desktop" version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="30"/>
       <property name="orientation" type="int" value="1"/>
     </itemlibraryentry>
     <itemlibraryentry name="ScrollBar (vertical)" category="Components Desktop" version="0.1" requiredImport="QtDesktop">
-      <property name="width" type="int" value="30"/>
       <property name="height" type="int" value="180"/>
       <property name="orientation" type="int" value="2"/>
     </itemlibraryentry>
