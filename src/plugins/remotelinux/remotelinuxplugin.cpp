@@ -48,6 +48,8 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 
+#include <debugger/debuggerconstants.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QtPlugin>
@@ -92,7 +94,7 @@ void RemoteLinuxPlugin::extensionsInitialized()
     QAction *startGdbServerAction = new QAction(tr("Start Remote Debug Server"), 0);
     Command *cmd = am->registerAction(startGdbServerAction, "StartGdbServer", globalcontext);
     cmd->setDefaultText(tr("Start Gdbserver"));
-    mstart->addAction(cmd, Constants::G_DEFAULT_TWO);
+    mstart->addAction(cmd, Debugger::Constants::G_START_CPP);
 
     connect(startGdbServerAction, SIGNAL(triggered()), SLOT(startGdbServer()));
 }
