@@ -773,14 +773,6 @@
     press \key Tab. Press \key {Shift+Tab} to decrease the indentation. You
     can disable automatic indentation.
 
-    When you press \gui Backspace, the indentation is decreased by one level
-    in leading white space, by default. You can disable this setting.
-
-    Continuation lines are aligned with the previous line by using spaces. You
-    can disable automatic alignment to have them indented to the logical depth.
-    You can always use spaces for alignment or use spaces or tabs depending on
-    the other options you selected.
-
     You can specify indentation either globally for all files or separately
     for:
 
@@ -794,8 +786,9 @@
 
     \endlist
 
-    You can specify indentation either globally for all files of a particular
-    type or separately for each project.
+    You can also specify indentation separately for each project. You can
+    specify several sets of code style settings and easily switch between them.
+    In addition, you can import and export code style settings.
 
     \section1 Indenting Text Files
 
@@ -808,15 +801,30 @@
     To specify settings for a particular project, select \gui {Projects >
     Editor Settings}.
 
+    You can specify how to interpret the \key Tab and \key Backspace key
+    presses and how to align continuation lines.
+
     \section1 Indenting C++ Files
 
-    To specify global indentation settings for the C++ editor, select
-    \gui {Tools > Options > C++}.
+    To specify indentation settings for the C++ editor:
 
-    \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
+    \list 1
 
-    To specify the settings for a particular project, select \gui {Projects >
-    Code Style Settings}.
+        \o  Select \gui {Tools > Options > C++}.
+
+        \o  In the \gui {Current settings} field, select the settings to modify
+            and click \gui Copy.
+
+            \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
+
+        \o  Give a name to the settings and click \gui OK.
+
+        \o  Click \gui Edit to specify code style settings for the project.
+
+            \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
+
+
+    \endlist
 
     You can specify how to:
 
@@ -836,18 +844,35 @@
 
     You can use the live preview to see how the options change the indentation.
 
-    \section1 Indenting QML Files
-
-    To specify global settings for the Qt Quick editor, select \gui {Tools >
-    Options > Qt Quick}.
-
-    \image qtcreator-options-code-style-qml.png "QML Code Style options"
-
     To specify the settings for a particular project, select \gui {Projects >
     Code Style Settings}.
 
-    You can specify how to interpret the \key Tab and \key Backspace key
-    presses.
+    \section1 Indenting QML Files
+
+    To specify global settings for the Qt Quick editor:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options >Qt Quick}.
+
+        \o  In the \gui {Current settings} field, select the settings to modify
+            and click \gui Copy.
+
+            \image qtcreator-options-code-style-qml.png "QML Code Style options"
+
+        \o  Give a name to the settings and click \gui OK.
+
+        \o  Click \gui Edit to specify code style settings for the project.
+
+            \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style Settings dialog"
+
+    \endlist
+
+    You can specify how to interpret the \key Tab key presses and how to align
+    continuation lines.
+
+    To specify the settings for a particular project, select \gui {Projects >
+    Code Style Settings}.
 
     \section1 Specifying Tab Settings
 
@@ -869,15 +894,41 @@
 
     \endlist
 
-    By default, the tab-length in code editor is 8 spaces. You can specify the
-    tab length separately for each project and for
-    different types of files.
+    \section2 Specifying Tabs and Indentation
 
-    The code editor can also determine whether tabs or spaces are used
-    on the previous or next line and copy the style.
+    You can specify tab policy and tab size in the \gui Typing group. In the
+    \gui {Tab policy} field, select whether to use only spaces or only tabs for
+    indentation, or to use a mixture of them.
 
-    The \key Tab key can automatically indent text when you press it, or only
-    when the cursor is located within leading white space.
+    By default, the tab length in code editor is 8 spaces and the indent size is
+    4 spaces. You can specify the tab length and indent size separately for each
+    project and for different types of files.
+
+    You can have continuation lines aligned with the previous line. In the
+    \gui {Align continuation lines} field, select \gui {Not at all} to disable
+    automatic alignment and indent continuation lines to the logical depth.
+    To always use spaces for alignment, select \gui {With Spaces}. To follow the
+    \gui {Tab policy}, select \gui {With Regular Indent}.
+
+    \section2 Speficying Typing Options
+
+    When you type code, it is indented automatically according to the selected
+    text editor and code style options. Specify typing options in the
+    \gui Typing group. To disable automatic indentation, deselect the
+    \gui {Enable automatic indentation} check box.
+
+    You can specify how the indentation is decreased when you press
+    \gui Backspace in the \gui {Backspace indentation} field. To go back one
+    space at a time, select \gui None. To decrease indentation in leading white
+    space by one level, select \gui {Follows Previous Indents}. To move back one
+    tab length if the character to the left of the cursor is a space, select
+    \gui Unindents.
+
+    You can specify whether the \key Tab key automatically indents text when you
+    press it. To automatically indent text, select \gui Always in the
+    \gui {Tab key performs auto-indent} field. To only indent text when the
+    cursor is located within leading white space, select \gui {In Leading White
+    Space}.
 
     \section1 Specifying Settings for Content
 
