@@ -738,32 +738,46 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
         m_importLineButton->setAttribute(Qt::WA_MacNormalSize);
         return;
     }
-    BuildConfigurationInfo info = BuildConfigurationInfo::checkForBuild(m_importLinePath->path(), m_proFilePath);
-    if (!info.isValid()) {
+    QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::checkForBuild(m_importLinePath->path(), m_proFilePath);
+    if (infos.isEmpty()) {
         QMessageBox::critical(this,
                               tr("No build found"),
                               tr("No build found in %1 matching project %2.").arg(m_importLinePath->path()).arg(m_proFilePath));
         return;
     }
 
-    if (!info.version->supportsTargetId(m_id)) {
-        QMessageBox::critical(this,
-                              tr("Incompatible build found"),
-                              tr("The build found in %1 is incompatible with this target").arg(m_importLinePath->path()));
-        return;
+    QList<BuildConfigurationInfo> filterdInfos;
+    bool filtered = false;
+    foreach (const BuildConfigurationInfo &info, infos) {
+        if (info.version->supportsTargetId(m_id))
+            filterdInfos << info;
+        else
+            filtered = true;
+    }
+
+    if (filtered) {
+        if (filterdInfos.isEmpty()) {
+            QMessageBox::critical(this,
+                                  tr("Incompatible build found"),
+                                  tr("The build found in %1 is incompatible with this target").arg(m_importLinePath->path()));
+            return;
+        }
+        // show something if we found incompatible builds?
     }
 
     // We switch from to "NONE" on importing if the user has not changed it
     if (m_buildConfigurationTemplateUnchanged)
         setBuildConfigurationTemplate(NONE);
 
-    ++m_selected;
-    m_importEnabled << true;
+    foreach (const BuildConfigurationInfo &info, filterdInfos) {
+        ++m_selected;
+        m_importEnabled << true;
 
-    m_importInfos << info;
+        m_importInfos << info;
 
-    createImportWidget(info, m_importEnabled.size() - 1);
-    emit newImportBuildConfiguration(info);
+        createImportWidget(info, m_importEnabled.size() - 1);
+        emit newImportBuildConfiguration(info);
+    }
     emit selectedToggled();
 }
 
@@ -1103,9 +1117,9 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
 
     // Check for in source build first
     QString sourceDir = QFileInfo(proFilePath).absolutePath();
-    BuildConfigurationInfo info = checkForBuild(sourceDir, proFilePath);
-    if (info.isValid())
-        result.append(info);
+    QList<BuildConfigurationInfo> infos = checkForBuild(sourceDir, proFilePath);
+    if (!infos.isEmpty())
+        result.append(infos);
 
     // If we found a in source build, we do not search for out of source builds
     if (!result.isEmpty())
@@ -1120,9 +1134,9 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
             QString baseDir = QFileInfo(expectedBuildprefix).absolutePath();
             foreach (const QString &dir, QDir(baseDir).entryList()) {
                 if (dir.startsWith(expectedBuildprefix)) {
-                    BuildConfigurationInfo info = checkForBuild(dir, proFilePath);
-                    if (info.isValid())
-                        result.append(info);
+                    QList<BuildConfigurationInfo> infos = checkForBuild(dir, proFilePath);
+                    if (infos.isEmpty())
+                        result.append(infos);
                 }
             }
         }
@@ -1130,45 +1144,50 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
     return result;
 }
 
-BuildConfigurationInfo BuildConfigurationInfo::checkForBuild(const QString &directory, const QString &proFilePath)
+QList<BuildConfigurationInfo> BuildConfigurationInfo::checkForBuild(const QString &directory, const QString &proFilePath)
 {
-    QString makefile = directory + "/Makefile";
-    QString qmakeBinary = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
-    if (qmakeBinary.isEmpty())
-        return BuildConfigurationInfo();
-    if (QtSupport::QtVersionManager::makefileIsFor(makefile, proFilePath) != QtSupport::QtVersionManager::SameProject)
-        return BuildConfigurationInfo();
+    QStringList makefiles = QDir(directory).entryList(QStringList() << "Makefile*");
+    QList<BuildConfigurationInfo> infos;
+    foreach (const QString &file, makefiles) {
+        QString makefile = directory + '/' + file;
+        QString qmakeBinary = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
+        if (qmakeBinary.isEmpty())
+            continue;
+        if (QtSupport::QtVersionManager::makefileIsFor(makefile, proFilePath) != QtSupport::QtVersionManager::SameProject)
+            continue;
 
-    bool temporaryQtVersion = false;
-    QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(qmakeBinary);
-    if (!version) {
-        version = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(qmakeBinary);
-        temporaryQtVersion = true;
-        if (!version)
-            return BuildConfigurationInfo();
+        bool temporaryQtVersion = false;
+        QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(qmakeBinary);
+        if (!version) {
+            version = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(qmakeBinary);
+            temporaryQtVersion = true;
+            if (!version)
+                continue;
+        }
+
+        QPair<QtSupport::BaseQtVersion::QmakeBuildConfigs, QString> makefileBuildConfig =
+                QtSupport::QtVersionManager::scanMakeFile(makefile, version->defaultBuildConfig());
+
+        QString additionalArguments = makefileBuildConfig.second;
+        QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, directory, version);
+        QString versionSpec = version->mkspec();
+
+        QString specArgument;
+        // Compare mkspecs and add to additional arguments
+        if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
+            // using the default spec, don't modify additional arguments
+        } else {
+            specArgument = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec);
+        }
+        Utils::QtcProcess::addArgs(&specArgument, additionalArguments);
+
+        BuildConfigurationInfo info = BuildConfigurationInfo(version,
+                                                             makefileBuildConfig.first,
+                                                             specArgument,
+                                                             directory,
+                                                             true,
+                                                             temporaryQtVersion);
+        infos.append(info);
     }
-
-    QPair<QtSupport::BaseQtVersion::QmakeBuildConfigs, QString> makefileBuildConfig =
-            QtSupport::QtVersionManager::scanMakeFile(makefile, version->defaultBuildConfig());
-
-    QString additionalArguments = makefileBuildConfig.second;
-    QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, directory, version);
-    QString versionSpec = version->mkspec();
-
-    QString specArgument;
-    // Compare mkspecs and add to additional arguments
-    if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
-        // using the default spec, don't modify additional arguments
-    } else {
-        specArgument = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec);
-    }
-    Utils::QtcProcess::addArgs(&specArgument, additionalArguments);
-
-    BuildConfigurationInfo info = BuildConfigurationInfo(version,
-                                                         makefileBuildConfig.first,
-                                                         specArgument,
-                                                         directory,
-                                                         true,
-                                                         temporaryQtVersion);
-    return info;
+    return infos;
 }
