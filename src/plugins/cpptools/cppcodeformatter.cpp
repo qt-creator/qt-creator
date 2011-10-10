@@ -137,6 +137,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_RBRACE:      leave(); continue; // always nested in class_start
             } break;
 
+        case access_specifier_start:
+            switch (kind) {
+            case T_COLON:       leave(); break;
+            } break;
+
         case enum_start:
             switch (kind) {
             case T_SEMICOLON:   leave(); break;
@@ -817,6 +822,16 @@ bool CodeFormatter::tryDeclaration()
         enter(using_start);
         return true;
 
+    case T_PUBLIC:
+    case T_PRIVATE:
+    case T_PROTECTED:
+    case T_Q_SIGNALS:
+        if (m_currentState.top().type == class_open) {
+            enter(access_specifier_start);
+            return true;
+        }
+        return false;
+
     default:
         return false;
     }
@@ -1473,7 +1488,8 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     case T_Q_SIGNALS:
         if (m_styleSettings.indentDeclarationsRelativeToAccessSpecifiers
                 && topState.type == class_open) {
-            if (tokenAt(1).is(T_COLON) || tokenAt(2).is(T_COLON)) {
+            if (tokenAt(1).is(T_COLON) || tokenAt(2).is(T_COLON)
+                    || (tokenAt(tokenCount() - 1).is(T_COLON) && tokenAt(1).is(T___ATTRIBUTE__))) {
                 *indentDepth = topState.savedIndentDepth;
                 if (m_styleSettings.indentAccessSpecifiers)
                     *indentDepth += m_tabSettings.m_indentSize;

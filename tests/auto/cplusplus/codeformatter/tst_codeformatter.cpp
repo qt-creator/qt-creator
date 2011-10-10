@@ -125,6 +125,7 @@ private Q_SLOTS:
     void caseBody6();
     void blockBraces1();
     void functionDefaultArgument();
+    void attributeInAccessSpecifier();
 };
 
 struct Line {
@@ -1985,6 +1986,20 @@ void tst_CodeFormatter::functionDefaultArgument()
          << Line("    if (a)")
          << Line("        int a;")
          << Line("}")
+         << Line("int b;")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::attributeInAccessSpecifier()
+{
+    QList<Line> data;
+    data << Line("class C {")
+         << Line("public __attribute__((annotate(\"foo\"))):")
+         << Line("    int a;")
+         << Line("private __attribute__((annotate(\"foo\"))):")
+         << Line("    int a;")
+         << Line("};")
          << Line("int b;")
          ;
     checkIndent(data);

@@ -121,6 +121,8 @@ public: // must be public to make Q_GADGET introspection work
         class_start, // after the 'class' token
         class_open, // Brace that opens a class definition.
 
+        access_specifier_start, // after 'private', 'protected' etc.
+
         member_init_open, // After ':' that starts a member initialization list.
         member_init, // At the start and after every ',' in member_init_open
         member_init_paren_open, // After '(' in member_init.
