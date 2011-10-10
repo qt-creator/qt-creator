@@ -142,7 +142,10 @@ bool MakeStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(bc->toolChain()->makeCommand());
+    if (bc->toolChain())
+        pp->setCommand(bc->toolChain()->makeCommand());
+    else
+        pp->setCommand(QLatin1String("make"));
     pp->setArguments(arguments);
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());

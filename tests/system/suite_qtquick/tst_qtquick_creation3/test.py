@@ -30,6 +30,7 @@ def createNewQtQuickUI():
         clickButton(cbDefaultLocation)
     # now there's the 'untitled' project inside a temporary directory - step forward...!
     clickButton(waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000))
+    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
     clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
 
 def cleanup():
