@@ -288,7 +288,9 @@ bool CMakeProject::parseCMakeLists()
     allIncludePaths.append(cbpparser.includeFiles());
 
     QStringList allFrameworkPaths;
-    QList<ProjectExplorer::HeaderPath> allHeaderPaths = activeBC->toolChain()->systemHeaderPaths();
+    QList<ProjectExplorer::HeaderPath> allHeaderPaths;
+    if (activeBC->toolChain())
+        allHeaderPaths = activeBC->toolChain()->systemHeaderPaths();
     foreach (const ProjectExplorer::HeaderPath &headerPath, allHeaderPaths) {
         if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
             allFrameworkPaths.append(headerPath.path());
@@ -302,12 +304,12 @@ bool CMakeProject::parseCMakeLists()
         CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
         if (pinfo.includePaths != allIncludePaths
             || pinfo.sourceFiles != m_files
-            || pinfo.defines != activeBC->toolChain()->predefinedMacros()
+            || pinfo.defines != (activeBC->toolChain() ? activeBC->toolChain()->predefinedMacros() : QByteArray())
             || pinfo.frameworkPaths != allFrameworkPaths)  {
             pinfo.includePaths = allIncludePaths;
             // TODO we only want C++ files, not all other stuff that might be in the project
             pinfo.sourceFiles = m_files;
-            pinfo.defines = activeBC->toolChain()->predefinedMacros(); // TODO this is to simplistic
+            pinfo.defines =  (activeBC->toolChain() ? activeBC->toolChain()->predefinedMacros() : QByteArray()); // TODO this is to simplistic
             pinfo.frameworkPaths = allFrameworkPaths;
             modelmanager->updateProjectInfo(pinfo);
             m_codeModelFuture.cancel();

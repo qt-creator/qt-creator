@@ -38,6 +38,7 @@
 :Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog	{type='Qt4ProjectManager::Internal::GuiAppWizardDialog' unnamed='1' visible='1' windowTitle='Qt Gui Application'}
 :QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector	{type='ProjectExplorer::Internal::MiniProjectTargetSelector'}
 :QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget	{type='ProjectExplorer::Internal::ProjectListWidget' window=':QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector'}
+:addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
 :formFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Form file:_QLabel' name='formFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :frame.nameLineEdit_Utils::ProjectNameValidatingLineEdit	{container=':Qt Gui Application.frame_QFrame' name='nameLineEdit' type='Utils::ProjectNameValidatingLineEdit' visible='1'}
 :frame_Utils::BaseValidatingLineEdit	{container=':Qt Gui Application.frame_QFrame' type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}
