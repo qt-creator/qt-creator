@@ -112,6 +112,7 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
         test.verify(ui_found > cpp_found, "'" + ui_file + "' found at index " + str(ui_found))
         test.verify(pro_found > ui_found, "'" + pro_file + "' found at index " + str(pro_found))
 
+    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
     clickButton(waitForObject(":Qt Gui Application.Finish_QPushButton"))
 
     if checks:
@@ -159,4 +160,5 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     chooseDestination(destination)
     snooze(1)
     clickButton(nextButton)
+    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
     clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
