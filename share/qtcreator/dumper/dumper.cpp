@@ -93,9 +93,9 @@
 #endif
 
 #ifdef USE_QT_WIDGETS
-#   include <QSizePolicy>
-#   include <QWidget>
-#   include <QApplication>
+#   include <QtGui/QSizePolicy>
+#   include <QtGui/QWidget>
+#   include <QtGui/QApplication>
 #endif
 
 #endif // QT_BOOTSTRAPPED
