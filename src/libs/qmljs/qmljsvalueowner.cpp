@@ -292,6 +292,11 @@ const UndefinedValue *ValueOwner::undefinedValue() const
     return &_undefinedValue;
 }
 
+const UnknownValue *ValueOwner::unknownValue() const
+{
+    return &_unknownValue;
+}
+
 const NumberValue *ValueOwner::numberValue() const
 {
     return &_numberValue;
@@ -488,7 +493,7 @@ Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, cons
     Function *function = newFunction();
     function->setReturnValue(result);
     for (int i = 0; i < argumentCount; ++i)
-        function->addArgument(undefinedValue()); // ### introduce unknownValue
+        function->addArgument(unknownValue());
     object->setMember(name, function);
     return function;
 }
@@ -497,7 +502,7 @@ Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, int 
 {
     Function *function = newFunction();
     for (int i = 0; i < argumentCount; ++i)
-        function->addArgument(undefinedValue()); // ### introduce unknownValue
+        function->addArgument(unknownValue());
     object->setMember(name, function);
     return function;
 }
@@ -775,7 +780,7 @@ void ValueOwner::initializePrototypes()
     f->addArgument(stringValue(), "header");
     f->addArgument(stringValue(), "value");
     f = addFunction(xmlHttpRequest, "send");
-    f->addArgument(undefinedValue(), "data");
+    f->addArgument(unknownValue(), "data");
     f = addFunction(xmlHttpRequest, "abort");
     xmlHttpRequest->setMember("status", numberValue());
     xmlHttpRequest->setMember("statusText", stringValue());
@@ -783,7 +788,7 @@ void ValueOwner::initializePrototypes()
     f->addArgument(stringValue(), "header");
     f = addFunction(xmlHttpRequest, "getAllResponseHeaders");
     xmlHttpRequest->setMember("responseText", stringValue());
-    xmlHttpRequest->setMember("responseXML", undefinedValue());
+    xmlHttpRequest->setMember("responseXML", unknownValue());
 
     f = addFunction(_globalObject, "XMLHttpRequest", xmlHttpRequest);
     f->setMember("prototype", xmlHttpRequest);
@@ -814,9 +819,9 @@ void ValueOwner::initializePrototypes()
     f->addArgument(stringValue(), "text");
     f->addArgument(functionPrototype(), "reviver");
     f = addFunction(json, "stringify", stringValue());
-    f->addArgument(undefinedValue(), "value");
-    f->addArgument(undefinedValue(), "replacer");
-    f->addArgument(undefinedValue(), "space");
+    f->addArgument(unknownValue(), "value");
+    f->addArgument(unknownValue(), "replacer");
+    f->addArgument(unknownValue(), "space");
     _globalObject->setMember("JSON", json);
 
     // global Qt object, in alphabetic order
@@ -864,8 +869,8 @@ void ValueOwner::initializePrototypes()
     _qmlFontObject = newObject(/*prototype =*/ 0);
     _qmlFontObject->setClassName(QLatin1String("Font"));
     _qmlFontObject->setMember("family", stringValue());
-    _qmlFontObject->setMember("weight", undefinedValue()); // ### make me an object
-    _qmlFontObject->setMember("capitalization", undefinedValue()); // ### make me an object
+    _qmlFontObject->setMember("weight", unknownValue()); // ### make me an object
+    _qmlFontObject->setMember("capitalization", unknownValue()); // ### make me an object
     _qmlFontObject->setMember("bold", booleanValue());
     _qmlFontObject->setMember("italic", booleanValue());
     _qmlFontObject->setMember("underline", booleanValue());
@@ -948,7 +953,9 @@ const Value *ValueOwner::defaultValueForBuiltinType(const QString &name) const
         return colorValue();
     } else if (name == QLatin1String("date")) {
         return datePrototype();
+    } else if (name == QLatin1String("var")
+               || name == QLatin1String("variant")) {
+        return unknownValue();
     }
-    // ### variant or var
     return undefinedValue();
 }

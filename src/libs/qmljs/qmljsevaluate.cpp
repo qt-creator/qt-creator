@@ -69,8 +69,9 @@ const Value *Evaluate::value(AST::Node *ast)
             result = _context->lookupReference(ref);
     }
 
+    // if evaluation fails, return an unknown value
     if (! result)
-        result = _valueOwner->undefinedValue();
+        result = _valueOwner->unknownValue();
 
     return result;
 }

@@ -123,19 +123,9 @@ public:
     {
     }
 
-    virtual const Value *returnValue() const
-    {
-        return valueOwner()->undefinedValue();
-    }
-
     virtual int argumentCount() const
     {
         return _method.parameterNames().size();
-    }
-
-    virtual const Value *argument(int) const
-    {
-        return valueOwner()->undefinedValue();
     }
 
     virtual QString argumentName(int index) const
@@ -153,7 +143,7 @@ public:
 
     virtual const Value *invoke(const Activation *) const
     {
-        return valueOwner()->undefinedValue();
+        return valueOwner()->unknownValue();
     }
 };
 
@@ -264,7 +254,7 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
         if (!explicitSignals.contains(signalName)) {
             // process the generated slot
             const QString &slotName = generatedSlotName(signalName);
-            processor->processGeneratedSlot(slotName, valueOwner()->undefinedValue());
+            processor->processGeneratedSlot(slotName, valueOwner()->unknownValue());
         }
     }
 
@@ -337,7 +327,8 @@ const Value *CppComponentValue::valueForCppName(const QString &typeName) const
             return value;
     }
 
-    return valueOwner()->undefinedValue();
+    // may still be a cpp based value
+    return valueOwner()->unknownValue();
 }
 
 const CppComponentValue *CppComponentValue::prototype() const
@@ -566,6 +557,10 @@ void ValueVisitor::visit(const UndefinedValue *)
 {
 }
 
+void ValueVisitor::visit(const UnknownValue *)
+{
+}
+
 void ValueVisitor::visit(const NumberValue *)
 {
 }
@@ -620,6 +615,11 @@ const NullValue *Value::asNullValue() const
 }
 
 const UndefinedValue *Value::asUndefinedValue() const
+{
+    return 0;
+}
+
+const UnknownValue *Value::asUnknownValue() const
 {
     return 0;
 }
@@ -727,11 +727,20 @@ const UndefinedValue *UndefinedValue::asUndefinedValue() const
     return this;
 }
 
-void UndefinedValue::accept(ValueVisitor *visitor) const
+void UnknownValue::accept(ValueVisitor *visitor) const
 {
     visitor->visit(this);
 }
 
+const UnknownValue *UnknownValue::asUnknownValue() const
+{
+    return this;
+}
+
+void UndefinedValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
 const NumberValue *NumberValue::asNumberValue() const
 {
     return this;
@@ -1168,7 +1177,7 @@ const Value *FunctionValue::call(const ObjectValue *thisObject, const ValueList 
 
 const Value *FunctionValue::returnValue() const
 {
-    return valueOwner()->undefinedValue();
+    return valueOwner()->unknownValue();
 }
 
 int FunctionValue::argumentCount() const
@@ -1178,7 +1187,7 @@ int FunctionValue::argumentCount() const
 
 const Value *FunctionValue::argument(int) const
 {
-    return valueOwner()->undefinedValue();
+    return valueOwner()->unknownValue();
 }
 
 QString FunctionValue::argumentName(int index) const
@@ -1812,8 +1821,9 @@ ASTVariableReference::~ASTVariableReference()
 
 const Value *ASTVariableReference::value(ReferenceContext *referenceContext) const
 {
+    // may be assigned to later
     if (!_ast->expression)
-        return valueOwner()->undefinedValue();
+        return valueOwner()->unknownValue();
 
     Document::Ptr doc = _doc->ptr();
     ScopeChain scopeChain(doc, referenceContext->context());
@@ -1850,19 +1860,9 @@ FunctionExpression *ASTFunctionValue::ast() const
     return _ast;
 }
 
-const Value *ASTFunctionValue::returnValue() const
-{
-    return valueOwner()->undefinedValue();
-}
-
 int ASTFunctionValue::argumentCount() const
 {
     return _argumentNames.size();
-}
-
-const Value *ASTFunctionValue::argument(int) const
-{
-    return valueOwner()->undefinedValue();
 }
 
 QString ASTFunctionValue::argumentName(int index) const
@@ -1874,11 +1874,6 @@ QString ASTFunctionValue::argumentName(int index) const
     }
 
     return FunctionValue::argumentName(index);
-}
-
-bool ASTFunctionValue::isVariadic() const
-{
-    return true;
 }
 
 bool ASTFunctionValue::getSourceLocation(QString *fileName, int *line, int *column) const
@@ -1963,10 +1958,7 @@ const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) con
         return evaluator(_ast->statement);
     }
 
-    if (!_ast->memberType.isEmpty())
-        return valueOwner()->defaultValueForBuiltinType(_ast->memberType.toString());
-
-    return valueOwner()->undefinedValue();
+    return valueOwner()->defaultValueForBuiltinType(_ast->memberType.toString());
 }
 
 ASTSignal::ASTSignal(UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner)
@@ -2006,7 +1998,7 @@ const Value *ASTSignal::argument(int index) const
     for (int i = 0; param && i < index; ++i)
         param = param->next;
     if (!param || param->type.isEmpty())
-        return valueOwner()->undefinedValue();
+        return valueOwner()->unknownValue();
     return valueOwner()->defaultValueForBuiltinType(param->type.toString());
 }
 

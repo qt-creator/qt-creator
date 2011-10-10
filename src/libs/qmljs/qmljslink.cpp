@@ -165,7 +165,7 @@ Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const Libra
                 if (!cppTypeName.isEmpty())
                     value = d->valueOwner->cppQmlTypes().objectByCppName(cppTypeName);
                 if (!value)
-                    value = d->valueOwner->undefinedValue();
+                    value = d->valueOwner->unknownValue();
                 global->setMember(it.key(), value);
             }
         }

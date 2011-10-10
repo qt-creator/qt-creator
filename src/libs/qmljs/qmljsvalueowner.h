@@ -46,6 +46,7 @@ namespace QmlJS {
 class Value;
 class NullValue;
 class UndefinedValue;
+class UnknownValue;
 class NumberValue;
 class IntValue;
 class RealValue;
@@ -72,6 +73,7 @@ public:
 
     const NullValue *nullValue() const;
     const UndefinedValue *undefinedValue() const;
+    const UnknownValue *unknownValue() const;
     const NumberValue *numberValue() const;
     const RealValue *realValue() const;
     const IntValue *intValue() const;
@@ -174,6 +176,7 @@ private:
 
     NullValue _nullValue;
     UndefinedValue _undefinedValue;
+    UnknownValue _unknownValue;
     NumberValue _numberValue;
     RealValue _realValue;
     IntValue _intValue;

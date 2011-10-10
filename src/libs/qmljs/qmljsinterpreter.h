@@ -58,6 +58,7 @@ class ValueOwner;
 class Value;
 class NullValue;
 class UndefinedValue;
+class UnknownValue;
 class NumberValue;
 class IntValue;
 class RealValue;
@@ -95,6 +96,7 @@ public:
 
     virtual void visit(const NullValue *);
     virtual void visit(const UndefinedValue *);
+    virtual void visit(const UnknownValue *);
     virtual void visit(const NumberValue *);
     virtual void visit(const BooleanValue *);
     virtual void visit(const StringValue *);
@@ -119,6 +121,7 @@ public:
 
     virtual const NullValue *asNullValue() const;
     virtual const UndefinedValue *asUndefinedValue() const;
+    virtual const UnknownValue *asUnknownValue() const;
     virtual const NumberValue *asNumberValue() const;
     virtual const IntValue *asIntValue() const;
     virtual const RealValue *asRealValue() const;
@@ -158,6 +161,12 @@ template <> Q_INLINE_TEMPLATE const NullValue *value_cast(const Value *v)
 template <> Q_INLINE_TEMPLATE const UndefinedValue *value_cast(const Value *v)
 {
     if (v) return v->asUndefinedValue();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const UnknownValue *value_cast(const Value *v)
+{
+    if (v) return v->asUnknownValue();
     else   return 0;
 }
 
@@ -278,6 +287,13 @@ class QMLJS_EXPORT UndefinedValue: public Value
 public:
     virtual const UndefinedValue *asUndefinedValue() const;
     virtual void accept(ValueVisitor *visitor) const;
+};
+
+class QMLJS_EXPORT UnknownValue: public Value
+{
+public:
+    virtual const UnknownValue *asUnknownValue() const;
+    virtual void accept(ValueVisitor *) const;
 };
 
 class QMLJS_EXPORT NumberValue: public Value
@@ -793,11 +809,8 @@ public:
 
     AST::FunctionExpression *ast() const;
 
-    virtual const Value *returnValue() const;
     virtual int argumentCount() const;
-    virtual const Value *argument(int) const;
     virtual QString argumentName(int index) const;
-    virtual bool isVariadic() const;
 
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 };

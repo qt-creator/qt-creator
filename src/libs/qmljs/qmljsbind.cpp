@@ -325,7 +325,7 @@ bool Bind::visit(FunctionExpression *ast)
     // 1. Function formal arguments
     for (FormalParameterList *it = ast->formals; it; it = it->next) {
         if (!it->name.isEmpty())
-            functionScope->setMember(it->name.toString(), _valueOwner.undefinedValue());
+            functionScope->setMember(it->name.toString(), _valueOwner.unknownValue());
     }
 
     // 2. Functions defined inside the function body

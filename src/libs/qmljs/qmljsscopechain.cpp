@@ -112,6 +112,8 @@ const Value * ScopeChain::lookup(const QString &name, const ObjectValue **foundI
 
     if (foundInScope)
         *foundInScope = 0;
+
+    // we're confident to implement global lookup correctly, so return 'undefined'
     return m_context->valueOwner()->undefinedValue();
 }
 

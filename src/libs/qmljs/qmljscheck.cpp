@@ -89,7 +89,7 @@ public:
                     setMessage(ErrInvalidEnumValue);
                 }
             } else if (! _rhsValue->asStringValue() && ! _rhsValue->asNumberValue()
-                       && ! _rhsValue->asUndefinedValue()) {
+                       && ! _rhsValue->asUnknownValue()) {
                 setMessage(ErrEnumValueMustBeStringOrNumber);
             }
         } else {
@@ -155,7 +155,7 @@ public:
 
     virtual void visit(const AnchorLineValue *)
     {
-        if (! (_rhsValue->asAnchorLineValue() || _rhsValue->asUndefinedValue()))
+        if (! (_rhsValue->asAnchorLineValue() || _rhsValue->asUnknownValue()))
             setMessage(ErrAnchorLineExpected);
     }
 
@@ -842,9 +842,8 @@ bool Check::visit(FunctionExpression *ast)
 
 static bool shouldAvoidNonStrictEqualityCheck(const Value *lhs, const Value *rhs)
 {
-    // we currently use undefined as a "we don't know" value
-    if (lhs->asUndefinedValue() || rhs->asUndefinedValue())
-        return true;
+    if (lhs->asUnknownValue() || rhs->asUnknownValue())
+        return true; // may coerce or not
 
     if (lhs->asStringValue() && rhs->asNumberValue())
         return true; // coerces string to number
@@ -855,7 +854,8 @@ static bool shouldAvoidNonStrictEqualityCheck(const Value *lhs, const Value *rhs
     if (lhs->asObjectValue() && rhs->asStringValue())
         return true; // coerces object to primitive
 
-    if (lhs->asBooleanValue() && !rhs->asBooleanValue())
+    if (lhs->asBooleanValue() && (!rhs->asBooleanValue()
+                                  && !rhs->asUndefinedValue()))
         return true; // coerces bool to number
 
     return false;
@@ -1156,7 +1156,7 @@ bool Check::visit(NewMemberExpression *ast)
             if (ast->arguments && ast->arguments->expression && !ast->arguments->next) {
                 Evaluate evaluate(&_scopeChain);
                 const Value *arg = evaluate(ast->arguments->expression);
-                if (arg->asNumberValue() || arg->asUndefinedValue())
+                if (arg->asNumberValue() || arg->asUnknownValue())
                     ok = true;
             }
             if (!ok)
