@@ -37,40 +37,29 @@ Item {
     id: root
 
     property int currentItem: 0
-    property alias model: repeater.model
-    property alias itemCount: repeater.count
+    property alias model: view.model
+    property alias itemCount: view.count
 
     Timer {
         id: nextItemTimer
         repeat: true
         interval: 30*1000
-        onTriggered: repeater.incrementIndex()
+        onTriggered: view.incrementCurrentIndex()
     }
 
     Timer {
         id: modelUpdateTimer
         repeat: false
         interval: 1000
-        onTriggered: repeater.handleModelUpdate();
+        onTriggered: view.handleModelUpdate();
     }
 
-    Repeater {
-        id: repeater
-        function incrementIndex() {
-            repeater.itemAt(currentItem).active = false
-            currentItem = (currentItem+1) % repeater.count
-            repeater.itemAt(currentItem).active = true
-        }
+    ListView {
+        id: view
 
         function handleModelUpdate() {
             nextItemTimer.stop();
-            currentItem = 0;
-            for (var i = 0; i < count; ++i) {
-                if (i != currentItem)
-                    repeater.itemAt(i).active = false;
-                else
-                    repeater.itemAt(i).active = true;
-            }
+            currentIndex = 0;
             nextItemTimer.start();
         }
 
@@ -78,21 +67,16 @@ Item {
             modelUpdateTimer.restart();
         }
 
-        function handleItemRemoved(index, item) {
-            modelUpdateTimer.restart();
-        }
-
-        function handleItemAdded(index, item) {
-            modelUpdateTimer.restart();
-        }
-
         anchors.fill: parent
+        highlightMoveDuration: 1 // don't show any scrolling
+        keyNavigationWraps: true // start from 0 again if at end
+        interactive: false
+
         onModelChanged: handleModelChanged()
-        onItemAdded: handleItemAdded(index, item)
-        onItemRemoved: handleItemRemoved(index, item)
+
         delegate: Item {
-            property bool active: false
             id: delegateItem
+            property bool active: ListView.isCurrentItem
             opacity: 0
             height: root.height
             width: root.width
