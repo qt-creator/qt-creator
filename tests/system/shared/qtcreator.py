@@ -15,9 +15,8 @@ testSettings.logScreenshotOnFail = True
 
 source("../../shared/utils.py")
 source("../../shared/build_utils.py")
-source("../../shared/mainwin.py")
-source("../../shared/project.py")
 source("../../shared/qtquick.py")
+source("../../shared/project.py")
 source("../../shared/editor_utils.py")
 
 def waitForCleanShutdown(timeOut=10):

@@ -1,3 +1,47 @@
+def openQmakeProject(projectPath):
+    invokeMenuItem("File", "Open File or Project...")
+    if platform.system()=="Darwin":
+        snooze(1)
+        nativeType("<Command+Shift+g>")
+        snooze(1)
+        nativeType(projectPath)
+        snooze(1)
+        nativeType("<Return>")
+        snooze(2)
+        nativeType("<Return>")
+    else:
+        waitForObject("{name='QFileDialog' type='QFileDialog' visible='1' windowTitle='Open File'}")
+        type(findObject("{name='fileNameEdit' type='QLineEdit'}"), projectPath)
+        clickButton(findObject("{text='Open' type='QPushButton'}"))
+    waitForObject("{type='Qt4ProjectManager::Internal::ProjectLoadWizard' visible='1' windowTitle='Project Setup'}")
+    selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox", "For Each Qt Version One Debug And One Release")
+    clickButton(findObject("{text~='(Finish|Done)' type='QPushButton'}"))
+
+def openCmakeProject(projectPath):
+    invokeMenuItem("File", "Open File or Project...")
+    if platform.system()=="Darwin":
+        snooze(1)
+        nativeType("<Command+Shift+g>")
+        snooze(1)
+        nativeType(projectPath)
+        snooze(1)
+        nativeType("<Return>")
+        snooze(2)
+        nativeType("<Return>")
+    else:
+        waitForObject("{name='QFileDialog' type='QFileDialog' visible='1' windowTitle='Open File'}")
+        type(findObject("{name='fileNameEdit' type='QLineEdit'}"), projectPath)
+        clickButton(findObject("{text='Open' type='QPushButton'}"))
+    clickButton(waitForObject(":CMake Wizard.Next_QPushButton", 20000))
+    generatorCombo = waitForObject(":Generator:_QComboBox")
+    index = generatorCombo.findText("MinGW Generator (MinGW from SDK)")
+    if index == -1:
+        index = generatorCombo.findText("NMake Generator (Microsoft Visual C++ Compiler 9.0 (x86))")
+    if index != -1:
+        generatorCombo.setCurrentIndex(index)
+    clickButton(waitForObject(":CMake Wizard.Run CMake_QPushButton", 20000))
+    clickButton(waitForObject(":CMake Wizard.Finish_QPushButton", 60000))
+
 def shadowBuildDir(path, project, qtVersion, debugVersion):
     qtVersion = qtVersion.replace(" ", "_")
     qtVersion = qtVersion.replace(".", "_")
@@ -83,3 +127,36 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
         test.verify(os.path.exists(h_path), "Checking if '" + h_path + "' was created")
         test.verify(os.path.exists(ui_path), "Checking if '" + ui_path + "' was created")
         test.verify(os.path.exists(pro_path), "Checking if '" + pro_path + "' was created")
+
+def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, destination = QtQuickConstants.Destinations.DESKTOP):
+    invokeMenuItem("File", "New File or Project...")
+    clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
+    clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick Application", 5, 5, 0, Qt.LeftButton)
+    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    if projectName!=None:
+        baseLineEd = waitForObject("{name='nameLineEdit' visible='1' "
+                                   "type='Utils::ProjectNameValidatingLineEdit'}", 20000)
+        replaceEditorContent(baseLineEd, projectName)
+    baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+    replaceEditorContent(baseLineEd, workingDir)
+    stateLabel = findObject("{type='QLabel' name='stateLabel'}")
+    labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
+    test.verify(labelCheck, "Project name and base directory without warning or error")
+    # make sure this is not set as default location
+    cbDefaultLocation = waitForObject("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", 20000)
+    if cbDefaultLocation.checked:
+        clickButton(cbDefaultLocation)
+    nextButton = waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000)
+    clickButton(nextButton)
+    if (templateFile==None):
+        chooseComponents()
+    else:
+        chooseComponents(QtQuickConstants.Components.EXISTING_QML)
+        # define the existing qml file to import
+        baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+        type(baseLineEd, templateFile)
+    clickButton(nextButton)
+    chooseDestination(destination)
+    snooze(1)
+    clickButton(nextButton)
+    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
