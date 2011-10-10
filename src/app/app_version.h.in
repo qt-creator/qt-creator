@@ -30,6 +30,9 @@
 **
 **************************************************************************/
 
+#ifndef APP_VERSION_H
+#define APP_VERSION_H
+
 namespace Core {
 namespace Constants {
 
@@ -66,3 +69,5 @@ const char * const IDE_REVISION_STR      = \"\";
 
 } // Constants
 } // Core
+
+#endif //APP_VERSION_H
