@@ -268,19 +268,26 @@ namespace ZeroConf {
   \threadsafe
  */
 
-Service::Service(const Service&o):
-    QObject(0), m_name(o.m_name), m_type(o.m_type), m_domain(o.m_domain), m_fullName(o.m_fullName), m_port(o.m_port), m_txtRecord(o.m_txtRecord),
-    m_host((o.m_host != 0)?(new QHostInfo(*o.m_host)):o.m_host), m_interfaceNr(o.m_interfaceNr), m_outdated(o.m_outdated)
+Service::Service(const Service &o) :
+    QObject(0),
+    m_name(o.m_name),
+    m_type(o.m_type),
+    m_domain(o.m_domain),
+    m_fullName(o.m_fullName),
+    m_port(o.m_port),
+    m_txtRecord(o.m_txtRecord),
+    m_host(o.m_host ? new QHostInfo(*o.m_host) : 0),
+    m_interfaceNr(o.m_interfaceNr),
+    m_outdated(o.m_outdated)
 {
 }
 
-Service::Service(QObject *parent):
-    QObject(parent), m_name(), m_type(), m_domain(), m_fullName(), m_port(), m_txtRecord(), m_host(0), m_interfaceNr(0), m_outdated(false)
+Service::Service(QObject *parent) : QObject(parent), m_host(0), m_interfaceNr(0), m_outdated(false)
 { }
 
 Service::~Service()
 {
-    if (m_host) delete m_host;
+    delete m_host;
 }
 
 QDebug operator<<(QDebug dbg, const Service &service)

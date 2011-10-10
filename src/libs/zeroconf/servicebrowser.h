@@ -39,7 +39,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
-class QHostInfo;
+
+QT_FORWARD_DECLARE_CLASS(QHostInfo)
 
 namespace ZeroConf {
 
