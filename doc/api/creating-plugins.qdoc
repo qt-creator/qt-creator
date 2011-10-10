@@ -1,0 +1,68 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \page creating-plugins.html
+    \title Creating Plugins
+
+    At its very core, \QC consists of a plugin loader that loads
+    and runs a set of plugins, which then actually provide the functionality
+    that you know from \QC the IDE. So, even the main application window
+    and menus are all provided by plugins. Plugins can use different means
+    to provide other plugins access to their functionality and to allow them
+    to extend certain aspects of the application.
+
+    For example the "Core" plugin, which is the very basic plugin that must be
+    present for \QC to run at all, provides the main window itself, and API
+    for adding menu items, modes, editor types, navigation panels and many other
+    things.
+    The "TextEditor" plugin provides a framework and base implementation for
+    different text editors with highlighting, completion and folding, that
+    is then used by other plugins to add more specialized text editor types
+    to \QC, like for editing C/C++ or .pro files.
+
+    After reading this guide you will know what a basic plugin consists of,
+    how to write a plugin specification file, what the lifecycle of a plugin is,
+    what the general principles for extending existing plugins'
+    functionality and providing interfaces for other plugins are, and will
+    be able to write your first plugin.
+
+    \section1 Basics
+    \list
+    \o \l{Getting and Building Qt Creator}
+    \o \l{Creating Your First Plugin}
+    \o \l{Plugin Specifications}
+    \o \l{Plugin Life Cycle}
+    \endlist
+
+    \section1 Design Principles
+    \list
+    \o \l{The Plugin Manager, the Object Pool, and Registered Objects}
+    \o \l{Aggregations}
+    \o \l{Extending and Providing Interfaces}
+    \endlist
+
+    \section1 Creating 3rd-Party Plugins
+    \list
+    \o \l{A Note on Binary Compatibility}
+    \o \l{Creating User-Installable Plugins}
+    \endlist
+*/

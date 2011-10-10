@@ -1,0 +1,334 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \page first-plugin.html
+    \title Creating Your First Plugin
+
+    This section describes how to create a \QC plugin by using the plugin
+    template provided by \QC, and get the first impression of what
+    a plugin consists of and what its general structure is.
+
+    \section1 Creating a Plugin Project
+
+    \QC comes with a wizard for \QC plugins, that creates a
+    runable, \e minimal plugin for you. We strongly suggest that you
+    use two different \QC instances for developing and testing
+    your plugin with. Otherwise your plugin will also be loaded in your
+    development environment, which can make that unstable while your
+    plugin is still unstable. You can just create a copy of your \QC
+    build and use one for actually developing, and the other for testing
+    your plugin with.
+
+    \list 1
+        \o Select \gui{File > New File or Project > Other Qt Project > Qt Creator Plugin > Choose}.
+
+           \image firstplugin-wizard.png "Choose the \QC Plugin Wizard"
+
+           The \gui{Introduction and Project Location} dialog opens.
+
+           \image firstplugin-nameandpath.png "Choose Name and Place of the Project"
+
+        \o Give your project a name and specify in which path
+           this project will be created. The actual plugin's name can be different
+           from the project name. You will choose that name later in the wizard.
+           Continue to the next page.
+
+           The \gui{Target Setup} dialog opens.
+
+           \image firstplugin-target.png "Choose the Desktop Target and Matching Qt"
+
+        \o Select the target and Qt version to build your project with.
+           For a \QC plugin this needs to be the \gui{Desktop} target,
+           and a Qt version that is compatible with the Qt version that your
+           \QC was built with (in the best case the exact same build).
+           If you use an incompatible Qt version to build your plugin, you
+           will get errors while \QC tries to load your plugin.
+           Continue to the next page.
+
+           The \gui{Plugin Information} dialog opens.
+
+           \image firstplugin-pluginsetup.png "Specify Your Plugin Details"
+
+        \o In the \gui{Plugin name} field, type \gui{Example}. The name of the plugin
+           is used as its identifier, and also is the base for the file names and
+           classes in the code.
+
+        \o The values of the following fields are mainly informational, and
+           are shown in the detailed view in \QC's plugin overview
+           (\gui{Help > About Plugins}, or \gui{Qt Creator > About Plugins}
+           on Mac).
+
+           \list
+               \o \gui{Vendor name} is a short one-word name of the company
+                  or organization that created the plugin. This is also used for
+                  the path name where the plugin will be deployed to.
+               \o \gui{Copyright} is a one-line, short copyright string.
+               \o \gui{License} is a multi-line license text (but shouldn't be pages over pages long,
+                  since the interface doesn't allow nice reading of long texts).
+               \o \gui{Description} is a relatively short, but
+                  possibly multi-line description of what the plugin does.
+               \o \gui{URL} is a website where the user can find more
+                  information about the plugin and/or organization providing it.
+           \endlist
+
+        \o Set the \gui{Qt Creator sources} and \gui{Qt Creator build} fields to
+           the source and build directory of the \QC
+           instance you want to use to test your plugin with, respectively.
+           If you don't do that correctly you will get compile errors for your
+           plugin, and your plugin might not show up in \QC at all.
+
+        \o In the \gui{Deploy into} list, select \gui{Qt Creator build}. This sets
+           your .pro file up to deploy your plugin directly into your \QC build's
+           plugin directory (requires you to have write permissions there).
+           The other option, \gui{Local user settings}, sets your .pro file up to
+           deploy your plugin into \QC's user plugin path
+           (for example \c{~/.config/Nokia/qtcreator/plugins} on Unix systems).
+           We choose \gui{Qt Creator build} because we use a self-compiled
+           \QC, and want the plugin to be only loaded by that \QC
+           instance.
+           Continue to the next page.
+
+           The \gui{Project Management} dialog opens.
+
+           \image firstplugin-summary.png "Summary of Created Files"
+
+        \o Review the files that will be created, choose a version control
+           system that \QC should use for your project (always a good idea!),
+           and finish the wizard.
+    \endlist
+
+    \section1 Building and Running the Plugin
+
+    If you passed the correct \QC source and build paths in the project
+    wizard, your plugin should just build fine when pressing the build button.
+    When you try to run your project, \QC will ask you for the executable to run and
+    you are presented the following dialog:
+
+    \image firstplugin-runsettings.png "Specify the Executable to Run"
+
+    Select the path to the \QC executable from the build that you specified
+    in the \gui{Qt Creator build} setting in the project wizard and click \gui OK.
+    \QC starts up, and you can verify that your plugin successfully loaded
+    by looking for a menu entry \gui{Tools > Example} and by looking for
+    the plugin in the \gui{About Plugins} dialog.
+
+    \image firstplugin-menuitem.png "Menu Registered by the Plugin"
+
+    \section1 File Structure
+
+    The plugin wizard creates a set of basic files that a plugin needs or should have.
+    We will have a look at some of them in detail in the following sections, here is a short
+    overview:
+
+    \table
+    \header
+        \o File
+        \o Role
+    \row
+        \o \c{Example.pluginspec.in}
+        \o Template plugin specification. QMake creates a \c{Example.pluginspec}
+           from this file, which is read by \QC to find out about the plugin.
+    \row
+        \o \c{example.pro}
+        \o Project file, used by QMake to generate a Makefile that then is used to
+           build the plugin.
+    \row
+        \o \c{example_global.h}
+        \o Contains macro definitions that are useful when this plugin should export
+           symbols to other plugins.
+    \row
+        \o \c{exampleconstants.h}
+        \o Header defining constants used by the plugin code.
+    \row
+        \o \c{exampleplugin.h/.cpp}
+        \o C++ header and source files that define the plugin class that will be
+           instanciated and run by \QC's plugin manager.
+    \endtable
+
+    \section1 qmake Project
+
+    The qmake project file \c{example.pro} defines how your plugin should be compiled.
+    \QC plugins need to have a specific setup there, in addition to telling qmake
+    which files need to be compiled (or handled by \c moc or \c uic).
+    Let us have a look at what the project wizard generated for you in detail.
+
+    \snippet exampleplugin/example.pro 1
+
+    The first section of the .pro file defines the very basic properties of your project,
+    the name (\c{TARGET}), and that a library should be generated,
+    since plugins are actually libraries that are dynamically loaded (\c{TEMPLATE = lib}).
+    The section also lets the compiler pass an \c EXAMPLE_LIBRARY define to the compiled
+    code, which is used in the \c{example_global.h} header, but is not really of interest
+    for now. You should not need to change that section of the .pro file.
+
+    \snippet exampleplugin/example.pro 2
+
+    This section tells qmake about the files of your project that it should let
+    compile or otherwise handle. You need to expand that section with any files
+    you add to the project.
+
+    \snippet exampleplugin/example.pro 3
+
+    To compile and deploy your plugin, the project needs access to the \QC sources and
+    build. This section contains the logic that looks for the information about
+    the location of the sources and build in the \c{QTC_SOURCE} and \c{QTC_BUILD}
+    environment variables. If these are not defined, it uses the defaults you
+    set in the project wizard.
+
+    So, if someone else opens your plugin project on their machine, they do not
+    need to edit the .pro file, but instead they should set the \c{QTC_SOURCE} and
+    \c{QTC_BUILD} environment variables correctly for the plugin's build environment.
+
+    You should not need to change this section, except perhaps to adapt the defaults.
+
+    \snippet exampleplugin/example.pro 4
+
+    \QC plugins can either be installed into the \QC installation's plugin directory
+    (requires write access there), or to a user specific plugin directory.
+    The \c USE_USER_DESTDIR switch in the .pro file defines which method is used for building
+    the plugin (which is independent from what you can later use for distributing your
+    plugin to other users).
+
+    \snippet exampleplugin/example.pro 5
+
+    The \c{PROVIDER} variable is for example used to deploy your plugin to a provider specific
+    plugin subdirectory, and the value is taken from the information that
+    you gave in the plugin project wizard.
+
+    \snippet exampleplugin/example.pro 6
+
+    This section includes the necessary parts from the \QC sources and makes your
+    plugin find the \QC libraries and plugins. The included file
+    \c{qtcreatorplugin.pri} makes sure that you build a plugin that is suitable
+    for use in \QC. The file \c{plugins/coreplugin/coreplugin.pri} makes your
+    plugin dependent on the Core plugin and makes sure that you can access its
+    public API.
+    If you want to use or extend functionality from other plugins, you
+    need to add the corresponding .pri file of the plugin here.
+
+    For more information about qmake, and writing .pro files in general,
+    see the \l{http://doc.qt.nokia.com/4.7/qmake-manual.html}{qmake Manual}.
+
+    \section1 Plugin Specification
+
+    The .pluginspec file is an XML file that contains information that is needed by
+    the plugin manager to find your plugin and resolve its dependencies before actually
+    loading your plugin's library file. We will only have a short look at it here.
+    For more information, see \l{Plugin Specifications}.
+
+    The wizard doesn't actually create a .pluginspec file directly, but instead a
+    .pluginspec.in file. qmake uses this to generate the actual plugin specification
+    file, replacing variables like \c{QTCREATOR_VERSION} with their actual values.
+    Therefore you need to escape all backslashes and quotes in the .pluginspec.in file
+    (i.e. you need to write \c{\\} to get a backslash and \c{\"} to get a quote
+    in the generated plugin specification).
+
+    \snippet exampleplugin/Example.pluginspec.in 1
+
+    The main tag of the plugin specification that is created by the wizard
+    defines the name of your plugin, its version, and with what version of this plugin
+    the current version is binary compatible with.
+
+    \snippet exampleplugin/Example.pluginspec.in 2
+
+    After the main tag you'll find the information about the plugin
+    that you gave in the project wizard.
+
+    \snippet exampleplugin/Example.pluginspec.in 3
+
+    The last section tells the plugin manager about the dependencies of this
+    plugin. Most \QC plugins will at least depend on the \c{Core} plugin.
+
+    \section1 Plugin Class
+
+    The files \c{exampleplugin.h} and \c{exampleplugin.cpp} define the plugin
+    implementation of your little plugin. We'll concentrate on some highlights
+    here, and give pointers to more detailed information for the various parts.
+
+    \section2 Header File
+
+    The header file \c{exampleplugin.h} defines the interface of the plugin class.
+
+    \snippet exampleplugin/exampleplugin.h namespaces
+
+    The plugin is defined in a \c{Example::Internal} namespace, which conforms to
+    the coding rules for \l{coding-rules-namespacing}{namespacing}
+    in \QC sources.
+
+    \snippet exampleplugin/exampleplugin.h base class
+
+    All \QC plugins must be derived from \l{ExtensionSystem::IPlugin} and
+    are QObjects.
+
+    \snippet exampleplugin/exampleplugin.h plugin methods
+
+    The base class defines basic methods that are called during the life cycle
+    of a plugin, which are here implemented for your new plugin.
+    These methods and their roles are described in detail in
+    \l{The Plugin Life Cycle}.
+
+    \snippet exampleplugin/exampleplugin.h slot
+
+    The plugin has an additional custom slot, that is used to pop up a dialog
+    when the user chooses the menu item that this plugin adds.
+
+    \section2 Source File
+
+    The source file contains the actual implementation of the plugin, which registers
+    a new menu and menu item, and opens a message box when that item is triggered.
+
+    All the necessary header files from the plugin code itself,
+    from the Core plugin, and from Qt are included in the beginning of the file.
+    The setup of the menu and menu item
+    is done in the plugin's \c{initialize} method, which is the first thing called
+    after the plugin constructor. In that method, the plugin can be sure that the basic
+    setup of plugin's that it depends on has been done, for example the Core plugin's
+    \c{ActionManager} instance has been created.
+
+    \snippet exampleplugin/exampleplugin.cpp add action
+
+    This part of the code creates a new \c{QAction}, registers it as a new
+    \c{Command} in the action manager, and connects it to the plugin's slot.
+    The action manager provides a central place where the user can assign and
+    change keyboard shortcuts, and manages cases where for example a menu item should be
+    directed to different plugins under different circumstances, as well as a few
+    other things. This is described in more detail in \l{Menus and Menu Items}.
+
+    \snippet exampleplugin/exampleplugin.cpp add menu
+
+    Here a new menu item is created, the created command added to it, and the menu
+    added to the \gui{Tools} menu in the menu bar. Again, this is covered in more
+    detail in \l{Menus and Menu Items}.
+
+    \snippet exampleplugin/exampleplugin.cpp slot implementation
+
+    This part defines the code that is called when the menu item is triggered.
+    It uses the Qt API to open a message box that displays informative text and
+    an \gui OK button.
+
+    \snippet exampleplugin/exampleplugin.cpp export plugin
+
+    At the end of the file, the Qt macro \c{Q_EXPORT_PLUGIN2} is used to register
+    the plugin with Qt's plugin loader system. This is necessary for Qt to
+    be able to load your plugin.
+
+*/

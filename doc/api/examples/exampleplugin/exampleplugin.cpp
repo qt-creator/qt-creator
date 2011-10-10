@@ -1,5 +1,5 @@
-#include "%PluginName:l%plugin.%CppHeaderSuffix%"
-#include "%PluginName:l%constants.%CppHeaderSuffix%"
+#include "exampleplugin.h"
+#include "exampleconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -15,20 +15,20 @@
 
 #include <QtCore/QtPlugin>
 
-using namespace %PluginName%::Internal;
+using namespace Example::Internal;
 
-%PluginName%Plugin::%PluginName%Plugin()
+ExamplePlugin::ExamplePlugin()
 {
     // Create your members
 }
 
-%PluginName%Plugin::~%PluginName%Plugin()
+ExamplePlugin::~ExamplePlugin()
 {
     // Unregister objects from the plugin manager's object pool
     // Delete members
 }
 
-bool %PluginName%Plugin::initialize(const QStringList &arguments, QString *errorString)
+bool ExamplePlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     // Register objects in the plugin manager's object pool
     // Load settings
@@ -39,30 +39,34 @@ bool %PluginName%Plugin::initialize(const QStringList &arguments, QString *error
 
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
+
+//! [add action]
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
 
-    QAction *action = new QAction(tr("%PluginName% action"), this);
+    QAction *action = new QAction(tr("Example action"), this);
     Core::Command *cmd = am->registerAction(action, Constants::ACTION_ID,
-                         Core::Context(Core::Constants::C_GLOBAL));
+                                            Core::Context(Core::Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
     connect(action, SIGNAL(triggered()), this, SLOT(triggerAction()));
-
+//! [add action]
+//! [add menu]
     Core::ActionContainer *menu = am->createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(tr("%PluginName%"));
+    menu->menu()->setTitle(tr("Example"));
     menu->addAction(cmd);
     am->actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+//! [add menu]
 
     return true;
 }
 
-void %PluginName%Plugin::extensionsInitialized()
+void ExamplePlugin::extensionsInitialized()
 {
     // Retrieve objects from the plugin manager's object pool
     // In the extensionsInitialized method, a plugin can be sure that all
     // plugins that depend on it are completely initialized.
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag %PluginName%Plugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag ExamplePlugin::aboutToShutdown()
 {
     // Save settings
     // Disconnect from signals that are not needed during shutdown
@@ -70,11 +74,15 @@ ExtensionSystem::IPlugin::ShutdownFlag %PluginName%Plugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void %PluginName%Plugin::triggerAction()
+//! [slot implementation]
+void ExamplePlugin::triggerAction()
 {
     QMessageBox::information(Core::ICore::instance()->mainWindow(),
                              tr("Action triggered"),
-                             tr("This is an action from %PluginName%."));
+                             tr("This is an action from Example."));
 }
+//! [slot implementation]
 
-Q_EXPORT_PLUGIN2(%PluginName%, %PluginName%Plugin)
+//! [export plugin]
+Q_EXPORT_PLUGIN2(Example, ExamplePlugin)
+//! [export plugin]

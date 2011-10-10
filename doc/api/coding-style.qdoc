@@ -517,6 +517,7 @@
 
     \section1 Patterns and Practices
 
+    \target coding-rules-namespacing
     \section2 Namespacing
 
     Read \l {http://wiki.qt-project.org/index.php/Qt_In_Namespace}{Qt In Namespace}

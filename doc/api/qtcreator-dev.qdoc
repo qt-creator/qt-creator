@@ -22,7 +22,6 @@
 /*!
     \page index.html
     \title Extending Qt Creator Manual
-    \nextpage
 
     Qt Creator is a cross-platform integrated development environment (IDE)
     tailored to the needs of Qt developers.

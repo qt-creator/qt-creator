@@ -51,6 +51,9 @@ DEV_HELP_DEP_FILES = \
     $$PWD/api/external-tool-spec.qdoc \
     $$PWD/api/qtcreator-dev.qdoc \
     $$PWD/api/qtcreator-dev-wizards.qdoc \
+    $$PWD/api/creating-plugins.qdoc \
+    $$PWD/api/getting-and-building.qdoc \
+    $$PWD/api/first-plugin.qdoc \
     $$PWD/api/qtcreator-dev.qdocconf
 
 dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev.qdocconf
