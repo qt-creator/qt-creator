@@ -366,7 +366,7 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     // if there are cpp-based types for this package, use them too
     if (valueOwner->cppQmlTypes().hasModule(packageName)) {
         importFound = true;
-        foreach (const QmlObjectValue *object,
+        foreach (const CppComponentValue *object,
                  valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
             import.object->setMember(object->className(), object);
         }
@@ -439,7 +439,7 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
         } else {
             const QString packageName = importInfo.name();
             valueOwner->cppQmlTypes().load(libraryInfo.metaObjects(), packageName);
-            foreach (const QmlObjectValue *object, valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
+            foreach (const CppComponentValue *object, valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
                 import->object->setMember(object->className(), object);
             }
         }
@@ -522,7 +522,7 @@ void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
             import.valid = true;
             import.info = info;
             import.object = new ObjectValue(valueOwner);
-            foreach (const QmlObjectValue *object,
+            foreach (const CppComponentValue *object,
                      valueOwner->cppQmlTypes().createObjectsForImport(
                          defaultPackage, maxVersion)) {
                 import.object->setMember(object->className(), object);

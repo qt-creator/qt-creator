@@ -159,7 +159,7 @@ public:
 
 } // end of anonymous namespace
 
-QmlObjectValue::QmlObjectValue(FakeMetaObject::ConstPtr metaObject, const QString &className,
+CppComponentValue::CppComponentValue(FakeMetaObject::ConstPtr metaObject, const QString &className,
                                const QString &packageName, const ComponentVersion &componentVersion,
                                const ComponentVersion &importVersion, int metaObjectRevision,
                                ValueOwner *valueOwner)
@@ -179,7 +179,7 @@ QmlObjectValue::QmlObjectValue(FakeMetaObject::ConstPtr metaObject, const QStrin
     }
 }
 
-QmlObjectValue::~QmlObjectValue()
+CppComponentValue::~CppComponentValue()
 {
     delete _metaSignatures;
     delete _signalScopes;
@@ -193,7 +193,7 @@ static QString generatedSlotName(const QString &base)
     return slotName;
 }
 
-void QmlObjectValue::processMembers(MemberProcessor *processor) const
+void CppComponentValue::processMembers(MemberProcessor *processor) const
 {
     // process the meta enums
     for (int index = _metaObject->enumeratorOffset(); index < _metaObject->enumeratorCount(); ++index) {
@@ -269,12 +269,12 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
     ObjectValue::processMembers(processor);
 }
 
-const Value *QmlObjectValue::valueForCppName(const QString &typeName) const
+const Value *CppComponentValue::valueForCppName(const QString &typeName) const
 {
     const CppQmlTypes &cppTypes = valueOwner()->cppQmlTypes();
 
     // check in the same package/version first
-    const QmlObjectValue *objectValue = cppTypes.objectByQualifiedName(
+    const CppComponentValue *objectValue = cppTypes.objectByQualifiedName(
                 _moduleName, typeName, _importVersion);
     if (objectValue)
         return objectValue;
@@ -322,7 +322,7 @@ const Value *QmlObjectValue::valueForCppName(const QString &typeName) const
     }
 
     // might be an enum
-    const QmlObjectValue *base = this;
+    const CppComponentValue *base = this;
     const QStringList components = typeName.split(QLatin1String("::"));
     if (components.size() == 2) {
         base = valueOwner()->cppQmlTypes().objectByCppName(components.first());
@@ -335,42 +335,42 @@ const Value *QmlObjectValue::valueForCppName(const QString &typeName) const
     return valueOwner()->undefinedValue();
 }
 
-const QmlObjectValue *QmlObjectValue::prototype() const
+const CppComponentValue *CppComponentValue::prototype() const
 {
-    Q_ASSERT(!_prototype || dynamic_cast<const QmlObjectValue *>(_prototype));
-    return static_cast<const QmlObjectValue *>(_prototype);
+    Q_ASSERT(!_prototype || dynamic_cast<const CppComponentValue *>(_prototype));
+    return static_cast<const CppComponentValue *>(_prototype);
 }
 
-const QmlObjectValue *QmlObjectValue::attachedType() const
+const CppComponentValue *CppComponentValue::attachedType() const
 {
     return _attachedType;
 }
 
-void QmlObjectValue::setAttachedType(QmlObjectValue *value)
+void CppComponentValue::setAttachedType(CppComponentValue *value)
 {
     _attachedType = value;
 }
 
-FakeMetaObject::ConstPtr QmlObjectValue::metaObject() const
+FakeMetaObject::ConstPtr CppComponentValue::metaObject() const
 {
     return _metaObject;
 }
 
-QString QmlObjectValue::moduleName() const
+QString CppComponentValue::moduleName() const
 { return _moduleName; }
 
-ComponentVersion QmlObjectValue::componentVersion() const
+ComponentVersion CppComponentValue::componentVersion() const
 { return _componentVersion; }
 
-ComponentVersion QmlObjectValue::importVersion() const
+ComponentVersion CppComponentValue::importVersion() const
 { return _importVersion; }
 
-QString QmlObjectValue::defaultPropertyName() const
+QString CppComponentValue::defaultPropertyName() const
 { return _metaObject->defaultPropertyName(); }
 
-QString QmlObjectValue::propertyType(const QString &propertyName) const
+QString CppComponentValue::propertyType(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    for (const CppComponentValue *it = this; it; it = it->prototype()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -380,9 +380,9 @@ QString QmlObjectValue::propertyType(const QString &propertyName) const
     return QString();
 }
 
-bool QmlObjectValue::isListProperty(const QString &propertyName) const
+bool CppComponentValue::isListProperty(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    for (const CppComponentValue *it = this; it; it = it->prototype()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -392,9 +392,9 @@ bool QmlObjectValue::isListProperty(const QString &propertyName) const
     return false;
 }
 
-FakeMetaEnum QmlObjectValue::getEnum(const QString &typeName, const QmlObjectValue **foundInScope) const
+FakeMetaEnum CppComponentValue::getEnum(const QString &typeName, const CppComponentValue **foundInScope) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    for (const CppComponentValue *it = this; it; it = it->prototype()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         const int index = iter->enumeratorIndex(typeName);
         if (index != -1) {
@@ -408,9 +408,9 @@ FakeMetaEnum QmlObjectValue::getEnum(const QString &typeName, const QmlObjectVal
     return FakeMetaEnum();
 }
 
-const QmlEnumValue *QmlObjectValue::getEnumValue(const QString &typeName, const QmlObjectValue **foundInScope) const
+const QmlEnumValue *CppComponentValue::getEnumValue(const QString &typeName, const CppComponentValue **foundInScope) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    for (const CppComponentValue *it = this; it; it = it->prototype()) {
         if (const QmlEnumValue *e = it->_enums.value(typeName)) {
             if (foundInScope)
                 *foundInScope = it;
@@ -422,7 +422,7 @@ const QmlEnumValue *QmlObjectValue::getEnumValue(const QString &typeName, const 
     return 0;
 }
 
-const ObjectValue *QmlObjectValue::signalScope(const QString &signalName) const
+const ObjectValue *CppComponentValue::signalScope(const QString &signalName) const
 {
     QHash<QString, const ObjectValue *> *scopes = _signalScopes;
     if (!scopes) {
@@ -457,9 +457,9 @@ const ObjectValue *QmlObjectValue::signalScope(const QString &signalName) const
     return scopes->value(signalName);
 }
 
-bool QmlObjectValue::isWritable(const QString &propertyName) const
+bool CppComponentValue::isWritable(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    for (const CppComponentValue *it = this; it; it = it->prototype()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -469,9 +469,9 @@ bool QmlObjectValue::isWritable(const QString &propertyName) const
     return false;
 }
 
-bool QmlObjectValue::isPointer(const QString &propertyName) const
+bool CppComponentValue::isPointer(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    for (const CppComponentValue *it = this; it; it = it->prototype()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -481,7 +481,7 @@ bool QmlObjectValue::isPointer(const QString &propertyName) const
     return false;
 }
 
-bool QmlObjectValue::hasLocalProperty(const QString &typeName) const
+bool CppComponentValue::hasLocalProperty(const QString &typeName) const
 {
     int idx = _metaObject->propertyIndex(typeName);
     if (idx == -1)
@@ -489,9 +489,9 @@ bool QmlObjectValue::hasLocalProperty(const QString &typeName) const
     return true;
 }
 
-bool QmlObjectValue::hasProperty(const QString &propertyName) const
+bool CppComponentValue::hasProperty(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    for (const CppComponentValue *it = this; it; it = it->prototype()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -501,9 +501,9 @@ bool QmlObjectValue::hasProperty(const QString &propertyName) const
     return false;
 }
 
-bool QmlObjectValue::isDerivedFrom(FakeMetaObject::ConstPtr base) const
+bool CppComponentValue::isDerivedFrom(FakeMetaObject::ConstPtr base) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    for (const CppComponentValue *it = this; it; it = it->prototype()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         if (iter == base)
             return true;
@@ -511,7 +511,7 @@ bool QmlObjectValue::isDerivedFrom(FakeMetaObject::ConstPtr base) const
     return false;
 }
 
-QmlEnumValue::QmlEnumValue(const QmlObjectValue *owner, int enumIndex)
+QmlEnumValue::QmlEnumValue(const CppComponentValue *owner, int enumIndex)
     : _owner(owner)
     , _enumIndex(enumIndex)
 {
@@ -532,7 +532,7 @@ QStringList QmlEnumValue::keys() const
     return _owner->metaObject()->enumerator(_enumIndex).keys();
 }
 
-const QmlObjectValue *QmlEnumValue::owner() const
+const CppComponentValue *QmlEnumValue::owner() const
 {
     return _owner;
 }
@@ -1290,7 +1290,7 @@ const QLatin1String CppQmlTypes::cppPackage("<cpp>");
 template <typename T>
 void CppQmlTypes::load(const T &fakeMetaObjects, const QString &overridePackage)
 {
-    QList<QmlObjectValue *> newCppTypes;
+    QList<CppComponentValue *> newCppTypes;
     foreach (const FakeMetaObject::ConstPtr &fmo, fakeMetaObjects) {
         foreach (const FakeMetaObject::Export &exp, fmo->exports()) {
             QString package = exp.package;
@@ -1303,7 +1303,7 @@ void CppQmlTypes::load(const T &fakeMetaObjects, const QString &overridePackage)
             if (exp.package == cppPackage) {
                 QTC_ASSERT(exp.version == ComponentVersion(), continue);
                 QTC_ASSERT(exp.type == fmo->className(), continue);
-                QmlObjectValue *cppValue = new QmlObjectValue(
+                CppComponentValue *cppValue = new CppComponentValue(
                             fmo, fmo->className(), cppPackage, ComponentVersion(), ComponentVersion(),
                             ComponentVersion::MaxVersion, _valueOwner);
                 _objectsByQualifiedName[qualifiedName(cppPackage, fmo->className(), ComponentVersion())] = cppValue;
@@ -1313,9 +1313,9 @@ void CppQmlTypes::load(const T &fakeMetaObjects, const QString &overridePackage)
     }
 
     // set prototypes of cpp types
-    foreach (QmlObjectValue *object, newCppTypes) {
+    foreach (CppComponentValue *object, newCppTypes) {
         const QString &protoCppName = object->metaObject()->superclassName();
-        const QmlObjectValue *proto = objectByCppName(protoCppName);
+        const CppComponentValue *proto = objectByCppName(protoCppName);
         if (proto)
             object->setPrototype(proto);
     }
@@ -1324,10 +1324,10 @@ void CppQmlTypes::load(const T &fakeMetaObjects, const QString &overridePackage)
 template void CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(const QList<FakeMetaObject::ConstPtr> &, const QString &);
 template void CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(const QHash<QString, FakeMetaObject::ConstPtr> &, const QString &);
 
-QList<const QmlObjectValue *> CppQmlTypes::createObjectsForImport(const QString &package, ComponentVersion version)
+QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QString &package, ComponentVersion version)
 {
-    QList<const QmlObjectValue *> exportedObjects;
-    QList<const QmlObjectValue *> newObjects;
+    QList<const CppComponentValue *> exportedObjects;
+    QList<const CppComponentValue *> newObjects;
 
     // make new exported objects
     foreach (const FakeMetaObject::ConstPtr &fmo, _fakeMetaObjectsByPackage.value(package)) {
@@ -1354,7 +1354,7 @@ QList<const QmlObjectValue *> CppQmlTypes::createObjectsForImport(const QString 
             name = fmo->className();
         }
 
-        QmlObjectValue *newObject = new QmlObjectValue(
+        CppComponentValue *newObject = new CppComponentValue(
                     fmo, name, package, bestExport.version, version,
                     bestExport.metaObjectRevision, _valueOwner);
 
@@ -1366,8 +1366,8 @@ QList<const QmlObjectValue *> CppQmlTypes::createObjectsForImport(const QString 
     }
 
     // set their prototypes, creating them if necessary
-    foreach (const QmlObjectValue *cobject, newObjects) {
-        QmlObjectValue *object = const_cast<QmlObjectValue *>(cobject);
+    foreach (const CppComponentValue *cobject, newObjects) {
+        CppComponentValue *object = const_cast<CppComponentValue *>(cobject);
         while (!object->prototype()) {
             const QString &protoCppName = object->metaObject()->superclassName();
             if (protoCppName.isEmpty())
@@ -1375,19 +1375,19 @@ QList<const QmlObjectValue *> CppQmlTypes::createObjectsForImport(const QString 
 
             // if the prototype already exists, done
             const QString key = qualifiedName(object->moduleName(), protoCppName, version);
-            if (const QmlObjectValue *proto = _objectsByQualifiedName.value(key)) {
+            if (const CppComponentValue *proto = _objectsByQualifiedName.value(key)) {
                 object->setPrototype(proto);
                 break;
             }
 
             // get the fmo via the cpp name
-            const QmlObjectValue *cppProto = objectByCppName(protoCppName);
+            const CppComponentValue *cppProto = objectByCppName(protoCppName);
             if (!cppProto)
                 break;
             FakeMetaObject::ConstPtr protoFmo = cppProto->metaObject();
 
             // make a new object
-            QmlObjectValue *proto = new QmlObjectValue(
+            CppComponentValue *proto = new CppComponentValue(
                         protoFmo, protoCppName, object->moduleName(), ComponentVersion(),
                         object->importVersion(), ComponentVersion::MaxVersion, _valueOwner);
             _objectsByQualifiedName.insert(key, proto);
@@ -1414,18 +1414,18 @@ QString CppQmlTypes::qualifiedName(const QString &module, const QString &type, C
 
 }
 
-const QmlObjectValue *CppQmlTypes::objectByQualifiedName(const QString &name) const
+const CppComponentValue *CppQmlTypes::objectByQualifiedName(const QString &name) const
 {
     return _objectsByQualifiedName.value(name);
 }
 
-const QmlObjectValue *CppQmlTypes::objectByQualifiedName(const QString &package, const QString &type,
+const CppComponentValue *CppQmlTypes::objectByQualifiedName(const QString &package, const QString &type,
                                                          ComponentVersion version) const
 {
     return objectByQualifiedName(qualifiedName(package, type, version));
 }
 
-const QmlObjectValue *CppQmlTypes::objectByCppName(const QString &cppName) const
+const CppComponentValue *CppQmlTypes::objectByCppName(const QString &cppName) const
 {
     return objectByQualifiedName(qualifiedName(cppPackage, cppName, ComponentVersion()));
 }

@@ -344,7 +344,7 @@ public:
         const ObjectValue *value = m_context->lookupType(m_doc.data(), astTypeNode);
         defaultPropertyName = m_context->defaultPropertyName(value);
 
-        const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(value);
+        const CppComponentValue * qmlValue = dynamic_cast<const CppComponentValue *>(value);
         if (qmlValue) {
             typeName = fixUpPackeNameForQt(qmlValue->moduleName()) + QLatin1String(".") + qmlValue->className();
 
@@ -500,7 +500,7 @@ public:
             const ObjectValue *proto = iter.next();
             if (proto->lookupMember(name, m_context) == m_context->valueOwner()->arrayPrototype())
                 return true;
-            if (const QmlObjectValue *qmlIter = dynamic_cast<const QmlObjectValue *>(proto)) {
+            if (const CppComponentValue *qmlIter = dynamic_cast<const CppComponentValue *>(proto)) {
                 if (qmlIter->isListProperty(name))
                     return true;
             }
@@ -525,7 +525,7 @@ public:
         if (containingObject)
             containingObject->lookupMember(name, m_context, &containingObject);
 
-        if (const QmlObjectValue * qmlObject = dynamic_cast<const QmlObjectValue *>(containingObject)) {
+        if (const CppComponentValue * qmlObject = dynamic_cast<const CppComponentValue *>(containingObject)) {
             const QString typeName = qmlObject->propertyType(name);
             if (qmlObject->getEnum(typeName).isValid()) {
                 return QVariant(cleanedValue);
@@ -569,10 +569,10 @@ public:
 
         if (containingObject)
             containingObject->lookupMember(name, m_context, &containingObject);
-        const QmlObjectValue * lhsQmlObject = dynamic_cast<const QmlObjectValue *>(containingObject);
-        if (!lhsQmlObject)
+        const CppComponentValue * lhsCppComponent = dynamic_cast<const CppComponentValue *>(containingObject);
+        if (!lhsCppComponent)
             return QVariant();
-        const QString lhsPropertyTypeName = lhsQmlObject->propertyType(name);
+        const QString lhsPropertyTypeName = lhsCppComponent->propertyType(name);
 
         const ObjectValue *rhsValueObject = 0;
         QString rhsValueName;
@@ -593,11 +593,11 @@ public:
         if (rhsValueObject)
             rhsValueObject->lookupMember(rhsValueName, m_context, &rhsValueObject);
 
-        const QmlObjectValue *rhsQmlObjectValue = dynamic_cast<const QmlObjectValue *>(rhsValueObject);
-        if (!rhsQmlObjectValue)
+        const CppComponentValue *rhsCppComponentValue = dynamic_cast<const CppComponentValue *>(rhsValueObject);
+        if (!rhsCppComponentValue)
             return QVariant();
 
-        if (rhsQmlObjectValue->getEnum(lhsPropertyTypeName).hasKey(rhsValueName))
+        if (rhsCppComponentValue->getEnum(lhsPropertyTypeName).hasKey(rhsValueName))
             return QVariant(rhsValueName);
         else
             return QVariant();

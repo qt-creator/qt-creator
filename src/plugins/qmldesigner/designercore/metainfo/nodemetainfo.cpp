@@ -103,7 +103,7 @@ public:
                 type = ref->ast()->memberType.toString();
             m_properties.append(qMakePair(name, type));
         } else {
-            if (const QmlObjectValue * ov = dynamic_cast<const QmlObjectValue *>(value)) {
+            if (const CppComponentValue * ov = dynamic_cast<const CppComponentValue *>(value)) {
                 QString qualifiedTypeName = ov->moduleName().isEmpty() ? ov->className() : ov->moduleName() + '.' + ov->className();
                 m_properties.append(qMakePair(name, qualifiedTypeName));
             } else {
@@ -135,12 +135,12 @@ static inline bool isValueType(const QString &type)
     return objectValuesList.contains(type);
 }
 
-const QmlObjectValue *findQmlPrototype(const ObjectValue *ov, const ContextPtr &context)
+const CppComponentValue *findQmlPrototype(const ObjectValue *ov, const ContextPtr &context)
 {
     if (!ov)
         return 0;
 
-    const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(ov);
+    const CppComponentValue * qmlValue = dynamic_cast<const CppComponentValue *>(ov);
     if (qmlValue)
         return qmlValue;
 
@@ -154,7 +154,7 @@ QStringList prototypes(const ObjectValue *ov, const ContextPtr &context, bool ve
         return list;
     ov = ov->prototype(context);
     while (ov) {
-        const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(ov);
+        const CppComponentValue * qmlValue = dynamic_cast<const CppComponentValue *>(ov);
         if (qmlValue) {
             if (versions) {
                 list << qmlValue->moduleName() + '.' + qmlValue->className() +
@@ -177,7 +177,7 @@ QStringList prototypes(const ObjectValue *ov, const ContextPtr &context, bool ve
 
 QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &context, bool local = false);
 
-QList<PropertyInfo> getQmlTypes(const QmlObjectValue *ov, const ContextPtr &context, bool local = false)
+QList<PropertyInfo> getQmlTypes(const CppComponentValue *ov, const ContextPtr &context, bool local = false)
 {
     QList<PropertyInfo> list;
     if (!ov)
@@ -192,7 +192,7 @@ QList<PropertyInfo> getQmlTypes(const QmlObjectValue *ov, const ContextPtr &cont
         QString name = property.first;
         if (!ov->isWritable(name) && ov->isPointer(name)) {
             //dot property
-            const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(ov->lookupMember(name, context));
+            const CppComponentValue * qmlValue = dynamic_cast<const CppComponentValue *>(ov->lookupMember(name, context));
             if (qmlValue) {
                 QList<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
@@ -224,7 +224,7 @@ QList<PropertyInfo> getQmlTypes(const QmlObjectValue *ov, const ContextPtr &cont
     if (!local) {
         const ObjectValue* prototype = ov->prototype(context);
 
-        const QmlObjectValue * qmlObjectValue = dynamic_cast<const QmlObjectValue *>(prototype);
+        const CppComponentValue * qmlObjectValue = dynamic_cast<const CppComponentValue *>(prototype);
 
         if (qmlObjectValue) {
             list << getQmlTypes(qmlObjectValue, context);
@@ -240,7 +240,7 @@ QList<PropertyInfo> getTypes(const ObjectValue *ov, const ContextPtr &context, b
 {
     QList<PropertyInfo> list;
 
-    const QmlObjectValue * qmlObjectValue = dynamic_cast<const QmlObjectValue *>(ov);
+    const CppComponentValue * qmlObjectValue = dynamic_cast<const CppComponentValue *>(ov);
 
     if (qmlObjectValue) {
         list << getQmlTypes(qmlObjectValue, context, local);
@@ -264,7 +264,7 @@ QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &cont
     if (!local) {
         const ObjectValue* prototype = ov->prototype(context);
 
-        const QmlObjectValue * qmlObjectValue = dynamic_cast<const QmlObjectValue *>(prototype);
+        const CppComponentValue * qmlObjectValue = dynamic_cast<const CppComponentValue *>(prototype);
 
         if (qmlObjectValue) {
             list << getQmlTypes(qmlObjectValue, context);
@@ -358,13 +358,13 @@ public:
 private:
     NodeMetaInfoPrivate(Model *model, QString type, int maj = -1, int min = -1);
 
-    const QmlJS::QmlObjectValue *getQmlObjectValue() const;
+    const QmlJS::CppComponentValue *getCppComponentValue() const;
     const QmlJS::ObjectValue *getObjectValue() const;
     void setupPropertyInfo(QList<PropertyInfo> propertyInfos);
     void setupLocalPropertyInfo(QList<PropertyInfo> propertyInfos);
     QString lookupName() const;
     QStringList lookupNameComponent() const;
-    const QmlJS::QmlObjectValue *getNearestQmlObjectValue() const;
+    const QmlJS::CppComponentValue *getNearestCppComponentValue() const;
     QString fullQualifiedImportAliasType() const;
 
     QString m_qualfiedTypeName;
@@ -424,7 +424,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
                                         m_model(model)
 {
     if (context()) {
-        const QmlObjectValue *objectValue = getQmlObjectValue();
+        const CppComponentValue *objectValue = getCppComponentValue();
         if (objectValue) {
             setupPropertyInfo(getTypes(objectValue, context()));
             setupLocalPropertyInfo(getTypes(objectValue, context(), true));
@@ -434,7 +434,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
         } else {
             const ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
-                const QmlObjectValue *qmlValue = dynamic_cast<const QmlObjectValue *>(objectValue);
+                const CppComponentValue *qmlValue = dynamic_cast<const CppComponentValue *>(objectValue);
                 if (qmlValue) {
                     m_majorVersion = qmlValue->componentVersion().majorVersion();
                     m_minorVersion = qmlValue->componentVersion().minorVersion();
@@ -452,7 +452,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
     }
 }
 
-const QmlJS::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue() const
+const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
 {
     const QStringList nameComponents = m_qualfiedTypeName.split('.');
     if (nameComponents.size() < 2)
@@ -460,7 +460,7 @@ const QmlJS::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue() const
     const QString type = nameComponents.last();
 
     // maybe 'type' is a cpp name
-    const QmlJS::QmlObjectValue *value = context()->valueOwner()->cppQmlTypes().objectByCppName(type);
+    const QmlJS::CppComponentValue *value = context()->valueOwner()->cppQmlTypes().objectByCppName(type);
     if (value)
         return value;
 
@@ -476,7 +476,7 @@ const QmlJS::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue() const
         if (import.info.path() != module)
             continue;
         const Value *lookupResult = import.object->lookupMember(type, context());
-        if ((value = dynamic_cast<const QmlObjectValue *>(lookupResult)))
+        if ((value = dynamic_cast<const CppComponentValue *>(lookupResult)))
             return value;
     }
 
@@ -541,7 +541,7 @@ bool NodeMetaInfoPrivate::isPropertyWritable(const QString &propertyName) const
             return true;
     }
 
-    const QmlJS::QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    const QmlJS::CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return true;
     if (qmlObjectValue->hasProperty(propertyName))
@@ -573,7 +573,7 @@ bool NodeMetaInfoPrivate::isPropertyList(const QString &propertyName) const
             return true;
     }
 
-    const QmlJS::QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    const QmlJS::CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return false;
     return qmlObjectValue->isListProperty(propertyName);
@@ -601,7 +601,7 @@ bool NodeMetaInfoPrivate::isPropertyPointer(const QString &propertyName) const
             return true;
     }
 
-    const QmlJS::QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    const QmlJS::CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return false;
     return qmlObjectValue->isPointer(propertyName);
@@ -629,7 +629,7 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const QString &propertyName) const
             return false;
     }
 
-    const QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return false;
     return qmlObjectValue->getEnum(propertyType(propertyName)).isValid();
@@ -657,10 +657,10 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const QString &propertyName) cons
             return QString();
     }
 
-    const QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return QString();
-    const QmlObjectValue *definedIn = 0;
+    const CppComponentValue *definedIn = 0;
     qmlObjectValue->getEnum(propertyType(propertyName), &definedIn);
     if (definedIn)
         return definedIn->className();
@@ -686,7 +686,7 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
     if (packageName() == package)
         return QString(package + '.' + typeName) == qualfiedTypeName();
 
-    const QmlObjectValue *qmlObjectValue = getQmlObjectValue();
+    const CppComponentValue *qmlObjectValue = getCppComponentValue();
     if (!qmlObjectValue)
         return false;
 
@@ -741,7 +741,7 @@ QStringList NodeMetaInfoPrivate::keysForEnum(const QString &enumName) const
     if (!isValid())
         return QStringList();
 
-    const QmlObjectValue *qmlObjectValue = getNearestQmlObjectValue();
+    const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return QStringList();
     return qmlObjectValue->getEnum(enumName).keys();
@@ -750,7 +750,7 @@ QStringList NodeMetaInfoPrivate::keysForEnum(const QString &enumName) const
 QString NodeMetaInfoPrivate::packageName() const
 {
     if (!isComponent()) {
-        if (const QmlObjectValue *qmlObject = getQmlObjectValue())
+        if (const CppComponentValue *qmlObject = getCppComponentValue())
             return qmlObject->moduleName();
     }
     return QString();
@@ -825,13 +825,13 @@ void NodeMetaInfoPrivate::setupPrototypes()
     if (m_isComponent)
         objects = PrototypeIterator(getObjectValue(), context()).all();
     else
-        objects = PrototypeIterator(getQmlObjectValue(), context()).all();
+        objects = PrototypeIterator(getCppComponentValue(), context()).all();
     foreach (const ObjectValue *ov, objects) {
         TypeDescription description;
         description.className = ov->className();
         description.minorVersion = -1;
         description.majorVersion = -1;
-        if (const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(ov)) {
+        if (const CppComponentValue * qmlValue = dynamic_cast<const CppComponentValue *>(ov)) {
             description.minorVersion = qmlValue->componentVersion().minorVersion();
             description.majorVersion = qmlValue->componentVersion().majorVersion();
             if (!qmlValue->moduleName().isEmpty())
@@ -850,11 +850,11 @@ QList<TypeDescription> NodeMetaInfoPrivate::prototypes() const
     return m_prototypes;
 }
 
-const QmlJS::QmlObjectValue *NodeMetaInfoPrivate::getNearestQmlObjectValue() const
+const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getNearestCppComponentValue() const
 {
     if (m_isComponent)
         return findQmlPrototype(getObjectValue(), context());
-    return getQmlObjectValue();
+    return getCppComponentValue();
 }
 
 QString NodeMetaInfoPrivate::fullQualifiedImportAliasType() const

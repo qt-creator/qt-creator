@@ -185,7 +185,7 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
     iter.next();
     while (iter.hasNext()) {
         const ObjectValue *prototype = iter.next();
-        if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
+        if (const CppComponentValue *qmlMetaObject = dynamic_cast<const CppComponentValue *>(prototype)) {
             if ((qmlMetaObject->className() == QLatin1String("ListElement")
                     || qmlMetaObject->className() == QLatin1String("Connections")
                     ) && (qmlMetaObject->moduleName() == QLatin1String("Qt")
@@ -259,7 +259,7 @@ const ObjectValue *ScopeBuilder::isPropertyChangesObject(const ContextPtr &conte
     PrototypeIterator iter(object, context);
     while (iter.hasNext()) {
         const ObjectValue *prototype = iter.next();
-        if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
+        if (const CppComponentValue *qmlMetaObject = dynamic_cast<const CppComponentValue *>(prototype)) {
             if (qmlMetaObject->className() == QLatin1String("PropertyChanges")
                     && (qmlMetaObject->moduleName() == QLatin1String("Qt")
                         || qmlMetaObject->moduleName() == QLatin1String("QtQuick")))

@@ -124,8 +124,8 @@ void tst_Basic::basicObjectTests()
     ContextPtr context = Link(snapshot, QStringList(), LibraryInfo())();
     QVERIFY(context);
 
-    QmlObjectValue *rectangleValue = context->valueOwner()->cppQmlTypes().typeByQualifiedName(
-                "Qt", "Rectangle", LanguageUtils::ComponentVersion(4, 7));
+    const CppComponentValue *rectangleValue = context->valueOwner()->cppQmlTypes().objectByQualifiedName(
+                "QtQuick", "QDeclarative1Rectangle", LanguageUtils::ComponentVersion(1, 0));
     QVERIFY(rectangleValue);
     QVERIFY(!rectangleValue->isWritable("border"));
     QVERIFY(rectangleValue->hasProperty("border"));
@@ -135,7 +135,7 @@ void tst_Basic::basicObjectTests()
 
     const ObjectValue *ovItem = context->lookupType(doc.data(), QStringList() << "Item");
     QCOMPARE(ovItem->className(), QString("Item"));
-    QCOMPARE(context->imports(doc.data())->info("Item", context.data()).name(), QString("Qt"));
+    QCOMPARE(context->imports(doc.data())->info("Item", context.data()).name(), QString("QtQuick"));
     const ObjectValue *ovButton = context->lookupType(doc.data(), QStringList() << "MyButton");
     QCOMPARE(ovButton->className(), QString("MyButton"));
     QCOMPARE(ovButton->prototype(context)->className(), QString("Rectangle"));
@@ -144,17 +144,17 @@ void tst_Basic::basicObjectTests()
     QVERIFY(ovProperty);
     QCOMPARE(ovProperty->className(), QString("State"));
 
-    const QmlObjectValue * qmlItemValue = dynamic_cast<const QmlObjectValue *>(ovItem);
+    const CppComponentValue * qmlItemValue = dynamic_cast<const CppComponentValue *>(ovItem);
     QVERIFY(qmlItemValue);
     QCOMPARE(qmlItemValue->defaultPropertyName(), QString("data"));
     QCOMPARE(qmlItemValue->propertyType("state"), QString("string"));
 
     const ObjectValue *ovState = context->lookupType(doc.data(), QStringList() << "State");
-    const QmlObjectValue * qmlState2Value = dynamic_cast<const QmlObjectValue *>(ovState);
+    const CppComponentValue * qmlState2Value = dynamic_cast<const CppComponentValue *>(ovState);
     QCOMPARE(qmlState2Value->className(), QString("State"));
 
     const ObjectValue *ovImage = context->lookupType(doc.data(), QStringList() << "Image");
-    const QmlObjectValue * qmlImageValue = dynamic_cast<const QmlObjectValue *>(ovImage);
+    const CppComponentValue * qmlImageValue = dynamic_cast<const CppComponentValue *>(ovImage);
     QCOMPARE(qmlImageValue->className(), QString("Image"));
     QCOMPARE(qmlImageValue->propertyType("source"), QString("QUrl"));
 }

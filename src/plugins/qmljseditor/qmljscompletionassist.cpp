@@ -148,7 +148,7 @@ public:
 
     virtual void operator ()(const Value *base, const QString &name, const Value *)
     {
-        const QmlObjectValue *qmlBase = dynamic_cast<const QmlObjectValue *>(base);
+        const CppComponentValue *qmlBase = dynamic_cast<const CppComponentValue *>(base);
 
         QString itemText = name;
         QString postfix;

@@ -138,7 +138,7 @@ QString Context::defaultPropertyName(const ObjectValue *object) const
             QString defaultProperty = astObjValue->defaultPropertyName();
             if (!defaultProperty.isEmpty())
                 return defaultProperty;
-        } else if (const QmlObjectValue *qmlValue = dynamic_cast<const QmlObjectValue *>(o)) {
+        } else if (const CppComponentValue *qmlValue = dynamic_cast<const CppComponentValue *>(o)) {
             return qmlValue->defaultPropertyName();
         }
     }

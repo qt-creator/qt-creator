@@ -94,7 +94,7 @@ class CollectStateNames : protected Visitor
     QStringList m_stateNames;
     bool m_inStateType;
     ScopeChain m_scopeChain;
-    const QmlObjectValue *m_statePrototype;
+    const CppComponentValue *m_statePrototype;
 
 public:
     CollectStateNames(const ScopeChain &scopeChain)
@@ -138,7 +138,7 @@ protected:
         PrototypeIterator it(v, m_scopeChain.context());
         while (it.hasNext()) {
             const ObjectValue *proto = it.next();
-            const QmlObjectValue *qmlProto = dynamic_cast<const QmlObjectValue *>(proto);
+            const CppComponentValue *qmlProto = dynamic_cast<const CppComponentValue *>(proto);
             if (!qmlProto)
                 continue;
             if (qmlProto->metaObject() == m_statePrototype->metaObject())
