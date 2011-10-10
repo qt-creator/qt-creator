@@ -277,6 +277,7 @@ QString BreakpointParameters::toString() const
     case BreakpointAtExec:
     //case BreakpointAtVFork:
     case BreakpointAtSysCall:
+    case BreakpointAtJavaScriptThrow:
     case UnknownType:
         break;
     }

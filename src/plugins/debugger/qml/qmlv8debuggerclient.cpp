@@ -279,10 +279,6 @@ void QmlV8DebuggerClient::interruptInferior()
 
 void QmlV8DebuggerClient::startSession()
 {
-    //Set up Exception Handling first
-    //TODO: For now we enable breaks for all exceptions
-    breakOnException(AllExceptions, true);
-
     QByteArray request;
 
     JsonInputStream(request) << '{' << INITIALPARAMS ;
@@ -315,28 +311,39 @@ void QmlV8DebuggerClient::activateFrame(int index)
 bool QmlV8DebuggerClient::acceptsBreakpoint(const BreakpointModelId &id)
 {
     BreakpointType type = d->engine->breakHandler()->breakpointData(id).type;
-    return (type == BreakpointOnQmlSignalHandler || type == BreakpointByFunction);
+    return (type == BreakpointOnQmlSignalHandler
+            || type == BreakpointByFunction
+            || type == BreakpointAtJavaScriptThrow);
 }
 
 void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
 {
     BreakHandler *handler = d->engine->breakHandler();
+    const BreakpointParameters &params = handler->breakpointData(id);
+
+    if (params.type == BreakpointAtJavaScriptThrow) {
+        handler->notifyBreakpointInsertOk(id);
+        return breakOnException(AllExceptions, params.enabled);
+    }
+
     QByteArray request;
 
     JsonInputStream(request) << '{' << INITIALPARAMS ;
     JsonInputStream(request) << ',' << "command" << ':' << "setbreakpoint";
     JsonInputStream(request) << ',' << "arguments" << ':' << '{';
-    if (handler->breakpointData(id).type == BreakpointByFileAndLine) {
+    if (params.type == BreakpointByFileAndLine) {
         JsonInputStream(request) << "type" << ':' << "script";
-        JsonInputStream(request) << ',' << "target" << ':' << QFileInfo(handler->fileName(id)).fileName().toUtf8();
-        JsonInputStream(request) << ',' << "line" << ':' << handler->lineNumber(id) - 1;
-    } else if (handler->breakpointData(id).type == BreakpointByFunction) {
+        JsonInputStream(request) << ',' << "target" << ':' << QFileInfo(params.fileName).fileName().toUtf8();
+        JsonInputStream(request) << ',' << "line" << ':' << params.lineNumber - 1;
+    } else if (params.type == BreakpointByFunction) {
         JsonInputStream(request) << "type" << ':' << "function";
-        JsonInputStream(request) << ',' << "target" << ':' << handler->functionName(id).toUtf8();
-    } else if (handler->breakpointData(id).type == BreakpointOnQmlSignalHandler) {
+        JsonInputStream(request) << ',' << "target" << ':' << params.functionName.toUtf8();
+    } else if (params.type == BreakpointOnQmlSignalHandler) {
         JsonInputStream(request) << "type" << ':' << "event";
-        JsonInputStream(request) << ',' << "target" << ':' << handler->functionName(id).toUtf8();
+        JsonInputStream(request) << ',' << "target" << ':' << params.functionName.toUtf8();
     }
+    JsonInputStream(request) << ',' << "enabled" << ':' << params.enabled;
+
     JsonInputStream(request) << '}';
     JsonInputStream(request) << '}';
 
@@ -346,6 +353,12 @@ void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
 
 void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
 {
+    BreakHandler *handler = d->engine->breakHandler();
+
+    if (handler->breakpointData(id).type == BreakpointAtJavaScriptThrow) {
+        return breakOnException(AllExceptions, false);
+    }
+
     int breakpoint = d->breakpoints.value(id);
     d->breakpoints.remove(id);
 
@@ -363,8 +376,14 @@ void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
     sendMessage(packMessage(request));
 }
 
-void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &/*id*/)
+void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &id)
 {
+    BreakHandler *handler = d->engine->breakHandler();
+    const BreakpointParameters &params = handler->breakpointData(id);
+
+    if (params.type == BreakpointAtJavaScriptThrow) {
+        return breakOnException(AllExceptions, params.enabled);
+    }
 }
 
 void QmlV8DebuggerClient::updateBreakpoints()
@@ -482,8 +501,8 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
         if (type == "response") {
 
             if (!value.findChild("success").toVariant().toBool()) {
-                //TODO:: Error
-                qDebug() << Q_FUNC_INFO << value.toString(true,2);
+                //TODO:: have to handle this case for each command
+                d->engine->logMessage(QmlEngine::LogReceive, QString("V8 Response Error: %1").arg(QString(value.toString(true,2))));
                 return;
             }
 
@@ -514,8 +533,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 backtrace();
 
             } else {
-                //TODO::
-                //qDebug() << Q_FUNC_INFO << value.toString(true,2);
+                d->engine->logMessage(QmlEngine::LogReceive, value.toString(true,2));
             }
 
         } else if (type == "event") {

@@ -1583,6 +1583,11 @@ void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description
 
 bool DebuggerEngine::isCppBreakpoint(const BreakpointParameters &p)
 {
+    //Qml specific breakpoint types
+    if (p.type == BreakpointAtJavaScriptThrow
+            || p.type == BreakpointOnQmlSignalHandler)
+        return false;
+
     // Qml is currently only file
     if (p.type != BreakpointByFileAndLine)
         return true;
