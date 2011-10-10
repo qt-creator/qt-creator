@@ -104,6 +104,7 @@ LinuxDeviceConfigurationsSettingsWidget::LinuxDeviceConfigurationsSettingsWidget
       m_saveSettingsRequested(false),
       m_additionalActionsMapper(new QSignalMapper(this))
 {
+    LinuxDeviceConfigurations::blockCloning();
     initGui();
     connect(m_additionalActionsMapper, SIGNAL(mapped(QString)),
         SLOT(handleAdditionalActionRequest(QString)));
@@ -116,6 +117,7 @@ LinuxDeviceConfigurationsSettingsWidget::~LinuxDeviceConfigurationsSettingsWidge
             currentIndex());
         LinuxDeviceConfigurations::replaceInstance(m_devConfigs.data());
     }
+    LinuxDeviceConfigurations::unblockCloning();
     delete m_ui;
 }
 

@@ -52,6 +52,8 @@ const QLatin1String IdCounterKey("IdCounter");
 const QLatin1String ConfigListKey("ConfigList");
 const QLatin1String DefaultKeyFilePathKey("DefaultKeyFile");
 
+bool cloningBlocked = false;
+
 class DevConfNameMatcher
 {
 public:
@@ -103,6 +105,8 @@ void LinuxDeviceConfigurations::replaceInstance(const LinuxDeviceConfigurations 
 
 LinuxDeviceConfigurations *LinuxDeviceConfigurations::cloneInstance()
 {
+    if (cloningBlocked)
+        return 0;
     LinuxDeviceConfigurations * const other = new LinuxDeviceConfigurations(0);
     copy(LinuxDeviceConfigurationsPrivate::instance, other, true);
     return other;
@@ -254,6 +258,18 @@ void LinuxDeviceConfigurations::setDefaultDevice(int idx)
 LinuxDeviceConfigurations::LinuxDeviceConfigurations(QObject *parent)
     : QAbstractListModel(parent), d(new LinuxDeviceConfigurationsPrivate)
 {
+}
+
+void LinuxDeviceConfigurations::blockCloning()
+{
+    QTC_ASSERT(!cloningBlocked, return);
+    cloningBlocked = true;
+}
+
+void LinuxDeviceConfigurations::unblockCloning()
+{
+    QTC_ASSERT(cloningBlocked, return);
+    cloningBlocked = false;
 }
 
 LinuxDeviceConfigurations::~LinuxDeviceConfigurations()

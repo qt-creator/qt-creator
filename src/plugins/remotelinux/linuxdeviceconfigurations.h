@@ -42,16 +42,24 @@ QT_FORWARD_DECLARE_CLASS(QString)
 namespace RemoteLinux {
 namespace Internal {
 class LinuxDeviceConfigurationsPrivate;
+class LinuxDeviceConfigurationsSettingsWidget;
 } // namespace Internal
 
 class REMOTELINUX_EXPORT LinuxDeviceConfigurations : public QAbstractListModel
 {
     Q_OBJECT
+    friend class Internal::LinuxDeviceConfigurationsSettingsWidget;
 public:
     ~LinuxDeviceConfigurations();
 
     static LinuxDeviceConfigurations *instance(QObject *parent = 0);
 
+    // If you want to edit the list of device configurations programatically
+    // (e.g. when doing device auto-detection), call cloneInstance() to get a copy,
+    // do the changes there and then call replaceInstance() to write them back.
+    // Callers must be prepared to deal with cloneInstance() temporarily returning null,
+    // which happens if the settings dialog is currently open.
+    // All other callers are required to do the clone/replace operation synchronously!
     static void replaceInstance(const LinuxDeviceConfigurations *other);
     static LinuxDeviceConfigurations *cloneInstance();
 
@@ -81,6 +89,9 @@ signals:
 
 private:
     LinuxDeviceConfigurations(QObject *parent);
+
+    static void blockCloning();
+    static void unblockCloning();
 
     void load();
     void save();
