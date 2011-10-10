@@ -155,42 +155,42 @@ public:
         if (m_refSockFD == 0) qDebug() << QLatin1String("NativeZConfLib.m_refSockFD == 0");
     }
 
-    virtual ~NativeZConfLib() {
+    ~NativeZConfLib() {
     }
 
-    virtual QString name(){
+    QString name(){
         return QString::fromUtf8("NativeZeroConfLib@%1").arg(size_t(this),0,16);
     }
 
     // virtual bool tryStartDaemon();
-    virtual void refDeallocate(DNSServiceRef sdRef) {
+    void refDeallocate(DNSServiceRef sdRef) {
         if (m_refDeallocate == 0) return;
         m_refDeallocate(sdRef);
     }
 
-    virtual DNSServiceErrorType resolve(DNSServiceRef *sdRef, DNSServiceFlags flags,
-                                        uint32_t interfaceIndex, const char *name,
-                                        const char *regtype, const char *domain,
-                                        DNSServiceResolveReply callBack, void *context)
+    DNSServiceErrorType resolve(DNSServiceRef *sdRef, DNSServiceFlags flags,
+                                uint32_t interfaceIndex, const char *name,
+                                const char *regtype, const char *domain,
+                                DNSServiceResolveReply callBack, void *context)
     {
         if (m_resolve == 0) return kDNSServiceErr_Unsupported;
         return m_resolve(sdRef, flags, interfaceIndex, name, regtype, domain, callBack, context);
     }
 
-    virtual DNSServiceErrorType queryRecord(DNSServiceRef *sdRef, DNSServiceFlags flags,
-                                            uint32_t interfaceIndex, const char *fullname,
-                                            uint16_t rrtype, uint16_t rrclass,
-                                            DNSServiceQueryRecordReply callBack, void *context)
+    DNSServiceErrorType queryRecord(DNSServiceRef *sdRef, DNSServiceFlags flags,
+                                    uint32_t interfaceIndex, const char *fullname,
+                                    uint16_t rrtype, uint16_t rrclass,
+                                    DNSServiceQueryRecordReply callBack, void *context)
     {
         if (m_queryRecord == 0) return kDNSServiceErr_Unsupported;
         return m_queryRecord(sdRef, flags, interfaceIndex, fullname,
                              rrtype, rrclass, callBack, context);
     }
 
-    virtual DNSServiceErrorType getAddrInfo(DNSServiceRef *sdRef, DNSServiceFlags flags,
-                                            uint32_t interfaceIndex, DNSServiceProtocol protocol,
-                                            const char *hostname, DNSServiceGetAddrInfoReply callBack,
-                                            void *context)
+    DNSServiceErrorType getAddrInfo(DNSServiceRef *sdRef, DNSServiceFlags flags,
+                                    uint32_t interfaceIndex, DNSServiceProtocol protocol,
+                                    const char *hostname, DNSServiceGetAddrInfoReply callBack,
+                                    void *context)
     {
         enum { longTTL = 100 };
         if (m_getAddrInfo == 0) {
@@ -220,60 +220,60 @@ public:
                              hostname, callBack, context);
     }
 
-    virtual uint16_t txtRecordGetCount(uint16_t txtLen, const void *txtRecord)
+    uint16_t txtRecordGetCount(uint16_t txtLen, const void *txtRecord)
     {
         if (m_txtRecordGetCount == 0) return 0;
         return m_txtRecordGetCount(txtLen, txtRecord);
     }
 
-    virtual DNSServiceErrorType txtRecordGetItemAtIndex(uint16_t txtLen, const void *txtRecord,
-                                                        uint16_t itemIndex, uint16_t keyBufLen,
-                                                        char *key, uint8_t *valueLen, const void **value)
+    DNSServiceErrorType txtRecordGetItemAtIndex(uint16_t txtLen, const void *txtRecord,
+                                                uint16_t itemIndex, uint16_t keyBufLen,
+                                                char *key, uint8_t *valueLen, const void **value)
     {
         if (m_txtRecordGetItemAtIndex == 0) return kDNSServiceErr_Unsupported;
         return m_txtRecordGetItemAtIndex(txtLen, txtRecord, itemIndex, keyBufLen,
                                          key, valueLen, value);
     }
 
-    virtual DNSServiceErrorType reconfirmRecord(DNSServiceFlags flags, uint32_t interfaceIndex,
-                                                const char *fullname, uint16_t rrtype,
-                                                uint16_t rrclass, uint16_t rdlen, const void *rdata)
+    DNSServiceErrorType reconfirmRecord(DNSServiceFlags flags, uint32_t interfaceIndex,
+                                        const char *fullname, uint16_t rrtype,
+                                        uint16_t rrclass, uint16_t rdlen, const void *rdata)
     {
         if (m_reconfirmRecord == 0) return kDNSServiceErr_Unsupported;
         return m_reconfirmRecord(flags, interfaceIndex, fullname, rrtype,
                                  rrclass, rdlen, rdata);
     }
 
-    virtual DNSServiceErrorType browse(DNSServiceRef *sdRef, DNSServiceFlags flags,
-                                       uint32_t interfaceIndex, const char *regtype,
-                                       const char *domain, DNSServiceBrowseReply callBack,
-                                       void *context)
+    DNSServiceErrorType browse(DNSServiceRef *sdRef, DNSServiceFlags flags,
+                               uint32_t interfaceIndex, const char *regtype,
+                               const char *domain, DNSServiceBrowseReply callBack,
+                               void *context)
     {
         if (m_browse == 0) return kDNSServiceErr_Unsupported;
         return m_browse(sdRef, flags, interfaceIndex, regtype, domain, callBack, context);
     }
 
-    virtual DNSServiceErrorType getProperty(const char *property,  // Requested property (i.e. kDNSServiceProperty_DaemonVersion)
-                                            void       *result,    // Pointer to place to store result
-                                            uint32_t   *size       // size of result location
-                                            )
+    DNSServiceErrorType getProperty(const char *property,  // Requested property (i.e. kDNSServiceProperty_DaemonVersion)
+                                    void       *result,    // Pointer to place to store result
+                                    uint32_t   *size       // size of result location
+                                    )
     {
         if (m_getProperty == 0)
             return kDNSServiceErr_Unsupported;
         return m_getProperty(property, result, size);
     }
 
-    virtual DNSServiceErrorType processResult(DNSServiceRef sdRef) {
+    DNSServiceErrorType processResult(DNSServiceRef sdRef) {
         if (m_processResult == 0) return kDNSServiceErr_Unsupported;
         return m_processResult(sdRef);
     }
 
-    virtual DNSServiceErrorType createConnection(DNSServiceRef *sdRef) {
+    DNSServiceErrorType createConnection(DNSServiceRef *sdRef) {
         if (m_createConnection == 0) return kDNSServiceErr_Unsupported;
         return m_createConnection(sdRef);
     }
 
-    virtual int refSockFD(DNSServiceRef sdRef) {
+    int refSockFD(DNSServiceRef sdRef) {
         if (m_refSockFD == 0) return kDNSServiceErr_Unsupported;
         return m_refSockFD(sdRef);
     }

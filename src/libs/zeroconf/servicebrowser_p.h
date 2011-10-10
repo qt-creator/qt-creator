@@ -74,10 +74,10 @@ public:
                                             DNSServiceGetAddrInfoReply callBack, void *context) = 0;
 
     // remove txt functions from lib and always embed?
-    virtual uint16_t DNSSD_API txtRecordGetCount(uint16_t txtLen, const void *txtRecord) = 0;
-    virtual DNSServiceErrorType DNSSD_API txtRecordGetItemAtIndex(uint16_t txtLen, const void *txtRecord,
-                                                                  uint16_t itemIndex, uint16_t keyBufLen, char *key,
-                                                                  uint8_t *valueLen, const void **value) = 0;
+    virtual uint16_t txtRecordGetCount(uint16_t txtLen, const void *txtRecord) = 0;
+    virtual DNSServiceErrorType txtRecordGetItemAtIndex(uint16_t txtLen, const void *txtRecord,
+                                                        uint16_t itemIndex, uint16_t keyBufLen, char *key,
+                                                        uint8_t *valueLen, const void **value) = 0;
 
     virtual DNSServiceErrorType reconfirmRecord(DNSServiceFlags flags, uint32_t interfaceIndex,
                                                 const char *fullname, uint16_t rrtype, uint16_t rrclass,
