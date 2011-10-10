@@ -9,7 +9,7 @@ class QtQuickConstants:
         MEEGO_HARMATTAN = 4
         EXISTING_QML = 8
 
-    class Destinations:
+    class Targets:
         DESKTOP = 1
         SIMULATOR = 2
         SYMBIAN = 4
@@ -30,16 +30,16 @@ class QtQuickConstants:
                 return None
 
     @staticmethod
-    def getStringForDestination(destination):
-        if destination==QtQuickConstants.Destinations.DESKTOP:
+    def getStringForTarget(target):
+        if target==QtQuickConstants.Targets.DESKTOP:
             return "Desktop"
-        elif destination==QtQuickConstants.Destinations.SYMBIAN:
+        elif target==QtQuickConstants.Targets.SYMBIAN:
             return "Symbian Device"
-        elif destination==QtQuickConstants.Destinations.MAEMO5:
+        elif target==QtQuickConstants.Targets.MAEMO5:
             return "Maemo5"
-        elif destination==QtQuickConstants.Destinations.SIMULATOR:
+        elif target==QtQuickConstants.Targets.SIMULATOR:
             return "Qt Simulator"
-        elif destination==QtQuickConstants.Destinations.HARMATTAN:
+        elif target==QtQuickConstants.Targets.HARMATTAN:
             return "Harmattan"
         else:
             return None
@@ -63,26 +63,26 @@ def chooseComponents(components=QtQuickConstants.Components.BUILTIN):
         test.verify(rbComponentToChoose.checked, "Selected QRadioButton is '%s'"
                 % QtQuickConstants.getStringForComponents(components))
 
-# parameter destination can be an OR'd value of QtQuickConstants.Destinations
-def chooseDestination(destination=QtQuickConstants.Destinations.DESKTOP):
+# parameter target can be an OR'd value of QtQuickConstants.Targets
+def chooseTargets(targets=QtQuickConstants.Targets.DESKTOP):
      # DESKTOP should be always accessible
     destDesktop = waitForObject("{type='QCheckBox' text='%s' visible='1'}"
-                                % QtQuickConstants.getStringForDestination(QtQuickConstants.Destinations.DESKTOP), 20000)
-    mustCheck = destination & QtQuickConstants.Destinations.DESKTOP==QtQuickConstants.Destinations.DESKTOP
-    if (mustCheck and not destDesktop.checked) or (not mustCheck and destDesktop.checked):
+                                % QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.DESKTOP), 20000)
+    mustCheck = targets & QtQuickConstants.Targets.DESKTOP==QtQuickConstants.Targets.DESKTOP
+    if (mustCheck ^ destDesktop.checked):
         clickButton(destDesktop)
-    # following destinations depend on the build environment - added for further/later tests
-    available = [QtQuickConstants.Destinations.SYMBIAN, QtQuickConstants.Destinations.MAEMO5,
-                 QtQuickConstants.Destinations.SIMULATOR, QtQuickConstants.Destinations.HARMATTAN]
+    # following targets depend on the build environment - added for further/later tests
+    available = [QtQuickConstants.Targets.SYMBIAN, QtQuickConstants.Targets.MAEMO5,
+                 QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
     for current in available:
-        mustCheck = destination & current == current
+        mustCheck = targets & current == current
         try:
-            target = findObject("{type='QCheckBox' text='%s' visible='1'}" % QtQuickConstants.getStringForDestination(current))
-            if (mustCheck and not target.checked) or (not mustCheck and target.checked):
-                clickButton(target)
+            targetCheckbox = findObject("{type='QCheckBox' text='%s' visible='1'}" % QtQuickConstants.getStringForTarget(current))
+            if mustCheck ^ targetCheckbox.checked:
+                clickButton(targetCheckbox)
         except LookupError:
             if mustCheck:
-                test.fail("Failed to check destination '%s'" % QtQuickConstants.getStringForDestination(current))
+                test.fail("Failed to check target '%s'" % QtQuickConstants.getStringForTarget(current))
 
 def runAndCloseApp():
     global processStarted, processExited

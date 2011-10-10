@@ -129,7 +129,7 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
         test.verify(os.path.exists(ui_path), "Checking if '" + ui_path + "' was created")
         test.verify(os.path.exists(pro_path), "Checking if '" + pro_path + "' was created")
 
-def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, destination = QtQuickConstants.Destinations.DESKTOP):
+def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP):
     invokeMenuItem("File", "New File or Project...")
     clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
     clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick Application", 5, 5, 0, Qt.LeftButton)
@@ -157,7 +157,7 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
         baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
         type(baseLineEd, templateFile)
     clickButton(nextButton)
-    chooseDestination(destination)
+    chooseTargets(targets)
     snooze(1)
     clickButton(nextButton)
     selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
