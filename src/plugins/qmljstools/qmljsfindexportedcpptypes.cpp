@@ -659,10 +659,13 @@ static void buildContextProperties(
                     typeScope = scope; // incorrect but may be an ok fallback
                 ClassOrNamespace *binding = typeOf.context().lookupType(namedType->name(), typeScope);
                 if (binding && !binding->symbols().isEmpty()) {
-                    Class *klass = binding->symbols().first()->asClass();
-                    if (klass) {
-                        FakeMetaObject::Ptr fmo = buildFakeMetaObject(klass, fakeMetaObjects, typeOf);
-                        typeName = fmo->className();
+                    // find the best 'Class' symbol
+                    for (int i = binding->symbols().size() - 1; i >= 0; --i) {
+                        if (Class *klass = binding->symbols().at(i)->asClass()) {
+                            FakeMetaObject::Ptr fmo = buildFakeMetaObject(klass, fakeMetaObjects, typeOf);
+                            typeName = fmo->className();
+                            break;
+                        }
                     }
                 }
             }
