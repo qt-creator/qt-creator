@@ -96,14 +96,14 @@ class PropertyMemberProcessor : public MemberProcessor
 public:
     virtual bool processProperty(const QString &name, const Value *value)
     {
-        const ASTPropertyReference *ref = dynamic_cast<const ASTPropertyReference*>(value);
+        const ASTPropertyReference *ref = value_cast<ASTPropertyReference>(value);
         if (ref) {
             QString type = "unknown";
             if (!ref->ast()->memberType.isEmpty())
                 type = ref->ast()->memberType.toString();
             m_properties.append(qMakePair(name, type));
         } else {
-            if (const CppComponentValue * ov = dynamic_cast<const CppComponentValue *>(value)) {
+            if (const CppComponentValue * ov = value_cast<CppComponentValue>(value)) {
                 QString qualifiedTypeName = ov->moduleName().isEmpty() ? ov->className() : ov->moduleName() + '.' + ov->className();
                 m_properties.append(qMakePair(name, qualifiedTypeName));
             } else {
@@ -140,7 +140,7 @@ const CppComponentValue *findQmlPrototype(const ObjectValue *ov, const ContextPt
     if (!ov)
         return 0;
 
-    const CppComponentValue * qmlValue = dynamic_cast<const CppComponentValue *>(ov);
+    const CppComponentValue * qmlValue = value_cast<CppComponentValue>(ov);
     if (qmlValue)
         return qmlValue;
 
@@ -154,7 +154,7 @@ QStringList prototypes(const ObjectValue *ov, const ContextPtr &context, bool ve
         return list;
     ov = ov->prototype(context);
     while (ov) {
-        const CppComponentValue * qmlValue = dynamic_cast<const CppComponentValue *>(ov);
+        const CppComponentValue * qmlValue = value_cast<CppComponentValue>(ov);
         if (qmlValue) {
             if (versions) {
                 list << qmlValue->moduleName() + '.' + qmlValue->className() +
@@ -192,7 +192,7 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *ov, const ContextPtr &c
         QString name = property.first;
         if (!ov->isWritable(name) && ov->isPointer(name)) {
             //dot property
-            const CppComponentValue * qmlValue = dynamic_cast<const CppComponentValue *>(ov->lookupMember(name, context));
+            const CppComponentValue * qmlValue = value_cast<CppComponentValue>(ov->lookupMember(name, context));
             if (qmlValue) {
                 QList<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
@@ -204,7 +204,7 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *ov, const ContextPtr &c
             }
         }
         if (isValueType(ov->propertyType(name))) {
-            const ObjectValue *dotObjectValue = dynamic_cast<const ObjectValue *>(ov->lookupMember(name, context));
+            const ObjectValue *dotObjectValue = value_cast<ObjectValue>(ov->lookupMember(name, context));
             if (dotObjectValue) {
                 QList<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
@@ -224,7 +224,7 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *ov, const ContextPtr &c
     if (!local) {
         const ObjectValue* prototype = ov->prototype(context);
 
-        const CppComponentValue * qmlObjectValue = dynamic_cast<const CppComponentValue *>(prototype);
+        const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(prototype);
 
         if (qmlObjectValue) {
             list << getQmlTypes(qmlObjectValue, context);
@@ -240,7 +240,7 @@ QList<PropertyInfo> getTypes(const ObjectValue *ov, const ContextPtr &context, b
 {
     QList<PropertyInfo> list;
 
-    const CppComponentValue * qmlObjectValue = dynamic_cast<const CppComponentValue *>(ov);
+    const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(ov);
 
     if (qmlObjectValue) {
         list << getQmlTypes(qmlObjectValue, context, local);
@@ -264,7 +264,7 @@ QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &cont
     if (!local) {
         const ObjectValue* prototype = ov->prototype(context);
 
-        const CppComponentValue * qmlObjectValue = dynamic_cast<const CppComponentValue *>(prototype);
+        const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(prototype);
 
         if (qmlObjectValue) {
             list << getQmlTypes(qmlObjectValue, context);
@@ -434,7 +434,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
         } else {
             const ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
-                const CppComponentValue *qmlValue = dynamic_cast<const CppComponentValue *>(objectValue);
+                const CppComponentValue *qmlValue = value_cast<CppComponentValue>(objectValue);
                 if (qmlValue) {
                     m_majorVersion = qmlValue->componentVersion().majorVersion();
                     m_minorVersion = qmlValue->componentVersion().minorVersion();
@@ -476,7 +476,7 @@ const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() cons
         if (import.info.path() != module)
             continue;
         const Value *lookupResult = import.object->lookupMember(type, context());
-        if ((value = dynamic_cast<const CppComponentValue *>(lookupResult)))
+        if ((value = value_cast<CppComponentValue>(lookupResult)))
             return value;
     }
 
@@ -759,7 +759,7 @@ QString NodeMetaInfoPrivate::packageName() const
 QString NodeMetaInfoPrivate::componentSource() const
 {
     if (isComponent()) {
-        const ASTObjectValue * astObjectValue = dynamic_cast<const ASTObjectValue *>(getObjectValue());
+        const ASTObjectValue * astObjectValue = value_cast<ASTObjectValue>(getObjectValue());
         if (astObjectValue)
             return astObjectValue->document()->source().mid(astObjectValue->typeName()->identifierToken.begin(),
                                                             astObjectValue->initializer()->rbraceToken.end());
@@ -770,7 +770,7 @@ QString NodeMetaInfoPrivate::componentSource() const
 QString NodeMetaInfoPrivate::componentFileName() const
 {
     if (isComponent()) {
-        const ASTObjectValue * astObjectValue = dynamic_cast<const ASTObjectValue *>(getObjectValue());
+        const ASTObjectValue * astObjectValue = value_cast<ASTObjectValue>(getObjectValue());
         if (astObjectValue) {
             QString fileName;
             int line;
@@ -831,7 +831,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
         description.className = ov->className();
         description.minorVersion = -1;
         description.majorVersion = -1;
-        if (const CppComponentValue * qmlValue = dynamic_cast<const CppComponentValue *>(ov)) {
+        if (const CppComponentValue * qmlValue = value_cast<CppComponentValue>(ov)) {
             description.minorVersion = qmlValue->componentVersion().minorVersion();
             description.majorVersion = qmlValue->componentVersion().majorVersion();
             if (!qmlValue->moduleName().isEmpty())

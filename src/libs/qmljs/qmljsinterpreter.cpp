@@ -193,6 +193,11 @@ static QString generatedSlotName(const QString &base)
     return slotName;
 }
 
+const CppComponentValue *CppComponentValue::asCppComponentValue() const
+{
+    return this;
+}
+
 void CppComponentValue::processMembers(MemberProcessor *processor) const
 {
     // process the meta enums
@@ -337,7 +342,7 @@ const Value *CppComponentValue::valueForCppName(const QString &typeName) const
 
 const CppComponentValue *CppComponentValue::prototype() const
 {
-    Q_ASSERT(!_prototype || dynamic_cast<const CppComponentValue *>(_prototype));
+    Q_ASSERT(!_prototype || value_cast<CppComponentValue>(_prototype));
     return static_cast<const CppComponentValue *>(_prototype);
 }
 
@@ -522,6 +527,11 @@ QmlEnumValue::~QmlEnumValue()
 {
 }
 
+const QmlEnumValue *QmlEnumValue::asQmlEnumValue() const
+{
+    return this;
+}
+
 QString QmlEnumValue::name() const
 {
     return _owner->metaObject()->enumerator(_enumIndex).name();
@@ -665,6 +675,31 @@ const ColorValue *Value::asColorValue() const
 }
 
 const AnchorLineValue *Value::asAnchorLineValue() const
+{
+    return 0;
+}
+
+const CppComponentValue *Value::asCppComponentValue() const
+{
+    return 0;
+}
+
+const ASTObjectValue *Value::asAstObjectValue() const
+{
+    return 0;
+}
+
+const QmlEnumValue *Value::asQmlEnumValue() const
+{
+    return 0;
+}
+
+const QmlPrototypeReference *Value::asQmlPrototypeReference() const
+{
+    return 0;
+}
+
+const ASTPropertyReference *Value::asAstPropertyReference() const
 {
     return 0;
 }
@@ -853,10 +888,10 @@ const Value *ObjectValue::prototype() const
 
 const ObjectValue *ObjectValue::prototype(const Context *context) const
 {
-    const ObjectValue *prototypeObject = value_cast<const ObjectValue *>(_prototype);
+    const ObjectValue *prototypeObject = value_cast<ObjectValue>(_prototype);
     if (! prototypeObject) {
-        if (const Reference *prototypeReference = value_cast<const Reference *>(_prototype)) {
-            prototypeObject = value_cast<const ObjectValue *>(context->lookupReference(prototypeReference));
+        if (const Reference *prototypeReference = value_cast<Reference>(_prototype)) {
+            prototypeObject = value_cast<ObjectValue>(context->lookupReference(prototypeReference));
         }
     }
     return prototypeObject;
@@ -981,9 +1016,9 @@ bool PrototypeIterator::hasNext()
     if (!proto)
         return false;
 
-    m_next = value_cast<const ObjectValue *>(proto);
+    m_next = value_cast<ObjectValue>(proto);
     if (! m_next)
-        m_next = value_cast<const ObjectValue *>(m_context->lookupReference(proto));
+        m_next = value_cast<ObjectValue>(m_context->lookupReference(proto));
     if (!m_next) {
         m_error = ReferenceResolutionError;
         return false;
@@ -1480,15 +1515,15 @@ void ConvertToNumber::visit(const StringValue *)
 
 void ConvertToNumber::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf", ContextPtr()))) {
-        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
+    if (const FunctionValue *valueOfMember = value_cast<FunctionValue>(object->lookupMember("valueOf", ContextPtr()))) {
+        _result = value_cast<NumberValue>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
 
 void ConvertToNumber::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf", ContextPtr()))) {
-        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
+    if (const FunctionValue *valueOfMember = value_cast<FunctionValue>(object->lookupMember("valueOf", ContextPtr()))) {
+        _result = value_cast<NumberValue>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
 
@@ -1541,15 +1576,15 @@ void ConvertToString::visit(const StringValue *value)
 
 void ConvertToString::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString", ContextPtr()))) {
-        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
+    if (const FunctionValue *toStringMember = value_cast<FunctionValue>(object->lookupMember("toString", ContextPtr()))) {
+        _result = value_cast<StringValue>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
 
 void ConvertToString::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString", ContextPtr()))) {
-        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
+    if (const FunctionValue *toStringMember = value_cast<FunctionValue>(object->lookupMember("toString", ContextPtr()))) {
+        _result = value_cast<StringValue>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
 
@@ -1705,6 +1740,11 @@ ASTObjectValue::~ASTObjectValue()
 {
 }
 
+const ASTObjectValue *ASTObjectValue::asAstObjectValue() const
+{
+    return this;
+}
+
 bool ASTObjectValue::getSourceLocation(QString *fileName, int *line, int *column) const
 {
     *fileName = _doc->fileName();
@@ -1856,6 +1896,11 @@ QmlPrototypeReference::~QmlPrototypeReference()
 {
 }
 
+const QmlPrototypeReference *QmlPrototypeReference::asQmlPrototypeReference() const
+{
+    return this;
+}
+
 UiQualifiedId *QmlPrototypeReference::qmlTypeName() const
 {
     return _qmlTypeName;
@@ -1876,6 +1921,11 @@ ASTPropertyReference::ASTPropertyReference(UiPublicMember *ast, const Document *
 
 ASTPropertyReference::~ASTPropertyReference()
 {
+}
+
+const ASTPropertyReference *ASTPropertyReference::asAstPropertyReference() const
+{
+    return this;
 }
 
 bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *column) const

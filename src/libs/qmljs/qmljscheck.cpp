@@ -81,7 +81,7 @@ public:
 
     virtual void visit(const NumberValue *value)
     {
-        if (const QmlEnumValue *enumValue = dynamic_cast<const QmlEnumValue *>(value)) {
+        if (const QmlEnumValue *enumValue = value_cast<QmlEnumValue>(value)) {
             if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
                 const QString valueName = stringLiteral->value.toString();
 
@@ -643,7 +643,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
             const ObjectValue *lastPrototype = prototypes.last();
             if (iter.error() == PrototypeIterator::ReferenceResolutionError) {
                 if (const QmlPrototypeReference *ref =
-                        dynamic_cast<const QmlPrototypeReference *>(lastPrototype->prototype())) {
+                        value_cast<QmlPrototypeReference>(lastPrototype->prototype())) {
                     addMessage(ErrCouldNotResolvePrototypeOf, typeErrorLocation,
                                toString(ref->qmlTypeName()), lastPrototype->className());
                 } else {
@@ -778,7 +778,7 @@ bool Check::visit(IdentifierExpression *)
 //        _lastValue = evaluator.reference(ast);
 //        if (!_lastValue)
 //            addMessage(ErrUnknownIdentifier, ast->identifierToken);
-//        if (const Reference *ref = value_cast<const Reference *>(_lastValue)) {
+//        if (const Reference *ref = value_cast<Reference>(_lastValue)) {
 //            _lastValue = _context->lookupReference(ref);
 //            if (!_lastValue)
 //                error(ast->identifierToken, tr("could not resolve"));
@@ -1293,7 +1293,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     // member lookup
     const UiQualifiedId *idPart = id;
     while (idPart->next) {
-        const ObjectValue *objectValue = value_cast<const ObjectValue *>(value);
+        const ObjectValue *objectValue = value_cast<ObjectValue>(value);
         if (! objectValue) {
             addMessage(ErrDoesNotHaveMembers, idPart->identifierToken, propertyName);
             return 0;

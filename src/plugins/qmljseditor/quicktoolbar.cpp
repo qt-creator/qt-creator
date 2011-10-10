@@ -76,7 +76,7 @@ static inline const ObjectValue * getPropertyChangesTarget(Node *node, const Sco
                         && ! scriptBinding->qualifiedId->next) {
                     Evaluate evaluator(&scopeChain);
                     const Value *targetValue = evaluator(scriptBinding->statement);
-                    if (const ObjectValue *targetObject = value_cast<const ObjectValue *>(targetValue)) {
+                    if (const ObjectValue *targetObject = value_cast<ObjectValue>(targetValue)) {
                         return targetObject;
                     } else {
                         return 0;

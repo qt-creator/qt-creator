@@ -75,6 +75,11 @@ class JSImportScope;
 class Context;
 typedef QSharedPointer<const Context> ContextPtr;
 class ReferenceContext;
+class CppComponentValue;
+class ASTObjectValue;
+class QmlEnumValue;
+class QmlPrototypeReference;
+class ASTPropertyReference;
 
 typedef QList<const Value *> ValueList;
 
@@ -124,13 +129,18 @@ public:
     virtual const Reference *asReference() const;
     virtual const ColorValue *asColorValue() const;
     virtual const AnchorLineValue *asAnchorLineValue() const;
+    virtual const CppComponentValue *asCppComponentValue() const;
+    virtual const ASTObjectValue *asAstObjectValue() const;
+    virtual const QmlEnumValue *asQmlEnumValue() const;
+    virtual const QmlPrototypeReference *asQmlPrototypeReference() const;
+    virtual const ASTPropertyReference *asAstPropertyReference() const;
 
     virtual void accept(ValueVisitor *) const = 0;
 
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 };
 
-template <typename _RetTy> _RetTy value_cast(const Value *v);
+template <typename _RetTy> const _RetTy *value_cast(const Value *v);
 
 template <> Q_INLINE_TEMPLATE const NullValue *value_cast(const Value *v)
 {
@@ -207,6 +217,36 @@ template <> Q_INLINE_TEMPLATE const ColorValue *value_cast(const Value *v)
 template <> Q_INLINE_TEMPLATE const AnchorLineValue *value_cast(const Value *v)
 {
     if (v) return v->asAnchorLineValue();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const CppComponentValue *value_cast(const Value *v)
+{
+    if (v) return v->asCppComponentValue();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const ASTObjectValue *value_cast(const Value *v)
+{
+    if (v) return v->asAstObjectValue();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const QmlEnumValue *value_cast(const Value *v)
+{
+    if (v) return v->asQmlEnumValue();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const QmlPrototypeReference *value_cast(const Value *v)
+{
+    if (v) return v->asQmlPrototypeReference();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const ASTPropertyReference *value_cast(const Value *v)
+{
+    if (v) return v->asAstPropertyReference();
     else   return 0;
 }
 
@@ -394,13 +434,13 @@ private:
     Error m_error;
 };
 
-class CppComponentValue;
-
 class QMLJS_EXPORT QmlEnumValue: public NumberValue
 {
 public:
     QmlEnumValue(const CppComponentValue *owner, int index);
     virtual ~QmlEnumValue();
+
+    virtual const QmlEnumValue *asQmlEnumValue() const;
 
     QString name() const;
     QStringList keys() const;
@@ -422,6 +462,8 @@ public:
                    const LanguageUtils::ComponentVersion &importVersion, int metaObjectRevision,
                    ValueOwner *valueOwner);
     virtual ~CppComponentValue();
+
+    virtual const CppComponentValue *asCppComponentValue() const;
 
     virtual void processMembers(MemberProcessor *processor) const;
     const Value *valueForCppName(const QString &typeName) const;
@@ -701,6 +743,8 @@ public:
     QmlPrototypeReference(AST::UiQualifiedId *qmlTypeName, const Document *doc, ValueOwner *valueOwner);
     virtual ~QmlPrototypeReference();
 
+    virtual const QmlPrototypeReference *asQmlPrototypeReference() const;
+
     AST::UiQualifiedId *qmlTypeName() const;
 
 private:    
@@ -755,6 +799,8 @@ public:
     ASTPropertyReference(AST::UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner);
     virtual ~ASTPropertyReference();
 
+    virtual const ASTPropertyReference *asAstPropertyReference() const;
+
     AST::UiPublicMember *ast() const { return _ast; }
     QString onChangedSlotName() const { return _onChangedSlotName; }
 
@@ -803,6 +849,8 @@ public:
                    const Document *doc,
                    ValueOwner *valueOwner);
     virtual ~ASTObjectValue();
+
+    virtual const ASTObjectValue *asAstObjectValue() const;
 
     bool getSourceLocation(QString *fileName, int *line, int *column) const;
     virtual void processMembers(MemberProcessor *processor) const;

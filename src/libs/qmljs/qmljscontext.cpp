@@ -134,11 +134,11 @@ QString Context::defaultPropertyName(const ObjectValue *object) const
     PrototypeIterator iter(object, this);
     while (iter.hasNext()) {
         const ObjectValue *o = iter.next();
-        if (const ASTObjectValue *astObjValue = dynamic_cast<const ASTObjectValue *>(o)) {
+        if (const ASTObjectValue *astObjValue = value_cast<ASTObjectValue>(o)) {
             QString defaultProperty = astObjValue->defaultPropertyName();
             if (!defaultProperty.isEmpty())
                 return defaultProperty;
-        } else if (const CppComponentValue *qmlValue = dynamic_cast<const CppComponentValue *>(o)) {
+        } else if (const CppComponentValue *qmlValue = value_cast<CppComponentValue>(o)) {
             return qmlValue->defaultPropertyName();
         }
     }
@@ -151,7 +151,7 @@ ReferenceContext::ReferenceContext(const ContextPtr &context)
 
 const Value *ReferenceContext::lookupReference(const Value *value)
 {
-    const Reference *reference = value_cast<const Reference *>(value);
+    const Reference *reference = value_cast<Reference>(value);
     if (!reference)
         return value;
 

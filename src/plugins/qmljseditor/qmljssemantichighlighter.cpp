@@ -138,7 +138,7 @@ protected:
         PrototypeIterator it(v, m_scopeChain.context());
         while (it.hasNext()) {
             const ObjectValue *proto = it.next();
-            const CppComponentValue *qmlProto = dynamic_cast<const CppComponentValue *>(proto);
+            const CppComponentValue *qmlProto = value_cast<CppComponentValue>(proto);
             if (!qmlProto)
                 continue;
             if (qmlProto->metaObject() == m_statePrototype->metaObject())

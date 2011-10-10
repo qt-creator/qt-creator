@@ -525,7 +525,7 @@ protected:
             if ((!_name.isEmpty()) && _name.at(0).isUpper()) {
                 // a possible type
                 _targetValue = _scopeChain->lookup(_name, &_scope);
-                if (value_cast<const ObjectValue*>(_targetValue))
+                if (value_cast<ObjectValue>(_targetValue))
                     _typeKind = TypeKind;
             }
         }
@@ -851,7 +851,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     FindReferences::Usage searchStarting(replacement, name, 0, 0, 0);
 
     if (findTarget.typeKind() == findTarget.TypeKind){
-        const ObjectValue *typeValue = value_cast<const ObjectValue*>(findTarget.targetValue());
+        const ObjectValue *typeValue = value_cast<ObjectValue>(findTarget.targetValue());
         if (!typeValue)
             return;
         future.reportResult(searchStarting);

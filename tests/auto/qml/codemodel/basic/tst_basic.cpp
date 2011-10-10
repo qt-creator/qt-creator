@@ -144,17 +144,17 @@ void tst_Basic::basicObjectTests()
     QVERIFY(ovProperty);
     QCOMPARE(ovProperty->className(), QString("State"));
 
-    const CppComponentValue * qmlItemValue = dynamic_cast<const CppComponentValue *>(ovItem);
+    const CppComponentValue * qmlItemValue = value_cast<CppComponentValue>(ovItem);
     QVERIFY(qmlItemValue);
     QCOMPARE(qmlItemValue->defaultPropertyName(), QString("data"));
     QCOMPARE(qmlItemValue->propertyType("state"), QString("string"));
 
     const ObjectValue *ovState = context->lookupType(doc.data(), QStringList() << "State");
-    const CppComponentValue * qmlState2Value = dynamic_cast<const CppComponentValue *>(ovState);
+    const CppComponentValue * qmlState2Value = value_cast<CppComponentValue>(ovState);
     QCOMPARE(qmlState2Value->className(), QString("State"));
 
     const ObjectValue *ovImage = context->lookupType(doc.data(), QStringList() << "Image");
-    const CppComponentValue * qmlImageValue = dynamic_cast<const CppComponentValue *>(ovImage);
+    const CppComponentValue * qmlImageValue = value_cast<CppComponentValue>(ovImage);
     QCOMPARE(qmlImageValue->className(), QString("Image"));
     QCOMPARE(qmlImageValue->propertyType("source"), QString("QUrl"));
 }

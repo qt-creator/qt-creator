@@ -300,7 +300,7 @@ void HoverHandler::prettyPrintTooltip(const QmlJS::Value *value,
             }
         }
     } else if (const QmlEnumValue *enumValue =
-               dynamic_cast<const QmlEnumValue *>(value)) {
+               value_cast<QmlEnumValue>(value)) {
         setToolTip(enumValue->name());
     }
 

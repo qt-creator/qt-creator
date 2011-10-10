@@ -148,7 +148,7 @@ public:
 
     virtual void operator ()(const Value *base, const QString &name, const Value *)
     {
-        const CppComponentValue *qmlBase = dynamic_cast<const CppComponentValue *>(base);
+        const CppComponentValue *qmlBase = value_cast<CppComponentValue>(base);
 
         QString itemText = name;
         QString postfix;
@@ -547,7 +547,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
                 }
                 const Value *v = newScopeType->lookupMember(it->name.toString(), context);
                 v = context->lookupReference(v);
-                newScopeType = value_cast<const ObjectValue *>(v);
+                newScopeType = value_cast<ObjectValue>(v);
             }
             if (!newScopeType)
                 break;
@@ -642,7 +642,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             const Value *value =
                     getPropertyValue(qmlScopeType, contextFinder.bindingPropertyName(), context);
             if (const QmlEnumValue *enumValue =
-                    dynamic_cast<const QmlEnumValue *>(value)) {
+                    value_cast<QmlEnumValue>(value)) {
                 const QString &name = context->imports(document.data())->nameForImportedObject(enumValue->owner(), context.data());
                 foreach (const QString &key, enumValue->keys()) {
                     QString completion;
