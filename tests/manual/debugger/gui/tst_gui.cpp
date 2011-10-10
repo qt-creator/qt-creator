@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QtDebug>
 #include "mainwindow.h"
 

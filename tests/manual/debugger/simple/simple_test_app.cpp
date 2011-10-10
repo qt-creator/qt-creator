@@ -102,18 +102,14 @@ void dummyStatement(...) {}
 #include <QtCore/QSharedPointer>
 #endif
 
-#include <QtGui/QApplication>
-#include <QtGui/QAction>
 #include <QtGui/QColor>
 #include <QtGui/QFont>
-#include <QtGui/QLabel>
-
 
 //#include <QtGui/private/qfixed_p.h>
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
 #include <QtGui/QRegion>
-#include <QtGui/QStandardItemModel>
+
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextDocument>
 
@@ -126,6 +122,11 @@ void dummyStatement(...) {}
 
 #include <QtNetwork/QHostAddress>
 #include <QtNetwork/QNetworkRequest>
+
+#include <QApplication> // QWidgets: Separate module as of Qt 5
+#include <QAction>
+#include <QStandardItemModel>
+#include <QLabel>
 
 #include <deque>
 #include <iostream>
