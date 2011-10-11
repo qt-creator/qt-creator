@@ -1498,7 +1498,10 @@
         \row
             \i Add Definition in 'filename'
             \i Inserts a definition stub for a member function declaration in the
-            implementation file
+            implementation file. The definition is placed after that of the
+            preceding declaration. Qualified names are minimized when possible,
+            instead of always being fully expanded.
+
             \i Method name
         \row
             \i Add 'Function' Declaration
@@ -1547,6 +1550,15 @@
                 \o data member with the name \c {m_<propertyName>}
             \endlist
             \i Q_PROPERTY
+        \row
+            \i  Apply Changes
+            \i  Keeps function declarations and definitions synchronized by
+                checking for the matching declaration or definition when you
+                edit a function signature and by applying the changes to the
+                matching code.
+            \i  Function signature. When this action is available, a light bulb
+                icon appears:
+                \inlineimage qml-toolbar-indicator.png
     \endtable
 
    \section2 Refactoring QML Code
