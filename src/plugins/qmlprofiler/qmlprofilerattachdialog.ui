@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>184</width>
-    <height>124</height>
+    <width>185</width>
+    <height>115</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,21 +19,27 @@
      <item row="0" column="0">
       <widget class="QLabel" name="addressLabel">
        <property name="text">
-        <string>Address:</string>
+        <string>&amp;Host:</string>
+       </property>
+       <property name="buddy">
+        <cstring>addressLineEdit</cstring>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="addressLineEdit">
        <property name="text">
-        <string>127.0.0.1</string>
+        <string>localhost</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="portLabel">
        <property name="text">
-        <string>Port:</string>
+        <string>&amp;Port:</string>
+       </property>
+       <property name="buddy">
+        <cstring>portSpinBox</cstring>
        </property>
       </widget>
      </item>
@@ -51,13 +57,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
