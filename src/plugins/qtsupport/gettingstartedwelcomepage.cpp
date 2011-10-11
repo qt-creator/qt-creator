@@ -164,7 +164,8 @@ public:
 
         if (m_fetcher.data().isEmpty())
             return QImage();
-        QBuffer imgBuffer(&m_fetcher.data());
+        QByteArray data = m_fetcher.data();
+        QBuffer imgBuffer(&data);
         imgBuffer.open(QIODevice::ReadOnly);
         QImageReader reader(&imgBuffer);
         QImage img = reader.read();
