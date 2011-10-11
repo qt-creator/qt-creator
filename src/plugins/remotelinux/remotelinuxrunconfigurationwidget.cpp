@@ -96,6 +96,7 @@ public:
     QPushButton fetchEnvButton;
     QComboBox baseEnvironmentComboBox;
     ProjectExplorer::EnvironmentWidget *environmentWidget;
+    QFormLayout genericWidgetsLayout;
 };
 
 } // namespace Internal
@@ -128,6 +129,11 @@ RemoteLinuxRunConfigurationWidget::~RemoteLinuxRunConfigurationWidget()
     delete d;
 }
 
+void RemoteLinuxRunConfigurationWidget::addFormLayoutRow(QWidget *label, QWidget *field)
+{
+    d->genericWidgetsLayout.addRow(label, field);
+}
+
 void RemoteLinuxRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
 {
     QHBoxLayout * const hl = new QHBoxLayout;
@@ -158,9 +164,8 @@ void RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange(bool enabl
 
 void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
 {
-    QFormLayout * const formLayout = new QFormLayout;
-    mainLayout->addLayout(formLayout);
-    formLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    mainLayout->addLayout(&d->genericWidgetsLayout);
+    d->genericWidgetsLayout.setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     QWidget * const devConfWidget = new QWidget;
     QHBoxLayout * const devConfLayout = new QHBoxLayout(devConfWidget);
@@ -176,10 +181,10 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     debuggerConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     devConfLayout->addWidget(debuggerConfLabel);
 
-    formLayout->addRow(new QLabel(tr("Device configuration:")), devConfWidget);
+    d->genericWidgetsLayout.addRow(new QLabel(tr("Device configuration:")), devConfWidget);
     d->localExecutableLabel.setText(d->runConfiguration->localExecutableFilePath());
-    formLayout->addRow(tr("Executable on host:"), &d->localExecutableLabel);
-    formLayout->addRow(tr("Executable on device:"), &d->remoteExecutableLabel);
+    d->genericWidgetsLayout.addRow(tr("Executable on host:"), &d->localExecutableLabel);
+    d->genericWidgetsLayout.addRow(tr("Executable on device:"), &d->remoteExecutableLabel);
     QWidget * const altRemoteExeWidget = new QWidget;
     QHBoxLayout * const altRemoteExeLayout = new QHBoxLayout(altRemoteExeWidget);
     altRemoteExeLayout->setContentsMargins(0, 0, 0, 0);
@@ -188,10 +193,10 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     d->useAlternateCommandBox.setText(tr("Use this command instead"));
     d->useAlternateCommandBox.setChecked(d->runConfiguration->useAlternateExecutable());
     altRemoteExeLayout->addWidget(&d->useAlternateCommandBox);
-    formLayout->addRow(tr("Alternate executable on device:"), altRemoteExeWidget);
+    d->genericWidgetsLayout.addRow(tr("Alternate executable on device:"), altRemoteExeWidget);
 
     d->argsLineEdit.setText(d->runConfiguration->arguments());
-    formLayout->addRow(tr("Arguments:"), &d->argsLineEdit);
+    d->genericWidgetsLayout.addRow(tr("Arguments:"), &d->argsLineEdit);
 
     QHBoxLayout * const debugButtonsLayout = new QHBoxLayout;
     d->debugCppOnlyButton.setText(tr("C++ only"));
@@ -206,7 +211,7 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     debugButtonsLayout->addWidget(&d->debugQmlOnlyButton);
     debugButtonsLayout->addWidget(&d->debugCppAndQmlButton);
     debugButtonsLayout->addStretch(1);
-    formLayout->addRow(&d->debuggingLanguagesLabel, debugButtonsLayout);
+    d->genericWidgetsLayout.addRow(&d->debuggingLanguagesLabel, debugButtonsLayout);
     if (d->runConfiguration->useCppDebugger()) {
         if (d->runConfiguration->useQmlDebugger())
             d->debugCppAndQmlButton.setChecked(true);
