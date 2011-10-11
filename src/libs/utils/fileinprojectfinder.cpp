@@ -60,18 +60,26 @@ FileInProjectFinder::FileInProjectFinder()
 {
 }
 
+static QString stripTrailingSlashes(const QString &path)
+{
+    QString newPath = path;
+    while (newPath.endsWith(QLatin1Char('/')))
+        newPath.remove(newPath.length() - 1, 1);
+    return newPath;
+}
+
 void FileInProjectFinder::setProjectDirectory(const QString &absoluteProjectPath)
 {
-    QTC_ASSERT(QFileInfo(absoluteProjectPath).exists()
-               && QFileInfo(absoluteProjectPath).isAbsolute(), return);
+    const QString newProjectPath = stripTrailingSlashes(absoluteProjectPath);
 
-    if (absoluteProjectPath == m_projectDir)
+    if (newProjectPath == m_projectDir)
         return;
 
-    m_projectDir = absoluteProjectPath;
-    while (m_projectDir.endsWith(QLatin1Char('/')))
-        m_projectDir.remove(m_projectDir.length() - 1, 1);
+    const QFileInfo infoPath(newProjectPath);
+    QTC_CHECK(newProjectPath.isEmpty()
+              || infoPath.exists() && infoPath.isAbsolute());
 
+    m_projectDir = newProjectPath;
     m_cache.clear();
 }
 
@@ -82,6 +90,9 @@ QString FileInProjectFinder::projectDirectory() const
 
 void FileInProjectFinder::setProjectFiles(const QStringList &projectFiles)
 {
+    if (m_projectFiles == projectFiles)
+        return;
+
     m_projectFiles = projectFiles;
     m_cache.clear();
 }
