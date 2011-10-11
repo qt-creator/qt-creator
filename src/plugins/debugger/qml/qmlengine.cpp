@@ -755,12 +755,10 @@ unsigned QmlEngine::debuggerCapabilities() const
 
 QString QmlEngine::toFileInProject(const QUrl &fileUrl)
 {
-    if (startParameters().startMode != AttachToQmlPort) {
-        if (d->fileFinder.projectDirectory().isEmpty()) {
-            d->fileFinder.setProjectDirectory(startParameters().projectSourceDirectory);
-            d->fileFinder.setProjectFiles(startParameters().projectSourceFiles);
-        }
-    }
+    // make sure file finder is properly initialized
+    d->fileFinder.setProjectDirectory(startParameters().projectSourceDirectory);
+    d->fileFinder.setProjectFiles(startParameters().projectSourceFiles);
+    d->fileFinder.setSysroot(startParameters().sysroot);
 
     return d->fileFinder.findFile(fileUrl);
 }

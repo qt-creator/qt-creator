@@ -864,6 +864,16 @@ int AttachToQmlPortDialog::port() const
     return m_ui->portSpinBox->value();
 }
 
+QString AttachToQmlPortDialog::sysroot() const
+{
+    return m_ui->sysRootChooser->path();
+}
+
+void AttachToQmlPortDialog::setSysroot(const QString &sysroot)
+{
+    m_ui->sysRootChooser->setPath(sysroot);
+}
+
 // --------- StartRemoteCdbDialog
 static inline QString cdbRemoteHelp()
 {

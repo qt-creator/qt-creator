@@ -234,6 +234,9 @@ public:
     int port() const;
     void setPort(const int port);
 
+    QString sysroot() const;
+    void setSysroot(const QString &sysroot);
+
 private:
     Ui::AttachToQmlPortDialog *m_ui;
 };

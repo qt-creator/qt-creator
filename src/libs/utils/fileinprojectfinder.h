@@ -51,11 +51,13 @@ public:
     QString projectDirectory() const;
 
     void setProjectFiles(const QStringList &projectFiles);
+    void setSysroot(const QString &sysroot);
 
     QString findFile(const QUrl &fileUrl, bool *success = 0) const;
 
 private:
     QString m_projectDir;
+    QString m_sysroot;
     QStringList m_projectFiles;
     mutable QHash<QString,QString> m_cache;
 };

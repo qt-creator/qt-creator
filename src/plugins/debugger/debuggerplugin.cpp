@@ -1673,14 +1673,20 @@ void DebuggerPluginPrivate::attachToQmlPort()
         dlg.setPort(sp.qmlServerPort);
     }
 
+    const QVariant sysrootPath = configValue(_("LastSysroot"));
+    if (sysrootPath.isValid())
+        dlg.setSysroot(sysrootPath.toString());
+
     if (dlg.exec() != QDialog::Accepted)
         return;
 
     setConfigValue(_("LastQmlServerAddress"), dlg.host());
     setConfigValue(_("LastQmlServerPort"), dlg.port());
+    setConfigValue(_("LastSysroot"), dlg.sysroot());
 
     sp.qmlServerAddress = dlg.host();
     sp.qmlServerPort = dlg.port();
+    sp.sysroot = dlg.sysroot();
 
     sp.startMode = AttachToQmlPort;
     if (RunControl *rc = createDebugger(sp))
