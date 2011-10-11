@@ -86,6 +86,7 @@ public:
 
 signals:
     void updated();
+    void cloningPossible();
 
 private:
     LinuxDeviceConfigurations(QObject *parent);

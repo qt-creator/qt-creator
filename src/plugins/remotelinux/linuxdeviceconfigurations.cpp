@@ -270,6 +270,7 @@ void LinuxDeviceConfigurations::unblockCloning()
 {
     QTC_ASSERT(cloningBlocked, return);
     cloningBlocked = false;
+    emit instance()->cloningPossible();
 }
 
 LinuxDeviceConfigurations::~LinuxDeviceConfigurations()
