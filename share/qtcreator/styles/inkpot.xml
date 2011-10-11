@@ -34,7 +34,7 @@
   <style name="RemovedLine" foreground="#ff0000"/>
   <style name="SearchResult" foreground="#000000" background="#ffef0b"/>
   <style name="SearchScope" foreground="#000000" background="#f8fafc"/>
-  <style name="Selection" foreground="#ffffff" background="#678db2"/>
+  <style name="Selection" foreground="#ffffff" background="#4e4e8f"/>
   <style name="Static" foreground="#cb6ecb"/>
   <style name="String" foreground="#ffcd8b" background="#404040"/>
   <style name="Text" foreground="#cfbfad" background="#1e1e27"/>
