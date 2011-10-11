@@ -63,11 +63,15 @@ Rectangle {
         hideRangeDetails();
     }
 
-    function clearAll() {
+    function clearDisplay() {
         clearData();
         selectedEventIndex = -1;
         canvas.requestPaint();
         view.visible = false;
+    }
+
+    function clearAll() {
+        clearDisplay();
         root.elapsedTime = 0;
         root.updateTimer();
     }
