@@ -46,6 +46,10 @@ const char C_DEBUGMODE[]            = "Debugger.DebugMode";
 const char C_CPPDEBUGGER[]          = "Gdb Debugger";
 const char C_QMLDEBUGGER[]          = "Qml/JavaScript Debugger";
 
+// Menu Groups
+const char G_START_CPP[]            = "Debugger.Group.Start.Cpp";
+const char G_START_QML[]            = "Debugger.Group.Start.Cpp";
+
 // Project Explorer run mode (RUN/DEBUG)
 const char DEBUGMODE[]              = "Debugger.DebugMode";
 const char DEBUGMODE2[]             = "Debugger.DebugMode2"; // Breaks on main.

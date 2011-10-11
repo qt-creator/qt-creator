@@ -35,9 +35,8 @@ def createNewQmlExtension():
     # now there's the 'untitled' project inside a temporary directory - step forward...!
     nextButton = waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000)
     clickButton(nextButton)
-    chooseDestination()
+    chooseTargets()
     clickButton(nextButton)
-#    buddy = waitForObject("{type='QLabel' text='Object Class-name:' unnamed='1' visible='1'}", 20000)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
                                "type='QLineEdit' unnamed='1' visible='1'}", 20000)
     replaceEditorContent(nameLineEd, "TestItem")

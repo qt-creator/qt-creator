@@ -9,7 +9,10 @@ SOURCES +=  simple_test_app.cpp
 QT += network
 QT += script
 QT += xml
-QT += core-private
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += core-private
+    QT *= widgets
+}
 #unix: QMAKE_CXXFLAGS += -msse2
 #DEFINES += USE_BOOST=1
 

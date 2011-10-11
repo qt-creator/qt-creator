@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>435</width>
-    <height>133</height>
+    <width>185</width>
+    <height>115</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,12 +17,12 @@
    <item>
     <layout class="QFormLayout" name="formLayout">
      <property name="fieldGrowthPolicy">
-      <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
      </property>
      <item row="0" column="0">
       <widget class="QLabel" name="hostLabel">
        <property name="text">
-        <string>Host</string>
+        <string>&amp;Host:</string>
        </property>
        <property name="buddy">
         <cstring>hostLineEdit</cstring>
@@ -39,7 +39,10 @@
      <item row="1" column="0">
       <widget class="QLabel" name="portLabel">
        <property name="text">
-        <string>Port</string>
+        <string>&amp;Port:</string>
+       </property>
+       <property name="buddy">
+        <cstring>portSpinBox</cstring>
        </property>
       </widget>
      </item>

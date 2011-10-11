@@ -60,7 +60,7 @@ struct QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo {
     bool temporaryQtVersion;
 
     static QList<BuildConfigurationInfo> importBuildConfigurations(const QString &proFilePath);
-    static BuildConfigurationInfo checkForBuild(const QString &directory, const QString &proFilePath);
+    static QList<BuildConfigurationInfo> checkForBuild(const QString &directory, const QString &proFilePath);
     static QList<BuildConfigurationInfo> filterBuildConfigurationInfos(const QList<BuildConfigurationInfo> &infos, const QString &id);
 };
 

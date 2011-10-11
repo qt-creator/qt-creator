@@ -1400,16 +1400,6 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
 
 void DebuggerPluginPrivate::languagesChanged()
 {
-    const bool debuggerIsCPP =
-        m_mainWindow->activeDebugLanguages() & CppLanguage;
-    //qDebug() << "DEBUGGER IS CPP: " << debuggerIsCPP;
-    m_startExternalAction->setVisible(debuggerIsCPP);
-    m_attachExternalAction->setVisible(debuggerIsCPP);
-    m_attachCoreAction->setVisible(debuggerIsCPP);
-    m_startRemoteAction->setVisible(debuggerIsCPP);
-    m_attachRemoteAction->setVisible(debuggerIsCPP);
-    m_detachAction->setVisible(debuggerIsCPP);
-    m_attachToQmlPortAction->setVisible(m_mainWindow->activeDebugLanguages() & QmlLanguage);
 }
 
 void DebuggerPluginPrivate::debugProject()
@@ -2962,6 +2952,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Detach Debugger"));
     connect(act, SIGNAL(triggered()), SLOT(handleExecDetach()));
 
+    // "Start Debugging" sub-menu
+    // groups:
+    //   G_DEFAULT_ONE
+    //   G_START_CPP
+    //   G_START_QML
+
     Command *cmd = 0;
     ActionContainer *mstart = am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
@@ -2969,7 +2965,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDefaultText(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
     cmd->setAttribute(Command::CA_UpdateText);
-    mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     m_visibleStartAction = new Utils::ProxyAction(this);
     m_visibleStartAction->initialize(m_startAction);
@@ -2983,52 +2979,54 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = am->registerAction(m_startExternalAction,
         "Debugger.StartExternal", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Constants::G_START_CPP);
 
     cmd = am->registerAction(m_attachExternalAction,
         "Debugger.AttachExternal", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Constants::G_START_CPP);
 
     cmd = am->registerAction(m_attachCoreAction,
         "Debugger.AttachCore", globalcontext);
 
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Constants::G_START_CPP);
 
     cmd = am->registerAction(m_startRemoteAction,
         "Debugger.StartRemote", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Constants::G_START_CPP);
 
     cmd = am->registerAction(m_attachRemoteAction,
         "Debugger.AttachRemote", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Constants::G_START_CPP);
 
-    cmd = am->registerAction(m_attachToQmlPortAction,
-        "Debugger.AttachToQmlPort", globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
 #ifdef WITH_LLDB
     cmd = am->registerAction(m_startRemoteLldbAction,
         "Debugger.RemoteLldb", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+    mstart->addAction(cmd, Constants::G_START_CPP);
 #endif
 
     if (m_startRemoteCdbAction) {
         cmd = am->registerAction(m_startRemoteCdbAction,
              "Debugger.AttachRemoteCdb", globalcontext);
         cmd->setAttribute(Command::CA_Hide);
-        mstart->addAction(cmd, CC::G_DEFAULT_ONE);
+        mstart->addAction(cmd, Constants::G_START_CPP);
     }
 
-    QAction *sep = new QAction(this);
+    QAction *sep = new QAction(mstart);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, "Debugger.Sep.Start", globalcontext);
-    mstart->addAction(cmd);
+    cmd = am->registerAction(sep,
+        "Debugger.Start.Qml", globalcontext);
+    mstart->addAction(cmd, Constants::G_START_QML);
+
+    cmd = am->registerAction(m_attachToQmlPortAction,
+        "Debugger.AttachToQmlPort", globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    mstart->addAction(cmd, Constants::G_START_QML);
 
     cmd = am->registerAction(m_detachAction,
         "Debugger.Detach", globalcontext);
@@ -3378,6 +3376,25 @@ DebuggerPlugin::~DebuggerPlugin()
 
 bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    ICore *core = ICore::instance();
+    QTC_ASSERT(core, return true);
+
+    // Menu groups
+    const Context globalcontext(CC::C_GLOBAL);
+
+    Core::ActionManager *am = core->actionManager();
+    ActionContainer *mstart = am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
+
+    mstart->appendGroup(Constants::G_START_CPP);
+    mstart->appendGroup(Constants::G_START_QML);
+
+    // add cpp separator
+    QAction *sep = new QAction(mstart);
+    sep->setSeparator(true);
+    Command *cmd = am->registerAction(sep,
+        "Debugger.Start.Cpp", globalcontext);
+    mstart->addAction(cmd, Constants::G_START_CPP);
+
     return theDebuggerCore->initialize(arguments, errorMessage);
 }
 

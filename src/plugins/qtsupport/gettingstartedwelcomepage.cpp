@@ -43,8 +43,10 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QMutex>
+#include <QtCore/QThread>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QWeakPointer>
+#include <QtCore/QWaitCondition>
 #include <QtGui/QGraphicsProxyWidget>
 #include <QtGui/QScrollBar>
 #include <QtGui/QSortFilterProxyModel>
@@ -66,14 +68,80 @@ QWeakPointer<ExamplesListModel> &examplesModelStatic()
 class Fetcher : public QObject
 {
     Q_OBJECT
+public:
+    Fetcher() : QObject(),  m_shutdown(false)
+    {
+        connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(shutdown()));
+    }
+
+    void wait()
+    {
+        if (QThread::currentThread() == QApplication::instance()->thread())
+            return;
+        if (m_shutdown)
+            return;
+
+        m_waitcondition.wait(&m_mutex, 4000);
+    }
+
+    QByteArray data()
+    {
+        QMutexLocker lock(&m_dataMutex);
+        return m_fetchedData;
+    }
+
+    void clearData()
+    {
+        QMutexLocker lock(&m_dataMutex);
+        m_fetchedData.clear();
+    }
+
+    bool asynchronousFetchData(const QUrl &url)
+    {
+        QMutexLocker lock(&m_mutex);
+
+        if (!QMetaObject::invokeMethod(this,
+                                       "fetchData",
+                                       Qt::AutoConnection,
+                                       Q_ARG(QUrl, url))) {
+            return false;
+        }
+
+        wait();
+        return true;
+    }
+
+
 public slots:
     void fetchData(const QUrl &url)
     {
-        fetchedData = Core::HelpManager::instance()->fileData(url);
+        if (m_shutdown)
+            return;
+
+        QMutexLocker lock(&m_mutex);
+
+        if (Core::HelpManager::instance()) {
+            QMutexLocker dataLock(&m_dataMutex);
+            m_fetchedData = Core::HelpManager::instance()->fileData(url);
+        }
+        m_waitcondition.wakeAll();
+    }
+
+private slots:
+    void shutdown()
+    {
+        m_shutdown = true;
     }
 
 public:
-    QByteArray fetchedData;
+    QByteArray m_fetchedData;
+    QWaitCondition m_waitcondition;
+    QMutex m_mutex;     //This mutex synchronises the wait() and wakeAll() on the wait condition.
+                        //We have to ensure that wakeAll() is called always after wait().
+
+    QMutex m_dataMutex; //This mutex synchronises the access of m_fectedData.
+                        //If the wait condition timeouts we otherwise get a race condition.
+    bool m_shutdown;
 };
 
 class HelpImageProvider : public QDeclarativeImageProvider
@@ -88,20 +156,22 @@ public:
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize)
     {
         QMutexLocker lock(&m_mutex);
+
         QUrl url = QUrl::fromEncoded(id.toAscii());
-        if (!QMetaObject::invokeMethod(&m_fetcher,
-                                       "fetchData",
-                                       Qt::BlockingQueuedConnection,
-                                       Q_ARG(QUrl, url))) {
+
+         if (!m_fetcher.asynchronousFetchData(url))
+             return QImage();
+
+        if (m_fetcher.data().isEmpty())
             return QImage();
-        }
-        QBuffer imgBuffer(&m_fetcher.fetchedData);
+        QBuffer imgBuffer(&m_fetcher.data());
         imgBuffer.open(QIODevice::ReadOnly);
         QImageReader reader(&imgBuffer);
         QImage img = reader.read();
         if (size && requestedSize != *size)
             img = img.scaled(requestedSize);
-        m_fetcher.fetchedData.clear();
+
+        m_fetcher.clearData();
         return img;
     }
 private:

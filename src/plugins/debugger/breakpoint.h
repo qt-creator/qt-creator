@@ -140,7 +140,8 @@ enum BreakpointType
     BreakpointAtSysCall,
     WatchpointAtAddress,
     WatchpointAtExpression,
-    BreakpointOnQmlSignalHandler
+    BreakpointOnQmlSignalHandler,
+    BreakpointAtJavaScriptThrow
 };
 
 //! \enum Debugger::Internal::BreakpointState

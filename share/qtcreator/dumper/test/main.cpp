@@ -40,7 +40,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
-#include <QtGui/QAction>
+#include <QAction>
 
 #include <string>
 #include <list>

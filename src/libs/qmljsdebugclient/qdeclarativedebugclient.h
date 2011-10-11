@@ -66,6 +66,9 @@ protected:
     qint64 readData(char *data, qint64 maxSize);
     qint64 writeData(const char *data, qint64 maxSize);
 
+private slots:
+    void internalError(QAbstractSocket::SocketError error);
+
 private:
     QDeclarativeDebugConnectionPrivate *d;
     friend class QDeclarativeDebugClient;

@@ -77,16 +77,25 @@
 #   endif
 #endif
 
-#if USE_QT_GUI
-#   include <QtGui/QApplication>
+#ifndef USE_QT_WIDGETS
+#   if defined(QT_WIDGETS_LIB) || ((QT_VERSION < 0x050000) && defined(USE_QT_GUI))
+#       define USE_QT_WIDGETS 1
+#   endif
+#endif
+
+#ifdef USE_QT_GUI
 #   include <QtGui/QImage>
 #   include <QtGui/QRegion>
 #   include <QtGui/QPixmap>
-#   include <QtGui/QWidget>
 #   include <QtGui/QFont>
 #   include <QtGui/QColor>
 #   include <QtGui/QKeySequence>
+#endif
+
+#ifdef USE_QT_WIDGETS
 #   include <QtGui/QSizePolicy>
+#   include <QtGui/QWidget>
+#   include <QtGui/QApplication>
 #endif
 
 #endif // QT_BOOTSTRAPPED
@@ -1670,7 +1679,7 @@ static void qDumpQImage(QDumper &d)
 static void qDumpQImageData(QDumper &d)
 {
     const QImage &im = *reinterpret_cast<const QImage *>(d.data);
-    const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.numBytes()));
+    const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.byteCount()));
     d.putItem("type", NS"QImageData");
     d.putItem("numchild", "0");
 #if 1
@@ -1703,7 +1712,10 @@ static void qDumpQList(QDumper &d)
             return;
         if (pdata.d->begin > pdata.d->end)
             return;
-#if QT_VERSION >= 0x040400
+#if QT_VERSION >= 0x050000
+        if (pdata.d->ref.atomic._q_value <= 0)
+            return;
+#elif QT_VERSION >= 0x040400
         if (pdata.d->ref._q_value <= 0)
             return;
 #endif

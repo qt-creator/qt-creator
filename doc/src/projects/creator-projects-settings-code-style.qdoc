@@ -40,11 +40,15 @@
 
     You can configure the code style according to your needs. You can specify
     code style either globally for all projects or separately for each
-    project. To specify global code style for C++ files, select \gui {Tools >
-    Options > C++}.
+    project. You can specify several sets of code style settings and easily
+    switch between them. In addition, you can import and export code style
+    settings.
 
-    To specify global code style for QML files, select \gui {Tools > Options
-    > Qt Quick}.
+    To specify global code style settings sets for C++ files, select
+    \gui {Tools > Options > C++}.
+
+    To specify global code style settings sets for QML files, select \gui {Tools
+    > Options > Qt Quick}.
 
     To configure the editor behavior for the current project:
 
@@ -54,16 +58,22 @@
 
         \o  In the \gui Language field, select \gui C++ or \gui Qt Quick.
 
-        \o  Deselect the \gui {Use global settings} check box.
+        \o  In the \gui {Current settings} field, select the settings to modify
+            and click \gui Copy.
 
-        \o  In the \gui Settings field, select \gui Custom.
+            \image qtcreator-code-style-settings.png "Code Style Settings view"
 
-        \o  Specify code style settings for the project. Only \gui General
-            settings are available for QML files.
+        \o  Give a name to the settings and click \gui OK.
+
+        \o  Click \gui Edit to specify code style settings for the project.
+
+            \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
+
+            \note Only \gui General settings are available for QML files.
+
+            \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style Settings view"
 
     \endlist
-
-    \image qtcreator-code-style-settings.png "Code Style Settings view"
 
     For more information about the settings, see \l{Indenting Code}.
 

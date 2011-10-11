@@ -425,7 +425,11 @@ def check(exp):
         raise RuntimeError("Check failed")
 
 def checkRef(ref):
-    count = ref["_q_value"]
+    count = 0
+    if qtMajorVersion() >= 5:
+        count = ref["atomic"]["_q_value"]
+    else:
+        count = ref["_q_value"]
     check(count > 0)
     check(count < 1000000) # assume there aren't a million references to any object
 

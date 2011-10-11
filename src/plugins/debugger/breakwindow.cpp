@@ -120,9 +120,10 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
           << tr("Break when a system call is executed")
           << tr("Break on data access at fixed address")
           << tr("Break on data access at address given by expression")
-          << tr("Break on QML signal handler");
+          << tr("Break on QML signal handler")
+          << tr("Break when JavaScript exception is thrown");
 
-    QTC_ASSERT(types.size() == BreakpointOnQmlSignalHandler, return; )
+    QTC_ASSERT(types.size() == BreakpointAtJavaScriptThrow, return; )
     m_ui.comboBoxType->addItems(types);
     m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
     connect(m_ui.comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
@@ -352,6 +353,7 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointAtExec:
     //case BreakpointAtVFork:
     case BreakpointAtSysCall:
+    case BreakpointAtJavaScriptThrow:
         break;
     case BreakpointByAddress:
     case WatchpointAtAddress:
@@ -384,6 +386,7 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointAtExec:
     //case BreakpointAtVFork:
     case BreakpointAtSysCall:
+    case BreakpointAtJavaScriptThrow:
         clearOtherParts(AllConditionParts|ModulePart|TracePointPart);
         setPartsEnabled(AllConditionParts|TracePointPart);
         break;
