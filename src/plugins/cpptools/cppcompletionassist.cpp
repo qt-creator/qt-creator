@@ -392,9 +392,20 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
     }
 
     // Avoid inserting characters that are already there
+    const int endsPosition = editor->position(TextEditor::ITextEditor::EndOfLine);
+    const QString text = editor->textAt(editor->position(), endsPosition - editor->position());
+    int existLength = 0;
+    if (!text.isEmpty()) {
+        // Calculate the exist length in front of the extra chars
+        existLength = toInsert.length() - (editor->position() - basePosition);
+        while (!text.startsWith(toInsert.right(existLength))) {
+            if (--existLength == 0)
+                break;
+        }
+    }
     for (int i = 0; i < extraChars.length(); ++i) {
         const QChar a = extraChars.at(i);
-        const QChar b = editor->characterAt(editor->position() + i);
+        const QChar b = editor->characterAt(editor->position() + i + existLength);
         if (a == b)
             ++extraLength;
         else
@@ -404,7 +415,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
     toInsert += extraChars;
 
     // Insert the remainder of the name
-    int length = editor->position() - basePosition + extraLength;
+    const int length = editor->position() - basePosition + existLength + extraLength;
     editor->setCursorPosition(basePosition);
     editor->replace(length, toInsert);
     if (cursorOffset)
