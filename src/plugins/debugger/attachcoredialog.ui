@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>246</width>
-    <height>147</height>
+    <height>183</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -73,7 +73,10 @@
      <item row="3" column="0">
       <widget class="QLabel" name="sysrootLabel">
        <property name="text">
-        <string>Sysroot</string>
+        <string>Sys&amp;root:</string>
+       </property>
+       <property name="buddy">
+        <cstring>sysrootPathChooser</cstring>
        </property>
       </widget>
      </item>
