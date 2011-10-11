@@ -46,7 +46,6 @@ class TimelineView : public QDeclarativeItem
     Q_PROPERTY(QDeclarativeComponent *delegate READ delegate WRITE setDelegate NOTIFY delegateChanged)
     Q_PROPERTY(qint64 startTime READ startTime WRITE setStartTime NOTIFY startTimeChanged)
     Q_PROPERTY(qint64 endTime READ endTime WRITE setEndTime NOTIFY endTimeChanged)
-    Q_PROPERTY(qreal startX READ startX WRITE setStartX NOTIFY startXChanged)
     Q_PROPERTY(qreal totalWidth READ totalWidth NOTIFY totalWidthChanged)
     Q_PROPERTY(QObject* eventList READ eventList WRITE setEventList NOTIFY eventListChanged)
     Q_PROPERTY(qreal cachedProgress READ cachedProgress NOTIFY cachedProgressChanged)
@@ -67,11 +66,6 @@ public:
     qint64 endTime() const
     {
         return m_endTime;
-    }
-
-    qreal startX() const
-    {
-        return m_startX;
     }
 
     qreal totalWidth() const
@@ -98,7 +92,6 @@ signals:
     void delegateChanged(QDeclarativeComponent * arg);
     void startTimeChanged(qint64 arg);
     void endTimeChanged(qint64 arg);
-    void startXChanged(qreal arg);
     void totalWidthChanged(qreal arg);
     void eventListChanged(QmlJsDebugClient::QmlProfilerEventList *list);
 
@@ -107,7 +100,7 @@ signals:
 
 public slots:
     void clearData();
-    void updateTimeline(bool updateStartX = true);
+    void updateTimeline();
 
     void setDelegate(QDeclarativeComponent * arg)
     {
@@ -133,8 +126,6 @@ public slots:
         }
     }
 
-    void setStartX(qreal arg);
-
 protected:
     void componentComplete();
 
@@ -152,7 +143,6 @@ private:
     qint64 m_itemCount;
     qint64 m_startTime;
     qint64 m_endTime;
-    qreal m_startX;
     qreal m_spacing;
     int prevMin;
     int prevMax;

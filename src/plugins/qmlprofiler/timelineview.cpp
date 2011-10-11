@@ -43,7 +43,7 @@ using namespace QmlProfiler::Internal;
 #define CACHE_STEP 200
 
 TimelineView::TimelineView(QDeclarativeItem *parent) :
-    QDeclarativeItem(parent), m_delegate(0), m_itemCount(0), m_startTime(0), m_endTime(0), m_startX(0), m_spacing(0),
+    QDeclarativeItem(parent), m_delegate(0), m_itemCount(0), m_startTime(0), m_endTime(0), m_spacing(0),
     prevMin(0), prevMax(0), m_eventList(0), m_totalWidth(0), m_lastCachedIndex(0), m_creatingCache(false), m_oldCacheSize(0)
 {
 }
@@ -64,32 +64,13 @@ void TimelineView::clearData()
 
     m_startTime = 0;
     m_endTime = 0;
-    m_startX = 0;
     prevMin = 0;
     prevMax = 0;
     m_totalWidth = 0;
     m_lastCachedIndex = 0;
 }
 
-void TimelineView::setStartX(qreal arg)
-{
-    if (arg == m_startX)
-        return;
-
-    qreal window = m_endTime - m_startTime;
-    if (window == 0)    //###
-        return;
-    qreal spacing = width() / window;
-    qreal oldStart = m_startTime;
-    m_startTime = arg / spacing;
-    m_endTime += m_startTime - oldStart;
-
-    updateTimeline(false);
-    m_startX = arg;
-    emit startXChanged(m_startX);
-}
-
-void TimelineView::updateTimeline(bool updateStartX)
+void TimelineView::updateTimeline()
 {
     if (!m_delegate)
         return;
@@ -113,14 +94,6 @@ void TimelineView::updateTimeline(bool updateStartX)
 
     int minsample = m_eventList->findFirstIndex(m_startTime + m_eventList->traceStartTime());
     int maxsample = m_eventList->findLastIndex(m_endTime + m_eventList->traceStartTime());
-
-    if (updateStartX) {
-        qreal oldStartX = m_startX;
-        m_startX = qRound(m_startTime * m_spacing);
-        if (m_startX != oldStartX) {
-            emit startXChanged(m_startX);
-        }
-    }
 
     //### emitting this before startXChanged was causing issues
     if (m_totalWidth != oldtw)

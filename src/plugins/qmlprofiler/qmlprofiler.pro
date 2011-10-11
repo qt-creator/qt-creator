@@ -46,7 +46,7 @@ HEADERS += \
     qmlprofilerruncontrolfactory.h
 
 RESOURCES += \
-    qml/qml.qrc
+    qml/qmlprofiler.qrc
 
 OTHER_FILES += \
     qml/Detail.qml \
@@ -55,9 +55,11 @@ OTHER_FILES += \
     qml/MainView.qml \
     qml/RangeDetails.qml \
     qml/RangeMover.qml \
-    qml/MainView.js \
     qml/TimeDisplay.qml \
-    qml/StatusDisplay.qml
+    qml/TimeMarks.qml \
+    qml/StatusDisplay.qml \
+    qml/Overview.qml \
+    qml/Overview.js
 
 FORMS += \
     qmlprofilerattachdialog.ui

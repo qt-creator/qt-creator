@@ -145,7 +145,6 @@ void TiledCanvas::componentComplete()
 void TiledCanvas::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event);
-    qWarning("MPE");
 }
 
 QPixmap TiledCanvas::getTile(int xx, int yy)

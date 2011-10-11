@@ -32,7 +32,6 @@
 
 import QtQuick 1.0
 import Monitor 1.0
-import "MainView.js" as Plotter
 
 Item {
     id: detail

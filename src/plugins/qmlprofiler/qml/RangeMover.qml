@@ -30,124 +30,148 @@
 **
 **************************************************************************/
 
-import "MainView.js" as Plotter
 import QtQuick 1.0
-import Monitor 1.0
 
-Item {
+Rectangle {
     id: rangeMover
 
 
     property color lighterColor:"#cc80b2f6"
     property color darkerColor:"#cc6da1e8"
     property color gapColor: "#666da1e8"
-    property real value: (canvas.canvasWindow.x + x) * Plotter.xScale(canvas)
-    property real zoomWidth: 20
-    onZoomWidthChanged: timeDisplayLabel.hideAll();
+    property color hardBorderColor: "blue"
+    width: 20
+    height: 50
 
-    function updateZoomControls() {
-        rightRange.x = rangeMover.width;
+    color: lighterColor
+
+    property bool dragStarted: false
+    onXChanged: {
+        if (dragStarted) canvas.updateRange()
     }
-    onXChanged: updateZoomControls();
-
-    width: Math.max(rangeMover.zoomWidth, 20); height: 50
 
     MouseArea {
         anchors.fill: parent
         drag.target: rangeMover
         drag.axis: "XAxis"
         drag.minimumX: 0
-        drag.maximumX: canvas.width - rangeMover.zoomWidth //###
-    }
-
-    Rectangle {
-        id: frame
-        color:"transparent"
-        anchors.fill: parent
-        anchors.rightMargin: 1
-        anchors.bottomMargin: 1
-    }
-
-    Rectangle {
-        id: rect
-        color: lighterColor
-        width: parent.zoomWidth
-        height: parent.height
-    }
-
-    Rectangle {
-        id: gapRect
-        color: gapColor
-        anchors.left: rect.right
-        anchors.right: rightRange.left
-        height: parent.height
+        drag.maximumX: canvas.width - rangeMover.width
+        onPressed: {
+            parent.dragStarted = true;
+        }
+        onReleased: {
+            parent.dragStarted = false;
+        }
     }
 
     Rectangle {
         id: leftRange
 
-        property int currentX: rangeMover.x
-        property int currentWidth : rangeMover.zoomWidth
+        // used for dragging the borders
+        property real initialX: 0
+        property real initialWidth: 0
 
-        x: -width
+        x: 0
         height: parent.height
-        width: 15
+        width: 1
         color: darkerColor
+        border.color: hardBorderColor
+        border.width: 0
 
-        Text {
-            anchors.centerIn: parent
-            text:"<"
+        states: State {
+            name: "highlighted"
+            PropertyChanges {
+                target: leftRange
+                width: 3
+                border.width: 2
+            }
+        }
+
+        onXChanged: {
+            if (x !== 0) {
+                rangeMover.width = initialWidth - x;
+                rangeMover.x = initialX + x;
+                x = 0;
+                canvas.updateRange();
+            }
         }
 
         MouseArea {
-            anchors.fill: parent
+            x: -3
+            width: 7
+            y: 0
+            height: parent.height
+
             drag.target: leftRange
             drag.axis: "XAxis"
-            drag.minimumX: -parent.currentX
-            drag.maximumX: parent.currentWidth - width - 1
-            onPressed: {
-                parent.currentX = rangeMover.x;
-                parent.currentWidth = rangeMover.zoomWidth;
+            drag.minimumX: -parent.initialX
+            drag.maximumX: parent.initialWidth - 2
+
+            hoverEnabled: true
+
+            onEntered: {
+                parent.state = "highlighted";
             }
-        }
-        onXChanged: {
-            if (x + width != 0) {
-                rangeMover.zoomWidth = currentWidth - x - width;
-                rangeMover.x = currentX + x + width;
-                x = -width;
+            onExited: {
+                if (!pressed) parent.state = "";
+            }
+            onReleased: {
+                if (!containsMouse) parent.state = "";
+            }
+            onPressed: {
+                parent.initialX = rangeMover.x;
+                parent.initialWidth = rangeMover.width;
             }
         }
     }
 
     Rectangle {
         id: rightRange
-        property int currentX: rangeMover.x
-        property int widthSpace: rangeMover.width - rangeMover.zoomWidth
 
-        height: parent.height
-        width: 15
         x: rangeMover.width
-        color: darkerColor;
+        height: parent.height
+        width: 1
+        color: darkerColor
+        border.color: hardBorderColor
+        border.width: 0
 
-        Text {
-            anchors.centerIn: parent
-            text:">"
+        states: State {
+            name: "highlighted"
+            PropertyChanges {
+                target: rightRange
+                width: 3
+                border.width: 2
+            }
         }
+
+        onXChanged: {
+            if (x!=rangeMover.width) {
+                rangeMover.width = x;
+                canvas.updateRange();
+            }
+        }
+
         MouseArea {
-            anchors.fill: parent
+            x: -3
+            width: 7
+            y: 0
+            height: parent.height
+
             drag.target: rightRange
             drag.axis: "XAxis"
-            drag.minimumX: 1 + parent.widthSpace
-            drag.maximumX: canvas.width - parent.currentX;
-            onPressed: {
-                parent.currentX = rangeMover.x;
-                parent.widthSpace = rangeMover.width - rangeMover.zoomWidth;
+            drag.minimumX: 1
+            drag.maximumX: canvas.width - rangeMover.x
+
+            hoverEnabled: true
+
+            onEntered: {
+                parent.state = "highlighted";
             }
-            onReleased: rightRange.x = rangeMover.width;
-        }
-        onXChanged: {
-            if (x != rangeMover.width) {
-                rangeMover.zoomWidth = x - widthSpace;
+            onExited: {
+                if (!pressed) parent.state = "";
+            }
+            onReleased: {
+                if (!containsMouse) parent.state = "";
             }
         }
     }

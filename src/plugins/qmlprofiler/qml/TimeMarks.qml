@@ -36,29 +36,22 @@ import Monitor 1.0
 TiledCanvas {
     id: timeDisplay
 
-    property variant startTime : 0
-    property variant endTime : 0
-    property variant timePerPixel: 0
+    property variant startTime
+    property variant endTime
+    property variant timePerPixel
 
     canvasSize.width: timeDisplay.width
     canvasSize.height: timeDisplay.height
+
     tileSize.width: width
     tileSize.height: height
     canvasWindow.width:  width
     canvasWindow.height: height
 
-    Connections {
-        target: zoomControl
-        onRangeChanged: {
-            startTime = zoomControl.startTime();
-            endTime = zoomControl.endTime();
-            requestPaint();
-        }
-    }
-
     Component.onCompleted: {
         requestPaint();
     }
+
     onWidthChanged: {
         requestPaint();
     }
@@ -67,8 +60,7 @@ TiledCanvas {
     }
 
     onDrawRegion: {
-        ctxt.fillStyle = "white";
-        ctxt.fillRect(0, 0, width, height);
+        drawBackgroundBars( ctxt, region );
 
         var totalTime = endTime - startTime;
         var spacing = width / totalTime;
@@ -95,22 +87,33 @@ TiledCanvas {
             ctxt.lineTo(x, height);
             ctxt.stroke();
 
-            ctxt.fillText(prettyPrintTime(ii*timePerBlock + realStartTime), x + 5, height/2 + 4);
+            ctxt.strokeStyle = "#C0C0C0";
+            for (var jj=1; jj < 5; jj++) {
+                var xx = Math.floor(ii*pixelsPerBlock + jj*pixelsPerSection - realStartPos);
+                ctxt.beginPath();
+                ctxt.moveTo(xx, 0);
+                ctxt.lineTo(xx, height);
+                ctxt.stroke();
+            }
         }
     }
 
-    function prettyPrintTime( t )
-    {
-        if (t <= 0) return "0";
-        if (t<1000) return t+" ns";
-        t = t/1000;
-        if (t<1000) return t+" μs";
-        t = Math.floor(t/100)/10;
-        if (t<1000) return t+" ms";
-        t = Math.floor(t)/1000;
-        if (t<60) return t+" s";
-        var m = Math.floor(t/60);
-        t = Math.floor(t - m*60);
-        return m+"m"+t+"s";
+    function updateMarks(start, end) {
+        if (startTime !== start || endTime !== end) {
+            startTime = start;
+            endTime = end;
+            requestPaint();
+        }
+    }
+
+    function drawBackgroundBars( ctxt, region ) {
+        var barHeight = Math.round(labels.height / labels.rowCount);
+        for (var i=0; i<labels.rowCount; i++) {
+            ctxt.fillStyle = i%2 ? "#f3f3f3" : "white"
+            ctxt.strokeStyle = i%2 ? "#f3f3f3" : "white"
+            ctxt.fillRect(0, i * barHeight, width, barHeight);
+        }
+        ctxt.fillStyle = "white";
+        ctxt.fillRect(0, labels.height, width, height - labels.height);
     }
 }

@@ -44,6 +44,8 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QGraphicsObject>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QScrollBar>
+#include <QtGui/QWidget>
 
 using namespace QmlJsDebugClient;
 
@@ -59,16 +61,63 @@ TraceWindow::TraceWindow(QWidget *parent)
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
 
-    m_view = new QDeclarativeView(this);
+    m_mainView = new QDeclarativeView(this);
+    m_mainView->setResizeMode(QDeclarativeView::SizeViewToRootObject);
+    m_mainView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_mainView->setBackgroundBrush(QBrush(Qt::white));
+    m_mainView->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    m_mainView->setFocus();
 
-    if (QmlProfilerPlugin::debugOutput) {
-        //new QmlJSDebugger::JSDebuggerAgent(m_view->engine());
-        //new QmlJSDebugger::QDeclarativeViewObserver(m_view, m_view);
-    }
+    QHBoxLayout *toolsLayout = new QHBoxLayout;
 
+    m_timebar = new QDeclarativeView(this);
+    m_timebar->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    m_timebar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_timebar->setMaximumHeight(24);
+
+    m_overview = new QDeclarativeView(this);
+    m_overview->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    m_overview->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_overview->setMaximumHeight(50);
+
+    toolsLayout->addWidget(createToolbar());
+    toolsLayout->addWidget(m_timebar);
+
+    groupLayout->addLayout(toolsLayout);
+    groupLayout->addWidget(m_mainView);
+    groupLayout->addWidget(m_overview);
+
+    setLayout(groupLayout);
+
+    m_eventList = new QmlProfilerEventList(this);
+    connect(this,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)), m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
+    connect(this, SIGNAL(traceFinished(qint64)), m_eventList, SLOT(setTraceEndTime(qint64)));
+    connect(this,SIGNAL(viewUpdated()), m_eventList, SLOT(complete()));
+    m_mainView->rootContext()->setContextProperty("qmlEventList", m_eventList);
+    m_overview->rootContext()->setContextProperty("qmlEventList", m_eventList);
+
+    connect(this, SIGNAL(v8range(int,QString,QString,int,double,double)), m_eventList, SLOT(addV8Event(int,QString,QString,int,double,double)));
+
+    // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
+    setMinimumHeight(170);
+
+    m_zoomControl = new ZoomControl();
+}
+
+TraceWindow::~TraceWindow()
+{
+    delete m_plugin.data();
+    delete m_v8plugin.data();
+    delete m_zoomControl.data();
+}
+
+QWidget *TraceWindow::createToolbar()
+{
     Utils::StyledBar *bar = new Utils::StyledBar(this);
     bar->setSingleRow(true);
     bar->setMinimumWidth(150);
+    bar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    bar->resize(150, 24);
     QHBoxLayout *toolBarLayout = new QHBoxLayout(bar);
     toolBarLayout->setMargin(0);
     toolBarLayout->setSpacing(0);
@@ -98,28 +147,7 @@ TraceWindow::TraceWindow(QWidget *parent)
     toolBarLayout->addWidget(buttonZoomIn);
     toolBarLayout->addWidget(buttonZoomOut);
 
-    m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    m_view->setFocus();
-    groupLayout->addWidget(m_view);
-
-    setLayout(groupLayout);
-
-    m_eventList = new QmlProfilerEventList(this);
-    connect(this,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)), m_eventList, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
-    connect(this, SIGNAL(traceFinished(qint64)), m_eventList, SLOT(setTraceEndTime(qint64)));
-    connect(this,SIGNAL(viewUpdated()), m_eventList, SLOT(complete()));
-    m_view->rootContext()->setContextProperty("qmlEventList", m_eventList);
-
-    connect(this, SIGNAL(v8range(int,QString,QString,int,double,double)), m_eventList, SLOT(addV8Event(int,QString,QString,int,double,double)));
-
-    // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
-    setMinimumHeight(170);
-}
-
-TraceWindow::~TraceWindow()
-{
-    delete m_plugin.data();
-    delete m_v8plugin.data();
+    return bar;
 }
 
 void TraceWindow::reset(QDeclarativeDebugConnection *conn)
@@ -142,20 +170,30 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     connect(m_v8plugin.data(), SIGNAL(v8range(int,QString,QString,int,double,double)), this, SIGNAL(v8range(int,QString,QString,int,double,double)));
     connect(m_plugin.data(), SIGNAL(traceFinished(qint64)), this, SIGNAL(traceFinished(qint64)));
 
-    m_view->rootContext()->setContextProperty("connection", m_plugin.data());
-    m_view->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));
+    m_mainView->rootContext()->setContextProperty("connection", m_plugin.data());
+    m_mainView->rootContext()->setContextProperty("zoomControl", m_zoomControl.data());
+    m_timebar->rootContext()->setContextProperty("zoomControl", m_zoomControl.data());
+    m_overview->rootContext()->setContextProperty("zoomControl", m_zoomControl.data());
+
+    m_timebar->setSource(QUrl("qrc:/qmlprofiler/TimeDisplay.qml"));
+    m_overview->setSource(QUrl("qrc:/qmlprofiler/Overview.qml"));
+
+    m_mainView->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));
+    m_mainView->rootObject()->setProperty("width", QVariant(width()));
+    m_mainView->rootObject()->setProperty("candidateHeight", QVariant(height() - m_timebar->height() - m_overview->height()));
 
     updateToolbar();
 
-    connect(m_view->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
-    connect(m_view->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
+    connect(m_mainView->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
+    connect(m_mainView->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
     connect(m_eventList, SIGNAL(countChanged()), this, SLOT(updateToolbar()));
-    connect(this, SIGNAL(jumpToPrev()), m_view->rootObject(), SLOT(prevEvent()));
-    connect(this, SIGNAL(jumpToNext()), m_view->rootObject(), SLOT(nextEvent()));
-    connect(this, SIGNAL(zoomIn()), m_view->rootObject(), SLOT(zoomIn()));
-    connect(this, SIGNAL(zoomOut()), m_view->rootObject(), SLOT(zoomOut()));
+    connect(this, SIGNAL(jumpToPrev()), m_mainView->rootObject(), SLOT(prevEvent()));
+    connect(this, SIGNAL(jumpToNext()), m_mainView->rootObject(), SLOT(nextEvent()));
+    connect(this, SIGNAL(zoomIn()), m_mainView->rootObject(), SLOT(zoomIn()));
+    connect(this, SIGNAL(zoomOut()), m_mainView->rootObject(), SLOT(zoomOut()));
 
-    connect(this, SIGNAL(internalClearDisplay()), m_view->rootObject(), SLOT(clearAll()));
+    connect(this, SIGNAL(internalClearDisplay()), m_mainView->rootObject(), SLOT(clearAll()));
+    connect(this,SIGNAL(internalClearDisplay()), m_overview->rootObject(), SLOT(clearDisplay()));
 
     m_v8DataReady = false;
     m_qmlDataReady = false;
@@ -173,13 +211,13 @@ void TraceWindow::contextMenuEvent(QContextMenuEvent *ev)
 
 void TraceWindow::updateCursorPosition()
 {
-    emit gotoSourceLocation(m_view->rootObject()->property("fileName").toString(),
-                            m_view->rootObject()->property("lineNumber").toInt());
+    emit gotoSourceLocation(m_mainView->rootObject()->property("fileName").toString(),
+                            m_mainView->rootObject()->property("lineNumber").toInt());
 }
 
 void TraceWindow::updateTimer()
 {
-    emit timeChanged(m_view->rootObject()->property("elapsedTime").toDouble());
+    emit timeChanged(m_mainView->rootObject()->property("elapsedTime").toDouble());
 }
 
 void TraceWindow::clearDisplay()
@@ -190,6 +228,8 @@ void TraceWindow::clearDisplay()
         m_plugin.data()->clearData();
     if (m_v8plugin)
         m_v8plugin.data()->clearData();
+
+    m_zoomControl.data()->setRange(0,0);
 
     emit internalClearDisplay();
 }
@@ -229,6 +269,15 @@ void TraceWindow::v8Complete()
     m_v8DataReady = true;
     if (!m_plugin || m_plugin.data()->status() != QDeclarativeDebugClient::Enabled || m_qmlDataReady)
         emit viewUpdated();
+}
+
+void TraceWindow::resizeEvent(QResizeEvent *event)
+{
+    if (m_mainView->rootObject()) {
+        m_mainView->rootObject()->setProperty("width", QVariant(event->size().width()));
+        int newHeight = event->size().height() - m_timebar->height() - m_overview->height();
+        m_mainView->rootObject()->setProperty("candidateHeight", QVariant(newHeight));
+    }
 }
 
 } // namespace Internal

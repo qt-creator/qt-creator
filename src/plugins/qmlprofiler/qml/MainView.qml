@@ -32,21 +32,84 @@
 
 import QtQuick 1.0
 import Monitor 1.0
-import "MainView.js" as Plotter
 
 Rectangle {
     id: root
 
-    property bool dataAvailable: true;
-    property int eventCount: 0;
-    property real progress: 0;
+    // ***** properties
+
+    property int candidateHeight: 0
+    height: Math.max( candidateHeight, labels.rowCount * 50 + 2 )
+
+    property bool dataAvailable: true
+    property int eventCount: 0
+    property real progress: 0
 
     property bool mouseOverSelection : true
 
-    // move the cursor in the editor
+    property variant names: [ qsTr("Painting"), qsTr("Compiling"), qsTr("Creating"), qsTr("Binding"), qsTr("Handling Signal")]
+    property variant colors : [ "#99CCB3", "#99CCCC", "#99B3CC", "#9999CC", "#CC99B3", "#CC99CC", "#CCCC99", "#CCB399" ]
+
+    property variant mainviewTimePerPixel : 0
+
     signal updateCursorPosition
     property string fileName: ""
     property int lineNumber: -1
+
+    property int selectedEventIndex : -1
+    property bool mouseTracking: false
+
+    property real elapsedTime
+    signal updateTimer
+
+    // ***** connections with external objects
+    Connections {
+        target: zoomControl
+        onRangeChanged: {
+            var startTime = zoomControl.startTime();
+            var endTime = zoomControl.endTime();
+            var duration = Math.abs(endTime - startTime);
+
+            mainviewTimePerPixel = duration / root.width;
+
+            backgroundMarks.updateMarks(startTime, endTime);
+            view.updateFlickRange(startTime, endTime);
+            if (duration > 0) {
+                var candidateWidth = qmlEventList.traceEndTime() * flick.width / duration;
+                if (flick.contentWidth !== candidateWidth)
+                    flick.contentWidth = candidateWidth;
+            }
+
+        }
+    }
+
+    Connections {
+        target: qmlEventList
+        onCountChanged: {
+            eventCount = qmlEventList.count();
+            if (eventCount === 0)
+                root.clearAll();
+            if (eventCount > 1) {
+                root.progress = Math.min(1.0,
+                    (qmlEventList.lastTimeMark() - qmlEventList.traceStartTime()) / root.elapsedTime * 1e-9 ) * 0.5;
+            } else {
+                root.progress = 0;
+            }
+        }
+
+        onParsingStatusChanged: {
+            root.dataAvailable = false;
+        }
+
+        onDataReady: {
+            if (eventCount > 0) {
+                view.clearData();
+                view.rebuildCache();
+            }
+        }
+    }
+
+    // ***** functions
     function gotoSourceLocation(file,line) {
         root.fileName = file;
         root.lineNumber = line;
@@ -54,19 +117,15 @@ Rectangle {
     }
 
     function clearData() {
-        Plotter.reset();
         view.clearData();
         root.dataAvailable = false;
         root.eventCount = 0;
-        rangeMover.x = 2
-        rangeMover.opacity = 0
         hideRangeDetails();
     }
 
     function clearDisplay() {
         clearData();
         selectedEventIndex = -1;
-        canvas.requestPaint();
         view.visible = false;
     }
 
@@ -74,30 +133,6 @@ Rectangle {
         clearDisplay();
         root.elapsedTime = 0;
         root.updateTimer();
-    }
-
-    property int selectedEventIndex : -1;
-    property bool mouseTracking: false;
-
-    onSelectedEventIndexChanged: {
-        if ((!mouseTracking) && eventCount > 0
-                && selectedEventIndex > -1 && selectedEventIndex < eventCount) {
-            // re-center flickable if necessary
-            var xs = Plotter.xScale(canvas);
-            var startTime = qmlEventList.traceStartTime();
-            var eventStartTime = qmlEventList.getStartTime(selectedEventIndex);
-            var eventDuration = qmlEventList.getDuration(selectedEventIndex);
-            if (rangeMover.value + startTime > eventStartTime) {
-                rangeMover.x = Math.max(0,
-                    Math.floor((eventStartTime - startTime) / xs - canvas.canvasWindow.x - rangeMover.zoomWidth/2) );
-            } else if (rangeMover.value + startTime + rangeMover.zoomWidth * xs < eventStartTime + eventDuration) {
-                rangeMover.x = Math.floor((eventStartTime + eventDuration - startTime) / xs - canvas.canvasWindow.x - rangeMover.zoomWidth/2);
-            }
-        }
-
-        if (selectedEventIndex == -1) {
-            selectionHighlight.visible = false;
-        }
     }
 
     function nextEvent() {
@@ -117,169 +152,190 @@ Rectangle {
     }
 
     function zoomIn() {
-        // 10%
-        var newZoom = rangeMover.zoomWidth / 1.1;
-
-        // 0.1 ms minimum zoom
-        if (newZoom * Plotter.xScale(canvas) > 100000) {
-            rangeMover.zoomWidth =  newZoom
-            rangeMover.updateZoomControls();
-        }
+        updateZoom( 1/1.1 );
     }
 
     function zoomOut() {
-        // 10%
-        var newZoom = rangeMover.zoomWidth * 1.1;
-        if (newZoom > canvas.width)
-            newZoom = canvas.width;
-        if (newZoom + rangeMover.x > canvas.width)
-            rangeMover.x = canvas.width - newZoom;
-        rangeMover.zoomWidth = newZoom;
-        rangeMover.updateZoomControls();
+        updateZoom( 1.1 );
     }
 
-    Connections {
-        target: qmlEventList
-        onCountChanged: {
-            eventCount = qmlEventList.count();
-            if (eventCount == 0)
-                root.clearAll();
-            if (eventCount > 1) {
-                root.progress = Math.min(1.0,
-                    (qmlEventList.traceEndTime() - qmlEventList.traceStartTime()) / root.elapsedTime * 1e-9 ) * 0.5;
-            } else
-            root.progress = 0;
+    function updateZoom(factor) {
+        var min_length = 1e5; // 0.1 ms
+        var windowLength = view.endTime - view.startTime;
+        if (windowLength < min_length)
+            windowLength = min_length;
+        var newWindowLength = windowLength * factor;
+
+        if (newWindowLength > qmlEventList.traceEndTime()) {
+            newWindowLength = qmlEventList.traceEndTime();
+            factor = newWindowLength / windowLength;
+        }
+        if (newWindowLength < min_length) {
+            newWindowLength = min_length;
+            factor = newWindowLength / windowLength;
         }
 
-        onParsingStatusChanged: {
-            root.dataAvailable = false;
+        var fixedPoint = (view.startTime + view.endTime) / 2;
+        if (root.selectedEventIndex !== -1) {
+            // center on selected item if it's inside the current screen
+            var newFixedPoint = qmlEventList.getStartTime(selectedEventIndex);
+            if (newFixedPoint >= view.startTime && newFixedPoint < view.endTime)
+                fixedPoint = newFixedPoint;
         }
 
-        onDataReady: {
-            if (eventCount > 0) {
-                view.clearData();
-                view.rebuildCache();
+        var startTime = fixedPoint - factor*(fixedPoint - view.startTime);
+        zoomControl.setRange(startTime, startTime + newWindowLength);
+    }
+
+    function hideRangeDetails() {
+        rangeDetails.visible = false;
+        rangeDetails.duration = "";
+        rangeDetails.label = "";
+        rangeDetails.type = "";
+        rangeDetails.file = "";
+        rangeDetails.line = -1;
+
+        root.mouseOverSelection = true;
+        selectionHighlight.visible = false;
+    }
+
+    // ***** slots
+    onSelectedEventIndexChanged: {
+        if ((!mouseTracking) && eventCount > 0
+                && selectedEventIndex > -1 && selectedEventIndex < eventCount) {
+            var windowLength = view.endTime - view.startTime;
+
+            var eventStartTime = qmlEventList.getStartTime(selectedEventIndex);
+            var eventEndTime = eventStartTime + qmlEventList.getDuration(selectedEventIndex);
+
+            if (eventEndTime < view.startTime || eventStartTime > view.endTime) {
+                var center = (eventStartTime + eventEndTime)/2;
+                var from = Math.min(qmlEventList.traceEndTime()-windowLength,
+                    Math.max(0, Math.floor(center - windowLength/2)));
+
+                zoomControl.setRange(from, from + windowLength);
             }
         }
+        if (selectedEventIndex === -1)
+            selectionHighlight.visible = false;
     }
 
-    // Elapsed
-    property real elapsedTime;
-    signal updateTimer;
+    // ***** child items
     Timer {
         id: elapsedTimer
         property date startDate
         property bool reset:  true
         running: connection.recording
         repeat: true
-        onRunningChanged: if (running) reset = true
+        onRunningChanged: {
+            if (running) reset = true;
+        }
         interval:  100
         triggeredOnStart: true
         onTriggered: {
             if (reset) {
-                startDate = new Date()
-                reset = false
+                startDate = new Date();
+                reset = false;
             }
-            var time = (new Date() - startDate)/1000
+            var time = (new Date() - startDate)/1000;
             root.elapsedTime = time.toFixed(1);
             root.updateTimer();
         }
     }
 
-    // time markers
-    TimeDisplay {
-        height: flick.height + labels.y
+    TimeMarks {
+        id: backgroundMarks
+        y: labels.y
+        height: flick.height
         anchors.left: flick.left
         anchors.right: flick.right
-        startTime: rangeMover.x * Plotter.xScale(canvas) + qmlEventList.traceStartTime();
-        endTime: (rangeMover.x + rangeMover.zoomWidth) * Plotter.xScale(canvas) + qmlEventList.traceStartTime();
     }
 
-    function hideRangeDetails() {
-        rangeDetails.visible = false
-        rangeDetails.duration = ""
-        rangeDetails.label = ""
-        rangeDetails.type = ""
-        rangeDetails.file = ""
-        rangeDetails.line = -1
-
-        root.mouseOverSelection = true;
-        selectionHighlight.visible = false;
-    }
-
-    //our main interaction view
     Flickable {
         id: flick
         anchors.top: parent.top
         anchors.topMargin: labels.y
         anchors.right: parent.right
         anchors.left: labels.right
-        anchors.bottom: canvas.top
-        contentWidth: view.totalWidth
-        contentHeight: height
+        height: root.height
+        contentWidth: 0;
+        contentHeight: labels.rowCount * 50
         flickableDirection: Flickable.HorizontalFlick
+
+        onContentXChanged: {
+            if (Math.round(view.startX) !== contentX)
+                view.startX = contentX;
+        }
 
         clip:true
 
         TimelineView {
             id: view
 
-            eventList: qmlEventList;
-            onEventListChanged: Plotter.qmlEventList = qmlEventList;
+            eventList: qmlEventList
 
-            width: flick.width;
-            height: flick.contentHeight;
+            width: flick.width
+            height: flick.contentHeight
 
-            startX: flick.contentX
+            property variant startX: 0
             onStartXChanged: {
-                var newX = startTime / Plotter.xScale(canvas) - canvas.canvasWindow.x;
-                if (Math.abs(rangeMover.x - newX) > .01)
-                    rangeMover.x = newX
-                if (Math.abs(startX - flick.contentX) > .01)
-                    flick.contentX = startX
+                var newStartTime = Math.round(startX * (endTime - startTime) / flick.width);
+                if (Math.abs(newStartTime - startTime) > 1) {
+                    var newEndTime = Math.round((startX+flick.width)* (endTime - startTime) / flick.width);
+                    zoomControl.setRange(newStartTime, newEndTime);
+                }
+
+                if (Math.round(startX) !== flick.contentX)
+                    flick.contentX = startX;
             }
-            startTime: rangeMover.value
-            endTime: startTime + (rangeMover.zoomWidth*Plotter.xScale(canvas))
-            onEndTimeChanged: {
-                updateTimeline();
+
+            function updateFlickRange(start, end) {
+                if (start !== startTime || end !== endTime) {
+                    startTime = start;
+                    endTime = end;
+                    var newStartX = startTime  * flick.width / (endTime-startTime);
+                    if (Math.abs(newStartX - startX) >= 1)
+                        startX = newStartX;
+                    updateTimeline();
+                }
             }
 
             property real timeSpan: endTime - startTime
             onTimeSpanChanged: {
-                if (selectedEventIndex != -1 && selectionHighlight.visible) {
+                if (selectedEventIndex !== -1 && selectionHighlight.visible) {
                     var spacing = flick.width / timeSpan;
-                    selectionHighlight.x = (qmlEventList.getStartTime(selectedEventIndex) - qmlEventList.firstTimeMark()) * spacing;
+                    selectionHighlight.x = (qmlEventList.getStartTime(selectedEventIndex) - qmlEventList.traceStartTime()) * spacing;
                     selectionHighlight.width = qmlEventList.getDuration(selectedEventIndex) * spacing;
                }
             }
 
-            onCachedProgressChanged: root.progress = 0.5 + cachedProgress * 0.5;
+            onCachedProgressChanged: {
+                root.progress = 0.5 + cachedProgress * 0.5;
+            }
+
             onCacheReady: {
                 root.progress = 1.0;
                 root.dataAvailable = true;
                 if (root.eventCount > 0) {
                     view.visible = true;
                     view.updateTimeline();
-                    canvas.requestPaint();
-                    rangeMover.x = 1    //### hack to get view to display things immediately
-                    rangeMover.x = 0
-                    rangeMover.opacity = 1
+                    zoomControl.setRange(0, qmlEventList.traceEndTime()/10);
                 }
             }
 
             delegate: Rectangle {
                 id: obj
-                property color myColor: Plotter.colors[type]
+                property color myColor: root.colors[type]
 
                 function conditionalHide() {
                     if (!mouseArea.containsMouse)
                         mouseArea.exited()
                 }
 
-                property int baseY: type * view.height / labels.rowCount;
+                property int baseY: type * view.height / labels.rowCount
                 property int baseHeight: view.height / labels.rowCount
-                y: baseY + (nestingLevel-1)*(baseHeight / nestingDepth);
-                height: baseHeight / nestingDepth;
+                y: baseY + (nestingLevel-1)*(baseHeight / nestingDepth)
+                height: baseHeight / nestingDepth
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: myColor }
                     GradientStop { position: 0.5; color: Qt.darker(myColor, 1.1) }
@@ -294,7 +350,10 @@ Rectangle {
                 }
 
                 property bool isSelected: root.selectedEventIndex == index;
-                onIsSelectedChanged: updateDetails();
+                onIsSelectedChanged: {
+                    updateDetails();
+                }
+
                 function updateDetails() {
                     if (!root.mouseTracking && componentIsCompleted) {
                         if (isSelected) {
@@ -308,9 +367,9 @@ Rectangle {
                     rangeDetails.label = qmlEventList.getDetails(index);
                     rangeDetails.file = qmlEventList.getFilename(index);
                     rangeDetails.line = qmlEventList.getLine(index);
-                    rangeDetails.type = Plotter.names[type]
+                    rangeDetails.type = root.names[type];
 
-                    rangeDetails.visible = true
+                    rangeDetails.visible = true;
 
                     selectionHighlight.x = obj.x;
                     selectionHighlight.y = obj.y;
@@ -358,11 +417,13 @@ Rectangle {
                 width: parent.width
                 height: parent.height
                 x: flick.contentX
-                onClicked: root.hideRangeDetails();
+                onClicked: {
+                    root.hideRangeDetails();
+                }
             }
         }
     }
-    //popup showing the details for the hovered range
+
     RangeDetails {
         id: rangeDetails
     }
@@ -371,19 +432,19 @@ Rectangle {
         id: labels
         width: 150
         color: "#dcdcdc"
-        y: 24
-        height: flick.height
+        height: flick.contentHeight
 
         property int rowCount: 5
 
         Column {
             id: col
-            //### change to use Repeater + Plotter.names?
-            Label { text: qsTr("Painting"); height: labels.height/labels.rowCount}
-            Label { text: qsTr("Compiling"); height: labels.height/labels.rowCount }
-            Label { text: qsTr("Creating"); height: labels.height/labels.rowCount }
-            Label { text: qsTr("Binding"); height: labels.height/labels.rowCount }
-            Label { text: qsTr("Signal Handler"); height: labels.height/labels.rowCount }
+            Repeater {
+                model: labels.rowCount
+                delegate: Label {
+                    text: root.names[index]
+                    height: labels.height/labels.rowCount
+                }
+            }
         }
 
         //right border divider
@@ -395,112 +456,17 @@ Rectangle {
         }
     }
 
-    //bottom border divider
     Rectangle {
-        height: 1
-        width: parent.width
-        anchors.bottom: canvas.top
-        color: "#cccccc"
-    }
-
-    //"overview" graph at the bottom
-    TiledCanvas {
-        id: canvas
-
-        anchors.bottom: parent.bottom
-        width: parent.width; height: 50
-
-        property int canvasWidth: width
-
-        canvasSize {
-            width: canvasWidth
-            height: canvas.height
-        }
-
-        tileSize.width: width
-        tileSize.height: height
-
-        canvasWindow.width: width
-        canvasWindow.height: height
-
-        onDrawRegion: {
-             if (root.dataAvailable)
-                 Plotter.plot(canvas, ctxt, region);
-             else
-                 Plotter.drawGraph(canvas, ctxt, region)    //just draw the background
-        }
-    }
-
-    //moves the range mover to the position of a click
-    MouseArea {
-        anchors.fill: canvas
-        //### ideally we could press to position then immediately drag
-        onPressed: rangeMover.x = mouse.x - rangeMover.zoomWidth/2
-    }
-
-    RangeMover {
-        id: rangeMover
-        opacity: 0
-        anchors.top: canvas.top
-    }
-
-    // the next elements are here because I want them rendered on top of the other
-    Rectangle {
-        id: timeDisplayLabel
-        color: "lightsteelblue"
-        border.color: Qt.darker(color)
-        border.width: 1
-        radius: 2
-        height: Math.max(labels.y-2, timeDisplayText.height);
-        y: timeDisplayEnd.visible ? flick.height - 1 : 1
-        width: timeDisplayText.width + 10 + ( timeDisplayEnd.visible ? timeDisplayCloseControl.width + 10 : 0 )
-        visible: false
-
-        function hideAll() {
-            timeDisplayBegin.visible = false;
-            timeDisplayEnd.visible = false;
-            timeDisplayLabel.visible = false;
-        }
-        Text {
-            id: timeDisplayText
-            x: 5
-            y: parent.height/2 - height/2 + 1
-            font.pointSize: 8
-        }
-
-        Text {
-            id: timeDisplayCloseControl
-            text:"X"
-            anchors.right: parent.right
-            anchors.rightMargin: 3
-            y: parent.height/2 - height/2 + 1
-            visible: timeDisplayEnd.visible
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    timeDisplayLabel.hideAll();
-                }
-            }
-        }
-    }
-
-    Rectangle {
-        id: timeDisplayBegin
-        width: 1
-        color: Qt.rgba(0,0,64,0.7);
-        height: flick.height + labels.y
-        visible: false
-    }
-
-    Rectangle {
-        id: timeDisplayEnd
-        width: 1
-        color: Qt.rgba(0,0,64,0.7);
-        height: flick.height + labels.y
-        visible: false
+        id: labelsTail
+        anchors.top: labels.bottom
+        anchors.bottom: root.bottom
+        width: labels.width
+        color: labels.color
     }
 
     StatusDisplay {
-        anchors.centerIn: flick
+        anchors.horizontalCenter: flick.horizontalCenter
+        anchors.verticalCenter: labels.verticalCenter
+        z:3
     }
 }

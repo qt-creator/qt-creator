@@ -48,6 +48,31 @@ QT_END_NAMESPACE
 namespace QmlProfiler {
 namespace Internal {
 
+// centralized zoom control
+class ZoomControl : public QObject {
+    Q_OBJECT
+public:
+    ZoomControl(QObject *parent=0):QObject(parent),m_startTime(0),m_endTime(0) {}
+    ~ZoomControl(){}
+
+    Q_INVOKABLE void setRange(qint64 startTime, qint64 endTime) {
+        if (m_startTime != startTime || m_endTime != endTime) {
+            m_startTime = startTime;
+            m_endTime = endTime;
+            emit rangeChanged();
+        }
+    }
+    Q_INVOKABLE qint64 startTime() { return m_startTime; }
+    Q_INVOKABLE qint64 endTime() { return m_endTime; }
+
+signals:
+    void rangeChanged();
+
+private:
+    qint64 m_startTime;
+    qint64 m_endTime;
+};
+
 class TraceWindow : public QWidget
 {
     Q_OBJECT
@@ -93,16 +118,24 @@ signals:
 
 private:
     void contextMenuEvent(QContextMenuEvent *);
+    QWidget *createToolbar();
+
+protected:
+    virtual void resizeEvent(QResizeEvent *event);
 
 private:
     QWeakPointer<QmlJsDebugClient::QmlProfilerTraceClient> m_plugin;
     QWeakPointer<QmlJsDebugClient::QV8ProfilerClient> m_v8plugin;
     QSize m_sizeHint;
 
-    QDeclarativeView *m_view;
+    QDeclarativeView *m_mainView;
+    QDeclarativeView *m_timebar;
+    QDeclarativeView *m_overview;
     QmlJsDebugClient::QmlProfilerEventList *m_eventList;
     bool m_qmlDataReady;
     bool m_v8DataReady;
+
+    QWeakPointer<ZoomControl> m_zoomControl;
 };
 
 } // namespace Internal

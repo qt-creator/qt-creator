@@ -32,7 +32,6 @@
 
 import QtQuick 1.0
 import Monitor 1.0
-import "MainView.js" as Plotter
 
 BorderImage {
     id: rangeDetails
@@ -56,7 +55,7 @@ BorderImage {
     z: 1
     visible: false
     x: 200
-    y: 200
+    y: 25
 
     //title
     Text {
@@ -99,13 +98,12 @@ BorderImage {
             opacity: content.length !== 0 ? 1 : 0
             label: qsTr("Location")
             content: {
-                var file = rangeDetails.file
-                var pos = file.lastIndexOf("/")
+                var file = rangeDetails.file;
+                var pos = file.lastIndexOf("/");
                 if (pos != -1)
-                    file = file.substr(pos+1)
+                    file = file.substr(pos+1);
                 return (file.length !== 0) ? (file + ":" + rangeDetails.line) : "";
             }
-            onLinkActivated: Qt.openUrlExternally(url)
         }
     }
 
@@ -119,7 +117,9 @@ BorderImage {
         height: 12
         MouseArea {
             anchors.fill: parent
-            onClicked: root.mouseOverSelection = !root.mouseOverSelection;
+            onClicked: {
+                root.mouseOverSelection = !root.mouseOverSelection;
+            }
         }
     }
 
@@ -130,7 +130,9 @@ BorderImage {
         text:"X"
         MouseArea {
             anchors.fill: parent
-            onClicked: root.hideRangeDetails();
+            onClicked: {
+                root.hideRangeDetails();
+            }
         }
     }
 

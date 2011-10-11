@@ -2,7 +2,6 @@
     <qresource prefix="/qmlprofiler">
         <file>Detail.qml</file>
         <file>Label.qml</file>
-        <file>MainView.js</file>
         <file>MainView.qml</file>
         <file>popup.png</file>
         <file>RangeDetails.qml</file>
@@ -18,5 +17,8 @@
         <file>StatusDisplay.qml</file>
         <file>lock_closed.png</file>
         <file>lock_open.png</file>
+        <file>TimeMarks.qml</file>
+        <file>Overview.qml</file>
+        <file>Overview.js</file>
     </qresource>
 </RCC>

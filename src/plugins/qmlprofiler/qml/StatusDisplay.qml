@@ -1,19 +1,18 @@
 import QtQuick 1.0
-import "MainView.js" as Plotter
 
 Rectangle {
     id: statusDisplay
 
     property real percentage : root.progress
 
-    width: Math.max(200, statusText.width+20);
+    width: Math.max(200, statusText.width+20)
     height: displayColumn.height + 20
 
     visible: false;
 
     color: "#CCD0CC"
     border.width: 1
-    border.color: "#AAAEAA";
+    border.color: "#AAAEAA"
     radius: 4
 
     Column {
@@ -42,7 +41,7 @@ Rectangle {
                 x: 1
                 y: 1
                 width: (parent.width-1) * statusDisplay.percentage
-                color: Qt.rgba(0.37 + 0.2*(1 - statusDisplay.percentage), 0.58, 0.37, 1);
+                color: Qt.rgba(0.37 + 0.2*(1 - statusDisplay.percentage), 0.58, 0.37, 1)
                 height: parent.height-1
             }
         }
@@ -51,7 +50,7 @@ Rectangle {
     states: [
         // no data available
         State {
-            when: (root.eventCount == 0) && !elapsedTimer.running;
+            when: (root.eventCount == 0) && !elapsedTimer.running
             PropertyChanges {
                 target: statusDisplay
                 visible: true
@@ -59,13 +58,15 @@ Rectangle {
 
             PropertyChanges {
                 target: statusText
-                text: qsTr("No QML events recorded");
+                text: qsTr("No QML events recorded")
             }
-            onCompleted: root.clearDisplay();
+            onCompleted: {
+                root.clearDisplay();
+            }
         },
         // running app
         State {
-            when: elapsedTimer.running;
+            when: elapsedTimer.running
             PropertyChanges {
                 target: statusDisplay
                 visible: true
@@ -73,13 +74,13 @@ Rectangle {
 
             PropertyChanges {
                 target: statusText
-                text: qsTr("Profiling application");
+                text: qsTr("Profiling application")
             }
         },
         // loading data
         State {
             name: "loading"
-            when: (!root.dataAvailable) && (root.eventCount > 0);
+            when: (!root.dataAvailable) && (root.eventCount > 0)
             PropertyChanges {
                 target: statusDisplay
                 visible: true
@@ -87,7 +88,7 @@ Rectangle {
 
             PropertyChanges {
                 target: statusText
-                text: qsTr("Loading data");
+                text: qsTr("Loading data")
             }
 
             PropertyChanges {

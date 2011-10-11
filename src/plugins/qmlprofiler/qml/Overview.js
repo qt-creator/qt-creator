@@ -32,21 +32,7 @@
 
 .pragma library
 
-var xmargin = 0;
-var ymargin = 0;
 var qmlEventList = 0;
-
-var names = [ qsTr("Painting"), qsTr("Compiling"), qsTr("Creating"), qsTr("Binding"), qsTr("Handling Signal")]
-//### need better way to manipulate color from QML. In the meantime, these need to be kept in sync.
-var colors = [ "#99CCB3", "#99CCCC", "#99B3CC", "#9999CC", "#CC99B3", "#CC99CC", "#CCCC99", "#CCB399" ];
-var origColors = [ "#99CCB3", "#99CCCC", "#99B3CC", "#9999CC", "#CC99B3", "#CC99CC", "#CCCC99", "#CCB399" ];
-var xRayColors = [ "#6699CCB3", "#6699CCCC", "#6699B3CC", "#669999CC", "#66CC99B3", "#66CC99CC", "#66CCCC99", "#66CCB399" ];
-
-function reset()
-{
-    xmargin = 0;
-    ymargin = 0;
-}
 
 //draw background of the graph
 function drawGraph(canvas, ctxt, region)
@@ -56,7 +42,7 @@ function drawGraph(canvas, ctxt, region)
     grad.addColorStop(1, '#ccc');
     ctxt.fillStyle = grad;
 
-    ctxt.fillRect(0, 0, canvas.canvasSize.width + xmargin, canvas.canvasSize.height - ymargin);
+    ctxt.fillRect(0, 0, canvas.canvasSize.width, canvas.canvasSize.height);
 }
 
 //draw the actual data to be graphed
@@ -65,8 +51,8 @@ function drawData(canvas, ctxt, region)
     if ((!qmlEventList) || qmlEventList.count() == 0)
         return;
 
-    var width = canvas.canvasSize.width - xmargin;
-    var height = canvas.height - ymargin;
+    var width = canvas.canvasSize.width;
+    var height = canvas.height;
 
     var sumValue = qmlEventList.traceEndTime() - qmlEventList.traceStartTime();
     var spacing = width / sumValue;
@@ -74,10 +60,11 @@ function drawData(canvas, ctxt, region)
     ctxt.fillStyle = "rgba(0,0,0,1)";
     var highest = [0,0,0,0,0];
 
+    // todo: use "region" in the timemarks?
     //### only draw those in range
     for (var ii = 0; ii < qmlEventList.count(); ++ii) {
 
-        var xx = (qmlEventList.getStartTime(ii) - qmlEventList.traceStartTime()) * spacing + xmargin;
+        var xx = (qmlEventList.getStartTime(ii) - qmlEventList.traceStartTime()) * spacing;
         if (xx > region.x + region.width)
             continue;
 
@@ -101,16 +88,4 @@ function plot(canvas, ctxt, region)
 {
     drawGraph(canvas, ctxt, region);
     drawData(canvas, ctxt, region);
-}
-
-function xScale(canvas)
-{
-    if ((!qmlEventList) || qmlEventList.count() == 0)
-        return;
-
-    var width = canvas.canvasSize.width - xmargin;
-
-    var sumValue = qmlEventList.traceEndTime() - qmlEventList.traceStartTime();
-    var spacing = sumValue / width;
-    return spacing;
 }
