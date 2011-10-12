@@ -150,6 +150,7 @@ SemanticInfo SemanticInfoUpdater::semanticInfo(const SemanticInfoUpdaterSource &
         QmlJS::Check checker(doc, semanticInfo.context);
         foreach (const QmlJS::StaticAnalysis::Message &msg, checker()) {
             semanticInfo.semanticMessages += msg.toDiagnosticMessage();
+        }
     }
 
     return semanticInfo;
