@@ -406,7 +406,7 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
 
     if (!singleSelected && !selectionIsEmpty && layoutingIsPossible) {
 
-        ModelNodeAction *action = createModelNodeAction(tr("Layout in row"), layoutMenu, selectedModelNodes, ModelNodeAction::LayoutRow, true);
+        ModelNodeAction *action = createModelNodeAction(tr("Layout in Row"), layoutMenu, selectedModelNodes, ModelNodeAction::LayoutRow, true);
         layoutMenu->addAction(action);
         action = createModelNodeAction(tr("Layout in Column"), layoutMenu, selectedModelNodes, ModelNodeAction::LayoutColumn, true);
         layoutMenu->addAction(action);
