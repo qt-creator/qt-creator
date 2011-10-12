@@ -80,6 +80,7 @@ class ASTObjectValue;
 class QmlEnumValue;
 class QmlPrototypeReference;
 class ASTPropertyReference;
+class ASTSignal;
 
 typedef QList<const Value *> ValueList;
 
@@ -134,13 +135,19 @@ public:
     virtual const QmlEnumValue *asQmlEnumValue() const;
     virtual const QmlPrototypeReference *asQmlPrototypeReference() const;
     virtual const ASTPropertyReference *asAstPropertyReference() const;
+    virtual const ASTSignal *asAstSignal() const;
 
     virtual void accept(ValueVisitor *) const = 0;
 
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 };
 
-template <typename _RetTy> const _RetTy *value_cast(const Value *v);
+template <typename _RetTy> const _RetTy *value_cast(const Value *)
+{
+    // Produce a good error message if a specialization is missing.
+    _RetTy::ERROR_MissingValueCastSpecialization();
+    return 0;
+}
 
 template <> Q_INLINE_TEMPLATE const NullValue *value_cast(const Value *v)
 {
@@ -247,6 +254,12 @@ template <> Q_INLINE_TEMPLATE const QmlPrototypeReference *value_cast(const Valu
 template <> Q_INLINE_TEMPLATE const ASTPropertyReference *value_cast(const Value *v)
 {
     if (v) return v->asAstPropertyReference();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const ASTSignal *value_cast(const Value *v)
+{
+    if (v) return v->asAstSignal();
     else   return 0;
 }
 
@@ -820,6 +833,8 @@ class QMLJS_EXPORT ASTSignal: public FunctionValue
 public:
     ASTSignal(AST::UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner);
     virtual ~ASTSignal();
+
+    virtual const ASTSignal *asAstSignal() const;
 
     AST::UiPublicMember *ast() const { return _ast; }
     QString slotName() const { return _slotName; }

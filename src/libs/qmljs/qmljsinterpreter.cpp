@@ -704,6 +704,11 @@ const ASTPropertyReference *Value::asAstPropertyReference() const
     return 0;
 }
 
+const ASTSignal *Value::asAstSignal() const
+{
+    return 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Values
 ////////////////////////////////////////////////////////////////////////////////
@@ -1980,6 +1985,11 @@ ASTSignal::ASTSignal(UiPublicMember *ast, const Document *doc, ValueOwner *value
 
 ASTSignal::~ASTSignal()
 {
+}
+
+const ASTSignal *ASTSignal::asAstSignal() const
+{
+    return this;
 }
 
 int ASTSignal::argumentCount() const
