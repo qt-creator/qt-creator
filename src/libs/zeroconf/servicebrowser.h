@@ -98,13 +98,16 @@ class ZEROCONFSHARED_EXPORT ServiceBrowser : public QObject
     Q_OBJECT
     friend class Internal::ServiceBrowserPrivate;
 public:
-    ServiceBrowser(const QString &serviceType, const QString &domain = QLatin1String("local."), bool adressesRequired = true, QObject *parent = 0);
-    // this is here to avoid to instantiate a partially defined type (MainConnectionPtr)
-    ServiceBrowser(const QString &serviceType, const QString &domain, bool adressesRequired, QObject *parent, MainConnectionPtr mainConnection);
-    ServiceBrowser(const QString &serviceType, MainConnectionPtr mainConnection);
+    enum AddressesSetting { RequireAddresses, DoNotRequireAddresses };
+
+    ServiceBrowser(const QString &serviceType, const QString &domain = QLatin1String("local."),
+        AddressesSetting addressesSetting = RequireAddresses, QObject *parent = 0);
+    ServiceBrowser(const MainConnectionPtr &mainConnection, const QString &serviceType,
+        const QString &domain = QLatin1String("local."),
+        AddressesSetting addressesSetting = RequireAddresses, QObject *parent = 0);
     ~ServiceBrowser();
 
-    MainConnectionPtr mainConnection();
+    MainConnectionPtr mainConnection() const;
 
     bool startBrowsing(qint32 interfaceIndex = 0);
     void stopBrowsing();
@@ -115,7 +118,7 @@ public:
     const QString& domain() const;
 
     bool adressesAutoResolved() const;
-    bool adressesRequired() const;
+    bool addressesRequired() const;
 
     QList<Service::ConstPtr> services() const;
     void reconfirmService(Service::ConstPtr service);

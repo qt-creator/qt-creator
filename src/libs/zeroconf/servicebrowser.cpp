@@ -397,23 +397,20 @@ bool ServiceBrowser::startBrowsing(qint32 interfaceIndex)
 }
 
 /// create a new brower for the given service type
-ServiceBrowser::ServiceBrowser(const QString &serviceType, const QString &domain, bool requireAddresses,
-                               QObject *parent):
-    QObject(parent), d(new ServiceBrowserPrivate(serviceType, domain, requireAddresses, MainConnectionPtr()))
-{
-    d->q = this;
-}
-/// create a new brower for the given service type
-ServiceBrowser::ServiceBrowser(const QString &serviceType, const QString &domain, bool requireAddresses,
-                               QObject *parent, MainConnectionPtr connection):
-    QObject(parent), d(new ServiceBrowserPrivate(serviceType, domain, requireAddresses, connection))
+ServiceBrowser::ServiceBrowser(const QString &serviceType, const QString &domain,
+        AddressesSetting addressesSetting, QObject *parent)
+    : QObject(parent),
+      d(new ServiceBrowserPrivate(serviceType, domain, addressesSetting == RequireAddresses,
+          MainConnectionPtr()))
 {
     d->q = this;
 }
 
-/// create a new ServiceBrowser (which is basically constant once created)
-ServiceBrowser::ServiceBrowser(const QString &serviceType, MainConnectionPtr connection) :
-    QObject(), d(new ServiceBrowserPrivate(serviceType, QString::fromUtf8("local."), true, connection))
+ServiceBrowser::ServiceBrowser(const MainConnectionPtr &mainConnection, const QString &serviceType,
+        const QString &domain, AddressesSetting addressesSetting, QObject *parent)
+    : QObject(parent),
+      d(new ServiceBrowserPrivate(serviceType, domain, addressesSetting == RequireAddresses,
+          mainConnection))
 {
     d->q = this;
 }
@@ -424,7 +421,7 @@ ServiceBrowser::~ServiceBrowser()
 }
 
 /// returns the main connection used by this ServiceBrowser
-MainConnectionPtr ServiceBrowser::mainConnection()
+MainConnectionPtr ServiceBrowser::mainConnection() const
 {
     return d->mainConnection;
 }
@@ -460,7 +457,7 @@ bool ServiceBrowser::adressesAutoResolved() const
 }
 
 /// if addresses are required to add the service to the list of available services
-bool ServiceBrowser::adressesRequired() const
+bool ServiceBrowser::addressesRequired() const
 {
     return d->requireAddresses;
 }
