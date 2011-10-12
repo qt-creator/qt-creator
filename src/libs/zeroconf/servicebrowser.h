@@ -120,10 +120,13 @@ public:
     QList<Service::ConstPtr> services() const;
     void reconfirmService(Service::ConstPtr service);
 signals:
-    void serviceChanged(Service::ConstPtr oldService, Service::ConstPtr newService, ServiceBrowser *browser);
-    void serviceAdded(Service::ConstPtr service, ServiceBrowser *browser);
-    void serviceRemoved(Service::ConstPtr service, ServiceBrowser *browser);
-    void servicesUpdated(ServiceBrowser *browser);
+    void serviceChanged(const ZeroConf::Service::ConstPtr &oldService,
+        const ZeroConf::Service::ConstPtr &newService, ZeroConf::ServiceBrowser *browser);
+    void serviceAdded(const ZeroConf::Service::ConstPtr &service,
+        ZeroConf::ServiceBrowser *browser);
+    void serviceRemoved(const ZeroConf::Service::ConstPtr &service,
+        ZeroConf::ServiceBrowser *browser);
+    void servicesUpdated(ZeroConf::ServiceBrowser *browser);
     void hadError(QStringList errorMsgs, bool completeFailure);
 private:
     Internal::ServiceBrowserPrivate *d;
