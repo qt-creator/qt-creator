@@ -464,15 +464,17 @@ void TaskWindow::updateCategoriesMenu()
 
     const QStringList filteredCategories = d->m_filter->filteredCategories();
 
-    foreach (const QString &categoryId, d->m_model->categoryIds()) {
-        const QString categoryName = d->m_model->categoryDisplayName(categoryId);
+    QMap<QString, QString> nameToIds;
+    foreach (const QString &categoryId, d->m_model->categoryIds())
+        nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId);
 
+    foreach (const QString &displayName, nameToIds.keys()) {
+        const QString categoryId = nameToIds.value(displayName);
         QAction *action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
-        action->setText(categoryName);
+        action->setText(displayName);
         action->setData(categoryId);
         action->setChecked(!filteredCategories.contains(categoryId));
-
         d->m_categoriesMenu->addAction(action);
     }
 }
