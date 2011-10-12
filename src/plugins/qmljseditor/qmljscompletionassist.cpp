@@ -856,9 +856,20 @@ bool QmlJSCompletionAssistProcessor::completeFileName(const QString &relativeBas
 bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath, const QString &urlString)
 {
     const QUrl url(urlString);
-    QString fileName = url.toLocalFile();
-    if (fileName.isEmpty())
+    QString fileName;
+    if (url.isLocalFile()) {
+        fileName = url.toLocalFile();
+        // should not trigger completion on 'file://'
+        if (fileName.isEmpty())
+            return false;
+    } else if (url.scheme().isEmpty()) {
+        // don't trigger completion while typing a scheme
+        if (urlString.endsWith(QLatin1String(":/")))
+            return false;
+        fileName = urlString;
+    } else {
         return false;
+    }
 
     return completeFileName(relativeBasePath, fileName);
 }
