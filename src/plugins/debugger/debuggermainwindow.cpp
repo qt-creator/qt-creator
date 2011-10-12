@@ -573,13 +573,14 @@ void DebuggerMainWindow::readSettings()
 
 void DebuggerMainWindowPrivate::resetDebuggerLayout()
 {
+    m_activeDebugLanguages = DebuggerLanguage(QmlLanguage | CppLanguage);
     setSimpleDockWidgetArrangement();
+    m_dockWidgetActiveStateQmlCpp = q->saveSettings();
 
-    if (isQmlActive())
-        m_dockWidgetActiveStateQmlCpp = q->saveSettings();
-    else
-        m_dockWidgetActiveStateCpp = q->saveSettings();
-
+    m_activeDebugLanguages = CppLanguage;
+    m_previousDebugLanguages = CppLanguage;
+    setSimpleDockWidgetArrangement();
+    // will save state in m_dockWidgetActiveStateCpp
     updateActiveLanguages();
 }
 
