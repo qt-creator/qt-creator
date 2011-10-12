@@ -43,6 +43,8 @@ Mac
 Linux (GNOME and KDE)
 
 Windows
+   * Aborting the build now works properly. Qt Creator sends Ctrl-C to the
+     build process via the process_ctrlc_stub helper program.
 
 Symbian Target
 
