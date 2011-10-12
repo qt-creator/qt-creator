@@ -60,6 +60,7 @@ public:
     virtual bool waitForStarted();
     virtual qint64 write(const QByteArray &data);
     virtual void kill();
+    virtual bool interrupt();
 
     virtual QProcess::ProcessState state() const;
     virtual QString errorString() const;

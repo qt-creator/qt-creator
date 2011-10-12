@@ -32,6 +32,14 @@
 
 #include "localgdbprocess.h"
 
+#include <utils/qtcassert.h>
+
+#ifdef Q_OS_UNIX
+#include <errno.h>
+#include <signal.h>
+#include <string.h>
+#endif
+
 namespace Debugger {
 namespace Internal {
 
@@ -77,6 +85,20 @@ void LocalGdbProcess::kill()
     m_gdbProc.kill();
 }
 
+bool LocalGdbProcess::interrupt()
+{
+#ifdef Q_OS_UNIX
+    Q_PID pid = m_gdbProc.pid();
+    int res = ::kill(pid, SIGINT);
+    if (res != 0)
+        m_errorString = QString::fromLocal8Bit(strerror(errno));
+    return res == 0;
+#else
+    QTC_ASSERT(false, "NOT IMPLEMENTED");
+    return false;
+#endif
+}
+
 QProcess::ProcessState LocalGdbProcess::state() const
 {
     return m_gdbProc.state();
@@ -84,7 +106,7 @@ QProcess::ProcessState LocalGdbProcess::state() const
 
 QString LocalGdbProcess::errorString() const
 {
-    return m_gdbProc.errorString();
+    return m_errorString + m_gdbProc.errorString();
 }
 
 QProcessEnvironment LocalGdbProcess::processEnvironment() const

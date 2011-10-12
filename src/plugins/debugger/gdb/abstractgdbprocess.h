@@ -54,6 +54,7 @@ public:
     virtual bool waitForStarted() = 0;
     virtual qint64 write(const QByteArray &data) = 0;
     virtual void kill() = 0;
+    virtual bool interrupt() = 0;
 
     virtual QProcess::ProcessState state() const = 0;
     virtual QString errorString() const = 0;
@@ -62,8 +63,6 @@ public:
     virtual void setProcessEnvironment(const QProcessEnvironment &env) = 0;
     virtual void setEnvironment(const QStringList &env) = 0;
     virtual void setWorkingDirectory(const QString &dir) = 0;
-
-    virtual ~AbstractGdbProcess() {}
 
 signals:
     void error(QProcess::ProcessError);

@@ -237,6 +237,11 @@ void RemoteGdbProcess::kill()
     }
 }
 
+bool RemoteGdbProcess::interrupt()
+{
+    return false;
+}
+
 void RemoteGdbProcess::interruptInferior()
 {
     QTC_ASSERT(m_state == RunningGdb, return);
