@@ -874,7 +874,9 @@ void DebuggerEngine::notifyInferiorRunRequested()
 void DebuggerEngine::notifyInferiorRunOk()
 {
     showMessage(_("NOTE: INFERIOR RUN OK"));
-    QTC_ASSERT(state() == InferiorRunRequested, qDebug() << this << state());
+    // Transition from StopRequested can happen sin remotegdbadapter.
+    QTC_ASSERT(state() == InferiorRunRequested
+        || state() == InferiorStopRequested, qDebug() << this << state());
     setState(InferiorRunOk);
 }
 
