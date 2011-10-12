@@ -120,7 +120,7 @@ private:
     const JSImportScope *m_jsImports;
     QList<const ObjectValue *> m_jsScopes;
 
-    bool m_modified;
+    mutable bool m_modified;
     mutable QList<const ObjectValue *> m_all;
 };
 
