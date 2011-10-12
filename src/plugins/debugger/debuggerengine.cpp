@@ -139,11 +139,13 @@ class DebuggerEnginePrivate : public QObject
 public:
     DebuggerEnginePrivate(DebuggerEngine *engine,
             DebuggerEngine *masterEngine,
+            DebuggerLanguages languages,
             const DebuggerStartParameters &sp)
       : m_engine(engine),
         m_masterEngine(masterEngine),
         m_runControl(0),
         m_startParameters(sp),
+        m_languages(languages),
         m_state(DebuggerNotReady),
         m_lastGoodState(DebuggerNotReady),
         m_targetState(DebuggerNotReady),
@@ -256,6 +258,7 @@ public:
     DebuggerRunControl *m_runControl;  // Not owned.
 
     DebuggerStartParameters m_startParameters;
+    DebuggerLanguages m_languages;
 
     // The current state.
     DebuggerState m_state;
@@ -292,8 +295,9 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 DebuggerEngine::DebuggerEngine(const DebuggerStartParameters &startParameters,
+        DebuggerLanguages languages,
         DebuggerEngine *parentEngine)
-  : d(new DebuggerEnginePrivate(this, parentEngine, startParameters))
+  : d(new DebuggerEnginePrivate(this, parentEngine, languages, startParameters))
 {
     d->m_inferiorPid = 0;
 }
@@ -1131,6 +1135,11 @@ bool DebuggerEngine::isMasterEngine() const
 DebuggerEngine *DebuggerEngine::masterEngine() const
 {
     return d->m_masterEngine;
+}
+
+DebuggerLanguages DebuggerEngine::languages() const
+{
+    return d->m_languages;
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const

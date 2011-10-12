@@ -90,7 +90,7 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 PdbEngine::PdbEngine(const DebuggerStartParameters &startParameters)
-    : DebuggerEngine(startParameters)
+    : DebuggerEngine(startParameters, AnyLanguage)
 {
     setObjectName(QLatin1String("PdbEngine"));
 }

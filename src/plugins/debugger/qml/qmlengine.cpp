@@ -115,7 +115,7 @@ QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
 
 QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
         DebuggerEngine *masterEngine)
-  : DebuggerEngine(startParameters, masterEngine),
+  : DebuggerEngine(startParameters, QmlLanguage, masterEngine),
     d(new QmlEnginePrivate(this))
 {
     setObjectName(QLatin1String("QmlEngine"));

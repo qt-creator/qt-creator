@@ -475,7 +475,7 @@ class DummyEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    DummyEngine() : DebuggerEngine(DebuggerStartParameters()) {}
+    DummyEngine() : DebuggerEngine(DebuggerStartParameters(), AnyLanguage) {}
     ~DummyEngine() {}
 
     void setupEngine() {}
