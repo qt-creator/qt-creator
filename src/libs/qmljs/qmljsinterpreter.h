@@ -643,7 +643,7 @@ public:
     static void parseQmlTypeDescriptions(
         const QByteArray &qmlTypes,
         BuiltinObjects *newObjects,
-        QString *errorMessage, QString *warningMessage);
+        QList<ModuleApiInfo> *newModuleApis, QString *errorMessage, QString *warningMessage);
 };
 
 class QMLJS_EXPORT CppQmlTypes

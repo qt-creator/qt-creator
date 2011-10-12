@@ -59,7 +59,9 @@ TypeDescriptionReader::~TypeDescriptionReader()
 {
 }
 
-bool TypeDescriptionReader::operator()(QHash<QString, FakeMetaObject::ConstPtr> *objects)
+bool TypeDescriptionReader::operator()(
+        QHash<QString, FakeMetaObject::ConstPtr> *objects,
+        QList<ModuleApiInfo> *moduleApis)
 {
     Engine engine;
 
@@ -77,6 +79,7 @@ bool TypeDescriptionReader::operator()(QHash<QString, FakeMetaObject::ConstPtr> 
     }
 
     _objects = objects;
+    _moduleApis = moduleApis;
     readDocument(parser.ast());
 
     return _errorMessage.isEmpty();
@@ -152,8 +155,11 @@ void TypeDescriptionReader::readModule(UiObjectDefinition *ast)
             continue;
         }
 
-        if (typeName == QLatin1String("Component"))
+        if (typeName == QLatin1String("Component")) {
             readComponent(component);
+        } else if (typeName == QLatin1String("ModuleApi")) {
+            readModuleApi(component);
+        }
     }
 }
 
@@ -224,6 +230,40 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
     // ### add implicit export into the package of c++ types
     fmo->addExport(fmo->className(), QmlJS::CppQmlTypes::cppPackage, ComponentVersion());
     _objects->insert(fmo->className(), fmo);
+}
+
+void TypeDescriptionReader::readModuleApi(UiObjectDefinition *ast)
+{
+    ModuleApiInfo apiInfo;
+
+    for (UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
+        UiObjectMember *member = it->member;
+        UiScriptBinding *script = dynamic_cast<UiScriptBinding *>(member);
+
+        if (script) {
+            const QString name = toString(script->qualifiedId);
+            if (name == "uri") {
+                apiInfo.uri = readStringBinding(script);
+            } else if (name == "version") {
+                apiInfo.version = readNumericVersionBinding(script);
+            } else if (name == "name") {
+                apiInfo.name = readStringBinding(script);
+            } else {
+                addWarning(script->firstSourceLocation(),
+                           "Expected only uri, version and name script bindings");
+            }
+        } else {
+            addWarning(member->firstSourceLocation(), "Expected only script bindings");
+        }
+    }
+
+    if (!apiInfo.version.isValid()) {
+        addError(ast->firstSourceLocation(), "ModuleApi definition has no or invalid 'version' binding");
+        return;
+    }
+
+    if (_moduleApis)
+        _moduleApis->append(apiInfo);
 }
 
 void TypeDescriptionReader::readSignalOrMethod(UiObjectDefinition *ast, bool isMethod, FakeMetaObject::Ptr fmo)
@@ -436,6 +476,30 @@ double TypeDescriptionReader::readNumericBinding(AST::UiScriptBinding *ast)
     }
 
     return numericLit->value;
+}
+
+ComponentVersion TypeDescriptionReader::readNumericVersionBinding(UiScriptBinding *ast)
+{
+    ComponentVersion invalidVersion;
+
+    if (!ast || !ast->statement) {
+        addError(ast->colonToken, "Expected numeric literal after colon");
+        return invalidVersion;
+    }
+
+    ExpressionStatement *expStmt = AST::cast<ExpressionStatement *>(ast->statement);
+    if (!expStmt) {
+        addError(ast->statement->firstSourceLocation(), "Expected numeric literal after colon");
+        return invalidVersion;
+    }
+
+    NumericLiteral *numericLit = AST::cast<NumericLiteral *>(expStmt->expression);
+    if (!numericLit) {
+        addError(expStmt->firstSourceLocation(), "Expected numeric literal after colon");
+        return invalidVersion;
+    }
+
+    return ComponentVersion(_source.mid(numericLit->literalToken.begin(), numericLit->literalToken.length));
 }
 
 int TypeDescriptionReader::readIntBinding(AST::UiScriptBinding *ast)

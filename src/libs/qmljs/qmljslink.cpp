@@ -89,6 +89,8 @@ public:
 
     QHash<ImportCacheKey, Import> importCache;
 
+    QHash<QString, QList<ModuleApiInfo> > importableModuleApis;
+
     Document::Ptr document;
     QList<DiagnosticMessage> *diagnosticMessages;
 
@@ -231,6 +233,8 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
 
 void LinkPrivate::populateImportedTypes(Imports *imports, Document::Ptr doc)
 {
+    importableModuleApis.clear();
+
     // implicit imports: the <default> package is always available
     loadImplicitDefaultImports(imports);
 
@@ -315,6 +319,18 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
     return import;
 }
 
+static ModuleApiInfo findBestModuleApi(const QList<ModuleApiInfo> &apis, const ComponentVersion &version)
+{
+    ModuleApiInfo best;
+    foreach (const ModuleApiInfo &moduleApi, apis) {
+        if (moduleApi.version <= version
+                && (!best.version.isValid() || best.version < moduleApi.version)) {
+            best = moduleApi;
+        }
+    }
+    return best;
+}
+
 /*
   import Qt 4.6
   import Qt 4.6 as Xxx
@@ -370,6 +386,13 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
                  valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
             import.object->setMember(object->className(), object);
         }
+    }
+
+    // check module apis that previous imports may have enabled
+    ModuleApiInfo moduleApi = findBestModuleApi(importableModuleApis.value(packageName), version);
+    if (moduleApi.version.isValid()) {
+        importFound = true;
+        import.object->setPrototype(valueOwner->cppQmlTypes().objectByCppName(moduleApi.name));
     }
 
     if (!importFound && importInfo.ast()) {
@@ -442,6 +465,21 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
             foreach (const CppComponentValue *object, valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
                 import->object->setMember(object->className(), object);
             }
+
+            // all but no-uri module apis become available for import
+            QList<ModuleApiInfo> noUriModuleApis;
+            foreach (const ModuleApiInfo &moduleApi, libraryInfo.moduleApis()) {
+                if (moduleApi.uri.isEmpty()) {
+                    noUriModuleApis += moduleApi;
+                } else {
+                    importableModuleApis[moduleApi.uri] += moduleApi;
+                }
+            }
+
+            // if a module api has no uri, it shares the same name
+            ModuleApiInfo sameUriModuleApi = findBestModuleApi(noUriModuleApis, version);
+            if (sameUriModuleApi.version.isValid())
+                import->object->setPrototype(valueOwner->cppQmlTypes().objectByCppName(sameUriModuleApi.name));
         }
     }
 

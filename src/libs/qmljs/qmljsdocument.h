@@ -128,6 +128,14 @@ private:
     friend class Snapshot;
 };
 
+class QMLJS_EXPORT ModuleApiInfo
+{
+public:
+    QString uri;
+    LanguageUtils::ComponentVersion version;
+    QString cppName;
+};
+
 class QMLJS_EXPORT LibraryInfo
 {
 public:
@@ -152,6 +160,7 @@ private:
     QList<QmlDirParser::TypeInfo> _typeinfos;
     typedef QList<LanguageUtils::FakeMetaObject::ConstPtr> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
+    QList<ModuleApiInfo> _moduleApis;
 
     PluginTypeInfoStatus _dumpStatus;
     QString _dumpError;
@@ -175,6 +184,12 @@ public:
 
     void setMetaObjects(const FakeMetaObjectList &objects)
     { _metaObjects = objects; }
+
+    QList<ModuleApiInfo> moduleApis() const
+    { return _moduleApis; }
+
+    void setModuleApis(const QList<ModuleApiInfo> &apis)
+    { _moduleApis = apis; }
 
     bool isValid() const
     { return _status == Found; }

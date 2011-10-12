@@ -1285,13 +1285,10 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInf
         QString error, warning;
         QFile file(qmlTypeFile.absoluteFilePath());
         if (file.open(QIODevice::ReadOnly)) {
-            QString contents = QString::fromUtf8(file.readAll());
+            QByteArray contents = file.readAll();
             file.close();
 
-            TypeDescriptionReader reader(contents);
-            if (!reader(&newObjects))
-                error = reader.errorMessage();
-            warning = reader.warningMessage();
+            parseQmlTypeDescriptions(contents, &newObjects, 0, &error, &warning);
         } else {
             error = file.errorString();
         }
@@ -1312,13 +1309,14 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInf
 
 void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &xml,
                                                  BuiltinObjects *newObjects,
+                                                 QList<ModuleApiInfo> *newModuleApis,
                                                  QString *errorMessage,
                                                  QString *warningMessage)
 {
     errorMessage->clear();
     warningMessage->clear();
     TypeDescriptionReader reader(QString::fromUtf8(xml));
-    if (!reader(newObjects)) {
+    if (!reader(newObjects, newModuleApis)) {
         if (reader.errorMessage().isEmpty()) {
             *errorMessage = QLatin1String("unknown error");
         } else {

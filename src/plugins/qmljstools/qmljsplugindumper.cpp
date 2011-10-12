@@ -257,21 +257,6 @@ static void printParseWarnings(const QString &libraryPath, const QString &warnin
                                  "%2").arg(libraryPath, warning));
 }
 
-static QList<FakeMetaObject::ConstPtr> parseHelper(const QByteArray &qmlTypeDescriptions,
-                                                   QString *error,
-                                                   QString *warning)
-{
-    QList<FakeMetaObject::ConstPtr> ret;
-    QHash<QString, FakeMetaObject::ConstPtr> newObjects;
-    CppQmlTypesLoader::parseQmlTypeDescriptions(qmlTypeDescriptions, &newObjects,
-                                                             error, warning);
-
-    if (error->isEmpty()) {
-        ret = newObjects.values();
-    }
-    return ret;
-}
-
 void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 {
     QProcess *process = qobject_cast<QProcess *>(sender());
@@ -295,13 +280,16 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
     const QByteArray output = process->readAllStandardOutput();
     QString error;
     QString warning;
-    QList<FakeMetaObject::ConstPtr> objectsList = parseHelper(output, &error, &warning);
+    CppQmlTypesLoader::BuiltinObjects objectsList;
+    QList<ModuleApiInfo> moduleApis;
+    CppQmlTypesLoader::parseQmlTypeDescriptions(output, &objectsList, &moduleApis, &error, &warning);
     if (exitCode == 0) {
         if (!error.isEmpty()) {
             libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
                                                 qmldumpErrorMessage(libraryPath, error));
         } else {
-            libraryInfo.setMetaObjects(objectsList);
+            libraryInfo.setMetaObjects(objectsList.values());
+            libraryInfo.setModuleApis(moduleApis);
             libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
         }
 
@@ -352,6 +340,7 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
     QStringList errors;
     QStringList warnings;
     QList<FakeMetaObject::ConstPtr> objects;
+    QList<ModuleApiInfo> moduleApis;
 
     foreach (const QString &qmltypesFilePath, qmltypesFilePaths) {
         Utils::FileReader reader;
@@ -362,14 +351,21 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
 
         QString error;
         QString warning;
-        objects += parseHelper(reader.data(), &error, &warning);
-        if (!error.isEmpty())
+        CppQmlTypesLoader::BuiltinObjects newObjects;
+        QList<ModuleApiInfo> newModuleApis;
+        CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &newObjects, &newModuleApis, &error, &warning);
+        if (!error.isEmpty()) {
             errors += tr("Failed to parse '%1'.\nError: %2").arg(qmltypesFilePath, error);
+        } else {
+            objects += newObjects.values();
+            moduleApis += newModuleApis;
+        }
         if (!warning.isEmpty())
             warnings += warning;
     }
 
     libraryInfo.setMetaObjects(objects);
+    libraryInfo.setModuleApis(moduleApis);
     if (errors.isEmpty()) {
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
     } else {
