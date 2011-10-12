@@ -107,7 +107,7 @@ void SshKeyGenerator::generatePkcs8KeyString(const KeyPtr &key, bool privateKey,
         d.setTextEchoMode(QLineEdit::Password);
         d.setWindowTitle(tr("Password for Private Key"));
         d.setLabelText(tr("It is recommended that you secure your private key\n"
-            "with a password, which you can can enter below."));
+            "with a password, which you can enter below."));
         d.setOkButtonText(tr("Encrypt key file"));
         d.setCancelButtonText(tr("Do not encrypt key file"));
         int result = QDialog::Accepted;
