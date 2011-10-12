@@ -555,18 +555,15 @@ void DebuggerMainWindow::readSettings()
     settings->endGroup();
 
     // Reset initial settings when there are none yet.
-    if (d->isQmlActive()) {
-        if (d->m_dockWidgetActiveStateQmlCpp.isEmpty()) {
-            d->m_activeDebugLanguages = DebuggerLanguage(QmlLanguage|CppLanguage);
-            d->setSimpleDockWidgetArrangement();
-            d->m_dockWidgetActiveStateCpp = saveSettings();
-        }
-    } else {
-        if (d->m_dockWidgetActiveStateCpp.isEmpty()) {
-            d->m_activeDebugLanguages = CppLanguage;
-            d->setSimpleDockWidgetArrangement();
-            d->m_dockWidgetActiveStateCpp = saveSettings();
-        }
+    if (d->m_dockWidgetActiveStateQmlCpp.isEmpty()) {
+        d->m_activeDebugLanguages = DebuggerLanguage(QmlLanguage|CppLanguage);
+        d->setSimpleDockWidgetArrangement();
+        d->m_dockWidgetActiveStateCpp = saveSettings();
+    }
+    if (d->m_dockWidgetActiveStateCpp.isEmpty()) {
+        d->m_activeDebugLanguages = CppLanguage;
+        d->setSimpleDockWidgetArrangement();
+        d->m_dockWidgetActiveStateCpp = saveSettings();
     }
     writeSettings();
 }
