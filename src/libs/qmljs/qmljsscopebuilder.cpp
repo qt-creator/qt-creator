@@ -88,7 +88,7 @@ void ScopeBuilder::push(AST::Node *node)
                 _scopeChain->appendJsScope(astsig->bodyScope());
             }
             // signals defined in C++
-            else if (const QmlObjectValue *qmlObject = dynamic_cast<const QmlObjectValue *>(owner)) {
+            else if (const CppComponentValue *qmlObject = dynamic_cast<const CppComponentValue *>(owner)) {
                 if (const ObjectValue *scope = qmlObject->signalScope(name)) {
                     _scopeChain->appendJsScope(scope);
                 }
