@@ -35,6 +35,8 @@
 #include <QtGui/QTextDocument>
 #include <QtGui/QTextCursor>
 
+#include <cctype>
+
 namespace CppTools {
 
 void moveCursorToEndOfIdentifier(QTextCursor *tc) {
@@ -47,6 +49,13 @@ void moveCursorToEndOfIdentifier(QTextCursor *tc) {
         tc->movePosition(QTextCursor::NextCharacter);
         ch = doc->characterAt(tc->position());
     }
+}
+
+bool isHexadecimal(char c)
+{
+    return std::isdigit(c)
+            || (c >= 'a' && c <= 'f')
+            || (c >= 'A' && c <= 'F');
 }
 
 } // CppTools

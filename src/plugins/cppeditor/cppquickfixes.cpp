@@ -60,6 +60,7 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/insertionpointlocator.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QFileInfo>
@@ -1282,7 +1283,7 @@ public:
         // remove trailing L or U and stuff
         const char * const spell = numeric->chars();
         int numberLength = numeric->size();
-        while (numberLength > 0 && (spell[numberLength-1] < '0' || spell[numberLength-1] > 'F'))
+        while (numberLength > 0 && !isHexadecimal(spell[numberLength - 1]))
             --numberLength;
         if (numberLength < 1)
             return result;

@@ -8,6 +8,7 @@ QT_FORWARD_DECLARE_CLASS(QTextCursor)
 namespace CppTools {
 
 void CPPTOOLS_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
+bool CPPTOOLS_EXPORT isHexadecimal(char c);
 
 } // CppTools
 
