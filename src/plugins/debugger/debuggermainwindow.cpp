@@ -647,7 +647,6 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     QTC_ASSERT(snapshotsDock, return);
     QTC_ASSERT(threadsDock, return);
     QTC_ASSERT(outputDock, return);
-    //QTC_ASSERT(qmlInspectorDock, return); // This is really optional.
     QTC_ASSERT(scriptConsoleDock, return);
     QTC_ASSERT(modulesDock, return);
     QTC_ASSERT(registerDock, return);
@@ -686,8 +685,6 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
             snapshotsDock->show();
         } else {
             scriptConsoleDock->show();
-            //if (qmlInspectorDock)
-            //    qmlInspectorDock->show();
         }
         q->splitDockWidget(q->toolBarDockWidget(), stackDock, Qt::Vertical);
         q->splitDockWidget(stackDock, breakDock, Qt::Horizontal);
@@ -697,8 +694,6 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
         q->tabifyDockWidget(breakDock, sourceFilesDock);
         q->tabifyDockWidget(breakDock, snapshotsDock);
         q->tabifyDockWidget(breakDock, scriptConsoleDock);
-        //if (qmlInspectorDock)
-        //    q->splitDockWidget(breakDock, qmlInspectorDock, Qt::Horizontal);
     }
 
     breakDock->raise(); // Raise something sensible.
