@@ -62,6 +62,7 @@ public:
 
     // Active languages to be debugged.
     DebuggerLanguages activeDebugLanguages() const;
+    void setEngineDebugLanguages(DebuggerLanguages languages);
 
     // Called when all dependent plugins have loaded.
     void initialize();

@@ -134,6 +134,7 @@ public:
 
     DebuggerLanguages m_previousDebugLanguages;
     DebuggerLanguages m_activeDebugLanguages;
+    DebuggerLanguages m_engineDebugLanguages;
 
     ActionContainer *m_viewsMenu;
 
@@ -151,6 +152,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     , m_changingUI(false)
     , m_previousDebugLanguages(AnyLanguage)
     , m_activeDebugLanguages(AnyLanguage)
+    , m_engineDebugLanguages(AnyLanguage)
     , m_viewsMenu(0)
 {
     createViewsMenuItems();
@@ -222,11 +224,15 @@ void DebuggerMainWindowPrivate::updateActiveLanguages()
 {
     DebuggerLanguages newLanguages = AnyLanguage;
 
-    if (m_previousRunConfiguration) {
-        if (m_previousRunConfiguration.data()->useCppDebugger())
-            newLanguages = CppLanguage;
-        if (m_previousRunConfiguration.data()->useQmlDebugger())
-            newLanguages |= QmlLanguage;
+    if (m_engineDebugLanguages != AnyLanguage)
+        newLanguages = m_engineDebugLanguages;
+    else {
+        if (m_previousRunConfiguration) {
+            if (m_previousRunConfiguration.data()->useCppDebugger())
+                newLanguages |= CppLanguage;
+            if (m_previousRunConfiguration.data()->useQmlDebugger())
+                newLanguages |= QmlLanguage;
+        }
     }
 
     if (newLanguages != m_activeDebugLanguages) {
@@ -267,6 +273,15 @@ DebuggerMainWindow::~DebuggerMainWindow()
 DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const
 {
     return d->m_activeDebugLanguages;
+}
+
+void DebuggerMainWindow::setEngineDebugLanguages(DebuggerLanguages languages)
+{
+    if (d->m_engineDebugLanguages == languages)
+        return;
+
+    d->m_engineDebugLanguages = languages;
+    d->updateActiveLanguages();
 }
 
 void DebuggerMainWindow::onModeChanged(IMode *mode)
