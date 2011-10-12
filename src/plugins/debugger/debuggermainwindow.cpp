@@ -629,6 +629,7 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
         dockWidget->hide();
     }
 
+    QDockWidget *toolBarDock = q->toolBarDockWidget();
     QDockWidget *breakDock = q->dockWidget(DOCKWIDGET_BREAK);
     QDockWidget *stackDock = q->dockWidget(DOCKWIDGET_STACK);
     QDockWidget *watchDock = q->dockWidget(DOCKWIDGET_WATCHERS);
@@ -652,51 +653,37 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     QTC_ASSERT(registerDock, return);
     QTC_ASSERT(sourceFilesDock, return);
 
-    if (m_activeDebugLanguages.testFlag(Debugger::CppLanguage)
-            && m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
+    // make sure main docks are visible so that split equally divides the space
+    toolBarDock->show();
+    stackDock->show();
+    breakDock->show();
+    watchDock->show();
 
-        // cpp + qml
-        q->toolBarDockWidget()->show();
-        stackDock->show();
-        watchDock->show();
-        breakDock->show();
+    // toolBar
+    // --------------------------------------------------------------------------------
+    // stack,qmlinspector | breakpoints,modules,register,threads,sourceFiles,snapshots,scriptconsole
+    //
+    q->splitDockWidget(toolBarDock, stackDock, Qt::Vertical);
+    q->splitDockWidget(stackDock, breakDock, Qt::Horizontal);
+
+    if (qmlInspectorDock)
+        q->tabifyDockWidget(stackDock, qmlInspectorDock);
+
+    q->tabifyDockWidget(breakDock, modulesDock);
+    q->tabifyDockWidget(breakDock, registerDock);
+    q->tabifyDockWidget(breakDock, threadsDock);
+    q->tabifyDockWidget(breakDock, sourceFilesDock);
+    q->tabifyDockWidget(breakDock, snapshotsDock);
+    q->tabifyDockWidget(breakDock, scriptConsoleDock);
+
+    if (m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
         if (qmlInspectorDock)
             qmlInspectorDock->show();
-
-        q->splitDockWidget(q->toolBarDockWidget(), stackDock, Qt::Vertical);
-        q->splitDockWidget(stackDock, breakDock, Qt::Horizontal);
-        q->tabifyDockWidget(stackDock, snapshotsDock);
-        q->tabifyDockWidget(stackDock, threadsDock);
-        if (qmlInspectorDock)
-            q->splitDockWidget(stackDock, qmlInspectorDock, Qt::Horizontal);
-
     } else {
-        q->toolBarDockWidget()->show();
-        stackDock->show();
-        breakDock->show();
-        watchDock->show();
+        // CPP only
         threadsDock->show();
         snapshotsDock->show();
-
-        if ((m_activeDebugLanguages.testFlag(CppLanguage)
-                && !m_activeDebugLanguages.testFlag(QmlLanguage))
-            || m_activeDebugLanguages == AnyLanguage) {
-            threadsDock->show();
-            snapshotsDock->show();
-        } else {
-            scriptConsoleDock->show();
-        }
-        q->splitDockWidget(q->toolBarDockWidget(), stackDock, Qt::Vertical);
-        q->splitDockWidget(stackDock, breakDock, Qt::Horizontal);
-        q->tabifyDockWidget(breakDock, modulesDock);
-        q->tabifyDockWidget(breakDock, registerDock);
-        q->tabifyDockWidget(breakDock, threadsDock);
-        q->tabifyDockWidget(breakDock, sourceFilesDock);
-        q->tabifyDockWidget(breakDock, snapshotsDock);
-        q->tabifyDockWidget(breakDock, scriptConsoleDock);
     }
-
-    breakDock->raise(); // Raise something sensible.
 
     q->setTrackingEnabled(true);
     q->update();
