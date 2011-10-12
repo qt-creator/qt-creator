@@ -15,6 +15,7 @@ Editing
    * Advanced search: Show more information about the search parameters
    * Advanced search: Move the previously modal dialog into search results pane
    * Advanced search: Keep a history of most recent searches and their results
+   * Code Style schemas implemented, you can reuse them in different projects now
 
 Managing Projects
 
