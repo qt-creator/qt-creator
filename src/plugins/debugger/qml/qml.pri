@@ -1,5 +1,4 @@
 include($$PWD/../../../libs/qmljsdebugclient/qmljsdebugclient.pri)
-include($$PWD/../../../libs/qmljs/parser/parser.pri)
 include($$PWD/../../../shared/json/json.pri)
 DEFINES += JSON_INCLUDE_PRI
 

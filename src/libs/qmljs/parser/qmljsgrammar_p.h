@@ -45,11 +45,12 @@
 #ifndef QMLJSGRAMMAR_P_H
 #define QMLJSGRAMMAR_P_H
 
+#include "qmljsglobal_p.h"
 #include <QtCore/qglobal.h>
 
 QT_BEGIN_NAMESPACE
 
-class QmlJSGrammar
+class QML_PARSER_EXPORT QmlJSGrammar
 {
 public:
   enum VariousConstants {
