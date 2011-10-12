@@ -2846,6 +2846,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
                         sub.id = BreakpointResponseId(majorPart, minorPart);
                         sub.type = response.type;
                         sub.address = address;
+                        sub.hitCount = hitCount;
                         handler->insertSubBreakpoint(id, sub);
                         location.clear();
                         function.clear();
@@ -2867,6 +2868,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
             sub.id = BreakpointResponseId(majorPart, minorPart);
             sub.type = response.type;
             sub.address = address;
+            sub.hitCount = hitCount;
             handler->insertSubBreakpoint(id, sub);
             location.clear();
             function.clear();
