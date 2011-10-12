@@ -211,7 +211,8 @@
 
     \title Semantic Highlighting
 
-    \QC understands the C++ and QML languages as code, not as plain text.
+    \QC understands the C++, QML, and JavaScript languages as code, not as plain
+    text.
     It reads the source code, analyzes it, and highlights it based on the
     semantic checks that it does for the following code elements:
 
@@ -231,7 +232,7 @@
     \gui {Tools > Options > Text Editor > Fonts & Color}.
 
     \QC supports syntax highlighting also for other types of files than
-    C++ or QML.
+    C++, QML, or JavaScript.
 
     \section1 Generic Highlighting
 
