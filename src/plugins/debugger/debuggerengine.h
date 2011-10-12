@@ -263,7 +263,7 @@ public:
         int timeout = -1) const;
     Q_SLOT void showStatusMessage(const QString &msg, int timeout = -1) const;
 
-    void resetLocation();
+    virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
     virtual void quitDebugger(); // called by DebuggerRunControl
 

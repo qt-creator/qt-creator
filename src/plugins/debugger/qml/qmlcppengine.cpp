@@ -671,6 +671,14 @@ void QmlCppEngine::showMessage(const QString &msg, int channel, int timeout) con
     DebuggerEngine::showMessage(msg, channel, timeout);
 }
 
+void QmlCppEngine::resetLocation()
+{
+    if (d->m_qmlEngine)
+        d->m_qmlEngine->resetLocation();
+    if (d->m_cppEngine)
+        d->m_cppEngine->resetLocation();
+}
+
 DebuggerEngine *QmlCppEngine::cppEngine() const
 {
     return d->m_cppEngine;

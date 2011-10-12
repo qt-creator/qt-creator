@@ -451,7 +451,6 @@ void QmlEngine::executeStep()
         logMessage(LogSend, "STEPINTO");
         d->m_adapter.activeDebuggerClient()->executeStep();
     }
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
@@ -462,7 +461,6 @@ void QmlEngine::executeStepI()
         logMessage(LogSend, "STEPINTO");
         d->m_adapter.activeDebuggerClient()->executeStepI();
     }
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
@@ -473,7 +471,6 @@ void QmlEngine::executeStepOut()
         logMessage(LogSend, "STEPOUT");
         d->m_adapter.activeDebuggerClient()->executeStepOut();
     }
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
@@ -484,7 +481,6 @@ void QmlEngine::executeNext()
         logMessage(LogSend, "STEPOVER");
         d->m_adapter.activeDebuggerClient()->executeNext();
     }
-    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
