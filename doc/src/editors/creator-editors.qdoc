@@ -1157,17 +1157,19 @@
 
     \section1 Finding Symbols
 
-    To find the use of a specific symbol in your Qt C++ or Qt Quick project:
+    To find the use of a specific symbol or \l{glossary-component}
+    {QML component} in your Qt C++ or Qt Quick project:
 
     \list 1
 
-        \o In the editor, place the cursor on the symbol, and select:
+        \o  In the editor, place the cursor on the symbol or component, and
+            select:
 
         \list
 
             \o  \gui {Tools > C++ > Find Usages}
 
-            \o  \gui {Tools > QML > Find Usages}
+            \o  \gui {Tools > QML/JS > Find Usages}
 
             \o  \key Ctrl+Shift+U
 

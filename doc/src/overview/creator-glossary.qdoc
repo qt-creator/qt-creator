@@ -84,6 +84,21 @@
                 as build configurations, compatible tool chains, and supported
                 Qt versions) as targets to make cross-platform development
                 easier.
+
+        \row
+            \o
+                \raw HTML
+                Component
+                \endraw
+                \target glossary-component
+            \o  A component is an instantiable QML definition, typically
+                contained in a .qml file. For instance, a Button component may
+                be defined in Button.qml. The QML runtime may instantiate this
+                Button component to create Button objects. Alternatively, a
+                component may be defined inside a
+                \l{http://doc.qt.nokia.com/4.7-snapshot/qmlreusablecomponents.html}
+                {Component} element.
+
     \endtable
 
 */
