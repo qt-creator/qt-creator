@@ -1143,9 +1143,24 @@ QString Qt4HarmattanTarget::aegisManifestFileName()
 void Qt4HarmattanTarget::handleTargetAddedSpecial()
 {
     AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial();
-    QFile aegisFile(debianDirPath() + QLatin1Char('/') + aegisManifestFileName());
-    if (!aegisFile.exists())
-        aegisFile.open(QIODevice::WriteOnly);
+    const QFile aegisFile(debianDirPath() + QLatin1Char('/') + aegisManifestFileName());
+    if (aegisFile.exists())
+        return;
+
+    Utils::FileReader reader;
+    if (!reader.fetch(Core::ICore::instance()->resourcePath()
+            + QLatin1String("/templates/shared/") + aegisManifestFileName())) {
+        qDebug("Reading manifest template failed.");
+        return;
+    }
+    QString content = QString::fromUtf8(reader.data());
+    content.replace(QLatin1String("%%PROJECTNAME%%"), project()->displayName());
+    Utils::FileSaver writer(aegisFile.fileName(), QIODevice::WriteOnly);
+    writer.write(content.toUtf8());
+    if (!writer.finalize()) {
+        qDebug("Failure writing manifest file.");
+        return;
+    }
 }
 
 void Qt4HarmattanTarget::addAdditionalControlFileFields(QByteArray &controlContents)

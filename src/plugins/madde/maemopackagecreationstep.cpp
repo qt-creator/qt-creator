@@ -375,17 +375,40 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
         QString newFileName = fileName;
         if (newFileName == Qt4HarmattanTarget::aegisManifestFileName()) {
             // If the user has touched the Aegis manifest file, we copy it for use
-            // by MADDE. Otherwise the required capabilities will be auto-detected.
+            // by MADDE. Otherwise the required capabilities will be auto-detected,
+            // unless the user explicitly requests that no manifest should be created.
             if (QFileInfo(srcFile).size() == 0)
                 continue;
             newFileName = maemoTarget()->packageName() + QLatin1String(".aegis");
         }
+
         const QString destFile = debianDirPath + QLatin1Char('/') + newFileName;
         if (fileName == QLatin1String("rules")) {
             if (!adaptRulesFile(srcFile, destFile))
                 return false;
-        } else if (!QFile::copy(srcFile, destFile)) {
-            raiseError(tr("Could not copy file '%1' to '%2'")
+            continue;
+        }
+
+        if (newFileName == maemoTarget()->packageName() + QLatin1String(".aegis")) {
+            Utils::FileReader reader;
+            if (!reader.fetch(srcFile)) {
+                raiseError(tr("Could not read manifest file '%1': %2.")
+                    .arg(QDir::toNativeSeparators(srcFile), reader.errorString()));
+                return false;
+            }
+            if (reader.data().startsWith("NoAegisFile")) {
+                QFile targetFile(destFile);
+                if (!targetFile.open(QIODevice::WriteOnly)) {
+                    raiseError(tr("Could not write manifest file '%1': %2.")
+                        .arg(QDir::toNativeSeparators(destFile), targetFile.errorString()));
+                    return false;
+                }
+                continue;
+            }
+        }
+
+        if (!QFile::copy(srcFile, destFile)) {
+            raiseError(tr("Could not copy file '%1' to '%2'.")
                 .arg(QDir::toNativeSeparators(srcFile), QDir::toNativeSeparators(destFile)));
             return false;
         }
