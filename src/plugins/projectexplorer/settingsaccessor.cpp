@@ -540,7 +540,7 @@ QVariantMap SettingsAccessor::restoreSettings(Project *project) const
                 QApplication::translate("ProjectExplorer::SettingsAccessor",
                                         "Using Old Project Settings File"),
                 QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                        "<html><head/><body><p>A versioned backup of the .user"
+                                        "<html><head/><body><p>A versioned backup of the .user "
                                         "settings file will be used, because the non-versioned "
                                         "file was created by an incompatible newer version of "
                                         "Qt Creator.</p><p>Project settings changes made since "
