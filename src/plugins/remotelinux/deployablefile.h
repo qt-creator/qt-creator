@@ -35,6 +35,7 @@
 
 #include "remotelinux_export.h"
 
+#include <QtCore/QFileInfo>
 #include <QtCore/QHash>
 #include <QtCore/QString>
 
@@ -52,6 +53,10 @@ public:
     {
         return localFilePath == other.localFilePath
             && remoteDir == other.remoteDir;
+    }
+
+    QString remoteFilePath() const {
+        return remoteDir + QLatin1Char('/') + QFileInfo(localFilePath).fileName();
     }
 
     QString localFilePath;

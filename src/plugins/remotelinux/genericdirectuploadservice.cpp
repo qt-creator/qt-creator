@@ -159,8 +159,13 @@ void GenericDirectUploadService::handleUploadFinished(Utils::SftpJobId jobId, co
 
     const DeployableFile df = d->filesToUpload.takeFirst();
     if (!errorMsg.isEmpty()) {
-        emit errorMessage(tr("Upload of file '%1' failed: %2")
-            .arg(QDir::toNativeSeparators(df.localFilePath), errorMsg));
+        QString errorString = tr("Upload of file '%1' failed. The server said: '%2'.")
+            .arg(QDir::toNativeSeparators(df.localFilePath), errorMsg);
+        if (errorMsg == QLatin1String("Failure") && df.remoteDir.contains(QLatin1String("/bin"))) {
+            errorString += QLatin1Char(' ') + tr("If '%1' is currently running "
+                "on the remote host, you might need to stop it first.").arg(df.remoteFilePath());
+        }
+        emit errorMessage(errorString);
         setFinished();
         handleDeploymentDone();
     } else {
@@ -168,9 +173,7 @@ void GenericDirectUploadService::handleUploadFinished(Utils::SftpJobId jobId, co
 
         // Terrible hack for Windows.
         if (df.remoteDir.contains(QLatin1String("bin"))) {
-            const QString remoteFilePath = df.remoteDir + QLatin1Char('/')
-                + QFileInfo(df.localFilePath).fileName();
-            const QString command = QLatin1String("chmod a+x ") + remoteFilePath;
+            const QString command = QLatin1String("chmod a+x ") + df.remoteFilePath();
             connection()->createRemoteProcess(command.toUtf8())->start();
         }
 
