@@ -35,6 +35,7 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
+#include <remotelinux/deployablefile.h>
 
 #include <QtCore/QStringList>
 
@@ -122,6 +123,7 @@ public:
     static QString displayName();
 private:
     QString m_systemRoot;
+    QList<RemoteLinux::DeployableFile> m_files;
 };
 
 class MaemoMakeInstallToSysrootStep : public ProjectExplorer::AbstractProcessStep

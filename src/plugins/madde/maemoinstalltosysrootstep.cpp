@@ -41,7 +41,6 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4target.h>
 #include <qtsupport/baseqtversion.h>
-#include <remotelinux/deployablefile.h>
 #include <remotelinux/deploymentinfo.h>
 #include <remotelinux/remotelinuxdeployconfiguration.h>
 
@@ -321,6 +320,13 @@ bool MaemoCopyToSysrootStep::init()
         return false;
     }
     m_systemRoot = qtVersion->systemRoot();
+
+    const QSharedPointer<DeploymentInfo> deploymentInfo
+            = static_cast<RemoteLinuxDeployConfiguration *>(deployConfiguration())->deploymentInfo();
+    m_files.clear();
+    for (int i = 0; i < deploymentInfo->deployableCount(); ++i)
+        m_files << deploymentInfo->deployableAt(i);
+
     return true;
 }
 
@@ -328,11 +334,9 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
 {
     emit addOutput(tr("Copying files to sysroot ..."), MessageOutput);
     QDir sysrootDir(m_systemRoot);
-    const QSharedPointer<DeploymentInfo> deploymentInfo
-        = qobject_cast<RemoteLinuxDeployConfiguration *>(deployConfiguration())->deploymentInfo();
+
     const QChar sep = QLatin1Char('/');
-    for (int i = 0; i < deploymentInfo->deployableCount(); ++i) {
-        const DeployableFile &deployable = deploymentInfo->deployableAt(i);
+    foreach (const DeployableFile &deployable, m_files) {
         const QFileInfo localFileInfo(deployable.localFilePath);
         const QString targetFilePath = m_systemRoot + sep
             + deployable.remoteDir + sep + localFileInfo.fileName();
