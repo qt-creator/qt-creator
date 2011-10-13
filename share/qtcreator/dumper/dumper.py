@@ -587,8 +587,11 @@ def qtMajorVersion():
         return qqMajorVersion
     try:
         # -- Result is returned as character, need to subtract '0'
-        qqMajorVersion = int(parseAndEvaluate(qtNamespace() + "qVersion()[0]")) - 48
-        return qqMajorVersion
+        v = int(parseAndEvaluate("*(char*)qVersion()"))
+        if v >= 51:
+            qqMajorVersion = v - 48
+            return qqMajorVersion
+        return 0
     except:
         return 0
 
