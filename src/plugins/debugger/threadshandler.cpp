@@ -38,6 +38,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
+#include <QtGui/QSortFilterProxyModel>
 
 namespace Debugger {
 namespace Internal {
@@ -107,6 +108,8 @@ ThreadsHandler::ThreadsHandler()
 {
     m_resetLocationScheduled = false;
     m_contentsValid = false;
+    m_proxyModel = new QSortFilterProxyModel(this);
+    m_proxyModel->setSourceModel(this);
 }
 
 int ThreadsHandler::rowCount(const QModelIndex &parent) const
@@ -337,6 +340,11 @@ void ThreadsHandler::resetLocation()
         m_resetLocationScheduled = false;
         reset();
     }
+}
+
+QAbstractItemModel *ThreadsHandler::model()
+{
+    return m_proxyModel;
 }
 
 } // namespace Internal

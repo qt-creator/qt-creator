@@ -33,11 +33,13 @@
 #ifndef DEBUGGER_MODULESHANDLER_H
 #define DEBUGGER_MODULESHANDLER_H
 
-#include <QtCore/QVector>
-#include <QtCore/QObject>
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QObject>
+#include <QtCore/QVector>
 
-QT_FORWARD_DECLARE_CLASS(QSortFilterProxyModel)
+QT_BEGIN_NAMESPACE
+class QSortFilterProxyModel;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {

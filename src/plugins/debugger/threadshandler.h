@@ -38,6 +38,10 @@
 
 #include "threaddata.h"
 
+QT_BEGIN_NAMESPACE
+class QSortFilterProxyModel;
+QT_END_NAMESPACE
+
 ////////////////////////////////////////////////////////////////////////
 //
 // ThreadsHandler
@@ -65,7 +69,7 @@ public:
     void setThreads(const Threads &threads);
     void removeAll();
     Threads threads() const;
-    QAbstractItemModel *model() { return this; }
+    QAbstractItemModel *model();
 
     // Clear out all frame information
     void notifyRunning();
@@ -91,6 +95,8 @@ private:
 
     bool m_resetLocationScheduled;
     bool m_contentsValid;
+
+    QSortFilterProxyModel *m_proxyModel;
 };
 
 } // namespace Internal
