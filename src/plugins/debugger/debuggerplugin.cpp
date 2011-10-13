@@ -2585,7 +2585,7 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     if (!sp.gnuTarget.isEmpty())
         str << "Gnu target: " << sp.gnuTarget << '\n';
     str << "Sysroot: " << sp.sysroot << '\n';
-    str << "Debug Source Loaction: " << sp.debugSourceLocation.join(":") << '\n';
+    str << "Debug Source Location: " << sp.debugSourceLocation.join(":") << '\n';
     str << "Symbol file: " << sp.symbolFileName << '\n';
     if (sp.useServerStartScript)
         str << "Using server start script: " << sp.serverStartScript;
