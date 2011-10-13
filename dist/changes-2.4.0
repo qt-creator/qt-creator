@@ -69,6 +69,8 @@ QML/JS Support
    * Update builtin type information and parser for Qt 5
 
 Qt Quick Designer
+   * Adding breadcrumb navigation for components
+   * Adding layout functionality to context menu.
 
 Help
 
