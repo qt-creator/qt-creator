@@ -1,10 +1,7 @@
 VPATH += $$PWD
 
-INCLUDEPATH *= $$PWD $$PWD/.. \
-    $$PWD/../.. $$PWD/../../utils
-
-DEPENDPATH *= $$PWD $$PWD/.. \
-    $$PWD/../.. $$PWD/../../utils
+INCLUDEPATH *= $$PWD $$PWD/..
+DEPENDPATH *= $$PWD $$PWD/..
 
 # Input
 HEADERS += \
