@@ -600,6 +600,11 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
     formatOption(str, QLatin1String(OptionsParser::PROFILE_OPTION),
                  QString(), QLatin1String("Profile plugin loading"),
                  optionIndentation, descriptionIndentation);
+#ifdef WITH_TESTS
+    formatOption(str, QLatin1String(OptionsParser::TEST_OPTION),
+                 QLatin1String("plugin|all"), QLatin1String("Run plugin's tests"),
+                 optionIndentation, descriptionIndentation);
+#endif
 }
 
 /*!
