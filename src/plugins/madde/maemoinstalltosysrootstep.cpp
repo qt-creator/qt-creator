@@ -348,7 +348,6 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
             emit addOutput(tr("Sysroot installation failed: %1\n"
                 " Continuing anyway.").arg(errorMsg), ErrorMessageOutput);
         }
-        QCoreApplication::processEvents();
         if (fi.isCanceled()) {
             fi.reportResult(false);
             return;
