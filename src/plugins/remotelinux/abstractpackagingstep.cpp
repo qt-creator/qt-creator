@@ -51,10 +51,10 @@ namespace Internal {
 class AbstractPackagingStepPrivate
 {
 public:
-    AbstractPackagingStepPrivate() : currentBuildConfiguration(0), running(false) { }
+    AbstractPackagingStepPrivate() : currentBuildConfiguration(0) { }
 
     BuildConfiguration *currentBuildConfiguration;
-    bool running;
+    QString cachedPackageFilePath;
     QString cachedPackageDirectory;
 };
 
@@ -78,6 +78,9 @@ void AbstractPackagingStep::ctor()
     connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
         SLOT(handleBuildConfigurationChanged()));
     handleBuildConfigurationChanged();
+
+    connect(this, SIGNAL(unmodifyDeploymentInfo()),
+            this, SLOT(setDeploymentInfoUnmodified()));
 }
 
 AbstractPackagingStep::~AbstractPackagingStep()
@@ -97,6 +100,11 @@ void AbstractPackagingStep::handleBuildConfigurationChanged()
     emit packageFilePathChanged();
 }
 
+QString AbstractPackagingStep::cachedPackageFilePath() const
+{
+    return d->cachedPackageFilePath;
+}
+
 QString AbstractPackagingStep::packageFilePath() const
 {
     if (packageDirectory().isEmpty())
@@ -104,10 +112,13 @@ QString AbstractPackagingStep::packageFilePath() const
     return packageDirectory() + QLatin1Char('/') + packageFileName();
 }
 
+QString AbstractPackagingStep::cachedPackageDirectory() const
+{
+    return d->cachedPackageDirectory;
+}
+
 QString AbstractPackagingStep::packageDirectory() const
 {
-    if (d->running)
-        return d->cachedPackageDirectory;
     return d->currentBuildConfiguration
         ? d->currentBuildConfiguration->buildDirectory() : QString();
 }
@@ -137,19 +148,25 @@ bool AbstractPackagingStep::isPackagingNeeded() const
 bool AbstractPackagingStep::init()
 {
     d->cachedPackageDirectory = packageDirectory();
+    d->cachedPackageFilePath = packageFilePath();
     return true;
 }
 
 void AbstractPackagingStep::setPackagingStarted()
 {
-    d->running = true;
 }
 
+// called in ::run thread
 void AbstractPackagingStep::setPackagingFinished(bool success)
 {
-    d->running = false;
     if (success)
-        deployConfiguration()->deploymentInfo()->setUnmodified();
+        emit unmodifyDeploymentInfo();
+}
+
+// called in gui thread
+void AbstractPackagingStep::setDeploymentInfoUnmodified()
+{
+    deployConfiguration()->deploymentInfo()->setUnmodified();
 }
 
 void AbstractPackagingStep::raiseError(const QString &errorMessage)

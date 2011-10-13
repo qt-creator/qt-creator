@@ -36,7 +36,8 @@
 #include <projectexplorer/buildstep.h>
 
 namespace RemoteLinux {
-class  RemoteLinuxDeployConfiguration;
+class RemoteLinuxDeployConfiguration;
+class DeploymentInfo;
 
 namespace Internal {
 class AbstractPackagingStepPrivate;
@@ -52,10 +53,12 @@ public:
     ~AbstractPackagingStep();
 
     QString packageFilePath() const;
+    QString cachedPackageFilePath() const;
     bool init();
 
 signals:
     void packageFilePathChanged();
+    void unmodifyDeploymentInfo();
 
 protected:
     void setPackagingStarted();
@@ -63,12 +66,14 @@ protected:
 
     void raiseError(const QString &errorMessage);
     RemoteLinuxDeployConfiguration *deployConfiguration() const;
+    QString cachedPackageDirectory() const;
     QString packageDirectory() const;
 
     virtual bool isPackagingNeeded() const;
 
 private slots:
     void handleBuildConfigurationChanged();
+    void setDeploymentInfoUnmodified();
 
 private:
     virtual QString packageFileName() const = 0;

@@ -33,6 +33,7 @@
 
 #include "abstractpackagingstep.h"
 #include "remotelinux_export.h"
+#include "deployablefile.h"
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -51,6 +52,7 @@ public:
     static QString stepId();
     static QString displayName();
 
+    bool init();
     void run(QFutureInterface<bool> &fi);
 private:
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
@@ -63,6 +65,9 @@ private:
         const QString &remoteFilePath, const QFutureInterface<bool> &fi);
     bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo,
         const QString &remoteFilePath);
+
+    bool m_packagingNeeded;
+    QList<DeployableFile> m_files;
 };
 
 } // namespace RemoteLinux

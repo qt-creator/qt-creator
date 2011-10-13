@@ -77,9 +77,38 @@ AbstractMaemoPackageCreationStep::~AbstractMaemoPackageCreationStep()
 {
 }
 
+bool AbstractMaemoPackageCreationStep::init()
+{
+    if (!AbstractPackagingStep::init())
+        return false;
+    m_packagingNeeded = isPackagingNeeded();
+    if (!isPackagingNeeded())
+        return true;
+
+    if (!qt4BuildConfiguration()) {
+        raiseError(tr("No Qt4 build configuration"));
+        return false;
+    }
+
+    m_environment = qt4BuildConfiguration()->environment();
+    if (qt4BuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild) {
+        m_environment.appendOrSet(QLatin1String("DEB_BUILD_OPTIONS"),
+            QLatin1String("nostrip"), QLatin1String(" "));
+    }
+
+    if (!qt4BuildConfiguration()->qtVersion()) {
+        raiseError(tr("Packaging failed: No Qt version."));
+        return false;
+    }
+
+    m_qmakeCommand = qt4BuildConfiguration()->qtVersion()->qmakeCommand();
+
+    return true;
+}
+
 void AbstractMaemoPackageCreationStep::run(QFutureInterface<bool> &fi)
 {
-    if (!isPackagingNeeded()) {
+    if (!m_packagingNeeded) {
         emit addOutput(tr("Package up to date."), MessageOutput);
         fi.reportResult(true);
         return;
@@ -145,12 +174,6 @@ AbstractRpmBasedQt4MaemoTarget *AbstractMaemoPackageCreationStep::rpmBasedMaemoT
     return qobject_cast<AbstractRpmBasedQt4MaemoTarget*>(buildConfiguration()->target());
 }
 
-QString AbstractMaemoPackageCreationStep::projectName() const
-{
-    return qt4BuildConfiguration()->qt4Target()->qt4Project()
-        ->rootProjectNode()->displayName().toLower();
-}
-
 bool AbstractMaemoPackageCreationStep::isPackagingNeeded() const
 {
     if (AbstractPackagingStep::isPackagingNeeded())
@@ -190,18 +213,15 @@ QString AbstractMaemoPackageCreationStep::nativePath(const QFile &file)
 bool AbstractMaemoPackageCreationStep::callPackagingCommand(QProcess *proc,
     const QStringList &arguments)
 {
-    preparePackagingProcess(proc, qt4BuildConfiguration(), packageDirectory());
-    const QtSupport::BaseQtVersion * const qtVersion = qt4BuildConfiguration()->qtVersion();
-    if (!qtVersion) {
-        raiseError(tr("Packaging failed: No Qt version."));
-        return false;
-    }
-    const QString madCommand = MaemoGlobal::madCommand(qtVersion->qmakeCommand());
+    proc->setEnvironment(m_environment.toStringList());
+    proc->setWorkingDirectory(cachedPackageDirectory());
+
+    const QString madCommand = MaemoGlobal::madCommand(m_qmakeCommand);
     const QString cmdLine = madCommand + QLatin1Char(' ')
         + arguments.join(QLatin1String(" "));
     emit addOutput(tr("Package Creation: Running command '%1'.").arg(cmdLine),
         BuildStep::MessageOutput);
-    MaemoGlobal::callMad(*proc, arguments, qtVersion->qmakeCommand(), true);
+    MaemoGlobal::callMad(*proc, arguments, m_qmakeCommand, true);
     if (!proc->waitForStarted()) {
         raiseError(tr("Packaging failed: Could not start command '%1'. Reason: %2")
             .arg(cmdLine, proc->errorString()));
@@ -220,7 +240,6 @@ bool AbstractMaemoPackageCreationStep::callPackagingCommand(QProcess *proc,
     }
     return true;
 }
-
 
 void AbstractMaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
     const Qt4BuildConfiguration *bc, const QString &workingDir)
@@ -244,6 +263,9 @@ QString AbstractMaemoPackageCreationStep::replaceDots(const QString &name) const
     return name;
 }
 
+////////////////
+// MaemoDebianPackageCreationStep
+////////////////
 
 MaemoDebianPackageCreationStep::MaemoDebianPackageCreationStep(BuildStepList *bsl)
     : AbstractMaemoPackageCreationStep(bsl, CreatePackageId)
@@ -266,13 +288,25 @@ void MaemoDebianPackageCreationStep::ctor()
     setDefaultDisplayName(tr("Create Debian Package"));
 }
 
+bool MaemoDebianPackageCreationStep::init()
+{
+    if (!AbstractMaemoPackageCreationStep::init())
+        return false;
+    m_maddeRoot = MaemoGlobal::maddeRoot(qt4BuildConfiguration()->qtVersion()->qmakeCommand());
+    m_projectDirectory = buildConfiguration()->target()->project()->projectDirectory();
+    m_pkgFileName = maemoTarget()->packageFileName();
+    m_packageName = maemoTarget()->packageName();
+    m_templatesDirPath = debBasedMaemoTarget()->debianDirPath();
+    m_debugBuild = qt4BuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
+    checkProjectName();
+    return true;
+}
+
 bool MaemoDebianPackageCreationStep::createPackage(QProcess *buildProc,
     const QFutureInterface<bool> &fi)
 {
     Q_UNUSED(fi);
-    checkProjectName();
-    const QString projectDir = buildConfiguration()->target()->project()->projectDirectory();
-    const bool inSourceBuild = QFileInfo(packageDirectory()) == QFileInfo(projectDir);
+    const bool inSourceBuild = QFileInfo(cachedPackageDirectory()) == QFileInfo(m_projectDirectory);
     if (!copyDebianFiles(inSourceBuild))
         return false;
     const QStringList args = QStringList() << QLatin1String("dpkg-buildpackage")
@@ -280,35 +314,33 @@ bool MaemoDebianPackageCreationStep::createPackage(QProcess *buildProc,
     if (!callPackagingCommand(buildProc, args))
         return false;
 
-    QFile::remove(packageFilePath());
+    QFile::remove(cachedPackageFilePath());
 
     // Workaround for non-working dh_builddeb --destdir=.
-    if (!QDir(packageDirectory()).isRoot()) {
-        const AbstractQt4MaemoTarget * const target = maemoTarget();
+    if (!QDir(cachedPackageDirectory()).isRoot()) {
         QString error;
-        const QString pkgFileName = target->packageFileName();
         if (!error.isEmpty())
             raiseError(tr("Packaging failed: Could not get package name."));
-        const QString changesSourceFileName = QFileInfo(pkgFileName).completeBaseName()
+        const QString changesSourceFileName = QFileInfo(m_pkgFileName).completeBaseName()
                 + QLatin1String(".changes");
-        const QString changesTargetFileName = replaceDots(QFileInfo(pkgFileName).completeBaseName())
+        const QString changesTargetFileName = replaceDots(QFileInfo(m_pkgFileName).completeBaseName())
                 + QLatin1String(".changes");
-        const QString packageSourceDir = packageDirectory() + QLatin1String("/../");
-        const QString packageSourceFilePath = packageSourceDir + pkgFileName;
+        const QString packageSourceDir = cachedPackageDirectory() + QLatin1String("/../");
+        const QString packageSourceFilePath = packageSourceDir + m_pkgFileName;
         const QString changesSourceFilePath = packageSourceDir + changesSourceFileName;
         const QString changesTargetFilePath
-            = packageDirectory() + QLatin1Char('/') + changesTargetFileName;
+            = cachedPackageDirectory() + QLatin1Char('/') + changesTargetFileName;
         QFile::remove(changesTargetFilePath);
-        if (!QFile::rename(packageSourceFilePath, packageFilePath())
+        if (!QFile::rename(packageSourceFilePath, cachedPackageFilePath())
                 || !QFile::rename(changesSourceFilePath, changesTargetFilePath)) {
             raiseError(tr("Packaging failed: Could not move package files from '%1' to '%2'.")
-                .arg(packageSourceDir, packageDirectory()));
+                .arg(packageSourceDir, cachedPackageDirectory()));
             return false;
         }
     }
 
     if (inSourceBuild) {
-        buildProc->start(packagingCommand(qt4BuildConfiguration(), QLatin1String("dh_clean")));
+        buildProc->start(packagingCommand(m_maddeRoot, QLatin1String("dh_clean")));
         buildProc->waitForFinished();
         buildProc->terminate();
     }
@@ -344,7 +376,7 @@ void MaemoDebianPackageCreationStep::checkProjectName()
 
 bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
 {
-    const QString debianDirPath = packageDirectory() + QLatin1String("/debian");
+    const QString debianDirPath = cachedPackageDirectory() + QLatin1String("/debian");
     const QString magicFilePath
         = debianDirPath + QLatin1Char('/') + MagicFileName;
     if (inSourceBuild && QFileInfo(debianDirPath).isDir()
@@ -362,16 +394,15 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
             .arg(debianDirPath, error));
         return false;
     }
-    QDir buildDir(packageDirectory());
+    QDir buildDir(cachedPackageDirectory());
     if (!buildDir.mkdir("debian")) {
         raiseError(tr("Could not create Debian directory '%1'.").arg(debianDirPath));
         return false;
     }
-    const QString templatesDirPath = debBasedMaemoTarget()->debianDirPath();
-    QDir templatesDir(templatesDirPath);
+    QDir templatesDir(m_templatesDirPath);
     const QStringList &files = templatesDir.entryList(QDir::Files);
     foreach (const QString &fileName, files) {
-        const QString srcFile = templatesDirPath + QLatin1Char('/') + fileName;
+        const QString srcFile = m_templatesDirPath + QLatin1Char('/') + fileName;
         QString newFileName = fileName;
         if (newFileName == Qt4HarmattanTarget::aegisManifestFileName()) {
             // If the user has touched the Aegis manifest file, we copy it for use
@@ -379,7 +410,7 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
             // unless the user explicitly requests that no manifest should be created.
             if (QFileInfo(srcFile).size() == 0)
                 continue;
-            newFileName = maemoTarget()->packageName() + QLatin1String(".aegis");
+            newFileName = m_packageName + QLatin1String(".aegis");
         }
 
         const QString destFile = debianDirPath + QLatin1Char('/') + newFileName;
@@ -424,12 +455,9 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
     return true;
 }
 
-QString MaemoDebianPackageCreationStep::packagingCommand(const Qt4BuildConfiguration *bc,
-    const QString &commandName)
+QString MaemoDebianPackageCreationStep::packagingCommand(const QString &maddeRoot, const QString &commandName)
 {
     QString perl;
-    QtSupport::BaseQtVersion *v = bc->qtVersion();
-    const QString maddeRoot = MaemoGlobal::maddeRoot(v->qmakeCommand());
 #ifdef Q_OS_WIN
     perl = maddeRoot + QLatin1String("/bin/perl.exe ");
 #endif
@@ -457,10 +485,8 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
         return false;
     }
     QByteArray content = reader.data();
-    const Qt4BuildConfiguration * const bc = qt4BuildConfiguration();
-
     // Always check for dependencies in release builds.
-    if (!(bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild))
+    if (!m_debugBuild)
         ensureShlibdeps(content);
 
     Utils::FileSaver saver(rulesFilePath);
@@ -474,6 +500,9 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
     return true;
 }
 
+/////////////////
+// MaemoRpmPackageCreationStep
+/////////////////
 
 MaemoRpmPackageCreationStep::MaemoRpmPackageCreationStep(BuildStepList *bsl)
     : AbstractMaemoPackageCreationStep(bsl, CreatePackageId)
@@ -493,22 +522,27 @@ void MaemoRpmPackageCreationStep::ctor()
     setDefaultDisplayName(tr("Create RPM Package"));
 }
 
+bool MaemoRpmPackageCreationStep::init()
+{
+    m_specFile = rpmBasedMaemoTarget()->specFilePath();
+    m_packageFileName = rpmBasedMaemoTarget()->packageFileName();
+    return AbstractMaemoPackageCreationStep::init();
+}
+
 bool MaemoRpmPackageCreationStep::createPackage(QProcess *buildProc,
     const QFutureInterface<bool> &fi)
 {
-    setPackagingStarted();
-
     Q_UNUSED(fi);
     const QStringList args = QStringList() << QLatin1String("rrpmbuild")
-        << QLatin1String("-bb") << rpmBasedMaemoTarget()->specFilePath();
+        << QLatin1String("-bb") << m_specFile;
     if (!callPackagingCommand(buildProc, args))
         return false;
-    QFile::remove(packageFilePath());
+    QFile::remove(cachedPackageFilePath());
     const QString packageSourceFilePath = rpmBuildDir() + QLatin1Char('/')
-        + rpmBasedMaemoTarget()->packageFileName();
-    if (!QFile::rename(packageSourceFilePath, packageFilePath())) {
+        + m_packageFileName;
+    if (!QFile::rename(packageSourceFilePath, cachedPackageFilePath())) {
         raiseError(tr("Packaging failed: Could not move package file from %1 to %2.")
-            .arg(packageSourceFilePath, packageFilePath()));
+            .arg(packageSourceFilePath, cachedPackageFilePath()));
         return false;
     }
 
@@ -524,7 +558,7 @@ bool MaemoRpmPackageCreationStep::isMetaDataNewerThan(const QDateTime &packageDa
 
 QString MaemoRpmPackageCreationStep::rpmBuildDir() const
 {
-    return packageDirectory() + QLatin1String("/rrpmbuild");
+    return cachedPackageDirectory() + QLatin1String("/rrpmbuild");
 }
 
 const QString MaemoRpmPackageCreationStep::CreatePackageId
