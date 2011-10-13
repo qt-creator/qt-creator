@@ -210,6 +210,14 @@ void QmlEngine::beginConnection()
 
 void QmlEngine::connectionStartupFailed()
 {
+    if (isSlaveEngine()) {
+        if (masterEngine()->state() != InferiorRunOk) {
+            // we're right now debugging C++, just try longer ...
+            beginConnection();
+            return;
+        }
+    }
+
     Core::ICore * const core = Core::ICore::instance();
     QMessageBox *infoBox = new QMessageBox(core->mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
