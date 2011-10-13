@@ -322,14 +322,18 @@ void QmlCppEngine::detachDebugger()
 
 void QmlCppEngine::executeStep()
 {
-    if (d->m_activeEngine == d->m_qmlEngine) {
-        QTC_CHECK(d->m_cppEngine->state() == InferiorRunOk);
-        if (d->m_cppEngine->setupQmlStep(true))
-            return; // Wait for callback to readyToExecuteQmlStep()
-    } else {
-        notifyInferiorRunRequested();
-        d->m_cppEngine->executeStep();
-    }
+//    TODO: stepping from qml -> cpp requires more thought
+//    if (d->m_activeEngine == d->m_qmlEngine) {
+//        QTC_CHECK(d->m_cppEngine->state() == InferiorRunOk);
+//        if (d->m_cppEngine->setupQmlStep(true))
+//            return; // Wait for callback to readyToExecuteQmlStep()
+//    } else {
+//        notifyInferiorRunRequested();
+//        d->m_cppEngine->executeStep();
+//    }
+
+    notifyInferiorRunRequested();
+    d->m_activeEngine->executeStep();
 }
 
 void QmlCppEngine::readyToExecuteQmlStep()
