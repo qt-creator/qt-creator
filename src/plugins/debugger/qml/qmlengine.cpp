@@ -487,7 +487,7 @@ void QmlEngine::executeNext()
 
 void QmlEngine::executeNextI()
 {
-    SDEBUG("QmlEngine::executeNextI()");
+    executeNext();
 }
 
 void QmlEngine::executeRunToLine(const ContextData &data)
