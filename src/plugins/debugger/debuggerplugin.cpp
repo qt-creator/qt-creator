@@ -2241,6 +2241,10 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
 void DebuggerPluginPrivate::updateDebugActions()
 {
+    //if we're currently debugging the actions are controlled by engine
+    if (m_currentEngine->state() != DebuggerNotReady)
+        return;
+
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = pe->startupProject();
     const QString debugMode = _(Constants::DEBUGMODE);
