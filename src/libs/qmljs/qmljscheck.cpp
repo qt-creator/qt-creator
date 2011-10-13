@@ -935,8 +935,9 @@ bool Check::visit(Block *ast)
         }
         if (!ast->statements
                 && (cast<UiPublicMember *>(p)
-                    || cast<UiScriptBinding *>(p))) {
-            addMessage(WarnUnintentinalEmptyBlock, ast->firstSourceLocation());
+                    || cast<UiScriptBinding *>(p))
+                && ast->lbraceToken.startLine == ast->rbraceToken.startLine) {
+            addMessage(WarnUnintentinalEmptyBlock, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
         }
     }
     return true;
