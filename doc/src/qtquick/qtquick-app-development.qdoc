@@ -183,6 +183,9 @@
             allow you to create applications with a native look and feel for
             that platform.
 
+            \note We recommend that you use \gui {Qt Quick Components for
+            MeeGo Harmattan} when you develop for MeeGo Harmattan devices.
+
             You can also import an existing QML file in this dialog.
 
         \o  Click \gui{Next}.
