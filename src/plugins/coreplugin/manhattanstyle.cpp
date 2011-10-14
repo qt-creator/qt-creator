@@ -271,7 +271,7 @@ void ManhattanStyle::polish(QWidget *widget)
     QProxyStyle::polish(widget);
 
     // OxygenStyle forces a rounded widget mask on toolbars and dock widgets
-    if (baseStyle()->inherits("OxygenStyle")) {
+    if (baseStyle()->inherits("OxygenStyle") || baseStyle()->inherits("Oxygen::Style")) {
         if (qobject_cast<QToolBar*>(widget) || qobject_cast<QDockWidget*>(widget)) {
             widget->removeEventFilter(baseStyle());
             widget->setContentsMargins(0, 0, 0, 0);
