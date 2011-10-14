@@ -145,6 +145,7 @@ public: // must be public to make Q_GADGET introspection work
         bracket_element_maybe_objectdefinition, // after an identifier in bracket_element_start
 
         ternary_op, // The ? : operator
+        ternary_op_after_colon, // after the : in a ternary
 
         jsblock_open,
 
