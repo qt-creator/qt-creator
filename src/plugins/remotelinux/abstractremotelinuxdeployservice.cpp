@@ -51,12 +51,29 @@ namespace RemoteLinux {
 namespace Internal {
 
 namespace {
-typedef QPair<DeployableFile, QString> DeployablePerHost;
+class DeployParameters
+{
+public:
+    DeployParameters(const DeployableFile &d, const QString &h, const QString &s)
+        : file(d), host(h), sysroot(s) {}
+
+    bool operator==(const DeployParameters &other) const {
+        return file == other.file && host == other.host && sysroot == other.sysroot;
+    }
+
+    DeployableFile file;
+    QString host;
+    QString sysroot;
+};
+uint qHash(const DeployParameters &p) {
+    return qHash(qMakePair(qMakePair(p.file, p.host), p.sysroot));
+}
 
 enum State { Inactive, SettingUpDevice, Connecting, Deploying };
 
 // TODO: Just change these...
 const char LastDeployedHostsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedHosts";
+const char LastDeployedSysrootsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedSysroots";
 const char LastDeployedFilesKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedFiles";
 const char LastDeployedRemotePathsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedRemotePaths";
 const char LastDeployedTimesKey[] = "Qt4ProjectManager.MaemoRunConfiguration.LastDeployedTimes";
@@ -74,7 +91,7 @@ public:
     State state;
     bool stopRequested;
 
-    QHash<DeployablePerHost, QDateTime> lastDeployed;
+    QHash<DeployParameters, QDateTime> lastDeployed;
 };
 } // namespace Internal
 
@@ -107,14 +124,25 @@ SshConnection::Ptr AbstractRemoteLinuxDeployService::connection() const
 
 void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableFile &deployableFile)
 {
-    d->lastDeployed.insert(DeployablePerHost(deployableFile,
-        deviceConfiguration()->sshParameters().host), QDateTime::currentDateTime());
+    if (!d->buildConfiguration)
+        return;
+    const QtSupport::BaseQtVersion * const qtVersion = d->buildConfiguration->qtVersion();
+    if (!qtVersion || !qtVersion->isValid())
+        return;
+    d->lastDeployed.insert(DeployParameters(deployableFile,
+        deviceConfiguration()->sshParameters().host,
+        qtVersion->systemRoot()), QDateTime::currentDateTime());
 }
 
 bool AbstractRemoteLinuxDeployService::hasChangedSinceLastDeployment(const DeployableFile &deployableFile) const
 {
-    const QDateTime &lastDeployed = d->lastDeployed.value(DeployablePerHost(deployableFile,
-        deviceConfiguration()->sshParameters().host));
+    if (!d->buildConfiguration)
+        return true;
+    const QtSupport::BaseQtVersion * const qtVersion = d->buildConfiguration->qtVersion();
+    if (!qtVersion || !qtVersion->isValid())
+        return true;
+    const QDateTime &lastDeployed = d->lastDeployed.value(DeployParameters(deployableFile,
+        deviceConfiguration()->sshParameters().host, qtVersion->systemRoot()));
     return !lastDeployed.isValid()
         || QFileInfo(deployableFile.localFilePath).lastModified() > lastDeployed;
 }
@@ -187,16 +215,19 @@ QVariantMap AbstractRemoteLinuxDeployService::exportDeployTimes() const
     QVariantMap map;
     QVariantList hostList;
     QVariantList fileList;
+    QVariantList sysrootList;
     QVariantList remotePathList;
     QVariantList timeList;
-    typedef QHash<DeployablePerHost, QDateTime>::ConstIterator DepIt;
+    typedef QHash<DeployParameters, QDateTime>::ConstIterator DepIt;
     for (DepIt it = d->lastDeployed.begin(); it != d->lastDeployed.end(); ++it) {
-        fileList << it.key().first.localFilePath;
-        remotePathList << it.key().first.remoteDir;
-        hostList << it.key().second;
+        fileList << it.key().file.localFilePath;
+        remotePathList << it.key().file.remoteDir;
+        hostList << it.key().host;
+        sysrootList << it.key().sysroot;
         timeList << it.value();
     }
     map.insert(QLatin1String(LastDeployedHostsKey), hostList);
+    map.insert(QLatin1String(LastDeployedSysrootsKey), sysrootList);
     map.insert(QLatin1String(LastDeployedFilesKey), fileList);
     map.insert(QLatin1String(LastDeployedRemotePathsKey), remotePathList);
     map.insert(QLatin1String(LastDeployedTimesKey), timeList);
@@ -206,17 +237,18 @@ QVariantMap AbstractRemoteLinuxDeployService::exportDeployTimes() const
 void AbstractRemoteLinuxDeployService::importDeployTimes(const QVariantMap &map)
 {
     const QVariantList &hostList = map.value(QLatin1String(LastDeployedHostsKey)).toList();
+    const QVariantList &sysrootList = map.value(QLatin1String(LastDeployedSysrootsKey)).toList();
     const QVariantList &fileList = map.value(QLatin1String(LastDeployedFilesKey)).toList();
     const QVariantList &remotePathList
         = map.value(QLatin1String(LastDeployedRemotePathsKey)).toList();
     const QVariantList &timeList = map.value(QLatin1String(LastDeployedTimesKey)).toList();
     const int elemCount
-        = qMin(qMin(hostList.size(), fileList.size()),
-            qMin(remotePathList.size(), timeList.size()));
+        = qMin(qMin(qMin(hostList.size(), fileList.size()),
+              qMin(remotePathList.size(), timeList.size())), sysrootList.size());
     for (int i = 0; i < elemCount; ++i) {
         const DeployableFile df(fileList.at(i).toString(), remotePathList.at(i).toString());
-        d->lastDeployed.insert(DeployablePerHost(df, hostList.at(i).toString()),
-            timeList.at(i).toDateTime());
+        d->lastDeployed.insert(DeployParameters(df, hostList.at(i).toString(),
+            sysrootList.at(i).toString()), timeList.at(i).toDateTime());
     }
 }
 
