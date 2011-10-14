@@ -5,7 +5,7 @@ project = "SquishProject"
 
 def main():
     startApplication("qtcreator" + SettingsPath)
-    createProject_Qt_GUI(projectsPath, project, defaultQtVersion, 1)
+    createProject_Qt_GUI(projectsPath, project, defaultQtVersion, True)
     clickButton(verifyEnabled(":*Qt Creator.Run_Core::Internal::FancyToolButton"))
     waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
     playButton = verifyEnabled(":Qt Creator.ReRun_QToolButton", False)
