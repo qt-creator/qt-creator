@@ -128,8 +128,12 @@
   <node name="QtDesktop.TextField" icon=":/desktopplugin/images/textfield16.png">
     <itemlibraryentry name="TextField" category="Components Desktop" libraryIcon=":/desktopplugin/images/textfield.png"  version="0.1" requiredImport="QtDesktop">
       <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="50"/>
       <property name="text" type="QString" value="TextField"/>
+    </itemlibraryentry>
+  </node>
+  <node name="QtDesktop.Label" icon=":/desktopplugin/images/window16.png.png">
+    <itemlibraryentry name="Label" category="Components Desktop" libraryIcon=":/desktopplugin/images/window.png"  version="0.1" requiredImport="QtDesktop">
+      <property name="text" type="QString" value="Label"/>
     </itemlibraryentry>
   </node>
 </metainfo>
