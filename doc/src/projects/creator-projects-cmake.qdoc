@@ -96,7 +96,7 @@
 
     \QC builds \c CMake projects by running \c make, \c mingw32-make, or
     \c nmake depending on your platform. The build errors and warnings are
-    parsed and displayed in the \gui{Build Issues} output pane.
+    parsed and displayed in the \gui{Issues} output pane.
 
     By default, \QC builds the \bold{all} target. You can specify which
     targets to build in \gui{Project} mode, under \gui{Build Settings}.

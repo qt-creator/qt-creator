@@ -149,7 +149,7 @@
             \o Switch to \gui Help mode
             \o Ctrl+6
         \row
-            \o Toggle \gui{Build Issues} pane
+            \o Toggle \gui{Issues} pane
             \o Alt+1 (Cmd+1 on Mac OS X)
         \row
             \o Toggle \gui{Search Results} pane
