@@ -206,7 +206,7 @@
     <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
-        <translation>Wyślij do Subversion</translation>
+        <translation>Wrzuć do Subversion</translation>
     </message>
     <message>
         <source>F&amp;iles</source>
@@ -222,7 +222,7 @@
     </message>
     <message>
         <source>&amp;Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Wrzuć</translation>
     </message>
     <message>
         <source>Check All</source>
@@ -411,7 +411,7 @@
     </message>
     <message>
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Zwróć uwagę, że wtyczka użyje go zarówno do wysyłania jak i odbierania fragmentów kodu.&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;Zwróć uwagę, że wtyczka użyje go zarówno do wysyłania jak i pobierania fragmentów kodu.&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -621,11 +621,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation>Pytaj przed wysłaniem zmian do serwera</translation>
+        <translation>Pytaj przed wrzucaniem zmian</translation>
     </message>
     <message>
         <source>Describe all files matching commit id</source>
-        <translation type="unfinished">Opisz wszystkie pliki zgodne z identyfikatorem operacji</translation>
+        <translation>Opisuj wszystkie pliki zgodne z identyfikatorem wrzuconej zmiany</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -649,7 +649,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
-        <translation type="unfinished">Gdy zaznaczone, wszystkie pliki powiązane z bieżącą operacją zostaną wyświetlone po kliknięciu na numer poprawki w widoku adnotacji (uzyskane zostaną poprzez identyfikator operacji). W przeciwnym razie, wyświetlony będzie tylko określony plik.</translation>
+        <translation>Gdy zaznaczone, wszystkie pliki powiązane z wrzuconą zmianą zostaną wyświetlone po kliknięciu na numer poprawki w widoku adnotacji (uzyskane zostaną poprzez identyfikator wrzuconej zmiany). W przeciwnym razie, wyświetlony będzie tylko określony plik.</translation>
     </message>
 </context>
 <context>
@@ -1287,7 +1287,7 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>&amp;Checkout</source>
-        <translation type="unfinished"></translation>
+        <translation>Utwórz &amp;kopię roboczą</translation>
     </message>
 </context>
 <context>
@@ -1422,7 +1422,7 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>Commit Information</source>
-        <translation type="unfinished">Informacje o zmianie</translation>
+        <translation>Informacje o wrzucanej zmianie</translation>
     </message>
     <message>
         <source>Author:</source>
@@ -1453,7 +1453,7 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>Note that huge amount of commits might take some time.</source>
-        <translation type="unfinished">Zwróć uwagę, że wyświetlanie dużej liczby zmian może zajmować sporo czasu.</translation>
+        <translation>Zwróć uwagę, że wyświetlanie dużej liczby wrzuconych zmian może zajmować sporo czasu.</translation>
     </message>
     <message>
         <source>Git</source>
@@ -1477,11 +1477,11 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation>Pytaj przed wysłaniem zmian do serwera</translation>
+        <translation>Pytaj przed wrzucaniem zmian</translation>
     </message>
     <message>
         <source>Pull with rebase</source>
-        <translation>Ciągnij z opcją &quot;rebase&quot;</translation>
+        <translation>&quot;Pull&quot; z opcją &quot;rebase&quot;</translation>
     </message>
     <message>
         <source>Environment Variables</source>
@@ -1690,7 +1690,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Submit</source>
-        <translation>Wyślij</translation>
+        <translation>Wrzuć</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1740,7 +1740,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation>Pytaj przed wysłaniem zmian do serwera</translation>
+        <translation>Pytaj przed wrzucaniem zmian</translation>
     </message>
     <message>
         <source>Log count:</source>
@@ -1775,7 +1775,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     <name>Perforce::Internal::SubmitPanel</name>
     <message>
         <source>Submit</source>
-        <translation>Wyślij</translation>
+        <translation>Wrzuć</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -2371,7 +2371,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation>Pytaj przed wysłaniem zmian do serwera</translation>
+        <translation>Pytaj przed wrzucaniem zmian</translation>
     </message>
     <message>
         <source>Ignore whitespace changes in annotation</source>
@@ -4631,15 +4631,15 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Commit All Files</source>
-        <translation type="unfinished">Dokonaj commitu wszystkich plików</translation>
+        <translation>Wrzuć wszystkie pliki</translation>
     </message>
     <message>
         <source>Commit Current File</source>
-        <translation type="unfinished">Dokonaj commitu bieżącego pliku</translation>
+        <translation>Wrzuć bieżący plik</translation>
     </message>
     <message>
         <source>Commit &quot;%1&quot;</source>
-        <translation type="unfinished">Commit &quot;%1&quot;</translation>
+        <translation>Wrzuć &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Alt+C,Alt+C</source>
@@ -4731,11 +4731,11 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Commit Project</source>
-        <translation type="unfinished">Dokonaj commitu na projekcie</translation>
+        <translation>Wrzuć projekt</translation>
     </message>
     <message>
         <source>Commit Project &quot;%1&quot;</source>
-        <translation type="unfinished">Dokonaj commitu na projekcie &quot;%1&quot;</translation>
+        <translation>Wrzuć projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Diff Repository</source>
@@ -4759,7 +4759,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Commit</translation>
+        <translation>Wrzuć</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
@@ -4779,11 +4779,11 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Do you want to commit the change?</source>
-        <translation type="unfinished">Czy chcesz wysłać zmianę?</translation>
+        <translation>Czy chcesz wrzucić zmianę?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation type="unfinished">Błąd podczas sprawdzania opisu zmian. Czy chcesz wrzucić zmianę?</translation>
+        <translation>Błąd podczas sprawdzania opisu wrzucanych zmian. Czy chcesz wrzucić zmianę?</translation>
     </message>
     <message>
         <source>The files do not differ.</source>
@@ -4807,7 +4807,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Another commit is currently being executed.</source>
-        <translation type="unfinished">Trwa inna wysyłka.</translation>
+        <translation>Trwa wrzucanie innej zmiany.</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
@@ -4835,7 +4835,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Could not find commits of id &apos;%1&apos; on %2.</source>
-        <translation type="unfinished">Nie można odnaleźć zmian o identyfikatorze &quot;%1&quot; dokonanych w dniu %2.</translation>
+        <translation>Nie można odnaleźć wrzuconych zmian o identyfikatorze &quot;%1&quot; dokonanych w dniu %2.</translation>
     </message>
     <message>
         <source>No cvs executable specified!</source>
@@ -7424,7 +7424,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz zmianę w Git</translation>
     </message>
     <message>
         <source>Select Git Repository</source>
@@ -7510,10 +7510,10 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message numerus="yes">
         <source>Committed %n file(s).
 </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Wrzucono %n plik.</numerusform>
+            <numerusform>Wrzucono %n pliki.</numerusform>
+            <numerusform>Wrzucono %n plików.</numerusform>
         </translation>
     </message>
     <message>
@@ -7551,7 +7551,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message>
         <source>Cannot checkout &quot;%1&quot; of &quot;%2&quot;: %3</source>
         <extracomment>Meaning of the arguments: %1: Branch, %2: Repository, %3: Error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć kopii roboczej gałęzi &quot;%1&quot; repozytorium &quot;%2&quot;: %3</translation>
     </message>
     <message numerus="yes">
         <source>Cannot add %n file(s) to &quot;%1&quot;: %2</source>
@@ -7588,12 +7588,12 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message>
         <source>Cannot checkout &quot;%1&quot; of %2 in &quot;%3&quot;: %4</source>
         <extracomment>Meaning of the arguments: %1: revision, %2: files, %3: repository, %4: Error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć kopii roboczej dla poprawki &quot;%1&quot; w gałęzi &quot;%2&quot; w repozytorium &quot;%3&quot;: %4</translation>
     </message>
     <message>
         <source>Cannot find parent revisions of &quot;%1&quot; in &quot;%2&quot;: %3</source>
         <extracomment>Failed to find parent revisions of a SHA1 for &quot;annotate previous&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odnaleźć macierzystych poprawek dla &quot;%1&quot; w &quot;%2&quot;: %3</translation>
     </message>
     <message>
         <source>Cannot retrieve branch of &quot;%1&quot;: %2</source>
@@ -7601,20 +7601,20 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Cannot retrieve top revision of &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można pobrać ostatniej poprawki w &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Cannot describe revision &quot;%1&quot; in &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można opisać poprawki &quot;%1&quot; w &quot;%2&quot;: %3</translation>
     </message>
     <message>
         <source>Cannot stash in &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odłożyć zmian w &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Cannot resolve stash message &quot;%1&quot; in &quot;%2&quot;.</source>
         <extracomment>Look-up of a stash via its descriptive message failed.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odnaleźć odłożonej poprawki &quot;%1&quot; w &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Cannot run &quot;git branch&quot; in &quot;%1&quot;: %2</source>
@@ -7664,7 +7664,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Cannot retrieve last commit data of repository &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uzyskać danych ostatniej wrzuconej zmiany w repozytorium &quot;%1&quot;.</translation>
     </message>
     <message numerus="yes">
         <source>Amended &quot;%1&quot; (%n file(s)).
@@ -7685,10 +7685,10 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message numerus="yes">
         <source>Cannot commit %n file(s): %1
 </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Nie można wrzucić %n pliku: %1</numerusform>
+            <numerusform>Nie można wrzucić %n plików: %1</numerusform>
+            <numerusform>Nie można wrzucić %n plików: %1</numerusform>
         </translation>
     </message>
     <message>
@@ -7899,15 +7899,15 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Undo Uncommited Changes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Cofnij niewrzucone zmiany...</translation>
     </message>
     <message>
         <source>Remotes...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdalne repozytoria...</translation>
     </message>
     <message>
         <source>Stash</source>
-        <translation>Stash</translation>
+        <translation>Odłożone zmiany</translation>
     </message>
     <message>
         <source>Saves the current state of your work.</source>
@@ -7915,19 +7915,19 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Undo Unstaged Changes</source>
-        <translation type="unfinished">Cofnij niezaindeksowane zmiany</translation>
+        <translation>Cofnij niezaindeksowane zmiany</translation>
     </message>
     <message>
         <source>Undo Unstaged Changes for &quot;%1&quot;</source>
-        <translation type="unfinished">Cofnij niezaindeksowane zmiany dla &quot;%1&quot;</translation>
+        <translation>Cofnij niezaindeksowane zmiany dla &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Cofnij niewrzucone zmiany</translation>
     </message>
     <message>
         <source>Undo Uncommitted Changes for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Cofnij niewrzucone zmiany dla &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Clean Project...</source>
@@ -7959,7 +7959,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Stash Pop</source>
-        <translation>Stash Pop</translation>
+        <translation>Przywróć ostatnio odłożoną zmianę</translation>
     </message>
     <message>
         <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
@@ -7967,7 +7967,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Commit...</source>
-        <translation type="unfinished">Commit...</translation>
+        <translation>Wrzuć...</translation>
     </message>
     <message>
         <source>Alt+G,Alt+C</source>
@@ -7975,7 +7975,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Amend Last Commit...</source>
-        <translation type="unfinished">Popraw ostatni commit...</translation>
+        <translation>Popraw ostatnio wrzuconą zmianę...</translation>
     </message>
     <message>
         <source>Push</source>
@@ -8017,7 +8017,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Git will not accept this commit. Do you want to continue to edit it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Git nie zaakceptuje tej zmiany. Czy chcesz kontynuować edycję?</translation>
     </message>
     <message>
         <source>Unable to retrieve file list</source>
@@ -8045,7 +8045,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Show Commit...</source>
-        <translation type="unfinished">Pokaż commit...</translation>
+        <translation>Pokaż wrzuconą zmianę...</translation>
     </message>
     <message>
         <source>Subversion</source>
@@ -8085,11 +8085,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Fetch</source>
-        <translation>Fetch</translation>
+        <translation>Pobierz</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Commit</translation>
+        <translation>Wrzuć</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -8101,11 +8101,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Another submit is currently being executed.</source>
-        <translation>Trwa inna wysyłka.</translation>
+        <translation>Trwa wrzucanie innej zmiany.</translation>
     </message>
     <message>
         <source>Do you want to commit the change?</source>
-        <translation type="unfinished">Czy chcesz wysłać zmianę?</translation>
+        <translation>Czy chcesz wrzucić zmianę?</translation>
     </message>
 </context>
 <context>
@@ -8446,7 +8446,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Submit Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Wrzuć projekt</translation>
     </message>
     <message>
         <source>Alt+P,Alt+S</source>
@@ -8514,7 +8514,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Submit Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wrzuć projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Current Project</source>
@@ -8542,7 +8542,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Submit</source>
-        <translation>Wyślij</translation>
+        <translation>Wrzuć</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -8566,7 +8566,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Another submit is currently executed.</source>
-        <translation>Trwa inna wysyłka.</translation>
+        <translation>Trwa wrzucanie innej zmiany.</translation>
     </message>
     <message>
         <source>Project has no files</source>
@@ -8594,7 +8594,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to submit this change list?</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd podczas sprawdzania opisu wrzucanych zmian. Czy chcesz wrzucić zmianę?</translation>
     </message>
     <message>
         <source>p4 submit failed: %1</source>
@@ -8656,7 +8656,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Do you want to submit this change list?</source>
-        <translation>Czy chcesz wysłać tę listę zmian?</translation>
+        <translation>Czy chcesz wrzucić tę listę zmian?</translation>
     </message>
     <message>
         <source>Pending change</source>
@@ -8664,14 +8664,14 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można wrzucić zmiany, ponieważ drzewo robocze nie jest aktualne. Zamiast tego utworzono zmianę oczekującą na wrzucenie.</translation>
     </message>
 </context>
 <context>
     <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Wrzuć do Perforce</translation>
     </message>
 </context>
 <context>
@@ -10502,15 +10502,15 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Commit All Files</source>
-        <translation type="unfinished">Wyślij wszystkie pliki</translation>
+        <translation>Wrzuć wszystkie pliki</translation>
     </message>
     <message>
         <source>Commit Current File</source>
-        <translation type="unfinished">Wyślij bieżący plik</translation>
+        <translation>Wrzuć bieżący plik</translation>
     </message>
     <message>
         <source>Commit &quot;%1&quot;</source>
-        <translation type="unfinished">Wyślij &quot;%1&quot;</translation>
+        <translation>Wrzuć &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Alt+S,Alt+C</source>
@@ -10534,11 +10534,11 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Commit Project</source>
-        <translation type="unfinished">Wyślij projekt</translation>
+        <translation>Wrzuć projekt</translation>
     </message>
     <message>
         <source>Commit Project &quot;%1&quot;</source>
-        <translation type="unfinished">Wyślij projekt &quot;%1&quot;</translation>
+        <translation>Wrzuć projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Diff Repository</source>
@@ -10610,7 +10610,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Wyślij</translation>
+        <translation>Wrzuć</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
@@ -10630,11 +10630,11 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Do you want to commit the change?</source>
-        <translation type="unfinished">Czy chcesz wysłać zmianę?</translation>
+        <translation>Czy chcesz wrzucić zmianę?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation type="unfinished">Błąd podczas sprawdzania opisu zmian. Czy chcesz wrzucić zmianę?</translation>
+        <translation>Błąd podczas sprawdzania opisu wrzucanych zmian. Czy chcesz wrzucić zmianę?</translation>
     </message>
     <message>
         <source>Revert repository</source>
@@ -10654,7 +10654,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Another commit is currently being executed.</source>
-        <translation type="unfinished">Trwa inna wysyłka.</translation>
+        <translation>Trwa wrzucanie innej zmiany.</translation>
     </message>
     <message>
         <source>There are no modified files.</source>
@@ -10677,7 +10677,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
-        <translation>Wyślij do Subversion</translation>
+        <translation>Wrzuć do Subversion</translation>
     </message>
 </context>
 <context>
@@ -11588,11 +11588,11 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <name>VCSBase::VCSBaseSubmitEditor</name>
     <message>
         <source>Prompt to submit</source>
-        <translation>Pytaj przed wysłaniem zmian do serwera</translation>
+        <translation>Pytaj przed wrzucaniem zmian</translation>
     </message>
     <message>
         <source>Check Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdź opis</translation>
     </message>
     <message>
         <source>Insert Name...</source>
@@ -11600,7 +11600,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Submit Message Check Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd podczas sprawdzania opisu wrzucanych zmian</translation>
     </message>
     <message>
         <source>Executing %1</source>
@@ -11871,7 +11871,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>CVS submit template</source>
-        <translation type="unfinished"></translation>
+        <translation>Szablon wrzucanych zmian CVS</translation>
     </message>
     <message>
         <source>Qt Designer file</source>
@@ -11895,7 +11895,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Perforce submit template</source>
-        <translation type="unfinished"></translation>
+        <translation>Szablon wrzucanych zmian Perforce</translation>
     </message>
     <message>
         <source>QML file</source>
@@ -12007,7 +12007,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Subversion submit template</source>
-        <translation type="unfinished"></translation>
+        <translation>Szablon wrzucanych zmian Subversion</translation>
     </message>
     <message>
         <source>Qt Creator task list file</source>
@@ -12447,7 +12447,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Stash</source>
-        <translation>Stash</translation>
+        <translation>Odłóż zmiany</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -12498,7 +12498,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Commit Information</source>
-        <translation type="unfinished">Informacje o zmianach</translation>
+        <translation>Informacje o wrzucanej zmianie</translation>
     </message>
     <message>
         <source>Author:</source>
@@ -12529,7 +12529,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Username to use by default on commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa użytkownika domyślnie używana przy wrzucaniu zmian.</translation>
     </message>
     <message>
         <source>Default username:</source>
@@ -12537,7 +12537,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Email to use by default on commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Email domyślnie używany przy wrzucaniu zmian.</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -12549,7 +12549,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>The number of recent commit logs to show, choose 0 to see all enteries</source>
-        <translation type="unfinished">Liczba ostatnich zmian wyświetlanych w logu, wybierz 0 aby ujrzeć wszystkie zmiany</translation>
+        <translation type="obsolete">Liczba ostatnio wrzuconych zmian wyświetlanych w logu, wybierz 0 aby ujrzeć wszystkie zmiany</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -12561,7 +12561,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation>Pytaj przed wysłaniem zmian do serwera</translation>
+        <translation>Pytaj przed wrzucaniem zmian</translation>
     </message>
     <message>
         <source>Mercurial</source>
@@ -12570,6 +12570,10 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <source>Default email:</source>
         <translation>Domyślny adres email:</translation>
+    </message>
+    <message>
+        <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
+        <translation>Liczba ostatnio wrzuconych zmian, wyświetlanych w logu. Wybierz 0 aby ujrzeć wszystkie zmiany.</translation>
     </message>
 </context>
 <context>
@@ -13403,7 +13407,7 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     <name>VCS</name>
     <message>
         <source>CVS Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor wrzucanych zmian CVS</translation>
     </message>
     <message>
         <source>CVS Command Log Editor</source>
@@ -13439,7 +13443,7 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     </message>
     <message>
         <source>Git Submit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor wrzucanych zmian Git</translation>
     </message>
     <message>
         <source>Mercurial Command Log Editor</source>
@@ -13459,11 +13463,11 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     </message>
     <message>
         <source>Mercurial Commit Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor wrzucanych zmian Mercurial</translation>
     </message>
     <message>
         <source>Perforce.SubmitEditor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor wrzucanych zmian Perforce</translation>
     </message>
     <message>
         <source>Perforce CommandLog Editor</source>
@@ -13483,7 +13487,7 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     </message>
     <message>
         <source>Subversion Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor wrzucanych zmian Subversion</translation>
     </message>
     <message>
         <source>Subversion Command Log Editor</source>
@@ -13519,7 +13523,7 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     </message>
     <message>
         <source>Bazaar Commit Log Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor wrzucanych zmian Bazaar</translation>
     </message>
 </context>
 <context>
@@ -13733,7 +13737,7 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor wrzucanych zmian</translation>
     </message>
 </context>
 <context>
@@ -13889,7 +13893,7 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     </message>
     <message>
         <source>Commit...</source>
-        <translation type="unfinished">Commit...</translation>
+        <translation>Wrzuć...</translation>
     </message>
     <message>
         <source>Alt+H,Alt+C</source>
@@ -13917,11 +13921,11 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Commit</translation>
+        <translation>Wrzuć</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
-        <translation type="unfinished">Pokaż różnice w &amp;zaznaczonych plikach</translation>
+        <translation>Pokaż różnice w &amp;zaznaczonych plikach</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -13933,27 +13937,27 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     </message>
     <message>
         <source>There are no changes to commit.</source>
-        <translation type="unfinished">Brak zmian do wysłania.</translation>
+        <translation>Brak zmian do wrzucenia.</translation>
     </message>
     <message>
         <source>Unable to generate a temporary file for the commit editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć tymczasowego pliku dla edytora wrzucanej zmiany.</translation>
     </message>
     <message>
         <source>Unable to create an editor for the commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć edytora dla wrzucanej zmiany.</translation>
     </message>
     <message>
         <source>Commit changes for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wrzuć zmiany dla &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Do you want to commit the changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz wrzucić zmiany?</translation>
     </message>
     <message>
         <source>Close Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamknij edytor wrzucanej zmiany</translation>
     </message>
     <message>
         <source>Message check failed. Do you want to proceed?</source>
@@ -15406,7 +15410,7 @@ Możesz przeglądać projekty przy pomocy QML Viewera bez ich uprzedniego budowa
     <name>CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
-        <translation>Zawijaj opisy zmian po:</translation>
+        <translation>Zawijaj opisy wrzucanych zmian po:</translation>
     </message>
     <message>
         <source> characters</source>
@@ -15414,7 +15418,7 @@ Możesz przeglądać projekty przy pomocy QML Viewera bez ich uprzedniego budowa
     </message>
     <message>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation>Plik wykonywalny, który jest uruchamiany z nazwą pliku tymczasowego przechowującego opis zmiany jako pierwszy argument. Powinien on zwrócić wartość różną od 0 i standardowy komunikat o błędzie w razie niepowodzenia.</translation>
+        <translation>Plik wykonywalny, który jest uruchamiany z nazwą pliku tymczasowego, przechowującego opis zmiany, jako pierwszy argument. Powinien on zwrócić wartość różną od 0 i standardowy komunikat o błędzie w razie niepowodzenia.</translation>
     </message>
     <message>
         <source>A file listing user names and email addresses in a 4-column mailmap format:
@@ -15424,7 +15428,7 @@ nazwa &lt;email&gt; alias &lt;email&gt;</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="unfinished">Plik z liniami zawierającymi pola takie jak: &quot;Reviewed-By:&quot;, który będzie dodany poniżej submit editor.</translation>
+        <translation>Plik z liniami zawierającymi pola takie jak: &quot;Reviewed-By:&quot;, który będzie dodany w edytorze wrzucanych zmian.</translation>
     </message>
     <message>
         <source>Specifies a command that is executed to graphically prompt for a password, 
@@ -15434,7 +15438,7 @@ Sprawdź dokumentację SSH zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
     <message>
         <source>Submit message &amp;check script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrypt sprawdzający &amp;opis wrzucanych zmian:</translation>
     </message>
     <message>
         <source>User/&amp;alias configuration file:</source>
@@ -15446,7 +15450,7 @@ Sprawdź dokumentację SSH zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
     <message>
         <source>&amp;Patch command:</source>
-        <translation>Komenda &quot;&amp;patch&quot;:</translation>
+        <translation>Komenda &quot;pa&amp;tch&quot;:</translation>
     </message>
     <message>
         <source>&amp;SSH prompt command:</source>
@@ -19105,11 +19109,11 @@ Powód: %2</translation>
     </message>
     <message>
         <source>Local commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmiana wrzucona lokalnie</translation>
     </message>
     <message>
         <source>Commit Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informacje o wrzucanej zmianie</translation>
     </message>
     <message>
         <source>Author:</source>
@@ -19126,7 +19130,8 @@ Powód: %2</translation>
     <message>
         <source>Perform a local commit in a bound branch.
 Local commits are not pushed to the master branch until a normal commit is performed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wrzuć zmianę lokalnie do bieżącej gałęzi.
+Zmiany wrzucone lokalnie nie są wrzucane do głównej gałęzi dopóki nie dokonano zwykłego wrzucenia.</translation>
     </message>
 </context>
 <context>
@@ -19153,7 +19158,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
     <message>
         <source>Switch checkout</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz kopię roboczą</translation>
     </message>
     <message>
         <source>Hardlink</source>
@@ -19183,7 +19188,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Switch the checkout in the current directory to the new branch.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz kopię roboczą w bieżącym katalogu do nowej gałęzi.</translation>
     </message>
     <message>
         <source>Hard-link working tree files where possible.</source>
@@ -19214,7 +19219,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Username to use by default on commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa użytkownika domyślnie używana przy wrzucaniu zmian.</translation>
     </message>
     <message>
         <source>Default username:</source>
@@ -19222,7 +19227,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Email to use by default on commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Email domyślnie używany przy wrzucaniu zmian.</translation>
     </message>
     <message>
         <source>Default email:</source>
@@ -19246,7 +19251,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Prompt on submit</source>
-        <translation>Pytaj przed wysłaniem zmian do serwera</translation>
+        <translation>Pytaj przed wrzucaniem zmian</translation>
     </message>
     <message>
         <source>Bazaar</source>
@@ -19254,7 +19259,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>The number of recent commit logs to show. Choose 0 to see all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba ostatnio wrzuconych zmian, wyświetlanych w logu. Wybierz 0 aby ujrzeć wszystkie zmiany.</translation>
     </message>
 </context>
 <context>
@@ -19322,7 +19327,7 @@ The new branch will depend on the availability of the source branch for all oper
     <message>
         <source>Ignore differences between branches and overwrite
 unconditionally.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignoruj różnice pomiędzy gałęziami i nadpisuj bezwarunkowo.</translation>
     </message>
     <message>
         <source>By default, push will fail if the target directory exists, but does not already have a control directory.
@@ -21115,7 +21120,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>Commit...</source>
-        <translation type="unfinished">Commit...</translation>
+        <translation>Wrzuć...</translation>
     </message>
     <message>
         <source>ALT+Z,Alt+C</source>
@@ -21131,7 +21136,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>Wrzuć</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
@@ -21147,31 +21152,31 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>There are no changes to commit.</source>
-        <translation type="unfinished">Brak zmian do wysłania.</translation>
+        <translation>Brak zmian do wrzucenia.</translation>
     </message>
     <message>
         <source>Unable to generate a temporary file for the commit editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć tymczasowego pliku dla edytora wrzucanej zmiany.</translation>
     </message>
     <message>
         <source>Unable to create an editor for the commit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć edytora dla wrzucanej zmiany.</translation>
     </message>
     <message>
         <source>Unable to create a commit editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć edytora wrzucanych zmian.</translation>
     </message>
     <message>
         <source>Commit changes for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wrzuć zmiany dla &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Close Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamknij edytor wrzucanej zmiany</translation>
     </message>
     <message>
         <source>Do you want to commit the changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz wrzucić zmiany?</translation>
     </message>
     <message>
         <source>Message check failed. Do you want to proceed?</source>
@@ -21208,7 +21213,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     <name>Bazaar::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor wrzucanych zmian</translation>
     </message>
 </context>
 <context>
@@ -23057,7 +23062,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
 Your application will also be rejected by Ovi QA if you choose an unreleased Qt version on the next page.</source>
         <translation>Ten kreator sprawdza czy plik projektu spełnia kryteria publikacji w Ovi Store.
 
-Kreator tworzy pliki SIS, które mogą być wysłane do publikacji w Ovi Store.
+Kreator tworzy pliki SIS, które mogą być wrzucone do publikacji w Ovi Store.
 
 Nie można go używać, gdy skorzystano z UIDów dostarczonych przez Symbian Signed.
 
@@ -23807,7 +23812,7 @@ w instrukcjach warunkowych</translation>
     <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj zdalne repozytorium</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -23822,7 +23827,7 @@ w instrukcjach warunkowych</translation>
     <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdalne repozytoria</translation>
     </message>
     <message>
         <source>Re&amp;fresh</source>
@@ -23834,7 +23839,7 @@ w instrukcjach warunkowych</translation>
     </message>
     <message>
         <source>F&amp;etch</source>
-        <translation>F&amp;etch</translation>
+        <translation>Po&amp;bierz</translation>
     </message>
     <message>
         <source>&amp;Remove</source>
@@ -23842,11 +23847,11 @@ w instrukcjach warunkowych</translation>
     </message>
     <message>
         <source>Delete Remote</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń zdalne repozytorium</translation>
     </message>
     <message>
         <source>Would you like to delete the remote &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz usunąć zdalne repozytorium &quot;%1&quot;?</translation>
     </message>
 </context>
 <context>
@@ -29285,7 +29290,7 @@ Przy obecnej nazwie możesz spodziewać się problemów.</translation>
     </message>
     <message>
         <source>Show files changed in each revision</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj pliki zmienione w każdej poprawce</translation>
     </message>
     <message>
         <source>Forward</source>
