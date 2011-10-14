@@ -252,6 +252,16 @@ void MainWindow::setOverrideColor(const QColor &color)
     m_overrideColor = color;
 }
 
+bool MainWindow::isPresentationModeEnabled()
+{
+    return m_actionManager->isPresentationModeEnabled();
+}
+
+void MainWindow::setPresentationModeEnabled(bool enabled)
+{
+    m_actionManager->setPresentationModeEnabled(enabled);
+}
+
 MainWindow::~MainWindow()
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();

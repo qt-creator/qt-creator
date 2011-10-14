@@ -15,5 +15,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <url>http://qt.nokia.com</url>
     <argumentList>
         <argument name=\"-color\" parameter=\"color\">Override selected UI color</argument>
+        <argument name=\"-presentationMode\">Enable presentation mode with pop-ups for key combos</argument>
     </argumentList>
 </plugin>

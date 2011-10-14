@@ -41,8 +41,10 @@
 #include <QtCore/QMap>
 #include <QtCore/QHash>
 #include <QtCore/QMultiHash>
+#include <QtCore/QTimer>
 
 QT_BEGIN_NAMESPACE
+class QLabel;
 class QSettings;
 QT_END_NAMESPACE
 
@@ -89,9 +91,16 @@ public:
     void unregisterAction(QAction *action, const Id &id);
     void unregisterShortcut(const Id &id);
 
+    void setPresentationModeEnabled(bool enabled);
+    bool isPresentationModeEnabled();
+
 private slots:
     void containerDestroyed();
+
+    void actionTriggered();
+    void shortcutTriggered();
 private:
+    void showShortcutPopup(const QString &shortcut);
     bool hasContext(const Context &context) const;
     Action *overridableAction(const Id &id);
 
@@ -109,6 +118,9 @@ private:
     Context m_context;
 
     MainWindow *m_mainWnd;
+
+    QLabel *m_presentationLabel;
+    QTimer m_presentationLabelTimer;
 };
 
 } // namespace Internal

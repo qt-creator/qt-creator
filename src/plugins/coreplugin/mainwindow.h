@@ -125,6 +125,9 @@ public:
 
     void setOverrideColor(const QColor &color);
 
+    bool isPresentationModeEnabled();
+    void setPresentationModeEnabled(bool);
+
 signals:
     void windowActivated();
 

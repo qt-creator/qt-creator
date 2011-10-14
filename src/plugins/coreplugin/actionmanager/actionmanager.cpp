@@ -42,6 +42,8 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
+#include <QtGui/QDesktopWidget>
+#include <QtGui/QLabel>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QShortcut>
@@ -239,8 +241,10 @@ ActionManagerPrivate* ActionManagerPrivate::m_instance = 0;
 
 ActionManagerPrivate::ActionManagerPrivate(MainWindow *mainWnd)
   : ActionManager(mainWnd),
-    m_mainWnd(mainWnd)
+    m_mainWnd(mainWnd),
+    m_presentationLabel(0)
 {
+    m_presentationLabelTimer.setInterval(1000);
     m_instance = this;
 }
 
@@ -344,6 +348,36 @@ void ActionManagerPrivate::containerDestroyed()
     m_idContainerMap.remove(m_idContainerMap.key(container));
 }
 
+void ActionManagerPrivate::actionTriggered()
+{
+    QAction *action = qobject_cast<QAction *>(QObject::sender());
+    if (action)
+        showShortcutPopup(action->shortcut().toString());
+}
+
+void ActionManagerPrivate::shortcutTriggered()
+{
+    QShortcut *sc = qobject_cast<QShortcut *>(QObject::sender());
+    if (sc)
+        showShortcutPopup(sc->key().toString());
+}
+
+void ActionManagerPrivate::showShortcutPopup(const QString &shortcut)
+{
+    if (shortcut.isEmpty() || !isPresentationModeEnabled())
+        return;
+
+    m_presentationLabel->setText(shortcut);
+    m_presentationLabel->adjustSize();
+
+    QPoint p = m_mainWnd->mapToGlobal(m_mainWnd->rect().center() - m_presentationLabel->rect().center());
+    m_presentationLabel->move(p);
+
+    m_presentationLabel->show();
+    m_presentationLabel->raise();
+    m_presentationLabelTimer.start();
+}
+
 Command *ActionManagerPrivate::registerAction(QAction *action, const Id &id, const Context &context, bool scriptable)
 {
     Action *a = overridableAction(id);
@@ -373,6 +407,9 @@ Action *ActionManagerPrivate::overridableAction(const Id &id)
         a->action()->setObjectName(id.toString());
         a->action()->setShortcutContext(Qt::ApplicationShortcut);
         a->setCurrentContext(m_context);
+
+        if (isPresentationModeEnabled())
+            connect(a->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
     }
 
     return a;
@@ -437,6 +474,9 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &i
 
     emit commandListChanged();
     emit commandAdded(id.toString());
+
+    if (isPresentationModeEnabled())
+        connect(sc->shortcut(), SIGNAL(activated()), this, SLOT(shortcutTriggered()));
     return sc;
 }
 
@@ -549,4 +589,47 @@ void ActionManagerPrivate::unregisterShortcut(const Core::Id &id)
     m_idCmdMap.remove(uid);
     delete sc;
     emit commandListChanged();
+}
+
+void ActionManagerPrivate::setPresentationModeEnabled(bool enabled)
+{
+    if (enabled == isPresentationModeEnabled())
+        return;
+
+    // Signal/slots to commands:
+    foreach (Command *c, commands()) {
+        if (c->action()) {
+            if (enabled)
+                connect(c->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
+            else
+                disconnect(c->action(), SIGNAL(triggered()), this, SLOT(actionTriggered()));
+        }
+        if (c->shortcut()) {
+            if (enabled)
+                connect(c->shortcut(), SIGNAL(activated()), this, SLOT(shortcutTriggered()));
+            else
+                disconnect(c->shortcut(), SIGNAL(activated()), this, SLOT(shortcutTriggered()));
+        }
+    }
+
+    // The label for the shortcuts:
+    if (!m_presentationLabel) {
+        m_presentationLabel = new QLabel(0, Qt::ToolTip | Qt::WindowStaysOnTopHint);
+        QFont font = m_presentationLabel->font();
+        font.setPixelSize(45);
+        m_presentationLabel->setFont(font);
+        m_presentationLabel->setAlignment(Qt::AlignCenter);
+        m_presentationLabel->setMargin(5);
+
+        connect(&m_presentationLabelTimer, SIGNAL(timeout()), m_presentationLabel, SLOT(hide()));
+    } else {
+        m_presentationLabelTimer.stop();
+        delete m_presentationLabel;
+        m_presentationLabel = 0;
+    }
+}
+
+bool ActionManagerPrivate::isPresentationModeEnabled()
+{
+    return m_presentationLabel;
 }
