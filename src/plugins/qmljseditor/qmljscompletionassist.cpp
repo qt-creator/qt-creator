@@ -857,7 +857,7 @@ bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath
 {
     const QUrl url(urlString);
     QString fileName;
-    if (url.isLocalFile()) {
+    if (url.scheme().compare(QLatin1String("file"), Qt::CaseInsensitive) == 0) {
         fileName = url.toLocalFile();
         // should not trigger completion on 'file://'
         if (fileName.isEmpty())
