@@ -120,6 +120,7 @@ public:
     QString m_tcpHost;
     quint64 m_tcpPort;
     QString m_ostDevice;
+    QString m_sysroot;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
@@ -253,6 +254,8 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
         updateProjectFileList();
         connect(d->m_project, SIGNAL(fileListChanged()), this, SLOT(updateProjectFileList()));
     }
+
+    d->m_projectFinder.setSysroot(sp.sysroot);
 
     connect(engine, SIGNAL(processRunning(int)), this, SLOT(connectClient(int)));
     connect(engine, SIGNAL(finished()), this, SLOT(disconnectClient()));
@@ -509,6 +512,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     sp.startMode = mode;
     sp.connParams.host = dialog.address();
     sp.connParams.port = dialog.port();
+    sp.sysroot = dialog.sysroot();
 
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));

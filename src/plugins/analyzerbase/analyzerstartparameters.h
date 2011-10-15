@@ -63,6 +63,7 @@ public:
     QString displayName;
     Utils::Environment environment;
     QString workingDirectory;
+    QString sysroot;
 };
 
 } // namespace Analyzer

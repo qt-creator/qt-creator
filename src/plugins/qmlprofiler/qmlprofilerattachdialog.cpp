@@ -58,6 +58,11 @@ uint QmlProfilerAttachDialog::port() const
     return ui->portSpinBox->value();
 }
 
+QString QmlProfilerAttachDialog::sysroot() const
+{
+    return ui->sysrootChooser->path();
+}
+
 void QmlProfilerAttachDialog::setAddress(const QString &address)
 {
     ui->addressLineEdit->setText(address);
@@ -66,6 +71,11 @@ void QmlProfilerAttachDialog::setAddress(const QString &address)
 void QmlProfilerAttachDialog::setPort(uint port)
 {
     ui->portSpinBox->setValue(port);
+}
+
+void QmlProfilerAttachDialog::setSysroot(const QString &sysroot)
+{
+    ui->sysrootChooser->setPath(sysroot);
 }
 
 } // namespace Internal

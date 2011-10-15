@@ -52,9 +52,11 @@ public:
 
     QString address() const;
     uint port() const;
+    QString sysroot() const;
 
     void setAddress(const QString &address);
     void setPort(uint port);
+    void setSysroot(const QString &sysroot);
 
 private:
     Ui::QmlProfilerAttachDialog *ui;
