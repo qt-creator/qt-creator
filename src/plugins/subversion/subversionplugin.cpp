@@ -1357,9 +1357,13 @@ QString SubversionPlugin::vcsGetRepositoryURL(const QString &directory)
     return QString();
 }
 
-/* Subversion has ".svn" directory in each directory
+/* Subversion < 1.7 has ".svn" directory in each directory
  * it manages. The top level is the first directory
- * under the directory that does not have a  ".svn". */
+ * under the directory that does not have a  ".svn".
+ *
+ * Subversion >= 1.7 has ".svn" directory in the root of the
+ * working copy. The top level is the root of the working copy
+ * containg ".svn". */
 bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
     const QDir dir(directory);
@@ -1383,6 +1387,18 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
             }
         }
     } while (false);
+    // Subversion >= 1.7: Check for first parent containing ".svn"
+    if (!manages) {
+        QDir parentDir = dir;
+        while (parentDir.cdUp()) {
+            if (checkSVNSubDir(parentDir)) {
+                manages = true;
+                if (topLevel)
+                    *topLevel = parentDir.absolutePath();
+                break;
+            }
+        }
+    }
     if (Subversion::Constants::debug) {
         QDebug nsp = qDebug().nospace();
         nsp << "SubversionPlugin::managesDirectory" << directory << manages;
