@@ -192,7 +192,7 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 
     // check if absolute path is found in sysroot
     if (!m_sysroot.isEmpty()) {
-        const QString sysrootPath = m_sysroot + QLatin1Char('/') + originalPath;
+        const QString sysrootPath = m_sysroot + originalPath;
         if (QFileInfo(sysrootPath).exists() && QFileInfo(sysrootPath).isFile()) {
             if (success)
                 *success = true;
