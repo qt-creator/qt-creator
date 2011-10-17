@@ -139,7 +139,7 @@ void QmlCppEnginePrivate::qmlStackChanged()
 QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp,
                            DebuggerEngineType slaveEngineType,
                            QString *errorMessage)
-    : DebuggerEngine(sp), d(new QmlCppEnginePrivate(this, sp))
+    : DebuggerEngine(sp, DebuggerLanguages(CppLanguage) | QmlLanguage), d(new QmlCppEnginePrivate(this, sp))
 {
     setObjectName(QLatin1String("QmlCppEngine"));
     d->m_cppEngine = DebuggerRunControlFactory::createEngine(slaveEngineType, sp, this, errorMessage);
@@ -322,14 +322,18 @@ void QmlCppEngine::detachDebugger()
 
 void QmlCppEngine::executeStep()
 {
-    if (d->m_activeEngine == d->m_qmlEngine) {
-        QTC_CHECK(d->m_cppEngine->state() == InferiorRunOk);
-        if (d->m_cppEngine->setupQmlStep(true))
-            return; // Wait for callback to readyToExecuteQmlStep()
-    } else {
-        notifyInferiorRunRequested();
-        d->m_cppEngine->executeStep();
-    }
+//    TODO: stepping from qml -> cpp requires more thought
+//    if (d->m_activeEngine == d->m_qmlEngine) {
+//        QTC_CHECK(d->m_cppEngine->state() == InferiorRunOk);
+//        if (d->m_cppEngine->setupQmlStep(true))
+//            return; // Wait for callback to readyToExecuteQmlStep()
+//    } else {
+//        notifyInferiorRunRequested();
+//        d->m_cppEngine->executeStep();
+//    }
+
+    notifyInferiorRunRequested();
+    d->m_activeEngine->executeStep();
 }
 
 void QmlCppEngine::readyToExecuteQmlStep()
@@ -669,6 +673,14 @@ void QmlCppEngine::showMessage(const QString &msg, int channel, int timeout) con
         d->m_qmlEngine->filterApplicationMessage(msg, channel);
     }
     DebuggerEngine::showMessage(msg, channel, timeout);
+}
+
+void QmlCppEngine::resetLocation()
+{
+    if (d->m_qmlEngine)
+        d->m_qmlEngine->resetLocation();
+    if (d->m_cppEngine)
+        d->m_cppEngine->resetLocation();
 }
 
 DebuggerEngine *QmlCppEngine::cppEngine() const

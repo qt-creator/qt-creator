@@ -88,15 +88,16 @@ PropertyFrame {
                     spacing: 0;
 
                     WidgetLoader {
-                        id: specificsOne;
-                        source: specificsUrl;
-                    }
-
-                    WidgetLoader {
                         id: specificsTwo;
                         baseUrl: globalBaseUrl;
                         qmlData: specificQmlData;
                     }
+
+                    WidgetLoader {
+                        id: specificsOne;
+                        source: specificsUrl;
+                    }
+
                     QScrollArea {
                     }
                 } // layout

@@ -551,6 +551,7 @@ bool Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
         const QString arg = ait.value();
         if (arg.contains(QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH))
                 || arg.contains(Constants::QMAKEVAR_DECLARATIVE_DEBUG)) {
+            ait.deleteArg();
             removedArgument = true;
         }
     }

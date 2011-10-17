@@ -265,6 +265,12 @@ protected:
         addUse(fullLocationForQualifiedId(localId), SemanticHighlighter::BindingNameType);
     }
 
+    bool visit(UiImport *ast)
+    {
+        processName(ast->importId, ast->importIdToken);
+        return true;
+    }
+
     bool visit(UiObjectDefinition *ast)
     {
         if (m_scopeChain.document()->bind()->isGroupedPropertyBinding(ast)) {

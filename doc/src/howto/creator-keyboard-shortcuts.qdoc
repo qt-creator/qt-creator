@@ -149,7 +149,7 @@
             \o Switch to \gui Help mode
             \o Ctrl+6
         \row
-            \o Toggle \gui{Build Issues} pane
+            \o Toggle \gui{Issues} pane
             \o Alt+1 (Cmd+1 on Mac OS X)
         \row
             \o Toggle \gui{Search Results} pane
@@ -350,6 +350,9 @@
         \row
             \o Turn selected text into uppercase
             \o Alt+Shift+U
+        \row
+            \o Run static checks on JavaScript code to find common problems
+            \o Ctrl+Shift+C
     \endtable
 
     \section2 Debugging Keyboard Shortcuts

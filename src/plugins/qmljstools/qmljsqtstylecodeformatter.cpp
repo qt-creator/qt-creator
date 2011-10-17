@@ -139,18 +139,15 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         if (*indentDepth == tokenPosition) {
             // expression_or_objectdefinition doesn't want the indent
             // expression_or_label already has it
-            // ternary already adjusts indents nicely
             if (parentState.type != expression_or_objectdefinition
                     && parentState.type != expression_or_label
-                    && parentState.type != binding_assignment
-                    && parentState.type != ternary_op) {
+                    && parentState.type != binding_assignment) {
                 *indentDepth += 2*m_indentSize;
             }
         }
         // expression_or_objectdefinition and expression_or_label have already consumed the first token
         else if (parentState.type != expression_or_objectdefinition
-                 && parentState.type != expression_or_label
-                 && parentState.type != ternary_op) {
+                 && parentState.type != expression_or_label) {
             *indentDepth = tokenPosition;
         }
         break;

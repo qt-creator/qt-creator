@@ -230,7 +230,7 @@
 
     \list
 
-       \o  \gui{Build Issues}
+       \o  \gui{Issues}
 
        \o  \gui{Search Results}
 
@@ -256,26 +256,45 @@
     To open the \gui{General Messages} and \gui{Version Control} panes, select
     \gui {Window > Output Panes}.
 
-    \section2 Build Issues
+    \section2 Issues
 
-    The \gui{Build Issues} pane provides a list of errors and warnings
-    encountered during a build. The pane filters out irrelevant output from
-    the build tools and presents the issues in an organized way.
+    The \gui{Issues} pane provides lists of following types of issues:
+
+    \list
+
+        \o  \gui Analyzer - Errors encountered while running the
+            \l{Analyzing Code}{Valgrind code analysis tools}.
+
+        \o  \gui {Build System} - Errors and warnings encountered during a
+            build.
+
+        \o  \gui Compile - Selected output from the compiler. Open the
+            \gui {Compile Output} pane for more detailed information.
+
+        \o  \gui {My Tasks} - Entries from a task list file (.tasks) generated
+            by \l{Showing Task List Files in Issues Pane}
+            {code scanning and analysis tools}.
+
+        \o  \gui QML - Errors in QML syntax.
+
+        \o  \gui {QML Analysis} - Results of the JavaScript
+            \l{Checking JavaScript Syntax}{code syntax and validation checks}
+
+    \endlist
+
+    The pane filters out irrelevant output from the build tools and presents the
+    issues in an organized way. To further filter the output by type, select
+    \inlineimage qtcreator-filter.png
+    and then select a filter.
+
+    \image qtcreator-build-issues.png
 
     Right-clicking on a line brings up a context menu with options to copy
     the contents and to show a version control annotation view of the line
     that causes the error message.
 
-    \image qtcreator-build-issues.png
-
-    To view task lists in the \gui{Build Issues} pane, click
-    \inlineimage qtcreator-filter.png
-    and select \gui{My Tasks}. Entries from a task list file (.tasks) are
-    imported to the pane. Press \key F6 and \key Shift+F6 to jump from one issue
-    to the next.
-
-    For more information about creating task files, see
-    \l{Showing Task List Files in the Build Issues Pane}.
+    To jump from one issue to the next or previous one, press \key F6 and
+    \key Shift+F6.
 
     \section2 Search Results
 
@@ -301,7 +320,7 @@
 
     The \gui{Compile Output} pane provides all output from the compiler.
     The \gui{Compile Output} is a more detailed version of information
-    displayed in the \gui{Build Issues} pane.
+    displayed in the \gui{Issues} pane.
 
     \image qtcreator-compile-pane.png
 

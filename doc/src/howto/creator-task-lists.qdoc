@@ -31,7 +31,7 @@
     \page creator-task-lists.html
     \nextpage creator-cli.html
 
-    \title Showing Task List Files in the Build Issues Pane
+    \title Showing Task List Files in Issues Pane
 
     Code scanning and analysis tools create report files in ASCII format.
     Usually, the report files consist of lines that contain a file name, a line
@@ -40,7 +40,7 @@
     manually navigating to them and correcting them, which is tedious.
 
     \QC makes this very easy by providing a way to load these files into
-    the \gui{Build Issues} pane. You can navigate to the corresponding source
+    the \gui{Issues} pane. You can navigate to the corresponding source
     code by clicking the error message. But first you must convert the files to
     the \l{Task List File Format} by using conversion scripts that based on
     standard text processing tools of the operating system.

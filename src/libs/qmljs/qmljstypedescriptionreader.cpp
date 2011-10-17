@@ -146,12 +146,14 @@ void TypeDescriptionReader::readModule(UiObjectDefinition *ast)
     for (UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
         UiObjectMember *member = it->member;
         UiObjectDefinition *component = dynamic_cast<UiObjectDefinition *>(member);
-        if (!component || toString(component->qualifiedTypeNameId) != "Component") {
-            addWarning(member->firstSourceLocation(), "Expected only 'Component' object definitions");
+        const QString typeName = toString(component->qualifiedTypeNameId);
+        if (!component || (typeName != "Component" && typeName != "ModuleApi")) {
+            addWarning(member->firstSourceLocation(), "Expected only 'Component' and 'ModuleApi' object definitions");
             continue;
         }
 
-        readComponent(component);
+        if (typeName == QLatin1String("Component"))
+            readComponent(component);
     }
 }
 

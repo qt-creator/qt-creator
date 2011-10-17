@@ -406,7 +406,7 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
 
     if (!singleSelected && !selectionIsEmpty && layoutingIsPossible) {
 
-        ModelNodeAction *action = createModelNodeAction(tr("Layout in row"), layoutMenu, selectedModelNodes, ModelNodeAction::LayoutRow, true);
+        ModelNodeAction *action = createModelNodeAction(tr("Layout in Row"), layoutMenu, selectedModelNodes, ModelNodeAction::LayoutRow, true);
         layoutMenu->addAction(action);
         action = createModelNodeAction(tr("Layout in Column"), layoutMenu, selectedModelNodes, ModelNodeAction::LayoutColumn, true);
         layoutMenu->addAction(action);
@@ -757,6 +757,55 @@ static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
     }
 }
 
+
+bool compareByX(const ModelNode &node1, const ModelNode &node2)
+{
+        QmlItemNode itemNode1 = QmlItemNode(node1);
+        QmlItemNode itemNode2 = QmlItemNode(node2);
+        if (itemNode1.isValid() && itemNode2.isValid())
+            return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
+        return false;
+}
+
+bool compareByY(const ModelNode &node1, const ModelNode &node2)
+{
+        QmlItemNode itemNode1 = QmlItemNode(node1);
+        QmlItemNode itemNode2 = QmlItemNode(node2);
+        if (itemNode1.isValid() && itemNode2.isValid())
+            return itemNode1.instancePosition().y() < itemNode2.instancePosition().y();
+        return false;
+}
+
+bool compareByGrid(const ModelNode &node1, const ModelNode &node2)
+{
+        QmlItemNode itemNode1 = QmlItemNode(node1);
+        QmlItemNode itemNode2 = QmlItemNode(node2);
+        if (itemNode1.isValid() && itemNode2.isValid()) {
+            if ((itemNode1.instancePosition().y() + itemNode1.instanceSize().height())  < itemNode2.instancePosition().y())
+                return true;
+            if ((itemNode2.instancePosition().y() + itemNode2.instanceSize().height())  < itemNode1.instancePosition().y())
+                return false; //first sort y (rows)
+            return itemNode1.instancePosition().x() < itemNode2.instancePosition().x();
+        }
+        return false;
+}
+
+static inline QPoint getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
+{
+    QPoint p(INT_MAX, INT_MAX);
+    foreach (ModelNode modelNode, modelNodeList) {
+        QmlItemNode itemNode = QmlItemNode(modelNode);
+        if (itemNode.isValid()) {
+            if (itemNode.instancePosition().x() < p.x())
+                p.setX(itemNode.instancePosition().x());
+            if (itemNode.instancePosition().y() < p.y())
+                p.setY(itemNode.instancePosition().y());
+        }
+
+    }
+    return p;
+}
+
 void ModelNodeAction::layoutRow()
 {
     if (!m_view)
@@ -777,7 +826,15 @@ void ModelNodeAction::layoutRow()
 
     {
         RewriterTransaction transaction(m_view);
-        foreach (ModelNode modelNode, m_modelNodeList) {
+
+        QPoint pos = getUpperLeftPosition(m_modelNodeList);
+        row.variantProperty(QLatin1String("x")) = pos.x();
+        row.variantProperty(QLatin1String("y")) = pos.y();
+
+        QList<ModelNode> sortedList = m_modelNodeList;
+        qSort(sortedList.begin(), sortedList.end(), compareByX);
+
+        foreach (ModelNode modelNode, sortedList) {
             reparentTo(modelNode, row);
             modelNode.removeProperty(QLatin1String("x"));
             modelNode.removeProperty(QLatin1String("y"));
@@ -805,7 +862,15 @@ void ModelNodeAction::layoutColumn()
 
     {
         RewriterTransaction transaction(m_view);
-        foreach (ModelNode modelNode, m_modelNodeList) {
+
+        QPoint pos = getUpperLeftPosition(m_modelNodeList);
+        column.variantProperty(QLatin1String("x")) = pos.x();
+        column.variantProperty(QLatin1String("y")) = pos.y();
+
+        QList<ModelNode> sortedList = m_modelNodeList;
+        qSort(sortedList.begin(), sortedList.end(), compareByY);
+
+        foreach (ModelNode modelNode, sortedList) {
             reparentTo(modelNode, column);
             modelNode.removeProperty(QLatin1String("x"));
             modelNode.removeProperty(QLatin1String("y"));
@@ -834,7 +899,15 @@ void ModelNodeAction::layoutGrid()
 
     {
         RewriterTransaction transaction(m_view);
-        foreach (ModelNode modelNode, m_modelNodeList) {
+
+        QPoint pos = getUpperLeftPosition(m_modelNodeList);
+        grid.variantProperty(QLatin1String("x")) = pos.x();
+        grid.variantProperty(QLatin1String("y")) = pos.y();
+
+        QList<ModelNode> sortedList = m_modelNodeList;
+        qSort(sortedList.begin(), sortedList.end(), compareByGrid);
+
+        foreach (ModelNode modelNode, sortedList) {
             reparentTo(modelNode, grid);
             modelNode.removeProperty(QLatin1String("x"));
             modelNode.removeProperty(QLatin1String("y"));
@@ -862,7 +935,15 @@ void ModelNodeAction::layoutFlow()
 
     {
         RewriterTransaction transaction(m_view);
-        foreach (ModelNode modelNode, m_modelNodeList) {
+
+        QPoint pos = getUpperLeftPosition(m_modelNodeList);
+        flow.variantProperty(QLatin1String("x")) = pos.x();
+        flow.variantProperty(QLatin1String("y")) = pos.y();
+
+        QList<ModelNode> sortedList = m_modelNodeList;
+        qSort(sortedList.begin(), sortedList.end(), compareByGrid);
+
+        foreach (ModelNode modelNode, sortedList) {
             reparentTo(modelNode, flow);
             modelNode.removeProperty(QLatin1String("x"));
             modelNode.removeProperty(QLatin1String("y"));

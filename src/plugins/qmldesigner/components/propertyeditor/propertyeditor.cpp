@@ -631,6 +631,8 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
     orderedList = type.propertyNames();
     qSort(orderedList);
 
+    bool emptyTemplate = true;
+
     foreach (const QString &name, orderedList) {
 
         if (name.startsWith(QLatin1String("__")))
@@ -649,31 +651,39 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlO
                 qmlTemplate +=  QString(QLatin1String(
                 "IntEditor { backendValue: backendValues.%2\n caption: \"%1\"\nbaseStateFlag: isBaseState\nslider: false\n}"
                 )).arg(name).arg(properName);
+                emptyTemplate = false;
             }
             if (typeName == "real" || typeName == "double" || typeName == "qreal") {
                 qmlTemplate +=  QString(QLatin1String(
                 "DoubleSpinBoxAlternate {\ntext: \"%1\"\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n"
                 )).arg(name).arg(properName);
+                emptyTemplate = false;
             }
             if (typeName == "string" || typeName == "QString" || typeName == "QUrl" || typeName == "url") {
                  qmlTemplate +=  QString(QLatin1String(
                 "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nLineEdit {\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\n}\n}\n}\n"
                 )).arg(name).arg(properName);
+                 emptyTemplate = false;
             }
             if (typeName == "bool") {
                  qmlTemplate +=  QString(QLatin1String(
                  "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nCheckBox {text: backendValues.%2.value\nbackendValue: backendValues.%2\nbaseStateFlag: isBaseState\ncheckable: true\n}\n}\n}\n"
                  )).arg(name).arg(properName);
+                 emptyTemplate = false;
             }
             if (typeName == "color" || typeName == "QColor") {
                 qmlTemplate +=  QString(QLatin1String(
                 "ColorGroupBox {\ncaption: \"%1\"\nfinished: finishedNotify\nbackendColor: backendValues.%2\n}\n\n"
                 )).arg(name).arg(properName);
+                emptyTemplate = false;
             }
         }
     }
     qmlTemplate += QLatin1String("}\n"); //VerticalLayout
     qmlTemplate += QLatin1String("}\n"); //GroupBox
+
+    if (emptyTemplate)
+        return QString();
 
     return qmlTemplate;
 }
@@ -697,14 +707,30 @@ void PropertyEditor::resetView()
     QString specificsClassName;
     QUrl qmlFile(qmlForNode(m_selectedNode, specificsClassName));
     QUrl qmlSpecificsFile;
-    if (m_selectedNode.isValid())
-        qmlSpecificsFile = fileToUrl(locateQmlFile(fixTypeNameForPanes(m_selectedNode.type()) + "Specifics.qml"));
+
+    QString diffClassName;
+    if (m_selectedNode.isValid()) {
+        diffClassName = m_selectedNode.metaInfo().typeName();
+        QList<NodeMetaInfo> hierarchy;
+        hierarchy << m_selectedNode.metaInfo();
+        hierarchy << m_selectedNode.metaInfo().superClasses();
+
+        foreach (const NodeMetaInfo &info, hierarchy) {
+            if (QFileInfo(qmlSpecificsFile.toLocalFile()).exists())
+                break;
+            qmlSpecificsFile = fileToUrl(locateQmlFile(fixTypeNameForPanes(info.typeName()) + "Specifics.qml"));
+            diffClassName = info.typeName();
+        }
+    }
+
+    if (!QFileInfo(qmlSpecificsFile.toLocalFile()).exists())
+        diffClassName = specificsClassName;
 
     QString specificQmlData;
 
-    if (m_selectedNode.isValid() && !QFileInfo(qmlSpecificsFile.toLocalFile()).exists() && m_selectedNode.metaInfo().isValid()) {
+    if (m_selectedNode.isValid() && m_selectedNode.metaInfo().isValid() && diffClassName != m_selectedNode.type()) {
         //do magic !!
-        specificQmlData = templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo(specificsClassName), m_selectedNode);
+        specificQmlData = templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo(diffClassName), m_selectedNode);
     }
 
     NodeType *type = m_typeHash.value(qmlFile.toString());

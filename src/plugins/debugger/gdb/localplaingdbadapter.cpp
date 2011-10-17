@@ -128,6 +128,9 @@ void LocalPlainGdbAdapter::shutdownAdapter()
 
 void LocalPlainGdbAdapter::checkForReleaseBuild()
 {
+#ifndef Q_OS_MAC
+    // There is usually no objdump on Mac, and if there is,
+    // there are no .debug_info sections.
     QString objDump = _("objdump");
     // Windows: Locate objdump in the debuggee's (MinGW) environment
     if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS
@@ -166,6 +169,7 @@ void LocalPlainGdbAdapter::checkForReleaseBuild()
            tr("This does not seem to be a \"Debug\" build.\n"
               "Setting breakpoints by file name and line number may fail."));
     }
+#endif
 }
 
 void LocalPlainGdbAdapter::interruptInferior()

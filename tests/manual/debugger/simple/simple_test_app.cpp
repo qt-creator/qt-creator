@@ -2528,6 +2528,11 @@ void testMemoryView()
         a[i] = i;
 }
 
+void testNullPointerDeref()
+{
+    *(int *)0 = 0;
+}
+
 void testEndlessRecursion()
 {
     testEndlessRecursion();
@@ -3702,6 +3707,7 @@ int main(int argc, char *argv[])
     qregion::testQRegion();
     peekandpoke::testPeekAndPoke3();
     anon::testAnonymous();
+    //testNullPointerDeref();
     //testEndlessLoop();
     //testEndlessRecursion();
     testQStack();

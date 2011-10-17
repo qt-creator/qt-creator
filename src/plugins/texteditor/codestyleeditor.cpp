@@ -43,6 +43,7 @@
 #include "snippets/isnippetprovider.h"
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QTextBlock>
+#include <QtGui/QLabel>
 
 using namespace TextEditor;
 
@@ -64,8 +65,14 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     ISnippetProvider *provider = factory->snippetProvider();
     if (provider)
         provider->decorateEditor(m_preview);
+    QLabel *label = new QLabel(
+                tr("Edit preview contents to see how the current settings "
+                "are applied to custom code snippets. Changes in the preview "
+                "do not affect the current settings."), this);
+    label->setWordWrap(true);
     m_layout->addWidget(selector);
     m_layout->addWidget(m_preview);
+    m_layout->addWidget(label);
     connect(codeStyle, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
             this, SLOT(updatePreview()));
     connect(codeStyle, SIGNAL(currentValueChanged(QVariant)),

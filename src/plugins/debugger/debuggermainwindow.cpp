@@ -134,6 +134,7 @@ public:
 
     DebuggerLanguages m_previousDebugLanguages;
     DebuggerLanguages m_activeDebugLanguages;
+    DebuggerLanguages m_engineDebugLanguages;
 
     ActionContainer *m_viewsMenu;
 
@@ -151,6 +152,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     , m_changingUI(false)
     , m_previousDebugLanguages(AnyLanguage)
     , m_activeDebugLanguages(AnyLanguage)
+    , m_engineDebugLanguages(AnyLanguage)
     , m_viewsMenu(0)
 {
     createViewsMenuItems();
@@ -222,11 +224,15 @@ void DebuggerMainWindowPrivate::updateActiveLanguages()
 {
     DebuggerLanguages newLanguages = AnyLanguage;
 
-    if (m_previousRunConfiguration) {
-        if (m_previousRunConfiguration.data()->useCppDebugger())
-            newLanguages = CppLanguage;
-        if (m_previousRunConfiguration.data()->useQmlDebugger())
-            newLanguages |= QmlLanguage;
+    if (m_engineDebugLanguages != AnyLanguage)
+        newLanguages = m_engineDebugLanguages;
+    else {
+        if (m_previousRunConfiguration) {
+            if (m_previousRunConfiguration.data()->useCppDebugger())
+                newLanguages |= CppLanguage;
+            if (m_previousRunConfiguration.data()->useQmlDebugger())
+                newLanguages |= QmlLanguage;
+        }
     }
 
     if (newLanguages != m_activeDebugLanguages) {
@@ -267,6 +273,15 @@ DebuggerMainWindow::~DebuggerMainWindow()
 DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const
 {
     return d->m_activeDebugLanguages;
+}
+
+void DebuggerMainWindow::setEngineDebugLanguages(DebuggerLanguages languages)
+{
+    if (d->m_engineDebugLanguages == languages)
+        return;
+
+    d->m_engineDebugLanguages = languages;
+    d->updateActiveLanguages();
 }
 
 void DebuggerMainWindow::onModeChanged(IMode *mode)
@@ -555,31 +570,29 @@ void DebuggerMainWindow::readSettings()
     settings->endGroup();
 
     // Reset initial settings when there are none yet.
-    if (d->isQmlActive()) {
-        if (d->m_dockWidgetActiveStateQmlCpp.isEmpty()) {
-            d->m_activeDebugLanguages = DebuggerLanguage(QmlLanguage|CppLanguage);
-            d->setSimpleDockWidgetArrangement();
-            d->m_dockWidgetActiveStateCpp = saveSettings();
-        }
-    } else {
-        if (d->m_dockWidgetActiveStateCpp.isEmpty()) {
-            d->m_activeDebugLanguages = CppLanguage;
-            d->setSimpleDockWidgetArrangement();
-            d->m_dockWidgetActiveStateCpp = saveSettings();
-        }
+    if (d->m_dockWidgetActiveStateQmlCpp.isEmpty()) {
+        d->m_activeDebugLanguages = DebuggerLanguage(QmlLanguage|CppLanguage);
+        d->setSimpleDockWidgetArrangement();
+        d->m_dockWidgetActiveStateCpp = saveSettings();
+    }
+    if (d->m_dockWidgetActiveStateCpp.isEmpty()) {
+        d->m_activeDebugLanguages = CppLanguage;
+        d->setSimpleDockWidgetArrangement();
+        d->m_dockWidgetActiveStateCpp = saveSettings();
     }
     writeSettings();
 }
 
 void DebuggerMainWindowPrivate::resetDebuggerLayout()
 {
+    m_activeDebugLanguages = DebuggerLanguage(QmlLanguage | CppLanguage);
     setSimpleDockWidgetArrangement();
+    m_dockWidgetActiveStateQmlCpp = q->saveSettings();
 
-    if (isQmlActive())
-        m_dockWidgetActiveStateQmlCpp = q->saveSettings();
-    else
-        m_dockWidgetActiveStateCpp = q->saveSettings();
-
+    m_activeDebugLanguages = CppLanguage;
+    m_previousDebugLanguages = CppLanguage;
+    setSimpleDockWidgetArrangement();
+    // will save state in m_dockWidgetActiveStateCpp
     updateActiveLanguages();
 }
 
@@ -631,6 +644,7 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
         dockWidget->hide();
     }
 
+    QDockWidget *toolBarDock = q->toolBarDockWidget();
     QDockWidget *breakDock = q->dockWidget(DOCKWIDGET_BREAK);
     QDockWidget *stackDock = q->dockWidget(DOCKWIDGET_STACK);
     QDockWidget *watchDock = q->dockWidget(DOCKWIDGET_WATCHERS);
@@ -649,61 +663,42 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     QTC_ASSERT(snapshotsDock, return);
     QTC_ASSERT(threadsDock, return);
     QTC_ASSERT(outputDock, return);
-    //QTC_ASSERT(qmlInspectorDock, return); // This is really optional.
     QTC_ASSERT(scriptConsoleDock, return);
     QTC_ASSERT(modulesDock, return);
     QTC_ASSERT(registerDock, return);
     QTC_ASSERT(sourceFilesDock, return);
 
-    if (m_activeDebugLanguages.testFlag(Debugger::CppLanguage)
-            && m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
+    // make sure main docks are visible so that split equally divides the space
+    toolBarDock->show();
+    stackDock->show();
+    breakDock->show();
+    watchDock->show();
 
-        // cpp + qml
-        q->toolBarDockWidget()->show();
-        stackDock->show();
-        watchDock->show();
-        breakDock->show();
+    // toolBar
+    // --------------------------------------------------------------------------------
+    // stack,qmlinspector | breakpoints,modules,register,threads,sourceFiles,snapshots,scriptconsole
+    //
+    q->splitDockWidget(toolBarDock, stackDock, Qt::Vertical);
+    q->splitDockWidget(stackDock, breakDock, Qt::Horizontal);
+
+    if (qmlInspectorDock)
+        q->tabifyDockWidget(stackDock, qmlInspectorDock);
+
+    q->tabifyDockWidget(breakDock, modulesDock);
+    q->tabifyDockWidget(breakDock, registerDock);
+    q->tabifyDockWidget(breakDock, threadsDock);
+    q->tabifyDockWidget(breakDock, sourceFilesDock);
+    q->tabifyDockWidget(breakDock, snapshotsDock);
+    q->tabifyDockWidget(breakDock, scriptConsoleDock);
+
+    if (m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
         if (qmlInspectorDock)
             qmlInspectorDock->show();
-
-        q->splitDockWidget(q->toolBarDockWidget(), stackDock, Qt::Vertical);
-        q->splitDockWidget(stackDock, breakDock, Qt::Horizontal);
-        q->tabifyDockWidget(stackDock, snapshotsDock);
-        q->tabifyDockWidget(stackDock, threadsDock);
-        if (qmlInspectorDock)
-            q->splitDockWidget(stackDock, qmlInspectorDock, Qt::Horizontal);
-
     } else {
-        q->toolBarDockWidget()->show();
-        stackDock->show();
-        breakDock->show();
-        watchDock->show();
+        // CPP only
         threadsDock->show();
         snapshotsDock->show();
-
-        if ((m_activeDebugLanguages.testFlag(CppLanguage)
-                && !m_activeDebugLanguages.testFlag(QmlLanguage))
-            || m_activeDebugLanguages == AnyLanguage) {
-            threadsDock->show();
-            snapshotsDock->show();
-        } else {
-            scriptConsoleDock->show();
-            //if (qmlInspectorDock)
-            //    qmlInspectorDock->show();
-        }
-        q->splitDockWidget(q->toolBarDockWidget(), stackDock, Qt::Vertical);
-        q->splitDockWidget(stackDock, breakDock, Qt::Horizontal);
-        q->tabifyDockWidget(breakDock, modulesDock);
-        q->tabifyDockWidget(breakDock, registerDock);
-        q->tabifyDockWidget(breakDock, threadsDock);
-        q->tabifyDockWidget(breakDock, sourceFilesDock);
-        q->tabifyDockWidget(breakDock, snapshotsDock);
-        q->tabifyDockWidget(breakDock, scriptConsoleDock);
-        //if (qmlInspectorDock)
-        //    q->splitDockWidget(breakDock, qmlInspectorDock, Qt::Horizontal);
     }
-
-    breakDock->raise(); // Raise something sensible.
 
     q->setTrackingEnabled(true);
     q->update();

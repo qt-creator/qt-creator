@@ -183,6 +183,9 @@
             allow you to create applications with a native look and feel for
             that platform.
 
+            \note We recommend that you use \gui {Qt Quick Components for
+            MeeGo Harmattan} when you develop for MeeGo Harmattan devices.
+
             You can also import an existing QML file in this dialog.
 
         \o  Click \gui{Next}.
@@ -1027,6 +1030,18 @@
     extra type information for code completion and the semantic checks to work
     correctly.
 
+    When you write a QML module or use QML from a C++ application you typically
+    register new types with
+    \l{http://doc.qt.nokia.com/4.8/qdeclarativeengine.html#qmlRegisterType}
+    {qmlRegisterType} or expose some class instances with
+    \l{http://doc.qt.nokia.com/4.8/qdeclarativecontext.html#setContextProperty}
+    {setContextProperty}. The \QC C++ code model now scans for these calls and
+    tells the QML code model about them. This means that properties are
+    displayed during code completion and the JavaScript code checker does not
+    complain about unknown types. However, this works only when the source code
+    is available, and therefore, you must explicitly generate type information
+    for QML modules with plugins before distributing them.
+
     Ideally, QML modules have a \c{plugins.qmltypes} file in the same directory
     as the \c qmldir file. The \c qmltypes file contains a description of the
     components exported by the module's plugins and is loaded by \QC
@@ -1035,7 +1050,7 @@
     For Qt 4.8 and later, one or more \c qmltypes files can be listed in the
     \c qmldir file under the \c typeinfo header. These files will be read in addition
     to \c{plugins.qmltypes}. For more information, see
-    \l{http://doc.qt.nokia.com/4.8-snapshot/qdeclarativemodules.html#writing-a-qmldir-file}{Writing a qmldir File}.
+    \l{http://doc.qt.nokia.com/4.8/qdeclarativemodules.html#writing-a-qmldir-file}{Writing a qmldir File}.
 
     \section1 Generating qmltypes Files
 

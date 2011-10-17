@@ -162,3 +162,55 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     clickButton(nextButton)
     selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
     clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
+
+def createNewQtQuickUI(workingDir):
+    invokeMenuItem("File", "New File or Project...")
+    clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
+    clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick UI", 5, 5, 0, Qt.LeftButton)
+    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+    if workingDir == None:
+        workingDir = tempDir()
+    replaceEditorContent(baseLineEd, workingDir)
+    stateLabel = findObject("{type='QLabel' name='stateLabel'}")
+    labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
+    test.verify(labelCheck, "Project name and base directory without warning or error")
+    # make sure this is not set as default location
+    cbDefaultLocation = waitForObject("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", 20000)
+    if cbDefaultLocation.checked:
+        clickButton(cbDefaultLocation)
+    # now there's the 'untitled' project inside a temporary directory - step forward...!
+    clickButton(waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000))
+    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
+    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
+
+def createNewQmlExtension(workingDir):
+    invokeMenuItem("File", "New File or Project...")
+    clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
+    clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Custom QML Extension Plugin", 5, 5, 0, Qt.LeftButton)
+    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+    if workingDir == None:
+        workingDir = tempDir()
+    replaceEditorContent(baseLineEd, workingDir)
+    stateLabel = findObject("{type='QLabel' name='stateLabel'}")
+    labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
+    test.verify(labelCheck, "Project name and base directory without warning or error")
+    # make sure this is not set as default location
+    cbDefaultLocation = waitForObject("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", 20000)
+    if cbDefaultLocation.checked:
+        clickButton(cbDefaultLocation)
+    # now there's the 'untitled' project inside a temporary directory - step forward...!
+    nextButton = waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000)
+    clickButton(nextButton)
+    chooseTargets()
+    clickButton(nextButton)
+    nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
+                               "type='QLineEdit' unnamed='1' visible='1'}", 20000)
+    replaceEditorContent(nameLineEd, "TestItem")
+    uriLineEd = waitForObject("{buddy={type='QLabel' text='URI:' unnamed='1' visible='1'} "
+                              "type='QLineEdit' unnamed='1' visible='1'}", 20000)
+    replaceEditorContent(uriLineEd, "com.nokia.test.qmlcomponents")
+    clickButton(nextButton)
+    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
+    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))

@@ -216,6 +216,7 @@ static void collectScopes(const QmlComponentChain *chain, QList<const ObjectValu
 
 void ScopeChain::update() const
 {
+    m_modified = false;
     m_all.clear();
 
     m_all += m_globalScope;
@@ -287,6 +288,8 @@ void ScopeChain::initializeRootScope()
         if (bind->rootObjectValue())
             m_jsScopes += bind->rootObjectValue();
     }
+
+    m_modified = true;
 }
 
 void ScopeChain::makeComponentChain(

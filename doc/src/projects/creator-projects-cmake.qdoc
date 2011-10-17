@@ -50,8 +50,7 @@
     \image qtcreator-cmakeexecutable.png
 
     \note Before you open a \c CMake project, you must modify the \c{PATH}
-    environment variable to include the bin folders of \c mingw and \QC in
-    the \QSDK.
+    environment variable to include the bin folders of \c mingw and Qt.
 
     For instance, if the \QSDK is installed in \c {C:\SDK}, you would use the
     following command to set the environment variables in the command line
@@ -96,7 +95,7 @@
 
     \QC builds \c CMake projects by running \c make, \c mingw32-make, or
     \c nmake depending on your platform. The build errors and warnings are
-    parsed and displayed in the \gui{Build Issues} output pane.
+    parsed and displayed in the \gui{Issues} output pane.
 
     By default, \QC builds the \bold{all} target. You can specify which
     targets to build in \gui{Project} mode, under \gui{Build Settings}.

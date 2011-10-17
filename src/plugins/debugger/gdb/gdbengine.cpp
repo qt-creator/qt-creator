@@ -189,7 +189,7 @@ static QByteArray parsePlainConsoleStream(const GdbResponse &response)
 
 GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
         DebuggerEngine *masterEngine)
-  : DebuggerEngine(startParameters, masterEngine)
+  : DebuggerEngine(startParameters, CppLanguage, masterEngine)
 {
     setObjectName(_("GdbEngine"));
 

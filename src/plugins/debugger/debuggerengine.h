@@ -144,6 +144,7 @@ class DEBUGGER_EXPORT DebuggerEngine : public QObject
 
 public:
     explicit DebuggerEngine(const DebuggerStartParameters &sp,
+        DebuggerLanguages languages,
         DebuggerEngine *parentEngine = 0);
     virtual ~DebuggerEngine();
 
@@ -263,7 +264,7 @@ public:
         int timeout = -1) const;
     Q_SLOT void showStatusMessage(const QString &msg, int timeout = -1) const;
 
-    void resetLocation();
+    virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
     virtual void quitDebugger(); // called by DebuggerRunControl
 
@@ -271,6 +272,8 @@ public:
     bool isSlaveEngine() const;
     bool isMasterEngine() const;
     DebuggerEngine *masterEngine() const;
+
+    DebuggerLanguages languages() const;
 
     virtual bool setupQmlStep(bool /*on*/) { return false; }
     virtual void readyToExecuteQmlStep() {}

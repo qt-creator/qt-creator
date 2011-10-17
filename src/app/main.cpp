@@ -71,7 +71,7 @@ static const char fixedOptionsC[] =
 "    -help                         Display this help\n"
 "    -version                      Display program version\n"
 "    -client                       Attempt to connect to already running instance\n"
-"    -settingspath <path>          Override the default path where user settings are stored.\n";
+"    -settingspath <path>          Override the default path where user settings are stored\n";
 
 static const char HELP_OPTION1[] = "-h";
 static const char HELP_OPTION2[] = "-help";

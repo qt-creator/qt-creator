@@ -576,6 +576,7 @@ void DesignDocumentController::loadCurrentModel()
         d->formEditorView->crumblePath()->pushElement(simplfiedDisplayName(), createCrumbleBarInfo());
 
     d->documentLoaded = true;
+    d->subComponentManager->update(d->searchPath, d->model->imports());
     Q_ASSERT(d->masterModel);
     QApplication::restoreOverrideCursor();
 }

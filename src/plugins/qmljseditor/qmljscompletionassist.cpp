@@ -492,6 +492,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     m_startPosition = assistInterface->position();
     while (isIdentifierChar(m_interface->document()->characterAt(m_startPosition - 1), false, false))
         --m_startPosition;
+    const bool onIdentifier = m_startPosition != assistInterface->position();
 
     m_completions.clear();
 
@@ -512,7 +513,11 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     const ContextPtr &context = semanticInfo.context;
     const ScopeChain &scopeChain = semanticInfo.scopeChain(path);
 
-    // Search for the operator that triggered the completion.
+    // The completionOperator is the character under the cursor or directly before the
+    // identifier under cursor. Use in conjunction with onIdentifier. Examples:
+    // a + b<complete> -> ' '
+    // a +<complete> -> '+'
+    // a +b<complete> -> '+'
     QChar completionOperator;
     if (m_startPosition > 0)
         completionOperator = m_interface->document()->characterAt(m_startPosition - 1);
@@ -590,15 +595,62 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
 
         // ### enum completion?
 
-        // completion gets triggered for / in string literals, if we don't
-        // return here, this will mean the snippet completion pops up for
-        // each / in a string literal that is not triggering file completion
         return 0;
-    } else if (completionOperator.isSpace()
-               || completionOperator.isNull()
-               || isDelimiterChar(completionOperator)
-               || (completionOperator == QLatin1Char('(')
-                   && m_startPosition != m_interface->position())) {
+    }
+    // member "a.bc<complete>" or function "foo(<complete>" completion
+    else if (completionOperator == QLatin1Char('.')
+             || (completionOperator == QLatin1Char('(') && !onIdentifier)) {
+        // Look at the expression under cursor.
+        //QTextCursor tc = textWidget->textCursor();
+        QTextCursor tc(qmlInterface->document());
+        tc.setPosition(m_startPosition - 1);
+
+        QmlExpressionUnderCursor expressionUnderCursor;
+        QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
+
+        if (expression != 0 && ! isLiteral(expression)) {
+            // Evaluate the expression under cursor.
+            ValueOwner *interp = context->valueOwner();
+            const Value *value =
+                    interp->convertToObject(scopeChain.evaluate(expression));
+            //qDebug() << "type:" << interp->typeId(value);
+
+            if (value && completionOperator == QLatin1Char('.')) { // member completion
+                ProcessProperties processProperties(&scopeChain);
+                if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
+                    LhsCompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(),
+                                                       PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
+                    processProperties.setEnumerateGeneratedSlots(true);
+                    processProperties(value, &completionAdder);
+                } else {
+                    CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), SymbolOrder);
+                    processProperties(value, &completionAdder);
+                }
+            } else if (value
+                       && completionOperator == QLatin1Char('(')
+                       && m_startPosition == m_interface->position()) {
+                // function completion
+                if (const FunctionValue *f = value->asFunctionValue()) {
+                    QString functionName = expressionUnderCursor.text();
+                    int indexOfDot = functionName.lastIndexOf(QLatin1Char('.'));
+                    if (indexOfDot != -1)
+                        functionName = functionName.mid(indexOfDot + 1);
+
+                    QStringList signature;
+                    for (int i = 0; i < f->argumentCount(); ++i)
+                        signature.append(f->argumentName(i));
+
+                    return createHintProposal(functionName.trimmed(), signature);
+                }
+            }
+        }
+
+        if (! m_completions.isEmpty())
+            return createContentProposal();
+        return 0;
+    }
+    // global completion
+    else if (onIdentifier || assistInterface->reason() == ExplicitlyInvoked) {
 
         bool doGlobalCompletion = true;
         bool doQmlKeywordCompletion = true;
@@ -698,68 +750,14 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             if (!doJsKeywordCompletion)
                 addCompletions(&m_completions, qmlWordsAlsoInJs, m_interface->keywordIcon(), KeywordOrder);
         }
-    }
 
-    else if (completionOperator == QLatin1Char('.') || completionOperator == QLatin1Char('(')) {
-        // Look at the expression under cursor.
-        //QTextCursor tc = textWidget->textCursor();
-        QTextCursor tc(qmlInterface->document());
-        tc.setPosition(m_startPosition - 1);
-
-        QmlExpressionUnderCursor expressionUnderCursor;
-        QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
-
-        if (expression != 0 && ! isLiteral(expression)) {
-            // Evaluate the expression under cursor.
-            ValueOwner *interp = context->valueOwner();
-            const Value *value =
-                    interp->convertToObject(scopeChain.evaluate(expression));
-            //qDebug() << "type:" << interp->typeId(value);
-
-            if (value && completionOperator == QLatin1Char('.')) { // member completion
-                ProcessProperties processProperties(&scopeChain);
-                if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
-                    LhsCompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(),
-                                                       PropertyOrder, contextFinder.isAfterOnInLhsOfBinding());
-                    processProperties.setEnumerateGeneratedSlots(true);
-                    processProperties(value, &completionAdder);
-                } else {
-                    CompletionAdder completionAdder(&m_completions, m_interface->symbolIcon(), SymbolOrder);
-                    processProperties(value, &completionAdder);
-                }
-            } else if (value
-                       && completionOperator == QLatin1Char('(')
-                       && m_startPosition == m_interface->position()) {
-                // function completion
-                if (const FunctionValue *f = value->asFunctionValue()) {
-                    QString functionName = expressionUnderCursor.text();
-                    int indexOfDot = functionName.lastIndexOf(QLatin1Char('.'));
-                    if (indexOfDot != -1)
-                        functionName = functionName.mid(indexOfDot + 1);
-
-                    QStringList signature;
-                    for (int i = 0; i < f->argumentCount(); ++i)
-                        signature.append(f->argumentName(i));
-
-                    return createHintProposal(functionName.trimmed(), signature);
-                }
-            }
-        }
+        m_completions.append(m_snippetCollector.collect());
 
         if (! m_completions.isEmpty())
             return createContentProposal();
         return 0;
     }
 
-    if (isQmlFile
-            && (completionOperator.isNull()
-                || completionOperator.isSpace()
-                || isDelimiterChar(completionOperator))) {
-        m_completions.append(m_snippetCollector.collect());
-    }
-
-    if (! m_completions.isEmpty())
-        return createContentProposal();
     return 0;
 }
 
@@ -858,9 +856,20 @@ bool QmlJSCompletionAssistProcessor::completeFileName(const QString &relativeBas
 bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath, const QString &urlString)
 {
     const QUrl url(urlString);
-    QString fileName = url.toLocalFile();
-    if (fileName.isEmpty())
+    QString fileName;
+    if (url.scheme().compare(QLatin1String("file"), Qt::CaseInsensitive) == 0) {
+        fileName = url.toLocalFile();
+        // should not trigger completion on 'file://'
+        if (fileName.isEmpty())
+            return false;
+    } else if (url.scheme().isEmpty()) {
+        // don't trigger completion while typing a scheme
+        if (urlString.endsWith(QLatin1String(":/")))
+            return false;
+        fileName = urlString;
+    } else {
         return false;
+    }
 
     return completeFileName(relativeBasePath, fileName);
 }

@@ -119,8 +119,11 @@ def runAndCloseQtQuickUI():
     # the following is currently a work-around for not using hooking into subprocesses
     if (waitForObject(":Qt Creator_Core::Internal::OutputPaneToggleButton").checked!=True):
         clickButton(":Qt Creator_Core::Internal::OutputPaneToggleButton")
-    clickButton(":Qt Creator.Stop_QToolButton")
+    stop = findObject(":Qt Creator.Stop_QToolButton")
+    waitFor("stop.enabled==True")
+    clickButton(stop)
     if platform.system()=="Darwin":
+        waitFor("stop.enabled==False")
         snooze(2)
         nativeType("<Escape>")
     return True

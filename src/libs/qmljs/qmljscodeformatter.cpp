@@ -259,6 +259,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             default:            enter(expression); continue;
             } break;
 
+        case ternary_op:
+            if (kind == Colon) {
+                enter(ternary_op_after_colon);
+                enter(expression_continuation);
+                break;
+            }
+            // fallthrough
+        case ternary_op_after_colon:
         case expression:
             if (tryInsideExpression())
                 break;
@@ -331,18 +339,6 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case LeftBrace:         turnInto(objectdefinition_open); break;
             default:                leave(); continue;
-            } break;
-
-        case ternary_op:
-            if (tryInsideExpression())
-                break;
-            switch (kind) {
-            case RightParenthesis:
-            case RightBracket:
-            case RightBrace:
-            case Comma:
-            case Semicolon:         leave(); continue;
-            case Colon:             enter(expression); break; // entering expression makes maybe_continuation work
             } break;
 
         case jsblock_open:
@@ -495,7 +491,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
     // some states might be continued on the next line
     if (topState == expression
             || topState == expression_or_objectdefinition
-            || topState == objectliteral_assignment) {
+            || topState == objectliteral_assignment
+            || topState == ternary_op_after_colon) {
         enter(expression_maybe_continuation);
     }
     // multi-line comment start?

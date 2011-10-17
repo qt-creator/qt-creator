@@ -211,7 +211,8 @@
 
     \title Semantic Highlighting
 
-    \QC understands the C++ and QML languages as code, not as plain text.
+    \QC understands the C++, QML, and JavaScript languages as code, not as plain
+    text.
     It reads the source code, analyzes it, and highlights it based on the
     semantic checks that it does for the following code elements:
 
@@ -231,7 +232,7 @@
     \gui {Tools > Options > Text Editor > Fonts & Color}.
 
     \QC supports syntax highlighting also for other types of files than
-    C++ or QML.
+    C++, QML, or JavaScript.
 
     \section1 Generic Highlighting
 
@@ -345,6 +346,41 @@
             \image qtcreator-semanticerror.png
 
     \endlist
+
+    \section1 Checking JavaScript Syntax
+
+    You can run static checks on JavaScript to find common problems, such as:
+
+    \list
+
+        \o  Duplicate or conflicting variable, function, and formal parameter
+            declarations
+
+        \o  Variables and functions that are used before they are declared
+
+        \o  Possibly unsafe uses of the == or != operators
+
+        \o  Comma expressions, except in \c for statements
+
+        \o  Expression statements, except function or method calls, assignments,
+            or \c delete
+
+        \o  Assignments within conditions (such as, \c {if (a = b)})
+
+        \o  Case blocks within a switch that do not end with a return, break,
+            continue, or throw and that are not empty
+
+        \o  Nested block statements
+
+        \o  \c with statements
+
+        \o  \c void expressions
+
+    \endlist
+
+    To run the checks, select \gui {Tools > QML/JS > Run Checks} or press
+    \key Ctrl+Shift+C. The results are shown in the \gui {QML Analysis}
+    filter of the \gui {Issues} output pane.
 
 */
 
@@ -1122,17 +1158,19 @@
 
     \section1 Finding Symbols
 
-    To find the use of a specific symbol in your Qt C++ or Qt Quick project:
+    To find the use of a specific symbol or \l{glossary-component}
+    {QML component} in your Qt C++ or Qt Quick project:
 
     \list 1
 
-        \o In the editor, place the cursor on the symbol, and select:
+        \o  In the editor, place the cursor on the symbol or component, and
+            select:
 
         \list
 
             \o  \gui {Tools > C++ > Find Usages}
 
-            \o  \gui {Tools > QML > Find Usages}
+            \o  \gui {Tools > QML/JS > Find Usages}
 
             \o  \key Ctrl+Shift+U
 

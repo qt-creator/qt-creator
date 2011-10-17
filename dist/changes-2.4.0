@@ -8,10 +8,17 @@ git clone git://gitorious.org/qt-creator/qt-creator.git
 git log --cherry-pick --pretty=oneline v2.3.1...origin/2.4
 
 General
+   * Showing more useful error dialog in case of plugin errors
+   * Reduce minimum size of preferences dialog
 
 Editing
+   * Advanced search: Show more information about the search parameters
+   * Advanced search: Move the previously modal dialog into search results pane
+   * Advanced search: Keep a history of most recent searches and their results
+   * Code Style schemas implemented, you can reuse them in different projects now
 
 Managing Projects
+   * Shared project settings support
 
 Debugging
 
@@ -21,20 +28,62 @@ Analyzing Code
    * Standalone qmlprofiler command line tool allows you to retrieve & store QML tracing data
 
 C++ Support
+   * Add quick fix to synchronize function declarations and definitions
+   * Make 'insert definition from declaration' use minimally qualified names
+     and find a good insertion location next to surrounding declarations
+   * Fix completion for typedefs for templates in namespaces
+   * Use minimally qualified names in function signature completion
+   * Use minimally qualified names in 'insert local declaration' quick fix
+   * When switching between header/source, prefer files in the same directory
+   * Fix problem with encoding and quick fixes (QTCREATORBUG-6140)
+   * Fix preservation of indentation level in comments with tabs (QTCREATORBUG-6151)
+   * Improve performance for files with a huge number of literals
 
 QML/JS Support
+   * Add 'Rename usages' functionality (QTCREATORBUG-3669)
+   * Add collection of static analysis messages with Ctrl-Shift-C
+   * Add semantic highlighting
+   * Significantly improve scanning of C++ documents for qmlRegisterType and
+     setContextProperty calls (QTCREATORBUG-3199)
+   * Add warning about inappropriate use of constructor functions
+   * Add warning about unreachable code
+   * Add support for .import directive in js files
+   * Add completion for XMLHttpRequest, DB API and JSON.
+   * Add 'length' property to functions
+   * Use mime types to distinguish qml and js files
+   * Show the function argument hint for signals
+   * When completing enums, add qualified names instead of strings
+   * Honor typeinfo lines in qmldir files
+   * Make string literals that contain file names into links (QTCREATORBUG-5701)
+   * Add warning about invalid types in 'property' declarations (QTCREATORBUG-3666)
+   * Fix highlighting of property types (QTCREATORBUG-6127)
+   * Fix 'follow symbol' for local variables (QTCREATORBUG-6094)
+   * Fix function argument hints on variables (QTCREATORBUG-5752)
+   * Fix completion for enums in a different scope
+   * Fix typing '/' triggering a global completion
+   * Fix handling of meta object revision in C++ QML plugins
+   * Fix indentation of block property initializers
+   * Fix indentation of labelled statements
+   * Fix scope for completion in code bindings
+   * Allow for different builtin type information per Qt version
+   * Update builtin type information and parser for Qt 5
 
 Qt Quick Designer
+   * Adding breadcrumb navigation for components
+   * Adding layout functionality to context menu.
 
 Help
 
 Platform Specific
 
 Mac
+   * "Run in Terminal" was not finding xterm by default
 
 Linux (GNOME and KDE)
 
 Windows
+   * Aborting the build now works properly. Qt Creator sends Ctrl-C to the
+     build process via the process_ctrlc_stub helper program.
 
 Symbian Target
 

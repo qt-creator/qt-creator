@@ -40,7 +40,7 @@
 
     To check that the application code can be compiled and linked for a target,
     you can build the project. The build errors and warnings are displayed in
-    the \gui {Build Issues} output pane. More detailed information is displayed
+    the \gui {Issues} output pane. More detailed information is displayed
     in the \gui {Compile Output} pane.
 
     To build an application:
