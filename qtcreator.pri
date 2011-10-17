@@ -107,12 +107,8 @@ macx {
         QMAKE_LFLAGS *= -mmacosx-version-min=10.5
     }
 } else {
-    win32 {
-        contains(TEMPLATE, vc.*)|contains(TEMPLATE_PREFIX, vc):vcproj = 1
-        IDE_APP_TARGET   = qtcreator
-    } else {
-        IDE_APP_TARGET   = qtcreator
-    }
+    contains(TEMPLATE, vc.*):vcproj = 1
+    IDE_APP_TARGET   = qtcreator
     IDE_LIBRARY_PATH = $$IDE_BUILD_TREE/$$IDE_LIBRARY_BASENAME/qtcreator
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH/plugins
     IDE_LIBEXEC_PATH = $$IDE_APP_PATH # FIXME
