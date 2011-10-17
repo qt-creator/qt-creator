@@ -54,7 +54,8 @@ private Q_SLOTS:
     void objectBinding();
     void arrayBinding();
     void functionDeclaration();
-    void functionExpression();
+    void functionExpression1();
+    void functionExpression2();
     void propertyDeclarations();
     void signalDeclarations();
     void ifBinding1();
@@ -358,7 +359,7 @@ void tst_QMLCodeFormatter::functionDeclaration()
     checkIndent(data);
 }
 
-void tst_QMLCodeFormatter::functionExpression()
+void tst_QMLCodeFormatter::functionExpression1()
 {
     QList<Line> data;
     data << Line("Rectangle {")
@@ -372,6 +373,32 @@ void tst_QMLCodeFormatter::functionExpression()
          << Line("        return a")
          << Line("    }")
          << Line("}")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::functionExpression2()
+{
+    QList<Line> data;
+    data << Line("Rectangle {")
+         << Line("    function foo(a, b, c) {")
+         << Line("        foo(1, 123456, function() {")
+         << Line("                           b;")
+         << Line("                       })")
+         << Line("        foo(1, 123456, function()")
+         << Line("                       {")
+         << Line("                           b;")
+         << Line("                       })")
+         << Line("        foobar(1, 123456,")
+         << Line("               function () {")
+         << Line("                   b;")
+         << Line("               })")
+         << Line("        var x = doo_foobar(")
+         << Line("                    function () {")
+         << Line("                        b;")
+         << Line("                    })")
+         << Line("    }")
          << Line("}")
          ;
     checkIndent(data);

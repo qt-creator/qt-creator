@@ -1091,6 +1091,10 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
             // undo the continuation indent of the expression
             *indentDepth = parentState.savedIndentDepth;
             *savedIndentDepth = *indentDepth;
+        } else {
+            // always align to function keyword
+            *indentDepth = tokenPosition;
+            *savedIndentDepth = *indentDepth;
         }
         break;
 
