@@ -179,8 +179,8 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
     QMenu menu;
     QAction *loadAction = menu.addAction(tr("Load QML Trace"));
     QAction *saveAction = menu.addAction(tr("Save QML Trace"));
-    QAction *copyRowAction;
-    QAction *copyTableAction;
+    QAction *copyRowAction = 0;
+    QAction *copyTableAction = 0;
     if (senderView) {
         if (senderView->selectedItem().isValid())
             copyRowAction = menu.addAction(tr("Copy Row"));
