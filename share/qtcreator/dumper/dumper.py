@@ -545,6 +545,18 @@ def makeValue(type, init):
     #warn("  VALUE: %s" % value)
     return value
 
+def makeStdString(init):
+    # Works only for small allocators, but they are usually empty.
+    gdb.execute("set $d=(std::string*)calloc(sizeof(std::string), 2)");
+    gdb.execute("call($d->basic_string(\"" + init +
+        "\",*(std::allocator<char>*)(1+$d)))")
+    value = parseAndEvaluate("$d").dereference()
+    #warn("  TYPE: %s" % value.type)
+    #warn("  ADDR: %s" % value.address)
+    #warn("  VALUE: %s" % value)
+    return value
+
+
 def makeExpression(value):
     type = stripClassTag(str(value.type))
     if type.find(":") >= 0:
