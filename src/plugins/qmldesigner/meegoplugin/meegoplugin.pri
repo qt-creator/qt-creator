@@ -15,8 +15,3 @@ HEADERS += $$PWD/meegoplugin.h  $$PWD/../designercore/include/iwidgetplugin.h
 RESOURCES += $$PWD/meegoplugin.qrc
 
 OTHER_FILES += $$PWD/meego.metainfo
-
-!macx {
-    target.path  = /$$IDE_LIBRARY_BASENAME/qmldesigner
-    INSTALLS    += target
-}

@@ -88,6 +88,7 @@ void StackWindow::setModel(QAbstractItemModel *model)
     BaseWindow::setModel(model);
     resizeColumnToContents(0);
     resizeColumnToContents(3);
+    showAddressColumn(debuggerCore()->action(UseAddressInStackView)->isChecked());
 }
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)

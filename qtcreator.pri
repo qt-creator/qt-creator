@@ -75,11 +75,8 @@ isEmpty(TEST):CONFIG(debug, debug|release) {
 isEmpty(IDE_LIBRARY_BASENAME) {
     IDE_LIBRARY_BASENAME = lib
 }
-win32-msvc* {
-    DEFINES += IDE_LIBRARY_BASENAME=\"$$IDE_LIBRARY_BASENAME\"
-} else {
-    DEFINES += IDE_LIBRARY_BASENAME=\\\"$$IDE_LIBRARY_BASENAME\\\"
-}
+
+DEFINES += IDE_LIBRARY_BASENAME=\\\"$$IDE_LIBRARY_BASENAME\\\"
 
 equals(TEST, 1) {
     QT +=testlib

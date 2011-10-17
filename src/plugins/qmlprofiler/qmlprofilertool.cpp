@@ -503,16 +503,39 @@ void QmlProfilerTool::clearDisplay()
 static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 {
     Q_UNUSED(tool);
-    QmlProfilerAttachDialog dialog;
-    if (dialog.exec() != QDialog::Accepted)
-        return;
+
+    QString host;
+    quint16 port;
+    QString sysroot;
+
+    {
+        QSettings *settings = Core::ICore::instance()->settings();
+
+        host = settings->value(QLatin1String("AnalyzerQmlAttachDialog/host"), QLatin1String("localhost")).toString();
+        port = settings->value(QLatin1String("AnalyzerQmlAttachDialog/port"), 3768).toInt();
+
+        QmlProfilerAttachDialog dialog;
+
+        dialog.setAddress(host);
+        dialog.setPort(port);
+
+        if (dialog.exec() != QDialog::Accepted)
+            return;
+
+        host = dialog.address();
+        port = dialog.port();
+        sysroot = dialog.sysroot();
+
+        settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/host"), host);
+        settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/port"), port);
+    }
 
     AnalyzerStartParameters sp;
     sp.toolId = tool->id();
     sp.startMode = mode;
-    sp.connParams.host = dialog.address();
-    sp.connParams.port = dialog.port();
-    sp.sysroot = dialog.sysroot();
+    sp.connParams.host = host;
+    sp.connParams.port = port;
+    sp.sysroot = sysroot;
 
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));

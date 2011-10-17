@@ -15,8 +15,3 @@ HEADERS += $$PWD/qtquickplugin.h  $$PWD/../designercore/include/iwidgetplugin.h
 RESOURCES += $$PWD/qtquickplugin.qrc
 
 OTHER_FILES += $$PWD/quick.metainfo
-
-!macx {
-    target.path  = /$$IDE_LIBRARY_BASENAME/qmldesigner
-    INSTALLS    += target
-}
