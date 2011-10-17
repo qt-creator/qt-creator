@@ -66,7 +66,7 @@ void Indenter::indentBlock(QTextDocument *doc,
 {
     Q_UNUSED(doc)
 
-    QmlJSTools::QtStyleCodeFormatter codeFormatter(tabSettings);
+    QmlJSTools::CreatorCodeFormatter codeFormatter(tabSettings);
 
     codeFormatter.updateStateUntil(block);
     const int depth = codeFormatter.indentFor(block);
@@ -84,6 +84,6 @@ void Indenter::indentBlock(QTextDocument *doc,
 
 void Indenter::invalidateCache(QTextDocument *doc)
 {
-    QmlJSTools::QtStyleCodeFormatter codeFormatter;
+    QmlJSTools::CreatorCodeFormatter codeFormatter;
     codeFormatter.invalidateCache(doc);
 }

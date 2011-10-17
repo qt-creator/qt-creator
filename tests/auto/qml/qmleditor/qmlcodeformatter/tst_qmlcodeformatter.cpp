@@ -135,7 +135,7 @@ void checkIndent(QList<Line> data, int style = 0)
 
     QString text = concatLines(data);
     QTextDocument document(text);
-    QtStyleCodeFormatter formatter;
+    CreatorCodeFormatter formatter;
 
     int i = 0;
     foreach (const Line &l, data) {

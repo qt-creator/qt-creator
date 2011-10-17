@@ -44,18 +44,13 @@ namespace TextEditor {
 
 namespace QmlJSTools {
 
-class QMLJSTOOLS_EXPORT QtStyleCodeFormatter : public QmlJS::CodeFormatter
+class QMLJSTOOLS_EXPORT CreatorCodeFormatter : public QmlJS::QtStyleCodeFormatter
 {
 public:
-    QtStyleCodeFormatter();
-    explicit QtStyleCodeFormatter(const TextEditor::TabSettings &tabSettings);
-
-    void setIndentSize(int size);
+    CreatorCodeFormatter();
+    explicit CreatorCodeFormatter(const TextEditor::TabSettings &tabSettings);
 
 protected:
-    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const;
-    virtual void adjustIndent(const QList<QmlJS::Token> &tokens, int lexerState, int *indentDepth) const;
-
     virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
     virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;
 
@@ -63,8 +58,6 @@ protected:
     virtual int loadLexerState(const QTextBlock &block) const;
 
 private:
-    int m_indentSize;
-
     class QmlJSCodeFormatterData: public TextEditor::CodeFormatterData
     {
     public:

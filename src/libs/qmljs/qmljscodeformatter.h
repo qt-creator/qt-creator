@@ -315,6 +315,21 @@ private:
     int m_tabSize;
 };
 
+class QMLJS_EXPORT QtStyleCodeFormatter : public CodeFormatter
+{
+public:
+    QtStyleCodeFormatter();
+
+    void setIndentSize(int size);
+
+protected:
+    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const;
+    virtual void adjustIndent(const QList<QmlJS::Token> &tokens, int lexerState, int *indentDepth) const;
+
+private:
+    int m_indentSize;
+};
+
 } // namespace QmlJS
 
 #endif // QMLJSCODEFORMATTER_H

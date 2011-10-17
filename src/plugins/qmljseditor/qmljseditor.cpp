@@ -1486,7 +1486,7 @@ void QmlJSTextEditorWidget::unCommentSelection()
 
 void QmlJSTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
 {
-    QmlJSTools::QtStyleCodeFormatter formatter(ts);
+    QmlJSTools::CreatorCodeFormatter formatter(ts);
     formatter.invalidateCache(document());
 
     TextEditor::BaseTextEditorWidget::setTabSettings(ts);

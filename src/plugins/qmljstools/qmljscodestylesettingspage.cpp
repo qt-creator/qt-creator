@@ -148,7 +148,7 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
             ? m_preferences->currentTabSettings()
             : TextEditorSettings::instance()->codeStyle()->tabSettings();
     m_ui->previewTextEdit->setTabSettings(ts);
-    QtStyleCodeFormatter formatter(ts);
+    CreatorCodeFormatter formatter(ts);
     formatter.invalidateCache(doc);
 
     QTextBlock block = doc->firstBlock();

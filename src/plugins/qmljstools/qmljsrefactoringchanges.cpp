@@ -65,7 +65,7 @@ public:
 
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textEditor);
-        QtStyleCodeFormatter codeFormatter(tabSettings);
+        CreatorCodeFormatter codeFormatter(tabSettings);
         codeFormatter.updateStateUntil(block);
 
         do {
