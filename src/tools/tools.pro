@@ -9,6 +9,10 @@ SUBDIRS += qmlpuppet
     SUBDIRS += valgrindfake
 }
 
+linux-g++ {
+    SUBDIRS += mdnssd
+}
+
 QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
 !isEmpty(QT_BREAKPAD_ROOT_PATH) {
     SUBDIRS += qtcrashhandler
