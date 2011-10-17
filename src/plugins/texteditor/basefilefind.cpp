@@ -42,6 +42,7 @@
 #include <find/textfindconstants.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/refactoringchanges.h>
 #include <utils/stylehelper.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -49,6 +50,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDirIterator>
 #include <QtCore/QSettings>
+#include <QtCore/QHash>
+#include <QtCore/QPair>
 #include <QtGui/QFileDialog>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
@@ -313,108 +316,46 @@ void BaseFileFind::hideHighlightAll(bool visible)
         m_currentFindSupport->clearResults();
 }
 
-// #pragma mark Static methods
-
-static void applyChanges(QTextDocument *doc, const QString &text, const QList<Find::SearchResultItem> &items)
-{
-    QList<QPair<QTextCursor, QString> > changes;
-
-    foreach (const Find::SearchResultItem &item, items) {
-        const int blockNumber = item.lineNumber - 1;
-        QTextCursor tc(doc->findBlockByNumber(blockNumber));
-
-        const int cursorPosition = tc.position() + item.textMarkPos;
-
-        int cursorIndex = 0;
-        for (; cursorIndex < changes.size(); ++cursorIndex) {
-            const QTextCursor &otherTc = changes.at(cursorIndex).first;
-
-            if (otherTc.position() == cursorPosition)
-                break;
-        }
-
-        if (cursorIndex != changes.size())
-            continue; // skip this change.
-
-        tc.setPosition(cursorPosition);
-        tc.setPosition(tc.position() + item.textMarkLength,
-                       QTextCursor::KeepAnchor);
-        QString substitutionText;
-        if (item.userData.canConvert<QStringList>() && !item.userData.toStringList().isEmpty())
-            substitutionText = Utils::expandRegExpReplacement(text, item.userData.toStringList());
-        else
-            substitutionText = text;
-        changes.append(QPair<QTextCursor, QString>(tc, substitutionText));
-    }
-
-    for (int i = 0; i < changes.size(); ++i) {
-        QPair<QTextCursor, QString> &cursor = changes[i];
-        cursor.first.insertText(cursor.second);
-    }
-}
-
 QStringList BaseFileFind::replaceAll(const QString &text,
                                const QList<Find::SearchResultItem> &items)
 {
     if (items.isEmpty())
         return QStringList();
 
-    QHash<QString, QList<Find::SearchResultItem> > changes;
+    RefactoringChanges refactoring;
 
+    QHash<QString, QList<Find::SearchResultItem> > changes;
     foreach (const Find::SearchResultItem &item, items)
         changes[QDir::fromNativeSeparators(item.path.first())].append(item);
-
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
 
     QHashIterator<QString, QList<Find::SearchResultItem> > it(changes);
     while (it.hasNext()) {
         it.next();
-
         const QString fileName = it.key();
         const QList<Find::SearchResultItem> changeItems = it.value();
 
-        const QList<Core::IEditor *> editors = editorManager->editorsForFileName(fileName);
-        TextEditor::BaseTextEditorWidget *textEditor = 0;
-        foreach (Core::IEditor *editor, editors) {
-            textEditor = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
-            if (textEditor != 0)
-                break;
+        ChangeSet changeSet;
+        RefactoringFilePtr file = refactoring.file(fileName);
+        QSet<QPair<int, int> > processed;
+        foreach (const Find::SearchResultItem &item, changeItems) {
+            const QPair<int, int> &p = qMakePair(item.lineNumber, item.textMarkPos);
+            if (processed.contains(p))
+                continue;
+            processed.insert(p);
+
+            QString replacement;
+            if (item.userData.canConvert<QStringList>() && !item.userData.toStringList().isEmpty())
+                replacement = Utils::expandRegExpReplacement(text, item.userData.toStringList());
+            else
+                replacement = text;
+
+            const int start = file->position(item.lineNumber, item.textMarkPos + 1);
+            const int end = file->position(item.lineNumber,
+                                           item.textMarkPos + item.textMarkLength + 1);
+            changeSet.replace(start, end, replacement);
         }
-
-        if (textEditor != 0) {
-            QTextCursor tc = textEditor->textCursor();
-            tc.beginEditBlock();
-            applyChanges(textEditor->document(), text, changeItems);
-            tc.endEditBlock();
-        } else {
-            Utils::FileReader reader;
-            if (reader.fetch(fileName, Core::ICore::instance()->mainWindow())) {
-                // Keep track of line ending since QTextDocument is '\n' based.
-                bool convertLineEnding = false;
-                const QByteArray &data = reader.data();
-                const int lf = data.indexOf('\n');
-                if (lf > 0 && data.at(lf - 1) == '\r')
-                    convertLineEnding = true;
-
-                QTextDocument doc;
-                // ### set the encoding
-                doc.setPlainText(QString::fromLocal8Bit(data));
-                applyChanges(&doc, text, changeItems);
-                QString plainText = doc.toPlainText();
-
-                if (convertLineEnding)
-                    plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
-
-                Utils::FileSaver saver(fileName);
-                if (!saver.hasError()) {
-                    QTextStream stream(saver.file());
-                    // ### set the encoding
-                    stream << plainText;
-                    saver.setResult(&stream);
-                }
-                saver.finalize(Core::ICore::instance()->mainWindow());
-            }
-        }
+        file->setChangeSet(changeSet);
+        file->apply();
     }
 
     return changes.keys();
