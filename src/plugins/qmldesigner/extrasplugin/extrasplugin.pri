@@ -15,8 +15,3 @@ HEADERS += $$PWD/extrasplugin.h  $$PWD/../designercore/include/iwidgetplugin.h
 RESOURCES += $$PWD/extrasplugin.qrc
 
 OTHER_FILES += $$PWD/extras.metainfo
-
-!macx {
-    target.path  = /$$IDE_LIBRARY_BASENAME/qmldesigner
-    INSTALLS    += target
-}
