@@ -149,9 +149,9 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp,
     }
     d->m_activeEngine = d->m_cppEngine;
 
-    connect(d->m_cppEngine->stackHandler()->model(), SIGNAL(modelReset()),
+    connect(d->m_cppEngine->stackHandler(), SIGNAL(stackChanged()),
             d, SLOT(cppStackChanged()), Qt::QueuedConnection);
-    connect(d->m_qmlEngine->stackHandler()->model(), SIGNAL(modelReset()),
+    connect(d->m_qmlEngine->stackHandler(), SIGNAL(stackChanged()),
             d, SLOT(qmlStackChanged()), Qt::QueuedConnection);
     connect(d->m_cppEngine, SIGNAL(stackFrameCompleted()), this, SIGNAL(stackFrameCompleted()));
     connect(d->m_cppEngine, SIGNAL(requestRemoteSetup()), this, SIGNAL(requestRemoteSetup()));
@@ -195,6 +195,9 @@ void QmlCppEngine::fetchDisassembler(DisassemblerAgent *da)
 
 void QmlCppEngine::activateFrame(int index)
 {
+    if (state() != InferiorStopOk && state() != InferiorUnrunnable)
+        return;
+
     if (index >= d->m_stackBoundary)
         d->m_qmlEngine->activateFrame(index - d->m_stackBoundary);
     else
@@ -681,6 +684,8 @@ void QmlCppEngine::resetLocation()
         d->m_qmlEngine->resetLocation();
     if (d->m_cppEngine)
         d->m_cppEngine->resetLocation();
+
+    DebuggerEngine::resetLocation();
 }
 
 DebuggerEngine *QmlCppEngine::cppEngine() const
