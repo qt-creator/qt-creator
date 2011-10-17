@@ -37,6 +37,7 @@
 
 #define CPLUSPLUS_NO_DEBUG_RULE
 #define MAX_EXPRESSION_DEPTH 100
+#define MAX_STATEMENT_DEPTH 100
 
 using namespace CPlusPlus;
 
@@ -181,7 +182,8 @@ Parser::Parser(TranslationUnit *unit)
       _inFunctionBody(false),
       _inObjCImplementationContext(false),
       _inExpressionStatement(false),
-      _expressionDepth(0)
+      _expressionDepth(0),
+      _statementDepth(0)
 { }
 
 Parser::~Parser()
@@ -3209,6 +3211,10 @@ bool Parser::parseCompoundStatement(StatementAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_LBRACE) {
+        if (_statementDepth > MAX_STATEMENT_DEPTH)
+            return false;
+        ++_statementDepth;
+
         CompoundStatementAST *ast = new (_pool) CompoundStatementAST;
         ast->lbrace_token = consumeToken();
 
@@ -3233,6 +3239,7 @@ bool Parser::parseCompoundStatement(StatementAST *&node)
         }
         match(T_RBRACE, &ast->rbrace_token);
         node = ast;
+        --_statementDepth;
         return true;
     }
     return false;
