@@ -15,8 +15,3 @@ HEADERS += $$PWD/customstyleplugin.h  $$PWD/../designercore/include/iwidgetplugi
 RESOURCES += $$PWD/customstyleplugin.qrc
 
 OTHER_FILES += $$PWD/customstyle.metainfo
-
-!macx {
-    target.path  = /$$IDE_LIBRARY_BASENAME/qmldesigner
-    INSTALLS    += target
-}
