@@ -49,7 +49,9 @@
 
 namespace Qt4ProjectManager {
 
-AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber)
+AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
+                                                             const QtSupport::QtVersionNumber &minimumQtVersionNumber,
+                                                             const QtSupport::QtVersionNumber &maximumQtVersionNumber)
     : ProjectExplorer::BaseProjectWizardDialog(parent)
     , m_genericOptionsPageId(-1)
     , m_symbianOptionsPageId(-1)
@@ -66,6 +68,7 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent, co
     m_targetsPage = new TargetSetupPage;
     m_targetsPage->setPreferredFeatures(QSet<QString>() << Constants::MOBILE_TARGETFEATURE_ID);
     m_targetsPage->setMinimumQtVersion(minimumQtVersionNumber);
+    m_targetsPage->setMaximumQtVersion(maximumQtVersionNumber);
     resize(900, 450);
 
     m_genericOptionsPage = new Internal::MobileAppWizardGenericOptionsPage;

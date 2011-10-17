@@ -125,15 +125,18 @@ ProjectExplorer::Target  *Qt4DesktopTargetFactory::restore(ProjectExplorer::Proj
     return 0;
 }
 
-Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
+Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath,
+                                                                       const QtSupport::QtVersionNumber &minimumQtVersion,
+                                                                       const QtSupport::QtVersionNumber &maximumQtVersion,
+                                                                       bool importEnabled, QList<BuildConfigurationInfo> importInfos)
 {
 
-    QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, number);
+    QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, minimumQtVersion, maximumQtVersion);
     if (infos.isEmpty())
         return 0;
     Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath,  infos,
-                                                                          number,  importEnabled,
-                                                                          importInfos,
+                                                                          minimumQtVersion, maximumQtVersion,
+                                                                          importEnabled, importInfos,
                                                                           Qt4DefaultTargetSetupWidget::USER);
     widget->setBuildConfiguraionComboBoxVisible(true);
     return widget;

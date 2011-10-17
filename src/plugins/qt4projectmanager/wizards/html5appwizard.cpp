@@ -38,6 +38,7 @@
 #include "targetsetuppage.h"
 
 #include "qt4projectmanagerconstants.h"
+#include <limits>
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>
@@ -58,7 +59,7 @@ private:
 };
 
 Html5AppWizardDialog::Html5AppWizardDialog(QWidget *parent)
-    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber())
+    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(), QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX))
     , m_htmlOptionsPage(0)
 {
     setWindowTitle(tr("New HTML5 Application"));

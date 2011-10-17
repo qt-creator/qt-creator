@@ -59,7 +59,9 @@ public:
 
     QString shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix);
     QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
-    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &minimumQtVersion);
+    QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath,
+                                                               const QtSupport::QtVersionNumber &minimumQtVersion,
+                                                               const QtSupport::QtVersionNumber &maximumQtVersion);
 
     bool selectByDefault(const QString &id) const;
     QSet<QString> targetFeatures(const QString &id) const;

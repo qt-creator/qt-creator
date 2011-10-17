@@ -164,9 +164,12 @@ QList<ProjectExplorer::Task> Qt4SymbianTargetFactory::reportIssues(const QString
     return results;
 }
 
-QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &minimumQtVersion)
+QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath,
+                                                                                    const QtSupport::QtVersionNumber &minimumQtVersion,
+                                                                                    const QtSupport::QtVersionNumber &maximumQtVersion)
 {
-    QList<BuildConfigurationInfo> infos = Qt4BaseTargetFactory::availableBuildConfigurations(id, proFilePath, minimumQtVersion);
+    QList<BuildConfigurationInfo> infos
+            = Qt4BaseTargetFactory::availableBuildConfigurations(id, proFilePath, minimumQtVersion, maximumQtVersion);
     if (id != Constants::S60_EMULATOR_TARGET_ID)
         return infos;
     // For emulator filter out all non debug builds

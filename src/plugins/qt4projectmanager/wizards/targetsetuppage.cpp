@@ -55,7 +55,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
     m_importSearch(false),
     m_spacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)),
-    m_ui(new Internal::Ui::TargetSetupPage)
+    m_ui(new Internal::Ui::TargetSetupPage),
+    m_maximumQtVersionNumber(INT_MAX, INT_MAX, INT_MAX)
 {
     m_ui->setupUi(this);
     QWidget *centralWidget = new QWidget(this);
@@ -112,6 +113,11 @@ void TargetSetupPage::setMinimumQtVersion(const QtSupport::QtVersionNumber &numb
     m_minimumQtVersionNumber = number;
 }
 
+void TargetSetupPage::setMaximumQtVersion(const QtSupport::QtVersionNumber &number)
+{
+    m_maximumQtVersionNumber = number;
+}
+
 void TargetSetupPage::setImportSearch(bool b)
 {
     m_importSearch = b;
@@ -129,7 +135,9 @@ void TargetSetupPage::setupWidgets()
 
             QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::filterBuildConfigurationInfos(m_importInfos, id);
             Qt4TargetSetupWidget *widget =
-                    factory->createTargetSetupWidget(id, m_proFilePath, m_minimumQtVersionNumber, m_importSearch, infos);
+                    factory->createTargetSetupWidget(id, m_proFilePath,
+                                                     m_minimumQtVersionNumber, m_maximumQtVersionNumber,
+                                                     m_importSearch, infos);
             if (widget) {
                 bool selectTarget = false;
                 if (!m_importInfos.isEmpty()) {

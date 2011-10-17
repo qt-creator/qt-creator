@@ -57,7 +57,7 @@ class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizardDialog : public ProjectExp
     Q_OBJECT
 
 protected:
-    explicit AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber);
+    explicit AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber, const QtSupport::QtVersionNumber &maximumQtVersionNumber);
     void addMobilePages();
 
 public:

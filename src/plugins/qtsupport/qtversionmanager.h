@@ -95,7 +95,9 @@ public:
     // This returns a list of versions that support the target with the given id.
     // @return A list of QtVersions that supports a target. This list may be empty!
 
-    QList<BaseQtVersion *> versionsForTargetId(const QString &id, const QtVersionNumber &minimumQtVersion = QtVersionNumber()) const;
+    QList<BaseQtVersion *> versionsForTargetId(const QString &id,
+                                               const QtVersionNumber &minimumQtVersion = QtVersionNumber(),
+                                               const QtVersionNumber &maximumQtVersion = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX)) const;
     QSet<QString> supportedTargetIds() const;
 
     // Static Methods

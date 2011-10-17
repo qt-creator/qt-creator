@@ -54,7 +54,10 @@ public:
 
     virtual bool supportsTargetId(const QString &id) const;
 
-    Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &minimumQtVersion, bool importEnabled, QList<BuildConfigurationInfo> importInfos);
+    Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id, const QString &proFilePath,
+                                                  const QtSupport::QtVersionNumber &minimumQtVersion,
+                                                  const QtSupport::QtVersionNumber &maximumQtVersion,
+                                                  bool importEnabled, QList<BuildConfigurationInfo> importInfos);
     QString buildNameForId(const QString &id) const;
     QSet<QString> targetFeatures(const QString &id) const;
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);

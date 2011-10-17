@@ -60,7 +60,7 @@ class MobileAppWizardDialog : public AbstractMobileAppWizardDialog
     Q_OBJECT
 public:
     explicit MobileAppWizardDialog(QWidget *parent = 0)
-        : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber())
+        : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(), QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX))
     {
         setWindowTitle(DisplayName);
         setIntroDescription(Description);

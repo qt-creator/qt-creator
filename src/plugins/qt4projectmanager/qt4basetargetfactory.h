@@ -58,6 +58,7 @@ public:
     virtual Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id,
                                                           const QString &proFilePath,
                                                           const QtSupport::QtVersionNumber &minimumQtVersion,
+                                                          const QtSupport::QtVersionNumber &maximumQtVersion,
                                                           bool importEnabled,
                                                           QList<BuildConfigurationInfo> importInfos);
 
@@ -69,7 +70,9 @@ public:
     /// used by the default implementation of createTargetSetupWidget
     /// not needed otherwise
     /// by default creates one debug + one release buildconfiguration per qtversion
-    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &minimumQtVersion);
+    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath,
+                                                                       const QtSupport::QtVersionNumber &minimumQtVersion,
+                                                                       const QtSupport::QtVersionNumber &maximumQtVersion);
 
     virtual QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
     /// only used in the TargetSetupPage

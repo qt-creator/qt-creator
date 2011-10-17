@@ -66,7 +66,7 @@ private:
 };
 
 QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent)
-    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(4, 7, 0))
+    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(4, 7, 0), QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX))
 {
     setWindowTitle(tr("New Qt Quick Application"));
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));

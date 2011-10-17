@@ -116,6 +116,7 @@ public:
                                 const QString &proFilePath,
                                 const QList<BuildConfigurationInfo> &info,
                                 const QtSupport::QtVersionNumber &minimumQtVersion,
+                                const QtSupport::QtVersionNumber &maximumQtVersion,
                                 bool importEnabled,
                                 const QList<BuildConfigurationInfo> &importInfos,
                                 ShadowBuildOption shadowBuild);
@@ -158,6 +159,7 @@ private:
     Qt4BaseTargetFactory *m_factory;
     QString m_proFilePath;
     QtSupport::QtVersionNumber m_minimumQtVersion;
+    QtSupport::QtVersionNumber m_maximumQtVersion;
     Utils::DetailsWidget *m_detailsWidget;
     QGridLayout *m_importLayout;
     QGridLayout *m_newBuildsLayout;

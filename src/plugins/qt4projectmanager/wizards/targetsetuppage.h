@@ -81,6 +81,9 @@ public:
     /// Sets the minimum qt version
     /// calls this before \sa initializePage()
     void setMinimumQtVersion(const QtSupport::QtVersionNumber &number);
+    /// Sets the maximum qt version
+    /// calls this before \sa initializePage()
+    void setMaximumQtVersion(const QtSupport::QtVersionNumber &number);
     /// Sets whether the TargetSetupPage looks on disk for builds of this project
     /// call this before \sa initializePage()
     void setImportSearch(bool b);
@@ -102,6 +105,7 @@ private:
     QSet<QString> m_requiredFeatures;
     bool m_importSearch;
     QtSupport::QtVersionNumber m_minimumQtVersionNumber;
+    QtSupport::QtVersionNumber m_maximumQtVersionNumber;
     QString m_proFilePath;
     QString m_defaultShadowBuildLocation;
     QMap<QString, Qt4TargetSetupWidget *> m_widgets;
