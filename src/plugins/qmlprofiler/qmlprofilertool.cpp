@@ -513,11 +513,13 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 
         host = settings->value(QLatin1String("AnalyzerQmlAttachDialog/host"), QLatin1String("localhost")).toString();
         port = settings->value(QLatin1String("AnalyzerQmlAttachDialog/port"), 3768).toInt();
+        sysroot = settings->value(QLatin1String("AnalyzerQmlAttachDialog/sysroot")).toString();
 
         QmlProfilerAttachDialog dialog;
 
         dialog.setAddress(host);
         dialog.setPort(port);
+        dialog.setSysroot(sysroot);
 
         if (dialog.exec() != QDialog::Accepted)
             return;
@@ -528,6 +530,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 
         settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/host"), host);
         settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/port"), port);
+        settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/sysroot"), sysroot);
     }
 
     AnalyzerStartParameters sp;
