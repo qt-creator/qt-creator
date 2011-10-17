@@ -113,5 +113,42 @@ fail:
     return kDNSServiceErr_BadParam;
 }
 
+uint16_t txtRecordGetCount(uint16_t txtLen, const void *txtRecord)
+{
+    uint16_t count = 0;
+    uint8_t *p = (uint8_t*)txtRecord;
+    uint8_t *e = p + txtLen;
+    while (p<e) { p += 1 + p[0]; count++; }
+    return((p>e) ? (uint16_t)0 : count);
+}
+
+DNSServiceErrorType txtRecordGetItemAtIndex(uint16_t txtLen, const void *txtRecord,
+        uint16_t itemIndex, uint16_t keyBufLen, char *key, uint8_t *valueLen, const void **value)
+{
+    uint16_t count = 0;
+    uint8_t *p = (uint8_t*)txtRecord;
+    uint8_t *e = p + txtLen;
+    while (p<e && count<itemIndex) { p += 1 + p[0]; count++; }    // Find requested item
+    if (p<e && p + 1 + p[0] <= e) {    // If valid
+        uint8_t *x = p+1;
+        unsigned long len = 0;
+        e = p + 1 + p[0];
+        while (x+len<e && x[len] != '=') len++;
+        if (len >= keyBufLen) return(kDNSServiceErr_NoMemory);
+        memcpy(key, x, len);
+        key[len] = 0;
+        if (x+len<e) { // If we found '='
+            *value = x + len + 1;
+            *valueLen = (uint8_t)(p[0] - (len + 1));
+        } else {
+            *value = NULL;
+            *valueLen = 0;
+        }
+        return(kDNSServiceErr_NoError);
+    }
+    return(kDNSServiceErr_Invalid);
+}
+
+
 } // namespace ZeroConf
 } // namespace Internal

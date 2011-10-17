@@ -33,18 +33,21 @@
 #include "servicebrowser.h"
 #include "servicebrowser_p.h"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QLibrary>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
+#include <errno.h>
+
 #ifndef NO_NATIVE_LIB
 
 #ifdef Q_OS_MACX
-#define ZCONF_STATIC_LINKING
+#define ZCONF_MDNS_STATIC_LINKING
 #endif
 
-#ifdef ZCONF_STATIC_LINKING
+#ifdef ZCONF_MDNS_STATIC_LINKING
 extern "C" {
 #include "dns_sd_funct.h"
 }
@@ -73,10 +76,6 @@ typedef DNSServiceErrorType (DNSSD_API *GetAddrInfoPtr)(DNSServiceRef *sdRef, DN
                                                         uint32_t interfaceIndex, DNSServiceProtocol protocol,
                                                         const char *hostname, DNSServiceGetAddrInfoReply callBack,
                                                         void *context);
-typedef uint16_t (DNSSD_API *TxtRecordGetCountPtr)(uint16_t txtLen, const void *txtRecord);
-typedef DNSServiceErrorType (DNSSD_API *TxtRecordGetItemAtIndexPtr)(uint16_t txtLen, const void *txtRecord,
-                                                                    uint16_t itemIndex, uint16_t keyBufLen,
-                                                                    char *key, uint8_t *valueLen, const void **value);
 typedef DNSServiceErrorType (DNSSD_API *ReconfirmRecordPtr)(DNSServiceFlags flags, uint32_t interfaceIndex,
                                                             const char *fullname, uint16_t rrtype,
                                                             uint16_t rrclass, uint16_t rdlen, const void *rdata);
@@ -91,13 +90,12 @@ typedef int (DNSSD_API *RefSockFDPtr)(DNSServiceRef sdRef);
 
 // represents a zero conf library exposing the dns-sd interface
 class NativeZConfLib : public ZConfLib{
+    Q_DECLARE_TR_FUNCTIONS(ZeroConf)
 private:
     RefDeallocatePtr m_refDeallocate;
     ResolvePtr m_resolve;
     QueryRecordPtr m_queryRecord;
     GetAddrInfoPtr m_getAddrInfo;
-    TxtRecordGetCountPtr m_txtRecordGetCount;
-    TxtRecordGetItemAtIndexPtr m_txtRecordGetItemAtIndex;
     ReconfirmRecordPtr m_reconfirmRecord;
     BrowsePtr m_browse;
     GetPropertyPtr m_getProperty;
@@ -106,20 +104,23 @@ private:
     RefSockFDPtr m_refSockFD;
     QLibrary nativeLib;
 public:
+    enum {
+        // Note: the select() implementation on Windows (Winsock2) fails with any timeout much larger than this
+        LONG_TIME = 100000000
+    };
 
     NativeZConfLib(QString libName = QLatin1String("dns_sd"), ZConfLib *fallBack = 0) : ZConfLib(fallBack), nativeLib(libName)
     {
-#ifndef ZCONF_STATIC_LINKING
+#ifndef ZCONF_MDNS_STATIC_LINKING
         // dynamic linking
         if (!nativeLib.load()) {
-            qDebug() << "NativeZConfLib could not load native library";
+            m_isOk = false;
+            m_errorMsg=tr("NativeZConfLib could not load native library");
         }
         m_refDeallocate = reinterpret_cast<RefDeallocatePtr>(nativeLib.resolve("DNSServiceRefDeallocate"));
         m_resolve = reinterpret_cast<ResolvePtr>(nativeLib.resolve("DNSServiceResolve"));
         m_queryRecord = reinterpret_cast<QueryRecordPtr>(nativeLib.resolve("DNSServiceQueryRecord"));
         m_getAddrInfo = reinterpret_cast<GetAddrInfoPtr>(nativeLib.resolve("DNSServiceGetAddrInfo"));
-        m_txtRecordGetCount = reinterpret_cast<TxtRecordGetCountPtr>(nativeLib.resolve("TXTRecordGetCount"));
-        m_txtRecordGetItemAtIndex = reinterpret_cast<TxtRecordGetItemAtIndexPtr>(nativeLib.resolve("TXTRecordGetItemAtIndex")) ;
         m_reconfirmRecord = reinterpret_cast<ReconfirmRecordPtr>(nativeLib.resolve("DNSServiceReconfirmRecord"));
         m_browse = reinterpret_cast<BrowsePtr>(nativeLib.resolve("DNSServiceBrowse"));
         m_getProperty = reinterpret_cast<GetPropertyPtr>(nativeLib.resolve("DNSServiceGetProperty"));
@@ -132,8 +133,6 @@ public:
         m_resolve = reinterpret_cast<ResolvePtr>(&DNSServiceResolve);
         m_queryRecord = reinterpret_cast<QueryRecordPtr>(DNSServiceQueryRecord);
         m_getAddrInfo = reinterpret_cast<GetAddrInfoPtr>(&DNSServiceGetAddrInfo);
-        m_txtRecordGetCount = reinterpret_cast<TxtRecordGetCountPtr>(&TXTRecordGetCount);
-        m_txtRecordGetItemAtIndex = reinterpret_cast<TxtRecordGetItemAtIndexPtr>(&TXTRecordGetItemAtIndex) ;
         m_reconfirmRecord = reinterpret_cast<ReconfirmRecordPtr>(&DNSServiceReconfirmRecord);
         m_browse = reinterpret_cast<BrowsePtr>(&DNSServiceBrowse);
         m_getProperty = reinterpret_cast<GetPropertyPtr>(&DNSServiceGetProperty);
@@ -141,18 +140,18 @@ public:
         m_createConnection = reinterpret_cast<CreateConnectionPtr>(&DNSServiceCreateConnection);
         m_refSockFD = reinterpret_cast<RefSockFDPtr>(&DNSServiceRefSockFD);
 #endif
-        if (m_refDeallocate == 0) qDebug() << QLatin1String("NativeZConfLib.m_refDeallocate == 0");
-        if (m_resolve == 0) qDebug() << QLatin1String("NativeZConfLib.m_resolve == 0");
-        if (m_queryRecord == 0) qDebug() << QLatin1String("NativeZConfLib.m_queryRecord == 0");
-        if (m_getAddrInfo == 0) qDebug() << QLatin1String("NativeZConfLib.m_getAddrInfo == 0");
-        if (m_txtRecordGetCount == 0) qDebug() << QLatin1String("NativeZConfLib.m_txtRecordGetCount == 0");
-        if (m_txtRecordGetItemAtIndex == 0) qDebug() << QLatin1String("NativeZConfLib.m_txtRecordGetItemAtIndex == 0");
-        if (m_reconfirmRecord == 0) qDebug() << QLatin1String("NativeZConfLib.m_reconfirmRecord == 0");
-        if (m_browse == 0) qDebug() << QLatin1String("NativeZConfLib.m_browse == 0");
-        if (m_getProperty == 0) qDebug() << QLatin1String("NativeZConfLib.m_getProperty == 0");
-        if (m_processResult == 0) qDebug() << QLatin1String("NativeZConfLib.m_processResult == 0");
-        if (m_createConnection == 0) qDebug() << QLatin1String("NativeZConfLib.m_createConnection == 0");
-        if (m_refSockFD == 0) qDebug() << QLatin1String("NativeZConfLib.m_refSockFD == 0");
+        if (DEBUG_ZEROCONF){
+            if (m_refDeallocate == 0) qDebug() << QLatin1String("NativeZConfLib.m_refDeallocate == 0");
+            if (m_resolve == 0) qDebug() << QLatin1String("NativeZConfLib.m_resolve == 0");
+            if (m_queryRecord == 0) qDebug() << QLatin1String("NativeZConfLib.m_queryRecord == 0");
+            if (m_getAddrInfo == 0) qDebug() << QLatin1String("NativeZConfLib.m_getAddrInfo == 0");
+            if (m_reconfirmRecord == 0) qDebug() << QLatin1String("NativeZConfLib.m_reconfirmRecord == 0");
+            if (m_browse == 0) qDebug() << QLatin1String("NativeZConfLib.m_browse == 0");
+            if (m_getProperty == 0) qDebug() << QLatin1String("NativeZConfLib.m_getProperty == 0");
+            if (m_processResult == 0) qDebug() << QLatin1String("NativeZConfLib.m_processResult == 0");
+            if (m_createConnection == 0) qDebug() << QLatin1String("NativeZConfLib.m_createConnection == 0");
+            if (m_refSockFD == 0) qDebug() << QLatin1String("NativeZConfLib.m_refSockFD == 0");
+        }
     }
 
     ~NativeZConfLib() {
@@ -162,35 +161,61 @@ public:
         return QString::fromUtf8("NativeZeroConfLib@%1").arg(size_t(this),0,16);
     }
 
-    // virtual bool tryStartDaemon();
+    // bool tryStartDaemon();
     void refDeallocate(DNSServiceRef sdRef) {
         if (m_refDeallocate == 0) return;
         m_refDeallocate(sdRef);
     }
 
-    DNSServiceErrorType resolve(DNSServiceRef *sdRef, DNSServiceFlags flags,
+    void browserDeallocate(BrowserRef *bRef) {
+        if (m_refDeallocate == 0) return;
+        if (bRef) {
+            m_refDeallocate(*reinterpret_cast<DNSServiceRef *>(bRef));
+            *bRef=0;
+        }
+    }
+
+    void stopConnection(ConnectionRef cRef)
+    {
+        int sock = refSockFD(cRef);
+        if (sock>0)
+            shutdown(sock,SHUT_RDWR);
+    }
+
+    void destroyConnection(ConnectionRef *sdRef) {
+        if (m_refDeallocate == 0) return;
+        if (sdRef) {
+            m_refDeallocate(*reinterpret_cast<DNSServiceRef *>(sdRef));
+            *sdRef=0;
+        }
+    }
+
+    DNSServiceErrorType resolve(ConnectionRef cRef, DNSServiceRef *sdRef,
                                 uint32_t interfaceIndex, const char *name,
                                 const char *regtype, const char *domain,
-                                DNSServiceResolveReply callBack, void *context)
+                                ServiceGatherer *gatherer)
     {
         if (m_resolve == 0) return kDNSServiceErr_Unsupported;
-        return m_resolve(sdRef, flags, interfaceIndex, name, regtype, domain, callBack, context);
+        *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
+        return m_resolve(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+                         interfaceIndex, name, regtype, domain, &cServiceResolveReply, gatherer
+                         );
     }
 
-    DNSServiceErrorType queryRecord(DNSServiceRef *sdRef, DNSServiceFlags flags,
+    DNSServiceErrorType queryRecord(ConnectionRef cRef, DNSServiceRef *sdRef,
                                     uint32_t interfaceIndex, const char *fullname,
-                                    uint16_t rrtype, uint16_t rrclass,
-                                    DNSServiceQueryRecordReply callBack, void *context)
+                                    ServiceGatherer *gatherer)
     {
         if (m_queryRecord == 0) return kDNSServiceErr_Unsupported;
-        return m_queryRecord(sdRef, flags, interfaceIndex, fullname,
-                             rrtype, rrclass, callBack, context);
+        *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
+        return m_queryRecord(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+                             interfaceIndex, fullname,
+                             kDNSServiceType_TXT, kDNSServiceClass_IN, &cTxtRecordReply, gatherer);
     }
 
-    DNSServiceErrorType getAddrInfo(DNSServiceRef *sdRef, DNSServiceFlags flags,
+    DNSServiceErrorType getAddrInfo(ConnectionRef cRef, DNSServiceRef *sdRef,
                                     uint32_t interfaceIndex, DNSServiceProtocol protocol,
-                                    const char *hostname, DNSServiceGetAddrInfoReply callBack,
-                                    void *context)
+                                    const char *hostname, ServiceGatherer *gatherer)
     {
         enum { longTTL = 100 };
         if (m_getAddrInfo == 0) {
@@ -207,8 +232,8 @@ public:
                 return kDNSServiceErr_Unsupported; // use another error here???
             }
             for (struct addrinfo *ansAtt = ans; ansAtt != 0; ansAtt = ansAtt->ai_next){
-                callBack(*sdRef, kDNSServiceFlagsAdd, interfaceIndex, kDNSServiceErr_NoError,
-                         hostname, ansAtt->ai_addr, longTTL, context);
+                gatherer->addrReply(kDNSServiceFlagsAdd, kDNSServiceErr_NoError,
+                                    hostname, ansAtt->ai_addr, longTTL);
             }
             freeaddrinfo(ans);
             return kDNSServiceErr_NoError;
@@ -216,41 +241,31 @@ public:
             return kDNSServiceErr_Unsupported;
 #endif
         }
-        return m_getAddrInfo(sdRef, flags, interfaceIndex, protocol,
-                             hostname, callBack, context);
+        *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
+        return m_getAddrInfo(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+                             interfaceIndex, protocol, hostname, &cAddrReply, gatherer);
     }
 
-    uint16_t txtRecordGetCount(uint16_t txtLen, const void *txtRecord)
-    {
-        if (m_txtRecordGetCount == 0) return 0;
-        return m_txtRecordGetCount(txtLen, txtRecord);
-    }
-
-    DNSServiceErrorType txtRecordGetItemAtIndex(uint16_t txtLen, const void *txtRecord,
-                                                uint16_t itemIndex, uint16_t keyBufLen,
-                                                char *key, uint8_t *valueLen, const void **value)
-    {
-        if (m_txtRecordGetItemAtIndex == 0) return kDNSServiceErr_Unsupported;
-        return m_txtRecordGetItemAtIndex(txtLen, txtRecord, itemIndex, keyBufLen,
-                                         key, valueLen, value);
-    }
-
-    DNSServiceErrorType reconfirmRecord(DNSServiceFlags flags, uint32_t interfaceIndex,
-                                        const char *fullname, uint16_t rrtype,
-                                        uint16_t rrclass, uint16_t rdlen, const void *rdata)
+    DNSServiceErrorType reconfirmRecord(ConnectionRef /*cRef*/, uint32_t /*interfaceIndex*/,
+                                                const char * /*name*/, const char * /*type*/, const char * /*domain*/,
+                                                const char * /*fullname*/)
     {
         if (m_reconfirmRecord == 0) return kDNSServiceErr_Unsupported;
-        return m_reconfirmRecord(flags, interfaceIndex, fullname, rrtype,
-                                 rrclass, rdlen, rdata);
+        // reload and force update with in the callback with
+        // m_reconfirmRecord(flags, interfaceIndex, fullname, rrtype,
+        //                         rrclass, rdlen, rdata);
+        return kDNSServiceErr_Unsupported;
     }
 
-    DNSServiceErrorType browse(DNSServiceRef *sdRef, DNSServiceFlags flags,
+    DNSServiceErrorType browse(ConnectionRef cRef, BrowserRef *bRef,
                                uint32_t interfaceIndex, const char *regtype,
-                               const char *domain, DNSServiceBrowseReply callBack,
-                               void *context)
+                               const char *domain, ServiceBrowserPrivate *browser)
     {
         if (m_browse == 0) return kDNSServiceErr_Unsupported;
-        return m_browse(sdRef, flags, interfaceIndex, regtype, domain, callBack, context);
+        DNSServiceRef *sdRef = reinterpret_cast<DNSServiceRef *>(bRef);
+        *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
+        return m_browse(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable,
+                        interfaceIndex, regtype, domain, &cBrowseReply, browser);
     }
 
     DNSServiceErrorType getProperty(const char *property,  // Requested property (i.e. kDNSServiceProperty_DaemonVersion)
@@ -263,19 +278,67 @@ public:
         return m_getProperty(property, result, size);
     }
 
-    DNSServiceErrorType processResult(DNSServiceRef sdRef) {
-        if (m_processResult == 0) return kDNSServiceErr_Unsupported;
-        return m_processResult(sdRef);
+    ProcessStatus processResult(ConnectionRef sdRef) {
+        if (m_processResult == 0)
+            return ProcessedFailure;
+        if (m_processResult(reinterpret_cast<DNSServiceRef>(sdRef)) != kDNSServiceErr_NoError)
+            return ProcessedError;
+        return ProcessedOk;
     }
 
-    DNSServiceErrorType createConnection(DNSServiceRef *sdRef) {
+    // alternative processResult implementation using select
+    DNSServiceErrorType  processResultSelect(ConnectionRef cRef)
+    {
+#if _DNS_SD_LIBDISPATCH
+        {
+            main_queue = dispatch_get_main_queue();
+            if (mainRef)  DNSServiceSetDispatchQueue(mainRef, main_queue);
+            dispatch_main();
+        }
+#else
+        {
+            if (m_processResult == 0) return kDNSServiceErr_Unsupported;
+            int dns_sd_fd  = (cRef?refSockFD(cRef):-1);
+            int nfds = dns_sd_fd + 1;
+            fd_set readfds;
+            struct timeval tv;
+            int result;
+            while (true) {
+                dns_sd_fd  = (cRef?refSockFD(cRef):-1);
+                if (dns_sd_fd < 0)
+                    return false;
+                nfds = dns_sd_fd + 1;
+                FD_ZERO(&readfds);
+                FD_SET(dns_sd_fd , &readfds);
+
+                tv.tv_sec  = LONG_TIME;
+                tv.tv_usec = 0;
+
+                result = select(nfds, &readfds, (fd_set *)NULL, (fd_set *)NULL, &tv);
+                if (result > 0) {
+                    if (FD_ISSET(dns_sd_fd , &readfds)) {
+                        m_processResult(reinterpret_cast<DNSServiceRef>(cRef));
+                        return true;
+                    }
+                } else if (result == 0) {
+                    // we are idle... could do something productive... :)
+                } else if (errno != EINTR) {
+                    qDebug() << "select() returned " << result << " errno " << errno << strerror(errno);
+                    return false;
+                }
+            }
+        }
+#endif
+    }
+
+    DNSServiceErrorType createConnection(ConnectionRef *sdRef) {
         if (m_createConnection == 0) return kDNSServiceErr_Unsupported;
-        return m_createConnection(sdRef);
+        return m_createConnection(reinterpret_cast<DNSServiceRef *>(sdRef));
     }
 
-    int refSockFD(DNSServiceRef sdRef) {
+    int refSockFD(ConnectionRef sdRef) {
         if (m_refSockFD == 0) return kDNSServiceErr_Unsupported;
-        return m_refSockFD(sdRef);
+        return m_refSockFD(reinterpret_cast<DNSServiceRef>(sdRef));
     }
 };
 

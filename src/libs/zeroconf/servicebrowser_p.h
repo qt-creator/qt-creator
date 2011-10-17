@@ -36,6 +36,7 @@
 #include "dns_sd_types.h"
 #include "servicebrowser.h"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QAtomicInt>
 #include <QtCore/QHash>
 #include <QtCore/QList>
@@ -50,9 +51,21 @@ class QHostInfo;
 namespace ZeroConf {
 namespace Internal {
 
+class ServiceGatherer;
+class ServiceBrowserPrivate;
+
 // represents a zero conf library exposing the dns-sd interface
 class ZConfLib {
+    Q_DECLARE_TR_FUNCTIONS(ZeroConf)
 public:
+    typedef void *ConnectionRef;
+    typedef void *BrowserRef;
+    enum ProcessStatus {
+        ProcessedOk,
+        ProcessedQuit,
+        ProcessedError,
+        ProcessedFailure
+    };
     ZConfLib *fallbackLib;
 
     ZConfLib(ZConfLib *fallBack);
@@ -63,50 +76,43 @@ public:
     virtual bool tryStartDaemon();
 
     virtual void refDeallocate(DNSServiceRef sdRef) = 0;
-    virtual DNSServiceErrorType resolve(DNSServiceRef *sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+    virtual void browserDeallocate(BrowserRef *sdRef) = 0;
+    virtual DNSServiceErrorType resolve(ConnectionRef cRef, DNSServiceRef *sdRef, uint32_t interfaceIndex,
                                         const char *name, const char *regtype, const char *domain,
-                                        DNSServiceResolveReply callBack, void *context) = 0;
-    virtual DNSServiceErrorType queryRecord(DNSServiceRef *sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
-                                            const char *fullname, uint16_t rrtype, uint16_t rrclass,
-                                            DNSServiceQueryRecordReply callBack, void *context) = 0;
-    virtual DNSServiceErrorType getAddrInfo(DNSServiceRef *sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                        ServiceGatherer *gatherer) = 0;
+    virtual DNSServiceErrorType queryRecord(ConnectionRef cRef, DNSServiceRef *sdRef, uint32_t interfaceIndex,
+                                            const char *fullname, ServiceGatherer *gatherer) = 0;
+    virtual DNSServiceErrorType getAddrInfo(ConnectionRef cRef, DNSServiceRef *sdRef, uint32_t interfaceIndex,
                                             DNSServiceProtocol protocol, const char *hostname,
-                                            DNSServiceGetAddrInfoReply callBack, void *context) = 0;
+                                            ServiceGatherer *gatherer) = 0;
 
-    // remove txt functions from lib and always embed?
-    virtual uint16_t txtRecordGetCount(uint16_t txtLen, const void *txtRecord) = 0;
-    virtual DNSServiceErrorType txtRecordGetItemAtIndex(uint16_t txtLen, const void *txtRecord,
-                                                        uint16_t itemIndex, uint16_t keyBufLen, char *key,
-                                                        uint8_t *valueLen, const void **value) = 0;
-
-    virtual DNSServiceErrorType reconfirmRecord(DNSServiceFlags flags, uint32_t interfaceIndex,
-                                                const char *fullname, uint16_t rrtype, uint16_t rrclass,
-                                                uint16_t rdlen, const void *rdata) = 0; // opt
-    virtual DNSServiceErrorType browse(DNSServiceRef *sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
-                                       const char *regtype, const char *domain, DNSServiceBrowseReply callBack,
-                                       void *context) = 0;
+    virtual DNSServiceErrorType reconfirmRecord(ConnectionRef cRef, uint32_t interfaceIndex,
+                                                const char *name, const char *type, const char *domain,
+                                                const char *fullname) = 0; // opt
+    virtual DNSServiceErrorType browse(ConnectionRef cRef, BrowserRef *sdRef, uint32_t interfaceIndex,
+                                       const char *regtype, const char *domain, ServiceBrowserPrivate *browser) = 0;
     virtual DNSServiceErrorType getProperty(const char *property, void *result, uint32_t *size) = 0;
-    virtual DNSServiceErrorType processResult(DNSServiceRef sdRef) = 0;
-    virtual DNSServiceErrorType createConnection(DNSServiceRef *sdRef) = 0;
-    virtual int refSockFD(DNSServiceRef sdRef) = 0;
+    virtual ProcessStatus processResult(ConnectionRef sdRef) = 0;
+    virtual DNSServiceErrorType createConnection(ConnectionRef *sdRef) = 0;
+    virtual void stopConnection(ConnectionRef cRef) = 0;
+    virtual void destroyConnection(ConnectionRef *sdRef) = 0;
     bool isOk();
+    QString errorMsg();
+    void setError(bool failure, const QString &eMsg);
 
     static ZConfLib *createEmbeddedLib(const QString &daemonPath, ZConfLib *fallback=0);
     static ZConfLib *createNativeLib(const QString &libName, ZConfLib *fallback=0);
+    static ZConfLib *createAvahiLib(const QString &libName, ZConfLib *fallback=0);
     static ZConfLib *defaultLib();
-private:
+protected:
     bool m_isOk;
+    QString m_errorMsg;
 };
 
 /// class that gathers all needed info on a service, all its methods (creation included) are supposed to be called by the listener/reaction thread
 class ServiceGatherer {
 public:
     QHash<QString, QString> txtRecord;
-    short                   port;
-    QString                 serviceName;
-    QString                 serviceType;
-    QString                 domain;
-    QString                 fullName;
     QString                 hostName;
     ServiceBrowserPrivate   *serviceBrowser;
     QHostInfo               *host;
@@ -127,6 +133,7 @@ public:
         AddrConnectionSuccess    = 1 << 8
     };
 
+    QString fullName();
     void enactServiceChange();
     void retireService();
     Ptr gatherer();
@@ -144,17 +151,15 @@ public:
     static Ptr createGatherer(const QString &newService, const QString &newType, const QString &newDomain,
                               const QString &fullName, uint32_t interfaceIndex, ServiceBrowserPrivate *serviceBrowser);
 
-    void serviceResolveReply(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
-                             DNSServiceErrorType errorCode, const char *fullname, const char *hosttarget,
-                             uint16_t port /* In network byte order */, uint16_t txtLen,
+    void serviceResolveReply(DNSServiceFlags flags, uint32_t interfaceIndex,
+                             DNSServiceErrorType errorCode, const char *hosttarget,
+                             const QString &port, uint16_t txtLen,
                              const unsigned char *rawTxtRecord);
 
-    void txtRecordReply(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
-                        DNSServiceErrorType errorCode, const char *fullname, uint16_t rrtype,
-                        uint16_t rrclass, uint16_t txtLen, const void *rawTxtRecord, uint32_t ttl);
+    void txtRecordReply(DNSServiceFlags flags, DNSServiceErrorType errorCode,
+                        uint16_t txtLen, const void *rawTxtRecord, uint32_t ttl);
 
-    void addrReply(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
-                   DNSServiceErrorType errorCode, const char *hostname, const struct sockaddr *address,
+    void addrReply(DNSServiceFlags flags, DNSServiceErrorType errorCode, const char *hostname, const struct sockaddr *address,
                    uint32_t ttl);
     void maybeRemove();
     void stop();
@@ -180,6 +185,7 @@ private:
 class ConnectionThread;
 
 class MainConnection{
+    Q_DECLARE_TR_FUNCTIONS(ZeroConf)
 public:
     enum RequestFlowStatus {
         NormalRFS,
@@ -187,10 +193,6 @@ public:
         ForceUpdateRFS
     };
     RequestFlowStatus flowStatus;
-    enum {
-        // Note: the select() implementation on Windows (Winsock2) fails with any timeout much larger than this
-        LONG_TIME = 100000000
-    };
     /// WARNING order matters in this enum, and status should only be changed with increaseStatusTo
     enum Status {
         Starting,
@@ -211,16 +213,14 @@ public:
     void updateFlowStatusForCancel();
     void updateFlowStatusForFlags(DNSServiceFlags flags);
     void maybeUpdateLists();
-    QString tr(const char *s);
     void gotoValidLib();
     void abortLib();
     void createConnection();
     void destroyConnection();
-    bool handleEvent();
+    ZConfLib::ProcessStatus handleEvent();
     bool increaseStatusTo(int s);
-    void selectLoop();
     void handleEvents();
-    DNSServiceRef mainRef();
+    ZConfLib::ConnectionRef mainRef();
 
     QStringList errors();
     void clearErrors();
@@ -229,13 +229,11 @@ public:
 private:
     mutable QMutex m_lock;
     QList<ServiceBrowserPrivate *> m_browsers;
-    DNSServiceRef   m_mainRef;
-    volatile int m_timeOut;
+    ZConfLib::ConnectionRef m_mainRef;
     bool m_failed;
     ConnectionThread *m_thread;
     QAtomicInt m_status;
     int m_nErrs;
-    bool m_useSelect;
     QStringList m_errors;
 };
 
@@ -245,8 +243,8 @@ public:
     ServiceBrowser *q;
     QString         serviceType;
     QString         domain;
-    MainConnectionPtr  mainConnection;
-    DNSServiceRef   serviceConnection;
+    MainConnectionPtr    mainConnection;
+    ZConfLib::BrowserRef serviceConnection;
     DNSServiceFlags flags;
     uint32_t        interfaceIndex;
     QList<QString>  knownServices;
@@ -259,7 +257,7 @@ public:
     bool autoResolveAddresses;
     bool requireAddresses;
 
-    DNSServiceRef   mainRef();
+    ZConfLib::ConnectionRef mainRef();
     void updateFlowStatusForCancel();
     void updateFlowStatusForFlags(DNSServiceFlags flags);
 
@@ -276,7 +274,7 @@ public:
     void stopBrowsing();
     void reconfirmService(Service::ConstPtr s);
 
-    void browseReply(DNSServiceRef sdRef, DNSServiceFlags flags,
+    void browseReply(DNSServiceFlags flags,
                      uint32_t interfaceIndex, DNSServiceErrorType errorCode, const char *serviceName,
                      const char *regtype, const char *replyDomain);
     void serviceChanged(const Service::ConstPtr &oldService, const Service::ConstPtr &newService, ServiceBrowser *browser);
@@ -293,6 +291,21 @@ class ConnectionThread: public QThread{
 public:
     ConnectionThread(MainConnection &mc, QObject *parent=0);
 };
+
+extern "C" void DNSSD_API cServiceResolveReply(DNSServiceRef sdRef, DNSServiceFlags flags,
+                                     uint32_t interfaceIndex, DNSServiceErrorType errorCode,
+                                     const char *fullname, const char *hosttarget, uint16_t port,
+                                     uint16_t txtLen, const unsigned char *txtRecord, void *context);
+extern "C" void DNSSD_API cTxtRecordReply(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                          DNSServiceErrorType errorCode, const char *fullname,
+                                          uint16_t rrtype, uint16_t rrclass, uint16_t rdlen,
+                                          const void *rdata, uint32_t ttl, void *context);
+extern "C" void DNSSD_API cAddrReply(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                     DNSServiceErrorType errorCode, const char *hostname,
+                                     const struct sockaddr *address, uint32_t ttl, void *context);
+extern "C" void DNSSD_API cBrowseReply(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                                       DNSServiceErrorType errorCode, const char *serviceName,
+                                       const char *regtype, const char *replyDomain, void *context);
 } // namespace Internal
 } // namespace Zeroconf
 

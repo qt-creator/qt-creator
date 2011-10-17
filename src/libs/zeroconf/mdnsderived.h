@@ -32,10 +32,13 @@
 namespace ZeroConf {
 namespace Internal {
 
-DNSServiceErrorType myDNSServiceConstructFullName(char       *const fullName,
-                                                  const char *const service,
-                                                  const char *const regtype,
-                                                  const char *const domain);
+DNSServiceErrorType myDNSServiceConstructFullName(char *const fullName, const char *const service,
+    const char *const regtype, const char *const domain);
+
+uint16_t txtRecordGetCount(uint16_t txtLen, const void *txtRecord);
+
+DNSServiceErrorType txtRecordGetItemAtIndex(uint16_t txtLen, const void *txtRecord,
+    uint16_t itemIndex, uint16_t keyBufLen, char *key, uint8_t *valueLen, const void **value);
 
 }
 }

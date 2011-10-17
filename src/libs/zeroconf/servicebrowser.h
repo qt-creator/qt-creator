@@ -54,9 +54,8 @@ typedef QSharedPointer<Internal::MainConnection> MainConnectionPtr;
 
 typedef QHash<QString, QString> ServiceTxtRecord;
 
-class ZEROCONFSHARED_EXPORT Service : public QObject
+class ZEROCONFSHARED_EXPORT Service
 {
-    Q_OBJECT
     friend class Internal::ServiceGatherer;
 
 public:
@@ -64,7 +63,7 @@ public:
     typedef QSharedPointer<Service> Ptr;
 
     Service(const Service &o);
-    Service(QObject *parent = 0);
+    Service();
     ~Service();
 
     bool outdated() const { return m_outdated; }

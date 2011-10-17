@@ -41,4 +41,6 @@
 #  define ZEROCONFSHARED_EXPORT Q_DECL_IMPORT
 #endif
 
+enum { DEBUG_ZEROCONF = false } ;
+
 #endif // ZEROCONF_GLOBAL_H
