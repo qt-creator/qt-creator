@@ -3,30 +3,20 @@
     If you install Qt for Symbian as a part of \QSDK, it is automatically
     detected by \QC. If you install other Symbian SDKs and register them
     with devices.exe, \QC automatically detects the Qt version.
+    The \gui {S60 SDK} field displays the path to the directory where
+    the Symbian SDK is located.
 
     If the selected Qt version was built using the SBSv2 build system, that
     is available for Symbian OS 9.5 based SDKs, \QC builds your projects
-    using this build system. The \gui {SBS v2 directory} field is enabled and
-    you must specify the path to the directory where the SBS executable (for
+    using this build system. The \gui {SBS v2 directory} field displays the
+    path to the directory where the SBS executable (for
     example, sbs.bat on Windows) is located.
 
-    To add a Qt for Symbian version:
+    To view Qt for Symbian version settings, select \gui {Tools > Options >
+    Build & Run > Qt Versions}.
 
-    \list 1
+    \image qtcreator-qt4-qtversions-win-symbian.png
 
-        \o  Select \gui Tools > \gui Options > \gui Qt4 > \gui{Qt Versions}.
+    For more information about how to add tool chains for using the GCCE and
+    WINSCW compilers, see \l{Adding Tool Chains}.
 
-        \o  Select the Qt for Symbian version you want the \QC to use.
-
-            \image qtcreator-qt4-qtversions-win-symbian.png
-
-            For more information about how to add tool chains for using the
-            GCCE and WINSCW compilers, see \l{Adding Tool Chains}.
-
-        \o  In the \gui {S60 SDK} field, enter the path to the directory where
-            the Symbian SDK is located.
-
-        \o  In the \gui {SBS v2 directory} field, enter the path to the
-            directory where the SBS v2 executable is located.
-
-    \endlist

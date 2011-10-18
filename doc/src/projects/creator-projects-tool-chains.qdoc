@@ -83,7 +83,8 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options Tool Chains > Add} and select a
+        \o  Select \gui {Tools > Options > Build & Run > Tool Chains > Add} and
+            select a
             compiler in the list.
 
             \image qtcreator-toolchains.png
