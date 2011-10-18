@@ -104,6 +104,9 @@ Windows
 Symbian Target
 
 Remote Linux Support
+   * Move Maemo/MeeGo support into its own plugin.
+   * Assume less about the target systems, e.g. in respect to the presence of
+     POSIX-conforming tools.
 
 Qt Designer
 
