@@ -107,7 +107,7 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
             Core::InfoBarEntry info(Constants::INFO_SYNTAX_DEFINITION,
                                     tr("A highlight definition was not found for this file. "
                                        "Would you like to try to find one?"));
-            info.setCustomButtonInfo(tr("Show highlighter options"),
+            info.setCustomButtonInfo(tr("Show highlighter options..."),
                                      textEditor, SLOT(acceptMissingSyntaxDefinitionInfo()));
             info.setCancelButtonInfo(textEditor, SLOT(ignoreMissingSyntaxDefinitionInfo()));
             file->infoBar()->addInfo(info);

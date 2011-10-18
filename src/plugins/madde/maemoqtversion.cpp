@@ -159,7 +159,7 @@ QString MaemoQtVersion::description() const
     else if (m_osType == QLatin1String(HarmattanOsType))
         return QCoreApplication::translate("QtVersion", "Harmattan ", "Qt Version is meant for Harmattan");
     else if (m_osType == QLatin1String(MeeGoOsType))
-        return QCoreApplication::translate("QtVersion", "Meego", "Qt Version is meant for Meego");
+        return QCoreApplication::translate("QtVersion", "MeeGo", "Qt Version is meant for MeeGo");
     return QString();
 }
 

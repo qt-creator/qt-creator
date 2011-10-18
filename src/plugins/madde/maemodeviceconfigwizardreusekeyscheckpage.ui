@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="questionLabel">
      <property name="text">
-      <string>Do wou want to re-use an existing pair of keys or should a new one be created?</string>
+      <string>Do you want to re-use an existing pair of keys or should a new one be created?</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

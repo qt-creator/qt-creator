@@ -94,7 +94,7 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
             this, SLOT(onQtVersionSelectionChanged()));
 
     QPushButton *pushButton = new QPushButton;
-    pushButton->setText(tr("Manage Qt versions"));
+    pushButton->setText(tr("Manage Qt versions..."));
     connect(pushButton, SIGNAL(clicked()), this, SLOT(manageQtVersions()));
 
     QHBoxLayout *qtVersionLayout = new QHBoxLayout;

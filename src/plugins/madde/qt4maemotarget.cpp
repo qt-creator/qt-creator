@@ -1200,7 +1200,7 @@ Qt4MeegoTarget::~Qt4MeegoTarget() {}
 QString Qt4MeegoTarget::defaultDisplayName()
 {
     return QApplication::translate("Qt4ProjectManager::Qt4Target",
-        "Meego", "Qt4 Meego target display name");
+        "MeeGo", "Qt4 MeeGo target display name");
 }
 
 QString Qt4MeegoTarget::specFileName() const

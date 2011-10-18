@@ -1004,7 +1004,7 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
     switch (Core::FileManager::promptReadOnlyFile(path, versionControl, core->mainWindow(), false)) {
     case Core::FileManager::RO_OpenVCS:
         if (!versionControl->vcsOpen(path)) {
-            QMessageBox::warning(core->mainWindow(), tr("Cannot Open File"), tr("Cannot open the file for edit with VCS."));
+            QMessageBox::warning(core->mainWindow(), tr("Cannot Open File"), tr("Cannot open the file for editing with VCS."));
             return false;
         }
         break;

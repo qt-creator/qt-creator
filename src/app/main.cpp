@@ -149,7 +149,7 @@ static inline QString msgCoreLoadFailure(const QString &why)
 static inline int askMsgSendFailed()
 {
     return QMessageBox::question(0, QApplication::translate("Application","Could not send message"),
-                                 QCoreApplication::translate("Application", "Unable to send command line arguments to the already running instance."
+                                 QCoreApplication::translate("Application", "Unable to send command line arguments to the already running instance. "
                                                              "It appears to be not responding. Do you want to start a new instance of Creator?"),
                                  QMessageBox::Yes | QMessageBox::No | QMessageBox::Retry,
                                  QMessageBox::Retry);

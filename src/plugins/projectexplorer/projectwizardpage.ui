@@ -67,7 +67,7 @@
      <item row="2" column="2">
       <widget class="QPushButton" name="vcsManageButton">
        <property name="text">
-        <string>Manage</string>
+        <string>Manage ...</string>
        </property>
       </widget>
      </item>
