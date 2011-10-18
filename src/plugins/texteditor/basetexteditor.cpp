@@ -1771,7 +1771,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Insert:
         if (ro) break;
-        if ((e->modifiers() & (Qt::ControlModifier | Qt::AltModifier)) == 0) {
+        if (e->modifiers() == Qt::NoModifier) {
             if (inOverwriteMode) {
                 d->m_autoCompleter->setAutoParenthesesEnabled(d->autoParenthesisOverwriteBackup);
                 d->m_autoCompleter->setSurroundWithEnabled(d->surroundWithEnabledOverwriteBackup);
