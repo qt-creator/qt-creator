@@ -85,7 +85,7 @@
     rendering, instead.
 
     To specify the OpenGL mode, select \gui {Tools > Options > Linux Devices
-    > Maemo Qemu Settings}.
+    > MeeGo Qemu Settings}.
 
     \section1 Emulating Device Keys
 
