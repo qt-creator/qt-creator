@@ -29,14 +29,9 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#include <qglobal.h>
-#ifdef Q_OS_LINUX
-#define EMBEDDED_LIB
-#endif
 
-#ifdef Q_OS_WIN
-# include <Winsock2.h>
-#endif
+#include "syssocket.h" // this should be the first header included
+
 #include "servicebrowser_p.h"
 
 #include <QtCore/QString>
@@ -44,6 +39,10 @@
 #include <QtCore/QProcess>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
+
+#ifdef Q_OS_LINUX
+#define EMBEDDED_LIB
+#endif
 
 #ifdef EMBEDDED_LIB
 #include "embed/dnssd_ipc.c"

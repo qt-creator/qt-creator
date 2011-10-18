@@ -16,12 +16,14 @@ HEADERS += servicebrowser.h \
         zeroconf_global.h \
         dns_sd_types.h \
     servicebrowser_p.h \
-    mdnsderived.h
+    mdnsderived.h \
+    syssocket.h
 
 include(../../qtcreatorlibrary.pri)
 
 win32{
     LIBS += -lws2_32
 }
+
 
 

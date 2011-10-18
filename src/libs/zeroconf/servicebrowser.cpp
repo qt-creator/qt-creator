@@ -30,19 +30,6 @@
 **
 **************************************************************************/
 
-#ifdef Q_OS_WIN32
-# include <Winsock2.h>
-# ifndef SHUT_RDWR
-#  ifdef SD_BOTH
-#    define SHUT_RDWR SD_BOTH
-#  else
-#    define SHUT_RDWR 2
-#  endif
-# endif
-#else
-# include <sys/socket.h>
-#endif
-
 #include "mdnsderived.h"
 #include "servicebrowser_p.h"
 
@@ -442,16 +429,16 @@ void initLib(LibUsage usage, const QString &libName, const QString &daemonPath)
 namespace Internal {
 // ----------------- dns-sd C callbacks -----------------
 
-extern "C" void cServiceResolveReply(DNSServiceRef                       sdRef,
-                                     DNSServiceFlags                     flags,
-                                     uint32_t                            interfaceIndex,
-                                     DNSServiceErrorType                 errorCode,
-                                     const char                          *fullname,
-                                     const char                          *hosttarget,
-                                     uint16_t                            port,        /* In network byte order */
-                                     uint16_t                            txtLen,
-                                     const unsigned char                 *txtRecord,
-                                     void                                *context)
+extern "C" void DNSSD_API cServiceResolveReply(DNSServiceRef                       sdRef,
+                                               DNSServiceFlags                     flags,
+                                               uint32_t                            interfaceIndex,
+                                               DNSServiceErrorType                 errorCode,
+                                               const char                          *fullname,
+                                               const char                          *hosttarget,
+                                               uint16_t                            port,        /* In network byte order */
+                                               uint16_t                            txtLen,
+                                               const unsigned char                 *txtRecord,
+                                               void                                *context)
 {
     if (DEBUG_ZEROCONF)
         qDebug() << "cServiceResolveReply(" << ((size_t)sdRef) << ", " << ((quint32)flags) << ", " << interfaceIndex
@@ -469,17 +456,17 @@ extern "C" void cServiceResolveReply(DNSServiceRef                       sdRef,
     }
 }
 
-extern "C" void cTxtRecordReply(DNSServiceRef                       sdRef,
-                                DNSServiceFlags                     flags,
-                                uint32_t                            interfaceIndex,
-                                DNSServiceErrorType                 errorCode,
-                                const char                          *fullname,
-                                uint16_t                            rrtype,
-                                uint16_t                            rrclass,
-                                uint16_t                            rdlen,
-                                const void                          *rdata,
-                                uint32_t                            ttl,
-                                void                                *context)
+extern "C" void DNSSD_API cTxtRecordReply(DNSServiceRef                       sdRef,
+                                          DNSServiceFlags                     flags,
+                                          uint32_t                            interfaceIndex,
+                                          DNSServiceErrorType                 errorCode,
+                                          const char                          *fullname,
+                                          uint16_t                            rrtype,
+                                          uint16_t                            rrclass,
+                                          uint16_t                            rdlen,
+                                          const void                          *rdata,
+                                          uint32_t                            ttl,
+                                          void                                *context)
 {
     if (DEBUG_ZEROCONF)
         qDebug() << "cTxtRecordReply(" << ((size_t)sdRef) << ", " << ((int)flags) << ", " << interfaceIndex
@@ -495,14 +482,14 @@ extern "C" void cTxtRecordReply(DNSServiceRef                       sdRef,
     }
 }
 
-extern "C" void cAddrReply(DNSServiceRef                    sdRef,
-                           DNSServiceFlags                  flags,
-                           uint32_t                         interfaceIndex,
-                           DNSServiceErrorType              errorCode,
-                           const char                       *hostname,
-                           const struct sockaddr            *address,
-                           uint32_t                         ttl,
-                           void                             *context)
+extern "C" void DNSSD_API cAddrReply(DNSServiceRef                    sdRef,
+                                     DNSServiceFlags                  flags,
+                                     uint32_t                         interfaceIndex,
+                                     DNSServiceErrorType              errorCode,
+                                     const char                       *hostname,
+                                     const struct sockaddr            *address,
+                                     uint32_t                         ttl,
+                                     void                             *context)
 {
     if (DEBUG_ZEROCONF)
         qDebug() << "cAddrReply(" << ((size_t)sdRef) << ", " << ((int)flags) << ", " << interfaceIndex
@@ -515,14 +502,14 @@ extern "C" void cAddrReply(DNSServiceRef                    sdRef,
 }
 
 /// callback for service browsing
-extern "C" void cBrowseReply(DNSServiceRef       sdRef,
-                             DNSServiceFlags     flags,
-                             uint32_t            interfaceIndex,
-                             DNSServiceErrorType errorCode,
-                             const char          *serviceName,
-                             const char          *regtype,
-                             const char          *replyDomain,
-                             void                *context)
+extern "C" void DNSSD_API cBrowseReply(DNSServiceRef       sdRef,
+                                       DNSServiceFlags     flags,
+                                       uint32_t            interfaceIndex,
+                                       DNSServiceErrorType errorCode,
+                                       const char          *serviceName,
+                                       const char          *regtype,
+                                       const char          *replyDomain,
+                                       void                *context)
 {
     if (DEBUG_ZEROCONF)
         qDebug() << "cBrowseReply(" << ((size_t)sdRef) << ", " << flags << ", " << interfaceIndex

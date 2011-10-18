@@ -30,6 +30,8 @@
 **
 **************************************************************************/
 
+#include "syssocket.h" // this should be the first header included
+
 #include "servicebrowser.h"
 #include "servicebrowser_p.h"
 

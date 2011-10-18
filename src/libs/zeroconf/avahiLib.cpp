@@ -38,9 +38,9 @@
 #include <QString>
 #include <QStringList>
 
-//#ifdef Q_OS_LINUX
+#ifdef Q_OS_LINUX
 #define AVAHI_LIB
-//#endif
+#endif
 
 #ifdef AVAHI_LIB
 
