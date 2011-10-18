@@ -9,7 +9,7 @@ SUBDIRS += qmlpuppet
     SUBDIRS += valgrindfake
 }
 
-linux-g++ {
+linux-* {
     SUBDIRS += mdnssd
 }
 
