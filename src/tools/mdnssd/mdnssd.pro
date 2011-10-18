@@ -46,7 +46,7 @@ HEADERS += \
     DebugServices.h \
     dns_sd.h
 
-linux-g++ {
+linux-* {
 DEFINES += NOT_HAVE_SA_LEN USES_NETLINK HAVE_LINUX TARGET_OS_LINUX
 }
 macx {
