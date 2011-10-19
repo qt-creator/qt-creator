@@ -62,6 +62,9 @@ Rectangle {
     property real elapsedTime
     signal updateTimer
 
+    signal updateRangeButton
+    property bool selectionRangeMode: false
+
     // ***** connections with external objects
     Connections {
         target: zoomControl
@@ -187,6 +190,16 @@ Rectangle {
         zoomControl.setRange(startTime, startTime + newWindowLength);
     }
 
+    function recenter( centerPoint ) {
+        var windowLength = view.endTime - view.startTime;
+        var newStart = Math.floor(centerPoint - windowLength/2);
+        if (newStart < 0)
+            newStart = 0;
+        if (newStart + windowLength > qmlEventList.traceEndTime())
+            newStart = qmlEventList.traceEndTime() - windowLength;
+        zoomControl.setRange(newStart, newStart + windowLength);
+    }
+
     function hideRangeDetails() {
         rangeDetails.visible = false;
         rangeDetails.duration = "";
@@ -218,6 +231,11 @@ Rectangle {
         }
         if (selectedEventIndex === -1)
             selectionHighlight.visible = false;
+    }
+
+    onSelectionRangeModeChanged: {
+        selectionRangeControl.enabled = selectionRangeMode;
+        selectionRange.reset(selectionRangeMode);
     }
 
     // ***** child items
@@ -408,9 +426,9 @@ Rectangle {
                 color:"transparent"
                 border.width: 2
                 border.color: "blue"
+                z: 1
                 radius: 2
                 visible: false
-                z:1
             }
 
             MouseArea {
@@ -421,7 +439,64 @@ Rectangle {
                     root.hideRangeDetails();
                 }
             }
+
+            MouseArea {
+                id: selectionRangeControl
+                enabled: false
+                width: flick.width
+                height: root.height
+                x: flick.contentX
+                hoverEnabled: enabled
+                z: 2
+
+                onReleased:  {
+                    selectionRange.releasedOnCreation();
+                }
+                onPressed:  {
+                    selectionRange.pressedOnCreation();
+                }
+                onMousePositionChanged: {
+                    selectionRange.movedOnCreation();
+                }
+            }
+
+            SelectionRange {
+                id: selectionRange
+                visible: root.selectionRangeMode
+                height: root.height
+                z: 2
+            }
+
+            MouseArea {
+                id: selectionRangeDrag
+                enabled: selectionRange.ready
+                anchors.fill: selectionRange
+                drag.target: selectionRange
+                drag.axis: "XAxis"
+                drag.minimumX: 0
+                drag.maximumX: flick.contentWidth - selectionRange.width
+                onPressed: {
+                    selectionRange.isDragging = true;
+                }
+                onReleased: {
+                    selectionRange.isDragging = false;
+                }
+                onDoubleClicked: {
+                    zoomControl.setRange(selectionRange.startTime, selectionRange.startTime+selectionRange.duration);
+                    root.selectionRangeMode = false;
+                    root.updateRangeButton();
+                }
+            }
         }
+    }
+
+    SelectionRangeDetails {
+        id: selectionRangeDetails
+        visible: root.selectionRangeMode
+        startTime: selectionRange.startTimeString
+        duration: selectionRange.durationString
+        endTime: selectionRange.endTimeString
+        showDuration: selectionRange.width > 1
     }
 
     RangeDetails {

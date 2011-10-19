@@ -40,6 +40,7 @@
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
+#include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeView;
@@ -94,6 +95,9 @@ public slots:
     void updateTimer();
     void clearDisplay();
     void updateToolbar();
+    void toggleRangeMode(bool);
+    void updateRangeButton();
+
 
     void qmlComplete();
     void v8Complete();
@@ -112,6 +116,7 @@ signals:
     void jumpToNext();
     void zoomIn();
     void zoomOut();
+    void rangeModeChanged(bool);
     void enableToolbar(bool);
 
     void contextMenuRequested(const QPoint& position);
@@ -136,6 +141,8 @@ private:
     bool m_v8DataReady;
 
     QWeakPointer<ZoomControl> m_zoomControl;
+
+    QToolButton *m_buttonRange;
 };
 
 } // namespace Internal

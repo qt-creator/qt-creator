@@ -44,7 +44,7 @@ BorderImage {
 
     property bool locked: !root.mouseOverSelection
 
-    source: "popup.png"
+    source: "popup_green.png"
     border {
         left: 10; top: 10
         right: 20; bottom: 20

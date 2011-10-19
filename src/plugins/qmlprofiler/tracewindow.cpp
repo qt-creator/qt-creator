@@ -41,7 +41,6 @@
 #include <QtDeclarative/QDeclarativeView>
 #include <QtDeclarative/QDeclarativeContext>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QToolButton>
 #include <QtGui/QGraphicsObject>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QScrollBar>
@@ -73,7 +72,7 @@ TraceWindow::TraceWindow(QWidget *parent)
     m_timebar = new QDeclarativeView(this);
     m_timebar->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     m_timebar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_timebar->setMaximumHeight(24);
+    m_timebar->setFixedHeight(24);
 
     m_overview = new QDeclarativeView(this);
     m_overview->setResizeMode(QDeclarativeView::SizeRootObjectToView);
@@ -115,9 +114,9 @@ QWidget *TraceWindow::createToolbar()
 {
     Utils::StyledBar *bar = new Utils::StyledBar(this);
     bar->setSingleRow(true);
-    bar->setMinimumWidth(150);
-    bar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    bar->resize(150, 24);
+    bar->setFixedWidth(150);
+    bar->setFixedHeight(24);
+
     QHBoxLayout *toolBarLayout = new QHBoxLayout(bar);
     toolBarLayout->setMargin(0);
     toolBarLayout->setSpacing(0);
@@ -141,11 +140,20 @@ QWidget *TraceWindow::createToolbar()
     buttonZoomOut->setToolTip(tr("Zoom out 10%"));
     connect(buttonZoomOut, SIGNAL(clicked()), this, SIGNAL(zoomOut()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonZoomOut, SLOT(setEnabled(bool)));
+    m_buttonRange = new QToolButton;
+    m_buttonRange->setIcon(QIcon(":/qmlprofiler/range.png"));
+    m_buttonRange->setToolTip(tr("Select range"));
+    m_buttonRange->setCheckable(true);
+    m_buttonRange->setChecked(false);
+    connect(m_buttonRange, SIGNAL(clicked(bool)), this, SLOT(toggleRangeMode(bool)));
+    connect(this, SIGNAL(enableToolbar(bool)), m_buttonRange, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(rangeModeChanged(bool)), m_buttonRange, SLOT(setChecked(bool)));
 
     toolBarLayout->addWidget(buttonPrev);
     toolBarLayout->addWidget(buttonNext);
     toolBarLayout->addWidget(buttonZoomIn);
     toolBarLayout->addWidget(buttonZoomOut);
+    toolBarLayout->addWidget(m_buttonRange);
 
     return bar;
 }
@@ -186,6 +194,7 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
 
     connect(m_mainView->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
     connect(m_mainView->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
+    connect(m_mainView->rootObject(), SIGNAL(updateRangeButton()), this, SLOT(updateRangeButton()));
     connect(m_eventList, SIGNAL(countChanged()), this, SLOT(updateToolbar()));
     connect(this, SIGNAL(jumpToPrev()), m_mainView->rootObject(), SLOT(prevEvent()));
     connect(this, SIGNAL(jumpToNext()), m_mainView->rootObject(), SLOT(nextEvent()));
@@ -237,6 +246,28 @@ void TraceWindow::clearDisplay()
 void TraceWindow::updateToolbar()
 {
     emit enableToolbar(m_eventList && m_eventList->count()>0);
+}
+
+void TraceWindow::toggleRangeMode(bool active)
+{
+    bool rangeMode = m_mainView->rootObject()->property("selectionRangeMode").toBool();
+    if (active != rangeMode) {
+        if (active)
+            m_buttonRange->setIcon(QIcon(":/qmlprofiler/range_pressed.png"));
+        else
+            m_buttonRange->setIcon(QIcon(":/qmlprofiler/range.png"));
+        m_mainView->rootObject()->setProperty("selectionRangeMode", QVariant(active));
+    }
+}
+
+void TraceWindow::updateRangeButton()
+{
+    bool rangeMode = m_mainView->rootObject()->property("selectionRangeMode").toBool();
+    if (rangeMode)
+        m_buttonRange->setIcon(QIcon(":/qmlprofiler/range_pressed.png"));
+    else
+        m_buttonRange->setIcon(QIcon(":/qmlprofiler/range.png"));
+    emit rangeModeChanged(rangeMode);
 }
 
 void TraceWindow::setRecording(bool recording)

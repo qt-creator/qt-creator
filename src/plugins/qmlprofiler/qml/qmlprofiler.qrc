@@ -3,7 +3,8 @@
         <file>Detail.qml</file>
         <file>Label.qml</file>
         <file>MainView.qml</file>
-        <file>popup.png</file>
+        <file>popup_green.png</file>
+        <file>popup_orange.png</file>
         <file>RangeDetails.qml</file>
         <file>RangeMover.qml</file>
         <file>TimeDisplay.qml</file>
@@ -20,5 +21,9 @@
         <file>TimeMarks.qml</file>
         <file>Overview.qml</file>
         <file>Overview.js</file>
+        <file>range.png</file>
+        <file>range_pressed.png</file>
+        <file>SelectionRange.qml</file>
+        <file>SelectionRangeDetails.qml</file>
     </qresource>
 </RCC>

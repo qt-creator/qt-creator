@@ -58,6 +58,8 @@ OTHER_FILES += \
     qml/TimeDisplay.qml \
     qml/TimeMarks.qml \
     qml/StatusDisplay.qml \
+    qml/SelectionRange.qml \
+    qml/SelectionRangeDetails.qml \
     qml/Overview.qml \
     qml/Overview.js
 
