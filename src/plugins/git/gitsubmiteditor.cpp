@@ -44,9 +44,6 @@
 namespace Git {
 namespace Internal {
 
-enum { FileTypeRole = Qt::UserRole + 1 };
-enum FileType { StagedFile , UnstagedFile, UntrackedFile };
-
 /* The problem with git is that no diff can be obtained to for a random
  * multiselection of staged/unstaged files; it requires the --cached
  * option for staged files. So, we sort apart the diff file lists
@@ -64,21 +61,6 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
     return static_cast<GitSubmitEditorWidget *>(widget());
 }
 
-// Utility to add a list of state/file pairs to the model
-// setting a file type.
-static void addStateFileListToModel(const QList<CommitData::StateFilePair> &l,
-                                    bool checked, FileType ft,
-                                    VCSBase::SubmitFileModel *model)
-{
-    typedef QList<CommitData::StateFilePair>::const_iterator ConstIterator;
-    if (!l.empty()) {
-        const ConstIterator cend = l.constEnd();
-        const QVariant fileTypeData(ft);
-        for (ConstIterator it = l.constBegin(); it != cend; ++it)
-            model->addFile(it->second, it->first, checked).front()->setData(fileTypeData, FileTypeRole);
-    }
-}
-
 void GitSubmitEditor::setCommitData(const CommitData &d)
 {
     submitEditorWidget()->setPanelData(d.panelData);
@@ -87,14 +69,14 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     m_commitEncoding = d.commitEncoding;
 
     m_model = new VCSBase::SubmitFileModel(this);
-    addStateFileListToModel(d.stagedFiles,   true,  StagedFile,   m_model);
-    addStateFileListToModel(d.unstagedFiles, false, UnstagedFile, m_model);
-    if (!d.untrackedFiles.empty()) {
-        const QString untrackedSpec = QLatin1String("untracked");
-        const QVariant fileTypeData(UntrackedFile);
-        const QStringList::const_iterator cend = d.untrackedFiles.constEnd();
-        for (QStringList::const_iterator it = d.untrackedFiles.constBegin(); it != cend; ++it)
-            m_model->addFile(*it, untrackedSpec, false).front()->setData(fileTypeData, FileTypeRole);
+    if (!d.files.isEmpty()) {
+        for (QList<CommitData::StateFilePair>::const_iterator it = d.files.constBegin();
+             it != d.files.constEnd(); ++it) {
+            const CommitData::FileState state = it->first;
+            const QString file = it->second;
+            m_model->addFile(file, CommitData::stateDisplayName(state), state & CommitData::StagedFile,
+                             QVariant(static_cast<int>(state)));
+        }
     }
     setFileModel(m_model);
 }
@@ -109,17 +91,11 @@ void GitSubmitEditor::slotDiffSelected(const QStringList &files)
     for (int r = 0; r < rowCount; r++) {
         const QString fileName = m_model->item(r, fileColumn)->text();
         if (files.contains(fileName)) {
-            const FileType ft = static_cast<FileType>(m_model->item(r, 0)->data(FileTypeRole).toInt());
-            switch (ft) {
-            case StagedFile:
+            const CommitData::FileState state = static_cast<CommitData::FileState>(m_model->data(r).toInt());
+            if (state & CommitData::StagedFile)
                 stagedFiles.push_back(fileName);
-                break;
-            case UnstagedFile:
+            else if (state != CommitData::UntrackedFile)
                 unstagedFiles.push_back(fileName);
-                break;
-            case UntrackedFile:
-                break;
-            }
         }
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())

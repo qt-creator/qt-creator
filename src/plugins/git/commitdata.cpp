@@ -33,10 +33,9 @@
 #include "commitdata.h"
 #include <utils/qtcassert.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
-
-const char *const kBranchIndicatorC = "# On branch";
 
 namespace Git {
 namespace Internal {
@@ -87,151 +86,121 @@ void CommitData::clear()
     panelData.clear();
     amendSHA1.clear();
 
-    stagedFiles.clear();
-    unstagedFiles.clear();
-    untrackedFiles.clear();
+    files.clear();
 }
 
-// Split a state/file spec from git status output
-// '#<tab>modified:<blanks>git .pro'
-// into state and file ('modified', 'git .pro').
-CommitData::StateFilePair splitStateFileSpecification(const QString &line)
+static CommitData::FileState stateFor(const QChar &c)
 {
-    QPair<QString, QString> rc;
-    const int statePos = 2;
-    const int colonIndex = line.indexOf(QLatin1Char(':'), statePos);
-    if (colonIndex == -1)
-        return rc;
-    rc.first = line.mid(statePos, colonIndex - statePos);
-    int filePos = colonIndex + 1;
-    const QChar blank = QLatin1Char(' ');
-    while (line.at(filePos) == blank)
-        filePos++;
-    if (filePos < line.size())
-        rc.second = line.mid(filePos, line.size() - filePos);
-    return rc;
+    switch (c.unicode()) {
+    case ' ':
+        return CommitData::UntrackedFile;
+    case 'M':
+        return CommitData::ModifiedFile;
+    case 'A':
+        return CommitData::AddedFile;
+    case 'D':
+        return CommitData::DeletedFile;
+    case 'R':
+        return CommitData::RenamedFile;
+    case 'C':
+        return CommitData::CopiedFile;
+    case 'U':
+        return CommitData::UpdatedFile;
+    default:
+        return CommitData::UnknownFileState;
+    }
 }
 
-// Convenience to add a state/file spec to a list
-static inline bool addStateFileSpecification(const QString &line, QList<CommitData::StateFilePair> *list)
+static bool checkLine(const QString &stateInfo, const QString &file, QList<CommitData::StateFilePair> *files)
 {
-    const CommitData::StateFilePair sf = splitStateFileSpecification(line);
-    if (sf.first.isEmpty() || sf.second.isEmpty())
+    Q_ASSERT(stateInfo.count() == 2);
+    Q_ASSERT(files);
+
+    if (stateInfo == "??") {
+        files->append(qMakePair(CommitData::UntrackedFile, file));
+        return true;
+    }
+
+    CommitData::FileState stagedState = stateFor(stateInfo.at(0));
+    if (stagedState == CommitData::UnknownFileState)
         return false;
-    list->push_back(sf);
+
+    stagedState = static_cast<CommitData::FileState>(stagedState | CommitData::StagedFile);
+    if (stagedState != CommitData::StagedFile)
+        files->append(qMakePair(stagedState, file));
+
+    CommitData::FileState state = stateFor(stateInfo.at(1));
+    if (state == CommitData::UnknownFileState)
+        return false;
+
+    if (state != CommitData::UntrackedFile) {
+        QString newFile = file;
+        if (stagedState == CommitData::RenamedStagedFile || stagedState == CommitData::CopiedStagedFile)
+            newFile = file.mid(file.indexOf(QLatin1String(" -> ")) + 4);
+
+        files->append(qMakePair(state, newFile));
+    }
+
     return true;
 }
 
 /* Parse a git status file list:
  * \code
-    # Changes to be committed:
-    #<tab>modified:<blanks>git.pro
-    # Changed but not updated:
-    #<tab>modified:<blanks>git.pro
-    # Untracked files:
-    #<tab>git.pro
-    \endcode
-*/
-
-bool CommitData::filesEmpty() const
-{
-    return stagedFiles.empty() && unstagedFiles.empty() && untrackedFiles.empty();
-}
-
+    ## branch_name
+    XY file
+    \endcode */
 bool CommitData::parseFilesFromStatus(const QString &output)
 {
-    enum State { None, CommitFiles, NotUpdatedFiles, UntrackedFiles };
-
     const QStringList lines = output.split(QLatin1Char('\n'));
-    const QString branchIndicator = QLatin1String(kBranchIndicatorC);
-    const QString commitIndicator = QLatin1String("# Changes to be committed:");
-    const QString notUpdatedIndicator = QLatin1String("# Changed but not updated:");
-    const QString notUpdatedIndicatorGit174 = QLatin1String("# Changes not staged for commit:");
-    const QString untrackedIndicator = QLatin1String("# Untracked files:");
 
-    State s = None;
-    // Match added/changed-not-updated files: "#<tab>modified: foo.cpp"
-    QRegExp filesPattern(QLatin1String("#\\t[^:]+:\\s+.+"));
-    QTC_ASSERT(filesPattern.isValid(), return false);
+    foreach (const QString &line, lines) {
+        if (line.isEmpty())
+            continue;
 
-    const QStringList::const_iterator cend = lines.constEnd();
-    for (QStringList::const_iterator it =  lines.constBegin(); it != cend; ++it) {
-        QString line = *it;
-        if (line.startsWith(branchIndicator)) {
-            panelInfo.branch = line.mid(branchIndicator.size() + 1);
+        if (line.startsWith("## ")) {
+            // Branch indication:
+            panelInfo.branch = line.mid(3);
             continue;
         }
-        if (line.startsWith(commitIndicator)) {
-            s = CommitFiles;
-            continue;
-        }
-        if (line.startsWith(notUpdatedIndicator) || line.startsWith(notUpdatedIndicatorGit174)) {
-            s = NotUpdatedFiles;
-            continue;
-        }
-        if (line.startsWith(untrackedIndicator)) {
-            // Now match untracked: "#<tab>foo.cpp"
-            s = UntrackedFiles;
-            filesPattern = QRegExp(QLatin1String("#\\t.+"));
-            QTC_ASSERT(filesPattern.isValid(), return false);
-            continue;
-        }
-        if (filesPattern.exactMatch(line)) {
-            switch (s) {
-            case CommitFiles:
-                addStateFileSpecification(line, &stagedFiles);
-                break;
-            case NotUpdatedFiles:
-                // skip submodules:
-                if (line.endsWith(QLatin1String(" (modified content)"))
-                        || line.endsWith(" (new commits)"))
-                    line = line.left(line.lastIndexOf(QLatin1Char('(')) - 1);
-                addStateFileSpecification(line, &unstagedFiles);
-                break;
-            case UntrackedFiles:
-                untrackedFiles.push_back(line.mid(2).trimmed());
-                break;
-            case None:
-                break;
-            }
-        }
+        QTC_ASSERT(line.at(2) == ' ', continue);
+        if (!checkLine(line.mid(0, 2), line.mid(3), &files))
+            return false;
     }
+
     return true;
 }
 
-// Convert a spec pair list to a list of file names, optionally
-// filter for a state
-static QStringList specToFileNames(const QList<CommitData::StateFilePair> &files,
-                                   const QString &stateFilter)
+QStringList CommitData::filterFiles(const CommitData::FileState &state) const
 {
-    typedef QList<CommitData::StateFilePair>::const_iterator ConstIterator;
-    if (files.empty())
-        return QStringList();
-    const bool emptyFilter = stateFilter.isEmpty();
-    QStringList rc;
-    const ConstIterator cend = files.constEnd();
-    for (ConstIterator it = files.constBegin(); it != cend; ++it)
-        if (emptyFilter || stateFilter == it->first)
-            rc.push_back(it->second);
-    return rc;
+    QStringList result;
+    foreach (const StateFilePair &p, files) {
+        if (state == AllStates || state == p.first)
+            result.append(p.second);
+    }
+    return result;
 }
 
-QStringList CommitData::stagedFileNames(const QString &stateFilter) const
+QString CommitData::stateDisplayName(const FileState &state)
 {
-    return specToFileNames(stagedFiles, stateFilter);
-}
+    QString resultState;
+    if (state == UntrackedFile)
+        return QCoreApplication::translate("Git::Internal::CommitData", "untracked");
 
-QStringList CommitData::unstagedFileNames(const QString &stateFilter) const
-{
-    return specToFileNames(unstagedFiles, stateFilter);
-}
-
-QDebug operator<<(QDebug d, const CommitData &data)
-{
-    d <<  data.panelInfo << data.panelData;
-    d.nospace() << "Commit: " << data.stagedFiles << " Not updated: "
-        << data.unstagedFiles << " Untracked: " << data.untrackedFiles;
-    return d;
+    if (state & StagedFile)
+        resultState = QCoreApplication::translate("Git::Internal::CommitData", "staged + ");
+    if (state & ModifiedFile)
+        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "modified"));
+    else if (state & AddedFile)
+        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "added"));
+    else if (state & DeletedFile)
+        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "deleted"));
+    else if (state & RenamedFile)
+        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "renamed"));
+    else if (state & CopiedFile)
+        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "copied"));
+    else if (state & UpdatedFile)
+        resultState.append(QCoreApplication::translate("Git::Internal::CommitData", "updated"));
+    return resultState;
 }
 
 } // namespace Internal

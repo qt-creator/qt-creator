@@ -39,6 +39,8 @@
 #include "gitsubmiteditor.h"
 #include "gitversioncontrol.h"
 
+#include <vcsbase/submitfilemodel.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -75,8 +77,7 @@
 #include <QtGui/QToolButton>
 #include <QtCore/QTextCodec>
 
-static const char kGitDirectoryC[] = ".git";
-static const char kBranchIndicatorC[] = "# On branch";
+static const char GIT_DIRECTORY[] = ".git";
 
 namespace Git {
 namespace Internal {
@@ -323,7 +324,7 @@ const char *GitClient::decorateOption = "--decorate";
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
     // Check for ".git/config"
-    const QString checkFile = QLatin1String(kGitDirectoryC) + QLatin1String("/config");
+    const QString checkFile = QLatin1String(GIT_DIRECTORY) + QLatin1String("/config");
     return VCSBase::VCSBasePlugin::findRepositoryForDirectory(dir, checkFile);
 }
 
@@ -1415,28 +1416,29 @@ static inline QString trimFileSpecification(QString fileSpec)
     return fileSpec;
 }
 
-GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
-                                             bool untracked,
-                                             QString *output,
-                                             QString *errorMessage,
-                                             bool *onBranch)
+GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, bool untracked,
+                                             QString *output, QString *errorMessage, bool *onBranch)
 {
     // Run 'status'. Note that git returns exitcode 1 if there are no added files.
     QByteArray outputText;
     QByteArray errorText;
-    // @TODO: Use "--no-color" once it is supported
+
     QStringList statusArgs(QLatin1String("status"));
     if (untracked)
         statusArgs << QLatin1String("-u");
+    statusArgs << QLatin1String("-s") << QLatin1String("-b");
+
     const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
-    VCSBase::Command::removeColorCodes(&outputText);
     if (output)
         *output = commandOutputFromLocal8Bit(outputText);
-    const bool branchKnown = outputText.contains(kBranchIndicatorC);
+
+    static const char * NO_BRANCH = "## HEAD (no branch)\n";
+
+    const bool branchKnown = !outputText.startsWith(NO_BRANCH);
     if (onBranch)
         *onBranch = branchKnown;
     // Is it something really fatal?
-    if (!statusRc && !branchKnown && !outputText.contains("# Not currently on any branch.")) {
+    if (!statusRc && !branchKnown) {
         if (errorMessage) {
             const QString error = commandOutputFromLocal8Bit(errorText);
             *errorMessage = tr("Cannot obtain status: %1").arg(error);
@@ -1444,10 +1446,8 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
         return StatusFailed;
     }
     // Unchanged (output text depending on whether -u was passed)
-    if (outputText.contains("nothing to commit"))
+    if (outputText.count('\n') == 1)
         return StatusUnchanged;
-    if (outputText.contains("nothing added to commit but untracked files present"))
-        return untracked ? StatusChanged : StatusUnchanged;
     return StatusChanged;
 }
 
@@ -1570,7 +1570,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     commitData->panelInfo.repository = repoDirectory;
 
     QDir gitDir(repoDirectory);
-    if (!gitDir.cd(QLatin1String(kGitDirectoryC))) {
+    if (!gitDir.cd(QLatin1String(GIT_DIRECTORY))) {
         *errorMessage = tr("The repository \"%1\" is not initialized.").arg(repoDirectory);
         return false;
     }
@@ -1605,33 +1605,31 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     }
 
     //    Output looks like:
-    //    # On branch [branchname]
-    //    # Changes to be committed:
-    //    #   (use "git reset HEAD <file>..." to unstage)
-    //    #
-    //    #       modified:   somefile.cpp
-    //    #       new File:   somenew.h
-    //    #
-    //    # Changed but not updated:
-    //    #   (use "git add <file>..." to update what will be committed)
-    //    #
-    //    #       modified:   someother.cpp
-    //    #       modified:   submodule (modified content)
-    //    #       modified:   submodule2 (new commit)
-    //    #
-    //    # Untracked files:
-    //    #   (use "git add <file>..." to include in what will be committed)
-    //    #
-    //    #       list of files...
-
+    //    ## branch_name
+    //    MM filename
+    //     A new_unstaged_file
+    //    R  old -> new
+    //    ?? missing_file
     if (status != StatusUnchanged) {
         if (!commitData->parseFilesFromStatus(output)) {
             *errorMessage = msgParseFilesFailed();
             return false;
         }
+
         // Filter out untracked files that are not part of the project
-        VCSBase::VCSBaseSubmitEditor::filterUntrackedFilesOfProject(repoDirectory, &commitData->untrackedFiles);
-        if (commitData->filesEmpty()) {
+        QStringList untrackedFiles = commitData->filterFiles(CommitData::UntrackedFile);
+
+        VCSBase::VCSBaseSubmitEditor::filterUntrackedFilesOfProject(repoDirectory, &untrackedFiles);
+        QList<CommitData::StateFilePair> filteredFiles;
+        QList<CommitData::StateFilePair>::const_iterator it = commitData->files.constBegin();
+        for ( ; it != commitData->files.constEnd(); ++it) {
+            if (it->first == CommitData::UntrackedFile && !untrackedFiles.contains(it->second))
+                continue;
+            filteredFiles.append(*it);
+        }
+        commitData->files = filteredFiles;
+
+        if (commitData->files.isEmpty()) {
             *errorMessage = msgNoChangedFiles();
             return false;
         }
@@ -1683,46 +1681,74 @@ static inline QString msgCommitted(const QString &amendSHA1, int fileCount)
     return GitClient::tr("Amended \"%1\".").arg(amendSHA1);
 }
 
-// addAndCommit:
 bool GitClient::addAndCommit(const QString &repositoryDirectory,
                              const GitSubmitEditorPanelData &data,
                              const QString &amendSHA1,
                              const QString &messageFile,
-                             const QStringList &checkedFiles,
-                             const QStringList &origCommitFiles,
-                             const QStringList &origDeletedFiles)
+                             VCSBase::SubmitFileModel *model)
 {
-    const QString renamedSeparator = QLatin1String(" -> ");
+    const QString renameSeparator = QLatin1String(" -> ");
     const bool amend = !amendSHA1.isEmpty();
 
-    // Do we need to reset any files that had been added before
-    // (did the user uncheck any previously added files)
-    // Split up  renamed files ('foo.cpp -> foo2.cpp').
-    QStringList resetFiles = origCommitFiles.toSet().subtract(checkedFiles.toSet()).toList();
-    for (QStringList::iterator it = resetFiles.begin(); it != resetFiles.end(); ++it) {
-        const int renamedPos = it->indexOf(renamedSeparator);
-        if (renamedPos != -1) {
-            const QString newFile = it->mid(renamedPos + renamedSeparator.size());
-            it->truncate(renamedPos);
-            it = resetFiles.insert(++it, newFile);
+    QStringList filesToAdd;
+    QStringList filesToRemove;
+    QStringList filesToReset;
+
+    int commitCount = 0;
+
+    for (int i = 0; i < model->rowCount(); ++i) {
+        const CommitData::FileState state = static_cast<CommitData::FileState>(model->data(i).toInt());
+        QString file = model->file(i);
+        const bool checked = model->checked(i);
+
+        if (checked)
+            ++commitCount;
+
+        if (state == CommitData::UntrackedFile && checked)
+            filesToAdd.append(file);
+
+        if (state == CommitData::ModifiedStagedFile && !checked) {
+            filesToReset.append(file);
+        } else if (state == CommitData::AddedStagedFile && !checked) {
+            filesToReset.append(file);
+        } else if (state == CommitData::DeletedStagedFile && !checked) {
+            filesToReset.append(file);
+        } else if (state == CommitData::RenamedStagedFile && !checked) {
+            const int pos = file.indexOf(QLatin1String(" -> "));
+            const QString newFile = file.mid(pos + 4);
+            filesToReset.append(newFile);
+        } else if (state == CommitData::CopiedStagedFile && !checked) {
+            const QString newFile = file.mid(file.indexOf(renameSeparator) + renameSeparator.count());
+            filesToReset.append(newFile);
+        } else if (state == CommitData::UpdatedStagedFile && !checked) {
+            QTC_ASSERT(false, continue); // There should not be updated files when commiting!
+        }
+
+        if (state == CommitData::ModifiedFile && checked) {
+            filesToReset.removeAll(file);
+            filesToAdd.append(file);
+        } else if (state == CommitData::AddedFile && checked) {
+            QTC_ASSERT(false, continue); // these should be untracked!
+        } else if (state == CommitData::DeletedFile && checked) {
+            filesToReset.removeAll(file);
+            filesToRemove.append(file);
+        } else if (state == CommitData::RenamedFile && checked) {
+            QTC_ASSERT(false, continue); // git mv directly stages.
+        } else if (state == CommitData::CopiedFile && checked) {
+            QTC_ASSERT(false, continue); // only is noticed after adding a new file to the index
+        } else if (state == CommitData::UpdatedFile && checked) {
+            QTC_ASSERT(false, continue); // There should not be updated files when commiting!
         }
     }
 
-    if (!resetFiles.isEmpty())
-        if (!synchronousReset(repositoryDirectory, resetFiles))
-            return false;
+    if (!filesToReset.isEmpty() && !synchronousReset(repositoryDirectory, filesToReset))
+        return false;
 
-    // Re-add all to make sure we have the latest changes, but only add those that aren't marked
-    // for deletion. Purge out renamed files ('foo.cpp -> foo2.cpp').
-    QStringList addFiles = checkedFiles.toSet().subtract(origDeletedFiles.toSet()).toList();
-    for (QStringList::iterator it = addFiles.begin(); it != addFiles.end(); ) {
-        if (it->contains(renamedSeparator))
-            it = addFiles.erase(it);
-        else
-            ++it;
-    }
-    if (!addFiles.isEmpty() && !synchronousAdd(repositoryDirectory, false, addFiles))
-            return false;
+    if (!filesToRemove.isEmpty() && !synchronousDelete(repositoryDirectory, true, filesToRemove))
+        return false;
+
+    if (!filesToAdd.isEmpty() && !synchronousAdd(repositoryDirectory, false, filesToAdd))
+        return false;
 
     // Do the final commit
     QStringList args;
@@ -1736,11 +1762,13 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
 
     QByteArray outputText;
     QByteArray errorText;
+
     const bool rc = fullySynchronousGit(repositoryDirectory, args, &outputText, &errorText);
     if (rc)
-        outputWindow()->append(msgCommitted(amendSHA1, checkedFiles.size()));
+        outputWindow()->append(msgCommitted(amendSHA1, commitCount));
     else
-        outputWindow()->appendError(tr("Cannot commit %n file(s): %1\n", 0, checkedFiles.size()).arg(commandOutputFromLocal8Bit(errorText)));
+        outputWindow()->appendError(tr("Cannot commit %n file(s): %1\n", 0, commitCount).arg(commandOutputFromLocal8Bit(errorText)));
+
     return rc;
 }
 
@@ -1796,9 +1824,8 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
     }
 
     // From the status output, determine all modified [un]staged files.
-    const QString modifiedState = QLatin1String("modified");
-    const QStringList allStagedFiles = data.stagedFileNames(modifiedState);
-    const QStringList allUnstagedFiles = data.unstagedFileNames(modifiedState);
+    const QStringList allStagedFiles = data.filterFiles(CommitData::ModifiedStagedFile);
+    const QStringList allUnstagedFiles = data.filterFiles(CommitData::ModifiedFile);
     // Unless a directory was passed, filter all modified files for the
     // argument file list.
     QStringList stagedFiles = allStagedFiles;

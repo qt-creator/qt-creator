@@ -69,33 +69,49 @@ QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);
 class CommitData
 {
 public:
+    enum FileState {
+        UntrackedFile = 0,
+
+        StagedFile = 1,
+        ModifiedFile = 2,
+        AddedFile = 3,
+        DeletedFile = 4,
+        RenamedFile = 8,
+        CopiedFile = 16,
+        UpdatedFile = 32,
+
+        ModifiedStagedFile = StagedFile | ModifiedFile,
+        AddedStagedFile = StagedFile | AddedFile,
+        DeletedStagedFile = StagedFile | DeletedFile,
+        RenamedStagedFile = StagedFile | RenamedFile,
+        CopiedStagedFile = StagedFile | CopiedFile,
+        UpdatedStagedFile = StagedFile | UpdatedFile,
+
+        AllStates = UpdatedFile | CopiedFile | RenamedFile | DeletedFile | AddedFile | ModifiedFile | StagedFile,
+        UnknownFileState
+    };
+
     // A pair of state string/file name ('modified', 'file.cpp').
-    typedef QPair<QString, QString> StateFilePair;
+    typedef QPair<FileState, QString> StateFilePair;
 
     void clear();
     // Parse the files and the branch of panelInfo
     // from a git status output
     bool parseFilesFromStatus(const QString &output);
 
-    bool filesEmpty() const;
-
     // Convenience to retrieve the file names from
     // the specification list. Optionally filter for a certain state
-    QStringList stagedFileNames(const QString &stateFilter = QString()) const;
-    QStringList unstagedFileNames(const QString &stateFilter = QString()) const;
+    QStringList filterFiles(const FileState &state = AllStates) const;
+
+    static QString stateDisplayName(const FileState &state);
 
     QString amendSHA1;
     QString commitEncoding;
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
 
-    QList<StateFilePair> stagedFiles;
-    QList<StateFilePair> unstagedFiles;
-    QStringList untrackedFiles;
+    QList<StateFilePair> files;
 };
-
-QDebug operator<<(QDebug d, const CommitData &);
-
 
 } // namespace Internal
 } // namespace Git

@@ -63,6 +63,7 @@
 #include <utils/fileutils.h>
 
 #include <vcsbase/basevcseditorfactory.h>
+#include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
@@ -695,8 +696,6 @@ void GitPlugin::startCommit(bool amend)
     // files to be able to unstage files the user unchecks
     m_submitRepository = data.panelInfo.repository;
     m_commitAmendSHA1 = data.amendSHA1;
-    m_submitOrigCommitFiles = data.stagedFileNames();
-    m_submitOrigDeleteFiles = data.stagedFileNames("deleted");
 
     // Start new temp file with message template
     Utils::TempFileSaver saver;
@@ -772,21 +771,18 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     default:
         break;
     }
+
+
     // Go ahead!
-    const QStringList fileList = editor->checkedFiles();
+    VCSBase::SubmitFileModel *model = qobject_cast<VCSBase::SubmitFileModel *>(editor->fileModel());
     bool closeEditor = true;
-    if (!fileList.empty() || !m_commitAmendSHA1.isEmpty()) {
+    if (model->hasCheckedFiles() || !m_commitAmendSHA1.isEmpty()) {
         // get message & commit
         if (!m_core->fileManager()->saveFile(fileIFace))
             return false;
 
-        closeEditor = m_gitClient->addAndCommit(m_submitRepository,
-                                                editor->panelData(),
-                                                m_commitAmendSHA1,
-                                                m_commitMessageFileName,
-                                                fileList,
-                                                m_submitOrigCommitFiles,
-                                                m_submitOrigDeleteFiles);
+        closeEditor = m_gitClient->addAndCommit(m_submitRepository, editor->panelData(),
+                                                m_commitAmendSHA1, m_commitMessageFileName, model);
     }
     if (closeEditor)
         cleanCommitMessageFile();

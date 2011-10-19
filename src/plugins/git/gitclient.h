@@ -57,6 +57,7 @@ namespace Core {
 
 namespace VCSBase {
     class VCSBaseEditorWidget;
+    class SubmitFileModel;
 }
 
 namespace Utils {
@@ -204,16 +205,13 @@ public:
                       const GitSubmitEditorPanelData &data,
                       const QString &amendSHA1,
                       const QString &messageFile,
-                      const QStringList &checkedFiles,
-                      const QStringList &origCommitFiles,
-                      const QStringList &origDeletedFiles);
+                      VCSBase::SubmitFileModel *model);
 
     enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
     StatusResult gitStatus(const QString &workingDirectory,
                            bool untracked = false,
                            QString *output = 0,
-                           QString *errorMessage = 0,
-                           bool *onBranch = 0);
+                           QString *errorMessage = 0, bool *onBranch = 0);
 
     void launchGitK(const QString &workingDirectory);
     QStringList synchronousRepositoryBranches(const QString &repositoryURL);

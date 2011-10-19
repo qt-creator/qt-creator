@@ -38,6 +38,29 @@
 
 namespace VCSBase {
 
+// --------------------------------------------------------------------------
+// Helpers:
+// --------------------------------------------------------------------------
+
+static QList<QStandardItem *> createFileRow(const QString &fileName, const QString &status,
+                                            bool checked, const QVariant &v)
+{
+    QStandardItem *statusItem = new QStandardItem(status);
+    statusItem->setCheckable(true);
+    statusItem->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    statusItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+    statusItem->setData(v);
+    QStandardItem *fileItem = new QStandardItem(fileName);
+    fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    QList<QStandardItem *> row;
+    row << statusItem << fileItem;
+    return row;
+}
+
+// --------------------------------------------------------------------------
+// SubmitFileModel:
+// --------------------------------------------------------------------------
+
 /*!
     \class VCSBase::SubmitFileModel
 
@@ -54,24 +77,10 @@ SubmitFileModel::SubmitFileModel(QObject *parent) :
     setHorizontalHeaderLabels(headerLabels);
 }
 
-QList<QStandardItem *> SubmitFileModel::createFileRow(const QString &fileName, const QString &status, bool checked)
+QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, bool checked,
+                                                const QVariant &v)
 {
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << fileName << status << checked;
-    QStandardItem *statusItem = new QStandardItem(status);
-    statusItem->setCheckable(true);
-    statusItem->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-    statusItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-    QStandardItem *fileItem = new QStandardItem(fileName);
-    fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    QList<QStandardItem *> row;
-    row << statusItem << fileItem;
-    return row;
-}
-
-QList<QStandardItem *> SubmitFileModel::addFile(const QString &fileName, const QString &status, bool checked)
-{
-    const QList<QStandardItem *> row = createFileRow(fileName, status, checked);
+    const QList<QStandardItem *> row = createFileRow(fileName, status, checked, v);
     appendRow(row);
     return row;
 }
@@ -104,6 +113,13 @@ bool SubmitFileModel::checked(int row) const
     if (row < 0 || row >= rowCount())
         return false;
     return (item(row)->checkState() == Qt::Checked);
+}
+
+QVariant SubmitFileModel::data(int row) const
+{
+    if (row < 0 || row >= rowCount())
+        return false;
+    return item(row)->data();
 }
 
 bool SubmitFileModel::hasCheckedFiles() const

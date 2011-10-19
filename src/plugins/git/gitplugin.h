@@ -206,8 +206,6 @@ private:
     QPointer<BranchDialog>      m_branchDialog;
     QPointer<RemoteDialog>      m_remoteDialog;
     QString                     m_submitRepository;
-    QStringList                 m_submitOrigCommitFiles;
-    QStringList                 m_submitOrigDeleteFiles;
     QString                     m_commitMessageFileName;
     QString                     m_commitAmendSHA1;
     bool                        m_submitActionTriggered;

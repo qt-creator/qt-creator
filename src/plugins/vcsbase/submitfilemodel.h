@@ -46,8 +46,8 @@ public:
     explicit SubmitFileModel(QObject *parent = 0);
 
     // Convenience to create and add rows containing a file plus status text.
-    static QList<QStandardItem *> createFileRow(const QString &fileName, const QString &status = QString(), bool checked = true);
-    QList<QStandardItem *> addFile(const QString &fileName, const QString &status = QString(), bool checked = true);
+    QList<QStandardItem *> addFile(const QString &fileName, const QString &status = QString(),
+                                   bool checked = true, const QVariant &data = QVariant());
 
     // Find convenience that returns the whole row (as opposed to QStandardItemModel::find).
     QList<QStandardItem *> findRow(const QString &text, int column = 0) const;
@@ -58,6 +58,7 @@ public:
     QString state(int row) const;
     QString file(int row) const;
     bool checked(int row) const;
+    QVariant data(int row) const;
 
     bool hasCheckedFiles() const;
 
