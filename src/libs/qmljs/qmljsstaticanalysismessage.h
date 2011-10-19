@@ -122,6 +122,8 @@ public:
     bool isValid() const;
     DiagnosticMessage toDiagnosticMessage() const;
 
+    QString suppressionString() const;
+
     AST::SourceLocation location;
     QString message;
     Type type;

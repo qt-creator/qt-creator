@@ -148,9 +148,7 @@ SemanticInfo SemanticInfoUpdater::semanticInfo(const SemanticInfoUpdaterSource &
 
     if (doc->language() != QmlJS::Document::JsonLanguage) {
         QmlJS::Check checker(doc, semanticInfo.context);
-        foreach (const QmlJS::StaticAnalysis::Message &msg, checker()) {
-            semanticInfo.semanticMessages += msg.toDiagnosticMessage();
-        }
+        semanticInfo.staticAnalysisMessages = checker();
     }
 
     return semanticInfo;

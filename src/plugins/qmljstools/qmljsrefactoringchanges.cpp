@@ -167,6 +167,12 @@ bool QmlJSRefactoringFile::isCursorOn(AST::UiQualifiedId *ast) const
     return pos <= ast->identifierToken.end();
 }
 
+bool QmlJSRefactoringFile::isCursorOn(AST::SourceLocation loc) const
+{
+    const unsigned pos = cursor().position();
+    return pos >= loc.begin() && pos <= loc.end();
+}
+
 QmlJSRefactoringChangesData *QmlJSRefactoringFile::data() const
 {
     return static_cast<QmlJSRefactoringChangesData *>(m_data.data());

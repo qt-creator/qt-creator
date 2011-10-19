@@ -38,6 +38,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsscopechain.h>
+#include <qmljs/qmljsstaticanalysismessage.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 
@@ -136,6 +137,7 @@ public: // attributes
 
     // these are in addition to the parser messages in the document
     QList<QmlJS::DiagnosticMessage> semanticMessages;
+    QList<QmlJS::StaticAnalysis::Message> staticAnalysisMessages;
 
 private:
     QSharedPointer<const QmlJS::ScopeChain> m_rootScopeChain;

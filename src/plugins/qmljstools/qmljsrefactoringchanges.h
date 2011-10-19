@@ -63,6 +63,7 @@ public:
 
     bool isCursorOn(QmlJS::AST::UiObjectMember *ast) const;
     bool isCursorOn(QmlJS::AST::UiQualifiedId *ast) const;
+    bool isCursorOn(QmlJS::AST::SourceLocation loc) const;
 
 protected:
     QmlJSRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data);

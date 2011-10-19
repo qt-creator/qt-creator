@@ -1136,10 +1136,42 @@ void Check::addMessages(const QList<Message> &messages)
         addMessage(msg);
 }
 
+static bool hasOnlySpaces(const QString &s)
+{
+    for (int i = 0; i < s.size(); ++i)
+        if (!s.at(i).isSpace())
+            return false;
+    return true;
+}
+
 void Check::addMessage(const Message &message)
 {
-    if (message.isValid() && _enabledMessages.contains(message.type))
+    if (message.isValid() && _enabledMessages.contains(message.type)) {
+        // check for 'ignore this message'-type comments
+        const QString &suppressMessage = message.suppressionString();
+        foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
+            if (commentLoc.startLine > message.location.startLine)
+                break;
+            if (commentLoc.startLine < message.location.startLine - 1)
+                continue;
+
+            // only look at comments on the previous line if there's only spaces before the comment
+            // note: startColumn is 1-based and *after* the starting // or /*
+            if (commentLoc.startLine == message.location.startLine - 1
+                    && commentLoc.startColumn > 3) {
+                const QString &beforeComment = _doc->source().mid(commentLoc.begin() - commentLoc.startColumn + 1,
+                                                                  commentLoc.startColumn - 3);
+                if (!hasOnlySpaces(beforeComment))
+                    continue;
+            }
+
+            const QString &comment = _doc->source().mid(commentLoc.begin(), commentLoc.length);
+            if (comment.contains(suppressMessage))
+                return;
+        }
+
         _messages += message;
+    }
 }
 
 void Check::addMessage(Type type, const SourceLocation &location, const QString &arg1, const QString &arg2)

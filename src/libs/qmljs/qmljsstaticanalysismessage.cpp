@@ -218,6 +218,7 @@ Message::Message(Type type, AST::SourceLocation location, const QString &arg1, c
             qWarning() << "StaticAnalysis message" << type << "expects exactly two arguments";
         message = message.arg(arg1, arg2);
     }
+    message.append(QString(" (M%1)").arg(QString::number(prototype.type)));
 }
 
 bool Message::isValid() const
@@ -241,4 +242,9 @@ DiagnosticMessage Message::toDiagnosticMessage() const
     diagnostic.loc = location;
     diagnostic.message = message;
     return diagnostic;
+}
+
+QString Message::suppressionString() const
+{
+    return QString("@disable M%1").arg(QString::number(type));
 }

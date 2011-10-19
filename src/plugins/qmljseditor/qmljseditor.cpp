@@ -851,6 +851,45 @@ static void appendExtraSelectionsForMessages(
     }
 }
 
+static void appendExtraSelectionsForMessages(
+        QList<QTextEdit::ExtraSelection> *selections,
+        const QList<StaticAnalysis::Message> &messages,
+        const QTextDocument *document)
+{
+    foreach (const StaticAnalysis::Message &d, messages) {
+        const int line = d.location.startLine;
+        const int column = qMax(1U, d.location.startColumn);
+
+        QTextEdit::ExtraSelection sel;
+        QTextCursor c(document->findBlockByNumber(line - 1));
+        sel.cursor = c;
+
+        sel.cursor.setPosition(c.position() + column - 1);
+
+        if (d.location.length == 0) {
+            if (sel.cursor.atBlockEnd())
+                sel.cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+            else
+                sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+        } else {
+            sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, d.location.length);
+        }
+
+        if (d.severity == StaticAnalysis::Warning || d.severity == StaticAnalysis::MaybeWarning) {
+            sel.format.setUnderlineColor(Qt::darkYellow);
+        } else if (d.severity == StaticAnalysis::Error || d.severity == StaticAnalysis::MaybeError) {
+            sel.format.setUnderlineColor(Qt::red);
+        } else if (d.severity == StaticAnalysis::Hint) {
+            sel.format.setUnderlineColor(Qt::darkGreen);
+        }
+
+        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        sel.format.setToolTip(d.message);
+
+        selections->append(sel);
+    }
+}
+
 void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     if (file()->fileName() != doc->fileName()
@@ -1543,6 +1582,7 @@ void QmlJSTextEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     QList<QTextEdit::ExtraSelection> selections;
     appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
     appendExtraSelectionsForMessages(&selections, m_semanticInfo.semanticMessages, document());
+    appendExtraSelectionsForMessages(&selections, m_semanticInfo.staticAnalysisMessages, document());
     setExtraSelections(CodeWarningsSelection, selections);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
