@@ -23,9 +23,14 @@ Managing Projects
 Debugging
 
 Debugging QML/JS
+   * New option to attach to a running application
+   * Lots of bug fixes especially for debugging in combination with C++
+   * Initial support for debugging JS in Qt 5 (v8 engine)
 
 Analyzing Code
    * Standalone qmlprofiler command line tool allows you to retrieve & store QML tracing data
+   * Ability to store and load traces in a file
+   * New option to attach to a running application
 
 C++ Support
    * Add quick fix to synchronize function declarations and definitions
@@ -67,6 +72,7 @@ QML/JS Support
    * Fix scope for completion in code bindings
    * Allow for different builtin type information per Qt version
    * Update builtin type information and parser for Qt 5
+   * Use qmlscene for previewing files in Qt 5
 
 Qt Quick Designer
    * Adding breadcrumb navigation for components
