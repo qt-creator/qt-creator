@@ -1370,7 +1370,22 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
     if (topLevel)
         topLevel->clear();
     bool manages = false;
+    // Subversion >= 1.7: Check for furthest parent containing
+    // ".svn/wc.db". Need to check for furthest parent as closer
+    // parents may be svn:externals.
+    if (dir.exists()) {
+        QDir parentDir = dir;
+        while (parentDir.cdUp()) {
+            if (checkSVNSubDir(parentDir, QLatin1String("wc.db"))) {
+                manages = true;
+                if (topLevel)
+                    *topLevel = parentDir.absolutePath();
+            }
+        }
+    }
     do {
+        if (manages)
+            break;
         if (!dir.exists() || !checkSVNSubDir(dir))
             break;
         manages = true;
@@ -1387,18 +1402,6 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
             }
         }
     } while (false);
-    // Subversion >= 1.7: Check for first parent containing ".svn"
-    if (!manages) {
-        QDir parentDir = dir;
-        while (parentDir.cdUp()) {
-            if (checkSVNSubDir(parentDir)) {
-                manages = true;
-                if (topLevel)
-                    *topLevel = parentDir.absolutePath();
-                break;
-            }
-        }
-    }
     if (Subversion::Constants::debug) {
         QDebug nsp = qDebug().nospace();
         nsp << "SubversionPlugin::managesDirectory" << directory << manages;
@@ -1409,13 +1412,16 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
 }
 
 // Check whether SVN management subdirs exist.
-bool SubversionPlugin::checkSVNSubDir(const QDir &directory) const
+bool SubversionPlugin::checkSVNSubDir(const QDir &directory, const QString &fileName) const
 {
     const int dirCount = m_svnDirectories.size();
     for (int i = 0; i < dirCount; i++) {
         const QString svnDir = directory.absoluteFilePath(m_svnDirectories.at(i));
-        if (QFileInfo(svnDir).isDir())
-            return true;
+        if (!QFileInfo(svnDir).isDir())
+            continue;
+        if (!fileName.isEmpty() && !QDir(svnDir).exists(fileName))
+            continue;
+        return true;
     }
     return false;
 }
