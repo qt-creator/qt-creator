@@ -198,7 +198,8 @@ void QmlEngine::connectionEstablished()
     }
     connect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
 
-    notifyEngineRunAndInferiorRunOk();
+    if (state() == EngineRunRequested)
+        notifyEngineRunAndInferiorRunOk();
 }
 
 void QmlEngine::beginConnection()
@@ -247,7 +248,12 @@ void QmlEngine::retryMessageBoxFinished(int result)
         // fall through
     }
     default:
+        if (state() == InferiorRunOk) {
+            notifyInferiorSpontaneousStop();
+            notifyInferiorIll();
+        } else {
         notifyEngineRunFailed();
+        }
         break;
     }
 }
