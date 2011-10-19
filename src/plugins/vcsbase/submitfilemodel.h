@@ -55,6 +55,12 @@ public:
     // Convenience to obtain a row
     QList<QStandardItem *> rowAt(int row) const;
 
+    QString state(int row) const;
+    QString file(int row) const;
+    bool checked(int row) const;
+
+    bool hasCheckedFiles() const;
+
     // Filter for entries contained in the filter list. Returns the
     // number of deleted entries.
     unsigned filter(const QStringList &filter, int column);

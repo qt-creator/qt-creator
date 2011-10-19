@@ -85,6 +85,36 @@ QList<QStandardItem *> SubmitFileModel::rowAt(int row) const
     return rc;
 }
 
+QString SubmitFileModel::state(int row) const
+{
+    if (row < 0 || row >= rowCount())
+        return QString();
+    return item(row)->text();
+}
+
+QString SubmitFileModel::file(int row) const
+{
+    if (row < 0 || row >= rowCount())
+        return QString();
+    return item(row, 1)->text();
+}
+
+bool SubmitFileModel::checked(int row) const
+{
+    if (row < 0 || row >= rowCount())
+        return false;
+    return (item(row)->checkState() == Qt::Checked);
+}
+
+bool SubmitFileModel::hasCheckedFiles() const
+{
+    for (int i = 0; i < rowCount(); ++i) {
+        if (checked(i))
+            return true;
+    }
+    return false;
+}
+
 QList<QStandardItem *> SubmitFileModel::findRow(const QString &text, int column) const
 {
     // Single item
