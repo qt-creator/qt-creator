@@ -47,6 +47,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/designmode.h>
 #include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -108,6 +109,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
 void FormEditorPlugin::extensionsInitialized()
 {
+    Core::DesignMode::instance()->setDesignModeIsRequired();
     // 4) test and make sure everything works (undo, saving, editors, opening/closing multiple files, dirtiness etc)
 }
 

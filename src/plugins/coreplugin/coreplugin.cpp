@@ -60,7 +60,8 @@ CorePlugin::~CorePlugin()
     }
 
     if (m_designMode) {
-        removeObject(m_designMode);
+        if (m_designMode->designModeIsRequired())
+            removeObject(m_designMode);
         delete m_designMode;
     }
 
@@ -90,7 +91,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         addObject(m_editMode);
         m_mainWindow->modeManager()->activateMode(m_editMode->id());
         m_designMode = new DesignMode;
-        addObject(m_designMode);
     }
     return success;
 }
@@ -98,6 +98,8 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 void CorePlugin::extensionsInitialized()
 {
     m_mainWindow->mimeDatabase()->syncUserModifiedMimeTypes();
+    if (m_designMode->designModeIsRequired())
+        addObject(m_designMode);
     m_mainWindow->extensionsInitialized();
 }
 

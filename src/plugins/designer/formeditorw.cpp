@@ -342,7 +342,7 @@ void FormEditorW::fullInit()
     m_toolBar->setNavigationVisible(false);
     m_toolBar->addCenterToolBar(m_editorToolBar);
 
-    m_designMode = ExtensionSystem::PluginManager::instance()->getObject<Core::DesignMode>();
+    m_designMode = Core::DesignMode::instance();
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName(QLatin1String("DesignerModeWidget"));
     QVBoxLayout *layout = new QVBoxLayout;

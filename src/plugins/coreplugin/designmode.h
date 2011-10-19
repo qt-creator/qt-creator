@@ -59,6 +59,11 @@ public:
     explicit DesignMode();
     virtual ~DesignMode();
 
+    static DesignMode *instance();
+
+    void setDesignModeIsRequired();
+    bool designModeIsRequired() const;
+
     void registerDesignWidget(QWidget *widget,
                               const QStringList &mimeTypes,
                               const Context &context);

@@ -44,6 +44,7 @@
 #include <toolbox.h>
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/designmode.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/icore.h>
@@ -224,10 +225,8 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_toggleRightSidebarAction = new QAction(tr("Toggle &Right Sidebar"), this);
     connect(m_toggleRightSidebarAction, SIGNAL(triggered()), SLOT(toggleRightSidebar()));
 
-    Core::ModeManager *modeManager = Core::ModeManager::instance();
-    Core::IMode *designmode = modeManager->mode(Core::Constants::MODE_DESIGN);
     m_outputPlaceholderSplitter = new Core::MiniSplitter;
-    m_outputPanePlaceholder = new StyledOutputpanePlaceHolder(designmode, m_outputPlaceholderSplitter);
+    m_outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), m_outputPlaceholderSplitter);
 }
 
 DesignModeWidget::~DesignModeWidget()

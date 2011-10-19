@@ -359,7 +359,7 @@ void BauhausPlugin::updateActions(Core::IEditor* editor)
 
 void BauhausPlugin::extensionsInitialized()
 {
-    m_designMode = ExtensionSystem::PluginManager::instance()->getObject<Core::DesignMode>();
+    m_designMode = Core::DesignMode::instance();
 
     m_mimeTypes << "application/x-qml";
 
