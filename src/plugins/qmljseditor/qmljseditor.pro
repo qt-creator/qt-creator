@@ -37,7 +37,8 @@ HEADERS += \
     qmljscompletionassist.h \
     qmljsquickfix.h \
     qmljssemanticinfoupdater.h \
-    qmljssemantichighlighter.h
+    qmljssemantichighlighter.h \
+    qmljswrapinloader.h
 
 SOURCES += \
     qmljseditor.cpp \
@@ -68,7 +69,8 @@ SOURCES += \
     qmljscompletionassist.cpp \
     qmljsquickfix.cpp \
     qmljssemanticinfoupdater.cpp \
-    qmljssemantichighlighter.cpp
+    qmljssemantichighlighter.cpp \
+    qmljswrapinloader.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.mimetypes.xml

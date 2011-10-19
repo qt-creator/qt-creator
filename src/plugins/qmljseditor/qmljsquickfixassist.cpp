@@ -67,7 +67,7 @@ QmlJSRefactoringFilePtr QmlJSQuickFixAssistInterface::currentFile() const
     return m_currentFile;
 }
 
-QWidget *QmlJSQuickFixAssistInterface::widget() const
+QmlJSTextEditorWidget *QmlJSQuickFixAssistInterface::editor() const
 {
     return m_editor;
 }

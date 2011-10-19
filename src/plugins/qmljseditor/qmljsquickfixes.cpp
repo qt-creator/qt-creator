@@ -32,6 +32,7 @@
 
 #include "qmljsquickfix.h"
 #include "qmljscomponentfromobjectdef.h"
+#include "qmljswrapinloader.h"
 #include "qmljseditor.h"
 #include "qmljsquickfixassist.h"
 
@@ -138,4 +139,5 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
 {
     plugIn->addAutoReleasedObject(new SplitInitializerOp);
     plugIn->addAutoReleasedObject(new ComponentFromObjectDef);
+    plugIn->addAutoReleasedObject(new WrapInLoader);
 }

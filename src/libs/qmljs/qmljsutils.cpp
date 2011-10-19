@@ -96,20 +96,29 @@ SourceLocation QmlJS::fullLocationForQualifiedId(AST::UiQualifiedId *qualifiedId
     return locationFromRange(start, end);
 }
 
-QString QmlJS::idOfObject(UiObjectDefinition *object)
+QString QmlJS::idOfObject(UiObjectDefinition *object, UiScriptBinding **idBinding)
 {
-    if (!object)
+    if (!object) {
+        if (idBinding)
+            *idBinding = 0;
         return QString();
-    return idOfObject(object->initializer);
+    }
+    return idOfObject(object->initializer, idBinding);
 }
-QString QmlJS::idOfObject(UiObjectBinding *object)
+QString QmlJS::idOfObject(UiObjectBinding *object, UiScriptBinding **idBinding)
 {
-    if (!object)
+    if (!object) {
+        if (idBinding)
+            *idBinding = 0;
         return QString();
-    return idOfObject(object->initializer);
+    }
+    return idOfObject(object->initializer, idBinding);
 }
-QString QmlJS::idOfObject(UiObjectInitializer *initializer)
+QString QmlJS::idOfObject(UiObjectInitializer *initializer, UiScriptBinding **idBinding)
 {
+    if (idBinding)
+        *idBinding = 0;
+
     if (!initializer)
         return QString();
 
@@ -123,6 +132,8 @@ QString QmlJS::idOfObject(UiObjectInitializer *initializer)
                 continue;
             if (ExpressionStatement *expstmt = cast<ExpressionStatement *>(script->statement)) {
                 if (IdentifierExpression *idexp = cast<IdentifierExpression *>(expstmt->expression)) {
+                    if (idBinding)
+                        *idBinding = script;
                     return idexp->name.toString();
                 }
             }

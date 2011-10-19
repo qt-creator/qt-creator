@@ -30,8 +30,7 @@
 **
 **************************************************************************/
 
-#include "qmljscomponentfromobjectdef.h"
-#include "qmljscomponentnamedialog.h"
+#include "qmljswrapinloader.h"
 #include "qmljsquickfixassist.h"
 
 #include <coreplugin/ifile.h>
@@ -39,12 +38,13 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsutils.h>
+#include <qmljs/qmljsbind.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
-#include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
@@ -55,7 +55,6 @@ namespace {
 class Operation: public QmlJSQuickFixOperation
 {
     UiObjectDefinition *m_objDef;
-    QString m_idName, m_componentName;
 
 public:
     Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
@@ -65,55 +64,63 @@ public:
     {
         Q_ASSERT(m_objDef != 0);
 
-        m_idName = idOfObject(m_objDef);
-        if (!m_idName.isEmpty()) {
-            m_componentName = m_idName;
-            m_componentName[0] = m_componentName.at(0).toUpper();
-        }
+        setDescription(WrapInLoader::tr("Wrap Component in Loader"));
+    }
 
-        setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                   "Move Component into separate file"));
+    QString findFreeName(const QString &base)
+    {
+        QString tryName = base;
+        int extraNumber = 1;
+        const ObjectValue *found = 0;
+        const ScopeChain &scope = assistInterface()->semanticInfo().scopeChain();
+        forever {
+            scope.lookup(tryName, &found);
+            if (!found || extraNumber > 1000)
+                break;
+            tryName = base + QString::number(extraNumber++);
+        }
+        return tryName;
     }
 
     virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
-                                const QmlJSRefactoringChanges &refactoring)
+                                const QmlJSRefactoringChanges &)
     {
-        QString componentName = m_componentName;
-        QString path = QFileInfo(fileName()).path();
-        ComponentNameDialog::go(&componentName, &path, assistInterface()->editor());
-
-        if (componentName.isEmpty() || path.isEmpty())
-            return;
-
-        const QString newFileName = path + QDir::separator() + componentName
-                + QLatin1String(".qml");
-
-        QString imports;
-        UiProgram *prog = currentFile->qmljsDocument()->qmlProgram();
-        if (prog && prog->imports) {
-            const int start = currentFile->startOf(prog->imports->firstSourceLocation());
-            const int end = currentFile->startOf(prog->members->member->firstSourceLocation());
-            imports = currentFile->textOf(start, end);
+        UiScriptBinding *idBinding;
+        const QString id = idOfObject(m_objDef, &idBinding);
+        QString baseName = id;
+        if (baseName.isEmpty()) {
+            for (UiQualifiedId *it = m_objDef->qualifiedTypeNameId; it; it = it->next) {
+                if (!it->next)
+                    baseName = it->name.toString();
+            }
         }
 
-        const int start = currentFile->startOf(m_objDef->firstSourceLocation());
-        const int end = currentFile->startOf(m_objDef->lastSourceLocation());
-        const QString txt = imports + currentFile->textOf(start, end)
-                + QLatin1String("}\n");
-
-        // stop if we can't create the new file
-        if (!refactoring.createFile(newFileName, txt))
-            return;
-
-        QString replacement = componentName + QLatin1String(" {\n");
-        if (!m_idName.isEmpty())
-                replacement += QLatin1String("id: ") + m_idName
-                        + QLatin1Char('\n');
+        // find ids
+        const QString componentId = findFreeName(QLatin1String("component_") + baseName);
+        const QString loaderId = findFreeName(QLatin1String("loader_") + baseName);
 
         Utils::ChangeSet changes;
-        changes.replace(start, end, replacement);
+        int objDefStart = m_objDef->firstSourceLocation().begin();
+        int objDefEnd = m_objDef->lastSourceLocation().end();
+        QString comment = WrapInLoader::tr(
+                    "// TODO: Move position bindings from the component to the Loader.\n"
+                    "//       Check all uses of 'parent' inside the root element of the component.\n");
+        if (idBinding) {
+            comment += WrapInLoader::tr(
+                        "//       Rename all outer uses of the id '%1' to '%2.item'.\n").arg(
+                        id, loaderId);
+        }
+        changes.insert(objDefStart, comment +
+                       QString("Component {\n"
+                               "    id: %1\n").arg(componentId));
+        changes.insert(objDefEnd, QString("\n"
+                                          "}\n"
+                                          "Loader {\n"
+                                          "    id: %2\n"
+                                          "    sourceComponent: %1\n"
+                                          "}\n").arg(componentId, loaderId));
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(Range(start, end + 1));
+        currentFile->appendIndentRange(Range(objDefStart, objDefEnd));
         currentFile->apply();
     }
 };
@@ -121,7 +128,7 @@ public:
 } // end of anonymous namespace
 
 
-QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(
+QList<QmlJSQuickFixOperation::Ptr> WrapInLoader::match(
     const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface)
 {
     const int pos = interface->currentFile()->cursor().position();
