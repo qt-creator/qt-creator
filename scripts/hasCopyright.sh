@@ -7,7 +7,7 @@
 # Sample usage:
 # find . -type f -name \*.cpp -o -name \*.h | xargs ~/bin/hasCopyright.sh
 
-for i in $@ ; do
+for i in "$@" ; do
     if test -f "$i" && test -s "$i" ; then
         if head -n 35 "$1" | grep "qt-info@nokia.com" > /dev/null 2>&1 ; then
              echo "$i: OLD EMAIL IN USE!"
