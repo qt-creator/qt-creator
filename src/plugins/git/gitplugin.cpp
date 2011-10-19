@@ -434,7 +434,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     createRepositoryAction(actionManager, gitContainer,
                            tr("Branches..."), QLatin1String("Git.BranchList"),
-                           globalcontext, false, SLOT(branchList()));
+                           globalcontext, true, SLOT(branchList()));
 
     createRepositoryAction(actionManager, gitContainer,
                            tr("Remotes..."), QLatin1String("Git.RemoteList"),
