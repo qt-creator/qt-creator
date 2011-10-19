@@ -122,6 +122,9 @@ Item {
         anchors.fill: parent
         anchors.bottomMargin: 12
         hoverEnabled: true
+        onClicked: {
+            delegate.state = "clicked"
+        }
         onEntered: {
             if (text.truncated) {
                 caption.state = "hover"
