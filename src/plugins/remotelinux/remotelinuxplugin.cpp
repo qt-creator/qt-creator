@@ -87,14 +87,15 @@ void RemoteLinuxPlugin::extensionsInitialized()
     using namespace Core;
     ICore *core = ICore::instance();
     ActionManager *am = core->actionManager();
-    ActionContainer *mstart = am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
+    ActionContainer *mstart =
+        am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
 
     const Context globalcontext(Core::Constants::C_GLOBAL);
 
-    QAction *startGdbServerAction = new QAction(tr("Start Remote Debug Server"), 0);
+    QAction *startGdbServerAction = new QAction(tr("Start Remote Debug Server..."), 0);
     Command *cmd = am->registerAction(startGdbServerAction, "StartGdbServer", globalcontext);
     cmd->setDefaultText(tr("Start Gdbserver"));
-    mstart->addAction(cmd, Debugger::Constants::G_START_CPP);
+    mstart->addAction(cmd, Debugger::Constants::G_START_REMOTE);
 
     connect(startGdbServerAction, SIGNAL(triggered()), SLOT(startGdbServer()));
 }

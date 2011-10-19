@@ -2961,7 +2961,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // "Start Debugging" sub-menu
     // groups:
     //   G_DEFAULT_ONE
-    //   G_START_CPP
+    //   G_START_LOCAL
+    //   G_START_REMOTE
     //   G_START_QML
 
     Command *cmd = 0;
@@ -2982,45 +2983,44 @@ void DebuggerPluginPrivate::extensionsInitialized()
     ModeManager *modeManager = ModeManager::instance();
     modeManager->addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
 
-    cmd = am->registerAction(m_startExternalAction,
-        "Debugger.StartExternal", globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_CPP);
-
     cmd = am->registerAction(m_attachExternalAction,
         "Debugger.AttachExternal", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_CPP);
+    mstart->addAction(cmd, Constants::G_START_LOCAL);
+
+    cmd = am->registerAction(m_startExternalAction,
+        "Debugger.StartExternal", globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    mstart->addAction(cmd, Constants::G_START_LOCAL);
 
     cmd = am->registerAction(m_attachCoreAction,
         "Debugger.AttachCore", globalcontext);
-
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_CPP);
-
-    cmd = am->registerAction(m_startRemoteAction,
-        "Debugger.StartRemote", globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_CPP);
+    mstart->addAction(cmd, Constants::G_START_LOCAL);
 
     cmd = am->registerAction(m_attachRemoteAction,
         "Debugger.AttachRemote", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_CPP);
+    mstart->addAction(cmd, Constants::G_START_REMOTE);
+
+    cmd = am->registerAction(m_startRemoteAction,
+        "Debugger.StartRemote", globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    mstart->addAction(cmd, Constants::G_START_REMOTE);
 
 
 #ifdef WITH_LLDB
     cmd = am->registerAction(m_startRemoteLldbAction,
         "Debugger.RemoteLldb", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_CPP);
+    mstart->addAction(cmd, Constants::G_START_REMOTE);
 #endif
 
     if (m_startRemoteCdbAction) {
         cmd = am->registerAction(m_startRemoteCdbAction,
              "Debugger.AttachRemoteCdb", globalcontext);
         cmd->setAttribute(Command::CA_Hide);
-        mstart->addAction(cmd, Constants::G_START_CPP);
+        mstart->addAction(cmd, Constants::G_START_REMOTE);
     }
 
     QAction *sep = new QAction(mstart);
@@ -3391,15 +3391,19 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     Core::ActionManager *am = core->actionManager();
     ActionContainer *mstart = am->actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
-    mstart->appendGroup(Constants::G_START_CPP);
+    mstart->appendGroup(Constants::G_START_LOCAL);
+    mstart->appendGroup(Constants::G_START_REMOTE);
     mstart->appendGroup(Constants::G_START_QML);
 
-    // add cpp separator
+    // Separators
     QAction *sep = new QAction(mstart);
     sep->setSeparator(true);
-    Command *cmd = am->registerAction(sep,
-        "Debugger.Start.Cpp", globalcontext);
-    mstart->addAction(cmd, Constants::G_START_CPP);
+    Command *cmd = am->registerAction(sep, "Debugger.Local.Cpp", globalcontext);
+    mstart->addAction(cmd, Constants::G_START_LOCAL);
+    sep = new QAction(mstart);
+    sep->setSeparator(true);
+    cmd = am->registerAction(sep, "Debugger.Remote.Cpp", globalcontext);
+    mstart->addAction(cmd, Constants::G_START_REMOTE);
 
     return theDebuggerCore->initialize(arguments, errorMessage);
 }
