@@ -182,6 +182,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("use spaces around binary operators"));
     newMsg(WarnUnintentinalEmptyBlock, Warning,
            tr("unintentional empty block, use ({}) for empty object literal"));
+    newMsg(HintPreferNonVarPropertyType, Hint,
+           tr("use %1 instead of 'var' or 'variant' to improve performance"), 1);
 }
 
 } // anonymous namespace

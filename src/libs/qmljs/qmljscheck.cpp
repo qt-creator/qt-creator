@@ -748,21 +748,38 @@ bool Check::visit(UiArrayBinding *ast)
 
 bool Check::visit(UiPublicMember *ast)
 {
-    // check if the member type is valid
-    if (!ast->memberType.isEmpty()) {
-        const QString &name = ast->memberType.toString();
-        if (!name.isEmpty() && name.at(0).isLower()) {
-            if (!isValidBuiltinPropertyType(name))
-                addMessage(ErrInvalidPropertyType, ast->typeToken, name);
+    if (ast->type == UiPublicMember::Property) {
+        // check if the member type is valid
+        if (!ast->memberType.isEmpty()) {
+            const QString &name = ast->memberType.toString();
+            if (!name.isEmpty() && name.at(0).isLower()) {
+                if (!isValidBuiltinPropertyType(name))
+                    addMessage(ErrInvalidPropertyType, ast->typeToken, name);
+            }
+
+            // warn about dubious use of var/variant
+            if (name == QLatin1String("variant") || name == QLatin1String("var")) {
+                Evaluate evaluator(&_scopeChain);
+                const Value *init = evaluator(ast->statement);
+                QString preferedType;
+                if (init->asNumberValue())
+                    preferedType = tr("'int' or 'real'");
+                if (init->asStringValue())
+                    preferedType = QLatin1String("'string'");
+                if (init->asBooleanValue())
+                    preferedType = QLatin1String("'bool'");
+                if (!preferedType.isEmpty())
+                    addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferedType);
+            }
         }
+
+        checkBindingRhs(ast->statement);
+
+        _scopeBuilder.push(ast);
+        Node::accept(ast->statement, this);
+        Node::accept(ast->binding, this);
+        _scopeBuilder.pop();
     }
-
-    checkBindingRhs(ast->statement);
-
-    _scopeBuilder.push(ast);
-    Node::accept(ast->statement, this);
-    Node::accept(ast->binding, this);
-    _scopeBuilder.pop();
 
     return false;
 }

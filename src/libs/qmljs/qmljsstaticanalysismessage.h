@@ -105,7 +105,8 @@ enum Type
     WarnNewWithLowercaseFunction = 307,
     WarnNumberConstructor = 308,
     HintBinaryOperatorSpacing = 309,
-    WarnUnintentinalEmptyBlock = 310
+    WarnUnintentinalEmptyBlock = 310,
+    HintPreferNonVarPropertyType = 311
 };
 
 class QMLJS_EXPORT Message
