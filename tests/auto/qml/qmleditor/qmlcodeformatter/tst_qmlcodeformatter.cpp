@@ -97,6 +97,7 @@ private Q_SLOTS:
     void labelledStatements3();
     void json1();
     void multilineTernaryInProperty();
+    void bug1();
 };
 
 struct Line {
@@ -1272,6 +1273,20 @@ void tst_QMLCodeFormatter::multilineTernaryInProperty()
          << Line("         : 3 +")
          << Line("           4")
          << Line("    ba: 1")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::bug1()
+{
+    QList<Line> data;
+    data << Line("Item {")
+         << Line("    x: {")
+         << Line("        if (a==a) {}")
+         << Line("        else (b==b) {}")
+         << Line("        foo()")
+         << Line("    }")
          << Line("}")
          ;
     checkIndent(data);
