@@ -209,6 +209,12 @@ bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
             *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Only available for Qt 4.7.1 or newer.");
         return false;
     }
+    if (qtVersion->qtVersion() >= QtVersionNumber(4, 8, 0)) {
+        if (reason)
+            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Not needed.");
+        return false;
+    }
+
 
     if (!hasPrivateHeaders(installHeaders)) {
         if (reason)
