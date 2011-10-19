@@ -254,8 +254,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case expression_or_label:
             switch (kind) {
-            case Colon:         turnInto(labelled_statement); break;
-            default:            enter(expression); continue;
+            case Colon:             turnInto(labelled_statement); break;
+
+            // propagate 'leave' from expression state
+            case RightBracket:
+            case RightParenthesis:  leave(); continue;
+
+            default:                enter(expression); continue;
             } break;
 
         case ternary_op:
@@ -756,6 +761,7 @@ bool CodeFormatter::tryStatement()
     case Function:
     case Number:
     case String:
+    case LeftParenthesis:
         enter(expression);
         // look at the token again
         m_tokenIndex -= 1;
