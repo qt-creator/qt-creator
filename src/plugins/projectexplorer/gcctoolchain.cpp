@@ -341,6 +341,7 @@ void GccToolChain::setTargetAbi(const Abi &abi)
 
     updateSupportedAbis();
     m_targetAbi = abi;
+    updateId();
     toolChainUpdated();
 }
 
