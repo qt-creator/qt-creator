@@ -131,6 +131,7 @@ void dummyStatement(...) {}
 #include <deque>
 #include <iostream>
 #include <iterator>
+#include <fstream>
 #include <map>
 #include <list>
 #include <set>
@@ -1814,6 +1815,23 @@ namespace stdvector {
     }
 
 } // namespace stdvector
+
+
+namespace stdstream {
+
+    void testStdStream()
+    {
+        using namespace std;
+        ifstream is;
+        BREAK_HERE;
+        is.open("/etc/passwd");
+        BREAK_HERE;
+        bool ok = is.good();
+        BREAK_HERE;
+        dummyStatement(&is, &ok);
+    }
+
+} // namespace stdstream
 
 
 void testQStandardItemModel()
@@ -3716,6 +3734,7 @@ int main(int argc, char *argv[])
     qfileinfo::testQFileInfo();
     testQFixed();
     stdvector::testStdVector();
+    stdstream::testStdStream();
     testQHash1();
     qobject::testQObject(argc, argv);
 

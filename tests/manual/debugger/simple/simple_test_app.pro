@@ -20,5 +20,7 @@ message("this says <foo & bar>")
 
 maemo5 {
     target.path = /opt/usr/lib
+    target.path = /opt
     INSTALLS += target
 }
+
