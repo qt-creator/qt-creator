@@ -73,7 +73,6 @@ void replaceByCaptures(QString *s, const QStringList &captures)
         Q_ASSERT(ok);
 
         s->replace(index, accumulator.length() + 1, captures.at(number));
-        index = from;
     }
 }
 }
