@@ -157,7 +157,11 @@ QString QMakeStep::allArguments(bool shorted)
     arguments << moreArguments();
 
     QString args = Utils::QtcProcess::joinArgs(arguments);
+    // User arguments
     Utils::QtcProcess::addArgs(&args, m_userArgs);
+    // moreArgumentsAfter
+    foreach (const QString &arg, moreArgumentsAfter())
+        Utils::QtcProcess::addArg(&args, arg);
     return args;
 }
 
@@ -195,19 +199,26 @@ QStringList QMakeStep::moreArguments()
         }
     }
 
+
+    return arguments;
+}
+
+QStringList QMakeStep::moreArgumentsAfter()
+{
+    Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     if (bc->qtVersion() && !bc->qtVersion()->supportsShadowBuilds()) {
         // We have a target which does not allow shadow building.
         // But we really don't want to have the build artefacts in the source dir
         // so we try to hack around it, to make the common cases work.
         // This is a HACK, remove once the symbian make generator supports
         // shadow building
-        arguments << QLatin1String("-after")
-                  << QLatin1String("OBJECTS_DIR=obj")
-                  << QLatin1String("MOC_DIR=moc")
-                  << QLatin1String("UI_DIR=ui")
-                  << QLatin1String("RCC_DIR=rcc");
+        return QStringList() << QLatin1String("-after")
+                             << QLatin1String("OBJECTS_DIR=obj")
+                             << QLatin1String("MOC_DIR=moc")
+                             << QLatin1String("UI_DIR=ui")
+                             << QLatin1String("RCC_DIR=rcc");
     }
-    return arguments;
+    return QStringList();
 }
 
 bool QMakeStep::init()

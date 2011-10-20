@@ -100,6 +100,7 @@ public:
     // TODO clean up those functions
     QString allArguments(bool shorted = false);
     QStringList moreArguments();
+    QStringList moreArgumentsAfter();
     QStringList parserArguments();
     QString userArguments();
     QString mkspec();
