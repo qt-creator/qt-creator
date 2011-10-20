@@ -246,9 +246,10 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 QString RemoteLinuxRunConfiguration::defaultDisplayName()
 {
     if (!d->proFilePath.isEmpty())
-        return (QFileInfo(d->proFilePath).completeBaseName()) + QLatin1String(" (remote)");
+        //: %1 is the name of a project which is being run on remote Linux
+        return tr("%1 (on Remote Device)").arg(QFileInfo(d->proFilePath).completeBaseName());
     //: Remote Linux run configuration default display name
-    return tr("Run on remote device");
+    return tr("Run on Remote Device");
 }
 
 LinuxDeviceConfiguration::ConstPtr RemoteLinuxRunConfiguration::deviceConfig() const
