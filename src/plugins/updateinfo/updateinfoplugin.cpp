@@ -119,7 +119,7 @@ void UpdateInfoPlugin::stopCurrentCheckTimer()
     \a errorMessage can be used to pass an error message to the plugin system,
        if there was any.
 */
-bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString * /* errorMessage */)
+bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
 {
     d->checkUpdateInfoWatcher = new QFutureWatcher<QDomDocument>(this);
     connect(d->checkUpdateInfoWatcher, SIGNAL(finished()), this, SLOT(reactOnUpdaterOutput()));
@@ -129,16 +129,26 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     d->updaterCheckOnlyArgument = settings->value(QLatin1String("Updater/CheckOnlyArgument")).toString();
     d->updaterRunUiArgument = settings->value(QLatin1String("Updater/RunUiArgument")).toString();
 
+    if (d->updaterProgram.isEmpty()) {
+        *errorMessage = tr("Could not determine location of maintenance tool. Please check "
+                           "your installation if you did not enable this plugin manually.");
+        return false;
+    }
+
+    if (!QFile::exists(d->updaterProgram)) {
+        *errorMessage = tr("Could not find maintenance tool at '%1'. Check your installation.")
+                .arg(d->updaterProgram);
+        return false;
+    }
+
     Core::ICore* const core = Core::ICore::instance();
     Core::ActionManager* const actionManager = core->actionManager();
     Core::ActionContainer* const helpActionContainer = actionManager->actionContainer(Core::Constants::M_HELP);
-
     helpActionContainer->menu()->addAction(tr("Start Updater"), this, SLOT(startUpdaterUiApplication()));
 
     //wait some time before we want to have the first check
-    if (!d->updaterProgram.isEmpty() && QFile::exists(d->updaterProgram)) {
-        startCheckTimer(OneMinute / 10);
-    }
+    startCheckTimer(OneMinute / 10);
+
     return true;
 }
 
