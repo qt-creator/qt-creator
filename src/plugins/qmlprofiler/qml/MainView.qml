@@ -154,28 +154,28 @@ Rectangle {
         }
     }
 
-    function zoomIn() {
-        updateZoom( 1/1.1 );
+    function updateWindowLength(absoluteFactor) {
+        var windowLength = view.endTime - view.startTime;
+        if (qmlEventList.traceEndTime() <= 0 || windowLength <= 0)
+            return;
+        var currentFactor = windowLength / qmlEventList.traceEndTime();
+        updateZoom(absoluteFactor / currentFactor);
     }
 
-    function zoomOut() {
-        updateZoom( 1.1 );
-    }
-
-    function updateZoom(factor) {
+    function updateZoom(relativeFactor) {
         var min_length = 1e5; // 0.1 ms
         var windowLength = view.endTime - view.startTime;
         if (windowLength < min_length)
             windowLength = min_length;
-        var newWindowLength = windowLength * factor;
+        var newWindowLength = windowLength * relativeFactor;
 
         if (newWindowLength > qmlEventList.traceEndTime()) {
             newWindowLength = qmlEventList.traceEndTime();
-            factor = newWindowLength / windowLength;
+            relativeFactor = newWindowLength / windowLength;
         }
         if (newWindowLength < min_length) {
             newWindowLength = min_length;
-            factor = newWindowLength / windowLength;
+            relativeFactor = newWindowLength / windowLength;
         }
 
         var fixedPoint = (view.startTime + view.endTime) / 2;
@@ -186,7 +186,29 @@ Rectangle {
                 fixedPoint = newFixedPoint;
         }
 
-        var startTime = fixedPoint - factor*(fixedPoint - view.startTime);
+        var startTime = fixedPoint - relativeFactor*(fixedPoint - view.startTime);
+        zoomControl.setRange(startTime, startTime + newWindowLength);
+    }
+
+    function updateZoomCentered(centerX, relativeFactor)
+    {
+        var min_length = 1e5; // 0.1 ms
+        var windowLength = view.endTime - view.startTime;
+        if (windowLength < min_length)
+            windowLength = min_length;
+        var newWindowLength = windowLength * relativeFactor;
+
+        if (newWindowLength > qmlEventList.traceEndTime()) {
+            newWindowLength = qmlEventList.traceEndTime();
+            relativeFactor = newWindowLength / windowLength;
+        }
+        if (newWindowLength < min_length) {
+            newWindowLength = min_length;
+            relativeFactor = newWindowLength / windowLength;
+        }
+
+        var fixedPoint = (centerX - flick.x) * windowLength / flick.width + view.startTime;
+        var startTime = fixedPoint - relativeFactor*(fixedPoint - view.startTime);
         zoomControl.setRange(startTime, startTime + newWindowLength);
     }
 
@@ -198,6 +220,19 @@ Rectangle {
         if (newStart + windowLength > qmlEventList.traceEndTime())
             newStart = qmlEventList.traceEndTime() - windowLength;
         zoomControl.setRange(newStart, newStart + windowLength);
+    }
+
+    function globalZoom() {
+        zoomControl.setRange(qmlEventList.traceStartTime(), qmlEventList.traceEndTime());
+    }
+
+    function wheelZoom(wheelCenter, wheelDelta) {
+        if (qmlEventList.traceEndTime()>0 && wheelDelta!=0) {
+            if (wheelDelta>0)
+                updateZoomCentered(wheelCenter, 1/1.2);
+            else
+                updateZoomCentered(wheelCenter, 1.2);
+        }
     }
 
     function hideRangeDetails() {
@@ -242,7 +277,7 @@ Rectangle {
     Timer {
         id: elapsedTimer
         property date startDate
-        property bool reset:  true
+        property bool reset: true
         running: connection.recording
         repeat: true
         onRunningChanged: {
@@ -482,7 +517,7 @@ Rectangle {
                     selectionRange.isDragging = false;
                 }
                 onDoubleClicked: {
-                    zoomControl.setRange(selectionRange.startTime, selectionRange.startTime+selectionRange.duration);
+                    zoomControl.setRange(selectionRange.startTime, selectionRange.startTime + selectionRange.duration);
                     root.selectionRangeMode = false;
                     root.updateRangeButton();
                 }

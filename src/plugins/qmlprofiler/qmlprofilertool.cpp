@@ -176,19 +176,28 @@ IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
 void QmlProfilerTool::showContextMenu(const QPoint &position)
 {
     QmlProfilerEventsView *senderView = qobject_cast<QmlProfilerEventsView *>(sender());
+    TraceWindow *traceView = qobject_cast<TraceWindow *>(sender());
 
     QMenu menu;
     QAction *loadAction = menu.addAction(tr("Load QML Trace"));
     QAction *saveAction = menu.addAction(tr("Save QML Trace"));
     QAction *copyRowAction = 0;
     QAction *copyTableAction = 0;
+    QAction *viewAllAction = 0;
     if (senderView) {
         if (senderView->selectedItem().isValid())
             copyRowAction = menu.addAction(tr("Copy Row"));
         copyTableAction = menu.addAction(tr("Copy Table"));
     }
+    if (traceView) {
+        if (traceView->getEventList()->count() > 0) {
+            menu.addSeparator();
+            viewAllAction = menu.addAction(tr("Reset Zoom"));
+        }
+    }
 
     QAction *selectedAction = menu.exec(position);
+
     if (selectedAction) {
         if (selectedAction == loadAction)
             showLoadDialog();
@@ -198,6 +207,8 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
             senderView->copyRowToClipboard();
         if (selectedAction == copyTableAction)
             senderView->copyTableToClipboard();
+        if (selectedAction == viewAllAction)
+            traceView->viewAll();
     }
 }
 

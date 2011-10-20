@@ -11,8 +11,6 @@
         <file>clean_pane_small.png</file>
         <file>prev.png</file>
         <file>next.png</file>
-        <file>magnifier-minus.png</file>
-        <file>magnifier-plus.png</file>
         <file>recordOff.png</file>
         <file>recordOn.png</file>
         <file>StatusDisplay.qml</file>
@@ -25,5 +23,6 @@
         <file>range_pressed.png</file>
         <file>SelectionRange.qml</file>
         <file>SelectionRangeDetails.qml</file>
+        <file>magnifier.png</file>
     </qresource>
 </RCC>

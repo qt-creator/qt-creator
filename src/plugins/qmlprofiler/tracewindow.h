@@ -42,12 +42,24 @@
 #include <QtGui/QWidget>
 #include <QtGui/QToolButton>
 
+#include <QtCore/QEvent>
+
 QT_BEGIN_NAMESPACE
 class QDeclarativeView;
 QT_END_NAMESPACE
 
 namespace QmlProfiler {
 namespace Internal {
+
+class MouseWheelResizer : public QObject {
+    Q_OBJECT
+public:
+    MouseWheelResizer(QObject *parent=0):QObject(parent){}
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+signals:
+    void mouseWheelMoved(int x, int y, int delta);
+};
 
 // centralized zoom control
 class ZoomControl : public QObject {
@@ -56,13 +68,7 @@ public:
     ZoomControl(QObject *parent=0):QObject(parent),m_startTime(0),m_endTime(0) {}
     ~ZoomControl(){}
 
-    Q_INVOKABLE void setRange(qint64 startTime, qint64 endTime) {
-        if (m_startTime != startTime || m_endTime != endTime) {
-            m_startTime = startTime;
-            m_endTime = endTime;
-            emit rangeChanged();
-        }
-    }
+    Q_INVOKABLE void setRange(qint64 startTime, qint64 endTime);
     Q_INVOKABLE qint64 startTime() { return m_startTime; }
     Q_INVOKABLE qint64 endTime() { return m_endTime; }
 
@@ -88,6 +94,7 @@ public:
 
     void setRecording(bool recording);
     bool isRecording() const;
+    void viewAll();
 
 
 public slots:
@@ -97,7 +104,9 @@ public slots:
     void updateToolbar();
     void toggleRangeMode(bool);
     void updateRangeButton();
-
+    void setZoomLevel(int zoomLevel);
+    void updateRange();
+    void mouseWheelMoved(int x, int y, int delta);
 
     void qmlComplete();
     void v8Complete();
@@ -114,16 +123,19 @@ signals:
     void internalClearDisplay();
     void jumpToPrev();
     void jumpToNext();
-    void zoomIn();
-    void zoomOut();
     void rangeModeChanged(bool);
     void enableToolbar(bool);
+    void zoomLevelChanged(int);
+    void updateViewZoom(QVariant zoomLevel);
+    void wheelZoom(QVariant wheelCenter, QVariant wheelDelta);
+    void globalZoom();
 
     void contextMenuRequested(const QPoint& position);
 
 private:
     void contextMenuEvent(QContextMenuEvent *);
     QWidget *createToolbar();
+    QWidget *createZoomToolbar();
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
@@ -143,6 +155,8 @@ private:
     QWeakPointer<ZoomControl> m_zoomControl;
 
     QToolButton *m_buttonRange;
+    QWidget *m_zoomToolbar;
+    int m_currentZoomLevel;
 };
 
 } // namespace Internal

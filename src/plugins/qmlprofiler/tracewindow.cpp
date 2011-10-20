@@ -44,17 +44,35 @@
 #include <QtGui/QGraphicsObject>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QScrollBar>
+#include <QtGui/QSlider>
 #include <QtGui/QWidget>
+
+#include <math.h>
 
 using namespace QmlJsDebugClient;
 
 namespace QmlProfiler {
 namespace Internal {
 
+const int sliderTicks = 10000;
+const qreal sliderExp = 3;
+
+void ZoomControl::setRange(qint64 startTime, qint64 endTime)
+{
+    if (m_startTime != startTime || m_endTime != endTime) {
+        m_startTime = startTime;
+        m_endTime = endTime;
+        emit rangeChanged();
+    }
+}
+
 TraceWindow::TraceWindow(QWidget *parent)
     : QWidget(parent)
 {
     setObjectName("QML Profiler");
+
+    m_zoomControl = new ZoomControl(this);
+    connect(m_zoomControl.data(), SIGNAL(rangeChanged()), this, SLOT(updateRange()));
 
     QVBoxLayout *groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0, 0, 0, 0);
@@ -67,6 +85,10 @@ TraceWindow::TraceWindow(QWidget *parent)
     m_mainView->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     m_mainView->setFocus();
 
+    MouseWheelResizer *resizer = new MouseWheelResizer(this);
+    connect(resizer,SIGNAL(mouseWheelMoved(int,int,int)), this, SLOT(mouseWheelMoved(int,int,int)));
+    m_mainView->viewport()->installEventFilter(resizer);
+
     QHBoxLayout *toolsLayout = new QHBoxLayout;
 
     m_timebar = new QDeclarativeView(this);
@@ -78,6 +100,10 @@ TraceWindow::TraceWindow(QWidget *parent)
     m_overview->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     m_overview->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_overview->setMaximumHeight(50);
+
+    m_zoomToolbar = createZoomToolbar();
+    m_zoomToolbar->move(0, m_timebar->height());
+    m_zoomToolbar->setVisible(false);
 
     toolsLayout->addWidget(createToolbar());
     toolsLayout->addWidget(m_timebar);
@@ -99,15 +125,13 @@ TraceWindow::TraceWindow(QWidget *parent)
 
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
-
-    m_zoomControl = new ZoomControl();
+    m_currentZoomLevel = 0;
 }
 
 TraceWindow::~TraceWindow()
 {
     delete m_plugin.data();
     delete m_v8plugin.data();
-    delete m_zoomControl.data();
 }
 
 QWidget *TraceWindow::createToolbar()
@@ -120,26 +144,27 @@ QWidget *TraceWindow::createToolbar()
     QHBoxLayout *toolBarLayout = new QHBoxLayout(bar);
     toolBarLayout->setMargin(0);
     toolBarLayout->setSpacing(0);
+
     QToolButton *buttonPrev= new QToolButton;
     buttonPrev->setIcon(QIcon(":/qmlprofiler/prev.png"));
     buttonPrev->setToolTip(tr("Jump to previous event"));
     connect(buttonPrev, SIGNAL(clicked()), this, SIGNAL(jumpToPrev()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonPrev, SLOT(setEnabled(bool)));
+
     QToolButton *buttonNext= new QToolButton;
     buttonNext->setIcon(QIcon(":/qmlprofiler/next.png"));
     buttonNext->setToolTip(tr("Jump to next event"));
     connect(buttonNext, SIGNAL(clicked()), this, SIGNAL(jumpToNext()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonNext, SLOT(setEnabled(bool)));
-    QToolButton *buttonZoomIn = new QToolButton;
-    buttonZoomIn->setIcon(QIcon(":/qmlprofiler/magnifier-plus.png"));
-    buttonZoomIn->setToolTip(tr("Zoom in 10%"));
-    connect(buttonZoomIn, SIGNAL(clicked()), this, SIGNAL(zoomIn()));
-    connect(this, SIGNAL(enableToolbar(bool)), buttonZoomIn, SLOT(setEnabled(bool)));
-    QToolButton *buttonZoomOut = new QToolButton;
-    buttonZoomOut->setIcon(QIcon(":/qmlprofiler/magnifier-minus.png"));
-    buttonZoomOut->setToolTip(tr("Zoom out 10%"));
-    connect(buttonZoomOut, SIGNAL(clicked()), this, SIGNAL(zoomOut()));
-    connect(this, SIGNAL(enableToolbar(bool)), buttonZoomOut, SLOT(setEnabled(bool)));
+
+    QToolButton *buttonZoomControls = new QToolButton;
+    buttonZoomControls->setIcon(QIcon(":/qmlprofiler/magnifier.png"));
+    buttonZoomControls->setToolTip(tr("Show zoom slider"));
+    buttonZoomControls->setCheckable(true);
+    buttonZoomControls->setChecked(false);
+    connect(buttonZoomControls, SIGNAL(toggled(bool)), m_zoomToolbar, SLOT(setVisible(bool)));
+    connect(this, SIGNAL(enableToolbar(bool)), buttonZoomControls, SLOT(setEnabled(bool)));
+
     m_buttonRange = new QToolButton;
     m_buttonRange->setIcon(QIcon(":/qmlprofiler/range.png"));
     m_buttonRange->setToolTip(tr("Select range"));
@@ -151,9 +176,53 @@ QWidget *TraceWindow::createToolbar()
 
     toolBarLayout->addWidget(buttonPrev);
     toolBarLayout->addWidget(buttonNext);
-    toolBarLayout->addWidget(buttonZoomIn);
-    toolBarLayout->addWidget(buttonZoomOut);
+    toolBarLayout->addWidget(buttonZoomControls);
     toolBarLayout->addWidget(m_buttonRange);
+
+    return bar;
+}
+
+
+QWidget *TraceWindow::createZoomToolbar()
+{
+    Utils::StyledBar *bar = new Utils::StyledBar(this);
+    bar->setSingleRow(true);
+    bar->setFixedWidth(150);
+    bar->setFixedHeight(24);
+
+    QHBoxLayout *toolBarLayout = new QHBoxLayout(bar);
+    toolBarLayout->setMargin(0);
+    toolBarLayout->setSpacing(0);
+
+    QSlider *zoomSlider = new QSlider(Qt::Horizontal);
+    zoomSlider->setFocusPolicy(Qt::NoFocus);
+    zoomSlider->setRange(1, sliderTicks);
+    zoomSlider->setInvertedAppearance(true);
+    zoomSlider->setPageStep(sliderTicks/100);
+    connect(this, SIGNAL(enableToolbar(bool)), zoomSlider, SLOT(setEnabled(bool)));
+    connect(zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoomLevel(int)));
+    connect(this, SIGNAL(zoomLevelChanged(int)), zoomSlider, SLOT(setValue(int)));
+    zoomSlider->setStyleSheet("\
+        QSlider:horizontal {\
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #444444, stop: 1 #5a5a5a);\
+            border: 1px #313131;\
+            height: 20px;\
+            margin: 0px 0px 0px 0px;\
+        }\
+        QSlider::groove:horizontal {\
+            position: absolute;\
+        }\
+        QSlider::add-page:horizontal {\
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #5a5a5a, stop: 1 #444444);\
+            border: 1px #313131;\
+        }\
+        QSlider::sub-page:horizontal {\
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #5a5a5a, stop: 1 #444444);\
+            border: 1px #313131;\
+        }\
+        ");
+
+    toolBarLayout->addWidget(zoomSlider);
 
     return bar;
 }
@@ -198,8 +267,9 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     connect(m_eventList, SIGNAL(countChanged()), this, SLOT(updateToolbar()));
     connect(this, SIGNAL(jumpToPrev()), m_mainView->rootObject(), SLOT(prevEvent()));
     connect(this, SIGNAL(jumpToNext()), m_mainView->rootObject(), SLOT(nextEvent()));
-    connect(this, SIGNAL(zoomIn()), m_mainView->rootObject(), SLOT(zoomIn()));
-    connect(this, SIGNAL(zoomOut()), m_mainView->rootObject(), SLOT(zoomOut()));
+    connect(this, SIGNAL(updateViewZoom(QVariant)), m_mainView->rootObject(), SLOT(updateWindowLength(QVariant)));
+    connect(this, SIGNAL(wheelZoom(QVariant,QVariant)), m_mainView->rootObject(), SLOT(wheelZoom(QVariant,QVariant)));
+    connect(this, SIGNAL(globalZoom()), m_mainView->rootObject(), SLOT(globalZoom()));
 
     connect(this, SIGNAL(internalClearDisplay()), m_mainView->rootObject(), SLOT(clearAll()));
     connect(this,SIGNAL(internalClearDisplay()), m_overview->rootObject(), SLOT(clearDisplay()));
@@ -308,6 +378,57 @@ void TraceWindow::resizeEvent(QResizeEvent *event)
         m_mainView->rootObject()->setProperty("width", QVariant(event->size().width()));
         int newHeight = event->size().height() - m_timebar->height() - m_overview->height();
         m_mainView->rootObject()->setProperty("candidateHeight", QVariant(newHeight));
+    }
+}
+
+bool MouseWheelResizer::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::Wheel) {
+        QWheelEvent *ev = static_cast<QWheelEvent *>(event);
+        if (ev->modifiers() & Qt::ControlModifier) {
+            emit mouseWheelMoved(ev->pos().x(), ev->pos().y(), ev->delta());
+            return true;
+        }
+    }
+    return QObject::eventFilter(obj, event);
+}
+
+void TraceWindow::mouseWheelMoved(int x, int y, int delta)
+{
+    Q_UNUSED(y);
+    if (m_mainView->rootObject()) {
+        emit wheelZoom(QVariant(x), QVariant(delta));
+    }
+}
+
+void TraceWindow::viewAll()
+{
+    emit globalZoom();
+}
+
+void TraceWindow::setZoomLevel(int zoomLevel)
+{
+    if (m_currentZoomLevel != zoomLevel && m_mainView->rootObject()) {
+        qreal newFactor = pow(qreal(zoomLevel) / qreal(sliderTicks), sliderExp);
+        m_currentZoomLevel = zoomLevel;
+        emit updateViewZoom(QVariant(newFactor));
+    }
+}
+
+void TraceWindow::updateRange()
+{
+    if (!m_eventList)
+        return;
+    qreal duration = m_zoomControl.data()->endTime() - m_zoomControl.data()->startTime();
+    if (duration <= 0)
+        return;
+    qreal totalTime = m_eventList->traceEndTime() - m_eventList->traceStartTime();
+    if (totalTime <= 0)
+        return;
+    int newLevel = pow(duration / totalTime, 1/sliderExp) * sliderTicks;
+    if (m_currentZoomLevel != newLevel) {
+        m_currentZoomLevel = newLevel;
+        emit zoomLevelChanged(newLevel);
     }
 }
 
