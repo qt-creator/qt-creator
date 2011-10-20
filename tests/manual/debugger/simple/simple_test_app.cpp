@@ -62,7 +62,6 @@
 // Default: 0
 #define USE_EIGEN 0
 
-
 ////////////// No further global configuration below ////////////////
 
 #if QT_SCRIPT_LIB
@@ -3672,6 +3671,21 @@ namespace varargs {
 } // namespace varargs
 
 
+namespace valgrind {
+
+    void testLeak()
+    {
+        new int[100]; // Leaks intentionally.
+    }
+
+    void testValgrind()
+    {
+        testLeak();
+    }
+
+} // namespace valgrind
+
+
 namespace sanity {
 
     // A very quick check.
@@ -3706,6 +3720,7 @@ namespace sanity {
     }
 
 }
+
 
 int main(int argc, char *argv[])
 {
@@ -3774,6 +3789,8 @@ int main(int argc, char *argv[])
     qthread::testQThread();
     qvariant::testQVariant();
     qvector::testQVector();
+
+    valgrind::testValgrind();
 
     // Third party data types.
     boost::testBoost();
