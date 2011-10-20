@@ -501,13 +501,14 @@ void QmlCppEngine::setState(DebuggerState newState, bool forced)
 void QmlCppEngine::slaveEngineStateChanged
     (DebuggerEngine *slaveEngine, const DebuggerState newState)
 {
-    DebuggerEngine *otherEngine = slaveEngine == d->m_cppEngine
-         ? d->m_qmlEngine : d->m_cppEngine;
+    if (debug) {
+        DebuggerEngine *otherEngine = slaveEngine == d->m_cppEngine
+             ? d->m_qmlEngine : d->m_cppEngine;
 
-    EDEBUG("GOT SLAVE STATE: " << slaveEngine << newState);
-    EDEBUG("  OTHER ENGINE: " << otherEngine << otherEngine->state());
-    EDEBUG("  COMBINED ENGINE: " << this << state() << isDying());
-
+        EDEBUG("GOT SLAVE STATE: " << slaveEngine << newState);
+        EDEBUG("  OTHER ENGINE: " << otherEngine << otherEngine->state());
+        EDEBUG("  COMBINED ENGINE: " << this << state() << isDying());
+    }
     // Idea is to follow the state of the cpp engine,
     // except where we are stepping in QML
 
