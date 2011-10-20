@@ -338,9 +338,9 @@ int main(int argc, char *argv[])
         const QByteArray source = file.readAll();
         file.close();
 
-        Document::Ptr doc = Document::create(fileName);
+        Document::Ptr doc = Document::create(fileName, Document::QmlLanguage);
         doc->setSource(source);
-        doc->parseQml();
+        doc->parse();
 
         foreach (const DiagnosticMessage &m, doc->diagnosticMessages()) {
             ostream *os;
