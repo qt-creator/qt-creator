@@ -49,6 +49,7 @@ ToolBox::ToolBox(QWidget *parentWidget)
   m_leftToolBar(new QToolBar("LeftSidebar", this)),
   m_rightToolBar(new QToolBar("RightSidebar", this))
 {
+    setMaximumHeight(44);
     setSingleRow(false);
     QFrame *frame = new QFrame(this);
     m_crumblePath = new Utils::CrumblePath(frame);
