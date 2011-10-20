@@ -385,6 +385,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project *)),
             d->m_outputPane, SLOT(projectRemoved()));
 
+    connect(d->m_outputPane, SIGNAL(runControlStarted(ProjectExplorer::RunControl*)),
+            this, SIGNAL(runControlStarted(ProjectExplorer::RunControl*)));
+    connect(d->m_outputPane, SIGNAL(runControlFinished(ProjectExplorer::RunControl*)),
+            this, SIGNAL(runControlFinished(ProjectExplorer::RunControl*)));
+
     AllProjectsFilter *allProjectsFilter = new AllProjectsFilter(this);
     addAutoReleasedObject(allProjectsFilter);
 

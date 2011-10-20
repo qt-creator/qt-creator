@@ -299,9 +299,9 @@ void AppOutputPane::setFocus()
 void AppOutputPane::createNewOutputWindow(RunControl *rc)
 {
     connect(rc, SIGNAL(started()),
-            this, SLOT(runControlStarted()));
+            this, SLOT(slotRunControlStarted()));
     connect(rc, SIGNAL(finished()),
-            this, SLOT(runControlFinished()), Qt::QueuedConnection);
+            this, SLOT(slotRunControlFinished()), Qt::QueuedConnection);
     connect(rc, SIGNAL(applicationProcessHandleChanged()),
             this, SLOT(enableButtons()));
     connect(rc, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)),
@@ -531,14 +531,15 @@ void AppOutputPane::contextMenuRequested(const QPoint &pos, int index)
     }
 }
 
-void AppOutputPane::runControlStarted()
+void AppOutputPane::slotRunControlStarted()
 {
     RunControl *current = currentRunControl();
     if (current && current == sender())
         enableButtons(current, true); // RunControl::isRunning() cannot be trusted in signal handler.
+    emit runControlStarted(current);
 }
 
-void AppOutputPane::runControlFinished()
+void AppOutputPane::slotRunControlFinished()
 {
     RunControl *senderRunControl = qobject_cast<RunControl *>(sender());
     const int senderIndex = indexOf(senderRunControl);
@@ -558,6 +559,8 @@ void AppOutputPane::runControlFinished()
     // Check for asynchronous close. Close the tab.
     if (m_runControlTabs.at(senderIndex).asyncClosing)
         closeTab(tabWidgetIndexOf(senderIndex), CloseTabNoPrompt);
+
+    emit runControlFinished(senderRunControl);
 
     if (!isRunning())
         emit allRunControlsFinished();

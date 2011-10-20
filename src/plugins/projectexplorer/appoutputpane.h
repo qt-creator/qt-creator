@@ -88,6 +88,8 @@ public:
 
 signals:
      void allRunControlsFinished();
+     void runControlStarted(ProjectExplorer::RunControl *rc);
+     void runControlFinished(ProjectExplorer::RunControl *rc);
 
 public slots:
     // ApplicationOutput specifics
@@ -103,8 +105,8 @@ private slots:
     bool closeTab(int index);
     void tabChanged(int);
     void contextMenuRequested(const QPoint &pos, int index);
-    void runControlStarted();
-    void runControlFinished();
+    void slotRunControlStarted();
+    void slotRunControlFinished();
 
     void aboutToUnloadSession();
     void updateFromSettings();
