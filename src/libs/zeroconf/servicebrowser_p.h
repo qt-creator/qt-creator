@@ -270,7 +270,8 @@ public:
     void insertGatherer(const QString &fullName);
     void maybeUpdateLists();
 
-    bool startBrowsing(quint32 interfaceIndex);
+    void startBrowsing(quint32 interfaceIndex);
+    bool internalStartBrowsing();
     void stopBrowsing();
     void reconfirmService(Service::ConstPtr s);
 

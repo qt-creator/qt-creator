@@ -108,7 +108,7 @@ public:
 
     MainConnectionPtr mainConnection() const;
 
-    bool startBrowsing(qint32 interfaceIndex = 0);
+    void startBrowsing(qint32 interfaceIndex = 0);
     void stopBrowsing();
     bool isBrowsing() const;
     bool didFail() const;

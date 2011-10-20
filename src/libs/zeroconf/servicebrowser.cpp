@@ -292,9 +292,9 @@ QDebug operator<<(QDebug dbg, const Service &service)
  */
 
 /// starts the browsing, return true if successfull
-bool ServiceBrowser::startBrowsing(qint32 interfaceIndex)
+void ServiceBrowser::startBrowsing(qint32 interfaceIndex)
 {
-    return d->startBrowsing(interfaceIndex);
+    d->startBrowsing(interfaceIndex);
 }
 
 /// create a new brower for the given service type
@@ -1077,12 +1077,20 @@ void ServiceBrowserPrivate::browseReply(DNSServiceFlags                     flag
     maybeUpdateLists();
 }
 
-bool ServiceBrowserPrivate::startBrowsing(quint32 interfaceIndex)
+void ServiceBrowserPrivate::startBrowsing(quint32 interfaceIndex)
 {
-    if (failed || browsing) return false;
+    this->interfaceIndex = interfaceIndex;
+    if (failed || browsing)
+        return;
     if (mainConnection.isNull())
         mainConnection = MainConnectionPtr(new MainConnection());
     mainConnection->addBrowser(this);
+}
+
+bool ServiceBrowserPrivate::internalStartBrowsing()
+{
+    if (failed || browsing)
+        return false;
     DNSServiceErrorType err;
     err = mainConnection->lib->browse(mainRef(), &serviceConnection, interfaceIndex,
                                       serviceType.toUtf8().constData(), ((domain.isEmpty()) ? 0 : (domain.toUtf8().constData())), this);
@@ -1211,14 +1219,18 @@ void MainConnection::waitStartup()
 
 void MainConnection::addBrowser(ServiceBrowserPrivate *browser)
 {
-    waitStartup();
+    int actualStatus;
     QStringList errs;
     bool didFail;
     {
         QMutexLocker l(lock());
+        actualStatus = m_status;
         m_browsers.append(browser);
         errs=m_errors;
         didFail=m_failed;
+    }
+    if (actualStatus == Running) {
+        browser->internalStartBrowsing();
     }
     if (didFail || !errs.isEmpty())
         browser->hadError(errs, didFail);
@@ -1301,19 +1313,26 @@ void MainConnection::createConnection()
                 if (m_nErrs > 10 || !lib->isOk())
                     abortLib();
             } else {
-                increaseStatusTo(Running);
-                // multithreading issues if we support multiple cycles of createConnection/destroyConnection
-                for (int i = m_browsers.count(); i-- != 0; ){
-                    ServiceBrowserPrivate *bAtt=m_browsers[i];
-                    if (bAtt && !bAtt->browsing)
-                        bAtt->startBrowsing(bAtt->interfaceIndex);
+                QList<ServiceBrowserPrivate *> waitingBrowsers;
+                {
+                    QMutexLocker(lock());
+                    waitingBrowsers = m_browsers;
+                    increaseStatusTo(Running);
+                }
+                for (int i = waitingBrowsers.count(); i-- != 0; ){
+                    ServiceBrowserPrivate *actualBrowser = waitingBrowsers[i];
+                    if (actualBrowser && !actualBrowser->browsing)
+                        actualBrowser->internalStartBrowsing();
                 }
                 break;
             }
         } else if (err == kDNSServiceErr_ServiceNotRunning) {
             appendError(QStringList(tr("MainConnection using lib %1 failed because no daemon is running")
                                     .arg(lib->name())),false);
-            if (lib->tryStartDaemon()) {
+            if (m_nErrs > 5 || !lib->isOk()) {
+                abortLib();
+            } else if (lib->tryStartDaemon()) {
+                ++m_nErrs;
                 appendError(QStringList(tr("MainConnection using lib %1 daemon starting seem successful, continuing")
                                         .arg(lib->name())),false);
             } else {
