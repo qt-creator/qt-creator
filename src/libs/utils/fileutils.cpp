@@ -92,6 +92,18 @@ namespace Utils {
   \return Whether at least one file in \a filePath has a newer date than \a timeStamp.
 */
 
+/*!
+  \fn Utils::FileUtils::resolveSymlinks(const QString &filePath)
+
+  Recursively resolve possibly present symlinks in \a filePath.
+  Unlike QFileInfo::canonicalFilePath(), this function will still return the expected target file
+  even if the symlink is dangling.
+
+  \note Maximum recursion depth == 16.
+
+  return Symlink target file path.
+*/
+
 bool FileUtils::removeRecursively(const QString &filePath, QString *error)
 {
     QFileInfo fileInfo(filePath);
@@ -197,6 +209,16 @@ bool FileUtils::isFileNewerThan(const QString &filePath,
     return false;
 }
 
+QString FileUtils::resolveSymlinks(const QString &path)
+{
+    QFileInfo f(path);
+    int links = 16;
+    while (links-- && f.isSymLink())
+        f.setFile(f.symLinkTarget());
+    if (links <= 0)
+        return QString();
+    return f.filePath();
+}
 
 
 QByteArray FileReader::fetchQrc(const QString &fileName)
