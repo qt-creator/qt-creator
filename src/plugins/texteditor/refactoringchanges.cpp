@@ -339,7 +339,7 @@ void RefactoringFile::apply()
             return;
 
         {
-            QTextCursor c(doc);
+            QTextCursor c = cursor();
             c.beginEditBlock();
 
             // build indent selections now, applying the changeset will change locations
