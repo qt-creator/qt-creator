@@ -65,7 +65,7 @@ ToolBox::ToolBox(QWidget *parentWidget)
     verticalLayout->setMargin(0);
     verticalLayout->setSpacing(0);
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
+    QHBoxLayout *horizontalLayout = new QHBoxLayout();
     verticalLayout->addLayout(horizontalLayout);
     verticalLayout->addWidget(frame);
     horizontalLayout->setMargin(0);
@@ -96,8 +96,6 @@ ToolBox::ToolBox(QWidget *parentWidget)
     horizontalLayout->addWidget(m_leftToolBar);
     horizontalLayout->addWidget(stretchToolbar);
     horizontalLayout->addWidget(m_rightToolBar);
-
-    setLayout(verticalLayout);
 }
 
 void ToolBox::setLeftSideActions(const QList<QAction*> &actions)
