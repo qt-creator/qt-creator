@@ -122,6 +122,17 @@ Document::Ptr Document::create(const QString &fileName, Language language)
     return doc;
 }
 
+Document::Language Document::guessLanguageFromSuffix(const QString &fileName)
+{
+    if (fileName.endsWith(".qml", Qt::CaseInsensitive))
+        return QmlLanguage;
+    if (fileName.endsWith(".js", Qt::CaseInsensitive))
+        return JavaScriptLanguage;
+    if (fileName.endsWith(".json", Qt::CaseInsensitive))
+        return JsonLanguage;
+    return UnknownLanguage;
+}
+
 Document::Ptr Document::ptr() const
 {
     return _ptr.toStrongRef();

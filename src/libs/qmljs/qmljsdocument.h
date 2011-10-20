@@ -71,6 +71,7 @@ public:
     ~Document();
 
     static Document::Ptr create(const QString &fileName, Language language);
+    static Language guessLanguageFromSuffix(const QString &fileName);
 
     Document::Ptr ptr() const;
 

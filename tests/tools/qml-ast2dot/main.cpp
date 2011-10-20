@@ -286,30 +286,28 @@ protected: // visiting methods:
     virtual bool visit(ExpressionStatement *ast) { nonterminal(ast->expression); terminal(ast->semicolonToken); return false; }
     virtual bool visit(IfStatement *ast) { terminal(ast->ifToken); terminal(ast->lparenToken); nonterminal(ast->expression); terminal(ast->rparenToken); nonterminal(ast->ok); terminal(ast->elseToken); nonterminal(ast->ko); return false; }
     virtual bool visit(DoWhileStatement *ast) { terminal(ast->doToken); nonterminal(ast->statement); terminal(ast->whileToken); terminal(ast->lparenToken); nonterminal(ast->expression); terminal(ast->rparenToken); terminal(ast->semicolonToken); return false; }
-
-// TODO: visitors for:
-//    WhileStatement
-//    ForStatement
-//    LocalForStatement
-//    ForEachStatement
-//    LocalForEachStatement
-//    ContinueStatement
-//    BreakStatement
-//    ReturnStatement
-//    WithStatement
-//    CaseBlock
-//    SwitchStatement
-//    CaseClause
-//    DefaultClause
-//    LabelledStatement
-//    ThrowStatement
-//    Catch
-//    Finally
-//    TryStatement
-//    FunctionExpression
-//    FunctionDeclaration
-//    DebuggerStatement
-//    UiParameterList
+    virtual bool visit(WhileStatement *ast) { terminal(ast->whileToken); terminal(ast->lparenToken); nonterminal(ast->expression); terminal(ast->rparenToken); nonterminal(ast->statement); return false; }
+    virtual bool visit(ForStatement *ast) { terminal(ast->forToken); terminal(ast->lparenToken); nonterminal(ast->initialiser); terminal(ast->firstSemicolonToken); nonterminal(ast->condition); terminal(ast->secondSemicolonToken); nonterminal(ast->expression); terminal(ast->rparenToken); nonterminal(ast->statement); return false; }
+    virtual bool visit(LocalForStatement *ast) { terminal(ast->forToken); terminal(ast->lparenToken); terminal(ast->varToken); nonterminal(ast->declarations); terminal(ast->firstSemicolonToken); nonterminal(ast->condition); terminal(ast->secondSemicolonToken); nonterminal(ast->expression); terminal(ast->rparenToken); nonterminal(ast->statement); return false; }
+    virtual bool visit(ForEachStatement *ast) { terminal(ast->forToken); terminal(ast->lparenToken); nonterminal(ast->initialiser); terminal(ast->inToken); nonterminal(ast->expression); terminal(ast->rparenToken); nonterminal(ast->statement); return false; }
+    virtual bool visit(LocalForEachStatement *ast) { terminal(ast->forToken); terminal(ast->lparenToken); terminal(ast->varToken); nonterminal(ast->declaration); terminal(ast->inToken); nonterminal(ast->expression); terminal(ast->rparenToken); nonterminal(ast->statement); return false; }
+    virtual bool visit(ContinueStatement *ast) { terminal(ast->continueToken); return false; }
+    virtual bool visit(BreakStatement *ast) { terminal(ast->breakToken); return false; }
+    virtual bool visit(ReturnStatement *ast) { terminal(ast->returnToken); nonterminal(ast->expression); return false; }
+    virtual bool visit(WithStatement *ast) { terminal(ast->withToken); terminal(ast->lparenToken); nonterminal(ast->expression); terminal(ast->rparenToken); nonterminal(ast->statement); return false; }
+    virtual bool visit(CaseBlock *ast) { terminal(ast->lbraceToken); nonterminal(ast->clauses); nonterminal(ast->defaultClause); nonterminal(ast->moreClauses); terminal(ast->rbraceToken); return false; }
+    virtual bool visit(SwitchStatement *ast) { terminal(ast->switchToken); terminal(ast->lparenToken); nonterminal(ast->expression); terminal(ast->rparenToken); nonterminal(ast->block); return false; }
+    virtual bool visit(CaseClause *ast) { terminal(ast->caseToken); nonterminal(ast->expression); terminal(ast->colonToken); nonterminal(ast->statements); return false; }
+    virtual bool visit(DefaultClause *ast) { terminal(ast->defaultToken); terminal(ast->colonToken); nonterminal(ast->statements); return false; }
+    virtual bool visit(LabelledStatement *ast) { terminal(ast->identifierToken); terminal(ast->colonToken); nonterminal(ast->statement); return false; }
+    virtual bool visit(ThrowStatement *ast) { terminal(ast->throwToken); nonterminal(ast->expression); return false; }
+    virtual bool visit(Catch *ast) { terminal(ast->catchToken); terminal(ast->lparenToken); terminal(ast->identifierToken); terminal(ast->rparenToken); nonterminal(ast->statement); return false; }
+    virtual bool visit(Finally *ast) { terminal(ast->finallyToken); nonterminal(ast->statement); return false; }
+    virtual bool visit(FunctionExpression *ast) { terminal(ast->functionToken); terminal(ast->identifierToken); terminal(ast->lparenToken); nonterminal(ast->formals); terminal(ast->rparenToken); terminal(ast->lbraceToken); nonterminal(ast->body); terminal(ast->rbraceToken); return false; }
+    virtual bool visit(FunctionDeclaration *ast) { return visit(static_cast<FunctionExpression *>(ast)); }
+    virtual bool visit(DebuggerStatement *ast) { terminal(ast->debuggerToken); terminal(ast->semicolonToken); return false; }
+    virtual bool visit(UiParameterList *ast) { terminal(ast->commaToken); terminal(ast->identifierToken); nonterminal(ast->next); return false; }
+    virtual bool visit(FormalParameterList *ast) { terminal(ast->commaToken); terminal(ast->identifierToken); nonterminal(ast->next); return false; }
 
 private:
     QHash<Node *, QByteArray> _id;
@@ -338,7 +336,7 @@ int main(int argc, char *argv[])
         const QByteArray source = file.readAll();
         file.close();
 
-        Document::Ptr doc = Document::create(fileName, Document::QmlLanguage);
+        Document::Ptr doc = Document::create(fileName, Document::guessLanguageFromSuffix(fileName));
         doc->setSource(source);
         doc->parse();
 
@@ -359,7 +357,7 @@ int main(int argc, char *argv[])
         }
 
         ASTDump dump;
-        dump(fileName, source, doc->qmlProgram());
+        dump(fileName, source, doc->ast());
     }
 
     return EXIT_SUCCESS;
