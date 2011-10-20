@@ -346,11 +346,6 @@ void MakeStepConfigWidget::updateDetails()
     if (!m_makeStep->m_makeCmd.isEmpty())
         makeCmd = m_makeStep->m_makeCmd;
     param.setCommand(makeCmd);
-    if (param.commandMissing()) {
-        m_summaryText = tr("<b>Make:</b> %1 not found in the environment.").arg(makeCmd);
-        emit updateSummary();
-        return;
-    }
 
     QString args = m_makeStep->userArguments();
     if (!m_makeStep->isClean()) {
@@ -377,6 +372,9 @@ void MakeStepConfigWidget::updateDetails()
     param.setArguments(args);
     param.setEnvironment(env);
     m_summaryText = param.summaryInWorkdir(displayName());
+
+    if (param.commandMissing())
+        m_summaryText = tr("<b>Make:</b> %1 not found in the environment.").arg(makeCmd); // Override display text
     emit updateSummary();
 }
 
