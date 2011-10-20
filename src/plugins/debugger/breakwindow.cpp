@@ -220,6 +220,12 @@ void BreakpointDialog::setPartsEnabled(unsigned partsMask)
 
     m_ui.labelTracepoint->setEnabled(partsMask & TracePointPart);
     m_ui.checkBoxTracepoint->setEnabled(partsMask & TracePointPart);
+
+    m_ui.labelCommand->setEnabled(partsMask & TracePointPart);
+    m_ui.lineEditCommand->setEnabled(partsMask & TracePointPart);
+
+    m_ui.labelMessage->setEnabled(partsMask & TracePointPart);
+    m_ui.lineEditMessage->setEnabled(partsMask & TracePointPart);
 }
 
 void BreakpointDialog::clearOtherParts(unsigned partsMask)
@@ -248,15 +254,16 @@ void BreakpointDialog::clearOtherParts(unsigned partsMask)
     if (invertedPartsMask & ModulePart)
         m_ui.lineEditModule->clear();
 
-    if (invertedPartsMask & TracePointPart)
+    if (invertedPartsMask & TracePointPart) {
         m_ui.checkBoxTracepoint->setChecked(false);
+        m_ui.lineEditCommand->clear();
+        m_ui.lineEditMessage->clear();
+    }
 }
 
 void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) const
 {
     data->enabled = m_ui.checkBoxEnabled->isChecked();
-    data->command = m_ui.lineEditCommand->text().trimmed();
-    data->message = m_ui.lineEditMessage->text();
 
     if (partsMask & FileAndLinePart) {
         data->lineNumber = m_ui.lineEditLineNumber->text().toInt();
@@ -281,8 +288,11 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
     if (partsMask & ModulePart)
         data->module = m_ui.lineEditModule->text();
 
-    if (partsMask & TracePointPart)
+    if (partsMask & TracePointPart) {
         data->tracepoint = m_ui.checkBoxTracepoint->isChecked();
+        data->command = m_ui.lineEditCommand->text().trimmed();
+        data->message = m_ui.lineEditMessage->text();
+    }
 }
 
 void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
