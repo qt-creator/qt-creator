@@ -73,6 +73,7 @@ enum Type
     WarnUnreachable = 28,
     WarnWith = 29,
     WarnComma = 30,
+    WarnUnnecessaryMessageSuppression = 31,
     WarnAlreadyFormalParameter = 103,
     WarnAlreadyFunction = 104,
     WarnVarUsedBeforeDeclaration = 105,

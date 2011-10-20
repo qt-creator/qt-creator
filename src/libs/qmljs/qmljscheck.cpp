@@ -535,7 +535,11 @@ Check::~Check()
 QList<Message> Check::operator()()
 {
     _messages.clear();
+    scanCommentsForAnnotations();
+
     Node::accept(_doc->ast(), this);
+    warnAboutUnnecessarySuppressions();
+
     return _messages;
 }
 
@@ -1147,27 +1151,14 @@ static bool hasOnlySpaces(const QString &s)
 void Check::addMessage(const Message &message)
 {
     if (message.isValid() && _enabledMessages.contains(message.type)) {
-        // check for 'ignore this message'-type comments
-        const QString &suppressMessage = message.suppressionString();
-        foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
-            if (commentLoc.startLine > message.location.startLine)
-                break;
-            if (commentLoc.startLine < message.location.startLine - 1)
-                continue;
-
-            // only look at comments on the previous line if there's only spaces before the comment
-            // note: startColumn is 1-based and *after* the starting // or /*
-            if (commentLoc.startLine == message.location.startLine - 1
-                    && commentLoc.startColumn > 3) {
-                const QString &beforeComment = _doc->source().mid(commentLoc.begin() - commentLoc.startColumn + 1,
-                                                                  commentLoc.startColumn - 3);
-                if (!hasOnlySpaces(beforeComment))
-                    continue;
+        if (m_disabledMessageTypesByLine.contains(message.location.startLine)) {
+            QList<MessageTypeAndSuppression> &disabledMessages = m_disabledMessageTypesByLine[message.location.startLine];
+            for (int i = 0; i < disabledMessages.size(); ++i) {
+                if (disabledMessages[i].type == message.type) {
+                    disabledMessages[i].wasSuppressed = true;
+                    return;
+                }
             }
-
-            const QString &comment = _doc->source().mid(commentLoc.begin(), commentLoc.length);
-            if (comment.contains(suppressMessage))
-                return;
         }
 
         _messages += message;
@@ -1177,6 +1168,58 @@ void Check::addMessage(const Message &message)
 void Check::addMessage(Type type, const SourceLocation &location, const QString &arg1, const QString &arg2)
 {
     addMessage(Message(type, location, arg1, arg2));
+}
+
+void Check::scanCommentsForAnnotations()
+{
+    m_disabledMessageTypesByLine.clear();
+
+    // find all disable annotations
+    const QRegExp disableCommentPattern(QLatin1String("@disable M(\\d+)"));
+    foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
+        const QString &comment = _doc->source().mid(commentLoc.begin(), commentLoc.length);
+        int lastOffset = -1;
+        QList<MessageTypeAndSuppression> disabledMessageTypes;
+        forever {
+            lastOffset = disableCommentPattern.indexIn(comment, lastOffset + 1);
+            if (lastOffset == -1)
+                break;
+            MessageTypeAndSuppression entry;
+            entry.type = static_cast<StaticAnalysis::Type>(disableCommentPattern.cap(1).toInt());
+            entry.wasSuppressed = false;
+            entry.suppressionSource = SourceLocation(commentLoc.offset + lastOffset,
+                                                     disableCommentPattern.matchedLength(),
+                                                     commentLoc.startLine,
+                                                     commentLoc.startColumn + lastOffset);
+            disabledMessageTypes += entry;
+        }
+        if (!disabledMessageTypes.isEmpty()) {
+            int appliesToLine = commentLoc.startLine;
+
+            // if the comment is preceded by spaces only, it applies to the next line
+            // note: startColumn is 1-based and *after* the starting // or /*
+            if (commentLoc.startColumn > 3) {
+                const QString &beforeComment = _doc->source().mid(commentLoc.begin() - commentLoc.startColumn + 1,
+                                                                  commentLoc.startColumn - 3);
+                if (hasOnlySpaces(beforeComment))
+                    ++appliesToLine;
+            }
+
+            m_disabledMessageTypesByLine[appliesToLine] += disabledMessageTypes;
+        }
+    }
+}
+
+void Check::warnAboutUnnecessarySuppressions()
+{
+    QHashIterator< int, QList<MessageTypeAndSuppression> > it(m_disabledMessageTypesByLine);
+    while (it.hasNext()) {
+        it.next();
+        foreach (const MessageTypeAndSuppression &entry, it.value()) {
+            if (!entry.wasSuppressed)
+                addMessage(WarnUnnecessaryMessageSuppression, entry.suppressionSource);
+        }
+    }
 }
 
 bool Check::visit(NewExpression *ast)

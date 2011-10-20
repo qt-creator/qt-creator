@@ -118,6 +118,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("do not use comma expressions"));
     newMsg(WarnAlreadyFormalParameter, Warning,
            tr("'%1' is already a formal parameter"), 1);
+    newMsg(WarnUnnecessaryMessageSuppression, Warning,
+           tr("unnecessary message suppression"));
     newMsg(WarnAlreadyFunction, Warning,
            tr("'%1' is already a function"), 1);
     newMsg(WarnVarUsedBeforeDeclaration, Warning,

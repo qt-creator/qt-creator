@@ -119,6 +119,9 @@ private:
     void addMessage(StaticAnalysis::Type type, const AST::SourceLocation &location,
                     const QString &arg1 = QString(), const QString &arg2 = QString());
 
+    void scanCommentsForAnnotations();
+    void warnAboutUnnecessarySuppressions();
+
     AST::Node *parent(int distance = 0);
 
     Document::Ptr _doc;
@@ -134,6 +137,16 @@ private:
     QList<AST::Node *> _chain;
     QStack<StringSet> m_idStack;
     QStack<StringSet> m_propertyStack;
+
+    class MessageTypeAndSuppression
+    {
+    public:
+        AST::SourceLocation suppressionSource;
+        StaticAnalysis::Type type;
+        bool wasSuppressed;
+    };
+
+    QHash< int, QList<MessageTypeAndSuppression> > m_disabledMessageTypesByLine;
 
     bool _importsOk;
 };
