@@ -111,8 +111,8 @@ void TimelineView::updateTimeline(bool updateStartX)
     m_totalWidth = totalRange * m_spacing;
 
 
-    int minsample = m_eventList->findFirstIndex(m_startTime + m_eventList->firstTimeMark());
-    int maxsample = m_eventList->findLastIndex(m_endTime + m_eventList->firstTimeMark());
+    int minsample = m_eventList->findFirstIndex(m_startTime + m_eventList->traceStartTime());
+    int maxsample = m_eventList->findLastIndex(m_endTime + m_eventList->traceStartTime());
 
     if (updateStartX) {
         qreal oldStartX = m_startX;
@@ -201,7 +201,7 @@ void TimelineView::updateItemPosition(int itemIndex)
 {
     QDeclarativeItem *item = m_items.value(itemIndex);
     if (item) {
-        qreal itemStartPos = (m_eventList->getStartTime(itemIndex) - m_eventList->firstTimeMark()) * m_spacing;
+        qreal itemStartPos = (m_eventList->getStartTime(itemIndex) - m_eventList->traceStartTime()) * m_spacing;
         item->setX(itemStartPos);
         qreal width = (m_eventList->getEndTime(itemIndex) - m_eventList->getStartTime(itemIndex)) * m_spacing;
         item->setWidth(width > 1 ? width : 1);
