@@ -396,9 +396,12 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointAtExec:
     //case BreakpointAtVFork:
     case BreakpointAtSysCall:
-    case BreakpointAtJavaScriptThrow:
         clearOtherParts(AllConditionParts|ModulePart|TracePointPart);
         setPartsEnabled(AllConditionParts|TracePointPart);
+        break;
+    case BreakpointAtJavaScriptThrow:
+        clearOtherParts(AllParts);
+        setPartsEnabled(0);
         break;
     case BreakpointAtMain:
         m_ui.lineEditFunction->setText(QLatin1String("main")); // Just for display
