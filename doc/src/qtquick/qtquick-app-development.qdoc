@@ -703,6 +703,10 @@
 
     \endlist
 
+    To lay out several items in a Column, Row, Grid, or Flow element, select
+    the elements on the canvas, and then select \gui Layout in the context
+    menu.
+
     \section1 Using States
 
     Use states and transitions
