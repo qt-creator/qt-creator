@@ -76,12 +76,6 @@ void CallgrindRunner::start()
     m_controller->setValgrindProcess(valgrindProcess());
 }
 
-void CallgrindRunner::startRemotely(const Utils::SshConnectionParameters &sshParams)
-{
-    ValgrindRunner::startRemotely(sshParams);
-    m_controller->setValgrindProcess(valgrindProcess());
-}
-
 void CallgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
 {
     triggerParse();

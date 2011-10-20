@@ -52,7 +52,9 @@ public:
         : q(qq),
           process(0),
           channelMode(QProcess::SeparateChannels),
-          finished(false)
+          finished(false),
+          startMode(Analyzer::StartLocal),
+          connParams(Utils::SshConnectionParameters::DefaultProxy)
     {
     }
 
@@ -68,6 +70,8 @@ public:
     QString debuggeeExecutable;
     QString debuggeeArguments;
     QString workingdir;
+    Analyzer::StartMode startMode;
+    Utils::SshConnectionParameters connParams;
 };
 
 void ValgrindRunner::Private::run(ValgrindProcess *_process)
@@ -165,6 +169,26 @@ void ValgrindRunner::setDebuggeeArguments(const QString &arguments)
     d->debuggeeArguments = arguments;
 }
 
+Analyzer::StartMode ValgrindRunner::startMode() const
+{
+    return d->startMode;
+}
+
+void ValgrindRunner::setStartMode(Analyzer::StartMode startMode)
+{
+    d->startMode = startMode;
+}
+
+const Utils::SshConnectionParameters &ValgrindRunner::connectionParameters() const
+{
+    return d->connParams;
+}
+
+void ValgrindRunner::setConnectionParameters(const Utils::SshConnectionParameters &connParams)
+{
+    d->connParams = connParams;
+}
+
 void ValgrindRunner::setWorkingDirectory(const QString &path)
 {
     d->workingdir = path;
@@ -197,12 +221,10 @@ void ValgrindRunner::waitForFinished() const
 
 void ValgrindRunner::start()
 {
-    d->run(new LocalValgrindProcess(this));
-}
-
-void ValgrindRunner::startRemotely(const Utils::SshConnectionParameters &sshParams)
-{
-    d->run(new RemoteValgrindProcess(sshParams, this));
+    if (d->startMode == Analyzer::StartLocal)
+        d->run(new LocalValgrindProcess(this));
+    else if (d->startMode == Analyzer::StartRemote)
+        d->run(new RemoteValgrindProcess(d->connParams, this));
 }
 
 void ValgrindRunner::processError(QProcess::ProcessError e)

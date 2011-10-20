@@ -55,9 +55,7 @@ public:
     CallgrindController *controller() const;
 
     bool isPaused() const;
-
-    virtual void start();
-    virtual void startRemotely(const Utils::SshConnectionParameters &sshParams);
+    void start();
 
 signals:
     void statusMessage(const QString &message);

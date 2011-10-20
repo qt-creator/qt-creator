@@ -103,6 +103,8 @@ bool ValgrindEngine::start()
     runner()->setDebuggeeExecutable(sp.debuggee);
     runner()->setDebuggeeArguments(sp.debuggeeArgs);
     runner()->setEnvironment(sp.environment);
+    runner()->setConnectionParameters(sp.connParams);
+    runner()->setStartMode(sp.startMode);
 
     connect(runner(), SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
             SLOT(receiveProcessOutput(QByteArray,Utils::OutputFormat)));
@@ -111,10 +113,7 @@ bool ValgrindEngine::start()
     connect(runner(), SIGNAL(finished()),
             SLOT(runnerFinished()));
 
-    if (sp.startMode == StartRemote)
-        runner()->startRemotely(sp.connParams);
-    else
-        runner()->start();
+    runner()->start();
 
     return true;
 }

@@ -35,8 +35,12 @@
 #ifndef VALGRIND_RUNNER_H
 #define VALGRIND_RUNNER_H
 
-#include <QtCore/QProcess>
+#include "analyzerconstants.h"
+
 #include <utils/outputformat.h>
+#include <utils/ssh/sshconnection.h>
+
+#include <QtCore/QProcess>
 
 namespace Utils {
 class Environment;
@@ -69,13 +73,17 @@ public:
     void setEnvironment(const Utils::Environment &environment);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
 
+    void setStartMode(Analyzer::StartMode startMode);
+    Analyzer::StartMode startMode() const;
+
+    void setConnectionParameters(const Utils::SshConnectionParameters &connParams);
+    const Utils::SshConnectionParameters &connectionParameters() const;
+
     void waitForFinished() const;
 
     QString errorString() const;
 
     virtual void start();
-    virtual void startRemotely(const Utils::SshConnectionParameters &sshParams);
-
     virtual void stop();
 
     ValgrindProcess *valgrindProcess() const;
