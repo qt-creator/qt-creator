@@ -170,7 +170,7 @@ protected:
     /* These hooks allow for modifying the contents that goes to
      * the file. The default implementation uses the text
      * of the description editor. */
-    virtual QString fileContents() const;
+    virtual QByteArray fileContents() const;
     virtual bool setFileContents(const QString &contents);
 
 private:

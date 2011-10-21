@@ -60,6 +60,9 @@ public:
 signals:
     void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
 
+protected:
+    virtual QByteArray fileContents() const;
+
 private slots:
     void slotDiffSelected(const QStringList &);
 
@@ -67,6 +70,7 @@ private:
     inline GitSubmitEditorWidget *submitEditorWidget();
 
     VCSBase::SubmitFileModel *m_model;
+    QString m_commitEncoding;
 };
 
 } // namespace Internal

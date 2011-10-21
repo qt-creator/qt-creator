@@ -69,7 +69,7 @@ public:
     static QString fileFromChangeLine(const QString &line);
 
 protected:
-    virtual QString fileContents() const;
+    virtual QByteArray fileContents() const;
     virtual bool setFileContents(const QString &contents);
 
 private:

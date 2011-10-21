@@ -456,7 +456,7 @@ bool VCSBaseSubmitEditor::save(QString *errorString, const QString &fileName, bo
 {
     const QString fName = fileName.isEmpty() ? d->m_file->fileName() : fileName;
     Utils::FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-    saver.write(fileContents().toLocal8Bit());
+    saver.write(fileContents());
     if (!saver.finalize(errorString))
         return false;
     if (autoSave)
@@ -467,9 +467,9 @@ bool VCSBaseSubmitEditor::save(QString *errorString, const QString &fileName, bo
     return true;
 }
 
-QString VCSBaseSubmitEditor::fileContents() const
+QByteArray VCSBaseSubmitEditor::fileContents() const
 {
-    return d->m_widget->descriptionText();
+    return d->m_widget->descriptionText().toLocal8Bit();
 }
 
 bool VCSBaseSubmitEditor::setFileContents(const QString &contents)
@@ -616,7 +616,7 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
         tempFilePattern += QDir::separator();
     tempFilePattern += QLatin1String("msgXXXXXX.txt");
     Utils::TempFileSaver saver(tempFilePattern);
-    saver.write(fileContents().toUtf8());
+    saver.write(fileContents());
     if (!saver.finalize(errorMessage))
         return false;
     // Run check process

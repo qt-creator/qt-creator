@@ -58,7 +58,7 @@ PerforceSubmitEditorWidget *PerforceSubmitEditor::submitEditorWidget()
     return static_cast<PerforceSubmitEditorWidget *>(widget());
 }
 
-QString PerforceSubmitEditor::fileContents() const
+QByteArray PerforceSubmitEditor::fileContents() const
 {
     const_cast<PerforceSubmitEditor*>(this)->updateEntries();
     QString text;
@@ -70,7 +70,7 @@ QString PerforceSubmitEditor::fileContents() const
     }
     if (Perforce::Constants::debug)
         qDebug() << Q_FUNC_INFO << text;
-    return text;
+    return text.toLocal8Bit();
 }
 
 bool PerforceSubmitEditor::setFileContents(const QString &contents)

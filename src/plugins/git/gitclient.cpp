@@ -1632,6 +1632,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     commitData->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
     commitData->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
+    commitData->commitEncoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"));
 
     // Get the commit template or the last commit message
     if (amend) {

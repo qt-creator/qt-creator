@@ -85,6 +85,7 @@ public:
     QStringList unstagedFileNames(const QString &stateFilter = QString()) const;
 
     QString amendSHA1;
+    QString commitEncoding;
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
 

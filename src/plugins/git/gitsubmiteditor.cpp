@@ -39,6 +39,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
+#include <QtCore/QTextCodec>
 
 namespace Git {
 namespace Internal {
@@ -83,6 +84,8 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     submitEditorWidget()->setPanelData(d.panelData);
     submitEditorWidget()->setPanelInfo(d.panelInfo);
 
+    m_commitEncoding = d.commitEncoding;
+
     m_model = new VCSBase::SubmitFileModel(this);
     addStateFileListToModel(d.stagedFiles,   true,  StagedFile,   m_model);
     addStateFileListToModel(d.unstagedFiles, false, UnstagedFile, m_model);
@@ -126,6 +129,22 @@ void GitSubmitEditor::slotDiffSelected(const QStringList &files)
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const
 {
     return const_cast<GitSubmitEditor*>(this)->submitEditorWidget()->panelData();
+}
+
+QByteArray GitSubmitEditor::fileContents() const
+{
+    const QString& text = const_cast<GitSubmitEditor*>(this)->submitEditorWidget()->descriptionText();
+
+    if (!m_commitEncoding.isEmpty()) {
+        // Do the encoding convert, When use user-defined encoding
+        // e.g. git config --global i18n.commitencoding utf-8
+        QTextCodec *codec = QTextCodec::codecForName(m_commitEncoding.toLocal8Bit());
+        if (codec)
+            return codec->fromUnicode(text);
+    }
+
+    // Using utf-8 as the default encoding
+    return text.toUtf8();
 }
 
 } // namespace Internal
