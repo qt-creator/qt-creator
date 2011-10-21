@@ -33,4 +33,15 @@
   <style name="Text" foreground="#aaaaaa" background="#000000"/>
   <style name="Type" foreground="#55ff55"/>
   <style name="VirtualMethod" italic="true"/>
+  <style name="QmlTypeId" foreground="#55ff55"/>
+  <style name="Binding" foreground="#ff5555"/>
+  <style name="QmlLocalId" italic="true"/>
+  <style name="QmlRootObjectProperty" italic="true"/>
+  <style name="QmlScopeObjectProperty" italic="true"/>
+  <style name="QmlStateName" italic="true"/>
+  <style name="QmlExternalId" foreground="#aaaaff" italic="true"/>
+  <style name="QmlExternalObjectProperty" foreground="#aaaaff" italic="true"/>
+  <style name="JsScopeVar" foreground="#8888ff" italic="true"/>
+  <style name="JsImportVar" foreground="#8888ff" italic="true"/>
+  <style name="JsGlobalVar" foreground="#8888ff" italic="true"/>
 </style-scheme>
