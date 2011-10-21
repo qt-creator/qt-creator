@@ -67,6 +67,7 @@ private slots:
     void handleSelectedDeviceConfigurationChanged(int index);
     void handleDeviceConfigurationListChanged();
     void showDeviceConfigurations();
+    void openProjectFile();
 
 private:
     Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;

@@ -38,18 +38,41 @@
 #include "remotelinuxsettingspages.h"
 #include "typespecificdeviceconfigurationlistmodel.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+
+#include <QtGui/QTableView>
 
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
+namespace {
+class MyTableView : public QTableView
+{
+    Q_OBJECT
+public:
+    MyTableView(QWidget *parent = 0) : QTableView(parent) {}
+
+signals:
+    void doubleClicked();
+
+private:
+    void mouseDoubleClickEvent(QMouseEvent *event)
+    {
+        emit doubleClicked();
+        QTableView::mouseDoubleClickEvent(event);
+    }
+};
+
+} // anonymous namespace
 
 class RemoteLinuxDeployConfigurationWidgetPrivate
 {
 public:
     Ui::RemoteLinuxDeployConfigurationWidget ui;
+    MyTableView tableView;
     RemoteLinuxDeployConfiguration *deployConfiguration;
 };
 
@@ -61,6 +84,15 @@ RemoteLinuxDeployConfigurationWidget::RemoteLinuxDeployConfigurationWidget(QWidg
     DeployConfigurationWidget(parent), d(new RemoteLinuxDeployConfigurationWidgetPrivate)
 {
     d->ui.setupUi(this);
+    d->tableView.setTextElideMode(Qt::ElideMiddle);
+    d->tableView.setShowGrid(false);
+    d->tableView.setWordWrap(false);
+    d->tableView.horizontalHeader()->setMinimumSectionSize(100);
+    d->tableView.horizontalHeader()->setDefaultSectionSize(400);
+    d->tableView.horizontalHeader()->setHighlightSections(false);
+    d->tableView.horizontalHeader()->setStretchLastSection(true);
+    d->tableView.verticalHeader()->setVisible(false);
+    layout()->addWidget(&d->tableView);
 }
 
 RemoteLinuxDeployConfigurationWidget::~RemoteLinuxDeployConfigurationWidget()
@@ -75,6 +107,7 @@ void RemoteLinuxDeployConfigurationWidget::init(DeployConfiguration *dc)
 
     connect(d->ui.manageDevConfsLabel, SIGNAL(linkActivated(QString)),
         SLOT(showDeviceConfigurations()));
+    connect(&d->tableView, SIGNAL(doubleClicked()), SLOT(openProjectFile()));
 
     d->ui.deviceConfigsComboBox->setModel(d->deployConfiguration->deviceConfigModel().data());
     connect(d->ui.deviceConfigsComboBox, SIGNAL(activated(int)),
@@ -111,7 +144,7 @@ DeployableFilesPerProFile *RemoteLinuxDeployConfigurationWidget::currentModel() 
 
 void RemoteLinuxDeployConfigurationWidget::handleModelListToBeReset()
 {
-    d->ui.tableView->setModel(0);
+    d->tableView.setModel(0);
 }
 
 void RemoteLinuxDeployConfigurationWidget::handleModelListReset()
@@ -120,10 +153,13 @@ void RemoteLinuxDeployConfigurationWidget::handleModelListReset()
         == d->ui.projectsComboBox->count(), return);
 
     if (d->deployConfiguration->deploymentInfo()->modelCount() > 0) {
+        d->tableView.setToolTip(tr("Double-click to edit the project file"));
         if (d->ui.projectsComboBox->currentIndex() == -1)
             d->ui.projectsComboBox->setCurrentIndex(0);
         else
             setModel(d->ui.projectsComboBox->currentIndex());
+    } else {
+        d->tableView.setToolTip(QString());
     }
 }
 
@@ -131,9 +167,9 @@ void RemoteLinuxDeployConfigurationWidget::setModel(int row)
 {
     DeployableFilesPerProFile * const proFileInfo = row == -1
         ? 0 : d->deployConfiguration->deploymentInfo()->modelAt(row);
-    d->ui.tableView->setModel(proFileInfo);
+    d->tableView.setModel(proFileInfo);
     if (proFileInfo)
-        d->ui.tableView->resizeRowsToContents();
+        d->tableView.resizeRowsToContents();
     emit currentModelChanged(proFileInfo);
 }
 
@@ -159,7 +195,20 @@ void RemoteLinuxDeployConfigurationWidget::handleDeviceConfigurationListChanged(
 void RemoteLinuxDeployConfigurationWidget::showDeviceConfigurations()
 {
     Core::ICore::instance()->showOptionsDialog(LinuxDeviceConfigurationsSettingsPage::pageCategory(),
-        LinuxDeviceConfigurationsSettingsPage::pageId());
+                                               LinuxDeviceConfigurationsSettingsPage::pageId());
+}
+
+void RemoteLinuxDeployConfigurationWidget::openProjectFile()
+{
+    const int row = d->ui.projectsComboBox->currentIndex();
+    if (row == -1)
+        return;
+    const DeployableFilesPerProFile * const proFileInfo =
+        d->deployConfiguration->deploymentInfo()->modelAt(row);
+    Core::EditorManager::instance()->openEditor(proFileInfo->proFilePath(), QString(),
+        Core::EditorManager::ModeSwitch);
 }
 
 } // namespace RemoteLinux
+
+#include "remotelinuxdeployconfigurationwidget.moc"
