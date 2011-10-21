@@ -3006,9 +3006,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         case T_LOAD: {
             if (m_skipLevel && !m_cumulative)
                 return ReturnFalse;
-            bool ignore_error = false;
+            // bool ignore_error = false;
             if (args.count() == 2) {
-                ignore_error = isTrue(args.at(1), m_tmp2);
+                // ignore_error = isTrue(args.at(1), m_tmp2);
             } else if (args.count() != 1) {
                 evalError(fL1S("load(feature) requires one or two arguments."));
                 return ReturnFalse;
