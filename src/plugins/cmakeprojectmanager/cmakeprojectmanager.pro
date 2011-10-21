@@ -1,7 +1,9 @@
 TEMPLATE = lib
 TARGET = CMakeProjectManager
+
 include(../../qtcreatorplugin.pri)
 include(cmakeprojectmanager_dependencies.pri)
+
 HEADERS = cmakeproject.h \
     cmakeprojectplugin.h \
     cmakeprojectmanager.h \
@@ -15,7 +17,9 @@ HEADERS = cmakeproject.h \
     cmakeeditorfactory.h \
     cmakeeditor.h \
     cmakehighlighter.h \
-    cmakeuicodemodelsupport.h
+    cmakeuicodemodelsupport.h \
+    cmakelocatorfilter.h
+
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
@@ -28,8 +32,11 @@ SOURCES = cmakeproject.cpp \
     cmakeeditorfactory.cpp \
     cmakeeditor.cpp \
     cmakehighlighter.cpp \
-    cmakeuicodemodelsupport.cpp
+    cmakeuicodemodelsupport.cpp \
+    cmakelocatorfilter.cpp
+
 RESOURCES += cmakeproject.qrc
+
 FORMS +=
 
 OTHER_FILES += CMakeProject.mimetypes.xml

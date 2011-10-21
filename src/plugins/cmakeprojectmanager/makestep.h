@@ -66,14 +66,20 @@ public:
 
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
+
+    QStringList buildTargets() const;
     bool buildsBuildTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
+    void setBuildTargets(const QStringList &targets);
+    void clearBuildTargets();
+
     QString additionalArguments() const;
     void setAdditionalArguments(const QString &list);
 
     void setClean(bool clean);
 
     QVariantMap toMap() const;
+
 
 protected:
     MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);

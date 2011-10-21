@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/cmakeproject" >
+    <qresource prefix="/cmakeproject">
         <file>CMakeProject.mimetypes.xml</file>
     </qresource>
 </RCC>

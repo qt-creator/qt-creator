@@ -187,6 +187,11 @@ void MakeStep::stdOutput(const QString &line)
     AbstractProcessStep::stdOutput(line);
 }
 
+QStringList MakeStep::buildTargets() const
+{
+    return m_buildTargets;
+}
+
 bool MakeStep::buildsBuildTarget(const QString &target) const
 {
     return m_buildTargets.contains(target);
@@ -200,6 +205,16 @@ void MakeStep::setBuildTarget(const QString &buildTarget, bool on)
     else if(!on && old.contains(buildTarget))
         old.removeOne(buildTarget);
     m_buildTargets = old;
+}
+
+void MakeStep::setBuildTargets(const QStringList &targets)
+{
+    m_buildTargets = targets;
+}
+
+void MakeStep::clearBuildTargets()
+{
+    m_buildTargets.clear();
 }
 
 QString MakeStep::additionalArguments() const

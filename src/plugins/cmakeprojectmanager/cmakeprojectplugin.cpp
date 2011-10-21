@@ -37,6 +37,7 @@
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmaketarget.h"
+#include "cmakelocatorfilter.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -72,6 +73,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
     addAutoReleasedObject(new CMakeEditorFactory(manager, editorHandler));
     addAutoReleasedObject(new CMakeTargetFactory);
+    addAutoReleasedObject(new CMakeLocatorFilter);
 
     return true;
 }
