@@ -308,11 +308,12 @@ bool Function::hasReturnType() const
 
 unsigned Function::argumentCount() const
 {
-    const unsigned c = memberCount();
+    unsigned c = memberCount();
     if (c > 0 && memberAt(0)->type()->isVoidType())
         return 0;
-    if (c > 0 && memberAt(c - 1)->isBlock())
-        return c - 1;
+    // Definitions with function-try-blocks will have more than a block.
+    while (c > 0 && memberAt(c - 1)->isBlock())
+        --c;
     return c;
 }
 
