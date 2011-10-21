@@ -378,9 +378,9 @@ void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
 // does consider foo(void) to have one argument
 static int declaredArgumentCount(Function *function)
 {
-    int c = function->memberCount();
-    if (c > 0 && function->memberAt(c - 1)->isBlock())
-        return c - 1;
+    int c = function->argumentCount();
+    if (c == 0 && function->memberCount() > 0 && function->memberAt(0)->type().type()->isVoidType())
+        return 1;
     return c;
 }
 
