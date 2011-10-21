@@ -61,7 +61,7 @@ signals:
     void diff(const QStringList &unstagedFiles, const QStringList &stagedFiles);
 
 protected:
-    virtual QByteArray fileContents() const;
+    QByteArray fileContents() const;
 
 private slots:
     void slotDiffSelected(const QStringList &);

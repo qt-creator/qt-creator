@@ -69,8 +69,8 @@ public:
     static QString fileFromChangeLine(const QString &line);
 
 protected:
-    virtual QByteArray fileContents() const;
-    virtual bool setFileContents(const QString &contents);
+    QByteArray fileContents() const;
+    bool setFileContents(const QString &contents);
 
 private:
     inline PerforceSubmitEditorWidget *submitEditorWidget();
