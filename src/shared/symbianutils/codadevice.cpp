@@ -945,12 +945,12 @@ void CodaDevice::sendProcessStartCommand(const CodaCallback &callBack,
     QByteArray setData;
     JsonInputStream setStr(setData);
     setStr << "" << '\0'
-            << '[' << "exeToLaunch" << ',' << "addExecutables" << ',' << "addLibraries" << ',' << "logUserTraces" << ']'
-            << '\0' << '['
+           << '[' << "exeToLaunch" << ',' << "addExecutables" << ',' << "addLibraries" << ',' << "logUserTraces" << ',' << "attachAllWithLibraries" << ']'
+           << '\0' << '['
                 << binaryFileName << ','
                 << '{' << binaryFileName << ':' << QString::number(uid, 16) << '}' << ','
-                << additionalLibraries << ',' << true
-            << ']';
+                << additionalLibraries << ',' << true << ',' << false
+           << ']';
     sendCodaMessage(
 #if 1
                 MessageWithReply,    // CODA 4.0.5 onwards
