@@ -826,6 +826,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
         objects = PrototypeIterator(getObjectValue(), context()).all();
     else
         objects = PrototypeIterator(getQmlObjectValue(), context()).all();
+
     foreach (const ObjectValue *ov, objects) {
         TypeDescription description;
         description.className = ov->className();
@@ -834,8 +835,15 @@ void NodeMetaInfoPrivate::setupPrototypes()
         if (const QmlObjectValue * qmlValue = dynamic_cast<const QmlObjectValue *>(ov)) {
             description.minorVersion = qmlValue->componentVersion().minorVersion();
             description.majorVersion = qmlValue->componentVersion().majorVersion();
-            if (!qmlValue->moduleName().isEmpty())
+            LanguageUtils::FakeMetaObject::Export qtquickExport = qmlValue->metaObject()->exportInPackage("QtQuick");
+            LanguageUtils::FakeMetaObject::Export cppExport = qmlValue->metaObject()->exportInPackage("<cpp>");
+            if (qtquickExport.isValid()) {
+                description.className = qtquickExport.package + '.' + qtquickExport.type;
+            } else if (qmlValue->moduleName().isEmpty() && cppExport.isValid()) {
+                description.className = cppExport.package + '.' + cppExport.type;
+            } else if (!qmlValue->moduleName().isEmpty()) {
                 description.className = qmlValue->moduleName() + '.' + description.className;
+            }
             m_prototypes.append(description);
         } else {
             if (context()->lookupType(document(), QStringList() << ov->className()))
