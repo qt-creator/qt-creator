@@ -371,6 +371,7 @@ bool Qt4Project::fromMap(const QVariantMap &map)
         if (t->buildConfigurations().isEmpty()) {
             qWarning() << "Removing" << t->id() << "since it has no buildconfigurations!";
             removeTarget(t);
+            delete t;
         }
     }
 
