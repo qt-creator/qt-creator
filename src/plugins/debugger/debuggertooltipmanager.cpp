@@ -1232,9 +1232,7 @@ void DebuggerToolTipManager::loadSessionData()
     r.readNextStartElement();
     if (r.tokenType() != QXmlStreamReader::StartElement || r.name() != QLatin1String(sessionDocumentC))
         return;
-    const double version;
-    if (debugToolTips)
-        version = r.attributes().value(QLatin1String(sessionVersionAttributeC)).toString().toDouble();
+    const double version = r.attributes().value(QLatin1String(sessionVersionAttributeC)).toString().toDouble();
     while (!r.atEnd())
         if (DebuggerToolTipWidget *tw = DebuggerToolTipWidget::loadSessionData(r))
             registerToolTip(tw);
