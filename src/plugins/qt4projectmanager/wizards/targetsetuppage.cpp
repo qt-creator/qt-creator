@@ -54,9 +54,9 @@ using namespace Qt4ProjectManager;
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
     m_importSearch(false),
+    m_maximumQtVersionNumber(INT_MAX, INT_MAX, INT_MAX),
     m_spacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)),
-    m_ui(new Internal::Ui::TargetSetupPage),
-    m_maximumQtVersionNumber(INT_MAX, INT_MAX, INT_MAX)
+    m_ui(new Internal::Ui::TargetSetupPage)
 {
     m_ui->setupUi(this);
     QWidget *centralWidget = new QWidget(this);
