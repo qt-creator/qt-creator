@@ -73,6 +73,7 @@
 #include <QtGui/QMainWindow> // for msg box parent
 #include <QtGui/QMessageBox>
 #include <QtGui/QToolButton>
+#include <QtCore/QTextCodec>
 
 static const char kGitDirectoryC[] = ".git";
 static const char kBranchIndicatorC[] = "# On branch";
@@ -350,7 +351,7 @@ VCSBase::VCSBaseEditorWidget *GitClient::createVCSEditor(const QString &id,
                                                          QString title,
                                                          // Source file or directory
                                                          const QString &source,
-                                                         bool setSourceCodec,
+                                                         CodecType codecType,
                                                          // Dynamic property and value to identify that editor
                                                          const char *registerDynamicProperty,
                                                          const QString &dynamicPropertyValue,
@@ -367,8 +368,14 @@ VCSBase::VCSBaseEditorWidget *GitClient::createVCSEditor(const QString &id,
             this, SLOT(slotBlameRevisionRequested(QString,QString,int)));
     QTC_ASSERT(rc, return 0);
     rc->setSource(source);
-    if (setSourceCodec)
+    if (codecType == CodecSource) {
         rc->setCodec(VCSBase::VCSBaseEditorWidget::getCodec(source));
+    } else if (codecType == CodecLogOutput) {
+        QString encodingName = readConfigValue(source, QLatin1String("i18n.logOutputEncoding"));
+        if (encodingName.isEmpty())
+            encodingName = QLatin1String("utf-8");
+        rc->setCodec(QTextCodec::codecForName(encodingName.toLocal8Bit()));
+    }
 
     rc->setForceReadOnly(true);
     m_core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
@@ -395,7 +402,7 @@ void GitClient::diff(const QString &workingDirectory,
                                                  unstagedFileNames, stagedFileNames);
 
         editor = createVCSEditor(editorId, title,
-                                 workingDirectory, true, "originalFileName", workingDirectory, argWidget);
+                                 workingDirectory, CodecSource, "originalFileName", workingDirectory, argWidget);
         connect(editor, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)), argWidget, SLOT(executeCommand()));
         editor->setRevertDiffChunkEnabled(true);
     }
@@ -453,7 +460,7 @@ void GitClient::diff(const QString &workingDirectory,
         GitFileDiffArgumentsWidget *argWidget =
                 new GitFileDiffArgumentsWidget(this, workingDirectory, diffArgs, fileName);
 
-        editor = createVCSEditor(editorId, title, sourceFile, true, "originalFileName", sourceFile, argWidget);
+        editor = createVCSEditor(editorId, title, sourceFile, CodecSource, "originalFileName", sourceFile, argWidget);
         connect(editor, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)), argWidget, SLOT(executeCommand()));
         editor->setRevertDiffChunkEnabled(true);
     }
@@ -480,7 +487,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
 
     VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("BranchName", branchName);
     if (!editor)
-        editor = createVCSEditor(editorId, title, sourceFile, true, "BranchName", branchName,
+        editor = createVCSEditor(editorId, title, sourceFile, CodecSource, "BranchName", branchName,
                                  new GitBranchDiffArgumentsWidget(this, workingDirectory,
                                                                   diffArgs, branchName));
 
@@ -531,7 +538,7 @@ void GitClient::graphLog(const QString &workingDirectory, const QString & branch
     const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, QStringList());
     VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
     if (!editor)
-        editor = createVCSEditor(editorId, title, sourceFile, false, "logFileName", sourceFile, 0);
+        editor = createVCSEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile, 0);
     executeGit(workingDirectory, arguments, editor);
 }
 
@@ -556,7 +563,7 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
     const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, fileNames);
     VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
     if (!editor)
-        editor = createVCSEditor(editorId, title, sourceFile, false, "logFileName", sourceFile, 0);
+        editor = createVCSEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile, 0);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     executeGit(workingDirectory, arguments, editor);
 }
@@ -587,7 +594,7 @@ void GitClient::show(const QString &source, const QString &id, const QStringList
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("show", id);
     if (!editor)
-        editor = createVCSEditor(editorId, title, source, true, "show", id,
+        editor = createVCSEditor(editorId, title, source, CodecLogOutput, "show", id,
                                  new GitShowArgumentsWidget(this, source, args, id));
 
     GitShowArgumentsWidget *argWidget = qobject_cast<GitShowArgumentsWidget *>(editor->configurationWidget());
@@ -636,7 +643,7 @@ void GitClient::blame(const QString &workingDirectory,
         GitBlameArgumentsWidget *argWidget =
                 new GitBlameArgumentsWidget(this, workingDirectory, args,
                                             revision, fileName);
-        editor = createVCSEditor(editorId, title, sourceFile, true, "blameFileName", id, argWidget);
+        editor = createVCSEditor(editorId, title, sourceFile, CodecSource, "blameFileName", id, argWidget);
         argWidget->setEditor(editor);
     }
 
@@ -1926,7 +1933,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
     const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, QStringList());
     VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("svnLog", sourceFile);
     if (!editor)
-        editor = createVCSEditor(editorId, title, sourceFile, false, "svnLog", sourceFile, 0);
+        editor = createVCSEditor(editorId, title, sourceFile, CodecNone, "svnLog", sourceFile, 0);
     executeGit(workingDirectory, arguments, editor);
 }
 
@@ -2062,7 +2069,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     return true;
 }
 
-QString GitClient::readConfig(const QString &workingDirectory, const QStringList &configVar)
+QString GitClient::readConfig(const QString &workingDirectory, const QStringList &configVar) const
 {
     QStringList arguments;
     arguments << QLatin1String("config") << configVar;
@@ -2075,7 +2082,7 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
 }
 
 // Read a single-line config value, return trimmed
-QString GitClient::readConfigValue(const QString &workingDirectory, const QString &configVar)
+QString GitClient::readConfigValue(const QString &workingDirectory, const QString &configVar) const
 {
     return readConfig(workingDirectory, QStringList(configVar)).remove(QLatin1Char('\n'));
 }

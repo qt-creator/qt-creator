@@ -187,9 +187,9 @@ public:
                               const QString &messge, QString *name,
                               QString *errorMessage = 0);
 
-    QString readConfig(const QString &workingDirectory, const QStringList &configVar);
+    QString readConfig(const QString &workingDirectory, const QStringList &configVar) const;
 
-    QString readConfigValue(const QString &workingDirectory, const QString &configVar);
+    QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
     enum StashResult { StashUnchanged, StashCanceled, StashFailed,
                        Stashed, NotStashed /* User did not want it */ };
@@ -237,10 +237,11 @@ private slots:
 private:
     VCSBase::VCSBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
+    enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     VCSBase::VCSBaseEditorWidget *createVCSEditor(const QString &kind,
                                             QString title,
                                             const QString &source,
-                                            bool setSourceCodec,
+                                            CodecType codecType,
                                             const char *registerDynamicProperty,
                                             const QString &dynamicPropertyValue,
                                             QWidget *configWidget) const;
