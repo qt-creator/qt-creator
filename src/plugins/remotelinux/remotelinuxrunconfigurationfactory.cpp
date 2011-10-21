@@ -31,6 +31,7 @@
 **************************************************************************/
 #include "remotelinuxrunconfigurationfactory.h"
 
+#include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxutils.h"
 
@@ -91,10 +92,12 @@ bool RemoteLinuxRunConfigurationFactory::canClone(Target *parent, RunConfigurati
 
 QStringList RemoteLinuxRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    if (Qt4BaseTarget *t = qobject_cast<Qt4BaseTarget *>(parent)) {
-        if (t && RemoteLinuxUtils::hasUnixQt(t)) {
-            return t->qt4Project()->applicationProFilePathes(RemoteLinuxRunConfiguration::Id);
-        }
+    const QList<DeployConfiguration *> &depConfs = parent->deployConfigurations();
+    foreach (const DeployConfiguration * const dc, depConfs) {
+        if (dc->id() == RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId()) {
+            return qobject_cast<Qt4BaseTarget *>(parent)->qt4Project()
+                ->applicationProFilePathes(RemoteLinuxRunConfiguration::Id);
+    }
     }
     return QStringList();
 }
