@@ -309,7 +309,7 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
             canContinue = false;
     }
     if (!canContinue) {
-        emit addOutput(tr("Configuration is faulty, please check the Build Issues view for details."), BuildStep::MessageOutput);
+        emit addOutput(tr("Configuration is faulty, please check the Issues view for details."), BuildStep::MessageOutput);
         fi.reportResult(false);
         return;
     }

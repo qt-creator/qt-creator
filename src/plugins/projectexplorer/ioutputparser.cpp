@@ -38,7 +38,7 @@
 /*!
     \class ProjectExplorer::IOutputParser
 
-    \brief Interface for an output parser that emit build issues (tasks).
+    \brief Interface for an output parser that emit issues (tasks).
 
     \sa ProjectExplorer::Task
 */
