@@ -156,22 +156,22 @@ void AbstractMaemoPackageCreationStep::handleBuildOutput()
 
 const Qt4BuildConfiguration *AbstractMaemoPackageCreationStep::qt4BuildConfiguration() const
 {
-    return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    return static_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
 }
 
 AbstractQt4MaemoTarget *AbstractMaemoPackageCreationStep::maemoTarget() const
 {
-    return qobject_cast<AbstractQt4MaemoTarget *>(buildConfiguration()->target());
+    return qobject_cast<AbstractQt4MaemoTarget *>(target());
 }
 
 AbstractDebBasedQt4MaemoTarget *AbstractMaemoPackageCreationStep::debBasedMaemoTarget() const
 {
-    return qobject_cast<AbstractDebBasedQt4MaemoTarget*>(buildConfiguration()->target());
+    return qobject_cast<AbstractDebBasedQt4MaemoTarget*>(target());
 }
 
 AbstractRpmBasedQt4MaemoTarget *AbstractMaemoPackageCreationStep::rpmBasedMaemoTarget() const
 {
-    return qobject_cast<AbstractRpmBasedQt4MaemoTarget*>(buildConfiguration()->target());
+    return qobject_cast<AbstractRpmBasedQt4MaemoTarget*>(target());
 }
 
 bool AbstractMaemoPackageCreationStep::isPackagingNeeded() const
@@ -293,7 +293,7 @@ bool MaemoDebianPackageCreationStep::init()
     if (!AbstractMaemoPackageCreationStep::init())
         return false;
     m_maddeRoot = MaemoGlobal::maddeRoot(qt4BuildConfiguration()->qtVersion()->qmakeCommand());
-    m_projectDirectory = buildConfiguration()->target()->project()->projectDirectory();
+    m_projectDirectory = project()->projectDirectory();
     m_pkgFileName = maemoTarget()->packageFileName();
     m_packageName = maemoTarget()->packageName();
     m_templatesDirPath = debBasedMaemoTarget()->debianDirPath();
@@ -364,7 +364,7 @@ bool MaemoDebianPackageCreationStep::isMetaDataNewerThan(const QDateTime &packag
 void MaemoDebianPackageCreationStep::checkProjectName()
 {
     const QRegExp legalName(QLatin1String("[0-9-+a-z\\.]+"));
-    if (!legalName.exactMatch(buildConfiguration()->target()->project()->displayName())) {
+    if (!legalName.exactMatch(project()->displayName())) {
         emit addTask(Task(Task::Warning,
             tr("Your project name contains characters not allowed in "
                "Debian packages.\nThey must only use lower-case letters, "

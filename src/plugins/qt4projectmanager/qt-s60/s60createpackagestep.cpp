@@ -175,12 +175,12 @@ bool S60CreatePackageStep::fromMap(const QVariantMap &map)
 
 Qt4BuildConfiguration *S60CreatePackageStep::qt4BuildConfiguration() const
 {
-    return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    return static_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
 }
 
 bool S60CreatePackageStep::init()
 {
-    Qt4Project *pro = qobject_cast<Qt4Project *>(buildConfiguration()->target()->project());
+    Qt4Project *pro = qobject_cast<Qt4Project *>(project());
 
     QList<Qt4ProFileNode *> nodes = pro->allProFiles();
 
@@ -200,7 +200,7 @@ bool S60CreatePackageStep::init()
     m_makeCmd = qt4BuildConfiguration()->makeCommand();
     if (!QFileInfo(m_makeCmd).isAbsolute()) {
         // Try to detect command in environment
-        const QString tmp = buildConfiguration()->environment().searchInPath(m_makeCmd);
+        const QString tmp = qt4BuildConfiguration()->environment().searchInPath(m_makeCmd);
         if (tmp.isEmpty()) {
             emit addOutput(tr("Could not find make command '%1' in the build environment").arg(m_makeCmd), BuildStep::ErrorOutput);
             return false;
@@ -711,7 +711,7 @@ bool S60CreatePackageStep::createsSmartInstaller() const
 void S60CreatePackageStep::setCreatesSmartInstaller(bool value)
 {
     m_createSmartInstaller = value;
-    static_cast<Qt4BuildConfiguration *>(buildConfiguration())->emitS60CreatesSmartInstallerChanged();
+    qt4BuildConfiguration()->emitS60CreatesSmartInstallerChanged();
 }
 
 void S60CreatePackageStep::resetPassphrases()

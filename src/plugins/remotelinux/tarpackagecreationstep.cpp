@@ -297,7 +297,7 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
 
 QString TarPackageCreationStep::packageFileName() const
 {
-    return target()->project()->displayName() + QLatin1String(".tar");
+    return project()->displayName() + QLatin1String(".tar");
 }
 
 BuildStepConfigWidget *TarPackageCreationStep::createConfigWidget()

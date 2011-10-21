@@ -36,6 +36,7 @@
 #include "remotelinuxdeploystepwidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 
 using namespace ProjectExplorer;
@@ -88,7 +89,7 @@ bool AbstractRemoteLinuxDeployStep::init()
 bool AbstractRemoteLinuxDeployStep::isDeploymentPossible(QString *whyNot) const
 {
     deployService()->setDeviceConfiguration(deployConfiguration()->deviceConfiguration());
-    deployService()->setBuildConfiguration(qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(buildConfiguration()));
+    deployService()->setBuildConfiguration(qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration()));
     return deployService()->isDeploymentPossible(whyNot);
 }
 

@@ -150,7 +150,7 @@ S60DeployStep::~S60DeployStep()
 
 bool S60DeployStep::init()
 {
-    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
     S60DeployConfiguration *deployConfiguration = static_cast<S60DeployConfiguration *>(bc->target()->activeDeployConfiguration());
     if (!deployConfiguration)
         return false;

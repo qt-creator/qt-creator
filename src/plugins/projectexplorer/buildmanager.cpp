@@ -42,7 +42,6 @@
 #include "target.h"
 #include "taskwindow.h"
 #include "taskhub.h"
-#include "buildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -221,7 +220,7 @@ void BuildManager::cancel()
         QTimer::singleShot(0, this, SLOT(emitCancelMessage()));
 
         disconnectOutput(d->m_currentBuildStep);
-        decrementActiveBuildSteps(d->m_currentBuildStep->buildConfiguration()->target()->project());
+        decrementActiveBuildSteps(d->m_currentBuildStep->project());
 
         d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Build canceled")); //TODO NBS fix in qtconcurrent
         clearBuildQueue();
@@ -256,7 +255,7 @@ void BuildManager::emitCancelMessage()
 void BuildManager::clearBuildQueue()
 {
     foreach (BuildStep *bs, d->m_buildQueue) {
-        decrementActiveBuildSteps(bs->buildConfiguration()->target()->project());
+        decrementActiveBuildSteps(bs->project());
         disconnectOutput(bs);
     }
 
@@ -382,13 +381,13 @@ void BuildManager::nextBuildQueue()
     disconnectOutput(d->m_currentBuildStep);
     ++d->m_progress;
     d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, msgProgress(d->m_progress, d->m_maxProgress));
-    decrementActiveBuildSteps(d->m_currentBuildStep->buildConfiguration()->target()->project());
+    decrementActiveBuildSteps(d->m_currentBuildStep->project());
 
     bool result = d->m_watcher.result();
     if (!result) {
         // Build Failure
-        const QString projectName = d->m_currentBuildStep->buildConfiguration()->target()->project()->displayName();
-        const QString targetName = d->m_currentBuildStep->buildConfiguration()->target()->displayName();
+        const QString projectName = d->m_currentBuildStep->project()->displayName();
+        const QString targetName = d->m_currentBuildStep->target()->displayName();
         addToOutputWindow(tr("Error while building project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
         addToOutputWindow(tr("When executing build step '%1'").arg(d->m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
         // NBS TODO fix in qtconcurrent
@@ -429,11 +428,11 @@ void BuildManager::nextStep()
         d->m_currentBuildStep = d->m_buildQueue.front();
         d->m_buildQueue.pop_front();
 
-        if (d->m_currentBuildStep->buildConfiguration()->target()->project() != d->m_previousBuildStepProject) {
-            const QString projectName = d->m_currentBuildStep->buildConfiguration()->target()->project()->displayName();
+        if (d->m_currentBuildStep->project() != d->m_previousBuildStepProject) {
+            const QString projectName = d->m_currentBuildStep->project()->displayName();
             addToOutputWindow(tr("Running build steps for project %1...")
                               .arg(projectName), BuildStep::MessageOutput);
-            d->m_previousBuildStepProject = d->m_currentBuildStep->buildConfiguration()->target()->project();
+            d->m_previousBuildStepProject = d->m_currentBuildStep->project();
         }
         if (d->m_currentBuildStep->runInGuiThread()) {
             connect (d->m_currentBuildStep, SIGNAL(finished()),
@@ -476,8 +475,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
 
         // cleaning up
         // print something for the user
-        const QString projectName = bs->buildConfiguration()->target()->project()->displayName();
-        const QString targetName = bs->buildConfiguration()->target()->displayName();
+        const QString projectName = bs->project()->displayName();
+        const QString targetName = bs->project()->displayName();
         addToOutputWindow(tr("Error while building project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
         addToOutputWindow(tr("When executing build step '%1'").arg(bs->displayName()), BuildStep::ErrorOutput);
 
@@ -491,7 +490,7 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
     for (i = 0; i < count; ++i) {
         ++d->m_maxProgress;
         d->m_buildQueue.append(steps.at(i));
-        incrementActiveBuildSteps(steps.at(i)->buildConfiguration()->target()->project());
+        incrementActiveBuildSteps(steps.at(i)->target()->project());
     }
     return true;
 }

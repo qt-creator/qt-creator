@@ -142,23 +142,22 @@ BuildStep::~BuildStep()
 
 BuildConfiguration *BuildStep::buildConfiguration() const
 {
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(parent()->parent());
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
-    return bc;
+    return qobject_cast<BuildConfiguration *>(parent()->parent());
 }
 
 DeployConfiguration *BuildStep::deployConfiguration() const
 {
-    DeployConfiguration *dc = qobject_cast<DeployConfiguration *>(parent()->parent());
-    if (!dc)
-        dc = target()->activeDeployConfiguration();
-    return dc;
+    return qobject_cast<DeployConfiguration *>(parent()->parent());
 }
 
 Target *BuildStep::target() const
 {
     return qobject_cast<Target *>(parent()->parent()->parent());
+}
+
+Project *BuildStep::project() const
+{
+    return target()->project();
 }
 
 bool BuildStep::immutable() const

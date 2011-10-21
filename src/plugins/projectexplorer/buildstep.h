@@ -77,6 +77,7 @@ public:
     enum OutputFormat { NormalOutput, ErrorOutput, MessageOutput, ErrorMessageOutput };
     enum OutputNewlineSetting { DoAppendNewline, DontAppendNewline };
 
+    Project *project() const;
 signals:
     void addTask(const ProjectExplorer::Task &task);
 
