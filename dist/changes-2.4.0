@@ -100,6 +100,19 @@ Qt Designer
 FakeVim
 
 Version control plugins
+   * SVN: Support for SVN version 1.7
+   * Git: New option to toggle decoration settings for log and show commands
+
 
 Additional credits go to:
+   * Benito van der Zander (code model)
+   * Christoph Mathys (debugger)
+   * Hugues Delorme (version control refactoring, bazaar)
+   * Jonathan Liu (SVN 1.7 support)
+   * Nicolas Arnaud-Cormos (quick fixes)
+   * Orgad Shaneh (git, debugger, other places)
+   * Peter Kuemmel (bug fixes)
+   * Thorbjørn Lindeijer (code model)
+   * Vlad Brovko (improve symlink support)
+   * Yuchen Deng (bug fixes, project wizards)
 
