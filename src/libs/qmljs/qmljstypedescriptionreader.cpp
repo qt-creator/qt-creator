@@ -247,7 +247,7 @@ void TypeDescriptionReader::readModuleApi(UiObjectDefinition *ast)
             } else if (name == "version") {
                 apiInfo.version = readNumericVersionBinding(script);
             } else if (name == "name") {
-                apiInfo.name = readStringBinding(script);
+                apiInfo.cppName = readStringBinding(script);
             } else {
                 addWarning(script->firstSourceLocation(),
                            "Expected only uri, version and name script bindings");

@@ -392,7 +392,7 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
     ModuleApiInfo moduleApi = findBestModuleApi(importableModuleApis.value(packageName), version);
     if (moduleApi.version.isValid()) {
         importFound = true;
-        import.object->setPrototype(valueOwner->cppQmlTypes().objectByCppName(moduleApi.name));
+        import.object->setPrototype(valueOwner->cppQmlTypes().objectByCppName(moduleApi.cppName));
     }
 
     if (!importFound && importInfo.ast()) {
@@ -479,7 +479,7 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
             // if a module api has no uri, it shares the same name
             ModuleApiInfo sameUriModuleApi = findBestModuleApi(noUriModuleApis, version);
             if (sameUriModuleApi.version.isValid())
-                import->object->setPrototype(valueOwner->cppQmlTypes().objectByCppName(sameUriModuleApi.name));
+                import->object->setPrototype(valueOwner->cppQmlTypes().objectByCppName(sameUriModuleApi.cppName));
         }
     }
 
