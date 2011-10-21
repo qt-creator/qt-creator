@@ -19,8 +19,18 @@ Editing
 
 Managing Projects
    * Shared project settings support
+   * New templates for non-Qt C and C++ applications
 
 Debugging
+   * Initial Qt 5 support in dumpers
+   * Make vtables visible
+   * Improved remote debugging
+   * Improved register handling (partial updates, input in hex, ARM Neon support)
+   * Remove inferior calls in QDate, QTime, QDateTime dumpers
+   * Fix QTextCodec dumpers
+   * Globally enable pretty printing for references
+   * Saner handling of unprintable data in Locals and Expressions
+   * Add "Local8Bit" as display option for char arrays and pointers
 
 Debugging QML/JS
    * New option to attach to a running application
@@ -98,6 +108,10 @@ Remote Linux Support
 Qt Designer
 
 FakeVim
+   * Add basic command editing in Ex mode
+   * Mention "comma escape" in Documentation
+   * Fix foreground color for search matches in Dark scheme
+   * Fix toggling visual mode with "v"
 
 Version control plugins
    * SVN: Support for SVN version 1.7
