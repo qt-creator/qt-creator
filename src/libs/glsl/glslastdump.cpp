@@ -33,6 +33,8 @@
 #include "glslastdump.h"
 #include <QtCore/QTextStream>
 
+#include <typeinfo>
+
 #ifdef Q_CC_GNU
 #  include <cxxabi.h>
 #endif
