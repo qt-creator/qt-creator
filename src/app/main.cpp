@@ -33,22 +33,22 @@
 #include "qtsingleapplication.h"
 
 #include <app/app_version.h>
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginerroroverview.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QUrl>
-#include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
-#include <QtCore/QTimer>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QLibraryInfo>
-#include <QtCore/QTranslator>
 #include <QtCore/QSettings>
-#include <QtCore/QVariant>
+#include <QtCore/QTextStream>
 #include <QtCore/QThreadPool>
+#include <QtCore/QTimer>
+#include <QtCore/QTranslator>
+#include <QtCore/QUrl>
+#include <QtCore/QVariant>
 
 #include <QtNetwork/QNetworkProxyFactory>
 
@@ -135,9 +135,9 @@ static void printHelp(const QString &a0, const ExtensionSystem::PluginManager &p
 {
     QString help;
     QTextStream str(&help);
-    str << "Usage: " << a0  << fixedOptionsC;
+    str << "Usage: " << a0 << fixedOptionsC;
     ExtensionSystem::PluginManager::formatOptions(str, OptionIndent, DescriptionIndent);
-    pm.formatPluginOptions(str,  OptionIndent, DescriptionIndent);
+    pm.formatPluginOptions(str, OptionIndent, DescriptionIndent);
     displayHelpText(help);
 }
 
@@ -232,7 +232,7 @@ int main(int argc, char **argv)
     // We can't use the regular way of the plugin manager, because that needs to parse pluginspecs
     // but the settings path can influence which plugins are enabled
     QString settingsPath;
-    QStringList arguments = app.arguments(); /* adapted arguments list is passed to plugin manager later */
+    QStringList arguments = app.arguments(); // adapted arguments list is passed to plugin manager later
     QMutableStringListIterator it(arguments);
     while (it.hasNext()) {
         const QString &arg = it.next();
@@ -249,10 +249,10 @@ int main(int argc, char **argv)
 
     // Must be done before any QSettings class is created
     QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope,
-            QCoreApplication::applicationDirPath()+QLatin1String(SHARE_PATH));
+                       QCoreApplication::applicationDirPath() + QLatin1String(SHARE_PATH));
     // plugin manager takes control of this settings object
     QSettings *settings = new QSettings(QSettings::IniFormat, QSettings::UserScope,
-                                 QLatin1String("Nokia"), QLatin1String("QtCreator"));
+                                        QLatin1String("Nokia"), QLatin1String("QtCreator"));
 
     ExtensionSystem::PluginManager pluginManager;
     pluginManager.setFileExtension(QLatin1String("pluginspec"));
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
 
     locale = settings->value("General/OverrideLanguage", locale).toString();
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
-                        + QLatin1String(SHARE_PATH "/translations");
+            + QLatin1String(SHARE_PATH "/translations");
     if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &qtTrFile = QLatin1String("qt_") + locale;
@@ -302,10 +302,7 @@ int main(int argc, char **argv)
         appOptions.insert(QLatin1String(VERSION_OPTION), false);
         appOptions.insert(QLatin1String(CLIENT_OPTION), false);
         QString errorMessage;
-        if (!pluginManager.parseOptions(arguments,
-                                        appOptions,
-                                        &foundAppOptions,
-                                        &errorMessage)) {
+        if (!pluginManager.parseOptions(arguments, appOptions, &foundAppOptions, &errorMessage)) {
             displayError(errorMessage);
             printHelp(QFileInfo(app.applicationFilePath()).baseName(), pluginManager);
             return -1;
@@ -369,29 +366,28 @@ int main(int argc, char **argv)
         displayError(msgCoreLoadFailure(coreplugin->errorString()));
         return 1;
     }
-    {
-        if (pluginManager.hasError()) {
-            ExtensionSystem::PluginErrorOverview errorOverview(&pluginManager);
-            errorOverview.exec();
-        }
+    if (pluginManager.hasError()) {
+        ExtensionSystem::PluginErrorOverview errorOverview(&pluginManager);
+        errorOverview.exec();
     }
 
     if (isFirstInstance) {
         // Set up lock and remote arguments for the first instance only.
-        // Silently fallback to unconnected instances for any subsequent
-        // instances.
+        // Silently fallback to unconnected instances for any subsequent instances.
         app.initialize();
         QObject::connect(&app, SIGNAL(messageReceived(QString)),
                          &pluginManager, SLOT(remoteArguments(QString)));
     }
-    QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(), SLOT(fileOpenRequest(QString)));
+
+    QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(),
+                     SLOT(fileOpenRequest(QString)));
 
     // shutdown plugin manager on the exit
     QObject::connect(&app, SIGNAL(aboutToQuit()), &pluginManager, SLOT(shutdown()));
 
 #ifdef WITH_TESTS
     // Do this after the event loop has started
-    if(pluginManager.runningTests())
+    if (pluginManager.runningTests())
         QTimer::singleShot(100, &pluginManager, SLOT(startTests()));
 #endif
 
