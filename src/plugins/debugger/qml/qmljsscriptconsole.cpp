@@ -55,7 +55,7 @@ class QmlJSScriptConsolePrivate
 {
 public:
     QmlJSScriptConsolePrivate()
-        : prompt(QLatin1String("> ")),
+        : prompt(_("> ")),
           startOfEditableArea(-1),
           lastKnownPosition(0),
           inferiorStopped(false)
@@ -85,7 +85,7 @@ public:
 void QmlJSScriptConsolePrivate::resetCache()
 {
     scriptHistory.clear();
-    scriptHistory.append(QLatin1String(""));
+    scriptHistory.append(QString());
     scriptHistoryIndex = scriptHistory.count();
 
     selections.clear();
@@ -95,7 +95,7 @@ void QmlJSScriptConsolePrivate::appendToHistory(const QString &script)
 {
     scriptHistoryIndex = scriptHistory.count();
     scriptHistory.replace(scriptHistoryIndex - 1,script);
-    scriptHistory.append(QLatin1String(""));
+    scriptHistory.append(QString());
     scriptHistoryIndex = scriptHistory.count();
 }
 
@@ -219,10 +219,10 @@ void QmlJSScriptConsole::appendResult(const QString &result)
 
     QTextCursor cur = textCursor();
     cur.movePosition(QTextCursor::EndOfLine);
-    cur.insertText(QLatin1String("\n"));
+    cur.insertText(_("\n"));
     cur.insertText(result);
     cur.movePosition(QTextCursor::EndOfLine);
-    cur.insertText(QLatin1String("\n"));
+    cur.insertText(_("\n"));
     setTextCursor(cur);
     displayPrompt();
 
@@ -254,23 +254,18 @@ void QmlJSScriptConsole::clear()
 void QmlJSScriptConsole::onStateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State state)
 {
     QDeclarativeDebugExpressionQuery *query = qobject_cast<QDeclarativeDebugExpressionQuery *>(sender());
-    bool gotResult = false;
+
     if (query && state != QDeclarativeDebugQuery::Error) {
         QString result(query->result().toString());
-        if (result != QLatin1String("<undefined>")) {
-            appendResult(result);
-            gotResult = true;
-        }
-    }
-
-    if (!gotResult) {
-        QString currentScript = getCurrentScript();
-        if (d->canEvaluateScript(currentScript)) {
-            emit evaluateExpression(currentScript);
+        if (result == _("<undefined>") && d->inferiorStopped) {
+            //don't give up. check if we can still evaluate using javascript engine
+            emit evaluateExpression(getCurrentScript());
         } else {
-            QPlainTextEdit::appendPlainText(QLatin1String(""));
-            moveCursor(QTextCursor::EndOfLine);
+            appendResult(result);
         }
+    } else {
+        QPlainTextEdit::appendPlainText(QString());
+        moveCursor(QTextCursor::EndOfLine);
     }
     delete query;
 }
@@ -458,7 +453,7 @@ void QmlJSScriptConsole::handleReturnKey()
     if (currentScript.trimmed().isEmpty()) {
         QTextCursor cur = textCursor();
         cur.movePosition(QTextCursor::EndOfLine);
-        cur.insertText(QLatin1String("\n"));
+        cur.insertText(_("\n"));
         setTextCursor(cur);
         displayPrompt();
         evaluateScript = true;
@@ -482,7 +477,7 @@ void QmlJSScriptConsole::handleReturnKey()
         if (d->canEvaluateScript(currentScript)) {
             emit evaluateExpression(currentScript);
         } else {
-            QPlainTextEdit::appendPlainText(QLatin1String(""));
+            QPlainTextEdit::appendPlainText(QString());
             moveCursor(QTextCursor::EndOfLine);
         }
     }
