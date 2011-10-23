@@ -193,6 +193,14 @@ bool BuildManager::isBuilding() const
     return !d->m_buildQueue.isEmpty() || d->m_running;
 }
 
+int BuildManager::getErrorTaskCount() const
+{
+    const int errors =
+            d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
+            + d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_COMPILE);
+    return errors;
+}
+
 void BuildManager::cancel()
 {
     if (d->m_running) {
@@ -231,9 +239,7 @@ void BuildManager::cancel()
 void BuildManager::updateTaskCount()
 {
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
-    const int errors =
-            d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_BUILDSYSTEM)
-            + d->m_taskWindow->errorTaskCount(Constants::TASK_CATEGORY_COMPILE);
+    const int errors = getErrorTaskCount();
     if (errors > 0) {
         progressManager->setApplicationLabel(QString::number(errors));
     } else {

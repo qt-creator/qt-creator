@@ -68,6 +68,8 @@ public:
     // Append any build step to the list of build steps (currently only used to add the QMakeStep)
     void appendStep(BuildStep *step);
 
+    int getErrorTaskCount() const;
+
 public slots:
     void cancel();
     // Shows without focus
