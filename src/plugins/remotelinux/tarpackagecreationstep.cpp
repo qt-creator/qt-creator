@@ -160,6 +160,11 @@ bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
     }
 
     foreach (const DeployableFile &d, m_files) {
+        if (d.remoteDir.isEmpty()) {
+            emit addOutput(tr("No remote path specified for file '%1', skipping.")
+                .arg(QDir::toNativeSeparators(d.localFilePath)), ErrorMessageOutput);
+            continue;
+        }
         QFileInfo fileInfo(d.localFilePath);
         if (!appendFile(tarFile, fileInfo, d.remoteDir + QLatin1Char('/')
                 + fileInfo.fileName(), fi)) {
