@@ -175,7 +175,8 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> GenericProjectNode::supported
     return QList<ProjectAction>()
         << AddNewFile
         << AddExistingFile
-        << RemoveFile;
+        << RemoveFile
+        << Rename;
 }
 
 bool GenericProjectNode::canAddSubProject(const QString &proFilePath) const
@@ -226,9 +227,8 @@ bool GenericProjectNode::renameFile(const ProjectExplorer::FileType fileType,
                                     const QString &filePath, const QString &newFilePath)
 {
     Q_UNUSED(fileType)
-    Q_UNUSED(filePath)
-    Q_UNUSED(newFilePath)
-    return false;
+
+    return m_project->renameFile(filePath, newFilePath);
 }
 
 QList<ProjectExplorer::RunConfiguration *> GenericProjectNode::runConfigurationsFor(Node *node)

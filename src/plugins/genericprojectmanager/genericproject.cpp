@@ -190,6 +190,22 @@ bool GenericProject::setFiles(const QStringList &filePaths)
     return saveRawFileList(newList);
 }
 
+bool GenericProject::renameFile(const QString &filePath, const QString &newFilePath)
+{
+    QStringList newList = m_rawFileList;
+
+    QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
+    if (i != m_rawListEntries.end()) {
+        int index = newList.indexOf(i.value());
+        if (index != -1) {
+            QDir baseDir(QFileInfo(m_fileName).dir());
+            newList.replace(index, baseDir.relativeFilePath(newFilePath));
+        }
+    }
+
+    return saveRawFileList(newList);
+}
+
 void GenericProject::parseProject(RefreshOptions options)
 {
     if (options & Files) {
