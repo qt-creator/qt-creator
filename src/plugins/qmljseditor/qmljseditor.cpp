@@ -1695,27 +1695,15 @@ TextEditor::IAssistInterface *QmlJSTextEditorWidget::createAssistInterface(
 
 QString QmlJSTextEditorWidget::foldReplacementText(const QTextBlock &block) const
 {
-    int curlyIndex = block.text().indexOf(QLatin1Char('{'));
+    const int curlyIndex = block.text().indexOf(QLatin1Char('{'));
 
-    if ((curlyIndex == -1) || !m_semanticInfo.isValid())
-        return TextEditor::BaseTextEditorWidget::foldReplacementText(block);
+    if (curlyIndex != -1 && m_semanticInfo.isValid()) {
+        const int pos = block.position() + curlyIndex;
+        Node *node = m_semanticInfo.rangeAt(pos);
 
-    int pos = block.position() + curlyIndex;
-    Node *node = m_semanticInfo.rangeAt(pos);
-
-    if (node)  {
-        UiObjectInitializer *objectInitializer = 0;
-        if (UiObjectDefinition *def = cast<UiObjectDefinition *>(node))
-            objectInitializer = def->initializer;
-        else if (UiObjectBinding *binding = cast<UiObjectBinding *>(node))
-            objectInitializer = binding->initializer;
-
-        // Get the id value, if it exists, and display it
-        if (objectInitializer) {
-            QString objectId = idOfObject(objectInitializer);
-            if (!objectId.isEmpty())
-                return QLatin1String("id: ") + objectId + QLatin1String("...");
-        }
+        const QString objectId = idOfObject(node);
+        if (!objectId.isEmpty())
+            return QLatin1String("id: ") + objectId + QLatin1String("...");
     }
 
     return TextEditor::BaseTextEditorWidget::foldReplacementText(block);

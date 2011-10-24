@@ -160,7 +160,7 @@ protected:
             return true;
 
         QString context = toString(ast->qualifiedTypeNameId);
-        const QString id = idOfObject(ast->initializer);
+        const QString id = idOfObject(ast);
         if (!id.isEmpty())
             context = QString("%1 (%2)").arg(id, context);
         accept(ast->initializer, contextString(context));
@@ -173,7 +173,7 @@ protected:
             return true;
 
         QString context = toString(ast->qualifiedTypeNameId);
-        const QString id = idOfObject(ast->initializer);
+        const QString id = idOfObject(ast);
         if (!id.isEmpty())
             context = QString("%1 (%2)").arg(id, context);
         accept(ast->initializer, contextString(context));
