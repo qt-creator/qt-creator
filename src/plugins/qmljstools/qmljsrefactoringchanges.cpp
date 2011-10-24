@@ -69,7 +69,9 @@ public:
         codeFormatter.updateStateUntil(block);
 
         do {
-            tabSettings.indentLine(block, codeFormatter.indentFor(block));
+            const int depth = codeFormatter.indentFor(block);
+            if (depth != -1)
+                tabSettings.indentLine(block, depth);
             codeFormatter.updateLineStateChange(block);
             block = block.next();
         } while (block.isValid() && block != end);

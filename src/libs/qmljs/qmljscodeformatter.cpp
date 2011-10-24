@@ -517,10 +517,10 @@ int CodeFormatter::indentForNewLineAfter(const QTextBlock &block)
 {
     restoreCurrentState(block);
 
-    int lexerState = loadLexerState(block);
     m_tokens.clear();
     m_currentLine.clear();
-    adjustIndent(m_tokens, lexerState, &m_indentDepth);
+    const int startLexerState = loadLexerState(block.previous());
+    adjustIndent(m_tokens, startLexerState, &m_indentDepth);
 
     return m_indentDepth;
 }
@@ -665,10 +665,11 @@ void CodeFormatter::leave(bool statementDone)
 
 void CodeFormatter::correctIndentation(const QTextBlock &block)
 {
-    const int lexerState = tokenizeBlock(block);
+    tokenizeBlock(block);
     Q_ASSERT(m_currentState.size() >= 1);
 
-    adjustIndent(m_tokens, lexerState, &m_indentDepth);
+    const int startLexerState = loadLexerState(block.previous());
+    adjustIndent(m_tokens, startLexerState, &m_indentDepth);
 }
 
 bool CodeFormatter::tryInsideExpression(bool alsoExpression)

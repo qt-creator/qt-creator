@@ -71,7 +71,7 @@ public:
 
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const = 0;
-    virtual void adjustIndent(const QList<Token> &tokens, int lexerState, int *indentDepth) const = 0;
+    virtual void adjustIndent(const QList<Token> &tokens, int startLexerState, int *indentDepth) const = 0;
 
     struct State;
     class QMLJS_EXPORT BlockData

@@ -54,7 +54,7 @@ public:
 
 protected:
     virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth) const;
-    virtual void adjustIndent(const QList<QmlJS::Token> &tokens, int lexerState, int *indentDepth) const;
+    virtual void adjustIndent(const QList<QmlJS::Token> &tokens, int startLexerState, int *indentDepth) const;
 
     virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
     virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;

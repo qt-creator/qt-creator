@@ -289,10 +289,8 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     }
 }
 
-void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int lexerState, int *indentDepth) const
+void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int startLexerState, int *indentDepth) const
 {
-    Q_UNUSED(lexerState)
-
     State topState = state();
     State previousState = state(1);
 
@@ -303,6 +301,12 @@ void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int lexerSta
             *indentDepth = column(tokens.at(0).begin());
             return;
         }
+    }
+    // don't touch multi-line strings at all
+    if ((startLexerState & Scanner::MultiLineMask) == Scanner::MultiLineStringDQuote
+            || (startLexerState & Scanner::MultiLineMask) == Scanner::MultiLineStringSQuote) {
+        *indentDepth = -1;
+        return;
     }
 
     const int kind = extendedTokenKind(tokenAt(0));
