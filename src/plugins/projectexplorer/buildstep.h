@@ -72,7 +72,9 @@ public:
 
     BuildConfiguration *buildConfiguration() const;
     DeployConfiguration *deployConfiguration() const;
+    ProjectConfiguration *projectConfiguration() const;
     Target *target() const;
+    Project *project() const;
 
     enum OutputFormat { NormalOutput, ErrorOutput, MessageOutput, ErrorMessageOutput };
     enum OutputNewlineSetting { DoAppendNewline, DontAppendNewline };

@@ -42,6 +42,8 @@
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/buildmanager.h>
 
 #include <QtCore/QMargins>
 #include <QtCore/QTimer>
@@ -369,6 +371,29 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
     if (!deleteConfiguration ||
         m_target->buildConfigurations().size() <= 1)
         return;
+
+    ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
+    if (bm->isBuilding(deleteConfiguration)) {
+        QMessageBox box;
+        QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Remove Build Configuration"), QMessageBox::AcceptRole);
+        QPushButton *cancelClose = box.addButton(tr("Do Not Remove"), QMessageBox::RejectRole);
+        box.setDefaultButton(cancelClose);
+        box.setWindowTitle(tr("Remove Build Configuration %1?").arg(deleteConfiguration->displayName()));
+        box.setText(tr("The build configuration <b>%1</b> is currently being built.").arg(deleteConfiguration->displayName()));
+        box.setInformativeText(tr("Do you want to cancel the build process and remove the Build Configuration anyway?"));
+        box.exec();
+        if (box.clickedButton() != closeAnyway)
+            return;
+        bm->cancel();
+    } else {
+        QMessageBox msgBox(QMessageBox::Question, tr("Remove Build Configuration?"),
+                           tr("Do you really want to delete build configuration <b>%1</b>?").arg(deleteConfiguration->displayName()),
+                           QMessageBox::Yes|QMessageBox::No, this);
+        msgBox.setDefaultButton(QMessageBox::No);
+        msgBox.setEscapeButton(QMessageBox::No);
+        if (msgBox.exec() == QMessageBox::No)
+            return;
+    }
 
     m_target->removeBuildConfiguration(deleteConfiguration);
 

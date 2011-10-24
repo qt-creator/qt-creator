@@ -40,6 +40,8 @@
 #include "targetsettingswidget.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/buildmanager.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QLabel>
@@ -47,6 +49,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QStackedWidget>
+#include <QtGui/QPushButton>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -230,13 +233,33 @@ void TargetSettingsPanelWidget::removeTarget()
 {
     int index = m_selector->currentIndex();
     Target *t = m_targets.at(index);
-    int ret = QMessageBox::warning(this, tr("Qt Creator"),
-                                   tr("Do you really want to remove the\n"
-                                      "\"%1\" target?").arg(t->displayName()),
-                                    QMessageBox::Yes | QMessageBox::No,
-                                    QMessageBox::No);
-    if (ret == QMessageBox::Yes)
-        m_project->removeTarget(t);
+
+    ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
+    if (bm->isBuilding(t)) {
+        QMessageBox box;
+        QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Remove Target"), QMessageBox::AcceptRole);
+        QPushButton *cancelClose = box.addButton(tr("Do Not Remove"), QMessageBox::RejectRole);
+        box.setDefaultButton(cancelClose);
+        box.setWindowTitle(tr("Remove Target %1?").arg(t->displayName()));
+        box.setText(tr("The target <b>%1</b> is currently being built.").arg(t->displayName()));
+        box.setInformativeText(tr("Do you want to cancel the build process and remove the Target anyway?"));
+        box.exec();
+        if (box.clickedButton() != closeAnyway)
+            return;
+        bm->cancel();
+    } else {
+        // We don't show the generic message box on removing the target, if we showed the still building one
+        int ret = QMessageBox::warning(this, tr("Qt Creator"),
+                                       tr("Do you really want to remove the\n"
+                                          "\"%1\" target?").arg(t->displayName()),
+                                        QMessageBox::Yes | QMessageBox::No,
+                                        QMessageBox::No);
+        if (ret != QMessageBox::Yes)
+            return;
+    }
+
+    m_project->removeTarget(t);
+
 }
 
 void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)

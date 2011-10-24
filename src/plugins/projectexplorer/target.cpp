@@ -42,6 +42,8 @@
 
 #include <limits>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/buildmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QIcon>
@@ -174,11 +176,16 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
         setActiveBuildConfiguration(configuration);
 }
 
-void Target::removeBuildConfiguration(BuildConfiguration *configuration)
+bool Target::removeBuildConfiguration(BuildConfiguration *configuration)
 {
     //todo: this might be error prone
     if (!d->m_buildConfigurations.contains(configuration))
-        return;
+        return false;
+
+    ProjectExplorer::BuildManager *bm =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
+    if (bm->isBuilding(configuration))
+        return false;
 
     d->m_buildConfigurations.removeOne(configuration);
 
@@ -192,6 +199,7 @@ void Target::removeBuildConfiguration(BuildConfiguration *configuration)
     }
 
     delete configuration;
+    return true;
 }
 
 QList<BuildConfiguration *> Target::buildConfigurations() const
@@ -242,11 +250,16 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     Q_ASSERT(activeDeployConfiguration());
 }
 
-void Target::removeDeployConfiguration(DeployConfiguration *dc)
+bool Target::removeDeployConfiguration(DeployConfiguration *dc)
 {
     //todo: this might be error prone
     if (!d->m_deployConfigurations.contains(dc))
-        return;
+        return false;
+
+    ProjectExplorer::BuildManager *bm =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
+    if (bm->isBuilding(dc))
+        return false;
 
     d->m_deployConfigurations.removeOne(dc);
 
@@ -260,6 +273,7 @@ void Target::removeDeployConfiguration(DeployConfiguration *dc)
     }
 
     delete dc;
+    return true;
 }
 
 QList<DeployConfiguration *> Target::deployConfigurations() const

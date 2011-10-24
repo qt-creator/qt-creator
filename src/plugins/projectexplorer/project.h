@@ -83,7 +83,7 @@ public:
 
     // Target:
     void addTarget(Target *target);
-    void removeTarget(Target *target);
+    bool removeTarget(Target *target);
 
     QList<Target *> targets() const;
     // Note: activeTarget can be 0 (if no targets are defined).

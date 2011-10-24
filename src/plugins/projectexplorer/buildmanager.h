@@ -63,6 +63,8 @@ public:
     bool buildLists(QList<BuildStepList *> bsls);
     bool buildList(BuildStepList *bsl);
     bool isBuilding(Project *p);
+    bool isBuilding(Target *t);
+    bool isBuilding(ProjectConfiguration *p);
     bool isBuilding(BuildStep *step);
 
     // Append any build step to the list of build steps (currently only used to add the QMakeStep)
@@ -102,8 +104,8 @@ private:
     void nextStep();
     void clearBuildQueue();
     bool buildQueueAppend(QList<BuildStep *> steps);
-    void incrementActiveBuildSteps(Project *pro);
-    void decrementActiveBuildSteps(Project *pro);
+    void incrementActiveBuildSteps(BuildStep *bs);
+    void decrementActiveBuildSteps(BuildStep *bs);
     void disconnectOutput(BuildStep *bs);
 
     BuildManagerPrivate *d;

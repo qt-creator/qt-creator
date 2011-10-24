@@ -67,7 +67,7 @@ public:
 
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *configuration);
-    void removeBuildConfiguration(BuildConfiguration *configuration);
+    bool removeBuildConfiguration(BuildConfiguration *configuration);
 
     QList<BuildConfiguration *> buildConfigurations() const;
     virtual BuildConfiguration *activeBuildConfiguration() const;
@@ -77,7 +77,7 @@ public:
 
     // DeployConfiguration
     void addDeployConfiguration(DeployConfiguration *dc);
-    void removeDeployConfiguration(DeployConfiguration *dc);
+    bool removeDeployConfiguration(DeployConfiguration *dc);
 
     QList<DeployConfiguration *> deployConfigurations() const;
     virtual DeployConfiguration *activeDeployConfiguration() const;

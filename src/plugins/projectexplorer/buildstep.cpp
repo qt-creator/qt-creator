@@ -156,9 +156,19 @@ DeployConfiguration *BuildStep::deployConfiguration() const
     return dc;
 }
 
+ProjectConfiguration *BuildStep::projectConfiguration() const
+{
+    return static_cast<ProjectConfiguration *>(parent()->parent());
+}
+
 Target *BuildStep::target() const
 {
     return qobject_cast<Target *>(parent()->parent()->parent());
+}
+
+Project *BuildStep::project() const
+{
+    return target()->project();
 }
 
 bool BuildStep::immutable() const

@@ -1031,6 +1031,20 @@ void ProjectExplorerPlugin::unloadProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::unloadProject";
 
+    if (buildManager()->isBuilding(d->m_currentProject)) {
+        QMessageBox box;
+        QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Unload"), QMessageBox::AcceptRole);
+        QPushButton *cancelClose = box.addButton(tr("Do Not Unload"), QMessageBox::RejectRole);
+        box.setDefaultButton(cancelClose);
+        box.setWindowTitle(tr("Unload Project %1?").arg(d->m_currentProject->displayName()));
+        box.setText(tr("The project %1 is currently being built.").arg(d->m_currentProject->displayName()));
+        box.setInformativeText(tr("Do you want to cancel the build process and unload the project anyway?"));
+        box.exec();
+        if (box.clickedButton() != closeAnyway)
+            return;
+        buildManager()->cancel();
+    }
+
     Core::IFile *fi = d->m_currentProject->file();
 
     if (!fi || fi->fileName().isEmpty()) //nothing to save?
