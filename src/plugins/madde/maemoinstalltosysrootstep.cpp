@@ -35,6 +35,7 @@
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemoqtversion.h"
+#include "qt4maemotarget.h"
 
 #include <utils/fileutils.h>
 
@@ -248,8 +249,12 @@ BuildStepConfigWidget *MaemoInstallDebianPackageToSysrootStep::createConfigWidge
 
 QStringList MaemoInstallDebianPackageToSysrootStep::madArguments() const
 {
-    return QStringList() << QLatin1String("xdpkg") << QLatin1String("--no-force-downgrade")
-        << QLatin1String("-i");
+    QStringList args;
+    args << QLatin1String("xdpkg");
+    if (qobject_cast<Qt4HarmattanTarget *>(target()))
+        args << QLatin1String("--no-force-downgrade");
+    args << QLatin1String("-i");
+    return args;
 }
 
 const QString MaemoInstallDebianPackageToSysrootStep::Id
