@@ -64,7 +64,7 @@
 
 static inline QString msgProgress(int progress, int total)
 {
-    return ProjectExplorer::BuildManager::tr("Finished %1 of %n build steps", 0, total).arg(progress);
+    return ProjectExplorer::BuildManager::tr("Finished %1 of %n steps", 0, total).arg(progress);
 }
 
 namespace ProjectExplorer {
@@ -156,9 +156,9 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
 void BuildManager::extensionsInitialized()
 {
     d->m_taskHub->addCategory(Constants::TASK_CATEGORY_COMPILE,
-        tr("Compile", "Category for compiler isses listened under 'Build Issues'"));
+        tr("Compile", "Category for compiler isses listened under 'Issues'"));
     d->m_taskHub->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM,
-        tr("Build System", "Category for build system isses listened under 'Build Issues'"));
+        tr("Build System", "Category for build system isses listened under 'Issues'"));
 }
 
 BuildManager::~BuildManager()
@@ -222,7 +222,7 @@ void BuildManager::cancel()
         disconnectOutput(d->m_currentBuildStep);
         decrementActiveBuildSteps(d->m_currentBuildStep->project());
 
-        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Build canceled")); //TODO NBS fix in qtconcurrent
+        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Build/Deployment canceled")); //TODO NBS fix in qtconcurrent
         clearBuildQueue();
     }
     return;
@@ -249,7 +249,7 @@ void BuildManager::finish()
 
 void BuildManager::emitCancelMessage()
 {
-    addToOutputWindow(tr("Canceled build."), BuildStep::ErrorMessageOutput);
+    addToOutputWindow(tr("Canceled build/deployment."), BuildStep::ErrorMessageOutput);
 }
 
 void BuildManager::clearBuildQueue()
@@ -388,10 +388,10 @@ void BuildManager::nextBuildQueue()
         // Build Failure
         const QString projectName = d->m_currentBuildStep->project()->displayName();
         const QString targetName = d->m_currentBuildStep->target()->displayName();
-        addToOutputWindow(tr("Error while building project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
-        addToOutputWindow(tr("When executing build step '%1'").arg(d->m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("Error while building/deploying project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("When executing step '%1'").arg(d->m_currentBuildStep->displayName()), BuildStep::ErrorOutput);
         // NBS TODO fix in qtconcurrent
-        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Error while building project %1 (target: %2)").arg(projectName, targetName));
+        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Error while building/deploying project %1 (target: %2)").arg(projectName, targetName));
     }
 
     if (result)
@@ -430,7 +430,7 @@ void BuildManager::nextStep()
 
         if (d->m_currentBuildStep->project() != d->m_previousBuildStepProject) {
             const QString projectName = d->m_currentBuildStep->project()->displayName();
-            addToOutputWindow(tr("Running build steps for project %1...")
+            addToOutputWindow(tr("Running steps for project %1...")
                               .arg(projectName), BuildStep::MessageOutput);
             d->m_previousBuildStepProject = d->m_currentBuildStep->project();
         }
@@ -477,8 +477,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
         // print something for the user
         const QString projectName = bs->project()->displayName();
         const QString targetName = bs->project()->displayName();
-        addToOutputWindow(tr("Error while building project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
-        addToOutputWindow(tr("When executing build step '%1'").arg(bs->displayName()), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("Error while building/deploying project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
+        addToOutputWindow(tr("When executing step '%1'").arg(bs->displayName()), BuildStep::ErrorOutput);
 
         // disconnect the buildsteps again
         for (int j = 0; j <= i; ++j)
