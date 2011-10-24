@@ -85,28 +85,23 @@
 
     We do not currently guarantee API nor ABI
     (\l{http://en.wikipedia.org/wiki/Application_binary_interface}{application binary interface})
-    compatibility between major releases.
+    compatibility between major releases and minor releases.
 
-    However, we try to preserve compatibility between minor and patch releases,
-    as follows:
+    However, we try to preserve backward and forward binary compatibility and forward and
+    backward source code compatibility in patch releases, so:
 
     \list
-        \o  Preserve backward binary compatibility and backward source code
-            compatibility in minor releases.
-        \o  Preserve backward and forward binary compatibility and forward and
-            backward source code compatibility in patch releases:
-        \list
-            \o  Do not add or remove any public API (e.g. global functions,x
-                public/protected/private methods).
-            \o  Do not reimplement methods (not even inlines,
-                nor protected or private methods).
-            \o  Check
-                \l {http://developer.qt.nokia.com/wiki/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
-                for ways to preserve binary compatibility.
-        \endlist
+        \o  Do not add or remove any public API (e.g. global functions,x
+            public/protected/private methods).
+        \o  Do not reimplement methods (not even inlines,
+            nor protected or private methods).
+        \o  Check
+            \l {http://developer.qt.nokia.com/wiki/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
+            for ways to preserve binary compatibility.
     \endlist
 
     \note This is not yet mandatory.
+
     For more information on binary compatibility, see
     \l{http://techbase.kde.org/Policies/Binary_Compatibility_Issues_With_C++}{Binary Compatibility Issues With C++}.
 
