@@ -49,7 +49,7 @@ class GeneratedFile;
 
 /*!
   Hook to add generic wizard pages to implementations of IWizard.
-  Used e.g. to add "Add to Project File/Add to version control" page
+  Used e.g. to add "Add to Project File/Add to Version Control" page
   */
 class CORE_EXPORT IFileWizardExtension : public QObject
 {
