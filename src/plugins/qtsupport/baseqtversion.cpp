@@ -1008,7 +1008,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::reportIssuesImpl(const QString &proF
                                                         "Qmake does not support build directories below the source directory.");
         results.append(ProjectExplorer::Task(ProjectExplorer::Task::Warning, msg, QString(), -1,
                                              QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-    } else if (tmpBuildDir.count(QChar('/')) != sourcePath.count(QChar('/'))) {
+    } else if (tmpBuildDir.count(QChar('/')) != sourcePath.count(QChar('/')) && qtVersion() < QtVersionNumber(4,8, 0)) {
         const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
                                                         "The build directory needs to be at the same level as the source directory.");
 
