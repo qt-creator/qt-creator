@@ -81,6 +81,7 @@ private slots:
     void handleDeploySpecsChanged();
     void handleUseAlternateCommandChanged();
     void handleAlternateCommandChanged();
+    void handleWorkingDirectoryChanged();
 
 private:
     void addGenericWidgets(QVBoxLayout *mainLayout);

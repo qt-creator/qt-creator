@@ -84,6 +84,7 @@ public:
     QLabel disabledIcon;
     QLabel disabledReason;
     QLineEdit argsLineEdit;
+    QLineEdit workingDirLineEdit;
     QLabel localExecutableLabel;
     QLabel remoteExecutableLabel;
     QCheckBox useAlternateCommandBox;
@@ -198,6 +199,10 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     d->argsLineEdit.setText(d->runConfiguration->arguments());
     d->genericWidgetsLayout.addRow(tr("Arguments:"), &d->argsLineEdit);
 
+    d->workingDirLineEdit.setPlaceholderText(tr("<default>"));
+    d->workingDirLineEdit.setText(d->runConfiguration->workingDirectory());
+    d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
+
     QHBoxLayout * const debugButtonsLayout = new QHBoxLayout;
     d->debugCppOnlyButton.setText(tr("C++ only"));
     d->debugQmlOnlyButton.setText(tr("QML only"));
@@ -236,6 +241,8 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
         SLOT(handleUseAlternateCommandChanged()));
     connect(&d->alternateCommand, SIGNAL(textEdited(QString)),
         SLOT(handleAlternateCommandChanged()));
+    connect(&d->workingDirLineEdit, SIGNAL(textEdited(QString)),
+        SLOT(handleWorkingDirectoryChanged()));
     handleDeploySpecsChanged();
     handleUseAlternateCommandChanged();
 }
@@ -304,6 +311,11 @@ void RemoteLinuxRunConfigurationWidget::handleUseAlternateCommandChanged()
 void RemoteLinuxRunConfigurationWidget::handleAlternateCommandChanged()
 {
     d->runConfiguration->setAlternateRemoteExecutable(d->alternateCommand.text().trimmed());
+}
+
+void RemoteLinuxRunConfigurationWidget::handleWorkingDirectoryChanged()
+{
+    d->runConfiguration->setWorkingDirectory(d->workingDirLineEdit.text().trimmed());
 }
 
 void RemoteLinuxRunConfigurationWidget::showDeviceConfigurationsDialog(const QString &link)

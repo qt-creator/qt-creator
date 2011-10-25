@@ -62,6 +62,7 @@ const char UserEnvironmentChangesKey[]
     = "Qt4ProjectManager.MaemoRunConfiguration.UserEnvironmentChanges";
 const char UseAlternateExeKey[] = "RemoteLinux.RunConfig.UseAlternateRemoteExecutable";
 const char AlternateExeKey[] = "RemoteLinux.RunConfig.AlternateRemoteExecutable";
+const char WorkingDirectoryKey[] = "RemoteLinux.RunConfig.WorkingDirectory";
 
 } // anonymous namespace
 
@@ -84,7 +85,8 @@ public:
           validParse(other->validParse),
           parseInProgress(other->parseInProgress),
           useAlternateRemoteExecutable(other->useAlternateRemoteExecutable),
-          alternateRemoteExecutable(other->alternateRemoteExecutable)
+          alternateRemoteExecutable(other->alternateRemoteExecutable),
+          workingDirectory(other->workingDirectory)
     {
     }
 
@@ -99,6 +101,7 @@ public:
     QString disabledReason;
     bool useAlternateRemoteExecutable;
     QString alternateRemoteExecutable;
+    QString workingDirectory;
 };
 
 } // namespace Internal
@@ -216,6 +219,7 @@ QVariantMap RemoteLinuxRunConfiguration::toMap() const
         Utils::EnvironmentItem::toStringList(d->userEnvironmentChanges));
     map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
     map.insert(QLatin1String(AlternateExeKey), d->alternateRemoteExecutable);
+    map.insert(QLatin1String(WorkingDirectoryKey), d->workingDirectory);
     return map;
 }
 
@@ -234,6 +238,7 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
         SystemBaseEnvironment).toInt());
     d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();
     d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
+    d->workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
 
     d->validParse = qt4Target()->qt4Project()->validParse(d->proFilePath);
     d->parseInProgress = qt4Target()->qt4Project()->parseInProgress(d->proFilePath);
@@ -279,7 +284,10 @@ QString RemoteLinuxRunConfiguration::environmentPreparationCommand() const
         << QLatin1String("$HOME/.profile");
     foreach (const QString &filePath, filesToSource)
         command += QString::fromLocal8Bit("test -f %1 && source %1;").arg(filePath);
-    command.chop(1); // Trailing semicolon.
+    if (!workingDirectory().isEmpty())
+        command += QLatin1String("cd ") + workingDirectory();
+    else
+        command.chop(1); // Trailing semicolon.
     return command;
 }
 
@@ -323,6 +331,16 @@ PortList RemoteLinuxRunConfiguration::freePorts() const
 void RemoteLinuxRunConfiguration::setArguments(const QString &args)
 {
     d->arguments = args;
+}
+
+QString RemoteLinuxRunConfiguration::workingDirectory() const
+{
+    return d->workingDirectory;
+}
+
+void RemoteLinuxRunConfiguration::setWorkingDirectory(const QString &wd)
+{
+    d->workingDirectory = wd;
 }
 
 void RemoteLinuxRunConfiguration::setUseAlternateExecutable(bool useAlternate)
