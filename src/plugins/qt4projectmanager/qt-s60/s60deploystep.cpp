@@ -137,7 +137,7 @@ void S60DeployStep::ctor()
     //: Qt4 Deploystep display name
     setDefaultDisplayName(tr("Deploy"));
     m_timeoutTimer->setSingleShot(true);
-    m_timeoutTimer->setInterval(2000);
+    m_timeoutTimer->setInterval(10000);
     connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(timeout()));
 }
 
