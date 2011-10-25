@@ -338,6 +338,22 @@ const QmlObjectValue *QmlObjectValue::prototype() const
     return static_cast<const QmlObjectValue *>(_prototype);
 }
 
+/*!
+  \returns a list started by this object and followed by all its prototypes
+
+  Prefer to use this over calling prototype() in a loop, as it avoids cycles.
+*/
+QList<const QmlObjectValue *> QmlObjectValue::prototypes() const
+{
+    QList<const QmlObjectValue *> protos;
+    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+        if (protos.contains(it))
+            break;
+        protos += it;
+    }
+    return protos;
+}
+
 const QmlObjectValue *QmlObjectValue::attachedType() const
 {
     return _attachedType;
@@ -367,7 +383,7 @@ QString QmlObjectValue::defaultPropertyName() const
 
 QString QmlObjectValue::propertyType(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    foreach (const QmlObjectValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -379,7 +395,7 @@ QString QmlObjectValue::propertyType(const QString &propertyName) const
 
 bool QmlObjectValue::isListProperty(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    foreach (const QmlObjectValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -391,7 +407,7 @@ bool QmlObjectValue::isListProperty(const QString &propertyName) const
 
 FakeMetaEnum QmlObjectValue::getEnum(const QString &typeName, const QmlObjectValue **foundInScope) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    foreach (const QmlObjectValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         const int index = iter->enumeratorIndex(typeName);
         if (index != -1) {
@@ -407,7 +423,7 @@ FakeMetaEnum QmlObjectValue::getEnum(const QString &typeName, const QmlObjectVal
 
 const QmlEnumValue *QmlObjectValue::getEnumValue(const QString &typeName, const QmlObjectValue **foundInScope) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    foreach (const QmlObjectValue *it, prototypes()) {
         if (const QmlEnumValue *e = it->_enums.value(typeName)) {
             if (foundInScope)
                 *foundInScope = it;
@@ -421,7 +437,7 @@ const QmlEnumValue *QmlObjectValue::getEnumValue(const QString &typeName, const 
 
 bool QmlObjectValue::isWritable(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    foreach (const QmlObjectValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -433,7 +449,7 @@ bool QmlObjectValue::isWritable(const QString &propertyName) const
 
 bool QmlObjectValue::isPointer(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    foreach (const QmlObjectValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -453,7 +469,7 @@ bool QmlObjectValue::hasLocalProperty(const QString &typeName) const
 
 bool QmlObjectValue::hasProperty(const QString &propertyName) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    foreach (const QmlObjectValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -465,7 +481,7 @@ bool QmlObjectValue::hasProperty(const QString &propertyName) const
 
 bool QmlObjectValue::isDerivedFrom(FakeMetaObject::ConstPtr base) const
 {
-    for (const QmlObjectValue *it = this; it; it = it->prototype()) {
+    foreach (const QmlObjectValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         if (iter == base)
             return true;

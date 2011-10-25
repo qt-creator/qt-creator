@@ -428,6 +428,7 @@ public:
 
     using ObjectValue::prototype;
     const QmlObjectValue *prototype() const;
+    QList<const QmlObjectValue *> prototypes() const;
 
     const QmlObjectValue *attachedType() const;
     void setAttachedType(QmlObjectValue *value);
