@@ -305,9 +305,10 @@ void HoverHandler::prettyPrintTooltip(const QmlJS::Value *value,
     }
 
     if (toolTip().isEmpty()) {
-        QString typeId = context->valueOwner()->typeId(value);
-        if (typeId != QLatin1String("undefined"))
+        if (!value->asUndefinedValue() && !value->asUnknownValue()) {
+            const QString typeId = context->valueOwner()->typeId(value);
             setToolTip(typeId);
+        }
     }
 }
 
