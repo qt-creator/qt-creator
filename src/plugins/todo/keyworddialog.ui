@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AddKeywordDialog</class>
- <widget class="QDialog" name="AddKeywordDialog">
+ <class>Todo::Internal::AddKeywordDialog</class>
+ <widget class="QDialog" name="Todo::Internal::AddKeywordDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>379</width>
-    <height>225</height>
+    <height>233</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Keyword</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Icons</string>
+      <string>Icon</string>
      </property>
     </widget>
    </item>
@@ -33,11 +33,8 @@
          <property name="title">
           <string>Color</string>
          </property>
-         <layout class="QFormLayout" name="formLayout">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::ExpandingFieldsGrow</enum>
-          </property>
-          <item row="2" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
            <widget class="QLineEdit" name="colorEdit">
             <property name="inputMask">
              <string>\#HHHHHH; </string>
@@ -47,10 +44,19 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QPushButton" name="pushButton">
-            <property name="text">
-             <string>Choose</string>
+          <item>
+           <widget class="Utils::QtColorButton" name="colorButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>64</width>
+              <height>0</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -64,7 +70,7 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QLineEdit" name="lineEdit"/>
+           <widget class="QLineEdit" name="keywordNameEdit"/>
           </item>
          </layout>
         </widget>
@@ -85,12 +91,19 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::QtColorButton</class>
+   <extends>QToolButton</extends>
+   <header location="global">utils/qtcolorbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>AddKeywordDialog</receiver>
+   <receiver>Todo::Internal::AddKeywordDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -106,7 +119,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>AddKeywordDialog</receiver>
+   <receiver>Todo::Internal::AddKeywordDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

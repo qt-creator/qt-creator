@@ -31,50 +31,39 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#ifndef ADDKEYWORDDIALOG_H
+#define ADDKEYWORDDIALOG_H
 
-#include "optionspage.h"
 #include "keyword.h"
-#include "todooutputpane.h"
-#include "settings.h"
-#include "todoitemsprovider.h"
 
-#include <extensionsystem/iplugin.h>
-
-#include <QStringList>
+#include <QDialog>
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
+namespace Ui {
+    class AddKeywordDialog;
+}
+
+class KeywordDialog : public QDialog
 {
     Q_OBJECT
 public:
-    TodoPlugin();
-    ~TodoPlugin();
+    KeywordDialog(const Keyword &keyword, QWidget *parent = 0);
+    ~KeywordDialog();
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+    Keyword keyword();
 
 private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
+    void colorSelected(const QColor &color);
 
 private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
-
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
+    void setupListWidget(const QString &selectedIcon);
+    void setupColorWidgets(const QColor &color);
+    Ui::AddKeywordDialog *ui;
 };
 
 } // namespace Internal
 } // namespace Todo
 
-#endif // TODOPLUGIN_H
-
+#endif // ADDKEYWORDDIALOG_H

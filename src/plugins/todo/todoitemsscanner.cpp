@@ -31,50 +31,46 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#include "todoitemsscanner.h"
+#include "lineparser.h"
 
-#include "optionspage.h"
-#include "keyword.h"
-#include "todooutputpane.h"
-#include "settings.h"
-#include "todoitemsprovider.h"
-
-#include <extensionsystem/iplugin.h>
-
-#include <QStringList>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
+TodoItemsScanner::TodoItemsScanner(const KeywordList &keywordList, QObject *parent) :
+    QObject(parent)
 {
-    Q_OBJECT
-public:
-    TodoPlugin();
-    ~TodoPlugin();
+    setKeywordList(keywordList);
+}
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+void TodoItemsScanner::setKeywordList(const KeywordList &keywordList)
+{
+    m_keywordList = keywordList;
+    keywordListChanged();
+}
 
-private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
+// Descendants can override and make a request for full rescan here if needed
+void TodoItemsScanner::keywordListChanged()
+{
+}
 
-private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
+// Descendants can use this to process comment lines
+void TodoItemsScanner::processCommentLine(const QString &fileName, const QString &comment,
+    unsigned lineNumber, QList<TodoItem> &outItemList)
+{
+    LineParser parser(m_keywordList);
+    QList<TodoItem> newItemList = parser.parse(comment);
 
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
-};
+    for (int i = 0; i < newItemList.count(); ++i) {
+        newItemList[i].line = lineNumber;
+        newItemList[i].file = fileName;
+    }
 
-} // namespace Internal
-} // namespace Todo
+    outItemList << newItemList;
+}
 
-#endif // TODOPLUGIN_H
-
+}
+}

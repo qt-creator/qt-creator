@@ -43,7 +43,8 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmlprofiler \
             plugin_remotelinux \
             plugin_madde \
-            plugin_valgrind
+            plugin_valgrind \
+            plugin_todo
 
 isEmpty(IDE_PACKAGE_MODE) {
     SUBDIRS += plugin_helloworld \
@@ -51,7 +52,6 @@ isEmpty(IDE_PACKAGE_MODE) {
 } else:!isEmpty(UPDATEINFO_ENABLE) {
     SUBDIRS += plugin_updateinfo
 }
-
 linux-* {
      SUBDIRS += debugger/ptracepreload.pro
 }
@@ -306,3 +306,9 @@ plugin_macros.depends = plugin_texteditor
 plugin_macros.depends += plugin_find
 plugin_macros.depends += plugin_locator
 plugin_macros.depends += plugin_coreplugin
+
+plugin_todo.subdir = todo
+plugin_todo.depends = plugin_coreplugin
+plugin_todo.depends += plugin_projectexplorer
+plugin_todo.depends += plugin_texteditor
+plugin_todo.depends += plugin_cpptools

@@ -1,26 +1,61 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2012 Dmitry Savchenko.
+** Copyright (c) 2010 Vasiliy Sorokin.
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**************************************************************************/
+
 #include "keyword.h"
 
-Keyword::Keyword()
+namespace Todo {
+namespace Internal {
+
+Keyword::Keyword() : color(Qt::white)
 {
 }
 
-Keyword::Keyword(QString name_, QIcon icon_, QColor warningColor_) :
-    name(name_), icon(icon_), warningColor(warningColor_)
+bool Keyword::equals(const Keyword &other) const
 {
+    return (this->name == other.name)
+        && (this->iconResource == other.iconResource)
+        && (this->color == other.color);
 }
 
-QDataStream &operator<<(QDataStream &out, const Keyword &myObj)
+bool operator ==(Keyword &k1, Keyword &k2)
 {
-    out << myObj.name;
-    out << myObj.icon;
-    out << myObj.warningColor;
-    return out;
+    return k1.equals(k2);
 }
 
-QDataStream &operator>>(QDataStream &in,  Keyword &myObj)
+bool operator !=(Keyword &k1, Keyword &k2)
 {
-    in >> myObj.name;
-    in >> myObj.icon;
-    in >> myObj.warningColor;
-    return in;
+    return !k1.equals(k2);
 }
+
+} // namespace Internal
+} // namespace Todo

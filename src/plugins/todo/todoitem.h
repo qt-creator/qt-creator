@@ -31,50 +31,69 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#ifndef TODOITEM_H
+#define TODOITEM_H
 
-#include "optionspage.h"
-#include "keyword.h"
-#include "todooutputpane.h"
-#include "settings.h"
-#include "todoitemsprovider.h"
+#include "constants.h"
 
-#include <extensionsystem/iplugin.h>
-
-#include <QStringList>
+#include <QMetaType>
+#include <QString>
+#include <QIcon>
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
+struct TodoItem
 {
-    Q_OBJECT
+    QString text;
+    QString file;
+    int line;
+    QString iconResource;
+    QColor color;
+};
+
+class TodoItemSortPredicate
+{
 public:
-    TodoPlugin();
-    ~TodoPlugin();
+    explicit TodoItemSortPredicate(Constants::OutputColumnIndex columnIndex, Qt::SortOrder order) :
+        m_columnIndex(columnIndex),
+        m_order(order)
+    {}
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+    inline bool operator()(const TodoItem &t1, const TodoItem &t2)
+    {
+        if (m_order == Qt::AscendingOrder)
+            return lessThan(t1, t2);
+        else
+            return lessThan(t2, t1);
+    }
 
-private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
+    inline bool lessThan(const TodoItem &t1, const TodoItem &t2)
+    {
+        switch (m_columnIndex) {
+            case Constants::OUTPUT_COLUMN_TEXT:
+                return t1.text < t2.text;
+
+            case Constants::OUTPUT_COLUMN_LINE:
+                return t1.line < t2.line;
+
+            case Constants::OUTPUT_COLUMN_FILE:
+                return t1.file < t2.file;
+
+            default:
+                Q_ASSERT(false);
+                return false;
+        }
+    }
 
 private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
-
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
+    Constants::OutputColumnIndex m_columnIndex;
+    Qt::SortOrder m_order;
 };
 
 } // namespace Internal
 } // namespace Todo
 
-#endif // TODOPLUGIN_H
+Q_DECLARE_METATYPE(Todo::Internal::TodoItem)
 
+#endif // TODOITEM_H

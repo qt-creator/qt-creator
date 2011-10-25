@@ -31,50 +31,36 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
-#include "optionspage.h"
 #include "keyword.h"
-#include "todooutputpane.h"
-#include "settings.h"
-#include "todoitemsprovider.h"
 
-#include <extensionsystem/iplugin.h>
-
-#include <QStringList>
+#include <QSettings>
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-public:
-    TodoPlugin();
-    ~TodoPlugin();
-
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
-
-private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
-
-private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
-
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
+enum ScanningScope {
+    ScanningScopeCurrentFile,
+    ScanningScopeProject
 };
+
+struct Settings {
+    KeywordList keywords;
+    ScanningScope scanningScope;
+    void save(QSettings *settings) const;
+    void load(QSettings *settings);
+    void setDefault();
+    bool equals(const Settings &other) const;
+};
+
+bool operator ==(Settings &s1, Settings &s2);
+bool operator !=(Settings &s1, Settings &s2);
 
 } // namespace Internal
 } // namespace Todo
 
-#endif // TODOPLUGIN_H
+Q_DECLARE_METATYPE(Todo::Internal::ScanningScope)
 
+#endif // SETTINGS_H

@@ -31,50 +31,39 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#ifndef TODOITEMSSCANNER_H
+#define TODOITEMSSCANNER_H
 
-#include "optionspage.h"
-#include "keyword.h"
-#include "todooutputpane.h"
+#include "todoitem.h"
 #include "settings.h"
-#include "todoitemsprovider.h"
 
-#include <extensionsystem/iplugin.h>
-
-#include <QStringList>
+#include <QObject>
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
+// TodoItemsScanner is an abstract class
+
+class TodoItemsScanner : public QObject
 {
     Q_OBJECT
+
 public:
-    TodoPlugin();
-    ~TodoPlugin();
+    explicit TodoItemsScanner(const KeywordList &keywordList, QObject *parent = 0);
+    void setKeywordList(const KeywordList &keywordList);
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+signals:
+    void itemsFetched(const QString &fileName, const QList<TodoItem> &items);
 
-private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
+protected:
+    KeywordList m_keywordList;
 
-private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
-
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
+    virtual void keywordListChanged();
+    void processCommentLine(const QString &fileName, const QString &comment, unsigned lineNumber,
+        QList<TodoItem> &outItemList);
 };
 
-} // namespace Internal
-} // namespace Todo
+}
+}
 
-#endif // TODOPLUGIN_H
-
+#endif // TODOITEMSSCANNER_H

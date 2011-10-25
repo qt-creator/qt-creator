@@ -31,50 +31,43 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#ifndef TODOITEMSMODEL_H
+#define TODOITEMSMODEL_H
 
-#include "optionspage.h"
-#include "keyword.h"
-#include "todooutputpane.h"
-#include "settings.h"
-#include "todoitemsprovider.h"
+#include "todoitem.h"
 
-#include <extensionsystem/iplugin.h>
-
-#include <QStringList>
+#include <QAbstractTableModel>
+#include <QList>
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
+class TodoItemsModel : public QAbstractTableModel
 {
     Q_OBJECT
+
 public:
-    TodoPlugin();
-    ~TodoPlugin();
+    explicit TodoItemsModel(QObject *parent = 0);
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+    void setTodoItemsList(QList<TodoItem> *list);
 
-private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+
+public slots:
+    void todoItemsListUpdated();
 
 private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
-
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
+    QList<TodoItem> *m_todoItemsList;
+    Constants::OutputColumnIndex m_currentSortColumn;
+    Qt::SortOrder m_currentSortOrder;
 };
 
-} // namespace Internal
-} // namespace Todo
+}
+}
 
-#endif // TODOPLUGIN_H
-
+#endif // TODOITEMSMODEL_H

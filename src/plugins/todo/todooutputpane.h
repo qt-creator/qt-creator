@@ -1,76 +1,106 @@
-/*
- *
- *  TODO plugin - Add pane with list all TODO, FIXME, etc. comments.
- *
- *  Copyright (C) 2010  VasiliySorokin
- *
- *  Authors: Vasiliy Sorokin <sorokin.vasiliy@gmail.com>
- *
- *  This file is part of TODO plugin for QtCreator.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- * * Neither the name of the vsorokin nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
- * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
-*/
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2012 Dmitry Savchenko.
+** Copyright (c) 2010 Vasiliy Sorokin.
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**************************************************************************/
 
 #ifndef TODOOUTPUTPANE_H
 #define TODOOUTPUTPANE_H
 
 #include "keyword.h"
+#include "todoitem.h"
+#include "settings.h"
+#include "todoitemsmodel.h"
+
 #include <coreplugin/ioutputpane.h>
-#include <QObject>
-#include <QListWidget>
+
+#include <QTreeView>
+#include <QToolButton>
+#include <QButtonGroup>
+
+namespace Todo {
+namespace Internal {
 
 class TodoOutputPane : public Core::IOutputPane
 {
+    Q_OBJECT
+
 public:
-    TodoOutputPane(QObject *parent);
+    TodoOutputPane(TodoItemsModel *m_todoItemsModel, QObject *parent = 0);
     ~TodoOutputPane();
 
     QWidget *outputWidget(QWidget *parent);
     QList<QWidget*> toolBarWidgets() const;
-    QString name() const;
     QString displayName() const;
-
     int priorityInStatusBar() const;
-
     void clearContents();
-    void clearContents(QString filename);
     void visibilityChanged(bool visible);
-
     void setFocus();
-    bool hasFocus();
-    bool canFocus();
-
-    bool canNavigate();
-    bool canNext();
-    bool canPrevious();
+    bool hasFocus() const;
+    bool canFocus() const;
+    bool canNavigate() const;
+    bool canNext() const;
+    bool canPrevious() const;
     void goToNext();
     void goToPrev();
 
-    void sort();
+    void setScanningScope(ScanningScope scanningScope);
 
-    void addItem(const QString &text, const QString &file, const int rowNumber, const QIcon &icon, const QColor &color);
-    QListWidget *getTodoList() const;
+signals:
+    void todoItemClicked(const TodoItem &item);
+    void scanningScopeChanged(ScanningScope scanningScope);
+
+private slots:
+    void scopeButtonClicked(QAbstractButton *button);
+    void todoTreeViewClicked(QModelIndex index);
 
 private:
-    QListWidget *todoList;
-    int lastCurrentRow;
+    QTreeView *m_todoTreeView;
+    QToolButton *m_currentFileButton;
+    QToolButton *m_wholeProjectButton;
+    QWidget *m_spacer;
+    QButtonGroup *m_scopeButtons;
+    QList<TodoItem> *items;
+    TodoItemsModel *m_todoItemsModel;
+
+    void createTreeView();
+    void freeTreeView();
+    void createScopeButtons();
+    void freeScopeButtons();
+
+    QModelIndex selectedModelIndex();
+    QModelIndex nextModelIndex();
+    QModelIndex previousModelIndex();
 };
+
+} // namespace Internal
+} // namespace Todo
 
 #endif // TODOOUTPUTPANE_H

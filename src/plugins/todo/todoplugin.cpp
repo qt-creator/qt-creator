@@ -1,376 +1,129 @@
-/*
- *
- *  TODO plugin - Add pane with list all TODO, FIXME, etc. comments.
- *
- *  Copyright (C) 2010  VasiliySorokin
- *
- *  Authors: Vasiliy Sorokin <sorokin.vasiliy@gmail.com>
- *
- *  This file is part of TODO plugin for QtCreator.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- * * Neither the name of the vsorokin nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
- * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
-*/
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2012 Dmitry Savchenko.
+** Copyright (c) 2010 Vasiliy Sorokin.
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**************************************************************************/
 
 #include "todoplugin.h"
-#include <QtPlugin>
-#include <QStringList>
-#include <QtConcurrentRun>
+#include "constants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <qtconcurrent/runextensions.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/itexteditor.h>
-#include <coreplugin/ifile.h>
-#include <extensionsystem/pluginmanager.h>
-#include <QKeySequence>
-#include <QAction>
-#include <QFile>
-#include <QFileInfo>
-#include <QDataStream>
-#include <QSettings>
-#include <QMessageBox>
-#include <QTextCodec>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
 
-TodoPlugin::TodoPlugin()
+#include <QtPlugin>
+#include <QFileInfo>
+#include <QSettings>
+
+namespace Todo {
+namespace Internal {
+
+TodoPlugin::TodoPlugin() :
+    m_todoOutputPane(0),
+    m_optionsPage(0),
+    m_todoItemsProvider(0)
 {
-    qRegisterMetaTypeStreamOperators<Keyword>("Keyword");
-    qRegisterMetaTypeStreamOperators<KeywordsList>("KeywordsList");
-    currentProject = 0;
-    inReading = false;
-    readSettings();
+    qRegisterMetaType<TodoItem>("TodoItem");
 }
 
 TodoPlugin::~TodoPlugin()
 {
-// Do notning
-}
-
-void TodoPlugin::readSettings()
-{
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup("TODOPlugin");
-    projectOptions = settings->value("project_options", 0).toInt();
-    paneOptions = settings->value("pane_options", 0).toInt();
-    KeywordsList defaultKeywords;
-    defaultKeywords.append(Keyword("TODO", QIcon(":/warning"), QColor("#BFFFC8")));
-    defaultKeywords.append(Keyword("NOTE", QIcon(":/info"), QColor("#E2DFFF")));
-    defaultKeywords.append(Keyword("FIXME", QIcon(":/error"), QColor("#FFBFBF")));
-    defaultKeywords.append(Keyword("BUG", QIcon(":/error"), QColor("#FFDFDF")));
-    defaultKeywords.append(Keyword("HACK", QIcon(":/info"), QColor("#FFFFAA")));
-
-    keywords = settings->value("keywords", qVariantFromValue(defaultKeywords)).value<KeywordsList>();
-    settings->endGroup();
+    m_settings.save(Core::ICore::settings());
 }
 
 bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
 {
     Q_UNUSED(args);
     Q_UNUSED(errMsg);
-    patternString = generatePatternString();
-    settingsPage = new SettingsPage(keywords, projectOptions, paneOptions, this);
-    if (paneOptions == 0)
-    {
-        outPane = new TodoOutputPane(this);
-        addAutoReleasedObject(outPane);
-        connect(outPane->getTodoList(), SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(gotoToRowInFile(QListWidgetItem*)));
-        connect(outPane->getTodoList(), SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(gotoToRowInFile(QListWidgetItem*)));
-    }
-    else
-    {
-        ExtensionSystem::PluginManager* pluginManager = ExtensionSystem::PluginManager::instance();
-        taskHub = pluginManager->getObject<ProjectExplorer::TaskHub>();
-        if (!taskHub)
-        {
-            paneOptions = 1;
-            outPane = new TodoOutputPane(this);
-            addAutoReleasedObject(outPane);
-            connect(outPane->getTodoList(), SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(gotoToRowInFile(QListWidgetItem*)));
-            connect(outPane->getTodoList(), SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(gotoToRowInFile(QListWidgetItem*)));
-            QMessageBox::warning((QWidget *)Core::ICore::instance()->mainWindow(), tr("TODO plugin"), tr("Task window object not found.\nWork in TODO Output pane."));
-        }
-        else
-        {
-            taskHub->addCategory("todoplugin", tr("TODOs comments"));
-        }
 
-    }
-    addAutoReleasedObject(settingsPage);
+    m_settings.load(Core::ICore::settings());
 
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)), this, SLOT(currentEditorChanged(Core::IEditor*)));
-    if (projectOptions != 0)
-    {
-        connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), this, SLOT(projectChanged(ProjectExplorer::Project *)));
-    }
+    createOptionsPage();
+    createItemsProvider();
+    createTodoOutputPane();
+
     return true;
 }
 
 void TodoPlugin::extensionsInitialized()
 {
-// Do nothing
 }
 
-void TodoPlugin::shutdown()
+void TodoPlugin::settingsChanged(const Settings &settings)
 {
-// Do nothing
+    settings.save(Core::ICore::settings());
+    m_settings = settings;
+
+    m_todoItemsProvider->settingsChanged(m_settings);
+    m_todoOutputPane->setScanningScope(m_settings.scanningScope);
+    m_optionsPage->setSettings(m_settings);
 }
 
-void TodoPlugin::showPane()
+void TodoPlugin::scanningScopeChanged(ScanningScope scanningScope)
 {
-    if (paneOptions == 0)
-    {
-        outPane->visibilityChanged(true);
-        outPane->setFocus();
-    }
+    Settings newSettings = m_settings;
+    newSettings.scanningScope = scanningScope;
+    settingsChanged(newSettings);
 }
 
-void TodoPlugin::gotoToRowInFile(QListWidgetItem *item)
+void TodoPlugin::todoItemClicked(const TodoItem &item)
 {
-    int row = item->data(Qt::UserRole + 2).toInt();
-    QString file = item->data(Qt::UserRole + 1).toString();
-
-    if (QFileInfo(file).exists())
-    {
-        Core::IEditor *editor = Core::EditorManager::instance()->openEditor(file);
-        editor->gotoLine(row);
+    if (QFileInfo(item.file).exists()) {
+        Core::IEditor *editor = Core::EditorManager::instance()->openEditor(item.file);
+        editor->gotoLine(item.line);
     }
 }
 
-void TodoPlugin::currentEditorChanged(Core::IEditor *editor)
+void TodoPlugin::createItemsProvider()
 {
-    if (inReading)
-        return;
-    if (projectOptions == 0)
-    {
-        if (paneOptions == 0)
-        {
-            outPane->clearContents();
-        }
-        else
-        {
-            taskHub->clearTasks("todoplugin");
-        }
-    }
-
-    if (!editor)
-    {
-        return;
-    }
-    connect(editor->file(), SIGNAL(changed()), this, SLOT(fileChanged()));
-    QString fileName = editor->file()->fileName();
-    if (projectOptions == 0)
-        readFile(fileName);
-
+    m_todoItemsProvider = new TodoItemsProvider(m_settings);
+    addAutoReleasedObject(m_todoItemsProvider);
 }
 
-void TodoPlugin::removeFromLocalTasks(QString filename)
+void TodoPlugin::createTodoOutputPane()
 {
-    for (int i = 0; i < tasks.count(); ++i)
-    {
-        if (!tasks.at(i).file.compare(filename))
-        {
-            tasks.removeAt(i);
-        }
-    }
+    m_todoOutputPane = new TodoOutputPane(m_todoItemsProvider->todoItemsModel());
+    addAutoReleasedObject(m_todoOutputPane);
+    m_todoOutputPane->setScanningScope(m_settings.scanningScope);
+    connect(m_todoOutputPane, SIGNAL(scanningScopeChanged(ScanningScope)), SLOT(scanningScopeChanged(ScanningScope)));
+    connect(m_todoOutputPane, SIGNAL(todoItemClicked(TodoItem)), SLOT(todoItemClicked(TodoItem)));
 }
 
-void TodoPlugin::addLocalTaskToTaskWindow()
+void TodoPlugin::createOptionsPage()
 {
-    for (int i = 0; i < tasks.count(); ++i)
-    {
-        taskHub->addTask(tasks.at(i));
-    }
+    m_optionsPage = new OptionsPage(m_settings);
+    addAutoReleasedObject(m_optionsPage);
+    connect(m_optionsPage, SIGNAL(settingsChanged(Settings)), SLOT(settingsChanged(Settings)));
 }
 
-void TodoPlugin::fileChanged()
-{
-    Core::IFile *file = (Core::IFile *)sender();
-    if (file)
-    {
-        if (projectOptions == 0)
-        {
-            if (paneOptions == 0)
-            {
-                outPane->clearContents();
-            }
-            else
-            {
-                taskHub->clearTasks("todoplugin");
-            }
-        }
-        else
-        {
-            if (paneOptions == 0)
-            {
-                outPane->clearContents(file->fileName());
-            }
-            else
-            {
-                taskHub->clearTasks("todoplugin");
-                removeFromLocalTasks(file->fileName());
-            }
-        }
-        readFile(file->fileName());
-    }
-}
+Q_EXPORT_PLUGIN2(Todo, TodoPlugin)
 
-Keyword TodoPlugin::prepareOutputString(QString &text)
-{
-    Keyword keyword;
-    for(int i = 0; i < keywords.count(); ++i)
-    {
-        QRegExp keywordExp("//\\s*" + keywords.at(i).name + "(:|\\s)", Qt::CaseInsensitive);
-        if (text.contains(keywordExp))
-        {
-            text = text.replace("\n", "");
-            text = text.replace("\r", "");
-            text = text.replace(keywordExp, keywords.at(i).name + ": ");
-            text = text.trimmed();
-            keyword = keywords.at(i);
-            break;
-        }
-    }
-    return keyword;
-}
-
-void TodoPlugin::readFile(QString fileName)
-{
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text))
-        return;
-    int i = 1;
-    while (!file.atEnd())
-    {
-        QString currentLine = file.readLine();
-        if (currentLine.contains(QRegExp(patternString, Qt::CaseInsensitive)))
-        {
-            Keyword resultKeyword = prepareOutputString(currentLine);
-            QTextCodec *unicodeCodec = QTextCodec::codecForLocale();
-            currentLine = unicodeCodec->toUnicode(currentLine.toAscii());
-            if (paneOptions == 0)
-            {
-                outPane->addItem(currentLine, fileName, i, resultKeyword.icon, resultKeyword.warningColor);
-                if (!inReading)
-                    outPane->sort();
-            }
-            else
-            {
-                ProjectExplorer::Task task(ProjectExplorer::Task::Unknown, currentLine, fileName, i, "todoplugin");
-                tasks.append(task);
-            }
-        }
-        ++i;
-    }
-
-    if (paneOptions != 0 && !inReading)
-    {
-        qSort(tasks.begin(), tasks.end(), TodoPlugin::taskLessThan);
-        addLocalTaskToTaskWindow();
-    }
-}
-
-QString TodoPlugin::generatePatternString()
-{
-    QString result = "";
-
-    if (keywords.count())
-    {
-        for (int i = 0; i < keywords.count() - 1; ++i)
-        {
-            result += "//\\s*" + keywords.at(i).name + "(:|\\s)|";
-        }
-        result += "//\\s*" + keywords.at(keywords.count() - 1).name + "(:|\\s)";
-    }
-    return result;
-}
-
-void TodoPlugin::projectChanged(ProjectExplorer::Project *project)
-{
-    if (!project)
-        return;
-    if (inReading)
-        return;
-    currentProject = project;
-    if (paneOptions == 0)
-    {
-        outPane->clearContents();
-    }
-    else
-    {
-        taskHub->clearTasks("todoplugin");
-    }
-    inReading = true;
-
-    QFuture<void> result = QtConcurrent::run(&TodoPlugin::readCurrentProject, this);
-    Core::ICore::instance()->progressManager()->addTask(result, tr("Todoscan"), "Todo.Plugin.Scanning");
-
-}
-
-void TodoPlugin::readCurrentProject(QFutureInterface<void> &future, TodoPlugin *instance)
-{
-    QStringList filesList = instance->currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-    future.setProgressRange(0, filesList.count()-1);
-    for (int i = 0; i < filesList.count(); ++i)
-    {
-        instance->readFile(filesList.at(i));
-        future.setProgressValue(i);
-    }
-
-    if (instance->paneOptions == 0)
-    {
-        instance->outPane->sort();
-    }
-    else
-    {
-        qSort(instance->tasks.begin(), instance->tasks.end(), TodoPlugin::taskLessThan);
-        instance->addLocalTaskToTaskWindow();
-    }
-
-    instance->inReading = false;
-    future.reportFinished();
-}
-
-bool TodoPlugin::taskLessThan(const ProjectExplorer::Task &t1, const ProjectExplorer::Task &t2)
-{
-    if (!t1.file.right(t1.file.size() - t1.file.lastIndexOf("/") - 1).compare(t2.file.right(t2.file.size() - t2.file.lastIndexOf("/") - 1)))
-    {
-        if (t1.line < t2.line)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return t1.file.right(t1.file.size() - t1.file.lastIndexOf("/") - 1).compare(t2.file.right(t2.file.size() - t2.file.lastIndexOf("/") - 1)) < 0;
-    }
-}
-
-
-
-Q_EXPORT_PLUGIN(TodoPlugin)
-
- 
+} // namespace Internal
+} // namespace Todo

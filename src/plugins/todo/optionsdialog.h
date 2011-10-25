@@ -31,50 +31,47 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#ifndef OPTIONSDIALOG_H
+#define OPTIONSDIALOG_H
 
-#include "optionspage.h"
 #include "keyword.h"
-#include "todooutputpane.h"
 #include "settings.h"
-#include "todoitemsprovider.h"
 
-#include <extensionsystem/iplugin.h>
-
-#include <QStringList>
+#include <QWidget>
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
+namespace Ui {
+    class OptionsDialog;
+}
+
+class OptionsDialog : public QWidget
 {
     Q_OBJECT
 public:
-    TodoPlugin();
-    ~TodoPlugin();
+    explicit OptionsDialog(QWidget *parent = 0);
+    ~OptionsDialog();
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+    void setSettings(const Settings &settings);
+    Settings settings();
 
 private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
+    void addButtonClicked();
+    void editButtonClicked();
+    void removeButtonClicked();
+    void resetButtonClicked();
+    void setButtonsEnabled();
 
 private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
+    void uiFromSettings(const Settings &settings);
+    Settings settingsFromUi();
+    void addToKeywordsList(const Keyword &keyword);
 
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
+    Ui::OptionsDialog *ui;
 };
 
 } // namespace Internal
 } // namespace Todo
 
-#endif // TODOPLUGIN_H
-
+#endif // OPTIONSDIALOG_H

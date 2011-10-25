@@ -31,50 +31,97 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
-
 #include "optionspage.h"
-#include "keyword.h"
-#include "todooutputpane.h"
-#include "settings.h"
-#include "todoitemsprovider.h"
+#include "constants.h"
 
-#include <extensionsystem/iplugin.h>
+#include <coreplugin/icore.h>
 
-#include <QStringList>
+#include <QList>
+#include <QMessageBox>
+
+Todo::Internal::OptionsDialog *some = 0;
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
+OptionsPage::OptionsPage(const Settings &settings, QObject *parent) :
+    IOptionsPage(parent),
+    m_dialog(0)
 {
-    Q_OBJECT
-public:
-    TodoPlugin();
-    ~TodoPlugin();
+    setSettings(settings);
+}
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+OptionsPage::~OptionsPage()
+{
+}
 
-private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
+void OptionsPage::setSettings(const Settings &settings)
+{
+    m_settings = settings;
+}
 
-private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
+QString OptionsPage::id() const
+{
+    return "TodoSettings";
+}
 
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
-};
+QString OptionsPage::trName() const
+{
+    return tr("To-Do");
+}
+
+QString OptionsPage::category() const
+{
+    return "To-Do";
+}
+
+QString OptionsPage::trCategory() const
+{
+    return tr("To-Do");
+}
+
+QString OptionsPage::displayName() const
+{
+    return trName();
+}
+
+QString OptionsPage::displayCategory() const
+{
+    return trCategory();
+}
+
+QIcon OptionsPage::categoryIcon() const
+{
+    return QIcon(Constants::ICON_TODO);
+}
+
+
+QWidget *OptionsPage::createPage(QWidget *parent)
+{
+    m_dialog = new OptionsDialog(parent);
+    m_dialog->setSettings(m_settings);
+    return m_dialog;
+}
+
+void OptionsPage::apply()
+{
+    Settings newSettings = m_dialog->settings();
+
+    if (newSettings != m_settings) {
+        m_settings = newSettings;
+        emit settingsChanged(m_settings);
+    }
+}
+
+void OptionsPage::finish()
+{
+}
+
+bool OptionsPage::matches(const QString &searchKeyWord) const
+{
+    return searchKeyWord == QString("todo");
+}
 
 } // namespace Internal
 } // namespace Todo
-
-#endif // TODOPLUGIN_H
 

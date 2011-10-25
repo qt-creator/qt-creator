@@ -1,174 +1,248 @@
-/*
- *
- *  TODO plugin - Add pane with list all TODO, FIXME, etc. comments.
- *
- *  Copyright (C) 2010  VasiliySorokin
- *
- *  Authors: Vasiliy Sorokin <sorokin.vasiliy@gmail.com>
- *
- *  This file is part of TODO plugin for QtCreator.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- * * Neither the name of the vsorokin nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
- * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
-*/
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2012 Dmitry Savchenko.
+** Copyright (c) 2010 Vasiliy Sorokin.
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**************************************************************************/
+
 #include "todooutputpane.h"
-#include <QListWidgetItem>
-#include <QRegExp>
+#include "constants.h"
+
 #include <QIcon>
+#include <QHeaderView>
 
-// TODO: make fix
-// NOTE: make note
-// HACK: make hack
-// BUG: make bug
+namespace Todo {
+namespace Internal {
 
-TodoOutputPane::TodoOutputPane(QObject *parent) : IOutputPane(parent)
+TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent) :
+    IOutputPane(parent),
+    m_todoItemsModel(todoItemsModel)
 {
-    todoList = new QListWidget();
-    todoList->setFlow(QListView::TopToBottom);
-    todoList->setFrameStyle(QFrame::NoFrame);
-    lastCurrentRow = 0;
+    createTreeView();
+    createScopeButtons();
+    setScanningScope(ScanningScopeCurrentFile); // default
+    connect(m_todoItemsModel, SIGNAL(layoutChanged()), SIGNAL(navigateStateUpdate()));
 }
 
 TodoOutputPane::~TodoOutputPane()
 {
-    delete todoList;
+    freeTreeView();
+    freeScopeButtons();
 }
 
-void TodoOutputPane::addItem(const QString &text, const QString &file, const int rowNumber, const QIcon &icon, const QColor &color)
+QWidget *TodoOutputPane::outputWidget(QWidget *parent)
 {
-    QListWidgetItem *newItem = new QListWidgetItem();
-    newItem->setBackgroundColor(color);
-    newItem->setIcon(icon);
-    newItem->setData(Qt::UserRole + 1, file);
-    newItem->setData(Qt::UserRole + 2, rowNumber);
-    newItem->setToolTip(file + ":" + QString::number(rowNumber));
-
-    newItem->setText(file.right(file.size() - file.lastIndexOf("/") - 1) + ":" + QString::number(rowNumber) + ": " + text);
-
-    todoList->addItem(newItem);
-}
-
-QListWidget *TodoOutputPane::getTodoList() const
-{
-    return todoList;
-}
-
-
-QWidget *TodoOutputPane::outputWidget(QWidget */*parent*/)
-{
-    return todoList;
+    Q_UNUSED(parent)
+    return m_todoTreeView;
 }
 
 QList<QWidget*> TodoOutputPane::toolBarWidgets() const
 {
-    return QList<QWidget*>();
-}
-
-QString TodoOutputPane::name() const
-{
-    return tr("TODO Output");
+    return QList<QWidget*>()
+        << m_spacer
+        << m_currentFileButton
+        << m_wholeProjectButton;
 }
 
 QString TodoOutputPane::displayName() const
 {
-    return name();
+    return tr(Constants::OUTPUT_PANE_TITLE);
 }
 
 int TodoOutputPane::priorityInStatusBar() const
 {
-     return 1;
+    return 1;
 }
 
 void TodoOutputPane::clearContents()
 {
-    todoList->clear();
 }
-
-
-void TodoOutputPane::clearContents(QString filename)
-{
-    int i = 0;
-    lastCurrentRow = 0;
-    while (i < todoList->count())
-    {
-        if (!filename.compare(todoList->item(i)->data(Qt::UserRole + 1).toString()))
-        {
-            if (lastCurrentRow == 0)
-                lastCurrentRow = todoList->currentRow();
-            todoList->takeItem(i);
-        }
-        else
-        {
-            ++i;
-        }
-    }
-}
-
 
 void TodoOutputPane::visibilityChanged(bool visible)
 {
-    todoList->setVisible(visible);
+    Q_UNUSED(visible)
 }
 
 void TodoOutputPane::setFocus()
 {
-    todoList->setFocus();
+    m_todoTreeView->setFocus();
 }
 
-bool TodoOutputPane::hasFocus()
+bool TodoOutputPane::hasFocus() const
 {
-    return todoList->hasFocus();
+    return m_todoTreeView->hasFocus();
 }
 
-bool TodoOutputPane::canFocus()
+bool TodoOutputPane::canFocus() const
 {
     return true;
 }
 
-bool TodoOutputPane::canNavigate()
+bool TodoOutputPane::canNavigate() const
 {
-    return todoList->count() > 1;
+    return true;
 }
 
-bool TodoOutputPane::canNext()
+bool TodoOutputPane::canNext() const
 {
-    return todoList->currentRow() < todoList->count() && todoList->count() > 1;
+    return m_todoTreeView->model()->rowCount() > 1;
 }
 
-bool TodoOutputPane::canPrevious()
+bool TodoOutputPane::canPrevious() const
 {
-    return todoList->currentRow() > 0 && todoList->count() > 1;
+    return m_todoTreeView->model()->rowCount() > 1;
 }
 
 void TodoOutputPane::goToNext()
 {
-    todoList->setCurrentRow(todoList->currentRow() + 1);
+    m_todoTreeView->selectionModel()->select(nextModelIndex(), QItemSelectionModel::SelectCurrent);
 }
 
 void TodoOutputPane::goToPrev()
 {
-    todoList->setCurrentRow(todoList->currentRow() - 1);
+    m_todoTreeView->selectionModel()->select(previousModelIndex(), QItemSelectionModel::SelectCurrent);
 }
 
-void TodoOutputPane::sort()
+void TodoOutputPane::setScanningScope(ScanningScope scanningScope)
 {
-    todoList->sortItems(Qt::AscendingOrder);
-    if (todoList->count() > 0)
-        todoList->setCurrentRow(lastCurrentRow < todoList->count() ? lastCurrentRow : todoList->count() - 1);
+    if (scanningScope == ScanningScopeCurrentFile)
+        m_currentFileButton->setChecked(true);
+    else if (scanningScope == ScanningScopeProject)
+        m_wholeProjectButton->setChecked(true);
+    else
+        Q_ASSERT_X(false, "Updating scanning scope buttons", "Unknown scanning scope enum value");
 }
+
+void TodoOutputPane::scopeButtonClicked(QAbstractButton* button)
+{
+    if (button == m_currentFileButton)
+        emit scanningScopeChanged(ScanningScopeCurrentFile);
+    else if (button == m_wholeProjectButton)
+        emit scanningScopeChanged(ScanningScopeProject);
+}
+
+void TodoOutputPane::todoTreeViewClicked(QModelIndex index)
+{
+    // Create a to-do item and notify that it was clicked on
+
+    int row = index.row();
+
+    TodoItem item;
+    item.text = index.sibling(row, Constants::OUTPUT_COLUMN_TEXT).data().toString();
+    item.file = index.sibling(row, Constants::OUTPUT_COLUMN_FILE).data().toString();
+    item.line = index.sibling(row, Constants::OUTPUT_COLUMN_LINE).data().toInt();
+    item.color = index.data(Qt::BackgroundColorRole).value<QColor>();
+    item.iconResource = index.sibling(row, Constants::OUTPUT_COLUMN_TEXT).data(Qt::DecorationRole).toString();
+
+    emit todoItemClicked(item);
+}
+
+void TodoOutputPane::createTreeView()
+{
+    m_todoTreeView = new QTreeView();
+
+    m_todoTreeView->setRootIsDecorated(false);
+    m_todoTreeView->setFrameStyle(QFrame::NoFrame);
+    m_todoTreeView->setSortingEnabled(true);
+    m_todoTreeView->setModel(m_todoItemsModel);
+
+    QHeaderView *header = m_todoTreeView->header();
+    header->setResizeMode(Constants::OUTPUT_COLUMN_TEXT, QHeaderView::Stretch);
+    header->setResizeMode(Constants::OUTPUT_COLUMN_LINE, QHeaderView::ResizeToContents);
+    header->setResizeMode(Constants::OUTPUT_COLUMN_FILE, QHeaderView::ResizeToContents);
+    header->setStretchLastSection(false);
+    header->setMovable(false);
+
+    connect(m_todoTreeView, SIGNAL(clicked(QModelIndex)), SLOT(todoTreeViewClicked(QModelIndex)));
+}
+
+void TodoOutputPane::freeTreeView()
+{
+    delete m_todoTreeView;
+}
+
+void TodoOutputPane::createScopeButtons()
+{
+    m_currentFileButton = new QToolButton();
+    m_currentFileButton->setIcon(QIcon(QString(Constants::ICON_CURRENT_FILE)));
+    m_currentFileButton->setCheckable(true);
+    m_currentFileButton->setToolTip(tr("Scan in the current opened file"));
+
+    m_wholeProjectButton = new QToolButton();
+    m_wholeProjectButton->setIcon(QIcon(QString(Constants::ICON_WHOLE_PROJECT)));
+    m_wholeProjectButton->setCheckable(true);
+    m_wholeProjectButton->setToolTip(tr("Scan in the whole project"));
+
+    m_scopeButtons = new QButtonGroup();
+    m_scopeButtons->addButton(m_wholeProjectButton);
+    m_scopeButtons->addButton(m_currentFileButton);
+    connect(m_scopeButtons, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(scopeButtonClicked(QAbstractButton*)));
+
+    m_spacer = new QWidget;
+    m_spacer->setMinimumWidth(Constants::OUTPUT_TOOLBAR_SPACER_WIDHT);
+}
+
+void TodoOutputPane::freeScopeButtons()
+{
+    delete m_currentFileButton;
+    delete m_wholeProjectButton;
+    delete m_scopeButtons;
+    delete m_spacer;
+}
+
+QModelIndex TodoOutputPane::selectedModelIndex()
+{
+    QModelIndexList selectedIndexes = m_todoTreeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.isEmpty())
+        return QModelIndex();
+    else
+        // There is only one item selected
+        return selectedIndexes.first();
+}
+
+QModelIndex TodoOutputPane::nextModelIndex()
+{
+    QModelIndex indexToBeSelected = m_todoTreeView->indexBelow(selectedModelIndex());
+    if (!indexToBeSelected.isValid())
+        return m_todoTreeView->model()->index(0, 0);
+    else
+        return indexToBeSelected;
+}
+
+QModelIndex TodoOutputPane::previousModelIndex()
+{
+    QModelIndex indexToBeSelected = m_todoTreeView->indexAbove(selectedModelIndex());
+    if (!indexToBeSelected.isValid())
+        return m_todoTreeView->model()->index(m_todoTreeView->model()->rowCount() - 1, 0);
+    else
+        return indexToBeSelected;
+}
+
+} // namespace Internal
+} // namespace Todo

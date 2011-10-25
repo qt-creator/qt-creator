@@ -31,50 +31,35 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#ifndef CPPTODOITEMSSCANNER_H
+#define CPPTODOITEMSSCANNER_H
 
-#include "optionspage.h"
-#include "keyword.h"
-#include "todooutputpane.h"
-#include "settings.h"
-#include "todoitemsprovider.h"
+#include "todoitemsscanner.h"
 
-#include <extensionsystem/iplugin.h>
-
-#include <QStringList>
+#include <cplusplus/ModelManagerInterface.h>
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
+class CppTodoItemsScanner : public TodoItemsScanner
 {
     Q_OBJECT
-public:
-    TodoPlugin();
-    ~TodoPlugin();
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
+public:
+    explicit CppTodoItemsScanner(const KeywordList &keywordList, QObject *parent = 0);
+
+protected:
+    bool shouldProcessFile(const QString &fileName);
+    void keywordListChanged();
 
 private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
+    void documentUpdated(CPlusPlus::Document::Ptr doc);
 
 private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
-
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
+    void processDocument(CPlusPlus::Document::Ptr doc);
 };
 
-} // namespace Internal
-} // namespace Todo
+}
+}
 
-#endif // TODOPLUGIN_H
-
+#endif // CPPTODOITEMSSCANNER_H

@@ -31,50 +31,45 @@
 **
 **************************************************************************/
 
-#ifndef TODOPLUGIN_H
-#define TODOPLUGIN_H
+#ifndef LINEPARSER_H
+#define LINEPARSER_H
 
-#include "optionspage.h"
 #include "keyword.h"
-#include "todooutputpane.h"
-#include "settings.h"
-#include "todoitemsprovider.h"
-
-#include <extensionsystem/iplugin.h>
-
-#include <QStringList>
+#include "todoitem.h"
 
 namespace Todo {
 namespace Internal {
 
-class TodoPlugin : public ExtensionSystem::IPlugin
+class LineParser
 {
-    Q_OBJECT
 public:
-    TodoPlugin();
-    ~TodoPlugin();
+    LineParser();
+    explicit LineParser(const KeywordList &keywordList);
 
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorString);
-
-private slots:
-    void settingsChanged(const Settings &m_settings);
-    void scanningScopeChanged(ScanningScope scanningScope);
-    void todoItemClicked(const TodoItem &item);
+    void setKeywordList(const KeywordList &keywordList);
+    QList<TodoItem> parse(const QString &line);
 
 private:
-    void createItemsProvider();
-    void createTodoOutputPane();
-    void createOptionsPage();
 
-    Settings m_settings;
-    TodoOutputPane *m_todoOutputPane;
-    OptionsPage *m_optionsPage;
-    TodoItemsProvider *m_todoItemsProvider;
+    // map key here is keyword start position in the text line
+    // and map value is keyword index in m_keywords
+    typedef QMap<int, int> KeywordEntryCandidates;
+
+    struct KeywordEntry {
+        int keywordIndex;
+        int keywordStart;
+        QString text;
+    };
+
+    KeywordEntryCandidates findKeywordEntryCandidates(const QString &line);
+    bool isFirstCharOfTheWord(int index, const QString &line);
+    QList<KeywordEntry> keywordEntriesFromCandidates(const QMap<int, int> &candidates, const QString &line);
+    QList<TodoItem> todoItemsFromKeywordEntries(const QList<KeywordEntry> &entries);
+
+    KeywordList m_keywords;
 };
 
 } // namespace Internal
 } // namespace Todo
 
-#endif // TODOPLUGIN_H
-
+#endif // LINEPARSER_H
