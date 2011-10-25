@@ -171,8 +171,6 @@ private:
 
     static bool equalFileList(const QStringList &a, const QStringList &b);
 
-    void addDefaultBuild();
-
     static QString qmakeVarName(ProjectExplorer::FileType type);
 
     Qt4Manager *m_manager;

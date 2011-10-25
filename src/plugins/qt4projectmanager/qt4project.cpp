@@ -375,8 +375,10 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     }
 
     // Add buildconfigurations so we can parse the pro-files.
-    if (targets().isEmpty())
-        addDefaultBuild();
+    if (targets().isEmpty()) {
+        ProjectLoadWizard wizard(this);
+        wizard.exec();
+    }
 
     if (targets().isEmpty()) {
         qWarning() << "Unable to create targets!";
@@ -929,16 +931,6 @@ QList<ProjectExplorer::Project*> Qt4Project::dependsOn()
 {
     // NBS implement dependsOn
     return QList<Project *>();
-}
-
-void Qt4Project::addDefaultBuild()
-{
-    // TODO this could probably refactored
-    // That is the ProjectLoadWizard divided into useful bits
-    // and this code then called here, instead of that strange forwarding
-    // to a wizard, which doesn't even show up
-    ProjectLoadWizard wizard(this);
-    wizard.execDialog();
 }
 
 void Qt4Project::proFileParseError(const QString &errorMessage)
