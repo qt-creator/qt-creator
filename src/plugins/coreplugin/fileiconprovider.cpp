@@ -58,8 +58,8 @@
         own overlay icon handling (Mac/Windows).
 
   The class is a singleton: It's instance can be accessed via the static instance() method.
-  Plugins can register custom icons via registerIconSuffix(), and retrieve icons via the icon()
-  method.
+  Plugins can register custom overlay icons via registerIconOverlayForSuffix(), and
+  retrieve icons via the icon() method.
   The instance is explicitly deleted by the core plugin for destruction order reasons.
   */
 
