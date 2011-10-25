@@ -34,6 +34,7 @@
 
 #include <QtTest/QtTest>
 
+QT_BEGIN_NAMESPACE
 bool operator==(const Utils::FileSearchResult &r1, const Utils::FileSearchResult &r2)
 {
     return r1.fileName == r2.fileName
@@ -43,6 +44,7 @@ bool operator==(const Utils::FileSearchResult &r1, const Utils::FileSearchResult
             && r1.matchLength == r2.matchLength
             && r1.regexpCapturedTexts == r2.regexpCapturedTexts;
 }
+QT_END_NAMESPACE
 
 class tst_FileSearch : public QObject
 {
