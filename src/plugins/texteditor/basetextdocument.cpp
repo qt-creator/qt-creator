@@ -484,7 +484,8 @@ bool BaseTextDocument::open(QString *errorString, const QString &fileName, const
         emit titleChanged(title);
         emit changed();
     }
-    return true;
+    return readResult == Utils::TextFileFormat::ReadSuccess
+           || readResult == Utils::TextFileFormat::ReadEncodingError;
 }
 
 bool BaseTextDocument::reload(QString *errorString, QTextCodec *codec)
