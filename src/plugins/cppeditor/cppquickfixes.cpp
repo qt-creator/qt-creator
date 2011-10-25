@@ -68,6 +68,8 @@
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 
+#include <cctype>
+
 using namespace CppEditor;
 using namespace CppEditor::Internal;
 using namespace CppTools;
@@ -1283,7 +1285,7 @@ public:
         // remove trailing L or U and stuff
         const char * const spell = numeric->chars();
         int numberLength = numeric->size();
-        while (numberLength > 0 && !isHexadecimal(spell[numberLength - 1]))
+        while (numberLength > 0 && !std::isxdigit(spell[numberLength - 1]))
             --numberLength;
         if (numberLength < 1)
             return result;
