@@ -196,6 +196,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_cleanSessionAction;
     QAction *m_runAction;
     QAction *m_runActionContextMenu;
+    QAction *m_runWithoutDeployAction;
     QAction *m_cancelBuildAction;
     QAction *m_addNewFileAction;
     QAction *m_addExistingFilesAction;
@@ -786,6 +787,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_RUN);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_RUN);
 
+    // run without deployment action
+    d->m_runWithoutDeployAction = new QAction(tr("Run Without Deployment"), this);
+    cmd = am->registerAction(d->m_runWithoutDeployAction, Constants::RUNWITHOUTDEPLOY, globalcontext);
+    mbuild->addAction(cmd, Constants::G_BUILD_RUN);
+
     // cancel build action
     d->m_cancelBuildAction = new QAction(tr("Cancel Build"), this);
     cmd = am->registerAction(d->m_cancelBuildAction, Constants::CANCELBUILD, globalcontext);
@@ -958,6 +964,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_cleanSessionAction, SIGNAL(triggered()), this, SLOT(cleanSession()));
     connect(d->m_runAction, SIGNAL(triggered()), this, SLOT(runProject()));
     connect(d->m_runActionContextMenu, SIGNAL(triggered()), this, SLOT(runProjectContextMenu()));
+    connect(d->m_runWithoutDeployAction, SIGNAL(triggered()), this, SLOT(runProjectWithoutDeploy()));
     connect(d->m_cancelBuildAction, SIGNAL(triggered()), this, SLOT(cancelBuild()));
     connect(d->m_unloadAction, SIGNAL(triggered()), this, SLOT(unloadProject()));
     connect(d->m_clearSession, SIGNAL(triggered()), this, SLOT(clearSession()));
@@ -975,6 +982,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_setStartupProjectAction, SIGNAL(triggered()), this, SLOT(setStartupProject()));
 
     connect(this, SIGNAL(updateRunActions()), this, SLOT(slotUpdateRunActions()));
+    connect(this, SIGNAL(settingsChanged()), this, SLOT(updateRunWithoutDeployMenu()));
 
     updateActions();
 
@@ -1112,6 +1120,11 @@ void ProjectExplorerPlugin::updateVariable(const QString &variable)
             Core::VariableManager::instance()->remove(variable);
         }
     }
+}
+
+void ProjectExplorerPlugin::updateRunWithoutDeployMenu()
+{
+    d->m_runWithoutDeployAction->setVisible(d->m_projectExplorerSettings.deployBeforeRun);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
@@ -1674,6 +1687,7 @@ void ProjectExplorerPlugin::updateActions()
     d->m_projectSelectorActionMenu->setEnabled(!session()->projects().isEmpty());
 
     updateDeployActions();
+    updateRunWithoutDeployMenu();
 }
 
 // NBS TODO check projectOrder()
@@ -1870,6 +1884,11 @@ void ProjectExplorerPlugin::runProject()
     runProject(startupProject(), ProjectExplorer::Constants::RUNMODE);
 }
 
+void ProjectExplorerPlugin::runProjectWithoutDeploy()
+{
+    runProject(startupProject(), ProjectExplorer::Constants::RUNMODE, true);
+}
+
 void ProjectExplorerPlugin::runProjectContextMenu()
 {
     ProjectNode *projectNode = qobject_cast<ProjectNode*>(d->m_currentNode);
@@ -1986,21 +2005,23 @@ bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)
     return false;
 }
 
-void ProjectExplorerPlugin::runProject(Project *pro, const QString &mode)
+void ProjectExplorerPlugin::runProject(Project *pro, const QString &mode, const bool forceSkipDeploy)
 {
     if (!pro)
         return;
 
-    runRunConfiguration(pro->activeTarget()->activeRunConfiguration(), mode);
+    runRunConfiguration(pro->activeTarget()->activeRunConfiguration(), mode, forceSkipDeploy);
 }
 
-void ProjectExplorerPlugin::runRunConfiguration(ProjectExplorer::RunConfiguration *rc, const QString &mode)
+void ProjectExplorerPlugin::runRunConfiguration(ProjectExplorer::RunConfiguration *rc,
+                                                const QString &mode,
+                                                const bool forceSkipDeploy)
 {
     if (!rc->isEnabled())
         return;
 
     QStringList stepIds;
-    if (d->m_projectExplorerSettings.deployBeforeRun) {
+    if (!forceSkipDeploy && d->m_projectExplorerSettings.deployBeforeRun) {
         if (d->m_projectExplorerSettings.buildBeforeDeploy)
             stepIds << Constants::BUILDSTEPS_BUILD;
         stepIds << Constants::BUILDSTEPS_DEPLOY;
@@ -2226,8 +2247,10 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, const QString &
 void ProjectExplorerPlugin::slotUpdateRunActions()
 {
     Project *project = startupProject();
-    d->m_runAction->setEnabled(canRun(project, ProjectExplorer::Constants::RUNMODE));
+    const bool state = canRun(project, ProjectExplorer::Constants::RUNMODE);
+    d->m_runAction->setEnabled(state);
     d->m_runAction->setToolTip(cannotRunReason(project, ProjectExplorer::Constants::RUNMODE));
+    d->m_runWithoutDeployAction->setEnabled(state);
 }
 
 void ProjectExplorerPlugin::cancelBuild()
@@ -2796,7 +2819,6 @@ void ProjectExplorerPlugin::setSession(QAction *action)
     if (session != d->m_session->activeSession())
         d->m_session->loadSession(session);
 }
-
 
 void ProjectExplorerPlugin::setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes)
 {

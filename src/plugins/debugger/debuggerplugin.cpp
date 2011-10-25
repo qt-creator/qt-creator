@@ -90,14 +90,15 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/abi.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtsupportconstants.h>
 
@@ -719,8 +720,10 @@ public slots:
     void onModeChanged(Core::IMode *mode);
     void onCoreAboutToOpen();
     void showSettingsDialog();
+    void updateDebugWithoutDeployMenu();
 
     void debugProject();
+    void debugProjectWithoutDeploy();
     void debugProjectBreakMain();
     void startExternalApplication();
     void startRemoteCdbSession();
@@ -1027,6 +1030,7 @@ public:
     Utils::ProxyAction *m_visibleStartAction;
     Utils::ProxyAction *m_hiddenStopAction;
     QAction *m_startAction;
+    QAction *m_debugWithoutDeployAction;
     QAction *m_startExternalAction;
     QAction *m_startRemoteAction;
     QAction *m_attachToQmlPortAction;
@@ -1145,6 +1149,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
 
     m_reverseToolButton = 0;
     m_startAction = 0;
+    m_debugWithoutDeployAction = 0;
     m_startExternalAction = 0;
     m_startRemoteAction = 0;
     m_attachRemoteAction = 0;
@@ -1395,6 +1400,7 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     m_continueAction->setEnabled(false);
     m_exitAction->setEnabled(false);
     m_startAction->setEnabled(true);
+    m_debugWithoutDeployAction->setEnabled(true);
     m_visibleStartAction->setAction(m_startAction);
 }
 
@@ -1407,6 +1413,13 @@ void DebuggerPluginPrivate::debugProject()
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (Project *pro = pe->startupProject())
         pe->runProject(pro, Constants::DEBUGMODE);
+}
+
+void DebuggerPluginPrivate::debugProjectWithoutDeploy()
+{
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    if (Project *pro = pe->startupProject())
+        pe->runProject(pro, Constants::DEBUGMODE, true);
 }
 
 void DebuggerPluginPrivate::debugProjectBreakMain()
@@ -2158,6 +2171,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(false);
         m_startAction->setEnabled(true);
+        m_debugWithoutDeployAction->setEnabled(true);
         m_visibleStartAction->setAction(m_startAction);
         m_hiddenStopAction->setAction(m_undisturbableAction);
     } else if (state == InferiorStopOk) {
@@ -2166,6 +2180,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_continueAction->setEnabled(true);
         m_exitAction->setEnabled(true);
         m_startAction->setEnabled(false);
+        m_debugWithoutDeployAction->setEnabled(false);
         m_visibleStartAction->setAction(m_continueAction);
         m_hiddenStopAction->setAction(m_exitAction);
     } else if (state == InferiorRunOk) {
@@ -2174,6 +2189,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(true);
         m_startAction->setEnabled(false);
+        m_debugWithoutDeployAction->setEnabled(false);
         m_visibleStartAction->setAction(m_interruptAction);
         m_hiddenStopAction->setAction(m_interruptAction);
     } else if (state == DebuggerFinished) {
@@ -2182,6 +2198,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(false);
         m_startAction->setEnabled(true);
+        m_debugWithoutDeployAction->setEnabled(true);
         m_visibleStartAction->setAction(m_startAction);
         m_hiddenStopAction->setAction(m_undisturbableAction);
         m_codeModelSnapshot = CPlusPlus::Snapshot();
@@ -2193,6 +2210,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(true);
         m_startAction->setEnabled(false);
+        m_debugWithoutDeployAction->setEnabled(false);
         m_visibleStartAction->setAction(m_startAction);
         m_hiddenStopAction->setAction(m_undisturbableAction);
     } else {
@@ -2201,6 +2219,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(false);
         m_startAction->setEnabled(false);
+        m_debugWithoutDeployAction->setEnabled(false);
         m_visibleStartAction->setAction(m_undisturbableAction);
         m_hiddenStopAction->setAction(m_undisturbableAction);
     }
@@ -2288,6 +2307,7 @@ void DebuggerPluginPrivate::updateDebugActions()
     const bool canRun = pe->canRun(project, debugMode);
     m_startAction->setEnabled(canRun);
     m_startAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, debugMode));
+    m_debugWithoutDeployAction->setEnabled(canRun);
 
     // Step into/next: Start and break at 'main' unless a debugger is running.
     if (m_snapshotHandler->currentIndex() < 0) {
@@ -2340,6 +2360,12 @@ void DebuggerPluginPrivate::showSettingsDialog()
     ICore::instance()->showOptionsDialog(
         _(DEBUGGER_SETTINGS_CATEGORY),
         _(DEBUGGER_COMMON_SETTINGS_ID));
+}
+
+void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
+{
+    const bool state = ProjectExplorerPlugin::instance()->projectExplorerSettings().deployBeforeRun;
+    m_debugWithoutDeployAction->setVisible(state);
 }
 
 void DebuggerPluginPrivate::dumpLog()
@@ -2952,6 +2978,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Start Debugging"));
     connect(act, SIGNAL(triggered()), this, SLOT(debugProject()));
 
+    act = m_debugWithoutDeployAction = new QAction(this);
+    act->setText(tr("Debug Without Deployment"));
+    connect(act, SIGNAL(triggered()), this, SLOT(debugProjectWithoutDeploy()));
+
     // Handling of external applications.
     act = m_startExternalAction = new QAction(this);
     act->setText(tr("Start and Debug External Application..."));
@@ -3017,6 +3047,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     ModeManager *modeManager = ModeManager::instance();
     modeManager->addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
+
+    cmd = am->registerAction(m_debugWithoutDeployAction,
+        "Debugger.DebugWithoutDeploy", globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_attachExternalAction,
         "Debugger.AttachExternal", globalcontext);
@@ -3238,7 +3273,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
         SLOT(onModeChanged(Core::IMode*)));
     connect(ICore::instance(), SIGNAL(coreAboutToOpen()),
         SLOT(onCoreAboutToOpen()));
-
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+            this, SLOT(updateDebugWithoutDeployMenu()));
 
     // Debug mode setup
     DebugMode *debugMode = new DebugMode;

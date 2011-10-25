@@ -67,6 +67,7 @@ const char CLEANCM[]              = "ProjectExplorer.CleanCM";
 const char CLEANSESSION[]         = "ProjectExplorer.CleanSession";
 const char CANCELBUILD[]          = "ProjectExplorer.CancelBuild";
 const char RUN[]                  = "ProjectExplorer.Run";
+const char RUNWITHOUTDEPLOY[]     = "ProjectExplorer.RunWithoutDeploy";
 const char RUNCONTEXTMENU[]       = "ProjectExplorer.RunContextMenu";
 const char STOP[]                 = "ProjectExplorer.Stop";
 const char ADDNEWFILE[]           = "ProjectExplorer.AddNewFile";

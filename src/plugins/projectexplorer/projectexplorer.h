@@ -117,8 +117,9 @@ public:
 
     bool canRun(Project *pro, const QString &runMode);
     QString cannotRunReason(Project *project, const QString &runMode);
-    void runProject(Project *pro, const QString &mode);
-    void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, const QString &mode);
+    void runProject(Project *pro, const QString &mode, const bool forceSkipDeploy = false);
+    void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, const QString &mode,
+                             const bool forceSkipDeploy = false);
 
     void addExistingFiles(ProjectExplorer::ProjectNode *projectNode, const QStringList &filePaths);
     void addExistingFiles(const QStringList &filePaths);
@@ -183,6 +184,7 @@ private slots:
     void restoreSession();
     void loadSession(const QString &session);
     void runProject();
+    void runProjectWithoutDeploy();
     void runProjectContextMenu();
     void savePersistentSettings();
 
@@ -223,6 +225,7 @@ private slots:
     void updateActions();
     void loadCustomWizards();
     void updateVariable(const QString &variable);
+    void updateRunWithoutDeployMenu();
 
     void publishProject();
     void updateWelcomePage();
