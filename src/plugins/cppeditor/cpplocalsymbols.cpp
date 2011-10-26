@@ -148,6 +148,23 @@ protected:
         return true;
     }
 
+    virtual bool visit(CastExpressionAST *ast)
+    {
+        if (ast->expression && ast->expression->asUnaryExpression()) {
+            TypeIdAST *typeId = ast->type_id->asTypeId();
+            if (typeId && !typeId->declarator && typeId->type_specifier_list && !typeId->type_specifier_list->next) {
+                if (NamedTypeSpecifierAST *namedTypeSpec = typeId->type_specifier_list->value->asNamedTypeSpecifier()) {
+                    if (checkLocalUse(namedTypeSpec->name, namedTypeSpec->firstToken())) {
+                        accept(ast->expression);
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     virtual bool visit(QtMemberDeclarationAST *ast)
     {
         if (tokenKind(ast->q_token) == T_Q_D)
