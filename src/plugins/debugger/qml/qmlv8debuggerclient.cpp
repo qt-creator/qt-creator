@@ -986,9 +986,15 @@ void QmlV8DebuggerClient::synchronizeBreakpoints()
 }
 
 void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const quint64 &/*id*/,
-                                                const QString &/*property*/, const QString &/*value*/)
+                                                const QString &property, const QString &value)
 {
-    //TODO::
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
+    StackHandler *stackHandler = d->engine->stackHandler();
+    QString expression = QString(_("%1 = %2;")).arg(property).arg(value);
+    if (stackHandler->isContentsValid()) {
+        d->state = QmlV8DebuggerClient::BacktraceRequestedState;
+        d->evaluate(expression, false, false, stackHandler->currentIndex());
+    }
 }
 
 void QmlV8DebuggerClient::updateWatchData(const WatchData &data)
