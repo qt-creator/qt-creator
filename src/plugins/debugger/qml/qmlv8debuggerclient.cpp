@@ -968,6 +968,16 @@ void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &id)
     if (params.type == BreakpointAtJavaScriptThrow) {
         d->setExceptionBreak(AllExceptions, params.enabled);
     }
+
+    int breakpoint = d->breakpoints.value(id);
+    d->changeBreakpoint(breakpoint, params.enabled, QString(params.condition),
+                        params.ignoreCount);
+
+    BreakpointResponse br = handler->response(id);
+    br.enabled = params.enabled;
+    br.condition = params.condition;
+    br.ignoreCount = params.ignoreCount;
+    handler->setResponse(id, br);
 }
 
 void QmlV8DebuggerClient::synchronizeBreakpoints()
