@@ -63,14 +63,14 @@ public:
     virtual ~Target();
 
     virtual BuildConfigWidget *createConfigWidget() = 0;
-    virtual Project *project() const;
+    Project *project() const;
 
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *configuration);
     void removeBuildConfiguration(BuildConfiguration *configuration);
 
     QList<BuildConfiguration *> buildConfigurations() const;
-    virtual BuildConfiguration *activeBuildConfiguration() const;
+    BuildConfiguration *activeBuildConfiguration() const;
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
 
     virtual IBuildConfigurationFactory *buildConfigurationFactory() const = 0;
@@ -80,7 +80,7 @@ public:
     void removeDeployConfiguration(DeployConfiguration *dc);
 
     QList<DeployConfiguration *> deployConfigurations() const;
-    virtual DeployConfiguration *activeDeployConfiguration() const;
+    DeployConfiguration *activeDeployConfiguration() const;
     void setActiveDeployConfiguration(DeployConfiguration *configuration);
 
     QStringList availableDeployConfigurationIds();
