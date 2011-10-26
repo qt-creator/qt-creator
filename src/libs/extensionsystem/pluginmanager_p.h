@@ -76,6 +76,7 @@ public:
     void initProfiling();
     void profilingReport(const char *what, const PluginSpec *spec = 0);
     void setSettings(QSettings *settings);
+    void setGlobalSettings(QSettings *settings);
     void readSettings();
     void writeSettings();
     void disablePluginIndirectly(PluginSpec *spec);
@@ -86,6 +87,7 @@ public:
     QStringList pluginPaths;
     QString extension;
     QList<QObject *> allObjects; // ### make this a QList<QPointer<QObject> > > ?
+    QStringList defaultDisabledPlugins;
     QStringList disabledPlugins;
     QStringList forceEnabledPlugins;
     QList<PluginSpec *> asynchronousPlugins; // plugins that have requested async shutdown
@@ -96,6 +98,7 @@ public:
     int m_profileElapsedMS;
     unsigned m_profilingVerbosity;
     QSettings *settings;
+    QSettings *globalSettings;
 
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;

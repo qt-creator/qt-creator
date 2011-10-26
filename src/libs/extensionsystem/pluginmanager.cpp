@@ -402,19 +402,38 @@ void PluginManager::setFileExtension(const QString &extension)
     d->extension = extension;
 }
 
+/*!
+    Define the user specific settings to use for information about enabled/disabled plugins.
+    Needs to be set before the plugin search path is set with setPluginPaths().
+*/
 void PluginManager::setSettings(QSettings *settings)
 {
     d->setSettings(settings);
 }
 
+/*!
+    Define the global (user-independent) settings to use for information about default disabled plugins.
+    Needs to be set before the plugin search path is set with setPluginPaths().
+*/
+void PluginManager::setGlobalSettings(QSettings *settings)
+{
+    d->setGlobalSettings(settings);
+}
+
+/*!
+    Returns the user specific settings used for information about enabled/disabled plugins.
+*/
 QSettings *PluginManager::settings() const
 {
     return d->settings;
 }
 
-void PluginManager::readSettings()
+/*!
+    Returns the global (user-independent) settings used for information about default disabled plugins.
+*/
+QSettings *PluginManager::globalSettings() const
 {
-    d->readSettings();
+    return d->globalSettings;
 }
 
 void PluginManager::writeSettings()
@@ -738,6 +757,18 @@ void PluginManagerPrivate::setSettings(QSettings *s)
 }
 
 /*!
+    \internal
+*/
+void PluginManagerPrivate::setGlobalSettings(QSettings *s)
+{
+    if (globalSettings)
+        delete globalSettings;
+    globalSettings = s;
+    if (globalSettings)
+        globalSettings->setParent(this);
+}
+
+/*!
     \fn PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
     \internal
 */
@@ -755,6 +786,7 @@ PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
     m_profileElapsedMS(0),
     m_profilingVerbosity(0),
     settings(0),
+    globalSettings(0),
     q(pluginManager)
 {
 }
@@ -781,9 +813,9 @@ void PluginManagerPrivate::writeSettings()
     QStringList tempDisabledPlugins;
     QStringList tempForceEnabledPlugins;
     foreach(PluginSpec *spec, pluginSpecs) {
-        if (!spec->isExperimental() && !spec->isEnabled())
+        if (!spec->isDisabledByDefault() && !spec->isEnabled())
             tempDisabledPlugins.append(spec->name());
-        if (spec->isExperimental() && spec->isEnabled())
+        if (spec->isDisabledByDefault() && spec->isEnabled())
             tempForceEnabledPlugins.append(spec->name());
     }
 
@@ -797,10 +829,13 @@ void PluginManagerPrivate::writeSettings()
 */
 void PluginManagerPrivate::readSettings()
 {
-    if (!settings)
-        return;
-    disabledPlugins = settings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
-    forceEnabledPlugins = settings->value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
+    if (globalSettings) {
+        defaultDisabledPlugins = globalSettings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
+    }
+    if (settings) {
+        disabledPlugins = settings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
+        forceEnabledPlugins = settings->value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
+    }
 }
 
 /*!
@@ -1109,9 +1144,13 @@ void PluginManagerPrivate::readPluginPaths()
             collection = new PluginCollection(spec->category());
             pluginCategories.insert(spec->category(), collection);
         }
-        if (spec->isExperimental() && forceEnabledPlugins.contains(spec->name()))
+        if (defaultDisabledPlugins.contains(spec->name())) {
+            spec->setDisabledByDefault(true);
+            spec->setEnabled(false);
+        }
+        if (spec->isDisabledByDefault() && forceEnabledPlugins.contains(spec->name()))
             spec->setEnabled(true);
-        if (!spec->isExperimental() && disabledPlugins.contains(spec->name()))
+        if (!spec->isDisabledByDefault() && disabledPlugins.contains(spec->name()))
             spec->setEnabled(false);
 
         collection->addPlugin(spec);

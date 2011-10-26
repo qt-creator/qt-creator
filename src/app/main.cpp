@@ -253,9 +253,11 @@ int main(int argc, char **argv)
     // plugin manager takes control of this settings object
     QSettings *settings = new QSettings(QSettings::IniFormat, QSettings::UserScope,
                                         QLatin1String("Nokia"), QLatin1String("QtCreator"));
-
+    QSettings *globalSettings = new QSettings(QSettings::IniFormat, QSettings::SystemScope,
+                                              QLatin1String("Nokia"), QLatin1String("QtCreator"));
     ExtensionSystem::PluginManager pluginManager;
     pluginManager.setFileExtension(QLatin1String("pluginspec"));
+    pluginManager.setGlobalSettings(globalSettings);
     pluginManager.setSettings(settings);
 
     locale = settings->value("General/OverrideLanguage", locale).toString();

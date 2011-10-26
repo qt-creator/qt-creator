@@ -276,6 +276,16 @@ bool PluginSpec::isExperimental() const
 }
 
 /*!
+    Returns if the plugin is disabled by default.
+    This might be because the plugin is experimental, or because
+    the plugin manager's settings define it as disabled by default.
+*/
+bool PluginSpec::isDisabledByDefault() const
+{
+    return d->disabledByDefault;
+}
+
+/*!
     \fn bool PluginSpec::isEnabled() const
     Returns if the plugin is loaded at startup. True by default - the user can change it from the Plugin settings.
 */
@@ -458,6 +468,8 @@ namespace {
 */
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
     :
+    experimental(false),
+    disabledByDefault(false),
     enabled(true),
     disabledIndirectly(false),
     plugin(0),
@@ -519,6 +531,11 @@ bool PluginSpecPrivate::read(const QString &fileName)
 void PluginSpec::setEnabled(bool value)
 {
     d->enabled = value;
+}
+
+void PluginSpec::setDisabledByDefault(bool value)
+{
+    d->disabledByDefault = value;
 }
 
 void PluginSpec::setDisabledIndirectly(bool value)
@@ -601,6 +618,7 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
         reader.raiseError(msgInvalidFormat(PLUGIN_EXPERIMENTAL));
         return;
     }
+    disabledByDefault = experimental;
     enabled = !experimental;
     while (!reader.atEnd()) {
         reader.readNext();

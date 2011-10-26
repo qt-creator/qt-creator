@@ -111,7 +111,8 @@ public:
     // Settings
     void setSettings(QSettings *settings);
     QSettings *settings() const;
-    void readSettings();
+    void setGlobalSettings(QSettings *settings);
+    QSettings *globalSettings() const;
     void writeSettings();
 
     // command line arguments
