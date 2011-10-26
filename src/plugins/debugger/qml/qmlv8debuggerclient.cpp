@@ -79,7 +79,7 @@ public:
         sequence(-1),
         engine(0)
     {
-        q->reset();
+        q->resetState();
         parser = m_scriptEngine.evaluate(_("JSON.parse"));
         stringifier = m_scriptEngine.evaluate(_("JSON.stringify"));
     }
@@ -134,6 +134,7 @@ public:
     QScriptValue parser;
     QScriptValue stringifier;
 
+    QmlV8DebuggerClient::V8DebuggerStates state;
     int currentFrameIndex;
     bool updateCurrentStackFrameIndex;
 private:
@@ -189,7 +190,7 @@ void QmlV8DebuggerClientPrivate::continueDebugging(QmlV8DebuggerClient::StepActi
                                                    int count)
 {
     //First reset
-    q->reset();
+    q->resetState();
 
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -857,49 +858,50 @@ void QmlV8DebuggerClient::startSession()
 
 void QmlV8DebuggerClient::endSession()
 {
+    resetState();
     d->disconnect();
 }
 
 void QmlV8DebuggerClient::executeStep()
 {
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(In);
 }
 
 void QmlV8DebuggerClient::executeStepOut()
 {
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(Out);
 }
 
 void QmlV8DebuggerClient::executeNext()
 {
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(Next);
 }
 
 void QmlV8DebuggerClient::executeStepI()
 {
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(In);
 }
 
 void QmlV8DebuggerClient::continueInferior()
 {
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(Continue);
 }
 
 void QmlV8DebuggerClient::interruptInferior()
 {
-
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
+              || d->state == QmlV8DebuggerClient::RunningState);
     d->interrupt();
 }
 
 void QmlV8DebuggerClient::activateFrame(int index)
 {
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->backtrace(index);
 }
 
@@ -913,8 +915,8 @@ bool QmlV8DebuggerClient::acceptsBreakpoint(const BreakpointModelId &id)
 
 void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
 {
-
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
+              || d->state == QmlV8DebuggerClient::RunningState);
     BreakHandler *handler = d->engine->breakHandler();
     const BreakpointParameters &params = handler->breakpointData(id);
 
@@ -942,8 +944,8 @@ void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
 
 void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
 {
-
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
+              || d->state == QmlV8DebuggerClient::RunningState);
     BreakHandler *handler = d->engine->breakHandler();
 
     int breakpoint = d->breakpoints.value(id);
@@ -958,8 +960,8 @@ void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
 
 void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &id)
 {
-
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
+              || d->state == QmlV8DebuggerClient::RunningState);
     BreakHandler *handler = d->engine->breakHandler();
     const BreakpointParameters &params = handler->breakpointData(id);
 
@@ -1002,10 +1004,12 @@ void QmlV8DebuggerClient::updateWatchData(const WatchData &data)
 
 void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
 {
-
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
+              || d->state == QmlV8DebuggerClient::RunningState);
     StackHandler *stackHandler = d->engine->stackHandler();
     if (stackHandler->isContentsValid()) {
+        //Set the state
+        d->state = QmlV8DebuggerClient::BacktraceRequestedState;
         d->evaluate(command, false, false, stackHandler->currentIndex());
     } else {
         //Currently cannot evaluate if not in a javascript break
@@ -1021,7 +1025,7 @@ void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &/*watchers*/)
 
 void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId)
 {
-
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->locals.insertMulti(objectId, iname);
     d->lookup(QList<int>() << objectId);
 }
@@ -1168,10 +1172,23 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
         }
 
         if (resp.value(_("running")).toBool()) {
-            //DO NOTHING
+            d->state = QmlV8DebuggerClient::RunningState;
+            SDEBUG(QString(_("State: %1")).arg(d->state));
         } else {
+            if (d->state == QmlV8DebuggerClient::RunningState) {
+                d->state = QmlV8DebuggerClient::BreakpointsRequestedState;
+                SDEBUG(QString(_("State: %1")).arg(d->state));
+            }
             d->engine->inferiorSpontaneousStop();
+        }
+
+        if (d->state == QmlV8DebuggerClient::BreakpointsRequestedState) {
+            d->state = QmlV8DebuggerClient::BacktraceRequestedState;
+            SDEBUG(QString(_("State: %1")).arg(d->state));
             d->listBreakpoints();
+        } else if (d->state == QmlV8DebuggerClient::BacktraceRequestedState) {
+            d->state = QmlV8DebuggerClient::WaitingForRequestState;
+            SDEBUG(QString(_("State: %1")).arg(d->state));
             d->backtrace(d->currentFrameIndex);
         }
     } else {
@@ -1554,11 +1571,13 @@ void QmlV8DebuggerClient::clearExceptionSelection()
 
 }
 
-void QmlV8DebuggerClient::reset()
+void QmlV8DebuggerClient::resetState()
 {
     clearExceptionSelection();
     d->currentFrameIndex = 0;
     d->updateCurrentStackFrameIndex = true;
+    d->state = QmlV8DebuggerClient::BreakpointsRequestedState;
+    SDEBUG(QString(_("State: %1")).arg(d->state));
 }
 
 } // Internal

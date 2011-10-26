@@ -61,6 +61,14 @@ class QmlV8DebuggerClient : public QmlDebuggerClient
         Next
     };
 
+    enum V8DebuggerStates
+    {
+        RunningState,
+        BreakpointsRequestedState,
+        BacktraceRequestedState,
+        WaitingForRequestState
+    };
+
 public:
     explicit QmlV8DebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
     ~QmlV8DebuggerClient();
@@ -116,7 +124,7 @@ private:
                                 const QString &errorMessage);
     void clearExceptionSelection();
 
-    void reset();
+    void resetState();
 
 private:
     QmlV8DebuggerClientPrivate *d;
