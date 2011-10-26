@@ -240,7 +240,7 @@ void QScriptDebuggerClient::changeBreakpoint(const BreakpointModelId &/*id*/)
 {
 }
 
-void QScriptDebuggerClient::updateBreakpoints()
+void QScriptDebuggerClient::synchronizeBreakpoints()
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
@@ -261,13 +261,13 @@ void QScriptDebuggerClient::assignValueInDebugger(const QByteArray expr, const q
     sendMessage(reply);
 }
 
-void QScriptDebuggerClient::updateWatchData(const WatchData *data)
+void QScriptDebuggerClient::updateWatchData(const WatchData &data)
 {
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "EXEC";
     rs << cmd;
-    rs << data->iname << data->name;
+    rs << data.iname << data.name;
     sendMessage(reply);
 }
 

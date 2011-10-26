@@ -1,6 +1,4 @@
 include($$PWD/../../../libs/qmljsdebugclient/qmljsdebugclient.pri)
-include($$PWD/../../../shared/json/json.pri)
-DEFINES += JSON_INCLUDE_PRI
 
 HEADERS += \
     $$PWD/qmlengine.h \
@@ -11,7 +9,8 @@ HEADERS += \
     $$PWD/qmljsscriptconsole.h \
     $$PWD/qscriptdebuggerclient.h \
     $$PWD/qmlv8debuggerclient.h \
-    $$PWD/interactiveinterpreter.h
+    $$PWD/interactiveinterpreter.h \
+    $$PWD/qmlv8debuggerclientconstants.h
 
 SOURCES += \
     $$PWD/qmlengine.cpp \

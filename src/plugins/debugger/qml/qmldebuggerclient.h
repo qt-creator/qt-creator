@@ -69,12 +69,12 @@ public:
     virtual void insertBreakpoint(const BreakpointModelId &id) = 0;
     virtual void removeBreakpoint(const BreakpointModelId &id) = 0;
     virtual void changeBreakpoint(const BreakpointModelId &id) = 0;
-    virtual void updateBreakpoints() = 0;
+    virtual void synchronizeBreakpoints() = 0;
 
     virtual void assignValueInDebugger(const QByteArray expr, const quint64 &id,
                                        const QString &property, const QString &value) = 0;
 
-    virtual void updateWatchData(const WatchData *data) = 0;
+    virtual void updateWatchData(const WatchData &data) = 0;
     virtual void executeDebuggerCommand(const QString &command) = 0;
 
     virtual void synchronizeWatchers(const QStringList &watchers) = 0;

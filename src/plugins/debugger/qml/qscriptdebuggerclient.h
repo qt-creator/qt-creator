@@ -67,12 +67,12 @@ public:
     void insertBreakpoint(const BreakpointModelId &id);
     void removeBreakpoint(const BreakpointModelId &id);
     void changeBreakpoint(const BreakpointModelId &id);
-    void updateBreakpoints();
+    void synchronizeBreakpoints();
 
     void assignValueInDebugger(const QByteArray expr, const quint64 &id,
                                        const QString &property, const QString &value);
 
-    void updateWatchData(const WatchData *data);
+    void updateWatchData(const WatchData &data);
     void executeDebuggerCommand(const QString &command);
 
     void synchronizeWatchers(const QStringList &watchers);
@@ -80,9 +80,6 @@ public:
     void expandObject(const QByteArray &iname, quint64 objectId);
 
     void setEngine(QmlEngine *engine);
-
-signals:
-    void notifyDebuggerStopped();
 
 protected:
     void messageReceived(const QByteArray &data);

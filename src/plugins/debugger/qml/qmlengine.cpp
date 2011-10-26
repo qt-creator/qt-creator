@@ -629,10 +629,10 @@ void QmlEngine::attemptBreakpointSynchronization()
     DebuggerEngine::attemptBreakpointSynchronization();
 
     if (d->m_adapter.activeDebuggerClient()) {
-        d->m_adapter.activeDebuggerClient()->updateBreakpoints();
+        d->m_adapter.activeDebuggerClient()->synchronizeBreakpoints();
     } else {
         foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
-            client->updateBreakpoints();
+            client->synchronizeBreakpoints();
         }
     }
 }
@@ -715,7 +715,7 @@ void QmlEngine::updateWatchData(const WatchData &data,
         if (data.isValueNeeded()) {
             logMessage(LogSend, QString("%1 %2 %3").arg(QString("EXEC"), QString(data.iname),
                                                         QString(data.name)));
-            d->m_adapter.activeDebuggerClient()->updateWatchData(&data);
+            d->m_adapter.activeDebuggerClient()->updateWatchData(data);
         }
         if (data.isChildrenNeeded()
                 && watchHandler()->isExpandedIName(data.iname)) {
