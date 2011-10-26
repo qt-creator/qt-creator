@@ -1567,6 +1567,10 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
 
             selections.append(sel);
             ed->setExtraSelections(TextEditor::BaseTextEditorWidget::DebuggerExceptionSelection, selections);
+
+            QString message = QString(_("%1: %2: %3")).arg(filePath).arg(lineNumber)
+                    .arg(errorMessage);
+            d->engine->showMessage(message, ScriptConsoleOutput);
         }
     }
 }
