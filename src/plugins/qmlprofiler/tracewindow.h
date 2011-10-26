@@ -103,7 +103,9 @@ public slots:
     void clearDisplay();
     void updateToolbar();
     void toggleRangeMode(bool);
+    void toggleLockMode(bool);
     void updateRangeButton();
+    void updateLockButton();
     void setZoomLevel(int zoomLevel);
     void updateRange();
     void mouseWheelMoved(int x, int y, int delta);
@@ -124,6 +126,7 @@ signals:
     void jumpToPrev();
     void jumpToNext();
     void rangeModeChanged(bool);
+    void lockModeChanged(bool);
     void enableToolbar(bool);
     void zoomLevelChanged(int);
     void updateViewZoom(QVariant zoomLevel);
@@ -155,6 +158,7 @@ private:
     QWeakPointer<ZoomControl> m_zoomControl;
 
     QToolButton *m_buttonRange;
+    QToolButton *m_buttonLock;
     QWidget *m_zoomToolbar;
     int m_currentZoomLevel;
 };

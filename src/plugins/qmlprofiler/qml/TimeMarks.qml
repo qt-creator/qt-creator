@@ -107,13 +107,17 @@ TiledCanvas {
     }
 
     function drawBackgroundBars( ctxt, region ) {
-        var barHeight = Math.round(labels.height / labels.rowCount);
+        var cumulatedHeight = 0;
         for (var i=0; i<labels.rowCount; i++) {
-            ctxt.fillStyle = i%2 ? "#f3f3f3" : "white"
-            ctxt.strokeStyle = i%2 ? "#f3f3f3" : "white"
-            ctxt.fillRect(0, i * barHeight, width, barHeight);
+            var barHeight = labels.rowExpanded[i] ?
+                    qmlEventList.uniqueEventsOfType(i) * root.singleRowHeight :
+                    qmlEventList.maxNestingForType(i) * root.singleRowHeight;
+            ctxt.fillStyle = i%2 ? "#f0f0f0" : "white"
+            ctxt.strokeStyle = i%2 ? "#f0f0f0" : "white"
+            ctxt.fillRect(0, cumulatedHeight, width, barHeight);
+            cumulatedHeight += barHeight;
         }
-        ctxt.fillStyle = "white";
+        ctxt.fillStyle = "#f5f5f5";
         ctxt.fillRect(0, labels.height, width, height - labels.height);
     }
 }

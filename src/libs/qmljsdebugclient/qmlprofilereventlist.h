@@ -58,6 +58,7 @@ struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
     double timePerCall;
     double percentOfTime;
     qint64 medianTime;
+    int numericHash;
 };
 
 struct QMLJSDEBUGCLIENT_EXPORT QV8EventData
@@ -99,6 +100,7 @@ public:
     const QV8EventDescriptions& getV8Events() const;
 
     int findFirstIndex(qint64 startTime) const;
+    int findFirstIndexNoParents(qint64 startTime) const;
     int findLastIndex(qint64 endTime) const;
     Q_INVOKABLE qint64 firstTimeMark() const;
     Q_INVOKABLE qint64 lastTimeMark() const;
@@ -117,6 +119,13 @@ public:
     Q_INVOKABLE QString getFilename(int index) const;
     Q_INVOKABLE int getLine(int index) const;
     Q_INVOKABLE QString getDetails(int index) const;
+    Q_INVOKABLE int getHash(int index) const;
+
+    // per-type data
+    Q_INVOKABLE int uniqueEventsOfType(int type) const;
+    Q_INVOKABLE int maxNestingForType(int type) const;
+    Q_INVOKABLE QString eventTextForType(int type, int index) const;
+    Q_INVOKABLE int eventPosInType(int index) const;
 
     Q_INVOKABLE qint64 traceStartTime() const;
     Q_INVOKABLE qint64 traceEndTime() const;
@@ -127,6 +136,7 @@ signals:
     void countChanged();
     void parsingStatusChanged();
     void error(const QString &error);
+    void dataClear();
 
 public slots:
     void clear();

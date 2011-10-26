@@ -36,13 +36,13 @@ import Monitor 1.0
 BorderImage {
     id: rangeDetails
 
-    property string duration    //###int?
+    property string duration
     property string label
     property string type
     property string file
     property int line
 
-    property bool locked: !root.mouseOverSelection
+    property bool locked: view.selectionLocked
 
     source: "popup_green.png"
     border {
@@ -107,6 +107,15 @@ BorderImage {
         }
     }
 
+    MouseArea {
+        width: col.width + 30
+        height: col.height + typeTitle.height + 30
+        drag.target: parent
+        onClicked: {
+            root.gotoSourceLocation(file, line);
+        }
+    }
+
     Image {
         id: lockIcon
         source: locked?"lock_closed.png" : "lock_open.png"
@@ -118,7 +127,7 @@ BorderImage {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                root.mouseOverSelection = !root.mouseOverSelection;
+                root.selectionLocked = !root.selectionLocked;
             }
         }
     }
@@ -132,20 +141,10 @@ BorderImage {
             anchors.fill: parent
             onClicked: {
                 root.hideRangeDetails();
+                view.selectedItem = -1;
             }
         }
     }
 
-    MouseArea {
-        width: col.width
-        height: col.height + typeTitle.height + 30
-        drag.target: parent
-        onClicked: {
-            // force reload of selected item
-            var selectedItem = root.selectedEventIndex;
-            root.selectedEventIndex = -1;
-            root.selectedEventIndex = selectedItem;
-            root.gotoSourceLocation(file, line);
-        }
-    }
+
 }

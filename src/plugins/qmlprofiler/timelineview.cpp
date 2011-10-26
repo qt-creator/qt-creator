@@ -35,223 +35,274 @@
 #include <qdeclarativecontext.h>
 #include <qdeclarativeproperty.h>
 #include <QtCore/QTimer>
+#include <QtGui/QPixmap>
+#include <QtGui/QPainter>
+#include <QtGui/QGraphicsSceneMouseEvent>
+
+#include <math.h>
 
 using namespace QmlProfiler::Internal;
 
-#define CACHE_ENABLED true
-#define CACHE_UPDATEDELAY 10
-#define CACHE_STEP 200
+const int DefaultRowHeight = 30;
 
 TimelineView::TimelineView(QDeclarativeItem *parent) :
-    QDeclarativeItem(parent), m_delegate(0), m_itemCount(0), m_startTime(0), m_endTime(0), m_spacing(0),
-    prevMin(0), prevMax(0), m_eventList(0), m_totalWidth(0), m_lastCachedIndex(0), m_creatingCache(false), m_oldCacheSize(0)
+    QDeclarativeItem(parent), m_startTime(0), m_endTime(0), m_spacing(0),
+    m_lastStartTime(0), m_lastEndTime(0), m_eventList(0)
 {
+    clearData();
+    setFlag(QGraphicsItem::ItemHasNoContents, false);
+    setAcceptedMouseButtons(Qt::LeftButton);
+    setAcceptHoverEvents(true);
+    for (int i=0; i<QmlJsDebugClient::MaximumQmlEventType; i++)
+        m_rowsExpanded << false;
 }
 
 void TimelineView::componentComplete()
 {
+    const QMetaObject *metaObject = this->metaObject();
+    int propertyCount = metaObject->propertyCount();
+    int requestPaintMethod = metaObject->indexOfMethod("requestPaint()");
+    for (int ii = TimelineView::staticMetaObject.propertyCount(); ii < propertyCount; ++ii) {
+        QMetaProperty p = metaObject->property(ii);
+        if (p.hasNotifySignal())
+            QMetaObject::connect(this, p.notifySignalIndex(), this, requestPaintMethod, 0, 0);
+    }
     QDeclarativeItem::componentComplete();
+}
+
+void TimelineView::requestPaint()
+{
+    update();
+}
+
+void TimelineView::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *)
+{
+    qint64 windowDuration = m_endTime - m_startTime;
+    if (windowDuration <= 0)
+        return;
+
+    m_spacing = qreal(width()) / windowDuration;
+
+    m_rowWidths.clear();
+    for (int i=0; i<QmlJsDebugClient::MaximumQmlEventType; i++) {
+        m_rowWidths << (m_rowsExpanded[i] ? m_eventList->uniqueEventsOfType(i) : m_eventList->maxNestingForType(i));
+    }
+
+    // event rows
+    m_rowStarts.clear();
+    int pos = 0;
+    for (int i=0; i<QmlJsDebugClient::MaximumQmlEventType; i++) {
+        m_rowStarts << pos;
+        pos += DefaultRowHeight * m_rowWidths[i];
+    }
+
+    p->setPen(Qt::transparent);
+
+    // speedup: don't draw overlapping events, just skip them
+    m_rowLastX.clear();
+    for (int i=0; i<QmlJsDebugClient::MaximumQmlEventType; i++)
+        for (int j=0; j<m_rowWidths[i]; j++)
+            m_rowLastX << -m_startTime * m_spacing;
+
+    int firstIndex = m_eventList->findFirstIndex(m_startTime);
+    int lastIndex = m_eventList->findLastIndex(m_endTime);
+    drawItemsToPainter(p, firstIndex, lastIndex);
+
+    drawSelectionBoxes(p);
+
+    m_lastStartTime = m_startTime;
+    m_lastEndTime = m_endTime;
+}
+
+QColor TimelineView::colorForItem(int itemIndex)
+{
+    int ndx = m_eventList->getHash(itemIndex);
+    return QColor::fromHsl((ndx*25)%360, 76, 166);
+}
+
+QLinearGradient *TimelineView::gradientForItem(int itemIndex)
+{
+    int ndx = m_eventList->getHash(itemIndex);
+    if (!m_hashedGradients.contains(ndx)) {
+        QLinearGradient *linearGrad = new QLinearGradient(0,0,0,DefaultRowHeight);
+        linearGrad->setColorAt(0, colorForItem(itemIndex));
+        linearGrad->setColorAt(0.5, colorForItem(itemIndex).darker(115));
+        linearGrad->setColorAt(1, colorForItem(itemIndex));
+        m_hashedGradients[ndx] = linearGrad;
+    }
+    return m_hashedGradients[ndx];
+}
+
+void TimelineView::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
+{
+    int x,y,width,rowNumber, eventType;
+    for (int i = fromIndex; i <= toIndex; i++) {
+        x = (m_eventList->getStartTime(i) - m_startTime) * m_spacing;
+        eventType = m_eventList->getType(i);
+        if (m_rowsExpanded[eventType])
+            y = m_rowStarts[eventType] + DefaultRowHeight*m_eventList->eventPosInType(i);
+        else
+            y = m_rowStarts[eventType] + DefaultRowHeight*(m_eventList->getNestingLevel(i)-1);
+
+        width = m_eventList->getDuration(i)*m_spacing;
+        if (width<1)
+            width = 1;
+
+        rowNumber = y/DefaultRowHeight;
+        if (m_rowLastX[rowNumber] > x+width)
+            continue;
+        m_rowLastX[rowNumber] = x+width;
+
+        p->setBrush(*gradientForItem(i));
+        p->drawRect(x,y,width,DefaultRowHeight);
+    }
+}
+
+void TimelineView::drawSelectionBoxes(QPainter *p)
+{
+    if (m_selectedItem == -1)
+        return;
+
+    int fromIndex = m_eventList->findFirstIndex(m_startTime);
+    int toIndex = m_eventList->findLastIndex(m_endTime);
+    int id = m_eventList->getHash(m_selectedItem);
+
+    p->setBrush(Qt::transparent);
+    QPen strongPen(QBrush(Qt::blue), 3);
+    QPen lightPen(QBrush(QColor(Qt::blue).lighter(130)), 2);
+    p->setPen(lightPen);
+
+    int x,y,width,rowNumber,eventType;
+    for (int i = fromIndex; i <= toIndex; i++) {
+        if (m_eventList->getHash(i) != id)
+            continue;
+
+        if (i == m_selectedItem)
+            p->setPen(strongPen);
+        else
+            p->setPen(lightPen);
+
+        x = (m_eventList->getStartTime(i) - m_startTime) * m_spacing;
+        eventType = m_eventList->getType(i);
+        if (m_rowsExpanded[eventType])
+            y = m_rowStarts[eventType] + DefaultRowHeight*m_eventList->eventPosInType(i);
+        else
+            y = m_rowStarts[eventType] + DefaultRowHeight*(m_eventList->getNestingLevel(i)-1);
+
+        width = m_eventList->getDuration(i)*m_spacing;
+        if (width<1)
+            width = 1;
+
+        rowNumber = y/DefaultRowHeight;
+        p->drawRect(x,y,width,DefaultRowHeight);
+    }
+}
+
+void TimelineView::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    // special case: if there is a drag area below me, don't accept the
+    // events unless I'm actually clicking inside an item
+    if (m_currentSelection.eventIndex == -1 &&
+            event->pos().x()+x() >= m_startDragArea &&
+            event->pos().x()+x() <= m_endDragArea)
+        event->setAccepted(false);
+
+}
+
+void TimelineView::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED(event);
+    manageClicked();
+}
+
+void TimelineView::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    event->setAccepted(false);
+}
+
+
+void TimelineView::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+    manageHovered(event->pos().x(), event->pos().y());
+    if (m_currentSelection.eventIndex == -1)
+        event->setAccepted(false);
+}
+
+void TimelineView::manageClicked()
+{
+    if (m_currentSelection.eventIndex != -1) {
+        if (m_currentSelection.eventIndex == m_selectedItem)
+            setSelectionLocked(!m_selectionLocked);
+        else
+            setSelectionLocked(true);
+        emit itemPressed(m_currentSelection.eventIndex);
+    } else {
+//        setSelectionLocked(false);
+    }
+    setSelectedItem(m_currentSelection.eventIndex);
+}
+
+void TimelineView::manageHovered(int x, int y)
+{
+    if (m_endTime - m_startTime <=0)
+        return;
+
+    qint64 time = x * (m_endTime - m_startTime) / width() + m_startTime;
+    int row = y / DefaultRowHeight;
+
+    // already covered? nothing to do
+    if (m_currentSelection.eventIndex != -1 && time >= m_currentSelection.startTime && time <= m_currentSelection.endTime && row == m_currentSelection.row) {
+        return;
+    }
+
+    // find if there's items in the time range
+    int eventFrom = m_eventList->findFirstIndex(time);
+    int eventTo = m_eventList->findLastIndex(time);
+    if (eventTo < eventFrom) {
+        m_currentSelection.eventIndex = -1;
+        return;
+    }
+
+    // find if we are in the right column
+    int itemRow, eventType;
+    for (int i=eventTo; i>=eventFrom; --i) {
+        if (ceil(m_eventList->getEndTime(i)*m_spacing) < floor(time*m_spacing))
+            continue;
+
+        eventType = m_eventList->getType(i);
+        if (m_rowsExpanded[eventType])
+            itemRow = m_rowStarts[eventType]/DefaultRowHeight + m_eventList->eventPosInType(i);
+        else
+            itemRow = m_rowStarts[eventType]/DefaultRowHeight + m_eventList->getNestingLevel(i)-1;
+        if (itemRow == row) {
+            // match
+            m_currentSelection.eventIndex = i;
+            m_currentSelection.startTime = m_eventList->getStartTime(i);
+            m_currentSelection.endTime = m_eventList->getEndTime(i);
+            m_currentSelection.row = row;
+            if (!m_selectionLocked)
+                setSelectedItem(i);
+            return;
+        }
+    }
+
+    m_currentSelection.eventIndex = -1;
+    return;
 }
 
 void TimelineView::clearData()
 {
-    if (CACHE_ENABLED)
-        foreach (QDeclarativeItem *item, m_items.values())
-            item->setVisible(false);
-    else
-        foreach (QDeclarativeItem *item, m_items.values())
-            delete m_items.take(m_items.key(item));
-
     m_startTime = 0;
     m_endTime = 0;
-    prevMin = 0;
-    prevMax = 0;
-    m_totalWidth = 0;
-    m_lastCachedIndex = 0;
-}
-
-void TimelineView::updateTimeline()
-{
-    if (!m_delegate)
-        return;
-
-    if (!m_eventList)
-        return;
-
-    qreal totalRange = m_eventList->traceEndTime() - m_eventList->traceStartTime();
-    qreal window = m_endTime - m_startTime;
-
-    if (window == 0)    //###
-        return;
-
-    qreal newSpacing = width() / window;
-    bool spacingChanged = (newSpacing != m_spacing);
-    m_spacing = newSpacing;
-
-    qreal oldtw = m_totalWidth;
-    m_totalWidth = totalRange * m_spacing;
-
-
-    int minsample = m_eventList->findFirstIndex(m_startTime + m_eventList->traceStartTime());
-    int maxsample = m_eventList->findLastIndex(m_endTime + m_eventList->traceStartTime());
-
-    //### emitting this before startXChanged was causing issues
-    if (m_totalWidth != oldtw)
-        emit totalWidthChanged(m_totalWidth);
-
-
-    // the next loops have to be modified with the new implementation of the cache
-
-    // hide items that are not visible any more
-    if (maxsample < prevMin || minsample > prevMax) {
-        for (int i = prevMin; i <= prevMax; ++i)
-            if (m_items.contains(i)) {
-                if (CACHE_ENABLED)
-                    m_items.value(i)->setVisible(false);
-                else
-                    delete m_items.take(i);
-            }
-    } else {
-        if (minsample > prevMin && minsample <= prevMax)
-            for (int i = prevMin; i < minsample; ++i)
-                if (m_items.contains(i)) {
-                    if (CACHE_ENABLED)
-                        m_items.value(i)->setVisible(false);
-                    else
-                        delete m_items.take(i);
-                }
-
-        if (maxsample >= prevMin && maxsample < prevMax)
-            for (int i = maxsample + 1; i <= prevMax; ++i)
-                if (m_items.contains(i)) {
-                    if (CACHE_ENABLED)
-                        m_items.value(i)->setVisible(false);
-                    else
-                        delete m_items.take(i);
-                }
-    }
-
-    // Update visible items
-    for (int i = minsample; i <= maxsample; ++i) {
-        if (!m_items.contains(i)) {
-            createItem(i);
-            m_items.value(i)->setVisible(true);
-        }
-        else
-        if (spacingChanged || !m_items.value(i)->isVisible()) {
-            m_items.value(i)->setVisible(true);
-            updateItemPosition(i);
-        }
-    }
-
-    prevMin = minsample;
-    prevMax = maxsample;
-
-}
-
-void TimelineView::createItem(int itemIndex)
-{
-    QDeclarativeContext *ctxt = new QDeclarativeContext(qmlContext(this));
-    QDeclarativeItem *item = qobject_cast<QDeclarativeItem*>(m_delegate->beginCreate(ctxt));
-    m_items.insert(itemIndex, item);
-
-    ctxt->setParent(item); //### QDeclarative_setParent_noEvent(ctxt, item); instead?
-    ctxt->setContextProperty("index", itemIndex);
-    ctxt->setContextProperty("type", m_eventList->getType(itemIndex));
-    ctxt->setContextProperty("nestingLevel", m_eventList->getNestingLevel(itemIndex));
-    ctxt->setContextProperty("nestingDepth", m_eventList->getNestingDepth(itemIndex));
-
-    updateItemPosition(itemIndex);
-
-    item->setVisible(false);
-
-    item->setParentItem(this);
-    m_delegate->completeCreate();
-    m_itemCount++;
-}
-
-void TimelineView::updateItemPosition(int itemIndex)
-{
-    QDeclarativeItem *item = m_items.value(itemIndex);
-    if (item) {
-        qreal itemStartPos = (m_eventList->getStartTime(itemIndex) - m_eventList->traceStartTime()) * m_spacing;
-        item->setX(itemStartPos);
-        qreal width = (m_eventList->getEndTime(itemIndex) - m_eventList->getStartTime(itemIndex)) * m_spacing;
-        item->setWidth(width > 1 ? width : 1);
-    }
-}
-
-void TimelineView::rebuildCache()
-{
-    if (CACHE_ENABLED) {
-        m_lastCachedIndex = 0;
-        m_creatingCache = false;
-        m_oldCacheSize = m_items.count();
-        emit cachedProgressChanged();
-        QTimer::singleShot(CACHE_UPDATEDELAY, this, SLOT(purgeCache()));
-    } else {
-        m_creatingCache = true;
-        m_lastCachedIndex = m_eventList->count();
-        emit cacheReady();
-    }
-}
-
-qreal TimelineView::cachedProgress() const
-{
-    qreal progress;
-    if (!m_creatingCache) {
-        if (m_oldCacheSize == 0)
-            progress = 0.5;
-       else
-            progress = (m_lastCachedIndex * 0.5) / m_oldCacheSize;
-    }
-    else
-        progress = 0.5 + (m_lastCachedIndex * 0.5) / m_eventList->count();
-
-    return progress;
-}
-
-void TimelineView::increaseCache()
-{
-    int totalCount = m_eventList->count();
-    if (m_lastCachedIndex >= totalCount) {
-        emit cacheReady();
-        return;
-    }
-
-    for (int i = 0; i < CACHE_STEP; i++) {
-        createItem(m_lastCachedIndex);
-        m_lastCachedIndex++;
-        if (m_lastCachedIndex >= totalCount)
-            break;
-    }
-
-    emit cachedProgressChanged();
-
-    QTimer::singleShot(CACHE_UPDATEDELAY, this, SLOT(increaseCache()));
-}
-
-void TimelineView::purgeCache()
-{
-    if (m_items.isEmpty()) {
-        m_creatingCache = true;
-        m_lastCachedIndex = 0;
-        QTimer::singleShot(CACHE_UPDATEDELAY, this, SLOT(increaseCache()));
-        return;
-    }
-
-    for (int i=0; i < CACHE_STEP; i++)
-    {
-        if (m_items.contains(m_lastCachedIndex))
-            delete m_items.take(m_lastCachedIndex);
-
-        m_lastCachedIndex++;
-        if (m_items.isEmpty())
-            break;
-    }
-
-    emit cachedProgressChanged();
-    QTimer::singleShot(CACHE_UPDATEDELAY, this, SLOT(purgeCache()));
+    m_lastStartTime = 0;
+    m_lastEndTime = 0;
+    m_currentSelection.startTime = -1;
+    m_currentSelection.endTime = -1;
+    m_currentSelection.row = -1;
+    m_currentSelection.eventIndex = -1;
+    m_selectedItem = -1;
+    m_selectionLocked = true;
 }
 
 qint64 TimelineView::getDuration(int index) const
@@ -276,4 +327,66 @@ QString TimelineView::getDetails(int index) const
 {
     Q_ASSERT(m_eventList);
     return m_eventList->getDetails(index);
+}
+
+void TimelineView::rowExpanded(int rowIndex, bool expanded)
+{
+    m_rowsExpanded[rowIndex] = expanded;
+    update();
+}
+
+void TimelineView::selectNext()
+{
+    if (m_eventList->count() == 0)
+        return;
+
+    if (m_selectionLocked && m_selectedItem !=-1 ) {
+        // find next item with same hashId
+        int hashId = m_eventList->getHash(m_selectedItem);
+        int i = m_selectedItem+1;
+        while (i<m_eventList->count() && m_eventList->getHash(i) != hashId)
+            i++;
+        if (i == m_eventList->count()) {
+            i = 0;
+            while (i<m_selectedItem && m_eventList->getHash(i) != hashId)
+                i++;
+        }
+        setSelectedItem(i);
+    } else {
+        // select next in view or after
+        int newIndex = m_selectedItem+1;
+        if (newIndex >= m_eventList->count())
+            newIndex = 0;
+        if (m_eventList->getEndTime(newIndex) < m_startTime)
+            newIndex = m_eventList->findFirstIndexNoParents(m_startTime);
+        setSelectedItem(newIndex);
+    }
+}
+
+void TimelineView::selectPrev()
+{
+    if (m_eventList->count() == 0)
+        return;
+
+    if (m_selectionLocked && m_selectedItem !=-1) {
+        // find previous item with same hashId
+        int hashId = m_eventList->getHash(m_selectedItem);
+        int i = m_selectedItem-1;
+        while (i>-1 && m_eventList->getHash(i) != hashId)
+            i--;
+        if (i == -1) {
+            i = m_eventList->count()-1;
+            while (i>m_selectedItem && m_eventList->getHash(i) != hashId)
+                i--;
+        }
+        setSelectedItem(i);
+    } else {
+        // select last in view or before
+        int newIndex = m_selectedItem-1;
+        if (newIndex < 0)
+            newIndex = m_eventList->count()-1;
+        if (m_eventList->getStartTime(newIndex) > m_endTime)
+            newIndex = m_eventList->findLastIndex(m_endTime);
+        setSelectedItem(newIndex);
+    }
 }

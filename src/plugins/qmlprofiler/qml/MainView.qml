@@ -39,13 +39,17 @@ Rectangle {
     // ***** properties
 
     property int candidateHeight: 0
-    height: Math.max( candidateHeight, labels.rowCount * 50 + 2 )
+    height: Math.max( candidateHeight, labels.height + 2 )
+
+    property int singleRowHeight: 30
 
     property bool dataAvailable: true
     property int eventCount: 0
     property real progress: 0
 
-    property bool mouseOverSelection : true
+    property alias selectionLocked : view.selectionLocked
+    signal updateLockButton
+    property alias selectedItem: view.selectedItem
 
     property variant names: [ qsTr("Painting"), qsTr("Compiling"), qsTr("Creating"), qsTr("Binding"), qsTr("Handling Signal")]
     property variant colors : [ "#99CCB3", "#99CCCC", "#99B3CC", "#9999CC", "#CC99B3", "#CC99CC", "#CCCC99", "#CCB399" ]
@@ -55,9 +59,6 @@ Rectangle {
     signal updateCursorPosition
     property string fileName: ""
     property int lineNumber: -1
-
-    property int selectedEventIndex : -1
-    property bool mouseTracking: false
 
     property real elapsedTime
     signal updateTimer
@@ -107,7 +108,11 @@ Rectangle {
         onDataReady: {
             if (eventCount > 0) {
                 view.clearData();
-                view.rebuildCache();
+                progress = 1.0;
+                dataAvailable = true;
+                view.visible = true;
+                view.requestPaint();
+                zoomControl.setRange(0, qmlEventList.traceEndTime()/10);
             }
         }
     }
@@ -128,7 +133,6 @@ Rectangle {
 
     function clearDisplay() {
         clearData();
-        selectedEventIndex = -1;
         view.visible = false;
     }
 
@@ -139,19 +143,11 @@ Rectangle {
     }
 
     function nextEvent() {
-        if (eventCount > 0) {
-            ++selectedEventIndex;
-            if (selectedEventIndex >= eventCount)
-                selectedEventIndex = 0;
-        }
+        view.selectNext();
     }
 
     function prevEvent() {
-        if (eventCount > 0) {
-            --selectedEventIndex;
-            if (selectedEventIndex < 0)
-                selectedEventIndex = eventCount - 1;
-        }
+        view.selectPrev();
     }
 
     function updateWindowLength(absoluteFactor) {
@@ -179,9 +175,9 @@ Rectangle {
         }
 
         var fixedPoint = (view.startTime + view.endTime) / 2;
-        if (root.selectedEventIndex !== -1) {
+        if (view.selectedItem !== -1) {
             // center on selected item if it's inside the current screen
-            var newFixedPoint = qmlEventList.getStartTime(selectedEventIndex);
+            var newFixedPoint = qmlEventList.getStartTime(view.selectedItem);
             if (newFixedPoint >= view.startTime && newFixedPoint < view.endTime)
                 fixedPoint = newFixedPoint;
         }
@@ -242,35 +238,16 @@ Rectangle {
         rangeDetails.type = "";
         rangeDetails.file = "";
         rangeDetails.line = -1;
-
-        root.mouseOverSelection = true;
-        selectionHighlight.visible = false;
     }
 
     // ***** slots
-    onSelectedEventIndexChanged: {
-        if ((!mouseTracking) && eventCount > 0
-                && selectedEventIndex > -1 && selectedEventIndex < eventCount) {
-            var windowLength = view.endTime - view.startTime;
-
-            var eventStartTime = qmlEventList.getStartTime(selectedEventIndex);
-            var eventEndTime = eventStartTime + qmlEventList.getDuration(selectedEventIndex);
-
-            if (eventEndTime < view.startTime || eventStartTime > view.endTime) {
-                var center = (eventStartTime + eventEndTime)/2;
-                var from = Math.min(qmlEventList.traceEndTime()-windowLength,
-                    Math.max(0, Math.floor(center - windowLength/2)));
-
-                zoomControl.setRange(from, from + windowLength);
-            }
-        }
-        if (selectedEventIndex === -1)
-            selectionHighlight.visible = false;
-    }
-
     onSelectionRangeModeChanged: {
         selectionRangeControl.enabled = selectionRangeMode;
         selectionRange.reset(selectionRangeMode);
+    }
+
+    onSelectionLockedChanged: {
+        updateLockButton();
     }
 
     // ***** child items
@@ -312,7 +289,7 @@ Rectangle {
         anchors.left: labels.right
         height: root.height
         contentWidth: 0;
-        contentHeight: labels.rowCount * 50
+        contentHeight: labels.height
         flickableDirection: Flickable.HorizontalFlick
 
         onContentXChanged: {
@@ -322,13 +299,43 @@ Rectangle {
 
         clip:true
 
+        MouseArea {
+            id: selectionRangeDrag
+            enabled: selectionRange.ready
+            anchors.fill: selectionRange
+            drag.target: selectionRange
+            drag.axis: "XAxis"
+            drag.minimumX: 0
+            drag.maximumX: flick.contentWidth - selectionRange.width
+            onPressed: {
+                selectionRange.isDragging = true;
+            }
+            onReleased: {
+                selectionRange.isDragging = false;
+            }
+            onDoubleClicked: {
+                zoomControl.setRange(selectionRange.startTime, selectionRange.startTime + selectionRange.duration);
+                root.selectionRangeMode = false;
+                root.updateRangeButton();
+            }
+        }
+
+
+        SelectionRange {
+            id: selectionRange
+            visible: root.selectionRangeMode
+            height: root.height
+            z: 2
+        }
+
         TimelineView {
             id: view
 
             eventList: qmlEventList
 
+            x: flick.contentX
             width: flick.width
-            height: flick.contentHeight
+            height: root.height
 
             property variant startX: 0
             onStartXChanged: {
@@ -349,178 +356,65 @@ Rectangle {
                     var newStartX = startTime  * flick.width / (endTime-startTime);
                     if (Math.abs(newStartX - startX) >= 1)
                         startX = newStartX;
-                    updateTimeline();
                 }
             }
 
-            property real timeSpan: endTime - startTime
-            onTimeSpanChanged: {
-                if (selectedEventIndex !== -1 && selectionHighlight.visible) {
-                    var spacing = flick.width / timeSpan;
-                    selectionHighlight.x = (qmlEventList.getStartTime(selectedEventIndex) - qmlEventList.traceStartTime()) * spacing;
-                    selectionHighlight.width = qmlEventList.getDuration(selectedEventIndex) * spacing;
-               }
-            }
-
-            onCachedProgressChanged: {
-                root.progress = 0.5 + cachedProgress * 0.5;
-            }
-
-            onCacheReady: {
-                root.progress = 1.0;
-                root.dataAvailable = true;
-                if (root.eventCount > 0) {
-                    view.visible = true;
-                    view.updateTimeline();
-                    zoomControl.setRange(0, qmlEventList.traceEndTime()/10);
-                }
-            }
-
-            delegate: Rectangle {
-                id: obj
-                property color myColor: root.colors[type]
-
-                function conditionalHide() {
-                    if (!mouseArea.containsMouse)
-                        mouseArea.exited()
-                }
-
-                property int baseY: type * view.height / labels.rowCount
-                property int baseHeight: view.height / labels.rowCount
-                y: baseY + (nestingLevel-1)*(baseHeight / nestingDepth)
-                height: baseHeight / nestingDepth
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: myColor }
-                    GradientStop { position: 0.5; color: Qt.darker(myColor, 1.1) }
-                    GradientStop { position: 1.0; color: myColor }
-                }
-                smooth: true
-
-                property bool componentIsCompleted: false
-                Component.onCompleted: {
-                    componentIsCompleted = true;
-                    updateDetails();
-                }
-
-                property bool isSelected: root.selectedEventIndex == index;
-                onIsSelectedChanged: {
-                    updateDetails();
-                }
-
-                function updateDetails() {
-                    if (!root.mouseTracking && componentIsCompleted) {
-                        if (isSelected) {
-                            enableSelected(0, 0);
-                        }
-                    }
-                }
-
-                function enableSelected(x,y) {
-                    rangeDetails.duration = qmlEventList.getDuration(index)/1000.0;
-                    rangeDetails.label = qmlEventList.getDetails(index);
-                    rangeDetails.file = qmlEventList.getFilename(index);
-                    rangeDetails.line = qmlEventList.getLine(index);
-                    rangeDetails.type = root.names[type];
+            onSelectedItemChanged: {
+                if (selectedItem !== -1) {
+                    // display details
+                    rangeDetails.duration = qmlEventList.getDuration(selectedItem)/1000.0;
+                    rangeDetails.label = qmlEventList.getDetails(selectedItem);
+                    rangeDetails.file = qmlEventList.getFilename(selectedItem);
+                    rangeDetails.line = qmlEventList.getLine(selectedItem);
+                    rangeDetails.type = root.names[qmlEventList.getType(selectedItem)];
 
                     rangeDetails.visible = true;
 
-                    selectionHighlight.x = obj.x;
-                    selectionHighlight.y = obj.y;
-                    selectionHighlight.width = width;
-                    selectionHighlight.height = height;
-                    selectionHighlight.visible = true;
-                }
+                    // center view
+                    var windowLength = view.endTime - view.startTime;
+                    var eventStartTime = qmlEventList.getStartTime(selectedItem);
+                    var eventEndTime = eventStartTime + qmlEventList.getDuration(selectedItem);
 
-                MouseArea {
-                    id: mouseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onEntered: {
-                        if (root.mouseOverSelection) {
-                            root.mouseTracking = true;
-                            root.selectedEventIndex = index;
-                            enableSelected(mouseX, y);
-                            root.mouseTracking = false;
-                        }
+                    if (eventEndTime < view.startTime || eventStartTime > view.endTime) {
+                        var center = (eventStartTime + eventEndTime)/2;
+                        var from = Math.min(qmlEventList.traceEndTime()-windowLength,
+                                            Math.max(0, Math.floor(center - windowLength/2)));
+
+                        zoomControl.setRange(from, from + windowLength);
                     }
-
-                    onPressed: {
-                        root.mouseTracking = true;
-                        root.selectedEventIndex = index;
-                        enableSelected(mouseX, y);
-                        root.mouseTracking = false;
-
-                        root.mouseOverSelection = false;
-                        root.gotoSourceLocation(rangeDetails.file, rangeDetails.line);
-                    }
-                }
-            }
-
-            Rectangle {
-                id: selectionHighlight
-                color:"transparent"
-                border.width: 2
-                border.color: "blue"
-                z: 1
-                radius: 2
-                visible: false
-            }
-
-            MouseArea {
-                width: parent.width
-                height: parent.height
-                x: flick.contentX
-                onClicked: {
+                } else {
                     root.hideRangeDetails();
                 }
             }
 
-            MouseArea {
-                id: selectionRangeControl
-                enabled: false
-                width: flick.width
-                height: root.height
-                x: flick.contentX
-                hoverEnabled: enabled
-                z: 2
-
-                onReleased:  {
-                    selectionRange.releasedOnCreation();
-                }
-                onPressed:  {
-                    selectionRange.pressedOnCreation();
-                }
-                onMousePositionChanged: {
-                    selectionRange.movedOnCreation();
+            onItemPressed: {
+                if (pressedItem !== -1) {
+                    root.gotoSourceLocation(qmlEventList.getFilename(pressedItem), qmlEventList.getLine(pressedItem));
                 }
             }
 
-            SelectionRange {
-                id: selectionRange
-                visible: root.selectionRangeMode
-                height: root.height
-                z: 2
-            }
+         // hack to pass mouse events to the other mousearea if enabled
+            startDragArea: selectionRangeDrag.enabled ? selectionRangeDrag.x : -flick.contentX
+            endDragArea: selectionRangeDrag.enabled ?
+                             selectionRangeDrag.x + selectionRangeDrag.width : -flick.contentX-1
+        }
+        MouseArea {
+            id: selectionRangeControl
+            enabled: false
+            width: flick.width
+            height: root.height
+            x: flick.contentX
+            hoverEnabled: enabled
+            z: 2
 
-            MouseArea {
-                id: selectionRangeDrag
-                enabled: selectionRange.ready
-                anchors.fill: selectionRange
-                drag.target: selectionRange
-                drag.axis: "XAxis"
-                drag.minimumX: 0
-                drag.maximumX: flick.contentWidth - selectionRange.width
-                onPressed: {
-                    selectionRange.isDragging = true;
-                }
-                onReleased: {
-                    selectionRange.isDragging = false;
-                }
-                onDoubleClicked: {
-                    zoomControl.setRange(selectionRange.startTime, selectionRange.startTime + selectionRange.duration);
-                    root.selectionRangeMode = false;
-                    root.updateRangeButton();
-                }
+            onReleased:  {
+                selectionRange.releasedOnCreation();
+            }
+            onPressed:  {
+                selectionRange.pressedOnCreation();
+            }
+            onMousePositionChanged: {
+                selectionRange.movedOnCreation();
             }
         }
     }
@@ -542,9 +436,10 @@ Rectangle {
         id: labels
         width: 150
         color: "#dcdcdc"
-        height: flick.contentHeight
+        height: col.height
 
         property int rowCount: 5
+        property variant rowExpanded: [false,false,false,false,false];
 
         Column {
             id: col

@@ -174,6 +174,16 @@ QWidget *TraceWindow::createToolbar()
     connect(this, SIGNAL(enableToolbar(bool)), m_buttonRange, SLOT(setEnabled(bool)));
     connect(this, SIGNAL(rangeModeChanged(bool)), m_buttonRange, SLOT(setChecked(bool)));
 
+    m_buttonLock = new QToolButton;
+    m_buttonLock->setIcon(QIcon(":/qmlprofiler/arrow_select.png"));
+    m_buttonLock->setToolTip(tr("View event information on mouseover"));
+    m_buttonLock->setCheckable(true);
+    m_buttonLock->setChecked(false);
+    connect(m_buttonLock, SIGNAL(clicked(bool)), this, SLOT(toggleLockMode(bool)));
+    connect(this, SIGNAL(enableToolbar(bool)), m_buttonLock, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(lockModeChanged(bool)), m_buttonLock, SLOT(setChecked(bool)));
+
+    toolBarLayout->addWidget(m_buttonLock);
     toolBarLayout->addWidget(buttonPrev);
     toolBarLayout->addWidget(buttonNext);
     toolBarLayout->addWidget(buttonZoomControls);
@@ -264,6 +274,7 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     connect(m_mainView->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
     connect(m_mainView->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
     connect(m_mainView->rootObject(), SIGNAL(updateRangeButton()), this, SLOT(updateRangeButton()));
+    connect(m_mainView->rootObject(), SIGNAL(updateLockButton()), this, SLOT(updateLockButton()));
     connect(m_eventList, SIGNAL(countChanged()), this, SLOT(updateToolbar()));
     connect(this, SIGNAL(jumpToPrev()), m_mainView->rootObject(), SLOT(prevEvent()));
     connect(this, SIGNAL(jumpToNext()), m_mainView->rootObject(), SLOT(nextEvent()));
@@ -338,6 +349,21 @@ void TraceWindow::updateRangeButton()
     else
         m_buttonRange->setIcon(QIcon(":/qmlprofiler/range.png"));
     emit rangeModeChanged(rangeMode);
+}
+
+void TraceWindow::toggleLockMode(bool active)
+{
+    bool lockMode = !m_mainView->rootObject()->property("selectionLocked").toBool();
+    if (active != lockMode) {
+        m_mainView->rootObject()->setProperty("selectionLocked", QVariant(!active));
+        m_mainView->rootObject()->setProperty("selectedItem", QVariant(-1));
+    }
+}
+
+void TraceWindow::updateLockButton()
+{
+    bool lockMode = !m_mainView->rootObject()->property("selectionLocked").toBool();
+    emit lockModeChanged(lockMode);
 }
 
 void TraceWindow::setRecording(bool recording)

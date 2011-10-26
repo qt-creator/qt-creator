@@ -43,20 +43,16 @@ namespace Internal {
 class TimelineView : public QDeclarativeItem
 {
     Q_OBJECT
-    Q_PROPERTY(QDeclarativeComponent *delegate READ delegate WRITE setDelegate NOTIFY delegateChanged)
     Q_PROPERTY(qint64 startTime READ startTime WRITE setStartTime NOTIFY startTimeChanged)
     Q_PROPERTY(qint64 endTime READ endTime WRITE setEndTime NOTIFY endTimeChanged)
-    Q_PROPERTY(qreal totalWidth READ totalWidth NOTIFY totalWidthChanged)
     Q_PROPERTY(QObject* eventList READ eventList WRITE setEventList NOTIFY eventListChanged)
-    Q_PROPERTY(qreal cachedProgress READ cachedProgress NOTIFY cachedProgressChanged)
+    Q_PROPERTY(bool selectionLocked READ selectionLocked WRITE setSelectionLocked NOTIFY selectionLockedChanged)
+    Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
+    Q_PROPERTY(int startDragArea READ startDragArea WRITE setStartDragArea NOTIFY startDragAreaChanged)
+    Q_PROPERTY(int endDragArea READ endDragArea WRITE setEndDragArea NOTIFY endDragAreaChanged)
 
 public:
     explicit TimelineView(QDeclarativeItem *parent = 0);
-
-    QDeclarativeComponent * delegate() const
-    {
-        return m_delegate;
-    }
 
     qint64 startTime() const
     {
@@ -68,12 +64,25 @@ public:
         return m_endTime;
     }
 
-    qreal totalWidth() const
+    bool selectionLocked() const
     {
-        return m_totalWidth;
+        return m_selectionLocked;
     }
 
-    qreal cachedProgress() const;
+    int selectedItem() const
+    {
+        return m_selectedItem;
+    }
+
+    int startDragArea() const
+    {
+        return m_startDragArea;
+    }
+
+    int endDragArea() const
+    {
+        return m_endDragArea;
+    }
 
     QmlJsDebugClient::QmlProfilerEventList *eventList() const { return m_eventList; }
     void setEventList(QObject *eventList)
@@ -82,33 +91,30 @@ public:
         emit eventListChanged(m_eventList);
     }
 
+    Q_INVOKABLE void selectNext();
+    Q_INVOKABLE void selectPrev();
+
+    Q_INVOKABLE void rowExpanded(int rowIndex, bool expanded);
+
     Q_INVOKABLE qint64 getDuration(int index) const;
     Q_INVOKABLE QString getFilename(int index) const;
     Q_INVOKABLE int getLine(int index) const;
     Q_INVOKABLE QString getDetails(int index) const;
-    Q_INVOKABLE void rebuildCache();
 
 signals:
-    void delegateChanged(QDeclarativeComponent * arg);
     void startTimeChanged(qint64 arg);
     void endTimeChanged(qint64 arg);
-    void totalWidthChanged(qreal arg);
     void eventListChanged(QmlJsDebugClient::QmlProfilerEventList *list);
-
-    void cachedProgressChanged();
-    void cacheReady();
+    void selectionLockedChanged(bool locked);
+    void selectedItemChanged(int itemIndex);
+    void startDragAreaChanged(int startDragArea);
+    void endDragAreaChanged(int endDragArea);
+    void itemPressed(int pressedItem);
 
 public slots:
     void clearData();
-    void updateTimeline();
+    void requestPaint();
 
-    void setDelegate(QDeclarativeComponent * arg)
-    {
-        if (m_delegate != arg) {
-            m_delegate = arg;
-            emit delegateChanged(arg);
-        }
-    }
 
     void setStartTime(qint64 arg)
     {
@@ -126,34 +132,82 @@ public slots:
         }
     }
 
+    void setSelectionLocked(bool locked)
+    {
+        if (m_selectionLocked != locked) {
+            m_selectionLocked = locked;
+            emit selectionLockedChanged(locked);
+        }
+    }
+
+    void setSelectedItem(int itemIndex)
+    {
+        if (m_selectedItem != itemIndex) {
+            m_selectedItem = itemIndex;
+            update();
+            emit selectedItemChanged(itemIndex);
+        }
+    }
+
+    void setStartDragArea(int startDragArea)
+    {
+        if (m_startDragArea != startDragArea) {
+            m_startDragArea = startDragArea;
+            emit startDragAreaChanged(startDragArea);
+        }
+    }
+
+    void setEndDragArea(int endDragArea)
+    {
+        if (m_endDragArea != endDragArea) {
+            m_endDragArea = endDragArea;
+            emit endDragAreaChanged(endDragArea);
+        }
+    }
+
 protected:
-    void componentComplete();
+    virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+    virtual void componentComplete();
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
 
 private:
-    void createItem(int itemIndex);
-    void updateItemPosition(int itemIndex);
+    QColor colorForItem(int itemIndex);
+    QLinearGradient *gradientForItem(int itemIndex);
+    void drawItemsToPainter(QPainter *p, int fromIndex, int toIndex);
+    void drawSelectionBoxes(QPainter *p);
 
-public slots:
-    void increaseCache();
-    void purgeCache();
+    void manageClicked();
+    void manageHovered(int x, int y);
 
 private:
-    QDeclarativeComponent * m_delegate;
-    QHash<int,QDeclarativeItem*> m_items;
-    qint64 m_itemCount;
     qint64 m_startTime;
     qint64 m_endTime;
     qreal m_spacing;
-    int prevMin;
-    int prevMax;
+    qint64 m_lastStartTime;
+    qint64 m_lastEndTime;
 
     QmlJsDebugClient::QmlProfilerEventList *m_eventList;
+    QHash<int, QLinearGradient*> m_hashedGradients;
 
-    qreal m_totalWidth;
-    int m_lastCachedIndex;
-    bool m_creatingCache;
-    int m_oldCacheSize;
+    QList<int> m_rowLastX;
+    QList<int> m_rowStarts;
+    QList<int> m_rowWidths;
+    QList<bool> m_rowsExpanded;
 
+    struct {
+        qint64 startTime;
+        qint64 endTime;
+        int row;
+        int eventIndex;
+    } m_currentSelection;
+
+    int m_selectedItem;
+    bool m_selectionLocked;
+    int m_startDragArea;
+    int m_endDragArea;
 };
 
 } // namespace Internal

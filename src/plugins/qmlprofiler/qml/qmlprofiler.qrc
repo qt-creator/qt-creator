@@ -24,5 +24,8 @@
         <file>SelectionRange.qml</file>
         <file>SelectionRangeDetails.qml</file>
         <file>magnifier.png</file>
+        <file>arrow_down.png</file>
+        <file>arrow_right.png</file>
+        <file>arrow_select.png</file>
     </qresource>
 </RCC>

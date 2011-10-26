@@ -95,6 +95,11 @@ struct QmlEventStartTimeData {
 
 };
 
+struct QmlEventTypeCount {
+    QList <int> eventIds;
+    int nestingCount;
+};
+
 // used by quicksort
 bool compareEndTimes(const QmlEventEndTimeData &t1, const QmlEventEndTimeData &t2)
 {
@@ -173,6 +178,8 @@ public:
     QV8EventDescriptions m_v8EventList;
     QHash<int, QV8EventData *> m_v8parents;
 
+    QHash<int, QmlEventTypeCount *> m_typeCounts;
+
     qint64 m_traceEndTime;
 
     // file to load
@@ -211,8 +218,13 @@ void QmlProfilerEventList::clear()
     d->m_v8EventList.clear();
     d->m_v8parents.clear();
 
+    foreach (QmlEventTypeCount *typeCount, d->m_typeCounts.values())
+        delete typeCount;
+    d->m_typeCounts.clear();
+
     d->m_traceEndTime = 0;
     emit countChanged();
+    emit dataClear();
 }
 
 QList <QmlEventData *> QmlProfilerEventList::getEventDescriptions() const
@@ -429,6 +441,26 @@ void QmlProfilerEventList::compileStatistics()
         }
     }
 
+    // generate numeric ids
+    int ndx = 0;
+    foreach (QmlEventData *binding, d->m_eventDescriptions.values()) {
+        binding->numericHash = ndx++;
+    }
+
+    // collect type counts
+    foreach (const QmlEventStartTimeData &eventStartData, d->m_startTimeSortedList) {
+        int typeNumber = eventStartData.description->eventType;
+        if (!d->m_typeCounts.contains(typeNumber)) {
+            d->m_typeCounts[typeNumber] = new QmlEventTypeCount;
+            d->m_typeCounts[typeNumber]->nestingCount = 0;
+        }
+        if (eventStartData.nestingLevel > d->m_typeCounts[typeNumber]->nestingCount) {
+            d->m_typeCounts[typeNumber]->nestingCount = eventStartData.nestingLevel;
+        }
+        if (!d->m_typeCounts[typeNumber]->eventIds.contains(eventStartData.description->numericHash))
+            d->m_typeCounts[typeNumber]->eventIds << eventStartData.description->numericHash;
+    }
+
     // continue postprocess
     postProcess();
 }
@@ -592,6 +624,7 @@ void QmlProfilerEventList::computeNestingDepth()
 
 void QmlProfilerEventList::postProcess()
 {
+    // Todo: collapse all this
     switch (d->m_parsingStatus) {
     case GettingDataStatus: {
         setParsingStatus(SortingListsStatus);
@@ -687,6 +720,37 @@ int QmlProfilerEventList::findFirstIndex(qint64 startTime) const
     // and then go to the parent
     while (d->m_startTimeSortedList[ndx].level != MIN_LEVEL && ndx > 0)
         ndx--;
+
+    return ndx;
+}
+
+int QmlProfilerEventList::findFirstIndexNoParents(qint64 startTime) const
+{
+    int candidate = -1;
+    // in the "endtime" list, find the first event that ends after startTime
+    if (d->m_endTimeSortedList.isEmpty())
+        return 0; // -1
+    if (d->m_endTimeSortedList.length() == 1 || d->m_endTimeSortedList.first().endTime >= startTime)
+        candidate = 0;
+    else
+        if (d->m_endTimeSortedList.last().endTime <= startTime)
+            return 0; // -1
+
+    if (candidate == -1) {
+        int fromIndex = 0;
+        int toIndex = d->m_endTimeSortedList.count()-1;
+        while (toIndex - fromIndex > 1) {
+            int midIndex = (fromIndex + toIndex)/2;
+            if (d->m_endTimeSortedList[midIndex].endTime < startTime)
+                fromIndex = midIndex;
+            else
+                toIndex = midIndex;
+        }
+
+        candidate = toIndex;
+    }
+
+    int ndx = d->m_endTimeSortedList[candidate].startTimeIndex;
 
     return ndx;
 }
@@ -1122,5 +1186,31 @@ QString QmlProfilerEventList::getDetails(int index) const {
     return d->m_startTimeSortedList[index].description->details;
 }
 
+int QmlProfilerEventList::getHash(int index) const {
+    return d->m_startTimeSortedList[index].description->numericHash;
+}
+
+int QmlProfilerEventList::uniqueEventsOfType(int type) const {
+    if (!d->m_typeCounts.contains(type))
+        return 1;
+    return d->m_typeCounts[type]->eventIds.count();
+}
+
+int QmlProfilerEventList::maxNestingForType(int type) const {
+    if (!d->m_typeCounts.contains(type))
+        return 1;
+    return d->m_typeCounts[type]->nestingCount;
+}
+
+QString QmlProfilerEventList::eventTextForType(int type, int index) const {
+    if (!d->m_typeCounts.contains(type))
+        return QString();
+    return d->m_eventDescriptions.values().at(d->m_typeCounts[type]->eventIds[index])->details;
+}
+
+int QmlProfilerEventList::eventPosInType(int index) const {
+    int eventType = d->m_startTimeSortedList[index].description->eventType;
+    return d->m_typeCounts[eventType]->eventIds.indexOf(d->m_startTimeSortedList[index].description->numericHash);
+}
 
 } // namespace QmlJsDebugClient
