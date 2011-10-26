@@ -234,9 +234,11 @@ FORMS += \
     snippets/snippetssettingspage.ui \
     behaviorsettingswidget.ui \
     behaviorsettingspage.ui \
-    tabsettingswidget.ui
+    tabsettingswidget.ui \
+    codestyleselectorwidget.ui
 RESOURCES += texteditor.qrc
 OTHER_FILES += TextEditor.mimetypes.xml
+
 
 
 

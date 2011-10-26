@@ -50,11 +50,16 @@ namespace TextEditor {
 class ICodeStylePreferences;
 class ICodeStylePreferencesFactory;
 
+namespace Ui {
+class CodeStyleSelectorWidget;
+}
+
 class TEXTEDITOR_EXPORT CodeStyleSelectorWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory, QWidget *parent = 0);
+    ~CodeStyleSelectorWidget();
 
     void setCodeStyle(TextEditor::ICodeStylePreferences *codeStyle);
     QString searchKeywords() const;
@@ -80,15 +85,7 @@ private:
 
     QString displayName(ICodeStylePreferences *codeStyle) const;
 
-    QHBoxLayout *m_layout;
-
-    QComboBox *m_comboBox;
-    QLabel *m_comboBoxLabel;
-    QPushButton *m_copyButton;
-    QPushButton *m_editButton;
-    QPushButton *m_removeButton;
-    QPushButton *m_importButton;
-    QPushButton *m_exportButton;
+    Ui::CodeStyleSelectorWidget *m_ui;
 
     bool m_ignoreGuiSignals;
 };
