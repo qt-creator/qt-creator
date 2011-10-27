@@ -2063,7 +2063,7 @@ QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader) const
         }
 
         if (QFile::exists(realFile)) {
-            subProjectPaths << realFile;
+            subProjectPaths << QDir::cleanPath(realFile);
         } else {
             m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
                                          .arg(subDirVar).arg(realDir));
