@@ -274,7 +274,6 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         int margin = 2; // position centered within the rounded buttons
         QFontMetrics fm = fontMetrics();
         QRect textRect(x + margin, size.height() - fm.height() - 7, targetWidth()/2, fm.height());
-        p.setPen(buildSelected ? Qt::black : Qt::white);
         if (index != m_currentTargetIndex)
             p.setPen(QColor(0x555555));
         else
