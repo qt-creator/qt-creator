@@ -65,11 +65,6 @@ TargetSelector::TargetSelector(QWidget *parent) :
     setFont(f);
 }
 
-void TargetSelector::addTarget(const QString &name)
-{
-    insertTarget(m_targets.count(), name);
-}
-
 void TargetSelector::insertTarget(int index, const QString &name)
 {
     QTC_ASSERT(index >= 0 && index <= m_targets.count(), return);
