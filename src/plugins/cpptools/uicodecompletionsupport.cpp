@@ -138,6 +138,8 @@ bool UiCodeModelSupport::runUic(const QString &ui) const
 {
     QProcess process;
     const QString uic = uicCommand();
+    if (uic.isEmpty())
+        return false;
     process.setEnvironment(environment());
 
     if (debug)
