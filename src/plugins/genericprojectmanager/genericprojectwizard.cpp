@@ -206,7 +206,6 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     const QString filesFileName = QFileInfo(dir, projectName + QLatin1String(".files")).absoluteFilePath();
     const QString includesFileName = QFileInfo(dir, projectName + QLatin1String(".includes")).absoluteFilePath();
     const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
-    const QStringList sources = wizard->selectedFiles();
     const QStringList paths = wizard->selectedPaths();
 
     Core::ICore *core = Core::ICore::instance();
@@ -230,6 +229,10 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
     generatedCreatorFile.setContents(QLatin1String("[General]\n"));
     generatedCreatorFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
+
+    QStringList sources = wizard->selectedFiles();
+    for (int i = 0; i < sources.length(); ++i)
+        sources[i] = dir.relativeFilePath(sources[i]);
 
     Core::GeneratedFile generatedFilesFile(filesFileName);
     generatedFilesFile.setContents(sources.join(QLatin1String("\n")));
