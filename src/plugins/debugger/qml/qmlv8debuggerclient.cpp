@@ -79,7 +79,6 @@ public:
         sequence(-1),
         engine(0)
     {
-        q->resetState();
         parser = m_scriptEngine.evaluate(_("JSON.parse"));
         stringifier = m_scriptEngine.evaluate(_("JSON.stringify"));
     }
@@ -844,6 +843,7 @@ QmlV8DebuggerClient::QmlV8DebuggerClient(QmlJsDebugClient::QDeclarativeDebugConn
     : QmlDebuggerClient(client, QLatin1String("V8Debugger")),
       d(new QmlV8DebuggerClientPrivate(this))
 {
+    resetState();
 }
 
 QmlV8DebuggerClient::~QmlV8DebuggerClient()
