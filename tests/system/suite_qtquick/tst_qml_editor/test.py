@@ -12,6 +12,7 @@ def main():
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
     prepareTemplate(sourceExample)
+    prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     createNewQtQuickApplication(workingDir, "untitled", templateDir + "/qml/focus.qml")
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
