@@ -3681,6 +3681,7 @@ namespace valgrind {
     void testValgrind()
     {
         testLeak();
+        throw 42;
     }
 
 } // namespace valgrind
@@ -3726,6 +3727,7 @@ int main(int argc, char *argv[])
 {
     // For a very quick check, step into this one.
     sanity::testSanity();
+    valgrind::testValgrind();
 
     // Check for normal dumpers.
     basic::testBasic();
@@ -3789,8 +3791,6 @@ int main(int argc, char *argv[])
     qthread::testQThread();
     qvariant::testQVariant();
     qvector::testQVector();
-
-    valgrind::testValgrind();
 
     // Third party data types.
     boost::testBoost();
