@@ -259,7 +259,7 @@ void TargetSelector::paintEvent(QPaintEvent *event)
             if (buildSelected) {
                 image = m_buildselected;
             } else {
-                image= m_runselected;
+                image = m_runselected;
             }
         } else {
             p.setPen(Qt::black);
@@ -275,7 +275,7 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         QFontMetrics fm = fontMetrics();
         QRect textRect(x + margin, size.height() - fm.height() - 7, targetWidth()/2, fm.height());
         p.setPen(buildSelected ? Qt::black : Qt::white);
-        if (index!=m_currentTargetIndex)
+        if (index != m_currentTargetIndex)
             p.setPen(QColor(0x555555));
         else
             p.setPen(buildSelected ? Qt::black : Qt::white);
@@ -284,7 +284,7 @@ void TargetSelector::paintEvent(QPaintEvent *event)
 
         // Run
         textRect.moveLeft(x + targetWidth()/2 - 2 * margin);
-        if (index!=m_currentTargetIndex)
+        if (index != m_currentTargetIndex)
             p.setPen(QColor(0x555555));
         else
             p.setPen(buildSelected ? Qt::white: Qt::black);
