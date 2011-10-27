@@ -275,6 +275,9 @@ QStringList ExamplesListModel::exampleSources() const
         // Try to get dir from first Qt Version
         QtVersionManager *versionManager = QtVersionManager::instance();
         foreach (BaseQtVersion *version, versionManager->validVersions()) {
+            // There is no good solution for Qt 5 yet
+            if (version->qtVersion().majorVersion != 4)
+                continue;
 
             QDir examplesDir(version->examplesPath());
             if (examplesDir.exists()) {
