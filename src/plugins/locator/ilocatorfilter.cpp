@@ -44,7 +44,8 @@ using namespace Locator;
 ILocatorFilter::ILocatorFilter(QObject *parent):
     QObject(parent),
     m_includedByDefault(false),
-    m_hidden(false)
+    m_hidden(false),
+    m_enabled(true)
 {
 }
 
@@ -139,4 +140,14 @@ bool ILocatorFilter::isHidden() const
 void ILocatorFilter::setHidden(bool hidden)
 {
     m_hidden = hidden;
+}
+
+bool ILocatorFilter::isEnabled() const
+{
+    return m_enabled;
+}
+
+void ILocatorFilter::setEnabled(bool enabled)
+{
+    m_enabled = enabled;
 }

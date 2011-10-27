@@ -121,11 +121,6 @@ void CommandLocator::accept(Locator::FilterEntry entry) const
     action->trigger();
 }
 
-void CommandLocator::setEnabled(bool e)
-{
-    setHidden(!e);
-}
-
 void CommandLocator::refresh(QFutureInterface<void> &)
 {
 }

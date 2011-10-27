@@ -54,6 +54,9 @@ CMakeLocatorFilter::CMakeLocatorFilter()
             this, SLOT(slotProjectListUpdated()));
     connect(sm, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(slotProjectListUpdated()));
+
+    // Initialize the filter
+    slotProjectListUpdated();
 }
 
 CMakeLocatorFilter::~CMakeLocatorFilter()
@@ -140,6 +143,6 @@ void CMakeLocatorFilter::slotProjectListUpdated()
             break;
     }
 
-    // Hide the locator if there's no CMake project
-    setHidden(!cmakeProject);
+    // Enable the filter if there's at least one CMake project
+    setEnabled(cmakeProject);
 }

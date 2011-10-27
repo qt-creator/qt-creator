@@ -71,9 +71,6 @@ public:
     virtual void accept(FilterEntry selection) const;
     virtual void refresh(QFutureInterface<void> &future);
 
-public slots:
-    void setEnabled(bool e);
-
 private:
     CommandLocatorPrivate *d;
 };

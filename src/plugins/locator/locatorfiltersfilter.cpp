@@ -81,7 +81,7 @@ QList<FilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Locator::Fi
     foreach (ILocatorFilter *filter, uniqueFilters) {
         if (future.isCanceled())
             break;
-        if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
+        if (!filter->shortcutString().isEmpty() && !filter->isHidden() && filter->isEnabled()) {
             FilterEntry filterEntry(this,
                                     filter->shortcutString(),
                                     QVariant::fromValue(filter),
