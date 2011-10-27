@@ -111,12 +111,9 @@ SideBar::SideBar(QList<SideBarItem*> itemList,
 
 SideBar::~SideBar()
 {
-    QMutableMapIterator<QString, QWeakPointer<SideBarItem> > iter(d->m_itemMap);
-    while(iter.hasNext()) {
-        iter.next();
-        if (!iter.value().isNull())
-            delete iter.value().data();
-    }
+    foreach (const QWeakPointer<SideBarItem> &i, d->m_itemMap)
+        if (!i.isNull())
+            delete i.data();
     delete d;
 }
 
