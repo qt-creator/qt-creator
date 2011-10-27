@@ -114,7 +114,7 @@ private:
     QLibrary nativeLib;
 public:
 
-    AvahiZConfLib(QString libName = QLatin1String("avahi"), ZConfLib *fallBack = 0) : ZConfLib(fallBack), nativeLib(libName)
+    AvahiZConfLib(QString libName = QLatin1String("avahi"), ZConfLib::Ptr fallBack = ZConfLib::Ptr(0)) : ZConfLib(fallBack), nativeLib(libName)
     {
 #ifndef ZCONF_AVAHI_STATIC_LINKING
         // dynamic linking
@@ -321,8 +321,8 @@ public:
     }
 };
 
-ZConfLib *ZConfLib::createAvahiLib(const QString &libName, ZConfLib *fallback) {
-    return new AvahiZConfLib(libName, fallback);
+ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &libName, ZConfLib::Ptr fallback) {
+    return ZConfLib::Ptr(new AvahiZConfLib(libName, fallback));
 }
 
 extern "C" void cAvahiResolveReply( AvahiServiceResolver * r, AvahiIfIndex interface, AvahiProtocol /*protocol*/,
@@ -381,7 +381,8 @@ extern "C" void cAvahiResolveReply( AvahiServiceResolver * r, AvahiIfIndex inter
         qDebug() << "Error: unexpected avahi event " << event << " in cAvahiResolveReply";
         break;
     }
-    AvahiZConfLib *lib = dynamic_cast<AvahiZConfLib *>(sg->serviceBrowser->mainConnection->lib);
+    ZConfLib::Ptr libBase = sg->serviceBrowser->mainConnection->lib;
+    AvahiZConfLib *lib = dynamic_cast<AvahiZConfLib *>(libBase.data());
     if (lib)
         lib->serviceResolverFree(r);
 }
@@ -467,7 +468,7 @@ extern "C" void cAvahiBrowseReply(AvahiServiceBrowser * /*b*/, AvahiIfIndex inte
 namespace ZeroConf {
 namespace Internal {
 
-ZConfLib *ZConfLib::createAvahiLib(const QString &/*extraPaths*/, ZConfLib * fallback) {
+ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &/*extraPaths*/, ZConfLib::Ptr fallback) {
     return fallback;
 }
 

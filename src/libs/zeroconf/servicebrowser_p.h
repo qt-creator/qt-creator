@@ -58,6 +58,7 @@ class ServiceBrowserPrivate;
 class ZConfLib {
     Q_DECLARE_TR_FUNCTIONS(ZeroConf)
 public:
+    typedef QSharedPointer<ZConfLib> Ptr;
     typedef void *ConnectionRef;
     typedef void *BrowserRef;
     enum ProcessStatus {
@@ -66,9 +67,9 @@ public:
         ProcessedError,
         ProcessedFailure
     };
-    ZConfLib *fallbackLib;
+    Ptr fallbackLib;
 
-    ZConfLib(ZConfLib *fallBack);
+    ZConfLib(Ptr fallBack);
     virtual ~ZConfLib();
 
     virtual QString name();
@@ -100,10 +101,9 @@ public:
     QString errorMsg();
     void setError(bool failure, const QString &eMsg);
 
-    static ZConfLib *createEmbeddedLib(const QString &daemonPath, ZConfLib *fallback=0);
-    static ZConfLib *createNativeLib(const QString &libName, ZConfLib *fallback=0);
-    static ZConfLib *createAvahiLib(const QString &libName, ZConfLib *fallback=0);
-    static ZConfLib *defaultLib();
+    static Ptr createEmbeddedLib(const QString &daemonPath, Ptr fallback = Ptr(0));
+    static Ptr createDnsSdLib(const QString &libName, Ptr fallback = Ptr(0));
+    static Ptr createAvahiLib(const QString &libName, Ptr fallback = Ptr(0));
 protected:
     bool m_isOk;
     QString m_errorMsg;
@@ -166,7 +166,7 @@ public:
     void reload(qint32 interfaceIndex=0);
     void remove();
     void reconfirm();
-    ZConfLib *lib();
+    ZConfLib::Ptr lib();
 private:
     ServiceGatherer(const QString &newService, const QString &newType, const QString &newDomain,
                     const QString &fullName, uint32_t interfaceIndex, ServiceBrowserPrivate *serviceBrowser);
@@ -201,7 +201,7 @@ public:
         Stopping,
         Stopped
     };
-    ZConfLib *lib;
+    ZConfLib::Ptr lib;
 
     MainConnection();
     ~MainConnection();

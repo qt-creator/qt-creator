@@ -43,7 +43,7 @@
 
 #include <errno.h>
 
-#ifndef NO_NATIVE_LIB
+#ifndef NO_DNS_SD_LIB
 
 #ifdef Q_OS_MACX
 #define ZCONF_MDNS_STATIC_LINKING
@@ -91,7 +91,7 @@ typedef int (DNSSD_API *RefSockFDPtr)(DNSServiceRef sdRef);
 }
 
 // represents a zero conf library exposing the dns-sd interface
-class NativeZConfLib : public ZConfLib{
+class DnsSdZConfLib : public ZConfLib{
     Q_DECLARE_TR_FUNCTIONS(ZeroConf)
 private:
     RefDeallocatePtr m_refDeallocate;
@@ -104,31 +104,31 @@ private:
     ProcessResultPtr m_processResult;
     CreateConnectionPtr m_createConnection;
     RefSockFDPtr m_refSockFD;
-    QLibrary nativeLib;
+    QLibrary dnsSdLib;
 public:
     enum {
         // Note: the select() implementation on Windows (Winsock2) fails with any timeout much larger than this
         LONG_TIME = 100000000
     };
 
-    NativeZConfLib(QString libName = QLatin1String("dns_sd"), ZConfLib *fallBack = 0) : ZConfLib(fallBack), nativeLib(libName)
+    DnsSdZConfLib(QString libName = QLatin1String("dns_sd"), ZConfLib::Ptr fallBack = ZConfLib::Ptr(0)) : ZConfLib(fallBack), dnsSdLib(libName)
     {
 #ifndef ZCONF_MDNS_STATIC_LINKING
         // dynamic linking
-        if (!nativeLib.load()) {
+        if (!dnsSdLib.load()) {
             m_isOk = false;
-            m_errorMsg=tr("NativeZConfLib could not load native library");
+            m_errorMsg=tr("DnsSdZConfLib could not load native library");
         }
-        m_refDeallocate = reinterpret_cast<RefDeallocatePtr>(nativeLib.resolve("DNSServiceRefDeallocate"));
-        m_resolve = reinterpret_cast<ResolvePtr>(nativeLib.resolve("DNSServiceResolve"));
-        m_queryRecord = reinterpret_cast<QueryRecordPtr>(nativeLib.resolve("DNSServiceQueryRecord"));
-        m_getAddrInfo = reinterpret_cast<GetAddrInfoPtr>(nativeLib.resolve("DNSServiceGetAddrInfo"));
-        m_reconfirmRecord = reinterpret_cast<ReconfirmRecordPtr>(nativeLib.resolve("DNSServiceReconfirmRecord"));
-        m_browse = reinterpret_cast<BrowsePtr>(nativeLib.resolve("DNSServiceBrowse"));
-        m_getProperty = reinterpret_cast<GetPropertyPtr>(nativeLib.resolve("DNSServiceGetProperty"));
-        m_processResult = reinterpret_cast<ProcessResultPtr>(nativeLib.resolve("DNSServiceProcessResult")) ;
-        m_createConnection = reinterpret_cast<CreateConnectionPtr>(nativeLib.resolve("DNSServiceCreateConnection"));
-        m_refSockFD = reinterpret_cast<RefSockFDPtr>(nativeLib.resolve("DNSServiceRefSockFD"));
+        m_refDeallocate = reinterpret_cast<RefDeallocatePtr>(dnsSdLib.resolve("DNSServiceRefDeallocate"));
+        m_resolve = reinterpret_cast<ResolvePtr>(dnsSdLib.resolve("DNSServiceResolve"));
+        m_queryRecord = reinterpret_cast<QueryRecordPtr>(dnsSdLib.resolve("DNSServiceQueryRecord"));
+        m_getAddrInfo = reinterpret_cast<GetAddrInfoPtr>(dnsSdLib.resolve("DNSServiceGetAddrInfo"));
+        m_reconfirmRecord = reinterpret_cast<ReconfirmRecordPtr>(dnsSdLib.resolve("DNSServiceReconfirmRecord"));
+        m_browse = reinterpret_cast<BrowsePtr>(dnsSdLib.resolve("DNSServiceBrowse"));
+        m_getProperty = reinterpret_cast<GetPropertyPtr>(dnsSdLib.resolve("DNSServiceGetProperty"));
+        m_processResult = reinterpret_cast<ProcessResultPtr>(dnsSdLib.resolve("DNSServiceProcessResult")) ;
+        m_createConnection = reinterpret_cast<CreateConnectionPtr>(dnsSdLib.resolve("DNSServiceCreateConnection"));
+        m_refSockFD = reinterpret_cast<RefSockFDPtr>(dnsSdLib.resolve("DNSServiceRefSockFD"));
 #else
         // static linking
         m_refDeallocate = reinterpret_cast<RefDeallocatePtr>(&DNSServiceRefDeallocate);
@@ -143,24 +143,24 @@ public:
         m_refSockFD = reinterpret_cast<RefSockFDPtr>(&DNSServiceRefSockFD);
 #endif
         if (DEBUG_ZEROCONF){
-            if (m_refDeallocate == 0) qDebug() << QLatin1String("NativeZConfLib.m_refDeallocate == 0");
-            if (m_resolve == 0) qDebug() << QLatin1String("NativeZConfLib.m_resolve == 0");
-            if (m_queryRecord == 0) qDebug() << QLatin1String("NativeZConfLib.m_queryRecord == 0");
-            if (m_getAddrInfo == 0) qDebug() << QLatin1String("NativeZConfLib.m_getAddrInfo == 0");
-            if (m_reconfirmRecord == 0) qDebug() << QLatin1String("NativeZConfLib.m_reconfirmRecord == 0");
-            if (m_browse == 0) qDebug() << QLatin1String("NativeZConfLib.m_browse == 0");
-            if (m_getProperty == 0) qDebug() << QLatin1String("NativeZConfLib.m_getProperty == 0");
-            if (m_processResult == 0) qDebug() << QLatin1String("NativeZConfLib.m_processResult == 0");
-            if (m_createConnection == 0) qDebug() << QLatin1String("NativeZConfLib.m_createConnection == 0");
-            if (m_refSockFD == 0) qDebug() << QLatin1String("NativeZConfLib.m_refSockFD == 0");
+            if (m_refDeallocate == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_refDeallocate == 0");
+            if (m_resolve == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_resolve == 0");
+            if (m_queryRecord == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_queryRecord == 0");
+            if (m_getAddrInfo == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_getAddrInfo == 0");
+            if (m_reconfirmRecord == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_reconfirmRecord == 0");
+            if (m_browse == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_browse == 0");
+            if (m_getProperty == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_getProperty == 0");
+            if (m_processResult == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_processResult == 0");
+            if (m_createConnection == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_createConnection == 0");
+            if (m_refSockFD == 0) qDebug() << QLatin1String("DnsSdZConfLib.m_refSockFD == 0");
         }
     }
 
-    ~NativeZConfLib() {
+    ~DnsSdZConfLib() {
     }
 
     QString name(){
-        return QString::fromUtf8("NativeZeroConfLib@%1").arg(size_t(this),0,16);
+        return QString::fromUtf8("DnsSdZeroConfLib@%1").arg(size_t(this),0,16);
     }
 
     // bool tryStartDaemon();
@@ -344,19 +344,19 @@ public:
     }
 };
 
-ZConfLib *ZConfLib::createNativeLib(const QString &libName, ZConfLib *fallback) {
-    return new NativeZConfLib(libName, fallback);
+ZConfLib::Ptr ZConfLib::createDnsSdLib(const QString &libName, ZConfLib::Ptr fallback) {
+    return ZConfLib::Ptr(new DnsSdZConfLib(libName, fallback));
     return fallback;
 }
 } // namespace Internal
 } // namespace ZeroConf
 
-#else // no native lib
+#else // NO_DNS_SD_LIB
 
 namespace ZeroConf {
 namespace Internal {
 
-ZConfLib *ZConfLib::createNativeLib(const QString &/*extraPaths*/, ZConfLib * fallback) {
+ZConfLib::Ptr ZConfLib::createDnsSdLib(const QString &/*extraPaths*/, ZConfLib::Ptr fallback) {
     return fallback;
 }
 

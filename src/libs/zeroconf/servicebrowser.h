@@ -135,12 +135,14 @@ private:
 };
 
 enum LibUsage {
-    UseNativeOnly = 1,
+    UseDnsSdOnly = 1,
     UseEmbeddedOnly,
-    UseNativeOrEmbedded
+    UseAvahiOnly,
+    UseAvahiOrDnsSd,
+    UseAvahiOrDnsSdOrEmbedded
 };
 
-void initLib(LibUsage usage, const QString &libName, const QString & daemonPaths);
+void setDefaultZConfLib(LibUsage usage, const QString &avahiLibName, const QString &dnsSdLibName, const QString & dnsSdDaemonPath);
 
 }
 

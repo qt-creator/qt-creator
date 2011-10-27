@@ -60,7 +60,7 @@ class EmbeddedZConfLib : public ZConfLib
 public:
     QString daemonPath;
 
-    EmbeddedZConfLib(const QString &daemonPath, ZConfLib *fallBack = 0) : ZConfLib(fallBack), daemonPath(daemonPath)
+    EmbeddedZConfLib(const QString &daemonPath, ZConfLib::Ptr fallBack) : ZConfLib(fallBack), daemonPath(daemonPath)
     {
         if (!daemonPath.isEmpty() && daemonPath.at(0) != '/' && daemonPath.at(0) != '.')
             this->daemonPath = QCoreApplication::applicationDirPath() + QChar('/') + daemonPath;
@@ -204,9 +204,9 @@ public:
     }
 };
 
-ZConfLib *ZConfLib::createEmbeddedLib(const QString &daemonPath, ZConfLib *fallback)
+ZConfLib::Ptr ZConfLib::createEmbeddedLib(const QString &daemonPath, ZConfLib::Ptr fallback)
 {
-    return new EmbeddedZConfLib(daemonPath, fallback);
+    return ZConfLib::Ptr(new EmbeddedZConfLib(daemonPath, fallback));
 }
 } // namespace Internal
 } // namespace ZeroConf
@@ -216,7 +216,7 @@ ZConfLib *ZConfLib::createEmbeddedLib(const QString &daemonPath, ZConfLib *fallb
 namespace ZeroConf {
 namespace Internal {
 
-ZConfLib *ZConfLib::createEmbeddedLib(const QString &, ZConfLib * fallback)
+ZConfLib::Ptr ZConfLib::createEmbeddedLib(const QString &, ZConfLib::Ptr fallback)
 {
     return fallback;
 }

@@ -114,40 +114,46 @@ class ZeroConfLib
 {
 public:
     ZeroConfLib();
-    ZConfLib *defaultLib();
-    void setDefaultLib(LibUsage usage, const QString &libName, const QString &daemonPath);
+    ZConfLib::Ptr defaultLib();
+    void setDefaultLib(LibUsage usage, const QString &avahiLibName, const QString &dnsSdLibName, const QString &dnsSdDaemonPath);
 
 private:
     QMutex m_lock;
-    ZConfLib *m_defaultLib;
+    ZConfLib::Ptr m_defaultLib;
 };
 
 Q_GLOBAL_STATIC(ZeroConfLib, zeroConfLibInstance)
 
 ZeroConfLib::ZeroConfLib(): m_lock(QMutex::Recursive),
     m_defaultLib(ZConfLib::createAvahiLib(QLatin1String("avahi-client"),
-                 ZConfLib::createNativeLib(QLatin1String("dns_sd"),
-                 ZConfLib::createEmbeddedLib(QString("mdnssd"), 0))))
+                 ZConfLib::createDnsSdLib(QLatin1String("dns_sd"),
+                 ZConfLib::createEmbeddedLib(QLatin1String("mdnssd")))))
 {
     qRegisterMetaType<Service::ConstPtr>("ZeroConf::Service::ConstPtr");
 }
 
-ZConfLib *ZeroConfLib::defaultLib(){
+ZConfLib::Ptr ZeroConfLib::defaultLib(){
     QMutexLocker l(&m_lock);
     return m_defaultLib;
 }
 
-void ZeroConfLib::setDefaultLib(LibUsage usage, const QString &libName, const QString &daemonPath){ // leaks... should be ok, switch to shared pointers???
+void ZeroConfLib::setDefaultLib(LibUsage usage, const QString &avahiLibName, const QString &dnsSdLibName, const QString &dnsSdDaemonPath){
     QMutexLocker l(&m_lock);
     switch (usage){
-    case (UseNativeOnly):
-        m_defaultLib = ZConfLib::createNativeLib(libName, 0);
+    case (UseDnsSdOnly):
+        m_defaultLib = ZConfLib::createDnsSdLib(dnsSdLibName);
         break;
     case (UseEmbeddedOnly):
-        m_defaultLib = ZConfLib::createEmbeddedLib(daemonPath, 0);
+        m_defaultLib = ZConfLib::createEmbeddedLib(dnsSdDaemonPath);
         break;
-    case (UseNativeOrEmbedded):
-        m_defaultLib = ZConfLib::createNativeLib(libName, ZConfLib::createEmbeddedLib(daemonPath, 0));
+    case (UseAvahiOnly):
+        m_defaultLib = ZConfLib::createAvahiLib(avahiLibName);
+        break;
+    case (UseAvahiOrDnsSd):
+        m_defaultLib = ZConfLib::createAvahiLib(avahiLibName, ZConfLib::createDnsSdLib(dnsSdLibName));
+        break;
+    case (UseAvahiOrDnsSdOrEmbedded):
+        m_defaultLib = ZConfLib::createAvahiLib(avahiLibName,ZConfLib::createDnsSdLib(dnsSdLibName, ZConfLib::createEmbeddedLib(dnsSdDaemonPath)));
         break;
     default:
         qDebug() << "invalid usage " << usage;
@@ -411,7 +417,7 @@ void ServiceBrowser::reconfirmService(Service::ConstPtr service)
 
 // ----------------- library initialization impl -----------------
 /*!
-  Intializes the library used for the mdns queries.
+  Sets the library used by future Service Browsers to preform the mdns queries.
   This changes the default library used by the next MainConnection, it does not change the already instantiated
   connections.
   \a usage can decide which libraries are tried,
@@ -421,9 +427,9 @@ void ServiceBrowser::reconfirmService(Service::ConstPtr service)
 
   \threadsafe
 */
-void initLib(LibUsage usage, const QString &libName, const QString &daemonPath)
+void setDefaultZConfLib(LibUsage usage, const QString &avahiLibName, const QString &dnsSdLibName, const QString &dnsSdDaemonPath)
 {
-    zeroConfLibInstance()->setDefaultLib(usage, libName, daemonPath);
+    zeroConfLibInstance()->setDefaultLib(usage, avahiLibName, dnsSdLibName, dnsSdDaemonPath);
 }
 
 namespace Internal {
@@ -536,7 +542,7 @@ ConnectionThread::ConnectionThread(MainConnection &mc, QObject *parent):
 
 // ----------------- ServiceGatherer impl -----------------
 
-ZConfLib *ServiceGatherer::lib()
+ZConfLib::Ptr ServiceGatherer::lib()
 {
     return serviceBrowser->mainConnection->lib;
 }
@@ -971,7 +977,8 @@ ServiceBrowserPrivate::ServiceBrowserPrivate(const QString &serviceType, const Q
 
 ServiceBrowserPrivate::~ServiceBrowserPrivate()
 {
-    qDebug() << "destroying ServiceBrowserPrivate " << serviceType;
+    if (DEBUG_ZEROCONF)
+        qDebug() << "destroying ServiceBrowserPrivate " << serviceType;
     if (browsing){
         stopBrowsing();
     }
@@ -1172,7 +1179,7 @@ void MainConnection::stop(bool wait)
 MainConnection::MainConnection():
     lib(zeroConfLibInstance()->defaultLib()), m_lock(QMutex::Recursive), m_mainRef(0), m_failed(false), m_status(Starting), m_nErrs(0)
 {
-    if (lib == 0){
+    if (lib.isNull()){
         qDebug() << "could not load a valid library for ZeroConf::MainConnection, failing";
     } else {
         m_thread = new ConnectionThread(*this);
@@ -1465,7 +1472,7 @@ QString ZConfLib::name(){
     return QString::fromUtf8("ZeroConfLib@%1").arg(size_t(this),0,16);
 }
 
-ZConfLib::ZConfLib(ZConfLib * f) : fallbackLib(f), m_isOk(true)
+ZConfLib::ZConfLib(ZConfLib::Ptr f) : fallbackLib(f), m_isOk(true)
 { }
 
 ZConfLib::~ZConfLib()

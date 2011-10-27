@@ -8,9 +8,9 @@ DEFINES += ZEROCONF_LIBRARY
 
 SOURCES += servicebrowser.cpp \
     embeddedLib.cpp \
-    nativeLib.cpp \
     mdnsderived.cpp \
-    avahiLib.cpp
+    avahiLib.cpp \
+    dnsSdLib.cpp
 
 HEADERS += servicebrowser.h \
         zeroconf_global.h \
@@ -24,6 +24,3 @@ include(../../qtcreatorlibrary.pri)
 win32{
     LIBS += -lws2_32
 }
-
-
-
