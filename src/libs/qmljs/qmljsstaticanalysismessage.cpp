@@ -248,5 +248,10 @@ DiagnosticMessage Message::toDiagnosticMessage() const
 
 QString Message::suppressionString() const
 {
-    return QString("@disable M%1").arg(QString::number(type));
+    return QString("@disable-check M%1").arg(QString::number(type));
+}
+
+QRegExp Message::suppressionPattern()
+{
+    return QRegExp(QLatin1String("@disable-check M(\\d+)"));
 }

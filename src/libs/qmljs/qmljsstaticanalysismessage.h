@@ -36,6 +36,10 @@
 #include "qmljs_global.h"
 #include "parser/qmljsengine_p.h"
 
+#include <QtCore/QRegExp>
+#include <QtCore/QString>
+#include <QtCore/QList>
+
 namespace QmlJS {
 namespace StaticAnalysis {
 
@@ -124,6 +128,7 @@ public:
     DiagnosticMessage toDiagnosticMessage() const;
 
     QString suppressionString() const;
+    static QRegExp suppressionPattern();
 
     AST::SourceLocation location;
     QString message;

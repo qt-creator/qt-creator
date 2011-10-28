@@ -1174,7 +1174,7 @@ void Check::scanCommentsForAnnotations()
     m_disabledMessageTypesByLine.clear();
 
     // find all disable annotations
-    const QRegExp disableCommentPattern(QLatin1String("@disable M(\\d+)"));
+    const QRegExp disableCommentPattern(Message::suppressionPattern());
     foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
         const QString &comment = _doc->source().mid(commentLoc.begin(), commentLoc.length);
         int lastOffset = -1;
