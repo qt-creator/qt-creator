@@ -158,9 +158,9 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("== and != may perform type coercion, use === or !== to avoid"));
     newMsg(WarnConfusingExpressionStatement, Warning,
            tr("expression statements should be assignments, calls or delete expressions only"));
-    newMsg(HintDeclarationsShouldBeAtStartOfFunction, Error,
+    newMsg(HintDeclarationsShouldBeAtStartOfFunction, Hint,
            tr("var declarations should be at the start of a function"));
-    newMsg(HintOneStatementPerLine, Error,
+    newMsg(HintOneStatementPerLine, Hint,
            tr("only use one statement per line"));
     newMsg(ErrUnknownComponent, Error,
            tr("unknown component"));

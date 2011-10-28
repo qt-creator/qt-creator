@@ -1172,11 +1172,17 @@ void Check::addMessage(Type type, const SourceLocation &location, const QString 
 void Check::scanCommentsForAnnotations()
 {
     m_disabledMessageTypesByLine.clear();
-
-    // find all disable annotations
     const QRegExp disableCommentPattern(Message::suppressionPattern());
+
     foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
         const QString &comment = _doc->source().mid(commentLoc.begin(), commentLoc.length);
+
+        // enable all checks annotation
+        if (comment.contains(QLatin1String("@enable-all-checks"))) {
+            _enabledMessages = Message::allMessageTypes().toSet();
+        }
+
+        // find all disable annotations
         int lastOffset = -1;
         QList<MessageTypeAndSuppression> disabledMessageTypes;
         forever {
