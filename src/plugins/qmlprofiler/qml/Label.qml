@@ -46,7 +46,7 @@ Item {
         var rE = labels.rowExpanded;
         rE[typeIndex] = expanded;
         labels.rowExpanded = rE;
-        backgroundMarks.requestPaint();
+        backgroundMarks.requestRedraw();
         view.rowExpanded(typeIndex, expanded);
         updateHeight();
     }

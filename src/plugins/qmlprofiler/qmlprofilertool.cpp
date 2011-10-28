@@ -48,8 +48,8 @@
 #include <analyzerbase/analyzerruncontrol.h>
 
 #include "canvas/qdeclarativecanvas_p.h"
-#include "canvas/qdeclarativecontext2d_p.h"
-#include "canvas/qdeclarativetiledcanvas_p.h"
+#include "canvas/qdeclarativecanvastimer_p.h"
+#include "canvas/qmlprofilercanvas.h"
 
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <utils/fancymainwindow.h>
@@ -139,7 +139,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(tryToConnect()));
 
     qmlRegisterType<Canvas>("Monitor", 1, 0, "Canvas");
-    qmlRegisterType<TiledCanvas>("Monitor", 1, 0, "TiledCanvas");
+    qmlRegisterType<QmlProfilerCanvas>("Monitor", 1, 0, "Canvas2D");
     qmlRegisterType<Context2D>();
     qmlRegisterType<CanvasImage>();
     qmlRegisterType<CanvasGradient>();

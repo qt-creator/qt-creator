@@ -32,9 +32,6 @@
 
 #include "qmlprofilerengine.h"
 
-#include "canvas/qdeclarativecanvas_p.h"
-#include "canvas/qdeclarativecontext2d_p.h"
-#include "canvas/qdeclarativetiledcanvas_p.h"
 #include "codaqmlprofilerrunner.h"
 #include "localqmlprofilerrunner.h"
 #include "remotelinuxqmlprofilerrunner.h"

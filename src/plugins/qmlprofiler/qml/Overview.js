@@ -37,12 +37,12 @@ var qmlEventList = 0;
 //draw background of the graph
 function drawGraph(canvas, ctxt, region)
 {
-    var grad = ctxt.createLinearGradient(0, 0, 0, canvas.canvasSize.height);
+    var grad = ctxt.createLinearGradient(0, 0, 0, canvas.height);
     grad.addColorStop(0,   '#fff');
     grad.addColorStop(1, '#ccc');
     ctxt.fillStyle = grad;
 
-    ctxt.fillRect(0, 0, canvas.canvasSize.width, canvas.canvasSize.height);
+    ctxt.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 //draw the actual data to be graphed
@@ -51,7 +51,7 @@ function drawData(canvas, ctxt, region)
     if ((!qmlEventList) || qmlEventList.count() == 0)
         return;
 
-    var width = canvas.canvasSize.width;
+    var width = canvas.width;
     var height = canvas.height;
 
     var sumValue = qmlEventList.traceEndTime() - qmlEventList.traceStartTime();

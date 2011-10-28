@@ -33,37 +33,31 @@
 import QtQuick 1.0
 import Monitor 1.0
 
-TiledCanvas {
+Canvas2D {
     id: timeDisplay
 
     property variant startTime : 0
     property variant endTime : 0
     property variant timePerPixel: 0
 
-    canvasSize.width: timeDisplay.width
-    canvasSize.height: timeDisplay.height
-    tileSize.width: width
-    tileSize.height: height
-    canvasWindow.width:  width
-    canvasWindow.height: height
+
+    Component.onCompleted: {
+        requestRedraw();
+    }
+    onWidthChanged: {
+        requestRedraw();
+    }
+    onHeightChanged: {
+        requestRedraw();
+    }
 
     Connections {
         target: zoomControl
         onRangeChanged: {
             startTime = zoomControl.startTime();
             endTime = zoomControl.endTime();
-            requestPaint();
+            requestRedraw();
         }
-    }
-
-    Component.onCompleted: {
-        requestPaint();
-    }
-    onWidthChanged: {
-        requestPaint();
-    }
-    onHeightChanged: {
-        requestPaint();
     }
 
     onDrawRegion: {
@@ -89,7 +83,7 @@ TiledCanvas {
         ctxt.font = "8px sans-serif";
         for (var ii = 0; ii < blockCount+1; ii++) {
             var x = Math.floor(ii*pixelsPerBlock - realStartPos);
-            ctxt.strokeStyle = "#909090";
+            ctxt.strokeStyle = "#C0C0C0";
             ctxt.beginPath();
             ctxt.moveTo(x, 0);
             ctxt.lineTo(x, height);

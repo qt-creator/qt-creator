@@ -34,7 +34,7 @@ import QtQuick 1.0
 import Monitor 1.0
 import "Overview.js" as Plotter
 
-TiledCanvas {
+Canvas2D {
     id: canvas
 
     // ***** properties
@@ -43,20 +43,11 @@ TiledCanvas {
     property variant startTime : 0
     property variant endTime : 0
 
-    canvasSize.width: canvas.width
-    canvasSize.height: canvas.height
-
-    tileSize.width: width
-    tileSize.height: height
-
-    canvasWindow.width: width
-    canvasWindow.height: height
-
     // ***** functions
     function clearDisplay()
     {
         dataAvailable = false;
-        requestPaint();
+        requestRedraw();
     }
 
     function updateRange() {
@@ -89,7 +80,7 @@ TiledCanvas {
         onDataReady: {
             if (qmlEventList.count() > 0) {
                 dataAvailable = true;
-                requestPaint();
+                requestRedraw();
             }
         }
     }
