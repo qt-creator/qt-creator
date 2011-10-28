@@ -1689,6 +1689,23 @@ void DebuggerPluginPrivate::attachToQmlPort()
     sp.sysroot = dlg.sysroot();
 
     sp.startMode = AttachToQmlPort;
+
+    //
+    // get files from all the projects in the session
+    //
+    ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    QList<Project *> projects = sessionManager->projects();
+    if (Project *startupProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject()) {
+        // startup project first
+        projects.removeOne(ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject());
+        projects.insert(0, startupProject);
+    }
+    QStringList sourceFiles;
+    foreach (Project *project, projects)
+        sourceFiles << project->files(Project::ExcludeGeneratedFiles);
+
+    sp.projectSourceFiles = sourceFiles;
+
     if (RunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
