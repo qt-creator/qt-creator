@@ -1596,7 +1596,7 @@ void QmlV8DebuggerClient::resetState()
     clearExceptionSelection();
     d->currentFrameIndex = 0;
     d->updateCurrentStackFrameIndex = true;
-    d->state = QmlV8DebuggerClient::BreakpointsRequestedState;
+    d->state = QmlV8DebuggerClient::RunningState;
     SDEBUG(QString(_("State: %1")).arg(d->state));
 }
 
