@@ -204,7 +204,7 @@ public:
             return kDNSServiceErr_Unknown;
         AvahiServiceResolver *resolver = m_serviceResolverNew(connection->client, interfaceIndex, AVAHI_PROTO_INET, name, regtype, domain, AVAHI_PROTO_INET,
                                                               AvahiLookupFlags(0), &cAvahiResolveReply, gatherer);
-        // *sdRef = reinterpret_cast<DNSServiceRef>(resolver); // as we delete in the callback we don't need it...
+        //*sdRef = reinterpret_cast<DNSServiceRef>(resolver); // add for restart?
         if (!resolver)
             return kDNSServiceErr_Unknown; // avahi_strerror(avahi_client_errno(connection->client));
         return kDNSServiceErr_NoError;
@@ -325,9 +325,11 @@ ZConfLib::Ptr ZConfLib::createAvahiLib(const QString &libName, ZConfLib::Ptr fal
     return ZConfLib::Ptr(new AvahiZConfLib(libName, fallback));
 }
 
-extern "C" void cAvahiResolveReply( AvahiServiceResolver * r, AvahiIfIndex interface, AvahiProtocol /*protocol*/,
-    AvahiResolverEvent event, const char *name, const char *type, const char *domain, const char *hostName,
-    const AvahiAddress *address, uint16_t port, AvahiStringList *txt, AvahiLookupResultFlags /*flags*/, void* context)
+extern "C" void cAvahiResolveReply(
+        AvahiServiceResolver * r, AvahiIfIndex interface, AvahiProtocol /*protocol*/,
+        AvahiResolverEvent event, const char * /*name*/, const char * /*type*/,
+        const char * /*domain*/, const char *hostName, const AvahiAddress *address, uint16_t port,
+        AvahiStringList *txt, AvahiLookupResultFlags /*flags*/, void* context)
 {
     enum { defaultTtl = 0 };
     ServiceGatherer *sg = reinterpret_cast<ServiceGatherer *>(context);
@@ -335,24 +337,18 @@ extern "C" void cAvahiResolveReply( AvahiServiceResolver * r, AvahiIfIndex inter
         qDebug() << "context was null in cAvahiResolveReply";
         return;
     }
-    const unsigned char * txtPtr = 0;
-    unsigned short txtLen = 0;
     AvahiStringList *txtAtt=0;
+    const unsigned char emptyTxt[1]="";
     switch (event) {
     case AVAHI_RESOLVER_FAILURE:
         sg->serviceResolveReply(0, kDNSServiceErr_Timeout, interface, 0, QString(), 0, 0);
         break;
     case AVAHI_RESOLVER_FOUND:
-        if (txt) {
-            txtPtr = txt->text;
-            txtLen = static_cast<unsigned short>(txt->size);
-            qDebug() << "Error: txt was null in cAvahiResolveReply for service:" << name << " type:" << type << " domain:" << domain;
-        }
-        txtAtt=(txt?txt->next:0);
         sg->serviceResolveReply(kDNSServiceFlagsAdd|((txtAtt || address)?kDNSServiceFlagsMoreComing:0), interface, kDNSServiceErr_NoError,
-                                hostName, QString::number(port), txtLen, txtPtr);
+                                hostName, QString::number(port), 0, emptyTxt);
+        txtAtt=txt;
         while (txtAtt) {
-            sg->txtRecordReply(kDNSServiceFlagsAdd|((txtAtt->next || address)?kDNSServiceFlagsMoreComing:0),kDNSServiceErr_NoError,
+            sg->txtFieldReply(kDNSServiceFlagsAdd|((txtAtt->next || address)?kDNSServiceFlagsMoreComing:0),kDNSServiceErr_NoError,
                                static_cast<unsigned short>(txtAtt->size),txtAtt->text,-1);
             txtAtt = txtAtt->next;
         }
@@ -366,11 +362,13 @@ extern "C" void cAvahiResolveReply( AvahiServiceResolver * r, AvahiIfIndex inter
                 ipv4.sin_family = AF_INET;
                 memcpy(&(ipv4.sin_addr),&(address->data.ipv4.address),sizeof(ipv4.sin_addr));
                 sg->addrReply(kDNSServiceFlagsAdd, kDNSServiceErr_NoError, hostName, reinterpret_cast<sockaddr*>(&ipv4), defaultTtl);
+                break;
             case (AVAHI_PROTO_INET6):
                 memset(&ipv6,0,sizeof(ipv6));
                 ipv6.sin6_family = AF_INET6;
                 memcpy(&(ipv6.sin6_addr), &(address->data.ipv6.address), sizeof(ipv6.sin6_addr));
                 sg->addrReply(kDNSServiceFlagsAdd, kDNSServiceErr_NoError, hostName, reinterpret_cast<sockaddr*>(&ipv6), defaultTtl);
+                break;
             default:
                 if (DEBUG_ZEROCONF)
                     qDebug() << "Warning: ignoring address with protocol " << address->proto << " for service " << sg->fullName();

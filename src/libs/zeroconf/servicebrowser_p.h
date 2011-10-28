@@ -112,7 +112,6 @@ protected:
 /// class that gathers all needed info on a service, all its methods (creation included) are supposed to be called by the listener/reaction thread
 class ServiceGatherer {
 public:
-    QHash<QString, QString> txtRecord;
     QString                 hostName;
     ServiceBrowserPrivate   *serviceBrowser;
     QHostInfo               *host;
@@ -157,6 +156,8 @@ public:
                              const unsigned char *rawTxtRecord);
 
     void txtRecordReply(DNSServiceFlags flags, DNSServiceErrorType errorCode,
+                        uint16_t txtLen, const void *rawTxtRecord, uint32_t ttl);
+    void txtFieldReply(DNSServiceFlags flags, DNSServiceErrorType errorCode,
                         uint16_t txtLen, const void *rawTxtRecord, uint32_t ttl);
 
     void addrReply(DNSServiceFlags flags, DNSServiceErrorType errorCode, const char *hostname, const struct sockaddr *address,

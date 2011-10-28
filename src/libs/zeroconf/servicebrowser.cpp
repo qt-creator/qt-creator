@@ -204,13 +204,14 @@ QDebug operator<<(QDebug dbg, const Service &service)
                      << " fullName:" << service.fullName() << ", port:" << service.port()
                      << ", txtRecord:{";
     bool first=true;
-    const ServiceTxtRecord &txtRecord = service.txtRecord();
-    foreach (const QString &k, txtRecord){
+    QHashIterator<QString, QString> i(service.txtRecord());
+    while (i.hasNext()){
+        i.next();
         if (first)
             first = false;
         else
             dbg << ", ";
-        dbg << k << ":" << txtRecord.value(k);
+        dbg << i.key() << ":" << i.value();
     }
     dbg << "}, ";
     if (const QHostInfo *host = service.host()){
@@ -734,7 +735,6 @@ void ServiceGatherer::serviceResolveReply(DNSServiceFlags                     fl
     }
     if (publishedService) publishedService->invalidate(); // delay this to enactServiceChange?
     serviceBrowser->updateFlowStatusForFlags(flags);
-
     uint16_t nKeys = txtRecordGetCount(txtLen, rawTxtRecord);
     for (uint16_t i = 0; i < nKeys; ++i){
         enum { maxTxtLen= 256 };
@@ -749,11 +749,7 @@ void ServiceGatherer::serviceResolveReply(DNSServiceFlags                     fl
             break;
         }
         keyBuf[maxTxtLen-1] = 0; // just to be sure
-        if (flags & kDNSServiceFlagsAdd) {
-            txtRecord[QString::fromUtf8(keyBuf)] = QString::fromUtf8(valueCStr, valLen);
-        } else {
-            txtRecord.remove(QString::fromUtf8(keyBuf)); // check value???
-        }
+        currentService->m_txtRecord.insert(QString::fromUtf8(keyBuf),QString::fromUtf8(valueCStr, valLen));
     }
     currentService->m_interfaceNr = interfaceIndex;
     currentService->m_port = port;
@@ -809,21 +805,63 @@ void ServiceGatherer::txtRecordReply(DNSServiceFlags                     flags,
             qDebug() << "ServiceBrowser " << serviceBrowser->serviceType << " error " << txtErr
                      << " decoding txt record of service " << currentService->fullName();
             if ((flags & kDNSServiceFlagsAdd) == 0)
-                txtRecord.clear();
+                currentService->m_txtRecord.clear();
             break;
         }
         keyBuf[255] = 0; // just to be sure
         if (flags & kDNSServiceFlagsAdd) {
-            txtRecord[QString::fromUtf8(keyBuf)] = QString::fromUtf8(valueCStr, valLen);
+            currentService->m_txtRecord.insert(QString::fromUtf8(keyBuf), QString::fromUtf8(valueCStr, valLen));
         } else {
-            txtRecord.remove(QString::fromUtf8(keyBuf)); // check value???
+            currentService->m_txtRecord.remove(QString::fromUtf8(keyBuf)); // check value???
         }
     }
     if ((flags & kDNSServiceFlagsAdd) != 0) {
         status |= TxtConnectionSuccess;
     }
-    if (txtRecord.count() != 0 && currentServiceCanBePublished())
+    if (currentService->m_txtRecord.count() != 0 && currentServiceCanBePublished())
         serviceBrowser->pendingGathererAdd(gatherer());
+}
+
+void ServiceGatherer::txtFieldReply(DNSServiceFlags                     flags,
+                                    DNSServiceErrorType                 errorCode,
+                                    uint16_t                            txtLen,
+                                    const void                          *rawTxtRecord,
+                                    uint32_t                            /*ttl*/){
+    if (errorCode != kDNSServiceErr_NoError){
+        if (errorCode == kDNSServiceErr_Timeout){
+            if ((status & TxtConnectionSuccess) == 0){
+                qDebug() << "ServiceBrowser " << serviceBrowser->serviceType << " failed txt gathering for service "
+                         << currentService->fullName() << " as it did timeout";
+                status |= TxtConnectionFailed;
+            }
+        } else {
+            qDebug() << "ServiceBrowser " << serviceBrowser->serviceType << " failed txt gathering for service "
+                     << currentService->fullName() << " with error " << errorCode;
+            status |= TxtConnectionFailed;
+        }
+        if (status & TxtConnectionActive) {
+            status &= ~TxtConnectionActive;
+            lib()->refDeallocate(txtConnection);
+            serviceBrowser->updateFlowStatusForCancel();
+        }
+        return;
+    }
+    serviceBrowser->updateFlowStatusForFlags(flags);
+    uint16_t keyLen=0;
+    const char *txt=reinterpret_cast<const char *>(rawTxtRecord);
+    while (keyLen < txtLen) {
+        if (txt[keyLen]=='=')
+            break;
+        ++keyLen;
+    }
+    if (flags & kDNSServiceFlagsAdd) {
+        currentService->m_txtRecord.insert(QString::fromUtf8(txt, keyLen),
+                                           QString::fromUtf8(txt + keyLen + 1,
+                                                             ((txtLen>keyLen)?txtLen - keyLen - 1:0)));
+    } else {
+        currentService->m_txtRecord.remove(QString::fromUtf8(txt, keyLen)); // check value???
+    }
+
 }
 
 void ServiceGatherer::addrReply(DNSServiceFlags                  flags,
