@@ -1017,6 +1017,8 @@ void BreakHandler::removeBreakpoint(BreakpointModelId id)
     Iterator it = m_storage.find(id);
     BREAK_ASSERT(it != m_storage.end(), return);
     switch (it->state) {
+    case BreakpointRemoveRequested:
+        break;
     case BreakpointInserted:
     case BreakpointInsertProceeding:
         setState(id, BreakpointRemoveRequested);

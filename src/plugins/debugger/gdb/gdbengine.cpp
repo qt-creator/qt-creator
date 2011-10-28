@@ -2498,6 +2498,18 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 {
     BreakHandler *handler = breakHandler();
     BreakpointModelId id = response.cookie.value<BreakpointModelId>();
+    if (handler->state(id) == BreakpointRemoveRequested) {
+        if (response.resultClass == GdbResultDone) {
+            // This delete was defered. Act now.
+            const GdbMi mainbkpt = response.data.findChild("bkpt");
+            handler->notifyBreakpointRemoveProceeding(id);
+            QByteArray nr = mainbkpt.findChild("number").data();
+            postCommand("-break-delete " + nr,
+                NeedsStop | RebuildBreakpointModel);
+            handler->notifyBreakpointRemoveOk(id);
+            return;
+        }
+    }
     if (response.resultClass == GdbResultDone) {
         // The result is a list with the first entry marked "bkpt"
         // and "unmarked" rest. The "bkpt" one seems to always be
@@ -2538,7 +2550,8 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
             // Remove if we only support 7.4 or later.
             if (br.multiple && !m_hasBreakpointNotifications)
                 postCommand("info break " + QByteArray::number(br.id.majorPart()),
-                    NeedsStop, CB(handleBreakListMultiple), QVariant::fromValue(id));
+                    NeedsStop, CB(handleBreakListMultiple),
+                    QVariant::fromValue(id));
         }
     } else if (response.data.findChild("msg").data().contains("Unknown option")) {
         // Older version of gdb don't know the -a option to set tracepoints
@@ -3056,15 +3069,21 @@ void GdbEngine::removeBreakpoint(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
     QTC_CHECK(handler->state(id) == BreakpointRemoveRequested);
-    handler->notifyBreakpointRemoveProceeding(id);
     BreakpointResponse br = handler->response(id);
-    showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString())
-        .arg(handler->fileName(id)));
-    postCommand("-break-delete " + br.id.toByteArray(),
-        NeedsStop | RebuildBreakpointModel);
-    // Pretend it succeeds without waiting for response. Feels better.
-    // FIXME: Really?
-    handler->notifyBreakpointRemoveOk(id);
+    if (br.id.isValid()) {
+        // We already have a fully inserted breakpoint.
+        handler->notifyBreakpointRemoveProceeding(id);
+        showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString())
+            .arg(handler->fileName(id)));
+        postCommand("-break-delete " + br.id.toByteArray(),
+            NeedsStop | RebuildBreakpointModel);
+        // Pretend it succeeds without waiting for response. Feels better.
+        // FIXME: Really?
+        handler->notifyBreakpointRemoveOk(id);
+    } else {
+        // Breakpoint was scheduled to be inserted, but we haven't had
+        // an answer so far. Postpone activity by doing nothing.
+    }
 }
 
 
