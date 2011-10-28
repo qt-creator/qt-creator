@@ -531,7 +531,7 @@ QString QmlProfilerEventsView::QmlProfilerEventsViewPrivate::textForItem(QStanda
         // indentation
         QStandardItem *itemParent = item->parent();
         while (itemParent) {
-            str += '\t';
+            str += "    ";
             itemParent = itemParent->parent();
         }
     }
@@ -556,8 +556,18 @@ QString QmlProfilerEventsView::QmlProfilerEventsViewPrivate::textForItem(QStanda
 void QmlProfilerEventsView::copyTableToClipboard()
 {
     QString str;
-    int n = d->m_model->rowCount();
-    for (int i = 0; i != n; ++i) {
+    // headers
+    int columnCount = d->m_model->columnCount();
+    for (int i = 0; i < columnCount; ++i) {
+        str += d->m_model->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
+        if (i < columnCount - 1)
+            str += '\t';
+        else
+            str += '\n';
+    }
+    // data
+    int rowCount = d->m_model->rowCount();
+    for (int i = 0; i != rowCount; ++i) {
         str += d->textForItem(d->m_model->item(i));
     }
     QClipboard *clipboard = QApplication::clipboard();
