@@ -91,12 +91,13 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         watchers += it.key() + "#watch." + QByteArray::number(it.value());
     }
 
+    const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
     QByteArray options;
     if (debuggerCore()->boolSetting(UseDebuggingHelpers))
         options += "fancy,";
     if (debuggerCore()->boolSetting(AutoDerefPointers))
         options += "autoderef,";
-    if (!qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty())
+    if (alwaysVerbose)
         options += "pe,";
     if (options.isEmpty())
         options += "defaults,";
