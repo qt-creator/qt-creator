@@ -714,7 +714,6 @@ bool DebuggerToolTipWidget::positionShow(const DebuggerToolTipEditor &te)
     QTextCursor cursor(te.baseTextEditor->document());
     cursor.setPosition(m_context.position);
     const int line = cursor.blockNumber();
-    const int column = cursor.columnNumber();
     if (qAbs(m_context.line - line) > 2) {
         if (debugToolTips)
             qDebug() << "Closing " << this << " in positionShow() lines "
@@ -723,7 +722,7 @@ bool DebuggerToolTipWidget::positionShow(const DebuggerToolTipEditor &te)
         return false;
     }
     if (debugToolTipPositioning)
-        qDebug() << "positionShow" << this << line << column;
+        qDebug() << "positionShow" << this << line << cursor.columnNumber();
 
     const QPoint screenPos = te.baseTextEditor->toolTipPosition(cursor) + m_offset;
     const QRect toolTipArea = QRect(screenPos, QSize(sizeHint()));

@@ -45,7 +45,7 @@
     \section1 Setting the Path for CMake
 
     You can set the path for the \c CMake executable in \gui{Tools} >
-    \gui{Options > Projects > CMake}.
+    \gui{Options > Build & Run > CMake}.
 
     \image qtcreator-cmakeexecutable.png
 

@@ -163,7 +163,7 @@ private:
                  bool enableAnnotationContextMenu = false);
     void svnStatus(const QString &workingDir, const QStringList &relativePath = QStringList());
     void svnUpdate(const QString &workingDir, const QStringList &relativePaths = QStringList());
-    bool checkSVNSubDir(const QDir &directory) const;
+    bool checkSVNSubDir(const QDir &directory, const QString &fileName = QString()) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();

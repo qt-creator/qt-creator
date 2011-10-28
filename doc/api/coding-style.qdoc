@@ -59,12 +59,11 @@
 
     \section1 Submitting Code
 
-    To submit code to Qt, you must understand the tools and mechanics as well as
+    To submit code to Qt Creator, you must understand the tools and mechanics as well as
     the philosophy behind Qt development. For more information about how to set up
-    the development environment for working on a Qt library and how to submit code
-    and documentation for inclusion to Qt, see
-    \l{http://developer.qt.nokia.com/wiki/Qt_Contribution_Guidelines}
-    {Guidelines for Contributions to the Qt Framework}.
+    the development environment for working on Qt Creator and how to submit code
+    and documentation for inclusion, see
+    \l{http://wiki.qt-project.org/index.php/Main_Page}{Guidelines for Contributions to the Qt Project}.
 
     \section1 Binary and Source Compatibility
 
@@ -85,28 +84,23 @@
 
     We do not currently guarantee API nor ABI
     (\l{http://en.wikipedia.org/wiki/Application_binary_interface}{application binary interface})
-    compatibility between major releases.
+    compatibility between major releases and minor releases.
 
-    However, we try to preserve compatibility between minor and patch releases,
-    as follows:
+    However, we try to preserve backward and forward binary compatibility and forward and
+    backward source code compatibility in patch releases, so:
 
     \list
-        \o  Preserve backward binary compatibility and backward source code
-            compatibility in minor releases.
-        \o  Preserve backward and forward binary compatibility and forward and
-            backward source code compatibility in patch releases:
-        \list
-            \o  Do not add or remove any public API (e.g. global functions,x
-                public/protected/private methods).
-            \o  Do not reimplement methods (not even inlines,
-                nor protected or private methods).
-            \o  Check
-                \l {http://developer.qt.nokia.com/wiki/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
-                for ways to preserve binary compatibility.
-        \endlist
+        \o  Do not add or remove any public API (e.g. global functions,x
+            public/protected/private methods).
+        \o  Do not reimplement methods (not even inlines,
+            nor protected or private methods).
+        \o  Check
+            \l {http://wiki.qt-project.org/index.php/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
+            for ways to preserve binary compatibility.
     \endlist
 
     \note This is not yet mandatory.
+
     For more information on binary compatibility, see
     \l{http://techbase.kde.org/Policies/Binary_Compatibility_Issues_With_C++}{Binary Compatibility Issues With C++}.
 
@@ -502,7 +496,7 @@
 
     \section2 Namespacing
 
-    Read \l {http://developer.qt.nokia.com/wiki/Qt_In_Namespace}{Qt In Namespace}
+    Read \l {http://wiki.qt-project.org/index.php/Qt_In_Namespace}{Qt In Namespace}
     and keep in mind that all of Qt Creator is \e{namespace aware} code.
 
     The namespacing policy within Qt Creator is as follows:

@@ -55,7 +55,7 @@
         \o  In the \gui {Package Manager}, select \gui {Experimental >
             Remote Compiler} to install Remote Compiler.
 
-        \o  In \QC, choose \gui {Tools > Options > Projects > Remote Compiler}
+        \o  In \QC, choose \gui {Tools > Options > Build & Run > Remote Compiler}
             to log on to Nokia Developer.
 
             \image remotecompiler-fn-logon.png "Remote Compiler options"

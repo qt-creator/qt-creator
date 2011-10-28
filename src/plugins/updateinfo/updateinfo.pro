@@ -6,15 +6,10 @@ HEADERS += updateinfoplugin.h \
     updateinfobutton.h
 SOURCES += updateinfoplugin.cpp \
     updateinfobutton.cpp
-FORMS +=
 RESOURCES += updateinfo.qrc
 
-PROVIDER = Nokia
-
-isEmpty(UPDATEINFO_DISABLE):UPDATEINFO_DISABLE=$$(UPDATEINFO_DISABLE)
-isEmpty(UPDATEINFO_DISABLE):UPDATEINFO_DISABLE = "true"
-else:UPDATEINFO_DISABLE = "false"
+isEmpty(UPDATEINFO_ENABLE):UPDATEINFO_EXPERIMENTAL_STR="true"
+else:UPDATEINFO_EXPERIMENTAL_STR="false"
 
 include(../../qtcreatorplugin.pri)
-
 include(updateinfo_dependencies.pri)

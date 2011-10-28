@@ -316,7 +316,7 @@ bool QtQuickApp::addCppPlugin(const QString &qmldirLine, QmlModule *module)
     } else {
         m_error = QCoreApplication::translate(
                     "Qt4ProjectManager::Internal::QtQuickApp",
-                    "No .pro file for plugin '%1' cannot be found.").arg(name);
+                    "No .pro file for plugin '%1' can be found.").arg(name);
         return false;
     }
     QmlCppPlugin *plugin =

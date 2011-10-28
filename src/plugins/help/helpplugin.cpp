@@ -203,12 +203,12 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     QAction *action = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
         tr("Home"), this);
     Core::ActionManager *am = m_core->actionManager();
-    Core::Command *cmd = am->registerAction(action, "Help.Home", globalcontext);
+    am->registerAction(action, "Help.Home", globalcontext);
     connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(home()));
 
     action = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
         tr("Previous Page"), this);
-    cmd = am->registerAction(action, Core::Id("Help.Previous"), modecontext);
+    Core::Command *cmd = am->registerAction(action, Core::Id("Help.Previous"), modecontext);
     cmd->setDefaultKeySequence(QKeySequence::Back);
     action->setEnabled(m_centralWidget->isBackwardAvailable());
     connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(backward()));

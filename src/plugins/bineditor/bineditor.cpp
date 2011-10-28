@@ -1075,7 +1075,6 @@ QString BinEditor::toolTip(const QHelpEvent *helpEvent) const
     int selEnd = selectionEnd();
     int byteCount = selEnd - selStart;
     if (byteCount <= 0) {
-        selStart = m_cursorPosition;
         selStart = posAt(helpEvent->pos());
         selEnd = selStart + 1;
         byteCount = 1;

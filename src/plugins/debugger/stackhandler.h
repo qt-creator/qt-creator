@@ -85,6 +85,9 @@ public:
     void scheduleResetLocation();
     void resetLocation();
 
+signals:
+    void stackChanged();
+
 private:
     // QAbstractTableModel
     int rowCount(const QModelIndex &parent) const;

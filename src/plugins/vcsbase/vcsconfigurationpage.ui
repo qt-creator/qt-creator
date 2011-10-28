@@ -14,7 +14,7 @@
    <item>
     <widget class="QPushButton" name="configureButton">
      <property name="text">
-      <string>Configure</string>
+      <string>Configure...</string>
      </property>
     </widget>
    </item>

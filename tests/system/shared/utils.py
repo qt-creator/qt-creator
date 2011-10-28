@@ -103,9 +103,9 @@ def prepareForSignal(object, signal):
 def cleanUpUserFiles(pathsToProFiles=None):
     if pathsToProFiles==None:
         return False
-    if className(pathsToProFiles) in ("str", "unicode"):
+    if isinstance(pathsToProFiles, (str, unicode)):
         filelist = glob.glob(pathsToProFiles+".user*")
-    elif className(pathsToProFiles)=="list":
+    elif isinstance(pathsToProFiles, (list, tuple)):
         filelist = []
         for p in pathsToProFiles:
             filelist.extend(glob.glob(p+".user*"))

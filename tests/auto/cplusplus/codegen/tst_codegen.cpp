@@ -48,6 +48,7 @@
 #include <QtTest>
 #include <QtDebug>
 #include <QTextDocument>
+#include <QDir>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 
@@ -79,6 +80,7 @@ private slots:
 
 private:
     ExtensionSystem::PluginManager *pluginManager;
+    QString tempPath;
 };
 
 void tst_Codegen::initTestCase()
@@ -90,6 +92,8 @@ void tst_Codegen::initTestCase()
     pluginManager->setFileExtension(QLatin1String("pluginspec"));
     pluginManager->setPluginPaths(QStringList() << QLatin1String(Q_PLUGIN_PATH));
     pluginManager->loadPlugins();
+
+    tempPath = QDir::tempPath();
 }
 
 void tst_Codegen::cleanupTestCase()
@@ -414,7 +418,7 @@ void tst_Codegen::definition_empty_class()
             "int x;\n"  // line 1
             "\n";
 
-    Document::Ptr src = Document::create(QLatin1String("/tmp/file.h"));
+    Document::Ptr src = Document::create(tempPath + QLatin1String("/file.h"));
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
@@ -424,7 +428,7 @@ void tst_Codegen::definition_empty_class()
     QCOMPARE(src->diagnosticMessages().size(), 0);
     QCOMPARE(src->globalSymbolCount(), 1U);
 
-    Document::Ptr dst = Document::create(QLatin1String("/tmp/file.cpp"));
+    Document::Ptr dst = Document::create(tempPath + QLatin1String("/file.cpp"));
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
@@ -453,7 +457,7 @@ void tst_Codegen::definition_empty_class()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), QLatin1String("/tmp/file.cpp"));
+    QCOMPARE(loc.fileName(), dst->fileName());
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
     QCOMPARE(loc.suffix(), QString());
     QCOMPARE(loc.line(), 1U);
@@ -470,18 +474,19 @@ void tst_Codegen::definition_first_member()
             "};\n"
             "\n";
 
-    const QByteArray dstText = "\n"
-            "#include \"/tmp/file.h\"\n" // line 1
-            "int x;\n"
-            "\n"
-            "void Foo::bar()\n" // line 4
-            "{\n"
-            "\n"
-            "}\n"
-            "\n"
-            "int y;\n";
+    const QByteArray dstText = QString(
+                "\n"
+                "#include \"%1/file.h\"\n" // line 1
+                "int x;\n"
+                "\n"
+                "void Foo::bar()\n" // line 4
+                "{\n"
+                "\n"
+                "}\n"
+                "\n"
+                "int y;\n").arg(tempPath).toLatin1();
 
-    Document::Ptr src = Document::create(QLatin1String("/tmp/file.h"));
+    Document::Ptr src = Document::create(tempPath + QLatin1String("/file.h"));
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
@@ -491,8 +496,8 @@ void tst_Codegen::definition_first_member()
     QCOMPARE(src->diagnosticMessages().size(), 0);
     QCOMPARE(src->globalSymbolCount(), 1U);
 
-    Document::Ptr dst = Document::create(QLatin1String("/tmp/file.cpp"));
-    dst->addIncludeFile("/tmp/file.h", 1);
+    Document::Ptr dst = Document::create(tempPath + QLatin1String("/file.cpp"));
+    dst->addIncludeFile(src->fileName(), 1);
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
@@ -521,7 +526,7 @@ void tst_Codegen::definition_first_member()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), QLatin1String("/tmp/file.cpp"));
+    QCOMPARE(loc.fileName(), dst->fileName());
     QCOMPARE(loc.line(), 4U);
     QCOMPARE(loc.column(), 1U);
     QCOMPARE(loc.suffix(), QLatin1String("\n\n"));
@@ -538,18 +543,19 @@ void tst_Codegen::definition_last_member()
             "};\n"
             "\n";
 
-    const QByteArray dstText = "\n"
-            "#include \"/tmp/file.h\"\n" // line 1
-            "int x;\n"
-            "\n"
-            "void Foo::foo()\n" // line 4
-            "{\n"
-            "\n"
-            "}\n" // line 7
-            "\n"
-            "int y;\n";
+    const QByteArray dstText = QString(
+                "\n"
+                "#include \"%1/file.h\"\n" // line 1
+                "int x;\n"
+                "\n"
+                "void Foo::foo()\n" // line 4
+                "{\n"
+                "\n"
+                "}\n" // line 7
+                "\n"
+                "int y;\n").arg(tempPath).toLatin1();
 
-    Document::Ptr src = Document::create(QLatin1String("/tmp/file.h"));
+    Document::Ptr src = Document::create(tempPath + QLatin1String("/file.h"));
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
@@ -559,8 +565,8 @@ void tst_Codegen::definition_last_member()
     QCOMPARE(src->diagnosticMessages().size(), 0);
     QCOMPARE(src->globalSymbolCount(), 1U);
 
-    Document::Ptr dst = Document::create(QLatin1String("/tmp/file.cpp"));
-    dst->addIncludeFile("/tmp/file.h", 1);
+    Document::Ptr dst = Document::create(tempPath + QLatin1String("/file.cpp"));
+    dst->addIncludeFile(src->fileName(), 1);
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
@@ -589,7 +595,7 @@ void tst_Codegen::definition_last_member()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), QLatin1String("/tmp/file.cpp"));
+    QCOMPARE(loc.fileName(), dst->fileName());
     QCOMPARE(loc.line(), 7U);
     QCOMPARE(loc.column(), 2U);
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
@@ -607,23 +613,24 @@ void tst_Codegen::definition_middle_member()
             "};\n"
             "\n";
 
-    const QByteArray dstText = "\n"
-            "#include \"/tmp/file.h\"\n" // line 1
-            "int x;\n"
-            "\n"
-            "void Foo::foo()\n" // line 4
-            "{\n"
-            "\n"
-            "}\n" // line 7
-            "\n"
-            "void Foo::car()\n" // line 9
-            "{\n"
-            "\n"
-            "}\n"
-            "\n"
-            "int y;\n";
+    const QByteArray dstText = QString(
+                "\n"
+                "#include \"%1/file.h\"\n" // line 1
+                "int x;\n"
+                "\n"
+                "void Foo::foo()\n" // line 4
+                "{\n"
+                "\n"
+                "}\n" // line 7
+                "\n"
+                "void Foo::car()\n" // line 9
+                "{\n"
+                "\n"
+                "}\n"
+                "\n"
+                "int y;\n").arg(tempPath).toLatin1();
 
-    Document::Ptr src = Document::create(QLatin1String("/tmp/file.h"));
+    Document::Ptr src = Document::create(tempPath + QLatin1String("/file.h"));
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
@@ -633,8 +640,8 @@ void tst_Codegen::definition_middle_member()
     QCOMPARE(src->diagnosticMessages().size(), 0);
     QCOMPARE(src->globalSymbolCount(), 1U);
 
-    Document::Ptr dst = Document::create(QLatin1String("/tmp/file.cpp"));
-    dst->addIncludeFile("/tmp/file.h", 1);
+    Document::Ptr dst = Document::create(tempPath + QLatin1String("/file.cpp"));
+    dst->addIncludeFile(src->fileName(), 1);
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
@@ -663,7 +670,7 @@ void tst_Codegen::definition_middle_member()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), QLatin1String("/tmp/file.cpp"));
+    QCOMPARE(loc.fileName(), dst->fileName());
     QCOMPARE(loc.line(), 7U);
     QCOMPARE(loc.column(), 2U);
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));

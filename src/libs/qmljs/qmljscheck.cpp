@@ -955,8 +955,7 @@ bool Check::visit(Block *ast)
             addMessage(WarnBlock, ast->lbraceToken);
         }
         if (!ast->statements
-                && (cast<UiPublicMember *>(p)
-                    || cast<UiScriptBinding *>(p))
+                && cast<UiPublicMember *>(p)
                 && ast->lbraceToken.startLine == ast->rbraceToken.startLine) {
             addMessage(WarnUnintentinalEmptyBlock, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
         }

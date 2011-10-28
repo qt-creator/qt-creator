@@ -151,6 +151,9 @@ public:
                 newArg->setName(rewrite->rewriteName(arg->name()));
                 newArg->setType(rewrite->rewriteType(arg->type()));
 
+                // the copy() call above set the scope to 'type'
+                // reset it to 0 before adding addMember to avoid assert
+                newArg->resetScope();
                 funTy->addMember(newArg);
             }
 

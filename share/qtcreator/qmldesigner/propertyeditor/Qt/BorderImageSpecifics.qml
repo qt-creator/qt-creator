@@ -46,7 +46,7 @@ QWidget {
             maximumHeight: 240;
 
             finished: finishedNotify;
-            caption: qsTr("Image");
+            caption: qsTr("BorderImage");
 
             layout: VerticalLayout {
 

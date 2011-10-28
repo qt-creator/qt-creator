@@ -396,7 +396,11 @@ void BreakHandler::loadBreakpoints()
         v = map.value(_("message"));
         if (v.isValid())
             data.message = v.toString();
-        appendBreakpoint(data);
+        if (data.isValid()) {
+            appendBreakpoint(data);
+        } else {
+            qWarning("Not restoring invalid breakpoint: %s", qPrintable(data.toString()));
+        }
     }
     //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
 }
@@ -1036,7 +1040,11 @@ static int currentId = 0;
 
 void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
 {
-    QTC_ASSERT(data.type != UnknownType, return);
+    if (!data.isValid()) {
+        qWarning("Not adding invalid breakpoint: %s", qPrintable(data.toString()));
+        return;
+    }
+
     BreakpointModelId id(++currentId);
     const int row = m_storage.size();
     beginInsertRows(QModelIndex(), row, row);

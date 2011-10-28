@@ -56,7 +56,6 @@ QString CheckoutWizardPage::directoryFromRepository(const QString &repoIn) const
     if (slashPos != -1)
         repo.remove(0, slashPos + 1);
     // fix invalid characters
-    const QChar dash = QLatin1Char('-');
     repo.replace(QLatin1Char('.'), QLatin1Char('-'));
     return repo;
 }

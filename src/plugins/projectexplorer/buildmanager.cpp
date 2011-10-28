@@ -156,9 +156,9 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
 void BuildManager::extensionsInitialized()
 {
     d->m_taskHub->addCategory(Constants::TASK_CATEGORY_COMPILE,
-        tr("Compile", "Category for compiler isses listened under 'Issues'"));
+        tr("Compile", "Category for compiler issues listed under 'Issues'"));
     d->m_taskHub->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM,
-        tr("Build System", "Category for build system isses listened under 'Issues'"));
+        tr("Build System", "Category for build system issues listed under 'Issues'"));
 }
 
 BuildManager::~BuildManager()

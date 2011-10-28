@@ -1999,6 +1999,7 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
                 case Token_WRITE:
                 case Token_RESET:
                 case Token_NOTIFY:
+                case Token_REVISION:
                 case Token_DESIGNABLE:
                 case Token_SCRIPTABLE:
                 case Token_STORED:

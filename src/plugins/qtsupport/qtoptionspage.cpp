@@ -467,6 +467,9 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     if (index < 0)
         return;
 
+    // remove tools that cannot be build
+    tools &= DebuggingHelperBuildTask::availableTools(currentVersion());
+
     QTreeWidgetItem *item = treeItemForIndex(index);
     QTC_ASSERT(item, return);
 

@@ -73,6 +73,11 @@ bool QmlDebuggingLibrary::canBuild(const BaseQtVersion *qtVersion, QString *reas
             *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "Only available for Qt 4.7.1 or newer.");
         return false;
     }
+    if (qtVersion->qtVersion() >= QtVersionNumber(4, 8, 0)) {
+        if (reason)
+            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "Not needed.");
+        return false;
+    }
     return true;
 }
 

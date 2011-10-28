@@ -269,14 +269,18 @@ QStringList ExamplesListModel::exampleSources() const
     }
     settings->endArray();
 
+
+    bool anyQtVersionHasExamplesFolder = false;
     if (sources.isEmpty()) {
         // Try to get dir from first Qt Version
         QtVersionManager *versionManager = QtVersionManager::instance();
         foreach (BaseQtVersion *version, versionManager->validVersions()) {
 
             QDir examplesDir(version->examplesPath());
-            if (examplesDir.exists())
+            if (examplesDir.exists()) {
                 sources << examplesDir.entryInfoList(pattern);
+                anyQtVersionHasExamplesFolder = true;
+            }
 
             QDir demosDir(version->demosPath());
             if (demosDir.exists())
@@ -290,7 +294,7 @@ QStringList ExamplesListModel::exampleSources() const
     QString resourceDir = Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/");
 
     // Try Creator-provided XML file only
-    if (sources.isEmpty()) {
+    if (sources.isEmpty() && anyQtVersionHasExamplesFolder) {
         // qDebug() << Q_FUNC_INFO << "falling through to Creator-provided XML file";
         sources << QString(resourceDir + QLatin1String("/examples_fallback.xml"));
     }

@@ -90,8 +90,8 @@ void FileNameValidatingLineEdit::setAllowDirectories(bool v)
 #  define SLASHES "/"
 #endif
 
-static const char notAllowedCharsSubDir[]   = "~!?:&*\"|#%<> ";
-static const char notAllowedCharsNoSubDir[] = "~!?:&*\"|#%<> "SLASHES;
+static const char notAllowedCharsSubDir[]   = "~!?:&*\"|#%<>$\"'();`' ";
+static const char notAllowedCharsNoSubDir[] = "~!?:&*\"|#%<>$\"'();`' "SLASHES;
 
 static const char *notAllowedSubStrings[] = {".."};
 

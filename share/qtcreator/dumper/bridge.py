@@ -295,7 +295,7 @@ try:
     #######################################################################
 
     def sal(args):
-        (cmd, addr) = arg.split(",")
+        (cmd, addr) = args.split(",")
         lines = catchCliOutput("info line *" + addr)
         fromAddr = "0x0"
         toAddr = "0x0"
@@ -338,3 +338,4 @@ try:
 
 except:
     pass
+

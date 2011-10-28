@@ -19,13 +19,28 @@ Editing
 
 Managing Projects
    * Shared project settings support
+   * New templates for non-Qt C and C++ applications
 
 Debugging
+   * Initial Qt 5 support in dumpers
+   * Make vtables visible
+   * Improved remote debugging
+   * Improved register handling (partial updates, input in hex, ARM Neon support)
+   * Remove inferior calls in QDate, QTime, QDateTime dumpers
+   * Fix QTextCodec dumpers
+   * Globally enable pretty printing for references
+   * Saner handling of unprintable data in Locals and Expressions
+   * Add "Local8Bit" as display option for char arrays and pointers
 
 Debugging QML/JS
+   * New option to attach to a running application
+   * Lots of bug fixes especially for debugging in combination with C++
+   * Initial support for debugging JS in Qt 5 (v8 engine)
 
 Analyzing Code
    * Standalone qmlprofiler command line tool allows you to retrieve & store QML tracing data
+   * Ability to store and load traces in a file
+   * New option to attach to a running application
 
 C++ Support
    * Add quick fix to synchronize function declarations and definitions
@@ -67,6 +82,7 @@ QML/JS Support
    * Fix scope for completion in code bindings
    * Allow for different builtin type information per Qt version
    * Update builtin type information and parser for Qt 5
+   * Use qmlscene for previewing files in Qt 5
 
 Qt Quick Designer
    * Adding breadcrumb navigation for components
@@ -88,12 +104,32 @@ Windows
 Symbian Target
 
 Remote Linux Support
+   * Move Maemo/MeeGo support into its own plugin.
+   * Assume less about the target systems, e.g. in respect to the presence of
+     POSIX-conforming tools.
 
 Qt Designer
 
 FakeVim
+   * Add basic command editing in Ex mode
+   * Mention "comma escape" in Documentation
+   * Fix foreground color for search matches in Dark scheme
+   * Fix toggling visual mode with "v"
 
 Version control plugins
+   * SVN: Support for SVN version 1.7
+   * Git: New option to toggle decoration settings for log and show commands
+
 
 Additional credits go to:
+   * Benito van der Zander (code model)
+   * Christoph Mathys (debugger)
+   * Hugues Delorme (version control refactoring, bazaar)
+   * Jonathan Liu (SVN 1.7 support)
+   * Nicolas Arnaud-Cormos (quick fixes)
+   * Orgad Shaneh (git, debugger, other places)
+   * Peter Kuemmel (bug fixes)
+   * Thorbjørn Lindeijer (code model)
+   * Vlad Brovko (improve symlink support)
+   * Yuchen Deng (bug fixes, project wizards)
 

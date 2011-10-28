@@ -371,6 +371,7 @@ bool Qt4Project::fromMap(const QVariantMap &map)
         if (t->buildConfigurations().isEmpty()) {
             qWarning() << "Removing" << t->id() << "since it has no buildconfigurations!";
             removeTarget(t);
+            delete t;
         }
     }
 
@@ -555,7 +556,9 @@ void Qt4Project::updateCppCodeModel()
     }
 
     // Add mkspec directory
-    if (activeBC->qtVersion())
+    if (rootQt4ProjectNode())
+        allIncludePaths.append(rootQt4ProjectNode()->resolvedMkspecPath());
+    else if (activeBC->qtVersion())
         allIncludePaths.append(activeBC->qtVersion()->mkspecPath());
 
     allIncludePaths.append(predefinedIncludePaths);
@@ -961,10 +964,12 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
                 m_proFileOption->environment.insert(env.key(eit), env.value(eit));
 
             QStringList args;
-            if (QMakeStep *qs = bc->qmakeStep())
+            if (QMakeStep *qs = bc->qmakeStep()) {
                 args = qs->parserArguments();
-            else
+                m_proFileOption->qmakespec = qs->mkspec();
+            } else {
                 args = bc->configCommandLineArguments();
+            }
             m_proFileOption->setCommandLineArguments(args);
         }
 
@@ -977,6 +982,11 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
     reader->setOutputDir(qt4ProFileNode->buildDir());
 
     return reader;
+}
+
+ProFileOption *Qt4Project::proFileOption()
+{
+    return m_proFileOption;
 }
 
 void Qt4Project::destroyProFileReader(QtSupport::ProFileReader *reader)

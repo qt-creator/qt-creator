@@ -35,6 +35,8 @@
 
 #include <QtCore/QString>
 
+QT_USE_NAMESPACE
+
 namespace ProFileEvaluatorInternal {
 
 /*!

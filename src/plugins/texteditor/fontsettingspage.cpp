@@ -396,14 +396,7 @@ void FontSettingsPage::updatePointSizes()
 {
     // Update point sizes
     const int oldSize = d_ptr->m_value.fontSize();
-    if (d_ptr->m_ui->sizeComboBox->count()) {
-        const QString curSize = d_ptr->m_ui->sizeComboBox->currentText();
-        bool ok = true;
-        int oldSize = curSize.toInt(&ok);
-        if (!ok)
-            oldSize = d_ptr->m_value.fontSize();
-        d_ptr->m_ui->sizeComboBox->clear();
-    }
+    d_ptr->m_ui->sizeComboBox->clear();
     const QList<int> sizeLst = pointSizesForSelectedFont();
     int idx = -1;
     int i = 0;

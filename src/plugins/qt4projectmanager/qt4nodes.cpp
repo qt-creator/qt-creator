@@ -1004,7 +1004,7 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
     switch (Core::FileManager::promptReadOnlyFile(path, versionControl, core->mainWindow(), false)) {
     case Core::FileManager::RO_OpenVCS:
         if (!versionControl->vcsOpen(path)) {
-            QMessageBox::warning(core->mainWindow(), tr("Cannot Open File"), tr("Cannot open the file for edit with VCS."));
+            QMessageBox::warning(core->mainWindow(), tr("Cannot Open File"), tr("Cannot open the file for editing with VCS."));
             return false;
         }
         break;
@@ -1813,6 +1813,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
         // update TargetInformation
         m_qt4targetInformation = targetInformation(m_readerExact);
+        m_resolvedMkspecPath = m_project->proFileOption()->qmakespec;
 
         setupInstallsList(m_readerExact);
         setupProjectVersion(m_readerExact);
@@ -2062,7 +2063,7 @@ QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader) const
         }
 
         if (QFile::exists(realFile)) {
-            subProjectPaths << realFile;
+            subProjectPaths << QDir::cleanPath(realFile);
         } else {
             m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
                                          .arg(subDirVar).arg(realDir));
@@ -2139,6 +2140,11 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
 TargetInformation Qt4ProFileNode::targetInformation() const
 {
     return m_qt4targetInformation;
+}
+
+QString Qt4ProFileNode::resolvedMkspecPath() const
+{
+    return m_resolvedMkspecPath;
 }
 
 void Qt4ProFileNode::setupInstallsList(const QtSupport::ProFileReader *reader)

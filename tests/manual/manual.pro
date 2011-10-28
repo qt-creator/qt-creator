@@ -3,7 +3,7 @@ TEMPLATE=subdirs
 SUBDIRS= \
 cplusplus-frontend \
 fakevim \
-gdbdebugger \
+debugger \
 preprocessor \
 subdir_proparser
 

@@ -299,11 +299,6 @@ IconButton::IconButton(QWidget *parent)
 void IconButton::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    // Note isDown should really use the active state but in most styles
-    // this has no proper feedback
-    QIcon::Mode state = QIcon::Disabled;
-    if (isEnabled())
-        state = isDown() ? QIcon::Selected : QIcon::Normal;
     QRect pixmapRect = QRect(0, 0, m_pixmap.width(), m_pixmap.height());
     pixmapRect.moveCenter(rect().center());
 

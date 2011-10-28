@@ -120,7 +120,7 @@ void CodePasterSettingsPage::apply()
 
 void CodePasterSettingsPage::serverChanged(const QString &host)
 {
-    m_host = host;
+    m_host = host.trimmed();
 }
 
 QString CodePasterSettingsPage::hostName() const

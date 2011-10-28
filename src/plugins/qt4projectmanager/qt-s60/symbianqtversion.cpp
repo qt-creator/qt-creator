@@ -207,7 +207,13 @@ static const char *S60_EPOC_HEADERS[] = {
     "epoc32/include/oem", "epoc32/include/middleware", "epoc32/include/domain/middleware",
     "epoc32/include/osextensions", "epoc32/include/domain/osextensions",
     "epoc32/include/domain/osextensions/loc", "epoc32/include/domain/middleware/loc",
-    "epoc32/include/domain/osextensions/loc/sc", "epoc32/include/domain/middleware/loc/sc"
+    "epoc32/include/domain/osextensions/loc/sc", "epoc32/include/domain/middleware/loc/sc",
+    "epoc32/include/mw", "epoc32/include/app",
+    "epoc32/include/platform", "epoc32/include/platform/mw",
+    "epoc32/include/platform/app", "epoc32/include/platform/loc",
+    "epoc32/include/platform/mw/loc", "epoc32/include/platform/app/loc",
+    "epoc32/include/platform/loc/sc", "epoc32/include/platform/app/loc/sc",
+    "epoc32/include/platform/mw/loc/sc"
 };
 
 void SymbianQtVersion::addToEnvironment(Utils::Environment &env) const

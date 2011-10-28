@@ -198,7 +198,8 @@ void QmlEngine::connectionEstablished()
     }
     connect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
 
-    notifyEngineRunAndInferiorRunOk();
+    if (state() == EngineRunRequested)
+        notifyEngineRunAndInferiorRunOk();
 }
 
 void QmlEngine::beginConnection()
@@ -247,7 +248,12 @@ void QmlEngine::retryMessageBoxFinished(int result)
         // fall through
     }
     default:
+        if (state() == InferiorRunOk) {
+            notifyInferiorSpontaneousStop();
+            notifyInferiorIll();
+        } else {
         notifyEngineRunFailed();
+        }
         break;
     }
 }
@@ -518,6 +524,9 @@ void QmlEngine::executeJumpToLine(const ContextData &data)
 
 void QmlEngine::activateFrame(int index)
 {
+    if (state() != InferiorStopOk && state() != InferiorUnrunnable)
+        return;
+
     if (d->m_adapter.activeDebuggerClient()) {
         logMessage(LogSend, QString("%1 %2").arg(QString("ACTIVATE_FRAME"), QString::number(index)));
         d->m_adapter.activeDebuggerClient()->activateFrame(index);

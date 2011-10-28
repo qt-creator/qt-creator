@@ -1909,6 +1909,8 @@ bool Bind::visit(QtPropertyDeclarationAST *ast)
             flags |= QtPropertyDeclaration::ResetFunction;
         } else if (name == "NOTIFY") {
             flags |= QtPropertyDeclaration::NotifyFunction;
+        } else if (name == "REVISION") {
+            // ### handle REVISION property
         } else if (name == "DESIGNABLE") {
             qtPropertyAttribute(translationUnit(), it->value->expression, &flags,
                                 QtPropertyDeclaration::DesignableFlag, QtPropertyDeclaration::DesignableFunction);

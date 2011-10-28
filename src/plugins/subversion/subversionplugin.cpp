@@ -1357,49 +1357,56 @@ QString SubversionPlugin::vcsGetRepositoryURL(const QString &directory)
     return QString();
 }
 
-/* Subversion has ".svn" directory in each directory
- * it manages. The top level is the first directory
- * under the directory that does not have a  ".svn". */
 bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
     const QDir dir(directory);
+    if (!dir.exists())
+        return false;
+
     if (topLevel)
         topLevel->clear();
-    bool manages = false;
-    do {
-        if (!dir.exists() || !checkSVNSubDir(dir))
-            break;
-        manages = true;
-        if (!topLevel)
-            break;
-        /* Recursing up, the top level is a child of the first directory that does
-         * not have a  ".svn" directory. The starting directory must be a managed
-         * one. Go up and try to find the first unmanaged parent dir. */
-        QDir lastDirectory = dir;
-        for (QDir parentDir = lastDirectory; parentDir.cdUp() ; lastDirectory = parentDir) {
-            if (!checkSVNSubDir(parentDir)) {
-                *topLevel = lastDirectory.absolutePath();
-                break;
+
+    /* Subversion >= 1.7 has ".svn" directory in the root of the working copy. Check for
+     * furthest parent containing ".svn/wc.db". Need to check for furthest parent as closer
+     * parents may be svn:externals. */
+    QDir parentDir = dir;
+    while (parentDir.cdUp()) {
+        if (checkSVNSubDir(parentDir, QLatin1String("wc.db"))) {
+            if (topLevel)
+                *topLevel = parentDir.absolutePath();
+            return true;
+        }
+    }
+
+    /* Subversion < 1.7 has ".svn" directory in each directory
+     * it manages. The top level is the first directory
+     * under the directory that does not have a  ".svn".*/
+    if (!checkSVNSubDir(dir))
+        return false;
+
+     if (topLevel) {
+         QDir lastDirectory = dir;
+         for (parentDir = lastDirectory; parentDir.cdUp() ; lastDirectory = parentDir) {
+             if (!checkSVNSubDir(parentDir)) {
+                 *topLevel = lastDirectory.absolutePath();
+                 break;
             }
         }
-    } while (false);
-    if (Subversion::Constants::debug) {
-        QDebug nsp = qDebug().nospace();
-        nsp << "SubversionPlugin::managesDirectory" << directory << manages;
-        if (topLevel)
-            nsp << *topLevel;
     }
-    return manages;
+    return false;
 }
 
 // Check whether SVN management subdirs exist.
-bool SubversionPlugin::checkSVNSubDir(const QDir &directory) const
+bool SubversionPlugin::checkSVNSubDir(const QDir &directory, const QString &fileName) const
 {
     const int dirCount = m_svnDirectories.size();
     for (int i = 0; i < dirCount; i++) {
         const QString svnDir = directory.absoluteFilePath(m_svnDirectories.at(i));
-        if (QFileInfo(svnDir).isDir())
-            return true;
+        if (!QFileInfo(svnDir).isDir())
+            continue;
+        if (!fileName.isEmpty() && !QDir(svnDir).exists(fileName))
+            continue;
+        return true;
     }
     return false;
 }

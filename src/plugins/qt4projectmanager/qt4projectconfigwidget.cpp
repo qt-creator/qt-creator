@@ -409,7 +409,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         m_ui->problemLabel->setVisible(true);
         m_ui->warningLabel->setVisible(true);
         m_ui->importLabel->setVisible(false);
-        m_ui->problemLabel->setText(tr("An build for a different project exists in %1, which will be overwritten.",
+        m_ui->problemLabel->setText(tr("A build for a different project exists in %1, which will be overwritten.",
                                        "%1 build directory").
                                     arg(m_ui->shadowBuildDirEdit->path()));
     } else if (!issues.isEmpty()) {

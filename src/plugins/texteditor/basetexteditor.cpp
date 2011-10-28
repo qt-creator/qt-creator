@@ -3745,24 +3745,6 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
             painter.save();
             painter.setRenderHint(QPainter::Antialiasing, false);
 
-            int previousBraceDepth = block.previous().userState();
-            if (previousBraceDepth >= 0)
-                previousBraceDepth >>= 8;
-            else
-                previousBraceDepth = 0;
-
-            int braceDepth = block.userState();
-            if (!nextBlock.isVisible()) {
-                QTextBlock lastInvisibleBlock = nextVisibleBlock.previous();
-                if (!lastInvisibleBlock.isValid())
-                    lastInvisibleBlock = doc->lastBlock();
-                braceDepth = lastInvisibleBlock.userState();
-            }
-            if (braceDepth >= 0)
-                braceDepth >>= 8;
-            else
-                braceDepth = 0;
-
             if (TextBlockUserData *userData = static_cast<TextBlockUserData*>(block.userData())) {
                 if (d->m_marksVisible) {
                     int xoffset = 0;

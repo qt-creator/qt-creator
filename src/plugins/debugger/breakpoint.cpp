@@ -220,6 +220,33 @@ BreakpointParts BreakpointParameters::differencesTo
     return parts;
 }
 
+bool BreakpointParameters::isValid() const
+{
+    switch (type) {
+    case Debugger::Internal::BreakpointByFileAndLine:
+        return !fileName.isEmpty() && lineNumber > 0;
+    case Debugger::Internal::BreakpointByFunction:
+        return !functionName.isEmpty();
+    case Debugger::Internal::WatchpointAtAddress:
+    case Debugger::Internal::BreakpointByAddress:
+        return address != 0;
+    case Debugger::Internal::BreakpointAtThrow:
+    case Debugger::Internal::BreakpointAtCatch:
+    case Debugger::Internal::BreakpointAtMain:
+    case Debugger::Internal::BreakpointAtFork:
+    case Debugger::Internal::BreakpointAtExec:
+    case Debugger::Internal::BreakpointAtSysCall:
+    case Debugger::Internal::BreakpointOnQmlSignalHandler:
+    case Debugger::Internal::BreakpointAtJavaScriptThrow:
+        break;
+    case Debugger::Internal::WatchpointAtExpression:
+        return !expression.isEmpty();
+    case Debugger::Internal::UnknownType:
+        return false;
+    }
+    return true;
+}
+
 bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
 {
     return !differencesTo(rhs);

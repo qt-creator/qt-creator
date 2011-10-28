@@ -46,7 +46,7 @@
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Зупинити</translation>
+        <translation>Зупинити</translation>
     </message>
     <message>
         <source>Analyzer Toolbar</source>
@@ -66,7 +66,7 @@
     </message>
     <message>
         <source>Keep Running</source>
-        <translation type="unfinished">Продовжувати виконання</translation>
+        <translation>Продовжувати виконання</translation>
     </message>
     <message>
         <source>Debug</source>
@@ -119,7 +119,7 @@
     <name>Analyzer::AnalyzerRunControl</name>
     <message>
         <source>Build Issues</source>
-        <translation type="unfinished">Повідомлення збірки</translation>
+        <translation>Повідомлення збірки</translation>
     </message>
 </context>
 <context>
@@ -148,7 +148,7 @@
     <name>Analyzer::StartRemoteDialog</name>
     <message>
         <source>Start Debugger</source>
-        <translation type="unfinished">Запустити зневаджувач</translation>
+        <translation>Запустити зневаджувач</translation>
     </message>
     <message>
         <source>Remote</source>
@@ -156,7 +156,7 @@
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished"></translation>
+        <translation>Вузол:</translation>
     </message>
     <message>
         <source>User:</source>
@@ -180,19 +180,19 @@
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished">Ціль</translation>
+        <translation>Ціль</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">Виконуваний модуль:</translation>
+        <translation>Виконуваний модуль:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Аргументи:</translation>
+        <translation>Аргументи:</translation>
     </message>
     <message>
         <source>Working directory:</source>
-        <translation type="unfinished">Робоча тека:</translation>
+        <translation>Робоча тека:</translation>
     </message>
 </context>
 <context>
@@ -273,11 +273,11 @@
     </message>
     <message>
         <source>Sysroot</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Override &amp;Start script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Інший скрипт &amp;запуску:</translation>
     </message>
 </context>
 <context>
@@ -288,7 +288,7 @@
     </message>
     <message>
         <source>Attach to &amp;process ID:</source>
-        <translation>Приєднатись до &amp;процесу з ID:</translation>
+        <translation>Під&apos;єднатись до &amp;процесу з ID:</translation>
     </message>
     <message>
         <source>&amp;Tool chain:</source>
@@ -299,7 +299,7 @@
     <name>BINEditor::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
-        <translation>Пам&apos;яті в  0x%1</translation>
+        <translation>Пам&apos;ять в  0x%1</translation>
     </message>
     <message>
         <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
@@ -480,7 +480,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     <name>Bazaar::Internal::BazaarControl</name>
     <message>
         <source>Bazaar</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -509,7 +509,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     <name>Bazaar::Internal::BazaarPlugin</name>
     <message>
         <source>Bazaar</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -557,7 +557,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Додати</translation>
+        <translation>Додати</translation>
     </message>
     <message>
         <source>Add &quot;%1&quot;</source>
@@ -593,7 +593,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Статус</translation>
+        <translation>Статус</translation>
     </message>
     <message>
         <source>Pull...</source>
@@ -676,7 +676,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     <name>Bazaar::Internal::CloneOptionsPanel</name>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Опції</translation>
+        <translation>Опції</translation>
     </message>
     <message>
         <source>Use existing directory</source>
@@ -752,7 +752,7 @@ The new branch will depend on the availability of the source branch for all oper
     <name>Bazaar::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
-        <translation type="unfinished">Розташування</translation>
+        <translation>Розташування</translation>
     </message>
     <message>
         <source>Specify repository URL, clone directory and path.</source>
@@ -774,7 +774,7 @@ The new branch will depend on the availability of the source branch for all oper
     <name>Bazaar::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Форма</translation>
+        <translation>Форма</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -782,7 +782,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">Команда:</translation>
+        <translation>Команда:</translation>
     </message>
     <message>
         <source>User</source>
@@ -844,7 +844,7 @@ The new branch will depend on the availability of the source branch for all oper
     <name>Bazaar::Internal::PullOrPushDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Діалог</translation>
+        <translation>Діалог</translation>
     </message>
     <message>
         <source>Branch Location</source>
@@ -864,7 +864,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Опції</translation>
+        <translation>Опції</translation>
     </message>
     <message>
         <source>Remember specified location as default</source>
@@ -888,7 +888,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
     <message>
         <source>Local</source>
-        <translation type="unfinished">Локальна змінна</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pull Source</source>
@@ -1411,7 +1411,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Run in Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Запускати в терміналі</translation>
     </message>
     <message>
         <source>Run Environment</source>
@@ -1458,7 +1458,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Аргументи:</translation>
+        <translation>Аргументи:</translation>
     </message>
     <message>
         <source>Generator:</source>
@@ -2394,7 +2394,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Register Qt Creator for debugging crashed applications.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зареєструвати Qt Creator для зневадження програм, що завершились аварійно.</translation>
     </message>
     <message>
         <source>Use Qt Creator for post-mortem debugging</source>
@@ -2406,19 +2406,19 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Close temporary buffers on debugger exit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Закривати тимчасові буфери при виході зневаджувача.</translation>
     </message>
     <message>
         <source>Close temporary buffers on debugger exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Закривати тимчасові буфери при виході зневаджувача</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Повертатись до попереднього режиму при виході зневаджувача.</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Повертатись до попереднього режиму при виході зневаджувача</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -2426,11 +2426,11 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Change the font size in the debugger views when the font size in the main editor changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Змінювати розмір шрифту в вигляді зневаджувача, коли змінюєтсья розмір шрифту головного редактора.</translation>
     </message>
     <message>
         <source>Debugger font size follows main editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Розмір шрифта зневаджувач відповідає головному редактору</translation>
     </message>
     <message>
         <source>Populate the source file view automatically. This might slow down debugger startup considerably.</source>
@@ -2438,7 +2438,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Maximum stack depth:</source>
-        <translation type="unfinished"></translation>
+        <translation>Максимальна глибина стеку:</translation>
     </message>
 </context>
 <context>
@@ -2999,7 +2999,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>&amp;External</source>
-        <translation type="unfinished"></translation>
+        <translation>Зо&amp;внішні</translation>
     </message>
     <message>
         <source>Error while parsing external tool %1: %2</source>
@@ -4631,108 +4631,108 @@ if they would align to the next line</source>
     <name>Debugger::Cdb::CdbBreakEventWidget</name>
     <message>
         <source>C++ exception</source>
-        <translation type="unfinished"></translation>
+        <translation>Виключна ситуація C++</translation>
     </message>
     <message>
         <source>Thread creation</source>
-        <translation type="unfinished"></translation>
+        <translation>Створення нитки</translation>
     </message>
     <message>
         <source>Thread exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Завершення нитки</translation>
     </message>
     <message>
         <source>Load module:</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантаження модуля:</translation>
     </message>
     <message>
         <source>Unload module:</source>
-        <translation type="unfinished"></translation>
+        <translation>Вивантаження модуля:</translation>
     </message>
     <message>
         <source>Output:</source>
-        <translation type="unfinished">Виведення:</translation>
+        <translation>Виведення:</translation>
     </message>
 </context>
 <context>
     <name>Debugger::DebuggerEngine</name>
     <message>
         <source>Launching</source>
-        <translation type="unfinished"></translation>
+        <translation>Запуск</translation>
     </message>
     <message>
         <source>This debugger cannot handle user input.</source>
-        <translation type="unfinished"></translation>
+        <translation>Цей зневаджувач не може обробляти введення користувача.</translation>
     </message>
     <message>
         <source>Data breakpoint %1 (%2) at %3 triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спрацювала точка перепину даних %1 (%2) в %3.</translation>
     </message>
     <message>
         <source>Internal data breakpoint %1 at %2 triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спрацювала внутрішня точка перепину даних %1 в %2.</translation>
     </message>
     <message>
         <source>Data breakpoint %1 (%2) at %3 in thread %4 triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спрацювала точка перепину даних %1 (%2) в %3 в нитці %4.</translation>
     </message>
     <message>
         <source>Internal data breakpoint %1 at %2 in thread %3 triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спрацювала внутрішня точка перепину даних %1 в %2 в нитці %3.</translation>
     </message>
     <message>
         <source>Data breakpoint %1 (%2) at 0x%3 triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спрацювала точка перепину даних %1 (%2) в  0x%3.</translation>
     </message>
     <message>
         <source>Internal data breakpoint %1 at 0x%2 triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спрацювала внутрішня точка перепину даних %1 в  0x%2.</translation>
     </message>
     <message>
         <source>Stopped at breakpoint %1 (%2) in thread %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинено в точці перепину %1 (%2) в нитці %3.</translation>
     </message>
     <message>
         <source>Stopped at internal breakpoint %1 in thread %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинено у внутрішній точці перепину %1 в нитці %2.</translation>
     </message>
     <message>
         <source>Data breakpoint %1 (%2) at 0x%3 in thread %4 triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спрацювала точка перепину даних %1 (%2) в 0x%3 в нитці %4.</translation>
     </message>
     <message>
         <source>Stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинено.</translation>
     </message>
     <message>
         <source>Stopped: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинено: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Internal data breakpoint %1 at 0x%2 in thread %3 triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спрацювала внутрішня точка перепину даних %1 в 0x%2 в нитці %3.</translation>
     </message>
     <message>
         <source>Stopped: %1 (Signal %2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинено: %1 (сигнал %2).</translation>
     </message>
     <message>
         <source>Stopped in thread %1 by: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинено в нитці %1 через: %2.</translation>
     </message>
     <message>
         <source>Interrupted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Перервано.</translation>
     </message>
     <message>
         <source> &lt;Unknown&gt; </source>
         <comment>name</comment>
-        <translation type="unfinished"></translation>
+        <translation> &lt;Невідомо&gt; </translation>
     </message>
     <message>
         <source> &lt;Unknown&gt; </source>
         <comment>meaning</comment>
-        <translation type="unfinished"></translation>
+        <translation> &lt;Невідомо&gt; </translation>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
@@ -4740,7 +4740,7 @@ if they would align to the next line</source>
     </message>
     <message>
         <source>Signal received</source>
-        <translation type="unfinished"></translation>
+        <translation>Отримано сигнал</translation>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it triggered an exception.&lt;p&gt;%1</source>
@@ -4748,7 +4748,7 @@ if they would align to the next line</source>
     </message>
     <message>
         <source>Exception Triggered</source>
-        <translation type="unfinished"></translation>
+        <translation>Трапилась виключна ситуація</translation>
     </message>
     <message>
         <source>Taking notice of pid %1</source>
@@ -4756,72 +4756,74 @@ if they would align to the next line</source>
     </message>
     <message>
         <source>Run to Address 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Виконувати до адреси 0x%1</translation>
     </message>
     <message>
         <source>Run to Line %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Виконувати до рядка %1</translation>
     </message>
     <message>
         <source>Jump to Address 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Виконувати до адреси 0x%1</translation>
     </message>
     <message>
         <source>Jump to Line %1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>Debugger::DebuggerPlugin</name>
     <message>
         <source>Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>Зневадження</translation>
     </message>
     <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Опції &apos;%1&apos; бракує параметра.</translation>
     </message>
     <message>
         <source>The parameter &apos;%1&apos; of option &apos;%2&apos; does not match the pattern &lt;server:port&gt;@&lt;executable&gt;@&lt;architecture&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметр &apos;%1&apos; опції &apos;%2&apos; не збігається зі зразком &lt;server:port&gt;@&lt;executable&gt;@&lt;architecture&gt;.</translation>
     </message>
     <message>
         <source>The parameter &apos;%1&apos; of option &apos;%2&apos; does not match the pattern &lt;handle&gt;:&lt;pid&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметр &apos;%1&apos; опції &apos;%2&apos; не збігається зі зразком &lt;handle&gt;:&lt;pid&gt;.</translation>
     </message>
     <message>
         <source>Invalid debugger option: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Неправильна опція зневаджувача: %1</translation>
     </message>
     <message>
         <source>The application requires the debugger engine &apos;%1&apos;, which is disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Програма вимагає рушій зневадження &apos;%1&apos;, який вимкнуто.</translation>
     </message>
     <message>
         <source>Some breakpoints cannot be handled by the debugger languages currently active, and will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Деякі точки перепину, що неможливо обробити активними мовами зневадження, будуть проігноровані.</translation>
     </message>
     <message>
         <source>The debugger engine &apos;%1&apos; is disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Рушій зневадження &apos;%1&apos; вимкнуто.</translation>
     </message>
     <message>
         <source>The debugger engine &apos;%1&apos; required for debugging binaries of the type &apos;%2&apos; is not configured correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Рушій &apos;%1&apos;, який необхідний для зневадження бінарних модулів типу &apos;%2&apos;, невірно сконфігуровано.</translation>
     </message>
     <message>
         <source>None of the debugger engines &apos;%1&apos; capable of debugging binaries of the type &apos;%2&apos; is configured correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Жодний з рушіїв &apos;%1&apos;, здатних до зневадження бінарних модулів типу &apos;%2&apos;, не сконфігуровано вірно.</translation>
     </message>
     <message>
         <source>The preferred debugger engine for debugging binaries of type &apos;%1&apos; is not available.
 The debugger engine &apos;%2&apos; will be used as a fallback.
 Details: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Бажаний рушій для зневадження бінарних модулів типу &apos;%1&apos; не доступний.
+Рушій зневадження &apos;%2&apos; буде використано як заміну.
+Деталі: %3</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Попередження</translation>
+        <translation>Попередження</translation>
     </message>
 </context>
 <context>
@@ -4833,30 +4835,34 @@ Details: %3</source>
     <message>
         <source>No executable specified.
 </source>
-        <translation type="unfinished">Виконуваний модуль не вказано.</translation>
+        <translation>Виконуваний модуль не вказано.
+</translation>
     </message>
     <message>
         <source>Debugging starts
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Зневадження розпочато
+</translation>
     </message>
     <message>
         <source>Debugging has failed
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Збій зневадження
+</translation>
     </message>
     <message>
         <source>A debugging session is still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Сеанс зневадження ще триває. Завершення сеансу в поточному стані може залишити програму в невідомому стані. Досі бажаєте завершити?</translation>
     </message>
     <message>
         <source>Debugging has finished
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Зневадження завершено
+</translation>
     </message>
     <message>
         <source>Close Debugging Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрити сеанс зневадження</translation>
     </message>
 </context>
 <context>
@@ -4864,29 +4870,32 @@ Details: %3</source>
     <message>
         <source>The gdb process could not be stopped:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалось зупинити процес gdb:
+%1</translation>
     </message>
     <message>
         <source>Application process could not be stopped:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалось зупинити процес програми:
+%1</translation>
     </message>
     <message>
         <source>Application started</source>
-        <translation type="unfinished"></translation>
+        <translation>Програму запущено</translation>
     </message>
     <message>
         <source>Application running</source>
-        <translation type="unfinished"></translation>
+        <translation>Програма виконується</translation>
     </message>
     <message>
         <source>Attached to stopped application</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднано до зупиненої програми</translation>
     </message>
     <message>
         <source>Connecting to remote server failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій підключення до віддаленого сервера:
+%1</translation>
     </message>
 </context>
 <context>
@@ -4894,7 +4903,8 @@ Details: %3</source>
     <message>
         <source>Starting executable failed:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Збій запуску виконуваного модуля:
+</translation>
     </message>
 </context>
 <context>
@@ -4916,15 +4926,15 @@ Details: %3</source>
     </message>
     <message>
         <source>Select Core File</source>
-        <translation>Виберіть файл Coree</translation>
+        <translation>Виберіть файл Core</translation>
     </message>
     <message>
         <source>Select Sysroot</source>
-        <translation type="unfinished"></translation>
+        <translation>Оберіть Sysroot</translation>
     </message>
     <message>
         <source>Select Startup Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Оберіть скрипт запуску</translation>
     </message>
 </context>
 <context>
@@ -4947,45 +4957,46 @@ Details: %3</source>
     </message>
     <message>
         <source>Process Already Under Debugger Control</source>
-        <translation type="unfinished"></translation>
+        <translation>Процес вже під контролем зневаджувача</translation>
     </message>
     <message>
         <source>The process %1 is already under the control of a debugger.
 Qt Creator cannot attach to it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Процес %1 вже під контролем зневаджувача.
+Qt Creator не може під&apos;єднатись до нього.</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::AttachGdbAdapter</name>
     <message>
         <source>Attached to process %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднано до процесу %1.</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::BreakCondition</name>
     <message>
         <source>&amp;Condition:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Умова:</translation>
     </message>
     <message>
         <source>&amp;Ignore count:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Кількість пропусків:</translation>
     </message>
     <message>
         <source>&amp;Thread specification:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Специфікація нитки:</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::BreakHandler</name>
     <message>
         <source>Marker File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначений файл:</translation>
     </message>
     <message>
         <source>Marker Line:</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначений рядок:</translation>
     </message>
     <message>
         <source>Breakpoint Number:</source>
@@ -5009,11 +5020,11 @@ Qt Creator cannot attach to it.</source>
     </message>
     <message>
         <source>Requested</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитана</translation>
     </message>
     <message>
         <source>Obtained</source>
-        <translation type="unfinished"></translation>
+        <translation>Отримана</translation>
     </message>
     <message>
         <source>Internal Number:</source>
@@ -5029,27 +5040,27 @@ Qt Creator cannot attach to it.</source>
     </message>
     <message>
         <source>Data at 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Дані в 0x%1</translation>
     </message>
     <message>
         <source>Data at %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Дані в %1</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнено</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Вимкнено</translation>
     </message>
     <message>
         <source>, pending</source>
-        <translation type="unfinished"></translation>
+        <translation>, очікує</translation>
     </message>
     <message>
         <source>Engine:</source>
-        <translation type="unfinished"></translation>
+        <translation>Рушій:</translation>
     </message>
     <message>
         <source>Line Number:</source>
@@ -5061,11 +5072,11 @@ Qt Creator cannot attach to it.</source>
     </message>
     <message>
         <source>Module:</source>
-        <translation type="unfinished"></translation>
+        <translation>Модуль:</translation>
     </message>
     <message>
         <source>Multiple Addresses:</source>
-        <translation type="unfinished"></translation>
+        <translation>Декілька адрес:</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -5093,72 +5104,72 @@ Qt Creator cannot attach to it.</source>
     </message>
     <message>
         <source>Insertion requested</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано вставку</translation>
     </message>
     <message>
         <source>Insertion proceeding</source>
-        <translation type="unfinished"></translation>
+        <translation>Здійснюється вставка</translation>
     </message>
     <message>
         <source>Change requested</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано зміну</translation>
     </message>
     <message>
         <source>Change proceeding</source>
-        <translation type="unfinished"></translation>
+        <translation>Здійснюється зміна</translation>
     </message>
     <message>
         <source>Breakpoint inserted</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка перепину вставлена</translation>
     </message>
     <message>
         <source>Removal requested</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано видалення</translation>
     </message>
     <message>
         <source>Removal proceeding</source>
-        <translation type="unfinished"></translation>
+        <translation>Здійснюється видалення</translation>
     </message>
     <message>
         <source>Dead</source>
-        <translation type="unfinished"></translation>
+        <translation>Мертва</translation>
     </message>
     <message>
         <source>&lt;invalid state&gt;</source>
         <extracomment>Invalid breakpoint state.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;невірний стан&gt;</translation>
     </message>
     <message>
         <source>Breakpoint at &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка перепину в &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Breakpoint by File and Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка перепину за файлом та рядком</translation>
     </message>
     <message>
         <source>Breakpoint by Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка перепину за функцією</translation>
     </message>
     <message>
         <source>Breakpoint by Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка перепину за адресою</translation>
     </message>
     <message>
         <source>Breakpoint at Function &quot;main()&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка перепину в функції &quot;main()&quot;</translation>
     </message>
     <message>
         <source>Unknown Breakpoint Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Невідомий тип точки перепину</translation>
     </message>
     <message>
         <source>Watchpoint at Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка нагляду за адресою</translation>
     </message>
     <message>
         <source>Watchpoint at Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка нагляду за виразом</translation>
     </message>
     <message>
         <source>Function</source>
@@ -5178,7 +5189,7 @@ Qt Creator cannot attach to it.</source>
     </message>
     <message>
         <source>Ignore</source>
-        <translation type="unfinished">Ігнорувати</translation>
+        <translation>Ігнорувати</translation>
     </message>
     <message>
         <source>Address</source>
@@ -5190,15 +5201,15 @@ Qt Creator cannot attach to it.</source>
     </message>
     <message>
         <source>Breakpoint will only be hit if this condition is met.</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка перепину спрацює якщо буде виконано умову.</translation>
     </message>
     <message>
         <source>Breakpoint will only be hit after being ignored so many times.</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка перепину спрацює лише після її пропуску вказану кількість разів.</translation>
     </message>
     <message>
         <source>Message:</source>
-        <translation type="unfinished"></translation>
+        <translation>Повідомлення:</translation>
     </message>
     <message>
         <source>(all)</source>
@@ -5206,7 +5217,7 @@ Qt Creator cannot attach to it.</source>
     </message>
     <message>
         <source>Breakpoint will only be hit in the specified thread(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Точка перепину спрацює лише у вказаних нитках.</translation>
     </message>
 </context>
 <context>
@@ -5225,208 +5236,211 @@ Qt Creator cannot attach to it.</source>
     </message>
     <message>
         <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити точки перепину з &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete Breakpoints of File</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити точки перепину з файлу</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Підгнати ширину стовпців до змісту</translation>
     </message>
     <message>
         <source>Edit Breakpoint...</source>
-        <translation type="unfinished"></translation>
+        <translation>Редагувати точку перепину...</translation>
     </message>
     <message>
         <source>Associate Breakpoint With All Threads</source>
-        <translation type="unfinished"></translation>
+        <translation>Зіставити точку перепину з усіма нитками</translation>
     </message>
     <message>
         <source>Associate Breakpoint With Thread %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Зіставити точку перепину з ниткою %1</translation>
     </message>
     <message>
         <source>Synchronize Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Синхронізувати точки перепину</translation>
     </message>
     <message>
         <source>Disable Selected Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Вимкнути виділені точки перепину</translation>
     </message>
     <message>
         <source>Enable Selected Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути виділені точки перепину</translation>
     </message>
     <message>
         <source>Disable Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Вимкнути точку перепину</translation>
     </message>
     <message>
         <source>Enable Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути точку перепину</translation>
     </message>
     <message>
         <source>Add Breakpoint...</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати точку перепину...</translation>
     </message>
     <message>
         <source>Add Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати точку перепину</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::BreakpointDialog</name>
     <message>
         <source>File name and line number</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл та номер рядка</translation>
     </message>
     <message>
         <source>Function name</source>
-        <translation type="unfinished"></translation>
+        <translation>Назва функції</translation>
     </message>
     <message>
         <source>Break on memory address</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти на адресі в пам&apos;яті</translation>
     </message>
     <message>
         <source>Break when C++ exception is thrown</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти, коли трапилась виключна ситуація C++</translation>
     </message>
     <message>
         <source>Break when C++ exception is caught</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти, коли спіймано виключну ситуацію C++</translation>
     </message>
     <message>
         <source>Break when function &quot;main&quot; starts</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти, коли починається функція &quot;main&quot;</translation>
     </message>
     <message>
         <source>Break when a new process is forked</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти, коли створюється новий процес</translation>
     </message>
     <message>
         <source>Break when a new process is executed</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти, коли запускається новий процес</translation>
     </message>
     <message>
         <source>Break when a system call is executed</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти, коли здійснюється системний виклик</translation>
     </message>
     <message>
         <source>Break on data access at fixed address</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти при доступі до даних за фіксованою адресою</translation>
     </message>
     <message>
         <source>Break on data access at address given by expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти при доступі до даних за адресою вказаною у виразі</translation>
     </message>
     <message>
         <source>Specifying the module (base name of the library or executable)
 for function or file type breakpoints can significantly speed up
 debugger start-up times (CDB, LLDB).</source>
-        <translation type="unfinished"></translation>
+        <translation>Вказання модуля (базового імені бібліотеки або виконуваного модуля)
+для точок перепину по функції або файлу, може значно прискорити
+час запуску зневаджувача (CDB, LLDB).</translation>
     </message>
     <message>
         <source>Debugger command to be executed when the breakpoint is hit.
 GDB allows for specifying a sequence of commands separated by the delimiter &apos;\n&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Команда зневаджувача, яка буде виконана, коли спрацює точка перепину.
+GDB дозволяє задавати послідовність команд, розділивши їх &apos;\n&apos;.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Determines how the path is specified when setting breakpoints:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Use Engine Default&lt;/i&gt;: Preferred setting of the debugger engine.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use Full Path&lt;/i&gt;: Pass full path, avoiding ambiguities should files of the same name exist in several modules. This is the engine default for CDB and LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use File Name&lt;/i&gt;: Pass the file name only. This is useful when using a source tree whose location does not match the one used when building the modules. It is the engine default for GDB as using full paths can be slow with this engine.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Визначає, як задається шлях при встановленні точок перепину:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Типовий для рушія&lt;/i&gt;: Типове налаштування рушія зневадження.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Повний шлях&lt;/i&gt;: Передавати повний шлях, що дозволяє уникнути неоднозначностей, якщо файли з однаковим іменем присутні в декількох модулях. Це типове налаштування для рушіїв CDB та LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Ім&apos;я файлу&lt;/i&gt;: Передавати лише ім&apos;я файлу. Це корисно, коли використовується дерево коду, у якого розташування не збігається з місцем збірки модулів. Це типовне налаштування для рушія GDB, оскільки повні шляхи можуть уповільнити цей рушій.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Edit Breakpoint Properties</source>
-        <translation type="unfinished">Редагування властивостей точки перепину</translation>
+        <translation>Редагування властивостей точки перепину</translation>
     </message>
     <message>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translation>Основне</translation>
     </message>
     <message>
         <source>Breakpoint &amp;type:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Тип точки перепину:</translation>
     </message>
     <message>
         <source>&amp;File name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім&apos;я &amp;файлу:</translation>
     </message>
     <message>
         <source>&amp;Line number:</source>
-        <translation type="unfinished"></translation>
+        <translation>Номер &amp;рядка:</translation>
     </message>
     <message>
         <source>&amp;Enabled:</source>
-        <translation type="unfinished"></translation>
+        <translation>Уві&amp;мкнено:</translation>
     </message>
     <message>
         <source>&amp;Address:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Адреса:</translation>
     </message>
     <message>
         <source>Fun&amp;ction:</source>
-        <translation type="unfinished"></translation>
+        <translation>Фу&amp;нкція:</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Додатково</translation>
     </message>
     <message>
         <source>T&amp;racepoint only:</source>
-        <translation type="unfinished"></translation>
+        <translation>Лише трасу&amp;вання:</translation>
     </message>
     <message>
         <source>Pat&amp;h:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Шлях:</translation>
     </message>
     <message>
         <source>&amp;Module:</source>
-        <translation type="unfinished"></translation>
+        <translation>Моду&amp;ль:</translation>
     </message>
     <message>
         <source>&amp;Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Коман&amp;да:</translation>
     </message>
     <message>
         <source>Use Engine Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Типовий для рушія</translation>
     </message>
     <message>
         <source>Use Full Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Повний шлях</translation>
     </message>
     <message>
         <source>Use File Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім&apos;я файлу</translation>
     </message>
     <message>
         <source>C&amp;ondition:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Умова:</translation>
     </message>
     <message>
         <source>&amp;Ignore count:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Кількість пропусків:</translation>
     </message>
     <message>
         <source>&amp;Thread specification:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Специфікація нитки:</translation>
     </message>
     <message>
         <source>&amp;Expression:</source>
-        <translation type="unfinished"></translation>
+        <translation>Вира&amp;з:</translation>
     </message>
     <message>
         <source>&amp;Message:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Повідомлення:</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::CacheDirectoryDialog</name>
     <message>
         <source>Select Local Cache Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Вибір теки для локального кешу</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -5434,19 +5448,19 @@ GDB allows for specifying a sequence of commands separated by the delimiter &apo
     </message>
     <message>
         <source>Already Exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Вже існує</translation>
     </message>
     <message>
         <source>A file named &apos;%1&apos; already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл з іменем &apos;%1&apos; вже існує.</translation>
     </message>
     <message>
         <source>Cannot Create</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо створити</translation>
     </message>
     <message>
         <source>The folder &apos;%1&apos; could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалось створити теку &apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
@@ -5614,11 +5628,11 @@ GDB allows for specifying a sequence of commands separated by the delimiter &apo
     <name>Debugger::Internal::Console</name>
     <message>
         <source>Clear Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистити зміст</translation>
     </message>
     <message>
         <source>Save Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Зберегти зміст</translation>
     </message>
 </context>
 <context>
@@ -5632,530 +5646,532 @@ GDB allows for specifying a sequence of commands separated by the delimiter &apo
     <name>Debugger::Internal::CoreGdbAdapter</name>
     <message>
         <source>The name of the binary file cannot be extracted from this core file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо отримати ім&apos;я виконуваного модуля з цього файлу core.</translation>
     </message>
     <message>
         <source>Try to specify the binary using the &lt;i&gt;Debug-&gt;Start Debugging-&gt;Attach to Core&lt;/i&gt; dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Спробуйте вказати виконуваний модуль, використовуючи діалог &lt;i&gt;Зневадження-&gt;Почати зневадження-&gt;Під&apos;єднатись до Core&lt;/i&gt;.</translation>
     </message>
     <message>
         <source>Loading core file failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій завантаження файлу core</translation>
     </message>
     <message>
         <source>Attach to core failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій під&apos;єднання до core.</translation>
     </message>
     <message>
         <source>Attached to core temporarily.</source>
-        <translation type="unfinished"></translation>
+        <translation>Тимчасово під&apos;єднано до core.</translation>
     </message>
     <message>
         <source>Symbols found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Символи знайдено.</translation>
     </message>
     <message>
         <source>No symbols found in core file &lt;i&gt;%1&lt;/i&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не знайдено символів в файлі core &lt;i&gt;%1&lt;/i&gt;.</translation>
     </message>
     <message>
         <source>This can be caused by a path length limitation in the core file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Це могло трапитись через обмеження на довжину шляху в файлі core.</translation>
     </message>
     <message>
         <source>Attached to core.</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднано до core.</translation>
     </message>
     <message>
         <source>Attach to core &quot;%1&quot; failed:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Збій під&apos;єднання до core &quot;%1:
+</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DebuggerMainWindowPrivate</name>
     <message>
         <source>Memory...</source>
-        <translation type="unfinished"></translation>
+        <translation>Пам&apos;ять...</translation>
     </message>
     <message>
         <source>Debugger Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Панель зневаджувача</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DebuggerPane</name>
     <message>
         <source>Clear Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистити зміст</translation>
     </message>
     <message>
         <source>Save Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Зберегти зміст</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DebuggerPluginPrivate</name>
     <message>
         <source>No function selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Функцію не обрано.</translation>
     </message>
     <message>
         <source>Running to function &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Виконання до функції &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Process %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Процес %1</translation>
     </message>
     <message>
         <source>Attaching to local process %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднання до локального процесу %1.</translation>
     </message>
     <message>
         <source>Remote: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Віддалено: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Attaching to remote server %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднання до віддаленого сервера %1.</translation>
     </message>
     <message>
         <source>Core file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл core &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Attaching to core file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднання до файлу core %1.</translation>
     </message>
     <message>
         <source>Crashed process %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Аварійно завершений процес %1</translation>
     </message>
     <message>
         <source>Attaching to crashed process %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднання до аварійно завершеного процесу %1</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Попередження</translation>
+        <translation>Попередження</translation>
     </message>
     <message>
         <source>0x%1 hit</source>
         <extracomment>Message tracepoint: Address hit.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Потрапили в 0x%1</translation>
     </message>
     <message>
         <source>%1:%2 %3() hit</source>
         <extracomment>Message tracepoint: %1 file, %2 line %3 function hit.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Потрапили в %1:%2 %3()</translation>
     </message>
     <message>
         <source>Add Message Tracepoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати інформаційну точку трасування</translation>
     </message>
     <message>
         <source>Message:</source>
-        <translation type="unfinished"></translation>
+        <translation>Повідомлення:</translation>
     </message>
     <message>
         <source>Executable file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Виконуваний файл &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Debugging file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зневадження файлу %1.</translation>
     </message>
     <message>
         <source>Cannot attach to process with PID 0</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо під&apos;єднатись до процесу з PID 0</translation>
     </message>
     <message>
         <source>Debugger attached to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Зневаджувач під&apos;єднано до %1</translation>
     </message>
     <message>
         <source>Remove Breakpoint %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити точку перепину %1</translation>
     </message>
     <message>
         <source>Disable Breakpoint %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Вимкнути точку перепину %1</translation>
     </message>
     <message>
         <source>Enable Breakpoint %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути точку перепину %1</translation>
     </message>
     <message>
         <source>Edit Breakpoint %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Редагувати точку перепину %1...</translation>
     </message>
     <message>
         <source>Set Breakpoint at 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити точку перепину в 0x%1</translation>
     </message>
     <message>
         <source>Set Breakpoint at line %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити точку перепину в рядку %1</translation>
     </message>
     <message>
         <source>Set Message Tracepoint at 0x%1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити інформаційну точку трасування в 0x%1...</translation>
     </message>
     <message>
         <source>Set Message Tracepoint at line %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити інформаційну точку трасування в рядку %1...</translation>
     </message>
     <message>
         <source>Save Debugger Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Зберегти журнал зневадження</translation>
     </message>
     <message>
         <source>User commands are not accepted in the current state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Команди користувача в поточному стані не приймаються.</translation>
     </message>
     <message>
         <source>Start &apos;%1&apos; and break at function &apos;main()&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Запустити &apos;%1&apos; та перерватись на функції &apos;main()&apos;</translation>
     </message>
     <message>
         <source>Open Qt4 Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити опції Qt4</translation>
     </message>
     <message>
         <source>Turn off Helper Usage</source>
-        <translation type="unfinished"></translation>
+        <translation>Вимкнути використання помічника</translation>
     </message>
     <message>
         <source>Continue Anyway</source>
-        <translation type="unfinished"></translation>
+        <translation>Все одно продовжити</translation>
     </message>
     <message>
         <source>Debugging Helper Missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Відстуній помічник зневадження</translation>
     </message>
     <message>
         <source>The debugger could not load the debugging helper library.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зневаджувачу не вдалось завантажити бібліотеку помічника зневадження.</translation>
     </message>
     <message>
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. On the Qt4 options page, select a Qt installation and click Rebuild.</source>
-        <translation type="unfinished"></translation>
+        <translation>Помічник зневадження застосовується для зручного форматування деяких типів даних Qt та стандартної бібліотеки. Він має бути скомпільований окремо для кожної версії Qt, що використовується. Оберіть встановлення Qt на сторінці опцій Qt4 та клацніть &quot;Перезібрати&quot;.</translation>
     </message>
     <message>
         <source>Starting debugger &apos;%1&apos; for ABI &apos;%2&apos;...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запускається зневаджувач &apos;%1&apos; для ABI &apos;%2&apos;...</translation>
     </message>
     <message>
         <source>Debugger finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зневаджувач завершився.</translation>
     </message>
     <message>
         <source>QML Script Console</source>
-        <translation type="unfinished"></translation>
+        <translation>Консоль скриптів QML</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="unfinished"></translation>
+        <translation>Продовжити</translation>
     </message>
     <message>
         <source>Exit Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Вийти зі зневаджувача</translation>
     </message>
     <message>
         <source>Interrupt</source>
-        <translation type="unfinished"></translation>
+        <translation>Перервати</translation>
     </message>
     <message>
         <source>Debugger is Busy</source>
-        <translation type="unfinished"></translation>
+        <translation>Зневаджувач зайнятий</translation>
     </message>
     <message>
         <source>Abort Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Припинити зневадження</translation>
     </message>
     <message>
         <source>Aborts debugging and resets the debugger to the initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Припинити зневадження та скинути зневаджувач до початкового стану.</translation>
     </message>
     <message>
         <source>Step Over</source>
-        <translation type="unfinished"></translation>
+        <translation>Перейти через</translation>
     </message>
     <message>
         <source>Step Into</source>
-        <translation type="unfinished"></translation>
+        <translation>Увійти в</translation>
     </message>
     <message>
         <source>Step Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Вийти назовні</translation>
     </message>
     <message>
         <source>Run to Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Виконувати до рядка</translation>
     </message>
     <message>
         <source>Run to Selected Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Виконання до виділеної функції</translation>
     </message>
     <message>
         <source>Immediately Return From Inner Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Негайно повернутись із внутрішньої функції</translation>
     </message>
     <message>
         <source>Jump to Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Перейти до рядка</translation>
     </message>
     <message>
         <source>Toggle Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити/прибрати точку перепину</translation>
     </message>
     <message>
         <source>Add to Watch Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати вікно нагляду</translation>
     </message>
     <message>
         <source>Reverse Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Зворотній напрямок</translation>
     </message>
     <message>
         <source>Move to Called Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Перенести до кадру стека, що викликається</translation>
     </message>
     <message>
         <source>Move to Calling Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Перенести до кадру стека, що викликає</translation>
     </message>
     <message>
         <source>Error evaluating command line arguments: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка обробки параметрів командного рядка: %1</translation>
     </message>
     <message>
         <source>Start Debugging</source>
-        <translation type="unfinished">Почати зневадження</translation>
+        <translation>Почати зневадження</translation>
     </message>
     <message>
         <source>Start and Debug External Application...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запустити та зневадити зовнішню програму...</translation>
     </message>
     <message>
         <source>Start and Debug External Application with External Engine...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запустити та зневадити зовнішню програму за допомогою зовнішнього рушія...</translation>
     </message>
     <message>
         <source>Attach to Running External Application...</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднатись до запущеної зовнішньої програми...</translation>
     </message>
     <message>
         <source>Attach to Core...</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднатись до core...</translation>
     </message>
     <message>
         <source>Start and Attach to Remote Application...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запустити та під&apos;єднатись до віддаленої програми...</translation>
     </message>
     <message>
         <source>Attach to Remote CDB Session...</source>
-        <translation type="unfinished"></translation>
+        <translation>Під&apos;єднатись до віддаленго сеансу CDB...</translation>
     </message>
     <message>
         <source>Detach Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Від&apos;єднати зневаджувач</translation>
     </message>
     <message>
         <source>Interrupt Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Перервати зневаджувач</translation>
     </message>
     <message>
         <source>Stop Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинити зневаджувач</translation>
     </message>
     <message>
         <source>Reset Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Скинути зневаджувач</translation>
     </message>
     <message>
         <source>Threads:</source>
-        <translation type="unfinished"></translation>
+        <translation>Нитки:</translation>
     </message>
     <message>
         <source>Symbol</source>
-        <translation type="unfinished"></translation>
+        <translation>Символ</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Адреса</translation>
+        <translation>Адреса</translation>
     </message>
     <message>
         <source>Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Код</translation>
     </message>
     <message>
         <source>Section</source>
-        <translation type="unfinished"></translation>
+        <translation>Секція</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Назва</translation>
+        <translation>Назва</translation>
     </message>
     <message>
         <source>Symbols in &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Символи в &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DebuggerSettings</name>
     <message>
         <source>Debugger Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation>Властивості зневаджувача...</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Завжди підганяти ширину стовпців до змісту</translation>
     </message>
     <message>
         <source>Use Alternating Row Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати змінні кольори рядків</translation>
     </message>
     <message>
         <source>Show a Message Box When Receiving a Signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати вікно повідомлення, коли отримано сигнал</translation>
     </message>
     <message>
         <source>Log Time Stamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Мітки часу в журналі</translation>
     </message>
     <message>
         <source>Verbose Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Розширене журналювання</translation>
     </message>
     <message>
         <source>Operate by Instruction</source>
-        <translation type="unfinished"></translation>
+        <translation>Йти по інструкціях</translation>
     </message>
     <message>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Перемикає зневаджувач в режим роботи на рівні інструкцій. В цьому режимі кроки здійснюються по одній інструкції, а перегляд коду відображає дизасембльовані інструкції.</translation>
     </message>
     <message>
         <source>Dereference Pointers Automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Розіменовувати вказівники автоматично</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати простір імен &quot;std::&quot; в типах</translation>
     </message>
     <message>
         <source>Show Qt&apos;s Namespace in Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати простір імен Qt в типах</translation>
     </message>
     <message>
         <source>Use Debugging Helpers</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати помічники зневадження</translation>
     </message>
     <message>
         <source>Use Code Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати модель коду</translation>
     </message>
     <message>
         <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вмикання призводить до запитів до моделі коду C++ за інформацією про область видимості змінної. Це може призвести до дещо швидшого зневадження, але може не спрацьовувати для оптимізованого коду.</translation>
     </message>
     <message>
         <source>This switches the Locals&amp;&amp;Watchers view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вмикає автоматичне розіменування вказівників у перегляді локальних змінних. Цим зберігається один рівень в відображенні деревом, однак втрачаються дані з проміжного рівня, що тепер буде відстунім.</translation>
     </message>
     <message>
         <source>Debugger Font Size Follows Main Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Розмір шрифта зневаджувач відповідає головному редактору</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
-        <translation type="unfinished"></translation>
+        <translation>Сортувати члени класів та структур за алфавітом</translation>
     </message>
     <message>
         <source>Synchronize Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Синхронізувати точки перепину</translation>
     </message>
     <message>
         <source>Adjust Breakpoint Locations</source>
-        <translation type="unfinished"></translation>
+        <translation>Підправляти розташування точок перепину</translation>
     </message>
     <message>
         <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не всі рядки тексту програми створюють виконуваний код. Встановлення точки перепину на такому рядку фактично встановить її на наступному рядку, що генерує код. В таких випадках вибір &apos;Підправляти розташування точок перепину&apos; зміщує червоні позначки точок перепину до справжнього розташування точок перепину.</translation>
     </message>
     <message>
         <source>Break on &quot;throw&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти на &quot;throw&quot;</translation>
     </message>
     <message>
         <source>Break on &quot;catch&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти на &quot;catch&quot;</translation>
     </message>
     <message>
         <source>Break on &quot;qWarning&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти на &quot;qWarning&quot;</translation>
     </message>
     <message>
         <source>Break on &quot;qFatal&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Перепиняти на &quot;qFatal&quot;</translation>
     </message>
     <message>
         <source>Automatically Quit Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Автоматично виходити зі зневаджувача</translation>
     </message>
     <message>
         <source>Use tooltips in main editor when debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати спливаючі підказки в головному редакторі під час зневадження</translation>
     </message>
     <message>
         <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вмикає спливаючі підказки для значень змінних під час зневадження. Типово вимкнуто, оскільки це може уповільнити зневадження та не надає надійної інформації, бо область видимості не враховується.</translation>
     </message>
     <message>
         <source>Use Tooltips in Locals View When Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати спливаючі підказки у перегляді локальних змінних під час зневадження</translation>
     </message>
     <message>
         <source>Checking this will enable tooltips in the locals view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вмикає спливаючі підказки в перегляді локальних змінних під час зневадження.</translation>
     </message>
     <message>
         <source>Use Tooltips in Breakpoints View When Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати спливаючі підказки у перегляді точок перепину під час зневадження</translation>
     </message>
     <message>
         <source>Checking this will enable tooltips in the breakpoints view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вмикає спливаючі підказки в перегляді точок перепину під час зневадження.</translation>
     </message>
     <message>
         <source>Show Address Data in Breakpoints View When Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати адресу даних в перегляді точок перепину під час зневадження</translation>
     </message>
     <message>
         <source>Checking this will show a column with address information in the breakpoint view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Вмикає відображення стовпця з інформацією про адресу в перегляді точок перепину під час зневадження.</translatorcomment>
+        <translation></translation>
     </message>
     <message>
         <source>Show Address Data in Stack View When Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати адресу даних в перегляді стеку під час зневадження</translation>
     </message>
     <message>
         <source>Checking this will show a column with address information in the stack view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вмикає відображення стовпця з інформацією про адресу в перегляді стеку під час зневадження.</translation>
     </message>
     <message>
         <source>List Source Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати файли коду</translation>
     </message>
     <message>
         <source>Skip Known Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Пропускати відомі кадри</translation>
     </message>
     <message>
         <source>Enable Reverse Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути зворотнє зневадження</translation>
     </message>
     <message>
         <source>Register For Post-Mortem Debugging</source>
@@ -6163,413 +6179,420 @@ GDB allows for specifying a sequence of commands separated by the delimiter &apo
     </message>
     <message>
         <source>Reload Full Stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Перезавантажити повний стек</translation>
     </message>
     <message>
         <source>Create Full Backtrace</source>
-        <translation type="unfinished"></translation>
+        <translation>Створити повний стек викликів</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DebuggerSourcePathMappingWidget</name>
     <message>
         <source>&lt;new source&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;новий шлях джерела&gt;</translation>
     </message>
     <message>
         <source>&lt;new target&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;новий шлях призначення&gt;</translation>
     </message>
     <message>
         <source>Source path</source>
-        <translation type="unfinished"></translation>
+        <translation>Шляхи джерела</translation>
     </message>
     <message>
         <source>Target path</source>
-        <translation type="unfinished"></translation>
+        <translation>Шлях призначення</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Додати</translation>
+        <translation>Додати</translation>
     </message>
     <message>
         <source>Add Qt sources...</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати код Qt...</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">Видалити</translation>
+        <translation>Видалити</translation>
     </message>
     <message>
         <source>Source Paths Mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Відображення шляхів коду</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mappings of source file folders to be used in the debugger can be entered here.&lt;/p&gt;&lt;p&gt;This is useful when using a copy of the source tree at a location different from the one at which the modules where built, for example, while doing remote debugging.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Тут можна задати відображення тек з кодом для використання зневаджувачем.&lt;/p&gt;&lt;p&gt;Це може бути корисно при використанні копії дерева коду в місці відмінному від того, де здійснювалась збірка модулів, наприклад, під час віддаленого зневадження.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add a mapping for Qt&apos;s source folders when using an unpatched version of Qt.</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати відображення для тек з кодом Qt при використанні незміненої версії Qt.</translation>
     </message>
     <message>
         <source>&amp;Source path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Шлях &amp;джерела:</translation>
     </message>
     <message>
         <source>The source path contained in the debug information of the executable as reported by the debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Шлях до коду зі зневаджувальної інформації у виконуваному модулі, як повідомляє зневаджувач</translation>
     </message>
     <message>
         <source>The actual location of the source tree on the local machine</source>
-        <translation type="unfinished"></translation>
+        <translation>Справжнє розташування дерева коду на локальній машині</translation>
     </message>
     <message>
         <source>&amp;Target path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Шлях &amp;призначення:</translation>
     </message>
     <message>
         <source>Qt Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Код Qt</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DebuggerToolChainComboBox</name>
     <message>
         <source>%1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Зневаджувач:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DebuggerToolTipWidget</name>
     <message>
         <source>Previous</source>
-        <translation type="unfinished">Назад</translation>
+        <translation>Назад</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::GdbEngine</name>
     <message numerus="yes">
         <source>Retrieving data for watch view (%n requests pending)...</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Отримання даних для перегляду локальних змінних (залишився %n запит)...</numerusform>
+            <numerusform>Отримання даних для перегляду локальних змінних (залишився %n запита)...</numerusform>
+            <numerusform>Отримання даних для перегляду локальних змінних (залишився %n запитів)...</numerusform>
         </translation>
     </message>
     <message>
         <source>&lt;0 items&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;0 елементів&gt;</translation>
     </message>
     <message numerus="yes">
         <source>&lt;%n items&gt;</source>
         <extracomment>In string list</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;%n елемент&gt;</numerusform>
+            <numerusform>&lt;%n елементи&gt;</numerusform>
+            <numerusform>&lt;%n елементів&gt;</numerusform>
         </translation>
     </message>
     <message>
         <source>The debugging helper library was not found at %1.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Бібліотеку помічника зневадження не знайдено в %1.</translatorcomment>
+        <translation></translation>
     </message>
     <message numerus="yes">
         <source>Dumper version %1, %n custom dumpers found.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Відображувач версії %1, %n відображувач користувача знайдено.</numerusform>
+            <numerusform>Відображувач версії %1, %n відображувачі користувача знайдено.</numerusform>
+            <numerusform>Відображувач версії %1, %n відображувачів користувача знайдено.</numerusform>
         </translation>
     </message>
     <message>
         <source>Debugging helpers not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Помічники зневадження не знайдені.</translation>
     </message>
     <message>
         <source>Debugging helpers: Qt version mismatch</source>
-        <translation type="unfinished"></translation>
+        <translation>Помічники зневадження: версії Qt не збігаються</translation>
     </message>
     <message>
         <source>The Qt version used to build the debugging helpers (%1) does not match the Qt version used to build the debugged application (%2).
 This might yield incorrect results.</source>
-        <translation type="unfinished"></translation>
+        <translation>Версія Qt, що використовувалась для збірки помічників зневадження (%1) не збігається з версією Qt, що використовувалась для збірки програми, що зневаджується (%2).
+Це може призвести до некорректних результатів.</translation>
     </message>
     <message>
         <source>&lt;n/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;н/д&gt;</translation>
     </message>
     <message>
         <source>&lt;anonymous union&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;анонімне об&apos;єднання&gt;</translation>
     </message>
     <message>
         <source>&lt;no information&gt;</source>
         <extracomment>About variable&apos;s value</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;немає інформації&gt;</translation>
     </message>
     <message>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation type="unfinished"></translation>
+        <translation>У останньої фукнції waitFor...() вичерпано час.Стан QProcess не змінився, ви можете спробувати викликати waitFor...() знову.</translation>
     </message>
     <message>
         <source>Library %1 loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Бібліотеку %1 завантажено</translation>
     </message>
     <message>
         <source>Library %1 unloaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Бібліотеку %1 вивантажено</translation>
     </message>
     <message>
         <source>Thread group %1 created</source>
-        <translation type="unfinished"></translation>
+        <translation>Створено групу ниток %1</translation>
     </message>
     <message>
         <source>Thread %1 created</source>
-        <translation type="unfinished"></translation>
+        <translation>Створено нитку %1</translation>
     </message>
     <message>
         <source>Thread group %1 exited</source>
-        <translation type="unfinished"></translation>
+        <translation>Група ниток %1 завершилась</translation>
     </message>
     <message>
         <source>Thread %1 in group %2 exited</source>
-        <translation type="unfinished"></translation>
+        <translation>Нитка %1 в групі %2 завершилась</translation>
     </message>
     <message>
         <source>Thread %1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Вибрано нитку %1</translation>
     </message>
     <message>
         <source>Reading %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Читання %1...</translation>
     </message>
     <message>
         <source>Stop requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано зупинку...</translation>
     </message>
     <message>
         <source>Stop debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинити зневадження</translation>
     </message>
     <message>
         <source>Executable failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій виконуваного модуля</translation>
     </message>
     <message>
         <source>Setting breakpoints failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій встановлення точок перепину</translation>
     </message>
     <message>
         <source>Executable Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій виконуваного модуля</translation>
     </message>
     <message>
         <source>Executable failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій виконуваного модуля: %1</translation>
     </message>
     <message>
         <source>&lt;unknown&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;невідомий&gt;</translation>
     </message>
     <message>
         <source>Jumped. Stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>Перехід здійснено. Зупинено</translation>
     </message>
     <message>
         <source>Target line hit. Stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>Досягнуто вказанутого рядка. Зупинено</translation>
     </message>
     <message>
         <source>Application exited with exit code %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Програма завершилась з кодом %1</translation>
     </message>
     <message>
         <source>Application exited after receiving signal %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Програма завершилась після отримання сигналу %1</translation>
     </message>
     <message>
         <source>Application exited normally</source>
-        <translation type="unfinished"></translation>
+        <translation>Програма завершилась нормально</translation>
     </message>
     <message>
         <source>Loading %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантаження %1...</translation>
     </message>
     <message>
         <source>Stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинено.</translation>
     </message>
     <message>
         <source>Execution Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка виконання</translation>
     </message>
     <message>
         <source>Value changed from %1 to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Значення змінено з %1 на %2.</translation>
     </message>
     <message>
         <source>Cannot continue debugged process:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо продовжити процес, що зневажуєтсья:
+</translation>
     </message>
     <message>
         <source>Failed to shut down application</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій закриття програми</translation>
     </message>
     <message>
         <source>Continuing after temporary stop...</source>
-        <translation type="unfinished"></translation>
+        <translation>Продовження після тимчасової зупинки...</translation>
     </message>
     <message>
         <source>Running requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано запуск...</translation>
     </message>
     <message>
         <source>The gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій запуску процесу gdb. Або програма %1, що викликається відсутня, або, можливо, ви маєте недостатньо прав для запуску програми.
+%2</translation>
     </message>
     <message>
         <source>The gdb process crashed some time after starting successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Процес gdb завершився аварійно через деякий час після успішного запуску.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сталась помилка під час спроби запису до процесу gdb. Наприклад, процес може не виконуватись або закрити свій канал введеня.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the gdb process. For example, the process may not be running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сталась помилка під час спроби читання з процесу gdb. Наприклад, процес може не виконуватись.</translation>
     </message>
     <message>
         <source>An unknown error in the gdb process occurred. </source>
-        <translation type="unfinished"></translation>
+        <translation>З процесом gdb сталась невідома помилка. </translation>
     </message>
     <message>
         <source>An exception was triggered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Трапилась виключна ситуація.</translation>
     </message>
     <message>
         <source>An exception was triggered: </source>
-        <translation type="unfinished"></translation>
+        <translation>Трапилась виключна ситуація: </translation>
     </message>
     <message>
         <source>Stopping temporarily</source>
-        <translation type="unfinished"></translation>
+        <translation>Тимчасово зупинено</translation>
     </message>
     <message>
         <source>Processing queued commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Обробка команд з черги</translation>
     </message>
     <message>
         <source>GDB not responding</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB не відповідає</translation>
     </message>
     <message>
         <source>Give GDB more time</source>
-        <translation type="unfinished"></translation>
+        <translation>Дати GDB ще часу</translation>
     </message>
     <message>
         <source>Process failed to start</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій запуску процесу</translation>
     </message>
     <message numerus="yes">
         <source>The gdb process has not responded to a command within %n second(s). This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
 You can choose between waiting longer or abort debugging.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Процес gdb не відповів на команду протягом %n секунди. Це може означати, що він застряг в нескінченному циклі або виконання операції займає більше часу, ніж очікувалось.
+Ви можете обрати між продовженням очікування або перервати зневадженя.</numerusform>
+            <numerusform>Процес gdb не відповів на команду протягом %n секунд. Це може означати, що він застряг в нескінченному циклі або виконання операції займає більше часу, ніж очікувалось.
+Ви можете обрати між продовженням очікування або перервати зневадженя.</numerusform>
+            <numerusform>Процес gdb не відповів на команду протягом %n секунд. Це може означати, що він застряг в нескінченному циклі або виконання операції займає більше часу, ніж очікувалось.
+Ви можете обрати між продовженням очікування або перервати зневадженя.</numerusform>
         </translation>
     </message>
     <message>
         <source>Raw structure</source>
-        <translation type="unfinished"></translation>
+        <translation>Проста структура</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Нормальний</translation>
+        <translation>Нормальний</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Відображений</translation>
     </message>
     <message>
         <source>There is no gdb binary available for binaries in format &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Відсутній gdb для виконуваних модулів формату &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Step requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано крок...</translation>
     </message>
     <message>
         <source>Step by instruction requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано крок в одну інструкцію...</translation>
     </message>
     <message>
         <source>Finish function requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано вихід з функції...</translation>
     </message>
     <message>
         <source>Step next requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано наступний крок...</translation>
     </message>
     <message>
         <source>Step next instruction requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано наступний крок в одну інструкцію...</translation>
     </message>
     <message>
         <source>Run to line %1 requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано виконання до рядка %1...</translation>
     </message>
     <message>
         <source>Run to function %1 requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано виконання до функції %1...</translation>
     </message>
     <message>
         <source>Immediate return from function requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Запитано негайний вихід з функції...</translation>
     </message>
     <message>
         <source>Cannot Read Symbols</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо прочитати символи</translation>
     </message>
     <message>
         <source>Cannot read symbols for module &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо прочитати символи для модуля &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot read widget data: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо прочитати дані віджету: %1</translation>
     </message>
     <message>
         <source>Could not find a widget.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалось знайти віджет.</translation>
     </message>
     <message>
         <source>The gdb location must be given as an absolute path in the debugger settings (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Розташування gdb повинне бути вказане як абсолютний шлях в налаштуваннях зневаджувача (%1).</translation>
     </message>
     <message>
         <source>GDB I/O Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка введення/виведення GDB</translation>
     </message>
     <message>
         <source>The gdb process crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Процес gdb завершився аварійно.</translation>
     </message>
     <message>
         <source>The gdb process exited unexpectedly (code %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Процес gdb несподівано завершився (код %1)</translation>
     </message>
     <message>
         <source>Unexpected GDB Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Несподіване завершення GDB</translation>
     </message>
     <message>
         <source>Setting up inferior...</source>
@@ -6577,92 +6600,94 @@ You can choose between waiting longer or abort debugging.</source>
     </message>
     <message>
         <source>Retrieving data for stack view thread 0x%1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Отримання даних для перегляду стеку нитки 0x%1...</translation>
     </message>
     <message>
         <source>Retrieving data for stack view...</source>
-        <translation type="unfinished"></translation>
+        <translation>Отримання даних для перегляду стеку...</translation>
     </message>
     <message>
         <source>Snapshot Creation Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка створення знімку</translation>
     </message>
     <message>
         <source>Cannot create snapshot file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо створити файл знімку.</translation>
     </message>
     <message>
         <source>Cannot create snapshot:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо створити знімок:
+</translation>
     </message>
     <message>
         <source>Finished retrieving data</source>
-        <translation type="unfinished"></translation>
+        <translation>Завершено отримання даних</translation>
     </message>
     <message>
         <source>Custom dumper setup: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштування відображувача користувача: %1</translation>
     </message>
     <message>
         <source>&lt;shadowed&gt;</source>
         <extracomment>Type of local variable or parameter shadowed by another variable of the same name in a nested block.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;затінено&gt;</translation>
     </message>
     <message>
         <source>Disassembler failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій дизасемблера: %1</translation>
     </message>
     <message>
         <source>Cannot find debugger initialization script</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо знати скрипт ініціалізації зневаджувача</translation>
     </message>
     <message>
         <source>The debugger settings point to a script file at &apos;%1&apos; which is not accessible. If a script file is not needed, consider clearing that entry to avoid this warning. </source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштування зневаджувача вказують на файл скрипту в &apos;%1&apos;, який недоступний. Якщо файл скрипту не потрібен, очистіть те поле, щоб уникнути цього попередження. </translation>
     </message>
     <message>
         <source>Adapter start failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій запуску адаптера</translation>
     </message>
     <message>
         <source>The GDB installed at %1 cannot find a valid python installation in its subdirectories.
 You may set the environment variable PYTHONPATH to point to your installation.</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB, встановлений в %1, не зміг знайти правильне встановлення python в його підтеках.
+Ви можете встановити змінну оточення PYTHONPATH, щоб вказати на ваше встановлення.</translation>
     </message>
     <message>
         <source>Setting breakpoints...</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановлення точок перепину...</translation>
     </message>
     <message>
         <source>Failed to start application: </source>
-        <translation type="unfinished"></translation>
+        <translation>Збій запуску програми: </translation>
     </message>
     <message>
         <source>Failed to start application</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій запуску програми</translation>
     </message>
     <message>
         <source>Adapter crashed</source>
-        <translation type="unfinished"></translation>
+        <translation>Адаптер завершився аварійно</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::GdbOptionsPage</name>
     <message>
         <source>GDB</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Choose Location of Startup Script File</source>
-        <translation type="unfinished"></translation>
+        <translation>Оберіть розташування для файлу скрипту запуску</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::IPCEngineHost</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Фатальне завершення рушія. Несумісний виконуваний модуль або помилка IPC.</translation>
     </message>
 </context>
 <context>
@@ -6676,7 +6701,7 @@ You may set the environment variable PYTHONPATH to point to your installation.</
     <name>Debugger::Internal::LldbEngineHost</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>збій запуску qtcreator-lldb: %1</translation>
     </message>
     <message>
         <source>Fatal engine shutdown. Consult debugger log for details.</source>
@@ -6698,154 +6723,155 @@ You may set the environment variable PYTHONPATH to point to your installation.</
     <name>Debugger::Internal::LocalPlainGdbAdapter</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо встановити зв&apos;язок з дочірнім процесом: %1</translation>
     </message>
     <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
 Setting breakpoints by file name and line number may fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Це не схоже на зневаджувальну збірку.
+Встановлення точок перепину за іменем файлу та номером рядка може не спрацювати.</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::LogWindow</name>
     <message>
         <source>Debugger Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Журнал зневадження</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">Команда:</translation>
+        <translation>Команда:</translation>
     </message>
     <message>
         <source>Log File</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл журналу</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::MemoryAgent</name>
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо відобразити зміст пам&apos;яті, оскільки не встановлено додатку для перегляду двійкових даних.</translation>
     </message>
     <message>
         <source>Memory at 0x%1</source>
-        <translation type="unfinished">Пам&apos;яті в  0x%1</translation>
+        <translation>Пам&apos;ять в  0x%1</translation>
     </message>
     <message>
         <source>No Memory Viewer Available</source>
-        <translation type="unfinished"></translation>
+        <translation>Переглядач пам&apos;яті не доступний</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::ModulesModel</name>
     <message>
         <source>yes</source>
-        <translation type="unfinished"></translation>
+        <translation>так</translation>
     </message>
     <message>
         <source>no</source>
-        <translation type="unfinished"></translation>
+        <translation>ні</translation>
     </message>
     <message>
         <source>Module name</source>
-        <translation type="unfinished"></translation>
+        <translation>Назва модуля</translation>
     </message>
     <message>
         <source>Module path</source>
-        <translation type="unfinished"></translation>
+        <translation>Шлях до модуля</translation>
     </message>
     <message>
         <source>Symbols read</source>
-        <translation type="unfinished"></translation>
+        <translation>Символів прочитано</translation>
     </message>
     <message>
         <source>Symbols type</source>
-        <translation type="unfinished"></translation>
+        <translation>Тип символів</translation>
     </message>
     <message>
         <source>Start address</source>
-        <translation type="unfinished"></translation>
+        <translation>Початкова адреса</translation>
     </message>
     <message>
         <source>End address</source>
-        <translation type="unfinished"></translation>
+        <translation>Кінцева адреса</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>невідомо</translation>
     </message>
     <message>
         <source>plain</source>
-        <translation type="unfinished"></translation>
+        <translation>простий</translation>
     </message>
     <message>
         <source>fast</source>
-        <translation type="unfinished"></translation>
+        <translation>швидкий</translation>
     </message>
     <message>
         <source>&lt;unknown&gt;</source>
         <comment>address</comment>
         <extracomment>End address of loaded module</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;невідома&gt;</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::ModulesWindow</name>
     <message>
         <source>Modules</source>
-        <translation type="unfinished">Модулі</translation>
+        <translation>Модулі</translation>
     </message>
     <message>
         <source>Update Module List</source>
-        <translation type="unfinished"></translation>
+        <translation>Оновити список модулів</translation>
     </message>
     <message>
         <source>Show Source Files for Module &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати файли коду модуля &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Load Symbols for All Modules</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантажити символи з усіх модулів</translation>
     </message>
     <message>
         <source>Examine All Modules</source>
-        <translation type="unfinished"></translation>
+        <translation>Переглянути усі модулі</translation>
     </message>
     <message>
         <source>Load Symbols for Module</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантажити символи для модуля</translation>
     </message>
     <message>
         <source>Edit File</source>
-        <translation type="unfinished"></translation>
+        <translation>Редагувати файл</translation>
     </message>
     <message>
         <source>Show Symbols</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати символи</translation>
     </message>
     <message>
         <source>Show Dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати залежності</translation>
     </message>
     <message>
         <source>Load Symbols for Module &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантажити символи для модуля &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Edit File &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Редагувати файл &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Show Symbols in File &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати символи з файлу &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Show Dependencies of &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати залежності &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Підгнати ширину стовпців до змісту</translation>
     </message>
 </context>
 <context>
@@ -6863,11 +6889,11 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Cannot create FiFo %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо створити FiFo %1: %2</translation>
     </message>
     <message>
         <source>Cannot open FiFo %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо відкрити FiFo %1: %2</translation>
     </message>
 </context>
 <context>
@@ -7020,163 +7046,164 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Value (base %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Значення (основа %1)</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::RegisterMemoryView</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Пам&apos;ять з регістру &apos;%1&apos; (0x%2)</translation>
     </message>
     <message>
         <source>Register &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Регістр &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::RegisterWindow</name>
     <message>
         <source>Registers</source>
-        <translation type="unfinished"></translation>
+        <translation>Регістри</translation>
     </message>
     <message>
         <source>Reload Register Listing</source>
-        <translation type="unfinished"></translation>
+        <translation>Перезавантажити список регістрів</translation>
     </message>
     <message>
         <source>Open Memory Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті</translation>
     </message>
     <message>
         <source>Open Disassembler...</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити дизасемблер...</translation>
     </message>
     <message>
         <source>Open Memory Editor at 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті в 0x%1</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Шістнадцятковий</translation>
     </message>
     <message>
         <source>Open Memory View at Value of Register %1 0x%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити перегляд пам&apos;яті по значенню регістра %1 0x%2</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Десятковий</translation>
     </message>
     <message>
         <source>Open Disassembler at 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити дизасемблер в 0x%1</translation>
     </message>
     <message>
         <source>Octal</source>
-        <translation type="unfinished"></translation>
+        <translation>Вісімковий</translation>
     </message>
     <message>
         <source>Open Memory View at Value of Register</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити перегляд пам&apos;яті по значенню регістра</translation>
     </message>
     <message>
         <source>Binary</source>
-        <translation type="unfinished"></translation>
+        <translation>Двійковий</translation>
     </message>
     <message>
         <source>Open Disassembler</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити дизасемблер</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Підгнати ширину стовпців до змісту</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::RemoteGdbProcess</name>
     <message>
         <source>Connection failure: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій з&apos;єднання: %1.</translation>
     </message>
     <message>
         <source>Could not create FIFO.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалось створити FIFO.</translation>
     </message>
     <message>
         <source>Application output reader unexpectedly finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Читач виведення програми несподівано завершився.</translation>
     </message>
     <message>
         <source>Remote GDB failed to start.</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій запуску віддаленого GDB.</translation>
     </message>
     <message>
         <source>Remote GDB crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Віддалений GDB завершився аварійно.</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::RemoteGdbServerAdapter</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
-        <translation type="unfinished"></translation>
+        <translation>Збій запуску процесу вивантаження. Відсутня оболонка?</translation>
     </message>
     <message>
         <source>The upload process crashed some time after starting successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Процес вивантаження завершився аварійно через деякий час після успішного запуску.</translation>
     </message>
     <message>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation type="unfinished"></translation>
+        <translation>У останньої фукнції waitFor...() вичерпано час.Стан QProcess не змінився, ви можете спробувати викликати waitFor...() знову.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сталась помилка під час спроби запису до процесу вивантаження. Наприклад, процес може не виконуватись або закрити свій канал введеня.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сталась помилка під час спроби читання з процесу вивантаження. Наприклад, процес може не виконуватись.</translation>
     </message>
     <message>
         <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation type="unfinished"></translation>
+        <translation>Трапилась невідома помилка в процесі вивантаження. Це типове значення, що повертає error().</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Помилка</translation>
+        <translation>Помилка</translation>
     </message>
     <message>
         <source>No symbol file given.</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл символів не надано.</translation>
     </message>
     <message>
         <source>Reading debug information failed:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Збій читання зневаджувальної інформації:
+</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::ScriptConsole</name>
     <message>
         <source>&lt;Type expression to evaluate&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Введіть вираз для обчислення&gt;</translation>
     </message>
     <message>
         <source>Write and evaluate QtScript expressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Напишіть та обчисліть вирази QtScript.</translation>
     </message>
     <message>
         <source>Script Console
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Консоль скриптів</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::ScriptEngine</name>
     <message>
         <source>Error:</source>
-        <translation type="unfinished">Помилка: </translation>
+        <translation>Помилка:</translation>
     </message>
     <message>
         <source>Running requested...</source>
@@ -7218,41 +7245,41 @@ Do you want to retry?</source>
     <name>Debugger::Internal::SnapshotWindow</name>
     <message>
         <source>Snapshots</source>
-        <translation type="unfinished"></translation>
+        <translation>Знімки</translation>
     </message>
     <message>
         <source>Create Snapshot</source>
-        <translation type="unfinished"></translation>
+        <translation>Створити знімок</translation>
     </message>
     <message>
         <source>Remove Snapshot</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити знімок</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Підгнати ширину стовпців до змісту</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::SourceFilesHandler</name>
     <message>
         <source>Internal name</source>
-        <translation type="unfinished"></translation>
+        <translation>Внутрішнє ім&apos;я</translation>
     </message>
     <message>
         <source>Full name</source>
-        <translation type="unfinished"></translation>
+        <translation>Повне ім&apos;я</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::SourceFilesWindow</name>
     <message>
         <source>Source Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Файли коду</translation>
     </message>
     <message>
         <source>Reload Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Перезавантажити дані</translation>
     </message>
     <message>
         <source>Open File</source>
@@ -7260,7 +7287,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Open File &quot;%1&quot;&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити файл &quot;%1&quot;&apos;</translation>
     </message>
 </context>
 <context>
@@ -7271,15 +7298,15 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>&lt;More&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Більше&gt;</translation>
     </message>
     <message>
         <source>Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Рівень</translation>
     </message>
     <message>
         <source>Function</source>
-        <translation type="unfinished">Функція</translation>
+        <translation>Функція</translation>
     </message>
     <message>
         <source>File</source>
@@ -7287,69 +7314,69 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished">Рядок</translation>
+        <translation>Рядок</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Адреса</translation>
+        <translation>Адреса</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::StackWindow</name>
     <message>
         <source>Stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Стек</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопіювати зміст до буферу обміну</translation>
     </message>
     <message>
         <source>Open Memory Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті</translation>
     </message>
     <message>
         <source>Open Memory Editor at 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті в 0x%1</translation>
     </message>
     <message>
         <source>Open Disassembler at 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити дизасемблер в 0x%1</translation>
     </message>
     <message>
         <source>Memory at Frame #%1 (%2) 0x%3</source>
-        <translation type="unfinished"></translation>
+        <translation>Пам&apos;ять в кадрі #%1 (%2) 0x%3</translation>
     </message>
     <message>
         <source>Frame #%1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Кадр #%1 (%2)</translation>
     </message>
     <message>
         <source>Open Disassembler</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити дизасемблер</translation>
     </message>
     <message>
         <source>Open Disassembler...</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити дизасемблер...</translation>
     </message>
     <message>
         <source>Try to Load Unknown Symbols</source>
-        <translation type="unfinished"></translation>
+        <translation>Спробувати завантажити невідомі символи</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Підгнати ширину стовпців до змісту</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::StartExternalDialog</name>
     <message>
         <source>Select Executable</source>
-        <translation type="unfinished">Виберіть виконуваний модуль</translation>
+        <translation>Виберіть виконуваний модуль</translation>
     </message>
     <message>
         <source>Select Working Directory</source>
-        <translation type="unfinished">Оберіть робочу теку</translation>
+        <translation>Оберіть робочу теку</translation>
     </message>
 </context>
 <context>
@@ -7371,45 +7398,45 @@ Do you want to retry?</source>
     <name>Debugger::Internal::StartRemoteDialog</name>
     <message>
         <source>Select Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Оберіть зневаджувач</translation>
     </message>
     <message>
         <source>Select Executable</source>
-        <translation type="unfinished">Виберіть виконуваний модуль</translation>
+        <translation>Виберіть виконуваний модуль</translation>
     </message>
     <message>
         <source>Select Sysroot</source>
-        <translation type="unfinished"></translation>
+        <translation>Оберіть sysroot</translation>
     </message>
     <message>
         <source>Select GDB Start Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Оберіть скрипт запуску GDB</translation>
     </message>
     <message>
         <source>Select Server Start Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Оберіть скрипт запуску сервера</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::TermGdbAdapter</name>
     <message>
         <source>Debugger Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка зневаджувача</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::ThreadsHandler</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
-        <translation type="unfinished"></translation>
+        <translation>Id&amp;nbsp;нитки:</translation>
     </message>
     <message>
         <source>Target&amp;nbsp;id:</source>
-        <translation type="unfinished"></translation>
+        <translation>Id&amp;nbsp;цілі:</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Назва:</translation>
+        <translation>Назва:</translation>
     </message>
     <message>
         <source>State:</source>
@@ -7417,19 +7444,19 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Core:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ядро:</translation>
     </message>
     <message>
         <source>Stopped&amp;nbsp;at:</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупенено&amp;nbsp;в:</translation>
     </message>
     <message>
         <source>Thread ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID нитки</translation>
     </message>
     <message>
         <source>Function</source>
-        <translation type="unfinished">Функція</translation>
+        <translation>Функція</translation>
     </message>
     <message>
         <source>File</source>
@@ -7437,34 +7464,34 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Line</source>
-        <translation type="unfinished">Рядок</translation>
+        <translation>Рядок</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Адреса</translation>
+        <translation>Адреса</translation>
     </message>
     <message>
         <source>Core</source>
-        <translation type="unfinished"></translation>
+        <translation>Ядро</translation>
     </message>
     <message>
         <source>State</source>
-        <translation type="unfinished">Стан</translation>
+        <translation>Стан</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Назва</translation>
+        <translation>Назва</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::ThreadsWindow</name>
     <message>
         <source>Thread</source>
-        <translation type="unfinished"></translation>
+        <translation>Нитка</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Підгнати ширину стовпців до змісту</translation>
     </message>
 </context>
 <context>
@@ -7472,12 +7499,12 @@ Do you want to retry?</source>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Поза областю видимості&gt;</translation>
     </message>
     <message>
         <source>%1 &lt;shadowed %2&gt;</source>
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 &lt;затінено %2&gt;</translation>
     </message>
 </context>
 <context>
@@ -7492,15 +7519,15 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Internal Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Внутрішній тип</translation>
     </message>
     <message>
         <source>Displayed Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Відображений тип</translation>
     </message>
     <message>
         <source> ... &lt;cut off&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation> ... &lt;обрізано&gt;</translation>
     </message>
     <message>
         <source>Value</source>
@@ -7508,130 +7535,130 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Object Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Адреса об&apos;єкта</translation>
     </message>
     <message>
         <source>Referencing Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Адреса, на яку вказується</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Розмір</translation>
     </message>
     <message>
         <source>Internal ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Внутрішній ID</translation>
     </message>
     <message>
         <source>Generation</source>
-        <translation type="unfinished"></translation>
+        <translation>Покоління</translation>
     </message>
     <message>
         <source>Root</source>
-        <translation type="unfinished"></translation>
+        <translation>Корінь</translation>
     </message>
     <message>
         <source>Return Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Значення, що повертаєтсья</translation>
     </message>
     <message>
         <source>Locals</source>
-        <translation type="unfinished"></translation>
+        <translation>Локальні змінні</translation>
     </message>
     <message>
         <source>Watchers</source>
-        <translation type="unfinished"></translation>
+        <translation>Під наглядом</translation>
     </message>
     <message>
         <source>Tooltip</source>
-        <translation type="unfinished"></translation>
+        <translation>Підказка</translation>
     </message>
     <message>
         <source>&lt;Edit&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Змініть&gt;</translation>
     </message>
     <message>
         <source>&lt;empty&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;порожнє&gt;</translation>
     </message>
     <message>
         <source>&lt;uninitialized&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;неініціалізоване&gt;</translation>
     </message>
     <message>
         <source>&lt;invalid&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;неправильне&gt;</translation>
     </message>
     <message>
         <source>&lt;not accessible&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;недоступне&gt;</translation>
     </message>
     <message numerus="yes">
         <source>&lt;more than %n items&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;більше ніж %n елемент&gt;</numerusform>
+            <numerusform>&lt;більше ніж %n елементи&gt;</numerusform>
+            <numerusform>&lt;більше ніж %n елементів&gt;</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>&lt;%n items&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;%n елемент&gt;</numerusform>
+            <numerusform>&lt;%n елементи&gt;</numerusform>
+            <numerusform>&lt;%n елементів&gt;</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 Object at %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Об&apos;єкт %1 в %2</translation>
     </message>
     <message>
         <source>%1 Object at Unknown Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Об&apos;єкт %1 за невідомою адресою</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::WatchModel</name>
     <message>
         <source>&lt;Edit&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Змініть&gt;</translation>
     </message>
     <message>
         <source>Raw pointer</source>
-        <translation type="unfinished"></translation>
+        <translation>Вказівник</translation>
     </message>
     <message>
         <source>Latin1 string</source>
-        <translation type="unfinished"></translation>
+        <translation>Рядок Latin1</translation>
     </message>
     <message>
         <source>UTF8 string</source>
-        <translation type="unfinished"></translation>
+        <translation>Рядок UTF8</translation>
     </message>
     <message>
         <source>UTF16 string</source>
-        <translation type="unfinished"></translation>
+        <translation>Рядок UTF16</translation>
     </message>
     <message>
         <source>UCS4 string</source>
-        <translation type="unfinished"></translation>
+        <translation>Рядок UCS4</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Десятковий</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Шістнадцятковий</translation>
     </message>
     <message>
         <source>Binary</source>
-        <translation type="unfinished"></translation>
+        <translation>Двійковий</translation>
     </message>
     <message>
         <source>Octal</source>
-        <translation type="unfinished"></translation>
+        <translation>Вісімковий</translation>
     </message>
     <message>
         <source>Name</source>
@@ -7650,310 +7677,314 @@ Do you want to retry?</source>
     <name>Debugger::Internal::WatchWindow</name>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Автоматичний</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті за адресою об&apos;єкта (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті за адресою, на яку посилаються (0x%1)</translation>
     </message>
     <message>
         <source>Change Display Format...</source>
-        <translation type="unfinished"></translation>
+        <translation>Змінити формат відображення...</translation>
     </message>
     <message>
         <source>Treat All Characters as Printable</source>
-        <translation type="unfinished"></translation>
+        <translation>Вважати усі символи друкованими</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Octal</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати недруковані символи як вісімкові</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати недруковані символи як шістнадцяткові</translation>
     </message>
     <message>
         <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Змінити формат відображення для типу &quot;%1&quot;:</translation>
     </message>
     <message>
         <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Змінити формат відображення для об&apos;єктів з назвою &quot;%1&quot;:</translation>
     </message>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;%1&lt;/i&gt; %2 в #%3</translation>
     </message>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Регістр &lt;i&gt;%1&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Use Display Format Based on Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати формат відображення на основі типу</translation>
     </message>
     <message>
         <source>Change Display for Type or Item...</source>
-        <translation type="unfinished"></translation>
+        <translation>Змінити формат відображення для типу чи елементу...</translation>
     </message>
     <message>
         <source>Memory Referenced by Pointer &apos;%1&apos; (0x%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Пам&apos;ять, на яку посилається вказівник &apos;%1&apos; (0x%2)</translation>
     </message>
     <message>
         <source>Memory at Variable &apos;%1&apos; (0x%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Пам&apos;ять в змінній &apos;%1&apos; (0x%2)</translation>
     </message>
     <message>
         <source>Remove All Watch Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити усі елементи під наглядом</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті за адресою об&apos;єкта</translation>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо відобразити компонування стеку</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті за адресою, на яку посилаються</translation>
     </message>
     <message>
         <source>Could not determine a suitable address range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не вдалось визначити підходящий діапазон адрес.</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Скопіювати зміст до буферу обміну</translation>
     </message>
     <message>
         <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Компонування пам&apos;яті локальних змінних в 0x%1</translation>
     </message>
     <message>
         <source>Show View Contents in Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Показти зміст виду в редакторі</translation>
     </message>
     <message>
         <source>Locals and Expressions</source>
-        <translation type="unfinished"></translation>
+        <translation>Локальні змінні та вирази</translation>
     </message>
     <message>
         <source>Close Editor Tooltips</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрити підказки редактора</translation>
     </message>
     <message>
         <source>Enter watch expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Введіть вираз для нагляду</translation>
     </message>
     <message>
         <source>Expression:</source>
-        <translation type="unfinished"></translation>
+        <translation>Вираз:</translation>
     </message>
     <message>
         <source>Locals &amp; Watchers</source>
-        <translation type="unfinished"></translation>
+        <translation>Локальні змінні та об&apos;єкти під наглядом</translation>
     </message>
     <message>
         <source>Evaluate Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Обчислити вираз</translation>
     </message>
     <message>
         <source>Evaluate Expression &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Обчислити вираз &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Remove Evaluated Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити вираз, щоб обчислюється</translation>
     </message>
     <message>
         <source>Remove Evaluated Expression &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити вираз, щоб обчислюється &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Add Data Breakpoint...</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати точку перепину за даними...</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати точку перепину за даними в об&apos;єкті за адресою (0x%1)</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Referenced Address (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати точку перепину по данимі за адресою, на яку посилаються (0x%1)</translation>
     </message>
     <message>
         <source>Add Data Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати точку перепину за даними</translation>
     </message>
     <message>
         <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановлення точки перепину по даним за адресою призводитиме до зупинки програми, коли дані за адресою будуть змінюватись.</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати точку перепину за даними виразу (0x%1)</translation>
     </message>
     <message>
         <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановлення точки перепину по даним за виразом призводитиме до зупинки програми, коли дані за адресою, вказаною у виразі, будуть змінюватись.</translation>
     </message>
     <message>
         <source>Insert New Evaluated Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставити новий вираз для обчислення</translation>
     </message>
     <message>
         <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити перегляд пам&apos;яті за адресою об&apos;єкта (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory View at Object&apos;s Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити перегляд пам&apos;яті за адресою об&apos;єкта</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити перегляд пам&apos;яті за адресою, на яку посилаються (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити перегляд пам&apos;яті за адресою, на яку посилаються</translation>
     </message>
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті, що показує компонування стеку</translation>
     </message>
     <message>
         <source>Copy Value to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Копіювати значенняі до буферу обміну</translation>
     </message>
     <message>
         <source>Select Widget to Watch</source>
-        <translation type="unfinished"></translation>
+        <translation>Оберіть віджет для нагляду</translation>
     </message>
     <message>
         <source>Open Memory Editor...</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити редактор пам&apos;яті...</translation>
     </message>
     <message>
         <source>Refresh Code Model Snapshot</source>
-        <translation type="unfinished"></translation>
+        <translation>Оновити знімок моделі коду</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Підгнати ширину стовпців до змісту</translation>
     </message>
 </context>
 <context>
     <name>Debugger::QmlAdapter</name>
     <message>
         <source>Connecting to debug server on %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Підключення до серевера зневадження на %1</translation>
     </message>
     <message>
         <source>Connecting to debug server %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Підключення до серевера зневадження на %1: %2</translation>
     </message>
     <message>
         <source>Error: (%1) %2</source>
         <comment>%1=error code, %2=error message</comment>
-        <translation type="unfinished"></translation>
+        <translation>Помилка: (%1) %2</translation>
     </message>
     <message>
         <source>disconnected.
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>відключено.
+
+</translation>
     </message>
     <message>
         <source>resolving host...</source>
-        <translation type="unfinished"></translation>
+        <translation>визначення імені вузла...</translation>
     </message>
     <message>
         <source>connecting to debug server...</source>
-        <translation type="unfinished"></translation>
+        <translation>підключення до серевера зневадження...</translation>
     </message>
     <message>
         <source>connected.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>підключено.
+</translation>
     </message>
     <message>
         <source>closing...</source>
-        <translation type="unfinished"></translation>
+        <translation>закриття...</translation>
     </message>
     <message>
         <source>Debug service &apos;%1&apos; became unavailable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Сервіс зневадженн &apos;%1&apos; став недоступним.</translation>
     </message>
     <message>
         <source>Connected to debug service &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Підключено до сервісу зневадження &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Not connected to debug service &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не аідключено до сервісу зневадження &apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
     <name>DebuggerEngine</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
-        <translation type="unfinished"></translation>
+        <translation>Зневадження складних командних рядків під Windows наразі не підтримується.</translation>
     </message>
 </context>
 <context>
     <name>DebuggerRunControl</name>
     <message>
         <source>Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>Зневадження</translation>
     </message>
     <message>
         <source>Debugger</source>
-        <translation type="unfinished">Зневаджувач</translation>
+        <translation>Зневаджувач</translation>
     </message>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо створити рушій зневадження типу &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
     <name>DebuggingHelperOptionPage</name>
     <message>
         <source>Use Debugging Helper</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати помічник зневадження</translation>
     </message>
     <message>
         <source>Makes use of Qt Creator&apos;s code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вмикає використання моделі коду Qt Creator для з&apos;ясування того, чи змінній вже було присвоєно значення в момент зупинки зневаджувача.</translation>
     </message>
     <message>
         <source>Use code model</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати модель коду</translation>
     </message>
     <message>
         <source>Displays names of QThread based threads.</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати назви ниток, що базуються на QThread.</translation>
     </message>
     <message>
         <source>Display thread names</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати імена ниток</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Помічник зневадження використовується лише для зручного відображення об&apos;єктів певних типів, як QString та std::map у виді &amp;quot;Локальних змінних та виразах під наглядом&amp;quot;. Він не є вкрай необхідним для зневадження за допомогою Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -8966,7 +8997,7 @@ Reason: %3</source>
     <name>FeaturedAndNewsListing</name>
     <message>
         <source>Featured News</source>
-        <translation>Рекомендовані новини</translation>
+        <translation>Популярні новини</translation>
     </message>
 </context>
 <context>
@@ -9373,47 +9404,47 @@ Add, modify, and remove document filters, which determine the documentation set 
     <name>GdbOptionsPage</name>
     <message>
         <source>Enable reverse debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути зворотнє зневадження</translation>
     </message>
     <message>
         <source>Skip known frames when stepping</source>
-        <translation type="unfinished"></translation>
+        <translation>Пропускати відомі кадри під час покрокового зневадження</translation>
     </message>
     <message>
         <source>Show a message box when receiving a signal</source>
-        <translation type="unfinished"></translation>
+        <translation>Показувати вікно повідомлення, коли отримано сигнал</translation>
     </message>
     <message>
         <source>Behavior of Breakpoint Setting in Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштування поведінки точок перепину в додатках</translation>
     </message>
     <message>
         <source>This is the slowest but safest option.</source>
-        <translation type="unfinished"></translation>
+        <translation>Це найповільніший, але найбезпечніший варіант.</translation>
     </message>
     <message>
         <source>Try to set breakpoints in selected plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Намагати встановлювати точки перепину в обраних додатках</translation>
     </message>
     <message>
         <source>Matching regular expression: </source>
-        <translation type="unfinished"></translation>
+        <translation>що відповідають регуляному виразу: </translation>
     </message>
     <message>
         <source>Never set breakpoints in plugins automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Ніколи не встановлювати точки перепину в додатках автоматично</translation>
     </message>
     <message>
         <source>GDB</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Або порожньо або вказує на файл, що містить команди GDB, які мають бути виконані безпосередньо після запуску GDB.</translation>
     </message>
     <message>
         <source>GDB startup script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Скрипт запуску GDB:</translation>
     </message>
     <message>
         <source>This is the number of seconds Qt Creator will wait before
@@ -9421,56 +9452,61 @@ it terminates a non-responsive GDB process. The default value of 20 seconds
 should be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than that
 on slow machines. In this case, the value should be increased.</source>
-        <translation type="unfinished"></translation>
+        <translation>Кількість секунд, які має чекати Qt Creator, до того як
+він завершить процес GDB, що не відповідає. Типове значення 20 секунд
+має бути достатнім для більшості програм, але є ситуації, коли
+завантаження великих бібліотек чи відображення файлів коду триває значно довше
+на повільних машинах. В цьому разі значення має бути збільшене.</translation>
     </message>
     <message>
         <source>GDB timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Час очікування GDB:</translation>
     </message>
     <message>
         <source>Allows &apos;Step Into&apos; to compress several steps into one step for less noisy debugging. For example, the atomic reference
  counting code is skipped, and a single &apos;Step Into&apos; for a signal emission ends up directly in the slot connected to it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Дозволяє команді &quot;Увійти в&quot; стиснути декілька кроків в один для менш &quot;гамірного&quot; зневадження. Наприклад, код атомарних лічильників
+пропускається, а одна команда &quot;Увійти в&quot; для надсилання сигналу закінчується безпосередньо в слоті, що підключений до нього.</translation>
     </message>
     <message>
         <source>This will show a message box as soon as your application receives a signal like SIGSEGV during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вмикає відображення подомлення, коли ваша програма отримує сигнал (наприклад, SIGSEGV) під час зневадження.</translation>
     </message>
     <message>
         <source>Adjust breakpoint locations</source>
-        <translation type="unfinished"></translation>
+        <translation>Підправляти розташування точок перепину</translation>
     </message>
     <message>
         <source>This allows or inhibits reading the user&apos;s default .gdbinit file on debugger startup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Це дозволяє або забороняє читання типового файлу користувача .gdbinit під час запуску зневаджувача.</translation>
     </message>
     <message>
         <source>Load .gdbinit file on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантажувати файо .gdbinit під час запуску</translation>
     </message>
     <message>
         <source>Use asynchronous mode to control the inferior</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати асинхронний режим для управління підпроцесом</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;GDB дозволяє встановлювати точки перепину на рядках, для яких код не генерується. В таких випадках точка перепину зміщується на наступний рядок, для якого дійсно генерується код. Ця опція відображає таку тимчасову зміну шляхом перенесення маркерів точок зневадження в редакторі коду.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Stop when a qWarning is issued</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупиняти, коли трапляється qWarning</translation>
     </message>
     <message>
         <source>Stop when a qFatal is issued</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупиняти, коли трапляється qFatal</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Вмикає зворотнє зневадження.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Примтіка:&lt;/b&gt;Ця функція дуже повільна та нестабільна зі сторони GDB. Вона моде призводити до непередбачуваної поведнки під час проходження назад зі системних викликів, що скоріш за все знищить ваш сеанс зневадження.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Always try to set breakpoints in plugins automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Завжди намагатись встановлювати точки перепину в додатках автоматично</translation>
     </message>
 </context>
 <context>
@@ -11913,11 +11949,11 @@ QML component instance objects and properties directly.</source>
     <name>LldbOptionsPageWidget</name>
     <message>
         <source>Enable LLDB</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути LLDB</translation>
     </message>
     <message>
         <source>Use GDB Python dumpers</source>
-        <translation type="unfinished"></translation>
+        <translation>Використовувати відображувачі GDB, написані на Python</translation>
     </message>
 </context>
 <context>
@@ -13013,7 +13049,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Статус</translation>
+        <translation>Статус</translation>
     </message>
     <message>
         <source>Pull...</source>
@@ -13029,7 +13065,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Import...</source>
-        <translation type="unfinished">Імпортувати...</translation>
+        <translation>Імпортувати...</translation>
     </message>
     <message>
         <source>Incoming...</source>
@@ -14890,11 +14926,11 @@ Reason: %2</source>
     <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
-        <translation>Приєднати зневаджувач до цього процесу</translation>
+        <translation>Під&apos;єднати зневаджувач до цього процесу</translation>
     </message>
     <message>
         <source>Attach debugger to %1</source>
-        <translation>Приєднати зневаджувач до %1</translation>
+        <translation>Під&apos;єднати зневаджувач до %1</translation>
     </message>
     <message>
         <source>Stop</source>
@@ -20912,18 +20948,18 @@ Reason: %2</source>
     <name>QtDumperHelper</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Знайдено застарілу версію бібліотеки помічника зневадження (%1); необхідна версія %2.</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;немає&gt;</translation>
     </message>
     <message numerus="yes">
         <source>%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n відомий тип, версія Qt: %1, простір імен Qt: %2 Версія відображувача: %3</numerusform>
+            <numerusform>%n відомих типи, версія Qt: %1, простір імен Qt: %2 Версія відображувача: %3</numerusform>
+            <numerusform>%n відомих типів, версія Qt: %1, простір імен Qt: %2 Версія відображувача: %3</numerusform>
         </translation>
     </message>
 </context>
@@ -21266,7 +21302,7 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <name>QtVersion</name>
     <message>
         <source>&lt;unknown&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;невідома&gt;</translation>
     </message>
     <message>
         <source>System</source>
@@ -21816,29 +21852,29 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
     <message>
         <source>Testing configuration...</source>
-        <translation type="unfinished">Тестування конфігурації...</translation>
+        <translation>Тестування конфігурації...</translation>
     </message>
     <message>
         <source>Stop Test</source>
-        <translation type="unfinished">Зупинити тест</translation>
+        <translation>Зупинити тест</translation>
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation type="unfinished">Не вдалось під&apos;єднатись до вузла: %1</translation>
+        <translation>Не вдалось під&apos;єднатись до вузла: %1</translation>
     </message>
     <message>
         <source>
 Did you start Qemu?</source>
-        <translation type="unfinished">
+        <translation>
 Ви запустили Qemu?</translation>
     </message>
     <message>
         <source>Remote process failed: %1</source>
-        <translation type="unfinished">Збій віддаленого процесу: %1</translation>
+        <translation>Збій віддаленого процесу: %1</translation>
     </message>
     <message>
         <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
-        <translation type="unfinished">Версії Qt не збігаються!  На пристрої очікувалась Qt 4.6.2 чи вище.</translation>
+        <translation>Версії Qt не збігаються!  На пристрої очікувалась Qt 4.6.2 чи вище.</translation>
     </message>
     <message>
         <source>%1 is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
@@ -21866,37 +21902,37 @@ Did you start Qemu?</source>
     </message>
     <message>
         <source>Device configuration okay.</source>
-        <translation type="unfinished">Конфігурація пристрою в нормі.</translation>
+        <translation>Конфігурація пристрою в нормі.</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Закрити</translation>
+        <translation>Закрити</translation>
     </message>
     <message>
         <source>Device configuration test failed: Unexpected output:
 %1</source>
-        <translation type="unfinished">Збій тестування конфігурації пристрою: Неочікуване виведення:
+        <translation>Збій тестування конфігурації пристрою: Неочікуване виведення:
 %1</translation>
     </message>
     <message>
         <source>Hardware architecture: %1
 </source>
-        <translation type="unfinished">Апаратна архітектура: %1
+        <translation>Апаратна архітектура: %1
 </translation>
     </message>
     <message>
         <source>Kernel version: %1
 </source>
-        <translation type="unfinished">Версія ядра: %1
+        <translation>Версія ядра: %1
 </translation>
     </message>
     <message>
         <source>No Qt packages installed.</source>
-        <translation type="unfinished">Пакунки Qt не встановлено.</translation>
+        <translation>Пакунки Qt не встановлено.</translation>
     </message>
     <message>
         <source>List of installed Qt packages:</source>
-        <translation type="unfinished">Список встановлених пакунків Qt:</translation>
+        <translation>Список встановлених пакунків Qt:</translation>
     </message>
 </context>
 <context>
@@ -23494,42 +23530,42 @@ Server list was %2.</source>
     <name>StackHandler</name>
     <message>
         <source>Address:</source>
-        <translation type="unfinished">Адреса:</translation>
+        <translation>Адреса:</translation>
     </message>
     <message>
         <source>Function:</source>
-        <translation type="unfinished">Функція:</translation>
+        <translation>Функція:</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished">Файл:</translation>
+        <translation>Файл:</translation>
     </message>
     <message>
         <source>Line:</source>
-        <translation type="unfinished"></translation>
+        <translation>Рядок:</translation>
     </message>
     <message>
         <source>From:</source>
-        <translation type="unfinished"></translation>
+        <translation>З:</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation type="unfinished"></translation>
+        <translation>До:</translation>
     </message>
 </context>
 <context>
     <name>StandardTextColorGroupBox</name>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Колір</translation>
+        <translation>Колір</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">Текст</translation>
+        <translation>Текст</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation type="unfinished">Стиль</translation>
+        <translation>Стиль</translation>
     </message>
     <message>
         <source>Selection</source>
@@ -23552,7 +23588,7 @@ Server list was %2.</source>
     </message>
     <message>
         <source>Wrap mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим переносу</translation>
     </message>
     <message>
         <source></source>
@@ -23567,27 +23603,27 @@ Server list was %2.</source>
     </message>
     <message>
         <source>&amp;Executable:</source>
-        <translation type="unfinished">Виконуваний &amp;модуль:</translation>
+        <translation>Виконуваний &amp;модуль:</translation>
     </message>
     <message>
         <source>&amp;Arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Аргументи:</translation>
     </message>
     <message>
         <source>&amp;Working directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Робоча тека:</translation>
     </message>
     <message>
         <source>Break at &apos;&amp;main&apos;:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Зупинитись в &apos;main&apos;:</translation>
     </message>
     <message>
         <source>&amp;Tool chain:</source>
-        <translation type="unfinished">Набір &amp;інструментів:</translation>
+        <translation>Набір &amp;інструментів:</translation>
     </message>
     <message>
         <source>Run in &amp;terminal:</source>
-        <translation type="unfinished"></translation>
+        <translation>Запускати в &amp;терміналі:</translation>
     </message>
 </context>
 <context>
@@ -23598,66 +23634,66 @@ Server list was %2.</source>
     </message>
     <message>
         <source>&amp;Debugger:</source>
-        <translation type="unfinished"></translation>
+        <translation>Зневад&amp;жувач:</translation>
     </message>
     <message>
         <source>Local &amp;executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Локальний виконуваний &amp;модуль:</translation>
     </message>
     <message>
         <source>&amp;Host and port:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Вузол та порт:</translation>
     </message>
     <message>
         <source>&amp;Architecture:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Архітектура:</translation>
     </message>
     <message>
         <source>&amp;GNU target:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ціль GNU:</translation>
     </message>
     <message>
         <source>Sys&amp;root:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sys&amp;root:</translation>
     </message>
     <message>
         <source>&amp;Use server start script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Вико&amp;ристовувати скрипт запуску сервера:</translation>
     </message>
     <message>
         <source>&amp;Server start script:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Скрипт запуску сервера:</translation>
     </message>
     <message>
         <source>Override s&amp;tart script:</source>
-        <translation type="unfinished"></translation>
+        <translation>Інший скрипт &amp;запуску:</translation>
     </message>
 </context>
 <context>
     <name>StartRemoteEngineDialog</name>
     <message>
         <source>Start Remote Engine</source>
-        <translation type="unfinished"></translation>
+        <translation>Запустати віддалений рушій</translation>
     </message>
     <message>
         <source>&amp;Host:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Вузол:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ім&apos;я користувача:</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Пароль:</translation>
     </message>
     <message>
         <source>&amp;Engine path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Шлях до &amp;рушія:</translation>
     </message>
     <message>
         <source>&amp;Inferior path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Шлях до &amp;підпроцесу:</translation>
     </message>
 </context>
 <context>
@@ -24950,11 +24986,11 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Toggle Comment &amp;Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Роз&amp;коментувати/закоментувати виділене</translation>
     </message>
     <message>
         <source>Copy &amp;Line</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Копіювати рядок</translation>
     </message>
     <message>
         <source>Ctrl+Ins</source>
@@ -24982,7 +25018,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Toggle &amp;Fold All</source>
-        <translation type="unfinished"></translation>
+        <translation>Роз&amp;горнути/згорнути все</translation>
     </message>
     <message>
         <source>Reset Font Size</source>
@@ -26186,7 +26222,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>The command &apos;%1&apos; could not be started.</source>
-        <translation>Не вдалось запустити команду &apos;%1.</translation>
+        <translation>Не вдалось запустити команду &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>The command &apos;%1&apos; did not respond within the timeout limit (%2 ms).</source>

@@ -361,7 +361,7 @@ void MemcheckErrorDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         }
     }
 
-    // Separator lines (like build issues pane)
+    // Separator lines (like Issues pane)
     painter->setPen(QColor::fromRgb(150,150,150));
     painter->drawLine(0, opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
 

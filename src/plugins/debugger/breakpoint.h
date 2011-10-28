@@ -203,6 +203,7 @@ class BreakpointParameters
 public:
     explicit BreakpointParameters(BreakpointType = UnknownType);
     BreakpointParts differencesTo(const BreakpointParameters &rhs) const;
+    bool isValid() const;
     bool equals(const BreakpointParameters &rhs) const;
     bool conditionsMatch(const QByteArray &other) const;
     bool isWatchpoint() const

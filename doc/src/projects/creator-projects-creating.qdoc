@@ -102,7 +102,7 @@
 
     To change the location of the project directory, and to specify settings
     for building and running projects, select \gui{Tools} > \gui{Options} >
-    \gui{Projects} > \gui{General}.
+    \gui{Build & Run} > \gui{General}.
 
     To specify build and run settings for different target platforms, select
     \gui Projects.

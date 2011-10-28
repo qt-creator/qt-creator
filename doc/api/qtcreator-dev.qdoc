@@ -215,11 +215,11 @@
     file, which is then opened within Qt Creator. You provide
     an editor (probably read-only) for handling this file.
     For lists of issues, consider creating task list files which are shown in
-    the \gui {Build Issues} output
+    the \gui {Issues} output
     pane.
     \list
     \o \l{http://doc.qt.nokia.com/qtcreator/creator-task-lists.html}
-         {Showing Task List Files in the Build Issues Pane}
+         {Showing Task List Files in the Issues Pane}
     \o \l{Creating Plugins}
     \o \l{Qt Creator Coding Rules}
     \o \l{Menus and Menu Items}

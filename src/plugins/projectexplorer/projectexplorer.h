@@ -128,6 +128,8 @@ public:
     QList<RunControl *> runControls() const;
 
 signals:
+    void runControlStarted(ProjectExplorer::RunControl *rc);
+    void runControlFinished(ProjectExplorer::RunControl *rc);
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);
 

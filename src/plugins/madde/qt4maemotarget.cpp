@@ -50,9 +50,10 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
+#include <qtsupport/baseqtversion.h>
 #include <utils/fileutils.h>
 #include <utils/filesystemwatcher.h>
-#include <qtsupport/baseqtversion.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
@@ -446,8 +447,11 @@ bool AbstractDebBasedQt4MaemoTarget::setProjectVersionInternal(const QString &ve
     }
     const int utcOffsetMinutes = (utcOffsetSeconds / 60) % 60;
     const int utcOffsetHours = utcOffsetSeconds / 3600;
-    const QString dateString = QString::fromLatin1("%1 %2%3%4")
-        .arg(currentDateTime.toString(QLatin1String("ddd, dd MMM yyyy hh:mm:ss"))).arg(sign)
+    const QString dateString = QString::fromLatin1("%1, %2 %3 %4 %5%6%7")
+        .arg(shortDayOfWeekName(currentDateTime))
+        .arg(currentDateTime.toString(QLatin1String("dd")))
+        .arg(shortMonthName(currentDateTime))
+        .arg(currentDateTime.toString(QLatin1String("yyyy hh:mm:ss"))).arg(sign)
         .arg(utcOffsetHours, 2, 10, QLatin1Char('0'))
         .arg(utcOffsetMinutes, 2, 10, QLatin1Char('0'));
     const QString maintainerLine = content.mid(maintainerOffset, eolOffset - maintainerOffset + 1)
@@ -917,6 +921,41 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIcon(const QString &iconFi
     return success;
 }
 
+// The QDateTime API can only deliver these in localized form...
+QString AbstractDebBasedQt4MaemoTarget::shortMonthName(const QDateTime &dt) const
+{
+    switch (dt.date().month()) {
+    case 1: return QLatin1String("Jan");
+    case 2: return QLatin1String("Feb");
+    case 3: return QLatin1String("Mar");
+    case 4: return QLatin1String("Apr");
+    case 5: return QLatin1String("May");
+    case 6: return QLatin1String("Jun");
+    case 7: return QLatin1String("Jul");
+    case 8: return QLatin1String("Aug");
+    case 9: return QLatin1String("Sep");
+    case 10: return QLatin1String("Oct");
+    case 11: return QLatin1String("Nov");
+    case 12: return QLatin1String("Dec");
+    default: QTC_ASSERT(false, return QString());
+    }
+}
+
+QString AbstractDebBasedQt4MaemoTarget::shortDayOfWeekName(const QDateTime &dt) const
+{
+    switch (dt.date().dayOfWeek()) {
+    case Qt::Monday: return QLatin1String("Mon");
+    case Qt::Tuesday: return QLatin1String("Tue");
+    case Qt::Wednesday: return QLatin1String("Wed");
+    case Qt::Thursday: return QLatin1String("Thu");
+    case Qt::Friday: return QLatin1String("Fri");
+    case Qt::Saturday: return QLatin1String("Sat");
+    case Qt::Sunday: return QLatin1String("Sun");
+    default: QTC_ASSERT(false, return QString());
+    }
+}
+
+
 AbstractRpmBasedQt4MaemoTarget::AbstractRpmBasedQt4MaemoTarget(Qt4Project *parent,
     const QString &id) : AbstractQt4MaemoTarget(parent, id)
 {
@@ -1200,7 +1239,7 @@ Qt4MeegoTarget::~Qt4MeegoTarget() {}
 QString Qt4MeegoTarget::defaultDisplayName()
 {
     return QApplication::translate("Qt4ProjectManager::Qt4Target",
-        "Meego", "Qt4 Meego target display name");
+        "MeeGo", "Qt4 MeeGo target display name");
 }
 
 QString Qt4MeegoTarget::specFileName() const

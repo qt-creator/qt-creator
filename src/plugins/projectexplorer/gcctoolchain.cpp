@@ -72,8 +72,7 @@ static QByteArray runGcc(const QString &gcc, const QStringList &arguments, const
     QProcess cpp;
     // Force locale: This function is used only to detect settings inside the tool chain, so this is save.
     QStringList environment(env);
-    environment.append(QLatin1String("LC_ALL"));
-    environment.append(QLatin1String("C"));
+    environment.append(QLatin1String("LC_ALL=C"));
 
     cpp.setEnvironment(environment);
     cpp.start(gcc, arguments);
@@ -342,6 +341,7 @@ void GccToolChain::setTargetAbi(const Abi &abi)
 
     updateSupportedAbis();
     m_targetAbi = abi;
+    updateId();
     toolChainUpdated();
 }
 

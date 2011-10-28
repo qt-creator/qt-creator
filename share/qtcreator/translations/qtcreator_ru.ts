@@ -2,13 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru">
 <context>
-    <name>AbstractLinuxDeviceDeployStep</name>
-    <message>
-        <source>No valid device set.</source>
-        <translation>Подходящее устройство не задано.</translation>
-    </message>
-</context>
-<context>
     <name>Analyzer</name>
     <message>
         <source>Analyzer</source>
@@ -116,13 +109,6 @@
     </message>
 </context>
 <context>
-    <name>Analyzer::AnalyzerRunControl</name>
-    <message>
-        <source>Build Issues</source>
-        <translation>Сообщения сборки</translation>
-    </message>
-</context>
-<context>
     <name>Analyzer::IAnalyzerTool</name>
     <message>
         <source> (Remote)</source>
@@ -146,10 +132,6 @@
 </context>
 <context>
     <name>Analyzer::StartRemoteDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Запуск отладчика</translation>
-    </message>
     <message>
         <source>Remote</source>
         <translation>Сервер</translation>
@@ -193,6 +175,10 @@
     <message>
         <source>Working directory:</source>
         <translation>Рабочий каталог:</translation>
+    </message>
+    <message>
+        <source>Start Remote Analysis</source>
+        <translation>Запуск удалённой отладки</translation>
     </message>
 </context>
 <context>
@@ -241,16 +227,12 @@
         <translation>Не удалось отправить сообщение</translation>
     </message>
     <message>
-        <source>Unable to send command line arguments to the already running instance.It appears to be not responding. Do you want to start a new instance of Creator?</source>
-        <translation>Невозможно отправить параметры командной строки запущенному процессу. Похоже, он не отвечает. Желаете запустить ещё один экземпляр Qt Creator?</translation>
+        <source>Unable to send command line arguments to the already running instance. It appears to be not responding. Do you want to start a new instance of Creator?</source>
+        <translation>Невозможно отправить параметры командной строки запущенному процессу. Видимо он не отвечает. Желаете запустить ещё один экземпляр Qt Creator?</translation>
     </message>
     <message>
         <source>Could not find &apos;Core.pluginspec&apos; in %1</source>
         <translation>Не удалось найти «Core.pluginspec» в %1</translation>
-    </message>
-    <message>
-        <source>Qt Creator - Plugin loader messages</source>
-        <translation>Сообщения загрузчика модулей Qt Creator</translation>
     </message>
 </context>
 <context>
@@ -276,8 +258,8 @@
         <translation>Особый сценарий &amp;запуска:</translation>
     </message>
     <message>
-        <source>Sysroot</source>
-        <translation></translation>
+        <source>Sys&amp;root:</source>
+        <translation>Sys&amp;root:</translation>
     </message>
 </context>
 <context>
@@ -293,6 +275,21 @@
     <message>
         <source>&amp;Tool chain:</source>
         <translation>&amp;Инструментарий:</translation>
+    </message>
+</context>
+<context>
+    <name>AttachToQmlPortDialog</name>
+    <message>
+        <source>Start Debugger</source>
+        <translation>Запуск отладчика</translation>
+    </message>
+    <message>
+        <source>&amp;Host:</source>
+        <translation>&amp;Сервер:</translation>
+    </message>
+    <message>
+        <source>&amp;Port:</source>
+        <translation>&amp;Порт:</translation>
     </message>
 </context>
 <context>
@@ -406,6 +403,13 @@
     </message>
 </context>
 <context>
+    <name>BaseFileWizard</name>
+    <message>
+        <source>Unable to create the directory %1.</source>
+        <translation>Невозможно создать каталог %1.</translation>
+    </message>
+</context>
+<context>
     <name>BaseQtVersion</name>
     <message>
         <source>Name:</source>
@@ -504,6 +508,49 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     <message>
         <source>Annotate parent revision %1</source>
         <translation>Аннотация родительской ревизии %1</translation>
+    </message>
+</context>
+<context>
+    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
+    <message>
+        <source>Verbose</source>
+        <translation>Подробно</translation>
+    </message>
+    <message>
+        <source>Show files changed in each revision</source>
+        <translation>Показывать изменяемые файлы в каждой ревизии</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation>Далее</translation>
+    </message>
+    <message>
+        <source>Show from oldest to newest</source>
+        <translation>Показывать от старых к новым</translation>
+    </message>
+    <message>
+        <source>Include merges</source>
+        <translation>Включить объединения</translation>
+    </message>
+    <message>
+        <source>Show merged revisions</source>
+        <translation>Показывать объединённые ревизии</translation>
+    </message>
+    <message>
+        <source>Detailed</source>
+        <translation>Подробно</translation>
+    </message>
+    <message>
+        <source>Moderately short</source>
+        <translation>Умеренно кратко</translation>
+    </message>
+    <message>
+        <source>One line</source>
+        <translation>В одну строку</translation>
+    </message>
+    <message>
+        <source>GNU ChangeLog</source>
+        <translation>GNU ChangeLog</translation>
     </message>
 </context>
 <context>
@@ -1103,6 +1150,80 @@ Local pulls are not applied to the master branch.</source>
         <source>Enable scroll &amp;wheel zooming</source>
         <translation>Включить масштабирование &amp;колёсиком</translation>
     </message>
+    <message>
+        <source>Typing</source>
+        <translation>Набор текста</translation>
+    </message>
+    <message>
+        <source>Enable automatic &amp;indentation</source>
+        <translation>&amp;Автоматически расставлять отступы</translation>
+    </message>
+    <message>
+        <source>Backspace indentation:</source>
+        <translation>Поведение клавиши «забой»:</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Specifies how backspace interacts with indentation.
+
+&lt;ul&gt;
+&lt;li&gt;None: No interaction at all. Regular plain backspace behavior.
+&lt;/li&gt;
+
+&lt;li&gt;Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.
+&lt;/li&gt;
+
+&lt;li&gt;Unindents: If the character behind the cursor is a space it behaves as a backtab.
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
+</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Определяет, как клавиша «забой» взаимодействует с отступами.
+
+&lt;ul&gt;
+&lt;li&gt;Обычное: Никакого взаимодействия. Поведение, как для обычного текста.
+&lt;/li&gt;
+
+&lt;li&gt;Следовать предыдущим отступам: Перемещение курсора на ближайший уровень отступов назад, определяемый предыдущими строками текста.
+&lt;/li&gt;
+
+&lt;li&gt;Отмена отступа: Если символ перед курсором является пробельным, то действует как обратная табуляция.
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
+</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Обычное</translation>
+    </message>
+    <message>
+        <source>Follows Previous Indents</source>
+        <translation>Следовать предыдущим отступам</translation>
+    </message>
+    <message>
+        <source>Unindents</source>
+        <translation>Отмена отступа</translation>
+    </message>
+    <message>
+        <source>Tab key performs auto-indent:</source>
+        <translation>Автоотступ по клавише TAB:</translation>
+    </message>
+    <message>
+        <source>Never</source>
+        <translation>Никогда</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation>Всегда</translation>
+    </message>
+    <message>
+        <source>In Leading White Space</source>
+        <translation>Перед текстом</translation>
+    </message>
+    <message>
+        <source>Enable &amp;tooltips only when Shift key is down</source>
+        <translation>Включать &amp;подсказки только при нажатой клавише Shift</translation>
+    </message>
 </context>
 <context>
     <name>BinEditorFile</name>
@@ -1281,8 +1402,8 @@ Local pulls are not applied to the master branch.</source>
 <context>
     <name>BorderImageSpecifics</name>
     <message>
-        <source>Image</source>
-        <translation>Изображение</translation>
+        <source>BorderImage</source>
+        <translation>Изображение рамки</translation>
     </message>
     <message>
         <source>Source</source>
@@ -2505,10 +2626,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
 <context>
     <name>CompletionSettingsPage</name>
     <message>
-        <source>&amp;Automatically insert brackets</source>
-        <translation>&amp;Автоматически вставлять скобки</translation>
-    </message>
-    <message>
         <source>Insert the common prefix of available completion items.</source>
         <translation>Вставлять общий префикс для всех доступных вариантов дополнения.</translation>
     </message>
@@ -2557,8 +2674,20 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Всегда</translation>
     </message>
     <message>
-        <source>Automatically insert brackets and semicolons when appropriate.</source>
-        <translation>При необходимости автоматически вставлять скобки и точку с запятой.</translation>
+        <source>Automatically insert semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</source>
+        <translation>Автоматически вставлять точку с запятой, подходящий вид закрывающих скобок или кавычек, когда это необходимо.</translation>
+    </message>
+    <message>
+        <source>&amp;Automatically insert matching characters</source>
+        <translation>&amp;Автоматически вставлять парные символы</translation>
+    </message>
+    <message>
+        <source>When typing a matching character and there is a text selection, instead of removing the selection, surround it with the corresponding characters.</source>
+        <translation>При наборе парного символа (кавычка или скобка), выделенный текст, если он есть, заключать в пару этих символов, а не очищать.</translation>
+    </message>
+    <message>
+        <source>Surround &amp;text selections</source>
+        <translation>&amp;Заключать выделенный текст</translation>
     </message>
 </context>
 <context>
@@ -2716,10 +2845,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
 </context>
 <context>
     <name>Core::BaseFileWizard</name>
-    <message>
-        <source>Unable to create the directory %1.</source>
-        <translation>Невозможно создать каталог %1.</translation>
-    </message>
     <message>
         <source>File Generation Failure</source>
         <translation>Не удалось сгенерировать файл</translation>
@@ -2892,6 +3017,22 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Координата Y левого верхнего угла окна редактора относительно экрана.</translation>
     </message>
     <message>
+        <source>Close &quot;%1&quot;</source>
+        <translation>Закрыть «%1»</translation>
+    </message>
+    <message>
+        <source>Close Editor</source>
+        <translation>Закрыть документ</translation>
+    </message>
+    <message>
+        <source>Close All Except &quot;%1&quot;</source>
+        <translation>Закрыть всё, кроме «%1»</translation>
+    </message>
+    <message>
+        <source>Close Other Editors</source>
+        <translation>Закрыть остальные документы</translation>
+    </message>
+    <message>
         <source>File Error</source>
         <translation>Ошибка файла</translation>
     </message>
@@ -2910,6 +3051,18 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Cannot set permissions to writable.</source>
         <translation>Не удалось задать права доступа на запись.</translation>
+    </message>
+    <message>
+        <source>Cannot open the file for editing with VCS.</source>
+        <translation>Не удалось открыть файл для правки с помощью VCS.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; This file was not opened in %1 yet.</source>
+        <translation>&lt;b&gt;Внимание:&lt;/b&gt; Этот файл ещё не открыт в %1.</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Открыть</translation>
     </message>
     <message>
         <source>Save %1 &amp;As...</source>
@@ -3088,6 +3241,65 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Close</source>
         <translation>Закрыть</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal</name>
+    <message>
+        <source>Launching a file browser failed</source>
+        <translation>Не удалось запустить обозреватель файлов</translation>
+    </message>
+    <message>
+        <source>Unable to start the file manager:
+
+%1
+
+</source>
+        <translation>Не удалось запустить файловый менеджер:
+
+%1
+
+</translation>
+    </message>
+    <message>
+        <source>&apos;%1&apos; returned the following error:
+
+%2</source>
+        <translation>«%1» вернул следующую ошибку:
+
+%2</translation>
+    </message>
+    <message>
+        <source>Settings...</source>
+        <translation>Настройки...</translation>
+    </message>
+    <message>
+        <source>Launching Windows Explorer Failed</source>
+        <translation>Не удалось запустить Проводник Windows</translation>
+    </message>
+    <message>
+        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
+        <translation>Не удалось найти explorer.exe в путях запуска Проводника Windows.</translation>
+    </message>
+    <message>
+        <source>Show in Explorer...</source>
+        <translation>Показать в проводнике...</translation>
+    </message>
+    <message>
+        <source>Show in Finder...</source>
+        <translation>Показать в Finder...</translation>
+    </message>
+    <message>
+        <source>Show Containing Folder...</source>
+        <translation>Открыть папку файла...</translation>
+    </message>
+    <message>
+        <source>Open Command Prompt Here...</source>
+        <translation>Открыть командную консоль здесь...</translation>
+    </message>
+    <message>
+        <source>Open Terminal Here...</source>
+        <translation>Открыть терминал здесь...</translation>
     </message>
 </context>
 <context>
@@ -3282,7 +3494,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>Core::Internal::ExternalToolModel</name>
     <message>
         <source>Uncategorized</source>
-        <translation>Без катагории</translation>
+        <translation>Другие</translation>
     </message>
     <message>
         <source>Tools that will appear directly under the External Tools menu.</source>
@@ -3699,26 +3911,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Open Documents</source>
         <translation>Открытые документы</translation>
-    </message>
-    <message>
-        <source>Close Editor</source>
-        <translation>Закрыть документ</translation>
-    </message>
-    <message>
-        <source>Close &quot;%1&quot;</source>
-        <translation>Закрыть «%1»</translation>
-    </message>
-    <message>
-        <source>Close All Except &quot;%1&quot;</source>
-        <translation>Закрыть всё, кроме «%1»</translation>
-    </message>
-    <message>
-        <source>Close Other Editors</source>
-        <translation>Закрыть остальные документы</translation>
-    </message>
-    <message>
-        <source>Close All Editors</source>
-        <translation>Закрыть все документы</translation>
     </message>
 </context>
 <context>
@@ -4159,6 +4351,14 @@ Note: This might remove the local file.</source>
         <source>No type hierarchy available</source>
         <translation>Иерархия типов недоступна</translation>
     </message>
+    <message>
+        <source>Bases</source>
+        <translation>Базовые</translation>
+    </message>
+    <message>
+        <source>Derived</source>
+        <translation>Производные</translation>
+    </message>
 </context>
 <context>
     <name>CppEditor::Internal::InsertQtPropertyMembers</name>
@@ -4211,9 +4411,21 @@ Note: This might remove the local file.</source>
 <context>
     <name>CppTools::CppToolsSettings</name>
     <message>
-        <source>Global C++</source>
+        <source>Global</source>
         <comment>Settings</comment>
-        <translation>Общие для С++</translation>
+        <translation>Общие</translation>
+    </message>
+    <message>
+        <source>Qt</source>
+        <translation>Qt</translation>
+    </message>
+    <message>
+        <source>GNU</source>
+        <translation>GNU</translation>
+    </message>
+    <message>
+        <source>Old Creator</source>
+        <translation>Старый Creator</translation>
     </message>
 </context>
 <context>
@@ -4228,13 +4440,6 @@ Note: This might remove the local file.</source>
     <message>
         <source>Classes</source>
         <translation>Классы</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStylePreferencesWidget</name>
-    <message>
-        <source>Code style settings:</source>
-        <translation>Настройки стиля кода:</translation>
     </message>
 </context>
 <context>
@@ -4446,8 +4651,8 @@ a = a +
 </translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>Изменить</translation>
+        <source>Edit...</source>
+        <translation>Изменить...</translation>
     </message>
     <message>
         <source>Choose Location for New License Template File</source>
@@ -4457,8 +4662,16 @@ a = a +
 <context>
     <name>CppTools::Internal::CppFindReferences</name>
     <message>
+        <source>C++ Usages:</source>
+        <translation>Использование C++:</translation>
+    </message>
+    <message>
         <source>Searching</source>
         <translation>Идёт поиск</translation>
+    </message>
+    <message>
+        <source>C++ Macro Usages:</source>
+        <translation>Использование макросов C++:</translation>
     </message>
 </context>
 <context>
@@ -4481,10 +4694,6 @@ a = a +
         <source>Parsing</source>
         <translation>Разбор</translation>
     </message>
-    <message>
-        <source>unnamed</source>
-        <translation>безымянный</translation>
-    </message>
 </context>
 <context>
     <name>CppTools::Internal::CppToolsPlugin</name>
@@ -4506,6 +4715,46 @@ a = a +
     <message>
         <source>Searching</source>
         <translation>Идёт поиск</translation>
+    </message>
+    <message>
+        <source>C++ Symbols:</source>
+        <translation>Символы C++:</translation>
+    </message>
+    <message>
+        <source>Classes</source>
+        <translation>Классы</translation>
+    </message>
+    <message>
+        <source>Methods</source>
+        <translation>Методы</translation>
+    </message>
+    <message>
+        <source>Enums</source>
+        <translation>Перечисления</translation>
+    </message>
+    <message>
+        <source>Declarations</source>
+        <translation>Объявления</translation>
+    </message>
+    <message>
+        <source>Scope: %1
+Types: %2
+Flags: %3</source>
+        <translation>Область: %1
+Типы: %2
+Флаги: %3</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>Всё</translation>
+    </message>
+    <message>
+        <source>Projects</source>
+        <translation>Проекты</translation>
+    </message>
+    <message>
+        <source>, </source>
+        <translation>, </translation>
     </message>
 </context>
 <context>
@@ -4570,14 +4819,6 @@ a = a +
         <translation>Разделить оператор if</translation>
     </message>
     <message>
-        <source>Enclose in QLatin1Char(...)</source>
-        <translation>Обернуть в QLatin1Char(...)</translation>
-    </message>
-    <message>
-        <source>Enclose in QLatin1String(...)</source>
-        <translation>Обернуть в QLatin1String(...)</translation>
-    </message>
-    <message>
         <source>Mark as Translatable</source>
         <translation>Сделать переводимым</translation>
     </message>
@@ -4596,6 +4837,14 @@ a = a +
     <message>
         <source>Convert to Objective-C String Literal</source>
         <translation>Преобразовать в строковый литерал Objective-C</translation>
+    </message>
+    <message>
+        <source>Enclose in %1(...) (Qt %2)</source>
+        <translation>Заключить в %1(...) (Qt %2)</translation>
+    </message>
+    <message>
+        <source>Enclose in %1(...)</source>
+        <translation>Заключить в %1 (...)</translation>
     </message>
     <message>
         <source>Convert to Hexadecimal</source>
@@ -4635,33 +4884,6 @@ a = a +
     <message>
         <source>Ctrl+Shift+F11</source>
         <translation></translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Cdb::CdbBreakEventWidget</name>
-    <message>
-        <source>C++ exception</source>
-        <translation>Исключение C++</translation>
-    </message>
-    <message>
-        <source>Thread creation</source>
-        <translation>Создание потока</translation>
-    </message>
-    <message>
-        <source>Thread exit</source>
-        <translation>Завершение потока</translation>
-    </message>
-    <message>
-        <source>Load module:</source>
-        <translation>Загрузка модуля:</translation>
-    </message>
-    <message>
-        <source>Unload module:</source>
-        <translation>Выгрузка модуля:</translation>
-    </message>
-    <message>
-        <source>Output:</source>
-        <translation>Вывод:</translation>
     </message>
 </context>
 <context>
@@ -4984,6 +5206,13 @@ Qt Creator не может подключиться к нему.</translation>
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::BaseWindow</name>
+    <message>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>Выравнить ширину столбцов по содержимому</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::BreakCondition</name>
     <message>
         <source>&amp;Condition:</source>
@@ -5080,6 +5309,14 @@ Qt Creator не может подключиться к нему.</translation>
     <message>
         <source>Watchpoint at Expression</source>
         <translation>Точка наблюдения выражения</translation>
+    </message>
+    <message>
+        <source>Breakpoint on QML Signal Handler</source>
+        <translation>Точка остановка на обработчике сигнала QML</translation>
+    </message>
+    <message>
+        <source>Breakpoint at JavaScript throw</source>
+        <translation>Точка останова на throw в JavaScript</translation>
     </message>
     <message>
         <source>Unknown Breakpoint Type</source>
@@ -5344,6 +5581,14 @@ Qt Creator не может подключиться к нему.</translation>
         <translation>Остановиться при доступе к данным, адрес которых задан выражением</translation>
     </message>
     <message>
+        <source>Break on QML signal handler</source>
+        <translation>Остановиться на обработчике сигнала QML</translation>
+    </message>
+    <message>
+        <source>Break when JavaScript exception is thrown</source>
+        <translation>Остановиться при возникновении исключения JavaScript</translation>
+    </message>
+    <message>
         <source>Specifying the module (base name of the library or executable)
 for function or file type breakpoints can significantly speed up
 debugger start-up times (CDB, LLDB).</source>
@@ -5479,6 +5724,33 @@ GDB позволяет указывать последовательность �
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::CdbBreakEventWidget</name>
+    <message>
+        <source>C++ exception</source>
+        <translation>Исключение C++</translation>
+    </message>
+    <message>
+        <source>Thread creation</source>
+        <translation>Создание потока</translation>
+    </message>
+    <message>
+        <source>Thread exit</source>
+        <translation>Завершение потока</translation>
+    </message>
+    <message>
+        <source>Load module:</source>
+        <translation>Загрузка модуля:</translation>
+    </message>
+    <message>
+        <source>Unload module:</source>
+        <translation>Выгрузка модуля:</translation>
+    </message>
+    <message>
+        <source>Output:</source>
+        <translation>Вывод:</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::CdbEngine</name>
     <message>
         <source>The CDB debug engine required for %1 is currently disabled.</source>
@@ -5495,6 +5767,10 @@ GDB позволяет указывать последовательность �
     <message>
         <source>The CDB debug engine does not support the %1 ABI.</source>
         <translation>Отладчик CDB не поддерживает ABI %1.</translation>
+    </message>
+    <message>
+        <source>The CDB debug engine cannot debug gdb core files.</source>
+        <translation>Отладчик CDB не способен отлаживать файлы дампов gdb.</translation>
     </message>
     <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
@@ -5598,6 +5874,18 @@ GDB позволяет указывать последовательность �
     <message>
         <source>Use CDB &amp;console</source>
         <translation>Использовать &amp;консоль CDB</translation>
+    </message>
+    <message>
+        <source>Breakpoints</source>
+        <translation>Точки останова</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Пытаться исправить положение точки останова, если она установлена на строке файла, для которой код не создаётся (комментарий, например). Коррекция производится согласно модели кода.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Correct breakpoint location</source>
+        <translation>Исправлять положение точек останова</translation>
     </message>
 </context>
 <context>
@@ -5852,10 +6140,6 @@ GDB позволяет указывать последовательность �
         <translation>Подключить к дампу...</translation>
     </message>
     <message>
-        <source>Start and Attach to Remote Application...</source>
-        <translation>Запустить и подключить к удалённому приложению...</translation>
-    </message>
-    <message>
         <source>Attach to Remote CDB Session...</source>
         <translation>Подключиться к удалённой сессии CDB...</translation>
     </message>
@@ -6008,6 +6292,18 @@ GDB позволяет указывать последовательность �
     <message>
         <source>Debugger finished.</source>
         <translation>Отладчик завершился.</translation>
+    </message>
+    <message>
+        <source>Start and Debug Remote Application...</source>
+        <translation>Запустить и отладить внешнее приложение...</translation>
+    </message>
+    <message>
+        <source>Attach to Remote Debug Server...</source>
+        <translation>Подключиться к внешнему серверу отладки...</translation>
+    </message>
+    <message>
+        <source>Attach to QML Port...</source>
+        <translation>Подключиться к порту QML...</translation>
     </message>
     <message>
         <source>Symbol</source>
@@ -6469,12 +6765,6 @@ You can choose between waiting longer or abort debugging.</source>
         <translation>Размещение gdb должно быть указано в настройках отладчика (%1) в виде полного пути.</translation>
     </message>
     <message>
-        <source>The GDB installed at %1 cannot find a valid python installation in its subdirectories.
-You may set the environment variable PYTHONPATH to point to your installation.</source>
-        <translation>Отладчик GDB, установленный в %1, не может найти python в его подкаталоге.
-Задайте переменную среды PYTHONPATH, указывающую на установленный Python.</translation>
-    </message>
-    <message>
         <source>Cannot find debugger initialization script</source>
         <translation>Не удалось найти скрипт инициализации отладчика</translation>
     </message>
@@ -6891,10 +7181,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation>Показать зависимости «%1»</translation>
     </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation>Выравнить ширину столбцов по содержимому</translation>
-    </message>
 </context>
 <context>
     <name>Debugger::Internal::MultiBreakPointsDialog</name>
@@ -6978,14 +7264,33 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::QScriptDebuggerClient</name>
+    <message>
+        <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Возникло не пойманное исключение:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;An uncaught exception occurred in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Возникло непойманное исключение в &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Uncaught Exception</source>
+        <translation>Непойманное исключение</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::QmlCppEngine</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Не удалось создать ведомый отладчик для комбинированной отладки QML/C++: %1</translation>
     </message>
     <message>
-        <source>%1 debugger activated</source>
-        <translation>Отладчик %1 активирован</translation>
+        <source>C++ debugger activated</source>
+        <translation>Отладчик C++ активирован</translation>
+    </message>
+    <message>
+        <source>QML debugger activated</source>
+        <translation>Отладчик QML активирован</translation>
     </message>
 </context>
 <context>
@@ -6993,6 +7298,10 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>QML Debugger connected.</source>
         <translation>Отладчик QML подключён.</translation>
+    </message>
+    <message>
+        <source>QML Debugger connecting...</source>
+        <translation>Отладчик QML. Подключение...</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -7018,14 +7327,6 @@ Do you want to retry?</source>
         <extracomment>%1 is detailed error message</extracomment>
         <translation>Не удалось подключиться к внутрипроцессному отладчику QML.
 %1</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Возникло не пойманное исключение:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;An uncaught exception occurred in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Возникло непойманное исключение в &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
     </message>
     <message>
         <source>The port seems to be in use.</source>
@@ -7054,10 +7355,6 @@ Do you want to retry?</source>
         <translation>Остановлено.</translation>
     </message>
     <message>
-        <source>Uncaught Exception</source>
-        <translation>Непойманное исключение</translation>
-    </message>
-    <message>
         <source>QML Debugger disconnected.</source>
         <translation>Отладчик QML отключён.</translation>
     </message>
@@ -7069,7 +7366,7 @@ Do you want to retry?</source>
         <translation>Имя</translation>
     </message>
     <message>
-        <source>Value (base %1)</source>
+        <source>Value (Base %1)</source>
         <translation>Значение (основание %1)</translation>
     </message>
 </context>
@@ -7138,10 +7435,6 @@ Do you want to retry?</source>
         <source>Binary</source>
         <translation>Двоичный</translation>
     </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation>Выравнить ширину столбцов по содержимому</translation>
-    </message>
 </context>
 <context>
     <name>Debugger::Internal::RemoteGdbProcess</name>
@@ -7205,6 +7498,10 @@ Do you want to retry?</source>
 </source>
         <translation>Не удалось прочитать отладочную информацию:
 </translation>
+    </message>
+    <message>
+        <source>Interrupting not possible</source>
+        <translation>Прерывание невозможно</translation>
     </message>
 </context>
 <context>
@@ -7279,10 +7576,6 @@ Do you want to retry?</source>
     <message>
         <source>Remove Snapshot</source>
         <translation>Удалить снимок</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation>Выравнить ширину столбцов по содержимому</translation>
     </message>
 </context>
 <context>
@@ -7388,10 +7681,6 @@ Do you want to retry?</source>
         <source>Try to Load Unknown Symbols</source>
         <translation>Попытаться загрузить неизвестные символы</translation>
     </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation>Выравнить ширину столбцов по содержимому</translation>
-    </message>
 </context>
 <context>
     <name>Debugger::Internal::StartExternalDialog</name>
@@ -7424,6 +7713,10 @@ Do you want to retry?</source>
     <message>
         <source>Select Debugger</source>
         <translation>Выбор отладчика</translation>
+    </message>
+    <message>
+        <source>Select Location of Debugging Information</source>
+        <translation>Выберите размещение отладочной информации</translation>
     </message>
     <message>
         <source>Select Executable</source>
@@ -7476,6 +7769,10 @@ Do you want to retry?</source>
         <translation>Остановлено&amp;nbsp;на:</translation>
     </message>
     <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
         <source>Function</source>
         <translation>Функция</translation>
     </message>
@@ -7500,12 +7797,12 @@ Do you want to retry?</source>
         <translation>Состояние</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Имя</translation>
+        <source>Target ID</source>
+        <translation>ID цели</translation>
     </message>
     <message>
-        <source>Thread ID</source>
-        <translation>ID потока</translation>
+        <source>Name</source>
+        <translation>Имя</translation>
     </message>
 </context>
 <context>
@@ -7513,10 +7810,6 @@ Do you want to retry?</source>
     <message>
         <source>Thread</source>
         <translation>Поток</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation>Выравнить ширину столбцов по содержимому</translation>
     </message>
 </context>
 <context>
@@ -7662,6 +7955,10 @@ Do you want to retry?</source>
         <translation>Строка в кодировке UTF8</translation>
     </message>
     <message>
+        <source>Local 8bit string</source>
+        <translation>Строка в локальной 8-ми битной кодировке</translation>
+    </message>
+    <message>
         <source>UTF16 string</source>
         <translation>Строка в кодировке UTF16</translation>
     </message>
@@ -7713,6 +8010,14 @@ Do you want to retry?</source>
         <translation>Сменить отображение объекта с именем «%1»:</translation>
     </message>
     <message>
+        <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
+        <translation>Память соответствующая указателю «%1» (0x%2)</translation>
+    </message>
+    <message>
+        <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
+        <translation>Память переменной «%1» (0x%2)</translation>
+    </message>
+    <message>
         <source>Memory Layout of Local Variables at 0x%1</source>
         <translation>Кадр памяти локальных переменных с 0x%1</translation>
     </message>
@@ -7737,12 +8042,20 @@ Do you want to retry?</source>
         <translation>Удалить вычисляемое выражение «%1»</translation>
     </message>
     <message>
+        <source>Show Unprintable Characters as Escape Sequences</source>
+        <translation>Отображать непечатные символы в виде ESC-последовательностей</translation>
+    </message>
+    <message>
         <source>Change Display for Type or Item...</source>
         <translation>Сменить отображение для типа или элемента...</translation>
     </message>
     <message>
         <source>Select Widget to Watch</source>
         <translation>Выбрать виджет для слежения</translation>
+    </message>
+    <message>
+        <source>Remove All Evaluated Expressions</source>
+        <translation>Удалить все вычисляемые выражения</translation>
     </message>
     <message>
         <source>Open Memory Editor...</source>
@@ -7785,14 +8098,6 @@ Do you want to retry?</source>
     <message>
         <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
         <translation>Регистр &lt;i&gt;%1&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Memory Referenced by Pointer &apos;%1&apos; (0x%2)</source>
-        <translation>Память соответствующая указателю «%1» (0x%2)</translation>
-    </message>
-    <message>
-        <source>Memory at Variable &apos;%1&apos; (0x%2)</source>
-        <translation>Память переменной «%1» (0x%2)</translation>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
@@ -7855,10 +8160,6 @@ Do you want to retry?</source>
         <translation>Вставить новое вычисляемое выражение</translation>
     </message>
     <message>
-        <source>Remove All Watch Items</source>
-        <translation>Удалить все наблюдаемые элементы</translation>
-    </message>
-    <message>
         <source>Open Memory View at Object&apos;s Address (0x%1)</source>
         <translation>Открыть обозреватель памяти по адресу объекта (0x%1)</translation>
     </message>
@@ -7901,10 +8202,6 @@ Do you want to retry?</source>
     <message>
         <source>Show View Contents in Editor</source>
         <translation>Открыть содержимое окна</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation>Выравнить ширину столбцов по содержимому</translation>
     </message>
 </context>
 <context>
@@ -7949,16 +8246,16 @@ Do you want to retry?</source>
         <translation>закрытие...</translation>
     </message>
     <message>
-        <source>Debug service &apos;%1&apos; became unavailable.</source>
-        <translation>Сервис отладки «%1» похоже недоступен.</translation>
+        <source>Status of &apos;%1&apos; changed to &apos;unavailable&apos;.</source>
+        <translation>Состояние «%1» изменилось на «недоступно».</translation>
     </message>
     <message>
-        <source>Connected to debug service &apos;%1&apos;.</source>
-        <translation>Подключено к сервису отладки «%1».</translation>
+        <source>Status of &apos;%1&apos; changed to &apos;enabled&apos;.</source>
+        <translation>Состояние «%1» изменилось на «включено».</translation>
     </message>
     <message>
-        <source>Not connected to debug service &apos;%1&apos;.</source>
-        <translation>Не подключено к сервису отладки «%1».</translation>
+        <source>Status of &apos;%1&apos; changed to &apos;not connected&apos;.</source>
+        <translation>Состояние «%1» изменилось на «не подключено».</translation>
     </message>
 </context>
 <context>
@@ -8330,8 +8627,10 @@ Rebuilding the project might help.</source>
 <context>
     <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
-        <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
-        <translation>Не удалось найти в %2 определение класса «%1».</translation>
+        <source>The class containing &apos;%1&apos; could not be found in %2.
+Please verify the #include-directives.</source>
+        <translation>Не удалось найти в %2 класс содержащий «%1».
+Проверьте директивы #include.</translation>
     </message>
     <message>
         <source>Error finding/adding a slot.</source>
@@ -8367,8 +8666,8 @@ Rebuilding the project might help.</source>
         <translation>Добавление и удаление сжатых файлов справки, .qch.</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Добавить</translation>
+        <source>Add...</source>
+        <translation>Добавить...</translation>
     </message>
 </context>
 <context>
@@ -8476,7 +8775,18 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExampleBrowser</name>
+    <name>ExampleDelegate</name>
+    <message>
+        <source>Tags:</source>
+        <translation>Метки:</translation>
+    </message>
+</context>
+<context>
+    <name>ExampleLineEdit</name>
+    <message>
+        <source>Show Examples and Demos</source>
+        <translation>Показать примеры и демо</translation>
+    </message>
     <message>
         <source>Search in Tutorials</source>
         <translation>Поиск в самоучителях</translation>
@@ -8486,19 +8796,8 @@ Rebuilding the project might help.</source>
         <translation>Поиск в самоучителях, примерах и демо</translation>
     </message>
     <message>
-        <source>Show Examples and Demos</source>
-        <translation>Показать примеры и демо</translation>
-    </message>
-    <message>
         <source>Tag List</source>
         <translation>Список меток</translation>
-    </message>
-</context>
-<context>
-    <name>ExampleDelegate</name>
-    <message>
-        <source>Tags:</source>
-        <translation>Метки:</translation>
     </message>
 </context>
 <context>
@@ -8587,6 +8886,28 @@ Rebuilding the project might help.</source>
     <message>
         <source>URL:</source>
         <translation></translation>
+    </message>
+</context>
+<context>
+    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <message>
+        <source>Qt Creator - Plugin loader messages</source>
+        <translation>Сообщения загрузчика модулей Qt Creator</translation>
+    </message>
+    <message>
+        <source>The following plugins have errors and cannot be loaded:</source>
+        <translation>Следующие модули содержат ошибки и не могут быть загружены:</translation>
+    </message>
+    <message>
+        <source>Details:</source>
+        <translation>Подробнее:</translation>
+    </message>
+</context>
+<context>
+    <name>ExtensionSystem::Internal::PluginErrorOverviewPrivate</name>
+    <message>
+        <source>Continue</source>
+        <translation>Продолжить</translation>
     </message>
 </context>
 <context>
@@ -8993,8 +9314,7 @@ Reason: %3</source>
     </message>
     <message>
         <source>Copy Text Editor Settings</source>
-        <translation>Скопировать настройки
-текстового редактора</translation>
+        <translation>Скопировать настройки текстового редактора</translation>
     </message>
     <message>
         <source>Set Qt Style</source>
@@ -9024,12 +9344,16 @@ Reason: %3</source>
 <context>
     <name>FeaturedAndNewsListing</name>
     <message>
-        <source>Featured News</source>
-        <translation>Полезные новости</translation>
+        <source>Latest News</source>
+        <translation>Последние новости</translation>
     </message>
 </context>
 <context>
     <name>Feedback</name>
+    <message>
+        <source>Search in Tutorials, Examples and Demos</source>
+        <translation>Поиск в самоучителях, примерах и демо</translation>
+    </message>
     <message>
         <source>Open Project...</source>
         <translation>Открыть проект...</translation>
@@ -9126,46 +9450,61 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>Find::IFindFilter</name>
     <message>
-        <source>Search for...</source>
-        <translation>Поиск...</translation>
+        <source>Case sensitive</source>
+        <translation>С учётом регистра</translation>
     </message>
     <message>
-        <source>Sc&amp;ope:</source>
+        <source>Whole words</source>
+        <translation>Слова полностью</translation>
+    </message>
+    <message>
+        <source>Regular expressions</source>
+        <translation>Регулярные выражения</translation>
+    </message>
+    <message>
+        <source>Flags: %1</source>
+        <translation>Флаги: %1</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>, </source>
+        <translation>, </translation>
+    </message>
+</context>
+<context>
+    <name>Find::Internal::FindDialog</name>
+    <message>
+        <source>&amp;Search</source>
+        <translation>&amp;Найти</translation>
+    </message>
+    <message>
+        <source>Sco&amp;pe:</source>
         <translation>&amp;Область:</translation>
     </message>
     <message>
-        <source>&amp;Search</source>
-        <translation>&amp;Поиск</translation>
-    </message>
-    <message>
-        <source>Search &amp;for:</source>
+        <source>Sear&amp;ch for:</source>
         <translation>&amp;Искать:</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
+        <source>Case sensiti&amp;ve</source>
+        <translation>&amp;Учитывать регистр</translation>
     </message>
     <message>
-        <source>&amp;Case sensitive</source>
-        <translation>Учитывать &amp;регистр</translation>
+        <source>Whole words o&amp;nly</source>
+        <translation>&amp;Слова полностью</translation>
     </message>
     <message>
-        <source>&amp;Whole words only</source>
-        <translation>&amp;Только слово целиком</translation>
-    </message>
-    <message>
-        <source>Search &amp;&amp; Replace</source>
-        <translation>Найти и заменить</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
-    </message>
-    <message>
-        <source>Use regular e&amp;xpressions</source>
+        <source>Use re&amp;gular expressions</source>
         <translation>Использовать регулярные &amp;выражения</translation>
+    </message>
+    <message>
+        <source>Search &amp;&amp; &amp;Replace</source>
+        <translation>Найти и &amp;заменить</translation>
     </message>
 </context>
 <context>
@@ -9259,18 +9598,10 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Find::SearchResultWindow</name>
+    <name>Find::Internal::SearchResultWidget</name>
     <message>
-        <source>Search Results</source>
-        <translation>Результаты поиска</translation>
-    </message>
-    <message>
-        <source>No matches found!</source>
-        <translation>Совпадений не найдено!</translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation>Развернуть всё</translation>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
     <message>
         <source>Replace with:</source>
@@ -9293,8 +9624,58 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Больше не предупреждать</translation>
     </message>
     <message>
+        <source>No matches found.</source>
+        <translation>Совпадений не найдено.</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n matches found.</source>
+        <translation>
+            <numerusform>Найдено %n совпадение.</numerusform>
+            <numerusform>Найдено %n совпадения.</numerusform>
+            <numerusform>Найдено %n совпадений.</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Find::SearchResultWindow</name>
+    <message>
+        <source>Search Results</source>
+        <translation>Результаты поиска</translation>
+    </message>
+    <message>
+        <source>New Search</source>
+        <translation>Новый поиск</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation>Развернуть всё</translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation>%1 %2</translation>
+    </message>
+    <message>
         <source>Collapse All</source>
         <translation>Свернуть всё</translation>
+    </message>
+</context>
+<context>
+    <name>FindExportedCppTypes</name>
+    <message>
+        <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
+        <translation>Тип станет доступен в редакторах QML Qt Creator&apos;а только тогда, когда его имя будет строковым литералом</translation>
+    </message>
+    <message>
+        <source>The module URI cannot be determined by static analysis. The type will be available
+globally in the QML editor. You can add a &quot;// @uri My.Module.Uri&quot; annotation to let
+Qt Creator know about a likely URI.</source>
+        <translation>Невозможно определить URI модуля путём статического анализа. Тип будет
+глобально доступен в редакторе QML. Можно добавить комментарий
+«// @uri My.Module.Uri», чтобы сообщить Qt Creator&apos;у возможный URI.</translation>
+    </message>
+    <message>
+        <source>must be a string literal to be available in the QML editor</source>
+        <translation>должен быть строковым литералом, чтобы быть доступным в редакторе QML</translation>
     </message>
 </context>
 <context>
@@ -9372,6 +9753,25 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Style</source>
         <translation>Стиль</translation>
+    </message>
+</context>
+<context>
+    <name>FunctionDeclDefLink</name>
+    <message>
+        <source>Target file was changed, could not apply changes</source>
+        <translation>Невозможно применить изменения, так как целевой файл изменился</translation>
+    </message>
+    <message>
+        <source>Apply changes to definition</source>
+        <translation>Применить изменения к определению</translation>
+    </message>
+    <message>
+        <source>Apply changes to declaration</source>
+        <translation>Применить изменения к объявлению</translation>
+    </message>
+    <message>
+        <source>Apply function signature changes</source>
+        <translation>Применить изменения сигнатуры функции</translation>
     </message>
 </context>
 <context>
@@ -9476,7 +9876,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>GDB</source>
-        <translation></translation>
+        <translation>GDB</translation>
     </message>
     <message>
         <source>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</source>
@@ -9521,10 +9921,6 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB позволяет устанавливать точки останова на строки исходников, для которых не создаётся код. В этом случае, она передвигается на следующую строку, для которой код создаётся. Это может проявляется в редакторе, как временное перемещение маркера точки останова.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Включение обратной отладки.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Внимание!&lt;/b&gt; Эта функция очень медлительна и нестабильна со стороны GDB. Может привести к непредсказуемому поведению при обратном проходе через системный вызов, а это, скорее всего, вызовет крах отладочной сессии.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Stop when a qWarning is issued</source>
         <translation>Остановиться на вызове qWarning</translation>
     </message>
@@ -9535,6 +9931,18 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Stop when a qFatal is issued</source>
         <translation>Остановиться на вызове qFatal</translation>
+    </message>
+    <message>
+        <source>This adds common paths to locations of debug information at debugger startup.</source>
+        <translation>Добавляет отладчику стандартные пути размещения отладочной информации.</translation>
+    </message>
+    <message>
+        <source>Use common locations for debug information automatically</source>
+        <translation>Использовать стандартное размещение отладочной информации</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Включение обратной отладки.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Внимание!&lt;/b&gt; Эта функция очень медлительна и нестабильна со стороны GDB. Может привести к непредсказуемому поведению при обратном проходе через системный вызов, а это, скорее всего, вызовет крах отладочной сессии.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -10245,10 +10653,6 @@ These files are preserved.</source>
         <translation>Не удалось получить состояние: %1</translation>
     </message>
     <message>
-        <source>Cannot locate &quot;%1&quot;.</source>
-        <translation>Не удалось обнаружить «%1».</translation>
-    </message>
-    <message>
         <source>Cannot launch &quot;%1&quot;.</source>
         <translation>Не удалось запустить «%1».</translation>
     </message>
@@ -10334,13 +10738,6 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitCommand</name>
-    <message>
-        <source>Error: Git timed out after %1s.</source>
-        <translation>Ошибка: Git превысил время ожидания (%1 сек).</translation>
-    </message>
-</context>
-<context>
     <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
@@ -10374,10 +10771,6 @@ These files are preserved.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Blame</source>
-        <translation>Аннотация (blame)</translation>
-    </message>
-    <message>
         <source>Blame for &quot;%1&quot;</source>
         <translation>Аннотация для «%1» (Blame)</translation>
     </message>
@@ -10392,6 +10785,10 @@ These files are preserved.</source>
     <message>
         <source>Stage File for Commit</source>
         <translation>Подготовить файл к фиксации (stage)</translation>
+    </message>
+    <message>
+        <source>Blame Current File</source>
+        <translation>Аннотация текущего файла (blame)</translation>
     </message>
     <message>
         <source>Diff of &quot;%1&quot;</source>
@@ -10658,10 +11055,6 @@ These files are preserved.</source>
 <context>
     <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
-        <source>Select the pretty printing format.</source>
-        <translation>Выбор удобного формата печати.</translation>
-    </message>
-    <message>
         <source>oneline</source>
         <translation>однострочный</translation>
     </message>
@@ -10694,7 +11087,7 @@ These files are preserved.</source>
     <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
-        <translation>Общая информация</translation>
+        <translation>Основная информация</translation>
     </message>
     <message>
         <source>Repository:</source>
@@ -10790,15 +11183,6 @@ These files are preserved.</source>
         <translation>&lt;b&gt;Внимание:&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>Git needs to find Perl in the environment as well.</source>
-        <translation>Git необходимо, чтобы можно было найти
-Perl через переменные среды окружения.</translation>
-    </message>
-    <message>
-        <source>Log commit display count:</source>
-        <translation>Количество отображаемых записей истории:</translation>
-    </message>
-    <message>
         <source>Note that huge amount of commits might take some time.</source>
         <translation>Следует иметь в виду, что в случае большого количества фиксаций, процесс может занять длительное время.</translation>
     </message>
@@ -10823,10 +11207,6 @@ Perl через переменные среды окружения.</translation
         <translation>Принимать (pull) с перебазированием</translation>
     </message>
     <message>
-        <source>Environment Variables</source>
-        <translation>Переменные среды окружения</translation>
-    </message>
-    <message>
         <source>From System</source>
         <translation>Системное</translation>
     </message>
@@ -10841,6 +11221,19 @@ Perl через переменные среды окружения.</translation
     <message>
         <source>Set &quot;HOME&quot; environment variable</source>
         <translation>Установить переменную среды «HOME»</translation>
+    </message>
+    <message>
+        <source>Log count:</source>
+        <translation>Количество записей истории:</translation>
+    </message>
+    <message>
+        <source>Customize Environment:</source>
+        <translation>Изменить среду выполнения:</translation>
+    </message>
+    <message>
+        <source>Git needs to find Perl in the environment.</source>
+        <translation>Git необходимо, чтобы можно было найти
+Perl через переменные среды окружения.</translation>
     </message>
 </context>
 <context>
@@ -10968,25 +11361,6 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Error restoring %1</source>
         <translation>Ошибка восстановления %1</translation>
-    </message>
-</context>
-<context>
-    <name>GitCommand</name>
-    <message>
-        <source>
-&apos;%1&apos; failed (exit code %2).
-</source>
-        <translation>
-Ошибка «%1» (код завершения %2).
-</translation>
-    </message>
-    <message>
-        <source>
-&apos;%1&apos; completed (exit code %2).
-</source>
-        <translation>
-«%1» выполнено (код завершения %2).
-</translation>
     </message>
 </context>
 <context>
@@ -11176,10 +11550,6 @@ You can choose between stashing the changes or discarding them.</source>
         <translation>Ширина ячейки</translation>
     </message>
     <message>
-        <source>Resize wraps</source>
-        <translation>Перенос при изменении размера</translation>
-    </message>
-    <message>
         <source>Determines whether the grid wraps key navigation.</source>
         <translation>Определяет, меняет ли сетка навигацию клавишами.</translation>
     </message>
@@ -11238,6 +11608,10 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Flow</source>
         <translation>Перетекание</translation>
+    </message>
+    <message>
+        <source>Navigation wraps</source>
+        <translation>Перенос при перемещениях</translation>
     </message>
     <message>
         <source>Grid View Highlight</source>
@@ -11875,6 +12249,116 @@ QML.</translation>
     </message>
 </context>
 <context>
+    <name>LinksBar</name>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+</context>
+<context>
+    <name>LinuxDeviceConfigurationsSettingsWidget</name>
+    <message>
+        <source>Linux Device Configurations</source>
+        <translation>Конфигурации Linux-устройств</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration:</source>
+        <translation>&amp;Конфигурация:</translation>
+    </message>
+    <message>
+        <source>&amp;Name:</source>
+        <translation>&amp;Название:</translation>
+    </message>
+    <message>
+        <source>OS type:</source>
+        <translation>Операционная система:</translation>
+    </message>
+    <message>
+        <source>Device type:</source>
+        <translation>Тип устройства:</translation>
+    </message>
+    <message>
+        <source>Authentication type:</source>
+        <translation>Тип авторизации:</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>&amp;Key</source>
+        <translation>К&amp;люч</translation>
+    </message>
+    <message>
+        <source>&amp;Host name:</source>
+        <translation>&amp;Имя хоста:</translation>
+    </message>
+    <message>
+        <source>IP or host name of the device</source>
+        <translation>IP или имя узла устройства</translation>
+    </message>
+    <message>
+        <source>&amp;SSH port:</source>
+        <translation>Порт &amp;SSH:</translation>
+    </message>
+    <message>
+        <source>Free ports:</source>
+        <translation>Свободные порты:</translation>
+    </message>
+    <message>
+        <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
+        <translation>Можно ввести списки и диапазоны, например: 1024,1026-1028,1030</translation>
+    </message>
+    <message>
+        <source>Timeout:</source>
+        <translation>Время ожидания:</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation> сек</translation>
+    </message>
+    <message>
+        <source>&amp;Username:</source>
+        <translation>&amp;Пользователь:</translation>
+    </message>
+    <message>
+        <source>&amp;Password:</source>
+        <translation>П&amp;ароль:</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>Отображать</translation>
+    </message>
+    <message>
+        <source>Private key file:</source>
+        <translation>Файл секретного ключа:</translation>
+    </message>
+    <message>
+        <source>Set as Default</source>
+        <translation>Использовать всегда</translation>
+    </message>
+    <message>
+        <source>&amp;Add</source>
+        <translation>&amp;Добавить</translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation>&amp;Удалить</translation>
+    </message>
+    <message>
+        <source>Set As Default</source>
+        <translation>Использовать всегда</translation>
+    </message>
+    <message>
+        <source>Click here if you do not have an SSH key yet.</source>
+        <translation>Щёлкните, если у вас ещё нет SSH ключа.</translation>
+    </message>
+    <message>
+        <source>&amp;Generate SSH Key...</source>
+        <translation>Создать кл&amp;юч SSH...</translation>
+    </message>
+</context>
+<context>
     <name>LinuxDeviceFactorySelectionDialog</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
@@ -11883,6 +12367,13 @@ QML.</translation>
     <message>
         <source>Available device types:</source>
         <translation>Доступные типы устройств:</translation>
+    </message>
+</context>
+<context>
+    <name>LinuxDeviceTestDialog</name>
+    <message>
+        <source>Device Test</source>
+        <translation>Проверка устройства</translation>
     </message>
 </context>
 <context>
@@ -12013,10 +12504,6 @@ QML.</translation>
 </context>
 <context>
     <name>Locator</name>
-    <message>
-        <source>Filters</source>
-        <translation>Шаблоны</translation>
-    </message>
     <message>
         <source>Locator</source>
         <translation>Поисковик</translation>
@@ -12356,10 +12843,1112 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>MaemoConfigTestDialog</name>
+    <name>Madde::Internal::AbstractDebBasedQt4MaemoTarget</name>
     <message>
-        <source>Device Configuration Test</source>
-        <translation>Тест конфигурации устройства</translation>
+        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
+        <translation>Файл журнала изменений Debian «%1» имеет неожиданный формат.</translation>
+    </message>
+    <message>
+        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
+        <translation>Не удалось обновить файл changelog: Уже содержит версию «%1».</translation>
+    </message>
+    <message>
+        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
+        <translation>Не удалось обновить changelog: Неверный формат (нет записи о разработчике).</translation>
+    </message>
+    <message>
+        <source>Invalid icon data in Debian control file.</source>
+        <translation>Неверные данные значка в управляющем файле Debian.</translation>
+    </message>
+    <message>
+        <source>Could not read image file &apos;%1&apos;.</source>
+        <translation>Невозможно прочитать файл изображения «%1».</translation>
+    </message>
+    <message>
+        <source>Could not export image file &apos;%1&apos;.</source>
+        <translation>Невозможно экспортировать файл изображения «%1».</translation>
+    </message>
+    <message>
+        <source>Unable to create Debian templates: No Qt version set</source>
+        <translation>Не удалось создать шаблоны Debian: профиль Qt не задан</translation>
+    </message>
+    <message>
+        <source>Unable to create Debian templates: dh_make failed (%1)</source>
+        <translation>Не удалось создать шаблоны Debian: ошибка dh_make (%1)</translation>
+    </message>
+    <message>
+        <source>Unable to create debian templates: dh_make failed (%1)</source>
+        <translation>Не удалось создать шаблоны debian: ошибка dh_make (%1)</translation>
+    </message>
+    <message>
+        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
+        <translation>Невозможно переместить новый каталог debian в «%1».</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaddeUploadAndInstallPackageAction</name>
+    <message>
+        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation>Не удалось установить: Qemu ещё не работает. Он перейдёт в состояние готовности через некоторое время. Повторите попытку позже.</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
+        <translation>Не удалось установить: Попытка установить в Qemu, но он не включён для этого профиля Qt.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoDeployByMountService</name>
+    <message>
+        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation>Не удалось установить: Qemu ещё не работает. Он перейдёт в состояние готовности через некоторое время. Повторите попытку позже.</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
+        <translation>Не удалось установить: Попытка установить в Qemu, но он не включён для этого профиля Qt.</translation>
+    </message>
+    <message>
+        <source>Missing build configuration.</source>
+        <translation>Отстуствует конфигурация сборки.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
+    <message>
+        <source>Cannot install to sysroot without build configuration.</source>
+        <translation>Невозможно установить в sysroot без конфигурации сборки.</translation>
+    </message>
+    <message>
+        <source>Cannot install package to sysroot without packaging step.</source>
+        <translation>Невозможно установить в sysroot без этапа создания пакета.</translation>
+    </message>
+    <message>
+        <source>Cannot install package to sysroot without a Qt version.</source>
+        <translation>Невозможно установить в sysroot без задания профиля Qt.</translation>
+    </message>
+    <message>
+        <source>Installing package to sysroot ...</source>
+        <translation>Установка пакета в sysroot...</translation>
+    </message>
+    <message>
+        <source>Installation to sysroot failed, continuing anyway.</source>
+        <translation>Не удалось установить в sysroot, в любом случае продолжаем.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
+    <message>
+        <source>Cannot deploy to sysroot: No packaging step found.</source>
+        <translation>Не удалось установить в sysroot: этап создания пакета не найден.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoPackageCreationStep</name>
+    <message>
+        <source>Package up to date.</source>
+        <translation>Пакет уже обновлён.</translation>
+    </message>
+    <message>
+        <source>Creating package file ...</source>
+        <translation>Создание файла пакета...</translation>
+    </message>
+    <message>
+        <source>Package created.</source>
+        <translation>Пакет создан.</translation>
+    </message>
+    <message>
+        <source>Packaging failed: No Qt version.</source>
+        <translation>Не удалось создать пакет: не задан профил Qt.</translation>
+    </message>
+    <message>
+        <source>Package Creation: Running command &apos;%1&apos;.</source>
+        <translation>Создание пакета: Выполнение команды «%1».</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not start command &apos;%1&apos;. Reason: %2</source>
+        <translation>Не удалось создать пакет: невозможно запустить программу «%1». Причина: %2</translation>
+    </message>
+    <message>
+        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
+        <translation>Ошибка создания пакета: Команда «%1» завершилась с ошибкой.</translation>
+    </message>
+    <message>
+        <source> Reason: %1</source>
+        <translation> Причина: %1</translation>
+    </message>
+    <message>
+        <source>Exit code: %1</source>
+        <translation>Код завершения: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractQt4MaemoTarget</name>
+    <message>
+        <source>Cannot open file &apos;%1&apos;: %2</source>
+        <translation>Невозможно открыть файл «%1»: %2</translation>
+    </message>
+    <message>
+        <source>Add Packaging Files to Project</source>
+        <translation>Добавить в проект файлы создания пакета</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
+   %1
+Do you want to add them to the project?&lt;/html&gt;</source>
+        <translation>&lt;html&gt;Qt Creator создал следующие файлы для включения создания пакетов:
+   %1
+Добавить их в проект?&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
+        <translation>Желаете удалить файлы сборки пакета связанные с целью «%1»?</translation>
+    </message>
+    <message>
+        <source>Error creating packaging directory &apos;%1&apos;.</source>
+        <translation>Ошибка создания временного каталога «%1».</translation>
+    </message>
+    <message>
+        <source>Error creating MeeGo templates</source>
+        <translation>Ошибка создания шаблонов MeeGo</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaddeDeviceConfigurationFactory</name>
+    <message>
+        <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
+        <translation>Устройство с поддержкой MADDE (Fremantle, Harmattan, MeeGo)</translation>
+    </message>
+    <message>
+        <source>Maemo5/Fremantle</source>
+        <translation>Maemo5/Fremantle</translation>
+    </message>
+    <message>
+        <source>MeeGo 1.2 Harmattan</source>
+        <translation>MeeGo 1.2 Harmattan</translation>
+    </message>
+    <message>
+        <source>Other MeeGo OS</source>
+        <translation>Другия ОС семейства MeeGo</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Тест</translation>
+    </message>
+    <message>
+        <source>Remote Processes</source>
+        <translation>Внешние процессы</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key</source>
+        <translation>Установить ключ</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaddeDeviceTester</name>
+    <message>
+        <source>Checking for Qt libraries...</source>
+        <translation>Проверка библиотек Qt...</translation>
+    </message>
+    <message>
+        <source>SSH connection error: %1
+</source>
+        <translation>Ошибка SSH подключения: %1</translation>
+    </message>
+    <message>
+        <source>Error checking for Qt libraries: %1
+</source>
+        <translation>Ошибка проверки библиотек Qt: %1</translation>
+    </message>
+    <message>
+        <source>Error checking for Qt libraries.
+</source>
+        <translation>Ошибка проверки библиотек Qt.</translation>
+    </message>
+    <message>
+        <source>Checking for connectivity support...</source>
+        <translation>Проверка поддержки connectivity...</translation>
+    </message>
+    <message>
+        <source>Error checking for connectivity tool: %1
+</source>
+        <translation>Ошибка проверки наличия программы connectivity: %1</translation>
+    </message>
+    <message>
+        <source>Error checking for connectivity tool.
+</source>
+        <translation>Ошибка проверки наличия программы connectivity.</translation>
+    </message>
+    <message>
+        <source>Connectivity tool not installed on device. Deployment currently not possible.</source>
+        <translation>Программа connectivity не обнаружена на устройстве. Установка пока невозможна.</translation>
+    </message>
+    <message>
+        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
+        <translation>Переключите устройство в режим разработчика в Settings -&gt; Security.</translation>
+    </message>
+    <message>
+        <source>Connectivity tool present.
+</source>
+        <translation>Программа connectivity обнаружена.</translation>
+    </message>
+    <message>
+        <source>Checking for QML tooling support...</source>
+        <translation>Проверка поддержки инструментария QML...</translation>
+    </message>
+    <message>
+        <source>Error checking for QML tooling support: %1
+</source>
+        <translation>Ошибка проверки поддержки инструментария QML: %1</translation>
+    </message>
+    <message>
+        <source>Error checking for QML tooling support.
+</source>
+        <translation>Ошибка проверки поддержки инструментария QML.</translation>
+    </message>
+    <message>
+        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.
+</source>
+        <translation>Отсутствует каталог «%1». Невозможно отлаживать QML на этом устройстве.</translation>
+    </message>
+    <message>
+        <source>QML tooling support present.
+</source>
+        <translation>Поддержка инструментария QML обнаружена.</translation>
+    </message>
+    <message>
+        <source>No Qt packages installed.</source>
+        <translation>Пакеты Qt не установлены.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoCopyFilesViaMountStep</name>
+    <message>
+        <source>Deploy files via UTFS mount</source>
+        <translation>Установить файлы через монтирование UTFS</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoCopyToSysrootStep</name>
+    <message>
+        <source>Cannot copy to sysroot without build configuration.</source>
+        <translation>Невозможно скопировать в sysroot без конфигурации сборки.</translation>
+    </message>
+    <message>
+        <source>Cannot copy to sysroot without valid Qt version.</source>
+        <translation>Невозможно скопировать в sysroot без подходящей версии Qt.</translation>
+    </message>
+    <message>
+        <source>Copying files to sysroot ...</source>
+        <translation>Копирование файлов в sysroot...</translation>
+    </message>
+    <message>
+        <source>Sysroot installation failed: %1
+ Continuing anyway.</source>
+        <translation>Не удалось установить в sysroot: %1
+ Всё равно продолжаем.</translation>
+    </message>
+    <message>
+        <source>Copy files to sysroot</source>
+        <translation>Скопировать файлы в sysroot</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDebianPackageCreationStep</name>
+    <message>
+        <source>Create Debian Package</source>
+        <translation>Создать пакет Debian</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not get package name.</source>
+        <translation>Не удалось создать пакет: невозможно получить имя пакета.</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not move package files from &apos;%1&apos; to &apos;%2&apos;.</source>
+        <translation>Не удалось создать пакет: невозможно переместить файлы пакета из «%1» в «%2».</translation>
+    </message>
+    <message>
+        <source>Your project name contains characters not allowed in Debian packages.
+They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
+We will try to work around that, but you may experience problems.</source>
+        <translation>Название проекта содержит недопустимые для пакетов Debian символы.
+Допустимы только буквы в нижнем регистре, числа, «-», «+» и «.».
+Будет предпринята попытка обойти это, но могут возникнуть проблемы.</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Foreign debian directory detected. You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
+        <translation>Не удалось создать пакет: обнаружен чужой каталог debian. Теневая сборка не используется, а в корневом каталоге проекта («%1») находится каталог debian. Qt Creator не будет его перезаписывать. Следует вручную удалить этот каталог или использовать теневую сборку.</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not remove directory &apos;%1&apos;: %2</source>
+        <translation>Не удалось создать пакет: невозможно удалить каталог «%1»: %2</translation>
+    </message>
+    <message>
+        <source>Could not create Debian directory &apos;%1&apos;.</source>
+        <translation>Невозможно создать каталог Debian «%1».</translation>
+    </message>
+    <message>
+        <source>Could not read manifest file &apos;%1&apos;: %2.</source>
+        <translation>Невозможно прочитать файл манифеста «%1»: %2.</translation>
+    </message>
+    <message>
+        <source>Could not write manifest file &apos;%1&apos;: %2.</source>
+        <translation>Невозможно записать файл манифеста «%1»: %2.</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
+        <translation>Невозможно скопировать файл «%1» в «%2».</translation>
+    </message>
+    <message>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
+        <translation>Ошибка: Невозможно создать файл «%1».</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDebianPackageInstaller</name>
+    <message>
+        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
+        <translation>Установка не удалась: была попытка установить пакет с версией ниже текущей, а это недопустимо.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeployConfigurationWidget</name>
+    <message>
+        <source>Project File Update Failed</source>
+        <translation>Не удалось обновить файл проекта</translation>
+    </message>
+    <message>
+        <source>Could not update the project file.</source>
+        <translation>Не удалось обновить файл проекта.</translation>
+    </message>
+    <message>
+        <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
+        <translation>Выберите значок (если надо, размер будет изменён до %1x%1)</translation>
+    </message>
+    <message>
+        <source>Invalid Icon</source>
+        <translation>Неверный значок</translation>
+    </message>
+    <message>
+        <source>Unable to read image</source>
+        <translation>Не удалось прочитать изображение</translation>
+    </message>
+    <message>
+        <source>Failed to Save Icon</source>
+        <translation>Не удалось сохранить значок</translation>
+    </message>
+    <message>
+        <source>Could not save icon to &apos;%1&apos;.</source>
+        <translation>Не удалось сохранить значок в «%1».</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeploymentMounter</name>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>Ошибка подключения: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizard</name>
+    <message>
+        <source>New Device Configuration Setup</source>
+        <translation>Настройка новой конфигурации устройства</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardFinalPage</name>
+    <message>
+        <source>The new device configuration will now be created.</source>
+        <translation>Будет создана конфигурация нового устройства.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
+    <message>
+        <source>Key Creation</source>
+        <translation>Создание ключей</translation>
+    </message>
+    <message>
+        <source>Cannot Create Keys</source>
+        <translation>Не удалось создать ключи</translation>
+    </message>
+    <message>
+        <source>The path you have entered is not a directory.</source>
+        <translation>Введённый путь не является каталогом.</translation>
+    </message>
+    <message>
+        <source>The directory you have entered does not exist and cannot be created.</source>
+        <translation>Введённый каталог не существует и не может быть создан.</translation>
+    </message>
+    <message>
+        <source>Creating keys ... </source>
+        <translation>Создание ключей... </translation>
+    </message>
+    <message>
+        <source>Key creation failed: %1</source>
+        <translation>Не удалось создать ключи: %1</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Готово.</translation>
+    </message>
+    <message>
+        <source>Could Not Save Key File</source>
+        <translation>Не удалось сохранить файл ключа</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
+    <message>
+        <source>Key Deployment</source>
+        <translation>Установка ключа</translation>
+    </message>
+    <message>
+        <source>Deploying... </source>
+        <translation>Установка...</translation>
+    </message>
+    <message>
+        <source>Key Deployment Failure</source>
+        <translation>Не удалось установить ключ</translation>
+    </message>
+    <message>
+        <source>Key Deployment Success</source>
+        <translation>Ключ успешно установлен</translation>
+    </message>
+    <message>
+        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
+        <translation>Ключ был успешно установлен. Теперь можно закрыть приложение «%1» и продолжить.</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Готово.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
+    <message>
+        <source>Device Status Check</source>
+        <translation>Проверка состояния устройства</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <message>
+        <source>Existing Keys Check</source>
+        <translation>Проверка существующих ключей</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardStartPage</name>
+    <message>
+        <source>General Information</source>
+        <translation>Основная информация</translation>
+    </message>
+    <message>
+        <source>MeeGo Device</source>
+        <translation>Устройство MeeGo</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoInstallDebianPackageToSysrootStep</name>
+    <message>
+        <source>Install Debian package to sysroot</source>
+        <translation>Установить пакет Debian в sysroot</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoInstallPackageViaMountStep</name>
+    <message>
+        <source>No Debian package creation step found.</source>
+        <translation>Не обнаружен этап сборки пакета Debian.</translation>
+    </message>
+    <message>
+        <source>Deploy package via UTFS mount</source>
+        <translation>Установить пакет через монтирование UTFS</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoInstallRpmPackageToSysrootStep</name>
+    <message>
+        <source>Install RPM package to sysroot</source>
+        <translation>Установить пакет RPM в sysroot</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoMakeInstallToSysrootStep</name>
+    <message>
+        <source>Copy files to sysroot</source>
+        <translation>Скопировать файлы в sysroot</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoMountAndCopyFilesService</name>
+    <message>
+        <source>All files copied.</source>
+        <translation>Все файлы скопированы.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoMountAndInstallPackageService</name>
+    <message>
+        <source>Package installed.</source>
+        <translation>Пакет установлен.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPackageCreationWidget</name>
+    <message>
+        <source>Size should be %1x%2 pixels</source>
+        <translation>Размер должен быть %1x%2 пикселей</translation>
+    </message>
+    <message>
+        <source>No Version Available.</source>
+        <translation>Версия отсутствует.</translation>
+    </message>
+    <message>
+        <source>Could not read icon</source>
+        <translation>Невозможно прочитать значок</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>Изображения</translation>
+    </message>
+    <message>
+        <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
+        <translation>Выбор изображения (при необходимости будет растянуто до 48х48 пикселей)</translation>
+    </message>
+    <message>
+        <source>Could Not Set New Icon</source>
+        <translation>Невозможно установить новый значок</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>Ошибка файла</translation>
+    </message>
+    <message>
+        <source>Could not set project name.</source>
+        <translation>Не удалось задать имя проекта.</translation>
+    </message>
+    <message>
+        <source>Could not set package name for project manager.</source>
+        <translation>Не удалось задать имя пакета для менеджера пакетов.</translation>
+    </message>
+    <message>
+        <source>Could not set project description.</source>
+        <translation>Не удалось задать описание проекта.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
+        <translation>&lt;b&gt;Создать пакет:&lt;/b&gt; </translation>
+    </message>
+    <message>
+        <source>Could Not Set Version Number</source>
+        <translation>Невозможно задать новый номер версии</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishedProjectModel</name>
+    <message>
+        <source>Include in package</source>
+        <translation>Включать в пакет</translation>
+    </message>
+    <message>
+        <source>Include</source>
+        <translation>Включать</translation>
+    </message>
+    <message>
+        <source>Do not include</source>
+        <translation>Не включать</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublisherFremantleFree</name>
+    <message>
+        <source>Canceled.</source>
+        <translation>Отменено.</translation>
+    </message>
+    <message>
+        <source>Publishing canceled by user.</source>
+        <translation>Публикация отменена пользователем.</translation>
+    </message>
+    <message>
+        <source>The project is missing some information important to publishing:</source>
+        <translation>У проекта отсутствует информация, необходимая для публикации:</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Missing project information.</source>
+        <translation>Не удалось опубликовать: отсутствует информация о проекте.</translation>
+    </message>
+    <message>
+        <source>Removing left-over temporary directory ...</source>
+        <translation>Удаление временного каталога...</translation>
+    </message>
+    <message>
+        <source>Error removing temporary directory: %1</source>
+        <translation>Ошибка удаления временного каталога: %1</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Could not create source package.</source>
+        <translation>Не удалось опубликовать: не удалось создать архив исходников.</translation>
+    </message>
+    <message>
+        <source>Setting up temporary directory ...</source>
+        <translation>Подготовка временного каталога...</translation>
+    </message>
+    <message>
+        <source>Error: Could not create temporary directory.</source>
+        <translation>Ошибка: не удалось создать временный каталог.</translation>
+    </message>
+    <message>
+        <source>Error: Could not copy project directory.</source>
+        <translation>Ошибка: не удалось скопировать каталог проекта.</translation>
+    </message>
+    <message>
+        <source>Error: Could not fix newlines.</source>
+        <translation>Ошибка:не удалось исправить окончания строк.</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Could not create package.</source>
+        <translation>Не удалось опубликовать: не удалось создать пакет.</translation>
+    </message>
+    <message>
+        <source>Cleaning up temporary directory ...</source>
+        <translation>Очистка временного каталога...</translation>
+    </message>
+    <message>
+        <source>Failed to create directory &apos;%1&apos;.</source>
+        <translation>Не удалось создать каталог «%1».</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
+        <translation>Не удалось скопировать файл «%1» в «%2»: %3.</translation>
+    </message>
+    <message>
+        <source>Error: Failed to start dpkg-buildpackage.</source>
+        <translation>Ошибка: не удалось запустить dpkg-buildpackage.</translation>
+    </message>
+    <message>
+        <source>Error: dpkg-buildpackage did not succeed.</source>
+        <translation>Ошибка: dpkg-buildpackage завершился с ошибкой.</translation>
+    </message>
+    <message>
+        <source>Package creation failed.</source>
+        <translation>Не удалось создать пакет.</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>Готово.</translation>
+    </message>
+    <message>
+        <source>Packaging finished successfully. The following files were created:
+</source>
+        <translation>Создание пакета успешно завершено. Созданы следующие файлы:
+</translation>
+    </message>
+    <message>
+        <source>No Qt version set.</source>
+        <translation>Профиль Qt не задан.</translation>
+    </message>
+    <message>
+        <source>Building source package...</source>
+        <translation>Создание пакета исходников...</translation>
+    </message>
+    <message>
+        <source>Starting scp ...</source>
+        <translation>Запуск scp...</translation>
+    </message>
+    <message>
+        <source>SSH error: %1</source>
+        <translation>Ошибка SSH: %1</translation>
+    </message>
+    <message>
+        <source>Upload failed.</source>
+        <translation>Отправка не удалась.</translation>
+    </message>
+    <message>
+        <source>Error uploading file: %1.</source>
+        <translation>Ошибка отправки файла: %1.</translation>
+    </message>
+    <message>
+        <source>Error uploading file.</source>
+        <translation>Ошибка отправки файла.</translation>
+    </message>
+    <message>
+        <source>All files uploaded.</source>
+        <translation>Все файлы отправлены.</translation>
+    </message>
+    <message>
+        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
+        <translation>Отправка успешно завершена. Скоро придёт электронное письмо с результатом сборки.</translation>
+    </message>
+    <message>
+        <source>Uploading file %1 ...</source>
+        <translation>Отправка файла %1...</translation>
+    </message>
+    <message>
+        <source>Cannot open file for reading: %1.</source>
+        <translation>Не удалось открыть файл для чтения: %1.</translation>
+    </message>
+    <message>
+        <source>Cannot read file: %1</source>
+        <translation>Не удалось прочитать файл: %1</translation>
+    </message>
+    <message>
+        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>Описание проекта пусто. Необходимо задать его в Проекты -&gt; Запуск -&gt; Создание пакета -&gt; Подробнее.</translation>
+    </message>
+    <message>
+        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>Описание «%1», возможно не то, что ожидается. Смените его в Проекты -&gt; Запуск -&gt; Создание пакета -&gt; Подробнее.</translation>
+    </message>
+    <message>
+        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>Значок для менеджера пакетов не задан. Он должен быть задан в Проекты -&gt; Запуск -&gt; Создание пакета -&gt; Подробнее.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
+    <message>
+        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
+        <translation>Публикация в хранилище «Extras-devel/free» от Fremantle</translation>
+    </message>
+    <message>
+        <source>Upload options</source>
+        <translation>Настройки отправки</translation>
+    </message>
+    <message>
+        <source>Choose a private key file</source>
+        <translation>Выберите секретный ключ</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
+    <message>
+        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
+        <translation>Публикация в хранилище «Extras-devel/free» от Fremantle</translation>
+    </message>
+    <message>
+        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
+        <translation>Этот мастер создаст архив исходников и отправит (опционально) их на сервер сборки, где проект будет скомпилирован и собран в пакет, а затем помещён в хранилище «Extras-devel free». Оттуда пользователи смогут установить его на свои устройства N900. Для отправки необходима учётная запись на garage.maemo.org.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishingWizardFremantleFree</name>
+    <message>
+        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
+        <translation>Публикация в хранилище «Extras-devel/free» от Fremantle</translation>
+    </message>
+    <message>
+        <source>Build Settings</source>
+        <translation>Настройки сборки</translation>
+    </message>
+    <message>
+        <source>Upload Settings</source>
+        <translation>Настройки отправки</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>Результат</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoQemuCrashDialog</name>
+    <message>
+        <source>Qemu error</source>
+        <translation>Ошибка Qemu</translation>
+    </message>
+    <message>
+        <source>Qemu crashed.</source>
+        <translation>Qemu завершился крахом.</translation>
+    </message>
+    <message>
+        <source>Click here to change the OpenGL mode.</source>
+        <translation>Щёлкните здесь для смены режима OpenGL.</translation>
+    </message>
+    <message>
+        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
+        <translation>Qemu настроен на аппаратное ускорение OpenGL, которое, возможно, не поддерживается вашей системой. Попробуйте включить программную отрисовку.</translation>
+    </message>
+    <message>
+        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
+        <translation>Qemu настроен на автоматическое определение режима OpenGL, которое иногда не работает. Попробуйте включить программную отрисовку.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoQemuManager</name>
+    <message>
+        <source>Start MeeGo Emulator</source>
+        <translation>Запустить эмулятор MeeGo</translation>
+    </message>
+    <message>
+        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
+        <translation>Qemu был завершён, так как был удалён соответствующий ему профиль Qt.</translation>
+    </message>
+    <message>
+        <source>Qemu finished with error: Exit code was %1.</source>
+        <translation>Qemu завершился с ошибкой: код завершения %1.</translation>
+    </message>
+    <message>
+        <source>Qemu error</source>
+        <translation>Ошибка Qemu</translation>
+    </message>
+    <message>
+        <source>Qemu failed to start: %1</source>
+        <translation>Qemu не удалось запуститься: %1</translation>
+    </message>
+    <message>
+        <source>Stop MeeGo Emulator</source>
+        <translation>Остановить эмулятор MeeGo</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoQemuSettingsPage</name>
+    <message>
+        <source>MeeGo Qemu Settings</source>
+        <translation>Настройки Qemu для MeeGo</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRemoteCopyFacility</name>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>Ошибка подключения: %1</translation>
+    </message>
+    <message>
+        <source>Error: Copy command failed.</source>
+        <translation>Ошибка: Ошибка команды копирования.</translation>
+    </message>
+    <message>
+        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
+        <translation>Копирование файла «%1» в каталог «%2» устройства...</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRemoteMounter</name>
+    <message>
+        <source>No directories to mount</source>
+        <translation>Отсутствуют каталоги для монтирования</translation>
+    </message>
+    <message>
+        <source>No directories to unmount</source>
+        <translation>Отсутствуют каталоги для отмонтирования</translation>
+    </message>
+    <message>
+        <source>Could not execute unmount request.</source>
+        <translation>Не удалось выполнить запрос на отмонтирование.</translation>
+    </message>
+    <message>
+        <source>Failure unmounting: %1</source>
+        <translation>Отмонтирование не удалось: %1</translation>
+    </message>
+    <message>
+        <source>Finished unmounting.</source>
+        <translation>Отмонтирование закончено.</translation>
+    </message>
+    <message>
+        <source>
+stderr was: &apos;%1&apos;</source>
+        <translation>
+содержимое stderr: «%1»</translation>
+    </message>
+    <message>
+        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
+        <translation>Ошибка: на устройстве недостаточно свободных портов для выполнения всех требуемых монтирований.</translation>
+    </message>
+    <message>
+        <source>Starting remote UTFS clients...</source>
+        <translation>Запуск внешнего клиента UTFS...</translation>
+    </message>
+    <message>
+        <source>Mount operation succeeded.</source>
+        <translation>Операция монтирования успешно завершена.</translation>
+    </message>
+    <message>
+        <source>Failure running UTFS client: %1</source>
+        <translation>Ошибка выполнения клиента UTFS: %1</translation>
+    </message>
+    <message>
+        <source>Starting UTFS servers...</source>
+        <translation>Запуск серверов UTFS...</translation>
+    </message>
+    <message>
+        <source>
+stderr was: %1</source>
+        <translation>
+содержимое stderr: %1</translation>
+    </message>
+    <message>
+        <source>Error running UTFS server: %1</source>
+        <translation>Ошибка работы сервера UTFS: %1</translation>
+    </message>
+    <message>
+        <source>Timeout waiting for UTFS servers to connect.</source>
+        <translation>Истекло время ожидания подключения серверов UTFS.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRemoteMountsModel</name>
+    <message>
+        <source>Local directory</source>
+        <translation>Локальный каталог</translation>
+    </message>
+    <message>
+        <source>Remote mount point</source>
+        <translation>Внешняя точка монтрования</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRpmPackageCreationStep</name>
+    <message>
+        <source>Create RPM Package</source>
+        <translation>Создание пакета RPM</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not move package file from %1 to %2.</source>
+        <translation>Не удалось создать пакет: невозможно переместить файлы пакета из «%1» в «%2».</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRunConfiguration</name>
+    <message>
+        <source>Not enough free ports on the device.</source>
+        <translation>У устройства недостаточно свободных портов.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRunConfigurationWidget</name>
+    <message>
+        <source>Choose directory to mount</source>
+        <translation>Выбор каталога для монтирования</translation>
+    </message>
+    <message>
+        <source>No local directories to be mounted on the device.</source>
+        <translation>Локальные каталоги не смонтированы на устройстве.</translation>
+    </message>
+    <message>
+        <source>One local directory to be mounted on the device.</source>
+        <translation>Один локальный каталог смонтирован на устройстве.</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n local directories to be mounted on the device.</source>
+        <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
+        <translation>
+            <numerusform>%n локальный каталог смонтирован на устройстве.</numerusform>
+            <numerusform>%n локальных каталога смонтировано на устройстве.</numerusform>
+            <numerusform>%n локальных каталогов смонтировано на устройстве.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
+        <translation>
+            <numerusform>Предупреждение: попытка подключить %1 каталог(ов), когда у устройства только %n свободный порт.&lt;br&gt;Запустить эту конфигурацию будет невозможно.</numerusform>
+            <numerusform>Предупреждение: попытка подключить %1 каталог(ов), когда у устройства только %n свободных порта.&lt;br&gt;Запустить эту конфигурацию будет невозможно.</numerusform>
+            <numerusform>Предупреждение: попытка подключить %1 каталог(ов), когда у устройства только %n свободных портов.&lt;br&gt;Запустить эту конфигурацию будет невозможно.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
+        <translation>
+            <numerusform>ПРЕДУПРЕЖДЕНИЕ: попытка примонтировать %1 каталог(ов), но во время отладки на устройстве доступен только %n порт.&lt;br&gt;Невозможно отлаживать приложение в этой конфигурации.</numerusform>
+            <numerusform>ПРЕДУПРЕЖДЕНИЕ: попытка примонтировать %1 каталог(ов), но во время отладки на устройстве доступно только %n порта.&lt;br&gt;Невозможно отлаживать приложение в этой конфигурации.</numerusform>
+            <numerusform>ПРЕДУПРЕЖДЕНИЕ: попытка примонтировать %1 каталог(ов), но во время отладки на устройстве доступно только %n портов.&lt;br&gt;Невозможно отлаживать приложение в этой конфигурации.</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRunControlFactory</name>
+    <message>
+        <source>Run on device</source>
+        <translation>Запустить на устройстве</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoSshRunner</name>
+    <message>
+        <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation>Qemu ещё не запущен. Он перейдёт в состояние готовности через некоторое время. Попробуйте позже.</translation>
+    </message>
+    <message>
+        <source>You want to run on Qemu, but it is not enabled for this Qt version.</source>
+        <translation>Попытка запустить в Qemu, но он не включён для этого профиля Qt.</translation>
+    </message>
+    <message>
+        <source>Mounting host directories...</source>
+        <translation>Монтирование каталогов компьютера...</translation>
+    </message>
+    <message>
+        <source>Potentially unmounting left-over host directory mounts...</source>
+        <translation>Потенциальное отмонтирование оставшихся каталогов компьютера...</translation>
+    </message>
+    <message>
+        <source>Unmounting host directories...</source>
+        <translation>Отмонтирование каталогов компьютера...</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoToolChainConfigWidget</name>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Путь к MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Путь к цели MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Отладчик:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoToolChainFactory</name>
+    <message>
+        <source>Maemo GCC</source>
+        <translation>Maemo GCC</translation>
+    </message>
+    <message>
+        <source>Maemo GCC for %1</source>
+        <translation>Maemo GCC для %1</translation>
+    </message>
+    <message>
+        <source>%1 GCC (%2)</source>
+        <translation>%1 GCC (%2)</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoUploadAndInstallPackageStep</name>
+    <message>
+        <source>No Debian package creation step found.</source>
+        <translation>Не обнаружен этап сборки пакета Debian.</translation>
+    </message>
+    <message>
+        <source>Deploy Debian package via SFTP upload</source>
+        <translation>Установить пакет Debian через загрузку по SFTP</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MeegoUploadAndInstallPackageStep</name>
+    <message>
+        <source>No RPM package creation step found.</source>
+        <translation>Не обнаружен этап сборки пакета RPM.</translation>
+    </message>
+    <message>
+        <source>Deploy RPM package via SFTP upload</source>
+        <translation>Установить пакет RPM через загрузку по SFTP</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::Qt4MaemoDeployConfigurationFactory</name>
+    <message>
+        <source>Copy Files to Maemo5 Device</source>
+        <translation>Копирование файлов на устройство Maemo5</translation>
+    </message>
+    <message>
+        <source>Build Debian Package and Install to Maemo5 Device</source>
+        <translation>Создание пакета Debian и установка на устройство Maemo5</translation>
+    </message>
+    <message>
+        <source>Build Debian Package and Install to Harmattan Device</source>
+        <translation>Создание пакета Debian и установка на устройство Harmattan</translation>
+    </message>
+    <message>
+        <source>Build RPM Package and Install to MeeGo Device</source>
+        <translation>Создание пакета RPM и установка на устройство Meego</translation>
     </message>
 </context>
 <context>
@@ -12369,32 +13958,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation></translation>
     </message>
     <message>
-        <source>These show the INSTALLS settings from the project file(s).</source>
-        <translation>Здесь отображаются настройки УСТАНОВКИ из файла(ов) проекта.</translation>
-    </message>
-    <message>
-        <source>Edit the project file to add or remove entries.</source>
-        <translation>Изменение файла проекта для добавления/удаления элементов.</translation>
-    </message>
-    <message>
         <source>Add Desktop File</source>
         <translation>Добавить файл .desktop</translation>
     </message>
     <message>
         <source>Add Launcher Icon...</source>
         <translation>Добавить значок запуска...</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation>Конфигурация устройства:</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;irrelevant&quot;&gt;Управление конфигурациями устройств&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Files to install for subproject:</source>
-        <translation>Устанавливать файлы подпроекта:</translation>
     </message>
 </context>
 <context>
@@ -12479,10 +14048,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation></translation>
     </message>
     <message>
-        <source>Do wou want to re-use an existing pair of keys or should a new one be created?</source>
-        <translation>Желаете использовать имеющуюся пару ключей или нужно создать новую?</translation>
-    </message>
-    <message>
         <source>Re-use existing keys</source>
         <translation>Использовать существующую</translation>
     </message>
@@ -12497,6 +14062,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Create new keys</source>
         <translation>Создать новую</translation>
+    </message>
+    <message>
+        <source>Do you want to re-use an existing pair of keys or should a new one be created?</source>
+        <translation>Использовать уже имеющуюся пару ключей или создать новую?</translation>
     </message>
 </context>
 <context>
@@ -12535,113 +14104,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>MaemoDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Maemo Device Configurations</source>
-        <translation>Конфигурации устройств Maemo</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration:</source>
-        <translation>&amp;Конфигурация:</translation>
-    </message>
-    <message>
-        <source>Device type:</source>
-        <translation>Тип устройства:</translation>
-    </message>
-    <message>
-        <source>Authentication type:</source>
-        <translation>Тип авторизации:</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Пароль</translation>
-    </message>
-    <message>
-        <source>&amp;Key</source>
-        <translation>К&amp;люч</translation>
-    </message>
-    <message>
-        <source>&amp;Host name:</source>
-        <translation>&amp;Имя хоста:</translation>
-    </message>
-    <message>
-        <source>IP or host name of the device</source>
-        <translation>IP или имя узла устройства</translation>
-    </message>
-    <message>
-        <source>&amp;SSH port:</source>
-        <translation>Порт &amp;SSH:</translation>
-    </message>
-    <message>
-        <source>Free ports:</source>
-        <translation>Свободные порты:</translation>
-    </message>
-    <message>
-        <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
-        <translation>Можно ввести списки и диапазоны, например: 1024,1026-1028,1030</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Connection time&amp;out:</source>
-        <translation>&amp;Время ожидания:</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation> сек</translation>
-    </message>
-    <message>
-        <source>&amp;Username:</source>
-        <translation>&amp;Пользователь:</translation>
-    </message>
-    <message>
-        <source>&amp;Password:</source>
-        <translation>П&amp;ароль:</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation>Отображать</translation>
-    </message>
-    <message>
-        <source>Set as Default</source>
-        <translation>Использовать всегда</translation>
-    </message>
-    <message>
-        <source>&amp;Add</source>
-        <translation>&amp;Добавить</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>&amp;Удалить</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>Файл секретного ключа:</translation>
-    </message>
-    <message>
-        <source>Set As Default</source>
-        <translation>Использовать всегда</translation>
-    </message>
-    <message>
-        <source>&amp;Name:</source>
-        <translation>&amp;Название:</translation>
-    </message>
-    <message>
-        <source>OS type:</source>
-        <translation>Операционная система:</translation>
-    </message>
-    <message>
-        <source>Click here if you do not have an SSH key yet.</source>
-        <translation>Щёлкните, если у вас ещё нет SSH ключа.</translation>
-    </message>
-    <message>
-        <source>&amp;Generate SSH Key...</source>
-        <translation>Создать кл&amp;юч SSH...</translation>
-    </message>
-</context>
-<context>
     <name>MaemoPackageCreationWidget</name>
     <message>
         <source>Major:</source>
@@ -12654,10 +14116,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Patch:</source>
         <translation>Изменение:</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>Изменить</translation>
     </message>
     <message>
         <source>Adapt Debian file:</source>
@@ -12687,24 +14145,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Edit spec file</source>
         <translation>Изменить файл .spec</translation>
     </message>
-</context>
-<context>
-    <name>MaemoProFilesUpdateDialog</name>
     <message>
-        <source>Maemo Deployment Issue</source>
-        <translation>Установка Maemo</translation>
-    </message>
-    <message>
-        <source>&amp;Check all</source>
-        <translation>&amp;Включить всё</translation>
-    </message>
-    <message>
-        <source>&amp;Uncheck All</source>
-        <translation>О&amp;тключить всё</translation>
-    </message>
-    <message>
-        <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
-        <translation>Перечисленные ниже файлы проектов не содержат информации для установки на Maemo, поэтому соответствующие цели нельзя будет установить и/или запустить на устройстве. Qt Creator может добавить отсутствующую информацию в эти файлы, если включите нужные строки.</translation>
+        <source>Edit...</source>
+        <translation>Изменить...</translation>
     </message>
 </context>
 <context>
@@ -12739,7 +14182,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Upload Settings</source>
-        <translation>Параметры отправки</translation>
+        <translation>Настройки отправки</translation>
     </message>
     <message>
         <source>Garage account name:</source>
@@ -12805,69 +14248,26 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>MaemoRemoteProcessesDialog</name>
+    <name>MainView</name>
     <message>
-        <source>List of Remote Processes</source>
-        <translation>Список внешних процессов</translation>
+        <source>Painting</source>
+        <translation>Отрисовка</translation>
     </message>
     <message>
-        <source>&amp;Filter by process name:</source>
-        <translation>&amp;Отобрать по имени процесса:</translation>
+        <source>Compiling</source>
+        <translation>Компиляция</translation>
     </message>
     <message>
-        <source>&amp;Update List</source>
-        <translation>О&amp;бновить список</translation>
+        <source>Creating</source>
+        <translation>Создание</translation>
     </message>
     <message>
-        <source>&amp;Kill Selected Process</source>
-        <translation>&amp;Завершить процесс</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoSshConfigDialog</name>
-    <message>
-        <source>SSH Key Configuration</source>
-        <translation>Настройка ключа SSH</translation>
+        <source>Binding</source>
+        <translation>Привязка</translation>
     </message>
     <message>
-        <source>Options</source>
-        <translation>Параметры</translation>
-    </message>
-    <message>
-        <source>Key algorithm:</source>
-        <translation>Алгоритм ключа:</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation>Ключ</translation>
-    </message>
-    <message>
-        <source>Key &amp;size:</source>
-        <translation>&amp;Размер ключа:</translation>
-    </message>
-    <message>
-        <source>&amp;RSA</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;DSA</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;Generate SSH Key</source>
-        <translation>&amp;Создать ключ SSH</translation>
-    </message>
-    <message>
-        <source>Save P&amp;ublic Key...</source>
-        <translation>Сохранить &amp;открытый...</translation>
-    </message>
-    <message>
-        <source>Save Pr&amp;ivate Key...</source>
-        <translation>Сохранить с&amp;екретный...</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Закрыть</translation>
+        <source>Signal Handler</source>
+        <translation>Обработчик сигналов</translation>
     </message>
 </context>
 <context>
@@ -13246,11 +14646,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Разное</translation>
     </message>
     <message>
-        <source>The number of recent commit logs to show, choose 0 to see all enteries</source>
-        <translation>Количество отображаемых последних сообщений о фиксации,
-выберите 0, чтобы видеть все</translation>
-    </message>
-    <message>
         <source>Timeout:</source>
         <translation>Время ожидания:</translation>
     </message>
@@ -13273,6 +14668,11 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Default email:</source>
         <translation>Email по умолчанию:</translation>
+    </message>
+    <message>
+        <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
+        <translation>Количество отображаемых последних сообщений о фиксации,
+выберите 0, чтобы видеть все.</translation>
     </message>
 </context>
 <context>
@@ -13593,14 +14993,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Приоритет</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Добавить</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>Изменить</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
@@ -13615,6 +15007,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Reset all to default.</source>
         <translation>Сбросить всё в исходное состояние.</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>Добавить...</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation>Изменить...</translation>
     </message>
 </context>
 <context>
@@ -14533,10 +15933,29 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
 </context>
 <context>
+    <name>ProFilesUpdateDialog</name>
+    <message>
+        <source>Maemo Deployment Issue</source>
+        <translation>Проблема установки Maemo</translation>
+    </message>
+    <message>
+        <source>The project files listed below do not contain deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
+        <translation>Перечисленные ниже файлы проектов не содержат информации для установки, поэтому соответствующие цели нельзя будет установить и/или запустить на устройстве. Qt Creator может добавить отсутствующую информацию в эти файлы, если включите нужные строки.</translation>
+    </message>
+    <message>
+        <source>&amp;Check all</source>
+        <translation>&amp;Включить всё</translation>
+    </message>
+    <message>
+        <source>&amp;Uncheck All</source>
+        <translation>О&amp;тключить всё</translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer</name>
     <message>
-        <source>Projects</source>
-        <translation>Проекты</translation>
+        <source>Build &amp; Run</source>
+        <translation>Сборка и запуск</translation>
     </message>
     <message>
         <source>Other Project</source>
@@ -14778,13 +16197,6 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomProjectWizard</name>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation>Невозможно открыть проект %1.</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::CustomWizard</name>
     <message>
         <source>Details</source>
@@ -14832,6 +16244,22 @@ Preselects Qt for Simulator and mobile targets if available.</source>
         <translation>Другой проект</translation>
     </message>
     <message>
+        <source>Creates a plain C project using QMake, not using the Qt library.</source>
+        <translation>Создание простого проекта под управлением QMake на языке C, но без использования библиотек Qt.</translation>
+    </message>
+    <message>
+        <source>Plain C Project</source>
+        <translation>Простой проект на языке C</translation>
+    </message>
+    <message>
+        <source>Creates a plain C++ project using QMake, not using the Qt library.</source>
+        <translation>Создание простого проекта под управлением QMake на языке C++, но без использования библиотек Qt.</translation>
+    </message>
+    <message>
+        <source>Plain C++ Project</source>
+        <translation>Простой проект на языке C++</translation>
+    </message>
+    <message>
         <source>Plugin Information</source>
         <translation>Информация о модуле</translation>
     </message>
@@ -14866,6 +16294,18 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <message>
         <source>Qt Creator build:</source>
         <translation>Сборка Qt Creator:</translation>
+    </message>
+    <message>
+        <source>Deploy into:</source>
+        <translation>Установить в:</translation>
+    </message>
+    <message>
+        <source>Qt Creator build</source>
+        <translation>Сборка Qt Creator</translation>
+    </message>
+    <message>
+        <source>Local user settings</source>
+        <translation>Локальные настройки пользователя</translation>
     </message>
 </context>
 <context>
@@ -14986,6 +16426,16 @@ Reason: %2</source>
         <translation>Все проекты</translation>
     </message>
     <message>
+        <source>All Projects:</source>
+        <translation>Все проекты:</translation>
+    </message>
+    <message>
+        <source>Filter: %1
+%2</source>
+        <translation>Фильтр: %1
+%2</translation>
+    </message>
+    <message>
         <source>File &amp;pattern:</source>
         <translation>Ш&amp;аблон:</translation>
     </message>
@@ -15007,6 +16457,18 @@ Reason: %2</source>
     <message>
         <source>Attach debugger to %1</source>
         <translation>Подключить отладчик к %1</translation>
+    </message>
+    <message>
+        <source>Close Tab</source>
+        <translation>Закрыть вкладку</translation>
+    </message>
+    <message>
+        <source>Close All Tabs</source>
+        <translation>Закрыть все вкладки</translation>
+    </message>
+    <message>
+        <source>Close Other Tabs</source>
+        <translation>Закрыть другие вкладки</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -15169,6 +16631,10 @@ Reason: %2</source>
         <source>Current Project</source>
         <translation>Текущий проект</translation>
     </message>
+    <message>
+        <source>Project &apos;%1&apos;:</source>
+        <translation>Проект «%1»:</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
@@ -15268,12 +16734,8 @@ Reason: %2</source>
         <translation>Открыть с помощью</translation>
     </message>
     <message>
-        <source>Show in Explorer...</source>
-        <translation>Показать в проводнике...</translation>
-    </message>
-    <message>
-        <source>Show in Finder...</source>
-        <translation>Показать в Finder...</translation>
+        <source>Find in this directory...</source>
+        <translation>Найти в текущем каталоге...</translation>
     </message>
     <message>
         <source>Open Parent Folder</source>
@@ -15286,54 +16748,6 @@ Reason: %2</source>
     <message>
         <source>Choose Folder</source>
         <translation>Выбор папки</translation>
-    </message>
-    <message>
-        <source>Show Containing Folder...</source>
-        <translation>Открыть папку файла...</translation>
-    </message>
-    <message>
-        <source>Open Command Prompt Here...</source>
-        <translation>Открыть командную консоль здесь...</translation>
-    </message>
-    <message>
-        <source>Open Terminal Here...</source>
-        <translation>Открыть терминал здесь...</translation>
-    </message>
-    <message>
-        <source>Launching a file browser failed</source>
-        <translation>Не удалось запустить обозреватель файлов</translation>
-    </message>
-    <message>
-        <source>Unable to start the file manager:
-
-%1
-
-</source>
-        <translation>Не удалось запустить файловый менеджер:
-
-%1
-
-</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; returned the following error:
-
-%2</source>
-        <translation>«%1» вернул следующую ошибку:
-
-%2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation>Настройки...</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer Failed</source>
-        <translation>Не удалось запустить Проводник Windows</translation>
-    </message>
-    <message>
-        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
-        <translation>Не удалось найти explorer.exe в путях запуска Проводника Windows.</translation>
     </message>
 </context>
 <context>
@@ -15484,8 +16898,12 @@ Reason: %2</source>
         <translation>Инициализация:</translation>
     </message>
     <message>
-        <source>The CDB debugger could not be found in %1</source>
-        <translation>Не удалось найти отладчик CDB в %1</translation>
+        <source>No CDB debugger detected (neither 32bit nor 64bit).</source>
+        <translation>Отладчик CDB не обнаружен (ни 32-х, ни 64-х битный).</translation>
+    </message>
+    <message>
+        <source>No 64bit CDB debugger detected.</source>
+        <translation>64-х битный отладчик CDB не обнаружен.</translation>
     </message>
 </context>
 <context>
@@ -15715,6 +17133,14 @@ to project &apos;%2&apos;.</source>
         <translation>Итог</translation>
     </message>
     <message>
+        <source>Add as a subproject to project:</source>
+        <translation>Добавить как подпроект в проект:</translation>
+    </message>
+    <message>
+        <source>Add to &amp;project:</source>
+        <translation>Добавить в &amp;проект:</translation>
+    </message>
+    <message>
         <source>Files to be added:</source>
         <translation>Будут добавлены файлы:</translation>
     </message>
@@ -15764,10 +17190,6 @@ to project &apos;%2&apos;.</source>
 <context>
     <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
-        <source>Run configuration:</source>
-        <translation>Конфигурация запуска:</translation>
-    </message>
-    <message>
         <source>Deployment:</source>
         <translation>Установка:</translation>
     </message>
@@ -15780,8 +17202,12 @@ to project &apos;%2&apos;.</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation>Переименовать</translation>
+        <source>Rename ...</source>
+        <translation>Переименовать...</translation>
+    </message>
+    <message>
+        <source>Run configuration:</source>
+        <translation>Конфигурация запуска:</translation>
     </message>
 </context>
 <context>
@@ -15797,6 +17223,38 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Желаете удалить конфигурацию выполнения &lt;b&gt;%1&lt;/b&gt;?</translation>
+    </message>
+    <message>
+        <source>Run Settings</source>
+        <translation>Настройки запуска</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Переименовать</translation>
+    </message>
+    <message>
+        <source>Deployment</source>
+        <translation>Установка</translation>
+    </message>
+    <message>
+        <source>Method:</source>
+        <translation>Метод:</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>Запуск</translation>
+    </message>
+    <message>
+        <source>Run configuration:</source>
+        <translation>Конфигурация запуска:</translation>
     </message>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
@@ -15883,12 +17341,20 @@ to project &apos;%2&apos;.</source>
         <source>Session</source>
         <translation>Сессия</translation>
     </message>
+    <message>
+        <source>Failed to open project</source>
+        <translation>Не удалось открыть проект</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Введите название сессии:</translation>
+    </message>
+    <message>
+        <source>Switch to</source>
+        <translation>Переключиться в</translation>
     </message>
 </context>
 <context>
@@ -15958,8 +17424,8 @@ to project &apos;%2&apos;.</source>
 <context>
     <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
-        <source>Build Issues</source>
-        <translation>Сообщения сборки</translation>
+        <source>Issues</source>
+        <translation>Проблемы</translation>
     </message>
     <message>
         <source>Show Warnings</source>
@@ -16054,8 +17520,8 @@ to project &apos;%2&apos;.</source>
         <translation>Управление проектом</translation>
     </message>
     <message>
-        <source>Manage</source>
-        <translation>Управление</translation>
+        <source>Manage ...</source>
+        <translation>Управление...</translation>
     </message>
 </context>
 <context>
@@ -16237,12 +17703,20 @@ to project &apos;%2&apos;.</source>
         <translation>Сделать активным проектом</translation>
     </message>
     <message>
+        <source>Collapse All</source>
+        <translation>Свернуть всё</translation>
+    </message>
+    <message>
         <source>Full path of the current project&apos;s main file, including file name.</source>
         <translation>Полный путь с именем файла к основному файлу проекта.</translation>
     </message>
     <message>
         <source>Full path of the current project&apos;s main file, excluding file name.</source>
         <translation>Полный путь без имени файла к основному файлу проекта.</translation>
+    </message>
+    <message>
+        <source>Failed to open project</source>
+        <translation>Не удалось открыть проект</translation>
     </message>
     <message>
         <source>No project loaded</source>
@@ -16527,6 +18001,49 @@ Reason: %2</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::SettingsAccessor</name>
+    <message>
+        <source>Using Old Project Settings File</source>
+        <translation>Используется старый файл настроект проекта</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Будет использоваться резервная копия файла настроек .user более старой версии, так как текущий файл создан несовместимой версией Qt Creator.&lt;/p&gt;&lt;p&gt;Изменения настроек проекта сделанные с момента последнего запуска этой версии Qt Creator не учитываются, а изменения вносимые сейчас &lt;b&gt;не будут&lt;/b&gt; сохранены в новую версию файла проекта.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Project Settings File from a different Environment?</source>
+        <translation>Настройки проекта из другого компьютера?</translation>
+    </message>
+    <message>
+        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
+
+The .user settings files contain environment specific settings. They should not be copied to a different environment. 
+
+Do you still want to load the settings file?</source>
+        <translation>Qt Creator обнаружил, что файл настроек (*.user), созданный под другую среду, возможно, перенесён с другого компьютера.
+
+Файлы настроек *.user содержат уникальные для среды параметры. Они не должны копироваться на другие машины.
+
+Продолжить загрузку файла настроек?</translation>
+    </message>
+    <message>
+        <source>Unsupported Shared Settings File</source>
+        <translation>Неподдерживаемый файл общих настроек</translation>
+    </message>
+    <message>
+        <source>The version of your .shared file is not yet supported by this Qt Creator version. Only settings that are still compatible will be taken into account.
+
+Do you want to continue?
+
+If you choose not to continue Qt Creator will not try to load the .shared file.</source>
+        <translation>Версия вашего файла .shared ещё не поддерживается этой версией Qt Creator. Загружены будут только совместимые настройки.
+
+Продолжить?
+
+В случае отрицательного ответа Qt Creator не будет пытаться грузить файл .shared.</translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::ToolChain</name>
     <message>
         <source>Clone of %1</source>
@@ -16542,33 +18059,6 @@ Reason: %2</source>
     <message>
         <source>Autodetect</source>
         <translation>Автоопределение</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileAccessor</name>
-    <message>
-        <source>Using Old Project Settings File</source>
-        <translation>Используется старый файл настроект проекта</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Будет использоваться резервная копия файла настроек (*.user) более старой версии, так как текущий файл создан несовместимой версией Qt Creator.&lt;/p&gt;&lt;p&gt;Изменения настроек проекта сделанные с момента последнего запуска этой версии Qt Creator не учитываются, а изменения вносимые сейчас &lt;b&gt;не будут&lt;/b&gt; сохранены в новую версию файла проекта.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Project Settings File from a different Environment?</source>
-        <translation>Настройки проекта из другой среды?</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
-
-The .user settings files contain environment specific settings. They should not be copied to a different environment. 
-
-Do you still want to load the settings file?</source>
-        <translation>Qt Creator обнаружил, что файл настроек (*.user), созданный под другую среду, возможно, перенесён с другого компьютера.
-
-Файлы настроек *.user содержат уникальные для среды параметры. Они не должны копироваться на другие машины.
-
-Продолжить загрузку файла настроек?</translation>
     </message>
 </context>
 <context>
@@ -16591,21 +18081,6 @@ Do you still want to load the settings file?</source>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectWelcomePageWidget</name>
-    <message>
-        <source>%1 (last session)</source>
-        <translation>%1 (последняя сессия)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation>%1 (текущая сессия)</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation>Новый проект</translation>
     </message>
 </context>
 <context>
@@ -16675,8 +18150,8 @@ Do you still want to load the settings file?</source>
         <translation>Прилипать к направляющим (E)</translation>
     </message>
     <message>
-        <source>Show bounding rectangles (A)</source>
-        <translation>Отображать границы (A)</translation>
+        <source>Show bounding rectangles and stripes for empty items (Press Key A)</source>
+        <translation>Показавать границы и контуры пустых объектов (нажмите клавишу A)</translation>
     </message>
     <message>
         <source>Only select items with content (S)</source>
@@ -16947,6 +18422,38 @@ Do you still want to load the settings file?</source>
         <translation>Видимость</translation>
     </message>
     <message>
+        <source>Anchors</source>
+        <translation>Привязки</translation>
+    </message>
+    <message>
+        <source>Fill</source>
+        <translation>Залить</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Сбросить</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>Компоновка</translation>
+    </message>
+    <message>
+        <source>Layout in Row</source>
+        <translation>Компоновать в строку</translation>
+    </message>
+    <message>
+        <source>Layout in Column</source>
+        <translation>Компоновать в колонку</translation>
+    </message>
+    <message>
+        <source>Layout in Grid</source>
+        <translation>Компоновать по сетке</translation>
+    </message>
+    <message>
+        <source>Layout in Flow</source>
+        <translation type="unfinished">Компоновать в перетекание</translation>
+    </message>
+    <message>
         <source>Go into Component</source>
         <translation>Перейти к элементу</translation>
     </message>
@@ -17192,10 +18699,6 @@ Do you still want to load the settings file?</source>
         <source>package import requires a version number</source>
         <translation>импорт пакета требует номер версии</translation>
     </message>
-    <message>
-        <source>file or directory not found</source>
-        <translation>не удалось найти файл или каталог</translation>
-    </message>
 </context>
 <context>
     <name>QmlJS::Check</name>
@@ -17300,6 +18803,10 @@ Do you still want to load the settings file?</source>
         <translation>требуется строка привязки</translation>
     </message>
     <message>
+        <source>unreachable</source>
+        <translation>недоступно</translation>
+    </message>
+    <message>
         <source>declarations should be at the start of a function</source>
         <translation>объявления должны быть в начале функции</translation>
     </message>
@@ -17352,23 +18859,56 @@ Do you still want to load the settings file?</source>
         <translation>не рекомендуется использовать строковые литералы в качестве id</translation>
     </message>
     <message>
+        <source>&apos;%1&apos; is not a valid property type</source>
+        <translation>«%1» не является верным типом свойства</translation>
+    </message>
+    <message>
+        <source>unintentional empty block, use ({}) for empty object literal</source>
+        <translation>случайный пустой блок, используйте ({}) для пустых объектных литералов</translation>
+    </message>
+    <message>
+        <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
+        <translation>«new» можно использовать только с функциями, имена которых начинаются с заглавной буквы</translation>
+    </message>
+    <message>
+        <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
+        <translation>вызовы функций, имена которых начинаются с заглавной буквы, должны использовать «new»</translation>
+    </message>
+    <message>
         <source>avoid assignments in conditions</source>
         <translation>не используйте присваивание в условиях</translation>
     </message>
     <message>
-        <source>case does not end with return, break, continue or throw</source>
-        <translation>case не завершён return, break, continue или throw</translation>
+        <source>case is not terminated and not empty</source>
+        <translation>вариант не завершён и не пуст</translation>
     </message>
 </context>
 <context>
     <name>QmlJS::Link</name>
     <message>
-        <source>Library contains C++ plugins, type dump is in progress.</source>
-        <translation>Библиотека содержит С++ модуль, производится получение типов.</translation>
+        <source>file or directory not found</source>
+        <translation>файл или каталог не найден</translation>
     </message>
     <message>
-        <source>package not found</source>
-        <translation>пакет не найден</translation>
+        <source>QML module not found
+
+Import paths:
+%1
+
+For qmake projects, use the QML_IMPORT_PATH variable to add import paths.
+For qmlproject projects, use the importPaths property to add import paths.</source>
+        <translation>Модуль QML не найден
+
+Импортируемые пути:
+%1
+
+Для добавления путей используйте:
+- переменную QML_IMPORT_PATH для проектов qmake;
+- свойство importPaths для проектов qmlproject.</translation>
+    </message>
+    <message>
+        <source>QML module contains C++ plugins, currently reading type information...</source>
+        <translation>Модуль QML содержит расширения на C++, идёт чтение информации о типах...</translation>
     </message>
 </context>
 <context>
@@ -17387,6 +18927,13 @@ Do you still want to load the settings file?</source>
     </message>
 </context>
 <context>
+    <name>QmlJSEditor</name>
+    <message>
+        <source>Qt Quick</source>
+        <translation>Qt Quick</translation>
+    </message>
+</context>
+<context>
     <name>QmlJSEditor::ComponentFromObjectDef</name>
     <message>
         <source>Move Component into separate file</source>
@@ -17399,6 +18946,10 @@ Do you still want to load the settings file?</source>
 </context>
 <context>
     <name>QmlJSEditor::FindReferences</name>
+    <message>
+        <source>QML/JS Usages:</source>
+        <translation>Использование QML/JS:</translation>
+    </message>
     <message>
         <source>Searching</source>
         <translation>Идёт поиск</translation>
@@ -17501,7 +19052,23 @@ Do you still want to load the settings file?</source>
     </message>
     <message>
         <source>Ctrl+Shift+U</source>
-        <translation></translation>
+        <translation>Ctrl+Shift+U</translation>
+    </message>
+    <message>
+        <source>Rename Symbol Under Cursor</source>
+        <translation>Переименовать символ под курсором</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+R</source>
+        <translation>Ctrl+Shift+R</translation>
+    </message>
+    <message>
+        <source>Run Checks</source>
+        <translation>Запустить проверки</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+C</source>
+        <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
         <source>Show Qt Quick Toolbar</source>
@@ -17509,7 +19076,11 @@ Do you still want to load the settings file?</source>
     </message>
     <message>
         <source>QML</source>
-        <translation></translation>
+        <translation>QML</translation>
+    </message>
+    <message>
+        <source>QML Analysis</source>
+        <translation>Анализ QML</translation>
     </message>
 </context>
 <context>
@@ -17591,24 +19162,12 @@ Do you still want to load the settings file?</source>
         <translation>Показать панель Qt Quick</translation>
     </message>
     <message>
-        <source>Rename...</source>
-        <translation>Переименовать...</translation>
-    </message>
-    <message>
-        <source>New id:</source>
-        <translation>Новый id:</translation>
-    </message>
-    <message>
         <source>Unused variable</source>
         <translation>Неиспользуемая переменная</translation>
     </message>
     <message>
         <source>Refactoring</source>
         <translation>Рефакторинг</translation>
-    </message>
-    <message>
-        <source>Rename id &apos;%1&apos;...</source>
-        <translation>Переименовать id «%1»...</translation>
     </message>
 </context>
 <context>
@@ -17764,22 +19323,33 @@ Do you still want to load the settings file?</source>
 <context>
     <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
-        <source>Type dump of QML plugin in %1 failed.
+        <source>QML module does not contain information about components contained in plugins
+
+Module path: %1
+See &quot;Using QML Modules with Plugins&quot; in the documentation.</source>
+        <translation>Модуль QML не содержит информации о элементах содержащихся в расширении
+
+Путь к модулю: %1
+См. раздел «Using QML Modules with Plugins» документации.</translation>
+    </message>
+    <message>
+        <source>Automatic type dump of QML module failed.
 Errors:
-%2
+%1
 </source>
-        <translation>Не удалось получить типы от модуля QML в %1.
+        <translation>Не удалось загрузит типы из модуля QML.
 Ошибки:
-%2
+%1
 </translation>
     </message>
     <message>
-        <source>Type dump of C++ plugin failed.
+        <source>Automatic type dump of QML module failed.
 First 10 lines or errors:
 
 %1
 Check &apos;General Messages&apos; output pane for details.</source>
-        <translation>Не удалось получить типы от C++ модуля.
+        <translation>Не удалось получить типы от C++ модуля
+Первые 10 строк или ошибок:
 
 %1
 В окне «Основные сообщения» могут быть подробности.</translation>
@@ -17791,22 +19361,20 @@ Check &apos;General Messages&apos; output pane for details.</source>
 %2</translation>
     </message>
     <message>
-        <source>Type dump of C++ plugin failed. Parse error:
-&apos;%1&apos;</source>
-        <translation>Не удалось получить типы от C++ модуля. Ошибка разбора:
-«%1»</translation>
+        <source>Errors while reading typeinfo files:</source>
+        <translation>Ошибки при чтении файлов typeinfo:</translation>
+    </message>
+    <message>
+        <source>Could not locate the helper application for dumping type information from C++ plugins.
+Please build the qmldump application on the Qt version options page.</source>
+        <translation>Не удалось обнаружить программу-помощник для получения информации о типах из C++ модуля.
+Соберите приложение qmldump на странице настроек профиля Qt.</translation>
     </message>
     <message>
         <source>Failed to parse &apos;%1&apos;.
 Error: %2</source>
         <translation>Не удалось разобрать «%1».
 Ошибка: %2</translation>
-    </message>
-    <message>
-        <source>Could not locate the helper application for dumping type information from C++ plugins.
-Please build the debugging helpers on the Qt version options page.</source>
-        <translation>Не удалось обнаружить программу-помощник для получения информации о типах из C++ модуля.
-Соберите помощников отладчика в Инструменты - Параметры - Qt4.</translation>
     </message>
 </context>
 <context>
@@ -17823,9 +19391,40 @@ Please build the debugging helpers on the Qt version options page.</source>
 <context>
     <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
-        <source>Global Qt Quick</source>
+        <source>Global</source>
         <comment>Settings</comment>
-        <translation>Общие для Qt Quick</translation>
+        <translation>Общие</translation>
+    </message>
+    <message>
+        <source>Qt</source>
+        <translation>Qt</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJsDebugClient::QmlProfilerEventList</name>
+    <message>
+        <source>&lt;bytecode&gt;</source>
+        <translation>&lt;байтовый код&gt;</translation>
+    </message>
+    <message>
+        <source>Source code not available</source>
+        <translation>Исходный код недоступен</translation>
+    </message>
+    <message>
+        <source>No data to save</source>
+        <translation>Нет данных для сохранения</translation>
+    </message>
+    <message>
+        <source>Could not open %1 for writing</source>
+        <translation>Не удалось открыть %1 для записи</translation>
+    </message>
+    <message>
+        <source>Could not open %1 for reading</source>
+        <translation>Не удалось открыть %1 для чтения</translation>
+    </message>
+    <message>
+        <source>Error while parsing %1</source>
+        <translation>Ошибка при разборе %1</translation>
     </message>
 </context>
 <context>
@@ -17845,10 +19444,6 @@ Please build the debugging helpers on the Qt version options page.</source>
 <context>
     <name>QmlParser</name>
     <message>
-        <source>Illegal character</source>
-        <translation>Недопустимый символ</translation>
-    </message>
-    <message>
         <source>Unclosed string at end of line</source>
         <translation>Незакрытый литерал в конце строки</translation>
     </message>
@@ -17857,20 +19452,8 @@ Please build the debugging helpers on the Qt version options page.</source>
         <translation>Недопустимая ESC-последовательность юникода</translation>
     </message>
     <message>
-        <source>Illegal escape sequence</source>
-        <translation>Недопустимая ESC-последовательность</translation>
-    </message>
-    <message>
-        <source>Unclosed comment at end of file</source>
-        <translation>Незакрытый комментарий в конце файла</translation>
-    </message>
-    <message>
         <source>Illegal syntax for exponential number</source>
         <translation>Некорректная форма экпоненциального числа</translation>
-    </message>
-    <message>
-        <source>Identifier cannot start with numeric literal</source>
-        <translation>Идентификатор не может начинаться с числового литерала</translation>
     </message>
     <message>
         <source>Unterminated regular expression literal</source>
@@ -17904,20 +19487,20 @@ Please build the debugging helpers on the Qt version options page.</source>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
     <message>
-        <source>Dialog</source>
-        <translation></translation>
+        <source>QML Profiler</source>
+        <translation>Профилер QML</translation>
     </message>
     <message>
-        <source>Address:</source>
-        <translation>Адрес:</translation>
+        <source>&amp;Host:</source>
+        <translation>&amp;Сервер:</translation>
     </message>
     <message>
-        <source>127.0.0.1</source>
-        <translation></translation>
+        <source>localhost</source>
+        <translation>localhost</translation>
     </message>
     <message>
-        <source>Port:</source>
-        <translation>Порт:</translation>
+        <source>&amp;Port:</source>
+        <translation>&amp;Порт:</translation>
     </message>
 </context>
 <context>
@@ -17959,17 +19542,6 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEventStatistics</name>
-    <message>
-        <source>Source code not available</source>
-        <translation>Исходный код недоступен</translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;байтовый код&gt;</translation>
-    </message>
-</context>
-<context>
     <name>QmlProfiler::Internal::QmlProfilerEventsView</name>
     <message>
         <source>Location</source>
@@ -17992,8 +19564,12 @@ Please build the debugging helpers on the Qt version options page.</source>
         <translation>Вызовы</translation>
     </message>
     <message>
-        <source>Time per Call</source>
-        <translation>Время вызовов</translation>
+        <source>Mean Time</source>
+        <translation>Среднее время</translation>
+    </message>
+    <message>
+        <source>Median Time</source>
+        <translation>Медианное время</translation>
     </message>
     <message>
         <source>Longest Time</source>
@@ -18046,6 +19622,22 @@ Please build the debugging helpers on the Qt version options page.</source>
         <translation>QML Profiler предназначен для поиска узких мест в приложениях использующих QML.</translation>
     </message>
     <message>
+        <source>Load QML Trace</source>
+        <translation>Загрузить трассировку QML</translation>
+    </message>
+    <message>
+        <source>Save QML Trace</source>
+        <translation>Сохранить трассировку QML</translation>
+    </message>
+    <message>
+        <source>Copy Row</source>
+        <translation>Скопировать строку</translation>
+    </message>
+    <message>
+        <source>Copy Table</source>
+        <translation>Скопировать таблицу</translation>
+    </message>
+    <message>
         <source>The QML profiler requires Qt 4.7.4 or newer.
 The Qt version configured in your active build configuration is too old.
 Do you want to continue?</source>
@@ -18088,6 +19680,20 @@ Do you want to continue?</source>
     <message>
         <source>Elapsed: %1 s</source>
         <translation>Прошло: %1 с</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Could not connect to the in-process QML profiler.
+Do you want to retry?</source>
+        <translation>Не удалось подключиться к внутрипроцессному профилеру QML.
+Повторить?</translation>
+    </message>
+    <message>
+        <source>QML traces (%1)</source>
+        <translation>Трассировки QML (%1)</translation>
     </message>
 </context>
 <context>
@@ -18143,6 +19749,10 @@ Do you want to continue?</source>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>Не удалось открыть проект «%1»: проект уже открыт</translation>
     </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project file is not a file</source>
+        <translation>Не удалось открыть проект «%1»: файл проекта не является файлом</translation>
+    </message>
 </context>
 <context>
     <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
@@ -18180,8 +19790,8 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
 <context>
     <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
     <message>
-        <source>Manage Qt versions</source>
-        <translation>Управление профилями Qt</translation>
+        <source>Manage Qt versions...</source>
+        <translation>Управление профилями Qt...</translation>
     </message>
     <message>
         <source>Qt version:</source>
@@ -18312,13 +19922,6 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     </message>
 </context>
 <context>
-    <name>Qt Quick</name>
-    <message>
-        <source>Qt Quick</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>Qt4DefaultTargetSetupWidget</name>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
@@ -18345,10 +19948,6 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
         <source>Qt Widget Project</source>
         <translation>Проект Qt Widget</translation>
     </message>
-    <message>
-        <source>Linux Devices</source>
-        <translation>Linux-устройства</translation>
-    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::AbstractMobileApp</name>
@@ -18372,8 +19971,8 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
         <translation>Особенности Symbian</translation>
     </message>
     <message>
-        <source>Maemo5 And Meego Specific</source>
-        <translation>Особенности Maemo5 и Meego</translation>
+        <source>Maemo5 And MeeGo Specific</source>
+        <translation>Особенности Maemo5 и MeeGo</translation>
     </message>
     <message>
         <source>Harmattan Specific</source>
@@ -19184,65 +20783,6 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
-    <message>
-        <source>Headers</source>
-        <translation>Заголовочные</translation>
-    </message>
-    <message>
-        <source>Sources</source>
-        <translation>Исходники</translation>
-    </message>
-    <message>
-        <source>Forms</source>
-        <translation>Формы</translation>
-    </message>
-    <message>
-        <source>Resources</source>
-        <translation>Ресурсы</translation>
-    </message>
-    <message>
-        <source>QML</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Other files</source>
-        <translation>Другие файлы</translation>
-    </message>
-    <message>
-        <source>Cannot Open File</source>
-        <translation>Не удалось открыть файл</translation>
-    </message>
-    <message>
-        <source>Cannot open the file for edit with VCS.</source>
-        <translation>Не удалось открыть файл для редактирования с помощью VCS.</translation>
-    </message>
-    <message>
-        <source>Cannot Set Permissions</source>
-        <translation>Не удалось задать права доступа</translation>
-    </message>
-    <message>
-        <source>Cannot set permissions to writable.</source>
-        <translation>Не удалось задать права доступа на запись.</translation>
-    </message>
-    <message>
-        <source>Failed!</source>
-        <translation>Не удалось!</translation>
-    </message>
-    <message>
-        <source>There are unsaved changes for project file %1.</source>
-        <translation>Имеются несохранённые изменения в файле проекта %1.</translation>
-    </message>
-    <message>
-        <source>Could not write project file %1.</source>
-        <translation>Не удалось записать в файл проекта %1.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Ошибка файла</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget</name>
     <message>
         <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
@@ -19273,7 +20813,7 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Некорректный профиль Qt</translation>
     </message>
     <message>
-        <source>An build for a different project exists in %1, which will be overwritten.</source>
+        <source>A build for a different project exists in %1, which will be overwritten.</source>
         <comment>%1 build directory</comment>
         <translation>%1 уже является каталогом сборки другого проекта. Содержимое будет перезаписано.</translation>
     </message>
@@ -19505,7 +21045,7 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Неверная «%1» запись в «%2» модуля «%3».</translation>
     </message>
     <message>
-        <source>No .pro file for plugin &apos;%1&apos; cannot be found.</source>
+        <source>No .pro file for plugin &apos;%1&apos; can be found.</source>
         <translation>Не удалось найти файл .pro для модуля «%1».</translation>
     </message>
 </context>
@@ -20467,18 +22007,18 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
     <name>Qt4ProjectManager::Internal::TestWizard</name>
     <message>
         <source>Qt Unit Test</source>
-        <translation>Юнит тест Qt</translation>
+        <translation>Юнит-тест Qt</translation>
     </message>
     <message>
         <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation>Создание юнит теста основанного на QTestLib для класса или свойства. Юнит тесты позволяют проверять код на соответствие целям и отсутствие регрессий.</translation>
+        <translation>Создание юнит-теста основанного на QTestLib для класса или свойства. Юнит тесты позволяют проверять код на соответствие целям и отсутствие регрессий.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
-        <translation>Этот мастер создаст юнит тест Qt, содержащий один исходный файл с проверяющим объектом.</translation>
+        <translation>Этот мастер создаст юнит-тест Qt, содержащий один исходный файл с проверяющим объектом.</translation>
     </message>
     <message>
         <source>Details</source>
@@ -20647,6 +22187,9 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
         <source>Library not available. &lt;a href=&apos;compile&apos;&gt;Compile...&lt;/a&gt;</source>
         <translation>Библиотека отсутствует. &lt;a href=&apos;compile&apos;&gt;Собрать...&lt;/a&gt;</translation>
     </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation>Отладка QML</translation>
@@ -20655,9 +22198,6 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
         <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
         <translation>Этот параметр вступит в силу только после перекомпиляции проекта. Перекомпилировать его?</translation>
     </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>Building helpers</source>
         <translation>Сборка помощников</translation>
@@ -20669,6 +22209,10 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; The tool chain suggested &quot;%1&quot; as mkspec.</source>
+        <translation>&lt;b&gt;Предупреждение:&lt;/b&gt; Инструментарий предлагает «%1» в качестве mkspec.</translation>
     </message>
     <message>
         <source>Enable QML debugging:</source>
@@ -20692,6 +22236,10 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Доступно только в Qt версии 4.7.1 и выше.</translation>
+    </message>
+    <message>
+        <source>Not needed.</source>
+        <translation>Не требуется.</translation>
     </message>
     <message>
         <source>QML Debugging</source>
@@ -20723,6 +22271,10 @@ Reason: %2</source>
         <translation>Доступно только в Qt версии 4.7.1 и выше.</translation>
     </message>
     <message>
+        <source>Not needed.</source>
+        <translation>Не требуется.</translation>
+    </message>
+    <message>
         <source>Private headers are missing for this Qt version.</source>
         <translation>Отсутствуют внутренние заголовочные файлы для этого профила Qt.</translation>
     </message>
@@ -20740,6 +22292,10 @@ Reason: %2</source>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Доступно только в Qt версии 4.7.1 и выше.</translation>
+    </message>
+    <message>
+        <source>Not needed.</source>
+        <translation>Не требуется.</translation>
     </message>
     <message>
         <source>QMLObserver</source>
@@ -20894,6 +22450,65 @@ Reason: %2</source>
     </message>
 </context>
 <context>
+    <name>Qt4ProjectManager::Qt4PriFileNode</name>
+    <message>
+        <source>Headers</source>
+        <translation>Заголовочные</translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <translation>Исходники</translation>
+    </message>
+    <message>
+        <source>Forms</source>
+        <translation>Формы</translation>
+    </message>
+    <message>
+        <source>Resources</source>
+        <translation>Ресурсы</translation>
+    </message>
+    <message>
+        <source>QML</source>
+        <translation>QML</translation>
+    </message>
+    <message>
+        <source>Other files</source>
+        <translation>Другие файлы</translation>
+    </message>
+    <message>
+        <source>Cannot Open File</source>
+        <translation>Не удалось открыть файл</translation>
+    </message>
+    <message>
+        <source>Cannot open the file for editing with VCS.</source>
+        <translation>Не удалось открыть файл для правки с помощью VCS.</translation>
+    </message>
+    <message>
+        <source>Cannot Set Permissions</source>
+        <translation>Не удалось задать права доступа</translation>
+    </message>
+    <message>
+        <source>Cannot set permissions to writable.</source>
+        <translation>Не удалось задать права доступа на запись.</translation>
+    </message>
+    <message>
+        <source>There are unsaved changes for project file %1.</source>
+        <translation>Имеются несохранённые изменения в файле проекта %1.</translation>
+    </message>
+    <message>
+        <source>Failed!</source>
+        <translation>Не удалось!</translation>
+    </message>
+    <message>
+        <source>Could not write project file %1.</source>
+        <translation>Не удалось записать в файл проекта %1.</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>Ошибка файла</translation>
+    </message>
+</context>
+<context>
     <name>Qt4ProjectManager::Qt4ProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
@@ -20934,9 +22549,9 @@ Reason: %2</source>
         <translation></translation>
     </message>
     <message>
-        <source>Meego</source>
-        <comment>Qt4 Meego target display name</comment>
-        <translation></translation>
+        <source>MeeGo</source>
+        <comment>Qt4 MeeGo target display name</comment>
+        <translation>MeeGo</translation>
     </message>
     <message>
         <source>Symbian Emulator</source>
@@ -21168,7 +22783,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Tool classes for unit testing</source>
-        <translation>Служебные классы для тестирования элементов</translation>
+        <translation>Служебные классы для юнит-тестирования</translation>
     </message>
     <message>
         <source>Classes for Inter-Process Communication using the D-Bus</source>
@@ -21184,10 +22799,6 @@ Reason: %2</source>
     <message>
         <source>Qt Quick Components for Symbian</source>
         <translation>Элементы Qt Quick для Symbian</translation>
-    </message>
-    <message>
-        <source>Qt Quick Components for Meego/Harmattan</source>
-        <translation>Элементы Qt Quick для Meego/Harmattan</translation>
     </message>
     <message>
         <source>Use an existing .qml file</source>
@@ -21210,16 +22821,20 @@ Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.
 Требуется Qt версии 4.7.3 или выше и установленный для выбранного профиля Qt набор элементов.</translation>
     </message>
     <message>
-        <source>The Qt Quick Components for Meego/Harmattan are a set of ready-made components that are designed with specific native appearance for the Meego/Harmattan platform.
-
-Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
-        <translation>Элементы Qt Quick для Meego/Harmattan - это набор готовых элементов разработанных с учётом особенностей внешнего вида приложений для платформы Meego/Harmattan.
-
-Требуется Qt версии 4.7.3 или выше и установленный для выбранного профиля Qt набор элементов.</translation>
-    </message>
-    <message>
         <source>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>Будут установлены все файлы и каталоги, находящиеся в том же каталоге, что и основной QML файл. До установки содержимое каталога может быть изменено в любой момент.</translation>
+    </message>
+    <message>
+        <source>Qt Quick Components for MeeGo/Harmattan</source>
+        <translation>Элементы Qt Quick для MeeGo/Harmattan</translation>
+    </message>
+    <message>
+        <source>The Qt Quick Components for MeeGo/Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo/Harmattan platform.
+
+Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
+        <translation>Элементы Qt Quick для MeeGo/Harmattan - это набор готовых элементов разработанных с учётом особенностей внешнего вида приложений для платформы MeeGo/Harmattan.
+
+Требуется Qt версии 4.7.4 или выше, а также установленный для выбранного профиля Qt набор элементов.</translation>
     </message>
 </context>
 <context>
@@ -21280,6 +22895,10 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
 <context>
     <name>QtSupport::Internal::GettingStartedWelcomePage</name>
     <message>
+        <source>Demos and Examples</source>
+        <translation>Демо и примеры</translation>
+    </message>
+    <message>
         <source>Getting Started</source>
         <translation>Начало работы</translation>
     </message>
@@ -21314,6 +22933,10 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <message>
         <source>Cannot Copy Project</source>
         <translation>Не удалось скопировать проект</translation>
+    </message>
+    <message>
+        <source>Failed to open project</source>
+        <translation>Не удалось открыть проект</translation>
     </message>
 </context>
 <context>
@@ -21430,16 +23053,16 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
         <translation>Размещение qmake</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Добавить</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
         <source>Clean up</source>
         <translation>Подчистить</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>Добавить...</translation>
     </message>
 </context>
 <context>
@@ -21492,8 +23115,8 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
         <translation>Умолчальная символьная ссылка на mkspec повреждена.</translation>
     </message>
     <message>
-        <source>Failed to detect the ABI(s) used by the Qt version.</source>
-        <translation>Не удалось определить ABI, используемый профилем Qt.</translation>
+        <source>ABI detection failed: Make sure to use a matching tool chain when building.</source>
+        <translation>Не удалось определить ABI: убедитесь, что используете для сборки подходящий инструментарий.</translation>
     </message>
     <message>
         <source>No qmlviewer installed.</source>
@@ -21528,9 +23151,9 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
         <translation></translation>
     </message>
     <message>
-        <source>Meego</source>
-        <comment>Qt Version is meant for Meego</comment>
-        <translation></translation>
+        <source>MeeGo</source>
+        <comment>Qt Version is meant for MeeGo</comment>
+        <translation>MeeGo</translation>
     </message>
     <message>
         <source>Qt Simulator</source>
@@ -21559,6 +23182,21 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
         <source>Qt for WinCE</source>
         <comment>Qt Version is meant for WinCE</comment>
         <translation>Qt для WinCE</translation>
+    </message>
+</context>
+<context>
+    <name>RangeDetails</name>
+    <message>
+        <source>Duration</source>
+        <translation>Продолжительность</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Подробнее</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Размещение</translation>
     </message>
 </context>
 <context>
@@ -21630,46 +23268,71 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractMaemoPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
-        <source>Package up to date.</source>
-        <translation>Пакет уже обновлён.</translation>
+        <source>Deploy to Remote Linux Host</source>
+        <translation>Установить на удалённую машину с Linux</translation>
     </message>
     <message>
-        <source>Creating package file ...</source>
-        <translation>Создание файла пакета...</translation>
+        <source>Linux Devices</source>
+        <translation>Linux-устройства</translation>
     </message>
     <message>
-        <source>Package created.</source>
-        <translation>Пакет создан.</translation>
+        <source>Unknown OS</source>
+        <translation>Неизвестная ОС</translation>
     </message>
     <message>
-        <source>Packaging failed.</source>
-        <translation>Не удалось создать пакет.</translation>
+        <source>(No device)</source>
+        <translation>(Нет устройства)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxApplicationRunner</name>
+    <message>
+        <source>Cannot run: %1</source>
+        <translation>Не удалось выполнить: %1</translation>
     </message>
     <message>
-        <source>Packaging error: No Qt version.</source>
-        <translation>Ошибка создания пакета: профиль Qt не задан.</translation>
+        <source>Could not connect to host: %1</source>
+        <translation>Ну удалось подключиться к узлу: %1</translation>
     </message>
     <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation>Создание пакета: Выполнение команды «%1».</translation>
+        <source>Connection error: %1</source>
+        <translation>Ошибка подключения: %1</translation>
     </message>
     <message>
-        <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation>Ошибка создания пакета: Не удалось выполнить команду «%1» по причине: %2</translation>
+        <source>Killing remote process(es)...</source>
+        <translation>Завершение внешних процессов...</translation>
     </message>
     <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation>Ошибка создания пакета: Команда «%1» завершилась с ошибкой.</translation>
+        <source>Initial cleanup failed: %1</source>
+        <translation>Не удалось выполнить начальную очистку: %1</translation>
     </message>
     <message>
-        <source> Reason: %1</source>
-        <translation> Причина: %1</translation>
+        <source>Remote process started.</source>
+        <translation>Удалённый процесс запущен.</translation>
     </message>
     <message>
-        <source>Exit code: %1</source>
-        <translation>Код завершения: %1</translation>
+        <source>Gathering ports failed: %1
+Continuing anyway.</source>
+        <translation>Не удалось набрать порты: %1
+В любом случае продолжаем.</translation>
+    </message>
+    <message>
+        <source>No remote executable set.</source>
+        <translation>Не задана внешняя программа.</translation>
+    </message>
+    <message>
+        <source>No device configuration set.</source>
+        <translation>Конфигурация устройства не задана.</translation>
+    </message>
+    <message>
+        <source>Connecting to device...</source>
+        <translation>Подключение к устройству...</translation>
+    </message>
+    <message>
+        <source>Error running remote process: %1</source>
+        <translation>Ошибка выполнения внешнего процесса: %1</translation>
     </message>
 </context>
 <context>
@@ -21698,6 +23361,104 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
 </context>
 <context>
+    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <message>
+        <source>No deployment action necessary. Skipping.</source>
+        <translation>Нет необходимости в установке. Пропущено.</translation>
+    </message>
+    <message>
+        <source>No device configuration set.</source>
+        <translation>Конфигурация устройства не задана.</translation>
+    </message>
+    <message>
+        <source>Connecting to device...</source>
+        <translation>Подключение к устройству...</translation>
+    </message>
+    <message>
+        <source>Could not connect to host: %1</source>
+        <translation>Ну удалось подключиться к узлу: %1</translation>
+    </message>
+    <message>
+        <source>
+Did the emulator fail to start?</source>
+        <translation>
+Запуск эмулятора не удался?</translation>
+    </message>
+    <message>
+        <source>
+Is the device connected and set up for network access?</source>
+        <translation>
+Устройство уже подключено? Доступ в сеть настроен?</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>Ошибка подключения: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <message>
+        <source>Deployment failed: %1</source>
+        <translation>Установка не удалась: %1</translation>
+    </message>
+    <message>
+        <source>User requests deployment to stop; cleaning up.</source>
+        <translation>Пользователь потребовал остановить установку; очистка.</translation>
+    </message>
+    <message>
+        <source>Deploy step failed.</source>
+        <translation>Ошибка этапа установки.</translation>
+    </message>
+    <message>
+        <source>Deploy step finished.</source>
+        <translation>Этап установки завершён.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
+    <message>
+        <source>Connection failure: %1</source>
+        <translation>Ошибка подключения: %1</translation>
+    </message>
+    <message>
+        <source>Installing package failed.</source>
+        <translation>Не удалось установить пакет.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxProcessList</name>
+    <message>
+        <source>PID</source>
+        <translation>PID</translation>
+    </message>
+    <message>
+        <source>Command Line</source>
+        <translation>Командная строка</translation>
+    </message>
+    <message>
+        <source>Connection failure: %1</source>
+        <translation>Ошибка подключения: %1</translation>
+    </message>
+    <message>
+        <source>Error: Remote process failed to start: %1</source>
+        <translation>Ошибка: не удалось запустить внешний процесс: %1</translation>
+    </message>
+    <message>
+        <source>Error: Remote process crashed: %1</source>
+        <translation>Ошибка: внешний процесс завершился крахом: %1</translation>
+    </message>
+    <message>
+        <source>Remote process failed.</source>
+        <translation>Внешний процесс завершился с ошибкой.</translation>
+    </message>
+    <message>
+        <source>
+Remote stderr was: %1</source>
+        <translation>
+Содержимое внешнего stderr: %1</translation>
+    </message>
+</context>
+<context>
     <name>RemoteLinux::AbstractRemoteLinuxRunControl</name>
     <message>
         <source>Starting remote process ...
@@ -21713,7 +23474,26 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
 </context>
 <context>
+    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <message>
+        <source>Successfully uploaded package file.</source>
+        <translation>Успешно отправлен файл пакета.</translation>
+    </message>
+    <message>
+        <source>Installing package to device...</source>
+        <translation>Установка пакета на устройство...</translation>
+    </message>
+    <message>
+        <source>Package installed.</source>
+        <translation>Пакет установлен.</translation>
+    </message>
+</context>
+<context>
     <name>RemoteLinux::CreateTarStepWidget</name>
+    <message>
+        <source>Tarball creation not possible.</source>
+        <translation>Создание тарбола невозможно.</translation>
+    </message>
     <message>
         <source>Create tarball:</source>
         <translation>Создание тарбола:</translation>
@@ -21732,6 +23512,67 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <message>
         <source>Remote Directory</source>
         <translation>Внешний каталог</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericDirectUploadService</name>
+    <message>
+        <source>SFTP initialization failed: %1</source>
+        <translation>Не удалось инициализировать SFTP: %1</translation>
+    </message>
+    <message>
+        <source>Upload of file &apos;%1&apos; failed: %2</source>
+        <translation>Ошибка отправки файла «%1»: %2</translation>
+    </message>
+    <message>
+        <source>Failed to upload file &apos;%1&apos;.</source>
+        <translation>Не удалось отправить файл «%1».</translation>
+    </message>
+    <message>
+        <source>Failed to upload file &apos;%1&apos;: Could not open for reading.</source>
+        <translation>Ошибка отправки файла «%1»: не удалось открыть для чтения.</translation>
+    </message>
+    <message>
+        <source>All files successfully deployed.</source>
+        <translation>Все файлы успешно установлены.</translation>
+    </message>
+    <message>
+        <source>Warning: No remote path set for local file &apos;%1&apos;. Skipping upload.</source>
+        <translation>Предупреждение: Не задан удалённый путь для локального файла «%1». Выгрузка пропущена.</translation>
+    </message>
+    <message>
+        <source>Uploading file &apos;%1&apos;...</source>
+        <translation>Отправка файла «%1»...</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericDirectUploadStep</name>
+    <message>
+        <source>Upload files via SFTP</source>
+        <translation>Отправить файлы через SFTP</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericLinuxDeviceConfigurationFactory</name>
+    <message>
+        <source>Generic Linux Device</source>
+        <translation>Обычное Linux-устройство</translation>
+    </message>
+    <message>
+        <source>Generic Linux</source>
+        <translation>Обычный Linux</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Тест</translation>
+    </message>
+    <message>
+        <source>Remote Processes</source>
+        <translation>Внешние процессы</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key</source>
+        <translation>Установить ключ</translation>
     </message>
 </context>
 <context>
@@ -21760,219 +23601,85 @@ In addition, device connectivity will be tested.</source>
         <source>Connection Data</source>
         <translation>Данные соединения</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractDebBasedQt4MaemoTarget</name>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation>Файл журнала изменений Debian «%1» имеет неожиданный формат.</translation>
-    </message>
-    <message>
-        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
-        <translation>Не удалось обновить файл changelog: Уже содержит версию «%1».</translation>
-    </message>
-    <message>
-        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
-        <translation>Не удалось обновить changelog: Неверный формат (нет записи о разработчике).</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation>Неверные данные значка в управляющем файле Debian.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation>Невозможно прочитать файл изображения «%1».</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation>Невозможно экспортировать файл изображения «%1».</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: No Qt version set</source>
-        <translation>Не удалось создать шаблоны Debian: профиль Qt не задан</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation>Не удалось создать шаблоны Debian: ошибка dh_make (%1)</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation>Не удалось создать шаблоны debian: ошибка dh_make (%1)</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation>Невозможно переместить новый каталог debian в «%1».</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoDeployByMountStep</name>
-    <message>
-        <source>Installing package to device...</source>
-        <translation>Установка пакета на устройство...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoDeployStep</name>
-    <message>
-        <source>Operation canceled by user, cleaning up...</source>
-        <translation>Операция отменена пользователем, очистка...</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: Still cleaning up from last time.</source>
-        <translation>Невозможно установить: всё ещё идёт очистка с предыдущего раза.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation>Не удалось установить: Qemu ещё не работает. Он перейдёт в состояние готовности через некоторое время. Повторите попытку позже.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation>Не удалось установить: Попытка установить в Qemu, но он не включён для этого профиля Qt.</translation>
-    </message>
-    <message>
-        <source>All files up to date, no installation necessary.</source>
-        <translation>Все файлы уже обновлены, установка не требуется.</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation>Ошибка подключения: %1</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation>Подключение к устройству...</translation>
-    </message>
-    <message>
-        <source>Deployment failed.</source>
-        <translation>Установка не удалась.</translation>
-    </message>
-    <message>
-        <source>Deployment finished.</source>
-        <translation>Установка завершена.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
-    <message>
-        <source>Cannot install to sysroot without build configuration.</source>
-        <translation>Невозможно установить в sysroot без конфигурации сборки.</translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without packaging step.</source>
-        <translation>Невозможно установить в sysroot без этапа создания пакета.</translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without a Qt version.</source>
-        <translation>Невозможно установить в sysroot без задания профиля Qt.</translation>
-    </message>
-    <message>
-        <source>Installing package to sysroot ...</source>
-        <translation>Установка пакета в sysroot...</translation>
-    </message>
-    <message>
-        <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation>Не удалось установить в sysroot, в любом случае продолжаем.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
-    <message>
-        <source>Cannot deploy to sysroot: No packaging step found.</source>
-        <translation>Не удалось установить в sysroot: этап создания пакета не найден.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoPackageInstaller</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation>Ошибка подключения: %1</translation>
-    </message>
-    <message>
-        <source>Installing package failed.</source>
-        <translation>Не удалось установить пакет.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoUploadAndInstallStep</name>
-    <message>
-        <source>No matching packaging step found.</source>
-        <translation>Не найден подходящий этап создания пакета.</translation>
-    </message>
-    <message>
-        <source>Successfully uploaded package file.</source>
-        <translation>Успешно отправлен файл пакета.</translation>
-    </message>
-    <message>
-        <source>Installing package to device...</source>
-        <translation>Установка пакета на устройство...</translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation>Пакет установлен.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractQt4MaemoTarget</name>
-    <message>
-        <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation>Невозможно открыть файл «%1»: %2</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
-        <translation>Желаете удалить файлы сборки пакета связанные с целью «%1»?</translation>
-    </message>
-    <message>
-        <source>Error creating packaging directory &apos;%1&apos;.</source>
-        <translation>Ошибка создания временного каталога «%1».</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation>&lt;html&gt;Qt Creator создал следующие файлы для включения создания пакетов:
-   %1
-Добавить их в проект?&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Error creating MeeGo templates</source>
-        <translation>Ошибка создания шаблонов MeeGo</translation>
-    </message>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation>Добавить в проект файлы создания пакета</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationFactory</name>
     <message>
         <source>Generic Linux Device</source>
         <translation>Обычное Linux-устройство</translation>
     </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericLinuxDeviceTester</name>
     <message>
-        <source>Generic Linux</source>
-        <translation>Обычный Linux</translation>
+        <source>Connecting to host...</source>
+        <translation>Подключение к узлу...</translation>
     </message>
     <message>
-        <source>Test</source>
-        <translation>Проверка</translation>
+        <source>SSH connection failure: %1
+</source>
+        <translation>Не удалось установить подключение SSH: %1</translation>
     </message>
     <message>
-        <source>Remote Processes</source>
-        <translation>Внешние процессы</translation>
+        <source>uname failed: %1
+</source>
+        <translation>Команда uname завершилась с ошибкой: %1</translation>
     </message>
     <message>
-        <source>Deploy Public Key</source>
-        <translation>Установить ключ</translation>
+        <source>uname failed.
+</source>
+        <translation>Команда uname завершилась с ошибкой.</translation>
+    </message>
+    <message>
+        <source>Checking if specified ports are available...</source>
+        <translation>Проверка на доступность указанных портов...</translation>
+    </message>
+    <message>
+        <source>Error gathering ports: %1
+</source>
+        <translation>Ошибка резервирования портов: %1</translation>
+    </message>
+    <message>
+        <source>The following specified ports are currently in use: %1
+</source>
+        <translation>Следующие указанные порты уже используются: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurations</name>
+    <name>RemoteLinux::GenericRemoteLinuxCustomCommandDeploymentStep</name>
     <message>
-        <source>(default for %1)</source>
-        <translation>(по умолчанию для %1)</translation>
+        <source>Run custom remote command</source>
+        <translation>Выполнить особую внешную команду</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::ConfigWidget</name>
+    <message>
+        <source>Incremental deployment</source>
+        <translation>Инкрементальная установка</translation>
+    </message>
+    <message>
+        <source>Command line:</source>
+        <translation>Командная строка:</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsPage</name>
+    <message>
+        <source>Device Configurations</source>
+        <translation>Конфигурации устройств</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</name>
+    <message>
+        <source>You will need at least one port.</source>
+        <translation>Требуется хотя бы один порт.</translation>
+    </message>
+    <message>
+        <source>Physical Device</source>
+        <translation>Физическое устройство</translation>
+    </message>
+    <message>
+        <source>Emulator</source>
+        <translation>Эмулятор</translation>
     </message>
 </context>
 <context>
@@ -21983,377 +23690,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaddeDeviceConfigurationFactory</name>
-    <message>
-        <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
-        <translation>Устройство с поддержкой MADDE (Fremantle, Harmattan, MeeGo)</translation>
-    </message>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Other MeeGo OS</source>
-        <translation>Другия ОС семейства MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoConfigTestDialog</name>
-    <message>
-        <source>Testing configuration. This may take a while.</source>
-        <translation>Проверка конфигурации. Это может занять время.</translation>
-    </message>
-    <message>
-        <source>Testing configuration...</source>
-        <translation>Тестовая конфигурация...</translation>
-    </message>
-    <message>
-        <source>Stop Test</source>
-        <translation>Остановить проверку</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation>Ну удалось подключиться к узлу: %1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation>
-Qemu уже запущен?</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation>Внешний процесс завершился с ошибкой: %1</translation>
-    </message>
-    <message>
-        <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
-        <translation>Неподходящий профиль Qt! Требуется Qt на устройстве: 4.6.2 и выше.</translation>
-    </message>
-    <message>
-        <source>%1 is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
-        <translation>%1 не установлен.&lt;br&gt;Установка на это устройство невозможна.</translation>
-    </message>
-    <message>
-        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translation>Переключите устройство в режим разработчика в Settings -&gt; Security.</translation>
-    </message>
-    <message>
-        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.</source>
-        <translation>Отсутствует каталог «%1». Невозможно отлаживать QML на этом устройстве.</translation>
-    </message>
-    <message>
-        <source>Error retrieving list of used ports: %1</source>
-        <translation>Ошибка получения списка используемых портов: %1</translation>
-    </message>
-    <message>
-        <source>All specified ports are available.</source>
-        <translation>Все указанные порты доступны.</translation>
-    </message>
-    <message>
-        <source>The following supposedly free ports are being used on the device:</source>
-        <translation>На устройстве используются следующие обычно свободные порты:</translation>
-    </message>
-    <message>
-        <source>Device configuration okay.</source>
-        <translation>Конфигурация устройства в порядке.</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
-    </message>
-    <message>
-        <source>Device configuration test failed: Unexpected output:
-%1</source>
-        <translation>Ошибка при проверке настройки устройства: неожиданный результат:
-%1</translation>
-    </message>
-    <message>
-        <source>Hardware architecture: %1
-</source>
-        <translation>Аппаратная архитектура: %1
-</translation>
-    </message>
-    <message>
-        <source>Kernel version: %1
-</source>
-        <translation>Версия ядра: %1
-</translation>
-    </message>
-    <message>
-        <source>No Qt packages installed.</source>
-        <translation>Пакеты Qt не установлены.</translation>
-    </message>
-    <message>
-        <source>List of installed Qt packages:</source>
-        <translation>Список установленых пакетов Qt:</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoCopyToSysrootStep</name>
-    <message>
-        <source>Cannot copy to sysroot without build configuration.</source>
-        <translation>Невозможно скопировать в sysroot без конфигурации сборки.</translation>
-    </message>
-    <message>
-        <source>Cannot copy to sysroot without valid Qt version.</source>
-        <translation>Невозможно скопировать в sysroot без подходящей версии Qt.</translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot ...</source>
-        <translation>Копирование файлов в sysroot...</translation>
-    </message>
-    <message>
-        <source>Sysroot installation failed: %1
- Continuing anyway.</source>
-        <translation>Не удалось установить в sysroot: %1
- Всё равно продолжаем.</translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>Скопировать файлы в sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDebianPackageInstaller</name>
-    <message>
-        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation>Установка не удалась: была попытка установить пакет с версией ниже текущей, а это не разрешено.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeployConfigurationWidget</name>
-    <message>
-        <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
-        <translation>Выберите значок (если надо, размер будет изменён до %1x%1)</translation>
-    </message>
-    <message>
-        <source>Invalid Icon</source>
-        <translation>Неверный значок</translation>
-    </message>
-    <message>
-        <source>Unable to read image</source>
-        <translation>Не удалось прочитать изображение</translation>
-    </message>
-    <message>
-        <source>Failed to Save Icon</source>
-        <translation>Не удалось сохранить значок</translation>
-    </message>
-    <message>
-        <source>Could not save icon to &apos;%1&apos;.</source>
-        <translation>Не удалось сохранить значок в «%1».</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeployStepBaseWidget</name>
-    <message>
-        <source>Cannot deploy: %1</source>
-        <translation>Не удалось установить: %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
-        <translation>&lt;b&gt;%1 использует устройство&lt;/b&gt;: %2</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Ошибка подключения: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizard</name>
-    <message>
-        <source>New Device Configuration Setup</source>
-        <translation>Настройка новой конфигурации устройства</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardFinalPage</name>
-    <message>
-        <source>The new device configuration will now be created.</source>
-        <translation>Будет создана конфигурация нового устройства.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
-    <message>
-        <source>Key Creation</source>
-        <translation>Создание ключей</translation>
-    </message>
-    <message>
-        <source>Cannot Create Keys</source>
-        <translation>Не удалось создать ключи</translation>
-    </message>
-    <message>
-        <source>The path you have entered is not a directory.</source>
-        <translation>Введённый путь не является каталогом.</translation>
-    </message>
-    <message>
-        <source>The directory you have entered does not exist and cannot be created.</source>
-        <translation>Введённый каталог не существует и не может быть создан.</translation>
-    </message>
-    <message>
-        <source>Creating keys ... </source>
-        <translation>Создание ключей... </translation>
-    </message>
-    <message>
-        <source>Key creation failed: %1</source>
-        <translation>Не удалось создать ключи: %1</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Готово.</translation>
-    </message>
-    <message>
-        <source>Could Not Save Key File</source>
-        <translation>Не удалось сохранить файл ключа</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
-    <message>
-        <source>Key Deployment</source>
-        <translation>Установка ключа</translation>
-    </message>
-    <message>
-        <source>Deploying... </source>
-        <translation>Установка...</translation>
-    </message>
-    <message>
-        <source>Key Deployment Failure</source>
-        <translation>Не удалось установить ключ</translation>
-    </message>
-    <message>
-        <source>Key Deployment Success</source>
-        <translation>Ключ успешно установлен</translation>
-    </message>
-    <message>
-        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
-        <translation>Ключ был успешно установлен. Теперь можно закрыть приложение «%1» и продолжить.</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Готово.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
-    <message>
-        <source>Device Status Check</source>
-        <translation>Проверка состояния устройства</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
-    <message>
-        <source>Existing Keys Check</source>
-        <translation>Проверка существующих ключей</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardStartPage</name>
-    <message>
-        <source>General Information</source>
-        <translation>Общая информация</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsPage</name>
-    <message>
-        <source>Device Configurations</source>
-        <translation>Конфигурации устройств</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Physical Device</source>
-        <translation>Физическое устройство</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation>Эмулятор</translation>
-    </message>
-    <message>
-        <source>You will need at least one port.</source>
-        <translation>Требуется хотя бы один порт.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceEnvReader</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation>Ошибка подключения: %1</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation>Ошибка выполнения внешнего процесса: %1</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: &apos;%1&apos;</source>
-        <translation>
-Удалённые сообщения об ошибках: «%1»</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDirectDeviceUploadStep</name>
-    <message>
-        <source>SFTP initialization failed: %1</source>
-        <translation>Не удалось инициализировать SFTP: %1</translation>
-    </message>
-    <message>
-        <source>All files successfully deployed.</source>
-        <translation>Все файлы успешно установлены.</translation>
-    </message>
-    <message>
-        <source>Uploading file &apos;%1&apos;...</source>
-        <translation>Отправка файла «%1»...</translation>
-    </message>
-    <message>
-        <source>Failed to upload file &apos;%1&apos;.</source>
-        <translation>Не удалось отправить файл «%1».</translation>
-    </message>
-    <message>
-        <source>Failed to upload file &apos;%1&apos;: Could not open for reading.</source>
-        <translation>Ошибка отправки файла «%1»: не удалось открыть для чтения.</translation>
-    </message>
-    <message>
-        <source>Upload of file &apos;%1&apos; failed: %2</source>
-        <translation>Ошибка отправки файла «%1»: %2</translation>
-    </message>
-    <message>
-        <source>Upload files via SFTP</source>
-        <translation>Отправить файлы через SFTP</translation>
-    </message>
-</context>
-<context>
     <name>RemoteLinux::Internal::MaemoGlobal</name>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation>Ну удалось подключиться к узлу: %1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation>
-Qemu уже запущен?</translation>
-    </message>
-    <message>
-        <source>
-Is the device connected and set up for network access?</source>
-        <translation>
-Устройство уже подключено? Доступ в сеть настроен?</translation>
-    </message>
-    <message>
-        <source>(No device)</source>
-        <translation>(Нет устройства)</translation>
-    </message>
     <message>
         <source>SDK Connectivity</source>
         <translation></translation>
@@ -22361,72 +23698,6 @@ Is the device connected and set up for network access?</source>
     <message>
         <source>Mad Developer</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>Unknown OS</source>
-        <translation>Неизвестная ОС</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoInstallDebianPackageToSysrootStep</name>
-    <message>
-        <source>Install Debian package to sysroot</source>
-        <translation>Установить пакет Debian в sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoInstallRpmPackageToSysrootStep</name>
-    <message>
-        <source>Install RPM package to sysroot</source>
-        <translation>Установить пакет RPM в sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoKeyDeployer</name>
-    <message>
-        <source>Public key error: %1</source>
-        <translation>Ошибка открытого ключа: %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Ошибка подключения: %1</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1.</source>
-        <translation>Не удалось установить ключ: %1.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>Скопировать файлы в sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoMountAndCopyDeployStep</name>
-    <message>
-        <source>All files copied.</source>
-        <translation>Все файлы скопированы.</translation>
-    </message>
-    <message>
-        <source>Deploy files via UTFS mount</source>
-        <translation>Установить файлы через монтирование UTFS</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoMountAndInstallDeployStep</name>
-    <message>
-        <source>No matching packaging step found.</source>
-        <translation>Не найден подходящий этап создания пакета.</translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation>Пакет установлен.</translation>
-    </message>
-    <message>
-        <source>Deploy package via UTFS mount</source>
-        <translation>Установить пакет через монтирование UTFS</translation>
     </message>
 </context>
 <context>
@@ -22439,64 +23710,9 @@ Is the device connected and set up for network access?</source>
         <source>Create RPM Package</source>
         <translation>Создание пакета RPM</translation>
     </message>
-    <message>
-        <source>Create tarball</source>
-        <translation>Создание тарбола</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationWidget</name>
-    <message>
-        <source>Size should be %1x%2 pixels</source>
-        <translation>Размер должен быть %1x%2 пикселей</translation>
-    </message>
-    <message>
-        <source>No Version Available.</source>
-        <translation>Версия отсутствует.</translation>
-    </message>
-    <message>
-        <source>Could not read icon</source>
-        <translation>Невозможно прочитать значок</translation>
-    </message>
-    <message>
-        <source>Images</source>
-        <translation>Изображения</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
-        <translation>Выбор изображения (при необходимости будет растянуто до 48х48 пикселей)</translation>
-    </message>
-    <message>
-        <source>Could Not Set New Icon</source>
-        <translation>Невозможно установить новый значок</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Ошибка файла</translation>
-    </message>
-    <message>
-        <source>Could not set project name.</source>
-        <translation>Не удалось задать имя проекта.</translation>
-    </message>
-    <message>
-        <source>Could not set package name for project manager.</source>
-        <translation>Не удалось задать имя пакета для менеджера пакетов.</translation>
-    </message>
-    <message>
-        <source>Could not set project description.</source>
-        <translation>Не удалось задать описание проекта.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Создать пакет:&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>Could Not Set Version Number</source>
-        <translation>Невозможно задать новый номер версии</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPackageUploader</name>
+    <name>RemoteLinux::Internal::PackageUploader</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Подготовка подключения SFTP...</translation>
@@ -22519,587 +23735,38 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
-    <message>
-        <source>(default)</source>
-        <translation>(по умолчанию)</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoProFilesUpdateDialog</name>
+    <name>RemoteLinux::Internal::ProFilesUpdateDialog</name>
     <message>
         <source>Updateable Project Files</source>
         <translation>Обновляемые файлы проекта</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation>Включать в пакет</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation>Включать</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation>Не включать</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublisherFremantleFree</name>
-    <message>
-        <source>Canceled.</source>
-        <translation>Отменено.</translation>
-    </message>
-    <message>
-        <source>Publishing canceled by user.</source>
-        <translation>Публикация отменена пользователем.</translation>
-    </message>
-    <message>
-        <source>The project is missing some information important to publishing:</source>
-        <translation>У проекта отсутствует информация, необходимая для публикации:</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Missing project information.</source>
-        <translation>Не удалось опубликовать: отсутствует информация о проекте.</translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory ...</source>
-        <translation>Удаление временного каталога...</translation>
-    </message>
-    <message>
-        <source>Error removing temporary directory: %1</source>
-        <translation>Ошибка удаления временного каталога: %1</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create source package.</source>
-        <translation>Не удалось опубликовать: не удалось создать архив исходников.</translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory ...</source>
-        <translation>Подготовка временного каталога...</translation>
-    </message>
-    <message>
-        <source>Error: Could not create temporary directory.</source>
-        <translation>Ошибка: не удалось создать временный каталог.</translation>
-    </message>
-    <message>
-        <source>Error: Could not copy project directory.</source>
-        <translation>Ошибка: не удалось скопировать каталог проекта.</translation>
-    </message>
-    <message>
-        <source>Error: Could not fix newlines.</source>
-        <translation>Ошибка:не удалось исправить окончания строк.</translation>
-    </message>
-    <message>
-        <source>No Qt version set.</source>
-        <translation>Профиль Qt не задан.</translation>
-    </message>
-    <message>
-        <source>Error uploading file: %1.</source>
-        <translation>Ошибка отправки файла: %1.</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1.</source>
-        <translation>Не удалось открыть файл для чтения: %1.</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create package.</source>
-        <translation>Не удалось опубликовать: не удалось создать пакет.</translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory ...</source>
-        <translation>Очистка временного каталога...</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation>Не удалось создать каталог «%1».</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
-        <translation>Не удалось скопировать файл «%1» в «%2»: %3.</translation>
-    </message>
-    <message>
-        <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation>Ошибка: не удалось запустить dpkg-buildpackage.</translation>
-    </message>
-    <message>
-        <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation>Ошибка: dpkg-buildpackage завершился с ошибкой.</translation>
-    </message>
-    <message>
-        <source>Package creation failed.</source>
-        <translation>Не удалось создать пакет.</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Готово.</translation>
-    </message>
-    <message>
-        <source>Packaging finished successfully. The following files were created:
-</source>
-        <translation>Создание пакета успешно завершено. Созданы следующие файлы:
-</translation>
-    </message>
-    <message>
-        <source>Building source package...</source>
-        <translation>Создание пакета исходников...</translation>
-    </message>
-    <message>
-        <source>Starting scp ...</source>
-        <translation>Запуск scp...</translation>
-    </message>
-    <message>
-        <source>SSH error: %1</source>
-        <translation>Ошибка SSH: %1</translation>
-    </message>
-    <message>
-        <source>Upload failed.</source>
-        <translation>Отправка не удалась.</translation>
-    </message>
-    <message>
-        <source>Error uploading file.</source>
-        <translation>Ошибка отправки файла.</translation>
-    </message>
-    <message>
-        <source>All files uploaded.</source>
-        <translation>Все файлы отправлены.</translation>
-    </message>
-    <message>
-        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation>Отправка успешно завершена. Скоро придёт электронное письмо с результатом сборки.</translation>
-    </message>
-    <message>
-        <source>Uploading file %1 ...</source>
-        <translation>Отправка файла %1...</translation>
-    </message>
-    <message>
-        <source>Cannot read file: %1</source>
-        <translation>Не удалось прочитать файл: %1</translation>
-    </message>
-    <message>
-        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Описание проекта пусто. Необходимо задать его в Проекты -&gt; Запуск -&gt; Создание пакета -&gt; Подробнее.</translation>
-    </message>
-    <message>
-        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Описание «%1», возможно не то, что ожидается. Смените его в Проекты -&gt; Запуск -&gt; Создание пакета -&gt; Подробнее.</translation>
-    </message>
-    <message>
-        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Значок для менеджера пакетов не задан. Он должен быть задан в Проекты -&gt; Запуск -&gt; Создание пакета -&gt; Подробнее.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation>Публикация в хранилище «Extras-devel/free» от Fremantle</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation>Настройки отправки</translation>
-    </message>
-    <message>
-        <source>Choose a private key file</source>
-        <translation>Выберите секретный ключ</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
-    <message>
-        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation>Публикация в хранилище «Extras-devel/free» от Fremantle</translation>
-    </message>
-    <message>
-        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation>Этот мастер создаст архив исходников и отправит (опционально) их на сервер сборки, где проект будет скомпилирован и собран в пакет, а затем помещён в хранилище «Extras-devel free». Оттуда пользователи смогут установить его на свои устройства N900. Для отправки необходима учётная запись на garage.maemo.org.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation>Публикация в хранилище «Extras-devel/free» от Fremantle</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <translation>Настройки сборки</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>Настройки отправки</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Результат</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoQemuCrashDialog</name>
-    <message>
-        <source>Qemu error</source>
-        <translation>Ошибка Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu crashed.</source>
-        <translation>Qemu завершился крахом.</translation>
-    </message>
-    <message>
-        <source>Click here to change the OpenGL mode.</source>
-        <translation>Щёлкните здесь для смены режима OpenGL.</translation>
-    </message>
-    <message>
-        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation>Qemu настроен на аппаратное ускорение OpenGL, которое, возможно, не поддерживается вашей системой. Попробуйте включить программную отрисовку.</translation>
-    </message>
-    <message>
-        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
-        <translation>Qemu настроен на автоматическое определение режима OpenGL, которое иногда не работает. Попробуйте включить программную отрисовку.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoQemuManager</name>
-    <message>
-        <source>Start MeeGo Emulator</source>
-        <translation>Запустить эмулятор MeeGo</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation>Qemu был завершён, так как был удалён соответствующий ему профиль Qt.</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation>Qemu завершился с ошибкой: код завершения %1.</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation>Ошибка Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation>Qemu не удалось запуститься: %1</translation>
-    </message>
-    <message>
-        <source>Stop MeeGo Emulator</source>
-        <translation>Остановить эмулятор MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoQemuSettingsPage</name>
-    <message>
-        <source>MeeGo Qemu Settings</source>
-        <translation>Настройки Qemu для MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Ошибка подключения: %1</translation>
-    </message>
-    <message>
-        <source>Error: Copy command failed.</source>
-        <translation>Ошибка: Ошибка команды копирования.</translation>
-    </message>
-    <message>
-        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
-        <translation>Копирование файла «%1» в каталог «%2» устройства...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteMounter</name>
-    <message>
-        <source>No directories to mount</source>
-        <translation>Отсутствуют каталоги для монтирования</translation>
-    </message>
-    <message>
-        <source>No directories to unmount</source>
-        <translation>Отсутствуют каталоги для отмонтирования</translation>
-    </message>
-    <message>
-        <source>Could not execute unmount request.</source>
-        <translation>Не удалось выполнить запрос на отмонтирование.</translation>
-    </message>
-    <message>
-        <source>Failure unmounting: %1</source>
-        <translation>Отмонтирование не удалось: %1</translation>
-    </message>
-    <message>
-        <source>Finished unmounting.</source>
-        <translation>Отмонтирование закончено.</translation>
-    </message>
-    <message>
-        <source>
-stderr was: &apos;%1&apos;</source>
-        <translation>
-содержимое stderr: «%1»</translation>
-    </message>
-    <message>
-        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation>Ошибка: на устройстве недостаточно свободных портов для выполнения всех требуемых монтирований.</translation>
-    </message>
-    <message>
-        <source>Starting remote UTFS clients...</source>
-        <translation>Запуск внешнего клиента UTFS...</translation>
-    </message>
-    <message>
-        <source>Mount operation succeeded.</source>
-        <translation>Операция монтирования успешно завершена.</translation>
-    </message>
-    <message>
-        <source>Failure running UTFS client: %1</source>
-        <translation>Ошибка выполнения клиента UTFS: %1</translation>
-    </message>
-    <message>
-        <source>Starting UTFS servers...</source>
-        <translation>Запуск серверов UTFS...</translation>
-    </message>
-    <message>
-        <source>
-stderr was: %1</source>
-        <translation>
-содержимое stderr: %1</translation>
-    </message>
-    <message>
-        <source>Error running UTFS server: %1</source>
-        <translation>Ошибка работы сервера UTFS: %1</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation>Истекло время ожидания подключения серверов UTFS.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteMountsModel</name>
-    <message>
-        <source>Local directory</source>
-        <translation>Локальный каталог</translation>
-    </message>
-    <message>
-        <source>Remote mount point</source>
-        <translation>Внешняя точка монтрования</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessList</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation>Ошибка подключения: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process failed to start: %1</source>
-        <translation>Ошибка: не удалось запустить внешний процесс: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process crashed: %1</source>
-        <translation>Ошибка: внешний процесс завершился крахом: %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed.</source>
-        <translation>Внешний процесс завершился с ошибкой.</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: %1</source>
-        <translation>
-Содержимое внешнего stderr: %1</translation>
-    </message>
-    <message>
-        <source>PID</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Command Line</source>
-        <translation>Командная строка</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessesDialog</name>
-    <message>
-        <source>Remote Error</source>
-        <translation>Удалённая ошибка</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRunConfiguration</name>
-    <message>
-        <source>Not enough free ports on the device.</source>
-        <translation>Недостаточно свободных портов на устройстве.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>Choose directory to mount</source>
-        <translation>Выбор каталога для монтирования</translation>
-    </message>
-    <message>
-        <source>No local directories to be mounted on the device.</source>
-        <translation>Локальные каталоги не смонтированы на устройстве.</translation>
-    </message>
-    <message>
-        <source>One local directory to be mounted on the device.</source>
-        <translation>Один локальный каталог смонтирован на устройстве.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n local directories to be mounted on the device.</source>
-        <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
-        <translation>
-            <numerusform>%n локальный каталог смонтирован на устройстве.</numerusform>
-            <numerusform>%n локальных каталога смонтировано на устройстве.</numerusform>
-            <numerusform>%n локальных каталогов смонтировано на устройстве.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
-        <translation>
-            <numerusform>Предупреждение: попытка подключить %1 каталог(ов), когда у устройства только %n свободный порт.&lt;br&gt;Запустить эту конфигурацию будет невозможно.</numerusform>
-            <numerusform>Предупреждение: попытка подключить %1 каталог(ов), когда у устройства только %n свободных порта.&lt;br&gt;Запустить эту конфигурацию будет невозможно.</numerusform>
-            <numerusform>Предупреждение: попытка подключить %1 каталог(ов), когда у устройства только %n свободных портов.&lt;br&gt;Запустить эту конфигурацию будет невозможно.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
-        <translation>
-            <numerusform>ПРЕДУПРЕЖДЕНИЕ: попытка примонтировать %1 каталог(ов), но во время отладки на устройстве доступен только %n порт.&lt;br&gt;Невозможно отлаживать приложение в этой конфигурации.</numerusform>
-            <numerusform>ПРЕДУПРЕЖДЕНИЕ: попытка примонтировать %1 каталог(ов), но во время отладки на устройстве доступно только %n порта.&lt;br&gt;Невозможно отлаживать приложение в этой конфигурации.</numerusform>
-            <numerusform>ПРЕДУПРЕЖДЕНИЕ: попытка примонтировать %1 каталог(ов), но во время отладки на устройстве доступно только %n портов.&lt;br&gt;Невозможно отлаживать приложение в этой конфигурации.</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRunControlFactory</name>
-    <message>
-        <source>Run on device</source>
-        <translation>Запустить на устройстве</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoSshConfigDialog</name>
-    <message>
-        <source>Save Public Key File</source>
-        <translation>Сохранение файла открытого ключа</translation>
-    </message>
-    <message>
-        <source>Save Private Key File</source>
-        <translation>Сохранение файла секретного ключа</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoSshRunner</name>
-    <message>
-        <source>Mounting host directories...</source>
-        <translation>Монтирование каталогов компьютера...</translation>
-    </message>
-    <message>
-        <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation>Qemu ещё не запущен. Он перейдёт в состояние готовности через некоторое время. Попробуйте позже.</translation>
-    </message>
-    <message>
-        <source>You want to run on Qemu, but it is not enabled for this Qt version.</source>
-        <translation>Попытка запустить в Qemu, но он не включён для этого профиля Qt.</translation>
-    </message>
-    <message>
-        <source>Potentially unmounting left-over host directory mounts...</source>
-        <translation>Потенциальное отмонтирование оставшихся каталогов компьютера...</translation>
-    </message>
-    <message>
-        <source>Unmounting host directories...</source>
-        <translation>Отмонтирование каталогов компьютера...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoToolChainConfigWidget</name>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Путь к MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Путь к цели MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Отладчик:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoToolChainFactory</name>
-    <message>
-        <source>Maemo GCC</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Maemo GCC for %1</source>
-        <translation>Maemo GCC для %1</translation>
-    </message>
-    <message>
-        <source>%1 GCC (%2)</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallDpkgPackageStep</name>
-    <message>
-        <source>Deploy Debian package via SFTP upload</source>
-        <translation>Установить пакет Debian через загрузку по SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallRpmPackageStep</name>
-    <message>
-        <source>Deploy RPM package via SFTP upload</source>
-        <translation>Установить пакет RPM через загрузку по SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallTarPackageStep</name>
-    <message>
-        <source>Deploy tarball via SFTP upload</source>
-        <translation>Установить тарбол через загрузку по SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUsedPortsGatherer</name>
+    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
     <message>
         <source>Connection error: %1</source>
         <translation>Ошибка подключения: %1</translation>
     </message>
     <message>
-        <source>Could not start remote process: %1</source>
-        <translation>Невозможно запустить внешний процесс: %1</translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation>Внешний процесс завершился крахом: %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation>Внешний процесс завершился с ошибкой: %1</translation>
+        <source>Error running remote process: %1</source>
+        <translation>Ошибка выполнения внешнего процесса: %1</translation>
     </message>
     <message>
         <source>
-Remote error output was: %1</source>
+Remote stderr was: &apos;%1&apos;</source>
         <translation>
-Внешний вывод ошибок: %1</translation>
+Удалённые сообщения об ошибках: «%1»</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::Qt4MaemoDeployConfigurationFactory</name>
+    <name>RemoteLinux::Internal::RemoteLinuxPlugin</name>
     <message>
-        <source>Copy Files to Maemo5 Device</source>
-        <translation>Копирование файлов на устройство Maemo5</translation>
+        <source>Start Remote Debug Server...</source>
+        <translation>Запустить сервер удалённой отладки...</translation>
     </message>
     <message>
-        <source>Build Debian Package and Install to Maemo5 Device</source>
-        <translation>Создание пакета Debian и установка на устройство Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Harmattan Device</source>
-        <translation>Создание пакета Debian и установка на устройство Harmattan</translation>
-    </message>
-    <message>
-        <source>Build RPM Package and Install to MeeGo Device</source>
-        <translation>Создание пакета RPM и установка на устройство Meego</translation>
-    </message>
-    <message>
-        <source>Build Tarball and Install to Linux Host</source>
-        <translation>Создание тарбола и установка на машину с Linux</translation>
+        <source>Start Gdbserver</source>
+        <translation>Запустить Gdbserver</translation>
     </message>
 </context>
 <context>
@@ -23117,92 +23784,43 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MaemoDebianPackageCreationStep</name>
+    <name>RemoteLinux::Internal::SshKeyCreationDialog</name>
     <message>
-        <source>Create Debian Package</source>
-        <translation>Создать пакет Debian</translation>
+        <source>Save Public Key File</source>
+        <translation>Сохранение файла открытого ключа</translation>
     </message>
     <message>
-        <source>Packaging failed.</source>
-        <translation>Не удалось создать пакет.</translation>
-    </message>
-    <message>
-        <source>Could not move package files from %1 to %2.</source>
-        <translation>Не удалось переместить файлы пакета из %1 в %2.</translation>
-    </message>
-    <message>
-        <source>Your project name contains characters not allowed in Debian packages.
-They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
-We will try to work around that, but you may experience problems.</source>
-        <translation>Название проекта содержит недопустимые для пакетов Debian символы.
-Допустимы только буквы в нижнем регистре, числа, «-», «+» и «.».
-Будет предпринята попытка обойти это, но могут возникнуть проблемы.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected.</source>
-        <translation>Не удалось создать пакет: обнаружен другой каталог debian.</translation>
-    </message>
-    <message>
-        <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation>Теневая сборка не используется, а в корневом каталоге проекта («%1») находится каталог dibian. Qt Creator не будет его перезаписывать. Этот каталог следует удалить или использовать теневую сборку.</translation>
-    </message>
-    <message>
-        <source>Could not remove directory &apos;%1&apos;: %2</source>
-        <translation>Не удалось удалить каталог «%1»: %2</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation>Невозможно создать каталог Debian «%1».</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation>Невозможно скопировать файл «%1» в «%2»</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation>Ошибка: Невозможно создать файл «%1».</translation>
+        <source>Save Private Key File</source>
+        <translation>Сохранение файла секретного ключа</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MaemoRpmPackageCreationStep</name>
+    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
     <message>
-        <source>Create RPM Package</source>
-        <translation>Создание пакета RPM</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation>Не удалось создать пакет.</translation>
-    </message>
-    <message>
-        <source>Could not move package file from %1 to %2.</source>
-        <translation>Не удалось переместить файл пакета из %1 в %2.</translation>
+        <source>(default)</source>
+        <translation>(по умолчанию)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MaemoTarPackageCreationStep</name>
+    <name>RemoteLinux::LinuxDeviceConfigurations</name>
     <message>
-        <source>Create tarball</source>
-        <translation>Создание тарбола</translation>
+        <source>(default for %1)</source>
+        <translation>(по умолчанию для %1)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::LinuxDeviceTestDialog</name>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
     </message>
     <message>
-        <source>Error: tar file %1 cannot be opened (%2).</source>
-        <translation>Ошибка: невозможно открыть архив tar %1 (%2).</translation>
+        <source>Device test finished successfully.</source>
+        <translation>Проверка устройства успешно завершена.</translation>
     </message>
     <message>
-        <source>Error writing tar file &apos;%1&apos;: %2.</source>
-        <translation>Ошибка записи архива tar «%1»: %2.</translation>
-    </message>
-    <message>
-        <source>Error reading file &apos;%1&apos;: %2.</source>
-        <translation>Ошибка чтения архива tar «%1»: %2.</translation>
-    </message>
-    <message>
-        <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
-        <translation>Не удалось добавить файл «%1» в архив tar: путь слишком длинный.</translation>
-    </message>
-    <message>
-        <source>Error writing tar file &apos;%1&apos;: %2</source>
-        <translation>Ошибка записи архива tar «%1»: %2</translation>
+        <source>Device test failed.</source>
+        <translation>Проверка устройства завершена с ошибкой.</translation>
     </message>
 </context>
 <context>
@@ -23233,42 +23851,44 @@ We will try to work around that, but you may experience problems.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxApplicationRunner</name>
+    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
     <message>
-        <source>Cannot run: %1</source>
-        <translation>Не удалось выполнить: %1</translation>
+        <source>No command line given.</source>
+        <translation>Командная строка не задана.</translation>
     </message>
     <message>
-        <source>Connecting to device...</source>
-        <translation>Подключение к устройству...</translation>
+        <source>Starting remote command &apos;%1&apos;...</source>
+        <translation>Запуск внешней команды «%1»...</translation>
     </message>
     <message>
-        <source>Connection error: %1</source>
-        <translation>Ошибка подключения: %1</translation>
+        <source>Remote process failed to start.</source>
+        <translation>Внешний процесс не смог запуститься.</translation>
     </message>
     <message>
-        <source>Killing remote process(es)...</source>
-        <translation>Завершение внешних процессов...</translation>
+        <source>Remote process was killed by a signal.</source>
+        <translation>Внешний процесс был завершён сигналом.</translation>
     </message>
     <message>
-        <source>Initial cleanup failed: %1</source>
-        <translation>Не удалось выполнить начальную очистку: %1</translation>
+        <source>Remote process finished with exit code %1.</source>
+        <translation>Внешний процесс завершился с кодом %1.</translation>
     </message>
     <message>
-        <source>Remote process started.</source>
-        <translation>Удалённый процесс запущен.</translation>
+        <source>Remote command finished successfully.</source>
+        <translation>Внешняя команда успешно завершилась.</translation>
     </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxDeployStepWidget</name>
     <message>
-        <source>No remote executable set.</source>
-        <translation>Не задана внешняя программа.</translation>
+        <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
+        <translation>&lt;b&gt;%1 использует устройство&lt;/b&gt;: %2</translation>
     </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxProcessesDialog</name>
     <message>
-        <source>No device configuration set.</source>
-        <translation>Конфигурация устройства не задана.</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation>Ошибка выполнения внешнего процесса: %1</translation>
+        <source>Remote Error</source>
+        <translation>Удалённая ошибка</translation>
     </message>
 </context>
 <context>
@@ -23294,9 +23914,14 @@ We will try to work around that, but you may experience problems.</source>
         <translation>Не понятно что запустить.</translation>
     </message>
     <message>
-        <source>Run on remote device</source>
+        <source>%1 (on Remote Device)</source>
+        <extracomment>%1 is the name of a project which is being run on remote Linux</extracomment>
+        <translation>%1 (на внешнем устройстве)</translation>
+    </message>
+    <message>
+        <source>Run on Remote Device</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
-        <translation>Запуск на удалённом устройстве</translation>
+        <translation>Запуск на внешнем устройстве</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -23332,6 +23957,14 @@ We will try to work around that, but you may experience problems.</source>
     <message>
         <source>Executable on device:</source>
         <translation>Программа на устройстве:</translation>
+    </message>
+    <message>
+        <source>Use this command instead</source>
+        <translation>Используйте эту команду</translation>
+    </message>
+    <message>
+        <source>Alternate executable on device:</source>
+        <translation>Сменить программу на устройстве:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -23370,12 +24003,183 @@ We will try to work around that, but you may experience problems.</source>
         <translation>Прервать операцию загрузки</translation>
     </message>
     <message>
-        <source>Device error</source>
+        <source>Device Error</source>
         <translation>Ошибка устройства</translation>
     </message>
     <message>
         <source>Fetching environment failed: %1</source>
         <translation>Не удалось загрузить окружение: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxUsedPortsGatherer</name>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>Ошибка подключения: %1</translation>
+    </message>
+    <message>
+        <source>Could not start remote process: %1</source>
+        <translation>Невозможно запустить внешний процесс: %1</translation>
+    </message>
+    <message>
+        <source>Remote process crashed: %1</source>
+        <translation>Внешний процесс завершился крахом: %1</translation>
+    </message>
+    <message>
+        <source>Remote process failed; exit code was %1.</source>
+        <translation>Внешний процесс завершился с ошибкой; код завершения %1.</translation>
+    </message>
+    <message>
+        <source>
+Remote error output was: %1</source>
+        <translation>
+Внешний вывод ошибок: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::SshKeyDeployer</name>
+    <message>
+        <source>Public key error: %1</source>
+        <translation>Ошибка открытого ключа: %1</translation>
+    </message>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>Ошибка подключения: %1</translation>
+    </message>
+    <message>
+        <source>Key deployment failed: %1.</source>
+        <translation>Не удалось установить ключ: %1.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::StartGdbServerDialog</name>
+    <message>
+        <source>Remote Error</source>
+        <translation>Удалённая ошибка</translation>
+    </message>
+    <message>
+        <source>Could not retrieve list of free ports:</source>
+        <translation>Не удалось получить список свободных портов:</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>Ошибка подключения: %1</translation>
+    </message>
+    <message>
+        <source>Starting gdbserver...</source>
+        <translation>Запускается gdbserver...</translation>
+    </message>
+    <message>
+        <source>Port %1 is now accessible.</source>
+        <translation>Порт %1 сейчас доступен.</translation>
+    </message>
+    <message>
+        <source>Process gdbserver finished. Status: %1</source>
+        <translation>Процесс gdbserver завершился. Статус: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::TarPackageCreationStep</name>
+    <message>
+        <source>Packaging finished successfully.</source>
+        <translation>Пакет успешно создан.</translation>
+    </message>
+    <message>
+        <source>Packaging failed.</source>
+        <translation>Не удалось создать пакет.</translation>
+    </message>
+    <message>
+        <source>Creating tarball...</source>
+        <translation>Создание тарбола...</translation>
+    </message>
+    <message>
+        <source>Tarball up to date, skipping packaging.</source>
+        <translation>Тарбол уже сделан, пропуск пересоздания.</translation>
+    </message>
+    <message>
+        <source>Error: tar file %1 cannot be opened (%2).</source>
+        <translation>Ошибка: невозможно открыть архив tar %1 (%2).</translation>
+    </message>
+    <message>
+        <source>Error writing tar file &apos;%1&apos;: %2.</source>
+        <translation>Ошибка записи архива tar «%1»: %2.</translation>
+    </message>
+    <message>
+        <source>Error reading file &apos;%1&apos;: %2.</source>
+        <translation>Ошибка чтения архива tar «%1»: %2.</translation>
+    </message>
+    <message>
+        <source>Adding file &apos;%1&apos; to tarball...</source>
+        <translation>Добавление файла «%1» в тарбол...</translation>
+    </message>
+    <message>
+        <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
+        <translation>Не удалось добавить файл «%1» в архив tar: путь слишком длинный.</translation>
+    </message>
+    <message>
+        <source>Error writing tar file &apos;%1&apos;: %2</source>
+        <translation>Ошибка записи архива tar «%1»: %2</translation>
+    </message>
+    <message>
+        <source>Create tarball</source>
+        <translation>Создание тарбола</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <message>
+        <source>No tarball creation step found.</source>
+        <translation>Не найден этап сборки тарбола.</translation>
+    </message>
+    <message>
+        <source>Deploy tarball via SFTP upload</source>
+        <translation>Установить тарбол через загрузку по SFTP</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinuxDeployConfigurationWidget</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Device configuration:</source>
+        <translation>Конфигурация устройства:</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;irrelevant&quot;&gt;Управление конфигурациями устройств&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>These show the INSTALLS settings from the project file(s).</source>
+        <translation>Здесь отображаются настройки УСТАНОВКИ из файла(ов) проекта.</translation>
+    </message>
+    <message>
+        <source>Files to install for subproject:</source>
+        <translation>Устанавливать файлы подпроекта:</translation>
+    </message>
+    <message>
+        <source>Edit the project file to add or remove entries.</source>
+        <translation>Изменение файла проекта для добавления/удаления элементов.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinuxProcessesDialog</name>
+    <message>
+        <source>List of Remote Processes</source>
+        <translation>Список внешних процессов</translation>
+    </message>
+    <message>
+        <source>&amp;Filter by process name:</source>
+        <translation>&amp;Отобрать по имени процесса:</translation>
+    </message>
+    <message>
+        <source>&amp;Update List</source>
+        <translation>О&amp;бновить список</translation>
+    </message>
+    <message>
+        <source>&amp;Kill Selected Process</source>
+        <translation>&amp;Завершить процесс</translation>
     </message>
 </context>
 <context>
@@ -23413,20 +24217,6 @@ We will try to work around that, but you may experience problems.</source>
     <message>
         <source>Spacing</source>
         <translation>Отступ</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation>Настройки запуска</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanelFactory</name>
-    <message>
-        <source>Run Settings</source>
-        <translation>Настройки запуска</translation>
     </message>
 </context>
 <context>
@@ -23693,10 +24483,75 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
+    <name>SshKeyCreationDialog</name>
+    <message>
+        <source>SSH Key Configuration</source>
+        <translation>Настройка ключа SSH</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Параметры</translation>
+    </message>
+    <message>
+        <source>Key &amp;size:</source>
+        <translation>&amp;Размер ключа:</translation>
+    </message>
+    <message>
+        <source>Key algorithm:</source>
+        <translation>Алгоритм ключа:</translation>
+    </message>
+    <message>
+        <source>&amp;RSA</source>
+        <translation>&amp;RSA</translation>
+    </message>
+    <message>
+        <source>&amp;DSA</source>
+        <translation>&amp;DSA</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Ключ</translation>
+    </message>
+    <message>
+        <source>&amp;Generate SSH Key</source>
+        <translation>&amp;Создать ключ SSH</translation>
+    </message>
+    <message>
+        <source>Save P&amp;ublic Key...</source>
+        <translation>Сохранить &amp;открытый...</translation>
+    </message>
+    <message>
+        <source>Save Pr&amp;ivate Key...</source>
+        <translation>Сохранить с&amp;екретный...</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>&amp;Закрыть</translation>
+    </message>
+</context>
+<context>
     <name>SshKeyGenerator</name>
     <message>
         <source>Error generating key: %1</source>
         <translation>Ошибка создания ключа: %1</translation>
+    </message>
+    <message>
+        <source>Password for Private Key</source>
+        <translation>Пароль для закрытого ключа</translation>
+    </message>
+    <message>
+        <source>It is recommended that you secure your private key
+with a password, which you can enter below.</source>
+        <translation>Рекомендуется обезопасить свой закрытый ключ
+с помощью пароля, который можно ввести ниже.</translation>
+    </message>
+    <message>
+        <source>Encrypt key file</source>
+        <translation>Закодировать файл ключа</translation>
+    </message>
+    <message>
+        <source>Do not encrypt key file</source>
+        <translation>Не кодировать файл ключа</translation>
     </message>
 </context>
 <context>
@@ -23800,6 +24655,29 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
+    <name>StartGdbServerDialog</name>
+    <message>
+        <source>List of Remote Processes</source>
+        <translation>Список внешних процессов</translation>
+    </message>
+    <message>
+        <source>Device:</source>
+        <translation>Устройство:</translation>
+    </message>
+    <message>
+        <source>&amp;Filter by process name:</source>
+        <translation>&amp;Отобрать по имени процесса:</translation>
+    </message>
+    <message>
+        <source>&amp;Attach to Selected Process</source>
+        <translation>&amp;Подключить к выбранному процессу</translation>
+    </message>
+    <message>
+        <source>&amp;Update List</source>
+        <translation>О&amp;бновить список</translation>
+    </message>
+</context>
+<context>
     <name>StartRemoteDialog</name>
     <message>
         <source>Start Debugger</source>
@@ -23838,8 +24716,12 @@ Server list was %2.</source>
         <translation>Сценарий &amp;запуска сервера:</translation>
     </message>
     <message>
-        <source>Override s&amp;tart script:</source>
-        <translation>Осо&amp;бый сценарий запуска:</translation>
+        <source>Location of debugging information:</source>
+        <translation>Размещение отладочной информации:</translation>
+    </message>
+    <message>
+        <source>Override host GDB s&amp;tart script:</source>
+        <translation>Осо&amp;бый сценарий запуска сервера GDB:</translation>
     </message>
 </context>
 <context>
@@ -24366,10 +25248,6 @@ Server list was %2.</source>
         <translation>безымянный</translation>
     </message>
     <message>
-        <source>Out of memory</source>
-        <translation>Не хватает памяти</translation>
-    </message>
-    <message>
         <source>Opening file</source>
         <translation>Открытие файла</translation>
     </message>
@@ -24418,6 +25296,88 @@ Server list was %2.</source>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Общие</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::CodeStyleEditor</name>
+    <message>
+        <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
+        <translation>Измените текст предпросмотра, чтобы увидеть как текущие настройки влияют на разные участки кода. Изменения предпросмотра не влияют на текущие настройки.</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::CodeStyleSelectorWidget</name>
+    <message>
+        <source>Copy...</source>
+        <translation>Копировать...</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation>Изменить...</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Import...</source>
+        <translation>Импорт...</translation>
+    </message>
+    <message>
+        <source>Export...</source>
+        <translation>Экспорт...</translation>
+    </message>
+    <message>
+        <source>Current settings:</source>
+        <translation>Текущие настройки:</translation>
+    </message>
+    <message>
+        <source>Copy Code Style</source>
+        <translation>Копирование стиля кода</translation>
+    </message>
+    <message>
+        <source>Code style name:</source>
+        <translation>Имя стиля кода:</translation>
+    </message>
+    <message>
+        <source>%1 (Copy)</source>
+        <translation>%1 (копия)</translation>
+    </message>
+    <message>
+        <source>Delete Code Style</source>
+        <translation>Удаление стиля кода</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this code style permanently?</source>
+        <translation>Удалить стиль кода навсегда?</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Import Code Style</source>
+        <translation>Импорт стиля кода</translation>
+    </message>
+    <message>
+        <source>Code styles (*.xml);;All files (*)</source>
+        <translation>Стили кода (*.xml);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <source>Cannot import code style</source>
+        <translation>Не удалось импортировать стиль кода</translation>
+    </message>
+    <message>
+        <source>Export Code Style</source>
+        <translation>Экспорт стиля кода</translation>
+    </message>
+    <message>
+        <source>%1 [proxy: %2]</source>
+        <translation>%1 [прокси: %2]</translation>
+    </message>
+    <message>
+        <source>%1 [built-in]</source>
+        <translation>%1 [встроенный]</translation>
     </message>
 </context>
 <context>
@@ -24480,23 +25440,38 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::FallbackSelectorWidget</name>
+    <name>TextEditor::FindInFiles</name>
     <message>
-        <source>Settings:</source>
-        <translation>Настройки:</translation>
+        <source>Files on File System</source>
+        <translation>Файлы в системе</translation>
     </message>
     <message>
-        <source>Custom</source>
-        <translation>Особые</translation>
+        <source>Directory &apos;%1&apos;:</source>
+        <translation>Каталог «%1»:</translation>
     </message>
     <message>
-        <source>Restore %1</source>
-        <comment>%1 is settings name (e.g. Global C++)</comment>
-        <translation>Восстановить %1</translation>
+        <source>Path: %1
+Filter: %2
+%3</source>
+        <translation>Путь: %1
+Фильтр: %2
+%3</translation>
     </message>
     <message>
-        <source>Restore</source>
-        <translation>Восстановить</translation>
+        <source>Director&amp;y:</source>
+        <translation>&amp;Каталог:</translation>
+    </message>
+    <message>
+        <source>&amp;Browse</source>
+        <translation>&amp;Обзор</translation>
+    </message>
+    <message>
+        <source>Fi&amp;le pattern:</source>
+        <translation>Ш&amp;аблон:</translation>
+    </message>
+    <message>
+        <source>Directory to search</source>
+        <translation>Каталог поиска</translation>
     </message>
 </context>
 <context>
@@ -24556,8 +25531,8 @@ Server list was %2.</source>
         <translation>Общая подсветка</translation>
     </message>
     <message>
-        <source>Download Definitions</source>
-        <translation>Загрузить определения</translation>
+        <source>Download Definitions...</source>
+        <translation>Загрузить определения...</translation>
     </message>
     <message>
         <source>Autodetect</source>
@@ -24578,6 +25553,17 @@ Server list was %2.</source>
     <message>
         <source>Not possible to retrieve data.</source>
         <translation>Не удалось получить данные.</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::CodeStyleDialog</name>
+    <message>
+        <source>Edit Code Style</source>
+        <translation>Изменение стиля кода</translation>
+    </message>
+    <message>
+        <source>Code style name:</source>
+        <translation>Имя стиля кода:</translation>
     </message>
 </context>
 <context>
@@ -24649,28 +25635,15 @@ The following encodings are likely to fit:</source>
         <source>Current File</source>
         <translation>Текущий файл</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
     <message>
-        <source>Files on File System</source>
-        <translation>Файлы в системе</translation>
+        <source>File &apos;%1&apos;:</source>
+        <translation>Файл «%1»:</translation>
     </message>
     <message>
-        <source>&amp;Directory:</source>
-        <translation>&amp;Каталог:</translation>
-    </message>
-    <message>
-        <source>&amp;Browse</source>
-        <translation>&amp;Обзор</translation>
-    </message>
-    <message>
-        <source>File &amp;pattern:</source>
-        <translation>Ш&amp;аблон:</translation>
-    </message>
-    <message>
-        <source>Directory to search</source>
-        <translation>Каталог поиска</translation>
+        <source>File path: %1
+%2</source>
+        <translation>Путь к файлу: %1
+%2</translation>
     </message>
 </context>
 <context>
@@ -24815,8 +25788,8 @@ Please check the directory&apos;s access rights.</source>
         <translation>Не удалось найти определения подсветки для этого файла. Желаете попытаться найте их?</translation>
     </message>
     <message>
-        <source>Show highlighter options</source>
-        <translation>Показать настройки подсветки</translation>
+        <source>Show highlighter options...</source>
+        <translation>Показать настройки подсветки...</translation>
     </message>
 </context>
 <context>
@@ -24935,17 +25908,6 @@ Please check the directory&apos;s access rights.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::TabPreferencesWidget</name>
-    <message>
-        <source>Form</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Tab settings:</source>
-        <translation>Настройки табуляций:</translation>
-    </message>
-</context>
-<context>
     <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
@@ -24956,36 +25918,12 @@ Please check the directory&apos;s access rights.</source>
         <translation>Табуляция и отступы</translation>
     </message>
     <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation>&amp;Пробелы вместо табуляций</translation>
-    </message>
-    <message>
-        <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation>Определять автоматически на основе соседних строк с отступами (предыдущая строка имеет приоритет перед следующей)</translation>
-    </message>
-    <message>
-        <source>Based on the surrounding lines</source>
-        <translation>На основе соседних строк</translation>
-    </message>
-    <message>
         <source>Ta&amp;b size:</source>
         <translation>Размер &amp;табуляции:</translation>
     </message>
     <message>
         <source>&amp;Indent size:</source>
         <translation>Размер отст&amp;упа:</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation>&amp;Автоотступы</translation>
-    </message>
-    <message>
-        <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation>Забой перемещает на позицию, а не на пробел назад.</translation>
-    </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation>&amp;Забой следует отступам</translation>
     </message>
     <message>
         <source>Align continuation lines:</source>
@@ -25056,20 +25994,20 @@ Influences the indentation of continuation lines.
         <translation>Отступами</translation>
     </message>
     <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation>Автоотступ по клавише TAB:</translation>
+        <source>Tab policy:</source>
+        <translation>Выполнять табуляцию:</translation>
     </message>
     <message>
-        <source>Never</source>
-        <translation>Никогда</translation>
+        <source>Spaces Only</source>
+        <translation>Только пробелами</translation>
     </message>
     <message>
-        <source>Always</source>
-        <translation>Всегда</translation>
+        <source>Tabs Only</source>
+        <translation>Только табуляцией</translation>
     </message>
     <message>
-        <source>In Leading White Space</source>
-        <translation>Перед текстом</translation>
+        <source>Mixed</source>
+        <translation>Смешанно</translation>
     </message>
 </context>
 <context>
@@ -25154,6 +26092,22 @@ Influences the indentation of continuation lines.
     <message>
         <source>Delete &amp;Line</source>
         <translation>Удалить строк&amp;у</translation>
+    </message>
+    <message>
+        <source>Delete Word From The Cursor On</source>
+        <translation>Удалить слово под курсором</translation>
+    </message>
+    <message>
+        <source>Delete Word Camel Case From The Cursor On</source>
+        <translation>Удалить слово с учётом верблюжьего регистра под курсором</translation>
+    </message>
+    <message>
+        <source>Delete Word Up To The Cursor</source>
+        <translation>Удалить слово перед курсором</translation>
+    </message>
+    <message>
+        <source>Delete Word Camel Case Up To The Cursor</source>
+        <translation>Удалить слово с учётом верблюжьего регистра перед курсором</translation>
     </message>
     <message>
         <source>Ctrl+&lt;</source>
@@ -25483,6 +26437,50 @@ Influences the indentation of continuation lines.
         <translation>Виртуальный метод</translation>
     </message>
     <message>
+        <source>QML Binding</source>
+        <translation>Привязки QML</translation>
+    </message>
+    <message>
+        <source>QML Local Id</source>
+        <translation>Локальный Id QML</translation>
+    </message>
+    <message>
+        <source>QML Root Object Property</source>
+        <translation>Свойство корневого объекта QML</translation>
+    </message>
+    <message>
+        <source>QML Scope Object Property</source>
+        <translation>Свойство локального объекта QML</translation>
+    </message>
+    <message>
+        <source>QML State Name</source>
+        <translation>Название состояния QML</translation>
+    </message>
+    <message>
+        <source>QML Type Name</source>
+        <translation>Название типа QML</translation>
+    </message>
+    <message>
+        <source>QML External Id</source>
+        <translation>Внешний Id QML</translation>
+    </message>
+    <message>
+        <source>QML External Object Property</source>
+        <translation>Свойство внешнего объекта QML</translation>
+    </message>
+    <message>
+        <source>JavaScript Scope Var</source>
+        <translation>Локальная перменная JavaScript</translation>
+    </message>
+    <message>
+        <source>JavaScript Import</source>
+        <translation>Импорт JavaScript</translation>
+    </message>
+    <message>
+        <source>JavaScript Global Variable</source>
+        <translation>Глобальная переменная JavaScript</translation>
+    </message>
+    <message>
         <source>Keyword</source>
         <translation>Ключевое слово</translation>
     </message>
@@ -25702,6 +26700,17 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
+    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <message>
+        <source>Start Updater</source>
+        <translation>Запустить обновление</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation>Обновление</translation>
+    </message>
+</context>
+<context>
     <name>Utils::CheckableMessageBox</name>
     <message>
         <source>Dialog</source>
@@ -25877,6 +26886,14 @@ Influences the indentation of continuation lines.
     <message>
         <source>Name matches MS Windows device. (%1).</source>
         <translation>Имя совпадает с названием устройства MS Windows (%1).</translation>
+    </message>
+    <message>
+        <source>File extension %1 is required:</source>
+        <translation>Требуется файловое расширение %1:</translation>
+    </message>
+    <message>
+        <source>File extensions %1 are required:</source>
+        <translation>Требуются файловые расширения %1:</translation>
     </message>
 </context>
 <context>
@@ -26341,6 +27358,17 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
+    <name>Utils::Ssh</name>
+    <message>
+        <source>Password Required</source>
+        <translation>Требуется пароль</translation>
+    </message>
+    <message>
+        <source>Please enter the password for your private key.</source>
+        <translation>Введите пароль для вашего закрытого ключа.</translation>
+    </message>
+</context>
+<context>
     <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
@@ -26418,6 +27446,17 @@ Influences the indentation of continuation lines.
     <message>
         <source>Would you like to terminate it?</source>
         <translation>Желаете завершить его?</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::TextFileFormat</name>
+    <message>
+        <source>Out of memory.</source>
+        <translation>Не хватает памяти.</translation>
+    </message>
+    <message>
+        <source>An encoding error was encountered.</source>
+        <translation>Возникла ошибка кодировки.</translation>
     </message>
 </context>
 <context>
@@ -26644,10 +27683,6 @@ Influences the indentation of continuation lines.
         <source>&apos;%1&apos; does not exist.</source>
         <translation>«%1» отсутствует.</translation>
     </message>
-    <message>
-        <source>Unable to open the project &apos;%1&apos;.</source>
-        <translation>Не удалось открыть проект «%1».</translation>
-    </message>
 </context>
 <context>
     <name>VCSBase::BaseCheckoutWizardPage</name>
@@ -26752,6 +27787,17 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
+    <name>VCSBase::Command</name>
+    <message>
+        <source>Error: VCS timed out after %1s.</source>
+        <translation>Ошибка: VCS превысила время ожидания (%1 сек).</translation>
+    </message>
+    <message>
+        <source>Unable to start process, binary is empty</source>
+        <translation>Не удалось запустить процесс - исполняемый файл пуст</translation>
+    </message>
+</context>
+<context>
     <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
@@ -26833,6 +27879,14 @@ Influences the indentation of continuation lines.
 <context>
     <name>VCSBase::VCSBaseClient</name>
     <message>
+        <source>Unable to start process &apos;%1&apos;: %2</source>
+        <translation>Не удалось запустить процесс «%1»: %2</translation>
+    </message>
+    <message>
+        <source>Timed out after %1s waiting for the process %2 to finish.</source>
+        <translation>Вышло время ожидания (%1 сек) завершения процесса %2.</translation>
+    </message>
+    <message>
         <source>Working...</source>
         <translation>Выполнение...</translation>
     </message>
@@ -26856,6 +27910,10 @@ Influences the indentation of continuation lines.
         <translation>Отправить на CodePaster...</translation>
     </message>
     <message>
+        <source>Apply Chunk...</source>
+        <translation>Применить фрагмент...</translation>
+    </message>
+    <message>
         <source>Revert Chunk...</source>
         <translation>Откатить фрагмент...</translation>
     </message>
@@ -26872,8 +27930,16 @@ Influences the indentation of continuation lines.
         <translation>Откат фрагмента</translation>
     </message>
     <message>
+        <source>Apply Chunk</source>
+        <translation>Применить фрагмент</translation>
+    </message>
+    <message>
         <source>Would you like to revert the chunk?</source>
         <translation>Желаете откатить фрагмент?</translation>
+    </message>
+    <message>
+        <source>Would you like to apply the chunk?</source>
+        <translation>Применить фрагмент?</translation>
     </message>
 </context>
 <context>
@@ -26932,6 +27998,10 @@ Influences the indentation of continuation lines.
     <message>
         <source>Repository Creation Failed</source>
         <translation>Не удалось создать хранилище</translation>
+    </message>
+    <message>
+        <source>Error: Executable timed out after %1s.</source>
+        <translation>Ошибка: программа превысила время ожидания (%1 сек).</translation>
     </message>
     <message>
         <source>There is no patch-command configured in the common &apos;Version Control&apos; settings.</source>
@@ -27006,22 +28076,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VCSBase::VCSJobRunner</name>
-    <message>
-        <source>Unable to start process &apos;%1&apos;: %2</source>
-        <translation>Не удалось запустить процесс «%1»: %2</translation>
-    </message>
-    <message>
-        <source>Timed out after %1s waiting for the process %2 to finish.</source>
-        <translation>Вышло время ожидания (%1 сек) завершения процесса %2.</translation>
-    </message>
-</context>
-<context>
     <name>VCSBase::VcsConfigurationPage</name>
-    <message>
-        <source>Configure</source>
-        <translation>Настроить</translation>
-    </message>
     <message>
         <source>Configuration</source>
         <translation>Настройка</translation>
@@ -27029,6 +28084,10 @@ Influences the indentation of continuation lines.
     <message>
         <source>Please configure &lt;b&gt;%1&lt;/b&gt; now.</source>
         <translation>Настройте &lt;b&gt;%1&lt;/b&gt; прямо сейчас.</translation>
+    </message>
+    <message>
+        <source>Configure...</source>
+        <translation>Настроить...</translation>
     </message>
 </context>
 <context>
@@ -27747,6 +28806,10 @@ With cache simulation, further event counters are enabled:
 <context>
     <name>Valgrind::XmlProtocol::ErrorListModel</name>
     <message>
+        <source>No errors found</source>
+        <translation>Ошибки не найдены</translation>
+    </message>
+    <message>
         <source>What</source>
         <translation>Что</translation>
     </message>
@@ -27874,6 +28937,25 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
+    <name>VcsCommand</name>
+    <message>
+        <source>
+&apos;%1&apos; failed (exit code %2).
+</source>
+        <translation>
+Ошибка команды «%1» (код завершения %2).
+</translation>
+    </message>
+    <message>
+        <source>
+&apos;%1&apos; completed (exit code %2).
+</source>
+        <translation>
+«%1» выполнено (код завершения %2).
+</translation>
+    </message>
+</context>
+<context>
     <name>ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
@@ -27991,38 +29073,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>News &amp;&amp; Support</source>
         <translation>Новости и поддержка</translation>
-    </message>
-</context>
-<context>
-    <name>Welcome::Internal::CommunityWelcomePageWidget</name>
-    <message>
-        <source>&lt;b&gt;Qt LGPL Support&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Buy commercial Qt support&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Поддержка Qt LGPL&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Купить коммерческую поддержку Qt&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Forum Nokia&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Mobile application support&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Форум Nokia&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Поддержка по мобильным приложениям&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qt DevNet&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt Developer Resources&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt DevNet&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Ресурсы разработчика Qt&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qt Home&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt by Nokia on the web&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Домашняя страница Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt от Nokia в сети&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qt Git Hosting&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Participate in Qt development&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Размещение Git хранилищ Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Участие в разработке Qt&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qt Apps&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Find free Qt-based apps&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Приложения Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Поиск свободных приложений на основе Qt&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>http://labs.trolltech.com/blogs/feed</source>
-        <extracomment>Add localized feed here only if one exists</extracomment>
-        <translation>http://labs.trolltech.com/blogs/feed</translation>
     </message>
 </context>
 <context>

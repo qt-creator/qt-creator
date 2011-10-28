@@ -6,7 +6,11 @@ include(extensionsystem_dependencies.pri)
 
 unix:!macx:!freebsd*:LIBS += -ldl
 
-DEFINES += IDE_TEST_DIR=\\\"$$IDE_SOURCE_TREE\\\"
+!isEmpty(vcproj) {
+    DEFINES += IDE_TEST_DIR=\"$$IDE_SOURCE_TREE\"
+} else {
+    DEFINES += IDE_TEST_DIR=\\\"$$IDE_SOURCE_TREE\\\"
+}
 
 HEADERS += pluginerrorview.h \
     plugindetailsview.h \

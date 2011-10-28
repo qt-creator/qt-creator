@@ -198,7 +198,7 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     d->hub = pm->getObject<ProjectExplorer::TaskHub>();
 
-    //: Category under which tasklist tasks are listed in build issues view
+    //: Category under which tasklist tasks are listed in Issues view
     d->hub->addCategory(QLatin1String(Constants::TASKLISTTASK_ID), tr("My Tasks"));
 
     Core::ICore *core = Core::ICore::instance();

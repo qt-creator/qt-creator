@@ -39,6 +39,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtGui/QIcon>
 
+QT_FORWARD_DECLARE_CLASS(QDateTime)
 QT_FORWARD_DECLARE_CLASS(QFile)
 
 namespace Qt4ProjectManager {
@@ -178,6 +179,8 @@ private:
         QString *error = 0);
     QString defaultPackageFileName() const;
     bool setPackageManagerNameInternal(const QString &name, QString *error = 0);
+    QString shortMonthName(const QDateTime &dt) const;
+    QString shortDayOfWeekName(const QDateTime &dt) const;
 
     WatchableFile *m_controlFile;
     WatchableFile *m_changeLogFile;

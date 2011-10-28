@@ -571,9 +571,15 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
         QmlExpressionUnderCursor expressionUnderCursor;
         expressionUnderCursor(tc);
         QString literalText = expressionUnderCursor.text();
-        QTC_ASSERT(!literalText.isEmpty() && (
-                       literalText.at(0) == QLatin1Char('"')
-                       || literalText.at(0) == QLatin1Char('\'')), return 0);
+
+        // expression under cursor only looks at one line, so multi-line strings
+        // are handled incorrectly and are recognizable by don't starting with ' or "
+        if (!literalText.isEmpty()
+                && literalText.at(0) != QLatin1Char('"')
+                && literalText.at(0) != QLatin1Char('\'')) {
+            return 0;
+        }
+
         literalText = literalText.mid(1);
 
         if (contextFinder.isInImport()) {

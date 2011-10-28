@@ -266,7 +266,7 @@ void S60CreatePackageStep::handleWarnAboutPatching()
         const QString text =
             tr("%1<p><em>These changes were not part of your build system</em> but are required to "
                "make sure the <em>self-signed</em> package can be installed successfully on a device.</p>"
-               "<p>Check the Build Issues pane for more details on the modifications made.</p>"
+               "<p>Check the Issues pane for more details on the modifications made.</p>"
                "<p>Please see the <a href=\"%2\">documentation</a> for other signing options which "
                "remove the need for this patching.</p>").arg(changedText, url);
         m_patchWarningDialog->setWindowTitle(title);

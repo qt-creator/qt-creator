@@ -23,7 +23,6 @@ SUBDIRS   = plugin_coreplugin \
             plugin_locator \
             plugin_debugger \
 #            plugin_qtestlib \ # this seems to be dead
-            plugin_helloworld \ # sample plugin
             plugin_help \
 #            plugin_regexp \ # don't know what to do with this
             plugin_cpaster \
@@ -46,8 +45,14 @@ SUBDIRS   = plugin_coreplugin \
             plugin_remotelinux \
             plugin_madde \
             plugin_qttest \
-            plugin_valgrind \
-            plugin_updateinfo
+            plugin_valgrind
+
+isEmpty(IDE_PACKAGE_MODE) {
+    SUBDIRS += plugin_helloworld \
+               plugin_updateinfo
+} else:!isEmpty(UPDATEINFO_ENABLE) {
+    SUBDIRS += plugin_updateinfo
+}
 
 linux-* {
      SUBDIRS += debugger/ptracepreload.pro

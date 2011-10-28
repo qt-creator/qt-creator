@@ -60,7 +60,7 @@ Item {
     }
     Rectangle {
         height: 1
-        color: "#000000"
+        color: "#a09c90"
         anchors.top: header.bottom
         width: parent.width
     }

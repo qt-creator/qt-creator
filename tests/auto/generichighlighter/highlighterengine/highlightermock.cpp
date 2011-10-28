@@ -38,14 +38,15 @@
 #include <QtCore/QDebug>
 #include <QtTest/QtTest>
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
-template<>
-char *toString(const QTextCharFormat &format)
-{
-    QByteArray ba = Formats::instance().name(format).toLatin1();
-    return qstrdup(ba.data());
+    template<> inline char *toString(const QTextCharFormat &format)
+    {
+        QByteArray ba = Formats::instance().name(format).toLatin1();
+        return qstrdup(ba.data());
+    }
 }
-}
+QT_END_NAMESPACE
 
 using namespace TextEditor;
 using namespace Internal;

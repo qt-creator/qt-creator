@@ -43,7 +43,7 @@
       <item>
        <widget class="QRadioButton" name="meego10RadioButton">
         <property name="text">
-         <string>Qt Quick Components for Meego/Harmattan</string>
+         <string>Qt Quick Components for MeeGo/Harmattan</string>
         </property>
         <attribute name="buttonGroup">
          <string notr="true">buttonGroup</string>
@@ -151,7 +151,7 @@ Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.
           <item row="0" column="0">
            <widget class="QLabel" name="meego1DescriptionLabel">
             <property name="text">
-             <string>The Qt Quick Components for Meego/Harmattan are a set of ready-made components that are designed with specific native appearance for the Meego/Harmattan platform.
+             <string>The Qt Quick Components for MeeGo/Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo/Harmattan platform.
 
 Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</string>
             </property>

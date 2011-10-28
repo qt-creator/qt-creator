@@ -138,6 +138,12 @@ ModelManager::ModelManager(QObject *parent):
     updateImportPaths();
 }
 
+ModelManager::~ModelManager()
+{
+    m_cppQmlTypesUpdater.cancel();
+    m_cppQmlTypesUpdater.waitForFinished();
+}
+
 void ModelManager::delayedInitialization()
 {
     CPlusPlus::CppModelManagerInterface *cppModelManager =
@@ -729,27 +735,37 @@ void ModelManager::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bo
 
 void ModelManager::startCppQmlTypeUpdate()
 {
+    // if a future is still running, delay
+    if (m_cppQmlTypesUpdater.isRunning()) {
+        m_updateCppQmlTypesTimer->start();
+        return;
+    }
+
     CPlusPlus::CppModelManagerInterface *cppModelManager =
             CPlusPlus::CppModelManagerInterface::instance();
     if (!cppModelManager)
         return;
 
-    QtConcurrent::run(&ModelManager::updateCppQmlTypes,
-                      this, cppModelManager, m_queuedCppDocuments);
+    m_cppQmlTypesUpdater = QtConcurrent::run(
+                &ModelManager::updateCppQmlTypes,
+                this, cppModelManager->snapshot(), m_queuedCppDocuments);
     m_queuedCppDocuments.clear();
 }
 
-void ModelManager::updateCppQmlTypes(ModelManager *qmlModelManager,
-                                     CPlusPlus::CppModelManagerInterface *cppModelManager,
+void ModelManager::updateCppQmlTypes(QFutureInterface<void> &interface,
+                                     ModelManager *qmlModelManager,
+                                     CPlusPlus::Snapshot snapshot,
                                      QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents)
 {
     CppDataHash newData = qmlModelManager->cppData();
 
-    CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
     FindExportedCppTypes finder(snapshot);
 
     typedef QPair<CPlusPlus::Document::Ptr, bool> DocScanPair;
     foreach (const DocScanPair &pair, documents) {
+        if (interface.isCanceled())
+            return;
+
         CPlusPlus::Document::Ptr doc = pair.first;
         const bool scan = pair.second;
         const QString fileName = doc->fileName();

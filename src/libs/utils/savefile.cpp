@@ -32,6 +32,7 @@
 
 #include "savefile.h"
 #include "qtcassert.h"
+#include "fileutils.h"
 
 namespace Utils {
 
@@ -84,11 +85,12 @@ bool SaveFile::commit()
         return false;
     }
 
-    QString bakname = m_finalFileName + QLatin1Char('~');
+    QString finalFileName = Utils::FileUtils::resolveSymlinks(m_finalFileName);
+    QString bakname = finalFileName + QLatin1Char('~');
     QFile::remove(bakname); // Kill old backup
-    QFile::rename(m_finalFileName, bakname); // Backup current file
-    if (!rename(m_finalFileName)) { // Replace current file
-        QFile::rename(bakname, m_finalFileName); // Rollback to current file
+    QFile::rename(finalFileName, bakname); // Backup current file
+    if (!rename(finalFileName)) { // Replace current file
+        QFile::rename(bakname, finalFileName); // Rollback to current file
         return false;
     }
     if (!m_backup)

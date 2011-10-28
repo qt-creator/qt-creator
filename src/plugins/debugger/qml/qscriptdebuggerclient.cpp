@@ -236,8 +236,17 @@ void QScriptDebuggerClient::removeBreakpoint(const BreakpointModelId &id)
     d->breakpoints.remove(bp);
 }
 
-void QScriptDebuggerClient::changeBreakpoint(const BreakpointModelId &/*id*/)
+void QScriptDebuggerClient::changeBreakpoint(const BreakpointModelId &id)
 {
+    BreakHandler *handler = d->engine->breakHandler();
+    if (handler->isEnabled(id)) {
+        insertBreakpoint(id);
+    } else {
+        removeBreakpoint(id);
+    }
+    BreakpointResponse br = handler->response(id);
+    br.enabled = handler->isEnabled(id);
+    handler->setResponse(id, br);
 }
 
 void QScriptDebuggerClient::synchronizeBreakpoints()

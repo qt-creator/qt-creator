@@ -53,6 +53,17 @@ def shadowBuildDir(path, project, qtVersion, debugVersion):
     else:
         return buildDir + "_Release"
 
+def createProjectHandleLastPage(expectedFiles = None):
+    if expectedFiles != None:
+        summary = str(waitForObject(":scrollArea.Files to be added").text)
+        lastIndex = 0
+        for filename in expectedFiles:
+            index = summary.find(filename)
+            test.verify(index > lastIndex, "'" + filename + "' found at index " + str(index))
+            lastIndex = index
+    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
+    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
+
 def createProject_Qt_GUI(path, projectName, qtVersion, checks):
     invokeMenuItem("File", "New File or Project...")
     waitForObjectItem(":New.templateCategoryView_QTreeView", "Projects.Qt Widget Project")
@@ -97,23 +108,10 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
 
     clickButton(verifyEnabled(":Qt Gui Application.Next_QPushButton"))
 
+    expectedFiles = None
     if checks:
-        summary = str(waitForObject(":scrollArea.Files to be added").text)
-
-        path_found = summary.find(os.path.join(path, projectName))
-        cpp_found = summary.find(cpp_file)
-        h_found = summary.find(h_file)
-        ui_found = summary.find(ui_file)
-        pro_found = summary.find(pro_file)
-
-        test.verify(path_found > 0, "'" + path + "' found at index " + str(path_found))
-        test.verify(cpp_found > path_found, "'" + cpp_file + "' found at index " + str(cpp_found))
-        test.verify(h_found > cpp_found, "'" + h_file + "' found at index " + str(h_found))
-        test.verify(ui_found > cpp_found, "'" + ui_file + "' found at index " + str(ui_found))
-        test.verify(pro_found > ui_found, "'" + pro_file + "' found at index " + str(pro_found))
-
-    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
-    clickButton(waitForObject(":Qt Gui Application.Finish_QPushButton"))
+        expectedFiles = [os.path.join(path, projectName), cpp_file, h_file, ui_file, pro_file]
+    createProjectHandleLastPage(expectedFiles)
 
     if checks:
         waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
@@ -160,8 +158,7 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     chooseTargets(targets)
     snooze(1)
     clickButton(nextButton)
-    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
-    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
+    createProjectHandleLastPage()
 
 def createNewQtQuickUI(workingDir):
     invokeMenuItem("File", "New File or Project...")
@@ -181,8 +178,7 @@ def createNewQtQuickUI(workingDir):
         clickButton(cbDefaultLocation)
     # now there's the 'untitled' project inside a temporary directory - step forward...!
     clickButton(waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000))
-    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
-    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
+    createProjectHandleLastPage()
 
 def createNewQmlExtension(workingDir):
     invokeMenuItem("File", "New File or Project...")
@@ -212,5 +208,4 @@ def createNewQmlExtension(workingDir):
                               "type='QLineEdit' unnamed='1' visible='1'}", 20000)
     replaceEditorContent(uriLineEd, "com.nokia.test.qmlcomponents")
     clickButton(nextButton)
-    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
-    clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
+    createProjectHandleLastPage()

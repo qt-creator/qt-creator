@@ -303,7 +303,8 @@
 
     \title Creating Components
 
-    A QML component provides a way of defining a new type that you can re-use in other QML
+    A \l{glossary-component}{component} provides a way of defining a new type
+    that you can re-use in other QML
     files. A component is like a black box; it interacts with the outside world
     through properties, signals, and slots, and is generally defined in its own QML file.
     You can import components to screens and applications.
@@ -380,6 +381,16 @@
         \o \l{Creating Scalable Buttons and Borders}
 
     \endlist
+
+    \section1 Moving Within Components
+
+    Components can consist of several other components. To view the component
+    hierarchy as a bread crumb path when you edit a component on the canvas,
+    select \gui {Go into Component} or press \key F2. Click the component
+    names in the path to navigate to them. You can easily navigate back to the
+    top level when you are done editing the component.
+
+    \image qmldesigner-breadcrumbs.png "Go into Component command"
 
 */
 
@@ -691,6 +702,10 @@
             arranges its child items side by side, wrapping as necessary.
 
     \endlist
+
+    To lay out several items in a Column, Row, Grid, or Flow element, select
+    the elements on the canvas, and then select \gui Layout in the context
+    menu.
 
     \section1 Using States
 

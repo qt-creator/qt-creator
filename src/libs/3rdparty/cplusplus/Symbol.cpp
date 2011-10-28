@@ -237,6 +237,11 @@ void Symbol::setScope(Scope *scope)
     _scope = scope;
 }
 
+void Symbol::resetScope()
+{
+    _scope = 0;
+}
+
 Namespace *Symbol::enclosingNamespace() const
 {
     for (Scope *s = _scope; s; s = s->enclosingScope()) {

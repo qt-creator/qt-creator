@@ -48,7 +48,7 @@
     \QC automatically detects the Qt versions that are registered by
     your system or by \QSDK. To view the settings for each Qt version, move the
     mouse pointer over it in the list. To add Qt versions, select
-    \gui {Tools > Options > Qt4 > Qt Versions}.
+    \gui {Tools > Options > Build & Run > Qt Versions}.
 
     Typically, you select the Qt versions for a project when you use project
     wizards to create the project. You can add Qt versions for a project in
@@ -60,15 +60,15 @@
 
         \list 1
 
-            \o  Select \gui Tools > \gui Options > \gui Qt4 > \gui Add.
+            \o  Select \gui {Tools > Options > Build & Run > Qt Versions > Add}.
 
                 \image qtcreator-qt4-qtversions-add.png
 
-            \o  In the \gui{qmake location} field, enter the path to the
-                directory where the qmake executable is located.
-
             \o  In the \gui{Version name} field, edit the name that \QC
                 suggests for the Qt version.
+
+            \o  In the \gui{qmake location} field, enter the path to the
+                directory where the qmake executable is located.
 
                 \QC automatically determines the path to the binaries in
                 the Qt installation and displays it in the dialog.

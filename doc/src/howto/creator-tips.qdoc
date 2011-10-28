@@ -146,7 +146,7 @@
     To jump to a symbol in the current file, press \key {Ctrl+K} to open the
     \gui Locator, enter a period (.), and start typing the symbol name. Then
     select the symbol in the list. For more information on using the locator,
-    see \l{Searching With the Locator}.
+    see \l{Searching with the Locator}.
 
     Press \key Ctrl (\key Cmd on Mac OS) and click a symbol to move directly to
     the definition or the declaration of the symbol. You can also move the
