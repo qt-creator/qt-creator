@@ -307,11 +307,8 @@ bool MaemoDebianPackageCreationStep::createPackage(QProcess *buildProc,
         }
     }
 
-    if (inSourceBuild) {
-        buildProc->start(packagingCommand(qt4BuildConfiguration(), QLatin1String("dh_clean")));
-        buildProc->waitForFinished();
-        buildProc->terminate();
-    }
+    if (inSourceBuild)
+        callPackagingCommand(buildProc, QStringList() << QLatin1String("dh_clean"));
     return true;
 }
 
