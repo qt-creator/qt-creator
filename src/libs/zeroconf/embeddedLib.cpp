@@ -60,7 +60,8 @@ class EmbeddedZConfLib : public ZConfLib
 public:
     QString daemonPath;
 
-    EmbeddedZConfLib(const QString &daemonPath, ZConfLib::Ptr fallBack) : ZConfLib(fallBack), daemonPath(daemonPath)
+    EmbeddedZConfLib(const QString &daemonPath, ZConfLib::Ptr fallBack) : ZConfLib(fallBack),
+        daemonPath(daemonPath)
     {
         if (!daemonPath.isEmpty() && daemonPath.at(0) != '/' && daemonPath.at(0) != '.')
             this->daemonPath = QCoreApplication::applicationDirPath() + QChar('/') + daemonPath;
@@ -71,7 +72,7 @@ public:
 
     QString name()
     {
-        return QString::fromUtf8("EmbeddedZeroConfLib@%1").arg(size_t(this),0,16);
+        return QString::fromUtf8("EmbeddedZeroConfLib@%1").arg(size_t(this), 0, 16);
     }
 
     bool tryStartDaemon()
@@ -84,7 +85,8 @@ public:
                     qDebug() << name() << " started " << daemonPath;
                 return true;
             } else {
-                this->setError(true, tr("%1 failed starting embedded daemon at %2").arg(name()).arg(daemonPath));
+                this->setError(true, tr("%1 failed starting embedded daemon at %2")
+                               .arg(name()).arg(daemonPath));
             }
         }
         return false;
@@ -99,7 +101,7 @@ public:
     {
         if (bRef){
             embeddedLib::DNSServiceRefDeallocate(*reinterpret_cast<DNSServiceRef*>(bRef));
-            *bRef=0;
+            *bRef = 0;
         }
     }
 
@@ -107,7 +109,7 @@ public:
     {
         int sock = refSockFD(cRef);
         if (sock>0)
-            shutdown(sock,SHUT_RDWR);
+            shutdown(sock, SHUT_RDWR);
     }
 
     void destroyConnection(ConnectionRef *sdRef)
@@ -127,8 +129,11 @@ public:
                                 ServiceGatherer                     *gatherer)
     {
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
-        return embeddedLib::DNSServiceResolve(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
-                                              interfaceIndex, name, regtype, domain, &cServiceResolveReply, gatherer);
+        return embeddedLib::DNSServiceResolve(sdRef, kDNSServiceFlagsShareConnection
+                                              | kDNSServiceFlagsSuppressUnusable
+                                              | kDNSServiceFlagsTimeout,
+                                              interfaceIndex, name, regtype, domain,
+                                              &cServiceResolveReply, gatherer);
     }
 
     DNSServiceErrorType queryRecord(ConnectionRef                       cRef,
@@ -138,9 +143,12 @@ public:
                                     ServiceGatherer                     *gatherer)
     {
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
-        return embeddedLib::DNSServiceQueryRecord(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+        return embeddedLib::DNSServiceQueryRecord(sdRef, kDNSServiceFlagsShareConnection
+                                                  | kDNSServiceFlagsSuppressUnusable
+                                                  | kDNSServiceFlagsTimeout,
                                                   interfaceIndex, fullname,
-                                                  kDNSServiceType_TXT, kDNSServiceClass_IN, &cTxtRecordReply ,gatherer);
+                                                  kDNSServiceType_TXT, kDNSServiceClass_IN,
+                                                  &cTxtRecordReply , gatherer);
     }
 
     DNSServiceErrorType getAddrInfo(ConnectionRef                    cRef,
@@ -151,14 +159,16 @@ public:
                                     ServiceGatherer                  *gatherer)
     {
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
-        return embeddedLib::DNSServiceGetAddrInfo(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+        return embeddedLib::DNSServiceGetAddrInfo(sdRef, kDNSServiceFlagsShareConnection
+                                                  | kDNSServiceFlagsSuppressUnusable
+                                                  | kDNSServiceFlagsTimeout,
                                                   interfaceIndex, protocol,
                                                   hostname, &cAddrReply, gatherer);
     }
 
     DNSServiceErrorType reconfirmRecord(ConnectionRef /*cRef*/, uint32_t /*interfaceIndex*/,
-                                                const char * /*name*/, const char * /*type*/, const char * /*domain*/,
-                                                const char * /*fullname*/)
+                                        const char * /*name*/, const char * /*type*/,
+                                        const char * /*domain*/, const char * /*fullname*/)
     {
         // reload and force update with in the callback with
         // embeddedLib::DNSServiceReconfirmRecord(flags, interfaceIndex, fullname, rrtype,
@@ -175,14 +185,13 @@ public:
     {
         DNSServiceRef *sdRef = reinterpret_cast<DNSServiceRef *>(bRef);
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
-        return embeddedLib::DNSServiceBrowse(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable,
-                                             interfaceIndex, regtype, domain, &cBrowseReply, browser);
+        return embeddedLib::DNSServiceBrowse(sdRef, kDNSServiceFlagsShareConnection
+                                             | kDNSServiceFlagsSuppressUnusable,
+                                             interfaceIndex, regtype, domain, &cBrowseReply,
+                                             browser);
     }
 
-    DNSServiceErrorType getProperty(const char *property,  /* Requested property (i.e. kDNSServiceProperty_DaemonVersion) */
-                                    void       *result,    /* Pointer to place to store result */
-                                    uint32_t   *size       /* size of result location */
-                                    )
+    DNSServiceErrorType getProperty(const char *property, void *result, uint32_t *size)
     {
         return embeddedLib::DNSServiceGetProperty(property, result, size);
     }

@@ -142,7 +142,8 @@ enum LibUsage {
     UseAvahiOrDnsSdOrEmbedded
 };
 
-void setDefaultZConfLib(LibUsage usage, const QString &avahiLibName, const QString &dnsSdLibName, const QString & dnsSdDaemonPath);
+void setDefaultZConfLib(LibUsage usage, const QString &avahiLibName, const QString &dnsSdLibName,
+                        const QString & dnsSdDaemonPath);
 
 }
 

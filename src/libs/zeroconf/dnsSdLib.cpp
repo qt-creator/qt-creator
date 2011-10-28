@@ -117,7 +117,7 @@ public:
         // dynamic linking
         if (!dnsSdLib.load()) {
             m_isOk = false;
-            m_errorMsg=tr("DnsSdZConfLib could not load native library");
+            m_errorMsg = tr("DnsSdZConfLib could not load native library");
         }
         m_refDeallocate = reinterpret_cast<RefDeallocatePtr>(dnsSdLib.resolve("DNSServiceRefDeallocate"));
         m_resolve = reinterpret_cast<ResolvePtr>(dnsSdLib.resolve("DNSServiceResolve"));
@@ -160,7 +160,7 @@ public:
     }
 
     QString name(){
-        return QString::fromUtf8("DnsSdZeroConfLib@%1").arg(size_t(this),0,16);
+        return QString::fromUtf8("DnsSdZeroConfLib@%1").arg(size_t(this), 0, 16);
     }
 
     // bool tryStartDaemon();
@@ -173,7 +173,7 @@ public:
         if (m_refDeallocate == 0) return;
         if (bRef) {
             m_refDeallocate(*reinterpret_cast<DNSServiceRef *>(bRef));
-            *bRef=0;
+            *bRef = 0;
         }
     }
 
@@ -181,14 +181,14 @@ public:
     {
         int sock = refSockFD(cRef);
         if (sock>0)
-            shutdown(sock,SHUT_RDWR);
+            shutdown(sock, SHUT_RDWR);
     }
 
     void destroyConnection(ConnectionRef *sdRef) {
         if (m_refDeallocate == 0) return;
         if (sdRef) {
             m_refDeallocate(*reinterpret_cast<DNSServiceRef *>(sdRef));
-            *sdRef=0;
+            *sdRef = 0;
         }
     }
 
@@ -210,7 +210,8 @@ public:
     {
         if (m_queryRecord == 0) return kDNSServiceErr_Unsupported;
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
-        return m_queryRecord(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+        return m_queryRecord(sdRef, kDNSServiceFlagsShareConnection
+                             | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
                              interfaceIndex, fullname,
                              kDNSServiceType_TXT, kDNSServiceClass_IN, &cTxtRecordReply, gatherer);
     }
@@ -224,7 +225,7 @@ public:
 #ifdef Q_OS_UNIX
             // try to use getaddrinfo (for example on linux with avahi)
             struct addrinfo req, *ans; int err;
-            memset(&req,0,sizeof(req));
+            memset(&req, 0, sizeof(req));
             req.ai_flags = 0;
             req.ai_family = AF_UNSPEC;
             req.ai_socktype = SOCK_STREAM;
@@ -244,13 +245,14 @@ public:
 #endif
         }
         *sdRef = reinterpret_cast<DNSServiceRef>(cRef);
-        return m_getAddrInfo(sdRef, kDNSServiceFlagsShareConnection | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
+        return m_getAddrInfo(sdRef, kDNSServiceFlagsShareConnection
+                             | kDNSServiceFlagsSuppressUnusable | kDNSServiceFlagsTimeout,
                              interfaceIndex, protocol, hostname, &cAddrReply, gatherer);
     }
 
     DNSServiceErrorType reconfirmRecord(ConnectionRef /*cRef*/, uint32_t /*interfaceIndex*/,
-                                                const char * /*name*/, const char * /*type*/, const char * /*domain*/,
-                                                const char * /*fullname*/)
+                                        const char * /*name*/, const char * /*type*/,
+                                        const char * /*domain*/, const char * /*fullname*/)
     {
         if (m_reconfirmRecord == 0) return kDNSServiceErr_Unsupported;
         // reload and force update with in the callback with
@@ -270,10 +272,7 @@ public:
                         interfaceIndex, regtype, domain, &cBrowseReply, browser);
     }
 
-    DNSServiceErrorType getProperty(const char *property,  // Requested property (i.e. kDNSServiceProperty_DaemonVersion)
-                                    void       *result,    // Pointer to place to store result
-                                    uint32_t   *size       // size of result location
-                                    )
+    DNSServiceErrorType getProperty(const char *property, void       *result, uint32_t   *size)
     {
         if (m_getProperty == 0)
             return kDNSServiceErr_Unsupported;
@@ -325,7 +324,8 @@ public:
                 } else if (result == 0) {
                     // we are idle... could do something productive... :)
                 } else if (errno != EINTR) {
-                    qDebug() << "select() returned " << result << " errno " << errno << strerror(errno);
+                    qDebug() << "select() returned " << result << " errno " << errno
+                             << strerror(errno);
                     return false;
                 }
             }
