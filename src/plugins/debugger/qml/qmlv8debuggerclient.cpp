@@ -1552,7 +1552,7 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
             QList<QTextEdit::ExtraSelection> selections;
             QTextEdit::ExtraSelection sel;
             sel.format = errorFormat;
-            QTextCursor c(ed->document()->findBlockByNumber(lineNumber));
+            QTextCursor c(ed->document()->findBlockByNumber(lineNumber - 1));
             const QString text = c.block().text();
             for (int i = 0; i < text.size(); ++i) {
                 if (! text.at(i).isSpace()) {
