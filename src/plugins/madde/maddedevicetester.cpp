@@ -52,7 +52,8 @@ const char QmlToolingDirectory[] = "/usr/lib/qt4/plugins/qmltooling";
 MaddeDeviceTester::MaddeDeviceTester(QObject *parent)
     : AbstractLinuxDeviceTester(parent),
       m_genericTester(new GenericLinuxDeviceTester(this)),
-      m_state(Inactive)
+      m_state(Inactive),
+      m_processRunner(0)
 {
 }
 
@@ -106,14 +107,15 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
         return;
     }
 
-    m_processRunner = SshRemoteProcessRunner::create(m_genericTester->connection());
-    connect(m_processRunner.data(), SIGNAL(connectionError(Utils::SshError)),
+    delete m_processRunner;
+    m_processRunner = new SshRemoteProcessRunner(m_genericTester->connection(), this);
+    connect(m_processRunner, SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
-    connect(m_processRunner.data(), SIGNAL(processOutputAvailable(QByteArray)),
+    connect(m_processRunner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleStdout(QByteArray)));
-    connect(m_processRunner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
+    connect(m_processRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleStderr(QByteArray)));
-    connect(m_processRunner.data(), SIGNAL(processClosed(int)), SLOT(handleProcessFinished(int)));
+    connect(m_processRunner, SIGNAL(processClosed(int)), SLOT(handleProcessFinished(int)));
 
     QString qtInfoCmd;
     if (m_deviceConfiguration->osType() == QLatin1String(MeeGoOsType)) {
@@ -282,8 +284,9 @@ QString MaddeDeviceTester::processedQtLibsList()
     m_state = Inactive;
     disconnect(m_genericTester, 0, this, 0);
     if (m_processRunner)
-        disconnect(m_processRunner.data(), 0, this, 0);
-    m_processRunner.clear();
+        disconnect(m_processRunner, 0, this, 0);
+    delete m_processRunner;
+    m_processRunner = 0;
     emit finished(m_result);
 }
 

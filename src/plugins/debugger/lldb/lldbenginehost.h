@@ -49,7 +49,8 @@ class SshIODevice : public QIODevice
 {
 Q_OBJECT
 public:
-    SshIODevice(Utils::SshRemoteProcessRunner::Ptr r);
+    SshIODevice(Utils::SshRemoteProcessRunner *r);
+    ~SshIODevice();
     virtual qint64 bytesAvailable () const;
     virtual qint64 writeData (const char * data, qint64 maxSize);
     virtual qint64 readData (char * data, qint64 maxSize);
@@ -58,7 +59,7 @@ private slots:
     void outputAvailable(const QByteArray &output);
     void errorOutputAvailable(const QByteArray &output);
 private:
-    Utils::SshRemoteProcessRunner::Ptr runner;
+    Utils::SshRemoteProcessRunner *runner;
     Utils::SshRemoteProcess::Ptr proc;
     int buckethead;
     QQueue<QByteArray> buckets;
@@ -75,7 +76,7 @@ public:
 
 private:
     QProcess *m_guestProcess;
-    Utils::SshRemoteProcessRunner::Ptr m_ssh;
+    Utils::SshRemoteProcessRunner *m_ssh;
 protected:
     void nuke();
 private slots:

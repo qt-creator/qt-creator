@@ -53,10 +53,7 @@ namespace Internal {
 class StartGdbServerDialogPrivate
 {
 public:
-    StartGdbServerDialogPrivate()
-        : processList(0)
-    {}
-
+    StartGdbServerDialogPrivate() : processList(0), runner(0) {}
 
     LinuxDeviceConfiguration::ConstPtr currentDevice() const
     {
@@ -68,7 +65,7 @@ public:
     QSortFilterProxyModel proxyModel;
     Ui::StartGdbServerDialog ui;
     RemoteLinuxUsedPortsGatherer gatherer;
-    Utils::SshRemoteProcessRunner::Ptr runner;
+    Utils::SshRemoteProcessRunner *runner;
 };
 
 } // namespace Internal
@@ -241,17 +238,16 @@ void StartGdbServerDialog::handleProcessClosed(int status)
 void StartGdbServerDialog::startGdbServerOnPort(int port, int pid)
 {
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
-    d->runner = Utils::SshRemoteProcessRunner::create(device->sshParameters());
-    connect(d->runner.data(), SIGNAL(connectionError(Utils::SshError)),
+    delete d->runner;
+    d->runner = new Utils::SshRemoteProcessRunner(device->sshParameters(), this);
+    connect(d->runner, SIGNAL(connectionError(Utils::SshError)),
             SLOT(handleConnectionError()));
-    connect(d->runner.data(), SIGNAL(processStarted()),
-            SLOT(handleProcessStarted()));
-    connect(d->runner.data(), SIGNAL(processOutputAvailable(QByteArray)),
+    connect(d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
+    connect(d->runner, SIGNAL(processOutputAvailable(QByteArray)),
             SLOT(handleProcessOutputAvailable(QByteArray)));
-    connect(d->runner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
+    connect(d->runner, SIGNAL(processErrorOutputAvailable(QByteArray)),
             SLOT(handleProcessErrorOutput(QByteArray)));
-    connect(d->runner.data(), SIGNAL(processClosed(int)),
-            SLOT(handleProcessClosed(int)));
+    connect(d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
 
     QByteArray cmd = "/usr/bin/gdbserver --attach localhost:"
         + QByteArray::number(port) + " " + QByteArray::number(pid);

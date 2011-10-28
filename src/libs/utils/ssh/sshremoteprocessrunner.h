@@ -46,10 +46,8 @@ class QTCREATOR_UTILS_EXPORT SshRemoteProcessRunner : public QObject
     Q_OBJECT
 
 public:
-    typedef QSharedPointer<SshRemoteProcessRunner> Ptr;
-
-    static Ptr create(const SshConnectionParameters &params);
-    static Ptr create(const SshConnection::Ptr &connection);
+    SshRemoteProcessRunner(const SshConnectionParameters &params, QObject *parent = 0);
+    SshRemoteProcessRunner(const SshConnection::Ptr &connection, QObject *parent = 0);
 
     void run(const QByteArray &command);
     void runInTerminal(const QByteArray &command,
@@ -67,8 +65,6 @@ signals:
     void processClosed(int exitStatus); // values are of type SshRemoteProcess::ExitStatus
 
 private:
-    SshRemoteProcessRunner(const SshConnectionParameters &params);
-    SshRemoteProcessRunner(const SshConnection::Ptr &connection);
     void init();
 
     Internal::SshRemoteProcessRunnerPrivate *d;

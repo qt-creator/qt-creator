@@ -44,7 +44,8 @@ namespace Internal {
 class SshKeyDeployerPrivate
 {
 public:
-    SshRemoteProcessRunner::Ptr deployProcess;
+    SshKeyDeployerPrivate() : deployProcess(0) {}
+    SshRemoteProcessRunner *deployProcess;
 };
 
 } // namespace Internal
@@ -64,7 +65,8 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
     const QString &keyFilePath)
 {
     cleanup();
-    d->deployProcess = SshRemoteProcessRunner::create(sshParams);
+    delete d->deployProcess;
+    d->deployProcess = new SshRemoteProcessRunner(sshParams, this);
 
     Utils::FileReader reader;
     if (!reader.fetch(keyFilePath)) {
@@ -72,10 +74,9 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
         return;
     }
 
-    connect(d->deployProcess.data(), SIGNAL(connectionError(Utils::SshError)), this,
+    connect(d->deployProcess, SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionFailure()));
-    connect(d->deployProcess.data(), SIGNAL(processClosed(int)), this,
-        SLOT(handleKeyUploadFinished(int)));
+    connect(d->deployProcess, SIGNAL(processClosed(int)), SLOT(handleKeyUploadFinished(int)));
     const QByteArray command = "test -d .ssh "
         "|| mkdir .ssh && chmod 0700 .ssh && echo '"
         + reader.data() + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
@@ -117,8 +118,9 @@ void SshKeyDeployer::stopDeployment()
 void SshKeyDeployer::cleanup()
 {
     if (d->deployProcess) {
-        disconnect(d->deployProcess.data(), 0, this, 0);
-        d->deployProcess.clear();
+        disconnect(d->deployProcess, 0, this, 0);
+        delete d->deployProcess;
+        d->deployProcess = 0;
     }
 }
 

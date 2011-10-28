@@ -234,24 +234,16 @@ void SshRemoteProcessRunnerPrivate::assertState(State allowedState,
 
 } // namespace Internal
 
-SshRemoteProcessRunner::Ptr SshRemoteProcessRunner::create(const SshConnectionParameters &params)
-{
-    return SshRemoteProcessRunner::Ptr(new SshRemoteProcessRunner(params));
-}
-
-SshRemoteProcessRunner::Ptr SshRemoteProcessRunner::create(const SshConnection::Ptr &connection)
-{
-    return SshRemoteProcessRunner::Ptr(new SshRemoteProcessRunner(connection));
-}
-
-SshRemoteProcessRunner::SshRemoteProcessRunner(const SshConnectionParameters &params)
-    : d(new Internal::SshRemoteProcessRunnerPrivate(params, this))
+SshRemoteProcessRunner::SshRemoteProcessRunner(const SshConnectionParameters &params,
+        QObject *parent)
+    : QObject(parent), d(new Internal::SshRemoteProcessRunnerPrivate(params, this))
 {
     init();
 }
 
-SshRemoteProcessRunner::SshRemoteProcessRunner(const SshConnection::Ptr &connection)
-    : d(new Internal::SshRemoteProcessRunnerPrivate(connection, this))
+SshRemoteProcessRunner::SshRemoteProcessRunner(const SshConnection::Ptr &connection,
+        QObject *parent)
+    : QObject(parent), d(new Internal::SshRemoteProcessRunnerPrivate(connection, this))
 {
     init();
 }

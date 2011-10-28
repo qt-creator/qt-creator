@@ -73,7 +73,7 @@ private:
     RemoteLinux::GenericLinuxDeviceTester * const m_genericTester;
     State m_state;
     TestResult m_result;
-    QSharedPointer<Utils::SshRemoteProcessRunner> m_processRunner;
+    Utils::SshRemoteProcessRunner *m_processRunner;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_deviceConfiguration;
     QByteArray m_stdout;
     QByteArray m_stderr;

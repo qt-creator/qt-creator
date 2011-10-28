@@ -64,18 +64,23 @@
 namespace Debugger {
 namespace Internal {
 
-SshIODevice::SshIODevice(Utils::SshRemoteProcessRunner::Ptr r)
+SshIODevice::SshIODevice(Utils::SshRemoteProcessRunner *r)
     : runner(r)
     , buckethead(0)
 {
     setOpenMode(QIODevice::ReadWrite | QIODevice::Unbuffered);
-    connect (runner.data(), SIGNAL(processStarted()),
-            this, SLOT(processStarted()));
-    connect(runner.data(), SIGNAL(processOutputAvailable(const QByteArray &)),
+    connect (runner, SIGNAL(processStarted()), this, SLOT(processStarted()));
+    connect(runner, SIGNAL(processOutputAvailable(const QByteArray &)),
             this, SLOT(outputAvailable(const QByteArray &)));
-    connect(runner.data(), SIGNAL(processErrorOutputAvailable(const QByteArray &)),
+    connect(runner, SIGNAL(processErrorOutputAvailable(const QByteArray &)),
             this, SLOT(errorOutputAvailable(const QByteArray &)));
 }
+
+SshIODevice::~SshIODevice()
+{
+    delete runner;
+}
+
 qint64 SshIODevice::bytesAvailable () const
 {
     qint64 r = QIODevice::bytesAvailable();
@@ -139,16 +144,16 @@ void SshIODevice::errorOutputAvailable(const QByteArray &output)
 
 
 LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
-    :IPCEngineHost(startParameters)
+    :IPCEngineHost(startParameters), m_ssh(0)
 {
     showMessage(QLatin1String("setting up coms"));
 
     if (startParameters.startMode == StartRemoteEngine)
     {
         m_guestProcess = 0;
-        Utils::SshRemoteProcessRunner::Ptr runner =
-            Utils::SshRemoteProcessRunner::create(startParameters.connParams);
-        connect (runner.data(), SIGNAL(connectionError(Utils::SshError)),
+        Utils::SshRemoteProcessRunner * const runner =
+            new Utils::SshRemoteProcessRunner(startParameters.connParams);
+        connect (runner, SIGNAL(connectionError(Utils::SshError)),
                 this, SLOT(sshConnectionError(Utils::SshError)));
         runner->run(startParameters.serverStartScript.toUtf8());
         setGuestDevice(new SshIODevice(runner));
@@ -193,7 +198,7 @@ LldbEngineHost::~LldbEngineHost()
         m_guestProcess->terminate();
         m_guestProcess->kill();
     }
-    if (m_ssh.data() && m_ssh->process().data()) {
+    if (m_ssh && m_ssh->process().data()) {
         // TODO: openssh doesn't do that
 
         m_ssh->process()->kill();

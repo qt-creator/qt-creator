@@ -45,14 +45,14 @@ namespace Internal {
 class RemoteLinuxUsedPortsGathererPrivate
 {
  public:
-    RemoteLinuxUsedPortsGathererPrivate() : running(false) {}
+    RemoteLinuxUsedPortsGathererPrivate() : procRunner(0), running(false) {}
 
-    SshRemoteProcessRunner::Ptr procRunner;
+    SshRemoteProcessRunner *procRunner;
     PortList portsToCheck;
     QList<int> usedPorts;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
-    bool running;
+    bool running; // TODO: Redundant due to being in sync with procRunner?
 };
 
 } // namespace Internal
@@ -78,14 +78,13 @@ void RemoteLinuxUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connec
     d->usedPorts.clear();
     d->remoteStdout.clear();
     d->remoteStderr.clear();
-    d->procRunner = SshRemoteProcessRunner::create(connection);
-    connect(d->procRunner.data(), SIGNAL(connectionError(Utils::SshError)),
-        SLOT(handleConnectionError()));
-    connect(d->procRunner.data(), SIGNAL(processClosed(int)),
-        SLOT(handleProcessClosed(int)));
-    connect(d->procRunner.data(), SIGNAL(processOutputAvailable(QByteArray)),
+    delete d->procRunner;
+    d->procRunner = new SshRemoteProcessRunner(connection, this);
+    connect(d->procRunner, SIGNAL(connectionError(Utils::SshError)), SLOT(handleConnectionError()));
+    connect(d->procRunner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
+    connect(d->procRunner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdOut(QByteArray)));
-    connect(d->procRunner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
+    connect(d->procRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdErr(QByteArray)));
     QString procFilePath;
     int addressLength;

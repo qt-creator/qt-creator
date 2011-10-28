@@ -44,6 +44,7 @@ RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RemoteLinuxRunConfigu
     , m_stop(false)
     , m_devConfig(config->deviceConfig())
     , m_runConfig(config)
+    , m_remoteProcessRunner(0)
 {
     connect(config, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
         this, SLOT(handleCurrentDeviceConfigChanged()));
@@ -61,19 +62,16 @@ void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
     if (!m_remoteProcessRunner
         || m_remoteProcessRunner->connection()->state() != Utils::SshConnection::Connected
         || m_remoteProcessRunner->connection()->connectionParameters() != m_devConfig->sshParameters()) {
+        delete m_remoteProcessRunner;
         m_remoteProcessRunner
-            = Utils::SshRemoteProcessRunner::create(m_devConfig->sshParameters());
+            = new Utils::SshRemoteProcessRunner(m_devConfig->sshParameters(), this);
     }
-    connect(m_remoteProcessRunner.data(),
-        SIGNAL(connectionError(Utils::SshError)), this,
+    connect(m_remoteProcessRunner, SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionFailure()));
-    connect(m_remoteProcessRunner.data(), SIGNAL(processClosed(int)), this,
-        SLOT(remoteProcessFinished(int)));
-    connect(m_remoteProcessRunner.data(),
-        SIGNAL(processOutputAvailable(QByteArray)), this,
+    connect(m_remoteProcessRunner, SIGNAL(processClosed(int)), SLOT(remoteProcessFinished(int)));
+    connect(m_remoteProcessRunner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(remoteOutput(QByteArray)));
-    connect(m_remoteProcessRunner.data(),
-        SIGNAL(processErrorOutputAvailable(QByteArray)), this,
+    connect(m_remoteProcessRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(remoteErrorOutput(QByteArray)));
     const QByteArray remoteCall
         = QString(environmentSetupCommand + QLatin1String("; env")).toUtf8();
@@ -85,7 +83,7 @@ void RemoteLinuxEnvironmentReader::stop()
 {
     m_stop = true;
     if (m_remoteProcessRunner)
-        disconnect(m_remoteProcessRunner.data(), 0, this, 0);
+        disconnect(m_remoteProcessRunner, 0, this, 0);
 }
 
 void RemoteLinuxEnvironmentReader::handleConnectionFailure()
@@ -93,7 +91,7 @@ void RemoteLinuxEnvironmentReader::handleConnectionFailure()
     if (m_stop)
         return;
 
-    disconnect(m_remoteProcessRunner.data(), 0, this, 0);
+    disconnect(m_remoteProcessRunner, 0, this, 0);
     emit error(tr("Connection error: %1")
         .arg(m_remoteProcessRunner->connection()->errorString()));
     emit finished();
@@ -104,7 +102,7 @@ void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
     m_devConfig = m_runConfig->deviceConfig();
 
     if (m_remoteProcessRunner)
-        disconnect(m_remoteProcessRunner.data(), 0, this, 0);
+        disconnect(m_remoteProcessRunner, 0, this, 0);
     m_env.clear();
     setFinished();
 }
@@ -118,7 +116,7 @@ void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitCode)
     if (m_stop)
         return;
 
-    disconnect(m_remoteProcessRunner.data(), 0, this, 0);
+    disconnect(m_remoteProcessRunner, 0, this, 0);
     m_env.clear();
     if (exitCode == Utils::SshRemoteProcess::ExitedNormally) {
         if (!m_remoteOutput.isEmpty()) {

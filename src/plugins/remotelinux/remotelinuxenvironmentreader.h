@@ -80,7 +80,7 @@ private:
     Utils::Environment m_env;
     QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
     RemoteLinuxRunConfiguration *m_runConfig;
-    QSharedPointer<Utils::SshRemoteProcessRunner> m_remoteProcessRunner;
+    Utils::SshRemoteProcessRunner *m_remoteProcessRunner;
 };
 
 } // namespace Internal

@@ -81,11 +81,11 @@ private:
     void copyNextFile();
     void setFinished();
 
-    QSharedPointer<Utils::SshRemoteProcessRunner> m_copyRunner;
+    Utils::SshRemoteProcessRunner *m_copyRunner;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
     QList<RemoteLinux::DeployableFile> m_deployables;
     QString m_mountPoint;
-    bool m_isCopying;
+    bool m_isCopying; // TODO: Redundant due to being in sync with m_copyRunner?
 };
 
 } // namespace Internal

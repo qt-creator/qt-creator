@@ -47,11 +47,11 @@ enum State { Inactive, Running };
 class RemoteLinuxCustomCommandDeployservicePrivate
 {
 public:
-    RemoteLinuxCustomCommandDeployservicePrivate() : state(Inactive) { }
+    RemoteLinuxCustomCommandDeployservicePrivate() : state(Inactive), runner(0) { }
 
     QString commandLine;
     State state;
-    SshRemoteProcessRunner::Ptr runner;
+    SshRemoteProcessRunner *runner;
 };
 
 } // namespace Internal
@@ -95,12 +95,13 @@ void RemoteLinuxCustomCommandDeployService::doDeploy()
 {
     QTC_ASSERT(d->state == Inactive, handleDeploymentDone());
 
-    d->runner = SshRemoteProcessRunner::create(connection());
-    connect(d->runner.data(), SIGNAL(processOutputAvailable(QByteArray)),
+    delete d->runner;
+    d->runner = new SshRemoteProcessRunner(connection(), this);
+    connect(d->runner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleStdout(QByteArray)));
-    connect(d->runner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
+    connect(d->runner, SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleStderr(QByteArray)));
-    connect(d->runner.data(), SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
+    connect(d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
 
     emit progressMessage(tr("Starting remote command '%1'...").arg(d->commandLine));
     d->state = Running;
@@ -111,9 +112,10 @@ void RemoteLinuxCustomCommandDeployService::stopDeployment()
 {
     QTC_ASSERT(d->state == Running, return);
 
-    disconnect(d->runner.data(), 0, this, 0);
+    disconnect(d->runner, 0, this, 0);
     d->runner->process()->closeChannel();
-    d->runner = SshRemoteProcessRunner::Ptr();
+    delete d->runner;
+    d->runner = 0;
     d->state = Inactive;
     handleDeploymentDone();
 }

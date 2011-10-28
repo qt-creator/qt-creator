@@ -47,6 +47,7 @@
 #include <remotelinux/deploymentinfo.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -67,7 +68,8 @@ MaemoPublisherFremantleFree::MaemoPublisherFremantleFree(const ProjectExplorer::
     QObject(parent),
     m_project(project),
     m_state(Inactive),
-    m_sshParams(SshConnectionParameters::DefaultProxy)
+    m_sshParams(SshConnectionParameters::DefaultProxy),
+    m_uploader(0)
 {
     m_sshParams.authenticationType = SshConnectionParameters::AuthenticationByKey;
     m_sshParams.timeout = 30;
@@ -383,14 +385,13 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
 // webmaster refuses to enable SFTP "for security reasons" ...
 void MaemoPublisherFremantleFree::uploadPackage()
 {
-    m_uploader = SshRemoteProcessRunner::create(m_sshParams);
-    connect(m_uploader.data(), SIGNAL(processStarted()),
-        SLOT(handleScpStarted()));
-    connect(m_uploader.data(), SIGNAL(connectionError(Utils::SshError)),
+    delete m_uploader;
+    m_uploader = new SshRemoteProcessRunner(m_sshParams, this);
+    connect(m_uploader, SIGNAL(processStarted()), SLOT(handleScpStarted()));
+    connect(m_uploader, SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
-    connect(m_uploader.data(), SIGNAL(processClosed(int)),
-        SLOT(handleUploadJobFinished(int)));
-    connect(m_uploader.data(), SIGNAL(processOutputAvailable(QByteArray)),
+    connect(m_uploader, SIGNAL(processClosed(int)), SLOT(handleUploadJobFinished(int)));
+    connect(m_uploader, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleScpStdOut(QByteArray)));
     emit progressReport(tr("Starting scp ..."));
     setState(StartingScp);
@@ -631,8 +632,9 @@ void MaemoPublisherFremantleFree::setState(State newState)
             // TODO: Can we ensure the remote scp exits, e.g. by sending
             //       an illegal sequence of bytes? (Probably not, if
             //       we are currently uploading a file.)
-            disconnect(m_uploader.data(), 0, this, 0);
-            m_uploader = SshRemoteProcessRunner::Ptr();
+            disconnect(m_uploader, 0, this, 0);
+            delete m_uploader;
+            m_uploader = 0;
             break;
         default:
             break;
