@@ -90,7 +90,6 @@ signals:
     void cancelRun();
 
 private slots:
-    void updateProjectFileList();
     void tryToConnect();
     void connectionStateChanged();
     void showSaveDialog();

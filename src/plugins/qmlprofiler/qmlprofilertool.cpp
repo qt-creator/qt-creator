@@ -59,6 +59,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/session.h>
 
 #include <texteditor/itexteditor.h>
 #include <coreplugin/coreconstants.h>
@@ -103,7 +104,6 @@ public:
     QmlProfilerEventsView *m_calleeView;
     QmlProfilerEventsView *m_callerView;
     QmlProfilerEventsView *m_v8profilerView;
-    Project *m_project;
     Utils::FileInProjectFinder m_projectFinder;
     RunConfiguration *m_runConfiguration;
     bool m_isAttached;
@@ -130,7 +130,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_client = 0;
     d->m_connectionAttempts = 0;
     d->m_traceWindow = 0;
-    d->m_project = 0;
     d->m_runConfiguration = 0;
     d->m_isAttached = false;
     d->m_recordingEnabled = true;
@@ -244,17 +243,30 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
 
     d->m_runConfiguration = runConfiguration;
 
-    if (runConfiguration)
-        d->m_project = runConfiguration->target()->project();
-    else
-        d->m_project = ProjectExplorerPlugin::instance()->currentProject();
+    //
+    // Initialize m_projectFinder
+    //
 
-    if (d->m_project) {
-        d->m_projectFinder.setProjectDirectory(d->m_project->projectDirectory());
-        updateProjectFileList();
-        connect(d->m_project, SIGNAL(fileListChanged()), this, SLOT(updateProjectFileList()));
+    QString projectDirectory;
+    if (d->m_runConfiguration) {
+        Project *project = d->m_runConfiguration->target()->project();
+        projectDirectory = project->projectDirectory();
     }
 
+    // get files from all the projects in the session
+    QStringList sourceFiles;
+    SessionManager *sessionManager = ProjectExplorerPlugin::instance()->session();
+    QList<Project *> projects = sessionManager->projects();
+    if (Project *startupProject = ProjectExplorerPlugin::instance()->startupProject()) {
+        // startup project first
+        projects.removeOne(ProjectExplorerPlugin::instance()->startupProject());
+        projects.insert(0, startupProject);
+    }
+    foreach (Project *project, projects)
+        sourceFiles << project->files(Project::ExcludeGeneratedFiles);
+
+    d->m_projectFinder.setProjectDirectory(projectDirectory);
+    d->m_projectFinder.setProjectFiles(sourceFiles);
     d->m_projectFinder.setSysroot(sp.sysroot);
 
     connect(engine, SIGNAL(processRunning(int)), this, SLOT(connectClient(int)));
@@ -483,12 +495,6 @@ void QmlProfilerTool::updateTimer(qreal elapsedSeconds)
     QString timeString = QString::number(elapsedSeconds,'f',1);
     timeString = QString("      ").left(6-timeString.length()) + timeString;
     emit setTimeLabel(tr("Elapsed: %1 s").arg(timeString));
-}
-
-void QmlProfilerTool::updateProjectFileList()
-{
-    d->m_projectFinder.setProjectFiles(
-                d->m_project->files(Project::ExcludeGeneratedFiles));
 }
 
 void QmlProfilerTool::clearDisplay()
