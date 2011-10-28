@@ -694,6 +694,8 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     if (m_activeDebugLanguages.testFlag(Debugger::QmlLanguage)) {
         if (qmlInspectorDock)
             qmlInspectorDock->show();
+        if (scriptConsoleDock)
+            scriptConsoleDock->show();
     } else {
         // CPP only
         threadsDock->show();
