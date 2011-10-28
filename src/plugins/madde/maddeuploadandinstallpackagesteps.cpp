@@ -29,6 +29,7 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+
 #include "maddeuploadandinstallpackagesteps.h"
 
 #include "maemopackagecreationstep.h"

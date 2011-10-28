@@ -29,24 +29,31 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUX_CONSTANTS_H
-#define REMOTELINUX_CONSTANTS_H
+
+#ifndef EMBEDDEDLINUXQTVERSIONFACTORY_H
+#define EMBEDDEDLINUXQTVERSIONFACTORY_H
+
+#include <qtsupport/qtversionfactory.h>
 
 namespace RemoteLinux {
-namespace Constants {
+namespace Internal {
 
-const char GenericLinuxOsType[] = "GenericLinuxOsType";
+class EmbeddedLinuxQtVersionFactory : public QtSupport::QtVersionFactory
+{
+public:
+    explicit EmbeddedLinuxQtVersionFactory(QObject *parent = 0);
+    ~EmbeddedLinuxQtVersionFactory();
 
-const char RemoteLinuxSettingsCategory[] = "X.RemoteLinux";
+    bool canRestore(const QString &type);
+    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
-const char GenericTestDeviceActionId[] = "RemoteLinux.GenericTestDeviceAction";
-const char GenericDeployKeyToDeviceActionId[] = "RemoteLinux.GenericDeployKeyToDeviceAction";
-const char GenericRemoteProcessesActionId[] = "RemoteLinux.GenericRemoteProcessesAction";
+    int priority() const;
+    QtSupport::BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator,
+                                     bool isAutoDetected = false,
+                                     const QString &autoDetectionSource = QString());
+};
 
-const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
-const char EMBEDDED_LINUX_TARGET_ID[] = "RemoteLinux.EmbeddedLinuxTarget";
-
-} // Constants
+} // Internal
 } // RemoteLinux
 
-#endif // REMOTELINUX_CONSTANTS_H
+#endif // EMBEDDEDLINUXQTVERSIONFACTORY_H

@@ -29,24 +29,36 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUX_CONSTANTS_H
-#define REMOTELINUX_CONSTANTS_H
+
+#ifndef EMBEDDEDLINUXQTVERSION_H
+#define EMBEDDEDLINUXQTVERSION_H
+
+#include <qtsupport/baseqtversion.h>
 
 namespace RemoteLinux {
-namespace Constants {
+namespace Internal {
 
-const char GenericLinuxOsType[] = "GenericLinuxOsType";
+class EmbeddedLinuxQtVersion : public QtSupport::BaseQtVersion
+{
+public:
+    EmbeddedLinuxQtVersion();
+    EmbeddedLinuxQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    ~EmbeddedLinuxQtVersion();
+    EmbeddedLinuxQtVersion *clone() const;
 
-const char RemoteLinuxSettingsCategory[] = "X.RemoteLinux";
+    QString type() const;
 
-const char GenericTestDeviceActionId[] = "RemoteLinux.GenericTestDeviceAction";
-const char GenericDeployKeyToDeviceActionId[] = "RemoteLinux.GenericDeployKeyToDeviceAction";
-const char GenericRemoteProcessesActionId[] = "RemoteLinux.GenericRemoteProcessesAction";
+    QString warningReason() const;
 
-const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
-const char EMBEDDED_LINUX_TARGET_ID[] = "RemoteLinux.EmbeddedLinuxTarget";
+    QList<ProjectExplorer::Abi> detectQtAbis() const;
 
-} // Constants
-} // RemoteLinux
+    bool supportsTargetId(const QString &id) const;
+    QSet<QString> supportedTargetIds() const;
 
-#endif // REMOTELINUX_CONSTANTS_H
+    QString description() const;
+};
+
+} // namespace Internal
+} // namespace RemoteLinux
+
+#endif // EMBEDDEDLINUXQTVERSION_H

@@ -5,6 +5,8 @@ include(../../qtcreatorplugin.pri)
 include(remotelinux_dependencies.pri)
 
 HEADERS += \
+    embeddedlinuxqtversion.h \
+    embeddedlinuxqtversionfactory.h \
     remotelinuxplugin.h \
     remotelinux_export.h \
     linuxdeviceconfiguration.h \
@@ -60,6 +62,8 @@ HEADERS += \
     remotelinuxcustomcommanddeploymentstep.h
 
 SOURCES += \
+    embeddedlinuxqtversion.cpp \
+    embeddedlinuxqtversionfactory.cpp \
     remotelinuxplugin.cpp \
     linuxdeviceconfiguration.cpp \
     linuxdeviceconfigurations.cpp \
