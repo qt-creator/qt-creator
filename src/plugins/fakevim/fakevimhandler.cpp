@@ -3720,6 +3720,15 @@ bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
 void FakeVimHandler::Private::handleExCommand(const QString &line0)
 {
     QString line = line0; // Make sure we have a copy to prevent aliasing.
+
+    if (line.endsWith(QLatin1Char('%'))) {
+        line.chop(1);
+        int percent = line.toInt();
+        setPosition(firstPositionInLine(percent * linesInDocument() / 100));
+        showBlackMessage(QString());
+        return;
+    }
+
     // FIXME: that seems to be different for %w and %s
     if (line.startsWith(QLatin1Char('%')))
         line = "1,$" + line.mid(1);
