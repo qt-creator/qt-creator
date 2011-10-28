@@ -53,6 +53,26 @@ def shadowBuildDir(path, project, qtVersion, debugVersion):
     else:
         return buildDir + "_Release"
 
+def createProjectSetNameAndPath(path, projectName = None, checks = True):
+    directoryEdit = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
+    replaceEditorContent(directoryEdit, path)
+    projectNameEdit = waitForObject("{name='nameLineEdit' visible='1' "
+                                    "type='Utils::ProjectNameValidatingLineEdit'}", 20000)
+    if projectName == None:
+        projectName = projectNameEdit.text
+    else:
+        replaceEditorContent(projectNameEdit, projectName)
+    if checks:
+        stateLabel = findObject("{type='QLabel' name='stateLabel'}")
+        labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
+        test.verify(labelCheck, "Project name and base directory without warning or error")
+    # make sure this is not set as default location
+    cbDefaultLocation = waitForObject("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", 20000)
+    if cbDefaultLocation.checked:
+        clickButton(cbDefaultLocation)
+    clickButton(waitForObject(":Next_QPushButton"))
+    return projectName
+
 def createProjectHandleLastPage(expectedFiles = None):
     if expectedFiles != None:
         summary = str(waitForObject(":scrollArea.Files to be added").text)
@@ -71,11 +91,7 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
     waitForObjectItem(":New.templatesView_QListView", "Qt Gui Application")
     clickItem(":New.templatesView_QListView", "Qt Gui Application", 35, 12, 0, Qt.LeftButton)
     clickButton(waitForObject(":New.Choose..._QPushButton"))
-    directoryEdit = waitForObject(":frame_Utils::BaseValidatingLineEdit")
-    replaceEditorContent(directoryEdit, path)
-    projectNameEdit = waitForObject(":frame.nameLineEdit_Utils::ProjectNameValidatingLineEdit")
-    replaceEditorContent(projectNameEdit, projectName)
-    clickButton(waitForObject(":Qt Gui Application.Next_QPushButton"))
+    createProjectSetNameAndPath(path, projectName, checks)
 
     desktopCheckbox = waitForObject(":scrollArea.Desktop_QCheckBox", 20000)
     if checks:
@@ -89,7 +105,8 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
             path = os.path.abspath(path)
         verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox")
         verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox")
-    clickButton(waitForObject(":Qt Gui Application.Next_QPushButton"))
+    nextButton = waitForObject(":Next_QPushButton")
+    clickButton(nextButton)
 
     if checks:
         exp_filename = "mainwindow"
@@ -106,7 +123,7 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
         test.compare(findObject(":sourceFileLineEdit_Utils::FileNameValidatingLineEdit").text, cpp_file)
         test.compare(findObject(":formFileLineEdit_Utils::FileNameValidatingLineEdit").text, ui_file)
 
-    clickButton(verifyEnabled(":Qt Gui Application.Next_QPushButton"))
+    clickButton(nextButton)
 
     expectedFiles = None
     if checks:
@@ -132,21 +149,7 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
     clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick Application", 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
-    if projectName!=None:
-        baseLineEd = waitForObject("{name='nameLineEdit' visible='1' "
-                                   "type='Utils::ProjectNameValidatingLineEdit'}", 20000)
-        replaceEditorContent(baseLineEd, projectName)
-    baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
-    replaceEditorContent(baseLineEd, workingDir)
-    stateLabel = findObject("{type='QLabel' name='stateLabel'}")
-    labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
-    test.verify(labelCheck, "Project name and base directory without warning or error")
-    # make sure this is not set as default location
-    cbDefaultLocation = waitForObject("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", 20000)
-    if cbDefaultLocation.checked:
-        clickButton(cbDefaultLocation)
-    nextButton = waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000)
-    clickButton(nextButton)
+    projectName = createProjectSetNameAndPath(workingDir, projectName)
     if (templateFile==None):
         chooseComponents()
     else:
@@ -154,6 +157,7 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
         # define the existing qml file to import
         baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
         type(baseLineEd, templateFile)
+    nextButton = waitForObject(":Next_QPushButton", 20000)
     clickButton(nextButton)
     chooseTargets(targets)
     snooze(1)
@@ -165,19 +169,9 @@ def createNewQtQuickUI(workingDir):
     clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
     clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick UI", 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
-    baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
     if workingDir == None:
         workingDir = tempDir()
-    replaceEditorContent(baseLineEd, workingDir)
-    stateLabel = findObject("{type='QLabel' name='stateLabel'}")
-    labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
-    test.verify(labelCheck, "Project name and base directory without warning or error")
-    # make sure this is not set as default location
-    cbDefaultLocation = waitForObject("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", 20000)
-    if cbDefaultLocation.checked:
-        clickButton(cbDefaultLocation)
-    # now there's the 'untitled' project inside a temporary directory - step forward...!
-    clickButton(waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000))
+    createProjectSetNameAndPath(workingDir)
     createProjectHandleLastPage()
 
 def createNewQmlExtension(workingDir):
@@ -185,21 +179,11 @@ def createNewQmlExtension(workingDir):
     clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
     clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Custom QML Extension Plugin", 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
-    baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
     if workingDir == None:
         workingDir = tempDir()
-    replaceEditorContent(baseLineEd, workingDir)
-    stateLabel = findObject("{type='QLabel' name='stateLabel'}")
-    labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
-    test.verify(labelCheck, "Project name and base directory without warning or error")
-    # make sure this is not set as default location
-    cbDefaultLocation = waitForObject("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", 20000)
-    if cbDefaultLocation.checked:
-        clickButton(cbDefaultLocation)
-    # now there's the 'untitled' project inside a temporary directory - step forward...!
-    nextButton = waitForObject("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}", 20000)
-    clickButton(nextButton)
+    createProjectSetNameAndPath(workingDir)
     chooseTargets()
+    nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
                                "type='QLineEdit' unnamed='1' visible='1'}", 20000)

@@ -18,6 +18,7 @@
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.templatesView_QListView	{name='templatesView' type='QListView' visible='1' window=':New_Core::Internal::NewDialog'}
 :New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle='New'}
+:Next_QPushButton	{text~='(Next.*|Continue)' type='QPushButton' visible='1'}
 :Project Setup.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard'}
 :Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard	{type='Qt4ProjectManager::Internal::ProjectLoadWizard' unnamed='1' visible='1' windowTitle='Project Setup'}
 :Qt Creator.QtCreator.MenuBar_QMenuBar	{name='QtCreator.MenuBar' type='QMenuBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -30,7 +31,6 @@
 :Qt Creator_Utils::NavigationTreeView	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Gui Application.Form file:_QLabel	{name='formLabel' text='Form file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.Header file:_QLabel	{name='headerLabel' text='Header file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
-:Qt Gui Application.Next_QPushButton	{name='__qt__passive_wizardbutton1' text~='(Next.*|Continue)' type='QPushButton' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.Source file:_QLabel	{name='sourceLabel' text='Source file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
@@ -39,8 +39,6 @@
 :QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget	{type='ProjectExplorer::Internal::ProjectListWidget' window=':QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector'}
 :addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
 :formFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Form file:_QLabel' name='formFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
-:frame.nameLineEdit_Utils::ProjectNameValidatingLineEdit	{container=':Qt Gui Application.frame_QFrame' name='nameLineEdit' type='Utils::ProjectNameValidatingLineEdit' visible='1'}
-:frame_Utils::BaseValidatingLineEdit	{container=':Qt Gui Application.frame_QFrame' type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}
 :headerFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Header file:_QLabel' name='headerFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :projects.projects.pro_QModelIndex	{column='0' container=':projects_QModelIndex' text='projects.pro' type='QModelIndex'}
 :projects_QModelIndex	{column='0' container=':Qt Creator_Utils::NavigationTreeView' text='projects' type='QModelIndex'}
