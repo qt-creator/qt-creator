@@ -1185,10 +1185,11 @@ void WatchModel::formatRequests(QByteArray *out, const WatchItem *item) const
 ///////////////////////////////////////////////////////////////////////
 
 WatchHandler::WatchHandler(DebuggerEngine *engine)
-    : m_watcherCounter(0)
 {
     m_engine = engine;
     m_inChange = false;
+    m_watcherCounter = debuggerCore()->sessionValue("Watchers")
+            .toStringList().count();
 
     m_return = new WatchModel(this, ReturnWatch);
     m_locals = new WatchModel(this, LocalsWatch);
@@ -1554,6 +1555,7 @@ void WatchHandler::loadSessionData()
 {
     loadTypeFormats();
     m_watcherNames.clear();
+    m_watcherCounter = 0;
     QVariant value = debuggerCore()->sessionValue("Watchers");
     foreach (WatchItem *item, m_watchers->rootItem()->children)
         m_watchers->destroyItem(item);
