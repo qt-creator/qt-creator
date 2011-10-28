@@ -49,7 +49,7 @@ def qdump__QChar(d, value):
     d.putNumChild(0)
 
 
-def qform__QModelIndex():
+def qform__QAbstractItemModel():
     return "Normal,Enhanced"
 
 def qdump__QAbstractItemModel(d, value):
