@@ -63,8 +63,7 @@ public:
     bool isAddButtonEnabled() const;
     bool isRemoveButtonEnabled() const;
 
-public slots:
-    void addTarget(const QString &name);
+public:
     void insertTarget(int index, const QString &name);
     void removeTarget(int index);
     void setCurrentIndex(int index);

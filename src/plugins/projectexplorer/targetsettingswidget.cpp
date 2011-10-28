@@ -72,12 +72,6 @@ TargetSettingsWidget::~TargetSettingsWidget()
     delete ui;
 }
 
-void TargetSettingsWidget::addTarget(const QString &name)
-{
-    m_targetSelector->addTarget(name);
-    updateTargetSelector();
-}
-
 void TargetSettingsWidget::insertTarget(int index, const QString &name)
 {
     m_targetSelector->insertTarget(index, name);
