@@ -67,6 +67,7 @@ class RunSettingsPanelFactory : public ITargetPanelFactory
 public:
     QString id() const;
     QString displayName() const;
+    int priority() const;
     bool supports(Target *target);
     PropertiesPanel *createPanel(Target *target);
 };

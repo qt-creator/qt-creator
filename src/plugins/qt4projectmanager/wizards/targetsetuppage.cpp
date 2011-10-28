@@ -35,6 +35,7 @@
 #include "ui_targetsetuppage.h"
 #include "buildconfigurationinfo.h"
 #include "qt4project.h"
+#include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 #include "qt4basetargetfactory.h"
@@ -42,6 +43,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <qtsupport/qtversionfactory.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -54,6 +57,7 @@ using namespace Qt4ProjectManager;
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
     m_importSearch(false),
+    m_useScrollArea(true),
     m_maximumQtVersionNumber(INT_MAX, INT_MAX, INT_MAX),
     m_spacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)),
     m_ui(new Internal::Ui::TargetSetupPage)
@@ -61,11 +65,14 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_ui->setupUi(this);
     QWidget *centralWidget = new QWidget(this);
     m_ui->scrollArea->setWidget(centralWidget);
-    m_layout = new QVBoxLayout;
-    centralWidget->setLayout(m_layout);
-    m_layout->addSpacerItem(m_spacer);
+    centralWidget->setLayout(new QVBoxLayout);
+    m_ui->centralWidget->setLayout(new QVBoxLayout);
+    m_ui->centralWidget->layout()->setMargin(0);
 
     setTitle(tr("Target Setup"));
+
+    connect(m_ui->descriptionLabel, SIGNAL(linkActivated(QString)),
+            this, SIGNAL(noteTextLinkActivated()));
 }
 
 void TargetSetupPage::initializePage()
@@ -130,6 +137,13 @@ void TargetSetupPage::setImportSearch(bool b)
 
 void TargetSetupPage::setupWidgets()
 {
+    QLayout *layout = 0;
+    if (m_useScrollArea)
+        layout = m_ui->scrollArea->widget()->layout();
+    else
+        layout = m_ui->centralWidget->layout();
+
+    // Target Page setup
     QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     bool atLeastOneTargetSelected = false;
     foreach (Qt4BaseTargetFactory *factory, factories) {
@@ -159,7 +173,7 @@ void TargetSetupPage::setupWidgets()
                 atLeastOneTargetSelected |= selectTarget;
                 m_widgets.insert(id, widget);
                 m_factories.insert(widget, factory);
-                m_layout->addWidget(widget);
+                layout->addWidget(widget);
                 connect(widget, SIGNAL(selectedToggled()),
                         this, SIGNAL(completeChanged()));
                 connect(widget, SIGNAL(newImportBuildConfiguration(BuildConfigurationInfo)),
@@ -173,15 +187,17 @@ void TargetSetupPage::setupWidgets()
             widget->setTargetSelected(true);
     }
 
-
-    m_layout->addSpacerItem(m_spacer);
+    if (m_useScrollArea)
+        layout->addItem(m_spacer);
     if (m_widgets.isEmpty()) {
         // Oh no one can create any targets
         m_ui->scrollArea->setVisible(false);
+        m_ui->centralWidget->setVisible(false);
         m_ui->descriptionLabel->setVisible(false);
         m_ui->noValidQtVersionsLabel->setVisible(true);
     } else {
-        m_ui->scrollArea->setVisible(true);
+        m_ui->scrollArea->setVisible(m_useScrollArea);
+        m_ui->centralWidget->setVisible(!m_useScrollArea);
         m_ui->descriptionLabel->setVisible(true);
         m_ui->noValidQtVersionsLabel->setVisible(false);
     }
@@ -189,11 +205,17 @@ void TargetSetupPage::setupWidgets()
 
 void TargetSetupPage::deleteWidgets()
 {
+    QLayout *layout = 0;
+    if (m_useScrollArea)
+        layout = m_ui->scrollArea->widget()->layout();
+    else
+        layout = m_ui->centralWidget->layout();
     foreach (Qt4TargetSetupWidget *widget, m_widgets)
         delete widget;
     m_widgets.clear();
     m_factories.clear();
-    m_layout->removeItem(m_spacer);
+    if (m_useScrollArea)
+        layout->removeItem(m_spacer);
 }
 
 void TargetSetupPage::setProFilePath(const QString &path)
@@ -206,6 +228,11 @@ void TargetSetupPage::setProFilePath(const QString &path)
 
     deleteWidgets();
     setupWidgets();
+}
+
+void TargetSetupPage::setNoteText(const QString &text)
+{
+    m_ui->descriptionLabel->setText(text);
 }
 
 void TargetSetupPage::setupImportInfos()
@@ -251,14 +278,6 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
             project->addTarget(target);
     }
 
-    // Create a desktop target if nothing else was set up:
-    if (project->targets().isEmpty()) {
-        const QString desktopTargetId = QLatin1String(Constants::DESKTOP_TARGET_ID);
-        if (Qt4BaseTargetFactory *tf = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(desktopTargetId))
-            if (ProjectExplorer::Target *target = tf->create(project, desktopTargetId))
-                project->addTarget(target);
-    }
-
     // Select active target
     // a) Simulator target
     // b) Desktop target
@@ -276,5 +295,10 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
     if (activeTarget)
         project->setActiveTarget(activeTarget);
 
-    return !project->targets().isEmpty();
+    return true;
+}
+
+void TargetSetupPage::setUseScrollArea(bool b)
+{
+    m_useScrollArea = b;
 }

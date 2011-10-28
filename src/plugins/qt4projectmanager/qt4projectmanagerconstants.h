@@ -101,6 +101,13 @@ const char ICON_HTML5_APP[] = ":/wizards/images/html5app.png";
 const char QMAKEVAR_QMLJSDEBUGGER_PATH[] = "QMLJSDEBUGGER_PATH";
 const char QMAKEVAR_DECLARATIVE_DEBUG[] = "CONFIG+=declarative_debug";
 
+// Unconfigured Settings page
+const char UNCONFIGURED_SETTINGS_PAGE_ID[] = "R.UnconfiguredSettings";
+const char UNCONFIGURED_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Unconfigured Project Settings");
+
+// Unconfigured Panel
+const char UNCONFIGURED_PANEL_PAGE_ID[] = "UnconfiguredPanel";
+
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

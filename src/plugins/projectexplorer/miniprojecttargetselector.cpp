@@ -40,6 +40,7 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -487,6 +488,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_summaryLabel->setMargin(3);
     m_summaryLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     m_summaryLabel->setStyleSheet(QString::fromLatin1("background: #464646;"));
+    m_summaryLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    m_summaryLabel->setTextInteractionFlags(m_summaryLabel->textInteractionFlags() | Qt::LinksAccessibleByMouse);
 
     grid->addWidget(m_summaryLabel, 0, 0, 1, 2 * LAST - 1);
 
@@ -518,6 +521,9 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     changeStartupProject(m_sessionManager->startupProject());
     if (m_sessionManager->startupProject())
         activeTargetChanged(m_sessionManager->startupProject()->activeTarget());
+
+    connect(m_summaryLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(switchToProjectsMode()));
 
     connect(m_sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(changeStartupProject(ProjectExplorer::Project*)));
@@ -994,6 +1000,7 @@ QSize MiniProjectTargetSelector::sizeHint() const
     static QWidget *actionBar = Core::ICore::mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
     Q_ASSERT(actionBar);
 
+    // At least the size of the actionbar
     int alignedWithActionHeight
             = actionBar->height() - statusBar->height();
     QSize s = QWidget::sizeHint();
@@ -1057,23 +1064,55 @@ void MiniProjectTargetSelector::updateActionAndSummary()
         }
     }
     m_projectAction->setProperty("heading", projectName);
-    m_projectAction->setProperty("subtitle", buildConfig);
+    if (project && project->needsConfiguration()) {
+        m_projectAction->setProperty("subtitle", tr("Unconfigured"));
+    } else {
+        m_projectAction->setProperty("subtitle", buildConfig);
+    }
     m_projectAction->setIcon(targetIcon);
-    QString targetTip = targetName.isEmpty() ? QLatin1String("")
-        : tr("<b>Target:</b> %1<br/>").arg(targetName);
-    QString buildTip = buildConfig.isEmpty() ? QLatin1String("")
-        : tr("<b>Build:</b> %1<br/>").arg(buildConfig);
-    QString deployTip = deployConfig.isEmpty() ? QLatin1String("")
-        : tr("<b>Deploy:</b> %1<br/>").arg(deployConfig);
-    QString targetToolTip = targetToolTipText.isEmpty() ? QLatin1String("")
-        : tr("<br/>%1").arg(targetToolTipText);
-    QString toolTip = tr("<html><nobr><b>Project:</b> %1<br/>%2%3%4<b>Run:</b> %5%6</html>");
-    m_projectAction->setToolTip(toolTip.arg(projectName, targetTip, buildTip, deployTip, runConfig, targetToolTip));
+    QStringList lines;
+    lines << tr("<b>Project:</b> %1").arg(projectName);
+    if (!targetName.isEmpty())
+        lines << tr("<b>Target:</b> %1").arg(targetName);
+    if (!buildConfig.isEmpty())
+        lines << tr("<b>Build:</b> %1").arg(buildConfig);
+    if (!deployConfig.isEmpty())
+        lines << tr("<b>Deploy:</b> %1").arg(deployConfig);
+    if (!runConfig.isEmpty())
+        lines << tr("<b>Run:</b> %1").arg(runConfig);
+    if (!targetToolTipText.isEmpty())
+        lines << tr("%1").arg(targetToolTipText);
+    QString toolTip = tr("<html><nobr>%1</html>")
+            .arg(lines.join(QLatin1String("<br/>")));
+    m_projectAction->setToolTip(toolTip);
     updateSummary();
 }
 
 void MiniProjectTargetSelector::updateSummary()
 {
+    // Count the number of lines
+    int visibleLineCount = m_projectListWidget->isVisibleTo(this) ? 0 : 1;
+    for (int i = TARGET; i < LAST; ++i)
+        visibleLineCount += m_listWidgets[i]->isVisibleTo(this) ? 0 : 1;
+
+    if (visibleLineCount == LAST) {
+        m_summaryLabel->setMinimumHeight(0);
+        m_summaryLabel->setMaximumHeight(800);
+    } else {
+        if (visibleLineCount < 3) {
+            foreach (Project *p, m_sessionManager->projects()) {
+                if (p->needsConfiguration()) {
+                    visibleLineCount = 3;
+                    break;
+                }
+            }
+        }
+
+        int height = visibleLineCount * QFontMetrics(m_summaryLabel->font()).height() + m_summaryLabel->margin() *2;
+        m_summaryLabel->setMinimumHeight(height);
+        m_summaryLabel->setMaximumHeight(height);
+    }
+
     QString summary;
     if (Project *startupProject = m_sessionManager->startupProject()) {
         if (!m_projectListWidget->isVisibleTo(this))
@@ -1090,10 +1129,24 @@ void MiniProjectTargetSelector::updateSummary()
             if (!m_listWidgets[RUN]->isVisibleTo(this) && activeTarget->activeRunConfiguration())
                 summary.append(tr("Run: <b>%1</b><br/>").arg(
                                    activeTarget->activeRunConfiguration()->displayName()));
+        } else if (startupProject->needsConfiguration()) {
+            summary = tr("<style type=text/css>"
+                         "a:link {color: rgb(128, 128, 255, 240);}</style>"
+                         "The project <b>%1</b> is not yet configured<br/><br/>"
+                         "You can configure it in the <a href=\"projectmode\">Projects mode</a><br/>")
+                    .arg(startupProject->displayName());
+        } else {
+            if (!m_listWidgets[TARGET]->isVisibleTo(this))
+                summary.append("<br/>");
+            if (!m_listWidgets[BUILD]->isVisibleTo(this))
+                summary.append("<br/>");
+            if (!m_listWidgets[DEPLOY]->isVisibleTo(this))
+                summary.append("<br/>");
+            if (!m_listWidgets[RUN]->isVisibleTo(this))
+                summary.append("<br/>");
         }
     }
     m_summaryLabel->setText(summary);
-
 }
 
 void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
@@ -1106,4 +1159,10 @@ void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
     QRect bottomRect(0, rect().height() - 8, rect().width(), 8);
     static QImage image(QLatin1String(":/projectexplorer/images/targetpanel_bottom.png"));
     Utils::StyleHelper::drawCornerImage(image, &painter, bottomRect, 1, 1, 1, 1);
+}
+
+void MiniProjectTargetSelector::switchToProjectsMode()
+{
+    Core::ICore::instance()->modeManager()->activateMode(Constants::MODE_SESSION);
+    hide();
 }

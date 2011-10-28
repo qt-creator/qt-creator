@@ -1484,9 +1484,10 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     RunConfiguration *activeRc = 0;
     if (project) {
         Target *target = project->activeTarget();
-        QTC_ASSERT(target, return);
-        activeRc = target->activeRunConfiguration();
-        QTC_CHECK(activeRc);
+        if (target)
+            activeRc = target->activeRunConfiguration();
+        if (!activeRc)
+            return;
     }
     for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
         // Run controls might be deleted during exit.

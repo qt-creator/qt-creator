@@ -50,10 +50,12 @@ namespace ProjectExplorer {
 class Project;
 class ProjectExplorerPlugin;
 class Node;
+class ToolChain;
 }
 
 namespace QtSupport {
 class QtVersionManager;
+class BaseQtVersion;
 }
 
 namespace Qt4ProjectManager {
@@ -62,6 +64,13 @@ namespace Internal {
 class Qt4Builder;
 class ProFileEditorWidget;
 class Qt4ProjectManagerPlugin;
+
+class UnConfiguredSettings
+{
+public:
+    QtSupport::BaseQtVersion *version;
+    ProjectExplorer::ToolChain *toolchain;
+};
 }
 
 class Qt4Project;
@@ -96,6 +105,13 @@ public:
 
     enum Action { BUILD, REBUILD, CLEAN };
 
+    /// Settings to use for codemodel if no targets exist
+    Internal::UnConfiguredSettings unconfiguredSettings() const;
+    void setUnconfiguredSettings(const Internal::UnConfiguredSettings &setting);
+
+signals:
+    void unconfiguredSettingsChanged();
+
 public slots:
     void addLibrary();
     void addLibraryContextMenu();
@@ -118,7 +134,8 @@ private:
     void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
     Internal::Qt4ProjectManagerPlugin *m_plugin;
-
+    mutable int m_unConfiguredVersionId;
+    mutable QString m_unconfiguredToolChainId;
     ProjectExplorer::Node *m_contextNode;
     ProjectExplorer::Project *m_contextProject;
 

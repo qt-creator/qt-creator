@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -30,33 +30,52 @@
 **
 **************************************************************************/
 
-#ifndef PROJECTLOADWIZARD_H
-#define PROJECTLOADWIZARD_H
+#ifndef UNCONFIGUREDSETTINGSOPTIONPAGE_H
+#define UNCONFIGUREDSETTINGSOPTIONPAGE_H
 
-#include <QtGui/QWizard>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QCheckBox;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
-class Qt4Project;
-class TargetSetupPage;
-
 namespace Internal {
 
-class ProjectLoadWizard : public QWizard
+class UnConfiguredSettingsWidget : public QWidget
 {
-    Q_OBJECT
 public:
-    explicit ProjectLoadWizard(Qt4Project *project, QWidget * parent = 0, Qt::WindowFlags flags = 0);
-    virtual ~ProjectLoadWizard();
-    virtual void done(int result);
-
+    UnConfiguredSettingsWidget(QWidget *parent);
+    void apply();
+    bool matches(const QString &searchKeyword);
 private:
-    void applySettings();
+    QComboBox *m_qtVersionComboBox;
+    QComboBox *m_toolchainComboBox;
+    QCheckBox *m_alwaysSkipCheckBox;
+};
 
-    Qt4Project *m_project;
-    TargetSetupPage *m_targetSetupPage;
+class UnConfiguredSettingsOptionPage : public Core::IOptionsPage
+{
+public:
+    UnConfiguredSettingsOptionPage();
+
+    QString id() const;
+    QString displayName() const;
+    QString category() const;
+    QString displayCategory() const;
+    QIcon categoryIcon() const;
+    bool matches(const QString &searcKeyword) const;
+
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
+private:
+    UnConfiguredSettingsWidget *m_widget;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // PROJECTLOADWIZARD_H
+#endif // UNCONFIGUREDSETTINGSOPTIONPAGE_H

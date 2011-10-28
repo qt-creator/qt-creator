@@ -36,6 +36,8 @@
 #include "qt4nodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
+#include "qt4target.h"
+#include "qt4buildconfiguration.h"
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
 #include "wizards/mobileappwizard.h"
@@ -60,6 +62,8 @@
 #include "qt-desktop/desktopqtversionfactory.h"
 #include "qt-desktop/simulatorqtversionfactory.h"
 #include "winceqtversionfactory.h"
+#include "unconfiguredprojectpanel.h"
+#include "unconfiguredsettingsoptionpage.h"
 
 #include <coreplugin/id.h>
 #include <coreplugin/icore.h>
@@ -89,6 +93,12 @@
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
 using ProjectExplorer::Project;
+
+Qt4ProjectManagerPlugin::Qt4ProjectManagerPlugin()
+    : m_previousStartupProject(0), m_previousTarget(0)
+{
+
+}
 
 Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
 {
@@ -141,6 +151,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new MakeStepFactory);
 
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
+    addAutoReleasedObject(new UnConfiguredSettingsOptionPage);
 
 #ifdef Q_OS_MAC
     addAutoReleasedObject(new MacDesignerExternalEditor);
@@ -160,6 +171,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     addAutoReleasedObject(new ProFileCompletionAssistProvider);
     addAutoReleasedObject(new ProFileHoverHandler(this));
+    addAutoReleasedObject(new UnconfiguredProjectPanel);
 
     //menus
     Core::ActionContainer *mbuild =
@@ -217,8 +229,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     connect(m_projectExplorer->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project *)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project *)));
-    connect(m_projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
-            this, SLOT(currentProjectChanged()));
+    connect(m_projectExplorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(startupProjectChanged()));
     connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
             this, SLOT(currentNodeChanged(ProjectExplorer::Node*)));
 
@@ -276,14 +288,18 @@ void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,
     m_cleanSubProjectContextMenu->setEnabled(false);
 
     Qt4ProFileNode *proFileNode = qobject_cast<Qt4ProFileNode *>(node);
-    if (qobject_cast<Qt4Project *>(project) && proFileNode) {
+    Qt4Project *qt4Project = qobject_cast<Qt4Project *>(project);
+    if (qt4Project && proFileNode
+            && qt4Project->activeTarget()
+            && qt4Project->activeTarget()->activeQt4BuildConfiguration()) {
         m_runQMakeActionContextMenu->setVisible(true);
         m_buildSubProjectContextMenu->setVisible(true);
         m_rebuildSubProjectContextMenu->setVisible(true);
         m_cleanSubProjectContextMenu->setVisible(true);
 
         if (!m_projectExplorer->buildManager()->isBuilding(project)) {
-            m_runQMakeActionContextMenu->setEnabled(true);
+            if (qt4Project->activeTarget()->activeQt4BuildConfiguration()->qmakeStep())
+                m_runQMakeActionContextMenu->setEnabled(true);
             m_buildSubProjectContextMenu->setEnabled(true);
             m_rebuildSubProjectContextMenu->setEnabled(true);
             m_cleanSubProjectContextMenu->setEnabled(true);
@@ -296,9 +312,49 @@ void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,
     }
 }
 
-void Qt4ProjectManagerPlugin::currentProjectChanged()
+
+void Qt4ProjectManagerPlugin::startupProjectChanged()
 {
-    m_runQMakeAction->setEnabled(!m_projectExplorer->buildManager()->isBuilding(m_projectExplorer->currentProject()));
+    if (m_previousStartupProject)
+        disconnect(m_previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+                   this, SLOT(activeTargetChanged()));
+
+    m_previousStartupProject = qobject_cast<Qt4Project *>(m_projectExplorer->session()->startupProject());
+
+    if (m_previousStartupProject)
+        connect(m_previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+                           this, SLOT(activeTargetChanged()));
+
+    activeTargetChanged();
+}
+
+void Qt4ProjectManagerPlugin::activeTargetChanged()
+{
+    if (m_previousTarget)
+        disconnect(m_previousTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                   this, SLOT(updateRunQMakeAction()));
+
+    m_previousTarget = m_previousStartupProject ? m_previousStartupProject->activeTarget() : 0;
+
+    if (m_previousTarget)
+        connect(m_previousTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                this, SLOT(updateRunQMakeAction()));
+
+    updateRunQMakeAction();
+}
+
+void Qt4ProjectManagerPlugin::updateRunQMakeAction()
+{
+    bool enable = true;
+    if (m_projectExplorer->buildManager()->isBuilding(m_projectExplorer->currentProject()))
+        enable = false;
+    Qt4Project *pro = qobject_cast<Qt4Project *>(m_projectExplorer->currentProject());
+    if (!pro
+            || !pro->activeTarget()
+            || !pro->activeTarget()->activeBuildConfiguration())
+        enable = false;
+
+    m_runQMakeAction->setEnabled(enable);
 }
 
 void Qt4ProjectManagerPlugin::currentNodeChanged(ProjectExplorer::Node *node)
@@ -310,9 +366,7 @@ void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
 {
     ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
     if (pro == currentProject)
-        m_runQMakeAction->setEnabled(!m_projectExplorer->buildManager()->isBuilding(currentProject));
-    if (pro == m_qt4ProjectManager->contextProject())
-        m_runQMakeActionContextMenu->setEnabled(!m_projectExplorer->buildManager()->isBuilding(pro));
+        updateRunQMakeAction();
 }
 
 void Qt4ProjectManagerPlugin::jumpToFile()

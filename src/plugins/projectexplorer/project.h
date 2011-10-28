@@ -117,6 +117,8 @@ public:
     QVariant namedSettings(const QString &name) const;
     void setNamedSettings(const QString &name, QVariant &value);
 
+    virtual bool needsConfiguration() const;
+
 signals:
     void fileListChanged();
 

@@ -41,5 +41,6 @@
         <file>images/window.png</file>
         <file>images/stop_small.png</file>
         <file>images/disabledbuildstep.png</file>
+        <file>images/unconfigured.png</file>
     </qresource>
 </RCC>

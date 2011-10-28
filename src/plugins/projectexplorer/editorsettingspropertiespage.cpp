@@ -49,6 +49,11 @@ QString EditorSettingsPanelFactory::displayName() const
     return QCoreApplication::translate("EditorSettingsPanelFactory", "Editor Settings");
 }
 
+int EditorSettingsPanelFactory::priority() const
+{
+    return 30;
+}
+
 bool EditorSettingsPanelFactory::supports(Project *project)
 {
     Q_UNUSED(project);

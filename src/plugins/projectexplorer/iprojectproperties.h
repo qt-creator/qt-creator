@@ -75,6 +75,10 @@ class PROJECTEXPLORER_EXPORT IPanelFactory : public QObject
 public:
     virtual QString id() const = 0;
     virtual QString displayName() const = 0;
+    virtual int priority() const = 0;
+    static bool prioritySort(IPanelFactory *a, IPanelFactory *b)
+    { return (a->priority() == b->priority() && a->id() < b->id())
+                || a->priority() < b->priority(); }
 };
 
 class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public IPanelFactory
@@ -83,6 +87,8 @@ class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public IPanelFactory
 public:
     virtual bool supports(Project *project) = 0;
     virtual PropertiesPanel *createPanel(Project *project) = 0;
+signals:
+    void projectUpdated(ProjectExplorer::Project *project);
 };
 
 class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public IPanelFactory

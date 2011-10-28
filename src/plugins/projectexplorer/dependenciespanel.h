@@ -61,6 +61,7 @@ public:
 
     QString id() const;
     QString displayName() const;
+    int priority() const;
     bool supports(Project *project);
     PropertiesPanel *createPanel(Project *project);
 private:

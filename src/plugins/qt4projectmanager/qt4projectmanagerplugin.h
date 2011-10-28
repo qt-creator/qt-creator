@@ -49,6 +49,8 @@ namespace Qt4ProjectManager {
 
 class Qt4Manager;
 class QtVersionManager;
+class Qt4Project;
+class Qt4BaseTarget;
 
 namespace Internal {
 
@@ -59,6 +61,7 @@ class Qt4ProjectManagerPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
+    Qt4ProjectManagerPlugin();
     ~Qt4ProjectManagerPlugin();
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
@@ -66,7 +69,9 @@ public:
 private slots:
     void updateContextMenu(ProjectExplorer::Project *project,
                            ProjectExplorer::Node *node);
-    void currentProjectChanged();
+    void startupProjectChanged();
+    void activeTargetChanged();
+    void updateRunQMakeAction();
     void currentNodeChanged(ProjectExplorer::Node *node);
     void buildStateChanged(ProjectExplorer::Project *pro);
     void jumpToFile();
@@ -86,6 +91,8 @@ private:
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     ProFileEditorFactory *m_proFileEditorFactory;
     Qt4Manager *m_qt4ProjectManager;
+    Qt4Project *m_previousStartupProject;
+    Qt4BaseTarget *m_previousTarget;
 
     QAction *m_runQMakeAction;
     QAction *m_runQMakeActionContextMenu;

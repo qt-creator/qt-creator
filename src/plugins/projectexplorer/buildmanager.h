@@ -60,7 +60,8 @@ public:
 
     bool tasksAvailable() const;
 
-    bool buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames);
+    bool buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames,
+                    const QStringList &preambelMessage = QStringList());
     bool buildList(BuildStepList *bsl, const QString &stepListName);
 
     bool isBuilding(Project *p);
@@ -103,7 +104,7 @@ private slots:
     void finish();
 
 private:
-    void startBuildQueue();
+    void startBuildQueue(const QStringList &preambleMessage = QStringList());
     void nextStep();
     void clearBuildQueue();
     bool buildQueueAppend(QList<BuildStep *> steps, QStringList names);

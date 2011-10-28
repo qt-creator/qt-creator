@@ -53,6 +53,11 @@ QString CodeStyleSettingsPanelFactory::displayName() const
     return QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style Settings");
 }
 
+int CodeStyleSettingsPanelFactory::priority() const
+{
+    return 40;
+}
+
 bool CodeStyleSettingsPanelFactory::supports(Project *project)
 {
     Q_UNUSED(project);

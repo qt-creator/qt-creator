@@ -774,7 +774,10 @@ bool Qt4PriFileNode::deploysFolder(const QString &folder) const
 
 QList<ProjectExplorer::RunConfiguration *> Qt4PriFileNode::runConfigurationsFor(Node *node)
 {
-    return m_project->activeTarget()->runConfigurationsForNode(node);
+    Qt4BaseTarget *target = m_project->activeTarget();
+    if (target)
+        return target->runConfigurationsForNode(node);
+    return QList<ProjectExplorer::RunConfiguration *>();
 }
 
 QList<Qt4PriFileNode *> Qt4PriFileNode::subProjectNodesExact() const
@@ -854,7 +857,9 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
     if (fileNode && fileNode->fileType() != ProjectExplorer::ProjectFileType)
         actions << Rename;
 
-    if (!m_project->activeTarget()->runConfigurationsForNode(node).isEmpty())
+
+    Qt4BaseTarget *target = m_project->activeTarget();
+    if (target && !target->runConfigurationsForNode(node).isEmpty())
         actions << HasSubProjectRunConfigurations;
 
     return actions;
@@ -2132,7 +2137,8 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
             // Hmm can we find out whether it's debug or release in a saner way?
             // Theoretically it's in CONFIG
             QString qmakeBuildConfig = QLatin1String("release");
-            if (m_project->activeTarget()->activeQt4BuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
+            Qt4BaseTarget *target = m_project->activeTarget();
+            if (!target || target->activeQt4BuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
                 qmakeBuildConfig = QLatin1String("debug");
             wd += QLatin1Char('/') + qmakeBuildConfig;
         }

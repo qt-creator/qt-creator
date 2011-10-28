@@ -73,6 +73,11 @@ QString BuildSettingsPanelFactory::displayName() const
     return QCoreApplication::translate("BuildSettingsPanelFactory", "Build Settings");
 }
 
+int BuildSettingsPanelFactory::priority() const
+{
+    return 10;
+}
+
 bool BuildSettingsPanelFactory::supports(Target *target)
 {
     return target->buildConfigurationFactory();

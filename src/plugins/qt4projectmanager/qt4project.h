@@ -57,6 +57,7 @@ class Qt4ProFileNode;
 class Qt4PriFileNode;
 class Qt4BaseTarget;
 class Qt4BuildConfiguration;
+class Qt4Manager;
 
 namespace Internal {
     class DeployHelperRunStep;
@@ -71,7 +72,6 @@ namespace Internal {
 class QMakeStep;
 class MakeStep;
 
-class Qt4Manager;
 class Qt4Project;
 class Qt4RunStep;
 
@@ -137,6 +137,8 @@ public:
 
     void watchFolders(const QStringList &l, Qt4PriFileNode *node);
     void unwatchFolders(const QStringList &l, Qt4PriFileNode *node);
+
+    bool needsConfiguration() const;
 
 signals:
     void proParsingDone();
@@ -207,6 +209,7 @@ private:
 
     friend class Internal::Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;
+    friend class Qt4Manager; // to schedule a async update if the unconfigured settings change
 };
 
 } // namespace Qt4ProjectManager

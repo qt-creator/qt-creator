@@ -54,7 +54,6 @@ class SessionManager;
 namespace Internal {
 
 // helper classes
-
 class ListWidget : public QListWidget
 {
     Q_OBJECT
@@ -144,6 +143,7 @@ private slots:
 
     void delayedHide();
     void updateActionAndSummary();
+    void switchToProjectsMode();
 private:
     void updateProjectListVisible();
     void updateTargetListVisible();

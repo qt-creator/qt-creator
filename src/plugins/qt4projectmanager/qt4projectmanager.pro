@@ -51,7 +51,6 @@ HEADERS += \
     qmakestep.h \
     qtmodulesinfo.h \
     qt4projectconfigwidget.h \
-    projectloadwizard.h \
     qtuicodemodelsupport.h \
     externaleditors.h \
     qt4buildconfiguration.h \
@@ -67,7 +66,9 @@ HEADERS += \
     winceqtversionfactory.h \
     winceqtversion.h \
     profilecompletionassist.h \
-    qt4basetargetfactory.h
+    qt4basetargetfactory.h \
+    unconfiguredprojectpanel.h \
+    unconfiguredsettingsoptionpage.h
 
 SOURCES += qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
@@ -113,7 +114,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qmakestep.cpp \
     qtmodulesinfo.cpp \
     qt4projectconfigwidget.cpp \
-    projectloadwizard.cpp \
     qtuicodemodelsupport.cpp \
     externaleditors.cpp \
     qt4buildconfiguration.cpp \
@@ -125,7 +125,9 @@ SOURCES += qt4projectmanagerplugin.cpp \
     profilekeywords.cpp \
     winceqtversionfactory.cpp \
     winceqtversion.cpp \
-    profilecompletionassist.cpp
+    profilecompletionassist.cpp \
+    unconfiguredprojectpanel.cpp \
+    unconfiguredsettingsoptionpage.cpp
 
 FORMS += makestep.ui \
     qmakestep.ui \

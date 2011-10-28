@@ -1080,7 +1080,10 @@ QString InternalLibraryDetailsController::snippet() const
             ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile());
 
     // the build directory of the active build configuration
-    QDir rootBuildDir(project->activeTarget()->activeBuildConfiguration()->buildDirectory());
+    QDir rootBuildDir = rootDir; // If the project is unconfigured use the project dir
+    if (ProjectExplorer::Target *t = project->activeTarget())
+        if (ProjectExplorer::BuildConfiguration *bc = t->activeBuildConfiguration())
+            rootBuildDir = bc->buildDirectory();
 
     // the project for which we insert the snippet inside build tree
     QFileInfo pfi(rootBuildDir.filePath(proRelavitePath));

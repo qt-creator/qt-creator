@@ -75,7 +75,6 @@ public:
 
     BaseQtVersion *qtVersionForQMakeBinary(const Utils::FileName &qmakePath);
 
-    // Used by the projectloadwizard
     void addVersion(BaseQtVersion *version);
     void removeVersion(BaseQtVersion *version);
 

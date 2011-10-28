@@ -30,45 +30,52 @@
 **
 **************************************************************************/
 
-#ifndef CODESTYLESETTINGSPROPERTIESPAGE_H
-#define CODESTYLESETTINGSPROPERTIESPAGE_H
+#ifndef UNCONFIGUREDPROJECTPANEL_H
+#define UNCONFIGUREDPROJECTPANEL_H
 
-#include "iprojectproperties.h"
-#include "ui_codestylesettingspropertiespage.h"
+#include <projectexplorer/iprojectproperties.h>
 
-namespace ProjectExplorer {
+#include <QtCore/QString>
 
-class EditorConfiguration;
+namespace Qt4ProjectManager {
+class TargetSetupPage;
+class Qt4Project;
 
 namespace Internal {
 
-const char CODESTYLESETTINGS_PANEL_ID[] = "ProjectExplorer.CodeStyleSettingsPanel";
-
-class CodeStyleSettingsPanelFactory : public IProjectPanelFactory
-{
-public:
-    QString id() const;
-    QString displayName() const;
-    int priority() const;
-    PropertiesPanel *createPanel(Project *project);
-    bool supports(Project *project);
-};
-
-class CodeStyleSettingsWidget;
-
-class CodeStyleSettingsWidget : public QWidget
+class UnconfiguredProjectPanel : public ProjectExplorer::IProjectPanelFactory
 {
     Q_OBJECT
 public:
-    CodeStyleSettingsWidget(Project *project);
-
-private:
-    Ui::CodeStyleSettingsPropertiesPage m_ui;
-    Project *m_project;
+    UnconfiguredProjectPanel();
+    virtual QString id() const;
+    virtual QString displayName() const;
+    int priority() const;
+    virtual bool supports(ProjectExplorer::Project *project);
+    virtual ProjectExplorer::PropertiesPanel *createPanel(ProjectExplorer::Project *project);
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+class TargetSetupPageWrapper : public QWidget
+{
+    Q_OBJECT
+public:
+    TargetSetupPageWrapper(ProjectExplorer::Project *project);
+protected:
+    void keyReleaseEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+signals:
+    void projectUpdated(ProjectExplorer::Project *project);
+private slots:
+    void done();
+    void noteTextLinkActivated();
+    void updateNoteText();
 
+private:
+    Qt4Project *m_project;
+    TargetSetupPage *m_targetSetupPage;
+};
 
-#endif // CODESTYLESETTINGSPROPERTIESPAGE_H
+}
+}
+
+#endif // UNCONFIGUREDPROJECTPANEL_H

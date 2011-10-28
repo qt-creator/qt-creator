@@ -55,8 +55,12 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
 #include <qtsupport/profilereader.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -141,6 +145,12 @@ void Qt4Manager::init()
         tr("Full path to the bin directory of the current project's Qt version."));
     connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
+
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup("Qt4ProjectManager");
+    m_unConfiguredVersionId = settings->value("QtVersionId", -1).toInt();
+    m_unconfiguredToolChainId = settings->value("ToolChainId", QString()).toString();
+    settings->endGroup();
 }
 
 void Qt4Manager::editorChanged(Core::IEditor *editor)
@@ -191,7 +201,14 @@ void Qt4Manager::updateVariable(const QByteArray &variable)
             return;
         }
         QString value;
-        QtSupport::BaseQtVersion *qtv = qt4pro->activeTarget()->activeQt4BuildConfiguration()->qtVersion();
+        QtSupport::BaseQtVersion *qtv;
+        if (Qt4BaseTarget *t = qt4pro->activeTarget()) {
+            if (Qt4BuildConfiguration *bc = t->activeQt4BuildConfiguration())
+                qtv = bc->qtVersion();
+        } else {
+            qtv = unconfiguredSettings().version;
+        }
+
         if (qtv)
             value = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
         Core::VariableManager::instance()->insert(kInstallBins, value);
@@ -440,3 +457,57 @@ QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)
     return QString();
 }
 
+UnConfiguredSettings Qt4Manager::unconfiguredSettings() const
+{
+    if (m_unConfiguredVersionId == -1 && m_unconfiguredToolChainId.isEmpty()) {
+        // Choose a good default qtversion and try to find a toolchain that fit
+        QtSupport::BaseQtVersion *version = 0;
+        ProjectExplorer::ToolChain *toolChain = 0;
+        QList<QtSupport::BaseQtVersion *> versions = QtSupport::QtVersionManager::instance()->validVersions();
+        if (!versions.isEmpty()) {
+            version = versions.first();
+
+            foreach (ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
+                if (tc->mkspec() == version->mkspec()) {
+                    toolChain = tc;
+                    break;
+                }
+            }
+            if (!toolChain) {
+                foreach (ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
+                    if (version->qtAbis().contains(tc->targetAbi())) {
+                        toolChain = tc;
+                        break;
+                    }
+                }
+            }
+            m_unConfiguredVersionId = version->uniqueId();
+            m_unconfiguredToolChainId = toolChain->id();
+        }
+        UnConfiguredSettings us;
+        us.version = version;
+        us.toolchain = toolChain;
+        return us;
+    }
+    UnConfiguredSettings us;
+    us.version = QtSupport::QtVersionManager::instance()->version(m_unConfiguredVersionId);
+    us.toolchain = ProjectExplorer::ToolChainManager::instance()->findToolChain(m_unconfiguredToolChainId);
+    return us;
+}
+
+void Qt4Manager::setUnconfiguredSettings(const UnConfiguredSettings &setting)
+{
+    m_unConfiguredVersionId = setting.version ? setting.version->uniqueId() : -1;
+    m_unconfiguredToolChainId = setting.toolchain ? setting.toolchain->id() : QString();
+
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup("Qt4ProjectManager");
+    settings->setValue("QtVersionId", m_unConfiguredVersionId);
+    settings->setValue("ToolChainId", m_unconfiguredToolChainId);
+    settings->endGroup();
+
+    foreach (Qt4Project *pro, m_projects)
+        if (pro->targets().isEmpty())
+            pro->scheduleAsyncUpdate();
+    emit unconfiguredSettingsChanged();
+}

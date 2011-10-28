@@ -1340,8 +1340,21 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
     }
     updateActions();
 
-    if (!openedPro.isEmpty())
-        Core::ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+    bool switchToProjectsMode = false;
+    foreach (Project *p, openedPro) {
+        if (p->needsConfiguration()) {
+            switchToProjectsMode = true;
+            break;
+        }
+    }
+
+    if (!openedPro.isEmpty()) {
+        if (switchToProjectsMode)
+            Core::ModeManager::activateMode(QLatin1String(ProjectExplorer::Constants::MODE_SESSION));
+        else
+            Core::ModeManager::activateMode(QLatin1String(Core::Constants::MODE_EDIT));
+        Core::ModeManager::setFocusToCurrentMode();
+    }
 
     return openedPro;
 }
@@ -1812,6 +1825,12 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
 
     QList<BuildStepList *> stepLists;
     QStringList names;
+    QStringList preambleMessage;
+
+    foreach (Project *pro, projects)
+        if (pro && pro->needsConfiguration())
+            preambleMessage.append(tr("The project %1 is not configured, skipping it.\n")
+                                   .arg(pro->displayName()));
     foreach (const QString id, stepIds) {
         foreach (Project *pro, projects) {
             if (!pro || !pro->activeTarget())
@@ -1833,7 +1852,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
     if (stepLists.isEmpty())
         return 0;
 
-    if (!d->m_buildManager->buildLists(stepLists, names))
+    if (!d->m_buildManager->buildLists(stepLists, names, preambleMessage))
         return -1;
     return stepLists.count();
 }
@@ -1982,6 +2001,9 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabled(Project *pro)
     } else if (d->m_buildManager->isBuilding(pro)) {
         result.first = false;
         result.second = tr("Currently building the active project.");
+    } else if (pro->needsConfiguration()) {
+        result.first = false;
+        result.second = tr("The project %1 is not configured.").arg(pro->displayName());
     } else if (!hasBuildSettings(pro)) {
         result.first = false;
         result.second = tr("Project has no build settings.");
@@ -2055,8 +2077,9 @@ bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)
 {
     const QList<Project *> & projects = d->m_session->projectOrder(pro);
     foreach(Project *project, projects)
-        if (project->activeTarget()->activeDeployConfiguration() &&
-                !project->activeTarget()->activeDeployConfiguration()->stepList()->isEmpty())
+        if (project->activeTarget()
+                && project->activeTarget()->activeDeployConfiguration()
+                && !project->activeTarget()->activeDeployConfiguration()->stepList()->isEmpty())
             return true;
     return false;
 }
@@ -2066,7 +2089,9 @@ void ProjectExplorerPlugin::runProject(Project *pro, RunMode mode, const bool fo
     if (!pro)
         return;
 
-    runRunConfiguration(pro->activeTarget()->activeRunConfiguration(), mode, forceSkipDeploy);
+    if (Target *target = pro->activeTarget())
+        if (RunConfiguration *rc = target->activeRunConfiguration())
+            runRunConfiguration(rc, mode, forceSkipDeploy);
 }
 
 void ProjectExplorerPlugin::runRunConfiguration(ProjectExplorer::RunConfiguration *rc,
@@ -2284,6 +2309,9 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode
 {
     if (!project)
         return tr("No active project.");
+
+    if (project->needsConfiguration())
+        return tr("The project %1 is not configured.").arg(project->displayName());
 
     if (!project->activeTarget())
         return tr("The project '%1' has no active target.").arg(project->displayName());

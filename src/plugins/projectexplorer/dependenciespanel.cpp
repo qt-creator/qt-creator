@@ -275,6 +275,11 @@ QString DependenciesPanelFactory::displayName() const
     return QCoreApplication::translate("DependenciesPanelFactory", "Dependencies");
 }
 
+int DependenciesPanelFactory::priority() const
+{
+    return 50;
+}
+
 bool DependenciesPanelFactory::supports(Project *project)
 {
     Q_UNUSED(project);

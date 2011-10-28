@@ -383,4 +383,9 @@ void Project::setNamedSettings(const QString &name, QVariant &value)
     d->m_pluginSettings.insert(name, value);
 }
 
+bool Project::needsConfiguration() const
+{
+    return false;
+}
+
 } // namespace ProjectExplorer

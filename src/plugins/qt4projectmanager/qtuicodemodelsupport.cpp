@@ -34,6 +34,7 @@
 #include "qt4buildconfiguration.h"
 
 #include "qt4project.h"
+#include "qt4projectmanager.h"
 #include "qt4target.h"
 #include <qtsupport/baseqtversion.h>
 
@@ -57,14 +58,28 @@ Qt4UiCodeModelSupport::~Qt4UiCodeModelSupport()
 
 QString Qt4UiCodeModelSupport::uicCommand() const
 {
-    Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeQt4BuildConfiguration();
-    if (!qt4bc->qtVersion())
-        return QString();
-    return qt4bc->qtVersion()->uicCommand();
+    if (m_project->needsConfiguration()) {
+        UnConfiguredSettings us = m_project->qt4ProjectManager()->unconfiguredSettings();
+        if (!us.version)
+            return QString();
+        return us.version->uicCommand();
+    } else {
+        Qt4BaseTarget *target = m_project->activeTarget();
+        Qt4BuildConfiguration *qt4bc = target->activeQt4BuildConfiguration();
+        if (!qt4bc->qtVersion())
+            return QString();
+        return qt4bc->qtVersion()->uicCommand();
+    }
+    return QString();
 }
 
 QStringList Qt4UiCodeModelSupport::environment() const
 {
-    Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeQt4BuildConfiguration();
-    return qt4bc->environment().toStringList();
+    if (m_project->needsConfiguration()) {
+        return Utils::Environment::systemEnvironment().toStringList();
+    } else {
+        Qt4BaseTarget *target = m_project->activeTarget();
+        Qt4BuildConfiguration *qt4bc = target->activeQt4BuildConfiguration();
+        return qt4bc->environment().toStringList();
+    }
 }
