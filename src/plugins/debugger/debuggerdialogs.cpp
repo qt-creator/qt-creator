@@ -1040,6 +1040,7 @@ StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent) :
 
 StartRemoteEngineDialog::~StartRemoteEngineDialog()
 {
+    delete m_ui;
 }
 
 QString StartRemoteEngineDialog::host() const

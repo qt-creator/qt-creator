@@ -170,6 +170,11 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view)
     setWindowTitle(tr("Save Suppression"));
 }
 
+SuppressionDialog::~SuppressionDialog()
+{
+    delete m_ui;
+}
+
 bool SuppressionDialog::shouldShow() const
 {
     return !m_errors.isEmpty();

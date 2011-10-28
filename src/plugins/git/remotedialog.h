@@ -56,6 +56,7 @@ class RemoteAdditionDialog : public QDialog
 
 public:
     explicit RemoteAdditionDialog(QWidget *parent = 0);
+    ~RemoteAdditionDialog();
 
     QString remoteName() const;
     QString remoteUrl() const;

@@ -58,6 +58,7 @@ class SuppressionDialog : public QDialog
 
 public:
     SuppressionDialog(MemcheckErrorView *view);
+    ~SuppressionDialog();
 
     virtual void accept();
     virtual void reject();
