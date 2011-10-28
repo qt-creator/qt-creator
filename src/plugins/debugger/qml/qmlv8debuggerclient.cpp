@@ -128,8 +128,10 @@ public:
     QmlEngine *engine;
     QHash<BreakpointModelId, int> breakpoints;
     QHash<int, BreakpointModelId> breakpointsSync;
-    QHash<int, QByteArray> locals;
-    QHash<int, WatchDataPair> watches;
+    QHash<int, QByteArray> localsAndWatchers;
+    QHash<int, QString> evaluatingWatches;
+    QStringList watchedExpressions;
+    QStack<QString> watchesToEvaluate;
 
     QScriptValue parser;
     QScriptValue stringifier;
@@ -233,8 +235,6 @@ void QmlV8DebuggerClientPrivate::evaluate(const QString expr, bool global,
                                           bool disableBreak, int frame,
                                           bool addContext)
 {
-    updateCurrentStackFrameIndex = false;
-
     //    { "seq"       : <number>,
     //      "type"      : "request",
     //      "command"   : "evaluate",
@@ -921,6 +921,7 @@ void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
 {
     QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
               || d->state == QmlV8DebuggerClient::RunningState);
+    SDEBUG(QString(_("State: %1")).arg(d->state));
     BreakHandler *handler = d->engine->breakHandler();
     const BreakpointParameters &params = handler->breakpointData(id);
 
@@ -997,27 +998,21 @@ void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const
     QString expression = QString(_("%1 = %2;")).arg(property).arg(value);
     if (stackHandler->isContentsValid()) {
         d->state = QmlV8DebuggerClient::BacktraceRequestedState;
+        d->updateCurrentStackFrameIndex = false;
         d->evaluate(expression, false, false, stackHandler->currentIndex());
     }
 }
 
 void QmlV8DebuggerClient::updateWatchData(const WatchData &data)
 {
+    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
+              || d->state == QmlV8DebuggerClient::RunningState);
+
     if (data.isWatcher()) {
-        WatchDataPair pair(data.iname, data.exp);
-        if (d->watches.key(pair)) {
-            WatchData data1 = data;
-            data1.setAllUnneeded();
-            //            data1.setValue(_("<unavailable>"));
-            //            data1.setHasChildren(false);
-            d->engine->watchHandler()->insertData(data1);
-        } else {
-            StackHandler *stackHandler = d->engine->stackHandler();
-            if (stackHandler->isContentsValid())
-                d->evaluate(data.exp, false, false, stackHandler->currentIndex());
-            else
-                d->evaluate(data.exp);
-            d->watches.insert(d->sequence, pair);
+        QString exp(data.exp);
+        if (!d->watchedExpressions.contains(exp)) {
+            //Push new expression to the stack
+            d->watchesToEvaluate.push(exp);
         }
     }
 }
@@ -1030,6 +1025,7 @@ void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
     if (stackHandler->isContentsValid()) {
         //Set the state
         d->state = QmlV8DebuggerClient::BacktraceRequestedState;
+        d->updateCurrentStackFrameIndex = false;
         d->evaluate(command, false, false, stackHandler->currentIndex());
     } else {
         //Currently cannot evaluate if not in a javascript break
@@ -1038,15 +1034,28 @@ void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
     }
 }
 
-void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &/*watchers*/)
+void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &watchers)
 {
-    //TODO::
+    SDEBUG(watchers);
+    //Cache the watched expression List
+    d->watchedExpressions = watchers;
+    //Evaluate new expressions one at a time.
+    if (!d->watchesToEvaluate.isEmpty()) {
+        StackHandler *stackHandler = d->engine->stackHandler();
+        const QString exp = d->watchesToEvaluate.pop();
+        if (stackHandler->isContentsValid()) {
+            d->evaluate(exp, false, false, stackHandler->currentIndex());
+        } else {
+            d->evaluate(exp);
+        }
+        d->evaluatingWatches.insert(d->sequence, exp);
+    }
 }
 
 void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId)
 {
     QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
-    d->locals.insertMulti(objectId, iname);
+    d->localsAndWatchers.insertMulti(objectId, iname);
     d->lookup(QList<int>() << objectId);
 }
 
@@ -1097,14 +1106,16 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 }
 
             } else if (debugCommand == _(LOOKUP)) {
-                expandLocal(resp.value(_(BODY)), resp.value(_(REFS)));
+                expandLocalsAndWatchers(resp.value(_(BODY)), resp.value(_(REFS)));
 
             } else if (debugCommand == _(EVALUATE)) {
+                int seq = resp.value(_("request_seq")).toInt();
                 if (success) {
-                    int seq = resp.value(_("request_seq")).toInt();
                     updateEvaluationResult(seq, resp.value(_(BODY)), resp.value(_(REFS)));
                 } else {
                     d->engine->showMessage(resp.value(_("message")).toString(), ScriptConsoleOutput);
+                    if (d->evaluatingWatches.contains(seq))
+                        updateEvaluationResult(seq, QVariant(), QVariant());
                 }
 
             } else if (debugCommand == _(LISTBREAKPOINTS)) {
@@ -1355,7 +1366,7 @@ void QmlV8DebuggerClient::updateLocals(const QVariant &localsVal, const QVariant
         if (data.exp.startsWith(".") || data.exp.isEmpty())
             continue;
 
-        data.name = data.exp;
+        data.name = QString(data.exp);
         data.iname = QByteArray("local.") + data.exp;
 
         localData = valueFromRef(localData.value(_(VALUE)).toMap()
@@ -1418,7 +1429,7 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
         if (data.exp.startsWith(".") || data.exp.isEmpty())
             continue;
 
-        data.name = data.exp;
+        data.name = QString(data.exp);
         data.iname = QByteArray("local.") + data.exp;
 
         localData = valueFromRef(localData.value(_(REF)).toInt(), d->refsVal).toMap();
@@ -1460,27 +1471,45 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, const QVariant &b
 
     QmlV8ObjectData body = d->extractData(QVariant(bodyMap));
 
-    if (!d->watches.contains(sequence)) {
+    if (!d->evaluatingWatches.contains(sequence)) {
         //Console
         d->engine->showMessage(body.value.toString(), ScriptConsoleOutput);
 
     } else {
-        WatchDataPair pair = d->watches.value(sequence);
-        QByteArray iname = pair.first;
-        QByteArray exp = pair.second;
+        QString exp = d->evaluatingWatches.take(sequence);
+        QByteArray iname = d->engine->watchHandler()->watcherName(exp.toLatin1());
+        SDEBUG(QString(iname));
         WatchData data;
-        data.exp = exp;
-        data.name = data.exp;
+        data.exp = exp.toLatin1();
+        data.name = exp;
         data.iname = iname;
         data.id = bodyMap.value(_(HANDLE)).toInt();
         data.type = body.type;
         data.value = body.value.toString();
 
-        const QVariantList properties = body.properties.toList();
-        data.setHasChildren(properties.count());
-        //        data.setAllUnneeded();
-        //        data.setValueNeeded();
+        //TODO:: Fix expanding watched objects/expressions
+//        const QVariantList properties = body.properties.toList();
+//        data.setHasChildren(properties.count());
+        //Insert the newly evaluated expression to the Watchers Window
+        d->engine->watchHandler()->beginCycle(false);
         d->engine->watchHandler()->insertData(data);
+        d->engine->watchHandler()->endCycle();
+
+        //Check if there are more expressions to be evaluated
+        //Evaluate one at a time.
+        if (!d->watchesToEvaluate.isEmpty()) {
+            QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
+            StackHandler *stackHandler = d->engine->stackHandler();
+            const QString exp = d->watchesToEvaluate.pop();
+            if (stackHandler->isContentsValid()) {
+                d->evaluate(exp, false, false, stackHandler->currentIndex());
+            } else {
+                d->evaluate(exp);
+            }
+            d->evaluatingWatches.insert(d->sequence, exp);
+
+        }
+
 
         //        foreach (const QVariant &property, properties) {
         //            QVariantMap propertyData = property.toMap();
@@ -1571,7 +1600,7 @@ QVariant QmlV8DebuggerClient::valueFromRef(int handle, const QVariant &refsVal)
     return variant;
 }
 
-void QmlV8DebuggerClient::expandLocal(const QVariant &bodyVal, const QVariant &refsVal)
+void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const QVariant &refsVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -1584,7 +1613,7 @@ void QmlV8DebuggerClient::expandLocal(const QVariant &bodyVal, const QVariant &r
     const QVariantMap body = bodyVal.toMap();
 
     int handle = body.keys().value(0).toInt();
-    QByteArray prepend = d->locals.take(handle);
+    QByteArray prepend = d->localsAndWatchers.take(handle);
     const WatchData *parent = d->engine->watchHandler()->findItem(prepend);
     QmlV8ObjectData bodyObjectData = d->extractData(
                 body.value(body.keys().value(0)));
@@ -1606,7 +1635,10 @@ void QmlV8DebuggerClient::expandLocal(const QVariant &bodyVal, const QVariant &r
             else if (parent->value == _("Object"))
                 data.exp = parent->exp + QByteArray(".") + data.name.toLatin1();
         }
-        data.iname = prepend + '.' + data.name.toUtf8();
+        if (prepend.startsWith("local."))
+            data.iname = prepend + '.' + data.name.toLatin1();
+        if (prepend.startsWith("watch."))
+            data.iname = prepend;
         propertyData = valueFromRef(propertyData.value(_(REF)).toInt(),
                                     refsVal).toMap();
         data.id = propertyData.value(_(HANDLE)).toInt();
@@ -1695,6 +1727,24 @@ void QmlV8DebuggerClient::updateLocalsAndWatchers()
     d->engine->watchHandler()->beginCycle();
     d->engine->watchHandler()->insertBulkData(d->localDataList);
     d->engine->watchHandler()->endCycle();
+
+    //Push all Watched expressions to a stack.
+    //Evaluate the expressions one at a time
+    //and append the evaluated result to the watchers
+    //window (see updateEvaluationResult())
+    foreach (const QString &expr, d->watchedExpressions)
+        d->watchesToEvaluate.push(expr);
+
+    if (!d->watchesToEvaluate.isEmpty()) {
+        StackHandler *stackHandler = d->engine->stackHandler();
+        const QString exp = d->watchesToEvaluate.pop();
+        if (stackHandler->isContentsValid()) {
+            d->evaluate(exp, false, false, stackHandler->currentIndex());
+        } else {
+            d->evaluate(exp);
+        }
+        d->evaluatingWatches.insert(d->sequence, exp);
+    }
 }
 
 } // Internal

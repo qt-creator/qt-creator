@@ -119,7 +119,7 @@ private:
 
     QVariant valueFromRef(int handle, const QVariant &refsVal);
 
-    void expandLocal(const QVariant &bodyVal, const QVariant &refsVal);
+    void expandLocalsAndWatchers(const QVariant &bodyVal, const QVariant &refsVal);
 
     void highlightExceptionCode(int lineNumber, const QString &filePath,
                                 const QString &errorMessage);
