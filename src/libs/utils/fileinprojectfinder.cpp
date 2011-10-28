@@ -190,6 +190,17 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
         }
     }
 
+    // find (solely by filename) in project files
+    const QString fileName = QFileInfo(originalPath).fileName();
+    foreach (const QString &f, m_projectFiles) {
+        if (QFileInfo(f).fileName() == fileName) {
+            m_cache.insert(originalPath, f);
+            if (success)
+                *success = true;
+            return f;
+        }
+    }
+
     // check if absolute path is found in sysroot
     if (!m_sysroot.isEmpty()) {
         const QString sysrootPath = m_sysroot + originalPath;
@@ -198,17 +209,6 @@ QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
                 *success = true;
             m_cache.insert(originalPath, sysrootPath);
             return sysrootPath;
-        }
-    }
-
-    // finally, find solely by filename in project files
-    const QString fileName = QFileInfo(originalPath).fileName();
-    foreach (const QString &f, m_projectFiles) {
-        if (QFileInfo(f).fileName() == fileName) {
-            m_cache.insert(originalPath, f);
-            if (success)
-                *success = true;
-            return f;
         }
     }
 
