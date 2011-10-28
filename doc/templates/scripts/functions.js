@@ -117,13 +117,8 @@ function processNokiaData(response){
 var blankRE=/^\s*$/;
 function CheckEmptyAndLoadList()
 {
-	var pageUrl = window.location.href;
-	var pageVal = $('title').html();
 	$('#feedUrl').remove();
-	$('#pageVal').remove();
 	$('.menuAlert').remove();
-	$('#feedform').append('<input id="feedUrl" name="feedUrl" value="'+pageUrl+'" style="display:none;">');
-	$('#feedform').append('<input id="pageVal" name="pageVal" value="'+pageVal+'" style="display:none;">');
 	$('.liveResult').remove();
     $('.defaultLink').css('display','block');
 	var value = document.getElementById('pageType').value; 
