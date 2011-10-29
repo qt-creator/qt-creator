@@ -298,8 +298,8 @@ public slots:
     void gotoNextWordCamelCase();
     void gotoNextWordCamelCaseWithSelection();
 
-    void selectBlockUp();
-    void selectBlockDown();
+    bool selectBlockUp();
+    bool selectBlockDown();
 
     void moveLineUp();
     void moveLineDown();
@@ -454,6 +454,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    void mouseDoubleClickEvent(QMouseEvent *);
     void leaveEvent(QEvent *);
     void keyReleaseEvent(QKeyEvent *);
 

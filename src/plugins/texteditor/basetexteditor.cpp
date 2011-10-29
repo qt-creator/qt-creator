@@ -865,7 +865,7 @@ static QTextCursor flippedCursor(const QTextCursor &cursor)
     return flipped;
 }
 
-void BaseTextEditorWidget::selectBlockUp()
+bool BaseTextEditorWidget::selectBlockUp()
 {
     QTextCursor cursor = textCursor();
     if (!cursor.hasSelection())
@@ -873,22 +873,23 @@ void BaseTextEditorWidget::selectBlockUp()
     else
         cursor.setPosition(cursor.selectionStart());
 
-
     if (!TextBlockUserData::findPreviousOpenParenthesis(&cursor, false))
-        return;
+        return false;
     if (!TextBlockUserData::findNextClosingParenthesis(&cursor, true))
-        return;
+        return false;
+
     setTextCursor(flippedCursor(cursor));
     _q_matchParentheses();
+    return true;
 }
 
-void BaseTextEditorWidget::selectBlockDown()
+bool BaseTextEditorWidget::selectBlockDown()
 {
     QTextCursor tc = textCursor();
     QTextCursor cursor = d->m_selectBlockAnchor;
 
     if (!tc.hasSelection() || cursor.isNull())
-        return;
+        return false;
     tc.setPosition(tc.selectionStart());
 
     forever {
@@ -904,6 +905,7 @@ void BaseTextEditorWidget::selectBlockDown()
 
     setTextCursor(flippedCursor(cursor));
     _q_matchParentheses();
+    return true;
 }
 
 void BaseTextEditorWidget::copyLineUp()
@@ -4212,6 +4214,18 @@ void BaseTextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 #endif
 
     QPlainTextEdit::mouseReleaseEvent(e);
+}
+
+void BaseTextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    QTextCursor cursor = textCursor();
+    const int position = cursor.position();
+    if (TextBlockUserData::findPreviousOpenParenthesis(&cursor, false, true)) {
+        if (position - cursor.position() == 1 && selectBlockUp())
+            return;
+    }
+
+    QPlainTextEdit::mouseDoubleClickEvent(e);
 }
 
 void BaseTextEditorWidget::leaveEvent(QEvent *e)

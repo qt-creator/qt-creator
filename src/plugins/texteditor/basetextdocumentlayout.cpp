@@ -201,7 +201,7 @@ TextBlockUserData::MatchType TextBlockUserData::checkClosedParenthesis(QTextCurs
     }
 }
 
-bool TextBlockUserData::findPreviousOpenParenthesis(QTextCursor *cursor, bool select)
+bool TextBlockUserData::findPreviousOpenParenthesis(QTextCursor *cursor, bool select, bool onlyInCurrentBlock)
 {
     QTextBlock block = cursor->block();
     int position = cursor->position();
@@ -224,6 +224,8 @@ bool TextBlockUserData::findPreviousOpenParenthesis(QTextCursor *cursor, bool se
                 }
             }
         }
+        if (onlyInCurrentBlock)
+            return false;
         block = block.previous();
     }
     return false;

@@ -104,7 +104,8 @@ public:
     static MatchType checkClosedParenthesis(QTextCursor *cursor, QChar c);
     static MatchType matchCursorBackward(QTextCursor *cursor);
     static MatchType matchCursorForward(QTextCursor *cursor);
-    static bool findPreviousOpenParenthesis(QTextCursor *cursor, bool select = false);
+    static bool findPreviousOpenParenthesis(QTextCursor *cursor, bool select = false,
+                                            bool onlyInCurrentBlock = false);
     static bool findNextClosingParenthesis(QTextCursor *cursor, bool select = false);
 
     static bool findPreviousBlockOpenParenthesis(QTextCursor *cursor, bool checkStartPosition = false);
