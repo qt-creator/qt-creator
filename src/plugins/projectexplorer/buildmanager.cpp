@@ -52,6 +52,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QTime>
 #include <QtCore/QTimer>
 #include <QtCore/QMetaType>
 #include <QtCore/QList>
@@ -355,7 +356,12 @@ void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
 void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFormat format,
     BuildStep::OutputNewlineSetting newLineSetting)
 {
-    QString stringToWrite = string;
+    QString stringToWrite;
+    if (format == BuildStep::MessageOutput || format == BuildStep::ErrorMessageOutput) {
+        stringToWrite = QTime::currentTime().toString();
+        stringToWrite += QLatin1String(": ");
+    }
+    stringToWrite += string;
     if (newLineSetting == BuildStep::DoAppendNewline)
         stringToWrite += QLatin1Char('\n');
     d->m_outputWindow->appendText(stringToWrite, format);
