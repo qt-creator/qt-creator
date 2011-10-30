@@ -707,19 +707,23 @@ void VCSBaseEditorWidget::slotActivateAnnotation()
     }
 }
 
-// Check for a change chunk "@@ -91,7 +95,7 @@" and return
-// the modified line number (95).
-// Note that git appends stuff after "  @@" (function names, etc.).
-static inline bool checkChunkLine(const QString &line, int *modifiedLineNumber)
+// Check for a chunk of
+//       - changes          :  "@@ -91,7 +95,7 @@"
+//       - merged conflicts : "@@@ -91,7 +95,7 @@@"
+// and return the modified line number (here 95).
+// Note that git appends stuff after "  @@"/" @@@" (function names, etc.).
+static inline bool checkChunkLine(const QString &line, int *modifiedLineNumber, int numberOfAts)
 {
-    if (!line.startsWith(QLatin1String("@@ ")))
+    const QString ats(numberOfAts, QLatin1Char('@'));
+    if (!line.startsWith(ats + QLatin1Char(' ')))
         return false;
-    const int endPos = line.indexOf(QLatin1String(" @@"), 3);
+    const int len = ats.size() + 1;
+    const int endPos = line.indexOf(QLatin1Char(' ') + ats, len);
     if (endPos == -1)
         return false;
     // the first chunk range applies to the original file, the second one to
     // the modified file, the one we're interested int
-    const int plusPos = line.indexOf(QLatin1Char('+'), 3);
+    const int plusPos = line.indexOf(QLatin1Char('+'), len);
     if (plusPos == -1 || plusPos > endPos)
         return false;
     const int lineNumberPos = plusPos + 1;
@@ -730,6 +734,13 @@ static inline bool checkChunkLine(const QString &line, int *modifiedLineNumber)
     bool ok;
     *modifiedLineNumber = lineNumberStr.toInt(&ok);
     return ok;
+}
+
+static inline bool checkChunkLine(const QString &line, int *modifiedLineNumber)
+{
+    if (checkChunkLine(line, modifiedLineNumber, 2))
+        return true;
+    return checkChunkLine(line, modifiedLineNumber, 3);
 }
 
 void VCSBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
