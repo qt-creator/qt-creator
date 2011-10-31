@@ -3681,7 +3681,7 @@ namespace valgrind {
     void testValgrind()
     {
         testLeak();
-        throw 42;
+        //throw 42;   // Uncomment.
     }
 
 } // namespace valgrind
