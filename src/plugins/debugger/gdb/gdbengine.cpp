@@ -261,8 +261,11 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
                 "permissions to invoke the program.\n%2")
                 .arg(m_gdb, gdbProc()->errorString());
         case QProcess::Crashed:
-            return tr("The gdb process crashed some time after starting "
-                "successfully.");
+            if (targetState() == DebuggerFinished)
+                return tr("The gdb process crashed some time after starting "
+                    "successfully.");
+            else
+                return tr("The gdb process was ended forcefully");
         case QProcess::Timedout:
             return tr("The last waitFor...() function timed out. "
                 "The state of QProcess is unchanged, and you can try calling "
@@ -4748,6 +4751,21 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
         showMessageBox(QMessageBox::Critical, tr("Unexpected GDB Exit"), msg);
         break;
     }
+    }
+}
+
+void GdbEngine::abortDebugger()
+{
+    if (targetState() == DebuggerFinished) {
+        // We already tried. Try harder.
+        showMessage(_("ABORTING DEBUGGER. SECOND TIME."));
+        QTC_ASSERT(m_gdbAdapter, return);
+        QTC_ASSERT(m_gdbAdapter->gdbProc(), return);
+        m_gdbAdapter->gdbProc()->kill();
+    } else {
+        // Be friendly the first time. This will change targetState().
+        showMessage(_("ABORTING DEBUGGER. FIRST TIME."));
+        quitDebugger();
     }
 }
 

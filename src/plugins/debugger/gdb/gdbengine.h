@@ -242,6 +242,7 @@ private: ////////// General Interface //////////
     virtual void shutdownEngine();
     virtual void shutdownInferior();
     virtual void notifyInferiorSetupFailed();
+    virtual void abortDebugger();
 
     virtual bool acceptsDebuggerCommands() const;
     virtual void executeDebuggerCommand(const QString &command);

@@ -1209,7 +1209,7 @@ bool DebuggerEngine::isReverseDebugging() const
 // Called by DebuggerRunControl.
 void DebuggerEngine::quitDebugger()
 {
-    showMessage("QUIT DEBUGGER REQUESTED");
+    showMessage(_("QUIT DEBUGGER REQUESTED IN STATE %1").arg(state()));
     d->m_targetState = DebuggerFinished;
     switch (state()) {
     case InferiorStopOk:
@@ -1225,11 +1225,20 @@ void DebuggerEngine::quitDebugger()
     case EngineRunFailed:
     case DebuggerFinished:
         break;
+    case InferiorSetupRequested:
+        notifyInferiorSetupFailed();
+        break;
     default:
         // FIXME: We should disable the actions connected to that.
         notifyInferiorIll();
         break;
     }
+}
+
+void DebuggerEngine::abortDebugger()
+{
+    // Overridden in e.g. GdbEngine.
+    quitDebugger();
 }
 
 void DebuggerEngine::requestInterruptInferior()
