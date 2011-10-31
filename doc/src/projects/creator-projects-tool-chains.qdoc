@@ -104,7 +104,7 @@
 
         \if defined(qcmanual)
         \o  For RVCT, select the ARM version to use in the \gui {ARM version}
-            field. RVCT 2.2 is supported on Symbian^3 and earlier. RVCT 4.0 b902
+            field. RVCT 2.2 is supported on Symbian Anna and earlier. RVCT 4.0 b902
             or later is required for Symbian Belle.
         \endif
 
