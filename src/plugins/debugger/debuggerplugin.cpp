@@ -809,10 +809,10 @@ public slots:
         currentEngine()->requestInterruptInferior();
     }
 
-    void handleExecReset()
+    void handleAbort()
     {
         currentEngine()->resetLocation();
-        currentEngine()->notifyEngineIll(); // FIXME: Check.
+        currentEngine()->abortDebugger();
     }
 
     void handleExecStep()
@@ -1040,7 +1040,7 @@ public:
     QAction *m_exitAction; // On application output button if "Stop" is possible
     QAction *m_interruptAction; // On the fat debug button if "Pause" is possible
     QAction *m_undisturbableAction; // On the fat debug button if nothing can be done
-    QAction *m_resetAction;
+    QAction *m_abortAction;
     QAction *m_stepAction;
     QAction *m_stepOutAction;
     QAction *m_runToLineAction; // In the debug menu
@@ -2070,7 +2070,7 @@ void DebuggerPluginPrivate::setInitialState()
     action(OperateByInstruction)->setEnabled(false);
 
     m_exitAction->setEnabled(false);
-    m_resetAction->setEnabled(false);
+    m_abortAction->setEnabled(false);
 
     m_interruptAction->setEnabled(false);
     m_continueAction->setEnabled(false);
@@ -2201,7 +2201,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
             && (stopped || isCore);
     action(OperateByInstruction)->setEnabled(canOperateByInstruction);
 
-    m_resetAction->setEnabled(state != DebuggerNotReady
+    m_abortAction->setEnabled(state != DebuggerNotReady
                                       && state != DebuggerFinished);
 
     m_stepAction->setEnabled(stopped || state == DebuggerNotReady);
@@ -2792,10 +2792,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setIcon(m_interruptIcon);
     act->setEnabled(false);
 
-    act = m_resetAction = new QAction(tr("Abort Debugging"), this);
+    act = m_abortAction = new QAction(tr("Abort Debugging"), this);
     act->setToolTip(tr("Aborts debugging and "
         "resets the debugger to the initial state."));
-    connect(act, SIGNAL(triggered()), SLOT(handleExecReset()));
+    connect(act, SIGNAL(triggered()), SLOT(handleAbort()));
 
     act = m_nextAction = new QAction(tr("Step Over"), this);
     act->setIcon(QIcon(__(":/debugger/images/debugger_stepover_small.png")));
@@ -3063,8 +3063,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
         Constants::HIDDEN_STOP, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STOP_KEY));
 
-    cmd = am->registerAction(m_resetAction,
-        Constants::RESET, globalcontext);
+    cmd = am->registerAction(m_abortAction,
+        Constants::ABORT, globalcontext);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
     cmd->setDefaultText(tr("Reset Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
