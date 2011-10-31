@@ -955,7 +955,7 @@ QStringList BaseQtVersion::debuggingHelperLibraryLocations() const
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
         return QStringList();
-    return ProjectExplorer::DebuggingHelperLibrary::locationsByInstallData(qtInstallData);
+    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 }
 
 bool BaseQtVersion::supportsBinaryDebuggingHelper() const

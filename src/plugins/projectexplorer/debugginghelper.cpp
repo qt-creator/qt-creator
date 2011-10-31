@@ -68,18 +68,6 @@ QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QStr
     return directories;
 }
 
-QStringList DebuggingHelperLibrary::locationsByInstallData(const QString &qtInstallData)
-{
-    QStringList result;
-    QFileInfo fileInfo;
-    const QStringList binFilenames = validBinaryFilenames();
-    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData)) {
-        if (getHelperFileInfoFor(binFilenames, directory, &fileInfo))
-            result << fileInfo.filePath();
-    }
-    return result;
-}
-
 static QString sourcePath()
 {
     return Core::ICore::instance()->resourcePath() + QLatin1String("/dumper/");

@@ -251,7 +251,7 @@ QStringList CMakeRunConfiguration::dumperLibraryLocations() const
 {
     QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
     QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
-    return ProjectExplorer::DebuggingHelperLibrary::locationsByInstallData(qtInstallData);
+    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 }
 
 Utils::Environment CMakeRunConfiguration::baseEnvironment() const
