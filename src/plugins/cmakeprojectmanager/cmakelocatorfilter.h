@@ -2,9 +2,9 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nicolas Arnaud-Cormos
+** Copyright (C) 2011 Kläralvdalens Datakonsult AB, a KDAB Group company.
 **
-** Contact: KDAB (info@kdab.com)
+** Contact: Kläralvdalens Datakonsult AB (info@kdab.com)
 **
 **
 ** GNU Lesser General Public License Usage
