@@ -93,7 +93,6 @@ signals:
 
 private slots:
     void setupHelpManager();
-    void collectionFileModified();
 
 private:
     void verifyDocumenation();

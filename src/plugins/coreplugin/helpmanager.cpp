@@ -56,6 +56,8 @@ struct HelpManagerPrivate
        m_needsSetup(true), m_helpEngine(0), m_collectionWatcher(0)
     {}
 
+    QStringList documentationFromInstaller();
+
     bool m_needsSetup;
     QHelpEngineCore *m_helpEngine;
     Utils::FileSystemWatcher *m_collectionWatcher;
@@ -408,13 +410,7 @@ void HelpManager::setupHelpManager()
         d->m_nameSpacesToUnregister.clear();
     }
 
-    // this might come from the installer
-    const QLatin1String key("AddedDocs");
-    const QString addedDocs = d->m_helpEngine->customValue(key).toString();
-    if (!addedDocs.isEmpty()) {
-        d->m_helpEngine->removeCustomValue(key);
-        d->m_filesToRegister += addedDocs.split(QLatin1Char(';'));
-    }
+    d->m_filesToRegister << d->documentationFromInstaller();
 
     if (!d->m_filesToRegister.isEmpty()) {
         registerDocumentation(d->m_filesToRegister);
@@ -425,23 +421,7 @@ void HelpManager::setupHelpManager()
     for (it = d->m_customValues.constBegin(); it != d->m_customValues.constEnd(); ++it)
         setCustomValue(it.key(), it.value());
 
-    d->m_collectionWatcher = new Utils::FileSystemWatcher(this);
-    d->m_collectionWatcher->setObjectName(QLatin1String("HelpCollectionWatcher"));
-    d->m_collectionWatcher->addFile(collectionFilePath(), Utils::FileSystemWatcher::WatchAllChanges);
-    connect(d->m_collectionWatcher, SIGNAL(fileChanged(QString)), this,
-        SLOT(collectionFileModified()));
-
     emit setupFinished();
-}
-
-void HelpManager::collectionFileModified()
-{
-    const QLatin1String key("AddedDocs");
-    const QString addedDocs = d->m_helpEngine->customValue(key).toString();
-    if (!addedDocs.isEmpty()) {
-        d->m_helpEngine->removeCustomValue(key);
-        registerDocumentation(addedDocs.split(QLatin1Char(';')));
-    }
 }
 
 // -- private
@@ -453,6 +433,27 @@ void HelpManager::verifyDocumenation()
         if (!QFileInfo(d->m_helpEngine->documentationFileName(nameSpace)).exists())
             d->m_nameSpacesToUnregister.append(nameSpace);
     }
+}
+
+QStringList HelpManagerPrivate::documentationFromInstaller()
+{
+    QSettings *installSettings = Core::ICore::instance()->settings(QSettings::SystemScope);
+    QStringList documentationPaths = installSettings->value(QLatin1String("Help/InstalledDocumentation"))
+            .toString().split(QLatin1Char(';'), QString::SkipEmptyParts);
+    QStringList documentationFiles;
+    foreach (const QString &path, documentationPaths) {
+        QFileInfo pathInfo(path);
+        if (pathInfo.isFile() && pathInfo.isReadable()) {
+            documentationFiles << pathInfo.absoluteFilePath();
+        } else if (pathInfo.isDir()) {
+            QDir dir(path);
+            foreach (const QFileInfo &fileInfo, dir.entryInfoList(QStringList() << "*.qch",
+                                                              QDir::Files | QDir::Readable)) {
+                documentationFiles << fileInfo.absoluteFilePath();
+            }
+        }
+    }
+    return documentationFiles;
 }
 
 }   // Core
