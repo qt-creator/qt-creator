@@ -29,34 +29,39 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
-#define REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
 
-#include <projectexplorer/deployconfiguration.h>
+#ifndef EMBEDDEDLINUXTARGET_H
+#define EMBEDDEDLINUXTARGET_H
+
+#include <qt4projectmanager/qt4target.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
 
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
+class EmbeddedLinuxTargetFactory;
+
+class EmbeddedLinuxTarget : public Qt4ProjectManager::Qt4BaseTarget
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfigurationFactory(QObject *parent = 0);
+    EmbeddedLinuxTarget(Qt4ProjectManager::Qt4Project *parent, const QString &id);
+    ~EmbeddedLinuxTarget();
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
-    ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
-                                                ProjectExplorer::DeployConfiguration *product);
+    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    static QString genericDeployConfigurationId();
+    void createApplicationProFiles();
+
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
+
+private:
+    Qt4ProjectManager::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+
+    friend class EmbeddedLinuxTargetFactory;
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
+#endif // EMBEDDEDLINUXTARGET_H

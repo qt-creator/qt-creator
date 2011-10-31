@@ -60,9 +60,9 @@ public:
                                                   bool importEnabled, QList<BuildConfigurationInfo> importInfos);
     QString buildNameForId(const QString &id) const;
     QSet<QString> targetFeatures(const QString &id) const;
+
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
-
 };
 }
 }

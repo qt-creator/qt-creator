@@ -33,6 +33,7 @@
 #include "remotelinuxplugin.h"
 
 #include "embeddedlinuxqtversionfactory.h"
+#include "embeddedlinuxtargetfactory.h"
 #include "deployablefile.h"
 #include "genericlinuxdeviceconfigurationfactory.h"
 #include "genericremotelinuxdeploystepfactory.h"
@@ -78,6 +79,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new RemoteLinuxDeployConfigurationFactory);
     addAutoReleasedObject(new GenericRemoteLinuxDeployStepFactory);
 
+    addAutoReleasedObject(new EmbeddedLinuxTargetFactory);
     addAutoReleasedObject(new EmbeddedLinuxQtVersionFactory);
 
     qRegisterMetaType<RemoteLinux::DeployableFile>("RemoteLinux::DeployableFile");

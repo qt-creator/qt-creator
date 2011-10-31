@@ -29,34 +29,43 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
-#define REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
 
-#include <projectexplorer/deployconfiguration.h>
+#ifndef EMBEDDEDLINUXTARGETFACTORY_H
+#define EMBEDDEDLINUXTARGETFACTORY_H
+
+#include <qt4projectmanager/qt4basetargetfactory.h>
 
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
+class EmbeddedLinuxTargetFactory : public Qt4ProjectManager::Qt4BaseTargetFactory
 {
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfigurationFactory(QObject *parent = 0);
+    explicit EmbeddedLinuxTargetFactory(QObject *parent = 0);
+    ~EmbeddedLinuxTargetFactory();
 
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
+    QIcon iconForId(const QString &id) const;
+    QString buildNameForId(const QString &id) const;
+
+    QSet<QString> targetFeatures(const QString &id) const;
+
+    QStringList supportedTargetIds(ProjectExplorer::Project *project) const;
+    bool supportsTargetId(const QString &id) const;
+
     QString displayNameForId(const QString &id) const;
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
-    ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
-                                                ProjectExplorer::DeployConfiguration *product);
 
-    static QString genericDeployConfigurationId();
+    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
+    ProjectExplorer::Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+
+    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
+    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
+    ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id,
+                                    const QList<Qt4ProjectManager::BuildConfigurationInfo> &infos);
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
+#endif // EMBEDDEDLINUXTARGETFACTORY_H
