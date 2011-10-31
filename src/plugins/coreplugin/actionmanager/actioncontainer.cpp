@@ -239,7 +239,8 @@ void ActionContainerPrivate::addAction(Command *command, const QString &groupId)
         actualGroupId = groupId;
 
     QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
-    QTC_ASSERT(groupIt != m_groups.constEnd(), return);
+    QTC_ASSERT(groupIt != m_groups.constEnd(), qDebug() << "Can't find group" << groupId
+               << "in container" << id(); return);
     QAction *beforeAction = insertLocation(groupIt);
     m_groups[groupIt-m_groups.constBegin()].items.append(command);
 
