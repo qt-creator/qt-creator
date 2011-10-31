@@ -563,7 +563,10 @@ void InspectorUi::selectItems(const QList<QDeclarativeDebugObjectReference> &obj
             m_propertyInspector->setCurrentObjects(selectionList);
             populateCrumblePath(objref);
             gotoObjectReferenceDefinition(objref);
-            m_clientProxy->qmlAdapter()->setCurrentSelectedDebugInfo(debugId, displayName(objref));
+            Debugger::QmlAdapter *qmlAdapter = m_clientProxy->qmlAdapter();
+            if (qmlAdapter) {
+                qmlAdapter->setCurrentSelectedDebugInfo(debugId, displayName(objref));
+            }
             break;
         }
     }
