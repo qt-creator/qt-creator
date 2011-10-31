@@ -482,7 +482,7 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
         // cleaning up
         // print something for the user
         const QString projectName = bs->project()->displayName();
-        const QString targetName = bs->project()->displayName();
+        const QString targetName = bs->target()->displayName();
         addToOutputWindow(tr("Error while building/deploying project %1 (target: %2)").arg(projectName, targetName), BuildStep::ErrorOutput);
         addToOutputWindow(tr("When executing step '%1'").arg(bs->displayName()), BuildStep::ErrorOutput);
 
