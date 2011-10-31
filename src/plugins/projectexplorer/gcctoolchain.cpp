@@ -582,7 +582,13 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetect()
     // Fixme Prefer lldb once it is implemented: debuggers.push_back(QLatin1String("lldb"));
 #endif
     debuggers.push_back(QLatin1String("gdb"));
-    return autoDetectToolchains(QLatin1String("g++"), debuggers, Abi::hostAbi());
+    QList<ToolChain *> tcs = autoDetectToolchains(QLatin1String("g++"), debuggers, Abi::hostAbi());
+
+    // Old mac compilers needed to support macx-gccXY mkspecs:
+    tcs.append(autoDetectToolchains(QLatin1String("g++-4.0"), debuggers, Abi::hostAbi()));
+    tcs.append(autoDetectToolchains(QLatin1String("g++-4.2"), debuggers, Abi::hostAbi()));
+
+    return tcs;
 }
 
 // Used by the ToolChainManager to restore user-generated tool chains
