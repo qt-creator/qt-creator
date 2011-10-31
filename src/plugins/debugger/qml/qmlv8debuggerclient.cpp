@@ -52,9 +52,9 @@
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValue>
 
-#define DEBUG_QML 0
+#define DEBUG_QML 1
 #if DEBUG_QML
-#   define SDEBUG(s) qDebug() << s
+#   define SDEBUG(s) qDebug() << s << '\n'
 #else
 #   define SDEBUG(s)
 #endif
@@ -1005,9 +1005,6 @@ void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const
 
 void QmlV8DebuggerClient::updateWatchData(const WatchData &data)
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
-              || d->state == QmlV8DebuggerClient::RunningState);
-
     if (data.isWatcher()) {
         QString exp(data.exp);
         if (!d->watchedExpressions.contains(exp)) {
@@ -1271,10 +1268,28 @@ void QmlV8DebuggerClient::updateStack(const QVariant &bodyVal, const QVariant &r
         //Traverse the scope chain and store the local properties
         //in a list and show them in the Locals Window.
         const QVariantMap currentFrame = frames.value(0).toMap();
-        const QVariantList currentFrameScopes = currentFrame.value(_("scopes")).toList();
         d->localDataList.clear();
         d->currentFrameScopes.clear();
         d->refsVal = refsVal;
+        //Set "this" variable
+        {
+            WatchData data;
+            data.exp = QByteArray("this");
+            data.name = QString(data.exp);
+            data.iname = "local." + data.exp;
+            QVariantMap receiver = currentFrame.value(_("receiver")).toMap();
+            if (receiver.contains(_(REF))) {
+                receiver = valueFromRef(receiver.value(_(REF)).toInt(), refsVal).toMap();
+            }
+            data.id = receiver.value(_("handle")).toInt();
+            QmlV8ObjectData receiverData = d->extractData(QVariant(receiver));
+            data.type = receiverData.type;
+            data.value = receiverData.value.toString();
+            data.setHasChildren(receiverData.properties.toList().count());
+            d->localDataList << data;
+        }
+
+        const QVariantList currentFrameScopes = currentFrame.value(_("scopes")).toList();
         foreach (const QVariant &scope, currentFrameScopes) {
             d->currentFrameScopes.push(scope.toMap().value(_("index")).toInt());
         }
@@ -1432,16 +1447,25 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
         data.name = QString(data.exp);
         data.iname = QByteArray("local.") + data.exp;
 
-        localData = valueFromRef(localData.value(_(REF)).toInt(), d->refsVal).toMap();
-        data.id = localData.value(_(HANDLE)).toInt();
+        int handle = localData.value(_(REF)).toInt();
+        localData = valueFromRef(handle, d->refsVal).toMap();
+        if (localData.isEmpty()) {
+            //Fetch Data asynchronously and insert later
+            // see expandLocalsAndWatchers()
+            d->localsAndWatchers.insert(handle, data.exp);
+            d->lookup(QList<int>() << handle);
 
-        QmlV8ObjectData objectData = d->extractData(QVariant(localData));
-        data.type = objectData.type;
-        data.value = objectData.value.toString();
+        } else {
+            data.id = localData.value(_(HANDLE)).toInt();
 
-        data.setHasChildren(objectData.properties.toList().count());
+            QmlV8ObjectData objectData = d->extractData(QVariant(localData));
+            data.type = objectData.type;
+            data.value = objectData.value.toString();
 
-        d->localDataList << data;
+            data.setHasChildren(objectData.properties.toList().count());
+
+            d->localDataList << data;
+        }
     }
 
     if (!d->currentFrameScopes.isEmpty()) {
@@ -1490,6 +1514,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, const QVariant &b
         //TODO:: Fix expanding watched objects/expressions
 //        const QVariantList properties = body.properties.toList();
 //        data.setHasChildren(properties.count());
+
         //Insert the newly evaluated expression to the Watchers Window
         d->engine->watchHandler()->beginCycle(false);
         d->engine->watchHandler()->insertData(data);
@@ -1498,7 +1523,6 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, const QVariant &b
         //Check if there are more expressions to be evaluated
         //Evaluate one at a time.
         if (!d->watchesToEvaluate.isEmpty()) {
-            QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
             StackHandler *stackHandler = d->engine->stackHandler();
             const QString exp = d->watchesToEvaluate.pop();
             if (stackHandler->isContentsValid()) {
@@ -1612,45 +1636,68 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
     //    }
     const QVariantMap body = bodyVal.toMap();
 
-    int handle = body.keys().value(0).toInt();
-    QByteArray prepend = d->localsAndWatchers.take(handle);
-    const WatchData *parent = d->engine->watchHandler()->findItem(prepend);
+    QString handle = body.keys().value(0);
     QmlV8ObjectData bodyObjectData = d->extractData(
-                body.value(body.keys().value(0)));
+                body.value(handle));
+    QByteArray prepend = d->localsAndWatchers.take(handle.toInt());
+    QList<WatchData> watchDataList;
 
-    const QVariantList properties = bodyObjectData.properties.toList();
+    if (bodyObjectData.properties.isValid()) {
+        //Could be an object or function
+        const WatchData *parent = d->engine->watchHandler()->findItem(prepend);
+        const QVariantList properties = bodyObjectData.properties.toList();
+        foreach (const QVariant &property, properties) {
+            QVariantMap propertyData = property.toMap();
+            WatchData data;
+            data.name = propertyData.value(_(NAME)).toString();
 
-    QList<WatchData> children;
-    foreach (const QVariant &property, properties) {
-        QVariantMap propertyData = property.toMap();
-        WatchData data;
-        data.name = propertyData.value(_(NAME)).toString();
+            //Check for v8 specific local data
+            if (data.name.startsWith(".") || data.name.isEmpty())
+                continue;
+            if (parent && parent->type == "object") {
+                if (parent->value == _("Array"))
+                    data.exp = parent->exp + QByteArray("[") + data.name.toLatin1() + QByteArray("]");
+                else if (parent->value == _("Object"))
+                    data.exp = parent->exp + QByteArray(".") + data.name.toLatin1();
+            } else {
+                data.exp = data.name.toLatin1();
+            }
 
-        //Check for v8 specific local data
-        if (data.name.startsWith(".") || data.name.isEmpty())
-            continue;
-        if (parent->type == "object") {
-            if (parent->value == _("Array"))
-                data.exp = parent->exp + QByteArray("[") + data.name.toLatin1() + QByteArray("]");
-            else if (parent->value == _("Object"))
-                data.exp = parent->exp + QByteArray(".") + data.name.toLatin1();
+            if (prepend.startsWith("local."))
+                data.iname = prepend + '.' + data.name.toLatin1();
+            if (prepend.startsWith("watch."))
+                data.iname = prepend;
+            propertyData = valueFromRef(propertyData.value(_(REF)).toInt(),
+                                        refsVal).toMap();
+            data.id = propertyData.value(_(HANDLE)).toInt();
+
+            QmlV8ObjectData objectData = d->extractData(QVariant(propertyData));
+            data.type = objectData.type;
+            data.value = objectData.value.toString();
+
+            data.setHasChildren(objectData.properties.toList().count());
+            watchDataList << data;
         }
-        if (prepend.startsWith("local."))
-            data.iname = prepend + '.' + data.name.toLatin1();
-        if (prepend.startsWith("watch."))
-            data.iname = prepend;
-        propertyData = valueFromRef(propertyData.value(_(REF)).toInt(),
-                                    refsVal).toMap();
-        data.id = propertyData.value(_(HANDLE)).toInt();
+    } else {
+        //rest
+        WatchData data;
+        data.exp = prepend;
+        data.name = data.exp;
+        data.iname = "local." + data.exp;
+        data.id = handle.toInt();
 
-        QmlV8ObjectData objectData = d->extractData(QVariant(propertyData));
-        data.type = objectData.type;
-        data.value = objectData.value.toString();
+        data.type = bodyObjectData.type;
+        data.value = bodyObjectData.value.toString();
 
-        data.setHasChildren(objectData.properties.toList().count());
-        children << data;
+        data.setHasChildren(bodyObjectData.properties.toList().count());
+
+        watchDataList << data;
     }
-    d->engine->watchHandler()->insertBulkData(children);
+
+    d->engine->watchHandler()->beginCycle(false);
+    d->engine->watchHandler()->insertBulkData(watchDataList);
+    d->engine->watchHandler()->endCycle();
+    d->localDataList << watchDataList;
 }
 
 void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
