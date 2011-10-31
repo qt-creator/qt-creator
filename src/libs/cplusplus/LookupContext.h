@@ -235,8 +235,7 @@ public:
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
     static QList<const Name *> path(Symbol *symbol);
 
-    const Name *minimalName(const Name *name, Scope *source,
-                            ClassOrNamespace *target) const;
+    static const Name *minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control);
 
 private:
     // The current expression.
