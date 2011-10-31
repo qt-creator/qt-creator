@@ -46,7 +46,7 @@ namespace Madde {
 namespace Internal {
 
 MaemoRemoteCopyFacility::MaemoRemoteCopyFacility(QObject *parent) :
-    QObject(parent), m_isCopying(false), m_copyRunner(0)
+    QObject(parent), m_copyRunner(0), m_isCopying(false)
 {
 }
 
