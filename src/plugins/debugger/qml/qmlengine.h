@@ -81,6 +81,7 @@ public slots:
 
 private slots:
     void retryMessageBoxFinished(int result);
+    void wrongSetupMessageBox(const QString &errorMessage);
     void wrongSetupMessageBoxFinished(int result);
 
 private:

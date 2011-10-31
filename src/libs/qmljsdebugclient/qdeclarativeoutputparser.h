@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -30,51 +29,36 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERENGINE_H
-#define QMLPROFILERENGINE_H
+#ifndef QDECLARATIVEOUTPUTPARSER_H
+#define QDECLARATIVEOUTPUTPARSER_H
 
-#include <analyzerbase/ianalyzerengine.h>
-#include <utils/outputformat.h>
+#include "qmljsdebugclient_global.h"
 
-namespace QmlProfiler {
-namespace Internal {
+#include <QtCore/QObject>
 
-class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
+namespace QmlJsDebugClient {
+
+class QMLJSDEBUGCLIENT_EXPORT QDeclarativeOutputParser : public QObject
 {
     Q_OBJECT
-
 public:
-    QmlProfilerEngine(Analyzer::IAnalyzerTool *tool,
-                      const Analyzer::AnalyzerStartParameters &sp,
-                      ProjectExplorer::RunConfiguration *runConfiguration);
-    ~QmlProfilerEngine();
+    QDeclarativeOutputParser(QObject *parent = 0);
 
-    static void showNonmodalWarning(const QString &warningMsg);
+    void setNoOutputText(const QString &text);
+    void processOutput(const QString &output);
+
 signals:
-    void processRunning(int port);
-    void stopRecording();
-
-public slots:
-    bool start();
-    void stop();
-
-private slots:
-    void stopped();
-
-    void setFetchingData(bool);
-    void dataReceived();
-    void finishProcess();
-    void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
-    void wrongSetupMessageBox(const QString &errorMessage);
-    void wrongSetupMessageBoxFinished(int);
-    void processIsRunning();
+    void waitingForConnectionMessage();
+    void connectionEstablishedMessage();
+    void errorMessage(const QString &detailedError);
+    void unknownMessage(const QString &unknownMessage);
+    void noOutputMessage();
 
 private:
-    class QmlProfilerEnginePrivate;
-    QmlProfilerEnginePrivate *d;
+    QString m_noOutputText;
+    QString m_buffer;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmLJsDebugClient
 
-#endif // QMLPROFILERENGINE_H
+#endif // QDECLARATIVEOUTPUTPARSER_H
