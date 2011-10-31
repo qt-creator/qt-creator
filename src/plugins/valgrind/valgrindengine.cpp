@@ -52,6 +52,8 @@ using namespace Analyzer;
 using namespace Valgrind::Internal;
 using namespace Utils;
 
+const int progressMaximum  = 1000000;
+
 ValgrindEngine::ValgrindEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
     : IAnalyzerEngine(tool, sp, runConfiguration),
@@ -84,8 +86,10 @@ bool ValgrindEngine::start()
     Core::FutureProgress *fp = Core::ICore::instance()->progressManager()->addTask(m_progress->future(),
                                                         progressTitle(), "valgrind");
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
+    m_progress->setProgressRange(0, progressMaximum);
     m_progress->reportStarted();
     m_progressWatcher->setFuture(m_progress->future());
+    m_progress->setProgressValue(progressMaximum / 10);
 
 #if VALGRIND_DEBUG_OUTPUT
     emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(" ")), Utils::DebugFormat);
@@ -154,6 +158,12 @@ void ValgrindEngine::runnerFinished()
 
 void ValgrindEngine::receiveProcessOutput(const QByteArray &b, Utils::OutputFormat format)
 {
+    int progress = m_progress->progressValue();
+    if (progress < 5 * progressMaximum / 10)
+        progress += progress / 100;
+    else if (progress < 9 * progressMaximum / 10)
+        progress += progress / 1000;
+    m_progress->setProgressValue(progress);
     emit outputReceived(QString::fromLocal8Bit(b), format);
 }
 
