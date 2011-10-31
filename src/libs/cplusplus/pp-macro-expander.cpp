@@ -180,6 +180,17 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
             __result->append(__first, next_pos - __first);
             __first = next_pos;
         }
+        else if (*__first == '\\')
+        {
+            ++__first;
+            if (__first != __last && *__first == '\n')
+            {
+                ++lines;
+                ++__first;
+            } else {
+                __result->append('\\');
+            }
+        }
         else if (comment_p (__first, __last))
         {
             __first = skip_comment_or_divop (__first, __last);
