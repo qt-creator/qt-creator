@@ -90,6 +90,7 @@ public:
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n) = 0;
 
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
+    ProjectExplorer::ToolChain *preferredToolChain(ProjectExplorer::BuildConfiguration *) const;
 
 signals:
     void buildDirectoryInitialized();
