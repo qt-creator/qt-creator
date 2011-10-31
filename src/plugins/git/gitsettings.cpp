@@ -69,7 +69,7 @@ GitSettings::GitSettings()
     declareKey(diffPatienceKey, true);
     declareKey(winSetHomeEnvironmentKey, false);
     declareKey(gitkOptionsKey, QString());
-    declareKey(showPrettyFormatKey, 5);
+    declareKey(showPrettyFormatKey, 2);
 }
 
 QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
