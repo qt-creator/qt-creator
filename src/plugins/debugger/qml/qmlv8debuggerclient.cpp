@@ -46,6 +46,7 @@
 
 #include <QtGui/QTextBlock>
 #include <QtCore/QVariant>
+#include <QtCore/QStack>
 #include <QtCore/QFileInfo>
 #include <QtGui/QTextDocument>
 #include <QtScript/QScriptEngine>
@@ -136,6 +137,9 @@ public:
     QmlV8DebuggerClient::V8DebuggerStates state;
     int currentFrameIndex;
     bool updateCurrentStackFrameIndex;
+    QStack<int> currentFrameScopes;
+    QVariant refsVal;
+    QList<WatchData> localDataList;
 private:
     QScriptEngine m_scriptEngine;
 };
@@ -1158,6 +1162,12 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 }
 
             } else if (debugCommand == _(SCOPE)) {
+                if (success) {
+                    const QVariant body = resp.value(_(BODY)).toMap().value(_("object"));
+                    const QVariant refs = resp.value(_(REFS));
+                    updateScope(body, refs);
+                }
+
             } else if (debugCommand == _(SCOPES)) {
             } else if (debugCommand == _(SOURCE)) {
             } else if (debugCommand == _(SCRIPTS)) {
@@ -1228,25 +1238,41 @@ void QmlV8DebuggerClient::updateStack(const QVariant &bodyVal, const QVariant &r
     //      "success"     : true
     //    }
 
-    StackFrames stackFrames;
     const QVariantMap body = bodyVal.toMap();
     const QVariantList frames = body.value(_("frames")).toList();
-
-    d->engine->watchHandler()->beginCycle();
-    foreach (const QVariant &frame, frames) {
-        stackFrames << createStackFrame(frame, refsVal);
-    }
-    d->engine->watchHandler()->endCycle();
 
     d->currentFrameIndex = body.value(_("fromFrame")).toInt();
 
     if (!d->currentFrameIndex ) {
+        StackFrames stackFrames;
+        foreach (const QVariant &frame, frames) {
+            stackFrames << createStackFrame(frame, refsVal);
+        }
         d->engine->stackHandler()->setFrames(stackFrames);
     }
 
     if (d->updateCurrentStackFrameIndex) {
-        d->engine->stackHandler()->setCurrentIndex(d->currentFrameIndex);
-        d->engine->gotoLocation(stackFrames.value(d->currentFrameIndex));
+        StackHandler *stackHandler = d->engine->stackHandler();
+        stackHandler->setCurrentIndex(d->currentFrameIndex);
+        d->engine->gotoLocation(stackHandler->currentFrame());
+
+        //Update all Locals visible in current scope
+        //Traverse the scope chain and store the local properties
+        //in a list and show them in the Locals Window.
+        const QVariantMap currentFrame = frames.value(0).toMap();
+        const QVariantList currentFrameScopes = currentFrame.value(_("scopes")).toList();
+        d->localDataList.clear();
+        d->currentFrameScopes.clear();
+        d->refsVal = refsVal;
+        foreach (const QVariant &scope, currentFrameScopes) {
+            d->currentFrameScopes.push(scope.toMap().value(_("index")).toInt());
+        }
+        if (!d->currentFrameScopes.isEmpty()) {
+            QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
+            d->scope(d->currentFrameScopes.pop(), d->currentFrameIndex);
+        } else {
+            updateLocalsAndWatchers();
+        }
     }
 
     d->updateCurrentStackFrameIndex = true;
@@ -1312,8 +1338,6 @@ StackFrame QmlV8DebuggerClient::createStackFrame(const QVariant &bodyVal, const 
 
     stackFrame.line = body.value(_("line")).toInt() + 1;
 
-    const QVariant locals = body.value(_("locals"));
-    updateLocals(locals, refsVal);
 
     return stackFrame;
 }
@@ -1332,7 +1356,7 @@ void QmlV8DebuggerClient::updateLocals(const QVariant &localsVal, const QVariant
             continue;
 
         data.name = data.exp;
-        data.iname = "local." + data.exp;
+        data.iname = QByteArray("local.") + data.exp;
 
         localData = valueFromRef(localData.value(_(VALUE)).toMap()
                                  .value(_(REF)).toInt(), refsVal).toMap();
@@ -1349,6 +1373,72 @@ void QmlV8DebuggerClient::updateLocals(const QVariant &localsVal, const QVariant
 
     d->engine->watchHandler()->insertBulkData(localDataList);
 
+}
+
+void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &refsVal)
+{
+//    { "seq"         : <number>,
+//      "type"        : "response",
+//      "request_seq" : <number>,
+//      "command"     : "scope",
+//      "body"        : { "index"      : <index of this scope in the scope chain. Index 0 is the top scope
+//                                        and the global scope will always have the highest index for a
+//                                        frame>,
+//                        "frameIndex" : <index of the frame>,
+//                        "type"       : <type of the scope:
+//                                         0: Global
+//                                         1: Local
+//                                         2: With
+//                                         3: Closure
+//                                         4: Catch >,
+//                        "object"     : <the scope object defining the content of the scope.
+//                                        For local and closure scopes this is transient objects,
+//                                        which has a negative handle value>
+//                      }
+//      "running"     : <is the VM running after sending this response>
+//      "success"     : true
+//    }
+    QVariantMap bodyMap = bodyVal.toMap();
+    if (bodyMap.contains(_(REF))) {
+        bodyMap = valueFromRef(bodyMap.value(_(REF)).toInt(),
+                               refsVal).toMap();
+    }
+
+    const QVariantList properties = bodyMap.value(_("properties")).toList();
+
+    foreach (const QVariant &property, properties) {
+        QVariantMap localData = property.toMap();
+        //Do Not show global types (0)
+        //Showing global properties increases clutter.
+        if (!localData.value(_("propertyType")).toInt())
+            continue;
+        WatchData data;
+        data.exp = localData.value(_(NAME)).toByteArray();
+        //Check for v8 specific local data
+        if (data.exp.startsWith(".") || data.exp.isEmpty())
+            continue;
+
+        data.name = data.exp;
+        data.iname = QByteArray("local.") + data.exp;
+
+        localData = valueFromRef(localData.value(_(REF)).toInt(), d->refsVal).toMap();
+        data.id = localData.value(_(HANDLE)).toInt();
+
+        QmlV8ObjectData objectData = d->extractData(QVariant(localData));
+        data.type = objectData.type;
+        data.value = objectData.value.toString();
+
+        data.setHasChildren(objectData.properties.toList().count());
+
+        d->localDataList << data;
+    }
+
+    if (!d->currentFrameScopes.isEmpty()) {
+        QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
+        d->scope(d->currentFrameScopes.pop(), d->currentFrameIndex);
+    } else {
+        updateLocalsAndWatchers();
+    }
 }
 
 void QmlV8DebuggerClient::updateEvaluationResult(int sequence, const QVariant &bodyVal,
@@ -1512,9 +1602,9 @@ void QmlV8DebuggerClient::expandLocal(const QVariant &bodyVal, const QVariant &r
             continue;
         if (parent->type == "object") {
             if (parent->value == _("Array"))
-                data.exp = parent->exp + '[' + data.name.toUtf8() + ']';
+                data.exp = parent->exp + QByteArray("[") + data.name.toLatin1() + QByteArray("]");
             else if (parent->value == _("Object"))
-                data.exp = parent->exp + '.' + data.name.toUtf8();
+                data.exp = parent->exp + QByteArray(".") + data.name.toLatin1();
         }
         data.iname = prepend + '.' + data.name.toUtf8();
         propertyData = valueFromRef(propertyData.value(_(REF)).toInt(),
@@ -1598,6 +1688,13 @@ void QmlV8DebuggerClient::resetState()
     d->updateCurrentStackFrameIndex = true;
     d->state = QmlV8DebuggerClient::RunningState;
     SDEBUG(QString(_("State: %1")).arg(d->state));
+}
+
+void QmlV8DebuggerClient::updateLocalsAndWatchers()
+{
+    d->engine->watchHandler()->beginCycle();
+    d->engine->watchHandler()->insertBulkData(d->localDataList);
+    d->engine->watchHandler()->endCycle();
 }
 
 } // Internal

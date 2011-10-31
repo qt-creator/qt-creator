@@ -111,6 +111,7 @@ private:
     void updateStack(const QVariant &bodyVal, const QVariant &refsVal);
     StackFrame createStackFrame(const QVariant &bodyVal, const QVariant &refsVal);
     void updateLocals(const QVariant &localsVal, const QVariant &refsVal);
+    void updateScope(const QVariant &localsVal, const QVariant &refsVal);
 
     void updateEvaluationResult(int sequence, const QVariant &bodyVal,
                                 const QVariant &refsVal);
@@ -125,6 +126,8 @@ private:
     void clearExceptionSelection();
 
     void resetState();
+
+    void updateLocalsAndWatchers();
 
 private:
     QmlV8DebuggerClientPrivate *d;
