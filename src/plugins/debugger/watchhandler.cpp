@@ -1223,6 +1223,7 @@ void WatchHandler::endCycle()
 void WatchHandler::cleanup()
 {
     m_expandedINames.clear();
+    m_watcherNames.remove(QByteArray());
     m_return->reinitialize();
     m_locals->reinitialize();
     m_tooltips->reinitialize();
