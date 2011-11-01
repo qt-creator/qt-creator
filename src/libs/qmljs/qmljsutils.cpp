@@ -5,6 +5,11 @@
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
+/*!
+  \namespace QmlJS
+  QML and JavaScript language support library
+*/
+
 namespace {
 class SharedData
 {

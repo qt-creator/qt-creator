@@ -37,6 +37,20 @@
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
+/*!
+    \class QmlJS::Context
+    \brief Holds information about relationships between documents in a QmlJS::Snapshot.
+    \sa QmlJS::Document QmlJS::Link QmlJS::Snapshot
+
+    Contexts are usually created through \l{QmlJS::Link}.
+
+    Once created, a Context is immutable and can be freely shared between threads.
+
+    Their main purpose is to allow lookup of types with lookupType() and resolving
+    of references through lookupReference(). Information about the imports of
+    a QmlJS::Document can be accessed with imports().
+*/
+
 ContextPtr Context::create(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports)
 {
     QSharedPointer<Context> result(new Context(snapshot, valueOwner, imports));

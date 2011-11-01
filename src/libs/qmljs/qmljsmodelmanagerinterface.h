@@ -46,8 +46,6 @@ namespace ProjectExplorer {
     class Project;
 }
 
-QT_QML_BEGIN_NAMESPACE
-
 namespace QmlJS {
 
 class Snapshot;
@@ -169,7 +167,5 @@ signals:
 };
 
 } // namespace QmlJS
-
-QT_QML_END_NAMESPACE
 
 #endif // QMLJSMODELMANAGERINTERFACE_H

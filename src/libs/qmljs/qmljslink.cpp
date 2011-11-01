@@ -125,15 +125,13 @@ public:
 
 /*!
     \class QmlJS::Link
-    \brief Initializes the Context for a Document.
-    \sa QmlJS::Document QmlJS::Context
+    \brief Creates a Context for a Snapshot.
+    \sa QmlJS::Context QmlJS::Snapshot
 
-    Initializes a context by resolving imports and building the root scope
-    chain. Currently, this is a expensive operation.
+    Initializes a context by resolving imports. This is an expensive operation.
 
-    It's recommended to use a the \l{LookupContext} returned by
-    \l{QmlJSEditor::SemanticInfo::lookupContext()} instead of building a new
-    \l{Context} with \l{Link}.
+    Instead of making a fresh context, consider reusing the one maintained in the
+    \l{QmlJSEditor::SemanticInfo} of a \l{QmlJSEditor::QmlJSTextEditorWidget}.
 */
 
 Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const LibraryInfo &builtins)

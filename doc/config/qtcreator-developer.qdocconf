@@ -8,6 +8,7 @@ headerdirs              = . \
                           ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
                           ../../src/libs/utils \
+                          ../../src/libs/qmljs \
                           ../../src/libs/qtcreatorcdbext \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
@@ -22,6 +23,7 @@ sourcedirs              = . \
                           ../../src/libs/cplusplus \
                           ../../src/libs/extensionsystem \
                           ../../src/libs/utils \
+                          ../../src/libs/qmljs \
                           ../../src/libs/qtcreatorcdbext \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \

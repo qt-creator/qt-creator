@@ -57,6 +57,10 @@
     \o \l{Utils}
     \o General utility library.
 
+    \row
+    \o \l{QmlJS}
+    \o QML and JavaScript language support library.
+
     \endtable
 
     \section2 Additional libraries

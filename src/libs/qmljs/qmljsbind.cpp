@@ -48,16 +48,18 @@ using namespace QmlJS::AST;
 /*!
     \class QmlJS::Bind
     \brief Collected information about a single Document.
-    \sa QmlJS::Document QmlJS::Link
+    \sa QmlJS::Document QmlJS::Context
 
-    Each QmlJS::Document owns a instance of Bind. It provides access to data
+    Each QmlJS::Document owns an instance of Bind. It provides access to data
     that can be derived by looking at the document in isolation. If you need
-    information that goes beyond that, you need to create a
-    \l{QmlJS::Context} using \l{QmlJS::Link}.
+    information that goes beyond that, you need to use a
+    \l{QmlJS::Context}.
 
     The document's imports are classified and available through imports().
 
-    It allows AST to code model lookup through findQmlObject() and findFunctionScope().
+    This class makes the structural information found in the AST available
+    for analysis through \l{QmlJS::Value} instances. See findQmlObject(),
+    idEnvironment(), rootObjectValue() and findAttachedJSScope().
 */
 
 Bind::Bind(Document *doc, QList<DiagnosticMessage> *messages, bool isJsLibrary, const QList<ImportInfo> &jsImports)
