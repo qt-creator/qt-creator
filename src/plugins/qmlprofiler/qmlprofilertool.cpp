@@ -188,14 +188,16 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
     }
 
     QAction *selectedAction = menu.exec(position);
-    if (selectedAction == loadAction)
-        showLoadDialog();
-    if (selectedAction == saveAction)
-        showSaveDialog();
-    if (selectedAction == copyRowAction)
-        senderView->copyRowToClipboard();
-    if (selectedAction == copyTableAction)
-        senderView->copyTableToClipboard();
+    if (selectedAction) {
+        if (selectedAction == loadAction)
+            showLoadDialog();
+        if (selectedAction == saveAction)
+            showSaveDialog();
+        if (selectedAction == copyRowAction)
+            senderView->copyRowToClipboard();
+        if (selectedAction == copyTableAction)
+            senderView->copyTableToClipboard();
+    }
 }
 
 IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
