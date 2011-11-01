@@ -2,7 +2,7 @@ include(../../../qtcreator.pri)
 
 TEMPLATE = app
 TARGET   = qmlprofiler
-DESTDIR = $$IDE_APP_PATH
+DESTDIR = $$IDE_BIN_PATH
 
 QT       = core
 CONFIG   += console
