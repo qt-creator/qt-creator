@@ -162,8 +162,10 @@ void SearchResultTreeItemDelegate::drawMarker(QPainter *painter, const QModelInd
 {
     int searchTermStart = index.model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
     int searchTermLength = index.model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
-    if (searchTermStart < 0 || searchTermLength < 1)
+    if (searchTermStart < 0 || searchTermStart >= text.length() || searchTermLength < 1)
         return;
+    // clip searchTermLength to end of line
+    searchTermLength = qMin(searchTermLength, text.length() - searchTermStart);
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     int searchTermStartPixels = painter->fontMetrics().width(text.left(searchTermStart));
     int searchTermLengthPixels = painter->fontMetrics().width(text.mid(searchTermStart, searchTermLength));

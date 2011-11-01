@@ -296,6 +296,20 @@ QList<ProjectExplorer::ToolChain *> Qt4BaseTarget::possibleToolChains(ProjectExp
     return result;
 }
 
+ProjectExplorer::ToolChain *Qt4BaseTarget::preferredToolChain(ProjectExplorer::BuildConfiguration *bc) const
+{
+    Qt4BuildConfiguration *qtBc = qobject_cast<Qt4BuildConfiguration *>(bc);
+    if (!qtBc || !qtBc->qtVersion())
+        return Target::preferredToolChain(bc);
+
+    QList<ProjectExplorer::ToolChain *> tcs = possibleToolChains(bc);
+    const QString mkspec = qtBc->qtVersion()->mkspec();
+    foreach (ProjectExplorer::ToolChain *tc, tcs)
+        if (tc->mkspec() == mkspec)
+            return tc;
+    return tcs.isEmpty() ? 0 : tcs.at(0);
+}
+
 void Qt4BaseTarget::removeUnconfiguredCustomExectutableRunConfigurations()
 {
     if (runConfigurations().count()) {

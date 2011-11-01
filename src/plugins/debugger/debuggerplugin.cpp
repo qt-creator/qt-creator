@@ -2544,7 +2544,7 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
 void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
 {
     QMessageBox dialog(mainWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt Options"),
         QMessageBox::ActionRole);
     QPushButton *helperOff = dialog.addButton(tr("Turn off Helper Usage"),
         QMessageBox::ActionRole);

@@ -409,6 +409,11 @@ RvctToolChainConfigWidget::RvctToolChainConfigWidget(RvctToolChain *tc) :
     setFromToolChain();
 }
 
+RvctToolChainConfigWidget::~RvctToolChainConfigWidget()
+{
+    delete m_ui;
+}
+
 void RvctToolChainConfigWidget::apply()
 {
     RvctToolChain *tc = static_cast<RvctToolChain *>(toolChain());

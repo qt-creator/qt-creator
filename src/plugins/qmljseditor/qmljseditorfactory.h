@@ -54,10 +54,6 @@ public:
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
-private slots:
-    void activateQmlDesigner();
-    void neverAskAgainAboutQmlDesigner();
-
 private:
     QStringList m_mimeTypes;
 };

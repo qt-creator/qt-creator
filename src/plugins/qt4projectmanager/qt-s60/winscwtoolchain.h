@@ -105,6 +105,7 @@ class WinscwToolChainConfigWidget : public ProjectExplorer::ToolChainConfigWidge
 
 public:
     WinscwToolChainConfigWidget(WinscwToolChain *);
+    ~WinscwToolChainConfigWidget();
 
     void apply();
     void discard();

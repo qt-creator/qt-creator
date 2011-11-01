@@ -5538,8 +5538,13 @@ void BaseTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 void BaseTextEditorWidget::setTabSettings(const TabSettings &ts)
 {
     d->m_document->setTabSettings(ts);
-    int charWidth = QFontMetrics(font()).width(QChar(' '));
-    setTabStopWidth(charWidth * ts.m_tabSize);
+
+    // Although the tab stop is stored as qreal the API from QPlainTextEdit only allows it
+    // to be set as an int. A work around is to access directly the QTextOption.
+    qreal charWidth = QFontMetricsF(font()).width(QChar(' '));
+    QTextOption option = document()->defaultTextOption();
+    option.setTabStop(charWidth * ts.m_tabSize);
+    document()->setDefaultTextOption(option);
 }
 
 void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)

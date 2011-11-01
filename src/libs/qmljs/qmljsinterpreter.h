@@ -499,6 +499,7 @@ public:
 
     using ObjectValue::prototype;
     const CppComponentValue *prototype() const;
+    QList<const CppComponentValue *> prototypes() const;
 
     const CppComponentValue *attachedType() const;
     void setAttachedType(CppComponentValue *value);

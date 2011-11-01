@@ -98,7 +98,10 @@ private Q_SLOTS:
     void json1();
     void multilineTernaryInProperty();
     void bug1();
+    void multilineString();
 };
+
+enum { DontCheck = -2, DontIndent = -1 };
 
 struct Line {
     Line(QString l)
@@ -142,7 +145,7 @@ void checkIndent(QList<Line> data, int style = 0)
     int i = 0;
     foreach (const Line &l, data) {
         QTextBlock b = document.findBlockByLineNumber(i);
-        if (l.expectedIndent != -1) {
+        if (l.expectedIndent != DontCheck) {
             int actualIndent = formatter.indentFor(b);
             if (actualIndent != l.expectedIndent) {
                 QFAIL(QString("Wrong indent in line %1 with text '%2', expected indent %3, got %4").arg(
@@ -756,9 +759,9 @@ void tst_QMLCodeFormatter::strayElse()
     data << Line("Rectangle {")
          << Line("onClicked: {", 4)
          << Line("    while ( true ) {}")
-         << Line("    else", -1)
-         << Line("    else {", -1)
-         << Line("    }", -1)
+         << Line("    else", DontCheck)
+         << Line("    else {", DontCheck)
+         << Line("    }", DontCheck)
          << Line("}");
     checkIndent(data);
 }
@@ -1287,6 +1290,23 @@ void tst_QMLCodeFormatter::bug1()
          << Line("        else (b==b) {}")
          << Line("        foo()")
          << Line("    }")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::multilineString()
+{
+    QList<Line> data;
+    data << Line("Item {")
+         << Line("    a: 'foo")
+         << Line("  bar", DontIndent)
+         << Line("          boo boo", DontIndent)
+         << Line("   end'", DontIndent)
+         << Line("    a: \"foo")
+         << Line("  bar", DontIndent)
+         << Line("          boo boo", DontIndent)
+         << Line("   end\"", DontIndent)
          << Line("}")
          ;
     checkIndent(data);

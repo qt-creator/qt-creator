@@ -261,13 +261,7 @@ public:
         FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
 
         // rewrite the function name
-        QString name;
-        const FullySpecifiedType nametype = rewriteType(control->namedType(m_decl->name()), &env, control);
-        if (NamedType *nt = nametype.type()->asNamedType()) {
-            name = oo(nt->name());
-        } else {
-            name = oo(LookupContext::fullyQualifiedName(m_decl));
-        }
+        QString name = oo(LookupContext::minimalName(m_decl, targetCoN, control));
 
         QString defText = oo.prettyType(tn, name) + "\n{\n}";
 

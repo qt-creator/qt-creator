@@ -150,6 +150,11 @@ DeployConfiguration *BuildStep::deployConfiguration() const
     return qobject_cast<DeployConfiguration *>(parent()->parent());
 }
 
+ProjectConfiguration *BuildStep::projectConfiguration() const
+{
+    return static_cast<ProjectConfiguration *>(parent()->parent());
+}
+
 Target *BuildStep::target() const
 {
     return qobject_cast<Target *>(parent()->parent()->parent());

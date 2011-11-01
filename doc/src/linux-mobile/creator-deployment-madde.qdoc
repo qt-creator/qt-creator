@@ -44,7 +44,9 @@
     field displays the location of the file on the development PC. The
     \gui {Remote Directory} field displays the folder where the file is
     installed on the device. Text in red color indicates that the information is
-    missing. Select the red text to edit it and add the missing information.
+    missing. Edit the qmake
+    \l{http://doc.qt.nokia.com/4.8/qmake-variable-reference.html#installs}
+    {INSTALLS variable} in the project .pro file to add the missing files.
 
     You can use desktop files to display icons on the home screen of the
     device. To add desktop files to the project file, select \gui {Add Desktop
@@ -55,8 +57,8 @@
     If you develop your own libraries, \QC needs to be able to find them when
     you compile projects depending on them. When you install MADDE, an instance
     of the device file system, called sysroot, is installed to the development
-    PC. Libraries are copied to sysroot if the \gui {Also deploy to sysroot}
-    check box is selected.
+    PC. Libraries are copied to sysroot during the \gui {Install Debian package
+    to sysroot} step.
 
     \section1 Creating Debian Installation Packages
 

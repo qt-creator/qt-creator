@@ -35,10 +35,14 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
 **
 ****************************************************************************/
+//! [3]
+import QtQuick 1.1
+import com.nokia.symbian 1.1
+//! [3]
 
-import QtQuick 1.0
-import com.nokia.symbian 1.0
-import QtMobility.systeminfo 1.1
+//! [4]
+import QtMobility.systeminfo 1.2
+//! [4]
 
 //! [0]
 Page {
@@ -46,13 +50,7 @@ Page {
 
     DeviceInfo {
         id: deviceinfo
-
-        Component.onCompleted: {
-            deviceinfo.startBatteryLevelChanged();
-        }
-        onBatteryLevelChanged: {
-             progressbar1.value = batteryLevel
-         }
+        monitorBatteryLevelChanges: true
     }
 //! [0]
 

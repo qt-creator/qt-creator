@@ -70,6 +70,8 @@ void Indenter::indentBlock(QTextDocument *doc,
 
     codeFormatter.updateStateUntil(block);
     const int depth = codeFormatter.indentFor(block);
+    if (depth == -1)
+        return;
 
     if (isElectricCharacter(typedChar)) {
         // only reindent the current line when typing electric characters if the

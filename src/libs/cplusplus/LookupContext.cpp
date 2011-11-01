@@ -157,50 +157,40 @@ QList<const Name *> LookupContext::path(Symbol *symbol)
     return names;
 }
 
-
-const Name *LookupContext::minimalName(const Name *name,
-                                       Scope *scope,
-                                       ClassOrNamespace *target) const
+static bool symbolIdentical(Symbol *s1, Symbol *s2)
 {
-    Q_UNUSED(name);
-    Q_UNUSED(scope);
-    Q_UNUSED(target);
+    if (!s1 || !s2)
+        return false;
+    if (s1->line() != s2->line())
+        return false;
+    if (s1->column() != s2->column())
+        return false;
 
-    qWarning() << "TODO:" << Q_FUNC_INFO;
-    return name;
+    return QByteArray(s1->fileName()) == QByteArray(s2->fileName());
+}
 
-#if 0
-    Q_ASSERT(name);
-    Q_ASSERT(source);
-    Q_ASSERT(target);
+const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control)
+{
+    const Name *n = 0;
+    QList<const Name *> names = LookupContext::fullyQualifiedName(symbol);
 
-    QList<Symbol *> symbols = lookup(name, source);
-    if (symbols.isEmpty())
-        return 0;
-
-    Symbol *canonicalSymbol = symbols.first();
-    std::vector<const Name *> fqNames = fullyQualifiedName(canonicalSymbol).toVector().toStdVector();
-    if (const QualifiedNameId *qId = name->asQualifiedNameId())
-        fqNames.push_back(qId->name());
-    else
-        fqNames.push_back(name);
-
-    const QualifiedNameId *lastWorking = 0;
-    for (unsigned i = 0; i < fqNames.size(); ++i) {
-        const QualifiedNameId *newName = control()->qualifiedNameId(&fqNames[i],
-                                                                    fqNames.size() - i);
-        QList<Symbol *> candidates = target->lookup(newName);
-        if (candidates.contains(canonicalSymbol))
-            lastWorking = newName;
+    for (int i = names.size() - 1; i >= 0; --i) {
+        if (! n)
+            n = names.at(i);
         else
-            break;
+            n = control->qualifiedNameId(names.at(i), n);
+
+        // once we're qualified enough to get the same symbol, break
+        if (target) {
+            const QList<LookupItem> tresults = target->lookup(n);
+            foreach (const LookupItem &tr, tresults) {
+                if (symbolIdentical(tr.declaration(), symbol))
+                    return n;
+            }
+        }
     }
 
-    if (lastWorking && lastWorking->nameCount() == 1)
-        return lastWorking->nameAt(0);
-    else
-        return lastWorking;
-#endif
+    return n;
 }
 
 

@@ -42,6 +42,8 @@
 
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/buildmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QPair>
@@ -389,15 +391,31 @@ void RunSettingsWidget::addDeployConfiguration()
 void RunSettingsWidget::removeDeployConfiguration()
 {
     DeployConfiguration *dc = m_target->activeDeployConfiguration();
-    QMessageBox msgBox(QMessageBox::Question, tr("Remove Deploy Configuration?"),
-                       tr("Do you really want to delete deploy configuration <b>%1</b>?").arg(dc->displayName()),
-                       QMessageBox::Yes|QMessageBox::No, this);
-    msgBox.setDefaultButton(QMessageBox::No);
-    msgBox.setEscapeButton(QMessageBox::No);
-    if (msgBox.exec() == QMessageBox::No)
-        return;
+    ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
+    if (bm->isBuilding(dc)) {
+        QMessageBox box;
+        QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Remove Deploy Configuration"), QMessageBox::AcceptRole);
+        QPushButton *cancelClose = box.addButton(tr("Do Not Remove"), QMessageBox::RejectRole);
+        box.setDefaultButton(cancelClose);
+        box.setWindowTitle(tr("Remove Deploy Configuration %1?").arg(dc->displayName()));
+        box.setText(tr("The deploy configuration <b>%1</b> is currently being built.").arg(dc->displayName()));
+        box.setInformativeText(tr("Do you want to cancel the build process and remove the Deploy Configuration anyway?"));
+        box.exec();
+        if (box.clickedButton() != closeAnyway)
+            return;
+        bm->cancel();
+    } else {
+        QMessageBox msgBox(QMessageBox::Question, tr("Remove Deploy Configuration?"),
+                           tr("Do you really want to delete deploy configuration <b>%1</b>?").arg(dc->displayName()),
+                           QMessageBox::Yes|QMessageBox::No, this);
+        msgBox.setDefaultButton(QMessageBox::No);
+        msgBox.setEscapeButton(QMessageBox::No);
+        if (msgBox.exec() == QMessageBox::No)
+            return;
+    }
 
     m_target->removeDeployConfiguration(dc);
+
     m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
 }
 

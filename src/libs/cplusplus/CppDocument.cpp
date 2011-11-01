@@ -918,11 +918,11 @@ void CPlusPlus::findMatchingDeclaration(const LookupContext &context,
         return;
 
     foreach (Symbol *s, binding->symbols()) {
-        Class *matchingClass = s->asClass();
-        if (!matchingClass)
+        Scope *scope = s->asScope();
+        if (!scope)
             continue;
 
-        for (Symbol *s = matchingClass->find(funcId); s; s = s->next()) {
+        for (Symbol *s = scope->find(funcId); s; s = s->next()) {
             if (! s->name())
                 continue;
             else if (! funcId->isEqualTo(s->identifier()))

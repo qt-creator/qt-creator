@@ -69,6 +69,9 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
                 tr("Edit preview contents to see how the current settings "
                 "are applied to custom code snippets. Changes in the preview "
                 "do not affect the current settings."), this);
+    QFont font = label->font();
+    font.setItalic(true);
+    label->setFont(font);
     label->setWordWrap(true);
     m_layout->addWidget(selector);
     m_layout->addWidget(m_preview);

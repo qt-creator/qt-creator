@@ -23,7 +23,7 @@
 
     \contentspage index.html
     \if defined(qcmanual)
-    \previouspage creator-build-dependencies.html
+    \previouspage creator-sharing-project-settings.html
     \else
     \previouspage creator-developing-symbian.html
     \endif

@@ -523,10 +523,10 @@ int CodeFormatter::indentForNewLineAfter(const QTextBlock &block)
 {
     restoreCurrentState(block);
 
-    int lexerState = loadLexerState(block);
     m_tokens.clear();
     m_currentLine.clear();
-    adjustIndent(m_tokens, lexerState, &m_indentDepth);
+    const int startLexerState = loadLexerState(block.previous());
+    adjustIndent(m_tokens, startLexerState, &m_indentDepth);
 
     return m_indentDepth;
 }
@@ -671,10 +671,11 @@ void CodeFormatter::leave(bool statementDone)
 
 void CodeFormatter::correctIndentation(const QTextBlock &block)
 {
-    const int lexerState = tokenizeBlock(block);
+    tokenizeBlock(block);
     Q_ASSERT(m_currentState.size() >= 1);
 
-    adjustIndent(m_tokens, lexerState, &m_indentDepth);
+    const int startLexerState = loadLexerState(block.previous());
+    adjustIndent(m_tokens, startLexerState, &m_indentDepth);
 }
 
 bool CodeFormatter::tryInsideExpression(bool alsoExpression)
@@ -1211,10 +1212,8 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     }
 }
 
-void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int lexerState, int *indentDepth) const
+void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int startLexerState, int *indentDepth) const
 {
-    Q_UNUSED(lexerState)
-
     State topState = state();
     State previousState = state(1);
 
@@ -1225,6 +1224,12 @@ void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int lexerSta
             *indentDepth = column(tokens.at(0).begin());
             return;
         }
+    }
+    // don't touch multi-line strings at all
+    if ((startLexerState & Scanner::MultiLineMask) == Scanner::MultiLineStringDQuote
+            || (startLexerState & Scanner::MultiLineMask) == Scanner::MultiLineStringSQuote) {
+        *indentDepth = -1;
+        return;
     }
 
     const int kind = extendedTokenKind(tokenAt(0));

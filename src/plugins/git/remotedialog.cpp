@@ -60,6 +60,11 @@ RemoteAdditionDialog::RemoteAdditionDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
+RemoteAdditionDialog::~RemoteAdditionDialog()
+{
+    delete m_ui;
+}
+
 QString RemoteAdditionDialog::remoteName() const
 {
     return m_ui->nameEdit->text();

@@ -52,6 +52,7 @@ ThreadsWindow::ThreadsWindow(QWidget *parent)
     : BaseWindow(parent)
 {
     setWindowTitle(tr("Thread"));
+    setSortingEnabled(true);
     setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustThreadsColumnWidths));
     setObjectName(QLatin1String("ThreadsWindow"));
 }

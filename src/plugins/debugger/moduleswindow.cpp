@@ -61,6 +61,7 @@ ModulesWindow::ModulesWindow(QWidget *parent)
   : BaseWindow(parent)
 {
     setWindowTitle(tr("Modules"));
+    setSortingEnabled(true);
     setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustModulesColumnWidths));
 
     connect(this, SIGNAL(activated(QModelIndex)),

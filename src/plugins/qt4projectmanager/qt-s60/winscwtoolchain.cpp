@@ -319,6 +319,11 @@ WinscwToolChainConfigWidget::WinscwToolChainConfigWidget(WinscwToolChain *tc) :
     discard();
 }
 
+WinscwToolChainConfigWidget::~WinscwToolChainConfigWidget()
+{
+    delete m_ui;
+}
+
 void WinscwToolChainConfigWidget::apply()
 {
     WinscwToolChain *tc = static_cast<WinscwToolChain *>(toolChain());

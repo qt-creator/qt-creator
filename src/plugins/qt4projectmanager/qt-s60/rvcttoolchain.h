@@ -143,6 +143,7 @@ class RvctToolChainConfigWidget : public ProjectExplorer::ToolChainConfigWidget
 
 public:
     RvctToolChainConfigWidget(RvctToolChain *tc);
+    ~RvctToolChainConfigWidget();
 
     void apply();
     void discard() { setFromToolChain(); }

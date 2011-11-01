@@ -337,6 +337,22 @@ const CppComponentValue *CppComponentValue::prototype() const
     return static_cast<const CppComponentValue *>(_prototype);
 }
 
+/*!
+  \returns a list started by this object and followed by all its prototypes
+
+  Prefer to use this over calling prototype() in a loop, as it avoids cycles.
+*/
+QList<const CppComponentValue *> CppComponentValue::prototypes() const
+{
+    QList<const CppComponentValue *> protos;
+    for (const CppComponentValue *it = this; it; it = it->prototype()) {
+        if (protos.contains(it))
+            break;
+        protos += it;
+    }
+    return protos;
+}
+
 const CppComponentValue *CppComponentValue::attachedType() const
 {
     return _attachedType;
@@ -366,7 +382,7 @@ QString CppComponentValue::defaultPropertyName() const
 
 QString CppComponentValue::propertyType(const QString &propertyName) const
 {
-    for (const CppComponentValue *it = this; it; it = it->prototype()) {
+    foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -378,7 +394,7 @@ QString CppComponentValue::propertyType(const QString &propertyName) const
 
 bool CppComponentValue::isListProperty(const QString &propertyName) const
 {
-    for (const CppComponentValue *it = this; it; it = it->prototype()) {
+    foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -390,7 +406,7 @@ bool CppComponentValue::isListProperty(const QString &propertyName) const
 
 FakeMetaEnum CppComponentValue::getEnum(const QString &typeName, const CppComponentValue **foundInScope) const
 {
-    for (const CppComponentValue *it = this; it; it = it->prototype()) {
+    foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         const int index = iter->enumeratorIndex(typeName);
         if (index != -1) {
@@ -406,7 +422,7 @@ FakeMetaEnum CppComponentValue::getEnum(const QString &typeName, const CppCompon
 
 const QmlEnumValue *CppComponentValue::getEnumValue(const QString &typeName, const CppComponentValue **foundInScope) const
 {
-    for (const CppComponentValue *it = this; it; it = it->prototype()) {
+    foreach (const CppComponentValue *it, prototypes()) {
         if (const QmlEnumValue *e = it->_enums.value(typeName)) {
             if (foundInScope)
                 *foundInScope = it;
@@ -455,7 +471,7 @@ const ObjectValue *CppComponentValue::signalScope(const QString &signalName) con
 
 bool CppComponentValue::isWritable(const QString &propertyName) const
 {
-    for (const CppComponentValue *it = this; it; it = it->prototype()) {
+    foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -467,7 +483,7 @@ bool CppComponentValue::isWritable(const QString &propertyName) const
 
 bool CppComponentValue::isPointer(const QString &propertyName) const
 {
-    for (const CppComponentValue *it = this; it; it = it->prototype()) {
+    foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -487,7 +503,7 @@ bool CppComponentValue::hasLocalProperty(const QString &typeName) const
 
 bool CppComponentValue::hasProperty(const QString &propertyName) const
 {
-    for (const CppComponentValue *it = this; it; it = it->prototype()) {
+    foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         int propIdx = iter->propertyIndex(propertyName);
         if (propIdx != -1) {
@@ -499,7 +515,7 @@ bool CppComponentValue::hasProperty(const QString &propertyName) const
 
 bool CppComponentValue::isDerivedFrom(FakeMetaObject::ConstPtr base) const
 {
-    for (const CppComponentValue *it = this; it; it = it->prototype()) {
+    foreach (const CppComponentValue *it, prototypes()) {
         FakeMetaObject::ConstPtr iter = it->_metaObject;
         if (iter == base)
             return true;

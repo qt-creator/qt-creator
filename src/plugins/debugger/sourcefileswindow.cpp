@@ -60,6 +60,7 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     : BaseWindow(parent)
 {
     setWindowTitle(tr("Source Files"));
+    setSortingEnabled(true);
 }
 
 void SourceFilesWindow::rowActivated(const QModelIndex &index)

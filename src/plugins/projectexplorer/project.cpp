@@ -43,6 +43,7 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/icontext.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/buildmanager.h>
 #include <limits>
 #include <utils/qtcassert.h>
 
@@ -166,9 +167,15 @@ void Project::addTarget(Target *t)
         setActiveTarget(t);
 }
 
-void Project::removeTarget(Target *target)
+bool Project::removeTarget(Target *target)
 {
-    QTC_ASSERT(target && d->m_targets.contains(target), return);
+    if (!target || !d->m_targets.contains(target))
+        return false;
+
+    ProjectExplorer::BuildManager *bm =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
+    if (bm->isBuilding(target))
+        return false;
 
     emit aboutToRemoveTarget(target);
 

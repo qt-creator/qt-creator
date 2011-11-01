@@ -47,7 +47,7 @@ class PROJECTEXPLORER_EXPORT DebuggingHelperLibrary : public Utils::BuildableHel
 {
 public:
     static QString debuggingHelperLibraryByInstallData(const QString &qtInstallData);
-    static QStringList locationsByInstallData(const QString &qtInstallData);
+    static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData);
 
     // Build the helpers and return the output log/errormessage.
     static bool build(BuildHelperArguments arguments, QString *log, QString *errorMessage);
@@ -55,8 +55,6 @@ public:
     // Copy the source files to a target location and return the chosen target location.
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
-private:
-    static QStringList debuggingHelperLibraryDirectories(const QString &qtInstallData);
 };
 } // namespace ProjectExplorer
 
