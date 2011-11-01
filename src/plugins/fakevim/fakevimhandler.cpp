@@ -3296,6 +3296,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
                     i += caps.at(0).size();
                 }
             }
+            repl.replace("\\&", "&");
             text = text.left(pos) + repl + text.mid(pos + matched.size());
             pos += repl.size();
             if (!global)
