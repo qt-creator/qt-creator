@@ -117,7 +117,7 @@ enum DebuggerActionCode
 
     // Gdb
     LoadGdbInit,
-    GdbScriptFile,
+    GdbStartupCommands,
     GdbWatchdogTimeout,
     AutoEnrichParameters,
     TargetAsync,

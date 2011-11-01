@@ -2,39 +2,22 @@
 <ui version="4.0">
  <class>GdbOptionsPage</class>
  <widget class="QWidget" name="GdbOptionsPage">
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>673</width>
+    <height>474</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_3">
+   <item row="0" column="0">
     <widget class="QGroupBox" name="groupBoxLocations">
      <property name="title">
-      <string>GDB</string>
+      <string>General</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
-      <property name="fieldGrowthPolicy">
-       <enum>QFormLayout::ExpandingFieldsGrow</enum>
-      </property>
-      <property name="horizontalSpacing">
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>6</number>
-      </property>
-      <property name="margin">
-       <number>9</number>
-      </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="labelGdbStartupScript">
-        <property name="toolTip">
-         <string>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</string>
-        </property>
-        <property name="text">
-         <string>GDB startup script:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="scriptFileChooser"/>
-      </item>
-      <item row="1" column="0">
        <widget class="QLabel" name="labelGdbWatchdogTimeout">
         <property name="toolTip">
          <string>This is the number of seconds Qt Creator will wait before
@@ -48,7 +31,7 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="1">
        <widget class="QSpinBox" name="spinBoxGdbWatchdogTimeout">
         <property name="toolTip">
          <string>This is the number of seconds Qt Creator will wait before
@@ -59,6 +42,9 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="suffix">
+         <string>sec</string>
         </property>
         <property name="minimum">
          <number>20</number>
@@ -74,7 +60,7 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="1" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
         <property name="toolTip">
          <string>Allows 'Step Into' to compress several steps into one step for less noisy debugging. For example, the atomic reference
@@ -85,7 +71,7 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
         <property name="toolTip">
          <string>This will show a message box as soon as your application receives a signal like SIGSEGV during debugging.</string>
@@ -95,7 +81,7 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxAdjustBreakpointLocations">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -105,7 +91,7 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
+      <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxLoadGdbInit">
         <property name="toolTip">
          <string>This allows or inhibits reading the user's default .gdbinit file on debugger startup.</string>
@@ -115,38 +101,38 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxTargetAsync">
         <property name="text">
          <string>Use asynchronous mode to control the inferior</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
+      <item row="6" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxAutoEnrichParameters">
         <property name="toolTip">
          <string>This adds common paths to locations of debug information at debugger startup.</string>
         </property>
         <property name="text">
-         <string>Use common locations for debug information automatically</string>
+         <string>Use common locations for debug information</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="0" colspan="2">
+      <item row="7" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxBreakOnWarning">
         <property name="text">
          <string>Stop when a qWarning is issued</string>
         </property>
        </widget>
       </item>
-      <item row="9" column="0" colspan="2">
+      <item row="8" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxBreakOnFatal">
         <property name="text">
          <string>Stop when a qFatal is issued</string>
         </property>
        </widget>
       </item>
-      <item row="10" column="0" colspan="2">
+      <item row="9" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</string>
@@ -159,7 +145,19 @@ on slow machines. In this case, the value should be increased.</string>
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="0" column="1">
+    <widget class="QGroupBox" name="groupBoxStartupCommands">
+     <property name="title">
+      <string>Additional Startup Commands</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QTextEdit" name="textEditStartupCommands"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBoxPluginDebugging">
      <property name="title">
       <string>Behavior of Breakpoint Setting in Plugins</string>
@@ -222,32 +220,8 @@ on slow machines. In this case, the value should be increased.</string>
      </layout>
     </widget>
    </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::MinimumExpanding</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>10</width>
-       <height>1</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

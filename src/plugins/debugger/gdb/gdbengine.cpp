@@ -4666,12 +4666,10 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 
     loadPythonDumpers();
 
-    QString scriptFileName = sp.overrideStartScript;
-    if (scriptFileName.isEmpty())
-        scriptFileName = debuggerCore()->stringSetting(GdbScriptFile);
-    if (!scriptFileName.isEmpty()) {
-        if (QFileInfo(scriptFileName).isReadable()) {
-            postCommand("source " + scriptFileName.toLocal8Bit());
+    const QString script = sp.overrideStartScript;
+    if (!script.isEmpty()) {
+        if (QFileInfo(script).isReadable()) {
+            postCommand("source " + script.toLocal8Bit());
             // Re-do the setup, as the "source" might have changed something.
             postCommand("bbsetup", ConsoleCommand, CB(handleHasPython));
         } else {
@@ -4680,7 +4678,14 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
             tr("The debugger settings point to a script file at '%1' "
                "which is not accessible. If a script file is not needed, "
                "consider clearing that entry to avoid this warning. "
-              ).arg(scriptFileName));
+              ).arg(script));
+        }
+    } else {
+        const QString commands = debuggerCore()->stringSetting(GdbStartupCommands);
+        if (!commands.isEmpty()) {
+            postCommand(commands.toLocal8Bit());
+            // Re-do the setup, as the "source" might have changed something.
+            postCommand("bbsetup", ConsoleCommand, CB(handleHasPython));
         }
     }
 

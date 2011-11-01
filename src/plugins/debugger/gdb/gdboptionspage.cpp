@@ -81,13 +81,9 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     m_ui = new Ui::GdbOptionsPage;
     m_ui->setupUi(w);
 
-    m_ui->scriptFileChooser->setExpectedKind(Utils::PathChooser::File);
-    m_ui->scriptFileChooser->setPromptDialogTitle(
-        tr("Choose Location of Startup Script File"));
-
     m_group.clear();
-    m_group.insert(debuggerCore()->action(GdbScriptFile),
-        m_ui->scriptFileChooser);
+    m_group.insert(debuggerCore()->action(GdbStartupCommands),
+        m_ui->textEditStartupCommands);
     m_group.insert(debuggerCore()->action(LoadGdbInit),
         m_ui->checkBoxLoadGdbInit);
     m_group.insert(debuggerCore()->action(AutoEnrichParameters),
@@ -124,7 +120,6 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
                 << sep << m_ui->groupBoxLocations->title()
                 << sep << m_ui->checkBoxLoadGdbInit->text()
                 << sep << m_ui->checkBoxTargetAsync->text()
-                << sep << m_ui->labelGdbStartupScript->text()
                 << sep << m_ui->labelGdbWatchdogTimeout->text()
                 << sep << m_ui->checkBoxEnableReverseDebugging->text()
                 << sep << m_ui->checkBoxSkipKnownFrames->text()
@@ -134,8 +129,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
                 << sep << m_ui->radioButtonAllPluginBreakpoints->text()
                 << sep << m_ui->radioButtonSelectedPluginBreakpoints->text()
                 << sep << m_ui->labelSelectedPluginBreakpoints->text()
-                << sep << m_ui->radioButtonNoPluginBreakpoints->text()
-                   ;
+                << sep << m_ui->radioButtonNoPluginBreakpoints->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
 
