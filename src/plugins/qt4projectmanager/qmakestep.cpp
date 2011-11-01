@@ -457,17 +457,7 @@ QString QMakeStep::mkspec()
         }
     }
 
-    QtSupport::BaseQtVersion *version = bc->qtVersion();
-    // We do not know which abi the Qt version has, so let's stick with the defaults
-    if (version && version->qtAbis().count() == 1 && version->qtAbis().first().isNull())
-        return QString();
-
-    const QString tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : QString();
-    if (!version)
-        return tcSpec;
-    if (!tcSpec.isEmpty() && version->hasMkspec(tcSpec))
-        return tcSpec;
-    return version->mkspec();
+    return static_cast<Qt4BaseTarget *>(target())->mkspec(bc);
 }
 
 QVariantMap QMakeStep::toMap() const

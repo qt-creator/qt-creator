@@ -39,6 +39,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <QtCore/QCoreApplication>
 
@@ -70,6 +71,14 @@ QList<ProjectExplorer::RunConfiguration *> EmbeddedLinuxTarget::runConfiguration
             if (qt4c->proFilePath() == n->path())
                 result << rc;
     return result;
+}
+
+QString EmbeddedLinuxTarget::mkspec(const Qt4ProjectManager::Qt4BuildConfiguration *bc) const
+{
+   QtSupport::BaseQtVersion *version = bc->qtVersion();
+   if (!version)
+       return QString();
+   return version->mkspec();
 }
 
 void EmbeddedLinuxTarget::createApplicationProFiles()

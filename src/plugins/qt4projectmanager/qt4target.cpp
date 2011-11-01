@@ -310,6 +310,21 @@ ProjectExplorer::ToolChain *Qt4BaseTarget::preferredToolChain(ProjectExplorer::B
     return tcs.isEmpty() ? 0 : tcs.at(0);
 }
 
+QString Qt4BaseTarget::mkspec(const Qt4BuildConfiguration *bc) const
+{
+    QtSupport::BaseQtVersion *version = bc->qtVersion();
+    // We do not know which abi the Qt version has, so let's stick with the defaults
+    if (version && version->qtAbis().count() == 1 && version->qtAbis().first().isNull())
+        return QString();
+
+    const QString tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : QString();
+    if (!version)
+        return tcSpec;
+    if (!tcSpec.isEmpty() && version->hasMkspec(tcSpec))
+        return tcSpec;
+    return version->mkspec();
+}
+
 void Qt4BaseTarget::removeUnconfiguredCustomExectutableRunConfigurations()
 {
     if (runConfigurations().count()) {

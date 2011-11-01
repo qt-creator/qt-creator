@@ -78,12 +78,12 @@ public:
     // This is the same for almost all Qt4Targets
     // so for now offer a convience function
     Qt4BuildConfiguration *addQt4BuildConfiguration(QString defaultDisplayName,
-                                                            QString displayName,
-                                                            QtSupport::BaseQtVersion *qtversion,
-                                                            QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                                                            QString additionalArguments,
-                                                            QString directory,
-                                                            bool importing);
+                                                    QString displayName,
+                                                    QtSupport::BaseQtVersion *qtversion,
+                                                    QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
+                                                    QString additionalArguments,
+                                                    QString directory,
+                                                    bool importing);
 
     virtual void createApplicationProFiles() = 0;
 
@@ -91,6 +91,8 @@ public:
 
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
     ProjectExplorer::ToolChain *preferredToolChain(ProjectExplorer::BuildConfiguration *) const;
+
+    virtual QString mkspec(const Qt4BuildConfiguration *bc) const;
 
 signals:
     void buildDirectoryInitialized();
