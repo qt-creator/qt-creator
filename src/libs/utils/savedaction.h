@@ -97,6 +97,7 @@ private:
     Q_SLOT void spinBoxValueChanged(int);
     Q_SLOT void spinBoxValueChanged(QString);
     Q_SLOT void groupBoxToggled(bool checked);
+    Q_SLOT void textEditTextChanged();
 
     QVariant m_value;
     QVariant m_defaultValue;

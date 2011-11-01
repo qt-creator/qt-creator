@@ -42,10 +42,11 @@
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
 #include <QtGui/QCheckBox>
+#include <QtGui/QGroupBox>
 #include <QtGui/QLineEdit>
 #include <QtGui/QRadioButton>
 #include <QtGui/QSpinBox>
-#include <QtGui/QGroupBox>
+#include <QtGui/QTextEdit>
 
 using namespace Utils;
 
@@ -316,6 +317,9 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
             qDebug() << "connectWidget to non-checkable group box" << widget << toString();
         groupBox->setChecked(m_value.toBool());
         connect(groupBox, SIGNAL(toggled(bool)), this, SLOT(groupBoxToggled(bool)));
+    } else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(widget)) {
+        textEdit->setPlainText(m_value.toString());
+        connect(textEdit, SIGNAL(textChanged()), this, SLOT(textEditTextChanged()));
     } else {
         qDebug() << "Cannot connect widget " << widget << toString();
     }
@@ -343,6 +347,8 @@ void SavedAction::apply(QSettings *s)
         setValue(pathChooser->path());
     else if (const QGroupBox *groupBox = qobject_cast<QGroupBox *>(m_widget))
         setValue(groupBox->isChecked());
+    else if (const QTextEdit *textEdit = qobject_cast<QTextEdit *>(m_widget))
+        setValue(textEdit->toPlainText());
     if (s)
        writeSettings(s);
 }
@@ -394,6 +400,14 @@ void SavedAction::pathChooserEditingFinished()
     QTC_ASSERT(pathChooser, return);
     if (m_applyMode == ImmediateApply)
         setValue(pathChooser->path());
+}
+
+void SavedAction::textEditTextChanged()
+{
+    QTextEdit *textEdit = qobject_cast<QTextEdit *>(sender());
+    QTC_ASSERT(textEdit, return);
+    if (m_applyMode == ImmediateApply)
+        setValue(textEdit->toPlainText());
 }
 
 void SavedAction::groupBoxToggled(bool checked)
