@@ -119,7 +119,7 @@ typedef UINT32      uint32_t;
 typedef INT32       int32_t;
 #endif
 /* Windows has its own differences */
-#elif defined(_WIN32)
+#elif defined(_WIN32) && !defined(__MINGW32__)
 #include <windows.h>
 #define _UNUSED
 #ifndef _MSL_STDINT_H
