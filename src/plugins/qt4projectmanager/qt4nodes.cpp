@@ -533,6 +533,14 @@ static QSet<QString> recursiveEnumerate(const QString &folder)
     return result;
 }
 
+QSet<QString> lowercaseAll(QSet<QString> strings)
+{
+    QSet<QString> result;
+    foreach (const QString &s, strings)
+        result << s.toLower();
+    return result;
+}
+
 void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumulative)
 {
     // add project file node
@@ -590,8 +598,9 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
     foreach (const QString &folder, folders) {
         m_recursiveEnumerateFiles += recursiveEnumerate(folder);
     }
-
-
+#ifdef Q_OS_WIN
+    m_recursiveEnumerateFiles = lowercaseAll(m_recursiveEnumerateFiles);
+#endif
     QMap<FileType, QSet<QString> > foundFiles;
 
     QStringList baseVPathsExact;
@@ -619,6 +628,9 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
                 newFilePaths += readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative).toSet();
             }
         }
+#ifdef Q_OS_WIN
+        newFilePaths = lowercaseAll(newFilePaths);
+#endif
 
         foundFiles[type] = newFilePaths;
         m_recursiveEnumerateFiles.subtract(newFilePaths);
