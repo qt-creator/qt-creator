@@ -27,11 +27,7 @@ def main():
         test.compare(waitForObject(node).text, value)
 
     # Now check some basic lookups in the search box
-
-    mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 5, 5, 0, Qt.LeftButton)
-    replaceEditorContent(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), ": Qlist::QList")
-    type(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), "<Return>")
-
+    selectFromLocator(": Qlist::QList", "QList::QList")
     test.compare(wordUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "QList")
 
     invokeMenuItem("File", "Exit")

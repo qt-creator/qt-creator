@@ -9,12 +9,7 @@ def main():
     prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     openQmakeProject(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
-
-    mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 5, 5, 0, Qt.LeftButton)
-    type(waitForObject(":*Qt Creator_Utils::FilterLineEdit"), "dummy.cpp")
-    # pause to wait for results to populate
-    snooze(1)
-    type(waitForObject(":*Qt Creator_Utils::FilterLineEdit"), "<Return>")
+    selectFromLocator("dummy.cpp")
 
 ##   Waiting for a solution from Froglogic to make the below work.
 ##   There is an issue with slots that return a class type that wasn't running previously...
@@ -24,7 +19,7 @@ def main():
 #    t3 = t2.file()
 #    t4 = t3.fileName
 #    test.compare(editorManager.currentEditor().file().fileName, "base.cpp")
-    cppwindow = findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+    cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
 
 #    - Move the cursor to the usage of a variable.
 #    - Press F2 or select from the menu: Tools / C++ / Follow Symbol under Cursor
@@ -51,13 +46,9 @@ def main():
 #    Creator should show the definition of this function
 #    - Press Shift+F2 or select from menu: Tools / C++ / Switch Between Method Declaration/Definition again
 #    Creator should show the declaration of the function again.
-    mouseClick(waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000), 5, 5, 0, Qt.LeftButton)
-    clickButton(waitForObject(":Qt Creator_Utils::IconButton"))
-    type(waitForObject(":*Qt Creator_Utils::FilterLineEdit"), "dummy.cpp")
-    # pause to wait for results to populate
-    snooze(1)
-    type(waitForObject(":*Qt Creator_Utils::FilterLineEdit"), "<Return>")
-
+    selectFromLocator("dummy.cpp")
+    mainWin = findObject(":Qt Creator_Core::Internal::MainWindow")
+    waitFor("mainWin.windowTitle == 'dummy.cpp - cplusplus-tools - Qt Creator'")
     # Reset cursor to the start of the document
     cursor = findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget").textCursor()
     cursor.movePosition(QTextCursor.Start)

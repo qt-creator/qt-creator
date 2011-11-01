@@ -31,6 +31,19 @@ def selectFromCombo(objectName, itemName):
     mouseClick(object, 5, 5, 0, Qt.LeftButton)
     mouseClick(waitForObjectItem(object, itemName), 5, 5, 0, Qt.LeftButton)
 
+def selectFromLocator(filter, itemName = None):
+    if itemName == None:
+        itemName = filter
+    itemName = itemName.replace(".", "\\.")
+    locator = waitForObject(":*Qt Creator_Utils::FilterLineEdit", 20000)
+    mouseClick(locator, 5, 5, 0, Qt.LeftButton)
+    replaceEditorContent(locator, filter)
+    # clicking the wanted item
+    # if you replace this by pressing ENTER, be sure that something is selected
+    # otherwise you will run into unwanted behavior
+    wantedItem = waitForObjectItem("{type='QTreeView' unnamed='1' visible='1'}", itemName)
+    doubleClick(wantedItem, 5, 5, 0, Qt.LeftButton)
+
 def wordUnderCursor(window):
     cursor = window.textCursor()
     oldposition = cursor.position()
