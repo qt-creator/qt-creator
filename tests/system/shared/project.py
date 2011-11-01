@@ -53,6 +53,14 @@ def shadowBuildDir(path, project, qtVersion, debugVersion):
     else:
         return buildDir + "_Release"
 
+def __createProjectSelectType__(category, template):
+    invokeMenuItem("File", "New File or Project...")
+    categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000)
+    clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
+    templatesView = waitForObject("{name='templatesView' type='QListView'}", 20000)
+    clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
+    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+
 def createProjectSetNameAndPath(path, projectName = None, checks = True):
     directoryEdit = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
     replaceEditorContent(directoryEdit, path)
@@ -85,12 +93,7 @@ def createProjectHandleLastPage(expectedFiles = None):
     clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
 
 def createProject_Qt_GUI(path, projectName, qtVersion, checks):
-    invokeMenuItem("File", "New File or Project...")
-    waitForObjectItem(":New.templateCategoryView_QTreeView", "Projects.Qt Widget Project")
-    clickItem(":New.templateCategoryView_QTreeView", "Projects.Qt Widget Project", 125, 16, 0, Qt.LeftButton)
-    waitForObjectItem(":New.templatesView_QListView", "Qt Gui Application")
-    clickItem(":New.templatesView_QListView", "Qt Gui Application", 35, 12, 0, Qt.LeftButton)
-    clickButton(waitForObject(":New.Choose..._QPushButton"))
+    __createProjectSelectType__("Qt Widget Project", "Qt Gui Application")
     createProjectSetNameAndPath(path, projectName, checks)
 
     desktopCheckbox = waitForObject(":scrollArea.Desktop_QCheckBox", 20000)
@@ -145,10 +148,7 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
         test.verify(os.path.exists(pro_path), "Checking if '" + pro_path + "' was created")
 
 def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP):
-    invokeMenuItem("File", "New File or Project...")
-    clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
-    clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick Application", 5, 5, 0, Qt.LeftButton)
-    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    __createProjectSelectType__("Qt Quick Project", "Qt Quick Application")
     projectName = createProjectSetNameAndPath(workingDir, projectName)
     if (templateFile==None):
         chooseComponents()
@@ -165,20 +165,14 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     createProjectHandleLastPage()
 
 def createNewQtQuickUI(workingDir):
-    invokeMenuItem("File", "New File or Project...")
-    clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
-    clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Qt Quick UI", 5, 5, 0, Qt.LeftButton)
-    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    __createProjectSelectType__("Qt Quick Project", "Qt Quick UI")
     if workingDir == None:
         workingDir = tempDir()
     createProjectSetNameAndPath(workingDir)
     createProjectHandleLastPage()
 
 def createNewQmlExtension(workingDir):
-    invokeMenuItem("File", "New File or Project...")
-    clickItem(waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000), "Projects.Qt Quick Project", 5, 5, 0, Qt.LeftButton)
-    clickItem(waitForObject("{name='templatesView' type='QListView'}", 20000), "Custom QML Extension Plugin", 5, 5, 0, Qt.LeftButton)
-    clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
+    __createProjectSelectType__("Qt Quick Project", "Custom QML Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
     createProjectSetNameAndPath(workingDir)
