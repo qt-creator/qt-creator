@@ -1,4 +1,5 @@
 include(../../../qtcreator.pri)
+include(../../rpath.pri)
 
 TEMPLATE = app
 TARGET   = qmlprofiler
