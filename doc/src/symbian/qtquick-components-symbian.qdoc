@@ -34,7 +34,7 @@
     \title Creating a Qt Quick Application Using Qt Quick Components
 
     \note To complete this tutorial, you must install the Qt Quick Components
-    for Symbian and the Symbian^3 tool chain as part of the \QSDK. In addition,
+    for Symbian and the Symbian Anna target as part of the \QSDK. In addition,
     you must install the Qt Quick Components on the test device.
 
     This tutorial describes how to use Qt Creator to create a small Qt
@@ -44,7 +44,7 @@
     \image qtcreator-symbian-components-example.png "Mobile example"
 
     The user interface for the application is designed using Qt Quick Components
-    for Symbian. This enforces a platform look and feel for Symbian^3 devices.
+    for Symbian. This enforces a platform look and feel for Symbian Anna devices.
 
     \section1 Creating the Project
 
@@ -59,7 +59,7 @@
             For example, \c {C:\Qt\examples}, and then click \gui{Next}.
 
         \o  In the \gui {Application Type} dialog, select \gui {Qt Quick
-            Components (Symbian Applications)}, and then click \gui{Next}.
+            Components for Symbian}, and then click \gui{Next}.
 
         \o  Select \gui {Symbian Device} and \gui {Qt Simulator} targets, and
             then click \gui{Next}.
@@ -83,7 +83,7 @@
 
     Qt Creator generates the necessary files that contain boiler plate code. The
     wizard creates an application that uses
-    \l{http://doc.qt.nokia.com/qt-components-symbian-1.0/qt-components-pages-and-navigation-overview.html}
+    \l{http://doc.qt.nokia.com/qt-components-symbian/qt-components-pages-and-navigation-overview.html}
     {page-based application navigation}.
 
     Modify the files as described in the following sections.
@@ -113,18 +113,13 @@
     The wizard adds the import statements for Qt Quick and the Qt Quick
     Components for Symbian to the MainPage.qml file:
 
-    \code
-    import QtQuick 1.0
-    import com.nokia.symbian 1.0
-    \endcode
+    \snippet examples/batterystatus/qml/BatteryStatus/MainPage.qml 3
 
     To use the Qt Mobility APIs, you must add the import statements for the
     Qt Mobility APIs that you use. This example uses the System Info API, so you
     must import it, as illustrated by the following code snippet:
 
-    \code
-    import QtMobility.systeminfo 1.1
-    \endcode
+    \snippet examples/batterystatus/qml/BatteryStatus/MainPage.qml 4
 
     Use the values as you can assign to MOBILITY also to construct import
     statements.
@@ -182,13 +177,11 @@
 
         \o  Add an invisible
             \l{http://doc.qt.nokia.com/qtmobility/qml-deviceinfo.html}
-            {DeviceInfo element} that contains two signals. The
-            \l{http://doc.qt.nokia.com/4.7/qml-component.html#onCompleted-signal}
-            {onCompleted} signal starts battery level notification when the
-            component is initialized. The
-            \l{http://doc.qt.nokia.com/qtmobility/qml-deviceinfo.html#batteryLevelChanged-signal}
-            {batteryLevelChanged} signal is called when the battery level
-            changes.
+            {DeviceInfo element} that sets the
+            \l{http://doc.qt.nokia.com/qtmobility/qml-deviceinfo.html}
+            {monitorBatteryLevelChanges} property to true. It uses the
+            \c monitorBatteryLevelChanges signal to keep up with changes in the
+            battery level.
 
             \snippet examples/batterystatus/qml/BatteryStatus/MainPage.qml 0
 
