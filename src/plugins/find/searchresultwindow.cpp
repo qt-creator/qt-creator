@@ -74,6 +74,7 @@ namespace Internal {
         QStackedWidget *m_widget;
         QList<SearchResult *> m_searchResults;
         int m_currentIndex;
+        QFont m_font;
 
     public slots:
         void setCurrentIndex(int index);
@@ -317,6 +318,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     d->m_searchResultWidgets.prepend(widget);
     d->m_widget->insertWidget(1, widget);
     connect(widget, SIGNAL(navigateStateChanged()), this, SLOT(navigateStateChanged()));
+    widget->setTextEditorFont(d->m_font);
     widget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
     widget->setAutoExpandResults(d->m_expandCollapseAction->isChecked());
     widget->setInfo(label, toolTip, searchTerm);
@@ -390,6 +392,7 @@ void SearchResultWindow::setFocus()
 */
 void SearchResultWindow::setTextEditorFont(const QFont &font)
 {
+    d->m_font = font;
     foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
         widget->setTextEditorFont(font);
 }
