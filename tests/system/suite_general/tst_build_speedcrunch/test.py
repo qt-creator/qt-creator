@@ -20,7 +20,7 @@ def main():
     buildCombo = waitForObject(":Build:_QComboBox")
     sendEvent("QMouseEvent", waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), QEvent.MouseButtonPress, -5, 5, Qt.LeftButton, 0)
 
-    prog = re.compile("Qt.*Release")
+    prog = re.compile("(Desktop )?Qt.*Release")
     for row in range(buildCombo.count):
         if prog.match(str(buildCombo.itemText(row))):
             clickButton(waitForObject(":*Qt Creator_Core::Internal::FancyToolButton"))
