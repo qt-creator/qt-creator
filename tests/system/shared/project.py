@@ -61,7 +61,7 @@ def __createProjectSelectType__(category, template):
     clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}", 20000))
 
-def createProjectSetNameAndPath(path, projectName = None, checks = True):
+def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     directoryEdit = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
     replaceEditorContent(directoryEdit, path)
     projectNameEdit = waitForObject("{name='nameLineEdit' visible='1' "
@@ -81,7 +81,7 @@ def createProjectSetNameAndPath(path, projectName = None, checks = True):
     clickButton(waitForObject(":Next_QPushButton"))
     return projectName
 
-def createProjectHandleLastPage(expectedFiles = None):
+def __createProjectHandleLastPage__(expectedFiles = None):
     if expectedFiles != None:
         summary = str(waitForObject(":scrollArea.Files to be added").text)
         lastIndex = 0
@@ -94,7 +94,7 @@ def createProjectHandleLastPage(expectedFiles = None):
 
 def createProject_Qt_GUI(path, projectName, qtVersion, checks):
     __createProjectSelectType__("Qt Widget Project", "Qt Gui Application")
-    createProjectSetNameAndPath(path, projectName, checks)
+    __createProjectSetNameAndPath__(path, projectName, checks)
 
     desktopCheckbox = waitForObject(":scrollArea.Desktop_QCheckBox", 20000)
     if checks:
@@ -131,7 +131,7 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
     expectedFiles = None
     if checks:
         expectedFiles = [os.path.join(path, projectName), cpp_file, h_file, ui_file, pro_file]
-    createProjectHandleLastPage(expectedFiles)
+    __createProjectHandleLastPage__(expectedFiles)
 
     if checks:
         waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
@@ -149,34 +149,34 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
 
 def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP):
     __createProjectSelectType__("Qt Quick Project", "Qt Quick Application")
-    projectName = createProjectSetNameAndPath(workingDir, projectName)
+    projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if (templateFile==None):
-        chooseComponents()
+        __chooseComponents__()
     else:
-        chooseComponents(QtQuickConstants.Components.EXISTING_QML)
+        __chooseComponents__(QtQuickConstants.Components.EXISTING_QML)
         # define the existing qml file to import
         baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
         type(baseLineEd, templateFile)
     nextButton = waitForObject(":Next_QPushButton", 20000)
     clickButton(nextButton)
-    chooseTargets(targets)
+    __chooseTargets__(targets)
     snooze(1)
     clickButton(nextButton)
-    createProjectHandleLastPage()
+    __createProjectHandleLastPage__()
 
 def createNewQtQuickUI(workingDir):
     __createProjectSelectType__("Qt Quick Project", "Qt Quick UI")
     if workingDir == None:
         workingDir = tempDir()
-    createProjectSetNameAndPath(workingDir)
-    createProjectHandleLastPage()
+    __createProjectSetNameAndPath__(workingDir)
+    __createProjectHandleLastPage__()
 
 def createNewQmlExtension(workingDir):
     __createProjectSelectType__("Qt Quick Project", "Custom QML Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
-    createProjectSetNameAndPath(workingDir)
-    chooseTargets()
+    __createProjectSetNameAndPath__(workingDir)
+    __chooseTargets__()
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
@@ -186,4 +186,4 @@ def createNewQmlExtension(workingDir):
                               "type='QLineEdit' unnamed='1' visible='1'}", 20000)
     replaceEditorContent(uriLineEd, "com.nokia.test.qmlcomponents")
     clickButton(nextButton)
-    createProjectHandleLastPage()
+    __createProjectHandleLastPage__()

@@ -53,7 +53,7 @@ def __handleProcessExited__(object, exitCode):
     processExited = True
 
 # parameter components can only be one of the Constants defined in QtQuickConstants.Components
-def chooseComponents(components=QtQuickConstants.Components.BUILTIN):
+def __chooseComponents__(components=QtQuickConstants.Components.BUILTIN):
     rbComponentToChoose = waitForObject("{type='QRadioButton' text='%s' visible='1'}"
                               % QtQuickConstants.getStringForComponents(components), 20000)
     if rbComponentToChoose.checked:
@@ -64,7 +64,7 @@ def chooseComponents(components=QtQuickConstants.Components.BUILTIN):
                 % QtQuickConstants.getStringForComponents(components))
 
 # parameter target can be an OR'd value of QtQuickConstants.Targets
-def chooseTargets(targets=QtQuickConstants.Targets.DESKTOP):
+def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP):
      # DESKTOP should be always accessible
     destDesktop = waitForObject("{type='QCheckBox' text='%s' visible='1'}"
                                 % QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.DESKTOP), 20000)
