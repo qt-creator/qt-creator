@@ -67,7 +67,7 @@ class QT4PROJECTMANAGER_EXPORT Qt4BaseTarget : public ProjectExplorer::Target
 {
     Q_OBJECT
 public:
-    explicit Qt4BaseTarget(Qt4Project *parent, const QString &id);
+    Qt4BaseTarget(Qt4Project *parent, const QString &id);
     virtual ~Qt4BaseTarget();
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
