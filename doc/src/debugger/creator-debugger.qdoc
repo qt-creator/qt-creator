@@ -566,14 +566,17 @@
 
         \list 1
 
+            \o  In the \gui {Name} field, input \gui {fsfgdb} to replace
+                the existing content.
+
             \o  In the \gui {Certificate Type} field, select
                 \gui {Code Signing}.
 
             \o  Select the \gui {Let me override defaults} check box.
 
             \o  Select \gui Continue, and follow the instructions of the
-                wizard (use the default settings), until the \gui {Select a
-                Location for the Certificate} dialog opens.
+                wizard (use the default settings), until the \gui {Specify a
+                Location For The Certificate} dialog opens.
 
             \o  In the \gui Keychain field, select \gui System.
 
@@ -582,16 +585,16 @@
 
             \o  Double click the certificate to view certificate information.
 
-            \o  In the \gui Trust field, select \gui {Always Trust}.
+            \o  In the \gui Trust section, select \gui {Always Trust} in the
+                \gui {When using this certificate} field, and then close
+                the dialog.
 
         \endlist
 
-        \o  To sign the binary, enter the following command in the terminal,
-            where $USER is the name of the certificate (which is the same as the
-            user name, by default):
+        \o  To sign the binary, enter the following command in the terminal:
 
             \code
-            codesign -f -s "$USER" $INSTALL_LOCATION/fsfgdb
+            codesign -f -s "fsfgdb" $INSTALL_LOCATION/fsfgdb
             \endcode
 
         \o  In \QC, select \gui {Qt Creator > Preferences > Build & Run >
