@@ -135,7 +135,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_deployConfigurationCombo = new QComboBox(this);
     m_addDeployToolButton = new QPushButton(tr("Add"), this);
     m_removeDeployToolButton = new QPushButton(tr("Remove"), this);
-    m_renameDeployButton = new QPushButton(tr("Rename"), this);
+    m_renameDeployButton = new QPushButton(tr("Rename..."), this);
 
     QWidget *deployWidget = new QWidget(this);
 
@@ -145,7 +145,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
 
     m_addRunToolButton = new QPushButton(tr("Add"), this);
     m_removeRunToolButton = new QPushButton(tr("Remove"), this);
-    m_renameRunButton = new QPushButton(tr("Rename"), this);
+    m_renameRunButton = new QPushButton(tr("Rename..."), this);
 
     QSpacerItem *spacer1 =
         new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);

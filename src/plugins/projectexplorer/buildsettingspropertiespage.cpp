@@ -147,7 +147,7 @@ void BuildSettingsWidget::setupUi()
         hbox->addWidget(m_removeButton);
 
         m_renameButton = new QPushButton(this);
-        m_renameButton->setText(tr("Rename"));
+        m_renameButton->setText(tr("Rename..."));
         m_renameButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_renameButton);
 
