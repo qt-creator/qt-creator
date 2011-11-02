@@ -37,7 +37,7 @@
 #include <QtCore/QLatin1String>
 
 namespace Help {
-    namespace Constants {
+namespace Constants {
 
 enum {
     ShowHomePage = 0,
@@ -58,16 +58,16 @@ static const QLatin1String AboutBlank("about:blank");
 static const QLatin1String WeAddedFilterKey("UnfilteredFilterInserted");
 static const QLatin1String PreviousFilterNameKey("UnfilteredFilterName");
 
-const int          P_MODE_HELP    = 70;
-const char * const ID_MODE_HELP   = "Help";
-const char * const HELP_CATEGORY = "H.Help";
-const char * const HELP_CATEGORY_ICON = ":/core/images/category_help.png";
-const char * const HELP_TR_CATEGORY = QT_TRANSLATE_NOOP("Help", "Help");
+const int  P_MODE_HELP    = 70;
+const char ID_MODE_HELP  [] = "Help";
+const char HELP_CATEGORY[] = "H.Help";
+const char HELP_CATEGORY_ICON[] = ":/core/images/category_help.png";
+const char HELP_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Help", "Help");
 
-const char * const C_MODE_HELP    = "Help Mode";
-const char * const C_HELP_SIDEBAR = "Help Sidebar";
+const char C_MODE_HELP   [] = "Help Mode";
+const char C_HELP_SIDEBAR[] = "Help Sidebar";
 
-    }   // Constants
-}   // Help
+} // Constants
+} // Help
 
 #endif // HELPCONSTANTS_H

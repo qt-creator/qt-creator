@@ -47,12 +47,11 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 namespace {
-const char * const PROCESS_STEP_ID("ProjectExplorer.ProcessStep");
-
-const char * const PROCESS_COMMAND_KEY("ProjectExplorer.ProcessStep.Command");
-const char * const PROCESS_WORKINGDIRECTORY_KEY("ProjectExplorer.ProcessStep.WorkingDirectory");
-const char * const PROCESS_ARGUMENTS_KEY("ProjectExplorer.ProcessStep.Arguments");
-const char * const PROCESS_ENABLED_KEY("ProjectExplorer.ProcessStep.Enabled");
+const char PROCESS_STEP_ID[] = "ProjectExplorer.ProcessStep";
+const char PROCESS_COMMAND_KEY[] = "ProjectExplorer.ProcessStep.Command";
+const char PROCESS_WORKINGDIRECTORY_KEY[] = "ProjectExplorer.ProcessStep.WorkingDirectory";
+const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
+const char PROCESS_ENABLED_KEY[] = "ProjectExplorer.ProcessStep.Enabled";
 }
 
 ProcessStep::ProcessStep(BuildStepList *bsl) :

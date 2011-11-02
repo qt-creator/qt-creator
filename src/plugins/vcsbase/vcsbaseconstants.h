@@ -38,28 +38,28 @@
 namespace VCSBase {
 namespace Constants {
 
-const char * const VCS_SETTINGS_CATEGORY = "V.Version Control";
-const char * const VCS_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const SETTINGS_CATEGORY_VCS_ICON = ":/core/images/category_vcs.png";
-const char * const VCS_COMMON_SETTINGS_ID = "A.Common";
-const char * const VCS_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("VCSBase", "Common");
+const char VCS_SETTINGS_CATEGORY[] = "V.Version Control";
+const char VCS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
+const char SETTINGS_CATEGORY_VCS_ICON[] = ":/core/images/category_vcs.png";
+const char VCS_COMMON_SETTINGS_ID[] = "A.Common";
+const char VCS_COMMON_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("VCSBase", "Common");
 
-const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Project from Version Control");
-const char * const VCS_WIZARD_CATEGORY = "L.Version Control";
+const char VCS_WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("VCSBase", "Project from Version Control");
+const char VCS_WIZARD_CATEGORY[] = "L.Version Control";
 
 // Ids for sort order (wizards and preferences)
-const char * const VCS_ID_BAZAAR = "B.Bazaar";
-const char * const VCS_ID_GIT = "G.Git";
-const char * const VCS_ID_MERCURIAL = "H.Mercurial";
-const char * const VCS_ID_SUBVERSION = "J.Subversion";
-const char * const VCS_ID_PERFORCE = "P.Perforce";
-const char * const VCS_ID_CVS = "Z.CVS";
+const char VCS_ID_BAZAAR[] = "B.Bazaar";
+const char VCS_ID_GIT[] = "G.Git";
+const char VCS_ID_MERCURIAL[] = "H.Mercurial";
+const char VCS_ID_SUBVERSION[] = "J.Subversion";
+const char VCS_ID_PERFORCE[] = "P.Perforce";
+const char VCS_ID_CVS[] = "Z.CVS";
 
 namespace Internal {
     enum { debug = 0 };
 } // namespace Internal
 
 } // namespace Constants
-} // VCSBase
+} // namespace VCSBase
 
 #endif // VCSBASE_CONSTANTS_H

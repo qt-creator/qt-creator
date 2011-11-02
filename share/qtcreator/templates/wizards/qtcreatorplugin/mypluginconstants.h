@@ -4,8 +4,8 @@
 namespace %PluginName% {
 namespace Constants {
 
-    const char * const ACTION_ID = "%PluginName%.Action";
-    const char * const MENU_ID = "%PluginName%.Menu";
+const char ACTION_ID[] = "%PluginName%.Action";
+const char MENU_ID[] = "%PluginName%.Menu";
 
 } // namespace %PluginName%
 } // namespace Constants

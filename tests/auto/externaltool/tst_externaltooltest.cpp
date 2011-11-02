@@ -37,7 +37,7 @@
 
 using namespace Core::Internal;
 
-static const char * const TEST_XML1 =
+static const char TEST_XML1[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 "<externaltool id=\"lupdate\">"
 "    <description>Synchronizes translator's ts files with the program code</description>"
@@ -56,7 +56,7 @@ static const char * const TEST_XML1 =
 "</externaltool>"
 ;
 
-static const char * const TEST_XML2 =
+static const char TEST_XML2[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 "<externaltool id=\"sort\">"
 "    <description>Sorts the selected text</description>"
@@ -72,7 +72,7 @@ static const char * const TEST_XML2 =
 "    </executable>"
 "</externaltool>";
 
-static const char * const TEST_XML3 =
+static const char TEST_XML3[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 "<externaltool id=\"vi\">"
 "    <description>Opens the current file in vi</description>"
@@ -88,7 +88,7 @@ static const char * const TEST_XML3 =
 "    </executable>"
 "</externaltool>";
 
-static const char * const TEST_XML_LANG =
+static const char TEST_XML_LANG[] =
 "<?xml version=\"1.0\" encoding=\"Latin-1\"?>"
 "<externaltool id=\"temp\">"
 "    <description>Hi</description>"

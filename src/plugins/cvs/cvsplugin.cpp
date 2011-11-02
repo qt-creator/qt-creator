@@ -75,7 +75,7 @@
 #include <QtGui/QMessageBox>
 
 namespace CVS {
-    namespace Internal {
+namespace Internal {
 
 static inline QString msgCannotFindTopLevel(const QString &f)
 {
@@ -88,32 +88,32 @@ static inline QString msgLogParsingFailed()
     return CVSPlugin::tr("Parsing of the log output failed");
 }
 
-static const char * const CMD_ID_CVS_MENU    = "CVS.Menu";
-static const char * const CMD_ID_ADD                = "CVS.Add";
-static const char * const CMD_ID_DELETE_FILE        = "CVS.Delete";
-static const char * const CMD_ID_EDIT_FILE          = "CVS.EditFile";
-static const char * const CMD_ID_UNEDIT_FILE        = "CVS.UneditFile";
-static const char * const CMD_ID_UNEDIT_REPOSITORY  = "CVS.UneditRepository";
-static const char * const CMD_ID_REVERT             = "CVS.Revert";
-static const char * const CMD_ID_SEPARATOR0         = "CVS.Separator0";
-static const char * const CMD_ID_DIFF_PROJECT       = "CVS.DiffAll";
-static const char * const CMD_ID_DIFF_CURRENT       = "CVS.DiffCurrent";
-static const char * const CMD_ID_SEPARATOR1         = "CVS.Separator1";
-static const char * const CMD_ID_COMMIT_ALL         = "CVS.CommitAll";
-static const char * const CMD_ID_REVERT_ALL         = "CVS.RevertAll";
-static const char * const CMD_ID_COMMIT_CURRENT     = "CVS.CommitCurrent";
-static const char * const CMD_ID_SEPARATOR2         = "CVS.Separator2";
-static const char * const CMD_ID_FILELOG_CURRENT    = "CVS.FilelogCurrent";
-static const char * const CMD_ID_ANNOTATE_CURRENT   = "CVS.AnnotateCurrent";
-static const char * const CMD_ID_STATUS             = "CVS.Status";
-static const char * const CMD_ID_UPDATE             = "CVS.Update";
-static const char * const CMD_ID_PROJECTLOG         = "CVS.ProjectLog";
-static const char * const CMD_ID_PROJECTCOMMIT      = "CVS.ProjectCommit";
-static const char * const CMD_ID_REPOSITORYLOG      = "CVS.RepositoryLog";
-static const char * const CMD_ID_REPOSITORYDIFF     = "CVS.RepositoryDiff";
-static const char * const CMD_ID_REPOSITORYSTATUS   = "CVS.RepositoryStatus";
-static const char * const CMD_ID_REPOSITORYUPDATE   = "CVS.RepositoryUpdate";
-static const char * const CMD_ID_SEPARATOR3         = "CVS.Separator3";
+static const char CMD_ID_CVS_MENU[]           = "CVS.Menu";
+static const char CMD_ID_ADD[]                = "CVS.Add";
+static const char CMD_ID_DELETE_FILE[]        = "CVS.Delete";
+static const char CMD_ID_EDIT_FILE[]          = "CVS.EditFile";
+static const char CMD_ID_UNEDIT_FILE[]        = "CVS.UneditFile";
+static const char CMD_ID_UNEDIT_REPOSITORY[]  = "CVS.UneditRepository";
+static const char CMD_ID_REVERT[]             = "CVS.Revert";
+static const char CMD_ID_SEPARATOR0[]         = "CVS.Separator0";
+static const char CMD_ID_DIFF_PROJECT[]       = "CVS.DiffAll";
+static const char CMD_ID_DIFF_CURRENT[]       = "CVS.DiffCurrent";
+static const char CMD_ID_SEPARATOR1[]         = "CVS.Separator1";
+static const char CMD_ID_COMMIT_ALL[]         = "CVS.CommitAll";
+static const char CMD_ID_REVERT_ALL[]         = "CVS.RevertAll";
+static const char CMD_ID_COMMIT_CURRENT[]     = "CVS.CommitCurrent";
+static const char CMD_ID_SEPARATOR2[]         = "CVS.Separator2";
+static const char CMD_ID_FILELOG_CURRENT[]    = "CVS.FilelogCurrent";
+static const char CMD_ID_ANNOTATE_CURRENT[]   = "CVS.AnnotateCurrent";
+static const char CMD_ID_STATUS[]             = "CVS.Status";
+static const char CMD_ID_UPDATE[]             = "CVS.Update";
+static const char CMD_ID_PROJECTLOG[]         = "CVS.ProjectLog";
+static const char CMD_ID_PROJECTCOMMIT[]      = "CVS.ProjectCommit";
+static const char CMD_ID_REPOSITORYLOG[]      = "CVS.RepositoryLog";
+static const char CMD_ID_REPOSITORYDIFF[]     = "CVS.RepositoryDiff";
+static const char CMD_ID_REPOSITORYSTATUS[]   = "CVS.RepositoryStatus";
+static const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
+static const char CMD_ID_SEPARATOR3[]         = "CVS.Separator3";
 
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
@@ -1392,8 +1392,9 @@ CVSControl *CVSPlugin::cvsVersionControl() const
     return static_cast<CVSControl *>(versionControl());
 }
 
-}
-}
+} // namespace Internal
+} // namespace CVS
+
 Q_EXPORT_PLUGIN(CVS::Internal::CVSPlugin)
 
 #include "cvsplugin.moc"

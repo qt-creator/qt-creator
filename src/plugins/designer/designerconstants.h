@@ -38,25 +38,25 @@
 namespace Designer {
 namespace Constants {
 
-const char * const INFO_READ_ONLY = "DesignerXmlEditor.ReadOnly";
-const char * const K_DESIGNER_XML_EDITOR_ID = "FormEditor.DesignerXmlEditor";
-const char * const C_DESIGNER_XML_EDITOR = "Designer Xml Editor";
-const char * const C_DESIGNER_XML_DISPLAY_NAME  = QT_TRANSLATE_NOOP("Designer", "Form Editor");
+const char INFO_READ_ONLY[] = "DesignerXmlEditor.ReadOnly";
+const char K_DESIGNER_XML_EDITOR_ID[] = "FormEditor.DesignerXmlEditor";
+const char C_DESIGNER_XML_EDITOR[] = "Designer Xml Editor";
+const char C_DESIGNER_XML_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("Designer", "Form Editor");
 
-const char * const SETTINGS_CATEGORY = "P.Designer";
-const char * const SETTINGS_CATEGORY_ICON = ":/core/images/category_design.png";
-const char * const SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("Designer", "Designer");
-const char * const SETTINGS_CPP_SETTINGS_ID = "Class Generation";
-const char * const SETTINGS_CPP_SETTINGS_NAME = QT_TRANSLATE_NOOP("Designer", "Class Generation");
+const char SETTINGS_CATEGORY[] = "P.Designer";
+const char SETTINGS_CATEGORY_ICON[] = ":/core/images/category_design.png";
+const char SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Designer", "Designer");
+const char SETTINGS_CPP_SETTINGS_ID[] = "Class Generation";
+const char SETTINGS_CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("Designer", "Class Generation");
 
-// context
-const char * const C_FORMEDITOR       = "FormEditor.FormEditor";
-const char * const M_FORMEDITOR         = "FormEditor.Menu";
-const char * const M_FORMEDITOR_PREVIEW = "FormEditor.Menu.Preview";
+// Context
+const char C_FORMEDITOR[] = "FormEditor.FormEditor";
+const char M_FORMEDITOR[] = "FormEditor.Menu";
+const char M_FORMEDITOR_PREVIEW[] = "FormEditor.Menu.Preview";
 
 // Wizard type
-const char * const FORM_FILE_TYPE       = "Qt4FormFiles";
-const char * const FORM_MIMETYPE = "application/x-designer";
+const char FORM_FILE_TYPE[] = "Qt4FormFiles";
+const char FORM_MIMETYPE[] = "application/x-designer";
 
 enum DesignerSubWindows
 {

@@ -35,16 +35,16 @@
 
 namespace Constants {
 
-const char * const CMD_HELP ="help";
-const char * const CMD_HELP2 = "h";
-const char * const CMD_HELP3 = "?";
+const char CMD_HELP[] ="help";
+const char CMD_HELP2[] = "h";
+const char CMD_HELP3[] = "?";
 
-const char * const CMD_RECORD ="record";
-const char * const CMD_RECORD2 ="r";
+const char CMD_RECORD[] ="record";
+const char CMD_RECORD2[] ="r";
 
-const char * const CMD_QUIT ="quit";
-const char * const CMD_QUIT2 = "q";
+const char CMD_QUIT[] ="quit";
+const char CMD_QUIT2[] = "q";
 
-}
+} // Contants
 
 #endif // CONSTANTS_H

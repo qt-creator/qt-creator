@@ -45,10 +45,9 @@ class IBuildConfigurationFactory;
 } // namespace ProjectExplorer
 
 namespace GenericProjectManager {
-
 namespace Internal {
 
-const char * const GENERIC_DESKTOP_TARGET_ID("GenericProjectManager.GenericTarget");
+const char GENERIC_DESKTOP_TARGET_ID[] = "GenericProjectManager.GenericTarget";
 
 class GenericProject;
 class GenericRunConfiguration;
@@ -96,7 +95,6 @@ public:
 };
 
 } // namespace Internal
-
 } // namespace GenericProjectManager
 
 #endif // GENERICTARGET_H

@@ -61,15 +61,15 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
 namespace {
-const char * const CMAKE_RC_ID("CMakeProjectManager.CMakeRunConfiguration");
-const char * const CMAKE_RC_PREFIX("CMakeProjectManager.CMakeRunConfiguration.");
+const char CMAKE_RC_ID[] = "CMakeProjectManager.CMakeRunConfiguration";
+const char CMAKE_RC_PREFIX[] = "CMakeProjectManager.CMakeRunConfiguration.";
 
-const char * const USER_WORKING_DIRECTORY_KEY("CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory");
-const char * const USE_TERMINAL_KEY("CMakeProjectManager.CMakeRunConfiguration.UseTerminal");
-const char * const TITLE_KEY("CMakeProjectManager.CMakeRunConfiguation.Title");
-const char * const ARGUMENTS_KEY("CMakeProjectManager.CMakeRunConfiguration.Arguments");
-const char * const USER_ENVIRONMENT_CHANGES_KEY("CMakeProjectManager.CMakeRunConfiguration.UserEnvironmentChanges");
-const char * const BASE_ENVIRONMENT_BASE_KEY("CMakeProjectManager.BaseEnvironmentBase");
+const char USER_WORKING_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory";
+const char USE_TERMINAL_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.UseTerminal";
+const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
+const char ARGUMENTS_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.Arguments";
+const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.UserEnvironmentChanges";
+const char BASE_ENVIRONMENT_BASE_KEY[] = "CMakeProjectManager.BaseEnvironmentBase";
 
 QString buildTargetFromId(const QString &id)
 {

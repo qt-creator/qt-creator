@@ -41,10 +41,9 @@
 class TestConfig;
 
 namespace QtTest {
-
 namespace Internal {
 
-const char * const TESTSETTINGS_PANEL_ID("QtTest.TestSettingsPanel");
+const char TESTSETTINGS_PANEL_ID[] = "QtTest.TestSettingsPanel";
 
 class TestSettingsPanelFactory : public ProjectExplorer::IProjectPanelFactory
 {

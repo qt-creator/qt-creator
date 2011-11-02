@@ -55,18 +55,18 @@ class Qt4SymbianTarget;
 class S60PublishStep;
 
 namespace Constants {
-const char * const REJECTED_VENDOR_NAMES_VENDOR = "Vendor";
-const char * const REJECTED_VENDOR_NAMES_VENDOR_EN = "Vendor-EN";
-const char * const REJECTED_VENDOR_NAMES_NOKIA = "Nokia";
-const char * const REJECTED_VENDOR_NAMES_EMPTY = "";
+const char REJECTED_VENDOR_NAMES_VENDOR[] = "Vendor";
+const char REJECTED_VENDOR_NAMES_VENDOR_EN[] = "Vendor-EN";
+const char REJECTED_VENDOR_NAMES_NOKIA[] = "Nokia";
+const char REJECTED_VENDOR_NAMES_EMPTY[] = "";
 
-const char * const CERTIFIED_SIGNED_CAPABILITY_NETWORK_CONTROL = "NetworkControl";
-const char * const CERTIFIED_SIGNED_CAPABILITY_MULTIMEDIA_DD = "MultimediaDD";
-const char * const CERTIFIED_SIGNED_CAPABILITY_COMM_DD = "CommDD";
-const char * const CERTIFIED_SIGNED_CAPABILITY_DISK_ADMIN = "DiskAdmin";
-const char * const MANUFACTURER_APPROVED_CAPABILITY_ALL_FILES = "AllFiles";
-const char * const MANUFACTURER_APPROVED_CAPABILITY_DRM = "DRM";
-const char * const MANUFACTURER_APPROVED_CAPABILITY_TCB = "TCB";
+const char CERTIFIED_SIGNED_CAPABILITY_NETWORK_CONTROL[] = "NetworkControl";
+const char CERTIFIED_SIGNED_CAPABILITY_MULTIMEDIA_DD[] = "MultimediaDD";
+const char CERTIFIED_SIGNED_CAPABILITY_COMM_DD[] = "CommDD";
+const char CERTIFIED_SIGNED_CAPABILITY_DISK_ADMIN[] = "DiskAdmin";
+const char MANUFACTURER_APPROVED_CAPABILITY_ALL_FILES[] = "AllFiles";
+const char MANUFACTURER_APPROVED_CAPABILITY_DRM[] = "DRM";
+const char MANUFACTURER_APPROVED_CAPABILITY_TCB[] = "TCB";
 }
 
 class S60PublisherOvi : public QObject

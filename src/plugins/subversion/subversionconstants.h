@@ -38,12 +38,12 @@
 namespace Subversion {
 namespace Constants {
 
-const char * const SUBVERSION_SUBMIT_MIMETYPE = "application/vnd.nokia.text.subversion.submit";
-const char * const SUBVERSIONCOMMITEDITOR  = "Subversion Commit Editor";
-const char * const SUBVERSIONCOMMITEDITOR_ID  = "Subversion Commit Editor";
-const char * const SUBVERSIONCOMMITEDITOR_DISPLAY_NAME  = QT_TRANSLATE_NOOP("VCS", "Subversion Commit Editor");
-const char * const SUBMIT_CURRENT = "Subversion.SubmitCurrentLog";
-const char * const DIFF_SELECTED = "Subversion.DiffSelectedFilesInLog";
+const char SUBVERSION_SUBMIT_MIMETYPE[] = "application/vnd.nokia.text.subversion.submit";
+const char SUBVERSIONCOMMITEDITOR[]  = "Subversion Commit Editor";
+const char SUBVERSIONCOMMITEDITOR_ID[]  = "Subversion Commit Editor";
+const char SUBVERSIONCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "Subversion Commit Editor");
+const char SUBMIT_CURRENT[] = "Subversion.SubmitCurrentLog";
+const char DIFF_SELECTED[] = "Subversion.DiffSelectedFilesInLog";
 enum { debug = 0 };
 
 } // namespace Constants

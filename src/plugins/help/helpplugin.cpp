@@ -98,12 +98,12 @@
 
 using namespace Help::Internal;
 
-const char * const SB_INDEX = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Index");
-const char * const SB_CONTENTS = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Contents");
-const char * const SB_BOOKMARKS = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Bookmarks");
-const char * const SB_SEARCH = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Search");
+const char SB_INDEX[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Index");
+const char SB_CONTENTS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Contents");
+const char SB_BOOKMARKS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Bookmarks");
+const char SB_SEARCH[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Search");
 
-const char * const SB_OPENPAGES = "OpenPages";
+const char SB_OPENPAGES[] = "OpenPages";
 
 #define IMAGEPATH ":/help/images/"
 #if defined(Q_OS_MAC)

@@ -36,7 +36,7 @@
 namespace TaskList {
 namespace Constants {
 
-const char * const TASKLISTTASK_ID = "TaskList.TaskListTaskId";
+const char TASKLISTTASK_ID[] = "TaskList.TaskListTaskId";
 
 } // namespace Constants
 } // namespace TaskList

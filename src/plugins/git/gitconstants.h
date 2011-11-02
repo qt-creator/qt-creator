@@ -38,25 +38,25 @@
 namespace Git {
 namespace Constants {
 
-const char * const GIT_COMMAND_LOG_EDITOR_ID = "Git Command Log Editor";
-const char * const GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Git Command Log Editor");
-const char * const C_GIT_COMMAND_LOG_EDITOR = "Git Command Log Editor";
-const char * const GIT_LOG_EDITOR_ID = "Git File Log Editor";
-const char * const GIT_LOG_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Git File Log Editor");
-const char * const C_GIT_LOG_EDITOR = "Git File Log Editor";
-const char * const GIT_BLAME_EDITOR_ID = "Git Annotation Editor";
-const char * const GIT_BLAME_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Git Annotation Editor");
-const char * const C_GIT_BLAME_EDITOR = "Git Annotation Editor";
-const char * const GIT_DIFF_EDITOR_ID = "Git Diff Editor";
-const char * const GIT_DIFF_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Git Diff Editor");
-const char * const C_GIT_DIFF_EDITOR = "Git Diff Editor";
+const char GIT_COMMAND_LOG_EDITOR_ID[] = "Git Command Log Editor";
+const char GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Command Log Editor");
+const char C_GIT_COMMAND_LOG_EDITOR[] = "Git Command Log Editor";
+const char GIT_LOG_EDITOR_ID[] = "Git File Log Editor";
+const char GIT_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git File Log Editor");
+const char C_GIT_LOG_EDITOR[] = "Git File Log Editor";
+const char GIT_BLAME_EDITOR_ID[] = "Git Annotation Editor";
+const char GIT_BLAME_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Annotation Editor");
+const char C_GIT_BLAME_EDITOR[] = "Git Annotation Editor";
+const char GIT_DIFF_EDITOR_ID[] = "Git Diff Editor";
+const char GIT_DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Diff Editor");
+const char C_GIT_DIFF_EDITOR[] = "Git Diff Editor";
 
-const char * const C_GITSUBMITEDITOR  = "Git Submit Editor";
-const char * const GITSUBMITEDITOR_ID = "Git Submit Editor";
-const char * const GITSUBMITEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Git Submit Editor");
-const char * const SUBMIT_CURRENT = "Git.SubmitCurrentLog";
-const char * const DIFF_SELECTED = "Git.DiffSelectedFilesInLog";
-const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.git.submit";
+const char C_GITSUBMITEDITOR[]  = "Git Submit Editor";
+const char GITSUBMITEDITOR_ID[] = "Git Submit Editor";
+const char GITSUBMITEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Submit Editor");
+const char SUBMIT_CURRENT[] = "Git.SubmitCurrentLog";
+const char DIFF_SELECTED[] = "Git.DiffSelectedFilesInLog";
+const char SUBMIT_MIMETYPE[] = "application/vnd.nokia.text.git.submit";
 
 } // namespace Constants
 } // namespace Git

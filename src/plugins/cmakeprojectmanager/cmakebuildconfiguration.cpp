@@ -48,10 +48,9 @@ using namespace CMakeProjectManager;
 using namespace Internal;
 
 namespace {
-const char * const CMAKE_BC_ID("CMakeProjectManager.CMakeBuildConfiguration");
-
-const char * const TOOLCHAIN_KEY("CMakeProjectManager.CMakeBuildConfiguration.ToolChain");
-const char * const BUILD_DIRECTORY_KEY("CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory");
+const char CMAKE_BC_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
+const char TOOLCHAIN_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.ToolChain";
+const char BUILD_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory";
 } // namespace
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent) :

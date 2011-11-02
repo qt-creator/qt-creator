@@ -84,33 +84,33 @@
 namespace Subversion {
 namespace Internal {
 
-static const char * const CMD_ID_SUBVERSION_MENU    = "Subversion.Menu";
-static const char * const CMD_ID_ADD                = "Subversion.Add";
-static const char * const CMD_ID_DELETE_FILE        = "Subversion.Delete";
-static const char * const CMD_ID_REVERT             = "Subversion.Revert";
-static const char * const CMD_ID_SEPARATOR0         = "Subversion.Separator0";
-static const char * const CMD_ID_DIFF_PROJECT       = "Subversion.DiffAll";
-static const char * const CMD_ID_DIFF_CURRENT       = "Subversion.DiffCurrent";
-static const char * const CMD_ID_SEPARATOR1         = "Subversion.Separator1";
-static const char * const CMD_ID_COMMIT_ALL         = "Subversion.CommitAll";
-static const char * const CMD_ID_REVERT_ALL         = "Subversion.RevertAll";
-static const char * const CMD_ID_COMMIT_CURRENT     = "Subversion.CommitCurrent";
-static const char * const CMD_ID_SEPARATOR2         = "Subversion.Separator2";
-static const char * const CMD_ID_FILELOG_CURRENT    = "Subversion.FilelogCurrent";
-static const char * const CMD_ID_ANNOTATE_CURRENT   = "Subversion.AnnotateCurrent";
-static const char * const CMD_ID_SEPARATOR3         = "Subversion.Separator3";
-static const char * const CMD_ID_SEPARATOR4         = "Subversion.Separator4";
-static const char * const CMD_ID_STATUS             = "Subversion.Status";
-static const char * const CMD_ID_PROJECTLOG         = "Subversion.ProjectLog";
-static const char * const CMD_ID_REPOSITORYLOG      = "Subversion.RepositoryLog";
-static const char * const CMD_ID_REPOSITORYUPDATE   = "Subversion.RepositoryUpdate";
-static const char * const CMD_ID_REPOSITORYDIFF     = "Subversion.RepositoryDiff";
-static const char * const CMD_ID_REPOSITORYSTATUS   = "Subversion.RepositoryStatus";
-static const char * const CMD_ID_UPDATE             = "Subversion.Update";
-static const char * const CMD_ID_COMMIT_PROJECT     = "Subversion.CommitProject";
-static const char * const CMD_ID_DESCRIBE           = "Subversion.Describe";
+static const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
+static const char CMD_ID_ADD[]                = "Subversion.Add";
+static const char CMD_ID_DELETE_FILE[]        = "Subversion.Delete";
+static const char CMD_ID_REVERT[]             = "Subversion.Revert";
+static const char CMD_ID_SEPARATOR0[]         = "Subversion.Separator0";
+static const char CMD_ID_DIFF_PROJECT[]       = "Subversion.DiffAll";
+static const char CMD_ID_DIFF_CURRENT[]       = "Subversion.DiffCurrent";
+static const char CMD_ID_SEPARATOR1[]         = "Subversion.Separator1";
+static const char CMD_ID_COMMIT_ALL[]         = "Subversion.CommitAll";
+static const char CMD_ID_REVERT_ALL[]         = "Subversion.RevertAll";
+static const char CMD_ID_COMMIT_CURRENT[]     = "Subversion.CommitCurrent";
+static const char CMD_ID_SEPARATOR2[]         = "Subversion.Separator2";
+static const char CMD_ID_FILELOG_CURRENT[]    = "Subversion.FilelogCurrent";
+static const char CMD_ID_ANNOTATE_CURRENT[]   = "Subversion.AnnotateCurrent";
+static const char CMD_ID_SEPARATOR3[]         = "Subversion.Separator3";
+static const char CMD_ID_SEPARATOR4[]         = "Subversion.Separator4";
+static const char CMD_ID_STATUS[]             = "Subversion.Status";
+static const char CMD_ID_PROJECTLOG[]         = "Subversion.ProjectLog";
+static const char CMD_ID_REPOSITORYLOG[]      = "Subversion.RepositoryLog";
+static const char CMD_ID_REPOSITORYUPDATE[]   = "Subversion.RepositoryUpdate";
+static const char CMD_ID_REPOSITORYDIFF[]     = "Subversion.RepositoryDiff";
+static const char CMD_ID_REPOSITORYSTATUS[]   = "Subversion.RepositoryStatus";
+static const char CMD_ID_UPDATE[]             = "Subversion.Update";
+static const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
+static const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-static const char *nonInteractiveOptionC = "--non-interactive";
+static const char nonInteractiveOptionC[] = "--non-interactive";
 
 
 

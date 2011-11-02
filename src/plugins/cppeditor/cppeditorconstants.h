@@ -36,34 +36,34 @@
 namespace CppEditor {
 namespace Constants {
 
-const char * const M_CONTEXT    = "CppEditor.ContextMenu";
-const char * const C_CPPEDITOR  = "CppPlugin.C++Editor";
-const char * const CPPEDITOR_ID = "CppPlugin.C++Editor";
-const char * const CPPEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "C++ Editor");
-const char * const SWITCH_DECLARATION_DEFINITION = "CppEditor.SwitchDeclarationDefinition";
-const char * const RENAME_SYMBOL_UNDER_CURSOR = "CppEditor.RenameSymbolUnderCursor";
-const char * const FIND_USAGES = "CppEditor.FindUsages";
-const char * const M_REFACTORING_MENU_INSERTION_POINT = "CppEditor.RefactorGroup";
-const char * const SEPARATOR = "CppEditor.Separator";
-const char * const SEPARATOR2 = "CppEditor.Separator2";
-const char * const SEPARATOR3 = "CppEditor.Separator3";
-const char * const SEPARATOR4 = "CppEditor.Separator4";
-const char * const JUMP_TO_DEFINITION = "CppEditor.JumpToDefinition";
-const char * const UPDATE_CODEMODEL = "CppEditor.UpdateCodeModel";
+const char M_CONTEXT[] = "CppEditor.ContextMenu";
+const char C_CPPEDITOR[] = "CppPlugin.C++Editor";
+const char CPPEDITOR_ID[] = "CppPlugin.C++Editor";
+const char CPPEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "C++ Editor");
+const char SWITCH_DECLARATION_DEFINITION[] = "CppEditor.SwitchDeclarationDefinition";
+const char RENAME_SYMBOL_UNDER_CURSOR[] = "CppEditor.RenameSymbolUnderCursor";
+const char FIND_USAGES[] = "CppEditor.FindUsages";
+const char M_REFACTORING_MENU_INSERTION_POINT[] = "CppEditor.RefactorGroup";
+const char SEPARATOR[] = "CppEditor.Separator";
+const char SEPARATOR2[] = "CppEditor.Separator2";
+const char SEPARATOR3[] = "CppEditor.Separator3";
+const char SEPARATOR4[] = "CppEditor.Separator4";
+const char JUMP_TO_DEFINITION[] = "CppEditor.JumpToDefinition";
+const char UPDATE_CODEMODEL[] = "CppEditor.UpdateCodeModel";
 
 const int TYPE_HIERARCHY_PRIORITY = 700;
-const char * const TYPE_HIERARCHY_ID = "CppEditor.TypeHierarchy";
-const char * const OPEN_TYPE_HIERARCHY = "CppEditor.OpenTypeHierarchy";
+const char TYPE_HIERARCHY_ID[] = "CppEditor.TypeHierarchy";
+const char OPEN_TYPE_HIERARCHY[] = "CppEditor.OpenTypeHierarchy";
 
-const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
-const char * const C_HEADER_MIMETYPE = "text/x-chdr";
-const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
-const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
+const char C_SOURCE_MIMETYPE[] = "text/x-csrc";
+const char C_HEADER_MIMETYPE[] = "text/x-chdr";
+const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
+const char CPP_HEADER_MIMETYPE[] = "text/x-c++hdr";
 
-const char * const WIZARD_CATEGORY = "O.C++";
-const char * const WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("CppEditor", "C++");
+const char WIZARD_CATEGORY[] = "O.C++";
+const char WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("CppEditor", "C++");
 
-const char * const CPP_SNIPPETS_GROUP_ID = "C++";
+const char CPP_SNIPPETS_GROUP_ID[] = "C++";
 
 } // namespace Constants
 } // namespace CppEditor

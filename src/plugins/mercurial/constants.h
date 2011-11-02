@@ -37,74 +37,74 @@ namespace Mercurial {
 namespace Constants {
 
 enum { debug = 0 };
-const char * const MECURIALREPO = ".hg";
-const char * const MERCURIALDEFAULT = "hg";
+const char MECURIALREPO[] = ".hg";
+const char MERCURIALDEFAULT[] = "hg";
 
 //changeset identifiers
-const char * const CHANGESETID12 = " ([a-f0-9]{12,12}) "; //match 12 hex chars and capture
-const char * const CHANGESETID40 = " ([a-f0-9]{40,40}) ";
-const char * const CHANGEIDEXACT12 = "[a-f0-9]{12,12}"; //match 12 hex chars a
-const char * const CHANGEIDEXACT40 = "[a-f0-9]{40,40}";
-const char * const DIFFIDENTIFIER = "^[-+]{3,3} [ab]{1,1}.*"; // match e.g. +++ b/filename
+const char CHANGESETID12[] = " ([a-f0-9]{12,12}) "; //match 12 hex chars and capture
+const char CHANGESETID40[] = " ([a-f0-9]{40,40}) ";
+const char CHANGEIDEXACT12[] = "[a-f0-9]{12,12}"; //match 12 hex chars a
+const char CHANGEIDEXACT40[] = "[a-f0-9]{40,40}";
+const char DIFFIDENTIFIER[] = "^[-+]{3,3} [ab]{1,1}.*"; // match e.g. +++ b/filename
 
 //BaseEditorParameters
-const char * const COMMANDLOG_ID = "Mercurial Command Log Editor";
-const char * const COMMANDLOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial Command Log Editor");
-const char * const COMMANDLOG = "Mercurial Command Log Editor";
-const char * const COMMANDAPP = "application/vnd.nokia.text.scs_mercurial_commandlog";
-const char * const COMMANDEXT = "vcsMercurialCommand";
+const char COMMANDLOG_ID[] = "Mercurial Command Log Editor";
+const char COMMANDLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Command Log Editor");
+const char COMMANDLOG[] = "Mercurial Command Log Editor";
+const char COMMANDAPP[] = "application/vnd.nokia.text.scs_mercurial_commandlog";
+const char COMMANDEXT[] = "vcsMercurialCommand";
 
-const char * const FILELOG_ID = "Mercurial File Log Editor";
-const char * const FILELOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial File Log Editor");
-const char * const FILELOG = "Mercurial File Log Editor";
-const char * const LOGAPP = "application/vnd.nokia.text.scs_mercurial_log";
-const char * const LOGEXT = "vcsMercurialLog";
+const char FILELOG_ID[] = "Mercurial File Log Editor";
+const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial File Log Editor");
+const char FILELOG[] = "Mercurial File Log Editor";
+const char LOGAPP[] = "application/vnd.nokia.text.scs_mercurial_log";
+const char LOGEXT[] = "vcsMercurialLog";
 
-const char * const ANNOTATELOG_ID = "Mercurial Annotation Editor";
-const char * const ANNOTATELOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial Annotation Editor");
-const char * const ANNOTATELOG = "Mercurial Annotation Editor";
-const char * const ANNOTATEAPP = "application/vnd.nokia.text.scs_mercurial_annotatelog";
-const char * const ANNOTATEEXT = "vcsMercurialAnnotate";
+const char ANNOTATELOG_ID[] = "Mercurial Annotation Editor";
+const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Annotation Editor");
+const char ANNOTATELOG[] = "Mercurial Annotation Editor";
+const char ANNOTATEAPP[] = "application/vnd.nokia.text.scs_mercurial_annotatelog";
+const char ANNOTATEEXT[] = "vcsMercurialAnnotate";
 
-const char * const DIFFLOG_ID = "Mercurial Diff Editor";
-const char * const DIFFLOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial Diff Editor");
-const char * const DIFFLOG = "Mercurial Diff Editor";
-const char * const DIFFAPP = "text/x-patch";
-const char * const DIFFEXT = "diff";
+const char DIFFLOG_ID[] = "Mercurial Diff Editor";
+const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Diff Editor");
+const char DIFFLOG[] = "Mercurial Diff Editor";
+const char DIFFAPP[] = "text/x-patch";
+const char DIFFEXT[] = "diff";
 
 //SubmitEditorParameters
-const char * const COMMIT_ID = "Mercurial Commit Log Editor";
-const char * const COMMIT_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial Commit Log Editor");
-const char * const COMMITMIMETYPE = "application/vnd.nokia.text.scs_mercurial_commitlog";
+const char COMMIT_ID[] = "Mercurial Commit Log Editor";
+const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Commit Log Editor");
+const char COMMITMIMETYPE[] = "application/vnd.nokia.text.scs_mercurial_commitlog";
 
 //menu items
 //File menu actions
-const char * const ADD = "Mercurial.AddSingleFile";
-const char * const DELETE = "Mercurial.DeleteSingleFile";
-const char * const ANNOTATE = "Mercurial.Annotate";
-const char * const DIFF = "Mercurial.DiffSingleFile";
-const char * const LOG = "Mercurial.LogSingleFile";
-const char * const REVERT = "Mercurial.RevertSingleFile";
-const char * const STATUS = "Mercurial.Status";
+const char ADD[] = "Mercurial.AddSingleFile";
+const char DELETE[] = "Mercurial.DeleteSingleFile";
+const char ANNOTATE[] = "Mercurial.Annotate";
+const char DIFF[] = "Mercurial.DiffSingleFile";
+const char LOG[] = "Mercurial.LogSingleFile";
+const char REVERT[] = "Mercurial.RevertSingleFile";
+const char STATUS[] = "Mercurial.Status";
 
 //directory menu Actions
-const char * const DIFFMULTI = "Mercurial.Action.DiffMulti";
-const char * const REVERTMULTI = "Mercurial.Action.RevertMulti";
-const char * const STATUSMULTI = "Mercurial.Action.StatusMulti";
-const char * const LOGMULTI = "Mercurial.Action.Logmulti";
+const char DIFFMULTI[] = "Mercurial.Action.DiffMulti";
+const char REVERTMULTI[] = "Mercurial.Action.RevertMulti";
+const char STATUSMULTI[] = "Mercurial.Action.StatusMulti";
+const char LOGMULTI[] = "Mercurial.Action.Logmulti";
 
 //repository menu actions
-const char * const PULL = "Mercurial.Action.Pull";
-const char * const PUSH = "Mercurial.Action.Push";
-const char * const UPDATE = "Mercurial.Action.Update";
-const char * const IMPORT = "Mercurial.Action.Import";
-const char * const INCOMING = "Mercurial.Action.Incoming";
-const char * const OUTGOING = "Mercurial.Action.Outgoing";
-const char * const COMMIT = "Mercurial.Action.Commit";
-const char * const CREATE_REPOSITORY = "Mercurial.Action.CreateRepository";
+const char PULL[] = "Mercurial.Action.Pull";
+const char PUSH[] = "Mercurial.Action.Push";
+const char UPDATE[] = "Mercurial.Action.Update";
+const char IMPORT[] = "Mercurial.Action.Import";
+const char INCOMING[] = "Mercurial.Action.Incoming";
+const char OUTGOING[] = "Mercurial.Action.Outgoing";
+const char COMMIT[] = "Mercurial.Action.Commit";
+const char CREATE_REPOSITORY[] = "Mercurial.Action.CreateRepository";
 
 //submit editor actions
-const char * const DIFFEDITOR = "Mercurial.Action.Editor.Diff";
+const char DIFFEDITOR[] = "Mercurial.Action.Editor.Diff";
 
 } // namespace Constants
 } // namespace mercurial

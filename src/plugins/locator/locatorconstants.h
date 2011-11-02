@@ -38,8 +38,8 @@
 namespace Locator {
 namespace Constants {
 
-const char * const FILTER_OPTIONS_PAGE = QT_TRANSLATE_NOOP("Locator", "Locator");
-const char * const TASK_INDEX = "Locator.Task.Index";
+const char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("Locator", "Locator");
+const char TASK_INDEX[] = "Locator.Task.Index";
 
 } // namespace Constants
 } // namespace Locator

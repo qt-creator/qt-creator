@@ -36,15 +36,15 @@
 namespace CVS {
 namespace Constants {
 
-const char * const CVS_SUBMIT_MIMETYPE = "application/vnd.nokia.text.cvs.submit";
-const char * const CVSCOMMITEDITOR  = "CVS Commit Editor";
-const char * const CVSCOMMITEDITOR_ID  = "CVS Commit Editor";
-const char * const CVSCOMMITEDITOR_DISPLAY_NAME  = QT_TRANSLATE_NOOP("VCS", "CVS Commit Editor");
-const char * const SUBMIT_CURRENT = "CVS.SubmitCurrentLog";
-const char * const DIFF_SELECTED = "CVS.DiffSelectedFilesInLog";
+const char CVS_SUBMIT_MIMETYPE[] = "application/vnd.nokia.text.cvs.submit";
+const char CVSCOMMITEDITOR[]  = "CVS Commit Editor";
+const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
+const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "CVS Commit Editor");
+const char SUBMIT_CURRENT[] = "CVS.SubmitCurrentLog";
+const char DIFF_SELECTED[] = "CVS.DiffSelectedFilesInLog";
 enum { debug = 0 };
 
 } // namespace Constants
-} // namespace SubVersion
+} // namespace CVS
 
 #endif // CVS_CONSTANTS_H

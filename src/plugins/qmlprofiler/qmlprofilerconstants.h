@@ -36,7 +36,7 @@
 namespace QmlProfiler {
 namespace Constants {
 
-const char * const ATTACH = "Menu.Analyzer.Attach";
+const char ATTACH[] = "Menu.Analyzer.Attach";
 
 } // namespace Constants
 } // namespace QmlProfiler

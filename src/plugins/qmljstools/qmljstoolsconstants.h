@@ -38,22 +38,22 @@
 namespace QmlJSTools {
 namespace Constants {
 
-const char * const QML_MIMETYPE = "application/x-qml";
-const char * const JS_MIMETYPE = "application/javascript";
-const char * const JSON_MIMETYPE = "application/json";
+const char QML_MIMETYPE[] = "application/x-qml";
+const char JS_MIMETYPE[] = "application/javascript";
+const char JSON_MIMETYPE[] = "application/json";
 
-const char * const TASK_INDEX = "QmlJSEditor.TaskIndex";
+const char TASK_INDEX[] = "QmlJSEditor.TaskIndex";
 
-const char * const QML_JS_CODE_STYLE_SETTINGS_ID = "A.Code Style";
-const char * const QML_JS_CODE_STYLE_SETTINGS_NAME = QT_TRANSLATE_NOOP("QmlJSTools", "Code Style");
+const char QML_JS_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
+const char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QmlJSTools", "Code Style");
 
-const char * const QML_JS_SETTINGS_ID = "QmlJS";
-const char * const QML_JS_SETTINGS_NAME = QT_TRANSLATE_NOOP("QmlJSTools", "Qt Quick");
+const char QML_JS_SETTINGS_ID[] = "QmlJS";
+const char QML_JS_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QmlJSTools", "Qt Quick");
 
-const char * const M_TOOLS_QMLJS = "QmlJSTools.Tools.Menu";
-const char * const RESET_CODEMODEL = "QmlJSTools.ResetCodeModel";
+const char M_TOOLS_QMLJS[] = "QmlJSTools.Tools.Menu";
+const char RESET_CODEMODEL[] = "QmlJSTools.ResetCodeModel";
 
 } // namespace Constants
-} // namespace QmlJSEditor
+} // namespace QmlJSTools
 
 #endif // QMLJSTOOLS_CONSTANTS_H

@@ -37,10 +37,12 @@
 
 namespace CodePaster {
 namespace Constants {
-const char * const CPASTER_SETTINGS_CATEGORY = "X.CPaster";
-const char * const CPASTER_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("CodePaster", "Code Pasting");
-const char * const SETTINGS_CATEGORY_CPASTER_ICON = ":/core/images/category_cpaster.png";
-}
-}
+
+const char CPASTER_SETTINGS_CATEGORY[] = "X.CPaster";
+const char CPASTER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("CodePaster", "Code Pasting");
+const char SETTINGS_CATEGORY_CPASTER_ICON[] = ":/core/images/category_cpaster.png";
+
+} // namespace Constants
+} // namespace CodePaster
 
 #endif // CPASTERCONSTANTS_H

@@ -38,10 +38,9 @@
 #include <projectexplorer/target.h>
 
 namespace CMakeProjectManager {
-
 namespace Internal {
 
-const char * const DEFAULT_CMAKE_TARGET_ID("CMakeProjectManager.DefaultCMakeTarget");
+const char DEFAULT_CMAKE_TARGET_ID[] = "CMakeProjectManager.DefaultCMakeTarget";
 
 class CMakeBuildConfiguration;
 class CMakeBuildConfigurationFactory;
@@ -96,7 +95,6 @@ public:
 };
 
 } // namespace Internal
-
 } // namespace CMakeProjectManager
 
 #endif // CMAKETARGET_H

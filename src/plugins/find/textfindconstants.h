@@ -42,25 +42,25 @@
 namespace Find {
 namespace Constants {
 
-const char * const M_FIND            = "Find.FindMenu";
-const char * const M_FIND_ADVANCED   = "Find.FindAdvancedMenu";
-const char * const G_FIND_CURRENTDOCUMENT = "Find.FindMenu.CurrentDocument";
-const char * const G_FIND_FILTERS    = "Find.FindMenu.Filters";
-const char * const G_FIND_FLAGS      = "Find.FindMenu.Flags";
-const char * const G_FIND_ACTIONS    = "Find.FindMenu.Actions";
+const char M_FIND[]            = "Find.FindMenu";
+const char M_FIND_ADVANCED[]   = "Find.FindAdvancedMenu";
+const char G_FIND_CURRENTDOCUMENT[] = "Find.FindMenu.CurrentDocument";
+const char G_FIND_FILTERS[]    = "Find.FindMenu.Filters";
+const char G_FIND_FLAGS[]      = "Find.FindMenu.Flags";
+const char G_FIND_ACTIONS[]    = "Find.FindMenu.Actions";
 
-const char * const ADVANCED_FIND     = "Find.Dialog";
-const char * const FIND_IN_DOCUMENT  = "Find.FindInCurrentDocument";
-const char * const FIND_NEXT         = "Find.FindNext";
-const char * const FIND_PREVIOUS     = "Find.FindPrevious";
-const char * const REPLACE           = "Find.Replace";
-const char * const REPLACE_NEXT      = "Find.ReplaceNext";
-const char * const REPLACE_PREVIOUS  = "Find.ReplacePrevious";
-const char * const REPLACE_ALL       = "Find.ReplaceAll";
-const char * const CASE_SENSITIVE    = "Find.CaseSensitive";
-const char * const WHOLE_WORDS       = "Find.WholeWords";
-const char * const REGULAR_EXPRESSIONS="Find.RegularExpressions";
-const char * const TASK_SEARCH       = "Find.Task.Search";
+const char ADVANCED_FIND[]     = "Find.Dialog";
+const char FIND_IN_DOCUMENT[]  = "Find.FindInCurrentDocument";
+const char FIND_NEXT[]         = "Find.FindNext";
+const char FIND_PREVIOUS[]     = "Find.FindPrevious";
+const char REPLACE[]           = "Find.Replace";
+const char REPLACE_NEXT[]      = "Find.ReplaceNext";
+const char REPLACE_PREVIOUS[]  = "Find.ReplacePrevious";
+const char REPLACE_ALL[]       = "Find.ReplaceAll";
+const char CASE_SENSITIVE[]    = "Find.CaseSensitive";
+const char WHOLE_WORDS[]       = "Find.WholeWords";
+const char REGULAR_EXPRESSIONS[] = "Find.RegularExpressions";
+const char TASK_SEARCH[]       = "Find.Task.Search";
 
 } // namespace Constants
 

@@ -50,7 +50,7 @@ class QmlProjectRunConfiguration;
 
 namespace Internal {
 
-const char * const CURRENT_FILE  = QT_TRANSLATE_NOOP("QmlManager", "<Current File>");
+const char CURRENT_FILE[]  = QT_TRANSLATE_NOOP("QmlManager", "<Current File>");
 
 class QmlProjectRunConfigurationWidget : public QWidget
 {

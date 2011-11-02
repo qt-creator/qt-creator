@@ -36,36 +36,36 @@
 namespace QmlDesigner {
 namespace Constants {
 
-const char * const DELETE               = "QmlDesigner.Delete";
+const char DELETE[]               = "QmlDesigner.Delete";
 
-// context
-const char * const C_QMLDESIGNER         = "QmlDesigner::QmlDesignerMain";
-const char * const C_QMLFORMEDITOR       = "QmlDesigner::FormEditor";
-const char * const C_QMLNAVIGATOR        = "QmlDesigner::Navigator";
+// Context
+const char C_QMLDESIGNER[]         = "QmlDesigner::QmlDesignerMain";
+const char C_QMLFORMEDITOR[]       = "QmlDesigner::FormEditor";
+const char C_QMLNAVIGATOR[]        = "QmlDesigner::Navigator";
 
-// special context for preview menu, shared b/w designer and text editor
-const char * const C_QT_QUICK_TOOLS_MENU = "QmlDesigner::ToolsMenu";
+// Special context for preview menu, shared b/w designer and text editor
+const char C_QT_QUICK_TOOLS_MENU[] = "QmlDesigner::ToolsMenu";
 
-// actions
-const char * const SWITCH_TEXT_DESIGN   = "QmlDesigner.SwitchTextDesign";
-const char * const RESTORE_DEFAULT_VIEW = "QmlDesigner.RestoreDefaultView";
-const char * const TOGGLE_LEFT_SIDEBAR = "QmlDesigner.ToggleLeftSideBar";
-const char * const TOGGLE_RIGHT_SIDEBAR = "QmlDesigner.ToggleRightSideBar";
-const char * const GO_INTO_COMPONENT = "QmlDesigner.GoIntoComponent";
+// Actions
+const char SWITCH_TEXT_DESIGN[]   = "QmlDesigner.SwitchTextDesign";
+const char RESTORE_DEFAULT_VIEW[] = "QmlDesigner.RestoreDefaultView";
+const char TOGGLE_LEFT_SIDEBAR[] = "QmlDesigner.ToggleLeftSideBar";
+const char TOGGLE_RIGHT_SIDEBAR[] = "QmlDesigner.ToggleRightSideBar";
+const char GO_INTO_COMPONENT[] = "QmlDesigner.GoIntoComponent";
 
 // This setting is also accessed by the QMlJsEditor.
-const char * const QML_SETTINGS_GROUP = "QML";
-const char * const QML_DESIGNER_SETTINGS_GROUP = "Designer";
-const char * const QML_OPENDESIGNMODE_SETTINGS_KEY = "OpenDesignMode";
-const char * const QML_ITEMSPACING_KEY = "ItemSpacing";
-const char * const QML_SNAPMARGIN_KEY = "SnapMargin";
-const char * const QML_CANVASWIDTH_KEY = "CanvasWidth";
-const char * const QML_CANVASHEIGHT_KEY = "CanvasHeight";
-const char * const QML_CONTEXTPANE_KEY = "ContextPaneEnabled";
-const char * const QML_CONTEXTPANEPIN_KEY = "ContextPanePinned";
+const char QML_SETTINGS_GROUP[] = "QML";
+const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
+const char QML_OPENDESIGNMODE_SETTINGS_KEY[] = "OpenDesignMode";
+const char QML_ITEMSPACING_KEY[] = "ItemSpacing";
+const char QML_SNAPMARGIN_KEY[] = "SnapMargin";
+const char QML_CANVASWIDTH_KEY[] = "CanvasWidth";
+const char QML_CANVASHEIGHT_KEY[] = "CanvasHeight";
+const char QML_CONTEXTPANE_KEY[] = "ContextPaneEnabled";
+const char QML_CONTEXTPANEPIN_KEY[] = "ContextPanePinned";
 enum { QML_OPENDESIGNMODE_DEFAULT = 0 }; // 0 for text mode, 1 for design mode
 
-const char * const SETTINGS_CATEGORY_QML_ICON = ":/core/images/category_qml.png";
+const char SETTINGS_CATEGORY_QML_ICON[] = ":/core/images/category_qml.png";
 
 namespace Internal {
     enum { debug = 0 };

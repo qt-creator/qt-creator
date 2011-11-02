@@ -86,12 +86,12 @@ enum {
     debug = false
 };
 
-const char * const SB_NAVIGATOR = "Navigator";
-const char * const SB_LIBRARY = "Library";
-const char * const SB_PROPERTIES = "Properties";
-const char * const SB_PROJECTS = "Projects";
-const char * const SB_FILESYSTEM = "FileSystem";
-const char * const SB_OPENDOCUMENTS = "OpenDocuments";
+const char SB_NAVIGATOR[] = "Navigator";
+const char SB_LIBRARY[] = "Library";
+const char SB_PROPERTIES[] = "Properties";
+const char SB_PROJECTS[] = "Projects";
+const char SB_FILESYSTEM[] = "FileSystem";
+const char SB_OPENDOCUMENTS[] = "OpenDocuments";
 
 namespace QmlDesigner {
 namespace Internal {

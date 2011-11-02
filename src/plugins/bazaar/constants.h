@@ -36,69 +36,69 @@
 namespace Bazaar {
 namespace Constants {
 
-const char * const BAZAAR = "bazaar";
-const char * const BAZAARREPO = ".bzr";
-const char * const BAZAARDEFAULT = "bzr";
+const char BAZAAR[] = "bazaar";
+const char BAZAARREPO[] = ".bzr";
+const char BAZAARDEFAULT[] = "bzr";
 
-//changeset identifiers
-const char * const CHANGESET_ID = "([0-9]+)"; // match and capture
-const char * const CHANGESET_ID_EXACT = "[0-9]+"; // match
+// Changeset identifiers
+const char CHANGESET_ID[] = "([0-9]+)"; // match and capture
+const char CHANGESET_ID_EXACT[] = "[0-9]+"; // match
 
-//BaseEditorParameters
-const char * const COMMANDLOG_ID = "Bazaar Command Log Editor";
-const char * const COMMANDLOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Bazaar Command Log Editor");
-const char * const COMMANDLOG = "Bazaar Command Log Editor";
-const char * const COMMANDAPP = "application/vnd.nokia.text.scs_bazaar_commandlog";
-const char * const COMMANDEXT = "vcsBazaarCommand";
+// Base editor parameters
+const char COMMANDLOG_ID[] = "Bazaar Command Log Editor";
+const char COMMANDLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Command Log Editor");
+const char COMMANDLOG[] = "Bazaar Command Log Editor";
+const char COMMANDAPP[] = "application/vnd.nokia.text.scs_bazaar_commandlog";
+const char COMMANDEXT[] = "vcsBazaarCommand";
 
-const char * const FILELOG_ID = "Bazaar File Log Editor";
-const char * const FILELOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Bazaar File Log Editor");
-const char * const FILELOG = "Bazaar File Log Editor";
-const char * const LOGAPP = "application/vnd.nokia.text.scs_bazaar_log";
-const char * const LOGEXT = "vcsBazaarLog";
+const char FILELOG_ID[] = "Bazaar File Log Editor";
+const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar File Log Editor");
+const char FILELOG[] = "Bazaar File Log Editor";
+const char LOGAPP[] = "application/vnd.nokia.text.scs_bazaar_log";
+const char LOGEXT[] = "vcsBazaarLog";
 
-const char * const ANNOTATELOG_ID = "Bazaar Annotation Editor";
-const char * const ANNOTATELOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Bazaar Annotation Editor");
-const char * const ANNOTATELOG = "Bazaar Annotation Editor";
-const char * const ANNOTATEAPP = "application/vnd.nokia.text.scs_bazaar_annotatelog";
-const char * const ANNOTATEEXT = "vcsBazaarAnnotate";
+const char ANNOTATELOG_ID[] = "Bazaar Annotation Editor";
+const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Annotation Editor");
+const char ANNOTATELOG[] = "Bazaar Annotation Editor";
+const char ANNOTATEAPP[] = "application/vnd.nokia.text.scs_bazaar_annotatelog";
+const char ANNOTATEEXT[] = "vcsBazaarAnnotate";
 
-const char * const DIFFLOG_ID = "Bazaar Diff Editor";
-const char * const DIFFLOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Bazaar Diff Editor");
-const char * const DIFFLOG = "Bazaar Diff Editor";
-const char * const DIFFAPP = "text/x-patch";
-const char * const DIFFEXT = "diff";
+const char DIFFLOG_ID[] = "Bazaar Diff Editor";
+const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Diff Editor");
+const char DIFFLOG[] = "Bazaar Diff Editor";
+const char DIFFAPP[] = "text/x-patch";
+const char DIFFEXT[] = "diff";
 
-//SubmitEditorParameters
-const char * const COMMIT_ID = "Bazaar Commit Log Editor";
-const char * const COMMIT_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Bazaar Commit Log Editor");
-const char * const COMMITMIMETYPE = "application/vnd.nokia.text.scs_bazaar_commitlog";
+// Submit editor parameters
+const char COMMIT_ID[] = "Bazaar Commit Log Editor";
+const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Commit Log Editor");
+const char COMMITMIMETYPE[] = "application/vnd.nokia.text.scs_bazaar_commitlog";
 
-//menu items
-//File menu actions
-const char * const ADD = "Bazaar.AddSingleFile";
-const char * const DELETE = "Bazaar.DeleteSingleFile";
-const char * const ANNOTATE = "Bazaar.Annotate";
-const char * const DIFF = "Bazaar.DiffSingleFile";
-const char * const LOG = "Bazaar.LogSingleFile";
-const char * const REVERT = "Bazaar.RevertSingleFile";
-const char * const STATUS = "Bazaar.Status";
+// Menu items
+// File menu actions
+const char ADD[] = "Bazaar.AddSingleFile";
+const char DELETE[] = "Bazaar.DeleteSingleFile";
+const char ANNOTATE[] = "Bazaar.Annotate";
+const char DIFF[] = "Bazaar.DiffSingleFile";
+const char LOG[] = "Bazaar.LogSingleFile";
+const char REVERT[] = "Bazaar.RevertSingleFile";
+const char STATUS[] = "Bazaar.Status";
 
-//directory menu Actions
-const char * const DIFFMULTI = "Bazaar.Action.DiffMulti";
-const char * const REVERTMULTI = "Bazaar.Action.RevertALL";
-const char * const STATUSMULTI = "Bazaar.Action.StatusMulti";
-const char * const LOGMULTI = "Bazaar.Action.Logmulti";
+// Directory menu Actions
+const char DIFFMULTI[] = "Bazaar.Action.DiffMulti";
+const char REVERTMULTI[] = "Bazaar.Action.RevertALL";
+const char STATUSMULTI[] = "Bazaar.Action.StatusMulti";
+const char LOGMULTI[] = "Bazaar.Action.Logmulti";
 
-//repository menu actions
-const char * const PULL = "Bazaar.Action.Pull";
-const char * const PUSH = "Bazaar.Action.Push";
-const char * const UPDATE = "Bazaar.Action.Update";
-const char * const COMMIT = "Bazaar.Action.Commit";
-const char * const CREATE_REPOSITORY = "Bazaar.Action.CreateRepository";
+// Repository menu actions
+const char PULL[] = "Bazaar.Action.Pull";
+const char PUSH[] = "Bazaar.Action.Push";
+const char UPDATE[] = "Bazaar.Action.Update";
+const char COMMIT[] = "Bazaar.Action.Commit";
+const char CREATE_REPOSITORY[] = "Bazaar.Action.CreateRepository";
 
-//submit editor actions
-const char * const DIFFEDITOR = "Bazaar.Action.Editor.Diff";
+// Submit editor actions
+const char DIFFEDITOR[] = "Bazaar.Action.Editor.Diff";
 
 } // namespace Constants
 } // namespace Bazaar

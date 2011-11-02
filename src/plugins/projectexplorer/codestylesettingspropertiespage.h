@@ -42,7 +42,7 @@ class EditorConfiguration;
 
 namespace Internal {
 
-const char * const CODESTYLESETTINGS_PANEL_ID("ProjectExplorer.CodeStyleSettingsPanel");
+const char CODESTYLESETTINGS_PANEL_ID[] = "ProjectExplorer.CodeStyleSettingsPanel";
 
 class CodeStyleSettingsPanelFactory : public IProjectPanelFactory
 {

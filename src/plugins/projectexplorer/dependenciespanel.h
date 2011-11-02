@@ -50,7 +50,7 @@ class SessionManager;
 
 namespace Internal {
 
-const char * const DEPENDENCIES_PANEL_ID("ProjectExplorer.DependenciesPanel");
+const char DEPENDENCIES_PANEL_ID[] = "ProjectExplorer.DependenciesPanel";
 
 class DependenciesWidget;
 

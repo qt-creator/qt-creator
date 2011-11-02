@@ -42,7 +42,7 @@ class EditorConfiguration;
 
 namespace Internal {
 
-const char * const EDITORSETTINGS_PANEL_ID("ProjectExplorer.EditorSettingsPanel");
+const char EDITORSETTINGS_PANEL_ID[] = "ProjectExplorer.EditorSettingsPanel";
 
 class EditorSettingsPanelFactory : public IProjectPanelFactory
 {

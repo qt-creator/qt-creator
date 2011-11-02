@@ -49,17 +49,17 @@
 #include <QtGui/QIcon>
 
 namespace {
-const char * const ACTIVE_BC_KEY = "ProjectExplorer.Target.ActiveBuildConfiguration";
-const char * const BC_KEY_PREFIX = "ProjectExplorer.Target.BuildConfiguration.";
-const char * const BC_COUNT_KEY = "ProjectExplorer.Target.BuildConfigurationCount";
+const char ACTIVE_BC_KEY[] = "ProjectExplorer.Target.ActiveBuildConfiguration";
+const char BC_KEY_PREFIX[] = "ProjectExplorer.Target.BuildConfiguration.";
+const char BC_COUNT_KEY[] = "ProjectExplorer.Target.BuildConfigurationCount";
 
-const char * const ACTIVE_DC_KEY = "ProjectExplorer.Target.ActiveDeployConfiguration";
-const char * const DC_KEY_PREFIX = "ProjectExplorer.Target.DeployConfiguration.";
-const char * const DC_COUNT_KEY = "ProjectExplorer.Target.DeployConfigurationCount";
+const char ACTIVE_DC_KEY[] = "ProjectExplorer.Target.ActiveDeployConfiguration";
+const char DC_KEY_PREFIX[] = "ProjectExplorer.Target.DeployConfiguration.";
+const char DC_COUNT_KEY[] = "ProjectExplorer.Target.DeployConfigurationCount";
 
-const char * const ACTIVE_RC_KEY = "ProjectExplorer.Target.ActiveRunConfiguration";
-const char * const RC_KEY_PREFIX = "ProjectExplorer.Target.RunConfiguration.";
-const char * const RC_COUNT_KEY = "ProjectExplorer.Target.RunConfigurationCount";
+const char ACTIVE_RC_KEY[] = "ProjectExplorer.Target.ActiveRunConfiguration";
+const char RC_KEY_PREFIX[] = "ProjectExplorer.Target.RunConfiguration.";
+const char RC_COUNT_KEY[] = "ProjectExplorer.Target.RunConfigurationCount";
 
 } // namespace
 

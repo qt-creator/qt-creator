@@ -64,31 +64,31 @@ using namespace Core;
 using namespace Core::Internal;
 
 namespace {
-    const char * const kExternalTool = "externaltool";
-    const char * const kId = "id";
-    const char * const kDescription = "description";
-    const char * const kDisplayName = "displayname";
-    const char * const kCategory = "category";
-    const char * const kOrder = "order";
-    const char * const kExecutable = "executable";
-    const char * const kPath = "path";
-    const char * const kArguments = "arguments";
-    const char * const kInput = "input";
-    const char * const kWorkingDirectory = "workingdirectory";
+    const char kExternalTool[] = "externaltool";
+    const char kId[] = "id";
+    const char kDescription[] = "description";
+    const char kDisplayName[] = "displayname";
+    const char kCategory[] = "category";
+    const char kOrder[] = "order";
+    const char kExecutable[] = "executable";
+    const char kPath[] = "path";
+    const char kArguments[] = "arguments";
+    const char kInput[] = "input";
+    const char kWorkingDirectory[] = "workingdirectory";
 
-    const char * const kXmlLang = "xml:lang";
-    const char * const kOutput = "output";
-    const char * const kError = "error";
-    const char * const kOutputShowInPane = "showinpane";
-    const char * const kOutputReplaceSelection = "replaceselection";
-    const char * const kOutputIgnore = "ignore";
-    const char * const kModifiesDocument = "modifiesdocument";
-    const char * const kYes = "yes";
-    const char * const kNo = "no";
-    const char * const kTrue= "true";
-    const char * const kFalse = "false";
+    const char kXmlLang[] = "xml:lang";
+    const char kOutput[] = "output";
+    const char kError[] = "error";
+    const char kOutputShowInPane[] = "showinpane";
+    const char kOutputReplaceSelection[] = "replaceselection";
+    const char kOutputIgnore[] = "ignore";
+    const char kModifiesDocument[] = "modifiesdocument";
+    const char kYes[] = "yes";
+    const char kNo[] = "no";
+    const char kTrue[] = "true";
+    const char kFalse[] = "false";
 
-    const char * const kSpecialUncategorizedSetting = "SpecialEmptyCategoryForUncategorizedTools";
+    const char kSpecialUncategorizedSetting[] = "SpecialEmptyCategoryForUncategorizedTools";
 }
 
 // #pragma mark -- ExternalTool

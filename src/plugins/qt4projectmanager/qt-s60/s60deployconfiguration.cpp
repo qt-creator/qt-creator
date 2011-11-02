@@ -57,17 +57,17 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 namespace {
-const char * const S60_DC_ID("Qt4ProjectManager.S60DeployConfiguration");
-const char * const S60_DC_PREFIX("Qt4ProjectManager.S60DeployConfiguration.");
+const char S60_DC_ID[] = "Qt4ProjectManager.S60DeployConfiguration";
+const char S60_DC_PREFIX[] = "Qt4ProjectManager.S60DeployConfiguration.";
 
-const char * const SERIAL_PORT_NAME_KEY("Qt4ProjectManager.S60DeployConfiguration.SerialPortName");
-const char * const INSTALLATION_DRIVE_LETTER_KEY("Qt4ProjectManager.S60DeployConfiguration.InstallationDriveLetter");
-const char * const SILENT_INSTALL_KEY("Qt4ProjectManager.S60DeployConfiguration.SilentInstall");
-const char * const DEVICE_ADDRESS_KEY("Qt4ProjectManager.S60DeployConfiguration.DeviceAddress");
-const char * const DEVICE_PORT_KEY("Qt4ProjectManager.S60DeployConfiguration.DevicePort");
-const char * const COMMUNICATION_CHANNEL_KEY("Qt4ProjectManager.S60DeployConfiguration.CommunicationChannel");
+const char SERIAL_PORT_NAME_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.SerialPortName";
+const char INSTALLATION_DRIVE_LETTER_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.InstallationDriveLetter";
+const char SILENT_INSTALL_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.SilentInstall";
+const char DEVICE_ADDRESS_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.DeviceAddress";
+const char DEVICE_PORT_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.DevicePort";
+const char COMMUNICATION_CHANNEL_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.CommunicationChannel";
 
-const char * const DEFAULT_CODA_TCP_PORT("65029");
+const char DEFAULT_CODA_TCP_PORT[] = "65029";
 
 QString pathFromId(const QString &id)
 {

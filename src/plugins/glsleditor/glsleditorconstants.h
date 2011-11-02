@@ -39,24 +39,24 @@ namespace GLSLEditor {
 namespace Constants {
 
 // menus
-const char * const M_CONTEXT = "GLSL Editor.ContextMenu";
-const char * const M_TOOLS_GLSL = "GLSLEditor.Tools.Menu";
+const char M_CONTEXT[] = "GLSL Editor.ContextMenu";
+const char M_TOOLS_GLSL[] = "GLSLEditor.Tools.Menu";
 
-const char * const SEPARATOR1 = "GLSLEditor.Separator1";
-const char * const SEPARATOR2 = "GLSLEditor.Separator2";
-const char * const M_REFACTORING_MENU_INSERTION_POINT = "GLSLEditor.RefactorGroup";
+const char SEPARATOR1[] = "GLSLEditor.Separator1";
+const char SEPARATOR2[] = "GLSLEditor.Separator2";
+const char M_REFACTORING_MENU_INSERTION_POINT[] = "GLSLEditor.RefactorGroup";
 
-const char * const C_GLSLEDITOR_ID = "GLSLEditor.GLSLEditor";
-const char * const C_GLSLEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "GLSL Editor");
+const char C_GLSLEDITOR_ID[] = "GLSLEditor.GLSLEditor";
+const char C_GLSLEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "GLSL Editor");
 
-const char * const GLSL_MIMETYPE = "application/x-glsl";
-const char * const GLSL_MIMETYPE_VERT = "text/x-glsl-vert";
-const char * const GLSL_MIMETYPE_FRAG = "text/x-glsl-frag";
-const char * const GLSL_MIMETYPE_VERT_ES = "text/x-glsl-es-vert";
-const char * const GLSL_MIMETYPE_FRAG_ES = "text/x-glsl-es-frag";
+const char GLSL_MIMETYPE[] = "application/x-glsl";
+const char GLSL_MIMETYPE_VERT[] = "text/x-glsl-vert";
+const char GLSL_MIMETYPE_FRAG[] = "text/x-glsl-frag";
+const char GLSL_MIMETYPE_VERT_ES[] = "text/x-glsl-es-vert";
+const char GLSL_MIMETYPE_FRAG_ES[] = "text/x-glsl-es-frag";
 
-const char * const WIZARD_CATEGORY_GLSL = "U.GLSL";
-const char * const WIZARD_TR_CATEGORY_GLSL = QT_TRANSLATE_NOOP("GLSLEditor", "GLSL");
+const char WIZARD_CATEGORY_GLSL[] = "U.GLSL";
+const char WIZARD_TR_CATEGORY_GLSL[] = QT_TRANSLATE_NOOP("GLSLEditor", "GLSL");
 
 } // namespace Constants
 } // namespace GLSLEditor

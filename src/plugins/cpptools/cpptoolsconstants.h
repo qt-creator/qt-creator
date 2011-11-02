@@ -38,31 +38,31 @@
 namespace CppTools {
 namespace Constants {
 
-const char * const M_TOOLS_CPP              = "CppTools.Tools.Menu";
-const char * const SWITCH_HEADER_SOURCE     = "CppTools.SwitchHeaderSource";
-const char * const TASK_INDEX               = "CppTools.Task.Index";
-const char * const TASK_SEARCH              = "CppTools.Task.Search";
-const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
-const char * const C_HEADER_MIMETYPE = "text/x-chdr";
-const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
-const char * const OBJECTIVE_CPP_SOURCE_MIMETYPE = "text/x-objcsrc";
-const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
+const char M_TOOLS_CPP[]              = "CppTools.Tools.Menu";
+const char SWITCH_HEADER_SOURCE[]     = "CppTools.SwitchHeaderSource";
+const char TASK_INDEX[]               = "CppTools.Task.Index";
+const char TASK_SEARCH[]              = "CppTools.Task.Search";
+const char C_SOURCE_MIMETYPE[] = "text/x-csrc";
+const char C_HEADER_MIMETYPE[] = "text/x-chdr";
+const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
+const char OBJECTIVE_CPP_SOURCE_MIMETYPE[] = "text/x-objcsrc";
+const char CPP_HEADER_MIMETYPE[] = "text/x-c++hdr";
 
 // QSettings keys for use by the "New Class" wizards.
-const char * const CPPTOOLS_SETTINGSGROUP = "CppTools";
-const char * const LOWERCASE_CPPFILES_KEY = "LowerCaseFiles";
+const char CPPTOOLS_SETTINGSGROUP[] = "CppTools";
+const char LOWERCASE_CPPFILES_KEY[] = "LowerCaseFiles";
 enum { lowerCaseFilesDefault = 1 };
 
-const char * const CPP_CODE_STYLE_SETTINGS_ID = "A.Code Style";
-const char * const CPP_CODE_STYLE_SETTINGS_NAME = QT_TRANSLATE_NOOP("CppTools", "Code Style");
-const char * const CPP_FILE_SETTINGS_ID = "B.File Naming";
-const char * const CPP_FILE_SETTINGS_NAME = QT_TRANSLATE_NOOP("CppTools", "File Naming");
-const char * const CPP_SETTINGS_CATEGORY = "I.C++";
-const char * const CPP_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("CppTools", "C++");
-const char * const SETTINGS_CATEGORY_CPP_ICON = ":/core/images/category_cpp.png";
+const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
+const char CPP_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Style");
+const char CPP_FILE_SETTINGS_ID[] = "B.File Naming";
+const char CPP_FILE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "File Naming");
+const char CPP_SETTINGS_CATEGORY[] = "I.C++";
+const char CPP_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("CppTools", "C++");
+const char SETTINGS_CATEGORY_CPP_ICON[] = ":/core/images/category_cpp.png";
 
-const char * const CPP_SETTINGS_ID = "Cpp";
-const char * const CPP_SETTINGS_NAME = QT_TRANSLATE_NOOP("CppTools", "C++");
+const char CPP_SETTINGS_ID[] = "Cpp";
+const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++");
 
 } // namespace Constants
 } // namespace CppTools
