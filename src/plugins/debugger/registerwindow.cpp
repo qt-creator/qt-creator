@@ -244,7 +244,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (act == actReload)
         engine->reloadRegisters();
     else if (act == actEditMemory) {
-        const QString registerName = QString::fromAscii(aRegister.name, address);
+        const QString registerName = QString::fromAscii(aRegister.name);
         engine->openMemoryView(address, 0,
             RegisterMemoryView::registerMarkup(address, registerName),
             QPoint(), RegisterMemoryView::title(registerName), 0);
