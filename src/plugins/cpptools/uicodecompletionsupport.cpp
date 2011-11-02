@@ -148,18 +148,22 @@ bool UiCodeModelSupport::runUic(const QString &ui) const
     if (!process.waitForStarted())
         return false;
     process.write(ui.toUtf8());
+    if (!process.waitForBytesWritten(3000))
+        goto error;
     process.closeWriteChannel();
-    if (process.waitForFinished() && process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0) {
-        m_contents = process.readAllStandardOutput();
-        m_cacheTime = QDateTime::currentDateTime();
-        if (debug)
-            qDebug() << "ok" << m_contents.size() << "bytes.";
-        return true;
-    } else {
-        if (debug)
-            qDebug() << "failed" << process.readAllStandardError();
-        process.kill();
-    }
+    if (!process.waitForFinished(3000) && process.exitStatus() != QProcess::NormalExit && process.exitCode() != 0)
+        goto error;
+
+    m_contents = process.readAllStandardOutput();
+    m_cacheTime = QDateTime::currentDateTime();
+    if (debug)
+        qDebug() << "ok" << m_contents.size() << "bytes.";
+    return true;
+
+error:
+    if (debug)
+        qDebug() << "failed" << process.readAllStandardError();
+    process.kill();
     return false;
 }
 
