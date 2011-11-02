@@ -6,7 +6,7 @@
 #
 #  Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 #
-#  Contact: Nokia Corporation (info@qt.nokia.com)
+#  Contact: Nokia Corporation (qt-info@nokia.com)
 #
 #  GNU Lesser General Public License Usage
 #

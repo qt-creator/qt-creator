@@ -3,7 +3,7 @@
 ##
 ## Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 ## All rights reserved.
-## Contact: Nokia Corporation (info@qt.nokia.com)
+## Contact: Nokia Corporation (qt-info@nokia.com)
 ##
 ## This file is part of the translations module of the Qt Toolkit.
 ##
@@ -26,7 +26,7 @@
 ## conditions contained in a signed written agreement between you and Nokia.
 ##
 ## If you have questions regarding the use of this file, please contact
-## Nokia at info@qt.nokia.com.
+## Nokia at qt-info@nokia.com.
 ##
 ##
 ##
