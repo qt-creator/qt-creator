@@ -108,7 +108,7 @@ public:
     QString getSaveAsFileName(IFile *file, const QString &filter = QString(),
                               QString *selectedFilter = 0);
 
-    QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files);
+    QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files, bool *cancelled = 0);
     QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
                                      bool *cancelled = 0,
                                      const QString &message = QString(),

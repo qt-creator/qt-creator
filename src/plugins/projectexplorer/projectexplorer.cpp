@@ -1715,7 +1715,10 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
     QList<Core::IFile *> filesToSave = Core::ICore::instance()->fileManager()->modifiedFiles();
     if (!filesToSave.isEmpty()) {
         if (d->m_projectExplorerSettings.saveBeforeBuild) {
-            Core::ICore::instance()->fileManager()->saveModifiedFilesSilently(filesToSave);
+            bool cancelled = false;
+            Core::ICore::instance()->fileManager()->saveModifiedFilesSilently(filesToSave, &cancelled);
+            if (cancelled)
+                return false;
         } else {
             bool cancelled = false;
             bool alwaysSave = false;
