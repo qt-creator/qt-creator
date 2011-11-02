@@ -121,6 +121,7 @@ signals:
     void v8range(int depth,const QString &function,const QString &filename,
                int lineNumber, double totalTime, double selfTime);
     void traceFinished(qint64);
+    void traceStarted(qint64);
 
     void internalClearDisplay();
     void jumpToPrev();

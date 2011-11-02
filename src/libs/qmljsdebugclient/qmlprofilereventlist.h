@@ -129,6 +129,7 @@ public:
 
     Q_INVOKABLE qint64 traceStartTime() const;
     Q_INVOKABLE qint64 traceEndTime() const;
+    Q_INVOKABLE qint64 traceDuration() const;
 
     void showErrorDialog(const QString &st ) const;
 signals:
@@ -151,6 +152,7 @@ public slots:
     void load();
 
     void setTraceEndTime( qint64 time );
+    void setTraceStartTime( qint64 time );
 
 private slots:
     void postProcess();

@@ -181,6 +181,7 @@ public:
     QHash<int, QmlEventTypeCount *> m_typeCounts;
 
     qint64 m_traceEndTime;
+    qint64 m_traceStartTime;
 
     // file to load
     QString m_filename;
@@ -198,6 +199,7 @@ QmlProfilerEventList::QmlProfilerEventList(QObject *parent) :
     setObjectName("QmlProfilerEventStatistics");
 
     d->m_traceEndTime = 0;
+    d->m_traceStartTime = 0;
 }
 
 QmlProfilerEventList::~QmlProfilerEventList()
@@ -223,6 +225,7 @@ void QmlProfilerEventList::clear()
     d->m_typeCounts.clear();
 
     d->m_traceEndTime = 0;
+    d->m_traceStartTime = 0;
     emit countChanged();
     emit dataClear();
 }
@@ -365,6 +368,11 @@ void QmlProfilerEventList::QmlProfilerEventListPrivate::collectV8Statistics()
 void QmlProfilerEventList::setTraceEndTime( qint64 time )
 {
     d->m_traceEndTime = time;
+}
+
+void QmlProfilerEventList::setTraceStartTime( qint64 time )
+{
+    d->m_traceStartTime = time;
 }
 
 void QmlProfilerEventList::complete()
@@ -800,12 +808,17 @@ qint64 QmlProfilerEventList::lastTimeMark() const
 
 qint64 QmlProfilerEventList::traceStartTime() const
 {
-    return 0;
+    return d->m_traceStartTime;
 }
 
 qint64 QmlProfilerEventList::traceEndTime() const
 {
     return d->m_traceEndTime ? d->m_traceEndTime : lastTimeMark();
+}
+
+qint64 QmlProfilerEventList::traceDuration() const
+{
+    return traceEndTime() - traceStartTime();
 }
 
 int QmlProfilerEventList::count() const
@@ -834,6 +847,9 @@ void QmlProfilerEventList::save(const QString &filename)
     stream.writeStartDocument();
 
     stream.writeStartElement("trace");
+
+    stream.writeAttribute("traceStart", QString::number(traceStartTime()));
+    stream.writeAttribute("traceEnd", QString::number(traceEndTime()));
 
     stream.writeStartElement("eventData");
     foreach (const QmlEventData *eventData, d->m_eventDescriptions.values()) {
@@ -936,6 +952,13 @@ void QmlProfilerEventList::load()
         switch (token) {
             case QXmlStreamReader::StartDocument :  continue;
             case QXmlStreamReader::StartElement : {
+                if (elementName == "trace") {
+                    QXmlStreamAttributes attributes = stream.attributes();
+                    if (attributes.hasAttribute("traceStart"))
+                        setTraceStartTime(attributes.value("traceStart").toString().toLongLong());
+                    if (attributes.hasAttribute("traceEnd"))
+                        setTraceEndTime(attributes.value("traceEnd").toString().toLongLong());
+                }
                 if (elementName == "eventData" && !readingV8Events) {
                     readingQmlEvents = true;
                     break;

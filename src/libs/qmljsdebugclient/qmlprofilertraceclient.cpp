@@ -140,6 +140,9 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         if (event == EndTrace) {
             emit this->traceFinished(time);
             d->maximumTime = time;
+        } else if (event == StartTrace) {
+            emit this->traceStarted(time);
+            d->maximumTime = time;
         } else if (event < MaximumEventType) {
             emit this->event((EventType)event, time);
             d->maximumTime = qMax(time, d->maximumTime);

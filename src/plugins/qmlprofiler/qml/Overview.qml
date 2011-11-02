@@ -51,8 +51,8 @@ Canvas2D {
     }
 
     function updateRange() {
-        var newStartTime = Math.round(rangeMover.x * qmlEventList.traceEndTime() / width);
-        var newEndTime = Math.round((rangeMover.x + rangeMover.width) * qmlEventList.traceEndTime() / width);
+        var newStartTime = Math.round(rangeMover.x * qmlEventList.traceDuration() / width) + qmlEventList.traceStartTime();
+        var newEndTime = Math.round((rangeMover.x + rangeMover.width) * qmlEventList.traceDuration() / width) + qmlEventList.traceStartTime();
         if (startTime !== newStartTime || endTime !== newEndTime) {
             zoomControl.setRange(newStartTime, newEndTime);
         }
@@ -65,10 +65,10 @@ Canvas2D {
             if (qmlEventList) {
                 startTime = zoomControl.startTime();
                 endTime = zoomControl.endTime();
-                var newRangeX = startTime * width / qmlEventList.traceEndTime();
+                var newRangeX = (startTime - qmlEventList.traceStartTime()) * width / qmlEventList.traceDuration();
                 if (rangeMover.x !== newRangeX)
                     rangeMover.x = newRangeX;
-                var newWidth = (endTime-startTime) * width / qmlEventList.traceEndTime();
+                var newWidth = (endTime-startTime) * width / qmlEventList.traceDuration();
                 if (rangeMover.width !== newWidth)
                     rangeMover.width = newWidth;
             }

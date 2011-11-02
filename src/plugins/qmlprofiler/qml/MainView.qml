@@ -79,7 +79,7 @@ Rectangle {
             backgroundMarks.updateMarks(startTime, endTime);
             view.updateFlickRange(startTime, endTime);
             if (duration > 0) {
-                var candidateWidth = qmlEventList.traceEndTime() * flick.width / duration;
+                var candidateWidth = qmlEventList.traceDuration() * flick.width / duration;
                 if (flick.contentWidth !== candidateWidth)
                     flick.contentWidth = candidateWidth;
             }
@@ -112,7 +112,7 @@ Rectangle {
                 dataAvailable = true;
                 view.visible = true;
                 view.requestPaint();
-                zoomControl.setRange(0, qmlEventList.traceEndTime()/10);
+                zoomControl.setRange(qmlEventList.traceStartTime(), qmlEventList.traceStartTime() + qmlEventList.traceDuration()/10);
             }
         }
     }
@@ -152,9 +152,9 @@ Rectangle {
 
     function updateWindowLength(absoluteFactor) {
         var windowLength = view.endTime - view.startTime;
-        if (qmlEventList.traceEndTime() <= 0 || windowLength <= 0)
+        if (qmlEventList.traceEndTime() <= qmlEventList.traceStartTime() || windowLength <= 0)
             return;
-        var currentFactor = windowLength / qmlEventList.traceEndTime();
+        var currentFactor = windowLength / qmlEventList.traceDuration();
         updateZoom(absoluteFactor / currentFactor);
     }
 
@@ -165,8 +165,8 @@ Rectangle {
             windowLength = min_length;
         var newWindowLength = windowLength * relativeFactor;
 
-        if (newWindowLength > qmlEventList.traceEndTime()) {
-            newWindowLength = qmlEventList.traceEndTime();
+        if (newWindowLength > qmlEventList.traceDuration()) {
+            newWindowLength = qmlEventList.traceDuration();
             relativeFactor = newWindowLength / windowLength;
         }
         if (newWindowLength < min_length) {
@@ -194,8 +194,8 @@ Rectangle {
             windowLength = min_length;
         var newWindowLength = windowLength * relativeFactor;
 
-        if (newWindowLength > qmlEventList.traceEndTime()) {
-            newWindowLength = qmlEventList.traceEndTime();
+        if (newWindowLength > qmlEventList.traceDuration()) {
+            newWindowLength = qmlEventList.traceDuration();
             relativeFactor = newWindowLength / windowLength;
         }
         if (newWindowLength < min_length) {
@@ -223,7 +223,7 @@ Rectangle {
     }
 
     function wheelZoom(wheelCenter, wheelDelta) {
-        if (qmlEventList.traceEndTime()>0 && wheelDelta!=0) {
+        if (qmlEventList.traceEndTime() > qmlEventList.traceStartTime() && wheelDelta !== 0) {
             if (wheelDelta>0)
                 updateZoomCentered(wheelCenter, 1/1.2);
             else
@@ -339,9 +339,9 @@ Rectangle {
 
             property variant startX: 0
             onStartXChanged: {
-                var newStartTime = Math.round(startX * (endTime - startTime) / flick.width);
+                var newStartTime = Math.round(startX * (endTime - startTime) / flick.width) + qmlEventList.traceStartTime();
                 if (Math.abs(newStartTime - startTime) > 1) {
-                    var newEndTime = Math.round((startX+flick.width)* (endTime - startTime) / flick.width);
+                    var newEndTime = Math.round((startX+flick.width)* (endTime - startTime) / flick.width) + qmlEventList.traceStartTime();
                     zoomControl.setRange(newStartTime, newEndTime);
                 }
 
@@ -353,7 +353,7 @@ Rectangle {
                 if (start !== startTime || end !== endTime) {
                     startTime = start;
                     endTime = end;
-                    var newStartX = startTime  * flick.width / (endTime-startTime);
+                    var newStartX = (startTime - qmlEventList.traceStartTime())  * flick.width / (endTime-startTime);
                     if (Math.abs(newStartX - startX) >= 1)
                         startX = newStartX;
                 }

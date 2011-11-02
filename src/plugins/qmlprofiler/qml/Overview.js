@@ -54,8 +54,7 @@ function drawData(canvas, ctxt, region)
     var width = canvas.width;
     var height = canvas.height;
 
-    var sumValue = qmlEventList.traceEndTime() - qmlEventList.traceStartTime();
-    var spacing = width / sumValue;
+    var spacing = width / qmlEventList.traceDuration();
 
     ctxt.fillStyle = "rgba(0,0,0,1)";
     var highest = [0,0,0,0,0];
