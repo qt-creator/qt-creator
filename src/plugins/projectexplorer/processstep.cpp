@@ -35,6 +35,7 @@
 #include "project.h"
 #include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
+#include "target.h"
 
 #include <coreplugin/ifile.h>
 #include <utils/qtcprocess.h>
@@ -91,6 +92,8 @@ ProcessStep::~ProcessStep()
 bool ProcessStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
+    if (!bc)
+        bc = target()->activeBuildConfiguration();
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
@@ -258,10 +261,13 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
     m_ui.command->setExpectedKind(Utils::PathChooser::Command);
     m_ui.workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
 
-    m_ui.command->setEnvironment(m_step->buildConfiguration()->environment());
+    BuildConfiguration *bc = m_step->buildConfiguration();
+    if (!bc)
+        bc = m_step->target()->activeBuildConfiguration();
+    m_ui.command->setEnvironment(bc->environment());
     m_ui.command->setPath(m_step->command());
 
-    m_ui.workingDirectory->setEnvironment(m_step->buildConfiguration()->environment());
+    m_ui.workingDirectory->setEnvironment(bc->environment());
     m_ui.workingDirectory->setPath(m_step->workingDirectory());
 
     m_ui.commandArgumentsLineEdit->setText(m_step->arguments());
@@ -286,8 +292,12 @@ void ProcessStepConfigWidget::updateDetails()
     if (displayName.isEmpty())
         displayName = tr("Custom Process Step");
     ProcessParameters param;
-    param.setMacroExpander(m_step->buildConfiguration()->macroExpander());
-    param.setEnvironment(m_step->buildConfiguration()->environment());
+    BuildConfiguration *bc = m_step->buildConfiguration();
+    if (!bc) // iff the step is actually in the deploy list
+        bc = m_step->target()->activeBuildConfiguration();
+    param.setMacroExpander(bc->macroExpander());
+    param.setEnvironment(bc->environment());
+
     param.setWorkingDirectory(m_step->workingDirectory());
     param.setCommand(m_step->command());
     param.setArguments(m_step->arguments());
