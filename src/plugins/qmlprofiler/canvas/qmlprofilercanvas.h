@@ -35,7 +35,9 @@
 
 #include <QtDeclarative/QDeclarativeItem>
 
+QT_BEGIN_NAMESPACE
 class Context2D;
+QT_END_NAMESPACE
 
 namespace QmlProfiler {
 namespace Internal {
