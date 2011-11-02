@@ -71,7 +71,7 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
     parameters.setDisplayName(tr("Qt Quick UI"));
     parameters.setId(QLatin1String("QB.QML Application"));
 
-    parameters.setDescription(tr("Creates a  Qt Quick UI project with a single "
+    parameters.setDescription(tr("Creates a Qt Quick UI project with a single "
         "QML file that contains the main view.\n\n"
         "You can review Qt Quick UI projects in the QML Viewer and you need not build them. "
         "You do not need to have the development environment installed "

@@ -55,7 +55,7 @@ QWidget {
                         leftMargin: 0;
                         rightMargin: 0;
                         Label {
-                            text: qsTr("Url")
+                            text: qsTr("URL")
                         }
                         LineEdit {
                             backendValue: backendValues.url

@@ -39,7 +39,7 @@
         <string>e.g. https://[user[:pass]@]host[:port]/[path]</string>
        </property>
        <property name="text">
-        <string>Specify Url:</string>
+        <string>Specify URL:</string>
        </property>
       </widget>
      </item>

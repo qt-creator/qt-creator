@@ -83,7 +83,7 @@ leave room for the Qt 4 target page.
         <field name="URL">
             <fieldcontrol class="QLineEdit"
                           defaulttext="http://www.mycompany.com" />
-            <fielddescription>Url:</fielddescription>
+            <fielddescription>URL:</fielddescription>
         </field>
         <field mandatory="true" name="QtCreatorSources">
             <fieldcontrol class="Utils::PathChooser"
