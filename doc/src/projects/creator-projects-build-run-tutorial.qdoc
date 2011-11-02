@@ -38,8 +38,8 @@
 
     \list 1
 
-        \o  On the \gui Welcome page, select the \gui {Show Examples and Demos}
-            check box, and then search for \gui {Toys: Clocks Example} in the
+        \o  On the \gui Welcome page, select \gui {Demos and Examples},
+            and then search for \gui {Toys: Clocks Example} in the
             list of examples.
 
             \image qtcreator-gs-build-example-open.png "Selecting an example"
