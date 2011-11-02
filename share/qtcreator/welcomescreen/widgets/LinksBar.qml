@@ -123,7 +123,7 @@ Item {
 
     Rectangle {
         id: background
-        height: 38
+        anchors.bottom: parent.bottom
         width: parent.width
         anchors.top: row.bottom
         gradient: Gradient {
