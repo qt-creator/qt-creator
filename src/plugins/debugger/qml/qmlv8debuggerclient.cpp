@@ -47,6 +47,7 @@
 #include <QtGui/QTextBlock>
 #include <QtCore/QVariant>
 #include <QtCore/QStack>
+#include <QtCore/QQueue>
 #include <QtCore/QFileInfo>
 #include <QtGui/QTextDocument>
 #include <QtScript/QScriptEngine>
@@ -78,7 +79,10 @@ public:
     explicit QmlV8DebuggerClientPrivate(QmlV8DebuggerClient *q) :
         q(q),
         sequence(-1),
-        engine(0)
+        engine(0),
+        debugServiceState(QmlV8DebuggerClient::RunningState),
+        requestListBreakpoints(false),
+        requestBacktrace(true)
     {
         parser = m_scriptEngine.evaluate(_("JSON.parse"));
         stringifier = m_scriptEngine.evaluate(_("JSON.stringify"));
@@ -116,6 +120,7 @@ public:
     void gc();
 
     QmlV8ObjectData extractData(const QVariant &data);
+    void clearCache();
 
 private:
     QByteArray packMessage(const QByteArray &message);
@@ -128,20 +133,28 @@ public:
     QmlEngine *engine;
     QHash<BreakpointModelId, int> breakpoints;
     QHash<int, BreakpointModelId> breakpointsSync;
-    QHash<int, QByteArray> localsAndWatchers;
-    QHash<int, QString> evaluatingWatches;
-    QStringList watchedExpressions;
-    QStack<QString> watchesToEvaluate;
 
     QScriptValue parser;
     QScriptValue stringifier;
 
-    QmlV8DebuggerClient::V8DebuggerStates state;
+    //State Information
+    QmlV8DebuggerClient::V8DebugServiceStates debugServiceState;
     int currentFrameIndex;
-    bool updateCurrentStackFrameIndex;
+    QStringList watchedExpressions;
+
+    //Flags
+    bool requestListBreakpoints;
+    bool requestBacktrace;
+
+    //Cache
+    QHash<int, QByteArray> localsAndWatchers;
+    QHash<int, QString> evaluatingWatches;
+    QStack<QString> watchesToEvaluate;
     QStack<int> currentFrameScopes;
-    QVariant refsVal;
     QList<WatchData> localDataList;
+    QVariant refsVal;
+    QHash<int, QString> evaluatingExpression;
+    QQueue<QByteArray> requestQueue;
 private:
     QScriptEngine m_scriptEngine;
 };
@@ -195,7 +208,7 @@ void QmlV8DebuggerClientPrivate::continueDebugging(QmlV8DebuggerClient::StepActi
                                                    int count)
 {
     //First reset
-    q->resetState();
+    q->resetDebugger();
 
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -818,13 +831,23 @@ QmlV8ObjectData QmlV8DebuggerClientPrivate::extractData(const QVariant &data)
     return objectData;
 }
 
+void QmlV8DebuggerClientPrivate::clearCache()
+{
+    localsAndWatchers.clear();
+    evaluatingWatches.clear();
+    watchesToEvaluate.clear();
+    currentFrameScopes.clear();
+    localDataList.clear();
+    refsVal.clear();
+}
+
 QByteArray QmlV8DebuggerClientPrivate::packMessage(const QByteArray &message)
 {
+    SDEBUG(message);
     QByteArray reply;
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = V8DEBUG;
     rs << cmd << message;
-    SDEBUG(QString(message));
     return reply;
 }
 
@@ -847,7 +870,7 @@ QmlV8DebuggerClient::QmlV8DebuggerClient(QmlJsDebugClient::QDeclarativeDebugConn
     : QmlDebuggerClient(client, QLatin1String("V8Debugger")),
       d(new QmlV8DebuggerClientPrivate(this))
 {
-    resetState();
+    resetDebugger();
 }
 
 QmlV8DebuggerClient::~QmlV8DebuggerClient()
@@ -857,55 +880,48 @@ QmlV8DebuggerClient::~QmlV8DebuggerClient()
 
 void QmlV8DebuggerClient::startSession()
 {
+    resetDebugger();
+    d->debugServiceState = QmlV8DebuggerClient::RunningState;
     d->connect();
 }
 
 void QmlV8DebuggerClient::endSession()
 {
-    resetState();
     d->disconnect();
 }
 
 void QmlV8DebuggerClient::executeStep()
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(In);
 }
 
 void QmlV8DebuggerClient::executeStepOut()
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(Out);
 }
 
 void QmlV8DebuggerClient::executeNext()
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(Next);
 }
 
 void QmlV8DebuggerClient::executeStepI()
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(In);
 }
 
 void QmlV8DebuggerClient::continueInferior()
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->continueDebugging(Continue);
 }
 
 void QmlV8DebuggerClient::interruptInferior()
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
-              || d->state == QmlV8DebuggerClient::RunningState);
     d->interrupt();
 }
 
 void QmlV8DebuggerClient::activateFrame(int index)
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     d->backtrace(index);
 }
 
@@ -919,9 +935,6 @@ bool QmlV8DebuggerClient::acceptsBreakpoint(const BreakpointModelId &id)
 
 void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
-              || d->state == QmlV8DebuggerClient::RunningState);
-    SDEBUG(QString(_("State: %1")).arg(d->state));
     BreakHandler *handler = d->engine->breakHandler();
     const BreakpointParameters &params = handler->breakpointData(id);
 
@@ -949,8 +962,6 @@ void QmlV8DebuggerClient::insertBreakpoint(const BreakpointModelId &id)
 
 void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
-              || d->state == QmlV8DebuggerClient::RunningState);
     BreakHandler *handler = d->engine->breakHandler();
 
     int breakpoint = d->breakpoints.value(id);
@@ -965,8 +976,6 @@ void QmlV8DebuggerClient::removeBreakpoint(const BreakpointModelId &id)
 
 void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &id)
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
-              || d->state == QmlV8DebuggerClient::RunningState);
     BreakHandler *handler = d->engine->breakHandler();
     const BreakpointParameters &params = handler->breakpointData(id);
 
@@ -993,12 +1002,9 @@ void QmlV8DebuggerClient::synchronizeBreakpoints()
 void QmlV8DebuggerClient::assignValueInDebugger(const QByteArray /*expr*/, const quint64 &/*id*/,
                                                 const QString &property, const QString &value)
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
     StackHandler *stackHandler = d->engine->stackHandler();
     QString expression = QString(_("%1 = %2;")).arg(property).arg(value);
     if (stackHandler->isContentsValid()) {
-        d->state = QmlV8DebuggerClient::BacktraceRequestedState;
-        d->updateCurrentStackFrameIndex = false;
         d->evaluate(expression, false, false, stackHandler->currentIndex());
     }
 }
@@ -1016,14 +1022,10 @@ void QmlV8DebuggerClient::updateWatchData(const WatchData &data)
 
 void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState
-              || d->state == QmlV8DebuggerClient::RunningState);
     StackHandler *stackHandler = d->engine->stackHandler();
     if (stackHandler->isContentsValid()) {
-        //Set the state
-        d->state = QmlV8DebuggerClient::BacktraceRequestedState;
-        d->updateCurrentStackFrameIndex = false;
         d->evaluate(command, false, false, stackHandler->currentIndex());
+        d->evaluatingExpression.insert(d->sequence, command);
     } else {
         //Currently cannot evaluate if not in a javascript break
         d->engine->showMessage(_("Request Was Unsuccessful"), ScriptConsoleOutput);
@@ -1051,9 +1053,12 @@ void QmlV8DebuggerClient::synchronizeWatchers(const QStringList &watchers)
 
 void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId)
 {
-    QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
-    d->localsAndWatchers.insertMulti(objectId, iname);
-    d->lookup(QList<int>() << objectId);
+    if (d->debugServiceState != QmlV8DebuggerClient::RunningState) {
+        if (!d->localsAndWatchers.contains(objectId)) {
+            d->lookup(QList<int>() << objectId);
+            d->localsAndWatchers.insert(objectId, iname);
+        }
+    }
 }
 
 void QmlV8DebuggerClient::setEngine(QmlEngine *engine)
@@ -1077,6 +1082,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
         const QVariantMap resp = d->parser.call(QScriptValue(),
                                                 QScriptValueList() <<
                                                 QScriptValue(responseString)).toVariant().toMap();
+        bool isV8Running = resp.value(_("running")).toBool();
         const QString type(resp.value(_(TYPE)).toString());
 
         if (type == _("response")) {
@@ -1097,26 +1103,33 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
             } else if (debugCommand == _(DISCONNECT)) {
                 //debugging session ended
 
+            } else if (debugCommand == _(CONTINEDEBUGGING)) {
+                d->requestBacktrace = true;
+
             } else if (debugCommand == _(BACKTRACE)) {
-                if (success) {
+                if (success && d->debugServiceState != QmlV8DebuggerClient::RunningState) {
                     updateStack(resp.value(_(BODY)), resp.value(_(REFS)));
                 }
 
             } else if (debugCommand == _(LOOKUP)) {
-                expandLocalsAndWatchers(resp.value(_(BODY)), resp.value(_(REFS)));
+                if (success && d->debugServiceState != QmlV8DebuggerClient::RunningState) {
+                    expandLocalsAndWatchers(resp.value(_(BODY)), resp.value(_(REFS)));
+                }
 
             } else if (debugCommand == _(EVALUATE)) {
                 int seq = resp.value(_("request_seq")).toInt();
                 if (success) {
+                    d->requestBacktrace = true;
                     updateEvaluationResult(seq, resp.value(_(BODY)), resp.value(_(REFS)));
                 } else {
                     d->engine->showMessage(resp.value(_("message")).toString(), ScriptConsoleOutput);
-                    if (d->evaluatingWatches.contains(seq))
-                        updateEvaluationResult(seq, QVariant(), QVariant());
+                    updateEvaluationResult(seq, QVariant(), QVariant());
                 }
 
             } else if (debugCommand == _(LISTBREAKPOINTS)) {
-                updateBreakpoints(resp.value(_(BODY)));
+                if (success && d->debugServiceState != QmlV8DebuggerClient::RunningState) {
+                    updateBreakpoints(resp.value(_(BODY)));
+                }
 
             } else if (debugCommand == _(SETBREAKPOINT)) {
                 //                { "seq"         : <number>,
@@ -1160,7 +1173,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 //TODO::
 
             } else if (debugCommand == _(FRAME)) {
-                if (success) {
+                if (success && d->debugServiceState != QmlV8DebuggerClient::RunningState) {
                     const QVariant body = resp.value(_(BODY));
                     const QVariant refs = resp.value(_(REFS));
                     const QVariant locals = body.toMap().value(_("locals"));
@@ -1170,7 +1183,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 }
 
             } else if (debugCommand == _(SCOPE)) {
-                if (success) {
+                if (success && d->debugServiceState != QmlV8DebuggerClient::RunningState) {
                     const QVariant body = resp.value(_(BODY)).toMap().value(_("object"));
                     const QVariant refs = resp.value(_(REFS));
                     updateScope(body, refs);
@@ -1185,11 +1198,19 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
             } else {
                 // DO NOTHING
             }
+
+            if (!isV8Running
+                    && d->debugServiceState == QmlV8DebuggerClient::ProcessingRequestState)
+                d->debugServiceState = QmlV8DebuggerClient::WaitingForRequestState;
+
         } else if (type == _(EVENT)) {
             const QString eventType(resp.value(_(EVENT)).toString());
 
             if (eventType == _("break")) {
-                //DO NOTHING
+                if (d->engine->state() == InferiorRunOk)
+                    d->engine->inferiorSpontaneousStop();
+                isV8Running = false;
+
             } else if (eventType == _("exception")) {
                 const QVariantMap body = resp.value(_(BODY)).toMap();
                 int lineNumber = body.value(_("sourceLine")).toInt() + 1;
@@ -1202,31 +1223,59 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 QString errorMessage = exception.value(_("text")).toString();
 
                 highlightExceptionCode(lineNumber, filePath, errorMessage);
+
+                if (d->engine->state() == InferiorRunOk)
+                    d->engine->inferiorSpontaneousStop();
+                isV8Running = false;
+                d->requestBacktrace = true;
+
+            } else if (eventType == _("afterCompile")) {
+                d->requestListBreakpoints = true;
             }
+
+            if (!isV8Running
+                    && d->debugServiceState == QmlV8DebuggerClient::RunningState)
+                d->debugServiceState = QmlV8DebuggerClient::WaitingForRequestState;
         }
 
-        if (resp.value(_("running")).toBool()) {
-            d->state = QmlV8DebuggerClient::RunningState;
-            SDEBUG(QString(_("State: %1")).arg(d->state));
+        if (isV8Running) {
+            resetDebugger();
+            d->debugServiceState = QmlV8DebuggerClient::RunningState;
+
         } else {
-            if (d->state == QmlV8DebuggerClient::RunningState) {
-                d->state = QmlV8DebuggerClient::BreakpointsRequestedState;
-                SDEBUG(QString(_("State: %1")).arg(d->state));
+            if (d->requestListBreakpoints) {
+                d->listBreakpoints();
+                d->requestListBreakpoints = false;
             }
-            d->engine->inferiorSpontaneousStop();
+
+            if (d->requestBacktrace) {
+                d->backtrace(d->currentFrameIndex);
+                d->requestBacktrace = false;
+            }
+
+            if (d->debugServiceState == QmlV8DebuggerClient::WaitingForRequestState
+                    && !d->requestQueue.isEmpty()) {
+                QmlDebuggerClient::sendMessage(d->requestQueue.dequeue());
+                d->debugServiceState = QmlV8DebuggerClient::ProcessingRequestState;
+            }
+
         }
 
-        if (d->state == QmlV8DebuggerClient::BreakpointsRequestedState) {
-            d->state = QmlV8DebuggerClient::BacktraceRequestedState;
-            SDEBUG(QString(_("State: %1")).arg(d->state));
-            d->listBreakpoints();
-        } else if (d->state == QmlV8DebuggerClient::BacktraceRequestedState) {
-            d->state = QmlV8DebuggerClient::WaitingForRequestState;
-            SDEBUG(QString(_("State: %1")).arg(d->state));
-            d->backtrace(d->currentFrameIndex);
-        }
     } else {
         //DO NOTHING
+    }
+    SDEBUG(QString(_("State: %1")).arg(d->debugServiceState));
+}
+
+void QmlV8DebuggerClient::sendMessage(const QByteArray &msg)
+{
+    if (d->debugServiceState == QmlV8DebuggerClient::RunningState) {
+        QmlDebuggerClient::sendMessage(msg);
+    } else if (d->debugServiceState == QmlV8DebuggerClient::WaitingForRequestState) {
+        QmlDebuggerClient::sendMessage(msg);
+        d->debugServiceState = QmlV8DebuggerClient::ProcessingRequestState;
+    } else {
+         d->requestQueue.enqueue(msg);
     }
 
 }
@@ -1249,9 +1298,10 @@ void QmlV8DebuggerClient::updateStack(const QVariant &bodyVal, const QVariant &r
     const QVariantMap body = bodyVal.toMap();
     const QVariantList frames = body.value(_("frames")).toList();
 
-    d->currentFrameIndex = body.value(_("fromFrame")).toInt();
+    int fromFrameIndex = body.value(_("fromFrame")).toInt();
 
-    if (!d->currentFrameIndex ) {
+
+    if (0 == fromFrameIndex) {
         StackFrames stackFrames;
         foreach (const QVariant &frame, frames) {
             stackFrames << createStackFrame(frame, refsVal);
@@ -1259,50 +1309,50 @@ void QmlV8DebuggerClient::updateStack(const QVariant &bodyVal, const QVariant &r
         d->engine->stackHandler()->setFrames(stackFrames);
     }
 
-    if (d->updateCurrentStackFrameIndex) {
+    if (d->currentFrameIndex != fromFrameIndex) {
         StackHandler *stackHandler = d->engine->stackHandler();
-        stackHandler->setCurrentIndex(d->currentFrameIndex);
+        stackHandler->setCurrentIndex(fromFrameIndex);
         d->engine->gotoLocation(stackHandler->currentFrame());
-
-        //Update all Locals visible in current scope
-        //Traverse the scope chain and store the local properties
-        //in a list and show them in the Locals Window.
-        const QVariantMap currentFrame = frames.value(0).toMap();
-        d->localDataList.clear();
-        d->currentFrameScopes.clear();
-        d->refsVal = refsVal;
-        //Set "this" variable
-        {
-            WatchData data;
-            data.exp = QByteArray("this");
-            data.name = QString(data.exp);
-            data.iname = "local." + data.exp;
-            QVariantMap receiver = currentFrame.value(_("receiver")).toMap();
-            if (receiver.contains(_(REF))) {
-                receiver = valueFromRef(receiver.value(_(REF)).toInt(), refsVal).toMap();
-            }
-            data.id = receiver.value(_("handle")).toInt();
-            QmlV8ObjectData receiverData = d->extractData(QVariant(receiver));
-            data.type = receiverData.type;
-            data.value = receiverData.value.toString();
-            data.setHasChildren(receiverData.properties.toList().count());
-            d->localDataList << data;
-        }
-
-        const QVariantList currentFrameScopes = currentFrame.value(_("scopes")).toList();
-        foreach (const QVariant &scope, currentFrameScopes) {
-            d->currentFrameScopes.push(scope.toMap().value(_("index")).toInt());
-        }
-        if (!d->currentFrameScopes.isEmpty()) {
-            QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
-            d->scope(d->currentFrameScopes.pop(), d->currentFrameIndex);
-        } else {
-            updateLocalsAndWatchers();
-        }
+        d->currentFrameIndex = fromFrameIndex;
     }
 
-    d->updateCurrentStackFrameIndex = true;
+    //Update all Locals visible in current scope
+    //Traverse the scope chain and store the local properties
+    //in a list and show them in the Locals Window.
+    const QVariantMap currentFrame = frames.value(0).toMap();
+    d->clearCache();
+    d->refsVal = refsVal;
+    //Set "this" variable
+    {
+        WatchData data;
+        data.exp = QByteArray("this");
+        data.name = QString(data.exp);
+        data.iname = QByteArray("local.") + data.exp;
+        QVariantMap receiver = currentFrame.value(_("receiver")).toMap();
+        if (receiver.contains(_(REF))) {
+            receiver = valueFromRef(receiver.value(_(REF)).toInt(), refsVal).toMap();
+        }
+        data.id = receiver.value(_("handle")).toInt();
+        QmlV8ObjectData receiverData = d->extractData(QVariant(receiver));
+        data.type = receiverData.type;
+        data.value = receiverData.value.toString();
+        data.setHasChildren(receiverData.properties.toList().count());
+        d->localDataList << data;
+    }
 
+    const QVariantList currentFrameScopes = currentFrame.value(_("scopes")).toList();
+    foreach (const QVariant &scope, currentFrameScopes) {
+        //Do not query for global types (0)
+        //Showing global properties increases clutter.
+        if (scope.toMap().value(_("type")).toInt() == 0)
+            continue;
+        d->currentFrameScopes.push(scope.toMap().value(_("index")).toInt());
+    }
+    if (!d->currentFrameScopes.isEmpty()) {
+        d->scope(d->currentFrameScopes.pop(), d->currentFrameIndex);
+    } else {
+        updateLocalsAndWatchers();
+    }
 }
 
 StackFrame QmlV8DebuggerClient::createStackFrame(const QVariant &bodyVal, const QVariant &refsVal)
@@ -1363,7 +1413,6 @@ StackFrame QmlV8DebuggerClient::createStackFrame(const QVariant &bodyVal, const 
     stackFrame.to = d->extractData(QVariant(receiver)).value.toString();
 
     stackFrame.line = body.value(_("line")).toInt() + 1;
-
 
     return stackFrame;
 }
@@ -1434,10 +1483,6 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
 
     foreach (const QVariant &property, properties) {
         QVariantMap localData = property.toMap();
-        //Do Not show global types (0)
-        //Showing global properties increases clutter.
-        if (!localData.value(_("propertyType")).toInt())
-            continue;
         WatchData data;
         data.exp = localData.value(_(NAME)).toByteArray();
         //Check for v8 specific local data
@@ -1452,8 +1497,10 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
         if (localData.isEmpty()) {
             //Fetch Data asynchronously and insert later
             // see expandLocalsAndWatchers()
-            d->localsAndWatchers.insert(handle, data.exp);
-            d->lookup(QList<int>() << handle);
+            if (!d->localsAndWatchers.contains(handle)) {
+                d->lookup(QList<int>() << handle);
+                d->localsAndWatchers.insert(handle, data.exp);
+            }
 
         } else {
             data.id = localData.value(_(HANDLE)).toInt();
@@ -1469,7 +1516,6 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
     }
 
     if (!d->currentFrameScopes.isEmpty()) {
-        QTC_CHECK(d->state == QmlV8DebuggerClient::WaitingForRequestState);
         d->scope(d->currentFrameScopes.pop(), d->currentFrameIndex);
     } else {
         updateLocalsAndWatchers();
@@ -1495,11 +1541,13 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, const QVariant &b
 
     QmlV8ObjectData body = d->extractData(QVariant(bodyMap));
 
-    if (!d->evaluatingWatches.contains(sequence)) {
+    if (d->evaluatingExpression.contains(sequence)) {
+        d->evaluatingExpression.take(sequence);
         //Console
         d->engine->showMessage(body.value.toString(), ScriptConsoleOutput);
 
-    } else {
+    } else if (d->evaluatingWatches.contains(sequence)) {
+        d->requestBacktrace = false;
         QString exp = d->evaluatingWatches.take(sequence);
         QByteArray iname = d->engine->watchHandler()->watcherName(exp.toLatin1());
         SDEBUG(QString(iname));
@@ -1636,62 +1684,68 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
     //    }
     const QVariantMap body = bodyVal.toMap();
 
-    QString handle = body.keys().value(0);
-    QmlV8ObjectData bodyObjectData = d->extractData(
-                body.value(handle));
-    QByteArray prepend = d->localsAndWatchers.take(handle.toInt());
     QList<WatchData> watchDataList;
+    QStringList handlesList = body.keys();
+    foreach (const QString &handle, handlesList) {
+        QmlV8ObjectData bodyObjectData = d->extractData(
+                    body.value(handle));
+        QByteArray prepend = d->localsAndWatchers.take(handle.toInt());
 
-    if (bodyObjectData.properties.isValid()) {
-        //Could be an object or function
-        const WatchData *parent = d->engine->watchHandler()->findItem(prepend);
-        const QVariantList properties = bodyObjectData.properties.toList();
-        foreach (const QVariant &property, properties) {
-            QVariantMap propertyData = property.toMap();
-            WatchData data;
-            data.name = propertyData.value(_(NAME)).toString();
 
-            //Check for v8 specific local data
-            if (data.name.startsWith(".") || data.name.isEmpty())
-                continue;
-            if (parent && parent->type == "object") {
-                if (parent->value == _("Array"))
-                    data.exp = parent->exp + QByteArray("[") + data.name.toLatin1() + QByteArray("]");
-                else if (parent->value == _("Object"))
-                    data.exp = parent->exp + QByteArray(".") + data.name.toLatin1();
-            } else {
-                data.exp = data.name.toLatin1();
+        if (prepend.isEmpty())
+            return;
+
+        if (bodyObjectData.properties.isValid()) {
+            //Could be an object or function
+            const WatchData *parent = d->engine->watchHandler()->findItem(prepend);
+            const QVariantList properties = bodyObjectData.properties.toList();
+            foreach (const QVariant &property, properties) {
+                QVariantMap propertyData = property.toMap();
+                WatchData data;
+                data.name = propertyData.value(_(NAME)).toString();
+
+                //Check for v8 specific local data
+                if (data.name.startsWith(".") || data.name.isEmpty())
+                    continue;
+                if (parent && parent->type == "object") {
+                    if (parent->value == _("Array"))
+                        data.exp = parent->exp + QByteArray("[") + data.name.toLatin1() + QByteArray("]");
+                    else if (parent->value == _("Object"))
+                        data.exp = parent->exp + QByteArray(".") + data.name.toLatin1();
+                } else {
+                    data.exp = data.name.toLatin1();
+                }
+
+                if (prepend.startsWith("local."))
+                    data.iname = prepend + '.' + data.name.toLatin1();
+                if (prepend.startsWith("watch."))
+                    data.iname = prepend;
+                propertyData = valueFromRef(propertyData.value(_(REF)).toInt(),
+                                            refsVal).toMap();
+                data.id = propertyData.value(_(HANDLE)).toInt();
+
+                QmlV8ObjectData objectData = d->extractData(QVariant(propertyData));
+                data.type = objectData.type;
+                data.value = objectData.value.toString();
+
+                data.setHasChildren(objectData.properties.toList().count());
+                watchDataList << data;
             }
+        } else {
+            //rest
+            WatchData data;
+            data.exp = prepend;
+            data.name = data.exp;
+            data.iname = QByteArray("local.") + data.exp;
+            data.id = handle.toInt();
 
-            if (prepend.startsWith("local."))
-                data.iname = prepend + '.' + data.name.toLatin1();
-            if (prepend.startsWith("watch."))
-                data.iname = prepend;
-            propertyData = valueFromRef(propertyData.value(_(REF)).toInt(),
-                                        refsVal).toMap();
-            data.id = propertyData.value(_(HANDLE)).toInt();
+            data.type = bodyObjectData.type;
+            data.value = bodyObjectData.value.toString();
 
-            QmlV8ObjectData objectData = d->extractData(QVariant(propertyData));
-            data.type = objectData.type;
-            data.value = objectData.value.toString();
+            data.setHasChildren(bodyObjectData.properties.toList().count());
 
-            data.setHasChildren(objectData.properties.toList().count());
             watchDataList << data;
         }
-    } else {
-        //rest
-        WatchData data;
-        data.exp = prepend;
-        data.name = data.exp;
-        data.iname = "local." + data.exp;
-        data.id = handle.toInt();
-
-        data.type = bodyObjectData.type;
-        data.value = bodyObjectData.value.toString();
-
-        data.setHasChildren(bodyObjectData.properties.toList().count());
-
-        watchDataList << data;
     }
 
     d->engine->watchHandler()->beginCycle(false);
@@ -1760,13 +1814,11 @@ void QmlV8DebuggerClient::clearExceptionSelection()
 
 }
 
-void QmlV8DebuggerClient::resetState()
+void QmlV8DebuggerClient::resetDebugger()
 {
     clearExceptionSelection();
-    d->currentFrameIndex = 0;
-    d->updateCurrentStackFrameIndex = true;
-    d->state = QmlV8DebuggerClient::RunningState;
-    SDEBUG(QString(_("State: %1")).arg(d->state));
+    d->currentFrameIndex = -1;
+    SDEBUG(QString(_("State: %1")).arg(d->debugServiceState));
 }
 
 void QmlV8DebuggerClient::updateLocalsAndWatchers()

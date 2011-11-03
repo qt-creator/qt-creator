@@ -61,12 +61,11 @@ class QmlV8DebuggerClient : public QmlDebuggerClient
         Next
     };
 
-    enum V8DebuggerStates
+    enum V8DebugServiceStates
     {
         RunningState,
-        BreakpointsRequestedState,
-        BacktraceRequestedState,
-        WaitingForRequestState
+        WaitingForRequestState,
+        ProcessingRequestState
     };
 
 public:
@@ -106,6 +105,7 @@ public:
 
 protected:
     void messageReceived(const QByteArray &data);
+    void sendMessage(const QByteArray &msg);
 
 private:
     void updateStack(const QVariant &bodyVal, const QVariant &refsVal);
@@ -125,7 +125,7 @@ private:
                                 const QString &errorMessage);
     void clearExceptionSelection();
 
-    void resetState();
+    void resetDebugger();
 
     void updateLocalsAndWatchers();
 
