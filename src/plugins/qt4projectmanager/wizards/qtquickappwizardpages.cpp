@@ -82,7 +82,7 @@ QtQuickApp::ComponentSet QtQuickComponentSetOptionsPage::componentSet() const
 {
     switch (d->ui.buttonGroup->checkedId()) {
     case 2: return QtQuickApp::Meego10Components;
-    case 1: return QtQuickApp::Symbian10Components;
+    case 1: return QtQuickApp::Symbian11Components;
     case 0:
     default: return QtQuickApp::QtQuick10Components;
     }
@@ -92,7 +92,7 @@ void QtQuickComponentSetOptionsPage::setComponentSet(QtQuickApp::ComponentSet co
 {
     switch (componentSet) {
     case QtQuickApp::Meego10Components: d->ui.meego10RadioButton->click(); break;
-    case QtQuickApp::Symbian10Components: d->ui.symbian10RadioButton->click(); break;
+    case QtQuickApp::Symbian11Components: d->ui.symbian10RadioButton->click(); break;
     case QtQuickApp::QtQuick10Components:
     default: d->ui.qtquick10RadioButton->click(); break;
     }

@@ -117,7 +117,7 @@ public:
 
     enum ComponentSet {
         QtQuick10Components,
-        Symbian10Components,
+        Symbian11Components,
         Meego10Components
     };
 
