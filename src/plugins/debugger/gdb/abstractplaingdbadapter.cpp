@@ -71,13 +71,6 @@ void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &respon
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        if (infoTargetNecessary()) {
-            // Old gdbs do not announce the PID for programs without pthreads.
-            // Note that successfully preloading the debugging helpers will
-            // automatically load pthreads, so this will be unnecessary.
-            if (m_engine->m_gdbVersion < 70000)
-                m_engine->postCommand("info target", CB(handleInfoTarget));
-        }
         m_engine->handleInferiorPrepared();
     } else {
         QByteArray ba = response.data.findChild("msg").data();
@@ -111,27 +104,6 @@ void AbstractPlainGdbAdapter::handleExecRun(const GdbResponse &response)
         //interruptInferior();
         showMessage(msg);
         m_engine->notifyEngineRunFailed();
-    }
-}
-
-void AbstractPlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        // [some leading stdout here]
-        // >&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
-        // [some trailing stdout here]
-        QString msg = _(response.consoleStreamOutput);
-        QRegExp needle(_("\\bEntry point: 0x([0-9a-f]+)\\b"));
-        if (needle.indexIn(msg) != -1) {
-            m_engine->m_entryPoint =
-                    "0x" + needle.cap(1).toLatin1().rightJustified(sizeof(void *) * 2, '0');
-            m_engine->postCommand("tbreak *0x" + needle.cap(1).toAscii());
-            // Do nothing here - inferiorPrepared handles the sequencing.
-        } else {
-            m_engine->notifyInferiorSetupFailed(_("Parsing start address failed"));
-        }
-    } else if (response.resultClass == GdbResultError) {
-        m_engine->notifyInferiorSetupFailed(_("Fetching start address failed"));
     }
 }
 

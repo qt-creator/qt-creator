@@ -74,11 +74,6 @@ QByteArray RemotePlainGdbAdapter::execFilePath() const
     return startParameters().executable.toUtf8();
 }
 
-bool RemotePlainGdbAdapter::infoTargetNecessary() const
-{
-    return true;
-}
-
 QByteArray RemotePlainGdbAdapter::toLocalEncoding(const QString &s) const
 {
     return s.toUtf8();

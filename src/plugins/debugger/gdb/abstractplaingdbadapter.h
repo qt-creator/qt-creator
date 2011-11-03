@@ -49,12 +49,8 @@ public:
     virtual void setupInferior();
     void runEngine();
 
-protected:
-    void handleInfoTarget(const GdbResponse &response);
-
 private:
     virtual QByteArray execFilePath() const = 0;
-    virtual bool infoTargetNecessary() const = 0;
     virtual QByteArray toLocalEncoding(const QString &str) const = 0;
     virtual QString fromLocalEncoding(const QByteArray &ba) const = 0;
     void handleExecRun(const GdbResponse &response);

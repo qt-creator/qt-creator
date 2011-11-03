@@ -194,15 +194,6 @@ QByteArray LocalPlainGdbAdapter::execFilePath() const
             .absoluteFilePath().toLocal8Bit();
 }
 
-bool LocalPlainGdbAdapter::infoTargetNecessary() const
-{
-#ifdef Q_OS_LINUX
-    return true;
-#else
-    return false;
-#endif
-}
-
 QByteArray LocalPlainGdbAdapter::toLocalEncoding(const QString &s) const
 {
     return s.toLocal8Bit();
