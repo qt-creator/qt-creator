@@ -112,7 +112,7 @@ QWidget *FindInFiles::createConfigWidget()
         syncComboWithSettings(m_directory, m_directorySetting);
         dirLabel->setBuddy(m_directory);
         gridLayout->addWidget(m_directory, 0, 1);
-        QPushButton *browseButton = new QPushButton(tr("&Browse"));
+        QPushButton *browseButton = new QPushButton(tr("&Browse..."));
         gridLayout->addWidget(browseButton, 0, 2);
         connect(browseButton, SIGNAL(clicked()), this, SLOT(openFileBrowser()));
 
