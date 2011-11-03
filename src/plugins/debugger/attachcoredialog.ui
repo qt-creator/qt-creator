@@ -86,7 +86,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="overrideStartScriptLabel">
        <property name="text">
-        <string>Override &amp;Start script:</string>
+        <string>Override &amp;start script:</string>
        </property>
        <property name="buddy">
         <cstring>overrideStartScriptFileName</cstring>

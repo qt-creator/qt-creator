@@ -412,7 +412,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            globalcontext, true, &GitClient::status);
 
     createRepositoryAction(actionManager, gitContainer,
-                           tr("Undo Uncommited Changes..."), QLatin1String("Git.UndoRepository"),
+                           tr("Undo Uncommitted Changes..."), QLatin1String("Git.UndoRepository"),
                            globalcontext, false, SLOT(undoRepositoryChanges()));
 
 
