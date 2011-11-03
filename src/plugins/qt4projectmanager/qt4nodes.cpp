@@ -1172,10 +1172,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
 void Qt4PriFileNode::save(const QStringList &lines)
 {
     Utils::FileSaver saver(m_projectFilePath, QIODevice::Text);
-    foreach (const QString &str, lines) {
-        saver.write(str.toLocal8Bit());
-        saver.write("\n", 1);
-    }
+    saver.write(lines.join(QLatin1String("\n")).toLocal8Bit());
     saver.finalize(Core::ICore::instance()->mainWindow());
 
     m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
