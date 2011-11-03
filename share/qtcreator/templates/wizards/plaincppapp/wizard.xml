@@ -41,7 +41,7 @@ leave room for the Qt 4 target page.
         class="qt4project" firstpage="10"
         id="R.Plain C++" category="I.Projects">
     <icon>console.png</icon>
-    <description>Creates a plain C++ project using QMake, not using the Qt library.</description>
+    <description>Creates a plain C++ project using qmake, not using the Qt library.</description>
     <displayname>Plain C++ Project</displayname>;
     <displaycategory>Other Project</displaycategory>
     <files>
