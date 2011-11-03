@@ -88,6 +88,20 @@ Canvas2D {
                 ctxt.stroke();
             }
         }
+
+        // gray off out-of-bounds areas
+        var rectWidth;
+        if (startTime < qmlEventList.traceStartTime()) {
+            ctxt.fillStyle = "rgba(127,127,127,0.2)";
+            rectWidth = (qmlEventList.traceStartTime() - startTime) * spacing;
+            ctxt.fillRect(0, 0, rectWidth, height);
+        }
+        if (endTime > qmlEventList.traceEndTime()) {
+            ctxt.fillStyle = "rgba(127,127,127,0.2)";
+            var rectX = (qmlEventList.traceEndTime() - startTime) * spacing;
+            rectWidth = (endTime - qmlEventList.traceEndTime()) * spacing;
+            ctxt.fillRect(rectX, 0, rectWidth, height);
+        }
     }
 
     function updateMarks(start, end) {
