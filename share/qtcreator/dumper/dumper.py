@@ -1346,7 +1346,13 @@ class Dumper:
             return
 
         if type.code == TypedefCode:
-            self.putItem(value.cast(type.strip_typedefs()))
+            type = type.strip_typedefs()
+            # Workaround for http://sourceware.org/bugzilla/show_bug.cgi?id=13380
+            if type.code == ArrayCode:
+                value = parseAndEvaluate("{%s}%s" % (type, value.address))
+            else:
+                value = value.cast(type.strip_typedefs())
+            self.putItem(value)
             self.putBetterType(typeName)
             return
 
