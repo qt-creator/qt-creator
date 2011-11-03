@@ -135,7 +135,7 @@ QWidget *AllProjectsFind::createConfigWidget()
         QGridLayout * const gridLayout = new QGridLayout(m_configWidget);
         gridLayout->setMargin(0);
         m_configWidget->setLayout(gridLayout);
-        QLabel * const filePatternLabel = new QLabel(tr("File &pattern:"));
+        QLabel * const filePatternLabel = new QLabel(tr("Fi&le pattern:"));
         filePatternLabel->setMinimumWidth(80);
         filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
