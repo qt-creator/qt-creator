@@ -164,7 +164,6 @@ QmlObjectValue::QmlObjectValue(FakeMetaObject::ConstPtr metaObject, const QStrin
                                const ComponentVersion &importVersion, int metaObjectRevision,
                                ValueOwner *valueOwner)
     : ObjectValue(valueOwner),
-      _attachedType(0),
       _metaObject(metaObject),
       _moduleName(packageName),
       _componentVersion(componentVersion),
@@ -258,8 +257,13 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
         }
     }
 
-    if (_attachedType)
-        _attachedType->processMembers(processor);
+    // look into attached types
+    const QString &attachedTypeName = _metaObject->attachedTypeName();
+    if (!attachedTypeName.isEmpty()) {
+        const QmlObjectValue *attachedType = valueOwner()->cppQmlTypes().objectByCppName(attachedTypeName);
+        if (attachedType)
+            attachedType->processMembers(processor);
+    }
 
     ObjectValue::processMembers(processor);
 }
@@ -352,16 +356,6 @@ QList<const QmlObjectValue *> QmlObjectValue::prototypes() const
         protos += it;
     }
     return protos;
-}
-
-const QmlObjectValue *QmlObjectValue::attachedType() const
-{
-    return _attachedType;
-}
-
-void QmlObjectValue::setAttachedType(QmlObjectValue *value)
-{
-    _attachedType = value;
 }
 
 FakeMetaObject::ConstPtr QmlObjectValue::metaObject() const

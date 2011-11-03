@@ -430,9 +430,6 @@ public:
     const QmlObjectValue *prototype() const;
     QList<const QmlObjectValue *> prototypes() const;
 
-    const QmlObjectValue *attachedType() const;
-    void setAttachedType(QmlObjectValue *value);
-
     LanguageUtils::FakeMetaObject::ConstPtr metaObject() const;
 
     QString moduleName() const;
@@ -453,7 +450,6 @@ protected:
     bool isDerivedFrom(LanguageUtils::FakeMetaObject::ConstPtr base) const;
 
 private:
-    QmlObjectValue *_attachedType;
     LanguageUtils::FakeMetaObject::ConstPtr _metaObject;
     const QString _moduleName;
     // _componentVersion is the version of the export
