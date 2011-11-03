@@ -706,7 +706,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 
     painter->setPen(textColor);
 
-    TaskModel *model = static_cast<TaskModel *>(view->model());
+    TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
     Positions positions(opt, model);
 
     // Paint TaskIconArea:
