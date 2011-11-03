@@ -44,7 +44,6 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmlprofiler \
             plugin_remotelinux \
             plugin_madde \
-            plugin_qttest \
             plugin_valgrind
 
 isEmpty(IDE_PACKAGE_MODE) {
@@ -195,14 +194,6 @@ plugin_fakevim.depends += plugin_texteditor
 plugin_qtestlib.subdir = qtestlib
 plugin_qtestlib.depends = plugin_projectexplorer
 plugin_qtestlib.depends += plugin_coreplugin
-
-plugin_qttest.subdir = qttest
-plugin_qttest.depends = plugin_projectexplorer
-plugin_qttest.depends += plugin_coreplugin
-plugin_qttest.depends += plugin_debugger
-plugin_qttest.depends += plugin_qt4projectmanager
-plugin_qttest.depends += plugin_qtsupport
-plugin_qttest.depends += plugin_remotelinux
 
 plugin_helloworld.subdir = helloworld
 plugin_helloworld.depends = plugin_coreplugin
