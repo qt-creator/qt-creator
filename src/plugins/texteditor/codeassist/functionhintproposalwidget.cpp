@@ -233,8 +233,15 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
     case QEvent::MouseButtonDblClick:
     case QEvent::Wheel: {
             QWidget *widget = qobject_cast<QWidget *>(obj);
-            if (! (widget == this || isAncestorOf(widget))) {
+            if (!d->m_popupFrame->isAncestorOf(widget)) {
                 abort();
+            } else if (e->type() == QEvent::Wheel) {
+                if (static_cast<QWheelEvent*>(e)->delta() > 0) {
+                    previousPage();
+                } else {
+                    nextPage();
+                }
+                return true;
             }
         }
         break;
