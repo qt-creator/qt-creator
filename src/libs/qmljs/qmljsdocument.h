@@ -51,7 +51,8 @@ class Snapshot;
 class QMLJS_EXPORT Document
 {
 public:
-    typedef QSharedPointer<Document> Ptr;
+    typedef QSharedPointer<const Document> Ptr;
+    typedef QSharedPointer<Document> MutablePtr;
 
     // used in a 3-bit bitfield
     enum Language
@@ -68,7 +69,7 @@ protected:
 public:
     ~Document();
 
-    static Document::Ptr create(const QString &fileName, Language language);
+    static MutablePtr create(const QString &fileName, Language language);
     static Language guessLanguageFromSuffix(const QString &fileName);
 
     Document::Ptr ptr() const;
@@ -230,7 +231,7 @@ public:
     QList<Document::Ptr> documentsInDirectory(const QString &path) const;
     LibraryInfo libraryInfo(const QString &path) const;
 
-    Document::Ptr documentFromSource(const QString &code,
+    Document::MutablePtr documentFromSource(const QString &code,
                                      const QString &fileName,
                                      Document::Language language) const;
 };

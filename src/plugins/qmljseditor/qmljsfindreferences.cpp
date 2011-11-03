@@ -810,8 +810,8 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         else
             language = QmlJSTools::languageOfFile(fileName);
 
-        Document::Ptr newDoc = snapshot.documentFromSource(it.value().first, fileName,
-                                                           language);
+        Document::MutablePtr newDoc = snapshot.documentFromSource(
+                    it.value().first, fileName, language);
         newDoc->parse();
         snapshot.insert(newDoc);
     }

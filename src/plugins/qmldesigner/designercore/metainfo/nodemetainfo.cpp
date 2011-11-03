@@ -382,7 +382,7 @@ private:
 
     //storing the pointer would not be save
     QmlJS::ContextPtr context() const;
-    QmlJS::Document *document() const;
+    const Document *document() const;
 
     QPointer<Model> m_model;
     static QHash<QString, Pointer> m_nodeMetaInfoCache;
@@ -496,7 +496,7 @@ QmlJS::ContextPtr NodeMetaInfoPrivate::context() const
     return QmlJS::ContextPtr(0);
 }
 
-QmlJS::Document *NodeMetaInfoPrivate::document() const
+const QmlJS::Document *NodeMetaInfoPrivate::document() const
 {
     if (m_model && m_model->rewriterView()) {
         return m_model->rewriterView()->document();

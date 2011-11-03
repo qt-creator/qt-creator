@@ -119,9 +119,9 @@ Document::~Document()
         delete _engine;
 }
 
-Document::Ptr Document::create(const QString &fileName, Language language)
+Document::MutablePtr Document::create(const QString &fileName, Language language)
 {
-    Document::Ptr doc(new Document(fileName, language));
+    Document::MutablePtr doc(new Document(fileName, language));
     doc->_ptr = doc;
     return doc;
 }
@@ -375,11 +375,11 @@ void Snapshot::remove(const QString &fileName)
     }
 }
 
-Document::Ptr Snapshot::documentFromSource(const QString &code,
-                                           const QString &fileName,
-                                           Document::Language language) const
+Document::MutablePtr Snapshot::documentFromSource(
+        const QString &code, const QString &fileName,
+        Document::Language language) const
 {
-    Document::Ptr newDoc = Document::create(fileName, language);
+    Document::MutablePtr newDoc = Document::create(fileName, language);
 
     if (Document::Ptr thisDocument = document(fileName)) {
         newDoc->_editorRevision = thisDocument->_editorRevision;

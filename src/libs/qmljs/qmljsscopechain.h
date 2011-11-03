@@ -108,7 +108,7 @@ private:
     void update() const;
     void initializeRootScope();
     void makeComponentChain(QmlComponentChain *target, const Snapshot &snapshot,
-                            QHash<Document *, QmlComponentChain *> *components);
+                            QHash<const Document *, QmlComponentChain *> *components);
 
 
     Document::Ptr m_document;

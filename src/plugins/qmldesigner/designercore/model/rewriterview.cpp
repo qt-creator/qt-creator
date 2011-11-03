@@ -629,7 +629,7 @@ const QmlJS::ScopeChain &RewriterView::scopeChain() const
     return textToModelMerger()->scopeChain();
 }
 
-QmlJS::Document *RewriterView::document() const
+const QmlJS::Document *RewriterView::document() const
 {
     return textToModelMerger()->document();
 }

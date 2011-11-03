@@ -135,8 +135,9 @@ Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
         const QString name = fileName();
         const Snapshot &snapshot = data()->m_snapshot;
 
-        m_qmljsDocument = snapshot.documentFromSource(source, name, languageOfFile(name));
-        m_qmljsDocument->parse();
+        Document::MutablePtr newDoc = snapshot.documentFromSource(source, name, languageOfFile(name));
+        newDoc->parse();
+        m_qmljsDocument = newDoc;
     }
 
     return m_qmljsDocument;

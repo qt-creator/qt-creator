@@ -71,7 +71,7 @@ public:
     const QmlJS::ScopeChain &scopeChain() const
     { return *m_scopeChain; }
 
-    QmlJS::Document *document() const
+    const QmlJS::Document *document() const
     { return m_document.data(); }
 
 protected:

@@ -54,7 +54,7 @@ protected:
     void extractFirstObjectDefinition(QmlJS::AST::UiObjectInitializer* ast);
 
 private:
-    QmlJS::Document::Ptr m_doc;
+    QmlJS::Document::MutablePtr m_doc;
     quint32 m_offset;
     QmlJS::AST::UiObjectDefinition *m_firstObjectDefinition;
 

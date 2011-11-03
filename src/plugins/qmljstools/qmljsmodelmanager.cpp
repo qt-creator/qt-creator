@@ -598,7 +598,7 @@ void ModelManager::parse(QFutureInterface<void> &future,
             }
         }
 
-        Document::Ptr doc = Document::create(fileName, language);
+        Document::MutablePtr doc = Document::create(fileName, language);
         doc->setEditorRevision(documentRevision);
         doc->setSource(contents);
         doc->parse();

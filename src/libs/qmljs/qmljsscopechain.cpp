@@ -259,7 +259,7 @@ void ScopeChain::initializeRootScope()
 
     m_globalScope = valueOwner->globalObject();
 
-    QHash<Document *, QmlComponentChain *> componentScopes;
+    QHash<const Document *, QmlComponentChain *> componentScopes;
     QmlComponentChain *chain = new QmlComponentChain(m_document);
     m_qmlComponentScope = QSharedPointer<const QmlComponentChain>(chain);
 
@@ -297,7 +297,7 @@ void ScopeChain::initializeRootScope()
 void ScopeChain::makeComponentChain(
         QmlComponentChain *target,
         const Snapshot &snapshot,
-        QHash<Document *, QmlComponentChain *> *components)
+        QHash<const Document *, QmlComponentChain *> *components)
 {
     Document::Ptr doc = target->document();
     if (!doc->qmlProgram())

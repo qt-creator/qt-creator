@@ -128,10 +128,12 @@ SemanticInfo SemanticInfoUpdater::semanticInfo(const SemanticInfoUpdaterSource &
             language = m_lastSemanticInfo.document->language();
         else
             language = QmlJSTools::languageOfFile(source.fileName);
-        doc = snapshot.documentFromSource(source.code, source.fileName, language);
-        doc->setEditorRevision(source.revision);
-        doc->parse();
-        snapshot.insert(doc);
+        QmlJS::Document::MutablePtr newDoc = snapshot.documentFromSource(
+                    source.code, source.fileName, language);
+        newDoc->setEditorRevision(source.revision);
+        newDoc->parse();
+        snapshot.insert(newDoc);
+        doc = newDoc;
     }
 
     SemanticInfo semanticInfo;

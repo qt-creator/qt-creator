@@ -52,7 +52,7 @@ protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
 
 private:
-    QmlJS::Document::Ptr m_document;
+    QmlJS::Document::MutablePtr m_document;
     quint32 m_location;
     QString m_text;
 };
