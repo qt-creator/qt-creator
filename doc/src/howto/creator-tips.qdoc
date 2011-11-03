@@ -45,7 +45,8 @@
         \o  \gui Design mode \key Ctrl+3
         \o  \gui Debug mode \key Ctrl+4
         \o  \gui Projects mode \key Ctrl+5
-        \o  \gui Help mode \key Ctrl+6
+        \o  \gui Analyze mode \key Ctrl+6
+        \o  \gui Help mode \key Ctrl+7
 
     \endlist
 
