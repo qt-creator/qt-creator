@@ -37,7 +37,7 @@
 #include "bytearrayinputstream.h"
 #include "gdb/gdbmi.h"
 #include "disassemblerlines.h"
-#include "shared/dbgwinutils.h"
+#include "shared/hostutils.h"
 
 #include <utils/qtcassert.h>
 

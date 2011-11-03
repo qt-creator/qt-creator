@@ -67,7 +67,7 @@
 #include "threadshandler.h"
 #include "watchhandler.h"
 #include "debuggersourcepathmappingwidget.h"
-#include "dbgwinutils.h"
+#include "hostutils.h"
 #include "logwindow.h"
 
 #include <coreplugin/icore.h>

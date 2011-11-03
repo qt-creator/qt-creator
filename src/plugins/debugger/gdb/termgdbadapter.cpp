@@ -38,7 +38,7 @@
 #include "procinterrupt.h"
 #include "debuggerstringutils.h"
 #include "debuggercore.h"
-#include "dbgwinutils.h"
+#include "shared/hostutils.h"
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>

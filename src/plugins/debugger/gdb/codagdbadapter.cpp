@@ -36,6 +36,8 @@
 #include "codadevice.h"
 #include "codautils.h"
 #include "gdbmi.h"
+#include "hostutils.h"
+
 #include "symbiandevicemanager.h"
 
 #include "registerhandler.h"
@@ -56,8 +58,6 @@
 #include <QtCore/QDir>
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
-
-#include "dbgwinutils.h"
 
 #ifndef Q_OS_WIN
 #  include <sys/types.h>

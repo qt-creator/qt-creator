@@ -34,7 +34,7 @@
 
 #include "debuggerconstants.h"
 #include "cdb/cdbengine.h"
-#include "shared/dbgwinutils.h"
+#include "shared/hostutils.h"
 
 #include "ui_attachcoredialog.h"
 #include "ui_attachexternaldialog.h"
@@ -50,10 +50,8 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QProcess>
 #include <QtCore/QRegExp>
 #include <QtCore/QDir>
-#include <QtCore/QFile>
 #include <QtCore/QCoreApplication>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QHeaderView>
@@ -282,107 +280,6 @@ void AttachCoreDialog::changed()
 
 ///////////////////////////////////////////////////////////////////////
 //
-// Process model helpers
-//
-///////////////////////////////////////////////////////////////////////
-
-#ifndef Q_OS_WIN
-
-static bool isUnixProcessId(const QString &procname)
-{
-    for (int i = 0; i != procname.size(); ++i)
-        if (!procname.at(i).isDigit())
-            return false;
-    return true;
-}
-
-
-// Determine UNIX processes by running ps
-static QList<ProcData> unixProcessListPS()
-{
-#ifdef Q_OS_MAC
-    static const char formatC[] = "pid state command";
-#else
-    static const char formatC[] = "pid,state,cmd";
-#endif
-    QList<ProcData> rc;
-    QProcess psProcess;
-    QStringList args;
-    args << QLatin1String("-e") << QLatin1String("-o") << QLatin1String(formatC);
-    psProcess.start(QLatin1String("ps"), args);
-    if (!psProcess.waitForStarted())
-        return rc;
-    QByteArray output;
-    if (!SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, 0, false))
-        return rc;
-    // Split "457 S+   /Users/foo.app"
-    const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
-    const int lineCount = lines.size();
-    const QChar blank = QLatin1Char(' ');
-    for (int l = 1; l < lineCount; l++) { // Skip header
-        const QString line = lines.at(l).simplified();
-        const int pidSep = line.indexOf(blank);
-        const int cmdSep = pidSep != -1 ? line.indexOf(blank, pidSep + 1) : -1;
-        if (cmdSep > 0) {
-            ProcData procData;
-            procData.ppid = line.left(pidSep);
-            procData.state = line.mid(pidSep + 1, cmdSep - pidSep - 1);
-            procData.name = line.mid(cmdSep + 1);
-            rc.push_back(procData);
-        }
-    }
-    return rc;
-}
-
-// Determine UNIX processes by reading "/proc". Default to ps if
-// it does not exist
-static QList<ProcData> unixProcessList()
-{
-    const QDir procDir(QLatin1String("/proc/"));
-    if (!procDir.exists())
-        return unixProcessListPS();
-    QList<ProcData> rc;
-    const QStringList procIds = procDir.entryList();
-    if (procIds.isEmpty())
-        return rc;
-    foreach (const QString &procId, procIds) {
-        if (!isUnixProcessId(procId))
-            continue;
-        QString filename = QLatin1String("/proc/");
-        filename += procId;
-        filename += QLatin1String("/stat");
-        QFile file(filename);
-        if (!file.open(QIODevice::ReadOnly))
-            continue;           // process may have exited
-
-        const QStringList data = QString::fromLocal8Bit(file.readAll()).split(' ');
-        ProcData proc;
-        proc.ppid = procId;
-        proc.name = data.at(1);
-        if (proc.name.startsWith(QLatin1Char('(')) && proc.name.endsWith(QLatin1Char(')'))) {
-            proc.name.truncate(proc.name.size() - 1);
-            proc.name.remove(0, 1);
-        }
-        proc.state = data.at(2);
-        // PPID is element 3
-        rc.push_back(proc);
-    }
-    return rc;
-}
-#endif // Q_OS_WIN
-
-static QList<ProcData> processList()
-{
-#ifdef Q_OS_WIN
-    return winProcessList();
-#else
-    return unixProcessList();
-#endif
-}
-
-
-///////////////////////////////////////////////////////////////////////
-//
 // AttachExternalDialog
 //
 ///////////////////////////////////////////////////////////////////////
@@ -452,7 +349,7 @@ QPushButton *AttachExternalDialog::okButton() const
 
 void AttachExternalDialog::rebuildProcessList()
 {
-    m_model->populate(processList(), m_selfPid);
+    m_model->populate(hostProcessList(), m_selfPid);
     m_ui->procView->expandAll();
     m_ui->procView->resizeColumnToContents(0);
     m_ui->procView->resizeColumnToContents(1);

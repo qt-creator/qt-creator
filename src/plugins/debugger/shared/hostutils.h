@@ -30,24 +30,31 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_DBG_WINUTILS_H
-#define DEBUGGER_DBG_WINUTILS_H
+#ifndef DEBUGGER_HOSTUTILS_H
+#define DEBUGGER_HOSTUTILS_H
 
 #include <QtCore/QList>
-
-#ifdef Q_OS_WIN
+#include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
-class QString;
 class QTextStream;
 QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
 
-struct ProcData; // debuggerdialogs, used by the process listing dialogs
+struct ProcData
+{
+    QString ppid;
+    QString name;
+    QString image;
+    QString state;
+};
 
-QList<ProcData> winProcessList();
+
+QList<ProcData> hostProcessList();
+
+#ifdef Q_OS_WIN
 
 // Resume a suspended thread by id.
 bool winResumeThread(unsigned long dwThreadId, QString *errorMessage);
@@ -85,9 +92,9 @@ bool isFatalWinException(long code);
 // Check for EXCEPTION_BREAKPOINT, EXCEPTION_SINGLE_STEP
 bool isDebuggerWinException(long code);
 
+#endif // defined(Q_OS_WIN)
+
 } // namespace Internal
 } // namespace Debugger
 
-#endif // defined(Q_OS_WIN)
-
-#endif // DEBUGGER_DBG_WINUTILS_H
+#endif // DEBUGGER_HOSTUTILS_H

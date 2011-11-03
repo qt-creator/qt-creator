@@ -30,39 +30,43 @@
 **
 **************************************************************************/
 
-#include "winutils.h"
-#include "dbgwinutils.h"
-#include "debuggerdialogs.h"
+#include "hostutils.h"
 #include "breakpoint.h"
 
+#include <utils/synchronousprocess.h>
+
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QLibrary>
+#include <QtCore/QProcess>
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
 
-// Enable Win API of XP SP1 and later
 #ifdef Q_OS_WIN
-#    define _WIN32_WINNT 0x0502
-#    include <windows.h>
-#    include <utils/winutils.h>
-#    if !defined(PROCESS_SUSPEND_RESUME) // Check flag for MinGW
-#        define PROCESS_SUSPEND_RESUME (0x0800)
-#    endif // PROCESS_SUSPEND_RESUME
-#endif // Q_OS_WIN
+
+// Enable Win API of XP SP1 and later
+#define _WIN32_WINNT 0x0502
+#include <windows.h>
+#include <utils/winutils.h>
+#if !defined(PROCESS_SUSPEND_RESUME) // Check flag for MinGW
+#    define PROCESS_SUSPEND_RESUME (0x0800)
+#endif // PROCESS_SUSPEND_RESUME
 
 #include <tlhelp32.h>
 #include <psapi.h>
-#include <QtCore/QLibrary>
+
+#endif // Q_OS_WIN
 
 namespace Debugger {
 namespace Internal {
 
+#ifdef Q_OS_WIN
+
 // Resolve QueryFullProcessImageNameW out of kernel32.dll due
 // to incomplete MinGW import libs and it not being present
 // on Windows XP.
-static inline BOOL queryFullProcessImageName(HANDLE h,
-                                                   DWORD flags,
-                                                   LPWSTR buffer,
-                                                   DWORD *size)
+static BOOL queryFullProcessImageName(HANDLE h, DWORD flags, LPWSTR buffer, DWORD *size)
 {
     // Resolve required symbols from the kernel32.dll
     typedef BOOL (WINAPI *QueryFullProcessImageNameWProtoType)
@@ -79,7 +83,7 @@ static inline BOOL queryFullProcessImageName(HANDLE h,
     return (*queryFullProcessImageNameW)(h, flags, buffer, size);
 }
 
-static inline QString imageName(DWORD processId)
+static QString imageName(DWORD processId)
 {
     QString  rc;
     HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION , FALSE, processId);
@@ -93,7 +97,7 @@ static inline QString imageName(DWORD processId)
     return rc;
 }
 
-QList<ProcData> winProcessList()
+static QList<ProcData> winProcessList()
 {
     QList<ProcData> rc;
 
@@ -292,7 +296,7 @@ void formatWindowsException(unsigned long code, quint64 address,
 
 bool isDebuggerWinException(long code)
 {
-    return code ==EXCEPTION_BREAKPOINT || code == EXCEPTION_SINGLE_STEP;
+    return code == EXCEPTION_BREAKPOINT || code == EXCEPTION_SINGLE_STEP;
 }
 
 bool isFatalWinException(long code)
@@ -312,6 +316,101 @@ bool isFatalWinException(long code)
     }
     return true;
 }
+
+QList<ProcData> hostProcessList()
+{
+    return winProcessList();
+}
+
+#else // Q_OS_WIN
+
+static bool isUnixProcessId(const QString &procname)
+{
+    for (int i = 0; i != procname.size(); ++i)
+        if (!procname.at(i).isDigit())
+            return false;
+    return true;
+}
+
+// Determine UNIX processes by running ps
+static QList<ProcData> unixProcessListPS()
+{
+#ifdef Q_OS_MAC
+    static const char formatC[] = "pid state command";
+#else
+    static const char formatC[] = "pid,state,cmd";
+#endif
+    QList<ProcData> rc;
+    QProcess psProcess;
+    QStringList args;
+    args << QLatin1String("-e") << QLatin1String("-o") << QLatin1String(formatC);
+    psProcess.start(QLatin1String("ps"), args);
+    if (!psProcess.waitForStarted())
+        return rc;
+    QByteArray output;
+    if (!Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, 0, false))
+        return rc;
+    // Split "457 S+   /Users/foo.app"
+    const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
+    const int lineCount = lines.size();
+    const QChar blank = QLatin1Char(' ');
+    for (int l = 1; l < lineCount; l++) { // Skip header
+        const QString line = lines.at(l).simplified();
+        const int pidSep = line.indexOf(blank);
+        const int cmdSep = pidSep != -1 ? line.indexOf(blank, pidSep + 1) : -1;
+        if (cmdSep > 0) {
+            ProcData procData;
+            procData.ppid = line.left(pidSep);
+            procData.state = line.mid(pidSep + 1, cmdSep - pidSep - 1);
+            procData.name = line.mid(cmdSep + 1);
+            rc.push_back(procData);
+        }
+    }
+    return rc;
+}
+
+// Determine UNIX processes by reading "/proc". Default to ps if
+// it does not exist
+static QList<ProcData> unixProcessList()
+{
+    const QDir procDir(QLatin1String("/proc/"));
+    if (!procDir.exists())
+        return unixProcessListPS();
+    QList<ProcData> rc;
+    const QStringList procIds = procDir.entryList();
+    if (procIds.isEmpty())
+        return rc;
+    foreach (const QString &procId, procIds) {
+        if (!isUnixProcessId(procId))
+            continue;
+        QString filename = QLatin1String("/proc/");
+        filename += procId;
+        filename += QLatin1String("/stat");
+        QFile file(filename);
+        if (!file.open(QIODevice::ReadOnly))
+            continue;           // process may have exited
+
+        const QStringList data = QString::fromLocal8Bit(file.readAll()).split(' ');
+        ProcData proc;
+        proc.ppid = procId;
+        proc.name = data.at(1);
+        if (proc.name.startsWith(QLatin1Char('(')) && proc.name.endsWith(QLatin1Char(')'))) {
+            proc.name.truncate(proc.name.size() - 1);
+            proc.name.remove(0, 1);
+        }
+        proc.state = data.at(2);
+        // PPID is element 3
+        rc.push_back(proc);
+    }
+    return rc;
+}
+
+QList<ProcData> hostProcessList()
+{
+    return unixProcessList();
+}
+
+#endif // Q_OS_WIN
 
 } // namespace Internal
 } // namespace Debugger

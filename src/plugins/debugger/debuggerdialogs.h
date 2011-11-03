@@ -62,14 +62,6 @@ namespace Internal {
 
 class ProcessListFilterModel;
 
-struct ProcData
-{
-    QString ppid;
-    QString name;
-    QString image;
-    QString state;
-};
-
 class AttachCoreDialog : public QDialog
 {
     Q_OBJECT

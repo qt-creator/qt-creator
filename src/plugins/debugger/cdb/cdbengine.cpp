@@ -56,7 +56,7 @@
 #include "watchutils.h"
 #include "gdb/gdbmi.h"
 #include "shared/cdbsymbolpathlisteditor.h"
-#include "shared/dbgwinutils.h"
+#include "shared/hostutils.h"
 
 #include <TranslationUnit.h>
 
