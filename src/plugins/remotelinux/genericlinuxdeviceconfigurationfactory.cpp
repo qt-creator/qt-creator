@@ -82,9 +82,9 @@ QString GenericLinuxDeviceConfigurationFactory::displayNameForActionId(const QSt
     if (actionId == QLatin1String(Constants::GenericTestDeviceActionId))
         return tr("Test");
     if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId))
-        return tr("Remote Processes");
+        return tr("Remote Processes...");
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
-        return tr("Deploy Public Key");
+        return tr("Deploy Public Key...");
     return QString(); // Can't happen.
 }
 

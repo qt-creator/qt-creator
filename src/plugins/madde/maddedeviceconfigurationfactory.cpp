@@ -96,9 +96,9 @@ QString MaddeDeviceConfigurationFactory::displayNameForActionId(const QString &a
     if (actionId == QLatin1String(MaddeDeviceTestActionId))
         return tr("Test");
     if (actionId == QLatin1String(MaddeRemoteProcessesActionId))
-        return tr("Remote Processes");
+        return tr("Remote Processes...");
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
-        return tr("Deploy Public Key");
+        return tr("Deploy Public Key...");
     return QString(); // Can't happen.
 }
 
