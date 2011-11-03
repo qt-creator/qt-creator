@@ -107,6 +107,7 @@ private slots:
     void contextMenuRequested(const QPoint &pos, int index);
     void slotRunControlStarted();
     void slotRunControlFinished();
+    void slotRunControlFinished2(RunControl *sender);
 
     void aboutToUnloadSession();
     void updateFromSettings();

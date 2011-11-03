@@ -301,7 +301,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     connect(rc, SIGNAL(started()),
             this, SLOT(slotRunControlStarted()));
     connect(rc, SIGNAL(finished()),
-            this, SLOT(slotRunControlFinished()), Qt::QueuedConnection);
+            this, SLOT(slotRunControlFinished()));
     connect(rc, SIGNAL(applicationProcessHandleChanged()),
             this, SLOT(enableButtons()));
     connect(rc, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)),
@@ -541,8 +541,14 @@ void AppOutputPane::slotRunControlStarted()
 
 void AppOutputPane::slotRunControlFinished()
 {
-    RunControl *senderRunControl = qobject_cast<RunControl *>(sender());
-    const int senderIndex = indexOf(senderRunControl);
+    ProjectExplorer::RunControl *rc = qobject_cast<RunControl *>(sender());
+    QMetaObject::invokeMethod(this, "slotRunControlFinished2", Qt::QueuedConnection,
+                              Q_ARG(ProjectExplorer::RunControl *, rc));
+}
+
+void AppOutputPane::slotRunControlFinished2(RunControl *sender)
+{
+    const int senderIndex = indexOf(sender);
 
     QTC_ASSERT(senderIndex != -1, return; )
 
@@ -550,17 +556,17 @@ void AppOutputPane::slotRunControlFinished()
     RunControl *current = currentRunControl();
 
     if (debug)
-        qDebug() << "OutputPane::runControlFinished"  << senderRunControl << senderIndex
+        qDebug() << "OutputPane::runControlFinished"  << sender << senderIndex
                     << " current " << current << m_runControlTabs.size();
 
-    if (current && current == sender())
+    if (current && current == sender)
         enableButtons(current, false); // RunControl::isRunning() cannot be trusted in signal handler.
 
     // Check for asynchronous close. Close the tab.
     if (m_runControlTabs.at(senderIndex).asyncClosing)
         closeTab(tabWidgetIndexOf(senderIndex), CloseTabNoPrompt);
 
-    emit runControlFinished(senderRunControl);
+    emit runControlFinished(sender);
 
     if (!isRunning())
         emit allRunControlsFinished();
