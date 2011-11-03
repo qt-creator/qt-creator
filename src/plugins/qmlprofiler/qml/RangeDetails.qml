@@ -113,6 +113,7 @@ BorderImage {
         drag.target: parent
         onClicked: {
             root.gotoSourceLocation(file, line);
+            root.recenterOnItem(view.selectedItem);
         }
     }
 

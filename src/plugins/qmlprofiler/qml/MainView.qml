@@ -218,6 +218,14 @@ Rectangle {
         zoomControl.setRange(newStart, newStart + windowLength);
     }
 
+    function recenterOnItem( itemIndex )
+    {
+        // if item is outside of the view, jump back to its position
+        if (qmlEventList.getEndTime(itemIndex) < view.startTime || qmlEventList.getStartTime(itemIndex) > view.endTime) {
+            recenter((qmlEventList.getStartTime(itemIndex) + qmlEventList.getEndTime(itemIndex)) / 2);
+        }
+    }
+
     function globalZoom() {
         zoomControl.setRange(qmlEventList.traceStartTime(), qmlEventList.traceEndTime());
     }
