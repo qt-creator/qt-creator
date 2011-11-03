@@ -189,6 +189,7 @@ bool Project::removeTarget(Target *target)
             setActiveTarget(d->m_targets.at(0));
     }
     delete target;
+    return true;
 }
 
 QList<Target *> Project::targets() const
