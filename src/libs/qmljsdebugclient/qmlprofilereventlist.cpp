@@ -199,7 +199,7 @@ QmlProfilerEventList::QmlProfilerEventList(QObject *parent) :
     setObjectName("QmlProfilerEventStatistics");
 
     d->m_traceEndTime = 0;
-    d->m_traceStartTime = 0;
+    d->m_traceStartTime = -1;
 }
 
 QmlProfilerEventList::~QmlProfilerEventList()
@@ -225,7 +225,7 @@ void QmlProfilerEventList::clear()
     d->m_typeCounts.clear();
 
     d->m_traceEndTime = 0;
-    d->m_traceStartTime = 0;
+    d->m_traceStartTime = -1;
     emit countChanged();
     emit dataClear();
 }
@@ -808,7 +808,7 @@ qint64 QmlProfilerEventList::lastTimeMark() const
 
 qint64 QmlProfilerEventList::traceStartTime() const
 {
-    return d->m_traceStartTime;
+    return d->m_traceStartTime != -1? d->m_traceStartTime : firstTimeMark();
 }
 
 qint64 QmlProfilerEventList::traceEndTime() const
