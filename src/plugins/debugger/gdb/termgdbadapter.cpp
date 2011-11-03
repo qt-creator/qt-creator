@@ -97,10 +97,8 @@ void TermGdbAdapter::startAdapter()
 //    m_stubProc.stop();
 //    m_stubProc.blockSignals(false);
 
-#ifdef Q_OS_WIN
     if (!prepareCommand())
         return;
-#endif
 
     m_stubProc.setWorkingDirectory(startParameters().workingDirectory);
     // Set environment + dumper preload.
