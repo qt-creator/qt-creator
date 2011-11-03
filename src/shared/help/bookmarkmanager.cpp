@@ -390,7 +390,7 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
         renameItem = menu.addAction(tr("Rename Folder"));
     } else {
         showItem = menu.addAction(tr("Show Bookmark"));
-        showItemNewTab = menu.addAction(tr("Show Bookmark in New Tab"));
+        showItemNewTab = menu.addAction(tr("Show Bookmark as New Page"));
         if (searchField->text().isEmpty()) {
             menu.addSeparator();
             removeItem = menu.addAction(tr("Delete Bookmark"));
