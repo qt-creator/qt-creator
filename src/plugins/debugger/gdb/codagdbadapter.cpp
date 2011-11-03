@@ -57,9 +57,9 @@
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
 
-#ifdef Q_OS_WIN
-#  include "dbgwinutils.h"
-#else
+#include "dbgwinutils.h"
+
+#ifndef Q_OS_WIN
 #  include <sys/types.h>
 #  include <unistd.h>
 #endif

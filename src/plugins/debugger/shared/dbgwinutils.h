@@ -35,8 +35,12 @@
 
 #include <QtCore/QList>
 
-QT_FORWARD_DECLARE_CLASS(QString)
-QT_FORWARD_DECLARE_CLASS(QTextStream)
+#ifdef Q_OS_WIN
+
+QT_BEGIN_NAMESPACE
+class QString;
+class QTextStream;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
@@ -83,5 +87,7 @@ bool isDebuggerWinException(long code);
 
 } // namespace Internal
 } // namespace Debugger
+
+#endif // defined(Q_OS_WIN)
 
 #endif // DEBUGGER_DBG_WINUTILS_H

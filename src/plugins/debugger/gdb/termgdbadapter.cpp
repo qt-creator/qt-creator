@@ -38,16 +38,12 @@
 #include "procinterrupt.h"
 #include "debuggerstringutils.h"
 #include "debuggercore.h"
+#include "dbgwinutils.h"
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
 #include <QtGui/QMessageBox>
-
-#ifdef Q_OS_WIN
-#    include "dbgwinutils.h"
-#    include "dbgwinutils.h"
-#endif
 
 namespace Debugger {
 namespace Internal {

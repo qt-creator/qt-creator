@@ -37,9 +37,8 @@
 #include "bytearrayinputstream.h"
 #include "gdb/gdbmi.h"
 #include "disassemblerlines.h"
-#ifdef Q_OS_WIN
-#    include "shared/dbgwinutils.h"
-#endif
+#include "shared/dbgwinutils.h"
+
 #include <utils/qtcassert.h>
 
 #include <QtCore/QByteArray>

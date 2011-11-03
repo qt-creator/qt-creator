@@ -31,30 +31,32 @@
 **************************************************************************/
 
 #include "cdbengine.h"
-#include "debuggerstartparameters.h"
-#include "disassemblerlines.h"
+
+#include "breakhandler.h"
+#include "breakpoint.h"
+#include "bytearrayinputstream.h"
 #include "cdboptions.h"
 #include "cdboptionspage.h"
-#include "bytearrayinputstream.h"
-#include "breakpoint.h"
-#include "breakhandler.h"
+#include "cdbparsehelpers.h"
+#include "debuggeractions.h"
+#include "debuggercore.h"
+#include "debuggerinternalconstants.h"
+#include "debuggerrunner.h"
+#include "debuggerstartparameters.h"
+#include "debuggertooltipmanager.h"
+#include "disassembleragent.h"
+#include "disassemblerlines.h"
+#include "memoryagent.h"
+#include "moduleshandler.h"
+#include "registerhandler.h"
 #include "stackframe.h"
 #include "stackhandler.h"
-#include "watchhandler.h"
 #include "threadshandler.h"
-#include "moduleshandler.h"
-#include "debuggeractions.h"
-#include "debuggerinternalconstants.h"
-#include "debuggercore.h"
-#include "registerhandler.h"
-#include "disassembleragent.h"
-#include "memoryagent.h"
-#include "debuggerrunner.h"
-#include "debuggertooltipmanager.h"
-#include "cdbparsehelpers.h"
+#include "watchhandler.h"
 #include "watchutils.h"
 #include "gdb/gdbmi.h"
 #include "shared/cdbsymbolpathlisteditor.h"
+#include "shared/dbgwinutils.h"
 
 #include <TranslationUnit.h>
 
@@ -83,11 +85,6 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
-
-#ifdef Q_OS_WIN
-#    include <utils/winutils.h>
-#    include "dbgwinutils.h"
-#endif
 
 #include <cctype>
 

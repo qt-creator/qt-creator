@@ -67,10 +67,7 @@
 #include "threadshandler.h"
 #include "watchhandler.h"
 #include "debuggersourcepathmappingwidget.h"
-
-#ifdef Q_OS_WIN
-#    include "dbgwinutils.h"
-#endif
+#include "dbgwinutils.h"
 #include "logwindow.h"
 
 #include <coreplugin/icore.h>

@@ -69,7 +69,6 @@ QTCREATOR_UTILS_EXPORT bool winIs64BitSystem();
 // Check for a 64bit binary.
 QTCREATOR_UTILS_EXPORT bool winIs64BitBinary(const QString &binary);
 
-
-
 } // namespace Utils
+
 #endif // WINUTILS_H

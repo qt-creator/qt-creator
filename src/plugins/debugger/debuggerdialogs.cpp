@@ -34,6 +34,7 @@
 
 #include "debuggerconstants.h"
 #include "cdb/cdbengine.h"
+#include "shared/dbgwinutils.h"
 
 #include "ui_attachcoredialog.h"
 #include "ui_attachexternaldialog.h"
@@ -41,10 +42,6 @@
 #include "ui_startremotedialog.h"
 #include "ui_startremoteenginedialog.h"
 #include "ui_attachtoqmlportdialog.h"
-
-#ifdef Q_OS_WIN
-#  include "shared/dbgwinutils.h"
-#endif
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
