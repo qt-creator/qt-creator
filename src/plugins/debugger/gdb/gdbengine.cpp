@@ -705,13 +705,11 @@ void GdbEngine::readGdbStandardOutput()
         scan = newstart;
         if (end == start)
             continue;
-#        if defined(Q_OS_WIN)
         if (m_inbuffer.at(end - 1) == '\r') {
             --end;
             if (end == start)
                 continue;
         }
-#        endif
         m_busy = true;
         handleResponse(QByteArray::fromRawData(m_inbuffer.constData() + start, end - start));
         m_busy = false;
