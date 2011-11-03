@@ -53,9 +53,6 @@
       </item>
       <item row="2" column="0">
        <widget class="QCheckBox" name="checkBoxCloseBuffersOnExit">
-        <property name="toolTip">
-         <string>Close temporary buffers on debugger exit.</string>
-        </property>
         <property name="text">
          <string>Close temporary buffers on debugger exit</string>
         </property>
@@ -63,9 +60,6 @@
       </item>
       <item row="2" column="1">
        <widget class="QCheckBox" name="checkBoxSwitchModeOnExit">
-        <property name="toolTip">
-         <string>Switch to previous mode on debugger exit.</string>
-        </property>
         <property name="text">
          <string>Switch to previous mode on debugger exit</string>
         </property>

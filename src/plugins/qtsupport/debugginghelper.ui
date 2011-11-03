@@ -176,9 +176,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="rebuildButton">
-       <property name="toolTip">
-        <string>Compile debugging helpers that are checked.</string>
-       </property>
        <property name="text">
         <string>Build All</string>
        </property>
