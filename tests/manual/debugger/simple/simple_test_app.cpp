@@ -3634,6 +3634,22 @@ namespace cp42895 {
 } // namespace cp
 
 
+namespace bug6465 {
+
+    // https://bugreports.qt.nokia.com/browse/QTCREATORBUG-6465
+
+    void test6465()
+    {
+        typedef char Foo[20];
+        Foo foo = "foo";
+        char bar[20] = "baz";
+        // BREAK HERE
+        dummyStatement(&foo, &bar);
+    }
+
+} // namespace bug6465
+
+
 namespace varargs {
 
     void test(const char *format, ...)
@@ -3778,6 +3794,7 @@ int main(int argc, char *argv[])
     bug5106::test5106();
     bug5184::test5184();
     bug5799::test5799();
+    bug6465::test6465();
 
     application::testApplicationStart(argc, argv);
 
