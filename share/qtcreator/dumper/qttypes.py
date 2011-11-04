@@ -882,22 +882,27 @@ def qdump__QObject(d, value):
             d.putItemCount(connectionListCount, 0)
             d.putNumChild(connectionListCount)
             if d.isExpanded():
+                pp = 0
                 with Children(d):
                     vectorType = connections.type.target().fields()[0].type
                     innerType = templateArgument(vectorType, 0)
                     # Should check:  innerType == ns::QObjectPrivate::ConnectionList
                     p = gdb.Value(connections["p"]["array"]).cast(innerType.pointer())
-                    pp = 0
                     for i in xrange(connectionListCount):
                         first = p.dereference()["first"]
                         while not isNull(first):
-                            d.putSubItem(i, first.dereference())
-                            first = first["next"]
+                            with SubItem(d, pp):
+                                connection = first.dereference()
+                                d.putItem(connection)
+                                d.putValue(connection["callFunction"])
+                            first = first["nextConnectionList"]
                             # We need to enforce some upper limit.
                             pp += 1
                             if pp > 1000:
                                 break
                         p += 1
+                if pp < 1000:
+                    d.putItemCount(pp)
 
 
         # Signals.

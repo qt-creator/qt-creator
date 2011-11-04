@@ -917,8 +917,8 @@ namespace qobject {
         parent.setObjectName("A Parent");
         QObject child(&parent);
         child.setObjectName("A Child");
-        QObject::connect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
-        QObject::disconnect(&child, SIGNAL(destroyed()), qApp, SLOT(quit()));
+        QObject::connect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));
+        QObject::disconnect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));
         child.setObjectName("A renamed Child");
         BREAK_HERE;
         // Expand all.
