@@ -304,6 +304,8 @@ bool ProjectExplorerPlugin::parseArguments(const QStringList &arguments, QString
 
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
+    qRegisterMetaType<ProjectExplorer::RunControl *>();
+
     if (!parseArguments(arguments, error))
         return false;
     addObject(this);
