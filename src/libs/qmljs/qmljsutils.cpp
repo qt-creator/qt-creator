@@ -106,8 +106,11 @@ QString QmlJS::idOfObject(Node *object, UiScriptBinding **idBinding)
         *idBinding = 0;
 
     UiObjectInitializer *initializer = initializerOfObject(object);
-    if (!initializer)
-        return QString();
+    if (!initializer) {
+        initializer = cast<UiObjectInitializer *>(object);
+        if (!initializer)
+            return QString();
+    }
 
     for (UiObjectMemberList *iter = initializer->members; iter; iter = iter->next) {
         if (UiScriptBinding *script = cast<UiScriptBinding*>(iter->member)) {

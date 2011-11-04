@@ -30,11 +30,16 @@ QMLJS_EXPORT DiagnosticMessage errorMessage(const AST::SourceLocation &loc,
                                             const QString &message);
 
 template <class T>
+AST::SourceLocation locationFromRange(const T *node)
+{
+    return locationFromRange(node->firstSourceLocation(), node->lastSourceLocation());
+}
+
+template <class T>
 DiagnosticMessage errorMessage(const T *node, const QString &message)
 {
     return DiagnosticMessage(DiagnosticMessage::Error,
-                             locationFromRange(node->firstSourceLocation(),
-                                               node->lastSourceLocation()),
+                             locationFromRange(node),
                              message);
 }
 
