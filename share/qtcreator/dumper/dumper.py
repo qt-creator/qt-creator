@@ -1221,12 +1221,8 @@ class Dumper:
         self.put('name="%s",' % name)
 
     def isExpanded(self):
-        #warn("IS EXPANDED: %s in %s" % (item.iname, self.expandedINames))
-        #if item.iname is None:
-        #    raise "Illegal iname 'None'"
-        #if item.iname.startswith("None"):
-        #    raise "Illegal iname '%s'" % item.iname
-        #warn("   --> %s" % (item.iname in self.expandedINames))
+        #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
+        #    self.expandedINames, self.currentIName in self.expandedINames))
         return self.currentIName in self.expandedINames
 
     def isExpandedSubItem(self, component):
@@ -1427,7 +1423,7 @@ class Dumper:
                 return
 
             if format == 1:
-                # Explicityly requested Latin1 formatting.
+                # Explicitly requested Latin1 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
@@ -1435,7 +1431,7 @@ class Dumper:
                 return
 
             if format == 2:
-                # Explicityly requested UTF-8 formatting.
+                # Explicitly requested UTF-8 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeCharArray(value, 100), Hex2EncodedUtf8)
@@ -1443,7 +1439,7 @@ class Dumper:
                 return
 
             if format == 3:
-                # Explicityly requested local 8 bit formatting.
+                # Explicitly requested local 8 bit formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeCharArray(value, 100), Hex2EncodedLocal8Bit)
@@ -1451,7 +1447,7 @@ class Dumper:
                 return
 
             if format == 4:
-                # Explitly requested UTF-16 formatting.
+                # Explicitly requested UTF-16 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeChar2Array(value, 100), Hex4EncodedBigEndian)
@@ -1459,7 +1455,7 @@ class Dumper:
                 return
 
             if format == 5:
-                # Explitly requested UCS-4 formatting.
+                # Explicitly requested UCS-4 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
                 self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
@@ -1502,7 +1498,6 @@ class Dumper:
             if self.currentIName in self.expandedINames:
                 with Children(self):
                     with SubItem(self, "*"):
-                        self.put('name="*",')
                         self.putItem(value.dereference())
             self.putPointerValue(value.address)
             return
