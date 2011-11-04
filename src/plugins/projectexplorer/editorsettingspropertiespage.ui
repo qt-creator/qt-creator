@@ -11,10 +11,7 @@
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
+   <property name="margin">
     <number>0</number>
    </property>
    <item row="0" column="0">
