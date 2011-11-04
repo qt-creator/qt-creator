@@ -1230,7 +1230,6 @@ void BreakHandler::gotoLocation(BreakpointModelId id) const
 void BreakHandler::updateLineNumberFromMarker(BreakpointModelId id, int lineNumber)
 {
     Iterator it = m_storage.find(id);
-    it->response.pending = false;
     BREAK_ASSERT(it != m_storage.end(), return);
     // Ignore updates to the "real" line number while the debugger is
     // running, as this can be triggered by moving the breakpoint to
@@ -1241,10 +1240,6 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointModelId id, int lineNumb
         it->data.lineNumber += lineNumber - it->response.lineNumber;
     else
         it->data.lineNumber = lineNumber;
-    if (it->response.lineNumber != lineNumber) {
-        // FIXME: Should we tell gdb about the change?
-        it->response.lineNumber = lineNumber;
-    }
     it->updateMarker(id);
     emit layoutChanged();
 }
@@ -1335,11 +1330,10 @@ void BreakHandler::changeBreakpointData(BreakpointModelId id,
     if (data == it->data)
         return;
     it->data = data;
-    if (parts == NoParts) {
-        it->destroyMarker();
-        it->updateMarker(id);
-        layoutChanged();
-    } else if (it->needsChange() && it->engine && it->state != BreakpointNew) {
+    it->destroyMarker();
+    it->updateMarker(id);
+    layoutChanged();
+    if (it->needsChange() && it->engine && it->state != BreakpointNew) {
         setState(id, BreakpointChangeRequested);
         scheduleSynchronization();
     }
@@ -1410,6 +1404,8 @@ bool BreakHandler::BreakpointItem::needsChange() const
     if (data.threadSpec != response.threadSpec)
         return true;
     if (data.command != response.command)
+        return true;
+    if (data.lineNumber != response.lineNumber)
         return true;
     return false;
 }

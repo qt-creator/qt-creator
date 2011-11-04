@@ -504,6 +504,7 @@ private: ////////// View & Data Stuff //////////
     void handleTraceInsert2(const GdbResponse &response);
     void handleBreakCondition(const GdbResponse &response);
     void handleBreakThreadSpec(const GdbResponse &response);
+    void handleBreakLineNumber(const GdbResponse &response);
     void handleWatchInsert(const GdbResponse &response);
     void handleCatchInsert(const GdbResponse &response);
     void handleInfoLine(const GdbResponse &response);

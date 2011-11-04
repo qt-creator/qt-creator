@@ -2713,6 +2713,18 @@ void GdbEngine::handleBreakThreadSpec(const GdbResponse &response)
     insertBreakpoint(id);
 }
 
+void GdbEngine::handleBreakLineNumber(const GdbResponse &response)
+{
+    QTC_CHECK(response.resultClass == GdbResultDone)
+    const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
+    BreakHandler *handler = breakHandler();
+    BreakpointResponse br = handler->response(id);
+    br.lineNumber = handler->lineNumber(id);
+    handler->setResponse(id, br);
+    handler->notifyBreakpointNeedsReinsertion(id);
+    insertBreakpoint(id);
+}
+
 void GdbEngine::handleBreakIgnore(const GdbResponse &response)
 {
     // gdb 6.8:
@@ -3020,6 +3032,13 @@ void GdbEngine::changeBreakpoint(BreakpointModelId id)
         postCommand("-break-delete " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakThreadSpec), vid);
+        return;
+    }
+    if (data.lineNumber != response.lineNumber) {
+        // The only way to change this seems to be to re-set the bp completely.
+        postCommand("-break-delete " + bpnr,
+            NeedsStop | RebuildBreakpointModel,
+            CB(handleBreakLineNumber), vid);
         return;
     }
     if (data.command != response.command) {
