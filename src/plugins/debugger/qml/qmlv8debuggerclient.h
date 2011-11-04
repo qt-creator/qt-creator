@@ -113,7 +113,7 @@ private:
     void updateLocals(const QVariant &localsVal, const QVariant &refsVal);
     void updateScope(const QVariant &localsVal, const QVariant &refsVal);
 
-    void updateEvaluationResult(int sequence, const QVariant &bodyVal,
+    void updateEvaluationResult(int sequence, bool success, const QVariant &bodyVal,
                                 const QVariant &refsVal);
     void updateBreakpoints(const QVariant &bodyVal);
 

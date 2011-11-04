@@ -53,7 +53,7 @@
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValue>
 
-#define DEBUG_QML 1
+#define DEBUG_QML 0
 #if DEBUG_QML
 #   define SDEBUG(s) qDebug() << s << '\n'
 #else
@@ -1120,10 +1120,12 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 int seq = resp.value(_("request_seq")).toInt();
                 if (success) {
                     d->requestBacktrace = true;
-                    updateEvaluationResult(seq, resp.value(_(BODY)), resp.value(_(REFS)));
+                    updateEvaluationResult(seq, success, resp.value(_(BODY)), resp.value(_(REFS)));
                 } else {
-                    d->engine->showMessage(resp.value(_("message")).toString(), ScriptConsoleOutput);
-                    updateEvaluationResult(seq, QVariant(), QVariant());
+                    QVariantMap map;
+                    map.insert(_(TYPE), QVariant(_("string")));
+                    map.insert(_(VALUE), resp.value(_("message")));
+                    updateEvaluationResult(seq, success, QVariant(map), QVariant());
                 }
 
             } else if (debugCommand == _(LISTBREAKPOINTS)) {
@@ -1522,7 +1524,7 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
     }
 }
 
-void QmlV8DebuggerClient::updateEvaluationResult(int sequence, const QVariant &bodyVal,
+void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, const QVariant &bodyVal,
                                                  const QVariant &refsVal)
 {
     //    { "seq"         : <number>,
@@ -1556,8 +1558,13 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, const QVariant &b
         data.name = exp;
         data.iname = iname;
         data.id = bodyMap.value(_(HANDLE)).toInt();
-        data.type = body.type;
-        data.value = body.value.toString();
+        if (success) {
+            data.type = body.type;
+            data.value = body.value.toString();
+        } else {
+            //Do not set type since it is unkown
+            data.setError(body.value.toString());
+        }
 
         //TODO:: Fix expanding watched objects/expressions
 //        const QVariantList properties = body.properties.toList();
