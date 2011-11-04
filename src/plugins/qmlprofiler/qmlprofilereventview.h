@@ -33,12 +33,16 @@
 #ifndef QMLPROFILEREVENTVIEW_H
 #define QMLPROFILEREVENTVIEW_H
 
-#include <QTreeView>
+#include <QtGui/QTreeView>
 #include <qmljsdebugclient/qmlprofilereventtypes.h>
 #include <qmljsdebugclient/qmlprofilereventlist.h>
+#include <QtGui/QStandardItemModel>
 
 namespace QmlProfiler {
 namespace Internal {
+
+class QmlProfilerEventsMainView;
+class QmlProfilerEventsParentsAndChildrenView;
 
 typedef QHash<QString, QmlJsDebugClient::QmlEventData *> QmlEventHash;
 typedef QList<QmlJsDebugClient::QmlEventData *> QmlEventList;
@@ -46,10 +50,39 @@ typedef QList<QmlJsDebugClient::QmlEventData *> QmlEventList;
 enum ItemRole {
     LocationRole = Qt::UserRole+1,
     FilenameRole = Qt::UserRole+2,
-    LineRole = Qt::UserRole+3
+    LineRole = Qt::UserRole+3,
+    EventIdRole = Qt::UserRole+4
 };
 
-class QmlProfilerEventsView : public QTreeView
+class QmlProfilerEventsWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit QmlProfilerEventsWidget(QmlJsDebugClient::QmlProfilerEventList *model, QWidget *parent);
+    ~QmlProfilerEventsWidget();
+
+    void switchToV8View();
+    void clear();
+
+    QModelIndex selectedItem() const;
+    bool mouseOnTable(const QPoint &position) const;
+    void copyTableToClipboard() const;
+    void copyRowToClipboard() const;
+
+signals:
+    void gotoSourceLocation(const QString &fileName, int lineNumber);
+    void contextMenuRequested(const QPoint &position);
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *ev);
+
+private:
+    QmlProfilerEventsMainView *m_eventTree;
+    QmlProfilerEventsParentsAndChildrenView *m_eventChildren;
+    QmlProfilerEventsParentsAndChildrenView *m_eventParents;
+};
+
+class QmlProfilerEventsMainView : public QTreeView
 {
     Q_OBJECT
 public:
@@ -81,8 +114,8 @@ public:
         MaxViewTypes
     };
 
-    explicit QmlProfilerEventsView(QWidget *parent, QmlJsDebugClient::QmlProfilerEventList *model);
-    ~QmlProfilerEventsView();
+    explicit QmlProfilerEventsMainView(QmlJsDebugClient::QmlProfilerEventList *model, QWidget *parent);
+    ~QmlProfilerEventsMainView();
 
     void setEventStatisticsModel(QmlJsDebugClient::QmlProfilerEventList *model);
     void setFieldViewable(Fields field, bool show);
@@ -90,26 +123,62 @@ public:
     void setShowAnonymousEvents( bool showThem );
 
     QModelIndex selectedItem() const;
-    void copyTableToClipboard();
-    void copyRowToClipboard();
+    void copyTableToClipboard() const;
+    void copyRowToClipboard() const;
+
+    static QString nameForType(int typeNumber);
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber);
-    void contextMenuRequested(const QPoint &position);
+    void eventSelected(int eventId);
 
 public slots:
     void clear();
     void jumpToItem(const QModelIndex &index);
+    void selectEvent(int eventId);
     void buildModel();
 
 private:
     void setHeaderLabels();
-    void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
-    class QmlProfilerEventsViewPrivate;
-    QmlProfilerEventsViewPrivate *d;
+    class QmlProfilerEventsMainViewPrivate;
+    QmlProfilerEventsMainViewPrivate *d;
 
+};
+
+class QmlProfilerEventsParentsAndChildrenView : public QTreeView
+{
+    Q_OBJECT
+public:
+    enum SubViewType {
+        ParentsView,
+        ChildrenView,
+        V8ParentsView,
+        V8ChildrenView,
+        MaxSubtableTypes
+    };
+
+    explicit QmlProfilerEventsParentsAndChildrenView(QmlJsDebugClient::QmlProfilerEventList *model, SubViewType subtableType, QWidget *parent);
+    ~QmlProfilerEventsParentsAndChildrenView();
+
+    void setViewType(SubViewType type);
+
+signals:
+    void eventClicked(int eventId);
+
+public slots:
+    void displayEvent(int eventId);
+    void jumpToItem(const QModelIndex &);
+    void clear();
+
+private:
+    void rebuildTree(void *eventList);
+    void updateHeader();
+    QStandardItemModel *treeModel();
+    QmlJsDebugClient::QmlProfilerEventList *m_eventList;
+
+    SubViewType m_subtableType;
 };
 
 } // namespace Internal

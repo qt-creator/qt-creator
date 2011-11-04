@@ -43,6 +43,7 @@ namespace QmlJsDebugClient {
 
 struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
 {
+    QmlEventData():line(-1),cumulatedDuration(0),calls(0),eventId(-1){}
     QString displayname;
     QString filename;
     QString location;
@@ -58,7 +59,7 @@ struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
     double timePerCall;
     double percentOfTime;
     qint64 medianTime;
-    int numericHash;
+    int eventId;
 };
 
 struct QMLJSDEBUGCLIENT_EXPORT QV8EventData
@@ -73,6 +74,7 @@ struct QMLJSDEBUGCLIENT_EXPORT QV8EventData
     double selfPercent;
     QList< QV8EventData *> parentList;
     QList< QV8EventData *> childrenList;
+    int eventId;
 };
 
 typedef QHash<QString, QmlEventData *> QmlEventHash;
@@ -97,7 +99,9 @@ public:
     ~QmlProfilerEventList();
 
     QmlEventDescriptions getEventDescriptions() const;
+    QmlEventData *eventDescription(int eventId) const;
     const QV8EventDescriptions& getV8Events() const;
+    QV8EventData *v8EventDescription(int eventId) const;
 
     int findFirstIndex(qint64 startTime) const;
     int findFirstIndexNoParents(qint64 startTime) const;
@@ -119,7 +123,7 @@ public:
     Q_INVOKABLE QString getFilename(int index) const;
     Q_INVOKABLE int getLine(int index) const;
     Q_INVOKABLE QString getDetails(int index) const;
-    Q_INVOKABLE int getHash(int index) const;
+    Q_INVOKABLE int getEventId(int index) const;
 
     // per-type data
     Q_INVOKABLE int uniqueEventsOfType(int type) const;

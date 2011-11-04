@@ -116,13 +116,13 @@ void TimelineView::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget 
 
 QColor TimelineView::colorForItem(int itemIndex)
 {
-    int ndx = m_eventList->getHash(itemIndex);
+    int ndx = m_eventList->getEventId(itemIndex);
     return QColor::fromHsl((ndx*25)%360, 76, 166);
 }
 
 QLinearGradient *TimelineView::gradientForItem(int itemIndex)
 {
-    int ndx = m_eventList->getHash(itemIndex);
+    int ndx = m_eventList->getEventId(itemIndex);
     if (!m_hashedGradients.contains(ndx)) {
         QLinearGradient *linearGrad = new QLinearGradient(0,0,0,DefaultRowHeight);
         linearGrad->setColorAt(0, colorForItem(itemIndex));
@@ -165,7 +165,7 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
 
     int fromIndex = m_eventList->findFirstIndex(m_startTime);
     int toIndex = m_eventList->findLastIndex(m_endTime);
-    int id = m_eventList->getHash(m_selectedItem);
+    int id = m_eventList->getEventId(m_selectedItem);
 
     p->setBrush(Qt::transparent);
     QPen strongPen(QBrush(Qt::blue), 3);
@@ -174,7 +174,7 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
 
     int x, y, width, eventType;
     for (int i = fromIndex; i <= toIndex; i++) {
-        if (m_eventList->getHash(i) != id)
+        if (m_eventList->getEventId(i) != id)
             continue;
 
         if (i == m_selectedItem)
@@ -340,14 +340,14 @@ void TimelineView::selectNext()
         return;
 
     if (m_selectionLocked && m_selectedItem !=-1 ) {
-        // find next item with same hashId
-        int hashId = m_eventList->getHash(m_selectedItem);
+        // find next item with same eventId
+        int eventId = m_eventList->getEventId(m_selectedItem);
         int i = m_selectedItem+1;
-        while (i<m_eventList->count() && m_eventList->getHash(i) != hashId)
+        while (i<m_eventList->count() && m_eventList->getEventId(i) != eventId)
             i++;
         if (i == m_eventList->count()) {
             i = 0;
-            while (i<m_selectedItem && m_eventList->getHash(i) != hashId)
+            while (i<m_selectedItem && m_eventList->getEventId(i) != eventId)
                 i++;
         }
         setSelectedItem(i);
@@ -368,14 +368,14 @@ void TimelineView::selectPrev()
         return;
 
     if (m_selectionLocked && m_selectedItem !=-1) {
-        // find previous item with same hashId
-        int hashId = m_eventList->getHash(m_selectedItem);
+        // find previous item with same eventId
+        int eventId = m_eventList->getEventId(m_selectedItem);
         int i = m_selectedItem-1;
-        while (i>-1 && m_eventList->getHash(i) != hashId)
+        while (i>-1 && m_eventList->getEventId(i) != eventId)
             i--;
         if (i == -1) {
             i = m_eventList->count()-1;
-            while (i>m_selectedItem && m_eventList->getHash(i) != hashId)
+            while (i>m_selectedItem && m_eventList->getEventId(i) != eventId)
                 i--;
         }
         setSelectedItem(i);

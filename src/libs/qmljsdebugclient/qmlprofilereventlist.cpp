@@ -58,24 +58,6 @@ const char *const TYPE_HANDLINGSIGNAL_STR = "HandlingSignal";
 
 #define MIN_LEVEL 1
 
-// description
-struct QmlEventDescription {
-    QmlEventDescription() : displayname(0), location(0), filename(0), details(0) {}
-    ~QmlEventDescription() {
-        delete displayname;
-        delete location;
-        delete filename;
-        delete details;
-    }
-
-    QString *displayname;
-    QString *location;
-    QString *filename;
-    QString *details;
-    int eventType;
-    int line;
-};
-
 // endtimedata
 struct QmlEventEndTimeData {
     qint64 endTime;
@@ -235,6 +217,24 @@ QList <QmlEventData *> QmlProfilerEventList::getEventDescriptions() const
     return d->m_eventDescriptions.values();
 }
 
+QmlEventData *QmlProfilerEventList::eventDescription(int eventId) const
+{
+    foreach (QmlEventData *event, d->m_eventDescriptions.values()) {
+        if (event->eventId == eventId)
+            return event;
+    }
+    return 0;
+}
+
+QV8EventData *QmlProfilerEventList::v8EventDescription(int eventId) const
+{
+    foreach (QV8EventData *event, d->m_v8EventList) {
+        if (event->eventId == eventId)
+            return event;
+    }
+    return 0;
+}
+
 const QV8EventDescriptions& QmlProfilerEventList::getV8Events() const
 {
     return d->m_v8EventList;
@@ -276,7 +276,7 @@ void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 len
                 details = details.mid(details.lastIndexOf(QChar('/')) + 1);
         }
 
-        newEvent = new QmlEventData;
+        newEvent = new QmlEventData();
         newEvent->displayname = displayName;
         newEvent->filename = fileName;
         newEvent->location = location;
@@ -363,6 +363,10 @@ void QmlProfilerEventList::QmlProfilerEventListPrivate::collectV8Statistics()
         v8event->totalPercent = v8event->totalTime * 100.0 / totalTimes;
         v8event->selfPercent = v8event->selfTime * 100.0 / selfTimes;
     }
+
+    int index = 0;
+    foreach (QV8EventData *v8event, m_v8EventList)
+        v8event->eventId = index++;
 }
 
 void QmlProfilerEventList::setTraceEndTime( qint64 time )
@@ -423,14 +427,10 @@ void QmlProfilerEventList::compileStatistics()
     // compute percentages
     double totalTime = 0;
     foreach (QmlEventData *binding, d->m_eventDescriptions.values()) {
-        if (binding->filename.isEmpty())
-            continue;
         totalTime += binding->cumulatedDuration;
     }
 
     foreach (QmlEventData *binding, d->m_eventDescriptions.values()) {
-        if (binding->filename.isEmpty())
-            continue;
         binding->percentOfTime = binding->cumulatedDuration * 100.0 / totalTime;
         binding->timePerCall = binding->calls > 0 ? double(binding->cumulatedDuration) / binding->calls : 0;
     }
@@ -452,7 +452,7 @@ void QmlProfilerEventList::compileStatistics()
     // generate numeric ids
     int ndx = 0;
     foreach (QmlEventData *binding, d->m_eventDescriptions.values()) {
-        binding->numericHash = ndx++;
+        binding->eventId = ndx++;
     }
 
     // collect type counts
@@ -465,8 +465,8 @@ void QmlProfilerEventList::compileStatistics()
         if (eventStartData.nestingLevel > d->m_typeCounts[typeNumber]->nestingCount) {
             d->m_typeCounts[typeNumber]->nestingCount = eventStartData.nestingLevel;
         }
-        if (!d->m_typeCounts[typeNumber]->eventIds.contains(eventStartData.description->numericHash))
-            d->m_typeCounts[typeNumber]->eventIds << eventStartData.description->numericHash;
+        if (!d->m_typeCounts[typeNumber]->eventIds.contains(eventStartData.description->eventId))
+            d->m_typeCounts[typeNumber]->eventIds << eventStartData.description->eventId;
     }
 
     // continue postprocess
@@ -1001,7 +1001,7 @@ void QmlProfilerEventList::load()
                         if (attributes.hasAttribute("index")) {
                             int ndx = attributes.value("index").toString().toInt();
                             if (!descriptionBuffer.value(ndx))
-                                descriptionBuffer[ndx] = new QmlEventData;
+                                descriptionBuffer[ndx] = new QmlEventData();
                             currentEvent = descriptionBuffer[ndx];
                         } else {
                             currentEvent = 0;
@@ -1209,8 +1209,8 @@ QString QmlProfilerEventList::getDetails(int index) const {
     return d->m_startTimeSortedList[index].description->details;
 }
 
-int QmlProfilerEventList::getHash(int index) const {
-    return d->m_startTimeSortedList[index].description->numericHash;
+int QmlProfilerEventList::getEventId(int index) const {
+    return d->m_startTimeSortedList[index].description->eventId;
 }
 
 int QmlProfilerEventList::uniqueEventsOfType(int type) const {
@@ -1233,7 +1233,7 @@ QString QmlProfilerEventList::eventTextForType(int type, int index) const {
 
 int QmlProfilerEventList::eventPosInType(int index) const {
     int eventType = d->m_startTimeSortedList[index].description->eventType;
-    return d->m_typeCounts[eventType]->eventIds.indexOf(d->m_startTimeSortedList[index].description->numericHash);
+    return d->m_typeCounts[eventType]->eventIds.indexOf(d->m_startTimeSortedList[index].description->eventId);
 }
 
 } // namespace QmlJsDebugClient

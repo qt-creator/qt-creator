@@ -100,10 +100,8 @@ public:
     QTimer m_connectionTimer;
     int m_connectionAttempts;
     TraceWindow *m_traceWindow;
-    QmlProfilerEventsView *m_eventsView;
-    QmlProfilerEventsView *m_calleeView;
-    QmlProfilerEventsView *m_callerView;
-    QmlProfilerEventsView *m_v8profilerView;
+    QmlProfilerEventsWidget *m_eventsView;
+    QmlProfilerEventsWidget *m_v8profilerView;
     Utils::FileInProjectFinder m_projectFinder;
     RunConfiguration *m_runConfiguration;
     bool m_isAttached;
@@ -175,7 +173,7 @@ IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
 
 void QmlProfilerTool::showContextMenu(const QPoint &position)
 {
-    QmlProfilerEventsView *senderView = qobject_cast<QmlProfilerEventsView *>(sender());
+    QmlProfilerEventsWidget *eventView = qobject_cast<QmlProfilerEventsWidget *>(sender());
     TraceWindow *traceView = qobject_cast<TraceWindow *>(sender());
 
     QMenu menu;
@@ -184,11 +182,12 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
     QAction *copyRowAction = 0;
     QAction *copyTableAction = 0;
     QAction *viewAllAction = 0;
-    if (senderView) {
-        if (senderView->selectedItem().isValid())
+    if (eventView && eventView->mouseOnTable(position)) {
+        if (eventView->selectedItem().isValid())
             copyRowAction = menu.addAction(tr("Copy Row"));
         copyTableAction = menu.addAction(tr("Copy Table"));
     }
+
     if (traceView) {
         if (traceView->getEventList()->count() > 0) {
             menu.addSeparator();
@@ -204,9 +203,9 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
         if (selectedAction == saveAction)
             showSaveDialog();
         if (selectedAction == copyRowAction)
-            senderView->copyRowToClipboard();
+            eventView->copyRowToClipboard();
         if (selectedAction == copyTableAction)
-            senderView->copyTableToClipboard();
+            eventView->copyTableToClipboard();
         if (selectedAction == viewAllAction)
             traceView->viewAll();
     }
@@ -315,27 +314,12 @@ QWidget *QmlProfilerTool::createWidgets()
     connect(d->m_traceWindow, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(d->m_traceWindow->getEventList(), SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
 
-    d->m_eventsView = new QmlProfilerEventsView(mw, d->m_traceWindow->getEventList());
-    d->m_eventsView->setViewType(QmlProfilerEventsView::EventsView);
-
-    connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)),
-            this, SLOT(gotoSourceLocation(QString,int)));
+    d->m_eventsView = new QmlProfilerEventsWidget(d->m_traceWindow->getEventList(), mw);
+    connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_eventsView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
-    d->m_calleeView = new QmlProfilerEventsView(mw, d->m_traceWindow->getEventList());
-    d->m_calleeView->setViewType(QmlProfilerEventsView::CalleesView);
-    connect(d->m_calleeView, SIGNAL(gotoSourceLocation(QString,int)),
-            this, SLOT(gotoSourceLocation(QString,int)));
-    connect(d->m_calleeView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
-
-    d->m_callerView = new QmlProfilerEventsView(mw, d->m_traceWindow->getEventList());
-    d->m_callerView->setViewType(QmlProfilerEventsView::CallersView);
-    connect(d->m_callerView, SIGNAL(gotoSourceLocation(QString,int)),
-            this, SLOT(gotoSourceLocation(QString,int)));
-    connect(d->m_callerView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
-
-    d->m_v8profilerView = new QmlProfilerEventsView(mw, d->m_traceWindow->getEventList());
-    d->m_v8profilerView->setViewType(QmlProfilerEventsView::V8ProfileView);
+    d->m_v8profilerView = new QmlProfilerEventsWidget(d->m_traceWindow->getEventList(), mw);
+    d->m_v8profilerView->switchToV8View();
     connect(d->m_v8profilerView, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_v8profilerView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
@@ -343,24 +327,16 @@ QWidget *QmlProfilerTool::createWidgets()
             (this, tr("Events"), d->m_eventsView, Qt::BottomDockWidgetArea);
     QDockWidget *timelineDock = AnalyzerManager::createDockWidget
             (this, tr("Timeline"), d->m_traceWindow, Qt::BottomDockWidgetArea);
-    QDockWidget *calleeDock = AnalyzerManager::createDockWidget
-            (this, tr("Callees"), d->m_calleeView, Qt::BottomDockWidgetArea);
-    QDockWidget *callerDock = AnalyzerManager::createDockWidget
-            (this, tr("Callers"), d->m_callerView, Qt::BottomDockWidgetArea);
     QDockWidget *v8profilerDock = AnalyzerManager::createDockWidget
             (this, tr("JavaScript"), d->m_v8profilerView, Qt::BottomDockWidgetArea);
 
     eventsDock->show();
     timelineDock->show();
-    calleeDock->show();
-    callerDock->show();
     v8profilerDock->show();
 
     mw->splitDockWidget(mw->toolBarDockWidget(), eventsDock, Qt::Vertical);
     mw->tabifyDockWidget(eventsDock, timelineDock);
-    mw->tabifyDockWidget(timelineDock, calleeDock);
-    mw->tabifyDockWidget(calleeDock, callerDock);
-    mw->tabifyDockWidget(callerDock, v8profilerDock);
+    mw->tabifyDockWidget(timelineDock, v8profilerDock);
 
     //
     // Toolbar
@@ -514,8 +490,6 @@ void QmlProfilerTool::clearDisplay()
 {
     d->m_traceWindow->clearDisplay();
     d->m_eventsView->clear();
-    d->m_calleeView->clear();
-    d->m_callerView->clear();
     d->m_v8profilerView->clear();
 }
 
