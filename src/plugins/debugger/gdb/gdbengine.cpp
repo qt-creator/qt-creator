@@ -1146,7 +1146,9 @@ bool GdbEngine::acceptsDebuggerCommands() const
 void GdbEngine::executeDebuggerCommand(const QString &command)
 {
     QTC_CHECK(acceptsDebuggerCommands());
-    m_gdbAdapter->write(command.toLatin1() + "\r\n");
+    GdbCommand cmd;
+    cmd.command = command.toLatin1();
+    flushCommand(cmd);
 }
 
 // This is called from CoreAdapter and AttachAdapter.
