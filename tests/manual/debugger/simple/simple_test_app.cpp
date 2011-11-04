@@ -1996,8 +1996,12 @@ namespace formats {
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
 
+        const unsigned char uu[] = {'a', 'ö', 'a' };
+        const unsigned char *u = uu;
+        BREAK_HERE;
+
         // Make sure to undo "Change Format".
-        dummyStatement(&s, &w, &t);
+        dummyStatement(&s, &w, &t, &u);
     }
 
     void testCharArrays()
