@@ -59,7 +59,7 @@ class PanelsWidget : public QScrollArea
 {
     Q_OBJECT
 public:
-    PanelsWidget(QWidget *parent);
+    explicit PanelsWidget(QWidget *parent);
     ~PanelsWidget();
     // Adds a widget
     void addPropertiesPanel(PropertiesPanel *panel);
