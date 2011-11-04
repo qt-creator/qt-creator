@@ -58,6 +58,7 @@
 
 #include <utils/savedaction.h>
 #include <utils/fileutils.h>
+#include <utils/historycompleter.h>
 
 namespace Debugger {
 namespace Internal {
@@ -361,6 +362,8 @@ LogWindow::LogWindow(QWidget *parent)
     m_commandLabel = new QLabel(tr("Command:"), this);
     m_commandEdit = new QLineEdit(this);
     m_commandEdit->setFrame(false);
+    m_commandEdit->setObjectName("DebuggerInput");
+    m_commandEdit->setCompleter(new Utils::HistoryCompleter(m_commandEdit));
     QHBoxLayout *commandBox = new QHBoxLayout;
     commandBox->addWidget(m_commandLabel);
     commandBox->addWidget(m_commandEdit);
