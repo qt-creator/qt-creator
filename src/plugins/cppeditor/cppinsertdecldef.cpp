@@ -55,11 +55,10 @@ class InsertDeclOperation: public CppQuickFixOperation
 {
 public:
     InsertDeclOperation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
-                        int priority,
                         const QString &targetFileName, const Class *targetSymbol,
                         InsertionPointLocator::AccessSpec xsSpec,
                         const QString &decl)
-        : CppQuickFixOperation(interface, priority)
+        : CppQuickFixOperation(interface, 0)
         , m_targetFileName(targetFileName)
         , m_targetSymbol(targetSymbol)
         , m_xsSpec(xsSpec)
@@ -183,7 +182,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(
                                                          method,
                                                          binding);
                 return singleResult(
-                            new InsertDeclOperation(interface, idx, fn, matchingClass,
+                            new InsertDeclOperation(interface, fn, matchingClass,
                                                     InsertionPointLocator::Public,
                                                     decl));
             }
@@ -216,9 +215,9 @@ namespace {
 class InsertDefOperation: public CppQuickFixOperation
 {
 public:
-    InsertDefOperation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface, int priority,
+    InsertDefOperation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
                        Declaration *decl, const InsertionLocation &loc)
-        : CppQuickFixOperation(interface, priority)
+        : CppQuickFixOperation(interface, 0)
         , m_decl(decl)
         , m_loc(loc)
     {
@@ -304,7 +303,7 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(
                             QList<CppQuickFixOperation::Ptr> results;
                             foreach (const InsertionLocation &loc, locator.methodDefinition(decl)) {
                                 if (loc.isValid())
-                                    results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(interface, idx, decl, loc)));
+                                    results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(interface, decl, loc)));
                             }
                             return results;
                         }

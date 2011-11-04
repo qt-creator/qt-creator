@@ -58,6 +58,10 @@ struct ContentLessThan
 {
     bool operator()(const BasicProposalItem *a, const BasicProposalItem *b)
     {
+        // If order is different, show higher ones first.
+        if (a->order() != b->order())
+            return a->order() > b->order();
+
         // The order is case-insensitive in principle, but case-sensitive when this
         // would otherwise mean equality
         const QString &lowera = a->text().toLower();

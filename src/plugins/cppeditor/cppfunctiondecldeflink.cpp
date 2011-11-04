@@ -746,9 +746,8 @@ class ApplyDeclDefLinkOperation : public CppQuickFixOperation
 public:
     explicit ApplyDeclDefLinkOperation(
             const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
-            const QSharedPointer<FunctionDeclDefLink> &link,
-            int priority = -1)
-        : CppQuickFixOperation(interface, priority)
+            const QSharedPointer<FunctionDeclDefLink> &link)
+        : CppQuickFixOperation(interface, 10)
         , m_link(link)
     {}
 
@@ -780,7 +779,6 @@ QList<CppQuickFixOperation::Ptr> ApplyDeclDefLinkChanges::match(const QSharedPoi
 
     QSharedPointer<ApplyDeclDefLinkOperation> op(new ApplyDeclDefLinkOperation(interface, link));
     op->setDescription(FunctionDeclDefLink::tr("Apply function signature changes"));
-    op->setPriority(0);
     results += op;
 
     return results;
