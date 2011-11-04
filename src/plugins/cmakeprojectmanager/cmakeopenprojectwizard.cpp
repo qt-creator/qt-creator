@@ -262,6 +262,7 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool chang
     m_pc = new Utils::PathChooser(this);
     m_pc->setBaseDirectory(m_cmakeWizard->sourceDirectory());
     m_pc->setPath(m_cmakeWizard->buildDirectory());
+    m_pc->setExpectedKind(Utils::PathChooser::Directory);
     connect(m_pc, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
     fl->addRow(tr("Build directory:"), m_pc);
     setTitle(tr("Build Location"));
