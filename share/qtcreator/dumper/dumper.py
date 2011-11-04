@@ -1401,6 +1401,14 @@ class Dumper:
                 self.putAddress(value.address)
                 return
 
+            if format == -1 and innerTypeName == "char":
+                # Use Latin1 as default for char *.
+                self.putAddress(value.address)
+                self.putType(typeName)
+                self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
+                self.putNumChild(0)
+                return
+
             if format == 0:
                 # Explicitly requested bald pointer.
                 self.putAddress(value.address)
