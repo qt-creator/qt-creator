@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Unable to send command line arguments to the already running instance. It appears to be not responding. Do you want to start a new instance of Creator?</source>
-        <translation type="unfinished">Impossible d&apos;envoyer les arguments en ligne de commande à une instance déjà lancée. Il semble qu&apos;elle ne réponde pas. Voulez-vous lancer une nouvelle instance de Qt Creator ?</translation>
+        <translation>Impossible d&apos;envoyer les arguments en ligne de commande à une instance déjà lancée. Il semble qu&apos;elle ne réponde pas. Voulez-vous lancer une nouvelle instance de Qt Creator ?</translation>
     </message>
     <message>
         <source>Unable to send command line arguments to the already running instance. It appears to be not responding.</source>
@@ -625,7 +625,7 @@
     </message>
     <message>
         <source>No generator selected.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pas de générateur sélectionné.</translation>
     </message>
     <message>
         <source>CMake exited with errors. Please check CMake output.</source>
@@ -2683,11 +2683,11 @@ Voulez vous les écraser ?</translation>
     </message>
     <message>
         <source>File extension %1 is required:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">L&apos;extension de fichier %1 est nécessaire : </translation>
     </message>
     <message>
         <source>File extensions %1 are required:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Les extensions de fichier %1 sont nécessaires : </translation>
     </message>
 </context>
 <context>
@@ -46086,7 +46086,6 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
         <source>%n matches found.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -47002,13 +47001,11 @@ stderr était : %1</translation>
         <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
