@@ -625,7 +625,7 @@
     </message>
     <message>
         <source>No generator selected.</source>
-        <translation type="unfinished">Pas de générateur sélectionné.</translation>
+        <translation>Pas de générateur sélectionné.</translation>
     </message>
     <message>
         <source>CMake exited with errors. Please check CMake output.</source>
@@ -1169,19 +1169,19 @@
     </message>
     <message>
         <source>Automatically insert semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Insérer automatiquement les deux points et crochets fermants, parenthèses, accolades et guillemets quand cela est approprié. </translation>
     </message>
     <message>
         <source>&amp;Automatically insert matching characters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Insérer &amp;automatiquement les caractères correspondant </translation>
     </message>
     <message>
         <source>When typing a matching character and there is a text selection, instead of removing the selection, surround it with the corresponding characters.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lors de la frappe d&apos;un caractère correspondant, s&apos;il y a une sélection de texte, au lieu de la supprimer, l&apos;entourer des caractères correspondants. </translation>
     </message>
     <message>
         <source>Surround &amp;text selections</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entourer les sélections de &amp;texte</translation>
     </message>
 </context>
 <context>
@@ -1432,7 +1432,7 @@ Voulez vous les écraser ?</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir le fichier pour édition avec VCS. </translation>
     </message>
     <message>
         <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
@@ -1532,7 +1532,7 @@ Voulez vous les écraser ?</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file was not opened in %1 yet.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;b&gt;Attention :&lt;/b&gt; le fichier n&apos;est pas encore ouvert dans %1. </translation>
     </message>
     <message>
         <source>Open</source>
@@ -2683,11 +2683,11 @@ Voulez vous les écraser ?</translation>
     </message>
     <message>
         <source>File extension %1 is required:</source>
-        <translation type="unfinished">L&apos;extension de fichier %1 est nécessaire : </translation>
+        <translation>L&apos;extension de fichier %1 est nécessaire : </translation>
     </message>
     <message>
         <source>File extensions %1 are required:</source>
-        <translation type="unfinished">Les extensions de fichier %1 sont nécessaires : </translation>
+        <translation>Les extensions de fichier %1 sont nécessaires : </translation>
     </message>
 </context>
 <context>
@@ -3860,11 +3860,11 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
     <message>
         <source>Breakpoint on QML Signal Handler</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Point d&apos;arrêt sur gestion de signal QML</translation>
     </message>
     <message>
         <source>Breakpoint at JavaScript throw</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Point d&apos;arrêt sur exception JavaScript</translation>
     </message>
     <message>
         <source>Unknown Breakpoint Type</source>
@@ -4364,7 +4364,7 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     </message>
     <message>
         <source>Correct breakpoint location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Corriger l&apos;emplacement du point d&apos;arrêt</translation>
     </message>
 </context>
 <context>
@@ -5371,7 +5371,7 @@ Voulez vous arrêter le processus débogué et charger le snapshot selectionné 
     </message>
     <message>
         <source>The gdb process was ended forcefully</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le processus gdb a été forcé de fermer</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -5920,7 +5920,7 @@ Ceci pourrait amener à des résultats incorrects.</translation>
     </message>
     <message>
         <source>Value (Base %1)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valeur (base %1)</translation>
     </message>
     <message>
         <source>Value (base %1)</source>
@@ -6170,7 +6170,7 @@ Ceci pourrait amener à des résultats incorrects.</translation>
     </message>
     <message>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Identifiant</translation>
     </message>
     <message>
         <source>Function</source>
@@ -6198,7 +6198,7 @@ Ceci pourrait amener à des résultats incorrects.</translation>
     </message>
     <message>
         <source>Target ID</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Identifiant cible</translation>
     </message>
     <message>
         <source>Name</source>
@@ -6335,7 +6335,7 @@ Ceci pourrait amener à des résultats incorrects.</translation>
     </message>
     <message>
         <source>Select Location of Debugging Information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sélectionner l&apos;emplacement des informations de débogage</translation>
     </message>
     <message>
         <source>Select Executable</source>
@@ -6565,7 +6565,7 @@ Ceci pourrait amener à des résultats incorrects.</translation>
     </message>
     <message>
         <source>Local 8bit string</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chaîne de caractères locale sur 8 bits</translation>
     </message>
     <message>
         <source>UTF16 string</source>
@@ -6648,7 +6648,7 @@ Ceci pourrait amener à des résultats incorrects.</translation>
     </message>
     <message>
         <source>Remove All Evaluated Expressions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enlever toutes les expressions évaluées</translation>
     </message>
     <message>
         <source>Open Memory Editor...</source>
@@ -6738,11 +6738,11 @@ Ceci pourrait amener à des résultats incorrects.</translation>
     </message>
     <message>
         <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mémoire référencée par le pointeur &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mémoire à la variable &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
@@ -6778,7 +6778,7 @@ Ceci pourrait amener à des résultats incorrects.</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Montrer les caractères non imprimables comme des séquences d&apos;échappement</translation>
     </message>
     <message>
         <source>Use Display Format Based on Type</source>
@@ -7421,7 +7421,7 @@ Regénérer le projet peut résoudre ce problème.</translation>
     <message>
         <source>The class containing &apos;%1&apos; could not be found in %2.
 Please verify the #include-directives.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La classe contenant &quot;%1&quot; n&apos;a pas pu être trouvée dans %2. Veuillez vérifier les directives #include. </translation>
     </message>
     <message>
         <source>Error finding/adding a slot.</source>
