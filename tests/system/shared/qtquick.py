@@ -105,7 +105,11 @@ def runAndCloseApp():
     # the following is currently a work-around for not using hooking into subprocesses
     if (waitForObject(":Qt Creator_Core::Internal::OutputPaneToggleButton").checked!=True):
         clickButton(":Qt Creator_Core::Internal::OutputPaneToggleButton")
-    clickButton(":Qt Creator.Stop_QToolButton")
+    playButton = verifyEnabled(":Qt Creator.ReRun_QToolButton", False)
+    stopButton = verifyEnabled(":Qt Creator.Stop_QToolButton")
+    clickButton(stopButton)
+    test.verify(playButton.enabled)
+    test.compare(stopButton.enabled, False)
     return True
 
 def runAndCloseQtQuickUI():

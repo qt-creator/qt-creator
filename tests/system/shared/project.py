@@ -95,12 +95,7 @@ def __createProjectHandleLastPage__(expectedFiles = None):
 def createProject_Qt_GUI(path, projectName, qtVersion, checks):
     __createProjectSelectType__("Qt Widget Project", "Qt Gui Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
-
-    desktopCheckbox = waitForObject(":scrollArea.Desktop_QCheckBox", 20000)
-    if checks:
-        test.compare(desktopCheckbox.text, "Desktop")
-    if not desktopCheckbox.checked:
-        clickButton(desktopCheckbox)
+    __chooseTargets__()
     selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox_2", "For One Qt Version One Debug And One Release")
     selectFromCombo(":scrollArea.Qt Version:_QComboBox", qtVersion.replace(".", "\\."))
     if checks:
