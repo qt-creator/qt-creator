@@ -1571,8 +1571,8 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
 
     updateActions();
 
-    bool ignoreErrors = false;
-    if (d->m_delayedRunConfiguration && success  && d->m_buildManager->getErrorTaskCount() > 0) {
+    bool ignoreErrors = true;
+    if (d->m_delayedRunConfiguration && success && d->m_buildManager->getErrorTaskCount() > 0) {
         ignoreErrors = QMessageBox::question(Core::ICore::instance()->mainWindow(),
                                              tr("Ignore all errors?"),
                                              tr("Found some build errors in current task.\n"
@@ -1581,7 +1581,7 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
                                              QMessageBox::No) == QMessageBox::Yes;
     }
 
-    if ((success || ignoreErrors) && d->m_delayedRunConfiguration) {
+    if (success && ignoreErrors && d->m_delayedRunConfiguration) {
         executeRunConfiguration(d->m_delayedRunConfiguration, d->m_runMode);
     } else {
         if (d->m_buildManager->tasksAvailable())
