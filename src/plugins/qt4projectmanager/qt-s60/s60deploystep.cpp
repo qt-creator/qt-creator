@@ -499,7 +499,7 @@ void S60DeployStep::handleSymbianInstall(const Coda::CodaCommandResult &result)
         reportError(tr("Installation failed: %1; "
                        "see %2 for descriptions of the error codes")
                     .arg(result.errorString(),
-                         QLatin1String("http://wiki.forum.nokia.com/index.php/Symbian_OS_Error_Codes")));
+                         QLatin1String("http://www.developer.nokia.com/Community/Wiki/Symbian_OS_Error_Codes")));
     }
 }
 

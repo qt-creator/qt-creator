@@ -44,7 +44,7 @@ S60PublishingWizardOvi::S60PublishingWizardOvi(const Project *project, QWidget *
     Wizard(parent),
     m_publisher(new S60PublisherOvi(this))
 {
-    setWindowTitle(tr("Publishing to Ovi Store"));
+    setWindowTitle(tr("Publishing to Nokia Store"));
 
     m_buildSettingsPage = new S60PublishingBuildSettingsPageOvi(m_publisher, project);
     m_buildSettingsPage->setTitle(tr("Build Configuration"));

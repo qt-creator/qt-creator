@@ -169,7 +169,7 @@ void S60PublishingSisSettingsPageOvi::globalVendorNameChanged()
                            "The Vendor_Name field cannot contain the name 'Nokia'. <br>"
                            "You are advised against using the default names 'Vendor' and 'Vendor-EN'. <br>"
                            "You should also not leave the entry blank. <br>"
-                           "see <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>")
+                           "see <a href=\"http://www.developer.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>")
                         .arg(ui->globalVendorNameLineEdit->text()));
     m_publisher->setVendorName(ui->globalVendorNameLineEdit->text());
 }
@@ -200,7 +200,7 @@ void S60PublishingSisSettingsPageOvi::localisedVendorNamesChanged()
                            "The Vendor_Name field cannot contain the name 'Nokia'. <br>"
                            "You are advised against using the default names 'Vendor' and 'Vendor-EN'. <br>"
                            "You should also not leave the entry blank. <br>"
-                           "See <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">"
+                           "See <a href=\"http://www.developer.nokia.com/Distribute/Packaging_and_signing.xhtml\">"
                            "Packaging and Signing</a> for guidelines.<br>").arg(pluralOrSingular));
     m_publisher->setLocalVendorNames(ui->localisedVendorNamesLineEdit->text());
 }
@@ -212,18 +212,18 @@ void S60PublishingSisSettingsPageOvi::qtVersionChanged()
 void S60PublishingSisSettingsPageOvi::uid3Changed()
 {
     QString testUID3ErrorMsg = tr("The application UID %1 is only for testing and development.<br>"
-                               "SIS packages built with it cannot be distributed via the Ovi Store.<br>");
+                               "SIS packages built with it cannot be distributed via the Nokia Store.<br>");
 
     QString symbianSignedUID3ErrorMsg = tr("The application UID %1 is a symbiansigned.com UID. <br>"
                                         "Applications with this UID will be rejected by "
-                                        "Application Signing Services for Ovi Store.<br>"
+                                        "Application Signing Services for Nokia Store.<br>"
                                         "If you want to continue with a symbiansigned.com UID, "
                                         "sign your application on symbiansigned.com and upload the "
-                                        "signed application to Publish to Ovi.<br>");
+                                        "signed application to Nokia Publish.<br>");
 
     QString errorMsg = tr("The application UID %1 is not an acceptable UID.<br>"
                           "SIS packages built with it cannot be signed by "
-                          "Application Signing Services for Ovi Store.<br>");
+                          "Application Signing Services for Nokia Store.<br>");
 
     if (m_publisher->isTestUID3(ui->uid3LineEdit->text())) {
         errorMsg = testUID3ErrorMsg;
@@ -243,10 +243,10 @@ void S60PublishingSisSettingsPageOvi::uid3Changed()
     if (m_publisher->isUID3Valid(ui->uid3LineEdit->text())) {
         ui->uid3WarningLabel->show();
         ui->uid3WarningReasonLabel->setText("If this UID is from symbiansigned.com, It will be "
-                                            "rejected by Application Signing Services for Ovi Store.<br>"
+                                            "rejected by Application Signing Services for Nokia Store.<br>"
                                             "If you want to continue with a symbiansigned.com UID, "
                                             "sign your application on symbiansigned.com and upload "
-                                            "the signed application to Publish to Ovi.<br>"
+                                            "the signed application to Nokia Publish.<br>"
                                             "It is, however, recommended that you obtain a UID from "
                                             "<a href=\"http://info.publish.ovi.com/\">publish.ovi.com</a>");
         ui->uid3WarningReasonLabel->show();
@@ -303,7 +303,7 @@ void S60PublishingSisSettingsPageOvi::showWarningsForUnenforcableChecks()
     //Warn about use of unreleased Qt Versions
     //ui->qtVersionWarningLabel->show(); //looks better without...
     ui->qtVersionWarningReasonLabel->setText(tr("Please verify that you have a released version of Qt. <br>"
-                                                "<a href=\"http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian\">"
+                                                "<a href=\"http://www.developer.nokia.com/Community/Wiki/Nokia_Smart_Installer_for_Symbian\">"
                                                 "Qt Packages Distributed by Smart Installer</a> has a list of released Qt versions."));
 }
 
