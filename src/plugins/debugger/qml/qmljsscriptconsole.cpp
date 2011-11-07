@@ -447,7 +447,7 @@ void QmlJSScriptConsole::displayPrompt()
 void QmlJSScriptConsole::handleReturnKey()
 {
     QString currentScript = getCurrentScript();
-    bool evaluateScript = false;
+    bool scriptEvaluated = false;
 
     //Check if string is only white spaces
     if (currentScript.trimmed().isEmpty()) {
@@ -456,31 +456,40 @@ void QmlJSScriptConsole::handleReturnKey()
         cur.insertText(_("\n"));
         setTextCursor(cur);
         displayPrompt();
-        evaluateScript = true;
+        scriptEvaluated = true;
     }
 
-    if (!evaluateScript && !d->inferiorStopped) {
-        if (!d->adapter.isNull()) {
-            QDeclarativeEngineDebug *engineDebug = d->adapter.data()->engineDebugClient();
-            int id = d->adapter.data()->currentSelectedDebugId();
-            if (engineDebug && id != -1) {
-                QDeclarativeDebugExpressionQuery *query =
-                        engineDebug->queryExpressionResult(id, currentScript, this);
-                connect(query, SIGNAL(stateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)),
-                        this, SLOT(onStateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)));
-                evaluateScript = true;
+    if (!scriptEvaluated) {
+        //check if it can be evaluated
+        if (d->canEvaluateScript(currentScript)) {
+
+            //Select the engine for evaluation based on
+            //inferior state
+            if (!d->inferiorStopped) {
+                if (!d->adapter.isNull()) {
+                    QDeclarativeEngineDebug *engineDebug = d->adapter.data()->engineDebugClient();
+                    int id = d->adapter.data()->currentSelectedDebugId();
+                    if (engineDebug && id != -1) {
+                        QDeclarativeDebugExpressionQuery *query =
+                                engineDebug->queryExpressionResult(id, currentScript, this);
+                        connect(query, SIGNAL(stateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)),
+                                this, SLOT(onStateChanged(QmlJsDebugClient::QDeclarativeDebugQuery::State)));
+                        scriptEvaluated = true;
+                    }
+                }
+            }
+
+            if (!scriptEvaluated) {
+                emit evaluateExpression(currentScript);
+                scriptEvaluated = true;
             }
         }
     }
-
-    if (!evaluateScript) {
-        if (d->canEvaluateScript(currentScript)) {
-            emit evaluateExpression(currentScript);
-        } else {
-            QPlainTextEdit::appendPlainText(QString());
-            moveCursor(QTextCursor::EndOfLine);
-        }
+    if (!scriptEvaluated) {
+        QPlainTextEdit::appendPlainText(QString());
+        moveCursor(QTextCursor::EndOfLine);
     }
+
 }
 
 void QmlJSScriptConsole::handleUpKey()
