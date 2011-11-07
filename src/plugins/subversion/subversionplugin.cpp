@@ -1393,7 +1393,7 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
             }
         }
     }
-    return false;
+    return true;
 }
 
 // Check whether SVN management subdirs exist.
