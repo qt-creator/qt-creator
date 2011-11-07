@@ -34,6 +34,9 @@
      <property name="text">
       <string/>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="10" column="0">
@@ -87,6 +90,9 @@
      <property name="text">
       <string/>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="4" column="0" colspan="4">
@@ -118,6 +124,9 @@
      <property name="text">
       <string/>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="19" column="0">
@@ -148,6 +157,9 @@
      <property name="text">
       <string/>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="7" column="0">
@@ -176,6 +188,9 @@
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -221,6 +236,9 @@
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -303,6 +321,9 @@
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -431,6 +452,9 @@
      <property name="text">
       <string/>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="14" column="1" colspan="3">
@@ -443,6 +467,9 @@
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -484,12 +511,18 @@
      <property name="text">
       <string/>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="2" column="1">
     <widget class="QLabel" name="displayNameErrorReasonLabel">
      <property name="text">
       <string/>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
