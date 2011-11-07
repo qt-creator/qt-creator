@@ -349,6 +349,7 @@ void InspectorUi::disconnected()
     m_clientProxy = 0;
     m_propertyInspector->clear();
     m_pendingPreviewDocumentNames.clear();
+    setDebuggerEngine(0);
 }
 
 void InspectorUi::objectTreeReady()

@@ -101,7 +101,6 @@ void InspectorPlugin::extensionsInitialized()
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
 
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(objectAdded(QObject*)));
-    connect(pluginManager, SIGNAL(aboutToRemoveObject(QObject*)), SLOT(aboutToRemoveObject(QObject*)));
     connect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
             this, SLOT(modeAboutToChange(Core::IMode*)));
 }
@@ -110,6 +109,8 @@ void InspectorPlugin::objectAdded(QObject *object)
 {
     Debugger::QmlAdapter *adapter = qobject_cast<Debugger::QmlAdapter *>(object);
     if (adapter) {
+        //Disconnect inspector plugin when qml adapter emits disconnected
+        connect(adapter, SIGNAL(disconnected()), this, SLOT(disconnect()));
         m_clientProxy = new ClientProxy(adapter);
         if (m_clientProxy->isConnected()) {
             clientProxyConnected();
@@ -123,17 +124,12 @@ void InspectorPlugin::objectAdded(QObject *object)
         m_inspectorUi->setDebuggerEngine(object);
 }
 
-void InspectorPlugin::aboutToRemoveObject(QObject *obj)
+void InspectorPlugin::disconnect()
 {
-    if (m_clientProxy && m_clientProxy->qmlAdapter() == obj) {
-        if (m_inspectorUi->isConnected())
-            m_inspectorUi->disconnected();
+    if (m_inspectorUi->isConnected()) {
+        m_inspectorUi->disconnected();
         delete m_clientProxy;
         m_clientProxy = 0;
-    }
-
-    if (m_inspectorUi->debuggerEngine() == obj) {
-        m_inspectorUi->setDebuggerEngine(0);
     }
 }
 
@@ -150,7 +146,7 @@ void InspectorPlugin::modeAboutToChange(Core::IMode *newMode)
         m_inspectorUi->setupUi();
 
         // Make sure we're not called again.
-        disconnect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
+        QObject::disconnect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
                    this, SLOT(modeAboutToChange(Core::IMode*)));
     }
 }
