@@ -60,15 +60,16 @@ public:
 
     bool tasksAvailable() const;
 
-    bool buildLists(QList<BuildStepList *> bsls);
-    bool buildList(BuildStepList *bsl);
+    bool buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames);
+    bool buildList(BuildStepList *bsl, const QString &stepListName);
+
     bool isBuilding(Project *p);
     bool isBuilding(Target *t);
     bool isBuilding(ProjectConfiguration *p);
     bool isBuilding(BuildStep *step);
 
     // Append any build step to the list of build steps (currently only used to add the QMakeStep)
-    void appendStep(BuildStep *step);
+    void appendStep(BuildStep *step, const QString &name);
 
     int getErrorTaskCount() const;
 
@@ -105,7 +106,7 @@ private:
     void startBuildQueue();
     void nextStep();
     void clearBuildQueue();
-    bool buildQueueAppend(QList<BuildStep *> steps);
+    bool buildQueueAppend(QList<BuildStep *> steps, const QStringList &names);
     void incrementActiveBuildSteps(BuildStep *bs);
     void decrementActiveBuildSteps(BuildStep *bs);
     void disconnectOutput(BuildStep *bs);

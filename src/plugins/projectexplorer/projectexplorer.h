@@ -128,6 +128,8 @@ public:
 
     QList<RunControl *> runControls() const;
 
+    static QString displayNameForStepId(const QString &stepId);
+
 signals:
     void runControlStarted(ProjectExplorer::RunControl *rc);
     void runControlFinished(ProjectExplorer::RunControl *rc);

@@ -80,6 +80,7 @@ struct BuildManagerPrivate {
     Internal::TaskWindow *m_taskWindow;
 
     QList<BuildStep *> m_buildQueue;
+    QStringList m_stepNames;
     QStringList m_configurations; // the corresponding configuration to the m_buildQueue
     ProjectExplorerPlugin *m_projectExplorerPlugin;
     bool m_running;
@@ -102,6 +103,7 @@ struct BuildManagerPrivate {
     int m_maxProgress;
     QFutureInterface<void> *m_progressFutureInterface;
     QFutureWatcher<void> m_progressWatcher;
+    QWeakPointer<Core::FutureProgress> m_futureProgress;
 };
 
 BuildManagerPrivate::BuildManagerPrivate() :
@@ -268,6 +270,7 @@ void BuildManager::clearBuildQueue()
         disconnectOutput(bs);
     }
 
+    d->m_stepNames.clear();
     d->m_buildQueue.clear();
     d->m_running = false;
     d->m_previousBuildStepProject = 0;
@@ -278,6 +281,7 @@ void BuildManager::clearBuildQueue()
     d->m_progressWatcher.setFuture(QFuture<void>());
     delete d->m_progressFutureInterface;
     d->m_progressFutureInterface = 0;
+    d->m_futureProgress.clear();
     d->m_maxProgress = 0;
 
     emit buildQueueFinished(false);
@@ -322,12 +326,12 @@ void BuildManager::startBuildQueue()
         d->m_taskHub->clearTasks(Constants::TASK_CATEGORY_COMPILE);
         d->m_taskHub->clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
         progressManager->setApplicationLabel(QString());
-        Core::FutureProgress *progress = progressManager->addTask(d->m_progressFutureInterface->future(),
-              tr("Build"),
+        d->m_futureProgress = QWeakPointer<Core::FutureProgress>(progressManager->addTask(d->m_progressFutureInterface->future(),
+              "",
               Constants::TASK_BUILD,
-              Core::ProgressManager::KeepOnFinish | Core::ProgressManager::ShowInApplicationIcon);
-        connect(progress, SIGNAL(clicked()), this, SLOT(showBuildResults()));
-        progress->setWidget(new Internal::BuildProgress(d->m_taskWindow));
+              Core::ProgressManager::KeepOnFinish | Core::ProgressManager::ShowInApplicationIcon));
+        connect(d->m_futureProgress.data(), SIGNAL(clicked()), this, SLOT(showBuildResults()));
+        d->m_futureProgress.data()->setWidget(new Internal::BuildProgress(d->m_taskWindow));
         d->m_progress = 0;
         d->m_progressFutureInterface->setProgressRange(0, d->m_maxProgress * 100);
 
@@ -441,6 +445,9 @@ void BuildManager::nextStep()
     if (!d->m_buildQueue.empty()) {
         d->m_currentBuildStep = d->m_buildQueue.front();
         d->m_buildQueue.pop_front();
+        QString name = d->m_stepNames.takeFirst();
+        if (d->m_futureProgress)
+            d->m_futureProgress.data()->setTitle(name);
 
         if (d->m_currentBuildStep->project() != d->m_previousBuildStepProject) {
             const QString projectName = d->m_currentBuildStep->project()->displayName();
@@ -469,7 +476,7 @@ void BuildManager::nextStep()
     }
 }
 
-bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
+bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, const QStringList &names)
 {
     int count = steps.size();
     bool init = true;
@@ -504,23 +511,32 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
     for (i = 0; i < count; ++i) {
         ++d->m_maxProgress;
         d->m_buildQueue.append(steps.at(i));
+        d->m_stepNames.append(names.at(i));
         incrementActiveBuildSteps(steps.at(i));
     }
     return true;
 }
 
-bool BuildManager::buildList(BuildStepList *bsl)
+bool BuildManager::buildList(BuildStepList *bsl, const QString &stepListName)
 {
-    return buildLists(QList<BuildStepList *>() << bsl);
+    return buildLists(QList<BuildStepList *>() << bsl, QStringList() << stepListName);
 }
 
-bool BuildManager::buildLists(QList<BuildStepList *> bsls)
+bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames)
 {
     QList<BuildStep *> steps;
     foreach(BuildStepList *list, bsls)
         steps.append(list->steps());
 
-    bool success = buildQueueAppend(steps);
+    QStringList names;
+    names.reserve(steps.size());
+    for (int i = 0; i < bsls.size(); ++i) {
+        for (int j = 0; j < bsls.at(i)->steps().size(); ++j) {
+            names.append(stepListNames.at(i));
+        }
+    }
+
+    bool success = buildQueueAppend(steps, names);
     if (!success) {
         d->m_outputWindow->popup(false);
         return false;
@@ -532,9 +548,9 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls)
     return true;
 }
 
-void BuildManager::appendStep(BuildStep *step)
+void BuildManager::appendStep(BuildStep *step, const QString &name)
 {
-    bool success = buildQueueAppend(QList<BuildStep *>() << step);
+    bool success = buildQueueAppend(QList<BuildStep *>() << step, QStringList() << name);
     if (!success) {
         d->m_outputWindow->popup(false);
         return;

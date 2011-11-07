@@ -731,7 +731,9 @@ void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
         QList<ProjectExplorer::BuildStepList *> stepLists;
         stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
         stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        ProjectExplorerPlugin::instance()->buildManager()->buildLists(stepLists);
+        ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
+        bm->buildLists(stepLists, QStringList() << ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
+                       << ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     }
 }
 

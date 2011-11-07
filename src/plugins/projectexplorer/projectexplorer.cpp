@@ -1769,6 +1769,17 @@ void ProjectExplorerPlugin::deploy(QList<Project *> projects)
     queue(projects, steps);
 }
 
+QString ProjectExplorerPlugin::displayNameForStepId(const QString &stepId)
+{
+    if (stepId == Constants::BUILDSTEPS_CLEAN)
+        return tr("Clean");
+    else if (stepId == Constants::BUILDSTEPS_BUILD)
+        return tr("Build");
+    else if (stepId == Constants::BUILDSTEPS_DEPLOY)
+        return tr("Deploy");
+    return tr("Build");
+}
+
 int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
 {
     if (debug) {
@@ -1801,7 +1812,12 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
 
     if (stepLists.isEmpty())
         return 0;
-    if (!d->m_buildManager->buildLists(stepLists))
+
+    QStringList names;
+    foreach (const QString &stepId, stepIds)
+        names << displayNameForStepId(stepId);
+
+    if (!d->m_buildManager->buildLists(stepLists, names))
         return -1;
     return stepLists.count();
 }

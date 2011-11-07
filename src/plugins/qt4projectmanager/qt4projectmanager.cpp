@@ -366,7 +366,7 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
         if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(node))
             bc->setSubNodeBuild(profile);
 
-    projectExplorer()->buildManager()->appendStep(qs);
+    projectExplorer()->buildManager()->appendStep(qs, tr("QMake"));
     bc->setSubNodeBuild(0);
 }
 
@@ -401,14 +401,20 @@ void Qt4Manager::handleSubDirContexMenu(Qt4Manager::Action action)
 
     if (projectExplorer()->saveModifiedFiles()) {
         if (action == BUILD) {
-            projectExplorer()->buildManager()->buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+            QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+            projectExplorer()->buildManager()->buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD), name);
         } else if (action == CLEAN) {
-            projectExplorer()->buildManager()->buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+            QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+            projectExplorer()->buildManager()->buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN), name);
         } else if (action == REBUILD) {
+            QStringList names;
+            names << ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
+                  << ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+
             QList<ProjectExplorer::BuildStepList *> stepLists;
             stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
             stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-            projectExplorer()->buildManager()->buildLists(stepLists);
+            projectExplorer()->buildManager()->buildLists(stepLists, names);
         }
     }
 
