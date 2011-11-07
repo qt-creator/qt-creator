@@ -101,9 +101,12 @@ bool DerivedHierarchyVisitor::visit(Class *symbol)
             Symbol *actualBaseSymbol = items.first().declaration();
             if (actualBaseSymbol->isTypedef()) {
                 NamedType *namedType = actualBaseSymbol->type()->asNamedType();
+                if (!namedType) {
+                    // Anonymous aggregate such as: typedef struct {} Empty;
+                    continue;
+                }
                 const QString &typeName = _overview.prettyName(namedType->name());
-                if (namedType &&
-                        (typeName == _unqualifiedName || typeName == _qualifiedName)) {
+                if (typeName == _unqualifiedName || typeName == _qualifiedName) {
                     items = _context.lookup(namedType->name(), actualBaseSymbol->enclosingScope());
                     if (items.isEmpty() || !items.first().declaration())
                         continue;
