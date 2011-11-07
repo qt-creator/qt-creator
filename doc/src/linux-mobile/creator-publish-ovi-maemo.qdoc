@@ -33,10 +33,10 @@
 
     \title Publishing Qt Content for Maemo Devices
 
-    The applications that you publish on Ovi Store, must meet the testing
+    The applications that you publish on Nokia Store, must meet the testing
     criteria listed in
     \l{http://www.developer.nokia.com/info/sw.nokia.com/id/9cd1eb18-821b-4228-a0a3-36b049c5d608/Maemo_5_Application_OVI_Store_Entry_Requirements.pdf.html}
-    {Maemo 5 Applications: Ovi Store Entry Requirements}.
+    {Maemo 5 Applications: Nokia Store Entry Requirements}.
 
     Make sure that your application passes the following most commonly
     failed test cases:
@@ -65,7 +65,7 @@
 
     You can test the application on Qt Simulator and Maemo emulator to make
     sure that it does not crash or hang and to check how it handles different
-    memory situations. Before you submit the application to Ovi Publishing, you
+    memory situations. Before you submit the application to Nokia Publish, you
     must also fully test it on a Maemo device.
 
 */

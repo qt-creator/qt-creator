@@ -25,7 +25,7 @@
 
     \image qtcreator-remove-deploy-step.png "Removing deploy steps"
 
-    When you are ready to publish the application on Ovi Store or some other
+    When you are ready to publish the application to Nokia Store or some other
     channel, you must make sure that the SIS file meets the requirements for
     publishing and installing applications on Symbian devices. For more
     information, see \l{Deploying Applications to Symbian Devices}.

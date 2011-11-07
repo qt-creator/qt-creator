@@ -51,7 +51,7 @@
     notifications and error messages.
 
     To create a SIS package without copying it to the device (for example, to submit it
-    to \e {Application Signing Services for Ovi Store} or \e {Symbian Signed}),
+    to \e {Application Signing Services for Nokia Store} or \e {Symbian Signed}),
     create a deploy configuration that contains only the
     \gui {Create SIS Package} step.
 
@@ -70,12 +70,12 @@
            \l{Capabilities and Signing}{capabilities} of the mobile device.
        \o  Security warnings will be displayed when you install the self-signed
            application on a mobile device.
-       \o  Self-signed applications cannot be published to Ovi
+       \o  Self-signed applications cannot be published to Nokia
            Store.
     \endlist
 
     To get around these limitations, you need to go through the Symbian Signed
-    or Application Signing Services for Ovi Store. The Symbian Signed organisation
+    or Application Signing Services for Nokia Store. The Symbian Signed organisation
     manages a public key
     infrastructure to provide public authentication of the information in the
     application signing certificates. Their security partner can validate your
@@ -83,13 +83,13 @@
     application, other people can be confident that the information in your
     certificate is correct and that the application does actually come from you.
 
-    Application Signing Services for Ovi Store is a variant of the Symbian
-    Signed certification provided by Ovi
-    Publishing. It is limited to the Basic and System capability sets
-    (Express Signing). Participants can submit an unsigned SIS file to Ovi
-    Publishing for signing. For more information about how
+    Application Signing Services for Nokia Store is a variant of the Symbian
+    Signed certification provided by Nokia
+    Publish. It is limited to the Basic and System capability sets
+    (Express Signing). Participants can submit an unsigned SIS file to Nokia
+    Publish for signing. For more information about how
     to participate, see
-    \l {http://www.developer.nokia.com/Community/Wiki/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store}.
+    \l {http://www.developer.nokia.com/Community/Wiki/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Nokia Store}.
 
     There are also options that do not require you to get a Publisher ID. For
     more detail about how the Symbian Signed process works, see
@@ -173,13 +173,13 @@
 
     For this to work, the Nokia Smart Installer must be packaged with the Qt application. The
     application SIS file must first be Symbian Signed or signed by the Application
-    Signing Services for Ovi Store. The capabilities used in the applications
+    Signing Services for Nokia Store. The capabilities used in the applications
     determine, which signing option must be selected. The wrapper package must be signed using
     either the same option or a more extensive option than the application SIS.
 
-    \note If you use the Application Signing Services for Ovi Store, you can submit an unsigned
-    wrapper package to Ovi Publishing. For more information, see
-    \l{Publishing Applications to Ovi Store}.
+    \note If you use the Application Signing Services for Nokia Store, you can submit an unsigned
+    wrapper package to Nokia Publish. For more information, see
+    \l{Publishing Applications to Nokia Store}.
 
     You can either install the Nokia Smart Installer for Symbian as part of
     the \QSDK, or download and install it from the
@@ -196,7 +196,7 @@
     \list
 
         \o 0xA000D7CE for self-signed applications
-        \o 0x2002CCCF for Ovi Store or Symbian Signed packages
+        \o 0x2002CCCF for Nokia Store or Symbian Signed packages
 
     \endlist
 
@@ -307,7 +307,7 @@
 
         \note Ensure that your application complies with the Symbian Signed
         Test Criteria before submitting the file for certification. Also, if the file is
-        intended for Ovi Store publishing, verify that the application complies with Ovi
+        intended for Nokia Store publishing, verify that the application complies with Nokia
         Store publishing requirements.
 
         \o After receiving the .sis file from Symbian Signed, copy it over the old
@@ -338,7 +338,7 @@
     \QC automatically generates a wrapper package in the project folder.
 
     \note Ensure that your application complies with the requirements before submitting
-    the file to Ovi Store.
+    the file to Nokia Store.
 
     For more information about the qmake DEPLOYMENT variable, see
     \l{http://doc.qt.nokia.com/4.7/qmake-variable-reference.html#deployment}{qmake Variable Reference}.
@@ -363,7 +363,7 @@
     at a time or as preallocated blocks on the \l{https://www.symbiansigned.com/app/page}{Symbian Signed}
     web site.
 
-    If you use the Ovi Signed process, Ovi Publisher Support allocates the UID for you.
+    If you use the Nokia Signed process, Nokia Publisher Support allocates the UID for you.
 
     Replace the testing UID with the distribution UID in the .pro file before you
     build the final installation package. For more information, see

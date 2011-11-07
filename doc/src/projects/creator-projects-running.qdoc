@@ -39,8 +39,8 @@
 
     To run executable files without deploying them first, deselect the
     \gui {Tools > Options > Project > Always deploy project before running it}
-    option. This allows you to test SIS files that you receive from Ovi
-    Publishing or Symbian Signed after you have them signed, for example.
+    option. This allows you to test SIS files that you receive from Nokia
+    Publish or Symbian Signed after you have them signed, for example.
 
     For more information on the options you have, see
     \l{Specifying Run Settings}.

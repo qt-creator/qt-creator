@@ -33,15 +33,15 @@
 
     \title Publishing Qt Content for Symbian Devices
 
-    You can use the \e {Application Signing Services for Ovi Store} to get your
+    You can use the \e {Application Signing Services for Nokia Store} to get your
     application Express Signed for free by Nokia. Make sure to use the
-    \l{Application UID}{application UID} that you receive from Ovi Publisher
+    \l{Application UID}{application UID} that you receive from Nokia Publisher
     Support.
 
-    The \gui {Publish Qt Symbian Applications to Ovi Store} wizard allows you
-    to check that your application can be published on Ovi Store. It checks that
-    the application UID, vendor name, and the capabilities used meet the Ovi
-    Publishing criteria.
+    The \gui {Publish Qt Symbian Applications to Nokia Store} wizard allows you
+    to check that your application can be published to Nokia Store. It checks that
+    the application UID, vendor name, and the capabilities used meet the Nokia
+    Publish criteria.
 
     If you use Symbian Signed UIDs or the application uses functions that
     require advanced \l{Capabilities and Signing}{capabilities}, you must use
@@ -61,14 +61,14 @@
 
         \o  Choose \gui {Build > Publish Project}.
 
-        \o  Select \gui {Publish Qt Symbian Applications to Ovi Store}, and then
+        \o  Select \gui {Publish Qt Symbian Applications to Nokia Store}, and then
             select \gui {Start Wizard}.
 
         \o  Select the Qt version and device type to build against and click
             \gui Next. We recommend that you select a release configuration.
 
         \o  The wizard checks the information in the project file against the
-            Ovi Publishing criteria and indicates possible problems. You can fix
+            Nokia Publish criteria and indicates possible problems. You can fix
             some of the problems in the wizard.
 
             \image qtcreator-publishing-wizard-symbian.png "Project File Checks dialog"
@@ -79,14 +79,14 @@
         \o  Choose \gui {Open Containing Folder} to open the folder where the
             .sis file was created.
 
-        \o  Submit the created .sis file to Ovi Publishing as a Qt Content item.
+        \o  Submit the created .sis file to Nokia Publish as a Qt Content item.
 
             \note You cannot use this .sis file for testing.
 
     \endlist
 
     \note After you change the application UID, you must use the developer
-    certificate-key pair that you receive from Ovi Publisher Support for testing
+    certificate-key pair that you receive from Nokia Publisher Support for testing
     the application on devices. The following error message is displayed on the
     device if you use UIDs from the trusted range (0x2xxxxxxx) in a self-signed
     application: \gui {Unable to install a trusted application from a trusted

@@ -34,11 +34,11 @@
     \title Publishing Qt Content for MeeGo Harmattan Devices
 
     You cannot publish applications that are built with the beta version of the
-    MeeGo Harmattan tool chain to Ovi Store.
+    MeeGo Harmattan tool chain to Nokia Store.
 
     However, you can prepare for publishing by making sure that your application
     meets the
     \l{http://www.developer.nokia.com/info/sw.nokia.com/id/44affcd1-ceba-4aca-8b65-670ce2cbbd1e/MeeGo_1_2_Harmattan_Applications_Ovi_Store_Entry_Requirements.html}
-    {MeeGo 1.2 Harmattan Applications: Ovi Store Entry Requirements}.
+    {MeeGo 1.2 Harmattan Applications: Nokia Store Entry Requirements}.
 
 */

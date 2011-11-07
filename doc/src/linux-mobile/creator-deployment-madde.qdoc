@@ -75,7 +75,7 @@
     in the \gui {Package version} field.
 
     You can specify information that users see on a delivery channel, such as
-    Ovi Store or Maemo.org. You can specify a short description of the
+    Nokia Store or Maemo.org. You can specify a short description of the
     application, package name, and application icon.
 
     The Debian control file contains an application icon in encoded form. To add
