@@ -48,7 +48,6 @@ namespace Internal {
 class Manager;
 class ProjectFilesEditor;
 class ProjectFilesEditorWidget;
-class ProjectFilesDocument;
 class ProjectFilesFactory;
 
 class ProjectFilesFactory: public Core::IEditorFactory
@@ -58,8 +57,6 @@ class ProjectFilesFactory: public Core::IEditorFactory
 public:
     ProjectFilesFactory(Manager *manager, TextEditor::TextEditorActionHandler *handler);
 
-    Manager *manager() const;
-
     virtual Core::IEditor *createEditor(QWidget *parent);
 
     virtual QStringList mimeTypes() const;
@@ -68,7 +65,6 @@ public:
     virtual Core::IFile *open(const QString &fileName);
 
 private:
-    Manager *m_manager;
     TextEditor::TextEditorActionHandler *m_actionHandler;
     QStringList m_mimeTypes;
 };
@@ -103,20 +99,6 @@ public:
 private:
     ProjectFilesFactory *m_factory;
     TextEditor::TextEditorActionHandler *m_actionHandler;
-};
-
-class ProjectFilesDocument: public TextEditor::BaseTextDocument
-{
-    Q_OBJECT
-
-public:
-    ProjectFilesDocument(Manager *manager);
-    virtual ~ProjectFilesDocument();
-
-    virtual bool save(QString *errorString, const QString &name, bool autoSave);
-
-private:
-    Manager *m_manager;
 };
 
 } // namespace Internal

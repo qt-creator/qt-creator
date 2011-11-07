@@ -50,17 +50,11 @@ using namespace GenericProjectManager::Internal;
 ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
                                          TextEditor::TextEditorActionHandler *handler)
     : Core::IEditorFactory(manager),
-      m_manager(manager),
       m_actionHandler(handler)
 {
     m_mimeTypes.append(QLatin1String(Constants::FILES_MIMETYPE));
     m_mimeTypes.append(QLatin1String(Constants::INCLUDES_MIMETYPE));
     m_mimeTypes.append(QLatin1String(Constants::CONFIG_MIMETYPE));
-}
-
-Manager *ProjectFilesFactory::manager() const
-{
-    return m_manager;
 }
 
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
@@ -135,8 +129,7 @@ ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent, ProjectFiles
       m_factory(factory),
       m_actionHandler(handler)
 {
-    Manager *manager = factory->manager();
-    ProjectFilesDocument *doc = new ProjectFilesDocument(manager);
+    TextEditor::BaseTextDocument *doc = new TextEditor::BaseTextDocument();
     setBaseTextDocument(doc);
 
     handler->setupActions(this);
@@ -158,27 +151,4 @@ TextEditor::TextEditorActionHandler *ProjectFilesEditorWidget::actionHandler() c
 TextEditor::BaseTextEditor *ProjectFilesEditorWidget::createEditor()
 {
     return new ProjectFilesEditor(this);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-// ProjectFilesDocument
-////////////////////////////////////////////////////////////////////////////////////////
-
-ProjectFilesDocument::ProjectFilesDocument(Manager *manager)
-    : m_manager(manager)
-{
-    setMimeType(QLatin1String(Constants::FILES_MIMETYPE));
-}
-
-ProjectFilesDocument::~ProjectFilesDocument()
-{ }
-
-bool ProjectFilesDocument::save(QString *errorString, const QString &name, bool autoSave)
-{
-    if (!BaseTextDocument::save(errorString, name, autoSave))
-        return false;
-
-    if (!autoSave)
-        m_manager->notifyChanged(name.isEmpty() ? fileName() : name);
-    return true;
 }

@@ -49,6 +49,7 @@
 #include <utils/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/filemanager.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QProcessEnvironment>
@@ -85,8 +86,18 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     m_includesFileName = QFileInfo(dir, m_projectName + QLatin1String(".includes")).absoluteFilePath();
     m_configFileName   = QFileInfo(dir, m_projectName + QLatin1String(".config")).absoluteFilePath();
 
-    m_file = new GenericProjectFile(this, fileName);
-    m_rootNode = new GenericProjectNode(this, m_file);
+    m_creatorIFile  = new GenericProjectFile(this, m_fileName, GenericProject::Everything);
+    m_filesIFile    = new GenericProjectFile(this, m_filesFileName, GenericProject::Files);
+    m_includesIFile = new GenericProjectFile(this, m_includesFileName, GenericProject::Configuration);
+    m_configIFile   = new GenericProjectFile(this, m_configFileName, GenericProject::Configuration);
+
+    Core::FileManager *fm = Core::FileManager::instance();
+    fm->addFile(m_creatorIFile);
+    fm->addFile(m_filesIFile);
+    fm->addFile(m_includesIFile);
+    fm->addFile(m_configIFile);
+
+    m_rootNode = new GenericProjectNode(this, m_creatorIFile);
 
     m_manager->registerProject(this);
 }
@@ -407,7 +418,7 @@ QString GenericProject::id() const
 
 Core::IFile *GenericProject::file() const
 {
-    return m_file;
+    return m_creatorIFile;
 }
 
 IProjectManager *GenericProject::projectManager() const
@@ -589,10 +600,11 @@ void GenericBuildSettingsWidget::updateToolChainList()
 // GenericProjectFile
 ////////////////////////////////////////////////////////////////////////////////////
 
-GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName)
+GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options)
     : Core::IFile(parent),
       m_project(parent),
-      m_fileName(fileName)
+      m_fileName(fileName),
+      m_options(options)
 { }
 
 GenericProjectFile::~GenericProjectFile()
@@ -656,6 +668,8 @@ bool GenericProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeTyp
 {
     Q_UNUSED(errorString)
     Q_UNUSED(flag)
-    Q_UNUSED(type)
+    if (type == TypePermissions)
+        return true;
+    m_project->refresh(m_options);
     return true;
 }

@@ -137,9 +137,11 @@ private:
     QString m_filesFileName;
     QString m_includesFileName;
     QString m_configFileName;
-    GenericProjectFile *m_file;
     QString m_projectName;
-
+    GenericProjectFile *m_creatorIFile;
+    GenericProjectFile *m_filesIFile;
+    GenericProjectFile *m_includesIFile;
+    GenericProjectFile *m_configIFile;
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
@@ -158,7 +160,7 @@ class GenericProjectFile : public Core::IFile
     Q_OBJECT
 
 public:
-    GenericProjectFile(GenericProject *parent, QString fileName);
+    GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options);
     virtual ~GenericProjectFile();
 
     virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
@@ -179,6 +181,7 @@ public:
 private:
     GenericProject *m_project;
     QString m_fileName;
+    GenericProject::RefreshOptions m_options;
 };
 
 class GenericBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
