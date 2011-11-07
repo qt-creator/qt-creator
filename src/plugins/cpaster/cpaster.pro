@@ -17,7 +17,9 @@ HEADERS += cpasterplugin.h \
     pasteselectdialog.h \
     columnindicatortextedit.h \
     fileshareprotocol.h \
-    fileshareprotocolsettingspage.h
+    fileshareprotocolsettingspage.h \
+    kdepasteprotocol.h
+
 SOURCES += cpasterplugin.cpp \
     settingspage.cpp \
     protocol.cpp \
@@ -31,7 +33,9 @@ SOURCES += cpasterplugin.cpp \
     pasteselectdialog.cpp \
     columnindicatortextedit.cpp \
     fileshareprotocol.cpp \
-    fileshareprotocolsettingspage.cpp
+    fileshareprotocolsettingspage.cpp \
+    kdepasteprotocol.cpp
+
 FORMS += settingspage.ui \
     pasteselect.ui \
     pasteview.ui \

@@ -35,6 +35,7 @@
 #include "splitter.h"
 #include "pasteview.h"
 #include "codepasterprotocol.h"
+#include "kdepasteprotocol.h"
 #include "pastebindotcomprotocol.h"
 #include "pastebindotcaprotocol.h"
 #include "fileshareprotocol.h"
@@ -136,6 +137,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     const QSharedPointer<NetworkAccessManagerProxy> networkAccessMgrProxy(new NetworkAccessManagerProxy);
     Protocol *protos[] =  { new PasteBinDotComProtocol(networkAccessMgrProxy),
                             new PasteBinDotCaProtocol(networkAccessMgrProxy),
+                            new KdePasteProtocol(networkAccessMgrProxy),
                             new CodePasterProtocol(networkAccessMgrProxy),
                             new FileShareProtocol
                            };
