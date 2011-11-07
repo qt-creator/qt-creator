@@ -174,7 +174,7 @@ void dummyStatement(...) {}
 #endif
 
 #if USE_AUTOBREAK
-#   if Q_CC_MSVC
+#   ifdef Q_CC_MSVC
 #       define BREAK_HERE __asm { int 3 }; __asm { mov eax, eax }
 #   else
 #       define BREAK_HERE asm("int $3; mov %eax, %eax")
@@ -184,7 +184,7 @@ void dummyStatement(...) {}
 #endif
 
 #if USE_UNINITIALIZED_AUTOBREAK
-#   if Q_CC_MSVC
+#   ifdef Q_CC_MSVC
 #       define BREAK_UNINITIALIZED_HERE __asm { int 3 }; __asm { mov eax, eax }
 #   else
 #       define BREAK_UNINITIALIZED_HERE asm("int $3; mov %eax, %eax")
