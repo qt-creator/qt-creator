@@ -1203,7 +1203,7 @@ void Check::scanCommentsForAnnotations()
 
             // if the comment is preceded by spaces only, it applies to the next line
             // note: startColumn is 1-based and *after* the starting // or /*
-            if (commentLoc.startColumn > 3) {
+            if (commentLoc.startColumn >= 3) {
                 const QString &beforeComment = _doc->source().mid(commentLoc.begin() - commentLoc.startColumn + 1,
                                                                   commentLoc.startColumn - 3);
                 if (hasOnlySpaces(beforeComment))
