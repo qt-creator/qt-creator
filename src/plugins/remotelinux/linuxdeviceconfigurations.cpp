@@ -131,7 +131,7 @@ void LinuxDeviceConfigurations::save()
     settings->beginGroup(SettingsGroup);
     settings->setValue(IdCounterKey, d->nextId);
     settings->setValue(DefaultKeyFilePathKey, d->defaultSshKeyFilePath);
-    settings->beginWriteArray(ConfigListKey, d->devConfigs.count());
+    settings->beginWriteArray(ConfigListKey);
     int skippedCount = 0;
     for (int i = 0; i < d->devConfigs.count(); ++i) {
         const LinuxDeviceConfiguration::ConstPtr &devConf = d->devConfigs.at(i);
