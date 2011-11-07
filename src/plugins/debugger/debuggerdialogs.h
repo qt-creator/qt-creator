@@ -33,7 +33,10 @@
 #ifndef DEBUGGER_DIALOGS_H
 #define DEBUGGER_DIALOGS_H
 
+#include <QtCore/QHash>
+#include <QtCore/QStringList>
 #include <QtGui/QDialog>
+#include <QtGui/QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
 
@@ -278,6 +281,8 @@ private:
      QDialogButtonBox *m_box;
 };
 
+typedef QHash<QString, QStringList> TypeFormats;
+
 class StartRemoteEngineDialog : public QDialog
 {
     Q_OBJECT
@@ -293,6 +298,24 @@ public:
 
 private:
     Ui::StartRemoteEngineDialog *m_ui;
+};
+
+class TypeFormatsDialogUi;
+
+class TypeFormatsDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit TypeFormatsDialog(QWidget *parent);
+    ~TypeFormatsDialog();
+
+    void addTypeFormats(const QString &type, const QStringList &formats,
+        int currentFormat);
+    TypeFormats typeFormats() const;
+
+private:
+    TypeFormatsDialogUi *m_ui;
 };
 
 } // namespace Debugger

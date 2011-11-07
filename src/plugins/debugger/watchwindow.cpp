@@ -637,7 +637,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *showUnprintableEscape = 0;
     QAction *showUnprintableOctal = 0;
     QAction *showUnprintableHexadecimal = 0;
-    formatMenu.setTitle(tr("Change Display Format..."));
+    formatMenu.setTitle(tr("Change Local Display Format..."));
     showUnprintableUnicode =
         formatMenu.addAction(tr("Treat All Characters as Printable"));
     showUnprintableUnicode->setCheckable(true);
@@ -755,6 +755,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
     actSelectWidgetToWatch->setEnabled(canHandleWatches
            && (engine->debuggerCapabilities() & WatchWidgetsCapability));
+    QAction *actEditTypeFormats = menu.addAction(tr("Change Global Display Formats..."));
+    actEditTypeFormats->setEnabled(true);
     menu.addSeparator();
 
     QAction *actWatchExpression = new QAction(addWatchActionText(exp), &menu);
@@ -839,6 +841,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(actInsertNewWatchItem);
     menu.addAction(actSelectWidgetToWatch);
+    menu.addAction(actEditTypeFormats);
     menu.addMenu(&formatMenu);
     menu.addMenu(&memoryMenu);
     menu.addMenu(&breakpointMenu);
@@ -911,6 +914,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         removeWatchExpression(removeExp);
     } else if (act == actCopy) {
         copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
+    } else if (act == actEditTypeFormats) {
+        handler->editTypeFormats(true, mi0.data(LocalsINameRole).toByteArray());
     } else if (act == actCopyValue) {
         copyToClipboard(mi1.data().toString());
     } else if (act == actRemoveWatches) {

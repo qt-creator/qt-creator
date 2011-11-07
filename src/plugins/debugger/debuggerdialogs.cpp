@@ -45,22 +45,26 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
-#include <utils/synchronousprocess.h>
 #include <utils/historycompleter.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
-#include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QHeaderView>
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QRegExp>
+
+#include <QtGui/QButtonGroup>
 #include <QtGui/QFileDialog>
-#include <QtGui/QPushButton>
-#include <QtGui/QProxyModel>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QMessageBox>
 #include <QtGui/QGroupBox>
+#include <QtGui/QHeaderView>
+#include <QtGui/QMessageBox>
+#include <QtGui/QProxyModel>
+#include <QtGui/QPushButton>
+#include <QtGui/QRadioButton>
+#include <QtGui/QScrollArea>
+#include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QStandardItemModel>
 
 using namespace Utils;
 
@@ -970,6 +974,128 @@ QString StartRemoteEngineDialog::inferiorPath() const
 QString StartRemoteEngineDialog::enginePath() const
 {
     return m_ui->enginepath->text();
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// TypeFormatsDialogUi
+//
+///////////////////////////////////////////////////////////////////////
+
+class TypeFormatsDialogPage : public QWidget
+{
+public:
+    TypeFormatsDialogPage()
+    {
+        m_layout = new QVBoxLayout;
+        m_layout->setMargin(5);
+        m_layout->setSpacing(0);
+        m_layout->addItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding,
+            QSizePolicy::MinimumExpanding));
+        setLayout(m_layout);
+    }
+
+    void addTypeFormats(const QString &type,
+        const QStringList &typeFormats, int current)
+    {
+        QHBoxLayout *hl = new QHBoxLayout;
+        QButtonGroup *group = new QButtonGroup(this);
+        QLabel *typeLabel = new QLabel(type, this);
+        hl->addWidget(typeLabel);
+        for (int i = -1; i != typeFormats.size(); ++i) {
+            QRadioButton *choice = new QRadioButton(this);
+            if (i == -1)
+                choice->setText(tr("Reset"));
+            else
+                choice->setText(typeFormats.at(i));
+            hl->addWidget(choice);
+            if (i == current)
+                choice->setChecked(true);
+            group->addButton(choice, i);
+        }
+        hl->addItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding,
+            QSizePolicy::MinimumExpanding));
+        m_layout->insertLayout(m_layout->count() - 1, hl);
+    }
+private:
+    QVBoxLayout *m_layout;
+};
+
+class TypeFormatsDialogUi
+{
+public:
+    TypeFormatsDialogUi(TypeFormatsDialog *q)
+    {
+        QVBoxLayout *layout = new QVBoxLayout(q);
+        tabs = new QTabWidget(q);
+
+        buttonBox = new QDialogButtonBox(q);
+        buttonBox->setOrientation(Qt::Horizontal);
+        buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+        layout->addWidget(tabs);
+        layout->addWidget(buttonBox);
+        q->setLayout(layout);
+    }
+
+    void addPage(const QString &name)
+    {
+        TypeFormatsDialogPage *page = new TypeFormatsDialogPage;
+        pages.append(page);
+        QScrollArea *scroller = new QScrollArea;
+        scroller->setWidgetResizable(true);
+        scroller->setWidget(page);
+        scroller->setFrameStyle(QFrame::NoFrame);
+        tabs->addTab(scroller, name);
+    }
+
+public:
+    QDialogButtonBox *buttonBox;
+    QList<TypeFormatsDialogPage *> pages;
+
+private:
+    QTabWidget *tabs;
+};
+
+
+///////////////////////////////////////////////////////////////////////
+//
+// TypeFormatsDialog
+//
+///////////////////////////////////////////////////////////////////////
+
+
+TypeFormatsDialog::TypeFormatsDialog(QWidget *parent)
+   : QDialog(parent), m_ui(new TypeFormatsDialogUi(this))
+{
+    m_ui->addPage(tr("Qt Types"));
+    m_ui->addPage(tr("Standard Types"));
+    m_ui->addPage(tr("Misc Types"));
+
+    connect(m_ui->buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), SLOT(reject()));
+}
+
+TypeFormatsDialog::~TypeFormatsDialog()
+{
+    delete m_ui;
+}
+
+void TypeFormatsDialog::addTypeFormats(const QString &type0,
+    const QStringList &typeFormats, int current)
+{
+    QString type = type0;
+    type.replace("__", "::");
+    int pos = 2;
+    if (type.startsWith(QLatin1Char('Q')))
+        pos = 0;
+    else if (type.startsWith(QLatin1String("std::")))
+        pos = 1;
+    m_ui->pages[pos]->addTypeFormats(type, typeFormats, current);
+}
+
+TypeFormats TypeFormatsDialog::typeFormats() const
+{
+    return TypeFormats();
 }
 
 } // namespace Internal
