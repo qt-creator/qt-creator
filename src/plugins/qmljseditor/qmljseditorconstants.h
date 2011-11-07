@@ -55,6 +55,7 @@ const char FOLLOW_SYMBOL_UNDER_CURSOR[] = "QmlJSEditor.FollowSymbolUnderCursor";
 const char FIND_USAGES[] = "QmlJSEditor.FindUsages";
 const char RENAME_USAGES[] = "QmlJSEditor.RenameUsages";
 const char RUN_SEMANTIC_SCAN[] = "QmlJSEditor.RunSemanticScan";
+const char REFORMAT_FILE[] = "QmlJSEditor.ReformatFile";
 const char SHOW_QT_QUICK_HELPER[] = "QmlJSEditor.ShowQtQuickHelper";
 
 const char TASK_CATEGORY_QML[] = "Task.Category.Qml";

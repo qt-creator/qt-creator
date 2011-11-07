@@ -67,9 +67,11 @@ OTHER_FILES += \
 contains(QT, gui) {
     SOURCES += \
         $$PWD/qmljsindenter.cpp \
-        $$PWD/qmljscodeformatter.cpp
+        $$PWD/qmljscodeformatter.cpp \
+        $$PWD/qmljsreformatter.cpp
 
     HEADERS += \
         $$PWD/qmljsindenter.h \
-        $$PWD/qmljscodeformatter.h
+        $$PWD/qmljscodeformatter.h \
+        $$PWD/qmljsreformatter.h
 }

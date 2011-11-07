@@ -1588,6 +1588,8 @@ void QmlJSTextEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     if (editorManager->currentEditor() == editor())
         m_semanticHighlighter->rerun(m_semanticInfo.scopeChain());
+
+    emit semanticInfoUpdated();
 }
 
 void QmlJSTextEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker)

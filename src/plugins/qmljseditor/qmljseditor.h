@@ -182,6 +182,7 @@ public slots:
 signals:
     void outlineModelIndexChanged(const QModelIndex &index);
     void selectedElementsChanged(QList<int> offsets, const QString &wordAtCursor);
+    void semanticInfoUpdated();
 
 private slots:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);

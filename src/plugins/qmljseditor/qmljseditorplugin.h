@@ -95,11 +95,13 @@ public Q_SLOTS:
     void followSymbolUnderCursor();
     void findUsages();
     void renameUsages();
+    void reformatFile();
     void showContextPane();
 
 private Q_SLOTS:
     void currentEditorChanged(Core::IEditor *editor);
     void runSemanticScan();
+    void checkCurrentEditorSemanticInfoUpToDate();
 
 private:
     Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const Core::Id &id,
@@ -107,18 +109,15 @@ private:
 
     static QmlJSEditorPlugin *m_instance;
 
-    QAction *m_actionPreview;
-    QmlJSPreviewRunner *m_previewRunner;
-
     QmlJS::ModelManagerInterface *m_modelManager;
-    QmlFileWizard *m_wizard;
     QmlJSEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;
-
     QmlJSQuickFixAssistProvider *m_quickFixAssistProvider;
-
-    QPointer<TextEditor::ITextEditor> m_currentTextEditable;
     QmlTaskManager *m_qmlTaskManager;
+
+    QAction *m_reformatFileAction;
+
+    QPointer<QmlJSTextEditorWidget> m_currentEditor;
 };
 
 } // namespace Internal

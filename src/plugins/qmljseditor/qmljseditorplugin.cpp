@@ -49,6 +49,7 @@
 
 #include <qmljs/qmljsicons.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsreformatter.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
 #include <qmldesigner/qmldesignerconstants.h>
@@ -93,10 +94,11 @@ QmlJSEditorPlugin *QmlJSEditorPlugin::m_instance = 0;
 
 QmlJSEditorPlugin::QmlJSEditorPlugin() :
         m_modelManager(0),
-    m_wizard(0),
     m_editor(0),
     m_actionHandler(0),
-    m_quickFixAssistProvider(0)
+    m_quickFixAssistProvider(0),
+    m_reformatFileAction(0),
+    m_currentEditor(0)
 {
     m_instance = this;
 }
@@ -205,6 +207,11 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     connect(semanticScan, SIGNAL(triggered()), this, SLOT(runSemanticScan()));
     qmlToolsMenu->addAction(cmd);
 
+    m_reformatFileAction = new QAction(tr("Reformat File"), this);
+    cmd = am->registerAction(m_reformatFileAction, Core::Id(Constants::REFORMAT_FILE), globalContext);
+    connect(m_reformatFileAction, SIGNAL(triggered()), this, SLOT(reformatFile()));
+    qmlToolsMenu->addAction(cmd);
+
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
     cmd = am->registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
 #ifdef Q_WS_MACX
@@ -300,6 +307,20 @@ void QmlJSEditorPlugin::renameUsages()
         editor->renameUsages();
 }
 
+void QmlJSEditorPlugin::reformatFile()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(em->currentEditor()->widget())) {
+        QTC_ASSERT(!editor->isOutdated(), return);
+
+        const QString &newText = QmlJS::reformat(editor->semanticInfo().document);
+        QTextCursor tc(editor->textCursor());
+        tc.movePosition(QTextCursor::Start);
+        tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        tc.insertText(newText);
+    }
+}
+
 void QmlJSEditorPlugin::showContextPane()
 {
     Core::EditorManager *em = Core::EditorManager::instance();
@@ -327,11 +348,23 @@ QmlJSQuickFixAssistProvider *QmlJSEditorPlugin::quickFixAssistProvider() const
 
 void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
 {
-    if (! editor)
-        return;
+    QmlJSTextEditorWidget *newTextEditor = 0;
+    if (editor)
+        newTextEditor = qobject_cast<QmlJSTextEditorWidget *>(editor->widget());
 
-    else if (QmlJSTextEditorWidget *textEditor = qobject_cast<QmlJSTextEditorWidget *>(editor->widget())) {
-        textEditor->forceReparse();
+    if (m_currentEditor) {
+        disconnect(m_currentEditor.data(), SIGNAL(contentsChanged()),
+                   this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
+        disconnect(m_currentEditor.data(), SIGNAL(semanticInfoUpdated()),
+                   this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
+    }
+    m_currentEditor = newTextEditor;
+    if (newTextEditor) {
+        connect(newTextEditor, SIGNAL(contentsChanged()),
+                this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
+        connect(newTextEditor, SIGNAL(semanticInfoUpdated()),
+                this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
+        newTextEditor->forceReparse();
     }
 }
 
@@ -341,6 +374,12 @@ void QmlJSEditorPlugin::runSemanticScan()
     ProjectExplorer::TaskHub *hub = ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::TaskHub>();
     hub->setCategoryVisibility(Constants::TASK_CATEGORY_QML_ANALYSIS, true);
     hub->popup(false);
+}
+
+void QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate()
+{
+    const bool semanticInfoUpToDate = m_currentEditor && !m_currentEditor->isOutdated();
+    m_reformatFileAction->setEnabled(semanticInfoUpToDate);
 }
 
 Q_EXPORT_PLUGIN(QmlJSEditorPlugin)
