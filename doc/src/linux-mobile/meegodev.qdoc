@@ -301,7 +301,10 @@
                     connect to the device.
 
                 \o  Select \gui {Tools > Options > Linux Devices > Device
-                    Configurations > Add}, and add a new configuration for a
+                    Configurations > Add}.
+
+                \o  Select \gui {Device with MADDE support (Fremantle, Harmattan,
+                    MeeGo) > Start Wizard}, and add a new configuration for a
                     hardware device.
 
                     \image qtcreator-screenshot-devconf.png

@@ -68,7 +68,7 @@
             \list 1
 
                 \o  Select \gui {Tools > Options > Linux Devices > Device
-                    Configurations > Add > Generic Linux Device}.
+                    Configurations > Add > Generic Linux Device > Start Wizard}.
 
                     \image qtcreator-screenshot-devconf-linux.png "Connection Data wizard"
 
