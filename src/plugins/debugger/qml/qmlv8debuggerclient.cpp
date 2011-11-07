@@ -1235,6 +1235,22 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 d->requestListBreakpoints = true;
             }
 
+            //Sometimes we do not get event type!
+            //This is most probably due to a wrong eval expression.
+            //Redirect output to console.
+            if (eventType.isEmpty()) {
+                 bool success = resp.value(_("success")).toBool();
+                 QVariantMap map;
+                 map.insert(_(TYPE), QVariant(_("string")));
+                 map.insert(_(VALUE), resp.value(_("message")));
+                 //Since there is no sequence value, best estimate is
+                 //last sequence value
+                 updateEvaluationResult(d->sequence, success, QVariant(map), QVariant());
+                 if (!isV8Running
+                         && d->debugServiceState == QmlV8DebuggerClient::ProcessingRequestState)
+                     d->debugServiceState = QmlV8DebuggerClient::WaitingForRequestState;
+            }
+
             if (!isV8Running
                     && d->debugServiceState == QmlV8DebuggerClient::RunningState)
                 d->debugServiceState = QmlV8DebuggerClient::WaitingForRequestState;
