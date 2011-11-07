@@ -368,7 +368,7 @@ ICodeStylePreferences *TextEditorSettings::codeStyle() const
 
 ICodeStylePreferences *TextEditorSettings::codeStyle(const QString &languageId) const
 {
-    return m_d->m_languageToCodeStyle.value(languageId);
+    return m_d->m_languageToCodeStyle.value(languageId, codeStyle());
 }
 
 QMap<QString, ICodeStylePreferences *> TextEditorSettings::codeStyles() const
