@@ -781,12 +781,12 @@ void SplitterOrView::restoreState(const QByteArray &state)
     } else if (mode == "editor" || mode == "currenteditor") {
         EditorManager *em = CoreImpl::instance()->editorManager();
         QString fileName;
-        QByteArray id;
+        QString id;
         QByteArray editorState;
         stream >> fileName >> id >> editorState;
         if (!QFile::exists(fileName))
             return;
-        IEditor *e = em->openEditor(view(), fileName, Id(QString(id)), Core::EditorManager::IgnoreNavigationHistory
+        IEditor *e = em->openEditor(view(), fileName, Id(id), Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::NoActivate);
 
         if (!e) {
