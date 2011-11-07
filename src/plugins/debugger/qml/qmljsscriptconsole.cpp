@@ -218,7 +218,7 @@ void QmlJSScriptConsole::appendResult(const QString &result)
     d->appendToHistory(currentScript);
 
     QTextCursor cur = textCursor();
-    cur.movePosition(QTextCursor::EndOfLine);
+    cur.movePosition(QTextCursor::End);
     cur.insertText(_("\n"));
     cur.insertText(result);
     cur.movePosition(QTextCursor::EndOfLine);
@@ -527,7 +527,7 @@ QString QmlJSScriptConsole::getCurrentScript() const
 {
     QTextCursor cursor = textCursor();
     cursor.setPosition(d->startOfEditableArea);
-    while (cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor)) ;
+    while (cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor)) ;
     QString script = cursor.selectedText();
     cursor.clearSelection();
     //remove trailing white space
@@ -541,7 +541,7 @@ void QmlJSScriptConsole::replaceCurrentScript(const QString &script)
 {
     QTextCursor cursor = textCursor();
     cursor.setPosition(d->startOfEditableArea);
-    while (cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor)) ;
+    while (cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor)) ;
     cursor.deleteChar();
     cursor.insertText(script);
     setTextCursor(cursor);
