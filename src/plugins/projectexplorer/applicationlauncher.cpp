@@ -256,7 +256,7 @@ void ApplicationLauncher::readStandardError()
 {
     QByteArray data = d->m_guiProcess.readAllStandardError();
     QString msg = d->m_outputCodec->toUnicode(
-            data.constData(), data.length(), &d->m_outputCodecState);
+            data.constData(), data.length(), &d->m_errorCodecState);
     emit appendMessage(msg, Utils::StdErrFormatSameLine);
 }
 
