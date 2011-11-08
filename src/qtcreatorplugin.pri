@@ -40,8 +40,8 @@ PLUGINSPEC = $$_PRO_FILE_PWD_/$${TARGET}.pluginspec
 PLUGINSPEC_IN = $${PLUGINSPEC}.in
 exists($$PLUGINSPEC_IN) {
     OTHER_FILES += $$PLUGINSPEC_IN
+    QMAKE_SUBSTITUTES += $$PLUGINSPEC_IN
     PLUGINSPEC = $$OUT_PWD/$${TARGET}.pluginspec
-    QMAKE_SUBSTITUTES += $${PLUGINSPEC}.in
     copy2build.output = $$DESTDIR/${QMAKE_FUNC_FILE_IN_stripOutDir}
 } else {
     # need to support that for external plugins
