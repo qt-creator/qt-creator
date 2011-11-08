@@ -1419,7 +1419,7 @@ void MainConnection::createConnection()
             } else {
                 QList<ServiceBrowserPrivate *> waitingBrowsers;
                 {
-                    QMutexLocker(lock());
+                    QMutexLocker l(lock());
                     waitingBrowsers = m_browsers;
                     increaseStatusTo(Running);
                 }
