@@ -91,11 +91,15 @@ public:
     void reset(QmlJsDebugClient::QDeclarativeDebugConnection *conn);
 
     QmlJsDebugClient::QmlProfilerEventList *getEventList() const;
+    ZoomControl *rangeTimes() const;
 
     void setRecording(bool recording);
     bool isRecording() const;
     void viewAll();
 
+    bool hasValidSelection() const;
+    qint64 selectionStart() const;
+    qint64 selectionEnd() const;
 
 public slots:
     void updateCursorPosition();

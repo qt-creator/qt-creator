@@ -64,6 +64,7 @@ public:
     void switchToV8View();
     void clear();
 
+    void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
     QModelIndex selectedItem() const;
     bool mouseOnTable(const QPoint &position) const;
     void copyTableToClipboard() const;
@@ -127,6 +128,8 @@ public:
     void copyRowToClipboard() const;
 
     static QString nameForType(int typeNumber);
+
+    void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber);

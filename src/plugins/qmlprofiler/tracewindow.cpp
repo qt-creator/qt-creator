@@ -296,6 +296,11 @@ QmlProfilerEventList *TraceWindow::getEventList() const
     return m_eventList;
 }
 
+ZoomControl *TraceWindow::rangeTimes() const
+{
+    return m_zoomControl.data();
+}
+
 void TraceWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     emit contextMenuRequested(ev->globalPos());
@@ -432,6 +437,30 @@ void TraceWindow::mouseWheelMoved(int x, int y, int delta)
 void TraceWindow::viewAll()
 {
     emit globalZoom();
+}
+
+bool TraceWindow::hasValidSelection() const
+{
+    if (m_mainView->rootObject()) {
+        return m_mainView->rootObject()->property("selectionRangeReady").toBool();
+    }
+    return false;
+}
+
+qint64 TraceWindow::selectionStart() const
+{
+    if (m_mainView->rootObject()) {
+        return m_mainView->rootObject()->property("selectionRangeStart").toLongLong();
+    }
+    return 0;
+}
+
+qint64 TraceWindow::selectionEnd() const
+{
+    if (m_mainView->rootObject()) {
+        return m_mainView->rootObject()->property("selectionRangeEnd").toLongLong();
+    }
+    return 0;
 }
 
 void TraceWindow::setZoomLevel(int zoomLevel)

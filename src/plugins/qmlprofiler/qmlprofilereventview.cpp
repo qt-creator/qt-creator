@@ -138,6 +138,12 @@ void QmlProfilerEventsWidget::clear()
     m_eventParents->clear();
 }
 
+void QmlProfilerEventsWidget::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
+{
+    clear();
+    m_eventTree->getStatisticsInRange(rangeStart, rangeEnd);
+}
+
 QModelIndex QmlProfilerEventsWidget::selectedItem() const
 {
     return m_eventTree->selectedItem();
@@ -375,6 +381,9 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
         if (visitedFunctionsList.contains(binding))
             continue;
 
+        if (binding->calls == 0)
+            continue;
+
         QList<QStandardItem *> newRow;
         if (m_fieldShown[Name]) {
             newRow << new EventsViewItem(binding->displayname);
@@ -529,6 +538,12 @@ QString QmlProfilerEventsMainView::nameForType(int typeNumber)
     case 4: return QmlProfilerEventsMainView::tr("Signal");
     }
     return QString();
+}
+
+void QmlProfilerEventsMainView::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
+{
+    d->m_eventStatistics->compileStatistics(rangeStart, rangeEnd);
+    buildModel();
 }
 
 void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)

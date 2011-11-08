@@ -182,7 +182,11 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
     QAction *copyRowAction = 0;
     QAction *copyTableAction = 0;
     QAction *viewAllAction = 0;
+    QAction *getLocalStatsAction = 0;
+    QAction *getGlobalStatsAction = 0;
+
     if (eventView && eventView->mouseOnTable(position)) {
+        menu.addSeparator();
         if (eventView->selectedItem().isValid())
             copyRowAction = menu.addAction(tr("Copy Row"));
         copyTableAction = menu.addAction(tr("Copy Table"));
@@ -193,6 +197,13 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
             menu.addSeparator();
             viewAllAction = menu.addAction(tr("Reset Zoom"));
         }
+    }
+
+    if (sender() == d->m_traceWindow || sender() == d->m_eventsView) {
+        menu.addSeparator();
+        if (d->m_traceWindow->hasValidSelection())
+            getLocalStatsAction = menu.addAction(tr("Get Stats For Current Range"));
+        getGlobalStatsAction = menu.addAction(tr("Get Global Statistics"));
     }
 
     QAction *selectedAction = menu.exec(position);
@@ -208,6 +219,16 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
             eventView->copyTableToClipboard();
         if (selectedAction == viewAllAction)
             traceView->viewAll();
+        if (selectedAction == getLocalStatsAction) {
+            d->m_eventsView->getStatisticsInRange(
+                        d->m_traceWindow->selectionStart(),
+                        d->m_traceWindow->selectionEnd());
+        }
+        if (selectedAction == getGlobalStatsAction) {
+            d->m_eventsView->getStatisticsInRange(
+                        d->m_traceWindow->getEventList()->traceStartTime(),
+                        d->m_traceWindow->getEventList()->traceEndTime());
+        }
     }
 }
 

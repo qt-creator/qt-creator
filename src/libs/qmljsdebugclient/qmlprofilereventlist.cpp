@@ -383,8 +383,12 @@ void QmlProfilerEventList::complete()
     postProcess();
 }
 
-void QmlProfilerEventList::compileStatistics()
+void QmlProfilerEventList::compileStatistics(qint64 startTime, qint64 endTime)
 {
+    int index;
+    int fromIndex = findFirstIndex(startTime);
+    int toIndex = findLastIndex(endTime);
+
     // clear existing statistics
     foreach (QmlEventData *eventDescription, d->m_eventDescriptions.values()) {
         eventDescription->calls = 0;
@@ -399,19 +403,26 @@ void QmlProfilerEventList::compileStatistics()
 
     // compute parent-child relationship and call count
     QHash<int, QmlEventData*> lastParent;
-    foreach (QmlEventStartTimeData eventStartData, d->m_startTimeSortedList) {
-        QmlEventData *eventDescription = eventStartData.description;
+    for (index = fromIndex; index <= toIndex; index++) {
+        QmlEventData *eventDescription = d->m_startTimeSortedList[index].description;
+
+        if (d->m_startTimeSortedList[index].startTime > endTime ||
+                d->m_startTimeSortedList[index].startTime+d->m_startTimeSortedList[index].length < startTime) {
+            continue;
+        }
+
         eventDescription->calls++;
-        eventDescription->cumulatedDuration += eventStartData.length;
-        if (eventDescription->maxTime < eventStartData.length)
-            eventDescription->maxTime = eventStartData.length;
-        if (eventDescription->minTime > eventStartData.length)
-            eventDescription->minTime = eventStartData.length;
+        qint64 duration = d->m_startTimeSortedList[index].length;
+        eventDescription->cumulatedDuration += duration;
+        if (eventDescription->maxTime < duration)
+            eventDescription->maxTime = duration;
+        if (eventDescription->minTime > duration)
+            eventDescription->minTime = duration;
 
-
-        if (eventStartData.level > MIN_LEVEL) {
-            if (lastParent.contains(eventStartData.level-1)) {
-                QmlEventData *parentEvent = lastParent[eventStartData.level-1];
+        int level = d->m_startTimeSortedList[index].level;
+        if (level > MIN_LEVEL) {
+            if (lastParent.contains(level-1)) {
+                QmlEventData *parentEvent = lastParent[level-1];
                 if (!eventDescription->parentList.contains(parentEvent))
                     eventDescription->parentList.append(parentEvent);
                 if (!parentEvent->childrenList.contains(eventDescription))
@@ -419,7 +430,7 @@ void QmlProfilerEventList::compileStatistics()
             }
         }
 
-        lastParent[eventStartData.level] = eventDescription;
+        lastParent[level] = eventDescription;
     }
 
     // compute percentages
@@ -435,8 +446,10 @@ void QmlProfilerEventList::compileStatistics()
 
     // compute median time
     QHash < QmlEventData* , QList<qint64> > durationLists;
-    foreach (const QmlEventStartTimeData &startData, d->m_startTimeSortedList) {
-        durationLists[startData.description].append(startData.length);
+    for (index = fromIndex; index <= toIndex; index++) {
+        QmlEventData *desc = d->m_startTimeSortedList[index].description;
+        qint64 len = d->m_startTimeSortedList[index].length;
+        durationLists[desc].append(len);
     }
     QMutableHashIterator < QmlEventData* , QList<qint64> > iter(durationLists);
     while (iter.hasNext()) {
@@ -446,7 +459,10 @@ void QmlProfilerEventList::compileStatistics()
             iter.key()->medianTime = iter.value().at(iter.value().count()/2);
         }
     }
+}
 
+void QmlProfilerEventList::prepareForDisplay()
+{
     // generate numeric ids
     int ndx = 0;
     foreach (QmlEventData *binding, d->m_eventDescriptions.values()) {
@@ -624,8 +640,9 @@ void QmlProfilerEventList::postProcess()
     sortStartTimes();
     sortEndTimes();
     computeLevels();
-    compileStatistics();
     linkEndsToStarts();
+    prepareForDisplay();
+    compileStatistics(traceStartTime(), traceEndTime());
     emit dataReady();
 }
 

@@ -66,6 +66,10 @@ Rectangle {
     signal updateRangeButton
     property bool selectionRangeMode: false
 
+    property bool selectionRangeReady: selectionRange.ready
+    property variant selectionRangeStart: selectionRange.startTime
+    property variant selectionRangeEnd: selectionRange.startTime + selectionRange.duration
+
     // ***** connections with external objects
     Connections {
         target: zoomControl

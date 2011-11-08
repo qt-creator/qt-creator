@@ -125,6 +125,7 @@ public:
     Q_INVOKABLE qint64 traceDuration() const;
 
     void showErrorDialog(const QString &st ) const;
+    void compileStatistics(qint64 startTime, qint64 endTime);
 signals:
     void dataReady();
     void countChanged();
@@ -147,14 +148,14 @@ public slots:
     void setTraceEndTime( qint64 time );
     void setTraceStartTime( qint64 time );
 
-private slots:
+private:
     void postProcess();
     void sortEndTimes();
     void sortStartTimes();
     void computeLevels();
     void computeNestingLevels();
     void computeNestingDepth();
-    void compileStatistics();
+    void prepareForDisplay();
     void linkEndsToStarts();
 
 private:
