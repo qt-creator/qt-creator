@@ -183,10 +183,18 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Ta
     bc->setDisplayName(buildConfigurationName);
 
     ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+
     Q_ASSERT(buildSteps);
     GenericMakeStep *makeStep = new GenericMakeStep(buildSteps);
     buildSteps->insertStep(0, makeStep);
     makeStep->setBuildTarget("all", /* on = */ true);
+
+    Q_ASSERT(cleanSteps);
+    GenericMakeStep *cleanMakeStep = new GenericMakeStep(cleanSteps);
+    cleanSteps->insertStep(0, cleanMakeStep);
+    cleanMakeStep->setBuildTarget("clean", /* on = */ true);
+    cleanMakeStep->setClean(true);
 
     target->addBuildConfiguration(bc); // also makes the name unique...
     return bc;

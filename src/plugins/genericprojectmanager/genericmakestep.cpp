@@ -64,16 +64,19 @@ const char * const GENERIC_MS_DISPLAY_NAME(QT_TRANSLATE_NOOP("GenericProjectMana
 const char * const BUILD_TARGETS_KEY("GenericProjectManager.GenericMakeStep.BuildTargets");
 const char * const MAKE_ARGUMENTS_KEY("GenericProjectManager.GenericMakeStep.MakeArguments");
 const char * const MAKE_COMMAND_KEY("GenericProjectManager.GenericMakeStep.MakeCommand");
+const char * const CLEAN_KEY("GenericProjectManager.GenericMakeStep.Clean");
 }
 
 GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildStepList *parent) :
-    AbstractProcessStep(parent, QLatin1String(GENERIC_MS_ID))
+    AbstractProcessStep(parent, QLatin1String(GENERIC_MS_ID)),
+    m_clean(false)
 {
     ctor();
 }
 
 GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildStepList *parent, const QString &id) :
-    AbstractProcessStep(parent, id)
+    AbstractProcessStep(parent, id),
+    m_clean(false)
 {
     ctor();
 }
@@ -82,7 +85,8 @@ GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildStepList *parent, Generic
     AbstractProcessStep(parent, bs),
     m_buildTargets(bs->m_buildTargets),
     m_makeArguments(bs->m_makeArguments),
-    m_makeCommand(bs->m_makeCommand)
+    m_makeCommand(bs->m_makeCommand),
+    m_clean(bs->m_clean)
 {
     ctor();
 }
@@ -114,12 +118,27 @@ bool GenericMakeStep::init()
     pp->setCommand(makeCommand());
     pp->setArguments(allArguments());
 
+    // If we are cleaning, then make can fail with an error code, but that doesn't mean
+    // we should stop the clean queue
+    // That is mostly so that rebuild works on an already clean project
+    setIgnoreReturnValue(m_clean);
+
     setOutputParser(new ProjectExplorer::GnuMakeParser());
     if (bc->genericTarget()->genericProject()->toolChain())
         appendOutputParser(bc->genericTarget()->genericProject()->toolChain()->outputParser());
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
     return AbstractProcessStep::init();
+}
+
+void GenericMakeStep::setClean(bool clean)
+{
+    m_clean = clean;
+}
+
+bool GenericMakeStep::isClean() const
+{
+    return m_clean;
 }
 
 QVariantMap GenericMakeStep::toMap() const
@@ -129,6 +148,7 @@ QVariantMap GenericMakeStep::toMap() const
     map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
     map.insert(QLatin1String(MAKE_ARGUMENTS_KEY), m_makeArguments);
     map.insert(QLatin1String(MAKE_COMMAND_KEY), m_makeCommand);
+    map.insert(QLatin1String(CLEAN_KEY), m_clean);
     return map;
 }
 
@@ -137,6 +157,7 @@ bool GenericMakeStep::fromMap(const QVariantMap &map)
     m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
     m_makeArguments = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toString();
     m_makeCommand = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
+    m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
 
     return BuildStep::fromMap(map);
 }

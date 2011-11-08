@@ -136,10 +136,16 @@ GenericTarget *GenericTargetFactory::create(ProjectExplorer::Project *parent, co
     bc->setDisplayName("all");
 
     ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+
     GenericMakeStep *makeStep = new GenericMakeStep(buildSteps);
     buildSteps->insertStep(0, makeStep);
-
     makeStep->setBuildTarget("all", /* on = */ true);
+
+    GenericMakeStep *cleanMakeStep = new GenericMakeStep(cleanSteps);
+    cleanSteps->insertStep(0, cleanMakeStep);
+    cleanMakeStep->setBuildTarget("clean", /* on = */ true);
+    cleanMakeStep->setClean(true);
 
     bc->setBuildDirectory(genericproject->projectDirectory());
 

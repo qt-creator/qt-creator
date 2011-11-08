@@ -79,6 +79,9 @@ public:
     QString allArguments() const;
     QString makeCommand() const;
 
+    void setClean(bool clean);
+    bool isClean() const;
+
     QVariantMap toMap() const;
 
 protected:
@@ -92,6 +95,7 @@ private:
     QStringList m_buildTargets;
     QString m_makeArguments;
     QString m_makeCommand;
+    bool m_clean;
 };
 
 class GenericMakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
