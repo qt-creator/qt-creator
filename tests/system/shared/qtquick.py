@@ -70,8 +70,10 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP):
                   % QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.DESKTOP),
                   targets & QtQuickConstants.Targets.DESKTOP)
     # following targets depend on the build environment - added for further/later tests
-    available = [QtQuickConstants.Targets.SYMBIAN, QtQuickConstants.Targets.MAEMO5,
+    available = [QtQuickConstants.Targets.MAEMO5,
                  QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
+    if platform.system() in ('Windows', 'Microsoft'):
+        available += [QtQuickConstants.Targets.SYMBIAN]
     for current in available:
         mustCheck = targets & current == current
         try:
