@@ -10788,7 +10788,7 @@ mDNSexport void mDNS_ConfigChanged(mDNS *const m)
 		ConstructSleepProxyServerName(m, &newname);
 		if (!SameDomainLabelCS(name.c, newname.c))
 			{
-			LogSPS("Renaming SPS from “%#s” to “%#s”", name.c, newname.c);
+            LogSPS("Renaming SPS from '%#s' to '%#s'", name.c, newname.c);
 			// When SleepProxyServerCallback gets the mStatus_MemFree message,
 			// it will reregister the service under the new name
 			m->SPSState = 2;

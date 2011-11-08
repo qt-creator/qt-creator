@@ -21,7 +21,7 @@
  */
 
 #if __APPLE__
-// In Mac OS X 10.5 and later trying to use the daemon function gives a “‘daemon’ is deprecated”
+// In Mac OS X 10.5 and later trying to use the daemon function gives a "'daemon' is deprecated"
 // error, which prevents compilation because we build with "-Werror".
 // Since this is supposed to be portable cross-platform code, we don't care that daemon is
 // deprecated on Mac OS X 10.5, so we use this preprocessor trick to eliminate the error message.

@@ -198,7 +198,7 @@ mDNSexport char *GetRRDisplayString_rdb(const ResourceRecord *const rr, const RD
 							const mDNSu8 *t = rd->txt.c;
 							while (t < rd->txt.c + rr->rdlength)
 								{
-								length += mDNS_snprintf(buffer+length, RemSpc, "%s%#s", t > rd->txt.c ? "¦" : "", t);
+                               length += mDNS_snprintf(buffer+length, RemSpc, "%s%#s", t > rd->txt.c ? "|" : "", t);
 								t += 1 + t[0];
 								}
 							} break;
@@ -2984,7 +2984,7 @@ mDNSexport mDNSu32 mDNS_vsnprintf(char *sbuffer, mDNSu32 buflen, const char *fmt
 										}
 									}
 								if (F.altForm && !F.precision)
-									i = mDNS_snprintf(mDNS_VACB, sizeof(mDNS_VACB), "«ZERO ADDRESS»");
+                                    i = mDNS_snprintf(mDNS_VACB, sizeof(mDNS_VACB), "<ZERO ADDRESS>");
 								else switch (F.precision)
 									{
 									case  4: i = mDNS_snprintf(mDNS_VACB, sizeof(mDNS_VACB), "%d.%d.%d.%d",

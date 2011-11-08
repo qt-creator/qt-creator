@@ -1668,7 +1668,7 @@ mDNSlocal mStatus handle_regservice_request(request_state *request)
 
 	if (!ConstructServiceName(&srv, &request->u.servicereg.name, &request->u.servicereg.type, &d))
 		{
-		LogMsg("ERROR: handle_regservice_request - Couldn't ConstructServiceName from, “%#s” “%##s” “%##s”",
+        LogMsg("ERROR: handle_regservice_request - Couldn't ConstructServiceName from, '%#s' '%##s' '%##s'",
 			request->u.servicereg.name.c, request->u.servicereg.type.c, d.c); return(mStatus_BadParamErr);
 		}
 
@@ -2282,7 +2282,7 @@ mDNSlocal mStatus handle_resolve_request(request_state *request)
 	if (!request->msgptr) { LogMsg("%3d: DNSServiceResolve(unreadable parameters)", request->sd); return(mStatus_BadParamErr); }
 
 	if (build_domainname_from_strings(&fqdn, name, regtype, domain) < 0)
-		{ LogMsg("ERROR: handle_resolve_request bad “%s” “%s” “%s”", name, regtype, domain); return(mStatus_BadParamErr); }
+    { LogMsg("ERROR: handle_resolve_request bad '%s' '%s' '%s'", name, regtype, domain); return(mStatus_BadParamErr); }
 
 	mDNSPlatformMemZero(&request->u.resolve, sizeof(request->u.resolve));
 
@@ -3669,12 +3669,12 @@ mDNSlocal void read_msg(request_state *req)
 				{
 #if !defined(USE_TCP_LOOPBACK)
 				struct stat sb;
-				LogMsg("%3d: read_msg: Couldn't connect to error return path socket “%s” errno %d (%s)",
+                LogMsg("%3d: read_msg: Couldn't connect to error return path socket '%s' errno %d (%s)",
 					req->sd, cliaddr.sun_path, dnssd_errno, dnssd_strerror(dnssd_errno));
 				if (stat(cliaddr.sun_path, &sb) < 0)
-					LogMsg("%3d: read_msg: stat failed “%s” errno %d (%s)", req->sd, cliaddr.sun_path, dnssd_errno, dnssd_strerror(dnssd_errno));
+                    LogMsg("%3d: read_msg: stat failed '%s' errno %d (%s)", req->sd, cliaddr.sun_path, dnssd_errno, dnssd_strerror(dnssd_errno));
 				else
-					LogMsg("%3d: read_msg: file “%s” mode %o (octal) uid %d gid %d", req->sd, cliaddr.sun_path, sb.st_mode, sb.st_uid, sb.st_gid);
+                    LogMsg("%3d: read_msg: file '%s' mode %o (octal) uid %d gid %d", req->sd, cliaddr.sun_path, sb.st_mode, sb.st_uid, sb.st_gid);
 #endif
 				req->ts = t_error;
 				return;
@@ -4448,7 +4448,7 @@ mDNSexport void udsserver_info(mDNS *const m)
 	else LogMsgNoIdent("Offering Sleep Proxy Service: %#s", m->SPSRecords.RR_SRV.resrec.name->c);
 
 	if (m->ProxyRecords == ProxyA + ProxyD) LogMsgNoIdent("ProxyRecords: %d + %d = %d", ProxyA, ProxyD, ProxyA + ProxyD);
-	else LogMsgNoIdent("ProxyRecords: MISMATCH %d + %d = %d ≠ %d", ProxyA, ProxyD, ProxyA + ProxyD, m->ProxyRecords);
+    else LogMsgNoIdent("ProxyRecords: MISMATCH %d + %d = %d != %d", ProxyA, ProxyD, ProxyA + ProxyD, m->ProxyRecords);
 
 	LogMsgNoIdent("------ Auto Browse Domains -----");
 	if (!AutoBrowseDomains) LogMsgNoIdent("<None>");
