@@ -38,6 +38,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QIODevice>
 #include <QtCore/QXmlStreamWriter> // Mac.
+#include <QtCore/QFileInfo>
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -139,6 +140,38 @@ private:
     bool m_autoRemove;
 };
 
+class QTCREATOR_UTILS_EXPORT FileName : private QString
+{
+public:
+    FileName();
+    explicit FileName(const QFileInfo &info);
+    QString toString() const;
+    static FileName fromString(const QString &filename);
+
+    bool operator==(const FileName &other) const;
+    bool operator<(const FileName &other) const;
+    bool operator<=(const FileName &other) const;
+    bool operator>(const FileName &other) const;
+    bool operator>=(const FileName &other) const;
+
+    bool startsWith(const QString &s) const;
+    bool endsWith(const QString &s) const;
+
+    FileName left(int n) const Q_REQUIRED_RESULT;
+    FileName mid(int position, int n = -1) const Q_REQUIRED_RESULT;
+    FileName right(int n) const Q_REQUIRED_RESULT;
+
+    using QString::size;
+    using QString::count;
+    using QString::length;
+    using QString::isEmpty;
+private:
+    static Qt::CaseSensitivity cs;
+    FileName(const QString &string);
+};
+
 } // namespace Utils
+
+QTCREATOR_UTILS_EXPORT uint qHash(const Utils::FileName &a);
 
 #endif // FILEUTILS_H

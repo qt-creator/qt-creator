@@ -407,4 +407,95 @@ TempFileSaver::~TempFileSaver()
         QFile::remove(m_fileName);
 }
 
+#ifdef Q_OS_WIN
+Qt::CaseSensitivity FileName::cs = Qt::CaseInsensitive;
+#else
+Qt::CaseSensitivity FileName::cs = Qt::CaseSensitive;
+#endif
+
+FileName::FileName()
+    : QString()
+{
+
+}
+
+FileName::FileName(const QFileInfo &info)
+    : QString(info.absoluteFilePath())
+{
+}
+
+QString FileName::toString() const
+{
+    return QString(*this);
+}
+
+FileName FileName::fromString(const QString &filename)
+{
+    return FileName(filename);
+}
+
+FileName::FileName(const QString &string)
+    : QString(string)
+{
+
+}
+bool FileName::operator==(const FileName &other) const
+{
+    return QString::compare(*this, other, cs) == 0;
+}
+
+bool FileName::operator<(const FileName &other) const
+{
+    return QString::compare(*this, other, cs) < 0;
+}
+
+bool FileName::operator<=(const FileName &other) const
+{
+    return QString::compare(*this, other, cs) <= 0;
+}
+
+bool FileName::operator>(const FileName &other) const
+{
+    return other < *this;
+}
+
+bool FileName::operator>=(const FileName &other) const
+{
+    return other <= *this;
+}
+
+bool FileName::startsWith(const QString &s) const
+{
+    return QString::startsWith(s, cs);
+}
+
+bool FileName::endsWith(const QString &s) const
+{
+    return QString::endsWith(s, cs);
+}
+
+FileName FileName::left(int n) const
+{
+    return FileName(QString::left(n));
+}
+
+FileName FileName::mid(int position, int n) const
+{
+    return FileName(QString::mid(position, n));
+}
+
+FileName FileName::right(int n) const
+{
+    return FileName(QString::right(n));
+}
+
 } // namespace Utils
+
+uint qHash(const Utils::FileName &a)
+{
+#ifdef Q_OS_WIN
+    return qHash(a.toString().toUpper());
+#else
+    return qHash(a.toString());
+#endif
+}
