@@ -70,10 +70,8 @@ def checkLastBuild(expectedToFail=False):
     else:
         test.fail("Errors: %s | Warnings: %s" % (errors, warnings))
     # additional stuff - could be removed... or improved :)
-    toggleIssues = waitForObject("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' "
-                                      "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
-    if not toggleIssues.checked:
-        clickButton(toggleIssues)
+    ensureChecked("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' "
+                  "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
     list=waitForObject("{type='QListView' unnamed='1' visible='1' "
                        "window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Issues'}", 20000)
     model = list.model()
@@ -84,10 +82,8 @@ def checkLastBuild(expectedToFail=False):
 
 # helper function to check the compilation when build wasn't successful
 def checkCompile():
-    toggleCompOutput = waitForObject("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
-                                      "window=':Qt Creator_Core::Internal::MainWindow' occurrence='4'}", 20000)
-    if not toggleCompOutput.checked:
-        clickButton(toggleCompOutput)
+    ensureChecked("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
+                  "window=':Qt Creator_Core::Internal::MainWindow' occurrence='4'}")
     output = waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1' windowTitle='Compile Output'"
                                  " window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
     waitFor("len(str(output.plainText))>0",5000)

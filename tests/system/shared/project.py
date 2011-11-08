@@ -75,9 +75,7 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
         labelCheck = stateLabel.text=="" and stateLabel.styleSheet == ""
         test.verify(labelCheck, "Project name and base directory without warning or error")
     # make sure this is not set as default location
-    cbDefaultLocation = waitForObject("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", 20000)
-    if cbDefaultLocation.checked:
-        clickButton(cbDefaultLocation)
+    ensureChecked("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", False)
     clickButton(waitForObject(":Next_QPushButton"))
     return projectName
 

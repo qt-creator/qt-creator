@@ -66,20 +66,17 @@ def __chooseComponents__(components=QtQuickConstants.Components.BUILTIN):
 # parameter target can be an OR'd value of QtQuickConstants.Targets
 def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP):
      # DESKTOP should be always accessible
-    destDesktop = waitForObject("{type='QCheckBox' text='%s' visible='1'}"
-                                % QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.DESKTOP), 20000)
-    mustCheck = targets & QtQuickConstants.Targets.DESKTOP==QtQuickConstants.Targets.DESKTOP
-    if (mustCheck ^ destDesktop.checked):
-        clickButton(destDesktop)
+    ensureChecked("{type='QCheckBox' text='%s' visible='1'}"
+                  % QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.DESKTOP),
+                  targets & QtQuickConstants.Targets.DESKTOP)
     # following targets depend on the build environment - added for further/later tests
     available = [QtQuickConstants.Targets.SYMBIAN, QtQuickConstants.Targets.MAEMO5,
                  QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
     for current in available:
         mustCheck = targets & current == current
         try:
-            targetCheckbox = findObject("{type='QCheckBox' text='%s' visible='1'}" % QtQuickConstants.getStringForTarget(current))
-            if mustCheck ^ targetCheckbox.checked:
-                clickButton(targetCheckbox)
+            ensureChecked("{type='QCheckBox' text='%s' visible='1'}" % QtQuickConstants.getStringForTarget(current),
+                          mustCheck)
         except LookupError:
             if mustCheck:
                 test.fail("Failed to check target '%s'" % QtQuickConstants.getStringForTarget(current))
@@ -103,8 +100,7 @@ def runAndCloseApp():
         invokeMenuItem("File", "Exit")
         return False
     # the following is currently a work-around for not using hooking into subprocesses
-    if (waitForObject(":Qt Creator_Core::Internal::OutputPaneToggleButton").checked!=True):
-        clickButton(":Qt Creator_Core::Internal::OutputPaneToggleButton")
+    ensureChecked(":Qt Creator_Core::Internal::OutputPaneToggleButton")
     playButton = verifyEnabled(":Qt Creator.ReRun_QToolButton", False)
     stopButton = verifyEnabled(":Qt Creator.Stop_QToolButton")
     clickButton(stopButton)
@@ -121,8 +117,7 @@ def runAndCloseQtQuickUI():
     clickButton(runButton)
     waitFor("processStarted==True", 10000)
     # the following is currently a work-around for not using hooking into subprocesses
-    if (waitForObject(":Qt Creator_Core::Internal::OutputPaneToggleButton").checked!=True):
-        clickButton(":Qt Creator_Core::Internal::OutputPaneToggleButton")
+    ensureChecked(":Qt Creator_Core::Internal::OutputPaneToggleButton")
     stop = findObject(":Qt Creator.Stop_QToolButton")
     waitFor("stop.enabled==True")
     clickButton(stop)

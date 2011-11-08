@@ -20,6 +20,12 @@ def verifyChecked(objectName):
     test.compare(object.checked, True)
     return object
 
+def ensureChecked(objectName, shouldBeChecked = True):
+    object = waitForObject(objectName, 20000)
+    if object.checked ^ shouldBeChecked:
+        clickButton(object)
+    return object
+
 def verifyEnabled(objectName, expectedState = True):
     waitFor("object.exists('" + objectName + "')", 20000)
     object = findObject(objectName)
@@ -141,9 +147,7 @@ def invokeMenuItem(menu, item):
 
 def logApplicationOutput():
     # make sure application output is shown
-    toggleAppOutput = waitForObject("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
-                                      "window=':Qt Creator_Core::Internal::MainWindow' occurrence='3'}", 20000)
-    if not toggleAppOutput.checked:
-        clickButton(toggleAppOutput)
+    ensureChecked("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
+                  "window=':Qt Creator_Core::Internal::MainWindow' occurrence='3'}")
     output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
     test.log("Application Output:\n%s" % output.plainText)
