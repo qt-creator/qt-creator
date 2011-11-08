@@ -101,7 +101,7 @@ Rectangle {
             }
         }
 
-        onParsingStatusChanged: {
+        onProcessingData: {
             root.dataAvailable = false;
         }
 

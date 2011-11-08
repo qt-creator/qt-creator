@@ -72,7 +72,6 @@ private slots:
 
     void traceClientEnabled();
     void traceFinished();
-    void parsingStatusChanged();
     void recordingChanged();
 
     void print(const QString &line);

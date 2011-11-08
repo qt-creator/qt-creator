@@ -167,7 +167,6 @@ public:
 
     // file to load
     QString m_filename;
-    ParsingStatus m_parsingStatus;
 };
 
 
@@ -177,7 +176,6 @@ public:
 QmlProfilerEventList::QmlProfilerEventList(QObject *parent) :
     QObject(parent), d(new QmlProfilerEventListPrivate(this))
 {
-    d->m_parsingStatus = DoneStatus;
     setObjectName("QmlProfilerEventStatistics");
 
     d->m_traceEndTime = 0;
@@ -243,10 +241,10 @@ const QV8EventDescriptions& QmlProfilerEventList::getV8Events() const
 void QmlProfilerEventList::addRangedEvent(int type, qint64 startTime, qint64 length,
                                                 const QStringList &data, const QString &fileName, int line)
 {
-    setParsingStatus(GettingDataStatus);
-
     const QChar colon = QLatin1Char(':');
     QString displayName, location, details;
+
+    emit processingData();
 
     if (fileName.isEmpty()) {
         displayName = tr("<bytecode>");
@@ -468,9 +466,6 @@ void QmlProfilerEventList::compileStatistics()
         if (!d->m_typeCounts[typeNumber]->eventIds.contains(eventStartData.description->eventId))
             d->m_typeCounts[typeNumber]->eventIds << eventStartData.description->eventId;
     }
-
-    // continue postprocess
-    postProcess();
 }
 
 void QmlProfilerEventList::sortStartTimes()
@@ -513,9 +508,6 @@ void QmlProfilerEventList::sortStartTimes()
     // link back the endTimes
     for (int i = 0; i < d->m_startTimeSortedList.length(); i++)
        d->m_endTimeSortedList[d->m_startTimeSortedList[i].endTimeIndex].startTimeIndex = i;
-
-    // continue postprocess
-    postProcess();
 }
 
 void QmlProfilerEventList::sortEndTimes()
@@ -562,9 +554,6 @@ void QmlProfilerEventList::sortEndTimes()
     // link back the startTimes
     for (int i = 0; i < d->m_endTimeSortedList.length(); i++)
         d->m_startTimeSortedList[d->m_endTimeSortedList[i].startTimeIndex].endTimeIndex = i;
-
-    // continue postprocess
-    postProcess();
 }
 
 void QmlProfilerEventList::computeNestingLevels()
@@ -632,50 +621,12 @@ void QmlProfilerEventList::computeNestingDepth()
 
 void QmlProfilerEventList::postProcess()
 {
-    // Todo: collapse all this
-    switch (d->m_parsingStatus) {
-    case GettingDataStatus: {
-        setParsingStatus(SortingListsStatus);
-        QTimer::singleShot(50, this, SLOT(sortStartTimes()));
-        break;
-    }
-    case SortingEndsStatus: {
-        setParsingStatus(SortingListsStatus);
-        QTimer::singleShot(50, this, SLOT(sortEndTimes()));
-        break;
-    }
-    case SortingListsStatus: {
-        setParsingStatus(ComputingLevelsStatus);
-        QTimer::singleShot(50, this, SLOT(computeLevels()));
-        break;
-    }
-    case ComputingLevelsStatus: {
-        setParsingStatus(CompilingStatisticsStatus);
-        QTimer::singleShot(50, this, SLOT(compileStatistics()));
-        break;
-    }
-    case CompilingStatisticsStatus: {
-        linkEndsToStarts();
-        setParsingStatus(DoneStatus);
-        emit dataReady();
-        break;
-    }
-    default: break;
-    }
-
-}
-
-void QmlProfilerEventList::setParsingStatus(ParsingStatus ps)
-{
-    if (d->m_parsingStatus != ps) {
-        d->m_parsingStatus = ps;
-        emit parsingStatusChanged();
-    }
-}
-
-ParsingStatus QmlProfilerEventList::getParsingStatus() const
-{
-    return d->m_parsingStatus;
+    sortStartTimes();
+    sortEndTimes();
+    computeLevels();
+    compileStatistics();
+    linkEndsToStarts();
+    emit dataReady();
 }
 
 void QmlProfilerEventList::linkEndsToStarts()
@@ -688,8 +639,6 @@ void QmlProfilerEventList::computeLevels()
 {
     computeNestingLevels();
     computeNestingDepth();
-    // continue postprocess
-    postProcess();
 }
 
 // get list of events between A and B:
@@ -930,7 +879,7 @@ void QmlProfilerEventList::load()
         return;
     }
 
-    setParsingStatus(GettingDataStatus);
+    emit processingData();
 
     // erase current
     clear();
@@ -1163,8 +1112,6 @@ void QmlProfilerEventList::load()
     d->m_v8EventList = v8eventBuffer.values();
 
     emit countChanged();
-
-    setParsingStatus(SortingEndsStatus);
 
     descriptionBuffer.clear();
 

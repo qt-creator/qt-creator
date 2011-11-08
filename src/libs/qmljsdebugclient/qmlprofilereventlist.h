@@ -81,15 +81,6 @@ typedef QHash<QString, QmlEventData *> QmlEventHash;
 typedef QList<QmlEventData *> QmlEventDescriptions;
 typedef QList<QV8EventData *> QV8EventDescriptions;
 
-enum ParsingStatus {
-    GettingDataStatus = 0,
-    SortingListsStatus = 1,
-    SortingEndsStatus = 2,
-    ComputingLevelsStatus = 3,
-    CompilingStatisticsStatus = 4,
-    DoneStatus = 5
-};
-
 class QMLJSDEBUGCLIENT_EXPORT QmlProfilerEventList : public QObject
 {
     Q_OBJECT
@@ -110,8 +101,6 @@ public:
     Q_INVOKABLE qint64 lastTimeMark() const;
 
     Q_INVOKABLE int count() const;
-    void setParsingStatus(ParsingStatus ps);
-    Q_INVOKABLE ParsingStatus getParsingStatus() const;
 
     // data access
     Q_INVOKABLE qint64 getStartTime(int index) const;
@@ -139,9 +128,9 @@ public:
 signals:
     void dataReady();
     void countChanged();
-    void parsingStatusChanged();
     void error(const QString &error);
     void dataClear();
+    void processingData();
 
 public slots:
     void clear();
