@@ -220,7 +220,11 @@ static inline QStringList parseList(QIODevice *device)
     QXmlStreamReader reader(device);
     const QString pasteElementPrefix = QLatin1String("paste_");
     while (!reader.atEnd()) {
+#if QT_VERSION >= 0x040800
         if (reader.readNext() == QXmlStreamReader::StartElement && reader.name().startsWith(pasteElementPrefix))
+#else
+        if (reader.readNext() == QXmlStreamReader::StartElement && reader.name().toString().startsWith(pasteElementPrefix))
+#endif
             result.append(reader.readElementText());
     }
     return result;
