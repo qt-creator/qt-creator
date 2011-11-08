@@ -82,8 +82,12 @@ QSet<QString> EmbeddedLinuxTargetFactory::targetFeatures(const QString & /*id*/)
 
 QStringList EmbeddedLinuxTargetFactory::supportedTargetIds(ProjectExplorer::Project *project) const
 {
-    Q_UNUSED(project);
-    return QStringList() << RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID;
+    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(project))
+        return QStringList();
+
+    if (QtSupport::QtVersionManager::instance()->supportsTargetId(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID))
+        return QStringList() << QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID);
+    return QStringList();
 }
 
 bool EmbeddedLinuxTargetFactory::supportsTargetId(const QString &id) const
@@ -125,7 +129,6 @@ bool EmbeddedLinuxTargetFactory::canCreate(ProjectExplorer::Project *parent, con
     return supportsTargetId(id);
 }
 
-
 ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Project *parent,
                                                             const QString &id)
 {
@@ -134,9 +137,6 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Pro
 
     QList<QtSupport::BaseQtVersion *> knownVersions =
             QtSupport::QtVersionManager::instance()->versionsForTargetId(id);
-    if (knownVersions.isEmpty())
-        return 0;
-
     QtSupport::BaseQtVersion *qtVersion = knownVersions.first();
     QtSupport::BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
 
