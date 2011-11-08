@@ -450,6 +450,17 @@ void AbstractRemoteLinuxApplicationRunner::handlePostRunCleanupDone()
         emit error(tr("Error running remote process: %1").arg(d->runner->errorString()));
 }
 
+QString AbstractRemoteLinuxApplicationRunner::killApplicationCommandLine() const
+{
+    return QString::fromLocal8Bit("cd /proc; for pid in `ls -d [0123456789]*`; "
+        "do "
+            "if [ \"`readlink /proc/$pid/exe`\" = \"%1\" ]; then "
+            "    kill $pid; sleep 1; kill -9 $pid; "
+            "fi; "
+        "done").arg(remoteExecutable());
+}
+
+
 const qint64 AbstractRemoteLinuxApplicationRunner::InvalidExitCode = std::numeric_limits<qint64>::min();
 
 
@@ -486,19 +497,6 @@ void GenericRemoteLinuxApplicationRunner::doPostRunCleanup()
 
 void GenericRemoteLinuxApplicationRunner::doAdditionalConnectionErrorHandling()
 {
-}
-
-QString GenericRemoteLinuxApplicationRunner::killApplicationCommandLine() const
-{
-    // Prevent pkill from matching our own pkill call.
-    QString pkillArg = remoteExecutable();
-    const int lastPos = pkillArg.count() - 1;
-    pkillArg.replace(lastPos, 1, QLatin1Char('[') + pkillArg.at(lastPos) + QLatin1Char(']'));
-
-    const char * const killTemplate = "pkill -%2 -f %1";
-    const QString niceKill = QString::fromLocal8Bit(killTemplate).arg(pkillArg).arg("SIGTERM");
-    const QString brutalKill = QString::fromLocal8Bit(killTemplate).arg(pkillArg).arg("SIGKILL");
-    return niceKill + QLatin1String("; sleep 1; ") + brutalKill;
 }
 
 } // namespace RemoteLinux

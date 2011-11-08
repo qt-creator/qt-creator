@@ -105,7 +105,7 @@ private slots:
 
 private:
 
-    virtual QString killApplicationCommandLine() const = 0;
+    virtual QString killApplicationCommandLine() const;
 
     // Implement to do custom setup of the device *before* connecting.
     // Call handleDeviceSetupDone() afterwards.
@@ -145,9 +145,6 @@ protected:
     void doAdditionalInitializations();
     void doPostRunCleanup();
     void doAdditionalConnectionErrorHandling();
-
-private:
-    QString killApplicationCommandLine() const;
 };
 
 } // namespace RemoteLinux

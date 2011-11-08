@@ -65,7 +65,6 @@ private:
     void doAdditionalInitializations();
     void doPostRunCleanup();
     void doAdditionalConnectionErrorHandling();
-    QString killApplicationCommandLine() const;
 
     void mount();
     void unmount();
