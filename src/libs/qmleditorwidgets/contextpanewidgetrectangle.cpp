@@ -196,7 +196,6 @@ void ContextPaneWidgetRectangle::onGradientClicked()
         m_hasGradient = true;
         QLinearGradient gradient;
         QGradientStops stops;
-        QColor color = ui->colorColorButton->convertedColor();
         stops.append(QGradientStop(0, ui->colorColorButton->convertedColor()));
         stops.append(QGradientStop(1, Qt::white));
         gradient.setStops(stops);

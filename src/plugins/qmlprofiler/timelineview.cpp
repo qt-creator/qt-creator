@@ -172,7 +172,7 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
     QPen lightPen(QBrush(QColor(Qt::blue).lighter(130)), 2);
     p->setPen(lightPen);
 
-    int x,y,width,rowNumber,eventType;
+    int x, y, width, eventType;
     for (int i = fromIndex; i <= toIndex; i++) {
         if (m_eventList->getHash(i) != id)
             continue;
@@ -193,7 +193,6 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
         if (width<1)
             width = 1;
 
-        rowNumber = y/DefaultRowHeight;
         p->drawRect(x,y,width,DefaultRowHeight);
     }
 }
