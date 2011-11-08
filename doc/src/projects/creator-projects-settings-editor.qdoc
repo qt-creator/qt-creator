@@ -44,7 +44,7 @@
 
     To configure the text editor behavior for the current project:
 
-    \list
+    \list 1
 
         \o  Select \gui {Projects > Editor Settings}.
 

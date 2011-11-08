@@ -52,7 +52,7 @@
 
     To configure the editor behavior for the current project:
 
-    \list
+    \list 1
 
         \o  Select \gui {Projects > Code Style Settings}.
 
