@@ -3,6 +3,25 @@
 use warnings;
 use strict;
 
+sub visitDir($)
+{
+    my ($dir) = @_;
+    my @ret = ();
+    my @subret = ();
+    opendir DIR, $dir or die "$dir: $!\n";
+    my @ents = readdir DIR;
+    closedir DIR;
+    for my $ent (grep !/^\./, @ents) {
+        my $ret = $dir."/".$ent;
+        if (-d $ret) {
+            push @subret, &visitDir($ret);
+        } elsif ($ret =~ /\.qdoc$/) {
+            push @ret, $ret;
+        }
+    }
+    return @ret, @subret;
+}
+
 my @files = ();
 my %defines = ();
 for (@ARGV) {
@@ -12,7 +31,11 @@ for (@ARGV) {
         printf STDERR "Unknown option '".$_."'\n";
         exit 1;
     } else {
-        push @files, $_;
+        if (-d $_) {
+            push @files, visitDir($_);
+        } else {
+            push @files, $_;
+        }
     }
 }
 
