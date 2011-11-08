@@ -1524,22 +1524,15 @@ class Dumper:
             warn("WRONG ASSUMPTION HERE: %s " % type.code)
             check(False)
 
-        fields = extractFields(type)
-        #fields = type.fields()
-
-        # The dynamic type is a better type.
-        if len(fields):
-            field = fields[0]
-            #warn("FIELD: %s" % field.name)
-            if field.name.startswith("_vptr."):
-                p = value[field.name]
-                if long(p.dereference()) != 0:
-                    func = str(p.dereference())
-                    pos1 = func.find('<')
-                    if pos1 != -1:
-                        pos2 = func.find('::~')
-                        if pos2 != -1:
-                            self.putBetterType(func[pos1 + 1 : pos2])
+        #vtbl = str(parseAndEvaluate("{int(*)(int)}%s" % long(value.address)))
+        vtbl = gdb.execute("info symbol {int*}%s" % long(value.address),
+            to_string = True)
+        pos1 = vtbl.find("vtable ")
+        if pos1 != -1:
+            pos1 += 11
+            pos2 = vtbl.find(" +", pos1)
+            if pos2 != -1:
+                self.putType(vtbl[pos1 : pos2], 1)
 
         if self.useFancy and (format is None or format >= 1):
             self.putAddress(value.address)
@@ -1566,6 +1559,8 @@ class Dumper:
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
+        fields = extractFields(type)
+        #fields = type.fields()
 
         self.putType(typeName)
         self.putAddress(value.address)
