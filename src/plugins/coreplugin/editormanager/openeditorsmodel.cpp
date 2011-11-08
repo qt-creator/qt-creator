@@ -321,7 +321,7 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
     case Qt::UserRole + 1:
         return e.fileName();
     case Qt::UserRole + 2:
-        return QVariant::fromValue(e.editor ? e.editor->id() : e.id());
+        return QVariant::fromValue(e.editor ? Core::Id(e.editor->id()) : e.id());
     default:
         return QVariant();
     }
