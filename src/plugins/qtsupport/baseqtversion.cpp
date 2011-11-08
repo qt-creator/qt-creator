@@ -909,10 +909,12 @@ Utils::Environment BaseQtVersion::qmlToolsEnvironment() const
     addToEnvironment(environment);
 
     // add preferred tool chain, as that is how the tools are built, compare QtVersion::buildDebuggingHelperLibrary
-    QList<ProjectExplorer::ToolChain *> alltc =
-            ProjectExplorer::ToolChainManager::instance()->findToolChains(qtAbis().at(0));
-    if (!alltc.isEmpty())
-        alltc.first()->addToEnvironment(environment);
+    if (!qtAbis().isEmpty()) {
+        QList<ProjectExplorer::ToolChain *> alltc =
+                ProjectExplorer::ToolChainManager::instance()->findToolChains(qtAbis().at(0));
+        if (!alltc.isEmpty())
+            alltc.first()->addToEnvironment(environment);
+    }
 
     return environment;
 }
