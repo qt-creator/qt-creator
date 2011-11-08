@@ -1225,12 +1225,6 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
         return link;
 
     const Snapshot &snapshot = m_modelManager->snapshot();
-    Document::Ptr doc = m_lastSemanticInfo.doc;
-    if (!doc) {
-        doc = snapshot.document(file()->fileName());
-        if (!doc)
-            return link;
-    }
 
     QTextCursor tc = cursor;
     QChar ch = characterAt(tc.position());
@@ -1239,15 +1233,26 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
         ch = characterAt(tc.position());
     }
 
-    if (doc->translationUnit() && doc->translationUnit()->ast()) {
+    // Initially try to macth decl/def. For this we need the semantic doc with the AST.
+    if (m_lastSemanticInfo.doc
+            && m_lastSemanticInfo.doc->translationUnit()
+            && m_lastSemanticInfo.doc->translationUnit()->ast()) {
         int pos = tc.position();
         while (characterAt(pos).isSpace())
             ++pos;
         if (characterAt(pos) == QLatin1Char('(')) {
-            link = attemptFuncDeclDef(cursor, doc, snapshot);
+            link = attemptFuncDeclDef(cursor, m_lastSemanticInfo.doc, snapshot);
             if (link.isValid())
                 return link;
         }
+    }
+
+    // Now we prefer the doc from the snapshot with macros expanded.
+    Document::Ptr doc = snapshot.document(file()->fileName());
+    if (!doc) {
+        doc = m_lastSemanticInfo.doc;
+        if (!doc)
+            return link;
     }
 
     int lineNumber = 0, positionInBlock = 0;
