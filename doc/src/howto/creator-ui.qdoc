@@ -332,4 +332,9 @@
     \l{Searching with the Locator}{navigation} shortcuts are available to help
     speed up the process of developing your application.
 
+    \section1 Useful Features
+
+    For a list of useful \QC features described in other parts of the
+    documentation, see \l{Tips and Tricks}.
+
 */
