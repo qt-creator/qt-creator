@@ -230,7 +230,7 @@ private:
     void updateSourcePath() const;
     void updateVersionInfo() const;
     enum Binaries { QmlViewer, Designer, Linguist, Uic };
-    QString findQtBinary(BINARIES binary) const;
+    QString findQtBinary(Binaries binary) const;
     void updateMkspec() const;
     void setId(int id); // used by the qtversionmanager for legacy restore
                         // and by the qtoptionspage to replace qt versions

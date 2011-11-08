@@ -522,7 +522,7 @@ QString BaseQtVersion::qmlviewerCommand() const
     return m_qmlviewerCommand;
 }
 
-QString BaseQtVersion::findQtBinary(BINARIES binary) const
+QString BaseQtVersion::findQtBinary(Binaries binary) const
 {
     QString baseDir;
     if (qtVersion() < QtVersionNumber(5, 0, 0)) {
