@@ -16,7 +16,7 @@ for (@ARGV) {
     }
 }
 
-int(@files) or die "usage: $0 [-D<define>]... <qdoc-file>\n";
+int(@files) or die "usage: $0 [-D<define>]... <qdoc-file>...\n";
 
 my @toc = ();
 my %title2page = ();
