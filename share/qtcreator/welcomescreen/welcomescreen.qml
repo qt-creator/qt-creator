@@ -88,13 +88,6 @@ Rectangle {
         FeaturedAndNewsListing {
             anchors.fill: parent
         }
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            height: 1
-            color: "#ccc"
-        }
         Rectangle{
             anchors.top: parent.top
             anchors.bottom: parent.bottom
