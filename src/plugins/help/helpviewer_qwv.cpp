@@ -295,7 +295,7 @@ void HelpViewer::scaleUp()
 
 void HelpViewer::scaleDown()
 {
-    setTextSizeMultiplier(qMax(qreal(0.0), textSizeMultiplier() - 0.1));
+    setTextSizeMultiplier(qMax(qreal(0.0), textSizeMultiplier() - qreal(0.1)));
 }
 
 void HelpViewer::resetScale()

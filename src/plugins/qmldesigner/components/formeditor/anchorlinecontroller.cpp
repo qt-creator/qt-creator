@@ -170,8 +170,8 @@ void AnchorLineController::updatePosition()
         rightBoundingRect.adjust(0, 7, 5, -7);
 
     } else {
-        double height = qMin(boundingRect.height() / 4., qreal(10.0));
-        double width = qMin(boundingRect.width() / 4., qreal(10.0));
+        double height = qMin(boundingRect.height() / 4., 10.0);
+        double width = qMin(boundingRect.width() / 4., 10.0);
 
         topBoundingRect.setHeight(height);
         topBoundingRect.adjust(width, -4, -width, -1);

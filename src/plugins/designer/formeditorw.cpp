@@ -889,8 +889,8 @@ void FormEditorW::print()
         const double maxScaling = qMin(page.size().width() / pixmapSize.width(), page.size().height() / pixmapSize.height());
         const double scaling = qMin(suggestedScaling, maxScaling);
 
-        const double xOffset = page.left() + qMax(qreal(0.0), (page.size().width()  - scaling * pixmapSize.width())  / 2.0);
-        const double yOffset = page.top()  + qMax(qreal(0.0), (page.size().height() - scaling * pixmapSize.height()) / 2.0);
+        const double xOffset = page.left() + qMax(0.0, (page.size().width()  - scaling * pixmapSize.width())  / 2.0);
+        const double yOffset = page.top()  + qMax(0.0, (page.size().height() - scaling * pixmapSize.height()) / 2.0);
 
         // Draw.
         painter.translate(xOffset, yOffset);
