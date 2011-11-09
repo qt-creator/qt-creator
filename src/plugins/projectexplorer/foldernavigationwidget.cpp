@@ -404,9 +404,9 @@ int FolderNavigationWidgetFactory::priority() const
     return 400;
 }
 
-QString FolderNavigationWidgetFactory::id() const
+Core::Id FolderNavigationWidgetFactory::id() const
 {
-    return QLatin1String("File System");
+    return "File System";
 }
 
 QKeySequence FolderNavigationWidgetFactory::activationSequence() const

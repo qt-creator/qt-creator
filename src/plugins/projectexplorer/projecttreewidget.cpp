@@ -407,9 +407,9 @@ int ProjectTreeWidgetFactory::priority() const
     return 100;
 }
 
-QString ProjectTreeWidgetFactory::id() const
+Core::Id ProjectTreeWidgetFactory::id() const
 {
-    return QLatin1String("Projects");
+    return Core::Id("Projects");
 }
 
 QKeySequence ProjectTreeWidgetFactory::activationSequence() const

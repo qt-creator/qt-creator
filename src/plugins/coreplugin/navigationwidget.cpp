@@ -139,12 +139,13 @@ void NavigationWidgetPlaceHolder::currentModeAboutToChange(Core::IMode *mode)
     }
 }
 
-struct NavigationWidgetPrivate {
+struct NavigationWidgetPrivate
+{
     explicit NavigationWidgetPrivate(QAction *toggleSideBarAction);
 
     QList<Internal::NavigationSubWidget *> m_subWidgets;
-    QHash<QShortcut *, QString> m_shortcutMap;
-    QHash<QString, Core::Command*> m_commandMap;
+    QHash<QShortcut *, Core::Id> m_shortcutMap;
+    QHash<Core::Id, Core::Command *> m_commandMap;
     QStandardItemModel *m_factoryModel;
 
     bool m_shown;
@@ -191,7 +192,7 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> fact
     Context navicontext(Core::Constants::C_NAVIGATION_PANE);
 
     foreach (INavigationWidgetFactory *factory, factories) {
-        const QString id = factory->id();
+        const Id id = factory->id();
 
         QShortcut *shortcut = new QShortcut(this);
         shortcut->setWhatsThis(tr("Activate %1 Pane").arg(factory->displayName()));
@@ -199,13 +200,13 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> fact
         d->m_shortcutMap.insert(shortcut, id);
 
         Command *cmd = am->registerShortcut(shortcut,
-            Id(QLatin1String("QtCreator.Sidebar.") + id), navicontext);
+            Id(QLatin1String("QtCreator.Sidebar.") + id.name()), navicontext);
         cmd->setDefaultKeySequence(factory->activationSequence());
         d->m_commandMap.insert(id, cmd);
 
         QStandardItem *newRow = new QStandardItem(factory->displayName());
         newRow->setData(qVariantFromValue(factory), FactoryObjectRole);
-        newRow->setData(factory->id(), FactoryIdRole);
+        newRow->setData(QVariant::fromValue(factory->id()), FactoryIdRole);
         newRow->setData(factory->priority(), FactoryPriorityRole);
         d->m_factoryModel->appendRow(newRow);
     }
@@ -266,11 +267,11 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int 
 void NavigationWidget::activateSubWidget()
 {
     QShortcut *original = qobject_cast<QShortcut *>(sender());
-    QString id = d->m_shortcutMap[original];
+    Id id = d->m_shortcutMap[original];
     activateSubWidget(id);
 }
 
-void NavigationWidget::activateSubWidget(const QString &factoryId)
+void NavigationWidget::activateSubWidget(const Id &factoryId)
 {
     setShown(true);
     foreach (Internal::NavigationSubWidget *subWidget, d->m_subWidgets) {
@@ -312,7 +313,7 @@ void NavigationWidget::saveSettings(QSettings *settings)
     QStringList viewIds;
     for (int i=0; i<d->m_subWidgets.count(); ++i) {
         d->m_subWidgets.at(i)->saveSettings();
-        viewIds.append(d->m_subWidgets.at(i)->factory()->id());
+        viewIds.append(d->m_subWidgets.at(i)->factory()->id().toString());
     }
     settings->setValue(QLatin1String("Navigation/Views"), viewIds);
     settings->setValue(QLatin1String("Navigation/Visible"), isShown());
@@ -343,7 +344,7 @@ void NavigationWidget::restoreSettings(QSettings *settings)
 
     int position = 0;
     foreach (const QString &id, viewIds) {
-        int index = factoryIndex(id);
+        int index = factoryIndex(Id(id));
         if (index >= 0) {
             // Only add if the id was actually found!
             insertSubItem(position, index);
@@ -355,7 +356,7 @@ void NavigationWidget::restoreSettings(QSettings *settings)
 
     if (d->m_subWidgets.isEmpty())
         // Make sure we have at least the projects widget
-        insertSubItem(0, qMax(0, factoryIndex(QLatin1String("Projects"))));
+        insertSubItem(0, qMax(0, factoryIndex(Id("Projects"))));
 
     setShown(settings->value(QLatin1String("Navigation/Visible"), true).toBool());
 
@@ -421,17 +422,17 @@ void NavigationWidget::setSuppressed(bool b)
         NavigationWidgetPlaceHolder::m_current->setVisible(d->m_shown && !d->m_suppressed);
 }
 
-int NavigationWidget::factoryIndex(const QString &id)
+int NavigationWidget::factoryIndex(const Id &id)
 {
     for (int row = 0; row < d->m_factoryModel->rowCount(); ++row) {
-        if (d->m_factoryModel->data(d->m_factoryModel->index(row, 0), FactoryIdRole).toString() == id) {
+        if (d->m_factoryModel->data(d->m_factoryModel->index(row, 0), FactoryIdRole).value<Core::Id>() == id) {
             return row;
         }
     }
     return -1;
 }
 
-QHash<QString, Core::Command*> NavigationWidget::commandMap() const
+QHash<Id, Command *> NavigationWidget::commandMap() const
 {
     return d->m_commandMap;
 }

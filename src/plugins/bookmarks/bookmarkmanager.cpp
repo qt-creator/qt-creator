@@ -777,9 +777,9 @@ int BookmarkViewFactory::priority() const
     return 300;
 }
 
-QString BookmarkViewFactory::id() const
+Id BookmarkViewFactory::id() const
 {
-    return QLatin1String("Bookmarks");
+    return Id("Bookmarks");
 }
 
 QKeySequence BookmarkViewFactory::activationSequence() const

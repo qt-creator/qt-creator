@@ -237,9 +237,9 @@ int CppTypeHierarchyFactory::priority() const
     return Constants::TYPE_HIERARCHY_PRIORITY;
 }
 
-QString CppTypeHierarchyFactory::id() const
+Core::Id CppTypeHierarchyFactory::id() const
 {
-    return QLatin1String(Constants::TYPE_HIERARCHY_ID);
+    return Core::Id(Constants::TYPE_HIERARCHY_ID);
 }
 
 QKeySequence CppTypeHierarchyFactory::activationSequence() const

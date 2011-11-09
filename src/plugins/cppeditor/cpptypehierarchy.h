@@ -111,7 +111,7 @@ public:
 
     virtual QString displayName() const;
     virtual int priority() const;
-    virtual QString id() const;
+    virtual Core::Id id() const;
     virtual QKeySequence activationSequence() const;
     virtual Core::NavigationView createWidget();
 };

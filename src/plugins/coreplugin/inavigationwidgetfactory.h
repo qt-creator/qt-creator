@@ -33,7 +33,8 @@
 #ifndef INAVIGATIONWIDGET_H
 #define INAVIGATIONWIDGET_H
 
-#include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QList>
 
@@ -54,13 +55,13 @@ struct NavigationView
 class CORE_EXPORT INavigationWidgetFactory : public QObject
 {
     Q_OBJECT
+
 public:
-    INavigationWidgetFactory();
-    virtual ~INavigationWidgetFactory();
+    INavigationWidgetFactory() {}
 
     virtual QString displayName() const = 0;
     virtual int priority() const = 0;
-    virtual QString id() const = 0;
+    virtual Id id() const = 0;
     virtual QKeySequence activationSequence() const;
     // This design is not optimal, think about it again once we need to extend it
     // It could be implemented as returning an object which has both the widget

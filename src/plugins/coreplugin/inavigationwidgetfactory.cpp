@@ -36,14 +36,6 @@
 
 using namespace Core;
 
-INavigationWidgetFactory::INavigationWidgetFactory()
-{
-}
-
-INavigationWidgetFactory::~INavigationWidgetFactory()
-{
-}
-
 QKeySequence INavigationWidgetFactory::activationSequence() const
 {
     return QKeySequence();

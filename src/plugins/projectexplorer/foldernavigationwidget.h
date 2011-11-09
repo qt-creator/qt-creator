@@ -100,7 +100,7 @@ public:
 
     QString displayName() const;
     int priority() const;
-    QString id() const;
+    Core::Id id() const;
     QKeySequence activationSequence() const;
     Core::NavigationView createWidget();
 };

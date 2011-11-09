@@ -416,7 +416,7 @@ void CppPlugin::openTypeHierarchy()
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(em->currentEditor()->widget());
     if (editor) {
         Core::NavigationWidget *navigation = Core::NavigationWidget::instance();
-        navigation->activateSubWidget(QLatin1String(Constants::TYPE_HIERARCHY_ID));
+        navigation->activateSubWidget(Core::Id(Constants::TYPE_HIERARCHY_ID));
         emit typeHierarchyRequested();
     }
 }

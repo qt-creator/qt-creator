@@ -73,9 +73,9 @@ int NavigationWidgetFactory::priority() const
     return 500;
 }
 
-QString NavigationWidgetFactory::id() const
+Core::Id NavigationWidgetFactory::id() const
 {
-    return QLatin1String("Class View");
+    return Core::Id("Class View");
 }
 
 QKeySequence NavigationWidgetFactory::activationSequence() const

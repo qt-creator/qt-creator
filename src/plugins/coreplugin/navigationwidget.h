@@ -34,6 +34,7 @@
 #define NAVIGATIONWIDGET_H
 
 #include <coreplugin/minisplitter.h>
+#include <coreplugin/id.h>
 
 #include <QtCore/QHash>
 
@@ -92,7 +93,7 @@ public:
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);
 
-    void activateSubWidget(const QString &factoryId);
+    void activateSubWidget(const Id &factoryId);
     void closeSubWidgets();
 
     bool isShown() const;
@@ -108,7 +109,7 @@ public:
     // Called from the place holders
     void placeHolderChanged(NavigationWidgetPlaceHolder *holder);
 
-    QHash<QString, Core::Command*> commandMap() const;
+    QHash<Id, Core::Command *> commandMap() const;
     QAbstractItemModel *factoryModel() const;
 
 protected:
@@ -122,7 +123,7 @@ private slots:
 private:
     void updateToggleText();
     Internal::NavigationSubWidget *insertSubItem(int position, int index);
-    int factoryIndex(const QString &id);
+    int factoryIndex(const Id &id);
 
     NavigationWidgetPrivate *d;
 };

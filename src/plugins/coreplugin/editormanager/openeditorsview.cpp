@@ -233,9 +233,9 @@ int OpenEditorsViewFactory::priority() const
     return 200;
 }
 
-QString OpenEditorsViewFactory::id() const
+Core::Id OpenEditorsViewFactory::id() const
 {
-    return QLatin1String("Open Documents");
+    return Core::Id("Open Documents");
 }
 
 QKeySequence OpenEditorsViewFactory::activationSequence() const

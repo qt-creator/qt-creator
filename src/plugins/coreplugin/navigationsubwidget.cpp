@@ -176,8 +176,8 @@ void NavigationSubWidget::restoreSettings()
 
 Core::Command *NavigationSubWidget::command(const QString &title) const
 {
-    const QHash<QString, Core::Command*> commandMap = m_parentWidget->commandMap();
-    QHash<QString, Core::Command*>::const_iterator r = commandMap.find(title);
+    const QHash<Id, Command *> commandMap = m_parentWidget->commandMap();
+    QHash<Id, Command *>::const_iterator r = commandMap.find(Id(title));
     if (r != commandMap.end())
         return r.value();
     return 0;

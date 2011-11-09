@@ -178,11 +178,6 @@ void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
     }
 }
 
-OutlineFactory::OutlineFactory() :
-    Core::INavigationWidgetFactory()
-{
-}
-
 QList<IOutlineWidgetFactory*> OutlineFactory::widgetFactories() const
 {
     return m_factories;
@@ -203,9 +198,9 @@ int OutlineFactory::priority() const
     return 600;
 }
 
-QString OutlineFactory::id() const
+Core::Id OutlineFactory::id() const
 {
-    return QLatin1String("Outline");
+    return Core::Id("Outline");
 }
 
 QKeySequence OutlineFactory::activationSequence() const

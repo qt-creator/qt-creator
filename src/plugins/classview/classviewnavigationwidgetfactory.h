@@ -69,7 +69,7 @@ public:
     int priority() const;
 
     //! \implements Core::INavigationWidgetFactory::id
-    QString id() const;
+    Core::Id id() const;
 
     //! \implements Core::INavigationWidgetFactory::activationSequence
     QKeySequence activationSequence() const;
