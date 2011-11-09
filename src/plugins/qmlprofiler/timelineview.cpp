@@ -244,7 +244,7 @@ void TimelineView::manageClicked()
 
 void TimelineView::manageHovered(int x, int y)
 {
-    if (m_endTime - m_startTime <=0)
+    if (m_endTime - m_startTime <=0 || m_lastEndTime - m_lastStartTime <= 0)
         return;
 
     qint64 time = x * (m_endTime - m_startTime) / width() + m_startTime;
