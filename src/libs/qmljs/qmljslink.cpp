@@ -126,7 +126,7 @@ public:
 /*!
     \class QmlJS::Link
     \brief Creates a Context for a Snapshot.
-    \sa QmlJS::Context QmlJS::Snapshot
+    \sa Context Snapshot
 
     Initializes a context by resolving imports. This is an expensive operation.
 

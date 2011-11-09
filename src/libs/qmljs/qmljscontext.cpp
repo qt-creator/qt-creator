@@ -39,10 +39,10 @@ using namespace QmlJS::AST;
 
 /*!
     \class QmlJS::Context
-    \brief Holds information about relationships between documents in a QmlJS::Snapshot.
-    \sa QmlJS::Document QmlJS::Link QmlJS::Snapshot
+    \brief Holds information about relationships between documents in a Snapshot.
+    \sa Document Link Snapshot
 
-    Contexts are usually created through \l{QmlJS::Link}.
+    Contexts are usually created through Link.
 
     Once created, a Context is immutable and can be freely shared between threads.
 

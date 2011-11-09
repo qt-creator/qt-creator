@@ -61,6 +61,35 @@ using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
+/*!
+    \class QmlJS::Value
+    \brief Abstract base class for the result of a JS expression.
+    \sa Evaluate ValueOwner ValueVisitor
+
+    A Value represents a category of JavaScript values, such as number
+    (NumberValue), string (StringValue) or functions with a
+    specific signature (FunctionValue). It can also represent internal
+    categories such as "a QML component instantiation defined in a file"
+    (ASTObjectValue), "a QML component defined in C++"
+    (CppComponentValue) or "no specific information is available"
+    (UnknownValue).
+
+    The Value class itself provides accept() for admitting
+    \l{ValueVisitor}s and a do-nothing getSourceLocation().
+
+    Value instances should be cast to a derived type either through the
+    asXXX() helper functions such as asNumberValue() or via the
+    value_cast() template function.
+
+    Values are the result of many operations in the QmlJS code model:
+    \list
+    \o \l{Evaluate}
+    \o Context::lookupType() and Context::lookupReference()
+    \o ScopeChain::lookup()
+    \o ObjectValue::lookupMember()
+    \endlist
+*/
+
 namespace {
 
 class LookupMember: public MemberProcessor
