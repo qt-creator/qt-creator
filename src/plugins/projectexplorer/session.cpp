@@ -862,11 +862,6 @@ void SessionManager::updateWindowTitle()
 void SessionManager::updateName(const QString &session)
 {
     m_sessionName = session;
-    QString sessionName = m_sessionName;
-
-    if (sessionName.isEmpty())
-        sessionName = tr("Untitled");
-
     updateWindowTitle();
 }
 
