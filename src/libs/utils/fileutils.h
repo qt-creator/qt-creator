@@ -172,6 +172,8 @@ private:
 
 } // namespace Utils
 
+QT_BEGIN_NAMESPACE
 QTCREATOR_UTILS_EXPORT uint qHash(const Utils::FileName &a);
+QT_END_NAMESPACE
 
 #endif // FILEUTILS_H

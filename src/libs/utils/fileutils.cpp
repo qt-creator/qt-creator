@@ -491,6 +491,7 @@ FileName FileName::right(int n) const
 
 } // namespace Utils
 
+QT_BEGIN_NAMESPACE
 uint qHash(const Utils::FileName &a)
 {
 #ifdef Q_OS_WIN
@@ -499,3 +500,4 @@ uint qHash(const Utils::FileName &a)
     return qHash(a.toString());
 #endif
 }
+QT_END_NAMESPACE
