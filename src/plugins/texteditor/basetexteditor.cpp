@@ -78,6 +78,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QTimeLine>
 #include <QtCore/QTime>
+#include <QtCore/QMimeData>
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QtGui/QApplication>
 #include <QtGui/QKeyEvent>

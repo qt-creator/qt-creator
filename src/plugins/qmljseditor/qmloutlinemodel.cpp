@@ -45,6 +45,7 @@
 #include <coreplugin/icore.h>
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
+#include <QtCore/QMimeData>
 #include <typeinfo>
 
 using namespace QmlJS;

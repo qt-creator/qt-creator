@@ -52,6 +52,7 @@
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
 #include <QtCore/QVariant>
+#include <QtCore/QMimeData>
 
 #include <QtGui/QApplication>
 #include <QtGui/QPalette>

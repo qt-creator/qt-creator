@@ -34,7 +34,7 @@
 #define XBELSUPPORT_H
 
 #include <QtGui/QIcon>
-#include <QtXml/QXmlStreamReader>
+#include <QtCore/QXmlStreamReader>
 
 QT_FORWARD_DECLARE_CLASS(QIODevice)
 QT_FORWARD_DECLARE_CLASS(QStandardItem)

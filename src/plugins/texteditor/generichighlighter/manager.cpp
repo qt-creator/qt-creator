@@ -61,12 +61,12 @@
 #include <QtCore/QtConcurrentMap>
 #include <QtCore/QUrl>
 #include <QtCore/QSet>
+#include <QtCore/QXmlStreamReader>
+#include <QtCore/QXmlStreamAttributes>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMessageBox>
 #include <QtXml/QXmlSimpleReader>
 #include <QtXml/QXmlInputSource>
-#include <QtXml/QXmlStreamReader>
-#include <QtXml/QXmlStreamAttributes>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 #include <QtAlgorithms>

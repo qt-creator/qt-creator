@@ -93,6 +93,7 @@
 #include <QtCore/QUrl>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <QtCore/QMimeData>
 
 #include <QtGui/QApplication>
 #include <QtGui/QCloseEvent>

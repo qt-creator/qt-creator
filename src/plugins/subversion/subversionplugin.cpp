@@ -72,13 +72,13 @@
 #include <QtCore/QtPlugin>
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QUrl>
+#include <QtCore/QXmlStreamReader>
 #include <QtGui/QAction>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QInputDialog>
-#include <QtXml/QXmlStreamReader>
 #include <limits.h>
 
 namespace Subversion {

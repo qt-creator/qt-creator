@@ -37,6 +37,7 @@
 #include <QtGui/QColorDialog>
 #include <QtGui/QDragEnterEvent>
 #include <QtGui/QPainter>
+#include <QtGui/QDrag>
 
 namespace Utils {
 
