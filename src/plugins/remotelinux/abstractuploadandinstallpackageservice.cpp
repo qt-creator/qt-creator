@@ -159,7 +159,7 @@ void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString 
     connect(packageInstaller(), SIGNAL(stderrData(QString)), SIGNAL(stdErrData(QString)));
     connect(packageInstaller(), SIGNAL(finished(QString)),
         SLOT(handleInstallationFinished(QString)));
-    packageInstaller()->installPackage(connection(), remoteFilePath, true);
+    packageInstaller()->installPackage(deviceConfiguration(), remoteFilePath, true);
 }
 
 void AbstractUploadAndInstallPackageService::handleInstallationFinished(const QString &errorMsg)

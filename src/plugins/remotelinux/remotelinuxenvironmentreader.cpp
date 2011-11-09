@@ -61,8 +61,7 @@ void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
     m_stop = false;
     if (!m_remoteProcessRunner)
         m_remoteProcessRunner = new Utils::SshRemoteProcessRunner(this);
-    connect(m_remoteProcessRunner, SIGNAL(connectionError(Utils::SshError)),
-        SLOT(handleConnectionFailure()));
+    connect(m_remoteProcessRunner, SIGNAL(connectionError()), SLOT(handleConnectionFailure()));
     connect(m_remoteProcessRunner, SIGNAL(processClosed(int)), SLOT(remoteProcessFinished(int)));
     connect(m_remoteProcessRunner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(remoteOutput(QByteArray)));
@@ -87,8 +86,7 @@ void RemoteLinuxEnvironmentReader::handleConnectionFailure()
         return;
 
     disconnect(m_remoteProcessRunner, 0, this, 0);
-    emit error(tr("Connection error: %1")
-        .arg(m_remoteProcessRunner->connection()->errorString()));
+    emit error(tr("Connection error: %1").arg(m_remoteProcessRunner->lastConnectionErrorString()));
     emit finished();
 }
 

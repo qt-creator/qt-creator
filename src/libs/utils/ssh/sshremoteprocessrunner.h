@@ -53,11 +53,13 @@ public:
         const SshConnectionParameters &params);
     QByteArray command() const;
 
-    SshConnection::Ptr connection() const;
+    Utils::SshError lastConnectionError() const;
+    QString lastConnectionErrorString() const;
+
     SshRemoteProcess::Ptr process() const;
 
 signals:
-    void connectionError(Utils::SshError);
+    void connectionError();
     void processStarted();
     void processOutputAvailable(const QByteArray &output);
     void processErrorOutputAvailable(const QByteArray &output);

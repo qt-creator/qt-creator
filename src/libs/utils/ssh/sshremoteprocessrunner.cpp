@@ -56,12 +56,13 @@ public:
     void runInTerminal(const QByteArray &command, const SshPseudoTerminal &terminal,
         const SshConnectionParameters &sshParams);
     QByteArray command() const { return m_command; }
+    Utils::SshError lastConnectionError() const { return m_lastConnectionError; }
+    QString lastConnectionErrorString() const { return m_lastConnectionErrorString; }
 
-    SshConnection::Ptr m_connection;
     SshRemoteProcess::Ptr m_process;
 
 signals:
-    void connectionError(Utils::SshError);
+    void connectionError();
     void processStarted();
     void processOutputAvailable(const QByteArray &output);
     void processErrorOutputAvailable(const QByteArray &output);
@@ -82,10 +83,13 @@ private:
     void assertState(const QList<State> &allowedStates, const char *func);
     void assertState(State allowedState, const char *func);
 
+    SshConnection::Ptr m_connection;
     State m_state;
     bool m_runInTerminal;
     SshPseudoTerminal m_terminal;
     QByteArray m_command;
+    Utils::SshError m_lastConnectionError;
+    QString m_lastConnectionErrorString;
 };
 
 
@@ -120,6 +124,8 @@ void SshRemoteProcessRunnerPrivate::run(const QByteArray &command,
     setState(Inactive);
     setState(Connecting);
 
+    m_lastConnectionError = SshNoError;
+    m_lastConnectionErrorString.clear();
     m_command = command;
     m_connection = SshConnectionManager::instance().acquireConnection(sshParams);
     connect(m_connection.data(), SIGNAL(error(Utils::SshError)),
@@ -155,8 +161,10 @@ void SshRemoteProcessRunnerPrivate::handleConnected()
 
 void SshRemoteProcessRunnerPrivate::handleConnectionError(Utils::SshError error)
 {
+    m_lastConnectionError = error;
+    m_lastConnectionErrorString = m_connection->errorString();
     handleDisconnected();
-    emit connectionError(error);
+    emit connectionError();
 }
 
 void SshRemoteProcessRunnerPrivate::handleDisconnected()
@@ -200,6 +208,7 @@ void SshRemoteProcessRunnerPrivate::setState(State state)
             if (m_connection) {
                 disconnect(m_connection.data(), 0, this, 0);
                 SshConnectionManager::instance().releaseConnection(m_connection);
+                m_connection.clear();
             }
         }
     }
@@ -223,8 +232,7 @@ void SshRemoteProcessRunnerPrivate::assertState(State allowedState,
 SshRemoteProcessRunner::SshRemoteProcessRunner(QObject *parent)
     : QObject(parent), d(new Internal::SshRemoteProcessRunnerPrivate(this))
 {
-    connect(d, SIGNAL(connectionError(Utils::SshError)),
-        SIGNAL(connectionError(Utils::SshError)));
+    connect(d, SIGNAL(connectionError()), SIGNAL(connectionError()));
     connect(d, SIGNAL(processStarted()), SIGNAL(processStarted()));
     connect(d, SIGNAL(processClosed(int)), SIGNAL(processClosed(int)));
     connect(d, SIGNAL(processOutputAvailable(QByteArray)),
@@ -245,8 +253,14 @@ void SshRemoteProcessRunner::runInTerminal(const QByteArray &command,
 }
 
 QByteArray SshRemoteProcessRunner::command() const { return d->command(); }
-SshConnection::Ptr SshRemoteProcessRunner::connection() const { return d->m_connection; }
+SshError SshRemoteProcessRunner::lastConnectionError() const { return d->lastConnectionError(); }
 SshRemoteProcess::Ptr SshRemoteProcessRunner::process() const { return d->m_process; }
+
+QString SshRemoteProcessRunner::lastConnectionErrorString() const
+{
+    return d->lastConnectionErrorString();
+}
+
 
 } // namespace Utils
 

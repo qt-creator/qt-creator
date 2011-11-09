@@ -388,8 +388,7 @@ void MaemoPublisherFremantleFree::uploadPackage()
     if (!m_uploader)
         m_uploader = new SshRemoteProcessRunner(this);
     connect(m_uploader, SIGNAL(processStarted()), SLOT(handleScpStarted()));
-    connect(m_uploader, SIGNAL(connectionError(Utils::SshError)),
-        SLOT(handleConnectionError()));
+    connect(m_uploader, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(m_uploader, SIGNAL(processClosed(int)), SLOT(handleUploadJobFinished(int)));
     connect(m_uploader, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleScpStdOut(QByteArray)));
@@ -409,7 +408,7 @@ void MaemoPublisherFremantleFree::handleScpStarted()
 void MaemoPublisherFremantleFree::handleConnectionError()
 {
     if (m_state != Inactive) {
-        finishWithFailure(tr("SSH error: %1").arg(m_uploader->connection()->errorString()),
+        finishWithFailure(tr("SSH error: %1").arg(m_uploader->lastConnectionErrorString()),
             tr("Upload failed."));
     }
 }

@@ -154,7 +154,7 @@ void AbstractRemoteLinuxProcessList::handleConnectionError()
 {
     QTC_ASSERT(d->state != Inactive, return);
 
-    emit error(tr("Connection failure: %1").arg(d->process.connection()->errorString()));
+    emit error(tr("Connection failure: %1").arg(d->process.lastConnectionErrorString()));
     beginResetModel();
     d->remoteProcesses.clear();
     endResetModel();
@@ -204,8 +204,7 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
 
 void AbstractRemoteLinuxProcessList::startProcess(const QString &cmdLine)
 {
-    connect(&d->process, SIGNAL(connectionError(Utils::SshError)),
-        SLOT(handleConnectionError()));
+    connect(&d->process, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(&d->process, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdOut(QByteArray)));
     connect(&d->process, SIGNAL(processErrorOutputAvailable(QByteArray)),

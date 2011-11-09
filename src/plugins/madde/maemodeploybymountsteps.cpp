@@ -309,7 +309,7 @@ void MaemoMountAndInstallPackageService::doInstall()
 {
     const QString remoteFilePath = deployMountPoint() + QLatin1Char('/')
         + QFileInfo(m_packageFilePath).fileName();
-    m_installer->installPackage(connection(), remoteFilePath, false);
+    m_installer->installPackage(deviceConfiguration(), remoteFilePath, false);
 }
 
 void MaemoMountAndInstallPackageService::cancelInstallation()

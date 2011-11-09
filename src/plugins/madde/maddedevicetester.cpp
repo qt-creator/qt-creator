@@ -109,8 +109,7 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
 
     if (!m_processRunner)
         m_processRunner = new SshRemoteProcessRunner(this);
-    connect(m_processRunner, SIGNAL(connectionError(Utils::SshError)),
-        SLOT(handleConnectionError()));
+    connect(m_processRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(m_processRunner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleStdout(QByteArray)));
     connect(m_processRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
@@ -137,7 +136,7 @@ void MaddeDeviceTester::handleConnectionError()
     QTC_ASSERT(m_state != Inactive, return);
 
     emit errorMessage(tr("SSH connection error: %1\n")
-        .arg(m_processRunner->connection()->errorString()));
+        .arg(m_processRunner->lastConnectionErrorString()));
     m_result = TestFailure;
     setFinished();
 }

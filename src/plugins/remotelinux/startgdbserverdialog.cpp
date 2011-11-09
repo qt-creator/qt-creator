@@ -203,7 +203,7 @@ void StartGdbServerDialog::startGdbServer()
 void StartGdbServerDialog::handleConnectionError()
 {
     d->ui.textBrowser->append(tr("Connection error: %1")
-        .arg(d->runner.connection()->errorString()));
+        .arg(d->runner.lastConnectionErrorString()));
     emit processAborted();
 }
 
@@ -238,8 +238,7 @@ void StartGdbServerDialog::handleProcessClosed(int status)
 void StartGdbServerDialog::startGdbServerOnPort(int port, int pid)
 {
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
-    connect(&d->runner, SIGNAL(connectionError(Utils::SshError)),
-        SLOT(handleConnectionError()));
+    connect(&d->runner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(&d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
     connect(&d->runner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleProcessOutputAvailable(QByteArray)));

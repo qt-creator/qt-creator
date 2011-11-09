@@ -71,8 +71,7 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
         return;
     }
 
-    connect(&d->deployProcess, SIGNAL(connectionError(Utils::SshError)),
-        SLOT(handleConnectionFailure()));
+    connect(&d->deployProcess, SIGNAL(connectionError()), SLOT(handleConnectionFailure()));
     connect(&d->deployProcess, SIGNAL(processClosed(int)), SLOT(handleKeyUploadFinished(int)));
     const QByteArray command = "test -d .ssh "
         "|| mkdir .ssh && chmod 0700 .ssh && echo '"
@@ -82,9 +81,8 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
 
 void SshKeyDeployer::handleConnectionFailure()
 {
-    const QString errorMsg = d->deployProcess.connection()->errorString();
     cleanup();
-    emit error(tr("Connection failed: %1").arg(errorMsg));
+    emit error(tr("Connection failed: %1").arg(d->deployProcess.lastConnectionErrorString()));
 }
 
 void SshKeyDeployer::handleKeyUploadFinished(int exitStatus)

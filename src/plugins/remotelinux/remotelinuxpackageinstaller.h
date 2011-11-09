@@ -38,11 +38,9 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
-namespace Utils {
-class SshConnection;
-}
-
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
 class AbstractRemoteLinuxPackageInstallerPrivate;
 } // namespace Internal
@@ -54,7 +52,7 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxPackageInstaller : public QObject
 public:
     ~AbstractRemoteLinuxPackageInstaller();
 
-    void installPackage(const QSharedPointer<Utils::SshConnection> &connection,
+    void installPackage(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig,
         const QString &packageFilePath, bool removePackageFile);
     void cancelInstallation();
 

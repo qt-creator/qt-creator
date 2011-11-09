@@ -78,7 +78,7 @@ void RemoteLinuxUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connec
     d->usedPorts.clear();
     d->remoteStdout.clear();
     d->remoteStderr.clear();
-    connect(&d->procRunner, SIGNAL(connectionError(Utils::SshError)), SLOT(handleConnectionError()));
+    connect(&d->procRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(&d->procRunner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
     connect(&d->procRunner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdOut(QByteArray)));
@@ -150,7 +150,7 @@ void RemoteLinuxUsedPortsGatherer::handleConnectionError()
 {
     if (!d->running)
         return;
-    emit error(tr("Connection error: %1").arg(d->procRunner.connection()->errorString()));
+    emit error(tr("Connection error: %1").arg(d->procRunner.lastConnectionErrorString()));
     stop();
 }
 

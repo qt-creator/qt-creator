@@ -65,7 +65,7 @@ void MaemoRemoteCopyFacility::copyFiles(const SshConnection::Ptr &connection,
 
     if (!m_copyRunner)
         m_copyRunner = new SshRemoteProcessRunner(this);
-    connect(m_copyRunner, SIGNAL(connectionError(Utils::SshError)), SLOT(handleConnectionError()));
+    connect(m_copyRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(m_copyRunner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdout(QByteArray)));
     connect(m_copyRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
@@ -88,9 +88,8 @@ void MaemoRemoteCopyFacility::cancel()
 
 void MaemoRemoteCopyFacility::handleConnectionError()
 {
-    const QString errMsg = m_copyRunner->connection()->errorString();
     setFinished();
-    emit finished(tr("Connection failed: %1").arg(errMsg));
+    emit finished(tr("Connection failed: %1").arg(m_copyRunner->lastConnectionErrorString()));
 }
 
 void MaemoRemoteCopyFacility::handleRemoteStdout(const QByteArray &output)
