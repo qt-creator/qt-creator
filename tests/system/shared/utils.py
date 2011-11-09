@@ -24,6 +24,12 @@ def ensureChecked(objectName, shouldBeChecked = True):
     object = waitForObject(objectName, 20000)
     if object.checked ^ shouldBeChecked:
         clickButton(object)
+    if shouldBeChecked:
+        state = "checked"
+    else:
+        state = "unchecked"
+    test.log("New state for QCheckBox: %s" % state)
+    test.verify(object.checked == shouldBeChecked)
     return object
 
 def verifyEnabled(objectName, expectedState = True):
@@ -151,3 +157,10 @@ def logApplicationOutput():
                   "window=':Qt Creator_Core::Internal::MainWindow' occurrence='3'}")
     output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
     test.log("Application Output:\n%s" % output.plainText)
+
+# get the output from a given cmdline call
+def getOutputFromCmdline(cmdline):
+    versCall = subprocess.Popen(cmdline, stdout=subprocess.PIPE, shell=True)
+    result = versCall.communicate()[0]
+    versCall.stdout.close()
+    return result
