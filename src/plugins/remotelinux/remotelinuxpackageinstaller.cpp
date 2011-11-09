@@ -71,8 +71,8 @@ void AbstractRemoteLinuxPackageInstaller::installPackage(const SshConnection::Pt
         && !d->isRunning, return);
 
     prepareInstallation();
-    delete d->installer;
-    d->installer = new SshRemoteProcessRunner(connection, this);
+    if (!d->installer)
+        d->installer = new SshRemoteProcessRunner(this);
     connect(d->installer, SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
     connect(d->installer, SIGNAL(processOutputAvailable(QByteArray)),
@@ -84,7 +84,7 @@ void AbstractRemoteLinuxPackageInstaller::installPackage(const SshConnection::Pt
     QString cmdLine = installCommandLine(packageFilePath);
     if (removePackageFile)
         cmdLine += QLatin1String(" && (rm ") + packageFilePath + QLatin1String(" || :)");
-    d->installer->run(cmdLine.toUtf8());
+    d->installer->run(cmdLine.toUtf8(), connection->connectionParameters());
     d->isRunning = true;
 }
 
@@ -93,9 +93,10 @@ void AbstractRemoteLinuxPackageInstaller::cancelInstallation()
     QTC_ASSERT(d->installer && d->installer->connection()->state() == SshConnection::Connected
         && d->isRunning, return);
 
-    delete d->killProcess;
-    d->killProcess = new SshRemoteProcessRunner(d->installer->connection(), this);
-    d->killProcess->run(cancelInstallationCommandLine().toUtf8());
+    if (!d->killProcess)
+        d->killProcess = new SshRemoteProcessRunner(this);
+    d->killProcess->run(cancelInstallationCommandLine().toUtf8(),
+        d->installer->connection()->connectionParameters());
     setFinished();
 }
 
@@ -137,8 +138,6 @@ void AbstractRemoteLinuxPackageInstaller::handleInstallerErrorOutput(const QByte
 void AbstractRemoteLinuxPackageInstaller::setFinished()
 {
     disconnect(d->installer, 0, this, 0);
-    delete d->installer;
-    d->installer = 0;
     d->isRunning = false;
 }
 

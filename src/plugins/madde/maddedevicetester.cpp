@@ -107,8 +107,8 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
         return;
     }
 
-    delete m_processRunner;
-    m_processRunner = new SshRemoteProcessRunner(m_genericTester->connection(), this);
+    if (!m_processRunner)
+        m_processRunner = new SshRemoteProcessRunner(this);
     connect(m_processRunner, SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
     connect(m_processRunner, SIGNAL(processOutputAvailable(QByteArray)),
@@ -129,7 +129,7 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
     m_stdout.clear();
     m_stderr.clear();
     m_state = QtTest;
-    m_processRunner->run(qtInfoCmd.toUtf8());
+    m_processRunner->run(qtInfoCmd.toUtf8(), m_genericTester->connection()->connectionParameters());
 }
 
 void MaddeDeviceTester::handleConnectionError()
@@ -196,7 +196,8 @@ void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
 
     emit progressMessage(tr("Checking for connectivity support..."));
     m_state = MadDeveloperTest;
-    m_processRunner->run(QString(QLatin1String("test -x") + MaemoGlobal::devrootshPath()).toUtf8());
+    m_processRunner->run(QString(QLatin1String("test -x") + MaemoGlobal::devrootshPath()).toUtf8(),
+        m_genericTester->connection()->connectionParameters());
 }
 
 void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
@@ -233,7 +234,8 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
     emit progressMessage(tr("Checking for QML tooling support..."));
     m_state = QmlToolingTest;
     m_processRunner->run(QString(QLatin1String("test -d ")
-        + QLatin1String(QmlToolingDirectory)).toUtf8());
+        + QLatin1String(QmlToolingDirectory)).toUtf8(),
+        m_genericTester->connection()->connectionParameters());
 }
 
 void MaddeDeviceTester::handleQmlToolingTestFinished(int exitStatus)
@@ -285,8 +287,6 @@ QString MaddeDeviceTester::processedQtLibsList()
     disconnect(m_genericTester, 0, this, 0);
     if (m_processRunner)
         disconnect(m_processRunner, 0, this, 0);
-    delete m_processRunner;
-    m_processRunner = 0;
     emit finished(m_result);
 }
 

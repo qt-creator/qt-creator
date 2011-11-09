@@ -59,13 +59,8 @@ void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
     if (!m_devConfig)
         return;
     m_stop = false;
-    if (!m_remoteProcessRunner
-        || m_remoteProcessRunner->connection()->state() != Utils::SshConnection::Connected
-        || m_remoteProcessRunner->connection()->connectionParameters() != m_devConfig->sshParameters()) {
-        delete m_remoteProcessRunner;
-        m_remoteProcessRunner
-            = new Utils::SshRemoteProcessRunner(m_devConfig->sshParameters(), this);
-    }
+    if (!m_remoteProcessRunner)
+        m_remoteProcessRunner = new Utils::SshRemoteProcessRunner(this);
     connect(m_remoteProcessRunner, SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionFailure()));
     connect(m_remoteProcessRunner, SIGNAL(processClosed(int)), SLOT(remoteProcessFinished(int)));
@@ -76,7 +71,7 @@ void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
     const QByteArray remoteCall
         = QString(environmentSetupCommand + QLatin1String("; env")).toUtf8();
     m_remoteOutput.clear();
-    m_remoteProcessRunner->run(remoteCall);
+    m_remoteProcessRunner->run(remoteCall, m_devConfig->sshParameters());
 }
 
 void RemoteLinuxEnvironmentReader::stop()

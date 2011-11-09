@@ -46,12 +46,11 @@ class QTCREATOR_UTILS_EXPORT SshRemoteProcessRunner : public QObject
     Q_OBJECT
 
 public:
-    SshRemoteProcessRunner(const SshConnectionParameters &params, QObject *parent = 0);
-    SshRemoteProcessRunner(const SshConnection::Ptr &connection, QObject *parent = 0);
+    SshRemoteProcessRunner(QObject *parent = 0);
 
-    void run(const QByteArray &command);
-    void runInTerminal(const QByteArray &command,
-        const SshPseudoTerminal &terminal);
+    void run(const QByteArray &command, const SshConnectionParameters &params);
+    void runInTerminal(const QByteArray &command, const SshPseudoTerminal &terminal,
+        const SshConnectionParameters &params);
     QByteArray command() const;
 
     SshConnection::Ptr connection() const;
@@ -65,9 +64,8 @@ signals:
     void processClosed(int exitStatus); // values are of type SshRemoteProcess::ExitStatus
 
 private:
-    void init();
 
-    Internal::SshRemoteProcessRunnerPrivate *d;
+    Internal::SshRemoteProcessRunnerPrivate * const d;
 };
 
 } // namespace Utils

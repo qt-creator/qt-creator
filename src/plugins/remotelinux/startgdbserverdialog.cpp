@@ -53,7 +53,7 @@ namespace Internal {
 class StartGdbServerDialogPrivate
 {
 public:
-    StartGdbServerDialogPrivate() : processList(0), runner(0) {}
+    StartGdbServerDialogPrivate() : processList(0) {}
 
     LinuxDeviceConfiguration::ConstPtr currentDevice() const
     {
@@ -65,7 +65,7 @@ public:
     QSortFilterProxyModel proxyModel;
     Ui::StartGdbServerDialog ui;
     RemoteLinuxUsedPortsGatherer gatherer;
-    Utils::SshRemoteProcessRunner *runner;
+    Utils::SshRemoteProcessRunner runner;
 };
 
 } // namespace Internal
@@ -203,7 +203,7 @@ void StartGdbServerDialog::startGdbServer()
 void StartGdbServerDialog::handleConnectionError()
 {
     d->ui.textBrowser->append(tr("Connection error: %1")
-        .arg(d->runner->connection()->errorString()));
+        .arg(d->runner.connection()->errorString()));
     emit processAborted();
 }
 
@@ -238,20 +238,18 @@ void StartGdbServerDialog::handleProcessClosed(int status)
 void StartGdbServerDialog::startGdbServerOnPort(int port, int pid)
 {
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
-    delete d->runner;
-    d->runner = new Utils::SshRemoteProcessRunner(device->sshParameters(), this);
-    connect(d->runner, SIGNAL(connectionError(Utils::SshError)),
-            SLOT(handleConnectionError()));
-    connect(d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
-    connect(d->runner, SIGNAL(processOutputAvailable(QByteArray)),
-            SLOT(handleProcessOutputAvailable(QByteArray)));
-    connect(d->runner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-            SLOT(handleProcessErrorOutput(QByteArray)));
-    connect(d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
+    connect(&d->runner, SIGNAL(connectionError(Utils::SshError)),
+        SLOT(handleConnectionError()));
+    connect(&d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
+    connect(&d->runner, SIGNAL(processOutputAvailable(QByteArray)),
+        SLOT(handleProcessOutputAvailable(QByteArray)));
+    connect(&d->runner, SIGNAL(processErrorOutputAvailable(QByteArray)),
+        SLOT(handleProcessErrorOutput(QByteArray)));
+    connect(&d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
 
     QByteArray cmd = "/usr/bin/gdbserver --attach localhost:"
         + QByteArray::number(port) + " " + QByteArray::number(pid);
-    d->runner->run(cmd);
+    d->runner.run(cmd, device->sshParameters());
 }
 
 } // namespace RemoteLinux

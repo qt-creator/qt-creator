@@ -385,8 +385,8 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
 // webmaster refuses to enable SFTP "for security reasons" ...
 void MaemoPublisherFremantleFree::uploadPackage()
 {
-    delete m_uploader;
-    m_uploader = new SshRemoteProcessRunner(m_sshParams, this);
+    if (!m_uploader)
+        m_uploader = new SshRemoteProcessRunner(this);
     connect(m_uploader, SIGNAL(processStarted()), SLOT(handleScpStarted()));
     connect(m_uploader, SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
@@ -395,7 +395,7 @@ void MaemoPublisherFremantleFree::uploadPackage()
         SLOT(handleScpStdOut(QByteArray)));
     emit progressReport(tr("Starting scp ..."));
     setState(StartingScp);
-    m_uploader->run("scp -td " + m_remoteDir.toUtf8());
+    m_uploader->run("scp -td " + m_remoteDir.toUtf8(), m_sshParams);
 }
 
 void MaemoPublisherFremantleFree::handleScpStarted()
@@ -633,8 +633,6 @@ void MaemoPublisherFremantleFree::setState(State newState)
             //       an illegal sequence of bytes? (Probably not, if
             //       we are currently uploading a file.)
             disconnect(m_uploader, 0, this, 0);
-            delete m_uploader;
-            m_uploader = 0;
             break;
         default:
             break;

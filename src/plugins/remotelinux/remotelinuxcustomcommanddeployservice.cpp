@@ -31,6 +31,8 @@
 **************************************************************************/
 #include "remotelinuxcustomcommanddeployservice.h"
 
+#include "linuxdeviceconfiguration.h"
+
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
@@ -95,8 +97,8 @@ void RemoteLinuxCustomCommandDeployService::doDeploy()
 {
     QTC_ASSERT(d->state == Inactive, handleDeploymentDone());
 
-    delete d->runner;
-    d->runner = new SshRemoteProcessRunner(connection(), this);
+    if (!d->runner)
+        d->runner = new SshRemoteProcessRunner(this);
     connect(d->runner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleStdout(QByteArray)));
     connect(d->runner, SIGNAL(processErrorOutputAvailable(QByteArray)),
@@ -105,7 +107,7 @@ void RemoteLinuxCustomCommandDeployService::doDeploy()
 
     emit progressMessage(tr("Starting remote command '%1'...").arg(d->commandLine));
     d->state = Running;
-    d->runner->run(d->commandLine.toUtf8());
+    d->runner->run(d->commandLine.toUtf8(), deviceConfiguration()->sshParameters());
 }
 
 void RemoteLinuxCustomCommandDeployService::stopDeployment()
@@ -114,8 +116,6 @@ void RemoteLinuxCustomCommandDeployService::stopDeployment()
 
     disconnect(d->runner, 0, this, 0);
     d->runner->process()->closeChannel();
-    delete d->runner;
-    d->runner = 0;
     d->state = Inactive;
     handleDeploymentDone();
 }

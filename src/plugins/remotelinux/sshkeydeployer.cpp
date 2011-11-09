@@ -44,8 +44,7 @@ namespace Internal {
 class SshKeyDeployerPrivate
 {
 public:
-    SshKeyDeployerPrivate() : deployProcess(0) {}
-    SshRemoteProcessRunner *deployProcess;
+    SshRemoteProcessRunner deployProcess;
 };
 
 } // namespace Internal
@@ -65,8 +64,6 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
     const QString &keyFilePath)
 {
     cleanup();
-    delete d->deployProcess;
-    d->deployProcess = new SshRemoteProcessRunner(sshParams, this);
 
     Utils::FileReader reader;
     if (!reader.fetch(keyFilePath)) {
@@ -74,20 +71,18 @@ void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
         return;
     }
 
-    connect(d->deployProcess, SIGNAL(connectionError(Utils::SshError)),
+    connect(&d->deployProcess, SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionFailure()));
-    connect(d->deployProcess, SIGNAL(processClosed(int)), SLOT(handleKeyUploadFinished(int)));
+    connect(&d->deployProcess, SIGNAL(processClosed(int)), SLOT(handleKeyUploadFinished(int)));
     const QByteArray command = "test -d .ssh "
         "|| mkdir .ssh && chmod 0700 .ssh && echo '"
         + reader.data() + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
-    d->deployProcess->run(command);
+    d->deployProcess.run(command, sshParams);
 }
 
 void SshKeyDeployer::handleConnectionFailure()
 {
-    if (!d->deployProcess)
-        return;
-    const QString errorMsg = d->deployProcess->connection()->errorString();
+    const QString errorMsg = d->deployProcess.connection()->errorString();
     cleanup();
     emit error(tr("Connection failed: %1").arg(errorMsg));
 }
@@ -98,11 +93,11 @@ void SshKeyDeployer::handleKeyUploadFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (!d->deployProcess)
+    if (!d->deployProcess.process())
         return;
 
-    const int exitCode = d->deployProcess->process()->exitCode();
-    const QString errorMsg = d->deployProcess->process()->errorString();
+    const int exitCode = d->deployProcess.process()->exitCode();
+    const QString errorMsg = d->deployProcess.process()->errorString();
     cleanup();
     if (exitStatus == SshRemoteProcess::ExitedNormally && exitCode == 0)
         emit finishedSuccessfully();
@@ -117,11 +112,7 @@ void SshKeyDeployer::stopDeployment()
 
 void SshKeyDeployer::cleanup()
 {
-    if (d->deployProcess) {
-        disconnect(d->deployProcess, 0, this, 0);
-        delete d->deployProcess;
-        d->deployProcess = 0;
-    }
+    disconnect(&d->deployProcess, 0, this, 0);
 }
 
 } // namespace RemoteLinux

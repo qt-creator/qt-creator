@@ -82,6 +82,7 @@ private:
     void setFinished();
 
     Utils::SshRemoteProcessRunner *m_copyRunner;
+    Utils::SshRemoteProcessRunner *m_killProcess;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
     QList<RemoteLinux::DeployableFile> m_deployables;
     QString m_mountPoint;

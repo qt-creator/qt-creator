@@ -151,11 +151,10 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
     if (startParameters.startMode == StartRemoteEngine)
     {
         m_guestProcess = 0;
-        Utils::SshRemoteProcessRunner * const runner =
-            new Utils::SshRemoteProcessRunner(startParameters.connParams);
+        Utils::SshRemoteProcessRunner * const runner = new Utils::SshRemoteProcessRunner;
         connect (runner, SIGNAL(connectionError(Utils::SshError)),
                 this, SLOT(sshConnectionError(Utils::SshError)));
-        runner->run(startParameters.serverStartScript.toUtf8());
+        runner->run(startParameters.serverStartScript.toUtf8(), startParameters.connParams);
         setGuestDevice(new SshIODevice(runner));
     } else  {
         m_guestProcess = new QProcess(this);

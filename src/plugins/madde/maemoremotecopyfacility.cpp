@@ -46,7 +46,7 @@ namespace Madde {
 namespace Internal {
 
 MaemoRemoteCopyFacility::MaemoRemoteCopyFacility(QObject *parent) :
-    QObject(parent), m_copyRunner(0), m_isCopying(false)
+    QObject(parent), m_copyRunner(0), m_killProcess(0), m_isCopying(false)
 {
 }
 
@@ -63,8 +63,8 @@ void MaemoRemoteCopyFacility::copyFiles(const SshConnection::Ptr &connection,
     m_deployables = deployables;
     m_mountPoint = mountPoint;
 
-    delete m_copyRunner;
-    m_copyRunner = new SshRemoteProcessRunner(connection, this);
+    if (!m_copyRunner)
+        m_copyRunner = new SshRemoteProcessRunner(this);
     connect(m_copyRunner, SIGNAL(connectionError(Utils::SshError)), SLOT(handleConnectionError()));
     connect(m_copyRunner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdout(QByteArray)));
@@ -80,10 +80,9 @@ void MaemoRemoteCopyFacility::cancel()
 {
     Q_ASSERT(m_isCopying);
 
-    // TODO: Make member as to not waste memory.
-    SshRemoteProcessRunner * const killProcess
-        = new SshRemoteProcessRunner(m_copyRunner->connection(), this);
-    killProcess->run("pkill cp");
+    if (!m_killProcess)
+        m_killProcess = new SshRemoteProcessRunner(this);
+    m_killProcess->run("pkill cp", m_devConf->sshParameters());
     setFinished();
 }
 
@@ -140,19 +139,16 @@ void MaemoRemoteCopyFacility::copyNextFile()
 #endif
 
     QString command = QString::fromLatin1("%1 mkdir -p %3 && %1 cp -a %2 %3")
-        .arg(MaemoGlobal::remoteSudo(m_devConf->osType(),
-            m_copyRunner->connection()->connectionParameters().userName),
+        .arg(MaemoGlobal::remoteSudo(m_devConf->osType(), m_devConf->sshParameters().userName),
             sourceFilePath, d.remoteDir);
     emit progress(tr("Copying file '%1' to directory '%2' on the device...")
         .arg(d.localFilePath, d.remoteDir));
-    m_copyRunner->run(command.toUtf8());
+    m_copyRunner->run(command.toUtf8(), m_devConf->sshParameters());
 }
 
 void MaemoRemoteCopyFacility::setFinished()
 {
     disconnect(m_copyRunner, 0, this, 0);
-    delete m_copyRunner;
-    m_copyRunner = 0;
     m_deployables.clear();
     m_isCopying = false;
 }
