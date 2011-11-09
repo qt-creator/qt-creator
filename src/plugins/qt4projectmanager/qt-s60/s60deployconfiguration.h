@@ -52,6 +52,8 @@ class S60DeployConfigurationFactory;
 
 namespace Internal {
 class Qt4SymbianTarget;
+
+const char S60_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.S60DeployConfiguration";
 }
 
 class QT4PROJECTMANAGER_EXPORT S60DeployConfiguration : public ProjectExplorer::DeployConfiguration
