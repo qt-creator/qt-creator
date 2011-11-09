@@ -77,6 +77,7 @@ private Q_SLOTS:
     void whileStatement();
     void tryStatement();
     void doWhile();
+    void doWhile2();
     void cStyleComments();
     void cppStyleComments();
     void qmlKeywords();
@@ -858,6 +859,24 @@ void tst_QMLCodeFormatter::doWhile()
     checkIndent(data);
 }
 
+void tst_QMLCodeFormatter::doWhile2()
+{
+    QList<Line> data;
+    data << Line("function foo() {")
+         << Line("    do { if (c) foo; } while (a)")
+         << Line("    do {")
+         << Line("        if (a);")
+         << Line("    } while (a)")
+         << Line("    do")
+         << Line("        foo;")
+         << Line("    while (a)")
+         << Line("    do foo; while (a)")
+         << Line("}")
+         << Line("var x")
+         ;
+    checkIndent(data);
+}
+
 void tst_QMLCodeFormatter::cStyleComments()
 {
     QList<Line> data;
@@ -1174,7 +1193,7 @@ void tst_QMLCodeFormatter::labelledStatements1()
          << Line("        while (1) {")
          << Line("            break lab")
          << Line("        }")
-         << Line("    }")
+         << Line("    } while (1)")
          << Line("}")
          << Line("var x = function() {")
          << Line("    x + 1;")

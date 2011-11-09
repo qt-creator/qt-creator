@@ -430,7 +430,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case While:             break;
             case LeftParenthesis:   enter(do_statement_while_paren_open); break;
-            default:                leave(true); break;
+            default:                leave(true); continue; // error recovery
             } break;
 
         case do_statement_while_paren_open:
@@ -788,6 +788,7 @@ bool CodeFormatter::isExpressionEndState(int type) const
             type == top_js ||
             type == objectdefinition_open ||
             type == if_statement ||
+            type == do_statement ||
             type == else_clause ||
             type == jsblock_open ||
             type == substatement_open ||
