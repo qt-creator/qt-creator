@@ -34,7 +34,10 @@
 #include "coreconstants.h"
 #include "icontext.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QHash>
+#include <QtCore/QDebug>
 
 namespace Core {
 
@@ -47,27 +50,40 @@ namespace Core {
 
 */
 
-uint qHash(const Core::Id &id) { return qHash(id.name()); }
+static int lastUid = 0;
+static QVector<QByteArray> stringFromId;
+static QHash<QByteArray, int> idFromString;
 
-static QHash<Core::Id, int> &theUniqueIdentifiers()
+static int theId(const QByteArray &ba)
 {
-    static QHash<Core::Id, int> data;
-    return data;
+    QTC_ASSERT(!ba.isEmpty(), /**/);
+    int res = idFromString.value(ba);
+    if (res == 0) {
+        if (lastUid == 0)
+            stringFromId.append(QByteArray());
+        res = ++lastUid;
+        idFromString[ba] = res;
+        stringFromId.append(ba);
+    }
+    return res;
 }
 
-int Id::uniqueIdentifier() const
-{
-    if (theUniqueIdentifiers().contains(*this))
-        return theUniqueIdentifiers().value(*this);
+Id::Id(const char *name)
+    : m_id(theId(name))
+{}
 
-    const int uid = theUniqueIdentifiers().count() + 1;
-    theUniqueIdentifiers().insert(*this, uid);
-    return uid;
+Id::Id(const QString &name)
+   : m_id(theId(name.toLatin1()))
+{}
+
+QByteArray Id::name() const
+{
+    return stringFromId.at(m_id);
 }
 
-Id Id::fromUniqueIdentifier(int uid)
+QString Id::toString() const
 {
-    return theUniqueIdentifiers().key(uid);
+    return QString::fromLatin1(stringFromId[m_id]);
 }
 
 Context::Context(const char *id, int offset)

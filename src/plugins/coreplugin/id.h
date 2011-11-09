@@ -44,25 +44,26 @@ namespace Core {
 class CORE_EXPORT Id
 {
 public:
-    Id() {}
-    Id(const char *name) : m_name(name) {}
+    Id() : m_id(0) {}
+    Id(const char *name);
     // FIXME: Replace with QByteArray
-    Id(const QString &name) : m_name(name.toLatin1()) {}
-    QByteArray name() const { return m_name; }
-    QString toString() const { return QString::fromLatin1(m_name); }
-    bool isValid() const { return !m_name.isEmpty(); }
-    bool operator==(const Id &id) const { return m_name == id.m_name; }
-    bool operator!=(const Id &id) const { return m_name != id.m_name; }
-    int uniqueIdentifier() const;
-    static Id fromUniqueIdentifier(int uid);
+    Id(const QString &name);
+    QByteArray name() const;
+    QString toString() const;
+    bool isValid() const { return m_id; }
+    bool operator==(const Id &id) const { return m_id == id.m_id; }
+    bool operator!=(const Id &id) const { return m_id != id.m_id; }
+    int uniqueIdentifier() const { return m_id; }
+    static Id fromUniqueIdentifier(int uid) { return Id(uid, uid); }
 
 private:
+    Id(int uid, int) : m_id(uid) {}
     // Intentionally unimplemented
     Id(const QLatin1String &);
-    QByteArray m_name;
+    int m_id;
 };
 
-CORE_EXPORT uint qHash(const Id &id);
+CORE_EXPORT inline uint qHash(const Id &id) { return id.uniqueIdentifier(); }
 
 } // namespace Core
 
