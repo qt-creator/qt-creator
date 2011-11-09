@@ -328,6 +328,24 @@ QString TimelineView::getDetails(int index) const
     return m_eventList->getDetails(index);
 }
 
+int TimelineView::nextItemFromId(int eventId) const
+{
+    int ndx = -1;
+    if (m_selectedItem == -1)
+        ndx = m_eventList->findFirstIndexNoParents(m_startTime);
+    else
+        ndx = m_selectedItem + 1;
+    if (ndx >= m_eventList->count())
+        ndx = 0;
+    int startIndex = ndx;
+    do {
+        if (m_eventList->getEventId(ndx) == eventId)
+            return ndx;
+        ndx = (ndx+1) % m_eventList->count();
+    } while (ndx != startIndex);
+    return -1;
+}
+
 void TimelineView::rowExpanded(int rowIndex, bool expanded)
 {
     m_rowsExpanded[rowIndex] = expanded;

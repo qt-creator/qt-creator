@@ -87,6 +87,7 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QmlJsDebugClient::QmlProfilerEv
     m_eventTree = new QmlProfilerEventsMainView(model, this);
     m_eventTree->setViewType(QmlProfilerEventsMainView::EventsView);
     connect(m_eventTree, SIGNAL(gotoSourceLocation(QString,int)), this, SIGNAL(gotoSourceLocation(QString,int)));
+    connect(m_eventTree, SIGNAL(showEventInTimeline(int)), this, SIGNAL(showEventInTimeline(int)));
 
     m_eventChildren = new QmlProfilerEventsParentsAndChildrenView(model, QmlProfilerEventsParentsAndChildrenView::ChildrenView, this);
     m_eventParents = new QmlProfilerEventsParentsAndChildrenView(model, QmlProfilerEventsParentsAndChildrenView::ParentsView, this);
@@ -169,6 +170,12 @@ void QmlProfilerEventsWidget::copyTableToClipboard() const
 void QmlProfilerEventsWidget::copyRowToClipboard() const
 {
     m_eventTree->copyRowToClipboard();
+}
+
+void QmlProfilerEventsWidget::updateSelectedEvent(int eventId) const
+{
+    if (m_eventTree->selectedEventId() != eventId)
+        m_eventTree->selectEvent(eventId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -546,6 +553,16 @@ void QmlProfilerEventsMainView::getStatisticsInRange(qint64 rangeStart, qint64 r
     buildModel();
 }
 
+int QmlProfilerEventsMainView::selectedEventId() const
+{
+    QModelIndex index = selectedItem();
+    if (!index.isValid())
+        return -1;
+    QStandardItem *item = d->m_model->item(index.row(), 0);
+    return item->data(EventIdRole).toInt();
+}
+
+
 void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
 {
     QStandardItem *clickedItem = d->m_model->itemFromIndex(index);
@@ -555,12 +572,19 @@ void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
     else
         infoItem = d->m_model->item(index.row(), 0);
 
+    // show in editor
     int line = infoItem->data(LineRole).toInt();
     QString fileName = infoItem->data(FilenameRole).toString();
     if (line!=-1 && !fileName.isEmpty())
         emit gotoSourceLocation(fileName, line);
 
+    // show in callers/callees subwindow
     emit eventSelected(infoItem->data(EventIdRole).toInt());
+
+    // show in timelineview
+    if (d->m_viewType == EventsView) {
+        emit showEventInTimeline(infoItem->data(EventIdRole).toInt());
+    }
 }
 
 void QmlProfilerEventsMainView::selectEvent(int eventId)

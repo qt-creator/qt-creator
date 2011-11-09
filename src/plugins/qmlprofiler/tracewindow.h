@@ -116,6 +116,7 @@ public slots:
 
     void qmlComplete();
     void v8Complete();
+    void selectNextEvent(int eventId);
 
 signals:
     void viewUpdated();
@@ -139,6 +140,8 @@ signals:
     void globalZoom();
 
     void contextMenuRequested(const QPoint& position);
+    void selectNextEventInDisplay(QVariant eventId);
+    void selectedEventIdChanged(int eventId);
 
 private:
     void contextMenuEvent(QContextMenuEvent *);

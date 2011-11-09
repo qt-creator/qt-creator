@@ -50,6 +50,8 @@ Rectangle {
     property alias selectionLocked : view.selectionLocked
     signal updateLockButton
     property alias selectedItem: view.selectedItem
+    signal selectedEventIdChanged(int eventId)
+    property bool lockItemSelection : false
 
     property variant names: [ qsTr("Painting"), qsTr("Compiling"), qsTr("Creating"), qsTr("Binding"), qsTr("Handling Signal")]
     property variant colors : [ "#99CCB3", "#99CCCC", "#99B3CC", "#9999CC", "#CC99B3", "#CC99CC", "#CCCC99", "#CCB399" ]
@@ -224,6 +226,9 @@ Rectangle {
 
     function recenterOnItem( itemIndex )
     {
+        if (itemIndex === -1)
+            return;
+
         // if item is outside of the view, jump back to its position
         if (qmlEventList.getEndTime(itemIndex) < view.startTime || qmlEventList.getStartTime(itemIndex) > view.endTime) {
             recenter((qmlEventList.getStartTime(itemIndex) + qmlEventList.getEndTime(itemIndex)) / 2);
@@ -252,6 +257,23 @@ Rectangle {
         rangeDetails.line = -1;
     }
 
+    function selectNextWithId( eventId )
+    {
+        if (!lockItemSelection) {
+            lockItemSelection = true;
+            var itemIndex = view.nextItemFromId( eventId );
+            // select an item, lock to it, and recenter if necessary
+            if (view.selectedItem != itemIndex) {
+                view.selectedItem = itemIndex;
+                if (itemIndex !== -1) {
+                    view.selectionLocked = true;
+                    recenterOnItem(itemIndex);
+                }
+            }
+            lockItemSelection = false;
+        }
+    }
+
     // ***** slots
     onSelectionRangeModeChanged: {
         selectionRangeControl.enabled = selectionRangeMode;
@@ -260,6 +282,14 @@ Rectangle {
 
     onSelectionLockedChanged: {
         updateLockButton();
+    }
+
+    onSelectedItemChanged: {
+        if (selectedItem != -1 && !lockItemSelection) {
+            lockItemSelection = true;
+            selectedEventIdChanged( qmlEventList.getEventId(selectedItem) );
+            lockItemSelection = false;
+        }
     }
 
     // ***** child items

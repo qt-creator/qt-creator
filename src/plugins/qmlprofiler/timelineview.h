@@ -101,6 +101,8 @@ public:
     Q_INVOKABLE int getLine(int index) const;
     Q_INVOKABLE QString getDetails(int index) const;
 
+    Q_INVOKABLE int nextItemFromId(int eventId) const;
+
 signals:
     void startTimeChanged(qint64 arg);
     void endTimeChanged(qint64 arg);

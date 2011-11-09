@@ -338,6 +338,8 @@ QWidget *QmlProfilerTool::createWidgets()
     d->m_eventsView = new QmlProfilerEventsWidget(d->m_traceWindow->getEventList(), mw);
     connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_eventsView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(d->m_eventsView, SIGNAL(showEventInTimeline(int)), d->m_traceWindow, SLOT(selectNextEvent(int)));
+    connect(d->m_traceWindow, SIGNAL(selectedEventIdChanged(int)), d->m_eventsView, SLOT(updateSelectedEvent(int)));
 
     d->m_v8profilerView = new QmlProfilerEventsWidget(d->m_traceWindow->getEventList(), mw);
     d->m_v8profilerView->switchToV8View();

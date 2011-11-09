@@ -283,6 +283,8 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     connect(this, SIGNAL(updateViewZoom(QVariant)), m_mainView->rootObject(), SLOT(updateWindowLength(QVariant)));
     connect(this, SIGNAL(wheelZoom(QVariant,QVariant)), m_mainView->rootObject(), SLOT(wheelZoom(QVariant,QVariant)));
     connect(this, SIGNAL(globalZoom()), m_mainView->rootObject(), SLOT(globalZoom()));
+    connect(this, SIGNAL(selectNextEventInDisplay(QVariant)), m_mainView->rootObject(), SLOT(selectNextWithId(QVariant)));
+    connect(m_mainView->rootObject(), SIGNAL(selectedEventIdChanged(int)), this, SIGNAL(selectedEventIdChanged(int)));
 
     connect(this, SIGNAL(internalClearDisplay()), m_mainView->rootObject(), SLOT(clearAll()));
     connect(this,SIGNAL(internalClearDisplay()), m_overview->rootObject(), SLOT(clearDisplay()));
@@ -486,6 +488,11 @@ void TraceWindow::updateRange()
         m_currentZoomLevel = newLevel;
         emit zoomLevelChanged(newLevel);
     }
+}
+
+void TraceWindow::selectNextEvent(int eventId)
+{
+    emit selectNextEventInDisplay(QVariant(eventId));
 }
 
 } // namespace Internal

@@ -73,6 +73,10 @@ public:
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber);
     void contextMenuRequested(const QPoint &position);
+    void showEventInTimeline(int eventId);
+
+public slots:
+    void updateSelectedEvent(int eventId) const;
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
@@ -130,10 +134,12 @@ public:
     static QString nameForType(int typeNumber);
 
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
+    int selectedEventId() const;
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber);
     void eventSelected(int eventId);
+    void showEventInTimeline(int eventId);
 
 public slots:
     void clear();
