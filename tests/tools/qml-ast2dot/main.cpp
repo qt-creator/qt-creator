@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
         const QByteArray source = file.readAll();
         file.close();
 
-        Document::Ptr doc = Document::create(fileName, Document::guessLanguageFromSuffix(fileName));
+        Document::MutablePtr doc = Document::create(fileName, Document::guessLanguageFromSuffix(fileName));
         doc->setSource(source);
         doc->parse();
 

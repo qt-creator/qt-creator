@@ -48,6 +48,7 @@
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmldesigner/designercore/include/metainfo.h>
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <QtTest>
 
@@ -94,6 +95,13 @@ void tst_Basic::initTestCase()
     pluginManager->setSettings(settings);
     pluginManager->setFileExtension(QLatin1String("pluginspec"));
     pluginManager->setPluginPaths(QStringList() << QLatin1String(Q_PLUGIN_PATH));
+
+    // skip the welcome plugin, it fails to load correctly
+    foreach (ExtensionSystem::PluginSpec *pluginSpec, pluginManager->plugins()) {
+        if (pluginSpec->name() == QLatin1String("Welcome"))
+            pluginSpec->setEnabled(false);
+    }
+
     pluginManager->loadPlugins();
 
     // the resource path is wrong, have to load things manually
