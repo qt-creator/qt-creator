@@ -463,6 +463,10 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
 
     const QString projectFileName = d->m_projectFinder.findFile(fileUrl);
 
+    QFileInfo fileInfo(projectFileName);
+    if (!fileInfo.exists() || !fileInfo.isReadable())
+        return;
+
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->openEditor(projectFileName);
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
