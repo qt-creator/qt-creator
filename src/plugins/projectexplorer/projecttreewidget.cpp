@@ -149,7 +149,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     connect(m_explorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(startupProjectChanged(ProjectExplorer::Project *)));
 
-    connect(m_explorer->session(), SIGNAL(aboutToLoadSession()),
+    connect(m_explorer->session(), SIGNAL(aboutToLoadSession(QString)),
             this, SLOT(disableAutoExpand()));
     connect(m_explorer->session(), SIGNAL(sessionLoaded()),
             this, SLOT(loadExpandData()));

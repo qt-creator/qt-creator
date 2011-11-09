@@ -105,6 +105,7 @@ public:
 
     QString currentSession() const;
     QString sessionNameToFileName(const QString &session) const;
+    QString sessionNameFromFileName(const QString &fileName) const;
     Project *startupProject() const;
 
     const QList<Project *> &projects() const;
@@ -138,7 +139,7 @@ signals:
 
     void startupProjectChanged(ProjectExplorer::Project *project);
 
-    void aboutToLoadSession();
+    void aboutToLoadSession(QString sessionName);
     void sessionLoaded();
     void aboutToUnloadSession();
     void aboutToSaveSession();
