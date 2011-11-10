@@ -866,6 +866,17 @@
               #if Foo - 0 == 0
            \endcode
 
+        \o When checking for a preprocessor define using the \c{defined}
+           operator, always include the variable name in parentheses.
+
+            \code
+              #if defined(Foo)
+
+              -NOT-
+
+              #if defined Foo
+           \endcode
+
     \endlist
 
     \section1 Class Member Names
