@@ -615,16 +615,17 @@ def findFirstZero(p, maximum):
     return maximum + 1
 
 def extractCharArray(p, maxsize):
-    t = lookupType("unsigned char").pointer()
-    p = p.cast(t)
-    limit = findFirstZero(p, maxsize)
+    p = p.cast(lookupType("unsigned char").pointer())
     s = ""
-    for i in xrange(limit):
-        s += "%c" % int(p.dereference())
+    i = 0
+    while i < maxsize:
+        c = int(p.dereference())
+        if c == 0:
+            return s
+        s += "%c" % c
         p += 1
-    if i > maxsize:
-        s += "..."
-    return s
+        i += 1
+    return s + "..."
 
 def extractByteArray(value):
     d_ptr = value['d'].dereference()
