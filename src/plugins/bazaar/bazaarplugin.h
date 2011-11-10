@@ -119,8 +119,8 @@ private slots:
     void diffFromEditorSelected(const QStringList &files);
 
 protected:
-    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
-    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
+    void updateActions(VCSBase::VCSBasePlugin::ActionState);
+    bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
 
 private:
     // Methods
