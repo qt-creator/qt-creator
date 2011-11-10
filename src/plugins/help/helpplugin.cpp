@@ -883,6 +883,12 @@ void HelpPlugin::activateContext()
     if (IContext *context = m_core->currentContextObject()) {
         m_idFromContext = context->contextHelpId();
         links = Core::HelpManager::instance()->linksForIdentifier(m_idFromContext);
+        if (links.isEmpty()) {
+            // Maybe this is already an URL...
+            QUrl url(m_idFromContext);
+            if (url.isValid())
+                links.insert(m_idFromContext, m_idFromContext);
+        }
     }
 
     if (HelpViewer* viewer = viewerForContextMode()) {

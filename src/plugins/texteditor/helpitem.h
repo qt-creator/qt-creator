@@ -51,6 +51,7 @@ public:
         Function,
         QmlComponent,
         QmlProperty,
+        QMakeVariableOfFunction,
         Unknown
     };
 

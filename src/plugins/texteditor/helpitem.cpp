@@ -77,6 +77,8 @@ bool HelpItem::isValid() const
 {
     if (!Core::HelpManager::instance()->linksForIdentifier(m_helpId).isEmpty())
         return true;
+    if (QUrl(m_helpId).isValid())
+        return true;
     return false;
 }
 
@@ -90,6 +92,12 @@ QString HelpItem::extractContent(bool extended) const
 
     QString contents;
     QMap<QString, QUrl> helpLinks = Core::HelpManager::instance()->linksForIdentifier(m_helpId);
+    if (helpLinks.isEmpty()) {
+        // Maybe this is already an URL...
+        QUrl url(m_helpId);
+        if (url.isValid())
+            helpLinks.insert(m_helpId, m_helpId);
+    }
     foreach (const QUrl &url, helpLinks) {
         const QByteArray &html = Core::HelpManager::instance()->fileData(url);
         switch (m_category) {
@@ -116,6 +124,9 @@ QString HelpItem::extractContent(bool extended) const
             break;
         case QmlProperty:
             contents = htmlExtractor.getQmlPropertyDescription(html, m_docMark);
+            break;
+        case QMakeVariableOfFunction:
+            contents = htmlExtractor.getQMakeVariableOrFunctionDescription(html, m_docMark);
             break;
 
         default:

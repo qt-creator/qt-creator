@@ -147,10 +147,10 @@ QString HtmlDocExtractor::getQmlComponentDescription(const QString &html, const 
 
 QString HtmlDocExtractor::getQmlPropertyDescription(const QString &html, const QString &mark) const
 {
-    QString startMark = QString("<a name=\"%1-prop\">").arg(mark);
+    QString startMark = QString::fromLatin1("<a name=\"%1-prop\">").arg(mark);
     int index = html.indexOf(startMark);
     if (index == -1) {
-        startMark = QString("<a name=\"%1-signal\">").arg(mark);
+        startMark = QString::fromLatin1("<a name=\"%1-signal\">").arg(mark);
         index = html.indexOf(startMark);
     }
     if (index == -1)
@@ -164,6 +164,42 @@ QString HtmlDocExtractor::getQmlPropertyDescription(const QString &html, const Q
     processOutput(&contents);
 
     return contents;
+}
+
+QString HtmlDocExtractor::getQMakeVariableOrFunctionDescription(const QString &html,
+                                                                const QString &mark) const
+{
+    const QString startMark = QString::fromLatin1("<a name=\"%1\"></a>").arg(mark);
+    int index = html.indexOf(startMark);
+    if (index == -1)
+        return QString();
+
+    QString contents = html.mid(index + startMark.size());
+    index = contents.indexOf(QLatin1String("<!-- @@@qmake"));
+    if (index == -1)
+        return QString();
+    contents = contents.left(index);
+    processOutput(&contents);
+
+    return contents;
+}
+
+QString HtmlDocExtractor::getQMakeFunctionId(const QString &html,
+                                             const QString &mark) const
+{
+    const QString startMark = QString::fromLatin1("<a name=\"%1-").arg(mark);
+    const int startIndex = html.indexOf(startMark);
+    if (startIndex == -1)
+        return QString();
+
+    const int startKeyIndex = html.indexOf(mark, startIndex);
+
+    const QString endMark = QLatin1String("\"></a>");
+    const int endKeyIndex = html.indexOf(endMark, startKeyIndex);
+    if (endKeyIndex == -1)
+        return QString();
+
+    return html.mid(startKeyIndex, endKeyIndex - startKeyIndex);
 }
 
 QString HtmlDocExtractor::getClassOrNamespaceMemberDescription(const QString &html,
@@ -206,9 +242,18 @@ void HtmlDocExtractor::processOutput(QString *html) const
     if (m_mode == FirstParagraph) {
         // Try to get the entire first paragraph, but if one is not found or if its opening
         // tag is not in the very beginning (using an empirical value as the limit) the html
-        // is cleared to avoid too much content.
+        // is cleared to avoid too much content. In case the first paragraph looks like:
+        // <p><i>This is only used on the Maemo platform.</i></p>
+        // or: <p><tt>This is used on Windows only.</tt></p>
+        // or: <p>[Conditional]</p>
+        // include also the next paragraph.
         int index = html->indexOf(QLatin1String("<p>"));
         if (index != -1 && index < 400) {
+            if (html->indexOf(QLatin1String("<p><i>")) == index ||
+                    html->indexOf(QLatin1String("<p><tt>")) == index ||
+                    html->indexOf(QLatin1String("<p>[Conditional]</p>")) == index)
+                index = html->indexOf(QLatin1String("<p>"), index + 6); // skip the first paragraph
+
             index = html->indexOf(QLatin1String("</p>"), index + 3);
             if (index != -1) {
                 // Most paragraphs end with a period, but there are cases without punctuation

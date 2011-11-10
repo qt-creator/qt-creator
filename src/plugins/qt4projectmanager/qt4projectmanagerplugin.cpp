@@ -47,6 +47,7 @@
 #include "wizards/html5appwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "profileeditorfactory.h"
+#include "profilehoverhandler.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
 #include "profileeditor.h"
@@ -159,6 +160,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new WinCeQtVersionFactory);
 
     addAutoReleasedObject(new ProFileCompletionAssistProvider);
+    addAutoReleasedObject(new ProFileHoverHandler(this));
 
     // TODO reenable
     //m_embeddedPropertiesPage = new EmbeddedPropertiesPage;

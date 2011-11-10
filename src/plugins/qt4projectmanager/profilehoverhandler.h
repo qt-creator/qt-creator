@@ -30,17 +30,15 @@
 **
 **************************************************************************/
 
-#ifndef BASEHOVERHANDLER_H
-#define BASEHOVERHANDLER_H
+#ifndef PROFILEHOVERHANDLER_H
+#define PROFILEHOVERHANDLER_H
 
-#include "texteditor_global.h"
-#include "helpitem.h"
+#include <texteditor/basehoverhandler.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
-class QPoint;
+class QUrl;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -48,51 +46,42 @@ class IEditor;
 }
 
 namespace TextEditor {
-
 class ITextEditor;
-class BaseTextEditorWidget;
+}
 
-class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
+namespace Qt4ProjectManager {
+namespace Internal {
+
+class ProFileHoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_OBJECT
 public:
-    BaseHoverHandler(QObject *parent = 0);
-    virtual ~BaseHoverHandler();
+    ProFileHoverHandler(QObject *parent = 0);
+    virtual ~ProFileHoverHandler();
 
-private slots:
-    void editorOpened(Core::IEditor *editor);
-    void showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos);
-    void updateContextHelpId(TextEditor::ITextEditor *editor, int pos);
-
-protected:
-    void setToolTip(const QString &tooltip);
-    void appendToolTip(const QString &extension);
-    const QString &toolTip() const;
-
-    void addF1ToToolTip();
-
-    void setIsDiagnosticTooltip(bool isDiagnosticTooltip);
-    bool isDiagnosticTooltip() const;
-
-    void setLastHelpItemIdentified(const HelpItem &help);
-    const HelpItem &lastHelpItemIdentified() const;
-
-    static BaseTextEditorWidget *baseTextEditor(ITextEditor *editor);
+signals:
+    void creatorHelpRequested(const QUrl &url);
 
 private:
-    void clear();
-    void process(ITextEditor *editor, int pos);
+    virtual bool acceptEditor(Core::IEditor *editor);
+    virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
+    void identifyQMakeKeyword(const QString &text, int pos);
 
-    virtual bool acceptEditor(Core::IEditor *editor) = 0;
-    virtual void identifyMatch(ITextEditor *editor, int pos) = 0;
-    virtual void decorateToolTip();
-    virtual void operateTooltip(ITextEditor *editor, const QPoint &point);
+    enum ManualKind {
+        VariableManual,
+        FunctionManual,
+        UnknownManual
+    };
 
-    bool m_diagnosticTooltip;
-    QString m_toolTip;
-    HelpItem m_lastHelpItemIdentified;
+    QString manualName() const;
+    void identifyDocFragment(ManualKind manualKind,
+                       const QString &keyword);
+
+    QString m_docFragment;
+    ManualKind m_manualKind;
 };
 
-} // namespace TextEditor
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif // BASEHOVERHANDLER_H
+#endif // PROFILEHOVERHANDLER_H

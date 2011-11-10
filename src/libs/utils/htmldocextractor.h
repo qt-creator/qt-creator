@@ -62,6 +62,10 @@ public:
                                    const bool mainOverload = true) const;
     QString getQmlComponentDescription(const QString &html, const QString &mark) const;
     QString getQmlPropertyDescription(const QString &html, const QString &mark) const;
+    QString getQMakeVariableOrFunctionDescription(const QString &html,
+                                                  const QString &mark) const;
+    QString getQMakeFunctionId(const QString &html,
+                               const QString &mark) const;
 
 private:
     QString getClassOrNamespaceMemberDescription(const QString &html,

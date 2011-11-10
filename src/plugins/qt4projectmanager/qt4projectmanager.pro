@@ -13,6 +13,7 @@ HEADERS += \
     profileeditor.h \
     profilehighlighter.h \
     profileeditorfactory.h \
+    profilehoverhandler.h \
     wizards/qtprojectparameters.h \
     wizards/guiappwizard.h \
     wizards/mobileapp.h \
@@ -75,6 +76,7 @@ SOURCES += qt4projectmanagerplugin.cpp \
     profileeditor.cpp \
     profilehighlighter.cpp \
     profileeditorfactory.cpp \
+    profilehoverhandler.cpp \
     wizards/qtprojectparameters.cpp \
     wizards/guiappwizard.cpp \
     wizards/mobileapp.cpp \

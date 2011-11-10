@@ -157,8 +157,8 @@ void BaseHoverHandler::decorateToolTip()
         if (!contents.isEmpty()) {
             setToolTip(Qt::escape(toolTip()));
             appendToolTip(contents);
+            addF1ToToolTip();
         }
-        addF1ToToolTip();
     }
 }
 
