@@ -449,6 +449,12 @@ public:
             && m_text == a.m_text;
     }
 
+    // Ignore e.g. ShiftModifier, which is not available in sourced data.
+    bool matchesForMap(const Input &a) const
+    {
+        return (a.m_key == m_key || a.m_xkey == m_xkey) && m_text == a.m_text;
+    }
+
     bool operator!=(const Input &a) const { return !operator==(a); }
 
     QString text() const { return m_text; }
@@ -654,7 +660,7 @@ public:
         for (int i = 0; i != size(); ++i) {
             const Inputs &haystack = at(i).first;
             // A mapping
-            if (startsWith(haystack, *inputs)) {
+            if (couldTriggerMap(haystack, *inputs)) {
                 if (haystack.size() != inputs->size())
                     return false; // This can be extended.
                 // Actual mapping.
@@ -667,13 +673,13 @@ public:
     }
 
 private:
-    static bool startsWith(const Inputs &haystack, const Inputs &needle)
+    static bool couldTriggerMap(const Inputs &haystack, const Inputs &needle)
     {
         // Input is already too long.
         if (needle.size() > haystack.size())
             return false;
         for (int i = 0; i != needle.size(); ++i) {
-            if (needle.at(i) != haystack.at(i))
+            if (!needle.at(i).matchesForMap(haystack.at(i)))
                 return false;
         }
         return true;
