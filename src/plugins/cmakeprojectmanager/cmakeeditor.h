@@ -59,7 +59,7 @@ public:
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
-    QString id() const;
+    Core::Id id() const;
     bool isTemporary() const { return false; }
 
 private slots:

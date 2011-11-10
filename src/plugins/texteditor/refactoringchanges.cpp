@@ -154,7 +154,7 @@ BaseTextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bo
         column -= 1;
     }
     Core::IEditor *editor = BaseTextEditorWidget::openEditorAt(
-                fileName, line, column, QString(), flags);
+                fileName, line, column, Core::Id(), flags);
     return qobject_cast<BaseTextEditorWidget *>(editor->widget());
 }
 

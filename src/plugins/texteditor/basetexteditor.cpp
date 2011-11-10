@@ -161,7 +161,7 @@ protected:
 } // namespace TextEditor
 
 Core::IEditor *BaseTextEditorWidget::openEditorAt(const QString &fileName, int line, int column,
-                                 const QString &editorKind,
+                                 const Core::Id &editorKind,
                                  Core::EditorManager::OpenEditorFlags flags,
                                  bool *newEditor)
 {
@@ -4700,7 +4700,7 @@ bool BaseTextEditorWidget::openLink(const Link &link)
         return true;
     }
 
-    return openEditorAt(link.fileName, link.line, link.column, QString(),
+    return openEditorAt(link.fileName, link.line, link.column, Core::Id(),
                           Core::EditorManager::IgnoreNavigationHistory
                         | Core::EditorManager::ModeSwitch);
 }

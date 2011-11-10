@@ -327,10 +327,10 @@ void CppFindReferences::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
         TextEditor::BaseTextEditorWidget::openEditorAt(item.path.first(), item.lineNumber, item.textMarkPos,
-                                                 QString(),
+                                                 Core::Id(),
                                                  Core::EditorManager::ModeSwitch);
     } else {
-        Core::EditorManager::instance()->openEditor(item.text, QString(), Core::EditorManager::ModeSwitch);
+        Core::EditorManager::instance()->openEditor(item.text, Core::Id(), Core::EditorManager::ModeSwitch);
     }
 }
 

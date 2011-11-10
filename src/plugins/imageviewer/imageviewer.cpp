@@ -136,9 +136,9 @@ Core::IFile *ImageViewer::file()
     return d->file;
 }
 
-QString ImageViewer::id() const
+Core::Id ImageViewer::id() const
 {
-    return QLatin1String(Constants::IMAGEVIEWER_ID);
+    return Core::Id(Constants::IMAGEVIEWER_ID);
 }
 
 QString ImageViewer::displayName() const

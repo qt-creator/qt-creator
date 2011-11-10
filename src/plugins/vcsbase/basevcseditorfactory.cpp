@@ -55,7 +55,7 @@ struct BaseVCSEditorFactoryPrivate
     BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t);
 
     const VCSBaseEditorParameters *m_type;
-    const QString m_id;
+    const Core::Id m_id;
     QString m_displayName;
     const QStringList m_mimeTypes;
     TextEditor::TextEditorActionHandler *m_editorHandler;

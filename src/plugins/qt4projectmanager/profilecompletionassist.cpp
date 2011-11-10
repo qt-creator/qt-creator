@@ -109,9 +109,9 @@ ProFileCompletionAssistProvider::ProFileCompletionAssistProvider()
 ProFileCompletionAssistProvider::~ProFileCompletionAssistProvider()
 {}
 
-bool ProFileCompletionAssistProvider::supportsEditor(const QString &editorId) const
+bool ProFileCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    return editorId == QLatin1String(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
+    return editorId == Core::Id(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
 }
 
 bool ProFileCompletionAssistProvider::isAsynchronous() const

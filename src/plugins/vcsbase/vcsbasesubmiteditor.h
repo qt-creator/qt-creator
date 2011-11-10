@@ -125,7 +125,7 @@ public:
     virtual void setDisplayName(const QString &title);
     virtual bool duplicateSupported() const;
     virtual Core::IEditor *duplicate(QWidget * parent);
-    virtual QString id() const;
+    virtual Core::Id id() const;
 
     virtual QWidget *toolBar();
 

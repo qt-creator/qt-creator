@@ -427,7 +427,7 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
     ActionManager *am = ICore::instance()->actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     Command *cmd = am->registerAction(toggleViewAction,
-             QString("Debugger." + widget->objectName()), globalContext);
+             Core::Id("Debugger." + widget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
     d->m_viewsMenu->addAction(cmd);
 

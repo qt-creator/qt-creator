@@ -74,9 +74,9 @@ Core::IEditor *ProFileEditor::duplicate(QWidget *parent)
     return ret->editor();
 }
 
-QString ProFileEditor::id() const
+Core::Id ProFileEditor::id() const
 {
-    return QLatin1String(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
+    return Qt4ProjectManager::Constants::PROFILE_EDITOR_ID;
 }
 
 //

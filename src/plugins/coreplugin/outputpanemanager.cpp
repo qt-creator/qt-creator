@@ -274,7 +274,7 @@ void OutputPaneManager::init()
         actionId.remove(QLatin1Char(' '));
         QAction *action = new QAction(outPane->displayName(), this);
 
-        Command *cmd = am->registerAction(action, actionId, Context(Constants::C_GLOBAL));
+        Command *cmd = am->registerAction(action, Id(actionId), Context(Constants::C_GLOBAL));
 
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
         m_actions.insert(cmd->action(), idx);

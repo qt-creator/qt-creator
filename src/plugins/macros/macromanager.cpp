@@ -167,7 +167,7 @@ void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
     Core::ActionManager *am = core->actionManager();
     QShortcut *shortcut = new QShortcut(core->mainWindow());
     shortcut->setWhatsThis(macro->description());
-    const QString macroId = QLatin1String(Constants::PREFIX_MACRO) + macro->displayName();
+    const Core::Id macroId(QLatin1String(Constants::PREFIX_MACRO) + macro->displayName());
     am->registerShortcut(shortcut, macroId, context);
     connect(shortcut, SIGNAL(activated()), mapper, SLOT(map()));
     mapper->setMapping(shortcut, macro->displayName());

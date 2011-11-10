@@ -113,7 +113,7 @@ void CppCurrentDocumentFilter::accept(Locator::FilterEntry selection) const
 {
     ModelItemInfo info = qvariant_cast<CppTools::Internal::ModelItemInfo>(selection.internalData);
     TextEditor::BaseTextEditorWidget::openEditorAt(info.fileName, info.line, info.column,
-                                             QString(), Core::EditorManager::ModeSwitch);
+                                             Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 void CppCurrentDocumentFilter::refresh(QFutureInterface<void> &future)

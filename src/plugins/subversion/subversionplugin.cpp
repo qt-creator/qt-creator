@@ -1162,15 +1162,16 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
     return response;
 }
 
-Core::IEditor * SubversionPlugin::showOutputInEditor(const QString& title, const QString &output,
+Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const QString &output,
                                                      int editorType, const QString &source,
                                                      QTextCodec *codec)
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const QString id = params->id;
+    const Core::Id id = params->id;
     if (Subversion::Constants::debug)
-        qDebug() << "SubversionPlugin::showOutputInEditor" << title << id <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
+        qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.name()
+                 <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output);
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),

@@ -272,7 +272,7 @@ void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
     }
     // Open file.
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->openEditor(m_fileSystemModel->filePath(srcIndex), QString(), Core::EditorManager::ModeSwitch);
+    editorManager->openEditor(m_fileSystemModel->filePath(srcIndex), Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 void FolderNavigationWidget::setCurrentTitle(QString dirName, const QString &fullPath)

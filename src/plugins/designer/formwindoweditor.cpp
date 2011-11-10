@@ -209,9 +209,9 @@ Core::IFile *FormWindowEditor::file()
     return &d->m_file;
 }
 
-QString FormWindowEditor::id() const
+Core::Id FormWindowEditor::id() const
 {
-    return QLatin1String(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
+    return Designer::Constants::K_DESIGNER_XML_EDITOR_ID;
 }
 
 QString FormWindowEditor::displayName() const

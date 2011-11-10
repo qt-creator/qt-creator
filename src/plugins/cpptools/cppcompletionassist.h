@@ -66,7 +66,7 @@ class CppAssistProposalModel;
 class CppCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
 public:
-    virtual bool supportsEditor(const QString &editorId) const;
+    virtual bool supportsEditor(const Core::Id &editorId) const;
     virtual int activationCharSequenceLength() const;
     virtual bool isActivationCharSequence(const QString &sequence) const;
     virtual TextEditor::IAssistProcessor *createProcessor() const;

@@ -201,9 +201,9 @@ Core::IEditor *GLSLEditorEditable::duplicate(QWidget *parent)
     return newEditor->editor();
 }
 
-QString GLSLEditorEditable::id() const
+Core::Id GLSLEditorEditable::id() const
 {
-    return QLatin1String(GLSLEditor::Constants::C_GLSLEDITOR_ID);
+    return GLSLEditor::Constants::C_GLSLEDITOR_ID;
 }
 
 bool GLSLEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)

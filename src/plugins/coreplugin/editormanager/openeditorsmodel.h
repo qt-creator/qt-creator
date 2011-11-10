@@ -64,7 +64,7 @@ public:
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
     void addEditor(IEditor *editor, bool isDuplicate = false);
-    void addRestoredEditor(const QString &fileName, const QString &displayName, const QString &id);
+    void addRestoredEditor(const QString &fileName, const QString &displayName, const Id &id);
     QModelIndex firstRestoredEditor() const;
 
     struct CORE_EXPORT Entry {

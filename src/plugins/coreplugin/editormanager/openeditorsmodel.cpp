@@ -131,7 +131,7 @@ void OpenEditorsModel::addEditor(IEditor *editor, bool isDuplicate)
     addEntry(entry);
 }
 
-void OpenEditorsModel::addRestoredEditor(const QString &fileName, const QString &displayName, const QString &id)
+void OpenEditorsModel::addRestoredEditor(const QString &fileName, const QString &displayName, const Id &id)
 {
     Entry entry;
     entry.m_fileName = fileName;

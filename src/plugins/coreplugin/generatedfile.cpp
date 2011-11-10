@@ -61,7 +61,7 @@ public:
     explicit GeneratedFilePrivate(const QString &p);
     QString path;
     QByteArray contents;
-    QString editorId;
+    Id editorId;
     bool binary;
     GeneratedFile::Attributes attributes;
 };
@@ -139,14 +139,14 @@ void GeneratedFile::setBinary(bool b)
     m_d->binary = b;
 }
 
-QString GeneratedFile::editorId() const
+Id GeneratedFile::editorId() const
 {
     return m_d->editorId;
 }
 
-void GeneratedFile::setEditorId(const QString &k)
+void GeneratedFile::setEditorId(const Id &id)
 {
-    m_d->editorId = k;
+    m_d->editorId = id;
 }
 
 bool GeneratedFile::write(QString *errorMessage) const

@@ -35,10 +35,10 @@
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/id.h>
 #include <QtCore/QPointer>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
-QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace TextEditor {
 class TextEditorActionHandler;
@@ -102,7 +102,7 @@ private Q_SLOTS:
     void runSemanticScan();
 
 private:
-    Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const QString &name,
+    Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const Core::Id &id,
                                  Core::ActionContainer *c1, const QString &keySequence);
 
     static QmlJSEditorPlugin *m_instance;

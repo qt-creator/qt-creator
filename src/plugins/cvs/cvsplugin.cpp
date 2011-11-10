@@ -1284,9 +1284,10 @@ Core::IEditor * CVSPlugin::showOutputInEditor(const QString& title, const QStrin
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const QString id = params->id;
+    const Core::Id id = params->id;
     if (CVS::Constants::debug)
-        qDebug() << "CVSPlugin::showOutputInEditor" << title << id <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
+        qDebug() << "CVSPlugin::showOutputInEditor" << title << id.name()
+                 <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output.toLocal8Bit());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),

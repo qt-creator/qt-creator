@@ -65,9 +65,9 @@ using namespace CPlusPlus;
 // -------------------------
 // CppQuickFixAssistProvider
 // -------------------------
-bool CppQuickFixAssistProvider::supportsEditor(const QString &editorId) const
+bool CppQuickFixAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    return editorId == QLatin1String(CppEditor::Constants::CPPEDITOR_ID);
+    return editorId == CppEditor::Constants::CPPEDITOR_ID;
 }
 
 IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const

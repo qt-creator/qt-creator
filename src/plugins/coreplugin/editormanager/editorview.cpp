@@ -756,10 +756,10 @@ QByteArray SplitterOrView::saveState() const
             stream << QByteArray("empty");
         } else if (e == em->currentEditor()) {
             stream << QByteArray("currenteditor")
-                    << e->file()->fileName() << e->id() << e->saveState();
+                    << e->file()->fileName() << e->id().toString() << e->saveState();
         } else {
             stream << QByteArray("editor")
-                    << e->file()->fileName() << e->id() << e->saveState();
+                    << e->file()->fileName() << e->id().toString() << e->saveState();
         }
     }
     return bytes;

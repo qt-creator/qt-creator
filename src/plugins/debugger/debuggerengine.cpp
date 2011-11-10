@@ -567,7 +567,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     QList<IEditor *> editors = editorManager->editorsForFileName(file);
     IEditor *editor = 0;
     if (editors.isEmpty()) {
-        editor = editorManager->openEditor(file, QString(),
+        editor = editorManager->openEditor(file, Core::Id(),
             EditorManager::IgnoreNavigationHistory);
         if (editor) {
             editors.append(editor);

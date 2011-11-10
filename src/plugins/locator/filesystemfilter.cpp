@@ -109,7 +109,7 @@ void FileSystemFilter::accept(FilterEntry selection) const
         m_locatorWidget->show(value, value.length());
         return;
     }
-    m_editorManager->openEditor(selection.internalData.toString(), QString(),
+    m_editorManager->openEditor(selection.internalData.toString(), Id(),
                                 Core::EditorManager::ModeSwitch);
 }
 

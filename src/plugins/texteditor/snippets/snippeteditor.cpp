@@ -54,7 +54,7 @@ SnippetEditor::SnippetEditor(SnippetEditorWidget *editor)
     setContext(Core::Context(Constants::SNIPPET_EDITOR_ID, Constants::C_TEXTEDITOR));
 }
 
-QString SnippetEditor::id() const
+Core::Id SnippetEditor::id() const
 {
     return Constants::SNIPPET_EDITOR_ID;
 }

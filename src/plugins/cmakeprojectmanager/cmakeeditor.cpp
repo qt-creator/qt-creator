@@ -72,9 +72,9 @@ Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
     return ret->editor();
 }
 
-QString CMakeEditor::id() const
+Core::Id CMakeEditor::id() const
 {
-    return QLatin1String(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
+    return CMakeProjectManager::Constants::CMAKE_EDITOR_ID;
 }
 
 void CMakeEditor::markAsChanged()

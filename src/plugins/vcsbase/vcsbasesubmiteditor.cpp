@@ -385,7 +385,7 @@ Core::IEditor *VCSBaseSubmitEditor::duplicate(QWidget * /*parent*/)
     return 0;
 }
 
-QString VCSBaseSubmitEditor::id() const
+Core::Id VCSBaseSubmitEditor::id() const
 {
     return d->m_parameters->id;
 }

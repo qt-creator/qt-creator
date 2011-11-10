@@ -61,7 +61,7 @@ public:
     ProFileCompletionAssistProvider();
     virtual ~ProFileCompletionAssistProvider();
 
-    virtual bool supportsEditor(const QString &editorId) const;
+    virtual bool supportsEditor(const Core::Id &editorId) const;
     virtual TextEditor::IAssistProcessor *createProcessor() const;
 
     virtual bool isAsynchronous() const;

@@ -80,7 +80,7 @@ class ProjectFilesEditor : public TextEditor::BaseTextEditor
 public:
     ProjectFilesEditor(ProjectFilesEditorWidget *editorWidget);
 
-    virtual QString id() const;
+    virtual Core::Id id() const;
     virtual bool duplicateSupported() const;
     virtual Core::IEditor *duplicate(QWidget *parent);
     virtual bool isTemporary() const { return false; }

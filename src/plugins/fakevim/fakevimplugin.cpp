@@ -630,12 +630,12 @@ void FakeVimUserCommandsPage::apply()
 class FakeVimCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
 public:
-    virtual bool supportsEditor(const QString &) const
+    bool supportsEditor(const Core::Id &) const
     {
         return false;
     }
 
-    virtual TextEditor::IAssistProcessor *createProcessor() const;
+    TextEditor::IAssistProcessor *createProcessor() const;
 
     void setActive(const QString &needle, bool forward, FakeVimHandler *handler)
     {
@@ -844,8 +844,8 @@ private:
     FakeVimUserCommandsPage *m_fakeVimUserCommandsPage;
     QHash<Core::IEditor *, FakeVimHandler *> m_editorToHandler;
 
-    void triggerAction(const QString &code);
-    void setActionChecked(const QString &code, bool check);
+    void triggerAction(const Core::Id &id);
+    void setActionChecked(const Core::Id &id, bool check);
 
     typedef int (*DistFunction)(const QRect &cursor, const QRect &other);
     void moveSomewhere(DistFunction f);
@@ -995,7 +995,7 @@ bool FakeVimPluginPrivate::initialize()
         act->setData(i);
         QString id = QString("FakeVim.UserAction%1").arg(i);
         QString keys = QString("Alt+V,%1").arg(i);
-        cmd = actionManager->registerAction(act, id, globalcontext);
+        cmd = actionManager->registerAction(act, Core::Id(id), globalcontext);
         cmd->setDefaultKeySequence(QKeySequence(keys));
         connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
     }
@@ -1148,22 +1148,22 @@ void FakeVimPluginPrivate::showSettingsDialog()
         _(Constants::SETTINGS_ID));
 }
 
-void FakeVimPluginPrivate::triggerAction(const QString &code)
+void FakeVimPluginPrivate::triggerAction(const Id &id)
 {
     Core::ActionManager *am = ICore::instance()->actionManager();
     QTC_ASSERT(am, return);
-    Core::Command *cmd = am->command(code);
-    QTC_ASSERT(cmd, qDebug() << "UNKNOWN CODE: " << code; return);
+    Core::Command *cmd = am->command(id);
+    QTC_ASSERT(cmd, qDebug() << "UNKNOWN CODE: " << id.name(); return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
     action->trigger();
 }
 
-void FakeVimPluginPrivate::setActionChecked(const QString &code, bool check)
+void FakeVimPluginPrivate::setActionChecked(const Id &id, bool check)
 {
     Core::ActionManager *am = ICore::instance()->actionManager();
     QTC_ASSERT(am, return);
-    Core::Command *cmd = am->command(code);
+    Core::Command *cmd = am->command(id);
     QTC_ASSERT(cmd, return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
@@ -1583,7 +1583,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             const QString &id = it.key();
             const QRegExp &re = it.value();
             if (!re.pattern().isEmpty() && re.indexIn(cmd.cmd) != -1) {
-                triggerAction(id);
+                triggerAction(Core::Id(id));
                 return;
             }
         }

@@ -73,7 +73,7 @@ public:
     virtual bool createNew(const QString &contents = QString());
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual Core::IFile *file();
-    virtual QString id() const;
+    virtual Core::Id id() const;
     virtual QString displayName() const;
     virtual void setDisplayName(const QString &title);
 

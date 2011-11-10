@@ -1059,7 +1059,7 @@ void FileManager::syncWithEditor(Core::IContext *context)
     \a editorId defaults to the empty id, which means to let the system figure out
     the best editor itself.
 */
-void FileManager::addToRecentFiles(const QString &fileName, const QString &editorId)
+void FileManager::addToRecentFiles(const QString &fileName, const Id &editorId)
 {
     if (fileName.isEmpty())
         return;
@@ -1103,7 +1103,7 @@ void FileManager::saveSettings()
     QStringList recentEditorIds;
     foreach (const RecentFile &file, d->m_recentFiles) {
         recentFiles.append(file.first);
-        recentEditorIds.append(file.second);
+        recentEditorIds.append(file.second.toString());
     }
 
     QSettings *s = Core::ICore::instance()->settings();
@@ -1133,7 +1133,7 @@ void FileManager::readSettings()
             editorId = ids.next();
         if (QFileInfo(fileName).isFile())
             d->m_recentFiles.append(RecentFile(QDir::fromNativeSeparators(fileName), // from native to guard against old settings
-                                               editorId));
+                                               Id(editorId)));
     }
 
     s->beginGroup(QLatin1String(directoryGroupC));

@@ -160,7 +160,7 @@ public:
 
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget * /*parent*/) { return 0; }
-    QString id() const { return m_id; }
+    Core::Id id() const { return m_id; }
 
     bool isTemporary() const { return m_temporary; }
     void setTemporary(bool t) { m_temporary = t; }
@@ -170,7 +170,7 @@ signals:
     void annotateRevisionRequested(const QString &source, const QString &change, int line);
 
 private:
-    QString m_id;
+    Core::Id m_id;
     bool m_temporary;
 };
 
@@ -773,7 +773,7 @@ void VCSBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
         return;
 
     Core::EditorManager *em = Core::EditorManager::instance();
-    Core::IEditor *ed = em->openEditor(fileName, QString(), Core::EditorManager::ModeSwitch);
+    Core::IEditor *ed = em->openEditor(fileName, Core::Id(), Core::EditorManager::ModeSwitch);
     if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
 }

@@ -278,12 +278,11 @@ static EditorManager *m_instance = 0;
 EditorManager *EditorManager::instance() { return m_instance; }
 
 static Command *createSeparator(ActionManager *am, QObject *parent,
-                                const QString &name,
-                                const Context &context)
+                                const Id &id, const Context &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
-    Command *cmd = am->registerAction(tmpaction, name, context);
+    Command *cmd = am->registerAction(tmpaction, id, context);
     return cmd;
 }
 
@@ -458,13 +457,13 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     advancedMenu->appendGroup(Constants::G_EDIT_EDITOR);
 
     // Advanced menu separators
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Collapsing"), editManagerContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Collapsing"), editManagerContext);
     advancedMenu->addAction(cmd, Constants::G_EDIT_COLLAPSING);
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Blocks"), editManagerContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Blocks"), editManagerContext);
     advancedMenu->addAction(cmd, Constants::G_EDIT_BLOCKS);
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Font"), editManagerContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Font"), editManagerContext);
     advancedMenu->addAction(cmd, Constants::G_EDIT_FONT);
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Editor"), editManagerContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Editor"), editManagerContext);
     advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
 
     // other setup
@@ -1221,9 +1220,9 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
     // Collect editors that can open the file
     const MimeType mt = d->m_core->mimeDatabase()->findByFile(fileName);
     if (!mt)
-        return QString();
+        return Id();
     QStringList allEditorIds;
-    QStringList externalEditorIds;
+    QList<Id> externalEditorIds;
     // Built-in
     const EditorFactoryList editors = editorFactories(mt, false);
     const int size = editors.size();
@@ -1234,18 +1233,18 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
     const ExternalEditorList exEditors = externalEditors(mt, false);
     const int esize = exEditors.size();
     for (int i = 0; i < esize; i++) {
-        externalEditorIds.push_back(exEditors.at(i)->id().toString());
+        externalEditorIds.push_back(exEditors.at(i)->id());
         allEditorIds.push_back(exEditors.at(i)->id().toString());
     }
     if (allEditorIds.empty())
-        return QString();
+        return Id();
     // Run dialog.
     OpenWithDialog dialog(fileName, d->m_core->mainWindow());
     dialog.setEditors(allEditorIds);
     dialog.setCurrentEditor(0);
     if (dialog.exec() != QDialog::Accepted)
-        return QString();
-    const QString selectedId = dialog.editor();
+        return Id();
+    const Id selectedId = Id(dialog.editor());
     if (isExternalEditor)
         *isExternalEditor = externalEditorIds.contains(selectedId);
     return selectedId;
@@ -1318,7 +1317,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     // If we could not open the file in the requested editor, fall
     // back to the default editor:
     if (!editor)
-        editor = createEditor(QString(), fn);
+        editor = createEditor(Id(), fn);
     if (!editor) // Internal error
         return 0;
 
@@ -1604,7 +1603,7 @@ bool EditorManager::saveFileAs(IFile *fileParam)
 void EditorManager::addFileToRecentFiles(IFile *file)
 {
     bool isTemporary = true;
-    QString editorId;
+    Id editorId;
     QList<IEditor *> editors = editorsForFile(file);
     foreach (IEditor *editor, editors) {
         if (!editor->isTemporary()) {
@@ -1943,9 +1942,9 @@ bool EditorManager::restoreState(const QByteArray &state)
                 continue;
             QFileInfo rfi(autoSaveName(fileName));
             if (rfi.exists() && fi.lastModified() < rfi.lastModified()) {
-                openEditor(fileName, QString::fromUtf8(id));
+                openEditor(fileName, Id(QString::fromUtf8(id)));
             } else {
-                d->m_editorModel->addRestoredEditor(fileName, displayName, QString::fromUtf8(id));
+                d->m_editorModel->addRestoredEditor(fileName, displayName, Id(QString::fromUtf8(id)));
             }
         }
     }

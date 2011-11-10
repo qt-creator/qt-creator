@@ -310,10 +310,10 @@ void QmlJSEditorPlugin::showContextPane()
 }
 
 Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a, Core::ActionManager *am,
-                                          Core::Context &context, const QString &name,
+                                          Core::Context &context, const Core::Id &id,
                                           Core::ActionContainer *c1, const QString &keySequence)
 {
-    Core::Command *command = am->registerAction(a, name, context);
+    Core::Command *command = am->registerAction(a, id, context);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
     c1->addAction(command);

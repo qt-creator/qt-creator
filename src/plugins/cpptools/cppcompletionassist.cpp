@@ -495,9 +495,9 @@ int CppFunctionHintModel::activeArgument(const QString &prefix) const
 // ---------------------------
 // CppCompletionAssistProvider
 // ---------------------------
-bool CppCompletionAssistProvider::supportsEditor(const QString &editorId) const
+bool CppCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    return editorId == QLatin1String(CppEditor::Constants::CPPEDITOR_ID);
+    return editorId == Core::Id(CppEditor::Constants::CPPEDITOR_ID);
 }
 
 int CppCompletionAssistProvider::activationCharSequenceLength() const

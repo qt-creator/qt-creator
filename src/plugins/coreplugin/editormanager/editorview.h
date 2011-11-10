@@ -33,6 +33,8 @@
 #ifndef EDITORVIEW_H
 #define EDITORVIEW_H
 
+#include "coreplugin/id.h"
+
 #include <QtCore/QMap>
 #include <QtCore/QList>
 #include <QtCore/QString>
@@ -64,7 +66,7 @@ namespace Internal {
 struct EditLocation {
     QPointer<IFile> file;
     QString fileName;
-    QString id;
+    Id id;
     QVariant state;
 };
 

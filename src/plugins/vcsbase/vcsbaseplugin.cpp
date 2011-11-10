@@ -485,12 +485,13 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VCSBasePluginState &state)
     the virtual submitEditorAboutToClose() to trigger the submit process.
 */
 
-struct VCSBasePluginPrivate {
+struct VCSBasePluginPrivate
+{
     explicit VCSBasePluginPrivate(const QString &submitEditorId);
 
     inline bool supportsRepositoryCreation() const;
 
-    const QString m_submitEditorId;
+    const Core::Id m_submitEditorId;
     Core::IVersionControl *m_versionControl;
     VCSBasePluginState m_state;
     int m_actionState;
@@ -557,7 +558,7 @@ void VCSBasePlugin::extensionsInitialized()
 void VCSBasePlugin::slotSubmitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor, bool *result)
 {
     if (debug)
-        qDebug() << this << d->m_submitEditorId << "Closing submit editor" << submitEditor << submitEditor->id();
+        qDebug() << this << d->m_submitEditorId.name() << "Closing submit editor" << submitEditor << submitEditor->id().name();
     if (submitEditor->id() == d->m_submitEditorId)
         *result = submitEditorAboutToClose(submitEditor);
 }

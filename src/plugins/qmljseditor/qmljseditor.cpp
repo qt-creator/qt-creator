@@ -787,9 +787,9 @@ Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
     return newEditor->editor();
 }
 
-QString QmlJSEditorEditable::id() const
+Core::Id QmlJSEditorEditable::id() const
 {
-    return QLatin1String(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+    return QmlJSEditor::Constants::C_QMLJSEDITOR_ID;
 }
 
 bool QmlJSEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)

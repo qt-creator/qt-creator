@@ -537,12 +537,11 @@ void MainWindow::registerDefaultContainers()
 }
 
 static Command *createSeparator(ActionManager *am, QObject *parent,
-                                const QString &name,
-                                const Context &context)
+                                const Id &id, const Context &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
-    Command *cmd = am->registerAction(tmpaction, name, context);
+    Command *cmd = am->registerAction(tmpaction, id, context);
     return cmd;
 }
 
@@ -558,30 +557,30 @@ void MainWindow::registerDefaultActions()
     Context globalContext(Constants::C_GLOBAL);
 
     // File menu separators
-    Command *cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Save"), globalContext);
+    Command *cmd = createSeparator(am, this, Id("QtCreator.File.Sep.Save"), globalContext);
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
-    cmd =  createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Print"), globalContext);
+    cmd =  createSeparator(am, this, Id("QtCreator.File.Sep.Print"), globalContext);
     QIcon icon = QIcon::fromTheme(QLatin1String("edit-cut"), QIcon(Constants::ICON_CUT));
     mfile->addAction(cmd, Constants::G_FILE_PRINT);
 
-    cmd =  createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Close"), globalContext);
+    cmd =  createSeparator(am, this, Id("QtCreator.File.Sep.Close"), globalContext);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Other"), globalContext);
+    cmd = createSeparator(am, this, Id("QtCreator.File.Sep.Other"), globalContext);
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
 
     // Edit menu separators
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.CopyPaste"), globalContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.CopyPaste"), globalContext);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.SelectAll"), globalContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.SelectAll"), globalContext);
     medit->addAction(cmd, Constants::G_EDIT_SELECTALL);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Find"), globalContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Find"), globalContext);
     medit->addAction(cmd, Constants::G_EDIT_FIND);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Advanced"), globalContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Advanced"), globalContext);
     medit->addAction(cmd, Constants::G_EDIT_ADVANCED);
 
     // Return to editor shortcut: Note this requires Qt to fix up
@@ -728,7 +727,7 @@ void MainWindow::registerDefaultActions()
 
     // Options Action
     mtools->appendGroup(Constants::G_TOOLS_OPTIONS);
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Tools.Sep.Options"), globalContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Tools.Sep.Options"), globalContext);
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
     m_optionsAction = new QAction(tr("&Options..."), this);
     cmd = am->registerAction(m_optionsAction, Constants::OPTIONS, globalContext);
@@ -754,7 +753,7 @@ void MainWindow::registerDefaultActions()
     connect(m_zoomAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
 
     // Window separator
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Window.Sep.Size"), globalContext);
+    cmd = createSeparator(am, this, Id("QtCreator.Window.Sep.Size"), globalContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 #endif
 
@@ -884,7 +883,7 @@ void MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags f
                 emFlags = EditorManager::ModeSwitch;
             if (flags & ICore::CanContainLineNumbers)
                 emFlags |=  EditorManager::CanContainLineNumber;
-            Core::IEditor *editor = editorManager()->openEditor(absoluteFilePath, QString(), emFlags);
+            Core::IEditor *editor = editorManager()->openEditor(absoluteFilePath, Id(), emFlags);
             if (!editor && (flags & ICore::StopOnLoadFail))
                 return;
         }

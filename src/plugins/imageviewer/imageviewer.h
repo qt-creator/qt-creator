@@ -60,7 +60,7 @@ public:
     bool createNew(const QString &contents = QString());
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IFile *file();
-    QString id() const;
+    Core::Id id() const;
     QString displayName() const;
     void setDisplayName(const QString &title);
 

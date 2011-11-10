@@ -1639,9 +1639,9 @@ Core::IEditor *CPPEditor::duplicate(QWidget *parent)
     return newEditor->editor();
 }
 
-QString CPPEditor::id() const
+Core::Id CPPEditor::id() const
 {
-    return QLatin1String(CppEditor::Constants::CPPEDITOR_ID);
+    return CppEditor::Constants::CPPEDITOR_ID;
 }
 
 bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)

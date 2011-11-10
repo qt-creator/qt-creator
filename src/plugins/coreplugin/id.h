@@ -47,7 +47,7 @@ public:
     Id() : m_id(0) {}
     Id(const char *name);
     // FIXME: Replace with QByteArray
-    Id(const QString &name);
+    explicit Id(const QString &name);
     QByteArray name() const;
     QString toString() const;
     bool isValid() const { return m_id; }
@@ -67,6 +67,6 @@ CORE_EXPORT inline uint qHash(const Id &id) { return id.uniqueIdentifier(); }
 
 } // namespace Core
 
-Q_DECLARE_METATYPE(Core::Id);
+Q_DECLARE_METATYPE(Core::Id)
 
 #endif // CORE_ID_H

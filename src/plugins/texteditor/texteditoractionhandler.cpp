@@ -134,17 +134,17 @@ void TextEditorActionHandler::initializeActions()
 
 void TextEditorActionHandler::createActions()
 {
-    m_undoAction      = registerNewAction(QLatin1String(Core::Constants::UNDO),      this, SLOT(undoAction()),
+    m_undoAction      = registerNewAction(Core::Constants::UNDO,      this, SLOT(undoAction()),
                                           true, tr("&Undo"));
-    m_redoAction      = registerNewAction(QLatin1String(Core::Constants::REDO),      this, SLOT(redoAction()),
+    m_redoAction      = registerNewAction(Core::Constants::REDO,      this, SLOT(redoAction()),
                                           true, tr("&Redo"));
-    m_copyAction      = registerNewAction(QLatin1String(Core::Constants::COPY),      this, SLOT(copyAction()), true);
-    m_cutAction       = registerNewAction(QLatin1String(Core::Constants::CUT),       this, SLOT(cutAction()), true);
-    m_pasteAction     = registerNewAction(QLatin1String(Core::Constants::PASTE),     this, SLOT(pasteAction()), true);
+    m_copyAction      = registerNewAction(Core::Constants::COPY,      this, SLOT(copyAction()), true);
+    m_cutAction       = registerNewAction(Core::Constants::CUT,       this, SLOT(cutAction()), true);
+    m_pasteAction     = registerNewAction(Core::Constants::PASTE,     this, SLOT(pasteAction()), true);
     m_modifyingActions << m_pasteAction;
-    m_selectAllAction = registerNewAction(QLatin1String(Core::Constants::SELECTALL), this, SLOT(selectAllAction()), true);
-    m_gotoAction      = registerNewAction(QLatin1String(Core::Constants::GOTO),      this, SLOT(gotoAction()));
-    m_printAction     = registerNewAction(QLatin1String(Core::Constants::PRINT),     this, SLOT(printAction()));
+    m_selectAllAction = registerNewAction(Core::Constants::SELECTALL, this, SLOT(selectAllAction()), true);
+    m_gotoAction      = registerNewAction(Core::Constants::GOTO,      this, SLOT(gotoAction()));
+    m_printAction     = registerNewAction(Core::Constants::PRINT,     this, SLOT(printAction()));
 
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
 
@@ -434,12 +434,12 @@ void TextEditorActionHandler::createActions()
 
 }
 
-bool TextEditorActionHandler::supportsAction(const QString & /*id */) const
+bool TextEditorActionHandler::supportsAction(const Core::Id & /*id */) const
 {
     return true;
 }
 
-QAction *TextEditorActionHandler::registerNewAction(const QString &id, bool scriptable, const QString &title)
+QAction *TextEditorActionHandler::registerNewAction(const Core::Id &id, bool scriptable, const QString &title)
 {
     if (!supportsAction(id))
         return 0;
@@ -449,7 +449,7 @@ QAction *TextEditorActionHandler::registerNewAction(const QString &id, bool scri
     return result;
 }
 
-QAction *TextEditorActionHandler::registerNewAction(const QString &id,
+QAction *TextEditorActionHandler::registerNewAction(const Core::Id &id,
                                                     QObject *receiver,
                                                     const char *slot,
                                                     bool scriptable,

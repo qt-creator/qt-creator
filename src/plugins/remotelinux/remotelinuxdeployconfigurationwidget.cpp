@@ -205,7 +205,7 @@ void RemoteLinuxDeployConfigurationWidget::openProjectFile()
         return;
     const DeployableFilesPerProFile * const proFileInfo =
         d->deployConfiguration->deploymentInfo()->modelAt(row);
-    Core::EditorManager::instance()->openEditor(proFileInfo->proFilePath(), QString(),
+    Core::EditorManager::instance()->openEditor(proFileInfo->proFilePath(), Core::Id(),
         Core::EditorManager::ModeSwitch);
 }
 

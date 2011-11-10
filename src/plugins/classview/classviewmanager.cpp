@@ -293,7 +293,7 @@ void Manager::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
 void Manager::gotoLocation(const QString &fileName, int line, int column)
 {
     bool newEditor = false;
-    TextEditor::BaseTextEditorWidget::openEditorAt(fileName, line, column, QString(),
+    TextEditor::BaseTextEditorWidget::openEditorAt(fileName, line, column, Core::Id(),
                                              Core::EditorManager::IgnoreNavigationHistory,
                                              &newEditor);
 }

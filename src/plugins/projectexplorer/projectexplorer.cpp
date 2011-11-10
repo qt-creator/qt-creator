@@ -2612,7 +2612,7 @@ void ProjectExplorerPlugin::openFile()
 {
     QTC_ASSERT(d->m_currentNode, return)
     Core::EditorManager *em = Core::EditorManager::instance();
-    em->openEditor(d->m_currentNode->path(), QString(), Core::EditorManager::ModeSwitch);
+    em->openEditor(d->m_currentNode->path(), Core::Id(), Core::EditorManager::ModeSwitch);
 }
 
 void ProjectExplorerPlugin::searchOnFileSystem()

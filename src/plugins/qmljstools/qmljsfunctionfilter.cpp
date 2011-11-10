@@ -114,5 +114,5 @@ void FunctionFilter::accept(Locator::FilterEntry selection) const
 {
     const LocatorData::Entry entry = qvariant_cast<LocatorData::Entry>(selection.internalData);
     TextEditor::BaseTextEditorWidget::openEditorAt(entry.fileName, entry.line, entry.column,
-                                             QString(), Core::EditorManager::ModeSwitch);
+                                             Core::Id(), Core::EditorManager::ModeSwitch);
 }

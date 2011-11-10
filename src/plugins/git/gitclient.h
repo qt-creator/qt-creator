@@ -236,7 +236,7 @@ private:
     VCSBase::VCSBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
-    VCSBase::VCSBaseEditorWidget *createVCSEditor(const QString &kind,
+    VCSBase::VCSBaseEditorWidget *createVCSEditor(const Core::Id &kind,
                                             QString title,
                                             const QString &source,
                                             CodecType codecType,

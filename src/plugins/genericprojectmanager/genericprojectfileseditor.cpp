@@ -105,9 +105,9 @@ ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
    setContext(Core::Context(Constants::C_FILESEDITOR));
 }
 
-QString ProjectFilesEditor::id() const
+Core::Id ProjectFilesEditor::id() const
 {
-    return QLatin1String(Constants::FILES_EDITOR_ID);
+    return Constants::FILES_EDITOR_ID;
 }
 
 bool ProjectFilesEditor::duplicateSupported() const

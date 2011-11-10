@@ -55,7 +55,7 @@ public:
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     bool isTemporary() const { return false; }
-    virtual QString id() const;
+    Core::Id id() const;
 };
 
 class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget

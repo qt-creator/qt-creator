@@ -48,10 +48,10 @@ public:
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
-    QString id() const;
+    Core::Id id() const;
     bool isTemporary() const { return false; }
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    virtual QString preferredModeType() const;
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    QString preferredModeType() const;
     void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason);
 };
 

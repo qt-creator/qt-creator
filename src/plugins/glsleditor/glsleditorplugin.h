@@ -35,6 +35,7 @@
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/id.h>
 #include <QtCore/QPointer>
 #include <glsl/glsl.h>
 
@@ -105,7 +106,8 @@ private:
     QByteArray glslFile(const QString &fileName);
     void parseGlslFile(const QString &fileName, InitFile *initFile);
 
-    Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const QString &name,
+    // FIXME: Unused?
+    Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const Core::Id &name,
                                  Core::ActionContainer *c1, const QString &keySequence);
 
     static GLSLEditorPlugin *m_instance;

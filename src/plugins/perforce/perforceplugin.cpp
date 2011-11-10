@@ -1186,16 +1186,17 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     return response;
 }
 
-Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const QString output,
+Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QString output,
                                                    int editorType,
                                                    const QString &source,
                                                    QTextCodec *codec)
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const QString id = params->id;
+    const Core::Id id(params->id);
     if (Perforce::Constants::debug)
-        qDebug() << "PerforcePlugin::showOutputInEditor" << title << id <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
+        qDebug() << "PerforcePlugin::showOutputInEditor" << title << id.name()
+                 <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output);
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),

@@ -36,6 +36,7 @@
 #include "texteditor_global.h"
 
 #include <coreplugin/icontext.h>
+#include <coreplugin/id.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
@@ -80,15 +81,15 @@ public slots:
 
 protected:
     const QPointer<BaseTextEditorWidget> &currentEditor() const;
-    QAction *registerNewAction(const QString &id, bool scriptable=false, const QString &title = QString());
-    QAction *registerNewAction(const QString &id, QObject *receiver, const char *slot, bool scriptable = false,
+    QAction *registerNewAction(const Core::Id &id, bool scriptable = false, const QString &title = QString());
+    QAction *registerNewAction(const Core::Id &id, QObject *receiver, const char *slot, bool scriptable = false,
                                const QString &title = QString());
 
     enum UpdateMode { ReadOnlyMode, WriteMode };
     UpdateMode updateMode() const;
 
     virtual void createActions();
-    virtual bool supportsAction(const QString &id) const;
+    virtual bool supportsAction(const Core::Id &id) const;
     virtual void updateActions(UpdateMode um);
 
 private slots:

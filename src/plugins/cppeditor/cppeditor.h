@@ -152,10 +152,10 @@ public:
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
-    QString id() const;
+    Core::Id id() const;
 
     bool isTemporary() const { return false; }
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 };
 
 class CPPEditorWidget : public TextEditor::BaseTextEditorWidget

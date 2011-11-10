@@ -68,9 +68,10 @@ QT_END_NAMESPACE
 namespace Core {
 class ActionManager;
 class ActionContainer;
+class Command;
 class ICore;
 class IEditor;
-class Command;
+class Id;
 class DesignMode;
 class EditorToolBar;
 }
@@ -151,7 +152,7 @@ private:
                            Core::ActionContainer *viewMenu,
                            int index,
                            const Core::Context &context,
-                           const QString &title, const QString &id);
+                           const QString &title, const Core::Id &id);
 
     Core::ActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
                                                    QActionGroup *actionGroup);
@@ -163,12 +164,12 @@ private:
                                          Core::ActionManager *am,
                                          Core::ActionContainer *medit,
                                          const QString &actionName,
-                                         const QString &name,
+                                         const Core::Id &id,
                                          int toolNumber,
                                          const QString &iconName = QString(),
                                          const QString &keySequence = QString());
     Core::Command *addToolAction(QAction *a, Core::ActionManager *am,
-                                 const Core::Context &context, const QString &name,
+                                 const Core::Context &context, const Core::Id &id,
                                  Core::ActionContainer *c1, const QString &keySequence = QString());
     QToolBar *createEditorToolBar() const;
 
@@ -204,7 +205,7 @@ private:
     DesignerContext *m_context;
     Core::Context m_contexts;
 
-    QStringList m_toolActionIds;
+    QList<Core::Id> m_toolActionIds;
     QWidget *m_modeWidget;
     EditorWidget *m_editorWidget;
     Core::DesignMode *m_designMode;

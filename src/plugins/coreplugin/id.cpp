@@ -37,7 +37,6 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QHash>
-#include <QtCore/QDebug>
 
 namespace Core {
 

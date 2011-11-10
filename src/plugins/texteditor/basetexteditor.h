@@ -132,7 +132,7 @@ public:
     ~BaseTextEditorWidget();
 
     static Core::IEditor *openEditorAt(const QString &fileName, int line, int column = 0,
-                                     const QString &editorId =  QString(),
+                                     const Core::Id &editorId =  Core::Id(),
                                      Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::IgnoreNavigationHistory,
                                      bool *newEditor = 0);
 

@@ -52,12 +52,6 @@ using namespace TextEditor;
     \sa IAssistProposal, IAssistProcessor
 */
 
-IAssistProvider::IAssistProvider()
-{}
-
-IAssistProvider::~IAssistProvider()
-{}
-
 /*!
     \fn bool TextEditor::IAssistProvider::supportsEditor(const QString &editorId) const
 
