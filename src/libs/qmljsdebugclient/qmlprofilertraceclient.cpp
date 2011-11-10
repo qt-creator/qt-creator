@@ -88,6 +88,11 @@ void QmlProfilerTraceClient::clearData()
     emit cleared();
 }
 
+bool QmlProfilerTraceClient::isEnabled() const
+{
+    return status() == Enabled;
+}
+
 bool QmlProfilerTraceClient::isRecording() const
 {
     return d->recording;

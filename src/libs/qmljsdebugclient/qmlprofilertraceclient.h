@@ -53,6 +53,7 @@ struct QMLJSDEBUGCLIENT_EXPORT Location
 class QMLJSDEBUGCLIENT_EXPORT QmlProfilerTraceClient : public QmlJsDebugClient::QDeclarativeDebugClient
 {
     Q_OBJECT
+    Q_PROPERTY(bool enabled READ isEnabled NOTIFY enabled)
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
     // don't hide by signal
@@ -84,6 +85,7 @@ public:
         MaximumMessage
     };
 
+    bool isEnabled() const;
     bool isRecording() const;
 
 public slots:
