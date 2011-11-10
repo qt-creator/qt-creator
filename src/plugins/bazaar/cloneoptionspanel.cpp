@@ -38,9 +38,9 @@
 namespace Bazaar {
 namespace Internal {
 
-CloneOptionsPanel::CloneOptionsPanel(QWidget *parent) :
-    QWidget(parent),
-    m_ui(new Ui::CloneOptionsPanel)
+CloneOptionsPanel::CloneOptionsPanel(QWidget *parent)
+    : QWidget(parent),
+      m_ui(new Ui::CloneOptionsPanel)
 {
     m_ui->setupUi(this);
 }

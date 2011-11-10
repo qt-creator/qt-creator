@@ -47,8 +47,8 @@
 using namespace Bazaar::Internal;
 
 CloneWizard::CloneWizard(QObject *parent)
-        :   VCSBase::BaseCheckoutWizard(parent),
-        m_icon(QIcon(QLatin1String(":/bazaar/images/bazaar.png")))
+    : VCSBase::BaseCheckoutWizard(parent),
+      m_icon(QIcon(QLatin1String(":/bazaar/images/bazaar.png")))
 {
     setId(QLatin1String(VCSBase::Constants::VCS_ID_BAZAAR));
 }

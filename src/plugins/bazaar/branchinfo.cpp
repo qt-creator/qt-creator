@@ -35,11 +35,11 @@
 namespace Bazaar {
 namespace Internal {
 
-BranchInfo::BranchInfo(const QString &branchLoc, bool isBound) :
-    branchLocation(branchLoc),
-    isBoundToBranch(isBound)
+BranchInfo::BranchInfo(const QString &branchLoc, bool isBound)
+    : branchLocation(branchLoc),
+      isBoundToBranch(isBound)
 {
 }
 
-} //namespace Internal
+} // namespace Internal
 } // namespace Bazaar

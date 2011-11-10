@@ -50,6 +50,7 @@ private:
     QRegExp m_changeset;
 };
 
-} //namespace Internal
-}// namespace Bazaar
+} // namespace Internal
+} // namespace Bazaar
+
 #endif // ANNOTATIONHIGHLIGHTER_H

@@ -77,7 +77,7 @@ private:
     friend class CloneWizard;
 };
 
-} //namespace Internal
+} // namespace Internal
 } // namespace Bazaar
 
 #endif // BAZAARCLIENT_H

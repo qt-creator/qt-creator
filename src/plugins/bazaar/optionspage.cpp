@@ -44,8 +44,8 @@
 using namespace Bazaar::Internal;
 using namespace Bazaar;
 
-OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
-    QWidget(parent)
+OptionsPageWidget::OptionsPageWidget(QWidget *parent)
+    : QWidget(parent)
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);

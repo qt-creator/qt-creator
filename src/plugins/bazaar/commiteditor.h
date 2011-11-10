@@ -67,4 +67,5 @@ private:
 
 }
 }
+
 #endif // COMMITEDITOR_H

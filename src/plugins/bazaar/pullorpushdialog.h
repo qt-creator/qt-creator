@@ -60,8 +60,10 @@ public:
     bool isRememberOptionEnabled() const;
     bool isOverwriteOptionEnabled() const;
     QString revision() const;
+
     // Pull-specific options
     bool isLocalOptionEnabled() const;
+
     // Push-specific options
     bool isUseExistingDirectoryOptionEnabled() const;
     bool isCreatePrefixOptionEnabled() const;

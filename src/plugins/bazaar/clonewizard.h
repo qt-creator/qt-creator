@@ -60,7 +60,7 @@ private:
     const QIcon m_icon;
 };
 
-} //namespace Internal
-} //namespace Bazaar
+} // namespace Internal
+} // namespace Bazaar
 
 #endif // CLONEWIZARD_H

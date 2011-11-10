@@ -60,8 +60,8 @@ BazaarSettings::BazaarSettings()
 
 bool BazaarSettings::sameUserId(const BazaarSettings &other) const
 {
-    return stringValue(userNameKey) == other.stringValue(userNameKey) &&
-            stringValue(userEmailKey) == other.stringValue(userEmailKey);
+    return stringValue(userNameKey) == other.stringValue(userNameKey)
+            && stringValue(userEmailKey) == other.stringValue(userEmailKey);
 }
 
 } // namespace Internal

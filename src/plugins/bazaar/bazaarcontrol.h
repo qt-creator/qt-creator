@@ -83,7 +83,7 @@ private:
     BazaarClient *m_bazaarClient;
 };
 
-} //namespace Internal
-} //namespace Bazaar
+} // namespace Internal
+} // namespace Bazaar
 
 #endif // BAZAARCONTROL_H

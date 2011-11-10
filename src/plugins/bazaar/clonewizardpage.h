@@ -42,16 +42,19 @@ class CloneOptionsPanel;
 class CloneWizardPage : public VCSBase::BaseCheckoutWizardPage
 {
     Q_OBJECT
+
 public:
     CloneWizardPage(QWidget *parent = 0);
     const CloneOptionsPanel *cloneOptionsPanel() const;
+
 protected:
     QString directoryFromRepository(const QString &repository) const;
+
 private:
     CloneOptionsPanel *m_optionsPanel;
 };
 
-} //namespace Internal
-} //namespace Bazaar
+} // namespace Internal
+} // namespace Bazaar
 
 #endif // CLONEWIZARDPAGE_H

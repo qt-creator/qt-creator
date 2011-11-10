@@ -36,10 +36,10 @@
 
 using namespace Bazaar::Internal;
 
-PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent) :
-    QDialog(parent),
-    m_mode(mode),
-    m_ui(new Ui::PullOrPushDialog)
+PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
+    : QDialog(parent),
+      m_mode(mode),
+      m_ui(new Ui::PullOrPushDialog)
 {
     m_ui->setupUi(this);
     m_ui->localPathChooser->setExpectedKind(Utils::PathChooser::Directory);

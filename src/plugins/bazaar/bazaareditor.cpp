@@ -48,7 +48,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-# define BZR_CHANGE_PATTERN "[0-9]+"
+#define BZR_CHANGE_PATTERN "[0-9]+"
 
 using namespace Bazaar::Internal;
 using namespace Bazaar;

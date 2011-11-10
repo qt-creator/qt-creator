@@ -44,7 +44,7 @@
 using namespace Bazaar::Internal;
 
 BazaarControl::BazaarControl(BazaarClient *client)
-    :   m_bazaarClient(client)
+    : m_bazaarClient(client)
 {
 }
 
@@ -120,8 +120,8 @@ bool BazaarControl::vcsMove(const QString &from, const QString &to)
     const QFileInfo fromInfo(from);
     const QFileInfo toInfo(to);
     return m_bazaarClient->synchronousMove(fromInfo.absolutePath(),
-                                         fromInfo.absoluteFilePath(),
-                                         toInfo.absoluteFilePath());
+                                           fromInfo.absoluteFilePath(),
+                                           toInfo.absoluteFilePath());
 }
 
 bool BazaarControl::vcsCreateRepository(const QString &directory)

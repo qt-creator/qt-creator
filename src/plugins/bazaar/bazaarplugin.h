@@ -68,7 +68,7 @@ class VCSBaseSubmitEditor;
 }
 
 namespace Locator {
-    class CommandLocator;
+class CommandLocator;
 }
 
 namespace Bazaar {
@@ -166,7 +166,7 @@ private:
     QString m_submitRepository;
 };
 
-} //namespace Internal
-} //namespace Bazaar
+} // namespace Internal
+} // namespace Bazaar
 
 #endif // BAZAARPLUGIN_H

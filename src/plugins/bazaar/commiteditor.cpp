@@ -43,8 +43,8 @@
 using namespace Bazaar::Internal;
 
 CommitEditor::CommitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters, QWidget *parent)
-        : VCSBase::VCSBaseSubmitEditor(parameters, new BazaarCommitWidget(parent)),
-        m_fileModel(0)
+    : VCSBase::VCSBaseSubmitEditor(parameters, new BazaarCommitWidget(parent)),
+      m_fileModel(0)
 {
     setDisplayName(tr("Commit Editor"));
 }
