@@ -16,7 +16,7 @@ HEADERS += \
     $$PWD/qmlprofilertraceclient.h \
     $$PWD/qpacketprotocol.h \
     $$PWD/qv8profilerclient.h \
-    qmljsdebugclientconstants.h
+    $$PWD/qmljsdebugclientconstants.h
 
 SOURCES += \
     $$PWD/qdeclarativedebugclient.cpp \
