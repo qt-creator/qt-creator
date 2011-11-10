@@ -43,8 +43,19 @@
   </valuemap>
  </data>
  <data>
+  <variable>QtVersion.4</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">1</value>
+   <value type="QString" key="Name">Harmattan Target (Qt SDK)</value>
+   <value type="QString" key="QMakePath">~/QtSDK/Madde/targets/harmattan_10.2011.34-1/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
+   <value type="QString" key="autodetectionSource">SDK.MeeGo_1.2_Harmattan_API</value>
+   <value type="bool" key="isAutodetected">true</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>QtVersion.Count</variable>
-  <value type="int">4</value>
+  <value type="int">5</value>
  </data>
  <data>
   <variable>Version</variable>
