@@ -561,11 +561,11 @@ void BazaarPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusIt
     deleteCommitLog();
 
     // Open commit log
-    QString m_changeLogPattern = QDir::tempPath();
-    if (!m_changeLogPattern.endsWith(QLatin1Char('/')))
-        m_changeLogPattern += QLatin1Char('/');
-    m_changeLogPattern += QLatin1String("qtcreator-bzr-XXXXXX.msg");
-    m_changeLog = new QTemporaryFile(m_changeLogPattern, this);
+    QString changeLogPattern = QDir::tempPath();
+    if (!changeLogPattern.endsWith(QLatin1Char('/')))
+        changeLogPattern += QLatin1Char('/');
+    changeLogPattern += QLatin1String("qtcreator-bzr-XXXXXX.msg");
+    m_changeLog = new QTemporaryFile(changeLogPattern, this);
     if (!m_changeLog->open()) {
         outputWindow->appendError(tr("Unable to generate a temporary file for the commit editor."));
         return;
