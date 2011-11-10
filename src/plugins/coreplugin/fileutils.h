@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef FILEUTILS_H
-#define FILEUTILS_H
+#ifndef CORE_FILEUTILS_H
+#define CORE_FILEUTILS_H
 
 #include "coreplugin/core_global.h"
 
@@ -53,4 +53,4 @@ struct CORE_EXPORT FileUtils
 
 } // namespace Core
 
-#endif // FILEUTILS_H
+#endif // CORE_FILEUTILS_H
