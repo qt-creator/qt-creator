@@ -192,18 +192,21 @@ void QmlProfilerTool::showContextMenu(const QPoint &position)
         copyTableAction = menu.addAction(tr("Copy Table"));
     }
 
+    if (sender() == d->m_traceWindow || sender() == d->m_eventsView) {
+        menu.addSeparator();
+        getLocalStatsAction = menu.addAction(tr("Limit Events Pane to Current Range"));
+        if (!d->m_traceWindow->hasValidSelection())
+            getLocalStatsAction->setEnabled(false);
+        getGlobalStatsAction = menu.addAction(tr("Reset Events Pane"));
+        if (d->m_eventsView->hasGlobalStats())
+            getGlobalStatsAction->setEnabled(false);
+    }
+
     if (traceView) {
         if (traceView->getEventList()->count() > 0) {
             menu.addSeparator();
             viewAllAction = menu.addAction(tr("Reset Zoom"));
         }
-    }
-
-    if (sender() == d->m_traceWindow || sender() == d->m_eventsView) {
-        menu.addSeparator();
-        if (d->m_traceWindow->hasValidSelection())
-            getLocalStatsAction = menu.addAction(tr("Get Stats For Current Range"));
-        getGlobalStatsAction = menu.addAction(tr("Get Global Statistics"));
     }
 
     QAction *selectedAction = menu.exec(position);

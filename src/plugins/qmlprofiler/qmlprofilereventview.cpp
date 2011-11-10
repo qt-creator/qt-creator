@@ -117,6 +117,8 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QmlJsDebugClient::QmlProfilerEv
         connect(model,SIGNAL(dataReady()),m_eventChildren,SLOT(clear()));
         connect(model,SIGNAL(dataReady()),m_eventParents,SLOT(clear()));
     }
+
+    m_globalStatsEnabled = true;
 }
 
 QmlProfilerEventsWidget::~QmlProfilerEventsWidget()
@@ -143,6 +145,7 @@ void QmlProfilerEventsWidget::getStatisticsInRange(qint64 rangeStart, qint64 ran
 {
     clear();
     m_eventTree->getStatisticsInRange(rangeStart, rangeEnd);
+    m_globalStatsEnabled = m_eventTree->isRangeGlobal(rangeStart, rangeEnd);
 }
 
 QModelIndex QmlProfilerEventsWidget::selectedItem() const
@@ -176,6 +179,11 @@ void QmlProfilerEventsWidget::updateSelectedEvent(int eventId) const
 {
     if (m_eventTree->selectedEventId() != eventId)
         m_eventTree->selectEvent(eventId);
+}
+
+bool QmlProfilerEventsWidget::hasGlobalStats() const
+{
+    return m_globalStatsEnabled;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -553,6 +561,11 @@ void QmlProfilerEventsMainView::getStatisticsInRange(qint64 rangeStart, qint64 r
     buildModel();
 }
 
+bool QmlProfilerEventsMainView::isRangeGlobal(qint64 rangeStart, qint64 rangeEnd) const
+{
+    return d->m_eventStatistics->traceStartTime() == rangeStart && d->m_eventStatistics->traceEndTime() == rangeEnd;
+}
+
 int QmlProfilerEventsMainView::selectedEventId() const
 {
     QModelIndex index = selectedItem();
@@ -723,6 +736,7 @@ void QmlProfilerEventsParentsAndChildrenView::displayEvent(int eventId)
 
     updateHeader();
     resizeColumnToContents(0);
+    setSortingEnabled(true);
 }
 
 void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *eventList)

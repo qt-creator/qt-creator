@@ -70,6 +70,8 @@ public:
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
 
+    bool hasGlobalStats() const;
+
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber);
     void contextMenuRequested(const QPoint &position);
@@ -85,6 +87,8 @@ private:
     QmlProfilerEventsMainView *m_eventTree;
     QmlProfilerEventsParentsAndChildrenView *m_eventChildren;
     QmlProfilerEventsParentsAndChildrenView *m_eventParents;
+
+    bool m_globalStatsEnabled;
 };
 
 class QmlProfilerEventsMainView : public QTreeView
@@ -134,6 +138,7 @@ public:
     static QString nameForType(int typeNumber);
 
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
+    bool isRangeGlobal(qint64 rangeStart, qint64 rangeEnd) const;
     int selectedEventId() const;
 
 signals:
