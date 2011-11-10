@@ -3690,6 +3690,8 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
         line = line.trimmed();
+        while (line.startsWith(':'))
+            line.remove(0, 1);
         if (line.startsWith("function")) {
             //qDebug() << "IGNORING FUNCTION" << line;
             inFunction = true;
@@ -3747,6 +3749,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     ExCommand cmd;
     const QString arg0 = line.section(' ', 0, 0);
     cmd.cmd = arg0;
+    while (cmd.cmd.startsWith(QLatin1Char(':')))
+        cmd.cmd.remove(0, 1);
     cmd.args = line.mid(arg0.size() + 1).trimmed();
     cmd.range = Range(beginPos, endPos, RangeLineMode);
     cmd.hasBang = arg0.endsWith('!');
