@@ -344,27 +344,29 @@ void QmlProfilerEventList::addV8Event(int depth, const QString &function, const 
 
 void QmlProfilerEventList::QmlProfilerEventListPrivate::collectV8Statistics()
 {
-    double totalTimes = 0;
-    double selfTimes = 0;
-    foreach (QV8EventData *v8event, m_v8EventList) {
-        totalTimes += v8event->totalTime;
-        selfTimes += v8event->selfTime;
+    if (!m_v8EventList.isEmpty()) {
+        double totalTimes = 0;
+        double selfTimes = 0;
+        foreach (QV8EventData *v8event, m_v8EventList) {
+            totalTimes += v8event->totalTime;
+            selfTimes += v8event->selfTime;
+        }
+
+        // prevent divisions by 0
+        if (totalTimes == 0)
+            totalTimes = 1;
+        if (selfTimes == 0)
+            selfTimes = 1;
+
+        foreach (QV8EventData *v8event, m_v8EventList) {
+            v8event->totalPercent = v8event->totalTime * 100.0 / totalTimes;
+            v8event->selfPercent = v8event->selfTime * 100.0 / selfTimes;
+        }
+
+        int index = 0;
+        foreach (QV8EventData *v8event, m_v8EventList)
+            v8event->eventId = index++;
     }
-
-    // prevent divisions by 0
-    if (totalTimes == 0)
-        totalTimes = 1;
-    if (selfTimes == 0)
-        selfTimes = 1;
-
-    foreach (QV8EventData *v8event, m_v8EventList) {
-        v8event->totalPercent = v8event->totalTime * 100.0 / totalTimes;
-        v8event->selfPercent = v8event->selfTime * 100.0 / selfTimes;
-    }
-
-    int index = 0;
-    foreach (QV8EventData *v8event, m_v8EventList)
-        v8event->eventId = index++;
 }
 
 void QmlProfilerEventList::setTraceEndTime( qint64 time )
@@ -637,12 +639,15 @@ void QmlProfilerEventList::computeNestingDepth()
 
 void QmlProfilerEventList::postProcess()
 {
-    sortStartTimes();
-    sortEndTimes();
-    computeLevels();
-    linkEndsToStarts();
-    prepareForDisplay();
-    compileStatistics(traceStartTime(), traceEndTime());
+    if (count() != 0) {
+        sortStartTimes();
+        sortEndTimes();
+        computeLevels();
+        linkEndsToStarts();
+        prepareForDisplay();
+        compileStatistics(traceStartTime(), traceEndTime());
+    }
+    // data is ready even when there's no data
     emit dataReady();
 }
 
