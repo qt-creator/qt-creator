@@ -321,6 +321,17 @@ bool ExCommand::matches(const QString &min, const QString &full) const
     return cmd.startsWith(min) && full.startsWith(cmd);
 }
 
+void ExCommand::setContentsFromLine(const QString &line)
+{
+    cmd = line.section(' ', 0, 0);
+    args = line.mid(cmd.size() + 1).trimmed();
+    while (cmd.startsWith(QLatin1Char(':')))
+        cmd.remove(0, 1);
+    hasBang = cmd.endsWith('!');
+    if (hasBang)
+        cmd.chop(1);
+}
+
 QDebug operator<<(QDebug ts, const ExCommand &cmd)
 {
     return ts << cmd.cmd << ' ' << cmd.args << ' ' << cmd.range;
@@ -3690,8 +3701,6 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
         line = line.trimmed();
-        while (line.startsWith(':'))
-            line.remove(0, 1);
         if (line.startsWith("function")) {
             //qDebug() << "IGNORING FUNCTION" << line;
             inFunction = true;
@@ -3704,7 +3713,9 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
             // A comment.
         } else if (!line.isEmpty() && !inFunction) {
             //qDebug() << "EXECUTING: " << line;
-            handleExCommandHelper(QString::fromUtf8(line));
+            ExCommand cmd;
+            cmd.setContentsFromLine(QString::fromLocal8Bit(line));
+            handleExCommandHelper(cmd);
         }
     }
     file.close();
@@ -3747,15 +3758,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     const int beginPos = firstPositionInLine(beginLine);
     const int endPos = lastPositionInLine(endLine);
     ExCommand cmd;
-    const QString arg0 = line.section(' ', 0, 0);
-    cmd.cmd = arg0;
-    while (cmd.cmd.startsWith(QLatin1Char(':')))
-        cmd.cmd.remove(0, 1);
-    cmd.args = line.mid(arg0.size() + 1).trimmed();
+    cmd.setContentsFromLine(line);
     cmd.range = Range(beginPos, endPos, RangeLineMode);
-    cmd.hasBang = arg0.endsWith('!');
-    if (cmd.hasBang)
-        cmd.cmd.chop(1);
     if (beginLine != -1)
         cmd.count = beginLine;
     //qDebug() << "CMD: " << cmd;

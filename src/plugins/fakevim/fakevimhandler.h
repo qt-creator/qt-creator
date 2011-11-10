@@ -68,6 +68,7 @@ struct ExCommand
         const Range &range = Range());
 
     bool matches(const QString &min, const QString &full) const;
+    void setContentsFromLine(const QString &line);
 
     QString cmd;
     bool hasBang;
