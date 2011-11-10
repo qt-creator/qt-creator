@@ -219,10 +219,8 @@ void ExamplesListModel::readNewsItems(const QString &examplesPath, const QString
         if (offsetPath.startsWith(Core::ICore::instance()->resourcePath())) {
             // Try to get dir from first Qt Version, based on the Qt source directory
             // at first, since examplesPath / demosPath points at the build directory
-            QString sourceBasedExamplesPath = sourcePath + QLatin1String("/examples");
-            QString sourceBasedDemosPath = sourcePath + QLatin1String("/demos");
-            examplesDir = sourceBasedExamplesPath;
-            demosDir = sourceBasedDemosPath;
+            examplesDir = sourcePath + QLatin1String("/examples");
+            demosDir = sourcePath + QLatin1String("/demos");
             // SDK case, folders might be called sth else (e.g. 'Examples' with uppercase E)
             // but examplesPath / demosPath is correct
             if (!examplesDir.exists() || !demosDir.exists()) {
