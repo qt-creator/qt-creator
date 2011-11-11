@@ -63,15 +63,17 @@ public:
     AbstractRemoteLinuxDebugSupportPrivate(RemoteLinuxRunConfiguration *runConfig,
             DebuggerEngine *engine)
         : engine(engine), deviceConfig(runConfig->deviceConfig()),
-          debuggingType(runConfig->debuggingType()), state(Inactive),
+          qmlDebugging(runConfig->useQmlDebugger()),
+          cppDebugging(runConfig->useCppDebugger()),
+          state(Inactive),
           gdbServerPort(-1), qmlPort(-1)
     {
     }
 
     const QPointer<Debugger::DebuggerEngine> engine;
     const LinuxDeviceConfiguration::ConstPtr deviceConfig;
-    const RemoteLinuxRunConfiguration::DebuggingType debuggingType;
-
+    bool qmlDebugging;
+    bool cppDebugging;
     QByteArray gdbserverOutput;
     State state;
     int gdbServerPort;
@@ -94,13 +96,11 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
 {
     DebuggerStartParameters params;
     const LinuxDeviceConfiguration::ConstPtr &devConf = runConfig->deviceConfig();
-    const RemoteLinuxRunConfiguration::DebuggingType debuggingType
-        = runConfig->debuggingType();
-    if (debuggingType != RemoteLinuxRunConfiguration::DebugCppOnly) {
+    if (runConfig->useQmlDebugger()) {
         params.qmlServerAddress = runConfig->deviceConfig()->sshParameters().host;
         params.qmlServerPort = -1;
     }
-    if (debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly) {
+    if (runConfig->useCppDebugger()) {
         params.processArgs = runConfig->arguments();
         if (runConfig->activeQt4BuildConfiguration()->qtVersion())
             params.sysroot = runConfig->activeQt4BuildConfiguration()->qtVersion()->systemRoot();
@@ -183,14 +183,10 @@ void AbstractRemoteLinuxDebugSupport::startExecution()
 
     QTC_ASSERT(d->state == StartingRunner, return);
 
-    if (d->debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly) {
-        if (!setPort(d->gdbServerPort))
+    if (d->cppDebugging && !setPort(d->gdbServerPort))
+        return;
+    if (d->qmlDebugging && !setPort(d->qmlPort))
             return;
-    }
-    if (d->debuggingType != RemoteLinuxRunConfiguration::DebugCppOnly) {
-        if (!setPort(d->qmlPort))
-            return;
-    }
 
     d->state = StartingRemoteProcess;
     d->gdbserverOutput.clear();
@@ -198,18 +194,18 @@ void AbstractRemoteLinuxDebugSupport::startExecution()
         SLOT(handleRemoteErrorOutput(QByteArray)));
     connect(runner(), SIGNAL(remoteOutput(QByteArray)), this,
         SLOT(handleRemoteOutput(QByteArray)));
-    if (d->debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly) {
+    if (d->qmlDebugging && !d->cppDebugging) {
         connect(runner(), SIGNAL(remoteProcessStarted()),
             SLOT(handleRemoteProcessStarted()));
     }
     const QString &remoteExe = runner()->remoteExecutable();
     QString args = runner()->arguments();
-    if (d->debuggingType != RemoteLinuxRunConfiguration::DebugCppOnly) {
+    if (d->qmlDebugging) {
         args += QString(QLatin1String(" -qmljsdebugger=port:%1,block"))
             .arg(d->qmlPort);
     }
 
-    const QString remoteCommandLine = d->debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly
+    const QString remoteCommandLine = (d->qmlDebugging && !d->cppDebugging)
         ? QString::fromLocal8Bit("%1 %2 %3").arg(runner()->commandPrefix()).arg(remoteExe).arg(args)
         : QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4").arg(runner()->commandPrefix())
               .arg(d->gdbServerPort).arg(remoteExe).arg(args);
@@ -225,13 +221,13 @@ void AbstractRemoteLinuxDebugSupport::handleRemoteProcessFinished(qint64 exitCod
 
     if (d->state == Debugging) {
         // The QML engine does not realize on its own that the application has finished.
-        if (d->debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly)
+        if (d->qmlDebugging && !d->cppDebugging)
             d->engine->quitDebugger();
         else if (exitCode != 0)
             d->engine->notifyInferiorIll();
 
     } else {
-        const QString errorMsg = d->debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly
+        const QString errorMsg = (d->qmlDebugging && !d->cppDebugging)
             ? tr("Remote application failed with exit code %1.").arg(exitCode)
             : tr("The gdbserver process closed unexpectedly.");
         d->engine->handleRemoteSetupFailed(errorMsg);
@@ -259,8 +255,7 @@ void AbstractRemoteLinuxDebugSupport::handleRemoteErrorOutput(const QByteArray &
         return;
 
     showMessage(QString::fromUtf8(output), AppOutput);
-    if (d->state == StartingRemoteProcess
-            && d->debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly) {
+    if (d->state == StartingRemoteProcess && d->cppDebugging) {
         d->gdbserverOutput += output;
         if (d->gdbserverOutput.contains("Listening on port")) {
             handleAdapterSetupDone();
@@ -288,7 +283,7 @@ void AbstractRemoteLinuxDebugSupport::handleAdapterSetupDone()
 
 void AbstractRemoteLinuxDebugSupport::handleRemoteProcessStarted()
 {
-    Q_ASSERT(d->debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly);
+    Q_ASSERT(d->qmlDebugging && !d->cppDebugging);
     QTC_ASSERT(d->state == StartingRemoteProcess, return);
 
     handleAdapterSetupDone();

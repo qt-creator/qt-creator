@@ -44,7 +44,6 @@
 #include <qt4projectmanager/qt4target.h>
 #include <utils/detailswidget.h>
 
-#include <QtGui/QButtonGroup>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtGui/QCheckBox>
@@ -56,7 +55,6 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
-#include <QtGui/QRadioButton>
 
 using namespace Qt4ProjectManager;
 
@@ -91,9 +89,8 @@ public:
     QLineEdit alternateCommand;
     QLabel devConfLabel;
     QLabel debuggingLanguagesLabel;
-    QRadioButton debugCppOnlyButton;
-    QRadioButton debugQmlOnlyButton;
-    QRadioButton debugCppAndQmlButton;
+    QCheckBox debugCppButton;
+    QCheckBox debugQmlButton;
     QPushButton fetchEnvButton;
     QComboBox baseEnvironmentComboBox;
     ProjectExplorer::EnvironmentWidget *environmentWidget;
@@ -150,9 +147,8 @@ void RemoteLinuxRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
 void RemoteLinuxRunConfigurationWidget::suppressQmlDebuggingOptions()
 {
     d->debuggingLanguagesLabel.hide();
-    d->debugCppOnlyButton.hide();
-    d->debugQmlOnlyButton.hide();
-    d->debugCppAndQmlButton.hide();
+    d->debugCppButton.hide();
+    d->debugQmlButton.hide();
 }
 
 void RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
@@ -204,36 +200,23 @@ void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayou
     d->genericWidgetsLayout.addRow(tr("Working directory:"), &d->workingDirLineEdit);
 
     QHBoxLayout * const debugButtonsLayout = new QHBoxLayout;
-    d->debugCppOnlyButton.setText(tr("C++ only"));
-    d->debugQmlOnlyButton.setText(tr("QML only"));
-    d->debugCppAndQmlButton.setText(tr("C++ and QML"));
+    d->debugCppButton.setText(tr("C++"));
+    d->debugQmlButton.setText(tr("QML"));
     d->debuggingLanguagesLabel.setText(tr("Debugging type:"));
-    QButtonGroup * const buttonGroup = new QButtonGroup;
-    buttonGroup->addButton(&d->debugCppOnlyButton);
-    buttonGroup->addButton(&d->debugQmlOnlyButton);
-    buttonGroup->addButton(&d->debugCppAndQmlButton);
-    debugButtonsLayout->addWidget(&d->debugCppOnlyButton);
-    debugButtonsLayout->addWidget(&d->debugQmlOnlyButton);
-    debugButtonsLayout->addWidget(&d->debugCppAndQmlButton);
+    debugButtonsLayout->addWidget(&d->debugCppButton);
+    debugButtonsLayout->addWidget(&d->debugQmlButton);
     debugButtonsLayout->addStretch(1);
     d->genericWidgetsLayout.addRow(&d->debuggingLanguagesLabel, debugButtonsLayout);
-    if (d->runConfiguration->useCppDebugger()) {
-        if (d->runConfiguration->useQmlDebugger())
-            d->debugCppAndQmlButton.setChecked(true);
-        else
-            d->debugCppOnlyButton.setChecked(true);
-    } else {
-        d->debugQmlOnlyButton.setChecked(true);
-    }
+    d->debugCppButton.setChecked(d->runConfiguration->useCppDebugger());
+    d->debugQmlButton.setChecked(d->runConfiguration->useQmlDebugger());
 
     connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
         SLOT(showDeviceConfigurationsDialog(QString)));
     connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
         SLOT(showDeviceConfigurationsDialog(QString)));
     connect(&d->argsLineEdit, SIGNAL(textEdited(QString)), SLOT(argumentsEdited(QString)));
-    connect(&d->debugCppOnlyButton, SIGNAL(toggled(bool)), SLOT(handleDebuggingTypeChanged()));
-    connect(&d->debugQmlOnlyButton, SIGNAL(toggled(bool)), SLOT(handleDebuggingTypeChanged()));
-    connect(&d->debugCppAndQmlButton, SIGNAL(toggled(bool)), SLOT(handleDebuggingTypeChanged()));
+    connect(&d->debugCppButton, SIGNAL(toggled(bool)), SLOT(handleDebuggingTypeChanged()));
+    connect(&d->debugQmlButton, SIGNAL(toggled(bool)), SLOT(handleDebuggingTypeChanged()));
     connect(d->runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(d->runConfiguration, SIGNAL(deploySpecsChanged()), SLOT(handleDeploySpecsChanged()));
@@ -402,10 +385,8 @@ void RemoteLinuxRunConfigurationWidget::userEnvironmentChangesChanged(const QLis
 
 void RemoteLinuxRunConfigurationWidget::handleDebuggingTypeChanged()
 {
-    d->runConfiguration->setUseCppDebugger(d->debugCppOnlyButton.isChecked()
-        || d->debugCppAndQmlButton.isChecked());
-    d->runConfiguration->setUseQmlDebugger(d->debugQmlOnlyButton.isChecked()
-        || d->debugCppAndQmlButton.isChecked());
+    d->runConfiguration->setUseCppDebugger(d->debugCppButton.isChecked());
+    d->runConfiguration->setUseQmlDebugger(d->debugQmlButton.isChecked());
 }
 
 } // namespace RemoteLinux

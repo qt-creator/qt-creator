@@ -86,7 +86,6 @@ public:
     virtual QString environmentPreparationCommand() const;
     virtual QString commandPrefix() const;
     virtual PortList freePorts() const;
-    virtual DebuggingType debuggingType() const;
 
     QString localExecutableFilePath() const;
     QString defaultRemoteExecutableFilePath() const;

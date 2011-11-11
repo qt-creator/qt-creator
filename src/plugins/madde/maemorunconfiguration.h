@@ -53,7 +53,6 @@ public:
     QString environmentPreparationCommand() const;
     QString commandPrefix() const;
     RemoteLinux::PortList freePorts() const;
-    DebuggingType debuggingType() const;
 
     Internal::MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
     bool hasEnoughFreePorts(const QString &mode) const;

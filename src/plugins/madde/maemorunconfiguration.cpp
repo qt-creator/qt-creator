@@ -78,6 +78,9 @@ void MaemoRunConfiguration::init()
     connect(m_remoteMounts, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this,
         SLOT(handleRemoteMountsChanged()));
     connect(m_remoteMounts, SIGNAL(modelReset()), SLOT(handleRemoteMountsChanged()));
+
+    if (!maemoTarget()->allowsQmlDebugging())
+        setUseQmlDebugger(false);
 }
 
 bool MaemoRunConfiguration::isEnabled() const
@@ -134,13 +137,6 @@ PortList MaemoRunConfiguration::freePorts() const
     return bc && deployConfig()
             ? MaemoGlobal::freePorts(deployConfig()->deviceConfiguration(), bc->qtVersion())
         : PortList();
-}
-
-RemoteLinuxRunConfiguration::DebuggingType MaemoRunConfiguration::debuggingType() const
-{
-    if (!maemoTarget()->allowsQmlDebugging())
-        return DebugCppOnly;
-    return RemoteLinuxRunConfiguration::debuggingType();
 }
 
 QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
