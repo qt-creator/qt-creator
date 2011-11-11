@@ -69,7 +69,6 @@ private slots:
                  const QString &file, int line);
 
     void engineFinished();
-    void runControlFinished();
 
 private:
     class Private;

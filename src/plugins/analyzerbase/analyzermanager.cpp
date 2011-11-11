@@ -509,8 +509,6 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode)
                 buildType = buildConfig->buildType();
         }
     }
-    if (!runConfig || !runConfig->isEnabled())
-        return;
 
     IAnalyzerTool::ToolMode toolMode = tool->toolMode();
 
@@ -558,9 +556,7 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode)
             return;
     }
 
-    m_isRunning = true;
     pe->runProject(pro, tool->id());
-    updateRunActions();
 }
 
 void AnalyzerManagerPrivate::startTool()
@@ -703,13 +699,11 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
 void AnalyzerManagerPrivate::handleToolStarted()
 {
     m_isRunning = true; // FIXME: Make less global.
-    updateRunActions();
 }
 
 void AnalyzerManagerPrivate::handleToolFinished()
 {
     m_isRunning = false;
-    updateRunActions();
 }
 
 void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
@@ -759,7 +753,7 @@ void AnalyzerManagerPrivate::updateRunActions()
     m_toolBox->setEnabled(!m_isRunning);
     m_stopAction->setEnabled(m_isRunning);
     foreach (QAction *action, m_actions)
-        action->setEnabled(!m_isRunning);
+        action->setEnabled(startEnabled);
 }
 
 void AnalyzerManagerPrivate::onCurrentProjectChanged(Project *project)
