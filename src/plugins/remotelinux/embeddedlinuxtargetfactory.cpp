@@ -82,9 +82,7 @@ QSet<QString> EmbeddedLinuxTargetFactory::targetFeatures(const QString & /*id*/)
 
 QStringList EmbeddedLinuxTargetFactory::supportedTargetIds(ProjectExplorer::Project *project) const
 {
-    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(project))
-        return QStringList();
-
+    Q_UNUSED(project);
     if (QtSupport::QtVersionManager::instance()->supportsTargetId(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID))
         return QStringList() << QLatin1String(RemoteLinux::Constants::EMBEDDED_LINUX_TARGET_ID);
     return QStringList();
