@@ -219,8 +219,6 @@ public:
     // list of dock widgets to prevent memory leak
     typedef QWeakPointer<QDockWidget> DockPtr;
     QList<DockPtr> m_dockWidgets;
-
-    bool m_restartOnStop;
 };
 
 AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -235,8 +233,7 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     m_menu(0),
     m_toolBox(new QComboBox),
     m_controlsStackWidget(new QStackedWidget),
-    m_statusLabel(new Utils::StatusLabel),
-    m_restartOnStop(false)
+    m_statusLabel(new Utils::StatusLabel)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
     connect(m_toolBox, SIGNAL(activated(int)), SLOT(selectToolboxAction(int)));
@@ -713,11 +710,6 @@ void AnalyzerManagerPrivate::handleToolFinished()
 {
     m_isRunning = false;
     updateRunActions();
-
-    if (m_restartOnStop) {
-        m_currentTool->startTool(m_currentMode);
-        m_restartOnStop = false;
-    }
 }
 
 void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
