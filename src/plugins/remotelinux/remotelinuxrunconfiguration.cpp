@@ -70,7 +70,7 @@ class RemoteLinuxRunConfigurationPrivate {
 public:
     RemoteLinuxRunConfigurationPrivate(const QString &proFilePath, const Qt4BaseTarget *target)
         : proFilePath(proFilePath),
-          baseEnvironmentType(RemoteLinuxRunConfiguration::SystemBaseEnvironment),
+          baseEnvironmentType(RemoteLinuxRunConfiguration::RemoteBaseEnvironment),
           validParse(target->qt4Project()->validParse(proFilePath)),
           parseInProgress(target->qt4Project()->parseInProgress(proFilePath)),
           useAlternateRemoteExecutable(false)
@@ -80,7 +80,7 @@ public:
     RemoteLinuxRunConfigurationPrivate(const RemoteLinuxRunConfigurationPrivate *other)
         : proFilePath(other->proFilePath), gdbPath(other->gdbPath), arguments(other->arguments),
           baseEnvironmentType(other->baseEnvironmentType),
-          systemEnvironment(other->systemEnvironment),
+          remoteEnvironment(other->remoteEnvironment),
           userEnvironmentChanges(other->userEnvironmentChanges),
           validParse(other->validParse),
           parseInProgress(other->parseInProgress),
@@ -94,7 +94,7 @@ public:
     QString gdbPath;
     QString arguments;
     RemoteLinuxRunConfiguration::BaseEnvironmentType baseEnvironmentType;
-    Utils::Environment systemEnvironment;
+    Utils::Environment remoteEnvironment;
     QList<Utils::EnvironmentItem> userEnvironmentChanges;
     bool validParse;
     bool parseInProgress;
@@ -235,7 +235,7 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
         Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(UserEnvironmentChangesKey))
         .toStringList());
     d->baseEnvironmentType = static_cast<BaseEnvironmentType>(map.value(QLatin1String(BaseEnvironmentBaseKey),
-        SystemBaseEnvironment).toInt());
+        RemoteBaseEnvironment).toInt());
     d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();
     d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
     d->workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
@@ -415,7 +415,7 @@ QString RemoteLinuxRunConfiguration::baseEnvironmentText() const
 {
     if (d->baseEnvironmentType == CleanBaseEnvironment)
         return tr("Clean Environment");
-    else  if (d->baseEnvironmentType == SystemBaseEnvironment)
+    else  if (d->baseEnvironmentType == RemoteBaseEnvironment)
         return tr("System Environment");
     return QString();
 }
@@ -442,7 +442,7 @@ Utils::Environment RemoteLinuxRunConfiguration::environment() const
 
 Utils::Environment RemoteLinuxRunConfiguration::baseEnvironment() const
 {
-    return (d->baseEnvironmentType == SystemBaseEnvironment ? systemEnvironment()
+    return (d->baseEnvironmentType == RemoteBaseEnvironment ? remoteEnvironment()
         : Utils::Environment());
 }
 
@@ -469,16 +469,16 @@ void RemoteLinuxRunConfiguration::setUserEnvironmentChanges(
     }
 }
 
-Utils::Environment RemoteLinuxRunConfiguration::systemEnvironment() const
+Utils::Environment RemoteLinuxRunConfiguration::remoteEnvironment() const
 {
-    return d->systemEnvironment;
+    return d->remoteEnvironment;
 }
 
-void RemoteLinuxRunConfiguration::setSystemEnvironment(const Utils::Environment &environment)
+void RemoteLinuxRunConfiguration::setRemoteEnvironment(const Utils::Environment &environment)
 {
-    if (d->systemEnvironment.size() == 0 || d->systemEnvironment != environment) {
-        d->systemEnvironment = environment;
-        emit systemEnvironmentChanged();
+    if (d->remoteEnvironment.size() == 0 || d->remoteEnvironment != environment) {
+        d->remoteEnvironment = environment;
+        emit remoteEnvironmentChanged();
     }
 }
 

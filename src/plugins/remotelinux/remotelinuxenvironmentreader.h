@@ -57,7 +57,7 @@ public:
     void start(const QString &environmentSetupCommand);
     void stop();
 
-    Utils::Environment deviceEnvironment() const { return m_env; }
+    Utils::Environment remoteEnvironment() const { return m_env; }
 
 signals:
     void finished();

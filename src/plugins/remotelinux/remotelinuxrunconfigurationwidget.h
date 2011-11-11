@@ -75,7 +75,7 @@ private slots:
     void userChangesEdited();
     void baseEnvironmentSelected(int index);
     void baseEnvironmentChanged();
-    void systemEnvironmentChanged();
+    void remoteEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &userChanges);
     void handleDebuggingTypeChanged();
     void handleDeploySpecsChanged();

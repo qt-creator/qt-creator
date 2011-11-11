@@ -65,7 +65,7 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::R
 public:
     enum BaseEnvironmentType {
         CleanBaseEnvironment = 0,
-        SystemBaseEnvironment = 1
+        RemoteBaseEnvironment = 1
     };
 
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
@@ -109,7 +109,7 @@ public:
     Utils::Environment environment() const;
     Utils::Environment baseEnvironment() const;
     QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
-    Utils::Environment systemEnvironment() const;
+    Utils::Environment remoteEnvironment() const;
 
     int portsUsedByDebuggers() const;
 
@@ -122,7 +122,7 @@ signals:
     void deploySpecsChanged();
     void targetInformationChanged() const;
     void baseEnvironmentChanged();
-    void systemEnvironmentChanged();
+    void remoteEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
 
 protected:
@@ -145,7 +145,7 @@ private:
 
     void setBaseEnvironmentType(BaseEnvironmentType env);
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
-    void setSystemEnvironment(const Utils::Environment &environment);
+    void setRemoteEnvironment(const Utils::Environment &environment);
 
     Internal::RemoteLinuxRunConfigurationPrivate * const d;
 };
