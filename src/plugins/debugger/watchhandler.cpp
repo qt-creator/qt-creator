@@ -428,7 +428,7 @@ QString WatchModel::formattedValue(const WatchData &data) const
     if (data.type == "va_list")
         return value;
 
-    if (!isPointerType(data.type) && !isVTablePointer(data.type)) {
+    if (!isPointerType(data.type) && !data.isVTablePointer()) {
         bool ok = false;
         qulonglong integer = value.toULongLong(&ok, 0);
         if (ok)

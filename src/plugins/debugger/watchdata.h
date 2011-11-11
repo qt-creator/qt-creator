@@ -93,6 +93,7 @@ public:
     bool isLocal()   const { return iname.startsWith("local."); }
     bool isWatcher() const { return iname.startsWith("watch."); }
     bool isValid()   const { return !iname.isEmpty(); }
+    bool isVTablePointer() const;
 
     bool isEqual(const WatchData &other) const;
 

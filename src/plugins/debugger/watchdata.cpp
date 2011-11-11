@@ -68,13 +68,6 @@ bool isPointerType(const QByteArray &type)
     return type.endsWith('*') || type.endsWith("* const");
 }
 
-bool isVTablePointer(const QByteArray &type)
-{
-    // FIXME: That is cdb only.
-    // But no user type can be named like this, so this is safe.
-    return type.startsWith("__fptr()");
-}
-
 bool isCharPointerType(const QByteArray &type)
 {
     return type == "char *" || type == "const char *" || type == "char const *";
@@ -163,6 +156,14 @@ bool WatchData::isEqual(const WatchData &other) const
       && valueEnabled == other.valueEnabled
       && valueEditable == other.valueEditable
       && error == other.error;
+}
+
+bool WatchData::isVTablePointer() const
+{
+    // First case: Cdb only. No user type can be named like this, this is safe.
+    // Second case: Python dumper only.
+    return type.startsWith("__fptr()")
+        || (type.isEmpty() && name == QLatin1String("[vptr]"));
 }
 
 void WatchData::setError(const QString &msg)
