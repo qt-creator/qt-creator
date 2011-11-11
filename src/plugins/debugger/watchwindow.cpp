@@ -45,6 +45,7 @@
 #include "watchhandler.h"
 #include "debuggertooltipmanager.h"
 #include "memoryagent.h"
+
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -62,7 +63,6 @@
 #include <QtGui/QItemDelegate>
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
-#include <QtGui/QResizeEvent>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMessageBox>
 
