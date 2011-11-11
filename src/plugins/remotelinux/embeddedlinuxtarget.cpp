@@ -99,7 +99,7 @@ void EmbeddedLinuxTarget::createApplicationProFiles()
     // Only add new runconfigurations if there are none.
     foreach (const QString &path, pathes) {
         RemoteLinuxRunConfiguration *qt4rc =
-            new RemoteLinuxRunConfiguration(this,RemoteLinuxRunConfiguration::Id, path);
+            new RemoteLinuxRunConfiguration(this, RemoteLinuxRunConfiguration::Id, path);
         addRunConfiguration(qt4rc);
     }
 
