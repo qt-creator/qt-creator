@@ -492,6 +492,29 @@
             important when initialization is done at the same time.
     \endlist
 
+    \section2 Namespaces
+
+    \list
+        \o Put the left curly brace on the same line as the \namespace keyword.
+        \o Do not indent declarations or definitions inside.
+        \o Optional, but recommended if the namespaces spans more than a few lines:
+           Add a comment after the right curly brace repeating the namespace.
+
+        \code
+        namespace MyPlugin {
+
+        void someFunction() { ... }
+
+        }  // namespace MyPlugin
+        \endcode
+
+        \o As an exception, if there is only a single class declaration inside
+           the namespace, all can go on a single line:
+        \code
+        namespace MyPlugin { class MyClass; }
+        \endcode
+    \endlist
+
     \section1 Patterns and Practices
 
     \section2 Namespacing
