@@ -515,24 +515,6 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode)
     if (!runConfig || !runConfig->isEnabled())
         return;
 
-    // Check if there already is an analyzer run.
-    if (m_isRunning) {
-        // ask if user wants to restart the analyzer
-        const QString msg = tr("<html><head/><body><center><i>%1</i> is still running. "
-            "You have to quit the Analyzer before being able to run another instance."
-            "<center/><center>Force it to quit?</center></body></html>")
-                .arg(m_currentTool->displayName());
-        bool stopRequested = showPromptDialog(tr("Analyzer Still Running"), msg,
-                                     tr("Stop Active Run"), tr("Keep Running"));
-        if (!stopRequested)
-            return; // no restart, keep it running, do nothing
-
-        // user selected to stop the active run. stop it, activate restart on stop
-        m_restartOnStop = true;
-        q->stopTool();
-        return;
-    }
-
     IAnalyzerTool::ToolMode toolMode = tool->toolMode();
 
     // Check the project for whether the build config is in the correct mode
