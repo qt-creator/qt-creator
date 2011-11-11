@@ -40,6 +40,7 @@
 
 #include <QtCore/QTextStream>
 #include <QtCore/QFile>
+#include <QtCore/QMimeData>
 #include <QtGui/QMessageBox>
 #include <QtGui/QMenu>
 

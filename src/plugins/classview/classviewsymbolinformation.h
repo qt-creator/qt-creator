@@ -36,6 +36,8 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QString>
 
+#include <limits.h>
+
 namespace ClassView {
 namespace Internal {
 
