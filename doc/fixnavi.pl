@@ -1,6 +1,26 @@
-#! /usr/bin/perl -w
+#! /usr/bin/perl
 
+use warnings;
 use strict;
+
+sub visitDir($)
+{
+    my ($dir) = @_;
+    my @ret = ();
+    my @subret = ();
+    opendir DIR, $dir or die "$dir: $!\n";
+    my @ents = readdir DIR;
+    closedir DIR;
+    for my $ent (grep !/^\./, @ents) {
+        my $ret = $dir."/".$ent;
+        if (-d $ret) {
+            push @subret, &visitDir($ret);
+        } elsif ($ret =~ /\.qdoc$/) {
+            push @ret, $ret;
+        }
+    }
+    return @ret, @subret;
+}
 
 my @files = ();
 my %defines = ();
@@ -11,42 +31,52 @@ for (@ARGV) {
         printf STDERR "Unknown option '".$_."'\n";
         exit 1;
     } else {
-        push @files, $_;
+        if (-d $_) {
+            push @files, visitDir($_);
+        } else {
+            push @files, $_;
+        }
     }
 }
 
-int(@files) or die "usage: $0 [-D<define>]... <qdoc-file>\n";
+int(@files) or die "usage: $0 [-D<define>]... <qdoc-file>...\n";
 
 my @toc = ();
 my %title2page = ();
 my $doctitle = "";
-my $curpage = "";
-my $intoc = 0;
 my %prev_skips = ();
 my %next_skips = ();
 my %define_skips = ();
 my %polarity_skips = ();
-my $prev_skip = "";
-my $next_skip = "";
-my $define_skip = "";
-my $polarity_skip = 0;
 for my $file (@files) {
-    my $skipping = 0; # no nested ifs!
+    my ($curpage, $inhdr, $intoc, $inif) = ("", 0, 0, 0);
+    my ($define_skip, $polarity_skip, $skipping, $prev_skip, $next_skip) = ("", 0, 0, "", "");
     open FILE, $file or die "File $file cannot be opened.\n";
     while (<FILE>) {
         if (/^\h*\\if\h+defined\h*\(\h*(\H+)\h*\)/) {
+            die "Nested \\if at $file:$.\n" if ($inif);
+            $inif = 1;
             $skipping = !defined($defines{$1});
-            if (!$intoc) {
+            if ($inhdr) {
                 $define_skip = $1;
                 $polarity_skip = $skipping;
             }
         } elsif (/^\h*\\else/) {
+            die "Unmatched \\else in $file:$.\n" if (!$inif);
             $skipping = 1 - $skipping;
         } elsif (/^\h*\\endif/) {
+            die "Unmatched \\endif in $file:$.\n" if (!$inif);
+            $inif = 0;
             $skipping = 0;
         } elsif (keys(%title2page) == 1 && /^\h*\\list/) {
             $intoc++;
-        } elsif (!$intoc) {
+        } elsif ($intoc) {
+            if (/^\h*\\endlist/) {
+                $intoc--;
+            } elsif (!$skipping && /^\h*\\o\h+\\l\h*{(.*)}$/) {
+                push @toc, $1;
+            }
+        } elsif ($inhdr) {
             if ($skipping && /^\h*\\previouspage\h+(\H+)/) {
                 $prev_skip = $1;
             } elsif ($skipping && /^\h*\\nextpage\h+(\H+)/) {
@@ -67,15 +97,16 @@ for my $file (@files) {
                 $title2page{$1} = $curpage;
                 $doctitle = $1 if (!$doctitle);
                 $curpage = "";
+                $inhdr = 0;
             }
         } else {
-            if (/^\h*\\endlist/) {
-                $intoc--;
-            } elsif (!$skipping && /^\h*\\o\h+\\l\h*{(.*)}$/) {
-                push @toc, $1;
+            if (/^\h*\\contentspage\b/) {
+                $inhdr = 1;
             }
         }
     }
+    die "Missing \\title in $file\n" if ($inhdr);
+    die "Unclosed TOC in $file\n" if ($intoc);
     close FILE;
 }
 

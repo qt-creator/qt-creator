@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -244,6 +244,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     QHBoxLayout *descriptionLayout = new QHBoxLayout(m_descriptionContainer);
     m_descriptionContainer->setLayout(descriptionLayout);
     descriptionLayout->setMargin(0);
+    m_descriptionContainer->setMinimumWidth(200);
+    m_descriptionContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     m_label = new QLabel(m_descriptionContainer);
     m_label->setVisible(false);
     m_searchTerm = new QLabel(m_descriptionContainer);
@@ -257,6 +259,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
 
     m_replaceLabel = new QLabel(tr("Replace with:"), topWidget);
     m_replaceTextEdit = new WideEnoughLineEdit(topWidget);
+    m_replaceTextEdit->setMinimumWidth(120);
     m_replaceButton = new QToolButton(topWidget);
     m_replaceButton->setToolTip(tr("Replace all occurrences"));
     m_replaceButton->setText(tr("Replace"));

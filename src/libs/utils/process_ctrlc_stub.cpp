@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -102,16 +102,19 @@ int main(int argc, char **)
     free(strCommandLine);
 
     if (!bSuccess)
-        return 1;
+        return -1;
 
     MSG msg;
+    DWORD dwExitCode = -1;
     while (GetMessage(&msg, NULL, 0, 0))
     {
+        if (msg.message == WM_DESTROY)
+            dwExitCode = msg.wParam;
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
-    return (int) msg.wParam;
+    return (int)dwExitCode;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -148,7 +151,10 @@ DWORD WINAPI processWatcherThread(LPVOID lpParameter)
 {
     HANDLE hProcess = reinterpret_cast<HANDLE>(lpParameter);
     WaitForSingleObject(hProcess, INFINITE);
-    PostMessage(hwndMain, WM_DESTROY, 0, 0);
+    DWORD dwExitCode;
+    if (!GetExitCodeProcess(hProcess, &dwExitCode))
+        dwExitCode = -1;
+    PostMessage(hwndMain, WM_DESTROY, dwExitCode, 0);
     return 0;
 }
 

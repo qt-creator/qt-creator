@@ -29,6 +29,7 @@ symbian {
         sourcePathSegments = $$split(source, \\)
         target = $$OUT_PWD/$$eval($${deploymentfolder}.target)/$$last(sourcePathSegments)
         target = $$replace(target, /, \\)
+        target ~= s,\\\\\\.?\\\\,\\,
         !isEqual(source,$$target) {
             !isEmpty(copyCommand):copyCommand += &&
             isEqual(QMAKE_DIR_SEP, \\) {
@@ -73,6 +74,7 @@ symbian {
             target = $$replace(target, \\\\, /)
             sourcePathSegments = $$split(source, /)
             targetFullPath = $$target/$$last(sourcePathSegments)
+            targetFullPath ~= s,/\\.?/,/,
             !isEqual(source,$$targetFullPath) {
                 !isEmpty(copyCommand):copyCommand += &&
                 copyCommand += $(MKDIR) \"$$target\"

@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -390,7 +390,7 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
         renameItem = menu.addAction(tr("Rename Folder"));
     } else {
         showItem = menu.addAction(tr("Show Bookmark"));
-        showItemNewTab = menu.addAction(tr("Show Bookmark in New Tab"));
+        showItemNewTab = menu.addAction(tr("Show Bookmark as New Page"));
         if (searchField->text().isEmpty()) {
             menu.addSeparator();
             removeItem = menu.addAction(tr("Delete Bookmark"));

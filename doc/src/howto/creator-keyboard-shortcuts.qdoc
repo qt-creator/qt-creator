@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Free Documentation License
@@ -15,7 +15,7 @@
 ** file.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 ****************************************************************************/
 
@@ -146,8 +146,11 @@
             \o Switch to \gui Projects mode
             \o Ctrl+5
         \row
-            \o Switch to \gui Help mode
+            \o Switch to \gui Analyze mode
             \o Ctrl+6
+        \row
+            \o Switch to \gui Help mode
+            \o Ctrl+7
         \row
             \o Toggle \gui{Issues} pane
             \o Alt+1 (Cmd+1 on Mac OS X)

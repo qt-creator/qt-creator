@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 #include "genericlinuxdeviceconfigurationfactory.h"
@@ -82,9 +82,9 @@ QString GenericLinuxDeviceConfigurationFactory::displayNameForActionId(const QSt
     if (actionId == QLatin1String(Constants::GenericTestDeviceActionId))
         return tr("Test");
     if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId))
-        return tr("Remote Processes");
+        return tr("Remote Processes...");
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
-        return tr("Deploy Public Key");
+        return tr("Deploy Public Key...");
     return QString(); // Can't happen.
 }
 

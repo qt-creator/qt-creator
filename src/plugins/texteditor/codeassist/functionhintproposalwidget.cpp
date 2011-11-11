@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -233,8 +233,15 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
     case QEvent::MouseButtonDblClick:
     case QEvent::Wheel: {
             QWidget *widget = qobject_cast<QWidget *>(obj);
-            if (! (widget == this || isAncestorOf(widget))) {
+            if (!d->m_popupFrame->isAncestorOf(widget)) {
                 abort();
+            } else if (e->type() == QEvent::Wheel) {
+                if (static_cast<QWheelEvent*>(e)->delta() > 0) {
+                    previousPage();
+                } else {
+                    nextPage();
+                }
+                return true;
             }
         }
         break;

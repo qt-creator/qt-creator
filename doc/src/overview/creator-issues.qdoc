@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Free Documentation License
@@ -15,7 +15,7 @@
 ** file.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 ****************************************************************************/
 
@@ -158,6 +158,12 @@
         \o  Setting breakpoints in files that do not have unique absolute
             paths may fail. For example, remounting parts of a file system
             using the --bind mount option.
+
+        \o  A regression in GCC 4.5.0 causes return value optimization to
+            produce inaccurate debug info that GCC applies also to
+            non-optimized builds. For more information, see
+            \l{http://gcc.gnu.org/bugzilla/show_bug.cgi?id=44731}
+            {GCC Bugzilla – Bug 44731}.
 
     \endlist
 

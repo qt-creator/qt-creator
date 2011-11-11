@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -85,9 +85,9 @@ bool QtQuickAppWizardDialog::validateCurrentPage()
 {
     if (currentPage() == m_componentOptionsPage) {
         setIgnoreGenericOptionsPage(false);
-        if (m_componentOptionsPage->componentSet() == QtQuickApp::Symbian10Components) {
+        if (m_componentOptionsPage->componentSet() == QtQuickApp::Symbian11Components) {
             setIgnoreGenericOptionsPage(true);
-            targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 3));
+            targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 4));
             QSet<QString> requiredFeatures;
             requiredFeatures << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
             targetsPage()->setRequiredFeatures(requiredFeatures);
@@ -139,7 +139,7 @@ Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
                                  "Symbian Installation System (SIS) packages for this type of "
                                  "projects. Moreover, you can select to use a set of premade "
                                  "UI components in your Qt Quick application. "
-                                 "To utilize the components, Qt 4.7.3 or newer is required."));
+                                 "To utilize the components, Qt 4.7.4 or newer is required."));
     parameters.setCategory(QLatin1String(QtSupport::Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(QtSupport::Constants::QML_WIZARD_TR_SCOPE,
                                                               QtSupport::Constants::QML_WIZARD_TR_CATEGORY));
@@ -170,7 +170,7 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
         d->app->setMainQml(QtQuickApp::ModeImport, mainQmlFile);
     }
     d->app->setComponentSet(wizard->m_componentOptionsPage->componentSet());
-    if (d->app->componentSet() == QtQuickApp::Symbian10Components)
+    if (d->app->componentSet() == QtQuickApp::Symbian11Components)
         d->app->setOrientation(AbstractMobileApp::ScreenOrientationImplicit);
 }
 

@@ -6,13 +6,7 @@ project = "SquishProject"
 def main():
     startApplication("qtcreator" + SettingsPath)
     createProject_Qt_GUI(projectsPath, project, defaultQtVersion, True)
-    clickButton(verifyEnabled(":*Qt Creator.Run_Core::Internal::FancyToolButton"))
-    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
-    playButton = verifyEnabled(":Qt Creator.ReRun_QToolButton", False)
-    stopButton = verifyEnabled(":Qt Creator.Stop_QToolButton")
-    clickButton(stopButton)
-    test.verify(playButton.enabled)
-    test.compare(stopButton.enabled, False)
+    runAndCloseApp()
     sendEvent("QCloseEvent", waitForObject(":Qt Creator_Core::Internal::MainWindow"))
     waitForCleanShutdown()
 

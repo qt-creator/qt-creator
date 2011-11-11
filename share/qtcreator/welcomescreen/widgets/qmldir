@@ -8,7 +8,6 @@ InsetText 1.0 InsetText.qml
 LineEdit 1.0 LineEdit.qml
 LinksBar 1.0 LinksBar.qml
 NewsListing 1.0 NewsListing.qml
-RatingBar 1.0 RatingBar.qml
 RecentProjects 1.0 RecentProjects.qml
 RecentSessions 1.0 RecentSessions.qml
 TabWidget 1.0 TabWidget.qml

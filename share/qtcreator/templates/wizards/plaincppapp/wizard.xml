@@ -6,7 +6,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -28,7 +28,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -41,7 +41,7 @@ leave room for the Qt 4 target page.
         class="qt4project" firstpage="10"
         id="R.Plain C++" category="I.Projects">
     <icon>console.png</icon>
-    <description>Creates a plain C++ project using QMake, not using the Qt library.</description>
+    <description>Creates a plain C++ project using qmake, not using the Qt library.</description>
     <displayname>Plain C++ Project</displayname>;
     <displaycategory>Other Project</displaycategory>
     <files>

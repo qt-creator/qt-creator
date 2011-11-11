@@ -8,6 +8,10 @@
         <translation>核心载入失败: %1</translation>
     </message>
     <message>
+        <source>Unable to send command line arguments to the already running instance. It appears to be not responding. Do you want to start a new instance of Creator?</source>
+        <translation>无法发送命令行参数到已经运行的实例中.看起来没有响应.你想要启动一个新的Creator实例吗?</translation>
+    </message>
+    <message>
         <source>Unable to send command line arguments to the already running instance. It appears to be not responding.</source>
         <translation type="obsolete">无法将命令行参数发送到执行中的进程，看起来进程未响应.</translation>
     </message>
@@ -17,7 +21,7 @@
     </message>
     <message>
         <source>Unable to send command line arguments to the already running instance.It appears to be not responding. Do you want to start a new instance of Creator?</source>
-        <translation>无法发送命令行参数到已经运行的实例中.看起来没有响应.你想要新开一个Creator实例吗?</translation>
+        <translation type="obsolete">无法发送命令行参数到已经运行的实例中.看起来没有响应.你想要新开一个Creator实例吗?</translation>
     </message>
     <message>
         <source>Could not find &apos;Core.pluginspec&apos; in %1</source>
@@ -25,7 +29,7 @@
     </message>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
-        <translation>Qt Creator - 插件载入信息</translation>
+        <translation type="obsolete">Qt Creator - 插件载入信息</translation>
     </message>
 </context>
 <context>
@@ -59,12 +63,16 @@
         <translation>工具链(&amp;T):</translation>
     </message>
     <message>
-        <source>Sysroot</source>
-        <translation></translation>
+        <source>Override &amp;Start script:</source>
+        <translation type="obsolete">覆盖启动脚本(&amp;S):</translation>
     </message>
     <message>
-        <source>Override &amp;Start script:</source>
-        <translation>覆盖启动脚本(&amp;S):</translation>
+        <source>Sys&amp;root:</source>
+        <translation>系统根目录(&amp;r):</translation>
+    </message>
+    <message>
+        <source>Override &amp;start script:</source>
+        <translation>覆盖启动脚本(&amp;s):</translation>
     </message>
 </context>
 <context>
@@ -186,8 +194,12 @@
         <translation>显示书签</translation>
     </message>
     <message>
+        <source>Show Bookmark as New Page</source>
+        <translation>在新页面显示书签</translation>
+    </message>
+    <message>
         <source>Show Bookmark in New Tab</source>
-        <translation>在新标签显示书签</translation>
+        <translation type="obsolete">在新标签显示书签</translation>
     </message>
     <message>
         <source>Delete Bookmark</source>
@@ -561,6 +573,10 @@
     <message>
         <source>Unix Generator (%1)</source>
         <translation>Unix 创建器 (%1)</translation>
+    </message>
+    <message>
+        <source>No generator selected.</source>
+        <translation>没有选择创建器.</translation>
     </message>
     <message>
         <source>CMake exited with errors. Please check CMake output.</source>
@@ -938,7 +954,7 @@
     </message>
     <message>
         <source>Close temporary buffers on debugger exit.</source>
-        <translation>在调试器退出时关闭临时缓冲区。</translation>
+        <translation type="obsolete">在调试器退出时关闭临时缓冲区。</translation>
     </message>
     <message>
         <source>Close temporary buffers on debugger exit</source>
@@ -946,7 +962,7 @@
     </message>
     <message>
         <source>Switch to previous mode on debugger exit.</source>
-        <translation>在调试器退出时切换到上一个模式。</translation>
+        <translation type="obsolete">在调试器退出时切换到上一个模式。</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit</source>
@@ -1001,7 +1017,7 @@
     </message>
     <message>
         <source>&amp;Automatically insert brackets</source>
-        <translation>自动插入括号(&amp;A)</translation>
+        <translation type="obsolete">自动插入括号(&amp;A)</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -1049,7 +1065,23 @@
     </message>
     <message>
         <source>Automatically insert brackets and semicolons when appropriate.</source>
-        <translation>在适当的时候自动添加括号和分号.</translation>
+        <translation type="obsolete">在适当的时候自动添加括号和分号.</translation>
+    </message>
+    <message>
+        <source>Automatically insert semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</source>
+        <translation>在适当的时候自动添加括号,分号,大括号和引号.</translation>
+    </message>
+    <message>
+        <source>&amp;Automatically insert matching characters</source>
+        <translation>自动插入括号(&amp;A)</translation>
+    </message>
+    <message>
+        <source>When typing a matching character and there is a text selection, instead of removing the selection, surround it with the corresponding characters.</source>
+        <translation>当输入一个对应的符号时(例如括号)并且有选中的文字时, 将选中的文字自动包含至符号内.</translation>
+    </message>
+    <message>
+        <source>Surround &amp;text selections</source>
+        <translation>环绕文本选择(&amp;t)</translation>
     </message>
 </context>
 <context>
@@ -1071,7 +1103,7 @@
     <name>Core::BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
-        <translation>创建文件夹 %1 失败。</translation>
+        <translation type="obsolete">创建文件夹 %1 失败。</translation>
     </message>
     <message>
         <source>Unable to open %1 for writing: %2</source>
@@ -1275,6 +1307,14 @@ Would you like to overwrite them?</source>
         <translation>Qt Creator</translation>
     </message>
     <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; This file was not opened in %1 yet.</source>
+        <translation>&lt;b&gt;警告:&lt;/b&gt; 文件%1还没有打开.</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>打开</translation>
+    </message>
+    <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
         <translation>&lt;b&gt;警告:&lt;/b&gt; 你正在改写一个只读文件。</translation>
     </message>
@@ -1351,6 +1391,22 @@ Would you like to overwrite them?</source>
         <translation>当前编辑器的左上角(相对屏幕来说)Y坐标轴.</translation>
     </message>
     <message>
+        <source>Close &quot;%1&quot;</source>
+        <translation>关闭%1</translation>
+    </message>
+    <message>
+        <source>Close Editor</source>
+        <translation>关闭编辑器</translation>
+    </message>
+    <message>
+        <source>Close All Except &quot;%1&quot;</source>
+        <translation>除了%1 以外全部关闭</translation>
+    </message>
+    <message>
+        <source>Close Other Editors</source>
+        <translation>关闭其他编辑器</translation>
+    </message>
+    <message>
         <source>File Error</source>
         <translation>文件错误</translation>
     </message>
@@ -1371,6 +1427,10 @@ Would you like to overwrite them?</source>
         <translation>无法设置文件的可写权限.</translation>
     </message>
     <message>
+        <source>Cannot open the file for editing with VCS.</source>
+        <translation>无法为了编辑VCS而打开文件.</translation>
+    </message>
+    <message>
         <source>Could not open the file for editing with SCC.</source>
         <translation type="obsolete">无法打开文件用于SCC编辑。</translation>
     </message>
@@ -1380,7 +1440,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>&amp;Save %1</source>
-        <translation>保存%1(&amp;S)</translation>
+        <translation>保存%1</translation>
     </message>
     <message>
         <source>Revert %1 to Saved</source>
@@ -1990,7 +2050,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Close Editor</source>
-        <translation>关闭编辑器</translation>
+        <translation type="obsolete">关闭编辑器</translation>
     </message>
     <message>
         <source>Close All Except %1</source>
@@ -1998,19 +2058,19 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Close &quot;%1&quot;</source>
-        <translation>关闭%1</translation>
+        <translation type="obsolete">关闭%1</translation>
     </message>
     <message>
         <source>Close All Except &quot;%1&quot;</source>
-        <translation>除了%1 以外全部关闭</translation>
+        <translation type="obsolete">除了%1 以外全部关闭</translation>
     </message>
     <message>
         <source>Close Other Editors</source>
-        <translation>关闭其他编辑器</translation>
+        <translation type="obsolete">关闭其他编辑器</translation>
     </message>
     <message>
         <source>Close All Editors</source>
-        <translation>关闭所有编辑器</translation>
+        <translation type="obsolete">关闭所有编辑器</translation>
     </message>
 </context>
 <context>
@@ -2347,6 +2407,14 @@ Would you like to overwrite them?</source>
     <message>
         <source>Name matches MS Windows device. (%1).</source>
         <translation>名称与微软视窗设备匹配 (%1)。</translation>
+    </message>
+    <message>
+        <source>File extension %1 is required:</source>
+        <translation>需要文件扩展 %1 :</translation>
+    </message>
+    <message>
+        <source>File extensions %1 are required:</source>
+        <translation>需要文件扩展 %1 :</translation>
     </message>
 </context>
 <context>
@@ -2925,7 +2993,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>unnamed</source>
-        <translation>未命名</translation>
+        <translation type="obsolete">未命名</translation>
     </message>
     <message>
         <source>Indexing</source>
@@ -2977,6 +3045,10 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Methods and functions</source>
+        <translation type="obsolete">方法和功能</translation>
+    </message>
+    <message>
+        <source>Methods and Functions</source>
         <translation>方法和功能</translation>
     </message>
 </context>
@@ -3398,6 +3470,14 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>Watchpoint at Expression</source>
         <translation>监视点在表达式</translation>
+    </message>
+    <message>
+        <source>Breakpoint on QML Signal Handler</source>
+        <translation>QML信号处理的断点</translation>
+    </message>
+    <message>
+        <source>Breakpoint at JavaScript throw</source>
+        <translation>JavaScript 异常的断点</translation>
     </message>
     <message>
         <source>Unknown Breakpoint Type</source>
@@ -3878,6 +3958,18 @@ Qt Creator 无法附属到进程.</translation>
     <message>
         <source>Use CDB &amp;console</source>
         <translation>使用 CDB 控制台(&amp;c)</translation>
+    </message>
+    <message>
+        <source>Breakpoints</source>
+        <translation>断点</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Correct breakpoint location</source>
+        <translation>校准断点位置</translation>
     </message>
 </context>
 <context>
@@ -4626,6 +4718,10 @@ You can choose between waiting longer or abort debugging.</source>
         <translation>Gdb进程在正常启动后崩溃。</translation>
     </message>
     <message>
+        <source>The gdb process was ended forcefully</source>
+        <translation>gdb进程被强制结束</translation>
+    </message>
+    <message>
         <source>An error occurred when attempting to write to the gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
         <translation>尝试写入 Gdb 进程时发生错误. 例如, 进程可能不在运行或者他关闭了自己的输入通道.</translation>
     </message>
@@ -4712,7 +4808,7 @@ You can choose between waiting longer or abort debugging.</source>
     <message>
         <source>The GDB installed at %1 cannot find a valid python installation in its subdirectories.
 You may set the environment variable PYTHONPATH to point to your installation.</source>
-        <translation>安装在%1的GDB 无法找到一个有效的 python 安装在子文件夹.
+        <translation type="obsolete">安装在%1的GDB 无法找到一个有效的 python 安装在子文件夹.
 你可以设置环境变量 PYTHONPATH 到你安装的路径.</translation>
     </message>
     <message>
@@ -5346,7 +5442,7 @@ This might yield incorrect results.</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>按内容调整列宽</translation>
+        <translation type="obsolete">按内容调整列宽</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -5391,8 +5487,12 @@ This might yield incorrect results.</source>
         <translation>名称</translation>
     </message>
     <message>
-        <source>Value (base %1)</source>
+        <source>Value (Base %1)</source>
         <translation>值 (%1进制)</translation>
+    </message>
+    <message>
+        <source>Value (base %1)</source>
+        <translation type="obsolete">值 (%1进制)</translation>
     </message>
 </context>
 <context>
@@ -5463,7 +5563,7 @@ This might yield incorrect results.</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>按内容调整列宽</translation>
+        <translation type="obsolete">按内容调整列宽</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -5637,6 +5737,10 @@ This might yield incorrect results.</source>
         <translation>停止&amp;nbsp;于:</translation>
     </message>
     <message>
+        <source>ID</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Function</source>
         <translation>函数</translation>
     </message>
@@ -5661,6 +5765,10 @@ This might yield incorrect results.</source>
         <translation>状态</translation>
     </message>
     <message>
+        <source>Target ID</source>
+        <translation>目标 ID</translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation>名称</translation>
     </message>
@@ -5678,7 +5786,7 @@ This might yield incorrect results.</source>
     </message>
     <message>
         <source>Thread ID</source>
-        <translation>线程ID</translation>
+        <translation type="obsolete">线程ID</translation>
     </message>
 </context>
 <context>
@@ -5733,7 +5841,7 @@ This might yield incorrect results.</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>按内容调整列宽</translation>
+        <translation type="obsolete">按内容调整列宽</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -5794,6 +5902,10 @@ This might yield incorrect results.</source>
         <translation>选择调试器</translation>
     </message>
     <message>
+        <source>Select Location of Debugging Information</source>
+        <translation>选择调试信息的位置</translation>
+    </message>
+    <message>
         <source>Select Executable</source>
         <translation>选择执行档</translation>
     </message>
@@ -5822,7 +5934,7 @@ This might yield incorrect results.</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>按内容调整列宽</translation>
+        <translation type="obsolete">按内容调整列宽</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -6017,6 +6129,10 @@ This might yield incorrect results.</source>
         <translation>UTF8字符串</translation>
     </message>
     <message>
+        <source>Local 8bit string</source>
+        <translation>本地 8位 字符串</translation>
+    </message>
+    <message>
         <source>UTF16 string</source>
         <translation>UTF16字符串</translation>
     </message>
@@ -6105,7 +6221,7 @@ This might yield incorrect results.</source>
     </message>
     <message>
         <source>Remove All Watch Items</source>
-        <translation>删除所有监控项目</translation>
+        <translation type="obsolete">删除所有监控项目</translation>
     </message>
     <message>
         <source>Open Memory Editor...</source>
@@ -6121,7 +6237,7 @@ This might yield incorrect results.</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>按内容调整列宽</translation>
+        <translation type="obsolete">按内容调整列宽</translation>
     </message>
     <message>
         <source>Change Format for Object Named &quot;%1&quot;</source>
@@ -6207,10 +6323,18 @@ This might yield incorrect results.</source>
     </message>
     <message>
         <source>Memory Referenced by Pointer &apos;%1&apos; (0x%2)</source>
-        <translation>内存被指针&apos;%1&apos;引用 (0x%2)</translation>
+        <translation type="obsolete">内存被指针&apos;%1&apos;引用 (0x%2)</translation>
     </message>
     <message>
         <source>Memory at Variable &apos;%1&apos; (0x%2)</source>
+        <translation type="obsolete">可变内存&apos;%1&apos; (0x%2)</translation>
+    </message>
+    <message>
+        <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
+        <translation>内存被指针&apos;%1&apos;引用 (0x%2)</translation>
+    </message>
+    <message>
+        <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
         <translation>可变内存&apos;%1&apos; (0x%2)</translation>
     </message>
     <message>
@@ -6244,6 +6368,10 @@ This might yield incorrect results.</source>
     <message>
         <source>Remove Evaluated Expression &quot;%1&quot;</source>
         <translation>移除计算表达式&quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Show Unprintable Characters as Escape Sequences</source>
+        <translation>显示所有不可打印的字符为转义序列</translation>
     </message>
     <message>
         <source>Use Display Format Based on Type</source>
@@ -6284,6 +6412,10 @@ This might yield incorrect results.</source>
     <message>
         <source>Insert New Evaluated Expression</source>
         <translation>插入新的计算表达式</translation>
+    </message>
+    <message>
+        <source>Remove All Evaluated Expressions</source>
+        <translation>移除所有计算表达式</translation>
     </message>
     <message>
         <source>Open Memory View at Object&apos;s Address (0x%1)</source>
@@ -6852,7 +6984,13 @@ Rebuilding the project might help.</source>
     <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
-        <translation>类 &apos;%1&apos; 的定义 在 %2中找不到.</translation>
+        <translation type="obsolete">类 &apos;%1&apos; 的定义 在 %2中找不到.</translation>
+    </message>
+    <message>
+        <source>The class containing &apos;%1&apos; could not be found in %2.
+Please verify the #include-directives.</source>
+        <translation>类里面包含了&apos;%1&apos;,但是在%2里找不到
+请检查以下是否有相应的 #include.</translation>
     </message>
     <message>
         <source>Error finding/adding a slot.</source>
@@ -6881,7 +7019,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Add...</source>
-        <translation type="obsolete">添加...</translation>
+        <translation>添加...</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -6893,7 +7031,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Add</source>
-        <translation>添加</translation>
+        <translation type="obsolete">添加</translation>
     </message>
 </context>
 <context>
@@ -7507,11 +7645,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     <name>Find::Internal::FindDialog</name>
     <message>
         <source>Search for...</source>
-        <translation>查找...</translation>
+        <translation type="obsolete">查找...</translation>
     </message>
     <message>
         <source>Sc&amp;ope:</source>
-        <translation>范围(&amp;o):</translation>
+        <translation type="obsolete">范围(&amp;o):</translation>
     </message>
     <message>
         <source>&amp;Search</source>
@@ -7519,31 +7657,55 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Search &amp;for:</source>
-        <translation>查找(&amp;f):</translation>
+        <translation type="obsolete">查找(&amp;f):</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>关闭</translation>
+        <translation type="obsolete">关闭</translation>
     </message>
     <message>
         <source>&amp;Case sensitive</source>
-        <translation>区分大小写(&amp;C)</translation>
+        <translation type="obsolete">区分大小写(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Whole words only</source>
-        <translation>全词匹配(&amp;W)</translation>
+        <translation type="obsolete">全词匹配(&amp;W)</translation>
     </message>
     <message>
         <source>Search &amp;&amp; Replace</source>
-        <translation>查找和替换</translation>
+        <translation type="obsolete">查找和替换</translation>
     </message>
     <message>
         <source>Use regular e&amp;xpressions</source>
-        <translation>使用正则表达式(&amp;x)</translation>
+        <translation type="obsolete">使用正则表达式(&amp;x)</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>取消</translation>
+        <translation type="obsolete">取消</translation>
+    </message>
+    <message>
+        <source>Sco&amp;pe:</source>
+        <translation>范围(&amp;p):</translation>
+    </message>
+    <message>
+        <source>Sear&amp;ch for:</source>
+        <translation>查找(&amp;c):</translation>
+    </message>
+    <message>
+        <source>Case sensiti&amp;ve</source>
+        <translation>区分大小写(&amp;v)</translation>
+    </message>
+    <message>
+        <source>Whole words o&amp;nly</source>
+        <translation>全词匹配(&amp;n)</translation>
+    </message>
+    <message>
+        <source>Use re&amp;gular expressions</source>
+        <translation>使用正则表达式(&amp;g)</translation>
+    </message>
+    <message>
+        <source>Search &amp;&amp; &amp;Replace</source>
+        <translation>查找和替换(&amp;R)</translation>
     </message>
 </context>
 <context>
@@ -7679,31 +7841,39 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>No matches found!</source>
-        <translation>未找到匹配!</translation>
+        <translation type="obsolete">未找到匹配!</translation>
+    </message>
+    <message>
+        <source>New Search</source>
+        <translation>新搜索</translation>
     </message>
     <message>
         <source>Expand All</source>
         <translation>展开全部</translation>
     </message>
     <message>
+        <source>%1 %2</source>
+        <translation>%1 %2</translation>
+    </message>
+    <message>
         <source>Replace with:</source>
-        <translation>替换为:</translation>
+        <translation type="obsolete">替换为:</translation>
     </message>
     <message>
         <source>Replace all occurrences</source>
-        <translation>替换所有出现位置</translation>
+        <translation type="obsolete">替换所有出现位置</translation>
     </message>
     <message>
         <source>Replace</source>
-        <translation>替换</translation>
+        <translation type="obsolete">替换</translation>
     </message>
     <message>
         <source>This change cannot be undone.</source>
-        <translation>这项改变将无法被撤销。</translation>
+        <translation type="obsolete">这项改变将无法被撤销。</translation>
     </message>
     <message>
         <source>Do not warn again</source>
-        <translation>不要再次警告</translation>
+        <translation type="obsolete">不要再次警告</translation>
     </message>
     <message>
         <source>Collapse All</source>
@@ -7907,7 +8077,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;选中此项启用反向调试.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;注意:&lt;/b&gt;这项功能在GDB 上非常慢并且不稳定. 当反向时遇到系统调用将会变得不可预测甚至彻底摧毁这个调试会话.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;选中此项启用反向调试.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;注意:&lt;/b&gt;这项功能在GDB 上非常慢并且不稳定. 当反向时遇到系统调用将会变得不可预测甚至彻底摧毁这个调试会话.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Always try to set breakpoints in plugins automatically</source>
@@ -7916,6 +8086,18 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Stop when a qFatal is issued</source>
         <translation>停止当发生 qFatal </translation>
+    </message>
+    <message>
+        <source>This adds common paths to locations of debug information at debugger startup.</source>
+        <translation>在调试器启动时添加调试信息的位置常用路径.</translation>
+    </message>
+    <message>
+        <source>Use common locations for debug information automatically</source>
+        <translation>为调试信息自动使用常用路径</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;选中此项启用反向调试.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;注意:&lt;/b&gt;这项功能在GDB 上非常慢并且不稳定. 当反向时遇到系统调用将会变得不可预测甚至彻底摧毁这个调试会话.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -8593,7 +8775,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Cannot locate &quot;%1&quot;.</source>
-        <translation>无法定位&quot;%1&quot;.</translation>
+        <translation type="obsolete">无法定位&quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot launch &quot;%1&quot;.</source>
@@ -8711,12 +8893,12 @@ on slow machines. In this case, the value should be increased.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Blame</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Blame for &quot;%1&quot;</source>
         <translation> &quot;%1&quot;的 blame</translation>
+    </message>
+    <message>
+        <source>Blame Current File</source>
+        <translation>Blame 当前文件</translation>
     </message>
     <message>
         <source>Alt+G,Alt+B</source>
@@ -8732,7 +8914,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Undo Uncommited Changes...</source>
-        <translation>撤销未提交的修改...</translation>
+        <translation type="obsolete">撤销未提交的修改...</translation>
     </message>
     <message>
         <source>Clean...</source>
@@ -9003,6 +9185,10 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Stash Pop</translation>
     </message>
     <message>
+        <source>Undo Uncommitted Changes...</source>
+        <translation>撤销未提交的修改...</translation>
+    </message>
+    <message>
         <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
         <translation>使用 &quot;Stash&quot; 还原保存在临时存储列表中的修改。</translation>
     </message>
@@ -9159,7 +9345,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Git needs to find Perl in the environment as well.</source>
-        <translation>Git 需要在环境变量中找到 Perl.</translation>
+        <translation type="obsolete">Git 需要在环境变量中找到 Perl.</translation>
     </message>
     <message>
         <source>Note that huge amount of commits might take some time.</source>
@@ -9167,7 +9353,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Log commit display count:</source>
-        <translation>显示 commit 记录的数量:</translation>
+        <translation type="obsolete">显示 commit 记录的数量:</translation>
     </message>
     <message>
         <source>Git</source>
@@ -9215,7 +9401,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Environment Variables</source>
-        <translation>环境变量</translation>
+        <translation type="obsolete">环境变量</translation>
     </message>
     <message>
         <source>From System</source>
@@ -9241,6 +9427,18 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Arguments:</source>
         <translation>参数:</translation>
     </message>
+    <message>
+        <source>Customize Environment:</source>
+        <translation>自定义环境:</translation>
+    </message>
+    <message>
+        <source>Git needs to find Perl in the environment.</source>
+        <translation>Git 需要在环境变量中找到 Perl.</translation>
+    </message>
+    <message>
+        <source>Log count:</source>
+        <translation>日志数:</translation>
+    </message>
 </context>
 <context>
     <name>GitCommand</name>
@@ -9248,7 +9446,7 @@ on slow machines. In this case, the value should be increased.</source>
         <source>
 &apos;%1&apos; failed (exit code %2).
 </source>
-        <translation>
+        <translation type="obsolete">
 &apos;%1&apos; 失败 (退出代码 %2)。
 </translation>
     </message>
@@ -9256,7 +9454,7 @@ on slow machines. In this case, the value should be increased.</source>
         <source>
 &apos;%1&apos; completed (exit code %2).
 </source>
-        <translation>
+        <translation type="obsolete">
 &apos;%1&apos; 完成 (退出代码 %2)。
 </translation>
     </message>
@@ -9429,6 +9627,10 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>主页</translation>
     </message>
     <message>
+        <source>Report Bug...</source>
+        <translation>汇报错误...</translation>
+    </message>
+    <message>
         <source>Previous</source>
         <translation>上一个</translation>
     </message>
@@ -9458,7 +9660,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Report Bug</source>
-        <translation>错误汇报</translation>
+        <translation type="obsolete">错误汇报</translation>
     </message>
     <message>
         <source>Activate Index in Help mode</source>
@@ -9667,7 +9869,7 @@ on slow machines. In this case, the value should be increased.</source>
     <name>Locator</name>
     <message>
         <source>Filters</source>
-        <translation>过滤器</translation>
+        <translation type="obsolete">过滤器</translation>
     </message>
     <message>
         <source>Locator</source>
@@ -10666,6 +10868,16 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
     <message>
         <source>Build System</source>
         <comment>Category for build system isses listened under &apos;Build Issues&apos;</comment>
+        <translation type="obsolete">构建系统</translation>
+    </message>
+    <message>
+        <source>Compile</source>
+        <comment>Category for compiler isses listed under &apos;Issues&apos;</comment>
+        <translation>编译</translation>
+    </message>
+    <message>
+        <source>Build System</source>
+        <comment>Category for build system isses listed under &apos;Issues&apos;</comment>
         <translation>构建系统</translation>
     </message>
     <message>
@@ -10709,7 +10921,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
     <message>
         <source>Compile</source>
         <comment>Category for compiler isses listened under &apos;Build Issues&apos;</comment>
-        <translation>编译</translation>
+        <translation type="obsolete">编译</translation>
     </message>
     <message>
         <source>Buildsystem</source>
@@ -10867,8 +11079,22 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
         <translation>所有项目</translation>
     </message>
     <message>
+        <source>All Projects:</source>
+        <translation>所有项目:</translation>
+    </message>
+    <message>
+        <source>Filter: %1
+%2</source>
+        <translation>过滤器: &apos;%1&apos;
+%2</translation>
+    </message>
+    <message>
+        <source>Fi&amp;le pattern:</source>
+        <translation>文件模式(&amp;l):</translation>
+    </message>
+    <message>
         <source>File &amp;pattern:</source>
-        <translation>文件模式(&amp;p):</translation>
+        <translation type="obsolete">文件模式(&amp;p):</translation>
     </message>
 </context>
 <context>
@@ -10914,15 +11140,15 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
     </message>
     <message>
         <source>Rename</source>
-        <translation>重命名</translation>
+        <translation type="obsolete">重命名</translation>
     </message>
     <message>
         <source>Remove Build Configuration</source>
-        <translation>删除构建配置</translation>
+        <translation type="obsolete">删除构建配置</translation>
     </message>
     <message>
         <source>Do you really want to delete the build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>确定要删除此构建配置&lt;b&gt;%1&lt;/b&gt;吗?</translation>
+        <translation type="obsolete">确定要删除此构建配置&lt;b&gt;%1&lt;/b&gt;吗?</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -10940,6 +11166,34 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
     <message>
         <source>New configuration name:</source>
         <translation>新配置名称:</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
+        <translation>取消构建 &amp;&amp; 移除构建设置</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>不要移除</translation>
+    </message>
+    <message>
+        <source>Remove Build Configuration %1?</source>
+        <translation>删除构建配置%1?</translation>
+    </message>
+    <message>
+        <source>The build configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>构建设置&lt;b&gt;%1&lt;/b&gt; 正在被构建.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Build Configuration anyway?</source>
+        <translation>你想要取消构建并移除构建设置?</translation>
+    </message>
+    <message>
+        <source>Remove Build Configuration?</source>
+        <translation>删除构建配置?</translation>
+    </message>
+    <message>
+        <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
+        <translation>确定要删除此构建配置&lt;b&gt;%1&lt;/b&gt;吗?</translation>
     </message>
     <message>
         <source>Clean Steps</source>
@@ -11063,6 +11317,10 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
     <message>
         <source>Current Project</source>
         <translation>当前项目</translation>
+    </message>
+    <message>
+        <source>Project &apos;%1&apos;:</source>
+        <translation>项目 &apos;%1&apos;:</translation>
     </message>
     <message>
         <source>File &amp;pattern:</source>
@@ -11530,6 +11788,14 @@ to project &apos;%2&apos;.</source>
         <translation>汇总</translation>
     </message>
     <message>
+        <source>Add as a subproject to project:</source>
+        <translation>为当前项目建立一个子项目:</translation>
+    </message>
+    <message>
+        <source>Add to &amp;project:</source>
+        <translation>添加至项目(&amp;p):</translation>
+    </message>
+    <message>
         <source>Files to be added:</source>
         <translation>要添加的文件:</translation>
     </message>
@@ -11568,15 +11834,43 @@ to project &apos;%2&apos;.</source>
     <name>ProjectExplorer::Internal::RunSettingsWidget</name>
     <message>
         <source>Add</source>
-        <translation type="obsolete">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="obsolete">删除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;#&quot;&gt;激活 %1 。&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="obsolete">重命名</translation>
+    </message>
+    <message>
+        <source>Run configuration:</source>
+        <translation>运行配置:</translation>
+    </message>
+    <message>
+        <source>Deployment:</source>
+        <translation type="obsolete">部署:</translation>
+    </message>
+    <message>
+        <source>Run Settings</source>
+        <translation>运行设置</translation>
+    </message>
+    <message>
+        <source>Deployment</source>
+        <translation>部署</translation>
+    </message>
+    <message>
+        <source>Method:</source>
+        <translation>方法:</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>运行</translation>
     </message>
     <message>
         <source>Remove Run Configuration?</source>
@@ -11593,6 +11887,26 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>运行配置的新名称 &lt;b&gt;%1&lt;/b&gt;:</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
+        <translation>取消构建 &amp;&amp; 移除构建设置</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>不要移除</translation>
+    </message>
+    <message>
+        <source>Remove Deploy Configuration %1?</source>
+        <translation>删除部署(deploy)配置%1?</translation>
+    </message>
+    <message>
+        <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>部署设置&lt;b&gt;%1&lt;/b&gt; 正在被构建.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
+        <translation>你想要取消构建并移除部署设置?</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration?</source>
@@ -11639,7 +11953,11 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Rename</source>
-        <translation>重命名</translation>
+        <translation type="obsolete">重命名</translation>
+    </message>
+    <message>
+        <source>Rename ...</source>
+        <translation>重命名...</translation>
     </message>
 </context>
 <context>
@@ -11647,6 +11965,10 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Session</source>
         <translation>会话</translation>
+    </message>
+    <message>
+        <source>Failed to open project</source>
+        <translation>打开项目失败</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -11665,7 +11987,11 @@ to project &apos;%2&apos;.</source>
     <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Build Issues</source>
-        <translation>构建问题</translation>
+        <translation type="obsolete">构建问题</translation>
+    </message>
+    <message>
+        <source>Issues</source>
+        <translation>问题</translation>
     </message>
     <message>
         <source>Filter by categories</source>
@@ -11739,7 +12065,11 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Manage</source>
-        <translation>管理</translation>
+        <translation type="obsolete">管理</translation>
+    </message>
+    <message>
+        <source>Manage ...</source>
+        <translation>管理...</translation>
     </message>
 </context>
 <context>
@@ -11921,8 +12251,40 @@ to project &apos;%2&apos;.</source>
         <translation>Ctrl+R</translation>
     </message>
     <message>
+        <source>Rename...</source>
+        <translation>重命名...</translation>
+    </message>
+    <message>
         <source>Set as Active Project</source>
         <translation>设为活动的项目</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>折叠全部</translation>
+    </message>
+    <message>
+        <source>Failed to open project</source>
+        <translation>打开项目失败</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Unload</source>
+        <translation>退出构建 &amp;&amp; 关闭</translation>
+    </message>
+    <message>
+        <source>Do Not Unload</source>
+        <translation>不要关闭</translation>
+    </message>
+    <message>
+        <source>Unload Project %1?</source>
+        <translation>关闭项目 %1?</translation>
+    </message>
+    <message>
+        <source>The project %1 is currently being built.</source>
+        <translation>项目 %1 正在被构建.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and unload the project anyway?</source>
+        <translation>你想要取消构建并关闭项目?</translation>
     </message>
     <message>
         <source>No active project</source>
@@ -11987,7 +12349,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Rename</source>
-        <translation>重命名</translation>
+        <translation type="obsolete">重命名</translation>
     </message>
     <message>
         <source>Set as Startup Project</source>
@@ -12699,8 +13061,12 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>C++ 库</translation>
     </message>
     <message>
+        <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation>创建一个基于qmake的C++库。 可以用于创建：&lt;ul&gt;&lt;li&gt;用于&lt;tt&gt;QPluginLoader&lt;/tt&gt;和运行时(插件)的共享C++库&lt;/li&gt;&lt;li&gt;在其他项目中链接时使用的动态或静态C++库&lt;/li&gt;&lt;/ul&gt;</translation>
+    </message>
+    <message>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
-        <translation>创建一个基于qmake的C++库。 可以用于创建：&lt;ul&gt;&lt;li&gt;用于&lt;tt&gt;QPluginLoader&lt;/tt&gt;和运行时(插件)的共享C++库&lt;/li&gt;&lt;li&gt;在其他项目中链接时使用的动态或静态C++库&lt;/li&gt;&lt;/ul&gt;.</translation>
+        <translation type="obsolete">创建一个基于qmake的C++库。 可以用于创建：&lt;ul&gt;&lt;li&gt;用于&lt;tt&gt;QPluginLoader&lt;/tt&gt;和运行时(插件)的共享C++库&lt;/li&gt;&lt;li&gt;在其他项目中链接时使用的动态或静态C++库&lt;/li&gt;&lt;/ul&gt;.</translation>
     </message>
     <message>
         <source>Creates a Qt based C++ Library.</source>
@@ -12909,51 +13275,47 @@ Preselects a desktop Qt for building the application if available.</source>
     <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
     <message>
         <source>Headers</source>
-        <translation>头文件</translation>
+        <translation type="obsolete">头文件</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation>源文件</translation>
+        <translation type="obsolete">源文件</translation>
     </message>
     <message>
         <source>Forms</source>
-        <translation>界面文件</translation>
+        <translation type="obsolete">界面文件</translation>
     </message>
     <message>
         <source>Resources</source>
-        <translation>资源文件</translation>
-    </message>
-    <message>
-        <source>QML</source>
-        <translation></translation>
+        <translation type="obsolete">资源文件</translation>
     </message>
     <message>
         <source>Other files</source>
-        <translation>其他文件</translation>
+        <translation type="obsolete">其他文件</translation>
     </message>
     <message>
         <source>Cannot Open File</source>
-        <translation>无法打开文件</translation>
+        <translation type="obsolete">无法打开文件</translation>
     </message>
     <message>
         <source>Cannot open the file for edit with VCS.</source>
-        <translation>无法使用VCS打开用于编辑的文件.</translation>
+        <translation type="obsolete">无法使用VCS打开用于编辑的文件.</translation>
     </message>
     <message>
         <source>Cannot Set Permissions</source>
-        <translation>无法设置权限</translation>
+        <translation type="obsolete">无法设置权限</translation>
     </message>
     <message>
         <source>Cannot set permissions to writable.</source>
-        <translation>无法设置文件的可写权限.</translation>
+        <translation type="obsolete">无法设置文件的可写权限.</translation>
     </message>
     <message>
         <source>Failed!</source>
-        <translation>发生错误!</translation>
+        <translation type="obsolete">发生错误!</translation>
     </message>
     <message>
         <source>File Error</source>
-        <translation>文件错误</translation>
+        <translation type="obsolete">文件错误</translation>
     </message>
     <message>
         <source>Could not open the file for edit with VCS.</source>
@@ -12973,11 +13335,11 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>There are unsaved changes for project file %1.</source>
-        <translation>项目文件 %1 中还有未保存的改变.</translation>
+        <translation type="obsolete">项目文件 %1 中还有未保存的改变.</translation>
     </message>
     <message>
         <source>Could not write project file %1.</source>
-        <translation>无法写入工程文件 %1。</translation>
+        <translation type="obsolete">无法写入工程文件 %1。</translation>
     </message>
     <message>
         <source>Error while reading PRO file %1: %2</source>
@@ -13062,9 +13424,14 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>无效的 Qt 版本</translation>
     </message>
     <message>
+        <source>A build for a different project exists in %1, which will be overwritten.</source>
+        <comment>%1 build directory</comment>
+        <translation>一个不同项目的构建存在于%1, 这将会被覆盖.</translation>
+    </message>
+    <message>
         <source>An build for a different project exists in %1, which will be overwritten.</source>
         <comment>%1 build directory</comment>
-        <translation>在%1 存在这不同项目的构建, 这些将被覆盖.</translation>
+        <translation type="obsolete">在%1 存在这不同项目的构建, 这些将被覆盖.</translation>
     </message>
     <message>
         <source>Error:</source>
@@ -13099,7 +13466,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Manage</source>
-        <translation>管理</translation>
+        <translation type="obsolete">管理</translation>
     </message>
     <message>
         <source>Tool Chain:</source>
@@ -13132,6 +13499,10 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Build directory:</source>
         <translation>构建目录:</translation>
+    </message>
+    <message>
+        <source>Manage...</source>
+        <translation>管理...</translation>
     </message>
 </context>
 <context>
@@ -13642,8 +14013,12 @@ p, li { white-space: pre-wrap; }
         <translation>无法找到 Makefile. 检查你的构建设置.</translation>
     </message>
     <message>
-        <source>Configuration is faulty. Check the Build Issues view for details.</source>
+        <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>配置错误. 请点击构建视图查看详细信息.</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty. Check the Build Issues view for details.</source>
+        <translation type="obsolete">配置错误. 请点击构建视图查看详细信息.</translation>
     </message>
     <message>
         <source>Qt Creator needs a tool chain set up to build. Please configure a tool chain in Project mode.</source>
@@ -13723,7 +14098,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Configuration is faulty, please check the Build Issues view for details.</source>
-        <translation>配置有误,请检查“构建问题”视图来获得更多信息.</translation>
+        <translation type="obsolete">配置有误,请检查“构建问题”视图来获得更多信息.</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty, please check the Issues view for details.</source>
+        <translation>配置有误,请检查“问题”视图来获得更多信息.</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping qmake step.</source>
@@ -13747,11 +14126,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>QML Debugging</source>
-        <translation>QML 调试</translation>
+        <translation type="obsolete">QML 调试</translation>
     </message>
     <message>
         <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
-        <translation>需要重新编译项目才能使选项生效.你想现在就重新编译吗?</translation>
+        <translation type="obsolete">需要重新编译项目才能使选项生效.你想现在就重新编译吗?</translation>
     </message>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration is faulty, please check the Build Issues view for details.&lt;/font&gt;</source>
@@ -13803,6 +14182,14 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">没有设置有效的Qt版本</translation>
     </message>
     <message>
+        <source>QML Debugging</source>
+        <translation>QML 调试</translation>
+    </message>
+    <message>
+        <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
+        <translation>需要重新编译项目才能使选项生效.你想现在就重新编译吗?</translation>
+    </message>
+    <message>
         <source>Building helpers</source>
         <translation>构建助手</translation>
     </message>
@@ -13813,6 +14200,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; The tool chain suggested &quot;%1&quot; as mkspec.</source>
+        <translation>&lt;b&gt;警告:&lt;/b&gt; 工具链建议&quot;%1&quot; 作为 mkspec.</translation>
     </message>
     <message>
         <source>Enable QML debugging:</source>
@@ -14880,7 +15271,15 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Override s&amp;tart script:</source>
-        <translation>覆盖启动脚本(&amp;s):</translation>
+        <translation type="obsolete">覆盖启动脚本(&amp;s):</translation>
+    </message>
+    <message>
+        <source>Location of debugging information:</source>
+        <translation>调试信息位置:</translation>
+    </message>
+    <message>
+        <source>Override host GDB s&amp;tart script:</source>
+        <translation>覆盖主机GDB启动脚本(&amp;t):</translation>
     </message>
 </context>
 <context>
@@ -15253,7 +15652,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Out of memory</source>
-        <translation>内存不足</translation>
+        <translation type="obsolete">内存不足</translation>
     </message>
     <message>
         <source>Opening file</source>
@@ -15733,6 +16132,16 @@ The following encodings are likely to fit:</source>
         <source>Current File</source>
         <translation>当前文件</translation>
     </message>
+    <message>
+        <source>File &apos;%1&apos;:</source>
+        <translation>文件&apos;%1&apos;:</translation>
+    </message>
+    <message>
+        <source>File path: %1
+%2</source>
+        <translation>文件路径: &apos;%1&apos;
+%2</translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::Internal::FindInFiles</name>
@@ -15742,23 +16151,23 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <source>Files on File System</source>
-        <translation>在文件系统中的文件</translation>
+        <translation type="obsolete">在文件系统中的文件</translation>
     </message>
     <message>
         <source>&amp;Directory:</source>
-        <translation>目录(&amp;D):</translation>
+        <translation type="obsolete">目录(&amp;D):</translation>
     </message>
     <message>
         <source>&amp;Browse</source>
-        <translation>浏览(&amp;B)</translation>
+        <translation type="obsolete">浏览(&amp;B)</translation>
     </message>
     <message>
         <source>File &amp;pattern:</source>
-        <translation>文件模式(&amp;p):</translation>
+        <translation type="obsolete">文件模式(&amp;p):</translation>
     </message>
     <message>
         <source>Directory to search</source>
-        <translation>搜索目录</translation>
+        <translation type="obsolete">搜索目录</translation>
     </message>
 </context>
 <context>
@@ -15943,6 +16352,22 @@ The following encodings are likely to fit:</source>
     <message>
         <source>Delete &amp;Line</source>
         <translation>删除行(&amp;L)</translation>
+    </message>
+    <message>
+        <source>Delete Word From The Cursor On</source>
+        <translation>从光标处删除文字</translation>
+    </message>
+    <message>
+        <source>Delete Word Camel Case From The Cursor On</source>
+        <translation>从光标处删除驼峰式文字</translation>
+    </message>
+    <message>
+        <source>Delete Word Up To The Cursor</source>
+        <translation>从光标上方处删除文字</translation>
+    </message>
+    <message>
+        <source>Delete Word Camel Case Up To The Cursor</source>
+        <translation>从光标上方处删除驼峰式文字</translation>
     </message>
     <message>
         <source>Fold</source>
@@ -16322,6 +16747,50 @@ The following encodings are likely to fit:</source>
     <message>
         <source>Virtual Method</source>
         <translation>虚方法</translation>
+    </message>
+    <message>
+        <source>QML Binding</source>
+        <translation>QML 绑定</translation>
+    </message>
+    <message>
+        <source>QML Local Id</source>
+        <translation>QML 本地 ID</translation>
+    </message>
+    <message>
+        <source>QML Root Object Property</source>
+        <translation>QML 根对象属性</translation>
+    </message>
+    <message>
+        <source>QML Scope Object Property</source>
+        <translation>QML 范围对象的属性</translation>
+    </message>
+    <message>
+        <source>QML State Name</source>
+        <translation>QML 状态名称</translation>
+    </message>
+    <message>
+        <source>QML Type Name</source>
+        <translation>QML类型名称</translation>
+    </message>
+    <message>
+        <source>QML External Id</source>
+        <translation>QML 外部 ID</translation>
+    </message>
+    <message>
+        <source>QML External Object Property</source>
+        <translation>QML 外部对象属性</translation>
+    </message>
+    <message>
+        <source>JavaScript Scope Var</source>
+        <translation>JavaScript 范围变量</translation>
+    </message>
+    <message>
+        <source>JavaScript Import</source>
+        <translation>JavaScript 导入</translation>
+    </message>
+    <message>
+        <source>JavaScript Global Variable</source>
+        <translation>JavaScript 全局变量</translation>
     </message>
     <message>
         <source>Keyword</source>
@@ -17817,7 +18286,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;b&gt;Qt LGPL Support&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Buy commercial Qt support&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt LGPL 支持&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;购买商业 Qt 支持&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt LGPL 支持&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;购买商业 Qt 支持&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Centre&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Community based Qt support&lt;/font&gt;</source>
@@ -17825,23 +18294,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;b&gt;Forum Nokia&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Mobile application support&lt;/font&gt;</source>
-        <translation>&lt;b&gt;诺基亚论坛&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;移动应用帮助&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;诺基亚论坛&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;移动应用帮助&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt DevNet&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt Developer Resources&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt开发网站&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt Developer Resources&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt开发网站&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt Developer Resources&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Home&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt by Nokia on the web&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt 主页&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;诺基亚Qt主页&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt 主页&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;诺基亚Qt主页&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Git Hosting&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Participate in Qt development&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt Git 主页&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;参与Qt开发&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt Git 主页&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;参与Qt开发&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Apps&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Find free Qt-based apps&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt 应用&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;寻找基于Qt的免费应用&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt 应用&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;寻找基于Qt的免费应用&lt;/font&gt;</translation>
     </message>
     <message>
         <source>News From the Qt Labs</source>
@@ -17858,11 +18327,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Qt Websites</source>
         <translation type="obsolete">Qt Web站点</translation>
-    </message>
-    <message>
-        <source>http://labs.trolltech.com/blogs/feed</source>
-        <extracomment>Add localized feed here only if one exists</extracomment>
-        <translation></translation>
     </message>
     <message>
         <source>Qt Home</source>
@@ -18073,7 +18537,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="obsolete">编辑...</translation>
+        <translation>编辑...</translation>
     </message>
     <message>
         <source>Choose Location for New License Template File</source>
@@ -18085,7 +18549,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Edit</source>
-        <translation>编辑</translation>
+        <translation type="obsolete">编辑</translation>
     </message>
     <message>
         <source>Template write error</source>
@@ -18103,8 +18567,16 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">搜索中...</translation>
     </message>
     <message>
+        <source>C++ Usages:</source>
+        <translation>C++ 使用:</translation>
+    </message>
+    <message>
         <source>Searching</source>
         <translation>搜索中</translation>
+    </message>
+    <message>
+        <source>C++ Macro Usages:</source>
+        <translation>C++ Marco 使用:</translation>
     </message>
 </context>
 <context>
@@ -19780,7 +20252,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Unable to open the project &apos;%1&apos;.</source>
-        <translation>无法打开项目 &apos;%1&apos;。</translation>
+        <translation type="obsolete">无法打开项目 &apos;%1&apos;。</translation>
     </message>
 </context>
 <context>
@@ -20132,7 +20604,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <name>QmlParser</name>
     <message>
         <source>Illegal character</source>
-        <translation>非法字符</translation>
+        <translation type="obsolete">非法字符</translation>
     </message>
     <message>
         <source>Unclosed string at end of line</source>
@@ -20148,11 +20620,11 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Illegal escape sequence</source>
-        <translation>非法的转义序列</translation>
+        <translation type="obsolete">非法的转义序列</translation>
     </message>
     <message>
         <source>Unclosed comment at end of file</source>
-        <translation>在文件末有未关闭的注释</translation>
+        <translation type="obsolete">在文件末有未关闭的注释</translation>
     </message>
     <message>
         <source>Illegal syntax for exponential number</source>
@@ -20160,7 +20632,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Identifier cannot start with numeric literal</source>
-        <translation>标识符不能以数字打头</translation>
+        <translation type="obsolete">标识符不能以数字打头</translation>
     </message>
     <message>
         <source>Unterminated regular expression literal</source>
@@ -20387,7 +20859,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>The number of recent commit logs to show, choose 0 to see all enteries</source>
-        <translation>要显示的最近提交日志的数目，选择 0 查看所有内容</translation>
+        <translation type="obsolete">要显示的最近提交日志的数目，选择 0 查看所有内容</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -20412,6 +20884,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Default email:</source>
         <translation>默认电子邮件:</translation>
+    </message>
+    <message>
+        <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
+        <translation>最近提交的日志数, 选择0 来查看所有.</translation>
     </message>
 </context>
 <context>
@@ -20445,11 +20921,15 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Specify Url:</source>
-        <translation>指定 Url:</translation>
+        <translation type="obsolete">指定 Url:</translation>
     </message>
     <message>
         <source>Default Location</source>
         <translation>默认位置</translation>
+    </message>
+    <message>
+        <source>Specify URL:</source>
+        <translation>指定URL:</translation>
     </message>
 </context>
 <context>
@@ -20927,7 +21407,11 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <name>ProjectExplorer</name>
     <message>
         <source>Projects</source>
-        <translation>项目</translation>
+        <translation type="obsolete">项目</translation>
+    </message>
+    <message>
+        <source>Build &amp; Run</source>
+        <translation>构建和运行</translation>
     </message>
     <message>
         <source>Other Project</source>
@@ -21106,7 +21590,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Linux Devices</source>
-        <translation>Linux 设备</translation>
+        <translation type="obsolete">Linux 设备</translation>
     </message>
 </context>
 <context>
@@ -21929,7 +22413,7 @@ You can choose between stashing the changes or discarding them.</source>
     <name>MaemoConfigTestDialog</name>
     <message>
         <source>Device Configuration Test</source>
-        <translation>设备配置测试</translation>
+        <translation type="obsolete">设备配置测试</translation>
     </message>
 </context>
 <context>
@@ -22079,7 +22563,7 @@ You can choose between stashing the changes or discarding them.</source>
     <name>MaemoSshConfigDialog</name>
     <message>
         <source>SSH Key Configuration</source>
-        <translation>SSH密钥配置</translation>
+        <translation type="obsolete">SSH密钥配置</translation>
     </message>
     <message>
         <source>Use key from location:</source>
@@ -22103,7 +22587,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Options</source>
-        <translation>选项</translation>
+        <translation type="obsolete">选项</translation>
     </message>
     <message>
         <source>Key size:</source>
@@ -22111,11 +22595,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Key algorithm:</source>
-        <translation>密钥算法:</translation>
+        <translation type="obsolete">密钥算法:</translation>
     </message>
     <message>
         <source>Key</source>
-        <translation>密钥</translation>
+        <translation type="obsolete">密钥</translation>
     </message>
     <message>
         <source>Save public Key...</source>
@@ -22135,31 +22619,23 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Key &amp;size:</source>
-        <translation>密钥长度(&amp;s):</translation>
-    </message>
-    <message>
-        <source>&amp;RSA</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&amp;DSA</source>
-        <translation></translation>
+        <translation type="obsolete">密钥长度(&amp;s):</translation>
     </message>
     <message>
         <source>&amp;Generate SSH Key</source>
-        <translation>生成SSH密钥(&amp;G)</translation>
+        <translation type="obsolete">生成SSH密钥(&amp;G)</translation>
     </message>
     <message>
         <source>Save P&amp;ublic Key...</source>
-        <translation>保存公钥文件...</translation>
+        <translation type="obsolete">保存公钥文件...</translation>
     </message>
     <message>
         <source>Save Pr&amp;ivate Key...</source>
-        <translation>保存私钥文件...</translation>
+        <translation type="obsolete">保存私钥文件...</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation>关闭(&amp;C)</translation>
+        <translation type="obsolete">关闭(&amp;C)</translation>
     </message>
 </context>
 <context>
@@ -22462,6 +22938,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>期望anchor行</translation>
     </message>
     <message>
+        <source>unreachable</source>
+        <translation>无法到达</translation>
+    </message>
+    <message>
         <source>declarations should be at the start of a function</source>
         <translation>声明必须在函数开头</translation>
     </message>
@@ -22514,12 +22994,32 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>不推荐标识符使用字符串</translation>
     </message>
     <message>
+        <source>&apos;%1&apos; is not a valid property type</source>
+        <translation>&apos;%1&apos; 不是一个有效的属性名称</translation>
+    </message>
+    <message>
+        <source>unintentional empty block, use ({}) for empty object literal</source>
+        <translation>无意的空块, 为空对象使用 ({}) </translation>
+    </message>
+    <message>
+        <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
+        <translation>&apos;new&apos; 只可以被使用在功能开始于大写字母</translation>
+    </message>
+    <message>
+        <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
+        <translation>调用函数开始于大写字母,应当使用&apos;new&apos; </translation>
+    </message>
+    <message>
         <source>avoid assignments in conditions</source>
         <translation>避免条件转让</translation>
     </message>
     <message>
+        <source>case is not terminated and not empty</source>
+        <translation>情况是不被终止不为空</translation>
+    </message>
+    <message>
         <source>case does not end with return, break, continue or throw</source>
-        <translation>case 语句没有在结尾处:return, break, continue 或 throw</translation>
+        <translation type="obsolete">case 语句没有在结尾处:return, break, continue 或 throw</translation>
     </message>
     <message>
         <source>ids must be lower case</source>
@@ -22561,11 +23061,35 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>package not found</source>
-        <translation>无法找到软件包文件</translation>
+        <translation type="obsolete">无法找到软件包文件</translation>
     </message>
     <message>
         <source>Library contains C++ plugins, type dump is in progress.</source>
-        <translation>库包含了C++ 插件, 类型清空中.</translation>
+        <translation type="obsolete">库包含了C++ 插件, 类型清空中.</translation>
+    </message>
+    <message>
+        <source>file or directory not found</source>
+        <translation>文件或路径未找到</translation>
+    </message>
+    <message>
+        <source>QML module not found
+
+Import paths:
+%1
+
+For qmake projects, use the QML_IMPORT_PATH variable to add import paths.
+For qmlproject projects, use the importPaths property to add import paths.</source>
+        <translation>QML 模块未找到
+
+导入路径:
+%1
+
+对于 qmake 项目, 使用QML_IMPORT_PATH 来添加导入路径.
+对于qmlproject 项目,使用 importPaths 属性来导入路径.</translation>
+    </message>
+    <message>
+        <source>QML module contains C++ plugins, currently reading type information...</source>
+        <translation>QML 模块包含C++ 模块, 正读取类型信息...</translation>
     </message>
 </context>
 <context>
@@ -23163,7 +23687,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>按内容调整列宽</translation>
+        <translation type="obsolete">按内容调整列宽</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -23271,7 +23795,7 @@ Previous decimal signed value (big endian): %4</source>
     <name>Git::Internal::GitCommand</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
-        <translation>错误: Git 在 %1秒后超时.</translation>
+        <translation type="obsolete">错误: Git 在 %1秒后超时.</translation>
     </message>
 </context>
 <context>
@@ -23422,6 +23946,14 @@ Previous decimal signed value (big endian): %4</source>
         <translation type="obsolete">举例对象类名:</translation>
     </message>
     <message>
+        <source>Creates a plain C project using qmake, not using the Qt library.</source>
+        <translation>使用QMake创建一个纯C语言的项目, 不使用Qt 的库.</translation>
+    </message>
+    <message>
+        <source>Creates a plain C++ project using qmake, not using the Qt library.</source>
+        <translation>使用QMake创建一个纯C++语言的项目, 不使用Qt 的库.</translation>
+    </message>
+    <message>
         <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</source>
         <translation>创建一个C++插件，可以在应用中使用QDeclarativeEngine来动态调用此插件。</translation>
     </message>
@@ -23458,8 +23990,28 @@ Previous decimal signed value (big endian): %4</source>
         <translation>Qt Creator插件</translation>
     </message>
     <message>
+        <source>URL:</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Other Project</source>
         <translation>其他项目</translation>
+    </message>
+    <message>
+        <source>Creates a plain C project using QMake, not using the Qt library.</source>
+        <translation type="obsolete">使用QMake创建一个纯C语言的项目, 不使用Qt 的库.</translation>
+    </message>
+    <message>
+        <source>Plain C Project</source>
+        <translation>纯C语言项目</translation>
+    </message>
+    <message>
+        <source>Creates a plain C++ project using QMake, not using the Qt library.</source>
+        <translation type="obsolete">使用QMake创建一个纯C语言的项目, 不使用Qt 的库.</translation>
+    </message>
+    <message>
+        <source>Plain C++ Project</source>
+        <translation>纯C++语言项目</translation>
     </message>
     <message>
         <source>Plugin Information</source>
@@ -23487,7 +24039,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
     <message>
         <source>Url:</source>
-        <translation>Url:</translation>
+        <translation type="obsolete">Url:</translation>
     </message>
     <message>
         <source>Qt Creator sources:</source>
@@ -23497,12 +24049,24 @@ Previous decimal signed value (big endian): %4</source>
         <source>Qt Creator build:</source>
         <translation>Qt Creator构建:</translation>
     </message>
+    <message>
+        <source>Deploy into:</source>
+        <translation>部署到:</translation>
+    </message>
+    <message>
+        <source>Qt Creator build</source>
+        <translation>Qt Creator 构建</translation>
+    </message>
+    <message>
+        <source>Local user settings</source>
+        <translation>本地用户设置</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::CustomProjectWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
-        <translation>无法打开项目 %1 。</translation>
+        <translation type="obsolete">无法打开项目 %1 。</translation>
     </message>
 </context>
 <context>
@@ -23568,11 +24132,11 @@ Previous decimal signed value (big endian): %4</source>
     </message>
     <message>
         <source>Show in Explorer...</source>
-        <translation>在Explorer中显示...</translation>
+        <translation type="obsolete">在Explorer中显示...</translation>
     </message>
     <message>
         <source>Show in Finder...</source>
-        <translation>在搜索器中显示 ...</translation>
+        <translation type="obsolete">在搜索器中显示 ...</translation>
     </message>
     <message>
         <source>Show containing folder...</source>
@@ -23599,20 +24163,24 @@ Previous decimal signed value (big endian): %4</source>
         <translation>选择文件夹</translation>
     </message>
     <message>
+        <source>Find in this directory...</source>
+        <translation>在这个目录中搜索...</translation>
+    </message>
+    <message>
         <source>Show Containing Folder...</source>
-        <translation>显示包含的目录...</translation>
+        <translation type="obsolete">显示包含的目录...</translation>
     </message>
     <message>
         <source>Open Command Prompt Here...</source>
-        <translation>在此打开命令行控制台...</translation>
+        <translation type="obsolete">在此打开命令行控制台...</translation>
     </message>
     <message>
         <source>Open Terminal Here...</source>
-        <translation>在此打开终端...</translation>
+        <translation type="obsolete">在此打开终端...</translation>
     </message>
     <message>
         <source>Launching a file browser failed</source>
-        <translation>启动文件浏览器失败</translation>
+        <translation type="obsolete">启动文件浏览器失败</translation>
     </message>
     <message>
         <source>Unable to start the file manager:
@@ -23620,7 +24188,7 @@ Previous decimal signed value (big endian): %4</source>
 %1
 
 </source>
-        <translation>无法启动文件管理器:
+        <translation type="obsolete">无法启动文件管理器:
 
 %1
 
@@ -23630,17 +24198,17 @@ Previous decimal signed value (big endian): %4</source>
         <source>&apos;%1&apos; returned the following error:
 
 %2</source>
-        <translation>&apos;%1&apos; 返回以下错误:
+        <translation type="obsolete">&apos;%1&apos; 返回以下错误:
 
 %2</translation>
     </message>
     <message>
         <source>Settings...</source>
-        <translation>设定...</translation>
+        <translation type="obsolete">设定...</translation>
     </message>
     <message>
         <source>Launching Windows Explorer Failed</source>
-        <translation>启动Windows Explorer 失败</translation>
+        <translation type="obsolete">启动Windows Explorer 失败</translation>
     </message>
     <message>
         <source>Launching Windows Explorer failed</source>
@@ -23648,7 +24216,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
     <message>
         <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
-        <translation>在环境变量中找不到explorer.exe,无法启动Windows Explorer.</translation>
+        <translation type="obsolete">在环境变量中找不到explorer.exe,无法启动Windows Explorer.</translation>
     </message>
 </context>
 <context>
@@ -23723,14 +24291,14 @@ Previous decimal signed value (big endian): %4</source>
     <name>RunSettingsPanelFactory</name>
     <message>
         <source>Run Settings</source>
-        <translation>运行设置</translation>
+        <translation type="obsolete">运行设置</translation>
     </message>
 </context>
 <context>
     <name>RunSettingsPanel</name>
     <message>
         <source>Run Settings</source>
-        <translation>运行设置</translation>
+        <translation type="obsolete">运行设置</translation>
     </message>
 </context>
 <context>
@@ -23738,6 +24306,26 @@ Previous decimal signed value (big endian): %4</source>
     <message>
         <source>No target defined.</source>
         <translation>没有定义目标.</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Remove Target</source>
+        <translation>退出构建并移除目标</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>不要移除</translation>
+    </message>
+    <message>
+        <source>Remove Target %1?</source>
+        <translation>移除目标%1?</translation>
+    </message>
+    <message>
+        <source>The target &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>目标&lt;b&gt;%1&lt;/b&gt; 正在被构建.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Target anyway?</source>
+        <translation>你想要取消构建并移除目标?</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -24289,13 +24877,6 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Qt Quick</name>
-    <message>
-        <source>Qt Quick</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>Qml::Internal::QLineGraph</name>
     <message>
         <source>Frame rate</source>
@@ -24644,39 +25225,39 @@ Please check your project settings.</source>
     <name>QmlJSEditor::Internal::QmlJSEditorFactory</name>
     <message>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
-        <translation>你想启用尚处在实验阶段的Qt Quick 设计器吗?</translation>
+        <translation type="obsolete">你想启用尚处在实验阶段的Qt Quick 设计器吗?</translation>
     </message>
     <message>
         <source>Enable Qt Quick Designer</source>
-        <translation>启用Qt Quick 设计器</translation>
+        <translation type="obsolete">启用Qt Quick 设计器</translation>
     </message>
     <message>
         <source>Qt Creator -&gt; About Plugins...</source>
-        <translation>Qt Creator -&gt; 关于插件...</translation>
+        <translation type="obsolete">Qt Creator -&gt; 关于插件...</translation>
     </message>
     <message>
         <source>Help -&gt; About Plugins...</source>
-        <translation>帮助 -&gt; 关于插件...</translation>
+        <translation type="obsolete">帮助 -&gt; 关于插件...</translation>
     </message>
     <message>
         <source>Enable experimental Qt Quick Designer?</source>
-        <translation>启用尚处在实验阶段的Qt Quick 设计器吗?</translation>
+        <translation type="obsolete">启用尚处在实验阶段的Qt Quick 设计器吗?</translation>
     </message>
     <message>
         <source>Do you want to enable the experimental Qt Quick Designer? After enabling it, you can access the visual design capabilities by switching to Design Mode. This can affect the overall stability of Qt Creator. To disable Qt Quick Designer again, visit the menu &apos;%1&apos; and disable &apos;QmlDesigner&apos;.</source>
-        <translation>启用尚处在实验阶段的Qt Quick 设计器吗?启用之后，你可以通过设计按钮切换到设计模式.这可能会影响到Qt Creator的稳定性.如要关闭Qt Quick设计器，请访问菜单&apos;%1&apos;然后关闭&apos;QmlDesigner&apos;.</translation>
+        <translation type="obsolete">启用尚处在实验阶段的Qt Quick 设计器吗?启用之后，你可以通过设计按钮切换到设计模式.这可能会影响到Qt Creator的稳定性.如要关闭Qt Quick设计器，请访问菜单&apos;%1&apos;然后关闭&apos;QmlDesigner&apos;.</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>取消</translation>
+        <translation type="obsolete">取消</translation>
     </message>
     <message>
         <source>Please restart Qt Creator</source>
-        <translation>请重新启动Qt Creator</translation>
+        <translation type="obsolete">请重新启动Qt Creator</translation>
     </message>
     <message>
         <source>Please restart Qt Creator to make the change effective.</source>
-        <translation>请重新启动Qt Creator使配置生效.</translation>
+        <translation type="obsolete">请重新启动Qt Creator使配置生效.</translation>
     </message>
 </context>
 <context>
@@ -24706,8 +25287,28 @@ Please check your project settings.</source>
         <translation>JS 文件</translation>
     </message>
     <message>
+        <source>Rename Symbol Under Cursor</source>
+        <translation>重命名光标所在符号</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+R</source>
+        <translation>Ctrl+Shift+R</translation>
+    </message>
+    <message>
+        <source>Run Checks</source>
+        <translation>运行检查</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+C</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>QML</source>
         <translation>QML</translation>
+    </message>
+    <message>
+        <source>QML Analysis</source>
+        <translation>QML 分析</translation>
     </message>
     <message>
         <source>Follow Symbol Under Cursor</source>
@@ -24822,10 +25423,18 @@ QML应用程序工程通过QML运行时执行， 不需要编译。</translation
         <translation>Qt Quick UI</translation>
     </message>
     <message>
-        <source>Creates a  Qt Quick UI project with a single QML file that contains the main view.
+        <source>Creates a Qt Quick UI project with a single QML file that contains the main view.
 
 You can review Qt Quick UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.</source>
         <translation>创建 Qt QML应用程序工程， 该工程带一个单一QML文件， 其中包含主视图。
+
+QML应用程序工程通过QML运行时执行， 不需要编译。</translation>
+    </message>
+    <message>
+        <source>Creates a  Qt Quick UI project with a single QML file that contains the main view.
+
+You can review Qt Quick UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.</source>
+        <translation type="obsolete">创建 Qt QML应用程序工程， 该工程带一个单一QML文件， 其中包含主视图。
 
 QML应用程序工程通过QML运行时执行， 不需要编译。</translation>
     </message>
@@ -24920,6 +25529,10 @@ QML应用程序工程通过QML运行时执行， 不需要编译。</translation
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>打开项目 &apos;%1&apos;失败:项目已经被打开</translation>
+    </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project file is not a file</source>
+        <translation>打开项目 &apos;%1&apos;失败: 工程文件不是一个文件</translation>
     </message>
 </context>
 <context>
@@ -25583,7 +26196,7 @@ Did you start Qemu?</source>
     </message>
     <message>
         <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Build Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
-        <translation>%1&lt;p&gt;&lt;em&gt;这些改变不是你构建系统的一部分&lt;/em&gt; 但也是被需要的以确保&lt;em&gt;自签名的&lt;/em&gt;包可以被顺利安装到设备上 .&lt;/p&gt;&lt;p&gt;检查构建情况窗口来获取详细信息.&lt;/p&gt;&lt;p&gt;请浏览&lt;a href=&quot;%2&quot;&gt;文档&lt;/a&gt; 来了解其他不需要这个补丁的签名选项.&lt;/p&gt;</translation>
+        <translation type="obsolete">%1&lt;p&gt;&lt;em&gt;这些改变不是你构建系统的一部分&lt;/em&gt; 但也是被需要的以确保&lt;em&gt;自签名的&lt;/em&gt;包可以被顺利安装到设备上 .&lt;/p&gt;&lt;p&gt;检查构建情况窗口来获取详细信息.&lt;/p&gt;&lt;p&gt;请浏览&lt;a href=&quot;%2&quot;&gt;文档&lt;/a&gt; 来了解其他不需要这个补丁的签名选项.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Ignore patching for this packaging step.</source>
@@ -25624,6 +26237,10 @@ Did you start Qemu?</source>
     <message>
         <source>Could not start process &quot;%1&quot; in %2</source>
         <translation>无法在%2启动进程&apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
+        <translation>%1&lt;p&gt;&lt;em&gt;这些改变不是你构建系统的一部分&lt;/em&gt; 但也是被需要的以确保&lt;em&gt;自签名的&lt;/em&gt;包可以被顺利安装到设备上 .&lt;/p&gt;&lt;p&gt;检查构建情况窗口来获取详细信息.&lt;/p&gt;&lt;p&gt;请浏览&lt;a href=&quot;%2&quot;&gt;文档&lt;/a&gt; 来了解其他不需要这个补丁的签名选项.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Starting: &quot;%1&quot; %2 in %3
@@ -25814,7 +26431,11 @@ Did you start Qemu?</source>
     </message>
     <message>
         <source>Failed to detect the ABI(s) used by the Qt version.</source>
-        <translation>无法检测Qt版本使用的ABI(s).</translation>
+        <translation type="obsolete">无法检测Qt版本使用的ABI(s).</translation>
+    </message>
+    <message>
+        <source>ABI detection failed: Make sure to use a matching tool chain when building.</source>
+        <translation>ABI 检测失败: 构建时确保使用一个匹配的工具链.</translation>
     </message>
     <message>
         <source>No qmlviewer installed.</source>
@@ -25849,8 +26470,8 @@ Did you start Qemu?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Meego</source>
-        <comment>Qt Version is meant for Meego</comment>
+        <source>MeeGo</source>
+        <comment>Qt Version is meant for MeeGo</comment>
         <translation></translation>
     </message>
     <message>
@@ -26188,6 +26809,10 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <translation>仓库创建失败</translation>
     </message>
     <message>
+        <source>Error: Executable timed out after %1s.</source>
+        <translation>错误:可执行档在 %1 s后超时.</translation>
+    </message>
+    <message>
         <source>There is no patch-command configured in the common &apos;Version Control&apos; settings.</source>
         <translation>在&apos;版本控制&apos; 设置中没有设置patch-command .</translation>
     </message>
@@ -26366,7 +26991,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
     <message>
         <source>Edit</source>
-        <translation>编辑</translation>
+        <translation type="obsolete">编辑</translation>
     </message>
     <message>
         <source>&lt;b&gt;Package Manager icon:&lt;/b&gt;</source>
@@ -26403,6 +27028,10 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>Edit spec file</source>
         <translation>编辑spec文件</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation>编辑...</translation>
     </message>
 </context>
 <context>
@@ -26495,6 +27124,24 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <source>Error generating key: %1</source>
         <translation>生成密钥失败:%1</translation>
     </message>
+    <message>
+        <source>Password for Private Key</source>
+        <translation>私钥密码</translation>
+    </message>
+    <message>
+        <source>It is recommended that you secure your private key
+with a password, which you can enter below.</source>
+        <translation>推荐保护您的私钥
+使用密码, 在下面输入.</translation>
+    </message>
+    <message>
+        <source>Encrypt key file</source>
+        <translation>加密密钥文件</translation>
+    </message>
+    <message>
+        <source>Do not encrypt key file</source>
+        <translation>不要加密密钥文件</translation>
+    </message>
 </context>
 <context>
     <name>CodePaster::FileShareProtocol</name>
@@ -26546,6 +27193,10 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>Enter the name of the session:</source>
         <translation>输入会话的名称:</translation>
+    </message>
+    <message>
+        <source>Switch to</source>
+        <translation>切换至</translation>
     </message>
 </context>
 <context>
@@ -26884,12 +27535,20 @@ We will try to work around that, but you may experience problems.</source>
         <translation>分离if语句</translation>
     </message>
     <message>
+        <source>Enclose in %1(...) (Qt %2)</source>
+        <translation>封装在%1(...) (Qt %2)</translation>
+    </message>
+    <message>
+        <source>Enclose in %1(...)</source>
+        <translation>封装在 %1(...)</translation>
+    </message>
+    <message>
         <source>Enclose in QLatin1Char(...)</source>
-        <translation>用QLatin1Char(...)封装</translation>
+        <translation type="obsolete">用QLatin1Char(...)封装</translation>
     </message>
     <message>
         <source>Enclose in QLatin1String(...)</source>
-        <translation>用QLatin1String(...)封装</translation>
+        <translation type="obsolete">用QLatin1String(...)封装</translation>
     </message>
     <message>
         <source>Mark as Translatable</source>
@@ -26955,7 +27614,11 @@ We will try to work around that, but you may experience problems.</source>
     </message>
     <message>
         <source>Show bounding rectangles (A)</source>
-        <translation>显示外围边框(A)</translation>
+        <translation type="obsolete">显示外围边框(A)</translation>
+    </message>
+    <message>
+        <source>Show bounding rectangles and stripes for empty items (Press Key A)</source>
+        <translation>显示外围边框(按键 A)</translation>
     </message>
     <message>
         <source>Only select items with content (S)</source>
@@ -27038,7 +27701,7 @@ Id必须以小写字母开头.</translation>
     <name>BorderImageSpecifics</name>
     <message>
         <source>Image</source>
-        <translation>图像</translation>
+        <translation type="obsolete">图像</translation>
     </message>
     <message>
         <source>Source</source>
@@ -27050,7 +27713,11 @@ Id必须以小写字母开头.</translation>
     </message>
     <message>
         <source>Source size</source>
-        <translation>源尺寸</translation>
+        <translation type="obsolete">源尺寸</translation>
+    </message>
+    <message>
+        <source>BorderImage</source>
+        <translation>边界图片</translation>
     </message>
     <message>
         <source>Left</source>
@@ -27191,7 +27858,7 @@ Id必须以小写字母开头.</translation>
     </message>
     <message>
         <source>Painted size</source>
-        <translation>绘制尺寸</translation>
+        <translation type="obsolete">绘制尺寸</translation>
     </message>
     <message>
         <source>Fill Mode</source>
@@ -27200,11 +27867,11 @@ Id必须以小写字母开头.</translation>
     <message>
         <source>Aliasing</source>
         <translatorcomment>anti-alias</translatorcomment>
-        <translation>边缘锯齿</translation>
+        <translation type="obsolete">边缘锯齿</translation>
     </message>
     <message>
         <source>Smooth</source>
-        <translation>平滑</translation>
+        <translation type="obsolete">平滑</translation>
     </message>
     <message>
         <source>Source Size</source>
@@ -27607,11 +28274,15 @@ Id必须以小写字母开头.</translation>
     </message>
     <message>
         <source>Url</source>
-        <translation>Url</translation>
+        <translation type="obsolete">Url</translation>
     </message>
     <message>
         <source>Title</source>
         <translation type="obsolete">标题</translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation></translation>
     </message>
     <message>
         <source>Pref Width</source>
@@ -28165,7 +28836,7 @@ Id必须以小写字母开头.</translation>
     <name>MaemoProFilesUpdateDialog</name>
     <message>
         <source>Maemo Deployment Issue</source>
-        <translation>Maemo部署事件</translation>
+        <translation type="obsolete">Maemo部署事件</translation>
     </message>
     <message>
         <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator can add the missing information to these files. </source>
@@ -28181,15 +28852,15 @@ Id必须以小写字母开头.</translation>
     </message>
     <message>
         <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
-        <translation>下面列出的项目文件不包含部署Maemo的相关信息，这也就意味着相关目标在设备上无法部署或运行. Qt Creator 将会添加这些信息如果选则了以下各行。</translation>
+        <translation type="obsolete">下面列出的项目文件不包含部署Maemo的相关信息，这也就意味着相关目标在设备上无法部署或运行. Qt Creator 将会添加这些信息如果选则了以下各行。</translation>
     </message>
     <message>
         <source>&amp;Check all</source>
-        <translation>选中全部(&amp;C)</translation>
+        <translation type="obsolete">选中全部(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Uncheck All</source>
-        <translation>取消选中(&amp;U)</translation>
+        <translation type="obsolete">取消选中(&amp;U)</translation>
     </message>
 </context>
 <context>
@@ -28382,7 +29053,7 @@ Id必须以小写字母开头.</translation>
     </message>
     <message>
         <source>file or directory not found</source>
-        <translation>文件或路径未找到</translation>
+        <translation type="obsolete">文件或路径未找到</translation>
     </message>
 </context>
 <context>
@@ -28727,6 +29398,14 @@ Server list was %2.</source>
         <source>No type hierarchy available</source>
         <translation>没有可用的类型层次</translation>
     </message>
+    <message>
+        <source>Bases</source>
+        <translation>基类</translation>
+    </message>
+    <message>
+        <source>Derived</source>
+        <translation>派生</translation>
+    </message>
 </context>
 <context>
     <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
@@ -28744,6 +29423,46 @@ Server list was %2.</source>
     <message>
         <source>Searching</source>
         <translation>搜索中</translation>
+    </message>
+    <message>
+        <source>C++ Symbols:</source>
+        <translation>C++符号:</translation>
+    </message>
+    <message>
+        <source>Classes</source>
+        <translation>类</translation>
+    </message>
+    <message>
+        <source>Methods</source>
+        <translation>方法</translation>
+    </message>
+    <message>
+        <source>Enums</source>
+        <translation>枚举</translation>
+    </message>
+    <message>
+        <source>Declarations</source>
+        <translation>声明</translation>
+    </message>
+    <message>
+        <source>Scope: %1
+Types: %2
+Flags: %3</source>
+        <translation>适用范围：%1
+类型：%2
+标志：%3</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>所有</translation>
+    </message>
+    <message>
+        <source>Projects</source>
+        <translation>项目</translation>
+    </message>
+    <message>
+        <source>, </source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -28858,6 +29577,14 @@ Server list was %2.</source>
     <message>
         <source>Break on data access at address given by expression</source>
         <translation>中断当数据进入表达式提供的地址</translation>
+    </message>
+    <message>
+        <source>Break on QML signal handler</source>
+        <translation>在QML信号处理时中断</translation>
+    </message>
+    <message>
+        <source>Break when JavaScript exception is thrown</source>
+        <translation>JavaScrip丢出异常时中断</translation>
     </message>
     <message>
         <source>Specifying the module (base name of the library or executable)
@@ -29098,6 +29825,10 @@ GDB 允许使用 &apos;\n&apos;来指定命令的序列.</translation>
     <message>
         <source>The CDB debug engine does not support the %1 ABI.</source>
         <translation>CDB 调试引擎不支持%1 ABI.</translation>
+    </message>
+    <message>
+        <source>The CDB debug engine cannot debug gdb core files.</source>
+        <translation>CDB调试引擎无法调试gdb核心文件.</translation>
     </message>
     <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
@@ -29894,6 +30625,10 @@ Setting breakpoints by file name and line number may fail.</source>
 </source>
         <translation>读取debug信息时失败:</translation>
     </message>
+    <message>
+        <source>Interrupting not possible</source>
+        <translation>不可中断</translation>
+    </message>
 </context>
 <context>
     <name>TcfTrkGdbAdapter</name>
@@ -30012,8 +30747,20 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation>正在关闭...</translation>
     </message>
     <message>
+        <source>Status of &apos;%1&apos; changed to &apos;unavailable&apos;.</source>
+        <translation>&apos;%1&apos;的状态转变为&apos;不可用&apos;.</translation>
+    </message>
+    <message>
+        <source>Status of &apos;%1&apos; changed to &apos;enabled&apos;.</source>
+        <translation>&apos;%1&apos;的状态转变为&apos;可用&apos;.</translation>
+    </message>
+    <message>
+        <source>Status of &apos;%1&apos; changed to &apos;not connected&apos;.</source>
+        <translation>&apos;%1&apos;的状态转变为&apos;无连接&apos;.</translation>
+    </message>
+    <message>
         <source>Debug service &apos;%1&apos; became unavailable.</source>
-        <translation>调试服务&apos;%1&apos; 变为不可用.</translation>
+        <translation type="obsolete">调试服务&apos;%1&apos; 变为不可用.</translation>
     </message>
     <message>
         <source>Error: Cannot connect to debug service &apos;%1&apos;. Debugging functionality will be limited.</source>
@@ -30021,11 +30768,11 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Connected to debug service &apos;%1&apos;.</source>
-        <translation>已连接到调试服务器 &apos;%1&apos;.</translation>
+        <translation type="obsolete">已连接到调试服务器 &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Not connected to debug service &apos;%1&apos;.</source>
-        <translation>未连接到调试服务器 &apos;%1&apos;.</translation>
+        <translation type="obsolete">未连接到调试服务器 &apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
@@ -30439,15 +31186,15 @@ instead of its installation directory when run outside git bash.</source>
     <name>ProjectExplorer::UserFileAccessor</name>
     <message>
         <source>Using Old Project Settings File</source>
-        <translation>使用旧的项目设置文件</translation>
+        <translation type="obsolete">使用旧的项目设置文件</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;一个.user 设置的备用文件将会被使用,因为新版 Qt Creator产生了一个没有版本号的文件.&lt;/p&gt;&lt;p&gt;项目设置改变自从最近一次这个版本的Qt Creator 被用做这个项目, 现在产生的改变 &lt;b&gt;不会&lt;/b&gt; 影响到新版本.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;一个.user 设置的备用文件将会被使用,因为新版 Qt Creator产生了一个没有版本号的文件.&lt;/p&gt;&lt;p&gt;项目设置改变自从最近一次这个版本的Qt Creator 被用做这个项目, 现在产生的改变 &lt;b&gt;不会&lt;/b&gt; 影响到新版本.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Project Settings File from a different Environment?</source>
-        <translation>来自于不同环境的项目设置文件?</translation>
+        <translation type="obsolete">来自于不同环境的项目设置文件?</translation>
     </message>
     <message>
         <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
@@ -30455,7 +31202,7 @@ instead of its installation directory when run outside git bash.</source>
 The .user settings files contain environment specific settings. They should not be copied to a different environment. 
 
 Do you still want to load the settings file?</source>
-        <translation>Qt Creator 找到了一个由其他开发环境创建的设置文件, 或许是来自于其他机器的.
+        <translation type="obsolete">Qt Creator 找到了一个由其他开发环境创建的设置文件, 或许是来自于其他机器的.
 
 用户设置文件包含了特定的环境设定. 它不应当被复制到其他应用环境中去. 
 
@@ -30527,6 +31274,10 @@ import QtQuick 1.0 use import Qt 4.7 instead</source>
 </context>
 <context>
     <name>QmlJSEditor::FindReferences</name>
+    <message>
+        <source>QML/JS Usages:</source>
+        <translation>QML/JS 使用:</translation>
+    </message>
     <message>
         <source>Searching</source>
         <translation>搜索中</translation>
@@ -30832,6 +31583,10 @@ Adds the library and include paths to the .pro file.</source>
         <translation>仅限 Qt 4.7.1 或更新.</translation>
     </message>
     <message>
+        <source>Not needed.</source>
+        <translation>不需要.</translation>
+    </message>
+    <message>
         <source>Private headers are missing for this Qt version.</source>
         <translation>这个Qt版本的私有头文件丢失.</translation>
     </message>
@@ -30866,6 +31621,10 @@ Reason: %2</source>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>仅限 Qt 4.7.1 或更新.</translation>
+    </message>
+    <message>
+        <source>Not needed.</source>
+        <translation>不需要.</translation>
     </message>
     <message>
         <source>QMLObserver</source>
@@ -31632,6 +32391,10 @@ stderr was: %1</source>
         <translation>未安装</translation>
     </message>
     <message>
+        <source>QML Viewer version: </source>
+        <translation>QML 查看器版本:</translation>
+    </message>
+    <message>
         <source>QtMobility version: </source>
         <translation type="obsolete">QtMobility 版本: </translation>
     </message>
@@ -31961,8 +32724,12 @@ Preselects Qt for Simulator and mobile targets if available.</source>
         <translation>模块&apos;%3&apos;在&apos;%2&apos;的入口&apos;%1&apos;无效.</translation>
     </message>
     <message>
+        <source>No .pro file for plugin &apos;%1&apos; can be found.</source>
+        <translation>找不到&apos;%1&apos;插件对应的.pro文件.</translation>
+    </message>
+    <message>
         <source>No .pro file for plugin &apos;%1&apos; cannot be found.</source>
-        <translation>没有可被插件&apos;%1&apos;使用的.pro文件被找到.</translation>
+        <translation type="obsolete">没有可被插件&apos;%1&apos;使用的.pro文件被找到.</translation>
     </message>
     <message>
         <source>Could not write file &apos;%1&apos;.</source>
@@ -31997,8 +32764,15 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <message>
         <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
 
-You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.3 or newer is required.</source>
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.4 or newer is required.</source>
         <translation>创建一个包含QML和C++代码以及QDeclarativeView的Qt Quick应用工程.
+这种工程可在桌面或移动平台上部署.例如,你可以将该工程打包成一个SIS包提供给Symbian设备等等.需要Qt 4.7.3以上版本支持. {4.7.4 ?}.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
+
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.3 or newer is required.</source>
+        <translation type="obsolete">创建一个包含QML和C++代码以及QDeclarativeView的Qt Quick应用工程.
 这种工程可在桌面或移动平台上部署.例如,你可以将该工程打包成一个SIS包提供给Symbian设备等等.需要Qt 4.7.3以上版本支持.</translation>
     </message>
     <message>
@@ -32049,7 +32823,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
     <message>
         <source>My Tasks</source>
-        <extracomment>Category under which tasklist tasks are listed in build issues view</extracomment>
+        <extracomment>Category under which tasklist tasks are listed in Issues view</extracomment>
         <translation>我的任务</translation>
     </message>
 </context>
@@ -32061,7 +32835,11 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
     <message>
         <source>Download Definitions</source>
-        <translation>下载定义</translation>
+        <translation type="obsolete">下载定义</translation>
+    </message>
+    <message>
+        <source>Download Definitions...</source>
+        <translation>下载定义...</translation>
     </message>
     <message>
         <source>Autodetect</source>
@@ -32168,8 +32946,12 @@ Please check the directory&apos;s access rights.</source>
         <translation>没有为这个文件找到高亮定义，要为该文件查找一个么?</translation>
     </message>
     <message>
+        <source>Show highlighter options...</source>
+        <translation>显示高亮选项...</translation>
+    </message>
+    <message>
         <source>Show highlighter options</source>
-        <translation>显示高亮选项</translation>
+        <translation type="obsolete">显示高亮选项</translation>
     </message>
 </context>
 <context>
@@ -32709,11 +33491,11 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Add</source>
-        <translation>添加</translation>
+        <translation type="obsolete">添加</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation>编辑</translation>
+        <translation type="obsolete">编辑</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -32722,6 +33504,14 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Reset all to default.</source>
         <translation>重置所有为默认.</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>添加...</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation>编辑...</translation>
     </message>
 </context>
 <context>
@@ -32973,95 +33763,95 @@ Local pulls are not applied to the master branch.</source>
     <name>MaemoDeviceConfigurationsSettingsWidget</name>
     <message>
         <source>Maemo Device Configurations</source>
-        <translation>Maemo设备配置</translation>
+        <translation type="obsolete">Maemo设备配置</translation>
     </message>
     <message>
         <source>&amp;Configuration:</source>
-        <translation>配置(&amp;C):</translation>
+        <translation type="obsolete">配置(&amp;C):</translation>
     </message>
     <message>
         <source>&amp;Name:</source>
-        <translation>名称(&amp;N):</translation>
+        <translation type="obsolete">名称(&amp;N):</translation>
     </message>
     <message>
         <source>Device type:</source>
-        <translation>设备类型:</translation>
+        <translation type="obsolete">设备类型:</translation>
     </message>
     <message>
         <source>Authentication type:</source>
-        <translation>验证类型:</translation>
+        <translation type="obsolete">验证类型:</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>密码</translation>
+        <translation type="obsolete">密码</translation>
     </message>
     <message>
         <source>&amp;Key</source>
-        <translation>密钥(&amp;K)</translation>
+        <translation type="obsolete">密钥(&amp;K)</translation>
     </message>
     <message>
         <source>&amp;Host name:</source>
-        <translation>主机名称(&amp;H):</translation>
+        <translation type="obsolete">主机名称(&amp;H):</translation>
     </message>
     <message>
         <source>IP or host name of the device</source>
-        <translation>设备的IP或者主机名称</translation>
+        <translation type="obsolete">设备的IP或者主机名称</translation>
     </message>
     <message>
         <source>&amp;SSH port:</source>
-        <translation>SSH端口(&amp;S):</translation>
+        <translation type="obsolete">SSH端口(&amp;S):</translation>
     </message>
     <message>
         <source>Free ports:</source>
-        <translation>空闲端口:</translation>
+        <translation type="obsolete">空闲端口:</translation>
     </message>
     <message>
         <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
-        <translation>你可以输入范围,输入形式如:1024,1026-1028,1030</translation>
+        <translation type="obsolete">你可以输入范围,输入形式如:1024,1026-1028,1030</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation>TextLabel</translation>
+        <translation type="obsolete">TextLabel</translation>
     </message>
     <message>
         <source>Connection time&amp;out:</source>
-        <translation>连接超时(&amp;o):</translation>
+        <translation type="obsolete">连接超时(&amp;o):</translation>
     </message>
     <message>
         <source>s</source>
-        <translation>秒</translation>
+        <translation type="obsolete">秒</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
-        <translation>用户名(&amp;U):</translation>
+        <translation type="obsolete">用户名(&amp;U):</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
-        <translation>密码(&amp;P):</translation>
+        <translation type="obsolete">密码(&amp;P):</translation>
     </message>
     <message>
         <source>Show password</source>
-        <translation>显示密码</translation>
+        <translation type="obsolete">显示密码</translation>
     </message>
     <message>
         <source>Private key file:</source>
-        <translation>私钥文件:</translation>
+        <translation type="obsolete">私钥文件:</translation>
     </message>
     <message>
         <source>Set as Default</source>
-        <translation>设置为默认</translation>
+        <translation type="obsolete">设置为默认</translation>
     </message>
     <message>
         <source>OS type:</source>
-        <translation>OS 类型:</translation>
+        <translation type="obsolete">OS 类型:</translation>
     </message>
     <message>
         <source>&amp;Add</source>
-        <translation>添加(&amp;A)</translation>
+        <translation type="obsolete">添加(&amp;A)</translation>
     </message>
     <message>
         <source>&amp;Remove</source>
-        <translation>删除(&amp;R)</translation>
+        <translation type="obsolete">删除(&amp;R)</translation>
     </message>
     <message>
         <source>Click here to check whether this device is properly set up to run Maemo projects.</source>
@@ -33073,7 +33863,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Click here if you do not have an SSH key yet.</source>
-        <translation>如果你还没有SSH密钥请点击这里。</translation>
+        <translation type="obsolete">如果你还没有SSH密钥请点击这里。</translation>
     </message>
     <message>
         <source>&amp;Generate SSH Key ...</source>
@@ -33097,11 +33887,11 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Set As Default</source>
-        <translation>设置为默认</translation>
+        <translation type="obsolete">设置为默认</translation>
     </message>
     <message>
         <source>&amp;Generate SSH Key...</source>
-        <translation>生成SSH密钥(&amp;G)...</translation>
+        <translation type="obsolete">生成SSH密钥(&amp;G)...</translation>
     </message>
 </context>
 <context>
@@ -33187,7 +33977,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Do wou want to re-use an existing pair of keys or should a new one be created?</source>
-        <translation>你想要使用现有的密钥还是创建一对新的?</translation>
+        <translation type="obsolete">你想要使用现有的密钥还是创建一对新的?</translation>
     </message>
     <message>
         <source>Re-use existing keys</source>
@@ -33204,6 +33994,10 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Create new keys</source>
         <translation>创建新密钥</translation>
+    </message>
+    <message>
+        <source>Do you want to re-use an existing pair of keys or should a new one be created?</source>
+        <translation>你想要使用现有的密钥还是创建一对新的?</translation>
     </message>
 </context>
 <context>
@@ -33346,19 +34140,19 @@ Local pulls are not applied to the master branch.</source>
     <name>MaemoRemoteProcessesDialog</name>
     <message>
         <source>List of Remote Processes</source>
-        <translation>远程进程列表</translation>
+        <translation type="obsolete">远程进程列表</translation>
     </message>
     <message>
         <source>&amp;Filter by process name:</source>
-        <translation>按进程名过滤(&amp;F):</translation>
+        <translation type="obsolete">按进程名过滤(&amp;F):</translation>
     </message>
     <message>
         <source>&amp;Update List</source>
-        <translation>更新列表(&amp;U)</translation>
+        <translation type="obsolete">更新列表(&amp;U)</translation>
     </message>
     <message>
         <source>&amp;Kill Selected Process</source>
-        <translation>停止选中进程(&amp;K)</translation>
+        <translation type="obsolete">停止选中进程(&amp;K)</translation>
     </message>
 </context>
 <context>
@@ -33574,11 +34368,11 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
     </message>
     <message>
         <source>Application icon (64x64):</source>
-        <translation type="obsolete">应用程序图标(64x64):</translation>
+        <translation>应用程序图标(64x64):</translation>
     </message>
     <message>
         <source>Application icon (%%w%%x%%h%%):</source>
-        <translation>应用程序图标(%%w%%x%%h%%):</translation>
+        <translation type="obsolete">应用程序图标(%%w%%x%%h%%):</translation>
     </message>
 </context>
 <context>
@@ -33635,7 +34429,7 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
     </message>
     <message>
         <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">开启自动缩进(&amp;I)</translation>
+        <translation>开启自动缩进(&amp;I)</translation>
     </message>
     <message>
         <source>Backspace will go back one indentation level instead of one space.</source>
@@ -33745,19 +34539,19 @@ void foo()
     </message>
     <message>
         <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">跳格键提供自动缩进:</translation>
+        <translation>跳格键提供自动缩进:</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="obsolete">从不</translation>
+        <translation>从不</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation type="obsolete">总是</translation>
+        <translation>总是</translation>
     </message>
     <message>
         <source>In Leading White Space</source>
-        <translation type="obsolete">仅用于行首空白</translation>
+        <translation>仅用于行首空白</translation>
     </message>
     <message>
         <source>Align continuation lines:</source>
@@ -33914,6 +34708,64 @@ Influences the indentation of continuation lines.
     <message>
         <source>Enable scroll &amp;wheel zooming</source>
         <translation>开启鼠标滚轮缩放(&amp;w)</translation>
+    </message>
+    <message>
+        <source>Typing</source>
+        <translation>打字</translation>
+    </message>
+    <message>
+        <source>Backspace indentation:</source>
+        <translation>退格缩进:</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Specifies how backspace interacts with indentation.
+
+&lt;ul&gt;
+&lt;li&gt;None: No interaction at all. Regular plain backspace behavior.
+&lt;/li&gt;
+
+&lt;li&gt;Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.
+&lt;/li&gt;
+
+&lt;li&gt;Unindents: If the character behind the cursor is a space it behaves as a backtab.
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
+</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+指定退格键如何与缩进互动.
+
+&lt;ul&gt;
+&lt;li&gt;无: 没有任何互动. 正常的退格键行为.
+&lt;/li&gt;
+
+&lt;li&gt;跟随上次的缩进: 依据之前行的缩进来进行缩进.
+&lt;/li&gt;
+
+&lt;li&gt;没有缩进: 如果鼠标之后的字符是空格他将表现为 backtab.
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
+</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>Follows Previous Indents</source>
+        <translation>跟随之前的缩进</translation>
+    </message>
+    <message>
+        <source>Unindents</source>
+        <translation>不缩进</translation>
+    </message>
+    <message>
+        <source>Enable &amp;tooltips only when Shift key is down</source>
+        <translation>只有当Shift键按下时,才启用 tooltips(&amp;t)</translation>
+    </message>
+    <message>
+        <source>Always write a newline character at the end of the file.</source>
+        <translation>总是在最后一行之后留一行空白行.</translation>
     </message>
 </context>
 <context>
@@ -34175,6 +35027,10 @@ Influences the indentation of continuation lines.
 <context>
     <name>Valgrind::XmlProtocol::ErrorListModel</name>
     <message>
+        <source>No errors found</source>
+        <translation>没有找到错误</translation>
+    </message>
+    <message>
         <source>What</source>
         <translation>什么</translation>
     </message>
@@ -34412,7 +35268,7 @@ Influences the indentation of continuation lines.
     <name>Analyzer::Internal::AnalyzerPlugin</name>
     <message>
         <source>Analyzer</source>
-        <extracomment>Category under which Analyzer tasks are listed in build issues view</extracomment>
+        <extracomment>Category under which Analyzer tasks are listed in Issues view</extracomment>
         <translation>分析器</translation>
     </message>
 </context>
@@ -34744,6 +35600,66 @@ Influences the indentation of continuation lines.
         <source>Could not write tool specification %1: %2</source>
         <translation type="obsolete">无法读取工具定义%1: %2</translation>
     </message>
+    <message>
+        <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
+        <translation>为应用从ts 文件生成 qm 翻译文件</translation>
+    </message>
+    <message>
+        <source>Release Translations (lrelease)</source>
+        <translation>部署翻译(lrelease)</translation>
+    </message>
+    <message>
+        <source>Linguist</source>
+        <translation>Qt语言家</translation>
+    </message>
+    <message>
+        <source>Synchronizes translator&apos;s ts files with the program code</source>
+        <translation>同步ts文件</translation>
+    </message>
+    <message>
+        <source>Update Translations (lupdate)</source>
+        <translation>更新翻译(lupdate)</translation>
+    </message>
+    <message>
+        <source>Opens the current file in Notepad</source>
+        <translation>用记事本打开当前文件</translation>
+    </message>
+    <message>
+        <source>Edit with Notepad</source>
+        <translation>使用记事本编辑</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation>文本</translation>
+    </message>
+    <message>
+        <source>Runs the current QML file with qmlviewer</source>
+        <translation>使用 qmlviewer 运行当前 QML文件</translation>
+    </message>
+    <message>
+        <source>Preview (qmlviewer)</source>
+        <translation>预览 (qmlviewer)</translation>
+    </message>
+    <message>
+        <source>Qt Quick</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Sorts the selected text</source>
+        <translation>对选定文本进行排序</translation>
+    </message>
+    <message>
+        <source>Sort Selection</source>
+        <translation>排序选定</translation>
+    </message>
+    <message>
+        <source>Opens the current file in vi</source>
+        <translation>在vi中打开当前文件</translation>
+    </message>
+    <message>
+        <source>Edit with vi</source>
+        <translation>使用vi进行编辑</translation>
+    </message>
 </context>
 <context>
     <name>Core::Internal::ExternalToolRunner</name>
@@ -34982,23 +35898,23 @@ Note: This might remove the local file.</source>
     <name>Debugger::Cdb::CdbBreakEventWidget</name>
     <message>
         <source>C++ exception</source>
-        <translation>C++ 例外</translation>
+        <translation type="obsolete">C++ 例外</translation>
     </message>
     <message>
         <source>Thread creation</source>
-        <translation>线程创建</translation>
+        <translation type="obsolete">线程创建</translation>
     </message>
     <message>
         <source>Thread exit</source>
-        <translation>退出线程</translation>
+        <translation type="obsolete">退出线程</translation>
     </message>
     <message>
         <source>Load module:</source>
-        <translation>载入模块:</translation>
+        <translation type="obsolete">载入模块:</translation>
     </message>
     <message>
         <source>Unload module:</source>
-        <translation>卸载模块:</translation>
+        <translation type="obsolete">卸载模块:</translation>
     </message>
     <message>
         <source>Load Module:</source>
@@ -35010,7 +35926,7 @@ Note: This might remove the local file.</source>
     </message>
     <message>
         <source>Output:</source>
-        <translation>输出:</translation>
+        <translation type="obsolete">输出:</translation>
     </message>
 </context>
 <context>
@@ -35169,7 +36085,11 @@ Note: This might remove the local file.</source>
     </message>
     <message>
         <source>Open Qt4 Options</source>
-        <translation>打开Qt4选项</translation>
+        <translation type="obsolete">打开Qt4选项</translation>
+    </message>
+    <message>
+        <source>Open Qt Options</source>
+        <translation>打开Qt选项</translation>
     </message>
     <message>
         <source>Turn off Helper Usage</source>
@@ -35300,6 +36220,18 @@ Note: This might remove the local file.</source>
         <translation>关联至核心...</translation>
     </message>
     <message>
+        <source>Start and Debug Remote Application...</source>
+        <translation>启动并且调试远程应用...</translation>
+    </message>
+    <message>
+        <source>Attach to Remote Debug Server...</source>
+        <translation>关联至远程调试服务器...</translation>
+    </message>
+    <message>
+        <source>Attach to QML Port...</source>
+        <translation>关联至QML端口...</translation>
+    </message>
+    <message>
         <source>Attach to Running Tcf Agent...</source>
         <translation type="obsolete">关联至运行中的Tcf代理...</translation>
     </message>
@@ -35309,7 +36241,7 @@ Note: This might remove the local file.</source>
     </message>
     <message>
         <source>Start and Attach to Remote Application...</source>
-        <translation>启动并关联至远程应用程序...</translation>
+        <translation type="obsolete">启动并关联至远程应用程序...</translation>
     </message>
     <message>
         <source>Attach to Remote CDB Session...</source>
@@ -35558,17 +36490,25 @@ Note: This might remove the local file.</source>
         <translation>从属调试引擎需要整合QML/C++-调试无法被创建: %1</translation>
     </message>
     <message>
+        <source>C++ debugger activated</source>
+        <translation>激活C++ 调试器</translation>
+    </message>
+    <message>
+        <source>QML debugger activated</source>
+        <translation>激活QML 调试器</translation>
+    </message>
+    <message>
         <source>%1 debugger activated</source>
-        <translation>已激活%1调试器</translation>
+        <translation type="obsolete">已激活%1调试器</translation>
     </message>
     <message>
         <source>QML/C++ Debugging</source>
-        <translation>QML/C++ 调试</translation>
+        <translation type="obsolete">QML/C++ 调试</translation>
     </message>
     <message>
         <source>Cannot stop execution before QML engine is started. Skipping breakpoint.
 Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or switch to C++ only debugging.</source>
-        <translation>无在QML 引擎启动之前法停止执行. 跳过断点.
+        <translation type="obsolete">无在QML 引擎启动之前法停止执行. 跳过断点.
 建议: 移动断点到QmlApplicationViewer 之后或者切换到C++ 调试.</translation>
     </message>
 </context>
@@ -35577,6 +36517,10 @@ Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or swi
     <message>
         <source>QML Debugger connected.</source>
         <translation>QML调试器已连接.</translation>
+    </message>
+    <message>
+        <source>QML Debugger connecting...</source>
+        <translation>正在连接QML调试器...</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -35631,15 +36575,15 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
-        <translation>&lt;p&gt;发生了一个未被捕获的异常:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;发生了一个未被捕获的异常:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
-        <translation>&lt;p&gt;发生未被捕捉到的异常,位置在&lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;发生未被捕捉到的异常,位置在&lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Uncaught Exception</source>
-        <translation>未捕捉的异常</translation>
+        <translation type="obsolete">未捕捉的异常</translation>
     </message>
     <message>
         <source>QML Debugger disconnected.</source>
@@ -35735,7 +36679,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Select the pretty printing format.</source>
-        <translation>选择一个漂亮的输出格式.</translation>
+        <translation type="obsolete">选择一个漂亮的输出格式.</translation>
     </message>
     <message>
         <source>oneline</source>
@@ -36098,8 +37042,16 @@ Do you want to retry?</source>
         <translation>初始化:</translation>
     </message>
     <message>
+        <source>No CDB debugger detected (neither 32bit nor 64bit).</source>
+        <translation>没有检测到CDB调试器 (不管32位还是64位都没有).</translation>
+    </message>
+    <message>
+        <source>No 64bit CDB debugger detected.</source>
+        <translation>没有检测到64位CDB调试器.</translation>
+    </message>
+    <message>
         <source>The CDB debugger could not be found in %1</source>
-        <translation> CDB 调试器无法在 %1找到</translation>
+        <translation type="obsolete"> CDB 调试器无法在 %1找到</translation>
     </message>
 </context>
 <context>
@@ -36273,11 +37225,11 @@ QML component instance objects and properties directly.</source>
     </message>
     <message>
         <source>Rename...</source>
-        <translation>重命名...</translation>
+        <translation type="obsolete">重命名...</translation>
     </message>
     <message>
         <source>New id:</source>
-        <translation>新ID:</translation>
+        <translation type="obsolete">新ID:</translation>
     </message>
     <message>
         <source>Unused variable</source>
@@ -36289,7 +37241,7 @@ QML component instance objects and properties directly.</source>
     </message>
     <message>
         <source>Rename id &apos;%1&apos;...</source>
-        <translation>重命名ID &apos;%1&apos; ...</translation>
+        <translation type="obsolete">重命名ID &apos;%1&apos; ...</translation>
     </message>
 </context>
 <context>
@@ -36388,6 +37340,10 @@ QML component instance objects and properties directly.</source>
     </message>
     <message>
         <source>Methods and functions</source>
+        <translation type="obsolete">方法和功能</translation>
+    </message>
+    <message>
+        <source>Methods and Functions</source>
         <translation>方法和功能</translation>
     </message>
 </context>
@@ -36405,7 +37361,7 @@ QML component instance objects and properties directly.</source>
 Errors:
 %2
 </source>
-        <translation>在  %1丢弃QML插件失败.
+        <translation type="obsolete">在  %1丢弃QML插件失败.
 错误:
 %2
 </translation>
@@ -36416,11 +37372,43 @@ First 10 lines or errors:
 
 %1
 Check &apos;General Messages&apos; output pane for details.</source>
-        <translation>丢弃 C++ 插件失败.
+        <translation type="obsolete">丢弃 C++ 插件失败.
 最初10行存在错误:
 
 %1
 检查 &apos;概要信息&apos; 输出来取得详细信息.</translation>
+    </message>
+    <message>
+        <source>QML module does not contain information about components contained in plugins
+
+Module path: %1
+See &quot;Using QML Modules with Plugins&quot; in the documentation.</source>
+        <translation>QML 模块不包含插件中的组件信息
+
+模块路径: %1
+在文档中查看 &quot;Using QML Modules with Plugins&quot; .</translation>
+    </message>
+    <message>
+        <source>Automatic type dump of QML module failed.
+Errors:
+%1
+</source>
+        <translation>自动 类型转储 QML 模块失败.
+错误:
+%1
+</translation>
+    </message>
+    <message>
+        <source>Automatic type dump of QML module failed.
+First 10 lines or errors:
+
+%1
+Check &apos;General Messages&apos; output pane for details.</source>
+        <translation>自动类型转储QML模块失败.
+前10行或者错误:
+
+%1
+Check &apos;General Messages&apos; output pane for details.</translation>
     </message>
     <message>
         <source>Warnings while parsing qmltypes information of %1:
@@ -36429,9 +37417,19 @@ Check &apos;General Messages&apos; output pane for details.</source>
 %2</translation>
     </message>
     <message>
+        <source>Errors while reading typeinfo files:</source>
+        <translation>读取类型信息文件发生错误:</translation>
+    </message>
+    <message>
+        <source>Could not locate the helper application for dumping type information from C++ plugins.
+Please build the qmldump application on the Qt version options page.</source>
+        <translation>无法定位助手应用来从C++插件类型转储.
+请在Qt 版本页面构建 qmldump应用.</translation>
+    </message>
+    <message>
         <source>Type dump of C++ plugin failed. Parse error:
 &apos;%1&apos;</source>
-        <translation>丢弃C++ 插件错误. 处理错误:
+        <translation type="obsolete">丢弃C++ 插件错误. 处理错误:
 &apos;%1&apos;</translation>
     </message>
     <message>
@@ -36447,7 +37445,7 @@ Error: %2</source>
     <message>
         <source>Could not locate the helper application for dumping type information from C++ plugins.
 Please build the debugging helpers on the Qt version options page.</source>
-        <translation>无法定位帮助信息.
+        <translation type="obsolete">无法定位帮助信息.
 请在Qt 版本选择页面编译调试助手.</translation>
     </message>
 </context>
@@ -36455,7 +37453,11 @@ Please build the debugging helpers on the Qt version options page.</source>
     <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
     <message>
         <source>Manage Qt versions</source>
-        <translation>管理Qt版本</translation>
+        <translation type="obsolete">管理Qt版本</translation>
+    </message>
+    <message>
+        <source>Manage Qt versions...</source>
+        <translation>管理Qt版本...</translation>
     </message>
     <message>
         <source>Qt version:</source>
@@ -36491,6 +37493,10 @@ Please build the debugging helpers on the Qt version options page.</source>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>仅限 Qt 4.7.1 或更新.</translation>
+    </message>
+    <message>
+        <source>Not needed.</source>
+        <translation>不需要.</translation>
     </message>
     <message>
         <source>QML Debugging</source>
@@ -36534,8 +37540,8 @@ Reason: %2</source>
         <translation></translation>
     </message>
     <message>
-        <source>Meego</source>
-        <comment>Qt4 Meego target display name</comment>
+        <source>MeeGo</source>
+        <comment>Qt4 MeeGo target display name</comment>
         <translation></translation>
     </message>
     <message>
@@ -37752,8 +38758,32 @@ Check if the phone is connected and App TRK is running.</source>
         <translation>添加构建</translation>
     </message>
     <message>
+        <source>Create Build Configurations:</source>
+        <translation>创建构建设置:</translation>
+    </message>
+    <message>
+        <source>For Each Qt Version One Debug And One Release</source>
+        <translation>为每个Qt版本分别建立一个调试版本和一个发布版本</translation>
+    </message>
+    <message>
+        <source>For One Qt Version One Debug And One Release</source>
+        <translation>为一个Qt版本分别建立一个调试版本和一个发布版本</translation>
+    </message>
+    <message>
+        <source>Manually</source>
+        <translation>手动设置</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>无</translation>
+    </message>
+    <message>
         <source>Use Shadow Building</source>
         <translation>使用影子构建</translation>
+    </message>
+    <message>
+        <source>Qt Version:</source>
+        <translation>Qt 版本:</translation>
     </message>
     <message>
         <source>debug</source>
@@ -37819,8 +38849,12 @@ Check if the phone is connected and App TRK is running.</source>
         <translation>Symbian 特定</translation>
     </message>
     <message>
-        <source>Maemo5 And Meego Specific</source>
+        <source>Maemo5 And MeeGo Specific</source>
         <translation>指定Maemo5 和Meego </translation>
+    </message>
+    <message>
+        <source>Maemo5 And Meego Specific</source>
+        <translation type="obsolete">指定Maemo5 和Meego </translation>
     </message>
     <message>
         <source>Harmattan Specific</source>
@@ -37886,24 +38920,20 @@ You can build the application and deploy it on desktop and mobile target platfor
 <context>
     <name>Qt4ProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
     <message>
-        <source>Invalid Icon</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>The file is not a valid image.</source>
-        <translation>不是一个合法的图片文件.</translation>
+        <translation type="obsolete">不是一个合法的图片文件.</translation>
     </message>
     <message>
         <source>Wrong Icon Size</source>
-        <translation>错误的图标大小</translation>
+        <translation type="obsolete">错误的图标大小</translation>
     </message>
     <message>
         <source>The icon needs to be %1x%2 pixels big, but is not. Do you want Creator to scale it?</source>
-        <translation>图标必须为 %1x%2 像素, 但实际上不是.你希望Creator 来缩放么?</translation>
+        <translation type="obsolete">图标必须为 %1x%2 像素, 但实际上不是.你希望Creator 来缩放么?</translation>
     </message>
     <message>
         <source>Could not copy icon file: %1</source>
-        <translation>无法复制图标文件: %1</translation>
+        <translation type="obsolete">无法复制图标文件: %1</translation>
     </message>
     <message>
         <source>The icon needs to be 64x64 pixels big, but is not. Do you want Creator to scale it?</source>
@@ -37911,7 +38941,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
     <message>
         <source>File Error</source>
-        <translation>文件错误</translation>
+        <translation type="obsolete">文件错误</translation>
     </message>
     <message>
         <source>Could not copy icon file.</source>
@@ -38089,6 +39119,14 @@ You can build the application and deploy it on desktop and mobile target platfor
 <context>
     <name>VCSBase::VCSBaseClient</name>
     <message>
+        <source>Unable to start process &apos;%1&apos;: %2</source>
+        <translation>无法启动进程&apos;%1&apos;: %2</translation>
+    </message>
+    <message>
+        <source>Timed out after %1s waiting for the process %2 to finish.</source>
+        <translation>超时%1s 等待进程%2 完成.</translation>
+    </message>
+    <message>
         <source>Working...</source>
         <translation>工作中...</translation>
     </message>
@@ -38112,6 +39150,10 @@ You can build the application and deploy it on desktop and mobile target platfor
         <translation>发送至CodePaster...</translation>
     </message>
     <message>
+        <source>Apply Chunk...</source>
+        <translation>应用块...</translation>
+    </message>
+    <message>
         <source>Revert Chunk...</source>
         <translation>恢复块...</translation>
     </message>
@@ -38128,19 +39170,27 @@ You can build the application and deploy it on desktop and mobile target platfor
         <translation>恢复块</translation>
     </message>
     <message>
+        <source>Apply Chunk</source>
+        <translation>应用块</translation>
+    </message>
+    <message>
         <source>Would you like to revert the chunk?</source>
-        <translation>你想要恢复块码?</translation>
+        <translation>你想要恢复块吗?</translation>
+    </message>
+    <message>
+        <source>Would you like to apply the chunk?</source>
+        <translation>你想要应用块吗?</translation>
     </message>
 </context>
 <context>
     <name>VCSBase::VCSJobRunner</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
-        <translation>无法启动进程&apos;%1&apos;: %2</translation>
+        <translation type="obsolete">无法启动进程&apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Timed out after %1s waiting for the process %2 to finish.</source>
-        <translation>超时%1s 等待进程%2 完成.</translation>
+        <translation type="obsolete">超时%1s 等待进程%2 完成.</translation>
     </message>
 </context>
 <context>
@@ -38337,7 +39387,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     <name>Analyzer::StartRemoteDialog</name>
     <message>
         <source>Start Debugger</source>
-        <translation>启动调试器</translation>
+        <translation type="obsolete">启动调试器</translation>
     </message>
     <message>
         <source>Remote</source>
@@ -38382,6 +39432,10 @@ You can build the application and deploy it on desktop and mobile target platfor
     <message>
         <source>Working directory:</source>
         <translation>工作目录:</translation>
+    </message>
+    <message>
+        <source>Start Remote Analysis</source>
+        <translation>开始远程分析</translation>
     </message>
 </context>
 <context>
@@ -38647,19 +39701,35 @@ if they would align to the next line</source>
     <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
     <message>
         <source>Dialog</source>
-        <translation>对话框</translation>
+        <translation type="obsolete">对话框</translation>
     </message>
     <message>
         <source>Address:</source>
-        <translation>地址:</translation>
+        <translation type="obsolete">地址:</translation>
     </message>
     <message>
         <source>127.0.0.1</source>
-        <translation>0.1x {127.0.0.1?}</translation>
+        <translation type="obsolete">0.1x {127.0.0.1?}</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation>端口:</translation>
+        <translation type="obsolete">端口:</translation>
+    </message>
+    <message>
+        <source>QML Profiler</source>
+        <translation>QML 探查器</translation>
+    </message>
+    <message>
+        <source>&amp;Host:</source>
+        <translation>主机(&amp;H):</translation>
+    </message>
+    <message>
+        <source>localhost</source>
+        <translation>本地</translation>
+    </message>
+    <message>
+        <source>&amp;Port:</source>
+        <translation>端口(&amp;P):</translation>
     </message>
 </context>
 <context>
@@ -38674,7 +39744,7 @@ if they would align to the next line</source>
     </message>
     <message>
         <source>Qt Quick Components for Meego/Harmattan</source>
-        <translation>Meego/Harmattan 的Qt Quick 组件 </translation>
+        <translation type="obsolete">Meego/Harmattan 的Qt Quick 组件 </translation>
     </message>
     <message>
         <source>Use an existing .qml file</source>
@@ -38692,7 +39762,7 @@ Requires Qt 4.7.1 or newer.</source>
         <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
 
 Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.</source>
-        <translation>Symbian 的QT 组件是已经定制完成的组件,是设计用来原生支持Symbian 系统平台的.
+        <translation type="obsolete">Symbian 的QT 组件是已经定制完成的组件,是设计用来原生支持Symbian 系统平台的.
 
 需要Qt 4.7.3 或更新, 并且也要安装相应的组件.</translation>
     </message>
@@ -38700,13 +39770,33 @@ Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.
         <source>The Qt Quick Components for Meego/Harmattan are a set of ready-made components that are designed with specific native appearance for the Meego/Harmattan platform.
 
 Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
-        <translation>Meego/Harmattan 的QT 组件是已经定制完成的组件,是设计用来原生支持Symbian 系统平台的.
+        <translation type="obsolete">Meego/Harmattan 的QT 组件是已经定制完成的组件,是设计用来原生支持Symbian 系统平台的.
 
 需要Qt 4.7.3 或更新, 并且也要安装相应的组件.</translation>
     </message>
     <message>
         <source>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>文件夹内所有文件包括主QML文件已经部署. 你可以在部署之前的任何时间修改文件夹里的内容.</translation>
+    </message>
+    <message>
+        <source>Qt Quick Components for MeeGo/Harmattan</source>
+        <translation>Meego/Harmattan 的Qt Quick 组件 </translation>
+    </message>
+    <message>
+        <source>The Qt Quick Components for MeeGo/Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo/Harmattan platform.
+
+Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
+        <translation>Meego/Harmattan 的QT 组件是已经定制完成的组件,是设计用来原生支持Symbian 系统平台的.
+
+需要Qt 4.7.4 或更新, 并且也要安装相应的组件.</translation>
+    </message>
+    <message>
+        <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
+
+Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
+        <translation>Symbian 的QT 组件是已经定制完成的组件,是设计用来原生支持Symbian 系统平台的.
+
+需要Qt 4.7.4 或更新, 并且也要安装相应的组件.</translation>
     </message>
 </context>
 <context>
@@ -38753,7 +39843,7 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
     <message>
         <source>Compile debugging helpers that are checked.</source>
-        <translation>编译选中的调试助手。</translation>
+        <translation type="obsolete">编译选中的调试助手。</translation>
     </message>
     <message>
         <source>Build All</source>
@@ -38791,7 +39881,7 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
     <message>
         <source>Add</source>
-        <translation>添加</translation>
+        <translation type="obsolete">添加</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -38800,6 +39890,10 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <message>
         <source>Clean up</source>
         <translation>清理</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>添加...</translation>
     </message>
 </context>
 <context>
@@ -38860,23 +39954,23 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
     <message>
         <source>Device configuration:</source>
-        <translation>设备配置:</translation>
+        <translation type="obsolete">设备配置:</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;irrelevant&quot;&gt;设置设备选项&lt;/a&gt;</translation>
+        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;设置设备选项&lt;/a&gt;</translation>
     </message>
     <message>
         <source>These show the INSTALLS settings from the project file(s).</source>
-        <translation>显示来自于项目文件的安装(INSTALLS)设置.</translation>
+        <translation type="obsolete">显示来自于项目文件的安装(INSTALLS)设置.</translation>
     </message>
     <message>
         <source>Files to install for subproject:</source>
-        <translation>为子项目需要安装的文件:</translation>
+        <translation type="obsolete">为子项目需要安装的文件:</translation>
     </message>
     <message>
         <source>Edit the project file to add or remove entries.</source>
-        <translation>编辑项目文件添加或删除条目.</translation>
+        <translation type="obsolete">编辑项目文件添加或删除条目.</translation>
     </message>
     <message>
         <source>Add Desktop File</source>
@@ -38891,11 +39985,11 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <name>TextEditor::TabPreferencesWidget</name>
     <message>
         <source>Form</source>
-        <translation>界面</translation>
+        <translation type="obsolete">界面</translation>
     </message>
     <message>
         <source>Tab settings:</source>
-        <translation>标签设置:</translation>
+        <translation type="obsolete">标签设置:</translation>
     </message>
 </context>
 <context>
@@ -38910,15 +40004,15 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
     <message>
         <source>Insert &amp;spaces instead of tabs</source>
-        <translation>插入空格代替制表符(&amp;S)</translation>
+        <translation type="obsolete">插入空格代替制表符(&amp;S)</translation>
     </message>
     <message>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation>按最近的缩进行自动决定 (前一行优先于后一行)</translation>
+        <translation type="obsolete">按最近的缩进行自动决定 (前一行优先于后一行)</translation>
     </message>
     <message>
         <source>Based on the surrounding lines</source>
-        <translation>依据周围行的情况</translation>
+        <translation type="obsolete">依据周围行的情况</translation>
     </message>
     <message>
         <source>Ta&amp;b size:</source>
@@ -38930,15 +40024,15 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
     <message>
         <source>Enable automatic &amp;indentation</source>
-        <translation>开启自动缩进(&amp;I)</translation>
+        <translation type="obsolete">开启自动缩进(&amp;I)</translation>
     </message>
     <message>
         <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation>退格键将退回一个缩进而不是一个空白.</translation>
+        <translation type="obsolete">退格键将退回一个缩进而不是一个空白.</translation>
     </message>
     <message>
         <source>&amp;Backspace follows indentation</source>
-        <translation>退格键跟随缩进(&amp;B)</translation>
+        <translation type="obsolete">退格键跟随缩进(&amp;B)</translation>
     </message>
     <message>
         <source>Align continuation lines:</source>
@@ -39010,19 +40104,35 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Tab key performs auto-indent:</source>
-        <translation>跳格键提供自动缩进:</translation>
+        <translation type="obsolete">跳格键提供自动缩进:</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation>从不</translation>
+        <translation type="obsolete">从不</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation>总是</translation>
+        <translation type="obsolete">总是</translation>
     </message>
     <message>
         <source>In Leading White Space</source>
-        <translation>仅用于行首空白</translation>
+        <translation type="obsolete">仅用于行首空白</translation>
+    </message>
+    <message>
+        <source>Tab policy:</source>
+        <translation>缩进策略:</translation>
+    </message>
+    <message>
+        <source>Spaces Only</source>
+        <translation>仅空格</translation>
+    </message>
+    <message>
+        <source>Tabs Only</source>
+        <translation>仅缩进</translation>
+    </message>
+    <message>
+        <source>Mixed</source>
+        <translation>混合</translation>
     </message>
 </context>
 <context>
@@ -39210,7 +40320,7 @@ With cache simulation, further event counters are enabled:
     <name>VCSBase::VcsConfigurationPage</name>
     <message>
         <source>Configure</source>
-        <translation>配置</translation>
+        <translation type="obsolete">配置</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -39219,6 +40329,10 @@ With cache simulation, further event counters are enabled:
     <message>
         <source>Please configure &lt;b&gt;%1&lt;/b&gt; now.</source>
         <translation>请现在设置&lt;b&gt;%1&lt;/b&gt; .</translation>
+    </message>
+    <message>
+        <source>Configure...</source>
+        <translation>配置...</translation>
     </message>
 </context>
 <context>
@@ -39354,7 +40468,7 @@ With cache simulation, further event counters are enabled:
     <name>Analyzer::AnalyzerRunControl</name>
     <message>
         <source>Build Issues</source>
-        <translation>构建问题</translation>
+        <translation type="obsolete">构建问题</translation>
     </message>
 </context>
 <context>
@@ -39432,7 +40546,7 @@ Would you like to overwrite them?</source>
     <name>CppTools::Internal::CppCodeStylePreferencesWidget</name>
     <message>
         <source>Code style settings:</source>
-        <translation>代码风格设置:</translation>
+        <translation type="obsolete">代码风格设置:</translation>
     </message>
 </context>
 <context>
@@ -39440,7 +40554,24 @@ Would you like to overwrite them?</source>
     <message>
         <source>Global C++</source>
         <comment>Settings</comment>
-        <translation>全局C++</translation>
+        <translation type="obsolete">全局C++</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <comment>Settings</comment>
+        <translation>全局</translation>
+    </message>
+    <message>
+        <source>Qt</source>
+        <translation>Qt</translation>
+    </message>
+    <message>
+        <source>GNU</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Old Creator</source>
+        <translation>旧的 Creator</translation>
     </message>
 </context>
 <context>
@@ -39609,6 +40740,18 @@ These files are preserved.</source>
         <translation>停止</translation>
     </message>
     <message>
+        <source>Close Tab</source>
+        <translation>关闭标签</translation>
+    </message>
+    <message>
+        <source>Close All Tabs</source>
+        <translation>关闭所有标签</translation>
+    </message>
+    <message>
+        <source>Close Other Tabs</source>
+        <translation>关闭其他标签</translation>
+    </message>
+    <message>
         <source>Re-run this run-configuration</source>
         <translation>重新执行运行配置</translation>
     </message>
@@ -39659,15 +40802,15 @@ These files are preserved.</source>
     <name>ProjectWelcomePageWidget</name>
     <message>
         <source>%1 (last session)</source>
-        <translation>%1 (最后的会话)</translation>
+        <translation type="obsolete">%1 (最后的会话)</translation>
     </message>
     <message>
         <source>%1 (current session)</source>
-        <translation>%1 (当前会话)</translation>
+        <translation type="obsolete">%1 (当前会话)</translation>
     </message>
     <message>
         <source>New Project</source>
-        <translation>新项目</translation>
+        <translation type="obsolete">新项目</translation>
     </message>
 </context>
 <context>
@@ -39751,6 +40894,38 @@ These files are preserved.</source>
         <translation>可见性</translation>
     </message>
     <message>
+        <source>Anchors</source>
+        <translation>锚点</translation>
+    </message>
+    <message>
+        <source>Fill</source>
+        <translation>填充</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>重置</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>布局</translation>
+    </message>
+    <message>
+        <source>Layout in Row</source>
+        <translation>行布局</translation>
+    </message>
+    <message>
+        <source>Layout in Column</source>
+        <translation>列布局</translation>
+    </message>
+    <message>
+        <source>Layout in Grid</source>
+        <translation>网格布局</translation>
+    </message>
+    <message>
+        <source>Layout in Flow</source>
+        <translation>流程布局</translation>
+    </message>
+    <message>
         <source>Go into Component</source>
         <translation>进入组件</translation>
     </message>
@@ -39829,7 +41004,16 @@ These files are preserved.</source>
     <message>
         <source>Global Qt Quick</source>
         <comment>Settings</comment>
-        <translation>全局Qt Quick</translation>
+        <translation type="obsolete">全局Qt Quick</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <comment>Settings</comment>
+        <translation>全局</translation>
+    </message>
+    <message>
+        <source>Qt</source>
+        <translation>Qt</translation>
     </message>
 </context>
 <context>
@@ -39874,11 +41058,11 @@ These files are preserved.</source>
     <name>QmlProfiler::Internal::QmlProfilerEventStatistics</name>
     <message>
         <source>Source code not available</source>
-        <translation>源代码不可用</translation>
+        <translation type="obsolete">源代码不可用</translation>
     </message>
     <message>
         <source>&lt;bytecode&gt;</source>
-        <translation>&lt;字节码&gt;</translation>
+        <translation type="obsolete">&lt;字节码&gt;</translation>
     </message>
 </context>
 <context>
@@ -39905,7 +41089,15 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Time per Call</source>
-        <translation>呼叫时间比</translation>
+        <translation type="obsolete">呼叫时间比</translation>
+    </message>
+    <message>
+        <source>Mean Time</source>
+        <translation>平均时间</translation>
+    </message>
+    <message>
+        <source>Median Time</source>
+        <translation>中间时间</translation>
     </message>
     <message>
         <source>Longest Time</source>
@@ -39962,6 +41154,30 @@ These files are preserved.</source>
         <translation type="obsolete">挂接...</translation>
     </message>
     <message>
+        <source>Load QML Trace</source>
+        <translation>载入QML 踪迹</translation>
+    </message>
+    <message>
+        <source>Save QML Trace</source>
+        <translation>保存 QML 踪迹</translation>
+    </message>
+    <message>
+        <source>Copy Row</source>
+        <translation>复制行</translation>
+    </message>
+    <message>
+        <source>Copy Table</source>
+        <translation>复制表格</translation>
+    </message>
+    <message>
+        <source>The QML profiler requires Qt 4.7.4 or newer.
+The Qt version configured in your active build configuration is too old.
+Do you want to continue?</source>
+        <translation>QML 探查器需要Qt 4.7.4 或更新
+你在构建设置中设置的Qt 版本太旧.
+你仍然想继续吗?</translation>
+    </message>
+    <message>
         <source>Events</source>
         <translation>项</translation>
     </message>
@@ -39996,6 +41212,20 @@ These files are preserved.</source>
     <message>
         <source>Elapsed: %1 s</source>
         <translation>逝去: %1 s</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Could not connect to the in-process QML profiler.
+Do you want to retry?</source>
+        <translation>无法连接到执行中的QML探查器.
+你想重试吗?</translation>
+    </message>
+    <message>
+        <source>QML traces (%1)</source>
+        <translation>QML 踪迹(%1)</translation>
     </message>
     <message>
         <source>Detach</source>
@@ -40373,6 +41603,10 @@ These files are preserved.</source>
 <context>
     <name>QtSupport::Internal::GettingStartedWelcomePage</name>
     <message>
+        <source>Demos and Examples</source>
+        <translation>演示和范例</translation>
+    </message>
+    <message>
         <source>Copy Project to writable Location?</source>
         <translation>复制项目到可写位置?</translation>
     </message>
@@ -40403,6 +41637,10 @@ These files are preserved.</source>
     <message>
         <source>Cannot Copy Project</source>
         <translation>无法复制项目</translation>
+    </message>
+    <message>
+        <source>Failed to open project</source>
+        <translation>打开项目失败</translation>
     </message>
     <message>
         <source>Getting Started</source>
@@ -40508,46 +41746,46 @@ These files are preserved.</source>
     <name>AbstractLinuxDeviceDeployStep</name>
     <message>
         <source>No valid device set.</source>
-        <translation>没有设置有效的设备.</translation>
+        <translation type="obsolete">没有设置有效的设备.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoDeployStep</name>
     <message>
         <source>Operation canceled by user, cleaning up...</source>
-        <translation>行动被用户取消;清理中...</translation>
+        <translation type="obsolete">行动被用户取消;清理中...</translation>
     </message>
     <message>
         <source>Cannot deploy: Still cleaning up from last time.</source>
-        <translation>无法不数: 直到现在仍在清理.</translation>
+        <translation type="obsolete">无法不数: 直到现在仍在清理.</translation>
     </message>
     <message>
         <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation>无法部署:Qemu不在运行.现在正在为你启动,但是完成启动需要花点时间.请稍后再试.</translation>
+        <translation type="obsolete">无法部署:Qemu不在运行.现在正在为你启动,但是完成启动需要花点时间.请稍后再试.</translation>
     </message>
     <message>
         <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation>无法部署:你希望部署到Qemu,但是本版本Qt没有启用.</translation>
+        <translation type="obsolete">无法部署:你希望部署到Qemu,但是本版本Qt没有启用.</translation>
     </message>
     <message>
         <source>All files up to date, no installation necessary.</source>
-        <translation>所有文件已更新, 无安装必要.</translation>
+        <translation type="obsolete">所有文件已更新, 无安装必要.</translation>
     </message>
     <message>
         <source>Connection error: %1</source>
-        <translation>连接错误:%1</translation>
+        <translation type="obsolete">连接错误:%1</translation>
     </message>
     <message>
         <source>Connecting to device...</source>
-        <translation>正在连接设备...</translation>
+        <translation type="obsolete">正在连接设备...</translation>
     </message>
     <message>
         <source>Deployment failed.</source>
-        <translation>部署失败。</translation>
+        <translation type="obsolete">部署失败。</translation>
     </message>
     <message>
         <source>Deployment finished.</source>
-        <translation>部署完成.</translation>
+        <translation type="obsolete">部署完成.</translation>
     </message>
 </context>
 <context>
@@ -40569,23 +41807,23 @@ These files are preserved.</source>
     <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationFactory</name>
     <message>
         <source>Generic Linux Device</source>
-        <translation>通用Linux设备</translation>
+        <translation type="obsolete">通用Linux设备</translation>
     </message>
     <message>
         <source>Generic Linux</source>
-        <translation>通用Linux</translation>
+        <translation type="obsolete">通用Linux</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation>测试</translation>
+        <translation type="obsolete">测试</translation>
     </message>
     <message>
         <source>Remote Processes</source>
-        <translation>远程进程</translation>
+        <translation type="obsolete">远程进程</translation>
     </message>
     <message>
         <source>Deploy Public Key</source>
-        <translation>部署公钥</translation>
+        <translation type="obsolete">部署公钥</translation>
     </message>
 </context>
 <context>
@@ -40600,6 +41838,10 @@ These files are preserved.</source>
     <message>
         <source>Connection Data</source>
         <translation>连接数据</translation>
+    </message>
+    <message>
+        <source>Generic Linux Device</source>
+        <translation>通用Linux设备</translation>
     </message>
 </context>
 <context>
@@ -40619,7 +41861,7 @@ In addition, device connectivity will be tested.</source>
     <name>RemoteLinux::Internal::LinuxDeviceConfigurations</name>
     <message>
         <source>(default for %1)</source>
-        <translation>(默认 %1)</translation>
+        <translation type="obsolete">(默认 %1)</translation>
     </message>
 </context>
 <context>
@@ -40633,366 +41875,358 @@ In addition, device connectivity will be tested.</source>
     <name>RemoteLinux::Internal::MaddeDeviceConfigurationFactory</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
-        <translation>设备拥有MADDE支持(例如:Fremantle, Harmattan, MeeGo)</translation>
-    </message>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation></translation>
+        <translation type="obsolete">设备拥有MADDE支持(例如:Fremantle, Harmattan, MeeGo)</translation>
     </message>
     <message>
         <source>Other MeeGo OS</source>
-        <translation>其他MeeGo 操作系统</translation>
+        <translation type="obsolete">其他MeeGo 操作系统</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoConfigTestDialog</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
-        <translation>测试设置.这将需要一点时间.</translation>
+        <translation type="obsolete">测试设置.这将需要一点时间.</translation>
     </message>
     <message>
         <source>Testing configuration...</source>
-        <translation>测试配置...</translation>
+        <translation type="obsolete">测试配置...</translation>
     </message>
     <message>
         <source>Stop Test</source>
-        <translation>停止测试</translation>
+        <translation type="obsolete">停止测试</translation>
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>无法连接至主机:%1</translation>
+        <translation type="obsolete">无法连接至主机:%1</translation>
     </message>
     <message>
         <source>
 Did you start Qemu?</source>
-        <translation>
+        <translation type="obsolete">
 启动Qemu了吗?</translation>
     </message>
     <message>
         <source>Remote process failed: %1</source>
-        <translation>远端进程失败:%1</translation>
+        <translation type="obsolete">远端进程失败:%1</translation>
     </message>
     <message>
         <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
-        <translation>Qt版本不符合!需要Qt4.6.2或者更新的版本.</translation>
+        <translation type="obsolete">Qt版本不符合!需要Qt4.6.2或者更新的版本.</translation>
     </message>
     <message>
         <source>%1 is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
-        <translation>没有安装 %1 .&lt;br&gt;你将无法部署到此设备.</translation>
+        <translation type="obsolete">没有安装 %1 .&lt;br&gt;你将无法部署到此设备.</translation>
     </message>
     <message>
         <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translation>请通过 设置-&gt; 安全  选项来切换设备到开发模式。</translation>
+        <translation type="obsolete">请通过 设置-&gt; 安全  选项来切换设备到开发模式。</translation>
     </message>
     <message>
         <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.</source>
-        <translation>丢失文件夹&apos;%1&apos;.你将不被允许在这台设备上来使用QML 调试.</translation>
+        <translation type="obsolete">丢失文件夹&apos;%1&apos;.你将不被允许在这台设备上来使用QML 调试.</translation>
     </message>
     <message>
         <source>Error retrieving list of used ports: %1</source>
-        <translation>无法搜索到已使用的端口: %1</translation>
+        <translation type="obsolete">无法搜索到已使用的端口: %1</translation>
     </message>
     <message>
         <source>All specified ports are available.</source>
-        <translation>所有指定的端口都可用。</translation>
+        <translation type="obsolete">所有指定的端口都可用。</translation>
     </message>
     <message>
         <source>The following supposedly free ports are being used on the device:</source>
-        <translation>以下有可能可使用的端口已经被设备使用:</translation>
+        <translation type="obsolete">以下有可能可使用的端口已经被设备使用:</translation>
     </message>
     <message>
         <source>Device configuration okay.</source>
-        <translation>设备配置完毕.</translation>
+        <translation type="obsolete">设备配置完毕.</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>关闭</translation>
+        <translation type="obsolete">关闭</translation>
     </message>
     <message>
         <source>Device configuration test failed: Unexpected output:
 %1</source>
-        <translation>设备配置测试失败:意外的输出
+        <translation type="obsolete">设备配置测试失败:意外的输出
 %1</translation>
     </message>
     <message>
         <source>Hardware architecture: %1
 </source>
-        <translation>硬件架构:%1
+        <translation type="obsolete">硬件架构:%1
 </translation>
     </message>
     <message>
         <source>Kernel version: %1
 </source>
-        <translation>内核版本:%1
+        <translation type="obsolete">内核版本:%1
 </translation>
     </message>
     <message>
         <source>No Qt packages installed.</source>
-        <translation>没有安装Qt包.</translation>
+        <translation type="obsolete">没有安装Qt包.</translation>
     </message>
     <message>
         <source>List of installed Qt packages:</source>
-        <translation>已经安装的Qt包列表:</translation>
+        <translation type="obsolete">已经安装的Qt包列表:</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoDeployByMountStep</name>
     <message>
         <source>Installing package to device...</source>
-        <translation>正在安装包至设备...</translation>
+        <translation type="obsolete">正在安装包至设备...</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoMountAndInstallDeployStep</name>
     <message>
         <source>No matching packaging step found.</source>
-        <translation>没有找到符合条件的打包步骤.</translation>
+        <translation type="obsolete">没有找到符合条件的打包步骤.</translation>
     </message>
     <message>
         <source>Package installed.</source>
-        <translation>包安装成功.</translation>
+        <translation type="obsolete">包安装成功.</translation>
     </message>
     <message>
         <source>Deploy package via UTFS mount</source>
-        <translation>通过挂在UTFS来部署包</translation>
+        <translation type="obsolete">通过挂在UTFS来部署包</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoMountAndCopyDeployStep</name>
     <message>
         <source>All files copied.</source>
-        <translation>所有文件拷贝结束.</translation>
+        <translation type="obsolete">所有文件拷贝结束.</translation>
     </message>
     <message>
         <source>Deploy files via UTFS mount</source>
-        <translation>通过挂载UTFS来部署包</translation>
+        <translation type="obsolete">通过挂载UTFS来部署包</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeployConfigurationWidget</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
-        <translation>选择图标(如果需要会缩放到%1x%1 像素 )</translation>
+        <translation type="obsolete">选择图标(如果需要会缩放到%1x%1 像素 )</translation>
     </message>
     <message>
         <source>Invalid Icon</source>
-        <translation>无效图标</translation>
+        <translation type="obsolete">无效图标</translation>
     </message>
     <message>
         <source>Unable to read image</source>
-        <translation>无法读取图片</translation>
+        <translation type="obsolete">无法读取图片</translation>
     </message>
     <message>
         <source>Failed to Save Icon</source>
-        <translation>无法保存图标</translation>
+        <translation type="obsolete">无法保存图标</translation>
     </message>
     <message>
         <source>Could not save icon to &apos;%1&apos;.</source>
-        <translation>无法保存图标到&apos;%1&apos;.</translation>
+        <translation type="obsolete">无法保存图标到&apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeploymentMounter</name>
     <message>
         <source>Connection failed: %1</source>
-        <translation>连接失败:%1</translation>
+        <translation type="obsolete">连接失败:%1</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeployStepBaseWidget</name>
     <message>
         <source>Cannot deploy: %1</source>
-        <translation>无法部署%1</translation>
+        <translation type="obsolete">无法部署%1</translation>
     </message>
     <message>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
-        <translation>&lt;b&gt;%1 使用设备&lt;/b&gt;: %2</translation>
+        <translation type="obsolete">&lt;b&gt;%1 使用设备&lt;/b&gt;: %2</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
     <message>
         <source>Physical Device</source>
-        <translation>物理设备</translation>
+        <translation type="obsolete">物理设备</translation>
     </message>
     <message>
         <source>Emulator</source>
-        <translation>模拟器</translation>
+        <translation type="obsolete">模拟器</translation>
     </message>
     <message>
         <source>You will need at least one port.</source>
-        <translation>你需要至少一个端口.</translation>
+        <translation type="obsolete">你需要至少一个端口.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardStartPage</name>
     <message>
         <source>General Information</source>
-        <translation>概要</translation>
+        <translation type="obsolete">概要</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
     <message>
         <source>Device Status Check</source>
-        <translation>检测设备状态</translation>
+        <translation type="obsolete">检测设备状态</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
     <message>
         <source>Existing Keys Check</source>
-        <translation>现有密钥检测</translation>
+        <translation type="obsolete">现有密钥检测</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
     <message>
         <source>Key Creation</source>
-        <translation>密钥创建</translation>
+        <translation type="obsolete">密钥创建</translation>
     </message>
     <message>
         <source>Cannot Create Keys</source>
-        <translation>无法创建密钥</translation>
+        <translation type="obsolete">无法创建密钥</translation>
     </message>
     <message>
         <source>The path you have entered is not a directory.</source>
-        <translation>你输入的路径不是一个目录。</translation>
+        <translation type="obsolete">你输入的路径不是一个目录。</translation>
     </message>
     <message>
         <source>The directory you have entered does not exist and cannot be created.</source>
-        <translation>你输入的目录不存在也不可以被创建。</translation>
+        <translation type="obsolete">你输入的目录不存在也不可以被创建。</translation>
     </message>
     <message>
         <source>Creating keys ... </source>
-        <translation>创建密钥...</translation>
+        <translation type="obsolete">创建密钥...</translation>
     </message>
     <message>
         <source>Key creation failed: %1</source>
-        <translation>密钥创建失败: %1</translation>
+        <translation type="obsolete">密钥创建失败: %1</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation>完成。</translation>
+        <translation type="obsolete">完成。</translation>
     </message>
     <message>
         <source>Could Not Save Key File</source>
-        <translation>无法保存密钥文件</translation>
+        <translation type="obsolete">无法保存密钥文件</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
     <message>
         <source>Key Deployment</source>
-        <translation>公钥部署</translation>
+        <translation type="obsolete">公钥部署</translation>
     </message>
     <message>
         <source>Deploying... </source>
-        <translation>部署中...</translation>
+        <translation type="obsolete">部署中...</translation>
     </message>
     <message>
         <source>Key Deployment Failure</source>
-        <translation>密钥部署失败</translation>
+        <translation type="obsolete">密钥部署失败</translation>
     </message>
     <message>
         <source>Key Deployment Success</source>
-        <translation>密钥部署成功</translation>
+        <translation type="obsolete">密钥部署成功</translation>
     </message>
     <message>
         <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
-        <translation>密钥被成功部署。你现在可以关闭 &quot;%1&quot;应用然后继续。</translation>
+        <translation type="obsolete">密钥被成功部署。你现在可以关闭 &quot;%1&quot;应用然后继续。</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation>完成。</translation>
+        <translation type="obsolete">完成。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardFinalPage</name>
     <message>
         <source>The new device configuration will now be created.</source>
-        <translation>新设备配置将会被创建。</translation>
+        <translation type="obsolete">新设备配置将会被创建。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizard</name>
     <message>
         <source>New Device Configuration Setup</source>
-        <translation>新设备配置设置</translation>
+        <translation type="obsolete">新设备配置设置</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceEnvReader</name>
     <message>
         <source>Connection error: %1</source>
-        <translation>连接错误:%1</translation>
+        <translation type="obsolete">连接错误:%1</translation>
     </message>
     <message>
         <source>Error running remote process: %1</source>
-        <translation>运行远程程序发生错误:%1</translation>
+        <translation type="obsolete">运行远程程序发生错误:%1</translation>
     </message>
     <message>
         <source>
 Remote stderr was: &apos;%1&apos;</source>
-        <translation>远程stderr为&apos;%1&apos;</translation>
+        <translation type="obsolete">远程stderr为&apos;%1&apos;</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDirectDeviceUploadStep</name>
     <message>
         <source>SFTP initialization failed: %1</source>
-        <translation>SFTP 初始化失败: %1</translation>
+        <translation type="obsolete">SFTP 初始化失败: %1</translation>
     </message>
     <message>
         <source>All files successfully deployed.</source>
-        <translation>所有文件部署成功.</translation>
+        <translation type="obsolete">所有文件部署成功.</translation>
     </message>
     <message>
         <source>Uploading file &apos;%1&apos;...</source>
-        <translation>上传文件中%1 ...</translation>
+        <translation type="obsolete">上传文件中%1 ...</translation>
     </message>
     <message>
         <source>Failed to upload file &apos;%1&apos;.</source>
-        <translation>上传文件&apos;%1&apos;失败.</translation>
+        <translation type="obsolete">上传文件&apos;%1&apos;失败.</translation>
     </message>
     <message>
         <source>Failed to upload file &apos;%1&apos;: Could not open for reading.</source>
-        <translation>无法上传文件&apos;%1&apos;: 无法打开并读取.</translation>
+        <translation type="obsolete">无法上传文件&apos;%1&apos;: 无法打开并读取.</translation>
     </message>
     <message>
         <source>Upload of file &apos;%1&apos; failed: %2</source>
-        <translation>上传文件&apos;%1&apos; 失败: %2</translation>
+        <translation type="obsolete">上传文件&apos;%1&apos; 失败: %2</translation>
     </message>
     <message>
         <source>Upload files via SFTP</source>
-        <translation>通过SFTP上传文件</translation>
+        <translation type="obsolete">通过SFTP上传文件</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoGlobal</name>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>无法连接至主机:%1</translation>
+        <translation type="obsolete">无法连接至主机:%1</translation>
     </message>
     <message>
         <source>
 Did you start Qemu?</source>
-        <translation>
+        <translation type="obsolete">
 启动Qemu了吗?</translation>
     </message>
     <message>
         <source>
 Is the device connected and set up for network access?</source>
-        <translation>
+        <translation type="obsolete">
 设备已经被设置成能联网的了么?</translation>
     </message>
     <message>
         <source>(No device)</source>
-        <translation>(没有设备)</translation>
+        <translation type="obsolete">(没有设备)</translation>
     </message>
     <message>
         <source>SDK Connectivity</source>
@@ -41004,98 +42238,98 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Unknown OS</source>
-        <translation>未知系统</translation>
+        <translation type="obsolete">未知系统</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
-        <translation>无法部署到sysroot.没有找到打包的步骤.</translation>
+        <translation type="obsolete">无法部署到sysroot.没有找到打包的步骤.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
-        <translation>在没哟构建配置的状况下,无法安装到sysroot.</translation>
+        <translation type="obsolete">在没哟构建配置的状况下,无法安装到sysroot.</translation>
     </message>
     <message>
         <source>Cannot install package to sysroot without packaging step.</source>
-        <translation>在没有打包步骤的情况下,无法安装包到sysroot.</translation>
+        <translation type="obsolete">在没有打包步骤的情况下,无法安装包到sysroot.</translation>
     </message>
     <message>
         <source>Cannot install package to sysroot without a Qt version.</source>
-        <translation>在没有设置Qt版本的情况下,无法安装包到sysroot.</translation>
+        <translation type="obsolete">在没有设置Qt版本的情况下,无法安装包到sysroot.</translation>
     </message>
     <message>
         <source>Installing package to sysroot ...</source>
-        <translation>正在安装包至sysroot...</translation>
+        <translation type="obsolete">正在安装包至sysroot...</translation>
     </message>
     <message>
         <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation>安装至sysroot失败,依然继续.</translation>
+        <translation type="obsolete">安装至sysroot失败,依然继续.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoInstallDebianPackageToSysrootStep</name>
     <message>
         <source>Install Debian package to sysroot</source>
-        <translation>安装Debian包到sysroot</translation>
+        <translation type="obsolete">安装Debian包到sysroot</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoInstallRpmPackageToSysrootStep</name>
     <message>
         <source>Install RPM package to sysroot</source>
-        <translation>安装RPM包到sysroot</translation>
+        <translation type="obsolete">安装RPM包到sysroot</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoCopyToSysrootStep</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
-        <translation>无法在没有构建配置的情况下复制到sysroot.</translation>
+        <translation type="obsolete">无法在没有构建配置的情况下复制到sysroot.</translation>
     </message>
     <message>
         <source>Cannot copy to sysroot without valid Qt version.</source>
-        <translation>无法在没有有效的QT版本的情况下复制到sysroot.</translation>
+        <translation type="obsolete">无法在没有有效的QT版本的情况下复制到sysroot.</translation>
     </message>
     <message>
         <source>Copying files to sysroot ...</source>
-        <translation>正在拷贝文件到sysroot...</translation>
+        <translation type="obsolete">正在拷贝文件到sysroot...</translation>
     </message>
     <message>
         <source>Sysroot installation failed: %1
  Continuing anyway.</source>
-        <translation>Sysroot 安装失败: %1
+        <translation type="obsolete">Sysroot 安装失败: %1
  仍然继续.</translation>
     </message>
     <message>
         <source>Copy files to sysroot</source>
-        <translation>复制文件到sysroot</translation>
+        <translation type="obsolete">复制文件到sysroot</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoMakeInstallToSysrootStep</name>
     <message>
         <source>Copy files to sysroot</source>
-        <translation>复制文件到sysroot</translation>
+        <translation type="obsolete">复制文件到sysroot</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoKeyDeployer</name>
     <message>
         <source>Public key error: %1</source>
-        <translation>公钥错误: %1</translation>
+        <translation type="obsolete">公钥错误: %1</translation>
     </message>
     <message>
         <source>Connection failed: %1</source>
-        <translation>连接失败:%1</translation>
+        <translation type="obsolete">连接失败:%1</translation>
     </message>
     <message>
         <source>Key deployment failed: %1.</source>
-        <translation>部署密钥失败:%1.</translation>
+        <translation type="obsolete">部署密钥失败:%1.</translation>
     </message>
 </context>
 <context>
@@ -41110,7 +42344,7 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Create tarball</source>
-        <translation>创建归档文件</translation>
+        <translation type="obsolete">创建归档文件</translation>
     </message>
 </context>
 <context>
@@ -41212,311 +42446,311 @@ We will try to work around that, but you may experience problems.</source>
     <name>RemoteLinux::Internal::MaemoPackageCreationWidget</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
-        <translation>尺寸应当是 %1x%2 像素</translation>
+        <translation type="obsolete">尺寸应当是 %1x%2 像素</translation>
     </message>
     <message>
         <source>No Version Available.</source>
-        <translation>没有可用的版本.</translation>
+        <translation type="obsolete">没有可用的版本.</translation>
     </message>
     <message>
         <source>Could not read icon</source>
-        <translation>无法调入图标</translation>
+        <translation type="obsolete">无法调入图标</translation>
     </message>
     <message>
         <source>Images</source>
-        <translation>图片</translation>
+        <translation type="obsolete">图片</translation>
     </message>
     <message>
         <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
-        <translation>选择图像(会缩放到  48x48 像素, 如果需要)</translation>
+        <translation type="obsolete">选择图像(会缩放到  48x48 像素, 如果需要)</translation>
     </message>
     <message>
         <source>Could Not Set New Icon</source>
-        <translation>无法设置新图标</translation>
+        <translation type="obsolete">无法设置新图标</translation>
     </message>
     <message>
         <source>File Error</source>
-        <translation>文件错误</translation>
+        <translation type="obsolete">文件错误</translation>
     </message>
     <message>
         <source>Could not set project name.</source>
-        <translation>无法设置项目名称。</translation>
+        <translation type="obsolete">无法设置项目名称。</translation>
     </message>
     <message>
         <source>Could not set package name for project manager.</source>
-        <translation>无法为项目管理器设置包的名称。</translation>
+        <translation type="obsolete">无法为项目管理器设置包的名称。</translation>
     </message>
     <message>
         <source>Could not set project description.</source>
-        <translation>无法设置项目描述。</translation>
+        <translation type="obsolete">无法设置项目描述。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;创建  包:&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;创建  包:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Could Not Set Version Number</source>
-        <translation>无法设置版本号</translation>
+        <translation type="obsolete">无法设置版本号</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoPackageInstaller</name>
     <message>
         <source>Connection failure: %1</source>
-        <translation>连接失败: %1</translation>
+        <translation type="obsolete">连接失败: %1</translation>
     </message>
     <message>
         <source>Installing package failed.</source>
-        <translation>安装package失败.</translation>
+        <translation type="obsolete">安装package失败.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDebianPackageInstaller</name>
     <message>
         <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation>安装失败:你尝试降级包，这是不被允许的。</translation>
+        <translation type="obsolete">安装失败:你尝试降级包，这是不被允许的。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPackageUploader</name>
     <message>
         <source>Preparing SFTP connection...</source>
-        <translation>准备创建SFTP连接...</translation>
+        <translation type="obsolete">准备创建SFTP连接...</translation>
     </message>
     <message>
         <source>Connection failed: %1</source>
-        <translation>连接失败:%1</translation>
+        <translation type="obsolete">连接失败:%1</translation>
     </message>
     <message>
         <source>SFTP error: %1</source>
-        <translation>SFTP 错误: %1</translation>
+        <translation type="obsolete">SFTP 错误: %1</translation>
     </message>
     <message>
         <source>Package upload failed: Could not open file.</source>
-        <translation>包上传失败.无法打开文件.</translation>
+        <translation type="obsolete">包上传失败.无法打开文件.</translation>
     </message>
     <message>
         <source>Failed to upload package: %2</source>
-        <translation>上传包失败: %2</translation>
+        <translation type="obsolete">上传包失败: %2</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
     <message>
         <source>(default)</source>
-        <translation>(默认)</translation>
+        <translation type="obsolete">(默认)</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoProFilesUpdateDialog</name>
     <message>
         <source>Updateable Project Files</source>
-        <translation>可更新的项目文件</translation>
+        <translation type="obsolete">可更新的项目文件</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublishedProjectModel</name>
     <message>
         <source>Include in package</source>
-        <translation>包含到包</translation>
+        <translation type="obsolete">包含到包</translation>
     </message>
     <message>
         <source>Include</source>
-        <translation>包含</translation>
+        <translation type="obsolete">包含</translation>
     </message>
     <message>
         <source>Do not include</source>
-        <translation>不要包含</translation>
+        <translation type="obsolete">不要包含</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublisherFremantleFree</name>
     <message>
         <source>Canceled.</source>
-        <translation>已取消.</translation>
+        <translation type="obsolete">已取消.</translation>
     </message>
     <message>
         <source>Publishing canceled by user.</source>
-        <translation>发布被用户取消。</translation>
+        <translation type="obsolete">发布被用户取消。</translation>
     </message>
     <message>
         <source>The project is missing some information important to publishing:</source>
-        <translation>项目丢失了一些发布需要的重要信息:</translation>
+        <translation type="obsolete">项目丢失了一些发布需要的重要信息:</translation>
     </message>
     <message>
         <source>Publishing failed: Missing project information.</source>
-        <translation>发布失败:丢失项目信息。</translation>
+        <translation type="obsolete">发布失败:丢失项目信息。</translation>
     </message>
     <message>
         <source>Removing left-over temporary directory ...</source>
-        <translation>移除留下的临时文件夹...</translation>
+        <translation type="obsolete">移除留下的临时文件夹...</translation>
     </message>
     <message>
         <source>Error removing temporary directory: %1</source>
-        <translation>移除临时文件夹出错: %1</translation>
+        <translation type="obsolete">移除临时文件夹出错: %1</translation>
     </message>
     <message>
         <source>Publishing failed: Could not create source package.</source>
-        <translation>发布失败:无法生成源文件包。</translation>
+        <translation type="obsolete">发布失败:无法生成源文件包。</translation>
     </message>
     <message>
         <source>Setting up temporary directory ...</source>
-        <translation>设置临时文件夹...</translation>
+        <translation type="obsolete">设置临时文件夹...</translation>
     </message>
     <message>
         <source>Error: Could not create temporary directory.</source>
-        <translation>错误:无法创建临时文件夹.</translation>
+        <translation type="obsolete">错误:无法创建临时文件夹.</translation>
     </message>
     <message>
         <source>Error: Could not copy project directory.</source>
-        <translation>错误:无法复制项目文件夹.</translation>
+        <translation type="obsolete">错误:无法复制项目文件夹.</translation>
     </message>
     <message>
         <source>Error: Could not fix newlines.</source>
-        <translation>错误:无法修复新行.</translation>
+        <translation type="obsolete">错误:无法修复新行.</translation>
     </message>
     <message>
         <source>Publishing failed: Could not create package.</source>
-        <translation>发布失败:无法创建包.</translation>
+        <translation type="obsolete">发布失败:无法创建包.</translation>
     </message>
     <message>
         <source>Cleaning up temporary directory ...</source>
-        <translation>清理临时文件夹...</translation>
+        <translation type="obsolete">清理临时文件夹...</translation>
     </message>
     <message>
         <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation>无法创建文件夹&apos;%1&apos;.</translation>
+        <translation type="obsolete">无法创建文件夹&apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
-        <translation>无法复制文件&apos;%1&apos; 到 &apos;%2&apos;: %3.</translation>
+        <translation type="obsolete">无法复制文件&apos;%1&apos; 到 &apos;%2&apos;: %3.</translation>
     </message>
     <message>
         <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation>错误: 无法开始 dpkg-buildpackage.</translation>
+        <translation type="obsolete">错误: 无法开始 dpkg-buildpackage.</translation>
     </message>
     <message>
         <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation>错误: dpkg-buildpackage 没有成功.</translation>
+        <translation type="obsolete">错误: dpkg-buildpackage 没有成功.</translation>
     </message>
     <message>
         <source>Package creation failed.</source>
-        <translation>包创建失败。</translation>
+        <translation type="obsolete">包创建失败。</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation>完成。</translation>
+        <translation type="obsolete">完成。</translation>
     </message>
     <message>
         <source>Packaging finished successfully. The following files were created:
 </source>
-        <translation>打包成功完成。如下文件被创建:
+        <translation type="obsolete">打包成功完成。如下文件被创建:
 </translation>
     </message>
     <message>
         <source>No Qt version set.</source>
-        <translation>没有设置Qt 版本.</translation>
+        <translation type="obsolete">没有设置Qt 版本.</translation>
     </message>
     <message>
         <source>Building source package...</source>
-        <translation>构建源程序包...</translation>
+        <translation type="obsolete">构建源程序包...</translation>
     </message>
     <message>
         <source>Starting scp ...</source>
-        <translation>启动scp ...</translation>
+        <translation type="obsolete">启动scp ...</translation>
     </message>
     <message>
         <source>SSH error: %1</source>
-        <translation>SSH 错误: %1</translation>
+        <translation type="obsolete">SSH 错误: %1</translation>
     </message>
     <message>
         <source>Upload failed.</source>
-        <translation>上传失败。</translation>
+        <translation type="obsolete">上传失败。</translation>
     </message>
     <message>
         <source>Error uploading file: %1.</source>
-        <translation>上传文件错误: %1.</translation>
+        <translation type="obsolete">上传文件错误: %1.</translation>
     </message>
     <message>
         <source>Error uploading file.</source>
-        <translation>上传文件错误。</translation>
+        <translation type="obsolete">上传文件错误。</translation>
     </message>
     <message>
         <source>All files uploaded.</source>
-        <translation>所有文件已上传。</translation>
+        <translation type="obsolete">所有文件已上传。</translation>
     </message>
     <message>
         <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation>上传成功。你将不久收到一封电子邮件关于构建进程的输出。</translation>
+        <translation type="obsolete">上传成功。你将不久收到一封电子邮件关于构建进程的输出。</translation>
     </message>
     <message>
         <source>Uploading file %1 ...</source>
-        <translation>上传文件中%1 ...</translation>
+        <translation type="obsolete">上传文件中%1 ...</translation>
     </message>
     <message>
         <source>Cannot open file for reading: %1.</source>
-        <translation>无法打开并读取文件: %1.</translation>
+        <translation type="obsolete">无法打开并读取文件: %1.</translation>
     </message>
     <message>
         <source>Cannot read file: %1</source>
-        <translation>无法读取文件: %1</translation>
+        <translation type="obsolete">无法读取文件: %1</translation>
     </message>
     <message>
         <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>包描述为空. 你必须先设置 项目-&gt; 运行-&gt; 创建包-&gt; 详细.</translation>
+        <translation type="obsolete">包描述为空. 你必须先设置 项目-&gt; 运行-&gt; 创建包-&gt; 详细.</translation>
     </message>
     <message>
         <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>包的描述是&apos;%1&apos;, 很可能不是你想要的. 在 项目-&gt; 运行-&gt; 创建包-&gt; 详细 里改变.</translation>
+        <translation type="obsolete">包的描述是&apos;%1&apos;, 很可能不是你想要的. 在 项目-&gt; 运行-&gt; 创建包-&gt; 详细 里改变.</translation>
     </message>
     <message>
         <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>你还没有为包管理器设置图标，请到 项目-&gt; 运行-&gt; 创建包-&gt; 详细里设置.</translation>
+        <translation type="obsolete">你还没有为包管理器设置图标，请到 项目-&gt; 运行-&gt; 创建包-&gt; 详细里设置.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation>发布到Fremantle&apos;s &quot;Extras-devel/free&quot;仓库</translation>
+        <translation type="obsolete">发布到Fremantle&apos;s &quot;Extras-devel/free&quot;仓库</translation>
     </message>
     <message>
         <source>Upload options</source>
-        <translation>上传选项</translation>
+        <translation type="obsolete">上传选项</translation>
     </message>
     <message>
         <source>Choose a private key file</source>
-        <translation>选择一个私钥文件</translation>
+        <translation type="obsolete">选择一个私钥文件</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation>发布到&quot;Fremantle Extras-devel free&quot; 仓库</translation>
+        <translation type="obsolete">发布到&quot;Fremantle Extras-devel free&quot; 仓库</translation>
     </message>
     <message>
         <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation>本向导将创建一个源文件归档包并且选择是否上传到构建服务器, 在那里项目将被编译和打包然后移动到&quot;Extras-devel free&quot; 分支, 在那里，用户可以安装它到N900 设备上. 如果需要上传, 那么你需要一个garage.maemo.org 的帐号.</translation>
+        <translation type="obsolete">本向导将创建一个源文件归档包并且选择是否上传到构建服务器, 在那里项目将被编译和打包然后移动到&quot;Extras-devel free&quot; 分支, 在那里，用户可以安装它到N900 设备上. 如果需要上传, 那么你需要一个garage.maemo.org 的帐号.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublishingWizardFremantleFree</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation>发布到Fremantle的&quot;Extras-devel free&quot; 仓库</translation>
+        <translation type="obsolete">发布到Fremantle的&quot;Extras-devel free&quot; 仓库</translation>
     </message>
     <message>
         <source>Build Settings</source>
-        <translation>构建设置</translation>
+        <translation type="obsolete">构建设置</translation>
     </message>
     <message>
         <source>Upload Settings</source>
-        <translation>上传设置</translation>
+        <translation type="obsolete">上传设置</translation>
     </message>
     <message>
         <source>Result</source>
-        <translation>结果</translation>
+        <translation type="obsolete">结果</translation>
     </message>
 </context>
 <context>
@@ -41527,27 +42761,27 @@ We will try to work around that, but you may experience problems.</source>
     </message>
     <message>
         <source>Start MeeGo Emulator</source>
-        <translation>启动Maemo模拟器</translation>
+        <translation type="obsolete">启动Maemo模拟器</translation>
     </message>
     <message>
         <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation>Qemu 已经被关闭, 因为你移除了相应的 Qt 版本.</translation>
+        <translation type="obsolete">Qemu 已经被关闭, 因为你移除了相应的 Qt 版本.</translation>
     </message>
     <message>
         <source>Qemu finished with error: Exit code was %1.</source>
-        <translation>Qemu 在有错误的情况下结束: 退出代码 %1.</translation>
+        <translation type="obsolete">Qemu 在有错误的情况下结束: 退出代码 %1.</translation>
     </message>
     <message>
         <source>Qemu error</source>
-        <translation>Qemu 错误</translation>
+        <translation type="obsolete">Qemu 错误</translation>
     </message>
     <message>
         <source>Qemu failed to start: %1</source>
-        <translation>Qemu 启动失败:%1</translation>
+        <translation type="obsolete">Qemu 启动失败:%1</translation>
     </message>
     <message>
         <source>Stop MeeGo Emulator</source>
-        <translation>停止Maemo模拟器</translation>
+        <translation type="obsolete">停止Maemo模拟器</translation>
     </message>
     <message>
         <source>Stop Maemo Emulator</source>
@@ -41558,166 +42792,162 @@ We will try to work around that, but you may experience problems.</source>
     <name>RemoteLinux::Internal::MaemoRemoteCopyFacility</name>
     <message>
         <source>Connection failed: %1</source>
-        <translation>连接失败:%1</translation>
+        <translation type="obsolete">连接失败:%1</translation>
     </message>
     <message>
         <source>Error: Copy command failed.</source>
-        <translation>错误: 复制命令失败.</translation>
+        <translation type="obsolete">错误: 复制命令失败.</translation>
     </message>
     <message>
         <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
-        <translation>正在拷贝文件&apos;%1&apos;至设备路径&apos;%2&apos;...</translation>
+        <translation type="obsolete">正在拷贝文件&apos;%1&apos;至设备路径&apos;%2&apos;...</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRemoteMounter</name>
     <message>
         <source>No directories to mount</source>
-        <translation>没有目录将被挂载</translation>
+        <translation type="obsolete">没有目录将被挂载</translation>
     </message>
     <message>
         <source>No directories to unmount</source>
-        <translation>没有目录将被卸载</translation>
+        <translation type="obsolete">没有目录将被卸载</translation>
     </message>
     <message>
         <source>Could not execute unmount request.</source>
-        <translation>无法生成卸载请求.</translation>
+        <translation type="obsolete">无法生成卸载请求.</translation>
     </message>
     <message>
         <source>Failure unmounting: %1</source>
-        <translation>卸载%1失败</translation>
+        <translation type="obsolete">卸载%1失败</translation>
     </message>
     <message>
         <source>Finished unmounting.</source>
-        <translation>卸载完成.</translation>
+        <translation type="obsolete">卸载完成.</translation>
     </message>
     <message>
         <source>
 stderr was: &apos;%1&apos;</source>
-        <translation>stderr为&apos;%1&apos;</translation>
+        <translation type="obsolete">stderr为&apos;%1&apos;</translation>
     </message>
     <message>
         <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation>错误: 没有足够的空闲端口来让设备完成所有的接入请求.</translation>
+        <translation type="obsolete">错误: 没有足够的空闲端口来让设备完成所有的接入请求.</translation>
     </message>
     <message>
         <source>Starting remote UTFS clients...</source>
-        <translation>正在启动远程UTFS客户端...</translation>
+        <translation type="obsolete">正在启动远程UTFS客户端...</translation>
     </message>
     <message>
         <source>Mount operation succeeded.</source>
-        <translation>挂载操作成功.</translation>
+        <translation type="obsolete">挂载操作成功.</translation>
     </message>
     <message>
         <source>Failure running UTFS client: %1</source>
-        <translation>运行UTFS客户端:%1失败</translation>
+        <translation type="obsolete">运行UTFS客户端:%1失败</translation>
     </message>
     <message>
         <source>Starting UTFS servers...</source>
-        <translation>正在启动UTFS服务器...</translation>
+        <translation type="obsolete">正在启动UTFS服务器...</translation>
     </message>
     <message>
         <source>
 stderr was: %1</source>
-        <translation>stderr为:%1</translation>
+        <translation type="obsolete">stderr为:%1</translation>
     </message>
     <message>
         <source>Error running UTFS server: %1</source>
-        <translation>运行UTFS服务器%1时出错</translation>
+        <translation type="obsolete">运行UTFS服务器%1时出错</translation>
     </message>
     <message>
         <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation>等待UTFS服务器连接超时.</translation>
+        <translation type="obsolete">等待UTFS服务器连接超时.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRemoteMountsModel</name>
     <message>
         <source>Local directory</source>
-        <translation>本地目录</translation>
+        <translation type="obsolete">本地目录</translation>
     </message>
     <message>
         <source>Remote mount point</source>
-        <translation>远程挂载点</translation>
+        <translation type="obsolete">远程挂载点</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRemoteProcessesDialog</name>
     <message>
         <source>Remote Error</source>
-        <translation>远程错误</translation>
+        <translation type="obsolete">远程错误</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRemoteProcessList</name>
     <message>
         <source>Connection failure: %1</source>
-        <translation>连接失败: %1</translation>
+        <translation type="obsolete">连接失败: %1</translation>
     </message>
     <message>
         <source>Error: Remote process failed to start: %1</source>
-        <translation>错误:远程进程启动失败: %1</translation>
+        <translation type="obsolete">错误:远程进程启动失败: %1</translation>
     </message>
     <message>
         <source>Error: Remote process crashed: %1</source>
-        <translation>错误:远程进程崩溃: %1</translation>
+        <translation type="obsolete">错误:远程进程崩溃: %1</translation>
     </message>
     <message>
         <source>Remote process failed.</source>
-        <translation>远端进程失败。</translation>
+        <translation type="obsolete">远端进程失败。</translation>
     </message>
     <message>
         <source>
 Remote stderr was: %1</source>
-        <translation>
+        <translation type="obsolete">
 远程stderr 是: %1</translation>
     </message>
     <message>
-        <source>PID</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Command Line</source>
-        <translation>命令行</translation>
+        <translation type="obsolete">命令行</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRunConfiguration</name>
     <message>
         <source>Not enough free ports on the device.</source>
-        <translation>设备上没有足够的开放端口.</translation>
+        <translation type="obsolete">设备上没有足够的开放端口.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRunConfigurationWidget</name>
     <message>
         <source>Choose directory to mount</source>
-        <translation>选择挂载的目录</translation>
+        <translation type="obsolete">选择挂载的目录</translation>
     </message>
     <message>
         <source>No local directories to be mounted on the device.</source>
-        <translation>没有本地目录将被挂载到设备.</translation>
+        <translation type="obsolete">没有本地目录将被挂载到设备.</translation>
     </message>
     <message>
         <source>One local directory to be mounted on the device.</source>
-        <translation>一个本地目录将被挂载到设备.</translation>
+        <translation type="obsolete">一个本地目录将被挂载到设备.</translation>
     </message>
     <message numerus="yes">
         <source>%n local directories to be mounted on the device.</source>
         <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
-        <translation>
+        <translation type="obsolete">
             <numerusform>%n个本地目录将被挂载到设备上.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>警告:你想要挂载%1个目录,但是你的设备只有%n个空闲端口.&lt;br&gt;因此配置将无法应用.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>警告:你想挂职%1个目录,但是在调试模式下只有%n个端口是可用的.此设置将无法用于调试.</numerusform>
         </translation>
     </message>
@@ -41726,157 +42956,157 @@ Remote stderr was: %1</source>
     <name>RemoteLinux::Internal::MaemoRunControlFactory</name>
     <message>
         <source>Run on device</source>
-        <translation>在设备上运行</translation>
+        <translation type="obsolete">在设备上运行</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoQemuCrashDialog</name>
     <message>
         <source>Qemu error</source>
-        <translation>Qemu 错误</translation>
+        <translation type="obsolete">Qemu 错误</translation>
     </message>
     <message>
         <source>Qemu crashed.</source>
-        <translation>Qemu崩溃了。</translation>
+        <translation type="obsolete">Qemu崩溃了。</translation>
     </message>
     <message>
         <source>Click here to change the OpenGL mode.</source>
-        <translation>点击这里来改变OpenGL 模式.</translation>
+        <translation type="obsolete">点击这里来改变OpenGL 模式.</translation>
     </message>
     <message>
         <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation>你已经配置了Qemu 去使用OpenGL 硬件加速, 但是你的系统可能不支持. 你可以使用软件渲染来代替.</translation>
+        <translation type="obsolete">你已经配置了Qemu 去使用OpenGL 硬件加速, 但是你的系统可能不支持. 你可以使用软件渲染来代替.</translation>
     </message>
     <message>
         <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
-        <translation>Qemu 被设置为自动检测OpenGL模式, 有些情况不会工作. 你可以使用软件渲染来代替.</translation>
+        <translation type="obsolete">Qemu 被设置为自动检测OpenGL模式, 有些情况不会工作. 你可以使用软件渲染来代替.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsPage</name>
     <message>
         <source>Device Configurations</source>
-        <translation>设备配置</translation>
+        <translation type="obsolete">设备配置</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoSshConfigDialog</name>
     <message>
         <source>Save Public Key File</source>
-        <translation>保存公钥文件</translation>
+        <translation type="obsolete">保存公钥文件</translation>
     </message>
     <message>
         <source>Save Private Key File</source>
-        <translation>保存私钥文件</translation>
+        <translation type="obsolete">保存私钥文件</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoSshRunner</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation> Qemu 不在运行. 它现在会启动，但是到你能使用他还要过一段时间.</translation>
+        <translation type="obsolete"> Qemu 不在运行. 它现在会启动，但是到你能使用他还要过一段时间.</translation>
     </message>
     <message>
         <source>You want to run on Qemu, but it is not enabled for this Qt version.</source>
-        <translation>你希望部署到Qemu,但是本版本Qt没有启用.</translation>
+        <translation type="obsolete">你希望部署到Qemu,但是本版本Qt没有启用.</translation>
     </message>
     <message>
         <source>Mounting host directories...</source>
-        <translation>正在挂载主机目录...</translation>
+        <translation type="obsolete">正在挂载主机目录...</translation>
     </message>
     <message>
         <source>Potentially unmounting left-over host directory mounts...</source>
-        <translation>静默卸载剩余挂载的主机目录...</translation>
+        <translation type="obsolete">静默卸载剩余挂载的主机目录...</translation>
     </message>
     <message>
         <source>Unmounting host directories...</source>
-        <translation>卸载主机目录...</translation>
+        <translation type="obsolete">卸载主机目录...</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoToolChainFactory</name>
     <message>
         <source>Maemo GCC</source>
-        <translation>Maemo GCC</translation>
+        <translation type="obsolete">Maemo GCC</translation>
     </message>
     <message>
         <source>Maemo GCC for %1</source>
-        <translation>Maemo GCC 为 %1</translation>
+        <translation type="obsolete">Maemo GCC 为 %1</translation>
     </message>
     <message>
         <source>%1 GCC (%2)</source>
-        <translation>%1 GCC (%2)</translation>
+        <translation type="obsolete">%1 GCC (%2)</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoToolChainConfigWidget</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt; MADDE路径:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt; MADDE 路径目标:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;调试器:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt; MADDE路径:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt; MADDE 路径目标:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;调试器:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoUploadAndInstallStep</name>
     <message>
         <source>No matching packaging step found.</source>
-        <translation>没有找到符合条件的打包步骤.</translation>
+        <translation type="obsolete">没有找到符合条件的打包步骤.</translation>
     </message>
     <message>
         <source>Successfully uploaded package file.</source>
-        <translation>上传包文件成功.</translation>
+        <translation type="obsolete">上传包文件成功.</translation>
     </message>
     <message>
         <source>Installing package to device...</source>
-        <translation>正在安装包至设备...</translation>
+        <translation type="obsolete">正在安装包至设备...</translation>
     </message>
     <message>
         <source>Package installed.</source>
-        <translation>包安装成功.</translation>
+        <translation type="obsolete">包安装成功.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoUploadAndInstallDpkgPackageStep</name>
     <message>
         <source>Deploy Debian package via SFTP upload</source>
-        <translation>通过SFTP来部署Debian的包</translation>
+        <translation type="obsolete">通过SFTP来部署Debian的包</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoUploadAndInstallRpmPackageStep</name>
     <message>
         <source>Deploy RPM package via SFTP upload</source>
-        <translation>通过SFTP来部署RPM包</translation>
+        <translation type="obsolete">通过SFTP来部署RPM包</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoUploadAndInstallTarPackageStep</name>
     <message>
         <source>Deploy tarball via SFTP upload</source>
-        <translation>通过SFTP来部署压缩包</translation>
+        <translation type="obsolete">通过SFTP来部署压缩包</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
-        <translation>连接错误:%1</translation>
+        <translation type="obsolete">连接错误:%1</translation>
     </message>
     <message>
         <source>Could not start remote process: %1</source>
-        <translation>不能启动远程 进程: %1</translation>
+        <translation type="obsolete">不能启动远程 进程: %1</translation>
     </message>
     <message>
         <source>Remote process crashed: %1</source>
-        <translation>远端进程崩溃:%1</translation>
+        <translation type="obsolete">远端进程崩溃:%1</translation>
     </message>
     <message>
         <source>Remote process failed: %1</source>
-        <translation>远端进程失败:%1</translation>
+        <translation type="obsolete">远端进程失败:%1</translation>
     </message>
     <message>
         <source>
 Remote error output was: %1</source>
-        <translation>
+        <translation type="obsolete">
 远程错误输出: %1</translation>
     </message>
 </context>
@@ -41911,54 +43141,54 @@ Remote error output was: %1</source>
     <name>RemoteLinux::Internal::Qt4MaemoDeployConfigurationFactory</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
-        <translation>复制文件到Maemo5 设备</translation>
+        <translation type="obsolete">复制文件到Maemo5 设备</translation>
     </message>
     <message>
         <source>Build Debian Package and Install to Maemo5 Device</source>
-        <translation>构建 Debian 包然后安装到 Maemo5 设备上</translation>
+        <translation type="obsolete">构建 Debian 包然后安装到 Maemo5 设备上</translation>
     </message>
     <message>
         <source>Build Debian Package and Install to Harmattan Device</source>
-        <translation>构建Debian 包然后安装到 Harmattan 设备上</translation>
+        <translation type="obsolete">构建Debian 包然后安装到 Harmattan 设备上</translation>
     </message>
     <message>
         <source>Build RPM Package and Install to MeeGo Device</source>
-        <translation>构建 RPM 包然后安装到 MeeGo 设备上</translation>
+        <translation type="obsolete">构建 RPM 包然后安装到 MeeGo 设备上</translation>
     </message>
     <message>
         <source>Build Tarball and Install to Linux Host</source>
-        <translation>构建 压缩 包然后安装到 Linux 主机上</translation>
+        <translation type="obsolete">构建 压缩 包然后安装到 Linux 主机上</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractQt4MaemoTarget</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation>文法打开文件&apos;%1&apos;:&apos;%2&apos;</translation>
+        <translation type="obsolete">文法打开文件&apos;%1&apos;:&apos;%2&apos;</translation>
     </message>
     <message>
         <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
+        <translation type="obsolete">Qt Creator</translation>
     </message>
     <message>
         <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
-        <translation>你想删除和目标&apos;%1&apos;有关的包吗?</translation>
+        <translation type="obsolete">你想删除和目标&apos;%1&apos;有关的包吗?</translation>
     </message>
     <message>
         <source>Error creating packaging directory &apos;%1&apos;.</source>
-        <translation>创建打包目录发生错误&apos;%1&apos;.</translation>
+        <translation type="obsolete">创建打包目录发生错误&apos;%1&apos;.</translation>
     </message>
     <message>
         <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
    %1
 Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation>&lt;html&gt;Qt Creator 被设置成以下文件打开打包功能:
+        <translation type="obsolete">&lt;html&gt;Qt Creator 被设置成以下文件打开打包功能:
    %1
 你想添加他们到项目中吗?&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Error creating MeeGo templates</source>
-        <translation>创建MeeGo模板出错</translation>
+        <translation type="obsolete">创建MeeGo模板出错</translation>
     </message>
     <message>
         <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
@@ -41966,7 +43196,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
     <message>
         <source>Add Packaging Files to Project</source>
-        <translation>添加包到项目中</translation>
+        <translation type="obsolete">添加包到项目中</translation>
     </message>
     <message>
         <source>Qt Creator has set up the following files to enable packaging:
@@ -41985,74 +43215,74 @@ Do you want to add them to the project?</source>
     <name>RemoteLinux::Internal::AbstractDebBasedQt4MaemoTarget</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation>Debian修改日志文件&apos;%1&apos;格式未知.</translation>
+        <translation type="obsolete">Debian修改日志文件&apos;%1&apos;格式未知.</translation>
     </message>
     <message>
         <source>Invalid icon data in Debian control file.</source>
-        <translation>Debian 控制文件中的图标数据无效.</translation>
+        <translation type="obsolete">Debian 控制文件中的图标数据无效.</translation>
     </message>
     <message>
         <source>Could not read image file &apos;%1&apos;.</source>
-        <translation>无法读取镜像文件&apos;%1&apos;.</translation>
+        <translation type="obsolete">无法读取镜像文件&apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Could not export image file &apos;%1&apos;.</source>
-        <translation>无法导出镜像文件&apos;%1&apos;.</translation>
+        <translation type="obsolete">无法导出镜像文件&apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Unable to create Debian templates: No Qt version set</source>
-        <translation>无法创建Debian模板:没有设置Qt版本</translation>
+        <translation type="obsolete">无法创建Debian模板:没有设置Qt版本</translation>
     </message>
     <message>
         <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation>无法创建Debian模板:dh_make失败(%1)</translation>
+        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
     </message>
     <message>
         <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation>无法创建Debian模板:dh_make失败(%1)</translation>
+        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
     </message>
     <message>
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation>无法将新Debian目录移动到&apos;%1&apos;.</translation>
+        <translation type="obsolete">无法将新Debian目录移动到&apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::RemoteLinuxApplicationRunner</name>
     <message>
         <source>Cannot run: %1</source>
-        <translation>无法运行: %1</translation>
+        <translation type="obsolete">无法运行: %1</translation>
     </message>
     <message>
         <source>Connecting to device...</source>
-        <translation>正在连接设备...</translation>
+        <translation type="obsolete">正在连接设备...</translation>
     </message>
     <message>
         <source>Connection error: %1</source>
-        <translation>连接错误:%1</translation>
+        <translation type="obsolete">连接错误:%1</translation>
     </message>
     <message>
         <source>Killing remote process(es)...</source>
-        <translation>正在结束远程进程...</translation>
+        <translation type="obsolete">正在结束远程进程...</translation>
     </message>
     <message>
         <source>Initial cleanup failed: %1</source>
-        <translation>清理初始化失败:%1</translation>
+        <translation type="obsolete">清理初始化失败:%1</translation>
     </message>
     <message>
         <source>Remote process started.</source>
-        <translation>远端进程启动.</translation>
+        <translation type="obsolete">远端进程启动.</translation>
     </message>
     <message>
         <source>No remote executable set.</source>
-        <translation>没有远程可执行档.</translation>
+        <translation type="obsolete">没有远程可执行档.</translation>
     </message>
     <message>
         <source>No device configuration set.</source>
-        <translation>没有设备设置.</translation>
+        <translation type="obsolete">没有设备设置.</translation>
     </message>
     <message>
         <source>Error running remote process: %1</source>
-        <translation>运行远程程序发生错误:%1</translation>
+        <translation type="obsolete">运行远程程序发生错误:%1</translation>
     </message>
 </context>
 <context>
@@ -42103,9 +43333,19 @@ Do you want to add them to the project?</source>
         <translation>不知道要运行什么.</translation>
     </message>
     <message>
+        <source>%1 (on Remote Device)</source>
+        <extracomment>%1 is the name of a project which is being run on remote Linux</extracomment>
+        <translation>%1 (在远端设备上)</translation>
+    </message>
+    <message>
+        <source>Run on Remote Device</source>
+        <extracomment>Remote Linux run configuration default display name</extracomment>
+        <translation>在远端设备上运行</translation>
+    </message>
+    <message>
         <source>Run on remote device</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
-        <translation>在远程设备上运行</translation>
+        <translation type="obsolete">在远程设备上运行</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -42150,6 +43390,14 @@ Do you want to add them to the project?</source>
         <translation>设备上的执行档:</translation>
     </message>
     <message>
+        <source>Use this command instead</source>
+        <translation>用这个命令代替</translation>
+    </message>
+    <message>
+        <source>Alternate executable on device:</source>
+        <translation>设备上的备用执行档:</translation>
+    </message>
+    <message>
         <source>Arguments:</source>
         <translation>参数:</translation>
     </message>
@@ -42186,8 +43434,12 @@ Do you want to add them to the project?</source>
         <translation>取消获取操作</translation>
     </message>
     <message>
-        <source>Device error</source>
+        <source>Device Error</source>
         <translation>设备错误</translation>
+    </message>
+    <message>
+        <source>Device error</source>
+        <translation type="obsolete">设备错误</translation>
     </message>
     <message>
         <source>Fetching environment failed: %1</source>
@@ -42210,7 +43462,7 @@ Do you want to add them to the project?</source>
     </message>
     <message>
         <source>Remote Execution Failure</source>
-        <translation>远程执行失败</translation>
+        <translation type="obsolete">远程执行失败</translation>
     </message>
 </context>
 <context>
@@ -42238,20 +43490,20 @@ Do you want to add them to the project?</source>
     <name>TextEditor::FallbackSelectorWidget</name>
     <message>
         <source>Settings:</source>
-        <translation>设置:</translation>
+        <translation type="obsolete">设置:</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>自定义</translation>
+        <translation type="obsolete">自定义</translation>
     </message>
     <message>
         <source>Restore %1</source>
         <comment>%1 is settings name (e.g. Global C++)</comment>
-        <translation>还原 %1</translation>
+        <translation type="obsolete">还原 %1</translation>
     </message>
     <message>
         <source>Restore</source>
-        <translation>还原</translation>
+        <translation type="obsolete">还原</translation>
     </message>
 </context>
 <context>
@@ -42872,7 +44124,7 @@ Do you want to add them to the project?</source>
     <name>RemoteLinux::Internal::MaemoQemuSettingsPage</name>
     <message>
         <source>MeeGo Qemu Settings</source>
-        <translation>MeeGo Qemu 设置</translation>
+        <translation type="obsolete">MeeGo Qemu 设置</translation>
     </message>
 </context>
 <context>
@@ -43064,7 +44316,11 @@ Do you want to add them to the project?</source>
     </message>
     <message>
         <source>Resize wraps</source>
-        <translation>调整框架</translation>
+        <translation type="obsolete">调整框架</translation>
+    </message>
+    <message>
+        <source>Navigation wraps</source>
+        <translation>导航跃迁</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
@@ -43366,19 +44622,19 @@ Do you want to add them to the project?</source>
     <name>ExampleBrowser</name>
     <message>
         <source>Search in Tutorials</source>
-        <translation>在教程中搜索</translation>
+        <translation type="obsolete">在教程中搜索</translation>
     </message>
     <message>
         <source>Search in Tutorials, Examples and Demos</source>
-        <translation>在教程,例子,演示中搜索</translation>
+        <translation type="obsolete">在教程,例子,演示中搜索</translation>
     </message>
     <message>
         <source>Show Examples and Demos</source>
-        <translation>显示例子和演示</translation>
+        <translation type="obsolete">显示例子和演示</translation>
     </message>
     <message>
         <source>Tag List</source>
-        <translation>标签列表</translation>
+        <translation type="obsolete">标签列表</translation>
     </message>
 </context>
 <context>
@@ -43392,7 +44648,11 @@ Do you want to add them to the project?</source>
     <name>FeaturedAndNewsListing</name>
     <message>
         <source>Featured News</source>
-        <translation>特色新闻</translation>
+        <translation type="obsolete">特色新闻</translation>
+    </message>
+    <message>
+        <source>Latest News</source>
+        <translation>最新新闻</translation>
     </message>
 </context>
 <context>
@@ -43404,6 +44664,10 @@ Do you want to add them to the project?</source>
     <message>
         <source>Help us make Qt Creator even better</source>
         <translation>协助我们使Qt Creator 更加完美</translation>
+    </message>
+    <message>
+        <source>Search in Tutorials, Examples and Demos</source>
+        <translation>在教程,例子,演示中搜索</translation>
     </message>
     <message>
         <source>Open Project...</source>
@@ -43447,11 +44711,1280 @@ Do you want to add them to the project?</source>
     <name>TagBrowser</name>
     <message>
         <source>Please choose a tag to filter for:</source>
-        <translation>请问过滤器选择一个标签:</translation>
+        <translation type="obsolete">请问过滤器选择一个标签:</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::AbstractMaemoPackageCreationStep</name>
+    <message>
+        <source>Package up to date.</source>
+        <translation type="obsolete">包已更新.</translation>
+    </message>
+    <message>
+        <source>Creating package file ...</source>
+        <translation type="obsolete">创建包文件...</translation>
+    </message>
+    <message>
+        <source>Package created.</source>
+        <translation type="obsolete">打包完成.</translation>
+    </message>
+    <message>
+        <source>Packaging failed.</source>
+        <translation type="obsolete">打包失败.</translation>
+    </message>
+    <message>
+        <source>Packaging error: No Qt version.</source>
+        <translation type="obsolete">打包错误:没有Qt版本.</translation>
+    </message>
+    <message>
+        <source>Package Creation: Running command &apos;%1&apos;.</source>
+        <translation type="obsolete">生成包:运行命令&apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
+        <translation type="obsolete">打包错误:无法执行命令&apos;%1&apos; 原因&apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
+        <translation type="obsolete">打包错误:命令%1&apos;失败.</translation>
+    </message>
+    <message>
+        <source> Reason: %1</source>
+        <translation type="obsolete">原因 %1</translation>
+    </message>
+    <message>
+        <source>Exit code: %1</source>
+        <translation type="obsolete">退出代码: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::MaemoDebianPackageCreationStep</name>
+    <message>
+        <source>Create Debian Package</source>
+        <translation type="obsolete">创建Deb包</translation>
+    </message>
+    <message>
+        <source>Packaging failed.</source>
+        <translation type="obsolete">打包失败.</translation>
+    </message>
+    <message>
+        <source>Could not move package files from %1 to %2.</source>
+        <translation type="obsolete">无法将包文件从%1移动到%2.</translation>
+    </message>
+    <message>
+        <source>Your project name contains characters not allowed in Debian packages.
+They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
+We will try to work around that, but you may experience problems.</source>
+        <translation type="obsolete">你的工程可能包含有Deb包不允许的字符集.必须使用小写字母,数字,&apos;-&apos;,或者&apos;.&apos;.</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Foreign debian directory detected.</source>
+        <translation type="obsolete">打包失败:检测到外部debian目录.</translation>
+    </message>
+    <message>
+        <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
+        <translation type="obsolete">你没有使用shadow构建功能,因此在你的项目根目录下有一个(%1).Qt Creator不会覆盖这个目录.请使用shadow构建特性来移除该目录.</translation>
+    </message>
+    <message>
+        <source>Could not remove directory &apos;%1&apos;: %2</source>
+        <translation type="obsolete">无法删除目录&apos;%1&apos;: %2</translation>
+    </message>
+    <message>
+        <source>Could not create Debian directory &apos;%1&apos;.</source>
+        <translation type="obsolete">无法创建Debian目录&apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
+        <translation type="obsolete">无法拷贝文件‘%1’到&apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
+        <translation type="obsolete">错误:无法创建文件&apos;%1&apos;.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::MaemoRpmPackageCreationStep</name>
+    <message>
+        <source>Create RPM Package</source>
+        <translation type="obsolete">创建 RPM 包</translation>
+    </message>
+    <message>
+        <source>Packaging failed.</source>
+        <translation type="obsolete">打包失败.</translation>
+    </message>
+    <message>
+        <source>Could not move package file from %1 to %2.</source>
+        <translation type="obsolete">无法移动包文件从%1 到%2.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::CreateTarStepWidget</name>
+    <message>
+        <source>Tarball creation not possible.</source>
+        <translation>不可能创建压缩文件.</translation>
+    </message>
+    <message>
+        <source>Create tarball:</source>
+        <translation>创建归档文件:</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::MaemoTarPackageCreationStep</name>
+    <message>
+        <source>Create tarball</source>
+        <translation type="obsolete">创建归档文件</translation>
+    </message>
+    <message>
+        <source>Error: tar file %1 cannot be opened (%2).</source>
+        <translation type="obsolete">错误: tar 文件%1 无法被打开(%2).</translation>
+    </message>
+    <message>
+        <source>Error writing tar file &apos;%1&apos;: %2.</source>
+        <translation type="obsolete">写入tar 文件 &apos;%1&apos;发生错误: %2.</translation>
+    </message>
+    <message>
+        <source>Error reading file &apos;%1&apos;: %2.</source>
+        <translation type="obsolete">读取文件&apos;%1&apos;错误: %2.</translation>
+    </message>
+    <message>
+        <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
+        <translation type="obsolete">无法添加文件&apos;%1&apos; 到压缩包: 路径太长.</translation>
+    </message>
+    <message>
+        <source>Error writing tar file &apos;%1&apos;: %2</source>
+        <translation type="obsolete">写入tar 文件 &apos;%1&apos;发生错误: %2</translation>
+    </message>
+</context>
+<context>
+    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <message>
+        <source>Qt Creator - Plugin loader messages</source>
+        <translation>Qt Creator - 插件载入信息</translation>
+    </message>
+    <message>
+        <source>The following plugins have errors and cannot be loaded:</source>
+        <translation>以下插件有错误,无法被载入:</translation>
+    </message>
+    <message>
+        <source>Details:</source>
+        <translation>详情:</translation>
+    </message>
+</context>
+<context>
+    <name>AttachToQmlPortDialog</name>
+    <message>
+        <source>Start Debugger</source>
+        <translation>启动调试器</translation>
+    </message>
+    <message>
+        <source>Host</source>
+        <translation type="obsolete">主机</translation>
+    </message>
+    <message>
+        <source>&amp;Host:</source>
+        <translation>主机(&amp;H):</translation>
+    </message>
+    <message>
+        <source>&amp;Port:</source>
+        <translation>端口(&amp;P):</translation>
+    </message>
+</context>
+<context>
+    <name>MainView</name>
+    <message>
+        <source>Painting</source>
+        <translation>绘制中</translation>
+    </message>
+    <message>
+        <source>Compiling</source>
+        <translation>编译中</translation>
+    </message>
+    <message>
+        <source>Creating</source>
+        <translation>创建中</translation>
+    </message>
+    <message>
+        <source>Binding</source>
+        <translation>绑定</translation>
+    </message>
+    <message>
+        <source>Signal Handler</source>
+        <translation>信号处理</translation>
+    </message>
+</context>
+<context>
+    <name>RangeDetails</name>
+    <message>
+        <source>Duration</source>
+        <translation>持续时间</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>详情</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>位置</translation>
+    </message>
+</context>
+<context>
+    <name>MobileAppWizardHarmattanOptionsPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>向导页面</translation>
+    </message>
+    <message>
+        <source>Application icon (80x80):</source>
+        <translation>应用程序图标 (80x80):</translation>
+    </message>
+    <message>
+        <source>Generate code to speed up the launching on the device.</source>
+        <translation>生成代码来加速设备上的运行速度.</translation>
+    </message>
+    <message>
+        <source>Make application boostable</source>
+        <translation>使应用程序启动稳定</translation>
+    </message>
+</context>
+<context>
+    <name>NewTestCaseDlg</name>
+    <message>
+        <source>...</source>
+        <translation type="obsolete">...</translation>
+    </message>
+</context>
+<context>
+    <name>RecordDialog</name>
+    <message>
+        <source>Abort</source>
+        <translation type="obsolete">终止</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="obsolete">停止</translation>
+    </message>
+</context>
+<context>
+    <name>SelectDlg</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="obsolete">对话框</translation>
+    </message>
+</context>
+<context>
+    <name>QtTest::Internal::TestSettingsPropertiesPage</name>
+    <message>
+        <source>General</source>
+        <translation type="obsolete">概要</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation type="obsolete">添加</translation>
+    </message>
+    <message>
+        <source>Branch</source>
+        <translation type="obsolete">Branch</translation>
+    </message>
+    <message>
+        <source>E-mail</source>
+        <translation type="obsolete">电子邮件</translation>
+    </message>
+</context>
+<context>
+    <name>LinuxDeviceConfigurationsSettingsWidget</name>
+    <message>
+        <source>Linux Device Configurations</source>
+        <translation>Linux 设备设置</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration:</source>
+        <translation>配置(&amp;C):</translation>
+    </message>
+    <message>
+        <source>&amp;Name:</source>
+        <translation>名称(&amp;N):</translation>
+    </message>
+    <message>
+        <source>OS type:</source>
+        <translation>OS 类型:</translation>
+    </message>
+    <message>
+        <source>Device type:</source>
+        <translation>设备类型:</translation>
+    </message>
+    <message>
+        <source>Authentication type:</source>
+        <translation>验证类型:</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>密码</translation>
+    </message>
+    <message>
+        <source>&amp;Key</source>
+        <translation>密钥(&amp;K)</translation>
+    </message>
+    <message>
+        <source>&amp;Host name:</source>
+        <translation>主机名称(&amp;H):</translation>
+    </message>
+    <message>
+        <source>IP or host name of the device</source>
+        <translation>设备的IP或者主机名称</translation>
+    </message>
+    <message>
+        <source>&amp;SSH port:</source>
+        <translation>SSH端口(&amp;S):</translation>
+    </message>
+    <message>
+        <source>Free ports:</source>
+        <translation>空闲端口:</translation>
+    </message>
+    <message>
+        <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
+        <translation>你可以输入范围,输入形式如:1024,1026-1028,1030</translation>
+    </message>
+    <message>
+        <source>Timeout:</source>
+        <translation>超时时间:</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation>秒</translation>
+    </message>
+    <message>
+        <source>&amp;Username:</source>
+        <translation>用户名(&amp;U):</translation>
+    </message>
+    <message>
+        <source>&amp;Password:</source>
+        <translation>密码(&amp;P):</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>显示密码</translation>
+    </message>
+    <message>
+        <source>Private key file:</source>
+        <translation>私钥文件:</translation>
+    </message>
+    <message>
+        <source>Set as Default</source>
+        <translation>设置为默认</translation>
+    </message>
+    <message>
+        <source>&amp;Add</source>
+        <translation type="obsolete">添加(&amp;A)</translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation>删除(&amp;R)</translation>
+    </message>
+    <message>
+        <source>Set As Default</source>
+        <translation>设置为默认</translation>
+    </message>
+    <message>
+        <source>Click here if you do not have an SSH key yet.</source>
+        <translation>如果你还没有SSH密钥请点击这里。</translation>
+    </message>
+    <message>
+        <source>&amp;Generate SSH Key...</source>
+        <translation>生成SSH密钥(&amp;G)...</translation>
+    </message>
+    <message>
+        <source>&amp;Add...</source>
+        <translation>添加(&amp;A)...</translation>
+    </message>
+</context>
+<context>
+    <name>LinuxDeviceTestDialog</name>
+    <message>
+        <source>Device Test</source>
+        <translation>设备测试</translation>
+    </message>
+</context>
+<context>
+    <name>ProFilesUpdateDialog</name>
+    <message>
+        <source>Maemo Deployment Issue</source>
+        <translation>Maemo部署事件</translation>
+    </message>
+    <message>
+        <source>The project files listed below do not contain deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
+        <translation>以下列出的项目文件不包含部署信息, 意味着各自的目标无法在设备上部署或者运行. 如果你在下面选择了目标,Qt Creator会添加丢失的信息到这些文件中去.</translation>
+    </message>
+    <message>
+        <source>&amp;Check all</source>
+        <translation>选中全部(&amp;C)</translation>
+    </message>
+    <message>
+        <source>&amp;Uncheck All</source>
+        <translation>取消选中(&amp;U)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinuxDeployConfigurationWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>界面</translation>
+    </message>
+    <message>
+        <source>Device configuration:</source>
+        <translation>设备配置:</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;irrelevant&quot;&gt;设置设备选项&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>These show the INSTALLS settings from the project file(s).</source>
+        <translation>显示来自于项目文件的安装(INSTALLS)设置.</translation>
+    </message>
+    <message>
+        <source>Files to install for subproject:</source>
+        <translation>为子项目需要安装的文件:</translation>
+    </message>
+    <message>
+        <source>Edit the project file to add or remove entries.</source>
+        <translation>编辑项目文件添加或删除条目.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinuxProcessesDialog</name>
+    <message>
+        <source>List of Remote Processes</source>
+        <translation>远程进程列表</translation>
+    </message>
+    <message>
+        <source>&amp;Filter by process name:</source>
+        <translation>按进程名过滤(&amp;F):</translation>
+    </message>
+    <message>
+        <source>&amp;Update List</source>
+        <translation>更新列表(&amp;U)</translation>
+    </message>
+    <message>
+        <source>&amp;Kill Selected Process</source>
+        <translation>停止选中进程(&amp;K)</translation>
+    </message>
+</context>
+<context>
+    <name>SshKeyCreationDialog</name>
+    <message>
+        <source>SSH Key Configuration</source>
+        <translation>SSH密钥配置</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>选项</translation>
+    </message>
+    <message>
+        <source>Key &amp;size:</source>
+        <translation>密钥长度(&amp;s):</translation>
+    </message>
+    <message>
+        <source>Key algorithm:</source>
+        <translation>密钥算法:</translation>
+    </message>
+    <message>
+        <source>&amp;RSA</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&amp;DSA</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>密钥</translation>
+    </message>
+    <message>
+        <source>&amp;Generate SSH Key</source>
+        <translation>生成SSH密钥(&amp;G)</translation>
+    </message>
+    <message>
+        <source>Save P&amp;ublic Key...</source>
+        <translation>保存公钥文件...</translation>
+    </message>
+    <message>
+        <source>Save Pr&amp;ivate Key...</source>
+        <translation>保存私钥文件...</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>关闭</translation>
+    </message>
+</context>
+<context>
+    <name>StartGdbServerDialog</name>
+    <message>
+        <source>List of Remote Processes</source>
+        <translation>远程进程列表</translation>
+    </message>
+    <message>
+        <source>Device:</source>
+        <translation>设备:</translation>
+    </message>
+    <message>
+        <source>&amp;Filter by process name:</source>
+        <translation>按进程名过滤(&amp;F):</translation>
+    </message>
+    <message>
+        <source>&amp;Attach to Selected Process</source>
+        <translation>挂接到指定进程</translation>
+    </message>
+    <message>
+        <source>&amp;Update List</source>
+        <translation>更新列表(&amp;U)</translation>
+    </message>
+</context>
+<context>
+    <name>ExampleLineEdit</name>
+    <message>
+        <source>Show Examples and Demos</source>
+        <translation type="obsolete">显示例子和演示</translation>
+    </message>
+    <message>
+        <source>Search in Tutorials</source>
+        <translation type="obsolete">在教程中搜索</translation>
+    </message>
+    <message>
+        <source>Search in Tutorials, Examples and Demos</source>
+        <translation type="obsolete">在教程,例子,演示中搜索</translation>
+    </message>
+    <message>
+        <source>Tag List</source>
+        <translation type="obsolete">标签列表</translation>
+    </message>
+</context>
+<context>
+    <name>LinksBar</name>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+</context>
+<context>
+    <name>ExtensionSystem::Internal::PluginErrorOverviewPrivate</name>
+    <message>
+        <source>Continue</source>
+        <translation>继续</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJsDebugClient::QmlProfilerEventList</name>
+    <message>
+        <source>&lt;bytecode&gt;</source>
+        <translation>&lt;字节码&gt;</translation>
+    </message>
+    <message>
+        <source>Source code not available</source>
+        <translation>源代码不可用</translation>
+    </message>
+    <message>
+        <source>No data to save</source>
+        <translation>没有数据需要保存</translation>
+    </message>
+    <message>
+        <source>Could not open %1 for writing</source>
+        <translation>无法打开%1来写入</translation>
+    </message>
+    <message>
+        <source>Could not open %1 for reading</source>
+        <translation>无法打开%1来读取</translation>
+    </message>
+    <message>
+        <source>Error while parsing %1</source>
+        <translation>解析 %1 发生错误</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::Ssh</name>
+    <message>
+        <source>Password Required</source>
+        <translation>需要密码</translation>
+    </message>
+    <message>
+        <source>Please enter the password for your private key.</source>
+        <translation>请输入你的私钥密码.</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::TextFileFormat</name>
+    <message>
+        <source>Out of memory.</source>
+        <translation>内存不足.</translation>
+    </message>
+    <message>
+        <source>An encoding error was encountered.</source>
+        <translation>发生了一个编码错误.</translation>
+    </message>
+</context>
+<context>
+    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
+    <message>
+        <source>Verbose</source>
+        <translation>详细</translation>
+    </message>
+    <message>
+        <source>Show files changed in each revision</source>
+        <translation>显示在每个版本的改变的文件</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation>在前</translation>
+    </message>
+    <message>
+        <source>Show from oldest to newest</source>
+        <translation>显示从最老到最新</translation>
+    </message>
+    <message>
+        <source>Include merges</source>
+        <translation>包含合并</translation>
+    </message>
+    <message>
+        <source>Show merged revisions</source>
+        <translation>显示合并版本</translation>
+    </message>
+    <message>
+        <source>Detailed</source>
+        <translation>详细</translation>
+    </message>
+    <message>
+        <source>Moderately short</source>
+        <translation>略短</translation>
+    </message>
+    <message>
+        <source>One line</source>
+        <translation>一行</translation>
+    </message>
+    <message>
+        <source>GNU ChangeLog</source>
+        <translation>GNU 更新日志</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal</name>
+    <message>
+        <source>Launching a file browser failed</source>
+        <translation>启动文件浏览器失败</translation>
+    </message>
+    <message>
+        <source>Unable to start the file manager:
+
+%1
+
+</source>
+        <translation>无法启动文件管理器:
+
+%1
+
+</translation>
+    </message>
+    <message>
+        <source>&apos;%1&apos; returned the following error:
+
+%2</source>
+        <translation>&apos;%1&apos; 返回以下错误:
+
+%2</translation>
+    </message>
+    <message>
+        <source>Settings...</source>
+        <translation>设定...</translation>
+    </message>
+    <message>
+        <source>Launching Windows Explorer Failed</source>
+        <translation>启动Windows Explorer 失败</translation>
+    </message>
+    <message>
+        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
+        <translation>在环境变量中找不到explorer.exe,无法启动Windows Explorer.</translation>
+    </message>
+    <message>
+        <source>Show in Explorer...</source>
+        <translation>在Explorer中显示...</translation>
+    </message>
+    <message>
+        <source>Show in Finder...</source>
+        <translation>在搜索器中显示 ...</translation>
+    </message>
+    <message>
+        <source>Show Containing Folder...</source>
+        <translation>显示包含的目录...</translation>
+    </message>
+    <message>
+        <source>Open Command Prompt Here...</source>
+        <translation>在此打开命令行控制台...</translation>
+    </message>
+    <message>
+        <source>Open Terminal Here...</source>
+        <translation>在此打开终端...</translation>
+    </message>
+</context>
+<context>
+    <name>BaseFileWizard</name>
+    <message>
+        <source>Unable to create the directory %1.</source>
+        <translation>创建文件夹 %1 失败。</translation>
+    </message>
+</context>
+<context>
+    <name>FunctionDeclDefLink</name>
+    <message>
+        <source>Target file was changed, could not apply changes</source>
+        <translation>目标文件改变, 无法应用设置</translation>
+    </message>
+    <message>
+        <source>Apply changes to definition</source>
+        <translation>在定义中应用设置</translation>
+    </message>
+    <message>
+        <source>Apply changes to declaration</source>
+        <translation>在声明中定义设置</translation>
+    </message>
+    <message>
+        <source>Apply function signature changes</source>
+        <translation>应用功能签名设置</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::BaseWindow</name>
+    <message>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>按内容调整列宽</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::CdbBreakEventWidget</name>
+    <message>
+        <source>C++ exception</source>
+        <translation>C++ 例外</translation>
+    </message>
+    <message>
+        <source>Thread creation</source>
+        <translation>线程创建</translation>
+    </message>
+    <message>
+        <source>Thread exit</source>
+        <translation>退出线程</translation>
+    </message>
+    <message>
+        <source>Load module:</source>
+        <translation>载入模块:</translation>
+    </message>
+    <message>
+        <source>Unload module:</source>
+        <translation>卸载模块:</translation>
+    </message>
+    <message>
+        <source>Output:</source>
+        <translation>输出:</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::QScriptDebuggerClient</name>
+    <message>
+        <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
+        <translation>&lt;p&gt;发生了一个未被捕获的异常:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;An uncaught exception occurred in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
+        <translation>&lt;p&gt;发生未被捕捉到的异常,位置在&lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Uncaught Exception</source>
+        <translation>未捕捉的异常</translation>
+    </message>
+</context>
+<context>
+    <name>Find::IFindFilter</name>
+    <message>
+        <source>Case sensitive</source>
+        <translation>区分大小写</translation>
+    </message>
+    <message>
+        <source>Whole words</source>
+        <translation>全词匹配</translation>
+    </message>
+    <message>
+        <source>Regular expressions</source>
+        <translation>正则表达式\</translation>
+    </message>
+    <message>
+        <source>Flags: %1</source>
+        <translation>标志: %1</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>无</translation>
+    </message>
+    <message>
+        <source>, </source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>Find::Internal::SearchResultWidget</name>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Replace with:</source>
+        <translation>替换为:</translation>
+    </message>
+    <message>
+        <source>Replace all occurrences</source>
+        <translation>替换所有出现位置</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>替换</translation>
+    </message>
+    <message>
+        <source>This change cannot be undone.</source>
+        <translation>这项改变将无法被撤销。</translation>
+    </message>
+    <message>
+        <source>Do not warn again</source>
+        <translation>不要再次警告</translation>
+    </message>
+    <message>
+        <source>No matches found.</source>
+        <translation>未找到匹配.</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n matches found.</source>
+        <translation>
+            <numerusform>找到%n 个匹配.</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaddeDeviceConfigurationFactory</name>
+    <message>
+        <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
+        <translation>设备拥有MADDE支持(例如:Fremantle, Harmattan, MeeGo)</translation>
+    </message>
+    <message>
+        <source>Maemo5/Fremantle</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>MeeGo 1.2 Harmattan</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Other MeeGo OS</source>
+        <translation>其他MeeGo 操作系统</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>测试</translation>
+    </message>
+    <message>
+        <source>Remote Processes...</source>
+        <translation>远程进程...</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key...</source>
+        <translation>部署公钥...</translation>
+    </message>
+    <message>
+        <source>Remote Processes</source>
+        <translation type="obsolete">远程进程</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key</source>
+        <translation type="obsolete">部署公钥</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaddeDeviceTester</name>
+    <message>
+        <source>Checking for Qt libraries...</source>
+        <translation>检查 Qt 库...</translation>
+    </message>
+    <message>
+        <source>SSH connection error: %1
+</source>
+        <translation>SSH连接错误:%1
+</translation>
+    </message>
+    <message>
+        <source>Error checking for Qt libraries: %1
+</source>
+        <translation>检查 Qt 库发生错误: %1
+</translation>
+    </message>
+    <message>
+        <source>Error checking for Qt libraries.
+</source>
+        <translation>检查 Qt 库发生错误.
+</translation>
+    </message>
+    <message>
+        <source>Checking for connectivity support...</source>
+        <translation>检查连接支持...</translation>
+    </message>
+    <message>
+        <source>Error checking for connectivity tool: %1
+</source>
+        <translation>检查连接工具失败: %1
+</translation>
+    </message>
+    <message>
+        <source>Error checking for connectivity tool.
+</source>
+        <translation>检查连接工具失败.
+</translation>
+    </message>
+    <message>
+        <source>Connectivity tool not installed on device. Deployment currently not possible.</source>
+        <translation>连接工具没有安装到设备上. 现在就部署是不可能的.</translation>
+    </message>
+    <message>
+        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
+        <translation>请通过 设置-&gt; 安全  选项来切换设备到开发模式。</translation>
+    </message>
+    <message>
+        <source>Connectivity tool present.
+</source>
+        <translation>当前的连接工具.
+</translation>
+    </message>
+    <message>
+        <source>Checking for QML tooling support...</source>
+        <translation>检查QML工具支持...</translation>
+    </message>
+    <message>
+        <source>Error checking for QML tooling support: %1
+</source>
+        <translation>检查QML工具支持失败: %1
+</translation>
+    </message>
+    <message>
+        <source>Error checking for QML tooling support.
+</source>
+        <translation>检查QML工具支持失败.
+</translation>
+    </message>
+    <message>
+        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.
+</source>
+        <translation>丢失文件夹&apos;%1&apos;.你将不被允许在这台设备上来使用QML 调试.
+</translation>
+    </message>
+    <message>
+        <source>QML tooling support present.
+</source>
+        <translation>当前的QML工具支持.
+</translation>
+    </message>
+    <message>
+        <source>No Qt packages installed.</source>
+        <translation>没有安装Qt包.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaddeUploadAndInstallPackageAction</name>
+    <message>
+        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation>无法部署:Qemu不在运行.现在正在为你启动,但是完成启动需要花点时间.请稍后再试.</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
+        <translation>无法部署:你希望部署到Qemu,但是本版本Qt没有启用.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoUploadAndInstallPackageStep</name>
+    <message>
+        <source>No Debian package creation step found.</source>
+        <translation>没有找到生成Debian包所需的步骤.</translation>
+    </message>
+    <message>
+        <source>Deploy Debian package via SFTP upload</source>
+        <translation>通过SFTP来部署Debian的包</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MeegoUploadAndInstallPackageStep</name>
+    <message>
+        <source>No RPM package creation step found.</source>
+        <translation>没有找到生成 RPM 包所需的步骤.</translation>
+    </message>
+    <message>
+        <source>Deploy RPM package via SFTP upload</source>
+        <translation>通过SFTP来部署RPM包</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoDeployByMountService</name>
+    <message>
+        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation>无法部署:Qemu不在运行.现在正在为你启动,但是完成启动需要花点时间.请稍后再试.</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
+        <translation>无法部署:你希望部署到Qemu,但是本版本Qt没有启用.</translation>
+    </message>
+    <message>
+        <source>Missing build configuration.</source>
+        <translation>丢失构建设置.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoMountAndInstallPackageService</name>
+    <message>
+        <source>Package installed.</source>
+        <translation>包安装成功.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoMountAndCopyFilesService</name>
+    <message>
+        <source>All files copied.</source>
+        <translation>所有文件拷贝结束.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoInstallPackageViaMountStep</name>
+    <message>
+        <source>No Debian package creation step found.</source>
+        <translation>没有找到生成Debian包所需的步骤.</translation>
+    </message>
+    <message>
+        <source>Deploy package via UTFS mount</source>
+        <translation>通过挂在UTFS来部署包</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoCopyFilesViaMountStep</name>
+    <message>
+        <source>Deploy files via UTFS mount</source>
+        <translation>通过挂载UTFS来部署包</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeployConfigurationWidget</name>
+    <message>
+        <source>Project File Update Failed</source>
+        <translation>项目文件更新失败</translation>
+    </message>
+    <message>
+        <source>Could not update the project file.</source>
+        <translation>无法更新项目文件.</translation>
+    </message>
+    <message>
+        <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
+        <translation>选择图标(如果需要会缩放到%1x%1 像素 )</translation>
+    </message>
+    <message>
+        <source>Invalid Icon</source>
+        <translation>无效图标</translation>
+    </message>
+    <message>
+        <source>Unable to read image</source>
+        <translation>无法读取图片</translation>
+    </message>
+    <message>
+        <source>Failed to Save Icon</source>
+        <translation>无法保存图标</translation>
+    </message>
+    <message>
+        <source>Could not save icon to &apos;%1&apos;.</source>
+        <translation>无法保存图标到&apos;%1&apos;.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeploymentMounter</name>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>连接失败:%1</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardStartPage</name>
+    <message>
+        <source>General Information</source>
+        <translation>概要</translation>
+    </message>
+    <message>
+        <source>MeeGo Device</source>
+        <translation>MeeGo 设备</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
+    <message>
+        <source>Device Status Check</source>
+        <translation>检测设备状态</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <message>
+        <source>Existing Keys Check</source>
+        <translation>现有密钥检测</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
+    <message>
+        <source>Key Creation</source>
+        <translation>密钥创建</translation>
+    </message>
+    <message>
+        <source>Cannot Create Keys</source>
+        <translation>无法创建密钥</translation>
+    </message>
+    <message>
+        <source>The path you have entered is not a directory.</source>
+        <translation>你输入的路径不是一个目录。</translation>
+    </message>
+    <message>
+        <source>The directory you have entered does not exist and cannot be created.</source>
+        <translation>你输入的目录不存在也不可以被创建。</translation>
+    </message>
+    <message>
+        <source>Creating keys ... </source>
+        <translation>创建密钥...</translation>
+    </message>
+    <message>
+        <source>Key creation failed: %1</source>
+        <translation>密钥创建失败: %1</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>完成。</translation>
+    </message>
+    <message>
+        <source>Could Not Save Key File</source>
+        <translation>无法保存密钥文件</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
+    <message>
+        <source>Key Deployment</source>
+        <translation>公钥部署</translation>
+    </message>
+    <message>
+        <source>Deploying... </source>
+        <translation>部署中...</translation>
+    </message>
+    <message>
+        <source>Key Deployment Failure</source>
+        <translation>密钥部署失败</translation>
+    </message>
+    <message>
+        <source>Key Deployment Success</source>
+        <translation>密钥部署成功</translation>
+    </message>
+    <message>
+        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
+        <translation>密钥被成功部署。你现在可以关闭 &quot;%1&quot;应用然后继续。</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>完成。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardFinalPage</name>
+    <message>
+        <source>The new device configuration will now be created.</source>
+        <translation>新设备配置将会被创建。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizard</name>
+    <message>
+        <source>New Device Configuration Setup</source>
+        <translation>新设备配置设置</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
+    <message>
+        <source>Cannot deploy to sysroot: No packaging step found.</source>
+        <translation>无法部署到sysroot.没有找到打包的步骤.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
+    <message>
+        <source>Cannot install to sysroot without build configuration.</source>
+        <translation>在没哟构建配置的状况下,无法安装到sysroot.</translation>
+    </message>
+    <message>
+        <source>Cannot install package to sysroot without packaging step.</source>
+        <translation>在没有打包步骤的情况下,无法安装包到sysroot.</translation>
+    </message>
+    <message>
+        <source>Cannot install package to sysroot without a Qt version.</source>
+        <translation>在没有设置Qt版本的情况下,无法安装包到sysroot.</translation>
+    </message>
+    <message>
+        <source>Installing package to sysroot ...</source>
+        <translation>正在安装包至sysroot...</translation>
+    </message>
+    <message>
+        <source>Installation to sysroot failed, continuing anyway.</source>
+        <translation>安装至sysroot失败,依然继续.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoInstallDebianPackageToSysrootStep</name>
+    <message>
+        <source>Install Debian package to sysroot</source>
+        <translation>安装Debian包到sysroot</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoInstallRpmPackageToSysrootStep</name>
+    <message>
+        <source>Install RPM package to sysroot</source>
+        <translation>安装RPM包到sysroot</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoCopyToSysrootStep</name>
+    <message>
+        <source>Cannot copy to sysroot without build configuration.</source>
+        <translation>无法在没有构建配置的情况下复制到sysroot.</translation>
+    </message>
+    <message>
+        <source>Cannot copy to sysroot without valid Qt version.</source>
+        <translation>无法在没有有效的QT版本的情况下复制到sysroot.</translation>
+    </message>
+    <message>
+        <source>Copying files to sysroot ...</source>
+        <translation>正在拷贝文件到sysroot...</translation>
+    </message>
+    <message>
+        <source>Sysroot installation failed: %1
+ Continuing anyway.</source>
+        <translation>Sysroot 安装失败: %1
+ 仍然继续.</translation>
+    </message>
+    <message>
+        <source>Copy files to sysroot</source>
+        <translation>复制文件到sysroot</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoMakeInstallToSysrootStep</name>
+    <message>
+        <source>Copy files to sysroot</source>
+        <translation>复制文件到sysroot</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoPackageCreationStep</name>
     <message>
         <source>Package up to date.</source>
         <translation>包已更新.</translation>
@@ -43465,20 +45998,16 @@ Do you want to add them to the project?</source>
         <translation>打包完成.</translation>
     </message>
     <message>
-        <source>Packaging failed.</source>
-        <translation>打包失败.</translation>
-    </message>
-    <message>
-        <source>Packaging error: No Qt version.</source>
-        <translation>打包错误:没有Qt版本.</translation>
+        <source>Packaging failed: No Qt version.</source>
+        <translation>打包失败:没有Qt版本.</translation>
     </message>
     <message>
         <source>Package Creation: Running command &apos;%1&apos;.</source>
         <translation>生成包:运行命令&apos;%1&apos;.</translation>
     </message>
     <message>
-        <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation>打包错误:无法执行命令&apos;%1&apos; 原因&apos;%2&apos;</translation>
+        <source>Packaging failed: Could not start command &apos;%1&apos;. Reason: %2</source>
+        <translation>打包失败: 无法启动命令&apos;%1&apos;:原因: %2</translation>
     </message>
     <message>
         <source>Packaging Error: Command &apos;%1&apos; failed.</source>
@@ -43494,18 +46023,18 @@ Do you want to add them to the project?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MaemoDebianPackageCreationStep</name>
+    <name>Madde::Internal::MaemoDebianPackageCreationStep</name>
     <message>
         <source>Create Debian Package</source>
         <translation>创建Deb包</translation>
     </message>
     <message>
-        <source>Packaging failed.</source>
-        <translation>打包失败.</translation>
+        <source>Packaging failed: Could not get package name.</source>
+        <translation>打包失败: 无法取得包名称.</translation>
     </message>
     <message>
-        <source>Could not move package files from %1 to %2.</source>
-        <translation>无法将包文件从%1移动到%2.</translation>
+        <source>Packaging failed: Could not move package files from &apos;%1&apos; to &apos;%2&apos;.</source>
+        <translation>打包失败: 无法移动包文件从  %1 到 %2.</translation>
     </message>
     <message>
         <source>Your project name contains characters not allowed in Debian packages.
@@ -43514,24 +46043,32 @@ We will try to work around that, but you may experience problems.</source>
         <translation>你的工程可能包含有Deb包不允许的字符集.必须使用小写字母,数字,&apos;-&apos;,或者&apos;.&apos;.</translation>
     </message>
     <message>
-        <source>Packaging failed: Foreign debian directory detected.</source>
-        <translation>打包失败:检测到外部debian目录.</translation>
+        <source>Packaging failed: Foreign debian directory detected. You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
+        <translation>打包失败: 检测到外部 debian目录. 你没有使用影子构建并且在你的项目根目录(&apos;%1&apos;)下有个debian的目录. Qt Creator不会覆盖那个目录. 请你删除他或者使用影子构建.</translation>
     </message>
     <message>
-        <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation>你没有使用shadow构建功能,因此在你的项目根目录下有一个(%1).Qt Creator不会覆盖这个目录.请使用shadow构建特性来移除该目录.</translation>
-    </message>
-    <message>
-        <source>Could not remove directory &apos;%1&apos;: %2</source>
-        <translation>无法删除目录&apos;%1&apos;: %2</translation>
+        <source>Packaging failed: Could not remove directory &apos;%1&apos;: %2</source>
+        <translation>打包失败: 无法删除目录&apos;%1&apos;: %2</translation>
     </message>
     <message>
         <source>Could not create Debian directory &apos;%1&apos;.</source>
         <translation>无法创建Debian目录&apos;%1&apos;.</translation>
     </message>
     <message>
+        <source>Could not read manifest file &apos;%1&apos;: %2.</source>
+        <translation>无法读取清单文件&apos;%1&apos;: %2.</translation>
+    </message>
+    <message>
+        <source>Could not write manifest file &apos;%1&apos;: %2.</source>
+        <translation>无法写入清单文件&apos;%1&apos;: %2.</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
+        <translation>无法复制文件&apos;%1&apos;到&apos;%2&apos;.</translation>
+    </message>
+    <message>
         <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation>无法拷贝文件‘%1’到&apos;%2&apos;</translation>
+        <translation type="obsolete">无法拷贝文件‘%1’到&apos;%2&apos;</translation>
     </message>
     <message>
         <source>Error: Could not create file &apos;%1&apos;.</source>
@@ -43539,32 +46076,1360 @@ We will try to work around that, but you may experience problems.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MaemoRpmPackageCreationStep</name>
+    <name>Madde::Internal::MaemoRpmPackageCreationStep</name>
     <message>
         <source>Create RPM Package</source>
         <translation>创建 RPM 包</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not move package file from %1 to %2.</source>
+        <translation>打包失败: 无法移动包文件从  %1 到 %2.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPackageCreationWidget</name>
+    <message>
+        <source>Size should be %1x%2 pixels</source>
+        <translation>尺寸应当是 %1x%2 像素</translation>
+    </message>
+    <message>
+        <source>No Version Available.</source>
+        <translation>没有可用的版本.</translation>
+    </message>
+    <message>
+        <source>Could not read icon</source>
+        <translation>无法调入图标</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>图片</translation>
+    </message>
+    <message>
+        <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
+        <translation>选择图像(会缩放到  48x48 像素, 如果需要)</translation>
+    </message>
+    <message>
+        <source>Could Not Set New Icon</source>
+        <translation>无法设置新图标</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>文件错误</translation>
+    </message>
+    <message>
+        <source>Could not set project name.</source>
+        <translation>无法设置项目名称。</translation>
+    </message>
+    <message>
+        <source>Could not set package name for project manager.</source>
+        <translation>无法为项目管理器设置包的名称。</translation>
+    </message>
+    <message>
+        <source>Could not set project description.</source>
+        <translation>无法设置项目描述。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
+        <translation>&lt;b&gt;创建  包:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Could Not Set Version Number</source>
+        <translation>无法设置版本号</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDebianPackageInstaller</name>
+    <message>
+        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
+        <translation>安装失败:你尝试降级包，这是不被允许的。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishedProjectModel</name>
+    <message>
+        <source>Include in package</source>
+        <translation>包含到包</translation>
+    </message>
+    <message>
+        <source>Include</source>
+        <translation>包含</translation>
+    </message>
+    <message>
+        <source>Do not include</source>
+        <translation>不要包含</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublisherFremantleFree</name>
+    <message>
+        <source>Canceled.</source>
+        <translation>已取消.</translation>
+    </message>
+    <message>
+        <source>Publishing canceled by user.</source>
+        <translation>发布被用户取消。</translation>
+    </message>
+    <message>
+        <source>The project is missing some information important to publishing:</source>
+        <translation>项目丢失了一些发布需要的重要信息:</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Missing project information.</source>
+        <translation>发布失败:丢失项目信息。</translation>
+    </message>
+    <message>
+        <source>Removing left-over temporary directory ...</source>
+        <translation>移除留下的临时文件夹...</translation>
+    </message>
+    <message>
+        <source>Error removing temporary directory: %1</source>
+        <translation>移除临时文件夹出错: %1</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Could not create source package.</source>
+        <translation>发布失败:无法生成源文件包。</translation>
+    </message>
+    <message>
+        <source>Setting up temporary directory ...</source>
+        <translation>设置临时文件夹...</translation>
+    </message>
+    <message>
+        <source>Error: Could not create temporary directory.</source>
+        <translation>错误:无法创建临时文件夹.</translation>
+    </message>
+    <message>
+        <source>Error: Could not copy project directory.</source>
+        <translation>错误:无法复制项目文件夹.</translation>
+    </message>
+    <message>
+        <source>Error: Could not fix newlines.</source>
+        <translation>错误:无法修复新行.</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Could not create package.</source>
+        <translation>发布失败:无法创建包.</translation>
+    </message>
+    <message>
+        <source>Cleaning up temporary directory ...</source>
+        <translation>清理临时文件夹...</translation>
+    </message>
+    <message>
+        <source>Failed to create directory &apos;%1&apos;.</source>
+        <translation>无法创建文件夹&apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
+        <translation>无法复制文件&apos;%1&apos; 到 &apos;%2&apos;: %3.</translation>
+    </message>
+    <message>
+        <source>Error: Failed to start dpkg-buildpackage.</source>
+        <translation>错误: 无法开始 dpkg-buildpackage.</translation>
+    </message>
+    <message>
+        <source>Error: dpkg-buildpackage did not succeed.</source>
+        <translation>错误: dpkg-buildpackage 没有成功.</translation>
+    </message>
+    <message>
+        <source>Package creation failed.</source>
+        <translation>包创建失败。</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>完成。</translation>
+    </message>
+    <message>
+        <source>Packaging finished successfully. The following files were created:
+</source>
+        <translation>打包成功完成。如下文件被创建:
+</translation>
+    </message>
+    <message>
+        <source>No Qt version set.</source>
+        <translation>没有设置Qt 版本.</translation>
+    </message>
+    <message>
+        <source>Building source package...</source>
+        <translation>构建源程序包...</translation>
+    </message>
+    <message>
+        <source>Starting scp ...</source>
+        <translation>启动scp ...</translation>
+    </message>
+    <message>
+        <source>SSH error: %1</source>
+        <translation>SSH 错误: %1</translation>
+    </message>
+    <message>
+        <source>Upload failed.</source>
+        <translation>上传失败。</translation>
+    </message>
+    <message>
+        <source>Error uploading file: %1.</source>
+        <translation>上传文件错误: %1.</translation>
+    </message>
+    <message>
+        <source>Error uploading file.</source>
+        <translation>上传文件错误。</translation>
+    </message>
+    <message>
+        <source>All files uploaded.</source>
+        <translation>所有文件已上传。</translation>
+    </message>
+    <message>
+        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
+        <translation>上传成功。你将不久收到一封电子邮件关于构建进程的输出。</translation>
+    </message>
+    <message>
+        <source>Uploading file %1 ...</source>
+        <translation>上传文件中%1 ...</translation>
+    </message>
+    <message>
+        <source>Cannot open file for reading: %1.</source>
+        <translation>无法打开并读取文件: %1.</translation>
+    </message>
+    <message>
+        <source>Cannot read file: %1</source>
+        <translation>无法读取文件: %1</translation>
+    </message>
+    <message>
+        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>包描述为空. 你必须先设置 项目-&gt; 运行-&gt; 创建包-&gt; 详细.</translation>
+    </message>
+    <message>
+        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>包的描述是&apos;%1&apos;, 很可能不是你想要的. 在 项目-&gt; 运行-&gt; 创建包-&gt; 详细 里改变.</translation>
+    </message>
+    <message>
+        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>你还没有为包管理器设置图标，请到 项目-&gt; 运行-&gt; 创建包-&gt; 详细里设置.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
+    <message>
+        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
+        <translation>发布到Fremantle&apos;s &quot;Extras-devel/free&quot;仓库</translation>
+    </message>
+    <message>
+        <source>Upload options</source>
+        <translation>上传选项</translation>
+    </message>
+    <message>
+        <source>Choose a private key file</source>
+        <translation>选择一个私钥文件</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
+    <message>
+        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
+        <translation>发布到&quot;Fremantle Extras-devel free&quot; 仓库</translation>
+    </message>
+    <message>
+        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
+        <translation>本向导将创建一个源文件归档包并且选择是否上传到构建服务器, 在那里项目将被编译和打包然后移动到&quot;Extras-devel free&quot; 分支, 在那里，用户可以安装它到N900 设备上. 如果需要上传, 那么你需要一个garage.maemo.org 的帐号.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishingWizardFremantleFree</name>
+    <message>
+        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
+        <translation>发布到Fremantle的&quot;Extras-devel free&quot; 仓库</translation>
+    </message>
+    <message>
+        <source>Build Settings</source>
+        <translation>构建设置</translation>
+    </message>
+    <message>
+        <source>Upload Settings</source>
+        <translation>上传设置</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>结果</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoQemuManager</name>
+    <message>
+        <source>Start MeeGo Emulator</source>
+        <translation>启动Maemo模拟器</translation>
+    </message>
+    <message>
+        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
+        <translation>Qemu 已经被关闭, 因为你移除了相应的 Qt 版本.</translation>
+    </message>
+    <message>
+        <source>Qemu finished with error: Exit code was %1.</source>
+        <translation>Qemu 在有错误的情况下结束: 退出代码 %1.</translation>
+    </message>
+    <message>
+        <source>Qemu error</source>
+        <translation>Qemu 错误</translation>
+    </message>
+    <message>
+        <source>Qemu failed to start: %1</source>
+        <translation>Qemu 启动失败:%1</translation>
+    </message>
+    <message>
+        <source>Stop MeeGo Emulator</source>
+        <translation>停止Maemo模拟器</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRemoteCopyFacility</name>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>连接失败:%1</translation>
+    </message>
+    <message>
+        <source>Error: Copy command failed.</source>
+        <translation>错误: 复制命令失败.</translation>
+    </message>
+    <message>
+        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
+        <translation>正在拷贝文件&apos;%1&apos;至设备路径&apos;%2&apos;...</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRemoteMounter</name>
+    <message>
+        <source>No directories to mount</source>
+        <translation>没有目录将被挂载</translation>
+    </message>
+    <message>
+        <source>No directories to unmount</source>
+        <translation>没有目录将被卸载</translation>
+    </message>
+    <message>
+        <source>Could not execute unmount request.</source>
+        <translation>无法生成卸载请求.</translation>
+    </message>
+    <message>
+        <source>Failure unmounting: %1</source>
+        <translation>卸载%1失败</translation>
+    </message>
+    <message>
+        <source>Finished unmounting.</source>
+        <translation>卸载完成.</translation>
+    </message>
+    <message>
+        <source>
+stderr was: &apos;%1&apos;</source>
+        <translation>stderr为&apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
+        <translation>错误: 没有足够的空闲端口来让设备完成所有的接入请求.</translation>
+    </message>
+    <message>
+        <source>Starting remote UTFS clients...</source>
+        <translation>正在启动远程UTFS客户端...</translation>
+    </message>
+    <message>
+        <source>Mount operation succeeded.</source>
+        <translation>挂载操作成功.</translation>
+    </message>
+    <message>
+        <source>Failure running UTFS client: %1</source>
+        <translation>运行UTFS客户端:%1失败</translation>
+    </message>
+    <message>
+        <source>Starting UTFS servers...</source>
+        <translation>正在启动UTFS服务器...</translation>
+    </message>
+    <message>
+        <source>
+stderr was: %1</source>
+        <translation>stderr为:%1</translation>
+    </message>
+    <message>
+        <source>Error running UTFS server: %1</source>
+        <translation>运行UTFS服务器%1时出错</translation>
+    </message>
+    <message>
+        <source>Timeout waiting for UTFS servers to connect.</source>
+        <translation>等待UTFS服务器连接超时.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRemoteMountsModel</name>
+    <message>
+        <source>Local directory</source>
+        <translation>本地目录</translation>
+    </message>
+    <message>
+        <source>Remote mount point</source>
+        <translation>远程挂载点</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRunConfiguration</name>
+    <message>
+        <source>Not enough free ports on the device.</source>
+        <translation>设备上没有足够的开放端口.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRunConfigurationWidget</name>
+    <message>
+        <source>Choose directory to mount</source>
+        <translation>选择挂载的目录</translation>
+    </message>
+    <message>
+        <source>No local directories to be mounted on the device.</source>
+        <translation>没有本地目录将被挂载到设备.</translation>
+    </message>
+    <message>
+        <source>One local directory to be mounted on the device.</source>
+        <translation>一个本地目录将被挂载到设备.</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n local directories to be mounted on the device.</source>
+        <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
+        <translation>
+            <numerusform>%n个本地目录将被挂载到设备上.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
+        <translation>
+            <numerusform>警告:你想要挂载%1个目录,但是你的设备只有%n个空闲端口.&lt;br&gt;因此配置将无法应用.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
+        <translation>
+            <numerusform>警告:你想挂职%1个目录,但是在调试模式下只有%n个端口是可用的.此设置将无法用于调试.</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRunControlFactory</name>
+    <message>
+        <source>Run on device</source>
+        <translation>在设备上运行</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoQemuCrashDialog</name>
+    <message>
+        <source>Qemu error</source>
+        <translation>Qemu 错误</translation>
+    </message>
+    <message>
+        <source>Qemu crashed.</source>
+        <translation>Qemu崩溃了。</translation>
+    </message>
+    <message>
+        <source>Click here to change the OpenGL mode.</source>
+        <translation>点击这里来改变OpenGL 模式.</translation>
+    </message>
+    <message>
+        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
+        <translation>你已经配置了Qemu 去使用OpenGL 硬件加速, 但是你的系统可能不支持. 你可以使用软件渲染来代替.</translation>
+    </message>
+    <message>
+        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
+        <translation>Qemu 被设置为自动检测OpenGL模式, 有些情况不会工作. 你可以使用软件渲染来代替.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoQemuSettingsPage</name>
+    <message>
+        <source>MeeGo Qemu Settings</source>
+        <translation>MeeGo Qemu 设置</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoSshRunner</name>
+    <message>
+        <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation> Qemu 不在运行. 它现在会启动，但是到你能使用他还要过一段时间.</translation>
+    </message>
+    <message>
+        <source>You want to run on Qemu, but it is not enabled for this Qt version.</source>
+        <translation>你希望部署到Qemu,但是本版本Qt没有启用.</translation>
+    </message>
+    <message>
+        <source>Mounting host directories...</source>
+        <translation>正在挂载主机目录...</translation>
+    </message>
+    <message>
+        <source>Potentially unmounting left-over host directory mounts...</source>
+        <translation>静默卸载剩余挂载的主机目录...</translation>
+    </message>
+    <message>
+        <source>Unmounting host directories...</source>
+        <translation>卸载主机目录...</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoToolChainFactory</name>
+    <message>
+        <source>Maemo GCC</source>
+        <translation>Maemo GCC</translation>
+    </message>
+    <message>
+        <source>Maemo GCC for %1</source>
+        <translation>Maemo GCC 为 %1</translation>
+    </message>
+    <message>
+        <source>%1 GCC (%2)</source>
+        <translation>%1 GCC (%2)</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoToolChainConfigWidget</name>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt; MADDE路径:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt; MADDE 路径目标:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;调试器:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::Qt4MaemoDeployConfigurationFactory</name>
+    <message>
+        <source>Copy Files to Maemo5 Device</source>
+        <translation>复制文件到Maemo5 设备</translation>
+    </message>
+    <message>
+        <source>Build Debian Package and Install to Maemo5 Device</source>
+        <translation>构建 Debian 包然后安装到 Maemo5 设备上</translation>
+    </message>
+    <message>
+        <source>Build Debian Package and Install to Harmattan Device</source>
+        <translation>构建Debian 包然后安装到 Harmattan 设备上</translation>
+    </message>
+    <message>
+        <source>Build RPM Package and Install to MeeGo Device</source>
+        <translation>构建 RPM 包然后安装到 MeeGo 设备上</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractQt4MaemoTarget</name>
+    <message>
+        <source>Cannot open file &apos;%1&apos;: %2</source>
+        <translation>文法打开文件&apos;%1&apos;:&apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Add Packaging Files to Project</source>
+        <translation>添加包到项目中</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
+   %1
+Do you want to add them to the project?&lt;/html&gt;</source>
+        <translation>&lt;html&gt;Qt Creator 被设置成以下文件打开打包功能:
+   %1
+你想添加他们到项目中吗?&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
+        <translation>你想删除和目标&apos;%1&apos;有关的包吗?</translation>
+    </message>
+    <message>
+        <source>Error creating packaging directory &apos;%1&apos;.</source>
+        <translation>创建打包目录发生错误&apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Error creating MeeGo templates</source>
+        <translation>创建MeeGo模板出错</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractDebBasedQt4MaemoTarget</name>
+    <message>
+        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
+        <translation>Debian修改日志文件&apos;%1&apos;格式未知.</translation>
+    </message>
+    <message>
+        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
+        <translation>拒绝更新日志文件. 已经存在版本&apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
+        <translation>无法更新日志文件. 无效格式(没有找到维护者的条目).</translation>
+    </message>
+    <message>
+        <source>Invalid icon data in Debian control file.</source>
+        <translation>Debian 控制文件中的图标数据无效.</translation>
+    </message>
+    <message>
+        <source>Could not read image file &apos;%1&apos;.</source>
+        <translation>无法读取镜像文件&apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Could not export image file &apos;%1&apos;.</source>
+        <translation>无法导出镜像文件&apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Unable to create Debian templates: No Qt version set</source>
+        <translation>无法创建Debian模板:没有设置Qt版本</translation>
+    </message>
+    <message>
+        <source>Unable to create Debian templates: dh_make failed (%1)</source>
+        <translation>无法创建Debian模板:dh_make失败(%1)</translation>
+    </message>
+    <message>
+        <source>Unable to create debian templates: dh_make failed (%1)</source>
+        <translation>无法创建Debian模板:dh_make失败(%1)</translation>
+    </message>
+    <message>
+        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
+        <translation>无法将新Debian目录移动到&apos;%1&apos;.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::RunSettingsPanelFactory</name>
+    <message>
+        <source>Run Settings</source>
+        <translation type="obsolete">运行设置</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::SettingsAccessor</name>
+    <message>
+        <source>Using Old Project Settings File</source>
+        <translation>使用旧的项目设置文件</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;一个.user 设置的备用文件将会被使用,因为新版 Qt Creator产生了一个没有版本号的文件.&lt;/p&gt;&lt;p&gt;项目设置改变自从最近一次这个版本的Qt Creator 被用做这个项目, 现在产生的改变 &lt;b&gt;不会&lt;/b&gt; 影响到新版本.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Project Settings File from a different Environment?</source>
+        <translation>来自于不同环境的项目设置文件?</translation>
+    </message>
+    <message>
+        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
+
+The .user settings files contain environment specific settings. They should not be copied to a different environment. 
+
+Do you still want to load the settings file?</source>
+        <translation>Qt Creator 找到了一个由其他开发环境创建的设置文件, 或许是来自于其他机器的.
+
+用户设置文件包含了特定的环境设定. 它不应当被复制到其他应用环境中去. 
+
+你仍然想载入设置文件吗?</translation>
+    </message>
+    <message>
+        <source>Unsupported Shared Settings File</source>
+        <translation>不支持的共享设置文件</translation>
+    </message>
+    <message>
+        <source>The version of your .shared file is not yet supported by this Qt Creator version. Only settings that are still compatible will be taken into account.
+
+Do you want to continue?
+
+If you choose not to continue Qt Creator will not try to load the .shared file.</source>
+        <translation>你的.shared 文件版本号在这个 Qt Creator 不被支持. 只有设置仍然兼容会被导入到帐号.
+
+你想继续吗?
+
+如果你选择不继续, Qt Creator 不会尝试载入这个.shared 文件.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor</name>
+    <message>
+        <source>Qt Quick</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>FindExportedCppTypes</name>
+    <message>
+        <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
+        <translation>此种类型名称 string literal 仅在 Qt Creator 中的 QML编辑器时可使用</translation>
+    </message>
+    <message>
+        <source>The module URI cannot be determined by static analysis. The type will be available
+globally in the QML editor. You can add a &quot;// @uri My.Module.Uri&quot; annotation to let
+Qt Creator know about a likely URI.</source>
+        <translation>模块URI 无法由静态分析来决定. 类型将在QML编辑器中全局可用.
+你可以添加 &quot;// @uri My.Module.Uri&quot; 注释来让
+Qt Creator 知道一个相似的URI.</translation>
+    </message>
+    <message>
+        <source>must be a string literal to be available in the QML editor</source>
+        <translation>字符串文字只在 QML 编辑器中可用</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Qt4PriFileNode</name>
+    <message>
+        <source>Headers</source>
+        <translation>头文件</translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <translation>源文件</translation>
+    </message>
+    <message>
+        <source>Forms</source>
+        <translation>界面文件</translation>
+    </message>
+    <message>
+        <source>Resources</source>
+        <translation>资源</translation>
+    </message>
+    <message>
+        <source>QML</source>
+        <translation>QML</translation>
+    </message>
+    <message>
+        <source>Other files</source>
+        <translation>其他文件</translation>
+    </message>
+    <message>
+        <source>Cannot Open File</source>
+        <translation>无法打开文件</translation>
+    </message>
+    <message>
+        <source>Cannot open the file for editing with VCS.</source>
+        <translation>无法使用VCS打开用于编辑的文件.</translation>
+    </message>
+    <message>
+        <source>Cannot open the file for edit with VCS.</source>
+        <translation type="obsolete">无法使用VCS打开用于编辑的文件.</translation>
+    </message>
+    <message>
+        <source>Cannot Set Permissions</source>
+        <translation>无法设置权限</translation>
+    </message>
+    <message>
+        <source>Cannot set permissions to writable.</source>
+        <translation>无法设置文件的可写权限.</translation>
+    </message>
+    <message>
+        <source>There are unsaved changes for project file %1.</source>
+        <translation>项目文件 %1 中还有未保存的改变.</translation>
+    </message>
+    <message>
+        <source>Failed!</source>
+        <translation>失败!</translation>
+    </message>
+    <message>
+        <source>Could not write project file %1.</source>
+        <translation>无法写入工程文件 %1。</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>文件错误</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::PngIconScaler</name>
+    <message>
+        <source>Wrong Icon Size</source>
+        <translation>错误的图标大小</translation>
+    </message>
+    <message>
+        <source>The icon needs to be %1x%2 pixels big, but is not. Do you want Qt Creator to scale it?</source>
+        <translation>图标必须要%1x%2像素大, 但现在不是. 你希望程序自动调整吗?</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>文件错误</translation>
+    </message>
+    <message>
+        <source>Could not copy icon file: %1</source>
+        <translation>无法复制图标文件: %1</translation>
+    </message>
+</context>
+<context>
+    <name>QtTest::Internal::TestNavigationWidgetFactory</name>
+    <message>
+        <source>Filter tree</source>
+        <translation type="obsolete">过滤视图</translation>
+    </message>
+</context>
+<context>
+    <name>QtTest::Internal::QtTestPlugin</name>
+    <message>
+        <source>&amp;Test</source>
+        <translation type="obsolete">测试(&amp;T)</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="obsolete">错误</translation>
+    </message>
+</context>
+<context>
+    <name>ResultsView</name>
+    <message>
+        <source>Result</source>
+        <translation type="obsolete">结果</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="obsolete">说明</translation>
+    </message>
+</context>
+<context>
+    <name>TestResultsWindow</name>
+    <message>
+        <source>Test Results</source>
+        <translation type="obsolete">测试结果</translation>
+    </message>
+</context>
+<context>
+    <name>TestExecuter</name>
+    <message>
+        <source>Stopping...</source>
+        <translation type="obsolete">正在停止...</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <message>
+        <source>No deployment action necessary. Skipping.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>No device configuration set.</source>
+        <translation>没有设备设置.</translation>
+    </message>
+    <message>
+        <source>Connecting to device...</source>
+        <translation>正在连接设备...</translation>
+    </message>
+    <message>
+        <source>Could not connect to host: %1</source>
+        <translation>无法连接到主机: %1</translation>
+    </message>
+    <message>
+        <source>
+Did the emulator fail to start?</source>
+        <translation>
+模拟器启动失败了吗?</translation>
+    </message>
+    <message>
+        <source>
+Is the device connected and set up for network access?</source>
+        <translation>
+设备已经被设置成能联网的了么?</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>连接错误:%1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <message>
+        <source>Deployment failed: %1</source>
+        <translation>部署失败:%1</translation>
+    </message>
+    <message>
+        <source>User requests deployment to stop; cleaning up.</source>
+        <translation>用户要求停止部署; 清理中.</translation>
+    </message>
+    <message>
+        <source>Deploy step failed.</source>
+        <translation>部署步骤失败.</translation>
+    </message>
+    <message>
+        <source>Deploy step finished.</source>
+        <translation>部署完成.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <message>
+        <source>Successfully uploaded package file.</source>
+        <translation>上传包文件成功.</translation>
+    </message>
+    <message>
+        <source>Installing package to device...</source>
+        <translation>正在安装包至设备...</translation>
+    </message>
+    <message>
+        <source>Package installed.</source>
+        <translation>包安装成功.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericDirectUploadService</name>
+    <message>
+        <source>SFTP initialization failed: %1</source>
+        <translation>SFTP 初始化失败: %1</translation>
+    </message>
+    <message>
+        <source>Upload of file &apos;%1&apos; failed: %2</source>
+        <translation>上传文件&apos;%1&apos; 失败: %2</translation>
+    </message>
+    <message>
+        <source>Failed to upload file &apos;%1&apos;.</source>
+        <translation>上传文件&apos;%1&apos;失败.</translation>
+    </message>
+    <message>
+        <source>Failed to upload file &apos;%1&apos;: Could not open for reading.</source>
+        <translation>无法上传文件&apos;%1&apos;: 无法打开并读取.</translation>
+    </message>
+    <message>
+        <source>All files successfully deployed.</source>
+        <translation>所有文件部署成功.</translation>
+    </message>
+    <message>
+        <source>Warning: No remote path set for local file &apos;%1&apos;. Skipping upload.</source>
+        <translation>警告:没有为本地文件&apos;%1&apos;设置远程路径. 跳过上传.</translation>
+    </message>
+    <message>
+        <source>Uploading file &apos;%1&apos;...</source>
+        <translation>上传文件中%1 ...</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::ConfigWidget</name>
+    <message>
+        <source>Incremental deployment</source>
+        <translation>增量部署</translation>
+    </message>
+    <message>
+        <source>Command line:</source>
+        <translation>命令行:</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericDirectUploadStep</name>
+    <message>
+        <source>Upload files via SFTP</source>
+        <translation>通过SFTP上传文件</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericLinuxDeviceConfigurationFactory</name>
+    <message>
+        <source>Generic Linux Device</source>
+        <translation>通用Linux设备</translation>
+    </message>
+    <message>
+        <source>Generic Linux</source>
+        <translation>通用Linux</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>测试</translation>
+    </message>
+    <message>
+        <source>Remote Processes...</source>
+        <translation>远程进程...</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key...</source>
+        <translation>部署公钥...</translation>
+    </message>
+    <message>
+        <source>Remote Processes</source>
+        <translation type="obsolete">远程进程</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key</source>
+        <translation type="obsolete">部署公钥</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::LinuxDeviceConfigurations</name>
+    <message>
+        <source>(default for %1)</source>
+        <translation>(默认 %1)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</name>
+    <message>
+        <source>You will need at least one port.</source>
+        <translation>你需要至少一个端口.</translation>
+    </message>
+    <message>
+        <source>Physical Device</source>
+        <translation>物理设备</translation>
+    </message>
+    <message>
+        <source>Emulator</source>
+        <translation>模拟器</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::LinuxDeviceTestDialog</name>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>Device test finished successfully.</source>
+        <translation>设备测试成功完成.</translation>
+    </message>
+    <message>
+        <source>Device test failed.</source>
+        <translation>设备测试失败.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericLinuxDeviceTester</name>
+    <message>
+        <source>Connecting to host...</source>
+        <translation>连接到主机...</translation>
+    </message>
+    <message>
+        <source>SSH connection failure: %1
+</source>
+        <translation>SSH 连接失败 &apos;%1&apos;
+</translation>
+    </message>
+    <message>
+        <source>uname failed: %1
+</source>
+        <translation>未命名失败%1
+</translation>
+    </message>
+    <message>
+        <source>uname failed.
+</source>
+        <translation>未命名失败.
+</translation>
+    </message>
+    <message>
+        <source>Checking if specified ports are available...</source>
+        <translation>检查指定端口是否可用...</translation>
+    </message>
+    <message>
+        <source>Error gathering ports: %1
+</source>
+        <translation>检查端口错误: %1
+</translation>
+    </message>
+    <message>
+        <source>The following specified ports are currently in use: %1
+</source>
+        <translation>以下指定端口现正被使用: %1
+</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::PackageUploader</name>
+    <message>
+        <source>Preparing SFTP connection...</source>
+        <translation>准备创建SFTP连接...</translation>
+    </message>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>连接失败:%1</translation>
+    </message>
+    <message>
+        <source>SFTP error: %1</source>
+        <translation>SFTP 错误: %1</translation>
+    </message>
+    <message>
+        <source>Package upload failed: Could not open file.</source>
+        <translation>包上传失败.无法打开文件.</translation>
+    </message>
+    <message>
+        <source>Failed to upload package: %2</source>
+        <translation>上传包失败: %2</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::ProFilesUpdateDialog</name>
+    <message>
+        <source>Updateable Project Files</source>
+        <translation>可更新的项目文件</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxApplicationRunner</name>
+    <message>
+        <source>Cannot run: %1</source>
+        <translation>无法运行: %1</translation>
+    </message>
+    <message>
+        <source>Could not connect to host: %1</source>
+        <translation>无法连接至主机:%1</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>连接错误:%1</translation>
+    </message>
+    <message>
+        <source>Killing remote process(es)...</source>
+        <translation>正在结束远程进程...</translation>
+    </message>
+    <message>
+        <source>Initial cleanup failed: %1</source>
+        <translation>清理初始化失败:%1</translation>
+    </message>
+    <message>
+        <source>Remote process started.</source>
+        <translation>远端进程启动.</translation>
+    </message>
+    <message>
+        <source>Gathering ports failed: %1
+Continuing anyway.</source>
+        <translation>搜集端口失败:%1
+无论如何继续.</translation>
+    </message>
+    <message>
+        <source>No remote executable set.</source>
+        <translation>没有远程可执行档.</translation>
+    </message>
+    <message>
+        <source>No device configuration set.</source>
+        <translation>没有设备设置.</translation>
+    </message>
+    <message>
+        <source>Connecting to device...</source>
+        <translation>正在连接设备...</translation>
+    </message>
+    <message>
+        <source>Error running remote process: %1</source>
+        <translation>运行远程程序发生错误:%1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericRemoteLinuxCustomCommandDeploymentStep</name>
+    <message>
+        <source>Run custom remote command</source>
+        <translation>执行远程的自定义命令</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
+    <message>
+        <source>No command line given.</source>
+        <translation>没有给定命令行.</translation>
+    </message>
+    <message>
+        <source>Starting remote command &apos;%1&apos;...</source>
+        <translation>启动远端命令&apos;%1&apos;......</translation>
+    </message>
+    <message>
+        <source>Remote process failed to start.</source>
+        <translation>远端进程启动失败.</translation>
+    </message>
+    <message>
+        <source>Remote process was killed by a signal.</source>
+        <translation>远端进程被关闭.</translation>
+    </message>
+    <message>
+        <source>Remote process finished with exit code %1.</source>
+        <translation>远端进程完成, 退出代码&apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Remote command finished successfully.</source>
+        <translation>远端命令成功执行.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux</name>
+    <message>
+        <source>Deploy to Remote Linux Host</source>
+        <translation>部署到远程Linux主机</translation>
+    </message>
+    <message>
+        <source>Linux Devices</source>
+        <translation>Linux 设备</translation>
+    </message>
+    <message>
+        <source>Unknown OS</source>
+        <translation>未知系统</translation>
+    </message>
+    <message>
+        <source>(No device)</source>
+        <translation>(没有设备)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxDeployStepWidget</name>
+    <message>
+        <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
+        <translation>&lt;b&gt;%1 使用设备&lt;/b&gt;: %2</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>连接错误:%1</translation>
+    </message>
+    <message>
+        <source>Error running remote process: %1</source>
+        <translation>运行远程程序发生错误:%1</translation>
+    </message>
+    <message>
+        <source>
+Remote stderr was: &apos;%1&apos;</source>
+        <translation>远程stderr为&apos;%1&apos;</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
+    <message>
+        <source>Connection failure: %1</source>
+        <translation>连接失败: %1</translation>
+    </message>
+    <message>
+        <source>Installing package failed.</source>
+        <translation>安装package失败.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::RemoteLinuxPlugin</name>
+    <message>
+        <source>Start Remote Debug Server...</source>
+        <translation>启动远程调试服务...</translation>
+    </message>
+    <message>
+        <source>Start Gdbserver</source>
+        <translation>启动 Gdb服务</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxProcessesDialog</name>
+    <message>
+        <source>Remote Error</source>
+        <translation>远程错误</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxProcessList</name>
+    <message>
+        <source>PID</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Command Line</source>
+        <translation>命令行</translation>
+    </message>
+    <message>
+        <source>Connection failure: %1</source>
+        <translation>连接失败: %1</translation>
+    </message>
+    <message>
+        <source>Error: Remote process failed to start: %1</source>
+        <translation>错误:远程进程启动失败: %1</translation>
+    </message>
+    <message>
+        <source>Error: Remote process crashed: %1</source>
+        <translation>错误:远程进程崩溃: %1</translation>
+    </message>
+    <message>
+        <source>Remote process failed.</source>
+        <translation>远端进程失败。</translation>
+    </message>
+    <message>
+        <source>
+Remote stderr was: %1</source>
+        <translation>
+远程stderr 是: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsPage</name>
+    <message>
+        <source>Device Configurations</source>
+        <translation>设备配置</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxUsedPortsGatherer</name>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>连接错误:%1</translation>
+    </message>
+    <message>
+        <source>Could not start remote process: %1</source>
+        <translation>不能启动远程 进程: %1</translation>
+    </message>
+    <message>
+        <source>Remote process crashed: %1</source>
+        <translation>远端进程崩溃:%1</translation>
+    </message>
+    <message>
+        <source>Remote process failed; exit code was %1.</source>
+        <translation>远端进程失败, 退出代码&apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>
+Remote error output was: %1</source>
+        <translation>
+远程错误输出: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::SshKeyCreationDialog</name>
+    <message>
+        <source>Save Public Key File</source>
+        <translation>保存公钥文件</translation>
+    </message>
+    <message>
+        <source>Save Private Key File</source>
+        <translation>保存私钥文件</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::SshKeyDeployer</name>
+    <message>
+        <source>Public key error: %1</source>
+        <translation>公钥错误: %1</translation>
+    </message>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>连接失败:%1</translation>
+    </message>
+    <message>
+        <source>Key deployment failed: %1.</source>
+        <translation>部署密钥失败:%1.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::StartGdbServerDialog</name>
+    <message>
+        <source>Remote Error</source>
+        <translation>远程错误</translation>
+    </message>
+    <message>
+        <source>Could not retrieve list of free ports:</source>
+        <translation>无法获取可用端口列表:</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>连接错误:%1</translation>
+    </message>
+    <message>
+        <source>Starting gdbserver...</source>
+        <translation>启动 gdb服务...</translation>
+    </message>
+    <message>
+        <source>Port %1 is now accessible.</source>
+        <translation>端口 %1 现可使用.</translation>
+    </message>
+    <message>
+        <source>Process gdbserver finished. Status: %1</source>
+        <translation>gdb服务进程完毕. 状态: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::TarPackageCreationStep</name>
+    <message>
+        <source>Packaging finished successfully.</source>
+        <translation>打包顺利完成.</translation>
     </message>
     <message>
         <source>Packaging failed.</source>
         <translation>打包失败.</translation>
     </message>
     <message>
-        <source>Could not move package file from %1 to %2.</source>
-        <translation>无法移动包文件从%1 到%2.</translation>
+        <source>Creating tarball...</source>
+        <translation>创建归档文件...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::CreateTarStepWidget</name>
     <message>
-        <source>Create tarball:</source>
-        <translation>创建归档文件:</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::MaemoTarPackageCreationStep</name>
-    <message>
-        <source>Create tarball</source>
-        <translation>创建归档文件</translation>
+        <source>Tarball up to date, skipping packaging.</source>
+        <translation>归档文件已经是最新, 跳过打包.</translation>
     </message>
     <message>
         <source>Error: tar file %1 cannot be opened (%2).</source>
@@ -43579,12 +47444,235 @@ We will try to work around that, but you may experience problems.</source>
         <translation>读取文件&apos;%1&apos;错误: %2.</translation>
     </message>
     <message>
+        <source>Adding file &apos;%1&apos; to tarball...</source>
+        <translation>添加文件&apos;%1&apos; 到归档文件...</translation>
+    </message>
+    <message>
         <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
         <translation>无法添加文件&apos;%1&apos; 到压缩包: 路径太长.</translation>
     </message>
     <message>
         <source>Error writing tar file &apos;%1&apos;: %2</source>
         <translation>写入tar 文件 &apos;%1&apos;发生错误: %2</translation>
+    </message>
+    <message>
+        <source>Create tarball</source>
+        <translation>创建归档文件</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <message>
+        <source>(default)</source>
+        <translation>(默认)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <message>
+        <source>No tarball creation step found.</source>
+        <translation>没有找到生成压缩包所需的步骤.</translation>
+    </message>
+    <message>
+        <source>Deploy tarball via SFTP upload</source>
+        <translation>通过SFTP来部署压缩包</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::CodeStyleDialog</name>
+    <message>
+        <source>Edit Code Style</source>
+        <translation>编辑代码风格</translation>
+    </message>
+    <message>
+        <source>Code style name:</source>
+        <translation>代码风格名称:</translation>
+    </message>
+    <message>
+        <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
+        <translation>你无法保存修改到内建的代码风格. 复制他然后创建你自己的版本.</translation>
+    </message>
+    <message>
+        <source>Copy Built-in Code Style</source>
+        <translation>复制内建代码风格</translation>
+    </message>
+    <message>
+        <source>%1 (Copy)</source>
+        <translation>%1 (复制)</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::CodeStyleSelectorWidget</name>
+    <message>
+        <source>Copy...</source>
+        <translation>复制...</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation>编辑...</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Import...</source>
+        <translation>导入...</translation>
+    </message>
+    <message>
+        <source>Export...</source>
+        <translation>输出...</translation>
+    </message>
+    <message>
+        <source>Current settings:</source>
+        <translation>当前设置:</translation>
+    </message>
+    <message>
+        <source>Copy Code Style</source>
+        <translation>复制代码风格</translation>
+    </message>
+    <message>
+        <source>Code style name:</source>
+        <translation>代码风格名称:</translation>
+    </message>
+    <message>
+        <source>%1 (Copy)</source>
+        <translation>%1 (复制)</translation>
+    </message>
+    <message>
+        <source>Delete Code Style</source>
+        <translation>删除代码风格</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this code style permanently?</source>
+        <translation>你确定想永久删除这项代码风格方案吗?</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Import Code Style</source>
+        <translation>导入代码风格</translation>
+    </message>
+    <message>
+        <source>Code styles (*.xml);;All files (*)</source>
+        <translation>代码风格(*.xml);;所有文件(*)</translation>
+    </message>
+    <message>
+        <source>Cannot import code style</source>
+        <translation>无法导入代码风格</translation>
+    </message>
+    <message>
+        <source>Export Code Style</source>
+        <translation>导出代码风格</translation>
+    </message>
+    <message>
+        <source>%1 [proxy: %2]</source>
+        <translation>%1 [代理: %2]</translation>
+    </message>
+    <message>
+        <source>%1 [built-in]</source>
+        <translation>%1 [内置]</translation>
+    </message>
+    <message>
+        <source>Form</source>
+        <translation>界面</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::FindInFiles</name>
+    <message>
+        <source>Files on File System</source>
+        <translation>在文件系统中的文件</translation>
+    </message>
+    <message>
+        <source>Directory &apos;%1&apos;:</source>
+        <translation>目录&apos;%1&apos;:</translation>
+    </message>
+    <message>
+        <source>Path: %1
+Filter: %2
+%3</source>
+        <translation>路径: %1
+过滤器: %2
+%3</translation>
+    </message>
+    <message>
+        <source>Director&amp;y:</source>
+        <translation>目录(&amp;y):</translation>
+    </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <translation>浏览...</translation>
+    </message>
+    <message>
+        <source>&amp;Browse</source>
+        <translation type="obsolete">浏览(&amp;B)</translation>
+    </message>
+    <message>
+        <source>Fi&amp;le pattern:</source>
+        <translation>文件模式(&amp;l):</translation>
+    </message>
+    <message>
+        <source>Directory to search</source>
+        <translation>搜索目录</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <message>
+        <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
+        <translation>无法确定维护工具所在位置. 请检查安装(有可能没有手动开启插件支持).</translation>
+    </message>
+    <message>
+        <source>Could not find maintenance tool at &apos;%1&apos;. Check your installation.</source>
+        <translation>无法找到维护工具&apos;%1&apos;. 请检查安装.</translation>
+    </message>
+    <message>
+        <source>Start Updater</source>
+        <translation>启动</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation>更新</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::CodeStyleEditor</name>
+    <message>
+        <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
+        <translation>编辑预览内容来查看当前设置应用到自定义代码段. 在预览中修改并不影响当前设置.</translation>
+    </message>
+</context>
+<context>
+    <name>VcsCommand</name>
+    <message>
+        <source>
+&apos;%1&apos; failed (exit code %2).
+</source>
+        <translation>
+&apos;%1&apos; 失败 (退出代码 %2)。
+</translation>
+    </message>
+    <message>
+        <source>
+&apos;%1&apos; completed (exit code %2).
+</source>
+        <translation>
+&apos;%1&apos; 完成 (退出代码 %2)。
+</translation>
+    </message>
+</context>
+<context>
+    <name>VCSBase::Command</name>
+    <message>
+        <source>Error: VCS timed out after %1s.</source>
+        <translation>错误: VCS 在 %1秒后超时.</translation>
+    </message>
+    <message>
+        <source>Unable to start process, binary is empty</source>
+        <translation>无法启动进程, 二进制为空</translation>
     </message>
 </context>
 </TS>

@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -154,7 +154,6 @@ CppComponentValue::CppComponentValue(FakeMetaObject::ConstPtr metaObject, const 
                                const ComponentVersion &importVersion, int metaObjectRevision,
                                ValueOwner *valueOwner)
     : ObjectValue(valueOwner),
-      _attachedType(0),
       _metaObject(metaObject),
       _moduleName(packageName),
       _componentVersion(componentVersion),
@@ -258,8 +257,13 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
         }
     }
 
-    if (_attachedType)
-        _attachedType->processMembers(processor);
+    // look into attached types
+    const QString &attachedTypeName = _metaObject->attachedTypeName();
+    if (!attachedTypeName.isEmpty()) {
+        const CppComponentValue *attachedType = valueOwner()->cppQmlTypes().objectByCppName(attachedTypeName);
+        if (attachedType)
+            attachedType->processMembers(processor);
+    }
 
     ObjectValue::processMembers(processor);
 }
@@ -351,16 +355,6 @@ QList<const CppComponentValue *> CppComponentValue::prototypes() const
         protos += it;
     }
     return protos;
-}
-
-const CppComponentValue *CppComponentValue::attachedType() const
-{
-    return _attachedType;
-}
-
-void CppComponentValue::setAttachedType(CppComponentValue *value)
-{
-    _attachedType = value;
 }
 
 FakeMetaObject::ConstPtr CppComponentValue::metaObject() const

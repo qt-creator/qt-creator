@@ -220,6 +220,9 @@ Specifies how backspace interacts with indentation.
         </item>
         <item row="3" column="0" colspan="2">
          <widget class="QCheckBox" name="addFinalNewLine">
+          <property name="toolTip">
+           <string>Always write a newline character at the end of the file.</string>
+          </property>
           <property name="text">
            <string>&amp;Ensure newline at end of file</string>
           </property>

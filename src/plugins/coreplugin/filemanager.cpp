@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -527,11 +527,12 @@ void FileManager::updateExpectedState(const QString &fileName)
 /*!
     \fn QList<IFile*> FileManager::saveModifiedFilesSilently(const QList<IFile*> &files)
 
-    Tries to save the files listed in \a files . Returns the files that could not be saved.
+    Tries to save the files listed in \a files. The \a cancelled argument is set to true
+    if the user cancelled the dialog. Returns the files that could not be saved.
 */
-QList<IFile *> FileManager::saveModifiedFilesSilently(const QList<IFile *> &files)
+QList<IFile *> FileManager::saveModifiedFilesSilently(const QList<IFile *> &files, bool *cancelled)
 {
-    return saveModifiedFiles(files, 0, true, QString());
+    return saveModifiedFiles(files, cancelled, true, QString());
 }
 
 /*!

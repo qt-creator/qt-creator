@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -108,7 +108,7 @@ public:
     QString getSaveAsFileName(IFile *file, const QString &filter = QString(),
                               QString *selectedFilter = 0);
 
-    QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files);
+    QList<IFile *> saveModifiedFilesSilently(const QList<IFile *> &files, bool *cancelled = 0);
     QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
                                      bool *cancelled = 0,
                                      const QString &message = QString(),

@@ -82,6 +82,5 @@ OTHER_FILES = $$HELP_DEP_FILES $$DEV_HELP_DEP_FILES
 
 fixnavi.commands = \
     cd $$targetPath($$PWD) && \
-    perl fixnavi.pl -Dqcmanual -Dqtquick \
-        qtcreator.qdoc maemodev.qdoc symbiandev.qdoc qtcreator-faq.qdoc linuxdev.qdoc meegodev.qdoc
+    perl fixnavi.pl -Dqcmanual -Dqtquick src
 QMAKE_EXTRA_TARGETS += fixnavi

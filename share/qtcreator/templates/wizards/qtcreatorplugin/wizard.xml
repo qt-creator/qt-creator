@@ -6,7 +6,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -28,7 +28,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -83,7 +83,7 @@ leave room for the Qt 4 target page.
         <field name="URL">
             <fieldcontrol class="QLineEdit"
                           defaulttext="http://www.mycompany.com" />
-            <fielddescription>Url:</fielddescription>
+            <fielddescription>URL:</fielddescription>
         </field>
         <field mandatory="true" name="QtCreatorSources">
             <fieldcontrol class="Utils::PathChooser"

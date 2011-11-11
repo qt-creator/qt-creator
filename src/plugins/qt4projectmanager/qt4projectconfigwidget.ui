@@ -42,7 +42,7 @@
      <item>
       <widget class="QPushButton" name="manageQtVersionPushButtons">
        <property name="text">
-        <string>Manage</string>
+        <string>Manage...</string>
        </property>
       </widget>
      </item>
@@ -73,7 +73,7 @@
      <item>
       <widget class="QPushButton" name="manageToolChainPushButton">
        <property name="text">
-        <string>Manage</string>
+        <string>Manage...</string>
        </property>
       </widget>
      </item>
@@ -107,7 +107,7 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="Utils::PathChooser" name="shadowBuildDirEdit">
+    <widget class="Utils::PathChooser" name="shadowBuildDirEdit" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>

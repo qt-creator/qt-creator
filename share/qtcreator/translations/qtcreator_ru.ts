@@ -126,7 +126,7 @@
     <name>Analyzer::Internal::AnalyzerPlugin</name>
     <message>
         <source>Analyzer</source>
-        <extracomment>Category under which Analyzer tasks are listed in build issues view</extracomment>
+        <extracomment>Category under which Analyzer tasks are listed in Issues view</extracomment>
         <translation>Анализатор</translation>
     </message>
 </context>
@@ -254,12 +254,12 @@
         <translation>&amp;Инструментарий:</translation>
     </message>
     <message>
-        <source>Override &amp;Start script:</source>
-        <translation>Особый сценарий &amp;запуска:</translation>
-    </message>
-    <message>
         <source>Sys&amp;root:</source>
         <translation>Sys&amp;root:</translation>
+    </message>
+    <message>
+        <source>Override &amp;start script:</source>
+        <translation>Особый сценарий &amp;запуска:</translation>
     </message>
 </context>
 <context>
@@ -1224,6 +1224,10 @@ Specifies how backspace interacts with indentation.
         <source>Enable &amp;tooltips only when Shift key is down</source>
         <translation>Включать &amp;подсказки только при нажатой клавише Shift</translation>
     </message>
+    <message>
+        <source>Always write a newline character at the end of the file.</source>
+        <translation>Всегда завершать файл символом перевода строки.</translation>
+    </message>
 </context>
 <context>
     <name>BinEditorFile</name>
@@ -1305,8 +1309,8 @@ Specifies how backspace interacts with indentation.
         <translation>Показать закладку</translation>
     </message>
     <message>
-        <source>Show Bookmark in New Tab</source>
-        <translation>Показать закладку в новой вкладке</translation>
+        <source>Show Bookmark as New Page</source>
+        <translation>Показать закладку на новой странице</translation>
     </message>
     <message>
         <source>Delete Bookmark</source>
@@ -2536,16 +2540,8 @@ Specifies how backspace interacts with indentation.
         <translation>Назначить Qt Creator системным отладчиком</translation>
     </message>
     <message>
-        <source>Close temporary buffers on debugger exit.</source>
-        <translation>Закрывать временные буфера при завершении отладчика.</translation>
-    </message>
-    <message>
         <source>Close temporary buffers on debugger exit</source>
         <translation>Закрывать временные буфера при завершении отладчика</translation>
-    </message>
-    <message>
-        <source>Switch to previous mode on debugger exit.</source>
-        <translation>Переключаться в предыдущий режим при завершении отладчика.</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit</source>
@@ -4677,7 +4673,7 @@ a = a +
 <context>
     <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
-        <source>Methods and functions</source>
+        <source>Methods and Functions</source>
         <translation>Методы и функции</translation>
     </message>
 </context>
@@ -6116,6 +6112,10 @@ GDB позволяет указывать последовательность �
         <translation>Подключение к завершившемуся крахом процессу %1</translation>
     </message>
     <message>
+        <source>Open Qt Options</source>
+        <translation>Открыть параметры Qt</translation>
+    </message>
+    <message>
         <source>Run to Selected Function</source>
         <translation>Выполнить до выбранной функции</translation>
     </message>
@@ -6260,10 +6260,6 @@ GDB позволяет указывать последовательность �
     <message>
         <source>User commands are not accepted in the current state.</source>
         <translation>Команды пользователя в этом режиме не принимаются.</translation>
-    </message>
-    <message>
-        <source>Open Qt4 Options</source>
-        <translation>Открыть опции Qt4</translation>
     </message>
     <message>
         <source>Turn off Helper Usage</source>
@@ -6609,6 +6605,10 @@ GDB позволяет указывать последовательность �
     <message>
         <source>The gdb process crashed some time after starting successfully.</source>
         <translation>Процесс gdb завершился крахом через некоторое время после успешного запуска.</translation>
+    </message>
+    <message>
+        <source>The gdb process was ended forcefully</source>
+        <translation>Процесс gdb был принудительно завершён</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -8782,25 +8782,6 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExampleLineEdit</name>
-    <message>
-        <source>Show Examples and Demos</source>
-        <translation>Показать примеры и демо</translation>
-    </message>
-    <message>
-        <source>Search in Tutorials</source>
-        <translation>Поиск в самоучителях</translation>
-    </message>
-    <message>
-        <source>Search in Tutorials, Examples and Demos</source>
-        <translation>Поиск в самоучителях, примерах и демо</translation>
-    </message>
-    <message>
-        <source>Tag List</source>
-        <translation>Список меток</translation>
-    </message>
-</context>
-<context>
     <name>ExpressionEditor</name>
     <message>
         <source>Expression</source>
@@ -10823,10 +10804,6 @@ These files are preserved.</source>
         <translation>Сравнить проект «%1»</translation>
     </message>
     <message>
-        <source>Undo Uncommited Changes...</source>
-        <translation>Отменить незафиксированные изменения...</translation>
-    </message>
-    <message>
         <source>Remotes...</source>
         <translation>Внешние хранилища...</translation>
     </message>
@@ -10867,6 +10844,10 @@ These files are preserved.</source>
     <message>
         <source>Status</source>
         <translation>Состояние (status)</translation>
+    </message>
+    <message>
+        <source>Undo Uncommitted Changes...</source>
+        <translation>Отменить незафиксированные изменения...</translation>
     </message>
     <message>
         <source>Clean...</source>
@@ -12338,10 +12319,6 @@ QML.</translation>
         <translation>Использовать всегда</translation>
     </message>
     <message>
-        <source>&amp;Add</source>
-        <translation>&amp;Добавить</translation>
-    </message>
-    <message>
         <source>&amp;Remove</source>
         <translation>&amp;Удалить</translation>
     </message>
@@ -12356,6 +12333,10 @@ QML.</translation>
     <message>
         <source>&amp;Generate SSH Key...</source>
         <translation>Создать кл&amp;юч SSH...</translation>
+    </message>
+    <message>
+        <source>&amp;Add...</source>
+        <translation>&amp;Добавить...</translation>
     </message>
 </context>
 <context>
@@ -13038,12 +13019,12 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <translation>Тест</translation>
     </message>
     <message>
-        <source>Remote Processes</source>
-        <translation>Внешние процессы</translation>
+        <source>Remote Processes...</source>
+        <translation>Внешние процессы...</translation>
     </message>
     <message>
-        <source>Deploy Public Key</source>
-        <translation>Установить ключ</translation>
+        <source>Deploy Public Key...</source>
+        <translation>Установить ключ...</translation>
     </message>
 </context>
 <context>
@@ -14712,12 +14693,12 @@ stderr was: %1</source>
         <translation>должен иметь вид: https://[пользователь[:пароль]@]адрес[:порт]/[путь]</translation>
     </message>
     <message>
-        <source>Specify Url:</source>
-        <translation>Особый Url:</translation>
-    </message>
-    <message>
         <source>Default Location</source>
         <translation>По умолчанию</translation>
+    </message>
+    <message>
+        <source>Specify URL:</source>
+        <translation>Особый URL:</translation>
     </message>
 </context>
 <context>
@@ -16060,16 +16041,6 @@ Preselects Qt for Simulator and mobile targets if available.</source>
 <context>
     <name>ProjectExplorer::BuildManager</name>
     <message>
-        <source>Compile</source>
-        <comment>Category for compiler isses listened under &apos;Build Issues&apos;</comment>
-        <translation>Компиляция</translation>
-    </message>
-    <message>
-        <source>Build System</source>
-        <comment>Category for build system isses listened under &apos;Build Issues&apos;</comment>
-        <translation>Система сборки</translation>
-    </message>
-    <message>
         <source>Error while building project %1 (target: %2)</source>
         <translation>Возникла ошибка при сборке проекта %1 (цель: %2)</translation>
     </message>
@@ -16080,6 +16051,16 @@ Preselects Qt for Simulator and mobile targets if available.</source>
             <numerusform>Завершено %1 из %n этапов сборки</numerusform>
             <numerusform>Завершено %1 из %n этапов сборки</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Compile</source>
+        <comment>Category for compiler isses listed under &apos;Issues&apos;</comment>
+        <translation>Компиляция</translation>
+    </message>
+    <message>
+        <source>Build System</source>
+        <comment>Category for build system isses listed under &apos;Issues&apos;</comment>
+        <translation>Система сборки</translation>
     </message>
     <message>
         <source>Build canceled</source>
@@ -16204,6 +16185,14 @@ Preselects Qt for Simulator and mobile targets if available.</source>
         <translation>Подробнее</translation>
     </message>
     <message>
+        <source>Creates a plain C project using qmake, not using the Qt library.</source>
+        <translation>Создание простого проекта под управлением qmake на языке C, но без использования библиотек Qt.</translation>
+    </message>
+    <message>
+        <source>Creates a plain C++ project using qmake, not using the Qt library.</source>
+        <translation>Создание простого проекта под управлением qmake на языке C++, но без использования библиотек Qt.</translation>
+    </message>
+    <message>
         <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</source>
         <translation>Создание подключаемого модуля на C++, являющегося расширением, которое может быть динамически загружено в приложения через класс QDeclarativeEngine.</translation>
     </message>
@@ -16225,7 +16214,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>URI:</source>
-        <translation></translation>
+        <translation>URI:</translation>
     </message>
     <message>
         <source>The project name and the object class-name cannot be the same.</source>
@@ -16240,20 +16229,16 @@ Preselects Qt for Simulator and mobile targets if available.</source>
         <translation>Модуль Qt Creator</translation>
     </message>
     <message>
+        <source>URL:</source>
+        <translation>URL:</translation>
+    </message>
+    <message>
         <source>Other Project</source>
         <translation>Другой проект</translation>
     </message>
     <message>
-        <source>Creates a plain C project using QMake, not using the Qt library.</source>
-        <translation>Создание простого проекта под управлением QMake на языке C, но без использования библиотек Qt.</translation>
-    </message>
-    <message>
         <source>Plain C Project</source>
         <translation>Простой проект на языке C</translation>
-    </message>
-    <message>
-        <source>Creates a plain C++ project using QMake, not using the Qt library.</source>
-        <translation>Создание простого проекта под управлением QMake на языке C++, но без использования библиотек Qt.</translation>
     </message>
     <message>
         <source>Plain C++ Project</source>
@@ -16282,10 +16267,6 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <message>
         <source>Description:</source>
         <translation>Описание:</translation>
-    </message>
-    <message>
-        <source>Url:</source>
-        <translation>Url:</translation>
     </message>
     <message>
         <source>Qt Creator sources:</source>
@@ -16436,7 +16417,7 @@ Reason: %2</source>
 %2</translation>
     </message>
     <message>
-        <source>File &amp;pattern:</source>
+        <source>Fi&amp;le pattern:</source>
         <translation>Ш&amp;аблон:</translation>
     </message>
 </context>
@@ -16498,20 +16479,8 @@ Reason: %2</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation>Переименовать</translation>
-    </message>
-    <message>
         <source>&amp;Clone Selected</source>
         <translation>Д&amp;ублировать выделенную</translation>
-    </message>
-    <message>
-        <source>Remove Build Configuration</source>
-        <translation>Удаление конфигурации сборки</translation>
-    </message>
-    <message>
-        <source>Do you really want to delete the build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>Желаете удалить конфигурацию сборки &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -16529,6 +16498,34 @@ Reason: %2</source>
     <message>
         <source>New configuration name:</source>
         <translation>Название новой конфигурации:</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
+        <translation>Отменить сборку и удалить конфигурацию сборки</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>Не удалять</translation>
+    </message>
+    <message>
+        <source>Remove Build Configuration %1?</source>
+        <translation>Удаление конфигурации сборки %1</translation>
+    </message>
+    <message>
+        <source>The build configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>В данный момент идёт сборка с использованием конфигурации &lt;b&gt;%1&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Build Configuration anyway?</source>
+        <translation>Остановить процесс сборки и удалить конфигурацию?</translation>
+    </message>
+    <message>
+        <source>Remove Build Configuration?</source>
+        <translation>Удаление конфигурации сборки</translation>
+    </message>
+    <message>
+        <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
+        <translation>Желаете удалить конфигурацию сборки &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
 </context>
 <context>
@@ -17237,10 +17234,6 @@ to project &apos;%2&apos;.</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation>Переименовать</translation>
-    </message>
-    <message>
         <source>Deployment</source>
         <translation>Установка</translation>
     </message>
@@ -17259,6 +17252,26 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Новое название конфигурации выполнения &lt;b&gt;%1&lt;/b&gt;:</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
+        <translation>Отменить сборку и удалить конфигурацию установки</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>Не удалять</translation>
+    </message>
+    <message>
+        <source>Remove Deploy Configuration %1?</source>
+        <translation>Удаление конфигурации установки %1</translation>
+    </message>
+    <message>
+        <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>В данный момент идёт сборка с использованием конфигурации установки &lt;b&gt;%1&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
+        <translation>Остановить процесс сборки и удалить конфигурацию установки?</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration?</source>
@@ -17395,6 +17408,26 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>No target defined.</source>
         <translation>Цель не указана.</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Remove Target</source>
+        <translation>Отменить сборку и удалить цель</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>Не удалять</translation>
+    </message>
+    <message>
+        <source>Remove Target %1?</source>
+        <translation>Удаление цели %1</translation>
+    </message>
+    <message>
+        <source>The target &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>В данный момент идёт сборка цели &lt;b&gt;%1&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Target anyway?</source>
+        <translation>Остановить процесс сборки и удалить цель?</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -17699,6 +17732,10 @@ to project &apos;%2&apos;.</source>
         <translation>Убрать проект...</translation>
     </message>
     <message>
+        <source>Rename...</source>
+        <translation>Переименовать...</translation>
+    </message>
+    <message>
         <source>Set as Active Project</source>
         <translation>Сделать активным проектом</translation>
     </message>
@@ -17717,6 +17754,26 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Failed to open project</source>
         <translation>Не удалось открыть проект</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Unload</source>
+        <translation>Отменить сборку и выгрузить</translation>
+    </message>
+    <message>
+        <source>Do Not Unload</source>
+        <translation>Не выгружать</translation>
+    </message>
+    <message>
+        <source>Unload Project %1?</source>
+        <translation>Выгрузка проекта %1</translation>
+    </message>
+    <message>
+        <source>The project %1 is currently being built.</source>
+        <translation>Проект %1 сейчас собирается.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and unload the project anyway?</source>
+        <translation>Остановить процесс сборки и выгрузить проект?</translation>
     </message>
     <message>
         <source>No project loaded</source>
@@ -17802,10 +17859,6 @@ to project &apos;%2&apos;.</source>
         <translation>Новый подпроект...</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation>Переименовать</translation>
-    </message>
-    <message>
         <source>Open Build/Run Target Selector...</source>
         <translation>Открыть выбор цели сборки/выполнения...</translation>
     </message>
@@ -17840,7 +17893,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
-        <translation>Желаете все-таки закрыть Qt Creator, прервав процесс сборки?</translation>
+        <translation>Закрыть Qt Creator, прервав процесс сборки?</translation>
     </message>
     <message>
         <source>New File</source>
@@ -18986,45 +19039,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorFactory</name>
-    <message>
-        <source>Do you want to enable the experimental Qt Quick Designer?</source>
-        <translation>Желаете включить экспериментальный дизайнер Qt Quick?</translation>
-    </message>
-    <message>
-        <source>Enable Qt Quick Designer</source>
-        <translation>Включить дизайнер Qt Quick</translation>
-    </message>
-    <message>
-        <source>Qt Creator -&gt; About Plugins...</source>
-        <translation>Qt Creator -&gt; О модулях...</translation>
-    </message>
-    <message>
-        <source>Help -&gt; About Plugins...</source>
-        <translation>Справка -&gt; О модулях...</translation>
-    </message>
-    <message>
-        <source>Enable experimental Qt Quick Designer?</source>
-        <translation>Включить экспериментальный дизайнер Qt Quick?</translation>
-    </message>
-    <message>
-        <source>Do you want to enable the experimental Qt Quick Designer? After enabling it, you can access the visual design capabilities by switching to Design Mode. This can affect the overall stability of Qt Creator. To disable Qt Quick Designer again, visit the menu &apos;%1&apos; and disable &apos;QmlDesigner&apos;.</source>
-        <translation>Желаете включить экспериментальный дизайнер Qt Quick? После его включения доступ к возможностям визуального дизайна можно будет получить переключением в режим дизайна. Это может повлиять на общую стабильность Qt Creator. Чтобы снова выключить дизайнер Qt Quick, необходимо зайти в меню «%1» и выключить «QmlDesigner».</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
-    </message>
-    <message>
-        <source>Please restart Qt Creator</source>
-        <translation>Перезапустите Qt Creator</translation>
-    </message>
-    <message>
-        <source>Please restart Qt Creator to make the change effective.</source>
-        <translation>Перезапустите Qt Creator, чтобы изменения вступили в силу.</translation>
-    </message>
-</context>
-<context>
     <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>Creates a QML file.</source>
@@ -19309,7 +19323,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
 <context>
     <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
-        <source>Methods and functions</source>
+        <source>Methods and Functions</source>
         <translation>Методы и функции</translation>
     </message>
 </context>
@@ -19761,7 +19775,7 @@ Do you want to retry?</source>
         <translation>Интерфейс пользователя на Qt Quick</translation>
     </message>
     <message>
-        <source>Creates a  Qt Quick UI project with a single QML file that contains the main view.
+        <source>Creates a Qt Quick UI project with a single QML file that contains the main view.
 
 You can review Qt Quick UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.</source>
         <translation>Создание проекта приложения Qt Quick с одним QML файлом, содержащим главный вид.
@@ -20674,8 +20688,8 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Библиотека C++</translation>
     </message>
     <message>
-        <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
-        <translation>Создание проекта C++ библиотеки под управлением qmake. Может использоваться для разработки:&lt;ul&gt;&lt;li&gt;разделяемая C++ библиотека для загрузки через &lt;tt&gt;QPluginLoader&lt;/tt&gt; (подключаемый модуль)&lt;/li&gt;&lt;li&gt;разделяемая или статическая C++ библиотека для подключения к другому проекту на этапе компоновки&lt;/li&gt;&lt;/ul&gt;.</translation>
+        <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation>Создание проекта C++ библиотеки под управлением qmake. Может использоваться для разработки:&lt;ul&gt;&lt;li&gt;разделяемая C++ библиотека для загрузки через &lt;tt&gt;QPluginLoader&lt;/tt&gt; (подключаемый модуль)&lt;/li&gt;&lt;li&gt;разделяемая или статическая C++ библиотека для подключения к другому проекту на этапе компоновки&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
 </context>
 <context>
@@ -20849,10 +20863,6 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Основное</translation>
     </message>
     <message>
-        <source>Manage</source>
-        <translation>Управление</translation>
-    </message>
-    <message>
         <source>problemLabel</source>
         <translation></translation>
     </message>
@@ -20871,6 +20881,10 @@ Adds the library and include paths to the .pro file.</source>
     <message>
         <source>Build directory:</source>
         <translation>Каталог сборки:</translation>
+    </message>
+    <message>
+        <source>Manage...</source>
+        <translation>Управление...</translation>
     </message>
 </context>
 <context>
@@ -21058,10 +21072,10 @@ Adds the library and include paths to the .pro file.</source>
     <message>
         <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
 
-You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.3 or newer is required.</source>
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.4 or newer is required.</source>
         <translation>Создание проекта приложения Qt Quick, который может содержать код как QML, так и на С++, а так же включает QDeclarativeView.
 
-Можно создать приложение и установить его не только на настольный компьютер, но и на мобильные платформы. Например, можно создать подписанный пакет Symbian Installation System (SIS) для этого типа проектов. Более того, доступны готовые компоненты интерфейса для использования в приложениях Qt Quick. Для этого необходима версия Qt не ниже 4.7.3.</translation>
+Можно создать приложение и установить его не только на настольный компьютер, но и на мобильные платформы. Например, можно создать подписанный пакет Symbian Installation System (SIS) для этого типа проектов. Более того, доступны готовые компоненты интерфейса для использования в приложениях Qt Quick. Для этого необходима версия Qt не ниже 4.7.4.</translation>
     </message>
 </context>
 <context>
@@ -21232,6 +21246,10 @@ Use a developer certificate or any other signing option to prevent this patching
         <translation>Не удалось найти в среде окружения сборки команду «%1»</translation>
     </message>
     <message>
+        <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
+        <translation>%1&lt;p&gt;&lt;em&gt;Эти изменения не являлись частью системы сборки&lt;/em&gt;, но необходимы для успешной установки &lt;em&gt;самоподписанного&lt;/em&gt; пакета на устройство.&lt;/p&gt;&lt;p&gt;В окне «Проблемы» можно узнать, что за изменения были сделаны.&lt;/p&gt;&lt;p&gt;В &lt;a href=&quot;%2&quot;&gt;документации&lt;/a&gt; описаны способы избавления от внесения этих изменений.&lt;/p&gt;</translation>
+    </message>
+    <message>
         <source>Ignore patching for this packaging step.</source>
         <translation>Пропускать внесение изменений на этом этапе создания пакета.</translation>
     </message>
@@ -21266,10 +21284,6 @@ Use a developer certificate or any other signing option to prevent this patching
     <message>
         <source>&lt;p&gt;Qt modified some of your packages.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Некоторые пакеты были изменены Qt.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Build Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
-        <translation>%1&lt;p&gt;&lt;em&gt;Эти изменения не являлись частью системы сборки&lt;/em&gt;, но необходимы для успешной установки &lt;em&gt;самоподписанного&lt;/em&gt; пакета на устройство.&lt;/p&gt;&lt;p&gt;В выводе сборки можно узнать, что за изменения были сделаны.&lt;/p&gt;&lt;p&gt;В &lt;a href=&quot;%2&quot;&gt;документации&lt;/a&gt; описаны способы избавления от внесения этих изменений.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Starting: &quot;%1&quot; %2 in %3
@@ -22122,8 +22136,8 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
         <translation>Не удалось обнаружить Makefile. Проверьте настройки сборки.</translation>
     </message>
     <message>
-        <source>Configuration is faulty. Check the Build Issues view for details.</source>
-        <translation>Конфигурация неисправна. Окно «Сообщения сборки» содержит подробную информацию.</translation>
+        <source>Configuration is faulty. Check the Issues view for details.</source>
+        <translation>Конфигурация неисправна. Окно «Проблемы» содержит подробную информацию.</translation>
     </message>
 </context>
 <context>
@@ -22164,8 +22178,8 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
         <translation>qmake</translation>
     </message>
     <message>
-        <source>Configuration is faulty, please check the Build Issues view for details.</source>
-        <translation>Конфигурация неисправна. Окно «Сообщения сборки» содержит подробную информацию.</translation>
+        <source>Configuration is faulty, please check the Issues view for details.</source>
+        <translation>Конфигурация неисправна. Окно «Проблемы» содержит подробную информацию.</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping qmake step.</source>
@@ -22813,14 +22827,6 @@ Requires Qt 4.7.1 or newer.</source>
 Требуется Qt версии не ниже 4.7.1.</translation>
     </message>
     <message>
-        <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
-
-Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.</source>
-        <translation>Элементы Qt Quick для Symbian - это набор готовых элементов разработанных с учётом особенностей внешнего вида приложений для платформы Symbian.
-
-Требуется Qt версии 4.7.3 или выше и установленный для выбранного профиля Qt набор элементов.</translation>
-    </message>
-    <message>
         <source>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>Будут установлены все файлы и каталоги, находящиеся в том же каталоге, что и основной QML файл. До установки содержимое каталога может быть изменено в любой момент.</translation>
     </message>
@@ -22835,6 +22841,14 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
         <translation>Элементы Qt Quick для MeeGo/Harmattan - это набор готовых элементов разработанных с учётом особенностей внешнего вида приложений для платформы MeeGo/Harmattan.
 
 Требуется Qt версии 4.7.4 или выше, а также установленный для выбранного профиля Qt набор элементов.</translation>
+    </message>
+    <message>
+        <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
+
+Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
+        <translation>Элементы Qt Quick для Symbian - это набор готовых элементов разработанных с учётом особенностей внешнего вида приложений для платформы Symbian.
+
+Требуется Qt версии 4.7.4 или выше и установленный для выбранного профиля Qt набор элементов.</translation>
     </message>
 </context>
 <context>
@@ -22878,10 +22892,6 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <message>
         <source>Show Log</source>
         <translation>Показать журнал</translation>
-    </message>
-    <message>
-        <source>Compile debugging helpers that are checked.</source>
-        <translation>Собрать выбранных помощников отладчика.</translation>
     </message>
     <message>
         <source>Build All</source>
@@ -23567,12 +23577,12 @@ Remote stderr was: %1</source>
         <translation>Тест</translation>
     </message>
     <message>
-        <source>Remote Processes</source>
-        <translation>Внешние процессы</translation>
+        <source>Remote Processes...</source>
+        <translation>Внешние процессы...</translation>
     </message>
     <message>
-        <source>Deploy Public Key</source>
-        <translation>Установить ключ</translation>
+        <source>Deploy Public Key...</source>
+        <translation>Установить ключ...</translation>
     </message>
 </context>
 <context>
@@ -25157,13 +25167,6 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>TagBrowser</name>
-    <message>
-        <source>Please choose a tag to filter for:</source>
-        <translation>Выберите метку для отбора:</translation>
-    </message>
-</context>
-<context>
     <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
@@ -25200,7 +25203,7 @@ with a password, which you can enter below.</source>
     </message>
     <message>
         <source>My Tasks</source>
-        <extracomment>Category under which tasklist tasks are listed in build issues view</extracomment>
+        <extracomment>Category under which tasklist tasks are listed in Issues view</extracomment>
         <translation>Мои задачи</translation>
     </message>
 </context>
@@ -25379,6 +25382,10 @@ with a password, which you can enter below.</source>
         <source>%1 [built-in]</source>
         <translation>%1 [встроенный]</translation>
     </message>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::DisplaySettingsPage</name>
@@ -25462,8 +25469,8 @@ Filter: %2
         <translation>&amp;Каталог:</translation>
     </message>
     <message>
-        <source>&amp;Browse</source>
-        <translation>&amp;Обзор</translation>
+        <source>&amp;Browse...</source>
+        <translation>&amp;Обзор...</translation>
     </message>
     <message>
         <source>Fi&amp;le pattern:</source>
@@ -25564,6 +25571,18 @@ Filter: %2
     <message>
         <source>Code style name:</source>
         <translation>Имя стиля кода:</translation>
+    </message>
+    <message>
+        <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
+        <translation>Нельзя сохранять изменения во встроенный стиль. Сначала его следует скопировать.</translation>
+    </message>
+    <message>
+        <source>Copy Built-in Code Style</source>
+        <translation>Скопировать встроенный стиль</translation>
+    </message>
+    <message>
+        <source>%1 (Copy)</source>
+        <translation>%1 (копия)</translation>
     </message>
 </context>
 <context>
@@ -26701,6 +26720,14 @@ Influences the indentation of continuation lines.
 </context>
 <context>
     <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <message>
+        <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
+        <translation>Не удалось найти размещение утилиты обслуживания. Проверьте правильность установки, если этот модуль не был включён вручную.</translation>
+    </message>
+    <message>
+        <source>Could not find maintenance tool at &apos;%1&apos;. Check your installation.</source>
+        <translation>Не удалось найти утилиту обслуживания в «%1». Проверьте правильность установки.</translation>
+    </message>
     <message>
         <source>Start Updater</source>
         <translation>Запустить обновление</translation>
@@ -28522,7 +28549,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Show issues originating outside currently opened projects.</source>
-        <translation>Показывать события, возникшие вне открытых проектов.</translation>
+        <translation>Показывать проблемы, возникшие вне открытых проектов.</translation>
     </message>
     <message>
         <source>These suppression files were used in the last memory analyzer run.</source>
@@ -29040,8 +29067,8 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <source>Url</source>
-        <translation>Путь</translation>
+        <source>URL</source>
+        <translation>URL</translation>
     </message>
     <message>
         <source>Pref Width</source>

@@ -5,8 +5,7 @@
 :*Qt Creator_Core::Internal::FancyToolButton	{occurrence='3' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::FilterLineEdit	{type='Utils::FilterLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::IconButton	{occurrence='4' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Build:_QComboBox	{aboveWidget=':Desktop_QLabel' container=':QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget' leftWidget=':Build:_QLabel' type='QComboBox'}
-:Build:_QLabel	{container=':QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget' name='buildLabel' text='Build:' type='QLabel' visible='1'}
+:Build:_QComboBox	{aboveWidget=':Desktop_QLabel' container=':QtCreator.MenuBar_ProjectExplorer::Internal::ProjectListWidget' toolTip='Select active build configuration' type='QComboBox'}
 :CMake Wizard.Finish_QPushButton	{text~='(Finish|Done)' type='QPushButton' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard.Generator:_QLabel	{text='Generator:' type='QLabel' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard.Next_QPushButton	{name='__qt__passive_wizardbutton1' text~='(Next.*|Continue)' type='QPushButton' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}

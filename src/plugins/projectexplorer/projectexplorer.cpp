@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -306,6 +306,8 @@ bool ProjectExplorerPlugin::parseArguments(const QStringList &arguments, QString
 
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
+    qRegisterMetaType<ProjectExplorer::RunControl *>();
+
     if (!parseArguments(arguments, error))
         return false;
     addObject(this);
@@ -845,7 +847,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // renamefile action
-    d->m_renameFileAction = new QAction(tr("Rename"), this);
+    d->m_renameFileAction = new QAction(tr("Rename..."), this);
     cmd = am->registerAction(d->m_renameFileAction, ProjectExplorer::Constants::RENAMEFILE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
@@ -1738,7 +1740,10 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
     QList<Core::IFile *> filesToSave = Core::ICore::instance()->fileManager()->modifiedFiles();
     if (!filesToSave.isEmpty()) {
         if (d->m_projectExplorerSettings.saveBeforeBuild) {
-            Core::ICore::instance()->fileManager()->saveModifiedFilesSilently(filesToSave);
+            bool cancelled = false;
+            Core::ICore::instance()->fileManager()->saveModifiedFilesSilently(filesToSave, &cancelled);
+            if (cancelled)
+                return false;
         } else {
             bool cancelled = false;
             bool alwaysSave = false;

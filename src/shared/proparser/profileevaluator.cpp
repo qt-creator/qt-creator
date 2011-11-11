@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -1578,8 +1578,14 @@ QString ProFileEvaluator::Private::currentDirectory() const
 
 QString ProFileEvaluator::Private::sysrootify(const QString &path, const QString &baseDir) const
 {
-    const bool isHostSystemPath = m_option->sysroot.isEmpty() || path.startsWith(m_option->sysroot)
-        || path.startsWith(baseDir) || path.startsWith(m_outputDir);
+#ifdef Q_OS_WIN
+    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+#else
+    Qt::CaseSensitivity cs = Qt::CaseSensitive;
+#endif
+    const bool isHostSystemPath = m_option->sysroot.isEmpty() || path.startsWith(m_option->sysroot, cs)
+        || path.startsWith(baseDir, cs) || path.startsWith(m_outputDir, cs);
+
     return isHostSystemPath ? path : m_option->sysroot + path;
 }
 

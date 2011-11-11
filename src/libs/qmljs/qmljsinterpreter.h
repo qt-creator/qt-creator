@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -501,9 +501,6 @@ public:
     const CppComponentValue *prototype() const;
     QList<const CppComponentValue *> prototypes() const;
 
-    const CppComponentValue *attachedType() const;
-    void setAttachedType(CppComponentValue *value);
-
     LanguageUtils::FakeMetaObject::ConstPtr metaObject() const;
 
     QString moduleName() const;
@@ -526,7 +523,6 @@ protected:
     bool isDerivedFrom(LanguageUtils::FakeMetaObject::ConstPtr base) const;
 
 private:
-    CppComponentValue *_attachedType;
     LanguageUtils::FakeMetaObject::ConstPtr _metaObject;
     const QString _moduleName;
     // _componentVersion is the version of the export

@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -58,6 +58,7 @@
 
 #include <utils/savedaction.h>
 #include <utils/fileutils.h>
+#include <utils/historycompleter.h>
 
 namespace Debugger {
 namespace Internal {
@@ -361,6 +362,8 @@ LogWindow::LogWindow(QWidget *parent)
     m_commandLabel = new QLabel(tr("Command:"), this);
     m_commandEdit = new QLineEdit(this);
     m_commandEdit->setFrame(false);
+    m_commandEdit->setObjectName("DebuggerInput");
+    m_commandEdit->setCompleter(new Utils::HistoryCompleter(m_commandEdit));
     QHBoxLayout *commandBox = new QHBoxLayout;
     commandBox->addWidget(m_commandLabel);
     commandBox->addWidget(m_commandEdit);

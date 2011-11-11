@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -48,66 +48,6 @@ Item {
 
     property int proposedWidth: 920
     property int proposedHeight: 600
-
-    Rectangle {
-        id: rectangle1
-        height: 26
-        opacity: 0.9
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: "#cff7f7f7"
-            }
-
-            GradientStop {
-                position: 1
-                color: "#04f7f7f7"
-            }
-        }
-        anchors.rightMargin: -1
-        anchors.topMargin: -4
-        anchors.right: root.right
-        anchors.left: root.left
-        anchors.top: root.bottom
-        Rectangle {
-            width: 1
-            gradient: Gradient {
-                GradientStop {
-                    position: 0
-                    color: "#a41c1b1b"
-                }
-
-                GradientStop {
-                    position: 1
-                    color: "#0a1c1b1b"
-                }
-            }
-            anchors.top: parent.top
-            anchors.topMargin: 0
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-
-        }
-        Rectangle {
-            width: 1
-            gradient: Gradient {
-                GradientStop {
-                    position: 0
-                    color: "#a41c1b1b"
-                }
-
-                GradientStop {
-                    position: 1
-                    color: "#0a000000"
-                }
-            }
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.top: parent.top
-
-        }
-    }
 
     Rectangle {
 

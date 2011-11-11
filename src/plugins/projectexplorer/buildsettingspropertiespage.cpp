@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -147,7 +147,7 @@ void BuildSettingsWidget::setupUi()
         hbox->addWidget(m_removeButton);
 
         m_renameButton = new QPushButton(this);
-        m_renameButton->setText(tr("Rename"));
+        m_renameButton->setText(tr("Rename..."));
         m_renameButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_renameButton);
 
@@ -299,14 +299,6 @@ void BuildSettingsWidget::cloneConfiguration()
 
 void BuildSettingsWidget::deleteConfiguration()
 {
-    QMessageBox msgBox(QMessageBox::Question, tr("Remove Build Configuration"),
-                       tr("Do you really want to delete the build configuration <b>%1</b>?").arg(m_buildConfiguration->displayName()),
-                       QMessageBox::Yes|QMessageBox::No, this);
-    msgBox.setDefaultButton(QMessageBox::No);
-    msgBox.setEscapeButton(QMessageBox::No);
-    if (msgBox.exec() == QMessageBox::No)
-        return;
-
     deleteConfiguration(m_buildConfiguration);
 }
 

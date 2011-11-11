@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (info@qt.nokia.com)
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
@@ -261,7 +261,7 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
         proFile << endl;
     } else if (line.contains(QLatin1String("# QTQUICKCOMPONENTS"))) {
         QString nextLine = proFileTemplate.readLine(); // eats '# CONFIG += qtquickcomponents'
-        if (componentSet() == Symbian10Components)
+        if (componentSet() == Symbian11Components)
             nextLine.remove(0, 2); // remove comment
         proFile << nextLine << endl;
     } else if (line.contains(QLatin1String("# HARMATTAN_BOOSTABLE"))) {
@@ -355,7 +355,7 @@ Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
     Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
     if (!useExistingMainQml()) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
-        if ((componentSet() == QtQuickApp::Symbian10Components)
+        if ((componentSet() == QtQuickApp::Symbian11Components)
                 || (componentSet() == QtQuickApp::Meego10Components))
             files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainPageQmlFile, errorMessage), path(MainPageQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
@@ -456,8 +456,8 @@ QList<DeploymentFolder> QtQuickApp::deploymentFolders() const
 QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
 {
     switch (componentSet) {
-    case Symbian10Components:
-        return QLatin1String("symbian10");
+    case Symbian11Components:
+        return QLatin1String("symbian11");
     case Meego10Components:
         return QLatin1String("meego10");
     case QtQuick10Components:
@@ -466,7 +466,7 @@ QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
     }
 }
 
-const int QtQuickApp::StubVersion = 16;
+const int QtQuickApp::StubVersion = 18;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
