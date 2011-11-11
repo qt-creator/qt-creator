@@ -390,7 +390,7 @@ void FakeVimExCommandsPage::initialize()
             continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem;
-        const QString name = Id::fromUniqueIdentifier(c->id()).toString();
+        const QString name = c->id().toString();
         const int pos = name.indexOf(QLatin1Char('.'));
         const QString section = name.left(pos);
         const QString subId = name.mid(pos + 1);

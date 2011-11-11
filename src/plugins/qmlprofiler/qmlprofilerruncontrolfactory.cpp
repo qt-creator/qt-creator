@@ -126,7 +126,7 @@ RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfigurat
         QTC_ASSERT(false, return 0);
     }
 
-    IAnalyzerTool *tool = AnalyzerManager::toolFromId(mode.toLatin1());
+    IAnalyzerTool *tool = AnalyzerManager::toolFromId(Core::Id(mode));
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
     return rc;

@@ -580,7 +580,7 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode)
     }
 
     m_isRunning = true;
-    pe->runProject(pro, tool->id());
+    pe->runProject(pro, tool->id().toString());
     updateRunActions();
 }
 
@@ -615,8 +615,7 @@ QAction *AnalyzerManagerPrivate::actionFromToolAndMode(IAnalyzerTool *tool, Star
 void AnalyzerManagerPrivate::selectSavedTool()
 {
     const QSettings *settings = Core::ICore::instance()->settings();
-    const QByteArray lastActiveAction =
-        settings->value(QLatin1String(LAST_ACTIVE_TOOL), QString()).toByteArray();
+    const Core::Id lastActiveAction(settings->value(QLatin1String(LAST_ACTIVE_TOOL)).toString());
     foreach (QAction *action, m_actions) {
         IAnalyzerTool *tool = m_toolFromAction.value(action);
         StartMode mode = m_modeFromAction.value(action);
@@ -700,8 +699,8 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
     ActionManager *am = Core::ICore::instance()->actionManager();
     foreach (StartMode mode, modes) {
         QString actionName = tool->actionName(mode);
-        QString menuGroup = tool->menuGroup(mode);
-        Core::Id actionId(QString::fromLatin1(tool->actionId(mode)));
+        Id menuGroup = tool->menuGroup(mode);
+        Id actionId = tool->actionId(mode);
         QAction *action = new QAction(actionName, 0);
         Core::Command *command = am->registerAction(action, actionId,
             Core::Context(Core::Constants::C_GLOBAL));
@@ -742,7 +741,7 @@ void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
 {
     QTC_ASSERT(m_mainWindow, return);
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id());
+    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id().toString());
     if (settings->value("ToolSettingsSaved", false).toBool())
         m_mainWindow->restoreSettings(settings);
     else
@@ -757,11 +756,11 @@ void AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool, StartMode mod
     QTC_ASSERT(m_mainWindow, return);
 
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id());
+    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id().toString());
     m_mainWindow->saveSettings(settings);
     settings->setValue("ToolSettingsSaved", true);
     settings->endGroup();
-    settings->setValue(QLatin1String(LAST_ACTIVE_TOOL), tool->actionId(mode));
+    settings->setValue(QLatin1String(LAST_ACTIVE_TOOL), tool->actionId(mode).toString());
 }
 
 void AnalyzerManagerPrivate::updateRunActions()
@@ -770,7 +769,7 @@ void AnalyzerManagerPrivate::updateRunActions()
     Project *project = pe->startupProject();
 
     bool startEnabled = !m_isRunning
-        && m_currentTool && pe->canRun(project, m_currentTool->id());
+        && m_currentTool && pe->canRun(project, m_currentTool->id().toString());
 
     QString disabledReason;
     if (m_isRunning)
@@ -778,7 +777,7 @@ void AnalyzerManagerPrivate::updateRunActions()
     else if (!m_currentTool)
         disabledReason = tr("No analyzer tool selected.");
     else
-        disabledReason = pe->cannotRunReason(project, m_currentTool->id());
+        disabledReason = pe->cannotRunReason(project, m_currentTool->id().toString());
 
     m_startAction->setEnabled(startEnabled);
     m_startAction->setToolTip(disabledReason);
@@ -921,12 +920,12 @@ void AnalyzerManager::handleToolFinished()
     m_instance->d->handleToolFinished();
 }
 
-IAnalyzerTool *AnalyzerManager::toolFromId(const QByteArray &id)
+IAnalyzerTool *AnalyzerManager::toolFromId(const Core::Id &id)
 {
     foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
-        if (id.startsWith(tool->id()))
+        if (id.name().startsWith(tool->id().name()))
             return tool;
-    QTC_ASSERT(false, qDebug() << "NO ANAYLYZER TOOL FOUND FOR ID" << id);
+    QTC_ASSERT(false, qDebug() << "NO ANAYLYZER TOOL FOUND FOR ID" << id.name());
     return 0;
 }
 

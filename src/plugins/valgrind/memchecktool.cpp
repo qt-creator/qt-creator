@@ -285,7 +285,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     m_errorProxyModel->setFilterExternalIssues(memcheckSettings->filterExternalIssues());
 }
 
-QByteArray MemcheckTool::id() const
+Core::Id MemcheckTool::id() const
 {
     return "Memcheck";
 }

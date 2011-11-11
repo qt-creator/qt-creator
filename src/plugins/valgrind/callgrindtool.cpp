@@ -513,7 +513,7 @@ CallgrindTool::~CallgrindTool()
     delete d;
 }
 
-QByteArray CallgrindTool::id() const
+Core::Id CallgrindTool::id() const
 {
     return "Callgrind";
 }

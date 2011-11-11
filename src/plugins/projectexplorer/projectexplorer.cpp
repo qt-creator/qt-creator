@@ -870,7 +870,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectTreeCollapseAllAction = new QAction(tr("Collapse All"), this);
     cmd = am->registerAction(d->m_projectTreeCollapseAllAction, Constants::PROJECTTREE_COLLAPSE_ALL,
                              projecTreeContext);
-    const QString treeGroup = QLatin1String(Constants::G_PROJECT_TREE);
+    const Core::Id treeGroup = Constants::G_PROJECT_TREE;
     mfileContextMenu->addAction(treeSpacer, treeGroup);
     mfileContextMenu->addAction(cmd, treeGroup);
     msubProjectContextMenu->addAction(treeSpacer, treeGroup);

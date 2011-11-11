@@ -35,8 +35,10 @@
 
 #include "command.h"
 
-#include <utils/proxyaction.h>
+#include <coreplugin/id.h>
 #include <coreplugin/icontext.h>
+
+#include <utils/proxyaction.h>
 
 #include <QtCore/QList>
 #include <QtCore/QMultiMap>
@@ -51,7 +53,7 @@ class CommandPrivate : public Core::Command
 {
     Q_OBJECT
 public:
-    CommandPrivate(int id);
+    CommandPrivate(Id id);
     virtual ~CommandPrivate() {}
 
     void setDefaultKeySequence(const QKeySequence &key);
@@ -62,7 +64,7 @@ public:
     void setDefaultText(const QString &text);
     QString defaultText() const;
 
-    int id() const;
+    Id id() const;
 
     QAction *action() const;
     QShortcut *shortcut() const;
@@ -80,7 +82,7 @@ public:
 protected:
     Context m_context;
     CommandAttributes m_attributes;
-    int m_id;
+    Id m_id;
     QKeySequence m_defaultKey;
     QString m_defaultText;
     bool m_isKeyInitialized;
@@ -90,7 +92,7 @@ class Shortcut : public CommandPrivate
 {
     Q_OBJECT
 public:
-    Shortcut(int id);
+    Shortcut(Id id);
 
     void setKeySequence(const QKeySequence &key);
     QKeySequence keySequence() const;
@@ -121,7 +123,7 @@ class Action : public CommandPrivate
 {
     Q_OBJECT
 public:
-    Action(int id);
+    Action(Id id);
 
     void setKeySequence(const QKeySequence &key);
     QKeySequence keySequence() const;

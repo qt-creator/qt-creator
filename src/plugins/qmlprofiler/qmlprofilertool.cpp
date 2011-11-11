@@ -150,7 +150,7 @@ QmlProfilerTool::~QmlProfilerTool()
     delete d;
 }
 
-QByteArray QmlProfilerTool::id() const
+Core::Id QmlProfilerTool::id() const
 {
     return "QmlProfiler";
 }
@@ -566,7 +566,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
-    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->id());
+    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->id().toString());
 }
 
 void QmlProfilerTool::tryToConnect()
@@ -657,7 +657,7 @@ void QmlProfilerTool::startTool(StartMode mode)
         ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
         // ### not sure if we're supposed to check if the RunConFiguration isEnabled
         Project *pro = pe->startupProject();
-        pe->runProject(pro, id());
+        pe->runProject(pro, id().toString());
     } else if (mode == StartRemote) {
         startRemoteTool(this, mode);
     }

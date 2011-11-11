@@ -48,7 +48,7 @@ public:
     CallgrindTool(QObject *parent);
     ~CallgrindTool();
 
-    QByteArray id() const;
+    Core::Id id() const;
     QString displayName() const;
     QString description() const;
     ToolMode toolMode() const;

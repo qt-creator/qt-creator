@@ -80,7 +80,7 @@ AnalyzerRunControl::Private::Private()
 
 AnalyzerRunControl::AnalyzerRunControl(IAnalyzerTool *tool,
         const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
-    : RunControl(runConfiguration, tool->id()),
+    : RunControl(runConfiguration, tool->id().toString()),
       d(new Private)
 {
     d->m_engine = tool->createEngine(sp, runConfiguration);

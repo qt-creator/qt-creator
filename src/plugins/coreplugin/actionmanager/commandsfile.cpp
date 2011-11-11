@@ -148,7 +148,7 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
                            QDateTime::currentDateTime().toString(Qt::ISODate)));
         w.writeStartElement(ctx.mappingElement);
         foreach (const ShortcutItem *item, items) {
-            const Id id = Id::fromUniqueIdentifier(item->m_cmd->id());
+            const Id id = item->m_cmd->id();
             if (item->m_key.isEmpty()) {
                 w.writeEmptyElement(ctx.shortCutElement);
                 w.writeAttribute(ctx.idAttribute, id.toString());

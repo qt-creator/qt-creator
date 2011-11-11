@@ -93,7 +93,7 @@ class MemcheckTool : public Analyzer::IAnalyzerTool
 public:
     MemcheckTool(QObject *parent);
 
-    QByteArray id() const;
+    Core::Id id() const;
     QString displayName() const;
     QString description() const;
 

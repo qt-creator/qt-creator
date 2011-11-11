@@ -34,6 +34,7 @@
 #define COMMAND_H
 
 #include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
 
 #include <QtCore/QObject>
 
@@ -66,7 +67,7 @@ public:
     virtual void setDefaultText(const QString &text) = 0;
     virtual QString defaultText() const = 0;
 
-    virtual int id() const = 0;
+    virtual Id id() const = 0;
 
     virtual QAction *action() const = 0;
     virtual QShortcut *shortcut() const = 0;
@@ -78,10 +79,7 @@ public:
 
     virtual bool isActive() const = 0;
 
-    virtual ~Command() {}
-
     virtual void setKeySequence(const QKeySequence &key) = 0;
-
     virtual QString stringWithAppendedShortcut(const QString &str) const = 0;
 
     virtual bool isScriptable() const = 0;

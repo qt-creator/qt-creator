@@ -41,25 +41,25 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
-QByteArray IAnalyzerTool::defaultMenuGroup(StartMode mode)
+Core::Id IAnalyzerTool::defaultMenuGroup(StartMode mode)
 {
     if (mode == StartRemote)
         return Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
     return Analyzer::Constants::G_ANALYZER_TOOLS;
 }
 
-QByteArray IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
+Core::Id IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
 {
-    QByteArray id = tool->id();
+    Core::Id id = tool->id();
     switch (mode) {
     case Analyzer::StartLocal:
-        return "Analyzer." + id + ".Local";
+        return Core::Id(("Analyzer." + id.name() + ".Local").data());
     case Analyzer::StartRemote:
-        return "Analyzer." + id + ".Remote";
+        return Core::Id(("Analyzer." + id.name() + ".Remote").data());
     case Analyzer::StartQml:
-        return "Analyzer." + id + ".Qml";
+        return Core::Id(("Analyzer." + id.name() + ".Qml").data());
     }
-    return QByteArray();
+    return Core::Id();
 }
 
 QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mode)

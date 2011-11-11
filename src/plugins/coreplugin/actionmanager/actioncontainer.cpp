@@ -121,7 +121,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn QAction *ActionContainer::insertLocation(const QString &group) const
+    \fn QAction *ActionContainer::insertLocation(const Core::Id &group) const
     Returns an action representing the \a group,
     that could be used with \c{QWidget::insertAction}.
 */
@@ -136,7 +136,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void ActionContainer::addAction(Core::Command *action, const QString &group)
+    \fn void ActionContainer::addAction(Core::Command *action, const Core::Id &group)
     Add the \a action as a menu item to this action container. The action is added as the
     last item of the specified \a group.
     \sa appendGroup()
@@ -144,7 +144,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void ActionContainer::addMenu(Core::ActionContainer *menu, const QString &group)
+    \fn void ActionContainer::addMenu(Core::ActionContainer *menu, const Core::Id &group)
     Add the \a menu as a submenu to this action container. The menu is added as the
     last item of the specified \a group.
     \sa appendGroup()
@@ -163,12 +163,12 @@ using namespace Core::Internal;
     \internal
 */
 
-ActionContainerPrivate::ActionContainerPrivate(int id)
+ActionContainerPrivate::ActionContainerPrivate(Id id)
     : m_onAllDisabledBehavior(Disable), m_id(id), m_updateRequested(false)
 {
-    appendGroup(QLatin1String(Constants::G_DEFAULT_ONE));
-    appendGroup(QLatin1String(Constants::G_DEFAULT_TWO));
-    appendGroup(QLatin1String(Constants::G_DEFAULT_THREE));
+    appendGroup(Constants::G_DEFAULT_ONE);
+    appendGroup(Constants::G_DEFAULT_TWO);
+    appendGroup(Constants::G_DEFAULT_THREE);
     scheduleUpdate();
 }
 
@@ -182,12 +182,12 @@ ActionContainer::OnAllDisabledBehavior ActionContainerPrivate::onAllDisabledBeha
     return m_onAllDisabledBehavior;
 }
 
-void ActionContainerPrivate::appendGroup(const QString &groupId)
+void ActionContainerPrivate::appendGroup(const Id &groupId)
 {
     m_groups.append(Group(groupId));
 }
 
-QList<Group>::const_iterator ActionContainerPrivate::findGroup(const QString &groupId) const
+QList<Group>::const_iterator ActionContainerPrivate::findGroup(const Id &groupId) const
 {
     QList<Group>::const_iterator it = m_groups.constBegin();
     while (it != m_groups.constEnd()) {
@@ -199,7 +199,7 @@ QList<Group>::const_iterator ActionContainerPrivate::findGroup(const QString &gr
 }
 
 
-QAction *ActionContainerPrivate::insertLocation(const QString &groupId) const
+QAction *ActionContainerPrivate::insertLocation(const Id &groupId) const
 {
     QList<Group>::const_iterator it = findGroup(groupId);
     QTC_ASSERT(it != m_groups.constEnd(), return 0);
@@ -227,20 +227,15 @@ QAction *ActionContainerPrivate::insertLocation(QList<Group>::const_iterator gro
     return 0;
 }
 
-void ActionContainerPrivate::addAction(Command *command, const QString &groupId)
+void ActionContainerPrivate::addAction(Command *command, const Id &groupId)
 {
     if (!canAddAction(command))
         return;
 
-    QString actualGroupId;
-    if (groupId.isEmpty())
-        actualGroupId = QLatin1String(Constants::G_DEFAULT_TWO);
-    else
-        actualGroupId = groupId;
-
+    const Id actualGroupId = groupId.isValid() ? groupId : Id(Constants::G_DEFAULT_TWO);
     QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
-    QTC_ASSERT(groupIt != m_groups.constEnd(), qDebug() << "Can't find group" << groupId
-               << "in container" << id(); return);
+    QTC_ASSERT(groupIt != m_groups.constEnd(), qDebug() << "Can't find group"
+               << groupId.name() << "in container" << id().name(); return);
     QAction *beforeAction = insertLocation(groupIt);
     m_groups[groupIt-m_groups.constBegin()].items.append(command);
 
@@ -250,19 +245,14 @@ void ActionContainerPrivate::addAction(Command *command, const QString &groupId)
     scheduleUpdate();
 }
 
-void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &groupId)
+void ActionContainerPrivate::addMenu(ActionContainer *menu, const Id &groupId)
 {
     ActionContainerPrivate *containerPrivate = static_cast<ActionContainerPrivate *>(menu);
     if (!containerPrivate->canBeAddedToMenu())
         return;
+
     MenuActionContainer *container = static_cast<MenuActionContainer *>(containerPrivate);
-
-    QString actualGroupId;
-    if (groupId.isEmpty())
-        actualGroupId = QLatin1String(Constants::G_DEFAULT_TWO);
-    else
-        actualGroupId = groupId;
-
+    const Id actualGroupId = groupId.isValid() ? groupId : Id(Constants::G_DEFAULT_TWO);
     QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
     QTC_ASSERT(groupIt != m_groups.constEnd(), return);
     QAction *beforeAction = insertLocation(groupIt);
@@ -273,19 +263,14 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, const QString &group
     scheduleUpdate();
 }
 
-void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *menu, const QString &groupId)
+void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *menu, const Id &groupId)
 {
     ActionContainerPrivate *containerPrivate = static_cast<ActionContainerPrivate *>(menu);
     if (!containerPrivate->canBeAddedToMenu())
         return;
+
     MenuActionContainer *container = static_cast<MenuActionContainer *>(containerPrivate);
-
-    QString actualGroupId;
-    if (groupId.isEmpty())
-        actualGroupId = QLatin1String(Constants::G_DEFAULT_TWO);
-    else
-        actualGroupId = groupId;
-
+    const Id actualGroupId = groupId.isValid() ? groupId : Id(Constants::G_DEFAULT_TWO);
     QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
     QTC_ASSERT(groupIt != m_groups.constEnd(), return);
     QAction *beforeAction = before->menu()->menuAction();
@@ -328,7 +313,7 @@ void ActionContainerPrivate::itemDestroyed()
     }
 }
 
-int ActionContainerPrivate::id() const
+Id ActionContainerPrivate::id() const
 {
     return m_id;
 }
@@ -369,7 +354,7 @@ void ActionContainerPrivate::update()
     \internal
 */
 
-MenuActionContainer::MenuActionContainer(int id)
+MenuActionContainer::MenuActionContainer(Id id)
     : ActionContainerPrivate(id), m_menu(0)
 {
     setOnAllDisabledBehavior(Disable);
@@ -471,7 +456,7 @@ bool MenuActionContainer::canBeAddedToMenu() const
     \internal
 */
 
-MenuBarActionContainer::MenuBarActionContainer(int id)
+MenuBarActionContainer::MenuBarActionContainer(Id id)
     : ActionContainerPrivate(id), m_menuBar(0)
 {
     setOnAllDisabledBehavior(Show);

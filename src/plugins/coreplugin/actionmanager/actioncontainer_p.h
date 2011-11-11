@@ -41,9 +41,10 @@
 namespace Core {
 namespace Internal {
 
-struct Group {
-    Group(const QString &id) : id(id) {}
-    QString id;
+struct Group
+{
+    Group(const Id &id) : id(id) {}
+    Id id;
     QList<QObject *> items; // Command * or ActionContainer *
 };
 
@@ -52,20 +53,20 @@ class ActionContainerPrivate : public Core::ActionContainer
     Q_OBJECT
 
 public:
-    ActionContainerPrivate(int id);
-    virtual ~ActionContainerPrivate() {}
+    ActionContainerPrivate(Id id);
+    ~ActionContainerPrivate() {}
 
     void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior);
     ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const;
 
-    QAction *insertLocation(const QString &group) const;
-    void appendGroup(const QString &id);
-    void addAction(Command *action, const QString &group = QString());
-    void addMenu(ActionContainer *menu, const QString &group = QString());
-    void addMenu(ActionContainer *before, ActionContainer *menu, const QString &group = QString());
+    QAction *insertLocation(const Id &groupId) const;
+    void appendGroup(const Id &id);
+    void addAction(Command *action, const Id &group = Id());
+    void addMenu(ActionContainer *menu, const Id &group = Id());
+    void addMenu(ActionContainer *before, ActionContainer *menu, const Id &group = Id());
     virtual void clear();
 
-    int id() const;
+    Id id() const;
 
     QMenu *menu() const;
     QMenuBar *menuBar() const;
@@ -92,18 +93,18 @@ private slots:
     void itemDestroyed();
 
 private:
-    QList<Group>::const_iterator findGroup(const QString &groupId) const;
+    QList<Group>::const_iterator findGroup(const Id &groupId) const;
     QAction *insertLocation(QList<Group>::const_iterator group) const;
 
     OnAllDisabledBehavior m_onAllDisabledBehavior;
-    int m_id;
+    Id m_id;
     bool m_updateRequested;
 };
 
 class MenuActionContainer : public ActionContainerPrivate
 {
 public:
-    MenuActionContainer(int id);
+    explicit MenuActionContainer(Id id);
 
     void setMenu(QMenu *menu);
     QMenu *menu() const;
@@ -125,7 +126,7 @@ private:
 class MenuBarActionContainer : public ActionContainerPrivate
 {
 public:
-    MenuBarActionContainer(int id);
+    explicit MenuBarActionContainer(Id id);
 
     void setMenuBar(QMenuBar *menuBar);
     QMenuBar *menuBar() const;

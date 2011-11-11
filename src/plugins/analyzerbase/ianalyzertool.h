@@ -38,6 +38,8 @@
 #include "analyzerbase_global.h"
 #include "analyzerconstants.h"
 
+#include <coreplugin/id.h>
+
 #include <QtCore/QObject>
 
 namespace ProjectExplorer {
@@ -72,16 +74,16 @@ public:
     explicit IAnalyzerTool(QObject *parent = 0);
 
     /// Returns a unique ID for this tool.
-    virtual QByteArray id() const = 0;
+    virtual Core::Id id() const = 0;
     /// Returns a short user readable display name for this tool.
     virtual QString displayName() const = 0;
     /// Returns a user readable description name for this tool.
     virtual QString description() const = 0;
     /// Returns an id for the start action.
-    virtual QByteArray actionId(StartMode mode) const
+    virtual Core::Id actionId(StartMode mode) const
         { return defaultActionId(this, mode); }
     /// Returns the menu group the start action should go to.
-    virtual QByteArray menuGroup(StartMode mode) const
+    virtual Core::Id menuGroup(StartMode mode) const
         { return defaultMenuGroup(mode); }
     /// Returns a short user readable action name for this tool.
     virtual QString actionName(StartMode mode) const
@@ -102,8 +104,8 @@ public:
     virtual ToolMode toolMode() const = 0;
 
     /// Convenience implementation.
-    static QByteArray defaultMenuGroup(StartMode mode);
-    static QByteArray defaultActionId(const IAnalyzerTool *tool, StartMode mode);
+    static Core::Id defaultMenuGroup(StartMode mode);
+    static Core::Id defaultActionId(const IAnalyzerTool *tool, StartMode mode);
     static QString defaultActionName(const IAnalyzerTool *tool, StartMode mode);
 
     /// This gets called after all analyzation tools where initialized.

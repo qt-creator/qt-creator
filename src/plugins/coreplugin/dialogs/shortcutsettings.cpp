@@ -227,7 +227,7 @@ void ShortcutSettings::importAction()
         QMap<QString, QKeySequence> mapping = cf.importCommands();
 
         foreach (ShortcutItem *item, m_scitems) {
-            QString sid = Id::fromUniqueIdentifier(item->m_cmd->id()).toString();
+            QString sid = item->m_cmd->id().toString();
             if (mapping.contains(sid)) {
                 item->m_key = mapping.value(sid);
                 item->m_item->setText(2, item->m_key);
@@ -307,10 +307,10 @@ void ShortcutSettings::initialize()
         s->m_cmd = c;
         s->m_item = item;
 
-        const QString identifier = Id::fromUniqueIdentifier(c->id()).toString();
+        const QString identifier = c->id().toString();
         int pos = identifier.indexOf(QLatin1Char('.'));
         const QString section = identifier.left(pos);
-        const QString subId = identifier.mid(pos+1);
+        const QString subId = identifier.mid(pos + 1);
         if (!sections.contains(section)) {
             QTreeWidgetItem *categoryItem = new QTreeWidgetItem(commandList(), QStringList() << section);
             QFont f = categoryItem->font(0);

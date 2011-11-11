@@ -208,6 +208,7 @@
     \internal
 */
 
+using namespace Core;
 using namespace Core::Internal;
 
 /*!
@@ -215,7 +216,7 @@ using namespace Core::Internal;
     \internal
 */
 
-CommandPrivate::CommandPrivate(int id)
+CommandPrivate::CommandPrivate(Id id)
     : m_attributes(0), m_id(id), m_isKeyInitialized(false)
 {
 }
@@ -248,7 +249,7 @@ QString CommandPrivate::defaultText() const
     return m_defaultText;
 }
 
-int CommandPrivate::id() const
+Id CommandPrivate::id() const
 {
     return m_id;
 }
@@ -295,11 +296,9 @@ QString CommandPrivate::stringWithAppendedShortcut(const QString &str) const
     \internal
 */
 
-Shortcut::Shortcut(int id)
+Shortcut::Shortcut(Id id)
     : CommandPrivate(id), m_shortcut(0), m_scriptable(false)
-{
-
-}
+{}
 
 void Shortcut::setShortcut(QShortcut *shortcut)
 {
@@ -387,7 +386,7 @@ void Shortcut::setScriptable(bool value)
   \class Action
   \internal
 */
-Action::Action(int id)
+Action::Action(Id id)
     : CommandPrivate(id),
     m_action(new Utils::ProxyAction(this)),
     m_active(false),

@@ -34,8 +34,7 @@
 #define ACTIONMANAGERPRIVATE_H
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include "command_p.h"
-
+#include <coreplugin/actionmanager/command_p.h>
 #include <coreplugin/icontext.h>
 
 #include <QtCore/QMap>
@@ -63,31 +62,27 @@ public:
     explicit ActionManagerPrivate(MainWindow *mainWnd);
     ~ActionManagerPrivate();
 
-    void setContext(const Context &context);
     static ActionManagerPrivate *instance();
+
+    void initialize();
+
+    void setContext(const Context &context);
+    bool hasContext(int context) const;
 
     void saveSettings(QSettings *settings);
 
     QList<Command *> commands() const;
 
-    bool hasContext(int context) const;
-
-    Command *command(int uid) const;
-    ActionContainer *actionContainer(int uid) const;
-
-    void initialize();
-
-    //ActionManager Interface
+    Command *command(const Id &id) const;
+    ActionContainer *actionContainer(const Id &id) const;
     ActionContainer *createMenu(const Id &id);
     ActionContainer *createMenuBar(const Id &id);
 
     Command *registerAction(QAction *action, const Id &id,
-        const Context &context, bool scriptable=false);
+        const Context &context, bool scriptable = false);
     Command *registerShortcut(QShortcut *shortcut, const Id &id,
-        const Context &context, bool scriptable=false);
+        const Context &context, bool scriptable = false);
 
-    Core::Command *command(const Id &id) const;
-    Core::ActionContainer *actionContainer(const Id &id) const;
     void unregisterAction(QAction *action, const Id &id);
     void unregisterShortcut(const Id &id);
 
@@ -106,10 +101,10 @@ private:
 
     static ActionManagerPrivate *m_instance;
 
-    typedef QHash<int, CommandPrivate *> IdCmdMap;
+    typedef QHash<Core::Id, CommandPrivate *> IdCmdMap;
     IdCmdMap m_idCmdMap;
 
-    typedef QHash<int, ActionContainerPrivate *> IdContainerMap;
+    typedef QHash<Core::Id, ActionContainerPrivate *> IdContainerMap;
     IdContainerMap m_idContainerMap;
 
 //    typedef QMap<int, int> GlobalGroupMap;

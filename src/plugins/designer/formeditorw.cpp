@@ -132,12 +132,12 @@ static inline QIcon designerIcon(const QString &iconName)
 }
 
 // Create a menu separator
-static inline QAction *createSeparator(QObject *parent,
+static QAction *createSeparator(QObject *parent,
                                  Core::ActionManager *am,
                                  const Core::Context &context,
                                  Core::ActionContainer *container,
                                  const Core::Id &id,
-                                 const QString &group = QString())
+                                 const Core::Id &group = Core::Id())
 {
     QAction *actSeparator = new QAction(parent);
     actSeparator->setSeparator(true);

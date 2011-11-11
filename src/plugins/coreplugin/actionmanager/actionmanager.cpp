@@ -306,18 +306,17 @@ bool ActionManagerPrivate::hasContext(const Context &context) const
 
 ActionContainer *ActionManagerPrivate::createMenu(const Id &id)
 {
-    const int uid = id.uniqueIdentifier();
-    const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
+    const IdContainerMap::const_iterator it = m_idContainerMap.constFind(id);
     if (it !=  m_idContainerMap.constEnd())
         return it.value();
 
     QMenu *m = new QMenu(m_mainWnd);
     m->setObjectName(id.name());
 
-    MenuActionContainer *mc = new MenuActionContainer(uid);
+    MenuActionContainer *mc = new MenuActionContainer(id);
     mc->setMenu(m);
 
-    m_idContainerMap.insert(uid, mc);
+    m_idContainerMap.insert(id, mc);
     connect(mc, SIGNAL(destroyed()), this, SLOT(containerDestroyed()));
 
     return mc;
@@ -325,18 +324,17 @@ ActionContainer *ActionManagerPrivate::createMenu(const Id &id)
 
 ActionContainer *ActionManagerPrivate::createMenuBar(const Id &id)
 {
-    const int uid = id.uniqueIdentifier();
-    const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
+    const IdContainerMap::const_iterator it = m_idContainerMap.constFind(id);
     if (it !=  m_idContainerMap.constEnd())
         return it.value();
 
     QMenuBar *mb = new QMenuBar; // No parent (System menu bar on Mac OS X)
     mb->setObjectName(id.toString());
 
-    MenuBarActionContainer *mbc = new MenuBarActionContainer(uid);
+    MenuBarActionContainer *mbc = new MenuBarActionContainer(id);
     mbc->setMenuBar(mb);
 
-    m_idContainerMap.insert(uid, mbc);
+    m_idContainerMap.insert(id, mbc);
     connect(mbc, SIGNAL(destroyed()), this, SLOT(containerDestroyed()));
 
     return mbc;
@@ -392,8 +390,7 @@ Command *ActionManagerPrivate::registerAction(QAction *action, const Id &id, con
 Action *ActionManagerPrivate::overridableAction(const Id &id)
 {
     Action *a = 0;
-    const int uid = id.uniqueIdentifier();
-    if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
+    if (CommandPrivate *c = m_idCmdMap.value(id, 0)) {
         a = qobject_cast<Action *>(c);
         if (!a) {
             qWarning() << "registerAction: id" << id.name()
@@ -401,8 +398,8 @@ Action *ActionManagerPrivate::overridableAction(const Id &id)
             return 0;
         }
     } else {
-        a = new Action(uid);
-        m_idCmdMap.insert(uid, a);
+        a = new Action(id);
+        m_idCmdMap.insert(id, a);
         m_mainWnd->addAction(a->action());
         a->action()->setObjectName(id.toString());
         a->action()->setShortcutContext(Qt::ApplicationShortcut);
@@ -418,8 +415,7 @@ Action *ActionManagerPrivate::overridableAction(const Id &id)
 void ActionManagerPrivate::unregisterAction(QAction *action, const Id &id)
 {
     Action *a = 0;
-    const int uid = id.uniqueIdentifier();
-    CommandPrivate *c = m_idCmdMap.value(uid, 0);
+    CommandPrivate *c = m_idCmdMap.value(id, 0);
     QTC_ASSERT(c, return);
     a = qobject_cast<Action *>(c);
     if (!a) {
@@ -433,7 +429,7 @@ void ActionManagerPrivate::unregisterAction(QAction *action, const Id &id)
         // ActionContainers listen to the commands' destroyed signals
         m_mainWnd->removeAction(a->action());
         delete a->action();
-        m_idCmdMap.remove(uid);
+        m_idCmdMap.remove(id);
         delete a;
     }
     emit commandListChanged();
@@ -442,8 +438,7 @@ void ActionManagerPrivate::unregisterAction(QAction *action, const Id &id)
 Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &id, const Context &context, bool scriptable)
 {
     Shortcut *sc = 0;
-    const int uid = id.uniqueIdentifier();
-    if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
+    if (CommandPrivate *c = m_idCmdMap.value(id, 0)) {
         sc = qobject_cast<Shortcut *>(c);
         if (!sc) {
             qWarning() << "registerShortcut: id" << id.name()
@@ -451,8 +446,8 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &i
             return c;
         }
     } else {
-        sc = new Shortcut(uid);
-        m_idCmdMap.insert(uid, sc);
+        sc = new Shortcut(id);
+        m_idCmdMap.insert(id, sc);
     }
 
     if (sc->shortcut()) {
@@ -482,12 +477,11 @@ Command *ActionManagerPrivate::registerShortcut(QShortcut *shortcut, const Id &i
 
 Command *ActionManagerPrivate::command(const Id &id) const
 {
-    const int uid = id.uniqueIdentifier();
-    const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
+    const IdCmdMap::const_iterator it = m_idCmdMap.constFind(id);
     if (it == m_idCmdMap.constEnd()) {
         if (warnAboutFindFailures)
             qWarning() << "ActionManagerPrivate::command(): failed to find :"
-                       << id.name() << '/' << uid;
+                       << id.name();
         return 0;
     }
     return it.value();
@@ -495,36 +489,11 @@ Command *ActionManagerPrivate::command(const Id &id) const
 
 ActionContainer *ActionManagerPrivate::actionContainer(const Id &id) const
 {
-    const int uid = id.uniqueIdentifier();
-    const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
+    const IdContainerMap::const_iterator it = m_idContainerMap.constFind(id);
     if (it == m_idContainerMap.constEnd()) {
         if (warnAboutFindFailures)
             qWarning() << "ActionManagerPrivate::actionContainer(): failed to find :"
-                       << id.name() << '/' << uid;
-        return 0;
-    }
-    return it.value();
-}
-
-Command *ActionManagerPrivate::command(int uid) const
-{
-    const IdCmdMap::const_iterator it = m_idCmdMap.constFind(uid);
-    if (it == m_idCmdMap.constEnd()) {
-        if (warnAboutFindFailures)
-            qWarning() << "ActionManagerPrivate::command(): failed to find :"
-                       <<  Id::fromUniqueIdentifier(uid).toString() << '/' << uid;
-        return 0;
-    }
-    return it.value();
-}
-
-ActionContainer *ActionManagerPrivate::actionContainer(int uid) const
-{
-    const IdContainerMap::const_iterator it = m_idContainerMap.constFind(uid);
-    if (it == m_idContainerMap.constEnd()) {
-        if (warnAboutFindFailures)
-            qWarning() << "ActionManagerPrivate::actionContainer(): failed to find :"
-                       << Id::fromUniqueIdentifier(uid).toString() << uid;
+                       << id.name();
         return 0;
     }
     return it.value();
@@ -540,9 +509,8 @@ void ActionManagerPrivate::initialize()
     const int shortcuts = settings->beginReadArray(QLatin1String(settingsGroup));
     for (int i = 0; i < shortcuts; ++i) {
         settings->setArrayIndex(i);
-        const QString sid = settings->value(QLatin1String(idKey)).toString();
         const QKeySequence key(settings->value(QLatin1String(sequenceKey)).toString());
-        const int id = Id(sid).uniqueIdentifier();
+        const Id id = Id(settings->value(QLatin1String(idKey)).toString());
 
         Command *cmd = command(id);
         if (cmd)
@@ -558,13 +526,12 @@ void ActionManagerPrivate::saveSettings(QSettings *settings)
 
     const IdCmdMap::const_iterator cmdcend = m_idCmdMap.constEnd();
     for (IdCmdMap::const_iterator j = m_idCmdMap.constBegin(); j != cmdcend; ++j) {
-        const int id = j.key();
+        const Id id = j.key();
         CommandPrivate *cmd = j.value();
         QKeySequence key = cmd->keySequence();
         if (key != cmd->defaultKeySequence()) {
-            const QString sid = Id::fromUniqueIdentifier(id).toString();
             settings->setArrayIndex(count);
-            settings->setValue(QLatin1String(idKey), sid);
+            settings->setValue(QLatin1String(idKey), id.toString());
             settings->setValue(QLatin1String(sequenceKey), key.toString());
             count++;
         }
@@ -576,8 +543,7 @@ void ActionManagerPrivate::saveSettings(QSettings *settings)
 void ActionManagerPrivate::unregisterShortcut(const Core::Id &id)
 {
     Shortcut *sc = 0;
-    const int uid = id.uniqueIdentifier();
-    CommandPrivate *c = m_idCmdMap.value(uid, 0);
+    CommandPrivate *c = m_idCmdMap.value(id, 0);
     QTC_ASSERT(c, return);
     sc = qobject_cast<Shortcut *>(c);
     if (!sc) {
@@ -586,7 +552,7 @@ void ActionManagerPrivate::unregisterShortcut(const Core::Id &id)
         return;
     }
     delete sc->shortcut();
-    m_idCmdMap.remove(uid);
+    m_idCmdMap.remove(id);
     delete sc;
     emit commandListChanged();
 }

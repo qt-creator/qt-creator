@@ -128,7 +128,7 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         sp.startMode = StartRemote;
     }
 
-    IAnalyzerTool *tool = AnalyzerManager::toolFromId(mode.toLatin1());
+    IAnalyzerTool *tool = AnalyzerManager::toolFromId(Core::Id(mode));
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
     return rc;
@@ -185,7 +185,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     //m_currentRunControl = rc;
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
-    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->id());
+    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->id().toString());
 }
 
 void ValgrindPlugin::startValgrindTool(IAnalyzerTool *tool, StartMode mode)

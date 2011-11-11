@@ -38,6 +38,7 @@
 
 #include <QtCore/QMetaType>
 
+#include <coreplugin/id.h>
 #include <utils/ssh/sshconnection.h>
 #include <utils/environment.h>
 
@@ -56,7 +57,7 @@ public:
     StartMode startMode;
     Utils::SshConnectionParameters connParams;
 
-    QByteArray toolId;
+    Core::Id toolId;
     QString debuggee;
     QString debuggeeArgs;
     QString analyzerCmdPrefix;
