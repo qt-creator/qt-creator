@@ -44,9 +44,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QStyle>
 
-namespace {
-const char * const GENERIC_DESKTOP_TARGET_DISPLAY_NAME("Desktop");
-}
+const char GENERIC_DESKTOP_TARGET_DISPLAY_NAME[] = "Desktop";
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
@@ -86,10 +84,7 @@ GenericBuildConfiguration *GenericTarget::activeBuildConfiguration() const
 
 bool GenericTarget::fromMap(const QVariantMap &map)
 {
-    if (!Target::fromMap(map))
-        return false;
-
-    return true;
+    return Target::fromMap(map);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
