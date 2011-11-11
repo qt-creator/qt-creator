@@ -57,6 +57,10 @@
             switch to the nfs-kernel-server, or create a symlink so that the
             settings are stored locally.
 
+        \o  Qt 4.7.4 is known to contain a bug exposed by g++ 4.6 which triggers
+            a crash in \QC. For more information, see
+            \l{https://bugreports.qt.nokia.com/browse/QTBUG-21265}{QTBUG-21265}
+
         \o  The Okteta KDE custom widget plugin might be installed as part of
             some Linux distributions. It can cause Qt Designer to crash. For
             more information, see:
