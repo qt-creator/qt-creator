@@ -666,6 +666,7 @@ public slots:
     void updateWatchersHeader(int section, int, int newSize)
     {
         m_watchersWindow->header()->resizeSection(section, newSize);
+        m_returnWindow->header()->resizeSection(section, newSize);
     }
 
     void sourceFilesDockToggled(bool on)
