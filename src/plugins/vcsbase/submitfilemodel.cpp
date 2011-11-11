@@ -33,7 +33,10 @@
 #include "submitfilemodel.h"
 #include "vcsbaseconstants.h"
 
+#include <coreplugin/fileiconprovider.h>
+
 #include <QtGui/QStandardItem>
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
 namespace VCSBase {
@@ -52,6 +55,7 @@ static QList<QStandardItem *> createFileRow(const QString &fileName, const QStri
     statusItem->setData(v);
     QStandardItem *fileItem = new QStandardItem(fileName);
     fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    fileItem->setIcon(Core::FileIconProvider::instance()->icon(QFileInfo(fileName)));
     QList<QStandardItem *> row;
     row << statusItem << fileItem;
     return row;
@@ -154,4 +158,5 @@ unsigned SubmitFileModel::filter(const QStringList &filter, int column)
         qDebug() << Q_FUNC_INFO << " deleted " << rc << " items using " << filter << " , remaining " << rowCount();
     return rc;
 }
+
 }
