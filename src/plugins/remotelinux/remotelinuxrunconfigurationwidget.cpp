@@ -161,7 +161,15 @@ void RemoteLinuxRunConfigurationWidget::runConfigurationEnabledChange(bool enabl
 
 void RemoteLinuxRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
 {
-    mainLayout->addLayout(&d->genericWidgetsLayout);
+    Utils::DetailsWidget *detailsContainer = new Utils::DetailsWidget(this);
+    detailsContainer->setState(Utils::DetailsWidget::NoSummary);
+
+    QWidget *details = new QWidget(this);
+    details->setLayout(&d->genericWidgetsLayout);
+    detailsContainer->setWidget(details);
+
+    mainLayout->addWidget(detailsContainer);
+
     d->genericWidgetsLayout.setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     QWidget * const devConfWidget = new QWidget;
