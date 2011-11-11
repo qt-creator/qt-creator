@@ -862,7 +862,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
 
     bool ok = false;
     qulonglong addressBase = item.findChild("addrbase").data().toULongLong(&ok, 0);
-    qulonglong addressStep = item.findChild("addrstep").data().toULongLong();
+    qulonglong addressStep = item.findChild("addrstep").data().toULongLong(&ok, 0);
 
     // Try not to repeat data too often.
     WatchData childtemplate;
