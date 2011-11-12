@@ -625,7 +625,9 @@ def extractCharArray(p, maxsize):
         s += "%c" % c
         p += 1
         i += 1
-    return s + "..."
+    if p.dereference() != 0:
+        s += "..."
+    return s
 
 def extractByteArray(value):
     d_ptr = value['d'].dereference()
