@@ -1797,6 +1797,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
         return -1;
 
     QList<BuildStepList *> stepLists;
+    QStringList names;
     foreach (const QString id, stepIds) {
         foreach (Project *pro, projects) {
             if (!pro || !pro->activeTarget())
@@ -1811,15 +1812,12 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
             if (!bsl || bsl->isEmpty())
                 continue;
             stepLists << bsl;
+            names << displayNameForStepId(id);
         }
     }
 
     if (stepLists.isEmpty())
         return 0;
-
-    QStringList names;
-    foreach (const QString &stepId, stepIds)
-        names << displayNameForStepId(stepId);
 
     if (!d->m_buildManager->buildLists(stepLists, names))
         return -1;
