@@ -1641,11 +1641,12 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     // Get the commit template or the last commit message
     if (amend) {
-        // Amend: get last commit data as "SHA1@message". TODO: Figure out codec.
+        // Amend: get last commit data as "SHA1@message".
         QStringList args(QLatin1String("log"));
         const QString format = synchronousGitVersion(true) > 0x010701 ? "%h@%B" : "%h@%s%n%n%b";
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:") + format;
-        const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args);
+        QTextCodec *codec = QTextCodec::codecForName(commitData->commitEncoding.toLocal8Bit());
+        const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args, 0, codec);
         if (sp.result != Utils::SynchronousProcessResponse::Finished) {
             *errorMessage = tr("Cannot retrieve last commit data of repository \"%1\".").arg(repoDirectory);
             return false;

@@ -673,7 +673,6 @@ void GitPlugin::startCommit()
 
 void GitPlugin::startCommit(bool amend)
 {
-
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
