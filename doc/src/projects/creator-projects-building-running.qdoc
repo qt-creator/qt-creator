@@ -53,13 +53,17 @@
 
     \endlist
 
-    By default, when you select the \gui Run function, \QC builds, deploys, and
-    runs the project. To specify the relationship between the release, build,
+    By default, when you select the \gui Run function, \QC builds the project,
+    deploys it to the selected target, and runs it there. However, if you have
+    not made any changes to the project since you last built and deployed it,
+    \QC simply runs it again.
+
+    To specify the relationship between the release, build,
     and deploy configurations, select \gui {Tools > Options > Project}. By
     default, the \gui {Always build project before deploying it} and the
     \gui {Always deploy project before running it} options are enabled.
-    Therefore, when you select the \gui Run function, \QC builds, deploys, and
-    runs the project.
+    Therefore, when you select the \gui Run function, \QC checks for changes in
+    the project files and also builds and deploys the project if necessary.
 
     \image qtcreator-project-options-deploy.png "Project General Options"
 
