@@ -34,6 +34,7 @@
 #include "coreconstants.h"
 
 #include <utils/stylehelper.h>
+#include <utils/stringutils.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -93,6 +94,50 @@ bool FancyToolButton::event(QEvent *e)
         return QToolButton::event(e);
     }
     return false;
+}
+
+static QVector<QString> splitInTwoLines(const QString &text, const QFontMetrics &fontMetrics,
+                                        qreal availableWidth)
+{
+    // split in two lines.
+    // this looks if full words can be split off at the end of the string,
+    // to put them in the second line. First line is drawn with ellipsis,
+    // second line gets ellipsis if it couldn't split off full words.
+    QVector<QString> splitLines(2);
+    QRegExp rx(QLatin1String("\\s+"));
+    int splitPos = -1;
+    int nextSplitPos = text.length();
+    do {
+        nextSplitPos = rx.lastIndexIn(text,
+                                      nextSplitPos - text.length() - 1);
+        if (nextSplitPos != -1) {
+            int splitCandidate = nextSplitPos + rx.matchedLength();
+            if (fontMetrics.width(text.mid(splitCandidate)) <= availableWidth) {
+                splitPos = splitCandidate;
+            } else {
+                break;
+            }
+        }
+    } while (nextSplitPos > 0 && fontMetrics.width(text.left(nextSplitPos)) > availableWidth);
+    // check if we could split at white space at all
+    if (splitPos < 0) {
+        splitLines[0] = fontMetrics.elidedText(text, Qt::ElideRight,
+                                                       availableWidth);
+        QString common = Utils::commonPrefix(QStringList()
+                                             << splitLines[0] << text);
+        splitLines[1] = text.mid(common.length());
+        // elide the second line even if it fits, since it is cut off in mid-word
+        while (fontMetrics.width(QChar(0x2026) /*'...'*/ + splitLines[1]) > availableWidth
+               && splitLines[1].length() > 3
+               /*keep at least three original characters (should not happen)*/) {
+            splitLines[1].remove(0, 1);
+        }
+        splitLines[1] = QChar(0x2026) /*'...'*/ + splitLines[1];
+    } else {
+        splitLines[0] = fontMetrics.elidedText(text.left(splitPos).trimmed(), Qt::ElideRight, availableWidth);
+        splitLines[1] = text.mid(splitPos);
+    }
+    return splitLines;
 }
 
 void FancyToolButton::paintEvent(QPaintEvent *event)
@@ -157,7 +202,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
 
         const QString buildConfiguration = defaultAction()->property("subtitle").toString();
         if (!buildConfiguration.isNull())
-            centerRect.adjust(0, 0, 0, -lineHeight - 4);
+            centerRect.adjust(0, 0, 0, -lineHeight*2 - 4);
 
         iconRect.moveCenter(centerRect.center());
         Utils::StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
@@ -173,8 +218,10 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             penColor = Qt::gray;
         painter.setPen(penColor);
 
+        // draw project name
         const int margin = 6;
-        QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, r.width() - margin);
+        const qreal availableWidth = r.width() - margin;
+        QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, availableWidth);
         if (isEnabled()) {
             const QRectF shadowR = r.translated(0, 1);
             painter.setPen(QColor(30, 30, 30, 80));
@@ -182,18 +229,35 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             painter.setPen(penColor);
         }
         painter.drawText(r, textFlags, ellidedProjectName);
+
+        // draw build configuration name
         textOffset = iconRect.center() + QPoint(iconRect.width()/2, iconRect.height()/2);
-        r = QRectF(0, textOffset.y()+5, rect().width(), lineHeight);
+        QRectF buildConfigRect[2];
+        buildConfigRect[0] = QRectF(0, textOffset.y() + 5, rect().width(), lineHeight);
+        buildConfigRect[1] = QRectF(0, textOffset.y() + 5 + lineHeight, rect().width(), lineHeight);
         painter.setFont(boldFont);
-        QString ellidedBuildConfiguration = boldFm.elidedText(buildConfiguration, Qt::ElideMiddle, r.width() - margin);
-        if (isEnabled()) {
-            const QRectF shadowR = r.translated(0, 1);
-            painter.setPen(QColor(30, 30, 30, 80));
-            painter.drawText(shadowR, textFlags, ellidedBuildConfiguration);
-            painter.setPen(penColor);
+        QVector<QString> splitBuildConfiguration(2);
+        if (boldFm.width(buildConfiguration) <= availableWidth) {
+            // text fits in one line
+            splitBuildConfiguration[0] = buildConfiguration;
+        } else {
+            splitBuildConfiguration = splitInTwoLines(buildConfiguration, boldFm, availableWidth);
         }
+        // draw the two lines for the build configuration
+        for (int i = 0; i < 2; ++i) {
+            if (splitBuildConfiguration[i].isEmpty())
+                continue;
+            if (isEnabled()) {
+                const QRectF shadowR = buildConfigRect[i].translated(0, 1);
+                painter.setPen(QColor(30, 30, 30, 80));
+                painter.drawText(shadowR, textFlags, splitBuildConfiguration[i]);
+                painter.setPen(penColor);
+            }
+            painter.drawText(buildConfigRect[i], textFlags, splitBuildConfiguration[i]);
+        }
+
+        // pop up arrow next to icon
         if (!icon().isNull()) {
-            painter.drawText(r, textFlags, ellidedBuildConfiguration);
             QStyleOption opt;
             opt.initFrom(this);
             opt.rect = rect().adjusted(rect().width() - 16, 0, -8, 0);
@@ -233,7 +297,7 @@ QSize FancyToolButton::sizeHint() const
 
         const QString buildConfiguration = defaultAction()->property("subtitle").toString();
         if (!buildConfiguration.isEmpty())
-            buttonSize += QSizeF(0, lineHeight + 2);
+            buttonSize += QSizeF(0, lineHeight*2 + 2);
     }
     return buttonSize.toSize();
 }
