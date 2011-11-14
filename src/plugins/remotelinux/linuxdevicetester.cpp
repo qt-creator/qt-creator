@@ -57,8 +57,6 @@ public:
     SshConnection::Ptr connection;
     SshRemoteProcess::Ptr process;
     RemoteLinuxUsedPortsGatherer portsGatherer;
-    QByteArray remoteStdout;
-    QByteArray remoteStderr;
     State state;
 };
 
@@ -127,10 +125,6 @@ void GenericLinuxDeviceTester::handleConnected()
     QTC_ASSERT(d->state == Connecting, return);
 
     d->process = d->connection->createRemoteProcess("uname -rsm");
-    connect(d->process.data(), SIGNAL(outputAvailable(QByteArray)),
-        SLOT(handleRemoteStdOut(QByteArray)));
-    connect(d->process.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-        SLOT(handleRemoteStdErr(QByteArray)));
     connect(d->process.data(), SIGNAL(closed(int)), SLOT(handleProcessFinished(int)));
 
     emit progressMessage("Checking kernel version...");
@@ -146,31 +140,18 @@ void GenericLinuxDeviceTester::handleConnectionFailure()
     setFinished(TestFailure);
 }
 
-void GenericLinuxDeviceTester::handleRemoteStdOut(const QByteArray &data)
-{
-    QTC_ASSERT(d->state == RunningUname, return);
-
-    d->remoteStdout += data;
-}
-
-void GenericLinuxDeviceTester::handleRemoteStdErr(const QByteArray &data)
-{
-    QTC_ASSERT(d->state == RunningUname, return);
-
-    d->remoteStderr += data;
-}
-
 void GenericLinuxDeviceTester::handleProcessFinished(int exitStatus)
 {
     QTC_ASSERT(d->state == RunningUname, return);
 
     if (exitStatus != SshRemoteProcess::ExitedNormally || d->process->exitCode() != 0) {
-        if (!d->remoteStderr.isEmpty())
-            emit errorMessage(tr("uname failed: %1\n").arg(QString::fromUtf8(d->remoteStderr)));
+        const QByteArray stderrOutput = d->process->readAllStandardError();
+        if (!stderrOutput.isEmpty())
+            emit errorMessage(tr("uname failed: %1\n").arg(QString::fromUtf8(stderrOutput)));
         else
             emit errorMessage(tr("uname failed.\n"));
     } else {
-        emit progressMessage(QString::fromUtf8(d->remoteStdout));
+        emit progressMessage(QString::fromUtf8(d->process->readAllStandardOutput()));
     }
 
     connect(&d->portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGatheringError(QString)));
@@ -209,8 +190,6 @@ void GenericLinuxDeviceTester::handlePortListReady()
 void GenericLinuxDeviceTester::setFinished(TestResult result)
 {
     d->state = Inactive;
-    d->remoteStdout.clear();
-    d->remoteStderr.clear();
     disconnect(d->connection.data(), 0, this, 0);
     disconnect(&d->portsGatherer, 0, this, 0);
     emit finished(result);

@@ -87,7 +87,7 @@ private Q_SLOTS:
     void processError(QProcess::ProcessError);
     void processFinished(int, QProcess::ExitStatus);
 
-    void foundRemoteFile(const QByteArray &file);
+    void foundRemoteFile();
     void sftpInitialized();
     void sftpJobFinished(Utils::SftpJobId job, const QString &error);
 

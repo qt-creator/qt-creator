@@ -233,10 +233,8 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
              // See comment in SftpChannel::createLink as to why we can't use it.
              d->lnProc = connection()->createRemoteProcess(command.toUtf8());
              connect(d->lnProc.data(), SIGNAL(closed(int)), SLOT(handleLnFinished(int)));
-             connect(d->lnProc.data(), SIGNAL(outputAvailable(QByteArray)),
-                 SLOT(handleStdOutData(QByteArray)));
-             connect(d->lnProc.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-                 SLOT(handleStdErrData(QByteArray)));
+             connect(d->lnProc.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdOutData()));
+             connect(d->lnProc.data(), SIGNAL(readyReadStandardError()), SLOT(handleStdErrData()));
              d->lnProc->start();
         } else {
             const SftpJobId job = d->uploader->uploadFile(df.localFilePath, remoteFilePath,
@@ -251,14 +249,18 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
     }
 }
 
-void GenericDirectUploadService::handleStdOutData(const QByteArray &data)
+void GenericDirectUploadService::handleStdOutData()
 {
-    emit stdOutData(QString::fromUtf8(data));
+    SshRemoteProcess * const process = qobject_cast<SshRemoteProcess *>(sender());
+    if (process)
+        emit stdOutData(QString::fromUtf8(process->readAllStandardOutput()));
 }
 
-void GenericDirectUploadService::handleStdErrData(const QByteArray &data)
+void GenericDirectUploadService::handleStdErrData()
 {
-    emit stdErrData(QString::fromUtf8(data));
+    SshRemoteProcess * const process = qobject_cast<SshRemoteProcess *>(sender());
+    if (process)
+        emit stdErrData(QString::fromUtf8(process->readAllStandardError()));
 }
 
 void GenericDirectUploadService::stopDeployment()
@@ -328,10 +330,8 @@ void GenericDirectUploadService::uploadNextFile()
     const QString command = QLatin1String("mkdir -p ") + dirToCreate;
     d->mkdirProc = connection()->createRemoteProcess(command.toUtf8());
     connect(d->mkdirProc.data(), SIGNAL(closed(int)), SLOT(handleMkdirFinished(int)));
-    connect(d->mkdirProc.data(), SIGNAL(outputAvailable(QByteArray)),
-        SLOT(handleStdOutData(QByteArray)));
-    connect(d->mkdirProc.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-        SLOT(handleStdErrData(QByteArray)));
+    connect(d->mkdirProc.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdOutData()));
+    connect(d->mkdirProc.data(), SIGNAL(readyReadStandardError()), SLOT(handleStdErrData()));
     emit progressMessage(tr("Uploading file '%1'...")
         .arg(QDir::toNativeSeparators(df.localFilePath)));
     d->mkdirProc->start();

@@ -146,9 +146,9 @@ private slots:
     void connected();
     void error(Utils::SshError error);
     void processStarted();
-    void findPIDOutputReceived(const QByteArray &output);
-    void standardOutput(const QByteArray &output);
-    void standardError(const QByteArray &output);
+    void findPIDOutputReceived();
+    void standardOutput();
+    void standardError();
 
 private:
     Utils::SshConnectionParameters m_params;

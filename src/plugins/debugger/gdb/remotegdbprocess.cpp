@@ -151,8 +151,8 @@ void RemoteGdbProcess::handleAppOutputReaderStarted()
     QTC_ASSERT(m_state == StartingFifoReader, return);
     setState(StartingGdb);
 
-    connect(m_appOutputReader.data(), SIGNAL(outputAvailable(QByteArray)),
-        this, SLOT(handleAppOutput(QByteArray)));
+    connect(m_appOutputReader.data(), SIGNAL(readyReadStandardOutput()),
+        this, SLOT(handleAppOutput()));
     QByteArray cmdLine = "DISPLAY=:0.0 " + m_command.toUtf8() + ' '
         + Utils::QtcProcess::joinArgsUnix(m_cmdArgs).toUtf8()
         + " -tty=" + m_appOutputFileName;
@@ -163,10 +163,10 @@ void RemoteGdbProcess::handleAppOutputReaderStarted()
         SLOT(handleGdbStarted()));
     connect(m_gdbProc.data(), SIGNAL(closed(int)), this,
         SLOT(handleGdbFinished(int)));
-    connect(m_gdbProc.data(), SIGNAL(outputAvailable(QByteArray)), this,
-        SLOT(handleGdbOutput(QByteArray)));
-    connect(m_gdbProc.data(), SIGNAL(errorOutputAvailable(QByteArray)), this,
-        SLOT(handleErrOutput(QByteArray)));
+    connect(m_gdbProc.data(), SIGNAL(readyReadStandardOutput()), this,
+        SLOT(handleGdbOutput()));
+    connect(m_gdbProc.data(), SIGNAL(readyReadStandardError()), this,
+        SLOT(handleErrOutput()));
     m_gdbProc->start();
 }
 
@@ -265,12 +265,13 @@ QString RemoteGdbProcess::errorString() const
     return m_error;
 }
 
-void RemoteGdbProcess::handleGdbOutput(const QByteArray &output)
+void RemoteGdbProcess::handleGdbOutput()
 {
     if (m_state == Inactive)
         return;
     QTC_ASSERT(m_state == RunningGdb, return);
 
+    const QByteArray &output = m_gdbProc->readAllStandardOutput();
     // TODO: Carriage return removal still necessary?
     m_currentGdbOutput += removeCarriageReturn(output);
 #if 0
@@ -343,16 +344,16 @@ void RemoteGdbProcess::sendInput(const QByteArray &data)
     m_gdbProc->sendInput(data);
 }
 
-void RemoteGdbProcess::handleAppOutput(const QByteArray &output)
+void RemoteGdbProcess::handleAppOutput()
 {
     if (m_state == RunningGdb)
-        m_adapter->handleApplicationOutput(output);
+        m_adapter->handleApplicationOutput(m_appOutputReader->readAllStandardOutput());
 }
 
-void RemoteGdbProcess::handleErrOutput(const QByteArray &output)
+void RemoteGdbProcess::handleErrOutput()
 {
     if (m_state == RunningGdb) {
-        m_errorOutput += output;
+        m_errorOutput += m_gdbProc->readAllStandardError();
         emit readyReadStandardError();
     }
 }

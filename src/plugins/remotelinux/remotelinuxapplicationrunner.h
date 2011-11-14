@@ -102,6 +102,8 @@ private slots:
     void handleRemoteProcessFinished(int exitStatus);
     void handlePortsGathererError(const QString &errorMsg);
     void handleUsedPortsAvailable();
+    void handleRemoteStdout();
+    void handleRemoteStderr();
 
 private:
 

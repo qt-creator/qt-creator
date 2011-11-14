@@ -88,9 +88,9 @@ private slots:
     void handleAppOutputReaderFinished(int exitStatus);
     void handleGdbStarted();
     void handleGdbFinished(int exitStatus);
-    void handleGdbOutput(const QByteArray &output);
-    void handleAppOutput(const QByteArray &output);
-    void handleErrOutput(const QByteArray &output);
+    void handleGdbOutput();
+    void handleAppOutput();
+    void handleErrOutput();
 
 private:
     enum State {

@@ -69,8 +69,8 @@ private slots:
     void handleUploadFinished(Utils::SftpJobId jobId, const QString &errorMsg);
     void handleMkdirFinished(int exitStatus);
     void handleLnFinished(int exitStatus);
-    void handleStdOutData(const QByteArray &data);
-    void handleStdErrData(const QByteArray &data);
+    void handleStdOutData();
+    void handleStdErrData();
 
 private:
     void checkDeploymentNeeded(const DeployableFile &file) const;

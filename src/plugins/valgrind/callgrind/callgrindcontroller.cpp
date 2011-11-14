@@ -218,8 +218,8 @@ void CallgrindController::getLocalDataFile()
         // if there are files like callgrind.out.PID.NUM, set it to the most recent one of those
         QString cmd = QString("ls -t %1* | head -n 1").arg(fileName);
         m_findRemoteFile = m_ssh->createRemoteProcess(cmd.toUtf8());
-        connect(m_findRemoteFile.data(), SIGNAL(outputAvailable(QByteArray)),
-                this, SLOT(foundRemoteFile(QByteArray)));
+        connect(m_findRemoteFile.data(), SIGNAL(readyReadStandardOutput()), this,
+            SLOT(foundRemoteFile()));
         m_findRemoteFile->start();
     } else {
         QDir dir(workingDir, QString("%1.*").arg(baseFileName), QDir::Time);
@@ -232,9 +232,9 @@ void CallgrindController::getLocalDataFile()
     }
 }
 
-void CallgrindController::foundRemoteFile(const QByteArray &file)
+void CallgrindController::foundRemoteFile()
 {
-    m_remoteFile = file.trimmed();
+    m_remoteFile = m_findRemoteFile->readAllStandardOutput().trimmed();
 
     m_sftp = m_ssh->createSftpChannel();
     connect(m_sftp.data(), SIGNAL(finished(Utils::SftpJobId,QString)),

@@ -85,8 +85,6 @@ public:
 private slots:
     void handleConnected();
     void handleConnectionFailure();
-    void handleRemoteStdOut(const QByteArray &data);
-    void handleRemoteStdErr(const QByteArray &data);
     void handleProcessFinished(int exitStatus);
     void handlePortsGatheringError(const QString &message);
     void handlePortListReady();

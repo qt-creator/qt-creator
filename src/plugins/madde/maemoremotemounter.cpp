@@ -136,12 +136,9 @@ void MaemoRemoteMounter::unmount()
             .arg(remoteSudo, m_mountSpecs.at(i).mountSpec.remoteMountPoint);
     }
 
-    m_umountStderr.clear();
     m_unmountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
     connect(m_unmountProcess.data(), SIGNAL(closed(int)), this,
         SLOT(handleUnmountProcessFinished(int)));
-    connect(m_unmountProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-        this, SLOT(handleUmountStderr(QByteArray)));
     setState(Unmounting);
     m_unmountProcess->start();
 }
@@ -176,10 +173,9 @@ void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
         emit reportProgress(tr("Finished unmounting."));
         emit unmounted();
     } else {
-        if (!m_umountStderr.isEmpty()) {
-            errorMsg += tr("\nstderr was: '%1'")
-                .arg(QString::fromUtf8(m_umountStderr));
-        }
+        const QByteArray &umountStderr = m_unmountProcess->readAllStandardError();
+        if (!umountStderr.isEmpty())
+            errorMsg += tr("\nstderr was: '%1'").arg(QString::fromUtf8(umountStderr));
         emit error(errorMsg);
     }
 }
@@ -229,14 +225,11 @@ void MaemoRemoteMounter::startUtfsClients()
     }
 
     emit reportProgress(tr("Starting remote UTFS clients..."));
-    m_utfsClientStderr.clear();
     m_mountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
     connect(m_mountProcess.data(), SIGNAL(started()), this,
         SLOT(handleUtfsClientsStarted()));
     connect(m_mountProcess.data(), SIGNAL(closed(int)), this,
         SLOT(handleUtfsClientsFinished(int)));
-    connect(m_mountProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-        this, SLOT(handleUtfsClientStderr(QByteArray)));
     m_mountProcess->start();
 
     setState(UtfsClientsStarting);
@@ -268,9 +261,9 @@ void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
     } else {
         QString errMsg = tr("Failure running UTFS client: %1")
             .arg(m_mountProcess->errorString());
-        if (!m_utfsClientStderr.isEmpty())
-            errMsg += tr("\nstderr was: '%1'")
-               .arg(QString::fromUtf8(m_utfsClientStderr));
+        const QByteArray &mountStderr = m_mountProcess->readAllStandardError();
+        if (!mountStderr.isEmpty())
+            errMsg += tr("\nstderr was: '%1'").arg(QString::fromUtf8(mountStderr));
         emit error(errMsg);
     }
 }
@@ -341,18 +334,6 @@ void MaemoRemoteMounter::handleUtfsServerFinished(int /* exitCode */,
 {
     if (m_state != Inactive && exitStatus != QProcess::NormalExit)
         handleUtfsServerError(static_cast<QProcess *>(sender())->error());
-}
-
-void MaemoRemoteMounter::handleUtfsClientStderr(const QByteArray &output)
-{
-    if (m_state != Inactive)
-        m_utfsClientStderr += output;
-}
-
-void MaemoRemoteMounter::handleUmountStderr(const QByteArray &output)
-{
-    if (m_state != Inactive)
-        m_umountStderr += output;
 }
 
 QString MaemoRemoteMounter::utfsClientOnDevice() const

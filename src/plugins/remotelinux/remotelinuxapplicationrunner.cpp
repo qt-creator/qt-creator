@@ -271,10 +271,8 @@ void AbstractRemoteLinuxApplicationRunner::startExecution(const QByteArray &remo
     d->runner = d->connection->createRemoteProcess(remoteCall);
     connect(d->runner.data(), SIGNAL(started()), SLOT(handleRemoteProcessStarted()));
     connect(d->runner.data(), SIGNAL(closed(int)), SLOT(handleRemoteProcessFinished(int)));
-    connect(d->runner.data(), SIGNAL(outputAvailable(QByteArray)),
-        SIGNAL(remoteOutput(QByteArray)));
-    connect(d->runner.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-        SIGNAL(remoteErrorOutput(QByteArray)));
+    connect(d->runner.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdout()));
+    connect(d->runner.data(), SIGNAL(readyReadStandardError()), SLOT(handleRemoteStderr()));
     d->state = ProcessStarting;
     d->runner->start();
 }
@@ -355,6 +353,16 @@ void AbstractRemoteLinuxApplicationRunner::handleUsedPortsAvailable()
 
     d->state = AdditionalInitializing;
     doAdditionalInitializations();
+}
+
+void AbstractRemoteLinuxApplicationRunner::handleRemoteStdout()
+{
+    emit remoteOutput(d->runner->readAllStandardOutput());
+}
+
+void AbstractRemoteLinuxApplicationRunner::handleRemoteStderr()
+{
+    emit remoteErrorOutput(d->runner->readAllStandardError());
 }
 
 bool AbstractRemoteLinuxApplicationRunner::canRun(QString &whyNot) const

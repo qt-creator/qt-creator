@@ -92,6 +92,9 @@ public:
     int exitCode() const;
     QByteArray exitSignal() const;
 
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
+
     // Note: This is ignored by the OpenSSH server.
     void sendSignal(const QByteArray &signal);
     void kill() { sendSignal(KillSignal); }
@@ -100,8 +103,9 @@ public:
 
 signals:
     void started();
-    void outputAvailable(const QByteArray &output);
-    void errorOutputAvailable(const QByteArray &output);
+
+    void readyReadStandardOutput();
+    void readyReadStandardError();
 
     /*
      * Parameter is of type ExitStatus, but we use int because of

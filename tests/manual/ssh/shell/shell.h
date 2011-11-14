@@ -56,8 +56,8 @@ public:
 private slots:
     void handleConnected();
     void handleConnectionError();
-    void handleRemoteStdout(const QByteArray &output);
-    void handleRemoteStderr(const QByteArray &output);
+    void handleRemoteStdout();
+    void handleRemoteStderr();
     void handleShellMessage(const QString &message);
     void handleChannelClosed(int exitStatus);
     void handleShellStarted();

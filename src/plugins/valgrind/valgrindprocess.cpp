@@ -210,10 +210,8 @@ void RemoteValgrindProcess::connected()
     cmd += m_valgrindExe + ' ' + arguments;
 
     m_process = m_connection->createRemoteProcess(cmd.toUtf8());
-    connect(m_process.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-            this, SLOT(standardError(QByteArray)));
-    connect(m_process.data(), SIGNAL(outputAvailable(QByteArray)),
-            this, SLOT(standardOutput(QByteArray)));
+    connect(m_process.data(), SIGNAL(readyReadStandardError()), this, SLOT(standardError()));
+    connect(m_process.data(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutput()));
     connect(m_process.data(), SIGNAL(closed(int)),
             this, SLOT(closed(int)));
     connect(m_process.data(), SIGNAL(started()),
@@ -250,17 +248,15 @@ void RemoteValgrindProcess::processStarted()
                                 ).arg(proc, QFileInfo(m_debuggee).fileName());
 
     m_findPID = m_connection->createRemoteProcess(cmd.toUtf8());
-    connect(m_findPID.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-            this, SLOT(standardOutput(QByteArray)));
-    connect(m_findPID.data(), SIGNAL(outputAvailable(QByteArray)),
-            this, SLOT(findPIDOutputReceived(QByteArray)));
+    connect(m_findPID.data(), SIGNAL(readyReadStandardError()), this, SLOT(standardError()));
+    connect(m_findPID.data(), SIGNAL(readyReadStandardOutput()), SLOT(findPIDOutputReceived()));
     m_findPID->start();
 }
 
-void RemoteValgrindProcess::findPIDOutputReceived(const QByteArray &output)
+void RemoteValgrindProcess::findPIDOutputReceived()
 {
     bool ok;
-    m_pid = output.trimmed().toLongLong(&ok);
+    m_pid = m_findPID->readAllStandardOutput().trimmed().toLongLong(&ok);
     if (!ok) {
         m_pid = 0;
         m_errorString = tr("Could not determine remote PID.");
@@ -272,14 +268,14 @@ void RemoteValgrindProcess::findPIDOutputReceived(const QByteArray &output)
     }
 }
 
-void RemoteValgrindProcess::standardOutput(const QByteArray &output)
+void RemoteValgrindProcess::standardOutput()
 {
-    emit processOutput(output, Utils::StdOutFormat);
+    emit processOutput(m_process->readAllStandardOutput(), Utils::StdOutFormat);
 }
 
-void RemoteValgrindProcess::standardError(const QByteArray &output)
+void RemoteValgrindProcess::standardError()
 {
-    emit processOutput(output, Utils::StdErrFormat);
+    emit processOutput(m_process->readAllStandardError(), Utils::StdErrFormat);
 }
 
 void RemoteValgrindProcess::error(Utils::SshError error)

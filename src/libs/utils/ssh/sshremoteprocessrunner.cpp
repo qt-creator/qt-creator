@@ -74,6 +74,8 @@ private slots:
     void handleDisconnected();
     void handleProcessStarted();
     void handleProcessFinished(int exitStatus);
+    void handleStdout();
+    void handleStderr();
 
 private:
     enum State { Inactive, Connecting, Connected, ProcessRunning };
@@ -150,10 +152,8 @@ void SshRemoteProcessRunnerPrivate::handleConnected()
     connect(m_process.data(), SIGNAL(started()), SLOT(handleProcessStarted()));
     connect(m_process.data(), SIGNAL(closed(int)),
         SLOT(handleProcessFinished(int)));
-    connect(m_process.data(), SIGNAL(outputAvailable(QByteArray)),
-        SIGNAL(processOutputAvailable(QByteArray)));
-    connect(m_process.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-        SIGNAL(processErrorOutputAvailable(QByteArray)));
+    connect(m_process.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdout()));
+    connect(m_process.data(), SIGNAL(readyReadStandardError()), SLOT(handleStderr()));
     if (m_runInTerminal)
         m_process->requestTerminal(m_terminal);
     m_process->start();
@@ -196,6 +196,16 @@ void SshRemoteProcessRunnerPrivate::handleProcessFinished(int exitStatus)
     }
     setState(Inactive);
     emit processClosed(exitStatus);
+}
+
+void SshRemoteProcessRunnerPrivate::handleStdout()
+{
+    emit processOutputAvailable(m_process->readAllStandardOutput());
+}
+
+void SshRemoteProcessRunnerPrivate::handleStderr()
+{
+    emit processErrorOutputAvailable(m_process->readAllStandardError());
 }
 
 void SshRemoteProcessRunnerPrivate::setState(State state)

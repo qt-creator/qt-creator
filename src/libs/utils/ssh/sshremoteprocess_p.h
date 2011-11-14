@@ -60,10 +60,13 @@ public:
 
     virtual void closeHook();
 
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
+
 signals:
     void started();
-    void outputAvailable(const QByteArray &output);
-    void errorOutputAvailable(const QByteArray &output);
+    void readyReadStandardOutput();
+    void readyReadStandardError();
     void closed(int exitStatus);
 
 private:
@@ -95,6 +98,9 @@ private:
     QList<EnvVar> m_env;
     bool m_useTerminal;
     SshPseudoTerminal m_terminal;
+
+    QByteArray m_stdout;
+    QByteArray m_stderr;
 
     SshRemoteProcess *m_proc;
 };
