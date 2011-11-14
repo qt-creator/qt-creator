@@ -595,7 +595,7 @@ void GitClient::show(const QString &source, const QString &id, const QStringList
     const Core::Id editorId = Git::Constants::GIT_DIFF_EDITOR_ID;
     VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("show", id);
     if (!editor)
-        editor = createVCSEditor(editorId, title, source, CodecLogOutput, "show", id,
+        editor = createVCSEditor(editorId, title, source, CodecSource, "show", id,
                                  new GitShowArgumentsWidget(this, source, args, id));
 
     GitShowArgumentsWidget *argWidget = qobject_cast<GitShowArgumentsWidget *>(editor->configurationWidget());
