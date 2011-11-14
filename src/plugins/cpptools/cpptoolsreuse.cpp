@@ -32,8 +32,16 @@
 
 #include "cpptoolsreuse.h"
 
+#include <Symbols.h>
+#include <CoreTypes.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/LookupContext.h>
+
+#include <QtCore/QSet>
 #include <QtGui/QTextDocument>
 #include <QtGui/QTextCursor>
+
+using namespace CPlusPlus;
 
 namespace CppTools {
 
@@ -48,5 +56,51 @@ void moveCursorToEndOfIdentifier(QTextCursor *tc) {
         ch = doc->characterAt(tc->position());
     }
 }
+
+static bool isOwnershipRAIIName(const QString &name)
+{
+    static QSet<QString> knownNames;
+    if (knownNames.isEmpty()) {
+        // Qt
+        knownNames.insert(QLatin1String("QScopedPointer"));
+        knownNames.insert(QLatin1String("QScopedArrayPointer"));
+        knownNames.insert(QLatin1String("QMutexLocker"));
+        knownNames.insert(QLatin1String("QReadLocker"));
+        knownNames.insert(QLatin1String("QWriteLocker"));
+        // Standard C++
+        knownNames.insert(QLatin1String("auto_ptr"));
+        knownNames.insert(QLatin1String("unique_ptr"));
+        // Boost
+        knownNames.insert(QLatin1String("scoped_ptr"));
+        knownNames.insert(QLatin1String("scoped_array"));
+    }
+
+    return knownNames.contains(name);
+}
+
+bool isOwnershipRAIIType(CPlusPlus::Symbol *symbol, const LookupContext &context)
+{
+    if (!symbol)
+        return false;
+
+    // This is not a "real" comparison of types. What we do is to resolve the symbol
+    // in question and then try to match its name with already known ones.
+    if (symbol->isDeclaration()) {
+        Declaration *declaration = symbol->asDeclaration();
+        const NamedType *namedType = declaration->type()->asNamedType();
+        if (namedType) {
+            ClassOrNamespace *clazz = context.lookupType(namedType->name(),
+                                                         declaration->enclosingScope());
+            if (clazz && !clazz->symbols().isEmpty()) {
+                Overview overview;
+                Symbol *symbol = clazz->symbols().at(0);
+                return isOwnershipRAIIName(overview.prettyName(symbol->name()));
+            }
+        }
+    }
+
+    return false;
+}
+
 
 } // CppTools

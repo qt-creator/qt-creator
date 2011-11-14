@@ -68,6 +68,7 @@
 #include <cpptools/cppqtstyleindenter.h>
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpprefactoringchanges.h>
+#include <cpptools/cpptoolsreuse.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -1776,6 +1777,11 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     m_renameSelections.clear();
     m_currentRenameSelection = NoCurrentRenameSelection;
 
+    // We can use the semanticInfo's snapshot (and avoid locking), but not its
+    // document, since it doesn't contain expanded macros.
+    LookupContext context(semanticInfo.snapshot.document(file()->fileName()),
+                          semanticInfo.snapshot);
+
     SemanticInfo::LocalUseIterator it(semanticInfo.localUses);
     while (it.hasNext()) {
         it.next();
@@ -1791,12 +1797,14 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
             }
         }
 
-        if (uses.size() == 1)
-            // it's an unused declaration
-            highlightUses(uses, semanticInfo, &unusedSelections);
-
-        else if (good && m_renameSelections.isEmpty())
+        if (uses.size() == 1) {
+            if (!CppTools::isOwnershipRAIIType(it.key(), context)) {
+                // it's an unused declaration
+                highlightUses(uses, semanticInfo, &unusedSelections);
+            }
+        } else if (good && m_renameSelections.isEmpty()) {
             highlightUses(uses, semanticInfo, &m_renameSelections);
+        }
     }
 
     if (m_lastSemanticInfo.forced || previousSemanticInfo.revision != semanticInfo.revision) {
