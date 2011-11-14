@@ -635,12 +635,6 @@ void CPPEditorWidget::abortRename()
     setExtraSelections(CodeSemanticsSelection, m_renameSelections);
 }
 
-void CPPEditorWidget::rehighlight(bool force)
-{
-    const SemanticHighlighter::Source source = currentSource(force);
-    m_semanticHighlighter->rehighlight(source);
-}
-
 void CPPEditorWidget::onDocumentUpdated(Document::Ptr doc)
 {
     if (doc->fileName() != file()->fileName())
@@ -655,7 +649,7 @@ void CPPEditorWidget::onDocumentUpdated(Document::Ptr doc)
                  || !m_lastSemanticInfo.doc->translationUnit()->ast()
                  || m_lastSemanticInfo.doc->fileName() != file()->fileName()))) {
         m_initialized = true;
-        rehighlight(/* force = */ true);
+        semanticRehighlight(/* force = */ true);
     }
 
     m_updateOutlineTimer->start();
@@ -1758,9 +1752,9 @@ bool CPPEditorWidget::openCppEditorAt(const Link &link)
                                                     Constants::CPPEDITOR_ID);
 }
 
-void CPPEditorWidget::semanticRehighlight()
+void CPPEditorWidget::semanticRehighlight(bool force)
 {
-    m_semanticHighlighter->rehighlight(currentSource());
+    m_semanticHighlighter->rehighlight(currentSource(force));
 }
 
 void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)

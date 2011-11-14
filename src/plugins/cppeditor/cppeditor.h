@@ -211,7 +211,7 @@ public Q_SLOTS:
     void renameUsages();
     void findUsages();
     void renameUsagesNow(const QString &replacement = QString());
-    void rehighlight(bool force = false);
+    void semanticRehighlight(bool force = false);
 
 protected:
     bool event(QEvent *e);
@@ -240,7 +240,6 @@ private Q_SLOTS:
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
-    void semanticRehighlight();
     void updateSemanticInfo(const CppEditor::Internal::SemanticInfo &semanticInfo);
     void highlightSymbolUsages(int from, int to);
     void finishHighlightSymbolUsages();

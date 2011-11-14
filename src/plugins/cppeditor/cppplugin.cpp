@@ -406,7 +406,7 @@ void CppPlugin::currentEditorChanged(Core::IEditor *editor)
         return;
 
     else if (CPPEditorWidget *textEditor = qobject_cast<CPPEditorWidget *>(editor->widget())) {
-        textEditor->rehighlight(/*force = */ true);
+        textEditor->semanticRehighlight(/*force = */ true);
     }
 }
 
