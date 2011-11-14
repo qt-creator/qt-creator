@@ -2216,6 +2216,7 @@ Module {
         exports: ["QtQuick/Application 2.0"]
         Property { name: "active"; type: "bool"; isReadonly: true }
         Property { name: "layoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
+        Property { name: "inputPanel"; type: "QObject"; isReadonly: true; isPointer: true }
     }
     Component {
         name: "QDeclarativeBehavior"
@@ -2527,12 +2528,11 @@ Module {
         }
         Method {
             name: "append"
-            Parameter { type: "QDeclarativeV8Handle" }
+            Parameter { name: "args"; type: "QDeclarativeV8Function"; isPointer: true }
         }
         Method {
             name: "insert"
-            Parameter { name: "index"; type: "int" }
-            Parameter { type: "QDeclarativeV8Handle" }
+            Parameter { name: "args"; type: "QDeclarativeV8Function"; isPointer: true }
         }
         Method {
             name: "get"
@@ -3059,6 +3059,36 @@ Module {
         Method { name: "close"; type: "bool" }
     }
     Component {
+        name: "QInputPanel"
+        prototype: "QObject"
+        exports: ["QtQuick/InputPanel 2.0"]
+        Enum {
+            name: "Action"
+            values: {
+                "Click": 0,
+                "ContextMenu": 1
+            }
+        }
+        Property { name: "inputItem"; type: "QObject"; isPointer: true }
+        Property { name: "cursorRectangle"; type: "QRectF"; isReadonly: true }
+        Property { name: "keyboardRectangle"; type: "QRectF"; isReadonly: true }
+        Property { name: "visible"; type: "bool"; isReadonly: true }
+        Property { name: "animating"; type: "bool"; isReadonly: true }
+        Method { name: "show" }
+        Method { name: "hide" }
+        Method {
+            name: "update"
+            Parameter { name: "queries"; type: "Qt::InputMethodQueries" }
+        }
+        Method { name: "reset" }
+        Method { name: "commit" }
+        Method {
+            name: "invokeAction"
+            Parameter { name: "a"; type: "Action" }
+            Parameter { name: "cursorPosition"; type: "int" }
+        }
+    }
+    Component {
         name: "QIntValidator"
         prototype: "QValidator"
         exports: ["QtQuick/IntValidator 1.0", "QtQuick/IntValidator 2.0"]
@@ -3111,22 +3141,9 @@ Module {
         Method { name: "deleteLater" }
     }
     Component {
-        name: "QRegExpValidator"
-        prototype: "QValidator"
-        exports: [
-            "QtQuick/RegExpValidator 1.0",
-            "QtQuick/RegExpValidator 2.0"
-        ]
-        Property { name: "regExp"; type: "QRegExp" }
-        Signal {
-            name: "regExpChanged"
-            Parameter { name: "regExp"; type: "QRegExp" }
-        }
-    }
-    Component {
-        name: "QSGAgeAffector"
+        name: "QQuickAgeAffector"
         defaultProperty: "data"
-        prototype: "QSGParticleAffector"
+        prototype: "QQuickParticleAffector"
         exports: ["QtQuick.Particles/Age 2.0"]
         Property { name: "lifeLeft"; type: "int" }
         Property { name: "advancePosition"; type: "bool" }
@@ -3148,10 +3165,10 @@ Module {
         }
     }
     Component {
-        name: "QSGAnchorAnimation"
+        name: "QQuickAnchorAnimation"
         prototype: "QDeclarativeAbstractAnimation"
         exports: ["QtQuick/AnchorAnimation 2.0"]
-        Property { name: "targets"; type: "QSGItem"; isList: true; isReadonly: true }
+        Property { name: "targets"; type: "QQuickItem"; isList: true; isReadonly: true }
         Property { name: "duration"; type: "int" }
         Property { name: "easing"; type: "QEasingCurve" }
         Signal {
@@ -3164,14 +3181,14 @@ Module {
         }
     }
     Component {
-        name: "QSGAnchorChanges"
+        name: "QQuickAnchorChanges"
         prototype: "QDeclarativeStateOperation"
         exports: ["QtQuick/AnchorChanges 2.0"]
-        Property { name: "target"; type: "QSGItem"; isPointer: true }
-        Property { name: "anchors"; type: "QSGAnchorSet"; isReadonly: true; isPointer: true }
+        Property { name: "target"; type: "QQuickItem"; isPointer: true }
+        Property { name: "anchors"; type: "QQuickAnchorSet"; isReadonly: true; isPointer: true }
     }
     Component {
-        name: "QSGAnchorSet"
+        name: "QQuickAnchorSet"
         prototype: "QObject"
         Property { name: "left"; type: "QDeclarativeScriptString" }
         Property { name: "right"; type: "QDeclarativeScriptString" }
@@ -3182,15 +3199,15 @@ Module {
         Property { name: "baseline"; type: "QDeclarativeScriptString" }
     }
     Component {
-        name: "QSGAnchors"
+        name: "QQuickAnchors"
         prototype: "QObject"
-        Property { name: "left"; type: "QSGAnchorLine" }
-        Property { name: "right"; type: "QSGAnchorLine" }
-        Property { name: "horizontalCenter"; type: "QSGAnchorLine" }
-        Property { name: "top"; type: "QSGAnchorLine" }
-        Property { name: "bottom"; type: "QSGAnchorLine" }
-        Property { name: "verticalCenter"; type: "QSGAnchorLine" }
-        Property { name: "baseline"; type: "QSGAnchorLine" }
+        Property { name: "left"; type: "QQuickAnchorLine" }
+        Property { name: "right"; type: "QQuickAnchorLine" }
+        Property { name: "horizontalCenter"; type: "QQuickAnchorLine" }
+        Property { name: "top"; type: "QQuickAnchorLine" }
+        Property { name: "bottom"; type: "QQuickAnchorLine" }
+        Property { name: "verticalCenter"; type: "QQuickAnchorLine" }
+        Property { name: "baseline"; type: "QQuickAnchorLine" }
         Property { name: "margins"; type: "qreal" }
         Property { name: "leftMargin"; type: "qreal" }
         Property { name: "rightMargin"; type: "qreal" }
@@ -3199,13 +3216,13 @@ Module {
         Property { name: "bottomMargin"; type: "qreal" }
         Property { name: "verticalCenterOffset"; type: "qreal" }
         Property { name: "baselineOffset"; type: "qreal" }
-        Property { name: "fill"; type: "QSGItem"; isPointer: true }
-        Property { name: "centerIn"; type: "QSGItem"; isPointer: true }
+        Property { name: "fill"; type: "QQuickItem"; isPointer: true }
+        Property { name: "centerIn"; type: "QQuickItem"; isPointer: true }
         Property { name: "mirrored"; type: "bool"; isReadonly: true }
     }
     Component {
-        name: "QSGAngleDirection"
-        prototype: "QSGDirection"
+        name: "QQuickAngleDirection"
+        prototype: "QQuickDirection"
         exports: ["QtQuick.Particles/AngleDirection 2.0"]
         Property { name: "angle"; type: "qreal" }
         Property { name: "magnitude"; type: "qreal" }
@@ -3245,9 +3262,9 @@ Module {
         }
     }
     Component {
-        name: "QSGAnimatedImage"
+        name: "QQuickAnimatedImage"
         defaultProperty: "data"
-        prototype: "QSGImage"
+        prototype: "QQuickImage"
         exports: ["QtQuick/AnimatedImage 2.0"]
         Property { name: "playing"; type: "bool" }
         Property { name: "paused"; type: "bool" }
@@ -3257,9 +3274,9 @@ Module {
         Signal { name: "frameChanged" }
     }
     Component {
-        name: "QSGAttractorAffector"
+        name: "QQuickAttractorAffector"
         defaultProperty: "data"
-        prototype: "QSGParticleAffector"
+        prototype: "QQuickParticleAffector"
         exports: ["QtQuick.Particles/Attractor 2.0"]
         Enum {
             name: "Proportion"
@@ -3326,19 +3343,19 @@ Module {
         }
     }
     Component {
-        name: "QSGBasePositioner"
+        name: "QQuickBasePositioner"
         defaultProperty: "data"
-        prototype: "QSGImplicitSizeItem"
+        prototype: "QQuickImplicitSizeItem"
         exports: ["QtQuick/Positioner 2.0"]
-        attachedType: "QSGPositionerAttached"
+        attachedType: "QQuickPositionerAttached"
         Property { name: "spacing"; type: "int" }
         Property { name: "move"; type: "QDeclarativeTransition"; isPointer: true }
         Property { name: "add"; type: "QDeclarativeTransition"; isPointer: true }
     }
     Component {
-        name: "QSGBorderImage"
+        name: "QQuickBorderImage"
         defaultProperty: "data"
-        prototype: "QSGImageBase"
+        prototype: "QQuickImageBase"
         exports: ["QtQuick/BorderImage 2.0"]
         Enum {
             name: "TileMode"
@@ -3348,15 +3365,15 @@ Module {
                 "Round": 2
             }
         }
-        Property { name: "border"; type: "QSGScaleGrid"; isReadonly: true; isPointer: true }
+        Property { name: "border"; type: "QQuickScaleGrid"; isReadonly: true; isPointer: true }
         Property { name: "horizontalTileMode"; type: "TileMode" }
         Property { name: "verticalTileMode"; type: "TileMode" }
         Property { name: "sourceSize"; type: "QSize"; isReadonly: true }
     }
     Component {
-        name: "QSGCanvasItem"
+        name: "QQuickCanvasItem"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/Canvas 2.0"]
         Enum {
             name: "RenderTarget"
@@ -3438,33 +3455,69 @@ Module {
         }
     }
     Component {
-        name: "QSGColumn"
+        name: "QQuickColumn"
         defaultProperty: "data"
-        prototype: "QSGBasePositioner"
+        prototype: "QQuickBasePositioner"
         exports: ["QtQuick/Column 2.0"]
     }
     Component {
-        name: "QSGCumulativeDirection"
+        name: "QQuickCumulativeDirection"
         defaultProperty: "directions"
-        prototype: "QSGDirection"
+        prototype: "QQuickDirection"
         exports: ["QtQuick.Particles/CumulativeDirection 2.0"]
-        Property { name: "directions"; type: "QSGDirection"; isList: true; isReadonly: true }
+        Property { name: "directions"; type: "QQuickDirection"; isList: true; isReadonly: true }
     }
     Component {
-        name: "QSGCustomAffector"
+        name: "QQuickCustomAffector"
         defaultProperty: "data"
-        prototype: "QSGParticleAffector"
+        prototype: "QQuickParticleAffector"
         exports: ["QtQuick.Particles/Affector 2.0"]
+        Property { name: "relative"; type: "bool" }
+        Property { name: "position"; type: "QQuickDirection"; isPointer: true }
+        Property { name: "speed"; type: "QQuickDirection"; isPointer: true }
+        Property { name: "acceleration"; type: "QQuickDirection"; isPointer: true }
         Signal {
             name: "affectParticles"
             Parameter { name: "particles"; type: "QDeclarativeV8Handle" }
             Parameter { name: "dt"; type: "qreal" }
         }
+        Signal {
+            name: "positionChanged"
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
+        }
+        Signal {
+            name: "speedChanged"
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
+        }
+        Signal {
+            name: "accelerationChanged"
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
+        }
+        Signal {
+            name: "relativeChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setPosition"
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
+        }
+        Method {
+            name: "setSpeed"
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
+        }
+        Method {
+            name: "setAcceleration"
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
+        }
+        Method {
+            name: "setRelative"
+            Parameter { name: "arg"; type: "bool" }
+        }
     }
     Component {
-        name: "QSGCustomParticle"
+        name: "QQuickCustomParticle"
         defaultProperty: "data"
-        prototype: "QSGParticlePainter"
+        prototype: "QQuickParticlePainter"
         exports: ["QtQuick.Particles/CustomParticle 2.0"]
         Property { name: "fragmentShader"; type: "QByteArray" }
         Property { name: "vertexShader"; type: "QByteArray" }
@@ -3475,14 +3528,15 @@ Module {
         }
     }
     Component {
-        name: "QSGDirection"
+        name: "QQuickDirection"
         prototype: "QObject"
         exports: ["QtQuick.Particles/NullVector 2.0"]
     }
     Component {
-        name: "QSGDrag"
+        name: "QQuickDrag"
         prototype: "QObject"
         exports: ["QtQuick/Drag 2.0"]
+        attachedType: "QQuickDragAttached"
         Enum {
             name: "Axis"
             values: {
@@ -3491,9 +3545,7 @@ Module {
                 "XandYAxis": 3
             }
         }
-        Property { name: "target"; type: "QSGItem"; isPointer: true }
-        Property { name: "dropItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
-        Property { name: "data"; type: "QVariant" }
+        Property { name: "target"; type: "QQuickItem"; isPointer: true }
         Property { name: "axis"; type: "Axis" }
         Property { name: "minimumX"; type: "qreal" }
         Property { name: "maximumX"; type: "qreal" }
@@ -3501,49 +3553,58 @@ Module {
         Property { name: "maximumY"; type: "qreal" }
         Property { name: "active"; type: "bool"; isReadonly: true }
         Property { name: "filterChildren"; type: "bool" }
-        Property { name: "keys"; type: "QStringList" }
-        Signal {
-            name: "dragged"
-            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
-        }
-        Signal {
-            name: "dropped"
-            Parameter { name: "dropItem"; type: "QSGItem"; isPointer: true }
-        }
-        Signal { name: "canceled" }
     }
     Component {
-        name: "QSGDragTarget"
-        defaultProperty: "data"
-        prototype: "QSGItem"
-        exports: ["QtQuick/DragTarget 2.0"]
-        Property { name: "containsDrag"; type: "bool"; isReadonly: true }
-        Property { name: "dropItem"; type: "QSGItem"; isPointer: true }
+        name: "QQuickDragAttached"
+        prototype: "QObject"
+        Property { name: "active"; type: "bool" }
+        Property { name: "source"; type: "QObject"; isPointer: true }
+        Property { name: "target"; type: "QObject"; isReadonly: true; isPointer: true }
+        Property { name: "hotSpot"; type: "QPointF" }
         Property { name: "keys"; type: "QStringList" }
-        Property { name: "dragX"; type: "qreal"; isReadonly: true }
-        Property { name: "dragY"; type: "qreal"; isReadonly: true }
-        Property { name: "dragData"; type: "QVariant"; isReadonly: true }
-        Signal { name: "dragPositionChanged" }
+        Property { name: "supportedActions"; type: "Qt::DropActions" }
+        Property { name: "proposedAction"; type: "Qt::DropAction" }
+        Method {
+            name: "start"
+            Parameter { type: "QDeclarativeV8Function"; isPointer: true }
+        }
+        Method { name: "cancel" }
+        Method { name: "drop"; type: "int" }
+    }
+    Component {
+        name: "QQuickDropArea"
+        defaultProperty: "data"
+        prototype: "QQuickItem"
+        exports: ["QtQuick/DropArea 2.0"]
+        Property { name: "containsDrag"; type: "bool"; isReadonly: true }
+        Property { name: "keys"; type: "QStringList" }
+        Property { name: "drag"; type: "QQuickDropAreaDrag"; isReadonly: true; isPointer: true }
+        Signal { name: "sourceChanged" }
         Signal {
             name: "entered"
-            Parameter { name: "drag"; type: "QSGDragTargetEvent"; isPointer: true }
+            Parameter { name: "drag"; type: "QQuickDropEvent"; isPointer: true }
         }
-        Signal {
-            name: "exited"
-            Parameter { name: "drag"; type: "QSGDragTargetEvent"; isPointer: true }
-        }
+        Signal { name: "exited" }
         Signal {
             name: "positionChanged"
-            Parameter { name: "drag"; type: "QSGDragTargetEvent"; isPointer: true }
+            Parameter { name: "drag"; type: "QQuickDropEvent"; isPointer: true }
         }
         Signal {
             name: "dropped"
-            Parameter { name: "drag"; type: "QSGDragTargetEvent"; isPointer: true }
+            Parameter { name: "drop"; type: "QQuickDropEvent"; isPointer: true }
         }
     }
     Component {
-        name: "QSGEllipseExtruder"
-        prototype: "QSGParticleExtruder"
+        name: "QQuickDropAreaDrag"
+        prototype: "QObject"
+        Property { name: "x"; type: "qreal"; isReadonly: true }
+        Property { name: "y"; type: "qreal"; isReadonly: true }
+        Property { name: "source"; type: "QObject"; isReadonly: true; isPointer: true }
+        Signal { name: "positionChanged" }
+    }
+    Component {
+        name: "QQuickEllipseExtruder"
+        prototype: "QQuickParticleExtruder"
         exports: ["QtQuick.Particles/EllipseShape 2.0"]
         Property { name: "fill"; type: "bool" }
         Signal {
@@ -3556,9 +3617,9 @@ Module {
         }
     }
     Component {
-        name: "QSGFlickable"
+        name: "QQuickFlickable"
         defaultProperty: "flickableData"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/Flickable 2.0"]
         Enum {
             name: "BoundsBehavior"
@@ -3581,7 +3642,7 @@ Module {
         Property { name: "contentHeight"; type: "qreal" }
         Property { name: "contentX"; type: "qreal" }
         Property { name: "contentY"; type: "qreal" }
-        Property { name: "contentItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "contentItem"; type: "QQuickItem"; isReadonly: true; isPointer: true }
         Property { name: "topMargin"; type: "qreal" }
         Property { name: "bottomMargin"; type: "qreal" }
         Property { name: "yOrigin"; type: "qreal"; isReadonly: true }
@@ -3611,13 +3672,13 @@ Module {
         Property { name: "atYBeginning"; type: "bool"; isReadonly: true }
         Property {
             name: "visibleArea"
-            type: "QSGFlickableVisibleArea"
+            type: "QQuickFlickableVisibleArea"
             isReadonly: true
             isPointer: true
         }
         Property { name: "pixelAligned"; type: "bool" }
         Property { name: "flickableData"; type: "QObject"; isList: true; isReadonly: true }
-        Property { name: "flickableChildren"; type: "QSGItem"; isList: true; isReadonly: true }
+        Property { name: "flickableChildren"; type: "QQuickItem"; isList: true; isReadonly: true }
         Signal { name: "isAtBoundaryChanged" }
         Signal { name: "movementStarted" }
         Signal { name: "movementEnded" }
@@ -3634,7 +3695,7 @@ Module {
         Method { name: "returnToBounds" }
     }
     Component {
-        name: "QSGFlickableVisibleArea"
+        name: "QQuickFlickableVisibleArea"
         prototype: "QObject"
         Property { name: "xPosition"; type: "qreal"; isReadonly: true }
         Property { name: "yPosition"; type: "qreal"; isReadonly: true }
@@ -3658,9 +3719,9 @@ Module {
         }
     }
     Component {
-        name: "QSGFlipable"
+        name: "QQuickFlipable"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/Flipable 2.0"]
         Enum {
             name: "Side"
@@ -3669,14 +3730,14 @@ Module {
                 "Back": 1
             }
         }
-        Property { name: "front"; type: "QSGItem"; isPointer: true }
-        Property { name: "back"; type: "QSGItem"; isPointer: true }
+        Property { name: "front"; type: "QQuickItem"; isPointer: true }
+        Property { name: "back"; type: "QQuickItem"; isPointer: true }
         Property { name: "side"; type: "Side"; isReadonly: true }
     }
     Component {
-        name: "QSGFlow"
+        name: "QQuickFlow"
         defaultProperty: "data"
-        prototype: "QSGBasePositioner"
+        prototype: "QQuickBasePositioner"
         exports: ["QtQuick/Flow 2.0"]
         Enum {
             name: "Flow"
@@ -3690,50 +3751,60 @@ Module {
         Property { name: "effectiveLayoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
     }
     Component {
-        name: "QSGFocusScope"
+        name: "QQuickFocusScope"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/FocusScope 2.0"]
     }
     Component {
-        name: "QSGFrictionAffector"
+        name: "QQuickFrictionAffector"
         defaultProperty: "data"
-        prototype: "QSGParticleAffector"
+        prototype: "QQuickParticleAffector"
         exports: ["QtQuick.Particles/Friction 2.0"]
         Property { name: "factor"; type: "qreal" }
+        Property { name: "threshold"; type: "qreal" }
         Signal {
             name: "factorChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "thresholdChanged"
             Parameter { name: "arg"; type: "qreal" }
         }
         Method {
             name: "setFactor"
             Parameter { name: "arg"; type: "qreal" }
         }
+        Method {
+            name: "setThreshold"
+            Parameter { name: "arg"; type: "qreal" }
+        }
     }
     Component {
-        name: "QSGGradient"
+        name: "QQuickGradient"
         defaultProperty: "stops"
         prototype: "QObject"
         exports: ["QtQuick/Gradient 2.0"]
-        Property { name: "stops"; type: "QSGGradientStop"; isList: true; isReadonly: true }
+        Property { name: "stops"; type: "QQuickGradientStop"; isList: true; isReadonly: true }
         Signal { name: "updated" }
     }
     Component {
-        name: "QSGGradientStop"
+        name: "QQuickGradientStop"
         prototype: "QObject"
         exports: ["QtQuick/GradientStop 2.0"]
         Property { name: "position"; type: "qreal" }
         Property { name: "color"; type: "QColor" }
     }
     Component {
-        name: "QSGGravityAffector"
+        name: "QQuickGravityAffector"
         defaultProperty: "data"
-        prototype: "QSGParticleAffector"
+        prototype: "QQuickParticleAffector"
         exports: ["QtQuick.Particles/Gravity 2.0"]
+        Property { name: "magnitude"; type: "qreal" }
         Property { name: "acceleration"; type: "qreal" }
         Property { name: "angle"; type: "qreal" }
         Signal {
-            name: "accelerationChanged"
+            name: "magnitudeChanged"
             Parameter { name: "arg"; type: "qreal" }
         }
         Signal {
@@ -3745,14 +3816,18 @@ Module {
             Parameter { name: "arg"; type: "qreal" }
         }
         Method {
+            name: "setMagnitude"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
             name: "setAngle"
             Parameter { name: "arg"; type: "qreal" }
         }
     }
     Component {
-        name: "QSGGrid"
+        name: "QQuickGrid"
         defaultProperty: "data"
-        prototype: "QSGBasePositioner"
+        prototype: "QQuickBasePositioner"
         exports: ["QtQuick/Grid 2.0"]
         Enum {
             name: "Flow"
@@ -3770,17 +3845,17 @@ Module {
         Property { name: "effectiveLayoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
     }
     Component {
-        name: "QSGGridMesh"
-        prototype: "QSGShaderEffectMesh"
+        name: "QQuickGridMesh"
+        prototype: "QQuickShaderEffectMesh"
         exports: ["QtQuick/GridMesh 2.0"]
         Property { name: "resolution"; type: "QSize" }
     }
     Component {
-        name: "QSGGridView"
+        name: "QQuickGridView"
         defaultProperty: "data"
-        prototype: "QSGItemView"
+        prototype: "QQuickItemView"
         exports: ["QtQuick/GridView 2.0"]
-        attachedType: "QSGGridViewAttached"
+        attachedType: "QQuickGridViewAttached"
         Enum {
             name: "Flow"
             values: {
@@ -3807,14 +3882,14 @@ Module {
         Method { name: "moveCurrentIndexRight" }
     }
     Component {
-        name: "QSGGridViewAttached"
-        prototype: "QSGItemViewAttached"
-        Property { name: "view"; type: "QSGGridView"; isReadonly: true; isPointer: true }
+        name: "QQuickGridViewAttached"
+        prototype: "QQuickItemViewAttached"
+        Property { name: "view"; type: "QQuickGridView"; isReadonly: true; isPointer: true }
     }
     Component {
-        name: "QSGGroupGoalAffector"
+        name: "QQuickGroupGoalAffector"
         defaultProperty: "data"
-        prototype: "QSGParticleAffector"
+        prototype: "QQuickParticleAffector"
         exports: ["QtQuick.Particles/GroupGoal 2.0"]
         Property { name: "goalState"; type: "string" }
         Property { name: "jump"; type: "bool" }
@@ -3836,9 +3911,9 @@ Module {
         }
     }
     Component {
-        name: "QSGImage"
+        name: "QQuickImage"
         defaultProperty: "data"
-        prototype: "QSGImageBase"
+        prototype: "QQuickImageBase"
         exports: ["QtQuick/Image 2.0"]
         Enum {
             name: "HAlignment"
@@ -3884,9 +3959,9 @@ Module {
         }
     }
     Component {
-        name: "QSGImageBase"
+        name: "QQuickImageBase"
         defaultProperty: "data"
-        prototype: "QSGImplicitSizeItem"
+        prototype: "QQuickImplicitSizeItem"
         Enum {
             name: "Status"
             values: {
@@ -3909,7 +3984,7 @@ Module {
         }
         Signal {
             name: "statusChanged"
-            Parameter { type: "QSGImageBase::Status" }
+            Parameter { type: "QQuickImageBase::Status" }
         }
         Signal {
             name: "progressChanged"
@@ -3917,9 +3992,9 @@ Module {
         }
     }
     Component {
-        name: "QSGImageParticle"
+        name: "QQuickImageParticle"
         defaultProperty: "data"
-        prototype: "QSGParticlePainter"
+        prototype: "QQuickParticlePainter"
         exports: ["QtQuick.Particles/ImageParticle 2.0"]
         Enum {
             name: "EntryEffect"
@@ -3945,9 +4020,9 @@ Module {
         Property { name: "rotationSpeed"; type: "qreal" }
         Property { name: "rotationSpeedVariation"; type: "qreal" }
         Property { name: "autoRotation"; type: "bool" }
-        Property { name: "xVector"; type: "QSGDirection"; isPointer: true }
-        Property { name: "yVector"; type: "QSGDirection"; isPointer: true }
-        Property { name: "sprites"; type: "QSGSprite"; isList: true; isReadonly: true }
+        Property { name: "xVector"; type: "QQuickDirection"; isPointer: true }
+        Property { name: "yVector"; type: "QQuickDirection"; isPointer: true }
+        Property { name: "sprites"; type: "QQuickSprite"; isList: true; isReadonly: true }
         Property { name: "spritesInterpolate"; type: "bool" }
         Property { name: "entryEffect"; type: "EntryEffect" }
         Property { name: "bloat"; type: "bool" }
@@ -3998,11 +4073,11 @@ Module {
         }
         Signal {
             name: "xVectorChanged"
-            Parameter { name: "arg"; type: "QSGDirection"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
         }
         Signal {
             name: "yVectorChanged"
-            Parameter { name: "arg"; type: "QSGDirection"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
         }
         Signal {
             name: "spritesInterpolateChanged"
@@ -4019,7 +4094,7 @@ Module {
         Method {
             name: "reloadColor"
             Parameter { name: "c"; type: "Color4ub" }
-            Parameter { name: "d"; type: "QSGParticleData"; isPointer: true }
+            Parameter { name: "d"; type: "QQuickParticleData"; isPointer: true }
         }
         Method {
             name: "setAlphaVariation"
@@ -4063,11 +4138,11 @@ Module {
         }
         Method {
             name: "setXVector"
-            Parameter { name: "arg"; type: "QSGDirection"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
         }
         Method {
             name: "setYVector"
-            Parameter { name: "arg"; type: "QSGDirection"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
         }
         Method {
             name: "setSpritesInterpolate"
@@ -4083,14 +4158,14 @@ Module {
         }
     }
     Component {
-        name: "QSGImplicitSizeItem"
+        name: "QQuickImplicitSizeItem"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         Property { name: "implicitWidth"; type: "qreal"; isReadonly: true }
         Property { name: "implicitHeight"; type: "qreal"; isReadonly: true }
     }
     Component {
-        name: "QSGItem"
+        name: "QQuickItem"
         defaultProperty: "data"
         prototype: "QObject"
         exports: ["QtQuick/Item 2.0"]
@@ -4108,10 +4183,10 @@ Module {
                 "BottomRight": 8
             }
         }
-        Property { name: "parent"; type: "QSGItem"; isPointer: true }
+        Property { name: "parent"; type: "QQuickItem"; isPointer: true }
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
         Property { name: "resources"; type: "QObject"; isList: true; isReadonly: true }
-        Property { name: "children"; type: "QSGItem"; isList: true; isReadonly: true }
+        Property { name: "children"; type: "QQuickItem"; isList: true; isReadonly: true }
         Property { name: "pos"; type: "QPointF"; isReadonly: true }
         Property { name: "x"; type: "qreal" }
         Property { name: "y"; type: "qreal" }
@@ -4125,14 +4200,14 @@ Module {
         Property { name: "transitions"; type: "QDeclarativeTransition"; isList: true; isReadonly: true }
         Property { name: "state"; type: "string" }
         Property { name: "childrenRect"; type: "QRectF"; isReadonly: true }
-        Property { name: "anchors"; type: "QSGAnchors"; isReadonly: true; isPointer: true }
-        Property { name: "left"; type: "QSGAnchorLine"; isReadonly: true }
-        Property { name: "right"; type: "QSGAnchorLine"; isReadonly: true }
-        Property { name: "horizontalCenter"; type: "QSGAnchorLine"; isReadonly: true }
-        Property { name: "top"; type: "QSGAnchorLine"; isReadonly: true }
-        Property { name: "bottom"; type: "QSGAnchorLine"; isReadonly: true }
-        Property { name: "verticalCenter"; type: "QSGAnchorLine"; isReadonly: true }
-        Property { name: "baseline"; type: "QSGAnchorLine"; isReadonly: true }
+        Property { name: "anchors"; type: "QQuickAnchors"; isReadonly: true; isPointer: true }
+        Property { name: "left"; type: "QQuickAnchorLine"; isReadonly: true }
+        Property { name: "right"; type: "QQuickAnchorLine"; isReadonly: true }
+        Property { name: "horizontalCenter"; type: "QQuickAnchorLine"; isReadonly: true }
+        Property { name: "top"; type: "QQuickAnchorLine"; isReadonly: true }
+        Property { name: "bottom"; type: "QQuickAnchorLine"; isReadonly: true }
+        Property { name: "verticalCenter"; type: "QQuickAnchorLine"; isReadonly: true }
+        Property { name: "baseline"; type: "QQuickAnchorLine"; isReadonly: true }
         Property { name: "baselineOffset"; type: "qreal" }
         Property { name: "clip"; type: "bool" }
         Property { name: "focus"; type: "bool" }
@@ -4141,7 +4216,7 @@ Module {
         Property { name: "scale"; type: "qreal" }
         Property { name: "transformOrigin"; type: "TransformOrigin" }
         Property { name: "transformOriginPoint"; type: "QPointF"; isReadonly: true }
-        Property { name: "transform"; type: "QSGTransform"; isList: true; isReadonly: true }
+        Property { name: "transform"; type: "QQuickTransform"; isList: true; isReadonly: true }
         Property { name: "smooth"; type: "bool" }
         Property { name: "implicitWidth"; type: "qreal" }
         Property { name: "implicitHeight"; type: "qreal" }
@@ -4167,7 +4242,7 @@ Module {
         }
         Signal {
             name: "parentChanged"
-            Parameter { type: "QSGItem"; isPointer: true }
+            Parameter { type: "QQuickItem"; isPointer: true }
         }
         Signal {
             name: "transformOriginChanged"
@@ -4194,17 +4269,17 @@ Module {
         Method { name: "forceActiveFocus" }
         Method {
             name: "childAt"
-            type: "QSGItem*"
+            type: "QQuickItem*"
             Parameter { name: "x"; type: "qreal" }
             Parameter { name: "y"; type: "qreal" }
         }
     }
     Component {
-        name: "QSGItemParticle"
+        name: "QQuickItemParticle"
         defaultProperty: "data"
-        prototype: "QSGParticlePainter"
+        prototype: "QQuickParticlePainter"
         exports: ["QtQuick.Particles/ItemParticle 2.0"]
-        attachedType: "QSGItemParticleAttached"
+        attachedType: "QQuickItemParticleAttached"
         Property { name: "fade"; type: "bool" }
         Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
         Signal {
@@ -4213,24 +4288,24 @@ Module {
         }
         Method {
             name: "freeze"
-            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "item"; type: "QQuickItem"; isPointer: true }
         }
         Method {
             name: "unfreeze"
-            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "item"; type: "QQuickItem"; isPointer: true }
         }
         Method {
             name: "take"
-            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "item"; type: "QQuickItem"; isPointer: true }
             Parameter { name: "prioritize"; type: "bool" }
         }
         Method {
             name: "take"
-            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "item"; type: "QQuickItem"; isPointer: true }
         }
         Method {
             name: "give"
-            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "item"; type: "QQuickItem"; isPointer: true }
         }
         Method {
             name: "setFade"
@@ -4242,16 +4317,16 @@ Module {
         }
     }
     Component {
-        name: "QSGItemParticleAttached"
+        name: "QQuickItemParticleAttached"
         prototype: "QObject"
-        Property { name: "particle"; type: "QSGItemParticle"; isReadonly: true; isPointer: true }
+        Property { name: "particle"; type: "QQuickItemParticle"; isReadonly: true; isPointer: true }
         Signal { name: "detached" }
         Signal { name: "attached" }
     }
     Component {
-        name: "QSGItemView"
+        name: "QQuickItemView"
         defaultProperty: "flickableData"
-        prototype: "QSGFlickable"
+        prototype: "QQuickFlickable"
         Enum {
             name: "HighlightRangeMode"
             values: {
@@ -4274,17 +4349,17 @@ Module {
         Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
         Property { name: "count"; type: "int"; isReadonly: true }
         Property { name: "currentIndex"; type: "int" }
-        Property { name: "currentItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "currentItem"; type: "QQuickItem"; isReadonly: true; isPointer: true }
         Property { name: "keyNavigationWraps"; type: "bool" }
         Property { name: "cacheBuffer"; type: "int" }
         Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
         Property { name: "effectiveLayoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
         Property { name: "header"; type: "QDeclarativeComponent"; isPointer: true }
-        Property { name: "headerItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "headerItem"; type: "QQuickItem"; isReadonly: true; isPointer: true }
         Property { name: "footer"; type: "QDeclarativeComponent"; isPointer: true }
-        Property { name: "footerItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "footerItem"; type: "QQuickItem"; isReadonly: true; isPointer: true }
         Property { name: "highlight"; type: "QDeclarativeComponent"; isPointer: true }
-        Property { name: "highlightItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "highlightItem"; type: "QQuickItem"; isReadonly: true; isPointer: true }
         Property { name: "highlightFollowsCurrentItem"; type: "bool" }
         Property { name: "highlightRangeMode"; type: "HighlightRangeMode" }
         Property { name: "preferredHighlightBegin"; type: "qreal" }
@@ -4305,7 +4380,7 @@ Module {
         Method { name: "positionViewAtEnd" }
     }
     Component {
-        name: "QSGItemViewAttached"
+        name: "QQuickItemViewAttached"
         prototype: "QObject"
         Property { name: "isCurrentItem"; type: "bool"; isReadonly: true }
         Property { name: "delayRemove"; type: "bool" }
@@ -4318,10 +4393,10 @@ Module {
         Signal { name: "prevSectionChanged" }
     }
     Component {
-        name: "QSGKeyNavigationAttached"
+        name: "QQuickKeyNavigationAttached"
         prototype: "QObject"
         exports: ["QtQuick/KeyNavigation 2.0"]
-        attachedType: "QSGKeyNavigationAttached"
+        attachedType: "QQuickKeyNavigationAttached"
         Enum {
             name: "Priority"
             values: {
@@ -4329,19 +4404,19 @@ Module {
                 "AfterItem": 1
             }
         }
-        Property { name: "left"; type: "QSGItem"; isPointer: true }
-        Property { name: "right"; type: "QSGItem"; isPointer: true }
-        Property { name: "up"; type: "QSGItem"; isPointer: true }
-        Property { name: "down"; type: "QSGItem"; isPointer: true }
-        Property { name: "tab"; type: "QSGItem"; isPointer: true }
-        Property { name: "backtab"; type: "QSGItem"; isPointer: true }
+        Property { name: "left"; type: "QQuickItem"; isPointer: true }
+        Property { name: "right"; type: "QQuickItem"; isPointer: true }
+        Property { name: "up"; type: "QQuickItem"; isPointer: true }
+        Property { name: "down"; type: "QQuickItem"; isPointer: true }
+        Property { name: "tab"; type: "QQuickItem"; isPointer: true }
+        Property { name: "backtab"; type: "QQuickItem"; isPointer: true }
         Property { name: "priority"; type: "Priority" }
     }
     Component {
-        name: "QSGKeysAttached"
+        name: "QQuickKeysAttached"
         prototype: "QObject"
         exports: ["QtQuick/Keys 2.0"]
-        attachedType: "QSGKeysAttached"
+        attachedType: "QQuickKeysAttached"
         Enum {
             name: "Priority"
             values: {
@@ -4350,180 +4425,180 @@ Module {
             }
         }
         Property { name: "enabled"; type: "bool" }
-        Property { name: "forwardTo"; type: "QSGItem"; isList: true; isReadonly: true }
+        Property { name: "forwardTo"; type: "QQuickItem"; isList: true; isReadonly: true }
         Property { name: "priority"; type: "Priority" }
         Signal {
             name: "pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "released"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit0Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit1Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit2Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit3Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit4Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit5Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit6Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit7Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit8Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "digit9Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "leftPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "rightPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "upPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "downPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "tabPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "backtabPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "asteriskPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "numberSignPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "escapePressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "returnPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "enterPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "deletePressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "spacePressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "backPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "cancelPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "selectPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "yesPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "noPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "context1Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "context2Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "context3Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "context4Pressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "callPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "hangupPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "flipPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "menuPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "volumeUpPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
         Signal {
             name: "volumeDownPressed"
-            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+            Parameter { name: "event"; type: "QQuickKeyEvent"; isPointer: true }
         }
     }
     Component {
-        name: "QSGLayoutMirroringAttached"
+        name: "QQuickLayoutMirroringAttached"
         prototype: "QObject"
         exports: ["QtQuick/LayoutMirroring 2.0"]
-        attachedType: "QSGLayoutMirroringAttached"
+        attachedType: "QQuickLayoutMirroringAttached"
         Property { name: "enabled"; type: "bool" }
         Property { name: "childrenInherit"; type: "bool" }
     }
     Component {
-        name: "QSGLineExtruder"
-        prototype: "QSGParticleExtruder"
+        name: "QQuickLineExtruder"
+        prototype: "QQuickParticleExtruder"
         exports: ["QtQuick.Particles/LineShape 2.0"]
         Property { name: "mirrored"; type: "bool" }
         Signal {
@@ -4536,11 +4611,11 @@ Module {
         }
     }
     Component {
-        name: "QSGListView"
+        name: "QQuickListView"
         defaultProperty: "data"
-        prototype: "QSGItemView"
+        prototype: "QQuickItemView"
         exports: ["QtQuick/ListView 2.0"]
-        attachedType: "QSGListViewAttached"
+        attachedType: "QQuickListViewAttached"
         Enum {
             name: "Orientation"
             values: {
@@ -4561,21 +4636,21 @@ Module {
         Property { name: "highlightResizeDuration"; type: "int" }
         Property { name: "spacing"; type: "qreal" }
         Property { name: "orientation"; type: "Orientation" }
-        Property { name: "section"; type: "QSGViewSection"; isReadonly: true; isPointer: true }
+        Property { name: "section"; type: "QQuickViewSection"; isReadonly: true; isPointer: true }
         Property { name: "currentSection"; type: "string"; isReadonly: true }
         Property { name: "snapMode"; type: "SnapMode" }
         Method { name: "incrementCurrentIndex" }
         Method { name: "decrementCurrentIndex" }
     }
     Component {
-        name: "QSGListViewAttached"
-        prototype: "QSGItemViewAttached"
-        Property { name: "view"; type: "QSGListView"; isReadonly: true; isPointer: true }
+        name: "QQuickListViewAttached"
+        prototype: "QQuickItemViewAttached"
+        Property { name: "view"; type: "QQuickListView"; isReadonly: true; isPointer: true }
     }
     Component {
-        name: "QSGLoader"
+        name: "QQuickLoader"
         defaultProperty: "data"
-        prototype: "QSGImplicitSizeItem"
+        prototype: "QQuickImplicitSizeItem"
         exports: ["QtQuick/Loader 2.0"]
         Enum {
             name: "Status"
@@ -4589,9 +4664,10 @@ Module {
         Property { name: "active"; type: "bool" }
         Property { name: "source"; type: "QUrl" }
         Property { name: "sourceComponent"; type: "QDeclarativeComponent"; isPointer: true }
-        Property { name: "item"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "item"; type: "QQuickItem"; isReadonly: true; isPointer: true }
         Property { name: "status"; type: "Status"; isReadonly: true }
         Property { name: "progress"; type: "qreal"; isReadonly: true }
+        Property { name: "asynchronous"; type: "bool" }
         Signal { name: "loaded" }
         Method {
             name: "setSource"
@@ -4599,8 +4675,8 @@ Module {
         }
     }
     Component {
-        name: "QSGMaskExtruder"
-        prototype: "QSGParticleExtruder"
+        name: "QQuickMaskExtruder"
+        prototype: "QQuickParticleExtruder"
         exports: ["QtQuick.Particles/MaskShape 2.0"]
         Property { name: "source"; type: "QUrl" }
         Signal {
@@ -4613,9 +4689,9 @@ Module {
         }
     }
     Component {
-        name: "QSGMouseArea"
+        name: "QQuickMouseArea"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/MouseArea 2.0"]
         Property { name: "mouseX"; type: "qreal"; isReadonly: true }
         Property { name: "mouseY"; type: "qreal"; isReadonly: true }
@@ -4625,47 +4701,47 @@ Module {
         Property { name: "pressedButtons"; type: "Qt::MouseButtons"; isReadonly: true }
         Property { name: "acceptedButtons"; type: "Qt::MouseButtons" }
         Property { name: "hoverEnabled"; type: "bool" }
-        Property { name: "drag"; type: "QSGDrag"; isReadonly: true; isPointer: true }
+        Property { name: "drag"; type: "QQuickDrag"; isReadonly: true; isPointer: true }
         Property { name: "preventStealing"; type: "bool" }
         Signal { name: "hoveredChanged" }
         Signal {
             name: "positionChanged"
-            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+            Parameter { name: "mouse"; type: "QQuickMouseEvent"; isPointer: true }
         }
         Signal {
             name: "mouseXChanged"
-            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+            Parameter { name: "mouse"; type: "QQuickMouseEvent"; isPointer: true }
         }
         Signal {
             name: "mouseYChanged"
-            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+            Parameter { name: "mouse"; type: "QQuickMouseEvent"; isPointer: true }
         }
         Signal {
             name: "pressed"
-            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+            Parameter { name: "mouse"; type: "QQuickMouseEvent"; isPointer: true }
         }
         Signal {
             name: "pressAndHold"
-            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+            Parameter { name: "mouse"; type: "QQuickMouseEvent"; isPointer: true }
         }
         Signal {
             name: "released"
-            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+            Parameter { name: "mouse"; type: "QQuickMouseEvent"; isPointer: true }
         }
         Signal {
             name: "clicked"
-            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+            Parameter { name: "mouse"; type: "QQuickMouseEvent"; isPointer: true }
         }
         Signal {
             name: "doubleClicked"
-            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+            Parameter { name: "mouse"; type: "QQuickMouseEvent"; isPointer: true }
         }
         Signal { name: "entered" }
         Signal { name: "exited" }
         Signal { name: "canceled" }
     }
     Component {
-        name: "QSGMouseEvent"
+        name: "QQuickMouseEvent"
         prototype: "QObject"
         Property { name: "x"; type: "int"; isReadonly: true }
         Property { name: "y"; type: "int"; isReadonly: true }
@@ -4677,15 +4753,49 @@ Module {
         Property { name: "accepted"; type: "bool" }
     }
     Component {
-        name: "QSGPaintedItem"
+        name: "QQuickMultiPointTouchArea"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
+        exports: ["QtQuick/MultiPointTouchArea 2.0"]
+        Property { name: "touchPoints"; type: "QQuickTouchPoint"; isList: true; isReadonly: true }
+        Property { name: "minimumTouchPoints"; type: "int" }
+        Property { name: "maximumTouchPoints"; type: "int" }
+        Signal {
+            name: "touchPointsPressed"
+            Parameter { name: "touchPoints"; type: "QList<QObject*>" }
+        }
+        Signal {
+            name: "touchPointsUpdated"
+            Parameter { name: "touchPoints"; type: "QList<QObject*>" }
+        }
+        Signal {
+            name: "touchPointsReleased"
+            Parameter { name: "touchPoints"; type: "QList<QObject*>" }
+        }
+        Signal {
+            name: "touchPointsCanceled"
+            Parameter { name: "touchPoints"; type: "QList<QObject*>" }
+        }
+        Signal {
+            name: "gestureStarted"
+            Parameter { name: "gesture"; type: "QQuickGrabGestureEvent"; isPointer: true }
+        }
+        Signal {
+            name: "touchUpdated"
+            Parameter { name: "touchPoints"; type: "QList<QObject*>" }
+        }
+    }
+    Component {
+        name: "QQuickPaintedItem"
+        defaultProperty: "data"
+        prototype: "QQuickItem"
         exports: ["QtQuick/PaintedItem 2.0"]
         Enum {
             name: "RenderTarget"
             values: {
                 "Image": 0,
-                "FramebufferObject": 1
+                "FramebufferObject": 1,
+                "InvertedYFramebufferObject": 2
             }
         }
         Property { name: "contentsSize"; type: "QSize" }
@@ -4694,20 +4804,20 @@ Module {
         Property { name: "renderTarget"; type: "RenderTarget" }
     }
     Component {
-        name: "QSGParentAnimation"
+        name: "QQuickParentAnimation"
         defaultProperty: "animations"
         prototype: "QDeclarativeAnimationGroup"
         exports: ["QtQuick/ParentAnimation 2.0"]
-        Property { name: "target"; type: "QSGItem"; isPointer: true }
-        Property { name: "newParent"; type: "QSGItem"; isPointer: true }
-        Property { name: "via"; type: "QSGItem"; isPointer: true }
+        Property { name: "target"; type: "QQuickItem"; isPointer: true }
+        Property { name: "newParent"; type: "QQuickItem"; isPointer: true }
+        Property { name: "via"; type: "QQuickItem"; isPointer: true }
     }
     Component {
-        name: "QSGParentChange"
+        name: "QQuickParentChange"
         prototype: "QDeclarativeStateOperation"
         exports: ["QtQuick/ParentChange 2.0"]
-        Property { name: "target"; type: "QSGItem"; isPointer: true }
-        Property { name: "parent"; type: "QSGItem"; isPointer: true }
+        Property { name: "target"; type: "QQuickItem"; isPointer: true }
+        Property { name: "parent"; type: "QQuickItem"; isPointer: true }
         Property { name: "x"; type: "QDeclarativeScriptString" }
         Property { name: "y"; type: "QDeclarativeScriptString" }
         Property { name: "width"; type: "QDeclarativeScriptString" }
@@ -4716,19 +4826,19 @@ Module {
         Property { name: "rotation"; type: "QDeclarativeScriptString" }
     }
     Component {
-        name: "QSGParticleAffector"
+        name: "QQuickParticleAffector"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick.Particles/ParticleAffector 2.0"]
-        Property { name: "system"; type: "QSGParticleSystem"; isPointer: true }
+        Property { name: "system"; type: "QQuickParticleSystem"; isPointer: true }
         Property { name: "groups"; type: "QStringList" }
         Property { name: "whenCollidingWith"; type: "QStringList" }
         Property { name: "enabled"; type: "bool" }
         Property { name: "once"; type: "bool" }
-        Property { name: "shape"; type: "QSGParticleExtruder"; isPointer: true }
+        Property { name: "shape"; type: "QQuickParticleExtruder"; isPointer: true }
         Signal {
             name: "systemChanged"
-            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleSystem"; isPointer: true }
         }
         Signal {
             name: "groupsChanged"
@@ -4744,7 +4854,7 @@ Module {
         }
         Signal {
             name: "shapeChanged"
-            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleExtruder"; isPointer: true }
         }
         Signal {
             name: "affected"
@@ -4757,7 +4867,7 @@ Module {
         }
         Method {
             name: "setSystem"
-            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleSystem"; isPointer: true }
         }
         Method {
             name: "setGroups"
@@ -4773,7 +4883,7 @@ Module {
         }
         Method {
             name: "setShape"
-            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleExtruder"; isPointer: true }
         }
         Method {
             name: "setWhenCollidingWith"
@@ -4782,9 +4892,9 @@ Module {
         Method { name: "updateOffsets" }
     }
     Component {
-        name: "QSGParticleEmitter"
+        name: "QQuickParticleEmitter"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick.Particles/Emitter 2.0"]
         Enum {
             name: "Lifetime"
@@ -4792,9 +4902,9 @@ Module {
                 "InfiniteLife": 600000
             }
         }
-        Property { name: "system"; type: "QSGParticleSystem"; isPointer: true }
+        Property { name: "system"; type: "QQuickParticleSystem"; isPointer: true }
         Property { name: "group"; type: "string" }
-        Property { name: "shape"; type: "QSGParticleExtruder"; isPointer: true }
+        Property { name: "shape"; type: "QQuickParticleExtruder"; isPointer: true }
         Property { name: "enabled"; type: "bool" }
         Property { name: "startTime"; type: "int" }
         Property { name: "emitRate"; type: "qreal" }
@@ -4804,8 +4914,8 @@ Module {
         Property { name: "size"; type: "qreal" }
         Property { name: "endSize"; type: "qreal" }
         Property { name: "sizeVariation"; type: "qreal" }
-        Property { name: "speed"; type: "QSGDirection"; isPointer: true }
-        Property { name: "acceleration"; type: "QSGDirection"; isPointer: true }
+        Property { name: "speed"; type: "QQuickDirection"; isPointer: true }
+        Property { name: "acceleration"; type: "QQuickDirection"; isPointer: true }
         Property { name: "speedFromMovement"; type: "qreal" }
         Signal {
             name: "emitParticles"
@@ -4825,7 +4935,7 @@ Module {
         }
         Signal {
             name: "systemChanged"
-            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleSystem"; isPointer: true }
         }
         Signal {
             name: "groupChanged"
@@ -4837,7 +4947,7 @@ Module {
         }
         Signal {
             name: "extruderChanged"
-            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleExtruder"; isPointer: true }
         }
         Signal {
             name: "particleSizeChanged"
@@ -4853,11 +4963,11 @@ Module {
         }
         Signal {
             name: "speedChanged"
-            Parameter { name: "arg"; type: "QSGDirection"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
         }
         Signal {
             name: "accelerationChanged"
-            Parameter { name: "arg"; type: "QSGDirection"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
         }
         Signal {
             name: "maximumEmittedChanged"
@@ -4896,7 +5006,7 @@ Module {
         }
         Method {
             name: "setSystem"
-            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleSystem"; isPointer: true }
         }
         Method {
             name: "setGroup"
@@ -4908,7 +5018,7 @@ Module {
         }
         Method {
             name: "setExtruder"
-            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleExtruder"; isPointer: true }
         }
         Method {
             name: "setParticleSize"
@@ -4924,11 +5034,11 @@ Module {
         }
         Method {
             name: "setSpeed"
-            Parameter { name: "arg"; type: "QSGDirection"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
         }
         Method {
             name: "setAcceleration"
-            Parameter { name: "arg"; type: "QSGDirection"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickDirection"; isPointer: true }
         }
         Method {
             name: "setMaxParticleCount"
@@ -4941,16 +5051,16 @@ Module {
         Method { name: "reset" }
     }
     Component {
-        name: "QSGParticleExtruder"
+        name: "QQuickParticleExtruder"
         prototype: "QObject"
         exports: ["QtQuick.Particles/ParticleExtruder 2.0"]
     }
     Component {
-        name: "QSGParticleGroup"
+        name: "QQuickParticleGroup"
         defaultProperty: "particleChildren"
-        prototype: "QSGStochasticState"
+        prototype: "QQuickStochasticState"
         exports: ["QtQuick.Particles/ParticleGroup 2.0"]
-        Property { name: "system"; type: "QSGParticleSystem"; isPointer: true }
+        Property { name: "system"; type: "QQuickParticleSystem"; isPointer: true }
         Property { name: "particleChildren"; type: "QObject"; isList: true; isReadonly: true }
         Signal {
             name: "maximumAliveChanged"
@@ -4958,7 +5068,7 @@ Module {
         }
         Signal {
             name: "systemChanged"
-            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleSystem"; isPointer: true }
         }
         Method {
             name: "setMaximumAlive"
@@ -4966,7 +5076,7 @@ Module {
         }
         Method {
             name: "setSystem"
-            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleSystem"; isPointer: true }
         }
         Method {
             name: "delayRedirect"
@@ -4974,16 +5084,16 @@ Module {
         }
     }
     Component {
-        name: "QSGParticlePainter"
+        name: "QQuickParticlePainter"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick.Particles/ParticlePainter 2.0"]
-        Property { name: "system"; type: "QSGParticleSystem"; isPointer: true }
+        Property { name: "system"; type: "QQuickParticleSystem"; isPointer: true }
         Property { name: "groups"; type: "QStringList" }
         Signal { name: "countChanged" }
         Signal {
             name: "systemChanged"
-            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleSystem"; isPointer: true }
         }
         Signal {
             name: "groupsChanged"
@@ -4991,7 +5101,7 @@ Module {
         }
         Method {
             name: "setSystem"
-            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleSystem"; isPointer: true }
         }
         Method {
             name: "setGroups"
@@ -5004,9 +5114,9 @@ Module {
         Method { name: "calcSystemOffset" }
     }
     Component {
-        name: "QSGParticleSystem"
+        name: "QQuickParticleSystem"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick.Particles/ParticleSystem 2.0"]
         Property { name: "running"; type: "bool" }
         Property { name: "paused"; type: "bool" }
@@ -5041,7 +5151,7 @@ Module {
         Method { name: "duration"; type: "int" }
     }
     Component {
-        name: "QSGPathAnimation"
+        name: "QQuickPathAnimation"
         prototype: "QDeclarativeAbstractAnimation"
         exports: ["QtQuick/PathAnimation 2.0"]
         Enum {
@@ -5057,7 +5167,7 @@ Module {
         Property { name: "duration"; type: "int" }
         Property { name: "easing"; type: "QEasingCurve" }
         Property { name: "path"; type: "QDeclarativePath"; isPointer: true }
-        Property { name: "target"; type: "QSGItem"; isPointer: true }
+        Property { name: "target"; type: "QQuickItem"; isPointer: true }
         Property { name: "orientation"; type: "Orientation" }
         Property { name: "anchorPoint"; type: "QPointF" }
         Property { name: "orientationEntryInterval"; type: "qreal" }
@@ -5093,11 +5203,11 @@ Module {
         }
     }
     Component {
-        name: "QSGPathView"
+        name: "QQuickPathView"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/PathView 2.0"]
-        attachedType: "QSGPathViewAttached"
+        attachedType: "QQuickPathViewAttached"
         Enum {
             name: "HighlightRangeMode"
             values: {
@@ -5109,10 +5219,10 @@ Module {
         Property { name: "model"; type: "QVariant" }
         Property { name: "path"; type: "QDeclarativePath"; isPointer: true }
         Property { name: "currentIndex"; type: "int" }
-        Property { name: "currentItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "currentItem"; type: "QQuickItem"; isReadonly: true; isPointer: true }
         Property { name: "offset"; type: "qreal" }
         Property { name: "highlight"; type: "QDeclarativeComponent"; isPointer: true }
-        Property { name: "highlightItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "highlightItem"; type: "QQuickItem"; isReadonly: true; isPointer: true }
         Property { name: "preferredHighlightBegin"; type: "qreal" }
         Property { name: "preferredHighlightEnd"; type: "qreal" }
         Property { name: "highlightRangeMode"; type: "HighlightRangeMode" }
@@ -5134,16 +5244,16 @@ Module {
         Method { name: "decrementCurrentIndex" }
     }
     Component {
-        name: "QSGPathViewAttached"
+        name: "QQuickPathViewAttached"
         prototype: "QObject"
-        Property { name: "view"; type: "QSGPathView"; isReadonly: true; isPointer: true }
+        Property { name: "view"; type: "QQuickPathView"; isReadonly: true; isPointer: true }
         Property { name: "isCurrentItem"; type: "bool"; isReadonly: true }
         Property { name: "onPath"; type: "bool"; isReadonly: true }
         Signal { name: "currentItemChanged" }
         Signal { name: "pathChanged" }
     }
     Component {
-        name: "QSGPen"
+        name: "QQuickPen"
         prototype: "QObject"
         Property { name: "width"; type: "qreal" }
         Property { name: "color"; type: "QColor" }
@@ -5151,7 +5261,7 @@ Module {
         Signal { name: "penChanged" }
     }
     Component {
-        name: "QSGPinch"
+        name: "QQuickPinch"
         prototype: "QObject"
         exports: ["QtQuick/Pinch 2.0"]
         Enum {
@@ -5163,7 +5273,7 @@ Module {
                 "XandYAxis": 3
             }
         }
-        Property { name: "target"; type: "QSGItem"; isPointer: true }
+        Property { name: "target"; type: "QQuickItem"; isPointer: true }
         Property { name: "minimumScale"; type: "qreal" }
         Property { name: "maximumScale"; type: "qreal" }
         Property { name: "minimumRotation"; type: "qreal" }
@@ -5176,28 +5286,28 @@ Module {
         Property { name: "active"; type: "bool"; isReadonly: true }
     }
     Component {
-        name: "QSGPinchArea"
+        name: "QQuickPinchArea"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/PinchArea 2.0"]
         Property { name: "enabled"; type: "bool" }
-        Property { name: "pinch"; type: "QSGPinch"; isReadonly: true; isPointer: true }
+        Property { name: "pinch"; type: "QQuickPinch"; isReadonly: true; isPointer: true }
         Signal {
             name: "pinchStarted"
-            Parameter { name: "pinch"; type: "QSGPinchEvent"; isPointer: true }
+            Parameter { name: "pinch"; type: "QQuickPinchEvent"; isPointer: true }
         }
         Signal {
             name: "pinchUpdated"
-            Parameter { name: "pinch"; type: "QSGPinchEvent"; isPointer: true }
+            Parameter { name: "pinch"; type: "QQuickPinchEvent"; isPointer: true }
         }
         Signal {
             name: "pinchFinished"
-            Parameter { name: "pinch"; type: "QSGPinchEvent"; isPointer: true }
+            Parameter { name: "pinch"; type: "QQuickPinchEvent"; isPointer: true }
         }
     }
     Component {
-        name: "QSGPointDirection"
-        prototype: "QSGDirection"
+        name: "QQuickPointDirection"
+        prototype: "QQuickDirection"
         exports: ["QtQuick.Particles/PointDirection 2.0"]
         Property { name: "x"; type: "qreal" }
         Property { name: "y"; type: "qreal" }
@@ -5237,25 +5347,25 @@ Module {
         }
     }
     Component {
-        name: "QSGPositionerAttached"
+        name: "QQuickPositionerAttached"
         prototype: "QObject"
         Property { name: "index"; type: "int"; isReadonly: true }
         Property { name: "isFirstItem"; type: "bool"; isReadonly: true }
         Property { name: "isLastItem"; type: "bool"; isReadonly: true }
     }
     Component {
-        name: "QSGRectangle"
+        name: "QQuickRectangle"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/Rectangle 2.0"]
         Property { name: "color"; type: "QColor" }
-        Property { name: "gradient"; type: "QSGGradient"; isPointer: true }
-        Property { name: "border"; type: "QSGPen"; isReadonly: true; isPointer: true }
+        Property { name: "gradient"; type: "QQuickGradient"; isPointer: true }
+        Property { name: "border"; type: "QQuickPen"; isReadonly: true; isPointer: true }
         Property { name: "radius"; type: "qreal" }
     }
     Component {
-        name: "QSGRectangleExtruder"
-        prototype: "QSGParticleExtruder"
+        name: "QQuickRectangleExtruder"
+        prototype: "QQuickParticleExtruder"
         exports: ["QtQuick.Particles/RectangleShape 2.0"]
         Property { name: "fill"; type: "bool" }
         Signal {
@@ -5268,9 +5378,9 @@ Module {
         }
     }
     Component {
-        name: "QSGRepeater"
+        name: "QQuickRepeater"
         defaultProperty: "delegate"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/Repeater 2.0"]
         Property { name: "model"; type: "QVariant" }
         Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
@@ -5278,38 +5388,38 @@ Module {
         Signal {
             name: "itemAdded"
             Parameter { name: "index"; type: "int" }
-            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "item"; type: "QQuickItem"; isPointer: true }
         }
         Signal {
             name: "itemRemoved"
             Parameter { name: "index"; type: "int" }
-            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "item"; type: "QQuickItem"; isPointer: true }
         }
         Method {
             name: "itemAt"
-            type: "QSGItem*"
+            type: "QQuickItem*"
             Parameter { name: "index"; type: "int" }
         }
     }
     Component {
-        name: "QSGRotation"
-        prototype: "QSGTransform"
+        name: "QQuickRotation"
+        prototype: "QQuickTransform"
         exports: ["QtQuick/Rotation 2.0"]
         Property { name: "origin"; type: "QVector3D" }
         Property { name: "angle"; type: "qreal" }
         Property { name: "axis"; type: "QVector3D" }
     }
     Component {
-        name: "QSGRow"
+        name: "QQuickRow"
         defaultProperty: "data"
-        prototype: "QSGBasePositioner"
+        prototype: "QQuickBasePositioner"
         exports: ["QtQuick/Row 2.0"]
         Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
         Property { name: "effectiveLayoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
     }
     Component {
-        name: "QSGScale"
-        prototype: "QSGTransform"
+        name: "QQuickScale"
+        prototype: "QQuickTransform"
         exports: ["QtQuick/Scale 2.0"]
         Property { name: "origin"; type: "QVector3D" }
         Property { name: "xScale"; type: "qreal" }
@@ -5318,7 +5428,7 @@ Module {
         Signal { name: "scaleChanged" }
     }
     Component {
-        name: "QSGScaleGrid"
+        name: "QQuickScaleGrid"
         prototype: "QObject"
         Property { name: "left"; type: "int" }
         Property { name: "top"; type: "int" }
@@ -5327,9 +5437,9 @@ Module {
         Signal { name: "borderChanged" }
     }
     Component {
-        name: "QSGShaderEffect"
+        name: "QQuickShaderEffect"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/ShaderEffect 2.0", "QtQuick/ShaderEffectItem 2.0"]
         Enum {
             name: "CullMode"
@@ -5347,15 +5457,15 @@ Module {
         Signal { name: "cullModeChanged" }
     }
     Component {
-        name: "QSGShaderEffectMesh"
+        name: "QQuickShaderEffectMesh"
         prototype: "QObject"
         exports: ["QtQuick/ShaderEffectMesh 2.0"]
         Signal { name: "geometryChanged" }
     }
     Component {
-        name: "QSGShaderEffectSource"
+        name: "QQuickShaderEffectSource"
         defaultProperty: "data"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/ShaderEffectSource 2.0"]
         Enum {
             name: "WrapMode"
@@ -5375,7 +5485,7 @@ Module {
             }
         }
         Property { name: "wrapMode"; type: "WrapMode" }
-        Property { name: "sourceItem"; type: "QSGItem"; isPointer: true }
+        Property { name: "sourceItem"; type: "QQuickItem"; isPointer: true }
         Property { name: "sourceRect"; type: "QRectF" }
         Property { name: "textureSize"; type: "QSize" }
         Property { name: "format"; type: "Format" }
@@ -5383,12 +5493,12 @@ Module {
         Property { name: "hideSource"; type: "bool" }
         Property { name: "mipmap"; type: "bool" }
         Property { name: "recursive"; type: "bool" }
-        Signal { name: "textureChanged" }
+        Signal { name: "scheduledUpdateCompleted" }
         Method { name: "scheduleUpdate" }
     }
     Component {
-        name: "QSGSprite"
-        prototype: "QSGStochasticState"
+        name: "QQuickSprite"
+        prototype: "QQuickStochasticState"
         exports: ["QtQuick/Sprite 2.0"]
         Property { name: "source"; type: "QUrl" }
         Property { name: "frameHeight"; type: "int" }
@@ -5419,9 +5529,9 @@ Module {
         }
     }
     Component {
-        name: "QSGSpriteGoalAffector"
+        name: "QQuickSpriteGoalAffector"
         defaultProperty: "data"
-        prototype: "QSGParticleAffector"
+        prototype: "QQuickParticleAffector"
         exports: ["QtQuick.Particles/SpriteGoal 2.0"]
         Property { name: "goalState"; type: "string" }
         Property { name: "jump"; type: "bool" }
@@ -5452,23 +5562,45 @@ Module {
         }
     }
     Component {
-        name: "QSGSpriteImage"
+        name: "QQuickSpriteImage"
         defaultProperty: "sprites"
-        prototype: "QSGItem"
+        prototype: "QQuickItem"
         exports: ["QtQuick/SpriteImage 2.0"]
         Property { name: "running"; type: "bool" }
-        Property { name: "sprites"; type: "QSGSprite"; isList: true; isReadonly: true }
+        Property { name: "interpolate"; type: "bool" }
+        Property { name: "goalState"; type: "string" }
+        Property { name: "sprites"; type: "QQuickSprite"; isList: true; isReadonly: true }
         Signal {
             name: "runningChanged"
             Parameter { name: "arg"; type: "bool" }
+        }
+        Signal {
+            name: "interpolateChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Signal {
+            name: "goalStateChanged"
+            Parameter { name: "arg"; type: "string" }
+        }
+        Method {
+            name: "jumpTo"
+            Parameter { name: "sprite"; type: "string" }
+        }
+        Method {
+            name: "setGoalState"
+            Parameter { name: "sprite"; type: "string" }
         }
         Method {
             name: "setRunning"
             Parameter { name: "arg"; type: "bool" }
         }
+        Method {
+            name: "setInterpolate"
+            Parameter { name: "arg"; type: "bool" }
+        }
     }
     Component {
-        name: "QSGStochasticState"
+        name: "QQuickStochasticState"
         prototype: "QObject"
         Property { name: "duration"; type: "int" }
         Property { name: "durationVariation"; type: "int" }
@@ -5527,72 +5659,12 @@ Module {
         }
     }
     Component {
-        name: "QSGTargetAffector"
-        defaultProperty: "data"
-        prototype: "QSGParticleAffector"
-        exports: ["QtQuick.Particles/Target 2.0"]
-        Property { name: "targetX"; type: "int" }
-        Property { name: "targetY"; type: "int" }
-        Property { name: "targetWidth"; type: "int" }
-        Property { name: "targetHeight"; type: "int" }
-        Property { name: "targetShape"; type: "QSGParticleExtruder"; isPointer: true }
-        Property { name: "targetTime"; type: "int" }
-        Signal {
-            name: "targetXChanged"
-            Parameter { name: "arg"; type: "int" }
-        }
-        Signal {
-            name: "targetYChanged"
-            Parameter { name: "arg"; type: "int" }
-        }
-        Signal {
-            name: "targetWidthChanged"
-            Parameter { name: "arg"; type: "int" }
-        }
-        Signal {
-            name: "targetHeightChanged"
-            Parameter { name: "arg"; type: "int" }
-        }
-        Signal {
-            name: "targetShapeChanged"
-            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
-        }
-        Signal {
-            name: "targetTimeChanged"
-            Parameter { name: "arg"; type: "int" }
-        }
-        Method {
-            name: "setTargetX"
-            Parameter { name: "arg"; type: "int" }
-        }
-        Method {
-            name: "setTargetY"
-            Parameter { name: "arg"; type: "int" }
-        }
-        Method {
-            name: "setTargetWidth"
-            Parameter { name: "arg"; type: "int" }
-        }
-        Method {
-            name: "setTargetHeight"
-            Parameter { name: "arg"; type: "int" }
-        }
-        Method {
-            name: "setTargetShape"
-            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
-        }
-        Method {
-            name: "setTargetTime"
-            Parameter { name: "arg"; type: "int" }
-        }
-    }
-    Component {
-        name: "QSGTargetDirection"
-        prototype: "QSGDirection"
+        name: "QQuickTargetDirection"
+        prototype: "QQuickDirection"
         exports: ["QtQuick.Particles/TargetDirection 2.0"]
         Property { name: "targetX"; type: "qreal" }
         Property { name: "targetY"; type: "qreal" }
-        Property { name: "targetItem"; type: "QSGItem"; isPointer: true }
+        Property { name: "targetItem"; type: "QQuickItem"; isPointer: true }
         Property { name: "targetVariation"; type: "qreal" }
         Property { name: "proportionalMagnitude"; type: "bool" }
         Property { name: "magnitude"; type: "qreal" }
@@ -5623,7 +5695,7 @@ Module {
         }
         Signal {
             name: "targetItemChanged"
-            Parameter { name: "arg"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickItem"; isPointer: true }
         }
         Method {
             name: "setTargetX"
@@ -5651,13 +5723,13 @@ Module {
         }
         Method {
             name: "setTargetItem"
-            Parameter { name: "arg"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickItem"; isPointer: true }
         }
     }
     Component {
-        name: "QSGText"
+        name: "QQuickText"
         defaultProperty: "data"
-        prototype: "QSGImplicitSizeItem"
+        prototype: "QQuickImplicitSizeItem"
         exports: ["QtQuick/Text 2.0"]
         Enum {
             name: "HAlignment"
@@ -5787,11 +5859,16 @@ Module {
             name: "lineHeightModeChanged"
             Parameter { name: "mode"; type: "LineHeightMode" }
         }
+        Signal {
+            name: "lineLaidOut"
+            Parameter { name: "line"; type: "QQuickTextLine"; isPointer: true }
+        }
+        Method { name: "doLayout" }
     }
     Component {
-        name: "QSGTextEdit"
+        name: "QQuickTextEdit"
         defaultProperty: "data"
-        prototype: "QSGImplicitSizeItem"
+        prototype: "QQuickImplicitSizeItem"
         exports: ["QtQuick/TextEdit 2.0"]
         Enum {
             name: "HAlignment"
@@ -5971,9 +6048,9 @@ Module {
         }
     }
     Component {
-        name: "QSGTextInput"
+        name: "QQuickTextInput"
         defaultProperty: "data"
-        prototype: "QSGImplicitSizeItem"
+        prototype: "QQuickImplicitSizeItem"
         exports: ["QtQuick/TextInput 2.0"]
         Enum {
             name: "EchoMode"
@@ -6131,13 +6208,37 @@ Module {
         Method { name: "closeSoftwareInputPanel" }
     }
     Component {
-        name: "QSGTrailEmitter"
+        name: "QQuickTouchPoint"
+        prototype: "QObject"
+        exports: ["QtQuick/TouchPoint 2.0"]
+        Property { name: "valid"; type: "bool"; isReadonly: true }
+        Property { name: "pointId"; type: "int"; isReadonly: true }
+        Property { name: "x"; type: "qreal"; isReadonly: true }
+        Property { name: "y"; type: "qreal"; isReadonly: true }
+        Property { name: "pressure"; type: "qreal"; isReadonly: true }
+        Property { name: "area"; type: "QRectF"; isReadonly: true }
+        Property { name: "startX"; type: "qreal"; isReadonly: true }
+        Property { name: "startY"; type: "qreal"; isReadonly: true }
+        Property { name: "previousX"; type: "qreal"; isReadonly: true }
+        Property { name: "previousY"; type: "qreal"; isReadonly: true }
+        Property { name: "sceneX"; type: "qreal"; isReadonly: true }
+        Property { name: "sceneY"; type: "qreal"; isReadonly: true }
+        Signal { name: "validityChanged" }
+    }
+    Component {
+        name: "QQuickTrailEmitter"
         defaultProperty: "data"
-        prototype: "QSGParticleEmitter"
+        prototype: "QQuickParticleEmitter"
         exports: ["QtQuick.Particles/TrailEmitter 2.0"]
+        Enum {
+            name: "EmitSize"
+            values: {
+                "ParticleSize": -2
+            }
+        }
         Property { name: "follow"; type: "string" }
         Property { name: "emitRatePerParticle"; type: "int" }
-        Property { name: "emitShape"; type: "QSGParticleExtruder"; isPointer: true }
+        Property { name: "emitShape"; type: "QQuickParticleExtruder"; isPointer: true }
         Property { name: "emitHeight"; type: "qreal" }
         Property { name: "emitWidth"; type: "qreal" }
         Signal {
@@ -6163,7 +6264,7 @@ Module {
         }
         Signal {
             name: "emissionShapeChanged"
-            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleExtruder"; isPointer: true }
         }
         Method {
             name: "setParticlesPerParticlePerSecond"
@@ -6183,21 +6284,21 @@ Module {
         }
         Method {
             name: "setEmissionShape"
-            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+            Parameter { name: "arg"; type: "QQuickParticleExtruder"; isPointer: true }
         }
     }
-    Component { name: "QSGTransform"; prototype: "QObject" }
+    Component { name: "QQuickTransform"; prototype: "QObject" }
     Component {
-        name: "QSGTranslate"
-        prototype: "QSGTransform"
+        name: "QQuickTranslate"
+        prototype: "QQuickTransform"
         exports: ["QtQuick/Translate 2.0"]
         Property { name: "x"; type: "qreal" }
         Property { name: "y"; type: "qreal" }
     }
     Component {
-        name: "QSGTurbulenceAffector"
+        name: "QQuickTurbulenceAffector"
         defaultProperty: "data"
-        prototype: "QSGParticleAffector"
+        prototype: "QQuickParticleAffector"
         exports: ["QtQuick.Particles/Turbulence 2.0"]
         Property { name: "strength"; type: "qreal" }
         Property { name: "noiseSource"; type: "QUrl" }
@@ -6219,7 +6320,7 @@ Module {
         }
     }
     Component {
-        name: "QSGViewSection"
+        name: "QQuickViewSection"
         prototype: "QObject"
         exports: ["QtQuick/ViewSection 2.0"]
         Enum {
@@ -6243,7 +6344,7 @@ Module {
         Property { name: "labelPositioning"; type: "int" }
     }
     Component {
-        name: "QSGVisualDataGroup"
+        name: "QQuickVisualDataGroup"
         prototype: "QObject"
         exports: ["QtQuick/VisualDataGroup 2.0"]
         Property { name: "count"; type: "int"; isReadonly: true }
@@ -6275,18 +6376,34 @@ Module {
             name: "move"
             Parameter { type: "QDeclarativeV8Function"; isPointer: true }
         }
+        Method {
+            name: "get"
+            type: "QDeclarativeV8Handle"
+            Parameter { name: "index"; type: "int" }
+        }
+        Method {
+            name: "create"
+            type: "QObject*"
+            Parameter { name: "index"; type: "int" }
+        }
     }
     Component {
-        name: "QSGVisualDataModel"
+        name: "QQuickVisualDataModel"
         defaultProperty: "delegate"
-        prototype: "QSGVisualModel"
+        prototype: "QQuickVisualModel"
         exports: ["QtQuick/VisualDataModel 2.0"]
-        attachedType: "QSGVisualDataModelAttached"
+        attachedType: "QQuickVisualDataModelAttached"
         Property { name: "model"; type: "QVariant" }
         Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
         Property { name: "filterOnGroup"; type: "string" }
-        Property { name: "items"; type: "QSGVisualDataGroup"; isReadonly: true; isPointer: true }
-        Property { name: "groups"; type: "QSGVisualDataGroup"; isList: true; isReadonly: true }
+        Property { name: "items"; type: "QQuickVisualDataGroup"; isReadonly: true; isPointer: true }
+        Property {
+            name: "persistedItems"
+            type: "QQuickVisualDataGroup"
+            isReadonly: true
+            isPointer: true
+        }
+        Property { name: "groups"; type: "QQuickVisualDataGroup"; isList: true; isReadonly: true }
         Property { name: "parts"; type: "QObject"; isReadonly: true; isPointer: true }
         Property { name: "rootIndex"; type: "QVariant" }
         Signal { name: "filterGroupChanged" }
@@ -6299,27 +6416,27 @@ Module {
         Method { name: "parentModelIndex"; type: "QVariant" }
     }
     Component {
-        name: "QSGVisualDataModelAttached"
+        name: "QQuickVisualDataModelAttached"
         prototype: "QObject"
-        Property { name: "model"; type: "QSGVisualDataModel"; isReadonly: true; isPointer: true }
+        Property { name: "model"; type: "QQuickVisualDataModel"; isReadonly: true; isPointer: true }
         Property { name: "groups"; type: "QStringList" }
     }
-    Component { name: "QSGVisualDataModelParts"; prototype: "QObject" }
+    Component { name: "QQuickVisualDataModelParts"; prototype: "QObject" }
     Component {
-        name: "QSGVisualItemModel"
+        name: "QQuickVisualItemModel"
         defaultProperty: "children"
-        prototype: "QSGVisualModel"
+        prototype: "QQuickVisualModel"
         exports: ["QtQuick/VisualItemModel 2.0"]
-        attachedType: "QSGVisualItemModelAttached"
-        Property { name: "children"; type: "QSGItem"; isList: true; isReadonly: true }
+        attachedType: "QQuickVisualItemModelAttached"
+        Property { name: "children"; type: "QQuickItem"; isList: true; isReadonly: true }
     }
     Component {
-        name: "QSGVisualItemModelAttached"
+        name: "QQuickVisualItemModelAttached"
         prototype: "QObject"
         Property { name: "index"; type: "int"; isReadonly: true }
     }
     Component {
-        name: "QSGVisualModel"
+        name: "QQuickVisualModel"
         prototype: "QObject"
         Property { name: "count"; type: "int"; isReadonly: true }
         Signal {
@@ -6330,17 +6447,17 @@ Module {
         Signal {
             name: "createdItem"
             Parameter { name: "index"; type: "int" }
-            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "item"; type: "QQuickItem"; isPointer: true }
         }
         Signal {
             name: "destroyingItem"
-            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "item"; type: "QQuickItem"; isPointer: true }
         }
     }
     Component {
-        name: "QSGWanderAffector"
+        name: "QQuickWanderAffector"
         defaultProperty: "data"
-        prototype: "QSGParticleAffector"
+        prototype: "QQuickParticleAffector"
         exports: ["QtQuick.Particles/Wander 2.0"]
         Enum {
             name: "AffectableParameters"
@@ -6385,6 +6502,19 @@ Module {
         Method {
             name: "setAffectedParameter"
             Parameter { name: "arg"; type: "AffectableParameters" }
+        }
+    }
+    Component {
+        name: "QRegExpValidator"
+        prototype: "QValidator"
+        exports: [
+            "QtQuick/RegExpValidator 1.0",
+            "QtQuick/RegExpValidator 2.0"
+        ]
+        Property { name: "regExp"; type: "QRegExp" }
+        Signal {
+            name: "regExpChanged"
+            Parameter { name: "regExp"; type: "QRegExp" }
         }
     }
     Component { name: "QValidator"; prototype: "QObject" }
@@ -6595,6 +6725,26 @@ Module {
                 "WindowMaximized": 2,
                 "WindowFullScreen": 4,
                 "WindowActive": 8
+            }
+        }
+        Enum {
+            name: "ScreenOrientation"
+            values: {
+                "UnknownOrientation": 0,
+                "PortraitOrientation": 1,
+                "LandscapeOrientation": 2,
+                "InvertedPortraitOrientation": 4,
+                "InvertedLandscapeOrientation": 8
+            }
+        }
+        Enum {
+            name: "ScreenOrientations"
+            values: {
+                "UnknownOrientation": 0,
+                "PortraitOrientation": 1,
+                "LandscapeOrientation": 2,
+                "InvertedPortraitOrientation": 4,
+                "InvertedLandscapeOrientation": 8
             }
         }
         Enum {
