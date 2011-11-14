@@ -67,3 +67,8 @@ SOURCES += completionsettingspage.cpp \
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \
     cppcodestylesettingspage.ui
+
+equals(TEST, 1) {
+    SOURCES += \
+        cppcodegen_test.cpp
+}

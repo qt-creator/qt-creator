@@ -30,6 +30,8 @@
 **
 **************************************************************************/
 
+#include "cpptoolsplugin.h"
+
 #include <AST.h>
 #include <Control.h>
 #include <CppDocument.h>
@@ -50,62 +52,18 @@
 #include <QTextDocument>
 #include <QDir>
 
-//TESTED_COMPONENT=src/libs/cplusplus
-
 /*!
     Tests for various parts of the code generation. Well, okay, currently it only
     tests the InsertionPointLocator.
  */
 using namespace CPlusPlus;
 using namespace CppTools;
+using namespace CppTools::Internal;
 
-class tst_Codegen: public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void initTestCase();
-    void cleanupTestCase();
-    void public_in_empty_class();
-    void public_in_nonempty_class();
-    void public_before_protected();
-    void private_after_protected();
-    void protected_in_nonempty_class();
-    void protected_betwee_public_and_private();
-    void qtdesigner_integration();
-    void definition_empty_class();
-    void definition_first_member();
-    void definition_last_member();
-    void definition_middle_member();
-
-private:
-    ExtensionSystem::PluginManager *pluginManager;
-    QString tempPath;
-};
-
-void tst_Codegen::initTestCase()
-{
-    pluginManager = new ExtensionSystem::PluginManager;
-    QSettings *settings = new QSettings(QSettings::IniFormat, QSettings::UserScope,
-                                 QLatin1String("Nokia"), QLatin1String("QtCreator"));
-    pluginManager->setSettings(settings);
-    pluginManager->setFileExtension(QLatin1String("pluginspec"));
-    pluginManager->setPluginPaths(QStringList() << QLatin1String(Q_PLUGIN_PATH));
-    pluginManager->loadPlugins();
-
-    tempPath = QDir::tempPath();
-}
-
-void tst_Codegen::cleanupTestCase()
-{
-    // gives me a qFatal...
-//    pluginManager->shutdown();
-//    delete pluginManager;
-}
 /*!
     Should insert at line 3, column 1, with "public:\n" as prefix and without suffix.
  */
-void tst_Codegen::public_in_empty_class()
+void CppToolsPlugin::test_codegen_public_in_empty_class()
 {
     const QByteArray src = "\n"
             "class Foo\n" // line 1
@@ -144,7 +102,7 @@ void tst_Codegen::public_in_empty_class()
 /*!
     Should insert at line 3, column 1, without prefix and without suffix.
  */
-void tst_Codegen::public_in_nonempty_class()
+void CppToolsPlugin::test_codegen_public_in_nonempty_class()
 {
     const QByteArray src = "\n"
             "class Foo\n" // line 1
@@ -184,7 +142,7 @@ void tst_Codegen::public_in_nonempty_class()
 /*!
     Should insert at line 3, column 1, with "public:\n" as prefix and "\n suffix.
  */
-void tst_Codegen::public_before_protected()
+void CppToolsPlugin::test_codegen_public_before_protected()
 {
     const QByteArray src = "\n"
             "class Foo\n"  // line 1
@@ -225,7 +183,7 @@ void tst_Codegen::public_before_protected()
     Should insert at line 4, column 1, with "private:\n" as prefix and without
     suffix.
  */
-void tst_Codegen::private_after_protected()
+void CppToolsPlugin::test_codegen_private_after_protected()
 {
     const QByteArray src = "\n"
             "class Foo\n"  // line 1
@@ -266,7 +224,7 @@ void tst_Codegen::private_after_protected()
     Should insert at line 4, column 1, with "protected:\n" as prefix and without
     suffix.
  */
-void tst_Codegen::protected_in_nonempty_class()
+void CppToolsPlugin::test_codegen_protected_in_nonempty_class()
 {
     const QByteArray src = "\n"
             "class Foo\n" // line 1
@@ -306,7 +264,7 @@ void tst_Codegen::protected_in_nonempty_class()
 /*!
     Should insert at line 4, column 1, with "protected\n" as prefix and "\n" suffix.
  */
-void tst_Codegen::protected_betwee_public_and_private()
+void CppToolsPlugin::test_codegen_protected_between_public_and_private()
 {
     const QByteArray src = "\n"
             "class Foo\n" // line 1
@@ -351,7 +309,7 @@ void tst_Codegen::protected_betwee_public_and_private()
     This is the typical Qt Designer case, with test-input like what the integration
     generates.
  */
-void tst_Codegen::qtdesigner_integration()
+void CppToolsPlugin::test_codegen_qtdesigner_integration()
 {
     const QByteArray src = "/**** Some long (C)opyright notice ****/\n"
             "#ifndef MAINWINDOW_H\n"
@@ -405,7 +363,7 @@ void tst_Codegen::qtdesigner_integration()
     QCOMPARE(loc.column(), 1U);
 }
 
-void tst_Codegen::definition_empty_class()
+void CppToolsPlugin::test_codegen_definition_empty_class()
 {
     const QByteArray srcText = "\n"
             "class Foo\n"  // line 1
@@ -418,7 +376,7 @@ void tst_Codegen::definition_empty_class()
             "int x;\n"  // line 1
             "\n";
 
-    Document::Ptr src = Document::create(tempPath + QLatin1String("/file.h"));
+    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
@@ -428,7 +386,7 @@ void tst_Codegen::definition_empty_class()
     QCOMPARE(src->diagnosticMessages().size(), 0);
     QCOMPARE(src->globalSymbolCount(), 1U);
 
-    Document::Ptr dst = Document::create(tempPath + QLatin1String("/file.cpp"));
+    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
     dstSaver.finalize();
@@ -464,7 +422,7 @@ void tst_Codegen::definition_empty_class()
     QCOMPARE(loc.column(), 7U);
 }
 
-void tst_Codegen::definition_first_member()
+void CppToolsPlugin::test_codegen_definition_first_member()
 {
     const QByteArray srcText = "\n"
             "class Foo\n"  // line 1
@@ -484,9 +442,9 @@ void tst_Codegen::definition_first_member()
                 "\n"
                 "}\n"
                 "\n"
-                "int y;\n").arg(tempPath).toLatin1();
+                "int y;\n").arg(QDir::tempPath()).toLatin1();
 
-    Document::Ptr src = Document::create(tempPath + QLatin1String("/file.h"));
+    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
@@ -496,7 +454,7 @@ void tst_Codegen::definition_first_member()
     QCOMPARE(src->diagnosticMessages().size(), 0);
     QCOMPARE(src->globalSymbolCount(), 1U);
 
-    Document::Ptr dst = Document::create(tempPath + QLatin1String("/file.cpp"));
+    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
     dst->addIncludeFile(src->fileName(), 1);
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
@@ -533,7 +491,7 @@ void tst_Codegen::definition_first_member()
     QCOMPARE(loc.prefix(), QString());
 }
 
-void tst_Codegen::definition_last_member()
+void CppToolsPlugin::test_codegen_definition_last_member()
 {
     const QByteArray srcText = "\n"
             "class Foo\n"  // line 1
@@ -553,9 +511,9 @@ void tst_Codegen::definition_last_member()
                 "\n"
                 "}\n" // line 7
                 "\n"
-                "int y;\n").arg(tempPath).toLatin1();
+                "int y;\n").arg(QDir::tempPath()).toLatin1();
 
-    Document::Ptr src = Document::create(tempPath + QLatin1String("/file.h"));
+    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
@@ -565,7 +523,7 @@ void tst_Codegen::definition_last_member()
     QCOMPARE(src->diagnosticMessages().size(), 0);
     QCOMPARE(src->globalSymbolCount(), 1U);
 
-    Document::Ptr dst = Document::create(tempPath + QLatin1String("/file.cpp"));
+    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
     dst->addIncludeFile(src->fileName(), 1);
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
@@ -602,7 +560,7 @@ void tst_Codegen::definition_last_member()
     QCOMPARE(loc.suffix(), QString());
 }
 
-void tst_Codegen::definition_middle_member()
+void CppToolsPlugin::test_codegen_definition_middle_member()
 {
     const QByteArray srcText = "\n"
             "class Foo\n"  // line 1
@@ -628,9 +586,9 @@ void tst_Codegen::definition_middle_member()
                 "\n"
                 "}\n"
                 "\n"
-                "int y;\n").arg(tempPath).toLatin1();
+                "int y;\n").arg(QDir::tempPath()).toLatin1();
 
-    Document::Ptr src = Document::create(tempPath + QLatin1String("/file.h"));
+    Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
     Utils::FileSaver srcSaver(src->fileName());
     srcSaver.write(srcText);
     srcSaver.finalize();
@@ -640,7 +598,7 @@ void tst_Codegen::definition_middle_member()
     QCOMPARE(src->diagnosticMessages().size(), 0);
     QCOMPARE(src->globalSymbolCount(), 1U);
 
-    Document::Ptr dst = Document::create(tempPath + QLatin1String("/file.cpp"));
+    Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
     dst->addIncludeFile(src->fileName(), 1);
     Utils::FileSaver dstSaver(dst->fileName());
     dstSaver.write(dstText);
@@ -676,6 +634,3 @@ void tst_Codegen::definition_middle_member()
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
     QCOMPARE(loc.suffix(), QString());
 }
-
-QTEST_MAIN(tst_Codegen)
-#include "tst_codegen.moc"

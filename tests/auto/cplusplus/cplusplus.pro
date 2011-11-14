@@ -4,7 +4,6 @@ CONFIG += ordered
 SUBDIRS = \
     ast \
     codeformatter \
-    codegen \
     findusages \
     lookup \
     preprocessor \

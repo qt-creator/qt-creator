@@ -76,6 +76,21 @@ public:
 private slots:
     void switchHeaderSource();
 
+#ifdef WITH_TESTS
+    // codegen tests
+    void test_codegen_public_in_empty_class();
+    void test_codegen_public_in_nonempty_class();
+    void test_codegen_public_before_protected();
+    void test_codegen_private_after_protected();
+    void test_codegen_protected_in_nonempty_class();
+    void test_codegen_protected_between_public_and_private();
+    void test_codegen_qtdesigner_integration();
+    void test_codegen_definition_empty_class();
+    void test_codegen_definition_first_member();
+    void test_codegen_definition_last_member();
+    void test_codegen_definition_middle_member();
+#endif
+
 private:
     QString correspondingHeaderOrSourceI(const QString &fileName) const;
 
