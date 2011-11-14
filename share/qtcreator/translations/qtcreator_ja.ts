@@ -5,7 +5,7 @@
     <name>AbstractLinuxDeviceDeployStep</name>
     <message>
         <source>No valid device set.</source>
-        <translation>有効なデバイスが設定されていません。</translation>
+        <translation type="obsolete">有効なデバイスが設定されていません。</translation>
     </message>
 </context>
 <context>
@@ -117,7 +117,7 @@
     <name>Analyzer::AnalyzerRunControl</name>
     <message>
         <source>Build Issues</source>
-        <translation>ビルドの問題</translation>
+        <translation type="obsolete">ビルドの問題</translation>
     </message>
 </context>
 <context>
@@ -138,7 +138,7 @@
     <name>Analyzer::Internal::AnalyzerPlugin</name>
     <message>
         <source>Analyzer</source>
-        <extracomment>Category under which Analyzer tasks are listed in build issues view</extracomment>
+        <extracomment>Category under which Analyzer tasks are listed in Issues view</extracomment>
         <translation>アナライザ</translation>
     </message>
 </context>
@@ -146,7 +146,7 @@
     <name>Analyzer::StartRemoteDialog</name>
     <message>
         <source>Start Debugger</source>
-        <translation>デバッガ起動</translation>
+        <translation type="obsolete">デバッガ起動</translation>
     </message>
     <message>
         <source>Remote</source>
@@ -191,6 +191,10 @@
     <message>
         <source>Working directory:</source>
         <translation>作業ディレクトリ:</translation>
+    </message>
+    <message>
+        <source>Start Remote Analysis</source>
+        <translation>リモート解析開始</translation>
     </message>
 </context>
 <context>
@@ -239,8 +243,12 @@
         <translation>メッセージを送信できませんでした</translation>
     </message>
     <message>
-        <source>Unable to send command line arguments to the already running instance.It appears to be not responding. Do you want to start a new instance of Creator?</source>
+        <source>Unable to send command line arguments to the already running instance. It appears to be not responding. Do you want to start a new instance of Creator?</source>
         <translation>実行中のインスタンスにコマンドライン引数を送れませんでした。応答がないようです。Creator を新たに開始しますか？</translation>
+    </message>
+    <message>
+        <source>Unable to send command line arguments to the already running instance.It appears to be not responding. Do you want to start a new instance of Creator?</source>
+        <translation type="obsolete">実行中のインスタンスにコマンドライン引数を送れませんでした。応答がないようです。Creator を新たに開始しますか？</translation>
     </message>
     <message>
         <source>Could not find &apos;Core.pluginspec&apos; in %1</source>
@@ -248,7 +256,7 @@
     </message>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
-        <translation>Qt Creator - プラグインローダーからのメッセージ</translation>
+        <translation type="obsolete">Qt Creator - プラグインローダーからのメッセージ</translation>
     </message>
 </context>
 <context>
@@ -271,10 +279,18 @@
     </message>
     <message>
         <source>Sysroot</source>
-        <translation>Sysroot</translation>
+        <translation type="obsolete">Sysroot</translation>
     </message>
     <message>
         <source>Override &amp;Start script:</source>
+        <translation type="obsolete">起動スクリプトを上書き(&amp;S):</translation>
+    </message>
+    <message>
+        <source>Sys&amp;root:</source>
+        <translation>sysroot(&amp;R):</translation>
+    </message>
+    <message>
+        <source>Override &amp;start script:</source>
         <translation>起動スクリプトを上書き(&amp;S):</translation>
     </message>
 </context>
@@ -1074,7 +1090,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Add If Encoding Is UTF-8</source>
-        <translation>文字コードが UTF-8 の時に追加する</translation>
+        <translation>文字コードが UTF-8 の時に追加</translation>
     </message>
     <message>
         <source>Keep If Already Present</source>
@@ -1095,6 +1111,84 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Enable scroll &amp;wheel zooming</source>
         <translation>ホイールスクロールでの拡大縮小の有効化(&amp;W)</translation>
+    </message>
+    <message>
+        <source>Typing</source>
+        <translation>タイピング</translation>
+    </message>
+    <message>
+        <source>Enable automatic &amp;indentation</source>
+        <translation>自動インデントの有効化(&amp;I)</translation>
+    </message>
+    <message>
+        <source>Backspace indentation:</source>
+        <translation>Backspace インデント:</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Specifies how backspace interacts with indentation.
+
+&lt;ul&gt;
+&lt;li&gt;None: No interaction at all. Regular plain backspace behavior.
+&lt;/li&gt;
+
+&lt;li&gt;Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.
+&lt;/li&gt;
+
+&lt;li&gt;Unindents: If the character behind the cursor is a space it behaves as a backtab.
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
+</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Backspace が押された時のインデントの動作を指定します。
+
+&lt;ul&gt;
+&lt;li&gt;なし: 何もしません。プレーンな Backspace の振る舞いです。
+&lt;/li&gt;
+
+&lt;li&gt;前のインデントにあわせる: 空白が含まれている場合、前の行で使用しているインデントレベルに近いところまでカーソルを戻します。
+&lt;/li&gt;
+
+&lt;li&gt;インデントしない: カーソル位置より前の文字が空白の場合、バックタブとして動作します。
+&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
+</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>なし</translation>
+    </message>
+    <message>
+        <source>Follows Previous Indents</source>
+        <translation>前のインデントにあわせる</translation>
+    </message>
+    <message>
+        <source>Unindents</source>
+        <translation>インデントを解除する</translation>
+    </message>
+    <message>
+        <source>Tab key performs auto-indent:</source>
+        <translation>タブ キーで自動インデントを行う:</translation>
+    </message>
+    <message>
+        <source>Never</source>
+        <translation>実行しない</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation>常時</translation>
+    </message>
+    <message>
+        <source>In Leading White Space</source>
+        <translation>先頭が空白の場合</translation>
+    </message>
+    <message>
+        <source>Enable &amp;tooltips only when Shift key is down</source>
+        <translation>Shift キーが押されている時だけツールチップを有効にする (&amp;T)</translation>
+    </message>
+    <message>
+        <source>Always write a newline character at the end of the file.</source>
+        <translation>常にファイルの末尾に改行文字を設定します。</translation>
     </message>
 </context>
 <context>
@@ -1178,7 +1272,11 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Show Bookmark in New Tab</source>
-        <translation>ブックマークを新しいタブで開く</translation>
+        <translation type="obsolete">ブックマークを新しいタブで開く</translation>
+    </message>
+    <message>
+        <source>Show Bookmark as New Page</source>
+        <translation>ブックマークを新しいページで開く</translation>
     </message>
     <message>
         <source>Delete Bookmark</source>
@@ -1275,7 +1373,11 @@ Local pulls are not applied to the master branch.</source>
     <name>BorderImageSpecifics</name>
     <message>
         <source>Image</source>
-        <translation>画像</translation>
+        <translation type="obsolete">画像</translation>
+    </message>
+    <message>
+        <source>BorderImage</source>
+        <translation>BorderImage</translation>
     </message>
     <message>
         <source>Source</source>
@@ -2409,7 +2511,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Close temporary buffers on debugger exit.</source>
-        <translation>デバッガ終了時に一時バッファを閉じる。</translation>
+        <translation type="obsolete">デバッガ終了時に一時バッファを閉じる。</translation>
     </message>
     <message>
         <source>Close temporary buffers on debugger exit</source>
@@ -2417,7 +2519,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit.</source>
-        <translation>デバッガ終了時に前のモードに切り替える。</translation>
+        <translation type="obsolete">デバッガ終了時に前のモードに切り替える。</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit</source>
@@ -2507,7 +2609,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>&amp;Automatically insert brackets</source>
-        <translation>括弧を自動的に挿入する(&amp;A)</translation>
+        <translation type="obsolete">括弧を自動的に挿入する(&amp;A)</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -2551,7 +2653,23 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Automatically insert brackets and semicolons when appropriate.</source>
-        <translation>自動的に括弧を挿入し必要に応じてセミコロンも挿入します。</translation>
+        <translation type="obsolete">自動的に括弧を挿入し必要に応じてセミコロンも挿入します。</translation>
+    </message>
+    <message>
+        <source>Automatically insert semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</source>
+        <translation>自動的にセミコロンや閉じ括弧、括弧、中括弧、および引用符を適切に挿入します。</translation>
+    </message>
+    <message>
+        <source>&amp;Automatically insert matching characters</source>
+        <translation>マッチング文字を自動的に挿入する(&amp;A)</translation>
+    </message>
+    <message>
+        <source>When typing a matching character and there is a text selection, instead of removing the selection, surround it with the corresponding characters.</source>
+        <translation>テキスト選択している状態でマッチング文字が入力された時に選択部分を削除する代わりに対応する文字で選択範囲を囲みます。</translation>
+    </message>
+    <message>
+        <source>Surround &amp;text selections</source>
+        <translation>選択しているテキスト範囲を囲む (&amp;T)</translation>
     </message>
 </context>
 <context>
@@ -2711,7 +2829,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>Core::BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
-        <translation>ディレクトリ %1 を作成できません。</translation>
+        <translation type="obsolete">ディレクトリ %1 を作成できません。</translation>
     </message>
     <message>
         <source>File Generation Failure</source>
@@ -2865,6 +2983,22 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>画面上の現在のエディタの左上隅のY座標です。</translation>
     </message>
     <message>
+        <source>Close &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; を閉じる</translation>
+    </message>
+    <message>
+        <source>Close Editor</source>
+        <translation>エディタを閉じる</translation>
+    </message>
+    <message>
+        <source>Close All Except &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; 以外をすべて閉じる</translation>
+    </message>
+    <message>
+        <source>Close Other Editors</source>
+        <translation>他のエディタを閉じる</translation>
+    </message>
+    <message>
         <source>File Error</source>
         <translation>ファイルエラー</translation>
     </message>
@@ -2885,8 +3019,20 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>書き込み可能パーミッションを設定できません。</translation>
     </message>
     <message>
+        <source>Cannot open the file for editing with VCS.</source>
+        <translation>ファイルをバージョン管理システムで編集する為に開けませんでした。</translation>
+    </message>
+    <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; This file was not opened in %1 yet.</source>
+        <translation>&lt;b&gt;警告:&lt;/b&gt; このファイルはまだ %1 で開かれていません。</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>開く</translation>
     </message>
     <message>
         <source>Save %1 &amp;As...</source>
@@ -3632,23 +3778,23 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Close Editor</source>
-        <translation>エディタを閉じる</translation>
+        <translation type="obsolete">エディタを閉じる</translation>
     </message>
     <message>
         <source>Close &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; を閉じる</translation>
+        <translation type="obsolete">&quot;%1&quot; を閉じる</translation>
     </message>
     <message>
         <source>Close All Except &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; 以外をすべて閉じる</translation>
+        <translation type="obsolete">&quot;%1&quot; 以外をすべて閉じる</translation>
     </message>
     <message>
         <source>Close Other Editors</source>
-        <translation>他のエディタを閉じる</translation>
+        <translation type="obsolete">他のエディタを閉じる</translation>
     </message>
     <message>
         <source>Close All Editors</source>
-        <translation>すべてのエディタを閉じる</translation>
+        <translation type="obsolete">すべてのエディタを閉じる</translation>
     </message>
 </context>
 <context>
@@ -4090,6 +4236,14 @@ Note: This might remove the local file.</source>
         <source>No type hierarchy available</source>
         <translation>型階層が利用できません</translation>
     </message>
+    <message>
+        <source>Bases</source>
+        <translation>基底</translation>
+    </message>
+    <message>
+        <source>Derived</source>
+        <translation>派生</translation>
+    </message>
 </context>
 <context>
     <name>CppEditor::Internal::InsertQtPropertyMembers</name>
@@ -4144,7 +4298,24 @@ Note: This might remove the local file.</source>
     <message>
         <source>Global C++</source>
         <comment>Settings</comment>
-        <translation>Global C++</translation>
+        <translation type="obsolete">Global C++</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <comment>Settings</comment>
+        <translation>グローバル</translation>
+    </message>
+    <message>
+        <source>Qt</source>
+        <translation>Qt</translation>
+    </message>
+    <message>
+        <source>GNU</source>
+        <translation>GNU</translation>
+    </message>
+    <message>
+        <source>Old Creator</source>
+        <translation>古い Creator</translation>
     </message>
 </context>
 <context>
@@ -4165,7 +4336,7 @@ Note: This might remove the local file.</source>
     <name>CppTools::Internal::CppCodeStylePreferencesWidget</name>
     <message>
         <source>Code style settings:</source>
-        <translation>コードスタイル設定:</translation>
+        <translation type="obsolete">コードスタイル設定:</translation>
     </message>
 </context>
 <context>
@@ -4370,8 +4541,12 @@ if they would align to the next line</source>
 </translation>
     </message>
     <message>
+        <source>Edit...</source>
+        <translation>編集...</translation>
+    </message>
+    <message>
         <source>Edit</source>
-        <translation>編集</translation>
+        <translation type="obsolete">編集</translation>
     </message>
     <message>
         <source>Choose Location for New License Template File</source>
@@ -4381,14 +4556,26 @@ if they would align to the next line</source>
 <context>
     <name>CppTools::Internal::CppFindReferences</name>
     <message>
+        <source>C++ Usages:</source>
+        <translation>C++ 出現箇所:</translation>
+    </message>
+    <message>
         <source>Searching</source>
         <translation>検索中</translation>
+    </message>
+    <message>
+        <source>C++ Macro Usages:</source>
+        <translation>C++ マクロ出現箇所:</translation>
     </message>
 </context>
 <context>
     <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>Methods and functions</source>
+        <translation type="obsolete">メソッドと関数</translation>
+    </message>
+    <message>
+        <source>Methods and Functions</source>
         <translation>メソッドと関数</translation>
     </message>
 </context>
@@ -4407,7 +4594,7 @@ if they would align to the next line</source>
     </message>
     <message>
         <source>unnamed</source>
-        <translation>名前なし</translation>
+        <translation type="obsolete">名前なし</translation>
     </message>
 </context>
 <context>
@@ -4430,6 +4617,46 @@ if they would align to the next line</source>
     <message>
         <source>Searching</source>
         <translation>検索中</translation>
+    </message>
+    <message>
+        <source>C++ Symbols:</source>
+        <translation>C++ シンボル:</translation>
+    </message>
+    <message>
+        <source>Classes</source>
+        <translation>クラス</translation>
+    </message>
+    <message>
+        <source>Methods</source>
+        <translation>メソッド</translation>
+    </message>
+    <message>
+        <source>Enums</source>
+        <translation>Enum</translation>
+    </message>
+    <message>
+        <source>Declarations</source>
+        <translation>宣言</translation>
+    </message>
+    <message>
+        <source>Scope: %1
+Types: %2
+Flags: %3</source>
+        <translation>スコープ: %1
+型: %2
+フラグ: %3</translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation>すべて</translation>
+    </message>
+    <message>
+        <source>Projects</source>
+        <translation>プロジェクト</translation>
+    </message>
+    <message>
+        <source>, </source>
+        <translation>, </translation>
     </message>
 </context>
 <context>
@@ -4495,11 +4722,11 @@ if they would align to the next line</source>
     </message>
     <message>
         <source>Enclose in QLatin1Char(...)</source>
-        <translation>QLatin1Char()で囲む</translation>
+        <translation type="obsolete">QLatin1Char()で囲む</translation>
     </message>
     <message>
         <source>Enclose in QLatin1String(...)</source>
-        <translation>QLatin1String()で囲む</translation>
+        <translation type="obsolete">QLatin1String()で囲む</translation>
     </message>
     <message>
         <source>Mark as Translatable</source>
@@ -4520,6 +4747,14 @@ if they would align to the next line</source>
     <message>
         <source>Convert to Objective-C String Literal</source>
         <translation>Objective-C 文字列リテラルに変換する</translation>
+    </message>
+    <message>
+        <source>Enclose in %1(...) (Qt %2)</source>
+        <translation>%1(...) (Qt %2) で囲む</translation>
+    </message>
+    <message>
+        <source>Enclose in %1(...)</source>
+        <translation>%1(...)で囲む</translation>
     </message>
     <message>
         <source>Convert to Hexadecimal</source>
@@ -4565,27 +4800,27 @@ if they would align to the next line</source>
     <name>Debugger::Cdb::CdbBreakEventWidget</name>
     <message>
         <source>C++ exception</source>
-        <translation>C++ 例外</translation>
+        <translation type="obsolete">C++ 例外</translation>
     </message>
     <message>
         <source>Thread creation</source>
-        <translation>スレッド生成</translation>
+        <translation type="obsolete">スレッド生成</translation>
     </message>
     <message>
         <source>Thread exit</source>
-        <translation>スレッド終了</translation>
+        <translation type="obsolete">スレッド終了</translation>
     </message>
     <message>
         <source>Load module:</source>
-        <translation>モジュール読み込み:</translation>
+        <translation type="obsolete">モジュール読み込み:</translation>
     </message>
     <message>
         <source>Unload module:</source>
-        <translation>モジュール解放:</translation>
+        <translation type="obsolete">モジュール解放:</translation>
     </message>
     <message>
         <source>Output:</source>
-        <translation>出力:</translation>
+        <translation type="obsolete">出力:</translation>
     </message>
 </context>
 <context>
@@ -5106,6 +5341,14 @@ Qt Creator はアタッチできません。</translation>
         <translation>式の監視ポイント</translation>
     </message>
     <message>
+        <source>Breakpoint on QML Signal Handler</source>
+        <translation>QML シグナルハンドラ上のブレークポイント</translation>
+    </message>
+    <message>
+        <source>Breakpoint at JavaScript throw</source>
+        <translation>JavaScript throw に関連づいたブレークポイント</translation>
+    </message>
+    <message>
         <source>Unknown Breakpoint Type</source>
         <translation>未知のブレークポイントの種類</translation>
     </message>
@@ -5268,6 +5511,14 @@ Qt Creator はアタッチできません。</translation>
         <translation>式によって得られるアドレスのデータアクセス時にブレーク</translation>
     </message>
     <message>
+        <source>Break on QML signal handler</source>
+        <translation>QML シグナルハンドラにブレーク</translation>
+    </message>
+    <message>
+        <source>Break when JavaScript exception is thrown</source>
+        <translation>JavaScript 例外が throw された時にブレーク</translation>
+    </message>
+    <message>
         <source>Debugger command to be executed when the breakpoint is hit.
 GDB allows for specifying a sequence of commands separated by the delimiter &apos;\n&apos;.</source>
         <translation>デバッガコマンドはブレークポイントにヒットした時に実行されます。
@@ -5416,6 +5667,10 @@ debugger start-up times (CDB, LLDB).</source>
         <translation>CDB デバッガエンジンは %1 ABI をサポートしていません。</translation>
     </message>
     <message>
+        <source>The CDB debug engine cannot debug gdb core files.</source>
+        <translation>CDB デバッガエンジンは GDB コアファイルをデバッグできません。</translation>
+    </message>
+    <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
         <translation>コンソールプロセス &apos;%1&apos; を開始できませんでした。</translation>
     </message>
@@ -5517,6 +5772,18 @@ debugger start-up times (CDB, LLDB).</source>
     <message>
         <source>Use CDB &amp;console</source>
         <translation>CDB コンソールを使用(&amp;C)</translation>
+    </message>
+    <message>
+        <source>Breakpoints</source>
+        <translation>ブレークポイント</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempt to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;コメントや実行コードが生成されない部分へのブレークポイントの情報(ファイルや行番号)の補正を試みます。補正はコードモデルに基づいて行われます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Correct breakpoint location</source>
+        <translation>ブレークポイント位置を補正</translation>
     </message>
 </context>
 <context>
@@ -5770,7 +6037,11 @@ debugger start-up times (CDB, LLDB).</source>
     </message>
     <message>
         <source>Open Qt4 Options</source>
-        <translation>Qt4 オプションを開く</translation>
+        <translation type="obsolete">Qt4 オプションを開く</translation>
+    </message>
+    <message>
+        <source>Open Qt Options</source>
+        <translation>Qt オプションを開く</translation>
     </message>
     <message>
         <source>Turn off Helper Usage</source>
@@ -5898,11 +6169,23 @@ debugger start-up times (CDB, LLDB).</source>
     </message>
     <message>
         <source>Attach to Core...</source>
-        <translation>コアファイルへアタッチ...</translation>
+        <translation>コアファイルにアタッチ...</translation>
+    </message>
+    <message>
+        <source>Start and Debug Remote Application...</source>
+        <translation>リモートアプリケーションのデバッグ実行...</translation>
+    </message>
+    <message>
+        <source>Attach to Remote Debug Server...</source>
+        <translation>リモートデバッグサーバにアタッチ...</translation>
+    </message>
+    <message>
+        <source>Attach to QML Port...</source>
+        <translation>QML ポートにアタッチ...</translation>
     </message>
     <message>
         <source>Start and Attach to Remote Application...</source>
-        <translation>リモートアプリケーションを実行してアタッチ...</translation>
+        <translation type="obsolete">リモートアプリケーションを実行してアタッチ...</translation>
     </message>
     <message>
         <source>Attach to Remote CDB Session...</source>
@@ -6270,6 +6553,10 @@ debugger start-up times (CDB, LLDB).</source>
         <translation>GDB プロセスは起動に成功した後、クラッシュしました。</translation>
     </message>
     <message>
+        <source>The gdb process was ended forcefully</source>
+        <translation>GDB プロセスが強制終了されました</translation>
+    </message>
+    <message>
         <source>An error occurred when attempting to write to the gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
         <translation>GDB プロセスへの要求送信時にエラーが発生しました。プロセスが既に終了しているか、入力チャネルが閉じられている可能性があります。</translation>
     </message>
@@ -6356,7 +6643,7 @@ You can choose between waiting longer or abort debugging.</source>
     <message>
         <source>The GDB installed at %1 cannot find a valid python installation in its subdirectories.
 You may set the environment variable PYTHONPATH to point to your installation.</source>
-        <translation>%1 にインストールされている GDB はサブディレクトリ内に正しくインストールされている python を見つけられませんでした。環境変数 PYTHONPATH でインストール先を設定して下さい。</translation>
+        <translation type="obsolete">%1 にインストールされている GDB はサブディレクトリ内に正しくインストールされている python を見つけられませんでした。環境変数 PYTHONPATH でインストール先を設定して下さい。</translation>
     </message>
     <message>
         <source>The gdb process crashed.</source>
@@ -6793,7 +7080,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>内容に合わせて列幅を調整</translation>
+        <translation type="obsolete">内容に合わせて列幅を調整</translation>
     </message>
 </context>
 <context>
@@ -6884,8 +7171,16 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation>QMLとC++の同時デバッグに必要なスレーブ側のデバッグエンジンが作成できませんでした: %1</translation>
     </message>
     <message>
+        <source>C++ debugger activated</source>
+        <translation>C++ デバッガがアクティブになりました</translation>
+    </message>
+    <message>
+        <source>QML debugger activated</source>
+        <translation>QML デバッガがアクティブになりました</translation>
+    </message>
+    <message>
         <source>%1 debugger activated</source>
-        <translation>デバッガ %1 がアクティブになりました</translation>
+        <translation type="obsolete">デバッガ %1 がアクティブになりました</translation>
     </message>
 </context>
 <context>
@@ -6893,6 +7188,10 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>QML Debugger connected.</source>
         <translation>QML デバッガは接続しました。</translation>
+    </message>
+    <message>
+        <source>QML Debugger connecting...</source>
+        <translation>QML デバッガに接続中...</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -6947,15 +7246,15 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
-        <translation>&lt;p&gt;catch されていない例外が発生しました:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;catch されていない例外が発生しました:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
-        <translation>&lt;p&gt;catch されていない例外が &lt;i&gt;%1&lt;/i&gt; で発生しました:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;catch されていない例外が &lt;i&gt;%1&lt;/i&gt; で発生しました:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Uncaught Exception</source>
-        <translation>catch されていない例外</translation>
+        <translation type="obsolete">catch されていない例外</translation>
     </message>
     <message>
         <source>QML Debugger disconnected.</source>
@@ -6969,8 +7268,12 @@ Do you want to retry?</source>
         <translation>名前</translation>
     </message>
     <message>
-        <source>Value (base %1)</source>
+        <source>Value (Base %1)</source>
         <translation>値 (%1進表示)</translation>
+    </message>
+    <message>
+        <source>Value (base %1)</source>
+        <translation type="obsolete">値 (%1進表示)</translation>
     </message>
 </context>
 <context>
@@ -7040,7 +7343,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>内容に合わせて列幅を調整</translation>
+        <translation type="obsolete">内容に合わせて列幅を調整</translation>
     </message>
 </context>
 <context>
@@ -7105,6 +7408,10 @@ Do you want to retry?</source>
 </source>
         <translation>デバッグ情報の読み込みに失敗:
 </translation>
+    </message>
+    <message>
+        <source>Interrupting not possible</source>
+        <translation>割り込み不可</translation>
     </message>
 </context>
 <context>
@@ -7182,7 +7489,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>内容に合わせて列幅を調整</translation>
+        <translation type="obsolete">内容に合わせて列幅を調整</translation>
     </message>
 </context>
 <context>
@@ -7290,7 +7597,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>内容に合わせて列幅を調整</translation>
+        <translation type="obsolete">内容に合わせて列幅を調整</translation>
     </message>
 </context>
 <context>
@@ -7324,6 +7631,10 @@ Do you want to retry?</source>
     <message>
         <source>Select Debugger</source>
         <translation>デバッガの選択</translation>
+    </message>
+    <message>
+        <source>Select Location of Debugging Information</source>
+        <translation>デバッガ情報のパスの選択</translation>
     </message>
     <message>
         <source>Select Executable</source>
@@ -7376,6 +7687,10 @@ Do you want to retry?</source>
         <translation>停止位置:</translation>
     </message>
     <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
         <source>Function</source>
         <translation>関数</translation>
     </message>
@@ -7400,12 +7715,16 @@ Do you want to retry?</source>
         <translation>状態</translation>
     </message>
     <message>
+        <source>Target ID</source>
+        <translation>ターゲット ID</translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation>名前</translation>
     </message>
     <message>
         <source>Thread ID</source>
-        <translation>スレッドID</translation>
+        <translation type="obsolete">スレッドID</translation>
     </message>
 </context>
 <context>
@@ -7416,7 +7735,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>内容に合わせて列幅を調整</translation>
+        <translation type="obsolete">内容に合わせて列幅を調整</translation>
     </message>
 </context>
 <context>
@@ -7558,6 +7877,10 @@ Do you want to retry?</source>
         <translation>UTF-8 文字列</translation>
     </message>
     <message>
+        <source>Local 8bit string</source>
+        <translation>ローカル 8bit 文字列</translation>
+    </message>
+    <message>
         <source>UTF16 string</source>
         <translation>UTF-16 文字列</translation>
     </message>
@@ -7614,7 +7937,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>内容に合わせて列幅を調整</translation>
+        <translation type="obsolete">内容に合わせて列幅を調整</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
@@ -7627,6 +7950,14 @@ Do you want to retry?</source>
     <message>
         <source>Change Display Format...</source>
         <translation>表示フォーマットを変更...</translation>
+    </message>
+    <message>
+        <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
+        <translation>ポインタ &quot;%1&quot; (0x%2) によって参照されているメモリ</translation>
+    </message>
+    <message>
+        <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
+        <translation>変数 &quot;%1&quot; (0x%2) のメモリ</translation>
     </message>
     <message>
         <source>Treat All Characters as Printable</source>
@@ -7664,11 +7995,11 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Memory Referenced by Pointer &apos;%1&apos; (0x%2)</source>
-        <translation>ポインタ &apos;%1&apos; (0x%2) によって参照されているメモリ</translation>
+        <translation type="obsolete">ポインタ &apos;%1&apos; (0x%2) によって参照されているメモリ</translation>
     </message>
     <message>
         <source>Memory at Variable &apos;%1&apos; (0x%2)</source>
-        <translation>変数 &apos;%1&apos; (0x%2) のメモリ</translation>
+        <translation type="obsolete">変数 &apos;%1&apos; (0x%2) のメモリ</translation>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
@@ -7701,6 +8032,10 @@ Do you want to retry?</source>
     <message>
         <source>Remove Evaluated Expression &quot;%1&quot;</source>
         <translation>評価済み式 &quot;%1&quot; を削除</translation>
+    </message>
+    <message>
+        <source>Show Unprintable Characters as Escape Sequences</source>
+        <translation>印刷不可文字をエスケープシーケンスとして表示</translation>
     </message>
     <message>
         <source>Use Display Format Based on Type</source>
@@ -7743,12 +8078,16 @@ Do you want to retry?</source>
         <translation>新しい評価済み式を追加</translation>
     </message>
     <message>
+        <source>Remove All Evaluated Expressions</source>
+        <translation>すべての評価済み式を削除</translation>
+    </message>
+    <message>
         <source>Copy Value to Clipboard</source>
         <translation>クリップボードに値をコピー</translation>
     </message>
     <message>
         <source>Remove All Watch Items</source>
-        <translation>すべての監視項目を削除</translation>
+        <translation type="obsolete">すべての監視項目を削除</translation>
     </message>
     <message>
         <source>Open Memory View at Object&apos;s Address (0x%1)</source>
@@ -7845,16 +8184,28 @@ Do you want to retry?</source>
         <translation>閉じています...</translation>
     </message>
     <message>
+        <source>Status of &apos;%1&apos; changed to &apos;unavailable&apos;.</source>
+        <translation>&apos;%1&apos; のステータスが &apos;unavailable&apos; に変化しました。</translation>
+    </message>
+    <message>
+        <source>Status of &apos;%1&apos; changed to &apos;enabled&apos;.</source>
+        <translation>&apos;%1&apos; のステータスが &apos;enabled&apos; に変化しました。</translation>
+    </message>
+    <message>
+        <source>Status of &apos;%1&apos; changed to &apos;not connected&apos;.</source>
+        <translation>&apos;%1&apos; のステータスが &apos;not connected&apos; に変化しました。</translation>
+    </message>
+    <message>
         <source>Debug service &apos;%1&apos; became unavailable.</source>
-        <translation>デバッグサービス &apos;%1&apos; は使用できなくなります。</translation>
+        <translation type="obsolete">デバッグサービス &apos;%1&apos; は使用できなくなります。</translation>
     </message>
     <message>
         <source>Connected to debug service &apos;%1&apos;.</source>
-        <translation>デバッグサービス &apos;%1&apos; に接続しました。</translation>
+        <translation type="obsolete">デバッグサービス &apos;%1&apos; に接続しました。</translation>
     </message>
     <message>
         <source>Not connected to debug service &apos;%1&apos;.</source>
-        <translation>デバッグサービス &apos;%1&apos; に接続していません。</translation>
+        <translation type="obsolete">デバッグサービス &apos;%1&apos; に接続していません。</translation>
     </message>
 </context>
 <context>
@@ -8226,7 +8577,13 @@ Rebuilding the project might help.</source>
     <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
-        <translation>%2 に &apos;%1&apos; のクラス定義が見つかりませんでした。</translation>
+        <translation type="obsolete">%2 に &apos;%1&apos; のクラス定義が見つかりませんでした。</translation>
+    </message>
+    <message>
+        <source>The class containing &apos;%1&apos; could not be found in %2.
+Please verify the #include-directives.</source>
+        <translation>クラス &apos;%1&apos; は %2 で見つけられませんでした。
+#include ディレクティブを確認して下さい。</translation>
     </message>
     <message>
         <source>Error finding/adding a slot.</source>
@@ -8262,7 +8619,11 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Add</source>
-        <translation>追加</translation>
+        <translation type="obsolete">追加</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>追加...</translation>
     </message>
 </context>
 <context>
@@ -8373,19 +8734,19 @@ Rebuilding the project might help.</source>
     <name>ExampleBrowser</name>
     <message>
         <source>Search in Tutorials</source>
-        <translation>チュートリアルを探す</translation>
+        <translation type="obsolete">チュートリアルを探す</translation>
     </message>
     <message>
         <source>Search in Tutorials, Examples and Demos</source>
-        <translation>チュートリアルやサンプル、デモを探す</translation>
+        <translation type="obsolete">チュートリアルやサンプル、デモを探す</translation>
     </message>
     <message>
         <source>Show Examples and Demos</source>
-        <translation>サンプルやデモを表示する</translation>
+        <translation type="obsolete">サンプルやデモを表示する</translation>
     </message>
     <message>
         <source>Tag List</source>
-        <translation>タグ一覧</translation>
+        <translation type="obsolete">タグ一覧</translation>
     </message>
 </context>
 <context>
@@ -8910,11 +9271,19 @@ Reason: %3</source>
     <name>FeaturedAndNewsListing</name>
     <message>
         <source>Featured News</source>
-        <translation>注目のニュース</translation>
+        <translation type="obsolete">注目のニュース</translation>
+    </message>
+    <message>
+        <source>Latest News</source>
+        <translation>最新ニュース</translation>
     </message>
 </context>
 <context>
     <name>Feedback</name>
+    <message>
+        <source>Search in Tutorials, Examples and Demos</source>
+        <translation>チュートリアルやサンプル、デモを探す</translation>
+    </message>
     <message>
         <source>Open Project...</source>
         <translation>プロジェクトを開く...</translation>
@@ -9015,11 +9384,11 @@ The attributes are defined in the documents. Select them to display a set of rel
     <name>Find::Internal::FindDialog</name>
     <message>
         <source>Search for...</source>
-        <translation>検索...</translation>
+        <translation type="obsolete">検索...</translation>
     </message>
     <message>
         <source>Sc&amp;ope:</source>
-        <translation>範囲(&amp;O):</translation>
+        <translation type="obsolete">範囲(&amp;O):</translation>
     </message>
     <message>
         <source>&amp;Search</source>
@@ -9027,31 +9396,55 @@ The attributes are defined in the documents. Select them to display a set of rel
     </message>
     <message>
         <source>Search &amp;for:</source>
-        <translation>検索文字列(&amp;F):</translation>
+        <translation type="obsolete">検索文字列(&amp;F):</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>閉じる</translation>
+        <translation type="obsolete">閉じる</translation>
     </message>
     <message>
         <source>&amp;Case sensitive</source>
-        <translation>大文字/小文字を区別する(&amp;C)</translation>
+        <translation type="obsolete">大文字/小文字を区別する(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Whole words only</source>
-        <translation>単語単位で検索する(&amp;W)</translation>
+        <translation type="obsolete">単語単位で検索する(&amp;W)</translation>
     </message>
     <message>
         <source>Search &amp;&amp; Replace</source>
-        <translation>検索 &amp;&amp; 置換</translation>
+        <translation type="obsolete">検索 &amp;&amp; 置換</translation>
     </message>
     <message>
         <source>Use regular e&amp;xpressions</source>
-        <translation>正規表現を使用(&amp;X)</translation>
+        <translation type="obsolete">正規表現を使用(&amp;X)</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>キャンセル</translation>
+        <translation type="obsolete">キャンセル</translation>
+    </message>
+    <message>
+        <source>Sco&amp;pe:</source>
+        <translation>スコープ(&amp;P):</translation>
+    </message>
+    <message>
+        <source>Sear&amp;ch for:</source>
+        <translation>検索文字列(&amp;C):</translation>
+    </message>
+    <message>
+        <source>Case sensiti&amp;ve</source>
+        <translation>大文字/小文字を区別(&amp;V)</translation>
+    </message>
+    <message>
+        <source>Whole words o&amp;nly</source>
+        <translation>単語単位で検索(&amp;N)</translation>
+    </message>
+    <message>
+        <source>Use re&amp;gular expressions</source>
+        <translation>正規表現を使用(&amp;G)</translation>
+    </message>
+    <message>
+        <source>Search &amp;&amp; &amp;Replace</source>
+        <translation>検索して置換(&amp;R)</translation>
     </message>
 </context>
 <context>
@@ -9152,31 +9545,39 @@ The attributes are defined in the documents. Select them to display a set of rel
     </message>
     <message>
         <source>No matches found!</source>
-        <translation>見つかりませんでした!</translation>
+        <translation type="obsolete">見つかりませんでした!</translation>
+    </message>
+    <message>
+        <source>New Search</source>
+        <translation>新しい検索</translation>
     </message>
     <message>
         <source>Expand All</source>
         <translation>すべて展開</translation>
     </message>
     <message>
+        <source>%1 %2</source>
+        <translation>%1 %2</translation>
+    </message>
+    <message>
         <source>Replace with:</source>
-        <translation>置換文字列:</translation>
+        <translation type="obsolete">置換文字列:</translation>
     </message>
     <message>
         <source>Replace all occurrences</source>
-        <translation>すべての出現箇所を置換します</translation>
+        <translation type="obsolete">すべての出現箇所を置換します</translation>
     </message>
     <message>
         <source>Replace</source>
-        <translation>置換</translation>
+        <translation type="obsolete">置換</translation>
     </message>
     <message>
         <source>This change cannot be undone.</source>
-        <translation>この変更は正常に完了できない可能性があります。</translation>
+        <translation type="obsolete">この変更は正常に完了できない可能性があります。</translation>
     </message>
     <message>
         <source>Do not warn again</source>
-        <translation>再度警告しない</translation>
+        <translation type="obsolete">再度警告しない</translation>
     </message>
     <message>
         <source>Collapse All</source>
@@ -9409,7 +9810,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このオプションを有効にするとリバースデバッグが可能になります。&lt;/p&gt;&lt;.p&gt;&lt;b&gt;注意:&lt;/b&gt;この機能を有効にすると、GDB 側がとても遅く不安定になります。またシステムコールを跨いだ逆実行は予期しない挙動を示したりデバッグセッションを壊すような事になります。&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このオプションを有効にするとリバースデバッグが可能になります。&lt;/p&gt;&lt;.p&gt;&lt;b&gt;注意:&lt;/b&gt;この機能を有効にすると、GDB 側がとても遅く不安定になります。またシステムコールを跨いだ逆実行は予期しない挙動を示したりデバッグセッションを壊すような事になります。&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Stop when a qFatal is issued</source>
@@ -9418,6 +9819,18 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Always try to set breakpoints in plugins automatically</source>
         <translation>常にプラグイン内にブレークポイントを自動的に設定</translation>
+    </message>
+    <message>
+        <source>This adds common paths to locations of debug information at debugger startup.</source>
+        <translation>デバッガ起動時にデバッグ情報のパスに共通パスを加えます。</translation>
+    </message>
+    <message>
+        <source>Use common locations for debug information automatically</source>
+        <translation>自動的にデバッグ情報に共通パスを使用する</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このオプションを有効にするとリバースデバッグが可能になります。&lt;/p&gt;&lt;.p&gt;&lt;b&gt;注意:&lt;/b&gt; この機能を有効にすると、GDB 側がとても遅く不安定になります。またシステムコールを跨いだ逆実行は予期しない挙動を示したりデバッグセッションを壊すような事になります。&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -10111,7 +10524,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Cannot locate &quot;%1&quot;.</source>
-        <translation>&quot;%1&quot; を見つける事ができません。</translation>
+        <translation type="obsolete">&quot;%1&quot; を見つける事ができません。</translation>
     </message>
     <message>
         <source>Cannot launch &quot;%1&quot;.</source>
@@ -10198,7 +10611,7 @@ These files are preserved.</source>
     <name>Git::Internal::GitCommand</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
-        <translation>エラー: Git は %1 秒でタイムアウトしました。</translation>
+        <translation type="obsolete">エラー: Git は %1 秒でタイムアウトしました。</translation>
     </message>
 </context>
 <context>
@@ -10236,7 +10649,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Blame</source>
-        <translation>編集者の表示</translation>
+        <translation type="obsolete">編集者の表示</translation>
     </message>
     <message>
         <source>Blame for &quot;%1&quot;</source>
@@ -10306,7 +10719,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Undo Uncommited Changes...</source>
-        <translation>コミットされていない変更を元に戻す...</translation>
+        <translation type="obsolete">コミットされていない変更を元に戻す...</translation>
     </message>
     <message>
         <source>Stash</source>
@@ -10445,6 +10858,10 @@ These files are preserved.</source>
         <translation>ログ</translation>
     </message>
     <message>
+        <source>Blame Current File</source>
+        <translation>現在のファイルの編集者を表示</translation>
+    </message>
+    <message>
         <source>Diff of &quot;%1&quot;</source>
         <translation>&quot;%1&quot; の差分表示</translation>
     </message>
@@ -10459,6 +10876,10 @@ These files are preserved.</source>
     <message>
         <source>Status</source>
         <translation>ステータス</translation>
+    </message>
+    <message>
+        <source>Undo Uncommitted Changes...</source>
+        <translation>コミットされていない変更を元に戻す...</translation>
     </message>
     <message>
         <source>Clean...</source>
@@ -10520,7 +10941,7 @@ These files are preserved.</source>
     <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>Select the pretty printing format.</source>
-        <translation>出力フォーマットを選択して下さい。</translation>
+        <translation type="obsolete">出力フォーマットを選択して下さい。</translation>
     </message>
     <message>
         <source>oneline</source>
@@ -10644,7 +11065,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Git needs to find Perl in the environment as well.</source>
-        <translation>Git は Perl コマンドが正しく動く環境を必要とします。</translation>
+        <translation type="obsolete">Git は Perl コマンドが正しく動く環境を必要とします。</translation>
     </message>
     <message>
         <source>Note that huge amount of commits might take some time.</source>
@@ -10652,7 +11073,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Log commit display count:</source>
-        <translation>コミットログの表示件数:</translation>
+        <translation type="obsolete">コミットログの表示件数:</translation>
     </message>
     <message>
         <source>Git</source>
@@ -10684,7 +11105,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Environment Variables</source>
-        <translation>環境変数</translation>
+        <translation type="obsolete">環境変数</translation>
     </message>
     <message>
         <source>From System</source>
@@ -10701,6 +11122,18 @@ These files are preserved.</source>
     <message>
         <source>Arguments:</source>
         <translation>引数:</translation>
+    </message>
+    <message>
+        <source>Customize Environment:</source>
+        <translation>環境カスタマイズ:</translation>
+    </message>
+    <message>
+        <source>Git needs to find Perl in the environment.</source>
+        <translation>Git は Perl コマンドが正しく動く環境を必要とします。</translation>
+    </message>
+    <message>
+        <source>Log count:</source>
+        <translation>ログ上限:</translation>
     </message>
 </context>
 <context>
@@ -10834,7 +11267,7 @@ You can choose between stashing the changes or discarding them.</source>
         <source>
 &apos;%1&apos; failed (exit code %2).
 </source>
-        <translation>
+        <translation type="obsolete">
 &apos;%1&apos; が失敗しました(終了コード %2)。
 </translation>
     </message>
@@ -10842,7 +11275,7 @@ You can choose between stashing the changes or discarding them.</source>
         <source>
 &apos;%1&apos; completed (exit code %2).
 </source>
-        <translation>
+        <translation type="obsolete">
 &apos;%1&apos; が成功しました(終了コード %2)。
 </translation>
     </message>
@@ -11039,6 +11472,10 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Resize wraps</source>
+        <translation type="obsolete">移動の折り返し</translation>
+    </message>
+    <message>
+        <source>Navigation wraps</source>
         <translation>移動の折り返し</translation>
     </message>
     <message>
@@ -11873,7 +12310,7 @@ QML コンポーネントのインスタンスオブジェクトとそのプロ�
     <name>Locator</name>
     <message>
         <source>Filters</source>
-        <translation>フィルタ</translation>
+        <translation type="obsolete">フィルタ</translation>
     </message>
     <message>
         <source>Locator</source>
@@ -12215,7 +12652,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <name>MaemoConfigTestDialog</name>
     <message>
         <source>Device Configuration Test</source>
-        <translation>デバイス構成のテスト</translation>
+        <translation type="obsolete">デバイス構成のテスト</translation>
     </message>
 </context>
 <context>
@@ -12226,23 +12663,23 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Device configuration:</source>
-        <translation>デバイス構成:</translation>
+        <translation type="obsolete">デバイス構成:</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;irrelevant&quot;&gt;デバイス構成の管理&lt;/a&gt;</translation>
+        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;デバイス構成の管理&lt;/a&gt;</translation>
     </message>
     <message>
         <source>These show the INSTALLS settings from the project file(s).</source>
-        <translation>プロジェクトファイルから INSTALLS の設定を表示します。</translation>
+        <translation type="obsolete">プロジェクトファイルから INSTALLS の設定を表示します。</translation>
     </message>
     <message>
         <source>Files to install for subproject:</source>
-        <translation>サブプロジェクトにインストールするファイル:</translation>
+        <translation type="obsolete">サブプロジェクトにインストールするファイル:</translation>
     </message>
     <message>
         <source>Edit the project file to add or remove entries.</source>
-        <translation>項目の追加・削除にはプロジェクトファイルを編集して下さい。</translation>
+        <translation type="obsolete">項目の追加・削除にはプロジェクトファイルを編集して下さい。</translation>
     </message>
     <message>
         <source>Add Desktop File</source>
@@ -12336,7 +12773,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Do wou want to re-use an existing pair of keys or should a new one be created?</source>
-        <translation>既存の公開鍵/秘密鍵を再利用しますか、それとも新しい鍵を作成しますか?</translation>
+        <translation type="obsolete">既存の公開鍵/秘密鍵を再利用しますか、それとも新しい鍵を作成しますか?</translation>
     </message>
     <message>
         <source>Re-use existing keys</source>
@@ -12353,6 +12790,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Create new keys</source>
         <translation>新しく鍵を作成</translation>
+    </message>
+    <message>
+        <source>Do you want to re-use an existing pair of keys or should a new one be created?</source>
+        <translation>既存の公開鍵/秘密鍵を再利用しますか、それとも新しい鍵を作成しますか?</translation>
     </message>
 </context>
 <context>
@@ -12394,107 +12835,107 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <name>MaemoDeviceConfigurationsSettingsWidget</name>
     <message>
         <source>Maemo Device Configurations</source>
-        <translation>Maemo デバイス構成</translation>
+        <translation type="obsolete">Maemo デバイス構成</translation>
     </message>
     <message>
         <source>&amp;Configuration:</source>
-        <translation>構成(&amp;C):</translation>
+        <translation type="obsolete">構成(&amp;C):</translation>
     </message>
     <message>
         <source>&amp;Name:</source>
-        <translation>名前(&amp;N):</translation>
+        <translation type="obsolete">名前(&amp;N):</translation>
     </message>
     <message>
         <source>Device type:</source>
-        <translation>デバイス種類:</translation>
+        <translation type="obsolete">デバイス種類:</translation>
     </message>
     <message>
         <source>Authentication type:</source>
-        <translation>認証方法:</translation>
+        <translation type="obsolete">認証方法:</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>パスワード</translation>
+        <translation type="obsolete">パスワード</translation>
     </message>
     <message>
         <source>&amp;Key</source>
-        <translation>鍵(&amp;K)</translation>
+        <translation type="obsolete">鍵(&amp;K)</translation>
     </message>
     <message>
         <source>&amp;Host name:</source>
-        <translation>ホスト名(&amp;H):</translation>
+        <translation type="obsolete">ホスト名(&amp;H):</translation>
     </message>
     <message>
         <source>IP or host name of the device</source>
-        <translation>デバイスのIPアドレス/ホスト名</translation>
+        <translation type="obsolete">デバイスのIPアドレス/ホスト名</translation>
     </message>
     <message>
         <source>&amp;SSH port:</source>
-        <translation>SSH ポート(&amp;S):</translation>
+        <translation type="obsolete">SSH ポート(&amp;S):</translation>
     </message>
     <message>
         <source>Free ports:</source>
-        <translation>空きポート:</translation>
+        <translation type="obsolete">空きポート:</translation>
     </message>
     <message>
         <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
-        <translation>複数のポートや範囲で指定する事もできます: 1024,1026-1028,1030</translation>
+        <translation type="obsolete">複数のポートや範囲で指定する事もできます: 1024,1026-1028,1030</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation>TextLabel</translation>
+        <translation type="obsolete">TextLabel</translation>
     </message>
     <message>
         <source>Connection time&amp;out:</source>
-        <translation>接続タイムアウト(&amp;O):</translation>
+        <translation type="obsolete">接続タイムアウト(&amp;O):</translation>
     </message>
     <message>
         <source>s</source>
-        <translation>秒</translation>
+        <translation type="obsolete">秒</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
-        <translation>ユーザー名(&amp;U):</translation>
+        <translation type="obsolete">ユーザー名(&amp;U):</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
-        <translation>パスワード(&amp;P):</translation>
+        <translation type="obsolete">パスワード(&amp;P):</translation>
     </message>
     <message>
         <source>Show password</source>
-        <translation>パスワードを表示</translation>
+        <translation type="obsolete">パスワードを表示</translation>
     </message>
     <message>
         <source>Private key file:</source>
-        <translation>秘密鍵ファイル:</translation>
+        <translation type="obsolete">秘密鍵ファイル:</translation>
     </message>
     <message>
         <source>Set as Default</source>
-        <translation>デフォルトに設定</translation>
+        <translation type="obsolete">デフォルトに設定</translation>
     </message>
     <message>
         <source>OS type:</source>
-        <translation>OS:</translation>
+        <translation type="obsolete">OS:</translation>
     </message>
     <message>
         <source>&amp;Add</source>
-        <translation>追加(&amp;A)</translation>
+        <translation type="obsolete">追加(&amp;A)</translation>
     </message>
     <message>
         <source>&amp;Remove</source>
-        <translation>削除(&amp;R)</translation>
+        <translation type="obsolete">削除(&amp;R)</translation>
     </message>
     <message>
         <source>Click here if you do not have an SSH key yet.</source>
-        <translation>SSH 鍵が無い場合、クリックして下さい。</translation>
+        <translation type="obsolete">SSH 鍵が無い場合、クリックして下さい。</translation>
     </message>
     <message>
         <source>Set As Default</source>
-        <translation>デフォルトに設定</translation>
+        <translation type="obsolete">デフォルトに設定</translation>
     </message>
     <message>
         <source>&amp;Generate SSH Key...</source>
-        <translation>SSH 鍵を生成(&amp;G)...</translation>
+        <translation type="obsolete">SSH 鍵を生成(&amp;G)...</translation>
     </message>
 </context>
 <context>
@@ -12513,7 +12954,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Edit</source>
-        <translation>編集</translation>
+        <translation type="obsolete">編集</translation>
     </message>
     <message>
         <source>Package name:</source>
@@ -12543,24 +12984,28 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Edit spec file</source>
         <translation>spec ファイルを編集</translation>
     </message>
+    <message>
+        <source>Edit...</source>
+        <translation>編集...</translation>
+    </message>
 </context>
 <context>
     <name>MaemoProFilesUpdateDialog</name>
     <message>
         <source>Maemo Deployment Issue</source>
-        <translation>Maemo 転送時の問題</translation>
+        <translation type="obsolete">Maemo 転送時の問題</translation>
     </message>
     <message>
         <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
-        <translation>以下のプロジェクトファイルには Maemo へ転送する為の情報が含まれていないので、各ターゲットに転送してデバイス上で実行することが出来ません。以下の各行にチェックすれば、Qt Creator は必要な情報をこれらのファイルに追加します。</translation>
+        <translation type="obsolete">以下のプロジェクトファイルには Maemo へ転送する為の情報が含まれていないので、各ターゲットに転送してデバイス上で実行することが出来ません。以下の各行にチェックすれば、Qt Creator は必要な情報をこれらのファイルに追加します。</translation>
     </message>
     <message>
         <source>&amp;Check all</source>
-        <translation>すべてチェック(&amp;C)</translation>
+        <translation type="obsolete">すべてチェック(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Uncheck All</source>
-        <translation>すべてのチェックを外す(&amp;U)</translation>
+        <translation type="obsolete">すべてのチェックを外す(&amp;U)</translation>
     </message>
 </context>
 <context>
@@ -12664,66 +13109,66 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <name>MaemoRemoteProcessesDialog</name>
     <message>
         <source>List of Remote Processes</source>
-        <translation>リモートプロセスの一覧</translation>
+        <translation type="obsolete">リモートプロセスの一覧</translation>
     </message>
     <message>
         <source>&amp;Filter by process name:</source>
-        <translation>フィルタするプロセス名(&amp;F):</translation>
+        <translation type="obsolete">フィルタするプロセス名(&amp;F):</translation>
     </message>
     <message>
         <source>&amp;Update List</source>
-        <translation>一覧を更新(&amp;U)</translation>
+        <translation type="obsolete">一覧を更新(&amp;U)</translation>
     </message>
     <message>
         <source>&amp;Kill Selected Process</source>
-        <translation>選択されたプロセスを kill(&amp;K)</translation>
+        <translation type="obsolete">選択されたプロセスを kill(&amp;K)</translation>
     </message>
 </context>
 <context>
     <name>MaemoSshConfigDialog</name>
     <message>
         <source>SSH Key Configuration</source>
-        <translation>SSH 鍵の設定</translation>
+        <translation type="obsolete">SSH 鍵の設定</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>オプション</translation>
+        <translation type="obsolete">オプション</translation>
     </message>
     <message>
         <source>Key algorithm:</source>
-        <translation>鍵アルゴリズム:</translation>
+        <translation type="obsolete">鍵アルゴリズム:</translation>
     </message>
     <message>
         <source>Key</source>
-        <translation>鍵</translation>
+        <translation type="obsolete">鍵</translation>
     </message>
     <message>
         <source>Key &amp;size:</source>
-        <translation>鍵サイズ(&amp;S):</translation>
+        <translation type="obsolete">鍵サイズ(&amp;S):</translation>
     </message>
     <message>
         <source>&amp;RSA</source>
-        <translation>&amp;RSA</translation>
+        <translation type="obsolete">&amp;RSA</translation>
     </message>
     <message>
         <source>&amp;DSA</source>
-        <translation>&amp;DSA</translation>
+        <translation type="obsolete">&amp;DSA</translation>
     </message>
     <message>
         <source>&amp;Generate SSH Key</source>
-        <translation>SSH 鍵を生成(&amp;G)</translation>
+        <translation type="obsolete">SSH 鍵を生成(&amp;G)</translation>
     </message>
     <message>
         <source>Save P&amp;ublic Key...</source>
-        <translation>公開鍵を保存(&amp;U)...</translation>
+        <translation type="obsolete">公開鍵を保存(&amp;U)...</translation>
     </message>
     <message>
         <source>Save Pr&amp;ivate Key...</source>
-        <translation>秘密鍵を保存(&amp;I)...</translation>
+        <translation type="obsolete">秘密鍵を保存(&amp;I)...</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation>閉じる(&amp;C)</translation>
+        <translation type="obsolete">閉じる(&amp;C)</translation>
     </message>
 </context>
 <context>
@@ -13107,7 +13552,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>The number of recent commit logs to show, choose 0 to see all enteries</source>
-        <translation>表示される最新のコミットログの上限数です。0 を指定するとすべて表示されます</translation>
+        <translation type="obsolete">表示される最新のコミットログの上限数です。0 を指定するとすべて表示されます</translation>
     </message>
     <message>
         <source>Timeout:</source>
@@ -13128,6 +13573,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Default email:</source>
         <translation>メールアドレス:</translation>
+    </message>
+    <message>
+        <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
+        <translation>表示される最新のコミットログの上限数です。0 を指定するとすべて表示されます。</translation>
     </message>
 </context>
 <context>
@@ -13172,7 +13621,11 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Specify Url:</source>
-        <translation>指定URL:</translation>
+        <translation type="obsolete">指定URL:</translation>
+    </message>
+    <message>
+        <source>Specify URL:</source>
+        <translation>URL を指定: </translation>
     </message>
 </context>
 <context>
@@ -13457,11 +13910,11 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Add</source>
-        <translation>追加</translation>
+        <translation type="obsolete">追加</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation>編集</translation>
+        <translation type="obsolete">編集</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -13470,6 +13923,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Reset all to default.</source>
         <translation>すべてをデフォルトに戻します。</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>追加...</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation>編集...</translation>
     </message>
 </context>
 <context>
@@ -13506,7 +13967,11 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Application icon (%%w%%x%%h%%):</source>
-        <translation>アプリケーションアイコン (%%w%%x%%h%%):</translation>
+        <translation type="obsolete">アプリケーションアイコン (%%w%%x%%h%%):</translation>
+    </message>
+    <message>
+        <source>Application icon (64x64):</source>
+        <translation>アプリケーションアイコン (64x64):</translation>
     </message>
 </context>
 <context>
@@ -14371,7 +14836,11 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <name>ProjectExplorer</name>
     <message>
         <source>Projects</source>
-        <translation>プロジェクト</translation>
+        <translation type="obsolete">プロジェクト</translation>
+    </message>
+    <message>
+        <source>Build &amp; Run</source>
+        <translation>ビルドして実行</translation>
     </message>
     <message>
         <source>Other Project</source>
@@ -14484,12 +14953,12 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <message>
         <source>Compile</source>
         <comment>Category for compiler isses listened under &apos;Build Issues&apos;</comment>
-        <translation>コンパイル</translation>
+        <translation type="obsolete">コンパイル</translation>
     </message>
     <message>
         <source>Build System</source>
         <comment>Category for build system isses listened under &apos;Build Issues&apos;</comment>
-        <translation>ビルドシステム</translation>
+        <translation type="obsolete">ビルドシステム</translation>
     </message>
     <message>
         <source>Build canceled</source>
@@ -14510,6 +14979,16 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <message>
         <source>Build</source>
         <translation>ビルド</translation>
+    </message>
+    <message>
+        <source>Compile</source>
+        <comment>Category for compiler isses listed under &apos;Issues&apos;</comment>
+        <translation>コンパイル</translation>
+    </message>
+    <message>
+        <source>Build System</source>
+        <comment>Category for build system isses listed under &apos;Issues&apos;</comment>
+        <translation>ビルドシステム</translation>
     </message>
     <message>
         <source>Error while building project %1 (target: %2)</source>
@@ -14614,7 +15093,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <name>ProjectExplorer::CustomProjectWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
-        <translation>プロジェクト %1 を開けませんでした。</translation>
+        <translation type="obsolete">プロジェクト %1 を開けませんでした。</translation>
     </message>
 </context>
 <context>
@@ -14623,6 +15102,14 @@ Preselects Qt for Simulator and mobile targets if available.</source>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
         <translation>詳細</translation>
+    </message>
+    <message>
+        <source>Creates a plain C project using qmake, not using the Qt library.</source>
+        <translation>Qt ライブラリを使わない QMake を使ったプレーンな C プロジェクトを作成します。</translation>
+    </message>
+    <message>
+        <source>Creates a plain C++ project using qmake, not using the Qt library.</source>
+        <translation>Qt ライブラリを使わない QMake を使ったプレーンな C++ プロジェクトを作成します。</translation>
     </message>
     <message>
         <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</source>
@@ -14661,8 +15148,24 @@ Preselects Qt for Simulator and mobile targets if available.</source>
         <translation>Qt Creator プラグイン</translation>
     </message>
     <message>
+        <source>URL:</source>
+        <translation>URL:</translation>
+    </message>
+    <message>
         <source>Other Project</source>
         <translation>他のプロジェクト</translation>
+    </message>
+    <message>
+        <source>Plain C Project</source>
+        <translation>プレーンな C プロジェクト</translation>
+    </message>
+    <message>
+        <source>Creates a plain C++ project using QMake, not using the Qt library.</source>
+        <translation type="obsolete">Qt ライブラリを使わない QMake を使ったプレーンな C++ プロジェクトを作成します。</translation>
+    </message>
+    <message>
+        <source>Plain C++ Project</source>
+        <translation>プレーンな C++ プロジェクト</translation>
     </message>
     <message>
         <source>Plugin Information</source>
@@ -14690,7 +15193,7 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     </message>
     <message>
         <source>Url:</source>
-        <translation>URL:</translation>
+        <translation type="obsolete">URL:</translation>
     </message>
     <message>
         <source>Qt Creator sources:</source>
@@ -14699,6 +15202,18 @@ Preselects Qt for Simulator and mobile targets if available.</source>
     <message>
         <source>Qt Creator build:</source>
         <translation>Qt Creator ビルド:</translation>
+    </message>
+    <message>
+        <source>Deploy into:</source>
+        <translation>デプロイ先:</translation>
+    </message>
+    <message>
+        <source>Qt Creator build</source>
+        <translation>Qt Creator ビルド</translation>
+    </message>
+    <message>
+        <source>Local user settings</source>
+        <translation>ローカルユーザ設定</translation>
     </message>
 </context>
 <context>
@@ -14819,8 +15334,22 @@ Reason: %2</source>
         <translation>すべてのプロジェクト</translation>
     </message>
     <message>
+        <source>All Projects:</source>
+        <translation>すべてのプロジェクト:</translation>
+    </message>
+    <message>
+        <source>Filter: %1
+%2</source>
+        <translation>フィルタ: %1
+%2</translation>
+    </message>
+    <message>
+        <source>Fi&amp;le pattern:</source>
+        <translation>ファイルパターン(&amp;L):</translation>
+    </message>
+    <message>
         <source>File &amp;pattern:</source>
-        <translation>ファイルパターン(&amp;P):</translation>
+        <translation type="obsolete">ファイルパターン(&amp;P):</translation>
     </message>
 </context>
 <context>
@@ -14840,6 +15369,18 @@ Reason: %2</source>
     <message>
         <source>Attach debugger to %1</source>
         <translation>デバッガで %1 にアタッチ</translation>
+    </message>
+    <message>
+        <source>Close Tab</source>
+        <translation>タブを閉じる</translation>
+    </message>
+    <message>
+        <source>Close All Tabs</source>
+        <translation>すべてのタブを閉じる</translation>
+    </message>
+    <message>
+        <source>Close Other Tabs</source>
+        <translation>他のタブを閉じる</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -14874,15 +15415,15 @@ Reason: %2</source>
     </message>
     <message>
         <source>Rename</source>
-        <translation>名前を変更</translation>
+        <translation type="obsolete">名前を変更</translation>
     </message>
     <message>
         <source>Remove Build Configuration</source>
-        <translation>リモートビルド構成</translation>
+        <translation type="obsolete">リモートビルド構成</translation>
     </message>
     <message>
         <source>Do you really want to delete the build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>本当にビルド構成 &lt;b&gt;%1&lt;/b&gt; を削除しますか？</translation>
+        <translation type="obsolete">本当にビルド構成 &lt;b&gt;%1&lt;/b&gt; を削除しますか？</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -14900,6 +15441,34 @@ Reason: %2</source>
     <message>
         <source>New configuration name:</source>
         <translation>新しい構成名:</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
+        <translation>ビルドを中止してビルド構成を削除</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>削除しない</translation>
+    </message>
+    <message>
+        <source>Remove Build Configuration %1?</source>
+        <translation>ビルド構成 %1 を削除しますか？</translation>
+    </message>
+    <message>
+        <source>The build configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>ビルド構成 &lt;b&gt;%1&lt;/b&gt; はビルド中です。</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Build Configuration anyway?</source>
+        <translation>強制的にビルドプロセスを中止してビルド構成を削除しますか？</translation>
+    </message>
+    <message>
+        <source>Remove Build Configuration?</source>
+        <translation>ビルド構成を削除しますか？</translation>
+    </message>
+    <message>
+        <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
+        <translation>本当にビルド構成 &lt;b&gt;%1&lt;/b&gt; を削除しますか？</translation>
     </message>
 </context>
 <context>
@@ -15002,6 +15571,10 @@ Reason: %2</source>
         <source>Current Project</source>
         <translation>現在のプロジェクト</translation>
     </message>
+    <message>
+        <source>Project &apos;%1&apos;:</source>
+        <translation>&apos;%1&apos; プロジェクト</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
@@ -15101,12 +15674,16 @@ Reason: %2</source>
         <translation>エディタを指定して開く</translation>
     </message>
     <message>
+        <source>Find in this directory...</source>
+        <translation>このディレクトリ内を探す...</translation>
+    </message>
+    <message>
         <source>Show in Explorer...</source>
-        <translation>エクスプローラで表示...</translation>
+        <translation type="obsolete">エクスプローラで表示...</translation>
     </message>
     <message>
         <source>Show in Finder...</source>
-        <translation>Finder で表示...</translation>
+        <translation type="obsolete">Finder で表示...</translation>
     </message>
     <message>
         <source>Open Parent Folder</source>
@@ -15122,19 +15699,19 @@ Reason: %2</source>
     </message>
     <message>
         <source>Show Containing Folder...</source>
-        <translation>フォルダを開く...</translation>
+        <translation type="obsolete">フォルダを開く...</translation>
     </message>
     <message>
         <source>Open Command Prompt Here...</source>
-        <translation>ここでコマンドプロンプトを開く...</translation>
+        <translation type="obsolete">ここでコマンドプロンプトを開く...</translation>
     </message>
     <message>
         <source>Open Terminal Here...</source>
-        <translation>ここでターミナルを開く...</translation>
+        <translation type="obsolete">ここでターミナルを開く...</translation>
     </message>
     <message>
         <source>Launching a file browser failed</source>
-        <translation>ファイルブラウザの起動に失敗しました</translation>
+        <translation type="obsolete">ファイルブラウザの起動に失敗しました</translation>
     </message>
     <message>
         <source>Unable to start the file manager:
@@ -15142,7 +15719,7 @@ Reason: %2</source>
 %1
 
 </source>
-        <translation>ファイルマネージャを開始できません:
+        <translation type="obsolete">ファイルマネージャを開始できません:
 
 %1
 
@@ -15152,21 +15729,21 @@ Reason: %2</source>
         <source>&apos;%1&apos; returned the following error:
 
 %2</source>
-        <translation>&apos;%1&apos; は以下のようなエラーで終了しました:
+        <translation type="obsolete">&apos;%1&apos; は以下のようなエラーで終了しました:
 
 %2</translation>
     </message>
     <message>
         <source>Settings...</source>
-        <translation>設定...</translation>
+        <translation type="obsolete">設定...</translation>
     </message>
     <message>
         <source>Launching Windows Explorer Failed</source>
-        <translation>Windows Explorer の起動に失敗</translation>
+        <translation type="obsolete">Windows Explorer の起動に失敗</translation>
     </message>
     <message>
         <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
-        <translation>Windows Explorer を起動する為の explorer.exe にパスが通っていません。</translation>
+        <translation type="obsolete">Windows Explorer を起動する為の explorer.exe にパスが通っていません。</translation>
     </message>
 </context>
 <context>
@@ -15316,8 +15893,16 @@ Reason: %2</source>
         <translation>初期化:</translation>
     </message>
     <message>
+        <source>No CDB debugger detected (neither 32bit nor 64bit).</source>
+        <translation>CDB デバッガが見つかりません (32bitおよび64bitのどちらも)。</translation>
+    </message>
+    <message>
+        <source>No 64bit CDB debugger detected.</source>
+        <translation>64bit CDB デバッガが見つかりません。</translation>
+    </message>
+    <message>
         <source>The CDB debugger could not be found in %1</source>
-        <translation>%1 に CDB デバッガを見つけられませんでした</translation>
+        <translation type="obsolete">%1 に CDB デバッガを見つけられませんでした</translation>
     </message>
 </context>
 <context>
@@ -15547,6 +16132,14 @@ to project &apos;%2&apos;.</source>
         <translation>サマリ</translation>
     </message>
     <message>
+        <source>Add as a subproject to project:</source>
+        <translation>サブプロジェクトとしてプロジェクトに追加:</translation>
+    </message>
+    <message>
+        <source>Add to &amp;project:</source>
+        <translation>プロジェクトに追加(&amp;P):</translation>
+    </message>
+    <message>
         <source>Files to be added:</source>
         <translation>追加されるファイル:</translation>
     </message>
@@ -15613,11 +16206,47 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Rename</source>
-        <translation>名前を変更</translation>
+        <translation type="obsolete">名前を変更</translation>
+    </message>
+    <message>
+        <source>Rename ...</source>
+        <translation>名前を変更...</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::RunSettingsWidget</name>
+    <message>
+        <source>Run Settings</source>
+        <translation>実行時の設定</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>追加</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>削除</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="obsolete">名前を変更</translation>
+    </message>
+    <message>
+        <source>Deployment</source>
+        <translation>デプロイ</translation>
+    </message>
+    <message>
+        <source>Method:</source>
+        <translation>メソッド:</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>実行</translation>
+    </message>
+    <message>
+        <source>Run configuration:</source>
+        <translation>実行構成:</translation>
+    </message>
     <message>
         <source>Remove Run Configuration?</source>
         <translation>実行構成を削除しますか？</translation>
@@ -15633,6 +16262,26 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>実行構成 &lt;b&gt;%1&lt;/b&gt; の新しい名前:</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
+        <translation>ビルドを中止してデプロイ構成を削除</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>削除しない</translation>
+    </message>
+    <message>
+        <source>Remove Deploy Configuration %1?</source>
+        <translation>デプロイ構成 %1 を削除しますか？</translation>
+    </message>
+    <message>
+        <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>デプロイ構成 &lt;b&gt;%1&lt;/b&gt; はビルド中です。</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
+        <translation>強制的にビルドプロセスを中止してデプロイ構成を削除しますか？</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration?</source>
@@ -15715,12 +16364,20 @@ to project &apos;%2&apos;.</source>
         <source>Session</source>
         <translation>セッション</translation>
     </message>
+    <message>
+        <source>Failed to open project</source>
+        <translation>プロジェクトを開くのに失敗しました</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>セッションの名前を入力して下さい:</translation>
+    </message>
+    <message>
+        <source>Switch to</source>
+        <translation>切替</translation>
     </message>
 </context>
 <context>
@@ -15763,6 +16420,26 @@ to project &apos;%2&apos;.</source>
         <translation>ターゲットが定義されていません。</translation>
     </message>
     <message>
+        <source>Cancel Build &amp;&amp; Remove Target</source>
+        <translation>ビルドを中止してターゲットを削除</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>削除しない</translation>
+    </message>
+    <message>
+        <source>Remove Target %1?</source>
+        <translation>ターゲット %1 を削除しますか？</translation>
+    </message>
+    <message>
+        <source>The target &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>ターゲット &lt;b&gt;%1&lt;/b&gt; はビルド中です。</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Target anyway?</source>
+        <translation>強制的にビルドプロセスを中止してターゲットを削除しますか？</translation>
+    </message>
+    <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
     </message>
@@ -15790,7 +16467,11 @@ to project &apos;%2&apos;.</source>
     <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Build Issues</source>
-        <translation>ビルドの問題点</translation>
+        <translation type="obsolete">ビルドの問題点</translation>
+    </message>
+    <message>
+        <source>Issues</source>
+        <translation>問題</translation>
     </message>
     <message>
         <source>Show Warnings</source>
@@ -15886,7 +16567,11 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Manage</source>
-        <translation>管理</translation>
+        <translation type="obsolete">管理</translation>
+    </message>
+    <message>
+        <source>Manage ...</source>
+        <translation>管理...</translation>
     </message>
 </context>
 <context>
@@ -16056,12 +16741,44 @@ to project &apos;%2&apos;.</source>
         <translation>ファイルを削除...</translation>
     </message>
     <message>
+        <source>Rename...</source>
+        <translation>名前を変更...</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>すべて折りたたむ</translation>
+    </message>
+    <message>
         <source>Full path of the current project&apos;s main file, including file name.</source>
         <translation>現在のプロジェクトの main ファイルのファイル名を含んだフルパスです。</translation>
     </message>
     <message>
         <source>Full path of the current project&apos;s main file, excluding file name.</source>
         <translation>現在のプロジェクトの main ファイルのファイル名を含まないフルパスです。</translation>
+    </message>
+    <message>
+        <source>Failed to open project</source>
+        <translation>プロジェクトを開くのに失敗しました</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Unload</source>
+        <translation>ビルドを中止してプロジェクトを解放</translation>
+    </message>
+    <message>
+        <source>Do Not Unload</source>
+        <translation>解放しない</translation>
+    </message>
+    <message>
+        <source>Unload Project %1?</source>
+        <translation>プロジェクト %1 を解放しますか？</translation>
+    </message>
+    <message>
+        <source>The project %1 is currently being built.</source>
+        <translation>プロジェクト %1 はビルド中です。</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and unload the project anyway?</source>
+        <translation>強制的にビルドプロセスを中止してプロジェクトを解放しますか？</translation>
     </message>
     <message>
         <source>No project loaded</source>
@@ -16180,7 +16897,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Rename</source>
-        <translation>名前を変更</translation>
+        <translation type="obsolete">名前を変更</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -16379,15 +17096,15 @@ Reason: %2</source>
     <name>ProjectExplorer::UserFileAccessor</name>
     <message>
         <source>Using Old Project Settings File</source>
-        <translation>古いプロジェクト設定ファイルを使う</translation>
+        <translation type="obsolete">古いプロジェクト設定ファイルを使う</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;バージョン管理されていないファイルは Qt Creator の非互換の新しいバージョンで作成されている為、バージョン管理された .user 設定ファイルのバックアップを使用します。&lt;/p&gt;&lt;p&gt;最後にこのバージョンの Qt Creator を使用して行われたプロジェクト設定の変更は無視され、現在の変更内容も新しいバージョンには&lt;b&gt;反映されません&lt;/b&gt;。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;バージョン管理されていないファイルは Qt Creator の非互換の新しいバージョンで作成されている為、バージョン管理された .user 設定ファイルのバックアップを使用します。&lt;/p&gt;&lt;p&gt;最後にこのバージョンの Qt Creator を使用して行われたプロジェクト設定の変更は無視され、現在の変更内容も新しいバージョンには&lt;b&gt;反映されません&lt;/b&gt;。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Project Settings File from a different Environment?</source>
-        <translation>異なる環境のプロジェクト設定ファイルではありませんか？</translation>
+        <translation type="obsolete">異なる環境のプロジェクト設定ファイルではありませんか？</translation>
     </message>
     <message>
         <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
@@ -16395,7 +17112,7 @@ Reason: %2</source>
 The .user settings files contain environment specific settings. They should not be copied to a different environment. 
 
 Do you still want to load the settings file?</source>
-        <translation>Qt Creator は別の開発環境(異なるマシン)で作成されたと思われる .user 設定ファイルを見つけました。
+        <translation type="obsolete">Qt Creator は別の開発環境(異なるマシン)で作成されたと思われる .user 設定ファイルを見つけました。
 
 .user 設定ファイルは環境固有の設定を含んでいる為、異なる環境からコピーして使用するのは推奨していません。
 
@@ -16428,15 +17145,15 @@ Do you still want to load the settings file?</source>
     <name>ProjectWelcomePageWidget</name>
     <message>
         <source>%1 (last session)</source>
-        <translation>%1 (最後のセッション)</translation>
+        <translation type="obsolete">%1 (最後のセッション)</translation>
     </message>
     <message>
         <source>%1 (current session)</source>
-        <translation>%1 (現在のセッション)</translation>
+        <translation type="obsolete">%1 (現在のセッション)</translation>
     </message>
     <message>
         <source>New Project</source>
-        <translation>新しいプロジェクト</translation>
+        <translation type="obsolete">新しいプロジェクト</translation>
     </message>
 </context>
 <context>
@@ -16507,7 +17224,11 @@ Do you still want to load the settings file?</source>
     </message>
     <message>
         <source>Show bounding rectangles (A)</source>
-        <translation>枠線を常に表示 (A)</translation>
+        <translation type="obsolete">枠線を常に表示 (A)</translation>
+    </message>
+    <message>
+        <source>Show bounding rectangles and stripes for empty items (Press Key A)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Only select items with content (S)</source>
@@ -16778,6 +17499,38 @@ Do you still want to load the settings file?</source>
         <translation>可視性</translation>
     </message>
     <message>
+        <source>Anchors</source>
+        <translation>アンカー</translation>
+    </message>
+    <message>
+        <source>Fill</source>
+        <translation>Fill</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>リセット</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>レイアウト</translation>
+    </message>
+    <message>
+        <source>Layout in Row</source>
+        <translation>Row 配置</translation>
+    </message>
+    <message>
+        <source>Layout in Column</source>
+        <translation>Column 配置</translation>
+    </message>
+    <message>
+        <source>Layout in Grid</source>
+        <translation>Grid 配置</translation>
+    </message>
+    <message>
+        <source>Layout in Flow</source>
+        <translation>Flow 配置</translation>
+    </message>
+    <message>
         <source>Go into Component</source>
         <translation>コンポーネントに入る</translation>
     </message>
@@ -17025,7 +17778,7 @@ Do you still want to load the settings file?</source>
     </message>
     <message>
         <source>file or directory not found</source>
-        <translation>ファイルまたはディレクトリが見つかりませんでした</translation>
+        <translation type="obsolete">ファイルまたはディレクトリが見つかりませんでした</translation>
     </message>
 </context>
 <context>
@@ -17065,6 +17818,10 @@ Do you still want to load the settings file?</source>
     <message>
         <source>expected anchor line</source>
         <translation>アンカーラインを指定して下さい</translation>
+    </message>
+    <message>
+        <source>unreachable</source>
+        <translation>到達不可</translation>
     </message>
     <message>
         <source>declarations should be at the start of a function</source>
@@ -17131,6 +17888,10 @@ Do you still want to load the settings file?</source>
         <translation>ID は一意でなければいけません</translation>
     </message>
     <message>
+        <source>&apos;%1&apos; is not a valid property type</source>
+        <translation>&apos;%1&apos; は無効なプロパティ型です</translation>
+    </message>
+    <message>
         <source>unknown identifier</source>
         <translation>不明な識別子です</translation>
     </message>
@@ -17155,6 +17916,10 @@ Do you still want to load the settings file?</source>
         <translation>新しいスコープを導出しないスコープを避けて下さい</translation>
     </message>
     <message>
+        <source>unintentional empty block, use ({}) for empty object literal</source>
+        <translation>意図しない空ブロックには空のオブジェクトリテラルを表す ({}) を使用して下さい</translation>
+    </message>
+    <message>
         <source>use of the with statement is not recommended, use a var instead</source>
         <translation>with ステートメントの使用は推奨されていません。代わりに var を使って下さい</translation>
     </message>
@@ -17171,12 +17936,24 @@ Do you still want to load the settings file?</source>
         <translation>式ステートメントは割り当て、関数呼び出しまたは delete ステートメントのみとしてください</translation>
     </message>
     <message>
+        <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
+        <translation>&apos;new&apos; は大文字で始まる関数で使用して下さい</translation>
+    </message>
+    <message>
+        <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
+        <translation>大文字で始まる関数の呼び出しは、&apos;new&apos;を使用する必要があります</translation>
+    </message>
+    <message>
         <source>avoid assignments in conditions</source>
         <translation>条件内の割り当てを回避</translation>
     </message>
     <message>
+        <source>case is not terminated and not empty</source>
+        <translation>case に終端がなく空でもありません</translation>
+    </message>
+    <message>
         <source>case does not end with return, break, continue or throw</source>
-        <translation>case 文は return、break、continue、throw のいずれかで終わらなければいけません</translation>
+        <translation type="obsolete">case 文は return、break、continue、throw のいずれかで終わらなければいけません</translation>
     </message>
     <message>
         <source>&apos;%1&apos; is not a valid property name</source>
@@ -17195,11 +17972,29 @@ Do you still want to load the settings file?</source>
     <name>QmlJS::Link</name>
     <message>
         <source>package not found</source>
-        <translation>パッケージが見つかりません</translation>
+        <translation type="obsolete">パッケージが見つかりません</translation>
     </message>
     <message>
         <source>Library contains C++ plugins, type dump is in progress.</source>
-        <translation>C++ プラグインを含んだライブラリを実行している時に dump と入力して下さい。</translation>
+        <translation type="obsolete">C++ プラグインを含んだライブラリを実行している時に dump と入力して下さい。</translation>
+    </message>
+    <message>
+        <source>file or directory not found</source>
+        <translation>ファイルまたはディレクトリが見つかりませんでした</translation>
+    </message>
+    <message>
+        <source>QML module not found
+
+Import paths:
+%1
+
+For qmake projects, use the QML_IMPORT_PATH variable to add import paths.
+For qmlproject projects, use the importPaths property to add import paths.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QML module contains C++ plugins, currently reading type information...</source>
+        <translation>QML モジュールは C++ プラグインを含んでいます。現在、型情報を読み込み中...</translation>
     </message>
 </context>
 <context>
@@ -17230,6 +18025,10 @@ Do you still want to load the settings file?</source>
 </context>
 <context>
     <name>QmlJSEditor::FindReferences</name>
+    <message>
+        <source>QML/JS Usages:</source>
+        <translation>QML/JS 出現箇所:</translation>
+    </message>
     <message>
         <source>Searching</source>
         <translation>検索中</translation>
@@ -17269,39 +18068,39 @@ Do you still want to load the settings file?</source>
     <name>QmlJSEditor::Internal::QmlJSEditorFactory</name>
     <message>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
-        <translation>Qt Quick デザイナ(実験的)を有効にしますか?</translation>
+        <translation type="obsolete">Qt Quick デザイナ(実験的)を有効にしますか?</translation>
     </message>
     <message>
         <source>Enable Qt Quick Designer</source>
-        <translation>Qt Quick デザイナの有効化</translation>
+        <translation type="obsolete">Qt Quick デザイナの有効化</translation>
     </message>
     <message>
         <source>Qt Creator -&gt; About Plugins...</source>
-        <translation>Qt Creator -&gt; プラグインについて...</translation>
+        <translation type="obsolete">Qt Creator -&gt; プラグインについて...</translation>
     </message>
     <message>
         <source>Help -&gt; About Plugins...</source>
-        <translation>ヘルプ -&gt; プラグインについて...</translation>
+        <translation type="obsolete">ヘルプ -&gt; プラグインについて...</translation>
     </message>
     <message>
         <source>Enable experimental Qt Quick Designer?</source>
-        <translation>実験的な Qt Quick デザイナを有効にしますか?</translation>
+        <translation type="obsolete">実験的な Qt Quick デザイナを有効にしますか?</translation>
     </message>
     <message>
         <source>Do you want to enable the experimental Qt Quick Designer? After enabling it, you can access the visual design capabilities by switching to Design Mode. This can affect the overall stability of Qt Creator. To disable Qt Quick Designer again, visit the menu &apos;%1&apos; and disable &apos;QmlDesigner&apos;.</source>
-        <translation>実験的な Qt Quick デザイナを有効にしますか？有効にするとデザインモードに切り替えた際にヴィジュアルデザイン機能を使用できるようになりますが、Qt Creator 全体の安定性に影響を与えます。再度 Qt Quick デザイナを無効にしたい場合は、&apos;%1&apos; メニューで &apos;QmlDesinger&apos; を無効にして下さい。</translation>
+        <translation type="obsolete">実験的な Qt Quick デザイナを有効にしますか？有効にするとデザインモードに切り替えた際にヴィジュアルデザイン機能を使用できるようになりますが、Qt Creator 全体の安定性に影響を与えます。再度 Qt Quick デザイナを無効にしたい場合は、&apos;%1&apos; メニューで &apos;QmlDesinger&apos; を無効にして下さい。</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>キャンセル</translation>
+        <translation type="obsolete">キャンセル</translation>
     </message>
     <message>
         <source>Please restart Qt Creator</source>
-        <translation>Qt Creator を再起動して下さい</translation>
+        <translation type="obsolete">Qt Creator を再起動して下さい</translation>
     </message>
     <message>
         <source>Please restart Qt Creator to make the change effective.</source>
-        <translation>変更内容を適用する為、Qt Creator を再起動して下さい。</translation>
+        <translation type="obsolete">変更内容を適用する為、Qt Creator を再起動して下さい。</translation>
     </message>
 </context>
 <context>
@@ -17323,8 +18122,28 @@ Do you still want to load the settings file?</source>
         <translation>JS ファイル</translation>
     </message>
     <message>
+        <source>Rename Symbol Under Cursor</source>
+        <translation>カーソル位置のシンボルの名前を変更する</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+R</source>
+        <translation>Ctrl+Shift+R</translation>
+    </message>
+    <message>
+        <source>Run Checks</source>
+        <translation>チェックを実行</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+C</source>
+        <translation>Ctrl+Shift+C</translation>
+    </message>
+    <message>
         <source>QML</source>
         <translation>QML</translation>
+    </message>
+    <message>
+        <source>QML Analysis</source>
+        <translation>QML 解析</translation>
     </message>
     <message>
         <source>Follow Symbol Under Cursor</source>
@@ -17423,11 +18242,11 @@ Do you still want to load the settings file?</source>
     </message>
     <message>
         <source>Rename...</source>
-        <translation>名前を変更...</translation>
+        <translation type="obsolete">名前を変更...</translation>
     </message>
     <message>
         <source>New id:</source>
-        <translation>新しい ID:</translation>
+        <translation type="obsolete">新しい ID:</translation>
     </message>
     <message>
         <source>Unused variable</source>
@@ -17439,7 +18258,7 @@ Do you still want to load the settings file?</source>
     </message>
     <message>
         <source>Rename id &apos;%1&apos;...</source>
-        <translation>ID &apos;%1&apos; の名前を変更...</translation>
+        <translation type="obsolete">ID &apos;%1&apos; の名前を変更...</translation>
     </message>
 </context>
 <context>
@@ -17582,6 +18401,10 @@ Do you still want to load the settings file?</source>
     <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
         <source>Methods and functions</source>
+        <translation type="obsolete">メソッドと関数</translation>
+    </message>
+    <message>
+        <source>Methods and Functions</source>
         <translation>メソッドと関数</translation>
     </message>
 </context>
@@ -17599,7 +18422,7 @@ Do you still want to load the settings file?</source>
 Errors:
 %2
 </source>
-        <translation>%1 にある QML プラグインのダンプが失敗しました。
+        <translation type="obsolete">%1 にある QML プラグインのダンプが失敗しました。
 エラー:
 %2
 </translation>
@@ -17610,11 +18433,33 @@ First 10 lines or errors:
 
 %1
 Check &apos;General Messages&apos; output pane for details.</source>
-        <translation>C++ プラグインのダンプが失敗しました。
+        <translation type="obsolete">C++ プラグインのダンプが失敗しました。
 先頭の10行またはエラー内容:
 
 %1
 詳細は&apos;全体メッセージ&apos;出力ペインを確認して下さい。</translation>
+    </message>
+    <message>
+        <source>QML module does not contain information about components contained in plugins
+
+Module path: %1
+See &quot;Using QML Modules with Plugins&quot; in the documentation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatic type dump of QML module failed.
+Errors:
+%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatic type dump of QML module failed.
+First 10 lines or errors:
+
+%1
+Check &apos;General Messages&apos; output pane for details.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Warnings while parsing qmltypes information of %1:
@@ -17623,9 +18468,18 @@ Check &apos;General Messages&apos; output pane for details.</source>
 %2</translation>
     </message>
     <message>
+        <source>Errors while reading typeinfo files:</source>
+        <translation>typeinfo ファイル読み込み中にエラー:</translation>
+    </message>
+    <message>
+        <source>Could not locate the helper application for dumping type information from C++ plugins.
+Please build the qmldump application on the Qt version options page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Type dump of C++ plugin failed. Parse error:
 &apos;%1&apos;</source>
-        <translation>C++ プラグインのダンプが失敗しました。パースエラー:
+        <translation type="obsolete">C++ プラグインのダンプが失敗しました。パースエラー:
 &apos;%1&apos;</translation>
     </message>
     <message>
@@ -17637,7 +18491,7 @@ Error: %2</source>
     <message>
         <source>Could not locate the helper application for dumping type information from C++ plugins.
 Please build the debugging helpers on the Qt version options page.</source>
-        <translation>C++ プラグインから型の情報をダンプするヘルパアプリケーションが見つかりませんでした。
+        <translation type="obsolete">C++ プラグインから型の情報をダンプするヘルパアプリケーションが見つかりませんでした。
 デバッグヘルパを Qt バージョンオプションのページでビルドしてください。</translation>
     </message>
 </context>
@@ -17657,7 +18511,16 @@ Please build the debugging helpers on the Qt version options page.</source>
     <message>
         <source>Global Qt Quick</source>
         <comment>Settings</comment>
-        <translation>Global Qt Quick</translation>
+        <translation type="obsolete">Global Qt Quick</translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <comment>Settings</comment>
+        <translation>グローバル</translation>
+    </message>
+    <message>
+        <source>Qt</source>
+        <translation>Qt</translation>
     </message>
 </context>
 <context>
@@ -17678,7 +18541,7 @@ Please build the debugging helpers on the Qt version options page.</source>
     <name>QmlParser</name>
     <message>
         <source>Illegal character</source>
-        <translation>無効な文字</translation>
+        <translation type="obsolete">無効な文字</translation>
     </message>
     <message>
         <source>Unclosed string at end of line</source>
@@ -17690,11 +18553,11 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
     <message>
         <source>Illegal escape sequence</source>
-        <translation>無効なエスケープシーケンス</translation>
+        <translation type="obsolete">無効なエスケープシーケンス</translation>
     </message>
     <message>
         <source>Unclosed comment at end of file</source>
-        <translation>文末で閉じられていないコメント</translation>
+        <translation type="obsolete">文末で閉じられていないコメント</translation>
     </message>
     <message>
         <source>Illegal syntax for exponential number</source>
@@ -17702,7 +18565,7 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
     <message>
         <source>Identifier cannot start with numeric literal</source>
-        <translation>識別子は数字で始められません</translation>
+        <translation type="obsolete">識別子は数字で始められません</translation>
     </message>
     <message>
         <source>Unterminated regular expression literal</source>
@@ -17737,19 +18600,35 @@ Please build the debugging helpers on the Qt version options page.</source>
     <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
     <message>
         <source>Dialog</source>
-        <translation>ダイアログ</translation>
+        <translation type="obsolete">ダイアログ</translation>
     </message>
     <message>
         <source>Address:</source>
-        <translation>アドレス:</translation>
+        <translation type="obsolete">アドレス:</translation>
     </message>
     <message>
         <source>127.0.0.1</source>
-        <translation>127.0.0.1</translation>
+        <translation type="obsolete">127.0.0.1</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation>ポート:</translation>
+        <translation type="obsolete">ポート:</translation>
+    </message>
+    <message>
+        <source>QML Profiler</source>
+        <translation>QML プロファイラ</translation>
+    </message>
+    <message>
+        <source>&amp;Host:</source>
+        <translation>ホスト(&amp;H):</translation>
+    </message>
+    <message>
+        <source>localhost</source>
+        <translation>localhost</translation>
+    </message>
+    <message>
+        <source>&amp;Port:</source>
+        <translation>ポート(&amp;P):</translation>
     </message>
 </context>
 <context>
@@ -17794,11 +18673,11 @@ Please build the debugging helpers on the Qt version options page.</source>
     <name>QmlProfiler::Internal::QmlProfilerEventStatistics</name>
     <message>
         <source>Source code not available</source>
-        <translation>ソースコードが使用できません</translation>
+        <translation type="obsolete">ソースコードが使用できません</translation>
     </message>
     <message>
         <source>&lt;bytecode&gt;</source>
-        <translation>&lt;バイトコード&gt;</translation>
+        <translation type="obsolete">&lt;バイトコード&gt;</translation>
     </message>
 </context>
 <context>
@@ -17825,7 +18704,15 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
     <message>
         <source>Time per Call</source>
-        <translation>1回あたりの時間</translation>
+        <translation type="obsolete">1回あたりの時間</translation>
+    </message>
+    <message>
+        <source>Mean Time</source>
+        <translation>平均時間</translation>
+    </message>
+    <message>
+        <source>Median Time</source>
+        <translation>平均期間</translation>
     </message>
     <message>
         <source>Longest Time</source>
@@ -17853,7 +18740,7 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
     <message>
         <source>Binding</source>
-        <translation>結合</translation>
+        <translation>バインディング</translation>
     </message>
     <message>
         <source>Signal</source>
@@ -17876,6 +18763,22 @@ Please build the debugging helpers on the Qt version options page.</source>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
         <translation>QML プロファイラは、QML を使っているアプリケーションの性能のボトルネックを探すのに使用する事ができます。</translation>
+    </message>
+    <message>
+        <source>Load QML Trace</source>
+        <translation>QML トレースを読み込む</translation>
+    </message>
+    <message>
+        <source>Save QML Trace</source>
+        <translation>QML トレースを保存</translation>
+    </message>
+    <message>
+        <source>Copy Row</source>
+        <translation>行をコピー</translation>
+    </message>
+    <message>
+        <source>Copy Table</source>
+        <translation>表をコピー</translation>
     </message>
     <message>
         <source>The QML profiler requires Qt 4.7.4 or newer.
@@ -17920,6 +18823,20 @@ Do you want to continue?</source>
     <message>
         <source>Elapsed: %1 s</source>
         <translation>経過: %1 秒</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Could not connect to the in-process QML profiler.
+Do you want to retry?</source>
+        <translation>プロセス内 QML プロファイラに接続できませんでした。
+再試行しますか？</translation>
+    </message>
+    <message>
+        <source>QML traces (%1)</source>
+        <translation>QML トレース (%1)</translation>
     </message>
 </context>
 <context>
@@ -17975,6 +18892,10 @@ Do you want to continue?</source>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>プロジェクト &apos;%1&apos; を開けません: プロジェクトは既に開かれています</translation>
     </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project file is not a file</source>
+        <translation>プロジェクト &apos;%1&apos; を開けません: プロジェクトファイルが存在しません</translation>
+    </message>
 </context>
 <context>
     <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
@@ -17983,10 +18904,18 @@ Do you want to continue?</source>
         <translation>Qt Quick UI</translation>
     </message>
     <message>
-        <source>Creates a  Qt Quick UI project with a single QML file that contains the main view.
+        <source>Creates a Qt Quick UI project with a single QML file that contains the main view.
 
 You can review Qt Quick UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.</source>
         <translation>メインビューを含んだ1個の QML ファイルを持つ Qt Quick UI プロジェクトを作成します。
+
+ビルドする事なく QML ビューアで Qt Quick UI プロジェクトをレビューできます。このタイプのプロジェクトを作ったり実行したりする為に、開発環境をインストールする必要はありません。</translation>
+    </message>
+    <message>
+        <source>Creates a  Qt Quick UI project with a single QML file that contains the main view.
+
+You can review Qt Quick UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.</source>
+        <translation type="obsolete">メインビューを含んだ1個の QML ファイルを持つ Qt Quick UI プロジェクトを作成します。
 
 ビルドする事なく QML ビューアで Qt Quick UI プロジェクトをレビューできます。このタイプのプロジェクトを作ったり実行したりする為に、開発環境をインストールする必要はありません。</translation>
     </message>
@@ -18013,7 +18942,11 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
     <message>
         <source>Manage Qt versions</source>
-        <translation>Qt バージョンの管理</translation>
+        <translation type="obsolete">Qt バージョンの管理</translation>
+    </message>
+    <message>
+        <source>Manage Qt versions...</source>
+        <translation>Qt バージョンの管理...</translation>
     </message>
     <message>
         <source>Qt version:</source>
@@ -18147,7 +19080,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     <name>Qt Quick</name>
     <message>
         <source>Qt Quick</source>
-        <translation>Qt Quick</translation>
+        <translation type="obsolete">Qt Quick</translation>
     </message>
 </context>
 <context>
@@ -18179,7 +19112,7 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
     </message>
     <message>
         <source>Linux Devices</source>
-        <translation>Linux デバイス</translation>
+        <translation type="obsolete">Linux デバイス</translation>
     </message>
 </context>
 <context>
@@ -18204,8 +19137,12 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
         <translation>Symbian 固有</translation>
     </message>
     <message>
+        <source>Maemo5 And MeeGo Specific</source>
+        <translation>Maemo5 と MeeGo 固有</translation>
+    </message>
+    <message>
         <source>Maemo5 And Meego Specific</source>
-        <translation>Maemo5 と Meego 固有</translation>
+        <translation type="obsolete">Maemo5 と Meego 固有</translation>
     </message>
     <message>
         <source>Harmattan Specific</source>
@@ -18907,8 +19844,12 @@ Adds the library and include paths to the .pro file.</source>
         <translation>C++ ライブラリ</translation>
     </message>
     <message>
+        <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation>qmake を使用した C++ ライブラリのプロジェクトを作成します。このプロジェクトでは&lt;ul&gt;&lt;li&gt;&lt;tt&gt;QPluginLoader&lt;/tt&gt;やランタイム(プラグイン)から使用できる共有 C++ ライブラリ&lt;/li&gt;&lt;li&gt;他のプロジェクトとのリンク時に使用される共有/静的 C++ ライブラリ&lt;/li&gt;&lt;/ul&gt;を作成できます</translation>
+    </message>
+    <message>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
-        <translation>qmake を使用した C++ ライブラリのプロジェクトを作成します。このプロジェクトでは&lt;ul&gt;&lt;li&gt;&lt;tt&gt;QPluginLoader&lt;/tt&gt;やランタイム(プラグイン)から使用できる共有 C++ ライブラリ&lt;/li&gt;&lt;li&gt;他のプロジェクトとのリンク時に使用される共有/静的 C++ ライブラリ&lt;/li&gt;&lt;/ul&gt;を作成できます。</translation>
+        <translation type="obsolete">qmake を使用した C++ ライブラリのプロジェクトを作成します。このプロジェクトでは&lt;ul&gt;&lt;li&gt;&lt;tt&gt;QPluginLoader&lt;/tt&gt;やランタイム(プラグイン)から使用できる共有 C++ ライブラリ&lt;/li&gt;&lt;li&gt;他のプロジェクトとのリンク時に使用される共有/静的 C++ ライブラリ&lt;/li&gt;&lt;/ul&gt;を作成できます。</translation>
     </message>
 </context>
 <context>
@@ -18968,27 +19909,27 @@ Adds the library and include paths to the .pro file.</source>
     <name>Qt4ProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
     <message>
         <source>Invalid Icon</source>
-        <translation>無効なアイコン</translation>
+        <translation type="obsolete">無効なアイコン</translation>
     </message>
     <message>
         <source>The file is not a valid image.</source>
-        <translation>有効な画像ファイルではありません。</translation>
+        <translation type="obsolete">有効な画像ファイルではありません。</translation>
     </message>
     <message>
         <source>Wrong Icon Size</source>
-        <translation>間違ったアイコンサイズ</translation>
+        <translation type="obsolete">間違ったアイコンサイズ</translation>
     </message>
     <message>
         <source>The icon needs to be %1x%2 pixels big, but is not. Do you want Creator to scale it?</source>
-        <translation>アイコンは %1x%2 ピクセルでなければなりません。調整しますか？</translation>
+        <translation type="obsolete">アイコンは %1x%2 ピクセルでなければなりません。調整しますか？</translation>
     </message>
     <message>
         <source>Could not copy icon file: %1</source>
-        <translation>アイコンファイルをコピーできませんでした: %1</translation>
+        <translation type="obsolete">アイコンファイルをコピーできませんでした: %1</translation>
     </message>
     <message>
         <source>File Error</source>
-        <translation>ファイルエラー</translation>
+        <translation type="obsolete">ファイルエラー</translation>
     </message>
 </context>
 <context>
@@ -19027,59 +19968,59 @@ Adds the library and include paths to the .pro file.</source>
     <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
     <message>
         <source>Headers</source>
-        <translation>ヘッダー</translation>
+        <translation type="obsolete">ヘッダー</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation>ソース</translation>
+        <translation type="obsolete">ソース</translation>
     </message>
     <message>
         <source>Forms</source>
-        <translation>フォーム</translation>
+        <translation type="obsolete">フォーム</translation>
     </message>
     <message>
         <source>Resources</source>
-        <translation>リソース</translation>
+        <translation type="obsolete">リソース</translation>
     </message>
     <message>
         <source>QML</source>
-        <translation>QML</translation>
+        <translation type="obsolete">QML</translation>
     </message>
     <message>
         <source>Other files</source>
-        <translation>その他のファイル</translation>
+        <translation type="obsolete">その他のファイル</translation>
     </message>
     <message>
         <source>Cannot Open File</source>
-        <translation>ファイルを開けません</translation>
+        <translation type="obsolete">ファイルを開けません</translation>
     </message>
     <message>
         <source>Cannot open the file for edit with VCS.</source>
-        <translation>バージョン管理システムを使ってファイルを編集モードで開けませんでした。</translation>
+        <translation type="obsolete">バージョン管理システムを使ってファイルを編集モードで開けませんでした。</translation>
     </message>
     <message>
         <source>Cannot Set Permissions</source>
-        <translation>パーミッション設定不可</translation>
+        <translation type="obsolete">パーミッション設定不可</translation>
     </message>
     <message>
         <source>Cannot set permissions to writable.</source>
-        <translation>書き込み可能にするパーミッションを設定できません。</translation>
+        <translation type="obsolete">書き込み可能にするパーミッションを設定できません。</translation>
     </message>
     <message>
         <source>Failed!</source>
-        <translation>エラー発生!</translation>
+        <translation type="obsolete">エラー発生!</translation>
     </message>
     <message>
         <source>File Error</source>
-        <translation>ファイルエラー</translation>
+        <translation type="obsolete">ファイルエラー</translation>
     </message>
     <message>
         <source>There are unsaved changes for project file %1.</source>
-        <translation>プロジェクトファイル %1 は変更されていますが、まだ保存されていません。</translation>
+        <translation type="obsolete">プロジェクトファイル %1 は変更されていますが、まだ保存されていません。</translation>
     </message>
     <message>
         <source>Could not write project file %1.</source>
-        <translation>プロジェクトファイル %1 に書き込めません。</translation>
+        <translation type="obsolete">プロジェクトファイル %1 に書き込めません。</translation>
     </message>
 </context>
 <context>
@@ -19117,9 +20058,14 @@ Adds the library and include paths to the .pro file.</source>
         <translation>不正な Qt バージョン</translation>
     </message>
     <message>
-        <source>An build for a different project exists in %1, which will be overwritten.</source>
+        <source>A build for a different project exists in %1, which will be overwritten.</source>
         <comment>%1 build directory</comment>
         <translation>%1 に別のプロジェクトビルドがありますが、上書きされます。</translation>
+    </message>
+    <message>
+        <source>An build for a different project exists in %1, which will be overwritten.</source>
+        <comment>%1 build directory</comment>
+        <translation type="obsolete">%1 に別のプロジェクトビルドがありますが、上書きされます。</translation>
     </message>
     <message>
         <source>Error:</source>
@@ -19150,7 +20096,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Manage</source>
-        <translation>管理</translation>
+        <translation type="obsolete">管理</translation>
     </message>
     <message>
         <source>problemLabel</source>
@@ -19171,6 +20117,10 @@ Adds the library and include paths to the .pro file.</source>
     <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
+    </message>
+    <message>
+        <source>Manage...</source>
+        <translation>管理...</translation>
     </message>
 </context>
 <context>
@@ -19344,8 +20294,12 @@ Adds the library and include paths to the .pro file.</source>
         <translation>&apos;%2&apos; にあるモジュール &apos;%3&apos; のエントリ &apos;%1&apos; は無効です。</translation>
     </message>
     <message>
-        <source>No .pro file for plugin &apos;%1&apos; cannot be found.</source>
+        <source>No .pro file for plugin &apos;%1&apos; can be found.</source>
         <translation>プラグイン &apos;%1&apos; の .pro ファイルが見つかりません。</translation>
+    </message>
+    <message>
+        <source>No .pro file for plugin &apos;%1&apos; cannot be found.</source>
+        <translation type="obsolete">プラグイン &apos;%1&apos; の .pro ファイルが見つかりません。</translation>
     </message>
 </context>
 <context>
@@ -19357,8 +20311,16 @@ Adds the library and include paths to the .pro file.</source>
     <message>
         <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
 
-You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.3 or newer is required.</source>
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.4 or newer is required.</source>
         <translation>QML と C++ コードとQDeclarativeView をインクルードした Qt Quick アプリケーションプロジェクトを作成します。
+
+デスクトップ向けおよびモバイル向けのアプリケーションのビルドとデプロイが可能です。たとえば署名済み Symbian インストールシステム (SIS) パッケージのようなプロジェクトを作成できます。また作成済み UI コンポーネントセットを Qt Quick アプリケーションで使用する事もできます。コンポーネントを利用する場合は、Qt 4.7.4 以降が必要です。</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
+
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.3 or newer is required.</source>
+        <translation type="obsolete">QML と C++ コードとQDeclarativeView をインクルードした Qt Quick アプリケーションプロジェクトを作成します。
 
 デスクトップ向けおよびモバイル向けのアプリケーションのビルドとデプロイが可能です。たとえば署名済み Symbian インストールシステム (SIS) パッケージのようなプロジェクトを作成できます。また作成済み UI コンポーネントセットを Qt Quick アプリケーションで使用する事もできます。コンポーネントを利用する場合は、Qt 4.7.3 以降が必要になります。</translation>
     </message>
@@ -19546,7 +20508,7 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
     <message>
         <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Build Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
-        <translation>%1&lt;p&gt;&lt;em&gt;これらの変更はビルドシステムに対するものではありませんが&lt;/em&gt;、&lt;em&gt;自己署名&lt;/em&gt;されたパッケージをデバイスにインストールするために必要でした。&lt;/p&gt;&lt;p&gt;変更点の詳細についてはビルドの問題点ペインを確認してください。&lt;/p&gt;&lt;p&gt;この変更の不要にする他の署名用オプションについては&lt;a href=&quot;%2&quot;&gt;ドキュメント&lt;/a&gt;を参照してください。&lt;/p&gt;</translation>
+        <translation type="obsolete">%1&lt;p&gt;&lt;em&gt;これらの変更はビルドシステムに対するものではありませんが&lt;/em&gt;、&lt;em&gt;自己署名&lt;/em&gt;されたパッケージをデバイスにインストールするために必要でした。&lt;/p&gt;&lt;p&gt;変更点の詳細についてはビルドの問題点ペインを確認してください。&lt;/p&gt;&lt;p&gt;この変更の不要にする他の署名用オプションについては&lt;a href=&quot;%2&quot;&gt;ドキュメント&lt;/a&gt;を参照してください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Ignore patching for this packaging step.</source>
@@ -19587,6 +20549,10 @@ Use a developer certificate or any other signing option to prevent this patching
     <message>
         <source>Could not start process &quot;%1&quot; in %2</source>
         <translation>%2 でプロセス &quot;%1&quot; を開始できませんでした</translation>
+    </message>
+    <message>
+        <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
+        <translation>%1&lt;p&gt;&lt;em&gt;これらの変更はビルドシステムに対するものではありませんが&lt;/em&gt;、&lt;em&gt;自己署名&lt;/em&gt;されたパッケージをデバイスにインストールするために必要でした。&lt;/p&gt;&lt;p&gt;変更点の詳細については問題ペインを確認してください。&lt;/p&gt;&lt;p&gt;この変更の不要にする他の署名用オプションについては&lt;a href=&quot;%2&quot;&gt;ドキュメント&lt;/a&gt;を参照してください。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Starting: &quot;%1&quot; %2 in %3
@@ -19793,6 +20759,10 @@ Use a developer certificate or any other signing option to prevent this patching
     <message>
         <source>Qt Quick components version: </source>
         <translation>Qt Quick コンポーネントバージョン: </translation>
+    </message>
+    <message>
+        <source>QML Viewer version: </source>
+        <translation>QML ビューア バージョン:</translation>
     </message>
     <message>
         <source>Screen size:</source>
@@ -20415,8 +21385,12 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
         <translation>Makefile が見つかりません。ビルド設定を確認して下さい。</translation>
     </message>
     <message>
+        <source>Configuration is faulty. Check the Issues view for details.</source>
+        <translation>構成は不完全です。詳細は、問題ビューで確認して下さい。</translation>
+    </message>
+    <message>
         <source>Configuration is faulty. Check the Build Issues view for details.</source>
-        <translation>構成は不完全です。詳細は、ビルドの問題点で確認して下さい。</translation>
+        <translation type="obsolete">構成は不完全です。詳細は、ビルドの問題点で確認して下さい。</translation>
     </message>
 </context>
 <context>
@@ -20458,7 +21432,11 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
     <message>
         <source>Configuration is faulty, please check the Build Issues view for details.</source>
-        <translation>構成は不完全です。詳細は、ビルドの問題点で確認して下さい。</translation>
+        <translation type="obsolete">構成は不完全です。詳細は、ビルドの問題点で確認して下さい。</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty, please check the Issues view for details.</source>
+        <translation>構成は不完全です。詳細は、問題ビューで確認して下さい。</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping qmake step.</source>
@@ -20482,15 +21460,23 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
     <message>
         <source>QML Debugging</source>
+        <translation type="obsolete">QML デバッグ</translation>
+    </message>
+    <message>
+        <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
+        <translation type="obsolete">このオプションはプロジェクトをリコンパイルしないと効果が出ません。今すぐリコンパイルしますか？</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
+    <message>
+        <source>QML Debugging</source>
         <translation>QML デバッグ</translation>
     </message>
     <message>
         <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
         <translation>このオプションはプロジェクトをリコンパイルしないと効果が出ません。今すぐリコンパイルしますか？</translation>
     </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>Building helpers</source>
         <translation>ﾍﾙﾊﾟﾋﾞﾙﾄﾞ中</translation>
@@ -20502,6 +21488,10 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; The tool chain suggested &quot;%1&quot; as mkspec.</source>
+        <translation>&lt;b&gt;警告:&lt;/b&gt; ツールチェインは mkspec として &quot;%1&quot; を勧めています。</translation>
     </message>
     <message>
         <source>Enable QML debugging:</source>
@@ -20525,6 +21515,10 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Qt 4.7.1 以降でのみ利用可能です。</translation>
+    </message>
+    <message>
+        <source>Not needed.</source>
+        <translation>必要ありません。</translation>
     </message>
     <message>
         <source>QML Debugging</source>
@@ -20556,6 +21550,10 @@ Reason: %2</source>
         <translation>Qt 4.7.1 以降でのみ利用可能です。</translation>
     </message>
     <message>
+        <source>Not needed.</source>
+        <translation>必要ありません。</translation>
+    </message>
+    <message>
         <source>Private headers are missing for this Qt version.</source>
         <translation>この Qt バージョンのプライベートヘッダーが見つかりません。</translation>
     </message>
@@ -20573,6 +21571,10 @@ Reason: %2</source>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Qt 4.7.1 以降でのみ利用可能です。</translation>
+    </message>
+    <message>
+        <source>Not needed.</source>
+        <translation>必要ありません。</translation>
     </message>
     <message>
         <source>QMLObserver</source>
@@ -20767,9 +21769,14 @@ Reason: %2</source>
         <translation>Harmattan</translation>
     </message>
     <message>
+        <source>MeeGo</source>
+        <comment>Qt4 MeeGo target display name</comment>
+        <translation>MeeGo</translation>
+    </message>
+    <message>
         <source>Meego</source>
         <comment>Qt4 Meego target display name</comment>
-        <translation>Meego</translation>
+        <translation type="obsolete">Meego</translation>
     </message>
     <message>
         <source>Symbian Emulator</source>
@@ -21018,7 +22025,7 @@ Reason: %2</source>
     </message>
     <message>
         <source>Qt Quick Components for Meego/Harmattan</source>
-        <translation>MeeGo/Harmattan 向け Qt Quick コンポーネント</translation>
+        <translation type="obsolete">MeeGo/Harmattan 向け Qt Quick コンポーネント</translation>
     </message>
     <message>
         <source>The built-in elements in the QtQuick namespace allow you to write cross-platform applications with a custom look and feel.
@@ -21032,7 +22039,7 @@ Qt 4.7.1 以降が必要です。</translation>
         <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
 
 Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.</source>
-        <translation>Symbian 向け Qt Quick コンポーネントは Symbian プラットフォームのネイティブな外観に合わせて設計された既成のコンポーネント集です。
+        <translation type="obsolete">Symbian 向け Qt Quick コンポーネントは Symbian プラットフォームのネイティブな外観に合わせて設計された既成のコンポーネント集です。
 
 4.7.3 以降のコンポーネント集がインストールされた Qt が必要です。</translation>
     </message>
@@ -21040,7 +22047,7 @@ Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.
         <source>The Qt Quick Components for Meego/Harmattan are a set of ready-made components that are designed with specific native appearance for the Meego/Harmattan platform.
 
 Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
-        <translation>Meego/Harmattan 向け Qt Quick コンポーネントは Meego/Harmattan プラットフォームのネイティブな外観に合わせて設計された既成のコンポーネント集です。
+        <translation type="obsolete">Meego/Harmattan 向け Qt Quick コンポーネントは Meego/Harmattan プラットフォームのネイティブな外観に合わせて設計された既成のコンポーネント集です。
 
 4.7.4 以降のコンポーネント集がインストールされた Qt が必要です。</translation>
     </message>
@@ -21051,6 +22058,26 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <message>
         <source>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>メイン QML ファイルと同じディレクトリに存在するすべてのファイルとディレクトリがコピーされます。コピー前であればいつでもディレクトリの内容を変更できます。</translation>
+    </message>
+    <message>
+        <source>Qt Quick Components for MeeGo/Harmattan</source>
+        <translation>MeeGo/Hrmattan 向け Qt Quick コンポーネント</translation>
+    </message>
+    <message>
+        <source>The Qt Quick Components for MeeGo/Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo/Harmattan platform.
+
+Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
+        <translation>Meego/Harmattan 向け Qt Quick コンポーネントは Meego/Harmattan プラットフォームのネイティブな外観に合わせて設計された既成のコンポーネント集です。
+
+4.7.4 以降のコンポーネント集がインストールされた Qt が必要です。</translation>
+    </message>
+    <message>
+        <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
+
+Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
+        <translation>Symbian 向け Qt Quick コンポーネントは Symbian プラットフォームのネイティブな外観に合わせて設計された既成のコンポーネント集です。
+
+4.7.4 以降のコンポーネント集がインストールされた Qt が必要です。</translation>
     </message>
 </context>
 <context>
@@ -21097,7 +22124,7 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
     <message>
         <source>Compile debugging helpers that are checked.</source>
-        <translation>チェックされているデバッグヘルパをコンパイルします。</translation>
+        <translation type="obsolete">チェックされているデバッグヘルパをコンパイルします。</translation>
     </message>
     <message>
         <source>Build All</source>
@@ -21110,6 +22137,10 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
 </context>
 <context>
     <name>QtSupport::Internal::GettingStartedWelcomePage</name>
+    <message>
+        <source>Demos and Examples</source>
+        <translation>デモとサンプル</translation>
+    </message>
     <message>
         <source>Getting Started</source>
         <translation>Qt Creator スタートガイド</translation>
@@ -21145,6 +22176,10 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <message>
         <source>Cannot Copy Project</source>
         <translation>プロジェクトをコピーできません</translation>
+    </message>
+    <message>
+        <source>Failed to open project</source>
+        <translation>プロジェクトを開くのに失敗しました</translation>
     </message>
 </context>
 <context>
@@ -21262,7 +22297,7 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
     <message>
         <source>Add</source>
-        <translation>追加</translation>
+        <translation type="obsolete">追加</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -21271,6 +22306,10 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <message>
         <source>Clean up</source>
         <translation>クリーンアップ</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>追加...</translation>
     </message>
 </context>
 <context>
@@ -21324,7 +22363,11 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
     <message>
         <source>Failed to detect the ABI(s) used by the Qt version.</source>
-        <translation>Qt バージョンが使用している ABI の認識に失敗しました。</translation>
+        <translation type="obsolete">Qt バージョンが使用している ABI の認識に失敗しました。</translation>
+    </message>
+    <message>
+        <source>ABI detection failed: Make sure to use a matching tool chain when building.</source>
+        <translation>ABI 検出失敗: ビルド時は適切なツールチェインを使用して下さい。</translation>
     </message>
     <message>
         <source>No qmlviewer installed.</source>
@@ -21359,9 +22402,14 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
         <translation>Harmattan</translation>
     </message>
     <message>
+        <source>MeeGo</source>
+        <comment>Qt Version is meant for MeeGo</comment>
+        <translation>MeeGo</translation>
+    </message>
+    <message>
         <source>Meego</source>
         <comment>Qt Version is meant for Meego</comment>
-        <translation>Meego</translation>
+        <translation type="obsolete">Meego</translation>
     </message>
     <message>
         <source>Qt Simulator</source>
@@ -21464,43 +22512,43 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <name>RemoteLinux::AbstractMaemoPackageCreationStep</name>
     <message>
         <source>Package up to date.</source>
-        <translation>パッケージは最新です。</translation>
+        <translation type="obsolete">パッケージは最新です。</translation>
     </message>
     <message>
         <source>Creating package file ...</source>
-        <translation>パッケージファイルの作成中...</translation>
+        <translation type="obsolete">パッケージファイルの作成中...</translation>
     </message>
     <message>
         <source>Package created.</source>
-        <translation>パッケージを作成しました。</translation>
+        <translation type="obsolete">パッケージを作成しました。</translation>
     </message>
     <message>
         <source>Packaging failed.</source>
-        <translation>パッケージ作成に失敗しました。</translation>
+        <translation type="obsolete">パッケージ作成に失敗しました。</translation>
     </message>
     <message>
         <source>Packaging error: No Qt version.</source>
-        <translation>パッケージ作成エラー: Qt バージョンがありません。</translation>
+        <translation type="obsolete">パッケージ作成エラー: Qt バージョンがありません。</translation>
     </message>
     <message>
         <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation>パッケージ作成: コマンド &apos;%1&apos; の実行中。</translation>
+        <translation type="obsolete">パッケージ作成: コマンド &apos;%1&apos; の実行中。</translation>
     </message>
     <message>
         <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation>パッケージ作成エラー: コマンド &apos;%1&apos; を開始できませんでした。理由: %2</translation>
+        <translation type="obsolete">パッケージ作成エラー: コマンド &apos;%1&apos; を開始できませんでした。理由: %2</translation>
     </message>
     <message>
         <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation>パッケージ作成エラー: コマンド &apos;%1&apos; が失敗しました。</translation>
+        <translation type="obsolete">パッケージ作成エラー: コマンド &apos;%1&apos; が失敗しました。</translation>
     </message>
     <message>
         <source> Reason: %1</source>
-        <translation> 理由: %1</translation>
+        <translation type="obsolete"> 理由: %1</translation>
     </message>
     <message>
         <source>Exit code: %1</source>
-        <translation>終了コード: %1</translation>
+        <translation type="obsolete">終了コード: %1</translation>
     </message>
 </context>
 <context>
@@ -21544,11 +22592,15 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
     <message>
         <source>Remote Execution Failure</source>
-        <translation>リモート実行失敗</translation>
+        <translation type="obsolete">リモート実行失敗</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::CreateTarStepWidget</name>
+    <message>
+        <source>Tarball creation not possible.</source>
+        <translation>tarball を作成できません。</translation>
+    </message>
     <message>
         <source>Create tarball:</source>
         <translation>作成する tarball:</translation>
@@ -21595,211 +22647,215 @@ In addition, device connectivity will be tested.</source>
         <source>Connection Data</source>
         <translation>接続データ</translation>
     </message>
+    <message>
+        <source>Generic Linux Device</source>
+        <translation>一般的な Linux デバイス</translation>
+    </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractDebBasedQt4MaemoTarget</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation>Debian チェンジログ &apos;%1&apos; が未知の形式です。</translation>
+        <translation type="obsolete">Debian チェンジログ &apos;%1&apos; が未知の形式です。</translation>
     </message>
     <message>
         <source>Invalid icon data in Debian control file.</source>
-        <translation>Debian コントロールファイル内に無効なアイコンデータがあります。</translation>
+        <translation type="obsolete">Debian コントロールファイル内に無効なアイコンデータがあります。</translation>
     </message>
     <message>
         <source>Could not read image file &apos;%1&apos;.</source>
-        <translation>画像ファイル &apos;%1&apos; を読み込めません。</translation>
+        <translation type="obsolete">画像ファイル &apos;%1&apos; を読み込めません。</translation>
     </message>
     <message>
         <source>Could not export image file &apos;%1&apos;.</source>
-        <translation>画像ファイル &apos;%1&apos; をエクスポートできません。</translation>
+        <translation type="obsolete">画像ファイル &apos;%1&apos; をエクスポートできません。</translation>
     </message>
     <message>
         <source>Unable to create Debian templates: No Qt version set</source>
-        <translation>Debian テンプレートを作成できません: Qt バージョンが設定されていません</translation>
+        <translation type="obsolete">Debian テンプレートを作成できません: Qt バージョンが設定されていません</translation>
     </message>
     <message>
         <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation>Debian テンプレートを作成できません: dh_make 失敗 (%1)</translation>
+        <translation type="obsolete">Debian テンプレートを作成できません: dh_make 失敗 (%1)</translation>
     </message>
     <message>
         <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation>Debian テンプレートを作成できません: dh_make 失敗 (%1)</translation>
+        <translation type="obsolete">Debian テンプレートを作成できません: dh_make 失敗 (%1)</translation>
     </message>
     <message>
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation>新しい Debian ディレクトリを &apos;%1&apos; に移動できません。</translation>
+        <translation type="obsolete">新しい Debian ディレクトリを &apos;%1&apos; に移動できません。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoDeployByMountStep</name>
     <message>
         <source>Installing package to device...</source>
-        <translation>デバイスにパッケージをインストール中...</translation>
+        <translation type="obsolete">デバイスにパッケージをインストール中...</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoDeployStep</name>
     <message>
         <source>Operation canceled by user, cleaning up...</source>
-        <translation>ユーザーによって操作がキャンセルされた為、クリーンアップしています...</translation>
+        <translation type="obsolete">ユーザーによって操作がキャンセルされた為、クリーンアップしています...</translation>
     </message>
     <message>
         <source>Cannot deploy: Still cleaning up from last time.</source>
-        <translation>デプロイ不可: 直近のクリーンアップがまだ完了していません。</translation>
+        <translation type="obsolete">デプロイ不可: 直近のクリーンアップがまだ完了していません。</translation>
     </message>
     <message>
         <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation>デプロイ不可: Qemu が実行されていません。既に起動はされていますが、準備が完了するまでもう少し時間がかかります。後で、もう一度やり直して下さい。</translation>
+        <translation type="obsolete">デプロイ不可: Qemu が実行されていません。既に起動はされていますが、準備が完了するまでもう少し時間がかかります。後で、もう一度やり直して下さい。</translation>
     </message>
     <message>
         <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation>デプロイ不可: Qemu をデプロイしようとしていますが、この Qt バージョンでは使用できません。</translation>
+        <translation type="obsolete">デプロイ不可: Qemu をデプロイしようとしていますが、この Qt バージョンでは使用できません。</translation>
     </message>
     <message>
         <source>All files up to date, no installation necessary.</source>
-        <translation>ファイルはすべて最新です、インストールの必要はありません。</translation>
+        <translation type="obsolete">ファイルはすべて最新です、インストールの必要はありません。</translation>
     </message>
     <message>
         <source>Connection error: %1</source>
-        <translation>接続エラー: %1</translation>
+        <translation type="obsolete">接続エラー: %1</translation>
     </message>
     <message>
         <source>Connecting to device...</source>
-        <translation>デバイスに接続中...</translation>
+        <translation type="obsolete">デバイスに接続中...</translation>
     </message>
     <message>
         <source>Deployment failed.</source>
-        <translation>デプロイ失敗。</translation>
+        <translation type="obsolete">デプロイ失敗。</translation>
     </message>
     <message>
         <source>Deployment finished.</source>
-        <translation>デプロイ完了。</translation>
+        <translation type="obsolete">デプロイ完了。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
-        <translation>ビルド構成なしでは sysroot にインストールできません。</translation>
+        <translation type="obsolete">ビルド構成なしでは sysroot にインストールできません。</translation>
     </message>
     <message>
         <source>Cannot install package to sysroot without packaging step.</source>
-        <translation>パッケージ化の手順なしで sysroot にパッケージをインストールできません。</translation>
+        <translation type="obsolete">パッケージ化の手順なしで sysroot にパッケージをインストールできません。</translation>
     </message>
     <message>
         <source>Cannot install package to sysroot without a Qt version.</source>
-        <translation>Qt バージョンなしで sysroot にパッケージをインストールできません。</translation>
+        <translation type="obsolete">Qt バージョンなしで sysroot にパッケージをインストールできません。</translation>
     </message>
     <message>
         <source>Installing package to sysroot ...</source>
-        <translation>sysroot にパッケージをインストール中...</translation>
+        <translation type="obsolete">sysroot にパッケージをインストール中...</translation>
     </message>
     <message>
         <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation>sysroot へのインストールに失敗しましたが、続行します。</translation>
+        <translation type="obsolete">sysroot へのインストールに失敗しましたが、続行します。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
-        <translation>sysroot にデプロイ不可: パッケージ化の手順が見つかりませんでした。</translation>
+        <translation type="obsolete">sysroot にデプロイ不可: パッケージ化の手順が見つかりませんでした。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoPackageInstaller</name>
     <message>
         <source>Connection failure: %1</source>
-        <translation>接続エラー: %1</translation>
+        <translation type="obsolete">接続エラー: %1</translation>
     </message>
     <message>
         <source>Installing package failed.</source>
-        <translation>パッケージのインストールが失敗しました。</translation>
+        <translation type="obsolete">パッケージのインストールが失敗しました。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractMaemoUploadAndInstallStep</name>
     <message>
         <source>No matching packaging step found.</source>
-        <translation>該当するパッケージ化手順が見つかりません。</translation>
+        <translation type="obsolete">該当するパッケージ化手順が見つかりません。</translation>
     </message>
     <message>
         <source>Successfully uploaded package file.</source>
-        <translation>パッケージファイルのアップロードが成功しました。</translation>
+        <translation type="obsolete">パッケージファイルのアップロードが成功しました。</translation>
     </message>
     <message>
         <source>Installing package to device...</source>
-        <translation>デバイスにパッケージをインストール中...</translation>
+        <translation type="obsolete">デバイスにパッケージをインストール中...</translation>
     </message>
     <message>
         <source>Package installed.</source>
-        <translation>パッケージをインストールしました。</translation>
+        <translation type="obsolete">パッケージをインストールしました。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::AbstractQt4MaemoTarget</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation>ファイル &apos;%1&apos; を開けません: %2</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; を開けません: %2</translation>
     </message>
     <message>
         <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
+        <translation type="obsolete">Qt Creator</translation>
     </message>
     <message>
         <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
-        <translation>ターゲット &apos;%1&apos; に関連付けられたパッケージファイルを削除しますか？</translation>
+        <translation type="obsolete">ターゲット &apos;%1&apos; に関連付けられたパッケージファイルを削除しますか？</translation>
     </message>
     <message>
         <source>Error creating packaging directory &apos;%1&apos;.</source>
-        <translation>パッケージディレクトリ &apos;%1&apos; の作成中にエラーが発生しました。</translation>
+        <translation type="obsolete">パッケージディレクトリ &apos;%1&apos; の作成中にエラーが発生しました。</translation>
     </message>
     <message>
         <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
    %1
 Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation>&lt;html&gt;Qt Creator はパッケージを有効にする為、以下のファイルを準備しています:
+        <translation type="obsolete">&lt;html&gt;Qt Creator はパッケージを有効にする為、以下のファイルを準備しています:
    %1
 これらをプロジェクトに追加しますか？&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Error creating MeeGo templates</source>
-        <translation>MeeGo テンプレート作成中にエラー</translation>
+        <translation type="obsolete">MeeGo テンプレート作成中にエラー</translation>
     </message>
     <message>
         <source>Add Packaging Files to Project</source>
-        <translation>プロジェクトにパッケージファイルを追加</translation>
+        <translation type="obsolete">プロジェクトにパッケージファイルを追加</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationFactory</name>
     <message>
         <source>Generic Linux Device</source>
-        <translation>一般的な Linux デバイス</translation>
+        <translation type="obsolete">一般的な Linux デバイス</translation>
     </message>
     <message>
         <source>Generic Linux</source>
-        <translation>一般的な Linux</translation>
+        <translation type="obsolete">一般的な Linux</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation>テスト</translation>
+        <translation type="obsolete">テスト</translation>
     </message>
     <message>
         <source>Remote Processes</source>
-        <translation>リモートプロセス</translation>
+        <translation type="obsolete">リモートプロセス</translation>
     </message>
     <message>
         <source>Deploy Public Key</source>
-        <translation>公開鍵のデプロイ</translation>
+        <translation type="obsolete">公開鍵のデプロイ</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::LinuxDeviceConfigurations</name>
     <message>
         <source>(default for %1)</source>
-        <translation>(%1 向けのデフォルト)</translation>
+        <translation type="obsolete">(%1 向けのデフォルト)</translation>
     </message>
 </context>
 <context>
@@ -21813,318 +22869,318 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     <name>RemoteLinux::Internal::MaddeDeviceConfigurationFactory</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
-        <translation>MADDE をサポートしているデバイス (Fremantle, Harmattan, MeeGo)</translation>
+        <translation type="obsolete">MADDE をサポートしているデバイス (Fremantle, Harmattan, MeeGo)</translation>
     </message>
     <message>
         <source>Maemo5/Fremantle</source>
-        <translation>Maemo5/Fremantle</translation>
+        <translation type="obsolete">Maemo5/Fremantle</translation>
     </message>
     <message>
         <source>MeeGo 1.2 Harmattan</source>
-        <translation>MeeGo 1.2 Harmattan</translation>
+        <translation type="obsolete">MeeGo 1.2 Harmattan</translation>
     </message>
     <message>
         <source>Other MeeGo OS</source>
-        <translation>他の MeeGo OS</translation>
+        <translation type="obsolete">他の MeeGo OS</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoConfigTestDialog</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
-        <translation>構成をテストしています。しばらくお待ち下さい。</translation>
+        <translation type="obsolete">構成をテストしています。しばらくお待ち下さい。</translation>
     </message>
     <message>
         <source>Testing configuration...</source>
-        <translation>構成のテスト中...</translation>
+        <translation type="obsolete">構成のテスト中...</translation>
     </message>
     <message>
         <source>Stop Test</source>
-        <translation>テストの停止</translation>
+        <translation type="obsolete">テストの停止</translation>
     </message>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>ホストに接続できませんでした: %1</translation>
+        <translation type="obsolete">ホストに接続できませんでした: %1</translation>
     </message>
     <message>
         <source>
 Did you start Qemu?</source>
-        <translation>
+        <translation type="obsolete">
 Qemu は起動していますか?</translation>
     </message>
     <message>
         <source>Remote process failed: %1</source>
-        <translation>リモートプロセス失敗: %1</translation>
+        <translation type="obsolete">リモートプロセス失敗: %1</translation>
     </message>
     <message>
         <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
-        <translation>Qt バージョンが適合していません!  デバイス上の Qt はバージョン 4.6.2 以降が必要です。</translation>
+        <translation type="obsolete">Qt バージョンが適合していません!  デバイス上の Qt はバージョン 4.6.2 以降が必要です。</translation>
     </message>
     <message>
         <source>%1 is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
-        <translation>%1 がインストールされていません。このデバイスにデプロイできない可能性があります。</translation>
+        <translation type="obsolete">%1 がインストールされていません。このデバイスにデプロイできない可能性があります。</translation>
     </message>
     <message>
         <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translation>設定 -&gt; セキュリティでデバイスをデベロッパモードに切り替えて下さい。</translation>
+        <translation type="obsolete">設定 -&gt; セキュリティでデバイスをデベロッパモードに切り替えて下さい。</translation>
     </message>
     <message>
         <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.</source>
-        <translation>ディレクトリ &apos;%1&apos; が見つかりません。デバイスで QML デバッグができない可能性があります。</translation>
+        <translation type="obsolete">ディレクトリ &apos;%1&apos; が見つかりません。デバイスで QML デバッグができない可能性があります。</translation>
     </message>
     <message>
         <source>Error retrieving list of used ports: %1</source>
-        <translation>使用済みポート一覧の受信中にエラー: %1</translation>
+        <translation type="obsolete">使用済みポート一覧の受信中にエラー: %1</translation>
     </message>
     <message>
         <source>All specified ports are available.</source>
-        <translation>指定されたすべてのポートが使用可能です。</translation>
+        <translation type="obsolete">指定されたすべてのポートが使用可能です。</translation>
     </message>
     <message>
         <source>The following supposedly free ports are being used on the device:</source>
-        <translation>以下の空きポートは、デバイスで使用されている可能性があります:</translation>
+        <translation type="obsolete">以下の空きポートは、デバイスで使用されている可能性があります:</translation>
     </message>
     <message>
         <source>Device configuration okay.</source>
-        <translation>デバイス構成に問題はありません。</translation>
+        <translation type="obsolete">デバイス構成に問題はありません。</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>閉じる</translation>
+        <translation type="obsolete">閉じる</translation>
     </message>
     <message>
         <source>Device configuration test failed: Unexpected output:
 %1</source>
-        <translation>デバイス構成のテストに失敗しました。予期しない出力:
+        <translation type="obsolete">デバイス構成のテストに失敗しました。予期しない出力:
 %1</translation>
     </message>
     <message>
         <source>Hardware architecture: %1
 </source>
-        <translation>ハードウェアアーキテクチャ: %1
+        <translation type="obsolete">ハードウェアアーキテクチャ: %1
 </translation>
     </message>
     <message>
         <source>Kernel version: %1
 </source>
-        <translation>カーネルバージョン: %1
+        <translation type="obsolete">カーネルバージョン: %1
 </translation>
     </message>
     <message>
         <source>No Qt packages installed.</source>
-        <translation>Qt のパッケージがインストールされていません。</translation>
+        <translation type="obsolete">Qt のパッケージがインストールされていません。</translation>
     </message>
     <message>
         <source>List of installed Qt packages:</source>
-        <translation>インストールされている Qt パッケージの一覧:</translation>
+        <translation type="obsolete">インストールされている Qt パッケージの一覧:</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoCopyToSysrootStep</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
-        <translation>ビルド構成なしでは sysroot にコピーできません。</translation>
+        <translation type="obsolete">ビルド構成なしでは sysroot にコピーできません。</translation>
     </message>
     <message>
         <source>Cannot copy to sysroot without valid Qt version.</source>
-        <translation>正しい Qt バージョンでなければ sysroot にコピーできません。</translation>
+        <translation type="obsolete">正しい Qt バージョンでなければ sysroot にコピーできません。</translation>
     </message>
     <message>
         <source>Copying files to sysroot ...</source>
-        <translation>sysroot にファイルをコピー中...</translation>
+        <translation type="obsolete">sysroot にファイルをコピー中...</translation>
     </message>
     <message>
         <source>Sysroot installation failed: %1
  Continuing anyway.</source>
-        <translation>sysroot インストール失敗: %1
+        <translation type="obsolete">sysroot インストール失敗: %1
  継続します。</translation>
     </message>
     <message>
         <source>Copy files to sysroot</source>
-        <translation>sysroot にファイルをコピー</translation>
+        <translation type="obsolete">sysroot にファイルをコピー</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDebianPackageInstaller</name>
     <message>
         <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation>インストール失敗: パッケージのダウングレードを試みましたが、許可されていません。</translation>
+        <translation type="obsolete">インストール失敗: パッケージのダウングレードを試みましたが、許可されていません。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeployConfigurationWidget</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
-        <translation>アイコンを選択して下さい(必要に応じて %1x%1 サイズに調整されます)</translation>
+        <translation type="obsolete">アイコンを選択して下さい(必要に応じて %1x%1 サイズに調整されます)</translation>
     </message>
     <message>
         <source>Invalid Icon</source>
-        <translation>無効なアイコン</translation>
+        <translation type="obsolete">無効なアイコン</translation>
     </message>
     <message>
         <source>Unable to read image</source>
-        <translation>画像を読めません</translation>
+        <translation type="obsolete">画像を読めません</translation>
     </message>
     <message>
         <source>Failed to Save Icon</source>
-        <translation>アイコンの保存失敗</translation>
+        <translation type="obsolete">アイコンの保存失敗</translation>
     </message>
     <message>
         <source>Could not save icon to &apos;%1&apos;.</source>
-        <translation>アイコンを &apos;%1&apos; に保存できませんでした。</translation>
+        <translation type="obsolete">アイコンを &apos;%1&apos; に保存できませんでした。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeployStepBaseWidget</name>
     <message>
         <source>Cannot deploy: %1</source>
-        <translation>デプロイ不可: %1</translation>
+        <translation type="obsolete">デプロイ不可: %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
-        <translation>&lt;b&gt;%1 で使用中のデバイス&lt;/b&gt;: %2</translation>
+        <translation type="obsolete">&lt;b&gt;%1 で使用中のデバイス&lt;/b&gt;: %2</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeploymentMounter</name>
     <message>
         <source>Connection failed: %1</source>
-        <translation>接続失敗: %1</translation>
+        <translation type="obsolete">接続失敗: %1</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizard</name>
     <message>
         <source>New Device Configuration Setup</source>
-        <translation>新しいデバイス構成の設定</translation>
+        <translation type="obsolete">新しいデバイス構成の設定</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardFinalPage</name>
     <message>
         <source>The new device configuration will now be created.</source>
-        <translation>新しいデバイス構成が作成されます。</translation>
+        <translation type="obsolete">新しいデバイス構成が作成されます。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
     <message>
         <source>Key Creation</source>
-        <translation>鍵の生成</translation>
+        <translation type="obsolete">鍵の生成</translation>
     </message>
     <message>
         <source>Cannot Create Keys</source>
-        <translation>鍵を作成できません</translation>
+        <translation type="obsolete">鍵を作成できません</translation>
     </message>
     <message>
         <source>The path you have entered is not a directory.</source>
-        <translation>指定されたパスはディレクトリではありません。</translation>
+        <translation type="obsolete">指定されたパスはディレクトリではありません。</translation>
     </message>
     <message>
         <source>The directory you have entered does not exist and cannot be created.</source>
-        <translation>指定されたディレクトリが存在しない為、鍵を作成できません。</translation>
+        <translation type="obsolete">指定されたディレクトリが存在しない為、鍵を作成できません。</translation>
     </message>
     <message>
         <source>Creating keys ... </source>
-        <translation>鍵を生成中...</translation>
+        <translation type="obsolete">鍵を生成中...</translation>
     </message>
     <message>
         <source>Key creation failed: %1</source>
-        <translation>鍵の作成に失敗: %1</translation>
+        <translation type="obsolete">鍵の作成に失敗: %1</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation>完了しました。</translation>
+        <translation type="obsolete">完了しました。</translation>
     </message>
     <message>
         <source>Could Not Save Key File</source>
-        <translation>鍵ファイルを保存できませんでした</translation>
+        <translation type="obsolete">鍵ファイルを保存できませんでした</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
     <message>
         <source>Key Deployment</source>
-        <translation>鍵のデプロイ</translation>
+        <translation type="obsolete">鍵のデプロイ</translation>
     </message>
     <message>
         <source>Deploying... </source>
-        <translation>デプロイ中...</translation>
+        <translation type="obsolete">デプロイ中...</translation>
     </message>
     <message>
         <source>Key Deployment Failure</source>
-        <translation>鍵ファイルのデプロイが失敗</translation>
+        <translation type="obsolete">鍵ファイルのデプロイが失敗</translation>
     </message>
     <message>
         <source>Key Deployment Success</source>
-        <translation>鍵ファイルのデプロイが成功</translation>
+        <translation type="obsolete">鍵ファイルのデプロイが成功</translation>
     </message>
     <message>
         <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
-        <translation>鍵のデプロイに成功しました。 &quot;%1&quot; アプリケーションを閉じてから続けた方がよいでしょう。</translation>
+        <translation type="obsolete">鍵のデプロイに成功しました。 &quot;%1&quot; アプリケーションを閉じてから続けた方がよいでしょう。</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation>完了しました。</translation>
+        <translation type="obsolete">完了しました。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
     <message>
         <source>Device Status Check</source>
-        <translation>デバイス状態確認</translation>
+        <translation type="obsolete">デバイス状態確認</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
     <message>
         <source>Existing Keys Check</source>
-        <translation>鍵の存在確認</translation>
+        <translation type="obsolete">鍵の存在確認</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardStartPage</name>
     <message>
         <source>General Information</source>
-        <translation>概要</translation>
+        <translation type="obsolete">概要</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsPage</name>
     <message>
         <source>Device Configurations</source>
-        <translation>デバイス構成</translation>
+        <translation type="obsolete">デバイス構成</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
     <message>
         <source>Physical Device</source>
-        <translation>物理デバイス</translation>
+        <translation type="obsolete">物理デバイス</translation>
     </message>
     <message>
         <source>Emulator</source>
-        <translation>エミュレータ</translation>
+        <translation type="obsolete">エミュレータ</translation>
     </message>
     <message>
         <source>You will need at least one port.</source>
-        <translation>最低でも1つのポートが必要です。</translation>
+        <translation type="obsolete">最低でも1つのポートが必要です。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceEnvReader</name>
     <message>
         <source>Connection error: %1</source>
-        <translation>接続エラー: %1</translation>
+        <translation type="obsolete">接続エラー: %1</translation>
     </message>
     <message>
         <source>Error running remote process: %1</source>
-        <translation>実行中のリモートプロセスでエラー発生: %1</translation>
+        <translation type="obsolete">実行中のリモートプロセスでエラー発生: %1</translation>
     </message>
     <message>
         <source>
 Remote stderr was: &apos;%1&apos;</source>
-        <translation>
+        <translation type="obsolete">
 リモート側の標準エラー出力: &apos;%1&apos;</translation>
     </message>
 </context>
@@ -22132,54 +23188,54 @@ Remote stderr was: &apos;%1&apos;</source>
     <name>RemoteLinux::Internal::MaemoDirectDeviceUploadStep</name>
     <message>
         <source>SFTP initialization failed: %1</source>
-        <translation>SFTP 初期化失敗: %1</translation>
+        <translation type="obsolete">SFTP 初期化失敗: %1</translation>
     </message>
     <message>
         <source>All files successfully deployed.</source>
-        <translation>すべてのファイルのデプロイが成功しました。</translation>
+        <translation type="obsolete">すべてのファイルのデプロイが成功しました。</translation>
     </message>
     <message>
         <source>Uploading file &apos;%1&apos;...</source>
-        <translation>ファイル &apos;%1&apos; をアップロード中...</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; をアップロード中...</translation>
     </message>
     <message>
         <source>Failed to upload file &apos;%1&apos;.</source>
-        <translation>ファイル &apos;%1&apos; のアップロードが失敗しました。</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; のアップロードが失敗しました。</translation>
     </message>
     <message>
         <source>Failed to upload file &apos;%1&apos;: Could not open for reading.</source>
-        <translation>ファイル &apos;%1&apos; のアップロードが失敗しました: ファイルを読み込めませんでした。</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; のアップロードが失敗しました: ファイルを読み込めませんでした。</translation>
     </message>
     <message>
         <source>Upload of file &apos;%1&apos; failed: %2</source>
-        <translation>ファイル &apos;%1&apos; アップロード失敗: %2</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; アップロード失敗: %2</translation>
     </message>
     <message>
         <source>Upload files via SFTP</source>
-        <translation>SFTP 経由でファイルをアップロード</translation>
+        <translation type="obsolete">SFTP 経由でファイルをアップロード</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoGlobal</name>
     <message>
         <source>Could not connect to host: %1</source>
-        <translation>ホストに接続できませんでした: %1</translation>
+        <translation type="obsolete">ホストに接続できませんでした: %1</translation>
     </message>
     <message>
         <source>
 Did you start Qemu?</source>
-        <translation>
+        <translation type="obsolete">
 Qemu は起動していますか?</translation>
     </message>
     <message>
         <source>
 Is the device connected and set up for network access?</source>
-        <translation>
+        <translation type="obsolete">
 デバイスを接続済みですか？またネットワークアクセスの設定も完了しましたか？</translation>
     </message>
     <message>
         <source>(No device)</source>
-        <translation>(デバイスなし)</translation>
+        <translation type="obsolete">(デバイスなし)</translation>
     </message>
     <message>
         <source>SDK Connectivity</source>
@@ -22191,69 +23247,69 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Unknown OS</source>
-        <translation>未知の OS</translation>
+        <translation type="obsolete">未知の OS</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoInstallDebianPackageToSysrootStep</name>
     <message>
         <source>Install Debian package to sysroot</source>
-        <translation>sysroot に Debian パッケージをインストール</translation>
+        <translation type="obsolete">sysroot に Debian パッケージをインストール</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoInstallRpmPackageToSysrootStep</name>
     <message>
         <source>Install RPM package to sysroot</source>
-        <translation>sysroot に RPM パッケージをインストール</translation>
+        <translation type="obsolete">sysroot に RPM パッケージをインストール</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoKeyDeployer</name>
     <message>
         <source>Public key error: %1</source>
-        <translation>公開鍵エラー: %1</translation>
+        <translation type="obsolete">公開鍵エラー: %1</translation>
     </message>
     <message>
         <source>Connection failed: %1</source>
-        <translation>接続失敗: %1</translation>
+        <translation type="obsolete">接続失敗: %1</translation>
     </message>
     <message>
         <source>Key deployment failed: %1.</source>
-        <translation>鍵ファイルの転送に失敗: %1。</translation>
+        <translation type="obsolete">鍵ファイルの転送に失敗: %1。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoMakeInstallToSysrootStep</name>
     <message>
         <source>Copy files to sysroot</source>
-        <translation>sysroot にファイルをコピー</translation>
+        <translation type="obsolete">sysroot にファイルをコピー</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoMountAndCopyDeployStep</name>
     <message>
         <source>All files copied.</source>
-        <translation>すべてのファイルをコピーしました。</translation>
+        <translation type="obsolete">すべてのファイルをコピーしました。</translation>
     </message>
     <message>
         <source>Deploy files via UTFS mount</source>
-        <translation>UTFS マウント経由でファイルをデプロイ</translation>
+        <translation type="obsolete">UTFS マウント経由でファイルをデプロイ</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoMountAndInstallDeployStep</name>
     <message>
         <source>No matching packaging step found.</source>
-        <translation>該当するパッケージ化手順が見つかりません。</translation>
+        <translation type="obsolete">該当するパッケージ化手順が見つかりません。</translation>
     </message>
     <message>
         <source>Package installed.</source>
-        <translation>パッケージをインストールしました。</translation>
+        <translation type="obsolete">パッケージをインストールしました。</translation>
     </message>
     <message>
         <source>Deploy package via UTFS mount</source>
-        <translation>UTFS マウント経由でファイルをデプロイ</translation>
+        <translation type="obsolete">UTFS マウント経由でファイルをデプロイ</translation>
     </message>
 </context>
 <context>
@@ -22268,525 +23324,525 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Create tarball</source>
-        <translation>tar ファイルの作成</translation>
+        <translation type="obsolete">tar ファイルの作成</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPackageCreationWidget</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
-        <translation>サイズは %1x%2 ピクセルでなければなりません</translation>
+        <translation type="obsolete">サイズは %1x%2 ピクセルでなければなりません</translation>
     </message>
     <message>
         <source>No Version Available.</source>
-        <translation>利用できるバージョンがありません。</translation>
+        <translation type="obsolete">利用できるバージョンがありません。</translation>
     </message>
     <message>
         <source>Could not read icon</source>
-        <translation>アイコンを読めません</translation>
+        <translation type="obsolete">アイコンを読めません</translation>
     </message>
     <message>
         <source>Images</source>
-        <translation>画像</translation>
+        <translation type="obsolete">画像</translation>
     </message>
     <message>
         <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
-        <translation>画像を選択して下さい(必要に応じて 48x48 ピクセルに調整されます)</translation>
+        <translation type="obsolete">画像を選択して下さい(必要に応じて 48x48 ピクセルに調整されます)</translation>
     </message>
     <message>
         <source>Could Not Set New Icon</source>
-        <translation>新しいアイコンを設定できません</translation>
+        <translation type="obsolete">新しいアイコンを設定できません</translation>
     </message>
     <message>
         <source>File Error</source>
-        <translation>ファイルエラー</translation>
+        <translation type="obsolete">ファイルエラー</translation>
     </message>
     <message>
         <source>Could not set project name.</source>
-        <translation>プロジェクト名を設定できません。</translation>
+        <translation type="obsolete">プロジェクト名を設定できません。</translation>
     </message>
     <message>
         <source>Could not set package name for project manager.</source>
-        <translation>プロジェクトマネージャにパッケージ名を設定できません。</translation>
+        <translation type="obsolete">プロジェクトマネージャにパッケージ名を設定できません。</translation>
     </message>
     <message>
         <source>Could not set project description.</source>
-        <translation>プロジェクトの説明を設定できません。</translation>
+        <translation type="obsolete">プロジェクトの説明を設定できません。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;作成するパッケージ:&lt;/b&gt; </translation>
+        <translation type="obsolete">&lt;b&gt;作成するパッケージ:&lt;/b&gt; </translation>
     </message>
     <message>
         <source>Could Not Set Version Number</source>
-        <translation>バージョン番号を設定できません</translation>
+        <translation type="obsolete">バージョン番号を設定できません</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPackageUploader</name>
     <message>
         <source>Preparing SFTP connection...</source>
-        <translation>SFTP 接続の準備中...</translation>
+        <translation type="obsolete">SFTP 接続の準備中...</translation>
     </message>
     <message>
         <source>Connection failed: %1</source>
-        <translation>接続失敗: %1</translation>
+        <translation type="obsolete">接続失敗: %1</translation>
     </message>
     <message>
         <source>SFTP error: %1</source>
-        <translation>SFTP エラー: %1</translation>
+        <translation type="obsolete">SFTP エラー: %1</translation>
     </message>
     <message>
         <source>Package upload failed: Could not open file.</source>
-        <translation>パッケージアップロード失敗: ファイルを開けません。</translation>
+        <translation type="obsolete">パッケージアップロード失敗: ファイルを開けません。</translation>
     </message>
     <message>
         <source>Failed to upload package: %2</source>
-        <translation>パッケージアップロード失敗: %2</translation>
+        <translation type="obsolete">パッケージアップロード失敗: %2</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
     <message>
         <source>(default)</source>
-        <translation>(既定)</translation>
+        <translation type="obsolete">(既定)</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoProFilesUpdateDialog</name>
     <message>
         <source>Updateable Project Files</source>
-        <translation>更新可能プロジェクトファイル</translation>
+        <translation type="obsolete">更新可能プロジェクトファイル</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublishedProjectModel</name>
     <message>
         <source>Include in package</source>
-        <translation>パッケージに含む</translation>
+        <translation type="obsolete">パッケージに含む</translation>
     </message>
     <message>
         <source>Include</source>
-        <translation>含む</translation>
+        <translation type="obsolete">含む</translation>
     </message>
     <message>
         <source>Do not include</source>
-        <translation>含まない</translation>
+        <translation type="obsolete">含まない</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublisherFremantleFree</name>
     <message>
         <source>Canceled.</source>
-        <translation>中止しました。</translation>
+        <translation type="obsolete">中止しました。</translation>
     </message>
     <message>
         <source>Publishing canceled by user.</source>
-        <translation>ユーザーによって公開が中止されました。</translation>
+        <translation type="obsolete">ユーザーによって公開が中止されました。</translation>
     </message>
     <message>
         <source>The project is missing some information important to publishing:</source>
-        <translation>プロジェクトは公開する為に必要ないくつかの重要な情報が不足しています:</translation>
+        <translation type="obsolete">プロジェクトは公開する為に必要ないくつかの重要な情報が不足しています:</translation>
     </message>
     <message>
         <source>Publishing failed: Missing project information.</source>
-        <translation>公開失敗: プロジェクト情報が見つかりません。</translation>
+        <translation type="obsolete">公開失敗: プロジェクト情報が見つかりません。</translation>
     </message>
     <message>
         <source>Removing left-over temporary directory ...</source>
-        <translation>残っている一時ディレクトリを削除中...</translation>
+        <translation type="obsolete">残っている一時ディレクトリを削除中...</translation>
     </message>
     <message>
         <source>Error removing temporary directory: %1</source>
-        <translation>一時ディレクトリの削除中にエラー: %1</translation>
+        <translation type="obsolete">一時ディレクトリの削除中にエラー: %1</translation>
     </message>
     <message>
         <source>Publishing failed: Could not create source package.</source>
-        <translation>公開失敗: ソースパッケージを作成できませんでした。</translation>
+        <translation type="obsolete">公開失敗: ソースパッケージを作成できませんでした。</translation>
     </message>
     <message>
         <source>Setting up temporary directory ...</source>
-        <translation>一時ディレクトリを設定しています...</translation>
+        <translation type="obsolete">一時ディレクトリを設定しています...</translation>
     </message>
     <message>
         <source>Error: Could not create temporary directory.</source>
-        <translation>エラー: 一時ディレクトリを作成できませんでした。</translation>
+        <translation type="obsolete">エラー: 一時ディレクトリを作成できませんでした。</translation>
     </message>
     <message>
         <source>Error: Could not copy project directory.</source>
-        <translation>エラー: プロジェクトディレクトリをコピーできませんでした。</translation>
+        <translation type="obsolete">エラー: プロジェクトディレクトリをコピーできませんでした。</translation>
     </message>
     <message>
         <source>Error: Could not fix newlines.</source>
-        <translation>エラー: 改行コードを修正できませんでした。</translation>
+        <translation type="obsolete">エラー: 改行コードを修正できませんでした。</translation>
     </message>
     <message>
         <source>Publishing failed: Could not create package.</source>
-        <translation>公開失敗: パッケージを作成できませんでした。</translation>
+        <translation type="obsolete">公開失敗: パッケージを作成できませんでした。</translation>
     </message>
     <message>
         <source>Cleaning up temporary directory ...</source>
-        <translation>一時ディレクトリを掃除しています...</translation>
+        <translation type="obsolete">一時ディレクトリを掃除しています...</translation>
     </message>
     <message>
         <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation>ディレクトリ &apos;%1&apos; の作成に失敗しました。</translation>
+        <translation type="obsolete">ディレクトリ &apos;%1&apos; の作成に失敗しました。</translation>
     </message>
     <message>
         <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
-        <translation>ファイル &apos;%1&apos; を &apos;%2&apos; へコピーできません: %3。</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; を &apos;%2&apos; へコピーできません: %3。</translation>
     </message>
     <message>
         <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation>エラー: dpkg-buildpackage の起動に失敗しました。</translation>
+        <translation type="obsolete">エラー: dpkg-buildpackage の起動に失敗しました。</translation>
     </message>
     <message>
         <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation>エラー: dpkg-buildpackage は成功しませんでした。</translation>
+        <translation type="obsolete">エラー: dpkg-buildpackage は成功しませんでした。</translation>
     </message>
     <message>
         <source>Package creation failed.</source>
-        <translation>パッケージ作成が失敗しました。</translation>
+        <translation type="obsolete">パッケージ作成が失敗しました。</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation>完了しました。</translation>
+        <translation type="obsolete">完了しました。</translation>
     </message>
     <message>
         <source>Packaging finished successfully. The following files were created:
 </source>
-        <translation>パッケージ化に成功しました。以下のファイルが作られました:
+        <translation type="obsolete">パッケージ化に成功しました。以下のファイルが作られました:
 </translation>
     </message>
     <message>
         <source>No Qt version set.</source>
-        <translation>Qt バージョンが設定されていません。</translation>
+        <translation type="obsolete">Qt バージョンが設定されていません。</translation>
     </message>
     <message>
         <source>Building source package...</source>
-        <translation>ソースパッケージをビルド中...</translation>
+        <translation type="obsolete">ソースパッケージをビルド中...</translation>
     </message>
     <message>
         <source>Starting scp ...</source>
-        <translation>SCP を起動中...</translation>
+        <translation type="obsolete">SCP を起動中...</translation>
     </message>
     <message>
         <source>SSH error: %1</source>
-        <translation>SSH エラー: %1</translation>
+        <translation type="obsolete">SSH エラー: %1</translation>
     </message>
     <message>
         <source>Upload failed.</source>
-        <translation>アップロードが失敗しました。</translation>
+        <translation type="obsolete">アップロードが失敗しました。</translation>
     </message>
     <message>
         <source>Error uploading file: %1.</source>
-        <translation>ファイルアップロードエラー: %1.</translation>
+        <translation type="obsolete">ファイルアップロードエラー: %1.</translation>
     </message>
     <message>
         <source>Error uploading file.</source>
-        <translation>ファイルのアップロードでエラーが発生しました。</translation>
+        <translation type="obsolete">ファイルのアップロードでエラーが発生しました。</translation>
     </message>
     <message>
         <source>All files uploaded.</source>
-        <translation>すべてのファイルをアップロードしました。</translation>
+        <translation type="obsolete">すべてのファイルをアップロードしました。</translation>
     </message>
     <message>
         <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation>アップロード成功。もうすぐビルドプロセスの結果についてのメールが送られてくるはずです。</translation>
+        <translation type="obsolete">アップロード成功。もうすぐビルドプロセスの結果についてのメールが送られてくるはずです。</translation>
     </message>
     <message>
         <source>Uploading file %1 ...</source>
-        <translation>ファイル %1 をアップロード中...</translation>
+        <translation type="obsolete">ファイル %1 をアップロード中...</translation>
     </message>
     <message>
         <source>Cannot open file for reading: %1.</source>
-        <translation>ファイルを開けません: %1.</translation>
+        <translation type="obsolete">ファイルを開けません: %1.</translation>
     </message>
     <message>
         <source>Cannot read file: %1</source>
-        <translation>ファイルを読み込めません: %1</translation>
+        <translation type="obsolete">ファイルを読み込めません: %1</translation>
     </message>
     <message>
         <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>パッケージの説明が空です。プロジェクト -&gt; 実行 -&gt; パッケージ作成 -&gt; 詳細 で説明を設定する必要があります。</translation>
+        <translation type="obsolete">パッケージの説明が空です。プロジェクト -&gt; 実行 -&gt; パッケージ作成 -&gt; 詳細 で説明を設定する必要があります。</translation>
     </message>
     <message>
         <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>パッケージの説明は &apos;%1&apos; となっていますが、もし希望通りでなければプロジェクト -&gt; 実行 -&gt; パッケージ作成 -&gt; 詳細 で説明を変更して下さい。</translation>
+        <translation type="obsolete">パッケージの説明は &apos;%1&apos; となっていますが、もし希望通りでなければプロジェクト -&gt; 実行 -&gt; パッケージ作成 -&gt; 詳細 で説明を変更して下さい。</translation>
     </message>
     <message>
         <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>パッケージマネージャにアイコンが設定されていません。プロジェクト -&gt; 実行 -&gt; パッケージ作成 -&gt; 詳細 でアイコンを指定して下さい。</translation>
+        <translation type="obsolete">パッケージマネージャにアイコンが設定されていません。プロジェクト -&gt; 実行 -&gt; パッケージ作成 -&gt; 詳細 でアイコンを指定して下さい。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation>Fremantle の &quot;Extras-devel/free&quot; リポジトリに公開</translation>
+        <translation type="obsolete">Fremantle の &quot;Extras-devel/free&quot; リポジトリに公開</translation>
     </message>
     <message>
         <source>Upload options</source>
-        <translation>アップロードオプション</translation>
+        <translation type="obsolete">アップロードオプション</translation>
     </message>
     <message>
         <source>Choose a private key file</source>
-        <translation>秘密鍵ファイルを選択して下さい</translation>
+        <translation type="obsolete">秘密鍵ファイルを選択して下さい</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation>&quot;Fremantle Extras-devel free&quot; リポジトリに公開</translation>
+        <translation type="obsolete">&quot;Fremantle Extras-devel free&quot; リポジトリに公開</translation>
     </message>
     <message>
         <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation>このウィザードは、ソースアーカイブを作成し必要に応じてビルドサーバーにアップロードします。ユーザーが自身の N900 デバイスにインストールする事ができるようプロジェクトはコンパイル、パッケージ化され &quot;Extras-devel free&quot; リポジトリに移動されます。アップロード機能を使用するには、garage.maemo.org のアカウントが必要です。</translation>
+        <translation type="obsolete">このウィザードは、ソースアーカイブを作成し必要に応じてビルドサーバーにアップロードします。ユーザーが自身の N900 デバイスにインストールする事ができるようプロジェクトはコンパイル、パッケージ化され &quot;Extras-devel free&quot; リポジトリに移動されます。アップロード機能を使用するには、garage.maemo.org のアカウントが必要です。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoPublishingWizardFremantleFree</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation>Fremantle の &quot;Extras-devel free&quot; リポジトリに公開</translation>
+        <translation type="obsolete">Fremantle の &quot;Extras-devel free&quot; リポジトリに公開</translation>
     </message>
     <message>
         <source>Build Settings</source>
-        <translation>ビルド設定</translation>
+        <translation type="obsolete">ビルド設定</translation>
     </message>
     <message>
         <source>Upload Settings</source>
-        <translation>アップロード設定</translation>
+        <translation type="obsolete">アップロード設定</translation>
     </message>
     <message>
         <source>Result</source>
-        <translation>結果</translation>
+        <translation type="obsolete">結果</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoQemuCrashDialog</name>
     <message>
         <source>Qemu error</source>
-        <translation>Qemu エラー</translation>
+        <translation type="obsolete">Qemu エラー</translation>
     </message>
     <message>
         <source>Qemu crashed.</source>
-        <translation>Qemu がクラッシュしました。</translation>
+        <translation type="obsolete">Qemu がクラッシュしました。</translation>
     </message>
     <message>
         <source>Click here to change the OpenGL mode.</source>
-        <translation>OpenGL モードを切り替えて下さい。</translation>
+        <translation type="obsolete">OpenGL モードを切り替えて下さい。</translation>
     </message>
     <message>
         <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation>お使いのシステムではサポートされていない可能性のある OpenGL ハードウェアアクセラレーションを使用するように Qemu が構成されていますが、代わりにソフトウェアレンダリングを使用する事もできます。</translation>
+        <translation type="obsolete">お使いのシステムではサポートされていない可能性のある OpenGL ハードウェアアクセラレーションを使用するように Qemu が構成されていますが、代わりにソフトウェアレンダリングを使用する事もできます。</translation>
     </message>
     <message>
         <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
-        <translation>いくつかのケースでうまく動作しない事が判明している OpenGL モードの自動認識を行うように構成されていますが、代わりにソフトウェアレンダリングを使用する事も出来ます。</translation>
+        <translation type="obsolete">いくつかのケースでうまく動作しない事が判明している OpenGL モードの自動認識を行うように構成されていますが、代わりにソフトウェアレンダリングを使用する事も出来ます。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoQemuManager</name>
     <message>
         <source>Start MeeGo Emulator</source>
-        <translation>MeeGo エミュレータ開始</translation>
+        <translation type="obsolete">MeeGo エミュレータ開始</translation>
     </message>
     <message>
         <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation>対応する Qt バージョンが削除された為、Qemu はシャットダウンしました。</translation>
+        <translation type="obsolete">対応する Qt バージョンが削除された為、Qemu はシャットダウンしました。</translation>
     </message>
     <message>
         <source>Qemu finished with error: Exit code was %1.</source>
-        <translation>Qemu は異常終了しました: 終了コードは %1 です。</translation>
+        <translation type="obsolete">Qemu は異常終了しました: 終了コードは %1 です。</translation>
     </message>
     <message>
         <source>Qemu error</source>
-        <translation>Qemu エラー</translation>
+        <translation type="obsolete">Qemu エラー</translation>
     </message>
     <message>
         <source>Qemu failed to start: %1</source>
-        <translation>Qemu を開始できませんでした: %1</translation>
+        <translation type="obsolete">Qemu を開始できませんでした: %1</translation>
     </message>
     <message>
         <source>Stop MeeGo Emulator</source>
-        <translation>MeeGo エミュレータ停止</translation>
+        <translation type="obsolete">MeeGo エミュレータ停止</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoQemuSettingsPage</name>
     <message>
         <source>MeeGo Qemu Settings</source>
-        <translation>MeeGo Qemu 設定</translation>
+        <translation type="obsolete">MeeGo Qemu 設定</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRemoteCopyFacility</name>
     <message>
         <source>Connection failed: %1</source>
-        <translation>接続失敗: %1</translation>
+        <translation type="obsolete">接続失敗: %1</translation>
     </message>
     <message>
         <source>Error: Copy command failed.</source>
-        <translation>エラー: コピーコマンドが失敗しました。</translation>
+        <translation type="obsolete">エラー: コピーコマンドが失敗しました。</translation>
     </message>
     <message>
         <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
-        <translation>ファイル &apos;%1&apos; をデバイス上のディレクトリ &apos;%2&apos; にコピー中...</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; をデバイス上のディレクトリ &apos;%2&apos; にコピー中...</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRemoteMounter</name>
     <message>
         <source>No directories to mount</source>
-        <translation>マウント先のディレクトリがありません</translation>
+        <translation type="obsolete">マウント先のディレクトリがありません</translation>
     </message>
     <message>
         <source>No directories to unmount</source>
-        <translation>マウントを解除するディレクトリがありません</translation>
+        <translation type="obsolete">マウントを解除するディレクトリがありません</translation>
     </message>
     <message>
         <source>Could not execute unmount request.</source>
-        <translation>マウント解除要求を実行できませんでした。</translation>
+        <translation type="obsolete">マウント解除要求を実行できませんでした。</translation>
     </message>
     <message>
         <source>Failure unmounting: %1</source>
-        <translation>マウント解除失敗: %1</translation>
+        <translation type="obsolete">マウント解除失敗: %1</translation>
     </message>
     <message>
         <source>Finished unmounting.</source>
-        <translation>マウント解除完了。</translation>
+        <translation type="obsolete">マウント解除完了。</translation>
     </message>
     <message>
         <source>
 stderr was: &apos;%1&apos;</source>
-        <translation>
+        <translation type="obsolete">
 標準エラー出力: &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation>エラー: すべてのマウント要求を満たす為に十分な空きポートがデバイス上にありません。</translation>
+        <translation type="obsolete">エラー: すべてのマウント要求を満たす為に十分な空きポートがデバイス上にありません。</translation>
     </message>
     <message>
         <source>Starting remote UTFS clients...</source>
-        <translation>リモート UTFS クライアントを起動中...</translation>
+        <translation type="obsolete">リモート UTFS クライアントを起動中...</translation>
     </message>
     <message>
         <source>Mount operation succeeded.</source>
-        <translation>マウント操作が成功しました。</translation>
+        <translation type="obsolete">マウント操作が成功しました。</translation>
     </message>
     <message>
         <source>Failure running UTFS client: %1</source>
-        <translation>UTFS クライアントの実行が失敗しました: %1</translation>
+        <translation type="obsolete">UTFS クライアントの実行が失敗しました: %1</translation>
     </message>
     <message>
         <source>Starting UTFS servers...</source>
-        <translation>UTFS サーバーを起動中...</translation>
+        <translation type="obsolete">UTFS サーバーを起動中...</translation>
     </message>
     <message>
         <source>
 stderr was: %1</source>
-        <translation>
+        <translation type="obsolete">
 標準エラー出力: %1</translation>
     </message>
     <message>
         <source>Error running UTFS server: %1</source>
-        <translation>UTFS サーバー実行中にエラー: %1</translation>
+        <translation type="obsolete">UTFS サーバー実行中にエラー: %1</translation>
     </message>
     <message>
         <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation>UTFS サーバーへの接続待機中にタイムアウトしました。</translation>
+        <translation type="obsolete">UTFS サーバーへの接続待機中にタイムアウトしました。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRemoteMountsModel</name>
     <message>
         <source>Local directory</source>
-        <translation>ローカルディレクトリ</translation>
+        <translation type="obsolete">ローカルディレクトリ</translation>
     </message>
     <message>
         <source>Remote mount point</source>
-        <translation>リモートマウントポイント</translation>
+        <translation type="obsolete">リモートマウントポイント</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRemoteProcessList</name>
     <message>
         <source>Connection failure: %1</source>
-        <translation>接続エラー: %1</translation>
+        <translation type="obsolete">接続エラー: %1</translation>
     </message>
     <message>
         <source>Error: Remote process failed to start: %1</source>
-        <translation>エラー: リモートプロセスの起動に失敗: %1</translation>
+        <translation type="obsolete">エラー: リモートプロセスの起動に失敗: %1</translation>
     </message>
     <message>
         <source>Error: Remote process crashed: %1</source>
-        <translation>エラー: リモートプロセスがクラッシュ: %1</translation>
+        <translation type="obsolete">エラー: リモートプロセスがクラッシュ: %1</translation>
     </message>
     <message>
         <source>Remote process failed.</source>
-        <translation>リモートプロセスが失敗しました。</translation>
+        <translation type="obsolete">リモートプロセスが失敗しました。</translation>
     </message>
     <message>
         <source>
 Remote stderr was: %1</source>
-        <translation>
+        <translation type="obsolete">
 リモート側標準エラー出力: %1</translation>
     </message>
     <message>
         <source>PID</source>
-        <translation>PID</translation>
+        <translation type="obsolete">PID</translation>
     </message>
     <message>
         <source>Command Line</source>
-        <translation>コマンドライン</translation>
+        <translation type="obsolete">コマンドライン</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRemoteProcessesDialog</name>
     <message>
         <source>Remote Error</source>
-        <translation>リモートエラー</translation>
+        <translation type="obsolete">リモートエラー</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRunConfiguration</name>
     <message>
         <source>Not enough free ports on the device.</source>
-        <translation>デバイスに十分な空きポートがありません。</translation>
+        <translation type="obsolete">デバイスに十分な空きポートがありません。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoRunConfigurationWidget</name>
     <message>
         <source>Choose directory to mount</source>
-        <translation>マウントするディレクトリを選択して下さい</translation>
+        <translation type="obsolete">マウントするディレクトリを選択して下さい</translation>
     </message>
     <message>
         <source>No local directories to be mounted on the device.</source>
-        <translation>デバイスにローカルディレクトリがマウントされていません。</translation>
+        <translation type="obsolete">デバイスにローカルディレクトリがマウントされていません。</translation>
     </message>
     <message>
         <source>One local directory to be mounted on the device.</source>
-        <translation>デバイスにローカルディレクトリをマウントします。</translation>
+        <translation type="obsolete">デバイスにローカルディレクトリをマウントします。</translation>
     </message>
     <message numerus="yes">
         <source>%n local directories to be mounted on the device.</source>
         <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
-        <translation>
+        <translation type="obsolete">
             <numerusform>%n 個のローカルディレクトリがデバイス上にマウントされます。</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>警告: %1 個のディレクトリをマウントしようとしていますが、デバイスには %n 個の空きポートしかありません。&lt;br&gt;この構成では実行する事はできません。</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>警告: %1 個のディレクトリをマウントしようとしていますが、デバイスにはデバッグモードで使用可能な空きポートが %n 個しかありません。&lt;br&gt;この構成ではデバッグする事はできません。</numerusform>
         </translation>
     </message>
@@ -22795,108 +23851,108 @@ Remote stderr was: %1</source>
     <name>RemoteLinux::Internal::MaemoRunControlFactory</name>
     <message>
         <source>Run on device</source>
-        <translation>デバイスで実行</translation>
+        <translation type="obsolete">デバイスで実行</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoSshConfigDialog</name>
     <message>
         <source>Save Public Key File</source>
-        <translation>公開鍵ファイルの保存</translation>
+        <translation type="obsolete">公開鍵ファイルの保存</translation>
     </message>
     <message>
         <source>Save Private Key File</source>
-        <translation>秘密鍵ファイルの保存</translation>
+        <translation type="obsolete">秘密鍵ファイルの保存</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoSshRunner</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation>Qemu が実行されていません。既に起動はされていますが、準備が完了するまでもう少し時間がかかります。後で、もう一度やり直して下さい。</translation>
+        <translation type="obsolete">Qemu が実行されていません。既に起動はされていますが、準備が完了するまでもう少し時間がかかります。後で、もう一度やり直して下さい。</translation>
     </message>
     <message>
         <source>You want to run on Qemu, but it is not enabled for this Qt version.</source>
-        <translation>Qemu を実行しようとしていますが、この Qt バージョンでは利用できません。</translation>
+        <translation type="obsolete">Qemu を実行しようとしていますが、この Qt バージョンでは利用できません。</translation>
     </message>
     <message>
         <source>Mounting host directories...</source>
-        <translation>ホスト側のディレクトリをマウント中...</translation>
+        <translation type="obsolete">ホスト側のディレクトリをマウント中...</translation>
     </message>
     <message>
         <source>Potentially unmounting left-over host directory mounts...</source>
-        <translation>残っている可能性のあるホスト側ディレクトリのマウントを解除中...</translation>
+        <translation type="obsolete">残っている可能性のあるホスト側ディレクトリのマウントを解除中...</translation>
     </message>
     <message>
         <source>Unmounting host directories...</source>
-        <translation>ホスト側ディレクトリのマウントを解除中...</translation>
+        <translation type="obsolete">ホスト側ディレクトリのマウントを解除中...</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoToolChainConfigWidget</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;MADDE のパス:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;MADDE ターゲットのパス:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;デバッガ:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;MADDE のパス:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;MADDE ターゲットのパス:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;デバッガ:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoToolChainFactory</name>
     <message>
         <source>Maemo GCC</source>
-        <translation>Maemo GCC</translation>
+        <translation type="obsolete">Maemo GCC</translation>
     </message>
     <message>
         <source>Maemo GCC for %1</source>
-        <translation>%1 向けMaemo GCC</translation>
+        <translation type="obsolete">%1 向けMaemo GCC</translation>
     </message>
     <message>
         <source>%1 GCC (%2)</source>
-        <translation>%1 GCC (%2)</translation>
+        <translation type="obsolete">%1 GCC (%2)</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoUploadAndInstallDpkgPackageStep</name>
     <message>
         <source>Deploy Debian package via SFTP upload</source>
-        <translation>SFTP アップロード経由で Debian パッケージをデプロイ</translation>
+        <translation type="obsolete">SFTP アップロード経由で Debian パッケージをデプロイ</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoUploadAndInstallRpmPackageStep</name>
     <message>
         <source>Deploy RPM package via SFTP upload</source>
-        <translation>SFTP アップロード経由で RPM パッケージをデプロイ</translation>
+        <translation type="obsolete">SFTP アップロード経由で RPM パッケージをデプロイ</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoUploadAndInstallTarPackageStep</name>
     <message>
         <source>Deploy tarball via SFTP upload</source>
-        <translation>SFTP アップロード経由で tarball をデプロイする</translation>
+        <translation type="obsolete">SFTP アップロード経由で tarball をデプロイする</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
-        <translation>接続エラー: %1</translation>
+        <translation type="obsolete">接続エラー: %1</translation>
     </message>
     <message>
         <source>Could not start remote process: %1</source>
-        <translation>リモートプロセスを開始できませんでした: %1</translation>
+        <translation type="obsolete">リモートプロセスを開始できませんでした: %1</translation>
     </message>
     <message>
         <source>Remote process crashed: %1</source>
-        <translation>リモートプロセスがクラッシュしました: %1</translation>
+        <translation type="obsolete">リモートプロセスがクラッシュしました: %1</translation>
     </message>
     <message>
         <source>Remote process failed: %1</source>
-        <translation>リモートプロセスが失敗しました: %1</translation>
+        <translation type="obsolete">リモートプロセスが失敗しました: %1</translation>
     </message>
     <message>
         <source>
 Remote error output was: %1</source>
-        <translation>
+        <translation type="obsolete">
 リモート側の標準出力: %1</translation>
     </message>
 </context>
@@ -22904,23 +23960,23 @@ Remote error output was: %1</source>
     <name>RemoteLinux::Internal::Qt4MaemoDeployConfigurationFactory</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
-        <translation>Maemo5 デバイスにファイルをコピー</translation>
+        <translation type="obsolete">Maemo5 デバイスにファイルをコピー</translation>
     </message>
     <message>
         <source>Build Debian Package and Install to Maemo5 Device</source>
-        <translation>Debian パッケージをビルドし Maemo5 デバイスにインストール</translation>
+        <translation type="obsolete">Debian パッケージをビルドし Maemo5 デバイスにインストール</translation>
     </message>
     <message>
         <source>Build Debian Package and Install to Harmattan Device</source>
-        <translation>Debian パッケージをビルドし Harmattan デバイスにインストール</translation>
+        <translation type="obsolete">Debian パッケージをビルドし Harmattan デバイスにインストール</translation>
     </message>
     <message>
         <source>Build RPM Package and Install to MeeGo Device</source>
-        <translation>RPM パッケージをビルドし MeeGo デバイスにインストール</translation>
+        <translation type="obsolete">RPM パッケージをビルドし MeeGo デバイスにインストール</translation>
     </message>
     <message>
         <source>Build Tarball and Install to Linux Host</source>
-        <translation>tarball をビルドし Linux ホストにインストール</translation>
+        <translation type="obsolete">tarball をビルドし Linux ホストにインストール</translation>
     </message>
 </context>
 <context>
@@ -22941,89 +23997,89 @@ Remote error output was: %1</source>
     <name>RemoteLinux::MaemoDebianPackageCreationStep</name>
     <message>
         <source>Create Debian Package</source>
-        <translation>Debian パッケージの作成</translation>
+        <translation type="obsolete">Debian パッケージの作成</translation>
     </message>
     <message>
         <source>Packaging failed.</source>
-        <translation>パッケージ作成に失敗しました。</translation>
+        <translation type="obsolete">パッケージ作成に失敗しました。</translation>
     </message>
     <message>
         <source>Could not move package files from %1 to %2.</source>
-        <translation>パッケージファイルを %1 から %2 に移動できませんでした。</translation>
+        <translation type="obsolete">パッケージファイルを %1 から %2 に移動できませんでした。</translation>
     </message>
     <message>
         <source>Your project name contains characters not allowed in Debian packages.
 They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
 We will try to work around that, but you may experience problems.</source>
-        <translation>プロジェクト名に Debian パッケージで許可されていない文字が含まれています。
+        <translation type="obsolete">プロジェクト名に Debian パッケージで許可されていない文字が含まれています。
 使用できるのは 小文字、数字、&apos;-&apos;(マイナス記号)、&apos;+&apos;(プラス記号)、&apos;.&apos;(ピリオド) のみです。
 この問題を回避するよう試みますが、何らかの問題に遭遇する可能性があります。</translation>
     </message>
     <message>
         <source>Packaging failed: Foreign debian directory detected.</source>
-        <translation>パッケージ作成失敗: 無関係な debian ディレクトリを検知しました。</translation>
+        <translation type="obsolete">パッケージ作成失敗: 無関係な debian ディレクトリを検知しました。</translation>
     </message>
     <message>
         <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation>シャドウビルドを使っていませんが、プロジェクトルート (&apos;%1&apos;) に Debian ディレクトリが存在しています。Qt Creator がそのディレクトリを上書きする事はないはずですが、Debian ディレクトリを取り除くかシャドウビルド機能をお使い下さい。</translation>
+        <translation type="obsolete">シャドウビルドを使っていませんが、プロジェクトルート (&apos;%1&apos;) に Debian ディレクトリが存在しています。Qt Creator がそのディレクトリを上書きする事はないはずですが、Debian ディレクトリを取り除くかシャドウビルド機能をお使い下さい。</translation>
     </message>
     <message>
         <source>Could not remove directory &apos;%1&apos;: %2</source>
-        <translation>&apos;%1&apos; ディレクトリを削除できませんでした: %2</translation>
+        <translation type="obsolete">&apos;%1&apos; ディレクトリを削除できませんでした: %2</translation>
     </message>
     <message>
         <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation>Debian ディレクトリ &apos;%1&apos; を作成できませんでした。</translation>
+        <translation type="obsolete">Debian ディレクトリ &apos;%1&apos; を作成できませんでした。</translation>
     </message>
     <message>
         <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation>&apos;%1&apos; から &apos;%2&apos; へファイルをコピーできませんでした</translation>
+        <translation type="obsolete">&apos;%1&apos; から &apos;%2&apos; へファイルをコピーできませんでした</translation>
     </message>
     <message>
         <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation>エラー: ファイル &apos;%1&apos; を作成できませんでした。</translation>
+        <translation type="obsolete">エラー: ファイル &apos;%1&apos; を作成できませんでした。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::MaemoRpmPackageCreationStep</name>
     <message>
         <source>Create RPM Package</source>
-        <translation>RPM パッケージの作成</translation>
+        <translation type="obsolete">RPM パッケージの作成</translation>
     </message>
     <message>
         <source>Packaging failed.</source>
-        <translation>パッケージ作成に失敗しました。</translation>
+        <translation type="obsolete">パッケージ作成に失敗しました。</translation>
     </message>
     <message>
         <source>Could not move package file from %1 to %2.</source>
-        <translation>パッケージファイルを %1 から %2 に移動できませんでした。</translation>
+        <translation type="obsolete">パッケージファイルを %1 から %2 に移動できませんでした。</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::MaemoTarPackageCreationStep</name>
     <message>
         <source>Create tarball</source>
-        <translation>tar ファイルの作成</translation>
+        <translation type="obsolete">tar ファイルの作成</translation>
     </message>
     <message>
         <source>Error: tar file %1 cannot be opened (%2).</source>
-        <translation>エラー: tar ファイル %1 を開けません (%2)。</translation>
+        <translation type="obsolete">エラー: tar ファイル %1 を開けません (%2)。</translation>
     </message>
     <message>
         <source>Error writing tar file &apos;%1&apos;: %2.</source>
-        <translation>tar ファイル &apos;%1&apos; の書き込み中にエラー: %2。</translation>
+        <translation type="obsolete">tar ファイル &apos;%1&apos; の書き込み中にエラー: %2。</translation>
     </message>
     <message>
         <source>Error reading file &apos;%1&apos;: %2.</source>
-        <translation>ファイル &apos;%1&apos; の読み込み中にエラー: %2。</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; の読み込み中にエラー: %2。</translation>
     </message>
     <message>
         <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
-        <translation>ファイル &apos;%1&apos; を tar アーカイブに追加できません: パスが長すぎます。</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; を tar アーカイブに追加できません: パスが長すぎます。</translation>
     </message>
     <message>
         <source>Error writing tar file &apos;%1&apos;: %2</source>
-        <translation>tar ファイル &apos;%1&apos; の書き込み中にエラー: %2</translation>
+        <translation type="obsolete">tar ファイル &apos;%1&apos; の書き込み中にエラー: %2</translation>
     </message>
 </context>
 <context>
@@ -23057,39 +24113,39 @@ We will try to work around that, but you may experience problems.</source>
     <name>RemoteLinux::RemoteLinuxApplicationRunner</name>
     <message>
         <source>Cannot run: %1</source>
-        <translation>実行不可: %1</translation>
+        <translation type="obsolete">実行不可: %1</translation>
     </message>
     <message>
         <source>Connecting to device...</source>
-        <translation>デバイスに接続中...</translation>
+        <translation type="obsolete">デバイスに接続中...</translation>
     </message>
     <message>
         <source>Connection error: %1</source>
-        <translation>接続エラー: %1</translation>
+        <translation type="obsolete">接続エラー: %1</translation>
     </message>
     <message>
         <source>Killing remote process(es)...</source>
-        <translation>リモートプロセスを kill しています...</translation>
+        <translation type="obsolete">リモートプロセスを kill しています...</translation>
     </message>
     <message>
         <source>Initial cleanup failed: %1</source>
-        <translation>初回クリーンアップが失敗: %1</translation>
+        <translation type="obsolete">初回クリーンアップが失敗: %1</translation>
     </message>
     <message>
         <source>Remote process started.</source>
-        <translation>リモートプロセスを開始しました。</translation>
+        <translation type="obsolete">リモートプロセスを開始しました。</translation>
     </message>
     <message>
         <source>No remote executable set.</source>
-        <translation>リモートの実行ファイルが設定されていません。</translation>
+        <translation type="obsolete">リモートの実行ファイルが設定されていません。</translation>
     </message>
     <message>
         <source>No device configuration set.</source>
-        <translation>デバイス構成が設定されていません。</translation>
+        <translation type="obsolete">デバイス構成が設定されていません。</translation>
     </message>
     <message>
         <source>Error running remote process: %1</source>
-        <translation>リモートプロセス実行中にエラー: %1</translation>
+        <translation type="obsolete">リモートプロセス実行中にエラー: %1</translation>
     </message>
 </context>
 <context>
@@ -23115,9 +24171,19 @@ We will try to work around that, but you may experience problems.</source>
         <translation>何を実行するか感知しません。</translation>
     </message>
     <message>
-        <source>Run on remote device</source>
+        <source>%1 (on Remote Device)</source>
+        <extracomment>%1 is the name of a project which is being run on remote Linux</extracomment>
+        <translation>%1 (リモートデバイス上)</translation>
+    </message>
+    <message>
+        <source>Run on Remote Device</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation>リモートデバイスで実行</translation>
+    </message>
+    <message>
+        <source>Run on remote device</source>
+        <extracomment>Remote Linux run configuration default display name</extracomment>
+        <translation type="obsolete">リモートデバイスで実行</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -23148,11 +24214,19 @@ We will try to work around that, but you may experience problems.</source>
     </message>
     <message>
         <source>Executable on host:</source>
-        <translation>ホスト上で実行:</translation>
+        <translation>ホスト上の実行可能ファイル:</translation>
     </message>
     <message>
         <source>Executable on device:</source>
-        <translation>デバイス上で実行:</translation>
+        <translation>デバイス上の実行可能ファイル:</translation>
+    </message>
+    <message>
+        <source>Use this command instead</source>
+        <translation>代わりにこのコマンドを使う</translation>
+    </message>
+    <message>
+        <source>Alternate executable on device:</source>
+        <translation>デバイス上の代替実行可能ファイル:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -23191,8 +24265,12 @@ We will try to work around that, but you may experience problems.</source>
         <translation>フェッチ操作を中止</translation>
     </message>
     <message>
-        <source>Device error</source>
+        <source>Device Error</source>
         <translation>デバイスエラー</translation>
+    </message>
+    <message>
+        <source>Device error</source>
+        <translation type="obsolete">デバイスエラー</translation>
     </message>
     <message>
         <source>Fetching environment failed: %1</source>
@@ -23240,14 +24318,14 @@ We will try to work around that, but you may experience problems.</source>
     <name>RunSettingsPanel</name>
     <message>
         <source>Run Settings</source>
-        <translation>実行時の設定</translation>
+        <translation type="obsolete">実行時の設定</translation>
     </message>
 </context>
 <context>
     <name>RunSettingsPanelFactory</name>
     <message>
         <source>Run Settings</source>
-        <translation>実行時の設定</translation>
+        <translation type="obsolete">実行時の設定</translation>
     </message>
 </context>
 <context>
@@ -23514,6 +24592,23 @@ Server list was %2.</source>
         <source>Error generating key: %1</source>
         <translation>鍵の生成中にエラー: %1</translation>
     </message>
+    <message>
+        <source>Password for Private Key</source>
+        <translation>秘密鍵のパスワード</translation>
+    </message>
+    <message>
+        <source>It is recommended that you secure your private key
+with a password, which you can enter below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Encrypt key file</source>
+        <translation>鍵ファイルの暗号化</translation>
+    </message>
+    <message>
+        <source>Do not encrypt key file</source>
+        <translation>鍵ファイルを暗号化しない</translation>
+    </message>
 </context>
 <context>
     <name>StackHandler</name>
@@ -23655,7 +24750,15 @@ Server list was %2.</source>
     </message>
     <message>
         <source>Override s&amp;tart script:</source>
-        <translation>起動スクリプトを上書き(&amp;T):</translation>
+        <translation type="obsolete">起動スクリプトを上書き(&amp;T):</translation>
+    </message>
+    <message>
+        <source>Location of debugging information:</source>
+        <translation>デバッグ情報の位置:</translation>
+    </message>
+    <message>
+        <source>Override host GDB s&amp;tart script:</source>
+        <translation>ホスト側の起動スクリプトを上書き(&amp;T):</translation>
     </message>
 </context>
 <context>
@@ -24094,7 +25197,7 @@ Server list was %2.</source>
     <name>TagBrowser</name>
     <message>
         <source>Please choose a tag to filter for:</source>
-        <translation>フィルタに使用するタグを選択して下さい:</translation>
+        <translation type="obsolete">フィルタに使用するタグを選択して下さい:</translation>
     </message>
 </context>
 <context>
@@ -24134,7 +25237,7 @@ Server list was %2.</source>
     </message>
     <message>
         <source>My Tasks</source>
-        <extracomment>Category under which tasklist tasks are listed in build issues view</extracomment>
+        <extracomment>Category under which tasklist tasks are listed in Issues view</extracomment>
         <translation>タスク</translation>
     </message>
 </context>
@@ -24183,7 +25286,7 @@ Server list was %2.</source>
     </message>
     <message>
         <source>Out of memory</source>
-        <translation>メモリ不足</translation>
+        <translation type="obsolete">メモリ不足</translation>
     </message>
     <message>
         <source>Opening file</source>
@@ -24299,20 +25402,20 @@ Server list was %2.</source>
     <name>TextEditor::FallbackSelectorWidget</name>
     <message>
         <source>Settings:</source>
-        <translation>設定:</translation>
+        <translation type="obsolete">設定:</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>カスタム</translation>
+        <translation type="obsolete">カスタム</translation>
     </message>
     <message>
         <source>Restore %1</source>
         <comment>%1 is settings name (e.g. Global C++)</comment>
-        <translation>%1 を復元</translation>
+        <translation type="obsolete">%1 を復元</translation>
     </message>
     <message>
         <source>Restore</source>
-        <translation>元に戻す</translation>
+        <translation type="obsolete">元に戻す</translation>
     </message>
 </context>
 <context>
@@ -24373,7 +25476,11 @@ Server list was %2.</source>
     </message>
     <message>
         <source>Download Definitions</source>
-        <translation>定義をダウンロード</translation>
+        <translation type="obsolete">定義をダウンロード</translation>
+    </message>
+    <message>
+        <source>Download Definitions...</source>
+        <translation>定義をダウンロード...</translation>
     </message>
     <message>
         <source>Autodetect</source>
@@ -24464,28 +25571,38 @@ The following encodings are likely to fit:</source>
         <source>Current File</source>
         <translation>現在のファイル</translation>
     </message>
+    <message>
+        <source>File &apos;%1&apos;:</source>
+        <translation>ファイル &apos;%1&apos;:</translation>
+    </message>
+    <message>
+        <source>File path: %1
+%2</source>
+        <translation>ファイルパス: %1
+%2</translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <source>Files on File System</source>
-        <translation>ファイルシステム上のファイル</translation>
+        <translation type="obsolete">ファイルシステム上のファイル</translation>
     </message>
     <message>
         <source>&amp;Directory:</source>
-        <translation>ディレクトリ(&amp;D):</translation>
+        <translation type="obsolete">ディレクトリ(&amp;D):</translation>
     </message>
     <message>
         <source>&amp;Browse</source>
-        <translation>参照(&amp;B)</translation>
+        <translation type="obsolete">参照(&amp;B)</translation>
     </message>
     <message>
         <source>File &amp;pattern:</source>
-        <translation>ファイルパターン(&amp;P):</translation>
+        <translation type="obsolete">ファイルパターン(&amp;P):</translation>
     </message>
     <message>
         <source>Directory to search</source>
-        <translation>検索対象ディレクトリの指定</translation>
+        <translation type="obsolete">検索対象ディレクトリの指定</translation>
     </message>
 </context>
 <context>
@@ -24630,8 +25747,12 @@ Please check the directory&apos;s access rights.</source>
         <translation>このファイルにハイライト定義が見つかりませんでした。もう一度探しますか？</translation>
     </message>
     <message>
+        <source>Show highlighter options...</source>
+        <translation>ハイライトオプションを表示...</translation>
+    </message>
+    <message>
         <source>Show highlighter options</source>
-        <translation>ハイライトオプションを表示</translation>
+        <translation type="obsolete">ハイライトオプションを表示</translation>
     </message>
 </context>
 <context>
@@ -24753,11 +25874,11 @@ Please check the directory&apos;s access rights.</source>
     <name>TextEditor::TabPreferencesWidget</name>
     <message>
         <source>Form</source>
-        <translation>フォーム</translation>
+        <translation type="obsolete">フォーム</translation>
     </message>
     <message>
         <source>Tab settings:</source>
-        <translation>タブ設定:</translation>
+        <translation type="obsolete">タブ設定:</translation>
     </message>
 </context>
 <context>
@@ -24772,15 +25893,15 @@ Please check the directory&apos;s access rights.</source>
     </message>
     <message>
         <source>Insert &amp;spaces instead of tabs</source>
-        <translation>タブの代わりに空白を挿入(&amp;S)</translation>
+        <translation type="obsolete">タブの代わりに空白を挿入(&amp;S)</translation>
     </message>
     <message>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation>自動的に、近くのインデントされた行を基準とします (直後の行よりも、直前の行を優先します)</translation>
+        <translation type="obsolete">自動的に、近くのインデントされた行を基準とします (直後の行よりも、直前の行を優先します)</translation>
     </message>
     <message>
         <source>Based on the surrounding lines</source>
-        <translation>周囲の行を基準とする</translation>
+        <translation type="obsolete">周囲の行を基準とする</translation>
     </message>
     <message>
         <source>Ta&amp;b size:</source>
@@ -24792,15 +25913,15 @@ Please check the directory&apos;s access rights.</source>
     </message>
     <message>
         <source>Enable automatic &amp;indentation</source>
-        <translation>自動インデントの有効化(&amp;I)</translation>
+        <translation type="obsolete">自動インデントの有効化(&amp;I)</translation>
     </message>
     <message>
         <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation>Backspace を押した時に空白の代わりに1レベル上げます。</translation>
+        <translation type="obsolete">Backspace を押した時に空白の代わりに1レベル上げます。</translation>
     </message>
     <message>
         <source>&amp;Backspace follows indentation</source>
-        <translation>Backspace でインデントに追随する(&amp;B)</translation>
+        <translation type="obsolete">Backspace でインデントに追随する(&amp;B)</translation>
     </message>
     <message>
         <source>Align continuation lines:</source>
@@ -24850,7 +25971,7 @@ Influences the indentation of continuation lines.
 &lt;/pre&gt;
 &lt;/li&gt;
 
-&lt;li&gt;通常のインデント方法で整形: Use tabs and/or spaces for alignment, as configured above.
+&lt;li&gt;通常のインデント方法で整形: 設定にしたがってタブや空白を整形する際に使います。
 &lt;pre&gt;
 (tab)int i = foo(a, b
 (tab)(tab)(tab)  c, d);
@@ -24872,19 +25993,35 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Tab key performs auto-indent:</source>
-        <translation>タブキーで自動インデントを行う:</translation>
+        <translation type="obsolete">タブキーで自動インデントを行う:</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation>実行しない</translation>
+        <translation type="obsolete">実行しない</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation>常時</translation>
+        <translation type="obsolete">常時</translation>
     </message>
     <message>
         <source>In Leading White Space</source>
-        <translation>先頭が空白の場合</translation>
+        <translation type="obsolete">先頭が空白の場合</translation>
+    </message>
+    <message>
+        <source>Tab policy:</source>
+        <translation>タブ ポリシー:</translation>
+    </message>
+    <message>
+        <source>Spaces Only</source>
+        <translation>スペースのみ</translation>
+    </message>
+    <message>
+        <source>Tabs Only</source>
+        <translation>タブのみ</translation>
+    </message>
+    <message>
+        <source>Mixed</source>
+        <translation>混在</translation>
     </message>
 </context>
 <context>
@@ -25004,6 +26141,22 @@ Influences the indentation of continuation lines.
     <message>
         <source>Cut &amp;Line</source>
         <translation>一行切り取り(&amp;L)</translation>
+    </message>
+    <message>
+        <source>Delete Word From The Cursor On</source>
+        <translation>カーソル位置の単語を削除</translation>
+    </message>
+    <message>
+        <source>Delete Word Camel Case From The Cursor On</source>
+        <translation>カーソル位置の単語のキャメルケースを削除</translation>
+    </message>
+    <message>
+        <source>Delete Word Up To The Cursor</source>
+        <translation>カーソル位置までの単語を削除</translation>
+    </message>
+    <message>
+        <source>Delete Word Camel Case Up To The Cursor</source>
+        <translation>カーソル位置までの単語のキャメルケースを削除</translation>
     </message>
     <message>
         <source>Ctrl+&lt;</source>
@@ -25295,6 +26448,50 @@ Influences the indentation of continuation lines.
     <message>
         <source>Virtual Method</source>
         <translation>仮想メソッド</translation>
+    </message>
+    <message>
+        <source>QML Binding</source>
+        <translation>QML バインディング</translation>
+    </message>
+    <message>
+        <source>QML Local Id</source>
+        <translation>QML ローカルID</translation>
+    </message>
+    <message>
+        <source>QML Root Object Property</source>
+        <translation>QML ルートオブジェクトプロパティ</translation>
+    </message>
+    <message>
+        <source>QML Scope Object Property</source>
+        <translation>QML スコープオブジェクトプロパティ</translation>
+    </message>
+    <message>
+        <source>QML State Name</source>
+        <translation>QML 状態名</translation>
+    </message>
+    <message>
+        <source>QML Type Name</source>
+        <translation>QML 型名</translation>
+    </message>
+    <message>
+        <source>QML External Id</source>
+        <translation>QML 外部ID</translation>
+    </message>
+    <message>
+        <source>QML External Object Property</source>
+        <translation>QML 外部オブジェクトプロパティ</translation>
+    </message>
+    <message>
+        <source>JavaScript Scope Var</source>
+        <translation>JavaScript スコープ変数</translation>
+    </message>
+    <message>
+        <source>JavaScript Import</source>
+        <translation>JavaScript Import</translation>
+    </message>
+    <message>
+        <source>JavaScript Global Variable</source>
+        <translation>JavaScript グローバル変数</translation>
     </message>
     <message>
         <source>Keyword</source>
@@ -25691,6 +26888,14 @@ Influences the indentation of continuation lines.
     <message>
         <source>Name matches MS Windows device. (%1).</source>
         <translation>ファイル名が MS Windows デバイス (%1) と一致しています。</translation>
+    </message>
+    <message>
+        <source>File extension %1 is required:</source>
+        <translation>拡張子 %1 が必要です:</translation>
+    </message>
+    <message>
+        <source>File extensions %1 are required:</source>
+        <translation>拡張子 %1 が必要です:</translation>
     </message>
 </context>
 <context>
@@ -26452,7 +27657,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Unable to open the project &apos;%1&apos;.</source>
-        <translation>プロジェクト &apos;%1&apos; が開けませんでした。</translation>
+        <translation type="obsolete">プロジェクト &apos;%1&apos; が開けませんでした。</translation>
     </message>
 </context>
 <context>
@@ -26637,6 +27842,14 @@ Influences the indentation of continuation lines.
 <context>
     <name>VCSBase::VCSBaseClient</name>
     <message>
+        <source>Unable to start process &apos;%1&apos;: %2</source>
+        <translation>プロセス &apos;%1&apos; を開始できません: %2</translation>
+    </message>
+    <message>
+        <source>Timed out after %1s waiting for the process %2 to finish.</source>
+        <translation>%2 プロセスが終了するのを %1 秒間待機しましたが、タイムアウトしました。</translation>
+    </message>
+    <message>
         <source>Working...</source>
         <translation>作業中...</translation>
     </message>
@@ -26660,6 +27873,10 @@ Influences the indentation of continuation lines.
         <translation>CodePaster に送る...</translation>
     </message>
     <message>
+        <source>Apply Chunk...</source>
+        <translation>チャンクを適用...</translation>
+    </message>
+    <message>
         <source>Revert Chunk...</source>
         <translation>チャンクを元に戻す...</translation>
     </message>
@@ -26676,8 +27893,16 @@ Influences the indentation of continuation lines.
         <translation>チャンクを元に戻す</translation>
     </message>
     <message>
+        <source>Apply Chunk</source>
+        <translation>チャンクを適用</translation>
+    </message>
+    <message>
         <source>Would you like to revert the chunk?</source>
         <translation>チャンクを元に戻しますか？</translation>
+    </message>
+    <message>
+        <source>Would you like to apply the chunk?</source>
+        <translation>チャンクを適用しますか？</translation>
     </message>
 </context>
 <context>
@@ -26736,6 +27961,10 @@ Influences the indentation of continuation lines.
     <message>
         <source>Repository Creation Failed</source>
         <translation>リポジトリの作成に失敗しました</translation>
+    </message>
+    <message>
+        <source>Error: Executable timed out after %1s.</source>
+        <translation>エラー: 実行可能ファイル は %1 秒でタイムアウトしました。</translation>
     </message>
     <message>
         <source>There is no patch-command configured in the common &apos;Version Control&apos; settings.</source>
@@ -26813,18 +28042,18 @@ Influences the indentation of continuation lines.
     <name>VCSBase::VCSJobRunner</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
-        <translation>プロセス &apos;%1&apos; を開始できません: %2</translation>
+        <translation type="obsolete">プロセス &apos;%1&apos; を開始できません: %2</translation>
     </message>
     <message>
         <source>Timed out after %1s waiting for the process %2 to finish.</source>
-        <translation>%2 プロセスが終了するのを %1 秒間待機しましたが、タイムアウトしました。</translation>
+        <translation type="obsolete">%2 プロセスが終了するのを %1 秒間待機しましたが、タイムアウトしました。</translation>
     </message>
 </context>
 <context>
     <name>VCSBase::VcsConfigurationPage</name>
     <message>
         <source>Configure</source>
-        <translation>構成する</translation>
+        <translation type="obsolete">構成する</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -26833,6 +28062,10 @@ Influences the indentation of continuation lines.
     <message>
         <source>Please configure &lt;b&gt;%1&lt;/b&gt; now.</source>
         <translation>今すぐ &lt;b&gt;%1&lt;/b&gt; を構成して下さい。</translation>
+    </message>
+    <message>
+        <source>Configure...</source>
+        <translation>構成...</translation>
     </message>
 </context>
 <context>
@@ -27548,6 +28781,10 @@ With cache simulation, further event counters are enabled:
 <context>
     <name>Valgrind::XmlProtocol::ErrorListModel</name>
     <message>
+        <source>No errors found</source>
+        <translation>エラーはありません</translation>
+    </message>
+    <message>
         <source>What</source>
         <translation>What</translation>
     </message>
@@ -27760,6 +28997,10 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Url</source>
+        <translation type="obsolete">URL</translation>
+    </message>
+    <message>
+        <source>URL</source>
         <translation>URL</translation>
     </message>
     <message>
@@ -27798,32 +29039,32 @@ p, li { white-space: pre-wrap; }
     <name>Welcome::Internal::CommunityWelcomePageWidget</name>
     <message>
         <source>&lt;b&gt;Qt LGPL Support&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Buy commercial Qt support&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt LGPL サポート&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt プロフェッショナルサポートを購入&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt LGPL サポート&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt プロフェッショナルサポートを購入&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Forum Nokia&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Mobile application support&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Nokia フォーラム&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;モバイルアプリケーションサポート&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Nokia フォーラム&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;モバイルアプリケーションサポート&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt DevNet&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt Developer Resources&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt DevNet&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt 開発者向けリソース&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt DevNet&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt 開発者向けリソース&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Home&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt by Nokia on the web&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt ホーム&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Nokia 社の Qt サイト&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt ホーム&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Nokia 社の Qt サイト&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Git Hosting&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Participate in Qt development&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt Git ホスティング&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt 開発に参加する&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt Git ホスティング&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt 開発に参加する&lt;/font&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Qt Apps&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Find free Qt-based apps&lt;/font&gt;</source>
-        <translation>&lt;b&gt;Qt Apps&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;フリーの Qt ベースアプリを探す&lt;/font&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt Apps&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;フリーの Qt ベースアプリを探す&lt;/font&gt;</translation>
     </message>
     <message>
         <source>http://labs.trolltech.com/blogs/feed</source>
         <extracomment>Add localized feed here only if one exists</extracomment>
-        <translation>http://feeds.feedburner.com/QtLabsJapan</translation>
+        <translation type="obsolete">http://feeds.feedburner.com/QtLabsJapan</translation>
     </message>
 </context>
 <context>
@@ -27949,6 +29190,2723 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Edit with vi</source>
         <translation>vi で編集</translation>
+    </message>
+</context>
+<context>
+    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <message>
+        <source>Qt Creator - Plugin loader messages</source>
+        <translation>Qt Creator - プラグインローダーからのメッセージ</translation>
+    </message>
+    <message>
+        <source>The following plugins have errors and cannot be loaded:</source>
+        <translation>以下のプラグインはエラーが発生しているため、詠み込みできませんでした:</translation>
+    </message>
+    <message>
+        <source>Details:</source>
+        <translation>詳細:</translation>
+    </message>
+</context>
+<context>
+    <name>AttachToQmlPortDialog</name>
+    <message>
+        <source>Start Debugger</source>
+        <translation>デバッガ起動</translation>
+    </message>
+    <message>
+        <source>&amp;Host:</source>
+        <translation>ホスト(&amp;H):</translation>
+    </message>
+    <message>
+        <source>&amp;Port:</source>
+        <translation>ポート(&amp;P):</translation>
+    </message>
+</context>
+<context>
+    <name>MainView</name>
+    <message>
+        <source>Painting</source>
+        <translation>描画</translation>
+    </message>
+    <message>
+        <source>Compiling</source>
+        <translation>コンパイル</translation>
+    </message>
+    <message>
+        <source>Creating</source>
+        <translation>生成</translation>
+    </message>
+    <message>
+        <source>Binding</source>
+        <translation>バインディング</translation>
+    </message>
+    <message>
+        <source>Signal Handler</source>
+        <translation>シグナルハンドラ</translation>
+    </message>
+</context>
+<context>
+    <name>RangeDetails</name>
+    <message>
+        <source>Duration</source>
+        <translation>持続時間</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>詳細</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>パス</translation>
+    </message>
+</context>
+<context>
+    <name>MobileAppWizardHarmattanOptionsPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>ウィザードページ</translation>
+    </message>
+    <message>
+        <source>Application icon (80x80):</source>
+        <translation>アプリケーションアイコン (80x80):</translation>
+    </message>
+    <message>
+        <source>Generate code to speed up the launching on the device.</source>
+        <translation>デバイス上での起動を高速化する為のコードを生成します。</translation>
+    </message>
+    <message>
+        <source>Make application boostable</source>
+        <translation>アプリケーションを高速化する</translation>
+    </message>
+</context>
+<context>
+    <name>LinuxDeviceConfigurationsSettingsWidget</name>
+    <message>
+        <source>Linux Device Configurations</source>
+        <translation>Linux デバイス構成</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration:</source>
+        <translation>構成(&amp;C):</translation>
+    </message>
+    <message>
+        <source>&amp;Name:</source>
+        <translation>名前(&amp;N):</translation>
+    </message>
+    <message>
+        <source>OS type:</source>
+        <translation>OS:</translation>
+    </message>
+    <message>
+        <source>Device type:</source>
+        <translation>デバイス種類:</translation>
+    </message>
+    <message>
+        <source>Authentication type:</source>
+        <translation>認証方法:</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>パスワード</translation>
+    </message>
+    <message>
+        <source>&amp;Key</source>
+        <translation>鍵(&amp;K)</translation>
+    </message>
+    <message>
+        <source>&amp;Host name:</source>
+        <translation>ホスト名(&amp;H):</translation>
+    </message>
+    <message>
+        <source>IP or host name of the device</source>
+        <translation>デバイスのIPアドレス/ホスト名</translation>
+    </message>
+    <message>
+        <source>&amp;SSH port:</source>
+        <translation>SSH ポート(&amp;S):</translation>
+    </message>
+    <message>
+        <source>Free ports:</source>
+        <translation>空きポート:</translation>
+    </message>
+    <message>
+        <source>You can enter lists and ranges like this: 1024,1026-1028,1030</source>
+        <translation>複数のポートや範囲で指定する事もできます: 1024,1026-1028,1030</translation>
+    </message>
+    <message>
+        <source>Timeout:</source>
+        <translation>タイムアウト:</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation>秒</translation>
+    </message>
+    <message>
+        <source>&amp;Username:</source>
+        <translation>ユーザー名(&amp;U):</translation>
+    </message>
+    <message>
+        <source>&amp;Password:</source>
+        <translation>パスワード(&amp;P):</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>パスワードを表示</translation>
+    </message>
+    <message>
+        <source>Private key file:</source>
+        <translation>秘密鍵ファイル:</translation>
+    </message>
+    <message>
+        <source>Set as Default</source>
+        <translation>デフォルトに設定</translation>
+    </message>
+    <message>
+        <source>&amp;Add</source>
+        <translation type="obsolete">追加(&amp;A)</translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation>削除(&amp;R)</translation>
+    </message>
+    <message>
+        <source>Set As Default</source>
+        <translation>デフォルトに設定</translation>
+    </message>
+    <message>
+        <source>Click here if you do not have an SSH key yet.</source>
+        <translation>SSH 鍵が無い場合、クリックして下さい。</translation>
+    </message>
+    <message>
+        <source>&amp;Generate SSH Key...</source>
+        <translation>SSH 鍵を生成(&amp;G)...</translation>
+    </message>
+    <message>
+        <source>&amp;Add...</source>
+        <translation>追加(&amp;A)...</translation>
+    </message>
+</context>
+<context>
+    <name>LinuxDeviceTestDialog</name>
+    <message>
+        <source>Device Test</source>
+        <translation>デバイステスト</translation>
+    </message>
+</context>
+<context>
+    <name>ProFilesUpdateDialog</name>
+    <message>
+        <source>Maemo Deployment Issue</source>
+        <translation>Maemo デプロイ時の問題</translation>
+    </message>
+    <message>
+        <source>The project files listed below do not contain deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Check all</source>
+        <translation>すべてチェック(&amp;C)</translation>
+    </message>
+    <message>
+        <source>&amp;Uncheck All</source>
+        <translation>すべてのチェックを外す(&amp;U)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinuxDeployConfigurationWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>フォーム</translation>
+    </message>
+    <message>
+        <source>Device configuration:</source>
+        <translation>デバイス構成:</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;irrelevant&quot;&gt;デバイス構成の管理&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>These show the INSTALLS settings from the project file(s).</source>
+        <translation>プロジェクトファイルから INSTALLS の設定を表示します。</translation>
+    </message>
+    <message>
+        <source>Files to install for subproject:</source>
+        <translation>サブプロジェクトにインストールするファイル:</translation>
+    </message>
+    <message>
+        <source>Edit the project file to add or remove entries.</source>
+        <translation>項目の追加・削除にはプロジェクトファイルを編集して下さい。</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinuxProcessesDialog</name>
+    <message>
+        <source>List of Remote Processes</source>
+        <translation>リモートプロセスの一覧</translation>
+    </message>
+    <message>
+        <source>&amp;Filter by process name:</source>
+        <translation>フィルタするプロセス名(&amp;F):</translation>
+    </message>
+    <message>
+        <source>&amp;Update List</source>
+        <translation>一覧を更新(&amp;U)</translation>
+    </message>
+    <message>
+        <source>&amp;Kill Selected Process</source>
+        <translation>選択されたプロセスを kill(&amp;K)</translation>
+    </message>
+</context>
+<context>
+    <name>SshKeyCreationDialog</name>
+    <message>
+        <source>SSH Key Configuration</source>
+        <translation>SSH 鍵の設定</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>オプション</translation>
+    </message>
+    <message>
+        <source>Key &amp;size:</source>
+        <translation>鍵サイズ(&amp;S):</translation>
+    </message>
+    <message>
+        <source>Key algorithm:</source>
+        <translation>鍵アルゴリズム:</translation>
+    </message>
+    <message>
+        <source>&amp;RSA</source>
+        <translation>RSA(&amp;R)</translation>
+    </message>
+    <message>
+        <source>&amp;DSA</source>
+        <translation>DSA(&amp;D)</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>鍵</translation>
+    </message>
+    <message>
+        <source>&amp;Generate SSH Key</source>
+        <translation>SSH 鍵を生成(&amp;G)</translation>
+    </message>
+    <message>
+        <source>Save P&amp;ublic Key...</source>
+        <translation>公開鍵を保存(&amp;U)...</translation>
+    </message>
+    <message>
+        <source>Save Pr&amp;ivate Key...</source>
+        <translation>秘密鍵を保存(&amp;I)...</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>閉じる(&amp;C)</translation>
+    </message>
+</context>
+<context>
+    <name>StartGdbServerDialog</name>
+    <message>
+        <source>List of Remote Processes</source>
+        <translation>リモートプロセスの一覧</translation>
+    </message>
+    <message>
+        <source>Device:</source>
+        <translation>デバイス:</translation>
+    </message>
+    <message>
+        <source>&amp;Filter by process name:</source>
+        <translation>フィルタするプロセス名(&amp;F):</translation>
+    </message>
+    <message>
+        <source>&amp;Attach to Selected Process</source>
+        <translation>選択しているプロセスにアタッチ(&amp;A)</translation>
+    </message>
+    <message>
+        <source>&amp;Update List</source>
+        <translation>一覧を更新(&amp;U)</translation>
+    </message>
+</context>
+<context>
+    <name>ExampleLineEdit</name>
+    <message>
+        <source>Show Examples and Demos</source>
+        <translation type="obsolete">サンプルやデモを表示する</translation>
+    </message>
+    <message>
+        <source>Search in Tutorials</source>
+        <translation type="obsolete">チュートリアルを探す</translation>
+    </message>
+    <message>
+        <source>Search in Tutorials, Examples and Demos</source>
+        <translation type="obsolete">チュートリアルやサンプル、デモを探す</translation>
+    </message>
+    <message>
+        <source>Tag List</source>
+        <translation type="obsolete">タグ一覧</translation>
+    </message>
+</context>
+<context>
+    <name>LinksBar</name>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+</context>
+<context>
+    <name>ExtensionSystem::Internal::PluginErrorOverviewPrivate</name>
+    <message>
+        <source>Continue</source>
+        <translation>続行</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJsDebugClient::QmlProfilerEventList</name>
+    <message>
+        <source>&lt;bytecode&gt;</source>
+        <translation>&lt;バイトコード&gt;</translation>
+    </message>
+    <message>
+        <source>Source code not available</source>
+        <translation>ソースコードが使用できません</translation>
+    </message>
+    <message>
+        <source>No data to save</source>
+        <translation>保存データなし</translation>
+    </message>
+    <message>
+        <source>Could not open %1 for writing</source>
+        <translation>書き込み用に %1 を開けません</translation>
+    </message>
+    <message>
+        <source>Could not open %1 for reading</source>
+        <translation>読み込み用に %1 を開けません</translation>
+    </message>
+    <message>
+        <source>Error while parsing %1</source>
+        <translation>%1 をパース中にエラー</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::Ssh</name>
+    <message>
+        <source>Password Required</source>
+        <translation>パスワードが必要です</translation>
+    </message>
+    <message>
+        <source>Please enter the password for your private key.</source>
+        <translation>秘密鍵のパスワードを入力して下さい。</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::TextFileFormat</name>
+    <message>
+        <source>Out of memory.</source>
+        <translation>メモリ不足です。</translation>
+    </message>
+    <message>
+        <source>An encoding error was encountered.</source>
+        <translation>エンコーディングエラーが発生しました。</translation>
+    </message>
+</context>
+<context>
+    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
+    <message>
+        <source>Verbose</source>
+        <translation>冗長</translation>
+    </message>
+    <message>
+        <source>Show files changed in each revision</source>
+        <translation>リビジョン毎の差分ファイルを表示する</translation>
+    </message>
+    <message>
+        <source>Forward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show from oldest to newest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include merges</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show merged revisions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Detailed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moderately short</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GNU ChangeLog</source>
+        <translation>GNU ChangeLog</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal</name>
+    <message>
+        <source>Launching a file browser failed</source>
+        <translation>ファイルブラウザの起動に失敗しました</translation>
+    </message>
+    <message>
+        <source>Unable to start the file manager:
+
+%1
+
+</source>
+        <translation>ファイルマネージャを開始できません:
+
+%1
+
+</translation>
+    </message>
+    <message>
+        <source>&apos;%1&apos; returned the following error:
+
+%2</source>
+        <translation>&apos;%1&apos; は以下のようなエラーで終了しました:
+
+%2</translation>
+    </message>
+    <message>
+        <source>Settings...</source>
+        <translation>設定...</translation>
+    </message>
+    <message>
+        <source>Launching Windows Explorer Failed</source>
+        <translation>Windows Explorer の起動に失敗</translation>
+    </message>
+    <message>
+        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
+        <translation>Windows Explorer を起動する為の explorer.exe にパスが通っていません。</translation>
+    </message>
+    <message>
+        <source>Show in Explorer...</source>
+        <translation>エクスプローラで表示...</translation>
+    </message>
+    <message>
+        <source>Show in Finder...</source>
+        <translation>Finder で表示...</translation>
+    </message>
+    <message>
+        <source>Show Containing Folder...</source>
+        <translation>フォルダを開く...</translation>
+    </message>
+    <message>
+        <source>Open Command Prompt Here...</source>
+        <translation>ここでコマンドプロンプトを開く...</translation>
+    </message>
+    <message>
+        <source>Open Terminal Here...</source>
+        <translation>ここでターミナルを開く...</translation>
+    </message>
+</context>
+<context>
+    <name>BaseFileWizard</name>
+    <message>
+        <source>Unable to create the directory %1.</source>
+        <translation>ディレクトリ %1 を作成できません。</translation>
+    </message>
+</context>
+<context>
+    <name>FunctionDeclDefLink</name>
+    <message>
+        <source>Target file was changed, could not apply changes</source>
+        <translation>ターゲットファイルが変更された為、変更内容を適用できません</translation>
+    </message>
+    <message>
+        <source>Apply changes to definition</source>
+        <translation>定義への変更を適用します</translation>
+    </message>
+    <message>
+        <source>Apply changes to declaration</source>
+        <translation>宣言への変更を適用します</translation>
+    </message>
+    <message>
+        <source>Apply function signature changes</source>
+        <translation>関数シグネチャの変更を適用します</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::BaseWindow</name>
+    <message>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>内容に合わせて列幅を調整</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::CdbBreakEventWidget</name>
+    <message>
+        <source>C++ exception</source>
+        <translation>C++ 例外</translation>
+    </message>
+    <message>
+        <source>Thread creation</source>
+        <translation>スレッド生成</translation>
+    </message>
+    <message>
+        <source>Thread exit</source>
+        <translation>スレッド終了</translation>
+    </message>
+    <message>
+        <source>Load module:</source>
+        <translation>モジュール読み込み:</translation>
+    </message>
+    <message>
+        <source>Unload module:</source>
+        <translation>モジュール解放:</translation>
+    </message>
+    <message>
+        <source>Output:</source>
+        <translation>出力:</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::QScriptDebuggerClient</name>
+    <message>
+        <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
+        <translation>&lt;p&gt;catch されていない例外が発生しました:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;An uncaught exception occurred in &lt;i&gt;%1&lt;/i&gt;:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</source>
+        <translation>&lt;p&gt;catch されていない例外が &lt;i&gt;%1&lt;/i&gt; で発生しました:&lt;/p&gt;&lt;p&gt;%2&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Uncaught Exception</source>
+        <translation>catch されていない例外</translation>
+    </message>
+</context>
+<context>
+    <name>Find::IFindFilter</name>
+    <message>
+        <source>Case sensitive</source>
+        <translation>大文字/小文字を区別する</translation>
+    </message>
+    <message>
+        <source>Whole words</source>
+        <translation>単語単位</translation>
+    </message>
+    <message>
+        <source>Regular expressions</source>
+        <translation>正規表現</translation>
+    </message>
+    <message>
+        <source>Flags: %1</source>
+        <translation>フラグ: %1</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>なし</translation>
+    </message>
+    <message>
+        <source>, </source>
+        <translation>, </translation>
+    </message>
+</context>
+<context>
+    <name>Find::Internal::SearchResultWidget</name>
+    <message>
+        <source>Cancel</source>
+        <translation>キャンセル</translation>
+    </message>
+    <message>
+        <source>Replace with:</source>
+        <translation>置換文字列:</translation>
+    </message>
+    <message>
+        <source>Replace all occurrences</source>
+        <translation>すべての出現箇所を置換します</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>置換</translation>
+    </message>
+    <message>
+        <source>This change cannot be undone.</source>
+        <translation>この変更は正常に完了できない可能性があります。</translation>
+    </message>
+    <message>
+        <source>Do not warn again</source>
+        <translation>再度警告しない</translation>
+    </message>
+    <message>
+        <source>No matches found.</source>
+        <translation>見つかりませんでした。</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n matches found.</source>
+        <translation>
+            <numerusform>%n 件見つかりました。</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaddeDeviceConfigurationFactory</name>
+    <message>
+        <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
+        <translation>MADDE をサポートしているデバイス (Fremantle, Harmattan, MeeGo)</translation>
+    </message>
+    <message>
+        <source>Maemo5/Fremantle</source>
+        <translation>Maemo5/Fremantle</translation>
+    </message>
+    <message>
+        <source>MeeGo 1.2 Harmattan</source>
+        <translation>MeeGo 1.2 Harmattan</translation>
+    </message>
+    <message>
+        <source>Other MeeGo OS</source>
+        <translation>他の MeeGo OS</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>テスト</translation>
+    </message>
+    <message>
+        <source>Remote Processes...</source>
+        <translation>リモートプロセス...</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key...</source>
+        <translation>公開鍵をデプロイ...</translation>
+    </message>
+    <message>
+        <source>Remote Processes</source>
+        <translation type="obsolete">リモートプロセス</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key</source>
+        <translation type="obsolete">公開鍵のデプロイ</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaddeDeviceTester</name>
+    <message>
+        <source>Checking for Qt libraries...</source>
+        <translation>Qt ライブラリをチェックしています...</translation>
+    </message>
+    <message>
+        <source>SSH connection error: %1
+</source>
+        <translation>SSH 接続エラー: %1
+</translation>
+    </message>
+    <message>
+        <source>Error checking for Qt libraries: %1
+</source>
+        <translation>Qt ライブラリのチェック中にエラー: %1
+</translation>
+    </message>
+    <message>
+        <source>Error checking for Qt libraries.
+</source>
+        <translation>Qt ライブラリのチェック中にエラーが発生しました。
+</translation>
+    </message>
+    <message>
+        <source>Checking for connectivity support...</source>
+        <translation>コネクティビティをチェックしています...</translation>
+    </message>
+    <message>
+        <source>Error checking for connectivity tool: %1
+</source>
+        <translation>コネクティビティツールのチェック中にエラー: %1
+</translation>
+    </message>
+    <message>
+        <source>Error checking for connectivity tool.
+</source>
+        <translation>コネクティビティツールのチェック中にエラーが発生しました。
+</translation>
+    </message>
+    <message>
+        <source>Connectivity tool not installed on device. Deployment currently not possible.</source>
+        <translation>デバイスにコネクティビティツールがインストールされていませんが、現在はデプロイできません。</translation>
+    </message>
+    <message>
+        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
+        <translation>設定 -&gt; セキュリティでデバイスをデベロッパモードに切り替えて下さい。</translation>
+    </message>
+    <message>
+        <source>Connectivity tool present.
+</source>
+        <translation>コネクティビティツールが存在しました。
+</translation>
+    </message>
+    <message>
+        <source>Checking for QML tooling support...</source>
+        <translation>QML ツールサポートをチェックしています...</translation>
+    </message>
+    <message>
+        <source>Error checking for QML tooling support: %1
+</source>
+        <translation>QML ツーリングサポートのチェック中にエラー: %1
+</translation>
+    </message>
+    <message>
+        <source>Error checking for QML tooling support.
+</source>
+        <translation>QML ツーリングサポートのチェック中にエラーが発生しました。
+</translation>
+    </message>
+    <message>
+        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.
+</source>
+        <translation>ディレクトリ &apos;%1&apos; が見つかりません。デバイスで QML デバッグができない可能性があります。
+</translation>
+    </message>
+    <message>
+        <source>QML tooling support present.
+</source>
+        <translation>QML ツールサポートが見つかりました。
+</translation>
+    </message>
+    <message>
+        <source>No Qt packages installed.</source>
+        <translation>Qt のパッケージがインストールされていません。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaddeUploadAndInstallPackageAction</name>
+    <message>
+        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation>デプロイ不可: Qemu が実行されていません。既に起動はされていますが、準備が完了するまでもう少し時間がかかります。後で、もう一度やり直して下さい。</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
+        <translation>デプロイ不可: Qemu をデプロイしようとしていますが、この Qt バージョンでは使用できません。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoUploadAndInstallPackageStep</name>
+    <message>
+        <source>No Debian package creation step found.</source>
+        <translation>Debian パッケージ作成ステップが見つかりません。</translation>
+    </message>
+    <message>
+        <source>Deploy Debian package via SFTP upload</source>
+        <translation>SFTP アップロード経由で Debian パッケージをデプロイ</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MeegoUploadAndInstallPackageStep</name>
+    <message>
+        <source>No RPM package creation step found.</source>
+        <translation>RPM パッケージ作成ステップが見つかりません。</translation>
+    </message>
+    <message>
+        <source>Deploy RPM package via SFTP upload</source>
+        <translation>SFTP アップロード経由で RPM パッケージをデプロイ</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoDeployByMountService</name>
+    <message>
+        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation>デプロイ不可: Qemu が実行されていません。既に起動はされていますが、準備が完了するまでもう少し時間がかかります。後で、もう一度やり直して下さい。</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
+        <translation>デプロイ不可: Qemu をデプロイしようとしていますが、この Qt バージョンでは使用できません。</translation>
+    </message>
+    <message>
+        <source>Missing build configuration.</source>
+        <translation>ビルド構成が見つかりません。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoMountAndInstallPackageService</name>
+    <message>
+        <source>Package installed.</source>
+        <translation>パッケージをインストールしました。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoMountAndCopyFilesService</name>
+    <message>
+        <source>All files copied.</source>
+        <translation>すべてのファイルをコピーしました。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoInstallPackageViaMountStep</name>
+    <message>
+        <source>No Debian package creation step found.</source>
+        <translation>Debian パッケージ作成ステップが見つかりません。</translation>
+    </message>
+    <message>
+        <source>Deploy package via UTFS mount</source>
+        <translation>UTFS マウント経由でファイルをデプロイ</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoCopyFilesViaMountStep</name>
+    <message>
+        <source>Deploy files via UTFS mount</source>
+        <translation>UTFS マウント経由でファイルをデプロイ</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeployConfigurationWidget</name>
+    <message>
+        <source>Project File Update Failed</source>
+        <translation>プロジェクトファイル更新失敗</translation>
+    </message>
+    <message>
+        <source>Could not update the project file.</source>
+        <translation>プロジェクトファイルを更新できませんでした。</translation>
+    </message>
+    <message>
+        <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
+        <translation>アイコンを選択して下さい(必要に応じて %1x%1 サイズに調整されます)</translation>
+    </message>
+    <message>
+        <source>Invalid Icon</source>
+        <translation>無効なアイコン</translation>
+    </message>
+    <message>
+        <source>Unable to read image</source>
+        <translation>画像を読めません</translation>
+    </message>
+    <message>
+        <source>Failed to Save Icon</source>
+        <translation>アイコンの保存失敗</translation>
+    </message>
+    <message>
+        <source>Could not save icon to &apos;%1&apos;.</source>
+        <translation>アイコンを &apos;%1&apos; に保存できませんでした。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeploymentMounter</name>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>接続失敗: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardStartPage</name>
+    <message>
+        <source>General Information</source>
+        <translation>概要</translation>
+    </message>
+    <message>
+        <source>MeeGo Device</source>
+        <translation>MeeGo デバイス</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
+    <message>
+        <source>Device Status Check</source>
+        <translation>デバイス状態確認</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <message>
+        <source>Existing Keys Check</source>
+        <translation>鍵の存在確認</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
+    <message>
+        <source>Key Creation</source>
+        <translation>鍵の生成</translation>
+    </message>
+    <message>
+        <source>Cannot Create Keys</source>
+        <translation>鍵を作成できません</translation>
+    </message>
+    <message>
+        <source>The path you have entered is not a directory.</source>
+        <translation>指定されたパスはディレクトリではありません。</translation>
+    </message>
+    <message>
+        <source>The directory you have entered does not exist and cannot be created.</source>
+        <translation>指定されたディレクトリが存在しない為、鍵を作成できません。</translation>
+    </message>
+    <message>
+        <source>Creating keys ... </source>
+        <translation>鍵を生成中...</translation>
+    </message>
+    <message>
+        <source>Key creation failed: %1</source>
+        <translation>鍵の作成に失敗: %1</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>完了しました。</translation>
+    </message>
+    <message>
+        <source>Could Not Save Key File</source>
+        <translation>鍵ファイルを保存できませんでした</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
+    <message>
+        <source>Key Deployment</source>
+        <translation>鍵のデプロイ</translation>
+    </message>
+    <message>
+        <source>Deploying... </source>
+        <translation>デプロイ中...</translation>
+    </message>
+    <message>
+        <source>Key Deployment Failure</source>
+        <translation>鍵ファイルのデプロイ失敗</translation>
+    </message>
+    <message>
+        <source>Key Deployment Success</source>
+        <translation>鍵ファイルのデプロイ成功</translation>
+    </message>
+    <message>
+        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
+        <translation>鍵のデプロイに成功しました。 &quot;%1&quot; アプリケーションを閉じてから続けた方がよいでしょう。</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>完了。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizardFinalPage</name>
+    <message>
+        <source>The new device configuration will now be created.</source>
+        <translation>新しいデバイス構成が作成されます。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDeviceConfigWizard</name>
+    <message>
+        <source>New Device Configuration Setup</source>
+        <translation>新しいデバイス構成の設定</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
+    <message>
+        <source>Cannot deploy to sysroot: No packaging step found.</source>
+        <translation>sysroot にデプロイ不可: パッケージ化ステップが見つかりませんでした。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
+    <message>
+        <source>Cannot install to sysroot without build configuration.</source>
+        <translation>ビルド構成なしでは sysroot にインストールできません。</translation>
+    </message>
+    <message>
+        <source>Cannot install package to sysroot without packaging step.</source>
+        <translation>パッケージ化ステップなしで sysroot にパッケージをインストールできません。</translation>
+    </message>
+    <message>
+        <source>Cannot install package to sysroot without a Qt version.</source>
+        <translation>Qt バージョンなしで sysroot にパッケージをインストールできません。</translation>
+    </message>
+    <message>
+        <source>Installing package to sysroot ...</source>
+        <translation>sysroot にパッケージをインストール中...</translation>
+    </message>
+    <message>
+        <source>Installation to sysroot failed, continuing anyway.</source>
+        <translation>sysroot へのインストールに失敗しましたが、続行します。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoInstallDebianPackageToSysrootStep</name>
+    <message>
+        <source>Install Debian package to sysroot</source>
+        <translation>sysroot に Debian パッケージをインストール</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoInstallRpmPackageToSysrootStep</name>
+    <message>
+        <source>Install RPM package to sysroot</source>
+        <translation>sysroot に RPM パッケージをインストール</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoCopyToSysrootStep</name>
+    <message>
+        <source>Cannot copy to sysroot without build configuration.</source>
+        <translation>ビルド構成なしでは sysroot にコピーできません。</translation>
+    </message>
+    <message>
+        <source>Cannot copy to sysroot without valid Qt version.</source>
+        <translation>正しい Qt バージョンでなければ sysroot にコピーできません。</translation>
+    </message>
+    <message>
+        <source>Copying files to sysroot ...</source>
+        <translation>sysroot にファイルをコピー中...</translation>
+    </message>
+    <message>
+        <source>Sysroot installation failed: %1
+ Continuing anyway.</source>
+        <translation>sysroot インストール失敗: %1
+ 継続します。</translation>
+    </message>
+    <message>
+        <source>Copy files to sysroot</source>
+        <translation>sysroot にファイルをコピー</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoMakeInstallToSysrootStep</name>
+    <message>
+        <source>Copy files to sysroot</source>
+        <translation>sysroot にファイルをコピー</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractMaemoPackageCreationStep</name>
+    <message>
+        <source>Package up to date.</source>
+        <translation>パッケージは最新です。</translation>
+    </message>
+    <message>
+        <source>Creating package file ...</source>
+        <translation>パッケージファイルを作成中...</translation>
+    </message>
+    <message>
+        <source>Package created.</source>
+        <translation>パッケージを作成しました。</translation>
+    </message>
+    <message>
+        <source>Packaging failed: No Qt version.</source>
+        <translation>パッケージ作成エラー: Qt バージョンがありません。</translation>
+    </message>
+    <message>
+        <source>Package Creation: Running command &apos;%1&apos;.</source>
+        <translation>パッケージ作成: コマンド &apos;%1&apos; の実行中。</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not start command &apos;%1&apos;. Reason: %2</source>
+        <translation>パッケージ作成エラー: コマンド &apos;%1&apos; を開始できませんでした。理由: %2</translation>
+    </message>
+    <message>
+        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
+        <translation>パッケージ作成エラー: コマンド &apos;%1&apos; が失敗しました。</translation>
+    </message>
+    <message>
+        <source> Reason: %1</source>
+        <translation> 理由: %1</translation>
+    </message>
+    <message>
+        <source>Exit code: %1</source>
+        <translation>終了コード: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDebianPackageCreationStep</name>
+    <message>
+        <source>Create Debian Package</source>
+        <translation>Debian パッケージの作成</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not get package name.</source>
+        <translation>パッケージ作成失敗: パッケージ名を取得できません。</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not move package files from &apos;%1&apos; to &apos;%2&apos;.</source>
+        <translation>パッケージ作成失敗: パッケージファイルを &apos;%1&apos; から &apos;%2&apos; に移動できません。</translation>
+    </message>
+    <message>
+        <source>Your project name contains characters not allowed in Debian packages.
+They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
+We will try to work around that, but you may experience problems.</source>
+        <translation>プロジェクト名に Debian パッケージで許可されていない文字が含まれています。
+使用できるのは 小文字、数字、&apos;-&apos;(マイナス記号)、&apos;+&apos;(プラス記号)、&apos;.&apos;(ピリオド) のみです。
+この問題を回避するよう試みますが、何らかの問題に遭遇する可能性があります。</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Foreign debian directory detected. You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
+        <translation>パッケージ作成失敗: 無関係な debian ディレクトリを検知しました。シャドウビルドを使っていませんが、プロジェクトルート (&apos;%1&apos;) に Debian ディレクトリが存在しています。Qt Creator がそのディレクトリを上書きする事はないはずですが、Debian ディレクトリを取り除くかシャドウビルド機能をお使い下さい。</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not remove directory &apos;%1&apos;: %2</source>
+        <translation>パッケージ作成失敗: ディレクトリ &apos;%1&apos; を削除できません: %2</translation>
+    </message>
+    <message>
+        <source>Could not create Debian directory &apos;%1&apos;.</source>
+        <translation>Debian ディレクトリ &apos;%1&apos; を作成できませんでした。</translation>
+    </message>
+    <message>
+        <source>Could not read manifest file &apos;%1&apos;: %2.</source>
+        <translation>マニフェストファイル &apos;%1&apos; を読み込めません: %2。</translation>
+    </message>
+    <message>
+        <source>Could not write manifest file &apos;%1&apos;: %2.</source>
+        <translation>マニフェストファイル &apos;%1&apos; に書き込めません: %2。</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
+        <translation>&apos;%1&apos; から &apos;%2&apos; へファイルをコピーできませんでした。</translation>
+    </message>
+    <message>
+        <source>Error: Could not create file &apos;%1&apos;.</source>
+        <translation>エラー: ファイル &apos;%1&apos; を作成できませんでした。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRpmPackageCreationStep</name>
+    <message>
+        <source>Create RPM Package</source>
+        <translation>RPM パッケージの作成</translation>
+    </message>
+    <message>
+        <source>Packaging failed: Could not move package file from %1 to %2.</source>
+        <translation>パッケージ作成失敗: パッケージファイルを %1 から %2 に移動できません。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPackageCreationWidget</name>
+    <message>
+        <source>Size should be %1x%2 pixels</source>
+        <translation>サイズは %1x%2 ピクセルでなければなりません</translation>
+    </message>
+    <message>
+        <source>No Version Available.</source>
+        <translation>利用できるバージョンがありません。</translation>
+    </message>
+    <message>
+        <source>Could not read icon</source>
+        <translation>アイコンを読めません</translation>
+    </message>
+    <message>
+        <source>Images</source>
+        <translation>画像</translation>
+    </message>
+    <message>
+        <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
+        <translation>画像を選択して下さい(必要に応じて 48x48 ピクセルに調整されます)</translation>
+    </message>
+    <message>
+        <source>Could Not Set New Icon</source>
+        <translation>新しいアイコンを設定できません</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>ファイルエラー</translation>
+    </message>
+    <message>
+        <source>Could not set project name.</source>
+        <translation>プロジェクト名を設定できません。</translation>
+    </message>
+    <message>
+        <source>Could not set package name for project manager.</source>
+        <translation>プロジェクトマネージャにパッケージ名を設定できません。</translation>
+    </message>
+    <message>
+        <source>Could not set project description.</source>
+        <translation>プロジェクトの説明を設定できません。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
+        <translation>&lt;b&gt;作成するパッケージ:&lt;/b&gt; </translation>
+    </message>
+    <message>
+        <source>Could Not Set Version Number</source>
+        <translation>バージョン番号を設定できません</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoDebianPackageInstaller</name>
+    <message>
+        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
+        <translation>インストール失敗: パッケージのダウングレードを試みましたが、許可されていません。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishedProjectModel</name>
+    <message>
+        <source>Include in package</source>
+        <translation>パッケージに含める</translation>
+    </message>
+    <message>
+        <source>Include</source>
+        <translation>含める</translation>
+    </message>
+    <message>
+        <source>Do not include</source>
+        <translation>含めない</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublisherFremantleFree</name>
+    <message>
+        <source>Canceled.</source>
+        <translation>中止しました。</translation>
+    </message>
+    <message>
+        <source>Publishing canceled by user.</source>
+        <translation>ユーザーによって公開が中止されました。</translation>
+    </message>
+    <message>
+        <source>The project is missing some information important to publishing:</source>
+        <translation>プロジェクトを公開する為に必要ないくつかの重要な情報が不足しています:</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Missing project information.</source>
+        <translation>公開失敗: プロジェクト情報が見つかりません。</translation>
+    </message>
+    <message>
+        <source>Removing left-over temporary directory ...</source>
+        <translation>残っている一時ディレクトリを削除中...</translation>
+    </message>
+    <message>
+        <source>Error removing temporary directory: %1</source>
+        <translation>一時ディレクトリの削除中にエラー: %1</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Could not create source package.</source>
+        <translation>公開失敗: ソースパッケージを作成できませんでした。</translation>
+    </message>
+    <message>
+        <source>Setting up temporary directory ...</source>
+        <translation>一時ディレクトリを設定しています...</translation>
+    </message>
+    <message>
+        <source>Error: Could not create temporary directory.</source>
+        <translation>エラー: 一時ディレクトリを作成できませんでした。</translation>
+    </message>
+    <message>
+        <source>Error: Could not copy project directory.</source>
+        <translation>エラー: プロジェクトディレクトリをコピーできませんでした。</translation>
+    </message>
+    <message>
+        <source>Error: Could not fix newlines.</source>
+        <translation>エラー: 改行コードを修正できませんでした。</translation>
+    </message>
+    <message>
+        <source>Publishing failed: Could not create package.</source>
+        <translation>公開失敗: パッケージを作成できませんでした。</translation>
+    </message>
+    <message>
+        <source>Cleaning up temporary directory ...</source>
+        <translation>一時ディレクトリを掃除しています...</translation>
+    </message>
+    <message>
+        <source>Failed to create directory &apos;%1&apos;.</source>
+        <translation>ディレクトリ &apos;%1&apos; の作成に失敗しました。</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
+        <translation>ファイル &apos;%1&apos; を &apos;%2&apos; へコピーできません: %3。</translation>
+    </message>
+    <message>
+        <source>Error: Failed to start dpkg-buildpackage.</source>
+        <translation>エラー: dpkg-buildpackage の起動に失敗しました。</translation>
+    </message>
+    <message>
+        <source>Error: dpkg-buildpackage did not succeed.</source>
+        <translation>エラー: dpkg-buildpackage は成功しませんでした。</translation>
+    </message>
+    <message>
+        <source>Package creation failed.</source>
+        <translation>パッケージ作成が失敗しました。</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>完了しました。</translation>
+    </message>
+    <message>
+        <source>Packaging finished successfully. The following files were created:
+</source>
+        <translation>パッケージ化に成功しました。以下のファイルが作られました:
+</translation>
+    </message>
+    <message>
+        <source>No Qt version set.</source>
+        <translation>Qt バージョンが設定されていません。</translation>
+    </message>
+    <message>
+        <source>Building source package...</source>
+        <translation>ソースパッケージをビルド中...</translation>
+    </message>
+    <message>
+        <source>Starting scp ...</source>
+        <translation>SCP を起動中...</translation>
+    </message>
+    <message>
+        <source>SSH error: %1</source>
+        <translation>SSH エラー: %1</translation>
+    </message>
+    <message>
+        <source>Upload failed.</source>
+        <translation>アップロードが失敗しました。</translation>
+    </message>
+    <message>
+        <source>Error uploading file: %1.</source>
+        <translation>ファイルアップロードエラー: %1.</translation>
+    </message>
+    <message>
+        <source>Error uploading file.</source>
+        <translation>ファイルのアップロードでエラーが発生しました。</translation>
+    </message>
+    <message>
+        <source>All files uploaded.</source>
+        <translation>すべてのファイルをアップロードしました。</translation>
+    </message>
+    <message>
+        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
+        <translation>アップロード成功。もうすぐビルドプロセスの結果についてのメールが送られてくるはずです。</translation>
+    </message>
+    <message>
+        <source>Uploading file %1 ...</source>
+        <translation>ファイル %1 をアップロード中...</translation>
+    </message>
+    <message>
+        <source>Cannot open file for reading: %1.</source>
+        <translation>ファイルを開けません: %1.</translation>
+    </message>
+    <message>
+        <source>Cannot read file: %1</source>
+        <translation>ファイルを読み込めません: %1</translation>
+    </message>
+    <message>
+        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>パッケージの説明が空です。プロジェクト -&gt; 実行 -&gt; パッケージ作成 -&gt; 詳細 で説明を設定する必要があります。</translation>
+    </message>
+    <message>
+        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>パッケージの説明は &apos;%1&apos; となっていますが、もし希望通りでなければプロジェクト -&gt; 実行 -&gt; パッケージ作成 -&gt; 詳細 で説明を変更して下さい。</translation>
+    </message>
+    <message>
+        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>パッケージマネージャにアイコンが設定されていません。プロジェクト -&gt; 実行 -&gt; パッケージ作成 -&gt; 詳細 でアイコンを指定して下さい。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
+    <message>
+        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
+        <translation>Fremantle の &quot;Extras-devel/free&quot; リポジトリに公開</translation>
+    </message>
+    <message>
+        <source>Upload options</source>
+        <translation>アップロードオプション</translation>
+    </message>
+    <message>
+        <source>Choose a private key file</source>
+        <translation>秘密鍵ファイルを選択して下さい</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
+    <message>
+        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
+        <translation>&quot;Fremantle Extras-devel free&quot; リポジトリに公開</translation>
+    </message>
+    <message>
+        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
+        <translation>このウィザードは、ソースアーカイブを作成し必要に応じてビルドサーバーにアップロードします。ユーザーが自身の N900 デバイスにインストールする事ができるようプロジェクトはコンパイル、パッケージ化され &quot;Extras-devel free&quot; リポジトリに移動されます。アップロード機能を使用するには、garage.maemo.org のアカウントが必要です。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoPublishingWizardFremantleFree</name>
+    <message>
+        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
+        <translation>Fremantle の &quot;Extras-devel free&quot; リポジトリに公開</translation>
+    </message>
+    <message>
+        <source>Build Settings</source>
+        <translation>ビルド設定</translation>
+    </message>
+    <message>
+        <source>Upload Settings</source>
+        <translation>アップロード設定</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>結果</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoQemuManager</name>
+    <message>
+        <source>Start MeeGo Emulator</source>
+        <translation>MeeGo エミュレータ開始</translation>
+    </message>
+    <message>
+        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
+        <translation>対応する Qt バージョンが削除された為、Qemu はシャットダウンしました。</translation>
+    </message>
+    <message>
+        <source>Qemu finished with error: Exit code was %1.</source>
+        <translation>Qemu は異常終了しました: 終了コードは %1 です。</translation>
+    </message>
+    <message>
+        <source>Qemu error</source>
+        <translation>Qemu エラー</translation>
+    </message>
+    <message>
+        <source>Qemu failed to start: %1</source>
+        <translation>Qemu を開始できませんでした: %1</translation>
+    </message>
+    <message>
+        <source>Stop MeeGo Emulator</source>
+        <translation>MeeGo エミュレータ停止</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRemoteCopyFacility</name>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>接続失敗: %1</translation>
+    </message>
+    <message>
+        <source>Error: Copy command failed.</source>
+        <translation>エラー: コピーコマンドが失敗しました。</translation>
+    </message>
+    <message>
+        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
+        <translation>ファイル &apos;%1&apos; をデバイス上のディレクトリ &apos;%2&apos; にコピー中...</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRemoteMounter</name>
+    <message>
+        <source>No directories to mount</source>
+        <translation>マウント先のディレクトリがありません</translation>
+    </message>
+    <message>
+        <source>No directories to unmount</source>
+        <translation>マウントを解除するディレクトリがありません</translation>
+    </message>
+    <message>
+        <source>Could not execute unmount request.</source>
+        <translation>マウント解除要求を実行できませんでした。</translation>
+    </message>
+    <message>
+        <source>Failure unmounting: %1</source>
+        <translation>マウント解除失敗: %1</translation>
+    </message>
+    <message>
+        <source>Finished unmounting.</source>
+        <translation>マウント解除完了。</translation>
+    </message>
+    <message>
+        <source>
+stderr was: &apos;%1&apos;</source>
+        <translation>
+標準エラー出力: &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
+        <translation>エラー: すべてのマウント要求を満たす為に十分な空きポートがデバイス上にありません。</translation>
+    </message>
+    <message>
+        <source>Starting remote UTFS clients...</source>
+        <translation>リモート UTFS クライアントを起動中...</translation>
+    </message>
+    <message>
+        <source>Mount operation succeeded.</source>
+        <translation>マウント操作が成功しました。</translation>
+    </message>
+    <message>
+        <source>Failure running UTFS client: %1</source>
+        <translation>UTFS クライアントの実行が失敗しました: %1</translation>
+    </message>
+    <message>
+        <source>Starting UTFS servers...</source>
+        <translation>UTFS サーバーを起動中...</translation>
+    </message>
+    <message>
+        <source>
+stderr was: %1</source>
+        <translation>
+標準エラー出力: %1</translation>
+    </message>
+    <message>
+        <source>Error running UTFS server: %1</source>
+        <translation>UTFS サーバー実行中にエラー: %1</translation>
+    </message>
+    <message>
+        <source>Timeout waiting for UTFS servers to connect.</source>
+        <translation>UTFS サーバーへの接続待機中にタイムアウトしました。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRemoteMountsModel</name>
+    <message>
+        <source>Local directory</source>
+        <translation>ローカルディレクトリ</translation>
+    </message>
+    <message>
+        <source>Remote mount point</source>
+        <translation>リモートマウントポイント</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRunConfiguration</name>
+    <message>
+        <source>Not enough free ports on the device.</source>
+        <translation>デバイスに十分な空きポートがありません。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRunConfigurationWidget</name>
+    <message>
+        <source>Choose directory to mount</source>
+        <translation>マウントするディレクトリを選択して下さい</translation>
+    </message>
+    <message>
+        <source>No local directories to be mounted on the device.</source>
+        <translation>デバイスにローカルディレクトリがマウントされていません。</translation>
+    </message>
+    <message>
+        <source>One local directory to be mounted on the device.</source>
+        <translation>デバイスにローカルディレクトリをマウントします。</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n local directories to be mounted on the device.</source>
+        <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
+        <translation>
+            <numerusform>%n 個のローカルディレクトリがデバイス上にマウントされます。</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
+        <translation>
+            <numerusform>警告: %1 個のディレクトリをマウントしようとしていますが、デバイスには %n 個の空きポートしかありません。&lt;br&gt;この構成では実行する事はできません。</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
+        <translation>
+            <numerusform>警告: %1 個のディレクトリをマウントしようとしていますが、デバイスにはデバッグモードで使用可能な空きポートが %n 個しかありません。&lt;br&gt;この構成ではデバッグする事はできません。</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoRunControlFactory</name>
+    <message>
+        <source>Run on device</source>
+        <translation>デバイスで実行</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoQemuCrashDialog</name>
+    <message>
+        <source>Qemu error</source>
+        <translation>Qemu エラー</translation>
+    </message>
+    <message>
+        <source>Qemu crashed.</source>
+        <translation>Qemu がクラッシュしました。</translation>
+    </message>
+    <message>
+        <source>Click here to change the OpenGL mode.</source>
+        <translation>OpenGL モードを切り替えて下さい。</translation>
+    </message>
+    <message>
+        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
+        <translation>お使いのシステムではサポートされていない可能性のある OpenGL ハードウェアアクセラレーションを使用するように Qemu が構成されていますが、代わりにソフトウェアレンダリングを使用する事もできます。</translation>
+    </message>
+    <message>
+        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
+        <translation>いくつかのケースでうまく動作しない事が判明している OpenGL モードの自動認識を行うように構成されていますが、代わりにソフトウェアレンダリングを使用する事も出来ます。</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoQemuSettingsPage</name>
+    <message>
+        <source>MeeGo Qemu Settings</source>
+        <translation>MeeGo Qemu 設定</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoSshRunner</name>
+    <message>
+        <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation>Qemu が実行されていません。既に起動はされていますが、準備が完了するまでもう少し時間がかかります。後で、もう一度やり直して下さい。</translation>
+    </message>
+    <message>
+        <source>You want to run on Qemu, but it is not enabled for this Qt version.</source>
+        <translation>Qemu を実行しようとしていますが、この Qt バージョンでは利用できません。</translation>
+    </message>
+    <message>
+        <source>Mounting host directories...</source>
+        <translation>ホスト側のディレクトリをマウント中...</translation>
+    </message>
+    <message>
+        <source>Potentially unmounting left-over host directory mounts...</source>
+        <translation>残っている可能性のあるホスト側ディレクトリのマウントを解除中...</translation>
+    </message>
+    <message>
+        <source>Unmounting host directories...</source>
+        <translation>ホスト側ディレクトリのマウントを解除中...</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoToolChainFactory</name>
+    <message>
+        <source>Maemo GCC</source>
+        <translation>Maemo GCC</translation>
+    </message>
+    <message>
+        <source>Maemo GCC for %1</source>
+        <translation>%1 向け Maemo GCC</translation>
+    </message>
+    <message>
+        <source>%1 GCC (%2)</source>
+        <translation>%1 GCC (%2)</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaemoToolChainConfigWidget</name>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;MADDE のパス:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;MADDE ターゲットのパス:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;デバッガ:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::Qt4MaemoDeployConfigurationFactory</name>
+    <message>
+        <source>Copy Files to Maemo5 Device</source>
+        <translation>Maemo5 デバイスにファイルをコピー</translation>
+    </message>
+    <message>
+        <source>Build Debian Package and Install to Maemo5 Device</source>
+        <translation>Debian パッケージをビルドし Maemo5 デバイスにインストール</translation>
+    </message>
+    <message>
+        <source>Build Debian Package and Install to Harmattan Device</source>
+        <translation>Debian パッケージをビルドし Harmattan デバイスにインストール</translation>
+    </message>
+    <message>
+        <source>Build RPM Package and Install to MeeGo Device</source>
+        <translation>RPM パッケージをビルドし MeeGo デバイスにインストール</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractQt4MaemoTarget</name>
+    <message>
+        <source>Cannot open file &apos;%1&apos;: %2</source>
+        <translation>ファイル &apos;%1&apos; を開けません: %2</translation>
+    </message>
+    <message>
+        <source>Add Packaging Files to Project</source>
+        <translation>プロジェクトにパッケージファイルを追加</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
+   %1
+Do you want to add them to the project?&lt;/html&gt;</source>
+        <translation>&lt;html&gt;Qt Creator はパッケージを有効にする為、以下のファイルを準備しています:
+   %1
+これらをプロジェクトに追加しますか？&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
+        <translation>ターゲット &apos;%1&apos; に関連付けられたパッケージファイルを削除しますか？</translation>
+    </message>
+    <message>
+        <source>Error creating packaging directory &apos;%1&apos;.</source>
+        <translation>パッケージディレクトリ &apos;%1&apos; の作成中にエラーが発生しました。</translation>
+    </message>
+    <message>
+        <source>Error creating MeeGo templates</source>
+        <translation>MeeGo テンプレート作成中にエラー</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::AbstractDebBasedQt4MaemoTarget</name>
+    <message>
+        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
+        <translation>Debian チェンジログ &apos;%1&apos; が未知の形式です。</translation>
+    </message>
+    <message>
+        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
+        <translation>changelog 更新中断: すでにバージョン &apos;%1&apos; で取り込まれています。</translation>
+    </message>
+    <message>
+        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
+        <translation>changelog 更新不可: 不正な形式です(メンテナのエントリが見つかりません)。</translation>
+    </message>
+    <message>
+        <source>Invalid icon data in Debian control file.</source>
+        <translation>Debian コントロールファイル内に無効なアイコンデータがあります。</translation>
+    </message>
+    <message>
+        <source>Could not read image file &apos;%1&apos;.</source>
+        <translation>画像ファイル &apos;%1&apos; を読み込めません。</translation>
+    </message>
+    <message>
+        <source>Could not export image file &apos;%1&apos;.</source>
+        <translation>画像ファイル &apos;%1&apos; をエクスポートできません。</translation>
+    </message>
+    <message>
+        <source>Unable to create Debian templates: No Qt version set</source>
+        <translation>Debian テンプレートを作成できません: Qt バージョンが設定されていません</translation>
+    </message>
+    <message>
+        <source>Unable to create Debian templates: dh_make failed (%1)</source>
+        <translation>Debian テンプレートを作成できません: dh_make 失敗 (%1)</translation>
+    </message>
+    <message>
+        <source>Unable to create debian templates: dh_make failed (%1)</source>
+        <translation>Debian テンプレートを作成できません: dh_make 失敗 (%1)</translation>
+    </message>
+    <message>
+        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
+        <translation>新しい Debian ディレクトリを &apos;%1&apos; に移動できません。</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::SettingsAccessor</name>
+    <message>
+        <source>Using Old Project Settings File</source>
+        <translation>古いプロジェクト設定ファイルを使う</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;バージョン管理されていないファイルは Qt Creator の非互換の新しいバージョンで作成されている為、バージョン管理された .user 設定ファイルのバックアップを使用します。&lt;/p&gt;&lt;p&gt;最後にこのバージョンの Qt Creator を使用して行われたプロジェクト設定の変更は無視され、現在の変更内容も新しいバージョンには&lt;b&gt;反映されません&lt;/b&gt;。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Project Settings File from a different Environment?</source>
+        <translation>異なる環境のプロジェクト設定ファイルではありませんか？</translation>
+    </message>
+    <message>
+        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
+
+The .user settings files contain environment specific settings. They should not be copied to a different environment. 
+
+Do you still want to load the settings file?</source>
+        <translation>Qt Creator は別の開発環境(異なるマシン)で作成されたと思われる .user 設定ファイルを見つけました。
+
+.user 設定ファイルは環境固有の設定を含んでいる為、異なる環境からコピーして使用するのは推奨していません。
+
+それでも設定ファイルを読み込みますか？</translation>
+    </message>
+    <message>
+        <source>Unsupported Shared Settings File</source>
+        <translation>共有設定ファイルは未サポート</translation>
+    </message>
+    <message>
+        <source>The version of your .shared file is not yet supported by this Qt Creator version. Only settings that are still compatible will be taken into account.
+
+Do you want to continue?
+
+If you choose not to continue Qt Creator will not try to load the .shared file.</source>
+        <translation>このバージョンの Qt Creator は、あなたの .shared ファイルのバージョンをサポートしていません。互換性のある設定だけ参照されます。
+
+続行しますか？
+
+続行しない場合 Qt Creator は .shared ファイルの読み込みを取りやめます。</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor</name>
+    <message>
+        <source>Qt Quick</source>
+        <translation>Qt Quick</translation>
+    </message>
+</context>
+<context>
+    <name>FindExportedCppTypes</name>
+    <message>
+        <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The module URI cannot be determined by static analysis. The type will be available
+globally in the QML editor. You can add a &quot;// @uri My.Module.Uri&quot; annotation to let
+Qt Creator know about a likely URI.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>must be a string literal to be available in the QML editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Qt4PriFileNode</name>
+    <message>
+        <source>Headers</source>
+        <translation>ヘッダー</translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <translation>ソース</translation>
+    </message>
+    <message>
+        <source>Forms</source>
+        <translation>フォーム</translation>
+    </message>
+    <message>
+        <source>Resources</source>
+        <translation>リソース</translation>
+    </message>
+    <message>
+        <source>QML</source>
+        <translation>QML</translation>
+    </message>
+    <message>
+        <source>Other files</source>
+        <translation>その他のファイル</translation>
+    </message>
+    <message>
+        <source>Cannot Open File</source>
+        <translation>ファイルを開けません</translation>
+    </message>
+    <message>
+        <source>Cannot open the file for editing with VCS.</source>
+        <translation>ファイルをバージョン管理システムで編集する為に開けませんでした。</translation>
+    </message>
+    <message>
+        <source>Cannot Set Permissions</source>
+        <translation>パーミッション設定不可</translation>
+    </message>
+    <message>
+        <source>Cannot set permissions to writable.</source>
+        <translation>パーミッションを書き込み可能に設定できません。</translation>
+    </message>
+    <message>
+        <source>There are unsaved changes for project file %1.</source>
+        <translation>プロジェクトファイル %1 は変更されていますが、まだ保存されていません。</translation>
+    </message>
+    <message>
+        <source>Failed!</source>
+        <translation>エラー発生!</translation>
+    </message>
+    <message>
+        <source>Could not write project file %1.</source>
+        <translation>プロジェクトファイル %1 に書き込めません。</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>ファイルエラー</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::PngIconScaler</name>
+    <message>
+        <source>Wrong Icon Size</source>
+        <translation>間違ったアイコンサイズ</translation>
+    </message>
+    <message>
+        <source>The icon needs to be %1x%2 pixels big, but is not. Do you want Qt Creator to scale it?</source>
+        <translation>アイコンは %1x%2 ピクセルでなければなりません。調整しますか？</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>ファイルエラー</translation>
+    </message>
+    <message>
+        <source>Could not copy icon file: %1</source>
+        <translation>アイコンファイルをコピーできませんでした: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <message>
+        <source>No deployment action necessary. Skipping.</source>
+        <translation>デプロイアクションは不要です。スキップします。</translation>
+    </message>
+    <message>
+        <source>No device configuration set.</source>
+        <translation>デバイス構成が設定されていません。</translation>
+    </message>
+    <message>
+        <source>Connecting to device...</source>
+        <translation>デバイスに接続中...</translation>
+    </message>
+    <message>
+        <source>Could not connect to host: %1</source>
+        <translation>ホストに接続できませんでした: %1</translation>
+    </message>
+    <message>
+        <source>
+Did the emulator fail to start?</source>
+        <translation>
+エミュレータの起動に失敗しましたか？</translation>
+    </message>
+    <message>
+        <source>
+Is the device connected and set up for network access?</source>
+        <translation>
+デバイスを接続済みですか？またネットワークアクセスの設定も完了しましたか？</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>接続エラー: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <message>
+        <source>Deployment failed: %1</source>
+        <translation>デプロイ失敗: %1</translation>
+    </message>
+    <message>
+        <source>User requests deployment to stop; cleaning up.</source>
+        <translation>デプロイ停止要求: 後始末をしています。</translation>
+    </message>
+    <message>
+        <source>Deploy step failed.</source>
+        <translation>デプロイステップに失敗しました。</translation>
+    </message>
+    <message>
+        <source>Deploy step finished.</source>
+        <translation>デプロイステップが完了しました。</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <message>
+        <source>Successfully uploaded package file.</source>
+        <translation>パッケージファイルのアップロードが成功しました。</translation>
+    </message>
+    <message>
+        <source>Installing package to device...</source>
+        <translation>デバイスにパッケージをインストール中...</translation>
+    </message>
+    <message>
+        <source>Package installed.</source>
+        <translation>パッケージをインストールしました。</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericDirectUploadService</name>
+    <message>
+        <source>SFTP initialization failed: %1</source>
+        <translation>SFTP 初期化失敗: %1</translation>
+    </message>
+    <message>
+        <source>Upload of file &apos;%1&apos; failed: %2</source>
+        <translation>ファイル &apos;%1&apos; アップロード失敗: %2</translation>
+    </message>
+    <message>
+        <source>Failed to upload file &apos;%1&apos;.</source>
+        <translation>ファイル &apos;%1&apos; のアップロードが失敗しました。</translation>
+    </message>
+    <message>
+        <source>Failed to upload file &apos;%1&apos;: Could not open for reading.</source>
+        <translation>ファイル &apos;%1&apos; のアップロードが失敗しました: ファイルを読み込めませんでした。</translation>
+    </message>
+    <message>
+        <source>All files successfully deployed.</source>
+        <translation>すべてのファイルのデプロイが成功しました。</translation>
+    </message>
+    <message>
+        <source>Warning: No remote path set for local file &apos;%1&apos;. Skipping upload.</source>
+        <translation>警告: ローカルファイル &apos;%1&apos; のリモートパスがありません。アップロードを中止します。</translation>
+    </message>
+    <message>
+        <source>Uploading file &apos;%1&apos;...</source>
+        <translation>ファイル &apos;%1&apos; をアップロード中...</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::ConfigWidget</name>
+    <message>
+        <source>Incremental deployment</source>
+        <translation>増分デプロイ</translation>
+    </message>
+    <message>
+        <source>Command line:</source>
+        <translation>コマンドライン:</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericDirectUploadStep</name>
+    <message>
+        <source>Upload files via SFTP</source>
+        <translation>SFTP 経由でファイルをアップロード</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericLinuxDeviceConfigurationFactory</name>
+    <message>
+        <source>Generic Linux Device</source>
+        <translation>一般的な Linux デバイス</translation>
+    </message>
+    <message>
+        <source>Generic Linux</source>
+        <translation>一般的な Linux</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>テスト</translation>
+    </message>
+    <message>
+        <source>Remote Processes...</source>
+        <translation>リモートプロセス...</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key...</source>
+        <translation>公開鍵をデプロイ...</translation>
+    </message>
+    <message>
+        <source>Remote Processes</source>
+        <translation type="obsolete">リモートプロセス</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key</source>
+        <translation type="obsolete">公開鍵のデプロイ</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::LinuxDeviceConfigurations</name>
+    <message>
+        <source>(default for %1)</source>
+        <translation>(%1 向けのデフォルト)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</name>
+    <message>
+        <source>You will need at least one port.</source>
+        <translation>最低でも1つのポートが必要です。</translation>
+    </message>
+    <message>
+        <source>Physical Device</source>
+        <translation>物理デバイス</translation>
+    </message>
+    <message>
+        <source>Emulator</source>
+        <translation>エミュレータ</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::LinuxDeviceTestDialog</name>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+    <message>
+        <source>Device test finished successfully.</source>
+        <translation>デバイステストは正常に完了しました。</translation>
+    </message>
+    <message>
+        <source>Device test failed.</source>
+        <translation>デバイステストが失敗しました。</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericLinuxDeviceTester</name>
+    <message>
+        <source>Connecting to host...</source>
+        <translation>ホストに接続中...</translation>
+    </message>
+    <message>
+        <source>SSH connection failure: %1
+</source>
+        <translation>SSH 接続失敗: %1
+</translation>
+    </message>
+    <message>
+        <source>uname failed: %1
+</source>
+        <translation>uname 失敗: %1
+</translation>
+    </message>
+    <message>
+        <source>uname failed.
+</source>
+        <translation>uname が失敗しました。
+</translation>
+    </message>
+    <message>
+        <source>Checking if specified ports are available...</source>
+        <translation>指定されたポートが使用可能かチェック中...</translation>
+    </message>
+    <message>
+        <source>Error gathering ports: %1
+</source>
+        <translation>ポート情報収集中にエラー: %1
+</translation>
+    </message>
+    <message>
+        <source>The following specified ports are currently in use: %1
+</source>
+        <translation>指定されたポートのうち以下のポートは現在使用中です: %1
+</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::PackageUploader</name>
+    <message>
+        <source>Preparing SFTP connection...</source>
+        <translation>SFTP 接続の準備中...</translation>
+    </message>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>接続失敗: %1</translation>
+    </message>
+    <message>
+        <source>SFTP error: %1</source>
+        <translation>SFTP エラー: %1</translation>
+    </message>
+    <message>
+        <source>Package upload failed: Could not open file.</source>
+        <translation>パッケージアップロード失敗: ファイルを開けません。</translation>
+    </message>
+    <message>
+        <source>Failed to upload package: %2</source>
+        <translation>パッケージアップロード失敗: %2</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::ProFilesUpdateDialog</name>
+    <message>
+        <source>Updateable Project Files</source>
+        <translation>更新可能プロジェクトファイル</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxApplicationRunner</name>
+    <message>
+        <source>Cannot run: %1</source>
+        <translation>実行不可: %1</translation>
+    </message>
+    <message>
+        <source>Could not connect to host: %1</source>
+        <translation>ホストに接続できませんでした: %1</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>接続エラー: %1</translation>
+    </message>
+    <message>
+        <source>Killing remote process(es)...</source>
+        <translation>リモートプロセスを kill しています...</translation>
+    </message>
+    <message>
+        <source>Initial cleanup failed: %1</source>
+        <translation>初回クリーンアップが失敗: %1</translation>
+    </message>
+    <message>
+        <source>Remote process started.</source>
+        <translation>リモートプロセスを開始しました。</translation>
+    </message>
+    <message>
+        <source>Gathering ports failed: %1
+Continuing anyway.</source>
+        <translation>ポート情報収集失敗: %1
+継続します。</translation>
+    </message>
+    <message>
+        <source>No remote executable set.</source>
+        <translation>リモートの実行ファイルが設定されていません。</translation>
+    </message>
+    <message>
+        <source>No device configuration set.</source>
+        <translation>デバイス構成が設定されていません。</translation>
+    </message>
+    <message>
+        <source>Connecting to device...</source>
+        <translation>デバイスに接続中...</translation>
+    </message>
+    <message>
+        <source>Error running remote process: %1</source>
+        <translation>リモートプロセス実行中にエラー: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericRemoteLinuxCustomCommandDeploymentStep</name>
+    <message>
+        <source>Run custom remote command</source>
+        <translation>カスタムリモートコマンド実行</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
+    <message>
+        <source>No command line given.</source>
+        <translation>コマンドラインが設定されていません。</translation>
+    </message>
+    <message>
+        <source>Starting remote command &apos;%1&apos;...</source>
+        <translation>リモートコマンド &apos;%1&apos; を開始しています...</translation>
+    </message>
+    <message>
+        <source>Remote process failed to start.</source>
+        <translation>リモートプロセスの起動が失敗しました。</translation>
+    </message>
+    <message>
+        <source>Remote process was killed by a signal.</source>
+        <translation>リモートプロセスはシグナルで kill されました。</translation>
+    </message>
+    <message>
+        <source>Remote process finished with exit code %1.</source>
+        <translation>リモートプロセスは終了コード %1 で終了しました。</translation>
+    </message>
+    <message>
+        <source>Remote command finished successfully.</source>
+        <translation>リモートコマンドは正常に終了しました。</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux</name>
+    <message>
+        <source>Deploy to Remote Linux Host</source>
+        <translation>リモート Linux ホストにデプロイ</translation>
+    </message>
+    <message>
+        <source>Linux Devices</source>
+        <translation>Linux デバイス</translation>
+    </message>
+    <message>
+        <source>Unknown OS</source>
+        <translation>未知の OS</translation>
+    </message>
+    <message>
+        <source>(No device)</source>
+        <translation>(デバイスなし)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxDeployStepWidget</name>
+    <message>
+        <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
+        <translation>&lt;b&gt;%1 で使用中のデバイス&lt;/b&gt;: %2</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>接続エラー: %1</translation>
+    </message>
+    <message>
+        <source>Error running remote process: %1</source>
+        <translation>リモートプロセス実行中にエラー: %1</translation>
+    </message>
+    <message>
+        <source>
+Remote stderr was: &apos;%1&apos;</source>
+        <translation>
+リモート側の標準エラー出力: &apos;%1&apos;</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
+    <message>
+        <source>Connection failure: %1</source>
+        <translation>接続エラー: %1</translation>
+    </message>
+    <message>
+        <source>Installing package failed.</source>
+        <translation>パッケージのインストールが失敗しました。</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::RemoteLinuxPlugin</name>
+    <message>
+        <source>Start Remote Debug Server...</source>
+        <translation>リモートデバッグサーバを起動しています...</translation>
+    </message>
+    <message>
+        <source>Start Gdbserver</source>
+        <translation>Gdbserver 起動</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxProcessesDialog</name>
+    <message>
+        <source>Remote Error</source>
+        <translation>リモートエラー</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxProcessList</name>
+    <message>
+        <source>PID</source>
+        <translation>PID</translation>
+    </message>
+    <message>
+        <source>Command Line</source>
+        <translation>コマンドライン</translation>
+    </message>
+    <message>
+        <source>Connection failure: %1</source>
+        <translation>接続エラー: %1</translation>
+    </message>
+    <message>
+        <source>Error: Remote process failed to start: %1</source>
+        <translation>エラー: リモートプロセスの起動に失敗: %1</translation>
+    </message>
+    <message>
+        <source>Error: Remote process crashed: %1</source>
+        <translation>エラー: リモートプロセスがクラッシュ: %1</translation>
+    </message>
+    <message>
+        <source>Remote process failed.</source>
+        <translation>リモートプロセスが失敗しました。</translation>
+    </message>
+    <message>
+        <source>
+Remote stderr was: %1</source>
+        <translation>
+リモート側標準エラー出力: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsPage</name>
+    <message>
+        <source>Device Configurations</source>
+        <translation>デバイス構成</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxUsedPortsGatherer</name>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>接続エラー: %1</translation>
+    </message>
+    <message>
+        <source>Could not start remote process: %1</source>
+        <translation>リモートプロセスを開始できませんでした: %1</translation>
+    </message>
+    <message>
+        <source>Remote process crashed: %1</source>
+        <translation>リモートプロセスがクラッシュしました: %1</translation>
+    </message>
+    <message>
+        <source>Remote process failed; exit code was %1.</source>
+        <translation>リモートプロセス失敗: 終了コードは %1 でした。</translation>
+    </message>
+    <message>
+        <source>
+Remote error output was: %1</source>
+        <translation>
+リモート側のエラー出力: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::SshKeyCreationDialog</name>
+    <message>
+        <source>Save Public Key File</source>
+        <translation>公開鍵ファイルの保存</translation>
+    </message>
+    <message>
+        <source>Save Private Key File</source>
+        <translation>秘密鍵ファイルの保存</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::SshKeyDeployer</name>
+    <message>
+        <source>Public key error: %1</source>
+        <translation>公開鍵エラー: %1</translation>
+    </message>
+    <message>
+        <source>Connection failed: %1</source>
+        <translation>接続失敗: %1</translation>
+    </message>
+    <message>
+        <source>Key deployment failed: %1.</source>
+        <translation>鍵ファイルの転送に失敗: %1。</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::StartGdbServerDialog</name>
+    <message>
+        <source>Remote Error</source>
+        <translation>リモートエラー</translation>
+    </message>
+    <message>
+        <source>Could not retrieve list of free ports:</source>
+        <translation>空きポートリストを取得できません:</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>接続エラー: %1</translation>
+    </message>
+    <message>
+        <source>Starting gdbserver...</source>
+        <translation>gdbserver 起動中...</translation>
+    </message>
+    <message>
+        <source>Port %1 is now accessible.</source>
+        <translation>ポート %1 が使用可能になりました。</translation>
+    </message>
+    <message>
+        <source>Process gdbserver finished. Status: %1</source>
+        <translation>gdbserver プロセスは終了しました。 ステータス: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::TarPackageCreationStep</name>
+    <message>
+        <source>Packaging finished successfully.</source>
+        <translation>パッケージ化が成功しました。</translation>
+    </message>
+    <message>
+        <source>Packaging failed.</source>
+        <translation>パッケージ作成に失敗しました。</translation>
+    </message>
+    <message>
+        <source>Creating tarball...</source>
+        <translation>tarball 作成中...</translation>
+    </message>
+    <message>
+        <source>Tarball up to date, skipping packaging.</source>
+        <translation>tarball は最新です、パッケージ作成をスキップします。</translation>
+    </message>
+    <message>
+        <source>Error: tar file %1 cannot be opened (%2).</source>
+        <translation>エラー: tar ファイル %1 を開けません (%2)。</translation>
+    </message>
+    <message>
+        <source>Error writing tar file &apos;%1&apos;: %2.</source>
+        <translation>tar ファイル &apos;%1&apos; の書き込み中にエラー: %2。</translation>
+    </message>
+    <message>
+        <source>Error reading file &apos;%1&apos;: %2.</source>
+        <translation>ファイル &apos;%1&apos; の読み込み中にエラー: %2。</translation>
+    </message>
+    <message>
+        <source>Adding file &apos;%1&apos; to tarball...</source>
+        <translation>tarball にファイル &apos;%1&apos; を追加中...</translation>
+    </message>
+    <message>
+        <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
+        <translation>ファイル &apos;%1&apos; を tar アーカイブに追加できません: パスが長すぎます。</translation>
+    </message>
+    <message>
+        <source>Error writing tar file &apos;%1&apos;: %2</source>
+        <translation>tar ファイル &apos;%1&apos; の書き込み中にエラー: %2</translation>
+    </message>
+    <message>
+        <source>Create tarball</source>
+        <translation>tar ファイルの作成</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <message>
+        <source>(default)</source>
+        <translation>(既定)</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <message>
+        <source>No tarball creation step found.</source>
+        <translation>tarball 作成ステップが見つかりません。</translation>
+    </message>
+    <message>
+        <source>Deploy tarball via SFTP upload</source>
+        <translation>SFTP アップロード経由で tarball をデプロイする</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::CodeStyleEditor</name>
+    <message>
+        <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
+        <translation>プレビューの内容を編集して現在の設定がコードにどのような影響を与えるかを確認して下さい。プレビューでの変更内容は現在の設定には何も影響を与えません。</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::CodeStyleDialog</name>
+    <message>
+        <source>Edit Code Style</source>
+        <translation>コードスタイルを編集</translation>
+    </message>
+    <message>
+        <source>Code style name:</source>
+        <translation>コードスタイル名:</translation>
+    </message>
+    <message>
+        <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
+        <translation>ビルトインコードスタイルへの変更を保存する事はできません。最初に自分用のコードスタイルを作成する為、コピーして下さい。</translation>
+    </message>
+    <message>
+        <source>Copy Built-in Code Style</source>
+        <translation>ビルトイン コードスタイルをコピー</translation>
+    </message>
+    <message>
+        <source>%1 (Copy)</source>
+        <translation>%1 (コピー)</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::CodeStyleSelectorWidget</name>
+    <message>
+        <source>Copy...</source>
+        <translation>コピー...</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation>編集...</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>削除</translation>
+    </message>
+    <message>
+        <source>Import...</source>
+        <translation>インポート...</translation>
+    </message>
+    <message>
+        <source>Export...</source>
+        <translation>エクスポート...</translation>
+    </message>
+    <message>
+        <source>Current settings:</source>
+        <translation>現在の設定:</translation>
+    </message>
+    <message>
+        <source>Copy Code Style</source>
+        <translation>コードスタイルをコピー</translation>
+    </message>
+    <message>
+        <source>Code style name:</source>
+        <translation>コードスタイル名:</translation>
+    </message>
+    <message>
+        <source>%1 (Copy)</source>
+        <translation>%1 (コピー)</translation>
+    </message>
+    <message>
+        <source>Delete Code Style</source>
+        <translation>コードスタイルを削除</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this code style permanently?</source>
+        <translation>このコードスタイルを完全に削除しますか？</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+    <message>
+        <source>Import Code Style</source>
+        <translation>コードスタイルをインポート</translation>
+    </message>
+    <message>
+        <source>Code styles (*.xml);;All files (*)</source>
+        <translation>コードスタイル (*.xml);;すべてのファイル (*)</translation>
+    </message>
+    <message>
+        <source>Cannot import code style</source>
+        <translation>コードスタイルをインポートできません</translation>
+    </message>
+    <message>
+        <source>Export Code Style</source>
+        <translation>コードスタイルをエクスポート</translation>
+    </message>
+    <message>
+        <source>%1 [proxy: %2]</source>
+        <translation>%1 [プロキシ: %2]</translation>
+    </message>
+    <message>
+        <source>%1 [built-in]</source>
+        <translation>%1 [ビルトイン]</translation>
+    </message>
+    <message>
+        <source>Form</source>
+        <translation>フォーム</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::FindInFiles</name>
+    <message>
+        <source>Files on File System</source>
+        <translation>ファイルシステム上のファイル</translation>
+    </message>
+    <message>
+        <source>Directory &apos;%1&apos;:</source>
+        <translation>ディレクトリ &apos;%1&apos;:</translation>
+    </message>
+    <message>
+        <source>Path: %1
+Filter: %2
+%3</source>
+        <translation>パス: %1
+フィルタ: %2
+%3</translation>
+    </message>
+    <message>
+        <source>Director&amp;y:</source>
+        <translation>ディレクトリ(&amp;Y):</translation>
+    </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <translation>参照(&amp;B)...</translation>
+    </message>
+    <message>
+        <source>&amp;Browse</source>
+        <translation type="obsolete">参照(&amp;B)</translation>
+    </message>
+    <message>
+        <source>Fi&amp;le pattern:</source>
+        <translation>ファイルパターン(&amp;L):</translation>
+    </message>
+    <message>
+        <source>Directory to search</source>
+        <translation>検索対象ディレクトリの指定</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <message>
+        <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
+        <translation>メンテナンスツールのパスを特定できません。このプラグインを手動で有効にしたのでなければインストールを確認して下さい。</translation>
+    </message>
+    <message>
+        <source>Could not find maintenance tool at &apos;%1&apos;. Check your installation.</source>
+        <translation>&apos;%1&apos; にメンテナンスツールを見つけられませんでした。インストールを確認して下さい。</translation>
+    </message>
+    <message>
+        <source>Start Updater</source>
+        <translation>アップデート開始</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation>アップデート</translation>
+    </message>
+</context>
+<context>
+    <name>VcsCommand</name>
+    <message>
+        <source>
+&apos;%1&apos; failed (exit code %2).
+</source>
+        <translation>
+&apos;%1&apos; が失敗しました(終了コード %2)。
+</translation>
+    </message>
+    <message>
+        <source>
+&apos;%1&apos; completed (exit code %2).
+</source>
+        <translation>
+&apos;%1&apos; が完了しました(終了コード %2)。
+</translation>
+    </message>
+</context>
+<context>
+    <name>VCSBase::Command</name>
+    <message>
+        <source>Error: VCS timed out after %1s.</source>
+        <translation>エラー: VCS は %1 秒でタイムアウトしました。</translation>
+    </message>
+    <message>
+        <source>Unable to start process, binary is empty</source>
+        <translation>バイナリが未指定の為、プロセスを開始できません</translation>
     </message>
 </context>
 </TS>
