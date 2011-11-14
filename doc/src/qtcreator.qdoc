@@ -59,8 +59,6 @@
                \o \l{Creating a Qt Quick Application}
                \o \l{Creating a Qt Quick Application Using Qt Quick Components}
                \o \l{Creating a Qt Widget Based Application}
-               \o \l{Creating a Qt Widget Based Mobile Application}
-
            \endlist
        \o \l{Managing Projects}
             \list
