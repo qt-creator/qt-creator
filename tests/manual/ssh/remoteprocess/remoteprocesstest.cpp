@@ -42,8 +42,9 @@
 using namespace Utils;
 
 RemoteProcessTest::RemoteProcessTest(const SshConnectionParameters &params)
-    : m_timeoutTimer(new QTimer(this)),
-      m_remoteRunner(SshRemoteProcessRunner::create(params)),
+    : m_sshParams(params),
+      m_timeoutTimer(new QTimer(this)),
+      m_remoteRunner(new SshRemoteProcessRunner(this)),
       m_state(Inactive)
 {
     m_timeoutTimer->setInterval(5000);
@@ -54,29 +55,28 @@ RemoteProcessTest::~RemoteProcessTest() { }
 
 void RemoteProcessTest::run()
 {
-    connect(m_remoteRunner.data(), SIGNAL(connectionError(Utils::SshError)),
+    connect(m_remoteRunner, SIGNAL(connectionError()),
         SLOT(handleConnectionError()));
-    connect(m_remoteRunner.data(), SIGNAL(processStarted()),
+    connect(m_remoteRunner, SIGNAL(processStarted()),
         SLOT(handleProcessStarted()));
-    connect(m_remoteRunner.data(), SIGNAL(processOutputAvailable(QByteArray)),
+    connect(m_remoteRunner, SIGNAL(processOutputAvailable(QByteArray)),
         SLOT(handleProcessStdout(QByteArray)));
-    connect(m_remoteRunner.data(),
-        SIGNAL(processErrorOutputAvailable(QByteArray)),
+    connect(m_remoteRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleProcessStderr(QByteArray)));
-    connect(m_remoteRunner.data(), SIGNAL(processClosed(int)),
+    connect(m_remoteRunner, SIGNAL(processClosed(int)),
         SLOT(handleProcessClosed(int)));
 
     std::cout << "Testing successful remote process... " << std::flush;
     m_state = TestingSuccess;
     m_started = false;
     m_timeoutTimer->start();
-    m_remoteRunner->run("ls -a /tmp");
+    m_remoteRunner->run("ls -a /tmp", m_sshParams);
 }
 
 void RemoteProcessTest::handleConnectionError()
 {
     std::cerr << "Error: Connection failure ("
-        << qPrintable(m_remoteRunner->connection()->errorString()) << ")."
+        << qPrintable(m_remoteRunner->lastConnectionErrorString()) << ")."
         << std::endl;
     qApp->quit();
 }
@@ -89,9 +89,9 @@ void RemoteProcessTest::handleProcessStarted()
     } else {
         m_started = true;
         if (m_state == TestingCrash) {
-            Utils::SshRemoteProcess::Ptr killer
-                = m_remoteRunner->connection()->createRemoteProcess("pkill -9 sleep");
-            killer->start();
+            Utils::SshRemoteProcessRunner * const killer
+                = new Utils::SshRemoteProcessRunner(this);
+            killer->run("pkill -9 sleep", m_sshParams);
         }
     }
 }
@@ -155,7 +155,7 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             m_state = TestingFailure;
             m_started = false;
             m_timeoutTimer->start();
-            m_remoteRunner->run("top -n 1"); // Does not succeed without terminal.
+            m_remoteRunner->run("top -n 1", m_sshParams); // Does not succeed without terminal.
             break;
         }
         case TestingFailure: {
@@ -176,7 +176,7 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             m_state = TestingCrash;
             m_started = false;
             m_timeoutTimer->start();
-            m_remoteRunner->run("sleep 100");
+            m_remoteRunner->run("sleep 100", m_sshParams);
             break;
         }
         case TestingCrash:
@@ -225,7 +225,7 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
         m_state = TestingTerminal;
         m_started = false;
         m_timeoutTimer->start();
-        m_remoteRunner->runInTerminal("top -n 1", SshPseudoTerminal());
+        m_remoteRunner->runInTerminal("top -n 1", SshPseudoTerminal(), m_sshParams);
     }
 }
 

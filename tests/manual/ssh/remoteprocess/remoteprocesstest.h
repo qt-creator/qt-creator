@@ -57,8 +57,9 @@ private slots:
 private:
     enum State { Inactive, TestingSuccess, TestingFailure, TestingCrash, TestingTerminal };
 
+    const Utils::SshConnectionParameters m_sshParams;
     QTimer * const m_timeoutTimer;
-    const Utils::SshRemoteProcessRunner::Ptr m_remoteRunner;
+    Utils::SshRemoteProcessRunner * const m_remoteRunner;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;
     State m_state;
