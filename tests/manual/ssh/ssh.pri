@@ -12,5 +12,12 @@ QT       -= gui
 CONFIG   += console
 CONFIG   -= app_bundle
 TEMPLATE = app
+
 DEPENDPATH+=.
 INCLUDEPATH+=.
+
+unix {
+     copy_script.commands = cp -a $${PWD}/call.sh $$OUT_PWD/$${TARGET}.sh
+     first.depends = $(first) copy_script
+     QMAKE_EXTRA_TARGETS += first copy_script
+}
