@@ -4,7 +4,6 @@ include(../../qtcreatorlibrary.pri)
 
 TEMPLATE = lib
 TARGET = DebuggingHelper
-CONFIG += shared
 DESTDIR = $$IDE_LIBRARY_PATH # /tmp would be better in some respect ...
 
 linux-* {

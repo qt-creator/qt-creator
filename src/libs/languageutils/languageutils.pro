@@ -1,5 +1,4 @@
 TEMPLATE = lib
-CONFIG += dll
 TARGET = LanguageUtils
 DEFINES += QT_CREATOR
 
