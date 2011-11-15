@@ -149,19 +149,19 @@ void FileUtils::openTerminal(const QString &path)
 QString FileUtils::msgGraphicalShellAction()
 {
 #if defined(Q_OS_WIN)
-    return QApplication::translate("Core::Internal", "Show in Explorer...");
+    return QApplication::translate("Core::Internal", "Show in Explorer");
 #elif defined(Q_OS_MAC)
-    return QApplication::translate("Core::Internal", "Show in Finder...");
+    return QApplication::translate("Core::Internal", "Show in Finder");
 #else
-    return QApplication::translate("Core::Internal", "Show Containing Folder...");
+    return QApplication::translate("Core::Internal", "Show Containing Folder");
 #endif
 }
 
 QString FileUtils::msgTerminalAction()
 {
 #ifdef Q_OS_WIN
-    return QApplication::translate("Core::Internal", "Open Command Prompt Here...");
+    return QApplication::translate("Core::Internal", "Open Command Prompt Here");
 #else
-    return QApplication::translate("Core::Internal", "Open Terminal Here...");
+    return QApplication::translate("Core::Internal", "Open Terminal Here");
 #endif
 }
