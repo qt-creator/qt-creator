@@ -54,6 +54,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <QtCore/QtConcurrentRun>
+#include <QtCore/QVarLengthArray>
 
 using namespace CPlusPlus;
 using namespace CppEditor;
@@ -192,6 +193,8 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
     // the parens are necessary for finding good places for changes
     if (!targetFuncDecl->lparen_token || !targetFuncDecl->rparen_token)
         return noResult;
+    // if the source and target argument counts differ, something is wrong
+    QTC_ASSERT(targetFuncDecl->symbol->argumentCount() == link->sourceFunction->argumentCount(), return noResult);
 
     int targetStart, targetEnd;
     declDefLinkStartEnd(targetFile, targetParent, targetFuncDecl, &targetStart, &targetEnd);
@@ -376,7 +379,7 @@ void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
 }
 
 // does consider foo(void) to have one argument
-static int declaredArgumentCount(Function *function)
+static int declaredParameterCount(Function *function)
 {
     int c = function->argumentCount();
     if (c == 0 && function->memberCount() > 0 && function->memberAt(0)->type().type()->isVoidType())
@@ -398,7 +401,9 @@ static bool hasCommentedName(
         return false;
 
     if (Function *f = declarator->symbol) {
+        QTC_ASSERT(f, return false);
         if (Symbol *a = f->argumentAt(i)) {
+            QTC_ASSERT(a, return false);
             if (a->name())
                 return false;
         }
@@ -479,9 +484,83 @@ static SpecifierAST *findFirstReplaceableSpecifier(TranslationUnit *translationU
     return 0;
 }
 
+typedef QVarLengthArray<int, 10> IndicesList;
+
+template <class IndicesListType>
+static int findUniqueTypeMatch(int sourceParamIndex, Function *sourceFunction, Function *newFunction,
+                               const IndicesListType &sourceParams, const IndicesListType &newParams)
+{
+    Symbol *sourceParam = sourceFunction->argumentAt(sourceParamIndex);
+
+    // if other sourceParams have the same type, we can't do anything
+    foreach (int otherSourceParamIndex, sourceParams) {
+        if (sourceParamIndex == otherSourceParamIndex)
+            continue;
+        if (sourceParam->type().isEqualTo(sourceFunction->argumentAt(otherSourceParamIndex)->type()))
+            return -1;
+    }
+
+    // if there's exactly one newParam with the same type, bind to that
+    // this is primarily done to catch moves of unnamed parameters
+    int newParamWithSameTypeIndex = -1;
+    foreach (int newParamIndex, newParams) {
+        if (sourceParam->type().isEqualTo(newFunction->argumentAt(newParamIndex)->type())) {
+            if (newParamWithSameTypeIndex != -1)
+                return -1;
+            newParamWithSameTypeIndex = newParamIndex;
+        }
+    }
+    return newParamWithSameTypeIndex;
+}
+
+static IndicesList unmatchedIndices(const IndicesList &indices)
+{
+    IndicesList ret;
+    ret.reserve(indices.size());
+    for (int i = 0; i < indices.size(); ++i) {
+        if (indices[i] == -1)
+            ret += i;
+    }
+    return ret;
+}
+
+static QString ensureCorrectParameterSpacing(const QString &text, bool isFirstParam)
+{
+    if (isFirstParam) { // drop leading spaces
+        int firstNonSpace = 0;
+        while (firstNonSpace + 1 < text.size() && text.at(firstNonSpace).isSpace())
+            ++firstNonSpace;
+        return text.mid(firstNonSpace);
+    } else { // ensure one leading space
+        if (text.isEmpty() || !text.at(0).isSpace()) {
+            return QLatin1Char(' ') + text;
+        }
+    }
+    return text;
+}
+
+static unsigned findCommaTokenBetween(const CppTools::CppRefactoringFileConstPtr &file,
+                                      ParameterDeclarationAST *left, ParameterDeclarationAST *right)
+{
+    unsigned last = left->lastToken() - 1;
+    for (unsigned tokenIndex = right->firstToken();
+         tokenIndex > last;
+         --tokenIndex) {
+        if (file->tokenAt(tokenIndex).kind() == T_COMMA)
+            return tokenIndex;
+    }
+    return 0;
+}
+
 Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffset)
 {
     Utils::ChangeSet changes;
+
+    // Everything prefixed with 'new' in this function relates to the state of the 'source'
+    // function *after* the user did his changes.
+
+    // The 'newTarget' prefix indicates something relates to the changes we plan to do
+    // to the 'target' function.
 
     // parse the current source declaration
     TypeOfExpression typeOfExpression; // ### just need to preprocess...
@@ -583,118 +662,228 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         Control *control = sourceContext.control().data();
         Overview overview;
 
-        const unsigned sourceArgCount = declaredArgumentCount(sourceFunction);
-        const unsigned newArgCount = declaredArgumentCount(newFunction);
-        const unsigned targetArgCount = declaredArgumentCount(targetFunction);
+        // make a easy to access list of the target parameter declarations
+        QVarLengthArray<ParameterDeclarationAST *, 10> targetParameterDecls;
+        QTC_ASSERT(targetFunctionDeclarator->parameter_declaration_clause, return changes);
+        for (ParameterDeclarationListAST *it = targetFunctionDeclarator->parameter_declaration_clause->parameter_declaration_list;
+             it; it = it->next) {
+            targetParameterDecls += it->value;
+        }
 
-        // check if parameter types or names have changed
-        const unsigned existingArgs = qMin(targetArgCount, newArgCount);
-        ParameterDeclarationClauseAST *targetParameterDecl =
-                targetFunctionDeclarator->parameter_declaration_clause;
-        ParameterDeclarationListAST *firstTargetParameterDeclIt =
-                targetParameterDecl ? targetParameterDecl->parameter_declaration_list : 0;
-        ParameterDeclarationListAST *targetParameterDeclIt = firstTargetParameterDeclIt;
-        for (unsigned i = 0;
-             i < existingArgs && targetParameterDeclIt;
-             ++i, targetParameterDeclIt = targetParameterDeclIt->next) {
-            Symbol *targetParam = targetFunction->argumentAt(i);
-            Symbol *newParam = newFunction->argumentAt(i);
+        // the number of parameters in sourceFunction or targetFunction
+        const int existingParamCount = declaredParameterCount(sourceFunction);
+        QTC_ASSERT(existingParamCount == declaredParameterCount(targetFunction), return changes);
+        QTC_ASSERT(existingParamCount == targetParameterDecls.size(), return changes);
 
-            // if new's name and type are the same as source's, forbid changes
-            bool allowChangeType = true;
-            const Name *replacementName = newParam->name();
-            if (i < sourceArgCount) {
+        const int newParamCount = declaredParameterCount(newFunction);
+
+        // When syncing parameters we need to take care that parameters inserted or
+        // removed in the middle or parameters being reshuffled are treated correctly.
+        // To do that, we construct a newParam -> sourceParam map, based on parameter
+        // names and types.
+        // Initially they start out with -1 to indicate a new parameter.
+        IndicesList newParamToSourceParam(newParamCount);
+        for (int i = 0; i < newParamCount; ++i)
+            newParamToSourceParam[i] = -1;
+
+        // fill newParamToSourceParam
+        {
+            IndicesList sourceParamToNewParam(existingParamCount);
+            for (int i = 0; i < existingParamCount; ++i)
+                sourceParamToNewParam[i] = -1;
+
+            QMultiHash<QString, int> sourceParamNameToIndex;
+            for (int i = 0; i < existingParamCount; ++i) {
                 Symbol *sourceParam = sourceFunction->argumentAt(i);
-                if (newParam->type().isEqualTo(sourceParam->type()))
-                    allowChangeType = false;
+                sourceParamNameToIndex.insert(overview(sourceParam->name()), i);
+            }
+
+            QMultiHash<QString, int> newParamNameToIndex;
+            for (int i = 0; i < newParamCount; ++i) {
+                Symbol *newParam = newFunction->argumentAt(i);
+                newParamNameToIndex.insert(overview(newParam->name()), i);
+            }
+
+            // name-based binds (possibly disambiguated by type)
+            for (int sourceParamIndex = 0; sourceParamIndex < existingParamCount; ++sourceParamIndex) {
+                Symbol *sourceParam = sourceFunction->argumentAt(sourceParamIndex);
+                const QString &name = overview(sourceParam->name());
+                QList<int> newParams = newParamNameToIndex.values(name);
+                QList<int> sourceParams = sourceParamNameToIndex.values(name);
+
+                if (newParams.isEmpty())
+                    continue;
+
+                // if the names match uniquely, bind them
+                // this catches moves of named parameters
+                if (newParams.size() == 1 && sourceParams.size() == 1) {
+                    sourceParamToNewParam[sourceParamIndex] = newParams.first();
+                    newParamToSourceParam[newParams.first()] = sourceParamIndex;
+                } else {
+                    // if the name match is not unique, try to find a unique
+                    // type match among the same-name parameters
+                    const int newParamWithSameTypeIndex = findUniqueTypeMatch(
+                                sourceParamIndex, sourceFunction, newFunction,
+                                sourceParams, newParams);
+                    if (newParamWithSameTypeIndex != -1) {
+                        sourceParamToNewParam[sourceParamIndex] = newParamWithSameTypeIndex;
+                        newParamToSourceParam[newParamWithSameTypeIndex] = sourceParamIndex;
+                    }
+                }
+            }
+
+            // find unique type matches among the unbound parameters
+            const IndicesList &freeSourceParams = unmatchedIndices(sourceParamToNewParam);
+            const IndicesList &freeNewParams = unmatchedIndices(newParamToSourceParam);
+            foreach (int sourceParamIndex, freeSourceParams) {
+                const int newParamWithSameTypeIndex = findUniqueTypeMatch(
+                            sourceParamIndex, sourceFunction, newFunction,
+                            freeSourceParams, freeNewParams);
+                if (newParamWithSameTypeIndex != -1) {
+                    sourceParamToNewParam[sourceParamIndex] = newParamWithSameTypeIndex;
+                    newParamToSourceParam[newParamWithSameTypeIndex] = sourceParamIndex;
+                }
+            }
+
+            // add position based binds if possible
+            for (int i = 0; i < existingParamCount && i < newParamCount; ++i) {
+                if (newParamToSourceParam[i] == -1 && sourceParamToNewParam[i] == -1) {
+                    newParamToSourceParam[i] = i;
+                    sourceParamToNewParam[i] = i;
+                }
+            }
+        }
+
+        // build the new parameter declarations
+        QString newTargetParameters;
+        bool hadChanges = newParamCount < existingParamCount; // below, additions and changes set this to true as well
+        for (int newParamIndex = 0; newParamIndex < newParamCount; ++newParamIndex) {
+            const int existingParamIndex = newParamToSourceParam[newParamIndex];
+            Symbol *newParam = newFunction->argumentAt(newParamIndex);
+            const bool isFirstNewParam = newParamIndex == 0;
+
+            if (!isFirstNewParam)
+                newTargetParameters += QLatin1Char(',');
+
+            QString newTargetParam;
+
+            // if it's genuinely new, add it
+            if (existingParamIndex == -1) {
+                FullySpecifiedType type = rewriteType(newParam->type(), &env, control);
+                newTargetParam = overview(type, newParam->name());
+                hadChanges = true;
+            }
+            // otherwise preserve as much as possible from the existing parameter
+            else {
+                Symbol *targetParam = targetFunction->argumentAt(existingParamIndex);
+                Symbol *sourceParam = sourceFunction->argumentAt(existingParamIndex);
+                ParameterDeclarationAST *targetParamAst = targetParameterDecls.at(existingParamIndex);
+
+                int parameterStart = targetFile->endOf(targetFunctionDeclarator->lparen_token);
+                if (existingParamIndex > 0) {
+                    ParameterDeclarationAST *prevTargetParamAst = targetParameterDecls.at(existingParamIndex - 1);
+                    const unsigned commaToken = findCommaTokenBetween(targetFile, prevTargetParamAst, targetParamAst);
+                    if (commaToken > 0)
+                        parameterStart = targetFile->endOf(commaToken);
+                }
+
+                int parameterEnd = targetFile->startOf(targetFunctionDeclarator->rparen_token);
+                if (existingParamIndex + 1 < existingParamCount) {
+                    ParameterDeclarationAST *nextTargetParamAst = targetParameterDecls.at(existingParamIndex + 1);
+                    const unsigned commaToken = findCommaTokenBetween(targetFile, targetParamAst, nextTargetParamAst);
+                    if (commaToken > 0)
+                        parameterEnd = targetFile->startOf(commaToken);
+                }
+
+                // if the name wasn't changed, don't change the target name even if it's different
+                const Name *replacementName = newParam->name();
                 if (namesEqual(replacementName, sourceParam->name()))
                     replacementName = targetParam->name();
-            }
 
-            // don't change the name if it's in a comment
-            if (hasCommentedName(targetFile->cppDocument()->translationUnit(),
-                                 targetFile->cppDocument()->source(),
-                                 targetFunctionDeclarator, i))
-                replacementName = 0;
+                // don't change the name if it's in a comment
+                if (hasCommentedName(targetFile->cppDocument()->translationUnit(),
+                                     targetFile->cppDocument()->source(),
+                                     targetFunctionDeclarator, existingParamIndex))
+                    replacementName = 0;
 
-            // find the end of the parameter declaration
-            ParameterDeclarationAST *targetParamAst = targetParameterDeclIt->value;
-            int parameterNameEnd = 0;
-            if (targetParamAst->declarator)
-                parameterNameEnd = targetFile->endOf(targetParamAst->declarator);
-            else if (targetParamAst->type_specifier_list)
-                parameterNameEnd = targetFile->endOf(targetParamAst->type_specifier_list->lastToken() - 1);
-            else
-                parameterNameEnd = targetFile->startOf(targetParamAst);
+                // need to change the type (and name)?
+                if (!newParam->type().isEqualTo(sourceParam->type())
+                        && !newParam->type().isEqualTo(targetParam->type())) {
+                    const int parameterTypeStart = targetFile->startOf(targetParamAst);
+                    int parameterTypeEnd = 0;
+                    if (targetParamAst->declarator)
+                        parameterTypeEnd = targetFile->endOf(targetParamAst->declarator);
+                    else if (targetParamAst->type_specifier_list)
+                        parameterTypeEnd = targetFile->endOf(targetParamAst->type_specifier_list->lastToken() - 1);
+                    else
+                        parameterTypeEnd = targetFile->startOf(targetParamAst);
 
-            // change name and type?
-            if (allowChangeType
-                    && !targetParam->type().isEqualTo(newParam->type())) {
-                FullySpecifiedType replacementType = rewriteType(newParam->type(), &env, control);
-                const QString replacement = overview(replacementType, replacementName);
-
-                changes.replace(targetFile->startOf(targetParamAst),
-                                parameterNameEnd,
-                                replacement);
-            }
-            // change the name only?
-            else if (!namesEqual(targetParam->name(), replacementName)) {
-                DeclaratorIdAST *id = getDeclaratorId(targetParamAst->declarator);
-                QString replacementNameStr = overview(replacementName);
-                if (id) {
-                    changes.replace(targetFile->range(id), replacementNameStr);
-                } else {
-                    // add name to unnamed parameter
-                    replacementNameStr.prepend(QLatin1Char(' '));
-                    int end;
-                    if (targetParamAst->equal_token) {
-                        end = targetFile->startOf(targetParamAst->equal_token);
-                        replacementNameStr.append(QLatin1Char(' '));
+                    FullySpecifiedType replacementType = rewriteType(newParam->type(), &env, control);
+                    newTargetParam = targetFile->textOf(parameterStart, parameterTypeStart);
+                    newTargetParam += overview(replacementType, replacementName);
+                    newTargetParam += targetFile->textOf(parameterTypeEnd, parameterEnd);
+                    hadChanges = true;
+                }
+                // change the name only?
+                else if (!namesEqual(targetParam->name(), replacementName)) {
+                    DeclaratorIdAST *id = getDeclaratorId(targetParamAst->declarator);
+                    const QString &replacementNameStr = overview(replacementName);
+                    if (id) {
+                        newTargetParam += targetFile->textOf(parameterStart, targetFile->startOf(id));
+                        QString rest = targetFile->textOf(targetFile->endOf(id), parameterEnd);
+                        if (replacementNameStr.isEmpty()) {
+                            unsigned nextToken = targetFile->tokenAt(id->lastToken()).kind(); // token after id
+                            if (nextToken == T_COMMA
+                                    || nextToken == T_EQUAL
+                                    || nextToken == T_RPAREN) {
+                                if (nextToken != T_EQUAL)
+                                    newTargetParam = newTargetParam.trimmed();
+                                newTargetParam += rest.trimmed();
+                            }
+                        } else {
+                            newTargetParam += replacementNameStr;
+                            newTargetParam += rest;
+                        }
                     } else {
-                        // one past end on purpose
-                        end = targetFile->startOf(targetParamAst->lastToken());
+                        // add name to unnamed parameter
+                        int insertPos = parameterEnd;
+                        if (targetParamAst->equal_token)
+                            insertPos = targetFile->startOf(targetParamAst->equal_token);
+                        newTargetParam += targetFile->textOf(parameterStart, insertPos);
+
+                        // prepend a space, unless ' ', '*', '&'
+                        QChar lastChar;
+                        if (!newTargetParam.isEmpty())
+                            lastChar = newTargetParam.at(newTargetParam.size() - 1);
+                        if (!lastChar.isSpace() && lastChar != QLatin1Char('*') && lastChar != QLatin1Char('&'))
+                            newTargetParam += QLatin1Char(' ');
+
+                        newTargetParam += replacementNameStr;
+
+                        // append a space, unless unnecessary
+                        const QString &rest = targetFile->textOf(insertPos, parameterEnd);
+                        if (!rest.isEmpty() && !rest.at(0).isSpace())
+                            newTargetParam += QLatin1Char(' ');
+
+                        newTargetParam += rest;
                     }
-                    changes.replace(parameterNameEnd, end, replacementNameStr);
+                    hadChanges = true;
+                }
+                // change nothing - though the parameter might still have moved
+                else {
+                    if (existingParamIndex != newParamIndex)
+                        hadChanges = true;
+                    newTargetParam = targetFile->textOf(parameterStart, parameterEnd);
                 }
             }
+
+            // apply
+            newTargetParameters += ensureCorrectParameterSpacing(newTargetParam, isFirstNewParam);
         }
-        // remove some parameters?
-        if (newArgCount < targetArgCount) {
-            targetParameterDeclIt = firstTargetParameterDeclIt;
-            if (targetParameterDeclIt) {
-                if (newArgCount == 0) {
-                    changes.remove(targetFile->startOf(targetParameterDeclIt->firstToken()),
-                                   targetFile->endOf(targetParameterDeclIt->lastToken() - 1));
-                } else {
-                    // get the last valid argument
-                    for (unsigned i = 0; i < newArgCount - 1 && targetParameterDeclIt; ++i)
-                        targetParameterDeclIt = targetParameterDeclIt->next;
-                    if (targetParameterDeclIt) {
-                        const int start = targetFile->endOf(targetParameterDeclIt->value);
-                        const int end = targetFile->endOf(targetParameterDecl->lastToken() - 1);
-                        changes.remove(start, end);
-                    }
-                }
-            }
-        }
-        // add some parameters?
-        else if (newArgCount > targetArgCount) {
-            QString newParams;
-            for (unsigned i = targetArgCount; i < newArgCount; ++i) {
-                Symbol *param = newFunction->argumentAt(i);
-                FullySpecifiedType type = rewriteType(param->type(), &env, control);
-                if (i != 0)
-                    newParams += QLatin1String(", ");
-                newParams += overview(type, param->name());
-            }
-            targetParameterDeclIt = firstTargetParameterDeclIt;
-            if (targetParameterDeclIt) {
-                while (targetParameterDeclIt->next)
-                    targetParameterDeclIt = targetParameterDeclIt->next;
-                changes.insert(targetFile->endOf(targetParameterDeclIt->value), newParams);
-            } else {
-                changes.insert(targetFile->endOf(targetFunctionDeclarator->lparen_token), newParams);
-            }
+        if (hadChanges) {
+            changes.replace(targetFile->endOf(targetFunctionDeclarator->lparen_token),
+                            targetFile->startOf(targetFunctionDeclarator->rparen_token),
+                            newTargetParameters);
         }
     }
 

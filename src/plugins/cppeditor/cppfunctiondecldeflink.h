@@ -100,15 +100,19 @@ public:
     QTextCursor nameSelection;
     QString nameInitial;
 
-    // 1-based line and column
-    unsigned targetLine;
-    unsigned targetColumn;
-    QString targetInitial;
-
+    // The 'source' prefix denotes information about the original state
+    // of the function before the user did any edits.
     CPlusPlus::Document::Ptr sourceDocument;
     CPlusPlus::Function *sourceFunction;
     CPlusPlus::DeclarationAST *sourceDeclaration;
     CPlusPlus::FunctionDeclaratorAST *sourceFunctionDeclarator;
+
+    // The 'target' prefix denotes information about the remote declaration matching
+    // the 'source' declaration, where we will try to apply the user changes.
+    // 1-based line and column
+    unsigned targetLine;
+    unsigned targetColumn;
+    QString targetInitial;
 
     CppTools::CppRefactoringFileConstPtr targetFile;
     CPlusPlus::Function *targetFunction;
