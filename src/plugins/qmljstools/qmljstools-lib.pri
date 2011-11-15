@@ -36,3 +36,8 @@ SOURCES += \
 
 FORMS += \
     $$PWD/qmljscodestylesettingspage.ui
+
+equals(TEST, 1) {
+    SOURCES += \
+        $$PWD/qmljstools_test.cpp
+}

@@ -72,6 +72,10 @@ private slots:
     void onTaskStarted(const QString &type);
     void onAllTasksFinished(const QString &type);
 
+#ifdef WITH_TESTS
+    void test_basic();
+#endif
+
 private:
     ModelManager *m_modelManager;
     QmlJSToolsSettings *m_settings;
