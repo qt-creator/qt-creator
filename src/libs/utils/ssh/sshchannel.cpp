@@ -84,7 +84,7 @@ void AbstractSshChannel::requestSessionStart()
         setChannelState(SessionRequested);
         m_timeoutTimer->start(ReplyTimeout);
     }  catch (Botan::Exception &e) {
-        m_errorString = QString::fromAscii(e.what());
+        qDebug("Botan error: %s", e.what());
         closeChannel();
     }
 }
@@ -95,7 +95,7 @@ void AbstractSshChannel::sendData(const QByteArray &data)
         m_sendBuffer += data;
         flushSendBuffer();
     }  catch (Botan::Exception &e) {
-        m_errorString = QString::fromAscii(e.what());
+        qDebug("Botan error: %s", e.what());
         closeChannel();
     }
 }
@@ -163,8 +163,7 @@ void AbstractSshChannel::handleOpenFailure(const QString &reason)
 #ifdef CREATOR_SSH_DEBUG
    qDebug("Channel open request failed for channel %u", m_localChannel);
 #endif
-   m_errorString = reason;
-   handleOpenFailureInternal();
+   handleOpenFailureInternal(reason);
 }
 
 void AbstractSshChannel::handleChannelEof()

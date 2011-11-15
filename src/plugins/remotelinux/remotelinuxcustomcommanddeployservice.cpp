@@ -115,7 +115,7 @@ void RemoteLinuxCustomCommandDeployService::stopDeployment()
     QTC_ASSERT(d->state == Running, return);
 
     disconnect(d->runner, 0, this, 0);
-    d->runner->process()->closeChannel();
+    d->runner->process()->close();
     d->state = Inactive;
     handleDeploymentDone();
 }

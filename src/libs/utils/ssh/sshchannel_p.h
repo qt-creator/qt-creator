@@ -58,9 +58,6 @@ public:
     ChannelState channelState() const { return m_state; }
     void setChannelState(ChannelState state);
 
-    void setError(const QString &error) { m_errorString = error; }
-    QString errorString() const { return m_errorString; }
-
     quint32 localChannelId() const { return m_localChannel; }
     quint32 remoteChannel() const { return m_remoteChannel; }
 
@@ -101,7 +98,7 @@ protected:
 
 private:
     virtual void handleOpenSuccessInternal() = 0;
-    virtual void handleOpenFailureInternal() = 0;
+    virtual void handleOpenFailureInternal(const QString &reason) = 0;
     virtual void handleChannelDataInternal(const QByteArray &data) = 0;
     virtual void handleChannelExtendedDataInternal(quint32 type,
         const QByteArray &data) = 0;
@@ -119,7 +116,6 @@ private:
     quint32 m_remoteMaxPacketSize;
     ChannelState m_state;
     QByteArray m_sendBuffer;
-    QString m_errorString;
 };
 
 } // namespace Internal

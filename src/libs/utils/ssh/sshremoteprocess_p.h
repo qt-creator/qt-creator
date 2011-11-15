@@ -52,16 +52,13 @@ class SshRemoteProcessPrivate : public AbstractSshChannel
     friend class Utils::SshRemoteProcess;
 public:
     enum ProcessState {
-        NotYetStarted, ExecRequested, StartFailed,Running, Exited
+        NotYetStarted, ExecRequested, StartFailed, Running, Exited
     };
 
     virtual void handleChannelSuccess();
     virtual void handleChannelFailure();
 
     virtual void closeHook();
-
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
 
 signals:
     void started();
@@ -76,7 +73,7 @@ private:
         SshRemoteProcess *proc);
 
     virtual void handleOpenSuccessInternal();
-    virtual void handleOpenFailureInternal();
+    virtual void handleOpenFailureInternal(const QString &reason);
     virtual void handleChannelDataInternal(const QByteArray &data);
     virtual void handleChannelExtendedDataInternal(quint32 type,
         const QByteArray &data);

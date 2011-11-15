@@ -35,7 +35,7 @@
 
 #include <utils/utils_global.h>
 
-#include <QtCore/QObject>
+#include <QtCore/QProcess>
 #include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
@@ -50,7 +50,8 @@ class SshRemoteProcessPrivate;
 class SshSendFacility;
 } // namespace Internal
 
-class QTCREATOR_UTILS_EXPORT SshRemoteProcess : public QObject
+// TODO: ProcessChannel
+class QTCREATOR_UTILS_EXPORT SshRemoteProcess : public QIODevice
 {
     Q_OBJECT
 
@@ -77,6 +78,13 @@ public:
 
     ~SshRemoteProcess();
 
+    // QIODevice stuff
+    bool atEnd() const;
+    qint64 bytesAvailable() const;
+    bool canReadLine() const;
+    void close();
+    bool isSequential() const { return true; }
+
     /*
      * Note that this is of limited value in practice, because servers are
      * usually configured to ignore such requests for security reasons.
@@ -85,10 +93,8 @@ public:
 
     void requestTerminal(const SshPseudoTerminal &terminal);
     void start();
-    void closeChannel();
 
     bool isRunning() const;
-    QString errorString() const;
     int exitCode() const;
     QByteArray exitSignal() const;
 
@@ -98,8 +104,6 @@ public:
     // Note: This is ignored by the OpenSSH server.
     void sendSignal(const QByteArray &signal);
     void kill() { sendSignal(KillSignal); }
-
-    void sendInput(const QByteArray &data); // Should usually have a trailing newline.
 
 signals:
     void started();
@@ -117,6 +121,10 @@ private:
     SshRemoteProcess(const QByteArray &command, quint32 channelId,
         Internal::SshSendFacility &sendFacility);
     SshRemoteProcess(quint32 channelId, Internal::SshSendFacility &sendFacility);
+
+    // QIODevice stuff
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 len);
 
     void init();
 

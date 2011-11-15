@@ -74,7 +74,7 @@ private:
     SftpJobId createJob(const AbstractSftpOperation::Ptr &job);
 
     virtual void handleOpenSuccessInternal();
-    virtual void handleOpenFailureInternal();
+    virtual void handleOpenFailureInternal(const QString &reason);
     virtual void handleChannelDataInternal(const QByteArray &data);
     virtual void handleChannelExtendedDataInternal(quint32 type,
         const QByteArray &data);

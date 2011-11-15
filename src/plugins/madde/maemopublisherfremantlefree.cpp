@@ -447,7 +447,7 @@ void MaemoPublisherFremantleFree::prepareToSendFile()
     emit progressReport(tr("Uploading file %1 ...")
         .arg(QDir::toNativeSeparators(nextFilePath)));
     QFileInfo info(nextFilePath);
-    m_uploader->process()->sendInput("C0644 " + QByteArray::number(info.size())
+    m_uploader->process()->write("C0644 " + QByteArray::number(info.size())
         + ' ' + info.fileName().toUtf8() + '\n');
 }
 
@@ -473,13 +473,13 @@ void MaemoPublisherFremantleFree::sendFile()
                 tr("Upload failed."));
             return;
         }
-        m_uploader->process()->sendInput(data);
+        m_uploader->process()->write(data);
         bytesToSend -= data.size();
         QCoreApplication::processEvents();
         if (m_state == Inactive)
             return;
     }
-    m_uploader->process()->sendInput(QByteArray(1, '\0'));
+    m_uploader->process()->write(QByteArray(1, '\0'));
 }
 
 void MaemoPublisherFremantleFree::handleScpStdOut(const QByteArray &output)

@@ -35,8 +35,10 @@
 
 #include <utils/ssh/sshremoteprocessrunner.h>
 
-QT_FORWARD_DECLARE_CLASS(QTimer);
 #include <QtCore/QObject>
+
+QT_FORWARD_DECLARE_CLASS(QTextStream)
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 class RemoteProcessTest : public QObject
 {
@@ -53,13 +55,22 @@ private slots:
     void handleProcessStderr(const QByteArray &output);
     void handleProcessClosed(int exitStatus);
     void handleTimeout();
+    void handleReadyRead();
+    void handleConnected();
 
 private:
-    enum State { Inactive, TestingSuccess, TestingFailure, TestingCrash, TestingTerminal };
+    enum State {
+        Inactive, TestingSuccess, TestingFailure, TestingCrash, TestingTerminal, TestingIoDevice
+    };
+
+    QString testString() const;
 
     const Utils::SshConnectionParameters m_sshParams;
     QTimer * const m_timeoutTimer;
+    QTextStream *m_textStream;
     Utils::SshRemoteProcessRunner * const m_remoteRunner;
+    Utils::SshRemoteProcess::Ptr m_catProcess;
+    Utils::SshConnection::Ptr m_sshConnection;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;
     State m_state;

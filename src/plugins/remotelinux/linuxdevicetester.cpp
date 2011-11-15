@@ -106,7 +106,7 @@ void GenericLinuxDeviceTester::stopTest()
         d->portsGatherer.stop();
         break;
     case RunningUname:
-        d->process->closeChannel();
+        d->process->close();
         break;
     case Inactive:
         break;

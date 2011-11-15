@@ -89,7 +89,7 @@ void MaddeDeviceTester::stopTest()
     case QtTest:
     case MadDeveloperTest:
     case QmlToolingTest:
-        m_processRunner->process()->closeChannel();
+        m_processRunner->process()->close();
         break;
     }
 

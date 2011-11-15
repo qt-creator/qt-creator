@@ -115,5 +115,5 @@ void Shell::handleChannelClosed(int exitStatus)
 
 void Shell::handleStdin()
 {
-    m_shell->sendInput(m_stdin->readLine());
+    m_shell->write(m_stdin->readLine());
 }

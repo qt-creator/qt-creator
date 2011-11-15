@@ -380,11 +380,11 @@ void MaemoRemoteMounter::setState(State newState)
         m_utfsServerTimer->stop();
         if (m_mountProcess) {
             disconnect(m_mountProcess.data(), 0, this, 0);
-            m_mountProcess->closeChannel();
+            m_mountProcess->close();
         }
         if (m_unmountProcess) {
             disconnect(m_unmountProcess.data(), 0, this, 0);
-            m_unmountProcess->closeChannel();
+            m_unmountProcess->close();
         }
     }
     m_state = newState;

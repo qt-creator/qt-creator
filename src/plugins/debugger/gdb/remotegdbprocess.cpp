@@ -341,7 +341,7 @@ void RemoteGdbProcess::sendInput(const QByteArray &data)
         if (!isdigit(data.at(pos)))
             break;
     m_lastSeqNr = data.left(pos);
-    m_gdbProc->sendInput(data);
+    m_gdbProc->write(data);
 }
 
 void RemoteGdbProcess::handleAppOutput()

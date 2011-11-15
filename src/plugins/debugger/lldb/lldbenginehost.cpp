@@ -95,7 +95,7 @@ qint64 SshIODevice::writeData (const char * data, qint64 maxSize)
         startupbuffer += QByteArray::fromRawData(data, maxSize);
         return maxSize;
     }
-    proc->sendInput(QByteArray::fromRawData(data, maxSize));
+    proc->write(data, maxSize);
     return maxSize;
 }
 qint64 SshIODevice::readData (char * data, qint64 maxSize)
@@ -128,7 +128,7 @@ qint64 SshIODevice::readData (char * data, qint64 maxSize)
 void SshIODevice::processStarted()
 {
     proc = runner->process();
-    proc->sendInput(startupbuffer);
+    proc->write(startupbuffer);
 }
 
 void SshIODevice::outputAvailable(const QByteArray &output)

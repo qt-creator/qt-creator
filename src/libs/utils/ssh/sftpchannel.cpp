@@ -821,13 +821,13 @@ void SftpChannelPrivate::handleOpenSuccessInternal()
     m_sftpState = SubsystemRequested;
 }
 
-void SftpChannelPrivate::handleOpenFailureInternal()
+void SftpChannelPrivate::handleOpenFailureInternal(const QString &reason)
 {
     if (channelState() != SessionRequested) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_MSG_CHANNEL_OPEN_FAILURE packet.");
     }
-    emit initializationFailed(tr("Server could not start session."));
+    emit initializationFailed(tr("Server could not start session: %1").arg(reason));
 }
 
 void SftpChannelPrivate::sendReadRequest(const SftpDownload::Ptr &job,
