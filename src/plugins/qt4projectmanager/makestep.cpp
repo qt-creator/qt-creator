@@ -143,6 +143,11 @@ bool MakeStep::init()
     pp->setMacroExpander(bc->macroExpander());
 
     Utils::Environment environment = bc->environment();
+
+    // Force output to english for the parsers. Do this here and not in the toolchain's
+    // addToEnvironment() to not screw up the users run environment.
+    environment.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+
     pp->setEnvironment(environment);
 
     QString workingDirectory;
@@ -342,7 +347,13 @@ void MakeStepConfigWidget::updateDetails()
     ProjectExplorer::ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
-    param.setEnvironment(bc->environment());
+    Utils::Environment environment = bc->environment();
+
+    // Force output to english for the parsers. Do this here and not in the toolchain's
+    // addToEnvironment() to not screw up the users run environment.
+    environment.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+    param.setEnvironment(environment);
+
     QString makeCmd = bc->makeCommand();
     if (!m_makeStep->m_makeCmd.isEmpty())
         makeCmd = m_makeStep->m_makeCmd;
