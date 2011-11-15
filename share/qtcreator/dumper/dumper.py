@@ -1223,6 +1223,16 @@ class Dumper:
     def putName(self, name):
         self.put('name="%s",' % name)
 
+    def putMapName(self, value):
+        if str(value.type) == qqNs + "QString":
+            self.put('key="%s",' % encodeString(value))
+            self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
+        elif str(value.type) == qqNs + "QByteArray":
+            self.put('key="%s",' % encodeByteArray(value))
+            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+        else:
+            self.put('name="%s",' % value)
+
     def isExpanded(self):
         #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
         #    self.expandedINames, self.currentIName in self.expandedINames))
@@ -1268,7 +1278,12 @@ class Dumper:
     def currentItemFormat(self):
         format = self.formats.get(self.currentIName)
         if format is None:
-            format = self.typeformats.get(stripClassTag(str(self.currentType)))
+            type = stripClassTag(str(self.currentType))
+            pos = type.find('<')
+            if pos == -1:
+                format = self.typeformats.get(type)
+            else:
+                format = self.typeformats.get(type[0:pos])
         return format
 
     def putSubItem(self, component, value):

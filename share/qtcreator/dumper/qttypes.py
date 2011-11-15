@@ -7,6 +7,16 @@
 
 from __future__ import with_statement
 
+
+def mapForms():
+    return "Normal,Compact"
+
+def mapCompact(format, keyType, valueType):
+    if format == 2:
+        return True # Compact.
+    return isSimpleType(keyType) and isSimpleType(valueType)
+
+
 def qdump__QAtomicInt(d, value):
     d.putValue(value["_q_value"])
     d.putNumChild(0)
@@ -337,6 +347,9 @@ def qdump__QFlags(d, value):
     d.putNumChild(0)
 
 
+def qform__QHash():
+    return mapForms()
+
 def qdump__QHash(d, value):
 
     def hashDataFirstNode(value):
@@ -382,22 +395,19 @@ def qdump__QHash(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        isSimpleKey = isSimpleType(keyType)
-        isSimpleValue = isSimpleType(valueType)
+        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
         node = hashDataFirstNode(value)
         innerType = e_ptr.dereference().type
         childType = innerType
-        if isSimpleKey and isSimpleValue:
+        if isCompact:
             childType = valueType
         with Children(d, size, maxNumChild=1000, childType=childType):
             for i in d.childRange():
                 it = node.dereference().cast(innerType)
                 with SubItem(d, i):
-                    key = it["key"]
-                    val = it["value"]
-                    if isSimpleKey and isSimpleValue:
-                        d.putName(key)
-                        d.putItem(val)
+                    if isCompact:
+                        d.putMapName(it["key"])
+                        d.putItem(it["value"])
                         d.putType(valueType)
                     else:
                         d.putItem(it)
@@ -410,11 +420,11 @@ def qdump__QHashNode(d, value):
     key = value["key"]
     val = value["value"]
 
-    if isSimpleType(keyType) and isSimpleType(valueType):
-        d.putName(key)
-        d.putValue(val)
-    else:
-        d.putValue(" ")
+    #if isSimpleType(keyType) and isSimpleType(valueType):
+    #    d.putName(key)
+    #    d.putValue(val)
+    #else:
+    d.putValue(" ")
 
     d.putNumChild(2)
     if d.isExpanded():
@@ -616,9 +626,7 @@ def qdumpHelper__QMap(d, value, forceLong):
 
         keyType = templateArgument(value.type, 0)
         valueType = templateArgument(value.type, 1)
-
-        isSimpleKey = isSimpleType(keyType)
-        isSimpleValue = isSimpleType(valueType)
+        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
 
         it = e_ptr["forward"].dereference()
 
@@ -629,7 +637,7 @@ def qdumpHelper__QMap(d, value, forceLong):
         payloadSize = nodeType.sizeof - 2 * lookupType("void").pointer().sizeof
         charPtr = lookupType("char").pointer()
 
-        if isSimpleKey and isSimpleValue:
+        if isCompact:
             innerType = valueType
         else:
             innerType = nodeType
@@ -640,24 +648,26 @@ def qdumpHelper__QMap(d, value, forceLong):
                 base = it.cast(charPtr) - payloadSize
                 node = base.cast(nodeType.pointer()).dereference()
                 with SubItem(d, i):
-                    key = node["key"]
-                    val = node["value"]
-                    #if isSimpleType(value.type):
-                    # or isStringType(d, value.type):
-                    if isSimpleKey and isSimpleValue:
+                    if isCompact:
                         #d.putType(valueType)
                         if forceLong:
-                            d.putName("[%s] %s" % (i, key))
+                            d.putName("[%s] %s" % (i, node["key"]))
                         else:
-                            d.putName(key)
-                        d.putItem(val)
+                            d.putMapName(node["key"])
+                        d.putItem(node["value"])
                     else:
                         d.putItem(node)
                 it = it.dereference()["forward"].dereference()
 
 
+def qform__QMap():
+    return mapForms()
+
 def qdump__QMap(d, value):
     qdumpHelper__QMap(d, value, False)
+
+def qform__QMultiMap():
+    return mapForms()
 
 def qdump__QMultiMap(d, value):
     qdumpHelper__QMap(d, value, True)
@@ -1745,6 +1755,9 @@ def qdump__std__list(d, value):
                 p = p["_M_next"]
 
 
+def qform__std__map():
+    return mapForms()
+
 def qdump__std__map(d, value):
     impl = value["_M_t"]["_M_impl"]
     size = impl["_M_node_count"]
@@ -1760,10 +1773,9 @@ def qdump__std__map(d, value):
         #   pairType = templateArgument(templateArgument(value.type, 3), 0)
         # So use this as workaround:
         pairType = templateArgument(impl.type, 1)
-        isSimpleKey = isSimpleType(keyType)
-        isSimpleValue = isSimpleType(valueType)
+        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
         innerType = pairType
-        if isSimpleKey and isSimpleValue:
+        if isCompact:
             innerType = valueType
         pairPointer = pairType.pointer()
         node = impl["_M_header"]["_M_left"]
@@ -1771,15 +1783,15 @@ def qdump__std__map(d, value):
         if size == 0:
             childType = pairType
         childNumChild = 2
-        if isSimpleKey and isSimpleValue:
+        if isCompact:
             childNumChild = None
         with Children(d, size, maxNumChild=1000,
                 childType=childType, childNumChild=childNumChild):
             for i in d.childRange():
                 with SubItem(d, i):
                     pair = (node + 1).cast(pairPointer).dereference()
-                    if isSimpleKey and isSimpleValue:
-                        d.putName(pair["first"])
+                    if isCompact:
+                        d.putMapName(pair["first"])
                         d.putItem(pair["second"])
                     else:
                         d.putValue(" ")
