@@ -823,17 +823,17 @@ int QmlProfilerEventList::count() const
 ////////////////////////////////////////////////////////////////////////////////////
 
 
-void QmlProfilerEventList::save(const QString &filename)
+bool QmlProfilerEventList::save(const QString &filename)
 {
     if (count() == 0) {
         emit error(tr("No data to save"));
-        return;
+        return false;
     }
 
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly)) {
         emit error(tr("Could not open %1 for writing").arg(filename));
-        return;
+        return false;
     }
 
     QXmlStreamWriter stream(&file);
@@ -899,6 +899,7 @@ void QmlProfilerEventList::save(const QString &filename)
     stream.writeEndDocument();
 
     file.close();
+    return true;
 }
 
 void QmlProfilerEventList::setFilename(const QString &filename)

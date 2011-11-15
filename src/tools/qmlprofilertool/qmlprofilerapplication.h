@@ -55,9 +55,6 @@ public:
     void printUsage();
     int exec();
 
-signals:
-    void done();
-
 public slots:
     void userCommand(const QString &command);
 
@@ -71,6 +68,7 @@ private slots:
     void processFinished();
 
     void traceClientEnabled();
+    void profilerClientEnabled();
     void traceFinished();
     void recordingChanged();
 
@@ -102,7 +100,7 @@ private:
     bool m_quitAfterSave;
 
     QmlJsDebugClient::QDeclarativeDebugConnection m_connection;
-    QmlJsDebugClient::QmlProfilerTraceClient m_traceClient;
+    QmlJsDebugClient::QmlProfilerTraceClient m_qmlProfilerClient;
     QmlJsDebugClient::QV8ProfilerClient m_v8profilerClient;
     QmlJsDebugClient::QmlProfilerEventList m_eventList;
     QTimer m_connectTimer;

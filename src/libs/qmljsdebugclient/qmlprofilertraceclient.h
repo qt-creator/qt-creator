@@ -91,6 +91,7 @@ public:
 public slots:
     void setRecording(bool);
     void clearData();
+    void sendRecordingStatus();
 
 signals:
     void complete();

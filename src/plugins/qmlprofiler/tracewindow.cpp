@@ -312,11 +312,13 @@ void TraceWindow::connectClientSignals()
         connect(m_plugin.data(), SIGNAL(traceFinished(qint64)), this, SIGNAL(traceFinished(qint64)));
         connect(m_plugin.data(), SIGNAL(traceStarted(qint64)), this, SIGNAL(traceStarted(qint64)));
         connect(m_plugin.data(), SIGNAL(enabledChanged()), this, SLOT(updateProfilerState()));
+        connect(m_plugin.data(), SIGNAL(enabledChanged()), m_plugin.data(), SLOT(sendRecordingStatus()));
     }
     if (m_v8plugin) {
         connect(m_v8plugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
         connect(m_v8plugin.data(), SIGNAL(v8range(int,QString,QString,int,double,double)), this, SIGNAL(v8range(int,QString,QString,int,double,double)));
         connect(m_v8plugin.data(), SIGNAL(enabledChanged()), this, SLOT(updateProfilerState()));
+        connect(m_v8plugin.data(), SIGNAL(enabledChanged()), m_v8plugin.data(), SLOT(sendRecordingStatus()));
     }
 }
 
@@ -329,11 +331,13 @@ void TraceWindow::disconnectClientSignals()
         disconnect(m_plugin.data(), SIGNAL(traceFinished(qint64)), this, SIGNAL(traceFinished(qint64)));
         disconnect(m_plugin.data(), SIGNAL(traceStarted(qint64)), this, SIGNAL(traceStarted(qint64)));
         disconnect(m_plugin.data(), SIGNAL(enabledChanged()), this, SLOT(updateProfilerState()));
+        disconnect(m_plugin.data(), SIGNAL(enabledChanged()), m_plugin.data(), SLOT(sendRecordingStatus()));
     }
     if (m_v8plugin) {
         disconnect(m_v8plugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
         disconnect(m_v8plugin.data(), SIGNAL(v8range(int,QString,QString,int,double,double)), this, SIGNAL(v8range(int,QString,QString,int,double,double)));
         disconnect(m_v8plugin.data(), SIGNAL(enabledChanged()), this, SLOT(updateProfilerState()));
+        disconnect(m_v8plugin.data(), SIGNAL(enabledChanged()), m_v8plugin.data(), SLOT(sendRecordingStatus()));
     }
 }
 

@@ -144,7 +144,7 @@ public slots:
     void complete();
 
     void addV8Event(int depth,const QString &function,const QString &filename, int lineNumber, double totalTime, double selfTime);
-    void save(const QString &filename);
+    bool save(const QString &filename);
     void load(const QString &filename);
     void setFilename(const QString &filename);
     void load();

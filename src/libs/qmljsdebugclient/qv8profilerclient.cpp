@@ -77,6 +77,10 @@ QV8ProfilerClient::QV8ProfilerClient(QDeclarativeDebugConnection *client)
 
 QV8ProfilerClient::~QV8ProfilerClient()
 {
+    //Disable profiling if started by client
+    //Profiling data will be lost!!
+    if (isRecording())
+        setRecording(false);
     delete d;
 }
 
@@ -88,6 +92,11 @@ void QV8ProfilerClient::clearData()
 bool QV8ProfilerClient::isEnabled() const
 {
     return status() == Enabled;
+}
+
+void QV8ProfilerClient::sendRecordingStatus()
+{
+    d->sendRecordingStatus();
 }
 
 bool QV8ProfilerClient::isRecording() const
@@ -103,17 +112,14 @@ void QV8ProfilerClient::setRecording(bool v)
     d->recording = v;
 
     if (status() == Enabled) {
-        d->sendRecordingStatus();
+        sendRecordingStatus();
     }
 
     emit recordingChanged(v);
 }
 
-void QV8ProfilerClient::statusChanged(Status status)
+void QV8ProfilerClient::statusChanged(Status /*status*/)
 {
-    if (status == Enabled) {
-        d->sendRecordingStatus();
-    }
     emit enabledChanged();
 }
 

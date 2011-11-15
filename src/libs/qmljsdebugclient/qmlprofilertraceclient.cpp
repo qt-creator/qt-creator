@@ -79,6 +79,10 @@ QmlProfilerTraceClient::QmlProfilerTraceClient(QDeclarativeDebugConnection *clie
 
 QmlProfilerTraceClient::~QmlProfilerTraceClient()
 {
+    //Disable profiling if started by client
+    //Profiling data will be lost!!
+    if (isRecording())
+        setRecording(false);
     delete d;
 }
 
@@ -86,6 +90,11 @@ void QmlProfilerTraceClient::clearData()
 {
     ::memset(d->rangeCount, 0, MaximumQmlEventType * sizeof(int));
     emit cleared();
+}
+
+void QmlProfilerTraceClient::sendRecordingStatus()
+{
+    d->sendRecordingStatus();
 }
 
 bool QmlProfilerTraceClient::isEnabled() const
@@ -106,17 +115,14 @@ void QmlProfilerTraceClient::setRecording(bool v)
     d->recording = v;
 
     if (status() == Enabled) {
-        d->sendRecordingStatus();
+        sendRecordingStatus();
     }
 
     emit recordingChanged(v);
 }
 
-void QmlProfilerTraceClient::statusChanged(Status status)
+void QmlProfilerTraceClient::statusChanged(Status /*status*/)
 {
-    if (status == Enabled) {
-        d->sendRecordingStatus();
-    }
     emit enabledChanged();
 }
 
