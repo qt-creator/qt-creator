@@ -2959,8 +2959,8 @@ namespace basic {
 
     void testBigInt()
     {
-        qint64 a = Q_INT64_C(0x0102030405060708090a);
-        quint64 b = Q_UINT64_C(0x0102030405060708090a);
+        qint64 a = Q_INT64_C(0xF020304050607080);
+        quint64 b = Q_UINT64_C(0xF020304050607080);
         quint64 c = std::numeric_limits<quint64>::max() - quint64(1);
         BREAK_HERE;
         dummyStatement(&a, &b, &c);
