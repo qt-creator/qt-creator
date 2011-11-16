@@ -1252,7 +1252,7 @@ def qdump__QSet(d, value):
         isSimpleKey = isSimpleType(keyType)
         node = hashDataFirstNode(value)
         innerType = e_ptr.dereference().type
-        with Children(d, size, numChild=1000, childType=keyType):
+        with Children(d, size, maxNumChild=1000, childType=innerType):
             for i in xrange(size):
                 it = node.dereference().cast(innerType)
                 with SubItem(d, i):
