@@ -84,8 +84,9 @@ void TimelineView::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget 
     m_spacing = qreal(width()) / windowDuration;
 
     m_rowWidths.clear();
+    // The "1+" is because the reference screenshot features an empty row per type, in order to leave space for the title
     for (int i=0; i<QmlJsDebugClient::MaximumQmlEventType; i++) {
-        m_rowWidths << (m_rowsExpanded[i] ? m_eventList->uniqueEventsOfType(i) : m_eventList->maxNestingForType(i));
+        m_rowWidths << 1 + (m_rowsExpanded[i] ? m_eventList->uniqueEventsOfType(i) : m_eventList->maxNestingForType(i));
     }
 
     // event rows
@@ -120,19 +121,6 @@ QColor TimelineView::colorForItem(int itemIndex)
     return QColor::fromHsl((ndx*25)%360, 76, 166);
 }
 
-QLinearGradient *TimelineView::gradientForItem(int itemIndex)
-{
-    int ndx = m_eventList->getEventId(itemIndex);
-    if (!m_hashedGradients.contains(ndx)) {
-        QLinearGradient *linearGrad = new QLinearGradient(0,0,0,DefaultRowHeight);
-        linearGrad->setColorAt(0, colorForItem(itemIndex));
-        linearGrad->setColorAt(0.5, colorForItem(itemIndex).darker(115));
-        linearGrad->setColorAt(1, colorForItem(itemIndex));
-        m_hashedGradients[ndx] = linearGrad;
-    }
-    return m_hashedGradients[ndx];
-}
-
 void TimelineView::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
 {
     int x,y,width,rowNumber, eventType;
@@ -140,9 +128,9 @@ void TimelineView::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
         x = (m_eventList->getStartTime(i) - m_startTime) * m_spacing;
         eventType = m_eventList->getType(i);
         if (m_rowsExpanded[eventType])
-            y = m_rowStarts[eventType] + DefaultRowHeight*m_eventList->eventPosInType(i);
+            y = m_rowStarts[eventType] + DefaultRowHeight*(m_eventList->eventPosInType(i) + 1);
         else
-            y = m_rowStarts[eventType] + DefaultRowHeight*(m_eventList->getNestingLevel(i)-1);
+            y = m_rowStarts[eventType] + DefaultRowHeight*m_eventList->getNestingLevel(i);
 
         width = m_eventList->getDuration(i)*m_spacing;
         if (width<1)
@@ -153,7 +141,7 @@ void TimelineView::drawItemsToPainter(QPainter *p, int fromIndex, int toIndex)
             continue;
         m_rowLastX[rowNumber] = x+width;
 
-        p->setBrush(*gradientForItem(i));
+        p->setBrush(colorForItem(i));
         p->drawRect(x,y,width,DefaultRowHeight);
     }
 }
@@ -168,8 +156,11 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
     int id = m_eventList->getEventId(m_selectedItem);
 
     p->setBrush(Qt::transparent);
-    QPen strongPen(QBrush(Qt::blue), 3);
-    QPen lightPen(QBrush(QColor(Qt::blue).lighter(130)), 2);
+    QColor selectionColor = Qt::blue;
+    if (m_selectionLocked)
+        selectionColor = QColor(96,0,255);
+    QPen strongPen(selectionColor, 3);
+    QPen lightPen(QBrush(selectionColor.lighter(130)), 2);
     p->setPen(lightPen);
 
     int x, y, width, eventType;
@@ -185,9 +176,9 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
         x = (m_eventList->getStartTime(i) - m_startTime) * m_spacing;
         eventType = m_eventList->getType(i);
         if (m_rowsExpanded[eventType])
-            y = m_rowStarts[eventType] + DefaultRowHeight*m_eventList->eventPosInType(i);
+            y = m_rowStarts[eventType] + DefaultRowHeight*(m_eventList->eventPosInType(i) + 1);
         else
-            y = m_rowStarts[eventType] + DefaultRowHeight*(m_eventList->getNestingLevel(i)-1);
+            y = m_rowStarts[eventType] + DefaultRowHeight*m_eventList->getNestingLevel(i);
 
         width = m_eventList->getDuration(i)*m_spacing;
         if (width<1)
@@ -271,9 +262,9 @@ void TimelineView::manageHovered(int x, int y)
 
         eventType = m_eventList->getType(i);
         if (m_rowsExpanded[eventType])
-            itemRow = m_rowStarts[eventType]/DefaultRowHeight + m_eventList->eventPosInType(i);
+            itemRow = m_rowStarts[eventType]/DefaultRowHeight + m_eventList->eventPosInType(i) + 1;
         else
-            itemRow = m_rowStarts[eventType]/DefaultRowHeight + m_eventList->getNestingLevel(i)-1;
+            itemRow = m_rowStarts[eventType]/DefaultRowHeight + m_eventList->getNestingLevel(i);
         if (itemRow == row) {
             // match
             m_currentSelection.eventIndex = i;
@@ -341,7 +332,7 @@ int TimelineView::nextItemFromId(int eventId) const
     do {
         if (m_eventList->getEventId(ndx) == eventId)
             return ndx;
-        ndx = (ndx+1) % m_eventList->count();
+        ndx = (ndx + 1) % m_eventList->count();
     } while (ndx != startIndex);
     return -1;
 }
@@ -360,7 +351,7 @@ void TimelineView::selectNext()
     if (m_selectionLocked && m_selectedItem !=-1 ) {
         // find next item with same eventId
         int eventId = m_eventList->getEventId(m_selectedItem);
-        int i = m_selectedItem+1;
+        int i = m_selectedItem + 1;
         while (i<m_eventList->count() && m_eventList->getEventId(i) != eventId)
             i++;
         if (i == m_eventList->count()) {
@@ -371,7 +362,7 @@ void TimelineView::selectNext()
         setSelectedItem(i);
     } else {
         // select next in view or after
-        int newIndex = m_selectedItem+1;
+        int newIndex = m_selectedItem + 1;
         if (newIndex >= m_eventList->count())
             newIndex = 0;
         if (m_eventList->getEndTime(newIndex) < m_startTime)

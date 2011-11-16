@@ -66,6 +66,25 @@ void ZoomControl::setRange(qint64 startTime, qint64 endTime)
     }
 }
 
+ScrollableDeclarativeView::ScrollableDeclarativeView(QWidget *parent)
+    : QDeclarativeView(parent)
+{
+}
+
+ScrollableDeclarativeView::~ScrollableDeclarativeView()
+{
+}
+
+void ScrollableDeclarativeView::scrollContentsBy(int dx, int dy)
+{
+    // special workaround to track the scrollbar
+    if (rootObject()) {
+        int scrollY = rootObject()->property("scrollY").toInt();
+        rootObject()->setProperty("scrollY", QVariant(scrollY - dy));
+    }
+    QDeclarativeView::scrollContentsBy(dx,dy);
+}
+
 TraceWindow::TraceWindow(QWidget *parent)
     : QWidget(parent)
 {
@@ -78,7 +97,7 @@ TraceWindow::TraceWindow(QWidget *parent)
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
 
-    m_mainView = new QDeclarativeView(this);
+    m_mainView = new ScrollableDeclarativeView(this);
     m_mainView->setResizeMode(QDeclarativeView::SizeViewToRootObject);
     m_mainView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_mainView->setBackgroundBrush(QBrush(Qt::white));
@@ -147,19 +166,19 @@ QWidget *TraceWindow::createToolbar()
     toolBarLayout->setSpacing(0);
 
     QToolButton *buttonPrev= new QToolButton;
-    buttonPrev->setIcon(QIcon(":/qmlprofiler/prev.png"));
+    buttonPrev->setIcon(QIcon(":/qmlprofiler/ico_prev.png"));
     buttonPrev->setToolTip(tr("Jump to previous event"));
     connect(buttonPrev, SIGNAL(clicked()), this, SIGNAL(jumpToPrev()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonPrev, SLOT(setEnabled(bool)));
 
     QToolButton *buttonNext= new QToolButton;
-    buttonNext->setIcon(QIcon(":/qmlprofiler/next.png"));
+    buttonNext->setIcon(QIcon(":/qmlprofiler/ico_next.png"));
     buttonNext->setToolTip(tr("Jump to next event"));
     connect(buttonNext, SIGNAL(clicked()), this, SIGNAL(jumpToNext()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonNext, SLOT(setEnabled(bool)));
 
     QToolButton *buttonZoomControls = new QToolButton;
-    buttonZoomControls->setIcon(QIcon(":/qmlprofiler/magnifier.png"));
+    buttonZoomControls->setIcon(QIcon(":/qmlprofiler/ico_zoom.png"));
     buttonZoomControls->setToolTip(tr("Show zoom slider"));
     buttonZoomControls->setCheckable(true);
     buttonZoomControls->setChecked(false);
@@ -167,7 +186,7 @@ QWidget *TraceWindow::createToolbar()
     connect(this, SIGNAL(enableToolbar(bool)), buttonZoomControls, SLOT(setEnabled(bool)));
 
     m_buttonRange = new QToolButton;
-    m_buttonRange->setIcon(QIcon(":/qmlprofiler/range.png"));
+    m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselection.png"));
     m_buttonRange->setToolTip(tr("Select range"));
     m_buttonRange->setCheckable(true);
     m_buttonRange->setChecked(false);
@@ -176,7 +195,7 @@ QWidget *TraceWindow::createToolbar()
     connect(this, SIGNAL(rangeModeChanged(bool)), m_buttonRange, SLOT(setChecked(bool)));
 
     m_buttonLock = new QToolButton;
-    m_buttonLock->setIcon(QIcon(":/qmlprofiler/arrow_select.png"));
+    m_buttonLock->setIcon(QIcon(":/qmlprofiler/ico_selectionmode.png"));
     m_buttonLock->setToolTip(tr("View event information on mouseover"));
     m_buttonLock->setCheckable(true);
     m_buttonLock->setChecked(false);
@@ -184,11 +203,13 @@ QWidget *TraceWindow::createToolbar()
     connect(this, SIGNAL(enableToolbar(bool)), m_buttonLock, SLOT(setEnabled(bool)));
     connect(this, SIGNAL(lockModeChanged(bool)), m_buttonLock, SLOT(setChecked(bool)));
 
-    toolBarLayout->addWidget(m_buttonLock);
     toolBarLayout->addWidget(buttonPrev);
     toolBarLayout->addWidget(buttonNext);
+    toolBarLayout->addWidget(new Utils::StyledSeparator());
     toolBarLayout->addWidget(buttonZoomControls);
+    toolBarLayout->addWidget(new Utils::StyledSeparator());
     toolBarLayout->addWidget(m_buttonRange);
+    toolBarLayout->addWidget(m_buttonLock);
 
     return bar;
 }
@@ -219,9 +240,6 @@ QWidget *TraceWindow::createZoomToolbar()
             border: 1px #313131;\
             height: 20px;\
             margin: 0px 0px 0px 0px;\
-        }\
-        QSlider::groove:horizontal {\
-            position: absolute;\
         }\
         QSlider::add-page:horizontal {\
             background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #5a5a5a, stop: 1 #444444);\
@@ -343,9 +361,9 @@ void TraceWindow::toggleRangeMode(bool active)
     bool rangeMode = m_mainView->rootObject()->property("selectionRangeMode").toBool();
     if (active != rangeMode) {
         if (active)
-            m_buttonRange->setIcon(QIcon(":/qmlprofiler/range_pressed.png"));
+            m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselected.png"));
         else
-            m_buttonRange->setIcon(QIcon(":/qmlprofiler/range.png"));
+            m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselection.png"));
         m_mainView->rootObject()->setProperty("selectionRangeMode", QVariant(active));
     }
 }
@@ -354,9 +372,9 @@ void TraceWindow::updateRangeButton()
 {
     bool rangeMode = m_mainView->rootObject()->property("selectionRangeMode").toBool();
     if (rangeMode)
-        m_buttonRange->setIcon(QIcon(":/qmlprofiler/range_pressed.png"));
+        m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselected.png"));
     else
-        m_buttonRange->setIcon(QIcon(":/qmlprofiler/range.png"));
+        m_buttonRange->setIcon(QIcon(":/qmlprofiler/ico_rangeselection.png"));
     emit rangeModeChanged(rangeMode);
 }
 

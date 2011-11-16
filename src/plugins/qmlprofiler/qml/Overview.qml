@@ -124,6 +124,6 @@ Canvas2D {
     Rectangle {
         height: 1
         width: parent.width
-        color: "#cccccc"
+        color: "#858585"
     }
 }

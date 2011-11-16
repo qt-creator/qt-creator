@@ -73,13 +73,13 @@ Canvas2D {
         ctxt.font = "8px sans-serif";
         for (var ii = 0; ii < blockCount+1; ii++) {
             var x = Math.floor(ii*pixelsPerBlock - realStartPos);
-            ctxt.strokeStyle = "#C0C0C0";
+            ctxt.strokeStyle = "#B0B0B0";
             ctxt.beginPath();
             ctxt.moveTo(x, 0);
             ctxt.lineTo(x, height);
             ctxt.stroke();
 
-            ctxt.strokeStyle = "#E0E0E0";
+            ctxt.strokeStyle = "#CCCCCC";
             for (var jj=1; jj < 5; jj++) {
                 var xx = Math.floor(ii*pixelsPerBlock + jj*pixelsPerSection - realStartPos);
                 ctxt.beginPath();
@@ -113,16 +113,30 @@ Canvas2D {
     }
 
     function drawBackgroundBars( ctxt, region ) {
+        var colorIndex = true;
+        // row background
+        for (var y=0; y < labels.height; y+= root.singleRowHeight) {
+            ctxt.fillStyle = colorIndex ? "#f0f0f0" : "white";
+            ctxt.strokeStyle = colorIndex ? "#f0f0f0" : "white";
+            ctxt.fillRect(0, y, width, root.singleRowHeight);
+            colorIndex = !colorIndex;
+        }
+
+        // separators
         var cumulatedHeight = 0;
         for (var i=0; i<labels.rowCount; i++) {
-            var barHeight = labels.rowExpanded[i] ?
+            cumulatedHeight += root.singleRowHeight + (labels.rowExpanded[i] ?
                     qmlEventList.uniqueEventsOfType(i) * root.singleRowHeight :
-                    qmlEventList.maxNestingForType(i) * root.singleRowHeight;
-            ctxt.fillStyle = i%2 ? "#f0f0f0" : "white"
-            ctxt.strokeStyle = i%2 ? "#f0f0f0" : "white"
-            ctxt.fillRect(0, cumulatedHeight, width, barHeight);
-            cumulatedHeight += barHeight;
+                    qmlEventList.maxNestingForType(i) * root.singleRowHeight);
+
+            ctxt.strokeStyle = "#B0B0B0";
+            ctxt.beginPath();
+            ctxt.moveTo(0, cumulatedHeight);
+            ctxt.lineTo(width, cumulatedHeight);
+            ctxt.stroke();
         }
+
+        // bottom
         ctxt.fillStyle = "#f5f5f5";
         ctxt.fillRect(0, labels.height, width, height - labels.height);
     }

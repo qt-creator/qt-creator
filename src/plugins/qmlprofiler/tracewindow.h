@@ -43,10 +43,7 @@
 #include <QtGui/QToolButton>
 
 #include <QtCore/QEvent>
-
-QT_BEGIN_NAMESPACE
-class QDeclarativeView;
-QT_END_NAMESPACE
+#include <QtDeclarative/QDeclarativeView>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -78,6 +75,16 @@ signals:
 private:
     qint64 m_startTime;
     qint64 m_endTime;
+};
+
+class ScrollableDeclarativeView : public QDeclarativeView
+{
+    Q_OBJECT
+public:
+    explicit ScrollableDeclarativeView(QWidget *parent = 0);
+    ~ScrollableDeclarativeView();
+protected:
+    void scrollContentsBy(int dx, int dy);
 };
 
 class TraceWindow : public QWidget
@@ -156,7 +163,7 @@ private:
     QWeakPointer<QmlJsDebugClient::QV8ProfilerClient> m_v8plugin;
     QSize m_sizeHint;
 
-    QDeclarativeView *m_mainView;
+    ScrollableDeclarativeView *m_mainView;
     QDeclarativeView *m_timebar;
     QDeclarativeView *m_overview;
     QmlJsDebugClient::QmlProfilerEventList *m_eventList;

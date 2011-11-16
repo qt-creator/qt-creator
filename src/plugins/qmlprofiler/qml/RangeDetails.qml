@@ -33,7 +33,7 @@
 import QtQuick 1.0
 import Monitor 1.0
 
-BorderImage {
+Item {
     id: rangeDetails
 
     property string duration
@@ -44,72 +44,115 @@ BorderImage {
 
     property bool locked: view.selectionLocked
 
-    source: "popup_green.png"
-    border {
-        left: 10; top: 10
-        right: 20; bottom: 20
-    }
-
     width: col.width + 45
-    height: childrenRect.height
+    height: col.height + 30
     z: 1
     visible: false
     x: 200
     y: 25
 
+    // shadow
+    BorderImage {
+        property int px: 4
+        source: "dialog_shadow.png"
+
+        border {
+            left: px; top: px
+            right: px; bottom: px
+        }
+        width: parent.width + 2*px - 1
+        height: parent.height
+        x: -px + 1
+        y: px + 1
+    }
+
+    // title bar
+    Rectangle {
+        width: parent.width
+        height: 20
+        color: "#55a3b8"
+        radius: 5
+        border.width: 1
+        border.color: "#a0a0a0"
+    }
+    Item {
+        width: parent.width+1
+        height: 11
+        y: 10
+        clip: true
+        Rectangle {
+            width: parent.width-1
+            height: 15
+            y: -5
+            color: "#55a3b8"
+            border.width: 1
+            border.color: "#a0a0a0"
+        }
+    }
+
     //title
     Text {
         id: typeTitle
-        text: rangeDetails.type
+        text: "  "+rangeDetails.type
         font.bold: true
-        y: 10
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.horizontalCenterOffset: -5
+        height: 18
+        y: 2
+        verticalAlignment: Text.AlignVCenter
+        width: parent.width
+        color: "white"
     }
 
-    //details
-    Column {
-        id: col
-        anchors.top: typeTitle.bottom
-        x: 2
-        Detail {
-            label: qsTr("Duration")
-            content: rangeDetails.duration < 1000 ?
-                        rangeDetails.duration + "μs" :
-                        Math.floor(rangeDetails.duration/10)/100 + "ms"
-        }
-        Detail {
-            opacity: content.length !== 0 ? 1 : 0
-            label: qsTr("Details")
-            content: {
-                var inputString = rangeDetails.label;
-                if (inputString.length > 7 && inputString.substring(0,7) == "file://") {
-                    var pos = inputString.lastIndexOf("/");
-                    return inputString.substr(pos+1);
-                }
-                var maxLen = 40;
-                if (inputString.length > maxLen)
-                    inputString = inputString.substring(0,maxLen)+"...";
+    // Details area
+    Rectangle {
+        color: "white"
+        width: parent.width
+        height: col.height + 10
+        y: 20
+        border.width: 1
+        border.color: "#a0a0a0"
 
-                return inputString;
+        //details
+        Column {
+            id: col
+            x: 10
+            y: 5
+            Detail {
+                label: qsTr("Duration:")
+                content: rangeDetails.duration < 1000 ? rangeDetails.duration + "μs" : Math.floor(rangeDetails.duration/10)/100 + "ms"
             }
-        }
-        Detail {
-            opacity: content.length !== 0 ? 1 : 0
-            label: qsTr("Location")
-            content: {
-                var file = rangeDetails.file;
-                var pos = file.lastIndexOf("/");
-                if (pos != -1)
-                    file = file.substr(pos+1);
-                return (file.length !== 0) ? (file + ":" + rangeDetails.line) : "";
+            Detail {
+                opacity: content.length !== 0 ? 1 : 0
+                label: qsTr("Details:")
+                content: {
+                    var inputString = rangeDetails.label;
+                    if (inputString.length > 7 && inputString.substring(0,7) == "file://") {
+                        var pos = inputString.lastIndexOf("/");
+                        return inputString.substr(pos+1);
+                    }
+                    var maxLen = 40;
+                    if (inputString.length > maxLen)
+                        inputString = inputString.substring(0,maxLen)+"...";
+
+                    return inputString;
+                }
+            }
+            Detail {
+                opacity: content.length !== 0 ? 1 : 0
+                label: qsTr("Location:")
+                content: {
+                    var file = rangeDetails.file;
+                    var pos = file.lastIndexOf("/");
+                    if (pos != -1)
+                        file = file.substr(pos+1);
+                    return (file.length !== 0) ? (file + ":" + rangeDetails.line) : "";
+                }
             }
         }
     }
 
     MouseArea {
-        width: col.width + 30
-        height: col.height + typeTitle.height + 30
+        width: col.width + 45
+        height: col.height + 30
         drag.target: parent
         onClicked: {
             root.gotoSourceLocation(file, line);
@@ -133,11 +176,13 @@ BorderImage {
         }
     }
 
+
     Text {
         id: closeIcon
-        x: col.width + 20
-        y: 10
+        x: col.width + 30
+        y: 4
         text:"X"
+        color: "white"
         MouseArea {
             anchors.fill: parent
             onClicked: {
@@ -146,6 +191,5 @@ BorderImage {
             }
         }
     }
-
 
 }

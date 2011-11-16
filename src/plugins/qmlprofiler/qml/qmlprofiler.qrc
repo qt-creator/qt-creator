@@ -3,14 +3,10 @@
         <file>Detail.qml</file>
         <file>Label.qml</file>
         <file>MainView.qml</file>
-        <file>popup_green.png</file>
-        <file>popup_orange.png</file>
         <file>RangeDetails.qml</file>
         <file>RangeMover.qml</file>
         <file>TimeDisplay.qml</file>
         <file>clean_pane_small.png</file>
-        <file>prev.png</file>
-        <file>next.png</file>
         <file>recordOff.png</file>
         <file>recordOn.png</file>
         <file>StatusDisplay.qml</file>
@@ -19,13 +15,17 @@
         <file>TimeMarks.qml</file>
         <file>Overview.qml</file>
         <file>Overview.js</file>
-        <file>range.png</file>
-        <file>range_pressed.png</file>
         <file>SelectionRange.qml</file>
         <file>SelectionRangeDetails.qml</file>
-        <file>magnifier.png</file>
         <file>arrow_down.png</file>
         <file>arrow_right.png</file>
-        <file>arrow_select.png</file>
+        <file>dialog_shadow.png</file>
+        <file>range_handle.png</file>
+        <file>ico_selectionmode.png</file>
+        <file>ico_zoom.png</file>
+        <file>ico_prev.png</file>
+        <file>ico_next.png</file>
+        <file>ico_rangeselection.png</file>
+        <file>ico_rangeselected.png</file>
     </qresource>
 </RCC>

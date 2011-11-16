@@ -33,7 +33,7 @@
 import QtQuick 1.0
 import Monitor 1.0
 
-BorderImage {
+Item {
     id: selectionRangeDetails
 
     property string startTime
@@ -41,55 +41,110 @@ BorderImage {
     property string duration
     property bool showDuration
 
-    source: "popup_orange.png"
-    border {
-        left: 10; top: 10
-        right: 20; bottom: 20
-    }
-
     width: 170
-    height: childrenRect.height
+    height: col.height + 30
     z: 1
     visible: false
     x: 200
     y: 125
 
+    // shadow
+    BorderImage {
+        property int px: 4
+        source: "dialog_shadow.png"
+
+        border {
+            left: px; top: px
+            right: px; bottom: px
+        }
+        width: parent.width + 2*px - 1
+        height: parent.height
+        x: -px + 1
+        y: px + 1
+    }
+
+    // title bar
+    Rectangle {
+        width: parent.width
+        height: 20
+        color: "#4a64b8"
+        radius: 5
+        border.width: 1
+        border.color: "#a0a0a0"
+    }
+    Item {
+        width: parent.width+1
+        height: 11
+        y: 10
+        clip: true
+        Rectangle {
+            width: parent.width-1
+            height: 15
+            y: -5
+            color: "#4a64b8"
+            border.width: 1
+            border.color: "#a0a0a0"
+        }
+    }
+
     //title
     Text {
         id: typeTitle
-        text: qsTr("Selection")
+        text: "  "+qsTr("Selection")
         font.bold: true
-        y: 10
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.horizontalCenterOffset: -5
+        height: 18
+        y: 2
+        verticalAlignment: Text.AlignVCenter
+        width: parent.width
+        color: "white"
     }
 
-    //details
-    Column {
-        id: col
-        anchors.top: typeTitle.bottom
-        x: 2
-        Detail {
-            label: qsTr("Start")
-            content:  selectionRangeDetails.startTime
+    // Details area
+    Rectangle {
+        color: "white"
+        width: parent.width
+        height: col.height + 10
+        y: 20
+        border.width: 1
+        border.color: "#a0a0a0"
+        Column {
+            id: col
+            x: 10
+            y: 5
+            Detail {
+                label: qsTr("Start")
+                content:  selectionRangeDetails.startTime
+            }
+            Detail {
+                label: qsTr("End")
+                visible: selectionRangeDetails.showDuration
+                content:  selectionRangeDetails.endTime
+            }
+            Detail {
+                label: qsTr("Duration")
+                visible: selectionRangeDetails.showDuration
+                content: selectionRangeDetails.duration
+            }
         }
-        Detail {
-            label: qsTr("End")
-            visible: selectionRangeDetails.showDuration
-            content:  selectionRangeDetails.endTime
-        }
-        Detail {
-            label: qsTr("Duration")
-            visible: selectionRangeDetails.showDuration
-            content: selectionRangeDetails.duration
+    }
+
+    MouseArea {
+        width: col.width + 45
+        height: col.height + 30
+        drag.target: parent
+        onClicked: {
+            if ((selectionRange.x < flick.contentX) ^ (selectionRange.x+selectionRange.width > flick.contentX + flick.width)) {
+                root.recenter(selectionRange.startTime + selectionRange.duration/2);
+            }
         }
     }
 
     Text {
         id: closeIcon
-        x: selectionRangeDetails.width - 24
-        y: 10
+        x: selectionRangeDetails.width - 14
+        y: 4
         text:"X"
+        color: "white"
         MouseArea {
             anchors.fill: parent
             anchors.leftMargin: -8
@@ -100,14 +155,4 @@ BorderImage {
         }
     }
 
-    MouseArea {
-        width: col.width
-        height: col.height + typeTitle.height + 30
-        drag.target: parent
-        onClicked: {
-            if ((selectionRange.x < flick.contentX) ^ (selectionRange.x+selectionRange.width > flick.contentX + flick.width)) {
-                root.recenter(selectionRange.startTime + selectionRange.duration/2);
-            }
-        }
-    }
 }

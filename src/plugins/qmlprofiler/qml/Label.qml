@@ -33,11 +33,12 @@
 import QtQuick 1.0
 
 Item {
+    id: labelContainer
     property alias text: txt.text
     property bool expanded: false
     property int typeIndex: index
 
-    property variant descriptions: [text]
+    property variant descriptions: []
 
     height: root.singleRowHeight
     width: 150
@@ -56,8 +57,8 @@ Item {
     }
 
     function updateHeight() {
-        height = root.singleRowHeight *
-            (expanded ? qmlEventList.uniqueEventsOfType(typeIndex) : qmlEventList.maxNestingForType(typeIndex));
+        height = root.singleRowHeight * (1 +
+            (expanded ? qmlEventList.uniqueEventsOfType(typeIndex) : qmlEventList.maxNestingForType(typeIndex)));
     }
 
     Connections {
@@ -66,55 +67,67 @@ Item {
             var desc=[];
             for (var i=0; i<qmlEventList.uniqueEventsOfType(typeIndex); i++)
                 desc[i] = qmlEventList.eventTextForType(typeIndex, i);
-            // special case: empty
-            if (desc.length == 1 && desc[0]=="")
-                desc[0] = text;
             descriptions = desc;
             updateHeight();
         }
         onDataClear: {
-            descriptions = [text];
+            descriptions = [];
             updateHeight();
         }
     }
 
     Text {
         id: txt
-        visible: !expanded
         x: 5
         font.pixelSize: 12
         color: "#232323"
-        anchors.verticalCenter: parent.verticalCenter
+        height: root.singleRowHeight
+        width: 140
+        verticalAlignment: Text.AlignVCenter
     }
 
     Rectangle {
         height: 1
         width: parent.width
-        color: "#cccccc"
+        color: "#999999"
         anchors.bottom: parent.bottom
+        z: 2
     }
 
     Column {
+        y: root.singleRowHeight
         visible: expanded
         Repeater {
             model: descriptions.length
-            Text {
+            Rectangle {
+                width: labelContainer.width
                 height: root.singleRowHeight
-                x: 5
-                width: 140
-                text: descriptions[index]
-                elide: Text.ElideRight
-                verticalAlignment: Text.AlignVCenter
+                color: "#eaeaea"
+                border.width: 1
+                border.color:"#c8c8c8"
+                Text {
+                    height: root.singleRowHeight
+                    x: 5
+                    width: 140
+                    text: descriptions[index]
+                    elide: Text.ElideRight
+                    verticalAlignment: Text.AlignVCenter
+                }
             }
         }
     }
 
     Image {
+        visible: descriptions.length > 0
         source: expanded ? "arrow_down.png" : "arrow_right.png"
         x: parent.width - 12
-        y: 2
+        y: root.singleRowHeight / 2 - height / 2
         MouseArea {
             anchors.fill: parent
+            anchors.rightMargin: -10
+            anchors.leftMargin: -10
+            anchors.topMargin: -10
+            anchors.bottomMargin: -10
             onClicked: {
                 expanded = !expanded;
             }

@@ -39,6 +39,7 @@ Rectangle {
     // ***** properties
 
     property int candidateHeight: 0
+    property int scrollY: 0
     height: Math.max( candidateHeight, labels.height + 2 )
 
     property int singleRowHeight: 30
@@ -132,9 +133,12 @@ Rectangle {
 
     function clearData() {
         view.clearData();
-        root.dataAvailable = false;
-        root.eventCount = 0;
+        dataAvailable = false;
+        eventCount = 0;
         hideRangeDetails();
+        selectionRangeMode = false;
+        updateRangeButton();
+        zoomControl.setRange(0,0);
     }
 
     function clearDisplay() {
@@ -493,14 +497,6 @@ Rectangle {
                 }
             }
         }
-
-        //right border divider
-        Rectangle {
-            width: 1
-            height: parent.height
-            anchors.right: parent.right
-            color: "#cccccc"
-        }
     }
 
     Rectangle {
@@ -515,5 +511,53 @@ Rectangle {
         anchors.horizontalCenter: flick.horizontalCenter
         anchors.verticalCenter: labels.verticalCenter
         z:3
+    }
+
+    // Gradient borders
+    Item {
+        anchors.left: labels.right
+        width: 6
+        anchors.top: root.top
+        anchors.bottom: root.bottom
+        Rectangle {
+            x: parent.width
+            transformOrigin: Item.TopLeft
+            rotation: 90
+            width: parent.height
+            height: parent.width
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#00A0A0A0"; }
+                GradientStop { position: 1.0; color: "#FFA0A0A0"; }
+            }
+        }
+    }
+
+    Item {
+        anchors.right: root.right
+        width: 6
+        anchors.top: root.top
+        anchors.bottom: root.bottom
+        Rectangle {
+            x: parent.width
+            transformOrigin: Item.TopLeft
+            rotation: 90
+            width: parent.height
+            height: parent.width
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#FFA0A0A0"; }
+                GradientStop { position: 1.0; color: "#00A0A0A0"; }
+            }
+        }
+    }
+
+    Rectangle {
+        y: root.scrollY + root.candidateHeight - height
+        height: 6
+        width: root.width
+        x: 0
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#00A0A0A0"; }
+            GradientStop { position: 1.0; color: "#FFA0A0A0"; }
+        }
     }
 }

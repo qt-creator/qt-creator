@@ -36,14 +36,13 @@ Rectangle {
     id: rangeMover
 
 
-    property color lighterColor:"#cc80b2f6"
-    property color darkerColor:"#cc6da1e8"
-    property color gapColor: "#666da1e8"
-    property color hardBorderColor: "blue"
+    property color rangeColor:"#444a64b8"
+    property color borderColor:"#cc4a64b8"
+    property color dragMarkerColor: "#4a64b8"
     width: 20
     height: 50
 
-    color: lighterColor
+    color: rangeColor
 
     property bool dragStarted: false
     onXChanged: {
@@ -74,16 +73,30 @@ Rectangle {
         x: 0
         height: parent.height
         width: 1
-        color: darkerColor
-        border.color: hardBorderColor
-        border.width: 0
+        color: borderColor
+
+        Rectangle {
+            id: leftBorderHandle
+            height: parent.height
+            x: -width
+            width: 7
+            color: "#869cd1"
+            visible: false
+            Image {
+                source: "range_handle.png"
+                x: 2
+                width: 4
+                height: 9
+                fillMode: Image.Tile
+                y: rangeMover.height / 2 - 4
+            }
+        }
 
         states: State {
             name: "highlighted"
             PropertyChanges {
-                target: leftRange
-                width: 3
-                border.width: 2
+                target: leftBorderHandle
+                visible: true
             }
         }
 
@@ -97,8 +110,8 @@ Rectangle {
         }
 
         MouseArea {
-            x: -3
-            width: 7
+            x: -10
+            width: 13
             y: 0
             height: parent.height
 
@@ -131,16 +144,30 @@ Rectangle {
         x: rangeMover.width
         height: parent.height
         width: 1
-        color: darkerColor
-        border.color: hardBorderColor
-        border.width: 0
+        color: borderColor
+
+        Rectangle {
+            id: rightBorderHandle
+            height: parent.height
+            x: 1
+            width: 7
+            color: "#869cd1"
+            visible: false
+            Image {
+                source: "range_handle.png"
+                x: 2
+                width: 4
+                height: 9
+                fillMode: Image.Tile
+                y: rangeMover.height / 2 - 4
+            }
+        }
 
         states: State {
             name: "highlighted"
             PropertyChanges {
-                target: rightRange
-                width: 3
-                border.width: 2
+                target: rightBorderHandle
+                visible: true
             }
         }
 
@@ -153,7 +180,7 @@ Rectangle {
 
         MouseArea {
             x: -3
-            width: 7
+            width: 13
             y: 0
             height: parent.height
 

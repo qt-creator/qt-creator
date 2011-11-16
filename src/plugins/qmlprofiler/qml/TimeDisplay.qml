@@ -78,19 +78,52 @@ Canvas2D {
 
         timePerPixel = timePerBlock/pixelsPerBlock;
 
+        var initialColor = Math.floor(realStartTime/timePerBlock) % 2;
 
         ctxt.fillStyle = "#000000";
         ctxt.font = "8px sans-serif";
         for (var ii = 0; ii < blockCount+1; ii++) {
             var x = Math.floor(ii*pixelsPerBlock - realStartPos);
-            ctxt.strokeStyle = "#C0C0C0";
+
+            ctxt.fillStyle = (ii+initialColor)%2 ? "#E6E6E6":"white";
+            ctxt.fillRect(x, 0, pixelsPerBlock, height);
+
+            ctxt.strokeStyle = "#B0B0B0";
             ctxt.beginPath();
             ctxt.moveTo(x, 0);
             ctxt.lineTo(x, height);
             ctxt.stroke();
 
-            ctxt.fillText(prettyPrintTime(ii*timePerBlock + realStartTime), x + 5, height/2 + 4);
+            ctxt.fillStyle = "#000000";
+            ctxt.fillText(prettyPrintTime(ii*timePerBlock + realStartTime), x + 5, height/2 + 5);
         }
+
+        ctxt.strokeStyle = "#525252";
+        ctxt.beginPath();
+        ctxt.moveTo(0, height-1);
+        ctxt.lineTo(width, height-1);
+        ctxt.stroke();
+
+        // gradient borders
+        var gradientDark = "rgba(160, 160, 160, 1)";
+        var gradientClear = "rgba(160, 160, 160, 0)";
+        var grad = ctxt.createLinearGradient(0, 0, 0, 6);
+        grad.addColorStop(0,gradientDark);
+        grad.addColorStop(1,gradientClear);
+        ctxt.fillStyle = grad;
+        ctxt.fillRect(0, 0, width, 6);
+
+        grad = ctxt.createLinearGradient(0, 0, 6, 0);
+        grad.addColorStop(0,gradientDark);
+        grad.addColorStop(1,gradientClear);
+        ctxt.fillStyle = grad;
+        ctxt.fillRect(0, 0, 6, height);
+
+        grad = ctxt.createLinearGradient(width, 0, width-6, 0);
+        grad.addColorStop(0,gradientDark);
+        grad.addColorStop(1,gradientClear);
+        ctxt.fillStyle = grad;
+        ctxt.fillRect(width-6, 0, 6, height);
     }
 
     function prettyPrintTime( t )

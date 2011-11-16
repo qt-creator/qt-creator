@@ -40,11 +40,11 @@ Rectangle {
 
     property bool ready: visible && creationState === 3
 
-    property color lighterColor:"#6680b2f6"
-    property color darkerColor:"#666da1e8"
-    property color gapColor: "#336da1e8"
-    property color hardBorderColor: "#aa6da1e8"
-    property color thinColor: "blue"
+    property color rangeColor:"#444a64b8"
+    property color pressedColor:"#664a64b8"
+    property color borderColor:"#aa4a64b8"
+    property color dragMarkerColor: "#4a64b8"
+    property color singleLineColor: "#4a64b8"
 
     property string startTimeString: detailedPrintTime(startTime)
     property string endTimeString: detailedPrintTime(startTime+duration)
@@ -77,16 +77,16 @@ Rectangle {
     onCreationStateChanged: {
         switch (creationState) {
         case 0: color = "transparent"; break;
-        case 1: color = thinColor; break;
-        default: color = lighterColor; break;
+        case 1: color = singleLineColor; break;
+        default: color = rangeColor; break;
         }
     }
 
     onIsDraggingChanged: {
         if (isDragging)
-            color = darkerColor;
+            color = pressedColor;
         else
-            color = lighterColor;
+            color = rangeColor;
     }
 
     function reset(setVisible) {
@@ -172,16 +172,30 @@ Rectangle {
         x: 0
         height: parent.height
         width: 1
-        color: darkerColor
-        border.color: hardBorderColor
-        border.width: 0
+        color: borderColor
+
+        Rectangle {
+            id: leftBorderHandle
+            height: parent.height
+            x: -width
+            width: 9
+            color: "#869cd1"
+            visible: false
+            Image {
+                source: "range_handle.png"
+                x: 4
+                width: 4
+                height: 63
+                fillMode: Image.Tile
+                y: root.scrollY + root.candidateHeight / 2 - 32
+            }
+        }
 
         states: State {
             name: "highlighted"
             PropertyChanges {
-                target: leftBorder
-                width: 3
-                border.width: 2
+                target: leftBorderHandle
+                visible: true
             }
         }
 
@@ -192,8 +206,8 @@ Rectangle {
         }
 
         MouseArea {
-            x: -3
-            width: 7
+            x: -12
+            width: 15
             y: 0
             height: parent.height
 
@@ -226,16 +240,30 @@ Rectangle {
         x: selectionRange.width
         height: parent.height
         width: 1
-        color: darkerColor
-        border.color: hardBorderColor
-        border.width: 0
+        color: borderColor
+
+        Rectangle {
+            id: rightBorderHandle
+            height: parent.height
+            x: 1
+            width: 9
+            color: "#869cd1"
+            visible: false
+            Image {
+                source: "range_handle.png"
+                x: 2
+                width: 4
+                height: 63
+                fillMode: Image.Tile
+                y: root.scrollY + root.candidateHeight / 2 - 32
+            }
+        }
 
         states: State {
             name: "highlighted"
             PropertyChanges {
-                target: rightBorder
-                width: 3
-                border.width: 2
+                target: rightBorderHandle
+                visible: true
             }
         }
 
@@ -247,7 +275,7 @@ Rectangle {
 
         MouseArea {
             x: -3
-            width: 7
+            width: 15
             y: 0
             height: parent.height
 

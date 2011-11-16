@@ -1184,13 +1184,13 @@ int QmlProfilerEventList::getEventId(int index) const {
 
 int QmlProfilerEventList::uniqueEventsOfType(int type) const {
     if (!d->m_typeCounts.contains(type))
-        return 1;
+        return 0;
     return d->m_typeCounts[type]->eventIds.count();
 }
 
 int QmlProfilerEventList::maxNestingForType(int type) const {
     if (!d->m_typeCounts.contains(type))
-        return 1;
+        return 0;
     return d->m_typeCounts[type]->nestingCount;
 }
 

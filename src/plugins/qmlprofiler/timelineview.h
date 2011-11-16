@@ -138,6 +138,7 @@ public slots:
     {
         if (m_selectionLocked != locked) {
             m_selectionLocked = locked;
+            update();
             emit selectionLockedChanged(locked);
         }
     }
@@ -177,7 +178,6 @@ protected:
 
 private:
     QColor colorForItem(int itemIndex);
-    QLinearGradient *gradientForItem(int itemIndex);
     void drawItemsToPainter(QPainter *p, int fromIndex, int toIndex);
     void drawSelectionBoxes(QPainter *p);
 
@@ -192,7 +192,6 @@ private:
     qint64 m_lastEndTime;
 
     QmlJsDebugClient::QmlProfilerEventList *m_eventList;
-    QHash<int, QLinearGradient*> m_hashedGradients;
 
     QList<int> m_rowLastX;
     QList<int> m_rowStarts;

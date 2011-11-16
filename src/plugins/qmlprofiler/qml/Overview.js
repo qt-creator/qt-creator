@@ -37,11 +37,7 @@ var qmlEventList = 0;
 //draw background of the graph
 function drawGraph(canvas, ctxt, region)
 {
-    var grad = ctxt.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0,   '#fff');
-    grad.addColorStop(1, '#ccc');
-    ctxt.fillStyle = grad;
-
+    ctxt.fillStyle = "#eaeaea";
     ctxt.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -51,40 +47,106 @@ function drawData(canvas, ctxt, region)
     if ((!qmlEventList) || qmlEventList.count() == 0)
         return;
 
+    var typeCount = 5;
     var width = canvas.width;
-    var height = canvas.height;
+    var bump = 10;
+    var height = canvas.height - bump;
+    var blockHeight = height / typeCount;
 
     var spacing = width / qmlEventList.traceDuration();
 
-    ctxt.fillStyle = "rgba(0,0,0,1)";
-    var highest = [0,0,0,0,0];
+    var highest = [0,0,0,0,0]; // note: change if typeCount changes
 
-    // todo: use "region" in the timemarks?
-    //### only draw those in range
     for (var ii = 0; ii < qmlEventList.count(); ++ii) {
 
         var xx = (qmlEventList.getStartTime(ii) - qmlEventList.traceStartTime()) * spacing;
         if (xx > region.x + region.width)
             continue;
 
-        var size = qmlEventList.getDuration(ii) * spacing;
-        if (xx + size < region.x)
+        var eventWidth = qmlEventList.getDuration(ii) * spacing;
+        if (xx + eventWidth < region.x)
             continue;
 
-        if (size < 0.5)
-            size = 0.5;
+        if (eventWidth < 1)
+            eventWidth = 1;
 
         xx = Math.round(xx);
         var ty = qmlEventList.getType(ii);
-        if (xx + size > highest[ty]) {
-            ctxt.fillRect(xx, ty*10, size, 10);
-            highest[ty] = xx+size;
+        if (xx + eventWidth > highest[ty]) {
+            var hue = ( qmlEventList.getEventId(ii) * 25 ) % 360;
+            ctxt.fillStyle = "hsl("+(hue/360.0+0.001)+",0.3,0.65)";
+            ctxt.fillRect(xx, bump + ty*blockHeight, eventWidth, blockHeight);
+            highest[ty] = xx+eventWidth;
         }
     }
+}
+
+function drawTimeBar(canvas, ctxt, region)
+{
+    var width = canvas.width;
+    var height = 10;
+    var startTime = qmlEventList.traceStartTime();
+    var endTime = qmlEventList.traceEndTime();
+
+    var totalTime = qmlEventList.traceDuration();
+    var spacing = width / totalTime;
+
+    var initialBlockLength = 120;
+    var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / width * initialBlockLength ) / Math.LN2 ) );
+    var pixelsPerBlock = timePerBlock * spacing;
+    var pixelsPerSection = pixelsPerBlock / 5;
+    var blockCount = width / pixelsPerBlock;
+
+    var realStartTime = Math.floor(startTime/timePerBlock) * timePerBlock;
+    var realStartPos = (startTime-realStartTime) * spacing;
+
+    var timePerPixel = timePerBlock/pixelsPerBlock;
+
+    ctxt.fillStyle = "#000000";
+    ctxt.font = "6px sans-serif";
+
+    ctxt.fillStyle = "#cccccc";
+    ctxt.fillRect(0, 0, width, height);
+    for (var ii = 0; ii < blockCount+1; ii++) {
+        var x = Math.floor(ii*pixelsPerBlock - realStartPos);
+
+        // block boundary
+        ctxt.strokeStyle = "#525252";
+        ctxt.beginPath();
+        ctxt.moveTo(x, height/2);
+        ctxt.lineTo(x, height);
+        ctxt.stroke();
+
+        // block time label
+        ctxt.fillStyle = "#000000";
+        var timeString = prettyPrintTime((ii+0.5)*timePerBlock + realStartTime);
+        ctxt.textAlign = "center";
+        ctxt.fillText(timeString, x + pixelsPerBlock/2, height/2 + 3);
+    }
+
+    ctxt.fillStyle = "#808080";
+    ctxt.fillRect(0, height-1, width, 1);
+}
+
+function prettyPrintTime( t )
+{
+    if (t <= 0) return "0";
+    if (t<1000) return t+" ns";
+    t = t/1000;
+    if (t<1000) return t+" μs";
+    t = Math.floor(t/100)/10;
+    if (t<1000) return t+" ms";
+    t = Math.floor(t)/1000;
+    if (t<60) return t+" s";
+    var m = Math.floor(t/60);
+    t = Math.floor(t - m*60);
+    return m+"m"+t+"s";
 }
 
 function plot(canvas, ctxt, region)
 {
     drawGraph(canvas, ctxt, region);
     drawData(canvas, ctxt, region);
+    drawTimeBar(canvas, ctxt, region);
+
 }
