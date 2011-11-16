@@ -216,7 +216,7 @@ void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);
-    m_nameValidator->setDisplayName(current->name());
+    m_nameValidator->setDisplayName(current->displayName());
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
     m_ui->hostLineEdit->setEnabled(!current->isAutoDetected());
@@ -227,7 +227,7 @@ void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
 void LinuxDeviceConfigurationsSettingsWidget::fillInValues()
 {
     const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
-    m_ui->nameLineEdit->setText(current->name());
+    m_ui->nameLineEdit->setText(current->displayName());
     const SshConnectionParameters &sshParams = current->sshParameters();
     m_ui->hostLineEdit->setText(sshParams.host);
     m_ui->sshPortSpinBox->setValue(sshParams.port);

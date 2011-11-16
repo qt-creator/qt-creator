@@ -60,7 +60,7 @@ public:
     DevConfNameMatcher(const QString &name) : m_name(name) {}
     bool operator()(const LinuxDeviceConfiguration::ConstPtr &devConfig)
     {
-        return devConfig->name() == m_name;
+        return devConfig->displayName() == m_name;
     }
 private:
     const QString m_name;
@@ -151,7 +151,7 @@ void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration:
     QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
 
     // Ensure uniqueness of name.
-    QString name = devConfig->name();
+    QString name = devConfig->displayName();
     if (hasConfig(name)) {
         const QString nameTemplate = name + QLatin1String(" (%1)");
         int suffix = 2;
@@ -159,7 +159,7 @@ void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration:
             name = nameTemplate.arg(QString::number(suffix++));
         while (hasConfig(name));
     }
-    devConfig->setName(name);
+    devConfig->setDisplayName(name);
 
     devConfig->setInternalId(d->nextId++);
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
@@ -374,7 +374,7 @@ QVariant LinuxDeviceConfigurations::data(const QModelIndex &index, int role) con
     if (!index.isValid() || index.row() >= rowCount() || role != Qt::DisplayRole)
         return QVariant();
     const LinuxDeviceConfiguration::ConstPtr devConf = deviceAt(index.row());
-    QString name = devConf->name();
+    QString name = devConf->displayName();
     if (devConf->isDefault()) {
         name += QLatin1Char(' ') + tr("(default for %1)")
             .arg(RemoteLinuxUtils::osTypeToString(devConf->osType()));

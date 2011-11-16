@@ -74,7 +74,7 @@ QVariant TypeSpecificDeviceConfigurationListModel::data(const QModelIndex &index
         return QVariant();
     const LinuxDeviceConfiguration::ConstPtr &devConf = deviceAt(index.row());
     Q_ASSERT(devConf);
-    QString displayedName = devConf->name();
+    QString displayedName = devConf->displayName();
     if (devConf->isDefault() && devConf->osType() == m_targetOsType)
         displayedName += QLatin1Char(' ') + tr("(default)");
     return displayedName;

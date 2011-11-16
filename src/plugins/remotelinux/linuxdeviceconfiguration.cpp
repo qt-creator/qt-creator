@@ -74,7 +74,7 @@ public:
     }
 
     SshConnectionParameters sshParameters;
-    QString name;
+    QString displayName;
     QString osType;
     LinuxDeviceConfiguration::DeviceType deviceType;
     PortList freePorts;
@@ -115,7 +115,7 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QS
         Origin origin)
     : d(new LinuxDeviceConfigurationPrivate(sshParams))
 {
-    d->name = name;
+    d->displayName = name;
     d->osType = osType;
     d->deviceType = deviceType;
     d->freePorts = freePorts;
@@ -127,7 +127,7 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings, Id
     : d(new LinuxDeviceConfigurationPrivate(SshConnectionParameters::NoProxy))
 {
     d->origin = ManuallyAdded;
-    d->name = settings.value(NameKey).toString();
+    d->displayName = settings.value(NameKey).toString();
     d->osType = settings.value(OsTypeKey).toString();
     d->deviceType = static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt());
     d->isDefault = settings.value(IsDefaultKey, false).toBool();
@@ -162,7 +162,7 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings, Id
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguration::ConstPtr &other)
     : d(new LinuxDeviceConfigurationPrivate(other->d->sshParameters))
 {
-    d->name = other->d->name;
+    d->displayName = other->d->displayName;
     d->osType = other->d->osType;
     d->deviceType = other->deviceType();
     d->freePorts = other->freePorts();
@@ -184,7 +184,7 @@ QString LinuxDeviceConfiguration::defaultPublicKeyFilePath()
 
 void LinuxDeviceConfiguration::save(QSettings &settings) const
 {
-    settings.setValue(NameKey, d->name);
+    settings.setValue(NameKey, d->displayName);
     settings.setValue(OsTypeKey, d->osType);
     settings.setValue(TypeKey, d->deviceType);
     settings.setValue(HostKey, d->sshParameters.host);
@@ -230,11 +230,11 @@ bool LinuxDeviceConfiguration::isAutoDetected() const
 }
 
 PortList LinuxDeviceConfiguration::freePorts() const { return d->freePorts; }
-QString LinuxDeviceConfiguration::name() const { return d->name; }
+QString LinuxDeviceConfiguration::displayName() const { return d->displayName; }
 QString LinuxDeviceConfiguration::osType() const { return d->osType; }
 bool LinuxDeviceConfiguration::isDefault() const { return d->isDefault; }
 
-void LinuxDeviceConfiguration::setName(const QString &name) { d->name = name; }
+void LinuxDeviceConfiguration::setDisplayName(const QString &name) { d->displayName = name; }
 void LinuxDeviceConfiguration::setInternalId(Id id) { d->internalId = id; }
 void LinuxDeviceConfiguration::setDefault(bool isDefault) { d->isDefault = isDefault; }
 

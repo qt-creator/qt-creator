@@ -72,7 +72,7 @@ public:
 
     PortList freePorts() const;
     Utils::SshConnectionParameters sshParameters() const;
-    QString name() const;
+    QString displayName() const;
     QString osType() const;
     DeviceType deviceType() const;
     Id internalId() const;
@@ -100,7 +100,7 @@ private:
     static Ptr create(const QSettings &settings, Id &nextId);
     static Ptr create(const ConstPtr &other);
 
-    void setName(const QString &name);
+    void setDisplayName(const QString &name);
     void setInternalId(Id id);
     void setDefault(bool isDefault);
     void setSshParameters(const Utils::SshConnectionParameters &sshParameters);
