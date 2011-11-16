@@ -227,7 +227,7 @@
             \i  Yes (Symbian Anna APIs)
             \i  Yes
         \row
-            \i  Symbian Belle Qt 4.7.4
+            \i  Symbian Belle Qt 4.7.4 (online installer only)
             \i  1.1
             \i  1.1
             \i  1.2
@@ -251,12 +251,12 @@
     Symbian and Qt 4.7.4 for Symbian support for Symbian devices with
     the Application TRK debug agent.
 
-    \note The \QSDK 1.1.2 and \QSDK 1.1.4 do not play well together. On Windows
-    and Linux, you must use separate user accounts to install them or install
-    them on separate development PCs.
+    \note Problems may arise if you install multiple instances of Qt SDK on the
+    same development PC using the same user account. Use separate user accounts
+    to install them or install them on separate development PCs.
 
     \note Do not update \QSDK 1.1.2 with the \QSDK update tool, because
-    the updater removes App TRK support and the older targets.
+    the updater removes App TRK support.
 
     In general, if you use only Qt 4.6 APIs in the application, you
     can use \gui {S60 5th Edition Qt 4.6.3} to build it. The application is
