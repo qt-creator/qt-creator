@@ -35,7 +35,8 @@
 #include "sshconnectionmanager.h"
 #include "sshpseudoterminal.h"
 
-#define ASSERT_STATE(states) assertState(states, Q_FUNC_INFO)
+#include <utils/qtcassert.h>
+
 
 /*!
     \class Utils::SshRemoteProcessRunner
@@ -82,8 +83,6 @@ private:
 
     void run(const QByteArray &command, const SshConnectionParameters &sshParams);
     void setState(State state);
-    void assertState(const QList<State> &allowedStates, const char *func);
-    void assertState(State allowedState, const char *func);
 
     SshConnection::Ptr m_connection;
     State m_state;
@@ -145,7 +144,7 @@ void SshRemoteProcessRunnerPrivate::run(const QByteArray &command,
 
 void SshRemoteProcessRunnerPrivate::handleConnected()
 {
-    ASSERT_STATE(Connecting);
+    QTC_ASSERT(m_state == Connecting, return);
     setState(Connected);
 
     m_process = m_connection->createRemoteProcess(m_command);
@@ -169,13 +168,13 @@ void SshRemoteProcessRunnerPrivate::handleConnectionError(Utils::SshError error)
 
 void SshRemoteProcessRunnerPrivate::handleDisconnected()
 {
-    ASSERT_STATE(QList<State>() << Connecting << Connected << ProcessRunning);
+    QTC_ASSERT(m_state == Connecting || m_state == Connected || m_state == ProcessRunning, return);
     setState(Inactive);
 }
 
 void SshRemoteProcessRunnerPrivate::handleProcessStarted()
 {
-    ASSERT_STATE(Connected);
+    QTC_ASSERT(m_state == Connected, return);
     setState(ProcessRunning);
 
     emit processStarted();
@@ -185,11 +184,11 @@ void SshRemoteProcessRunnerPrivate::handleProcessFinished(int exitStatus)
 {
     switch (exitStatus) {
     case SshRemoteProcess::FailedToStart:
-        ASSERT_STATE(Connected);
+        QTC_ASSERT(m_state == Connected, return);
         break;
     case SshRemoteProcess::KilledBySignal:
     case SshRemoteProcess::ExitedNormally:
-        ASSERT_STATE(ProcessRunning);
+        QTC_ASSERT(m_state == ProcessRunning, return);
         break;
     default:
         Q_ASSERT_X(false, Q_FUNC_INFO, "Impossible exit status.");
@@ -222,19 +221,6 @@ void SshRemoteProcessRunnerPrivate::setState(State state)
             }
         }
     }
-}
-
-void SshRemoteProcessRunnerPrivate::assertState(const QList<State> &allowedStates,
-    const char *func)
-{
-    if (!allowedStates.contains(m_state))
-        qWarning("Unexpected state %d in function %s", m_state, func);
-}
-
-void SshRemoteProcessRunnerPrivate::assertState(State allowedState,
-    const char *func)
-{
-    assertState(QList<State>() << allowedState, func);
 }
 
 } // namespace Internal
