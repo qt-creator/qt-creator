@@ -142,9 +142,6 @@ bool MakeStep::init()
     ProjectExplorer::ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
 
-    Utils::Environment environment = bc->environment();
-    pp->setEnvironment(environment);
-
     QString workingDirectory;
     if (bc->subNodeBuild())
         workingDirectory = bc->subNodeBuild()->buildDir();
@@ -191,15 +188,25 @@ bool MakeStep::init()
         if (!bc->defaultMakeTarget().isEmpty())
             Utils::QtcProcess::addArg(&args, bc->defaultMakeTarget());
     }
+
+    Utils::Environment env = bc->environment();
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    if (toolchain
-            && toolchain->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat
-            && m_makeCmd.isEmpty())
-        Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
+    // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
+    ProjectExplorer::ToolChain *toolChain = bc->toolChain();
+    if (toolChain && m_makeCmd.isEmpty()) {
+        if (toolChain->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat )
+            Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
+        if (toolChain->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
+                && toolChain->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
+            env.set("MAKEFLAGS", env.value("MAKEFLAGS").prepend("L"));
+        }
+    }
+
+    pp->setEnvironment(env);
 
     setEnabled(true);
     pp->setArguments(args);
