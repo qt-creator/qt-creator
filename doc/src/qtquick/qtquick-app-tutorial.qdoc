@@ -205,6 +205,10 @@
 
         \endlist
 
+            The qml.main file should now look as follows:
+
+            \snippet examples/transitions/qml/Transitions/main.qml 0
+
         \o  In the \gui Navigator pane, copy topLeftRect (by pressing
             \key {Ctrl+C}) and paste it to the canvas twice (by pressing
             \key {Ctrl+V}). \QC renames the new instances of the element
@@ -252,6 +256,10 @@
                 \c {onClicked: page.state = 'State2'}
 
                 You will create State2 later.
+
+            The qml.main file should now look as follows:
+
+            \snippet examples/transitions/qml/Transitions/main.qml 1
 
         \endlist
 
@@ -347,5 +355,11 @@
     \endlist
 
     Click the rectangles to view the animated transitions.
+
+    \section1 Example Code
+
+    When you have completed the steps, the main.qml file should look as follows:
+
+    \snippet examples/transitions/qml/Transitions/main.qml 2
 
 */

@@ -1,3 +1,9 @@
+//! [2]
+
+//! [1]
+
+//! [0]
+
 import QtQuick 1.0
 
 Rectangle {
@@ -32,6 +38,7 @@ Rectangle {
             onClicked: page.state = ' '
             }
         }
+//! [0]
 
         Rectangle {
             id: middleRightRect
@@ -70,6 +77,8 @@ Rectangle {
                 onClicked: page.state = 'State2'
             }
         }
+
+//! [1]
 
         states: [
              State {
@@ -116,3 +125,5 @@ Rectangle {
              }
         ]
 }
+
+//! [2]
