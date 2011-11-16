@@ -44,7 +44,7 @@
     \section1 Setting Up QML Debugging
 
     The process of setting up debugging for Qt Quick projects depends on the
-    type of the project: Qt Quick UI or Qt Quick Application.
+    type of the project: Qt Quick UI or Qt Quick Application, and the Qt version used.
 
     To debug Qt Quick UI projects:
 
@@ -53,7 +53,7 @@
         \o  Select \gui Projects, and then select the \gui QML check box in the
             \gui {Run Settings}, to enable QML debugging.
 
-        \o  Compile the QML Inspector debugging helper. For more information,
+        \o  For Qt 4.7, compile the QML Inspector debugging helper. For more information,
             see \l{Debugging Helpers for QML}.
 
     \endlist
@@ -92,9 +92,7 @@
     \section1 Mixed C++/QML Debugging
 
     To debug both the C++ and QML parts of your application at the same time,
-    select the checkboxes for both languages in the \gui{Run Settings}. However,
-    C++ breakpoints are be ignored until the debugger attaches also to the
-    QML engine.
+    select the checkboxes for both languages in the \gui{Run Settings}.
 
     \section1 Starting QML Debugging
 
@@ -145,11 +143,8 @@
     \section1 Applying QML Changes at Runtime
 
     If you change property values or add properties in the code editor, the
-    changes are updated in the running application when you save them. If live
-    preview is not supported for an element, a message appears. Click
-    \gui Reload to preview the changes.
-
-    Reloading is enabled by default. To disable it, click
+    debugger can update the properties in the running application when you save
+    the file. This is enabled by default. To disable it, click
     \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
     on the toolbar.
 
@@ -200,12 +195,9 @@
     \image qml-observer.png
 
     To play and pause animations in the running application, select the
-    \gui {Play/Pause Animations} button on the toolbar or \gui {Debugging >
-    Animations > Pause}, or press
-    \key {Ctrl+.}.
+    \gui {Play/Pause Animations} button on the toolbar.
 
-    To change the speed at which animations are played, select a value in
-    \gui {Debugging > Animations} or click and hold down the
-    \gui {Play/Pause Animations} button to select a value.
+    To change the speed at which animations are played, click and hold down the
+    \gui {Play/Pause Animations} button on the toolbar to select a value.
 
 */
