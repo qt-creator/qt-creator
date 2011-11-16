@@ -1316,23 +1316,47 @@ namespace application {
 } // namespace application
 
 
-void testQSet()
-{
-    QSet<int> hgg0;
-    hgg0.insert(11);
-    hgg0.insert(22);
+namespace qset {
 
-    QSet<QString> hgg1;
-    hgg1.insert("22.0");
+    void testQSet1()
+    {
+        QSet<int> s;
+        s.insert(11);
+        s.insert(22);
+        BREAK_HERE;
+        dummyStatement(&s);
+    }
 
-    QObject ob;
-    QSet<QPointer<QObject> > hash;
-    QPointer<QObject> ptr(&ob);
-    dummyStatement(&ptr);
-    //hash.insert(ptr);
-    //hash.insert(ptr);
-    //hash.insert(ptr);
-}
+    void testQSet2()
+    {
+        QSet<QString> s;
+        s.insert("11.0");
+        s.insert("22.0");
+        BREAK_HERE;
+        dummyStatement(&s);
+    }
+
+    void testQSet3()
+    {
+        QObject ob;
+        QSet<QPointer<QObject> > s;
+        QPointer<QObject> ptr(&ob);
+        s.insert(ptr);
+        s.insert(ptr);
+        s.insert(ptr);
+        BREAK_HERE;
+        dummyStatement(&ptr, &s);
+    }
+
+    void testQSet()
+    {
+        testQSet1();
+        testQSet2();
+        testQSet3();
+    }
+
+} // namespace qset
+
 
 #if USE_SHARED_POINTER
 class EmployeeData : public QSharedData
@@ -3815,7 +3839,7 @@ int main(int argc, char *argv[])
     testQMultiMap();
     qstring::testQString();
     testQUrl();
-    testQSet();
+    qset::testQSet();
     qsharedpointer::testQSharedPointer();
     qstringlist::testQStringList();
     testQScriptValue(argc, argv);
