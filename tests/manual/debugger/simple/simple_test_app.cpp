@@ -1316,6 +1316,10 @@ namespace application {
 } // namespace application
 
 
+QT_BEGIN_NAMESPACE
+uint qHash(const QPointer<QObject> &p) { return (uint)p.data(); }
+QT_END_NAMESPACE
+
 namespace qset {
 
     void testQSet1()
@@ -1878,31 +1882,67 @@ void testQStandardItemModel()
     ++i;
 }
 
-void testQStack()
-{
-    QVector<int> bigv;
-    for (int i = 0; i < 10; ++i)
-        bigv.append(i);
-    QStack<int> big;
-    for (int i = 0; i < 10; ++i)
-        big.append(i);
-    QStack<Foo *> plist;
-    plist.append(new Foo(1));
-    plist.append(0);
-    plist.append(new Foo(2));
-    QStack<Foo> flist;
-    flist.append(1);
-    flist.append(2);
-    flist.append(3);
-    flist.append(4);
-    //flist.takeFirst();
-    //flist.takeFirst();
-    QStack<bool> vec;
-    vec.append(true);
-    vec.append(false);
-    BREAK_HERE;
-    dummyStatement(&vec);
-}
+
+namespace qstack {
+
+    void testQStackInt()
+    {
+        QStack<int> s;
+        s.append(1);
+        s.append(2);
+        BREAK_HERE;
+        dummyStatement(&s);
+    }
+
+    void testQStackBig()
+    {
+        QStack<int> s;
+        for (int i = 0; i != 10000; ++i)
+            s.append(i);
+        BREAK_HERE;
+        dummyStatement(&s);
+    }
+
+    void testQStackFooPointer()
+    {
+        QStack<Foo *> s;
+        s.append(new Foo(1));
+        s.append(0);
+        s.append(new Foo(2));
+        BREAK_HERE;
+        dummyStatement(&s);
+    }
+
+    void testQStackFoo()
+    {
+        QStack<Foo> s;
+        s.append(1);
+        s.append(2);
+        s.append(3);
+        s.append(4);
+        BREAK_HERE;
+        dummyStatement(&s);
+    }
+
+    void testQStackBool()
+    {
+        QStack<bool> s;
+        s.append(true);
+        s.append(false);
+        BREAK_HERE;
+        dummyStatement(&s);
+    }
+
+    void testQStack()
+    {
+        testQStackInt();
+        testQStackBig();
+        testQStackFoo();
+        testQStackFooPointer();
+        testQStackBool();
+    }
+
+} // namespace qstack
 
 
 void testQUrl()
@@ -3800,7 +3840,7 @@ int main(int argc, char *argv[])
     //testNullPointerDeref();
     //testEndlessLoop();
     //testEndlessRecursion();
-    testQStack();
+    qstack::testQStack();
     testPointer();
     qdatetime::testDateTime();
     qfileinfo::testQFileInfo();
