@@ -192,12 +192,16 @@
 
     \section1 Debugging Animations
 
-    \image qml-observer.png
+    To play and pause animations in the running application, select
+    \inlineimage qml-inspector-play.png
+    and
+    \inlineimage qml-inspector-pause.png
+    on the toolbar.
 
-    To play and pause animations in the running application, select the
-    \gui {Play/Pause Animations} button on the toolbar.
-
-    To change the speed at which animations are played, click and hold down the
-    \gui {Play/Pause Animations} button on the toolbar to select a value.
+    To change the speed at which animations are played, click and hold down
+    \inlineimage qml-inspector-play.png
+    or
+    \inlineimage qml-inspector-pause.png
+    and select a value.
 
 */
