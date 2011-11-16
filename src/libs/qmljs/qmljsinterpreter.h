@@ -583,10 +583,23 @@ public:
 
     virtual const Value *returnValue() const;
 
-    virtual int argumentCount() const;
-    virtual const Value *argument(int index) const;
+    // Access to the names of arguments
+    // Named arguments can be optional (usually known for builtins only)
+    virtual int namedArgumentCount() const;
     virtual QString argumentName(int index) const;
+
+    // The number of optional named arguments
+    // Example: JSON.stringify(value[, replacer[, space]])
+    //          has namedArgumentCount = 3
+    //          and optionalNamedArgumentCount = 2
+    virtual int optionalNamedArgumentCount() const;
+
+    // Whether the function accepts an unlimited number of arguments
+    // after the named ones. Defaults to false.
+    // Example: Math.max(...)
     virtual bool isVariadic() const;
+
+    virtual const Value *argument(int index) const;
 
     virtual const Value *invoke(const Activation *activation) const;
 
@@ -603,18 +616,24 @@ public:
 
     void addArgument(const Value *argument, const QString &name = QString());
     void setReturnValue(const Value *returnValue);
+    void setVariadic(bool variadic);
+    void setOptionalNamedArgumentCount(int count);
 
     // FunctionValue interface
     virtual const Value *returnValue() const;
-    virtual int argumentCount() const;
+    virtual int namedArgumentCount() const;
+    virtual int optionalNamedArgumentCount() const;
     virtual const Value *argument(int index) const;
     virtual QString argumentName(int index) const;
     virtual const Value *invoke(const Activation *activation) const;
+    virtual bool isVariadic() const;
 
 private:
     ValueList _arguments;
     QStringList _argumentNames;
     const Value *_returnValue;
+    int _optionalNamedArgumentCount;
+    bool _isVariadic;
 };
 
 
@@ -799,6 +818,7 @@ class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
     AST::FunctionExpression *_ast;
     const Document *_doc;
     QList<QString> _argumentNames;
+    bool _isVariadic;
 
 public:
     ASTFunctionValue(AST::FunctionExpression *ast, const Document *doc, ValueOwner *valueOwner);
@@ -806,8 +826,9 @@ public:
 
     AST::FunctionExpression *ast() const;
 
-    virtual int argumentCount() const;
+    virtual int namedArgumentCount() const;
     virtual QString argumentName(int index) const;
+    virtual bool isVariadic() const;
 
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 };
@@ -851,7 +872,7 @@ public:
     const ObjectValue *bodyScope() const { return _bodyScope; }
 
     // FunctionValue interface
-    virtual int argumentCount() const;
+    virtual int namedArgumentCount() const;
     virtual const Value *argument(int index) const;
     virtual QString argumentName(int index) const;
 

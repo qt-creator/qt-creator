@@ -142,8 +142,10 @@ public:
 private:
     void initializePrototypes();
 
-    Function *addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount = 0);
-    Function *addFunction(ObjectValue *object, const QString &name, int argumentCount = 0);
+    Function *addFunction(ObjectValue *object, const QString &name, const Value *result,
+                          int argumentCount = 0, int optionalCount = 0, bool variadic = false);
+    Function *addFunction(ObjectValue *object, const QString &name,
+                          int argumentCount = 0, int optionalCount = 0, bool variadic = false);
 
 private:
     ObjectValue *_objectPrototype;

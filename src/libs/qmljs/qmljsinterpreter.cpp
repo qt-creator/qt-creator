@@ -152,7 +152,7 @@ public:
     {
     }
 
-    virtual int argumentCount() const
+    virtual int namedArgumentCount() const
     {
         return _method.parameterNames().size();
     }
@@ -1219,7 +1219,7 @@ const Value *FunctionValue::returnValue() const
     return valueOwner()->unknownValue();
 }
 
-int FunctionValue::argumentCount() const
+int FunctionValue::namedArgumentCount() const
 {
     return 0;
 }
@@ -1232,6 +1232,11 @@ const Value *FunctionValue::argument(int) const
 QString FunctionValue::argumentName(int index) const
 {
     return QString::fromLatin1("arg%1").arg(index + 1);
+}
+
+int FunctionValue::optionalNamedArgumentCount() const
+{
+    return 0;
 }
 
 bool FunctionValue::isVariadic() const
@@ -1255,7 +1260,10 @@ void FunctionValue::accept(ValueVisitor *visitor) const
 }
 
 Function::Function(ValueOwner *valueOwner)
-    : FunctionValue(valueOwner), _returnValue(0)
+    : FunctionValue(valueOwner)
+    , _returnValue(0)
+    , _optionalNamedArgumentCount(0)
+    , _isVariadic(false)
 {
     setClassName("Function");
 }
@@ -1284,9 +1292,24 @@ void Function::setReturnValue(const Value *returnValue)
     _returnValue = returnValue;
 }
 
-int Function::argumentCount() const
+void Function::setVariadic(bool variadic)
+{
+    _isVariadic = variadic;
+}
+
+void Function::setOptionalNamedArgumentCount(int count)
+{
+    _optionalNamedArgumentCount = count;
+}
+
+int Function::namedArgumentCount() const
 {
     return _arguments.size();
+}
+
+int Function::optionalNamedArgumentCount() const
+{
+    return _optionalNamedArgumentCount;
 }
 
 const Value *Function::argument(int index) const
@@ -1307,6 +1330,11 @@ QString Function::argumentName(int index) const
 const Value *Function::invoke(const Activation *) const
 {
     return _returnValue;
+}
+
+bool Function::isVariadic() const
+{
+    return _isVariadic;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1879,13 +1907,47 @@ bool ASTVariableReference::getSourceLocation(QString *fileName, int *line, int *
     return true;
 }
 
+namespace {
+class UsesArgumentsArray : protected Visitor
+{
+    bool _usesArgumentsArray;
+
+public:
+    bool operator()(FunctionBody *ast)
+    {
+        if (!ast || !ast->elements)
+            return false;
+        _usesArgumentsArray = false;
+        Node::accept(ast->elements, this);
+        return _usesArgumentsArray;
+    }
+
+protected:
+    bool visit(ArrayMemberExpression *ast)
+    {
+        if (IdentifierExpression *idExp = cast<IdentifierExpression *>(ast->base)) {
+            if (idExp->name == QLatin1String("arguments"))
+                _usesArgumentsArray = true;
+        }
+        return true;
+    }
+
+    // don't go into nested functions
+    bool visit(FunctionBody *) { return false; }
+};
+} // anonymous namespace
+
 ASTFunctionValue::ASTFunctionValue(FunctionExpression *ast, const Document *doc, ValueOwner *valueOwner)
-    : FunctionValue(valueOwner), _ast(ast), _doc(doc)
+    : FunctionValue(valueOwner)
+    , _ast(ast)
+    , _doc(doc)
 {
     setPrototype(valueOwner->functionPrototype());
 
     for (FormalParameterList *it = ast->formals; it; it = it->next)
         _argumentNames.append(it->name.toString());
+
+    _isVariadic = UsesArgumentsArray()(ast->body);
 }
 
 ASTFunctionValue::~ASTFunctionValue()
@@ -1897,7 +1959,7 @@ FunctionExpression *ASTFunctionValue::ast() const
     return _ast;
 }
 
-int ASTFunctionValue::argumentCount() const
+int ASTFunctionValue::namedArgumentCount() const
 {
     return _argumentNames.size();
 }
@@ -1911,6 +1973,11 @@ QString ASTFunctionValue::argumentName(int index) const
     }
 
     return FunctionValue::argumentName(index);
+}
+
+bool ASTFunctionValue::isVariadic() const
+{
+    return _isVariadic;
 }
 
 bool ASTFunctionValue::getSourceLocation(QString *fileName, int *line, int *column) const
@@ -2021,7 +2088,7 @@ const ASTSignal *ASTSignal::asAstSignal() const
     return this;
 }
 
-int ASTSignal::argumentCount() const
+int ASTSignal::namedArgumentCount() const
 {
     int count = 0;
     for (UiParameterList *it = _ast->parameters; it; it = it->next)

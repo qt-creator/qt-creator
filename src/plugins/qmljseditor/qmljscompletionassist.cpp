@@ -41,6 +41,8 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/completionsettings.h>
 
 #include <utils/qtcassert.h>
 
@@ -111,6 +113,13 @@ public:
     virtual void operator()(const Value *base, const QString &name, const Value *value) = 0;
 };
 
+class CompleteFunctionCall
+{
+public:
+    CompleteFunctionCall(bool hasArguments = true) : hasArguments(hasArguments) {}
+    bool hasArguments;
+};
+
 class CompletionAdder : public PropertyProcessor
 {
 protected:
@@ -127,8 +136,15 @@ public:
     virtual void operator()(const Value *base, const QString &name, const Value *value)
     {
         Q_UNUSED(base)
-        Q_UNUSED(value)
-        addCompletion(completions, name, icon, order);
+        QVariant data;
+        if (const FunctionValue *func = value->asFunctionValue()) {
+            // constructors usually also have other interesting members,
+            // don't consider them pure functions and complete the '()'
+            if (!func->lookupMember("prototype", 0, 0, false)) {
+                data = QVariant::fromValue(CompleteFunctionCall(func->namedArgumentCount() || func->isVariadic()));
+            }
+        }
+        addCompletion(completions, name, icon, order, data);
     }
 
     QIcon icon;
@@ -319,6 +335,8 @@ bool isLiteral(AST::Node *ast)
 
 } // Anonymous
 
+Q_DECLARE_METATYPE(CompleteFunctionCall)
+
 // -----------------------
 // QmlJSAssistProposalItem
 // -----------------------
@@ -338,12 +356,21 @@ void QmlJSAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
     editor->setCursorPosition(basePosition);
     editor->remove(currentPosition - basePosition);
 
-    QString replaceable;
-    const QString &content = text();
-    if (content.endsWith(QLatin1String(": ")))
-        replaceable = QLatin1String(": ");
-    else if (content.endsWith(QLatin1Char('.')))
-        replaceable = QLatin1String(".");
+    QString content = text();
+    int cursorOffset = 0;
+
+    const CompletionSettings &completionSettings =
+            TextEditorSettings::instance()->completionSettings();
+    const bool autoInsertBrackets = completionSettings.m_autoInsertBrackets;
+
+    if (autoInsertBrackets && data().canConvert<CompleteFunctionCall>()) {
+        CompleteFunctionCall function = data().value<CompleteFunctionCall>();
+        content += QLatin1String("()");
+        if (function.hasArguments)
+            cursorOffset = -1;
+    }
+
+    QString replaceable = content;
     int replacedLength = 0;
     for (int i = 0; i < replaceable.length(); ++i) {
         const QChar a = replaceable.at(i);
@@ -355,6 +382,8 @@ void QmlJSAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
     }
     const int length = editor->position() - basePosition + replacedLength;
     editor->replace(length, content);
+    if (cursorOffset)
+        editor->setCursorPosition(editor->position() + cursorOffset);
 }
 
 // -------------------------
@@ -363,10 +392,12 @@ void QmlJSAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
 class FunctionHintProposalModel : public TextEditor::IFunctionHintProposalModel
 {
 public:
-    FunctionHintProposalModel(const QString &functionName, const QStringList &signature)
+    FunctionHintProposalModel(const QString &functionName, const QStringList &namedArguments,
+                              int optionalNamedArguments, bool isVariadic)
         : m_functionName(functionName)
-        , m_signature(signature)
-        , m_minimumArgumentCount(signature.size())
+        , m_namedArguments(namedArguments)
+        , m_optionalNamedArguments(optionalNamedArguments)
+        , m_isVariadic(isVariadic)
     {}
 
     virtual void reset() {}
@@ -376,8 +407,9 @@ public:
 
 private:
     QString m_functionName;
-    QStringList m_signature;
-    int m_minimumArgumentCount;
+    QStringList m_namedArguments;
+    int m_optionalNamedArguments;
+    bool m_isVariadic;
 };
 
 QString FunctionHintProposalModel::text(int index) const
@@ -388,11 +420,13 @@ QString FunctionHintProposalModel::text(int index) const
     prettyMethod += QString::fromLatin1("function ");
     prettyMethod += m_functionName;
     prettyMethod += QLatin1Char('(');
-    for (int i = 0; i < m_minimumArgumentCount; ++i) {
+    for (int i = 0; i < m_namedArguments.size(); ++i) {
+        if (i == m_namedArguments.size() - m_optionalNamedArguments)
+            prettyMethod += QLatin1Char('[');
         if (i != 0)
             prettyMethod += QLatin1String(", ");
 
-        QString arg = m_signature.at(i);
+        QString arg = m_namedArguments.at(i);
         if (arg.isEmpty()) {
             arg = QLatin1String("arg");
             arg += QString::number(i + 1);
@@ -400,6 +434,13 @@ QString FunctionHintProposalModel::text(int index) const
 
         prettyMethod += arg;
     }
+    if (m_isVariadic) {
+        if (m_namedArguments.size())
+            prettyMethod += QLatin1String(", ");
+        prettyMethod += QLatin1String("...");
+    }
+    if (m_optionalNamedArguments)
+        prettyMethod += QLatin1Char(']');
     prettyMethod += QLatin1Char(')');
     return prettyMethod;
 }
@@ -472,10 +513,12 @@ IAssistProposal *QmlJSCompletionAssistProcessor::createContentProposal() const
     return proposal;
 }
 
-IAssistProposal *QmlJSCompletionAssistProcessor::createHintProposal(const QString &functionName,
-                                                                    const QStringList &signature) const
+IAssistProposal *QmlJSCompletionAssistProcessor::createHintProposal(
+        const QString &functionName, const QStringList &namedArguments,
+        int optionalNamedArguments, bool isVariadic) const
 {
-    IFunctionHintProposalModel *model = new FunctionHintProposalModel(functionName, signature);
+    IFunctionHintProposalModel *model = new FunctionHintProposalModel(
+                functionName, namedArguments, optionalNamedArguments, isVariadic);
     IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
     return proposal;
 }
@@ -642,11 +685,12 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
                     if (indexOfDot != -1)
                         functionName = functionName.mid(indexOfDot + 1);
 
-                    QStringList signature;
-                    for (int i = 0; i < f->argumentCount(); ++i)
-                        signature.append(f->argumentName(i));
+                    QStringList namedArguments;
+                    for (int i = 0; i < f->namedArgumentCount(); ++i)
+                        namedArguments.append(f->argumentName(i));
 
-                    return createHintProposal(functionName.trimmed(), signature);
+                    return createHintProposal(functionName.trimmed(), namedArguments,
+                                              f->optionalNamedArgumentCount(), f->isVariadic());
                 }
             }
         }

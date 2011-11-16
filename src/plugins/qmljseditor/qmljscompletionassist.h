@@ -99,8 +99,9 @@ public:
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;
-    TextEditor::IAssistProposal *createHintProposal(const QString &functionName,
-                                                    const QStringList &signature) const;
+    TextEditor::IAssistProposal *createHintProposal(
+            const QString &functionName, const QStringList &namedArguments,
+            int optionalNamedArguments, bool isVariadic) const;
 
     bool acceptsIdleEditor() const;
 

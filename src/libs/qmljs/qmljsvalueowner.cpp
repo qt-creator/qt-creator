@@ -499,21 +499,20 @@ QString ValueOwner::typeId(const Value *value)
     return _typeId(value);
 }
 
-Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount)
+Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount, int optionalCount, bool variadic)
 {
-    Function *function = newFunction();
+    Function *function = addFunction(object, name, argumentCount, optionalCount, variadic);
     function->setReturnValue(result);
-    for (int i = 0; i < argumentCount; ++i)
-        function->addArgument(unknownValue());
-    object->setMember(name, function);
     return function;
 }
 
-Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, int argumentCount)
+Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, int argumentCount, int optionalCount, bool variadic)
 {
     Function *function = newFunction();
     for (int i = 0; i < argumentCount; ++i)
         function->addArgument(unknownValue());
+    function->setVariadic(variadic);
+    function->setOptionalNamedArgumentCount(optionalCount);
     object->setMember(name, function);
     return function;
 }
@@ -538,46 +537,58 @@ void ValueOwner::initializePrototypes()
     _objectCtor->setPrototype(_functionPrototype);
     _objectCtor->setMember("prototype", _objectPrototype);
     _objectCtor->setReturnValue(newObject());
+    _objectCtor->addArgument(unknownValue(), "value");
+    _objectCtor->setOptionalNamedArgumentCount(1);
 
     _functionCtor = new FunctionCtor(this);
     _functionCtor->setPrototype(_functionPrototype);
     _functionCtor->setMember("prototype", _functionPrototype);
     _functionCtor->setReturnValue(newFunction());
+    _functionCtor->setVariadic(true);
 
     _arrayCtor = new ArrayCtor(this);
     _arrayCtor->setPrototype(_functionPrototype);
     _arrayCtor->setMember("prototype", _arrayPrototype);
     _arrayCtor->setReturnValue(newArray());
+    _arrayCtor->setVariadic(true);
 
     _stringCtor = new StringCtor(this);
     _stringCtor->setPrototype(_functionPrototype);
     _stringCtor->setMember("prototype", _stringPrototype);
     _stringCtor->setReturnValue(stringValue());
+    _stringCtor->addArgument(unknownValue(), "value");
+    _stringCtor->setOptionalNamedArgumentCount(1);
 
     _booleanCtor = new BooleanCtor(this);
     _booleanCtor->setPrototype(_functionPrototype);
     _booleanCtor->setMember("prototype", _booleanPrototype);
     _booleanCtor->setReturnValue(booleanValue());
+    _booleanCtor->addArgument(unknownValue(), "value");
 
     _numberCtor = new NumberCtor(this);
     _numberCtor->setPrototype(_functionPrototype);
     _numberCtor->setMember("prototype", _numberPrototype);
     _numberCtor->setReturnValue(numberValue());
+    _numberCtor->addArgument(unknownValue(), "value");
+    _numberCtor->setOptionalNamedArgumentCount(1);
 
     _dateCtor = new DateCtor(this);
     _dateCtor->setPrototype(_functionPrototype);
     _dateCtor->setMember("prototype", _datePrototype);
     _dateCtor->setReturnValue(_datePrototype);
+    _dateCtor->setVariadic(true);
 
     _regexpCtor = new RegExpCtor(this);
     _regexpCtor->setPrototype(_functionPrototype);
     _regexpCtor->setMember("prototype", _regexpPrototype);
     _regexpCtor->setReturnValue(_regexpPrototype);
+    _regexpCtor->addArgument(unknownValue(), "pattern");
+    _regexpCtor->addArgument(unknownValue(), "flags");
 
     addFunction(_objectCtor, "getPrototypeOf", 1);
     addFunction(_objectCtor, "getOwnPropertyDescriptor", 2);
     addFunction(_objectCtor, "getOwnPropertyNames", newArray(), 1);
-    addFunction(_objectCtor, "create", 1);
+    addFunction(_objectCtor, "create", 1, 1);
     addFunction(_objectCtor, "defineProperty", 3);
     addFunction(_objectCtor, "defineProperties", 2);
     addFunction(_objectCtor, "seal", 1);
@@ -599,8 +610,8 @@ void ValueOwner::initializePrototypes()
     _functionPrototype->setMember("constructor", _functionCtor);
     addFunction(_functionPrototype, "toString", stringValue(), 0);
     addFunction(_functionPrototype, "apply", 2);
-    addFunction(_functionPrototype, "call", 1);
-    addFunction(_functionPrototype, "bind", 1);
+    addFunction(_functionPrototype, "call", 1, 0, true);
+    addFunction(_functionPrototype, "bind", 1, 0, true);
 
     // set up the default Array prototype
     addFunction(_arrayCtor, "isArray", booleanValue(), 1);
@@ -608,35 +619,35 @@ void ValueOwner::initializePrototypes()
     _arrayPrototype->setMember("constructor", _arrayCtor);
     addFunction(_arrayPrototype, "toString", stringValue(), 0);
     addFunction(_arrayPrototype, "toLocalString", stringValue(), 0);
-    addFunction(_arrayPrototype, "concat", 0);
+    addFunction(_arrayPrototype, "concat", 0, 0, true);
     addFunction(_arrayPrototype, "join", 1);
     addFunction(_arrayPrototype, "pop", 0);
-    addFunction(_arrayPrototype, "push", 0);
+    addFunction(_arrayPrototype, "push", 0, 0, true);
     addFunction(_arrayPrototype, "reverse", 0);
     addFunction(_arrayPrototype, "shift", 0);
     addFunction(_arrayPrototype, "slice", 2);
     addFunction(_arrayPrototype, "sort", 1);
     addFunction(_arrayPrototype, "splice", 2);
-    addFunction(_arrayPrototype, "unshift", 0);
-    addFunction(_arrayPrototype, "indexOf", numberValue(), 1);
-    addFunction(_arrayPrototype, "lastIndexOf", numberValue(), 1);
-    addFunction(_arrayPrototype, "every", 1);
-    addFunction(_arrayPrototype, "some", 1);
-    addFunction(_arrayPrototype, "forEach", 1);
-    addFunction(_arrayPrototype, "map", 1);
-    addFunction(_arrayPrototype, "filter", 1);
-    addFunction(_arrayPrototype, "reduce", 1);
-    addFunction(_arrayPrototype, "reduceRight", 1);
+    addFunction(_arrayPrototype, "unshift", 0, 0, true);
+    addFunction(_arrayPrototype, "indexOf", numberValue(), 2, 1);
+    addFunction(_arrayPrototype, "lastIndexOf", numberValue(), 2, 1);
+    addFunction(_arrayPrototype, "every", 2, 1);
+    addFunction(_arrayPrototype, "some", 2, 1);
+    addFunction(_arrayPrototype, "forEach", 2, 1);
+    addFunction(_arrayPrototype, "map", 2, 1);
+    addFunction(_arrayPrototype, "filter", 2, 1);
+    addFunction(_arrayPrototype, "reduce", 2, 1);
+    addFunction(_arrayPrototype, "reduceRight", 2, 1);
 
     // set up the default String prototype
-    addFunction(_stringCtor, "fromCharCode", stringValue(), 0);
+    addFunction(_stringCtor, "fromCharCode", stringValue(), 0, 0, true);
 
     _stringPrototype->setMember("constructor", _stringCtor);
     addFunction(_stringPrototype, "toString", stringValue(), 0);
     addFunction(_stringPrototype, "valueOf", stringValue(), 0);
     addFunction(_stringPrototype, "charAt", stringValue(), 1);
     addFunction(_stringPrototype, "charCodeAt", stringValue(), 1);
-    addFunction(_stringPrototype, "concat", stringValue(), 0);
+    addFunction(_stringPrototype, "concat", stringValue(), 0, 0, true);
     addFunction(_stringPrototype, "indexOf", numberValue(), 2);
     addFunction(_stringPrototype, "lastIndexOf", numberValue(), 2);
     addFunction(_stringPrototype, "localeCompare", booleanValue(), 1);
@@ -669,7 +680,7 @@ void ValueOwner::initializePrototypes()
     addFunction(_numberCtor, "fromCharCode", 0);
 
     _numberPrototype->setMember("constructor", _numberCtor);
-    addFunction(_numberPrototype, "toString", stringValue(), 0);
+    addFunction(_numberPrototype, "toString", stringValue(), 1, 1);
     addFunction(_numberPrototype, "toLocaleString", stringValue(), 0);
     addFunction(_numberPrototype, "valueOf", numberValue(), 0);
     addFunction(_numberPrototype, "toFixed", numberValue(), 1);
@@ -697,8 +708,8 @@ void ValueOwner::initializePrototypes()
     addFunction(_mathObject, "exp", numberValue(), 1);
     addFunction(_mathObject, "floor", numberValue(), 1);
     addFunction(_mathObject, "log", numberValue(), 1);
-    addFunction(_mathObject, "max", numberValue(), 0);
-    addFunction(_mathObject, "min", numberValue(), 0);
+    addFunction(_mathObject, "max", numberValue(), 0, 0, true);
+    addFunction(_mathObject, "min", numberValue(), 0, 0, true);
     addFunction(_mathObject, "pow", numberValue(), 2);
     addFunction(_mathObject, "random", numberValue(), 1);
     addFunction(_mathObject, "round", numberValue(), 1);
@@ -708,6 +719,7 @@ void ValueOwner::initializePrototypes()
 
     // set up the default Boolean prototype
     addFunction(_dateCtor, "parse", numberValue(), 1);
+    addFunction(_dateCtor, "UTC", numberValue(), 7, 5);
     addFunction(_dateCtor, "now", numberValue(), 0);
 
     _datePrototype->setMember("constructor", _dateCtor);
@@ -737,18 +749,18 @@ void ValueOwner::initializePrototypes()
     addFunction(_datePrototype, "setTime", 1);
     addFunction(_datePrototype, "setMilliseconds", 1);
     addFunction(_datePrototype, "setUTCMilliseconds", 1);
-    addFunction(_datePrototype, "setSeconds", 1);
-    addFunction(_datePrototype, "setUTCSeconds", 1);
-    addFunction(_datePrototype, "setMinutes", 1);
-    addFunction(_datePrototype, "setUTCMinutes", 1);
-    addFunction(_datePrototype, "setHours", 1);
-    addFunction(_datePrototype, "setUTCHours", 1);
+    addFunction(_datePrototype, "setSeconds", 2, 1);
+    addFunction(_datePrototype, "setUTCSeconds", 2, 1);
+    addFunction(_datePrototype, "setMinutes", 3, 2);
+    addFunction(_datePrototype, "setUTCMinutes", 3, 2);
+    addFunction(_datePrototype, "setHours", 4, 3);
+    addFunction(_datePrototype, "setUTCHours", 4, 3);
     addFunction(_datePrototype, "setDate", 1);
     addFunction(_datePrototype, "setUTCDate", 1);
-    addFunction(_datePrototype, "setMonth", 1);
-    addFunction(_datePrototype, "setUTCMonth", 1);
-    addFunction(_datePrototype, "setFullYear", 1);
-    addFunction(_datePrototype, "setUTCFullYear", 1);
+    addFunction(_datePrototype, "setMonth", 2, 1);
+    addFunction(_datePrototype, "setUTCMonth", 2, 1);
+    addFunction(_datePrototype, "setFullYear", 3, 2);
+    addFunction(_datePrototype, "setUTCFullYear", 3, 2);
     addFunction(_datePrototype, "toUTCString", stringValue(), 0);
     addFunction(_datePrototype, "toISOString", stringValue(), 0);
     addFunction(_datePrototype, "toJSON", stringValue(), 1);
@@ -829,10 +841,12 @@ void ValueOwner::initializePrototypes()
     f = addFunction(json, "parse", objectPrototype());
     f->addArgument(stringValue(), "text");
     f->addArgument(functionPrototype(), "reviver");
+    f->setOptionalNamedArgumentCount(1);
     f = addFunction(json, "stringify", stringValue());
     f->addArgument(unknownValue(), "value");
     f->addArgument(unknownValue(), "replacer");
     f->addArgument(unknownValue(), "space");
+    f->setOptionalNamedArgumentCount(2);
     _globalObject->setMember("JSON", json);
 
     // global Qt object, in alphabetic order
