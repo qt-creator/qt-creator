@@ -62,8 +62,9 @@
 
         \list 1
 
-        \o  Select \gui Projects, and then select the \gui {Link QML debugging
-            library} check box in \gui {Build Steps}.
+        \o  Select \gui Projects, and then select the
+            \gui {Enable QML debugging} check box in the \gui qmake section
+            in \gui {Build Steps}.
 
             You might have to compile the library first, by selecting the
             \gui Compile link.
