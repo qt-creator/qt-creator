@@ -43,11 +43,10 @@ def prepareQmlFile():
     originalText = "%s" % editor.plainText
     indented = editor.plainText
     unindented = ""
-    lines = str(indented).split("\n")
+    lines = str(indented).splitlines()
     test.log("Using %d lines..." % len(lines))
     for line in lines:
         unindented += line.lstrip()+"\n"
-    unindented=unindented[0:-1]
     editor.plainText = unindented
     return True
 
@@ -63,11 +62,13 @@ def testReIndent():
                            "window=':Qt Creator_Core::Internal::MainWindow'}")
     type(editor, "<Ctrl+A>")
     test.log("calling re-indent")
+    starttime = datetime.utcnow()
     type(editor, "<Ctrl+I>")
-    waitFor("textHasChanged==True", 20000)
+    waitFor("textHasChanged==True", 25000)
+    endtime = datetime.utcnow()
     textAfterReIndent = "%s" % editor.plainText
     if originalText==textAfterReIndent:
-        test.passes("Text successfully reindented...")
+        test.passes("Text successfully re-indented within %d seconds" % (endtime-starttime).seconds)
     else:
         # shrink the texts - it's huge output that takes long time to finish & screenshot is taken as well
         originalText = shrinkText(originalText, 20)
