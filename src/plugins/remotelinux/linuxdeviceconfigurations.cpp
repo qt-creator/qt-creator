@@ -208,7 +208,7 @@ void LinuxDeviceConfigurations::setConfigurationName(int i, const QString &name)
     QTC_ASSERT(this != LinuxDeviceConfigurationsPrivate::instance, return);
     Q_ASSERT(i >= 0 && i < rowCount());
 
-    d->devConfigs.at(i)->setName(name);
+    d->devConfigs.at(i)->setDisplayName(name);
     const QModelIndex changedIndex = index(i, 0);
     emit dataChanged(changedIndex, changedIndex);
 }
