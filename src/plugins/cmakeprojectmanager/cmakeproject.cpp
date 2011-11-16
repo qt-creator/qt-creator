@@ -204,6 +204,11 @@ bool CMakeProject::parseCMakeLists()
     CMakeBuildConfiguration *activeBC = activeTarget()->activeBuildConfiguration();
     QString cbpFile = CMakeManager::findCbpFile(activeBC->buildDirectory());
 
+    if (cbpFile.isEmpty()) {
+        emit buildTargetsChanged();
+        return false;
+    }
+
     // setFolderName
     m_rootNode->setDisplayName(QFileInfo(cbpFile).completeBaseName());
     CMakeCbpParser cbpparser;

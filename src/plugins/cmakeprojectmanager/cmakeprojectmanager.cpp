@@ -49,6 +49,7 @@
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSettings>
+#include <QtCore/QDateTime>
 #include <QtGui/QFormLayout>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QDesktopServices>
@@ -200,11 +201,18 @@ QString CMakeManager::findCbpFile(const QDir &directory)
     //   TODO the cbp file is named like the project() command in the CMakeList.txt file
     //   so this method below could find the wrong cbp file, if the user changes the project()
     //   2name
+    QDateTime t;
+    QString file;
     foreach (const QString &cbpFile , directory.entryList()) {
-        if (cbpFile.endsWith(QLatin1String(".cbp")))
-            return directory.path() + QLatin1Char('/') + cbpFile;
+        if (cbpFile.endsWith(QLatin1String(".cbp"))) {
+            QFileInfo fi(directory.path() + QLatin1Char('/') + cbpFile);
+            if (t.isNull() || fi.lastModified() > t) {
+                file = directory.path() + QLatin1Char('/') + cbpFile;
+                t = fi.lastModified();
+            }
+        }
     }
-    return QString();
+    return file;
 }
 
 // This code is duplicated from qtversionmanager
