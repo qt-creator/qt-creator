@@ -79,7 +79,7 @@ QtSupport::BaseQtVersion *WinCeQtVersionFactory::create(const QString &qmakePath
     QString ce_arch = evaluator->value("CE_ARCH");
 
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty())
-        return new WinCeQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+        return new WinCeQtVersion(qmakePath, ce_arch, isAutoDetected, autoDetectionSource);
 
     return 0;
 }

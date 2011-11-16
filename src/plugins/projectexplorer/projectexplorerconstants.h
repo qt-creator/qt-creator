@@ -215,6 +215,7 @@ const char GCC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Gcc";
 const char LINUXICC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.LinuxIcc";
 const char MINGW_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Mingw";
 const char MSVC_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.Msvc";
+const char WINCE_TOOLCHAIN_ID[] = "ProjectExplorer.ToolChain.WinCE";
 
 // Run Configuration defaults:
 const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;

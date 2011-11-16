@@ -42,7 +42,7 @@ class WinCeQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     WinCeQtVersion();
-    WinCeQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    WinCeQtVersion(const QString &path, const QString& archType, bool isAutodetected = false, const QString &autodetectionSource = QString());
     ~WinCeQtVersion();
     WinCeQtVersion *clone() const;
 
@@ -54,6 +54,12 @@ public:
     QSet<QString> supportedTargetIds() const;
 
     QString description() const;
+
+    virtual QVariantMap toMap() const;
+    virtual void fromMap(const QVariantMap &data);
+
+private:
+    ProjectExplorer::Abi::Architecture m_archType;
 };
 
 }

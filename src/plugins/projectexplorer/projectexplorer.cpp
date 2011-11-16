@@ -85,6 +85,7 @@
 #ifdef Q_OS_WIN
 #    include "windebuginterface.h"
 #    include "msvctoolchain.h"
+#    include "wincetoolchain.h"
 #endif
 
 #include <extensionsystem/pluginspec.h>
@@ -318,6 +319,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new Internal::MingwToolChainFactory);
     addAutoReleasedObject(new Internal::MsvcToolChainFactory);
+    addAutoReleasedObject(new Internal::WinCEToolChainFactory);
 #else
     addAutoReleasedObject(new Internal::GccToolChainFactory);
     addAutoReleasedObject(new Internal::LinuxIccToolChainFactory);

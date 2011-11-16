@@ -213,11 +213,15 @@ win32 {
     SOURCES += \
         windebuginterface.cpp \
         msvcparser.cpp \
-        msvctoolchain.cpp
+        msvctoolchain.cpp \
+        abstractmsvctoolchain.cpp \
+        wincetoolchain.cpp
     HEADERS += \
         windebuginterface.h \
         msvcparser.h \
-        msvctoolchain.h
+        msvctoolchain.h \
+        abstractmsvctoolchain.h \
+        wincetoolchain.h
 } else {
     macx:LIBS += -framework Carbon
 }

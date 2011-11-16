@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Nokia Corporation (info@qt.nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,12 +26,12 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
+** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
 
-#ifndef MSVCTOOLCHAIN_H
-#define MSVCTOOLCHAIN_H
+#ifndef WINCETOOLCHAIN_H
+#define WINCETOOLCHAIN_H
 
 #include "abstractmsvctoolchain.h"
 #include "abi.h"
@@ -45,23 +45,30 @@ namespace ProjectExplorer {
 namespace Internal {
 
 // --------------------------------------------------------------------------
-// MsvcToolChain
+// WinCEToolChain
 // --------------------------------------------------------------------------
 
-class MsvcToolChain : public AbstractMsvcToolChain
+class WinCEToolChain : public AbstractMsvcToolChain
 {
 public:
-    enum Type { WindowsSDK, VS };
-    enum Platform { s32, s64, ia64, amd64 };
 
-    MsvcToolChain(const QString &name, const Abi &abi,
-                  const QString &varsBat, const QString &varsBatArg, bool autodetect = false);
+    WinCEToolChain(const QString &name,
+                   const Abi &abi,
+                   const QString &vcvarsBat,
+                   const QString &msvcVer,
+                   const QString &ceVer,
+                   const QString &binPath,
+                   const QString &includePath,
+                   const QString &libPath,
+                   bool autodetect = false);
 
-    static MsvcToolChain *readFromMap(const QVariantMap &data);
+    static WinCEToolChain *readFromMap(const QVariantMap &data);
 
     QString typeName() const;
 
     QString mkspec() const;
+
+    QString ceVer() const;
 
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &data);
@@ -70,26 +77,43 @@ public:
 
     ToolChain *clone() const;
 
-    QString varsBatArg() const { return m_varsBatArg; }
-
-    static QPair<QString, QString> autoDetectCdbDebugger();
+    static QString autoDetectCdbDebugger(QStringList *checkedDirectories = 0);
 
 protected:
     Utils::Environment readEnvironmentSetting(Utils::Environment& env) const;
-    QByteArray msvcPredefinedMacros(const Utils::Environment &env) const;
 
 private:
-    MsvcToolChain();
+    WinCEToolChain();
     void updateId();
 
-    QString m_varsBatArg; // Argument
+    QString m_msvcVer;
+    QString m_ceVer;
+    QString m_binPath;
+    QString m_includePath;
+    QString m_libPath;
 };
 
 // --------------------------------------------------------------------------
-// MsvcToolChainFactory
+// WinCEToolChainConfigWidget
+// --------------------------------------------------------------------------
+class WinCEToolChainConfigWidget : public ToolChainConfigWidget
+{
+    Q_OBJECT
+
+public:
+    WinCEToolChainConfigWidget(ToolChain *);
+
+    void apply() {}
+    void discard() { }
+    bool isDirty() const {return false;}
+
+};
+
+// --------------------------------------------------------------------------
+// WinCEToolChainFactory
 // --------------------------------------------------------------------------
 
-class MsvcToolChainFactory : public ToolChainFactory
+class WinCEToolChainFactory : public ToolChainFactory
 {
     Q_OBJECT
 
@@ -99,53 +123,15 @@ public:
 
     QList<ToolChain *> autoDetect();
 
-    virtual bool canRestore(const QVariantMap &data);
-    virtual ToolChain *restore(const QVariantMap &data)
-        { return MsvcToolChain::readFromMap(data); }
+    bool canRestore(const QVariantMap &data);
+    ToolChain *restore(const QVariantMap &data);
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
-};
-
-// --------------------------------------------------------------------------
-// MsvcDebuggerConfigLabel: Label displaying debugging tools download info.
-// --------------------------------------------------------------------------
-
-class MsvcDebuggerConfigLabel : public QLabel
-{
-    Q_OBJECT
-public:
-    explicit MsvcDebuggerConfigLabel(QWidget *parent = 0);
-
-private slots:
-    void slotLinkActivated(const QString &l);
 
 private:
-    static QString labelText();
+    QList<ToolChain *> detectCEToolKits(const QString& msvcPath, const QString& vcvarsbat);
 };
 
-// --------------------------------------------------------------------------
-// MsvcToolChainConfigWidget
-// --------------------------------------------------------------------------
-
-class MsvcToolChainConfigWidget : public ToolChainConfigWidget
-{
-    Q_OBJECT
-
-public:
-    MsvcToolChainConfigWidget(ToolChain *);
-
-    void apply();
-    void discard() { setFromToolChain(); }
-    bool isDirty() const;
-
-private slots:
-    void autoDetectDebugger();
-
-private:
-    void setFromToolChain();
-
-    QLabel *m_varsBatDisplayLabel;
-};
 
 } // namespace Internal
 } // namespace ProjectExplorer
