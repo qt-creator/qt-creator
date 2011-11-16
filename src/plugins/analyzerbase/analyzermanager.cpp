@@ -278,6 +278,7 @@ void AnalyzerManagerPrivate::setupActions()
     m_menu->appendGroup(Constants::G_ANALYZER_CONTROL);
     m_menu->appendGroup(Constants::G_ANALYZER_TOOLS);
     m_menu->appendGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
+    m_menu->appendGroup(Constants::G_ANALYZER_OPTIONS);
 
     Core::ActionContainer *menubar =
         am->actionContainer(Core::Constants::MENU_BAR);
@@ -307,6 +308,12 @@ void AnalyzerManagerPrivate::setupActions()
     command = am->registerAction(separatorAction2,
         "Menu.Action.Analyzer.Tools.Separator2", globalcontext);
     m_menu->addAction(command, Constants::G_ANALYZER_REMOTE_TOOLS);
+
+    QAction *separatorAction3 = new QAction(m_menu);
+    separatorAction3->setSeparator(true);
+    command = am->registerAction(separatorAction3,
+        "Menu.Action.Analyzer.Tools.Separator3", globalcontext);
+    m_menu->addAction(command, Constants::G_ANALYZER_OPTIONS);
 }
 
 void AnalyzerManagerPrivate::delayedInit()
@@ -844,6 +851,11 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
     dockWidget->setWindowTitle(title);
     d->m_toolWidgets[tool].push_back(dockWidget);
     return dockWidget;
+}
+
+IAnalyzerTool *AnalyzerManager::currentSelectedTool()
+{
+    return m_instance->d->m_currentTool;
 }
 
 void AnalyzerManager::selectTool(IAnalyzerTool *tool, StartMode mode)

@@ -62,10 +62,12 @@ const char C_ANALYZEMODE[] = "Analyzer.AnalyzeMode";
 
 // Menu.
 const char M_DEBUG_ANALYZER[] = "Analyzer.Menu.StartAnalyzer";
+const char M_DEBUG_ANALYZER_QML_OPTIONS[] = "Analyzer.Menu.QMLOptions";
 
 const char G_ANALYZER_CONTROL[] = "Menu.Group.Analyzer.Control";
 const char G_ANALYZER_TOOLS[] = "Menu.Group.Analyzer.Tools";
 const char G_ANALYZER_REMOTE_TOOLS[] = "Menu.Group.Analyzer.RemoteTools";
+const char G_ANALYZER_OPTIONS[] = "Menu.Group.Analyzer.Options";
 
 // Manager controls.
 const char ANALYZER_CONTROL_START_ICON[] = ":/images/analyzer_start_small.png";

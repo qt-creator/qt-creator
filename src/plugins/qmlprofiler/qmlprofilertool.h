@@ -92,6 +92,7 @@ signals:
 private slots:
     void tryToConnect();
     void connectionStateChanged();
+    void showSaveOption();
     void showSaveDialog();
     void showLoadDialog();
     void showErrorDialog(const QString &error);

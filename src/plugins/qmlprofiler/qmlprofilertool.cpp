@@ -67,6 +67,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/imode.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60deployconfiguration.h>
@@ -83,7 +88,10 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
 
+using namespace Core;
+using namespace Core::Constants;
 using namespace Analyzer;
+using namespace Analyzer::Constants;
 using namespace QmlProfiler::Internal;
 using namespace QmlJsDebugClient;
 using namespace ProjectExplorer;
@@ -119,6 +127,7 @@ public:
     quint64 m_tcpPort;
     QString m_ostDevice;
     QString m_sysroot;
+    QAction *m_saveQmlTrace;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
@@ -142,6 +151,27 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     qmlRegisterType<CanvasImage>();
     qmlRegisterType<CanvasGradient>();
     qmlRegisterType<TimelineView>("Monitor", 1, 0,"TimelineView");
+
+    Command *command = 0;
+    const Context globalContext(C_GLOBAL);
+    ActionManager *am = ICore::instance()->actionManager();
+
+    ActionContainer *menu = am->actionContainer(M_DEBUG_ANALYZER);
+    ActionContainer *options = am->createMenu(M_DEBUG_ANALYZER_QML_OPTIONS);
+    options->menu()->setTitle(tr("QML Profiler Options"));
+    menu->addMenu(options, G_ANALYZER_OPTIONS);
+    options->menu()->setEnabled(true);
+
+    QAction *act = new QAction(tr("Load QML Trace"), options);
+    command = am->registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace", globalContext);
+    connect(act, SIGNAL(triggered()), this, SLOT(showLoadDialog()));
+    options->addAction(command);
+
+    act = d->m_saveQmlTrace = new QAction(tr("Save QML Trace"), options);
+    d->m_saveQmlTrace->setEnabled(false);
+    command = am->registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace", globalContext);
+    connect(act, SIGNAL(triggered()), this, SLOT(showSaveDialog()));
+    options->addAction(command);
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -312,7 +342,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(dataReceived()));
     connect(this, SIGNAL(connectionFailed()), engine, SLOT(finishProcess()));
     connect(this, SIGNAL(fetchingData(bool)), engine, SLOT(setFetchingData(bool)));
-    connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)), this, SLOT(setAppIsRunning()));
+    connect(engine, SIGNAL(starting(const IAnalyzerEngine*)), this, SLOT(setAppIsRunning()));
     connect(engine, SIGNAL(finished()), this, SLOT(setAppIsStopped()));
     connect(this, SIGNAL(cancelRun()), engine, SLOT(finishProcess()));
     emit fetchingData(d->m_recordButton->isChecked());
@@ -337,6 +367,7 @@ QWidget *QmlProfilerTool::createWidgets()
     connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
     connect(d->m_traceWindow, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(d->m_traceWindow->getEventList(), SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
+    connect(d->m_traceWindow->getEventList(), SIGNAL(dataReady()), this, SLOT(showSaveOption()));
 
     d->m_eventsView = new QmlProfilerEventsWidget(d->m_traceWindow->getEventList(), mw);
     connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
@@ -493,8 +524,8 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
     if (!fileInfo.exists() || !fileInfo.isReadable())
         return;
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->openEditor(projectFileName);
+    EditorManager *editorManager = EditorManager::instance();
+    IEditor *editor = editorManager->openEditor(projectFileName);
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
 
     if (textEditor) {
@@ -532,7 +563,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     QString sysroot;
 
     {
-        QSettings *settings = Core::ICore::instance()->settings();
+        QSettings *settings = ICore::instance()->settings();
 
         host = settings->value(QLatin1String("AnalyzerQmlAttachDialog/host"), QLatin1String("localhost")).toString();
         port = settings->value(QLatin1String("AnalyzerQmlAttachDialog/port"), 3768).toInt();
@@ -580,7 +611,7 @@ void QmlProfilerTool::tryToConnect()
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
 
-        Core::ICore * const core = Core::ICore::instance();
+        ICore * const core = ICore::instance();
         QMessageBox *infoBox = new QMessageBox(core->mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(tr("Qt Creator"));
@@ -665,20 +696,25 @@ void QmlProfilerTool::startTool(StartMode mode)
 
 void QmlProfilerTool::logStatus(const QString &msg)
 {
-    Core::MessageManager *messageManager = Core::MessageManager::instance();
+    MessageManager *messageManager = MessageManager::instance();
     messageManager->printToOutputPane(msg, false);
 }
 
 void QmlProfilerTool::logError(const QString &msg)
 {
     // TODO: Rather show errors in the application ouput
-    Core::MessageManager *messageManager = Core::MessageManager::instance();
+    MessageManager *messageManager = MessageManager::instance();
     messageManager->printToOutputPane(msg, true);
+}
+
+void QmlProfilerTool::showSaveOption()
+{
+    d->m_saveQmlTrace->setEnabled(d->m_traceWindow->getEventList()->count());
 }
 
 void QmlProfilerTool::showSaveDialog()
 {
-    Core::ICore *core = Core::ICore::instance();
+    ICore *core = ICore::instance();
     QString filename = QFileDialog::getSaveFileName(core->mainWindow(), tr("Save QML Trace"), QString(), tr("QML traces (*%1)").arg(TraceFileExtension));
     if (!filename.isEmpty()) {
         if (!filename.endsWith(QLatin1String(TraceFileExtension)))
@@ -689,19 +725,25 @@ void QmlProfilerTool::showSaveDialog()
 
 void QmlProfilerTool::showLoadDialog()
 {
-    Core::ICore *core = Core::ICore::instance();
+    if (ModeManager::instance()->currentMode()->id() != QLatin1String(MODE_ANALYZE))
+        AnalyzerManager::showMode();
+
+    if (AnalyzerManager::currentSelectedTool() != this)
+        AnalyzerManager::selectTool(this, StartRemote);
+
+    ICore *core = ICore::instance();
     QString filename = QFileDialog::getOpenFileName(core->mainWindow(), tr("Load QML Trace"), QString(), tr("QML traces (*%1)").arg(TraceFileExtension));
 
     if (!filename.isEmpty()) {
         // delayed load (prevent graphical artifacts due to long load time)
-        d->m_traceWindow->getEventList()->setFilename(filename);
+        d->m_traceWindow->getEventList()->load(filename);
         QTimer::singleShot(100, d->m_traceWindow->getEventList(), SLOT(load()));
     }
 }
 
 void QmlProfilerTool::showErrorDialog(const QString &error)
 {
-    Core::ICore *core = Core::ICore::instance();
+    ICore *core = ICore::instance();
     QMessageBox *errorDialog = new QMessageBox(core->mainWindow());
     errorDialog->setIcon(QMessageBox::Warning);
     errorDialog->setWindowTitle(tr("QML Profiler"));
@@ -721,7 +763,7 @@ void QmlProfilerTool::retryMessageBoxFinished(int result)
         break;
     }
     case QMessageBox::Help: {
-        Core::HelpManager *helpManager = Core::HelpManager::instance();
+        HelpManager *helpManager = HelpManager::instance();
         helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html");
         // fall through
     }
