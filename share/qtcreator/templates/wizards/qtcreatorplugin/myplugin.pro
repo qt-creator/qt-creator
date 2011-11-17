@@ -11,9 +11,6 @@ HEADERS += %PluginName:l%plugin.h\
         %PluginName:l%_global.h\
         %PluginName:l%constants.h
 
-OTHER_FILES = %PluginName%.pluginspec
-
-
 # Qt Creator linking
 
 ## set the QTC_SOURCE environment variable to override the setting here
