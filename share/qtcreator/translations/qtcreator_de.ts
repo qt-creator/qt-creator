@@ -1737,7 +1737,7 @@
     <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
-        <translation>Öffne &apos;%1; mit:</translation>
+        <translation>Öffne &apos;%1&apos; mit:</translation>
     </message>
 </context>
 <context>
@@ -4832,7 +4832,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>No user defined filters available or no filter selected.</source>
-        <translation>Es sind keine benutzerdefinierten Filter vorhanden beziehungsweise ausgewählt.</translation>
+        <translation>Es sind keine benutzerdefinierten Filter vorhanden oder ausgewählt.</translation>
     </message>
 </context>
 <context>
@@ -6255,7 +6255,7 @@ rückgängig machen?</translation>
     </message>
     <message>
         <source>No user defined filters available or no filter selected.</source>
-        <translation>Es sind keine benutzerdefinierten Filter vorhanden beziehungsweise ausgewählt.</translation>
+        <translation>Es sind keine benutzerdefinierten Filter vorhanden oder ausgewählt.</translation>
     </message>
     <message>
         <source>The filter &quot;%1&quot; will show every documentation file available, as no attributes are specified.</source>
@@ -9046,7 +9046,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Erstellt qmake-basierte C++-Bibliotheken:&lt;ul&gt;&lt;li&gt;Dynamisch linkbare C++-Bibliothek zur Verwendung mit &lt;tt&gt;QPluginLoader&lt;/tt&gt; zur Laufzeit (Plugin)&lt;/li&gt;&lt;li&gt;Statisch oder dynamisch linkbare C++-Bibliothek zur Verwendung in einem anderen Projekt zur Linkzeit&lt;/li&gt;&lt;/ul&gt;.</translation>
+        <translation>Erstellt qmake-basierte C++-Bibliotheken:&lt;ul&gt;&lt;li&gt;Dynamisch linkbare C++-Bibliothek zur Verwendung mit &lt;tt&gt;QPluginLoader&lt;/tt&gt; zur Laufzeit (Plugin)&lt;/li&gt;&lt;li&gt;Statisch oder dynamisch linkbare C++-Bibliothek zur Verwendung in einem anderen Projekt zur Linkzeit&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
@@ -20146,7 +20146,7 @@ imported JavaScript libraries. Indicating that a library is
 stateless means that a single instance will be shared among
 all components. Stateless libraries will not be able to access
 QML component instance objects and properties directly.</source>
-        <translation>Für gewöhnlich hat jede Instanz eine QML-Komponente eine eindeutige Kopie 
+        <translation>Für gewöhnlich hat jede Instanz einer QML-Komponente eine eindeutige Kopie
 der importierten Java-Script-Bibliotheken. Eine zustandslose Bibliothek wird
 von allen Komponenten verwendet. Zustandslose Bibliotheken können nicht direkt
 auf Instanzen von QML-Komponenten-Objekten und Eigenschaften zugreifen.</translation>
@@ -21662,7 +21662,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Bazaar Clone (Or Branch)</source>
-        <translation>Bazaar Clone (bzw. Branch)</translation>
+        <translation>Bazaar Clone (oder Branch)</translation>
     </message>
 </context>
 <context>
@@ -26850,7 +26850,7 @@ Erfordert Qt 4.7.4 oder neuer sowie die Installation des Komponentensatzes für 
     </message>
     <message>
         <source>Application icon (80x80):</source>
-        <translation>Icon der Anwendung n (80x80):</translation>
+        <translation>Icon der Anwendung (80x80):</translation>
     </message>
     <message>
         <source>Generate code to speed up the launching on the device.</source>
