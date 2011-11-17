@@ -116,8 +116,8 @@ void AbstractSshChannel::handleWindowAdjust(quint32 bytesToAdd)
 
 void AbstractSshChannel::flushSendBuffer()
 {
-    const quint32 bytesToSend
-        = qMin<quint32>(m_remoteWindowSize, m_sendBuffer.size());
+    const quint32 bytesToSend = qMin(m_remoteMaxPacketSize,
+        qMin<quint32>(m_remoteWindowSize, m_sendBuffer.size()));
     if (bytesToSend > 0) {
         const QByteArray &data = m_sendBuffer.left(bytesToSend);
         m_sendFacility.sendChannelDataPacket(m_remoteChannel, data);
@@ -147,7 +147,8 @@ void AbstractSshChannel::handleOpenSuccess(quint32 remoteChannelId,
 #endif
    m_remoteChannel = remoteChannelId;
    m_remoteWindowSize = remoteWindowSize;
-   m_remoteMaxPacketSize = remoteMaxPacketSize;
+   m_remoteMaxPacketSize = remoteMaxPacketSize - sizeof(quint32) - sizeof m_remoteChannel - 1;
+        // Original value includes packet type, channel number and length field for string.
    setChannelState(SessionEstablished);
    handleOpenSuccessInternal();
 }

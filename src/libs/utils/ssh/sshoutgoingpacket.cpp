@@ -297,6 +297,9 @@ void SshOutgoingPacket::finalize()
     qDebug("Encrypting packet of type %u", m_data.at(TypeOffset));
 #endif
     encrypt();
+#ifdef CREATOR_SSH_DEBUG
+    qDebug("Sending packet of size %d", rawData().count());
+#endif
     Q_ASSERT(isComplete());
 }
 
