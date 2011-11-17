@@ -46,149 +46,125 @@
 
 namespace Utils {
 namespace Internal {
+namespace {
+enum State { Inactive, Connecting, Connected, ProcessRunning };
+} // anonymous namespace
 
-class SshRemoteProcessRunnerPrivate : public QObject
+class SshRemoteProcessRunnerPrivate
 {
-    Q_OBJECT
 public:
-    SshRemoteProcessRunnerPrivate(QObject *parent);
-    ~SshRemoteProcessRunnerPrivate();
-    void runWithoutTerminal(const QByteArray &command, const SshConnectionParameters &sshParams);
-    void runInTerminal(const QByteArray &command, const SshPseudoTerminal &terminal,
-        const SshConnectionParameters &sshParams);
-    QByteArray command() const { return m_command; }
-    Utils::SshError lastConnectionError() const { return m_lastConnectionError; }
-    QString lastConnectionErrorString() const { return m_lastConnectionErrorString; }
+    SshRemoteProcessRunnerPrivate() : m_state(Inactive) {}
 
     SshRemoteProcess::Ptr m_process;
-
-signals:
-    void connectionError();
-    void processStarted();
-    void processOutputAvailable(const QByteArray &output);
-    void processErrorOutputAvailable(const QByteArray &output);
-    void processClosed(int exitStatus);
-
-private slots:
-    void handleConnected();
-    void handleConnectionError(Utils::SshError error);
-    void handleDisconnected();
-    void handleProcessStarted();
-    void handleProcessFinished(int exitStatus);
-    void handleStdout();
-    void handleStderr();
-
-private:
-    enum State { Inactive, Connecting, Connected, ProcessRunning };
-
-    void run(const QByteArray &command, const SshConnectionParameters &sshParams);
-    void setState(State state);
-
     SshConnection::Ptr m_connection;
-    State m_state;
     bool m_runInTerminal;
     SshPseudoTerminal m_terminal;
     QByteArray m_command;
     Utils::SshError m_lastConnectionError;
     QString m_lastConnectionErrorString;
+    State m_state;
 };
 
+} // namespace Internal
 
-SshRemoteProcessRunnerPrivate::SshRemoteProcessRunnerPrivate(QObject *parent)
-    : QObject(parent), m_state(Inactive)
+using namespace Internal;
+
+SshRemoteProcessRunner::SshRemoteProcessRunner(QObject *parent)
+    : QObject(parent), d(new SshRemoteProcessRunnerPrivate)
 {
 }
 
-SshRemoteProcessRunnerPrivate::~SshRemoteProcessRunnerPrivate()
+SshRemoteProcessRunner::~SshRemoteProcessRunner()
 {
+    disconnect();
     setState(Inactive);
+    delete d;
 }
 
-void SshRemoteProcessRunnerPrivate::runWithoutTerminal(const QByteArray &command,
+void SshRemoteProcessRunner::run(const QByteArray &command,
     const SshConnectionParameters &sshParams)
 {
-    m_runInTerminal = false;
-    run(command, sshParams);
+    d->m_runInTerminal = false;
+    runInternal(command, sshParams);
 }
 
-void SshRemoteProcessRunnerPrivate::runInTerminal(const QByteArray &command,
+void SshRemoteProcessRunner::runInTerminal(const QByteArray &command,
     const SshPseudoTerminal &terminal, const SshConnectionParameters &sshParams)
 {
-    m_terminal = terminal;
-    m_runInTerminal = true;
-    run(command, sshParams);
+    d->m_terminal = terminal;
+    d->m_runInTerminal = true;
+    runInternal(command, sshParams);
 }
 
-void SshRemoteProcessRunnerPrivate::run(const QByteArray &command,
+void SshRemoteProcessRunner::runInternal(const QByteArray &command,
     const SshConnectionParameters &sshParams)
 {
     setState(Inactive);
     setState(Connecting);
 
-    m_lastConnectionError = SshNoError;
-    m_lastConnectionErrorString.clear();
-    m_command = command;
-    m_connection = SshConnectionManager::instance().acquireConnection(sshParams);
-    connect(m_connection.data(), SIGNAL(error(Utils::SshError)),
+    d->m_lastConnectionError = SshNoError;
+    d->m_lastConnectionErrorString.clear();
+    d->m_command = command;
+    d->m_connection = SshConnectionManager::instance().acquireConnection(sshParams);
+    connect(d->m_connection.data(), SIGNAL(error(Utils::SshError)),
         SLOT(handleConnectionError(Utils::SshError)));
-    connect(m_connection.data(), SIGNAL(disconnected()), SLOT(handleDisconnected()));
-    if (m_connection->state() == SshConnection::Connected) {
+    connect(d->m_connection.data(), SIGNAL(disconnected()), SLOT(handleDisconnected()));
+    if (d->m_connection->state() == SshConnection::Connected) {
         handleConnected();
     } else {
-        connect(m_connection.data(), SIGNAL(connected()),
-            SLOT(handleConnected()));
-        if (m_connection->state() == SshConnection::Unconnected)
-            m_connection->connectToHost();
+        connect(d->m_connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
+        if (d->m_connection->state() == SshConnection::Unconnected)
+            d->m_connection->connectToHost();
     }
 }
 
-void SshRemoteProcessRunnerPrivate::handleConnected()
+void SshRemoteProcessRunner::handleConnected()
 {
-    QTC_ASSERT(m_state == Connecting, return);
+    QTC_ASSERT(d->m_state == Connecting, return);
     setState(Connected);
 
-    m_process = m_connection->createRemoteProcess(m_command);
-    connect(m_process.data(), SIGNAL(started()), SLOT(handleProcessStarted()));
-    connect(m_process.data(), SIGNAL(closed(int)),
-        SLOT(handleProcessFinished(int)));
-    connect(m_process.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdout()));
-    connect(m_process.data(), SIGNAL(readyReadStandardError()), SLOT(handleStderr()));
-    if (m_runInTerminal)
-        m_process->requestTerminal(m_terminal);
-    m_process->start();
+    d->m_process = d->m_connection->createRemoteProcess(d->m_command);
+    connect(d->m_process.data(), SIGNAL(started()), SLOT(handleProcessStarted()));
+    connect(d->m_process.data(), SIGNAL(closed(int)), SLOT(handleProcessFinished(int)));
+    connect(d->m_process.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleStdout()));
+    connect(d->m_process.data(), SIGNAL(readyReadStandardError()), SLOT(handleStderr()));
+    if (d->m_runInTerminal)
+        d->m_process->requestTerminal(d->m_terminal);
+    d->m_process->start();
 }
 
-void SshRemoteProcessRunnerPrivate::handleConnectionError(Utils::SshError error)
+void SshRemoteProcessRunner::handleConnectionError(Utils::SshError error)
 {
-    m_lastConnectionError = error;
-    m_lastConnectionErrorString = m_connection->errorString();
+    d->m_lastConnectionError = error;
+    d->m_lastConnectionErrorString = d->m_connection->errorString();
     handleDisconnected();
     emit connectionError();
 }
 
-void SshRemoteProcessRunnerPrivate::handleDisconnected()
+void SshRemoteProcessRunner::handleDisconnected()
 {
-    QTC_ASSERT(m_state == Connecting || m_state == Connected || m_state == ProcessRunning, return);
+    QTC_ASSERT(d->m_state == Connecting || d->m_state == Connected
+        || d->m_state == ProcessRunning, return);
     setState(Inactive);
 }
 
-void SshRemoteProcessRunnerPrivate::handleProcessStarted()
+void SshRemoteProcessRunner::handleProcessStarted()
 {
-    QTC_ASSERT(m_state == Connected, return);
-    setState(ProcessRunning);
+    QTC_ASSERT(d->m_state == Connected, return);
 
+    setState(ProcessRunning);
     emit processStarted();
 }
 
-void SshRemoteProcessRunnerPrivate::handleProcessFinished(int exitStatus)
+void SshRemoteProcessRunner::handleProcessFinished(int exitStatus)
 {
     switch (exitStatus) {
     case SshRemoteProcess::FailedToStart:
-        QTC_ASSERT(m_state == Connected, return);
+        QTC_ASSERT(d->m_state == Connected, return);
         break;
     case SshRemoteProcess::KilledBySignal:
     case SshRemoteProcess::ExitedNormally:
-        QTC_ASSERT(m_state == ProcessRunning, return);
+        QTC_ASSERT(d->m_state == ProcessRunning, return);
         break;
     default:
         Q_ASSERT_X(false, Q_FUNC_INFO, "Impossible exit status.");
@@ -197,68 +173,38 @@ void SshRemoteProcessRunnerPrivate::handleProcessFinished(int exitStatus)
     emit processClosed(exitStatus);
 }
 
-void SshRemoteProcessRunnerPrivate::handleStdout()
+void SshRemoteProcessRunner::handleStdout()
 {
-    emit processOutputAvailable(m_process->readAllStandardOutput());
+    emit processOutputAvailable(d->m_process->readAllStandardOutput());
 }
 
-void SshRemoteProcessRunnerPrivate::handleStderr()
+void SshRemoteProcessRunner::handleStderr()
 {
-    emit processErrorOutputAvailable(m_process->readAllStandardError());
+    emit processErrorOutputAvailable(d->m_process->readAllStandardError());
 }
 
-void SshRemoteProcessRunnerPrivate::setState(State state)
+void SshRemoteProcessRunner::setState(int newState)
 {
-    if (m_state != state) {
-        m_state = state;
-        if (m_state == Inactive) {
-            if (m_process)
-                disconnect(m_process.data(), 0, this, 0);
-            if (m_connection) {
-                disconnect(m_connection.data(), 0, this, 0);
-                SshConnectionManager::instance().releaseConnection(m_connection);
-                m_connection.clear();
-            }
+    if (d->m_state == newState)
+        return;
+
+    d->m_state = static_cast<State>(newState);
+    if (d->m_state == Inactive) {
+        if (d->m_process)
+            disconnect(d->m_process.data(), 0, this, 0);
+        if (d->m_connection) {
+            disconnect(d->m_connection.data(), 0, this, 0);
+            SshConnectionManager::instance().releaseConnection(d->m_connection);
+            d->m_connection.clear();
         }
     }
 }
 
-} // namespace Internal
-
-SshRemoteProcessRunner::SshRemoteProcessRunner(QObject *parent)
-    : QObject(parent), d(new Internal::SshRemoteProcessRunnerPrivate(this))
-{
-    connect(d, SIGNAL(connectionError()), SIGNAL(connectionError()));
-    connect(d, SIGNAL(processStarted()), SIGNAL(processStarted()));
-    connect(d, SIGNAL(processClosed(int)), SIGNAL(processClosed(int)));
-    connect(d, SIGNAL(processOutputAvailable(QByteArray)),
-        SIGNAL(processOutputAvailable(QByteArray)));
-    connect(d, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SIGNAL(processErrorOutputAvailable(QByteArray)));
-}
-
-void SshRemoteProcessRunner::run(const QByteArray &command, const SshConnectionParameters &params)
-{
-    d->runWithoutTerminal(command, params);
-}
-
-void SshRemoteProcessRunner::runInTerminal(const QByteArray &command,
-    const SshPseudoTerminal &terminal, const SshConnectionParameters &params)
-{
-    d->runInTerminal(command, terminal, params);
-}
-
-QByteArray SshRemoteProcessRunner::command() const { return d->command(); }
-SshError SshRemoteProcessRunner::lastConnectionError() const { return d->lastConnectionError(); }
+QByteArray SshRemoteProcessRunner::command() const { return d->m_command; }
+SshError SshRemoteProcessRunner::lastConnectionError() const { return d->m_lastConnectionError; }
 SshRemoteProcess::Ptr SshRemoteProcessRunner::process() const { return d->m_process; }
-
-QString SshRemoteProcessRunner::lastConnectionErrorString() const
-{
-    return d->lastConnectionErrorString();
+QString SshRemoteProcessRunner::lastConnectionErrorString() const {
+    return d->m_lastConnectionErrorString;
 }
-
 
 } // namespace Utils
-
-
-#include "sshremoteprocessrunner.moc"
