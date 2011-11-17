@@ -34,6 +34,7 @@
 
 #include "cppeditor.h"
 #include "cppquickfixassistant.h"
+#include "cpplocalsymbols.h"
 
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/ASTPath.h>
@@ -757,6 +758,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         // build the new parameter declarations
         QString newTargetParameters;
         bool hadChanges = newParamCount < existingParamCount; // below, additions and changes set this to true as well
+        QHash<Symbol *, QString> renamedTargetParameters;
         for (int newParamIndex = 0; newParamIndex < newParamCount; ++newParamIndex) {
             const int existingParamIndex = newParamToSourceParam[newParamIndex];
             Symbol *newParam = newFunction->argumentAt(newParamIndex);
@@ -805,6 +807,10 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                                      targetFile->cppDocument()->source(),
                                      targetFunctionDeclarator, existingParamIndex))
                     replacementName = 0;
+
+                // track renames
+                if (replacementName != targetParam->name() && replacementName)
+                    renamedTargetParameters[targetParam] = overview(replacementName);
 
                 // need to change the type (and name)?
                 if (!newParam->type().isEqualTo(sourceParam->type())
@@ -884,6 +890,25 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             changes.replace(targetFile->endOf(targetFunctionDeclarator->lparen_token),
                             targetFile->startOf(targetFunctionDeclarator->rparen_token),
                             newTargetParameters);
+        }
+
+        // for function definitions, rename the local usages
+        FunctionDefinitionAST *targetDefinition = targetDeclaration->asFunctionDefinition();
+        if (targetDefinition && !renamedTargetParameters.isEmpty()) {
+            const LocalSymbols localSymbols(targetFile->cppDocument(), targetDefinition);
+            const int endOfArguments = targetFile->endOf(targetFunctionDeclarator->rparen_token);
+
+            QHashIterator<Symbol *, QString> it(renamedTargetParameters);
+            while (it.hasNext()) {
+                it.next();
+                const QList<SemanticInfo::Use> &uses = localSymbols.uses.value(it.key());
+                foreach (const SemanticInfo::Use &use, uses) {
+                    const int useStart = targetFile->position(use.line, use.column);
+                    if (useStart <= endOfArguments)
+                        continue;
+                    changes.replace(useStart, useStart + use.length, it.value());
+                }
+            }
         }
     }
 
