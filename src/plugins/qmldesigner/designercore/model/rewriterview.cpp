@@ -624,7 +624,7 @@ bool RewriterView::renameId(const QString& oldId, const QString& newId)
     return false;
 }
 
-const QmlJS::ScopeChain &RewriterView::scopeChain() const
+const QmlJS::ScopeChain *RewriterView::scopeChain() const
 {
     return textToModelMerger()->scopeChain();
 }
