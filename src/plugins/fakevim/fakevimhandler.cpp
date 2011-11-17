@@ -3856,6 +3856,7 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
             // Making this unconditional feels better, but is not "vim like".
             if (oldLine != cursorLine() - cursorLineOnScreen())
                 scrollToLine(cursorLine() - linesOnScreen() / 2);
+            setPosition(pos);
             setTargetColumn();
             updateSelection();
             recordJump();
