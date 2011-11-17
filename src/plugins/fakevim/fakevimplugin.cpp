@@ -991,7 +991,7 @@ bool FakeVimPluginPrivate::initialize()
 
     for (int i = 1; i < 10; ++i) {
         QAction *act = new QAction(this);
-        act->setText(QString("Execute User Action #%1").arg(i));
+        act->setText(tr("Execute User Action #%1").arg(i));
         act->setData(i);
         QString id = QString("FakeVim.UserAction%1").arg(i);
         QString keys = QString("Alt+V,%1").arg(i);
