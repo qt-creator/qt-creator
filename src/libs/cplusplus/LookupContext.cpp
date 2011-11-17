@@ -485,8 +485,6 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                                    const TemplateNameId *templateId,
                                    ClassOrNamespace *binding)
 {
-    Q_UNUSED(templateId);
-
     if (! name) {
         return;
 
