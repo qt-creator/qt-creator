@@ -94,6 +94,8 @@ bool BaseWindow::handleBaseContextAction(QAction *act)
         return true;
     }
     if (act == m_alwaysAdjustColumnsAction) {
+        if (act->isChecked())
+            resizeColumnsToContents();
         // Action triggered automatically.
         return true;
     }
@@ -119,6 +121,14 @@ void BaseWindow::setAlwaysResizeColumnsToContents(bool on)
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
+}
+
+void BaseWindow::reset()
+{
+    QTreeView::reset();
+    if (header() && m_alwaysAdjustColumnsAction
+            && m_alwaysAdjustColumnsAction->isChecked())
+        resizeColumnsToContents();
 }
 
 } // namespace Internal

@@ -59,6 +59,7 @@ public slots:
 private slots:
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
+    void reset();
 
 private:
     QAction *m_alwaysAdjustColumnsAction;

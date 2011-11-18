@@ -219,8 +219,6 @@ public:
     // list of dock widgets to prevent memory leak
     typedef QWeakPointer<QDockWidget> DockPtr;
     QList<DockPtr> m_dockWidgets;
-
-    bool m_restartOnStop;
 };
 
 AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -235,8 +233,7 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     m_menu(0),
     m_toolBox(new QComboBox),
     m_controlsStackWidget(new QStackedWidget),
-    m_statusLabel(new Utils::StatusLabel),
-    m_restartOnStop(false)
+    m_statusLabel(new Utils::StatusLabel)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
     connect(m_toolBox, SIGNAL(activated(int)), SLOT(selectToolboxAction(int)));
@@ -519,26 +516,6 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode)
                 buildType = buildConfig->buildType();
         }
     }
-    if (!runConfig || !runConfig->isEnabled())
-        return;
-
-    // Check if there already is an analyzer run.
-    if (m_isRunning) {
-        // ask if user wants to restart the analyzer
-        const QString msg = tr("<html><head/><body><center><i>%1</i> is still running. "
-            "You have to quit the Analyzer before being able to run another instance."
-            "<center/><center>Force it to quit?</center></body></html>")
-                .arg(m_currentTool->displayName());
-        bool stopRequested = showPromptDialog(tr("Analyzer Still Running"), msg,
-                                     tr("Stop Active Run"), tr("Keep Running"));
-        if (!stopRequested)
-            return; // no restart, keep it running, do nothing
-
-        // user selected to stop the active run. stop it, activate restart on stop
-        m_restartOnStop = true;
-        q->stopTool();
-        return;
-    }
 
     IAnalyzerTool::ToolMode toolMode = tool->toolMode();
 
@@ -586,9 +563,7 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode)
             return;
     }
 
-    m_isRunning = true;
     pe->runProject(pro, tool->id().toString());
-    updateRunActions();
 }
 
 void AnalyzerManagerPrivate::startTool()
@@ -730,18 +705,11 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
 void AnalyzerManagerPrivate::handleToolStarted()
 {
     m_isRunning = true; // FIXME: Make less global.
-    updateRunActions();
 }
 
 void AnalyzerManagerPrivate::handleToolFinished()
 {
     m_isRunning = false;
-    updateRunActions();
-
-    if (m_restartOnStop) {
-        m_currentTool->startTool(m_currentMode);
-        m_restartOnStop = false;
-    }
 }
 
 void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
@@ -791,7 +759,7 @@ void AnalyzerManagerPrivate::updateRunActions()
     m_toolBox->setEnabled(!m_isRunning);
     m_stopAction->setEnabled(m_isRunning);
     foreach (QAction *action, m_actions)
-        action->setEnabled(!m_isRunning);
+        action->setEnabled(startEnabled);
 }
 
 void AnalyzerManagerPrivate::onCurrentProjectChanged(Project *project)

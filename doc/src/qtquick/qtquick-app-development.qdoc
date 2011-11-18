@@ -642,7 +642,7 @@
 
     You can dowload QML templates that specify different types of screens from
     \l{https://projects.developer.nokia.com/QMLTemplates}{QML Templates} for use in
-    your Qt Quick projects. You can open and edit the templates in \QD.
+    your Qt Quick projects. You can open and edit the templates in \QMLD.
 
     \section1 Adding Components to Screens
 

@@ -796,8 +796,7 @@ DiffChunk VCSBaseEditorWidget::diffChunk(QTextCursor cursor) const
     DiffChunk rc;
     // Search back for start of chunk.
     QTextBlock block = cursor.block();
-    QTextBlock next = block.next();
-    if (next.isValid() && TextEditor::BaseTextDocumentLayout::foldingIndent(next) <= 1)
+    if (block.isValid() && TextEditor::BaseTextDocumentLayout::foldingIndent(block) <= 1)
         /* We are in a diff header, not in a chunk! DiffHighlighter sets the foldingIndent for us. */
         return rc;
 

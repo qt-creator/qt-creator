@@ -61,8 +61,6 @@
         \o  In the \gui {Current settings} field, select the settings to modify
             and click \gui Copy.
 
-            \image qtcreator-code-style-settings.png "Code Style Settings view"
-
         \o  Give a name to the settings and click \gui OK.
 
         \o  Click \gui Edit to specify code style settings for the project.

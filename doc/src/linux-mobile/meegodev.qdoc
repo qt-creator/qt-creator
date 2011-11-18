@@ -383,7 +383,8 @@
 
                         \image qtcreator-screenshot-build-settings.png
 
-                    \o  In the \gui {Device configuration} field, select the
+                    \o  In the \gui {Run Settings} section,
+                        \gui {Device configuration} field, select the
                         device connection or the emulator connection.
                         \image qtcreator-screenshot-run-settings.png
 

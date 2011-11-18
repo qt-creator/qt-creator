@@ -82,6 +82,10 @@
 
     \section1 Selecting Options for Memory Analysis
 
+    You can specify analyzer settings either globally for all projects or
+    separately for each project in the \l{Specifying Run Settings}{run settings}
+    of the project.
+
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
     too big, select \gui {Tools > Options > Analyzer}.
@@ -167,6 +171,10 @@
     \image qtcreator-valgrind-callgrind.png "Profile view"
 
     \section1 Selecting Profiling Options
+
+    You can specify analyzer settings either globally for all projects or
+    separately for each project in the \l{Specifying Run Settings}{run settings}
+    of the project.
 
     To specify settings for Valgrind, select \gui {Tools > Options >
     Analyzer}. The \gui {Profiling Options} group contains Callgrind options.

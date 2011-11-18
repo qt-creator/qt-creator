@@ -119,7 +119,8 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
         QTextStream out(&contents);
 
         out
-            << "import QtQuick 1.0" << endl
+            << "// import QtQuick 1.0 // to target S60 5th Edition or Maemo 5" << endl
+            << "import QtQuick 1.1" << endl
             << endl
             << "Rectangle {" << endl
             << "    width: 360" << endl

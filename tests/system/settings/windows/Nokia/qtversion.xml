@@ -74,12 +74,12 @@
   <variable>QtVersion.6</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">12</value>
-   <value type="QString" key="Name">Qt 4.7.3 for Symbian^3 (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/symbian/sdks/symbian3qt473/bin/qmake.exe</value>
+   <value type="QString" key="Name">Qt 4.7.4 for Symbian Anna (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/symbian/sdks/symbian3qt474/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Symbian</value>
    <value type="QString" key="SBSv2Directory">C:/QtSDK/Symbian/tools/sbs/bin</value>
-   <value type="QString" key="SystemRoot">C:/QtSDK/Symbian/SDKs/Symbian3Qt473/</value>
-   <value type="QString" key="autodetectionSource">SDK.C:/QtSDK/Symbian/SDKs/Symbian3Qt473</value>
+   <value type="QString" key="SystemRoot">C:/QtSDK/Symbian/SDKs/Symbian3Qt474/</value>
+   <value type="QString" key="autodetectionSource">SDK.C:/QtSDK/Symbian/SDKs/Symbian3Qt474</value>
    <value type="bool" key="isAutodetected">true</value>
   </valuemap>
  </data>
@@ -87,7 +87,7 @@
   <variable>QtVersion.7</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">13</value>
-   <value type="QString" key="Name">Qt 4.7.3 for Symbian^1 (Qt SDK)</value>
+   <value type="QString" key="Name">Qt 4.7.3 for S60 5th Edition (Qt SDK)</value>
    <value type="QString" key="QMakePath">c:/qtsdk/symbian/sdks/symbian1qt473/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Symbian</value>
    <value type="QString" key="SBSv2Directory"></value>
@@ -99,20 +99,9 @@
  <data>
   <variable>QtVersion.8</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">14</value>
-   <value type="QString" key="Name">Harmattan Platform API (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/madde/targets/harmattan-platform-api/bin/qmake.exe</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
-   <value type="QString" key="autodetectionSource">SDK.Harmattan_Platform_API</value>
-   <value type="bool" key="isAutodetected">true</value>
-  </valuemap>
- </data>
- <data>
-  <variable>QtVersion.9</variable>
-  <valuemap type="QVariantMap">
    <value type="int" key="Id">15</value>
-   <value type="QString" key="Name">MeeGo 1.2 Harmattan API (Qt SDK)</value>
-   <value type="QString" key="QMakePath">c:/qtsdk/madde/targets/harmattan-nokia-meego-api/bin/qmake.exe</value>
+   <value type="QString" key="Name">Harmattan Target (Qt SDK)</value>
+   <value type="QString" key="QMakePath">c:/qtsdk/madde/targets/harmattan_10.2011.34-1/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
    <value type="QString" key="autodetectionSource">SDK.MeeGo_1.2_Harmattan_API</value>
    <value type="bool" key="isAutodetected">true</value>
@@ -120,7 +109,7 @@
  </data>
  <data>
   <variable>QtVersion.Count</variable>
-  <value type="int">10</value>
+  <value type="int">9</value>
  </data>
  <data>
   <variable>Version</variable>

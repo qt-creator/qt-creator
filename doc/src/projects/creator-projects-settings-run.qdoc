@@ -50,6 +50,7 @@
 
     \if defined(qcmanual)
     \input projects/creator-projects-settings-run-desktop.qdocinc
+    \input projects/creator-projects-settings-run-analyze.qdocinc
     \input symbian/creator-projects-settings-run-symbian.qdocinc
     \input linux-mobile/creator-projects-settings-run-madde.qdocinc
     \input linux-mobile/creator-projects-settings-run-generic-linux.qdocinc

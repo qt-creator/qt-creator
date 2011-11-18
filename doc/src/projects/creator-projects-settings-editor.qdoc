@@ -48,13 +48,15 @@
 
         \o  Select \gui {Projects > Editor Settings}.
 
-        \o  Deselect the \gui {Use global settings} check box.
+        \o  In the \gui {Editor Settings} field, select \gui {Custom}.
 
         \o  Specify text editor settings for the project.
 
     \endlist
 
     \image qtcreator-editor-settings.png "Editor Settings view"
+
+    Click \gui {Restore Global} to revert to the global settings.
 
     For more information about the settings, see:
 

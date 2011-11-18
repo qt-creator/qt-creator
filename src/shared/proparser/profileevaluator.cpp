@@ -2269,7 +2269,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                             src = s;
                             break;
                         }
-                    ret.append(ProString(before + var.join(glue) + after, NoHash).setSource(src));
+                    ret = split_value_list(before + var.join(glue) + after, src);
                 }
             }
             break;

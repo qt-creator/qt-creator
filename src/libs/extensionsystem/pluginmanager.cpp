@@ -667,6 +667,8 @@ void PluginManager::startTests()
 {
 #ifdef WITH_TESTS
     foreach (PluginSpec *pluginSpec, d->testSpecs) {
+        if (!pluginSpec->plugin())
+            continue;
         const QMetaObject *mo = pluginSpec->plugin()->metaObject();
         QStringList methods;
         methods.append("arg0");
@@ -678,7 +680,10 @@ void PluginManager::startTests()
                 methods.append(method.left(method.size()-2));
             }
         }
-        QTest::qExec(pluginSpec->plugin(), methods);
+        // Don't run QTest::qExec with only one argument, that'd run
+        // *all* slots as tests.
+        if (methods.size() > 1)
+            QTest::qExec(pluginSpec->plugin(), methods);
     }
     if (!d->testSpecs.isEmpty())
         QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));

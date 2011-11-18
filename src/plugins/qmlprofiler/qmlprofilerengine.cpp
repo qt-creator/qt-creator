@@ -206,7 +206,6 @@ bool QmlProfilerEngine::start()
         d->m_fetchingData = true;
     }
 
-    AnalyzerManager::handleToolStarted();
     emit starting(this);
     return true;
 }

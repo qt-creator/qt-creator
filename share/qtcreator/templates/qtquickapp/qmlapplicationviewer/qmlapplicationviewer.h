@@ -37,7 +37,6 @@ public:
     void showExpanded();
 
 private:
-    explicit QmlApplicationViewer(QDeclarativeView *view, QWidget *parent);
     class QmlApplicationViewerPrivate *d;
 };
 

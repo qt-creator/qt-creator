@@ -81,6 +81,16 @@
     application is launched. Data collection starts when you select the button
     again.
 
+    \section1 Attaching to Running Qt Quick Applications
+
+    To profile Qt Quick applications that are not launched by \QC, select
+    \gui {Analyze > QML Profiler (Remote)}. You must enable QML debugging for
+    the application in the project build settings. For more information, see
+    \l{Setting Up QML Debugging}.
+
+    In the \gui {QML Profiler} dialog, \gui Port field, specify the port to
+    listen to.
+
     \section1 Analyzing Collected Data
 
     The \gui Timeline view displays graphical representations of:
