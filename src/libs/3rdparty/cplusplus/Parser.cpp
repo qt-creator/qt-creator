@@ -3413,6 +3413,10 @@ bool Parser::lookAtStorageClassSpecifier() const
     case T_MUTABLE:
     case T_TYPEDEF:
         return true;
+    case T_CONSTEXPR:
+        if (_cxx0xEnabled)
+            return true;
+        // fall-through
     default:
         return false;
     }

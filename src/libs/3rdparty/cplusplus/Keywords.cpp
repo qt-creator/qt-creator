@@ -945,7 +945,7 @@ static inline int classify8(const char *s, bool q, bool x) {
   return T_IDENTIFIER;
 }
 
-static inline int classify9(const char *s, bool q, bool) {
+static inline int classify9(const char *s, bool q, bool x) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'c') {
@@ -956,6 +956,25 @@ static inline int classify9(const char *s, bool q, bool) {
                 if (s[7] == '_') {
                   if (s[8] == '_') {
                     return T___CONST__;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (x && s[0] == 'c') {
+    if (s[1] == 'o') {
+      if (s[2] == 'n') {
+        if (s[3] == 's') {
+          if (s[4] == 't') {
+            if (s[5] == 'e') {
+              if (s[6] == 'x') {
+                if (s[7] == 'p') {
+                  if (s[8] == 'r') {
+                    return T_CONSTEXPR;
                   }
                 }
               }

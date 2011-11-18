@@ -111,6 +111,7 @@ enum Kind {
     T_CLASS,
     T_CONST,
     T_CONST_CAST,
+    T_CONSTEXPR,
     T_CONTINUE,
     T_DEFAULT,
     T_DELETE,
