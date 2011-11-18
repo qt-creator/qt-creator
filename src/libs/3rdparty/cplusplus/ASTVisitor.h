@@ -172,6 +172,7 @@ public:
     virtual bool visit(ParameterDeclarationAST *) { return true; }
     virtual bool visit(ParameterDeclarationClauseAST *) { return true; }
     virtual bool visit(PointerAST *) { return true; }
+    virtual bool visit(PointerLiteralAST *) { return true; }
     virtual bool visit(PointerToMemberAST *) { return true; }
     virtual bool visit(PostIncrDecrAST *) { return true; }
     virtual bool visit(QtEnumDeclarationAST *) { return true; }
@@ -311,6 +312,7 @@ public:
     virtual void endVisit(ParameterDeclarationAST *) {}
     virtual void endVisit(ParameterDeclarationClauseAST *) {}
     virtual void endVisit(PointerAST *) {}
+    virtual void endVisit(PointerLiteralAST *) {}
     virtual void endVisit(PointerToMemberAST *) {}
     virtual void endVisit(PostIncrDecrAST *) {}
     virtual void endVisit(QtEnumDeclarationAST *) {}

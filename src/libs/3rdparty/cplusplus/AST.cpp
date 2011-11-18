@@ -4219,3 +4219,19 @@ unsigned AttributeSpecifierAST::lastToken() const
     return 1;
 }
 
+/** \generated */
+unsigned PointerLiteralAST::firstToken() const
+{
+    if (literal_token)
+        return literal_token;
+    return 0;
+}
+
+/** \generated */
+unsigned PointerLiteralAST::lastToken() const
+{
+    if (literal_token)
+        return literal_token + 1;
+    return 1;
+}
+

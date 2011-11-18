@@ -134,6 +134,7 @@ class OperatorFunctionIdAST;
 class ParameterDeclarationAST;
 class ParameterDeclarationClauseAST;
 class PointerAST;
+class PointerLiteralAST;
 class PointerToMemberAST;
 class PostIncrDecrAST;
 class PostfixAST;

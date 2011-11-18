@@ -752,6 +752,14 @@ bool SizeofExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool PointerLiteralAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (PointerLiteralAST *_other = pattern->asPointerLiteral())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool NumericLiteralAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (NumericLiteralAST *_other = pattern->asNumericLiteral())

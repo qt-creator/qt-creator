@@ -721,6 +721,12 @@ public:
         return __ast;
     }
 
+    PointerLiteralAST *PointerLiteral()
+    {
+        PointerLiteralAST *__ast = new (&pool) PointerLiteralAST;
+        return __ast;
+    }
+
     NumericLiteralAST *NumericLiteral()
     {
         NumericLiteralAST *__ast = new (&pool) NumericLiteralAST;

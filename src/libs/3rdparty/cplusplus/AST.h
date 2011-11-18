@@ -227,6 +227,7 @@ public:
     virtual ParameterDeclarationAST *asParameterDeclaration() { return 0; }
     virtual ParameterDeclarationClauseAST *asParameterDeclarationClause() { return 0; }
     virtual PointerAST *asPointer() { return 0; }
+    virtual PointerLiteralAST *asPointerLiteral() { return 0; }
     virtual PointerToMemberAST *asPointerToMember() { return 0; }
     virtual PostIncrDecrAST *asPostIncrDecr() { return 0; }
     virtual PostfixAST *asPostfix() { return 0; }
@@ -2898,6 +2899,28 @@ public:
     virtual unsigned lastToken() const;
 
     virtual SizeofExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT PointerLiteralAST: public ExpressionAST
+{
+public:
+    unsigned literal_token;
+
+public:
+    PointerLiteralAST()
+        : literal_token(0)
+    {}
+
+    virtual PointerLiteralAST *asPointerLiteral() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual PointerLiteralAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

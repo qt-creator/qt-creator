@@ -153,6 +153,7 @@ public:
     bool parseThisExpression(ExpressionAST *&node);
     bool parseBoolLiteral(ExpressionAST *&node);
     bool parseNumericLiteral(ExpressionAST *&node);
+    bool parsePointerLiteral(ExpressionAST *&node);
     bool parseStringLiteral(ExpressionAST *&node);
     bool parseSwitchStatement(StatementAST *&node);
     bool parseTemplateArgument(ExpressionAST *&node);

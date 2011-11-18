@@ -3865,6 +3865,18 @@ bool Parser::parseNumericLiteral(ExpressionAST *&node)
     return false;
 }
 
+bool Parser::parsePointerLiteral(ExpressionAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() == T_NULLPTR) {
+        PointerLiteralAST *ast = new (_pool) PointerLiteralAST;
+        ast->literal_token = consumeToken();
+        node = ast;
+        return true;
+    }
+    return false;
+}
+
 bool Parser::parseThisExpression(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
@@ -3884,6 +3896,11 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_STRING_LITERAL:
     case T_WIDE_STRING_LITERAL:
         return parseStringLiteral(node);
+
+    case T_NULLPTR:
+        if (_cxx0xEnabled)
+            return parsePointerLiteral(node);
+        // fall-through
 
     case T_CHAR_LITERAL: // ### FIXME don't use NumericLiteral for chars
     case T_WIDE_CHAR_LITERAL:

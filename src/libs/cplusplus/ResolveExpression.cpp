@@ -273,6 +273,13 @@ bool ResolveExpression::visit(SizeofExpressionAST *)
     return false;
 }
 
+bool ResolveExpression::visit(PointerLiteralAST *)
+{
+    FullySpecifiedType ty(control()->integerType(IntegerType::Int)); // Handling as Int.
+    addResult(ty, _scope);
+    return false;
+}
+
 bool ResolveExpression::visit(NumericLiteralAST *ast)
 {
     const Token &tk = tokenAt(ast->literal_token);

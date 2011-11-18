@@ -1092,6 +1092,13 @@ SizeofExpressionAST *SizeofExpressionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+PointerLiteralAST *PointerLiteralAST::clone(MemoryPool *pool) const
+{
+    PointerLiteralAST *ast = new (pool) PointerLiteralAST;
+    ast->literal_token = literal_token;
+    return ast;
+}
+
 NumericLiteralAST *NumericLiteralAST::clone(MemoryPool *pool) const
 {
     NumericLiteralAST *ast = new (pool) NumericLiteralAST;

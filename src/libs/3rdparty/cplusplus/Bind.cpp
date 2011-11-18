@@ -1594,6 +1594,13 @@ bool Bind::visit(SizeofExpressionAST *ast)
     return false;
 }
 
+bool Bind::visit(PointerLiteralAST *ast)
+{
+    (void) ast;
+    // unsigned literal_token = ast->literal_token;
+    return false;
+}
+
 bool Bind::visit(NumericLiteralAST *ast)
 {
     (void) ast;

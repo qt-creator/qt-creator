@@ -799,6 +799,13 @@ void SizeofExpressionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void PointerLiteralAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
 void NumericLiteralAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

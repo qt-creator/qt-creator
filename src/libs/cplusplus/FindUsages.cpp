@@ -1351,6 +1351,13 @@ bool FindUsages::visit(SizeofExpressionAST *ast)
     return false;
 }
 
+bool FindUsages::visit(PointerLiteralAST *ast)
+{
+    (void) ast;
+    // unsigned literal_token = ast->literal_token;
+    return false;
+}
+
 bool FindUsages::visit(NumericLiteralAST *ast)
 {
     (void) ast;

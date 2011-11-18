@@ -130,6 +130,7 @@ public:
     virtual bool match(ParameterDeclarationAST *node, ParameterDeclarationAST *pattern);
     virtual bool match(ParameterDeclarationClauseAST *node, ParameterDeclarationClauseAST *pattern);
     virtual bool match(PointerAST *node, PointerAST *pattern);
+    virtual bool match(PointerLiteralAST *node, PointerLiteralAST *pattern);
     virtual bool match(PointerToMemberAST *node, PointerToMemberAST *pattern);
     virtual bool match(PostIncrDecrAST *node, PostIncrDecrAST *pattern);
     virtual bool match(QtEnumDeclarationAST *node, QtEnumDeclarationAST *pattern);

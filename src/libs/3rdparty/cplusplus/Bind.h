@@ -183,6 +183,7 @@ protected:
     virtual bool visit(TypenameCallExpressionAST *ast);
     virtual bool visit(TypeConstructorCallAST *ast);
     virtual bool visit(SizeofExpressionAST *ast);
+    virtual bool visit(PointerLiteralAST *ast);
     virtual bool visit(NumericLiteralAST *ast);
     virtual bool visit(BoolLiteralAST *ast);
     virtual bool visit(ThisExpressionAST *ast);

@@ -1839,6 +1839,16 @@ bool ASTMatcher::match(SizeofExpressionAST *node, SizeofExpressionAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(PointerLiteralAST *node, PointerLiteralAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->literal_token = node->literal_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(NumericLiteralAST *node, NumericLiteralAST *pattern)
 {
     (void) node;
