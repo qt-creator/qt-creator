@@ -45,37 +45,25 @@ namespace Internal {
 
 struct SemanticInfoUpdaterSource
 {
+    QmlJS::Document::Ptr document;
     QmlJS::Snapshot snapshot;
-    QString fileName;
-    QString code;
-    int line;
-    int column;
-    int revision;
-    bool force;
 
     SemanticInfoUpdaterSource()
-        : line(0), column(0), revision(0), force(false)
     { }
 
-    SemanticInfoUpdaterSource(const QmlJS::Snapshot &snapshot,
-           const QString &fileName,
-           const QString &code,
-           int line, int column,
-           int revision)
-        : snapshot(snapshot), fileName(fileName),
-          code(code), line(line), column(column),
-          revision(revision), force(false)
+    SemanticInfoUpdaterSource(const QmlJS::Document::Ptr &document,
+                              const QmlJS::Snapshot &snapshot)
+        : document(document)
+        , snapshot(snapshot)
     { }
+
+    bool isValid() const
+    { return document; }
 
     void clear()
     {
+        document.clear();
         snapshot = QmlJS::Snapshot();
-        fileName.clear();
-        code.clear();
-        line = 0;
-        column = 0;
-        revision = 0;
-        force = false;
     }
 };
 
@@ -89,7 +77,6 @@ public:
 
     void abort();
     void update(const SemanticInfoUpdaterSource &source);
-    void setModelManager(QmlJS::ModelManagerInterface *modelManager);
 
 Q_SIGNALS:
     void updated(const QmlJSEditor::SemanticInfo &semanticInfo);
@@ -98,16 +85,14 @@ protected:
     virtual void run();
 
 private:
-    bool isOutdated();
-    SemanticInfo semanticInfo(const SemanticInfoUpdaterSource &source);
+    SemanticInfo makeNewSemanticInfo(const SemanticInfoUpdaterSource &source);
 
 private:
     QMutex m_mutex;
     QWaitCondition m_condition;
-    bool m_done;
+    bool m_wasCancelled;
     SemanticInfoUpdaterSource m_source;
     SemanticInfo m_lastSemanticInfo;
-    QmlJS::ModelManagerInterface *m_modelManager;
 };
 
 } // namespace Internal

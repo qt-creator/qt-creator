@@ -408,7 +408,7 @@ Qt::ItemFlags QmlOutlineModel::flags(const QModelIndex &index) const
 
     // only allow drag&drop if we're in sync
     if (m_semanticInfo.isValid()
-            && m_semanticInfo.revision() == m_textEditor->editorRevision()) {
+            && !m_textEditor->isSemanticInfoOutdated()) {
         if (index.parent().isValid())
             flags |= Qt::ItemIsDragEnabled;
         if (index.data(ItemTypeRole) != NonElementBindingType)

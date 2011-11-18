@@ -119,7 +119,7 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         return;
 
     const QmlJSEditor::SemanticInfo &semanticInfo = qmlEditor->semanticInfo();
-    if (! semanticInfo.isValid() || semanticInfo.revision() != qmlEditor->editorRevision())
+    if (! semanticInfo.isValid() || qmlEditor->isSemanticInfoOutdated())
         return;
 
     QList<AST::Node *> rangePath = semanticInfo.rangePath(pos);

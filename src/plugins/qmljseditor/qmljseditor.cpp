@@ -677,19 +677,19 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_updateDocumentTimer->setSingleShot(true);
-    connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(updateDocumentNow()));
+    connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(reparseDocumentNow()));
 
     m_updateUsesTimer = new QTimer(this);
     m_updateUsesTimer->setInterval(UPDATE_USES_DEFAULT_INTERVAL);
     m_updateUsesTimer->setSingleShot(true);
     connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
-    m_localReparseTimer = new QTimer(this);
-    m_localReparseTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
-    m_localReparseTimer->setSingleShot(true);
-    connect(m_localReparseTimer, SIGNAL(timeout()), this, SLOT(forceReparseIfCurrentEditor()));
+    m_updateSemanticInfoTimer = new QTimer(this);
+    m_updateSemanticInfoTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_updateSemanticInfoTimer->setSingleShot(true);
+    connect(m_updateSemanticInfoTimer, SIGNAL(timeout()), this, SLOT(updateSemanticInfoNow()));
 
-    connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
+    connect(this, SIGNAL(textChanged()), this, SLOT(reparseDocument()));
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
@@ -723,16 +723,15 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     m_oldCursorPosition = -1;
 
     if (m_modelManager) {
-        m_semanticInfoUpdater->setModelManager(m_modelManager);
         connect(m_modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
                 this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
         connect(m_modelManager, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
-                this, SLOT(forceReparseIfCurrentEditor()));
+                this, SLOT(updateSemanticInfo()));
         connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
     }
 
     connect(m_semanticInfoUpdater, SIGNAL(updated(QmlJSEditor::SemanticInfo)),
-            this, SLOT(updateSemanticInfo(QmlJSEditor::SemanticInfo)));
+            this, SLOT(acceptNewSemanticInfo(QmlJSEditor::SemanticInfo)));
 
     connect(this, SIGNAL(refactorMarkerClicked(TextEditor::RefactorMarker)),
             SLOT(onRefactorMarkerClicked(TextEditor::RefactorMarker)));
@@ -757,7 +756,7 @@ int QmlJSTextEditorWidget::editorRevision() const
     return document()->revision();
 }
 
-bool QmlJSTextEditorWidget::isOutdated() const
+bool QmlJSTextEditorWidget::isSemanticInfoOutdated() const
 {
     if (m_semanticInfo.revision() != editorRevision())
         return true;
@@ -799,19 +798,16 @@ bool QmlJSEditorEditable::open(QString *errorString, const QString &fileName, co
     return b;
 }
 
-void QmlJSTextEditorWidget::updateDocument()
+void QmlJSTextEditorWidget::reparseDocument()
 {
-    m_updateDocumentTimer->start(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_updateDocumentTimer->start();
 }
 
-void QmlJSTextEditorWidget::updateDocumentNow()
+void QmlJSTextEditorWidget::reparseDocumentNow()
 {
-    // ### move in the parser thread.
-
     m_updateDocumentTimer->stop();
 
     const QString fileName = file()->fileName();
-
     m_modelManager->updateSourceFiles(QStringList() << fileName, false);
 }
 
@@ -892,19 +888,23 @@ static void appendExtraSelectionsForMessages(
 
 void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
-    if (file()->fileName() != doc->fileName()
-            || doc->editorRevision() != document()->revision()) {
-        // maybe a dependency changed: schedule a potential rehighlight
-        // will not rehighlight if the current editor changes away from this file
-        m_localReparseTimer->start();
+    if (file()->fileName() != doc->fileName())
+        return;
+
+    if (doc->editorRevision() != document()->revision()) {
+        // Maybe a dependency changed and our semantic info is now outdated.
+        // Ignore 0-revision documents though, we get them when a file is initially opened
+        // in an editor.
+        if (doc->editorRevision() != 0)
+            updateSemanticInfo();
         return;
     }
 
+    //qDebug() << doc->fileName() << "was reparsed";
+
     if (doc->ast()) {
         // got a correctly parsed (or recovered) file.
-
-        const SemanticInfoUpdaterSource source = currentSource(/*force = */ true);
-        m_semanticInfoUpdater->update(source);
+        m_semanticInfoUpdater->update(SemanticInfoUpdaterSource(doc, m_modelManager->snapshot()));
     } else {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
@@ -1063,7 +1063,7 @@ void QmlJSTextEditorWidget::setUpdateSelectedElements(bool value)
 
 void QmlJSTextEditorWidget::updateUsesNow()
 {
-    if (document()->revision() != m_semanticInfo.revision()) {
+    if (isSemanticInfoOutdated()) {
         updateUses();
         return;
     }
@@ -1427,7 +1427,7 @@ void QmlJSTextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
-    if (! isOutdated()) {
+    if (! isSemanticInfoOutdated()) {
         TextEditor::IAssistInterface *interface =
                 createAssistInterface(TextEditor::QuickFix, TextEditor::ExplicitlyInvoked);
         if (interface) {
@@ -1531,30 +1531,42 @@ void QmlJSTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
     TextEditor::BaseTextEditorWidget::setTabSettings(ts);
 }
 
-void QmlJSTextEditorWidget::forceReparse()
+void QmlJSTextEditorWidget::updateSemanticInfo()
 {
-    m_semanticInfoUpdater->update(currentSource(/* force = */ true));
-}
+    // If the document is already out of date, new semantic infos
+    // won't be accepted anyway. What we need is a reparse.
+    if (isSemanticInfoOutdated())
+        return;
 
-void QmlJSEditor::QmlJSTextEditorWidget::forceReparseIfCurrentEditor()
-{
+    // Save time by not doing it for non-active editors.
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    if (editorManager->currentEditor() == editor())
-        forceReparse();
+    if (editorManager->currentEditor() != editor())
+        return;
+
+    m_updateSemanticInfoTimer->start();
 }
 
-void QmlJSTextEditorWidget::reparse()
+void QmlJSTextEditorWidget::updateSemanticInfoNow()
 {
-    m_semanticInfoUpdater->update(currentSource());
+    // If the document is already out of date, new semantic infos
+    // won't be accepted anyway. What we need is a reparse.
+    if (isSemanticInfoOutdated())
+        return;
+
+    m_updateSemanticInfoTimer->stop();
+
+    m_semanticInfoUpdater->update(
+                SemanticInfoUpdaterSource(m_semanticInfo.document, m_semanticInfo.snapshot));
 }
 
-void QmlJSTextEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
+void QmlJSTextEditorWidget::acceptNewSemanticInfo(const SemanticInfo &semanticInfo)
 {
-    if (semanticInfo.revision() != document()->revision()) {
-        // got outdated semantic info
-        reparse();
+    if (semanticInfo.document->editorRevision() != document()->revision()) {
+        // ignore outdated semantic infos
         return;
     }
+
+    //qDebug() << file()->fileName() << "got new semantic info";
 
     m_semanticInfo = semanticInfo;
     Document::Ptr doc = semanticInfo.document;
@@ -1658,25 +1670,6 @@ QVector<QString> QmlJSTextEditorWidget::highlighterFormatCategories()
                 << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
     return categories;
-}
-
-SemanticInfoUpdaterSource QmlJSTextEditorWidget::currentSource(bool force)
-{
-    int line = 0, column = 0;
-    convertPosition(position(), &line, &column);
-
-    const Snapshot snapshot = m_modelManager->snapshot();
-    const QString fileName = file()->fileName();
-
-    QString code;
-    if (force || m_semanticInfo.revision() != document()->revision())
-        code = toPlainText(); // get the source code only when needed.
-
-    const unsigned revision = document()->revision();
-    SemanticInfoUpdaterSource source(snapshot, fileName, code,
-                                       line, column, revision);
-    source.force = force;
-    return source;
 }
 
 TextEditor::IAssistInterface *QmlJSTextEditorWidget::createAssistInterface(

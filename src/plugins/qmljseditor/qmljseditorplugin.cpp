@@ -311,7 +311,7 @@ void QmlJSEditorPlugin::reformatFile()
 {
     Core::EditorManager *em = Core::EditorManager::instance();
     if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(em->currentEditor()->widget())) {
-        QTC_ASSERT(!editor->isOutdated(), return);
+        QTC_ASSERT(!editor->isSemanticInfoOutdated(), return);
 
         const QString &newText = QmlJS::reformat(editor->semanticInfo().document);
         QTextCursor tc(editor->textCursor());
@@ -364,7 +364,7 @@ void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
                 this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
         connect(newTextEditor, SIGNAL(semanticInfoUpdated()),
                 this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
-        newTextEditor->forceReparse();
+        newTextEditor->reparseDocumentNow();
     }
 }
 
@@ -378,7 +378,7 @@ void QmlJSEditorPlugin::runSemanticScan()
 
 void QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate()
 {
-    const bool semanticInfoUpToDate = m_currentEditor && !m_currentEditor->isOutdated();
+    const bool semanticInfoUpToDate = m_currentEditor && !m_currentEditor->isSemanticInfoOutdated();
     m_reformatFileAction->setEnabled(semanticInfoUpToDate);
 }
 

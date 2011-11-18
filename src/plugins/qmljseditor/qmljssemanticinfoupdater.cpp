@@ -43,9 +43,8 @@ namespace QmlJSEditor {
 namespace Internal {
 
 SemanticInfoUpdater::SemanticInfoUpdater(QObject *parent)
-        : QThread(parent),
-          m_done(false),
-          m_modelManager(0)
+        : QThread(parent)
+        , m_wasCancelled(false)
 {
 }
 
@@ -56,7 +55,7 @@ SemanticInfoUpdater::~SemanticInfoUpdater()
 void SemanticInfoUpdater::abort()
 {
     QMutexLocker locker(&m_mutex);
-    m_done = true;
+    m_wasCancelled = true;
     m_condition.wakeOne();
 }
 
@@ -67,13 +66,6 @@ void SemanticInfoUpdater::update(const SemanticInfoUpdaterSource &source)
     m_condition.wakeOne();
 }
 
-bool SemanticInfoUpdater::isOutdated()
-{
-    QMutexLocker locker(&m_mutex);
-    const bool outdated = ! m_source.fileName.isEmpty() || m_done;
-    return outdated;
-}
-
 void SemanticInfoUpdater::run()
 {
     setPriority(QThread::LowestPriority);
@@ -81,10 +73,10 @@ void SemanticInfoUpdater::run()
     forever {
         m_mutex.lock();
 
-        while (! (m_done || ! m_source.fileName.isEmpty()))
+        while (! (m_wasCancelled || m_source.isValid()))
             m_condition.wait(&m_mutex);
 
-        const bool done = m_done;
+        const bool done = m_wasCancelled;
         const SemanticInfoUpdaterSource source = m_source;
         m_source.clear();
 
@@ -93,72 +85,41 @@ void SemanticInfoUpdater::run()
         if (done)
             break;
 
-        const SemanticInfo info = semanticInfo(source);
+        const SemanticInfo info = makeNewSemanticInfo(source);
 
-        if (! isOutdated()) {
-            m_mutex.lock();
+        m_mutex.lock();
+        const bool cancelledOrNewData = m_wasCancelled || m_source.isValid();
+        m_mutex.unlock();
+
+        if (! cancelledOrNewData) {
             m_lastSemanticInfo = info;
-            m_mutex.unlock();
-
             emit updated(info);
         }
     }
 }
 
-SemanticInfo SemanticInfoUpdater::semanticInfo(const SemanticInfoUpdaterSource &source)
+SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const SemanticInfoUpdaterSource &source)
 {
-    m_mutex.lock();
-    const int revision = m_lastSemanticInfo.revision();
-    m_mutex.unlock();
-
-    QmlJS::Snapshot snapshot;
-    QmlJS::Document::Ptr doc;
-
-    if (! source.force && revision == source.revision) {
-        m_mutex.lock();
-        snapshot = m_lastSemanticInfo.snapshot;
-        doc = m_lastSemanticInfo.document;
-        m_mutex.unlock();
-    }
-
-    if (! doc) {
-        snapshot = source.snapshot;
-        QmlJS::Document::Language language;
-        if (m_lastSemanticInfo.document)
-            language = m_lastSemanticInfo.document->language();
-        else
-            language = QmlJSTools::languageOfFile(source.fileName);
-        QmlJS::Document::MutablePtr newDoc = snapshot.documentFromSource(
-                    source.code, source.fileName, language);
-        newDoc->setEditorRevision(source.revision);
-        newDoc->parse();
-        snapshot.insert(newDoc);
-        doc = newDoc;
-    }
+    using namespace QmlJS;
 
     SemanticInfo semanticInfo;
-    semanticInfo.snapshot = snapshot;
-    semanticInfo.document = doc;
+    const Document::Ptr &doc = semanticInfo.document = source.document;
+    semanticInfo.snapshot = source.snapshot;
 
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    QmlJS::Link link(snapshot, modelManager->importPaths(), modelManager->builtins(doc));
+    Link link(semanticInfo.snapshot, modelManager->importPaths(), modelManager->builtins(doc));
     semanticInfo.context = link(doc, &semanticInfo.semanticMessages);
 
-    QmlJS::ScopeChain *scopeChain = new QmlJS::ScopeChain(doc, semanticInfo.context);
-    semanticInfo.m_rootScopeChain = QSharedPointer<const QmlJS::ScopeChain>(scopeChain);
+    ScopeChain *scopeChain = new ScopeChain(doc, semanticInfo.context);
+    semanticInfo.m_rootScopeChain = QSharedPointer<const ScopeChain>(scopeChain);
 
-    if (doc->language() != QmlJS::Document::JsonLanguage) {
-        QmlJS::Check checker(doc, semanticInfo.context);
+    if (doc->language() != Document::JsonLanguage) {
+        Check checker(doc, semanticInfo.context);
         semanticInfo.staticAnalysisMessages = checker();
     }
 
     return semanticInfo;
-}
-
-void SemanticInfoUpdater::setModelManager(QmlJS::ModelManagerInterface *modelManager)
-{
-    m_modelManager = modelManager;
 }
 
 } // namespace Internal
