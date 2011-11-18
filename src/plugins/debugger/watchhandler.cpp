@@ -437,16 +437,16 @@ QString WatchModel::formattedValue(const WatchData &data) const
     QString result = value;
     if (result.startsWith(QLatin1Char('<'))) {
         if (result == QLatin1String("<Edit>"))
-            result = WatchHandler::tr("<Edit>");
-        else if (result == QLatin1String("<empty>"))
-            result = WatchHandler::tr("<empty>");
-        else if (result == QLatin1String("<uninitialized>"))
-            result = WatchHandler::tr("<uninitialized>");
-        else if (result == QLatin1String("<invalid>"))
-            result = WatchHandler::tr("<invalid>");
-        else if (result == QLatin1String("<not accessible>"))
-            result = WatchHandler::tr("<not accessible>");
-        else if (result.endsWith(" items>")) {
+            return WatchHandler::tr("<Edit>");
+        if (result == QLatin1String("<empty>"))
+            return WatchHandler::tr("<empty>");
+        if (result == QLatin1String("<uninitialized>"))
+            return WatchHandler::tr("<uninitialized>");
+        if (result == QLatin1String("<invalid>"))
+            return WatchHandler::tr("<invalid>");
+        if (result == QLatin1String("<not accessible>"))
+            return WatchHandler::tr("<not accessible>");
+        if (result.endsWith(" items>")) {
             // '<10 items>' or '<>10 items>' (more than)
             bool ok;
             const bool moreThan = result.at(1) == QLatin1Char('>');
@@ -455,7 +455,7 @@ QString WatchModel::formattedValue(const WatchData &data) const
             const int size = result.mid(numberPos, len).toInt(&ok);
             QTC_ASSERT(ok, qWarning("WatchHandler: Invalid item count '%s'",
                 qPrintable(result)))
-            result = moreThan ?
+            return moreThan ?
                      WatchHandler::tr("<more than %n items>", 0, size) :
                      WatchHandler::tr("<%n items>", 0, size);
         }
