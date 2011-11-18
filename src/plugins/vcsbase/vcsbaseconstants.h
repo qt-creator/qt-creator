@@ -44,9 +44,6 @@ const char SETTINGS_CATEGORY_VCS_ICON[] = ":/core/images/category_vcs.png";
 const char VCS_COMMON_SETTINGS_ID[] = "A.Common";
 const char VCS_COMMON_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("VCSBase", "Common");
 
-const char VCS_WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("VCSBase", "Project from Version Control");
-const char VCS_WIZARD_CATEGORY[] = "L.Version Control";
-
 // Ids for sort order (wizards and preferences)
 const char VCS_ID_BAZAAR[] = "B.Bazaar";
 const char VCS_ID_GIT[] = "G.Git";

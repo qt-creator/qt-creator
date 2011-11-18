@@ -191,10 +191,15 @@ const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
 const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";
 const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";
 
-// Wizard category
+// Wizard categories
+const char QT_PROJECT_WIZARD_CATEGORY[] = "F.QtProjects";
+const char QT_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Qt Project");
+
 const char PROJECT_WIZARD_CATEGORY[] = "I.Projects"; // (after Qt)
-const char PROJECT_WIZARD_TR_SCOPE[] = "ProjectExplorer";
-const char PROJECT_WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Project");
+const char PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Non-Qt Project");
+
+const char IMPORT_WIZARD_CATEGORY[] = "J.Import";
+const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Import Project");
 
 // Build step lists ids:
 const char BUILDSTEPS_CLEAN[] = "ProjectExplorer.BuildSteps.Clean";

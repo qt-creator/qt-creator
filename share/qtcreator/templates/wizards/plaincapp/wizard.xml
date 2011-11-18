@@ -43,7 +43,7 @@ leave room for the Qt 4 target page.
     <icon>console.png</icon>
     <description>Creates a plain C project using qmake, not using the Qt library.</description>
     <displayname>Plain C Project</displayname>;
-    <displaycategory>Other Project</displaycategory>
+    <displaycategory>Non-Qt Project</displaycategory>
     <files>
         <file source="main.c" openeditor="true"/>
         <file source="project.pro" target="%ProjectName%.pro" openproject="true"/>

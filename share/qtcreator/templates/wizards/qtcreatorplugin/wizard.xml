@@ -39,11 +39,11 @@ leave room for the Qt 4 target page.
 -->
 <wizard version="1" kind="project"
         class="qt4project" firstpage="10"
-        id="R.QtCreatorPlugin" category="I.Projects">
+        id="R.QtCreatorPlugin" category="F.QtProjects">
     <icon>qtcreator_logo_24.png</icon>
     <description>Creates a custom Qt Creator plugin.</description>
-    <displayname>Qt Creator plugin</displayname>;
-    <displaycategory>Other Project</displaycategory>
+    <displayname>Qt Creator Plugin</displayname>;
+    <displaycategory>Other Qt Project</displaycategory>
     <files>
         <file source="myplugin.pro" target="%PluginName:l%.pro" openproject="true"/>
         <file source="MyPlugin.pluginspec.in" target="%PluginName%.pluginspec.in" openeditor="true"/>

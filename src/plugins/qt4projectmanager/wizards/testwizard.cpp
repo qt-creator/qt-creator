@@ -48,9 +48,8 @@ namespace Internal {
 
 TestWizard::TestWizard() :
     QtWizard(QLatin1String("L.Qt4Test"),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
              tr("Qt Unit Test"),
              tr("Creates a QTestLib-based unit test for a feature or a class. "
                 "Unit tests allow you to verify that the code is fit for use "

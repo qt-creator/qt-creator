@@ -66,17 +66,6 @@ const char ADDLIBRARY[] = "Qt4.AddLibrary";
 const char JUMP_TO_FILE[] = "Qt4.JumpToFile";
 const char SEPARATOR[] = "Qt4.Separator";
 
-// C++ wizard categories
-const char QT_APP_WIZARD_CATEGORY[] = "F.QtApplicationProjects";
-const char QT_APP_WIZARD_TR_SCOPE[] = "Qt4ProjectManager";
-const char QT_APP_WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Widget Project");
-
-// Html5 wizard categories
-const char HTML5_WIZARD_CATEGORY[] = "I.Projects"; // (after Qt)
-const char HTML5_WIZARD_TR_SCOPE[] = "Qt4ProjectManager";
-const char HTML5_WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Project");
-const char HTML5_WIZARD_ICON[] = ":/qmlproject/images/qml_wizard.png";
-
 // Tasks
 const char PROFILE_EVALUATE[] = "Qt4ProjectManager.ProFileEvaluate";
 

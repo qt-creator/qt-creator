@@ -42,7 +42,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
-static const char *mainCppC =
+static const char mainCppC[] =
 "#include <QtCore/QCoreApplication>\n\n"
 "int main(int argc, char *argv[])\n"
 "{\n"
@@ -57,9 +57,8 @@ namespace Internal {
 
 ConsoleAppWizard::ConsoleAppWizard()
   : QtWizard(QLatin1String("E.Qt4Core"),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
              tr("Qt Console Application"),
              tr("Creates a project containing a single main.cpp file with a stub implementation.\n\n"
                 "Preselects a desktop Qt for building the application if available."),

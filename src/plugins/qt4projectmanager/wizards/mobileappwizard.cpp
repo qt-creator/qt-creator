@@ -35,9 +35,9 @@
 #include "mobileappwizardpages.h"
 #include "mobileapp.h"
 #include "targetsetuppage.h"
-
 #include "qt4projectmanagerconstants.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 
 #include <QtCore/QCoreApplication>
@@ -96,9 +96,8 @@ Core::BaseFileWizardParameters MobileAppWizard::parameters()
     parameters.setDisplayName(DisplayName);
     parameters.setId(QLatin1String("C.Qt4GuiMobile"));
     parameters.setDescription(Description);
-    parameters.setCategory(QLatin1String(Constants::QT_APP_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QT_APP_WIZARD_TR_SCOPE,
-                                                              Constants::QT_APP_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
     return parameters;
 }
 

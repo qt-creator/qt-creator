@@ -41,7 +41,7 @@ leave room for the Qt 4 target page.
     <icon>console.png</icon>
     <description>Creates a plain C++ project using CMake, not using the Qt library.</description>
     <displayname>Plain C++ Project (CMake Build)</displayname>;
-    <displaycategory>Other Project</displaycategory>
+    <displaycategory>Non-Qt Project</displaycategory>
     <files>
         <file source="main.cpp" openeditor="true"/>
         <file source="CMakeLists.txt" openproject="true"/>

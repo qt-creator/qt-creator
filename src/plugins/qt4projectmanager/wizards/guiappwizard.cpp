@@ -33,8 +33,8 @@
 #include "guiappwizard.h"
 
 #include "guiappwizarddialog.h"
-#include "qt4projectmanagerconstants.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <designer/cpp/formclasswizardparameters.h>
 #include <coreplugin/icore.h>
@@ -84,9 +84,8 @@ namespace Internal {
 
 GuiAppWizard::GuiAppWizard()
     : QtWizard(QLatin1String("C.Qt4Gui"),
-               QLatin1String(Constants::QT_APP_WIZARD_CATEGORY),
-               QLatin1String(Constants::QT_APP_WIZARD_TR_SCOPE),
-               QLatin1String(Constants::QT_APP_WIZARD_TR_CATEGORY),
+               QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
+               QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
                tr("Qt Gui Application"),
                tr("Creates a Qt application for the desktop. "
                   "Includes a Qt Designer-based main window.\n\n"
@@ -98,14 +97,12 @@ GuiAppWizard::GuiAppWizard()
 
 GuiAppWizard::GuiAppWizard(const QString &id,
                            const QString &category,
-                           const QString &categoryTranslationScope,
                            const QString &displayCategory,
                            const QString &name,
                            const QString &description,
                            const QIcon &icon,
                            bool createMobile)
-    : QtWizard(id, category, categoryTranslationScope,
-               displayCategory, name, description, icon),
+    : QtWizard(id, category, displayCategory, name, description, icon),
       m_createMobileProject(createMobile)
 {
 }

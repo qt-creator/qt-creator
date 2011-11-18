@@ -45,9 +45,8 @@ namespace Internal {
 
 CustomWidgetWizard::CustomWidgetWizard() :
     QtWizard(QLatin1String("P.Qt4CustomWidget"),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
-             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
              tr("Qt Custom Designer Widget"),
              tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."),
              QIcon(QLatin1String(":/wizards/images/gui.png")))

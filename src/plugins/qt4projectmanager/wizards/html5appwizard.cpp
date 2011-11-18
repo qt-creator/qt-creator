@@ -36,8 +36,9 @@
 #include "html5appwizard.h"
 #include "html5appwizardpages.h"
 #include "targetsetuppage.h"
-
 #include "qt4projectmanagerconstants.h"
+
+#include <projectexplorer/projectexplorerconstants.h>
 #include <limits>
 
 #include <QtCore/QCoreApplication>
@@ -104,9 +105,8 @@ Core::BaseFileWizardParameters Html5AppWizard::parameters()
                                  "mobile target platforms. For example, you can create signed "
                                  "Symbian Installation System (SIS) packages for this type of "
                                  "projects."));
-    parameters.setCategory(QLatin1String(Constants::HTML5_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate(Constants::HTML5_WIZARD_TR_SCOPE,
-                                                              Constants::HTML5_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY_DISPLAY));
     return parameters;
 }
 

@@ -36,6 +36,7 @@
 #include "checkoutjobs.h"
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
@@ -100,12 +101,12 @@ Core::IWizard::WizardKind BaseCheckoutWizard::kind() const
 
 QString BaseCheckoutWizard::category() const
 {
-    return QLatin1String(VCSBase::Constants::VCS_WIZARD_CATEGORY);
+    return QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY);
 }
 
 QString BaseCheckoutWizard::displayCategory() const
 {
-    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_WIZARD_TR_CATEGORY);
+    return QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY);
 }
 
 QString BaseCheckoutWizard::id() const
