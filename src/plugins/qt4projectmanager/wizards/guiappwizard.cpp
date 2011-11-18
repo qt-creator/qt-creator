@@ -262,7 +262,7 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
         return false;
     QString contents = QString::fromUtf8(reader.data());
 
-    contents.replace(QLatin1String("%QAPP_INCLUDE%"), QLatin1String("QtGui/QApplication"));
+    contents.replace(QLatin1String("%QAPP_INCLUDE%"), QLatin1String("QApplication"));
     contents.replace(QLatin1String("%INCLUDE%"), params.headerFileName);
     contents.replace(QLatin1String("%CLASS%"), params.className);
     contents.replace(QLatin1String("%BASECLASS%"), params.baseClassName);
