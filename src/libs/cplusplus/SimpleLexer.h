@@ -57,6 +57,9 @@ public:
     bool objCEnabled() const;
     void setObjCEnabled(bool onoff);
 
+    bool cxx0xEnabled() const;
+    void setCxx0xEnabled(bool enabled);
+
     bool endedJoined() const;
 
     QList<Token> operator()(const QString &text, int state = 0);
@@ -78,6 +81,7 @@ private:
     bool _qtMocRunEnabled: 1;
     bool _objCEnabled: 1;
     bool _endedJoined: 1;
+    bool _cxx0xEnabled: 1;
 };
 
 } // namespace CPlusPlus

@@ -72,6 +72,16 @@ void SimpleLexer::setObjCEnabled(bool onoff)
     _objCEnabled = onoff;
 }
 
+bool SimpleLexer::cxx0xEnabled() const
+{
+    return _cxx0xEnabled;
+}
+
+void SimpleLexer::setCxx0xEnabled(bool enabled)
+{
+    _cxx0xEnabled = enabled;
+}
+
 bool SimpleLexer::skipComments() const
 {
     return _skipComments;
@@ -100,6 +110,7 @@ QList<Token> SimpleLexer::operator()(const QString &text, int state)
     lex.setObjCEnabled(_objCEnabled);
     lex.setStartWithNewline(true);
     lex.setObjCEnabled(_objCEnabled);
+    lex.setCxxOxEnabled(_cxx0xEnabled);
 
     if (! _skipComments)
         lex.setScanCommentTokens(true);
