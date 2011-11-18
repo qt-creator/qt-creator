@@ -41,11 +41,11 @@ static const char *token_names[] = {
     ("]"), (")"), (";"), ("*"), ("*="), ("~"), ("~="),
 
     ("asm"), ("auto"), ("bool"), ("break"), ("case"), ("catch"), ("char"),
-    ("class"), ("const"), ("const_cast"), ("continue"), ("default"),
+    ("class"), ("const"), ("const_cast"), ("constexpr"), ("continue"), ("default"),
     ("delete"), ("do"), ("double"), ("dynamic_cast"), ("else"), ("enum"),
     ("explicit"), ("export"), ("extern"), ("false"), ("float"), ("for"),
     ("friend"), ("goto"), ("if"), ("inline"), ("int"), ("long"),
-    ("mutable"), ("namespace"), ("new"), ("operator"), ("private"),
+    ("mutable"), ("namespace"), ("new"), ("nullptr"), ("operator"), ("private"),
     ("protected"), ("public"), ("register"), ("reinterpret_cast"),
     ("return"), ("short"), ("signed"), ("sizeof"), ("static"),
     ("static_cast"), ("struct"), ("switch"), ("template"), ("this"),
