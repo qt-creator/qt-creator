@@ -736,9 +736,17 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         tr("Setting a data breakpoint on an address will cause the program "
            "to stop when the data at the address is modified."));
 
-    QAction *actSetWatchpointAtExpression =
+    QAction *actSetWatchpointAtExpression = 0;
+    if (name.isEmpty()) {
+        actSetWatchpointAtExpression =
+            new QAction(tr("Add Data Breakpoint at Expression"),
+                &breakpointMenu);
+        actSetWatchpointAtExpression->setEnabled(false);
+    } else {
+        actSetWatchpointAtExpression =
             new QAction(tr("Add Data Breakpoint at Expression \"%1\"").arg(name),
                 &breakpointMenu);
+    }
     actSetWatchpointAtExpression->setToolTip(
         tr("Setting a data breakpoint on an expression will cause the program "
            "to stop when the data at the address given by the expression "
