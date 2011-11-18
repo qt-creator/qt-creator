@@ -195,8 +195,24 @@ void dummyStatement(...) {}
 #endif
 
 
+QT_BEGIN_NAMESPACE
 uint qHash(const QMap<int, int> &) { return 0; }
 uint qHash(const double & f) { return int(f); }
+uint qHash(const QPointer<QObject> &p) { return (uint)p.data(); }
+QT_END_NAMESPACE
+
+
+namespace nsA {
+namespace nsB {
+
+struct SomeType
+{
+    SomeType(int a) : a(a) {}
+    int a;
+};
+
+} // namespace nsB
+} // namespace nsA
 
 
 namespace multibp {
@@ -259,7 +275,7 @@ public:
 
         a += 1;
         --b;
-        //s += 'x';
+        dummyStatement(&a, &b);
     }
 
 public:
@@ -447,28 +463,34 @@ namespace qbytearray {
 } // namespace qbytearray
 
 
-static void throwit1()
-{
-    throw 14;
-}
+namespace catchthrow {
 
-static void throwit()
-{
-    throwit1();
-}
-
-int testCatchThrow()
-{
-    // Set a breakpoint on "throw" in the BreakWindow context menu
-    // before stepping further.
-    int gotit = 0;
-    try {
-        throwit();
-    } catch (int what) {
-        gotit = what;
+    static void throwit1()
+    {
+        BREAK_HERE;
+        // Set a breakpoint on "throw" in the BreakWindow context menu
+        // before stepping further.
+        throw 14;
     }
-    return gotit;
-}
+
+    static void throwit()
+    {
+        throwit1();
+    }
+
+    void testCatchThrow()
+    {
+        int gotit = 0;
+        try {
+            throwit();
+        } catch (int what) {
+            gotit = what;
+        }
+        dummyStatement(&gotit);
+    }
+
+} // namespace catchthrow
+
 
 namespace qdatetime {
 
@@ -529,17 +551,101 @@ namespace qfileinfo {
 } // namespace qfileinfo
 
 
-void testQFixed()
-{
-/*
-    QFixed f = QFixed::fromReal(4.2);
-    f += 1;
-    f += 1;
-    f *= -1;
-    f += 1;
-    f += 1;
-*/
-}
+namespace qhash {
+
+    void testQHash1()
+    {
+        QHash<QString, QList<int> > hash;
+        hash.insert("Hallo", QList<int>());
+        hash.insert("Welt", QList<int>() << 1);
+        hash.insert("!", QList<int>() << 1 << 2);
+        hash.insert("!", QList<int>() << 1 << 2);
+        BREAK_HERE;
+        dummyStatement(&hash);
+    }
+
+    void testQHash2()
+    {
+        QHash<int, float> hash;
+        hash[11] = 11.0;
+        hash[22] = 22.0;
+        BREAK_HERE;
+        dummyStatement(&hash);
+    }
+
+    void testQHash3()
+    {
+        QHash<QString, int> hash;
+        hash["22.0"] = 22.0;
+        hash["123.0"] = 22.0;
+        hash["111111ss111128.0"] = 28.0;
+        hash["11124.0"] = 22.0;
+        hash["1111125.0"] = 22.0;
+        hash["11111126.0"] = 22.0;
+        hash["111111127.0"] = 27.0;
+        hash["111111111128.0"] = 28.0;
+        hash["111111111111111111129.0"] = 29.0;
+        BREAK_HERE;
+        dummyStatement(&hash);
+    }
+
+    void testQHash4()
+    {
+        QHash<QByteArray, float> hash;
+        hash["22.0"] = 22.0;
+        hash["123.0"] = 22.0;
+        hash["111111ss111128.0"] = 28.0;
+        hash["11124.0"] = 22.0;
+        hash["1111125.0"] = 22.0;
+        hash["11111126.0"] = 22.0;
+        hash["111111127.0"] = 27.0;
+        hash["111111111128.0"] = 28.0;
+        hash["111111111111111111129.0"] = 29.0;
+        BREAK_HERE;
+        dummyStatement(&hash);
+    }
+
+    void testQHash5()
+    {
+        QHash<int, QString> hash;
+        hash[22] = "22.0";
+        BREAK_HERE;
+        dummyStatement(&hash);
+    }
+
+    void testQHash6()
+    {
+        QHash<QString, Foo> hash;
+        hash["22.0"] = Foo(22);
+        hash["33.0"] = Foo(33);
+        BREAK_HERE;
+        dummyStatement(&hash);
+    }
+
+    void testQHash7()
+    {
+        QObject ob;
+        QHash<QString, QPointer<QObject> > hash;
+        hash.insert("Hallo", QPointer<QObject>(&ob));
+        hash.insert("Welt", QPointer<QObject>(&ob));
+        hash.insert(".", QPointer<QObject>(&ob));
+        BREAK_HERE;
+        dummyStatement(&hash, &ob);
+    }
+
+    void testQHash()
+    {
+        testQHash1();
+        testQHash2();
+        testQHash3();
+        testQHash4();
+        testQHash5();
+        testQHash6();
+        testQHash7();
+    }
+
+} // namespace qhash
+
 
 namespace qhostaddress {
 
@@ -554,144 +660,116 @@ namespace qhostaddress {
 
 } // namespace qhostaddress
 
-QHash<int, float> testQHash()
-{
-#if 1
-    QHash<int, float> hgg0;
-    hgg0[11] = 11.0;
-    hgg0[22] = 22.0;
-    hgg0[22] = 22.0;
-    hgg0[22] = 22.0;
-    hgg0[22] = 22.0;
-    hgg0[22] = 22.0;
-    hgg0[22] = 22.0;
 
-#endif
+namespace painting {
 
-#if 1
+    void testQImage()
+    {
+        // only works with Python dumper
+        QImage im(QSize(200, 200), QImage::Format_RGB32);
+        im.fill(QColor(200, 100, 130).rgba());
+        QPainter pain;
+        pain.begin(&im);
+        BREAK_HERE;
+        // Step.
+        pain.drawLine(2, 2, 130, 130);
+        pain.drawLine(4, 2, 130, 140);
+        pain.drawRect(30, 30, 80, 80);
+        pain.end();
+        dummyStatement(&pain, &im);
+    }
 
-    QHash<QString, int> hgg1;
-    hgg1["22.0"] = 22.0;
-    hgg1["123.0"] = 22.0;
-    hgg1["111111ss111128.0"] = 28.0;
-    hgg1["11124.0"] = 22.0;
-    hgg1["1111125.0"] = 22.0;
-    hgg1["11111126.0"] = 22.0;
-    hgg1["111111127.0"] = 27.0;
-    hgg1["111111111128.0"] = 28.0;
-    hgg1["111111111111111111129.0"] = 29.0;
+    void testQPixmap()
+    {
+        QImage im(QSize(200, 200), QImage::Format_RGB32);
+        im.fill(QColor(200, 100, 130).rgba());
+        QPainter pain;
+        pain.begin(&im);
+        pain.drawLine(2, 2, 130, 130);
+        pain.end();
+        QPixmap pm = QPixmap::fromImage(im);
+        BREAK_HERE;
+        dummyStatement(&im, &pm);
+    }
 
-    QHash<QByteArray, float> hgx1;
-    hgx1["22.0"] = 22.0;
-    hgx1["123.0"] = 22.0;
-    hgx1["111111ss111128.0"] = 28.0;
-    hgx1["11124.0"] = 22.0;
-    hgx1["1111125.0"] = 22.0;
-    hgx1["11111126.0"] = 22.0;
-    hgx1["111111127.0"] = 27.0;
-    hgx1["111111111128.0"] = 28.0;
-    hgx1["111111111111111111129.0"] = 29.0;
-#endif
-#if 1
-    QHash<int, QString> hgg2;
-    hgg2[22] = "22.0";
+    void testPainting()
+    {
+        testQImage();
+        testQPixmap();
+    }
 
-    QHash<QString, Foo> hgg3;
-    hgg3["22.0"] = Foo(22);
-    hgg3["33.0"] = Foo(33);
-
-    QObject ob;
-    QHash<QString, QPointer<QObject> > hash;
-    hash.insert("Hallo", QPointer<QObject>(&ob));
-    hash.insert("Welt", QPointer<QObject>(&ob));
-    hash.insert(".", QPointer<QObject>(&ob));
-#endif
-    QHash<int, float> result;
-    return result;
-}
-
-void testQImage()
-{
-    // only works with Python dumper
-    QImage im(QSize(200, 200), QImage::Format_RGB32);
-    im.fill(QColor(200, 100, 130).rgba());
-    QPainter pain;
-    pain.begin(&im);
-    pain.drawLine(2, 2, 130, 130);
-    pain.drawLine(4, 2, 130, 140);
-    pain.drawRect(30, 30, 80, 80);
-    pain.end();
-}
-
-struct Function
-{
-    Function(QByteArray var, QByteArray f, double min, double max)
-      : var(var), f(f), min(min), max(max) {}
-    QByteArray var;
-    QByteArray f;
-    double min;
-    double max;
-};
-
-void testFunction()
-{
-    // In order to use this, switch on the 'qDump__Function' in dumper.py
-    Function func("x", "sin(x)", 0, 1);
-    func.max = 10;
-    func.f = "cos(x)";
-    func.max = 4;
-    func.max = 5;
-    func.max = 6;
-    func.max = 7;
-    func.max = 8;
-}
-
-void testQLinkedList()
-{
-#if 1
-    QLinkedList<int> li;
-    QLinkedList<uint> lu;
-
-    for (int i = 0; i != 3; ++i)
-        li.append(i);
-    li.append(102);
+} // namespace painting
 
 
-    lu.append(102);
-    lu.append(102);
-    lu.append(102);
+namespace qlinkedlist {
 
-    QLinkedList<Foo *> lpi;
-    lpi.append(new Foo(1));
-    lpi.append(0);
-    lpi.append(new Foo(3));
+    void testQLinkedListInt()
+    {
+        QLinkedList<int> list;
+        list.append(101);
+        list.append(102);
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
 
-    QLinkedList<qulonglong> l;
-    l.append(42);
-    l.append(43);
-    l.append(44);
-    l.append(45);
+    void testQLinkedListUInt()
+    {
+        QLinkedList<uint> list;
+        list.append(103);
+        list.append(104);
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
 
-    QLinkedList<Foo> f;
-    f.append(Foo(1));
-    f.append(Foo(2));
-#endif
-    QLinkedList<std::string> v;
-    v.push_back("aa");
-    v.push_back("bb");
-    v.push_back("cc");
-    v.push_back("dd");
- }
+    void testQLinkedListFooStar()
+    {
+        QLinkedList<Foo *> list;
+        list.append(new Foo(1));
+        list.append(0);
+        list.append(new Foo(3));
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
 
-void testQLocale()
-{
-    QLocale loc = QLocale::system();
-    //QString s = loc.name();
-    //QVariant v = loc;
-    QLocale::MeasurementSystem m = loc.measurementSystem();
-    BREAK_HERE;
-    dummyStatement(&loc, &m);
-}
+    void testQLinkedListULongLong()
+    {
+        QLinkedList<qulonglong> list;
+        list.append(42);
+        list.append(43);
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
+
+    void testQLinkedListFoo()
+    {
+        QLinkedList<Foo> list;
+        list.append(Foo(1));
+        list.append(Foo(2));
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
+
+    void testQLinkedListStdString()
+    {
+        QLinkedList<std::string> list;
+        list.push_back("aa");
+        list.push_back("bb");
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
+
+    void testQLinkedList()
+    {
+        testQLinkedListInt();
+        testQLinkedListUInt();
+        testQLinkedListFooStar();
+        testQLinkedListULongLong();
+        testQLinkedListFoo();
+        testQLinkedListStdString();
+    }
+
+} // namespace qlinkedlist
+
 
 namespace qlist {
 
@@ -814,99 +892,177 @@ namespace qlist {
 
 } // namespace qlist
 
-namespace nsA {
-namespace nsB {
 
-struct SomeType
-{
-    SomeType(int a) : a(a) {}
-    int a;
-};
+namespace qlocale {
 
-} // namespace nsB
-} // namespace nsA
+    void testQLocale()
+    {
+        QLocale loc = QLocale::system();
+        //QString s = loc.name();
+        //QVariant v = loc;
+        QLocale::MeasurementSystem m = loc.measurementSystem();
+        BREAK_HERE;
+        dummyStatement(&loc, &m);
+    }
 
-void testQMap()
-{
-#if 0
-    QMap<uint, QStringList> ggl;
-    ggl[11] = QStringList() << "11";
-    ggl[22] = QStringList() << "22";
-
-    // only works with Python dumper
-    typedef QMap<uint, QStringList> T;
-    T ggt;
-    ggt[11] = QStringList() << "11";
-    ggt[22] = QStringList() << "22";
-#endif
-
-#if 0
-    QMap<uint, float> gg0;
-    gg0[11] = 11.0;
-    gg0[22] = 22.0;
+} // namespace qlocale
 
 
-    QMap<QString, float> gg1;
-    gg1["22.0"] = 22.0;
+namespace qmap {
 
-    QMap<int, QString> gg2;
-    gg2[22] = "22.0";
+    void testQMapUIntStringList()
+    {
+        QMap<uint, QStringList> map;
+        map[11] = QStringList() << "11";
+        map[22] = QStringList() << "22";
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
 
-    QMap<QString, Foo> gg3;
-    gg3["22.0"] = Foo(22);
-    gg3["33.0"] = Foo(33);
+    void testQMapUIntStringListTypedef()
+    {
+        // only works with Python dumper
+        typedef QMap<uint, QStringList> T;
+        T map;
+        map[11] = QStringList() << "11";
+        map[22] = QStringList() << "22";
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
 
-    // only works with Python dumper
-    QObject ob;
-    QMap<QString, QPointer<QObject> > map;
-    map.insert("Hallo", QPointer<QObject>(&ob));
-    map.insert("Welt", QPointer<QObject>(&ob));
-    map.insert(".", QPointer<QObject>(&ob));
-#endif
+    void testQMapUIntFloat()
+    {
+        QMap<uint, float> map;
+        map[11] = 11.0;
+        map[22] = 22.0;
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
 
-#if 1
-    // only works with Python dumper
-    QList<nsA::nsB::SomeType *> x;
-    x.append(new nsA::nsB::SomeType(1));
-    x.append(new nsA::nsB::SomeType(2));
-    x.append(new nsA::nsB::SomeType(3));
-    QMap<QString, QList<nsA::nsB::SomeType *> > mlt;
-    mlt["foo"] = x;
-    mlt["bar"] = x;
-    mlt["1"] = x;
-    mlt["2"] = x;
-#endif
-}
+    void testQMapStringFloat()
+    {
+        QMap<QString, float> map;
+        map["22.0"] = 22.0;
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
 
-void testQMultiMap()
-{
-    QMultiMap<uint, float> gg0;
-    gg0.insert(11, 11.0);
-    gg0.insert(22, 22.0);
-    gg0.insert(22, 33.0);
-    gg0.insert(22, 34.0);
-    gg0.insert(22, 35.0);
-    gg0.insert(22, 36.0);
-#if 1
-    QMultiMap<QString, float> gg1;
-    gg1.insert("22.0", 22.0);
+    void testQMapIntString()
+    {
+        QMap<int, QString> map;
+        map[22] = "22.0";
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
 
-    QMultiMap<int, QString> gg2;
-    gg2.insert(22, "22.0");
+    void testQMapStringFoo()
+    {
+        QMap<QString, Foo> map;
+        map["22.0"] = Foo(22);
+        map["33.0"] = Foo(33);
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
 
-    QMultiMap<QString, Foo> gg3;
-    gg3.insert("22.0", Foo(22));
-    gg3.insert("33.0", Foo(33));
-    gg3.insert("22.0", Foo(22));
+    void testQMapStringPointer()
+    {
+        // only works with Python dumper
+        QObject ob;
+        QMap<QString, QPointer<QObject> > map;
+        map.insert("Hallo", QPointer<QObject>(&ob));
+        map.insert("Welt", QPointer<QObject>(&ob));
+        map.insert(".", QPointer<QObject>(&ob));
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
 
-    QObject ob;
-    QMultiMap<QString, QPointer<QObject> > map;
-    map.insert("Hallo", QPointer<QObject>(&ob));
-    map.insert("Welt", QPointer<QObject>(&ob));
-    map.insert(".", QPointer<QObject>(&ob));
-    map.insert(".", QPointer<QObject>(&ob));
-#endif
-}
+    void testQMapStringList()
+    {
+        // only works with Python dumper
+        QList<nsA::nsB::SomeType *> x;
+        x.append(new nsA::nsB::SomeType(1));
+        x.append(new nsA::nsB::SomeType(2));
+        x.append(new nsA::nsB::SomeType(3));
+        QMap<QString, QList<nsA::nsB::SomeType *> > map;
+        map["foo"] = x;
+        map["bar"] = x;
+        map["1"] = x;
+        map["2"] = x;
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testQMultiMapUintFloat()
+    {
+        QMultiMap<uint, float> map;
+        map.insert(11, 11.0);
+        map.insert(22, 22.0);
+        map.insert(22, 33.0);
+        map.insert(22, 34.0);
+        map.insert(22, 35.0);
+        map.insert(22, 36.0);
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testQMultiMapStringFloat()
+    {
+        QMultiMap<QString, float> map;
+        map.insert("22.0", 22.0);
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testQMultiMapIntString()
+    {
+        QMultiMap<int, QString> map;
+        map.insert(22, "22.0");
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testQMultiMapStringFoo()
+    {
+        QMultiMap<QString, Foo> map;
+        map.insert("22.0", Foo(22));
+        map.insert("33.0", Foo(33));
+        map.insert("22.0", Foo(22));
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testQMultiMapStringPointer()
+    {
+        QObject ob;
+        QMultiMap<QString, QPointer<QObject> > map;
+        map.insert("Hallo", QPointer<QObject>(&ob));
+        map.insert("Welt", QPointer<QObject>(&ob));
+        map.insert(".", QPointer<QObject>(&ob));
+        map.insert(".", QPointer<QObject>(&ob));
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testQMap()
+    {
+        testQMapUIntStringList();
+        testQMapUIntStringListTypedef();
+        testQMapUIntFloat();
+        testQMapStringFloat();
+        testQMapIntString();
+        testQMapStringFoo();
+        testQMapStringPointer();
+        testQMapStringList();
+        testQMultiMapUintFloat();
+        testQMultiMapStringFloat();
+        testQMultiMapIntString();
+        testQMultiMapStringFoo();
+        testQMapUIntStringList();
+        testQMultiMapStringFoo();
+        testQMultiMapStringPointer();
+    }
+
+} // namespace qmap
 
 
 namespace qobject {
@@ -955,9 +1111,8 @@ namespace qobject {
         } // namespace Bar
     } // namespace Names
 
-    void testQObject2(int &argc, char *argv[])
+    void testQObject2()
     {
-        QApplication app(argc, argv);
         //QString longString = QString(10000, QLatin1Char('A'));
     #if 1
         Names::Bar::TestObject test;
@@ -1028,16 +1183,15 @@ namespace qobject {
         }
     };
 
-    void testSignalSlot(int &argc, char *argv[])
+    void testSignalSlot()
     {
-        QApplication app(argc, argv);
         Sender sender;
         Receiver receiver;
         QObject::connect(&sender, SIGNAL(aSignal()), &receiver, SLOT(aSlot()));
         // Break here.
         // Single step through signal emission.
         sender.doEmit();
-        dummyStatement(&app);
+        dummyStatement(&sender, &receiver);
     }
 
     #if USE_PRIVATE
@@ -1133,29 +1287,16 @@ namespace qobject {
     #endif
     }
 
-    void testQObject(int &argc, char *argv[])
+    void testQObject()
     {
         testQObjectData();
         testQObject1();
-        testQObject2(argc, argv);
-        testSignalSlot(argc, argv);
+        testQObject2();
+        testSignalSlot();
     }
 
 } // namespace qobject
 
-
-void testQPixmap()
-{
-    QImage im(QSize(200, 200), QImage::Format_RGB32);
-    im.fill(QColor(200, 100, 130).rgba());
-    QPainter pain;
-    pain.begin(&im);
-    pain.drawLine(2, 2, 130, 130);
-    pain.end();
-    QPixmap pm = QPixmap::fromImage(im);
-    BREAK_HERE;
-    dummyStatement(&im, &pm);
-}
 
 
 namespace qregexp {
@@ -1265,33 +1406,45 @@ namespace qregion {
 } // namespace qregion
 
 
-void testPlugin()
-{
-    QString dir = QDir::currentPath();
-#ifdef Q_OS_LINUX
-    QLibrary lib(dir + "/libsimple_test_plugin.so");
-#endif
-#ifdef Q_OS_MAC
-    dir = QFileInfo(dir + "/../..").canonicalPath();
-    QLibrary lib(dir + "/libsimple_test_plugin.dylib");
-#endif
-#ifdef Q_OS_WIN
-    QLibrary lib(dir + "/debug/simple_test_plugin.dll");
-#endif
-#ifdef Q_OS_SYMBIAN
-    QLibrary lib(dir + "/libsimple_test_plugin.dll");
-#endif
-    int (*foo)() = (int(*)()) lib.resolve("pluginTest");
-    qDebug() << "library resolve: " << foo << lib.fileName();
-    if (foo) {
-        int res = foo();
-        res += 1;
-    } else {
-        qDebug() << lib.errorString();
-    }
-}
+namespace plugin {
 
-namespace application {
+    void testPlugin()
+    {
+        QString dir = QDir::currentPath();
+    #ifdef Q_OS_LINUX
+        QLibrary lib(dir + "/libsimple_test_plugin.so");
+    #endif
+    #ifdef Q_OS_MAC
+        dir = QFileInfo(dir + "/../..").canonicalPath();
+        QLibrary lib(dir + "/libsimple_test_plugin.dylib");
+    #endif
+    #ifdef Q_OS_WIN
+        QLibrary lib(dir + "/debug/simple_test_plugin.dll");
+    #endif
+    #ifdef Q_OS_SYMBIAN
+        QLibrary lib(dir + "/libsimple_test_plugin.dll");
+    #endif
+        BREAK_HERE;
+        // Step
+        int (*foo)() = (int(*)()) lib.resolve("pluginTest");
+        QString name = lib.fileName();
+        int res = 4;
+        if (foo) {
+            BREAK_HERE;
+            // Step
+            res = foo();
+        } else {
+            BREAK_HERE;
+            // Step
+            name = lib.errorString();
+        }
+        dummyStatement(&name, &res);
+    }
+
+} // namespace plugin
+
+
+namespace final {
 
     void testQSettings()
     {
@@ -1302,23 +1455,69 @@ namespace application {
         dummyStatement(&settings, &value);
     }
 
-    void testApplicationStart(int &argc, char *argv[])
+    void testNullPointerDeref()
     {
-        QApplication app(argc, argv);
+        BREAK_HERE;
+        return; // Uncomment.
+        *(int *)0 = 0;
+    }
+
+    void testEndlessRecursion()
+    {
+        BREAK_HERE;
+        return; // Uncomment.
+        testEndlessRecursion();
+    }
+
+    void testEndlessLoop()
+    {
+        qlonglong a = 1;
+        // gdb:
+        // Breakpoint at "while" will stop only once
+        // Hitting "Pause" button might show backtrace of different thread
+        BREAK_HERE;
+        // Jump over next line.
+        return;
+        while (a > 0)
+            ++a;
+        dummyStatement(&a);
+    }
+
+    void testUncaughtException()
+    {
+        BREAK_HERE;
+        // Jump over next line.
+        return;
+        throw 42;
+    }
+
+    void testApplicationStart(QCoreApplication *app)
+    {
         QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
         QLabel l(str);
         l.setObjectName("Some Label");
         l.show();
-        testQSettings();
-        app.exec();
+        // Jump over next line.
+        return;
+        app->exec();
+        dummyStatement(&app);
     }
 
-} // namespace application
+    void testFinal(QCoreApplication *app)
+    {
+        // This contains all "final" tests that do not allow proceeding
+        // with further tests.
+        BREAK_HERE;
+        testQSettings();
+        testNullPointerDeref();
+        testEndlessLoop();
+        testEndlessRecursion();
+        testUncaughtException();
+        testApplicationStart(app);
+    }
 
+} // namespace final
 
-QT_BEGIN_NAMESPACE
-uint qHash(const QPointer<QObject> &p) { return (uint)p.data(); }
-QT_END_NAMESPACE
 
 namespace qset {
 
@@ -1362,47 +1561,45 @@ namespace qset {
 } // namespace qset
 
 
-#if USE_SHARED_POINTER
-class EmployeeData : public QSharedData
-{
-public:
-    EmployeeData() : id(-1) { name.clear(); }
-    EmployeeData(const EmployeeData &other)
-        : QSharedData(other), id(other.id), name(other.name) { }
-    ~EmployeeData() { }
-
-    int id;
-    QString name;
-};
-
-class Employee
-{
-public:
-    Employee() { d = new EmployeeData; }
-    Employee(int id, QString name) {
-        d = new EmployeeData;
-        setId(id);
-        setName(name);
-    }
-    Employee(const Employee &other)
-          : d (other.d)
-    {
-    }
-    void setId(int id) { d->id = id; }
-    void setName(QString name) { d->name = name; }
-
-    int id() const { return d->id; }
-    QString name() const { return d->name; }
-
-   private:
-     QSharedDataPointer<EmployeeData> d;
-};
-#endif
-
-
 namespace qsharedpointer {
 
     #if USE_SHARED_POINTER
+
+    class EmployeeData : public QSharedData
+    {
+    public:
+        EmployeeData() : id(-1) { name.clear(); }
+        EmployeeData(const EmployeeData &other)
+            : QSharedData(other), id(other.id), name(other.name) { }
+        ~EmployeeData() { }
+
+        int id;
+        QString name;
+    };
+
+    class Employee
+    {
+    public:
+        Employee() { d = new EmployeeData; }
+        Employee(int id, QString name) {
+            d = new EmployeeData;
+            setId(id);
+            setName(name);
+        }
+        Employee(const Employee &other)
+              : d (other.d)
+        {
+        }
+        void setId(int id) { d->id = id; }
+        void setName(QString name) { d->name = name; }
+
+        int id() const { return d->id; }
+        QString name() const { return d->name; }
+
+       private:
+         QSharedDataPointer<EmployeeData> d;
+    };
+
 
     void testQSharedPointer1()
     {
@@ -1487,167 +1684,294 @@ namespace qxml {
 } // namespace qxml
 
 
-void testStdDeque()
-{
-    // This is not supposed to work with the compiled dumpers.
-    std::deque<int *> plist1;
-    plist1.push_back(new int(1));
-    plist1.push_back(0);
-    plist1.push_back(new int(2));
-    plist1.pop_back();
-    plist1.pop_front();
-    plist1.pop_front();
+namespace stddeque {
 
-    std::deque<int> flist2;
-    flist2.push_back(1);
-    flist2.push_back(2);
+    void testStdDequeInt()
+    {
+        std::deque<int> deque;
+        deque.push_back(1);
+        deque.push_back(2);
+        BREAK_HERE;
+        dummyStatement(&deque);
+    }
 
-    std::deque<Foo *> plist;
-    plist.push_back(new Foo(1));
-    plist.push_back(new Foo(2));
+    void testStdDequeIntStar()
+    {
+        // This is not supposed to work with the compiled dumpers.
+        std::deque<int *> deque;
+        deque.push_back(new int(1));
+        deque.push_back(0);
+        deque.push_back(new int(2));
+        BREAK_HERE;
+        deque.pop_back();
+        deque.pop_front();
+        deque.pop_front();
+        dummyStatement(&deque);
+    }
 
-    std::deque<Foo> flist;
-    flist.push_back(1);
-    flist.push_front(2);
-}
+    void testStdDequeFoo()
+    {
+        std::deque<Foo> deque;
+        deque.push_back(1);
+        deque.push_front(2);
+        BREAK_HERE;
+        dummyStatement(&deque);
+    }
 
-void testStdHashSet()
-{
-    // This is not supposed to work with the compiled dumpers.
-#if USE_GCC_EXT
-    using namespace __gnu_cxx;
-    hash_set<int> h;
-    h.insert(1);
-    h.insert(194);
-    h.insert(2);
-    h.insert(3);
-    h.insert(4);
-    h.insert(5);
-#endif
-}
+    void testStdDequeFooStar()
+    {
+        std::deque<Foo *> deque;
+        deque.push_back(new Foo(1));
+        deque.push_back(new Foo(2));
+        BREAK_HERE;
+        dummyStatement(&deque);
+    }
 
-std::list<int> testStdList()
-{
-    // This is not supposed to work with the compiled dumpers.
-    std::list<int> big;
-    for (int i = 0; i < 10000; ++i)
-        big.push_back(i);
+    void testStdDeque()
+    {
+        testStdDequeInt();
+        testStdDequeIntStar();
+        testStdDequeFoo();
+        testStdDequeFooStar();
+    }
 
-    std::list<Foo> flist;
-    for (int i = 0; i < 100; ++i)
-        flist.push_back(i + 15);
-
-#if 1
-    std::list<int *> plist1;
-    plist1.push_back(new int(1));
-    plist1.push_back(0);
-    plist1.push_back(new int(2));
-
-    std::list<int> flist2;
-    flist2.push_back(1);
-    flist2.push_back(2);
-    flist2.push_back(3);
-    flist2.push_back(4);
-
-    flist2.push_back(1);
-    flist2.push_back(2);
-    flist2.push_back(3);
-    flist2.push_back(4);
-
-    std::list<Foo *> plist;
-    plist.push_back(new Foo(1));
-    plist.push_back(0);
-    plist.push_back(new Foo(2));
+} // namespace stddeque
 
 
-    foreach (Foo f, flist)
-    {}
+namespace stdhashset {
 
-    std::list<bool> vec;
-    vec.push_back(true);
-    vec.push_back(false);
-#endif
-    std::list<int> result;
-    return result;
-}
+    void testStdHashSet()
+    {
+        // This is not supposed to work with the compiled dumpers.
+    #if USE_GCC_EXT
+        using namespace __gnu_cxx;
+        hash_set<int> h;
+        h.insert(1);
+        h.insert(194);
+        h.insert(2);
+        h.insert(3);
+        BREAK_HERE;
+        dummyStatement(&h);
+    #endif
+    }
 
-void testStdMap()
-{
-    // This is not supposed to work with the compiled dumpers.
-#if 1
-    std::map<QString, Foo> gg3;
-    gg3["22.0"] = Foo(22);
-    gg3["33.0"] = Foo(33);
-    gg3["44.0"] = Foo(44);
-
-    std::map<const char *, Foo> m1;
-    m1["22.0"] = Foo(22);
-    m1["33.0"] = Foo(33);
-    m1["44.0"] = Foo(44);
-
-    std::map<uint, uint> gg;
-    gg[11] = 1;
-    gg[22] = 2;
-    gg[33] = 3;
-    gg[44] = 4;
-    gg[55] = 5;
-
-    std::pair<uint, QStringList> p = std::make_pair(3, QStringList() << "11");
-    std::vector< std::pair<uint, QStringList> > v;
-    v.push_back(p);
-    v.push_back(p);
-
-    std::map<uint, QStringList> ggl;
-    ggl[11] = QStringList() << "11";
-    ggl[22] = QStringList() << "22";
-    ggl[33] = QStringList() << "33";
-    ggl[44] = QStringList() << "44";
-    ggl[55] = QStringList() << "55";
-
-    typedef std::map<uint, QStringList> T;
-    T ggt;
-    ggt[11] = QStringList() << "11";
-    ggt[22] = QStringList() << "22";
-
-    std::map<uint, float> gg0;
-    gg0[11] = 11.0;
-    gg0[22] = 22.0;
+} // namespace stdhashset
 
 
-    std::map<QString, float> gg1;
-    gg1["22.0"] = 22.0;
+namespace stdlist {
 
-    std::map<int, QString> gg2;
-    gg2[22] = "22.0";
-#endif
+    void testStdListInt()
+    {
+        std::list<int> list;
+        list.push_back(1);
+        list.push_back(2);
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
 
-#if 1
-    QObject ob;
-    std::map<QString, QPointer<QObject> > map;
-    map["Hallo"] = QPointer<QObject>(&ob);
-    map["Welt"] = QPointer<QObject>(&ob);
-    map["."] = QPointer<QObject>(&ob);
-#endif
-}
+    void testStdListIntStar()
+    {
+        std::list<int *> list;
+        list.push_back(new int(1));
+        list.push_back(0);
+        list.push_back(new int(2));
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
 
-std::set<int> testStdSet()
-{
-    // This is not supposed to work with the compiled dumpers.
-    std::set<int> hgg0;
-    hgg0.insert(11);
-    hgg0.insert(22);
-    hgg0.insert(33);
-#if 1
-    std::set<QString> hgg1;
-    hgg1.insert("22.0");
+    void testStdListIntBig()
+    {
+        // This is not supposed to work with the compiled dumpers.
+        std::list<int> list;
+        for (int i = 0; i < 10000; ++i)
+            list.push_back(i);
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
 
-    QObject ob;
-    std::set<QPointer<QObject> > hash;
-    QPointer<QObject> ptr(&ob);
-#endif
-    std::set<int> result;
-    return result;
-}
+    void testStdListFoo()
+    {
+        std::list<Foo> list;
+        list.push_back(15);
+        list.push_back(16);
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
+
+    void testStdListFooStar()
+    {
+        std::list<Foo *> list;
+        list.push_back(new Foo(1));
+        list.push_back(0);
+        list.push_back(new Foo(2));
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
+
+    void testStdListBool()
+    {
+        std::list<bool> list;
+        list.push_back(true);
+        list.push_back(false);
+        BREAK_HERE;
+        dummyStatement(&list);
+    }
+
+    void testStdList()
+    {
+        testStdListInt();
+        testStdListIntStar();
+        testStdListIntBig();
+        testStdListFoo();
+        testStdListFooStar();
+        testStdListBool();
+    }
+
+} // namespace stdlist
+
+
+namespace stdmap {
+
+    void testStdMapStringFoo()
+    {
+        // This is not supposed to work with the compiled dumpers.
+        std::map<QString, Foo> map;
+        map["22.0"] = Foo(22);
+        map["33.0"] = Foo(33);
+        map["44.0"] = Foo(44);
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testStdMapCharStarFoo()
+    {
+        std::map<const char *, Foo> map;
+        map["22.0"] = Foo(22);
+        map["33.0"] = Foo(33);
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testStdMapUIntUInt()
+    {
+        std::map<uint, uint> map;
+        map[11] = 1;
+        map[22] = 2;
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testStdMapUIntStringList()
+    {
+        std::map<uint, QStringList> map;
+        map[11] = QStringList() << "11";
+        map[22] = QStringList() << "22";
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testStdMapUIntStringListTypedef()
+    {
+        typedef std::map<uint, QStringList> T;
+        T map;
+        map[11] = QStringList() << "11";
+        map[22] = QStringList() << "22";
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testStdMapUIntFloat()
+    {
+        std::map<uint, float> map;
+        map[11] = 11.0;
+        map[22] = 22.0;
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testStdMapStringFloat()
+    {
+        std::map<QString, float> map;
+        map["11.0"] = 11.0;
+        map["22.0"] = 22.0;
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testStdMapIntString()
+    {
+        std::map<int, QString> map;
+        map[11] = "11.0";
+        map[22] = "22.0";
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testStdMapStringPointer()
+    {
+        QObject ob;
+        std::map<QString, QPointer<QObject> > map;
+        map["Hallo"] = QPointer<QObject>(&ob);
+        map["Welt"] = QPointer<QObject>(&ob);
+        map["."] = QPointer<QObject>(&ob);
+        BREAK_HERE;
+        dummyStatement(&map);
+    }
+
+    void testStdMap()
+    {
+        testStdMapStringFoo();
+        testStdMapCharStarFoo();
+        testStdMapUIntUInt();
+        testStdMapUIntStringList();
+        testStdMapUIntStringListTypedef();
+        testStdMapUIntFloat();
+        testStdMapStringFloat();
+        testStdMapIntString();
+        testStdMapStringPointer();
+    }
+
+} // namespace stdmap
+
+
+namespace stdset {
+
+    void testStdSetInt()
+    {
+        // This is not supposed to work with the compiled dumpers.
+        std::set<int> set;
+        set.insert(11);
+        set.insert(22);
+        set.insert(33);
+        BREAK_HERE;
+        dummyStatement(&set);
+    }
+
+    void testStdSetString()
+    {
+        std::set<QString> set;
+        set.insert("22.0");
+        BREAK_HERE;
+        dummyStatement(&set);
+    }
+
+    void testStdSetPointer()
+    {
+        QObject ob;
+        std::set<QPointer<QObject> > hash;
+        QPointer<QObject> ptr(&ob);
+        BREAK_HERE;
+        dummyStatement(&ptr);
+    }
+
+    void testStdSet()
+    {
+        testStdSetInt();
+        testStdSetString();
+        testStdSetPointer();
+    }
+
+} // namespace stdset
 
 
 namespace stdstack {
@@ -1862,25 +2186,28 @@ namespace stdstream {
 } // namespace stdstream
 
 
-void testQStandardItemModel()
-{
-    //char buf[100];
-    //QString *s = static_cast<QString *>(static_cast<void *>(&(v.data_ptr().data.c)));
-    //QString *t = (QString *)&(v.data_ptr());
+namespace itemmodel {
 
-    QStandardItemModel m;
-    QStandardItem *i1, *i2, *i11;
-    m.appendRow(QList<QStandardItem *>()
-         << (i1 = new QStandardItem("1")) << (new QStandardItem("a")) << (new QStandardItem("a2")));
-    QModelIndex mi = i1->index();
-    m.appendRow(QList<QStandardItem *>()
-         << (i2 = new QStandardItem("2")) << (new QStandardItem("b")));
-    i1->appendRow(QList<QStandardItem *>()
-         << (i11 = new QStandardItem("11")) << (new QStandardItem("aa")));
-    int i = 1;
-    ++i;
-    ++i;
-}
+    void testItemModel()
+    {
+        //char buf[100];
+        //QString *s = static_cast<QString *>(static_cast<void *>(&(v.data_ptr().data.c)));
+        //QString *t = (QString *)&(v.data_ptr());
+
+        QStandardItemModel m;
+        QStandardItem *i1, *i2, *i11;
+        m.appendRow(QList<QStandardItem *>()
+             << (i1 = new QStandardItem("1")) << (new QStandardItem("a")) << (new QStandardItem("a2")));
+        QModelIndex mi = i1->index();
+        m.appendRow(QList<QStandardItem *>()
+             << (i2 = new QStandardItem("2")) << (new QStandardItem("b")));
+        i1->appendRow(QList<QStandardItem *>()
+             << (i11 = new QStandardItem("11")) << (new QStandardItem("aa")));
+        BREAK_HERE;
+        dummyStatement(&i1, &mi, &m, &i2, &i11);
+    }
+
+} // namespace itemmodel
 
 
 namespace qstack {
@@ -1945,12 +2272,16 @@ namespace qstack {
 } // namespace qstack
 
 
-void testQUrl()
-{
-    QUrl url(QString("http://www.nokia.com"));
-    BREAK_HERE;
-    dummyStatement(&url);
-}
+namespace qurl {
+
+    void testQUrl()
+    {
+        QUrl url(QString("http://www.nokia.com"));
+        BREAK_HERE;
+        dummyStatement(&url);
+    }
+
+} // namespace qurl
 
 
 namespace qstring  {
@@ -2061,7 +2392,7 @@ namespace formats {
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
 
-        const unsigned char uu[] = {'a', 'ö', 'a' };
+        const unsigned char uu[] = { 'a', uchar('ö'), 'a' };
         const unsigned char *u = uu;
         BREAK_HERE;
 
@@ -2095,19 +2426,23 @@ namespace formats {
 } // namespace formats
 
 
-void testQTextCursor()
-{
-    //int argc = 0;
-    //char *argv[] = { "xxx", 0 };
-    //QApplication app(argc, argv);
-    QTextDocument doc;
-    doc.setPlainText("Hallo\nWorld");
-    QTextCursor tc;
-    tc = doc.find("all");
-    int pos = tc.position();
-    int anc = tc.anchor();
-    dummyStatement(&pos, &anc);
-}
+namespace text {
+
+    void testText()
+    {
+        //char *argv[] = { "xxx", 0 };
+        QTextDocument doc;
+        doc.setPlainText("Hallo\nWorld");
+        QTextCursor tc;
+        BREAK_HERE;
+        // Step.
+        tc = doc.find("all");
+        int pos = tc.position();
+        int anc = tc.anchor();
+        dummyStatement(&pos, &anc);
+    }
+
+} // namespace text
 
 
 namespace qthread {
@@ -2323,68 +2658,57 @@ namespace qvariant {
 
 namespace qvector {
 
-    void testQVector1()
+    void testQVectorIntBig()
     {
         // This tests the display of a big vector.
-        QVector<int> big(10000);
+        QVector<int> vec(10000);
         BREAK_HERE;
         // step over
         // check that the display updates in reasonable time
-        big[1] = 1;
-        big[2] = 2;
-        big[3] = 3;
-        big[4] = 4;
-        big[5] = 5;
-        big[9] = 9;
-        big.append(1);
-        big.append(1);
-        big.append(1);
-        big.append(1);
-        dummyStatement(&big);
+        vec[1] = 1;
+        vec[2] = 2;
+        vec.append(1);
+        vec.append(1);
+        dummyStatement(&vec);
     }
 
-    void testQVector2()
+    void testQVectorFoo()
     {
         // This tests the display of a vector of pointers to custom structs.
-        QVector<Foo> v;
+        QVector<Foo> vec;
         BREAK_HERE;
         // step over, check display.
-        v.append(1);
-        v.append(2);
-        v.append(3);
-        v.append(4);
-        dummyStatement(&v);
+        vec.append(1);
+        vec.append(2);
+        dummyStatement(&vec);
     }
 
     typedef QVector<Foo> FooVector;
 
-    void testQVector3()
+    void testQVectorFooTypedef()
     {
-        FooVector f;
-        f.append(Foo(2));
-        f.append(Foo(3));
-        f.append(Foo(4));
-        for (int i = 0; i < 1000; ++i)
-            f.append(Foo(i));
-        dummyStatement(&f);
+        FooVector vec;
+        vec.append(Foo(2));
+        vec.append(Foo(3));
+        dummyStatement(&vec);
     }
 
-    void testQVector4()
+    void testQVectorFooStar()
     {
         // This tests the display of a vector of pointers to custom structs.
-        QVector<Foo *> plist;
+        QVector<Foo *> vec;
         BREAK_HERE;
         // step over
         // check that the display is ok.
-        plist.append(new Foo(1));
-        plist.append(0);
-        plist.append(new Foo(2));
+        vec.append(new Foo(1));
+        vec.append(0);
+        vec.append(new Foo(2));
         // switch "Auto derefencing pointers" in Locals context menu
         // off and on again, and check result looks sane.
-        dummyStatement(&plist);
+        dummyStatement(&vec);
     }
 
-    void testQVector5()
+    void testQVectorBool()
     {
         // This tests the display of a vector of custom structs.
         QVector<bool> vec;
@@ -2396,24 +2720,24 @@ namespace qvector {
         dummyStatement(&vec);
     }
 
-    void testQVector6()
+    void testQVectorListInt()
     {
-        QVector<QList<int> > v;
-        QVector<QList<int> > *pv = &v;
+        QVector<QList<int> > vec;
+        QVector<QList<int> > *pv = &vec;
         BREAK_HERE;
-        v.append(QList<int>() << 1);
-        v.append(QList<int>() << 2 << 3);
-        dummyStatement(pv);
+        vec.append(QList<int>() << 1);
+        vec.append(QList<int>() << 2 << 3);
+        dummyStatement(pv, &vec);
     }
 
     void testQVector()
     {
-        testQVector1();
-        testQVector2();
-        testQVector3();
-        testQVector4();
-        testQVector5();
-        testQVector6();
+        testQVectorIntBig();
+        testQVectorFoo();
+        testQVectorFooTypedef();
+        testQVectorFooStar();
+        testQVectorBool();
+        testQVectorListInt();
     }
 
 } // namespace qvector
@@ -2551,48 +2875,6 @@ namespace namespc {
 
 
 
-void testHidden()
-{
-    int  n = 1;
-    n = 2;
-    n = 3;
-    n = 4;
-    n = 4;
-    n = 5;
-    n = 6;
-    n = 7;
-    n = 8;
-    {
-        QString n = "2";
-        n = "3";
-        n = "4";
-        {
-            double n = 3.5;
-            ++n;
-            ++n;
-        }
-        n = "3";
-        n = "4";
-    }
-    ++n;
-    ++n;
-}
-
-void testQHash1()
-{
-    QHash<QString, QList<int> > hash;
-    hash.insert("Hallo", QList<int>());
-    hash.insert("Welt", QList<int>() << 1);
-    hash.insert("!", QList<int>() << 1 << 2);
-    hash.insert("!", QList<int>() << 1 << 2);
-}
-
-void testPointer()
-{
-    Foo *f = new Foo();
-    dummyStatement(f);
-}
-
 class Z : public QObject
 {
 public:
@@ -2612,27 +2894,6 @@ void testMemoryView()
     int a[20];
     for (int i = 0; i != 20; ++i)
         a[i] = i;
-}
-
-void testNullPointerDeref()
-{
-    *(int *)0 = 0;
-}
-
-void testEndlessRecursion()
-{
-    testEndlessRecursion();
-}
-
-int testEndlessLoop()
-{
-    qlonglong a = 1;
-    // gdb:
-    // Breakpoint at "while" will stop only once
-    // Hitting "Pause" button might show backtrace of different thread
-    while (a > 0)
-        ++a;
-    return a;
 }
 
 QString fooxx()
@@ -2764,6 +3025,30 @@ namespace basic {
         dummyStatement(&s);
     }
 
+    struct Function
+    {
+        Function(QByteArray var, QByteArray f, double min, double max)
+          : var(var), f(f), min(min), max(max) {}
+        QByteArray var;
+        QByteArray f;
+        double min;
+        double max;
+    };
+
+    void testFunction()
+    {
+        // In order to use this, switch on the 'qDump__Function' in dumper.py
+        Function func("x", "sin(x)", 0, 1);
+        BREAK_HERE;
+        func.max = 10;
+        func.f = "cos(x)";
+        func.max = 4;
+        func.max = 5;
+        func.max = 6;
+        func.max = 7;
+        dummyStatement(&func);
+    }
+
     struct Color
     {
         int r,g,b,a;
@@ -2891,7 +3176,14 @@ namespace basic {
         dummyStatement(&cp);
     }
 
-    void testPtrTypedef()
+    void testPointer()
+    {
+        Foo *f = new Foo();
+        BREAK_HERE;
+        dummyStatement(f);
+    }
+
+    void testPointerTypedef()
     {
         A a;
         VoidPtr p = &a;
@@ -3030,6 +3322,38 @@ namespace basic {
         dummyStatement(&a, &b, &c);
     }
 
+    void testHidden()
+    {
+        int  n = 1;
+        n = 2;
+        BREAK_HERE;
+        // Step.
+        n = 3;
+        // Continue.
+        {
+            QString n = "2";
+            BREAK_HERE;
+            // Step.
+            n = "3";
+            // Continue.
+            {
+                double n = 3.5;
+                BREAK_HERE;
+                // Step.
+                ++n;
+                // Continue.
+                dummyStatement(&n);
+            }
+            BREAK_HERE;
+            // Continue.
+            n = "3";
+            n = "4";
+            dummyStatement(&n);
+        }
+        ++n;
+        dummyStatement(&n);
+    }
+
     void testBasic()
     {
         testReference1();
@@ -3042,9 +3366,11 @@ namespace basic {
         testChar();
         testCharStar();
         testBitfields();
+        testFunction();
         testAlphabeticSorting();
         testTypedef();
-        testPtrTypedef();
+        testPointer();
+        testPointerTypedef();
         testStruct();
         testUnion();
         testUninitialized();
@@ -3058,6 +3384,7 @@ namespace basic {
         testFunctionPointer();
         testPassByReference();
         testBigInt();
+        testHidden();
     }
 
 } // namespace basic
@@ -3174,36 +3501,41 @@ namespace sse {
 
 } // namespace sse
 
-void testQScriptValue(int argc, char *argv[])
-{
-#if USE_SCRIPTLIB
-    BREAK_UNINITIALIZED_HERE;
-    QCoreApplication app(argc, argv);
-    QScriptEngine engine;
-    QDateTime date = QDateTime::currentDateTime();
-    QScriptValue s;
 
-    BREAK_HERE;
-    s = QScriptValue(33);
-    int x = s.toInt32();
+namespace qscript {
 
-    s = QScriptValue(QString("34"));
-    QString x1 = s.toString();
+    void testQScript()
+    {
+    #if USE_SCRIPTLIB
+        BREAK_UNINITIALIZED_HERE;
+        QScriptEngine engine;
+        QDateTime date = QDateTime::currentDateTime();
+        QScriptValue s;
 
-    s = engine.newVariant(QVariant(43));
-    QVariant v = s.toVariant();
+        BREAK_HERE;
+        s = QScriptValue(33);
+        int x = s.toInt32();
 
-    s = engine.newVariant(QVariant(43.0));
-    s = engine.newVariant(QVariant(QString("sss")));
-    s = engine.newDate(date);
-    x = s.toInt32();
-    date = s.toDateTime();
-    s.setProperty("a", QScriptValue());
-    QScriptValue d = s.data();
-    dummyStatement(&x1, &v, &s, &app);
-#endif
-    dummyStatement(&argc, &argv);
-}
+        s = QScriptValue(QString("34"));
+        QString x1 = s.toString();
+
+        s = engine.newVariant(QVariant(43));
+        QVariant v = s.toVariant();
+
+        s = engine.newVariant(QVariant(43.0));
+        s = engine.newVariant(QVariant(QString("sss")));
+        s = engine.newDate(date);
+        x = s.toInt32();
+        date = s.toDateTime();
+        s.setProperty("a", QScriptValue());
+        QScriptValue d = s.data();
+        dummyStatement(&x1, &v, &s, &d);
+    #else
+        dummyStatement();
+    #endif
+    }
+
+} // namespace script
 
 
 namespace boost {
@@ -3776,7 +4108,6 @@ namespace valgrind {
     void testValgrind()
     {
         testLeak();
-        //throw 42;   // Uncomment.
     }
 
 } // namespace valgrind
@@ -3815,14 +4146,15 @@ namespace sanity {
         dummyStatement(&s, &qv, &v, &list, &list2, &obj);
     }
 
-}
+} // namespace sanity
 
 
 int main(int argc, char *argv[])
 {
+    QApplication app(argc, argv);
+
     // For a very quick check, step into this one.
     sanity::testSanity();
-    //valgrind::testValgrind();
 
     // Check for normal dumpers.
     basic::testBasic();
@@ -3830,62 +4162,54 @@ int main(int argc, char *argv[])
     varargs::testVaList();
 
     formats::testFormats();
-    qxml::testQXmlAttributes();
-    qregexp::testQRegExp();
     breakpoints::testBreakpoints();
-    qrect::testGeometry();
-    qregion::testQRegion();
     peekandpoke::testPeekAndPoke3();
     anon::testAnonymous();
-    //testNullPointerDeref();
-    //testEndlessLoop();
-    //testEndlessRecursion();
-    qstack::testQStack();
-    testPointer();
-    qdatetime::testDateTime();
-    qfileinfo::testQFileInfo();
-    testQFixed();
-    stdvector::testStdVector();
-    stdstream::testStdStream();
-    testQHash1();
-    qobject::testQObject(argc, argv);
 
-    testQStandardItemModel();
-    testFunction();
-    testQImage();
+    itemmodel::testItemModel();
     noargs::testNoArgumentName(1, 2, 3);
-    testQTextCursor();
+    text::testText();
     io::testIO();
-    testHidden();
-    testCatchThrow();
-    qbytearray::testQByteArray();
+    catchthrow::testCatchThrow();
+    plugin::testPlugin();
+    valgrind::testValgrind();
+    namespc::testNamespace();
+    painting::testPainting();
 
-    testStdDeque();
-    testStdList();
-    testStdHashSet();
-    testStdMap();
-    testStdSet();
+    stddeque::testStdDeque();
+    stdlist::testStdList();
+    stdhashset::testStdHashSet();
+    stdmap::testStdMap();
+    stdset::testStdSet();
     stdstack::testStdStack();
+    stdstream::testStdStream();
     stdstring::testStdString();
     stdvector::testStdVector();
-    namespc::testNamespace();
+    stdvector::testStdVector();
 
-    testPlugin();
+    qbytearray::testQByteArray();
+    qdatetime::testDateTime();
+    qfileinfo::testQFileInfo();
+    qhash::testQHash();
+    qlinkedlist::testQLinkedList();
     qlist::testQList();
-    testQLinkedList();
-    testQHash();
-    testQImage();
-    testQMap();
-    testQMultiMap();
-    qstring::testQString();
-    testQUrl();
+    qlocale::testQLocale();
+    qmap::testQMap();
+    qobject::testQObject();
+    qrect::testGeometry();
+    qregexp::testQRegExp();
+    qregion::testQRegion();
+    qscript::testQScript();
     qset::testQSet();
     qsharedpointer::testQSharedPointer();
+    qstack::testQStack();
     qstringlist::testQStringList();
-    testQScriptValue(argc, argv);
+    qstring::testQString();
     qthread::testQThread();
+    qurl::testQUrl();
     qvariant::testQVariant();
     qvector::testQVector();
+    qxml::testQXmlAttributes();
 
     // Third party data types.
     boost::testBoost();
@@ -3911,7 +4235,7 @@ int main(int argc, char *argv[])
     bug5799::test5799();
     bug6465::test6465();
 
-    application::testApplicationStart(argc, argv);
+    final::testFinal(&app);
 
     return 0;
 }
