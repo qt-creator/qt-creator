@@ -4680,6 +4680,10 @@ Grund: %3</translation>
 <context>
     <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
+        <source>Execute User Action #%1</source>
+        <translation>Benutzerdefinierte Aktion #%1 ausführen</translation>
+    </message>
+    <message>
         <source>File not saved</source>
         <translation>Datei nicht gespeichert</translation>
     </message>
@@ -15874,6 +15878,14 @@ with a password, which you can can enter below.</source>
     <message>
         <source>Only select items with content (S)</source>
         <translation>Nur Elemente mit Inhalt auswählen (S)</translation>
+    </message>
+    <message>
+        <source>width</source>
+        <translation>Breite</translation>
+    </message>
+    <message>
+        <source>height</source>
+        <translation>Höhe</translation>
     </message>
     <message>
         <source>Reset view (R)</source>
