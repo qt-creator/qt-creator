@@ -849,47 +849,6 @@ void ValueOwner::initializePrototypes()
     f->setOptionalNamedArgumentCount(2);
     _globalObject->setMember("JSON", json);
 
-    // global Qt object, in alphabetic order
-    _qtObject = newObject(/*prototype */ 0);
-    addFunction(_qtObject, QLatin1String("atob"), 1);
-    addFunction(_qtObject, QLatin1String("btoa"), 1);
-    addFunction(_qtObject, QLatin1String("createComponent"), 1);
-    addFunction(_qtObject, QLatin1String("createQmlObject"), 3);
-    addFunction(_qtObject, QLatin1String("darker"), 1);
-    addFunction(_qtObject, QLatin1String("fontFamilies"), 0);
-    addFunction(_qtObject, QLatin1String("formatDate"), 2);
-    addFunction(_qtObject, QLatin1String("formatDateTime"), 2);
-    addFunction(_qtObject, QLatin1String("formatTime"), 2);
-    addFunction(_qtObject, QLatin1String("hsla"), 4);
-    addFunction(_qtObject, QLatin1String("include"), 2);
-    addFunction(_qtObject, QLatin1String("isQtObject"), 1);
-    addFunction(_qtObject, QLatin1String("lighter"), 1);
-    addFunction(_qtObject, QLatin1String("md5"), 1);
-    addFunction(_qtObject, QLatin1String("openUrlExternally"), 1);
-    addFunction(_qtObject, QLatin1String("point"), 2);
-    addFunction(_qtObject, QLatin1String("quit"), 0);
-    addFunction(_qtObject, QLatin1String("rect"), 4);
-    addFunction(_qtObject, QLatin1String("resolvedUrl"), 1);
-    addFunction(_qtObject, QLatin1String("rgba"), 4);
-    addFunction(_qtObject, QLatin1String("size"), 2);
-    addFunction(_qtObject, QLatin1String("tint"), 2);
-    addFunction(_qtObject, QLatin1String("vector3d"), 3);
-    _globalObject->setMember(QLatin1String("Qt"), _qtObject);
-
-    // firebug/webkit compat
-    ObjectValue *consoleObject = newObject(/*prototype */ 0);
-    addFunction(consoleObject, QLatin1String("log"), 1);
-    addFunction(consoleObject, QLatin1String("debug"), 1);
-    _globalObject->setMember(QLatin1String("console"), consoleObject);
-
-    // translation functions
-    addFunction(_globalObject, QLatin1String("qsTr"), 3);
-    addFunction(_globalObject, QLatin1String("QT_TR_NOOP"), 1);
-    addFunction(_globalObject, QLatin1String("qsTranslate"), 5);
-    addFunction(_globalObject, QLatin1String("QT_TRANSLATE_NOOP"), 2);
-    addFunction(_globalObject, QLatin1String("qsTrId"), 2);
-    addFunction(_globalObject, QLatin1String("QT_TRID_NOOP"), 1);
-
     // QML objects
     _qmlFontObject = newObject(/*prototype =*/ 0);
     _qmlFontObject->setClassName(QLatin1String("Font"));
@@ -928,6 +887,47 @@ void ValueOwner::initializePrototypes()
     _qmlVector3DObject->setMember("x", realValue());
     _qmlVector3DObject->setMember("y", realValue());
     _qmlVector3DObject->setMember("z", realValue());
+
+    // global Qt object, in alphabetic order
+    _qtObject = newObject(/*prototype */ 0);
+    addFunction(_qtObject, QLatin1String("atob"), &_stringValue, 1);
+    addFunction(_qtObject, QLatin1String("btoa"), &_stringValue, 1);
+    addFunction(_qtObject, QLatin1String("createComponent"), 1);
+    addFunction(_qtObject, QLatin1String("createQmlObject"), 3);
+    addFunction(_qtObject, QLatin1String("darker"), &_colorValue, 1);
+    addFunction(_qtObject, QLatin1String("fontFamilies"), 0);
+    addFunction(_qtObject, QLatin1String("formatDate"), &_stringValue, 2);
+    addFunction(_qtObject, QLatin1String("formatDateTime"), &_stringValue, 2);
+    addFunction(_qtObject, QLatin1String("formatTime"), &_stringValue, 2);
+    addFunction(_qtObject, QLatin1String("hsla"), &_colorValue, 4);
+    addFunction(_qtObject, QLatin1String("include"), 2);
+    addFunction(_qtObject, QLatin1String("isQtObject"), &_booleanValue, 1);
+    addFunction(_qtObject, QLatin1String("lighter"), &_colorValue, 1);
+    addFunction(_qtObject, QLatin1String("md5"), &_stringValue, 1);
+    addFunction(_qtObject, QLatin1String("openUrlExternally"), &_booleanValue, 1);
+    addFunction(_qtObject, QLatin1String("point"), _qmlPointObject, 2);
+    addFunction(_qtObject, QLatin1String("quit"), 0);
+    addFunction(_qtObject, QLatin1String("rect"), _qmlRectObject, 4);
+    addFunction(_qtObject, QLatin1String("resolvedUrl"), &_urlValue, 1);
+    addFunction(_qtObject, QLatin1String("rgba"), &_colorValue, 4);
+    addFunction(_qtObject, QLatin1String("size"), _qmlSizeObject, 2);
+    addFunction(_qtObject, QLatin1String("tint"), &_colorValue, 2);
+    addFunction(_qtObject, QLatin1String("vector3d"), _qmlVector3DObject, 3);
+    _globalObject->setMember(QLatin1String("Qt"), _qtObject);
+
+    // firebug/webkit compat
+    ObjectValue *consoleObject = newObject(/*prototype */ 0);
+    addFunction(consoleObject, QLatin1String("log"), 1);
+    addFunction(consoleObject, QLatin1String("debug"), 1);
+    _globalObject->setMember(QLatin1String("console"), consoleObject);
+
+    // translation functions
+    addFunction(_globalObject, QLatin1String("qsTr"), 3);
+    addFunction(_globalObject, QLatin1String("QT_TR_NOOP"), 1);
+    addFunction(_globalObject, QLatin1String("qsTranslate"), 5);
+    addFunction(_globalObject, QLatin1String("QT_TRANSLATE_NOOP"), 2);
+    addFunction(_globalObject, QLatin1String("qsTrId"), 2);
+    addFunction(_globalObject, QLatin1String("QT_TRID_NOOP"), 1);
 }
 
 const ObjectValue *ValueOwner::qmlKeysObject()

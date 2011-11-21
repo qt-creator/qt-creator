@@ -768,10 +768,21 @@ bool Check::visit(UiPublicMember *ast)
                 QString preferedType;
                 if (init->asNumberValue())
                     preferedType = tr("'int' or 'real'");
-                if (init->asStringValue())
+                else if (init->asStringValue())
                     preferedType = QLatin1String("'string'");
-                if (init->asBooleanValue())
+                else if (init->asBooleanValue())
                     preferedType = QLatin1String("'bool'");
+                else if (init->asColorValue())
+                    preferedType = QLatin1String("'color'");
+                else if (init == _context->valueOwner()->qmlPointObject())
+                    preferedType = QLatin1String("'point'");
+                else if (init == _context->valueOwner()->qmlRectObject())
+                    preferedType = QLatin1String("'rect'");
+                else if (init == _context->valueOwner()->qmlSizeObject())
+                    preferedType = QLatin1String("'size'");
+                else if (init == _context->valueOwner()->qmlVector3DObject())
+                    preferedType = QLatin1String("'vector3d'");
+
                 if (!preferedType.isEmpty())
                     addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferedType);
             }

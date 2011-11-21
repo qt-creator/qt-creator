@@ -172,8 +172,10 @@ void tst_Check::test()
         }
     }
     if (expectedMessages.size() > messages.size()) {
-        Message missingMessage = expectedMessages.at(messages.size());
-        qDebug() << "expected more messages: " << missingMessage.location.startLine << missingMessage.message;
+        for (int i = messages.size(); i < expectedMessages.size(); ++i) {
+            Message missingMessage = expectedMessages.at(i);
+            qDebug() << "expected message of type" << missingMessage.type << "on line" << missingMessage.location.startLine;
+        }
         QFAIL("more messages expected");
     }
 }
