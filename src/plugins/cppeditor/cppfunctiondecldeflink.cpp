@@ -494,7 +494,8 @@ static int findUniqueTypeMatch(int sourceParamIndex, Function *sourceFunction, F
     Symbol *sourceParam = sourceFunction->argumentAt(sourceParamIndex);
 
     // if other sourceParams have the same type, we can't do anything
-    foreach (int otherSourceParamIndex, sourceParams) {
+    for (int i = 0; i < sourceParams.size(); ++i) {
+        int otherSourceParamIndex = sourceParams.at(i);
         if (sourceParamIndex == otherSourceParamIndex)
             continue;
         if (sourceParam->type().isEqualTo(sourceFunction->argumentAt(otherSourceParamIndex)->type()))
@@ -504,7 +505,8 @@ static int findUniqueTypeMatch(int sourceParamIndex, Function *sourceFunction, F
     // if there's exactly one newParam with the same type, bind to that
     // this is primarily done to catch moves of unnamed parameters
     int newParamWithSameTypeIndex = -1;
-    foreach (int newParamIndex, newParams) {
+    for (int i = 0; i < newParams.size(); ++i) {
+        int newParamIndex = newParams.at(i);
         if (sourceParam->type().isEqualTo(newFunction->argumentAt(newParamIndex)->type())) {
             if (newParamWithSameTypeIndex != -1)
                 return -1;
@@ -520,7 +522,7 @@ static IndicesList unmatchedIndices(const IndicesList &indices)
     ret.reserve(indices.size());
     for (int i = 0; i < indices.size(); ++i) {
         if (indices[i] == -1)
-            ret += i;
+            ret.append(i);
     }
     return ret;
 }
@@ -668,7 +670,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         QTC_ASSERT(targetFunctionDeclarator->parameter_declaration_clause, return changes);
         for (ParameterDeclarationListAST *it = targetFunctionDeclarator->parameter_declaration_clause->parameter_declaration_list;
              it; it = it->next) {
-            targetParameterDecls += it->value;
+            targetParameterDecls.append(it->value);
         }
 
         // the number of parameters in sourceFunction or targetFunction
@@ -736,7 +738,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             // find unique type matches among the unbound parameters
             const IndicesList &freeSourceParams = unmatchedIndices(sourceParamToNewParam);
             const IndicesList &freeNewParams = unmatchedIndices(newParamToSourceParam);
-            foreach (int sourceParamIndex, freeSourceParams) {
+            for (int i = 0; i < freeSourceParams.size(); ++i) {
+                int sourceParamIndex = freeSourceParams.at(i);
                 const int newParamWithSameTypeIndex = findUniqueTypeMatch(
                             sourceParamIndex, sourceFunction, newFunction,
                             freeSourceParams, freeNewParams);
