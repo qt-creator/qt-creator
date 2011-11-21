@@ -536,50 +536,11 @@ private:
     int _metaObjectRevision;
 };
 
-class QMLJS_EXPORT Activation
-{
-public:
-    explicit Activation(Context *parentContext = 0);
-    virtual ~Activation();
-
-    Context *context() const;
-    Context *parentContext() const;
-
-    bool calledAsConstructor() const;
-    void setCalledAsConstructor(bool calledAsConstructor);
-
-    bool calledAsFunction() const;
-    void setCalledAsFunction(bool calledAsFunction);
-
-    ObjectValue *thisObject() const;
-    void setThisObject(ObjectValue *thisObject);
-
-    ValueList arguments() const;
-    void setArguments(const ValueList &arguments);
-
-private:
-    ObjectValue *_thisObject;
-    ValueList _arguments;
-    bool _calledAsFunction;
-    Context *_parentContext;
-};
-
-
 class QMLJS_EXPORT FunctionValue: public ObjectValue
 {
 public:
     FunctionValue(ValueOwner *valueOwner);
     virtual ~FunctionValue();
-
-    // [[construct]]
-    const Value *construct(const ValueList &actuals = ValueList()) const;
-
-    // [[call]]
-    const Value *call(const ValueList &actuals = ValueList()) const;
-
-    const Value *call(const ObjectValue *thisObject,
-                      const ValueList &actuals = ValueList()) const;
-
 
     virtual const Value *returnValue() const;
 
@@ -600,8 +561,6 @@ public:
     virtual bool isVariadic() const;
 
     virtual const Value *argument(int index) const;
-
-    virtual const Value *invoke(const Activation *activation) const;
 
     // Value interface
     virtual const FunctionValue *asFunctionValue() const;
@@ -625,7 +584,6 @@ public:
     virtual int optionalNamedArgumentCount() const;
     virtual const Value *argument(int index) const;
     virtual QString argumentName(int index) const;
-    virtual const Value *invoke(const Activation *activation) const;
     virtual bool isVariadic() const;
 
 private:
@@ -686,10 +644,14 @@ public:
             LanguageUtils::ComponentVersion version) const;
     const CppComponentValue *objectByCppName(const QString &cppName) const;
 
+    void setCppContextProperties(const ObjectValue *contextProperties);
+    const ObjectValue *cppContextProperties() const;
+
 private:
     // "Package.CppName ImportVersion" ->  CppComponentValue
     QHash<QString, const CppComponentValue *> _objectsByQualifiedName;
     QHash<QString, QSet<LanguageUtils::FakeMetaObject::ConstPtr> > _fakeMetaObjectsByPackage;
+    const ObjectValue *_cppContextProperties;
     ValueOwner *_valueOwner;
 };
 

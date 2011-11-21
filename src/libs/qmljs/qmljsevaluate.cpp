@@ -273,13 +273,13 @@ bool Evaluate::visit(AST::NumericLiteral *)
 
 bool Evaluate::visit(AST::RegExpLiteral *)
 {
-    _result = _valueOwner->regexpCtor()->construct();
+    _result = _valueOwner->regexpCtor()->returnValue();
     return false;
 }
 
 bool Evaluate::visit(AST::ArrayLiteral *)
 {
-    _result = _valueOwner->arrayCtor()->construct();
+    _result = _valueOwner->arrayCtor()->returnValue();
     return false;
 }
 
@@ -347,7 +347,7 @@ bool Evaluate::visit(AST::FieldMemberExpression *ast)
 bool Evaluate::visit(AST::NewMemberExpression *ast)
 {
     if (const FunctionValue *ctor = value_cast<FunctionValue>(value(ast->base))) {
-        _result = ctor->construct();
+        _result = ctor->returnValue();
     }
     return false;
 }
@@ -355,7 +355,7 @@ bool Evaluate::visit(AST::NewMemberExpression *ast)
 bool Evaluate::visit(AST::NewExpression *ast)
 {
     if (const FunctionValue *ctor = value_cast<FunctionValue>(value(ast->expression))) {
-        _result = ctor->construct();
+        _result = ctor->returnValue();
     }
     return false;
 }

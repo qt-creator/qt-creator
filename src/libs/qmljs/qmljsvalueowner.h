@@ -62,13 +62,14 @@ class Imports;
 class TypeScope;
 class JSImportScope;
 class Function;
+class SharedValueOwner;
 
 class QMLJS_EXPORT ValueOwner
 {
     Q_DISABLE_COPY(ValueOwner)
 
 public:
-    ValueOwner();
+    ValueOwner(const SharedValueOwner *shared = 0);
     ~ValueOwner();
 
     const NullValue *nullValue() const;
@@ -83,10 +84,8 @@ public:
     const ColorValue *colorValue() const;
     const AnchorLineValue *anchorLineValue() const;
 
-    ObjectValue *newObject(const ObjectValue *prototype);
+    ObjectValue *newObject(const Value *prototype);
     ObjectValue *newObject();
-    Function *newFunction();
-    const Value *newArray(); // ### remove me
 
     // QML objects
     const ObjectValue *qmlKeysObject();
@@ -100,19 +99,19 @@ public:
     const Value *defaultValueForBuiltinType(const QString &typeName) const;
 
     // global object
-    ObjectValue *globalObject() const;
+    const ObjectValue *globalObject() const;
     const ObjectValue *mathObject() const;
     const ObjectValue *qtObject() const;
 
     // prototypes
-    ObjectValue *objectPrototype() const;
-    ObjectValue *functionPrototype() const;
-    ObjectValue *numberPrototype() const;
-    ObjectValue *booleanPrototype() const;
-    ObjectValue *stringPrototype() const;
-    ObjectValue *arrayPrototype() const;
-    ObjectValue *datePrototype() const;
-    ObjectValue *regexpPrototype() const;
+    const ObjectValue *objectPrototype() const;
+    const ObjectValue *functionPrototype() const;
+    const ObjectValue *numberPrototype() const;
+    const ObjectValue *booleanPrototype() const;
+    const ObjectValue *stringPrototype() const;
+    const ObjectValue *arrayPrototype() const;
+    const ObjectValue *datePrototype() const;
+    const ObjectValue *regexpPrototype() const;
 
     // ctors
     const FunctionValue *objectCtor() const;
@@ -139,64 +138,22 @@ public:
 
     void registerValue(Value *value); // internal
 
-private:
-    void initializePrototypes();
-
+protected:
     Function *addFunction(ObjectValue *object, const QString &name, const Value *result,
                           int argumentCount = 0, int optionalCount = 0, bool variadic = false);
     Function *addFunction(ObjectValue *object, const QString &name,
                           int argumentCount = 0, int optionalCount = 0, bool variadic = false);
 
-private:
-    ObjectValue *_objectPrototype;
-    ObjectValue *_functionPrototype;
-    ObjectValue *_numberPrototype;
-    ObjectValue *_booleanPrototype;
-    ObjectValue *_stringPrototype;
-    ObjectValue *_arrayPrototype;
-    ObjectValue *_datePrototype;
-    ObjectValue *_regexpPrototype;
-
-    Function *_objectCtor;
-    Function *_functionCtor;
-    Function *_arrayCtor;
-    Function *_stringCtor;
-    Function *_booleanCtor;
-    Function *_numberCtor;
-    Function *_dateCtor;
-    Function *_regexpCtor;
-
-    ObjectValue *_globalObject;
-    ObjectValue *_mathObject;
-    ObjectValue *_qtObject;
-    ObjectValue *_qmlKeysObject;
-    ObjectValue *_qmlFontObject;
-    ObjectValue *_qmlPointObject;
-    ObjectValue *_qmlSizeObject;
-    ObjectValue *_qmlRectObject;
-    ObjectValue *_qmlVector3DObject;
-
-    NullValue _nullValue;
-    UndefinedValue _undefinedValue;
-    UnknownValue _unknownValue;
-    NumberValue _numberValue;
-    RealValue _realValue;
-    IntValue _intValue;
-    BooleanValue _booleanValue;
-    StringValue _stringValue;
-    UrlValue _urlValue;
-    ColorValue _colorValue;
-    AnchorLineValue _anchorLineValue;
     QList<Value *> _registeredValues;
+    QMutex _mutex;
 
     ConvertToNumber _convertToNumber;
     ConvertToString _convertToString;
     ConvertToObject _convertToObject;
     TypeId _typeId;
-
     CppQmlTypes _cppQmlTypes;
 
-    QMutex _mutex;
+    const SharedValueOwner *_shared;
 };
 
 } // namespace QmlJS

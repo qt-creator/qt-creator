@@ -169,11 +169,6 @@ public:
     {
         return false;
     }
-
-    virtual const Value *invoke(const Activation *) const
-    {
-        return valueOwner()->unknownValue();
-    }
 };
 
 } // end of anonymous namespace
@@ -1115,103 +1110,16 @@ QList<const ObjectValue *> PrototypeIterator::all()
     return m_prototypes;
 }
 
-Activation::Activation(Context *parentContext)
-    : _thisObject(0),
-      _calledAsFunction(true),
-      _parentContext(parentContext)
-{
-}
-
-Activation::~Activation()
-{
-}
-
-Context *Activation::parentContext() const
-{
-    return _parentContext;
-}
-
-Context *Activation::context() const
-{
-    // ### FIXME: Real context for activations.
-    return 0;
-}
-
-bool Activation::calledAsConstructor() const
-{
-    return ! _calledAsFunction;
-}
-
-void Activation::setCalledAsConstructor(bool calledAsConstructor)
-{
-    _calledAsFunction = ! calledAsConstructor;
-}
-
-bool Activation::calledAsFunction() const
-{
-    return _calledAsFunction;
-}
-
-void Activation::setCalledAsFunction(bool calledAsFunction)
-{
-    _calledAsFunction = calledAsFunction;
-}
-
-ObjectValue *Activation::thisObject() const
-{
-    return _thisObject;
-}
-
-void Activation::setThisObject(ObjectValue *thisObject)
-{
-    _thisObject = thisObject;
-}
-
-ValueList Activation::arguments() const
-{
-    return _arguments;
-}
-
-void Activation::setArguments(const ValueList &arguments)
-{
-    _arguments = arguments;
-}
-
 FunctionValue::FunctionValue(ValueOwner *valueOwner)
     : ObjectValue(valueOwner)
 {
+    setClassName("Function");
     setMember(QLatin1String("length"), valueOwner->numberValue());
+    setPrototype(valueOwner->functionPrototype());
 }
 
 FunctionValue::~FunctionValue()
 {
-}
-
-const Value *FunctionValue::construct(const ValueList &actuals) const
-{
-    Activation activation;
-    activation.setCalledAsConstructor(true);
-    activation.setThisObject(valueOwner()->newObject());
-    activation.setArguments(actuals);
-    return invoke(&activation);
-}
-
-const Value *FunctionValue::call(const ValueList &actuals) const
-{
-    Activation activation;
-    activation.setCalledAsFunction(true);
-    activation.setThisObject(valueOwner()->globalObject()); // ### FIXME: it should be `null'
-    activation.setArguments(actuals);
-    return invoke(&activation);
-}
-
-const Value *FunctionValue::call(const ObjectValue *thisObject, const ValueList &actuals) const
-{
-    Activation activation;
-    activation.setCalledAsFunction(true);
-    activation.setThisObject(const_cast<ObjectValue *>(thisObject)); // ### FIXME: remove the const_cast
-    activation.setArguments(actuals);
-    return invoke(&activation);
 }
 
 const Value *FunctionValue::returnValue() const
@@ -1244,11 +1152,6 @@ bool FunctionValue::isVariadic() const
     return true;
 }
 
-const Value *FunctionValue::invoke(const Activation *activation) const
-{
-    return activation->thisObject(); // ### FIXME: it should return undefined
-}
-
 const FunctionValue *FunctionValue::asFunctionValue() const
 {
     return this;
@@ -1265,7 +1168,6 @@ Function::Function(ValueOwner *valueOwner)
     , _optionalNamedArgumentCount(0)
     , _isVariadic(false)
 {
-    setClassName("Function");
 }
 
 Function::~Function()
@@ -1325,11 +1227,6 @@ QString Function::argumentName(int index) const
             return _argumentNames.at(index);
     }
     return FunctionValue::argumentName(index);
-}
-
-const Value *Function::invoke(const Activation *) const
-{
-    return _returnValue;
 }
 
 bool Function::isVariadic() const
@@ -1394,7 +1291,9 @@ void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &xml,
 }
 
 CppQmlTypes::CppQmlTypes(ValueOwner *valueOwner)
-    : _valueOwner(valueOwner)
+    : _cppContextProperties(0)
+    , _valueOwner(valueOwner)
+
 {
 }
 
@@ -1544,6 +1443,16 @@ const CppComponentValue *CppQmlTypes::objectByCppName(const QString &cppName) co
     return objectByQualifiedName(qualifiedName(cppPackage, cppName, ComponentVersion()));
 }
 
+void CppQmlTypes::setCppContextProperties(const ObjectValue *contextProperties)
+{
+    _cppContextProperties = contextProperties;
+}
+
+const ObjectValue *CppQmlTypes::cppContextProperties() const
+{
+    return _cppContextProperties;
+}
+
 
 ConvertToNumber::ConvertToNumber(ValueOwner *valueOwner)
     : _valueOwner(valueOwner), _result(0)
@@ -1595,14 +1504,14 @@ void ConvertToNumber::visit(const StringValue *)
 void ConvertToNumber::visit(const ObjectValue *object)
 {
     if (const FunctionValue *valueOfMember = value_cast<FunctionValue>(object->lookupMember("valueOf", ContextPtr()))) {
-        _result = value_cast<NumberValue>(valueOfMember->call(object)); // ### invoke convert-to-number?
+        _result = value_cast<NumberValue>(valueOfMember->returnValue());
     }
 }
 
 void ConvertToNumber::visit(const FunctionValue *object)
 {
     if (const FunctionValue *valueOfMember = value_cast<FunctionValue>(object->lookupMember("valueOf", ContextPtr()))) {
-        _result = value_cast<NumberValue>(valueOfMember->call(object)); // ### invoke convert-to-number?
+        _result = value_cast<NumberValue>(valueOfMember->returnValue());
     }
 }
 
@@ -1656,14 +1565,14 @@ void ConvertToString::visit(const StringValue *value)
 void ConvertToString::visit(const ObjectValue *object)
 {
     if (const FunctionValue *toStringMember = value_cast<FunctionValue>(object->lookupMember("toString", ContextPtr()))) {
-        _result = value_cast<StringValue>(toStringMember->call(object)); // ### invoke convert-to-string?
+        _result = value_cast<StringValue>(toStringMember->returnValue());
     }
 }
 
 void ConvertToString::visit(const FunctionValue *object)
 {
     if (const FunctionValue *toStringMember = value_cast<FunctionValue>(object->lookupMember("toString", ContextPtr()))) {
-        _result = value_cast<StringValue>(toStringMember->call(object)); // ### invoke convert-to-string?
+        _result = value_cast<StringValue>(toStringMember->returnValue());
     }
 }
 
@@ -1699,25 +1608,19 @@ void ConvertToObject::visit(const UndefinedValue *)
     _result = _valueOwner->nullValue();
 }
 
-void ConvertToObject::visit(const NumberValue *value)
+void ConvertToObject::visit(const NumberValue *)
 {
-    ValueList actuals;
-    actuals.append(value);
-    _result = _valueOwner->numberCtor()->construct(actuals);
+    _result = _valueOwner->numberCtor()->returnValue();
 }
 
-void ConvertToObject::visit(const BooleanValue *value)
+void ConvertToObject::visit(const BooleanValue *)
 {
-    ValueList actuals;
-    actuals.append(value);
-    _result = _valueOwner->booleanCtor()->construct(actuals);
+    _result = _valueOwner->booleanCtor()->returnValue();
 }
 
-void ConvertToObject::visit(const StringValue *value)
+void ConvertToObject::visit(const StringValue *)
 {
-    ValueList actuals;
-    actuals.append(value);
-    _result = _valueOwner->stringCtor()->construct(actuals);
+    _result = _valueOwner->stringCtor()->returnValue();
 }
 
 void ConvertToObject::visit(const ObjectValue *object)

@@ -100,6 +100,7 @@ ScopeChain::ScopeChain(const Document::Ptr &document, const ContextPtr &context)
     : m_document(document)
     , m_context(context)
     , m_globalScope(0)
+    , m_cppContextProperties(0)
     , m_qmlTypes(0)
     , m_jsImports(0)
     , m_modified(false)
@@ -152,6 +153,17 @@ void ScopeChain::setGlobalScope(const ObjectValue *globalScope)
 {
     m_modified = true;
     m_globalScope = globalScope;
+}
+
+const ObjectValue *ScopeChain::cppContextProperties() const
+{
+    return m_cppContextProperties;
+}
+
+void ScopeChain::setCppContextProperties(const ObjectValue *cppContextProperties)
+{
+    m_modified = true;
+    m_cppContextProperties = cppContextProperties;
 }
 
 QSharedPointer<const QmlComponentChain> ScopeChain::qmlComponentChain() const
@@ -243,6 +255,9 @@ void ScopeChain::update() const
 
     m_all += m_globalScope;
 
+    if (m_cppContextProperties)
+        m_all += m_cppContextProperties;
+
     // the root scope in js files doesn't see instantiating components
     if (m_jsScopes.count() != 1 || !m_qmlScopeObjects.isEmpty()) {
         if (m_qmlComponentScope) {
@@ -278,6 +293,7 @@ void ScopeChain::initializeRootScope()
     Bind *bind = m_document->bind();
 
     m_globalScope = valueOwner->globalObject();
+    m_cppContextProperties = valueOwner->cppQmlTypes().cppContextProperties();
 
     QHash<const Document *, QmlComponentChain *> componentScopes;
     QmlComponentChain *chain = new QmlComponentChain(m_document);

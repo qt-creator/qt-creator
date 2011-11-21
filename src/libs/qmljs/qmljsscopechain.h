@@ -86,6 +86,9 @@ public:
     const ObjectValue *globalScope() const;
     void setGlobalScope(const ObjectValue *globalScope);
 
+    const ObjectValue *cppContextProperties() const;
+    void setCppContextProperties(const ObjectValue *cppContextProperties);
+
     QSharedPointer<const QmlComponentChain> qmlComponentChain() const;
     void setQmlComponentChain(const QSharedPointer<const QmlComponentChain> &qmlComponentChain);
 
@@ -115,6 +118,7 @@ private:
     ContextPtr m_context;
 
     const ObjectValue *m_globalScope;
+    const ObjectValue *m_cppContextProperties;
     QSharedPointer<const QmlComponentChain> m_qmlComponentScope;
     QList<const ObjectValue *> m_qmlScopeObjects;
     const TypeScope *m_qmlTypes;

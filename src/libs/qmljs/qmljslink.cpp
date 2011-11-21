@@ -154,8 +154,8 @@ Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const Libra
             d->valueOwner->cppQmlTypes().load(cppData.exportedTypes);
         }
 
-        // populate global object with context properties from C++
-        ObjectValue *global = d->valueOwner->globalObject();
+        // build an object with the context properties from C++
+        ObjectValue *cppContextProperties = d->valueOwner->newObject(/* prototype = */ 0);
         foreach (const ModelManagerInterface::CppData &cppData, cppDataHash) {
             QHashIterator<QString, QString> it(cppData.contextProperties);
             while (it.hasNext()) {
@@ -166,9 +166,10 @@ Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const Libra
                     value = d->valueOwner->cppQmlTypes().objectByCppName(cppTypeName);
                 if (!value)
                     value = d->valueOwner->unknownValue();
-                global->setMember(it.key(), value);
+                cppContextProperties->setMember(it.key(), value);
             }
         }
+        d->valueOwner->cppQmlTypes().setCppContextProperties(cppContextProperties);
     }
 }
 
@@ -204,11 +205,6 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
 
     // load library objects shipped with Creator
     valueOwner->cppQmlTypes().load(CppQmlTypesLoader::defaultLibraryObjects);
-
-    // the 'Qt' object is dumped even though it is not exported
-    // it contains useful information, in particular on enums - add the
-    // object as a prototype to our custom Qt object to offer these for completion
-    const_cast<ObjectValue *>(valueOwner->qtObject())->setPrototype(valueOwner->cppQmlTypes().objectByCppName(QLatin1String("Qt")));
 
     if (document) {
         // do it on document first, to make sure import errors are shown

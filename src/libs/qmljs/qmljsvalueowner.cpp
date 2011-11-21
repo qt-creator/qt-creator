@@ -32,6 +32,8 @@
 
 #include "qmljsvalueowner.h"
 
+#include "qmljscontext.h"
+
 using namespace QmlJS;
 
 /*!
@@ -47,477 +49,73 @@ using namespace QmlJS;
 
 namespace {
 
-////////////////////////////////////////////////////////////////////////////////
-// constructors
-////////////////////////////////////////////////////////////////////////////////
-class ObjectCtor: public Function
+class QtObjectPrototypeReference : public Reference
 {
 public:
-    ObjectCtor(ValueOwner *valueOwner);
+    QtObjectPrototypeReference(ValueOwner *owner)
+        : Reference(owner)
+    {}
 
-    virtual const Value *invoke(const Activation *activation) const;
+private:
+    virtual const Value *value(ReferenceContext *referenceContext) const
+    {
+        return referenceContext->context()->valueOwner()->cppQmlTypes().objectByCppName(QLatin1String("Qt"));
+    }
 };
-
-class FunctionCtor: public Function
-{
-public:
-    FunctionCtor(ValueOwner *valueOwner);
-
-    virtual const Value *invoke(const Activation *activation) const;
-};
-
-class ArrayCtor: public Function
-{
-public:
-    ArrayCtor(ValueOwner *valueOwner);
-
-    virtual const Value *invoke(const Activation *activation) const;
-};
-
-class StringCtor: public Function
-{
-public:
-    StringCtor(ValueOwner *valueOwner);
-
-    virtual const Value *invoke(const Activation *activation) const;
-};
-
-class BooleanCtor: public Function
-{
-public:
-    BooleanCtor(ValueOwner *valueOwner);
-
-    virtual const Value *invoke(const Activation *activation) const;
-};
-
-class NumberCtor: public Function
-{
-public:
-    NumberCtor(ValueOwner *valueOwner);
-
-    virtual const Value *invoke(const Activation *activation) const;
-};
-
-class DateCtor: public Function
-{
-public:
-    DateCtor(ValueOwner *valueOwner);
-
-    virtual const Value *invoke(const Activation *activation) const;
-};
-
-class RegExpCtor: public Function
-{
-public:
-    RegExpCtor(ValueOwner *valueOwner);
-
-    virtual const Value *invoke(const Activation *activation) const;
-};
-
-ObjectCtor::ObjectCtor(ValueOwner *valueOwner)
-    : Function(valueOwner)
-{
-}
-
-FunctionCtor::FunctionCtor(ValueOwner *valueOwner)
-    : Function(valueOwner)
-{
-}
-
-ArrayCtor::ArrayCtor(ValueOwner *valueOwner)
-    : Function(valueOwner)
-{
-}
-
-StringCtor::StringCtor(ValueOwner *valueOwner)
-    : Function(valueOwner)
-{
-}
-
-BooleanCtor::BooleanCtor(ValueOwner *valueOwner)
-    : Function(valueOwner)
-{
-}
-
-NumberCtor::NumberCtor(ValueOwner *valueOwner)
-    : Function(valueOwner)
-{
-}
-
-DateCtor::DateCtor(ValueOwner *valueOwner)
-    : Function(valueOwner)
-{
-}
-
-RegExpCtor::RegExpCtor(ValueOwner *valueOwner)
-    : Function(valueOwner)
-{
-}
-
-const Value *ObjectCtor::invoke(const Activation *activation) const
-{
-    ObjectValue *thisObject = activation->thisObject();
-    if (activation->calledAsFunction())
-        thisObject = valueOwner()->newObject();
-
-    thisObject->setClassName("Object");
-    thisObject->setPrototype(valueOwner()->objectPrototype());
-    thisObject->setMember("length", valueOwner()->numberValue());
-    return thisObject;
-}
-
-const Value *FunctionCtor::invoke(const Activation *activation) const
-{
-    ObjectValue *thisObject = activation->thisObject();
-    if (activation->calledAsFunction())
-        thisObject = valueOwner()->newObject();
-
-    thisObject->setClassName("Function");
-    thisObject->setPrototype(valueOwner()->functionPrototype());
-    thisObject->setMember("length", valueOwner()->numberValue());
-    return thisObject;
-}
-
-const Value *ArrayCtor::invoke(const Activation *activation) const
-{
-    ObjectValue *thisObject = activation->thisObject();
-    if (activation->calledAsFunction())
-        thisObject = valueOwner()->newObject();
-
-    thisObject->setClassName("Array");
-    thisObject->setPrototype(valueOwner()->arrayPrototype());
-    thisObject->setMember("length", valueOwner()->numberValue());
-    return thisObject;
-}
-
-const Value *StringCtor::invoke(const Activation *activation) const
-{
-    if (activation->calledAsFunction())
-        return valueOwner()->convertToString(activation->thisObject());
-
-    ObjectValue *thisObject = activation->thisObject();
-    thisObject->setClassName("String");
-    thisObject->setPrototype(valueOwner()->stringPrototype());
-    thisObject->setMember("length", valueOwner()->numberValue());
-    return thisObject;
-}
-
-const Value *BooleanCtor::invoke(const Activation *activation) const
-{
-    if (activation->calledAsFunction())
-        return valueOwner()->convertToBoolean(activation->thisObject());
-
-    ObjectValue *thisObject = activation->thisObject();
-    thisObject->setClassName("Boolean");
-    thisObject->setPrototype(valueOwner()->booleanPrototype());
-    return thisObject;
-}
-
-const Value *NumberCtor::invoke(const Activation *activation) const
-{
-    if (activation->calledAsFunction())
-        return valueOwner()->convertToNumber(activation->thisObject());
-
-    ObjectValue *thisObject = activation->thisObject();
-    thisObject->setClassName("Number");
-    thisObject->setPrototype(valueOwner()->numberPrototype());
-    return thisObject;
-}
-
-const Value *DateCtor::invoke(const Activation *activation) const
-{
-    if (activation->calledAsFunction())
-        return valueOwner()->stringValue();
-
-    ObjectValue *thisObject = activation->thisObject();
-    thisObject->setClassName("Date");
-    thisObject->setPrototype(valueOwner()->datePrototype());
-    return thisObject;
-}
-
-const Value *RegExpCtor::invoke(const Activation *activation) const
-{
-    ObjectValue *thisObject = activation->thisObject();
-    if (activation->calledAsFunction())
-        thisObject = valueOwner()->newObject();
-
-    thisObject->setClassName("RegExp");
-    thisObject->setPrototype(valueOwner()->regexpPrototype());
-    thisObject->setMember("source", valueOwner()->stringValue());
-    thisObject->setMember("global", valueOwner()->booleanValue());
-    thisObject->setMember("ignoreCase", valueOwner()->booleanValue());
-    thisObject->setMember("multiline", valueOwner()->booleanValue());
-    thisObject->setMember("lastIndex", valueOwner()->numberValue());
-    return thisObject;
-}
 
 } // end of anonymous namespace
 
 
-ValueOwner::ValueOwner()
-    : _objectPrototype(0),
-      _functionPrototype(0),
-      _numberPrototype(0),
-      _booleanPrototype(0),
-      _stringPrototype(0),
-      _arrayPrototype(0),
-      _datePrototype(0),
-      _regexpPrototype(0),
-      _objectCtor(0),
-      _functionCtor(0),
-      _arrayCtor(0),
-      _stringCtor(0),
-      _booleanCtor(0),
-      _numberCtor(0),
-      _dateCtor(0),
-      _regexpCtor(0),
-      _globalObject(0),
-      _mathObject(0),
-      _qtObject(0),
-      _qmlKeysObject(0),
-      _qmlFontObject(0),
-      _qmlPointObject(0),
-      _qmlSizeObject(0),
-      _qmlRectObject(0),
-      _qmlVector3DObject(0),
-      _convertToNumber(this),
-      _convertToString(this),
-      _convertToObject(this),
-      _cppQmlTypes(this)
+// globally shared data
+class QmlJS::SharedValueOwner : public ValueOwner
 {
-    initializePrototypes();
-}
+public:
+    SharedValueOwner();
 
-ValueOwner::~ValueOwner()
-{
-    qDeleteAll(_registeredValues);
-}
+    ObjectValue *_objectPrototype;
+    ObjectValue *_functionPrototype;
+    ObjectValue *_numberPrototype;
+    ObjectValue *_booleanPrototype;
+    ObjectValue *_stringPrototype;
+    ObjectValue *_arrayPrototype;
+    ObjectValue *_datePrototype;
+    ObjectValue *_regexpPrototype;
 
-const NullValue *ValueOwner::nullValue() const
-{
-    return &_nullValue;
-}
+    Function *_objectCtor;
+    Function *_functionCtor;
+    Function *_arrayCtor;
+    Function *_stringCtor;
+    Function *_booleanCtor;
+    Function *_numberCtor;
+    Function *_dateCtor;
+    Function *_regexpCtor;
 
-const UndefinedValue *ValueOwner::undefinedValue() const
-{
-    return &_undefinedValue;
-}
+    ObjectValue *_globalObject;
+    ObjectValue *_mathObject;
+    ObjectValue *_qtObject;
+    ObjectValue *_qmlKeysObject;
+    ObjectValue *_qmlFontObject;
+    ObjectValue *_qmlPointObject;
+    ObjectValue *_qmlSizeObject;
+    ObjectValue *_qmlRectObject;
+    ObjectValue *_qmlVector3DObject;
 
-const UnknownValue *ValueOwner::unknownValue() const
-{
-    return &_unknownValue;
-}
+    NullValue _nullValue;
+    UndefinedValue _undefinedValue;
+    UnknownValue _unknownValue;
+    NumberValue _numberValue;
+    RealValue _realValue;
+    IntValue _intValue;
+    BooleanValue _booleanValue;
+    StringValue _stringValue;
+    UrlValue _urlValue;
+    ColorValue _colorValue;
+    AnchorLineValue _anchorLineValue;
+};
+Q_GLOBAL_STATIC(SharedValueOwner, sharedValueOwner)
 
-const NumberValue *ValueOwner::numberValue() const
-{
-    return &_numberValue;
-}
-
-const RealValue *ValueOwner::realValue() const
-{
-    return &_realValue;
-}
-
-const IntValue *ValueOwner::intValue() const
-{
-    return &_intValue;
-}
-
-const BooleanValue *ValueOwner::booleanValue() const
-{
-    return &_booleanValue;
-}
-
-const StringValue *ValueOwner::stringValue() const
-{
-    return &_stringValue;
-}
-
-const UrlValue *ValueOwner::urlValue() const
-{
-    return &_urlValue;
-}
-
-const ColorValue *ValueOwner::colorValue() const
-{
-    return &_colorValue;
-}
-
-const AnchorLineValue *ValueOwner::anchorLineValue() const
-{
-    return &_anchorLineValue;
-}
-
-const Value *ValueOwner::newArray()
-{
-    return arrayCtor()->construct();
-}
-
-ObjectValue *ValueOwner::newObject()
-{
-    return newObject(_objectPrototype);
-}
-
-ObjectValue *ValueOwner::newObject(const ObjectValue *prototype)
-{
-    ObjectValue *object = new ObjectValue(this);
-    object->setPrototype(prototype);
-    return object;
-}
-
-Function *ValueOwner::newFunction()
-{
-    Function *function = new Function(this);
-    function->setPrototype(functionPrototype());
-    return function;
-}
-
-ObjectValue *ValueOwner::globalObject() const
-{
-    return _globalObject;
-}
-
-ObjectValue *ValueOwner::objectPrototype() const
-{
-    return _objectPrototype;
-}
-
-ObjectValue *ValueOwner::functionPrototype() const
-{
-    return _functionPrototype;
-}
-
-ObjectValue *ValueOwner::numberPrototype() const
-{
-    return _numberPrototype;
-}
-
-ObjectValue *ValueOwner::booleanPrototype() const
-{
-    return _booleanPrototype;
-}
-
-ObjectValue *ValueOwner::stringPrototype() const
-{
-    return _stringPrototype;
-}
-
-ObjectValue *ValueOwner::arrayPrototype() const
-{
-    return _arrayPrototype;
-}
-
-ObjectValue *ValueOwner::datePrototype() const
-{
-    return _datePrototype;
-}
-
-ObjectValue *ValueOwner::regexpPrototype() const
-{
-    return _regexpPrototype;
-}
-
-const FunctionValue *ValueOwner::objectCtor() const
-{
-    return _objectCtor;
-}
-
-const FunctionValue *ValueOwner::functionCtor() const
-{
-    return _functionCtor;
-}
-
-const FunctionValue *ValueOwner::arrayCtor() const
-{
-    return _arrayCtor;
-}
-
-const FunctionValue *ValueOwner::stringCtor() const
-{
-    return _stringCtor;
-}
-
-const FunctionValue *ValueOwner::booleanCtor() const
-{
-    return _booleanCtor;
-}
-
-const FunctionValue *ValueOwner::numberCtor() const
-{
-    return _numberCtor;
-}
-
-const FunctionValue *ValueOwner::dateCtor() const
-{
-    return _dateCtor;
-}
-
-const FunctionValue *ValueOwner::regexpCtor() const
-{
-    return _regexpCtor;
-}
-
-const ObjectValue *ValueOwner::mathObject() const
-{
-    return _mathObject;
-}
-
-const ObjectValue *ValueOwner::qtObject() const
-{
-    return _qtObject;
-}
-
-void ValueOwner::registerValue(Value *value)
-{
-    // ### get rid of this lock
-    QMutexLocker locker(&_mutex);
-    _registeredValues.append(value);
-}
-
-const Value *ValueOwner::convertToBoolean(const Value *value)
-{
-    return _convertToNumber(value);  // ### implement convert to bool
-}
-
-const Value *ValueOwner::convertToNumber(const Value *value)
-{
-    return _convertToNumber(value);
-}
-
-const Value *ValueOwner::convertToString(const Value *value)
-{
-    return _convertToString(value);
-}
-
-const Value *ValueOwner::convertToObject(const Value *value)
-{
-    return _convertToObject(value);
-}
-
-QString ValueOwner::typeId(const Value *value)
-{
-    return _typeId(value);
-}
-
-Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount, int optionalCount, bool variadic)
-{
-    Function *function = addFunction(object, name, argumentCount, optionalCount, variadic);
-    function->setReturnValue(result);
-    return function;
-}
-
-Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, int argumentCount, int optionalCount, bool variadic)
-{
-    Function *function = newFunction();
-    for (int i = 0; i < argumentCount; ++i)
-        function->addArgument(unknownValue());
-    function->setVariadic(variadic);
-    function->setOptionalNamedArgumentCount(optionalCount);
-    object->setMember(name, function);
-    return function;
-}
-
-void ValueOwner::initializePrototypes()
+SharedValueOwner::SharedValueOwner()
+    : ValueOwner(this) // need to avoid recursing in ValueOwner ctor
 {
     _objectPrototype   = newObject(/*prototype = */ 0);
     _functionPrototype = newObject(_objectPrototype);
@@ -532,62 +130,76 @@ void ValueOwner::initializePrototypes()
     _globalObject = newObject();
     _globalObject->setClassName("Global");
 
-    // set up the default Object prototype
-    _objectCtor = new ObjectCtor(this);
-    _objectCtor->setPrototype(_functionPrototype);
+    ObjectValue *objectInstance = newObject();
+    objectInstance->setClassName("Object");
+    objectInstance->setMember("length", numberValue());
+    _objectCtor = new Function(this);
     _objectCtor->setMember("prototype", _objectPrototype);
-    _objectCtor->setReturnValue(newObject());
+    _objectCtor->setReturnValue(objectInstance);
     _objectCtor->addArgument(unknownValue(), "value");
     _objectCtor->setOptionalNamedArgumentCount(1);
 
-    _functionCtor = new FunctionCtor(this);
-    _functionCtor->setPrototype(_functionPrototype);
+    FunctionValue *functionInstance = new FunctionValue(this);
+    _functionCtor = new Function(this);
     _functionCtor->setMember("prototype", _functionPrototype);
-    _functionCtor->setReturnValue(newFunction());
+    _functionCtor->setReturnValue(functionInstance);
     _functionCtor->setVariadic(true);
 
-    _arrayCtor = new ArrayCtor(this);
-    _arrayCtor->setPrototype(_functionPrototype);
+    ObjectValue *arrayInstance = newObject(_arrayPrototype);
+    arrayInstance->setClassName("Array");
+    arrayInstance->setMember("length", numberValue());
+    _arrayCtor = new Function(this);
     _arrayCtor->setMember("prototype", _arrayPrototype);
-    _arrayCtor->setReturnValue(newArray());
+    _arrayCtor->setReturnValue(arrayInstance);
     _arrayCtor->setVariadic(true);
 
-    _stringCtor = new StringCtor(this);
-    _stringCtor->setPrototype(_functionPrototype);
+    ObjectValue *stringInstance = newObject(_stringPrototype);
+    stringInstance->setClassName("String");
+    stringInstance->setMember("length", numberValue());
+    _stringCtor = new Function(this);
     _stringCtor->setMember("prototype", _stringPrototype);
-    _stringCtor->setReturnValue(stringValue());
+    _stringCtor->setReturnValue(stringInstance);
     _stringCtor->addArgument(unknownValue(), "value");
     _stringCtor->setOptionalNamedArgumentCount(1);
 
-    _booleanCtor = new BooleanCtor(this);
-    _booleanCtor->setPrototype(_functionPrototype);
+    ObjectValue *booleanInstance = newObject(_booleanPrototype);
+    booleanInstance->setClassName("Boolean");
+    _booleanCtor = new Function(this);
     _booleanCtor->setMember("prototype", _booleanPrototype);
-    _booleanCtor->setReturnValue(booleanValue());
+    _booleanCtor->setReturnValue(booleanInstance);
     _booleanCtor->addArgument(unknownValue(), "value");
 
-    _numberCtor = new NumberCtor(this);
-    _numberCtor->setPrototype(_functionPrototype);
+    ObjectValue *numberInstance = newObject(_numberPrototype);
+    numberInstance->setClassName("Number");
+    _numberCtor = new Function(this);
     _numberCtor->setMember("prototype", _numberPrototype);
-    _numberCtor->setReturnValue(numberValue());
+    _numberCtor->setReturnValue(numberInstance);
     _numberCtor->addArgument(unknownValue(), "value");
     _numberCtor->setOptionalNamedArgumentCount(1);
 
-    _dateCtor = new DateCtor(this);
-    _dateCtor->setPrototype(_functionPrototype);
+    ObjectValue *dateInstance = newObject(_datePrototype);
+    dateInstance->setClassName("Date");
+    _dateCtor = new Function(this);
     _dateCtor->setMember("prototype", _datePrototype);
-    _dateCtor->setReturnValue(_datePrototype);
+    _dateCtor->setReturnValue(dateInstance);
     _dateCtor->setVariadic(true);
 
-    _regexpCtor = new RegExpCtor(this);
-    _regexpCtor->setPrototype(_functionPrototype);
+    ObjectValue *regexpInstance = newObject(_regexpPrototype);
+    regexpInstance->setClassName("RegExp");
+    regexpInstance->setMember("source", stringValue());
+    regexpInstance->setMember("global", booleanValue());
+    regexpInstance->setMember("ignoreCase", booleanValue());
+    regexpInstance->setMember("multiline", booleanValue());
+    regexpInstance->setMember("lastIndex", numberValue());
+    _regexpCtor = new Function(this);
     _regexpCtor->setMember("prototype", _regexpPrototype);
-    _regexpCtor->setReturnValue(_regexpPrototype);
+    _regexpCtor->setReturnValue(regexpInstance);
     _regexpCtor->addArgument(unknownValue(), "pattern");
     _regexpCtor->addArgument(unknownValue(), "flags");
 
     addFunction(_objectCtor, "getPrototypeOf", 1);
     addFunction(_objectCtor, "getOwnPropertyDescriptor", 2);
-    addFunction(_objectCtor, "getOwnPropertyNames", newArray(), 1);
+    addFunction(_objectCtor, "getOwnPropertyNames", arrayInstance, 1);
     addFunction(_objectCtor, "create", 1, 1);
     addFunction(_objectCtor, "defineProperty", 3);
     addFunction(_objectCtor, "defineProperties", 2);
@@ -597,7 +209,7 @@ void ValueOwner::initializePrototypes()
     addFunction(_objectCtor, "isSealed", booleanValue(), 1);
     addFunction(_objectCtor, "isFrozen", booleanValue(), 1);
     addFunction(_objectCtor, "isExtensible", booleanValue(), 1);
-    addFunction(_objectCtor, "keys", newArray(), 1);
+    addFunction(_objectCtor, "keys", arrayInstance, 1);
 
     addFunction(_objectPrototype, "toString", stringValue(), 0);
     addFunction(_objectPrototype, "toLocaleString", stringValue(), 0);
@@ -651,11 +263,11 @@ void ValueOwner::initializePrototypes()
     addFunction(_stringPrototype, "indexOf", numberValue(), 2);
     addFunction(_stringPrototype, "lastIndexOf", numberValue(), 2);
     addFunction(_stringPrototype, "localeCompare", booleanValue(), 1);
-    addFunction(_stringPrototype, "match", newArray(), 1);
+    addFunction(_stringPrototype, "match", arrayInstance, 1);
     addFunction(_stringPrototype, "replace", stringValue(), 2);
     addFunction(_stringPrototype, "search", numberValue(), 1);
     addFunction(_stringPrototype, "slice", stringValue(), 2);
-    addFunction(_stringPrototype, "split", newArray(), 1);
+    addFunction(_stringPrototype, "split", arrayInstance, 1);
     addFunction(_stringPrototype, "substring", stringValue(), 2);
     addFunction(_stringPrototype, "toLowerCase", stringValue(), 0);
     addFunction(_stringPrototype, "toLocaleLowerCase", stringValue(), 0);
@@ -767,7 +379,7 @@ void ValueOwner::initializePrototypes()
 
     // set up the default Boolean prototype
     _regexpPrototype->setMember("constructor", _regexpCtor);
-    addFunction(_regexpPrototype, "exec", newArray(), 1);
+    addFunction(_regexpPrototype, "exec", arrayInstance, 1);
     addFunction(_regexpPrototype, "test", booleanValue(), 1);
     addFunction(_regexpPrototype, "toString", stringValue(), 0);
 
@@ -889,7 +501,7 @@ void ValueOwner::initializePrototypes()
     _qmlVector3DObject->setMember("z", realValue());
 
     // global Qt object, in alphabetic order
-    _qtObject = newObject(/*prototype */ 0);
+    _qtObject = newObject(new QtObjectPrototypeReference(this));
     addFunction(_qtObject, QLatin1String("atob"), &_stringValue, 1);
     addFunction(_qtObject, QLatin1String("btoa"), &_stringValue, 1);
     addFunction(_qtObject, QLatin1String("createComponent"), 1);
@@ -930,34 +542,264 @@ void ValueOwner::initializePrototypes()
     addFunction(_globalObject, QLatin1String("QT_TRID_NOOP"), 1);
 }
 
+
+ValueOwner::ValueOwner(const SharedValueOwner *shared)
+    : _convertToNumber(this)
+    , _convertToString(this)
+    , _convertToObject(this)
+    , _cppQmlTypes(this)
+{
+    if (shared)
+        _shared = shared;
+    else
+        _shared = sharedValueOwner();
+}
+
+ValueOwner::~ValueOwner()
+{
+    qDeleteAll(_registeredValues);
+}
+
+const NullValue *ValueOwner::nullValue() const
+{
+    return &_shared->_nullValue;
+}
+
+const UndefinedValue *ValueOwner::undefinedValue() const
+{
+    return &_shared->_undefinedValue;
+}
+
+const UnknownValue *ValueOwner::unknownValue() const
+{
+    return &_shared->_unknownValue;
+}
+
+const NumberValue *ValueOwner::numberValue() const
+{
+    return &_shared->_numberValue;
+}
+
+const RealValue *ValueOwner::realValue() const
+{
+    return &_shared->_realValue;
+}
+
+const IntValue *ValueOwner::intValue() const
+{
+    return &_shared->_intValue;
+}
+
+const BooleanValue *ValueOwner::booleanValue() const
+{
+    return &_shared->_booleanValue;
+}
+
+const StringValue *ValueOwner::stringValue() const
+{
+    return &_shared->_stringValue;
+}
+
+const UrlValue *ValueOwner::urlValue() const
+{
+    return &_shared->_urlValue;
+}
+
+const ColorValue *ValueOwner::colorValue() const
+{
+    return &_shared->_colorValue;
+}
+
+const AnchorLineValue *ValueOwner::anchorLineValue() const
+{
+    return &_shared->_anchorLineValue;
+}
+
+ObjectValue *ValueOwner::newObject()
+{
+    return newObject(_shared->_objectPrototype);
+}
+
+ObjectValue *ValueOwner::newObject(const Value *prototype)
+{
+    ObjectValue *object = new ObjectValue(this);
+    object->setPrototype(prototype);
+    return object;
+}
+
+const ObjectValue *ValueOwner::globalObject() const
+{
+    return _shared->_globalObject;
+}
+
+const ObjectValue *ValueOwner::objectPrototype() const
+{
+    return _shared->_objectPrototype;
+}
+
+const ObjectValue *ValueOwner::functionPrototype() const
+{
+    return _shared->_functionPrototype;
+}
+
+const ObjectValue *ValueOwner::numberPrototype() const
+{
+    return _shared->_numberPrototype;
+}
+
+const ObjectValue *ValueOwner::booleanPrototype() const
+{
+    return _shared->_booleanPrototype;
+}
+
+const ObjectValue *ValueOwner::stringPrototype() const
+{
+    return _shared->_stringPrototype;
+}
+
+const ObjectValue *ValueOwner::arrayPrototype() const
+{
+    return _shared->_arrayPrototype;
+}
+
+const ObjectValue *ValueOwner::datePrototype() const
+{
+    return _shared->_datePrototype;
+}
+
+const ObjectValue *ValueOwner::regexpPrototype() const
+{
+    return _shared->_regexpPrototype;
+}
+
+const FunctionValue *ValueOwner::objectCtor() const
+{
+    return _shared->_objectCtor;
+}
+
+const FunctionValue *ValueOwner::functionCtor() const
+{
+    return _shared->_functionCtor;
+}
+
+const FunctionValue *ValueOwner::arrayCtor() const
+{
+    return _shared->_arrayCtor;
+}
+
+const FunctionValue *ValueOwner::stringCtor() const
+{
+    return _shared->_stringCtor;
+}
+
+const FunctionValue *ValueOwner::booleanCtor() const
+{
+    return _shared->_booleanCtor;
+}
+
+const FunctionValue *ValueOwner::numberCtor() const
+{
+    return _shared->_numberCtor;
+}
+
+const FunctionValue *ValueOwner::dateCtor() const
+{
+    return _shared->_dateCtor;
+}
+
+const FunctionValue *ValueOwner::regexpCtor() const
+{
+    return _shared->_regexpCtor;
+}
+
+const ObjectValue *ValueOwner::mathObject() const
+{
+    return _shared->_mathObject;
+}
+
+const ObjectValue *ValueOwner::qtObject() const
+{
+    return _shared->_qtObject;
+}
+
+void ValueOwner::registerValue(Value *value)
+{
+    // ### get rid of this lock
+    QMutexLocker locker(&_mutex);
+    _registeredValues.append(value);
+}
+
+const Value *ValueOwner::convertToBoolean(const Value *value)
+{
+    return _convertToNumber(value);  // ### implement convert to bool
+}
+
+const Value *ValueOwner::convertToNumber(const Value *value)
+{
+    return _convertToNumber(value);
+}
+
+const Value *ValueOwner::convertToString(const Value *value)
+{
+    return _convertToString(value);
+}
+
+const Value *ValueOwner::convertToObject(const Value *value)
+{
+    return _convertToObject(value);
+}
+
+QString ValueOwner::typeId(const Value *value)
+{
+    return _typeId(value);
+}
+
+Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount, int optionalCount, bool variadic)
+{
+    Function *function = addFunction(object, name, argumentCount, optionalCount, variadic);
+    function->setReturnValue(result);
+    return function;
+}
+
+Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, int argumentCount, int optionalCount, bool variadic)
+{
+    Function *function = new Function(this);
+    for (int i = 0; i < argumentCount; ++i)
+        function->addArgument(unknownValue());
+    function->setVariadic(variadic);
+    function->setOptionalNamedArgumentCount(optionalCount);
+    object->setMember(name, function);
+    return function;
+}
+
 const ObjectValue *ValueOwner::qmlKeysObject()
 {
-    return _qmlKeysObject;
+    return _shared->_qmlKeysObject;
 }
 
 const ObjectValue *ValueOwner::qmlFontObject()
 {
-    return _qmlFontObject;
+    return _shared->_qmlFontObject;
 }
 
 const ObjectValue *ValueOwner::qmlPointObject()
 {
-    return _qmlPointObject;
+    return _shared->_qmlPointObject;
 }
 
 const ObjectValue *ValueOwner::qmlSizeObject()
 {
-    return _qmlSizeObject;
+    return _shared->_qmlSizeObject;
 }
 
 const ObjectValue *ValueOwner::qmlRectObject()
 {
-    return _qmlRectObject;
+    return _shared->_qmlRectObject;
 }
 
 const ObjectValue *ValueOwner::qmlVector3DObject()
 {
-    return _qmlVector3DObject;
+    return _shared->_qmlVector3DObject;
 }
 
 const Value *ValueOwner::defaultValueForBuiltinType(const QString &name) const
