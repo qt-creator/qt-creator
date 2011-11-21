@@ -132,12 +132,12 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_selectOnlyContentItemsAction.data());
     upperActions.append(m_selectOnlyContentItemsAction.data());
 
-    m_rootWidthAction = new LineEditAction("width", this);
+    m_rootWidthAction = new LineEditAction(tr("width"), this);
     connect(m_rootWidthAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemWidth(QString)));
     addAction(m_rootWidthAction.data());
     upperActions.append(m_rootWidthAction.data());
 
-    m_rootHeightAction =  new LineEditAction("height", this);
+    m_rootHeightAction =  new LineEditAction(tr("height"), this);
     connect(m_rootHeightAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemHeight(QString)));
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());
