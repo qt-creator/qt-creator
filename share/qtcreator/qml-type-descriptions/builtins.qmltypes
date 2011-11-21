@@ -3133,12 +3133,12 @@ Module {
         name: "QObject"
         exports: ["QtQuick/QtObject 1.0", "QtQuick/QtObject 2.0"]
         Property { name: "objectName"; type: "string" }
-        Signal {
-            name: "destroyed"
-            Parameter { type: "QObject"; isPointer: true }
+        Method { name: "toString" }
+        Method { name: "destroy" }
+        Method {
+            name: "destroy"
+            Parameter { name: "delay"; type: "int" }
         }
-        Signal { name: "destroyed" }
-        Method { name: "deleteLater" }
     }
     Component {
         name: "QQuickAgeAffector"
