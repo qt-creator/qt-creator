@@ -44,7 +44,6 @@ Evaluate::Evaluate(const ScopeChain *scopeChain, ReferenceContext *referenceCont
       _context(scopeChain->context()),
       _referenceContext(referenceContext),
       _scopeChain(scopeChain),
-      _scope(_valueOwner->globalObject()),
       _result(0)
 {
 }
@@ -93,13 +92,6 @@ const Value *Evaluate::switchResult(const Value *result)
     const Value *previousResult = _result;
     _result = result;
     return previousResult;
-}
-
-const ObjectValue *Evaluate::switchScope(const ObjectValue *scope)
-{
-    const ObjectValue *previousScope = _scope;
-    _scope = scope;
-    return previousScope;
 }
 
 void Evaluate::accept(AST::Node *node)

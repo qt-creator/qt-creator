@@ -64,7 +64,6 @@ protected:
     void accept(AST::Node *node);
 
     const Value *switchResult(const Value *result);
-    const ObjectValue *switchScope(const ObjectValue *scope);
 
     // Ui
     virtual bool visit(AST::UiProgram *ast);
@@ -166,7 +165,6 @@ private:
     ContextPtr _context;
     ReferenceContext *_referenceContext;
     const ScopeChain *_scopeChain;
-    const ObjectValue *_scope;
     const Value *_result;
 };
 
