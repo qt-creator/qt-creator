@@ -896,7 +896,7 @@ void MainWindow::setFocusToEditor()
 
     // give focus to the editor if we have one
     if (IEditor *editor = m_editorManager->currentEditor()) {
-        if (qApp->focusWidget() != editor->widget()) {
+        if (qApp->focusWidget() != editor->widget()->focusWidget()) {
             editor->widget()->setFocus();
             focusWasMovedToEditor = editor->widget()->hasFocus();
         }
@@ -912,7 +912,6 @@ void MainWindow::setFocusToEditor()
 
     if (focusWasMovedToEditor)
         return;
-
 
     // check for some visible bar which we want to hide
     bool stuffVisible =
@@ -932,7 +931,6 @@ void MainWindow::setFocusToEditor()
 
     // switch to edit mode if necessary
     m_coreImpl->modeManager()->activateMode(QLatin1String(Constants::MODE_EDIT));
-
 }
 
 void MainWindow::showNewItemDialog(const QString &title,
