@@ -27,23 +27,38 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-quick-tour.html
+    \previouspage index.html
     \page creator-getting-started.html
-    \nextpage creator-build-example-application.html
+    \nextpage creator-overview.html
 
     \title Getting Started
 
-    This section contains examples that illustrate how to use \QC to create,
-    build, and run simple applications:
+    \table
+        \row
+            \i  \inlineimage creator-gs-01.png
+            \i  \inlineimage creator-gs-02.png
+            \i  \inlineimage creator-gs-03.png
+            \i  \inlineimage creator-gs-04.png
+        \row
+            \i  \l{IDE Overview}
 
-    \list
-        \o  \l{Building and Running an Example Application}
-        \o  \l{Creating a Qt Quick Application}
-        \if defined(qcmanual)
-        \o  \l{Creating a Qt Quick Application Using Qt Quick Components}
-        \o  \l{Creating a Qt Widget Based Application}
-        \endif
+                If you have not used an integrated development environment (IDE)
+                before, or want to know what kind of IDE \QC is, go to
+                \l{IDE Overview}.
+            \i  \l{User Interface}
 
-    \endlist
+                If you have not used \QC before, and want to become familiar
+                with the parts of the user interface, go to \l{User Interface}.
+            \i  \l{Building and Running an Example Application}
+
+                To check that \l{glossary-development-target}{targets} were
+                successfully installed as part of the \QSDK installation, open
+                an example application and run it. If you have not done so
+                before, go to \l{Building and Running an Example Application}.
+            \i  \l{Tutorials}
+
+                Now you are ready to start developing your own applications.
+                Pick a tutorial to follow in \l{Tutorials}
+    \endtable
 
 */
