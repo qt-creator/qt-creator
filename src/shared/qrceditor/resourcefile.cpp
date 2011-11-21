@@ -793,36 +793,45 @@ QModelIndex ResourceModel::addFiles(const QModelIndex &model_idx, const QStringL
     return index(lastFileArrayIndex, 0, prefixModelIndex);
 }
 
+QStringList ResourceModel::existingFilesSubtracted(int prefixIndex, const QStringList &fileNames) const
+{
+    const QModelIndex prefixModelIdx = index(prefixIndex, 0, QModelIndex());
+    QStringList uniqueList;
+
+    if (prefixModelIdx.isValid()) {
+        foreach (const QString &file, fileNames) {
+            if (!m_resource_file.contains(prefixIndex, file) && !uniqueList.contains(file))
+                uniqueList.append(file);
+        }
+    }
+    return uniqueList;
+}
+
 void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile,
         int &firstFile, int &lastFile)
 {
     Q_UNUSED(cursorFile)
     const QModelIndex prefix_model_idx = index(prefixIndex, 0, QModelIndex());
-    const QStringList &file_list = fileNames;
     firstFile = -1;
     lastFile = -1;
 
     if (!prefix_model_idx.isValid()) {
         return;
     }
-    const int prefix_idx = prefixIndex;
 
-    QStringList unique_list;
-    foreach (const QString &file, file_list) {
-        if (!m_resource_file.contains(prefix_idx, file) && !unique_list.contains(file))
-            unique_list.append(file);
-    }
+    QStringList unique_list = existingFilesSubtracted(prefixIndex, fileNames);
 
     if (unique_list.isEmpty()) {
         return;
     }
-    const int cnt = m_resource_file.fileCount(prefix_idx);
+
+    const int cnt = m_resource_file.fileCount(prefixIndex);
     beginInsertRows(prefix_model_idx, cnt, cnt + unique_list.count() - 1); // ### FIXME
 
     foreach (const QString &file, unique_list)
-        m_resource_file.addFile(prefix_idx, file);
+        m_resource_file.addFile(prefixIndex, file);
 
-    const QFileInfo fi(file_list.last());
+    const QFileInfo fi(unique_list.last());
     m_lastResourceDir = fi.absolutePath();
 
     endInsertRows();
