@@ -67,6 +67,8 @@ public:
     void setAddMenu(QMenu *);
     QMenu *addMenu() const;
 
+    int currentIndex() const;
+
 signals:
     void add();
     void remove(int index);

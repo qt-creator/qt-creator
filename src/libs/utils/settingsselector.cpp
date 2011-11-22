@@ -133,9 +133,14 @@ QMenu *SettingsSelector::addMenu() const
     return m_addButton->menu();
 }
 
+int SettingsSelector::currentIndex() const
+{
+    return m_configurationCombo->currentIndex();
+}
+
 void SettingsSelector::removeButtonClicked()
 {
-    int pos = m_configurationCombo->currentIndex();
+    int pos = currentIndex();
     if (pos < 0)
         return;
     const QString title = m_kindOfDisplayName.isEmpty() ? tr("Remove") :
@@ -157,19 +162,24 @@ void SettingsSelector::removeButtonClicked()
 
 void SettingsSelector::renameButtonClicked()
 {
-    int pos = m_configurationCombo->currentIndex();
+    int pos = currentIndex();
     if (pos < 0)
         return;
+
+    QAbstractItemModel *model = m_configurationCombo->model();
+    int row = m_configurationCombo->currentIndex();
+    QModelIndex idx = model->index(row, 0);
+    QString baseName = model->data(idx, Qt::EditRole).toString();
 
     bool ok;
     const QString &message = m_kindOfDisplayName.isEmpty() ?
                                  tr("New name for configuration <b>%1</b>:")
-                                 .arg(m_configurationCombo->currentText()) :
+                                 .arg(baseName) :
                                  tr("New name for %1: <b>%2</b>:")
-                                 .arg(m_kindOfDisplayName).arg(m_configurationCombo->currentText());
+                                 .arg(m_kindOfDisplayName).arg(baseName);
 
     QString name = QInputDialog::getText(this, tr("Rename..."), message,
-                                         QLineEdit::Normal, m_configurationCombo->currentText(), &ok);
+                                         QLineEdit::Normal, baseName, &ok);
     if (!ok)
         return;
 
