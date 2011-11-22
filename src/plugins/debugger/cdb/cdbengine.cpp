@@ -442,7 +442,7 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
     m_specialStopMode(NoSpecialStop),
     m_nextCommandToken(0),
     m_currentBuiltinCommandIndex(-1),
-    m_extensionCommandPrefixBA("!"QT_CREATOR_CDB_EXT"."),
+    m_extensionCommandPrefixBA("!" QT_CREATOR_CDB_EXT "."),
     m_operateByInstructionPending(true),
     m_operateByInstruction(true), // Default CDB setting
     m_notifyEngineShutdownOnTermination(false),
@@ -573,7 +573,7 @@ QString CdbEngine::extensionLibraryName(bool is64Bit)
     // Determine extension lib name and path to use
     QString rc;
     QTextStream(&rc) << QFileInfo(QCoreApplication::applicationDirPath()).path()
-                     << "/lib/" << (is64Bit ? QT_CREATOR_CDB_EXT"64" : QT_CREATOR_CDB_EXT"32")
+                     << "/lib/" << (is64Bit ? QT_CREATOR_CDB_EXT "64" : QT_CREATOR_CDB_EXT "32")
                      << '/' << QT_CREATOR_CDB_EXT << ".dll";
     return rc;
 }

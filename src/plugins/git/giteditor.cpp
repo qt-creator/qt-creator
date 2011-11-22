@@ -80,11 +80,11 @@ QSet<QString> GitEditor::annotationChanges() const
     if (txt.isEmpty())
         return changes;
     // Hunt for first change number in annotation: "<change>:"
-    QRegExp r(QLatin1String("^("CHANGE_PATTERN_8C") "));
+    QRegExp r(QLatin1String("^(" CHANGE_PATTERN_8C ") "));
     QTC_ASSERT(r.isValid(), return changes);
     if (r.indexIn(txt) != -1) {
         changes.insert(r.cap(1));
-        r.setPattern(QLatin1String("\n("CHANGE_PATTERN_8C") "));
+        r.setPattern(QLatin1String("\n(" CHANGE_PATTERN_8C ") "));
         QTC_ASSERT(r.isValid(), return changes);
         int pos = 0;
         while ((pos = r.indexIn(txt, pos)) != -1) {

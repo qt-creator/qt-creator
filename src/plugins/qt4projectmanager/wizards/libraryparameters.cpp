@@ -43,18 +43,18 @@
 #define LIBRARY_MACRO_VARIABLE "<LIBRARY_MACRO>"
 
 static const char *globalHeaderContentsC =
-"#ifndef "GUARD_VARIABLE"\n"
-"#define "GUARD_VARIABLE"\n"
+"#ifndef " GUARD_VARIABLE "\n"
+"#define " GUARD_VARIABLE "\n"
 "\n"
 "#include <QtCore/qglobal.h>\n"
 "\n"
-"#if defined("LIBRARY_MACRO_VARIABLE")\n"
-"#  define "EXPORT_MACRO_VARIABLE" Q_DECL_EXPORT\n"
+"#if defined(" LIBRARY_MACRO_VARIABLE ")\n"
+"#  define " EXPORT_MACRO_VARIABLE " Q_DECL_EXPORT\n"
 "#else\n"
-"#  define "EXPORT_MACRO_VARIABLE" Q_DECL_IMPORT\n"
+"#  define " EXPORT_MACRO_VARIABLE " Q_DECL_IMPORT\n"
 "#endif\n"
 "\n"
-"#endif // "GUARD_VARIABLE"\n";
+"#endif // " GUARD_VARIABLE "\n";
 
 namespace Qt4ProjectManager {
 namespace Internal {

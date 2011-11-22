@@ -516,15 +516,15 @@ static const QByteArray generateQStringSpec(const QString &str, bool isNull = fa
 {
     if (isNull)
         return QByteArray("value='IiIgKG51bGwp',valueencoded='5',"
-            "type='"NS"QString',numchild='0'");
+            "type='" NS "QString',numchild='0'");
     return
-        QByteArray("value='%',valueencoded='2',type='"NS"QString',numchild='0'")
+        QByteArray("value='%',valueencoded='2',type='" NS "QString',numchild='0'")
                 << utfToBase64(str);
 }
 
 static const QByteArray generateQCharSpec(const QChar& ch)
 {
-    return QByteArray("value='%',valueencoded='2',type='"NS"QChar',numchild='0'")
+    return QByteArray("value='%',valueencoded='2',type='" NS "QChar',numchild='0'")
         << utfToBase64(QString(QLatin1String("'%1' (%2, 0x%3)")).
                    arg(ch).arg(ch.unicode()).arg(ch.unicode(), 0, 16));
 }
@@ -550,7 +550,7 @@ static const QByteArray generateIntSpec(int n)
 const QByteArray createExp(const void *ptr,
     const QByteArray &type, const QByteArray &method)
 {
-    return QByteArray("exp='(("NSX"%"NSY"*)%)->%'")
+    return QByteArray("exp='((" NSX "%" NSY "*)%)->%'")
         << type << ptrToBa(ptr) << method;
 }
 
@@ -661,7 +661,7 @@ void tst_Dumpers::dumpQAbstractItemHelper(QModelIndex &index)
     QByteArray indexSpecValue = QByteArray().append(rowStr + "," + colStr + ",").
         append(internalPtrStrValue + "," + modelPtrStr);
     QByteArray expected = QByteArray("tiname='iname',addr='").append(ptrToBa(&index)).
-        append("',type='"NS"QAbstractItem',addr='$").append(indexSpecSymbolic).
+        append("',type='" NS "QAbstractItem',addr='$").append(indexSpecSymbolic).
         append("',value='").append(valToString(model->data(index).toString())).
         append("',numchild='%',children=[");
     int rowCount = model->rowCount(index);
@@ -675,7 +675,7 @@ void tst_Dumpers::dumpQAbstractItemHelper(QModelIndex &index)
                 append(N(childIndex.row())).append(",").
                 append(N(childIndex.column())).append(",").
                 append(ptrToBa(childIndex.internalPointer())).append(",").
-                append(modelPtrStr).append("',type='"NS"QAbstractItem',value='").
+                append(modelPtrStr).append("',type='" NS "QAbstractItem',value='").
                 append(valToString(model->data(childIndex).toString())).append("'}");
             expected <<= N(model->rowCount(childIndex)
                            * model->columnCount(childIndex));
@@ -773,7 +773,7 @@ void tst_Dumpers::dumpQAbstractItemAndModelIndex()
         "{name='parent',value='<invalid>',exp='(('$T'*)$A)->parent()',"
             "type='$T',numchild='1'},"
         "{name='internalId',%},"
-        "{name='model',value='%',type='"NS"QAbstractItemModel*',"
+        "{name='model',value='%',type='" NS "QAbstractItemModel*',"
             "numchild='1'}]")
          << generateQStringSpec(N(index.internalId()))
          << ptrToBa(&m),
@@ -790,7 +790,7 @@ void tst_Dumpers::dumpQAbstractItemAndModelIndex()
         "{name='parent',value='<invalid>',exp='(('$T'*)$A)->parent()',"
             "type='$T',numchild='1'},"
         "{name='internalId',%},"
-        "{name='model',value='%',type='"NS"QAbstractItemModel*',"
+        "{name='model',value='%',type='" NS "QAbstractItemModel*',"
             "numchild='1'}]")
          << generateQStringSpec(N(index2.internalId()))
          << ptrToBa(&m2),
@@ -807,7 +807,7 @@ void tst_Dumpers::dumpQAbstractItemAndModelIndex()
         "{name='parent',value='<invalid>',exp='(('$T'*)$A)->parent()',"
             "type='$T',numchild='1'},"
         "{name='internalId',%},"
-        "{name='model',value='%',type='"NS"QAbstractItemModel*',"
+        "{name='model',value='%',type='" NS "QAbstractItemModel*',"
             "numchild='1'}]")
          << generateQStringSpec(N(index3.internalId()))
          << ptrToBa(&m2),
@@ -822,7 +822,7 @@ void tst_Dumpers::dumpQAbstractItemAndModelIndex()
         "{name='parent',value='(1, 0)',exp='(('$T'*)$A)->parent()',"
             "type='$T',numchild='1'},"
         "{name='internalId',%},"
-        "{name='model',value='%',type='"NS"QAbstractItemModel*',"
+        "{name='model',value='%',type='" NS "QAbstractItemModel*',"
             "numchild='1'}]")
          << generateQStringSpec(N(index.internalId()))
          << ptrToBa(&m2),
@@ -839,9 +839,9 @@ void tst_Dumpers::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
 {
     QByteArray address = ptrToBa(&m);
     QByteArray expected = QByteArray("tiname='iname',addr='%',"
-        "type='"NS"QAbstractItemModel',value='(%,%)',numchild='1',children=["
-        "{numchild='1',name='"NS"QObject',addr='%',value='%',"
-        "valueencoded='2',type='"NS"QObject',displayedtype='%'}")
+        "type='" NS "QAbstractItemModel',value='(%,%)',numchild='1',children=["
+        "{numchild='1',name='" NS "QObject',addr='%',value='%',"
+        "valueencoded='2',type='" NS "QObject',displayedtype='%'}")
             << address
             << N(m.rowCount())
             << N(m.columnCount())
@@ -854,7 +854,7 @@ void tst_Dumpers::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
             QModelIndex mi = m.index(row, column);
             expected.append(QByteArray(",{name='[%,%]',value='%',"
                 "valueencoded='2',numchild='%',addr='$%,%,%,%',"
-                "type='"NS"QAbstractItem'}")
+                "type='" NS "QAbstractItem'}")
                 << N(row)
                 << N(column)
                 << utfToBase64(m.data(mi).toString())
@@ -907,19 +907,19 @@ void tst_Dumpers::dumpQByteArray()
 {
     // Case 1: Empty object.
     QByteArray ba;
-    testDumper("value='',valueencoded='1',type='"NS"QByteArray',numchild='0',"
+    testDumper("value='',valueencoded='1',type='" NS "QByteArray',numchild='0',"
             "childtype='char',childnumchild='0',children=[]",
         &ba, NS"QByteArray", true);
 
     // Case 2: One element.
     ba.append('a');
-    testDumper("value='YQ==',valueencoded='1',type='"NS"QByteArray',numchild='1',"
+    testDumper("value='YQ==',valueencoded='1',type='" NS "QByteArray',numchild='1',"
             "childtype='char',childnumchild='0',children=[{value='61  (97 'a')'}]",
         &ba, NS"QByteArray", true);
 
     // Case 3: Two elements.
     ba.append('b');
-    testDumper("value='YWI=',valueencoded='1',type='"NS"QByteArray',numchild='2',"
+    testDumper("value='YWI=',valueencoded='1',type='" NS "QByteArray',numchild='2',"
             "childtype='char',childnumchild='0',children=["
             "{value='61  (97 'a')'},{value='62  (98 'b')'}]",
         &ba, NS"QByteArray", true);
@@ -933,13 +933,13 @@ void tst_Dumpers::dumpQByteArray()
     testDumper(QByteArray("value='YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh"
             "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh"
             "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ== <size: 101, cut...>',"
-            "valueencoded='1',type='"NS"QByteArray',numchild='101',"
+            "valueencoded='1',type='" NS "QByteArray',numchild='101',"
             "childtype='char',childnumchild='0',children=[%]") << children,
         &ba, NS"QByteArray", true);
 
     // Case 5: Regular and special characters and the replacement character.
     ba = QByteArray("abc\a\n\r\033\'\"?");
-    testDumper("value='YWJjBwoNGyciPw==',valueencoded='1',type='"NS"QByteArray',"
+    testDumper("value='YWJjBwoNGyciPw==',valueencoded='1',type='" NS "QByteArray',"
             "numchild='10',childtype='char',childnumchild='0',children=["
             "{value='61  (97 'a')'},{value='62  (98 'b')'},"
             "{value='63  (99 'c')'},{value='07  (7 '?')'},"
@@ -1007,7 +1007,7 @@ void tst_Dumpers::dumpQDir()
 {
     // Case 1: Current working directory.
     QDir dir = QDir::current();
-    testDumper(QByteArray("value='%',valueencoded='2',type='"NS"QDir',numchild='3',"
+    testDumper(QByteArray("value='%',valueencoded='2',type='" NS "QDir',numchild='3',"
         "children=[{name='absolutePath',%},{name='canonicalPath',%}]")
             << utfToBase64(dir.absolutePath())
             << generateQStringSpec(dir.absolutePath())
@@ -1016,7 +1016,7 @@ void tst_Dumpers::dumpQDir()
 
     // Case 2: Root directory.
     dir = QDir::root();
-    testDumper(QByteArray("value='%',valueencoded='2',type='"NS"QDir',numchild='3',"
+    testDumper(QByteArray("value='%',valueencoded='2',type='" NS "QDir',numchild='3',"
         "children=[{name='absolutePath',%},{name='canonicalPath',%}]")
             << utfToBase64(dir.absolutePath())
             << generateQStringSpec(dir.absolutePath())
@@ -1030,7 +1030,7 @@ void tst_Dumpers::dumpQFile()
     // Case 1: Empty file name => Does not exist.
     QFile file1("");
     testDumper(QByteArray("value='',valueencoded='2',type='$T',numchild='2',"
-        "children=[{name='fileName',value='',valueencoded='2',type='"NS"QString',"
+        "children=[{name='fileName',value='',valueencoded='2',type='" NS "QString',"
         "numchild='0'},"
         "{name='exists',value='false',type='bool',numchild='0'}]"),
         &file1, NS"QFile", true);
@@ -1039,7 +1039,7 @@ void tst_Dumpers::dumpQFile()
     QTemporaryFile file2;
     file2.open();
     testDumper(QByteArray("value='%',valueencoded='2',type='$T',numchild='2',"
-        "children=[{name='fileName',value='%',valueencoded='2',type='"NS"QString',"
+        "children=[{name='fileName',value='%',valueencoded='2',type='" NS "QString',"
         "numchild='0'},"
         "{name='exists',value='true',type='bool',numchild='0'}]")
             << utfToBase64(file2.fileName()) << utfToBase64(file2.fileName()),
@@ -1048,7 +1048,7 @@ void tst_Dumpers::dumpQFile()
     // Case 3: File with a name that most likely does not exist.
     QFile file3("jfjfdskjdflsdfjfdls");
     testDumper(QByteArray("value='%',valueencoded='2',type='$T',numchild='2',"
-        "children=[{name='fileName',value='%',valueencoded='2',type='"NS"QString',"
+        "children=[{name='fileName',value='%',valueencoded='2',type='" NS "QString',"
         "numchild='0'},"
         "{name='exists',value='false',type='bool',numchild='0'}]")
             << utfToBase64(file3.fileName()) << utfToBase64(file3.fileName()),
@@ -1097,11 +1097,11 @@ void tst_Dumpers::dumpQFileInfo()
         "{name='isSymLink',%},"
         "{name='isWritable',%},"
         "{name='created',value='%',valueencoded='2',%,"
-            "type='"NS"QDateTime',numchild='1'},"
+            "type='" NS "QDateTime',numchild='1'},"
         "{name='lastModified',value='%',valueencoded='2',%,"
-            "type='"NS"QDateTime',numchild='1'},"
+            "type='" NS "QDateTime',numchild='1'},"
         "{name='lastRead',value='%',valueencoded='2',%,"
-            "type='"NS"QDateTime',numchild='1'}]");
+            "type='" NS "QDateTime',numchild='1'}]");
     expected <<= utfToBase64(fi.filePath());
     expected <<= generateQStringSpec(fi.absolutePath());
     expected <<= generateQStringSpec(fi.absoluteFilePath());
@@ -1213,7 +1213,7 @@ void tst_Dumpers::dumpQHashNode()
 
 void tst_Dumpers::dumpQImageHelper(const QImage &img)
 {
-    QByteArray expected = "value='(%x%)',type='"NS"QImage',numchild='0'"
+    QByteArray expected = "value='(%x%)',type='" NS "QImage',numchild='0'"
             << N(img.width())
             << N(img.height());
     testDumper(expected, &img, NS"QImage", true);
@@ -1237,7 +1237,7 @@ void tst_Dumpers::dumpQImage()
 void tst_Dumpers::dumpQImageDataHelper(QImage &img)
 {
     const QByteArray ba(QByteArray::fromRawData((const char*) img.bits(), img.numBytes()));
-    QByteArray expected = QByteArray("tiname='$I',addr='$A',type='"NS"QImageData',").
+    QByteArray expected = QByteArray("tiname='$I',addr='$A',type='" NS "QImageData',").
         append("numchild='0',value='<hover here>',valuetooltipencoded='1',").
         append("valuetooltipsize='").append(N(ba.size())).append("',").
         append("valuetooltip='").append(ba.toBase64()).append("'");
@@ -1373,7 +1373,7 @@ void tst_Dumpers::dumpQLinkedList()
 
         // Case 2.1: Empty list.
         testDumper("value='<0 items>',valueeditable='false',numchild='0',"
-            "childtype='"NS"QString',childnumchild='0',children=[]",
+            "childtype='" NS "QString',childnumchild='0',children=[]",
             &l2, NS"QLinkedList", true, NS"QString");
 
         // Case 2.2: One element.
@@ -1381,7 +1381,7 @@ void tst_Dumpers::dumpQLinkedList()
         iter = l2.constBegin();
         qDebug() << *iter;
         testDumper("value='<1 items>',valueeditable='false',numchild='1',"
-            "childtype='"NS"QString',childnumchild='0',children=[{addr='%',value='%',}]"
+            "childtype='" NS "QString',childnumchild='0',children=[{addr='%',value='%',}]"
                 << ptrToBa(iter.operator->()) << utfToBase64(*iter),
             &l2, NS"QLinkedList", true, NS"QString");
 
@@ -1402,7 +1402,7 @@ void tst_Dumpers::dumpQLinkedList()
             l2.append("Test " + N(i));
 
         expected = "value='<1002 items>',valueeditable='false',"
-            "numchild='1002',childtype='"NS"QString',childnumchild='0',children=['";
+            "numchild='1002',childtype='" NS "QString',childnumchild='0',children=['";
         iter = l2.constBegin();
         for (int i = 0; i < 1002; ++i, ++iter)
             expected.append("{addr='%',value='%'},"
@@ -1476,7 +1476,7 @@ void tst_Dumpers::dumpQList_QString()
     slist.append("a");
     slist.append("b");
     testDumper("value='<2 items>',valueeditable='false',numchild='2',"
-        "internal='1',childtype='"NS"QString',childnumchild='0',children=["
+        "internal='1',childtype='" NS "QString',childnumchild='0',children=["
         "{addr='" + str(&slist.at(0)) + "',value='YQA=',valueencoded='2'},"
         "{addr='" + str(&slist.at(1)) + "',value='YgA=',valueencoded='2'}]",
         &slist, NS"QList", true, NS"QString");
@@ -1594,12 +1594,12 @@ template <typename K, typename V>
             size_t backwardOffset = size_t(&node->backward) - valOff;
             char *addr = reinterpret_cast<char *>(&(*it)) + backwardOffset;
             expected.append("addr='").append(ptrToBa(addr)).
-                append("',type='"NS"QMapNode<").append(keyTypeStr).append(",").
+                append("',type='" NS "QMapNode<").append(keyTypeStr).append(",").
                     append(valTypeStr).append(" >").append("'");
 #else
-            expected.append("type='"NS"QMapData::Node<").append(keyTypeStr).
+            expected.append("type='" NS "QMapData::Node<").append(keyTypeStr).
                 append(",").append(valTypeStr).append(" >").
-                append("',exp='*('"NS"QMapData::Node<").append(keyTypeStr).
+                append("',exp='*('" NS "QMapData::Node<").append(keyTypeStr).
                 append(",").append(valTypeStr).append(" >").
                 append(" >'*)").append(ptrToBa(&(*it))).append("'");
 #endif
@@ -1787,12 +1787,12 @@ void tst_Dumpers::dumpQObjectChildListHelper(QObject &o)
     const int size = children.size();
     const QString sizeStr = N(size);
     QByteArray expected = QByteArray("numchild='").append(sizeStr).append("',value='<").
-        append(sizeStr).append(" items>',type='"NS"QObjectChildList',children=[");
+        append(sizeStr).append(" items>',type='" NS "QObjectChildList',children=[");
     for (int i = 0; i < size; ++i) {
         const QObject *child = children.at(i);
         expected.append("{addr='").append(ptrToBa(child)).append("',value='").
             append(utfToBase64(child->objectName())).
-            append("',valueencoded='2',type='"NS"QObject',displayedtype='").
+            append("',valueencoded='2',type='" NS "QObject',displayedtype='").
             append(child->metaObject()->className()).append("',numchild='1'}");
         if (i < size - 1)
             expected.append(",");
@@ -1820,7 +1820,7 @@ void tst_Dumpers::dumpQObjectMethodList()
 {
     QStringListModel m;
     testDumper("addr='<synthetic>',type='$T',numchild='24',"
-        "childtype='"NS"QMetaMethod::Method',childnumchild='0',children=["
+        "childtype='" NS "QMetaMethod::Method',childnumchild='0',children=["
         "{name='0 0 destroyed(QObject*)',value='<Signal> (1)'},"
         "{name='1 1 destroyed()',value='<Signal> (1)'},"
         "{name='2 2 deleteLater()',value='<Slot> (2)'},"
@@ -1904,7 +1904,7 @@ typedef QVector<QObjectPrivate::ConnectionList> ConnLists;
 void tst_Dumpers::dumpQObjectSignalHelper(QObject &o, int sigNum)
 {
     //qDebug() << o.objectName() << sigNum;
-    QByteArray expected("addr='<synthetic>',numchild='1',type='"NS"QObjectSignal'");
+    QByteArray expected("addr='<synthetic>',numchild='1',type='" NS "QObjectSignal'");
 #if QT_VERSION >= 0x040400 && QT_VERSION <= 0x040700
     expected.append(",children=[");
     const QObjectPrivate *p = Cheater::getPrivate(o);
@@ -1924,11 +1924,11 @@ void tst_Dumpers::dumpQObjectSignalHelper(QObject &o, int sigNum)
                 append(o.metaObject()->className()).
                 append("',numchild='0',addr='").append(ptrToBa(&o)).append("'");
         else if (conn->receiver == 0)
-            expected.append("value='0x0',type='"NS"QObject *',numchild='0'");
+            expected.append("value='0x0',type='" NS "QObject *',numchild='0'");
         else
             expected.append("addr='").append(ptrToBa(conn->receiver)).append("',value='").
                 append(utfToBase64(conn->receiver->objectName())).append("',valueencoded='2',").
-                append("type='"NS"QObject',displayedtype='").
+                append("type='" NS "QObject',displayedtype='").
                 append(conn->receiver->metaObject()->className()).append("',numchild='1'");
         expected.append("},{name='").append(iStr).append(" slot',type='',value='");
         if (conn->receiver != 0)
@@ -1951,7 +1951,7 @@ void tst_Dumpers::dumpQObjectSignal()
     // Case 1: Simple QObject.
     QObject o;
     o.setObjectName("Test");
-    testDumper("addr='<synthetic>',numchild='1',type='"NS"QObjectSignal',"
+    testDumper("addr='<synthetic>',numchild='1',type='" NS "QObjectSignal',"
             "children=[],numchild='0'",
         &o, NS"QObjectSignal", true, "", "", 0);
 
@@ -1987,58 +1987,58 @@ void tst_Dumpers::dumpQObjectSignalList()
     QObject o;
     o.setObjectName("Test");
 
-    testDumper("type='"NS"QObjectSignalList',value='<2 items>',"
+    testDumper("type='" NS "QObjectSignalList',value='<2 items>',"
                 "addr='$A',numchild='2',children=["
             "{name='0',value='destroyed(QObject*)',numchild='0',"
-                "addr='$A',type='"NS"QObjectSignal'},"
+                "addr='$A',type='" NS "QObjectSignal'},"
             "{name='1',value='destroyed()',numchild='0',"
-                "addr='$A',type='"NS"QObjectSignal'}]",
+                "addr='$A',type='" NS "QObjectSignal'}]",
         &o, NS"QObjectSignalList", true);
 
     // Case 2: QAbstractItemModel with no connections.
     QStringListModel m(QStringList() << "Test1" << "Test2");
-    QByteArray expected = "type='"NS"QObjectSignalList',value='<20 items>',"
+    QByteArray expected = "type='" NS "QObjectSignalList',value='<20 items>',"
         "addr='$A',numchild='20',children=["
         "{name='0',value='destroyed(QObject*)',numchild='0',"
-            "addr='$A',type='"NS"QObjectSignal'},"
+            "addr='$A',type='" NS "QObjectSignal'},"
         "{name='1',value='destroyed()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSignal'},"
+            "addr='$A',type='" NS "QObjectSignal'},"
         "{name='4',value='dataChanged(QModelIndex,QModelIndex)',numchild='0',"
-            "addr='$A',type='"NS"QObjectSignal'},"
+            "addr='$A',type='" NS "QObjectSignal'},"
         "{name='5',value='headerDataChanged(Qt::Orientation,int,int)',"
-            "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='0',addr='$A',type='" NS "QObjectSignal'},"
         "{name='6',value='layoutChanged()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSignal'},"
+            "addr='$A',type='" NS "QObjectSignal'},"
         "{name='7',value='layoutAboutToBeChanged()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSignal'},"
+            "addr='$A',type='" NS "QObjectSignal'},"
         "{name='8',value='rowsAboutToBeInserted(QModelIndex,int,int)',"
-            "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='0',addr='$A',type='" NS "QObjectSignal'},"
         "{name='9',value='rowsInserted(QModelIndex,int,int)',"
-            "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='0',addr='$A',type='" NS "QObjectSignal'},"
         "{name='10',value='rowsAboutToBeRemoved(QModelIndex,int,int)',"
-            "numchild='%',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='%',addr='$A',type='" NS "QObjectSignal'},"
         "{name='11',value='rowsRemoved(QModelIndex,int,int)',"
-            "numchild='%',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='%',addr='$A',type='" NS "QObjectSignal'},"
         "{name='12',value='columnsAboutToBeInserted(QModelIndex,int,int)',"
-            "numchild='%',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='%',addr='$A',type='" NS "QObjectSignal'},"
         "{name='13',value='columnsInserted(QModelIndex,int,int)',"
-            "numchild='%',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='%',addr='$A',type='" NS "QObjectSignal'},"
         "{name='14',value='columnsAboutToBeRemoved(QModelIndex,int,int)',"
-            "numchild='%',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='%',addr='$A',type='" NS "QObjectSignal'},"
         "{name='15',value='columnsRemoved(QModelIndex,int,int)',"
-            "numchild='%',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='%',addr='$A',type='" NS "QObjectSignal'},"
         "{name='16',value='modelAboutToBeReset()',"
-            "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='0',addr='$A',type='" NS "QObjectSignal'},"
         "{name='17',value='modelReset()',"
-            "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+            "numchild='0',addr='$A',type='" NS "QObjectSignal'},"
         "{name='18',value='rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',"
-             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+             "numchild='0',addr='$A',type='" NS "QObjectSignal'},"
         "{name='19',value='rowsMoved(QModelIndex,int,int,QModelIndex,int)',"
-             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+             "numchild='0',addr='$A',type='" NS "QObjectSignal'},"
         "{name='20',value='columnsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',"
-             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+             "numchild='0',addr='$A',type='" NS "QObjectSignal'},"
         "{name='21',value='columnsMoved(QModelIndex,int,int,QModelIndex,int)',"
-            "numchild='0',addr='$A',type='"NS"QObjectSignal'}]";
+            "numchild='0',addr='$A',type='" NS "QObjectSignal'}]";
 
 
     testDumper(expected << "0" << "0" << "0" << "0" << "0" << "0",
@@ -2143,22 +2143,22 @@ void tst_Dumpers::dumpQObjectSlotList()
     o.setObjectName("Test");
     testDumper("numchild='2',value='<2 items>',type='$T',"
         "children=[{name='2',value='deleteLater()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'},"
+            "addr='$A',type='" NS "QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'}]",
+            "addr='$A',type='" NS "QObjectSlot'}]",
         &o, NS"QObjectSlotList", true);
 
     // Case 2: QAbstractItemModel with no connections.
     QStringListModel m(QStringList() << "Test1" << "Test2");
     testDumper("numchild='4',value='<4 items>',type='$T',"
         "children=[{name='2',value='deleteLater()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'},"
+            "addr='$A',type='" NS "QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'},"
+            "addr='$A',type='" NS "QObjectSlot'},"
         "{name='22',value='submit()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'},"
+            "addr='$A',type='" NS "QObjectSlot'},"
         "{name='23',value='revert()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'}]",
+            "addr='$A',type='" NS "QObjectSlot'}]",
         &m, NS"QObjectSlotList", true);
 
     // Case 3: QAbstractItemModel with connections to itself and to another
@@ -2177,13 +2177,13 @@ void tst_Dumpers::dumpQObjectSlotList()
     connect(&o, SIGNAL(destroyed(QObject *)), &m, SLOT(submit()));
     testDumper("numchild='4',value='<4 items>',type='$T',"
         "children=[{name='2',value='deleteLater()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'},"
+            "addr='$A',type='" NS "QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'},"
+            "addr='$A',type='" NS "QObjectSlot'},"
         "{name='22',value='submit()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'},"
+            "addr='$A',type='" NS "QObjectSlot'},"
         "{name='23',value='revert()',numchild='0',"
-            "addr='$A',type='"NS"QObjectSlot'}]",
+            "addr='$A',type='" NS "QObjectSlot'}]",
         &m, NS"QObjectSlotList", true);
 }
 
@@ -2330,7 +2330,7 @@ void tst_Dumpers::dumpQVariant_QStringList()
 {
     QVariant v = QStringList() << "Hi";
     testDumper("value='(QStringList) ',type='$T',numchild='1',"
-        "children=[{name='value',exp='(*('"NS"QStringList'*)%)',"
+        "children=[{name='value',exp='(*('" NS "QStringList'*)%)',"
         "type='QStringList',numchild='1'}]"
             << QByteArray::number(quintptr(&v)),
         &v, NS"QVariant", true);
@@ -2369,7 +2369,7 @@ void tst_Dumpers::dumpQTextCodecHelper(QTextCodec *codec)
 {
     const QByteArray name = codec->name().toBase64();
     QByteArray expected = QByteArray("value='%',valueencoded='1',type='$T',"
-        "numchild='2',children=[{name='name',value='%',type='"NS"QByteArray',"
+        "numchild='2',children=[{name='name',value='%',type='" NS "QByteArray',"
         "numchild='0',valueencoded='1'},{name='mibEnum',%}]")
         << name << name << generateIntSpec(codec->mibEnum());
     testDumper(expected, codec, NS"QTextCodec", true);

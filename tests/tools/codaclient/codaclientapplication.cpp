@@ -42,7 +42,7 @@
 #include <cstdio>
 
 static const char usageC[] =
-"\n%1 v0.1 built "__DATE__"\n\n"
+"\n%1 v0.1 built " __DATE__ "\n\n"
 "Test client for Symbian CODA\n\n"
 "Usage:\n"
 "%1 ping            connection   Note: For serial connections ONLY.\n"

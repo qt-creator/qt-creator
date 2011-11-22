@@ -69,11 +69,11 @@ QSet<QString> BazaarEditor::annotationChanges() const
     if (txt.isEmpty())
         return changes;
 
-    QRegExp changeNumRx(QLatin1String("^("BZR_CHANGE_PATTERN") "));
+    QRegExp changeNumRx(QLatin1String("^(" BZR_CHANGE_PATTERN ") "));
     QTC_ASSERT(changeNumRx.isValid(), return changes);
     if (changeNumRx.indexIn(txt) != -1) {
         changes.insert(changeNumRx.cap(1));
-        changeNumRx.setPattern(QLatin1String("\n("BZR_CHANGE_PATTERN") "));
+        changeNumRx.setPattern(QLatin1String("\n(" BZR_CHANGE_PATTERN ") "));
         QTC_ASSERT(changeNumRx.isValid(), return changes);
         int pos = 0;
         while ((pos = changeNumRx.indexIn(txt, pos)) != -1) {
