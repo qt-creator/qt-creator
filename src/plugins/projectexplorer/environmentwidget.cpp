@@ -208,10 +208,14 @@ void EnvironmentWidget::updateSummaryText()
         }
     }
 
-    if (text.isEmpty())
-        text.prepend(tr("Using <b>%1</b>").arg(d->m_baseEnvironmentText));
-    else
-        text.prepend(tr("Using <b>%1</b> and").arg(d->m_baseEnvironmentText));
+    if (text.isEmpty()) {
+        //: %1 is "System Environment" or some such.
+        text.prepend(tr("Use <b>%1</b>").arg(d->m_baseEnvironmentText));
+    } else {
+        //: Yup, word puzzle. The Set/Unset phrases above are appended to this.
+        //: %1 is "System Environment" or some such.
+        text.prepend(tr("Use <b>%1</b> and").arg(d->m_baseEnvironmentText));
+    }
 
     d->m_detailsContainer->setSummaryText(text);
 }
