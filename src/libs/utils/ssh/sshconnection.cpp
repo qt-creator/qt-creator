@@ -454,6 +454,8 @@ void SshConnectionPrivate::handleServiceAcceptPacket()
             SshCapabilities::SshConnectionService, m_connParams.password.toUtf8());
     } else {
         Utils::FileReader reader;
+        if (m_connParams.privateKeyFile.isEmpty())
+            throw SshClientException(SshKeyFileError, tr("No private key file given."));
         if (!reader.fetch(m_connParams.privateKeyFile))
             throw SshClientException(SshKeyFileError,
                 tr("Private key error: %1").arg(reader.errorString()));
