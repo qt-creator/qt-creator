@@ -357,7 +357,9 @@ a = a +
            <widget class="QCheckBox" name="extraPaddingConditions">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-The extra padding usually only affects if statement conditions. Without extra padding:
+Adds an extra level of indentation to multiline conditions in the switch, if, while and foreach statements if they would otherwise have the same or less indentation than a nested statement.
+
+For four-spaces indentation only if statement conditions are affected. Without extra padding:
 &lt;pre&gt;
 if (a &amp;&amp;
     b)
