@@ -116,7 +116,7 @@ signals:
     void diffSelected(const QStringList &);
     void fileSelectionChanged(bool someFileSelected);
     void submitActionTextChanged(const QString &);
-    void submitActionEnabledChanged(const bool);
+    void submitActionEnabledChanged(bool);
 
 private slots:
     void updateCheckAllComboBox();
