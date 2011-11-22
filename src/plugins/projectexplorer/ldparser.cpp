@@ -39,8 +39,9 @@ using namespace ProjectExplorer;
 namespace {
     // opt. drive letter + filename: (2 brackets)
     const char * const FILE_PATTERN = "(([A-Za-z]:)?[^:]+\\.[^:]+):";
-    // line no. or elf segment + offset: (1 bracket)
-    const char * const POSITION_PATTERN = "(\\d+|\\(\\.[a-zA-Z0-9]*.0x[a-fA-F0-9]+\\)):";
+    // line no. or elf segment + offset (1 bracket)
+    // const char * const POSITION_PATTERN = "(\\d+|\\(\\.[^:]+[+-]0x[a-fA-F0-9]+\\):)";
+    const char * const POSITION_PATTERN = "(\\d|\\(\\..+[+-]0x[a-fA-F0-9]+\\):)";
     const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(ld|gold)(-[0-9\\.]+)?(\\.exe)?: ";
 }
 
@@ -55,9 +56,6 @@ LdParser::LdParser()
 
     m_regExpGccNames.setPattern(COMMAND_PATTERN);
     m_regExpGccNames.setMinimal(true);
-
-    m_regExpInFunction.setPattern("^In (static |member )*function ");
-    m_regExpInFunction.setMinimal(true);
 }
 
 void LdParser::stdError(const QString &line)
@@ -98,13 +96,12 @@ void LdParser::stdError(const QString &line)
             lineno = -1;
         QString filename = m_regExpLinker.cap(1);
         if (!m_regExpLinker.cap(4).isEmpty()
-            && !m_regExpLinker.cap(4).startsWith(QLatin1String("(.text+0x")))
+            && !m_regExpLinker.cap(4).startsWith(QLatin1String("(.text")))
             filename = m_regExpLinker.cap(4);
         QString description = m_regExpLinker.cap(8).trimmed();
         Task task(Task::Error, description, filename, lineno,
                   Constants::TASK_CATEGORY_COMPILE);
-        if (m_regExpInFunction.indexIn(description) > -1 ||
-            description.startsWith(QLatin1String("At global scope")) ||
+        if (description.startsWith(QLatin1String("At global scope")) ||
             description.startsWith(QLatin1String("At top level")) ||
             description.startsWith(QLatin1String("instantiated from ")) ||
             description.startsWith(QLatin1String("In ")))
@@ -113,5 +110,6 @@ void LdParser::stdError(const QString &line)
         emit addTask(task);
         return;
     }
+
     IOutputParser::stdError(line);
 }

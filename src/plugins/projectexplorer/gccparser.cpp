@@ -669,7 +669,16 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         QLatin1String("file.h"), 21,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
-
+    QTest::newRow("linker error") // QTCREATORBUG-3107
+            << QString::fromLatin1("cns5k_ins_parser_tests.cpp:(.text._ZN20CNS5kINSParserEngine21DropBytesUntilStartedEP14CircularBufferIhE[CNS5kINSParserEngine::DropBytesUntilStarted(CircularBuffer<unsigned char>*)]+0x6d): undefined reference to `CNS5kINSPacket::SOH_BYTE'")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("undefined reference to `CNS5kINSPacket::SOH_BYTE'"),
+                        QLatin1String("cns5k_ins_parser_tests.cpp"), -1,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()

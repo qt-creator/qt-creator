@@ -50,7 +50,6 @@ public:
 private:
     QRegExp m_regExpLinker;
     QRegExp m_regExpGccNames;
-    QRegExp m_regExpInFunction;
 };
 
 } // namespace ProjectExplorer
