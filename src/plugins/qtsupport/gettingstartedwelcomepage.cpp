@@ -47,12 +47,25 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QWeakPointer>
 #include <QtCore/QWaitCondition>
+#include <QtCore/QDir>
+#include <QtCore/QBuffer>
 #include <QtGui/QGraphicsProxyWidget>
 #include <QtGui/QScrollBar>
 #include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QImage>
+#include <QtGui/QImageReader>
+#include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QPushButton>
+#include <QtGui/QMessageBox>
+#include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
 #include <QtSql/QSqlQueryModel>
 #include <QtSql/QSqlQuery>
-#include <QtDeclarative>
+#include <QtDeclarative/QDeclarativeImageProvider>
+#include <QtDeclarative/QDeclarativeEngine>
+#include <QtDeclarative/QDeclarativeContext>
 
 namespace QtSupport {
 namespace Internal {
