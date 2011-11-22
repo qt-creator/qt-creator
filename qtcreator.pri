@@ -50,6 +50,9 @@ defineTest(minQtVersion) {
             return(true)
         }
     }
+    greaterThan(QT_MAJOR_VERSION, $$maj) {
+        return(true)
+    }
     return(false)
 }
 
