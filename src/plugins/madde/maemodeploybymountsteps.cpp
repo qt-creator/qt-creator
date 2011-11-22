@@ -430,7 +430,7 @@ bool MaemoInstallPackageViaMountStep::isDeploymentPossible(QString *whyNot) cons
         return false;
     }
     m_deployService->setPackageFilePath(pStep->packageFilePath());
-    return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
+    return deployService()->isDeploymentPossible(whyNot);
 }
 
 QString MaemoInstallPackageViaMountStep::stepId()
@@ -476,7 +476,7 @@ bool MaemoCopyFilesViaMountStep::isDeploymentPossible(QString *whyNot) const
     for (int i = 0; i < deployableCount; ++i)
         deployableFiles << deploymentInfo->deployableAt(i);
     m_deployService->setDeployableFiles(deployableFiles);
-    return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
+    return deployService()->isDeploymentPossible(whyNot);
 }
 
 QString MaemoCopyFilesViaMountStep::stepId()

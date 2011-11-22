@@ -162,10 +162,6 @@ bool RemoteLinuxRunConfiguration::isEnabled() const
         d->disabledReason = tr("The .pro file could not be parsed.");
         return false;
     }
-    if (!deviceConfig()) {
-        d->disabledReason = tr("No device configuration set.");
-        return false;
-    }
     if (!activeQt4BuildConfiguration()) {
         d->disabledReason = tr("No active build configuration.");
         return false;

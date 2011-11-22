@@ -155,7 +155,7 @@ bool MaemoUploadAndInstallPackageStep::isDeploymentPossible(QString *whyNot) con
         return false;
     }
     m_deployService->setPackageFilePath(pStep->packageFilePath());
-    return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
+    return deployService()->isDeploymentPossible(whyNot);
 }
 
 QString MaemoUploadAndInstallPackageStep::stepId()
@@ -202,7 +202,7 @@ bool MeegoUploadAndInstallPackageStep::isDeploymentPossible(QString *whyNot) con
         return false;
     }
     m_deployService->setPackageFilePath(pStep->packageFilePath());
-    return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
+    return deployService()->isDeploymentPossible(whyNot);
 }
 
 QString MeegoUploadAndInstallPackageStep::stepId()

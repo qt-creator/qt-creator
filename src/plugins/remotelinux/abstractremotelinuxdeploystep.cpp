@@ -80,17 +80,12 @@ QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
 bool AbstractRemoteLinuxDeployStep::init()
 {
     QString error;
+    deployService()->setDeviceConfiguration(deployConfiguration()->deviceConfiguration());
+    deployService()->setBuildConfiguration(qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration()));
     const bool canDeploy = isDeploymentPossible(&error);
     if (!canDeploy)
         emit addOutput(tr("Deployment failed: %1").arg(error), ErrorMessageOutput);
     return canDeploy;
-}
-
-bool AbstractRemoteLinuxDeployStep::isDeploymentPossible(QString *whyNot) const
-{
-    deployService()->setDeviceConfiguration(deployConfiguration()->deviceConfiguration());
-    deployService()->setBuildConfiguration(qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration()));
-    return deployService()->isDeploymentPossible(whyNot);
 }
 
 void AbstractRemoteLinuxDeployStep::run(QFutureInterface<bool> &fi)

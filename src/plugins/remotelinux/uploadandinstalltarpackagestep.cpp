@@ -96,7 +96,7 @@ bool UploadAndInstallTarPackageStep::isDeploymentPossible(QString *whyNot) const
         return false;
     }
     m_deployService->setPackageFilePath(pStep->packageFilePath());
-    return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
+    return m_deployService->isDeploymentPossible(whyNot);
 }
 
 QString UploadAndInstallTarPackageStep::stepId()

@@ -154,7 +154,7 @@ QString AbstractRemoteLinuxCustomCommandDeploymentStep::commandLine() const
 bool AbstractRemoteLinuxCustomCommandDeploymentStep::isDeploymentPossible(QString *whyNot) const
 {
     deployService()->setCommandLine(d->commandLine);
-    return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
+    return deployService()->isDeploymentPossible(whyNot);
 }
 
 BuildStepConfigWidget *AbstractRemoteLinuxCustomCommandDeploymentStep::createConfigWidget()

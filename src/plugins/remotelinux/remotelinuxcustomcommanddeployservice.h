@@ -49,9 +49,10 @@ public:
 
     void setCommandLine(const QString &commandLine);
 
-protected:
     bool isDeploymentNecessary() const { return true; }
     bool isDeploymentPossible(QString *whyNot = 0) const;
+
+protected:
     void doDeviceSetup() { handleDeviceSetupDone(true); }
     void stopDeviceSetup() { handleDeviceSetupDone(false); }
     void doDeploy();

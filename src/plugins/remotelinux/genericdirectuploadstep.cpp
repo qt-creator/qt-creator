@@ -126,7 +126,7 @@ bool GenericDirectUploadStep::isDeploymentPossible(QString *whyNot) const
         deployableFiles << deploymentInfo->deployableAt(i);
     deployService()->setDeployableFiles(deployableFiles);
     deployService()->setIncrementalDeployment(incrementalDeployment());
-    return AbstractRemoteLinuxDeployStep::isDeploymentPossible(whyNot);
+    return deployService()->isDeploymentPossible(whyNot);
 }
 
 GenericDirectUploadService *GenericDirectUploadStep::deployService() const

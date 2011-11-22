@@ -67,7 +67,7 @@ protected:
     AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl,
         AbstractRemoteLinuxDeployStep *other);
 
-    virtual bool isDeploymentPossible(QString *whyNot = 0) const;
+    virtual bool isDeploymentPossible(QString *whyNot = 0) const = 0;
 
 private slots:
     void handleProgressMessage(const QString &message);
