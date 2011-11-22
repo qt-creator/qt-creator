@@ -578,6 +578,8 @@ void SubmitEditorWidget::insertTopWidget(QWidget *w)
 
 bool SubmitEditorWidget::canSubmit() const
 {
+    if (cleanupDescription(descriptionText()).trimmed().isEmpty())
+        return false;
     const unsigned checkedCount = checkedFilesCount();
     return d->m_emptyFileListEnabled || checkedCount > 0;
 }

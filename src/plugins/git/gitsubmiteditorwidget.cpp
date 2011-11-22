@@ -154,11 +154,8 @@ void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
 
 bool GitSubmitEditorWidget::canSubmit() const
 {
-    QString message = cleanupDescription(descriptionText()).trimmed();
-
     if (m_gitSubmitPanelUi.invalidAuthorLabel->isVisible()
-        || m_gitSubmitPanelUi.invalidEmailLabel->isVisible()
-        || message.isEmpty())
+        || m_gitSubmitPanelUi.invalidEmailLabel->isVisible())
         return false;
     return SubmitEditorWidget::canSubmit();
 }
