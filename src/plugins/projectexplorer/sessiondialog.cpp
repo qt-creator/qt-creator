@@ -145,8 +145,8 @@ bool SessionNameInputDialog::isSwitchToRequested() const
 }
 
 
-SessionDialog::SessionDialog(SessionManager *sessionManager)
-    : m_sessionManager(sessionManager)
+SessionDialog::SessionDialog(SessionManager *sessionManager, QWidget *parent)
+    : QDialog(parent), m_sessionManager(sessionManager)
 {
     m_ui.setupUi(this);
 
