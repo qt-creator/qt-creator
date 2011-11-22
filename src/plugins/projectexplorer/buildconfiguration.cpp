@@ -187,6 +187,10 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             delete list;
             return false;
         }
+        if (list->id() == QLatin1String(Constants::BUILDSTEPS_BUILD))
+            list->setDefaultDisplayName(tr("Build"));
+        else if (list->id() == QLatin1String(Constants::BUILDSTEPS_CLEAN))
+            list->setDefaultDisplayName(tr("Clean"));
         m_stepLists.append(list);
     }
 
