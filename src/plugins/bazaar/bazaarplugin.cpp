@@ -586,6 +586,11 @@ void BazaarPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusIt
         return;
     }
 
+    commitEditor->registerActions(m_editorUndo, m_editorRedo, m_editorCommit, m_editorDiff);
+    connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
+            this, SLOT(diffFromEditorSelected(QStringList)));
+    commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
+
     const QString msg = tr("Commit changes for \"%1\".").
             arg(QDir::toNativeSeparators(m_submitRepository));
     commitEditor->setDisplayName(msg);
@@ -593,11 +598,6 @@ void BazaarPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusIt
     const BranchInfo branch = m_client->synchronousBranchQuery(m_submitRepository);
     commitEditor->setFields(branch, m_bazaarSettings.stringValue(BazaarSettings::userNameKey),
                             m_bazaarSettings.stringValue(BazaarSettings::userEmailKey), status);
-
-    commitEditor->registerActions(m_editorUndo, m_editorRedo, m_editorCommit, m_editorDiff);
-    connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
-            this, SLOT(diffFromEditorSelected(QStringList)));
-    commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
 }
 
 void BazaarPlugin::diffFromEditorSelected(const QStringList &files)

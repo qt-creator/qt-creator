@@ -601,20 +601,19 @@ void MercurialPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::Statu
     QTC_ASSERT(qobject_cast<CommitEditor *>(editor), return)
     CommitEditor *commitEditor = static_cast<CommitEditor *>(editor);
 
+    commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);
+    connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
+            this, SLOT(diffFromEditorSelected(QStringList)));
+    commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
+
     const QString msg = tr("Commit changes for \"%1\".").
                         arg(QDir::toNativeSeparators(m_submitRepository));
     commitEditor->setDisplayName(msg);
 
     QString branch = m_client->branchQuerySync(m_submitRepository);
-
     commitEditor->setFields(m_submitRepository, branch,
                             mercurialSettings.stringValue(MercurialSettings::userNameKey),
                             mercurialSettings.stringValue(MercurialSettings::userEmailKey), status);
-
-    commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);
-    connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
-            this, SLOT(diffFromEditorSelected(QStringList)));
-    commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
 }
 
 void MercurialPlugin::diffFromEditorSelected(const QStringList &files)
