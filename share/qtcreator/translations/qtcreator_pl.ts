@@ -352,11 +352,11 @@
     </message>
     <message>
         <source>Reload All Unchanged Editors</source>
-        <translation>Przeładuj wszystkie niezmienione edytory</translation>
+        <translation>Przeładowuj wszystkie niezmienione edytory</translation>
     </message>
     <message>
         <source>Ignore Modifications</source>
-        <translation>Zignoruj modyfikacje</translation>
+        <translation>Ignoruj modyfikacje</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -814,7 +814,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Use asynchronous mode to control the inferior</source>
-        <translation>Użyj trybu asynchronicznego do kontrolowania podprocesu</translation>
+        <translation>Używaj trybu asynchronicznego do kontrolowania podprocesu</translation>
     </message>
     <message>
         <source>GDB</source>
@@ -864,7 +864,7 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>Stop when a qWarning is issued</source>
-        <translation>Zatrzymaj kiedy wystąpi qWarning</translation>
+        <translation>Zatrzymuj kiedy wystąpi qWarning</translation>
     </message>
     <message>
         <source>Always try to set breakpoints in plugins automatically</source>
@@ -872,7 +872,7 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>Stop when a qFatal is issued</source>
-        <translation>Zatrzymaj kiedy wystąpi qFatal</translation>
+        <translation>Zatrzymuj kiedy wystąpi qFatal</translation>
     </message>
     <message>
         <source>This adds common paths to locations of debug information at debugger startup.</source>
@@ -8866,11 +8866,11 @@ Powód: %2</translation>
     </message>
     <message>
         <source>Unset &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation>Usuń &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</translation>
+        <translation>Usunięto &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Set &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; to &lt;b&gt;%2&lt;/b&gt;</source>
-        <translation>Ustaw &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; na &lt;b&gt;%2&lt;/b&gt;</translation>
+        <translation>Ustawiono &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; na &lt;b&gt;%2&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Using &lt;b&gt;%1&lt;/b&gt;</source>
@@ -8878,7 +8878,7 @@ Powód: %2</translation>
     </message>
     <message>
         <source>Using &lt;b&gt;%1&lt;/b&gt; and</source>
-        <translation>Użyto: &lt;b&gt;%1&lt;/b&gt; i</translation>
+        <translation>Użyto: &lt;b&gt;%1&lt;/b&gt; oraz</translation>
     </message>
 </context>
 <context>
@@ -10613,7 +10613,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Auto-&amp;indent Selection</source>
-        <translation>Automatyczne wc&amp;ięcia dla selekcji</translation>
+        <translation>Sformatuj wc&amp;ięcia w zaznaczonym tekście</translation>
     </message>
     <message>
         <source>Ctrl+I</source>
@@ -10729,7 +10729,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Toggle Comment &amp;Selection</source>
-        <translation>Wykomentuj / odkomentuj &amp;selekcję</translation>
+        <translation>Wykomentuj / odkomentuj zaznaczony tek&amp;st</translation>
     </message>
     <message>
         <source>Copy &amp;Line</source>
@@ -14882,7 +14882,7 @@ Możesz przeglądać projekty przy pomocy QML Viewera bez ich uprzedniego budowa
     </message>
     <message>
         <source>&amp;Display:</source>
-        <translation>&amp;Wyświetl:</translation>
+        <translation>&amp;Wyświetlaj:</translation>
     </message>
     <message>
         <source>entries</source>
@@ -15717,6 +15717,14 @@ które można ustawić poniżej.</translation>
     <message>
         <source>Only select items with content (S)</source>
         <translation>Wybierz tylko elementy z zawartością (S)</translation>
+    </message>
+    <message>
+        <source>width</source>
+        <translation>szerokość</translation>
+    </message>
+    <message>
+        <source>height</source>
+        <translation>wysokość</translation>
     </message>
     <message>
         <source>Reset view (R)</source>
@@ -17517,7 +17525,7 @@ zamiast w jego katalogu instalacyjnym.</translation>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Zainstaluj</translation>
+        <translation>instalacji</translation>
     </message>
     <message>
         <source>No deployment</source>
@@ -19700,7 +19708,7 @@ Poprzednie wersje mają ograniczenia w budowaniu odpowiednich plików SIS.</tran
 &lt;li&gt;&lt;i&gt;Zachowuj, jeśli już istnieje: &lt;/i&gt;&lt;/li&gt;zachowuje plik z BOM jeśli go posiadał podczas ładowania&lt;/li&gt;
 &lt;li&gt;&lt;i&gt;Zawsze usuwaj:&lt;/i&gt; nigdy nie zapisuje UTF-8 BOM kasując poprzednie wystąpienia.&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;Uwaga: UTF-8 BOMy występują rzadko i niektóre edytory traktują je za błędne, więc zwykle nie ma sensu ich dodawać.&lt;/p&gt;
-&lt;p&gt;To ustawienie &lt;b&gt;nie&lt;/b&gt; nie wpływa na używanie BOMów UTF-16 i UTF-32.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p&gt;To ustawienie &lt;b&gt;nie&lt;/b&gt; wpływa na używanie BOMów UTF-16 i UTF-32.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add If Encoding Is UTF-8</source>
@@ -19942,7 +19950,7 @@ tylko z przyciśniętym klawiszem &quot;Shift&quot;</translation>
     <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
-        <translation>&lt;SKASUJ&gt;</translation>
+        <translation>&lt;USUNIĘTO&gt;</translation>
     </message>
     <message>
         <source>Variable</source>
@@ -21845,7 +21853,7 @@ komponentów QML.</translation>
     </message>
     <message>
         <source>Color selection for %1</source>
-        <translation>Selekcja kolorów dla %1</translation>
+        <translation>Wybór koloru dla %1</translation>
     </message>
 </context>
 <context>
@@ -22927,7 +22935,7 @@ wyliczeniowych</translation>
     </message>
     <message>
         <source>Align</source>
-        <translation>Wyrównuj</translation>
+        <translation>Wyrównanie przeniesionych linii</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -22945,7 +22953,7 @@ a = a +
 &lt;/pre&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Włącza wyrównywanie do znaków po =, += itd. Kiedy ta opcja jest wyłączona użyte zostanie zwykłe wyrównanie przeniesionych linii.&lt;br&gt;
+Włącza wyrównywanie do znaków po =, +=, itd. Kiedy ta opcja jest wyłączona, użyte zostanie zwykłe wyrównanie przeniesionych linii.&lt;br&gt;
 &lt;br&gt;
 Z wyrównaniem:
 &lt;pre&gt;
@@ -22961,7 +22969,8 @@ a = a +
     </message>
     <message>
         <source>Align after assignments</source>
-        <translation>Wyrównuj do znaków przypisania</translation>
+        <translation>Wyrównuj przeniesione linie
+do znaków przypisania</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -22979,7 +22988,14 @@ if (a &amp;&amp;
 &lt;/pre&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Dodatkowe wcięcie wpływa zwykle tylko na warunki instrukcji &quot;if&quot;. Bez dodatkowego wcięcia:
+Dodatkowe wcięcie wpływa zwykle tylko na warunki instrukcji &quot;if&quot;, choć zależnie od
+wielkości wcięć, może wpływać również na instrukcje &quot;foreach&quot;, &quot;switch&quot; i &quot;while&quot;.
+Dodaktowe wcięcie dodawane jest w przypadku, gdy wyrównanie przeniesionej linii
+byłoby mniejsze lub równe pojedynczemu wcięciu.&lt;br&gt;
+&lt;br&gt;
+Dla wcięć o rozmiarze 4 mamy:&lt;br&gt;
+&lt;br&gt;
+Bez dodatkowego wcięcia:
 &lt;pre&gt;
 if (a &amp;&amp;
     b)
@@ -22996,8 +23012,9 @@ if (a &amp;&amp;
     <message>
         <source>Add extra padding to conditions
 if they would align to the next line</source>
-        <translation>Dodatkowe wcięcia
-w instrukcjach warunkowych</translation>
+        <translation>Dodatkowe wcięcia przeniesionych
+linii w instrukcjach &quot;if&quot;, &quot;foreach&quot;,
+&quot;switch&quot; i &quot;while&quot;, jeśli wymagane</translation>
     </message>
 </context>
 <context>
