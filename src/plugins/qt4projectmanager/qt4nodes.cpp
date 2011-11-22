@@ -165,7 +165,7 @@ enum { debug = 0 };
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-Qt4PriFile::Qt4PriFile(Qt4PriFileNode *qt4PriFile)
+Qt4PriFile::Qt4PriFile(Qt4ProjectManager::Qt4PriFileNode *qt4PriFile)
     : IFile(qt4PriFile), m_priFile(qt4PriFile)
 {
 
@@ -243,6 +243,8 @@ bool Qt4PriFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
   Implements abstract ProjectNode class
   */
 
+namespace Qt4ProjectManager {
+
 Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNode, const QString &filePath)
         : ProjectNode(filePath),
           m_project(project),
@@ -266,7 +268,6 @@ void Qt4PriFileNode::scheduleUpdate()
     m_qt4ProFileNode->scheduleUpdate();
 }
 
-namespace Qt4ProjectManager {
 namespace Internal {
 struct InternalNode
 {
@@ -375,7 +376,7 @@ struct InternalNode
     }
 
     // Makes the projectNode's subtree below the given folder match this internal node's subtree
-    void updateSubFolders(Qt4PriFileNode *projectNode, ProjectExplorer::FolderNode *folder)
+    void updateSubFolders(Qt4ProjectManager::Qt4PriFileNode *projectNode, ProjectExplorer::FolderNode *folder)
     {
         updateFiles(projectNode, folder, type);
 
@@ -440,7 +441,7 @@ struct InternalNode
     }
 
     // Makes the folder's files match this internal node's file list
-    void updateFiles(Qt4PriFileNode *projectNode, FolderNode *folder, FileType type)
+    void updateFiles(Qt4ProjectManager::Qt4PriFileNode *projectNode, FolderNode *folder, FileType type)
     {
         QList<FileNode*> existingFileNodes;
         foreach (FileNode *fileNode, folder->fileNodes()) {
@@ -484,7 +485,6 @@ struct InternalNode
             projectNode->addFileNodes(filesToAdd, folder);
     }
 };
-}
 }
 
 QStringList Qt4PriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir)
@@ -1288,6 +1288,8 @@ QSet<QString> Qt4PriFileNode::filterFilesRecursiveEnumerata(ProjectExplorer::Fil
     }
     return result;
 }
+
+} // namespace Qt4ProjectManager
 
 static Qt4ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
 {

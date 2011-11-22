@@ -118,8 +118,8 @@ class CentralizedFolderWatcher : public QObject
 public:
     CentralizedFolderWatcher(QObject *parent);
     ~CentralizedFolderWatcher();
-    void watchFolders(const QList<QString> &folders, Qt4PriFileNode *node);
-    void unwatchFolders(const QList<QString> &folders, Qt4PriFileNode *node);
+    void watchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node);
+    void unwatchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node);
 
 private slots:
     void folderChanged(const QString &folder);
@@ -129,7 +129,7 @@ private slots:
 private:
     QSet<QString> recursiveDirs(const QString &folder);
     QFileSystemWatcher m_watcher;
-    QMultiMap<QString, Qt4PriFileNode *> m_map;
+    QMultiMap<QString, Qt4ProjectManager::Qt4PriFileNode *> m_map;
 
     QSet<QString> m_recursiveWatchedFolders;
     QTimer m_compressTimer;
@@ -1206,7 +1206,7 @@ QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
     return result;
 }
 
-void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qt4PriFileNode *node)
+void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node)
 {
     if (debugCFW)
         qDebug()<<"CFW::watchFolders()"<<folders<<"for node"<<node->path();
@@ -1230,7 +1230,7 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qt4Pr
     }
 }
 
-void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qt4PriFileNode *node)
+void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node)
 {
     if (debugCFW)
         qDebug()<<"CFW::unwatchFolders()"<<folders<<"for node"<<node->path();
@@ -1254,7 +1254,7 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qt4
                 // So the rwf is a subdirectory of a folder we aren't watching
                 // but maybe someone else wants us to watch
                 bool needToWatch = false;
-                QMultiMap<QString, Qt4PriFileNode *>::const_iterator it, end;
+                QMultiMap<QString, Qt4ProjectManager::Qt4PriFileNode *>::const_iterator it, end;
                 end = m_map.constEnd();
                 for (it = m_map.constEnd(); it != end; ++it) {
                     if (rwf.startsWith(it.key())) {
@@ -1301,8 +1301,8 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
     while (true) {
         if (!dir.endsWith('/'))
             dir.append('/');
-        QList<Qt4PriFileNode *> nodes = m_map.values(dir);
-        foreach (Qt4PriFileNode *node, nodes) {
+        QList<Qt4ProjectManager::Qt4PriFileNode *> nodes = m_map.values(dir);
+        foreach (Qt4ProjectManager::Qt4PriFileNode *node, nodes) {
             node->folderChanged(folder);
         }
 
