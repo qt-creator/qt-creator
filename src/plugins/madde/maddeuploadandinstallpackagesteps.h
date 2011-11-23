@@ -62,7 +62,6 @@ private:
     RemoteLinux::AbstractUploadAndInstallPackageService *m_deployService;
 };
 
-
 class MeegoUploadAndInstallPackageStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT

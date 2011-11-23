@@ -97,5 +97,21 @@ QString MaemoRpmPackageInstaller::cancelInstallationCommandLine() const
     return QLatin1String("pkill rpm");
 }
 
+HarmattanPackageInstaller::HarmattanPackageInstaller(QObject *parent)
+    : AbstractRemoteLinuxPackageInstaller(parent)
+{
+}
+
+QString HarmattanPackageInstaller::installCommandLine(const QString &packageFilePath) const
+{
+    return QLatin1String("pkgmgr install-file -f ") + packageFilePath
+        + QLatin1String(" |grep -v '%'"); // Otherwise, the terminal codes will screw with our output.
+}
+
+QString HarmattanPackageInstaller::cancelInstallationCommandLine() const
+{
+    return QLatin1String("pkill pkgmgr");
+}
+
 } // namespace Internal
 } // namespace Madde

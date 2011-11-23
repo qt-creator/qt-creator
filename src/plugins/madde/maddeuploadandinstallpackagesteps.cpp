@@ -36,6 +36,7 @@
 #include "maemopackageinstaller.h"
 #include "maemoqemumanager.h"
 #include "qt4maemodeployconfiguration.h"
+#include "qt4maemotarget.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
@@ -102,6 +103,23 @@ private:
     MaemoDebianPackageInstaller * const m_installer;
 };
 
+class HarmattanUploadAndInstallPackageAction : public AbstractMaddeUploadAndInstallPackageAction
+{
+    Q_OBJECT
+
+public:
+    HarmattanUploadAndInstallPackageAction(AbstractRemoteLinuxDeployStep *step)
+        : AbstractMaddeUploadAndInstallPackageAction(step),
+          m_installer(new HarmattanPackageInstaller(this))
+    {
+    }
+
+    AbstractRemoteLinuxPackageInstaller *packageInstaller() const { return m_installer; }
+
+private:
+    HarmattanPackageInstaller * const m_installer;
+};
+
 class MeegoUploadAndInstallPackageAction : public AbstractMaddeUploadAndInstallPackageAction
 {
     Q_OBJECT
@@ -137,7 +155,10 @@ MaemoUploadAndInstallPackageStep::MaemoUploadAndInstallPackageStep(ProjectExplor
 void MaemoUploadAndInstallPackageStep::ctor()
 {
     setDefaultDisplayName(displayName());
-    m_deployService = new MaemoUploadAndInstallPackageAction(this);
+    if (qobject_cast<Qt4HarmattanTarget *>(target()))
+        m_deployService = new HarmattanUploadAndInstallPackageAction(this);
+    else
+        m_deployService = new MaemoUploadAndInstallPackageAction(this);
 }
 
 AbstractRemoteLinuxDeployService *MaemoUploadAndInstallPackageStep::deployService() const
