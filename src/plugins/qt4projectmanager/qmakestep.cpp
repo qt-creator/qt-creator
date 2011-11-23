@@ -42,7 +42,6 @@
 #include "qt4target.h"
 #include "qt4nodes.h"
 #include "qt4basetargetfactory.h"
-#include "ui_showbuildlog.h"
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
@@ -694,7 +693,6 @@ void QMakeStepConfigWidget::updateQmlDebuggingOption()
 {
     m_ui->qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
 
-    QtSupport::BaseQtVersion *qtVersion = m_step->qt4BuildConfiguration()->qtVersion();
     m_ui->debuggingLibraryLabel->setText(tr("Enable QML debugging:"));
 
     QString warningText;

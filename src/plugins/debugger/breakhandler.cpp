@@ -1325,6 +1325,7 @@ void BreakHandler::setResponse(BreakpointModelId id,
 void BreakHandler::changeBreakpointData(BreakpointModelId id,
     const BreakpointParameters &data, BreakpointParts parts)
 {
+    Q_UNUSED(parts);
     Iterator it = m_storage.find(id);
     BREAK_ASSERT(it != m_storage.end(), return);
     if (data == it->data)
