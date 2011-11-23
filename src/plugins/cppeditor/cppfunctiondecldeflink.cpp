@@ -667,10 +667,12 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
 
         // make a easy to access list of the target parameter declarations
         QVarLengthArray<ParameterDeclarationAST *, 10> targetParameterDecls;
-        QTC_ASSERT(targetFunctionDeclarator->parameter_declaration_clause, return changes);
-        for (ParameterDeclarationListAST *it = targetFunctionDeclarator->parameter_declaration_clause->parameter_declaration_list;
-             it; it = it->next) {
-            targetParameterDecls.append(it->value);
+        // there is no parameter declaration clause if the function has no arguments
+        if (targetFunctionDeclarator->parameter_declaration_clause) {
+            for (ParameterDeclarationListAST *it = targetFunctionDeclarator->parameter_declaration_clause->parameter_declaration_list;
+                 it; it = it->next) {
+                targetParameterDecls.append(it->value);
+            }
         }
 
         // the number of parameters in sourceFunction or targetFunction
