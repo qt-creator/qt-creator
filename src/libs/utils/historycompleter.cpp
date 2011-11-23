@@ -42,6 +42,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QStyle>
 
+static const char SETTINGS_PREFIX[] = "CompleterHistory/";
+
 namespace Utils {
 
 class HistoryListModel : public QAbstractListModel
@@ -94,15 +96,14 @@ HistoryListModel::HistoryListModel(HistoryCompleter *parent)
     : QAbstractListModel(parent)
     , q(parent)
     , lastSeenWidget(0)
-    , settings(new QSettings(parent))
+    , settings(0)
     , maxLines(30)
 {
-    settings->beginGroup(QLatin1String("CompleterHistory"));
 }
 
 void HistoryListModel::fetchHistory()
 {
-    if (!q->widget()) {
+    if (!q->widget() || !settings) {
         list.clear();
         reset();
         return;
@@ -110,7 +111,7 @@ void HistoryListModel::fetchHistory()
     QString objectName = q->widget()->objectName();
     if (objectName.isEmpty())
         return;
-    list = settings->value(objectName).toStringList();
+    list = settings->value(QLatin1String(SETTINGS_PREFIX) + objectName).toStringList();
     reset();
 }
 
@@ -148,8 +149,11 @@ bool HistoryListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     beginRemoveRows (parent, row, row + count);
     list.removeAt(row);
-    QString objectName = q->widget()->objectName();
-    settings->setValue(objectName, list);
+    if (settings) {
+        QString objectName = q->widget()->objectName();
+        settings->setValue(QLatin1String(SETTINGS_PREFIX) + objectName, list);
+    }
+
     endRemoveRows();
     return true;
 }
@@ -182,7 +186,8 @@ void HistoryListModel::saveEntry(const QString &str)
     list.prepend(str);
     list = list.mid(0, maxLines);
     endInsertRows();
-    settings->setValue(objectName, list);
+    if (settings)
+        settings->setValue(QLatin1String(SETTINGS_PREFIX) + objectName, list);
 }
 
 bool HistoryListModel::eventFilter(QObject *obj, QEvent *event)
@@ -195,10 +200,11 @@ bool HistoryListModel::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-HistoryCompleter::HistoryCompleter(QObject *parent)
+HistoryCompleter::HistoryCompleter(QSettings *settings, QObject *parent)
     : QCompleter(parent)
     , d_ptr(new HistoryCompleterPrivate(this))
 {
+    d_ptr->model->settings = settings;
     // make an assumption to allow pressing of the down
     // key, before the first model run:
     // parent is likely the lineedit
@@ -208,7 +214,10 @@ HistoryCompleter::HistoryCompleter(QObject *parent)
         QString objectName = p->objectName();
         if (objectName.isEmpty())
             return;
-        d_ptr->model->list = d_ptr->model->settings->value(objectName).toStringList();
+        if (d_ptr->model->settings) {
+            d_ptr->model->list = d_ptr->model->settings->value(
+                        QLatin1String(SETTINGS_PREFIX) + objectName).toStringList();
+        }
     }
 
     QLineEdit *l = qobject_cast<QLineEdit *>(parent);
@@ -220,12 +229,6 @@ HistoryCompleter::HistoryCompleter(QObject *parent)
     HistoryLineView *view = new HistoryLineView(d_ptr, delegate->pixmap.width());
     setPopup(view);
     view->setItemDelegate(delegate);
-}
-
-QSettings *HistoryCompleter::settings() const
-{
-    Q_D(const HistoryCompleter);
-    return d->model->settings;
 }
 
 int HistoryCompleter::historySize() const

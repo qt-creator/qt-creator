@@ -444,21 +444,22 @@ void AttachExternalDialog::accept()
 StartExternalDialog::StartExternalDialog(QWidget *parent)
   : QDialog(parent), m_ui(new Ui::StartExternalDialog)
 {
+    QSettings *settings = Core::ICore::instance()->settings();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     m_ui->toolChainComboBox->init(true);
     m_ui->execFile->setExpectedKind(PathChooser::File);
     m_ui->execFile->setPromptDialogTitle(tr("Select Executable"));
     m_ui->execFile->lineEdit()->setCompleter(
-        new HistoryCompleter(m_ui->execFile->lineEdit()));
+        new HistoryCompleter(settings, m_ui->execFile->lineEdit()));
     connect(m_ui->execFile, SIGNAL(changed(QString)), this, SLOT(changed()));
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_ui->workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
     m_ui->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
     m_ui->workingDirectory->lineEdit()->setCompleter(
-        new HistoryCompleter(m_ui->workingDirectory->lineEdit()));
+        new HistoryCompleter(settings, m_ui->workingDirectory->lineEdit()));
 
-    m_ui->argsEdit->setCompleter(new HistoryCompleter(m_ui->argsEdit));
+    m_ui->argsEdit->setCompleter(new HistoryCompleter(settings, m_ui->argsEdit));
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -936,12 +937,13 @@ StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent) :
     QDialog(parent) ,
     m_ui(new Ui::StartRemoteEngineDialog)
 {
+    QSettings *settings = Core::ICore::instance()->settings();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
-    m_ui->host->setCompleter(new HistoryCompleter(m_ui->host));
-    m_ui->username->setCompleter(new HistoryCompleter(m_ui->username));
-    m_ui->enginepath->setCompleter(new HistoryCompleter(m_ui->enginepath));
-    m_ui->inferiorpath->setCompleter(new HistoryCompleter(m_ui->inferiorpath));
+    m_ui->host->setCompleter(new HistoryCompleter(settings, m_ui->host));
+    m_ui->username->setCompleter(new HistoryCompleter(settings, m_ui->username));
+    m_ui->enginepath->setCompleter(new HistoryCompleter(settings, m_ui->enginepath));
+    m_ui->inferiorpath->setCompleter(new HistoryCompleter(settings, m_ui->inferiorpath));
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }

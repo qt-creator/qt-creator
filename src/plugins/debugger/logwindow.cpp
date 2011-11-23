@@ -53,6 +53,7 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <find/basetextfind.h>
 
@@ -363,7 +364,8 @@ LogWindow::LogWindow(QWidget *parent)
     m_commandEdit = new QLineEdit(this);
     m_commandEdit->setFrame(false);
     m_commandEdit->setObjectName("DebuggerInput");
-    m_commandEdit->setCompleter(new Utils::HistoryCompleter(m_commandEdit));
+    m_commandEdit->setCompleter(new Utils::HistoryCompleter(
+                                    Core::ICore::instance()->settings(), m_commandEdit));
     QHBoxLayout *commandBox = new QHBoxLayout;
     commandBox->addWidget(m_commandLabel);
     commandBox->addWidget(m_commandEdit);
