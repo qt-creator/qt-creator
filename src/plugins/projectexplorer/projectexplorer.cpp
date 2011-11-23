@@ -1843,7 +1843,7 @@ void ProjectExplorerPlugin::buildProject()
 
 void ProjectExplorerPlugin::buildProjectContextMenu()
 {
-    queue(d->m_session->projectOrder(d->m_currentProject),
+    queue(QList<Project *>() <<  d->m_currentProject,
           QStringList() << Constants::BUILDSTEPS_BUILD);
 }
 
@@ -1867,7 +1867,7 @@ void ProjectExplorerPlugin::rebuildProject()
 
 void ProjectExplorerPlugin::rebuildProjectContextMenu()
 {
-    queue(d->m_session->projectOrder(d->m_currentProject),
+    queue(QList<Project *>() <<  d->m_currentProject,
           QStringList() << Constants::BUILDSTEPS_CLEAN << Constants::BUILDSTEPS_BUILD);
 }
 
@@ -1889,7 +1889,7 @@ void ProjectExplorerPlugin::deployProject()
 
 void ProjectExplorerPlugin::deployProjectContextMenu()
 {
-    deploy(d->m_session->projectOrder(d->m_currentProject));
+    deploy(QList<Project *>() << d->m_currentProject);
 }
 
 void ProjectExplorerPlugin::deploySession()
@@ -1911,7 +1911,7 @@ void ProjectExplorerPlugin::cleanProject()
 
 void ProjectExplorerPlugin::cleanProjectContextMenu()
 {
-    queue(d->m_session->projectOrder(d->m_currentProject),
+    queue(QList<Project *>() <<  d->m_currentProject,
           QStringList() << Constants::BUILDSTEPS_CLEAN);
 }
 
