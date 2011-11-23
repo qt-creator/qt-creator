@@ -169,38 +169,42 @@ QModelIndex CallModel::index(int row, int column, const QModelIndex &parent) con
 
 QVariant CallModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.model() == this, return QVariant());
-    QTC_ASSERT(index.column() >= 0 && index.column() < columnCount(index.parent()), return QVariant());
-    QTC_ASSERT(index.row() >= 0 && index.row() < rowCount(index.parent()), return QVariant());
+    //QTC_ASSERT(index.isValid() && index.model() == this, return QVariant());
+    //QTC_ASSERT(index.column() >= 0 && index.column() < columnCount(index.parent()), return QVariant());
+    //QTC_ASSERT(index.row() >= 0 && index.row() < rowCount(index.parent()), return QVariant());
 
     const FunctionCall *call = d->m_calls.at(index.row());
-    const quint64 callCost = call->cost(d->m_event);
-    const quint64 parentCost = d->m_function->inclusiveCost(d->m_event);
-    if (role == ParentCostRole) {
-        return parentCost;
-    }
-    else if (role == FunctionCallRole
-                || role == RelativeParentCostRole || role == RelativeTotalCostRole) {
-        if (role == FunctionCallRole)
-            return QVariant::fromValue(call);
-
-        if (role == RelativeTotalCostRole) {
-            const quint64 totalCost = d->m_data->totalCost(d->m_event);
-            return (float) callCost / totalCost;
-        }
-
-        if (role == RelativeParentCostRole)
-            return (float) callCost / parentCost;
-    }
-    else if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
+    if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
         if (index.column() == CalleeColumn)
             return call->callee()->name();
-        else if (index.column() == CallerColumn)
+        if (index.column() == CallerColumn)
             return call->caller()->name();
-        else if (index.column() == CostColumn && role != Qt::ToolTipRole)
-            return callCost;
-        else if (index.column() == CallsColumn && role != Qt::ToolTipRole)
+        if (index.column() == CostColumn && role != Qt::ToolTipRole)
+            return call->cost(d->m_event);
+        if (index.column() == CallsColumn && role != Qt::ToolTipRole)
             return call->calls();
+        return QVariant();
+    }
+
+    if (role == ParentCostRole) {
+        const quint64 parentCost = d->m_function->inclusiveCost(d->m_event);
+        return parentCost;
+    }
+
+    if (role == FunctionCallRole) {
+        return QVariant::fromValue(call);
+    }
+
+    if (role == RelativeTotalCostRole) {
+        const quint64 totalCost = d->m_data->totalCost(d->m_event);
+        const quint64 callCost = call->cost(d->m_event);
+        return double(callCost) / totalCost;
+    }
+
+    if (role == RelativeParentCostRole) {
+        const quint64 parentCost = d->m_function->inclusiveCost(d->m_event);
+        const quint64 callCost = call->cost(d->m_event);
+        return double(callCost) / parentCost;
     }
 
     return QVariant();

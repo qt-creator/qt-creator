@@ -217,40 +217,13 @@ static QString noWrap(const QString &str)
 
 QVariant DataModel::data(const QModelIndex &index, int role) const
 {
-    QTC_ASSERT(index.isValid() && index.model() == this, return QVariant());
-    QTC_ASSERT(index.column() >= 0 && index.column() < columnCount(index.parent()), return QVariant());
-    QTC_ASSERT(index.row() >= 0 && index.row() < rowCount(index.parent()), return QVariant());
+    //QTC_ASSERT(index.isValid() && index.model() == this, return QVariant());
+    //QTC_ASSERT(index.column() >= 0 && index.column() < columnCount(index.parent()), return QVariant());
+    //QTC_ASSERT(index.row() >= 0 && index.row() < rowCount(index.parent()), return QVariant());
 
     const Function *func = d->m_functions.at(index.row());
-    const quint64 selfCost = func->selfCost(d->m_event);
-    const quint64 inclusiveCost = func->inclusiveCost(d->m_event);
-    const quint64 totalCost = d->m_data->totalCost(d->m_event);
 
-    if (role == FunctionRole) {
-        return QVariant::fromValue(func);
-    }
-    else if (role == ParentCostRole) {
-        return totalCost;
-    }
-    // the data model does not know about parent<->child relationship
-    else if (role == RelativeParentCostRole || role == RelativeTotalCostRole) {
-        if (index.column() == SelfCostColumn)
-            return (float)selfCost / totalCost;
-        if (index.column() == InclusiveCostColumn)
-            return (float)inclusiveCost / totalCost;
-    }
-    else if (role == LineNumberRole) {
-        return func->lineNumber();
-    }
-    else if (role == FileNameRole) {
-        return func->file();
-    }
-    else if (role == Qt::TextAlignmentRole) {
-        if (index.column() == CalledColumn) {
-            return Qt::AlignRight;
-        }
-    }
-    else if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole) {
         if (index.column() == NameColumn)
             return func->name();
         if (index.column() == LocationColumn)
@@ -258,10 +231,13 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         if (index.column() == CalledColumn)
             return func->called();
         if (index.column() == SelfCostColumn)
-            return selfCost;
+            return func->selfCost(d->m_event);
         if (index.column() == InclusiveCostColumn)
-            return inclusiveCost;
-    } else if (role == Qt::ToolTipRole) {
+            return func->inclusiveCost(d->m_event);
+        return QVariant();
+    }
+
+    if (role == Qt::ToolTipRole) {
         if (!d->m_verboseToolTips)
             return data(index, Qt::DisplayRole);
 
@@ -315,6 +291,38 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         ret += "</tbody></table>";
         ret += "</body></html>";
         return ret;
+    }
+
+    if (role == FunctionRole) {
+        return QVariant::fromValue(func);
+    }
+
+    if (role == ParentCostRole) {
+        const quint64 totalCost = d->m_data->totalCost(d->m_event);
+        return totalCost;
+    }
+
+    // the data model does not know about parent<->child relationship
+    if (role == RelativeParentCostRole || role == RelativeTotalCostRole) {
+        const quint64 totalCost = d->m_data->totalCost(d->m_event);
+        if (index.column() == SelfCostColumn)
+            return double(func->selfCost(d->m_event)) / totalCost;
+        if (index.column() == InclusiveCostColumn) {
+            return double(func->inclusiveCost(d->m_event)) / totalCost;
+        }
+    }
+
+    if (role == LineNumberRole) {
+        return func->lineNumber();
+    }
+
+    if (role == FileNameRole) {
+        return func->file();
+    }
+
+    if (role == Qt::TextAlignmentRole) {
+        if (index.column() == CalledColumn)
+            return Qt::AlignRight;
     }
 
     return QVariant();
