@@ -147,7 +147,7 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     , m_settings(TextEditorSettings::instance()->completionSettings())
 {
     m_automaticProposalTimer.setSingleShot(true);
-    m_automaticProposalTimer.setInterval(250);
+    m_automaticProposalTimer.setInterval(400);
     connect(&m_automaticProposalTimer, SIGNAL(timeout()), this, SLOT(automaticProposalTimeout()));
 
     connect(TextEditorSettings::instance(),
@@ -278,7 +278,7 @@ void CodeAssistantPrivate::proposalComputed()
 {
     // Since the request runner is a different thread, there's still a gap in which the queued
     // signal could be processed after an invalidation of the current request.
-    if (!m_requestRunner)
+    if (m_requestRunner != sender())
         return;
 
     IAssistProposal *newProposal = m_requestRunner->proposal();
