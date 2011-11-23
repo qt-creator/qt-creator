@@ -143,7 +143,8 @@ void S60CreatePackageStep::ctor_package()
             this, SLOT(handleWarnAboutPatching()), Qt::QueuedConnection);
 
     m_passphrases = new QSettings(QSettings::IniFormat, QSettings::UserScope,
-                                 QLatin1String("Nokia"), QLatin1String("QtCreatorKeys"), this);
+                                  QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+                                  QLatin1String("QtCreatorKeys"), this);
 }
 
 S60CreatePackageStep::~S60CreatePackageStep()

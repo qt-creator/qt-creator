@@ -62,6 +62,13 @@ const char * const IDE_REVISION_STR      = STRINGIFY(IDE_REVISION);
 const char * const IDE_REVISION_STR      = \"\";
 #endif
 
+// changes the path where the settings are saved to
+#ifdef IDE_SETTINGSVARIANT
+const char * const IDE_SETTINGSVARIANT_STR      = STRINGIFY(IDE_SETTINGSVARIANT);
+#else
+const char * const IDE_SETTINGSVARIANT_STR      = \"Nokia\";
+#endif
+
 #undef IDE_VERSION
 #undef IDE_VERSION_STR
 #undef STRINGIFY

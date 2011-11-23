@@ -206,8 +206,8 @@ void QtVersionManager::updateFromInstaller()
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<QtVersionFactory *> factories = pm->getObjects<QtVersionFactory>();
     Utils::PersistentSettingsReader reader;
-    if (!reader.load(Core::ICore::instance()->resourcePath()
-                     + QLatin1String("/Nokia") + QLatin1String(QTVERSION_FILENAME)))
+    if (!reader.load(QFileInfo(pm->globalSettings()->fileName()).absolutePath()
+                     + QLatin1String(QTVERSION_FILENAME)))
         return;
 
     QVariantMap data = reader.restoreValues();

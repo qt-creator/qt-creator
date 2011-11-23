@@ -111,8 +111,8 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 void ToolChainManager::restoreToolChains()
 {
     // Restore SDK settings first
-    restoreToolChains(Core::ICore::instance()->resourcePath()
-                      + QLatin1String("/Nokia") + QLatin1String(TOOLCHAIN_FILENAME), true);
+    QFileInfo systemSettingsFile(Core::ICore::instance()->settings(QSettings::SystemScope)->fileName());
+    restoreToolChains(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME), true);
 
     // Then auto detect
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();

@@ -181,7 +181,9 @@ static inline QStringList getPluginPaths()
     //    $XDG_DATA_HOME or ~/.local/share/Nokia/qtcreator on Linux
     //    ~/Library/Application Support/Nokia/Qt Creator on Mac
     pluginPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-    pluginPath += QLatin1String("/Nokia/");
+    pluginPath += QLatin1Char('/')
+            + QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR)
+            + QLatin1Char('/');
 #if !defined(Q_OS_MAC)
     pluginPath += QLatin1String("qtcreator");
 #else
@@ -250,11 +252,14 @@ int main(int argc, char **argv)
     // Must be done before any QSettings class is created
     QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope,
                        QCoreApplication::applicationDirPath() + QLatin1String(SHARE_PATH));
+    QSettings::setDefaultFormat(QSettings::IniFormat);
     // plugin manager takes control of this settings object
     QSettings *settings = new QSettings(QSettings::IniFormat, QSettings::UserScope,
-                                        QLatin1String("Nokia"), QLatin1String("QtCreator"));
+                                        QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+                                        QLatin1String("QtCreator"));
     QSettings *globalSettings = new QSettings(QSettings::IniFormat, QSettings::SystemScope,
-                                              QLatin1String("Nokia"), QLatin1String("QtCreator"));
+                                              QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+                                              QLatin1String("QtCreator"));
     ExtensionSystem::PluginManager pluginManager;
     pluginManager.setFileExtension(QLatin1String("pluginspec"));
     pluginManager.setGlobalSettings(globalSettings);
