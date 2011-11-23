@@ -12,10 +12,11 @@ def main():
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
     prepareTemplate(sourceExample)
-    createNewQtQuickApplication(workingDir, None, templateDir + "/qml/textselection.qml")
+    projectName = createNewQtQuickApplication(workingDir, None, templateDir + "/qml/textselection.qml")
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
     test.log("Building project")
+    result = modifyRunSettingsForHookInto(projectName, 11223)
     invokeMenuItem("Build","Build All")
     waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
     if not checkCompile():
@@ -23,9 +24,32 @@ def main():
     else:
         checkLastBuild()
         test.log("Running project (includes build)")
-        if runAndCloseApp():
+        if result:
+            result = addExecutableAsAttachableAUT(projectName, 11223)
+            allowAppThroughWinFW(workingDir, projectName)
+            if result:
+                result = runAndCloseApp(True, projectName, 11223, subprocessFunction)
+            else:
+                result = runAndCloseApp()
+            removeExecutableAsAttachableAUT(projectName, 11223)
+            deleteAppFromWinFW(workingDir, projectName)
+        else:
+            result = runAndCloseApp()
+        if result:
             logApplicationOutput()
     invokeMenuItem("File", "Exit")
+
+def subprocessFunction():
+    textEdit = waitForObject("{container={type='QmlApplicationViewer' unnamed='1' visible='1'} "
+                             "enabled='true' type='TextEdit' unnamed='1' visible='true'}")
+    test.log("Test dragging")
+    dragItemBy(textEdit, 30, 30, 50, 50, 0, Qt.LeftButton)
+    test.log("Test editing")
+    textEdit.cursorPosition = 0
+    type(textEdit, "This text is entered by Squish...")
+    type(textEdit, "<Return>")
+    test.log("Closing QmlApplicationViewer")
+    sendEvent("QCloseEvent", "{type='QmlApplicationViewer' unnamed='1' visible='1'}")
 
 def prepareTemplate(sourceExample):
     global templateDir
