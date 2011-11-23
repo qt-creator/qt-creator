@@ -34,5 +34,17 @@ import QtQuick 1.0
 
 Image {
     id: logo
-    source: "images/logo.png"
+    source: "images/qtcreator.png"
+    Text {
+        y: 21
+        color: "#424242"
+        text: "Qt Creator"
+        font.bold: true
+        anchors.left: parent.left
+        anchors.leftMargin: 52
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 6
+        font.pixelSize: 14
+        font.family: "Helvetica"
+    }
 }
