@@ -377,61 +377,147 @@ bool Evaluate::visit(AST::ArgumentList *)
 
 bool Evaluate::visit(AST::PostIncrementExpression *)
 {
+    _result = _valueOwner->numberValue();
     return false;
 }
 
 bool Evaluate::visit(AST::PostDecrementExpression *)
 {
+    _result = _valueOwner->numberValue();
     return false;
 }
 
 bool Evaluate::visit(AST::DeleteExpression *)
 {
+    _result = _valueOwner->booleanValue();
     return false;
 }
 
 bool Evaluate::visit(AST::VoidExpression *)
 {
+    _result = _valueOwner->undefinedValue();
     return false;
 }
 
 bool Evaluate::visit(AST::TypeOfExpression *)
 {
+    _result = _valueOwner->stringValue();
     return false;
 }
 
 bool Evaluate::visit(AST::PreIncrementExpression *)
 {
+    _result = _valueOwner->numberValue();
     return false;
 }
 
 bool Evaluate::visit(AST::PreDecrementExpression *)
 {
+    _result = _valueOwner->numberValue();
     return false;
 }
 
 bool Evaluate::visit(AST::UnaryPlusExpression *)
 {
+    _result = _valueOwner->numberValue();
     return false;
 }
 
 bool Evaluate::visit(AST::UnaryMinusExpression *)
 {
+    _result = _valueOwner->numberValue();
     return false;
 }
 
 bool Evaluate::visit(AST::TildeExpression *)
 {
+    _result = _valueOwner->numberValue();
     return false;
 }
 
 bool Evaluate::visit(AST::NotExpression *)
 {
+    _result = _valueOwner->booleanValue();
     return false;
 }
 
-bool Evaluate::visit(AST::BinaryExpression *)
+bool Evaluate::visit(AST::BinaryExpression *ast)
 {
+    const Value *lhs = 0;
+    const Value *rhs = 0;
+    switch (ast->op) {
+    case QSOperator::Add:
+    case QSOperator::InplaceAdd:
+    //case QSOperator::And: // ### enable once implemented below
+    //case QSOperator::Or:
+        lhs = value(ast->left);
+        // fallthrough
+    case QSOperator::Assign:
+        rhs = value(ast->right);
+        break;
+    default:
+        break;
+    }
+
+    switch (ast->op) {
+    case QSOperator::Add:
+    case QSOperator::InplaceAdd:
+        if (lhs->asStringValue() || rhs->asStringValue())
+            _result = _valueOwner->stringValue();
+        else
+            _result = _valueOwner->numberValue();
+        break;
+
+    case QSOperator::Sub:
+    case QSOperator::InplaceSub:
+    case QSOperator::Mul:
+    case QSOperator::InplaceMul:
+    case QSOperator::Div:
+    case QSOperator::InplaceDiv:
+    case QSOperator::Mod:
+    case QSOperator::InplaceMod:
+    case QSOperator::BitAnd:
+    case QSOperator::InplaceAnd:
+    case QSOperator::BitXor:
+    case QSOperator::InplaceXor:
+    case QSOperator::BitOr:
+    case QSOperator::InplaceOr:
+    case QSOperator::LShift:
+    case QSOperator::InplaceLeftShift:
+    case QSOperator::RShift:
+    case QSOperator::InplaceRightShift:
+    case QSOperator::URShift:
+    case QSOperator::InplaceURightShift:
+        _result = _valueOwner->numberValue();
+        break;
+
+    case QSOperator::Le:
+    case QSOperator::Ge:
+    case QSOperator::Lt:
+    case QSOperator::Gt:
+    case QSOperator::Equal:
+    case QSOperator::NotEqual:
+    case QSOperator::StrictEqual:
+    case QSOperator::StrictNotEqual:
+    case QSOperator::InstanceOf:
+    case QSOperator::In:
+        _result = _valueOwner->booleanValue();
+        break;
+
+    case QSOperator::And:
+    case QSOperator::Or:
+        // ### either lhs or rhs
+        _result = _valueOwner->unknownValue();
+        break;
+
+    case QSOperator::Assign:
+        _result = rhs;
+        break;
+
+    default:
+        break;
+    }
+
     return false;
 }
 
@@ -527,7 +613,7 @@ bool Evaluate::visit(AST::BreakStatement *)
 
 bool Evaluate::visit(AST::ReturnStatement *)
 {
-    return false;
+    return true;
 }
 
 bool Evaluate::visit(AST::WithStatement *)
