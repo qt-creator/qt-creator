@@ -73,11 +73,18 @@ Rectangle {
             anchors.topMargin: 100
             model: pagesModel
         }
+
         Logo {
-            id: logo
-            x: 4
-            y: 10
+            x: 5
+            y: 28
         }
 
+    }
+
+    BorderImage {
+        anchors.right: parent.right
+        anchors.left: parent.left
+        border.right: 1
+        source: "widgets/images/creatorbar.png"
     }
 }
