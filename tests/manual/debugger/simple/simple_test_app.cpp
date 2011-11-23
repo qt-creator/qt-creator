@@ -39,13 +39,13 @@
 // With USE_AUTOBREAK, the debugger will stop automatically on all
 // lines containing the BREAK_HERE macro. This should be enabled
 // during manual testing.
-// Default: 1
+// Default: 0
 #define USE_AUTOBREAK 0
 
 // With USE_UNINITIALIZE_AUTOBREAK, the debugger will stop automatically
 // on all lines containing the BREAK_UNINITIALIZED_HERE macro.
 // This should be enabled during manual testing.
-// Default: 1
+// Default: 0
 #define USE_UNINITIALIZED_AUTOBREAK 0
 
 // With USE_PRIVATE tests that require private headers are enabled.
@@ -3256,7 +3256,7 @@ namespace basic {
         QDateTime bigv[N];
         for (int i = 0; i < 10000; ++i) {
             bigv[i] = time;
-            time.addDays(1);
+            time = time.addDays(1);
         }
         BREAK_HERE;
         // Expand bigv.
