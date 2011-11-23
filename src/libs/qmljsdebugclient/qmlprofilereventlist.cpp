@@ -1200,6 +1200,12 @@ QString QmlProfilerEventList::eventTextForType(int type, int index) const {
     return d->m_eventDescriptions.values().at(d->m_typeCounts[type]->eventIds[index])->details;
 }
 
+int QmlProfilerEventList::eventIdForType(int type, int index) const {
+    if (!d->m_typeCounts.contains(type))
+        return -1;
+    return d->m_typeCounts[type]->eventIds[index];
+}
+
 int QmlProfilerEventList::eventPosInType(int index) const {
     int eventType = d->m_startTimeSortedList[index].description->eventType;
     return d->m_typeCounts[eventType]->eventIds.indexOf(d->m_startTimeSortedList[index].description->eventId);

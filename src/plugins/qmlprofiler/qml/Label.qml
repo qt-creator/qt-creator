@@ -39,6 +39,7 @@ Item {
     property int typeIndex: index
 
     property variant descriptions: []
+    property variant eventIds: []
 
     height: root.singleRowHeight
     width: 150
@@ -48,7 +49,7 @@ Item {
         rE[typeIndex] = expanded;
         labels.rowExpanded = rE;
         backgroundMarks.requestRedraw();
-        view.rowExpanded(typeIndex, expanded);
+        view.setRowExpanded(typeIndex, expanded);
         updateHeight();
     }
 
@@ -65,13 +66,18 @@ Item {
         target: qmlEventList
         onDataReady: {
             var desc=[];
-            for (var i=0; i<qmlEventList.uniqueEventsOfType(typeIndex); i++)
+            var ids=[];
+            for (var i=0; i<qmlEventList.uniqueEventsOfType(typeIndex); i++) {
                 desc[i] = qmlEventList.eventTextForType(typeIndex, i);
+                ids[i] = qmlEventList.eventIdForType(typeIndex, i);
+            }
             descriptions = desc;
+            eventIds = ids;
             updateHeight();
         }
         onDataClear: {
             descriptions = [];
+            eventIds = [];
             updateHeight();
         }
     }
@@ -112,6 +118,15 @@ Item {
                     text: descriptions[index]
                     elide: Text.ElideRight
                     verticalAlignment: Text.AlignVCenter
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        if (mouse.modifiers & Qt.ShiftModifier)
+                            view.selectPrevFromId(eventIds[index]);
+                        else
+                            view.selectNextFromId(eventIds[index]);
+                    }
                 }
             }
         }

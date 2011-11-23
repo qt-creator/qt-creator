@@ -118,6 +118,7 @@ public:
     Q_INVOKABLE int uniqueEventsOfType(int type) const;
     Q_INVOKABLE int maxNestingForType(int type) const;
     Q_INVOKABLE QString eventTextForType(int type, int index) const;
+    Q_INVOKABLE int eventIdForType(int type, int index) const;
     Q_INVOKABLE int eventPosInType(int index) const;
 
     Q_INVOKABLE qint64 traceStartTime() const;

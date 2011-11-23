@@ -164,14 +164,12 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
     p->setPen(lightPen);
 
     int x, y, width, eventType;
+    p->setPen(lightPen);
+
+    QRect selectedItemRect(0,0,0,0);
     for (int i = fromIndex; i <= toIndex; i++) {
         if (m_eventList->getEventId(i) != id)
             continue;
-
-        if (i == m_selectedItem)
-            p->setPen(strongPen);
-        else
-            p->setPen(lightPen);
 
         x = (m_eventList->getStartTime(i) - m_startTime) * m_spacing;
         eventType = m_eventList->getType(i);
@@ -184,7 +182,16 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
         if (width<1)
             width = 1;
 
-        p->drawRect(x,y,width,DefaultRowHeight);
+        if (i == m_selectedItem)
+            selectedItemRect = QRect(x,y,width,DefaultRowHeight);
+        else
+            p->drawRect(x,y,width,DefaultRowHeight);
+    }
+
+    // draw the selected item rectangle the last, so that it's overlayed
+    if (selectedItemRect.width() != 0) {
+            p->setPen(strongPen);
+            p->drawRect(selectedItemRect);
     }
 }
 
@@ -319,6 +326,40 @@ QString TimelineView::getDetails(int index) const
     return m_eventList->getDetails(index);
 }
 
+void TimelineView::setRowExpanded(int rowIndex, bool expanded)
+{
+    m_rowsExpanded[rowIndex] = expanded;
+    update();
+}
+
+void TimelineView::selectNext()
+{
+    if (m_eventList->count() == 0)
+        return;
+
+    // select next in view or after
+    int newIndex = m_selectedItem+1;
+    if (newIndex >= m_eventList->count())
+        newIndex = 0;
+    if (m_eventList->getEndTime(newIndex) < m_startTime)
+        newIndex = m_eventList->findFirstIndexNoParents(m_startTime);
+    setSelectedItem(newIndex);
+}
+
+void TimelineView::selectPrev()
+{
+    if (m_eventList->count() == 0)
+        return;
+
+    // select last in view or before
+    int newIndex = m_selectedItem-1;
+    if (newIndex < 0)
+        newIndex = m_eventList->count()-1;
+    if (m_eventList->getStartTime(newIndex) > m_endTime)
+        newIndex = m_eventList->findLastIndex(m_endTime);
+    setSelectedItem(newIndex);
+}
+
 int TimelineView::nextItemFromId(int eventId) const
 {
     int ndx = -1;
@@ -337,64 +378,35 @@ int TimelineView::nextItemFromId(int eventId) const
     return -1;
 }
 
-void TimelineView::rowExpanded(int rowIndex, bool expanded)
+int TimelineView::prevItemFromId(int eventId) const
 {
-    m_rowsExpanded[rowIndex] = expanded;
-    update();
+    int ndx = -1;
+    if (m_selectedItem == -1)
+        ndx = m_eventList->findFirstIndexNoParents(m_startTime);
+    else
+        ndx = m_selectedItem - 1;
+    if (ndx < 0)
+        ndx = m_eventList->count() - 1;
+    int startIndex = ndx;
+    do {
+        if (m_eventList->getEventId(ndx) == eventId)
+            return ndx;
+        if (--ndx < 0)
+            ndx = m_eventList->count()-1;
+    } while (ndx != startIndex);
+    return -1;
 }
 
-void TimelineView::selectNext()
+void TimelineView::selectNextFromId(int eventId)
 {
-    if (m_eventList->count() == 0)
-        return;
-
-    if (m_selectionLocked && m_selectedItem !=-1 ) {
-        // find next item with same eventId
-        int eventId = m_eventList->getEventId(m_selectedItem);
-        int i = m_selectedItem + 1;
-        while (i<m_eventList->count() && m_eventList->getEventId(i) != eventId)
-            i++;
-        if (i == m_eventList->count()) {
-            i = 0;
-            while (i<m_selectedItem && m_eventList->getEventId(i) != eventId)
-                i++;
-        }
-        setSelectedItem(i);
-    } else {
-        // select next in view or after
-        int newIndex = m_selectedItem + 1;
-        if (newIndex >= m_eventList->count())
-            newIndex = 0;
-        if (m_eventList->getEndTime(newIndex) < m_startTime)
-            newIndex = m_eventList->findFirstIndexNoParents(m_startTime);
-        setSelectedItem(newIndex);
-    }
+    int eventIndex = nextItemFromId(eventId);
+    if (eventIndex != -1)
+        setSelectedItem(eventIndex);
 }
 
-void TimelineView::selectPrev()
+void TimelineView::selectPrevFromId(int eventId)
 {
-    if (m_eventList->count() == 0)
-        return;
-
-    if (m_selectionLocked && m_selectedItem !=-1) {
-        // find previous item with same eventId
-        int eventId = m_eventList->getEventId(m_selectedItem);
-        int i = m_selectedItem-1;
-        while (i>-1 && m_eventList->getEventId(i) != eventId)
-            i--;
-        if (i == -1) {
-            i = m_eventList->count()-1;
-            while (i>m_selectedItem && m_eventList->getEventId(i) != eventId)
-                i--;
-        }
-        setSelectedItem(i);
-    } else {
-        // select last in view or before
-        int newIndex = m_selectedItem-1;
-        if (newIndex < 0)
-            newIndex = m_eventList->count()-1;
-        if (m_eventList->getStartTime(newIndex) > m_endTime)
-            newIndex = m_eventList->findLastIndex(m_endTime);
-        setSelectedItem(newIndex);
-    }
+    int eventIndex = prevItemFromId(eventId);
+    if (eventIndex != -1)
+        setSelectedItem(eventIndex);
 }
