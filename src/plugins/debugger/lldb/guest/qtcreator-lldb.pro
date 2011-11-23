@@ -3,6 +3,8 @@ WITH_LLDB = $$(WITH_LLDB)
 !macx: error (This can only be built on mac)
 !exists($${WITH_LLDB}/include/lldb/lldb-enumerations.h): error(please see the README for build instructions)
 
+QT = core network
+
 include(../../../../../qtcreator.pri)
 TEMPLATE = app
 CONFIG  -= app_bundle
@@ -11,8 +13,6 @@ TARGET = qtcreator-lldb
 DEPENDPATH += . .. ../.. ../../..  ../../../../libs
 INCLUDEPATH += . .. ../.. ../../.. ../../../../libs
 DESTDIR  = $$IDE_LIBEXEC_PATH
-
-QT = core network
 
 MOC_DIR=.tmp
 OBJECTS_DIR=.tmp

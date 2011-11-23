@@ -7,7 +7,6 @@ dll {
 INCLUDEPATH += $$PWD
 QT += network
 
-
 win32-msvc* {
     # disable warnings caused by botan headers
     QMAKE_CXXFLAGS += -wd4250 -wd4290

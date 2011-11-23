@@ -1,3 +1,4 @@
+QT -= gui
 include(../qttest.pri)
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/libs/aggregation
 include($$IDE_SOURCE_TREE/src/libs/aggregation/aggregation.pri)

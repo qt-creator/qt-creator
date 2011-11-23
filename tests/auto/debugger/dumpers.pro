@@ -1,3 +1,4 @@
+greaterThan(QT_MAJOR_VERSION, 4): QT += core-private
 include(../qttest.pri)
 include($$IDE_SOURCE_TREE/src/libs/symbianutils/symbianutils.pri)
 include($$IDE_SOURCE_TREE/src/shared/json/json.pri)

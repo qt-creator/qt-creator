@@ -1,3 +1,4 @@
+QT       = core
 include(../../../qtcreator.pri)
 include(../../rpath.pri)
 
@@ -5,7 +6,6 @@ TEMPLATE = app
 TARGET   = qmlprofiler
 DESTDIR = $$IDE_BIN_PATH
 
-QT       = core
 CONFIG   += console
 CONFIG   -= app_bundle
 

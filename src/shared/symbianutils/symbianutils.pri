@@ -1,7 +1,13 @@
 INCLUDEPATH *= $$PWD
 
 QT += network
-win32:include(../../private_headers.pri)
+win32 {
+    greaterThan(QT_MAJOR_VERSION, 4) {
+        QT += core-private
+    } else {
+        include(../../private_headers.pri)
+    }
+}
 
 # Input
 HEADERS += $$PWD/symbianutils_global.h \

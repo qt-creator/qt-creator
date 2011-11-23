@@ -1,6 +1,11 @@
 TEMPLATE = lib
 TARGET = Help
+
 QT += network
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += printsupport
+    DEFINES += QT_NO_WEBKIT
+}
 
 INCLUDEPATH += $$PWD
 

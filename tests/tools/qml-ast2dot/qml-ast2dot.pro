@@ -1,5 +1,5 @@
-include(../../../qtcreator.pri)
 QT = core gui
+include(../../../qtcreator.pri)
 macx:CONFIG -= app_bundle
 TARGET = qml-ast2dot
 

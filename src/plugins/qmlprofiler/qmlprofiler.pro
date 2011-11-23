@@ -3,6 +3,8 @@ TARGET = QmlProfiler
 
 DEFINES += PROFILER_LIBRARY
 
+QT += network script declarative
+
 include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/analyzerbase/analyzerbase.pri)
@@ -11,8 +13,6 @@ include(../../plugins/qt4projectmanager/qt4projectmanager.pri)
 include(../../plugins/remotelinux/remotelinux.pri)
 include(../../libs/qmljsdebugclient/qmljsdebugclient.pri)
 include(../../libs/extensionsystem/extensionsystem.pri)
-
-QT += network script declarative
 
 include(canvas/canvas.pri)
 

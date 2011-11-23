@@ -154,3 +154,8 @@ win32-msvc* {
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
 }
+
+qt:greaterThan(QT_MAJOR_VERSION, 4) {
+    contains(QT, gui): QT += widgets
+    contains(QT, declarative): QT += qtquick1
+}

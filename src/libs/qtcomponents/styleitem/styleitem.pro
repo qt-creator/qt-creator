@@ -2,6 +2,7 @@ TEMPLATE = lib
 CONFIG += qt plugin
 QT += declarative
 QT += script
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets qtquick1
 
 TARGET  = styleplugin
 include(../../../../qtcreator.pri)

@@ -13,6 +13,7 @@ minQtVersion(5, 0, 0) {
     CONFIG += designer
 #   -- Fixme: Make tools available
     INCLUDEPATH += $$QMAKE_INCDIR_QT/../../qttools/include
+    QT += printsupport
 } else {
     # -- figure out shared dir location
     !exists($$[QT_INSTALL_HEADERS]/QtDesigner/private/qdesigner_integration_p.h) {

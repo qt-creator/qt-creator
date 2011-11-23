@@ -1,9 +1,10 @@
 DEFINES += SYMBIANUTILS_INCLUDE_PRI
 
+QT += network
+
 include(../../../qtcreator.pri)
 include(../../../src/shared/symbianutils/symbianutils.pri)
 
-QT       += core gui network
 TARGET = codaclient
 TEMPLATE = app
 CONFIG += console
