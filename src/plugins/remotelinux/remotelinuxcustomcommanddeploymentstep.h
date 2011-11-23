@@ -61,7 +61,7 @@ protected:
     AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl,
         AbstractRemoteLinuxCustomCommandDeploymentStep *other);
 
-    bool isDeploymentPossible(QString *whyNot = 0) const;
+    bool initInternal(QString *error = 0);
 
 private:
     void ctor();

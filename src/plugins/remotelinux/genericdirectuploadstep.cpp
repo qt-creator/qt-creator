@@ -117,7 +117,7 @@ BuildStepConfigWidget *GenericDirectUploadStep::createConfigWidget()
     return new Internal::ConfigWidget(this);
 }
 
-bool GenericDirectUploadStep::isDeploymentPossible(QString *whyNot) const
+bool GenericDirectUploadStep::initInternal(QString *error)
 {
     QList<DeployableFile> deployableFiles;
     const QSharedPointer<DeploymentInfo> deploymentInfo = deployConfiguration()->deploymentInfo();
@@ -126,7 +126,7 @@ bool GenericDirectUploadStep::isDeploymentPossible(QString *whyNot) const
         deployableFiles << deploymentInfo->deployableAt(i);
     deployService()->setDeployableFiles(deployableFiles);
     deployService()->setIncrementalDeployment(incrementalDeployment());
-    return deployService()->isDeploymentPossible(whyNot);
+    return deployService()->isDeploymentPossible(error);
 }
 
 GenericDirectUploadService *GenericDirectUploadStep::deployService() const

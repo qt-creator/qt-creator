@@ -82,7 +82,7 @@ bool AbstractRemoteLinuxDeployStep::init()
     QString error;
     deployService()->setDeviceConfiguration(deployConfiguration()->deviceConfiguration());
     deployService()->setBuildConfiguration(qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration()));
-    const bool canDeploy = isDeploymentPossible(&error);
+    const bool canDeploy = initInternal(&error);
     if (!canDeploy)
         emit addOutput(tr("Deployment failed: %1").arg(error), ErrorMessageOutput);
     return canDeploy;

@@ -420,17 +420,17 @@ AbstractRemoteLinuxDeployService *MaemoInstallPackageViaMountStep::deployService
     return m_deployService;
 }
 
-bool MaemoInstallPackageViaMountStep::isDeploymentPossible(QString *whyNot) const
+bool MaemoInstallPackageViaMountStep::initInternal(QString *error)
 {
     const AbstractMaemoPackageCreationStep * const pStep
         = deployConfiguration()->earlierBuildStep<MaemoDebianPackageCreationStep>(this);
     if (!pStep) {
-        if (whyNot)
-            *whyNot = tr("No Debian package creation step found.");
+        if (error)
+            *error = tr("No Debian package creation step found.");
         return false;
     }
     m_deployService->setPackageFilePath(pStep->packageFilePath());
-    return deployService()->isDeploymentPossible(whyNot);
+    return deployService()->isDeploymentPossible(error);
 }
 
 QString MaemoInstallPackageViaMountStep::stepId()
@@ -468,7 +468,7 @@ AbstractRemoteLinuxDeployService *MaemoCopyFilesViaMountStep::deployService() co
     return m_deployService;
 }
 
-bool MaemoCopyFilesViaMountStep::isDeploymentPossible(QString *whyNot) const
+bool MaemoCopyFilesViaMountStep::initInternal(QString *error)
 {
     QList<DeployableFile> deployableFiles;
     const QSharedPointer<DeploymentInfo> deploymentInfo = deployConfiguration()->deploymentInfo();
@@ -476,7 +476,7 @@ bool MaemoCopyFilesViaMountStep::isDeploymentPossible(QString *whyNot) const
     for (int i = 0; i < deployableCount; ++i)
         deployableFiles << deploymentInfo->deployableAt(i);
     m_deployService->setDeployableFiles(deployableFiles);
-    return deployService()->isDeploymentPossible(whyNot);
+    return deployService()->isDeploymentPossible(error);
 }
 
 QString MaemoCopyFilesViaMountStep::stepId()

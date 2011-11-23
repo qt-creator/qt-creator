@@ -51,7 +51,7 @@ public:
     ~GenericDirectUploadStep();
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool isDeploymentPossible(QString *whyNot = 0) const;
+    bool initInternal(QString *error = 0);
 
     void setIncrementalDeployment(bool incremental);
     bool incrementalDeployment() const;

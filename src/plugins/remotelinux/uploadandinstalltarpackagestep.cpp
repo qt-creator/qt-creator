@@ -86,17 +86,17 @@ void UploadAndInstallTarPackageStep::ctor()
     setDefaultDisplayName(displayName());
 }
 
-bool UploadAndInstallTarPackageStep::isDeploymentPossible(QString *whyNot) const
+bool UploadAndInstallTarPackageStep::initInternal(QString *error)
 {
     const TarPackageCreationStep * const pStep
         = deployConfiguration()->earlierBuildStep<TarPackageCreationStep>(this);
     if (!pStep) {
-        if (whyNot)
-            *whyNot = tr("No tarball creation step found.");
+        if (error)
+            *error = tr("No tarball creation step found.");
         return false;
     }
     m_deployService->setPackageFilePath(pStep->packageFilePath());
-    return m_deployService->isDeploymentPossible(whyNot);
+    return m_deployService->isDeploymentPossible(error);
 }
 
 QString UploadAndInstallTarPackageStep::stepId()

@@ -66,7 +66,7 @@ public:
     UploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bsl,
         UploadAndInstallTarPackageStep *other);
 
-    bool isDeploymentPossible(QString *whyNot = 0) const;
+    bool initInternal(QString *error = 0);
 
     static QString stepId();
     static QString displayName();

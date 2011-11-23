@@ -47,7 +47,7 @@ public:
     MaemoInstallPackageViaMountStep(ProjectExplorer::BuildStepList *bsl,
         MaemoInstallPackageViaMountStep *other);
 
-    bool isDeploymentPossible(QString *whyNot = 0) const;
+    bool initInternal(QString *error = 0);
 
     static QString stepId();
     static QString displayName();
@@ -70,7 +70,7 @@ public:
     MaemoCopyFilesViaMountStep(ProjectExplorer::BuildStepList *bsl,
         MaemoCopyFilesViaMountStep *other);
 
-    bool isDeploymentPossible(QString *whyNot = 0) const;
+    bool initInternal(QString *error = 0);
 
     static QString stepId();
     static QString displayName();

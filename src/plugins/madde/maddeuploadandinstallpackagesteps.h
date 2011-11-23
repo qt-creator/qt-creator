@@ -49,7 +49,7 @@ public:
     MaemoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl,
         MaemoUploadAndInstallPackageStep *other);
 
-    bool isDeploymentPossible(QString *whyNot = 0) const;
+    bool initInternal(QString *error = 0);
 
     static QString stepId();
     static QString displayName();
@@ -71,7 +71,7 @@ public:
     MeegoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl,
         MeegoUploadAndInstallPackageStep *other);
 
-    bool isDeploymentPossible(QString *whyNot) const;
+    bool initInternal(QString *error);
 
     static QString stepId();
     static QString displayName();
