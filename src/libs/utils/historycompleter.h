@@ -41,7 +41,9 @@ QT_FORWARD_DECLARE_CLASS(QSettings)
 
 namespace Utils {
 
-class HistoryCompleterPrivate;
+namespace Internal {
+    class HistoryCompleterPrivate;
+}
 
 class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
 {
@@ -57,11 +59,9 @@ public Q_SLOTS:
     void clearHistory();
     void saveHistory();
 
-protected:
-    HistoryCompleterPrivate *d_ptr;
-
 private:
-    Q_DECLARE_PRIVATE(HistoryCompleter)
+    Internal::HistoryCompleterPrivate *d;
+
 };
 
 } // namespace Utils

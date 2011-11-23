@@ -45,6 +45,7 @@
 static const char SETTINGS_PREFIX[] = "CompleterHistory/";
 
 namespace Utils {
+namespace Internal {
 
 class HistoryListModel : public QAbstractListModel
 {
@@ -59,7 +60,7 @@ public:
     bool eventFilter(QObject *obj, QEvent *event);
 
     QStringList list;
-    HistoryCompleter *q;
+    HistoryCompleter *completer;
     QWidget *lastSeenWidget;
     QSettings *settings;
     int maxLines;
@@ -69,9 +70,8 @@ class HistoryCompleterPrivate
 {
 public:
     HistoryCompleterPrivate(HistoryCompleter *parent);
-    HistoryCompleter *q_ptr;
+    HistoryCompleter *q;
     HistoryListModel *model;
-    Q_DECLARE_PUBLIC(HistoryCompleter)
 };
 
 class HistoryLineDelegate : public QItemDelegate
@@ -91,10 +91,15 @@ public:
     virtual void mousePressEvent(QMouseEvent *event);
 };
 
+} // namespace Internal
+} // namespace Utils
+
+using namespace Utils;
+using namespace Utils::Internal;
 
 HistoryListModel::HistoryListModel(HistoryCompleter *parent)
     : QAbstractListModel(parent)
-    , q(parent)
+    , completer(parent)
     , lastSeenWidget(0)
     , settings(0)
     , maxLines(30)
@@ -103,12 +108,12 @@ HistoryListModel::HistoryListModel(HistoryCompleter *parent)
 
 void HistoryListModel::fetchHistory()
 {
-    if (!q->widget() || !settings) {
+    if (!completer->widget() || !settings) {
         list.clear();
         reset();
         return;
     }
-    QString objectName = q->widget()->objectName();
+    QString objectName = completer->widget()->objectName();
     if (objectName.isEmpty())
         return;
     list = settings->value(QLatin1String(SETTINGS_PREFIX) + objectName).toStringList();
@@ -117,19 +122,19 @@ void HistoryListModel::fetchHistory()
 
 int HistoryListModel::rowCount(const QModelIndex &parent) const
 {
-    if (lastSeenWidget != q->widget()) {
+    if (lastSeenWidget != completer->widget()) {
         if (lastSeenWidget)
             const_cast<QWidget*>(lastSeenWidget)->removeEventFilter(const_cast<HistoryListModel *>(this));
-        const_cast<QWidget*>(q->widget())->installEventFilter(const_cast<HistoryListModel *>(this));
+        const_cast<QWidget*>(completer->widget())->installEventFilter(const_cast<HistoryListModel *>(this));
         if (qobject_cast<QLineEdit *>(lastSeenWidget))
             // this will result in spamming the history with garbage in some corner cases.
             // not my idea.
-            disconnect(lastSeenWidget, SIGNAL(editingFinished ()), q, SLOT(saveHistory()));
+            disconnect(lastSeenWidget, SIGNAL(editingFinished ()), completer, SLOT(saveHistory()));
         HistoryListModel *that = const_cast<HistoryListModel *>(this);
-        that->lastSeenWidget = q->widget();
+        that->lastSeenWidget = completer->widget();
         that->fetchHistory();
         if (qobject_cast<QLineEdit *>(lastSeenWidget))
-            connect(lastSeenWidget, SIGNAL(editingFinished ()), q, SLOT(saveHistory()));
+            connect(lastSeenWidget, SIGNAL(editingFinished ()), completer, SLOT(saveHistory()));
     }
     if (parent.isValid())
         return 0;
@@ -150,7 +155,7 @@ bool HistoryListModel::removeRows(int row, int count, const QModelIndex &parent)
     beginRemoveRows (parent, row, row + count);
     list.removeAt(row);
     if (settings) {
-        QString objectName = q->widget()->objectName();
+        QString objectName = completer->widget()->objectName();
         settings->setValue(QLatin1String(SETTINGS_PREFIX) + objectName, list);
     }
 
@@ -170,16 +175,16 @@ void HistoryListModel::saveEntry(const QString &str)
         return;
     if (list.contains(str))
         return;
-    if (!q->widget())
+    if (!completer->widget())
         return;
-    if (lastSeenWidget != q->widget()) {
+    if (lastSeenWidget != completer->widget()) {
         if (lastSeenWidget)
             lastSeenWidget->removeEventFilter(this);
-        q->widget()->installEventFilter(this);
+        completer->widget()->installEventFilter(this);
         fetchHistory();
-        lastSeenWidget = q->widget();
+        lastSeenWidget = completer->widget();
     }
-    QString objectName = q->widget()->objectName();
+    QString objectName = completer->widget()->objectName();
     if (objectName.isEmpty())
         return;
     beginInsertRows (QModelIndex(), list.count(), list.count());
@@ -193,81 +198,73 @@ void HistoryListModel::saveEntry(const QString &str)
 bool HistoryListModel::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Down) {
-        q->setCompletionPrefix(QString());
-        q->complete();
+        completer->setCompletionPrefix(QString());
+        completer->complete();
     }
     return QAbstractListModel::eventFilter(obj,event);
 }
 
-
 HistoryCompleter::HistoryCompleter(QSettings *settings, QObject *parent)
     : QCompleter(parent)
-    , d_ptr(new HistoryCompleterPrivate(this))
+    , d(new HistoryCompleterPrivate(this))
 {
-    d_ptr->model->settings = settings;
+    d->model->settings = settings;
     // make an assumption to allow pressing of the down
     // key, before the first model run:
     // parent is likely the lineedit
     QWidget *p = qobject_cast<QWidget *>(parent);
     if (p) {
-        p->installEventFilter(d_ptr->model);
+        p->installEventFilter(d->model);
         QString objectName = p->objectName();
         if (objectName.isEmpty())
             return;
-        if (d_ptr->model->settings) {
-            d_ptr->model->list = d_ptr->model->settings->value(
+        if (d->model->settings) {
+            d->model->list = d->model->settings->value(
                         QLatin1String(SETTINGS_PREFIX) + objectName).toStringList();
         }
     }
 
     QLineEdit *l = qobject_cast<QLineEdit *>(parent);
-    if (l && d_ptr->model->list.count())
-        l->setText(d_ptr->model->list.at(0));
+    if (l && d->model->list.count())
+        l->setText(d->model->list.at(0));
 
-    setModel(d_ptr->model);
+    setModel(d->model);
     HistoryLineDelegate *delegate = new HistoryLineDelegate;
-    HistoryLineView *view = new HistoryLineView(d_ptr, delegate->pixmap.width());
+    HistoryLineView *view = new HistoryLineView(d, delegate->pixmap.width());
     setPopup(view);
     view->setItemDelegate(delegate);
 }
 
 int HistoryCompleter::historySize() const
 {
-    Q_D(const HistoryCompleter);
     return d->model->rowCount();
 }
 
 int HistoryCompleter::maximalHistorySize() const
 {
-    Q_D(const HistoryCompleter);
     return d->model->maxLines;
 }
 
 void HistoryCompleter::setMaximalHistorySize(int numberOfEntries)
 {
-    Q_D(const HistoryCompleter);
     d->model->maxLines = numberOfEntries;
 }
 
 void HistoryCompleter::clearHistory()
 {
-    Q_D(const HistoryCompleter);
     d->model->clearHistory();
 }
 
 void HistoryCompleter::saveHistory()
 {
-    Q_D(HistoryCompleter);
     d->model->saveEntry(completionPrefix());
 }
 
-
 HistoryCompleterPrivate::HistoryCompleterPrivate(HistoryCompleter *parent)
-     : q_ptr(parent)
+     : q(parent)
      , model(new HistoryListModel(parent))
 {
 }
-
 
 HistoryLineDelegate::HistoryLineDelegate()
 {
@@ -300,4 +297,3 @@ void HistoryLineView::mousePressEvent(QMouseEvent *event)
     QListView::mousePressEvent(event);
 }
 
-} // namespace Utils
