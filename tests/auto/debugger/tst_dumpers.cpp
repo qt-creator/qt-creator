@@ -1236,12 +1236,16 @@ void tst_Dumpers::dumpQImage()
 
 void tst_Dumpers::dumpQImageDataHelper(QImage &img)
 {
+#if QT_VERSION >= 0x050000
+    QSKIP("QImage::numBytes deprecated");
+#else
     const QByteArray ba(QByteArray::fromRawData((const char*) img.bits(), img.numBytes()));
     QByteArray expected = QByteArray("tiname='$I',addr='$A',type='" NS "QImageData',").
         append("numchild='0',value='<hover here>',valuetooltipencoded='1',").
         append("valuetooltipsize='").append(N(ba.size())).append("',").
         append("valuetooltip='").append(ba.toBase64()).append("'");
     testDumper(expected, &img, NS"QImageData", false);
+#endif
 }
 
 void tst_Dumpers::dumpQImageData()
@@ -2458,10 +2462,12 @@ void tst_Dumpers::initTestCase()
 {
     QVERIFY(sizeof(QWeakPointer<int>) == 2*sizeof(void *));
     QVERIFY(sizeof(QSharedPointer<int>) == 2*sizeof(void *));
+#if QT_VERSION < 0x050000
     QtSharedPointer::ExternalRefCountData d;
     d.weakref = d.strongref = 0; // That's what the destructor expects.
     QVERIFY(sizeof(int) == sizeof(d.weakref));
     QVERIFY(sizeof(int) == sizeof(d.strongref));
+#endif
     const size_t qObjectPrivateSize = sizeof(QObjectPrivate);
     const size_t objectPrivateSize = sizeof(ObjectPrivate);
     QVERIFY2(qObjectPrivateSize == objectPrivateSize, QString::fromLatin1("QObjectPrivate=%1 ObjectPrivate=%2").arg(qObjectPrivateSize).arg(objectPrivateSize).toLatin1().constData());

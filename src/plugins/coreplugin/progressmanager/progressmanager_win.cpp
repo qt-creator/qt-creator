@@ -36,6 +36,11 @@
 #include <QtGui/QFontMetrics>
 #include <QtGui/QPixmap>
 #include <QtGui/QPainter>
+#if QT_VERSION >= 0x050000
+#    include <QtGui/QGuiApplication>
+#    include <QtGui/QWindow>
+#    include <QtGui/QPlatformNativeInterface>
+#endif
 #include <QtGui/QLabel>
 
 #include <coreplugin/icore.h>
@@ -54,6 +59,31 @@ namespace {
     int total = 0;
     ITaskbarList3* pITask = 0;
 }
+
+#if QT_VERSION >= 0x050000
+
+static inline QWindow *windowOfWidget(const QWidget *widget)
+{
+    if (QWindow *window = widget->windowHandle())
+        return window;
+    if (QWidget *topLevel = widget->nativeParentWidget())
+        return topLevel->windowHandle();
+    return 0;
+}
+
+static inline HWND hwndOfWidget(const QWidget *w)
+{
+    void *result = 0;
+    if (QWindow *window = windowOfWidget(w))
+        result = QGuiApplication::platformNativeInterface()->nativeResourceForWindow("handle", window);
+    return static_cast<HWND>(result);
+}
+#else
+static inline HWND hwndOfWidget(const QWidget *w)
+{
+    return w->winId();
+}
+#endif
 
 void Core::Internal::ProgressManagerPrivate::init()
 {
@@ -87,7 +117,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &
     if (!pITask)
         return;
 
-    WId winId = Core::ICore::instance()->mainWindow()->winId();
+    const HWND winId = hwndOfWidget(Core::ICore::instance()->mainWindow());
     if (text.isEmpty()) {
         pITask->SetOverlayIcon(winId, NULL, NULL);
     } else {
@@ -98,7 +128,12 @@ void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &
         font.setPointSize(font.pointSize()-2);
         p.setFont(font);
         p.drawText(QRect(QPoint(0,0), pix.size()), Qt::AlignHCenter|Qt::AlignCenter, text);
+#if QT_VERSION >= 0x050000
+        // See pixmaputils.cpp in the Windows plugin.
+        Q_UNIMPLEMENTED();
+#else
         pITask->SetOverlayIcon(winId, pix.toWinHICON(), (wchar_t*)text.utf16());
+#endif
     }
 }
 
@@ -110,7 +145,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min
 void Core::Internal::ProgressManagerPrivate::setApplicationProgressValue(int value)
 {
     if (pITask) {
-        WId winId = Core::ICore::instance()->mainWindow()->winId();
+        const HWND winId = hwndOfWidget(Core::ICore::instance()->mainWindow());
         pITask->SetProgressValue(winId, value, total);
     }
 }
@@ -120,7 +155,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool 
     if (!pITask)
         return;
 
-    WId winId = Core::ICore::instance()->mainWindow()->winId();
+    const HWND winId = hwndOfWidget(Core::ICore::instance()->mainWindow());
     if (visible)
         pITask->SetProgressState(winId, TBPF_NORMAL);
     else

@@ -44,6 +44,7 @@
 QT_BEGIN_NAMESPACE
 class QToolBar;
 class QTimeLine;
+class QPrinter;
 QT_END_NAMESPACE
 
 namespace Utils {
