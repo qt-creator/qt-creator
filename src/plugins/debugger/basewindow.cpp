@@ -56,6 +56,7 @@ BaseWindow::BaseWindow(QWidget *parent)
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
+    setUniformRowHeights(true);
 
     header()->setDefaultAlignment(Qt::AlignLeft);
 
