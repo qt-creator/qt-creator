@@ -843,7 +843,7 @@
   </example>
  </examples>
  <tutorials>
-  <tutorial imageUrl="qthelp://com.trolltech.qt/qdoc/images/addressbook-tutorial-part1-screenshot.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/tutorials-addressbook-part1.html" projectPath="tutorials/addressbook/part1/part1.pro" name="Address Book Tutorial">
+  <tutorial imageUrl="images/icons/adressbook.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/tutorials-addressbook-part1.html" projectPath="tutorials/addressbook/part1/part1.pro" name="Address Book Tutorial">
    <steps>
     <step imageUrl="qthelp://com.trolltech.qt/qdoc/images/addressbook-tutorial-part1-screenshot.png" docUrl="qthelp://com.trolltech.qt/qdoc/tutorials-addressbook-part1.html" projectPath="tutorials/addressbook/part1/part1.pro"/>
     <step imageUrl="qthelp://com.trolltech.qt/qdoc/images/addressbook-tutorial-part2-add-contact.png" docUrl="qthelp://com.trolltech.qt/qdoc/tutorials-addressbook-part2.html" projectPath="tutorials/addressbook/part2/part2.pro"/>

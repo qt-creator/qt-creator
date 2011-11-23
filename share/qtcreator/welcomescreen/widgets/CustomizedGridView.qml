@@ -45,10 +45,13 @@ GridView {
     delegate: Delegate {
         id: delegate
 
-        property string mockupSource: model.imageSource
-        property string realSource: model.imageUrl !== "" ? "image://helpimage/" + encodeURI(model.imageUrl) : ""
+        property bool isHelpImage: model.imageUrl.search(/qthelp/)  != -1
+        property string sourcePrefix: isHelpImage ? "image://helpimage/" : ""
 
-        imageSource: model.imageSource === undefined ? realSource : mockupSource
+        property string mockupSource: model.imageSource
+        property string helpSource: model.imageUrl !== "" ? sourcePrefix + encodeURI(model.imageUrl) : ""
+
+        imageSource: model.imageSource === undefined ? helpSource : mockupSource
         videoSource: model.imageSource === undefined ? model.imageUrl : mockupSource
 
         caption: model.name;
@@ -57,6 +60,5 @@ GridView {
         videoLength: model.videoLength !== undefined ? model.videoLength : ""
         tags: model.tags
     }
-
 
 }
