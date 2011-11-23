@@ -5,6 +5,7 @@ include(../../qtcreatorplugin.pri)
 include(madde_dependencies.pri)
 
 HEADERS += \
+    madde_exports.h \
     maddeplugin.h \
     maemoconstants.h \
     maemorunconfigurationwidget.h \
