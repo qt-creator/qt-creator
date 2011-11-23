@@ -40,7 +40,7 @@
 namespace QtSupport {
 namespace Internal {
 
-class GettingStartedWelcomePage;
+class ExamplesWelcomePage;
 
 class QtSupportPlugin : public ExtensionSystem::IPlugin
 {

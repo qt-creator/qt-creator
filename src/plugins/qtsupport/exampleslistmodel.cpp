@@ -65,6 +65,9 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
     roleNames[Difficulty] = "difficulty";
     roleNames[Type] = "type";
     roleNames[HasSourceCode] = "hasSourceCode";
+    roleNames[IsVideo] = "isVideo";
+    roleNames[VideoUrl] = "videoUrl";
+    roleNames[VideoLength] = "videoLength";
     setRoleNames(roleNames);
 
     connect(QtVersionManager::instance(), SIGNAL(updateExamples(QString,QString,QString)),
@@ -178,8 +181,16 @@ QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, c
                 item.hasSourceCode = !item.projectPath.isEmpty();
                 item.projectPath.prepend('/');
                 item.projectPath.prepend(projectsOffset);
-                item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
-                item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
+                if (attributes.hasAttribute(QLatin1String("imageUrl")))
+                    item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
+                if (attributes.hasAttribute(QLatin1String("docUrl")))
+                    item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
+                if (attributes.hasAttribute(QLatin1String("isVideo")))
+                    item.isVideo = attributes.value(QLatin1String("isVideo")).toString() == QLatin1String("true");
+                if (attributes.hasAttribute(QLatin1String("videoUrl")))
+                    item.videoUrl = attributes.value(QLatin1String("videoUrl")).toString();
+                if (attributes.hasAttribute(QLatin1String("videoLength")))
+                    item.videoLength = attributes.value(QLatin1String("videoLength")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
@@ -364,6 +375,12 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
         return item.hasSourceCode;
     case Type:
         return item.type;
+    case IsVideo:
+        return item.isVideo;
+    case VideoUrl:
+        return item.videoUrl;
+    case VideoLength:
+        return item.videoLength;
     default:
         qDebug() << Q_FUNC_INFO << "role type not supported";
         return QVariant();
@@ -411,6 +428,12 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
     if (m_showTutorialsOnly) {
         int type = sourceModel()->index(sourceRow, 0, sourceParent).data(Type).toInt();
         if (type != Tutorial)
+            return false;
+    }
+
+    if (!m_showTutorialsOnly) {
+        int type = sourceModel()->index(sourceRow, 0, sourceParent).data(Type).toInt();
+        if (type != Example)
             return false;
     }
 

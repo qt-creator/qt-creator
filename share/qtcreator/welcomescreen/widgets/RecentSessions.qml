@@ -30,67 +30,42 @@
 **
 **************************************************************************/
 
-import QtQuick 1.1
-import qtcomponents 1.0 as Components
+import QtQuick 1.0
+import qtcomponents 1.0
 
-HeaderItemView {
-    header: qsTr("Recently Used Sessions")
-    model: sessionList
+ScrollArea {
 
-    delegate: Rectangle {
-        height: 28
-        width: dataSection.width
+    property alias model: repeater.model
 
-        color: mousearea.containsMouse ? "#f9f9f9" : "white"
+    property alias listHeight: column.height
 
-        function fullSessionName()
-        {
-            var newSessionName = sessionName
-            if (model.lastSession && sessionList.isDefaultVirgin())
-                newSessionName = qsTr("%1 (last session)").arg(sessionName);
-            else if (model.activeSession && !sessionList.isDefaultVirgin())
-                newSessionName = qsTr("%1 (current session)").arg(sessionName);
-            return newSessionName;
-        }
+    height: Math.min(listHeight, 276)
 
-        Image {
-            id: arrowImage;
-            source: "qrc:welcome/images/list_bullet_arrow.png"
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-        }
+    frame: false
+    horizontalScrollBar.visible: false
+    clip: true
 
-        Text {
-            font.bold: true
-            id: fileNameText
-            text: parent.fullSessionName()
-            elide: Text.ElideMiddle
-            anchors.left: arrowImage.right
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.leftMargin: 10
-            anchors.rightMargin: 20
-        }
+    Column {
+        id: column
 
-        Timer {
-            id: timer
-            interval: 1000
-            repeat: false
-            onTriggered: {
-                if (fileNameText.truncated)
-                    styleItem.showToolTip(sessionName)
+        spacing: 8
+
+        Repeater {
+            id: repeater
+            SessionItem {
+
+                function fullSessionName()
+                {
+                    var newSessionName = sessionName
+                    if (model.lastSession && sessionList.isDefaultVirgin())
+                        newSessionName = qsTr("%1 (last session)").arg(sessionName);
+                    else if (model.activeSession && !sessionList.isDefaultVirgin())
+                        newSessionName = qsTr("%1 (current session)").arg(sessionName);
+                    return newSessionName;
+                }
+
+                name: fullSessionName()
             }
-        }
-
-        MouseArea {
-            id: mousearea
-            anchors.fill: parent
-            onClicked: projectWelcomePage.requestSession(sessionName)
-            hoverEnabled: true
-            onEntered: timer.start()
-            onExited: timer.stop()
-            Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
         }
     }
 }

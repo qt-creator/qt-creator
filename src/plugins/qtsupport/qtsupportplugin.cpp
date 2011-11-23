@@ -59,13 +59,16 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     addAutoReleasedObject(mgr);
     addAutoReleasedObject(new QtOptionsPage);
 
-    GettingStartedWelcomePage *welcomePage;
-    welcomePage = new GettingStartedWelcomePage;
+    ExamplesWelcomePage *welcomePage;
+    welcomePage = new ExamplesWelcomePage;
     addAutoReleasedObject(welcomePage);
 
-    welcomePage = new GettingStartedWelcomePage;
+    welcomePage = new ExamplesWelcomePage;
     welcomePage->setShowExamples(true);
     addAutoReleasedObject(welcomePage);
+
+    GettingStartedWelcomePage *gettingStartedWelcomePage = new GettingStartedWelcomePage;
+    addAutoReleasedObject(gettingStartedWelcomePage);
 
     return true;
 }

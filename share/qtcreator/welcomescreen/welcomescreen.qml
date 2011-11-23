@@ -32,92 +32,52 @@
 
 import QtQuick 1.0
 import "widgets"
-import qtcomponents 1.0 as Components
 
 Rectangle {
+    width: 920
+    height: 600
     id: root
-    width: 1024
-    height: 768
-    color: "white"
-    // work around the fact that we can't use
-    // a property alias to welcomeMode.activePlugin
-    property int current: 0
-    onCurrentChanged: welcomeMode.activePlugin = current
-    Component.onCompleted: current = welcomeMode.activePlugin
-
-
-    LinksBar {
-        id: navigationAndDevLinks
-        property alias current: root.current
-        anchors.topMargin: -1
-        anchors.top: inner_background.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottomMargin: 4
-        model: tabs.model
-    }
-
-
-    TabWidget {
-        id: tabs
-        property int current: root.current
-        anchors.rightMargin: 0
-        anchors.leftMargin: 0
-        model: pagesModel
-        anchors.top: feedback.bottom
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: news.left
-        anchors.margins: 0
-    }
 
     Item {
-        Image {
-            source: "qrc:welcome/images/welcomebg.png"
-            anchors.fill: parent
-            opacity: 0.5
+        id: canvas
+
+
+        opacity: 0
+
+        Component.onCompleted: canvas.opacity = 1
+
+        Behavior on opacity {
+            PropertyAnimation {
+                duration: 450
+            }
         }
 
-        anchors.right: parent.right
-        id: news
-        opacity: 0.7
-        anchors.top: navigationAndDevLinks.bottom
+        width: Math.min(1024, parent.width)
+        anchors.topMargin: (root.height > 700) ? 32 : 0
+
+        anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: 220
+        anchors.horizontalCenter: parent.horizontalCenter
 
-        FeaturedAndNewsListing {
+        CustomTab {
+            id: tab
+            x: 578
+            y: 64
+            anchors.right: parent.right
+            anchors.rightMargin: 36
+            model: pagesModel
+
+        }
+        PageLoader {
             anchors.fill: parent
+            anchors.topMargin: 100
+            model: pagesModel
         }
-        Rectangle{
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            width: 1
-            color: "black"
-            anchors.left: parent.left
+        Logo {
+            id: logo
+            x: 4
+            y: 10
         }
-    }
 
-    Feedback {
-        id: feedback
-        height: 38
-        anchors.top: navigationAndDevLinks.bottom
-        anchors.left: parent.left
-        anchors.right: news.left
-        searchVisible: tabs.currentHasSearchBar
-    }
-
-    BorderImage {
-        id: inner_background
-        x: 0
-        y: 0
-        anchors.top: root.top
-        source: "qrc:welcome/images/background_center_frame_v2.png"
-        width: parent.width
-        height: 0
-        anchors.topMargin: 0
-        border.right: 2
-        border.left: 2
-        border.top: 2
-        border.bottom: 10
     }
 }

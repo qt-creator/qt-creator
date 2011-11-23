@@ -66,6 +66,8 @@
 #include <QtDeclarative/QDeclarativeImageProvider>
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
+#include <QtDeclarative>
+#include <QtGui/QDesktopServices>
 
 namespace QtSupport {
 namespace Internal {
@@ -193,33 +195,58 @@ private:
     QMutex m_mutex;
 };
 
-GettingStartedWelcomePage::GettingStartedWelcomePage()
-    : m_engine(0),  m_showExamples(false)
+GettingStartedWelcomePage::GettingStartedWelcomePage() : m_engine(0)
 {
+
 }
 
-void GettingStartedWelcomePage::setShowExamples(bool showExamples)
+QUrl GettingStartedWelcomePage::pageLocation() const
 {
-    m_showExamples = showExamples;
+    return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"));
 }
 
 QString GettingStartedWelcomePage::title() const
 {
-    if (m_showExamples)
-        return tr("Demos and Examples");
-    else
-        return tr("Getting Started");
+    return tr("Getting Started");
 }
 
- int GettingStartedWelcomePage::priority() const
+int GettingStartedWelcomePage::priority() const
+{
+    return 0;
+}
+
+void GettingStartedWelcomePage::facilitateQml(QDeclarativeEngine *engine)
+{
+    m_engine = engine;
+}
+
+ExamplesWelcomePage::ExamplesWelcomePage()
+    : m_engine(0),  m_showExamples(false)
+{
+}
+
+void ExamplesWelcomePage::setShowExamples(bool showExamples)
+{
+    m_showExamples = showExamples;
+}
+
+QString ExamplesWelcomePage::title() const
+{
+    if (m_showExamples)
+        return tr("Examples");
+    else
+        return tr("Tutorials");
+}
+
+ int ExamplesWelcomePage::priority() const
  {
      if (m_showExamples)
          return 30;
      else
-         return 10;
+         return 40;
  }
 
- bool GettingStartedWelcomePage::hasSearchBar() const
+ bool ExamplesWelcomePage::hasSearchBar() const
  {
      if (m_showExamples)
          return true;
@@ -227,15 +254,15 @@ QString GettingStartedWelcomePage::title() const
          return false;
  }
 
-QUrl GettingStartedWelcomePage::pageLocation() const
+QUrl ExamplesWelcomePage::pageLocation() const
 {
     if (m_showExamples)
         return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/examples.qml"));
     else
-        return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"));
+        return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/tutorials.qml"));
 }
 
-void GettingStartedWelcomePage::facilitateQml(QDeclarativeEngine *engine)
+void ExamplesWelcomePage::facilitateQml(QDeclarativeEngine *engine)
 {
     m_engine = engine;
     m_engine->addImageProvider(QLatin1String("helpimage"), new HelpImageProvider);
@@ -257,17 +284,27 @@ void GettingStartedWelcomePage::facilitateQml(QDeclarativeEngine *engine)
     rootContenxt->setContextProperty(QLatin1String("gettingStarted"), this);
 }
 
-void GettingStartedWelcomePage::openSplitHelp(const QUrl &help)
+void ExamplesWelcomePage::openSplitHelp(const QUrl &help)
 {
     Core::ICore::instance()->helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
 }
 
-QStringList GettingStartedWelcomePage::tagList() const
+void ExamplesWelcomePage::openHelp(const QUrl &help)
+{
+    Core::ICore::instance()->helpManager()->handleHelpRequest(help.toString());
+}
+
+void ExamplesWelcomePage::openUrl(const QUrl &url)
+{
+    QDesktopServices::openUrl(url);
+}
+
+QStringList ExamplesWelcomePage::tagList() const
 {
     return examplesModel()->tags();
 }
 
-QString GettingStartedWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen)
+QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen)
 {
     const QString projectDir = proFileInfo.canonicalPath();
     QDialog d(Core::ICore::instance()->mainWindow());
@@ -333,7 +370,7 @@ QString GettingStartedWelcomePage::copyToAlternativeLocation(const QFileInfo& pr
 
 }
 
-void GettingStartedWelcomePage::openProject(const QString &projectFile, const QStringList &additionalFilesToOpen, const QUrl &help)
+void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringList &additionalFilesToOpen, const QUrl &help)
 {
     QString proFile = projectFile;
     if (proFile.isEmpty())
@@ -355,18 +392,18 @@ void GettingStartedWelcomePage::openProject(const QString &projectFile, const QS
         QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("Failed to open project"), errorMessage);
 }
 
-void GettingStartedWelcomePage::updateTagsModel()
+void ExamplesWelcomePage::updateTagsModel()
 {
     m_engine->rootContext()->setContextProperty(QLatin1String("tagsList"), examplesModel()->tags());
     emit tagsUpdated();
 }
 
-ExamplesListModel *GettingStartedWelcomePage::examplesModel() const
+ExamplesListModel *ExamplesWelcomePage::examplesModel() const
 {
     if (examplesModelStatic())
         return examplesModelStatic().data();
 
-    examplesModelStatic() = new ExamplesListModel(const_cast<GettingStartedWelcomePage*>(this));
+    examplesModelStatic() = new ExamplesListModel(const_cast<ExamplesWelcomePage*>(this));
     return examplesModelStatic().data();
 }
 

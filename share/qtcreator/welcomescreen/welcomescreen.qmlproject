@@ -3,7 +3,7 @@
 import QmlProject 1.1
 
 Project {
-    mainFile: "welcomescreen.qml"
+    mainFile: "welcomepage.qml"
 
     /* Include .qml, .js, and image files from current directory and subdirectories */
     QmlFiles {
@@ -15,9 +15,6 @@ Project {
     ImageFiles {
         directory: "."
     }
-
-    importPaths: ["../../../lib/qtcreator/"]
-
     /* List of plugin directories passed to QML runtime */
     // importPaths: [ "../exampleplugin" ]
 }

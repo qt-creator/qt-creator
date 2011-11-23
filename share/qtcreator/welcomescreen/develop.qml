@@ -31,61 +31,137 @@
 **************************************************************************/
 
 import QtQuick 1.1
-import "widgets" as Widgets
-import qtcomponents 1.0 as Components
+import "widgets"
 
-Item {
-    id: floater
-
-    Image {
-        source: "qrc:welcome/images/welcomebg.png"
-        anchors.fill: parent
-        opacity: 0.8
-    }
-
-    width: 920
+Rectangle {
+    id: rectangle1
+    width: 900
     height: 600
 
-    property int proposedWidth: 920
-    property int proposedHeight: 600
+    PageCaption {
+        id: pageCaption
 
-    Rectangle {
+        x: 32
+        y: 8
 
-        width: Math.min(floater.width, floater.proposedWidth)
-        height: Math.min(floater.height, floater.proposedHeight)
-        id: root
-        property int margin: 8
-        anchors.centerIn: floater
+        anchors.rightMargin: 16
+        anchors.right: parent.right
+        anchors.leftMargin: 16
+        anchors.left: parent.left
 
-        Components.ScrollArea {
-            id: scrollArea
-            anchors.fill:  parent
-            anchors.margins: - margin
-            frame: true
-            Item {
-                id: baseitem
-                height: Math.max(recentSessions.height, recentProjects.height)
-                width: root.width - 20
-                Widgets.RecentSessions {
-                    id: recentSessions
-                    width: Math.floor(root.width / 2.5)
-                    anchors.left: parent.left
-                }
-                Widgets.RecentProjects {
-                    id: recentProjects
-                    anchors.left:  recentSessions.right
-                    anchors.right: parent.right
-                    anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 :
-                                                                                -scrollArea.verticalScrollBar.width - 6
-                }
+        caption: qsTr("Develop")
+    }
 
-            }
+    Item {
+        id: canvas
+
+        x: 12
+        y: 0
+        width: 1024
+
+        anchors.bottomMargin: 0
+        anchors.bottom: parent.bottom
+        anchors.top: parent.top
+        anchors.topMargin: 0
+
+        RecentSessions {
+            id: recentSessions
+
+            x: 87
+            y: 144
+            width: 274
+
+            anchors.right: recentlyUsedSessions.right
+            anchors.rightMargin: -89
+            anchors.top: recentlyUsedSessions.bottom
+            anchors.topMargin: 20
+
+            model: sessionList
         }
-        BorderImage {
-            anchors.top: scrollArea.top
-            height: root.height + 2 * margin
-            width: 1
-            x: recentProjects.x - margin
+
+        RecentProjects {
+            x: 406
+            y: 144
+            width: 481
+            height: 416
+
+            anchors.top: recentlyUsedProjects.bottom
+            anchors.topMargin: 20
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 40
+            anchors.right: parent.right
+            anchors.rightMargin: 137
+
+            model: projectList
+        }
+
+        Text {
+            id: recentlyUsedSessions
+
+            x: pageCaption.x + pageCaption.textOffset
+            y: 105
+
+            color: "#535353"
+            text: qsTr("Recently used sessions")
+            font.pixelSize: 16
+            font.family: "Helvetica"
+            font.bold: true
+        }
+
+        Text {
+            id: recentlyUsedProjects
+            x: 406
+
+            y: 105
+            color: "#535353"
+            text: qsTr("Recently used Projects")
+            anchors.left: recentlyUsedSessions.right
+            anchors.leftMargin: 134
+            font.bold: true
+            font.family: "Helvetica"
+            font.pixelSize: 16
+        }
+
+        Item {
+            id: actions
+
+            x: 90
+            y: 296
+            width: 140
+            height: 70
+
+            anchors.topMargin: 42
+            anchors.top: recentSessions.bottom
+
+            LinkedText {
+                id: openProject
+                x: 51
+                y: 49
+                text: qsTr("Open Project")
+                onClicked: welcomeMode.openProject();
+            }
+
+            LinkedText {
+                id: createProject
+                x: 51
+                y: 18
+                text: qsTr("Create Project")
+                onClicked: welcomeMode.newProject();
+            }
+
+            Image {
+                id: icon02
+                x: 2
+                y: 32
+                source: "widgets/images/icons/openIcon.png"
+            }
+
+            Image {
+                id: icon01
+                x: 0
+                y: 0
+                source: "widgets/images/icons/createIcon.png"
+            }
         }
     }
 }

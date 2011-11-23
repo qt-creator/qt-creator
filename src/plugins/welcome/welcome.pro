@@ -12,8 +12,6 @@ HEADERS += welcomeplugin.h \
 SOURCES += welcomeplugin.cpp \
     multifeedrssmodel.cpp
 
-RESOURCES += welcome.qrc
-
 DEFINES += WELCOME_LIBRARY
 
 QML_IMPORT_PATH = $$IDE_SOURCE_TREE/lib/qtcreator/

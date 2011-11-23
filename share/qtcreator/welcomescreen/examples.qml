@@ -30,13 +30,100 @@
 **
 **************************************************************************/
 
-import QtQuick 1.1
-import "widgets" as Widgets
+import QtQuick 1.0
+import "widgets"
 
-Item {
-    Widgets.ExampleBrowser {
-        model: examplesModel
+Rectangle {
+    id: rectangle1
+    width: 1024
+    height: Math.min(920, parent.height - y)
+
+    PageCaption {
+        id: pageCaption
+
+        x: 32
+        y: 8
+
+        anchors.rightMargin: 16
+        anchors.right: parent.right
+        anchors.leftMargin: 16
+        anchors.left: parent.left
+
+        caption: qsTr("Examples")
+    }
+
+    CustomScrollArea {
+        id: scrollArea;
+
+        anchors.rightMargin: 38
+        anchors.bottomMargin: 60
+        anchors.leftMargin: 38
+        anchors.topMargin: 102
         anchors.fill: parent
-        anchors.margins: 8
+
+        CustomizedGridView {
+            model: examplesModel
+        }
+    }
+
+    SearchBar {
+        id: searchBar
+
+        y: 60
+
+        anchors.right: parent.right
+        anchors.rightMargin: 60
+        anchors.left: parent.left
+        anchors.leftMargin: 60
+
+        placeholderText: qsTr("Search in Examples...")
+        onTextChanged: examplesModel.parseSearchString(text)
+    }
+
+    Rectangle {
+        id: gradiant
+        y: 102
+        height: 10
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: "#ffffff"
+            }
+
+            GradientStop {
+                position: 1
+                color: "#00ffffff"
+            }
+        }
+
+        anchors.left: parent.left
+        anchors.leftMargin: 38
+        anchors.right: parent.right
+        anchors.rightMargin: 38
+    }
+
+    Rectangle {
+        id: gradiant1
+        x: 38
+        y: 570
+        height: 10
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: "#00ffffff"
+            }
+
+            GradientStop {
+                position: 1
+                color: "#ffffff"
+            }
+        }
+
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 60
+        anchors.rightMargin: 38
+        anchors.right: parent.right
+        anchors.leftMargin: 38
+        anchors.left: parent.left
     }
 }
