@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MaemoPublishingFileSelectionDialog</class>
- <widget class="QDialog" name="MaemoPublishingFileSelectionDialog">
+ <class>Madde::Internal::MaemoPublishingFileSelectionDialog</class>
+ <widget class="QDialog" name="Madde::Internal::MaemoPublishingFileSelectionDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -45,7 +45,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>MaemoPublishingFileSelectionDialog</receiver>
+   <receiver>Madde::Internal::MaemoPublishingFileSelectionDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -61,7 +61,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>MaemoPublishingFileSelectionDialog</receiver>
+   <receiver>Madde::Internal::MaemoPublishingFileSelectionDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

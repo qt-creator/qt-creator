@@ -234,7 +234,7 @@ QString CppFileSettings::licenseTemplate(const QString &fileName, const QString 
 
 CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
     QWidget(parent),
-    m_ui(new Ui::CppFileSettingsPage)
+    m_ui(new Internal::Ui::CppFileSettingsPage)
 {
     m_ui->setupUi(this);
     const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();

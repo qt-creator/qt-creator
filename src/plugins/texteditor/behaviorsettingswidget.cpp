@@ -52,7 +52,7 @@ namespace TextEditor {
 
 struct BehaviorSettingsWidgetPrivate
 {
-    ::Ui::BehaviorSettingsWidget m_ui;
+    Internal::Ui::BehaviorSettingsWidget m_ui;
     QList<QTextCodec *> m_codecs;
 };
 

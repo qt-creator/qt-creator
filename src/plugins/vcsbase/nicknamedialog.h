@@ -36,13 +36,20 @@
 #include <QtGui/QDialog>
 
 QT_BEGIN_NAMESPACE
+
+namespace VCSBase {
+namespace Internal {
 namespace Ui {
-    class NickNameDialog;
-}
+class NickNameDialog;
+} // namespace Ui
+} // namespace Internal
+} // namespace VCSBase
+
 class QSortFilterProxyModel;
 class QStandardItemModel;
 class QModelIndex;
 class QPushButton;
+
 QT_END_NAMESPACE
 
 namespace VCSBase {

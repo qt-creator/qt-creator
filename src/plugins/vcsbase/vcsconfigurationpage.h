@@ -43,7 +43,9 @@ class IVersionControl;
 
 namespace VCSBase {
 
+namespace Internal {
 class VcsConfigurationPagePrivate;
+} // namespace Internal
 
 class VCSBASE_EXPORT VcsConfigurationPage : public QWizardPage {
     Q_OBJECT
@@ -57,7 +59,7 @@ public:
 private slots:
     void openConfiguration();
 private:
-    VcsConfigurationPagePrivate *const d;
+    Internal::VcsConfigurationPagePrivate *const d;
 };
 
 } // namespace VCSBase

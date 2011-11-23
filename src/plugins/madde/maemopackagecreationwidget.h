@@ -35,7 +35,15 @@
 #include <projectexplorer/buildstep.h>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MaemoPackageCreationWidget; }
+
+namespace Madde {
+namespace Internal {
+namespace Ui {
+class MaemoPackageCreationWidget;
+} // namespace Ui
+} // namespace Internal
+} // namespace Madde
+
 QT_END_NAMESPACE
 
 namespace Madde {

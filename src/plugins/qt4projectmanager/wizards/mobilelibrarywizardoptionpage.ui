@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MobileLibraryWizardOptionPage</class>
- <widget class="QWizardPage" name="MobileLibraryWizardOptionPage">
+ <class>Qt4ProjectManager::Internal::MobileLibraryWizardOptionPage</class>
+ <widget class="QWizardPage" name="Qt4ProjectManager::Internal::MobileLibraryWizardOptionPage">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>404</width>
-    <height>130</height>
+    <height>131</height>
    </rect>
   </property>
   <property name="windowTitle">

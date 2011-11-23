@@ -52,7 +52,7 @@ namespace VCSBase {
 struct BaseCheckoutWizardPagePrivate {
     BaseCheckoutWizardPagePrivate() : m_valid(false), m_directoryEdited(false) {}
 
-    Ui::BaseCheckoutWizardPage ui;
+    Internal::Ui::BaseCheckoutWizardPage ui;
     bool m_valid;
     bool m_directoryEdited;
 };

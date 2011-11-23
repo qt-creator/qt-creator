@@ -130,7 +130,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
-    showbuildlog.ui \
     librarydetailswidget.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \

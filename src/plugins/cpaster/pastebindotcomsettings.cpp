@@ -78,7 +78,7 @@ QIcon PasteBinDotComSettings::categoryIcon() const
 
 QWidget *PasteBinDotComSettings::createPage(QWidget *parent)
 {
-    Ui_PasteBinComSettingsWidget ui;
+    Internal::Ui::PasteBinComSettingsWidget ui;
     QWidget *w = new QWidget(parent);
     ui.setupUi(w);
     ui.lineEdit->setText(hostPrefix());

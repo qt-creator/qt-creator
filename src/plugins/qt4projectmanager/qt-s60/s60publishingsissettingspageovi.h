@@ -36,11 +36,17 @@
 #include <QtGui/QWizardPage>
 
 QT_BEGIN_NAMESPACE
+
+namespace Qt4ProjectManager {
+namespace Internal {
 namespace Ui {
 class S60PublishingSisSettingsPageOvi;
-}
+} // namespace Ui
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 class QLabel;
+
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }

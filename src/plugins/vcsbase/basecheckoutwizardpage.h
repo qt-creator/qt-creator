@@ -37,11 +37,18 @@
 
 #include <QtGui/QWizardPage>
 
-namespace VCSBase {
+QT_BEGIN_NAMESPACE
 
+namespace VCSBase {
+namespace Internal {
 namespace Ui {
-    class BaseCheckoutWizardPage;
-}
+class BaseCheckoutWizardPage;
+} // namespace Ui
+} // namespace Internal
+} // namespace VCSBase
+QT_END_NAMESPACE
+
+namespace VCSBase {
 
 struct BaseCheckoutWizardPagePrivate;
 

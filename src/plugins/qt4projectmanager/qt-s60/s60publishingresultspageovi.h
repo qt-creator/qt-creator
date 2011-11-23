@@ -36,7 +36,15 @@
 #include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
-namespace Ui {class S60PublishingResultsPageOvi;}
+
+namespace Qt4ProjectManager {
+namespace Internal {
+namespace Ui {
+class S60PublishingResultsPageOvi;
+} // namespace Ui
+} // namespace Internal
+} // namespace Qt4ProjectManager
+
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {

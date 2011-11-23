@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SshKeyCreationDialog</class>
- <widget class="QDialog" name="SshKeyCreationDialog">
+ <class>RemoteLinux::Internal::SshKeyCreationDialog</class>
+ <widget class="QDialog" name="RemoteLinux::Internal::SshKeyCreationDialog">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -254,7 +254,7 @@
   <connection>
    <sender>closeButton</sender>
    <signal>clicked()</signal>
-   <receiver>SshKeyCreationDialog</receiver>
+   <receiver>RemoteLinux::Internal::SshKeyCreationDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

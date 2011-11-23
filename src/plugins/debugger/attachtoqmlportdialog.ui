@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AttachToQmlPortDialog</class>
- <widget class="QDialog" name="AttachToQmlPortDialog">
+ <class>Debugger::Internal::AttachToQmlPortDialog</class>
+ <widget class="QDialog" name="Debugger::Internal::AttachToQmlPortDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -86,6 +86,10 @@
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>

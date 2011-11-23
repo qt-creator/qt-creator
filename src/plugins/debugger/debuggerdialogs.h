@@ -45,6 +45,8 @@ class QPushButton;
 class QLineEdit;
 class QDialogButtonBox;
 
+namespace Debugger {
+namespace Internal {
 namespace Ui {
 class AttachCoreDialog;
 class AttachExternalDialog;
@@ -53,6 +55,8 @@ class StartRemoteDialog;
 class AttachToQmlPortDialog;
 class StartRemoteEngineDialog;
 } // namespace Ui
+} // namespace Internal
+} // namespace Debugger
 
 QT_END_NAMESPACE
 

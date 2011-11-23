@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CommandMappings</class>
- <widget class="QWidget" name="CommandMappings">
+ <class>Core::Internal::CommandMappings</class>
+ <widget class="QWidget" name="Core::Internal::CommandMappings">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -155,8 +155,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Utils::FilterLineEdit</class>
+   <class>Utils::FancyLineEdit</class>
    <extends>QLineEdit</extends>
+   <header location="global">utils/fancylineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::FilterLineEdit</class>
+   <extends>Utils::FancyLineEdit</extends>
    <header location="global">utils/filterlineedit.h</header>
   </customwidget>
  </customwidgets>

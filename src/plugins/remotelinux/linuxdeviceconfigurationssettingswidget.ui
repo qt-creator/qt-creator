@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LinuxDeviceConfigurationsSettingsWidget</class>
- <widget class="QWidget" name="LinuxDeviceConfigurationsSettingsWidget">
+ <class>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</class>
+ <widget class="QWidget" name="RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -420,7 +420,7 @@
   <connection>
    <sender>hostLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>hostNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -436,7 +436,7 @@
   <connection>
    <sender>userLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -452,7 +452,7 @@
   <connection>
    <sender>pwdLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -468,7 +468,7 @@
   <connection>
    <sender>addConfigButton</sender>
    <signal>clicked()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>addConfig()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -484,7 +484,7 @@
   <connection>
    <sender>passwordButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -500,7 +500,7 @@
   <connection>
    <sender>keyFileLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -516,7 +516,7 @@
   <connection>
    <sender>keyFileLineEdit</sender>
    <signal>browsingFinished()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -532,7 +532,7 @@
   <connection>
    <sender>keyButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -548,7 +548,7 @@
   <connection>
    <sender>nameLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>configNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -564,7 +564,7 @@
   <connection>
    <sender>generateKeyButton</sender>
    <signal>clicked()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>showGenerateSshKeyDialog()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -580,7 +580,7 @@
   <connection>
    <sender>timeoutSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -596,7 +596,7 @@
   <connection>
    <sender>timeoutSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -612,7 +612,7 @@
   <connection>
    <sender>sshPortSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -628,7 +628,7 @@
   <connection>
    <sender>sshPortSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -644,7 +644,7 @@
   <connection>
    <sender>showPasswordCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>showPassword(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -660,7 +660,7 @@
   <connection>
    <sender>portsLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>handleFreePortsChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -676,7 +676,7 @@
   <connection>
    <sender>removeConfigButton</sender>
    <signal>clicked()</signal>
-   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>deleteConfig()</slot>
    <hints>
     <hint type="sourcelabel">

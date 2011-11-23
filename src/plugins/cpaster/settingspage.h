@@ -58,7 +58,7 @@ public:
     QString searchKeywords() const;
 
 private:
-    Ui_SettingsPage m_ui;
+    Internal::Ui::SettingsPage m_ui;
 };
 
 class SettingsPage : public Core::IOptionsPage

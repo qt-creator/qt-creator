@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TextEditor::CodeStyleSelectorWidget</class>
- <widget class="QWidget" name="TextEditor::CodeStyleSelectorWidget">
+ <class>TextEditor::Internal::CodeStyleSelectorWidget</class>
+ <widget class="QWidget" name="TextEditor::Internal::CodeStyleSelectorWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>523</width>
-    <height>58</height>
+    <width>536</width>
+    <height>59</height>
    </rect>
   </property>
   <property name="windowTitle">

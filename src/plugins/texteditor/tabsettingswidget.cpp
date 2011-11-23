@@ -40,7 +40,7 @@ namespace TextEditor {
 
 TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::TabSettingsWidget)
+    ui(new Internal::Ui::TabSettingsWidget)
 {
     ui->setupUi(this);
 

@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CommonSettingsPage</class>
- <widget class="QWidget" name="CommonSettingsPage">
+ <class>VCSBase::Internal::CommonSettingsPage</class>
+ <widget class="QWidget" name="VCSBase::Internal::CommonSettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>322</width>
+    <height>180</height>
+   </rect>
+  </property>
   <layout class="QFormLayout" name="formLayout">
    <property name="fieldGrowthPolicy">
     <enum>QFormLayout::ExpandingFieldsGrow</enum>
@@ -59,7 +67,7 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="Utils::PathChooser" name="submitMessageCheckScriptChooser"/>
+    <widget class="Utils::PathChooser" name="submitMessageCheckScriptChooser" native="true"/>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="nickNameMailMapLabel">
@@ -76,7 +84,7 @@ name &lt;email&gt; alias &lt;email&gt;</string>
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="Utils::PathChooser" name="nickNameMailMapChooser"/>
+    <widget class="Utils::PathChooser" name="nickNameMailMapChooser" native="true"/>
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="nickNameFieldsFileLabel">
@@ -92,10 +100,10 @@ name &lt;email&gt; alias &lt;email&gt;</string>
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="Utils::PathChooser" name="nickNameFieldsFileChooser"/>
+    <widget class="Utils::PathChooser" name="nickNameFieldsFileChooser" native="true"/>
    </item>
    <item row="5" column="1">
-    <widget class="Utils::PathChooser" name="sshPromptChooser"/>
+    <widget class="Utils::PathChooser" name="sshPromptChooser" native="true"/>
    </item>
    <item row="6" column="0" colspan="2">
     <spacer name="verticalSpacer">
@@ -124,7 +132,7 @@ name &lt;email&gt; alias &lt;email&gt;</string>
     </widget>
    </item>
    <item row="7" column="1">
-    <widget class="Utils::PathChooser" name="patchChooser"/>
+    <widget class="Utils::PathChooser" name="patchChooser" native="true"/>
    </item>
    <item row="5" column="0">
     <widget class="QLabel" name="sshPromptLabel">
@@ -148,6 +156,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>

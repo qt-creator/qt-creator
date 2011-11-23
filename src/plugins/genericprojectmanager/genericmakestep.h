@@ -36,11 +36,17 @@
 #include <projectexplorer/abstractprocessstep.h>
 
 QT_BEGIN_NAMESPACE
+
 class QListWidgetItem;
 
+namespace GenericProjectManager {
+namespace Internal {
 namespace Ui {
 class GenericMakeStep;
-}
+} // namespace Ui
+} // namespace Internal
+} // namespace GenericProjectManager
+
 QT_END_NAMESPACE
 
 namespace GenericProjectManager {

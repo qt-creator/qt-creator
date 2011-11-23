@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>S60CertificateDetailsDialog</class>
- <widget class="QDialog" name="S60CertificateDetailsDialog">
+ <class>Qt4ProjectManager::Internal::S60CertificateDetailsDialog</class>
+ <widget class="QDialog" name="Qt4ProjectManager::Internal::S60CertificateDetailsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

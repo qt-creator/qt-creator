@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CompletionSettingsPage</class>
- <widget class="QWidget" name="CompletionSettingsPage">
+ <class>CppTools::Internal::CompletionSettingsPage</class>
+ <widget class="QWidget" name="CppTools::Internal::CompletionSettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>363</width>
+    <width>393</width>
     <height>241</height>
    </rect>
   </property>

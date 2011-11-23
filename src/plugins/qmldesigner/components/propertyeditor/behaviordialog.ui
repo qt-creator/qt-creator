@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BehaviorDialog</class>
- <widget class="QDialog" name="BehaviorDialog">
+ <class>QmlDesigner::Internal::BehaviorDialog</class>
+ <widget class="QDialog" name="QmlDesigner::Internal::BehaviorDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>267</width>
-    <height>333</height>
+    <width>269</width>
+    <height>354</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -423,7 +423,7 @@ qlineargradient(spread:pad, x1:0.585, y1:0.0284091, x2:0.517, y2:1, stop:0 rgba(
   <connection>
    <sender>ButtonGroup</sender>
    <signal>accepted()</signal>
-   <receiver>BehaviorDialog</receiver>
+   <receiver>QmlDesigner::Internal::BehaviorDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -439,7 +439,7 @@ qlineargradient(spread:pad, x1:0.585, y1:0.0284091, x2:0.517, y2:1, stop:0 rgba(
   <connection>
    <sender>ButtonGroup</sender>
    <signal>rejected()</signal>
-   <receiver>BehaviorDialog</receiver>
+   <receiver>QmlDesigner::Internal::BehaviorDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

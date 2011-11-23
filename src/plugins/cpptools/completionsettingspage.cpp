@@ -65,7 +65,7 @@ QString CompletionSettingsPage::displayName() const
 QWidget *CompletionSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
-    m_page = new Ui_CompletionSettingsPage;
+    m_page = new Ui::CompletionSettingsPage;
     m_page->setupUi(w);
 
     const TextEditor::CompletionSettings &settings =

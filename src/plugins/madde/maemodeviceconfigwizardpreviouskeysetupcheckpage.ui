@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MaemoDeviceConfigWizardCheckPreviousKeySetupPage</class>
- <widget class="QWizardPage" name="MaemoDeviceConfigWizardCheckPreviousKeySetupPage">
+ <class>Madde::Internal::MaemoDeviceConfigWizardCheckPreviousKeySetupPage</class>
+ <widget class="QWizardPage" name="Madde::Internal::MaemoDeviceConfigWizardCheckPreviousKeySetupPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -54,7 +54,7 @@
           </widget>
          </item>
          <item>
-          <widget class="Utils::PathChooser" name="privateKeyFilePathChooser"/>
+          <widget class="Utils::PathChooser" name="privateKeyFilePathChooser" native="true"/>
          </item>
         </layout>
        </item>
@@ -89,6 +89,11 @@
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>

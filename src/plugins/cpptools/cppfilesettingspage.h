@@ -39,10 +39,17 @@
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
+
+namespace CppTools {
+namespace Internal {
 namespace Ui {
-    class CppFileSettingsPage;
-}
+class CppFileSettingsPage;
+} // namespace Ui
+} // namespace Internal
+} // namespace CppTools
+
 class QSettings;
+
 QT_END_NAMESPACE
 
 namespace CppTools {
@@ -91,7 +98,7 @@ private:
     inline QString licenseTemplatePath() const;
     inline void setLicenseTemplatePath(const QString &);
 
-    Ui::CppFileSettingsPage *m_ui;
+    Internal::Ui::CppFileSettingsPage *m_ui;
 };
 
 class CppFileSettingsPage : public Core::IOptionsPage

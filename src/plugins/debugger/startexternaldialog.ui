@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>StartExternalDialog</class>
- <widget class="QDialog" name="StartExternalDialog">
+ <class>Debugger::Internal::StartExternalDialog</class>
+ <widget class="QDialog" name="Debugger::Internal::StartExternalDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>263</width>
+    <height>214</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Start Debugger</string>
   </property>
@@ -28,7 +36,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="Utils::PathChooser" name="execFile"/>
+      <widget class="Utils::PathChooser" name="execFile" native="true"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="argsLabel">
@@ -67,7 +75,7 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="Utils::PathChooser" name="workingDirectory"/>
+      <widget class="Utils::PathChooser" name="workingDirectory" native="true"/>
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="toolChainLabel">
@@ -139,6 +147,10 @@
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>Debugger::Internal::DebuggerToolChainComboBox</class>

@@ -67,7 +67,7 @@ private slots:
 private:
     const QList<Protocol*> m_protocols;
 
-    Ui_PasteSelectDialog m_ui;
+    Internal::Ui::PasteSelectDialog m_ui;
     QPushButton *m_refreshButton;
 };
 

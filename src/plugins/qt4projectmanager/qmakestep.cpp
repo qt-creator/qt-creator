@@ -492,7 +492,7 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 ////
 
 QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
-    : BuildStepConfigWidget(), m_ui(new Ui::QMakeStep), m_step(step),
+    : BuildStepConfigWidget(), m_ui(new Internal::Ui::QMakeStep), m_step(step),
       m_ignoreChange(false)
 {
     m_ui->setupUi(this);

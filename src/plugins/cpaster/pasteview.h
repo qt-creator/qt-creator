@@ -86,7 +86,7 @@ private:
     const QString m_commentPlaceHolder;
     const QString m_mimeType;
 
-    Ui::ViewDialog m_ui;
+    Internal::Ui::ViewDialog m_ui;
     FileDataList m_parts;
     Mode m_mode;
 };

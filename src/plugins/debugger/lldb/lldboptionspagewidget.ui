@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LldbOptionsPageWidget</class>
- <widget class="QWidget" name="LldbOptionsPageWidget">
+ <class>Debugger::Internal::LldbOptionsPageWidget</class>
+ <widget class="QWidget" name="Debugger::Internal::LldbOptionsPageWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

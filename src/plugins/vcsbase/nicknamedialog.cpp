@@ -169,7 +169,7 @@ QDebug operator<<(QDebug d, const NickNameEntry &e)
 
 NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
         QDialog(parent),
-        m_ui(new Ui::NickNameDialog),
+        m_ui(new Internal::Ui::NickNameDialog),
         m_model(model),
         m_filterModel(new QSortFilterProxyModel(this))
 {

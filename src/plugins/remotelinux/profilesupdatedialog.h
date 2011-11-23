@@ -38,9 +38,15 @@
 #include <QtGui/QDialog>
 
 QT_BEGIN_NAMESPACE
+
+namespace RemoteLinux {
+namespace Internal {
 namespace Ui {
 class ProFilesUpdateDialog;
-}
+} // namespace Ui
+} // namespace Internal
+} // namespace RemoteLinux
+
 QT_END_NAMESPACE
 
 namespace RemoteLinux {

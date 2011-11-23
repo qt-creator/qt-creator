@@ -289,7 +289,7 @@ void MakeStep::setUserArguments(const QString &arguments)
 }
 
 MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
-    : BuildStepConfigWidget(), m_ui(new Ui::MakeStep), m_makeStep(makeStep), m_ignoreChange(false)
+    : BuildStepConfigWidget(), m_ui(new Internal::Ui::MakeStep), m_makeStep(makeStep), m_ignoreChange(false)
 {
     m_ui->setupUi(this);
 

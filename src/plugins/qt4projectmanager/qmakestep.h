@@ -39,7 +39,15 @@
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class QMakeStep; }
+
+namespace Qt4ProjectManager {
+namespace Internal {
+namespace Ui {
+class QMakeStep;
+} // namespace Ui
+} // namespace Internal
+} // namespace Qt4ProjectManager
+
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -172,7 +180,7 @@ private:
     void setSummaryText(const QString &);
     void setAdditionalSummaryText(const QString &);
 
-    Ui::QMakeStep *m_ui;
+    Internal::Ui::QMakeStep *m_ui;
     QMakeStep *m_step;
     QString m_summaryText;
     QString m_additionalSummaryText;

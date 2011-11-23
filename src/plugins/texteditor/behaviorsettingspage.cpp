@@ -56,7 +56,7 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
     explicit BehaviorSettingsPagePrivate(const BehaviorSettingsPageParameters &p);
 
     const BehaviorSettingsPageParameters m_parameters;
-    Ui::BehaviorSettingsPage *m_page;
+    Internal::Ui::BehaviorSettingsPage *m_page;
 
     void init();
 
@@ -122,7 +122,7 @@ QString BehaviorSettingsPage::displayName() const
 QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
-    d->m_page = new Ui::BehaviorSettingsPage;
+    d->m_page = new Internal::Ui::BehaviorSettingsPage;
     d->m_page->setupUi(w);
     d->m_pageCodeStyle = new SimpleCodeStylePreferences(w);
     d->m_pageCodeStyle->setDelegatingPool(d->m_codeStyle->delegatingPool());

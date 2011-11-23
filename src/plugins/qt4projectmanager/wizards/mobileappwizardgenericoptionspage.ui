@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MobileAppWizardGenericOptionsPage</class>
- <widget class="QWizardPage" name="MobileAppWizardGenericOptionsPage">
+ <class>Qt4ProjectManager::Internal::MobileAppWizardGenericOptionsPage</class>
+ <widget class="QWizardPage" name="Qt4ProjectManager::Internal::MobileAppWizardGenericOptionsPage">
   <property name="geometry">
    <rect>
     <x>0</x>

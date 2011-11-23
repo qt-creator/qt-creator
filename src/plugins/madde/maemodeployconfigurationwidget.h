@@ -36,9 +36,15 @@
 #include <projectexplorer/deployconfiguration.h>
 
 QT_BEGIN_NAMESPACE
+
+namespace Madde {
+namespace Internal {
 namespace Ui {
 class MaemoDeployConfigurationWidget;
-}
+} // namespace Ui
+} // namespace Internal
+} // namespace Madde
+
 QT_END_NAMESPACE
 
 namespace RemoteLinux {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>StartGdbServerDialog</class>
- <widget class="QDialog" name="StartGdbServerDialog">
+ <class>RemoteLinux::Internal::StartGdbServerDialog</class>
+ <widget class="QDialog" name="RemoteLinux::Internal::StartGdbServerDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -143,21 +143,13 @@
     </layout>
    </item>
   </layout>
-  <zorder>buttonBox</zorder>
-  <zorder>filterLabel</zorder>
-  <zorder>processFilterLineEdit</zorder>
-  <zorder>deviceComboBox</zorder>
-  <zorder>label</zorder>
-  <zorder>updateListButton</zorder>
-  <zorder>attachProcessButton</zorder>
-  <zorder>textBrowser</zorder>
  </widget>
  <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>StartGdbServerDialog</receiver>
+   <receiver>RemoteLinux::Internal::StartGdbServerDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -173,7 +165,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>StartGdbServerDialog</receiver>
+   <receiver>RemoteLinux::Internal::StartGdbServerDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

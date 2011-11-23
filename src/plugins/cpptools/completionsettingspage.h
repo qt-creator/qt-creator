@@ -37,7 +37,13 @@
 #include <texteditor/texteditoroptionspage.h>
 
 QT_BEGIN_NAMESPACE
-class Ui_CompletionSettingsPage;
+namespace CppTools {
+namespace Internal {
+namespace Ui {
+class CompletionSettingsPage;
+} // namespace Ui
+} // namespace Internal
+} // namespace CppTools
 QT_END_NAMESPACE
 
 namespace CppTools {
@@ -65,7 +71,7 @@ private:
     TextEditor::CaseSensitivity caseSensitivity() const;
     TextEditor::CompletionTrigger completionTrigger() const;
 
-    Ui_CompletionSettingsPage *m_page;
+    Ui::CompletionSettingsPage *m_page;
     QString m_searchKeywords;
 };
 

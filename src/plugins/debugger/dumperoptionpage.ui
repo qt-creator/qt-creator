@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DebuggingHelperOptionPage</class>
- <widget class="QWidget" name="DebuggingHelperOptionPage">
+ <class>Debugger::Internal::DebuggingHelperOptionPage</class>
+ <widget class="QWidget" name="Debugger::Internal::DebuggingHelperOptionPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -88,18 +88,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
-   <slots>
-    <signal>editingFinished()</signal>
-    <signal>browsingFinished()</signal>
-   </slots>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

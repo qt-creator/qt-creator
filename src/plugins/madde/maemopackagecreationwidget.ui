@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MaemoPackageCreationWidget</class>
- <widget class="QWidget" name="MaemoPackageCreationWidget">
+ <class>Madde::Internal::MaemoPackageCreationWidget</class>
+ <widget class="QWidget" name="Madde::Internal::MaemoPackageCreationWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -264,7 +264,7 @@
   <connection>
    <sender>major</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MaemoPackageCreationWidget</receiver>
+   <receiver>Madde::Internal::MaemoPackageCreationWidget</receiver>
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -280,7 +280,7 @@
   <connection>
    <sender>minor</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MaemoPackageCreationWidget</receiver>
+   <receiver>Madde::Internal::MaemoPackageCreationWidget</receiver>
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -296,7 +296,7 @@
   <connection>
    <sender>patch</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MaemoPackageCreationWidget</receiver>
+   <receiver>Madde::Internal::MaemoPackageCreationWidget</receiver>
    <slot>versionInfoChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -312,7 +312,7 @@
   <connection>
    <sender>editDebianFileButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoPackageCreationWidget</receiver>
+   <receiver>Madde::Internal::MaemoPackageCreationWidget</receiver>
    <slot>editDebianFile()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -328,7 +328,7 @@
   <connection>
    <sender>packageManagerIconButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoPackageCreationWidget</receiver>
+   <receiver>Madde::Internal::MaemoPackageCreationWidget</receiver>
    <slot>setPackageManagerIcon()</slot>
    <hints>
     <hint type="sourcelabel">

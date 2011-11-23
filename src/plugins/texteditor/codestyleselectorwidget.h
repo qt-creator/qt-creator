@@ -38,21 +38,27 @@
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
+
 class QHBoxLayout;
 class QComboBox;
 class QLabel;
 class QCheckBox;
 class QPushButton;
+
+namespace TextEditor {
+namespace Internal {
+namespace Ui {
+class CodeStyleSelectorWidget;
+} // namespace Ui
+} // namespace Internal
+} // namespace TextEditor
+
 QT_END_NAMESPACE
 
 namespace TextEditor {
 
 class ICodeStylePreferences;
 class ICodeStylePreferencesFactory;
-
-namespace Ui {
-class CodeStyleSelectorWidget;
-}
 
 class TEXTEDITOR_EXPORT CodeStyleSelectorWidget : public QWidget
 {
@@ -85,7 +91,7 @@ private:
 
     QString displayName(ICodeStylePreferences *codeStyle) const;
 
-    Ui::CodeStyleSelectorWidget *m_ui;
+    Internal::Ui::CodeStyleSelectorWidget *m_ui;
 
     bool m_ignoreGuiSignals;
 };

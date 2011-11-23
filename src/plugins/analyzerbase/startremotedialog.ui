@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Analyzer::StartRemoteDialog</class>
- <widget class="QDialog" name="Analyzer::StartRemoteDialog">
+ <class>Analyzer::Internal::StartRemoteDialog</class>
+ <widget class="QDialog" name="Analyzer::Internal::StartRemoteDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>446</width>
-    <height>329</height>
+    <height>363</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -165,6 +165,10 @@
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>

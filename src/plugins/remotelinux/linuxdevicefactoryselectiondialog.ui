@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LinuxDeviceFactorySelectionDialog</class>
- <widget class="QDialog" name="LinuxDeviceFactorySelectionDialog">
+ <class>RemoteLinux::Internal::LinuxDeviceFactorySelectionDialog</class>
+ <widget class="QDialog" name="RemoteLinux::Internal::LinuxDeviceFactorySelectionDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -54,7 +54,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>LinuxDeviceFactorySelectionDialog</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceFactorySelectionDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -70,7 +70,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>LinuxDeviceFactorySelectionDialog</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceFactorySelectionDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SaveItemsDialog</class>
- <widget class="QDialog" name="SaveItemsDialog">
+ <class>Core::Internal::SaveItemsDialog</class>
+ <widget class="QDialog" name="Core::Internal::SaveItemsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -83,7 +83,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>SaveItemsDialog</receiver>
+   <receiver>Core::Internal::SaveItemsDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

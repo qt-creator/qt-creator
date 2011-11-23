@@ -41,6 +41,7 @@
 #include <coreplugin/iversioncontrol.h>
 
 namespace VCSBase {
+namespace Internal {
 
 class VcsConfigurationPagePrivate
 {
@@ -58,9 +59,11 @@ public:
     const Core::IVersionControl *m_versionControl;
 };
 
+} // namespace Internal
+
 VcsConfigurationPage::VcsConfigurationPage(const Core::IVersionControl *vc, QWidget *parent) :
     QWizardPage(parent),
-    d(new VcsConfigurationPagePrivate)
+    d(new Internal::VcsConfigurationPagePrivate)
 {
     Q_ASSERT(vc);
     setTitle(tr("Configuration"));

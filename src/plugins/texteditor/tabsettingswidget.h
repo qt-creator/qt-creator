@@ -35,15 +35,23 @@
 
 #include "texteditor_global.h"
 
+QT_BEGIN_NAMESPACE
+
+namespace TextEditor {
+namespace Internal {
+namespace Ui {
+class TabSettingsWidget;
+} // namespace Ui
+} // namespace Internal
+} // namespace TextEditor
+
+QT_END_NAMESPACE
+
 #include <QtGui/QWidget>
 
 namespace TextEditor {
 
 class TabSettings;
-
-namespace Ui {
-    class TabSettingsWidget;
-}
 
 class TEXTEDITOR_EXPORT TabSettingsWidget : public QWidget
 {
@@ -71,7 +79,7 @@ private slots:
     void slotSettingsChanged();
 
 private:
-    Ui::TabSettingsWidget *ui;
+    Internal::Ui::TabSettingsWidget *ui;
 };
 
 } // namespace TextEditor

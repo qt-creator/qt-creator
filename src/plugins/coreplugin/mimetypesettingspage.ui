@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MimeTypeSettingsPage</class>
- <widget class="QWidget" name="MimeTypeSettingsPage">
+ <class>Core::Internal::MimeTypeSettingsPage</class>
+ <widget class="QWidget" name="Core::Internal::MimeTypeSettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>

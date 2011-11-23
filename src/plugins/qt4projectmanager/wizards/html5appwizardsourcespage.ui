@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Html5AppWizardSourcesPage</class>
- <widget class="QWizardPage" name="Html5AppWizardSourcesPage">
+ <class>Qt4ProjectManager::Internal::Html5AppWizardSourcesPage</class>
+ <widget class="QWizardPage" name="Qt4ProjectManager::Internal::Html5AppWizardSourcesPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -38,7 +38,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="Utils::PathChooser" name="importLineEdit">
+       <widget class="Utils::PathChooser" name="importLineEdit" native="true">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -162,7 +162,7 @@
  <customwidgets>
   <customwidget>
    <class>Utils::PathChooser</class>
-   <extends>QLineEdit</extends>
+   <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
    <slots>

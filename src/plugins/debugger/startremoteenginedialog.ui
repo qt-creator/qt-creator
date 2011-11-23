@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>StartRemoteEngineDialog</class>
- <widget class="QDialog" name="StartRemoteEngineDialog">
+ <class>Debugger::Internal::StartRemoteEngineDialog</class>
+ <widget class="QDialog" name="Debugger::Internal::StartRemoteEngineDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>233</width>
-    <height>207</height>
+    <height>214</height>
    </rect>
   </property>
   <property name="windowTitle">

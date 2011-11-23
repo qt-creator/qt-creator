@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CommonOptionsPage</class>
- <widget class="QWidget" name="CommonOptionsPage">
+ <class>Debugger::Internal::CommonOptionsPage</class>
+ <widget class="QWidget" name="Debugger::Internal::CommonOptionsPage">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -46,7 +46,7 @@ struct DisplaySettingsPage::DisplaySettingsPagePrivate
     explicit DisplaySettingsPagePrivate(const DisplaySettingsPageParameters &p);
 
     const DisplaySettingsPageParameters m_parameters;
-    Ui::DisplaySettingsPage *m_page;
+    Internal::Ui::DisplaySettingsPage *m_page;
     DisplaySettings m_displaySettings;
     QString m_searchKeywords;
 };
@@ -85,7 +85,7 @@ QString DisplaySettingsPage::displayName() const
 QWidget *DisplaySettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
-    d->m_page = new Ui::DisplaySettingsPage;
+    d->m_page = new Internal::Ui::DisplaySettingsPage;
     d->m_page->setupUi(w);
     settingsToUI();
     if (d->m_searchKeywords.isEmpty()) {

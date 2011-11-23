@@ -36,9 +36,15 @@
 #include <QtGui/QDialog>
 
 QT_BEGIN_NAMESPACE
+
+namespace RemoteLinux {
+namespace Internal {
 namespace Ui {
 class LinuxDeviceFactorySelectionDialog;
 } // namespace Ui
+} // namespace Internal
+} // namespace RemoteLinux
+
 QT_END_NAMESPACE
 
 namespace RemoteLinux {

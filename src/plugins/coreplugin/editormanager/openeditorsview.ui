@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>OpenEditorsView</class>
- <widget class="QWidget" name="OpenEditorsView">
+ <class>Core::Internal::OpenEditorsView</class>
+ <widget class="QWidget" name="Core::Internal::OpenEditorsView">
   <property name="geometry">
    <rect>
     <x>0</x>

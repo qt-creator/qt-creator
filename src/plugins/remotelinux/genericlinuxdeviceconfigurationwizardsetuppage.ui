@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GenericLinuxDeviceConfigurationWizardSetupPage</class>
- <widget class="QWizardPage" name="GenericLinuxDeviceConfigurationWizardSetupPage">
+ <class>RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage</class>
+ <widget class="QWizardPage" name="RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage">
   <property name="geometry">
    <rect>
     <x>0</x>

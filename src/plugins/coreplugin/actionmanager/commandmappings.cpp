@@ -69,7 +69,7 @@ CommandMappings::~CommandMappings()
 
 QWidget *CommandMappings::createPage(QWidget *parent)
 {
-    m_page = new Ui_CommandMappings();
+    m_page = new Ui::CommandMappings();
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
     m_page->targetEdit->setAutoHideButton(Utils::FancyLineEdit::Right, true);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MakeStep</class>
- <widget class="QWidget" name="MakeStep">
+ <class>Qt4ProjectManager::Internal::MakeStep</class>
+ <widget class="QWidget" name="Qt4ProjectManager::Internal::MakeStep">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -18,7 +18,7 @@
     <number>0</number>
    </property>
    <item row="0" column="1">
-    <widget class="Utils::PathChooser" name="makePathChooser"/>
+    <widget class="Utils::PathChooser" name="makePathChooser" native="true"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="makeArgumentsLabel">
@@ -42,8 +42,13 @@
  <customwidgets>
   <customwidget>
    <class>Utils::PathChooser</class>
-   <extends>QLineEdit</extends>
-   <header>utils/pathchooser.h</header>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>

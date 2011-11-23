@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CodePaster::SettingsPage</class>
- <widget class="QWidget" name="CodePaster::SettingsPage">
+ <class>CodePaster::Internal::SettingsPage</class>
+ <widget class="QWidget" name="CodePaster::Internal::SettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>281</width>
+    <width>291</width>
     <height>229</height>
    </rect>
   </property>

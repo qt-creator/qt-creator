@@ -137,7 +137,7 @@ void CleanFilesTask::run()
 struct CleanDialogPrivate {
     CleanDialogPrivate();
 
-    Ui::CleanDialog ui;
+    Internal::Ui::CleanDialog ui;
     QStandardItemModel *m_filesModel;
     QString m_workingDirectory;
 };

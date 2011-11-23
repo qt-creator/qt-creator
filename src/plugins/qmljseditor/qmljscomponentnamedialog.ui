@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ComponentNameDialog</class>
- <widget class="QDialog" name="ComponentNameDialog">
+ <class>QmlJSEditor::Internal::ComponentNameDialog</class>
+ <widget class="QDialog" name="QmlJSEditor::Internal::ComponentNameDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>495</width>
-    <height>130</height>
+    <height>138</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,7 +91,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ComponentNameDialog</receiver>
+   <receiver>QmlJSEditor::Internal::ComponentNameDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -107,7 +107,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ComponentNameDialog</receiver>
+   <receiver>QmlJSEditor::Internal::ComponentNameDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

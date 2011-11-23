@@ -47,7 +47,7 @@ using namespace Core;
 
 VariableChooser::VariableChooser(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::VariableChooser),
+    ui(new Internal::Ui::VariableChooser),
     m_lineEdit(0),
     m_textEdit(0),
     m_plainTextEdit(0)

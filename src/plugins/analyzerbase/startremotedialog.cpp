@@ -43,7 +43,7 @@ namespace Analyzer {
 
 StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     : QDialog(parent)
-    , m_ui(new Ui::StartRemoteDialog)
+    , m_ui(new Internal::Ui::StartRemoteDialog)
 {
     m_ui->setupUi(this);
 

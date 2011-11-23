@@ -171,7 +171,7 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
     QWidget(parent),
     m_factory(factory),
     m_codeStyle(0),
-    m_ui(new Ui::CodeStyleSelectorWidget),
+    m_ui(new Internal::Ui::CodeStyleSelectorWidget),
     m_ignoreGuiSignals(false)
 {
     m_ui->setupUi(this);

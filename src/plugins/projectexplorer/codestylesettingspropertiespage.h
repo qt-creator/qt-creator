@@ -62,7 +62,7 @@ public:
     CodeStyleSettingsWidget(Project *project);
 
 private:
-    ProjectExplorer::Ui::CodeStyleSettingsPropertiesPage m_ui;
+    Ui::CodeStyleSettingsPropertiesPage m_ui;
     Project *m_project;
 };
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AttachExternalDialog</class>
- <widget class="QDialog" name="AttachExternalDialog">
+ <class>Debugger::Internal::AttachExternalDialog</class>
+ <widget class="QDialog" name="Debugger::Internal::AttachExternalDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

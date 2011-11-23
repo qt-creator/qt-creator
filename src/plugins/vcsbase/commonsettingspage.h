@@ -41,9 +41,15 @@
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
+
+namespace VCSBase {
+namespace Internal {
 namespace Ui {
 class CommonSettingsPage;
-}
+} // namespace Ui
+} // namespace Internal
+} // namespace VCSBase
+
 QT_END_NAMESPACE
 
 namespace VCSBase {

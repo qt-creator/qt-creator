@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AttachCoreDialog</class>
- <widget class="QDialog" name="AttachCoreDialog">
+ <class>Debugger::Internal::AttachCoreDialog</class>
+ <widget class="QDialog" name="Debugger::Internal::AttachCoreDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -42,7 +42,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="Utils::PathChooser" name="execFileName"/>
+      <widget class="Utils::PathChooser" name="execFileName" native="true"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="coreLabel">
@@ -55,7 +55,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="Utils::PathChooser" name="coreFileName"/>
+      <widget class="Utils::PathChooser" name="coreFileName" native="true"/>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="toolchainLabel">
@@ -81,7 +81,7 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="Utils::PathChooser" name="sysrootPathChooser"/>
+      <widget class="Utils::PathChooser" name="sysrootPathChooser" native="true"/>
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="overrideStartScriptLabel">
@@ -94,7 +94,7 @@
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="Utils::PathChooser" name="overrideStartScriptFileName"/>
+      <widget class="Utils::PathChooser" name="overrideStartScriptFileName" native="true"/>
      </item>
     </layout>
    </item>
@@ -136,6 +136,10 @@
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>Debugger::Internal::DebuggerToolChainComboBox</class>

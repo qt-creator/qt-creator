@@ -98,7 +98,7 @@ private:
 
 LinuxDeviceConfigurationsSettingsWidget::LinuxDeviceConfigurationsSettingsWidget(QWidget *parent)
     : QWidget(parent),
-      m_ui(new Ui_LinuxDeviceConfigurationsSettingsWidget),
+      m_ui(new Ui::LinuxDeviceConfigurationsSettingsWidget),
       m_devConfigs(LinuxDeviceConfigurations::cloneInstance()),
       m_nameValidator(new NameValidator(m_devConfigs.data(), this)),
       m_saveSettingsRequested(false),

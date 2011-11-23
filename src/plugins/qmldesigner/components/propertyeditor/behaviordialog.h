@@ -91,7 +91,7 @@ public slots:
 private:
     ModelNode m_modelNode;
     QString m_propertyName;
-    QScopedPointer<Ui_BehaviorDialog> m_ui;
+    QScopedPointer<Internal::Ui::BehaviorDialog> m_ui;
 };
 
 

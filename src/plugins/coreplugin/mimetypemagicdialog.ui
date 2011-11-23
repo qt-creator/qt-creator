@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MimeTypeMagicDialog</class>
- <widget class="QDialog" name="MimeTypeMagicDialog">
+ <class>Core::Internal::MimeTypeMagicDialog</class>
+ <widget class="QDialog" name="Core::Internal::MimeTypeMagicDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>286</height>
+    <width>556</width>
+    <height>334</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -189,7 +189,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>MimeTypeMagicDialog</receiver>
+   <receiver>Core::Internal::MimeTypeMagicDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

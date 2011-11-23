@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LinuxDeviceTestDialog</class>
- <widget class="QDialog" name="LinuxDeviceTestDialog">
+ <class>RemoteLinux::Internal::LinuxDeviceTestDialog</class>
+ <widget class="QDialog" name="RemoteLinux::Internal::LinuxDeviceTestDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -38,7 +38,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>LinuxDeviceTestDialog</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceTestDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -54,7 +54,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>LinuxDeviceTestDialog</receiver>
+   <receiver>RemoteLinux::Internal::LinuxDeviceTestDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

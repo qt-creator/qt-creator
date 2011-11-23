@@ -92,7 +92,7 @@ void BehaviorWidget::buttonPressed(bool show)
     }
 }
 
-BehaviorDialog::BehaviorDialog(QWidget *parent) : QDialog(parent), m_ui(new Ui_BehaviorDialog)
+BehaviorDialog::BehaviorDialog(QWidget *parent) : QDialog(parent), m_ui(new Internal::Ui::BehaviorDialog)
 {
     m_ui->setupUi(this);
     setModal(true);

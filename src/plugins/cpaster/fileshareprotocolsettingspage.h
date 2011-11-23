@@ -70,7 +70,7 @@ public:
     FileShareProtocolSettings settings() const;
 
 private:
-    Ui::FileShareProtocolSettingsWidget m_ui;
+    Internal::Ui::FileShareProtocolSettingsWidget m_ui;
 };
 class FileShareProtocolSettingsPage : public Core::IOptionsPage
 {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BehaviorSettingsPage</class>
- <widget class="QWidget" name="BehaviorSettingsPage">
+ <class>TextEditor::Internal::BehaviorSettingsPage</class>
+ <widget class="QWidget" name="TextEditor::Internal::BehaviorSettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>

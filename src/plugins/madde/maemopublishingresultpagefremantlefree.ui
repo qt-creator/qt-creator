@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MaemoPublishingResultPageFremantleFree</class>
- <widget class="QWizardPage" name="MaemoPublishingResultPageFremantleFree">
+ <class>Madde::Internal::MaemoPublishingResultPageFremantleFree</class>
+ <widget class="QWizardPage" name="Madde::Internal::MaemoPublishingResultPageFremantleFree">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Core::VariableChooser</class>
- <widget class="QWidget" name="Core::VariableChooser">
+ <class>Core::Internal::VariableChooser</class>
+ <widget class="QWidget" name="Core::Internal::VariableChooser">
   <property name="geometry">
    <rect>
     <x>0</x>

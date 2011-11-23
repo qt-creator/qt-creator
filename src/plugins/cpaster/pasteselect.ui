@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CodePaster::PasteSelectDialog</class>
- <widget class="QDialog" name="CodePaster::PasteSelectDialog">
+ <class>CodePaster::Internal::PasteSelectDialog</class>
+ <widget class="QDialog" name="CodePaster::Internal::PasteSelectDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -78,7 +78,7 @@
   <connection>
    <sender>buttons</sender>
    <signal>accepted()</signal>
-   <receiver>CodePaster::PasteSelectDialog</receiver>
+   <receiver>CodePaster::Internal::PasteSelectDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -94,7 +94,7 @@
   <connection>
    <sender>buttons</sender>
    <signal>rejected()</signal>
-   <receiver>CodePaster::PasteSelectDialog</receiver>
+   <receiver>CodePaster::Internal::PasteSelectDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -126,7 +126,7 @@
   <connection>
    <sender>listWidget</sender>
    <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>CodePaster::PasteSelectDialog</receiver>
+   <receiver>CodePaster::Internal::PasteSelectDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

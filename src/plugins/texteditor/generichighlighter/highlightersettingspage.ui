@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>HighlighterSettingsPage</class>
- <widget class="QWidget" name="HighlighterSettingsPage">
+ <class>TextEditor::Internal::HighlighterSettingsPage</class>
+ <widget class="QWidget" name="TextEditor::Internal::HighlighterSettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>

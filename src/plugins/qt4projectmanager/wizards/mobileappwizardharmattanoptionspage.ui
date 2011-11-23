@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MobileAppWizardHarmattanOptionsPage</class>
- <widget class="QWizardPage" name="MobileAppWizardHarmattanOptionsPage">
+ <class>Qt4ProjectManager::Internal::MobileAppWizardHarmattanOptionsPage</class>
+ <widget class="QWizardPage" name="Qt4ProjectManager::Internal::MobileAppWizardHarmattanOptionsPage">
   <property name="geometry">
    <rect>
     <x>0</x>

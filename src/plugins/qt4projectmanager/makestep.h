@@ -40,9 +40,15 @@
 #include <projectexplorer/task.h>
 
 QT_BEGIN_NAMESPACE
+
+namespace Qt4ProjectManager {
+namespace Internal {
 namespace Ui {
 class MakeStep;
-}
+} // namespace Ui
+} // namespace Internal
+} // namespace Qt4ProjectManager
+
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -141,7 +147,7 @@ private slots:
     void userArgumentsChanged();
     void qtVersionChanged();
 private:
-    Ui::MakeStep *m_ui;
+    Internal::Ui::MakeStep *m_ui;
     MakeStep *m_makeStep;
     QString m_summaryText;
     bool m_ignoreChange;
