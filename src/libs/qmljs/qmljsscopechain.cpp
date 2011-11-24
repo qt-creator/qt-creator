@@ -36,6 +36,26 @@
 
 using namespace QmlJS;
 
+/*!
+    \class QmlJS::ScopeChain
+    \brief Describes the scopes used for global lookup in a specific location.
+    \sa Document Context ScopeBuilder
+
+    A ScopeChain is used to perform global lookup with the lookup() method and
+    to access information about the enclosing scopes.
+
+    Once constructed for a Document in a Context it represents the root scope of
+    that Document. From there, a ScopeBuilder can be used to push and pop scopes
+    corresponding to functions, object definitions, etc.
+
+    It is an error to use the same ScopeChain from multiple threads; use a copy.
+    Copying is cheap. Initial construction is currently expensive.
+
+    When a QmlJSEditor::QmlJSTextEditorWidget is available, there's no need to
+    construct a new ScopeChain. Instead use
+    QmlJSTextEditorWidget::semanticInfo()::scopeChain().
+*/
+
 QmlComponentChain::QmlComponentChain(const Document::Ptr &document)
     : m_document(document)
 {

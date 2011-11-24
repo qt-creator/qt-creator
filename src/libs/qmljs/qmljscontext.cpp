@@ -42,13 +42,18 @@ using namespace QmlJS::AST;
     \brief Holds information about relationships between documents in a Snapshot.
     \sa Document Link Snapshot
 
-    Contexts are usually created through Link.
-
-    Once created, a Context is immutable and can be freely shared between threads.
+    Contexts are usually created through Link. Once created, a Context is immutable
+    and can be freely shared between threads.
 
     Their main purpose is to allow lookup of types with lookupType() and resolving
-    of references through lookupReference(). Information about the imports of
-    a QmlJS::Document can be accessed with imports().
+    of references through lookupReference(). As such, they form the basis for creating
+    a ScopeChain.
+
+    Information about the imports of a Document can be accessed with imports().
+
+    When dealing with a QmlJSEditor::QmlJSTextEditorWidget it is unnecessary to
+    construct a new Context manually. Instead use
+    QmlJSTextEditorWidget::semanticInfo()::context.
 */
 
 ContextPtr Context::create(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports)
