@@ -4185,7 +4185,6 @@ int main(int argc, char *argv[])
     stdstream::testStdStream();
     stdstring::testStdString();
     stdvector::testStdVector();
-    stdvector::testStdVector();
 
     qbytearray::testQByteArray();
     qdatetime::testDateTime();
