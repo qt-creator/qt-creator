@@ -39,6 +39,31 @@
 
 using namespace QmlJS;
 
+/*!
+    \class QmlJS::Evaluate
+    \brief Evaluates \l{AST::Node}s to \l{Value}s.
+    \sa Value ScopeChain
+
+    The Evaluate visitor is constructed with a ScopeChain and accepts JavaScript
+    expressions as well as some other AST::Nodes. It evaluates the expression in
+    the given ScopeChain and returns a Value representing the result.
+
+    Example: Pass in the AST for "1 + 2" and NumberValue will be returned.
+
+    In normal cases only the call operator (or the equivalent value() method)
+    will be used.
+
+    The reference() method has the special behavior of not resolving \l{Reference}s
+    which can be useful when interested in the identity of a variable instead
+    of its value.
+
+    Example: In a scope where "var a = 1"
+    \list
+    \o value(Identifier-a) will return NumberValue
+    \o reference(Identifier-a) will return the ASTVariableReference for the declaration of "a"
+    \endlist
+*/
+
 Evaluate::Evaluate(const ScopeChain *scopeChain, ReferenceContext *referenceContext)
     : _valueOwner(scopeChain->context()->valueOwner()),
       _context(scopeChain->context()),
