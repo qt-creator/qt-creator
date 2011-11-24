@@ -73,7 +73,7 @@ def prepareBuildSettings(targetCount, currentTarget, setReleaseBuild=True, disab
             wait = False
             try:
                 if qtCombo.currentText != defaultQtVersion:
-                    selectFromCombo(":scrollArea.qtVersionComboBox_QComboBox", defaultQtVersion.replace(".", "\\."))
+                    selectFromCombo(qtCombo, defaultQtVersion.replace(".", "\\."))
                 if setReleaseBuild:
                     chooseThis = "%s Release" % defaultQtVersion
                 else:

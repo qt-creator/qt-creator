@@ -32,14 +32,28 @@ def ensureChecked(objectName, shouldBeChecked = True):
     test.verify(object.checked == shouldBeChecked)
     return object
 
-def verifyEnabled(objectName, expectedState = True):
-    waitFor("object.exists('" + objectName + "')", 20000)
-    object = findObject(objectName)
-    test.compare(object.enabled, expectedState)
-    return object
+# verify that an object is in an expected enable state. Returns the object.
+# param objectSpec  specifies the object to check. It can either be a string determining an object
+#                   or the object itself. If it is an object, it must exist already.
+# param expectedState is the expected enable state of the object
+def verifyEnabled(objectSpec, expectedState = True):
+    if isinstance(objectSpec, (str, unicode)):
+        waitFor("object.exists('" + objectSpec + "')", 20000)
+        foundObject = findObject(objectSpec)
+    else:
+        foundObject = objectSpec
+    if objectSpec == None:
+        test.warning("No valid object in function verifyEnabled.")
+    else:
+        test.compare(foundObject.enabled, expectedState)
+    return foundObject
 
-def selectFromCombo(objectName, itemName):
-    object = verifyEnabled(objectName)
+# select an item from a combo box
+# param objectSpec  specifies the combo box. It can either be a string determining an object
+#                   or the object itself. If it is an object, it must exist already.
+# param itemName is the item to be selected in the combo box
+def selectFromCombo(objectSpec, itemName):
+    object = verifyEnabled(objectSpec)
     mouseClick(object, 5, 5, 0, Qt.LeftButton)
     mouseClick(waitForObjectItem(object, itemName), 5, 5, 0, Qt.LeftButton)
 
