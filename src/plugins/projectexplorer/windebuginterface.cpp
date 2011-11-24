@@ -32,7 +32,10 @@
 
 #include "windebuginterface.h"
 
+#ifdef Q_OS_WIN
+
 #include <windows.h>
+
 
 /*!
     \class ProjectExplorer::Internal::WinDebugInterface
@@ -140,3 +143,25 @@ bool WinDebugInterface::runLoop()
 
 } // namespace Internal
 } // namespace ProjectExplorer
+
+#else
+
+namespace ProjectExplorer {
+namespace Internal {
+
+WinDebugInterface *WinDebugInterface::m_instance = 0;
+
+WinDebugInterface *WinDebugInterface::instance() { return 0; }
+
+WinDebugInterface::WinDebugInterface(QObject *) {}
+
+WinDebugInterface::~WinDebugInterface() {}
+
+void WinDebugInterface::run() {}
+
+bool WinDebugInterface::runLoop() { return false; }
+
+} // namespace Internal
+} // namespace ProjectExplorer
+
+#endif

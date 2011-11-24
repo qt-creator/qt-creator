@@ -247,10 +247,8 @@ private slots:
     void testGnuMakeParserTaskMangling_data();
     void testGnuMakeParserTaskMangling();
 
-#ifdef Q_OS_WIN
     void testMsvcOutputParsers_data();
     void testMsvcOutputParsers();
-#endif
 
     void testGccAbiGuessing_data();
     void testGccAbiGuessing();

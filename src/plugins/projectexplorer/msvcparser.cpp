@@ -330,5 +330,5 @@ void ProjectExplorerPlugin::testMsvcOutputParsers()
                           tasks, childStdOutLines, childStdErrLines,
                           outputLines);
 }
-#endif
 
+#endif // WITH_TEST

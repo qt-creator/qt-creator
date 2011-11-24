@@ -202,6 +202,25 @@ FORMS += processstep.ui \
     publishing/publishingwizardselectiondialog.ui \
     codestylesettingspropertiespage.ui
 
+WINSOURCES += \
+    windebuginterface.cpp \
+    msvcparser.cpp \
+    msvctoolchain.cpp \
+    abstractmsvctoolchain.cpp \
+    wincetoolchain.cpp
+
+WINHEADERS += \
+    windebuginterface.h \
+    msvcparser.h \
+    msvctoolchain.h \
+    abstractmsvctoolchain.h \
+    wincetoolchain.h
+
+win32|equals(TEST, 1) {
+    SOURCES += $$WINSOURCES
+    HEADERS += $$WINHEADERS
+}
+
 equals(TEST, 1) {
     SOURCES += \
         outputparser_test.cpp
@@ -209,22 +228,8 @@ equals(TEST, 1) {
         outputparser_test.h
 }
 
-win32 {
-    SOURCES += \
-        windebuginterface.cpp \
-        msvcparser.cpp \
-        msvctoolchain.cpp \
-        abstractmsvctoolchain.cpp \
-        wincetoolchain.cpp
-    HEADERS += \
-        windebuginterface.h \
-        msvcparser.h \
-        msvctoolchain.h \
-        abstractmsvctoolchain.h \
-        wincetoolchain.h
-} else {
-    macx:LIBS += -framework Carbon
-}
+macx:LIBS += -framework Carbon
+
 RESOURCES += projectexplorer.qrc
 
 # Some way to override the architecture used in Abi:
