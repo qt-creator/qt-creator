@@ -43,22 +43,13 @@ class QLineEdit;
 class QTextEdit;
 class QPlainTextEdit;
 class QListWidgetItem;
-
-namespace Core {
-namespace Internal {
-namespace Ui {
-class VariableChooser;
-} // namespace Ui
-} // namespace Internal
-} // namespace Core
-
 QT_END_NAMESPACE
 
-namespace Utils {
-class IconButton;
-} // namespace Utils
+namespace Utils { class IconButton; }
 
 namespace Core {
+
+namespace Internal { namespace Ui { class VariableChooser; } }
 
 class CORE_EXPORT VariableChooser : public QWidget
 {
@@ -90,4 +81,5 @@ private:
 };
 
 } // namespace Core
+
 #endif // VARIABLECHOOSER_H

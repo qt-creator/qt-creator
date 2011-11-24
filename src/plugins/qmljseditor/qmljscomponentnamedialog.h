@@ -35,20 +35,10 @@
 
 #include <QtGui/QDialog>
 
-QT_BEGIN_NAMESPACE
-
 namespace QmlJSEditor {
 namespace Internal {
-namespace Ui {
-    class ComponentNameDialog;
-} // namespace Ui
-} // namespace Internal
-} // namespace QmlJSEditor
 
-QT_END_NAMESPACE
-
-namespace QmlJSEditor {
-namespace Internal {
+namespace Ui { class ComponentNameDialog; }
 
 class ComponentNameDialog : public QDialog
 {

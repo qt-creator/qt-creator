@@ -38,18 +38,6 @@
 
 #include <QtCore/QStringList>
 
-QT_BEGIN_NAMESPACE
-
-namespace Qt4ProjectManager {
-namespace Internal {
-namespace Ui {
-class QMakeStep;
-} // namespace Ui
-} // namespace Internal
-} // namespace Qt4ProjectManager
-
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 class BuildStep;
 class IBuildStepFactory;
@@ -61,6 +49,8 @@ class Qt4BuildConfiguration;
 class Qt4Project;
 
 namespace Internal {
+
+namespace Ui { class QMakeStep; }
 
 class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {

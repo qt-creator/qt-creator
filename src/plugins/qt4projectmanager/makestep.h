@@ -39,18 +39,6 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/task.h>
 
-QT_BEGIN_NAMESPACE
-
-namespace Qt4ProjectManager {
-namespace Internal {
-namespace Ui {
-class MakeStep;
-} // namespace Ui
-} // namespace Internal
-} // namespace Qt4ProjectManager
-
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 class BuildStep;
 class GnuMakeParser;
@@ -59,9 +47,12 @@ class Project;
 }
 
 namespace Qt4ProjectManager {
+
 class Qt4BuildConfiguration;
 
 namespace Internal {
+
+namespace Ui { class MakeStep; }
 
 class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {

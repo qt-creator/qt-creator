@@ -88,10 +88,9 @@ public:
     void fromMap(const QString &prefix, const QVariantMap &map);
 
     bool equals(const CppCodeStyleSettings &rhs) const;
+    bool operator==(const CppCodeStyleSettings &s) const { return equals(s); }
+    bool operator!=(const CppCodeStyleSettings &s) const { return !equals(s); }
 };
-
-inline bool operator==(const CppCodeStyleSettings &s1, const CppCodeStyleSettings &s2) { return s1.equals(s2); }
-inline bool operator!=(const CppCodeStyleSettings &s1, const CppCodeStyleSettings &s2) { return !s1.equals(s2); }
 
 } // namespace CppTools
 

@@ -35,21 +35,11 @@
 
 #include "texteditor_global.h"
 
-QT_BEGIN_NAMESPACE
-
-namespace TextEditor {
-namespace Internal {
-namespace Ui {
-class TabSettingsWidget;
-} // namespace Ui
-} // namespace Internal
-} // namespace TextEditor
-
-QT_END_NAMESPACE
-
 #include <QtGui/QWidget>
 
 namespace TextEditor {
+
+namespace Internal { namespace Ui { class TabSettingsWidget; } }
 
 class TabSettings;
 

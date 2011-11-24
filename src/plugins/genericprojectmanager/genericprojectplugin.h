@@ -39,8 +39,8 @@
 #include <QtGui/QAction>
 
 namespace ProjectExplorer {
-    class Project;
-    class Node;
+class Project;
+class Node;
 }
 
 namespace GenericProjectManager {
@@ -48,7 +48,7 @@ namespace Internal {
 
 class ProjectFilesFactory;
 
-class GenericProjectPlugin: public ExtensionSystem::IPlugin
+class GenericProjectPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 

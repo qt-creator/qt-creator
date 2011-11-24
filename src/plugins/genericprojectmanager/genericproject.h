@@ -61,6 +61,7 @@ class ToolChain;
 
 namespace GenericProjectManager {
 namespace Internal {
+
 class GenericBuildConfiguration;
 class GenericProject;
 class GenericTarget;

@@ -36,18 +36,10 @@
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditoroptionspage.h>
 
-QT_BEGIN_NAMESPACE
 namespace CppTools {
 namespace Internal {
-namespace Ui {
-class CompletionSettingsPage;
-} // namespace Ui
-} // namespace Internal
-} // namespace CppTools
-QT_END_NAMESPACE
 
-namespace CppTools {
-namespace Internal {
+namespace Ui { class CompletionSettingsPage; }
 
 // TODO: Move this class to the text editor plugin
 

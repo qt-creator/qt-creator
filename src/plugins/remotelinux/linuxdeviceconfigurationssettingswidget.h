@@ -39,18 +39,8 @@
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-
 class QLineEdit;
 class QSignalMapper;
-
-namespace RemoteLinux {
-namespace Internal {
-namespace Ui {
-class LinuxDeviceConfigurationsSettingsWidget;
-} // namespace Ui
-} // namespace Internal
-} // namespace RemoteLinux
-
 QT_END_NAMESPACE
 
 namespace RemoteLinux {
@@ -59,6 +49,7 @@ class LinuxDeviceConfiguration;
 class LinuxDeviceConfigurations;
 
 namespace Internal {
+namespace Ui { class LinuxDeviceConfigurationsSettingsWidget; }
 class NameValidator;
 
 class LinuxDeviceConfigurationsSettingsWidget : public QWidget

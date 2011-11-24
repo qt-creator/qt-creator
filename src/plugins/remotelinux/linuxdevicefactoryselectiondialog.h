@@ -29,28 +29,18 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #ifndef LINUXDEVICEFACTORYSELECTIONDIALOG_H
 #define LINUXDEVICEFACTORYSELECTIONDIALOG_H
 
 #include <QtCore/QList>
 #include <QtGui/QDialog>
 
-QT_BEGIN_NAMESPACE
-
-namespace RemoteLinux {
-namespace Internal {
-namespace Ui {
-class LinuxDeviceFactorySelectionDialog;
-} // namespace Ui
-} // namespace Internal
-} // namespace RemoteLinux
-
-QT_END_NAMESPACE
-
 namespace RemoteLinux {
 class ILinuxDeviceConfigurationFactory;
 
 namespace Internal {
+namespace Ui { class LinuxDeviceFactorySelectionDialog; }
 
 class LinuxDeviceFactorySelectionDialog : public QDialog
 {

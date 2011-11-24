@@ -37,23 +37,12 @@
 
 #include <QtGui/QDialog>
 
-QT_BEGIN_NAMESPACE
+namespace Utils { class SshConnectionParameters; }
 
 namespace Analyzer {
-namespace Internal {
-namespace Ui {
-class StartRemoteDialog;
-} // namespace Ui
-} // namespace Internal
-} // namespace Analyzer
 
-QT_END_NAMESPACE
+namespace Internal { namespace Ui { class StartRemoteDialog; } }
 
-namespace Utils {
-class SshConnectionParameters;
-}
-
-namespace Analyzer {
 
 class ANALYZER_EXPORT StartRemoteDialog : public QDialog
 {

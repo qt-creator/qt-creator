@@ -41,13 +41,6 @@ QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QTreeWidget;
 class QTreeWidgetItem;
-namespace Core {
-namespace Internal {
-namespace Ui {
-class CommandMappings;
-} // namespace Ui
-} // namespace Internal
-} // namespace Core
 QT_END_NAMESPACE
 
 namespace Core {
@@ -55,6 +48,8 @@ namespace Core {
 class Command;
 
 namespace Internal {
+
+namespace Ui { class CommandMappings; }
 
 class ActionManagerPrivate;
 class MainWindow;

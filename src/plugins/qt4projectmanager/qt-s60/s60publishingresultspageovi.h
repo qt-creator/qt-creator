@@ -35,25 +35,17 @@
 
 #include <QWizardPage>
 
-QT_BEGIN_NAMESPACE
-
 namespace Qt4ProjectManager {
 namespace Internal {
-namespace Ui {
-class S60PublishingResultsPageOvi;
-} // namespace Ui
-} // namespace Internal
-} // namespace Qt4ProjectManager
 
-QT_END_NAMESPACE
-
-namespace Qt4ProjectManager {
-namespace Internal {
 class S60PublisherOvi;
+
+namespace Ui { class S60PublishingResultsPageOvi; }
 
 class S60PublishingResultsPageOvi : public QWizardPage
 {
     Q_OBJECT
+
 public:
     explicit S60PublishingResultsPageOvi(S60PublisherOvi *publisher, QWidget *parent = 0);
     ~S60PublishingResultsPageOvi();

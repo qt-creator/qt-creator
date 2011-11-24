@@ -35,18 +35,6 @@
 
 #include <QtGui/QWizardPage>
 
-QT_BEGIN_NAMESPACE
-
-namespace Qt4ProjectManager {
-namespace Internal {
-namespace Ui {
-class S60PublishingBuildSettingsPageOvi;
-} // namespace Ui
-} // namespace Internal
-} // namespace Qt4ProjectManager
-
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 class Project;
 class BuildConfiguration;
@@ -55,13 +43,19 @@ class ToolChain;
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+namespace Ui { class S60PublishingBuildSettingsPageOvi; }
+
 class S60PublisherOvi;
+
 
 class S60PublishingBuildSettingsPageOvi : public QWizardPage
 {
     Q_OBJECT
+
 public:
-    explicit S60PublishingBuildSettingsPageOvi(S60PublisherOvi *publisher, const ProjectExplorer::Project *project, QWidget *parent = 0);
+    explicit S60PublishingBuildSettingsPageOvi(S60PublisherOvi *publisher,
+        const ProjectExplorer::Project *project, QWidget *parent = 0);
     ~S60PublishingBuildSettingsPageOvi();
 
     virtual bool isComplete() const;
@@ -80,7 +74,7 @@ private:
 private:
     ProjectExplorer::BuildConfiguration *m_bc;
     ProjectExplorer::ToolChain *m_toolchain;
-    Ui::S60PublishingBuildSettingsPageOvi * m_ui;
+    Ui::S60PublishingBuildSettingsPageOvi *m_ui;
     S60PublisherOvi * const m_publisher;
 };
 

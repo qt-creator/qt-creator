@@ -34,26 +34,19 @@
 #define CPPSETTINGSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
+
 #include <QtCore/QPointer>
 #include <QtCore/QSharedPointer>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-
-namespace CppTools {
-namespace Internal {
-namespace Ui {
-class CppFileSettingsPage;
-} // namespace Ui
-} // namespace Internal
-} // namespace CppTools
-
 class QSettings;
-
 QT_END_NAMESPACE
 
 namespace CppTools {
 namespace Internal {
+
+namespace Ui { class CppFileSettingsPage; }
 
 struct CppFileSettings
 {
@@ -73,10 +66,9 @@ struct CppFileSettings
     static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
 
     bool equals(const CppFileSettings &rhs) const;
+    bool operator==(const CppFileSettings &s) const { return equals(s); }
+    bool operator!=(const CppFileSettings &s) const { return !equals(s); }
 };
-
-inline bool operator==(const CppFileSettings &s1, const CppFileSettings &s2) { return s1.equals(s2); }
-inline bool operator!=(const CppFileSettings &s1, const CppFileSettings &s2) { return !s1.equals(s2); }
 
 class CppFileSettingsWidget : public QWidget
 {
@@ -98,7 +90,7 @@ private:
     inline QString licenseTemplatePath() const;
     inline void setLicenseTemplatePath(const QString &);
 
-    Internal::Ui::CppFileSettingsPage *m_ui;
+    Ui::CppFileSettingsPage *m_ui;
 };
 
 class CppFileSettingsPage : public Core::IOptionsPage

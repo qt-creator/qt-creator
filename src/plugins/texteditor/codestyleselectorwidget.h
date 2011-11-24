@@ -38,24 +38,16 @@
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-
 class QHBoxLayout;
 class QComboBox;
 class QLabel;
 class QCheckBox;
 class QPushButton;
-
-namespace TextEditor {
-namespace Internal {
-namespace Ui {
-class CodeStyleSelectorWidget;
-} // namespace Ui
-} // namespace Internal
-} // namespace TextEditor
-
 QT_END_NAMESPACE
 
 namespace TextEditor {
+
+namespace Internal { namespace Ui { class CodeStyleSelectorWidget; } }
 
 class ICodeStylePreferences;
 class ICodeStylePreferencesFactory;
@@ -69,8 +61,6 @@ public:
 
     void setCodeStyle(TextEditor::ICodeStylePreferences *codeStyle);
     QString searchKeywords() const;
-
-signals:
 
 private slots:
     void slotComboBoxActivated(int index);

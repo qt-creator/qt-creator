@@ -35,18 +35,10 @@
 #include <QtCore/QStringList>
 #include <QtGui/QDialog>
 
-QT_BEGIN_NAMESPACE
 namespace Madde {
 namespace Internal {
-namespace Ui {
-class MaemoPublishingFileSelectionDialog;
-} // namespace Ui
-} // namespace Internal
-} // namespace Madde
-QT_END_NAMESPACE
 
-namespace Madde {
-namespace Internal {
+namespace Ui { class MaemoPublishingFileSelectionDialog; }
 
 class MaemoPublishingFileSelectionDialog : public QDialog
 {

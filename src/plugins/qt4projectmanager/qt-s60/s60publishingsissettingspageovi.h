@@ -36,24 +36,17 @@
 #include <QtGui/QWizardPage>
 
 QT_BEGIN_NAMESPACE
-
-namespace Qt4ProjectManager {
-namespace Internal {
-namespace Ui {
-class S60PublishingSisSettingsPageOvi;
-} // namespace Ui
-} // namespace Internal
-} // namespace Qt4ProjectManager
-
 class QLabel;
-
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
 class S60PublisherOvi;
+
+namespace Ui { class S60PublishingSisSettingsPageOvi; }
 
 class S60PublishingSisSettingsPageOvi : public QWizardPage
 {
@@ -75,7 +68,8 @@ private slots:
     void displayNameChanged();
 
 private:
-    void reflectSettingState(bool settingState, QLabel *okLabel, QLabel *errorLabel, QLabel *errorReasonLabel, const QString &errorReason);
+    void reflectSettingState(bool settingState, QLabel *okLabel,
+        QLabel *errorLabel, QLabel *errorReasonLabel, const QString &errorReason);
     void showWarningsForUnenforcableChecks();
 
     Ui::S60PublishingSisSettingsPageOvi *ui;
