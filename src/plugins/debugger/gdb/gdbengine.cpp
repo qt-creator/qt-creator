@@ -220,12 +220,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
 
     connect(debuggerCore()->action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             SLOT(reloadLocals()));
-    connect(debuggerCore()->action(SortStructMembers), SIGNAL(valueChanged(QVariant)),
-            SLOT(reloadLocals()));
-    connect(debuggerCore()->action(ShowStdNamespace), SIGNAL(valueChanged(QVariant)),
-            SLOT(reloadLocals()));
-    connect(debuggerCore()->action(ShowQtNamespace), SIGNAL(valueChanged(QVariant)),
-            SLOT(reloadLocals()));
     connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
             SLOT(createFullBacktrace()));
 }

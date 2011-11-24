@@ -98,6 +98,8 @@ private:
         const WatchItem *parentItem, const QModelIndex &parentIndex) const;
 
     void insertData(const WatchData &data);
+    void reinsertAllData();
+    void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
     void insertBulkData(const QList<WatchData> &data);
     WatchItem *findItem(const QByteArray &iname, WatchItem *root) const;
     void reinitialize();
@@ -159,6 +161,7 @@ public:
     void insertData(const WatchData &data);
     void insertBulkData(const QList<WatchData> &data);
     void removeData(const QByteArray &iname);
+    Q_SLOT void reinsertAllData();
 
     const WatchData *watchData(WatchType type, const QModelIndex &) const;
     const WatchData *findItem(const QByteArray &iname) const;

@@ -256,6 +256,25 @@ void WatchModel::destroyItem(WatchItem *item)
     delete item;
 }
 
+void WatchModel::reinsertAllData()
+{
+    QList<WatchData> list;
+    reinsertAllDataHelper(m_root, &list);
+    reinitialize();
+    foreach (WatchItem data, list) {
+        data.setAllUnneeded();
+        insertData(data);
+    }
+    layoutChanged();
+}
+
+void WatchModel::reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data)
+{
+    data->append(*item);
+    foreach (WatchItem *child, item->children)
+        reinsertAllDataHelper(child, data);
+}
+
 static QByteArray parentName(const QByteArray &iname)
 {
     int pos = iname.lastIndexOf('.');
@@ -1204,12 +1223,12 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     m_watchers = new WatchModel(this, WatchersWatch);
     m_tooltips = new WatchModel(this, TooltipsWatch);
 
-    connect(debuggerCore()->action(ShowStdNamespace),
-        SIGNAL(triggered()), SLOT(emitAllChanged()));
-    connect(debuggerCore()->action(ShowQtNamespace),
-        SIGNAL(triggered()), SLOT(emitAllChanged()));
-    connect(debuggerCore()->action(SortStructMembers),
-        SIGNAL(triggered()), SLOT(emitAllChanged()));
+    connect(debuggerCore()->action(SortStructMembers), SIGNAL(valueChanged(QVariant)),
+           SLOT(reinsertAllData()));
+    connect(debuggerCore()->action(ShowStdNamespace), SIGNAL(valueChanged(QVariant)),
+           SLOT(reinsertAllData()));
+    connect(debuggerCore()->action(ShowQtNamespace), SIGNAL(valueChanged(QVariant)),
+           SLOT(reinsertAllData()));
 }
 
 void WatchHandler::beginCycle(bool fullCycle)
@@ -1293,6 +1312,14 @@ void WatchHandler::insertData(const WatchData &data)
         model->insertData(data);
         showEditValue(data);
     }
+}
+
+void WatchHandler::reinsertAllData()
+{
+    m_locals->reinsertAllData();
+    m_watchers->reinsertAllData();
+    m_tooltips->reinsertAllData();
+    m_return->reinsertAllData();
 }
 
 // Bulk-insertion
