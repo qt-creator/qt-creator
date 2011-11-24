@@ -78,15 +78,16 @@ public:
     virtual void goToPrev() = 0;
 
 public slots:
-    void popup() { popup(true); }
-    void popup(bool withFocus) { emit showPage(withFocus); }
+    void popup() { popup(true, false); }
+    void popup(bool withFocus) { popup(withFocus, false); }
+    void popup(bool withFocus, bool ensureSizeHint) { emit showPage(withFocus, ensureSizeHint); }
     void hide() { emit hidePage(); }
     void toggle() { toggle(true); }
     void toggle(bool withFocusIfShown) { emit togglePage(withFocusIfShown); }
     void navigateStateChanged() { emit navigateStateUpdate(); }
 
 signals:
-    void showPage(bool withFocus);
+    void showPage(bool withFocus, bool ensureSizeHint);
     void hidePage();
     void togglePage(bool withFocusIfShown);
     void navigateStateUpdate();

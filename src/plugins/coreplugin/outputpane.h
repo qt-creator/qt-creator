@@ -64,6 +64,7 @@ public:
 
     void unmaximize();
     bool isMaximized() const;
+    void ensureSizeHintAsMinimum();
 
 private slots:
     void currentModeChanged(Core::IMode *);
