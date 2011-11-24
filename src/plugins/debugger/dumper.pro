@@ -15,7 +15,6 @@ QMAKE_CXXFLAGS *= -O2
 }
 
 true {
-    DEFINES += USE_QT_GUI=0
     QT = core
 } else {
     DEFINES += USE_QT_GUI=1
