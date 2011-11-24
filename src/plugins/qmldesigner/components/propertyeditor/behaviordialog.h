@@ -55,9 +55,7 @@ class BehaviorWidget : public QPushButton
     Q_OBJECT
 
 public:
-
-    BehaviorWidget();
-    BehaviorWidget(QWidget* parent);
+    explicit BehaviorWidget(QWidget *parent = 0);
 
     ModelNode modelNode() const {return m_modelNode; }
     QString propertyName() const {return m_propertyName; }
@@ -79,7 +77,7 @@ class BehaviorDialog : public QDialog
 {
     Q_OBJECT
 public:
-    BehaviorDialog(QWidget *parent);
+    explicit BehaviorDialog(QWidget *parent = 0);
     void setup(const ModelNode &node, const QString propertyName);
 
 public slots:
