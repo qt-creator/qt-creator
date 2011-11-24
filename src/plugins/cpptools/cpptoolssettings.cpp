@@ -53,25 +53,6 @@ using TextEditor::TabSettings;
 namespace CppTools {
 namespace Internal {
 
-class LegacySettings
-{
-public:
-    LegacySettings()
-        : m_legacyTransformed(false)
-    { }
-    void fromMap(const QString &prefix, const QVariantMap &map)
-    {
-        m_fallbackId = map.value(prefix + QLatin1String("CurrentFallback")).toString();
-        m_legacyTransformed = map.value(prefix + QLatin1String("LegacyTransformed"), false).toBool();
-    }
-    void toMap(const QString &prefix, QVariantMap *map) const
-    {
-        map->insert(prefix + QLatin1String("LegacyTransformed"), true);
-    }
-    QString m_fallbackId;
-    bool m_legacyTransformed;
-};
-
 class CppToolsSettingsPrivate
 {
 public:
@@ -176,40 +157,51 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
     if (QSettings *s = Core::ICore::instance()->settings()) {
         d->m_globalCodeStyle->fromSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
 
-        // legacy handling start (Qt Creator <= 2.3)
-        Internal::LegacySettings legacySettings;
+        // legacy handling start (Qt Creator Version < 2.4)
+        const bool legacyTransformed =
+                    s->value(QLatin1String("CppCodeStyleSettings/LegacyTransformed"), false).toBool();
 
-        TabSettings legacyTabSettings;
-        Utils::fromSettings(QLatin1String("TabPreferences"),
-                            QLatin1String("Cpp"), s, &legacySettings);
-        if (legacySettings.m_fallbackId == QLatin1String("CppGlobal")) {
-            Utils::fromSettings(QLatin1String("TabPreferences"),
-                                QLatin1String("Cpp"), s, &legacyTabSettings);
-        } else {
-            legacyTabSettings = textEditorSettings->codeStyle()->currentTabSettings();
-        }
+        if (!legacyTransformed) {
+            // creator 2.4 didn't mark yet the transformation (first run of creator 2.4)
 
-        CppCodeStyleSettings legacyCodeStyleSettings;
-        Utils::fromSettings(QLatin1String("CodeStyleSettings"),
-                            QLatin1String("Cpp"), s, &legacySettings);
-        if (!legacySettings.m_legacyTransformed
-            && legacySettings.m_fallbackId == QLatin1String("CppGlobal")) {
-            Utils::fromSettings(QLatin1String("CodeStyleSettings"),
-                                QLatin1String("Cpp"), s, &legacyCodeStyleSettings);
-            // create custom code style out of old settings
-            QVariant v;
-            v.setValue(legacyCodeStyleSettings);
-            TextEditor::ICodeStylePreferences *oldCreator = pool->createCodeStyle(
-                     QLatin1String("legacy"), legacyTabSettings,
-                     v, tr("Old Creator"));
-            // change the current delegate and save
-            d->m_globalCodeStyle->setCurrentDelegate(oldCreator);
-            d->m_globalCodeStyle->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
+            // we need to transform the settings only if at least one from
+            // below settings was already written - otherwise we use
+            // defaults like it would be the first run of creator 2.4 without stored settings
+            const QStringList groups = s->childGroups();
+            const bool needTransform = groups.contains(QLatin1String("textTabPreferences")) ||
+                                       groups.contains(QLatin1String("CppTabPreferences")) ||
+                                       groups.contains(QLatin1String("CppCodeStyleSettings"));
+            if (needTransform) {
+                CppCodeStyleSettings legacyCodeStyleSettings;
+                if (groups.contains(QLatin1String("CppCodeStyleSettings"))) {
+                    Utils::fromSettings(QLatin1String("CppCodeStyleSettings"),
+                                        QString(), s, &legacyCodeStyleSettings);
+                }
 
-            // mark old settings as transformed,
-            // we create only once "Old Creator" custom settings
-            Utils::toSettings(QLatin1String("CodeStyleSettings"),
-                              QLatin1String("Cpp"), s, &legacySettings);
+                const QString currentFallback = s->value(QLatin1String("CppTabPreferences/CurrentFallback")).toString();
+                TabSettings legacyTabSettings;
+                if (currentFallback == QLatin1String("CppGlobal")) {
+                    // no delegate, global overwritten
+                    Utils::fromSettings(QLatin1String("CppTabPreferences"),
+                                        QString(), s, &legacyTabSettings);
+                } else {
+                    // delegating to global
+                    legacyTabSettings = textEditorSettings->codeStyle()->currentTabSettings();
+                }
+
+                // create custom code style out of old settings
+                QVariant v;
+                v.setValue(legacyCodeStyleSettings);
+                TextEditor::ICodeStylePreferences *oldCreator = pool->createCodeStyle(
+                         QLatin1String("legacy"), legacyTabSettings,
+                         v, tr("Old Creator"));
+
+                // change the current delegate and save
+                d->m_globalCodeStyle->setCurrentDelegate(oldCreator);
+                d->m_globalCodeStyle->toSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
+            }
+            // mark old settings as transformed
+            s->setValue(QLatin1String("CppCodeStyleSettings/LegacyTransformed"), true);
         }
         // legacy handling stop
     }
