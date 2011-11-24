@@ -32,43 +32,43 @@
 
 #include <qglobal.h>
 
-#include <QtCore/QDateTime>
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QHash>
-#include <QtCore/QLinkedList>
-#include <QtCore/QList>
-#include <QtCore/QQueue>
-#include <QtCore/QLocale>
-#include <QtCore/QMap>
-#include <QtCore/QMetaEnum>
-#include <QtCore/QMetaObject>
-#include <QtCore/QMetaProperty>
-#include <QtCore/QPoint>
-#include <QtCore/QPointF>
-#include <QtCore/QPointer>
-#include <QtCore/QRect>
-#include <QtCore/QRectF>
-#include <QtCore/QStack>
-#include <QtCore/QSize>
-#include <QtCore/QSizeF>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtCore/QTextCodec>
-#include <QtCore/QTextStream>
-#include <QtCore/QVector>
+#include <QDateTime>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QHash>
+#include <QLinkedList>
+#include <QList>
+#include <QQueue>
+#include <QLocale>
+#include <QMap>
+#include <QMetaEnum>
+#include <QMetaObject>
+#include <QMetaProperty>
+#include <QPoint>
+#include <QPointF>
+#include <QPointer>
+#include <QRect>
+#include <QRectF>
+#include <QStack>
+#include <QSize>
+#include <QSizeF>
+#include <QString>
+#include <QStringList>
+#include <QTextCodec>
+#include <QTextStream>
+#include <QVector>
 
 #ifndef QT_BOOTSTRAPPED
 
-#include <QtCore/QModelIndex>
+#include <QModelIndex>
 
 #if QT_VERSION >= 0x040500
-#include <QtCore/QSharedPointer>
-#include <QtCore/QSharedDataPointer>
-#include <QtCore/QSharedData>
-#include <QtCore/QWeakPointer>
+#include <QSharedPointer>
+#include <QSharedDataPointer>
+#include <QSharedData>
+#include <QWeakPointer>
 #endif
 
 #ifndef USE_QT_GUI
@@ -84,18 +84,18 @@
 #endif
 
 #ifdef USE_QT_GUI
-#   include <QtGui/QImage>
-#   include <QtGui/QRegion>
-#   include <QtGui/QPixmap>
-#   include <QtGui/QFont>
-#   include <QtGui/QColor>
-#   include <QtGui/QKeySequence>
+#   include <QImage>
+#   include <QRegion>
+#   include <QPixmap>
+#   include <QFont>
+#   include <QColor>
+#   include <QKeySequence>
 #endif
 
 #ifdef USE_QT_WIDGETS
-#   include <QtGui/QSizePolicy>
-#   include <QtGui/QWidget>
-#   include <QtGui/QApplication>
+#   include <QSizePolicy>
+#   include <QWidget>
+#   include <QApplication>
 #endif
 
 #endif // QT_BOOTSTRAPPED
