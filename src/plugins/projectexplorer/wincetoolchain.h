@@ -44,14 +44,9 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-// --------------------------------------------------------------------------
-// WinCEToolChain
-// --------------------------------------------------------------------------
-
 class WinCEToolChain : public AbstractMsvcToolChain
 {
 public:
-
     WinCEToolChain(const QString &name,
                    const Abi &abi,
                    const QString &vcvarsBat,
@@ -109,10 +104,6 @@ public:
 
 };
 
-// --------------------------------------------------------------------------
-// WinCEToolChainFactory
-// --------------------------------------------------------------------------
-
 class WinCEToolChainFactory : public ToolChainFactory
 {
     Q_OBJECT
@@ -129,7 +120,7 @@ public:
     ToolChainConfigWidget *configurationWidget(ToolChain *);
 
 private:
-    QList<ToolChain *> detectCEToolKits(const QString& msvcPath, const QString& vcvarsbat);
+    QList<ToolChain *> detectCEToolKits(const QString &msvcPath, const QString &vcvarsbat);
 };
 
 

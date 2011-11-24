@@ -71,11 +71,10 @@ namespace Internal {
 // Just decodes from the integer version to the string used in Qt mkspecs
 static QString findMsvcVer(int version)
 {
-    if (10 == version)
+    if (version == 10)
         return QLatin1String("msvc2010");
-    else if (9 == version)
+    if (version == 9)
         return QLatin1String("msvc2008");;
-
     return QLatin1String("msvc2005");
 }
 
@@ -122,7 +121,7 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
 // This is pretty much the same as the ReadEnvironmentSetting in the msvctoolchain.cpp, but
 // this takes account of the library, binary and include paths to replace the vcvars versions
 // with the ones for this toolchain.
-Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment& env) const
+Utils::Environment WinCEToolChain::readEnvironmentSetting(Utils::Environment &env) const
 {
     Utils::Environment result = env;
     if (!QFileInfo(m_vcvarsBat).exists())

@@ -42,7 +42,8 @@ class WinCeQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     WinCeQtVersion();
-    WinCeQtVersion(const QString &path, const QString& archType, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    WinCeQtVersion(const QString &path, const QString &archType,
+        bool isAutodetected = false, const QString &autodetectionSource = QString());
     ~WinCeQtVersion();
     WinCeQtVersion *clone() const;
 
@@ -62,7 +63,7 @@ private:
     ProjectExplorer::Abi::Architecture m_archType;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
 #endif // WINCEQTVERSION_H

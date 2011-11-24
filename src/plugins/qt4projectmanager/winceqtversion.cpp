@@ -44,8 +44,10 @@ WinCeQtVersion::WinCeQtVersion()
 {
 }
 
-WinCeQtVersion::WinCeQtVersion(const QString &path, const QString& archType, bool isAutodetected, const QString &autodetectionSource)
-    : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource), m_archType(ProjectExplorer::Abi::ArmArchitecture)
+WinCeQtVersion::WinCeQtVersion(const QString &path, const QString &archType,
+        bool isAutodetected, const QString &autodetectionSource)
+  : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource),
+    m_archType(ProjectExplorer::Abi::ArmArchitecture)
 {
     if (0 == archType.compare("x86", Qt::CaseInsensitive))
         m_archType = ProjectExplorer::Abi::X86Architecture;
@@ -89,7 +91,8 @@ QSet<QString> WinCeQtVersion::supportedTargetIds() const
 
 QString WinCeQtVersion::description() const
 {
-    return QCoreApplication::translate("QtVersion", "Qt for WinCE", "Qt Version is meant for WinCE");
+    return QCoreApplication::translate("QtVersion",
+        "Qt for WinCE", "Qt Version is meant for WinCE");
 }
 
 void WinCeQtVersion::fromMap(const QVariantMap &map)
@@ -113,7 +116,5 @@ void WinCeQtVersion::fromMap(const QVariantMap &map)
 
 QVariantMap WinCeQtVersion::toMap() const
 {
-    QVariantMap result = BaseQtVersion::toMap();
-
-    return result;
+    return BaseQtVersion::toMap();
 }

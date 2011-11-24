@@ -29,6 +29,7 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #ifndef WINCEQTVERSIONFACTORY_H
 #define WINCEQTVERSIONFACTORY_H
 
@@ -48,7 +49,8 @@ public:
 
     virtual int priority() const;
 
-    virtual QtSupport::BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+    virtual QtSupport::BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator,
+    bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
 } // Internal
