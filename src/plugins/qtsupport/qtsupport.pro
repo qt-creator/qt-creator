@@ -25,7 +25,8 @@ HEADERS += \
     profilereader.h \
     qtparser.h \
     gettingstartedwelcomepage.h \
-    exampleslistmodel.h
+    exampleslistmodel.h \
+    screenshotcropper.h
 
 SOURCES += \
     qtsupportplugin.cpp \
@@ -41,7 +42,8 @@ SOURCES += \
     profilereader.cpp \
     qtparser.cpp \
     gettingstartedwelcomepage.cpp \
-    exampleslistmodel.cpp
+    exampleslistmodel.cpp \
+    screenshotcropper.cpp
 
 FORMS   +=  \
     showbuildlog.ui \

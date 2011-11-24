@@ -33,6 +33,7 @@
 #include "gettingstartedwelcomepage.h"
 
 #include "exampleslistmodel.h"
+#include "screenshotcropper.h"
 
 #include <utils/pathchooser.h>
 #include <utils/fileutils.h>
@@ -170,12 +171,13 @@ public:
     // gets called by declarative in separate thread
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize)
     {
+        Q_UNUSED(size)
         QMutexLocker lock(&m_mutex);
 
         QUrl url = QUrl::fromEncoded(id.toAscii());
 
-         if (!m_fetcher.asynchronousFetchData(url))
-             return QImage();
+        if (!m_fetcher.asynchronousFetchData(url))
+            return QImage();
 
         if (m_fetcher.data().isEmpty())
             return QImage();
@@ -184,11 +186,9 @@ public:
         imgBuffer.open(QIODevice::ReadOnly);
         QImageReader reader(&imgBuffer);
         QImage img = reader.read();
-        if (size && requestedSize != *size)
-            img = img.scaled(requestedSize);
 
         m_fetcher.clearData();
-        return img;
+        return ScreenshotCropper::croppedImage(img, id, requestedSize);
     }
 private:
     Fetcher m_fetcher;

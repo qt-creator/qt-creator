@@ -75,7 +75,7 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         border.bottom: 4
         border.right: 4
-        border.top: 5
+        border.top: 4
         border.left: 4
         source: "images/dropshadow.png"
 
@@ -83,13 +83,11 @@ Rectangle {
             id: imageItem
 
             visible: !delegate.isVideo
-            anchors.rightMargin: 4
-            anchors.leftMargin: 4
-            anchors.bottomMargin: 4
-            anchors.topMargin: 4
-            anchors.fill: parent
+            anchors.centerIn: parent
             asynchronous: true
-
+            sourceSize.height: 145
+            sourceSize.width: 188
+            fillMode: Image.Center
         }
 
         Image {
