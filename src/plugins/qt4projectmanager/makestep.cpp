@@ -447,7 +447,12 @@ ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildStepLi
 {
     if (!canCreate(parent, id))
         return 0;
-    return new MakeStep(parent);
+    MakeStep *step = new MakeStep(parent);
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        step->setClean(true);
+        step->setUserArguments("clean");
+    }
+    return step;
 }
 
 bool MakeStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const

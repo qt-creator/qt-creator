@@ -41,6 +41,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcprocess.h>
 
@@ -348,7 +349,12 @@ BuildStep *MakeStepFactory::create(BuildStepList *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
-    return new MakeStep(parent);
+    MakeStep *step = new MakeStep(parent);
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        step->setClean(true);
+        step->setAdditionalArguments("clean");
+    }
+    return step;
 }
 
 bool MakeStepFactory::canClone(BuildStepList *parent, BuildStep *source) const

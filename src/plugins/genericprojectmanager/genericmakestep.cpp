@@ -42,6 +42,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/variablemanager.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
@@ -323,7 +324,12 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::Buil
 {
     if (!canCreate(parent, id))
         return 0;
-    return new GenericMakeStep(parent);
+    GenericMakeStep *step = new GenericMakeStep(parent);
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        step->setClean(true);
+        step->setBuildTarget("clean", /* on = */ true);
+    }
+    return step;
 }
 
 bool GenericMakeStepFactory::canClone(ProjectExplorer::BuildStepList *parent,
