@@ -60,12 +60,16 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetextmark.h>
 
+#include <projectexplorer/taskhub.h>
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QFutureInterface>
 
 #include <QtGui/QMessageBox>
@@ -160,10 +164,11 @@ public:
         m_disassemblerAgent(engine),
         m_memoryAgent(engine),
         m_isStateDebugging(false),
-        m_testsPossible(true)
+        m_testsPossible(true),
+        m_taskHub(0)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
-        if (sp.toolChainAbi.os() == ProjectExplorer::Abi::MacOS)
+        if (sp.toolChainAbi.os() == Abi::MacOS)
             m_disassemblerAgent.setTryMixed(false);
     }
 
@@ -291,10 +296,12 @@ public:
     // Testing
     void handleAutoTests();
     void handleAutoTestLine(int line);
-    void reportTestError(const QString &);
+    void reportTestError(const QString &msg, int line);
     bool m_testsPossible;
     QStringList m_testContents;
     QString m_testErrors;
+    TaskHub *m_taskHub;
+    QString m_testFileName;
 };
 
 
@@ -1685,6 +1692,7 @@ void DebuggerEnginePrivate::handleAutoTests()
         QFile file(frame.file);
         file.open(QIODevice::ReadOnly);
         QTextStream ts(&file);
+        m_testFileName = QFileInfo(frame.file).absoluteFilePath();
         m_testContents = ts.readAll().split(QLatin1Char('\n'));
         if (m_testContents.isEmpty()) {
             m_testsPossible = false;
@@ -1725,7 +1733,7 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
     } else if (cmd == QLatin1String("Check")) {
         QString name = s.section(QLatin1Char(' '), 1, 1);
         if (name.isEmpty()) {
-            reportTestError(_("Check in line %1 needs arguments.").arg(line));
+            reportTestError(_("'Check'  needs arguments."), line);
         } else {
             QByteArray iname = "local." + name.toLatin1();
             const WatchData *data = m_engine->watchHandler()->findItem(iname);
@@ -1736,12 +1744,12 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
                     m_engine->showMessage(_("Check in line %1 for %2 was successful")
                         .arg(line).arg(needle));
                 } else {
-                    reportTestError(_("Check in line %1 for %2 failed. Got %3.")
-                        .arg(line).arg(needle).arg(found));
+                    reportTestError(_("Check for %1 failed. Got %2.")
+                        .arg(needle).arg(found), line);
                 }
             } else {
-                reportTestError(_("### Check in line %1 referes to unknown variable %2.")
-                    .arg(line).arg(name));
+                reportTestError(_("Check referes to unknown variable %1.")
+                    .arg(name), line);
             }
         }
         handleAutoTestLine(line + 1);
@@ -1751,12 +1759,20 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
     }
 }
 
-
-void DebuggerEnginePrivate::reportTestError(const QString &error)
+void DebuggerEnginePrivate::reportTestError(const QString &msg, int line)
 {
-    m_engine->showMessage(_("### ") + error);
-    m_testErrors.append(error);
+    m_engine->showMessage(_("### Line %1: %2").arg(line).arg(msg));
+    m_testErrors.append(msg);
     m_testErrors.append(QLatin1Char('\n'));
+
+    if (!m_taskHub) {
+        ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+        m_taskHub = pm->getObject<TaskHub>();
+        m_taskHub->addCategory(QLatin1String("DebuggerTest"), tr("Debugger Test"));
+    }
+
+    Task task(Task::Error, msg, m_testFileName, line, QLatin1String("DebuggerTest"));
+    m_taskHub->addTask(task);
 }
 
 } // namespace Debugger
