@@ -33,7 +33,7 @@
     the device. Command-line output is visible in the \QC
     \gui {Application Output} view.
 
-    Choose \gui Projects > Maemo Run} to view the settings for deploying the
+    Choose \gui {Projects > Maemo Run} to view the settings for deploying the
     application on the connected device and creating the installation package.
     For more information, see
     \l{Specifying Run Settings for Maemo and MeeGo Harmattan Devices}.
