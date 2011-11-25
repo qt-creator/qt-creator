@@ -309,14 +309,13 @@ struct InternalNode
     void create(const QString &projectDir, const QSet<Utils::FileName> &newFilePaths, ProjectExplorer::FileType type)
     {
         static const QChar separator = QChar('/');
-        const QString projectDirWithSeparator = projectDir + separator;
-        int projectDirWithSeparatorLength = projectDirWithSeparator.length();
+        const Utils::FileName projectDirFileName = Utils::FileName::fromString(projectDir);
         foreach (const Utils::FileName &file, newFilePaths) {
             Utils::FileName fileWithoutPrefix;
             bool isRelative;
-            if (file.startsWith(projectDirWithSeparator)) {
+            if (file.isChildOf(projectDirFileName)) {
                 isRelative = true;
-                fileWithoutPrefix = file.mid(projectDirWithSeparatorLength);
+                fileWithoutPrefix = file.relativeChildPath(projectDirFileName);
             } else {
                 isRelative = false;
                 fileWithoutPrefix = file;
@@ -328,7 +327,7 @@ struct InternalNode
 #endif
             QStringListIterator it(parts);
             InternalNode *currentNode = this;
-            QString path = (isRelative ? projectDirWithSeparator : "");
+            QString path = (isRelative ? (projectDirFileName.toString() + '/') : QString(""));
             while (it.hasNext()) {
                 const QString &key = it.next();
                 if (it.hasNext()) { // key is directory
@@ -683,7 +682,7 @@ void Qt4PriFileNode::folderChanged(const QString &folder)
     newFiles += recursiveEnumerate(changedFolder);
 
     foreach (const Utils::FileName &file, m_recursiveEnumerateFiles) {
-        if (!file.startsWith(changedFolder))
+        if (!file.isChildOf(Utils::FileName::fromString(changedFolder)))
             newFiles.insert(file);
     }
 

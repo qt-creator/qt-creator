@@ -39,6 +39,7 @@
 #include <QtCore/QIODevice>
 #include <QtCore/QXmlStreamWriter> // Mac.
 #include <QtCore/QFileInfo>
+#include <QtCore/QMetaType>
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -145,26 +146,32 @@ class QTCREATOR_UTILS_EXPORT FileName : private QString
 public:
     FileName();
     explicit FileName(const QFileInfo &info);
-    QString toString() const;
+    QFileInfo toFileInfo() const;
     static FileName fromString(const QString &filename);
+    static FileName fromUserInput(const QString &filename);
+    QString toString() const;
+    QString toUserOutput() const;
 
     bool operator==(const FileName &other) const;
+    bool operator!=(const FileName &other) const;
     bool operator<(const FileName &other) const;
     bool operator<=(const FileName &other) const;
     bool operator>(const FileName &other) const;
     bool operator>=(const FileName &other) const;
 
-    bool startsWith(const QString &s) const;
+    bool isChildOf(const FileName &s) const;
     bool endsWith(const QString &s) const;
 
-    FileName left(int n) const Q_REQUIRED_RESULT;
-    FileName mid(int position, int n = -1) const Q_REQUIRED_RESULT;
-    FileName right(int n) const Q_REQUIRED_RESULT;
+    Utils::FileName relativeChildPath(const FileName &parent) const;
+    void appendPath(const QString &s);
 
     using QString::size;
     using QString::count;
     using QString::length;
     using QString::isEmpty;
+    using QString::isNull;
+    using QString::clear;
+    using QString::append;
 private:
     static Qt::CaseSensitivity cs;
     FileName(const QString &string);
@@ -175,5 +182,7 @@ private:
 QT_BEGIN_NAMESPACE
 QTCREATOR_UTILS_EXPORT uint qHash(const Utils::FileName &a);
 QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(Utils::FileName)
 
 #endif // FILEUTILS_H
