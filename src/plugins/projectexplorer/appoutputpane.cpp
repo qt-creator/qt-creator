@@ -427,7 +427,7 @@ bool AppOutputPane::closeTab(int index)
 
 bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 {
-    const int index = indexOf(m_tabWidget->widget(tabIndex));
+    int index = indexOf(m_tabWidget->widget(tabIndex));
     QTC_ASSERT(index != -1, return true;)
 
     RunControlTab &tab = m_runControlTabs[index];
@@ -441,13 +441,29 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
         case CloseTabNoPrompt:
             break;
         case CloseTabWithPrompt:
+            QWidget *tabWidget = m_tabWidget->widget(tabIndex);
             if (!tab.runControl->promptToStop())
                 return false;
+            // The event loop has run, thus the ordering might have changed, a tab might
+            // have been closed, so do some strange things...
+            tabIndex = m_tabWidget->indexOf(tabWidget);
+            index = indexOf(tabWidget);
+            if (tabIndex == -1 || index == -1)
+                return false;
+            tab = m_runControlTabs[index];
             break;
         }
-        if (tab.runControl->stop() == RunControl::AsynchronousStop) {
-            tab.asyncClosing = true;
-            return false;
+        if (tab.runControl->isRunning()) { // yes it might have stopped already, then just close
+            QWidget *tabWidget = m_tabWidget->widget(tabIndex);
+            if (tab.runControl->stop() == RunControl::AsynchronousStop) {
+                tab.asyncClosing = true;
+                return false;
+            }
+            tabIndex = m_tabWidget->indexOf(tabWidget);
+            index = indexOf(tabWidget);
+            if (tabIndex == -1 || index == -1)
+                return false;
+            tab = m_runControlTabs[index];
         }
     }
 

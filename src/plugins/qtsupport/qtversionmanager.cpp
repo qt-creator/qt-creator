@@ -746,6 +746,10 @@ QtVersionManager::MakefileCompatible QtVersionManager::makefileIsFor(const QStri
     if (proFile.isEmpty())
         return CouldNotParse;
 
+    // The Makefile.Debug / Makefile.Release lack a # Command: line
+    if (findQMakeLine(makefile, QLatin1String("# Command:")).trimmed().isEmpty())
+        return CouldNotParse;
+
     QString line = findQMakeLine(makefile, QLatin1String("# Project:")).trimmed();
     if (line.isEmpty())
         return CouldNotParse;

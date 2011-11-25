@@ -83,7 +83,7 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP):
             if mustCheck:
                 test.fail("Failed to check target '%s'" % QtQuickConstants.getStringForTarget(current))
 
-def runAndCloseApp():
+def runAndCloseApp(withHookInto=False, executable=None, port=None):
     global processStarted, processExited
     processStarted = processExited = False
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "__handleProcessStarted__")
@@ -101,13 +101,32 @@ def runAndCloseApp():
         test.fatal("Couldn't start application - leaving test")
         invokeMenuItem("File", "Exit")
         return False
-    # the following is currently a work-around for not using hooking into subprocesses
+    if withHookInto and not executable in ("", None):
+        __closeSubprocessByHookingIntoQmlApplicationViewer__(executable, port)
+    else:
+        __closeSubprocessByPushingStop__()
+    return True
+
+def __closeSubprocessByPushingStop__():
     ensureChecked(":Qt Creator_Core::Internal::OutputPaneToggleButton")
     playButton = verifyEnabled(":Qt Creator.ReRun_QToolButton", False)
     stopButton = verifyEnabled(":Qt Creator.Stop_QToolButton")
     clickButton(stopButton)
     test.verify(playButton.enabled)
     test.compare(stopButton.enabled, False)
+
+def __closeSubprocessByHookingIntoQmlApplicationViewer__(executable, port):
+    global processExited
+    ensureChecked(":Qt Creator_Core::Internal::OutputPaneToggleButton")
+    output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
+    if port == None:
+        test.warning("I need a port number or attaching might fail.")
+    else:
+        waitFor("'Listening on port %d for incoming connectionsdone' in str(output.plainText)" % port, 5000)
+    attachToApplication(executable)
+    sendEvent("QCloseEvent", "{type='QmlApplicationViewer' unnamed='1' visible='1'}")
+    waitFor("processExited==True", 10000)
+    setApplicationContext(applicationContext("qtcreator"))
     return True
 
 def runAndCloseQtQuickUI():

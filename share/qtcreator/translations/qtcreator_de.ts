@@ -1987,7 +1987,7 @@
     </message>
     <message>
         <source>Switch Between Method Declaration/Definition</source>
-        <translation>Wechsel zwischen Deklaration und Definition der Methode.</translation>
+        <translation>Wechsel zwischen Deklaration und Definition der Methode</translation>
     </message>
     <message>
         <source>Rename Symbol Under Cursor</source>
@@ -4679,6 +4679,10 @@ Grund: %3</translation>
 </context>
 <context>
     <name>FakeVim::Internal::FakeVimPluginPrivate</name>
+    <message>
+        <source>Execute User Action #%1</source>
+        <translation>Benutzerdefinierte Aktion #%1 ausführen</translation>
+    </message>
     <message>
         <source>File not saved</source>
         <translation>Datei nicht gespeichert</translation>
@@ -7436,7 +7440,7 @@ rückgängig machen?</translation>
     <message>
         <source>Compile</source>
         <comment>Category for compiler isses listed under &apos;Issues&apos;</comment>
-        <translation>Compilierung</translation>
+        <translation>Kompilierung</translation>
     </message>
     <message>
         <source>Build System</source>
@@ -7446,11 +7450,6 @@ rückgängig machen?</translation>
     <message>
         <source>Error while building project %1 (target: %2)</source>
         <translation>Fehler beim Erstellen des Projekts %1(Ziel: %2)</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <comment>Category for compiler isses listened under &apos;Build Issues&apos;</comment>
-        <translation type="obsolete">Compilierung</translation>
     </message>
 </context>
 <context>
@@ -7720,7 +7719,7 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>Run in &amp;Terminal</source>
-        <translation>In &amp;Terminal Ausführen</translation>
+        <translation>In &amp;Terminal ausführen</translation>
     </message>
     <message>
         <source>Debugger:</source>
@@ -8333,7 +8332,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Deploy Project &quot;%1&quot;</source>
-        <translation>Deployment des Projekts %1&quot; durchführen</translation>
+        <translation>Deployment des Projekts &quot;%1&quot; durchführen</translation>
     </message>
     <message>
         <source>Publish Project...</source>
@@ -8401,19 +8400,19 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Unload</source>
-        <translation>Erstellen abbrechen und Schließen</translation>
+        <translation>Erstellen abbrechen und schließen</translation>
     </message>
     <message>
         <source>Do Not Unload</source>
-        <translation>Nicht Schließen</translation>
+        <translation>Nicht schließen</translation>
     </message>
     <message>
         <source>Unload Project %1?</source>
-        <translation>Projekt %1 schließen?</translation>
+        <translation>Projekt &quot;%1&quot; schließen?</translation>
     </message>
     <message>
         <source>The project %1 is currently being built.</source>
-        <translation>Das Projekt %1 wird gerade erstellt.</translation>
+        <translation>Das Projekt &quot;%1&quot; wird gerade erstellt.</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and unload the project anyway?</source>
@@ -8433,7 +8432,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Building &apos;%1&apos; is disabled: %2&lt;br&gt;</source>
-        <translation>Das Erstellen von &apos;%1&apos; ist deaktiviert: %12&lt;br&gt;</translation>
+        <translation>Das Erstellen von &quot;%1&quot; ist deaktiviert: %2&lt;br&gt;</translation>
     </message>
     <message>
         <source>A build is in progress</source>
@@ -8442,7 +8441,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     <message>
         <source>Building &apos;%1&apos; is disabled: %2
 </source>
-        <translation>Das Erstellen von &apos;%1&apos; ist deaktiviert: %12</translation>
+        <translation>Das Erstellen von &quot;%1&quot; ist deaktiviert: %2</translation>
     </message>
     <message>
         <source>No active project</source>
@@ -8450,15 +8449,15 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>The project &apos;%1&apos; has no active target</source>
-        <translation>Das Projekt &apos;%1&apos; hat kein aktives Ziel</translation>
+        <translation>Das Projekt &quot;%1&quot; hat kein aktives Ziel</translation>
     </message>
     <message>
         <source>The target &apos;%1&apos; for project &apos;%2&apos; has no active run configuration</source>
-        <translation>Das Ziel &apos;%1&apos; des Projektes &apos;%2&apos; hat keine aktive Ausführungskonfiguration</translation>
+        <translation>Das Ziel &quot;%1&quot; des Projektes &quot;%2&quot; hat keine aktive Ausführungskonfiguration</translation>
     </message>
     <message>
         <source>Cannot run &apos;%1&apos; in mode &apos;%2&apos;.</source>
-        <translation>&apos;%1&apos; kann nicht im Modus &apos;%2&apos; ausgeführt werden.</translation>
+        <translation>&quot;%1&quot; kann nicht im Modus &quot;%2&quot; ausgeführt werden.</translation>
     </message>
     <message>
         <source>A build is still in progress.</source>
@@ -8532,7 +8531,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Delete %1 from file system?</source>
-        <translation>Soll die Datei %1 gelöscht werden?</translation>
+        <translation>Soll die Datei &quot;%1&quot; gelöscht werden?</translation>
     </message>
     <message>
         <source>Close Project &quot;%1&quot;</source>
@@ -8548,7 +8547,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Build Project &quot;%1&quot;</source>
-        <translation>Projekt &apos;%1&quot; erstellen</translation>
+        <translation>Projekt &quot;%1&quot; erstellen</translation>
     </message>
     <message>
         <source>Rebuild Project &quot;%1&quot;</source>
@@ -8585,7 +8584,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Do Not Close</source>
-        <translation>Nicht Schließen</translation>
+        <translation>Nicht schließen</translation>
     </message>
     <message>
         <source>New File</source>
@@ -8599,7 +8598,7 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     <message>
         <source>Could not add following files to project %1:
 </source>
-        <translation>Die folgenden Dateien konnten nicht zum Projekt %1 hinzugefügt werden:
+        <translation>Die folgenden Dateien konnten nicht zum Projekt &quot;%1&quot; hinzugefügt werden:
 </translation>
     </message>
     <message>
@@ -8622,11 +8621,11 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <source>Could not remove file %1 from project %2.</source>
-        <translation>Die Datei %1 konnte nicht vom Projekt %2 entfernt werden.</translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht aus dem Projekt &quot;%2&quot; entfernt werden.</translation>
     </message>
     <message>
         <source>Could not delete file %1.</source>
-        <translation>Die Datei %1 konnte nicht gelöscht werden.</translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht gelöscht werden.</translation>
     </message>
 </context>
 <context>
@@ -10028,7 +10027,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     </message>
     <message>
         <source>Run in &amp;terminal:</source>
-        <translation>In &amp;Terminal Ausführen:</translation>
+        <translation>In &amp;Terminal ausführen:</translation>
     </message>
 </context>
 <context>
@@ -15881,6 +15880,14 @@ with a password, which you can can enter below.</source>
         <translation>Nur Elemente mit Inhalt auswählen (S)</translation>
     </message>
     <message>
+        <source>width</source>
+        <translation>Breite</translation>
+    </message>
+    <message>
+        <source>height</source>
+        <translation>Höhe</translation>
+    </message>
+    <message>
         <source>Reset view (R)</source>
         <translation>Ansicht zurücksetzen (R)</translation>
     </message>
@@ -19627,7 +19634,7 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
     </message>
     <message>
         <source>Attach to Core...</source>
-        <translation>Debugge core-Datei</translation>
+        <translation>Debugge core-Datei...</translation>
     </message>
     <message>
         <source>Start and Debug Remote Application...</source>
@@ -22393,7 +22400,7 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     </message>
     <message>
         <source>%1 is a default vendor name used for testing and development.</source>
-        <translation>%1 ist ein zum Testen und zur Entwicklung vorgegebener Anbietername.</translation>
+        <translation>&quot;%1&quot; ist ein zum Testen und zur Entwicklung vorgegebener Anbietername.</translation>
     </message>
     <message>
         <source>%1 are default vendor names used for testing and development.</source>
@@ -26573,7 +26580,7 @@ Erfordert Qt 4.7.4 oder neuer sowie die Installation des Komponentensatzes für 
     </message>
     <message>
         <source>Compile</source>
-        <translation>Compilierung</translation>
+        <translation>Kompilierung</translation>
     </message>
     <message>
         <source>Create</source>
@@ -27976,7 +27983,7 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
     <message>
         <source>The project is missing some information important to publishing:</source>
-        <translation>Bei dem Projekt fehlen einige für die Veröffentlichung erforderliche Informationen:</translation>
+        <translation>Dem Projekt fehlen einige für die Veröffentlichung erforderliche Informationen:</translation>
     </message>
     <message>
         <source>Publishing failed: Missing project information.</source>
@@ -28102,7 +28109,7 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
     <message>
         <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Die Paketbeschreibung ist gegenwärtig &apos;%1&apos;, was wahrscheinlich nicht beabsichtigt ist. Bitte ändern Sie sie unter Projekte -&gt; Ausführung -&gt; Paketerzeugung -&gt; Details.</translation>
+        <translation>Die Paketbeschreibung ist gegenwärtig &apos;%1&apos;, was wahrscheinlich nicht beabsichtigt ist. Bitte ändern Sie sie unter Projekte -&gt; Ausführung -&gt; Erzeuge Paketdatei -&gt; Details.</translation>
     </message>
     <message>
         <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>

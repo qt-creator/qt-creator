@@ -190,6 +190,9 @@ bool MakeStep::init()
     }
 
     Utils::Environment env = bc->environment();
+    // Force output to english for the parsers. Do this here and not in the toolchain's
+    // addToEnvironment() to not screw up the users run environment.
+    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
     // FIXME doing this without the user having a way to override this is rather bad
@@ -361,6 +364,9 @@ void MakeStepConfigWidget::updateDetails()
     }
 
     Utils::Environment env = bc->environment();
+    // Force output to english for the parsers. Do this here and not in the toolchain's
+    // addToEnvironment() to not screw up the users run environment.
+    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
     // FIXME doing this without the user having a way to override this is rather bad

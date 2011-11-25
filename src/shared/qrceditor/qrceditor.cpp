@@ -417,6 +417,7 @@ void QrcEditor::onAddFiles()
             : m_treeview->model()->parent(current).row();
     int const cursorFileArrayIndex = currentIsPrefixNode ? 0 : current.row();
     QStringList fileNames = m_treeview->fileNamesToAdd();
+    fileNames = m_treeview->existingFilesSubtracted(prefixArrayIndex, fileNames);
     resolveLocationIssues(fileNames);
     if (fileNames.isEmpty())
         return;

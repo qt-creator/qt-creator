@@ -117,6 +117,7 @@ public:
 
     void findSamePlacePostDeletionModelIndex(int &row, QModelIndex &parent) const;
     EntryBackup *removeEntry(const QModelIndex &index);
+    QStringList existingFilesSubtracted(int prefixIndex, const QStringList &fileNames) const;
     void addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile,
                   int &firstFile, int &lastFile);
     void removeFiles(int prefixIndex, int firstFileIndex, int lastFileIndex);

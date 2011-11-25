@@ -490,8 +490,8 @@ const QmlJS::ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
 
 QmlJS::ContextPtr NodeMetaInfoPrivate::context() const
 {
-    if (m_model && m_model->rewriterView()) {
-        return m_model->rewriterView()->scopeChain().context();
+    if (m_model && m_model->rewriterView() && m_model->rewriterView()->scopeChain()) {
+        return m_model->rewriterView()->scopeChain()->context();
     }
     return QmlJS::ContextPtr(0);
 }

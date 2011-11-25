@@ -48,7 +48,7 @@ class SessionDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SessionDialog(SessionManager *sessionManager);
+    SessionDialog(SessionManager *sessionManager, QWidget *parent = 0);
 
     void setAutoLoadSession(bool);
     bool autoLoadSession() const;

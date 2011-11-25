@@ -78,7 +78,7 @@ protected:
 
 private slots:
     void changePage();
-    void showPage(bool focus);
+    void showPage(bool focus, bool ensureSizeHint);
     void togglePage(bool focus);
     void clearPage();
     void buttonTriggered();

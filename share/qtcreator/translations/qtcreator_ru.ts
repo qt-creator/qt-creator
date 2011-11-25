@@ -46,22 +46,6 @@
         <translation>Панель анализатора</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running. You have to quit the Analyzer before being able to run another instance.&lt;center/&gt;&lt;center&gt;Force it to quit?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; ещё выполняется. Необходимо завершить анализатор для запуска другого экземпляра.&lt;/center&gt;&lt;center&gt;Желаете завершить?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Analyzer Still Running</source>
-        <translation>Анализатор ещё работает</translation>
-    </message>
-    <message>
-        <source>Stop Active Run</source>
-        <translation>Остановить текущую работу</translation>
-    </message>
-    <message>
-        <source>Keep Running</source>
-        <translation>Продолжить выполнение</translation>
-    </message>
-    <message>
         <source>Debug</source>
         <translation>Отладка</translation>
     </message>
@@ -9185,6 +9169,10 @@ Reason: %3</source>
 <context>
     <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
+        <source>Execute User Action #%1</source>
+        <translation>Выполнить особое действие №%1</translation>
+    </message>
+    <message>
         <source>File not saved</source>
         <translation>Файл не сохранён</translation>
     </message>
@@ -18211,6 +18199,14 @@ If you choose not to continue Qt Creator will not try to load the .shared file.<
         <translation>Выделять только элементы с содержимым (S)</translation>
     </message>
     <message>
+        <source>width</source>
+        <translation>ширина</translation>
+    </message>
+    <message>
+        <source>height</source>
+        <translation>высота</translation>
+    </message>
+    <message>
         <source>Reset view (R)</source>
         <translation>Сбросить вид (R)</translation>
     </message>
@@ -22231,10 +22227,6 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
     <message>
         <source>Enable QML debugging:</source>
         <translation>Включить отладку QML:</translation>
-    </message>
-    <message>
-        <source>Link QML debugging library:</source>
-        <translation>Подключить библиотеку отладки QML:</translation>
     </message>
     <message>
         <source>Might make your application vulnerable. Only use in a safe environment.</source>

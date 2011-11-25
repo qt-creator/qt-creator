@@ -100,6 +100,7 @@ private Q_SLOTS:
     void multilineTernaryInProperty();
     void bug1();
     void multilineString();
+    void bug1();
 };
 
 enum { DontCheck = -2, DontIndent = -1 };
@@ -1326,6 +1327,20 @@ void tst_QMLCodeFormatter::multilineString()
          << Line("  bar", DontIndent)
          << Line("          boo boo", DontIndent)
          << Line("   end\"", DontIndent)
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::bug1()
+{
+    QList<Line> data;
+    data << Line("Item {")
+         << Line("    x: {")
+         << Line("        if (a==a) {}")
+         << Line("        else (b==b) {}")
+         << Line("        foo()")
+         << Line("    }")
          << Line("}")
          ;
     checkIndent(data);

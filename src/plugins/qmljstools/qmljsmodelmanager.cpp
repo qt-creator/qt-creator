@@ -354,8 +354,9 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
     }
     updateSourceFiles(newFiles, false);
 
-    // dump builtin types if the shipped definitions are probably outdated
-    if (QtSupport::QtVersionNumber(pinfo.qtVersionString) > QtSupport::QtVersionNumber(4, 7, 3))
+    // dump builtin types if the shipped definitions are probably outdated and the
+    // Qt version ships qmlplugindump
+    if (QtSupport::QtVersionNumber(pinfo.qtVersionString) >= QtSupport::QtVersionNumber(4, 8, 0))
         m_pluginDumper->loadBuiltinTypes(pinfo);
 
     emit projectInfoUpdated(pinfo);

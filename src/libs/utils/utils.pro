@@ -3,7 +3,6 @@ TARGET = Utils
 QT += gui \
     network
 
-CONFIG += dll
 include(../../qtcreatorlibrary.pri)
 include(utils_dependencies.pri)
 

@@ -1178,7 +1178,7 @@ void ProjectExplorerPlugin::showSessionManager()
     } else {
         d->m_session->save();
     }
-    SessionDialog sessionDialog(d->m_session);
+    SessionDialog sessionDialog(d->m_session, Core::ICore::instance()->mainWindow());
     sessionDialog.setAutoLoadSession(d->m_projectExplorerSettings.autorestoreLastSession);
     sessionDialog.exec();
     d->m_projectExplorerSettings.autorestoreLastSession = sessionDialog.autoLoadSession();

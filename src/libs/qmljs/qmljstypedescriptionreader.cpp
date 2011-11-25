@@ -149,7 +149,11 @@ void TypeDescriptionReader::readModule(UiObjectDefinition *ast)
     for (UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
         UiObjectMember *member = it->member;
         UiObjectDefinition *component = dynamic_cast<UiObjectDefinition *>(member);
-        const QString typeName = toString(component->qualifiedTypeNameId);
+
+        QString typeName;
+        if (component)
+            typeName = toString(component->qualifiedTypeNameId);
+
         if (!component || (typeName != "Component" && typeName != "ModuleApi")) {
             addWarning(member->firstSourceLocation(), "Expected only 'Component' and 'ModuleApi' object definitions");
             continue;

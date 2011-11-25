@@ -1,5 +1,4 @@
 TEMPLATE = lib
-CONFIG+=dll
 TARGET = symbianutils
 DEFINES += SYMBIANUTILS_BUILD_LIB JSON_BUILD_LIB
 include(../../qtcreatorlibrary.pri)

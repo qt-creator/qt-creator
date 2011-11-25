@@ -187,8 +187,8 @@ public:
 
     bool renameId(const QString& oldId, const QString& newId);
 
-    const QmlJS::ScopeChain &scopeChain() const;
     const QmlJS::Document *document() const;
+    const QmlJS::ScopeChain *scopeChain() const;
 
     QString convertTypeToImportAlias(const QString &type) const;
 

@@ -18,6 +18,8 @@ source("../../shared/build_utils.py")
 source("../../shared/qtquick.py")
 source("../../shared/project.py")
 source("../../shared/editor_utils.py")
+source("../../shared/project_explorer.py")
+source("../../shared/hook_utils.py")
 
 def waitForCleanShutdown(timeOut=10):
     appCtxt = currentApplicationContext()

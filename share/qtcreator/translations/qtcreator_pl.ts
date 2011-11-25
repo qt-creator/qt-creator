@@ -352,11 +352,11 @@
     </message>
     <message>
         <source>Reload All Unchanged Editors</source>
-        <translation>Przeładuj wszystkie niezmienione edytory</translation>
+        <translation>Przeładowuj wszystkie niezmienione edytory</translation>
     </message>
     <message>
         <source>Ignore Modifications</source>
-        <translation>Zignoruj modyfikacje</translation>
+        <translation>Ignoruj modyfikacje</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -663,12 +663,12 @@ p, li { white-space: pre-wrap; }
         <translation>Zestaw &amp;narzędzi:</translation>
     </message>
     <message>
-        <source>Override &amp;Start script:</source>
-        <translation>Nadpisz skrypt &amp;startowy:</translation>
-    </message>
-    <message>
         <source>Sys&amp;root:</source>
         <translation>Sys&amp;root:</translation>
+    </message>
+    <message>
+        <source>Override &amp;start script:</source>
+        <translation>Nadpisz skrypt &amp;startowy:</translation>
     </message>
 </context>
 <context>
@@ -713,16 +713,8 @@ p, li { white-space: pre-wrap; }
         <translation>Używaj Creatora do pośmiertnego debugowania</translation>
     </message>
     <message>
-        <source>Close temporary buffers on debugger exit.</source>
-        <translation>Zamykaj tymczasowe bufory po zakończeniu debugowania.</translation>
-    </message>
-    <message>
         <source>Close temporary buffers on debugger exit</source>
         <translation>Zamykaj tymczasowe bufory po zakończeniu debugowania</translation>
-    </message>
-    <message>
-        <source>Switch to previous mode on debugger exit.</source>
-        <translation>Przełączaj do poprzedniego trybu po zakończeniu debugowania.</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit</source>
@@ -822,7 +814,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Use asynchronous mode to control the inferior</source>
-        <translation>Użyj trybu asynchronicznego do kontrolowania podprocesu</translation>
+        <translation>Używaj trybu asynchronicznego do kontrolowania podprocesu</translation>
     </message>
     <message>
         <source>GDB</source>
@@ -872,7 +864,7 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>Stop when a qWarning is issued</source>
-        <translation>Zatrzymaj kiedy wystąpi qWarning</translation>
+        <translation>Zatrzymuj kiedy wystąpi qWarning</translation>
     </message>
     <message>
         <source>Always try to set breakpoints in plugins automatically</source>
@@ -880,7 +872,7 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>Stop when a qFatal is issued</source>
-        <translation>Zatrzymaj kiedy wystąpi qFatal</translation>
+        <translation>Zatrzymuj kiedy wystąpi qFatal</translation>
     </message>
     <message>
         <source>This adds common paths to locations of debug information at debugger startup.</source>
@@ -1203,7 +1195,7 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>Would you like to delete the &lt;b&gt;unmerged&lt;/b&gt; branch &apos;%1&apos;?</source>
-        <translation>Czy chcesz usunąć &lt;b&gt;niescaloną&lt;/b&gt; gałąź &quot;%1&quot;?</translation>
+        <translation>Czy usunąć &lt;b&gt;niescaloną&lt;/b&gt; gałąź &quot;%1&quot;?</translation>
     </message>
     <message>
         <source>Delete Branch</source>
@@ -1211,7 +1203,7 @@ I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &qu
     </message>
     <message>
         <source>Would you like to delete the branch &apos;%1&apos;?</source>
-        <translation>Czy chcesz usunąć gałąź &quot;%1&quot;?</translation>
+        <translation>Czy usunąć gałąź &quot;%1&quot;?</translation>
     </message>
     <message>
         <source>Re&amp;fresh</source>
@@ -2188,10 +2180,6 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget</name>
     <message>
-        <source>Manage</source>
-        <translation>Zarządzaj</translation>
-    </message>
-    <message>
         <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;import&quot;&gt;Zaimportuj istniejącą wersję&lt;/a&gt;</translation>
     </message>
@@ -2274,6 +2262,10 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     <message>
         <source>Build directory:</source>
         <translation>Katalog wersji:</translation>
+    </message>
+    <message>
+        <source>Manage...</source>
+        <translation>Zarządzaj...</translation>
     </message>
 </context>
 <context>
@@ -2633,7 +2625,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Unable to send command line arguments to the already running instance. It appears to be not responding. Do you want to start a new instance of Creator?</source>
-        <translation>Nie można wysłać argumentów do uruchomionego programu. Wygląda na to, że program nie odpowiada. Czy chcesz uruchomić nową instancję Creatora?</translation>
+        <translation>Nie można wysłać argumentów do uruchomionego programu. Wygląda na to, że program nie odpowiada. Czy uruchomić nową instancję Creatora?</translation>
     </message>
     <message>
         <source>Could not find &apos;Core.pluginspec&apos; in %1</source>
@@ -3118,7 +3110,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>The unsaved file &lt;i&gt;%1&lt;/i&gt; has been changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
-        <translation>Niezachowany plik &lt;i&gt;%1&lt;/i&gt; został zmieniony na zewnątrz Qt Creatora. Czy chcesz go ponownie załadować tracąc swoje zmiany?</translation>
+        <translation>Niezachowany plik &lt;i&gt;%1&lt;/i&gt; został zmieniony na zewnątrz Qt Creatora. Czy chcesz ponownie go załadować tracąc swoje zmiany?</translation>
     </message>
     <message>
         <source>The file &lt;i&gt;%1&lt;/i&gt; has changed outside Qt Creator. Do you want to reload it?</source>
@@ -3865,7 +3857,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>An item named &apos;%1&apos; already exists at this location. Do you want to overwrite it?</source>
-        <translation>Element o nazwie &quot;%1&quot; istnieje już w tym miejscu. Czy chcesz go nadpisać?</translation>
+        <translation>Element o nazwie &quot;%1&quot; istnieje już w tym miejscu. Czy nadpisać go?</translation>
     </message>
     <message>
         <source>Save File As</source>
@@ -4401,7 +4393,7 @@ Przyczyna: %3</translation>
 <context>
     <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
-        <source>Methods and functions</source>
+        <source>Methods and Functions</source>
         <translation>Metody i funkcje</translation>
     </message>
 </context>
@@ -4659,11 +4651,11 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Do you want to commit the change?</source>
-        <translation>Czy chcesz wrzucić zmianę?</translation>
+        <translation>Czy wrzucić zmianę?</translation>
     </message>
     <message>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation>Błąd podczas sprawdzania opisu wrzucanych zmian. Czy chcesz wrzucić zmianę?</translation>
+        <translation>Błąd podczas sprawdzania opisu wrzucanych zmian. Czy wrzucić zmianę?</translation>
     </message>
     <message>
         <source>The files do not differ.</source>
@@ -4675,7 +4667,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Revert all pending changes to the repository?</source>
-        <translation>Czy chcesz odwrócić wszystkie oczekujące zmiany w repozytorium?</translation>
+        <translation>Czy odwrócić wszystkie oczekujące zmiany w repozytorium?</translation>
     </message>
     <message>
         <source>Revert failed: %1</source>
@@ -4683,7 +4675,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>The file has been changed. Do you want to revert it?</source>
-        <translation>Plik został zmieniony. Czy chcesz odwrócić w nim zmiany?</translation>
+        <translation>Plik został zmieniony. Czy odwrócić w nim zmiany?</translation>
     </message>
     <message>
         <source>Another commit is currently being executed.</source>
@@ -5725,6 +5717,10 @@ Może to spowodować uzyskanie błędnych rezultatów.</translation>
     <message>
         <source>The gdb process crashed some time after starting successfully.</source>
         <translation>Proces gdb zakończony błędem po poprawnym uruchomieniu.</translation>
+    </message>
+    <message>
+        <source>The gdb process was ended forcefully</source>
+        <translation>Wymuszono zakończenie procesu gdb</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -7046,6 +7042,10 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
 <context>
     <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
+        <source>Execute User Action #%1</source>
+        <translation>Wykonaj akcję użytkownika #%1</translation>
+    </message>
+    <message>
         <source>File not saved</source>
         <translation>Plik nie został zachowany</translation>
     </message>
@@ -7456,7 +7456,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Would you like to stash your changes?</source>
-        <translation>Chcesz odłożyć swoje zmiany?</translation>
+        <translation>Czy odłożyć Twoje zmiany?</translation>
     </message>
     <message>
         <source>Cannot obtain status: %1</source>
@@ -7683,10 +7683,6 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <translation>Alt+G,Alt+K</translation>
     </message>
     <message>
-        <source>Undo Uncommited Changes...</source>
-        <translation>Cofnij niewrzucone zmiany...</translation>
-    </message>
-    <message>
         <source>Remotes...</source>
         <translation>Zdalne repozytoria...</translation>
     </message>
@@ -7802,7 +7798,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Git will not accept this commit. Do you want to continue to edit it?</source>
-        <translation>Git nie zaakceptuje tej zmiany. Czy chcesz kontynuować edycję?</translation>
+        <translation>Git nie zaakceptuje tej zmiany. Czy kontynuować edycję?</translation>
     </message>
     <message>
         <source>Unable to retrieve file list</source>
@@ -7849,6 +7845,10 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <translation>Stan</translation>
     </message>
     <message>
+        <source>Undo Uncommitted Changes...</source>
+        <translation>Cofnij niewrzucone zmiany...</translation>
+    </message>
+    <message>
         <source>Clean...</source>
         <translation>Wyczyść...</translation>
     </message>
@@ -7890,7 +7890,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Do you want to commit the change?</source>
-        <translation>Czy chcesz wrzucić zmianę?</translation>
+        <translation>Czy wrzucić zmianę?</translation>
     </message>
 </context>
 <context>
@@ -8521,8 +8521,8 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
 %2</translation>
     </message>
     <message>
-        <source>File &amp;pattern:</source>
-        <translation>&amp;Wzorzec:</translation>
+        <source>Fi&amp;le pattern:</source>
+        <translation>&amp;Wzorzec pliku:</translation>
     </message>
 </context>
 <context>
@@ -8638,20 +8638,36 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <translation>Usuń</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation>Zmień nazwę</translation>
+        <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
+        <translation>Przerwij budowanie i usuń konfigurację budowania</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>Nie usuwaj</translation>
+    </message>
+    <message>
+        <source>Remove Build Configuration %1?</source>
+        <translation>Usunąć konfigurację budowania %1?</translation>
+    </message>
+    <message>
+        <source>The build configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>Konfiguracja budowania &lt;b&gt;%1&lt;/b&gt; jest w tej chwili wykorzystywana.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Build Configuration anyway?</source>
+        <translation>Czy przerwać budowanie i usunąć tę konfigurację?</translation>
+    </message>
+    <message>
+        <source>Remove Build Configuration?</source>
+        <translation>Usunąć konfigurację budowania?</translation>
+    </message>
+    <message>
+        <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
+        <translation>Czy na pewno usunąć konfigurację budowania &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
     <message>
         <source>&amp;Clone Selected</source>
         <translation>S&amp;klonuj wybraną</translation>
-    </message>
-    <message>
-        <source>Remove Build Configuration</source>
-        <translation>Usuń konfigurację budowania</translation>
-    </message>
-    <message>
-        <source>Do you really want to delete the build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>Czy na pewno usunąć konfigurację budowania &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -8850,11 +8866,11 @@ Powód: %2</translation>
     </message>
     <message>
         <source>Unset &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation>Usuń &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</translation>
+        <translation>Usunięto &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Set &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; to &lt;b&gt;%2&lt;/b&gt;</source>
-        <translation>Ustaw &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; na &lt;b&gt;%2&lt;/b&gt;</translation>
+        <translation>Ustawiono &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; na &lt;b&gt;%2&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Using &lt;b&gt;%1&lt;/b&gt;</source>
@@ -8862,7 +8878,7 @@ Powód: %2</translation>
     </message>
     <message>
         <source>Using &lt;b&gt;%1&lt;/b&gt; and</source>
-        <translation>Użyto: &lt;b&gt;%1&lt;/b&gt; i</translation>
+        <translation>Użyto: &lt;b&gt;%1&lt;/b&gt; oraz</translation>
     </message>
 </context>
 <context>
@@ -9073,6 +9089,10 @@ Powód: %2</translation>
         <translation>Usuń plik...</translation>
     </message>
     <message>
+        <source>Rename...</source>
+        <translation>Zmień nazwę...</translation>
+    </message>
+    <message>
         <source>Collapse All</source>
         <translation>Zwiń wszystko</translation>
     </message>
@@ -9089,8 +9109,28 @@ Powód: %2</translation>
         <translation>Nie można otworzyć projektu</translation>
     </message>
     <message>
+        <source>Cancel Build &amp;&amp; Unload</source>
+        <translation>Przerwij budowanie i wyładuj</translation>
+    </message>
+    <message>
+        <source>Do Not Unload</source>
+        <translation>Nie wyładowuj</translation>
+    </message>
+    <message>
+        <source>Unload Project %1?</source>
+        <translation>Wyładować projekt %1?</translation>
+    </message>
+    <message>
+        <source>The project %1 is currently being built.</source>
+        <translation>Trwa budowanie projektu %1.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and unload the project anyway?</source>
+        <translation>Czy przerwać budowanie i wyładować projekt?</translation>
+    </message>
+    <message>
         <source>Cancel Build &amp;&amp; Close</source>
-        <translation>Anuluj budowanie i zamknij</translation>
+        <translation>Przerwij budowanie i zamknij</translation>
     </message>
     <message>
         <source>Do Not Close</source>
@@ -9106,7 +9146,7 @@ Powód: %2</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
-        <translation>Czy chcesz anulować proces budowania i zamknąć Qt Creatora?</translation>
+        <translation>Czy przerwać budowanie i zamknąć Qt Creatora?</translation>
     </message>
     <message>
         <source>New Subproject</source>
@@ -9143,7 +9183,7 @@ Powód: %2</translation>
     </message>
     <message>
         <source>Cancel Build</source>
-        <translation>Anuluj budowanie</translation>
+        <translation>Przerwij budowanie</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -9156,10 +9196,6 @@ Powód: %2</translation>
     <message>
         <source>Remove File...</source>
         <translation>Usuń plik...</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation>Zmień nazwę</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -9390,10 +9426,6 @@ do projektu &quot;%2&quot;.</translation>
         <translation>Usuń</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation>Zmień nazwę</translation>
-    </message>
-    <message>
         <source>Deployment</source>
         <translation>Instalacja</translation>
     </message>
@@ -9426,16 +9458,36 @@ do projektu &quot;%2&quot;.</translation>
         <translation>Nowa nazwa dla konfiguracji uruchamiania &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
+        <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
+        <translation>Przerwij budowanie i usuń konfigurację instalacji</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>Nie usuwaj</translation>
+    </message>
+    <message>
+        <source>Remove Deploy Configuration %1?</source>
+        <translation>Usunąć konfigurację instalacji %1?</translation>
+    </message>
+    <message>
+        <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>Konfiguracja instalacji &lt;b&gt;%1&lt;/b&gt; jest w tej chwili wykorzystywana.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
+        <translation>Czy przerwać budowanie i usunąć tę konfigurację?</translation>
+    </message>
+    <message>
         <source>Remove Deploy Configuration?</source>
-        <translation>Usunąć konfigurację instalowania?</translation>
+        <translation>Usunąć konfigurację instalacji?</translation>
     </message>
     <message>
         <source>Do you really want to delete deploy configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>Czy na pewno usunąć konfigurację instalowania &lt;b&gt;%1&lt;/b&gt;?</translation>
+        <translation>Czy na pewno usunąć konfigurację instalacji &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
     <message>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>Nowa nazwa dla konfiguracji instalowania &lt;b&gt;%1&lt;/b&gt;:</translation>
+        <translation>Nowa nazwa dla konfiguracji instalacji &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
 </context>
 <context>
@@ -9671,10 +9723,6 @@ do projektu &quot;%2&quot;.</translation>
     <message>
         <source>Enable QML debugging:</source>
         <translation>Włącz debugowanie QML:</translation>
-    </message>
-    <message>
-        <source>Link QML debugging library:</source>
-        <translation>Dowiąż bibliotekę debugującą QML:</translation>
     </message>
     <message>
         <source>Might make your application vulnerable. Only use in a safe environment.</source>
@@ -10076,8 +10124,8 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <translation>Biblioteka C++</translation>
     </message>
     <message>
-        <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
-        <translation>Tworzy bibliotekę C++ bazującą na qmake. To pozwala na utworzenie:&lt;ul&gt;&lt;li&gt;dzielonej biblioteki C++ zdolnej do ładowania wtyczek za pomocą &lt;tt&gt;QPluginLoader&lt;/tt&gt;&lt;/li&gt;&lt;li&gt;dzielonej lub statycznej biblioteki C++ ,którą można dowiązać do innego projektu&lt;/li&gt;&lt;/ul&gt;.</translation>
+        <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation>Tworzy bibliotekę C++ bazującą na qmake. To pozwala na utworzenie:&lt;ul&gt;&lt;li&gt;dzielonej biblioteki C++, zdolnej do ładowania wtyczek za pomocą &lt;tt&gt;QPluginLoader&lt;/tt&gt;&lt;/li&gt;&lt;li&gt;dzielonej lub statycznej biblioteki C++, którą można dowiązać do innego projektu&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
 </context>
 <context>
@@ -10565,7 +10613,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Auto-&amp;indent Selection</source>
-        <translation>Automatyczne wc&amp;ięcia dla selekcji</translation>
+        <translation>Sformatuj wc&amp;ięcia w zaznaczonym tekście</translation>
     </message>
     <message>
         <source>Ctrl+I</source>
@@ -10681,7 +10729,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Toggle Comment &amp;Selection</source>
-        <translation>Wykomentuj / odkomentuj &amp;selekcję</translation>
+        <translation>Wykomentuj / odkomentuj zaznaczony tek&amp;st</translation>
     </message>
     <message>
         <source>Copy &amp;Line</source>
@@ -11340,7 +11388,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
         <translation>Pokaż zakładkę</translation>
     </message>
     <message>
-        <source>Show Bookmark in New Tab</source>
+        <source>Show Bookmark as New Page</source>
         <translation>Pokaż zakładkę w nowej karcie</translation>
     </message>
     <message>
@@ -12281,7 +12329,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <translation>np. https://[użytkownik[:hasło]@]host[:port]/[ścieżka]</translation>
     </message>
     <message>
-        <source>Specify Url:</source>
+        <source>Specify URL:</source>
         <translation>Podaj URL:</translation>
     </message>
 </context>
@@ -13721,6 +13769,14 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
         <translation>Szczegóły</translation>
     </message>
     <message>
+        <source>Creates a plain C project using qmake, not using the Qt library.</source>
+        <translation>Tworzy zwykły projekt C używający qmake, nie używający biblioteki Qt.</translation>
+    </message>
+    <message>
+        <source>Creates a plain C++ project using qmake, not using the Qt library.</source>
+        <translation>Tworzy zwykły projekt C++ używający qmake, nie używający biblioteki Qt.</translation>
+    </message>
+    <message>
         <source>Creates a C++ plugin that makes it possible to offer extensions that can be loaded dynamically into applications using the QDeclarativeEngine class.</source>
         <translation>Tworzy wtyczkę C++ umożliwiającą rozszerzenia, które mogą być dynamicznie załadowane przy pomocy klasy QDeclarativeEngine.</translation>
     </message>
@@ -13757,20 +13813,16 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
         <translation>Wtyczka Qt Creatora</translation>
     </message>
     <message>
+        <source>URL:</source>
+        <translation>URL:</translation>
+    </message>
+    <message>
         <source>Other Project</source>
         <translation>Inny projekt</translation>
     </message>
     <message>
-        <source>Creates a plain C project using QMake, not using the Qt library.</source>
-        <translation>Tworzy zwykły projekt C używający QMake, nie używający biblioteki Qt.</translation>
-    </message>
-    <message>
         <source>Plain C Project</source>
         <translation>Zwykły projekt C</translation>
-    </message>
-    <message>
-        <source>Creates a plain C++ project using QMake, not using the Qt library.</source>
-        <translation>Tworzy zwykły projekt C++ używający QMake, nie używający biblioteki Qt.</translation>
     </message>
     <message>
         <source>Plain C++ Project</source>
@@ -13799,10 +13851,6 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     <message>
         <source>Description:</source>
         <translation>Opis:</translation>
-    </message>
-    <message>
-        <source>Url:</source>
-        <translation>Url:</translation>
     </message>
     <message>
         <source>Qt Creator sources:</source>
@@ -13982,6 +14030,26 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     <message>
         <source>No target defined.</source>
         <translation>Brak zdefiniowanych produktów docelowych.</translation>
+    </message>
+    <message>
+        <source>Cancel Build &amp;&amp; Remove Target</source>
+        <translation>Przerwij budowanie i usuń produkt docelowy</translation>
+    </message>
+    <message>
+        <source>Do Not Remove</source>
+        <translation>Nie usuwaj</translation>
+    </message>
+    <message>
+        <source>Remove Target %1?</source>
+        <translation>Usunąć produkt docelowy %1?</translation>
+    </message>
+    <message>
+        <source>The target &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>Trwa budowanie produktu docelowego &lt;b&gt;%1&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Do you want to cancel the build process and remove the Target anyway?</source>
+        <translation>Czy przerwać budowanie i usunąć produkt docelowy?</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -14287,45 +14355,6 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorFactory</name>
-    <message>
-        <source>Do you want to enable the experimental Qt Quick Designer?</source>
-        <translation>Czy chcesz włączyć eksperymentalnego Qt Quick Designera?</translation>
-    </message>
-    <message>
-        <source>Enable Qt Quick Designer</source>
-        <translation>Włącz Qt Quick Designera</translation>
-    </message>
-    <message>
-        <source>Qt Creator -&gt; About Plugins...</source>
-        <translation>Qt Creator -&gt; Informacje o wtyczkach...</translation>
-    </message>
-    <message>
-        <source>Help -&gt; About Plugins...</source>
-        <translation>Pomoc -&gt; Informacje o wtyczkach...</translation>
-    </message>
-    <message>
-        <source>Enable experimental Qt Quick Designer?</source>
-        <translation>Włączyć Qt Quick Designera?</translation>
-    </message>
-    <message>
-        <source>Do you want to enable the experimental Qt Quick Designer? After enabling it, you can access the visual design capabilities by switching to Design Mode. This can affect the overall stability of Qt Creator. To disable Qt Quick Designer again, visit the menu &apos;%1&apos; and disable &apos;QmlDesigner&apos;.</source>
-        <translation>Czy chcesz włączyć eksperymentalny Qt Quick Designer? Po włączeniu możliwy jest dostęp do edytora graficznego przechodząc w tryb Design. Może to mieć wpływ na ogólną stabilność Qt Creatora. W menu &quot;%1&quot; można ponownie wyłączyć Qt Quick Designer naciskając &quot;QmlDesigner&quot;.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Anuluj</translation>
-    </message>
-    <message>
-        <source>Please restart Qt Creator</source>
-        <translation>Uruchom ponownie Qt Creatora</translation>
-    </message>
-    <message>
-        <source>Please restart Qt Creator to make the change effective.</source>
-        <translation>Uruchom ponownie Qt Creatora aby zmiana mogła zostać zastosowana.</translation>
-    </message>
-</context>
-<context>
     <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>Creates a QML file.</source>
@@ -14413,7 +14442,7 @@ Użyj właściwości importPaths dla projektów qmlproject aby dodać scieżki i
         <translation>Qt Quick UI</translation>
     </message>
     <message>
-        <source>Creates a  Qt Quick UI project with a single QML file that contains the main view.
+        <source>Creates a Qt Quick UI project with a single QML file that contains the main view.
 
 You can review Qt Quick UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.</source>
         <translation>Tworzy projekt Qt Quick z pojedynczym plikiem QML zawierającym główny widok.
@@ -14853,7 +14882,7 @@ Możesz przeglądać projekty przy pomocy QML Viewera bez ich uprzedniego budowa
     </message>
     <message>
         <source>&amp;Display:</source>
-        <translation>&amp;Wyświetl:</translation>
+        <translation>&amp;Wyświetlaj:</translation>
     </message>
     <message>
         <source>entries</source>
@@ -15398,8 +15427,8 @@ Sprawdź dokumentację SSH zmienną środowiskową SSH_ASKPASS.</translation>
         <translation>WidokSieci</translation>
     </message>
     <message>
-        <source>Url</source>
-        <translation>Url</translation>
+        <source>URL</source>
+        <translation>URL</translation>
     </message>
     <message>
         <source>Pref Width</source>
@@ -15688,6 +15717,14 @@ które można ustawić poniżej.</translation>
     <message>
         <source>Only select items with content (S)</source>
         <translation>Wybierz tylko elementy z zawartością (S)</translation>
+    </message>
+    <message>
+        <source>width</source>
+        <translation>szerokość</translation>
+    </message>
+    <message>
+        <source>height</source>
+        <translation>wysokość</translation>
     </message>
     <message>
         <source>Reset view (R)</source>
@@ -17488,7 +17525,7 @@ zamiast w jego katalogu instalacyjnym.</translation>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Zainstaluj</translation>
+        <translation>instalacji</translation>
     </message>
     <message>
         <source>No deployment</source>
@@ -18207,10 +18244,10 @@ Wstępnie wybiera wersję Qt dla Symulatora i aplikacji mobilnych (jeśli jest d
     <message>
         <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
 
-You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.3 or newer is required.</source>
-        <translation>Tworzy projekt aplikacji Qt Quick, który może zawierać kod QML i C++ i dołącza QDeclarativeView
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.4 or newer is required.</source>
+        <translation>Tworzy projekt aplikacji Qt Quick, który może zawierać kod QML i C++, oraz dołącza QDeclarativeView.
 
-Aplikację można zbudować i zainstalować na desktopie i urządzeniach mobilnych. Dla tego typu projektów można na przykład utworzyć podpisane pakiety Symbian Installation System (SIS). Ponadto, można użyć zestawu wbudowanych komponentów UI w aplikacji Qt Quick. Aby skorzystać z komponentów wymagana jest wersja Qt 4.7.3 albo nowsza.</translation>
+Aplikację można zbudować i zainstalować na desktopie i urządzeniach mobilnych. Dla tego typu projektów można na przykład utworzyć podpisane pakiety Symbian Installation System (SIS). Ponadto, można użyć zestawu wbudowanych komponentów UI w aplikacji Qt Quick. Aby skorzystać z komponentów, wymagana jest wersja Qt 4.7.4 albo nowsza.</translation>
     </message>
 </context>
 <context>
@@ -19623,7 +19660,7 @@ Poprzednie wersje mają ograniczenia w budowaniu odpowiednich plików SIS.</tran
     </message>
     <message>
         <source>&amp;Clean whitespace</source>
-        <translation>Wy&amp;czyść białe znaki</translation>
+        <translation>&amp;Czyść białe znaki</translation>
     </message>
     <message>
         <source>Clean whitespace in entire document instead of only for changed parts.</source>
@@ -19639,7 +19676,7 @@ Poprzednie wersje mają ograniczenia w budowaniu odpowiednich plików SIS.</tran
     </message>
     <message>
         <source>Clean indentation</source>
-        <translation>Wyczyść wcięcia</translation>
+        <translation>Czyść wcięcia</translation>
     </message>
     <message>
         <source>&amp;Ensure newline at end of file</source>
@@ -19671,7 +19708,7 @@ Poprzednie wersje mają ograniczenia w budowaniu odpowiednich plików SIS.</tran
 &lt;li&gt;&lt;i&gt;Zachowuj, jeśli już istnieje: &lt;/i&gt;&lt;/li&gt;zachowuje plik z BOM jeśli go posiadał podczas ładowania&lt;/li&gt;
 &lt;li&gt;&lt;i&gt;Zawsze usuwaj:&lt;/i&gt; nigdy nie zapisuje UTF-8 BOM kasując poprzednie wystąpienia.&lt;/li&gt;&lt;/ul&gt;
 &lt;p&gt;Uwaga: UTF-8 BOMy występują rzadko i niektóre edytory traktują je za błędne, więc zwykle nie ma sensu ich dodawać.&lt;/p&gt;
-&lt;p&gt;To ustawienie &lt;b&gt;nie&lt;/b&gt; nie wpływa na używanie BOMów UTF-16 i UTF-32.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p&gt;To ustawienie &lt;b&gt;nie&lt;/b&gt; wpływa na używanie BOMów UTF-16 i UTF-32.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add If Encoding Is UTF-8</source>
@@ -19772,6 +19809,10 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <source>Enable &amp;tooltips only when Shift key is down</source>
         <translation>Pokazuj &amp;podpowiedzi
 tylko z przyciśniętym klawiszem &quot;Shift&quot;</translation>
+    </message>
+    <message>
+        <source>Always write a newline character at the end of the file.</source>
+        <translation>Zawsze wstawiaj znak nowej linii na końcu pliku.</translation>
     </message>
 </context>
 <context>
@@ -19909,7 +19950,7 @@ tylko z przyciśniętym klawiszem &quot;Shift&quot;</translation>
     <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
-        <translation>&lt;SKASUJ&gt;</translation>
+        <translation>&lt;USUNIĘTO&gt;</translation>
     </message>
     <message>
         <source>Variable</source>
@@ -20889,8 +20930,8 @@ Uwaga: może to spowodować usunięcie lokalnego pliku.</translation>
         <translation>Komendy użytkownika nie są akceptowalne w bieżącym stanie.</translation>
     </message>
     <message>
-        <source>Open Qt4 Options</source>
-        <translation>Otwórz ustawienia Qt4</translation>
+        <source>Open Qt Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Turn off Helper Usage</source>
@@ -21812,13 +21853,13 @@ komponentów QML.</translation>
     </message>
     <message>
         <source>Color selection for %1</source>
-        <translation>Selekcja kolorów dla %1</translation>
+        <translation>Wybór koloru dla %1</translation>
     </message>
 </context>
 <context>
     <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
-        <source>Methods and functions</source>
+        <source>Methods and Functions</source>
         <translation>Metody i funkcje</translation>
     </message>
 </context>
@@ -22894,7 +22935,7 @@ wyliczeniowych</translation>
     </message>
     <message>
         <source>Align</source>
-        <translation>Wyrównuj</translation>
+        <translation>Wyrównanie przeniesionych linii</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -22912,7 +22953,7 @@ a = a +
 &lt;/pre&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Włącza wyrównywanie do znaków po =, += itd. Kiedy ta opcja jest wyłączona użyte zostanie zwykłe wyrównanie przeniesionych linii.&lt;br&gt;
+Włącza wyrównywanie do znaków po =, +=, itd. Kiedy ta opcja jest wyłączona, użyte zostanie zwykłe wyrównanie przeniesionych linii.&lt;br&gt;
 &lt;br&gt;
 Z wyrównaniem:
 &lt;pre&gt;
@@ -22928,7 +22969,8 @@ a = a +
     </message>
     <message>
         <source>Align after assignments</source>
-        <translation>Wyrównuj do znaków przypisania</translation>
+        <translation>Wyrównuj przeniesione linie
+do znaków przypisania</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -22946,7 +22988,14 @@ if (a &amp;&amp;
 &lt;/pre&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Dodatkowe wcięcie wpływa zwykle tylko na warunki instrukcji &quot;if&quot;. Bez dodatkowego wcięcia:
+Dodatkowe wcięcie wpływa zwykle tylko na warunki instrukcji &quot;if&quot;, choć zależnie od
+wielkości wcięć, może wpływać również na instrukcje &quot;foreach&quot;, &quot;switch&quot; i &quot;while&quot;.
+Dodaktowe wcięcie dodawane jest w przypadku, gdy wyrównanie przeniesionej linii
+byłoby mniejsze lub równe pojedynczemu wcięciu.&lt;br&gt;
+&lt;br&gt;
+Dla wcięć o rozmiarze 4 mamy:&lt;br&gt;
+&lt;br&gt;
+Bez dodatkowego wcięcia:
 &lt;pre&gt;
 if (a &amp;&amp;
     b)
@@ -22963,8 +23012,9 @@ if (a &amp;&amp;
     <message>
         <source>Add extra padding to conditions
 if they would align to the next line</source>
-        <translation>Dodatkowe wcięcia
-w instrukcjach warunkowych</translation>
+        <translation>Dodatkowe wcięcia przeniesionych
+linii w instrukcjach &quot;if&quot;, &quot;foreach&quot;,
+&quot;switch&quot; i &quot;while&quot;, jeśli wymagane</translation>
     </message>
 </context>
 <context>
@@ -23084,10 +23134,6 @@ w instrukcjach warunkowych</translation>
     <message>
         <source>Show Log</source>
         <translation>Pokaż log</translation>
-    </message>
-    <message>
-        <source>Compile debugging helpers that are checked.</source>
-        <translation>Kompiluje zaznaczonych asystentów debugowania.</translation>
     </message>
     <message>
         <source>Build All</source>
@@ -25459,14 +25505,6 @@ Requires Qt 4.7.1 or newer.</source>
 Wymaga Qt 4.7.1 lub nowszego.</translation>
     </message>
     <message>
-        <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
-
-Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.</source>
-        <translation>Komponenty Qt Quick dla Symbiana to zestaw gotowych komponentów o natywnym wyglądzie, zaprojektowanych specjalnie dla Symbiana.
-
-Wymaga Qt 4.7.3 lub nowszego oraz zainstalowanego zestawu komponentów dla tej wersji.</translation>
-    </message>
-    <message>
         <source>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>Wszystkie pliki i katalogi, umieszczone wewnątrz katalogu w którym jest główny plik QML, zostaną zainstalowane. Zawartość katalogu może być dowolnie zmieniana przed instalacją.</translation>
     </message>
@@ -25479,6 +25517,14 @@ Wymaga Qt 4.7.3 lub nowszego oraz zainstalowanego zestawu komponentów dla tej w
 
 Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
         <translation>Komponenty Qt Quick dla MeeGo/Harmattan to zestaw gotowych komponentów o natywnym wyglądzie, zaprojektowanych specjalnie dla Meego/Harmattan.
+
+Wymaga Qt 4.7.4 lub nowszego oraz zainstalowanego zestawu komponentów dla tej wersji.</translation>
+    </message>
+    <message>
+        <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
+
+Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
+        <translation>Komponenty Qt Quick dla Symbiana to zestaw gotowych komponentów o natywnym wyglądzie, zaprojektowanych specjalnie dla Symbiana.
 
 Wymaga Qt 4.7.4 lub nowszego oraz zainstalowanego zestawu komponentów dla tej wersji.</translation>
     </message>
@@ -25609,13 +25655,6 @@ Wymaga Qt 4.7.4 lub nowszego oraz zainstalowanego zestawu komponentów dla tej w
     <message>
         <source>%1 (current session)</source>
         <translation>%1 (bieżąca sesja)</translation>
-    </message>
-</context>
-<context>
-    <name>TagBrowser</name>
-    <message>
-        <source>Please choose a tag to filter for:</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -26165,22 +26204,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <translation>Pasek narzędzi analizatora</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running. You have to quit the Analyzer before being able to run another instance.&lt;center/&gt;&lt;center&gt;Force it to quit?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; jest wciąż uruchomiony. Należy zakończyć pracę analizatora przed uruchomieniem kolejnej instancji.&lt;center/&gt;&lt;center&gt;Wymusić zakończenie?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Analyzer Still Running</source>
-        <translation>Analizator wciąż uruchomiony</translation>
-    </message>
-    <message>
-        <source>Stop Active Run</source>
-        <translation>Zatrzymaj</translation>
-    </message>
-    <message>
-        <source>Keep Running</source>
-        <translation>Pozostaw uruchomionym</translation>
-    </message>
-    <message>
         <source>Debug</source>
         <translation>Debug</translation>
     </message>
@@ -26534,10 +26557,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <translation>Ustaw jako domyślny</translation>
     </message>
     <message>
-        <source>&amp;Add</source>
-        <translation>&amp;Dodaj</translation>
-    </message>
-    <message>
         <source>&amp;Remove</source>
         <translation>&amp;Usuń</translation>
     </message>
@@ -26552,6 +26571,10 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     <message>
         <source>&amp;Generate SSH Key...</source>
         <translation>&amp;Generuj klucz SSH...</translation>
+    </message>
+    <message>
+        <source>&amp;Add...</source>
+        <translation>&amp;Dodaj...</translation>
     </message>
 </context>
 <context>
@@ -26694,25 +26717,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     <message>
         <source>&amp;Update List</source>
         <translation>&amp;Uaktualnij listę</translation>
-    </message>
-</context>
-<context>
-    <name>ExampleLineEdit</name>
-    <message>
-        <source>Show Examples and Demos</source>
-        <translation>Pokaż przykłady i dema</translation>
-    </message>
-    <message>
-        <source>Search in Tutorials</source>
-        <translation>Wyszukaj w samouczkach</translation>
-    </message>
-    <message>
-        <source>Search in Tutorials, Examples and Demos</source>
-        <translation>Wyszukaj w samouczkach, przykładach i demach</translation>
-    </message>
-    <message>
-        <source>Tag List</source>
-        <translation>Lista tagów</translation>
     </message>
 </context>
 <context>
@@ -27044,12 +27048,12 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <translation>Test</translation>
     </message>
     <message>
-        <source>Remote Processes</source>
-        <translation>Zdalne procesy</translation>
+        <source>Remote Processes...</source>
+        <translation>Zdalne procesy...</translation>
     </message>
     <message>
-        <source>Deploy Public Key</source>
-        <translation>Zainstaluj klucz publiczny</translation>
+        <source>Deploy Public Key...</source>
+        <translation>Zainstaluj klucz publiczny...</translation>
     </message>
 </context>
 <context>
@@ -28194,7 +28198,9 @@ Jeśli zdecydujesz, żeby nie kontynuować, Qt Creator nie załaduje pliku .shar
         <source>The module URI cannot be determined by static analysis. The type will be available
 globally in the QML editor. You can add a &quot;// @uri My.Module.Uri&quot; annotation to let
 Qt Creator know about a likely URI.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można określić URI modułu po zastosowaniu analizy statycznej. Typ będzie dostępny
+globalnie w edytorze QML. Dodanie adnotacji &quot;// @uri Uri.Mojego.Modułu&quot;
+poinstruuje Qt Creatora o URI.</translation>
     </message>
     <message>
         <source>must be a string literal to be available in the QML editor</source>
@@ -28412,12 +28418,12 @@ Czy urządzenie jest podłączone i czy zostało skonfigurowane połączenie sie
         <translation>Test</translation>
     </message>
     <message>
-        <source>Remote Processes</source>
-        <translation>Zdalne procesy</translation>
+        <source>Remote Processes...</source>
+        <translation>Zdalne procesy...</translation>
     </message>
     <message>
-        <source>Deploy Public Key</source>
-        <translation>Instaluj klucz publiczny</translation>
+        <source>Deploy Public Key...</source>
+        <translation>Zainstaluj klucz publiczny...</translation>
     </message>
 </context>
 <context>
@@ -28880,6 +28886,18 @@ Zawartość zdalnego wyjścia z błędami: %1</translation>
         <source>Code style name:</source>
         <translation>Nazwa stylu kodu:</translation>
     </message>
+    <message>
+        <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
+        <translation>Nie można zachować zmian we wbudowanym stylu kodu. W celu utworzenia własnej wersji skopiuj go najpierw.</translation>
+    </message>
+    <message>
+        <source>Copy Built-in Code Style</source>
+        <translation>Skopiuj wbudowany styl kodu</translation>
+    </message>
+    <message>
+        <source>%1 (Copy)</source>
+        <translation>%1 (Kopia)</translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::CodeStyleSelectorWidget</name>
@@ -28955,6 +28973,10 @@ Zawartość zdalnego wyjścia z błędami: %1</translation>
         <source>%1 [built-in]</source>
         <translation>%1 [wbudowane]</translation>
     </message>
+    <message>
+        <source>Form</source>
+        <translation>Formularz</translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::FindInFiles</name>
@@ -28979,8 +29001,8 @@ Filtr: %2
         <translation>&amp;Katalog:</translation>
     </message>
     <message>
-        <source>&amp;Browse</source>
-        <translation>&amp;Przeglądaj</translation>
+        <source>&amp;Browse...</source>
+        <translation>&amp;Przeglądaj...</translation>
     </message>
     <message>
         <source>Fi&amp;le pattern:</source>
@@ -28993,6 +29015,14 @@ Filtr: %2
 </context>
 <context>
     <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <message>
+        <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not find maintenance tool at &apos;%1&apos;. Check your installation.</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Start Updater</source>
         <translation>Uruchom uaktualniacza</translation>

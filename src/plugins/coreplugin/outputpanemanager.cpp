@@ -254,7 +254,7 @@ void OutputPaneManager::init()
         const int idx = m_outputWidgetPane->addWidget(outPane->outputWidget(this));
 
         m_pageMap.insert(idx, outPane);
-        connect(outPane, SIGNAL(showPage(bool)), this, SLOT(showPage(bool)));
+        connect(outPane, SIGNAL(showPage(bool,bool)), this, SLOT(showPage(bool,bool)));
         connect(outPane, SIGNAL(hidePage()), this, SLOT(slotHide()));
         connect(outPane, SIGNAL(togglePage(bool)), this, SLOT(togglePage(bool)));
         connect(outPane, SIGNAL(navigateStateUpdate()), this, SLOT(updateNavigateState()));
@@ -431,10 +431,12 @@ void OutputPaneManager::updateNavigateState()
 }
 
 // Slot connected to showPage signal of each page
-void OutputPaneManager::showPage(bool focus)
+void OutputPaneManager::showPage(bool focus, bool ensureSizeHint)
 {
     int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
     showPage(idx, focus);
+    if (ensureSizeHint && OutputPanePlaceHolder::getCurrent())
+        OutputPanePlaceHolder::getCurrent()->ensureSizeHintAsMinimum();
 }
 
 void OutputPaneManager::showPage(int idx, bool focus)

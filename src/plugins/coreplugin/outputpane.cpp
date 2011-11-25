@@ -143,6 +143,28 @@ bool OutputPanePlaceHolder::isMaximized() const
     return Internal::OutputPaneManager::instance()->isMaximized();
 }
 
+void OutputPanePlaceHolder::ensureSizeHintAsMinimum()
+{
+    if (!d->m_splitter)
+        return;
+    int idx = d->m_splitter->indexOf(this);
+    if (idx < 0)
+        return;
+
+    QList<int> sizes = d->m_splitter->sizes();
+    Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
+    int minimum = (d->m_splitter->orientation() == Qt::Vertical
+                   ? om->sizeHint().height() : om->sizeHint().width());
+    int difference = minimum - sizes.at(idx);
+    if (difference <= 0) // is already larger
+        return;
+    for (int i = 0; i < sizes.count(); ++i) {
+        sizes[i] += difference / (sizes.count()-1);
+    }
+    sizes[idx] = minimum;
+    d->m_splitter->setSizes(sizes);
+}
+
 void OutputPanePlaceHolder::unmaximize()
 {
     if (Internal::OutputPaneManager::instance()->isMaximized())

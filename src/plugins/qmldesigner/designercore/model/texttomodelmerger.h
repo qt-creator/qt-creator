@@ -68,8 +68,8 @@ public:
     RewriterView *view() const
     { return m_rewriterView; }
 
-    const QmlJS::ScopeChain &scopeChain() const
-    { return *m_scopeChain; }
+    const QmlJS::ScopeChain *scopeChain() const
+    { return m_scopeChain.data(); }
 
     const QmlJS::Document *document() const
     { return m_document.data(); }

@@ -1,0 +1,89 @@
+Preface
+-------
+The usage of the hook-into subprocess has following prerequisites:
+Either:
+    * have no firewall at all enabled (sure that's a bad idea)
+Or:
+    * have the Windows Firewall enabled (no other firewalls are handled by the scripts)
+    * run the Squish tests with administrator privileges
+    * additionally the UAC should be disabled, too
+
+Otherwise you'll have some trouble with popping up dialogs from the firewall.
+If you're using a different firewall - try to figure out and add a rule for this.
+
+
+Using the internal test data fallback
+-------------------------------------
+
+    * inside the shared_data folder a "standard" mapping file is located (qt_squish_mapping.tsv)
+    * this file defines currently some Squish versions that are available for usage
+    * all of the Squish versions mentioned in there should exist inside QTSDK/src/creator-test-data (see the file for naming the Squish versions) - of course this depends on the OS you're testing on
+
+Attention! This file will be updated with more columns (and rows) for making it possible to also test Debug builds or 64bit builds. So, even the path entries currently listed could change when this feature is implemented.
+
+
+Using QT_SQUISH_MAPFILE variable
+--------------------------------
+
+    * create a simple text file (UTF-8 encoded) that follows this scheme:
+
+     QtVersion mkspec Path
+
+    * QtVersion: only major and minor number will be used (e.g. 4.7, 4.8, 5.0)
+    * mkspec: a string holding the mkspec as it appears inside QTSDK/mkspec (or inside Qt Creator)
+    * Path: the path to the Squish directory that can be used with this combination of QtVersion and mkspec
+    * between QtVersion and mkspec as well as between mkspec and Path use whitespaces only
+    * lines STARTING with # within the first column will be ignored
+    * path can contain spaces as well as ~ (for the home directory)
+    * you can put any entry of a line into quotes (no matter whether single or double quotes)
+    * a line holding a mapping MUST start with a QtVersion entry in the first column
+
+Example 1: (using single space, no quoting)
+
+#qtversion mkspec path
+4.7<SP>win32-g++<SP>C:\Tools\Squish_MinGW
+4.7<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
+4.7<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
+4.8<SP>win32-g++<SP>C:\Tools\Squish_MinGW
+4.8<SP>win32-msvc2008<SP>C:\Tools\Squish_MSVC9
+4.8<SP>win32-msvc2010<SP>C:\Tools\Squish_MSVC10
+
+Example 2: (using mixed whitespaces, some quoting)
+
+#qtversion<TAB>mkspec<TAB><TAB><SP>path
+"4.7"<SP><TAB>win32-g++<TAB><TAB>'C:\Tools\Squish_MinGW'
+'4.7'<SP><TAB>'win32-msvc2008'<TAB>"C:\Tools\Squish_MSVC9"
+4.7<SP><SP><TAB>win32-msvc2010<TAB>C:\Tools\Squish_MSVC10
+"4.8"<SP><TAB>"win32-g++"<SP><SP><TAB>"C:\Tools\Squish_MinGW"
+'4.8'<SP><TAB>win32-msvc2008<SP><TAB>'C:\Tools\Squish_MSVC9'
+'4.8'<SP><TAB>win32-msvc2010<SP><TAB>C:\Tools\Squish_MSVC10
+
+Explanation: <SP> = space, <TAB> = tabulator
+
+    * after creating this file put it somewhere and define environment variable QT_SQUISH_MAPFILE to point directly to the file
+    * definition of this variable should be done BEFORE the test is started and can be done in various ways:
+        * declare this variable as a system environment variable (how to do this depends on the OS you're using) [recommended way]
+        * add this variable to the envvar file inside the directory holding the Squish test suites [please don't do this when pushing envvar back to git]
+        * you can also modify the os.environ dict inside the test script(s) but this has to be done, before the test tries to read the variable [best place would be right before/after the call to startApplication()]
+
+Hint: You can also use the provided tsv file as a template. Simply remove lines you're not needing and adjust the path entries to point to the correct paths on your system and you should be fine.
+
+Attention! The format of the file might slightly change as soon also Debug builds will be easily testable (and maybe again for 64bit builds)
+
+
+Preparation of the SQUISH directories
+-------------------------------------
+To make the hook-into sub-process really work you have to provide a modified Squish.
+
+Steps to set up the Squish directories on Windows:
+    * get the Squish version you need from froglogic.com
+    * extract the archive to place of your choice
+    * go to the bin directory of Squish and remove the following dll's:
+        * Qt3Support.dll
+        * QtCore4.dll
+        * QtGui4.dll
+        * QtNetwork4.dll
+        * QtSql4.dll
+        * QtXml4.dll
+
+You can additionally remove the complete ide folder as well as squishclassicide.exe and squishide.exe (to safe disk space).

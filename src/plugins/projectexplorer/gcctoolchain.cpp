@@ -382,7 +382,6 @@ void GccToolChain::addToEnvironment(Utils::Environment &env) const
 {
     if (!m_compilerPath.isEmpty())
         env.prependOrSetPath(QFileInfo(m_compilerPath).absolutePath());
-    env.set(QLatin1String("LANG"), QLatin1String("C"));
 }
 
 void GccToolChain::setDebuggerCommand(const QString &d)

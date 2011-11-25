@@ -48,6 +48,7 @@
 #include <QtGui/QFont>
 #include <QtGui/QAction>
 #include <QtGui/QComboBox>
+#include <QtGui/QScrollArea>
 #include <QtGui/QStackedWidget>
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
@@ -209,7 +210,10 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     d->m_widget = new QStackedWidget;
     d->m_widget->setWindowTitle(displayName());
 
-    d->m_widget->addWidget(newSearchPanel);
+    QScrollArea *newSearchArea = new QScrollArea(d->m_widget);
+    newSearchArea->setFrameStyle(QFrame::NoFrame);
+    newSearchArea->setWidget(newSearchPanel);
+    d->m_widget->addWidget(newSearchArea);
     d->m_currentIndex = 0;
 
     d->m_expandCollapseButton = new QToolButton(d->m_widget);
@@ -400,7 +404,7 @@ void SearchResultWindow::setTextEditorFont(const QFont &font)
 void SearchResultWindow::openNewSearchPanel()
 {
     d->setCurrentIndex(0);
-    popup();
+    popup(true/*focus*/, true/*sizeHint*/);
 }
 
 /*!

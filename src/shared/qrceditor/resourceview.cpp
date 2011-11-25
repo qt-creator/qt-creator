@@ -305,6 +305,11 @@ EntryBackup * ResourceView::removeEntry(const QModelIndex &index)
     return m_qrcModel->removeEntry(index);
 }
 
+QStringList ResourceView::existingFilesSubtracted(int prefixIndex, const QStringList &fileNames) const
+{
+    return m_qrcModel->existingFilesSubtracted(prefixIndex, fileNames);
+}
+
 void ResourceView::addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile,
         int &firstFile, int &lastFile)
 {

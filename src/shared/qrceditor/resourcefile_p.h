@@ -216,6 +216,7 @@ public:
 
     virtual QModelIndex addNewPrefix();
     virtual QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
+    QStringList existingFilesSubtracted(int prefixIndex, const QStringList &fileNames) const;
     void addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile, int &firstFile, int &lastFile);
     void insertPrefix(int prefixIndex, const QString &prefix, const QString &lang);
     void insertFile(int prefixIndex, int fileIndex, const QString &fileName, const QString &alias);

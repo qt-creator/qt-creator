@@ -1,5 +1,4 @@
 TEMPLATE = lib
-CONFIG += dll
 TARGET = QmlJSDebugClient
 QT += network
 DEFINES += QMLJSDEBUGCLIENT_LIBRARY
