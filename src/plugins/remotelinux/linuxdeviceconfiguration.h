@@ -37,6 +37,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QVariantHash>
 #include <QtGui/QWizard>
 
 QT_BEGIN_NAMESPACE
@@ -78,6 +79,7 @@ public:
     Id internalId() const;
     bool isDefault() const;
     bool isAutoDetected() const;
+    QVariantHash attributes() const;
 
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
@@ -86,11 +88,11 @@ public:
 
     static Ptr create(const QString &name, const QString &osType, DeviceType deviceType,
         const PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
-        Origin origin = ManuallyAdded);
+        const QVariantHash &attributes = QVariantHash(), Origin origin = ManuallyAdded);
 private:
     LinuxDeviceConfiguration(const QString &name, const QString &osType, DeviceType deviceType,
         const PortList &freePorts, const Utils::SshConnectionParameters &sshParams,
-        Origin origin);
+        const QVariantHash &attributes, Origin origin);
     LinuxDeviceConfiguration(const QSettings &settings, Id &nextId);
     LinuxDeviceConfiguration(const ConstPtr &other);
 
