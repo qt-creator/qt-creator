@@ -39,7 +39,7 @@
 #include <QDebug>
 
 using namespace CPlusPlus;
-using namespace CppTools::Internal;
+using namespace CppTools;
 
 SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
         SearchSymbols::Classes

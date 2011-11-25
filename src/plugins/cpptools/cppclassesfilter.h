@@ -33,17 +33,17 @@
 #ifndef CPPCLASSESFILTER_H
 #define CPPCLASSESFILTER_H
 
-#include <cpplocatorfilter.h>
+#include "cpptools_global.h"
+#include "cpplocatorfilter.h"
 
 namespace CppTools {
-namespace Internal {
 
-class CppClassesFilter : public CppLocatorFilter
+class CPPTOOLS_EXPORT CppClassesFilter : public Internal::CppLocatorFilter
 {
     Q_OBJECT
 
 public:
-    CppClassesFilter(CppModelManager *manager);
+    CppClassesFilter(Internal::CppModelManager *manager);
     ~CppClassesFilter();
 
     QString displayName() const { return tr("Classes"); }
@@ -51,7 +51,6 @@ public:
     Priority priority() const { return Medium; }
 };
 
-} // namespace Internal
 } // namespace CppTools
 
 #endif // CPPCLASSESFILTER_H

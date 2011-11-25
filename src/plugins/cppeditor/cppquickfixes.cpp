@@ -56,12 +56,16 @@
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/CppRewriter.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/cppclassesfilter.h>
+#include <cpptools/searchsymbols.h>
 #include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QApplication>
@@ -1701,6 +1705,157 @@ private:
     };
 };
 
+/**
+ * Adds an include for an undefined identifier.
+ */
+class IncludeAdder : public CppQuickFixFactory
+{
+public:
+    virtual QList<CppQuickFixOperation::Ptr> match(const QSharedPointer<const CppQuickFixAssistInterface> &interface)
+    {
+        CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::instance()->getObject<CppClassesFilter>();
+        if (!classesFilter)
+            return noResult();
+
+        const QList<AST *> &path = interface->path();
+
+        if (path.isEmpty())
+            return noResult();
+
+        // find the largest enclosing Name
+        const NameAST *enclosingName = 0;
+        const SimpleNameAST *innermostName = 0;
+        for (int i = path.size() - 1; i >= 0; --i) {
+            if (NameAST *nameAst = path.at(i)->asName()) {
+                enclosingName = nameAst;
+                if (!innermostName) {
+                    innermostName = nameAst->asSimpleName();
+                    if (!innermostName)
+                        return noResult();
+                }
+            } else {
+                break;
+            }
+        }
+        if (!enclosingName || !enclosingName->name)
+            return noResult();
+
+        // find the enclosing scope
+        unsigned line, column;
+        const Document::Ptr &doc = interface->semanticInfo().doc;
+        doc->translationUnit()->getTokenStartPosition(enclosingName->firstToken(), &line, &column);
+        Scope *scope = doc->scopeAt(line, column);
+        if (!scope)
+            return noResult();
+
+        // check if the name resolves to something
+        QList<LookupItem> existingResults = interface->context().lookup(enclosingName->name, scope);
+        if (!existingResults.isEmpty())
+            return noResult();
+
+        const QString &className = Overview()(innermostName->name);
+        if (className.isEmpty())
+            return noResult();
+
+        QList<CppQuickFixOperation::Ptr> results;
+
+        // find the include paths
+        QStringList includePaths;
+        CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
+        QList<CppModelManagerInterface::ProjectInfo> projectInfos = modelManager->projectInfos();
+        bool inProject = false;
+        foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
+            if (info.sourceFiles.contains(doc->fileName())) {
+                inProject = true;
+                includePaths += info.includePaths;
+            }
+        }
+        if (!inProject) {
+            // better use all include paths than none
+            foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos)
+                includePaths += info.includePaths;
+        }
+
+        // find a include file through the locator
+        QFutureInterface<Locator::FilterEntry> dummyInterface;
+        QList<Locator::FilterEntry> matches = classesFilter->matchesFor(dummyInterface, className);
+        bool classExists = false;
+        foreach (const Locator::FilterEntry &entry, matches) {
+            const ModelItemInfo info = entry.internalData.value<ModelItemInfo>();
+            if (info.symbolName != className)
+                continue;
+            classExists = true;
+            const QString &fileName = info.fileName;
+            const QFileInfo fileInfo(fileName);
+
+            // find the shortest way to include fileName given the includePaths
+            QString shortestInclude;
+
+            if (fileInfo.path() == QFileInfo(doc->fileName()).path()) {
+                shortestInclude = QString("\"%1\"").arg(fileInfo.fileName());
+            } else {
+                foreach (const QString &includePath, includePaths) {
+                    if (!fileName.startsWith(includePath))
+                        continue;
+                    QString relativePath = fileName.mid(includePath.size());
+                    if (!relativePath.isEmpty() && relativePath.at(0) == QLatin1Char('/'))
+                        relativePath = relativePath.mid(1);
+                    if (shortestInclude.isEmpty() || relativePath.size() + 2 < shortestInclude.size())
+                        shortestInclude = QString("<%1>").arg(relativePath);
+                }
+            }
+
+            if (!shortestInclude.isEmpty())
+                results += CppQuickFixOperation::Ptr(new Operation(interface, 0, shortestInclude));
+        }
+
+        // for QSomething, propose a <QSomething> include -- if such a class was in the locator
+        if (classExists
+                && className.size() > 2
+                && className.at(0) == QLatin1Char('Q')
+                && className.at(1).isUpper()) {
+            results += CppQuickFixOperation::Ptr(new Operation(interface, 1, QString("<%1>").arg(className)));
+        }
+
+        return results;
+    }
+
+private:
+    class Operation: public CppQuickFixOperation
+    {
+    public:
+        Operation(const QSharedPointer<const CppQuickFixAssistInterface> &interface, int priority, const QString &include)
+            : CppQuickFixOperation(interface, priority)
+            , m_include(include)
+        {
+            setDescription(QApplication::translate("CppTools::QuickFix",
+                                                   "Add #include %1").arg(m_include));
+        }
+
+        virtual void performChanges(const CppRefactoringFilePtr &file,
+                                    const CppRefactoringChanges &)
+        {
+            // find location of last include in file
+            QList<Document::Include> includes = file->cppDocument()->includes();
+            unsigned lastIncludeLine = 0;
+            foreach (const Document::Include &include, includes) {
+                if (include.line() > lastIncludeLine)
+                    lastIncludeLine = include.line();
+            }
+
+            // add include
+            const int insertPos = file->position(lastIncludeLine + 1, 1) - 1;
+            ChangeSet changes;
+            changes.insert(insertPos, QString("\n#include %1").arg(m_include));
+            file->setChangeSet(changes);
+            file->apply();
+        }
+
+    private:
+        QString m_include;
+    };
+};
+
 } // end of anonymous namespace
 
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
@@ -1725,4 +1880,5 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new DeclFromDef);
     plugIn->addAutoReleasedObject(new DefFromDecl);
     plugIn->addAutoReleasedObject(new ApplyDeclDefLinkChanges);
+    plugIn->addAutoReleasedObject(new IncludeAdder);
 }

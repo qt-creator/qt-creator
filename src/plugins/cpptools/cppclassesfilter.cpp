@@ -32,6 +32,7 @@
 
 #include "cppclassesfilter.h"
 
+using namespace CppTools;
 using namespace CppTools::Internal;
 
 CppClassesFilter::CppClassesFilter(CppModelManager *manager)

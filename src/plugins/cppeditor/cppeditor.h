@@ -58,10 +58,10 @@ QT_END_NAMESPACE
 namespace CPlusPlus {
 class OverviewModel;
 class Symbol;
+class CppModelManagerInterface;
 }
 
 namespace CppTools {
-class CppModelManagerInterface;
 class CppCodeStyleSettings;
 class CppRefactoringFile;
 }

@@ -33,6 +33,8 @@
 #ifndef SEARCHSYMBOLS_H
 #define SEARCHSYMBOLS_H
 
+#include "cpptools_global.h"
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
@@ -48,9 +50,8 @@
 #include <functional>
 
 namespace CppTools {
-namespace Internal {
 
-struct ModelItemInfo
+struct CPPTOOLS_EXPORT ModelItemInfo
 {
     enum ItemType { Enum, Class, Method, Declaration };
 
@@ -180,10 +181,9 @@ private:
     bool separateScope;
 };
 
-} // namespace Internal
 } // namespace CppTools
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(CppTools::Internal::SearchSymbols::SymbolTypes)
-Q_DECLARE_METATYPE(CppTools::Internal::ModelItemInfo)
+Q_DECLARE_OPERATORS_FOR_FLAGS(CppTools::SearchSymbols::SymbolTypes)
+Q_DECLARE_METATYPE(CppTools::ModelItemInfo)
 
 #endif // SEARCHSYMBOLS_H

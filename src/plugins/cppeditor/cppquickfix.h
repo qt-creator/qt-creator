@@ -36,8 +36,11 @@
 #include "cppeditor_global.h"
 #include <texteditor/quickfix.h>
 
+namespace CPlusPlus {
+class CppModelManagerInterface;
+}
+
 namespace CppTools {
-    class CppModelManagerInterface;
     class CppRefactoringFile;
     class CppRefactoringChanges;
     typedef QSharedPointer<CppRefactoringFile> CppRefactoringFilePtr;
