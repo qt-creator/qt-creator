@@ -48,167 +48,29 @@
     \tableofcontents
 
     \section1 Plugin Specification
-    The plugin specification file is an xml file that contains all
-    information that are necessary for loading the plugin's library,
-    plus some textual descriptions. The file must be located in
-    (a subdir of) one of the plugin manager's plugin search paths,
-    and must have the \c .xml extension.
 
-    \section2 Main Tag
-    The root tag is \c plugin. It has mandatory attributes \c name
-    and \c version, and an optional \c compatVersion.
-    \table
-    \header
-        \o Tag
-        \o Meaning
-    \row
-        \o plugin
-        \o Root element in a plugin's xml file.
-    \endtable
-    \table
-    \header
-        \o Attribute
-        \o Meaning
-    \row
-        \o name
-        \o This is used as an identifier for the plugin and can e.g.
-           be referenced in other plugin's dependencies. It is
-           also used to construct the name of the plugin library
-           as \c lib[name].[dll|.so|.dylib].
-    \row
-        \o version
-        \o Version string in the form \c {"x.y.z_n"}, used for identifying
-           the plugin.
-    \row
-        \o compatVersion
-        \o Compatibility version. Optional. If not given, it is implicitly
-           set to the same value as \c version. The compatibility version
-           is used to resolve dependencies on this plugin. See
-           \l {Dependencies}{Dependencies} for details.
-    \endtable
-
-    \section2 Plugin-describing Tags
-    These are direct children of the \c plugin tag, and are solely used
-    for more detailed (user centric) description of the plugin. All of these
-    are optional.
-    \table
-    \header
-        \o Tag
-        \o Meaning
-    \row
-        \o vendor
-        \o String that describes the plugin creator/vendor,
-           like \c {MyCompany}.
-    \row
-        \o copyright
-        \o A short copyright notice, like \c {(C) 2007-2008 MyCompany}.
-    \row
-        \o license
-        \o Possibly multi-line license information about the plugin.
-    \row
-        \o description
-        \o Possibly multi-line description of what the plugin is supposed
-           to provide.
-    \row
-        \o url
-        \o Link to further information about the plugin, like
-           \c {http://www.mycompany-online.com/products/greatplugin}.
-    \endtable
-
-    \section2 Dependencies
-    A plugin can have dependencies on other plugins. These are
-    specified in the plugin's xml file as well, to ensure that
-    these other plugins are loaded before this plugin.
-    Dependency information consists of the name of the required plugin
-    (lets denote that as \c {dependencyName}),
-    and the required version of the plugin (\c {dependencyVersion}).
-    A plugin with given \c name, \c version and \c compatVersion matches
-    the dependency if
-    \list
-        \o its \c name matches \c dependencyName, and
-        \o \c {compatVersion <= dependencyVersion <= version}.
-    \endlist
-
-    The xml element that describes dependencies is the \c dependency tag,
-    with required attributes \c name and \c version. It is an
-    optional direct child of the \c plugin tag and can appear multiple times.
-    \table
-    \header
-        \o Tag
-        \o Meaning
-    \row
-        \o dependency
-        \o Describes a dependency on another plugin.
-    \endtable
-    \table
-    \header
-        \o Attribute
-        \o Meaning
-    \row
-        \o name
-        \o The name of the plugin, on which this plugin relies.
-    \row
-        \o version
-        \o The version to which the plugin must be compatible to
-           fill the dependency, in the form \c {"x.y.z_n"}.
-           Can be empty if the version does not matter.
-    \row
-        \o type
-        \o Value 'required' or 'optional'. Defines if the dependency is
-           a hard requirement or optional. Defaults to 'required'.
-    \endtable
-
-    \section2 Example \c plugin.xml
-    \code
-        <plugin name="test" version="1.0.1" compatVersion="1.0.0">
-            <vendor>MyCompany</vendor>
-            <copyright>(C) 2007 MyCompany</copyright>
-            <license>
-        This is a default license bla
-        blubbblubb
-        end of terms
-            </license>
-            <description>
-        This plugin is just a test.
-            it demonstrates the great use of the plugin spec.
-            </description>
-            <url>http://www.mycompany-online.com/products/greatplugin</url>
-            <dependencyList>
-                <dependency name="SomeOtherPlugin" version="2.3.0_2"/>
-                <dependency name="EvenOther" version="1.0.0"/>
-            </dependencyList>
-        </plugin>
-    \endcode
-    The first dependency could for example be matched by a plugin with
-    \code
-        <plugin name="SomeOtherPlugin" version="3.1.0" compatVersion="2.2.0">
-        </plugin>
-    \endcode
-    since the name matches, and the version \c "2.3.0_2" given in the dependency tag
-    lies in the range of \c "2.2.0" and \c "3.1.0".
-
-    \section2 A Note on Plugin Versions
-    Plugin versions are in the form \c "x.y.z_n" where, x, y, z and n are
-    non-negative integer numbers. You don't have to specify the version
-    in this full form - any left-out part will implicitly be set to zero.
-    So, \c "2.10_2" is equal to \c "2.10.0_2", and "1" is the same as "1.0.0_0".
+    A plugin needs to provide a plugin specification file in addition
+    to the actual plugin library, so the plugin manager can find the plugin,
+    resolve its dependencies, and load it. For more information,
+    see \l{Plugin Specifications}.
 
     \section1 Plugin Implementation
     Plugins must provide one implementation of the IPlugin class, located
     in a library that matches the \c name attribute given in their
-    xml description. The IPlugin implementation must be exported and
-    made known to Qt's plugin system via the Q_EXPORT_PLUGIN macro, see the
-    Qt documentation for details on that.
+    XML description. The IPlugin implementation must be exported and
+    made known to Qt's plugin system, see the Qt Documentation on the
+    \l{http://doc.qt.nokia.com/4.7/qtplugin.html#Q_EXPORT_PLUGIN2}
+    {Q_EXPORT_PLUGIN2 macro}.
 
-    After the plugins' xml files have been read, and dependencies have been
+    After the plugins' XML files have been read, and dependencies have been
     found, the plugin loading is done in three phases:
     \list 1
-    \o All plugin libraries are loaded in 'root-to-leaf' order of the
+    \o All plugin libraries are loaded in \e{root-to-leaf} order of the
        dependency tree.
-    \o All plugins' initialize methods are called in 'root-to-leaf' order
+    \o All plugins' initialize methods are called in \e{root-to-leaf} order
        of the dependency tree. This is a good place to put
        objects in the plugin manager's object pool.
-    \o All plugins' extensionsInitialized methods are called in 'leaf-to-root'
+    \o All plugins' extensionsInitialized methods are called in \e{leaf-to-root}
        order of the dependency tree. At this point, plugins can
        be sure that all plugins that depend on this plugin have
        been initialized completely (implying that they have put
