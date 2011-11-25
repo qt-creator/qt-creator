@@ -59,7 +59,7 @@ SymbianQtVersion::SymbianQtVersion()
 {
 }
 
-SymbianQtVersion::SymbianQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
+SymbianQtVersion::SymbianQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : BaseQtVersion(path, isAutodetected, autodetectionSource),
       m_validSystemRoot(false)
 {

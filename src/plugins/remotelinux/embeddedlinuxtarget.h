@@ -55,7 +55,7 @@ public:
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 
-    QString mkspec(const Qt4ProjectManager::Qt4BuildConfiguration *bc) const;
+    Utils::FileName mkspec(const Qt4ProjectManager::Qt4BuildConfiguration *bc) const;
 
 private:
     Qt4ProjectManager::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;

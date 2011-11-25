@@ -65,14 +65,14 @@ int EmbeddedLinuxQtVersionFactory::priority() const
     return 10;
 }
 
-QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::create(const QString &qmakePath,
+QtSupport::BaseQtVersion *EmbeddedLinuxQtVersionFactory::create(const Utils::FileName &qmakePath,
                                                                 ProFileEvaluator *evaluator,
                                                                 bool isAutoDetected,
                                                                 const QString &autoDetectionSource)
 {
     Q_UNUSED(evaluator);
 
-    QFileInfo fi(qmakePath);
+    QFileInfo fi = qmakePath.toFileInfo();
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
 

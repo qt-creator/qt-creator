@@ -84,7 +84,7 @@ public:
     //       need to get a new pointer by calling this method again!
     BaseQtVersion *version(int id) const;
 
-    BaseQtVersion *qtVersionForQMakeBinary(const QString &qmakePath);
+    BaseQtVersion *qtVersionForQMakeBinary(const Utils::FileName &qmakePath);
 
     // Used by the projectloadwizard
     void addVersion(BaseQtVersion *version);
@@ -105,7 +105,7 @@ public:
     static MakefileCompatible makefileIsFor(const QString &makefile, const QString &proFile);
     static QPair<BaseQtVersion::QmakeBuildConfigs, QString> scanMakeFile(const QString &makefile,
                                                                      BaseQtVersion::QmakeBuildConfigs defaultBuildConfig);
-    static QString findQMakeBinaryFromMakefile(const QString &directory);
+    static Utils::FileName findQMakeBinaryFromMakefile(const QString &directory);
     bool isValidId(int id) const;
 
     // Compatibility with pre-2.2:
@@ -113,12 +113,12 @@ public:
     QString popPendingGcceUpdate();
 signals:
     // content of BaseQtVersion objects with qmake path might have changed
-    void dumpUpdatedFor(const QString &qmakeCommand);
+    void dumpUpdatedFor(const Utils::FileName &qmakeCommand);
     void qtVersionsChanged(const QList<int> &uniqueIds);
     void updateExamples(QString, QString, QString);
 
 public slots:
-    void updateDumpFor(const QString &qmakeCommand);
+    void updateDumpFor(const Utils::FileName &qmakeCommand);
 
 private slots:
     void updateSettings();

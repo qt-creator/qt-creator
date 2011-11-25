@@ -73,11 +73,11 @@ QList<ProjectExplorer::RunConfiguration *> EmbeddedLinuxTarget::runConfiguration
     return result;
 }
 
-QString EmbeddedLinuxTarget::mkspec(const Qt4ProjectManager::Qt4BuildConfiguration *bc) const
+Utils::FileName EmbeddedLinuxTarget::mkspec(const Qt4ProjectManager::Qt4BuildConfiguration *bc) const
 {
    QtSupport::BaseQtVersion *version = bc->qtVersion();
    if (!version)
-       return QString();
+       return Utils::FileName();
    return version->mkspec();
 }
 

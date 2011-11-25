@@ -678,26 +678,26 @@ QString DebuggerRunControlFactory::displayName() const
 }
 
 // Find Qt installation by running qmake
-static inline QString findQtInstallPath(const QString &qmakePath)
+static inline QString findQtInstallPath(const Utils::FileName &qmakePath)
 {
     QProcess proc;
     QStringList args;
     args.append(_("-query"));
     args.append(_("QT_INSTALL_HEADERS"));
-    proc.start(qmakePath, args);
+    proc.start(qmakePath.toString(), args);
     if (!proc.waitForStarted()) {
-        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(qmakePath),
+        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(qmakePath.toString()),
            qPrintable(proc.errorString()));
         return QString();
     }
     proc.closeWriteChannel();
     if (!proc.waitForFinished()) {
         Utils::SynchronousProcess::stopProcess(proc);
-        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath));
+        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
         return QString();
     }
     if (proc.exitStatus() != QProcess::NormalExit) {
-        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(qmakePath));
+        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
         return QString();
     }
     const QByteArray ba = proc.readAllStandardOutput().trimmed();
@@ -738,7 +738,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 
     if (const ProjectExplorer::Target *target = runConfiguration->target()) {
         if (QByteArray(target->metaObject()->className()).contains("Qt4")) {
-            const QString qmake = Utils::BuildableHelperLibrary::findSystemQt(sp.environment);
+            const Utils::FileName qmake = Utils::BuildableHelperLibrary::findSystemQt(sp.environment);
             if (!qmake.isEmpty())
                 sp.qtInstallPath = findQtInstallPath(qmake);
         }

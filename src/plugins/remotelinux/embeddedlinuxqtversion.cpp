@@ -43,7 +43,7 @@ EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion()
     : BaseQtVersion()
 { }
 
-EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
+EmbeddedLinuxQtVersion::EmbeddedLinuxQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : BaseQtVersion(path, isAutodetected, autodetectionSource)
 { }
 

@@ -323,14 +323,14 @@ QWidget *CustomExecutableRunConfiguration::createConfigurationWidget()
 
 QString CustomExecutableRunConfiguration::dumperLibrary() const
 {
-    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
+    Utils::FileName qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
     QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
     return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
 }
 
 QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
 {
-    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
+    Utils::FileName qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
     QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
     return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 }

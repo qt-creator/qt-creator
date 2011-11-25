@@ -42,7 +42,7 @@ class EmbeddedLinuxQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     EmbeddedLinuxQtVersion();
-    EmbeddedLinuxQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    EmbeddedLinuxQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
     ~EmbeddedLinuxQtVersion();
     EmbeddedLinuxQtVersion *clone() const;
 

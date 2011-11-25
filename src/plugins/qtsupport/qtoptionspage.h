@@ -117,7 +117,7 @@ private slots:
     void toolChainsUpdated();
     void selectedToolChainChanged(int index);
 
-    void qtVersionsDumpUpdated(const QString &qmakeCommand);
+    void qtVersionsDumpUpdated(const Utils::FileName &qmakeCommand);
     void handleDebuggingHelperExpanded(bool expanded);
 
 private:

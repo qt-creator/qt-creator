@@ -35,6 +35,7 @@
 
 #include "qtsupport_global.h"
 
+#include <utils/fileutils.h>
 #include <QtCore/QObject>
 #include <QtCore/QVariantMap>
 
@@ -59,10 +60,10 @@ public:
     /// a qtversion, the priority of the desktop factory is 0 and
     /// the desktop factory claims to handle all paths
     virtual int priority() const = 0;
-    virtual BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString()) = 0;
+    virtual BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString()) = 0;
 
-    static BaseQtVersion *createQtVersionFromQMakePath(const QString &qmakePath, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
-    static BaseQtVersion *createQtVersionFromLegacySettings(const QString &qmakePath, int id, QSettings *s);
+    static BaseQtVersion *createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+    static BaseQtVersion *createQtVersionFromLegacySettings(const Utils::FileName &qmakePath, int id, QSettings *s);
 };
 
 }

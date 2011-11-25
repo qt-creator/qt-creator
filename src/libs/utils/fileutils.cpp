@@ -530,11 +530,24 @@ FileName FileName::relativeChildPath(const FileName &parent) const
 }
 
 /// Appends \a s, ensuring a / between the parts
-void FileName::appendPath(const QString &s)
+FileName &FileName::appendPath(const QString &s)
 {
     if (QString::endsWith(QLatin1Char('/')))
         append(QLatin1Char('/'));
     append(s);
+    return *this;
+}
+
+FileName &FileName::append(const QString &str)
+{
+    QString::append(str);
+    return *this;
+}
+
+FileName &FileName::append(QChar str)
+{
+    QString::append(str);
+    return *this;
 }
 
 } // namespace Utils

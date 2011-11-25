@@ -559,7 +559,7 @@ void Qt4Project::updateCppCodeModel()
     if (rootQt4ProjectNode())
         allIncludePaths.append(rootQt4ProjectNode()->resolvedMkspecPath());
     else if (activeBC->qtVersion())
-        allIncludePaths.append(activeBC->qtVersion()->mkspecPath());
+        allIncludePaths.append(activeBC->qtVersion()->mkspecPath().toString());
 
     allIncludePaths.append(predefinedIncludePaths);
 
@@ -966,7 +966,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
             QStringList args;
             if (QMakeStep *qs = bc->qmakeStep()) {
                 args = qs->parserArguments();
-                m_proFileOption->qmakespec = qs->mkspec();
+                m_proFileOption->qmakespec = qs->mkspec().toString();
             } else {
                 args = bc->configCommandLineArguments();
             }

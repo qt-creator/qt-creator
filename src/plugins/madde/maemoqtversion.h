@@ -41,7 +41,7 @@ class MaemoQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     MaemoQtVersion();
-    MaemoQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    MaemoQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
     ~MaemoQtVersion();
 
     void fromMap(const QVariantMap &map);

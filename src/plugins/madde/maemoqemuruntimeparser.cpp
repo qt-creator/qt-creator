@@ -93,14 +93,14 @@ MaemoQemuRuntimeParser::MaemoQemuRuntimeParser(const QString &madInfoOutput,
 MaemoQemuRuntime MaemoQemuRuntimeParser::parseRuntime(const QtSupport::BaseQtVersion *qtVersion)
 {
     MaemoQemuRuntime runtime;
-    const QString maddeRootPath = MaemoGlobal::maddeRoot(qtVersion->qmakeCommand());
+    const QString maddeRootPath = MaemoGlobal::maddeRoot(qtVersion->qmakeCommand().toString());
     QProcess madProc;
-    if (!MaemoGlobal::callMad(madProc, QStringList() << QLatin1String("info"), qtVersion->qmakeCommand(), false))
+    if (!MaemoGlobal::callMad(madProc, QStringList() << QLatin1String("info"), qtVersion->qmakeCommand().toString(), false))
         return runtime;
     if (!madProc.waitForStarted() || !madProc.waitForFinished())
         return runtime;
     const QByteArray &madInfoOutput = madProc.readAllStandardOutput();
-    const QString &targetName = MaemoGlobal::targetName(qtVersion->qmakeCommand());
+    const QString &targetName = MaemoGlobal::targetName(qtVersion->qmakeCommand().toString());
     runtime = MaemoQemuRuntimeParserV2(madInfoOutput, targetName, maddeRootPath)
         .parseRuntime();
     if (!runtime.m_name.isEmpty()) {

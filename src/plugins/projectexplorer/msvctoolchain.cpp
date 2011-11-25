@@ -324,15 +324,15 @@ QString MsvcToolChain::typeName() const
     return MsvcToolChainFactory::tr("MSVC");
 }
 
-QString MsvcToolChain::mkspec() const
+Utils::FileName MsvcToolChain::mkspec() const
 {
     if (m_abi.osFlavor() == Abi::WindowsMsvc2005Flavor)
-        return QLatin1String("win32-msvc2005");
+        return Utils::FileName::fromString(QLatin1String("win32-msvc2005"));
     if (m_abi.osFlavor() == Abi::WindowsMsvc2008Flavor)
-        return QLatin1String("win32-msvc2008");
+        return Utils::FileName::fromString(QLatin1String("win32-msvc2008"));
     if (m_abi.osFlavor() == Abi::WindowsMsvc2010Flavor)
-        return QLatin1String("win32-msvc2010");
-    return QString();
+        return Utils::FileName::fromString(QLatin1String("win32-msvc2010"));
+    return Utils::FileName();
 }
 
 QVariantMap MsvcToolChain::toMap() const

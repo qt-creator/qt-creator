@@ -35,6 +35,8 @@
 
 #include "qtsupport_global.h"
 
+#include <utils/fileutils.h>
+
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/task.h>
@@ -132,7 +134,7 @@ public:
     virtual QHash<QString,QString> versionInfo() const;
     virtual void addToEnvironment(Utils::Environment &env) const;
 
-    virtual QString sourcePath() const;
+    virtual Utils::FileName sourcePath() const;
     // used by QtUiCodeModelSupport
     virtual QString uicCommand() const;
     virtual QString designerCommand() const;
@@ -155,16 +157,16 @@ public:
     virtual QString frameworkInstallPath() const;
 
     // former local functions
-    QString qmakeCommand() const;
+    Utils::FileName qmakeCommand() const;
     virtual QString systemRoot() const;
 
     /// @returns the name of the mkspec
-    QString mkspec() const;
+    Utils::FileName mkspec() const;
     /// @returns the full path to the default directory
     /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
-    QString mkspecPath() const;
+    Utils::FileName mkspecPath() const;
 
-    bool hasMkspec(const QString &) const;
+    bool hasMkspec(const Utils::FileName &spec) const;
 
     enum QmakeBuildConfig
     {
@@ -186,9 +188,9 @@ public:
 
     virtual ProjectExplorer::IOutputParser *createOutputParser() const;
 
-    static bool queryQMakeVariables(const QString &binary, QHash<QString, QString> *versionInfo);
-    static bool queryQMakeVariables(const QString &binary, QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable);
-    static QString mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo);
+    static bool queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo);
+    static bool queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable);
+    static Utils::FileName mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo);
 
 
     virtual bool supportsBinaryDebuggingHelper() const;
@@ -208,12 +210,12 @@ public:
     virtual QtConfigWidget *createConfigurationWidget() const;
 
     static QString defaultDisplayName(const QString &versionString,
-                                      const QString &qmakePath,
+                                      const Utils::FileName &qmakePath,
                                       bool fromPath = false);
 
 protected:
     BaseQtVersion();
-    BaseQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    BaseQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
 
     virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir);
 
@@ -226,7 +228,7 @@ protected:
 private:
     void setAutoDetectionSource(const QString &autodetectionSource);
     static int getUniqueId();
-    void ctor(const QString &qmakePath);
+    void ctor(const Utils::FileName &qmakePath);
     void updateSourcePath() const;
     void updateVersionInfo() const;
     enum Binaries { QmlViewer, Designer, Linguist, Uic };
@@ -239,15 +241,15 @@ private:
     bool m_isAutodetected;
     QString m_autodetectionSource;
 
-    mutable QString m_sourcePath;
+    mutable Utils::FileName m_sourcePath;
     mutable bool m_hasDebuggingHelper; // controlled by m_versionInfoUpToDate
     mutable bool m_hasQmlDump;         // controlled by m_versionInfoUpToDate
     mutable bool m_hasQmlDebuggingLibrary; // controlled by m_versionInfoUpdate
     mutable bool m_hasQmlObserver;     // controlled by m_versionInfoUpToDate
 
     mutable bool m_mkspecUpToDate;
-    mutable QString m_mkspec;
-    mutable QString m_mkspecFullPath;
+    mutable Utils::FileName m_mkspec;
+    mutable Utils::FileName m_mkspecFullPath;
 
     mutable bool m_mkspecReadUpToDate;
     mutable bool m_defaultConfigIsDebug;
@@ -261,7 +263,7 @@ private:
     mutable bool m_hasDemos;
     mutable bool m_hasDocumentation;
 
-    mutable QString m_qmakeCommand;
+    mutable Utils::FileName m_qmakeCommand;
     mutable QString m_qtVersionString;
     mutable QString m_uicCommand;
     mutable QString m_designerCommand;

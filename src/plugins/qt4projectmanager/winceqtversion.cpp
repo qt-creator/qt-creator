@@ -44,7 +44,7 @@ WinCeQtVersion::WinCeQtVersion()
 {
 }
 
-WinCeQtVersion::WinCeQtVersion(const QString &path, const QString &archType,
+WinCeQtVersion::WinCeQtVersion(const Utils::FileName &path, const QString &archType,
         bool isAutodetected, const QString &autodetectionSource)
   : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource),
     m_archType(ProjectExplorer::Abi::ArmArchitecture)
@@ -104,7 +104,7 @@ void WinCeQtVersion::fromMap(const QVariantMap &map)
     // named <Description>-<Architecture>-<Compiler> with no other '-' characters.
     m_archType = ProjectExplorer::Abi::ArmArchitecture;
 
-    const QStringList splitSpec = mkspec().split("-");
+    const QStringList splitSpec = mkspec().toString().split("-");
     if (splitSpec.length() == 3) {
         const QString archString = splitSpec.value(1);
         if (archString.contains("x86", Qt::CaseInsensitive))

@@ -35,6 +35,7 @@
 
 #include "qtsupport_global.h"
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <projectexplorer/toolchain.h>
 
 #include <QtCore/QObject>
@@ -77,7 +78,7 @@ signals:
 
     // used internally
     void logOutput(const QString &output, bool bringToForeground);
-    void updateQtVersions(const QString &qmakeCommand);
+    void updateQtVersions(const Utils::FileName &qmakeCommand);
 
 private:
     bool buildDebuggingHelper(QFutureInterface<void> &future);
@@ -88,10 +89,10 @@ private:
     int m_qtId;
     QString m_qtInstallData;
     QString m_target;
-    QString m_qmakeCommand;
+    Utils::FileName m_qmakeCommand;
     QString m_makeCommand;
     QStringList m_makeArguments;
-    QString m_mkspec;
+    Utils::FileName m_mkspec;
     Utils::Environment m_environment;
     QString m_log;
     bool m_invalidQt;

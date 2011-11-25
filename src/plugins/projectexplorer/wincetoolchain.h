@@ -61,7 +61,7 @@ public:
 
     QString typeName() const;
 
-    QString mkspec() const;
+    Utils::FileName mkspec() const;
 
     QString ceVer() const;
 

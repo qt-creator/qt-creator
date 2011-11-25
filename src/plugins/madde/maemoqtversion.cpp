@@ -52,10 +52,10 @@ MaemoQtVersion::MaemoQtVersion() : QtSupport::BaseQtVersion()
 
 }
 
-MaemoQtVersion::MaemoQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
+MaemoQtVersion::MaemoQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource),
-      m_osType(MaemoGlobal::osType(path)),
-      m_isvalidVersion(MaemoGlobal::isValidMaemoQtVersion(path, m_osType))
+      m_osType(MaemoGlobal::osType(path.toString())),
+      m_isvalidVersion(MaemoGlobal::isValidMaemoQtVersion(path.toString(), m_osType))
 {
 
 }
@@ -68,7 +68,7 @@ MaemoQtVersion::~MaemoQtVersion()
 void MaemoQtVersion::fromMap(const QVariantMap &map)
 {
     QtSupport::BaseQtVersion::fromMap(map);
-    QString path = qmakeCommand();
+    QString path = qmakeCommand().toString();
     m_osType = MaemoGlobal::osType(path);
     m_isvalidVersion = MaemoGlobal::isValidMaemoQtVersion(path, m_osType);
 }
@@ -91,7 +91,7 @@ MaemoQtVersion *MaemoQtVersion::clone() const
 QString MaemoQtVersion::systemRoot() const
 {
     if (m_systemRoot.isNull()) {
-        QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(qmakeCommand()))
+        QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(qmakeCommand().toString()))
                    + QLatin1String("/information"));
         if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream stream(&file);
@@ -101,7 +101,7 @@ QString MaemoQtVersion::systemRoot() const
                 if (list.count() <= 1)
                     continue;
                 if (list.at(0) == QLatin1String("sysroot")) {
-                    m_systemRoot = MaemoGlobal::maddeRoot(qmakeCommand())
+                    m_systemRoot = MaemoGlobal::maddeRoot(qmakeCommand().toString())
                             + QLatin1String("/sysroots/") + list.at(1);
                 }
             }
@@ -178,7 +178,7 @@ QString MaemoQtVersion::osType() const
 
 void MaemoQtVersion::addToEnvironment(Utils::Environment &env) const
 {
-    const QString maddeRoot = MaemoGlobal::maddeRoot(qmakeCommand());
+    const QString maddeRoot = MaemoGlobal::maddeRoot(qmakeCommand().toString());
 
     // Needed to make pkg-config stuff work.
     env.prependOrSet(QLatin1String("SYSROOT_DIR"), QDir::toNativeSeparators(systemRoot()));
@@ -191,7 +191,7 @@ void MaemoQtVersion::addToEnvironment(Utils::Environment &env) const
 
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin").arg(maddeRoot)));
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
-        .arg(MaemoGlobal::targetRoot(qmakeCommand()))));
+        .arg(MaemoGlobal::targetRoot(qmakeCommand().toString()))));
 }
 
 } // namespace Internal

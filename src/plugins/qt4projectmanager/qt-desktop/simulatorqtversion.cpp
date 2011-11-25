@@ -49,7 +49,7 @@ SimulatorQtVersion::SimulatorQtVersion()
 
 }
 
-SimulatorQtVersion::SimulatorQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
+SimulatorQtVersion::SimulatorQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
 

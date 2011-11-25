@@ -303,21 +303,21 @@ ProjectExplorer::ToolChain *Qt4BaseTarget::preferredToolChain(ProjectExplorer::B
         return Target::preferredToolChain(bc);
 
     QList<ProjectExplorer::ToolChain *> tcs = possibleToolChains(bc);
-    const QString mkspec = qtBc->qtVersion()->mkspec();
+    const Utils::FileName mkspec = qtBc->qtVersion()->mkspec();
     foreach (ProjectExplorer::ToolChain *tc, tcs)
         if (tc->mkspec() == mkspec)
             return tc;
     return tcs.isEmpty() ? 0 : tcs.at(0);
 }
 
-QString Qt4BaseTarget::mkspec(const Qt4BuildConfiguration *bc) const
+Utils::FileName Qt4BaseTarget::mkspec(const Qt4BuildConfiguration *bc) const
 {
     QtSupport::BaseQtVersion *version = bc->qtVersion();
     // We do not know which abi the Qt version has, so let's stick with the defaults
     if (version && version->qtAbis().count() == 1 && version->qtAbis().first().isNull())
-        return QString();
+        return Utils::FileName();
 
-    const QString tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : QString();
+    const Utils::FileName tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : Utils::FileName();
     if (!version)
         return tcSpec;
     if (!tcSpec.isEmpty() && version->hasMkspec(tcSpec))
@@ -1185,7 +1185,7 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::checkForBuild(const QStrin
     QList<BuildConfigurationInfo> infos;
     foreach (const QString &file, makefiles) {
         QString makefile = directory + '/' + file;
-        QString qmakeBinary = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
+        Utils::FileName qmakeBinary = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         if (qmakeBinary.isEmpty())
             continue;
         if (QtSupport::QtVersionManager::makefileIsFor(makefile, proFilePath) != QtSupport::QtVersionManager::SameProject)
@@ -1204,15 +1204,15 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::checkForBuild(const QStrin
                 QtSupport::QtVersionManager::scanMakeFile(makefile, version->defaultBuildConfig());
 
         QString additionalArguments = makefileBuildConfig.second;
-        QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, directory, version);
-        QString versionSpec = version->mkspec();
+        Utils::FileName parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, directory, version);
+        Utils::FileName versionSpec = version->mkspec();
 
         QString specArgument;
         // Compare mkspecs and add to additional arguments
-        if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
+        if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == Utils::FileName::fromString("default")) {
             // using the default spec, don't modify additional arguments
         } else {
-            specArgument = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec);
+            specArgument = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec.toUserOutput());
         }
         Utils::QtcProcess::addArgs(&specArgument, additionalArguments);
 

@@ -176,7 +176,12 @@ QString MaemoGlobal::maddeRoot(const QString &qmakePath)
 
 QString MaemoGlobal::targetRoot(const QString &qmakePath)
 {
-    return QDir::cleanPath(qmakePath).remove(binQmake);
+#ifdef Q_OS_WIN
+    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+#else
+    Qt::CaseSensitivity cs = Qt::CaseSensitive;
+#endif
+    return QDir::cleanPath(qmakePath).remove(binQmake, cs);
 }
 
 QString MaemoGlobal::targetName(const QString &qmakePath)

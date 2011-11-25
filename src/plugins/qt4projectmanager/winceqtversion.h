@@ -42,7 +42,7 @@ class WinCeQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     WinCeQtVersion();
-    WinCeQtVersion(const QString &path, const QString &archType,
+    WinCeQtVersion(const Utils::FileName &path, const QString &archType,
         bool isAutodetected = false, const QString &autodetectionSource = QString());
     ~WinCeQtVersion();
     WinCeQtVersion *clone() const;

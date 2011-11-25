@@ -92,7 +92,7 @@ public:
     QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
     ProjectExplorer::ToolChain *preferredToolChain(ProjectExplorer::BuildConfiguration *) const;
 
-    virtual QString mkspec(const Qt4BuildConfiguration *bc) const;
+    virtual Utils::FileName mkspec(const Qt4BuildConfiguration *bc) const;
 
 signals:
     void buildDirectoryInitialized();

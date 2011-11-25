@@ -60,8 +60,7 @@ public:
     static MsvcToolChain *readFromMap(const QVariantMap &data);
 
     QString typeName() const;
-
-    QString mkspec() const;
+    Utils::FileName mkspec() const;
 
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &data);

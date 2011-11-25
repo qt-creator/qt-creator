@@ -42,7 +42,7 @@ class SymbianQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     SymbianQtVersion();
-    SymbianQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    SymbianQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
     SymbianQtVersion *clone() const;
     ~SymbianQtVersion();
 

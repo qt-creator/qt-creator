@@ -183,9 +183,9 @@ void WinscwToolChain::addToEnvironment(Utils::Environment &env) const
 }
 
 
-QString WinscwToolChain::mkspec() const
+Utils::FileName WinscwToolChain::mkspec() const
 {
-    return QString(); // Always use default from Qt version
+    return Utils::FileName(); // Always use default from Qt version
 }
 
 QString WinscwToolChain::makeCommand() const

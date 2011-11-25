@@ -357,7 +357,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         else
             makefile.append(m_buildConfiguration->makefile());
 
-        QString qmakePath = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
+        Utils::FileName qmakePath = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         QtSupport::BaseQtVersion *version = m_buildConfiguration->qtVersion();
         // check that there's a makefile
         if (!qmakePath.isEmpty()) {
@@ -367,7 +367,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
             if (mc == QtSupport::QtVersionManager::DifferentProject) {
                 incompatibleBuild = true;
             } else if (mc == QtSupport::QtVersionManager::SameProject) {
-                if (qmakePath != (version ? version->qmakeCommand() : QString())) {
+                if (qmakePath != (version ? version->qmakeCommand() : Utils::FileName())) {
                     // and that the qmake path is different from the current version
                     // import enable
                     visible = true;

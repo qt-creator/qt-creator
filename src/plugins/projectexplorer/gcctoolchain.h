@@ -65,7 +65,7 @@ public:
     QByteArray predefinedMacros() const;
     QList<HeaderPath> systemHeaderPaths() const;
     void addToEnvironment(Utils::Environment &env) const;
-    QString mkspec() const;
+    Utils::FileName mkspec() const;
     QString makeCommand() const;
     void setDebuggerCommand(const QString &);
     QString debuggerCommand() const;
@@ -122,7 +122,7 @@ class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 public:
     QString typeName() const;
     QString makeCommand() const;
-    QString mkspec() const;
+    Utils::FileName mkspec() const;
 
     IOutputParser *outputParser() const;
 
@@ -143,7 +143,7 @@ class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 {
 public:
     QString typeName() const;
-    QString mkspec() const;
+    Utils::FileName mkspec() const;
     QString makeCommand() const;
 
     ToolChain *clone() const;
@@ -167,7 +167,7 @@ public:
 
     IOutputParser *outputParser() const;
 
-    QString mkspec() const;
+    Utils::FileName mkspec() const;
 
     ToolChain *clone() const;
 

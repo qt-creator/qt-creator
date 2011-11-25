@@ -163,7 +163,9 @@ public:
     bool endsWith(const QString &s) const;
 
     Utils::FileName relativeChildPath(const FileName &parent) const;
-    void appendPath(const QString &s);
+    Utils::FileName &appendPath(const QString &s);
+    Utils::FileName &append(const QString &str);
+    Utils::FileName &append(QChar str);
 
     using QString::size;
     using QString::count;
@@ -171,7 +173,6 @@ public:
     using QString::isEmpty;
     using QString::isNull;
     using QString::clear;
-    using QString::append;
 private:
     static Qt::CaseSensitivity cs;
     FileName(const QString &string);

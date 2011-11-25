@@ -118,6 +118,8 @@ QtVersionManager::QtVersionManager()
 {
     m_self = this;
     m_idcount = 1;
+
+    qRegisterMetaType<Utils::FileName>();
 }
 
 void QtVersionManager::extensionsInitialized()
@@ -213,7 +215,7 @@ void QtVersionManager::updateFromInstaller()
     if (debug) {
         qDebug()<< "======= Existing Qt versions =======";
         foreach (BaseQtVersion *version, m_versions) {
-            qDebug() << version->qmakeCommand() << "id:"<<version->uniqueId();
+            qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
             qDebug() << "  autodetection source:"<< version->autodetectionSource();
             qDebug() << "";
         }
@@ -225,10 +227,7 @@ void QtVersionManager::updateFromInstaller()
         if (!data.contains(key))
             break;
         QVariantMap map = data.value(key).toMap();
-        QString path = map.value(OLDQTVERSION_PATH).toString();
-#ifdef Q_OS_WIN
-        path = path.toLower();
-#endif
+        Utils::FileName path = Utils::FileName::fromString(map.value(OLDQTVERSION_PATH).toString());
         QString autodetectionSource = map.value(OLDQTVERSION_SDKSOURCE).toString();
         foreach (BaseQtVersion *v, m_versions) {
             if (v->qmakeCommand() == path) {
@@ -236,7 +235,7 @@ void QtVersionManager::updateFromInstaller()
                     v->setAutoDetectionSource(autodetectionSource);
                 } else {
                     if (debug)
-                        qDebug() << "## Conflicting autodetictonSource for"<<path<<"\n"
+                        qDebug() << "## Conflicting autodetictonSource for"<<path.toString()<<"\n"
                                  <<"     version retains"<<v->autodetectionSource();
                 }
                 // No break, we want to mark all qt versions matching that path
@@ -251,7 +250,7 @@ void QtVersionManager::updateFromInstaller()
     if (debug) {
         qDebug()<< "======= After using OLD QtVersion data to mark versions =======";
         foreach (BaseQtVersion *version, m_versions) {
-            qDebug() << version->qmakeCommand() << "id:"<<version->uniqueId();
+            qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
             qDebug() << "  autodetection source:"<< version->autodetectionSource();
             qDebug() << "";
         }
@@ -317,7 +316,7 @@ void QtVersionManager::updateFromInstaller()
     if (debug) {
         qDebug() << "======= Before removing outdated sdk versions =======";
         foreach (BaseQtVersion *version, m_versions) {
-            qDebug() << version->qmakeCommand() << "id:"<<version->uniqueId();
+            qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
             qDebug() << "  autodetection source:"<< version->autodetectionSource();
             qDebug() << "";
         }
@@ -335,7 +334,7 @@ void QtVersionManager::updateFromInstaller()
     if (debug) {
         qDebug()<< "======= End result =======";
         foreach (BaseQtVersion *version, m_versions) {
-            qDebug() << version->qmakeCommand() << "id:"<<version->uniqueId();
+            qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
             qDebug() << "  autodetection source:"<< version->autodetectionSource();
             qDebug() << "";
         }
@@ -363,7 +362,7 @@ void QtVersionManager::saveQtVersions()
 
 void QtVersionManager::findSystemQt()
 {
-    QString systemQMakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
+    Utils::FileName systemQMakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
     if (systemQMakePath.isNull())
         return;
 
@@ -390,7 +389,7 @@ bool QtVersionManager::legacyRestore()
         else if (m_idcount < id)
             m_idcount = id + 1;
 
-        QString qmakePath = s->value("QMakePath").toString();
+        Utils::FileName qmakePath = Utils::FileName::fromString(s->value("QMakePath").toString());
         if (qmakePath.isEmpty())
             continue; //skip this version
 
@@ -501,7 +500,7 @@ void QtVersionManager::updateDocumentation()
     helpManager->registerDocumentation(files);
 }
 
-void QtVersionManager::updateDumpFor(const QString &qmakeCommand)
+void QtVersionManager::updateDumpFor(const Utils::FileName &qmakeCommand)
 {
     foreach (BaseQtVersion *v, versions()) {
         if (v->qmakeCommand() == qmakeCommand)
@@ -525,17 +524,15 @@ void QtVersionManager::updateSettings()
 
     // in SDKs, we want to prefer the Qt version shipping with the SDK
     QSettings *settings = Core::ICore::instance()->settings();
-    QString preferred = settings->value(QLatin1String("PreferredQMakePath")).toString();
-    preferred = QDir::fromNativeSeparators(preferred);
+    Utils::FileName preferred = Utils::FileName::fromUserInput(settings->value(QLatin1String("PreferredQMakePath")).toString());
     if (!preferred.isEmpty()) {
 #ifdef Q_OS_WIN
-        preferred = preferred.toLower();
-        if (!preferred.endsWith(QLatin1String(".exe")))
-            preferred.append(QLatin1String(".exe"));
+        if (!preferred.endsWith(".exe"))
+            preferred.append(".exe");
 #endif
         foreach (version, candidates) {
             if (version->qmakeCommand() == preferred) {
-                emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath());
+                emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath().toString());
                 return;
             }
         }
@@ -544,14 +541,14 @@ void QtVersionManager::updateSettings()
     // prefer versions with declarative examples
     foreach (version, candidates) {
         if (QDir(version->examplesPath()+"/declarative").exists()) {
-            emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath());
+            emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath().toString());
             return;
         }
     }
 
     if (!candidates.isEmpty()) {
         version = candidates.first();
-        emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath());
+        emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath().toString());
         return;
     }
     return;
@@ -690,7 +687,7 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
 // That is returns the directory
 // To find out whether we already have a qtversion for that directory call
 // QtVersion *QtVersionManager::qtVersionForDirectory(const QString directory);
-QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &makefile)
+Utils::FileName QtVersionManager::findQMakeBinaryFromMakefile(const QString &makefile)
 {
     bool debugAdding = false;
     QFile fi(makefile);
@@ -711,19 +708,15 @@ QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &makefile)
                 // Is qmake still installed?
                 QFileInfo fi(qmakePath);
                 if (fi.exists()) {
-                    qmakePath = fi.absoluteFilePath();
-#ifdef Q_OS_WIN
-                    qmakePath = qmakePath.toLower();
-#endif
-                    return qmakePath;
+                    return Utils::FileName(fi);
                 }
             }
         }
     }
-    return QString();
+    return Utils::FileName();
 }
 
-BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const QString &qmakePath)
+BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const Utils::FileName &qmakePath)
 {
    foreach (BaseQtVersion *version, versions()) {
        if (version->qmakeCommand() == qmakePath) {

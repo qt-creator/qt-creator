@@ -128,9 +128,9 @@ QString GcceToolChain::makeCommand() const
 #endif
 }
 
-QString GcceToolChain::mkspec() const
+Utils::FileName GcceToolChain::mkspec() const
 {
-    return QString(); // always use default from Qt version
+    return Utils::FileName(); // always use default from Qt version
 }
 
 QString GcceToolChain::defaultMakeTarget() const

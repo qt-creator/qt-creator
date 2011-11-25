@@ -48,7 +48,7 @@ public:
     virtual QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
     virtual int priority() const;
-    virtual QtSupport::BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+    virtual QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
 } // Internal

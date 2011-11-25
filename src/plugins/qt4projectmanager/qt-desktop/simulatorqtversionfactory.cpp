@@ -73,9 +73,9 @@ int SimulatorQtVersionFactory::priority() const
     return 50;
 }
 
-QtSupport::BaseQtVersion *SimulatorQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+QtSupport::BaseQtVersion *SimulatorQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
-    QFileInfo fi(qmakePath);
+    QFileInfo fi = qmakePath.toFileInfo();
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
     QStringList configValues = evaluator->values("CONFIG");

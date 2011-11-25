@@ -241,7 +241,7 @@ void CMakeRunConfiguration::setCommandLineArguments(const QString &newText)
 
 QString CMakeRunConfiguration::dumperLibrary() const
 {
-    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
+    Utils::FileName qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
     QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
     QString dhl = ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
     return dhl;
@@ -249,7 +249,7 @@ QString CMakeRunConfiguration::dumperLibrary() const
 
 QStringList CMakeRunConfiguration::dumperLibraryLocations() const
 {
-    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
+    Utils::FileName qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
     QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
     return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 }

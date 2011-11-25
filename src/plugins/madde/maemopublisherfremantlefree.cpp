@@ -378,7 +378,7 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
     emit progressReport(tr("Building source package..."));
     const QStringList args = QStringList() << QLatin1String("dpkg-buildpackage")
         << QLatin1String("-S") << QLatin1String("-us") << QLatin1String("-uc");
-    MaemoGlobal::callMad(*m_process, args, lqt->qmakeCommand(), true);
+    MaemoGlobal::callMad(*m_process, args, lqt->qmakeCommand().toString(), true);
 }
 
 // We have to implement the SCP protocol, because the maemo.org

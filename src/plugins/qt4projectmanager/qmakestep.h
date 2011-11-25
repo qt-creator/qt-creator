@@ -34,6 +34,7 @@
 #define QMAKESTEP_H
 
 #include "qt4projectmanager_global.h"
+#include <utils/fileutils.h>
 #include <projectexplorer/abstractprocessstep.h>
 
 #include <QtCore/QStringList>
@@ -101,7 +102,7 @@ public:
     QStringList moreArgumentsAfter();
     QStringList parserArguments();
     QString userArguments();
-    QString mkspec();
+    Utils::FileName mkspec();
     void setUserArguments(const QString &arguments);
     bool linkQmlDebuggingLibrary() const;
     void setLinkQmlDebuggingLibrary(bool enable);
@@ -146,7 +147,7 @@ public:
 private slots:
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
-    void qtVersionsDumpUpdated(const QString &qmakeCommand);
+    void qtVersionsDumpUpdated(const Utils::FileName &qmakeCommand);
     void qmakeBuildConfigChanged();
     void userArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();

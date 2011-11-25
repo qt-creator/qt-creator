@@ -101,7 +101,7 @@ bool AbstractMaemoPackageCreationStep::init()
         return false;
     }
 
-    m_qmakeCommand = qt4BuildConfiguration()->qtVersion()->qmakeCommand();
+    m_qmakeCommand = qt4BuildConfiguration()->qtVersion()->qmakeCommand().toString();
 
     return true;
 }
@@ -292,7 +292,7 @@ bool MaemoDebianPackageCreationStep::init()
 {
     if (!AbstractMaemoPackageCreationStep::init())
         return false;
-    m_maddeRoot = MaemoGlobal::maddeRoot(qt4BuildConfiguration()->qtVersion()->qmakeCommand());
+    m_maddeRoot = MaemoGlobal::maddeRoot(qt4BuildConfiguration()->qtVersion()->qmakeCommand().toString());
     m_projectDirectory = project()->projectDirectory();
     m_pkgFileName = maemoTarget()->packageFileName();
     m_packageName = maemoTarget()->packageName();

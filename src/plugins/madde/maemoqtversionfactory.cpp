@@ -72,18 +72,19 @@ int MaemoQtVersionFactory::priority() const
     return 50;
 }
 
-QtSupport::BaseQtVersion *MaemoQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+QtSupport::BaseQtVersion *MaemoQtVersionFactory::create(const Utils::FileName &qmakeCommand, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
     Q_UNUSED(evaluator);
     // we are the fallback :) so we don't care what kinf of qt it is
-    QFileInfo fi(qmakePath);
+    QFileInfo fi = qmakeCommand.toFileInfo();
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
 
+    QString qmakePath = qmakeCommand.toString();
     if (MaemoGlobal::isValidMaemo5QtVersion(qmakePath)
             || MaemoGlobal::isValidHarmattanQtVersion(qmakePath)
             || MaemoGlobal::isValidMeegoQtVersion(qmakePath))
-        return new MaemoQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+        return new MaemoQtVersion(qmakeCommand, isAutoDetected, autoDetectionSource);
     return 0;
 }
 

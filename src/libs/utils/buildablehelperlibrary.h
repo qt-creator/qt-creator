@@ -35,6 +35,7 @@
 
 #include "utils_global.h"
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QString>
 
@@ -49,7 +50,7 @@ class QTCREATOR_UTILS_EXPORT BuildableHelperLibrary
 public:
     // returns the full path to the first qmake, qmake-qt4, qmake4 that has
     // at least version 2.0.0 and thus is a qt4 qmake
-    static QString findSystemQt(const Utils::Environment &env);
+    static FileName findSystemQt(const Utils::Environment &env);
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
     static QString qtVersionForQMake(const QString &qmakePath);
     static QString qtVersionForQMake(const QString &qmakePath, bool *qmakeIsExecutable);
@@ -57,7 +58,7 @@ public:
     static QStringList possibleQMakeCommands();
 
     static QString qtInstallHeadersDir(const QString &qmakePath);
-    static QString qtInstallDataDir(const QString &qmakePath);
+    static QString qtInstallDataDir(const FileName &qmakePath);
 
     static QString byInstallDataHelper(const QString &sourcePath,
                                        const QStringList &sourceFileNames,
@@ -73,9 +74,9 @@ public:
         QString directory;
         Utils::Environment environment;
 
-        QString qmakeCommand;
+        Utils::FileName qmakeCommand;
         QString targetMode;
-        QString mkspec;
+        Utils::FileName mkspec;
         QString proFilename;
         QStringList qmakeArguments;
 

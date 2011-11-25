@@ -767,7 +767,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
         raiseError(tr("Unable to create Debian templates: No Qt version set"));
         return ActionFailed;
     }
-    if (!MaemoGlobal::callMad(dh_makeProc, dh_makeArgs, lqt->qmakeCommand(), true)
+    if (!MaemoGlobal::callMad(dh_makeProc, dh_makeArgs, lqt->qmakeCommand().toString(), true)
             || !dh_makeProc.waitForStarted()) {
         raiseError(tr("Unable to create Debian templates: dh_make failed (%1)")
             .arg(dh_makeProc.errorString()));
@@ -1005,7 +1005,7 @@ QString AbstractRpmBasedQt4MaemoTarget::packageFileName() const
         return QString();
     return packageName() + QLatin1Char('-') + projectVersion() + QLatin1Char('-')
         + QString::fromUtf8(getValueForTag(ReleaseTag, 0)) + QLatin1Char('.')
-        + MaemoGlobal::architecture(lqt->qmakeCommand())
+        + MaemoGlobal::architecture(lqt->qmakeCommand().toString())
         + QLatin1String(".rpm");
 }
 

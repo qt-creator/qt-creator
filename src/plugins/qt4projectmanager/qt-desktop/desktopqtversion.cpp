@@ -49,7 +49,7 @@ DesktopQtVersion::DesktopQtVersion()
 
 }
 
-DesktopQtVersion::DesktopQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
+DesktopQtVersion::DesktopQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
 

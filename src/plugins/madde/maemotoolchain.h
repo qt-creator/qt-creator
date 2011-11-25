@@ -50,7 +50,7 @@ public:
 
     QString typeName() const;
     ProjectExplorer::Abi targetAbi() const;
-    QString mkspec() const;
+    Utils::FileName mkspec() const;
 
     bool isValid() const;
     bool canClone() const;

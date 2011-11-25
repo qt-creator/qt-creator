@@ -174,7 +174,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
         BaseQtVersion *version = m_versions.at(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(version->isAutodetected()? autoItem : manualItem);
         item->setText(0, version->displayName());
-        item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
+        item->setText(1, version->qmakeCommand().toUserOutput());
         item->setData(0, VersionIdRole, version->uniqueId());
         item->setData(0, ToolChainIdRole, defaultToolChainId(version));
         const ValidityInfo info = validInformation(version);
@@ -216,8 +216,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     userChangedCurrentVersion();
     updateCleanUpButton();
 
-    connect(QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(QString)),
-            this, SLOT(qtVersionsDumpUpdated(QString)));
+    connect(QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
+            this, SLOT(qtVersionsDumpUpdated(Utils::FileName)));
 
     connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
             this, SLOT(toolChainsUpdated()));
@@ -359,7 +359,7 @@ void QtOptionsPageWidget::selectedToolChainChanged(int comboIndex)
     item->setData(0, ToolChainIdRole, toolChainId);
 }
 
-void QtOptionsPageWidget::qtVersionsDumpUpdated(const QString &qmakeCommand)
+void QtOptionsPageWidget::qtVersionsDumpUpdated(const Utils::FileName &qmakeCommand)
 {
     foreach (BaseQtVersion *version, m_versions) {
         if (version->qmakeCommand() == qmakeCommand)
@@ -592,9 +592,11 @@ static QString filterForQmakeFileDialog()
 
 void QtOptionsPageWidget::addQtDir()
 {
-    QString qtVersion = QFileDialog::getOpenFileName(this,
-                                                     tr("Select a qmake executable"),
-                                                     QString(), filterForQmakeFileDialog());
+    Utils::FileName qtVersion = Utils::FileName::fromString(
+                QFileDialog::getOpenFileName(this,
+                                             tr("Select a qmake executable"),
+                                             QString(),
+                                             filterForQmakeFileDialog()));
     if (qtVersion.isNull())
         return;
     if (QtVersionManager::instance()->qtVersionForQMakeBinary(qtVersion)) {
@@ -607,7 +609,7 @@ void QtOptionsPageWidget::addQtDir()
 
         QTreeWidgetItem *item = new QTreeWidgetItem(m_ui->qtdirList->topLevelItem(1));
         item->setText(0, version->displayName());
-        item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
+        item->setText(1, version->qmakeCommand().toUserOutput());
         item->setData(0, VersionIdRole, version->uniqueId());
         item->setData(0, ToolChainIdRole, defaultToolChainId(version));
         item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
@@ -636,10 +638,11 @@ void QtOptionsPageWidget::removeQtDir()
 void QtOptionsPageWidget::editPath()
 {
     BaseQtVersion *current = currentVersion();
-    QString dir = QFileInfo(currentVersion()->qmakeCommand()).absolutePath();
-    QString qtVersion = QFileDialog::getOpenFileName(this,
-                                                     tr("Select a qmake executable"),
-                                                     dir, filterForQmakeFileDialog());
+    QString dir = currentVersion()->qmakeCommand().toFileInfo().absolutePath();
+    Utils::FileName qtVersion = Utils::FileName::fromString(
+                QFileDialog::getOpenFileName(this,
+                                             tr("Select a qmake executable"),
+                                             dir, filterForQmakeFileDialog()));
     if (qtVersion.isNull())
         return;
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
@@ -665,7 +668,7 @@ void QtOptionsPageWidget::editPath()
     userChangedCurrentVersion();
     QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
     item->setText(0, version->displayName());
-    item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
+    item->setText(1, version->qmakeCommand().toUserOutput());
     item->setData(0, VersionIdRole, version->uniqueId());
     item->setData(0, ToolChainIdRole, defaultToolChainId(version));
     item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
@@ -934,7 +937,7 @@ void QtOptionsPageWidget::updateWidgets()
     BaseQtVersion *version = currentVersion();
     if (version) {
         m_versionUi->nameEdit->setText(version->displayName());
-        m_versionUi->qmakePath->setText(QDir::toNativeSeparators(version->qmakeCommand()));
+        m_versionUi->qmakePath->setText(version->qmakeCommand().toUserOutput());
         m_configurationWidget = version->createConfigurationWidget();
         if (m_configurationWidget) {
             m_versionUi->formLayout->addRow(m_configurationWidget);

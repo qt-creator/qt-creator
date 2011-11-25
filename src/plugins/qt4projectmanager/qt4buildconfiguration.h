@@ -108,7 +108,7 @@ public:
 
     bool compareToImportFrom(const QString &makefile);
     static bool removeQMLInspectorFromArguments(QString *args);
-    static QString extractSpecFromArguments(QString *arguments,
+    static Utils::FileName extractSpecFromArguments(QString *arguments,
                                             const QString &directory, const QtSupport::BaseQtVersion *version,
                                             QStringList *outArgs = 0);
 

@@ -48,7 +48,7 @@
 
 namespace Utils {
 
-QString BuildableHelperLibrary::findSystemQt(const Utils::Environment &env)
+Utils::FileName BuildableHelperLibrary::findSystemQt(const Utils::Environment &env)
 {
     QStringList paths = env.path();
     foreach (const QString &path, paths) {
@@ -59,18 +59,18 @@ QString BuildableHelperLibrary::findSystemQt(const Utils::Environment &env)
             const QFileInfo qmake(prefix + possibleCommand);
             if (qmake.exists()) {
                 if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull()) {
-                    return qmake.absoluteFilePath();
+                    return Utils::FileName(qmake);
                 }
             }
         }
     }
-    return QString();
+    return Utils::FileName();
 }
 
-QString BuildableHelperLibrary::qtInstallDataDir(const QString &qmakePath)
+QString BuildableHelperLibrary::qtInstallDataDir(const Utils::FileName &qmakePath)
 {
     QProcess proc;
-    proc.start(qmakePath, QStringList() << QLatin1String("-query") << QLatin1String("QT_INSTALL_DATA"));
+    proc.start(qmakePath.toString(), QStringList() << QLatin1String("-query") << QLatin1String("QT_INSTALL_DATA"));
     if (proc.waitForFinished())
         return QString(proc.readAll().trimmed());
     return QString();
@@ -269,16 +269,16 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     if (!arguments.targetMode.isEmpty())
         qmakeArgs << arguments.targetMode;
     if (!arguments.mkspec.isEmpty())
-        qmakeArgs << QLatin1String("-spec") << arguments.mkspec;
+        qmakeArgs << QLatin1String("-spec") << arguments.mkspec.toUserOutput();
     qmakeArgs << arguments.proFilename;
     qmakeArgs << arguments.qmakeArguments;
 
     log->append(newline);
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                            "Running %1 %2 ...\n").arg(arguments.qmakeCommand,
+                                            "Running %1 %2 ...\n").arg(arguments.qmakeCommand.toUserOutput(),
                                                                        qmakeArgs.join(" ")));
 
-    if (!runBuildProcess(proc, arguments.qmakeCommand, qmakeArgs, 30000, false, log, errorMessage))
+    if (!runBuildProcess(proc, arguments.qmakeCommand.toString(), qmakeArgs, 30000, false, log, errorMessage))
         return false;
     log->append(newline);
     if (makeFullPath.isEmpty()) {

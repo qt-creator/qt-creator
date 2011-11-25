@@ -123,7 +123,7 @@ static inline QString msgBuildConfigNotApplicable(const QString &d, const QtSupp
                                                   const Target *target)
 {
     return QString::fromLatin1("Warning: Buildconfiguration '%1' : Qt '%2' from %3 not supported by target '%4'").
-            arg(d, qtVersion->displayName(), qtVersion->qmakeCommand(), target->id());
+            arg(d, qtVersion->displayName(), qtVersion->qmakeCommand().toUserOutput(), target->id());
 }
 
 bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
@@ -171,7 +171,7 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     if (!toolChain()) {
         if (version && version->isValid()) {
             qWarning("Warning: No tool chain available for '%s' from %s used in '%s'.",
-                    qPrintable(version->displayName()), qPrintable(version->qmakeCommand()),
+                    qPrintable(version->displayName()), qPrintable(version->qmakeCommand().toUserOutput()),
                     qPrintable(target()->id()));
         } else {
             qWarning("Warning: No tool chain available for invalid Qt version used in '%s'.",
@@ -475,7 +475,7 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
 {
     QMakeStep *qs = qmakeStep();
     if (QFileInfo(makefile).exists() && qs) {
-        QString qmakePath = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
+        Utils::FileName qmakePath = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
         QtSupport::BaseQtVersion *version = qtVersion();
         if (!version)
             return false;
@@ -495,17 +495,17 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
                 // are not interested in), splitting them up into individual strings:
                 extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs),
                 actualArgs = qs->moreArguments() + actualArgs + qs->moreArgumentsAfter();
-                QString actualSpec = qs->mkspec();
+                Utils::FileName actualSpec = qs->mkspec();
 
                 QString qmakeArgs = result.second;
                 QStringList parsedArgs;
-                QString parsedSpec = extractSpecFromArguments(&qmakeArgs, workingDirectory, version, &parsedArgs);
+                Utils::FileName parsedSpec = extractSpecFromArguments(&qmakeArgs, workingDirectory, version, &parsedArgs);
 
                 if (debug) {
                     qDebug()<<"Actual args:"<<actualArgs;
                     qDebug()<<"Parsed args:"<<parsedArgs;
-                    qDebug()<<"Actual spec:"<<actualSpec;
-                    qDebug()<<"Parsed spec:"<<parsedSpec;
+                    qDebug()<<"Actual spec:"<<actualSpec.toString();
+                    qDebug()<<"Parsed spec:"<<parsedSpec.toString();
                 }
 
                 // Comparing the sorted list is obviously wrong
@@ -530,15 +530,15 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
                         return true;
                     // Actual spec is the default one
 //                    qDebug()<<"AS vs VS"<<actualSpec<<version->mkspec();
-                    if ((actualSpec == version->mkspec() || actualSpec == "default")
-                        && (parsedSpec == version->mkspec() || parsedSpec == "default" || parsedSpec.isEmpty()))
+                    if ((actualSpec == version->mkspec() || actualSpec == Utils::FileName::fromString(QLatin1String("default")))
+                        && (parsedSpec == version->mkspec() || parsedSpec == Utils::FileName::fromString(QLatin1String("default")) || parsedSpec.isEmpty()))
                         return true;
                 }
             } else if (debug) {
                 qDebug()<<"different qmake buildconfigurations buildconfiguration:"<<qmakeBuildConfiguration()<<" Makefile:"<<result.first;
             }
         } else if (debug) {
-            qDebug()<<"diffrent qt versions, buildconfiguration:"<<version->qmakeCommand()<<" Makefile:"<<qmakePath;
+            qDebug()<<"diffrent qt versions, buildconfiguration:"<<version->qmakeCommand().toString()<<" Makefile:"<<qmakePath.toString();
         }
     }
     return false;
@@ -558,11 +558,11 @@ bool Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
     return removedArgument;
 }
 
-QString Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
-                                                        const QString &directory, const QtSupport::BaseQtVersion *version,
-                                                        QStringList *outArgs)
+Utils::FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
+                                                                const QString &directory, const QtSupport::BaseQtVersion *version,
+                                                                QStringList *outArgs)
 {
-    QString parsedSpec;
+    Utils::FileName parsedSpec;
 
     bool ignoreNext = false;
     bool nextIsSpec = false;
@@ -572,7 +572,7 @@ QString Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
             ait.deleteArg();
         } else if (nextIsSpec) {
             nextIsSpec = false;
-            parsedSpec = QDir::cleanPath(ait.value());
+            parsedSpec = Utils::FileName::fromUserInput(ait.value());
             ait.deleteArg();
         } else if (ait.value() == QLatin1String("-spec") || ait.value() == QLatin1String("-platform")) {
             nextIsSpec = true;
@@ -592,49 +592,39 @@ QString Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
     }
 
     if (parsedSpec.isEmpty())
-        return QString();
+        return Utils::FileName();
 
-    QString baseMkspecDir = version->versionInfo().value("QMAKE_MKSPECS");
+    Utils::FileName baseMkspecDir = Utils::FileName::fromUserInput(version->versionInfo().value("QMAKE_MKSPECS"));
     if (baseMkspecDir.isEmpty())
-        baseMkspecDir = version->versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
+        baseMkspecDir = Utils::FileName::fromUserInput(version->versionInfo().value("QT_INSTALL_DATA") + "/mkspecs");
 
-#ifdef Q_OS_WIN
-    baseMkspecDir = baseMkspecDir.toLower();
-    parsedSpec = parsedSpec.toLower();
-#endif
     // if the path is relative it can be
     // relative to the working directory (as found in the Makefiles)
     // or relatively to the mkspec directory
     // if it is the former we need to get the canonical form
     // for the other one we don't need to do anything
-    if (QFileInfo(parsedSpec).isRelative()) {
-        if(QFileInfo(directory + QLatin1Char('/') + parsedSpec).exists()) {
-            parsedSpec = QDir::cleanPath(directory + QLatin1Char('/') + parsedSpec);
-#ifdef Q_OS_WIN
-            parsedSpec = parsedSpec.toLower();
-#endif
+    if (parsedSpec.toFileInfo().isRelative()) {
+        if (QFileInfo(directory + QLatin1Char('/') + parsedSpec.toString()).exists()) {
+            parsedSpec = Utils::FileName::fromUserInput(directory + QLatin1Char('/') + parsedSpec.toString());
         } else {
-            parsedSpec = baseMkspecDir + QLatin1Char('/') + parsedSpec;
+            parsedSpec = Utils::FileName::fromUserInput(baseMkspecDir.toString() + QLatin1Char('/') + parsedSpec.toString());
         }
     }
 
-    QFileInfo f2(parsedSpec);
+    QFileInfo f2 = parsedSpec.toFileInfo();
     while (f2.isSymLink()) {
-        parsedSpec = f2.symLinkTarget();
-        f2.setFile(parsedSpec);
+        parsedSpec = Utils::FileName::fromString(f2.symLinkTarget());
+        f2.setFile(parsedSpec.toString());
     }
 
-    if (parsedSpec.startsWith(baseMkspecDir)) {
-        parsedSpec = parsedSpec.mid(baseMkspecDir.length() + 1);
+    if (parsedSpec.isChildOf(baseMkspecDir)) {
+        parsedSpec = parsedSpec.relativeChildPath(baseMkspecDir);
     } else {
-        QString sourceMkSpecPath = version->sourcePath() + "/mkspecs";
-        if (parsedSpec.startsWith(sourceMkSpecPath)) {
-            parsedSpec = parsedSpec.mid(sourceMkSpecPath.length() + 1);
+        Utils::FileName sourceMkSpecPath = Utils::FileName::fromString(version->sourcePath().toString() + "/mkspecs");
+        if (parsedSpec.isChildOf(sourceMkSpecPath)) {
+            parsedSpec = parsedSpec.relativeChildPath(sourceMkSpecPath);
         }
     }
-#ifdef Q_OS_WIN
-    parsedSpec = parsedSpec.toLower();
-#endif
     return parsedSpec;
 }
 
@@ -837,7 +827,7 @@ void Qt4BuildConfiguration::importFromBuildDirectory()
         else
             mkfile.append(makefile());
 
-        QString qmakePath = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(mkfile);
+        Utils::FileName qmakePath = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(mkfile);
         if (!qmakePath.isEmpty()) {
             QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
             QtSupport::BaseQtVersion *version = vm->qtVersionForQMakeBinary(qmakePath);
@@ -851,7 +841,7 @@ void Qt4BuildConfiguration::importFromBuildDirectory()
             QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfig = result.first;
 
             QString additionalArguments = result.second;
-            QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, directory, version);
+            Utils::FileName parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, directory, version);
             const bool enableQmlDebugger =
                     Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
 
@@ -861,8 +851,8 @@ void Qt4BuildConfiguration::importFromBuildDirectory()
             QMakeStep *qs = qmakeStep();
             qs->setUserArguments(additionalArguments);
             qs->setLinkQmlDebuggingLibrary(enableQmlDebugger);
-            if (!parsedSpec.isEmpty() && parsedSpec != QLatin1String("default") && qs->mkspec() != parsedSpec) {
-                Utils::QtcProcess::addArgs(&additionalArguments, (QStringList() << "-spec" << parsedSpec));
+            if (!parsedSpec.isEmpty() && parsedSpec != Utils::FileName::fromString(QLatin1String("default")) && qs->mkspec() != parsedSpec) {
+                Utils::QtcProcess::addArgs(&additionalArguments, (QStringList() << QLatin1String("-spec") << parsedSpec.toUserOutput()));
                 qs->setUserArguments(additionalArguments);
             }
 

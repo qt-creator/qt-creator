@@ -48,7 +48,7 @@ public:
     QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
     int priority() const;
-    QtSupport::BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator,
+    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
                                      bool isAutoDetected = false,
                                      const QString &autoDetectionSource = QString());
 };
