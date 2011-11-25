@@ -75,8 +75,8 @@ Rectangle {
         }
 
         Logo {
-            x: 5
-            y: 28
+            x: 25
+            y: 38
         }
 
     }

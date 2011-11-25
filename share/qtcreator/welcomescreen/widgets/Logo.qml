@@ -44,7 +44,7 @@ Image {
         anchors.leftMargin: 52
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 6
-        font.pixelSize: 14
+        font.pixelSize: 16
         font.family: "Helvetica"
     }
 }
