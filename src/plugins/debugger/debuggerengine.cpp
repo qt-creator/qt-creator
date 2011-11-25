@@ -65,6 +65,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
+#include <QtCore/QFile>
 #include <QtCore/QFutureInterface>
 
 #include <QtGui/QMessageBox>
@@ -158,7 +159,8 @@ public:
         m_watchHandler(engine),
         m_disassemblerAgent(engine),
         m_memoryAgent(engine),
-        m_isStateDebugging(false)
+        m_isStateDebugging(false),
+        m_testsPossible(true)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
         if (sp.toolChainAbi.os() == ProjectExplorer::Abi::MacOS)
@@ -285,6 +287,14 @@ public:
     QTimer m_locationTimer;
 
     bool m_isStateDebugging;
+
+    // Testing
+    void handleAutoTests();
+    void handleAutoTestLine(int line);
+    void reportTestError(const QString &);
+    bool m_testsPossible;
+    QStringList m_testContents;
+    QString m_testErrors;
 };
 
 
@@ -1100,6 +1110,9 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
         BreakHandler *handler = breakHandler();
         foreach (BreakpointModelId id, handler->engineBreakpointIds(this))
             handler->notifyBreakpointReleased(id);
+
+        if (!d->m_testErrors.isEmpty())
+            showMessage(_("\nTest Errors\n\n") + d->m_testErrors);
     }
 
     const bool running = d->m_state == InferiorRunOk;
@@ -1652,6 +1665,98 @@ bool DebuggerEngine::isStateDebugging() const
 void DebuggerEngine::setStateDebugging(bool on)
 {
     d->m_isStateDebugging = on;
+}
+
+void DebuggerEngine::handleAutoTests()
+{
+    d->handleAutoTests();
+}
+
+void DebuggerEnginePrivate::handleAutoTests()
+{
+    if (!m_testsPossible)
+        return;
+
+    StackFrame frame = m_engine->stackHandler()->currentFrame();
+    if (!frame.file.endsWith(QLatin1String("debugger/simple/simple_test_app.cpp")))
+        return;
+
+    if (m_testContents.isEmpty()) {
+        QFile file(frame.file);
+        file.open(QIODevice::ReadOnly);
+        QTextStream ts(&file);
+        m_testContents = ts.readAll().split(QLatin1Char('\n'));
+        if (m_testContents.isEmpty()) {
+            m_testsPossible = false;
+            return;
+        }
+        foreach (const QString &s, m_testContents) {
+            if (s.startsWith(QLatin1String("#define USE_AUTORUN"))) {
+                m_testsPossible = s.startsWith(QLatin1String("#define USE_AUTORUN 1"));
+                break;
+            }
+        }
+    }
+
+    if (!m_testsPossible)
+        return;
+
+    int line = frame.line;
+    if (line > 1 && line < m_testContents.size())
+        handleAutoTestLine(line);
+}
+
+void DebuggerEnginePrivate::handleAutoTestLine(int line)
+{
+    QString s = m_testContents.at(line).trimmed();
+    if (s.endsWith(QLatin1Char('.')))
+        s.chop(1);
+    int pos = s.indexOf(QLatin1String("//"));
+    if (pos == -1)
+        return;
+    s = s.mid(pos + 2).trimmed();
+    QString cmd = s.section(QLatin1Char(' '), 0, 0);
+    if (cmd == QLatin1String("Expand")) {
+        m_engine->showMessage(_("'Expand' found in line %1, but not implemented yet.").arg(line));
+        handleAutoTestLine(line + 1);
+    } else if (cmd == QLatin1String("Expand")) {
+        m_engine->showMessage(_("'Expand' found in line %1, but not implemented yet.").arg(line));
+        handleAutoTestLine(line + 1);
+    } else if (cmd == QLatin1String("Check")) {
+        QString name = s.section(QLatin1Char(' '), 1, 1);
+        if (name.isEmpty()) {
+            reportTestError(_("Check in line %1 needs arguments.").arg(line));
+        } else {
+            QByteArray iname = "local." + name.toLatin1();
+            const WatchData *data = m_engine->watchHandler()->findItem(iname);
+            if (data) {
+                QString needle = s.section(QLatin1Char(' '), 2, -1);
+                QString found = data->value + QString::fromLatin1(" " + data->type);
+                if (needle == found) {
+                    m_engine->showMessage(_("Check in line %1 for %2 was successful")
+                        .arg(line).arg(needle));
+                } else {
+                    reportTestError(_("Check in line %1 for %2 failed. Got %3.")
+                        .arg(line).arg(needle).arg(found));
+                }
+            } else {
+                reportTestError(_("### Check in line %1 referes to unknown variable %2.")
+                    .arg(line).arg(name));
+            }
+        }
+        handleAutoTestLine(line + 1);
+    } else if (cmd == QLatin1String("Continue")) {
+        m_engine->showMessage(_("Continue in line %1 processed.").arg(line));
+        m_engine->continueInferior();
+    }
+}
+
+
+void DebuggerEnginePrivate::reportTestError(const QString &error)
+{
+    m_engine->showMessage(_("### ") + error);
+    m_testErrors.append(error);
+    m_testErrors.append(QLatin1Char('\n'));
 }
 
 } // namespace Debugger

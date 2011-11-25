@@ -42,6 +42,18 @@
 // Default: 0
 #define USE_AUTOBREAK 0
 
+// With USE_AUTORUN, creator will automatically "execute" the commands
+// in a comment following a BREAK_HERE line.
+// The following commands are supported:
+//   // Check <name> <value> <type>
+//         - Checks whether the local variable is displayed with value and type.
+//   // Continue
+//         - Continues execution
+// If the line after a BREAK_HERE line does not contain one of the
+// supported commands, the test stops.
+// Default: 0
+#define USE_AUTORUN 0
+
 // With USE_UNINITIALIZE_AUTOBREAK, the debugger will stop automatically
 // on all lines containing the BREAK_UNINITIALIZED_HERE macro.
 // This should be enabled during manual testing.
@@ -3235,6 +3247,11 @@ namespace basic {
         const int c = 44;
         const Ref d = a;
         BREAK_HERE;
+        // Check a 43 int.
+        // Check b 43 int.
+        // Check b 44 int.
+        // Check b 43 int.
+        // Continue.
         dummyStatement(&a, &b, &c, &d);
     }
 
@@ -4142,7 +4159,14 @@ namespace sanity {
         obj.setObjectName("An Object");
 
         BREAK_HERE;
-        // Expand all.
+        // Check list <3 items> QStringList
+        // Check list2 <5 items> QList<char const*>
+        // Check obj "An Object" QObject
+        // Check qv <1 items> QVector<int>
+        // Check s "hallohallo" string
+        // Check v <1 items> vector<int>
+        // Continue
+
         dummyStatement(&s, &qv, &v, &list, &list2, &obj);
     }
 

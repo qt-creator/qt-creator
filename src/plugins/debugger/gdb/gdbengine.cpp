@@ -5091,7 +5091,6 @@ void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)
     m_scheduledTestResponses[token] = response;
 }
 
-
 //
 // Factory
 //
