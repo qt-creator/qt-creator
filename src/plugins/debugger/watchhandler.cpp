@@ -691,6 +691,43 @@ static inline QString expression(const WatchItem *item)
     return QString();
 }
 
+QString WatchModel::display(const WatchItem *item, int col) const
+{
+    QString result;
+    switch (col) {
+        case 0:
+            if (item->name.isEmpty())
+                result = tr("<Edit>");
+            else if (item->name == QLatin1String("*") && item->parent)
+                result = QLatin1Char('*') + item->parent->name;
+            else
+                result = removeInitialNamespace(item->name);
+            break;
+        case 1:
+            result = removeInitialNamespace(
+                truncateValue(formattedValue(*item)));
+            if (item->referencingAddress) {
+                result += QLatin1String(" @");
+                result += QString::fromLatin1(item->hexAddress());
+            }
+            break;
+        case 2:
+            result = removeNamespaces(displayType(*item));
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+QString WatchModel::displayForAutoTest(const QByteArray &iname) const
+{
+    const WatchItem *item = findItem(iname, m_root);
+    if (item)
+        return display(item, 1) + QLatin1Char(' ') + display(item, 2);
+    return QString();
+}
+
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
     const WatchItem *item = watchItem(idx);
@@ -724,33 +761,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             }
         }
 
-        case Qt::DisplayRole: {
-            QString result;
-            switch (idx.column()) {
-                case 0:
-                    if (data.name.isEmpty())
-                        result = tr("<Edit>");
-                    else if (data.name == QLatin1String("*") && item->parent)
-                        result = QLatin1Char('*') + item->parent->name;
-                    else
-                        result = removeInitialNamespace(data.name);
-                    break;
-                case 1:
-                    result = removeInitialNamespace(
-                        truncateValue(formattedValue(data)));
-                    if (data.referencingAddress) {
-                        result += QLatin1String(" @");
-                        result += QString::fromLatin1(data.hexAddress());
-                    }
-                    break;
-                case 2:
-                    result = removeNamespaces(displayType(data));
-                    break;
-                default:
-                    break;
-            }
-            return result;
-        }
+        case Qt::DisplayRole:
+            return display(item, idx.column());
 
         case Qt::ToolTipRole:
             return debuggerCore()->boolSetting(UseToolTipsInLocalsView)
@@ -1655,6 +1667,13 @@ const WatchData *WatchHandler::findItem(const QByteArray &iname) const
     const WatchModel *model = modelForIName(iname);
     QTC_ASSERT(model, return 0);
     return model->findItem(iname, model->m_root);
+}
+
+QString WatchHandler::displayForAutoTest(const QByteArray &iname) const
+{
+    const WatchModel *model = modelForIName(iname);
+    QTC_ASSERT(model, return 0);
+    return model->displayForAutoTest(iname);
 }
 
 QModelIndex WatchHandler::itemIndex(const QByteArray &iname) const

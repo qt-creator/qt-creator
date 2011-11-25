@@ -299,7 +299,6 @@ public:
     void reportTestError(const QString &msg, int line);
     bool m_testsPossible;
     QStringList m_testContents;
-    QString m_testErrors;
     TaskHub *m_taskHub;
     QString m_testFileName;
 };
@@ -1117,9 +1116,6 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
         BreakHandler *handler = breakHandler();
         foreach (BreakpointModelId id, handler->engineBreakpointIds(this))
             handler->notifyBreakpointReleased(id);
-
-        if (!d->m_testErrors.isEmpty())
-            showMessage(_("\nTest Errors\n\n") + d->m_testErrors);
     }
 
     const bool running = d->m_state == InferiorRunOk;
@@ -1736,10 +1732,12 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
             reportTestError(_("'Check'  needs arguments."), line);
         } else {
             QByteArray iname = "local." + name.toLatin1();
-            const WatchData *data = m_engine->watchHandler()->findItem(iname);
-            if (data) {
+            QString found = m_engine->watchHandler()->displayForAutoTest(iname);
+            if (found.isEmpty()) {
+                reportTestError(_("Check referes to unknown variable %1.")
+                    .arg(name), line);
+            } else {
                 QString needle = s.section(QLatin1Char(' '), 2, -1);
-                QString found = data->value + QString::fromLatin1(" " + data->type);
                 if (needle == found) {
                     m_engine->showMessage(_("Check in line %1 for %2 was successful")
                         .arg(line).arg(needle));
@@ -1747,9 +1745,6 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
                     reportTestError(_("Check for %1 failed. Got %2.")
                         .arg(needle).arg(found), line);
                 }
-            } else {
-                reportTestError(_("Check referes to unknown variable %1.")
-                    .arg(name), line);
             }
         }
         handleAutoTestLine(line + 1);
@@ -1762,8 +1757,6 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
 void DebuggerEnginePrivate::reportTestError(const QString &msg, int line)
 {
     m_engine->showMessage(_("### Line %1: %2").arg(line).arg(msg));
-    m_testErrors.append(msg);
-    m_testErrors.append(QLatin1Char('\n'));
 
     if (!m_taskHub) {
         ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();

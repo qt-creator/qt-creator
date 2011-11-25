@@ -102,6 +102,7 @@ private:
     void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
     void insertBulkData(const QList<WatchData> &data);
     WatchItem *findItem(const QByteArray &iname, WatchItem *root) const;
+    QString displayForAutoTest(const QByteArray &iname) const;
     void reinitialize();
     void removeOutdated();
     void removeOutdatedHelper(WatchItem *item);
@@ -129,6 +130,7 @@ private:
     QString removeNamespaces(QString str) const;
     void formatRequests(QByteArray *out, const WatchItem *item) const;
     DebuggerEngine *engine() const;
+    QString display(const WatchItem *item, int col) const;
     int itemFormat(const WatchData &data) const;
     int m_generationCounter;
 
@@ -165,6 +167,7 @@ public:
 
     const WatchData *watchData(WatchType type, const QModelIndex &) const;
     const WatchData *findItem(const QByteArray &iname) const;
+    QString displayForAutoTest(const QByteArray &iname) const;
     QModelIndex itemIndex(const QByteArray &iname) const;
 
     void loadSessionData();
