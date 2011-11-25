@@ -91,7 +91,7 @@ def __createProjectHandleLastPage__(expectedFiles = None):
     clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}", 20000))
 
 def createProject_Qt_GUI(path, projectName, qtVersion, checks):
-    __createProjectSelectType__("Qt Widget Project", "Qt Gui Application")
+    __createProjectSelectType__("Other Qt Project", "Qt Gui Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     __chooseTargets__()
     selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox_2", "For One Qt Version One Debug And One Release")
