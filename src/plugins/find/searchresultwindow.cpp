@@ -213,6 +213,7 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     QScrollArea *newSearchArea = new QScrollArea(d->m_widget);
     newSearchArea->setFrameStyle(QFrame::NoFrame);
     newSearchArea->setWidget(newSearchPanel);
+    newSearchArea->setFocusProxy(newSearchPanel);
     d->m_widget->addWidget(newSearchArea);
     d->m_currentIndex = 0;
 
