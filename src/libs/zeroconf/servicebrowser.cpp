@@ -1227,25 +1227,25 @@ void ServiceBrowserPrivate::reconfirmService(Service::ConstPtr s)
 /// (covers both add and remove)
 void ServiceBrowserPrivate::serviceChanged(const Service::ConstPtr &oldService,
                                            const Service::ConstPtr &newService,
-                                           ServiceBrowser *browser)
+                                           ZeroConf::ServiceBrowser *browser)
 {
     emit q->serviceChanged(oldService, newService, browser);
 }
 
 /// called when a service is added (utility method)
-void ServiceBrowserPrivate::serviceAdded(const Service::ConstPtr &service, ServiceBrowser *browser)
+void ServiceBrowserPrivate::serviceAdded(const Service::ConstPtr &service, ZeroConf::ServiceBrowser *browser)
 {
     emit q->serviceAdded(service, browser);
 }
 
 /// called when a service is removed (utility method)
-void ServiceBrowserPrivate::serviceRemoved(const Service::ConstPtr &service, ServiceBrowser *browser)
+void ServiceBrowserPrivate::serviceRemoved(const Service::ConstPtr &service, ZeroConf::ServiceBrowser *browser)
 {
     emit q->serviceRemoved(service, browser);
 }
 
 /// called when the list is updated (this might collect several serviceChanged signals together)
-void ServiceBrowserPrivate::servicesUpdated(ServiceBrowser *browser)
+void ServiceBrowserPrivate::servicesUpdated(ZeroConf::ServiceBrowser *browser)
 {
     emit q->servicesUpdated(browser);
 }
