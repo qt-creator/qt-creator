@@ -294,7 +294,7 @@ Item {
                     script: {
                         delegate.state = "";
                         if (model.hasSourceCode)
-                            gettingStarted.openProject(model.projectPath, model.filesToOpen, model.docUrl)
+                            gettingStarted.openProject(model.projectPath, model.filesToOpen, model.docUrl, model.dependencies)
                         else
                             gettingStarted.openSplitHelp(model.docUrl);
                     }

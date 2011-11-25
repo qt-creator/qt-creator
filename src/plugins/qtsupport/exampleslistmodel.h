@@ -42,7 +42,7 @@ namespace QtSupport {
 namespace Internal {
 
 enum ExampleRoles { Name=Qt::UserRole, ProjectPath, Description, ImageUrl,
-                    DocUrl,  FilesToOpen, Tags, Difficulty, HasSourceCode, Type };
+                    DocUrl,  FilesToOpen, Tags, Difficulty, HasSourceCode, Type, Dependencies };
 
 enum InstructionalType { Example=0, Demo, Tutorial };
 
@@ -56,6 +56,7 @@ struct ExampleItem {
     QString docUrl;
     QStringList filesToOpen;
     QStringList tags;
+    QStringList dependencies;
     int difficulty;
     bool hasSourceCode;
 };

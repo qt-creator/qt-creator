@@ -68,12 +68,13 @@ signals:
 
 public slots:
     void openSplitHelp(const QUrl &help);
-    void openProject(const QString& projectFile, const QStringList& additionalFilesToOpen, const QUrl& help);
+    void openProject(const QString& projectFile, const QStringList& additionalFilesToOpen,
+                     const QUrl& help, const QStringList &dependencies);
     void updateTagsModel();
 
 private:
     ExamplesListModel *examplesModel() const;
-    QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen);
+    QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen, const QStringList &dependencies);
     QDeclarativeEngine *m_engine;
     bool m_showExamples;
 };

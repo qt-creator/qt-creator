@@ -65,6 +65,7 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
     roleNames[Difficulty] = "difficulty";
     roleNames[Type] = "type";
     roleNames[HasSourceCode] = "hasSourceCode";
+    roleNames[Dependencies] = "dependencies";
     setRoleNames(roleNames);
 
     connect(QtVersionManager::instance(), SIGNAL(updateExamples(QString,QString,QString)),
@@ -73,7 +74,7 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
             SLOT(helpInitialized()));
 }
 
-static inline QString fixSTringForTags(const QString &string)
+static inline QString fixStringForTags(const QString &string)
 {
     QString returnString = string;
     returnString.remove(QLatin1String("<i>"));
@@ -104,7 +105,9 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, co
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
-                item.description =  fixSTringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.description =  fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+            } else if (reader->name() == QLatin1String("dependency")) {
+                item.dependencies.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
                 item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(",");
                 m_tags.append(item.tags);
@@ -144,7 +147,9 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader* reader, const
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
-                item.description =  fixSTringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.description =  fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+            } else if (reader->name() == QLatin1String("dependency")) {
+                item.dependencies.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
                 item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(",");
             }
@@ -183,7 +188,9 @@ QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, c
             } else if (reader->name() == QLatin1String("fileToOpen")) {
                 item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
-                item.description =  fixSTringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.description =  fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+            } else if (reader->name() == QLatin1String("dependency")) {
+                item.dependencies.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
                 item.tags = reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(",");
             }
@@ -362,6 +369,8 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
         return item.tags;
     case Difficulty:
         return item.difficulty;
+    case Dependencies:
+        return item.dependencies;
     case HasSourceCode:
         return item.hasSourceCode;
     case Type:
