@@ -1025,6 +1025,7 @@ public:
     void recordJump();
     QVector<CursorPosition> m_jumpListUndo;
     QVector<CursorPosition> m_jumpListRedo;
+    int m_lastChangePosition;
 
     QList<QTextEdit::ExtraSelection> m_searchSelections;
     QTextCursor m_searchCursor;
@@ -1123,6 +1124,7 @@ void FakeVimHandler::Private::init()
     m_oldExternalAnchor = -1;
     m_oldExternalPosition = -1;
     m_oldPosition = -1;
+    m_lastChangePosition = -1;
 
     setupCharClass();
 }
@@ -1905,6 +1907,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_rangemode = RangeLineMode;
     } else if (m_submode == ReplaceSubMode) {
         if (isVisualMode()) {
+            m_lastChangePosition = position();
             if (isVisualLineMode())
                 m_rangemode = RangeLineMode;
             else if (isVisualBlockMode())
@@ -1918,15 +1921,17 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             transformText(range, tr, input.asChar());
             setPosition(range.beginPos);
         } else if (count() <= rightDist()) {
+            m_lastChangePosition = position();
             setAnchor();
             moveRight(count());
+            Range range = currentRange();
             if (input.isReturn()) {
                 beginEditBlock();
-                replaceText(currentRange(), QString());
+                replaceText(range, QString());
                 insertText(QString("\n"));
                 endEditBlock();
             } else {
-                replaceText(currentRange(), QString(count(), input.asChar()));
+                replaceText(range, QString(count(), input.asChar()));
                 moveLeft();
             }
             setTargetColumn();
@@ -1935,6 +1940,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_submode = NoSubMode;
         finishMovement();
     } else if (m_submode == ChangeSubMode && input.is('c')) { // tested
+        m_lastChangePosition = position();
         moveToStartOfLine();
         setAnchor();
         moveDown(count() - 1);
@@ -1944,6 +1950,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         setDotCommand("%1cc", count());
         finishMovement();
     } else if (m_submode == DeleteSubMode && input.is('d')) { // tested
+        m_lastChangePosition = position();
         m_movetype = MoveLineWise;
         int endPos = firstPositionInLine(lineForPosition(position()) + count() - 1);
         Range range(position(), endPos, RangeLineMode);
@@ -1959,18 +1966,21 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_subsubmode = TextObjectSubSubMode;
         m_subsubdata = input;
     } else if (m_submode == ShiftLeftSubMode && input.is('<')) {
+        m_lastChangePosition = position();
         setAnchor();
         moveDown(count() - 1);
         m_movetype = MoveLineWise;
         setDotCommand("%1<<", count());
         finishMovement();
     } else if (m_submode == ShiftRightSubMode && input.is('>')) {
+        m_lastChangePosition = position();
         setAnchor();
         moveDown(count() - 1);
         m_movetype = MoveLineWise;
         setDotCommand("%1>>", count());
         finishMovement();
     } else if (m_submode == IndentSubMode && input.is('=')) {
+        m_lastChangePosition = position();
         setAnchor();
         moveDown(count() - 1);
         m_movetype = MoveLineWise;
@@ -4519,6 +4529,7 @@ void FakeVimHandler::Private::insertText(const Register &reg)
         qDebug() << "WRONG INSERT MODE: " << reg.rangemode; return);
     setAnchor();
     cursor().insertText(reg.contents);
+    m_lastChangePosition = cursor().position();
     //dump("AFTER INSERT");
 }
 
@@ -5002,6 +5013,8 @@ int FakeVimHandler::Private::mark(int code) const
         if (code == '>')
             return anchor();
     }
+    if (code == '.')
+        return m_lastChangePosition;
     QTextCursor tc = m_marks.value(code);
     return tc.isNull() ? -1 : tc.position();
 }
