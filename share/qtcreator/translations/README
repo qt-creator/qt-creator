@@ -3,7 +3,7 @@ How To add translations to Qt Creator
 
 - Coordinate over the mailing list to avoid duplicate work.
 
-- Read the instructions at http://qt.gitorious.org/qt/pages/QtLocalization
+- Read the instructions at http://wiki.qt-project.org/Qt_Localization
 
 - Add your language to the LANGUAGES line in translations.pro.
   Don't qualify it with a country unless it is reasonable to expect
