@@ -17,17 +17,19 @@ def main():
         test.compare(waitForObject(node).text, value)
 
     clickButton(waitForObject(":*Qt Creator_Core::Internal::FancyToolButton"))
-    buildCombo = waitForObject(":Build:_QComboBox")
+    listWidget = waitForObject("{occurrence='2' type='ProjectExplorer::Internal::GenericListWidget' unnamed='1' visible='0' "
+                               "window=':QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector'}")
     sendEvent("QMouseEvent", waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), QEvent.MouseButtonPress, -5, 5, Qt.LeftButton, 0)
 
     prog = re.compile("(Desktop )?Qt.*Release")
-    for row in range(buildCombo.count):
-        if prog.match(str(buildCombo.itemText(row))):
+    for row in range(listWidget.count):
+        currentItem = listWidget.item(row)
+        if prog.match(str(currentItem.text())):
             clickButton(waitForObject(":*Qt Creator_Core::Internal::FancyToolButton"))
-            itemText = buildCombo.itemText(row);
+            itemText = currentItem.text()
             test.log("Testing build configuration: "+str(itemText))
-            if str(itemText) != str(buildCombo.currentText):
-                buildCombo.setCurrentIndex(row)
+            if listWidget.currentRow != row:
+                listWidget.setItemSelected(currentItem, True)
             sendEvent("QMouseEvent", waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), QEvent.MouseButtonPress, -45, 64, Qt.LeftButton, 0)
             waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
             invokeMenuItem("Build", "Run qmake")
