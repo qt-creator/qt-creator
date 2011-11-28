@@ -90,8 +90,7 @@ protected:
     virtual bool visit(AST::LocalForStatement *ast);
     virtual bool visit(AST::WhileStatement *ast);
     virtual bool visit(AST::DoWhileStatement *ast);
-    virtual bool visit(AST::CaseClause *ast);
-    virtual bool visit(AST::DefaultClause *ast);
+    virtual bool visit(AST::CaseBlock *ast);
     virtual bool visit(AST::NewExpression *ast);
     virtual bool visit(AST::NewMemberExpression *ast);
     virtual bool visit(AST::CallExpression *ast);
@@ -108,7 +107,7 @@ private:
                         AST::UiObjectInitializer *initializer);
     const Value *checkScopeObjectMember(const AST::UiQualifiedId *id);
     void checkAssignInCondition(AST::ExpressionNode *condition);
-    void checkEndsWithControlFlow(AST::StatementList *statements, AST::SourceLocation errorLoc);
+    void checkCaseFallthrough(AST::StatementList *statements, AST::SourceLocation errorLoc, AST::SourceLocation nextLoc);
     void checkProperty(QmlJS::AST::UiQualifiedId *);
     void checkNewExpression(AST::ExpressionNode *node);
     void checkBindingRhs(AST::Statement *statement);

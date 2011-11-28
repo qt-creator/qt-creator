@@ -1086,15 +1086,24 @@ bool Check::visit(DoWhileStatement *ast)
     return true;
 }
 
-bool Check::visit(CaseClause *ast)
+bool Check::visit(CaseBlock *ast)
 {
-    checkEndsWithControlFlow(ast->statements, ast->caseToken);
-    return true;
-}
+    QList< QPair<SourceLocation, StatementList *> > clauses;
+    for (CaseClauses *it = ast->clauses; it; it = it->next)
+        clauses += qMakePair(it->clause->caseToken, it->clause->statements);
+    if (ast->defaultClause)
+        clauses += qMakePair(ast->defaultClause->defaultToken, ast->defaultClause->statements);
+    for (CaseClauses *it = ast->moreClauses; it; it = it->next)
+        clauses += qMakePair(it->clause->caseToken, it->clause->statements);
 
-bool Check::visit(DefaultClause *ast)
-{
-    checkEndsWithControlFlow(ast->statements, ast->defaultToken);
+    for (int i = 0; i < clauses.size(); ++i) {
+        SourceLocation nextToken;
+        if (i + 1 < clauses.size())
+            nextToken = clauses[i + 1].first;
+        else
+            nextToken = ast->rbraceToken;
+        checkCaseFallthrough(clauses[i].second, clauses[i].first, nextToken);
+    }
     return true;
 }
 
@@ -1435,13 +1444,35 @@ void Check::checkAssignInCondition(AST::ExpressionNode *condition)
     }
 }
 
-void Check::checkEndsWithControlFlow(StatementList *statements, SourceLocation errorLoc)
+void Check::checkCaseFallthrough(StatementList *statements, SourceLocation errorLoc, SourceLocation nextLoc)
 {
     if (!statements)
         return;
 
     ReachesEndCheck check;
     if (check(statements)) {
+        // check for fallthrough comments
+        if (nextLoc.isValid()) {
+            quint32 afterLastStatement = 0;
+            for (StatementList *it = statements; it; it = it->next) {
+                if (!it->next)
+                    afterLastStatement = it->statement->lastSourceLocation().end();
+            }
+
+            foreach (const SourceLocation &comment, _doc->engine()->comments()) {
+                if (comment.begin() < afterLastStatement
+                        || comment.end() > nextLoc.begin())
+                    continue;
+
+                const QString &commentText = _doc->source().mid(comment.begin(), comment.length);
+                if (commentText.contains(QLatin1String("fall through"))
+                        || commentText.contains(QLatin1String("fall-through"))
+                        || commentText.contains(QLatin1String("fallthrough"))) {
+                    return;
+                }
+            }
+        }
+
         addMessage(WarnCaseWithoutFlowControl, errorLoc);
     }
 }
