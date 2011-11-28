@@ -2467,7 +2467,14 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
     } else if (input.isControl('l')) {
         // screen redraw. should not be needed
     } else if (input.is('m')) {
-        m_subsubmode = MarkSubSubMode;
+        if (m_gflag) {
+            moveToStartOfLine();
+            moveRight(qMin(columnsOnScreen() / 2, rightDist()) - 1);
+            setTargetColumn();
+            finishMovement();
+        } else {
+            m_subsubmode = MarkSubSubMode;
+        }
     } else if (input.is('M')) {
         QTextCursor tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()) / 2)));
         setCursor(tc);
