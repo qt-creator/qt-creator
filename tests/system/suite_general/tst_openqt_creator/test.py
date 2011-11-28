@@ -10,10 +10,10 @@ def main():
 
     openQmakeProject(pathSpeedcrunch)
     # Wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     openQmakeProject(pathCreator)
     # Wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 300000)
 
     # Test that some of the expected items are in the navigation tree
     for row, record in enumerate(testData.dataset("creator_tree.tsv")):

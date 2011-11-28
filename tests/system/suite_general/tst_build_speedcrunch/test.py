@@ -8,7 +8,7 @@ def main():
         return
     startApplication("qtcreator" + SettingsPath)
     openQmakeProject(SpeedCrunchPath)
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
 
     # Test that some of the expected items are in the navigation tree
     for row, record in enumerate(testData.dataset("speedcrunch_tree.tsv")):
@@ -31,9 +31,9 @@ def main():
             if listWidget.currentRow != row:
                 listWidget.setItemSelected(currentItem, True)
             sendEvent("QMouseEvent", waitForObject(":QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector"), QEvent.MouseButtonPress, -45, 64, Qt.LeftButton, 0)
-            waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
+            waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
             invokeMenuItem("Build", "Run qmake")
-            waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+            waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
             invokeMenuItem("Build", "Rebuild All")
             waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
             checkCompile()

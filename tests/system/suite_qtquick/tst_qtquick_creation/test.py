@@ -9,11 +9,11 @@ def main():
     workingDir = tempDir()
     projectName = createNewQtQuickApplication(workingDir, targets = QtQuickConstants.Targets.DESKTOP)
     # wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     test.log("Building project")
     result = modifyRunSettingsForHookInto(projectName, 11223)
     invokeMenuItem("Build", "Build All")
-    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
     if not checkCompile():
         test.fatal("Compile failed")
     else:

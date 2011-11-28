@@ -15,7 +15,7 @@ def main():
     prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     createNewQtQuickApplication(workingDir, "untitled", templateDir + "/qml/focus.qml")
     # wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     testRenameId()
 
     invokeMenuItem("File", "Exit")

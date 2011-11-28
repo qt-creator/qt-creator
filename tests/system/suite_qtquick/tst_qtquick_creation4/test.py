@@ -9,10 +9,10 @@ def main():
     workingDir = tempDir()
     createNewQmlExtension(workingDir)
     # wait for parsing to complete
-    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 30000)
+    waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     test.log("Building project")
     invokeMenuItem("Build","Build All")
-    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
     checkCompile()
     checkLastBuild()
     invokeMenuItem("File", "Exit")
