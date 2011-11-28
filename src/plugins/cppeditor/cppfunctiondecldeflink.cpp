@@ -928,21 +928,43 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                 cvString += QLatin1Char(' ');
             cvString += QLatin1String("volatile");
         }
-        const int rparenEnd = targetFile->endOf(targetFunctionDeclarator->rparen_token);
-        if (targetFunctionDeclarator->cv_qualifier_list) {
-            const int cvEnd = targetFile->endOf(targetFunctionDeclarator->cv_qualifier_list->lastToken() - 1);
-            // if the qualifies changed, replace
-            if (!cvString.isEmpty()) {
-                changes.replace(targetFile->startOf(targetFunctionDeclarator->cv_qualifier_list->firstToken()),
-                                cvEnd, cvString);
-            } else {
-                // remove
-                changes.remove(rparenEnd, cvEnd);
-            }
-        } else {
-            // otherwise add
+
+        // if the target function is neither const or volatile, just add the new specifiers after the closing ')'
+        if (!targetFunction->isConst() && !targetFunction->isVolatile()) {
             cvString.prepend(QLatin1Char(' '));
-            changes.insert(rparenEnd, cvString);
+            changes.insert(targetFile->endOf(targetFunctionDeclarator->rparen_token), cvString);
+        }
+        // modify/remove existing specifiers
+        else {
+            SimpleSpecifierAST *constSpecifier = 0;
+            SimpleSpecifierAST *volatileSpecifier = 0;
+            for (SpecifierListAST *it = targetFunctionDeclarator->cv_qualifier_list; it; it = it->next) {
+                if (SimpleSpecifierAST *simple = it->value->asSimpleSpecifier()) {
+                    unsigned kind = targetFile->tokenAt(simple->specifier_token).kind();
+                    if (kind == T_CONST)
+                        constSpecifier = simple;
+                    else if (kind == T_VOLATILE)
+                        volatileSpecifier = simple;
+                }
+            }
+            // if there are both, we just need to remove
+            if (constSpecifier && volatileSpecifier) {
+                if (!newFunction->isConst())
+                    changes.remove(targetFile->endOf(constSpecifier->specifier_token - 1), targetFile->endOf(constSpecifier));
+                if (!newFunction->isVolatile())
+                    changes.remove(targetFile->endOf(volatileSpecifier->specifier_token - 1), targetFile->endOf(volatileSpecifier));
+            }
+            // otherwise adjust, remove or extend the one existing specifier
+            else {
+                SimpleSpecifierAST *specifier = constSpecifier ? constSpecifier : volatileSpecifier;
+                QTC_ASSERT(specifier, return changes);
+
+                if (!newFunction->isConst() && !newFunction->isVolatile()) {
+                    changes.remove(targetFile->endOf(specifier->specifier_token - 1), targetFile->endOf(specifier));
+                } else {
+                    changes.replace(targetFile->range(specifier), cvString);
+                }
+            }
         }
     }
 
