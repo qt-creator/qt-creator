@@ -164,6 +164,8 @@ public:
 
     qint64 m_traceEndTime;
     qint64 m_traceStartTime;
+    qint64 m_qmlMeasuredTime;
+    qint64 m_v8MeasuredTime;
 
     // file to load
     QString m_filename;
@@ -180,6 +182,8 @@ QmlProfilerEventList::QmlProfilerEventList(QObject *parent) :
 
     d->m_traceEndTime = 0;
     d->m_traceStartTime = -1;
+    d->m_qmlMeasuredTime = 0;
+    d->m_v8MeasuredTime = 0;
 }
 
 QmlProfilerEventList::~QmlProfilerEventList()
@@ -206,6 +210,9 @@ void QmlProfilerEventList::clear()
 
     d->m_traceEndTime = 0;
     d->m_traceStartTime = -1;
+    d->m_qmlMeasuredTime = 0;
+    d->m_v8MeasuredTime = 0;
+
     emit countChanged();
     emit dataClear();
 }
@@ -339,6 +346,8 @@ void QmlProfilerEventList::addV8Event(int depth, const QString &function, const 
             if (!parentEvent->childrenList.contains(newData))
                 parentEvent->childrenList << newData;
         }
+    } else {
+        d->m_v8MeasuredTime += totalTime;
     }
 }
 
@@ -381,6 +390,7 @@ void QmlProfilerEventList::setTraceStartTime( qint64 time )
 
 void QmlProfilerEventList::complete()
 {
+    emit postProcessing();
     d->collectV8Statistics();
     postProcess();
 }
@@ -615,6 +625,10 @@ void QmlProfilerEventList::computeNestingLevels()
 
         d->m_startTimeSortedList[i].level = level;
         d->m_startTimeSortedList[i].nestingLevel = nestingLevels[type];
+
+        if (level == MIN_LEVEL) {
+            d->m_qmlMeasuredTime += d->m_startTimeSortedList[i].length;
+        }
     }
 }
 
@@ -790,6 +804,15 @@ qint64 QmlProfilerEventList::traceEndTime() const
 qint64 QmlProfilerEventList::traceDuration() const
 {
     return traceEndTime() - traceStartTime();
+}
+
+qint64 QmlProfilerEventList::qmlMeasuredTime() const
+{
+    return d->m_qmlMeasuredTime;
+}
+qint64 QmlProfilerEventList::v8MeasuredTime() const
+{
+    return d->m_v8MeasuredTime;
 }
 
 int QmlProfilerEventList::count() const
@@ -1137,6 +1160,7 @@ void QmlProfilerEventList::load()
 
     descriptionBuffer.clear();
 
+    emit postProcessing();
     d->collectV8Statistics();
     postProcess();
 }

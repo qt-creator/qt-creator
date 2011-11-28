@@ -45,6 +45,7 @@ namespace QmlJsDebugClient {
 class QMLJSDEBUGCLIENT_EXPORT QV8ProfilerClient : public QDeclarativeDebugClient
 {
     Q_OBJECT
+    Q_PROPERTY(bool enabled READ isEnabled NOTIFY enabledChanged)
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
 public:
@@ -58,6 +59,7 @@ public:
     QV8ProfilerClient(QDeclarativeDebugConnection *client);
     ~QV8ProfilerClient();
 
+    bool isEnabled() const;
     bool isRecording() const;
 
 public slots:
@@ -71,7 +73,7 @@ signals:
 
     void recordingChanged(bool arg);
 
-    void enabled();
+    void enabledChanged();
     void cleared();
 
 protected:

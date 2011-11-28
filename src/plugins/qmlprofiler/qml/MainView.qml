@@ -102,7 +102,7 @@ Rectangle {
                 root.clearAll();
             if (eventCount > 1) {
                 root.progress = Math.min(1.0,
-                    (qmlEventList.lastTimeMark() - qmlEventList.traceStartTime()) / root.elapsedTime * 1e-9 ) * 0.5;
+                    (qmlEventList.lastTimeMark() - qmlEventList.traceStartTime()) / root.elapsedTime * 1e-9 );
             } else {
                 root.progress = 0;
             }
@@ -110,6 +110,10 @@ Rectangle {
 
         onProcessingData: {
             root.dataAvailable = false;
+        }
+
+        onPostProcessing: {
+            root.progress = 0.9; // jump to 90%
         }
 
         onDataReady: {

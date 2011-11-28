@@ -124,6 +124,8 @@ public:
     Q_INVOKABLE qint64 traceStartTime() const;
     Q_INVOKABLE qint64 traceEndTime() const;
     Q_INVOKABLE qint64 traceDuration() const;
+    Q_INVOKABLE qint64 qmlMeasuredTime() const;
+    Q_INVOKABLE qint64 v8MeasuredTime() const;
 
     void showErrorDialog(const QString &st ) const;
     void compileStatistics(qint64 startTime, qint64 endTime);
@@ -133,6 +135,7 @@ signals:
     void error(const QString &error);
     void dataClear();
     void processingData();
+    void postProcessing();
 
 public slots:
     void clear();

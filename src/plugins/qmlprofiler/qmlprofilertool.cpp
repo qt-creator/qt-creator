@@ -117,6 +117,10 @@ public:
     QToolButton *m_clearButton;
     bool m_recordingEnabled;
     bool m_appIsRunning;
+    bool m_qmlActive;
+    bool m_v8Active;
+    QTime m_appTimer;
+    qint64 m_appRunningTime;
 
     enum ConnectMode {
         TcpConnection, OstConnection
@@ -141,6 +145,8 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_isAttached = false;
     d->m_recordingEnabled = true;
     d->m_appIsRunning = false;
+    d->m_appTimer.start();
+    d->m_appRunningTime = 0;
 
     d->m_connectionTimer.setInterval(200);
     connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(tryToConnect()));
@@ -337,8 +343,9 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
 
     connect(engine, SIGNAL(processRunning(int)), this, SLOT(connectClient(int)));
     connect(engine, SIGNAL(finished()), this, SLOT(disconnectClient()));
-    connect(engine, SIGNAL(finished()), this, SLOT(correctTimer()));
+    connect(engine, SIGNAL(finished()), this, SLOT(updateTimers()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
+    connect(engine, SIGNAL(timeUpdate()), this, SLOT(updateTimers()));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(dataReceived()));
     connect(this, SIGNAL(connectionFailed()), engine, SLOT(finishProcess()));
     connect(this, SIGNAL(fetchingData(bool)), engine, SLOT(setFetchingData(bool)));
@@ -364,10 +371,11 @@ QWidget *QmlProfilerTool::createWidgets()
     d->m_traceWindow->reset(d->m_client);
 
     connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)),this, SLOT(gotoSourceLocation(QString,int)));
-    connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
     connect(d->m_traceWindow, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(d->m_traceWindow->getEventList(), SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
     connect(d->m_traceWindow->getEventList(), SIGNAL(dataReady()), this, SLOT(showSaveOption()));
+    connect(d->m_traceWindow->getEventList(), SIGNAL(dataReady()), this, SLOT(updateTimers()));
+    connect(d->m_traceWindow, SIGNAL(profilerStateChanged(bool,bool)), this, SLOT(profilerStateChanged(bool,bool)));
 
     d->m_eventsView = new QmlProfilerEventsWidget(d->m_traceWindow->getEventList(), mw);
     connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
@@ -419,14 +427,14 @@ QWidget *QmlProfilerTool::createWidgets()
     connect(d->m_clearButton,SIGNAL(clicked()), this, SLOT(clearDisplay()));
     layout->addWidget(d->m_clearButton);
 
-    QLabel *timeLabel = new QLabel(tr("Elapsed:      0 s"));
+    QLabel *timeLabel = new QLabel();
     QPalette palette = timeLabel->palette();
     palette.setColor(QPalette::WindowText, Qt::white);
     timeLabel->setPalette(palette);
     timeLabel->setIndent(10);
-    connect(d->m_traceWindow, SIGNAL(viewUpdated()), this, SLOT(correctTimer()));
+    connect(d->m_traceWindow, SIGNAL(viewUpdated()), this, SLOT(updateTimers()));
     connect(this, SIGNAL(setTimeLabel(QString)), timeLabel, SLOT(setText(QString)));
-    correctTimer();
+    updateTimers();
     layout->addWidget(timeLabel);
 
     toolbarWidget->setLayout(layout);
@@ -442,6 +450,7 @@ void QmlProfilerTool::connectClient(int port)
     connect(d->m_client, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             this, SLOT(connectionStateChanged()));
     d->m_connectionTimer.start();
+    d->m_appTimer.start();
     d->m_tcpPort = port;
 }
 
@@ -501,16 +510,20 @@ void QmlProfilerTool::setRecording(bool recording)
         startRecording();
     else
         stopRecording();
+
+    updateTimers();
 }
 
 void QmlProfilerTool::setAppIsRunning()
 {
     d->m_appIsRunning = true;
+    updateTimers();
 }
 
 void QmlProfilerTool::setAppIsStopped()
 {
     d->m_appIsRunning = false;
+    updateTimers();
 }
 
 void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
@@ -535,23 +548,33 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
     }
 }
 
-void QmlProfilerTool::correctTimer() {
-    if (d->m_traceWindow->getEventList()->count() == 0)
-        updateTimer(0);
+inline QString stringifyTime(double seconds)
+{
+    QString timeString = QString::number(seconds,'f',1);
+    return QmlProfilerTool::tr("%1 s").arg(timeString, 6);
 }
 
-void QmlProfilerTool::updateTimer(qreal elapsedSeconds)
+void QmlProfilerTool::updateTimers()
 {
-    QString timeString = QString::number(elapsedSeconds,'f',1);
-    timeString = QString("      ").left(6-timeString.length()) + timeString;
-    emit setTimeLabel(tr("Elapsed: %1 s").arg(timeString));
+    // prof time
+    QString profilerTimeStr = stringifyTime(d->m_traceWindow->profiledTime());
+    emit setTimeLabel(tr("Elapsed: %1").arg(profilerTimeStr));
+}
+
+void QmlProfilerTool::profilerStateChanged(bool qmlActive, bool v8active)
+{
+    d->m_v8Active = v8active;
+    d->m_qmlActive = qmlActive;
+    updateTimers();
 }
 
 void QmlProfilerTool::clearDisplay()
 {
+    d->m_appRunningTime = 0;
     d->m_traceWindow->clearDisplay();
     d->m_eventsView->clear();
     d->m_v8profilerView->clear();
+    updateTimers();
 }
 
 static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
@@ -675,6 +698,8 @@ void QmlProfilerTool::updateRecordingState()
 
     if (d->m_traceWindow->isRecording())
         clearDisplay();
+
+    updateTimers();
 }
 
 void QmlProfilerTool::startTool(StartMode mode)

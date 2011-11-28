@@ -116,8 +116,8 @@ void QmlProfilerTraceClient::statusChanged(Status status)
 {
     if (status == Enabled) {
         d->sendRecordingStatus();
-        emit enabled();
     }
+    emit enabledChanged();
 }
 
 void QmlProfilerTraceClient::messageReceived(const QByteArray &data)

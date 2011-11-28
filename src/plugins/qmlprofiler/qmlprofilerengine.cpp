@@ -84,6 +84,7 @@ public:
     bool m_delayedDelete;
     QTimer m_noDebugOutputTimer;
     QmlJsDebugClient::QDeclarativeOutputParser m_outputParser;
+    QTimer m_runningTimer;
 };
 
 AbstractQmlProfilerRunner *
@@ -153,6 +154,9 @@ QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
             this, SLOT(processIsRunning()));
     connect(&d->m_outputParser, SIGNAL(errorMessage(QString)),
             this, SLOT(wrongSetupMessageBox(QString)));
+
+    d->m_runningTimer.setInterval(100); // ten times per second
+    connect(&d->m_runningTimer, SIGNAL(timeout()), this, SIGNAL(timeUpdate()));
 }
 
 QmlProfilerEngine::~QmlProfilerEngine()
@@ -201,6 +205,7 @@ bool QmlProfilerEngine::start()
 
     d->m_running = true;
     d->m_delayedDelete = false;
+    d->m_runningTimer.start();
 
     if (d->m_fetchDataFromStart) {
         d->m_fetchingData = true;
@@ -236,6 +241,7 @@ void QmlProfilerEngine::stopped()
     }
 
     d->m_running = false;
+    d->m_runningTimer.stop();
     AnalyzerManager::stopTool(); // FIXME: Needed?
     emit finished();
 }
@@ -259,6 +265,7 @@ void QmlProfilerEngine::finishProcess()
     // user stop?
     if (d->m_running) {
         d->m_running = false;
+        d->m_runningTimer.stop();
         if (d->m_runner)
             d->m_runner->stop();
         emit finished();
@@ -290,6 +297,7 @@ void QmlProfilerEngine::wrongSetupMessageBox(const QString &errorMessage)
     infoBox->show();
 
     d->m_running = false;
+    d->m_runningTimer.stop();
     AnalyzerManager::stopTool();
     emit finished();
 }

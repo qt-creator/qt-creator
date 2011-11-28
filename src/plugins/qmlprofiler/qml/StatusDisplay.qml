@@ -1,6 +1,6 @@
 import QtQuick 1.0
 
-Rectangle {
+Item {
     id: statusDisplay
 
     property real percentage : root.progress
@@ -10,10 +10,29 @@ Rectangle {
 
     visible: false;
 
-    color: "#CCD0CC"
-    border.width: 1
-    border.color: "#AAAEAA"
-    radius: 4
+    // shadow
+    BorderImage {
+        property int px: 4
+        source: "dialog_shadow.png"
+
+        border {
+            left: px; top: px
+            right: px; bottom: px
+        }
+        width: parent.width + 2*px - 1
+        height: parent.height
+        x: -px + 1
+        y: px + 1
+    }
+
+    // background
+    Rectangle {
+        color: "#E0E0E0"
+        border.width: 1
+        border.color: "#666666"
+        radius: 4
+        anchors.fill: parent
+    }
 
     Column {
         id: displayColumn

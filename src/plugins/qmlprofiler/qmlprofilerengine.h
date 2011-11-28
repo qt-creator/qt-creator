@@ -53,6 +53,7 @@ public:
 signals:
     void processRunning(int port);
     void stopRecording();
+    void timeUpdate();
 
 public slots:
     bool start();
