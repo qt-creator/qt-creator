@@ -4115,6 +4115,53 @@ namespace varargs {
 } // namespace varargs
 
 
+namespace gdb13393 {
+
+    struct Base {
+        Base() : a(1) {}
+        virtual ~Base() {}  // Enforce type to have RTTI
+        int a;
+    };
+
+
+    struct Derived : public Base {
+        Derived() : b(2) {}
+        int b;
+    };
+
+    struct S
+    {
+        Base *ptr;
+        const Base *ptrConst;
+        Base &ref;
+        const Base &refConst;
+
+        S(Derived &d)
+            : ptr(&d), ptrConst(&d), ref(d), refConst(d)
+        {}
+    };
+
+    void test13393()
+    {
+        Derived d;
+        S s(d);
+        Base *ptr = &d;
+        const Base *ptrConst = &d;
+        Base& ref = d;
+        const Base &refConst = d;
+        Base **ptrToPtr = &ptr;
+        #if USE_BOOST
+        boost::shared_ptr<Base> sharedPtr(new Derived());
+        #else
+        int sharedPtr = 1;
+        #endif
+        BREAK_HERE
+        dummyStatement(&d, &s, &ptrToPtr, &sharedPtr, &ptrConst, &refConst, &ref);
+    }
+
+} // namespace gdb13393
+
+
 namespace valgrind {
 
     void testLeak()
@@ -4257,6 +4304,7 @@ int main(int argc, char *argv[])
     bug5184::test5184();
     bug5799::test5799();
     bug6465::test6465();
+    gdb13393::test13393();
 
     final::testFinal(&app);
 

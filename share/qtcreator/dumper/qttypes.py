@@ -2450,3 +2450,20 @@ if False:
         d.putValue("This is the value: %s" % value["m_a"])
         d.putNoType()
         d.putNumChild(0)
+
+if False:
+    def qdump__gdb13393__Base(d, value):
+        d.putValue("Base (%s)" % value["a"])
+        d.putType(value.type)
+        d.putNumChild(1)
+        if d.isExpanded():
+            with Children(d):
+                d.putFields(value)
+
+    def qdump__gdb13393__Derived(d, value):
+        d.putValue("Derived (%s, %s)" % (value["a"], value["b"]))
+        d.putType(value.type)
+        d.putNumChild(1)
+        if d.isExpanded():
+            with Children(d):
+                d.putFields(value)
