@@ -111,6 +111,8 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
     d->m_defaultCodeStyle->setDelegatingPool(textEditorSettings->codeStylePool());
     d->m_defaultCodeStyle->setDisplayName(tr("Project", "Settings"));
     d->m_defaultCodeStyle->setId(kId);
+    d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal
+                    ? TextEditorSettings::instance()->codeStyle() : 0);
 }
 
 EditorConfiguration::~EditorConfiguration()
