@@ -180,7 +180,8 @@
     the \c{-help} command line argument, and the plugin manager does its command
     line parsing and sanity checks based on that information.
     If the plugin manager finds matching command line arguments for a plugin,
-    it passes them on to the plugin's \l{IPlugin::initialize} method.
+    it passes them on to the plugin's
+    \l{ExtensionSystem::IPlugin::initialize()}{initialize()} method.
 
     All command line argument definitions are enclosed by a single \c argumentList
     tag. The individual command line arguments are defined by the \c argument tag,
