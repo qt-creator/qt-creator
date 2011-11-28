@@ -304,7 +304,7 @@ QStringList ExamplesWelcomePage::tagList() const
     return examplesModel()->tags();
 }
 
-QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen)
+QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen, const QStringList& dependencies)
 {
     const QString projectDir = proFileInfo.canonicalPath();
     QDialog d(Core::ICore::instance()->mainWindow());
@@ -359,6 +359,15 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                 for (it = filesToOpen.begin(); it != filesToOpen.end(); ++it)
                     it->replace(projectDir, targetDir);
 
+                foreach (const QString &dependency, dependencies) {
+                    QString dirName = QDir(dependency).dirName();
+                    if (!Utils::FileUtils::copyRecursively(dependency, targetDir + QDir::separator()+ dirName, &error)) {
+                        QMessageBox::warning(Core::ICore::instance()->mainWindow(), tr("Cannot Copy Project"), error);
+                        // do not fail, just warn;
+                    }
+                }
+
+
                 return targetDir+ '/' + proFileInfo.fileName();
             } else {
                 QMessageBox::warning(Core::ICore::instance()->mainWindow(), tr("Cannot Copy Project"), error);
@@ -370,7 +379,8 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 
 }
 
-void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringList &additionalFilesToOpen, const QUrl &help)
+void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringList &additionalFilesToOpen,
+                                            const QUrl &help, const QStringList &dependencies)
 {
     QString proFile = projectFile;
     if (proFile.isEmpty())
@@ -380,7 +390,7 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
     QFileInfo proFileInfo(proFile);
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
     if (!proFileInfo.isWritable())
-        proFile = copyToAlternativeLocation(proFileInfo, filesToOpen);
+        proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, dependencies);
 
     // don't try to load help and files if loading the help request is being cancelled
     QString errorMessage;

@@ -83,7 +83,14 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP):
             if mustCheck:
                 test.fail("Failed to check target '%s'" % QtQuickConstants.getStringForTarget(current))
 
-def runAndCloseApp(withHookInto=False, executable=None, port=None):
+# run and close a Qt Quick application
+# withHookInto - if set to True the function tries to attach to the sub-process instead of simply pressing Stop inside Creator
+# executable - must be defined when using hook-into
+# port - must be defined when using hook-into
+# function - can be a string holding a function name or a reference to the function itself - this function will be called on
+# the sub-process when hooking-into has been successful - if its missing simply closing the Qt Quick app will be done
+# ATTENTION! Make sure this function won't fail and the sub-process will end when the function returns
+def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None):
     global processStarted, processExited
     processStarted = processExited = False
     installLazySignalHandler("{type='ProjectExplorer::ApplicationLaucher'}", "processStarted()", "__handleProcessStarted__")
@@ -102,7 +109,7 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None):
         invokeMenuItem("File", "Exit")
         return False
     if withHookInto and not executable in ("", None):
-        __closeSubprocessByHookingIntoQmlApplicationViewer__(executable, port)
+        __closeSubprocessByHookingIntoQmlApplicationViewer__(executable, port, function)
     else:
         __closeSubprocessByPushingStop__()
     return True
@@ -115,7 +122,7 @@ def __closeSubprocessByPushingStop__():
     test.verify(playButton.enabled)
     test.compare(stopButton.enabled, False)
 
-def __closeSubprocessByHookingIntoQmlApplicationViewer__(executable, port):
+def __closeSubprocessByHookingIntoQmlApplicationViewer__(executable, port, function):
     global processExited
     ensureChecked(":Qt Creator_Core::Internal::OutputPaneToggleButton")
     output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
@@ -124,9 +131,28 @@ def __closeSubprocessByHookingIntoQmlApplicationViewer__(executable, port):
     else:
         waitFor("'Listening on port %d for incoming connectionsdone' in str(output.plainText)" % port, 5000)
     attachToApplication(executable)
-    sendEvent("QCloseEvent", "{type='QmlApplicationViewer' unnamed='1' visible='1'}")
+    if function == None:
+        sendEvent("QCloseEvent", "{type='QmlApplicationViewer' unnamed='1' visible='1'}")
+        setApplicationContext(applicationContext("qtcreator"))
+    else:
+        try:
+            if isinstance(function, (str, unicode)):
+                globals()[function]()
+            else:
+                function()
+        except:
+            test.fatal("Function to execute on sub-process could not be found.",
+                       "Using fallback of pushing STOP inside Creator.")
+            setApplicationContext(applicationContext("qtcreator"))
+            __closeSubprocessByPushingStop__()
     waitFor("processExited==True", 10000)
-    setApplicationContext(applicationContext("qtcreator"))
+    if not processExited:
+        test.warning("Sub-process seems not to have closed properly.")
+        try:
+            setApplicationContext(applicationContext("qtcreator"))
+            __closeSubprocessByPushingStop__()
+        except:
+            pass
     return True
 
 def runAndCloseQtQuickUI():

@@ -19,7 +19,7 @@ def modifyRunSettingsForHookInto(projectName, port):
     if result:
         clickButton(waitForObject("{container=':Qt Creator.scrollArea_QScrollArea' text='Details' "
                                   "type='Utils::DetailsButton' unnamed='1' visible='1' "
-                                  "leftWidget={type='QLabel' text='Using <b>Build Environment</b>' unnamed='1' visible='1'}}"))
+                                  "leftWidget={type='QLabel' text~='Us(e|ing) <b>Build Environment</b>' unnamed='1' visible='1'}}"))
         envVarsTableView = waitForObject("{type='QTableView' visible='1' unnamed='1'}")
         model = envVarsTableView.model()
         for row in range(model.rowCount()):

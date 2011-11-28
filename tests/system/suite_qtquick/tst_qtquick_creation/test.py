@@ -23,7 +23,7 @@ def main():
             result = addExecutableAsAttachableAUT(projectName, 11223)
             allowAppThroughWinFW(workingDir, projectName)
             if result:
-                result = runAndCloseApp(True, projectName, 11223)
+                result = runAndCloseApp(True, projectName, 11223, "subprocessFunction")
             else:
                 result = runAndCloseApp()
             removeExecutableAsAttachableAUT(projectName, 11223)
@@ -34,6 +34,12 @@ def main():
             logApplicationOutput()
 
     invokeMenuItem("File", "Exit")
+
+def subprocessFunction():
+    helloWorldText = waitForObject("{container={type='QmlApplicationViewer' visible='1' unnamed='1'} "
+                                   "enabled='true' text='Hello World' type='Text' unnamed='1' visible='true'}")
+    test.log("Clicking 'Hello World' Text to close QmlApplicationViewer")
+    mouseClick(helloWorldText, 5, 5, 0, Qt.LeftButton)
 
 def cleanup():
     global workingDir
