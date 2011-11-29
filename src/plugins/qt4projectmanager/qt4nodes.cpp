@@ -2013,6 +2013,8 @@ QStringList Qt4ProFileNode::includePaths(QtSupport::ProFileReader *reader) const
     // except if those directories don't exist at the time of parsing
     // thus we add those directories manually (without checking for existence)
     paths << mocDirPath(reader) << uiDirPath(reader);
+    // qmake always adds "."
+    paths << m_projectDir;
     paths.removeDuplicates();
     return paths;
 }
