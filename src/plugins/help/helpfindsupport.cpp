@@ -53,8 +53,7 @@ bool HelpFindSupport::isEnabled() const
 
 Find::FindFlags HelpFindSupport::supportedFindFlags() const
 {
-    return Find::FindBackward | Find::FindCaseSensitively
-        | Find::FindWholeWords;
+    return Find::FindBackward | Find::FindCaseSensitively;
 }
 
 QString HelpFindSupport::currentFindString() const
@@ -103,8 +102,7 @@ HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
 
 Find::FindFlags HelpViewerFindSupport::supportedFindFlags() const
 {
-    return Find::FindBackward | Find::FindCaseSensitively
-        | Find::FindWholeWords;
+    return Find::FindBackward | Find::FindCaseSensitively;
 }
 
 QString HelpViewerFindSupport::currentFindString() const
