@@ -4148,7 +4148,7 @@ namespace gdb13393 {
         S s(d);
         Base *ptr = &d;
         const Base *ptrConst = &d;
-        Base& ref = d;
+        Base &ref = d;
         const Base &refConst = d;
         Base **ptrToPtr = &ptr;
         #if USE_BOOST

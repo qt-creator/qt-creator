@@ -120,6 +120,7 @@ enum DebuggerActionCode
     GdbStartupCommands,
     GdbWatchdogTimeout,
     AutoEnrichParameters,
+    UseDynamicType,
     TargetAsync,
 
     // Stack

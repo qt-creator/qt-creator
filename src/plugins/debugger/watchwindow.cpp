@@ -864,6 +864,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(debuggerCore()->action(ShowStdNamespace));
     menu.addAction(debuggerCore()->action(ShowQtNamespace));
     menu.addAction(debuggerCore()->action(SortStructMembers));
+    menu.addAction(debuggerCore()->action(UseDynamicType));
 
     QAction *actClearCodeModelSnapshot
         = new QAction(tr("Refresh Code Model Snapshot"), &menu);

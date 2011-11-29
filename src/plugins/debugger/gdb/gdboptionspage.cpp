@@ -88,6 +88,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui->checkBoxLoadGdbInit);
     m_group.insert(debuggerCore()->action(AutoEnrichParameters),
         m_ui->checkBoxAutoEnrichParameters);
+    m_group.insert(debuggerCore()->action(UseDynamicType),
+        m_ui->checkBoxUseDynamicType);
     m_group.insert(debuggerCore()->action(TargetAsync),
         m_ui->checkBoxTargetAsync);
     m_group.insert(debuggerCore()->action(AdjustBreakpointLocations),
@@ -120,6 +122,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
                 << sep << m_ui->groupBoxLocations->title()
                 << sep << m_ui->checkBoxLoadGdbInit->text()
                 << sep << m_ui->checkBoxTargetAsync->text()
+                << sep << m_ui->checkBoxUseDynamicType->text()
                 << sep << m_ui->labelGdbWatchdogTimeout->text()
                 << sep << m_ui->checkBoxEnableReverseDebugging->text()
                 << sep << m_ui->checkBoxSkipKnownFrames->text()

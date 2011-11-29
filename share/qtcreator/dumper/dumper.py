@@ -89,12 +89,39 @@ def hasInferiorThreadList():
     except:
         return False
 
+def dynamicTypeName(value):
+    #vtbl = str(parseAndEvaluate("{int(*)(int)}%s" % long(value.address)))
+    vtbl = gdb.execute("info symbol {int*}%s" % long(value.address),
+        to_string = True)
+    pos1 = vtbl.find("vtable ")
+    if pos1 != -1:
+        pos1 += 11
+        pos2 = vtbl.find(" +", pos1)
+        if pos2 != -1:
+            return vtbl[pos1 : pos2]
+    return str(value.type)
+
 def upcast(value):
     try:
-        type = value.dynamic_type
-        return value.cast(type)
+        return value.cast(value.dynamic_type)
     except:
-        return value
+        pass
+    #try:
+    #    return value.cast(lookupType(dynamicTypeName(value)))
+    #except:
+    #    pass
+    return value
+
+def expensiveUpcast(value):
+    try:
+        return value.cast(value.dynamic_type)
+    except:
+        pass
+    try:
+        return value.cast(lookupType(dynamicTypeName(value)))
+    except:
+        pass
+    return value
 
 typeCache = {}
 
@@ -956,6 +983,7 @@ class Dumper:
             elif arg.startswith("watchers:"):
                 watchers = base64.b16decode(arg[pos:], True)
 
+        self.useDynamicType = "dyntype" in options
         self.useFancy = "fancy" in options
         self.passExceptions = "pe" in options
         self.autoDerefPointers = "autoderef" in options
@@ -1542,30 +1570,26 @@ class Dumper:
             warn("WRONG ASSUMPTION HERE: %s " % type.code)
             check(False)
 
-        #vtbl = str(parseAndEvaluate("{int(*)(int)}%s" % long(value.address)))
-        vtbl = gdb.execute("info symbol {int*}%s" % long(value.address),
-            to_string = True)
-        pos1 = vtbl.find("vtable ")
-        if pos1 != -1:
-            pos1 += 11
-            pos2 = vtbl.find(" +", pos1)
-            if pos2 != -1:
-                self.putType(vtbl[pos1 : pos2], 1)
+
+        if self.useDynamicType:
+            dtypeName = dynamicTypeName(value)
+        else:
+            dtypeName = typeName
 
         if self.useFancy and (format is None or format >= 1):
             self.putAddress(value.address)
-            self.putType(typeName)
+            self.putType(dtypeName)
 
-            if typeName in qqDumpers:
-                qqDumpers[typeName](self, value)
+            if dtypeName in qqDumpers:
+                qqDumpers[dtypeName](self, expensiveUpcast(value))
                 return
 
-            nsStrippedType = self.stripNamespaceFromType(typeName)\
+            nsStrippedType = self.stripNamespaceFromType(dtypeName)\
                 .replace("::", "__")
             #warn(" STRIPPED: %s" % nsStrippedType)
             #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
             if nsStrippedType in qqDumpers:
-                qqDumpers[nsStrippedType](self, value)
+                qqDumpers[nsStrippedType](self, expensiveUpcast(value))
                 return
 
             # Is this derived from QObject?
@@ -1580,7 +1604,7 @@ class Dumper:
         fields = extractFields(type)
         #fields = type.fields()
 
-        self.putType(typeName)
+        self.putType(dtypeName)
         self.putAddress(value.address)
         self.putValue("{...}")
 
