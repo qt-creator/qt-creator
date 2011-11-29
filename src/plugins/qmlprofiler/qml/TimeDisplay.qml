@@ -105,8 +105,8 @@ Canvas2D {
         ctxt.stroke();
 
         // gradient borders
-        var gradientDark = "rgba(160, 160, 160, 1)";
-        var gradientClear = "rgba(160, 160, 160, 0)";
+        var gradientDark = "rgba(0, 0, 0, 0.53125)";
+        var gradientClear = "rgba(0, 0, 0, 0)";
         var grad = ctxt.createLinearGradient(0, 0, 0, 6);
         grad.addColorStop(0,gradientDark);
         grad.addColorStop(1,gradientClear);

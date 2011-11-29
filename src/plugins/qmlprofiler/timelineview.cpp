@@ -161,6 +161,7 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
         selectionColor = QColor(96,0,255);
     QPen strongPen(selectionColor, 3);
     QPen lightPen(QBrush(selectionColor.lighter(130)), 2);
+    lightPen.setJoinStyle(Qt::MiterJoin);
     p->setPen(lightPen);
 
     int x, y, width, eventType;
@@ -183,7 +184,7 @@ void TimelineView::drawSelectionBoxes(QPainter *p)
             width = 1;
 
         if (i == m_selectedItem)
-            selectedItemRect = QRect(x,y,width,DefaultRowHeight);
+            selectedItemRect = QRect(x, y-1, width, DefaultRowHeight+1);
         else
             p->drawRect(x,y,width,DefaultRowHeight);
     }

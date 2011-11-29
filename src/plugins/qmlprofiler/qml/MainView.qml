@@ -526,8 +526,8 @@ Rectangle {
             width: parent.height
             height: parent.width
             gradient: Gradient {
-                GradientStop { position: 0.0; color: "#00A0A0A0"; }
-                GradientStop { position: 1.0; color: "#FFA0A0A0"; }
+                GradientStop { position: 0.0; color: "#00000000"; }
+                GradientStop { position: 1.0; color: "#86000000"; }
             }
         }
     }
@@ -544,8 +544,8 @@ Rectangle {
             width: parent.height
             height: parent.width
             gradient: Gradient {
-                GradientStop { position: 0.0; color: "#FFA0A0A0"; }
-                GradientStop { position: 1.0; color: "#00A0A0A0"; }
+                GradientStop { position: 0.0; color: "#86000000"; }
+                GradientStop { position: 1.0; color: "#00000000"; }
             }
         }
     }
@@ -556,8 +556,8 @@ Rectangle {
         width: root.width
         x: 0
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#00A0A0A0"; }
-            GradientStop { position: 1.0; color: "#FFA0A0A0"; }
+            GradientStop { position: 0.0; color: "#00000000"; }
+            GradientStop { position: 1.0; color: "#86000000"; }
         }
     }
 }
