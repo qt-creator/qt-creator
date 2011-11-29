@@ -112,7 +112,7 @@ QDialog *MaddeDeviceConfigurationFactory::createDeviceAction(const QString &acti
     if (actionId == QLatin1String(MaddeRemoteProcessesActionId))
         return new RemoteLinuxProcessesDialog(new GenericRemoteLinuxProcessList(deviceConfig), parent);
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
-        return new PublicKeyDeploymentDialog(deviceConfig, parent);
+        return PublicKeyDeploymentDialog::createDialog(deviceConfig, parent);
     return 0; // Can't happen.
 }
 

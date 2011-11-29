@@ -51,8 +51,10 @@ class REMOTELINUX_EXPORT PublicKeyDeploymentDialog : public QProgressDialog
 {
     Q_OBJECT
 public:
-    explicit PublicKeyDeploymentDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig,
+    // Asks for public key and returns null if the file dialog is canceled.
+    static PublicKeyDeploymentDialog *createDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig,
         QWidget *parent = 0);
+
     ~PublicKeyDeploymentDialog();
 
 private slots:
@@ -61,6 +63,8 @@ private slots:
     void handleCanceled();
 
 private:
+    explicit PublicKeyDeploymentDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig,
+        const QString &publicKeyFileName, QWidget *parent = 0);
     void handleDeploymentFinished(const QString &errorMsg);
 
     Internal::PublicKeyDeploymentDialogPrivate * const d;

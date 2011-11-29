@@ -100,7 +100,7 @@ QDialog *GenericLinuxDeviceConfigurationFactory::createDeviceAction(const QStrin
             parent);
     }
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
-        return new PublicKeyDeploymentDialog(deviceConfig, parent);
+        return PublicKeyDeploymentDialog::createDialog(deviceConfig, parent);
     return 0; // Can't happen.
 }
 

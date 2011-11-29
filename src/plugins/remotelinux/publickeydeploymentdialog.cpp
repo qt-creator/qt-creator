@@ -33,25 +33,40 @@
 #include "linuxdeviceconfiguration.h"
 #include "sshkeydeployer.h"
 
+#include <coreplugin/icore.h>
 #include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QTimer>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMainWindow>
 
 namespace RemoteLinux {
 namespace Internal {
 class PublicKeyDeploymentDialogPrivate
 {
 public:
-    SshKeyDeployer *keyDeployer;
+    SshKeyDeployer keyDeployer;
     bool done;
 };
 } // namespace Internal;
 
 using namespace Internal;
 
+PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const LinuxDeviceConfiguration::ConstPtr &deviceConfig,
+    QWidget *parent)
+{
+    const QString &dir = QFileInfo(deviceConfig->sshParameters().privateKeyFile).path();
+    const QString publicKeyFileName = QFileDialog::getOpenFileName(parent
+            ? parent : Core::ICore::instance()->mainWindow(),
+        tr("Choose Public Key File"), dir,
+        tr("Public Key Files (*.pub);;All Files (*)"));
+    if (publicKeyFileName.isEmpty())
+        return 0;
+    return new PublicKeyDeploymentDialog(deviceConfig, publicKeyFileName, parent);
+}
+
 PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const LinuxDeviceConfiguration::ConstPtr &deviceConfig,
-        QWidget *parent)
+        const QString &publicKeyFileName, QWidget *parent)
     : QProgressDialog(parent), d(new PublicKeyDeploymentDialogPrivate)
 {
     setAutoReset(false);
@@ -59,26 +74,13 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const LinuxDeviceConfigurat
     setMinimumDuration(0);
     setMaximum(1);
 
-    d->keyDeployer = new SshKeyDeployer(this);
     d->done = false;
-
-    setLabelText(tr("Waiting for file name..."));
-    const Utils::SshConnectionParameters sshParams = deviceConfig->sshParameters();
-    const QString &dir = QFileInfo(sshParams.privateKeyFile).path();
-    QString publicKeyFileName = QFileDialog::getOpenFileName(this,
-        tr("Choose Public Key File"), dir,
-        tr("Public Key Files (*.pub);;All Files (*)"));
-    if (publicKeyFileName.isEmpty()) {
-        QTimer::singleShot(0, this, SLOT(reject()));
-        return;
-    }
-
     setLabelText(tr("Deploying..."));
     setValue(0);
     connect(this, SIGNAL(canceled()), SLOT(handleCanceled()));
-    connect(d->keyDeployer, SIGNAL(error(QString)), SLOT(handleDeploymentError(QString)));
-    connect(d->keyDeployer, SIGNAL(finishedSuccessfully()), SLOT(handleDeploymentSuccess()));
-    d->keyDeployer->deployPublicKey(sshParams, publicKeyFileName);
+    connect(&d->keyDeployer, SIGNAL(error(QString)), SLOT(handleDeploymentError(QString)));
+    connect(&d->keyDeployer, SIGNAL(finishedSuccessfully()), SLOT(handleDeploymentSuccess()));
+    d->keyDeployer.deployPublicKey(deviceConfig->sshParameters(), publicKeyFileName);
 }
 
 PublicKeyDeploymentDialog::~PublicKeyDeploymentDialog()
@@ -115,8 +117,8 @@ void PublicKeyDeploymentDialog::handleDeploymentFinished(const QString &errorMsg
 
 void PublicKeyDeploymentDialog::handleCanceled()
 {
-    disconnect(d->keyDeployer, 0, this, 0);
-    d->keyDeployer->stopDeployment();
+    disconnect(&d->keyDeployer, 0, this, 0);
+    d->keyDeployer.stopDeployment();
     if (d->done)
         accept();
     else

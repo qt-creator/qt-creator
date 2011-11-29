@@ -426,8 +426,8 @@ void LinuxDeviceConfigurationsSettingsWidget::handleAdditionalActionRequest(cons
     const ILinuxDeviceConfigurationFactory * const factory = factoryForCurrentConfig();
     Q_ASSERT(factory);
     QDialog * const action = factory->createDeviceAction(actionId, currentConfig(), this);
-    Q_ASSERT(action);
-    action->exec();
+    if (action)
+        action->exec();
     delete action;
 }
 
