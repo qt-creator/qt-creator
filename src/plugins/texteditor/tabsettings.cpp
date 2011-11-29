@@ -171,9 +171,8 @@ bool TabSettings::isIndentationClean(const QTextBlock &block) const
             if (!spacesForTabs && spaceCount == m_tabSize)
                 return false;
         } else if (c == QLatin1Char('\t')) {
-            if (spacesForTabs || spaceCount != m_indentSize)
+            if (spacesForTabs || spaceCount != 0)
                 return false;
-            spaceCount = 0;
         }
         ++i;
     }
