@@ -3259,7 +3259,7 @@ Range FakeVimHandler::Private::rangeFromCurrentLine() const
     Range range;
     int line = cursorLine() + 1;
     range.beginPos = firstPositionInLine(line);
-    range.endPos = lastPositionInLine(line) + 1;
+    range.endPos = lastPositionInLine(line);
     return range;
 }
 
@@ -3706,10 +3706,8 @@ bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
         return false;
 
     Range range = cmd.range;
-    if (cmd.range.endPos == 0) {
+    if (cmd.range.endPos == 0)
         range = rangeFromCurrentLine();
-        --range.endPos;
-    }
     setCurrentRange(range);
     int count = qMax(1, cmd.args.toInt());
     if (cmd.cmd == "<")
