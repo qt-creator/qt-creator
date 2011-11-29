@@ -33,17 +33,15 @@
 #ifndef GDBOPTIONSPAGE_H
 #define GDBOPTIONSPAGE_H
 
-#include "ui_gdboptionspage.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
 
-namespace ProjectExplorer {
-class ToolChain;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class ToolChain; }
 
 namespace Debugger {
 namespace Internal {
+
+class GdbOptionsPageUi;
 
 class GdbOptionsPage : public Core::IOptionsPage
 {
@@ -65,7 +63,7 @@ public:
     static QString settingsId();
 
 private:
-    Ui::GdbOptionsPage *m_ui;
+    GdbOptionsPageUi *m_ui;
     Utils::SavedActionSet m_group;
     QString m_searchKeywords;
 };

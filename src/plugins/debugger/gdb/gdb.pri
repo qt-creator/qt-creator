@@ -36,6 +36,4 @@ SOURCES += \
     $$PWD/abstractplaingdbadapter.cpp \
     $$PWD/symbian.cpp
 
-FORMS +=  $$PWD/gdboptionspage.ui
-
 RESOURCES += $$PWD/gdb.qrc
