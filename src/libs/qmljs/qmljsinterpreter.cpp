@@ -285,7 +285,7 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
     const QString &attachedTypeName = _metaObject->attachedTypeName();
     if (!attachedTypeName.isEmpty()) {
         const CppComponentValue *attachedType = valueOwner()->cppQmlTypes().objectByCppName(attachedTypeName);
-        if (attachedType)
+        if (attachedType && attachedType != this) // ### only weak protection against infinite loops
             attachedType->processMembers(processor);
     }
 
