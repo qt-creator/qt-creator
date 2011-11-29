@@ -37,6 +37,8 @@ Item {
         case 8: // 20 9 12
             x = 1
         case 9:
+        case 11: // no warning
+            x = 1
         }
     }
 }

@@ -1096,12 +1096,9 @@ bool Check::visit(CaseBlock *ast)
     for (CaseClauses *it = ast->moreClauses; it; it = it->next)
         clauses += qMakePair(it->clause->caseToken, it->clause->statements);
 
-    for (int i = 0; i < clauses.size(); ++i) {
-        SourceLocation nextToken;
-        if (i + 1 < clauses.size())
-            nextToken = clauses[i + 1].first;
-        else
-            nextToken = ast->rbraceToken;
+    // check all but the last clause for fallthrough
+    for (int i = 0; i < clauses.size() - 1; ++i) {
+        const SourceLocation nextToken = clauses[i + 1].first;
         checkCaseFallthrough(clauses[i].second, clauses[i].first, nextToken);
     }
     return true;
