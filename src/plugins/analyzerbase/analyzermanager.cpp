@@ -184,6 +184,7 @@ public:
 
     // Convenience.
     void startLocalTool(IAnalyzerTool *tool, StartMode mode);
+    bool isActionRunnable(QAction *action) const;
 
 public slots:
     void startTool();
@@ -201,6 +202,7 @@ public:
     Utils::FancyMainWindow *m_mainWindow;
     IAnalyzerTool *m_currentTool;
     StartMode m_currentMode;
+    QAction *m_currentAction;
     QHash<QAction *, IAnalyzerTool *> m_toolFromAction;
     QHash<QAction *, StartMode> m_modeFromAction;
     QList<IAnalyzerTool *> m_tools;
@@ -228,6 +230,7 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     m_mainWindow(0),
     m_currentTool(0),
     m_currentMode(),
+    m_currentAction(0),
     m_startAction(0),
     m_stopAction(0),
     m_menu(0),
@@ -566,6 +569,18 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode)
     pe->runProject(pro, tool->id().toString());
 }
 
+bool AnalyzerManagerPrivate::isActionRunnable(QAction *action) const
+{
+    if (!action || m_isRunning)
+        return false;
+    if (m_modeFromAction.value(action) == StartRemote)
+        return true;
+
+    IAnalyzerTool *tool = m_toolFromAction.value(action);
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    return pe->canRun(pe->startupProject(), tool->id().toString());
+}
+
 void AnalyzerManagerPrivate::startTool()
 {
     m_currentTool->startTool(m_currentMode);
@@ -652,6 +667,7 @@ void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
     // Now change the tool.
     m_currentTool = tool;
     m_currentMode = mode;
+    m_currentAction = action;
 
     if (!m_defaultSettings.contains(tool)) {
         QWidget *widget = tool->createWidgets();
@@ -743,8 +759,7 @@ void AnalyzerManagerPrivate::updateRunActions()
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = pe->startupProject();
 
-    bool startEnabled = !m_isRunning
-        && m_currentTool && pe->canRun(project, m_currentTool->id().toString());
+    bool startEnabled = isActionRunnable(m_currentAction);
 
     QString disabledReason;
     if (m_isRunning)
@@ -759,7 +774,7 @@ void AnalyzerManagerPrivate::updateRunActions()
     m_toolBox->setEnabled(!m_isRunning);
     m_stopAction->setEnabled(m_isRunning);
     foreach (QAction *action, m_actions)
-        action->setEnabled(startEnabled);
+        action->setEnabled(isActionRunnable(action));
 }
 
 void AnalyzerManagerPrivate::onCurrentProjectChanged(Project *project)
