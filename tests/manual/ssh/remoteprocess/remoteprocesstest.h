@@ -56,11 +56,14 @@ private slots:
     void handleProcessClosed(int exitStatus);
     void handleTimeout();
     void handleReadyRead();
+    void handleReadyReadStdout();
+    void handleReadyReadStderr();
     void handleConnected();
 
 private:
     enum State {
-        Inactive, TestingSuccess, TestingFailure, TestingCrash, TestingTerminal, TestingIoDevice
+        Inactive, TestingSuccess, TestingFailure, TestingCrash, TestingTerminal, TestingIoDevice,
+        TestingProcessChannels
     };
 
     QString testString() const;
@@ -70,9 +73,11 @@ private:
     QTextStream *m_textStream;
     Utils::SshRemoteProcessRunner * const m_remoteRunner;
     Utils::SshRemoteProcess::Ptr m_catProcess;
+    Utils::SshRemoteProcess::Ptr m_echoProcess;
     Utils::SshConnection::Ptr m_sshConnection;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;
+    QByteArray m_remoteData;
     State m_state;
     bool m_started;
 };

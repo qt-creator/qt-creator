@@ -85,6 +85,9 @@ public:
     void close();
     bool isSequential() const { return true; }
 
+    QProcess::ProcessChannel readChannel() const;
+    void setReadChannel(QProcess::ProcessChannel channel);
+
     /*
      * Note that this is of limited value in practice, because servers are
      * usually configured to ignore such requests for security reasons.
@@ -127,6 +130,7 @@ private:
     qint64 writeData(const char *data, qint64 len);
 
     void init();
+    QByteArray readAllFromChannel(QProcess::ProcessChannel channel);
 
     Internal::SshRemoteProcessPrivate *d;
 };

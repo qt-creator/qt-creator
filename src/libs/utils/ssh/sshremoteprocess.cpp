@@ -96,28 +96,35 @@ SshRemoteProcess::~SshRemoteProcess()
 
 bool SshRemoteProcess::atEnd() const
 {
-    return QIODevice::atEnd() && d->m_stdout.isEmpty();
+    return QIODevice::atEnd() && d->data().isEmpty();
 }
 
 qint64 SshRemoteProcess::bytesAvailable() const
 {
-    return QIODevice::bytesAvailable() + d->m_stdout.count();
+    return QIODevice::bytesAvailable() + d->data().count();
 }
 
 bool SshRemoteProcess::canReadLine() const
 {
-    return QIODevice::canReadLine() || d->m_stdout.contains('\n'); // TODO: Not cross-platform?
+    return QIODevice::canReadLine() || d->data().contains('\n');
 }
 
 QByteArray SshRemoteProcess::readAllStandardOutput()
 {
-    return readAll();
+    return readAllFromChannel(QProcess::StandardOutput);
 }
 
 QByteArray SshRemoteProcess::readAllStandardError()
 {
-    const QByteArray data = d->m_stderr;
-    d->m_stderr.clear();
+    return readAllFromChannel(QProcess::StandardError);
+}
+
+QByteArray SshRemoteProcess::readAllFromChannel(QProcess::ProcessChannel channel)
+{
+    const QProcess::ProcessChannel currentReadChannel = readChannel();
+    setReadChannel(channel);
+    const QByteArray &data = readAll();
+    setReadChannel(currentReadChannel);
     return data;
 }
 
@@ -129,9 +136,9 @@ void SshRemoteProcess::close()
 
 qint64 SshRemoteProcess::readData(char *data, qint64 maxlen)
 {
-    const qint64 bytesRead = qMin(qint64(d->m_stdout.count()), maxlen);
-    memcpy(data, d->m_stdout.constData(), bytesRead);
-    d->m_stdout.remove(0, bytesRead);
+    const qint64 bytesRead = qMin(qint64(d->data().count()), maxlen);
+    memcpy(data, d->data().constData(), bytesRead);
+    d->data().remove(0, bytesRead);
     return bytesRead;
 }
 
@@ -144,13 +151,23 @@ qint64 SshRemoteProcess::writeData(const char *data, qint64 len)
     return 0;
 }
 
+QProcess::ProcessChannel SshRemoteProcess::readChannel() const
+{
+    return d->m_readChannel;
+}
+
+void SshRemoteProcess::setReadChannel(QProcess::ProcessChannel channel)
+{
+    d->m_readChannel = channel;
+}
+
 void SshRemoteProcess::init()
 {
     connect(d, SIGNAL(started()), this, SIGNAL(started()),
         Qt::QueuedConnection);
     connect(d, SIGNAL(readyReadStandardOutput()), this, SIGNAL(readyReadStandardOutput()),
         Qt::QueuedConnection);
-    connect(d, SIGNAL(readyReadStandardOutput()), this, SIGNAL(readyRead()), Qt::QueuedConnection);
+    connect(d, SIGNAL(readyRead()), this, SIGNAL(readyRead()), Qt::QueuedConnection);
     connect(d, SIGNAL(readyReadStandardError()), this,
         SIGNAL(readyReadStandardError()), Qt::QueuedConnection);
     connect(d, SIGNAL(closed(int)), this, SIGNAL(closed(int)), Qt::QueuedConnection);
@@ -228,6 +245,7 @@ void SshRemoteProcessPrivate::init()
     m_procState = NotYetStarted;
     m_wasRunning = false;
     m_exitCode = 0;
+    m_readChannel = QProcess::StandardOutput;
 }
 
 void SshRemoteProcessPrivate::setProcState(ProcessState newState)
@@ -242,6 +260,11 @@ void SshRemoteProcessPrivate::setProcState(ProcessState newState)
         m_wasRunning = true;
         emit started();
     }
+}
+
+QByteArray &SshRemoteProcessPrivate::data()
+{
+    return m_readChannel == QProcess::StandardOutput ? m_stdout : m_stderr;
 }
 
 void SshRemoteProcessPrivate::closeHook()
@@ -303,6 +326,8 @@ void SshRemoteProcessPrivate::handleChannelDataInternal(const QByteArray &data)
 {
     m_stdout += data;
     emit readyReadStandardOutput();
+    if (m_readChannel == QProcess::StandardOutput)
+        emit readyRead();
 }
 
 void SshRemoteProcessPrivate::handleChannelExtendedDataInternal(quint32 type,
@@ -313,6 +338,8 @@ void SshRemoteProcessPrivate::handleChannelExtendedDataInternal(quint32 type,
     } else {
         m_stderr += data;
         emit readyReadStandardError();
+        if (m_readChannel == QProcess::StandardError)
+            emit readyRead();
     }
 }
 
