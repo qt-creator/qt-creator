@@ -1,0 +1,77 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010-2011 Openismus GmbH.
+**   Authors: Peter Penz (ppenz@openismus.com)
+**            Patricia Santana Cruz (patriciasc@openismus.com)
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+**************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-cmake.html
+    \page creator-projects-autotools.html
+    \nextpage creator-project-generic.html
+
+    \title Setting Up an Autotools Project
+    The AutotoolsProjectManager is a plugin for autotools support.
+
+    \image qtcreator-autotools-buildrun.png
+
+    \image qtcreator-autotools-buildsettings.png
+
+    \section1 Opening and Using Autotools Projects
+
+    To work with your Autotools project in \QC:
+
+        \list 1
+
+            \o Select \gui{File > Open File or Project}.
+            \o Select the Makefile.am from your project. This is the only way a
+               user can use the autotools plugin. Thus, a Makefile.am must
+               always exist before hand.
+            \o Select the build directory. Only in-source building is working
+               right now.
+            \o Select \gui Finish.
+               \QC displays the project tree structure. The root node displays
+               the project name. All project files are listed below it and you
+               can open them from the list.
+            \o Select \gui Run to build and run the application. This will
+               execute autogen.sh or autoreconf, configure and make. The first
+               time, when running the application, a dialog will ask you to
+               choose the executable's location, then, \QC will remember it for
+               the following times. Ideally, this will be changed in the future,
+               to be done in a more automated way.
+            \o To check and edit autotools build steps, select
+               \gui{Projects > Build Settings}. You can see the typical
+               autotools build steps: autogen.sh/autoreconf, configure and make.
+               You may configure some parameters such as adding new configure
+               parameters or changing the build directory (though, as mentiond
+               before, only in-source building is working at the moment).
+        \endlist
+*/

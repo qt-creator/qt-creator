@@ -29,7 +29,7 @@
     \contentspage index.html
     \previouspage creator-project-wizards.html
     \page creator-project-cmake.html
-    \nextpage creator-project-generic.html
+    \nextpage creator-projects-autotools.html
 
     \title Setting Up a CMake Project
 

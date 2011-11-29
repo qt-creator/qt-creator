@@ -129,7 +129,7 @@ Core::BaseFileWizardParameters GenericProjectWizard::parameters()
     }
     parameters.setDisplayName(tr("Import Existing Project"));
     parameters.setId(QLatin1String("Z.Makefile"));
-    parameters.setDescription(tr("Imports existing projects that do not use qmake or CMake. "
+    parameters.setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools. "
                                  "This allows you to use Qt Creator as a code editor."));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));

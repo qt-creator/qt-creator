@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/autotoolsproject" >
+        <file>AutotoolsProject.mimetypes.xml</file>
+    </qresource>
+</RCC>

@@ -163,6 +163,7 @@
                \o \l{Supported Platforms}
                \o \l{Adding New Custom Wizards}
                \o \l{Setting Up a CMake Project}
+               \o \l{Setting Up an Autotools Project}
                \o \l{Setting Up a Generic Project}
                \o \l{Using Version Control Systems}
                \o \l{Adding Qt Designer Plugins}
