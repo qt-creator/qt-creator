@@ -171,7 +171,7 @@ private:
     const QString m_branchName;
 };
 
-class GitShowArgumentsWidget : public VCSBase::VCSBaseEditorParameterWidget
+class GitShowArgumentsWidget : public BaseGitDiffArgumentsWidget
 {
     Q_OBJECT
 
@@ -180,6 +180,7 @@ public:
                            const QString &directory,
                            const QStringList &args,
                            const QString &id) :
+        BaseGitDiffArgumentsWidget(client, directory, args),
         m_client(client),
         m_workingDirectory(directory),
         m_args(args),
