@@ -246,13 +246,14 @@ protected:
 private:
     bool contains(const QmlComponentChain *chain)
     {
-        if (!chain || !chain->document())
+        if (!chain || !chain->document() || !chain->document()->bind())
             return false;
 
-        if (chain->document()->bind()->idEnvironment()->lookupMember(_name, _scopeChain.context()))
-            return chain->document()->bind()->idEnvironment() == _scope;
+        const ObjectValue *idEnv = chain->document()->bind()->idEnvironment();
+        if (idEnv && idEnv->lookupMember(_name, _scopeChain.context()))
+            return idEnv == _scope;
         const ObjectValue *root = chain->document()->bind()->rootObjectValue();
-        if (root->lookupMember(_name, _scopeChain.context())) {
+        if (root && root->lookupMember(_name, _scopeChain.context())) {
             return check(root);
         }
 
