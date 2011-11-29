@@ -48,6 +48,8 @@
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
+#include <debugger/debuggerengine.h>
+#include <debugger/debuggerstartparameters.h>
 #include <debugger/qml/qmladapter.h>
 
 #include <utils/filterlineedit.h>
@@ -310,11 +312,10 @@ void InspectorUi::connected(ClientProxy *clientProxy)
         it.value()->resetInitialDoc(doc);
     }
 
-    // project is needed for matching filenames, esp. with shadow builds.
-    ProjectExplorer::Project *debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    if (debugProject) {
-        m_projectFinder.setProjectDirectory(debugProject->projectDirectory());
-        m_projectFinder.setProjectFiles(debugProject->files(ProjectExplorer::Project::AllFiles));
+    if (Debugger::DebuggerEngine *debuggerEngine = clientProxy->qmlAdapter()->debuggerEngine()) {
+        m_projectFinder.setProjectDirectory(debuggerEngine->startParameters().projectSourceDirectory);
+        m_projectFinder.setProjectFiles(debuggerEngine->startParameters().projectSourceFiles);
+        m_projectFinder.setSysroot(debuggerEngine->startParameters().sysroot);
     }
 
     connectSignals();

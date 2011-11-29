@@ -237,6 +237,11 @@ QDeclarativeDebugConnection *QmlAdapter::connection() const
     return d->m_conn;
 }
 
+DebuggerEngine *QmlAdapter::debuggerEngine() const
+{
+    return d->m_engine.data();
+}
+
 void QmlAdapter::showConnectionStatusMessage(const QString &message)
 {
     if (!d->m_engine.isNull())
