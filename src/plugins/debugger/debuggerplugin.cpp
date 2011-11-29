@@ -707,7 +707,9 @@ public slots:
     void editorOpened(Core::IEditor *editor);
     void updateBreakMenuItem(Core::IEditor *editor);
     void setBusyCursor(bool busy);
-    void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
+    void requestMark(TextEditor::ITextEditor *editor,
+                     int lineNumber,
+                     TextEditor::ITextEditor::MarkRequestKind kind);
     void requestContextMenu(TextEditor::ITextEditor *editor,
         int lineNumber, QMenu *menu);
 
@@ -1773,8 +1775,8 @@ void DebuggerPluginPrivate::editorOpened(IEditor *editor)
     if (!textEditor)
         return;
     connect(textEditor,
-        SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
-        SLOT(requestMark(TextEditor::ITextEditor*,int)));
+        SIGNAL(markRequested(TextEditor::ITextEditor*,int, TextEditor::ITextEditor::MarkRequestKind)),
+        SLOT(requestMark(TextEditor::ITextEditor*,int, TextEditor::ITextEditor::MarkRequestKind)));
     connect(textEditor,
         SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
         SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
@@ -1943,8 +1945,13 @@ void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address,
     }
 }
 
-void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
+void DebuggerPluginPrivate::requestMark(ITextEditor *editor,
+                                        int lineNumber,
+                                        ITextEditor::MarkRequestKind kind)
 {
+    if (kind != ITextEditor::BreakpointRequest)
+        return;
+
     if (editor->property("DisassemblerView").toBool()) {
         QString line = editor->contents()
             .section('\n', lineNumber - 1, lineNumber - 1);

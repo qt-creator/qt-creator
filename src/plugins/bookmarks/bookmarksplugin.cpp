@@ -179,6 +179,13 @@ void BookmarksPlugin::editorOpened(Core::IEditor *editor)
     if (qobject_cast<ITextEditor *>(editor)) {
         connect(editor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
                 this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+
+        connect(editor,
+                SIGNAL(markRequested(TextEditor::ITextEditor*,int,
+                                     TextEditor::ITextEditor::MarkRequestKind)),
+                m_bookmarkManager,
+                SLOT(handleBookmarkRequest(TextEditor::ITextEditor*,int,
+                                           TextEditor::ITextEditor::MarkRequestKind)));
     }
 }
 

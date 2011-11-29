@@ -36,6 +36,8 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <texteditor/itexteditor.h>
+
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QMultiMap>
 #include <QtCore/QList>
@@ -49,10 +51,6 @@ class SessionManager;
 
 namespace Core {
 class IEditor;
-}
-
-namespace TextEditor {
-class ITextEditor;
 }
 
 namespace Bookmarks {
@@ -115,6 +113,9 @@ signals:
 private slots:
     void updateActionStatus();
     void loadBookmarks();
+    void handleBookmarkRequest(TextEditor::ITextEditor * textEditor,
+                               int line,
+                               TextEditor::ITextEditor::MarkRequestKind kind);
 
 private:
     TextEditor::ITextEditor *currentTextEditor() const;

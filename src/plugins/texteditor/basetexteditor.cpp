@@ -4370,7 +4370,12 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             d->extraAreaToggleMarkBlockNumber = -1;
             if (cursor.blockNumber() == n) {
                 int line = n + 1;
-                emit editor()->markRequested(editor(), line);
+                ITextEditor::MarkRequestKind kind;
+                if (QApplication::keyboardModifiers() & Qt::ShiftModifier)
+                    kind = ITextEditor::BookmarkRequest;
+                else
+                    kind = ITextEditor::BreakpointRequest;
+                emit editor()->markRequested(editor(), line, kind);
             }
         }
     }

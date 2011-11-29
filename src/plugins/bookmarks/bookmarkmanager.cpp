@@ -760,6 +760,14 @@ void BookmarkManager::loadBookmarks()
     updateActionStatus();
 }
 
+void BookmarkManager::handleBookmarkRequest(TextEditor::ITextEditor *textEditor,
+                                            int line,
+                                            TextEditor::ITextEditor::MarkRequestKind kind)
+{
+    if (kind == TextEditor::ITextEditor::BookmarkRequest && textEditor->file())
+        toggleBookmark(textEditor->file()->fileName(), line);
+}
+
 // BookmarkViewFactory
 
 BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
