@@ -193,7 +193,6 @@ public slots:
     void modeChanged(Core::IMode *mode);
     void resetLayout();
     void updateRunActions();
-    void onCurrentProjectChanged(ProjectExplorer::Project*);
 
 public:
     AnalyzerManager *q;
@@ -247,10 +246,6 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
             this, SLOT(modeChanged(Core::IMode*)));
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     connect(pe, SIGNAL(updateRunActions()), SLOT(updateRunActions()));
-
-    connect(pe->session(),
-         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
-         SLOT(onCurrentProjectChanged(ProjectExplorer::Project*)));
 }
 
 AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
@@ -775,13 +770,6 @@ void AnalyzerManagerPrivate::updateRunActions()
     m_stopAction->setEnabled(m_isRunning);
     foreach (QAction *action, m_actions)
         action->setEnabled(isActionRunnable(action));
-}
-
-void AnalyzerManagerPrivate::onCurrentProjectChanged(Project *project)
-{
-    foreach (QAction *action, m_menu->menu()->actions())
-        if (action->data().toInt() == StartLocal)
-            action->setEnabled(project != 0);
 }
 
 ////////////////////////////////////////////////////////////////////
