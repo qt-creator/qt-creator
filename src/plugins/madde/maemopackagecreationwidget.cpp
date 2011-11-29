@@ -205,9 +205,10 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
     foreach (const QByteArray &imageType, imageTypes)
         imageFilter += "*." + QString::fromAscii(imageType) + QLatin1Char(' ');
     imageFilter += QLatin1Char(')');
+    const QSize iconSize = m_step->debBasedMaemoTarget()->packageManagerIconSize();
     const QString iconFileName = QFileDialog::getOpenFileName(this,
-        tr("Choose Image (will be scaled to 48x48 pixels if necessary)"),
-        QString(), imageFilter);
+        tr("Choose Image (will be scaled to %1x%2 pixels if necessary)")
+            .arg(iconSize.width()).arg(iconSize.height()), QString(), imageFilter);
     if (!iconFileName.isEmpty()) {
         QString error;
         if (!m_step->debBasedMaemoTarget()->setPackageManagerIcon(iconFileName, &error))
