@@ -479,7 +479,7 @@ const ObjectValue *CppComponentValue::signalScope(const QString &signalName) con
             scopes->insert(generatedSlotName(method.methodName()), scope);
         }
         if (!_signalScopes.testAndSetOrdered(0, scopes)) {
-            delete _signalScopes;
+            delete scopes;
             scopes = _signalScopes;
         }
     }
