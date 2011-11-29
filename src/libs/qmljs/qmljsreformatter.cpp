@@ -667,7 +667,7 @@ protected:
             out(": ", ast->colonToken);
             accept(it->value);
             if (it->next) {
-                out(ast->commaToken);
+                out(",", ast->commaToken); // always invalid?
                 newLine();
             }
         }
@@ -1117,8 +1117,6 @@ protected:
 
     virtual bool visit(FunctionExpression *ast)
     {
-        if (!firstOnLine())
-            newLine();
         out("function ", ast->functionToken);
         if (!ast->name.isNull())
             out(ast->identifierToken);

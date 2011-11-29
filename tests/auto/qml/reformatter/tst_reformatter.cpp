@@ -81,7 +81,7 @@ void tst_Reformatter::test()
 {
     QFETCH(QString, path);
 
-    Document::Ptr doc = Document::create(path, Document::guessLanguageFromSuffix(path));
+    Document::MutablePtr doc = Document::create(path, Document::guessLanguageFromSuffix(path));
     QFile file(doc->fileName());
     file.open(QFile::ReadOnly | QFile::Text);
     QString source = QString::fromUtf8(file.readAll());

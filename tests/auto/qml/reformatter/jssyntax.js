@@ -6,8 +6,7 @@ function foo(a, b) {
     x += 4
 }
 
-var foo =
-        function (a, b) {}
+var foo = function (a, b) {}
 
 while (true) {
     for (var a = 1; a < 5; ++a) {
