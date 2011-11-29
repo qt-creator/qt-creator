@@ -1208,8 +1208,9 @@ namespace qobject {
 
     #if USE_PRIVATE
 
-    struct DerivedObjectPrivate : public QObjectPrivate
+    class DerivedObjectPrivate : public QObjectPrivate
     {
+    public:
         DerivedObjectPrivate() {
             m_extraX = 43;
             m_extraY.append("xxx");
