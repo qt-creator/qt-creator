@@ -83,7 +83,7 @@ unsigned Literal::hashCode(const char *chars, unsigned size)
     "a", "aa", "aaa", "aaaa", ...
     */
 
-    uint h = 0;
+    unsigned h = 0;
 
     while (size--) {
         h = (h << 4) + *chars++;
