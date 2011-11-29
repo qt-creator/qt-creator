@@ -29,12 +29,12 @@ def modifyRunSettingsForHookInto(projectName, port):
             varName = str(model.data(index).toString())
             # if its a special SQUISH var simply unset it
             if varName == "PATH":
-                currentItem = __doubleClickQTableView__(row, 1)
+                currentItem = __doubleClickQTableView__(":scrollArea_QTableView", row, 1)
                 test.log("replacing PATH with '%s'" % qmakeBinPath)
                 replaceEditorContent(currentItem, qmakeBinPath)
             elif varName.find("SQUISH") == 0:
                 if varName == "SQUISH_LIBQTDIR":
-                    currentItem = __doubleClickQTableView__(row, 1)
+                    currentItem = __doubleClickQTableView__(":scrollArea_QTableView", row, 1)
                     if platform.system() in ('Microsoft', 'Windows'):
                         replacement = qmakeBinPath
                     else:
@@ -50,11 +50,142 @@ def modifyRunSettingsForHookInto(projectName, port):
     switchViewTo(ViewConstants.EDIT)
     return result
 
+def modifyRunSettingsForHookIntoQtQuickUI(projectName, port):
+    global workingDir
+    switchViewTo(ViewConstants.PROJECTS)
+    switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN, True)
+    qtVersionCombo = waitForObject("{leftWidget={type='QLabel' text='Qt version:' unnamed='1' visible='1'} "
+                                   "type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 5000)
+    currentQtVersion = qtVersionCombo.currentText
+    qmake = getQMakeFromQtVersion(currentQtVersion)
+    if qmake != None:
+        mkspec = getOutputFromCmdline("%s -query QMAKE_MKSPECS" % qmake).strip()
+        mkspec = mkspec + os.sep + "default" + os.sep + "qmake.conf"
+        mkspec = __getMkspecFromQMakeConf__(mkspec)
+        if mkspec != None:
+            qtVer = getOutputFromCmdline("%s -query QT_VERSION" % qmake).strip()
+            squishPath = getSquishPath(mkspec, qtVer)
+            if squishPath == None:
+                test.warning("Could not determine the Squish path for %s/%s" % (qtVer, mkspec),
+                             "Using fallback of pushing STOP inside Creator.")
+                return None
+            test.log("Using (QtVersion/mkspec) %s/%s with SquishPath %s" % (qtVer, mkspec, squishPath))
+            if platform.system() == "Darwin":
+                qmlViewer = os.path.abspath(os.path.dirname(qmake) + "/QMLViewer.app")
+            else:
+                qmlViewer = os.path.abspath(os.path.dirname(qmake) + "/qmlviewer")
+            if platform.system() in ('Microsoft', 'Windows'):
+                qmlViewer = qmlViewer + ".exe"
+            addRunConfig = waitForObject("{type='QPushButton' text='Add' unnamed='1' visible='1' "
+                                         "window=':Qt Creator_Core::Internal::MainWindow' occurrence='2'}")
+            clickButton(addRunConfig)
+            activateItem(waitForObject("{type='QMenu' visible='1' unnamed='1'}"), "Custom Executable")
+            exePathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' text='Executable:' "
+                                           "type='QLabel'} type='Utils::PathChooser' unnamed='1' visible='1'}")
+            exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
+            argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' type='QLabel' "
+                                      "text='Arguments:' visible='1'} type='QLineEdit' unnamed='1' visible='1'}")
+            wdPathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' text='Working directory:' "
+                                          "type='QLabel'} type='Utils::PathChooser' unnamed='1' visible='1'}")
+            wdLineEd = getChildByClass(wdPathChooser, "Utils::BaseValidatingLineEdit")
+            startAUT = os.path.abspath(squishPath + "/bin/startaut")
+            if platform.system() in ('Microsoft', 'Windows'):
+                startAUT = startAUT + ".exe"
+            projectPath = os.path.abspath("%s/%s" % (workingDir, projectName))
+            replaceEditorContent(exeLineEd, startAUT)
+            replaceEditorContent(argLineEd, "--verbose --port=%d %s %s.qml" % (port, qmlViewer, projectName))
+            replaceEditorContent(wdLineEd, projectPath)
+            clickButton(waitForObject("{text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' "
+                                      "window=':Qt Creator_Core::Internal::MainWindow' "
+                                      "leftWidget={type='QLabel' text~='Us(e|ing) <b>Build Environment</b>' unnamed='1' visible='1'}}"))
+            qtLibPath = os.path.abspath(os.path.dirname(qmake))
+            if not platform.system() in ('Microsoft', 'Windows'):
+                qtLibPath = os.path.abspath(qtLibPath+"/../lib")
+            row = 0
+            for varName in ("PATH", "SQUISH_LIBQTDIR"):
+                __addVariableToRunEnvironment__(varName, qtLibPath, row)
+                row = row + 1
+            if platform.system() == "Darwin":
+                __addVariableToRunEnvironment__("DYLD_FRAMEWORK_PATH", qtLibPath, 0)
+            if not platform.system() in ('Microsoft', 'Windows'):
+                __addVariableToRunEnvironment__("DISPLAY", ":0.0", 0)
+            result = qmlViewer
+        else:
+            result = None
+    else:
+        result = None
+    switchViewTo(ViewConstants.EDIT)
+    return result
+
+# this helper method must be called on the run settings page of a Qt Quick UI with DetailsWidget
+# for the run settings already opened - it won't work on other views because of a different layout
+def __addVariableToRunEnvironment__(name, value, row):
+    clickButton(waitForObject("{occurrence='3' text='Add' type='QPushButton' unnamed='1' visible='1' "
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    varNameLineEd = waitForObject("{type='QExpandingLineEdit' visible='1' unnamed='1'}")
+    replaceEditorContent(varNameLineEd, name)
+    valueLineEd = __doubleClickQTableView__(":Qt Creator_QTableView", row, 1)
+    replaceEditorContent(valueLineEd, value)
+
+def __getMkspecFromQMakeConf__(qmakeConf):
+    if qmakeConf==None or not os.path.exists(qmakeConf):
+        test.warning("Missing qmake.conf file - got '%s'" % qmakeConf)
+        return None
+    if not platform.system() in ('Microsoft', 'Windows'):
+        return os.path.basename(os.path.realpath(os.path.dirname(qmakeConf)))
+    mkspec = None
+    file = codecs.open(qmakeConf, "r", "utf-8")
+    for line in file:
+        if "QMAKESPEC_ORIGINAL" in line:
+            mkspec = line.split("=")[1]
+            break
+    file.close()
+    if mkspec == None:
+        test.warning("Could not determine mkspec from '%s'" % qmakeConf)
+        return None
+    return os.path.basename(mkspec)
+
+def getQMakeFromQtVersion(qtVersion):
+    invokeMenuItem("Tools", "Options...")
+    buildAndRun = waitForObject("{type='QModelIndex' text='Build & Run' "
+                                "container={type='QListView' unnamed='1' visible='1' "
+                                "window=':Options_Core::Internal::SettingsDialog'}}")
+    mouseClick(buildAndRun, 5, 5, 0, Qt.LeftButton)
+    qtVersionTab = waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' text='Qt Versions' type='TabItem'}")
+    mouseClick(qtVersionTab, 5, 5, 0, Qt.LeftButton)
+    qtVersionsTree = waitForObject("{name='qtdirList' type='QTreeWidget' visible='1'}")
+    rootIndex = qtVersionsTree.invisibleRootItem()
+    rows = rootIndex.childCount()
+    for currentRow in range(rows):
+        current = rootIndex.child(currentRow)
+        child = getTreeWidgetChildByText(current, qtVersion)
+        if child != None:
+            break
+    if child != None:
+        qmake = "%s" % child.text(1)
+        if not os.path.exists(qmake):
+            test.warning("Qt version ('%s') found inside SettingsDialog does not exist." % qtVersion)
+            qmake = None
+    else:
+        test.warning("Could not find the Qt version ('%s') inside SettingsDialog." % qtVersion)
+        qmake = None
+    clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1' "
+                              "window=':Options_Core::Internal::SettingsDialog'}"))
+    return qmake
+
+def getTreeWidgetChildByText(parent, text, column=0):
+    childCount = parent.childCount()
+    for row in range(childCount):
+        child = parent.child(row)
+        if child.text(column)==text:
+            return child
+    return None
+
 # helper that double clicks the table view at specified row and column
 # returns the QExpandingLineEdit (the editable table cell)
-def __doubleClickQTableView__(row, column):
-    doubleClick(waitForObject("{container=':scrollArea_QTableView' "
-                              "type='QModelIndex' row='%d' column='%d'}" % (row, column)), 5, 5, 0, Qt.LeftButton)
+def __doubleClickQTableView__(qtableView, row, column):
+    doubleClick(waitForObject("{container='%s' "
+                              "type='QModelIndex' row='%d' column='%d'}" % (qtableView, row, column)), 5, 5, 0, Qt.LeftButton)
     return waitForObject("{type='QExpandingLineEdit' visible='1' unnamed='1'}")
 
 # this function configures the custom executable onto the run settings page (using startaut from Squish)
@@ -177,7 +308,7 @@ def allowAppThroughWinFW(workingDir, projectName, isReleaseBuild=True):
     if not __isWinFirewallRunning__():
         return
     # WinFirewall seems to run - hopefully no other
-    result = __configureFW__(projectName, isReleaseBuild)
+    result = __configureFW__(workingDir, projectName, isReleaseBuild)
     if result == 0:
         test.log("Added %s to firewall" % projectName)
     else:
@@ -191,7 +322,7 @@ def deleteAppFromWinFW(workingDir, projectName, isReleaseBuild=True):
     if not __isWinFirewallRunning__():
         return
     # WinFirewall seems to run - hopefully no other
-    result = __configureFW__(projectName, isReleaseBuild, False)
+    result = __configureFW__(workingDir, projectName, isReleaseBuild, False)
     if result == 0:
         test.log("Deleted %s from firewall" % projectName)
     else:
@@ -199,8 +330,12 @@ def deleteAppFromWinFW(workingDir, projectName, isReleaseBuild=True):
 
 # helper that can modify the win firewall to allow a program to communicate through it or delete it
 # param addToFW defines whether to add (True) or delete (False) this programm to/from the firewall
-def __configureFW__(projectName, isReleaseBuild, addToFW=True):
-    if isReleaseBuild:
+def __configureFW__(workingDir, projectName, isReleaseBuild, addToFW=True):
+    if isReleaseBuild == None:
+        if projectName[-4:] == ".exe":
+            projectName = projectName[:-4]
+        path = "%s%s%s" % (workingDir, os.sep, projectName)
+    elif isReleaseBuild:
         path = "%s%s%s%srelease%s%s" % (workingDir, os.sep, projectName, os.sep, os.sep, projectName)
     else:
         path = "%s%s%s%sdebug%s%s" % (workingDir, os.sep, projectName, os.sep, os.sep, projectName)

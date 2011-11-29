@@ -15,6 +15,8 @@
 :New.templatesView_QListView	{name='templatesView' type='QListView' visible='1' window=':New_Core::Internal::NewDialog'}
 :New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle='New'}
 :Next_QPushButton	{text~='(Next.*|Continue)' type='QPushButton' visible='1'}
+:Options.qt_tabwidget_tabbar_QTabBar	{name='qt_tabwidget_tabbar' type='QTabBar' visible='1' window=':Options_Core::Internal::SettingsDialog'}
+:Options_Core::Internal::SettingsDialog	{type='Core::Internal::SettingsDialog' unnamed='1' visible='1' windowTitle~='(Options|Preference)'}
 :Project Setup.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard'}
 :Project Setup_Qt4ProjectManager::Internal::ProjectLoadWizard	{type='Qt4ProjectManager::Internal::ProjectLoadWizard' unnamed='1' visible='1' windowTitle='Project Setup'}
 :Qt Creator.QtCreator.MenuBar_QMenuBar	{name='QtCreator.MenuBar' type='QMenuBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -24,6 +26,7 @@
 :Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' visible='1' windowTitle?='*Qt Creator'}
 :Qt Creator_Core::Internal::OutputPaneToggleButton	{occurrence='3' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::IconButton	{occurrence='2' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::NavigationTreeView	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Gui Application.Form file:_QLabel	{name='formLabel' text='Form file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}

@@ -23,9 +23,9 @@ def main():
             result = addExecutableAsAttachableAUT(projectName, 11223)
             allowAppThroughWinFW(workingDir, projectName)
             if result:
-                result = runAndCloseApp(True, projectName, 11223, "subprocessFunction")
+                result = runAndCloseApp(True, projectName, 11223, "subprocessFunction", SubprocessType.QT_QUICK_APPLICATION)
             else:
-                result = runAndCloseApp()
+                result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
             removeExecutableAsAttachableAUT(projectName, 11223)
             deleteAppFromWinFW(workingDir, projectName)
         else:
