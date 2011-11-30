@@ -2947,7 +2947,9 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isBackspace()) {
         joinPreviousEditBlock();
         m_justAutoIndented = 0;
-        if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
+        if (!m_lastInsertion.isEmpty()
+                || hasConfig(ConfigBackspace, "start")
+                || hasConfig(ConfigBackspace, "2")) {
             const int line = cursorLine() + 1;
             const Column col = cursorColumn();
             QString data = lineContents(line);
