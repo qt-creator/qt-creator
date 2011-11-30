@@ -74,13 +74,9 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(AutotoolsTarget *parent
     cloneSteps(source);
 }
 
-AutotoolsBuildConfiguration::~AutotoolsBuildConfiguration()
-{
-}
-
 QVariantMap AutotoolsBuildConfiguration::toMap() const
 {
-    QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
+    QVariantMap map = ProjectExplorer::BuildConfiguration::toMap();
     map.insert(QLatin1String(Constants::BUILD_DIRECTORY_KEY), m_buildDirectory);
     return map;
 }
@@ -128,10 +124,6 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory(QObject *
 {
 }
 
-AutotoolsBuildConfigurationFactory::~AutotoolsBuildConfigurationFactory()
-{
-}
-
 QStringList AutotoolsBuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
     if (!qobject_cast<AutotoolsTarget *>(parent))
@@ -160,8 +152,8 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(ProjectE
     if (!canCreate(parent, id))
         return 0;
 
-    AutotoolsTarget *t(static_cast<AutotoolsTarget *>(parent));
-    AutotoolsBuildConfiguration *bc =createDefaultConfiguration(t);
+    AutotoolsTarget *t = static_cast<AutotoolsTarget *>(parent);
+    AutotoolsBuildConfiguration *bc = createDefaultConfiguration(t);
 
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,

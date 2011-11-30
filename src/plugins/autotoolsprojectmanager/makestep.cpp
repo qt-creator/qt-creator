@@ -53,22 +53,16 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-namespace {
 const char MAKE_STEP_ID[] = "AutotoolsProjectManager.MakeStep";
 const char CLEAN_KEY[]  = "AutotoolsProjectManager.MakeStep.Clean";
 const char BUILD_TARGETS_KEY[] = "AutotoolsProjectManager.MakeStep.BuildTargets";
 const char MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.MakeStep.AdditionalArguments";
-}
 
 //////////////////////////
 // MakeStepFactory class
 //////////////////////////
 MakeStepFactory::MakeStepFactory(QObject *parent) :
     ProjectExplorer::IBuildStepFactory(parent)
-{
-}
-
-MakeStepFactory::~MakeStepFactory()
 {
 }
 
@@ -164,10 +158,6 @@ void MakeStep::ctor()
     setDefaultDisplayName(tr("Make"));
 }
 
-MakeStep::~MakeStep()
-{
-}
-
 AutotoolsBuildConfiguration *MakeStep::autotoolsBuildConfiguration() const
 {
     return static_cast<AutotoolsBuildConfiguration *>(buildConfiguration());
@@ -208,7 +198,7 @@ void MakeStep::run(QFutureInterface<bool> &interface)
     AbstractProcessStep::run(interface);
 }
 
-ProjectExplorer::BuildStepConfigWidget* MakeStep::createConfigWidget()
+ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
 {
     return new MakeStepConfigWidget(this);
 }
@@ -246,7 +236,7 @@ QString MakeStep::additionalArguments() const
 
 QVariantMap MakeStep::toMap() const
 {
-    QVariantMap map(AbstractProcessStep::toMap());
+    QVariantMap map = AbstractProcessStep::toMap();
 
     map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
     map.insert(QLatin1String(MAKE_STEP_ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
@@ -286,10 +276,6 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
             makeStep, SLOT(setAdditionalArguments(QString)));
     connect(makeStep, SIGNAL(additionalArgumentsChanged(QString)),
             this, SLOT(updateDetails()));
-}
-
-MakeStepConfigWidget::~MakeStepConfigWidget()
-{
 }
 
 QString MakeStepConfigWidget::displayName() const

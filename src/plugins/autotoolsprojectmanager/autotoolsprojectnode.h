@@ -58,7 +58,6 @@ class AutotoolsProjectNode : public ProjectExplorer::ProjectNode
 
 public:
     AutotoolsProjectNode(AutotoolsProject *project, Core::IFile *projectFile);
-    ~AutotoolsProjectNode();
 
     bool hasBuildTargets() const;
     QList<ProjectExplorer::ProjectNode::ProjectAction> supportedActions(Node *node) const;
@@ -69,7 +68,7 @@ public:
                            const QStringList &filePaths,
                            QStringList *notAdded = 0);
     bool removeFiles(const ProjectExplorer::FileType fileType,
-                              const QStringList& filePaths,
+                              const QStringList &filePaths,
                               QStringList *notRemoved = 0);
     bool deleteFiles(const ProjectExplorer::FileType fileType,
                              const QStringList &filePaths);

@@ -61,10 +61,6 @@ AutotoolsOpenProjectWizard::AutotoolsOpenProjectWizard(AutotoolsManager *manager
     init();
 }
 
-AutotoolsOpenProjectWizard::~AutotoolsOpenProjectWizard()
-{
-}
-
 void AutotoolsOpenProjectWizard::init()
 {
     setOption(QWizard::NoBackButtonOnStartPage);

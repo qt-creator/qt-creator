@@ -46,10 +46,6 @@ AutotoolsProjectFile::AutotoolsProjectFile(AutotoolsProject *project, const QStr
 {
 }
 
-AutotoolsProjectFile::~AutotoolsProjectFile()
-{
-}
-
 bool AutotoolsProjectFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     Q_UNUSED(errorString);

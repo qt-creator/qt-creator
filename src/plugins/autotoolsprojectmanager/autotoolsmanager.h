@@ -52,10 +52,9 @@ class AutotoolsManager : public ProjectExplorer::IProjectManager
     Q_OBJECT
 
 public:
-    AutotoolsManager();
-    ~AutotoolsManager();
+    AutotoolsManager() {}
 
-    ProjectExplorer::Project *openProject(const QString& fileName, QString *errorString);
+    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
     QString mimeType() const;
 };
 

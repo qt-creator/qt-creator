@@ -57,7 +57,6 @@ class AutotoolsTarget : public ProjectExplorer::Target
 
 public:
     explicit AutotoolsTarget(AutotoolsProject *parent);
-    ~AutotoolsTarget();
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
     AutotoolsProject *autotoolsProject() const;
@@ -82,7 +81,6 @@ class AutotoolsTargetFactory : public ProjectExplorer::ITargetFactory
 
 public:
     explicit AutotoolsTargetFactory(QObject *parent = 0);
-    ~AutotoolsTargetFactory();
 
     bool supportsTargetId(const QString &id) const;
 

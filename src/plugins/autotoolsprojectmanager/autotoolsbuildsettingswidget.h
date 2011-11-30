@@ -63,16 +63,15 @@ class AutotoolsBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
     Q_OBJECT
 
 public:
-    AutotoolsBuildSettingsWidget(AutotoolsTarget* target);
-    ~AutotoolsBuildSettingsWidget();
+    explicit AutotoolsBuildSettingsWidget(AutotoolsTarget *target);
 
     QString displayName() const;
-    void init(ProjectExplorer::BuildConfiguration* bc);
+    void init(ProjectExplorer::BuildConfiguration *bc);
 
 private slots:
     void buildDirectoryChanged();
     void toolChainSelected(int index);
-    void toolChainChanged(ProjectExplorer::ToolChain *);
+    void toolChainChanged(ProjectExplorer::ToolChain *tc);
     void updateToolChainList();
 
 private:

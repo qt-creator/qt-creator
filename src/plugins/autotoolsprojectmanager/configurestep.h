@@ -62,7 +62,6 @@ class ConfigureStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     ConfigureStepFactory(QObject *parent = 0);
-    ~ConfigureStepFactory();
 
     QStringList availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
     QString displayNameForId(const QString &id) const;
@@ -95,9 +94,7 @@ class ConfigureStep : public ProjectExplorer::AbstractProcessStep
     friend class ConfigureStepConfigWidget;
 
 public:
-
     ConfigureStep(ProjectExplorer::BuildStepList *bsl);
-    ~ConfigureStep();
 
     AutotoolsBuildConfiguration *autotoolsBuildConfiguration() const;
     bool init();
@@ -140,11 +137,9 @@ class ConfigureStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     ConfigureStepConfigWidget(ConfigureStep *configureStep);
-    ~ConfigureStepConfigWidget();
 
     QString displayName() const;
     QString summaryText() const;
-
 
 private slots:
     void updateDetails();

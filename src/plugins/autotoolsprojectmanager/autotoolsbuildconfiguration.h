@@ -50,7 +50,6 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
 public:
     explicit AutotoolsBuildConfiguration(AutotoolsTarget *parent);
-    ~AutotoolsBuildConfiguration();
 
     AutotoolsTarget *autotoolsTarget() const;
     QString buildDirectory() const;
@@ -75,7 +74,6 @@ class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigu
 
 public:
     explicit AutotoolsBuildConfigurationFactory(QObject *parent = 0);
-    ~AutotoolsBuildConfigurationFactory();
 
     QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
     QString displayNameForId(const QString &id) const;

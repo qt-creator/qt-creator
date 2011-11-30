@@ -36,7 +36,6 @@
 #define AUTORECONFSTEP_H
 
 #include <projectexplorer/abstractprocessstep.h>
-#include <QtGui/QLineEdit>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -63,7 +62,6 @@ class AutoreconfStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     AutoreconfStepFactory(QObject *parent = 0);
-    ~AutoreconfStepFactory();
 
     QStringList availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
     QString displayNameForId(const QString &id) const;
@@ -97,9 +95,7 @@ class AutoreconfStep : public ProjectExplorer::AbstractProcessStep
     friend class AutoreconfStepConfigWidget;
 
 public:
-
     AutoreconfStep(ProjectExplorer::BuildStepList *bsl);
-    ~AutoreconfStep();
 
     AutotoolsBuildConfiguration *autotoolsBuildConfiguration() const;
     bool init();
@@ -142,7 +138,6 @@ class AutoreconfStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     AutoreconfStepConfigWidget(AutoreconfStep *autoreconfStep);
-    ~AutoreconfStepConfigWidget();
 
     QString displayName() const;
     QString summaryText() const;

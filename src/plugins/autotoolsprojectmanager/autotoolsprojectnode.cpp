@@ -45,10 +45,6 @@ AutotoolsProjectNode::AutotoolsProjectNode(AutotoolsProject *project, Core::IFil
 {
 }
 
-AutotoolsProjectNode::~AutotoolsProjectNode()
-{
-}
-
 bool AutotoolsProjectNode::hasBuildTargets() const
 {
     return true;

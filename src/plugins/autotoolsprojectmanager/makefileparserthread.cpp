@@ -51,10 +51,6 @@ MakefileParserThread::MakefileParserThread(const QString &makefile) :
     connect(&m_parser, SIGNAL(status(QString)), this, SIGNAL(status(QString)));
 }
 
-MakefileParserThread::~MakefileParserThread()
-{
-}
-
 QStringList MakefileParserThread::sources() const
 {
     QMutexLocker locker(&m_mutex);

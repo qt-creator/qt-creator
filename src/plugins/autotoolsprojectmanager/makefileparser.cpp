@@ -57,10 +57,6 @@ MakefileParser::MakefileParser(const QString &makefile) :
 {
 }
 
-MakefileParser::~MakefileParser()
-{
-}
-
 bool MakefileParser::parse()
 {
     m_mutex.lock();

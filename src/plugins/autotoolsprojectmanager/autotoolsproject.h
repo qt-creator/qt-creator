@@ -84,7 +84,7 @@ public:
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
-    QList<ProjectExplorer::Project*> dependsOn();
+    QList<ProjectExplorer::Project *> dependsOn();
     QString defaultBuildDirectory() const;
     QString sourceDirectory() const;
     QStringList buildTargets() const;
@@ -93,7 +93,7 @@ public:
     QVariantMap toMap() const;
 
 signals:
-    void toolChainChanged(ProjectExplorer::ToolChain *);
+    void toolChainChanged(ProjectExplorer::ToolChain *tc);
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -137,13 +137,13 @@ private:
      * the directory \p nodeDir and inserts it into \p nodes. If no parent
      * folder exists, it will be created recursively.
      */
-    ProjectExplorer::FolderNode* insertFolderNode(const QDir &nodeDir,
-                                                  QHash<QString, ProjectExplorer::Node*> &nodes);
+    ProjectExplorer::FolderNode *insertFolderNode(const QDir &nodeDir,
+                                                  QHash<QString, ProjectExplorer::Node *> &nodes);
 
     /**
      * @return All nodes (including sub-folder- and file-nodes) for the given parent folder.
      */
-    QList<ProjectExplorer::Node*> nodes(ProjectExplorer::FolderNode *parent) const;
+    QList<ProjectExplorer::Node *> nodes(ProjectExplorer::FolderNode *parent) const;
 
     /**
      * This function is in charge of the code completion.

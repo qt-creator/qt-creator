@@ -54,10 +54,6 @@ AutotoolsProjectPlugin::AutotoolsProjectPlugin()
 {
 }
 
-AutotoolsProjectPlugin::~AutotoolsProjectPlugin()
-{
-}
-
 void AutotoolsProjectPlugin::extensionsInitialized()
 {
 }
@@ -73,11 +69,11 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
 
     addAutoReleasedObject(new AutotoolsTargetFactory);
     addAutoReleasedObject(new AutotoolsBuildConfigurationFactory);
-    addAutoReleasedObject(new MakeStepFactory());
-    addAutoReleasedObject(new AutogenStepFactory());
-    addAutoReleasedObject(new ConfigureStepFactory());
-    addAutoReleasedObject(new AutoreconfStepFactory());
-    addAutoReleasedObject(new AutotoolsManager());
+    addAutoReleasedObject(new MakeStepFactory);
+    addAutoReleasedObject(new AutogenStepFactory);
+    addAutoReleasedObject(new ConfigureStepFactory);
+    addAutoReleasedObject(new AutoreconfStepFactory);
+    addAutoReleasedObject(new AutotoolsManager);
 
     return true;
 }

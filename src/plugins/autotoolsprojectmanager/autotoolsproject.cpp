@@ -65,9 +65,7 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-namespace {
 const char TOOLCHAIN_KEY[] = "AutotoolsProjectManager.AutotoolsProject.Toolchain";
-}
 
 AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fileName) :
     m_manager(manager),
@@ -135,7 +133,7 @@ QString AutotoolsProject::id() const
     return QLatin1String(Constants::AUTOTOOLS_PROJECT_ID);
 }
 
-Core::IFile* AutotoolsProject::file() const
+Core::IFile *AutotoolsProject::file() const
 {
     return m_file;
 }
@@ -150,7 +148,7 @@ AutotoolsTarget *AutotoolsProject::activeTarget() const
     return static_cast<AutotoolsTarget *>(Project::activeTarget());
 }
 
-QList<ProjectExplorer::Project*> AutotoolsProject::dependsOn()
+QList<ProjectExplorer::Project *> AutotoolsProject::dependsOn()
 {
     return QList<Project *>();
 }
@@ -185,7 +183,7 @@ QString AutotoolsProject::sourceDirectory() const
 
 QVariantMap AutotoolsProject::toMap() const
 {
-    QVariantMap map(Project::toMap());
+    QVariantMap map = Project::toMap();
     map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChain ? m_toolChain->id() : QString());
     return map;
 }
@@ -321,7 +319,7 @@ void AutotoolsProject::makefileParsingFinished()
     // Watch for changes of Makefile.am files. If a Makefile.am file
     // has been changed, the project tree must be reparsed.
     const QStringList makefiles = m_makefileParserThread->makefiles();
-    foreach (const QString& makefile, makefiles) {
+    foreach (const QString &makefile, makefiles) {
         files.append(makefile);
 
         const QString watchedFile = dir.absoluteFilePath(makefile);
@@ -329,7 +327,7 @@ void AutotoolsProject::makefileParsingFinished()
         m_watchedFiles.append(watchedFile);
     }
 
-    // Add configure.ac file to project and watch for changes
+    // Add configure.ac file to project and watch for changes.
     const QLatin1String configureAc(QLatin1String("configure.ac"));
     const QFile configureAcFile(fileInfo.absolutePath() + QChar('/') + configureAc);
     if (configureAcFile.exists()) {
@@ -366,17 +364,17 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
     // Get all existing nodes and remember them in a hash table.
     // This allows to reuse existing nodes and to remove obsolete
     // nodes later.
-    QHash<QString, ProjectExplorer::Node*> nodeHash;
-    foreach (ProjectExplorer::Node* node, nodes(m_rootNode))
+    QHash<QString, ProjectExplorer::Node *> nodeHash;
+    foreach (ProjectExplorer::Node * node, nodes(m_rootNode))
         nodeHash.insert(node->path(), node);
 
     // Add the sources to the filenode project tree. Sources
     // inside the same directory are grouped into a folder-node.
     const QString baseDir = directory.absolutePath();
 
-    QList<ProjectExplorer::FileNode*> fileNodes;
-    ProjectExplorer::FolderNode* parentFolder = 0;
-    ProjectExplorer::FolderNode* oldParentFolder = 0;
+    QList<ProjectExplorer::FileNode *> fileNodes;
+    ProjectExplorer::FolderNode *parentFolder = 0;
+    ProjectExplorer::FolderNode *oldParentFolder = 0;
 
     foreach (const QString& file, files) {
         if (file.contains(QLatin1String(".moc")))
@@ -417,7 +415,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
         if (nodeHash.contains(filePath)) {
             nodeHash.remove(filePath);
         } else {
-            ProjectExplorer::FileNode* node =
+            ProjectExplorer::FileNode *node =
                     new ProjectExplorer::FileNode(filePath,
                                                   ProjectExplorer::ResourceType,
                                                   false);
@@ -429,16 +427,16 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
         m_rootNode->addFileNodes(fileNodes, parentFolder);
 
     // Remove unused file nodes and empty folder nodes
-    QHash<QString, ProjectExplorer::Node*>::const_iterator it = nodeHash.constBegin();
+    QHash<QString, ProjectExplorer::Node *>::const_iterator it = nodeHash.constBegin();
     while (it != nodeHash.constEnd()) {
         if ((*it)->nodeType() == ProjectExplorer::FileNodeType) {
-            ProjectExplorer::FileNode* fileNode = static_cast<ProjectExplorer::FileNode*>(*it);
+            ProjectExplorer::FileNode *fileNode = static_cast<ProjectExplorer::FileNode *>(*it);
             ProjectExplorer::FolderNode* parent = fileNode->parentFolderNode();
-            m_rootNode->removeFileNodes(QList<ProjectExplorer::FileNode*>() << fileNode, parent);
+            m_rootNode->removeFileNodes(QList<ProjectExplorer::FileNode *>() << fileNode, parent);
 
             // Remove all empty parent folders
             while (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty()) {
-                ProjectExplorer::FolderNode* grandParent = parent->parentFolderNode();
+                ProjectExplorer::FolderNode *grandParent = parent->parentFolderNode();
                 m_rootNode->removeFolderNodes(QList<ProjectExplorer::FolderNode *>() << parent, grandParent);
                 parent = grandParent;
                 if (parent == m_rootNode)
@@ -449,8 +447,8 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
     }
 }
 
-ProjectExplorer::FolderNode* AutotoolsProject::insertFolderNode(const QDir &nodeDir,
-                                                                QHash<QString, ProjectExplorer::Node*> &nodes)
+ProjectExplorer::FolderNode *AutotoolsProject::insertFolderNode(const QDir &nodeDir,
+                                                                QHash<QString, ProjectExplorer::Node *> &nodes)
 {
     const QString nodePath = nodeDir.absolutePath();
     QFileInfo rootInfo(m_rootNode->path());
@@ -460,41 +458,41 @@ ProjectExplorer::FolderNode* AutotoolsProject::insertFolderNode(const QDir &node
     if (rootPath == nodePath)
         return 0;
 
-    ProjectExplorer::FolderNode* folder = new ProjectExplorer::FolderNode(nodePath);
+    ProjectExplorer::FolderNode *folder = new ProjectExplorer::FolderNode(nodePath);
     QDir dir(nodeDir);
     folder->setDisplayName(dir.dirName());
 
     // Get parent-folder. If it does not exist, create it recursively.
     // Take care that the m_rootNode is considered as top folder.
-    ProjectExplorer::FolderNode* parentFolder = m_rootNode;
+    ProjectExplorer::FolderNode *parentFolder = m_rootNode;
     if ((rootPath != folder->path()) && dir.cdUp()) {
         const QString parentDir = dir.absolutePath();
         if (!nodes.contains(parentDir)) {
-            ProjectExplorer::FolderNode* insertedFolder = insertFolderNode(parentDir, nodes);
+            ProjectExplorer::FolderNode *insertedFolder = insertFolderNode(parentDir, nodes);
             if (insertedFolder != 0)
                 parentFolder = insertedFolder;
         } else {
             QTC_ASSERT(nodes[parentDir]->nodeType() == ProjectExplorer::FolderNodeType, return 0);
-            parentFolder = static_cast<ProjectExplorer::FolderNode*>(nodes[parentDir]);
+            parentFolder = static_cast<ProjectExplorer::FolderNode *>(nodes[parentDir]);
         }
     }
 
-    m_rootNode->addFolderNodes(QList<ProjectExplorer::FolderNode*>() << folder, parentFolder);
+    m_rootNode->addFolderNodes(QList<ProjectExplorer::FolderNode *>() << folder, parentFolder);
     nodes.insert(nodePath, folder);
 
     return folder;
 }
 
-QList<ProjectExplorer::Node*> AutotoolsProject::nodes(ProjectExplorer::FolderNode *parent) const
+QList<ProjectExplorer::Node *> AutotoolsProject::nodes(ProjectExplorer::FolderNode *parent) const
 {
-    QList<ProjectExplorer::Node*> list;
+    QList<ProjectExplorer::Node *> list;
     QTC_ASSERT(parent != 0, return list);
 
-    foreach (ProjectExplorer::FolderNode* folder, parent->subFolderNodes()) {
+    foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes()) {
         list.append(nodes(folder));
         list.append(folder);
     }
-    foreach (ProjectExplorer::FileNode* file, parent->fileNodes())
+    foreach (ProjectExplorer::FileNode *file, parent->fileNodes())
         list.append(file);
 
     return list;

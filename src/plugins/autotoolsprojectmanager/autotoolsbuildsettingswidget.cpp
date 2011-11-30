@@ -82,10 +82,6 @@ AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsTarget *targ
             this, SLOT(updateToolChainList()));
 }
 
-AutotoolsBuildSettingsWidget::~AutotoolsBuildSettingsWidget()
-{
-}
-
 QString AutotoolsBuildSettingsWidget::displayName() const
 {
     return QLatin1String("Autotools Manager");
@@ -113,7 +109,7 @@ void AutotoolsBuildSettingsWidget::toolChainSelected(int index)
 void AutotoolsBuildSettingsWidget::toolChainChanged(ProjectExplorer::ToolChain *tc)
 {
     for (int i = 0; i < m_toolChainChooser->count(); ++i) {
-        ToolChain * currentTc = static_cast<ToolChain *>(m_toolChainChooser->itemData(i).value<void *>());
+        ToolChain *currentTc = static_cast<ToolChain *>(m_toolChainChooser->itemData(i).value<void *>());
         if (currentTc != tc)
             continue;
         m_toolChainChooser->setCurrentIndex(i);

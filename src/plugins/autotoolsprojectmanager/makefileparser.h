@@ -64,7 +64,6 @@ public:
      *                  makefile that should be parsed.
      */
     MakefileParser(const QString &makefile);
-    ~MakefileParser();
 
     /**
      * Parses the makefile. Must be invoked at least once, otherwise

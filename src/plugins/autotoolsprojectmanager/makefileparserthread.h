@@ -57,7 +57,6 @@ class MakefileParserThread : public QThread
 
 public:
     MakefileParserThread(const QString &makefile);
-    ~MakefileParserThread();
 
     /** @see QThread::run() */
     void run();

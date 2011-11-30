@@ -43,17 +43,10 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
-using namespace AutotoolsProjectManager::Internal;
+namespace AutotoolsProjectManager {
+namespace Internal {
 
-AutotoolsManager::AutotoolsManager()
-{
-}
-
-AutotoolsManager::~AutotoolsManager()
-{
-}
-
-ProjectExplorer::Project *AutotoolsManager::openProject(const QString& fileName, QString *errorString)
+ProjectExplorer::Project *AutotoolsManager::openProject(const QString &fileName, QString *errorString)
 {
     QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
@@ -81,3 +74,6 @@ QString AutotoolsManager::mimeType() const
 {
     return QLatin1String(Constants::MAKEFILE_MIMETYPE);
 }
+
+} // namespace Internal
+} // namespace AutotoolsProjectManager

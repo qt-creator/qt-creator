@@ -53,14 +53,12 @@
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 
-namespace {
-
-QString displayNameForId(const QString &id) {
+static QString displayNameForId(const QString &id)
+{
     if (id == QLatin1String(Constants::DEFAULT_AUTOTOOLS_TARGET_ID))
         return QApplication::translate("AutotoolsProjectManager::Internal::AutotoolsTarget",
                               "Desktop", "Autotools Default target display name");
     return QString();
-}
 }
 
 //////////////////////////
@@ -73,10 +71,6 @@ AutotoolsTarget::AutotoolsTarget(AutotoolsProject *parent) :
 {
     setDefaultDisplayName(displayNameForId(id()));
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
-}
-
-AutotoolsTarget::~AutotoolsTarget()
-{
 }
 
 ProjectExplorer::BuildConfigWidget *AutotoolsTarget::createConfigWidget()
@@ -115,10 +109,6 @@ bool AutotoolsTarget::fromMap(const QVariantMap &map)
 /////////////////////////////////
 AutotoolsTargetFactory::AutotoolsTargetFactory(QObject *parent) :
     ITargetFactory(parent)
-{
-}
-
-AutotoolsTargetFactory::~AutotoolsTargetFactory()
 {
 }
 

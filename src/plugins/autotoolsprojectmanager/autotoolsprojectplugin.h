@@ -72,7 +72,6 @@ class AutotoolsProjectPlugin : public ExtensionSystem::IPlugin
 {
 public:
     AutotoolsProjectPlugin();
-    ~AutotoolsProjectPlugin();
 
     void extensionsInitialized();
     bool initialize(const QStringList &arguments, QString *errorString);

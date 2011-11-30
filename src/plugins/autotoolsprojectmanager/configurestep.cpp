@@ -54,20 +54,14 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-namespace {
 const char CONFIGURE_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.ConfigureStep.AdditionalArguments";
 const char CONFIGURE_STEP_ID[] = "AutotoolsProjectManager.ConfigureStep";
-}
 
 ////////////////////////////////
 // ConfigureStepFactory Class
 ////////////////////////////////
 ConfigureStepFactory::ConfigureStepFactory(QObject *parent) :
     ProjectExplorer::IBuildStepFactory(parent)
-{
-}
-
-ConfigureStepFactory::~ConfigureStepFactory()
 {
 }
 
@@ -160,10 +154,6 @@ void ConfigureStep::ctor()
     setDefaultDisplayName(tr("Configure"));
 }
 
-ConfigureStep::~ConfigureStep()
-{
-}
-
 AutotoolsBuildConfiguration *ConfigureStep::autotoolsBuildConfiguration() const
 {
     return static_cast<AutotoolsBuildConfiguration *>(buildConfiguration());
@@ -236,7 +226,7 @@ QString ConfigureStep::additionalArguments() const
 
 QVariantMap ConfigureStep::toMap() const
 {
-    QVariantMap map(AbstractProcessStep::toMap());
+    QVariantMap map = AbstractProcessStep::toMap();
 
     map.insert(QLatin1String(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
     return map;
@@ -272,10 +262,6 @@ ConfigureStepConfigWidget::ConfigureStepConfigWidget(ConfigureStep *configureSte
             configureStep, SLOT(setAdditionalArguments(QString)));
     connect(configureStep, SIGNAL(additionalArgumentsChanged(QString)),
             this, SLOT(updateDetails()));
-}
-
-ConfigureStepConfigWidget::~ConfigureStepConfigWidget()
-{
 }
 
 QString ConfigureStepConfigWidget::displayName() const

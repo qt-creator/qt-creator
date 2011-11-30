@@ -58,7 +58,6 @@ class AutotoolsProjectFile : public Core::IFile
 
 public:
     AutotoolsProjectFile(AutotoolsProject *project, const QString &fileName);
-    ~AutotoolsProjectFile();
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     QString fileName() const;

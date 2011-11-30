@@ -54,20 +54,14 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-namespace {
 const char AUTOGEN_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.AutogenStep.AdditionalArguments";
 const char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
-}
 
 /////////////////////////////
 // AutogenStepFactory class
 /////////////////////////////
 AutogenStepFactory::AutogenStepFactory(QObject *parent) :
     ProjectExplorer::IBuildStepFactory(parent)
-{
-}
-
-AutogenStepFactory::~AutogenStepFactory()
 {
 }
 
@@ -158,10 +152,6 @@ AutogenStep::AutogenStep(ProjectExplorer::BuildStepList *bsl, AutogenStep *bs) :
 void AutogenStep::ctor()
 {
     setDefaultDisplayName(tr("Autogen"));
-}
-
-AutogenStep::~AutogenStep()
-{
 }
 
 AutotoolsBuildConfiguration *AutogenStep::autotoolsBuildConfiguration() const
@@ -274,10 +264,6 @@ AutogenStepConfigWidget::AutogenStepConfigWidget(AutogenStep *autogenStep) :
             autogenStep, SLOT(setAdditionalArguments(QString)));
     connect(autogenStep, SIGNAL(additionalArgumentsChanged(QString)),
             this, SLOT(updateDetails()));
-}
-
-AutogenStepConfigWidget::~AutogenStepConfigWidget()
-{
 }
 
 QString AutogenStepConfigWidget::displayName() const

@@ -62,7 +62,6 @@ class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     MakeStepFactory(QObject *parent = 0);
-    ~MakeStepFactory();
 
     QStringList availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
     QString displayNameForId(const QString &id) const;
@@ -95,9 +94,7 @@ class MakeStep : public ProjectExplorer::AbstractProcessStep
     friend class MakeStepConfigWidget;
 
 public:
-
     MakeStep(ProjectExplorer::BuildStepList *bsl);
-    ~MakeStep();
 
     AutotoolsBuildConfiguration *autotoolsBuildConfiguration() const;
     bool init();
@@ -143,7 +140,6 @@ class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     MakeStepConfigWidget(MakeStep *makeStep);
-    ~MakeStepConfigWidget();
 
     QString displayName() const;
     QString summaryText() const;

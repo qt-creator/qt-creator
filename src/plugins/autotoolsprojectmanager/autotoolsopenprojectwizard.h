@@ -46,6 +46,7 @@ class AutotoolsManager;
 class AutotoolsOpenProjectWizard : public Utils::Wizard
 {
     Q_OBJECT
+
 public:
     enum PageId
     {
@@ -55,8 +56,6 @@ public:
     AutotoolsOpenProjectWizard(AutotoolsManager *manager,
                                const QString &sourceDirectory,
                                QWidget *parent = 0);
-
-    ~AutotoolsOpenProjectWizard();
 
     QString buildDirectory() const;
     QString sourceDirectory() const;
@@ -73,10 +72,13 @@ private:
 class BuildPathPage : public QWizardPage
 {
     Q_OBJECT
+
 public:
     explicit BuildPathPage(AutotoolsOpenProjectWizard *wizard);
+
 private slots:
     void buildDirectoryChanged();
+
 private:
     AutotoolsOpenProjectWizard *m_wizard;
     Utils::PathChooser *m_pc;

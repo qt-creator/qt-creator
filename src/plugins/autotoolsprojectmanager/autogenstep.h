@@ -63,7 +63,6 @@ class AutogenStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     AutogenStepFactory(QObject *parent = 0);
-    ~AutogenStepFactory();
 
     QStringList availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
     QString displayNameForId(const QString &id) const;
@@ -97,7 +96,6 @@ class AutogenStep : public ProjectExplorer::AbstractProcessStep
 
 public:
     AutogenStep(ProjectExplorer::BuildStepList *bsl);
-    ~AutogenStep();
 
     AutotoolsBuildConfiguration *autotoolsBuildConfiguration() const;
     bool init();
@@ -140,11 +138,9 @@ class AutogenStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     AutogenStepConfigWidget(AutogenStep *autogenStep);
-    ~AutogenStepConfigWidget();
 
     QString displayName() const;
     QString summaryText() const;
-
 
 private slots:
     void updateDetails();
