@@ -1677,7 +1677,7 @@ static void qDumpQImage(QDumper &d)
 static void qDumpQImageData(QDumper &d)
 {
     const QImage &im = *reinterpret_cast<const QImage *>(d.data);
-    const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.byteCount()));
+    const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.numBytes()));
     d.putItem("type", NS"QImageData");
     d.putItem("numchild", "0");
 #if 1

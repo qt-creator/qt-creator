@@ -35,7 +35,6 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
-#include <QtCore/QSharedPointer>
 
 #ifndef QT_BOOTSTRAPPED
 
