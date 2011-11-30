@@ -2419,6 +2419,7 @@ namespace formats {
         // Locals&Watchers view. It is only support on gdb with Python.
 
         const char s[] = "aöa";
+        const char t[] = "aöax";
         const wchar_t w[] = L"aöa";
         BREAK_HERE;
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
@@ -2426,7 +2427,7 @@ namespace formats {
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
 
         // Make sure to undo "Change Format".
-        dummyStatement(&s, &w);
+        dummyStatement(&s, &w, &t);
     }
 
     void testFormats()

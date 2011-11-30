@@ -75,12 +75,27 @@ enum { debugModel = 0 };
 QHash<QByteArray, int> WatchHandler::m_watcherNames;
 QHash<QByteArray, int> WatchHandler::m_typeFormats;
 
-static QByteArray stripTemplate(const QByteArray &ba)
+static QByteArray stripForFormat(const QByteArray &ba)
 {
-    int pos = ba.indexOf('<');
-    return pos == -1 ? ba : ba.left(pos);
+    QByteArray res;
+    res.reserve(ba.size());
+    int inArray = 0;
+    for (int i = 0; i != ba.size(); ++i) {
+        const char c = ba.at(i);
+        if (c == '<')
+            break;
+        if (c == '[')
+            ++inArray;
+        if (c == ']')
+            --inArray;
+        if (c == ' ')
+            continue;
+        if (inArray && c >= '0' && c <= '9')
+            continue;
+        res.append(c);
+    }
+    return res;
 }
-
 
 static int m_unprintableBase = -1;
 
@@ -672,7 +687,7 @@ int WatchModel::itemFormat(const WatchData &data) const
     const int individualFormat = m_handler->m_individualFormats.value(data.iname, -1);
     if (individualFormat != -1)
         return individualFormat;
-    return m_handler->m_typeFormats.value(stripTemplate(data.type), -1);
+    return m_handler->m_typeFormats.value(stripForFormat(data.type), -1);
 }
 
 static inline QString expression(const WatchItem *item)
@@ -800,7 +815,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return QString::fromLatin1(data.type);
 
         case LocalsTypeFormatRole:
-            return m_handler->m_typeFormats.value(stripTemplate(data.type), -1);
+            return m_handler->m_typeFormats.value(stripForFormat(data.type), -1);
 
         case LocalsIndividualFormatRole:
             return m_handler->m_individualFormats.value(data.iname, -1);
@@ -961,7 +976,7 @@ QStringList WatchHandler::typeFormatList(const WatchData &data) const
             << tr("Binary")
             << tr("Octal");
     // Hack: Compensate for namespaces.
-    QString type = stripTemplate(data.type);
+    QString type = stripForFormat(data.type);
     int pos = type.indexOf("::Q");
     if (pos >= 0 && type.count(':') == 2)
         type = type.mid(pos + 2);
@@ -1210,7 +1225,7 @@ void WatchModel::formatRequests(QByteArray *out, const WatchItem *item) const
 {
     int format = m_handler->m_individualFormats.value(item->iname, -1);
     if (format == -1)
-        format = m_handler->m_typeFormats.value(stripTemplate(item->type), -1);
+        format = m_handler->m_typeFormats.value(stripForFormat(item->type), -1);
     if (format != -1)
         *out += item->iname + ":format=" + QByteArray::number(format) + ',';
     foreach (const WatchItem *child, item->children)
@@ -1686,7 +1701,7 @@ QModelIndex WatchHandler::itemIndex(const QByteArray &iname) const
 
 void WatchHandler::setFormat(const QByteArray &type0, int format)
 {
-    const QByteArray type = stripTemplate(type0);
+    const QByteArray type = stripForFormat(type0);
     if (format == -1)
         m_typeFormats.remove(type);
     else
@@ -1704,7 +1719,7 @@ int WatchHandler::format(const QByteArray &iname) const
     if (const WatchData *item = findItem(iname)) {
         int result = m_individualFormats.value(item->iname, -1);
         if (result == -1)
-            result = m_typeFormats.value(stripTemplate(item->type), -1);
+            result = m_typeFormats.value(stripForFormat(item->type), -1);
     }
     return result;
 }
@@ -1762,7 +1777,7 @@ QByteArray WatchHandler::individualFormatRequests() const
 
 void WatchHandler::addTypeFormats(const QByteArray &type, const QStringList &formats)
 {
-    m_reportedTypeFormats.insert(stripTemplate(type), formats);
+    m_reportedTypeFormats.insert(stripForFormat(type), formats);
 }
 
 QString WatchHandler::editorContents()

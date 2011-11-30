@@ -832,6 +832,29 @@ qqEditable = {}
 # derived.
 qqQObjectCache = {}
 
+# This keeps canonical forms of the typenames, without array indices etc.
+qqStripForFormat = {}
+
+def stripForFormat(typeName):
+    if typeName in qqStripForFormat:
+        return qqStripForFormat[typeName]
+    stripped = ""
+    inArray = 0
+    for c in stripClassTag(typeName):
+        if c == '<':
+            break
+        if c == ' ':
+            continue
+        if c == '[':
+            inArray += 1
+        elif c == ']':
+            inArray -= 1
+        if inArray and ord(c) >= 48 and ord(c) <= 57:
+            continue
+        stripped +=  c
+    qqStripForFormat[typeName] = stripped
+    return stripped
+
 def bbsetup(args):
     module = sys.modules[__name__]
     for key, value in module.__dict__.items():
@@ -1306,12 +1329,7 @@ class Dumper:
     def currentItemFormat(self):
         format = self.formats.get(self.currentIName)
         if format is None:
-            type = stripClassTag(str(self.currentType))
-            pos = type.find('<')
-            if pos == -1:
-                format = self.typeformats.get(type)
-            else:
-                format = self.typeformats.get(type[0:pos])
+            format = self.typeformats.get(stripForFormat(str(self.currentType)))
         return format
 
     def putSubItem(self, component, value):
