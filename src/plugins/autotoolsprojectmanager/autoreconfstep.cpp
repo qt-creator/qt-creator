@@ -178,7 +178,7 @@ void AutoreconfStep::run(QFutureInterface<bool> &interface)
 {
     AutotoolsBuildConfiguration *bc = autotoolsBuildConfiguration();
 
-    // Check wether we need to run autoreconf
+    // Check whether we need to run autoreconf
     const QFileInfo configureInfo(bc->buildDirectory() + QLatin1String("/configure"));
 
     if (!configureInfo.exists())

@@ -179,7 +179,7 @@ void AutogenStep::run(QFutureInterface<bool> &interface)
 {
     AutotoolsBuildConfiguration *bc = autotoolsBuildConfiguration();
 
-    // Check wether we need to run autogen.sh
+    // Check whether we need to run autogen.sh
     const QFileInfo configureInfo(bc->buildDirectory() + QLatin1String("/configure"));
     const QFileInfo configureAcInfo(bc->buildDirectory() + QLatin1String("/configure.ac"));
     const QFileInfo makefileAmInfo(bc->buildDirectory() + QLatin1String("/Makefile.am"));

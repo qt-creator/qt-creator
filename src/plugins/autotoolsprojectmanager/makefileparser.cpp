@@ -136,7 +136,7 @@ MakefileParser::TopTarget MakefileParser::topTarget() const
     const QString line = m_line.simplified();
     if (!line.isEmpty() && !line.startsWith(QChar('#'))) {
         // TODO: Check how many fixed strings like AM_DEFAULT_SOURCE_EXT will
-        // be needed vs. variable strings like _SOURCES. Dependend on this a
+        // be needed vs. variable strings like _SOURCES. Dependent on this a
         // more clever way than this (expensive) if-cascading might be done.
         if (line.startsWith(QLatin1String("AM_DEFAULT_SOURCE_EXT =")))
             topTarget = AmDefaultSourceExt;

@@ -37,7 +37,6 @@
 #include "autotoolsproject.h"
 #include "autotoolstarget.h"
 #include "autotoolsprojectconstants.h"
-#include "makestep.h"
 #include "autogenstep.h"
 #include "autoreconfstep.h"
 #include "configurestep.h"

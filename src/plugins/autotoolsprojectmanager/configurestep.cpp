@@ -179,7 +179,7 @@ void ConfigureStep::run(QFutureInterface<bool>& interface)
 {
     AutotoolsBuildConfiguration *bc = autotoolsBuildConfiguration();
 
-    //Check wether we need to run configure
+    //Check whether we need to run configure
     const QFileInfo configureInfo(bc->buildDirectory() + QLatin1String("/configure"));
     const QFileInfo configStatusInfo(bc->buildDirectory() + QLatin1String("/config.status"));
 
