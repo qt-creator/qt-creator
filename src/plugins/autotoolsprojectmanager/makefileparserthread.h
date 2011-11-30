@@ -35,7 +35,7 @@
 #ifndef MAKEFILEPARSERTHREAD_H
 #define MAKEFILEPARSERTHREAD_H
 
-#include <makefileparser.h>
+#include "makefileparser.h"
 
 #include <QtCore/QMutex>
 #include <QtCore/QString>
