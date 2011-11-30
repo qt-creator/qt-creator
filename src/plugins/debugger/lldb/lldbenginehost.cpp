@@ -127,8 +127,7 @@ qint64 SshIODevice::readData (char * data, qint64 maxSize)
 
 void SshIODevice::processStarted()
 {
-    proc = runner->process();
-    proc->write(startupbuffer);
+    runner->writeDataToProcess(startupbuffer);
 }
 
 void SshIODevice::outputAvailable(const QByteArray &output)
@@ -197,10 +196,10 @@ LldbEngineHost::~LldbEngineHost()
         m_guestProcess->terminate();
         m_guestProcess->kill();
     }
-    if (m_ssh && m_ssh->process().data()) {
+    if (m_ssh && m_ssh->isProcessRunning()) {
         // TODO: openssh doesn't do that
 
-        m_ssh->process()->kill();
+        m_ssh->sendSignalToProcess(Utils::SshRemoteProcess::KillSignal);
     }
 }
 

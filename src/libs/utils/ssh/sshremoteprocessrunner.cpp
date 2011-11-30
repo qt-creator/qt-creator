@@ -62,6 +62,10 @@ public:
     QByteArray m_command;
     Utils::SshError m_lastConnectionError;
     QString m_lastConnectionErrorString;
+    SshRemoteProcess::ExitStatus m_exitStatus;
+    QByteArray m_exitSignal;
+    int m_exitCode;
+    QString m_processErrorString;
     State m_state;
 };
 
@@ -84,6 +88,8 @@ SshRemoteProcessRunner::~SshRemoteProcessRunner()
 void SshRemoteProcessRunner::run(const QByteArray &command,
     const SshConnectionParameters &sshParams)
 {
+    QTC_ASSERT(d->m_state == Inactive, return);
+
     d->m_runInTerminal = false;
     runInternal(command, sshParams);
 }
@@ -99,11 +105,13 @@ void SshRemoteProcessRunner::runInTerminal(const QByteArray &command,
 void SshRemoteProcessRunner::runInternal(const QByteArray &command,
     const SshConnectionParameters &sshParams)
 {
-    setState(Inactive);
     setState(Connecting);
 
     d->m_lastConnectionError = SshNoError;
     d->m_lastConnectionErrorString.clear();
+    d->m_processErrorString.clear();
+    d->m_exitSignal.clear();
+    d->m_exitCode = -1;
     d->m_command = command;
     d->m_connection = SshConnectionManager::instance().acquireConnection(sshParams);
     connect(d->m_connection.data(), SIGNAL(error(Utils::SshError)),
@@ -158,17 +166,23 @@ void SshRemoteProcessRunner::handleProcessStarted()
 
 void SshRemoteProcessRunner::handleProcessFinished(int exitStatus)
 {
-    switch (exitStatus) {
+    d->m_exitStatus = static_cast<SshRemoteProcess::ExitStatus>(exitStatus);
+    switch (d->m_exitStatus) {
     case SshRemoteProcess::FailedToStart:
         QTC_ASSERT(d->m_state == Connected, return);
         break;
     case SshRemoteProcess::KilledBySignal:
+        QTC_ASSERT(d->m_state == ProcessRunning, return);
+        d->m_exitSignal = d->m_process->exitSignal();
+        break;
     case SshRemoteProcess::ExitedNormally:
         QTC_ASSERT(d->m_state == ProcessRunning, return);
+        d->m_exitCode = d->m_process->exitCode();
         break;
     default:
         Q_ASSERT_X(false, Q_FUNC_INFO, "Impossible exit status.");
     }
+    d->m_processErrorString = d->m_process->errorString();
     setState(Inactive);
     emit processClosed(exitStatus);
 }
@@ -190,8 +204,11 @@ void SshRemoteProcessRunner::setState(int newState)
 
     d->m_state = static_cast<State>(newState);
     if (d->m_state == Inactive) {
-        if (d->m_process)
+        if (d->m_process) {
             disconnect(d->m_process.data(), 0, this, 0);
+            d->m_process->close();
+            d->m_process.clear();
+        }
         if (d->m_connection) {
             disconnect(d->m_connection.data(), 0, this, 0);
             SshConnectionManager::instance().releaseConnection(d->m_connection);
@@ -202,9 +219,53 @@ void SshRemoteProcessRunner::setState(int newState)
 
 QByteArray SshRemoteProcessRunner::command() const { return d->m_command; }
 SshError SshRemoteProcessRunner::lastConnectionError() const { return d->m_lastConnectionError; }
-SshRemoteProcess::Ptr SshRemoteProcessRunner::process() const { return d->m_process; }
 QString SshRemoteProcessRunner::lastConnectionErrorString() const {
     return d->m_lastConnectionErrorString;
+}
+
+bool SshRemoteProcessRunner::isProcessRunning() const
+{
+    return d->m_process && d->m_process->isRunning();
+}
+
+SshRemoteProcess::ExitStatus SshRemoteProcessRunner::processExitStatus() const
+{
+    QTC_CHECK(!isProcessRunning());
+    return d->m_exitStatus;
+}
+
+QByteArray SshRemoteProcessRunner::processExitSignal() const
+{
+    QTC_CHECK(processExitStatus() == SshRemoteProcess::KilledBySignal);
+    return d->m_exitSignal;
+}
+
+int SshRemoteProcessRunner::processExitCode() const
+{
+    QTC_CHECK(processExitStatus() == SshRemoteProcess::ExitedNormally);
+    return d->m_exitCode;
+}
+
+QString SshRemoteProcessRunner::processErrorString() const
+{
+    return d->m_processErrorString;
+}
+
+void SshRemoteProcessRunner::writeDataToProcess(const QByteArray &data)
+{
+    QTC_ASSERT(isProcessRunning(), return);
+    d->m_process->write(data);
+}
+
+void SshRemoteProcessRunner::sendSignalToProcess(const QByteArray &signal)
+{
+    QTC_ASSERT(isProcessRunning(), return);
+    d->m_process->sendSignal(signal);
+}
+
+void SshRemoteProcessRunner::cancel()
+{
+    setState(Inactive);
 }
 
 } // namespace Utils

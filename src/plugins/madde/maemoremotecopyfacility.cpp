@@ -108,7 +108,7 @@ void MaemoRemoteCopyFacility::handleCopyFinished(int exitStatus)
         return;
 
     if (exitStatus != SshRemoteProcess::ExitedNormally
-            || m_copyRunner->process()->exitCode() != 0) {
+            || m_copyRunner->processExitCode() != 0) {
         setFinished();
         emit finished(tr("Error: Copy command failed."));
     } else {

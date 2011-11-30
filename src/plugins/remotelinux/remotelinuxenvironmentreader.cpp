@@ -118,7 +118,7 @@ void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitCode)
         }
     } else {
         QString errorMsg = tr("Error running remote process: %1")
-            .arg(m_remoteProcessRunner->process()->errorString());
+            .arg(m_remoteProcessRunner->processErrorString());
         if (!m_remoteErrorOutput.isEmpty()) {
             errorMsg += tr("\nRemote stderr was: '%1'")
                 .arg(QString::fromUtf8(m_remoteErrorOutput));

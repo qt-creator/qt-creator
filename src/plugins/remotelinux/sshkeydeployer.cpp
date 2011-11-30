@@ -91,11 +91,8 @@ void SshKeyDeployer::handleKeyUploadFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (!d->deployProcess.process())
-        return;
-
-    const int exitCode = d->deployProcess.process()->exitCode();
-    const QString errorMsg = d->deployProcess.process()->errorString();
+    const int exitCode = d->deployProcess.processExitCode();
+    const QString errorMsg = d->deployProcess.processErrorString();
     cleanup();
     if (exitStatus == SshRemoteProcess::ExitedNormally && exitCode == 0)
         emit finishedSuccessfully();

@@ -146,7 +146,7 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
         }
         switch (m_state) {
         case TestingSuccess: {
-            const int exitCode = m_remoteRunner->process()->exitCode();
+            const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode != 0) {
                 std::cerr << "Error: exit code is " << exitCode
                     << ", expected zero." << std::endl;
@@ -168,7 +168,7 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             break;
         }
         case TestingFailure: {
-            const int exitCode = m_remoteRunner->process()->exitCode();
+            const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode == 0) {
                 std::cerr << "Error: exit code is zero, expected non-zero."
                     << std::endl;
@@ -194,7 +194,7 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             qApp->quit();
             break;
         case TestingTerminal: {
-            const int exitCode = m_remoteRunner->process()->exitCode();
+            const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode != 0) {
                 std::cerr << "Error: exit code is " << exitCode
                     << ", expected zero." << std::endl;

@@ -115,7 +115,7 @@ void RemoteLinuxCustomCommandDeployService::stopDeployment()
     QTC_ASSERT(d->state == Running, return);
 
     disconnect(d->runner, 0, this, 0);
-    d->runner->process()->close();
+    d->runner->cancel();
     d->state = Inactive;
     handleDeploymentDone();
 }
@@ -138,9 +138,9 @@ void RemoteLinuxCustomCommandDeployService::handleProcessClosed(int exitStatus)
         emit errorMessage(tr("Remote process failed to start."));
     } else if (exitStatus == SshRemoteProcess::KilledBySignal) {
         emit errorMessage(tr("Remote process was killed by a signal."));
-    } else if (d->runner->process()->exitCode() != 0) {
+    } else if (d->runner->processExitCode() != 0) {
         emit errorMessage(tr("Remote process finished with exit code %1.")
-            .arg(d->runner->process()->exitCode()));
+            .arg(d->runner->processExitCode()));
     } else {
         emit progressMessage(tr("Remote command finished successfully."));
     }

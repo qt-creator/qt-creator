@@ -89,7 +89,7 @@ void MaddeDeviceTester::stopTest()
     case QtTest:
     case MadDeveloperTest:
     case QmlToolingTest:
-        m_processRunner->process()->close();
+        m_processRunner->cancel();
         break;
     }
 
@@ -177,7 +177,7 @@ void MaddeDeviceTester::handleProcessFinished(int exitStatus)
 void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
 {
     if (exitStatus != SshRemoteProcess::ExitedNormally
-            || m_processRunner->process()->exitCode() != 0) {
+            || m_processRunner->processExitCode() != 0) {
         if (!m_stderr.isEmpty()) {
             emit errorMessage(tr("Error checking for Qt libraries: %1\n")
                 .arg(QString::fromUtf8(m_stderr)));
@@ -209,7 +209,7 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
             emit errorMessage(tr("Error checking for connectivity tool.\n"));
         }
         m_result = TestFailure;
-    } else if (m_processRunner->process()->exitCode() != 0) {
+    } else if (m_processRunner->processExitCode() != 0) {
         QString message = tr("Connectivity tool not installed on device. "
             "Deployment currently not possible.");
         if (m_deviceConfiguration->osType() == QLatin1String(HarmattanOsType)) {
@@ -247,7 +247,7 @@ void MaddeDeviceTester::handleQmlToolingTestFinished(int exitStatus)
             emit errorMessage(tr("Error checking for QML tooling support.\n"));
         }
         m_result = TestFailure;
-    } else if (m_processRunner->process()->exitCode() != 0) {
+    } else if (m_processRunner->processExitCode() != 0) {
         emit errorMessage(tr("Missing directory '%1'. You will not be able to do "
             "QML debugging on this device.\n").arg(QmlToolingDirectory));
         m_result = TestFailure;
