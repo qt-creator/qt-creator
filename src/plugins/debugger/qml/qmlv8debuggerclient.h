@@ -96,6 +96,8 @@ public:
 
     void setEngine(QmlEngine *engine);
 
+    void getSourceFiles();
+
 protected:
     void messageReceived(const QByteArray &data);
 

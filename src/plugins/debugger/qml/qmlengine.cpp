@@ -38,6 +38,7 @@
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
+#include "debuggerinternalconstants.h"
 #include "debuggermainwindow.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
@@ -48,18 +49,24 @@
 #include "registerhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
+#include "sourcefileshandler.h"
 #include "watchutils.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <qmljsdebugclient/qdeclarativeoutputparser.h>
+#include <qmljseditor/qmljseditorconstants.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/fileinprojectfinder.h>
 
-#include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
+
+#include <texteditor/itexteditor.h>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
@@ -71,6 +78,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPlainTextEdit>
 #include <QtGui/QToolTip>
 #include <QtGui/QTextDocument>
 
@@ -102,6 +110,8 @@ private:
     Utils::FileInProjectFinder fileFinder;
     QTimer m_noDebugOutputTimer;
     QmlJsDebugClient::QDeclarativeOutputParser m_outputParser;
+    QHash<QString, QTextDocument*> m_sourceDocuments;
+    QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
@@ -169,6 +179,16 @@ QmlEngine::~QmlEngine()
     if (pluginManager->allObjects().contains(this)) {
         pluginManager->removeObject(this);
     }
+
+    QList<Core::IEditor *> editorsToClose;
+
+    QHash<QString, QWeakPointer<TextEditor::ITextEditor> >::iterator iter;
+    for (iter = d->m_sourceEditors.begin(); iter != d->m_sourceEditors.end(); ++iter) {
+        QWeakPointer<TextEditor::ITextEditor> textEditPtr = iter.value();
+        if (textEditPtr)
+            editorsToClose << textEditPtr.data();
+    }
+    Core::EditorManager::instance()->closeEditors(editorsToClose);
 
     delete d;
 }
@@ -320,6 +340,46 @@ void QmlEngine::showMessage(const QString &msg, int channel, int timeout) const
         const_cast<QmlEngine*>(this)->filterApplicationMessage(msg, channel);
     }
     DebuggerEngine::showMessage(msg, channel, timeout);
+}
+
+void QmlEngine::gotoLocation(const Location &location)
+{
+    const QString fileName = location.fileName();
+    if (QUrl(fileName).isLocalFile()) {
+        // internal file from source files -> show generated .js
+        QString fileName = location.fileName();
+        QTC_ASSERT(d->m_sourceDocuments.contains(fileName), return);
+        const QString jsSource = d->m_sourceDocuments.value(fileName)->toPlainText();
+
+        Core::IEditor *editor = 0;
+
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        QList<Core::IEditor *> editors = editorManager->editorsForFileName(location.fileName());
+        if (editors.isEmpty()) {
+            QString titlePattern = tr("JS Source for %1").arg(fileName);
+            editor = editorManager->openEditorWithContents(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
+                                                           &titlePattern);
+            if (editor) {
+                editor->setProperty(Constants::OPENED_BY_DEBUGGER, true);
+            }
+        } else {
+            editor = editors.back();
+        }
+
+        TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
+        if (!textEditor)
+            return;
+
+        QPlainTextEdit *plainTextEdit =
+                qobject_cast<QPlainTextEdit *>(editor->widget());
+        if (!plainTextEdit)
+            return;
+        plainTextEdit->setPlainText(jsSource);
+        plainTextEdit->setReadOnly(true);
+        editorManager->activateEditor(editor);
+    } else {
+        DebuggerEngine::gotoLocation(location);
+    }
 }
 
 void QmlEngine::closeConnection()
@@ -643,6 +703,13 @@ void QmlEngine::reloadModules()
 {
 }
 
+void QmlEngine::reloadSourceFiles()
+{
+    if (d->m_adapter.activeDebuggerClient()) {
+        d->m_adapter.activeDebuggerClient()->getSourceFiles();
+    }
+}
+
 void QmlEngine::requestModuleSymbols(const QString &moduleName)
 {
     Q_UNUSED(moduleName)
@@ -781,6 +848,61 @@ void QmlEngine::logMessage(const QString &service, LogDirection direction, const
     }
     msg += message;
     showMessage(msg, LogDebug);
+}
+
+void QmlEngine::setSourceFiles(const QStringList &fileNames)
+{
+    QMap<QString,QString> files;
+    foreach (const QString &file, fileNames) {
+        QString shortName = file;
+        QString fullName = d->fileFinder.findFile(file);
+        files.insert(shortName, fullName);
+    }
+
+    sourceFilesHandler()->setSourceFiles(files);
+}
+
+void QmlEngine::updateScriptSource(const QString &fileName, int lineOffset, int columnOffset,
+                                   const QString &source)
+{
+    QTextDocument *document = 0;
+    if (d->m_sourceDocuments.contains(fileName)) {
+        document = d->m_sourceDocuments.value(fileName);
+    } else {
+        document = new QTextDocument(this);
+        d->m_sourceDocuments.insert(fileName, document);
+    }
+
+    // We're getting an unordered set of snippets that can even interleave
+    // Therefore we've to carefully update the existing document
+
+    QTextCursor cursor(document);
+    for (int i = 0; i < lineOffset; ++i) {
+        if (!cursor.movePosition(QTextCursor::NextBlock))
+            cursor.insertBlock();
+    }
+    QTC_CHECK(cursor.blockNumber() == lineOffset);
+
+    for (int i = 0; i < columnOffset; ++i) {
+        if (!cursor.movePosition(QTextCursor::NextCharacter))
+            cursor.insertText(QLatin1String(" "));
+    }
+    QTC_CHECK(cursor.positionInBlock() == columnOffset);
+
+    QStringList lines = source.split(QLatin1Char('\n'));
+    foreach (QString line, lines) {
+        if (line.endsWith(QLatin1Char('\r')))
+            line.remove(line.size() -1, 1);
+
+        // line already there?
+        QTextCursor existingCursor(cursor);
+        existingCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        if (existingCursor.selectedText() != line)
+            cursor.insertText(line);
+
+        if (!cursor.movePosition(QTextCursor::NextBlock))
+            cursor.insertBlock();
+    }
 }
 
 QmlAdapter *QmlEngine::adapter() const

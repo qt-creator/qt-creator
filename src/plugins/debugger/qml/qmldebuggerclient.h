@@ -83,6 +83,8 @@ public:
 
     virtual void setEngine(QmlEngine *engine) = 0;
 
+    virtual void getSourceFiles() {}
+
     void flushSendBuffer();
 
 signals:

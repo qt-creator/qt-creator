@@ -141,6 +141,7 @@ public:
 
     QScriptValue parser;
     QScriptValue stringifier;
+    QStringList scriptSourceRequests;
 
     QHash<int, QString> evaluatingExpression;
     QHash<int, QByteArray> localsAndWatchers;
@@ -447,7 +448,7 @@ void QmlV8DebuggerClientPrivate::scopes(int frameNumber)
 }
 
 void QmlV8DebuggerClientPrivate::scripts(int types, const QList<int> ids, bool includeSource,
-                                         const QVariant /*filter*/)
+                                         const QVariant filter)
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -481,6 +482,16 @@ void QmlV8DebuggerClientPrivate::scripts(int types, const QList<int> ids, bool i
 
     if (includeSource)
         args.setProperty(_(INCLUDESOURCE), QScriptValue(includeSource));
+
+    QScriptValue filterValue;
+    if (filter.type() == QVariant::String)
+        filterValue = QScriptValue(filter.toString());
+    else if (filter.type() == QVariant::Int)
+        filterValue = QScriptValue(filter.toInt());
+    else
+        QTC_CHECK(!filter.isValid());
+
+    args.setProperty(_(FILTER), filterValue);
 
     jsonVal.setProperty(_(ARGUMENTS), args);
 
@@ -1173,6 +1184,11 @@ void QmlV8DebuggerClient::setEngine(QmlEngine *engine)
     d->engine = engine;
 }
 
+void QmlV8DebuggerClient::getSourceFiles()
+{
+    d->scripts(4, QList<int>(), true, QVariant());
+}
+
 void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
 {
     QDataStream ds(data);
@@ -1305,6 +1321,53 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 } else if (debugCommand == _(SCOPES)) {
                 } else if (debugCommand == _(SOURCE)) {
                 } else if (debugCommand == _(SCRIPTS)) {
+                    //                { "seq"         : <number>,
+                    //                  "type"        : "response",
+                    //                  "request_seq" : <number>,
+                    //                  "command"     : "scripts",
+                    //                  "body"        : [ { "name"             : <name of the script>,
+                    //                                      "id"               : <id of the script>
+                    //                                      "lineOffset"       : <line offset within the containing resource>
+                    //                                      "columnOffset"     : <column offset within the containing resource>
+                    //                                      "lineCount"        : <number of lines in the script>
+                    //                                      "data"             : <optional data object added through the API>
+                    //                                      "source"           : <source of the script if includeSource was specified in the request>
+                    //                                      "sourceStart"      : <first 80 characters of the script if includeSource was not specified in the request>
+                    //                                      "sourceLength"     : <total length of the script in characters>
+                    //                                      "scriptType"       : <script type (see request for values)>
+                    //                                      "compilationType"  : < How was this script compiled:
+                    //                                                               0 if script was compiled through the API
+                    //                                                               1 if script was compiled through eval
+                    //                                                            >
+                    //                                      "evalFromScript"   : <if "compilationType" is 1 this is the script from where eval was called>
+                    //                                      "evalFromLocation" : { line   : < if "compilationType" is 1 this is the line in the script from where eval was called>
+                    //                                                             column : < if "compilationType" is 1 this is the column in the script from where eval was called>
+                    //                                  ]
+                    //                  "running"     : <is the VM running after sending this response>
+                    //                  "success"     : true
+                    //                }
+
+                    if (success) {
+                        const QVariantList body = resp.value(_(BODY)).toList();
+
+                        QStringList sourceFiles;
+                        for (int i = 0; i < body.size(); ++i) {
+                            const QVariantMap entryMap = body.at(i).toMap();
+                            const int lineOffset = entryMap.value("lineOffset").toInt();
+                            const int columnOffset = entryMap.value("columnOffset").toInt();
+                            const QString name = entryMap.value("name").toString();
+                            const QString source = entryMap.value("source").toString();
+
+                            if (name.isEmpty())
+                                continue;
+
+                            if (!sourceFiles.contains(name))
+                                sourceFiles << name;
+
+                            d->engine->updateScriptSource(name, lineOffset, columnOffset, source);
+                        }
+                        d->engine->setSourceFiles(sourceFiles);
+                    }
                 } else if (debugCommand == _(VERSION)) {
                     d->logReceiveMessage(QString(_("Using V8 Version: %1")).arg(
                                              resp.value(_(BODY)).toMap().
