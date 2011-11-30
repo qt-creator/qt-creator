@@ -1097,7 +1097,8 @@ unsigned CdbEngine::debuggerCapabilities() const
            |BreakConditionCapability|TracePointCapability
            |BreakModuleCapability
            |OperateByInstructionCapability
-           |RunToLineCapability;
+           |RunToLineCapability
+           |MemoryAddressCapability;
 }
 
 void CdbEngine::executeStep()

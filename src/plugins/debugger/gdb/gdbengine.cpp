@@ -1999,7 +1999,8 @@ unsigned GdbEngine::debuggerCapabilities() const
         | ShowModuleSymbolsCapability
         | CatchCapability
         | OperateByInstructionCapability
-        | RunToLineCapability;
+        | RunToLineCapability
+        | MemoryAddressCapability;
 
     if (startParameters().startMode == AttachCore)
         return caps;

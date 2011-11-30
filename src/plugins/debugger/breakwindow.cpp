@@ -624,7 +624,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(synchronizeAction);
     menu.addSeparator();
     menu.addAction(debuggerCore()->action(UseToolTipsInBreakpointsView));
-    menu.addAction(debuggerCore()->action(UseAddressInBreakpointsView));
+    if (debuggerCore()->currentEngine()->debuggerCapabilities() & MemoryAddressCapability)
+        menu.addAction(debuggerCore()->action(UseAddressInBreakpointsView));
     addBaseContextActions(&menu);
 
     QAction *act = menu.exec(ev->globalPos());

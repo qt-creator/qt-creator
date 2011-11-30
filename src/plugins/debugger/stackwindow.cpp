@@ -112,39 +112,50 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (engineCapabilities & CreateFullBacktraceCapability)
         menu.addAction(debuggerCore()->action(CreateFullBacktrace));
 
-    QAction *actShowMemory = menu.addAction(QString());
-    if (address == 0) {
-        actShowMemory->setText(tr("Open Memory Editor"));
-        actShowMemory->setEnabled(false);
-    } else {
-        actShowMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
-        actShowMemory->setEnabled(engineCapabilities & ShowMemoryCapability);
+    QAction *actShowMemory = 0;
+    if (engineCapabilities & ShowMemoryCapability) {
+        actShowMemory = menu.addAction(QString());
+        if (address == 0) {
+            actShowMemory->setText(tr("Open Memory Editor"));
+            actShowMemory->setEnabled(false);
+        } else {
+            actShowMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
+            actShowMemory->setEnabled(engineCapabilities & ShowMemoryCapability);
+        }
     }
 
-    QAction *actShowDisassemblerAt = menu.addAction(QString());
-    QAction *actShowDisassembler = menu.addAction(tr("Open Disassembler..."));
-    actShowDisassembler->setEnabled(engineCapabilities & DisassemblerCapability);
-    if (address == 0) {
-        actShowDisassemblerAt->setText(tr("Open Disassembler"));
-        actShowDisassemblerAt->setEnabled(false);
-    } else {
-        actShowDisassemblerAt->setText(tr("Open Disassembler at 0x%1").arg(address, 0, 16));
-        actShowDisassemblerAt->setEnabled(engineCapabilities & DisassemblerCapability);
+    QAction *actShowDisassemblerAt = 0;
+    QAction *actShowDisassembler = 0;
+
+    if (engineCapabilities & DisassemblerCapability) {
+        actShowDisassemblerAt = menu.addAction(QString());
+        actShowDisassembler = menu.addAction(tr("Open Disassembler..."));
+        if (address == 0) {
+            actShowDisassemblerAt->setText(tr("Open Disassembler"));
+            actShowDisassemblerAt->setEnabled(false);
+        } else {
+            actShowDisassemblerAt->setText(tr("Open Disassembler at 0x%1").arg(address, 0, 16));
+        }
     }
+
 
     QAction *actLoadSymbols = 0;
     if (engineCapabilities & ShowModuleSymbolsCapability)
         actLoadSymbols = menu.addAction(tr("Try to Load Unknown Symbols"));
 
-    menu.addSeparator();
 #if 0 // @TODO: not implemented
     menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
 #endif
-    menu.addAction(debuggerCore()->action(UseAddressInStackView));
+    if (engineCapabilities & MemoryAddressCapability)
+        menu.addAction(debuggerCore()->action(UseAddressInStackView));
+
+    menu.addSeparator();
 
     addBaseContextActions(&menu);
 
     QAction *act = menu.exec(ev->globalPos());
+    if (!act)
+        return;
 
     if (act == actCopyContents)
         copyContentsToClipboard();
