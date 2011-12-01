@@ -203,7 +203,7 @@ void MakeStep::setBuildTarget(const QString &buildTarget, bool on)
     QStringList old = m_buildTargets;
     if (on && !old.contains(buildTarget))
         old << buildTarget;
-    else if(!on && old.contains(buildTarget))
+    else if (!on && old.contains(buildTarget))
         old.removeOne(buildTarget);
     m_buildTargets = old;
 }
@@ -251,7 +251,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     // TODO update this list also on rescans of the CMakeLists.txt
     // TODO shouldn't be accessing project
     CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();
-    foreach(const QString& buildTarget, pro->buildTargetTitles()) {
+    foreach (const QString& buildTarget, pro->buildTargetTitles()) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
@@ -290,7 +290,7 @@ void MakeStepConfigWidget::buildTargetsChanged()
     disconnect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     m_buildTargetsList->clear();
     CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();
-    foreach(const QString& buildTarget, pro->buildTargetTitles()) {
+    foreach (const QString& buildTarget, pro->buildTargetTitles()) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);

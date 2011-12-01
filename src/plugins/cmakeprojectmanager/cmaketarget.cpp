@@ -115,7 +115,7 @@ void CMakeTarget::updateRunConfigurations()
     // *Update* runconfigurations:
     QMultiMap<QString, CMakeRunConfiguration*> existingRunConfigurations;
     QList<ProjectExplorer::RunConfiguration *> toRemove;
-    foreach(ProjectExplorer::RunConfiguration* rc, runConfigurations()) {
+    foreach (ProjectExplorer::RunConfiguration* rc, runConfigurations()) {
         if (CMakeRunConfiguration* cmakeRC = qobject_cast<CMakeRunConfiguration *>(rc))
             existingRunConfigurations.insert(cmakeRC->title(), cmakeRC);
         ProjectExplorer::CustomExecutableRunConfiguration *ceRC =
@@ -124,7 +124,7 @@ void CMakeTarget::updateRunConfigurations()
             toRemove << rc;
     }
 
-    foreach(const CMakeBuildTarget &ct, cmakeProject()->buildTargets()) {
+    foreach (const CMakeBuildTarget &ct, cmakeProject()->buildTargets()) {
         if (ct.library)
             continue;
         if (ct.executable.isEmpty())

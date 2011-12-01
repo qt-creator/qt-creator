@@ -150,7 +150,7 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     if (!cbpFileFi.exists()) {
         mode = CMakeOpenProjectWizard::NeedToCreate;
     } else {
-        foreach(const QString &file, m_watchedFiles) {
+        foreach (const QString &file, m_watchedFiles) {
             if (QFileInfo(file).lastModified() > cbpFileFi.lastModified()) {
                 mode = CMakeOpenProjectWizard::NeedToUpdate;
                 break;
@@ -237,7 +237,7 @@ bool CMakeProject::parseCMakeLists()
     QSet<QString> projectFiles;
     if (cbpparser.hasCMakeFiles()) {
         fileList.append(cbpparser.cmakeFileList());
-        foreach(const ProjectExplorer::FileNode *node, cbpparser.cmakeFileList())
+        foreach (const ProjectExplorer::FileNode *node, cbpparser.cmakeFileList())
             projectFiles.insert(node->path());
     } else {
         // Manually add the CMakeLists.txt file
@@ -259,7 +259,7 @@ bool CMakeProject::parseCMakeLists()
     //qDebug()<<"Adding Targets";
     m_buildTargets = cbpparser.buildTargets();
 //        qDebug()<<"Printing targets";
-//        foreach(CMakeBuildTarget ct, m_buildTargets) {
+//        foreach (CMakeBuildTarget ct, m_buildTargets) {
 //            qDebug()<<ct.title<<" with executable:"<<ct.executable;
 //            qDebug()<<"WD:"<<ct.workingDirectory;
 //            qDebug()<<ct.makeCommand<<ct.makeCleanCommand;
@@ -364,9 +364,9 @@ bool CMakeProject::hasBuildTarget(const QString &title) const
 
 void CMakeProject::gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list)
 {
-    foreach(ProjectExplorer::FolderNode *folder, parent->subFolderNodes())
+    foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes())
         gatherFileNodes(folder, list);
-    foreach(ProjectExplorer::FileNode *file, parent->fileNodes())
+    foreach (ProjectExplorer::FileNode *file, parent->fileNodes())
         list.append(file);
 }
 
@@ -387,8 +387,7 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
     QList<ProjectExplorer::FileNode *> added;
     QList<ProjectExplorer::FileNode *> deleted;
 
-
-    while(oldIt != oldEnd && newIt != newEnd) {
+    while (oldIt != oldEnd && newIt != newEnd) {
         if ( (*oldIt)->path() == (*newIt)->path()) {
             delete *newIt;
             ++oldIt;
@@ -604,7 +603,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
 CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)
 {
-    foreach(const CMakeBuildTarget &ct, m_buildTargets)
+    foreach (const CMakeBuildTarget &ct, m_buildTargets)
         if (ct.title == title)
             return ct;
     return CMakeBuildTarget();
@@ -1020,7 +1019,7 @@ void CMakeCbpParser::parseOption()
         readNext();
         if (isEndElement()) {
             return;
-        } else if(isStartElement()) {
+        } else if (isStartElement()) {
             parseUnknownElement();
         }
     }

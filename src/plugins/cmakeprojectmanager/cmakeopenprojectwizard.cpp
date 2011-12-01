@@ -378,14 +378,14 @@ void CMakeRunPage::initializePage()
                                        "If you want to add additional command line arguments, "
                                        "add them below. Note that CMake remembers command "
                                        "line arguments from the previous runs.").arg(m_buildDirectory));
-    } else if(m_mode == CMakeRunPage::Recreate) {
+    } else if (m_mode == CMakeRunPage::Recreate) {
         m_descriptionLabel->setText(tr("The directory %1 specified in a build-configuration, "
                                        "does not contain a cbp file. Qt Creator needs to "
                                        "recreate this file, by running CMake. "
                                        "Some projects require command line arguments to "
                                        "the initial CMake call. Note that CMake remembers command "
                                        "line arguments from the previous runs.").arg(m_buildDirectory));
-    } else if(m_mode == CMakeRunPage::ChangeDirectory) {
+    } else if (m_mode == CMakeRunPage::ChangeDirectory) {
         m_buildDirectory = m_cmakeWizard->buildDirectory();
         m_descriptionLabel->setText(tr("Qt Creator needs to run CMake in the new build directory. "
                                        "Some projects require command line arguments to the "
