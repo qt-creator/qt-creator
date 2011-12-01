@@ -388,6 +388,9 @@
         \row
             \o Run to selected function
             \o Ctrl+F6
+        \row
+            \o Run to line
+            \o Ctrl+F10
     \endtable
 
     \section2 Project Keyboard Shortcuts
