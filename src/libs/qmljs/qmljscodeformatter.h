@@ -167,10 +167,13 @@ public: // must be public to make Q_GADGET introspection work
         return_statement, // After 'return'
         throw_statement, // After 'throw'
 
-        statement_with_condition, // After the 'for', 'while', 'catch', ... token
+        statement_with_condition, // After the 'for', 'while', ... token
         statement_with_condition_paren_open, // While inside the (...)
 
-        statement_with_block, // try, finally
+        try_statement, // after 'try'
+        catch_statement, // after 'catch', nested in try_statement
+        finally_statement, // after 'finally', nested in try_statement
+        maybe_catch_or_finally, // after ther closing '}' of try_statement and catch_statement, nested in try_statement
 
         do_statement, // after 'do'
         do_statement_while_paren_open, // after '(' in while clause
@@ -278,6 +281,7 @@ protected:
     bool isExpressionEndState(int type) const;
 
     void dump() const;
+    QString stateToString(int type) const;
 
 private:
     void recalculateStateAfter(const QTextBlock &block);

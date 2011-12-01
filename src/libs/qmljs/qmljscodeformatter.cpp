@@ -156,6 +156,9 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case Semicolon:     leave(true); break;
             case If:            enter(if_statement); break;
+            case With:          enter(statement_with_condition); break;
+            case Try:           enter(try_statement); break;
+            case Switch:        enter(switch_statement); break;
             case LeftBrace:     enter(jsblock_open); break;
             case On:
             case As:
@@ -377,14 +380,18 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             } break;
 
         case maybe_else:
-            if (kind == Else) {
-                turnInto(else_clause);
-                enter(substatement);
-                break;
-            } else {
-                leave(true);
-                continue;
-            }
+            switch (kind) {
+            case Else:              turnInto(else_clause); enter(substatement); break;
+            default:                leave(true); continue;
+            } break;
+
+        case maybe_catch_or_finally:
+            dump();
+            switch (kind) {
+            case Catch:             turnInto(catch_statement); break;
+            case Finally:           turnInto(finally_statement); break;
+            default:                leave(true); continue;
+            } break;
 
         case else_clause:
             // ### shouldn't happen
@@ -407,6 +414,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             } break;
 
         case switch_statement:
+        case catch_statement:
         case statement_with_condition:
             switch (kind) {
             case LeftParenthesis:   enter(statement_with_condition_paren_open); break;
@@ -420,7 +428,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case RightParenthesis:  turnInto(substatement); break;
             } break;
 
-        case statement_with_block:
+        case try_statement:
+        case finally_statement:
             switch (kind) {
             case LeftBrace:         enter(jsblock_open); break;
             default:                leave(true); break;
@@ -633,6 +642,8 @@ void CodeFormatter::enter(int newState)
     m_currentState.push(s);
     m_newStates.push(s);
 
+    //qDebug() << "enter state" << stateToString(newState);
+
     if (newState == bracket_open)
         enter(bracket_element_start);
 }
@@ -652,10 +663,10 @@ void CodeFormatter::leave(bool statementDone)
 
     int topState = m_currentState.top().type;
 
+    //qDebug() << "left state" << stateToString(poppedState.type) << ", now in state" << stateToString(topState);
+
     // if statement is done, may need to leave recursively
     if (statementDone) {
-        if (!isExpressionEndState(topState))
-            leave(true);
         if (topState == if_statement) {
             if (poppedState.type != maybe_else)
                 enter(maybe_else);
@@ -664,6 +675,15 @@ void CodeFormatter::leave(bool statementDone)
         } else if (topState == else_clause) {
             // leave the else *and* the surrounding if, to prevent another else
             leave();
+            leave(true);
+        } else if (topState == try_statement) {
+            if (poppedState.type != maybe_catch_or_finally
+                    && poppedState.type != finally_statement) {
+                enter(maybe_catch_or_finally);
+            } else {
+                leave(true);
+            }
+        } else if (!isExpressionEndState(topState)) {
             leave(true);
         }
     }
@@ -740,8 +760,7 @@ bool CodeFormatter::tryStatement()
         enter(case_start);
         return true;
     case Try:
-    case Finally:
-        enter(statement_with_block);
+        enter(try_statement);
         return true;
     case LeftBrace:
         enter(jsblock_open);
@@ -787,9 +806,7 @@ bool CodeFormatter::isExpressionEndState(int type) const
             type == topmost_intro ||
             type == top_js ||
             type == objectdefinition_open ||
-            type == if_statement ||
             type == do_statement ||
-            type == else_clause ||
             type == jsblock_open ||
             type == substatement_open ||
             type == bracket_open ||
@@ -988,14 +1005,18 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
 
 void CodeFormatter::dump() const
 {
-    QMetaEnum metaEnum = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("StateType"));
-
     qDebug() << "Current token index" << m_tokenIndex;
     qDebug() << "Current state:";
     foreach (const State &s, m_currentState) {
-        qDebug() << metaEnum.valueToKey(s.type) << s.savedIndentDepth;
+        qDebug() << stateToString(s.type) << s.savedIndentDepth;
     }
     qDebug() << "Current indent depth:" << m_indentDepth;
+}
+
+QString CodeFormatter::stateToString(int type) const
+{
+    const QMetaEnum &metaEnum = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("StateType"));
+    return metaEnum.valueToKey(type);
 }
 
 QtStyleCodeFormatter::QtStyleCodeFormatter()
@@ -1158,7 +1179,9 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
 
     case statement_with_condition:
-    case statement_with_block:
+    case try_statement:
+    case catch_statement:
+    case finally_statement:
     case if_statement:
     case do_statement:
     case switch_statement:
@@ -1176,14 +1199,13 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         }
         break;
 
-    case maybe_else: {
-        // set indent to outermost braceless savedIndent
-        int outermostBraceless = 0;
-        while (isBracelessState(state(outermostBraceless + 1).type))
-            ++outermostBraceless;
-        *indentDepth = state(outermostBraceless).savedIndentDepth;
-        // this is where the else should go, if one appears - aligned to if_statement
-        *savedIndentDepth = state().savedIndentDepth;
+    case maybe_else:
+    case maybe_catch_or_finally: {
+        // set indent to where leave(true) would put it
+        int lastNonEndState = 0;
+        while (!isExpressionEndState(state(lastNonEndState + 1).type))
+            ++lastNonEndState;
+        *indentDepth = state(lastNonEndState).savedIndentDepth;
         break;
     }
 
@@ -1278,7 +1300,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int startLex
 
     case Else:
         if (topState.type == maybe_else) {
-            *indentDepth = topState.savedIndentDepth;
+            *indentDepth = state(1).savedIndentDepth;
         } else if (topState.type == expression_maybe_continuation) {
             bool hasElse = false;
             for (int i = 1; state(i).type != topmost_intro; ++i) {
@@ -1295,6 +1317,12 @@ void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int startLex
                 }
             }
         }
+        break;
+
+    case Catch:
+    case Finally:
+        if (topState.type == maybe_catch_or_finally)
+            *indentDepth = state(1).savedIndentDepth;
         break;
 
     case Colon:

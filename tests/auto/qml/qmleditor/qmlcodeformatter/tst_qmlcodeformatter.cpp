@@ -61,6 +61,11 @@ private Q_SLOTS:
     void ifBinding1();
     void ifBinding2();
     void ifBinding3();
+    void withBinding();
+    void tryBinding1();
+    void tryBinding2();
+    void tryBinding3();
+    void switchBinding();
     void ifStatementWithoutBraces1();
     void ifStatementWithoutBraces2();
     void ifStatementWithoutBraces3();
@@ -98,7 +103,6 @@ private Q_SLOTS:
     void labelledStatements3();
     void json1();
     void multilineTernaryInProperty();
-    void bug1();
     void multilineString();
     void bug1();
 };
@@ -535,6 +539,108 @@ void tst_QMLCodeFormatter::ifBinding3()
          << Line("    x: 1")
          << Line("}")
          ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::withBinding()
+{
+    QList<Line> data;
+    data << Line("Rectangle {")
+         << Line("    foo: with(pos) { x }")
+         << Line("    foo: with(pos) {")
+         << Line("             x")
+         << Line("         }")
+         << Line("    foo: 12")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::tryBinding1()
+{
+    QList<Line> data;
+    data << Line("Rectangle {")
+         << Line("    foo: try { x } finally { y }")
+         << Line("    foo: try {")
+         << Line("             x")
+         << Line("         } finally {")
+         << Line("             y")
+         << Line("         }")
+         << Line("    foo: try {")
+         << Line("             x")
+         << Line("         }")
+         << Line("         finally {")
+         << Line("             y")
+         << Line("         }")
+         << Line("    foo: 12")
+         << Line("}")
+            ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::tryBinding2()
+{
+    QList<Line> data;
+    data << Line("Rectangle {")
+         << Line("    foo: try { x } catch (x) { y }")
+         << Line("    foo: try {")
+         << Line("             x")
+         << Line("         } catch (e) {")
+         << Line("             e")
+         << Line("         }")
+         << Line("    foo: try {")
+         << Line("             x")
+         << Line("         }")
+         << Line("         catch (e) {")
+         << Line("             e")
+         << Line("         }")
+         << Line("    foo: 12")
+         << Line("}")
+            ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::tryBinding3()
+{
+    QList<Line> data;
+    data << Line("Rectangle {")
+         << Line("    foo: try { x } catch (x) { y } finally { z }")
+         << Line("    foo: try {")
+         << Line("             x")
+         << Line("         } catch (e) {")
+         << Line("             e")
+         << Line("         } finally {")
+         << Line("             z")
+         << Line("         }")
+         << Line("    foo: try {")
+         << Line("             x")
+         << Line("         }")
+         << Line("         catch (e) {")
+         << Line("             e")
+         << Line("         }")
+         << Line("         finally {")
+         << Line("             z")
+         << Line("         }")
+         << Line("    foo: 12")
+         << Line("}")
+            ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::switchBinding()
+{
+    QList<Line> data;
+    data << Line("Rectangle {")
+         << Line("    foo: switch (a) {")
+         << Line("         case 1:")
+         << Line("             x; break")
+         << Line("         case 2:")
+         << Line("         case 3:")
+         << Line("             return y")
+         << Line("         }")
+         << Line("    foo: 12")
+         << Line("}")
+            ;
     checkIndent(data);
 }
 
@@ -1296,20 +1402,6 @@ void tst_QMLCodeFormatter::multilineTernaryInProperty()
          << Line("         : 3 +")
          << Line("           4")
          << Line("    ba: 1")
-         << Line("}")
-         ;
-    checkIndent(data);
-}
-
-void tst_QMLCodeFormatter::bug1()
-{
-    QList<Line> data;
-    data << Line("Item {")
-         << Line("    x: {")
-         << Line("        if (a==a) {}")
-         << Line("        else (b==b) {}")
-         << Line("        foo()")
-         << Line("    }")
          << Line("}")
          ;
     checkIndent(data);
