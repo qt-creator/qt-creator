@@ -310,8 +310,14 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
                 ? e.displayName() + QLatin1Char('*')
                 : e.displayName();
     case Qt::DecorationRole:
-        return (e.editor && e.editor->file()->isReadOnly())
-                ? d->m_lockedIcon : QIcon();
+    {
+        bool readOnly = false;
+        if (e.editor)
+            readOnly = e.editor->file()->isReadOnly();
+        else
+            readOnly = !QFileInfo(e.m_fileName).isWritable();
+        return readOnly ? d->m_lockedIcon : QIcon();
+    }
     case Qt::ToolTipRole:
         return e.fileName().isEmpty()
                 ? e.displayName()
