@@ -386,8 +386,12 @@ void OutputPaneManager::slotHide()
             m_buttons.value(idx)->setChecked(false);
         if (m_pageMap.value(idx))
             m_pageMap.value(idx)->visibilityChanged(false);
-        if (IEditor *editor = Core::EditorManager::instance()->currentEditor())
-            editor->widget()->setFocus();
+        if (IEditor *editor = Core::EditorManager::instance()->currentEditor()) {
+            QWidget *w = editor->widget()->focusWidget();
+            if (!w)
+                w = editor->widget();
+            w->setFocus();
+        }
     }
 }
 

@@ -221,7 +221,10 @@ void CurrentDocumentFind::clearFindSupport()
 bool CurrentDocumentFind::setFocusToCurrentFindSupport()
 {
     if (m_currentFind && m_currentWidget) {
-        m_currentWidget->setFocus();
+        QWidget *w = m_currentWidget->focusWidget();
+        if (!w)
+            w = m_currentWidget;
+        w->setFocus();
         return true;
     }
     return false;
