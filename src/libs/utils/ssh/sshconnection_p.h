@@ -137,6 +137,7 @@ private:
     void handleChannelClose();
     void handleDisconnect();
     bool canUseSocket() const;
+    void createPrivateKey();
 
     void sendData(const QByteArray &data);
 
