@@ -43,30 +43,6 @@
 namespace QmlJSEditor {
 namespace Internal {
 
-struct SemanticInfoUpdaterSource
-{
-    QmlJS::Document::Ptr document;
-    QmlJS::Snapshot snapshot;
-
-    SemanticInfoUpdaterSource()
-    { }
-
-    SemanticInfoUpdaterSource(const QmlJS::Document::Ptr &document,
-                              const QmlJS::Snapshot &snapshot)
-        : document(document)
-        , snapshot(snapshot)
-    { }
-
-    bool isValid() const
-    { return document; }
-
-    void clear()
-    {
-        document.clear();
-        snapshot = QmlJS::Snapshot();
-    }
-};
-
 class SemanticInfoUpdater: public QThread
 {
     Q_OBJECT
@@ -76,7 +52,8 @@ public:
     virtual ~SemanticInfoUpdater();
 
     void abort();
-    void update(const SemanticInfoUpdaterSource &source);
+    void update(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot);
+    void reupdate(const QmlJS::Snapshot &snapshot);
 
 Q_SIGNALS:
     void updated(const QmlJSEditor::SemanticInfo &semanticInfo);
@@ -85,13 +62,14 @@ protected:
     virtual void run();
 
 private:
-    SemanticInfo makeNewSemanticInfo(const SemanticInfoUpdaterSource &source);
+    SemanticInfo makeNewSemanticInfo(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot);
 
 private:
     QMutex m_mutex;
     QWaitCondition m_condition;
     bool m_wasCancelled;
-    SemanticInfoUpdaterSource m_source;
+    QmlJS::Document::Ptr m_sourceDocument;
+    QmlJS::Snapshot m_sourceSnapshot;
     SemanticInfo m_lastSemanticInfo;
 };
 

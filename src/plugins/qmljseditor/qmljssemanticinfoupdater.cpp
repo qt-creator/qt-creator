@@ -59,10 +59,19 @@ void SemanticInfoUpdater::abort()
     m_condition.wakeOne();
 }
 
-void SemanticInfoUpdater::update(const SemanticInfoUpdaterSource &source)
+void SemanticInfoUpdater::update(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot)
 {
     QMutexLocker locker(&m_mutex);
-    m_source = source;
+    m_sourceDocument = doc;
+    m_sourceSnapshot = snapshot;
+    m_condition.wakeOne();
+}
+
+void SemanticInfoUpdater::reupdate(const QmlJS::Snapshot &snapshot)
+{
+    QMutexLocker locker(&m_mutex);
+    m_sourceDocument = m_lastSemanticInfo.document;
+    m_sourceSnapshot = snapshot;
     m_condition.wakeOne();
 }
 
@@ -73,22 +82,24 @@ void SemanticInfoUpdater::run()
     forever {
         m_mutex.lock();
 
-        while (! (m_wasCancelled || m_source.isValid()))
+        while (! (m_wasCancelled || m_sourceDocument))
             m_condition.wait(&m_mutex);
 
         const bool done = m_wasCancelled;
-        const SemanticInfoUpdaterSource source = m_source;
-        m_source.clear();
+        QmlJS::Document::Ptr doc = m_sourceDocument;
+        QmlJS::Snapshot snapshot = m_sourceSnapshot;
+        m_sourceDocument.clear();
+        m_sourceSnapshot = QmlJS::Snapshot();
 
         m_mutex.unlock();
 
         if (done)
             break;
 
-        const SemanticInfo info = makeNewSemanticInfo(source);
+        const SemanticInfo info = makeNewSemanticInfo(doc, snapshot);
 
         m_mutex.lock();
-        const bool cancelledOrNewData = m_wasCancelled || m_source.isValid();
+        const bool cancelledOrNewData = m_wasCancelled || m_sourceDocument;
         m_mutex.unlock();
 
         if (! cancelledOrNewData) {
@@ -98,13 +109,13 @@ void SemanticInfoUpdater::run()
     }
 }
 
-SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const SemanticInfoUpdaterSource &source)
+SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const QmlJS::Document::Ptr &doc, const QmlJS::Snapshot &snapshot)
 {
     using namespace QmlJS;
 
     SemanticInfo semanticInfo;
-    const Document::Ptr &doc = semanticInfo.document = source.document;
-    semanticInfo.snapshot = source.snapshot;
+    semanticInfo.document = doc;
+    semanticInfo.snapshot = snapshot;
 
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 

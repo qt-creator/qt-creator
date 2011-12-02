@@ -658,6 +658,7 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     m_outlineCombo(0),
     m_outlineModel(new QmlOutlineModel(this)),
     m_modelManager(0),
+    m_futureSemanticInfoRevision(0),
     m_contextPane(0),
     m_updateSelectedElements(false),
     m_findReferences(new FindReferences(this)),
@@ -891,7 +892,7 @@ void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
     if (file()->fileName() != doc->fileName())
         return;
 
-    if (doc->editorRevision() != document()->revision()) {
+    if (doc->editorRevision() != editorRevision()) {
         // Maybe a dependency changed and our semantic info is now outdated.
         // Ignore 0-revision documents though, we get them when a file is initially opened
         // in an editor.
@@ -904,7 +905,8 @@ void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 
     if (doc->ast()) {
         // got a correctly parsed (or recovered) file.
-        m_semanticInfoUpdater->update(SemanticInfoUpdaterSource(doc, m_modelManager->snapshot()));
+        m_futureSemanticInfoRevision = doc->editorRevision();
+        m_semanticInfoUpdater->update(doc, m_modelManager->snapshot());
     } else {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
@@ -1533,9 +1535,9 @@ void QmlJSTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
 
 void QmlJSTextEditorWidget::updateSemanticInfo()
 {
-    // If the document is already out of date, new semantic infos
+    // If the editor is newer than the future semantic info, new semantic infos
     // won't be accepted anyway. What we need is a reparse.
-    if (isSemanticInfoOutdated())
+    if (editorRevision() != m_futureSemanticInfoRevision)
         return;
 
     // Save time by not doing it for non-active editors.
@@ -1548,20 +1550,19 @@ void QmlJSTextEditorWidget::updateSemanticInfo()
 
 void QmlJSTextEditorWidget::updateSemanticInfoNow()
 {
-    // If the document is already out of date, new semantic infos
+    // If the editor is newer than the future semantic info, new semantic infos
     // won't be accepted anyway. What we need is a reparse.
-    if (isSemanticInfoOutdated())
+    if (editorRevision() != m_futureSemanticInfoRevision)
         return;
 
     m_updateSemanticInfoTimer->stop();
 
-    m_semanticInfoUpdater->update(
-                SemanticInfoUpdaterSource(m_semanticInfo.document, m_semanticInfo.snapshot));
+    m_semanticInfoUpdater->reupdate(m_modelManager->snapshot());
 }
 
 void QmlJSTextEditorWidget::acceptNewSemanticInfo(const SemanticInfo &semanticInfo)
 {
-    if (semanticInfo.document->editorRevision() != document()->revision()) {
+    if (semanticInfo.revision() != editorRevision()) {
         // ignore outdated semantic infos
         return;
     }

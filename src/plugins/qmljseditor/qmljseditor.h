@@ -245,6 +245,7 @@ private:
 
     Internal::SemanticInfoUpdater *m_semanticInfoUpdater;
     SemanticInfo m_semanticInfo;
+    int m_futureSemanticInfoRevision;
 
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
 
