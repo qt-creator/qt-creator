@@ -226,6 +226,11 @@ MainWindow::MainWindow() :
      //signal(SIGINT, handleSigInt);
 #endif
 
+#ifdef Q_WS_MAC
+    extern void enableMacFullScreen(WId);
+    enableMacFullScreen(winId());
+#endif
+
     statusBar()->setProperty("p_styled", true);
     setAcceptDrops(true);
 }
