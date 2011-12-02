@@ -110,7 +110,6 @@ public slots:
     void updateUiForRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void updateUiForCurrentRunConfiguration();
     void updateActiveLanguages();
-    void updateUiOnFileListChange();
     void updateDockWidgetSettings();
     void openMemoryEditor() { debuggerCore()->openMemoryEditor(); }
 
@@ -163,12 +162,6 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     addLanguage(QmlLanguage, Context(C_QMLDEBUGGER));
 }
 
-void DebuggerMainWindowPrivate::updateUiOnFileListChange()
-{
-    if (m_previousProject)
-        updateUiForTarget(m_previousProject->activeTarget());
-}
-
 void DebuggerMainWindowPrivate::updateUiForProject(Project *project)
 {
     if (m_previousProject) {
@@ -181,8 +174,6 @@ void DebuggerMainWindowPrivate::updateUiForProject(Project *project)
         updateUiForTarget(0);
         return;
     }
-    connect(project, SIGNAL(fileListChanged()),
-        SLOT(updateUiOnFileListChange()));
     connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
         SLOT(updateUiForTarget(ProjectExplorer::Target*)));
     updateUiForTarget(project->activeTarget());
