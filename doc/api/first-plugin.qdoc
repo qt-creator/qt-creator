@@ -304,6 +304,9 @@
     setup of plugin's that it depends on has been done, for example the Core plugin's
     \c{ActionManager} instance has been created.
 
+    For more information about implementing the plugin interface, see the
+    \l{ExtensionSystem::IPlugin} API documentation and \l{Plugin Life Cycle}.
+
     \snippet exampleplugin/exampleplugin.cpp add action
 
     This part of the code creates a new \c{QAction}, registers it as a new
