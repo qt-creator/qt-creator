@@ -514,6 +514,7 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     , _scopeBuilder(&_scopeChain)
     , _lastValue(0)
     , _importsOk(false)
+    , _inStatementBinding(false)
 {
     const Imports *imports = context->imports(doc.data());
     if (imports && !imports->importFailed())
@@ -736,7 +737,9 @@ bool Check::visit(UiScriptBinding *ast)
 
     Node::accept(ast->qualifiedId, this);
     _scopeBuilder.push(ast);
+    _inStatementBinding = true;
     Node::accept(ast->statement, this);
+    _inStatementBinding = false;
     _scopeBuilder.pop();
 
     return false;
@@ -791,7 +794,9 @@ bool Check::visit(UiPublicMember *ast)
         checkBindingRhs(ast->statement);
 
         _scopeBuilder.push(ast);
+        _inStatementBinding = true;
         Node::accept(ast->statement, this);
+        _inStatementBinding = false;
         Node::accept(ast->binding, this);
         _scopeBuilder.pop();
     }
@@ -866,9 +871,14 @@ bool Check::visit(FunctionExpression *ast)
     addMessages(unreachableCheck(ast->body));
 
     Node::accept(ast->formals, this);
+
+    const bool wasInStatementBinding = _inStatementBinding;
+    _inStatementBinding = false;
     _scopeBuilder.push(ast);
     Node::accept(ast->body, this);
     _scopeBuilder.pop();
+    _inStatementBinding = wasInStatementBinding;
+
     return false;
 }
 
@@ -1027,20 +1037,7 @@ bool Check::visit(ExpressionStatement *ast)
             }
         }
         if (!ok) {
-            for (int i = 0; Node *p = parent(i); ++i) {
-                if (UiScriptBinding *binding = cast<UiScriptBinding *>(p)) {
-                    if (!cast<Block *>(binding->statement)) {
-                        ok = true;
-                        break;
-                    }
-                }
-                if (UiPublicMember *member = cast<UiPublicMember *>(p)) {
-                    if (!cast<Block *>(member->statement)) {
-                        ok = true;
-                        break;
-                    }
-                }
-            }
+            ok = _inStatementBinding;
         }
 
         if (!ok) {

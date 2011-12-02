@@ -148,6 +148,7 @@ private:
     QHash< int, QList<MessageTypeAndSuppression> > m_disabledMessageTypesByLine;
 
     bool _importsOk;
+    bool _inStatementBinding;
 };
 
 } // namespace QmlJS

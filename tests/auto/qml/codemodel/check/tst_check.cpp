@@ -154,15 +154,15 @@ void tst_Check::test()
     }
 
     for (int i = 0; i < messages.size(); ++i) {
-        Message expected;
-        if (i < expectedMessages.size())
-            expected = expectedMessages.at(i);
+        if (i >= expectedMessages.size())
+            break;
         Message actual = messages.at(i);
+        Message expected = expectedMessages.at(i);
         bool fail = false;
         fail |= !QCOMPARE_NOEXIT(actual.location.startLine, expected.location.startLine);
+        fail |= !QCOMPARE_NOEXIT((int)actual.type, (int)expected.type);
         if (fail)
             return;
-        fail |= !QCOMPARE_NOEXIT((int)actual.type, (int)expected.type);
         fail |= !QCOMPARE_NOEXIT(actual.location.startColumn, expected.location.startColumn);
         fail |= !QCOMPARE_NOEXIT(actual.location.offset, expected.location.offset);
         fail |= !QCOMPARE_NOEXIT(actual.location.length, expected.location.length);
@@ -177,6 +177,13 @@ void tst_Check::test()
             qDebug() << "expected message of type" << missingMessage.type << "on line" << missingMessage.location.startLine;
         }
         QFAIL("more messages expected");
+    }
+    if (expectedMessages.size() < messages.size()) {
+        for (int i = expectedMessages.size(); i < messages.size(); ++i) {
+            Message extraMessage = messages.at(i);
+            qDebug() << "unexpected message of type" << extraMessage.type << "on line" << extraMessage.location.startLine;
+        }
+        QFAIL("fewer messages expected");
     }
 }
 

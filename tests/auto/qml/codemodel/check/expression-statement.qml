@@ -10,4 +10,17 @@ Rectangle {
         a += 12
         d().foo // 127 9 15
     }
+    x: a + b
+    y: { a + b }
+    z: if (a)
+           b
+       else
+           c
+    width: {
+        function foo() {
+            a // 127 13 13
+        }
+        foo()
+        a
+    }
 }
