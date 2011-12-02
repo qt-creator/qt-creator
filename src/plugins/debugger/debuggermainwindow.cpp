@@ -138,9 +138,9 @@ public:
 
     ActionContainer *m_viewsMenu;
 
-    QWeakPointer<Project> m_previousProject;
-    QWeakPointer<Target> m_previousTarget;
-    QWeakPointer<RunConfiguration> m_previousRunConfiguration;
+    Project *m_previousProject;
+    Target *m_previousTarget;
+    RunConfiguration *m_previousRunConfiguration;
 };
 
 DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
@@ -154,6 +154,9 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     , m_activeDebugLanguages(AnyLanguage)
     , m_engineDebugLanguages(AnyLanguage)
     , m_viewsMenu(0)
+    , m_previousProject(0)
+    , m_previousTarget(0)
+    , m_previousRunConfiguration(0)
 {
     createViewsMenuItems();
     addLanguage(CppLanguage, Context(C_CPPDEBUGGER));
@@ -163,19 +166,21 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
 void DebuggerMainWindowPrivate::updateUiOnFileListChange()
 {
     if (m_previousProject)
-        updateUiForTarget(m_previousProject.data()->activeTarget());
+        updateUiForTarget(m_previousProject->activeTarget());
 }
 
 void DebuggerMainWindowPrivate::updateUiForProject(Project *project)
 {
-    if (!project)
-        return;
     if (m_previousProject) {
-        disconnect(m_previousProject.data(),
+        disconnect(m_previousProject,
             SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(updateUiForTarget(ProjectExplorer::Target*)));
     }
     m_previousProject = project;
+    if (!project) {
+        updateUiForTarget(0);
+        return;
+    }
     connect(project, SIGNAL(fileListChanged()),
         SLOT(updateUiOnFileListChange()));
     connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
@@ -185,15 +190,19 @@ void DebuggerMainWindowPrivate::updateUiForProject(Project *project)
 
 void DebuggerMainWindowPrivate::updateUiForTarget(Target *target)
 {
-    if (!target)
-        return;
-
     if (m_previousTarget) {
-         disconnect(m_previousTarget.data(),
+         disconnect(m_previousTarget,
             SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(updateUiForRunConfiguration(ProjectExplorer::RunConfiguration*)));
     }
+
     m_previousTarget = target;
+
+    if (!target) {
+        updateUiForRunConfiguration(0);
+        return;
+    }
+
     connect(target,
         SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
         SLOT(updateUiForRunConfiguration(ProjectExplorer::RunConfiguration*)));
@@ -203,16 +212,16 @@ void DebuggerMainWindowPrivate::updateUiForTarget(Target *target)
 // updates default debug language settings per run config.
 void DebuggerMainWindowPrivate::updateUiForRunConfiguration(RunConfiguration *rc)
 {
-    if (!rc)
-        return;
     if (m_previousRunConfiguration)
-        disconnect(m_previousRunConfiguration.data(), SIGNAL(debuggersChanged()),
+        disconnect(m_previousRunConfiguration, SIGNAL(debuggersChanged()),
                    this, SLOT(updateUiForCurrentRunConfiguration()));
     m_previousRunConfiguration = rc;
-    connect(m_previousRunConfiguration.data(),
+    updateUiForCurrentRunConfiguration();
+    if (!rc)
+        return;
+    connect(m_previousRunConfiguration,
             SIGNAL(debuggersChanged()),
             SLOT(updateUiForCurrentRunConfiguration()));
-    updateUiForCurrentRunConfiguration();
 }
 
 void DebuggerMainWindowPrivate::updateUiForCurrentRunConfiguration()
@@ -228,9 +237,9 @@ void DebuggerMainWindowPrivate::updateActiveLanguages()
         newLanguages = m_engineDebugLanguages;
     else {
         if (m_previousRunConfiguration) {
-            if (m_previousRunConfiguration.data()->useCppDebugger())
+            if (m_previousRunConfiguration->useCppDebugger())
                 newLanguages |= CppLanguage;
-            if (m_previousRunConfiguration.data()->useQmlDebugger())
+            if (m_previousRunConfiguration->useQmlDebugger())
                 newLanguages |= QmlLanguage;
         }
     }
