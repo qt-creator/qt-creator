@@ -15,7 +15,8 @@ HEADERS += locatorplugin.h \
     directoryfilter.h \
     locatormanager.h \
     basefilefilter.h \
-    locator_global.h
+    locator_global.h \
+    executefilter.h
 SOURCES += locatorplugin.cpp \
     commandlocator.cpp \
     locatorwidget.cpp \
@@ -26,7 +27,8 @@ SOURCES += locatorplugin.cpp \
     directoryfilter.cpp \
     locatormanager.cpp \
     basefilefilter.cpp \
-    ilocatorfilter.cpp
+    ilocatorfilter.cpp \
+    executefilter.cpp
 
 FORMS += settingspage.ui \
     filesystemfilter.ui \

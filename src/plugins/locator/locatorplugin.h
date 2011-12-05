@@ -35,6 +35,7 @@
 
 #include "ilocatorfilter.h"
 #include "directoryfilter.h"
+#include "executefilter.h"
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/actionmanager/command.h>
@@ -95,6 +96,7 @@ private:
     QTimer m_refreshTimer;
     OpenDocumentsFilter *m_openDocumentsFilter;
     FileSystemFilter *m_fileSystemFilter;
+    ExecuteFilter *m_executeFilter;
     QFutureWatcher<void> m_loadWatcher;
 };
 
