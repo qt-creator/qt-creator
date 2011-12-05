@@ -117,7 +117,7 @@ public:
         }
         m_view->setCurrentIndex(m_incrementalFindStart);
         bool wrapped = false;
-        IFindSupport::Result result = find(txt, findFlags, &wrapped);
+        IFindSupport::Result result = find(txt, findFlags, true/*startFromCurrent*/, &wrapped);
         if (wrapped != m_incrementalWrappedState) {
             m_incrementalWrappedState = wrapped;
             showWrapIndicator(m_view);
@@ -128,7 +128,7 @@ public:
     IFindSupport::Result findStep(const QString &txt, Find::FindFlags findFlags)
     {
         bool wrapped = false;
-        IFindSupport::Result result = find(txt, findFlags, &wrapped);
+        IFindSupport::Result result = find(txt, findFlags, false/*startFromNext*/, &wrapped);
         if (wrapped)
             showWrapIndicator(m_view);
         if (result == IFindSupport::Found) {
@@ -138,7 +138,8 @@ public:
         return result;
     }
 
-    IFindSupport::Result find(const QString &txt, Find::FindFlags findFlags, bool *wrapped)
+    IFindSupport::Result find(const QString &txt, Find::FindFlags findFlags,
+                              bool startFromCurrentIndex, bool *wrapped)
     {
         if (wrapped)
             *wrapped = false;
@@ -150,11 +151,13 @@ public:
             index = m_view->model()->find(QRegExp(txt, (sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive)),
                                           m_view->currentIndex(),
                                           Find::textDocumentFlagsForFindFlags(findFlags),
+                                          startFromCurrentIndex,
                                           wrapped);
         } else {
             index = m_view->model()->find(txt,
                                           m_view->currentIndex(),
                                           Find::textDocumentFlagsForFindFlags(findFlags),
+                                          startFromCurrentIndex,
                                           wrapped);
         }
         if (index.isValid()) {
