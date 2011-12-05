@@ -70,7 +70,7 @@ public:
                         data(LineRole).toInt() < other.data(LineRole).toInt() :
                         data(FilenameRole).toString() < other.data(FilenameRole).toString();
             } else {
-                return data().toString() < other.data().toString();
+                return data().toString().toLower() < other.data().toString().toLower();
             }
         }
 
@@ -196,8 +196,6 @@ public:
     void buildModelFromList(const QmlEventDescriptions &list, QStandardItem *parentItem, const QmlEventDescriptions &visitedFunctionsList = QmlEventDescriptions() );
     void buildV8ModelFromList( const QV8EventDescriptions &list );
     int getFieldCount();
-    QString displayTime(double time) const;
-    QString nameForType(int typeNumber) const;
 
     QString textForItem(QStandardItem *item, bool recursive) const;
 
@@ -282,8 +280,6 @@ void QmlProfilerEventsMainView::setViewType(ViewTypes type)
         setFieldViewable(MinTime, true);
         setFieldViewable(MedianTime, true);
         setFieldViewable(Details, true);
-        setFieldViewable(Parents, false);
-        setFieldViewable(Children, false);
         break;
     }
     case V8ProfileView: {
@@ -300,8 +296,6 @@ void QmlProfilerEventsMainView::setViewType(ViewTypes type)
         setFieldViewable(MinTime, false);
         setFieldViewable(MedianTime, false);
         setFieldViewable(Details, true);
-        setFieldViewable(Parents, false);
-        setFieldViewable(Children, false);
         break;
     }
     default: break;
@@ -358,7 +352,7 @@ int QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::getFieldCount()
 {
     int count = 0;
     for (int i=0; i < m_fieldShown.count(); ++i)
-        if (m_fieldShown[i] && i != Parents && i != Children)
+        if (m_fieldShown[i])
             count++;
     return count;
 }
@@ -372,13 +366,9 @@ void QmlProfilerEventsMainView::buildModel()
         else
             d->buildModelFromList( d->m_eventStatistics->getEventDescriptions(), d->m_model->invisibleRootItem() );
 
-        bool hasBranches = d->m_fieldShown[Parents] || d->m_fieldShown[Children];
-        setRootIsDecorated(hasBranches);
-
+        setRootIsDecorated(false);
         setSortingEnabled(true);
-
-        if (!hasBranches)
-            sortByColumn(d->m_firstNumericColumn,Qt::DescendingOrder);
+        sortByColumn(d->m_firstNumericColumn,Qt::DescendingOrder);
 
         expandAll();
         if (d->m_fieldShown[Name])
@@ -415,8 +405,8 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
         }
 
         if (m_fieldShown[TotalDuration]) {
-            newRow << new EventsViewItem(displayTime(binding->cumulatedDuration));
-            newRow.last()->setData(QVariant(binding->cumulatedDuration));
+            newRow << new EventsViewItem(displayTime(binding->duration));
+            newRow.last()->setData(QVariant(binding->duration));
         }
 
         if (m_fieldShown[CallCount]) {
@@ -457,27 +447,13 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
                 item->setEditable(false);
 
             // metadata
-            newRow.at(0)->setData(QVariant(binding->location),LocationRole);
+            newRow.at(0)->setData(QVariant(binding->eventHashStr),EventHashStrRole);
             newRow.at(0)->setData(QVariant(binding->filename),FilenameRole);
             newRow.at(0)->setData(QVariant(binding->line),LineRole);
             newRow.at(0)->setData(QVariant(binding->eventId),EventIdRole);
 
             // append
             parentItem->appendRow(newRow);
-
-            if (m_fieldShown[Parents] && !binding->parentList.isEmpty()) {
-                QmlEventDescriptions newParentList(visitedFunctionsList);
-                newParentList.append(binding);
-
-                buildModelFromList(binding->parentList, newRow.at(0), newParentList);
-            }
-
-            if (m_fieldShown[Children] && !binding->childrenList.isEmpty()) {
-                QmlEventDescriptions newChildrenList(visitedFunctionsList);
-                newChildrenList.append(binding);
-
-                buildModelFromList(binding->childrenList, newRow.at(0), newChildrenList);
-            }
         }
     }
 }
@@ -523,9 +499,10 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildV8ModelFr
                 item->setEditable(false);
 
             // metadata
-            newRow.at(0)->setData(QVariant(v8event->filename),FilenameRole);
-            newRow.at(0)->setData(QVariant(v8event->line),LineRole);
-            newRow.at(0)->setData(QVariant(v8event->eventId),EventIdRole);
+            newRow.at(0)->setData(QString("%1:%2").arg(v8event->filename, QString::number(v8event->line)), EventHashStrRole);
+            newRow.at(0)->setData(QVariant(v8event->filename), FilenameRole);
+            newRow.at(0)->setData(QVariant(v8event->line), LineRole);
+            newRow.at(0)->setData(QVariant(v8event->eventId), EventIdRole);
 
             // append
             m_model->invisibleRootItem()->appendRow(newRow);
@@ -533,14 +510,14 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildV8ModelFr
     }
 }
 
-QString QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::displayTime(double time) const
+QString QmlProfilerEventsMainView::displayTime(double time)
 {
     if (time < 1e6)
-        return QString::number(time/1e3,'f',3) + QString::fromWCharArray(L" \u03BCs");
+        return QString::number(time/1e3,'f',3) + trUtf8(" \u03BCs");
     if (time < 1e9)
-        return QString::number(time/1e6,'f',3) + QLatin1String(" ms");
+        return QString::number(time/1e6,'f',3) + tr(" ms");
 
-    return QString::number(time/1e9,'f',3) + QLatin1String(" s");
+    return QString::number(time/1e9,'f',3) + tr(" s");
 }
 
 QString QmlProfilerEventsMainView::nameForType(int typeNumber)
@@ -719,24 +696,36 @@ void QmlProfilerEventsParentsAndChildrenView::displayEvent(int eventId)
     if (isV8) {
         QmlJsDebugClient::QV8EventData *v8event = m_eventList->v8EventDescription(eventId);
         if (v8event) {
-            if (isChildren)
-                rebuildTree((QObject *)&v8event->childrenList);
-            else
-                rebuildTree((QObject *)&v8event->parentList);
+            if (isChildren) {
+                QList <QmlJsDebugClient::QV8EventSub *> childrenList = v8event->childrenHash.values();
+                rebuildTree((QObject *)&childrenList);
+            }
+            else {
+                QList <QmlJsDebugClient::QV8EventSub *> parentList = v8event->parentHash.values();
+                rebuildTree((QObject *)&parentList);
+            }
         }
     } else {
         QmlJsDebugClient::QmlEventData *qmlEvent = m_eventList->eventDescription(eventId);
         if (qmlEvent) {
-            if (isChildren)
-                rebuildTree((QObject *)&qmlEvent->childrenList);
-            else
-                rebuildTree((QObject *)&qmlEvent->parentList);
+            if (isChildren) {
+                QList <QmlJsDebugClient::QmlEventSub *> childrenList = qmlEvent->childrenHash.values();
+                rebuildTree((QObject *)&childrenList);
+            }
+            else {
+                QList <QmlJsDebugClient::QmlEventSub *> parentList = qmlEvent->parentHash.values();
+                rebuildTree((QObject *)&parentList);
+            }
         }
     }
 
     updateHeader();
     resizeColumnToContents(0);
     setSortingEnabled(true);
+    if (isV8)
+        sortByColumn(1);
+    else
+        sortByColumn(2);
 }
 
 void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *eventList)
@@ -747,8 +736,8 @@ void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *eventList)
     QStandardItem *topLevelItem = treeModel()->invisibleRootItem();
     bool isV8 = m_subtableType == V8ParentsView || m_subtableType == V8ChildrenView;
 
-    QList <QmlEventData *> *qmlList = static_cast< QList <QmlEventData *> *>(eventList);
-    QList <QV8EventData *> *v8List = static_cast< QList <QV8EventData *> *>(eventList);
+    QList <QmlEventSub *> *qmlList = static_cast< QList <QmlEventSub *> *>(eventList);
+    QList <QV8EventSub*> *v8List = static_cast< QList <QV8EventSub *> *>(eventList);
 
     int listLength;
     if (!isV8)
@@ -759,17 +748,23 @@ void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *eventList)
     for (int index=0; index < listLength; index++) {
         QList<QStandardItem *> newRow;
         if (!isV8) {
-            QmlEventData *event = qmlList->at(index);
+            QmlEventSub *event = qmlList->at(index);
 
-            newRow << new QStandardItem(event->displayname);
-            newRow << new QStandardItem(QmlProfilerEventsMainView::nameForType(event->eventType));
-            newRow << new QStandardItem(event->details);
-            newRow.at(0)->setData(QVariant(event->eventId), EventIdRole);
+            newRow << new EventsViewItem(event->reference->displayname);
+            newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(event->reference->eventType));
+            newRow << new EventsViewItem(QmlProfilerEventsMainView::displayTime(event->duration));
+            newRow << new EventsViewItem(QString::number(event->calls));
+            newRow << new EventsViewItem(event->reference->details);
+            newRow.at(0)->setData(QVariant(event->reference->eventId), EventIdRole);
+            newRow.at(2)->setData(QVariant(event->duration));
+            newRow.at(3)->setData(QVariant(event->calls));
         } else {
-            QV8EventData *event = v8List->at(index);
-            newRow << new QStandardItem(event->displayName);
-            newRow << new QStandardItem(event->functionName);
-            newRow.at(0)->setData(QVariant(event->eventId), EventIdRole);
+            QV8EventSub *event = v8List->at(index);
+            newRow << new EventsViewItem(event->reference->displayName);
+            newRow << new EventsViewItem(QmlProfilerEventsMainView::displayTime(event->totalTime));
+            newRow << new EventsViewItem(event->reference->functionName);
+            newRow.at(0)->setData(QVariant(event->reference->eventId), EventIdRole);
+            newRow.at(1)->setData(QVariant(event->totalTime));
         }
         foreach (QStandardItem *item, newRow)
             item->setEditable(false);
@@ -797,9 +792,9 @@ void QmlProfilerEventsParentsAndChildrenView::updateHeader()
 
     if (treeModel()) {
         if (isV8)
-            treeModel()->setColumnCount(2);
-        else
             treeModel()->setColumnCount(3);
+        else
+            treeModel()->setColumnCount(5);
 
         int columnIndex = 0;
         if (isChildren)
@@ -809,6 +804,11 @@ void QmlProfilerEventsParentsAndChildrenView::updateHeader()
 
         if (!isV8)
             treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Type")));
+
+        treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Total Time")));
+
+        if (!isV8)
+            treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Calls")));
 
         if (isChildren)
             treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(tr("Callee Description")));

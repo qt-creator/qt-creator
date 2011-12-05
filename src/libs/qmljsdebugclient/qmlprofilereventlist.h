@@ -41,18 +41,23 @@
 
 namespace QmlJsDebugClient {
 
+struct QmlEventSub;
+struct QV8EventSub;
+
 struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
 {
-    QmlEventData():line(-1),cumulatedDuration(0),calls(0),eventId(-1){}
+    QmlEventData();
+    ~QmlEventData();
+
     QString displayname;
     QString filename;
-    QString location;
+    QString eventHashStr;
     QString details;
     int line;
     QmlJsDebugClient::QmlEventType eventType;
-    QList< QmlEventData *> parentList;
-    QList< QmlEventData *> childrenList;
-    qint64 cumulatedDuration;
+    QHash <QString, QmlEventSub *> parentHash;
+    QHash <QString, QmlEventSub *> childrenHash;
+    qint64 duration;
     qint64 calls;
     qint64 minTime;
     qint64 maxTime;
@@ -60,10 +65,23 @@ struct QMLJSDEBUGCLIENT_EXPORT QmlEventData
     double percentOfTime;
     qint64 medianTime;
     int eventId;
+
+    QmlEventData &operator=(const QmlEventData &ref);
+};
+
+struct QMLJSDEBUGCLIENT_EXPORT QmlEventSub {
+    QmlEventSub(QmlEventData *from) : reference(from), duration(0), calls(0) {}
+    QmlEventSub(QmlEventSub *from) : reference(from->reference), duration(from->duration), calls(from->calls) {}
+    QmlEventData *reference;
+    qint64 duration;
+    qint64 calls;
 };
 
 struct QMLJSDEBUGCLIENT_EXPORT QV8EventData
 {
+    QV8EventData();
+    ~QV8EventData();
+
     QString displayName;
     QString filename;
     QString functionName;
@@ -72,9 +90,19 @@ struct QMLJSDEBUGCLIENT_EXPORT QV8EventData
     double totalPercent;
     double selfTime;
     double selfPercent;
-    QList< QV8EventData *> parentList;
-    QList< QV8EventData *> childrenList;
+    QHash <QString, QV8EventSub *> parentHash;
+    QHash <QString, QV8EventSub *> childrenHash;
     int eventId;
+
+    QV8EventData &operator=(const QV8EventData &ref);
+};
+
+struct QMLJSDEBUGCLIENT_EXPORT QV8EventSub {
+    QV8EventSub(QV8EventData *from) : reference(from), totalTime(0) {}
+    QV8EventSub(QV8EventSub *from) : reference(from->reference), totalTime(from->totalTime) {}
+
+    QV8EventData *reference;
+    qint64 totalTime;
 };
 
 typedef QHash<QString, QmlEventData *> QmlEventHash;

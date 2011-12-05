@@ -83,6 +83,9 @@ function drawData(canvas, ctxt, region)
 
 function drawTimeBar(canvas, ctxt, region)
 {
+    if (!qmlEventList)
+        return;
+
     var width = canvas.width;
     var height = 10;
     var startTime = qmlEventList.traceStartTime();
