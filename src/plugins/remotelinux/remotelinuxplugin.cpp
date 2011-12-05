@@ -97,12 +97,20 @@ void RemoteLinuxPlugin::extensionsInitialized()
 
     const Context globalcontext(Core::Constants::C_GLOBAL);
 
-    QAction *startGdbServerAction = new QAction(tr("Start Remote Debug Server..."), 0);
-    Command *cmd = am->registerAction(startGdbServerAction, "StartGdbServer", globalcontext);
+    QAction *act = 0;
+    Command *cmd = 0;
+
+    act = new QAction(tr("Start Remote Debug Server..."), 0);
+    cmd = am->registerAction(act, "StartGdbServer", globalcontext);
     cmd->setDefaultText(tr("Start Gdbserver"));
     mstart->addAction(cmd, Debugger::Constants::G_MANUAL_REMOTE);
+    connect(act, SIGNAL(triggered()), SLOT(startGdbServer()));
 
-    connect(startGdbServerAction, SIGNAL(triggered()), SLOT(startGdbServer()));
+    act = new QAction(tr("Attach to Running Remote Process..."), 0);
+    cmd = am->registerAction(act, "AttachRemoteProcess", globalcontext);
+    cmd->setDefaultText(tr("Attach to Remote Process"));
+    mstart->addAction(cmd, Debugger::Constants::G_AUTOMATIC_REMOTE);
+    connect(act, SIGNAL(triggered()), SLOT(startGdbServer()));
 }
 
 void RemoteLinuxPlugin::startGdbServer()

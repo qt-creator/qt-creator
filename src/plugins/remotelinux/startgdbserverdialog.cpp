@@ -39,6 +39,8 @@
 #include "remotelinuxusedportsgatherer.h"
 #include "portlist.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
@@ -200,6 +202,12 @@ void StartGdbServerDialog::startGdbServer()
     d->gatherer.start(Utils::SshConnection::create(device->sshParameters()), device);
 }
 
+void StartGdbServerDialog::attachToRemoteProcess()
+{
+    LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
+    d->gatherer.start(Utils::SshConnection::create(device->sshParameters()), device);
+}
+
 void StartGdbServerDialog::handleConnectionError()
 {
     d->ui.textBrowser->append(tr("Connection error: %1")
@@ -227,6 +235,13 @@ void StartGdbServerDialog::handleProcessErrorOutput(const QByteArray &ba)
         int port = ba.mid(pos + 18).trimmed().toInt();
         d->ui.textBrowser->append(tr("Port %1 is now accessible.").arg(port));
         emit portOpened(port);
+        ExtensionSystem::PluginManager *pm =
+            ExtensionSystem::PluginManager::instance();
+        QObject *ob = pm->getObjectByName("DebuggerCore");
+        qDebug() << "FOUND DEBUGGER CORE: " << ob;
+        if (ob)
+           QMetaObject::invokeMethod(ob, "gdbServerStarted", Qt::QueuedConnection,
+                                  Q_ARG(int, port));
     }
 }
 

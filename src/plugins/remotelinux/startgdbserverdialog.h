@@ -52,6 +52,7 @@ public:
     ~StartGdbServerDialog();
 
     void startGdbServer();
+    void attachToRemoteProcess();
 
 signals:
     void pidSelected(int pid);
