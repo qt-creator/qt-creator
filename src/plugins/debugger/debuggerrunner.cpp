@@ -457,10 +457,11 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
 #endif
         result.push_back(GdbEngineType);
         break;
-    case StartRemote:
+    case StartRemoteProcess:
     case StartRemoteGdb:
         result.push_back(GdbEngineType);
         break;
+    case AttachToRemoteProcess:
     case AttachToRemoteServer:
         if (!hardConstraintsOnly) {
 #ifdef Q_OS_WIN
