@@ -160,10 +160,13 @@ def cleanUpUserFiles(pathsToProFiles=None):
             doneWithoutErrors = False
     return doneWithoutErrors
 
-def invokeMenuItem(menu, item):
+def invokeMenuItem(menu, item, subItem = None):
     menuObject = waitForObjectItem("{type='QMenuBar' visible='true'}", menu)
     activateItem(menuObject)
-    activateItem(waitForObjectItem(objectMap.realName(menuObject), item))
+    itemObject = waitForObjectItem(objectMap.realName(menuObject), item)
+    activateItem(itemObject)
+    if subItem != None:
+        activateItem(waitForObjectItem("{type='QMenu' visible='1' title='%s'}" % item, subItem))
 
 def logApplicationOutput():
     # make sure application output is shown
