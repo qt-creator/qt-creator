@@ -34,12 +34,12 @@
 #define SUBMITEDITORWIDGET_H
 
 #include "utils_global.h"
+#include "completingtextedit.h"
 
 #include <QtGui/QWidget>
 #include <QtGui/QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
-class QTextEdit;
 class QListWidgetItem;
 class QAction;
 class QAbstractItemModel;
@@ -102,7 +102,7 @@ public:
     // Selected files for diff
     QStringList selectedFiles() const;
 
-    QTextEdit *descriptionEdit() const;
+    CompletingTextEdit *descriptionEdit() const;
 
     void addDescriptionEditContextMenuAction(QAction *a);
     void insertDescriptionEditContextMenuAction(int pos, QAction *a);

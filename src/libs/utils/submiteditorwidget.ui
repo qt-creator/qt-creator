@@ -24,7 +24,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QTextEdit" name="description">
+       <widget class="Utils::CompletingTextEdit" name="description">
         <property name="acceptRichText">
          <bool>false</bool>
         </property>
@@ -77,6 +77,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::CompletingTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>utils/completingtextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

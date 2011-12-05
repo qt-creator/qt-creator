@@ -39,11 +39,20 @@
 #include "submiteditorfile.h"
 
 #include <aggregation/aggregate.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/FullySpecifiedType.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/ModelManagerInterface.h>
+#include <cplusplus/Symbol.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/TranslationUnit.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <utils/completingtextedit.h>
 #include <utils/submiteditorwidget.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/synchronousprocess.h>
@@ -64,6 +73,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QPointer>
+#include <QtGui/QStringListModel>
 #include <QtCore/QTextStream>
 #include <QtGui/QStyle>
 #include <QtGui/QToolBar>
@@ -77,6 +87,59 @@
 
 enum { debug = 0 };
 enum { wantToolBar = 0 };
+
+// Return true if word is meaningful and can be added to a completion model
+static bool acceptsWordForCompletion(const char *word)
+{
+    return !(word == 0 || word[0] == 0 || word[1] == 0 || word[2] == 0);
+}
+
+// Return the class name which function belongs to
+static const char *belongingClassName(const CPlusPlus::Function *function)
+{
+    if (function == 0)
+        return 0;
+
+    const CPlusPlus::Name *funcName = function->name();
+    if (funcName != 0 && funcName->asQualifiedNameId() != 0) {
+        const CPlusPlus::Name *funcBaseName = funcName->asQualifiedNameId()->base();
+        if (funcBaseName != 0 && funcBaseName->identifier() != 0)
+            return funcBaseName->identifier()->chars();
+    }
+
+    return 0;
+}
+
+// Recursively return the core element type
+static const CPlusPlus::Type *pointerAndReferenceSimplified(const CPlusPlus::Type *type)
+{
+    const CPlusPlus::PointerType *ptrType = type != 0 ? type->asPointerType() : 0;
+    if (ptrType != 0) {
+        return pointerAndReferenceSimplified(ptrType->elementType().type());
+    }
+    else {
+        const CPlusPlus::ReferenceType *refType = type != 0 ? type->asReferenceType() : 0;
+        if (refType != 0)
+            return pointerAndReferenceSimplified(refType->elementType().type());
+        else
+            return type;
+    }
+}
+
+// Return the core and non-primitive type name (not void, int, float, pointer, ...)
+static const char *nonPrimitiveTypeName(const CPlusPlus::Type *type)
+{
+    if (type == 0)
+        return 0;
+
+    const CPlusPlus::Type *coreType = pointerAndReferenceSimplified(type);
+    const CPlusPlus::Name *coreTypeName =
+            coreType != 0 && coreType->isNamedType() ? coreType->asNamedType()->name() : 0;
+    if (coreTypeName != 0 && coreTypeName->identifier() != 0)
+        return coreTypeName->identifier()->chars();
+
+    return 0;
+}
 
 /*!
     \struct VCSBase::VCSBaseSubmitEditorParameters
@@ -147,6 +210,10 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
     m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(parameters->mimeType), q)),
     m_nickNameDialog(0)
 {
+    QCompleter *completer = new QCompleter(q);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    m_widget->descriptionEdit()->setCompleter(completer);
 }
 
 VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
@@ -437,9 +504,74 @@ QStringList VCSBaseSubmitEditor::checkedFiles() const
     return d->m_widget->checkedFiles();
 }
 
-void VCSBaseSubmitEditor::setFileModel(QAbstractItemModel *m)
+void VCSBaseSubmitEditor::setFileModel(QAbstractItemModel *m, const QString &repositoryDirectory)
 {
     d->m_widget->setFileModel(m);
+
+    QSet<QString> uniqueSymbols;
+    const CPlusPlus::Snapshot cppSnapShot = CPlusPlus::CppModelManagerInterface::instance()->snapshot();
+
+    // Iterate over the files and get interesting symbols
+    for (int row = 0; row < m->rowCount(); ++row) {
+        const QString fileName = m->data(m->index(row, d->m_widget->fileNameColumn())).toString();
+        const QFileInfo fileInfo(repositoryDirectory, fileName);
+
+        // Add file name
+        uniqueSymbols.insert(fileInfo.fileName());
+
+        const QString filePath = fileInfo.absoluteFilePath();
+        // Add symbols from the C++ code model
+        const CPlusPlus::Document::Ptr doc = cppSnapShot.document(filePath);
+        if (!doc.isNull() && doc->control() != 0) {
+            const CPlusPlus::Control *ctrl = doc->control();
+            CPlusPlus::Symbol **symPtr = ctrl->firstSymbol(); // Read-only
+            while (symPtr != ctrl->lastSymbol()) {
+                const CPlusPlus::Symbol *sym = *symPtr;
+
+                // Regular identifiers
+                if (sym->identifier() != 0 && acceptsWordForCompletion(sym->identifier()->chars()))
+                    uniqueSymbols.insert(sym->identifier()->chars());
+
+                // Handle specific cases
+                if (sym->isFunction()) {
+                    const CPlusPlus::Function *symFunc = sym->asFunction();
+
+                    // Get "Foo" in "void Foo::function() {}"
+                    if (!symFunc->isDeclaration()) {
+                        const char *className = belongingClassName(symFunc);
+                        if (acceptsWordForCompletion(className))
+                            uniqueSymbols.insert(className);
+                    }
+
+                    // Insert symbol for the return type
+                    const char *retTypeName = nonPrimitiveTypeName(symFunc->returnType().type());
+                    if (acceptsWordForCompletion(retTypeName))
+                        uniqueSymbols.insert(retTypeName);
+                }
+                else if (sym->isArgument()) {
+                    const char *typeName = nonPrimitiveTypeName(sym->asArgument()->type().type());
+                    if (acceptsWordForCompletion(typeName))
+                        uniqueSymbols.insert(typeName);
+                }
+
+                ++symPtr;
+            }
+
+            // Insert macros
+            foreach (const CPlusPlus::Macro &macro, doc->definedMacros()) {
+                if (acceptsWordForCompletion(macro.name().constData()))
+                    uniqueSymbols.insert(macro.name());
+            }
+        }
+    }
+
+    // Populate completer with symbols
+    if (!uniqueSymbols.isEmpty()) {
+        QCompleter *completer = d->m_widget->descriptionEdit()->completer();
+        QStringList symbolsList = uniqueSymbols.toList();
+        symbolsList.sort();
+        completer->setModel(new QStringListModel(symbolsList, completer));
+    }
 }
 
 QAbstractItemModel *VCSBaseSubmitEditor::fileModel() const

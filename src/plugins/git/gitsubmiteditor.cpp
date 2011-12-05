@@ -78,7 +78,7 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
                              QVariant(static_cast<int>(state)));
         }
     }
-    setFileModel(m_model);
+    setFileModel(m_model, d.panelInfo.repository);
 }
 
 void GitSubmitEditor::slotDiffSelected(const QStringList &files)

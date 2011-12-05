@@ -596,7 +596,8 @@ void BazaarPlugin::showCommitWidget(const QList<VCSBase::VCSBaseClient::StatusIt
     commitEditor->setDisplayName(msg);
 
     const BranchInfo branch = m_client->synchronousBranchQuery(m_submitRepository);
-    commitEditor->setFields(branch, m_bazaarSettings.stringValue(BazaarSettings::userNameKey),
+    commitEditor->setFields(m_submitRepository, branch,
+                            m_bazaarSettings.stringValue(BazaarSettings::userNameKey),
                             m_bazaarSettings.stringValue(BazaarSettings::userEmailKey), status);
 }
 

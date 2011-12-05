@@ -134,7 +134,7 @@ public:
 
     QStringList checkedFiles() const;
 
-    void setFileModel(QAbstractItemModel *m);
+    void setFileModel(QAbstractItemModel *m, const QString &repositoryDirectory = QString());
     QAbstractItemModel *fileModel() const;
 
     // Utilities returning some predefined icons for actions

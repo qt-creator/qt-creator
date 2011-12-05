@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2010 Hugues Delorme
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -30,42 +30,39 @@
 **
 **************************************************************************/
 
-#ifndef COMMITEDITOR_H
-#define COMMITEDITOR_H
+#ifndef COMPLETINGTEXTEDIT_H
+#define COMPLETINGTEXTEDIT_H
 
-#include <vcsbase/vcsbaseclient.h>
-#include <vcsbase/vcsbasesubmiteditor.h>
+#include "utils_global.h"
 
-namespace VCSBase {
-class SubmitFileModel;
-}
+#include <QtGui/QTextEdit>
 
-namespace Bazaar {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QCompleter;
+QT_END_NAMESPACE
 
-class BranchInfo;
-class BazaarCommitWidget;
+namespace Utils {
 
-class CommitEditor : public VCSBase::VCSBaseSubmitEditor
+class QTCREATOR_UTILS_EXPORT CompletingTextEdit : public QTextEdit
 {
     Q_OBJECT
 
 public:
-    explicit CommitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
-                          QWidget *parent);
+    CompletingTextEdit(QWidget *parent = 0);
+    ~CompletingTextEdit();
 
-    void setFields(const QString &repositoryRoot, const BranchInfo &branch,
-                   const QString &userName, const QString &email,
-                   const QList<VCSBase::VCSBaseClient::StatusItem> &repoStatus);
+    void setCompleter(QCompleter *c);
+    QCompleter *completer() const;
 
-    const BazaarCommitWidget *commitWidget() const;
+protected:
+    void keyPressEvent(QKeyEvent *e);
+    void focusInEvent(QFocusEvent *e);
 
 private:
-    BazaarCommitWidget *commitWidget();
-    VCSBase::SubmitFileModel *m_fileModel;
+    class CompletingTextEditPrivate *d;
+    Q_PRIVATE_SLOT(d, void insertCompletion(const QString &))
 };
 
-}
-}
+} // namespace Utils
 
-#endif // COMMITEDITOR_H
+#endif // COMPLETINGTEXTEDIT_H

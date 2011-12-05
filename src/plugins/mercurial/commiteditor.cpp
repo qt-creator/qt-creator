@@ -85,7 +85,7 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
         }
     }
 
-    setFileModel(fileModel);
+    setFileModel(fileModel, repositoryRoot.absoluteFilePath());
 }
 
 QString CommitEditor::committerInfo()

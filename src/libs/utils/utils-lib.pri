@@ -91,7 +91,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/outputformatter.cpp \
     $$PWD/flowlayout.cpp \
     $$PWD/networkaccessmanager.cpp \
-    $$PWD/persistentsettings.cpp
+    $$PWD/persistentsettings.cpp \
+    $$PWD/completingtextedit.cpp
 
 win32 {
     SOURCES += \
@@ -197,7 +198,8 @@ HEADERS += \
     $$PWD/outputformat.h \
     $$PWD/flowlayout.h \
     $$PWD/networkaccessmanager.h \
-    $$PWD/persistentsettings.h
+    $$PWD/persistentsettings.h \
+    $$PWD/completingtextedit.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

@@ -457,7 +457,7 @@ QStringList SubmitEditorWidget::checkedFiles() const
     return rc;
 }
 
-QTextEdit *SubmitEditorWidget::descriptionEdit() const
+CompletingTextEdit *SubmitEditorWidget::descriptionEdit() const
 {
     return d->m_ui.description;
 }
