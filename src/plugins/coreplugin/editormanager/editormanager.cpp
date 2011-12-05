@@ -606,6 +606,11 @@ Core::Internal::SplitterOrView *EditorManager::currentSplitterOrView() const
     return view;
 }
 
+Core::Internal::SplitterOrView *EditorManager::topSplitterOrView() const
+{
+    return d->m_splitter;
+}
+
 Core::Internal::EditorView *EditorManager::currentEditorView() const
 {
     return currentSplitterOrView()->view();
@@ -1758,6 +1763,8 @@ void EditorManager::updateActions()
 #endif
     }
 
+    setCloseSplitEnabled(d->m_splitter, d->m_splitter->isSplitter());
+
     d->m_saveAction->setEnabled(curEditor != 0 && curEditor->file()->isModified());
     d->m_saveAsAction->setEnabled(curEditor != 0 && curEditor->file()->isSaveAsAllowed());
     d->m_revertToSavedAction->setEnabled(curEditor != 0
@@ -1787,6 +1794,19 @@ void EditorManager::updateActions()
     d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
     d->m_removeAllSplitsAction->setEnabled(hasSplitter);
     d->m_gotoOtherSplitAction->setEnabled(hasSplitter);
+}
+
+void EditorManager::setCloseSplitEnabled(SplitterOrView *splitterOrView, bool enable)
+{
+    if (splitterOrView->isView())
+        splitterOrView->view()->setCloseSplitEnabled(enable);
+    QSplitter *splitter = splitterOrView->splitter();
+    if (splitter) {
+        for (int i = 0; i < splitter->count(); ++i) {
+            if (SplitterOrView *subSplitterOrView = qobject_cast<SplitterOrView*>(splitter->widget(i)))
+                setCloseSplitEnabled(subSplitterOrView, enable);
+        }
+    }
 }
 
 bool EditorManager::hasSplitter() const

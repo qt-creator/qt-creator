@@ -78,6 +78,7 @@ public:
     void setCanGoBack(bool canGoBack);
     void setCanGoForward(bool canGoForward);
     void removeToolbarForEditor(IEditor *editor);
+    void setCloseSplitEnabled(bool enable);
 
 public slots:
     void updateEditorStatus(IEditor *editor);
@@ -86,6 +87,9 @@ signals:
     void closeClicked();
     void goBackClicked();
     void goForwardClicked();
+    void horizontalSplitClicked();
+    void verticalSplitClicked();
+    void closeSplitClicked();
     void listSelectionActivated(int row);
 
 private slots:
@@ -95,7 +99,7 @@ private slots:
     void makeEditorWritable();
 
     void checkEditorStatus();
-    void closeView();
+    void closeEditor();
     void updateActionShortcuts();
 
 private:

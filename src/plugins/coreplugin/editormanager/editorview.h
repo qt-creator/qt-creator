@@ -93,10 +93,14 @@ public:
                            const QString &buttonText,
                            QObject *object, const char *member);
     void hideEditorStatusBar(const QString &id);
+    void setCloseSplitEnabled(bool enable);
 
 private slots:
     void closeView();
     void listSelectionActivated(int index);
+    void splitHorizontally();
+    void splitVertically();
+    void closeSplit();
 
 private:
     void updateNavigatorActions();

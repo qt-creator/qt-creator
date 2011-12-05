@@ -254,6 +254,7 @@ private:
     IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
         const Id &id = Id(), OpenEditorFlags flags = 0, bool *newEditor = 0);
     Internal::SplitterOrView *currentSplitterOrView() const;
+    Internal::SplitterOrView *topSplitterOrView() const;
 
     void closeEditor(IEditor *editor);
     void closeDuplicate(IEditor *editor);
@@ -264,6 +265,7 @@ private:
     void addFileToRecentFiles(IFile *file);
     void switchToPreferedMode();
     void updateAutoSave();
+    void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);
 
     EditorManagerPrivate *d;
 

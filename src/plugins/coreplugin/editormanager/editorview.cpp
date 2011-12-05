@@ -93,6 +93,9 @@ EditorView::EditorView(QWidget *parent) :
         connect(m_toolBar, SIGNAL(goForwardClicked()), this, SLOT(goForwardInNavigationHistory()));
         connect(m_toolBar, SIGNAL(closeClicked()), this, SLOT(closeView()));
         connect(m_toolBar, SIGNAL(listSelectionActivated(int)), this, SLOT(listSelectionActivated(int)));
+        connect(m_toolBar, SIGNAL(horizontalSplitClicked()), this, SLOT(splitHorizontally()));
+        connect(m_toolBar, SIGNAL(verticalSplitClicked()), this, SLOT(splitVertically()));
+        connect(m_toolBar, SIGNAL(closeSplitClicked()), this, SLOT(closeSplit()));
         tl->addWidget(m_toolBar);
     }
 
@@ -167,6 +170,11 @@ void EditorView::hideEditorStatusBar(const QString &id)
     }
 }
 
+void EditorView::setCloseSplitEnabled(bool enable)
+{
+    m_toolBar->setCloseSplitEnabled(enable);
+}
+
 void EditorView::addEditor(IEditor *editor)
 {
     if (m_editors.contains(editor))
@@ -218,6 +226,31 @@ void EditorView::listSelectionActivated(int index)
 {
     QAbstractItemModel *model = EditorManager::instance()->openedEditorsModel();
     EditorManager::instance()->activateEditorForIndex(this, model->index(index, 0), Core::EditorManager::ModeSwitch);
+}
+
+void EditorView::splitHorizontally()
+{
+    EditorManager *editorManager = EditorManager::instance();
+    SplitterOrView *splitterOrView = editorManager->topSplitterOrView()->findView(this);
+    if (splitterOrView)
+        splitterOrView->split(Qt::Vertical);
+    editorManager->updateActions();
+}
+
+void EditorView::splitVertically()
+{
+    EditorManager *editorManager = EditorManager::instance();
+    SplitterOrView *splitterOrView = editorManager->topSplitterOrView()->findView(this);
+    if (splitterOrView)
+        splitterOrView->split(Qt::Horizontal);
+    editorManager->updateActions();
+}
+
+void EditorView::closeSplit()
+{
+    EditorManager *editorManager = EditorManager::instance();
+    editorManager->closeView(this);
+    editorManager->updateActions();
 }
 
 void EditorView::setCurrentEditor(IEditor *editor)
