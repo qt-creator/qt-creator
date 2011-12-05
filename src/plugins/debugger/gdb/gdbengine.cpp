@@ -4677,12 +4677,15 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 
     loadPythonDumpers();
 
-    const QString script = sp.overrideStartScript;
+    return true;
+}
+
+void GdbEngine::loadInitScript()
+{
+    const QString script = startParameters().overrideStartScript;
     if (!script.isEmpty()) {
         if (QFileInfo(script).isReadable()) {
             postCommand("source " + script.toLocal8Bit());
-            // Re-do the setup, as the "source" might have changed something.
-            postCommand("bbsetup", ConsoleCommand, CB(handleHasPython));
         } else {
             showMessageBox(QMessageBox::Warning,
             tr("Cannot find debugger initialization script"),
@@ -4693,14 +4696,9 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
         }
     } else {
         const QString commands = debuggerCore()->stringSetting(GdbStartupCommands);
-        if (!commands.isEmpty()) {
+        if (!commands.isEmpty())
             postCommand(commands.toLocal8Bit());
-            // Re-do the setup, as the "source" might have changed something.
-            postCommand("bbsetup", ConsoleCommand, CB(handleHasPython));
-        }
     }
-
-    return true;
 }
 
 void GdbEngine::loadPythonDumpers()
@@ -4714,6 +4712,9 @@ void GdbEngine::loadPythonDumpers()
         ConsoleCommand|NonCriticalResponse);
     postCommand("python execfile('" + dumperSourcePath + "qttypes.py')",
         ConsoleCommand|NonCriticalResponse);
+
+    loadInitScript();
+
     postCommand("bbsetup",
         ConsoleCommand, CB(handleHasPython));
 }

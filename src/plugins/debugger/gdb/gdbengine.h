@@ -270,6 +270,7 @@ private: ////////// Gdb Process Management //////////
 
     void handleAdapterStarted();
     void defaultInferiorShutdown(const char *cmd);
+    void loadInitScript();
     void loadPythonDumpers();
     void pythonDumpersFailed();
 
