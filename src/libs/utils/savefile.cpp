@@ -37,7 +37,7 @@
 namespace Utils {
 
 SaveFile::SaveFile(const QString &filename) :
-    m_finalFileName(filename), m_finalized(false), m_backup(false)
+    m_finalFileName(filename), m_finalized(true), m_backup(false)
 {
 }
 
@@ -62,6 +62,7 @@ bool SaveFile::open(OpenMode flags)
     if (!QTemporaryFile::open(flags))
         return false;
 
+    m_finalized = false; // needs clean up in the end
     if (ofi.exists())
         setPermissions(ofi.permissions()); // Ignore errors
 
