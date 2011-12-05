@@ -1,0 +1,79 @@
+Qt Creator version 2.5 contains bug fixes and new features.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.4.0...origin/2.5
+
+General
+
+Editing
+   * Use the QML/JS editor for opening json files (QTCREATORBUG-4639)
+
+Managing Projects
+
+Debugging
+
+Debugging QML/JS
+
+Analyzing Code
+
+C++ Support
+   * Fix completion and the dot-to-arrow conversion not triggering reliably
+   * Add basic refactoring action to insert an #include for an undefined
+     identifier
+   * Fix completion for namespace aliases at global and namespace scope
+     (QTCREATORBUG-166)
+   * Improve function signature synchronization by automatically renaming
+     parameter name uses in the function body when changing the name in the
+     declaration (QTCREATORBUG-6132)
+   * Improve preservation of non-cv specifiers when using function signature
+     synchronization (QTCREATORBUG-6620)
+   * Improve default argument handling with function signature synchronization
+     (QTCREATORBUG-5978)
+
+QML/JS Support
+   * Add correct scoping for signal handlers; enables completion of signal
+     handler arguments such as mouse in MouseArea.onClicked
+   * Disable some follow-up errors if an import failed
+   * Automatically add parentheses when completing a function
+   * Add refactoring action to wrap elements in a Loader
+   * Add ability to suppress warnings for a line by prepending
+     // @disable-check M123
+   * Add refactoring action to prepend a warning suppression comment
+   * Add // @enable-all-checks to enable checks disabled by default
+   * Add several new hints and warnings
+   * Add 'Reformat' action that reformats the whole file
+   * Add support for module APIs defined in QML modules
+   * Don't warn about unterminated case blocks in a switch statement if
+     there's a comment containing the string 'fallthrough' or 'fall-through'
+   * Improve indentation of function literals
+   * Fix indent after do-while without trailing semicolon
+
+Qt Quick Designer
+
+Help
+
+Platform Specific
+
+Mac
+
+Linux (GNOME and KDE)
+
+Windows
+
+Symbian Target
+
+Remote Linux Support
+
+Qt Designer
+
+FakeVim
+
+Version control plugins
+
+
+Additional credits go to:
+
