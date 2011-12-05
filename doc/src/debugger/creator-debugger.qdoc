@@ -1407,11 +1407,12 @@
 
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 
-    The \QC for Windows installation packages install GDB from MinGW.
-    Unfortunately, GDB is quite slow on Windows. \QC does not cause
-    this, as it interacts with GDB and adds custom dumpers for Qt types.
-
-    \note You can use \QC with MSVC on Windows for debugging.
+    The part of the slowness that is related to the loading of
+    debug information is hard to avoid. Another part stems from
+    maintaining breakpoints inside the debugger (under some circumstances
+    all breakpoints need to be inserted and removed again for each step)
+    and the evaluation of expressions after each step. We recommend that
+    you minimize the number of breakpoints and watched expressions.
 
     \section1 Debugger Displays <not in scope> Message
 
