@@ -1,3 +1,4 @@
+AutoGenerateAegisFile
 <!-- Aegis manifest declares the security credentials required by an
      application to run correctly. By default, a manifest file will be
      created or updated automatically as a part of build.
@@ -9,9 +10,8 @@
 
      To create a manifest file automatically as a part of build (DEFAULT):
 
-      * You may leave this file as-is.
-      * Do not list any '<credential name="token" />' entries
-        outside of comments.
+      * Make sure this file starts with the string "AutoGenerateAegisFile" (without quotes).
+      * Alternatively, it can also be completely empty.
 
      To provide a manifest yourself:
 

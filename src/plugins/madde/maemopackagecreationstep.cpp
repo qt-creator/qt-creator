@@ -370,14 +370,8 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
     foreach (const QString &fileName, files) {
         const QString srcFile = templatesDirPath + QLatin1Char('/') + fileName;
         QString newFileName = fileName;
-        if (newFileName == Qt4HarmattanTarget::aegisManifestFileName()) {
-            // If the user has touched the Aegis manifest file, we copy it for use
-            // by MADDE. Otherwise the required capabilities will be auto-detected,
-            // unless the user explicitly requests that no manifest should be created.
-            if (QFileInfo(srcFile).size() == 0)
-                continue;
+        if (newFileName == Qt4HarmattanTarget::aegisManifestFileName())
             newFileName = maemoTarget()->packageName() + QLatin1String(".aegis");
-        }
 
         const QString destFile = debianDirPath + QLatin1Char('/') + newFileName;
         if (fileName == QLatin1String("rules")) {
@@ -393,6 +387,9 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
                     .arg(QDir::toNativeSeparators(srcFile), reader.errorString()));
                 return false;
             }
+
+            if (reader.data().isEmpty() || reader.data().startsWith("AutoGenerateAegisFile"))
+                continue;
             if (reader.data().startsWith("NoAegisFile")) {
                 QFile targetFile(destFile);
                 if (!targetFile.open(QIODevice::WriteOnly)) {
