@@ -7,8 +7,11 @@ def switchViewTo(view):
     tabBar = waitForObject("{type='Core::Internal::FancyTabBar' unnamed='1' visible='1' "
                            "window=':Qt Creator_Core::Internal::MainWindow'}")
     mouseMove(tabBar, 10, 10 + 52 * view)
-    snooze(2)
-    text = str(QToolTip.text())
+    if waitFor("QToolTip.isVisible()", 10000):
+        text = str(QToolTip.text())
+    else:
+        test.warning("Waiting for ToolTip timed out.")
+        text = ""
     pattern = ViewConstants.getToolTipForViewTab(view)
     if re.match(pattern, unicode(text), re.UNICODE):
        test.passes("ToolTip verified")
