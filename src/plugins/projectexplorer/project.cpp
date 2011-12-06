@@ -177,17 +177,20 @@ bool Project::removeTarget(Target *target)
     if (bm->isBuilding(target))
         return false;
 
-    emit aboutToRemoveTarget(target);
-
-    d->m_targets.removeOne(target);
-
-    emit removedTarget(target);
     if (target == activeTarget()) {
-        if (d->m_targets.isEmpty())
+        if (d->m_targets.size() == 1) {
             setActiveTarget(0);
-        else
+        } else if (d->m_targets.first() == target) {
+            setActiveTarget(d->m_targets.at(1));
+        } else {
             setActiveTarget(d->m_targets.at(0));
+        }
     }
+
+    emit aboutToRemoveTarget(target);
+    d->m_targets.removeOne(target);
+    emit removedTarget(target);
+
     delete target;
     return true;
 }
