@@ -128,6 +128,9 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_defaultToolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     d->m_activeToolBar = d->m_defaultToolBar;
 
+    d->m_lockButton->setAutoRaise(true);
+    d->m_lockButton->setEnabled(false);
+
     d->m_editorsListModel = EditorManager::instance()->openedEditorsModel();
     connect(d->m_goBackAction, SIGNAL(triggered()), this, SIGNAL(goBackClicked()));
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
@@ -139,14 +142,11 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
     d->m_editorList->setProperty("hideborder", true);
 
-    d->m_lockButton->setAutoRaise(true);
-    d->m_lockButton->setProperty("showborder", true);
-    d->m_lockButton->setVisible(false);
-
     d->m_closeEditorButton->setAutoRaise(true);
     d->m_closeEditorButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE)));
     d->m_closeEditorButton->setToolTip(tr("Close Document"));
     d->m_closeEditorButton->setEnabled(false);
+    d->m_closeEditorButton->setProperty("showborder", true);
 
     d->m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
@@ -178,9 +178,9 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     toplayout->setMargin(0);
     toplayout->addWidget(d->m_backButton);
     toplayout->addWidget(d->m_forwardButton);
+    toplayout->addWidget(d->m_lockButton);
     toplayout->addWidget(d->m_editorList);
     toplayout->addWidget(d->m_closeEditorButton);
-    toplayout->addWidget(d->m_lockButton);
     toplayout->addWidget(d->m_toolBarPlaceholder, 1); // Custom toolbar stretches
     toplayout->addWidget(d->m_splitButton);
     toplayout->addWidget(d->m_closeSplitButton);
@@ -383,10 +383,12 @@ void EditorToolBar::checkEditorStatus()
 
 void EditorToolBar::updateEditorStatus(IEditor *editor)
 {
-    d->m_lockButton->setVisible(editor != 0);
     d->m_closeEditorButton->setEnabled(editor != 0);
 
     if (!editor || !editor->file()) {
+        d->m_lockButton->setIcon(QIcon());
+        d->m_lockButton->setEnabled(false);
+        d->m_lockButton->setToolTip(QString());
         d->m_editorList->setToolTip(QString());
         return;
     }
