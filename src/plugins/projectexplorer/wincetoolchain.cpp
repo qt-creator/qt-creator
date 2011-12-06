@@ -453,6 +453,7 @@ QList<ToolChain *> WinCEToolChainFactory::autoDetect()
 
 QString WinCEToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /* = 0 */)
 {
+    Q_UNUSED(checkedDirectories);
     return QString();
 }
 

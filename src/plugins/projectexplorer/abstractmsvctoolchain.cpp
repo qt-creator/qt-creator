@@ -161,6 +161,7 @@ bool AbstractMsvcToolChain::canClone() const
 
 QByteArray AbstractMsvcToolChain::msvcPredefinedMacros(const Utils::Environment& env) const
 {
+    Q_UNUSED(env);
     QByteArray predefinedMacros = "#define __MSVCRT__\n"
             "#define __w64\n"
             "#define __int64 long long\n"
