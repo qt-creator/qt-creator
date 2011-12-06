@@ -52,23 +52,14 @@ Rectangle {
         caption: qsTr("Tutorials")
     }
 
-    CustomScrollArea {
-        id: scrollArea;
-
+    CustomizedGridView {
         anchors.rightMargin: 38
         anchors.bottomMargin: 60
         anchors.leftMargin: 38
         anchors.topMargin: 102
         anchors.fill: parent
 
-        clip: true
-
-        horizontalScrollBar.visible: false
-        frame: false
-
-        CustomizedGridView {
-            model: tutorialsModel
-        }
+        model: tutorialsModel
     }
 
     SearchBar {

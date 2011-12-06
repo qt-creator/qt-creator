@@ -31,14 +31,16 @@
 **************************************************************************/
 
 import QtQuick 1.0
+import qtcomponents 1.0
 
 GridView {
+    id: gridView
     interactive: false
-    width: scrollArea.width
+    clip: true
     cellHeight: 240
     cellWidth: 216
     property int columns:  Math.max(Math.floor(width / cellWidth), 1)
-    height: 240 * Math.ceil(count / columns)
+    cacheBuffer: 1000
 
     x: Math.max((width - (cellWidth * columns)) / 2, 0);
 
@@ -61,4 +63,28 @@ GridView {
         tags: model.tags
     }
 
+    WheelArea {
+        id: wheelarea
+        anchors.fill: parent
+        verticalMinimumValue: vscrollbar.minimumValue
+        verticalMaximumValue: vscrollbar.maximumValue
+
+        onVerticalValueChanged: gridView.contentY = verticalValue
+    }
+
+    ScrollBar {
+        id: vscrollbar
+        orientation: Qt.Vertical
+        property int availableHeight : gridView.height
+        visible: contentHeight > availableHeight
+        maximumValue: contentHeight > availableHeight ? gridView.contentHeight - availableHeight : 0
+        minimumValue: 0
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.topMargin: styleitem.style == "mac" ? 1 : 0
+        onValueChanged: gridView.contentY = value
+        anchors.rightMargin: styleitem.frameoffset
+        anchors.bottomMargin: hscrollbar.visible ? hscrollbar.height : styleitem.frameoffset
+    }
 }
