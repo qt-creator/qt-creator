@@ -40,6 +40,7 @@
 #include <QtGui/QStringListModel>
 #include <QtGui/QCompleter>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QScrollArea>
 
 using namespace Find;
 using namespace Find::Internal;
@@ -185,6 +186,19 @@ void FindToolWindow::setCurrentFilter(int index)
             if (configWidget)
                 configWidget->setParent(0);
         }
+    }
+    QWidget *w = m_ui.configWidget;
+    while (w) {
+        QScrollArea *sa = qobject_cast<QScrollArea *>(w);
+        if (sa) {
+            sa->updateGeometry();
+            break;
+        }
+        w = w->parentWidget();
+    }
+    for (w = m_configWidget ? m_configWidget : m_ui.configWidget; w; w = w->parentWidget()) {
+        if (w->layout())
+            w->layout()->activate();
     }
 }
 
