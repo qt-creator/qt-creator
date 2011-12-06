@@ -259,7 +259,7 @@ void ScopeChain::update() const
         m_all += m_cppContextProperties;
 
     // the root scope in js files doesn't see instantiating components
-    if (m_jsScopes.count() != 1 || !m_qmlScopeObjects.isEmpty()) {
+    if (m_document->language() != Document::JavaScriptLanguage || m_jsScopes.count() != 1) {
         if (m_qmlComponentScope) {
             foreach (const QmlComponentChain *parent, m_qmlComponentScope->instantiatingComponents())
                 collectScopes(parent, &m_all);
