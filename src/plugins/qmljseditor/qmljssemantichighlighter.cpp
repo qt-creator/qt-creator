@@ -305,6 +305,10 @@ protected:
 
     bool visit(UiPublicMember *ast)
     {
+        if (ast->typeToken.isValid() && !ast->memberType.isEmpty()) {
+            if (m_scopeChain.context()->lookupType(m_scopeChain.document().data(), QStringList(ast->memberType.toString())))
+                addUse(ast->typeToken, SemanticHighlighter::QmlTypeType);
+        }
         if (ast->identifierToken.isValid())
             addUse(ast->identifierToken, SemanticHighlighter::BindingNameType);
         scopedAccept(ast, ast->statement);

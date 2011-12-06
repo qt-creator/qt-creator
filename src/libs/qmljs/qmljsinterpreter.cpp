@@ -1965,7 +1965,19 @@ const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) con
         return evaluator(_ast->statement);
     }
 
-    return valueOwner()->defaultValueForBuiltinType(_ast->memberType.toString());
+    const QString memberType = _ast->memberType.toString();
+
+    const Value *builtin = valueOwner()->defaultValueForBuiltinType(memberType);
+    if (!builtin->asUndefinedValue())
+        return builtin;
+
+    if (_ast->typeModifier.isEmpty()) {
+        const Value *type = referenceContext->context()->lookupType(_doc, QStringList(memberType));
+        if (type)
+            return type;
+    }
+
+    return referenceContext->context()->valueOwner()->undefinedValue();
 }
 
 ASTSignal::ASTSignal(UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner)
