@@ -63,7 +63,7 @@ private:
     int m_id;
 };
 
-CORE_EXPORT inline uint qHash(const Id &id) { return id.uniqueIdentifier(); }
+inline uint qHash(const Id &id) { return id.uniqueIdentifier(); }
 
 } // namespace Core
 
