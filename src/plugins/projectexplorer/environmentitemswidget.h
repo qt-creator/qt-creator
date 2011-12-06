@@ -30,58 +30,52 @@
 **
 **************************************************************************/
 
-#ifndef ENVIRONMENTWIDGET_H
-#define ENVIRONMENTWIDGET_H
+#ifndef ENVIRONMENTITEMSWIDGET_H
+#define ENVIRONMENTITEMSWIDGET_H
 
-#include "projectexplorer_export.h"
-
-#include <QtGui/QWidget>
-
-QT_FORWARD_DECLARE_CLASS(QModelIndex)
+#include <QDialog>
 
 namespace Utils {
-class Environment;
 class EnvironmentItem;
 }
 
 namespace ProjectExplorer {
-class EnvironmentWidgetPrivate;
+class EnvironmentItemsWidgetPrivate;
 
-class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
+class EnvironmentItemsWidget : public QWidget
 {
     Q_OBJECT
-
 public:
-    explicit EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget = 0);
-    virtual ~EnvironmentWidget();
+    explicit EnvironmentItemsWidget(QWidget *parent = 0);
+    ~EnvironmentItemsWidget();
 
-    void setBaseEnvironmentText(const QString &text);
-    void setBaseEnvironment(const Utils::Environment &env);
-
-    QList<Utils::EnvironmentItem> userChanges() const;
-    void setUserChanges(const QList<Utils::EnvironmentItem> &list);
-
-signals:
-    void userChangesChanged();
-    void detailsVisibleChanged(bool visible);
-
-private slots:
-    void editEnvironmentButtonClicked();
-    void addEnvironmentButtonClicked();
-    void removeEnvironmentButtonClicked();
-    void unsetEnvironmentButtonClicked();
-    void batchEditEnvironmentButtonClicked();
-    void environmentCurrentIndexChanged(const QModelIndex &current);
-    void invalidateCurrentIndex();
-    void updateSummaryText();
-    void focusIndex(const QModelIndex &index);
-    void updateButtons();
-    void linkActivated(const QString &link);
+    void setEnvironmentItems(const QList<Utils::EnvironmentItem> &items);
+    QList<Utils::EnvironmentItem> environmentItems() const;
 
 private:
-    EnvironmentWidgetPrivate *d;
+    EnvironmentItemsWidgetPrivate *d;
+};
+
+
+class EnvironmentItemsDialogPrivate;
+
+class EnvironmentItemsDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit EnvironmentItemsDialog(QWidget *parent = 0);
+    ~EnvironmentItemsDialog();
+
+    void setEnvironmentItems(const QList<Utils::EnvironmentItem> &items);
+    QList<Utils::EnvironmentItem> environmentItems() const;
+
+    static QList<Utils::EnvironmentItem> getEnvironmentItems(QWidget *parent,
+                    const QList<Utils::EnvironmentItem> &initial, bool *ok = 0);
+
+private:
+    EnvironmentItemsDialogPrivate *d;
 };
 
 } // namespace ProjectExplorer
 
-#endif // ENVIRONMENTWIDGET_H
+#endif // ENVIRONMENTITEMSWIDGET_H

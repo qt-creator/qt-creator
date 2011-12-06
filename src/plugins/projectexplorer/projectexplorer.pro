@@ -102,7 +102,8 @@ HEADERS += projectexplorer.h \
     gcctoolchainfactories.h \
     appoutputpane.h \
     codestylesettingspropertiespage.h \
-    settingsaccessor.h
+    settingsaccessor.h \
+    environmentitemswidget.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -188,7 +189,8 @@ SOURCES += projectexplorer.cpp \
     publishing/publishingwizardselectiondialog.cpp \
     appoutputpane.cpp \
     codestylesettingspropertiespage.cpp \
-    settingsaccessor.cpp
+    settingsaccessor.cpp \
+    environmentitemswidget.cpp
 
 FORMS += processstep.ui \
     toolchainoptionspage.ui \

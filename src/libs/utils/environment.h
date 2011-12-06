@@ -58,6 +58,7 @@ public:
         return unset == other.unset && name == other.name && value == other.value;
     }
 
+    static void sort(QList<EnvironmentItem> *list);
     static QList<EnvironmentItem> fromStringList(const QStringList &list);
     static QStringList toStringList(const QList<EnvironmentItem> &list);
 };

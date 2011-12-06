@@ -366,6 +366,7 @@ void EnvironmentModel::setUserChanges(QList<Utils::EnvironmentItem> list)
     d->m_items = list;
     d->updateResultEnvironment();
     endResetModel();
+    emit userChangesChanged();
 }
 
 } // namespace Utils

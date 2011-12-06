@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "environmentwidget.h"
+#include "environmentitemswidget.h"
 
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
@@ -61,6 +62,7 @@ public:
     QPushButton *m_addButton;
     QPushButton *m_resetButton;
     QPushButton *m_unsetButton;
+    QPushButton *m_batchEditButton;
 };
 
 EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget)
@@ -127,6 +129,11 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
     buttonLayout->addItem(verticalSpacer);
+
+    d->m_batchEditButton = new QPushButton(this);
+    d->m_batchEditButton->setText(tr("&Batch Edit..."));
+    buttonLayout->addWidget(d->m_batchEditButton);
+
     horizontalLayout->addLayout(buttonLayout);
     vbox2->addLayout(horizontalLayout);
 
@@ -143,6 +150,8 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
             this, SLOT(removeEnvironmentButtonClicked()));
     connect(d->m_unsetButton, SIGNAL(clicked(bool)),
             this, SLOT(unsetEnvironmentButtonClicked()));
+    connect(d->m_batchEditButton, SIGNAL(clicked(bool)),
+            this, SLOT(batchEditEnvironmentButtonClicked()));
     connect(d->m_environmentView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(environmentCurrentIndexChanged(QModelIndex)));
 
@@ -187,15 +196,10 @@ void EnvironmentWidget::setUserChanges(const QList<Utils::EnvironmentItem> &list
     updateSummaryText();
 }
 
-bool sortEnvironmentItem(const Utils::EnvironmentItem &a, const Utils::EnvironmentItem &b)
-{
-    return a.name < b.name;
-}
-
 void EnvironmentWidget::updateSummaryText()
 {
     QList<Utils::EnvironmentItem> list = d->m_model->userChanges();
-    qSort(list.begin(), list.end(), &sortEnvironmentItem);
+    Utils::EnvironmentItem::sort(&list);
 
     QString text;
     foreach (const Utils::EnvironmentItem &item, list) {
@@ -259,6 +263,16 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
         d->m_model->resetVariable(name);
     else
         d->m_model->unsetVariable(name);
+}
+
+void EnvironmentWidget::batchEditEnvironmentButtonClicked()
+{
+    const QList<Utils::EnvironmentItem> changes = d->m_model->userChanges();
+
+    bool ok;
+    const QList<Utils::EnvironmentItem> newChanges = EnvironmentItemsDialog::getEnvironmentItems(this, changes, &ok);
+    if (ok)
+        d->m_model->setUserChanges(newChanges);
 }
 
 void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current)
