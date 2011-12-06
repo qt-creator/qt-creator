@@ -213,6 +213,7 @@ SshConnectionParameters LinuxDeviceConfiguration::sshParameters() const
 }
 
 LinuxDeviceConfiguration::DeviceType LinuxDeviceConfiguration::deviceType() const
+
 {
     return d->deviceType;
 }

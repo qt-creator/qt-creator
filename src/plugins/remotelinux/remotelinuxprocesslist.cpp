@@ -110,6 +110,11 @@ int AbstractRemoteLinuxProcessList::pidAt(int row) const
     return d->remoteProcesses.at(row).pid;
 }
 
+QString AbstractRemoteLinuxProcessList::commandLineAt(int row) const
+{
+    return d->remoteProcesses.at(row).cmdLine;
+}
+
 int AbstractRemoteLinuxProcessList::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : d->remoteProcesses.count();

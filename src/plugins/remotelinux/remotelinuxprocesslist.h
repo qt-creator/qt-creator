@@ -54,6 +54,7 @@ public:
     void update();
     void killProcess(int row);
     int pidAt(int row) const;
+    QString commandLineAt(int row) const;
 
 signals:
     void error(const QString &errorMsg);

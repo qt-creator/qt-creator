@@ -127,8 +127,7 @@ FORMS += \
     linuxdeviceconfigurationssettingswidget.ui \
     sshkeycreationdialog.ui \
     remotelinuxdeployconfigurationwidget.ui \
-    profilesupdatedialog.ui \
-    startgdbserverdialog.ui
+    profilesupdatedialog.ui
 
 RESOURCES += remotelinux.qrc
 

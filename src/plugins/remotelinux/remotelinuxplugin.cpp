@@ -62,6 +62,7 @@ namespace Internal {
 
 RemoteLinuxPlugin::RemoteLinuxPlugin()
 {
+    setObjectName(QLatin1String("RemoteLinuxPlugin"));
 }
 
 bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
@@ -72,6 +73,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
 
     LinuxDeviceConfigurations::instance(this);
 
+    addObject(this);
     addAutoReleasedObject(new LinuxDeviceConfigurationsSettingsPage);
     addAutoReleasedObject(new GenericLinuxDeviceConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
@@ -89,6 +91,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
 
 void RemoteLinuxPlugin::extensionsInitialized()
 {
+    /*
     using namespace Core;
     ICore *core = ICore::instance();
     ActionManager *am = core->actionManager();
@@ -111,6 +114,7 @@ void RemoteLinuxPlugin::extensionsInitialized()
     cmd->setDefaultText(tr("Attach to Remote Process"));
     mstart->addAction(cmd, Debugger::Constants::G_AUTOMATIC_REMOTE);
     connect(act, SIGNAL(triggered()), SLOT(startGdbServer()));
+    */
 }
 
 void RemoteLinuxPlugin::startGdbServer()

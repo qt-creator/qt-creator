@@ -39,9 +39,7 @@
 
 namespace RemoteLinux {
 
-namespace Internal {
-class StartGdbServerDialogPrivate;
-} // namespace Internal
+namespace Internal { class StartGdbServerDialogPrivate; }
 
 class REMOTELINUX_EXPORT StartGdbServerDialog : public QDialog
 {
@@ -55,9 +53,6 @@ public:
     void attachToRemoteProcess();
 
 signals:
-    void pidSelected(int pid);
-    void portSelected(int port);
-    void portOpened(int port);
     void processAborted();
 
 private slots:
@@ -67,7 +62,7 @@ private slots:
     void updateProcessList();
     void attachToProcess();
     void handleProcessKilled();
-    void handleSelectionChanged();
+    void updateButtons();
     void portGathererError(const QString &errorMessage);
     void portListReady();
 
@@ -79,6 +74,9 @@ private slots:
 
 private:
     void startGdbServerOnPort(int port, int pid);
+    void reportOpenPort(int port);
+    void reportFailure();
+    void logMessage(const QString &line);
     Internal::StartGdbServerDialogPrivate *d;
 };
 
