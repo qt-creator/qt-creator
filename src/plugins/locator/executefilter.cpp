@@ -165,6 +165,7 @@ void ExecuteFilter::runHeadCommand()
         m_process->setWorkingDirectory(d.workingDirectory);
         m_process->setCommand(fullPath, d.arguments);
         m_process->start();
+        m_process->closeWriteChannel();
     }
 }
 
