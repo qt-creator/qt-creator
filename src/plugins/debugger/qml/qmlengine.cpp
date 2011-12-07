@@ -201,8 +201,6 @@ void QmlEngine::connectionEstablished()
 {
     attemptBreakpointSynchronization();
 
-    showMessage(tr("QML Debugger connected."), StatusBar);
-
     if (!watchHandler()->watcherNames().isEmpty()) {
         synchronizeWatchers();
     }
@@ -215,7 +213,6 @@ void QmlEngine::connectionEstablished()
 void QmlEngine::beginConnection()
 {
     d->m_noDebugOutputTimer.stop();
-    showMessage(tr("QML Debugger connecting..."), StatusBar);
     d->m_adapter.beginConnection();
 }
 
