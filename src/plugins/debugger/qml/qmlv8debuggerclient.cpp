@@ -974,6 +974,9 @@ void QmlV8DebuggerClient::startSession()
     }
     flushSendBuffer();
     d->connect();
+    //Query for the V8 version. This is
+    //only for logging to the debuggerlog
+    d->version();
 }
 
 void QmlV8DebuggerClient::endSession()
@@ -1303,6 +1306,11 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                 } else if (debugCommand == _(SOURCE)) {
                 } else if (debugCommand == _(SCRIPTS)) {
                 } else if (debugCommand == _(VERSION)) {
+                    d->engine->logMessage(QmlEngine::LogReceive,
+                                          QString(_("Using V8 Version: %1")).arg(
+                                              resp.value(_(BODY)).toMap().
+                                              value(_("V8Version")).toString()));
+
                 } else if (debugCommand == _(V8FLAGS)) {
                 } else if (debugCommand == _(GARBAGECOLLECTOR)) {
                 } else {
