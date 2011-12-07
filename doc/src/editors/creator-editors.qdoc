@@ -1597,6 +1597,11 @@
             \i  Function signature. When this action is available, a light bulb
                 icon appears:
                 \inlineimage qml-toolbar-indicator.png
+        \row
+            \i  Add #include for undeclared identifier
+            \i  Adds an #include directive to the current file to make the
+                declaration of a symbol available.
+            \i  Undeclared identifier
     \endtable
 
    \section2 Refactoring QML Code
@@ -1629,14 +1634,9 @@
             \i Moves a QML element into a separate file
             \i Element name
         \row
-            \i Rename id
-            \i Renames all instances of an element ID in the currently open file
-            \i Element ID
-        \row
             \i Split Initializer
             \i Reformats a one-line element into a multi-line element. For example,
             rewrites
-
     \code
     Item { x: 10; y: 20; width: 10 }
     \endcode
@@ -1651,6 +1651,16 @@
     }
     \endcode
             \i Element property
+        \row
+            \i Wrap in Loader
+            \i Wraps the element in a Component element and loads it dynamically in
+               a Loader element. This is usually done to improve startup time.
+            \i Element name
+        \row
+            \i Add a message suppression comment
+            \i Prepends the line with an annotation comment that stops the message
+               from being generated.
+            \i Error, warning or hint from static analysis
 
     \endtable
    */
