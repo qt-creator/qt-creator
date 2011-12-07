@@ -640,11 +640,6 @@ void SshConnectionPrivate::connectToHost()
         m_errorString = ex.errorString;
         emit error(m_error);
         return;
-    } catch (const Botan::Exception &ex) {
-        m_error = SshKeyFileError;
-        m_errorString = QString::fromAscii(ex.what());
-        emit error(m_error);
-        return;
     }
 
     connect(m_socket, SIGNAL(connected()), this, SLOT(handleSocketConnected()));

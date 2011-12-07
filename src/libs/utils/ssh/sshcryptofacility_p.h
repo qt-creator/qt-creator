@@ -118,10 +118,10 @@ private:
     virtual char keyChar() const { return 'C'; }
     virtual char macChar() const { return 'E'; }
 
-    void createAuthenticationKeyFromPKCS8(const QByteArray &privKeyFileContents,
-        QList<Botan::BigInt> &pubKeyParams, QList<Botan::BigInt> &allKeyParams);
-    void createAuthenticationKeyFromOpenSSL(const QByteArray &privKeyFileContents,
-        QList<Botan::BigInt> &pubKeyParams, QList<Botan::BigInt> &allKeyParams);
+    bool createAuthenticationKeyFromPKCS8(const QByteArray &privKeyFileContents,
+        QList<Botan::BigInt> &pubKeyParams, QList<Botan::BigInt> &allKeyParams, QString &error);
+    bool createAuthenticationKeyFromOpenSSL(const QByteArray &privKeyFileContents,
+        QList<Botan::BigInt> &pubKeyParams, QList<Botan::BigInt> &allKeyParams, QString &error);
 
     static const QByteArray PrivKeyFileStartLineRsa;
     static const QByteArray PrivKeyFileStartLineDsa;

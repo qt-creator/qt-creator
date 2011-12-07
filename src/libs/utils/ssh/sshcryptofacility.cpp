@@ -200,18 +200,22 @@ void SshEncryptionFacility::createAuthenticationKey(const QByteArray &privKeyFil
 #endif
     QList<BigInt> pubKeyParams;
     QList<BigInt> allKeyParams;
-    try {
-        createAuthenticationKeyFromPKCS8(privKeyFileContents, pubKeyParams,
-            allKeyParams);
-    } catch (Botan::Exception &) {
-        createAuthenticationKeyFromOpenSSL(privKeyFileContents, pubKeyParams,
-            allKeyParams);
+    QString error1;
+    QString error2;
+    if (!createAuthenticationKeyFromPKCS8(privKeyFileContents, pubKeyParams, allKeyParams, error1)
+            && !createAuthenticationKeyFromOpenSSL(privKeyFileContents, pubKeyParams, allKeyParams,
+                error2)) {
+#ifdef CREATOR_SSH_DEBUG
+        qDebug("%s: %s\n\t%s\n", Q_FUNC_INFO, qPrintable(error1), qPrintable(error2));
+#endif
+        throw SshClientException(SshKeyFileError, SSH_TR("Decoding of private key file failed: "
+            "Format not understood."));
     }
 
     foreach (const BigInt &b, allKeyParams) {
         if (b.is_zero()) {
             throw SshClientException(SshKeyFileError,
-                SSH_TR("Decoding of private key file failed."));
+                SSH_TR("Decoding of private key file failed: Invalid zero parameter."));
         }
     }
 
@@ -221,93 +225,101 @@ void SshEncryptionFacility::createAuthenticationKey(const QByteArray &privKeyFil
     m_cachedPrivKeyContents = privKeyFileContents;
 }
 
-void SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &privKeyFileContents,
-    QList<BigInt> &pubKeyParams, QList<BigInt> &allKeyParams)
+bool SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &privKeyFileContents,
+    QList<BigInt> &pubKeyParams, QList<BigInt> &allKeyParams, QString &error)
 {
-    Pipe pipe;
-    pipe.process_msg(convertByteArray(privKeyFileContents),
-        privKeyFileContents.size());
-    Private_Key * const key = PKCS8::load_key(pipe, m_rng, SshKeyPasswordRetriever());
-    if (DSA_PrivateKey * const dsaKey = dynamic_cast<DSA_PrivateKey *>(key)) {
-        m_authKeyAlgoName = SshCapabilities::PubKeyDss;
-        m_authKey.reset(dsaKey);
-        pubKeyParams << dsaKey->group_p() << dsaKey->group_q()
-            << dsaKey->group_g() << dsaKey->get_y();
-        allKeyParams << pubKeyParams << dsaKey->get_x();
-    } else if (RSA_PrivateKey * const rsaKey = dynamic_cast<RSA_PrivateKey *>(key)) {
-        m_authKeyAlgoName = SshCapabilities::PubKeyRsa;
-        m_authKey.reset(rsaKey);
-        pubKeyParams << rsaKey->get_e() << rsaKey->get_n();
-        allKeyParams << pubKeyParams << rsaKey->get_p() << rsaKey->get_q()
-            << rsaKey->get_d();
-    } else {
-        throw Botan::Exception();
+    try {
+        Pipe pipe;
+        pipe.process_msg(convertByteArray(privKeyFileContents), privKeyFileContents.size());
+        Private_Key * const key = PKCS8::load_key(pipe, m_rng, SshKeyPasswordRetriever());
+        if (DSA_PrivateKey * const dsaKey = dynamic_cast<DSA_PrivateKey *>(key)) {
+            m_authKeyAlgoName = SshCapabilities::PubKeyDss;
+            m_authKey.reset(dsaKey);
+            pubKeyParams << dsaKey->group_p() << dsaKey->group_q()
+                         << dsaKey->group_g() << dsaKey->get_y();
+            allKeyParams << pubKeyParams << dsaKey->get_x();
+        } else if (RSA_PrivateKey * const rsaKey = dynamic_cast<RSA_PrivateKey *>(key)) {
+            m_authKeyAlgoName = SshCapabilities::PubKeyRsa;
+            m_authKey.reset(rsaKey);
+            pubKeyParams << rsaKey->get_e() << rsaKey->get_n();
+            allKeyParams << pubKeyParams << rsaKey->get_p() << rsaKey->get_q()
+                         << rsaKey->get_d();
+        } else {
+            qWarning("%s: Unexpected code flow, expected success or exception.", Q_FUNC_INFO);
+            return false;
+        }
+    } catch (const Botan::Exception &ex) {
+        error = QLatin1String(ex.what());
+        return false;
     }
+    return true;
 }
 
-void SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray &privKeyFileContents,
-    QList<BigInt> &pubKeyParams, QList<BigInt> &allKeyParams)
+bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray &privKeyFileContents,
+    QList<BigInt> &pubKeyParams, QList<BigInt> &allKeyParams, QString &error)
 {
-    bool syntaxOk = true;
-    QList<QByteArray> lines = privKeyFileContents.split('\n');
-    while (lines.last().isEmpty())
-        lines.removeLast();
-    if (lines.count() < 3) {
-        syntaxOk = false;
-    } else if (lines.first() == PrivKeyFileStartLineRsa) {
-        if (lines.last() != PrivKeyFileEndLineRsa)
-            syntaxOk =false;
-        else
-            m_authKeyAlgoName = SshCapabilities::PubKeyRsa;
-    } else if (lines.first() == PrivKeyFileStartLineDsa) {
-        if (lines.last() != PrivKeyFileEndLineDsa)
+    try {
+        bool syntaxOk = true;
+        QList<QByteArray> lines = privKeyFileContents.split('\n');
+        while (lines.last().isEmpty())
+            lines.removeLast();
+        if (lines.count() < 3) {
             syntaxOk = false;
-        else
-            m_authKeyAlgoName = SshCapabilities::PubKeyDss;
-    } else {
-        syntaxOk = false;
-    }
-    if (!syntaxOk) {
-        throw SshClientException(SshKeyFileError,
-            SSH_TR("Private key file has unexpected format."));
-    }
+        } else if (lines.first() == PrivKeyFileStartLineRsa) {
+            if (lines.last() != PrivKeyFileEndLineRsa)
+                syntaxOk = false;
+            else
+                m_authKeyAlgoName = SshCapabilities::PubKeyRsa;
+        } else if (lines.first() == PrivKeyFileStartLineDsa) {
+            if (lines.last() != PrivKeyFileEndLineDsa)
+                syntaxOk = false;
+            else
+                m_authKeyAlgoName = SshCapabilities::PubKeyDss;
+        } else {
+            syntaxOk = false;
+        }
+        if (!syntaxOk) {
+            error = SSH_TR("Unexpected format.");
+            return false;
+        }
 
-    QByteArray privateKeyBlob;
-    for (int i = 1; i < lines.size() - 1; ++i)
-        privateKeyBlob += lines.at(i);
-    privateKeyBlob = QByteArray::fromBase64(privateKeyBlob);
+        QByteArray privateKeyBlob;
+        for (int i = 1; i < lines.size() - 1; ++i)
+            privateKeyBlob += lines.at(i);
+        privateKeyBlob = QByteArray::fromBase64(privateKeyBlob);
 
-    BER_Decoder decoder(convertByteArray(privateKeyBlob),
-                        privateKeyBlob.size());
-    BER_Decoder sequence = decoder.start_cons(SEQUENCE);
-    quint32 version;
-    sequence.decode (version);
-    if (version != 0) {
-        throw SshClientException(SshKeyFileError,
-            SSH_TR("Private key encoding has version %1, expected 0.")
-            .arg(version));
+        BER_Decoder decoder(convertByteArray(privateKeyBlob), privateKeyBlob.size());
+        BER_Decoder sequence = decoder.start_cons(SEQUENCE);
+        quint32 version;
+        sequence.decode (version);
+        if (version != 0) {
+            error = SSH_TR("Key encoding has version %1, expected 0.").arg(version);
+            return false;
+        }
+
+        if (m_authKeyAlgoName == SshCapabilities::PubKeyDss) {
+            BigInt p, q, g, y, x;
+            sequence.decode (p).decode (q).decode (g).decode (y).decode (x);
+            DSA_PrivateKey * const dsaKey = new DSA_PrivateKey(m_rng, DL_Group(p, q, g), x);
+            m_authKey.reset(dsaKey);
+            pubKeyParams << p << q << g << y;
+            allKeyParams << pubKeyParams << x;
+        } else {
+            BigInt p, q, e, d, n;
+            sequence.decode(n).decode(e).decode(d).decode(p).decode(q);
+            RSA_PrivateKey * const rsaKey = new RSA_PrivateKey(m_rng, p, q, e, d, n);
+            m_authKey.reset(rsaKey);
+            pubKeyParams << e << n;
+            allKeyParams << pubKeyParams << p << q << d;
+        }
+
+        sequence.discard_remaining();
+        sequence.verify_end();
+    } catch (const Botan::Exception &ex) {
+        error = QLatin1String(ex.what());
+        return false;
     }
-
-    if (m_authKeyAlgoName == SshCapabilities::PubKeyDss) {
-        BigInt p, q, g, y, x;
-        sequence.decode (p).decode (q).decode (g).decode (y).decode (x);
-        DSA_PrivateKey * const dsaKey
-                = new DSA_PrivateKey(m_rng, DL_Group(p, q, g), x);
-        m_authKey.reset(dsaKey);
-        pubKeyParams << p << q << g << y;
-        allKeyParams << pubKeyParams << x;
-    } else {
-        BigInt p, q, e, d, n;
-        sequence.decode (n).decode (e).decode (d).decode (p).decode (q);
-        RSA_PrivateKey * const rsaKey
-                = new RSA_PrivateKey (m_rng, p, q, e, d, n);
-        m_authKey.reset(rsaKey);
-        pubKeyParams << e << n;
-        allKeyParams << pubKeyParams << p << q << d;
-    }
-
-    sequence.discard_remaining();
-    sequence.verify_end();
+    return true;
 }
 
 QByteArray SshEncryptionFacility::authenticationAlgorithmName() const
