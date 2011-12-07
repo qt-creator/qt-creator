@@ -211,7 +211,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         const QString &newName = value.toString();
 #endif
         // Does the new name exist already?
-        if (d->m_resultEnvironment.hasKey(newName))
+        if (d->m_resultEnvironment.hasKey(newName) || newName.isEmpty())
             return false;
 
         Utils::EnvironmentItem newVariable(newName, oldValue);
@@ -227,7 +227,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         const QString stringValue = value.toString();
         if (changesPos != -1) {
             // We have already changed this value
-            if (stringValue == d->m_baseEnvironment.value(oldName)) {
+            if (d->m_baseEnvironment.hasKey(oldName) && stringValue == d->m_baseEnvironment.value(oldName)) {
                 // ... and now went back to the base value
                 d->m_items.removeAt(changesPos);
             } else {

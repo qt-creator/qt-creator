@@ -20698,6 +20698,14 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
         <source>Timeout waiting for reply from server.</source>
         <translation>Überschreitung des Zeitlimits beim Warten auf Antwort vom Server.</translation>
     </message>
+    <message>
+        <source>No private key file given.</source>
+        <translation>Keine Datei mit privatem Schlüssel angegeben.</translation>
+    </message>
+    <message>
+        <source>Private key file error: %1</source>
+        <translation>Problem mit privatem Schlüssel: %1</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::SubdirsProjectWizardDialog</name>
@@ -24589,6 +24597,10 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
+    </message>
+    <message>
+        <source>Old Creator</source>
+        <translation>Veraltete Creator-Konvention</translation>
     </message>
 </context>
 <context>

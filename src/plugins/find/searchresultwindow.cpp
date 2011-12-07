@@ -58,7 +58,28 @@ namespace Find {
 
 namespace Internal {
 
-    class SearchResultWindowPrivate : public QObject {
+    class InternalScrollArea : public QScrollArea
+    {
+        Q_OBJECT
+    public:
+        explicit InternalScrollArea(QWidget *parent)
+            : QScrollArea(parent)
+        {
+            setFrameStyle(QFrame::NoFrame);
+            setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        }
+
+        QSize sizeHint() const
+        {
+            if (widget())
+                return widget()->size();
+            return QScrollArea::sizeHint();
+        }
+    };
+
+    class SearchResultWindowPrivate : public QObject
+    {
         Q_OBJECT
     public:
         SearchResultWindowPrivate(SearchResultWindow *window);
@@ -210,8 +231,7 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     d->m_widget = new QStackedWidget;
     d->m_widget->setWindowTitle(displayName());
 
-    QScrollArea *newSearchArea = new QScrollArea(d->m_widget);
-    newSearchArea->setFrameStyle(QFrame::NoFrame);
+    InternalScrollArea *newSearchArea = new InternalScrollArea(d->m_widget);
     newSearchArea->setWidget(newSearchPanel);
     newSearchArea->setFocusProxy(newSearchPanel);
     d->m_widget->addWidget(newSearchArea);

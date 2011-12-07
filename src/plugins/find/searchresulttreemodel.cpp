@@ -492,6 +492,13 @@ QModelIndex SearchResultTreeModel::prevIndex(const QModelIndex &idx, bool *wrapp
     return current;
 }
 
+QModelIndex SearchResultTreeModel::followingIndex(const QModelIndex &idx, bool backward, bool includeGenerated, bool *wrapped)
+{
+    if (backward)
+        return prev(idx, includeGenerated, wrapped);
+    return next(idx, includeGenerated, wrapped);
+}
+
 QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx, bool includeGenerated, bool *wrapped) const
 {
     QModelIndex value = idx;
@@ -502,7 +509,8 @@ QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx, bool includeGene
 }
 
 QModelIndex SearchResultTreeModel::find(const QRegExp &expr, const QModelIndex &index,
-                                        QTextDocument::FindFlags flags, bool *wrapped)
+                                        QTextDocument::FindFlags flags,
+                                        bool startWithCurrentIndex, bool *wrapped)
 {
     QModelIndex resultIndex;
     QModelIndex currentIndex = index;
@@ -512,6 +520,8 @@ QModelIndex SearchResultTreeModel::find(const QRegExp &expr, const QModelIndex &
     bool anyWrapped = false;
     bool stepWrapped = false;
 
+    if (!startWithCurrentIndex)
+        currentIndex = followingIndex(currentIndex, backward, true, &stepWrapped);
     do {
         anyWrapped |= stepWrapped; // update wrapped state if we actually stepped to next/prev item
         if (currentIndex.isValid()) {
@@ -519,10 +529,7 @@ QModelIndex SearchResultTreeModel::find(const QRegExp &expr, const QModelIndex &
             if (expr.indexIn(text) != -1)
                 resultIndex = currentIndex;
         }
-        if (backward)
-            currentIndex = prev(currentIndex, true, &stepWrapped);
-        else
-            currentIndex = next(currentIndex, true, &stepWrapped);
+        currentIndex = followingIndex(currentIndex, backward, true, &stepWrapped);
     } while (!resultIndex.isValid() && currentIndex.isValid() && currentIndex != index);
     if (resultIndex.isValid() && wrapped)
         *wrapped = anyWrapped;
@@ -530,7 +537,8 @@ QModelIndex SearchResultTreeModel::find(const QRegExp &expr, const QModelIndex &
 }
 
 QModelIndex SearchResultTreeModel::find(const QString &term, const QModelIndex &index,
-                                        QTextDocument::FindFlags flags, bool *wrapped)
+                                        QTextDocument::FindFlags flags,
+                                        bool startWithCurrentIndex, bool *wrapped)
 {
     QModelIndex resultIndex;
     QModelIndex currentIndex = index;
@@ -541,6 +549,8 @@ QModelIndex SearchResultTreeModel::find(const QString &term, const QModelIndex &
     bool anyWrapped = false;
     bool stepWrapped = false;
 
+    if (!startWithCurrentIndex)
+        currentIndex = followingIndex(currentIndex, backward, true, &stepWrapped);
     do {
         anyWrapped |= stepWrapped; // update wrapped state if we actually stepped to next/prev item
         if (currentIndex.isValid()) {
@@ -549,10 +559,7 @@ QModelIndex SearchResultTreeModel::find(const QString &term, const QModelIndex &
             if (!doc.find(term, 0, flags).isNull())
                 resultIndex = currentIndex;
         }
-        if (backward)
-            currentIndex = prev(currentIndex, true, &stepWrapped);
-        else
-            currentIndex = next(currentIndex, true, &stepWrapped);
+        currentIndex = followingIndex(currentIndex, backward, true, &stepWrapped);
     } while (!resultIndex.isValid() && currentIndex.isValid() && currentIndex != index);
     if (resultIndex.isValid() && wrapped)
         *wrapped = anyWrapped;

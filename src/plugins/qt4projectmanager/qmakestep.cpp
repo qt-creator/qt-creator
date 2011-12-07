@@ -692,7 +692,6 @@ void QMakeStepConfigWidget::updateSummaryLabel()
 void QMakeStepConfigWidget::updateQmlDebuggingOption()
 {
     m_ui->qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
-
     m_ui->debuggingLibraryLabel->setText(tr("Enable QML debugging:"));
 
     QString warningText;

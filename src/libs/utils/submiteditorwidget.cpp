@@ -323,7 +323,7 @@ static QString wrappedText(const QTextEdit *e)
         rc += cursor.selectedText();
         rc += newLine;
         cursor.movePosition(QTextCursor::EndOfLine); // Mac needs it
-        cursor.movePosition(QTextCursor::Right);
+        cursor.movePosition(QTextCursor::NextCharacter);
     }
     return rc;
 }

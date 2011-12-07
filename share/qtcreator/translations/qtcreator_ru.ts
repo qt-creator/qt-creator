@@ -19409,6 +19409,10 @@ Error: %2</source>
         <source>Qt</source>
         <translation>Qt</translation>
     </message>
+    <message>
+        <source>Old Creator</source>
+        <translation>Старый Creator</translation>
+    </message>
 </context>
 <context>
     <name>QmlJsDebugClient::QmlProfilerEventList</name>
@@ -27128,10 +27132,6 @@ Influences the indentation of continuation lines.
         <translation>Неожиданный пакет типа %1.</translation>
     </message>
     <message>
-        <source>Private key error: %1</source>
-        <translation>Ошибка закрытого ключа: %1</translation>
-    </message>
-    <message>
         <source>Password expired.</source>
         <translation>Время действия пароля истекло.</translation>
     </message>
@@ -27158,6 +27158,14 @@ Influences the indentation of continuation lines.
     <message>
         <source>Timeout waiting for reply from server.</source>
         <translation>Вышло время ожидания ответа от сервера.</translation>
+    </message>
+    <message>
+        <source>No private key file given.</source>
+        <translation>Не задан файл закрытого ключа.</translation>
+    </message>
+    <message>
+        <source>Private key file error: %1</source>
+        <translation>Ошибка файла закрытого ключа: %1</translation>
     </message>
 </context>
 <context>
