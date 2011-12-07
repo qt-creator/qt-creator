@@ -1598,6 +1598,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     if (!m_readerExact)
         return;
     if (evalResult == EvalFail || m_project->wasEvaluateCanceled()) {
+        m_validParse = false;
         m_project->destroyProFileReader(m_readerExact);
         m_project->destroyProFileReader(m_readerCumulative);
         m_readerExact = m_readerCumulative = 0;

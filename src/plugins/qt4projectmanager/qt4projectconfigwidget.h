@@ -46,6 +46,7 @@ namespace Utils {
 namespace Qt4ProjectManager {
 class Qt4BaseTarget;
 class Qt4BuildConfiguration;
+class Qt4ProFileNode;
 
 namespace Internal {
 namespace Ui {
@@ -80,6 +81,7 @@ private slots:
     void toolChainChanged();
     void updateImportLabel();
     void environmentChanged();
+    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool);
     void updateToolChainCombo();
 
 private:

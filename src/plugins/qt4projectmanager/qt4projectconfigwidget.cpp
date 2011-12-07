@@ -123,7 +123,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BaseTarget *target)
             this, SLOT(updateImportLabel()));
 
     connect(target->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SLOT(updateToolChainCombo()));
+            this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 
     connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
             this, SLOT(updateToolChainCombo()));
@@ -537,6 +537,13 @@ void Qt4ProjectConfigWidget::toolChainChanged()
         m_ui->toolChainComboBox->setCurrentIndex(m_ui->toolChainComboBox->count() - 1);
         m_ignoreChange = false;
     }
+}
+
+void Qt4ProjectConfigWidget::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool success, bool parseInProgress)
+{
+    if (!success || parseInProgress)
+        return;
+    updateToolChainCombo();
 }
 
 void Qt4ProjectConfigWidget::updateToolChainCombo()
