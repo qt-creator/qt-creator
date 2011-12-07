@@ -1,0 +1,250 @@
+diff --git b/src/libs/qmljs/parser/qmljs.g a/src/libs/qmljs/parser/qmljs.g
+index 6888b65..784e47f 100644
+--- b/src/libs/qmljs/parser/qmljs.g
++++ a/src/libs/qmljs/parser/qmljs.g
+@@ -1,23 +1,32 @@
+ ----------------------------------------------------------------------------
+ --
+--- Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+--- All rights reserved.
++-- This file is part of Qt Creator
++--
++-- Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
++--
+ -- Contact: Nokia Corporation (qt-info@nokia.com)
+ --
+--- This file is part of the QtDeclarative module of the Qt Toolkit.
+ --
+--- $QT_BEGIN_LICENSE:LGPL-ONLY$
+ -- GNU Lesser General Public License Usage
+--- This file may be used under the terms of the GNU Lesser
+--- General Public License version 2.1 as published by the Free Software
+--- Foundation and appearing in the file LICENSE.LGPL included in the
+--- packaging of this file.  Please review the following information to
+--- ensure the GNU Lesser General Public License version 2.1 requirements
+--- will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++--
++-- This file may be used under the terms of the GNU Lesser General Public
++-- License version 2.1 as published by the Free Software Foundation and
++-- appearing in the file LICENSE.LGPL included in the packaging of this file.
++-- Please review the following information to ensure the GNU Lesser General
++-- Public License version 2.1 requirements will be met:
++-- http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++--
++-- In addition, as a special exception, Nokia gives you certain additional
++-- rights. These rights are described in the Nokia Qt LGPL Exception
++-- version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
++--
++-- Other Usage
++--
++-- Alternatively, this file may be used in accordance with the terms and
++-- conditions contained in a signed written agreement between you and Nokia.
+ --
+ -- If you have questions regarding the use of this file, please contact
+ -- Nokia at qt-info@nokia.com.
+--- $QT_END_LICENSE$
+ --
+ ----------------------------------------------------------------------------
+ 
+@@ -83,46 +92,37 @@
+ 
+ %start TopLevel
+ 
+-/./****************************************************************************
++/./**************************************************************************
++**
++** This file is part of Qt Creator
++**
++** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+ **
+-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+-** All rights reserved.
+ ** Contact: Nokia Corporation (qt-info@nokia.com)
+ **
+-** This file is part of the QtDeclarative module of the Qt Toolkit.
+ **
+-** $QT_BEGIN_LICENSE:LGPL$
+ ** GNU Lesser General Public License Usage
++**
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+-** appearing in the file LICENSE.LGPL included in the packaging of this
+-** file. Please review the following information to ensure the GNU Lesser
+-** General Public License version 2.1 requirements will be met:
++** appearing in the file LICENSE.LGPL included in the packaging of this file.
++** Please review the following information to ensure the GNU Lesser General
++** Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** In addition, as a special exception, Nokia gives you certain additional
+ ** rights. These rights are described in the Nokia Qt LGPL Exception
+ ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+ **
+-** GNU General Public License Usage
+-** Alternatively, this file may be used under the terms of the GNU General
+-** Public License version 3.0 as published by the Free Software Foundation
+-** and appearing in the file LICENSE.GPL included in the packaging of this
+-** file. Please review the following information to ensure the GNU General
+-** Public License version 3.0 requirements will be met:
+-** http://www.gnu.org/copyleft/gpl.html.
+-**
+ ** Other Usage
++**
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Nokia.
+ **
++** If you have questions regarding the use of this file, please contact
++** Nokia at qt-info@nokia.com.
+ **
+-**
+-**
+-**
+-** $QT_END_LICENSE$
+-**
+-****************************************************************************/
++**************************************************************************/
+ 
+ #include <QtCore/QtDebug>
+ #include <QtCore/QCoreApplication>
+@@ -136,46 +136,37 @@
+ 
+ ./
+ 
+-/:/****************************************************************************
++/:/**************************************************************************
++**
++** This file is part of Qt Creator
++**
++** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+ **
+-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+-** All rights reserved.
+ ** Contact: Nokia Corporation (qt-info@nokia.com)
+ **
+-** This file is part of the QtDeclarative module of the Qt Toolkit.
+ **
+-** $QT_BEGIN_LICENSE:LGPL$
+ ** GNU Lesser General Public License Usage
++**
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+-** appearing in the file LICENSE.LGPL included in the packaging of this
+-** file. Please review the following information to ensure the GNU Lesser
+-** General Public License version 2.1 requirements will be met:
++** appearing in the file LICENSE.LGPL included in the packaging of this file.
++** Please review the following information to ensure the GNU Lesser General
++** Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** In addition, as a special exception, Nokia gives you certain additional
+ ** rights. These rights are described in the Nokia Qt LGPL Exception
+ ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+ **
+-** GNU General Public License Usage
+-** Alternatively, this file may be used under the terms of the GNU General
+-** Public License version 3.0 as published by the Free Software Foundation
+-** and appearing in the file LICENSE.GPL included in the packaging of this
+-** file. Please review the following information to ensure the GNU General
+-** Public License version 3.0 requirements will be met:
+-** http://www.gnu.org/copyleft/gpl.html.
+-**
+ ** Other Usage
++**
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Nokia.
+ **
++** If you have questions regarding the use of this file, please contact
++** Nokia at qt-info@nokia.com.
+ **
+-**
+-**
+-**
+-** $QT_END_LICENSE$
+-**
+-****************************************************************************/
++**************************************************************************/
+ 
+ 
+ //
+diff --git b/src/libs/qmljs/parser/qmljsengine_p.cpp a/src/libs/qmljs/parser/qmljsengine_p.cpp
+index 5b204c9..10e39ab 100644
+--- b/src/libs/qmljs/parser/qmljsengine_p.cpp
++++ a/src/libs/qmljs/parser/qmljsengine_p.cpp
+@@ -113,7 +113,7 @@ double integerFromString(const QString &str, int radix)
+ 
+ 
+ Engine::Engine()
+-    : _lexer(0)
++    : _lexer(0), _directives(0)
+ { }
+ 
+ Engine::~Engine()
+@@ -134,6 +134,12 @@ Lexer *Engine::lexer() const
+ void Engine::setLexer(Lexer *lexer)
+ { _lexer = lexer; }
+ 
++void Engine::setDirectives(Directives *directives)
++{ _directives = directives; }
++
++Directives *Engine::directives() const
++{ return _directives; }
++
+ MemoryPool *Engine::pool()
+ { return &_pool; }
+ 
+diff --git b/src/libs/qmljs/parser/qmljsengine_p.h a/src/libs/qmljs/parser/qmljsengine_p.h
+index 5057ea0..487619e 100644
+--- b/src/libs/qmljs/parser/qmljsengine_p.h
++++ a/src/libs/qmljs/parser/qmljsengine_p.h
+@@ -56,6 +56,7 @@ QT_QML_BEGIN_NAMESPACE
+ namespace QmlJS {
+ 
+ class Lexer;
++class Directives;
+ class MemoryPool;
+ 
+ class QML_PARSER_EXPORT DiagnosticMessage
+@@ -83,6 +84,7 @@ public:
+ class QML_PARSER_EXPORT Engine
+ {
+     Lexer *_lexer;
++    Directives *_directives;
+     MemoryPool _pool;
+     QList<AST::SourceLocation> _comments;
+     QString _extraCode;
+@@ -100,6 +102,9 @@ public:
+     Lexer *lexer() const;
+     void setLexer(Lexer *lexer);
+ 
++    void setDirectives(Directives *directives);
++    Directives *directives() const;
++
+     MemoryPool *pool();
+ 
+     inline QStringRef midRef(int position, int size) { return _code.midRef(position, size); }
+diff --git b/src/libs/qmljs/parser/qmljsparser.cpp a/src/libs/qmljs/parser/qmljsparser.cpp
+index a731c1a..e986534 100644
+--- b/src/libs/qmljs/parser/qmljsparser.cpp
++++ a/src/libs/qmljs/parser/qmljsparser.cpp
+@@ -138,7 +138,20 @@ bool Parser::parse(int startToken)
+ 
+     token_buffer[0].token = startToken;
+     first_token = &token_buffer[0];
+-    last_token = &token_buffer[1];
++    if (startToken == T_FEED_JS_PROGRAM) {
++        Directives ignoreDirectives;
++        Directives *directives = driver->directives();
++        if (!directives)
++            directives = &ignoreDirectives;
++        lexer->scanDirectives(directives);
++        token_buffer[1].token = lexer->tokenKind();
++        token_buffer[1].dval = lexer->tokenValue();
++        token_buffer[1].loc = location(lexer);
++        token_buffer[1].spell = lexer->tokenSpell();
++        last_token = &token_buffer[2];
++    } else {
++        last_token = &token_buffer[1];
++    }
+ 
+     tos = -1;
+     program = 0;

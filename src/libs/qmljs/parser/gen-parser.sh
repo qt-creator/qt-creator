@@ -19,4 +19,4 @@ perl -p -0777 -i -e 's/#include \"qmlglobal_p.h\"/bool Qml_isFileCaseCorrect(con
 
 ./changeLicense.py $me/../qmljs_global.h qml*.{cpp,h}
 
-echo "Fix licenses in qmljs.g!"
+patch -p5 < parser.patch
