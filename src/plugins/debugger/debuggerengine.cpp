@@ -1748,6 +1748,28 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
             }
         }
         handleAutoTestLine(line + 1);
+    } else if (cmd == QLatin1String("CheckType")) {
+        QString name = s.section(QLatin1Char(' '), 1, 1);
+        if (name.isEmpty()) {
+            reportTestError(_("'CheckType'  needs arguments."), line);
+        } else {
+            QByteArray iname = "local." + name.toLatin1();
+            QString found = m_engine->watchHandler()->displayForAutoTest(iname);
+            if (found.isEmpty()) {
+                reportTestError(_("CheckType referes to unknown variable %1.")
+                    .arg(name), line);
+            } else {
+                QString needle = s.section(QLatin1Char(' '), 2, -1);
+                if (found.endsWith(needle)) {
+                    m_engine->showMessage(_("CheckType in line %1 for %2 was successful")
+                        .arg(line).arg(needle));
+                } else {
+                    reportTestError(_("CheckType for %1 failed. Got %2.")
+                        .arg(needle).arg(found), line);
+                }
+            }
+        }
+        handleAutoTestLine(line + 1);
     } else if (cmd == QLatin1String("Continue")) {
         m_engine->showMessage(_("Continue in line %1 processed.").arg(line));
         m_engine->continueInferior();
@@ -1764,7 +1786,7 @@ void DebuggerEnginePrivate::reportTestError(const QString &msg, int line)
         m_taskHub->addCategory(QLatin1String("DebuggerTest"), tr("Debugger Test"));
     }
 
-    Task task(Task::Error, msg, m_testFileName, line, QLatin1String("DebuggerTest"));
+    Task task(Task::Error, msg, m_testFileName, line + 1, QLatin1String("DebuggerTest"));
     m_taskHub->addTask(task);
 }
 
