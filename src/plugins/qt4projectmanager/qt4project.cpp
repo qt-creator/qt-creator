@@ -344,7 +344,11 @@ Qt4Project::~Qt4Project()
     m_manager->unregisterProject(this);
     delete m_projectFiles;
     m_cancelEvaluate = true;
-    delete m_rootProjectNode;
+    // Deleting the root node triggers a few things, make sure rootProjectNode
+    // returns 0 already
+    Qt4ProFileNode *root = m_rootProjectNode;
+    m_rootProjectNode = 0;
+    delete root;
 }
 
 void Qt4Project::updateFileList()
