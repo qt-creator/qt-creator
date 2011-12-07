@@ -209,6 +209,8 @@ void QmlJSScriptConsole::setInferiorStopped(bool inferiorStopped)
 void QmlJSScriptConsole::setQmlAdapter(QmlAdapter *adapter)
 {
     d->adapter = adapter;
+    if (adapter)
+        connect(adapter, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
     clear();
 }
 
