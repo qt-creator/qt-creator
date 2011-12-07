@@ -1476,9 +1476,10 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
                 continue;
             }
 
-            const int slashPos = line.lastIndexOf(QLatin1Char('/'));
-            const QString branchName = line.mid(slashPos + 1);
-            if (slashPos != -1) {
+            const QString pattern = QLatin1String("\trefs/heads/");
+            const int pos = line.lastIndexOf(pattern);
+            const QString branchName = line.mid(pos + pattern.count());
+            if (pos != -1) {
                 if (line.startsWith(headSha))
                     branches[0] = branchName;
                 else
