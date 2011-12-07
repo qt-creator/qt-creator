@@ -420,7 +420,6 @@ void QmlEngine::continueInferior()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     if (d->m_adapter.activeDebuggerClient()) {
-        logMessage(LogSend, "CONTINUE");
         d->m_adapter.activeDebuggerClient()->continueInferior();
     }
     resetLocation();
@@ -431,7 +430,6 @@ void QmlEngine::continueInferior()
 void QmlEngine::interruptInferior()
 {
     if (d->m_adapter.activeDebuggerClient()) {
-        logMessage(LogSend, "INTERRUPT");
         d->m_adapter.activeDebuggerClient()->interruptInferior();
     }
     notifyInferiorStopOk();
@@ -440,7 +438,6 @@ void QmlEngine::interruptInferior()
 void QmlEngine::executeStep()
 {
     if (d->m_adapter.activeDebuggerClient()) {
-        logMessage(LogSend, "STEPINTO");
         d->m_adapter.activeDebuggerClient()->executeStep();
     }
     notifyInferiorRunRequested();
@@ -450,7 +447,6 @@ void QmlEngine::executeStep()
 void QmlEngine::executeStepI()
 {
     if (d->m_adapter.activeDebuggerClient()) {
-        logMessage(LogSend, "STEPINTO");
         d->m_adapter.activeDebuggerClient()->executeStepI();
     }
     notifyInferiorRunRequested();
@@ -460,7 +456,6 @@ void QmlEngine::executeStepI()
 void QmlEngine::executeStepOut()
 {
     if (d->m_adapter.activeDebuggerClient()) {
-        logMessage(LogSend, "STEPOUT");
         d->m_adapter.activeDebuggerClient()->executeStepOut();
     }
     notifyInferiorRunRequested();
@@ -470,7 +465,6 @@ void QmlEngine::executeStepOut()
 void QmlEngine::executeNext()
 {
     if (d->m_adapter.activeDebuggerClient()) {
-        logMessage(LogSend, "STEPOVER");
         d->m_adapter.activeDebuggerClient()->executeNext();
     }
     notifyInferiorRunRequested();
@@ -506,7 +500,6 @@ void QmlEngine::activateFrame(int index)
         return;
 
     if (d->m_adapter.activeDebuggerClient()) {
-        logMessage(LogSend, QString("%1 %2").arg(QString("ACTIVATE_FRAME"), QString::number(index)));
         d->m_adapter.activeDebuggerClient()->activateFrame(index);
     }
     gotoLocation(stackHandler()->frames().value(index));
@@ -684,9 +677,6 @@ void QmlEngine::assignValueInDebugger(const WatchData *data,
 {
     quint64 objectId =  data->id;
     if (objectId > 0 && !expression.isEmpty() && d->m_adapter.activeDebuggerClient()) {
-        logMessage(LogSend, QString("%1 %2 %3 %4 %5").arg(
-                       QString("SET_PROPERTY"), QString::number(objectId), QString(expression),
-                       valueV.toString()));
         d->m_adapter.activeDebuggerClient()->assignValueInDebugger(expression.toUtf8(), objectId, expression, valueV.toString());
     }
 }
@@ -700,8 +690,6 @@ void QmlEngine::updateWatchData(const WatchData &data,
 
     if (!data.name.isEmpty() && d->m_adapter.activeDebuggerClient()) {
         if (data.isValueNeeded()) {
-            logMessage(LogSend, QString("%1 %2 %3").arg(QString("EXEC"), QString(data.iname),
-                                                        QString(data.name)));
             d->m_adapter.activeDebuggerClient()->updateWatchData(data);
         }
         if (data.isChildrenNeeded()
@@ -720,8 +708,6 @@ void QmlEngine::synchronizeWatchers()
 {
     QStringList watchedExpressions = watchHandler()->watchedExpressions();
     // send watchers list
-    logMessage(LogSend, QString("%1 %2").arg(
-                   QString("WATCH_EXPRESSIONS"), watchedExpressions.join(", ")));
     if (d->m_adapter.activeDebuggerClient()) {
         d->m_adapter.activeDebuggerClient()->synchronizeWatchers(watchedExpressions);
     } else {
@@ -778,8 +764,6 @@ void QmlEngine::wrongSetupMessageBoxFinished(int result)
 void QmlEngine::executeDebuggerCommand(const QString& command)
 {
     if (d->m_adapter.activeDebuggerClient()) {
-        logMessage(LogSend, QString("%1 %2 %3").arg(QString("EXEC"), QString("console"),
-                                                          QString(command)));
         d->m_adapter.activeDebuggerClient()->executeDebuggerCommand(command);
     }
 }
@@ -790,13 +774,13 @@ QString QmlEngine::qmlImportPath() const
     return startParameters().environment.value("QML_IMPORT_PATH");
 }
 
-void QmlEngine::logMessage(LogDirection direction, const QString &message)
+void QmlEngine::logMessage(const QString &service, LogDirection direction, const QString &message)
 {
-    QString msg = "QmlDebugger";
+    QString msg = service;
     if (direction == LogSend) {
-        msg += " sending ";
+        msg += ": sending ";
     } else {
-        msg += " receiving ";
+        msg += ": receiving ";
     }
     msg += message;
     showMessage(msg, LogDebug);

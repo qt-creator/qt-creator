@@ -39,6 +39,7 @@
 #include "qmlengine.h"
 #include "stackhandler.h"
 #include "debuggercore.h"
+#include "debuggerstringutils.h"
 
 #include <QTextDocument>
 #include <QFileInfo>
@@ -125,6 +126,9 @@ public:
     int ping;
     QmlEngine *engine;
     JSAgentBreakpoints breakpoints;
+
+    void logSendMessage(const QString &msg) const;
+    void logReceiveMessage(const QString &msg) const;
 };
 
 QScriptDebuggerClient::QScriptDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client)
@@ -144,6 +148,7 @@ void QScriptDebuggerClient::executeStep()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "STEPINTO";
     rs << cmd;
+    d->logSendMessage(cmd);
     sendMessage(reply);
 }
 
@@ -153,6 +158,7 @@ void QScriptDebuggerClient::executeStepOut()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "STEPOUT";
     rs << cmd;
+    d->logSendMessage(cmd);
     sendMessage(reply);
 }
 
@@ -162,6 +168,7 @@ void QScriptDebuggerClient::executeNext()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "STEPOVER";
     rs << cmd;
+    d->logSendMessage(cmd);
     sendMessage(reply);
 }
 
@@ -171,6 +178,7 @@ void QScriptDebuggerClient::executeStepI()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "STEPINTO";
     rs << cmd;
+    d->logSendMessage(cmd);
     sendMessage(reply);
 }
 
@@ -180,6 +188,7 @@ void QScriptDebuggerClient::continueInferior()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "CONTINUE";
     rs << cmd;
+    d->logSendMessage(cmd);
     sendMessage(reply);
 }
 
@@ -189,6 +198,7 @@ void QScriptDebuggerClient::interruptInferior()
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "INTERRUPT";
     rs << cmd;
+    d->logSendMessage(cmd);
     sendMessage(reply);
 }
 
@@ -213,6 +223,7 @@ void QScriptDebuggerClient::activateFrame(int index)
     QByteArray cmd = "ACTIVATE_FRAME";
     rs << cmd
        << index;
+    d->logSendMessage(QString(_("%1 %2")).arg(cmd, QString::number(index)));
     sendMessage(reply);
 }
 
@@ -256,6 +267,15 @@ void QScriptDebuggerClient::synchronizeBreakpoints()
     QByteArray cmd = "BREAKPOINTS";
     rs << cmd
        << d->breakpoints;
+
+    QStringList logBreakpoints;
+    foreach (const JSAgentBreakpointData &bp, d->breakpoints) {
+         logBreakpoints << QString("[%1, %2, %3]").arg(bp.functionName,
+                                                       bp.fileUrl,
+                                                       QString::number(bp.lineNumber));
+    }
+    d->logSendMessage(QString(_("%1 (%2)")).arg(cmd, logBreakpoints.join(", ")));
+
     sendMessage(reply);
 }
 
@@ -267,6 +287,8 @@ void QScriptDebuggerClient::assignValueInDebugger(const QByteArray expr, const q
     QByteArray cmd = "SET_PROPERTY";
     rs << cmd;
     rs << expr << id << property << value;
+    d->logSendMessage(QString(_("%1 %2 %3 %4 %5")).arg(cmd, expr, QString::number(id), property,
+                                                    value));
     sendMessage(reply);
 }
 
@@ -277,6 +299,7 @@ void QScriptDebuggerClient::updateWatchData(const WatchData &data)
     QByteArray cmd = "EXEC";
     rs << cmd;
     rs << data.iname << data.name;
+    d->logSendMessage(QString(_("%1 %2 %3")).arg(cmd, data.iname, data.name));
     sendMessage(reply);
 }
 
@@ -287,6 +310,7 @@ void QScriptDebuggerClient::executeDebuggerCommand(const QString &command)
     QByteArray cmd = "EXEC";
     QByteArray console = "console";
     rs << cmd << console << command;
+    d->logSendMessage(QString(_("%1 %2 %3")).arg(cmd, console, command));
     sendMessage(reply);
 }
 
@@ -297,7 +321,7 @@ void QScriptDebuggerClient::synchronizeWatchers(const QStringList &watchers)
     QDataStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "WATCH_EXPRESSIONS";
     rs << cmd;
-    rs << watchers;
+    d->logSendMessage(QString(_("%1 (%2)")).arg(cmd, watchers.join(", ")));
     sendMessage(reply);
 }
 
@@ -308,6 +332,7 @@ void QScriptDebuggerClient::expandObject(const QByteArray &iname, quint64 object
     QByteArray cmd = "EXPAND";
     rs << cmd;
     rs << iname << objectId;
+    d->logSendMessage(QString(_("%1 %2 %3")).arg(cmd, iname, QString::number(objectId)));
     sendMessage(reply);
 }
 
@@ -319,6 +344,7 @@ void QScriptDebuggerClient::sendPing()
     QByteArray cmd = "PING";
     rs << cmd;
     rs << d->ping;
+    d->logSendMessage(cmd);
     sendMessage(reply);
 }
 
@@ -398,7 +424,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
 
             logString += QLatin1Char(' ');
             logString += error;
-            d->engine->logMessage(QmlEngine::LogReceive, logString);
+            d->logReceiveMessage(logString);
 
             QString msg = stackFrames.isEmpty()
                     ? tr("<p>An uncaught exception occurred:</p><p>%1</p>")
@@ -436,7 +462,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
                 }
             }
 
-            d->engine->logMessage(QmlEngine::LogReceive, logString);
+            d->logReceiveMessage(logString);
         }
 
         if (!ideStackFrames.isEmpty())
@@ -447,8 +473,8 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
         QByteArray iname;
         stream >> iname >> data;
 
-        d->engine->logMessage(QmlEngine::LogReceive, QString("%1 %2 %3").arg(QString(command),
-                                                                             QString(iname), QString(data.value)));
+        d->logReceiveMessage(QString("%1 %2 %3").arg(QString(command), QString(iname),
+                                                     QString(data.value)));
         data.iname = iname;
         if (iname.startsWith("watch.")) {
             d->engine->watchHandler()->insertData(data);
@@ -461,10 +487,11 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
         QList<WatchData> result;
         QByteArray iname;
         stream >> iname >> result;
-
-        d->engine->logMessage(QmlEngine::LogReceive, QString("%1 %2 (%3 x watchdata)").arg(
-                                  QString(command), QString(iname), QString::number(result.size())));
+        d->logReceiveMessage(QString("%1 %2 (%3 x watchdata)").arg( QString(command),
+                                                                    QString(iname),
+                                                                    QString::number(result.size())));
         bool needPing = false;
+
         foreach (WatchData data, result) {
             data.iname = iname + '.' + data.exp;
             d->engine->watchHandler()->insertData(data);
@@ -485,7 +512,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
             stream >> watches;
         }
 
-        d->engine->logMessage(QmlEngine::LogReceive, QString("%1 %2 (%3 x locals) (%4 x watchdata)").arg(
+        d->logReceiveMessage(QString("%1 %2 (%3 x locals) (%4 x watchdata)").arg(
                                   QString(command), QString::number(frameId),
                                   QString::number(locals.size()),
                                   QString::number(watches.size())));
@@ -518,13 +545,13 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
         int ping;
         stream >> ping;
 
-        d->engine->logMessage(QmlEngine::LogReceive, QString("%1 %2").arg(QString(command), QString::number(ping)));
+        d->logReceiveMessage(QString("%1 %2").arg(QString(command), QString::number(ping)));
 
         if (ping == d->ping)
             d->engine->watchHandler()->endCycle();
     } else {
         qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
-        d->engine->logMessage(QmlEngine::LogReceive, QString("%1 UNKNOWN COMMAND!!").arg(QString(command)));
+        d->logReceiveMessage(QString("%1 UNKNOWN COMMAND!!").arg(QString(command)));
     }
 
 }
@@ -532,6 +559,18 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
 void QScriptDebuggerClient::setEngine(QmlEngine *engine)
 {
     d->engine = engine;
+}
+
+void QScriptDebuggerClientPrivate::logSendMessage(const QString &msg) const
+{
+    if (engine)
+        engine->logMessage("QScriptDebuggerClient", QmlEngine::LogSend, msg);
+}
+
+void QScriptDebuggerClientPrivate::logReceiveMessage(const QString &msg) const
+{
+    if (engine)
+        engine->logMessage("QScriptDebuggerClient", QmlEngine::LogReceive, msg);
 }
 
 } // Internal

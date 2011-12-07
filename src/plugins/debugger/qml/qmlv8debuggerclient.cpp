@@ -122,9 +122,13 @@ public:
     QmlV8ObjectData extractData(const QVariant &data);
     void clearCache();
 
+    void logSendMessage(const QString &msg) const;
+    void logReceiveMessage(const QString &msg) const;
+
 private:
     QByteArray packMessage(const QByteArray &message);
     QScriptValue initObject();
+
 
 public:
     QmlV8DebuggerClient *q;
@@ -175,6 +179,7 @@ void QmlV8DebuggerClientPrivate::connect()
     jsonVal.setProperty(_(COMMAND), QScriptValue(_(CONNECT)));
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -188,6 +193,7 @@ void QmlV8DebuggerClientPrivate::disconnect()
     jsonVal.setProperty(_(COMMAND), QScriptValue(_(DISCONNECT)));
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -201,6 +207,7 @@ void QmlV8DebuggerClientPrivate::interrupt()
     jsonVal.setProperty(_(COMMAND), QScriptValue(_(INTERRUPT)));
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -241,6 +248,7 @@ void QmlV8DebuggerClientPrivate::continueDebugging(QmlV8DebuggerClient::StepActi
 
     }
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -298,6 +306,7 @@ void QmlV8DebuggerClientPrivate::evaluate(const QString expr, bool global,
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -330,6 +339,7 @@ void QmlV8DebuggerClientPrivate::lookup(QList<int> handles, bool includeSource)
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -361,6 +371,7 @@ void QmlV8DebuggerClientPrivate::backtrace(int fromFrame, int toFrame, bool bott
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -383,6 +394,7 @@ void QmlV8DebuggerClientPrivate::frame(int number)
     }
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -410,6 +422,7 @@ void QmlV8DebuggerClientPrivate::scope(int number, int frameNumber)
     }
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -433,6 +446,7 @@ void QmlV8DebuggerClientPrivate::scopes(int frameNumber)
     }
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -475,6 +489,7 @@ void QmlV8DebuggerClientPrivate::scripts(int types, const QList<int> ids, bool i
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -506,6 +521,7 @@ void QmlV8DebuggerClientPrivate::source(int frame, int fromLine, int toLine)
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -550,6 +566,7 @@ void QmlV8DebuggerClientPrivate::setBreakpoint(const QString type, const QString
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -584,6 +601,7 @@ void QmlV8DebuggerClientPrivate::changeBreakpoint(int breakpoint, bool enabled,
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -606,6 +624,7 @@ void QmlV8DebuggerClientPrivate::clearBreakpoint(int breakpoint)
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -638,6 +657,7 @@ void QmlV8DebuggerClientPrivate::setExceptionBreak(QmlV8DebuggerClient::Exceptio
 
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -652,6 +672,7 @@ void QmlV8DebuggerClientPrivate::listBreakpoints()
                         QScriptValue(_(LISTBREAKPOINTS)));
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -674,6 +695,7 @@ void QmlV8DebuggerClientPrivate::v8flags(const QString flags)
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -687,6 +709,7 @@ void QmlV8DebuggerClientPrivate::version()
     jsonVal.setProperty(_(COMMAND), QScriptValue(_(VERSION)));
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -711,6 +734,7 @@ void QmlV8DebuggerClientPrivate::version()
 //    jsonVal.setProperty(_(ARGUMENTS), args);
 
 //    const QScriptValue jsonMessage = m_stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+//    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
 //    q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 //}
 
@@ -733,6 +757,7 @@ void QmlV8DebuggerClientPrivate::gc()
     jsonVal.setProperty(_(ARGUMENTS), args);
 
     const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
+    logSendMessage(QString(_("%1 %2")).arg(_(V8DEBUG), jsonMessage.toString()));
     q->sendMessage(packMessage(jsonMessage.toString().toUtf8()));
 }
 
@@ -858,6 +883,18 @@ QScriptValue QmlV8DebuggerClientPrivate::initObject()
     jsonVal.setProperty(_(SEQ), QScriptValue(++sequence));
     jsonVal.setProperty(_(TYPE), _(REQUEST));
     return jsonVal;
+}
+
+void QmlV8DebuggerClientPrivate::logSendMessage(const QString &msg) const
+{
+    if (engine)
+        engine->logMessage("V8DebuggerClient", QmlEngine::LogSend, msg);
+}
+
+void QmlV8DebuggerClientPrivate::logReceiveMessage(const QString &msg) const
+{
+    if (engine)
+        engine->logMessage("V8DebuggerClient", QmlEngine::LogReceive, msg);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1078,6 +1115,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
         QString responseString(response);
 
         SDEBUG(responseString);
+        d->logReceiveMessage(QString(_("%1 %2")).arg(_(V8DEBUG), responseString));
 
         const QVariantMap resp = d->parser.call(QScriptValue(),
                                                 QScriptValueList() <<
@@ -1090,9 +1128,6 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
             bool success = resp.value(_("success")).toBool();
             if (!success) {
                 SDEBUG("Request was unsuccessful");
-                d->engine->logMessage(QmlEngine::LogReceive,
-                                      QString(_("V8 Response Error: %1")).arg(
-                                          resp.value(_("message")).toString()));
             }
 
             const QString debugCommand(resp.value(_(COMMAND)).toString());

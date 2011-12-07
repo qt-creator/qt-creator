@@ -72,7 +72,7 @@ public:
     QString toFileInProject(const QUrl &fileUrl);
     void inferiorSpontaneousStop();
 
-    void logMessage(LogDirection direction, const QString &str);
+    void logMessage(const QString &service, LogDirection direction, const QString &str);
 
     QmlAdapter *adapter() const;
 
