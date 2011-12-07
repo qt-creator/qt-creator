@@ -82,5 +82,17 @@ void QmlDebuggerClient::flushSendBuffer()
     d->sendBuffer.clear();
 }
 
+//TODO:: remove this method
+QList<QByteArray> QmlDebuggerClient::cachedMessages()
+{
+    return d->sendBuffer;
+}
+
+//TODO:: remove this method
+void QmlDebuggerClient::clearCachedMessages()
+{
+    d->sendBuffer.clear();
+}
+
 } // Internal
 } // Debugger

@@ -61,13 +61,6 @@ class QmlV8DebuggerClient : public QmlDebuggerClient
         Next
     };
 
-    enum V8DebugServiceStates
-    {
-        RunningState,
-        WaitingForRequestState,
-        ProcessingRequestState
-    };
-
 public:
     explicit QmlV8DebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection *client);
     ~QmlV8DebuggerClient();
@@ -94,7 +87,7 @@ public:
     void assignValueInDebugger(const QByteArray expr, const quint64 &id,
                                        const QString &property, const QString &value);
 
-    void updateWatchData(const WatchData &data);
+    void updateWatchData(const WatchData &);
     void executeDebuggerCommand(const QString &command);
 
     void synchronizeWatchers(const QStringList &watchers);
@@ -105,13 +98,12 @@ public:
 
 protected:
     void messageReceived(const QByteArray &data);
-    void sendMessage(const QByteArray &msg);
 
 private:
     void updateStack(const QVariant &bodyVal, const QVariant &refsVal);
-    StackFrame createStackFrame(const QVariant &bodyVal, const QVariant &refsVal);
-    void updateLocals(const QVariant &localsVal, const QVariant &refsVal);
-    void updateScope(const QVariant &localsVal, const QVariant &refsVal);
+    StackFrame insertStackFrame(const QVariant &bodyVal, const QVariant &refsVal);
+    void setCurrentFrameDetails(const QVariant &bodyVal, const QVariant &refsVal);
+    void updateScope(const QVariant &bodyVal, const QVariant &refsVal);
 
     void updateEvaluationResult(int sequence, bool success, const QVariant &bodyVal,
                                 const QVariant &refsVal);
@@ -124,10 +116,6 @@ private:
     void highlightExceptionCode(int lineNumber, const QString &filePath,
                                 const QString &errorMessage);
     void clearExceptionSelection();
-
-    void resetDebugger();
-
-    void updateLocalsAndWatchers();
 
 private:
     QmlV8DebuggerClientPrivate *d;

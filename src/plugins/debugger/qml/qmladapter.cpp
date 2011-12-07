@@ -158,7 +158,6 @@ void QmlAdapter::clientStatusChanged(QDeclarativeDebugClient::Status status)
 
     if (status == QDeclarativeDebugClient::Enabled) {
         d->m_qmlClient = d->debugClients.value(serviceName);
-        d->m_qmlClient->flushSendBuffer();
         d->m_qmlClient->startSession();
     }
 }

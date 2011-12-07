@@ -36,6 +36,12 @@
 namespace Debugger {
 namespace Internal {
 
+const float CURRENT_SUPPORTED_VERSION = 2.0;
+const char V8REQUEST[] = "v8request";
+const char V8MESSAGE[] = "v8message";
+const char SIGNALHANDLER[] = "signalhandler";
+const char CONNECT[] = "connect";
+const char INTERRUPT[] = "interrupt";
 const char V8DEBUG[] = "V8DEBUG";
 const char SEQ[] = "seq";
 const char TYPE[] = "type";
@@ -88,9 +94,6 @@ const char LISTBREAKPOINTS[] = "listbreakpoints";
 const char GARBAGECOLLECTOR[] = "gc";
 //const char PROFILE[] = "profile";
 
-const char CONNECT[] = "connect";
-const char INTERRUPT[] = "interrupt";
-
 const char REQUEST[] = "request";
 const char IN[] = "in";
 const char NEXT[] = "next";
@@ -98,6 +101,7 @@ const char OUT[] = "out";
 
 const char FUNCTION[] = "function";
 const char SCRIPT[] = "script";
+const char SCRIPTREGEXP[] = "scriptRegExp";
 const char EVENT[] = "event";
 
 const char ALL[] = "all";

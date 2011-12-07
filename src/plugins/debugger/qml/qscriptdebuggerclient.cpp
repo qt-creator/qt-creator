@@ -204,6 +204,9 @@ void QScriptDebuggerClient::interruptInferior()
 
 void QScriptDebuggerClient::startSession()
 {
+    //Flush buffered data
+    flushSendBuffer();
+
     //Set all breakpoints
     BreakHandler *handler = d->engine->breakHandler();
     foreach (BreakpointModelId id, handler->engineBreakpointIds(d->engine)) {

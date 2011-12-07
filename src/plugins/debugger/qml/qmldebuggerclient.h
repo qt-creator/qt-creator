@@ -92,6 +92,9 @@ protected:
     virtual void statusChanged(Status status);
     void sendMessage(const QByteArray &msg);
 
+    QList<QByteArray> cachedMessages();
+    void clearCachedMessages();
+
 private:
     QmlDebuggerClientPrivate *d;
     friend class QmlDebuggerClientPrivate;
