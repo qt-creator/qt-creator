@@ -106,8 +106,14 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
 
     connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(addRemote()));
     connect(m_ui->fetchButton, SIGNAL(clicked()), this, SLOT(fetchFromRemote()));
+    connect(m_ui->pushButton, SIGNAL(clicked()), this, SLOT(pushToRemote()));
     connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(removeRemote()));
     connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(refreshRemotes()));
+
+    connect(m_ui->remoteView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(updateButtonState()));
+
+    updateButtonState();
 }
 
 RemoteDialog::~RemoteDialog()
@@ -163,6 +169,17 @@ void RemoteDialog::removeRemote()
     }
 }
 
+void RemoteDialog::pushToRemote()
+{
+    const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
+    if (indexList.count() == 0)
+        return;
+
+    const int row = indexList.at(0).row();
+    const QString remoteName = m_remoteModel->remoteName(row);
+    m_remoteModel->client()->synchronousPush(m_remoteModel->workingDirectory(), remoteName);
+}
+
 void RemoteDialog::fetchFromRemote()
 {
     const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
@@ -172,6 +189,17 @@ void RemoteDialog::fetchFromRemote()
     int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
     m_remoteModel->client()->synchronousFetch(m_remoteModel->workingDirectory(), remoteName);
+}
+
+void RemoteDialog::updateButtonState()
+{
+    const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
+
+    const bool haveSelection = (indexList.count() > 0);
+    m_ui->addButton->setEnabled(true);
+    m_ui->fetchButton->setEnabled(haveSelection);
+    m_ui->pushButton->setEnabled(haveSelection);
+    m_ui->removeButton->setEnabled(haveSelection);
 }
 
 void RemoteDialog::changeEvent(QEvent *e)

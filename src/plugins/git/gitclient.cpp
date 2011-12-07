@@ -1967,13 +1967,16 @@ void GitClient::subversionLog(const QString &workingDirectory)
     executeGit(workingDirectory, arguments, editor);
 }
 
-bool GitClient::synchronousPush(const QString &workingDirectory)
+bool GitClient::synchronousPush(const QString &workingDirectory, const QString &remote)
 {
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
                            |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+    QStringList arguments(QLatin1String("push"));
+    if (!remote.isEmpty())
+        arguments << remote;
     const Utils::SynchronousProcessResponse resp =
-            synchronousGit(workingDirectory, QStringList(QLatin1String("push")), flags);
+            synchronousGit(workingDirectory, arguments, flags);
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 

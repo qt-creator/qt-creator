@@ -170,7 +170,7 @@ public:
     QString vcsGetRepositoryURL(const QString &directory);
     bool synchronousFetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory);
-    bool synchronousPush(const QString &workingDirectory);
+    bool synchronousPush(const QString &workingDirectory, const QString &remote = QString());
 
     // git svn support (asynchronous).
     void synchronousSubversionFetch(const QString &workingDirectory);

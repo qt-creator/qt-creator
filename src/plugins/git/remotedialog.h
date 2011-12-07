@@ -84,7 +84,10 @@ public slots:
     void refreshRemotes();
     void addRemote();
     void removeRemote();
+    void pushToRemote();
     void fetchFromRemote();
+
+    void updateButtonState();
 
 private slots:
 
