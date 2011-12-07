@@ -210,7 +210,7 @@ void dummyStatement(...) {}
 QT_BEGIN_NAMESPACE
 uint qHash(const QMap<int, int> &) { return 0; }
 uint qHash(const double & f) { return int(f); }
-uint qHash(const QPointer<QObject> &p) { return (uint)p.data(); }
+uint qHash(const QPointer<QObject> &p) { return (ulong)p.data(); }
 QT_END_NAMESPACE
 
 
@@ -238,6 +238,8 @@ namespace multibp {
             : m_size(size), m_data(new T[size])
         {
             BREAK_HERE;
+            // Check size 10 int.
+            // Continue.
             // Check there are multiple entries in the Breakpoint vie.
             dummyStatement(this);
         }
@@ -320,12 +322,17 @@ namespace peekandpoke {
             double d;
         } a = { { 42, 43 } };
         BREAK_HERE;
+        // CheckType a union {...}.
+        // Continue.
+
         // Expand a. Step.
         a.i = 1;
         BREAK_HERE;
+        // Continue.
         // Change a.i in Locals view to 0. This changes f, d but expectedly not b. Step.
         a.i = 2;
         BREAK_HERE;
+        // Continue.
         a.i = 3;
         dummyStatement(&a);
         #endif
@@ -337,6 +344,9 @@ namespace peekandpoke {
         for (int i = 0; i != 10; ++i)
             s[i].a = i;
         BREAK_HERE;
+        // CheckType s peekandpoke::S [10].
+        // Continue.
+
         // Expand s and s[0]. Step.
         // Watcher Context: "Add New Watcher".
         // Type    ['s[%d].a' % i for i in range(5)]
@@ -353,18 +363,26 @@ namespace peekandpoke {
         pain.begin(&im);
         pain.setPen(QPen(Qt::black, 5.0, Qt::SolidLine, Qt::RoundCap));
         BREAK_HERE;
+        // Check im (200x200) QImage.
+        // CheckType pain QPainter.
+        // Continue.
         pain.drawEllipse(20, 20, 160, 160);
         BREAK_HERE;
+        // Continue.
         // Toggle between "Normal" and "Displayed" in L&W Context Menu, entry "Display of Type QImage".
         pain.drawArc(70, 115, 60, 30, 200 * 16, 140 * 16);
         BREAK_HERE;
+        // Continue.
         pain.setBrush(Qt::black);
         BREAK_HERE;
+        // Continue.
         pain.drawEllipse(65, 70, 15, 15);
         BREAK_HERE;
+        // Continue.
         // Toggle between "Normal" and "Displayed" in L&W Context Menu, entry "Display of Type QImage".
         pain.drawEllipse(120, 70, 15, 15);
         BREAK_HERE;
+        // Continue.
         pain.end();
         dummyStatement(&pain);
     }
@@ -418,6 +436,9 @@ namespace anon {
         a.i = 3;
         Something s;
         BREAK_HERE;
+        // CheckType a anon::TestAnonymous.
+        // CheckType s anon::(anonymous namespace)::Something.
+        // Continue.
         // Step.
         s.foo();
         dummyStatement(&a, &s);
@@ -433,12 +454,17 @@ namespace qbytearray {
     {
         QByteArray ba;
         BREAK_HERE;
+        // Check ba "" QByteArray.
+        // Continue.
         ba += "Hello";
         ba += '"';
         ba += "World";
         ba += char(0);
         ba += 1;
         ba += 2;
+        BREAK_HERE;
+        // Check ba "Hello"World" QByteArray.
+        // Continue.
         dummyStatement(&ba);
     }
 
@@ -447,9 +473,13 @@ namespace qbytearray {
         QByteArray ba;
         for (int i = 256; --i >= 0; )
             ba.append(char(i));
-        BREAK_HERE;
         QString s(10000, 'x');
         std::string ss(10000, 'c');
+        BREAK_HERE;
+        // Check ba "\377\376\375\374\373\372\371\370\367\366\365\364\363\362\361\360\357\356\355\354\353\352\351\350\347\346\345\344\343\342\341\340\337\336\335\334\333\332\331\330\327\326\325\324\323\322\321\320\317\316\315\314\313\312\311\310\307\306\305\304\303\302\301\300\277\276\275\274\273\272\271\270\267\266\265\264\263\262\261\260\257\256\255\254\253\252\251\250\247\246\245\244\243\242\241\240\237\236\235\234\233\232\231\230\227\226\225\224\223\222\221\220\217\216\215\214\213\212\211\210\207\206\205\204\203\202\201\20..." QByteArray.
+        // Check s "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..." QString.
+        // Check ss "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc..." std::string.
+        // Continue.
         dummyStatement(&ba, &ss, &s);
     }
 
@@ -462,6 +492,13 @@ namespace qbytearray {
         QByteArray buf2(str2);
         QByteArray buf3(str3);
         BREAK_HERE;
+        // Check buf1 "\356" QByteArray.
+        // Check buf2 "\356" QByteArray.
+        // Check buf3 "\ee" QByteArray.
+        // CheckType str1 char *.
+        // CheckType str2 char *.
+        // CheckType str3 char *.
+        // Continue.
         dummyStatement(&buf1, &buf2, &buf3);
     }
 
@@ -480,6 +517,7 @@ namespace catchthrow {
     static void throwit1()
     {
         BREAK_HERE;
+        // Continue.
         // Set a breakpoint on "throw" in the BreakWindow context menu
         // before stepping further.
         throw 14;
@@ -510,6 +548,9 @@ namespace qdatetime {
     {
         QDate date;
         BREAK_HERE;
+        // CheckType date QDate.
+        // Continue.
+
         // Step, check display.
         date = QDate::currentDate();
         date = date.addDays(5);
@@ -521,6 +562,8 @@ namespace qdatetime {
     {
         QTime time;
         BREAK_HERE;
+        // CheckType time QTime.
+        // Continue.
         // Step, check display.
         time = QTime::currentTime();
         time = time.addSecs(5);
@@ -532,6 +575,8 @@ namespace qdatetime {
     {
         QDateTime date;
         BREAK_HERE;
+        // CheckType date QDateTime.
+        // Continue.
         // Step, check display.
         date = QDateTime::currentDateTime();
         date = date.addSecs(5);
@@ -573,6 +618,8 @@ namespace qhash {
         hash.insert("!", QList<int>() << 1 << 2);
         hash.insert("!", QList<int>() << 1 << 2);
         BREAK_HERE;
+        // Check hash <3 items> QHash<QString, QList<int>>.
+        // Continue.
         dummyStatement(&hash);
     }
 
@@ -582,6 +629,8 @@ namespace qhash {
         hash[11] = 11.0;
         hash[22] = 22.0;
         BREAK_HERE;
+        // Check hash <2 items> QHash<int, float>.
+        // Continue.
         dummyStatement(&hash);
     }
 
@@ -598,6 +647,8 @@ namespace qhash {
         hash["111111111128.0"] = 28.0;
         hash["111111111111111111129.0"] = 29.0;
         BREAK_HERE;
+        // Check hash <9 items> QHash<QString, int>.
+        // Continue.
         dummyStatement(&hash);
     }
 
@@ -614,6 +665,8 @@ namespace qhash {
         hash["111111111128.0"] = 28.0;
         hash["111111111111111111129.0"] = 29.0;
         BREAK_HERE;
+        // Check hash <9 items> QHash<QByteArray, float>.
+        // Continue.
         dummyStatement(&hash);
     }
 
@@ -622,6 +675,8 @@ namespace qhash {
         QHash<int, QString> hash;
         hash[22] = "22.0";
         BREAK_HERE;
+        // Check hash <1 items> QHash<int, QString>.
+        // Continue.
         dummyStatement(&hash);
     }
 
@@ -631,6 +686,8 @@ namespace qhash {
         hash["22.0"] = Foo(22);
         hash["33.0"] = Foo(33);
         BREAK_HERE;
+        // Check hash <2 items> QHash<QString, Foo>.
+        // Continue.
         dummyStatement(&hash);
     }
 
@@ -642,6 +699,9 @@ namespace qhash {
         hash.insert("Welt", QPointer<QObject>(&ob));
         hash.insert(".", QPointer<QObject>(&ob));
         BREAK_HERE;
+        // Check hash <3 items> QHash<QString, QPointer<QObject>>.
+        // Check ob "" QObject.
+        // Continue.
         dummyStatement(&hash, &ob);
     }
 
@@ -666,7 +726,9 @@ namespace qhostaddress {
         QHostAddress ha1(129u * 256u * 256u * 256u + 130u);
         QHostAddress ha2("127.0.0.1");
         BREAK_HERE;
-        // Check ha1 and ha2 look correct.
+        // Check ha1 129.0.0.130 QHostAddress.
+        // Check ha2 "127.0.0.1" QHostAddress.
+        // Continue.
         dummyStatement(&ha1, &ha2);
     }
 
@@ -683,6 +745,9 @@ namespace painting {
         QPainter pain;
         pain.begin(&im);
         BREAK_HERE;
+        // Check im (200x200) QImage.
+        // CheckType pain QPainter.
+        // Continue.
         // Step.
         pain.drawLine(2, 2, 130, 130);
         pain.drawLine(4, 2, 130, 140);
@@ -701,6 +766,10 @@ namespace painting {
         pain.end();
         QPixmap pm = QPixmap::fromImage(im);
         BREAK_HERE;
+        // Check im (200x200) QImage.
+        // CheckType pain QPainter.
+        // Check pm (200x200) QPixmap.
+        // Continue.
         dummyStatement(&im, &pm);
     }
 
@@ -721,6 +790,8 @@ namespace qlinkedlist {
         list.append(101);
         list.append(102);
         BREAK_HERE;
+        // Check list <2 items> QLinkedList<int>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -730,6 +801,8 @@ namespace qlinkedlist {
         list.append(103);
         list.append(104);
         BREAK_HERE;
+        // Check list <2 items> QLinkedList<unsigned int>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -740,6 +813,8 @@ namespace qlinkedlist {
         list.append(0);
         list.append(new Foo(3));
         BREAK_HERE;
+        // Check list <3 items> QLinkedList<Foo*>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -749,6 +824,8 @@ namespace qlinkedlist {
         list.append(42);
         list.append(43);
         BREAK_HERE;
+        // Check list <2 items> QLinkedList<unsigned long long>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -758,6 +835,8 @@ namespace qlinkedlist {
         list.append(Foo(1));
         list.append(Foo(2));
         BREAK_HERE;
+        // Check list <2 items> QLinkedList<Foo>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -767,6 +846,8 @@ namespace qlinkedlist {
         list.push_back("aa");
         list.push_back("bb");
         BREAK_HERE;
+        // Check list <2 items> QLinkedList<std::string>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -789,9 +870,13 @@ namespace qlist {
     {
         QList<int> big;
         BREAK_HERE;
+        // Check big <0 items> QList<int>.
+        // Continue.
         for (int i = 0; i < 10000; ++i)
             big.push_back(i);
         BREAK_HERE;
+        // Check big <10000 items> QList<int>.
+        // Continue.
         dummyStatement(&big);
     }
 
@@ -799,10 +884,14 @@ namespace qlist {
     {
         QList<int *> l;
         BREAK_HERE;
+        // Check l <0 items> QList<int*>.
+        // Continue.
         l.append(new int(1));
         l.append(new int(2));
         l.append(new int(3));
         BREAK_HERE;
+        // Check l <3 items> QList<int*>.
+        // Continue.
         dummyStatement(&l);
     }
 
@@ -810,10 +899,14 @@ namespace qlist {
     {
         QList<uint> l;
         BREAK_HERE;
+        // Check l <0 items> QList<unsigned int>.
+        // Continue.
         l.append(101);
         l.append(102);
         l.append(102);
         BREAK_HERE;
+        // Check l <3 items> QList<unsigned int>.
+        // Continue.
         dummyStatement(&l);
     }
 
@@ -821,10 +914,14 @@ namespace qlist {
     {
         QList<ushort> l;
         BREAK_HERE;
+        // Check l <0 items> QList<unsigned short>.
+        // Continue.
         l.append(101);
         l.append(102);
         l.append(102);
         BREAK_HERE;
+        // Check l <3 items> QList<unsigned short>.
+        // Continue.
         dummyStatement(&l);
     }
 
@@ -832,10 +929,14 @@ namespace qlist {
     {
         QList<QChar> l;
         BREAK_HERE;
+        // Check l <0 items> QList<QChar>.
+        // Continue.
         l.append(QChar('a'));
         l.append(QChar('b'));
         l.append(QChar('c'));
         BREAK_HERE;
+        // Check l <3 items> QList<QChar>.
+        // Continue.
         dummyStatement(&l);
     }
 
@@ -843,10 +944,14 @@ namespace qlist {
     {
         QList<qulonglong> l;
         BREAK_HERE;
+        // Check l <0 items> QList<unsigned long long>.
+        // Continue.
         l.append(101);
         l.append(102);
         l.append(102);
         BREAK_HERE;
+        // Check l <3 items> QList<unsigned long long>.
+        // Continue.
         dummyStatement(&l);
     }
 
@@ -854,11 +959,15 @@ namespace qlist {
     {
         QList<std::string> l;
         BREAK_HERE;
+        // Check l <0 items> QList<std::string>.
+        // Continue.
         l.push_back("aa");
         l.push_back("bb");
         l.push_back("cc");
         l.push_back("dd");
         BREAK_HERE;
+        // Check l <4 items> QList<std::string>.
+        // Continue.
         dummyStatement(&l);
     }
 
@@ -866,13 +975,19 @@ namespace qlist {
     {
         QList<Foo> l;
         BREAK_HERE;
+        // Check l <0 items> QList<Foo>.
+        // Continue.
         for (int i = 0; i < 100; ++i)
             l.push_back(i + 15);
         BREAK_HERE;
+        // Check l <100 items> QList<Foo>.
+        // Continue.
         l.push_back(1000);
         l.push_back(1001);
         l.push_back(1002);
         BREAK_HERE;
+        // Check l <103 items> QList<Foo>.
+        // Continue.
         dummyStatement(&l);
     }
 
@@ -886,6 +1001,11 @@ namespace qlist {
         while (rit != rend)
             r.append(*rit++);
         BREAK_HERE;
+        // Check l <3 items> QList<int>.
+        // Check r <3 items> QList<int>.
+        // CheckType rend qlist::Reverse.
+        // CheckType rit qlist::Reverse.
+        // Continue.
         dummyStatement();
     }
 
@@ -914,6 +1034,9 @@ namespace qlocale {
         //QVariant v = loc;
         QLocale::MeasurementSystem m = loc.measurementSystem();
         BREAK_HERE;
+        // CheckType loc QLocale.
+        // CheckType m QLocale::MeasurementSystem.
+        // Continue.
         dummyStatement(&loc, &m);
     }
 
@@ -928,6 +1051,8 @@ namespace qmap {
         map[11] = QStringList() << "11";
         map[22] = QStringList() << "22";
         BREAK_HERE;
+        // Check map <2 items> QMap<unsigned int, QStringList>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -939,6 +1064,8 @@ namespace qmap {
         map[11] = QStringList() << "11";
         map[22] = QStringList() << "22";
         BREAK_HERE;
+        // Check map <2 items> qmap::T.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -948,6 +1075,8 @@ namespace qmap {
         map[11] = 11.0;
         map[22] = 22.0;
         BREAK_HERE;
+        // Check map <2 items> QMap<unsigned int, float>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -956,6 +1085,8 @@ namespace qmap {
         QMap<QString, float> map;
         map["22.0"] = 22.0;
         BREAK_HERE;
+        // Check map <1 items> QMap<QString, float>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -964,6 +1095,8 @@ namespace qmap {
         QMap<int, QString> map;
         map[22] = "22.0";
         BREAK_HERE;
+        // Check map <1 items> QMap<int, QString>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -973,6 +1106,8 @@ namespace qmap {
         map["22.0"] = Foo(22);
         map["33.0"] = Foo(33);
         BREAK_HERE;
+        // Check map <2 items> QMap<QString, Foo>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -985,6 +1120,9 @@ namespace qmap {
         map.insert("Welt", QPointer<QObject>(&ob));
         map.insert(".", QPointer<QObject>(&ob));
         BREAK_HERE;
+        // Check map <3 items> QMap<QString, QPointer<QObject>>.
+        // Check ob "" QObject.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1001,6 +1139,9 @@ namespace qmap {
         map["1"] = x;
         map["2"] = x;
         BREAK_HERE;
+        // Check map <4 items> QMap<QString, QList<nsA::nsB::SomeType*>>.
+        // Check x <3 items> QList<nsA::nsB::SomeType*>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1014,6 +1155,8 @@ namespace qmap {
         map.insert(22, 35.0);
         map.insert(22, 36.0);
         BREAK_HERE;
+        // Check map <6 items> QMultiMap<unsigned int, float>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1022,6 +1165,8 @@ namespace qmap {
         QMultiMap<QString, float> map;
         map.insert("22.0", 22.0);
         BREAK_HERE;
+        // Check map <1 items> QMultiMap<QString, float>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1030,6 +1175,8 @@ namespace qmap {
         QMultiMap<int, QString> map;
         map.insert(22, "22.0");
         BREAK_HERE;
+        // Check map <1 items> QMultiMap<int, QString>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1040,6 +1187,8 @@ namespace qmap {
         map.insert("33.0", Foo(33));
         map.insert("22.0", Foo(22));
         BREAK_HERE;
+        // Check map <3 items> QMultiMap<QString, Foo>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1052,6 +1201,9 @@ namespace qmap {
         map.insert(".", QPointer<QObject>(&ob));
         map.insert(".", QPointer<QObject>(&ob));
         BREAK_HERE;
+        // Check map <4 items> QMultiMap<QString, QPointer<QObject>>.
+        // Check ob "" QObject.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1090,6 +1242,9 @@ namespace qobject {
         QObject::disconnect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));
         child.setObjectName("A renamed Child");
         BREAK_HERE;
+        // Check child "A renamed Child" QObject.
+        // Check parent "A Parent" QObject.
+        // Continue.
         // Expand all.
         dummyStatement(&parent, &child);
     }
@@ -1133,6 +1288,9 @@ namespace qobject {
         QString s = test.myProp1();
         s += test.myProp2();
         BREAK_HERE;
+        // Check s "HELLOWORLD" QString.
+        // Check test "" qobject::Names::Bar::TestObject.
+        // Continue.
         dummyStatement(&s);
     #endif
 
@@ -1292,6 +1450,9 @@ namespace qobject {
     #if USE_PRIVATE
         DerivedObject ob;
         BREAK_HERE;
+        // Check ob "" qobject::DerivedObject.
+        // Continue.
+
         // expand ob and ob.properties
         // step, and check whether x gets updated.
         ob.setX(23);
@@ -1319,11 +1480,21 @@ namespace qregexp {
         // Works with Python dumpers only.
         QRegExp re(QString("a(.*)b(.*)c"));
         BREAK_HERE;
+        // Check re "a(.*)b(.*)c" QRegExp.
+        // Continue.
         // Step over until end, check display looks ok.
         QString str1 = "a1121b344c";
         QString str2 = "Xa1121b344c";
+        BREAK_HERE;
+        // Check str1 "a1121b344c" QString.
+        // Check str2 "Xa1121b344c" QString.
+        // Continue.
         int pos2 = re.indexIn(str2);
         int pos1 = re.indexIn(str1);
+        BREAK_HERE;
+        // Check pos1 0 int.
+        // Check pos2 1 int.
+        // Continue.
         dummyStatement(&pos1, &pos2);
     }
 
@@ -1336,8 +1507,13 @@ namespace qrect {
     {
         QPoint s;
         BREAK_HERE;
+        // Check s (0, 0) QPoint.
+        // Continue.
         // Step over, check display looks sane.
         s = QPoint(100, 200);
+        BREAK_HERE;
+        // Check s (100, 200) QPoint.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -1345,8 +1521,13 @@ namespace qrect {
     {
         QPointF s;
         BREAK_HERE;
+        // Check s (0, 0) QPointF.
+        // Continue.
         // Step over, check display looks sane.
         s = QPointF(100, 200);
+        BREAK_HERE;
+        // Check s (100, 200) QPointF.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -1354,8 +1535,13 @@ namespace qrect {
     {
         QRect rect;
         BREAK_HERE;
+        // Check rect 0x0+0+0 QRect.
+        // Continue.
         // Step over, check display looks sane.
         rect = QRect(100, 100, 200, 200);
+        BREAK_HERE;
+        // Check rect 200x200+100+100 QRect.
+        // Continue.
         dummyStatement(&rect);
     }
 
@@ -1363,8 +1549,13 @@ namespace qrect {
     {
         QRectF rect;
         BREAK_HERE;
+        // Check rect 0x0+0+0 QRectF.
+        // Continue.
         // Step over, check display looks sane.
         rect = QRectF(100, 100, 200, 200);
+        BREAK_HERE;
+        // Check rect 200x200+100+100 QRectF.
+        // Continue.
         dummyStatement(&rect);
     }
 
@@ -1372,8 +1563,13 @@ namespace qrect {
     {
         QSize s;
         BREAK_HERE;
+        // Check s (-1, -1) QSize.
+        // Continue.
         // Step over, check display looks sane.
         s = QSize(100, 200);
+        BREAK_HERE;
+        // Check s (100, 200) QSize.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -1381,8 +1577,13 @@ namespace qrect {
     {
         QSizeF s;
         BREAK_HERE;
+        // Check s (-1, -1) QSizeF.
+        // Continue.
         // Step over, check display looks sane.
         s = QSizeF(100, 200);
+        BREAK_HERE;
+        // Check s (100, 200) QSizeF.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -1406,13 +1607,33 @@ namespace qregion {
         // Works with Python dumpers only.
         QRegion region;
         BREAK_HERE;
+        // Check region <empty> QRegion.
+        // Continue.
         // Step over until end, check display looks sane.
         region += QRect(100, 100, 200, 200);
+        BREAK_HERE;
+        // Check region <1 items> QRegion.
+        // Continue.
         region += QRect(300, 300, 400, 500);
+        BREAK_HERE;
+        // Check region <2 items> QRegion.
+        // Continue.
         region += QRect(500, 500, 600, 600);
+        BREAK_HERE;
+        // Check region <4 items> QRegion.
+        // Continue.
         region += QRect(500, 500, 600, 600);
+        BREAK_HERE;
+        // Check region <4 items> QRegion.
+        // Continue.
         region += QRect(500, 500, 600, 600);
+        BREAK_HERE;
+        // Check region <4 items> QRegion.
+        // Continue.
         region += QRect(500, 500, 600, 600);
+        BREAK_HERE;
+        // Check region <4 items> QRegion.
+        // Continue.
         dummyStatement(&region);
     }
 
@@ -1438,12 +1659,19 @@ namespace plugin {
         QLibrary lib(dir + "/libsimple_test_plugin.dll");
     #endif
         BREAK_HERE;
+        // CheckType dir QString.
+        // Check lib "" QLibrary.
+        // Check name <not accessible> QString.
+        // CheckType res int.
+        // Continue.
         // Step
         int (*foo)() = (int(*)()) lib.resolve("pluginTest");
         QString name = lib.fileName();
         int res = 4;
         if (foo) {
             BREAK_HERE;
+            // Check res 4 int.
+            // Continue.
             // Step
             res = foo();
         } else {
@@ -1465,12 +1693,17 @@ namespace final {
         QSettings settings("/tmp/test.ini", QSettings::IniFormat);
         QVariant value = settings.value("item1","").toString();
         BREAK_HERE;
+        // Check settings "" QSettings.
+        // Check value "" QVariant (QString).
+        // Continue.
         dummyStatement(&settings, &value);
     }
 
     void testNullPointerDeref()
     {
         BREAK_HERE;
+        // Continue.
+
         return; // Uncomment.
         *(int *)0 = 0;
     }
@@ -1478,6 +1711,8 @@ namespace final {
     void testEndlessRecursion()
     {
         BREAK_HERE;
+        // Continue.
+
         return; // Uncomment.
         testEndlessRecursion();
     }
@@ -1489,6 +1724,8 @@ namespace final {
         // Breakpoint at "while" will stop only once
         // Hitting "Pause" button might show backtrace of different thread
         BREAK_HERE;
+        // Continue.
+
         // Jump over next line.
         return;
         while (a > 0)
@@ -1499,6 +1736,8 @@ namespace final {
     void testUncaughtException()
     {
         BREAK_HERE;
+        // Continue.
+
         // Jump over next line.
         return;
         throw 42;
@@ -1521,6 +1760,7 @@ namespace final {
         // This contains all "final" tests that do not allow proceeding
         // with further tests.
         BREAK_HERE;
+        // Continue.
         testQSettings();
         testNullPointerDeref();
         testEndlessLoop();
@@ -1540,6 +1780,8 @@ namespace qset {
         s.insert(11);
         s.insert(22);
         BREAK_HERE;
+        // Check s <2 items> QSet<int>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -1549,6 +1791,8 @@ namespace qset {
         s.insert("11.0");
         s.insert("22.0");
         BREAK_HERE;
+        // Check s <2 items> QSet<QString>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -1561,6 +1805,10 @@ namespace qset {
         s.insert(ptr);
         s.insert(ptr);
         BREAK_HERE;
+        // Check ob "" QObject.
+        // CheckType ptr QPointer<QObject>.
+        // Check s <1 items> QSet<QPointer<QObject>>.
+        // Continue.
         dummyStatement(&ptr, &s);
     }
 
@@ -1690,6 +1938,8 @@ namespace qxml {
         atts.append("name2", "uri2", "localPart2", "value2");
         atts.append("name3", "uri3", "localPart3", "value3");
         BREAK_HERE;
+        // CheckType atts QXmlAttributes.
+        // Continue.
         // Expand, check that attributes are displayed.
         dummyStatement();
     }
@@ -1705,6 +1955,8 @@ namespace stddeque {
         deque.push_back(1);
         deque.push_back(2);
         BREAK_HERE;
+        // Check deque <2 items> std::deque<int>.
+        // Continue.
         dummyStatement(&deque);
     }
 
@@ -1716,6 +1968,8 @@ namespace stddeque {
         deque.push_back(0);
         deque.push_back(new int(2));
         BREAK_HERE;
+        // Check deque <3 items> std::deque<int*>.
+        // Continue.
         deque.pop_back();
         deque.pop_front();
         deque.pop_front();
@@ -1728,6 +1982,8 @@ namespace stddeque {
         deque.push_back(1);
         deque.push_front(2);
         BREAK_HERE;
+        // Check deque <2 items> std::deque<Foo>.
+        // Continue.
         dummyStatement(&deque);
     }
 
@@ -1737,6 +1993,8 @@ namespace stddeque {
         deque.push_back(new Foo(1));
         deque.push_back(new Foo(2));
         BREAK_HERE;
+        // Check deque <2 items> std::deque<Foo*>.
+        // Continue.
         dummyStatement(&deque);
     }
 
@@ -1764,6 +2022,8 @@ namespace stdhashset {
         h.insert(2);
         h.insert(3);
         BREAK_HERE;
+        // Check h <4 items> __gnu__cxx::hash_set<int>.
+        // Continue.
         dummyStatement(&h);
     #endif
     }
@@ -1779,6 +2039,8 @@ namespace stdlist {
         list.push_back(1);
         list.push_back(2);
         BREAK_HERE;
+        // Check list <2 items> std::list<int>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -1789,6 +2051,8 @@ namespace stdlist {
         list.push_back(0);
         list.push_back(new int(2));
         BREAK_HERE;
+        // Check list <3 items> std::list<int*>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -1799,6 +2063,8 @@ namespace stdlist {
         for (int i = 0; i < 10000; ++i)
             list.push_back(i);
         BREAK_HERE;
+        // Check list <more than 1000 items> std::list<int>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -1808,6 +2074,8 @@ namespace stdlist {
         list.push_back(15);
         list.push_back(16);
         BREAK_HERE;
+        // Check list <2 items> std::list<Foo>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -1818,6 +2086,8 @@ namespace stdlist {
         list.push_back(0);
         list.push_back(new Foo(2));
         BREAK_HERE;
+        // Check list <3 items> std::list<Foo*>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -1827,6 +2097,8 @@ namespace stdlist {
         list.push_back(true);
         list.push_back(false);
         BREAK_HERE;
+        // Check list <2 items> std::list<bool>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -1853,6 +2125,8 @@ namespace stdmap {
         map["33.0"] = Foo(33);
         map["44.0"] = Foo(44);
         BREAK_HERE;
+        // Check map <3 items> std::map<QString, Foo>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1862,6 +2136,8 @@ namespace stdmap {
         map["22.0"] = Foo(22);
         map["33.0"] = Foo(33);
         BREAK_HERE;
+        // Check map <2 items> std::map<char const*, Foo>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1871,6 +2147,8 @@ namespace stdmap {
         map[11] = 1;
         map[22] = 2;
         BREAK_HERE;
+        // Check map <2 items> std::map<unsigned int, unsigned int>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1880,6 +2158,8 @@ namespace stdmap {
         map[11] = QStringList() << "11";
         map[22] = QStringList() << "22";
         BREAK_HERE;
+        // Check map <2 items> std::map<unsigned int, QStringList>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1890,6 +2170,8 @@ namespace stdmap {
         map[11] = QStringList() << "11";
         map[22] = QStringList() << "22";
         BREAK_HERE;
+        // Check map <2 items> stdmap::T.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1899,6 +2181,8 @@ namespace stdmap {
         map[11] = 11.0;
         map[22] = 22.0;
         BREAK_HERE;
+        // Check map <2 items> std::map<unsigned int, float>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1908,6 +2192,8 @@ namespace stdmap {
         map["11.0"] = 11.0;
         map["22.0"] = 22.0;
         BREAK_HERE;
+        // Check map <2 items> std::map<QString, float>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1917,6 +2203,8 @@ namespace stdmap {
         map[11] = "11.0";
         map[22] = "22.0";
         BREAK_HERE;
+        // Check map <2 items> std::map<int, QString>.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1928,6 +2216,9 @@ namespace stdmap {
         map["Welt"] = QPointer<QObject>(&ob);
         map["."] = QPointer<QObject>(&ob);
         BREAK_HERE;
+        // Check map <3 items> std::map<QString, QPointer<QObject>>.
+        // Check ob "" QObject.
+        // Continue.
         dummyStatement(&map);
     }
 
@@ -1957,6 +2248,8 @@ namespace stdset {
         set.insert(22);
         set.insert(33);
         BREAK_HERE;
+        // Check set <not accessible> QObject.
+        // Continue.
         dummyStatement(&set);
     }
 
@@ -1965,6 +2258,8 @@ namespace stdset {
         std::set<QString> set;
         set.insert("22.0");
         BREAK_HERE;
+        // Check set <1 items> std::set<QString>.
+        // Continue.
         dummyStatement(&set);
     }
 
@@ -1974,6 +2269,10 @@ namespace stdset {
         std::set<QPointer<QObject> > hash;
         QPointer<QObject> ptr(&ob);
         BREAK_HERE;
+        // Check hash <0 items> std::set<QPointer<QObject>, std::less<QPointer<QObject>>, std::allocator<QPointer<QObject>>>.
+        // Check ob "" QObject.
+        // CheckType ptr QPointer<QObject>.
+        // Continue.
         dummyStatement(&ptr);
     }
 
@@ -1994,12 +2293,32 @@ namespace stdstack {
         // This does not work with the compiled dumpers.
         std::stack<int *> s;
         BREAK_HERE;
+        // Check s <0 items> std::stack<int*>.
+        // Continue.
         s.push(new int(1));
+        BREAK_HERE;
+        // Check s <1 items> std::stack<int*>.
+        // Continue.
         s.push(0);
+        BREAK_HERE;
+        // Check s <2 items> std::stack<int*>.
+        // Continue.
         s.push(new int(2));
+        BREAK_HERE;
+        // Check s <3 items> std::stack<int*>.
+        // Continue.
         s.pop();
+        BREAK_HERE;
+        // Check s <2 items> std::stack<int*>.
+        // Continue.
         s.pop();
+        BREAK_HERE;
+        // Check s <1 items> std::stack<int*>.
+        // Continue.
         s.pop();
+        BREAK_HERE;
+        // Check s <0 items> std::stack<int*>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2007,8 +2326,16 @@ namespace stdstack {
     {
         std::stack<int> s;
         BREAK_HERE;
+        // Check s <0 items> std::stack<int>.
+        // Continue.
         s.push(1);
+        BREAK_HERE;
+        // Check s <1 items> std::stack<int>.
+        // Continue.
         s.push(2);
+        BREAK_HERE;
+        // Check s <2 items> std::stack<int>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2016,8 +2343,16 @@ namespace stdstack {
     {
         std::stack<Foo *> s;
         BREAK_HERE;
+        // Check s <0 items> std::stack<Foo*>.
+        // Continue.
         s.push(new Foo(1));
+        BREAK_HERE;
+        // Check s <1 items> std::stack<Foo*>.
+        // Continue.
         s.push(new Foo(2));
+        BREAK_HERE;
+        // Check s <2 items> std::stack<Foo*>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2025,8 +2360,16 @@ namespace stdstack {
     {
         std::stack<Foo> s;
         BREAK_HERE;
+        // Check s <0 items> std::stack<Foo>.
+        // Continue.
         s.push(1);
+        BREAK_HERE;
+        // Check s <1 items> std::stack<Foo>.
+        // Continue.
         s.push(2);
+        BREAK_HERE;
+        // Check s <2 items> std::stack<Foo>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2048,6 +2391,9 @@ namespace stdstring {
         std::string str;
         std::wstring wstr;
         BREAK_HERE;
+        // Check str "" std::string.
+        // Check wstr "" std::wstring.
+        // Continue.
         str += "b";
         wstr += wchar_t('e');
         str += "d";
@@ -2059,6 +2405,10 @@ namespace stdstring {
         wstr += wchar_t('e');
         wstr += wchar_t('e');
         str += "e";
+        BREAK_HERE;
+        // Check str "bdebdee" std::string.
+        // Check wstr "eeee" std::wstring.
+        // Continue.
         dummyStatement(&str, &wstr);
     }
 
@@ -2067,10 +2417,25 @@ namespace stdstring {
         std::string str = "foo";
         QList<std::string> l;
         BREAK_HERE;
+        // Check l <0 items> QList<std::string>.
+        // Check str "foo" std::string.
+        // Continue.
         l.push_back(str);
+        BREAK_HERE;
+        // Check l <1 items> QList<std::string>.
+        // Continue.
         l.push_back(str);
+        BREAK_HERE;
+        // Check l <2 items> QList<std::string>.
+        // Continue.
         l.push_back(str);
+        BREAK_HERE;
+        // Check l <3 items> QList<std::string>.
+        // Continue.
         l.push_back(str);
+        BREAK_HERE;
+        // Check l <4 items> QList<std::string>.
+        // Continue.
         dummyStatement(&str, &l);
     }
 
@@ -2079,10 +2444,25 @@ namespace stdstring {
         std::string str = "foo";
         std::vector<std::string> v;
         BREAK_HERE;
+        // Check str "foo" std::string.
+        // Check v <0 items> std::vector<std::string>.
+        // Continue.
         v.push_back(str);
+        BREAK_HERE;
+        // Check v <1 items> std::vector<std::string>.
+        // Continue.
         v.push_back(str);
+        BREAK_HERE;
+        // Check v <2 items> std::vector<std::string>.
+        // Continue.
         v.push_back(str);
+        BREAK_HERE;
+        // Check v <3 items> std::vector<std::string>.
+        // Continue.
         v.push_back(str);
+        BREAK_HERE;
+        // Check v <4 items> std::vector<std::string>.
+        // Continue.
         dummyStatement(&str, &v);
     }
 
@@ -2102,10 +2482,20 @@ namespace stdvector {
     {
         std::vector<int *> v;
         BREAK_HERE;
-        // Expand. Step. Check display.
+        // Check v <0 items> std::vector<int*>.
+        // Continue.
         v.push_back(new int(1));
+        BREAK_HERE;
+        // Check v <1 items> std::vector<int*>.
+        // Continue.
         v.push_back(0);
+        BREAK_HERE;
+        // Check v <2 items> std::vector<int*>.
+        // Continue.
         v.push_back(new int(2));
+        BREAK_HERE;
+        // Check v <3 items> std::vector<int*>.
+        // Continue.
         dummyStatement(&v);
     }
 
@@ -2117,6 +2507,8 @@ namespace stdvector {
         v.push_back(3);
         v.push_back(4);
         BREAK_HERE;
+        // Check v <4 items> std::vector<int>.
+        // Continue.
         dummyStatement(&v);
     }
 
@@ -2128,6 +2520,9 @@ namespace stdvector {
         v.push_back(0);
         v.push_back(new Foo(2));
         BREAK_HERE;
+        // CheckType f Foo.
+        // Check v <3 items> std::vector<Foo*>.
+        // Continue.
         // Expand v.[0].x
         dummyStatement(&v);
     }
@@ -2140,6 +2535,8 @@ namespace stdvector {
         v.push_back(3);
         v.push_back(4);
         BREAK_HERE;
+        // Check v <4 items> std::vector<Foo>.
+        // Continue.
         // Expand v.[0].x
         dummyStatement(&v);
     }
@@ -2153,6 +2550,8 @@ namespace stdvector {
         v.push_back(true);
         v.push_back(false);
         BREAK_HERE;
+        // Check v <5 items> std::vector<bool>.
+        // Continue.
         dummyStatement(&v);
     }
 
@@ -2166,6 +2565,9 @@ namespace stdvector {
         vector.push_back(new std::list<int>(list));
         vector.push_back(0);
         BREAK_HERE;
+        // Check list <1 items> std::list<int>.
+        // Check vector <4 items> std::vector<std::list<int>*>.
+        // Continue.
         dummyStatement(&vector, &list);
     }
 
@@ -2189,10 +2591,16 @@ namespace stdstream {
         using namespace std;
         ifstream is;
         BREAK_HERE;
+        // CheckType is std::ifstream.
+        // Check ok false bool.
+        // Continue.
         is.open("/etc/passwd");
         BREAK_HERE;
+        // Continue.
         bool ok = is.good();
         BREAK_HERE;
+        // Check ok true bool.
+        // Continue.
         dummyStatement(&is, &ok);
     }
 
@@ -2217,6 +2625,12 @@ namespace itemmodel {
         i1->appendRow(QList<QStandardItem *>()
              << (i11 = new QStandardItem("11")) << (new QStandardItem("aa")));
         BREAK_HERE;
+        // CheckType i1 QStandardItem.
+        // CheckType i11 QStandardItem.
+        // CheckType i2 QStandardItem.
+        // Check m "" QStandardItemModel.
+        // Check mi "1" QModelIndex.
+        // Continue.
         dummyStatement(&i1, &mi, &m, &i2, &i11);
     }
 
@@ -2231,6 +2645,8 @@ namespace qstack {
         s.append(1);
         s.append(2);
         BREAK_HERE;
+        // Check s <2 items> QStack<int>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2240,6 +2656,8 @@ namespace qstack {
         for (int i = 0; i != 10000; ++i)
             s.append(i);
         BREAK_HERE;
+        // Check s <10000 items> QStack<int>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2250,6 +2668,8 @@ namespace qstack {
         s.append(0);
         s.append(new Foo(2));
         BREAK_HERE;
+        // Check s <3 items> QStack<Foo*>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2261,6 +2681,8 @@ namespace qstack {
         s.append(3);
         s.append(4);
         BREAK_HERE;
+        // Check s <4 items> QStack<Foo>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2270,6 +2692,8 @@ namespace qstack {
         s.append(true);
         s.append(false);
         BREAK_HERE;
+        // Check s <2 items> QStack<bool>.
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2291,6 +2715,8 @@ namespace qurl {
     {
         QUrl url(QString("http://www.nokia.com"));
         BREAK_HERE;
+        // Check url "http://www.nokia.com" QUrl.
+        // Continue.
         dummyStatement(&url);
     }
 
@@ -2306,6 +2732,11 @@ namespace qstring  {
         QString str3("Hello\rQt"); // --> Value: ""HelloQt"" (double quote and missing \r not expected)
         QString str4("Hello\tQt"); // --> Value: "Hello\9Qt" (expected \t instead of \9)
         BREAK_HERE;
+        // Check str1 "Hello Qt" QString.
+        // Check str2 "Hello\nQt" QString.
+        // Check str3 "Hello\rQt" QString.
+        // Check str4 "Hello\tQt" QString.
+        // Continue.
         dummyStatement(&str1, &str2, &str3, &str4);
     }
 
@@ -2322,6 +2753,8 @@ namespace qstring  {
         str += " World ";
         str += " World ";
         BREAK_HERE;
+        // Check str "Hello  big, \t\r\n\000\001 fat  World  World " QString.
+        // Continue.
         dummyStatement(&str);
     }
 
@@ -2343,8 +2776,12 @@ namespace qstring  {
         string = "Hi";
         string += "Du";
         qDebug() << string;
-        delete pstring;
         BREAK_HERE;
+        // CheckType pstring QString.
+        // Check str "Hello  big,  fat  World " QString.
+        // Check string "HiDu" QString.
+        // Continue.
+        delete pstring;
         dummyStatement(&str, &string, pstring);
     }
 
@@ -2364,11 +2801,16 @@ namespace qstringlist {
     {
         QStringList l;
         BREAK_HERE;
+        // Check l <0 items> QStringList.
+        // Continue.
         l << "Hello ";
         l << " big, ";
         l << " fat ";
         l.takeFirst();
         l << " World ";
+        BREAK_HERE;
+        // Check l <3 items> QStringList.
+        // Continue.
         dummyStatement(&l);
     }
 
@@ -2386,6 +2828,10 @@ namespace formats {
         else
             u = QString::fromUtf16((ushort *)w);
         BREAK_HERE;
+        // Check u "a\366a" QString.
+        // CheckType w wchar_t *.
+        // Continue.
+
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
@@ -2401,6 +2847,13 @@ namespace formats {
         const char *t = "a\xc3\xb6";
         const wchar_t *w = L"aöa";
         BREAK_HERE;
+        // CheckType s char *.
+        // CheckType t char *.
+        // CheckType u unsigned char *.
+        // CheckType uu unsigned char [3].
+        // CheckType w wchar_t *.
+        // Continue.
+
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
@@ -2408,6 +2861,12 @@ namespace formats {
         const unsigned char uu[] = { 'a', uchar('ö'), 'a' };
         const unsigned char *u = uu;
         BREAK_HERE;
+        // CheckType s char *.
+        // CheckType t char *.
+        // CheckType u unsigned char *.
+        // CheckType uu unsigned char [3].
+        // CheckType w wchar_t *.
+        // Continue.
 
         // Make sure to undo "Change Format".
         dummyStatement(&s, &w, &t, &u);
@@ -2422,6 +2881,11 @@ namespace formats {
         const char t[] = "aöax";
         const wchar_t w[] = L"aöa";
         BREAK_HERE;
+        // CheckType s char [5].
+        // CheckType t char [6].
+        // CheckType w wchar_t [4].
+        // Continue.
+
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
@@ -2449,10 +2913,20 @@ namespace text {
         doc.setPlainText("Hallo\nWorld");
         QTextCursor tc;
         BREAK_HERE;
-        // Step.
+        // CheckType doc QTextDocument.
+        // Continue.
         tc = doc.find("all");
+        BREAK_HERE;
+        // Check tc 4 QTextCursor.
+        // Continue.
         int pos = tc.position();
+        BREAK_HERE;
+        // Check pos 4 int.
+        // Continue.
         int anc = tc.anchor();
+        BREAK_HERE;
+        // Check anc 1 int.
+        // Continue.
         dummyStatement(&pos, &anc);
     }
 
@@ -2481,6 +2955,9 @@ namespace qthread {
             }
             if (m_id == 3) {
                 BREAK_HERE;
+                // Check j 3 int.
+                // CheckType this qthread::Thread.
+                // Continue.
                 dummyStatement(this);
             }
             std::cerr << j;
@@ -2501,6 +2978,9 @@ namespace qthread {
             thread[i].start();
         }
         BREAK_HERE;
+        // Check N 14 int.
+        // CheckType thread qthread::Thread [14].
+        // Continue.
         for (int i = 0; i != N; ++i) {
             thread[i].wait();
         }
@@ -2523,30 +3003,66 @@ namespace qvariant {
         QVariant::Type t = QVariant::String;
         value = QVariant(t, (void*)0);
         *(QString*)value.data() = QString("Some string");
-        int i = 1; BREAK_HERE;
+        int i = 1;
+        BREAK_HERE;
+        // Check t QVariant::String (10) QVariant::Type.
+        // Check value "Some string" QVariant (QString).
+        // Continue.
+
         // Check the variant contains a proper QString.
         dummyStatement(&i);
     }
 
     void testQVariant2()
     {
+        // Check var contains objects of the types indicated.
+
         QVariant var;                        // Type 0, invalid
         BREAK_HERE;
-        // Step through with F10.
-        // Check var contains objects of the types indicated.
+        // Check var (invalid) QVariant (invalid).
+        // Continue.
         var.setValue(true);                  // 1, bool
+        BREAK_HERE;
+        // Check var true QVariant (bool).
+        // Continue.
         var.setValue(2);                     // 2, int
+        BREAK_HERE;
+        // Check var 2 QVariant (int).
+        // Continue.
         var.setValue(3u);                    // 3, uint
+        BREAK_HERE;
+        // Check var 3 QVariant (uint).
+        // Continue.
         var.setValue(qlonglong(4));          // 4, qlonglong
+        BREAK_HERE;
+        // Check var 4 QVariant (qlonglong).
+        // Continue.
         var.setValue(qulonglong(5));         // 5, qulonglong
+        BREAK_HERE;
+        // Check var 5 QVariant (qulonglong).
+        // Continue.
         var.setValue(double(6));             // 6, double
-
+        BREAK_HERE;
+        // Check var 6 QVariant (double).
+        // Continue.
         var.setValue(QChar(7));              // 7, QChar
+        BREAK_HERE;
+        // Check var '?' (7) QVariant (QChar).
+        // Continue.
         //None,          # 8, QVariantMap
         // None,          # 9, QVariantList
         var.setValue(QString("Hello 10"));   // 10, QString
+        BREAK_HERE;
+        // Check var "Hello 10" QVariant (QString).
+        // Continue.
         var.setValue(QRect(100, 200, 300, 400)); // 19 QRect
+        BREAK_HERE;
+        // Check var 300x400+100+200 QVariant (QRect).
+        // Continue.
         var.setValue(QRectF(100, 200, 300, 400)); // 19 QRectF
+        BREAK_HERE;
+        // Check var 300x400+100+200 QVariant (QRectF).
+        // Continue.
 
         /*
          "QStringList", # 11
@@ -2574,13 +3090,27 @@ namespace qvariant {
     {
         QVariant var;
         BREAK_HERE;
+        // Check var (invalid) QVariant (invalid).
+        // Continue.
         // Expand var.
         // Step with F10.
         // Check the list is updated properly.
         var.setValue(QStringList() << "World");
+        BREAK_HERE;
+        // Check var <1 items> QVariant (QStringList).
+        // Continue.
         var.setValue(QStringList() << "World" << "Hello");
+        BREAK_HERE;
+        // Check var <2 items> QVariant (QStringList).
+        // Continue.
         var.setValue(QStringList() << "Hello" << "Hello");
+        BREAK_HERE;
+        // Check var <2 items> QVariant (QStringList).
+        // Continue.
         var.setValue(QStringList() << "World" << "Hello" << "Hello");
+        BREAK_HERE;
+        // Check var <3 items> QVariant (QStringList).
+        // Continue.
         dummyStatement(&var);
     }
 
@@ -2591,6 +3121,11 @@ namespace qvariant {
         var.setValue(ha);
         QHostAddress ha1 = var.value<QHostAddress>();
         BREAK_HERE;
+        // Check ha "127.0.0.1" QHostAddress.
+        // Check ha1 "127.0.0.1" QHostAddress.
+        // CheckType var QVariant (Non).
+        // Continue.
+
         // Expand ha, ha1 and var.
         // Check var and ha1 look correct.
         dummyStatement(&ha1);
@@ -2609,6 +3144,9 @@ namespace qvariant {
         //QString type = var.typeName();
         var.setValue(my);
         BREAK_HERE;
+        // Check my <2 items> qvariant::MyType.
+        // Check var <2 items> QVariant (MyType).
+        // Continue.
         var.setValue(my);
         var.setValue(my);
         var.setValue(my);
@@ -2621,9 +3159,14 @@ namespace qvariant {
         list << 1 << 2 << 3;
         QVariant variant = qVariantFromValue(list);
         BREAK_HERE;
+        // Check list <3 items> QList<int>.
+        // Check variant <3 items> QVariant (QList<int>).
+        // Continue.
         list.clear();
         list = qVariantValue<QList<int> >(variant);
         BREAK_HERE;
+        // Check list <3 items> QList<int>.
+        // Continue.
         dummyStatement(&list);
     }
 
@@ -2631,6 +3174,8 @@ namespace qvariant {
     {
         QVariantList vl;
         BREAK_HERE;
+        // Check vl <0 items> QVariantList.
+        // Continue.
         vl.append(QVariant(1));
         vl.append(QVariant(2));
         vl.append(QVariant("Some String"));
@@ -2638,6 +3183,8 @@ namespace qvariant {
         vl.append(QVariant(22));
         vl.append(QVariant("2Some String"));
         BREAK_HERE;
+        // Check vl <6 items> QVariantList.
+        // Continue.
         dummyStatement(&vl);
     }
 
@@ -2645,6 +3192,8 @@ namespace qvariant {
     {
         QVariantMap vm;
         BREAK_HERE;
+        // Check vm <0 items> QVariantMap.
+        // Continue.
         vm["a"] = QVariant(1);
         vm["b"] = QVariant(2);
         vm["c"] = QVariant("Some String");
@@ -2652,6 +3201,8 @@ namespace qvariant {
         vm["e"] = QVariant(22);
         vm["f"] = QVariant("2Some String");
         BREAK_HERE;
+        // Check vm <6 items> QVariantMap.
+        // Continue.
         dummyStatement(&vm);
     }
 
@@ -2677,12 +3228,17 @@ namespace qvector {
         // This tests the display of a big vector.
         QVector<int> vec(10000);
         BREAK_HERE;
+        // Check vec <10000 items> QVector<int>.
+        // Continue.
         // step over
         // check that the display updates in reasonable time
         vec[1] = 1;
         vec[2] = 2;
         vec.append(1);
         vec.append(1);
+        BREAK_HERE;
+        // Check vec <10002 items> QVector<int>.
+        // Continue.
         dummyStatement(&vec);
     }
 
@@ -2691,9 +3247,14 @@ namespace qvector {
         // This tests the display of a vector of pointers to custom structs.
         QVector<Foo> vec;
         BREAK_HERE;
+        // Check vec <0 items> QVector<Foo>.
+        // Continue.
         // step over, check display.
         vec.append(1);
         vec.append(2);
+        BREAK_HERE;
+        // Check vec <2 items> QVector<Foo>.
+        // Continue.
         dummyStatement(&vec);
     }
 
@@ -2712,6 +3273,8 @@ namespace qvector {
         // This tests the display of a vector of pointers to custom structs.
         QVector<Foo *> vec;
         BREAK_HERE;
+        // Check vec <0 items> QVector<Foo*>.
+        // Continue.
         // step over
         // check that the display is ok.
         vec.append(new Foo(1));
@@ -2719,6 +3282,9 @@ namespace qvector {
         vec.append(new Foo(2));
         // switch "Auto derefencing pointers" in Locals context menu
         // off and on again, and check result looks sane.
+        BREAK_HERE;
+        // Check vec <3 items> QVector<Foo*>.
+        // Continue.
         dummyStatement(&vec);
     }
 
@@ -2727,10 +3293,15 @@ namespace qvector {
         // This tests the display of a vector of custom structs.
         QVector<bool> vec;
         BREAK_HERE;
+        // Check vec <0 items> QVector<bool>.
+        // Continue.
         // step over
         // check that the display is ok.
         vec.append(true);
         vec.append(false);
+        BREAK_HERE;
+        // Check vec <2 items> QVector<bool>.
+        // Continue.
         dummyStatement(&vec);
     }
 
@@ -2739,8 +3310,15 @@ namespace qvector {
         QVector<QList<int> > vec;
         QVector<QList<int> > *pv = &vec;
         BREAK_HERE;
+        // CheckType pv QVector<QList<int>>.
+        // Check vec <0 items> QVector<QList<int>>.
+        // Continue.
         vec.append(QList<int>() << 1);
         vec.append(QList<int>() << 2 << 3);
+        BREAK_HERE;
+        // CheckType pv QVector<QList<int>>.
+        // Check vec <2 items> QVector<QList<int>>.
+        // Continue.
         dummyStatement(pv, &vec);
     }
 
@@ -2782,6 +3360,12 @@ namespace noargs {
         list2.append(Goo("World", 2));
 
         BREAK_HERE;
+        // Check i 1 int.
+        // Check k 3 int.
+        // Check list <2 items> noargs::GooList.
+        // Check list2 <2 items> QList<noargs::Goo>.
+        // Continue.
+
         // check display is ok, especially for _i_ and _k_
 
         dummyStatement(&i, &k);
@@ -2877,6 +3461,11 @@ namespace namespc {
         MyAnon anon;
         baz::MyBaz baz;
         BREAK_HERE;
+        // CheckType anon namespc::nested::(anonymous namespace)::MyAnon.
+        // CheckType bar namespc::nested::MyBar.
+        // CheckType baz namespc::nested::(anonymous namespace)::baz::MyBaz.
+        // CheckType foo namespc::nested::MyFoo.
+        // Continue.
         // step into the doit() functions
         baz.doit(1);
         anon.doit(1);
@@ -2931,6 +3520,12 @@ namespace basic {
             for (int j = 0; j != 3; ++j)
                 d[i][j] = i + j;
         BREAK_HERE;
+        // CheckType d double [3][3].
+        // CheckType f XX.
+        // CheckType ff Foo.
+        // CheckType x X.
+        // CheckType xx XX.
+        // Continue.
         dummyStatement(&x, &f, &d, &ff);
     }
 
@@ -2942,6 +3537,8 @@ namespace basic {
         c[2] = 'c';
         c[3] = 'd';
         BREAK_HERE;
+        // CheckType c char [20].
+        // Continue.
         dummyStatement(&c);
     }
 
@@ -2953,6 +3550,8 @@ namespace basic {
         s[2] = "c";
         s[3] = "d";
         BREAK_HERE;
+        // CheckType s QString [20].
+        // Continue.
         dummyStatement(&s);
     }
 
@@ -2964,6 +3563,8 @@ namespace basic {
         b[2] = "c";
         b[3] = "d";
         BREAK_HERE;
+        // CheckType b QByteArray [20].
+        // Continue.
         dummyStatement(&b);
     }
 
@@ -2976,6 +3577,8 @@ namespace basic {
             foo[i].doit();
         }
         BREAK_HERE;
+        // CheckType foo Foo [10].
+        // Continue.
         dummyStatement(&foo);
     }
 
@@ -2986,6 +3589,9 @@ namespace basic {
         char s[5];
         s[0] = 0;
         BREAK_HERE;
+        // CheckType s char [5].
+        // Continue.
+
         // Expand 's' in Locals view.
         // Open pinnable tooltip.
         // Step over.
@@ -3005,6 +3611,9 @@ namespace basic {
     {
         char *s = buf;
         BREAK_HERE;
+        // CheckType s char *.
+        // Continue.
+
         // Expand 's' in Locals view.
         // Open pinnable tooltip.
         // Step over.
@@ -3035,6 +3644,8 @@ namespace basic {
         // This checks whether bitfields are properly displayed
         S s;
         BREAK_HERE;
+        // CheckType s basic::S.
+        // Continue.
         s.i = 0;
         dummyStatement(&s);
     }
@@ -3054,6 +3665,8 @@ namespace basic {
         // In order to use this, switch on the 'qDump__Function' in dumper.py
         Function func("x", "sin(x)", 0, 1);
         BREAK_HERE;
+        // CheckType func basic::Function.
+        // Continue.
         func.max = 10;
         func.f = "cos(x)";
         func.max = 4;
@@ -3075,6 +3688,9 @@ namespace basic {
         // members work.
         Color c;
         BREAK_HERE;
+        // CheckType c basic::Color.
+        // Continue.
+
         // Expand c.
         // Toogle "Sort Member Alphabetically" in context menu
         // of "Locals and Expressions" view.
@@ -3096,6 +3712,11 @@ namespace basic {
         ns::vl j = 1000;
         ns::verylong k = 1000;
         BREAK_HERE;
+        // Check j 1000 basic::ns::vl.
+        // Check k 1000 basic::ns::verylong.
+        // Check t1 0 basic::myType1.
+        // Check t2 0 basic::myType2.
+        // Continue.
         dummyStatement(&j, &k, &t1, &t2);
     }
 
@@ -3106,6 +3727,8 @@ namespace basic {
         f.doit();
         f.doit();
         BREAK_HERE;
+        // CheckType f Foo.
+        // Continue.
         dummyStatement(&f);
     }
 
@@ -3117,6 +3740,8 @@ namespace basic {
           int b;
         } u;
         BREAK_HERE;
+        // CheckType u basic::U.
+        // Continue.
         dummyStatement(&u);
     }
 
@@ -3125,6 +3750,24 @@ namespace basic {
         // This tests the display of uninitialized data.
 
         BREAK_HERE;
+        // Check hii <not accessible> QHash<int, int>.
+        // Check hss <not accessible> QHash<QString, QString>.
+        // Check li <not accessible> QList<int>.
+        // CheckType mii Foo.
+        // Check mss <not accessible> QMap<QString, QString>.
+        // Check s <not accessible> QString.
+        // Check si <not accessible> QStack<int>.
+        // Check sl <not accessible> QStringList.
+        // Check sli <not accessible> std::list<int>.
+        // CheckType smii std::map<int, int>.
+        // CheckType smss std::map<std::string, std::string>.
+        // CheckType ss std::string.
+        // Check ssi <not accessible> std::stack<int>.
+        // Check ssl <not accessible> std::list<std::string>.
+        // CheckType svi std::vector<int>.
+        // Check vi <not accessible> QVector<int>.
+        // Continue.
+
         // Check the display: All values should be <uninitialized> or random data.
         // Check that nothing bad happens if items with random data
         // are expanded.
@@ -3160,6 +3803,11 @@ namespace basic {
         const wchar_t *w = L"aöa";
         QString u;
         BREAK_HERE;
+        // CheckType s char *.
+        // Check u "" QString.
+        // CheckType w wchar_t *.
+        // Continue.
+
         // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
         // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
         // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
@@ -3186,7 +3834,8 @@ namespace basic {
     void A::doSomething(CVoidPtr cp) const
     {
         BREAK_HERE;
-        // Check cp.
+        // CheckType cp basic::CVoidPtr.
+        // Continue.
         dummyStatement(&cp);
     }
 
@@ -3194,6 +3843,8 @@ namespace basic {
     {
         Foo *f = new Foo();
         BREAK_HERE;
+        // CheckType f Foo.
+        // Continue.
         dummyStatement(f);
     }
 
@@ -3203,6 +3854,10 @@ namespace basic {
         VoidPtr p = &a;
         CVoidPtr cp = &a;
         BREAK_HERE;
+        // CheckType a basic::A.
+        // CheckType cp basic::CVoidPtr.
+        // CheckType p basic::VoidPtr.
+        // Continue.
         a.doSomething(cp);
         dummyStatement(&a, &p);
     }
@@ -3211,6 +3866,9 @@ namespace basic {
     {
         QString hallo = "hallo\nwelt";
         BREAK_HERE;
+        // Check hallo "hallo\nwelt" QString.
+        // Continue.
+
         // Check that string is properly displayed.
         dummyStatement(&hallo);
     }
@@ -3219,6 +3877,9 @@ namespace basic {
     {
         int a[20];
         BREAK_HERE;
+        // CheckType a int [20].
+        // Continue.
+
         // Select "Open Memory View" from Locals and Expressions
         //    context menu for item 'a'.
         // Step several times.
@@ -3234,6 +3895,11 @@ namespace basic {
         double d = 23;
         QString s = "Foo";
         BREAK_HERE;
+        // Check d 23 double.
+        // Check i 42 int.
+        // Check s "Foo" QString.
+        // Continue.
+
         // Select "Open Memory View" from Locals and Expressions
         //    context menu for item 'd'.
         // Check that the opened memory view contains coloured items
@@ -3251,8 +3917,8 @@ namespace basic {
         BREAK_HERE;
         // Check a 43 int.
         // Check b 43 int.
-        // Check b 44 int.
-        // Check b 43 int.
+        // Check c 44 int.
+        // Check d 43 basic::Ref.
         // Continue.
         dummyStatement(&a, &b, &c, &d);
     }
@@ -3265,6 +3931,11 @@ namespace basic {
         const QString c = "world";
         const Ref d = a;
         BREAK_HERE;
+        // Check a "hello" QString.
+        // Check b "bababa" QString.
+        // Check c "world" QString.
+        // Check d "hello" basic::Ref.
+        // Continue.
         dummyStatement(&a, &b, &c, &d);
     }
 
@@ -3278,6 +3949,11 @@ namespace basic {
             time = time.addDays(1);
         }
         BREAK_HERE;
+        // Check N 10000 int.
+        // CheckType bigv QDateTime [10000].
+        // CheckType time QDateTime.
+        // Continue.
+
         // Expand bigv.
         // This is expected to take up to a minute.
         dummyStatement(&bigv);
@@ -3290,6 +3966,10 @@ namespace basic {
         for (int i = 0; i < 10000; ++i)
             bigv[i] = i;
         BREAK_HERE;
+        // Check N 10000 int.
+        // CheckType bigv int [10000].
+        // Continue.
+
         // Expand bigv.
         // This is expected to take up to a minute.
         dummyStatement(&bigv);
@@ -3303,6 +3983,10 @@ namespace basic {
         QByteArray ba = proc.readAllStandardError();
         ba.append('x');
         BREAK_HERE;
+        // Check ba "x" QByteArray.
+        // Check proc "" QProcess.
+        // Continue.
+
         // Check there is some contents in ba. Error message is expected.
         dummyStatement(&ba);
     }
@@ -3314,6 +3998,9 @@ namespace basic {
         typedef void (*func_t)();
         func_t f2 = testFunctionPointerHelper;
         BREAK_HERE;
+        // CheckType f2 <basic::testFunctionPointerHelper()> basic::func_t.
+        // Continue.
+
         // Check there's a valid display for f2.
         dummyStatement(&f2);
     }
@@ -3321,8 +4008,12 @@ namespace basic {
     void testPassByReferenceHelper(Foo &f)
     {
         BREAK_HERE;
+        // CheckType f Foo.
+        // Continue.
         ++f.a;
         BREAK_HERE;
+        // CheckType f Foo.
+        // Continue.
     }
 
     void testPassByReference()
@@ -3338,6 +4029,10 @@ namespace basic {
         quint64 b = Q_UINT64_C(0xF020304050607080);
         quint64 c = std::numeric_limits<quint64>::max() - quint64(1);
         BREAK_HERE;
+        // Check a -1143861252567568256 qint64.
+        // Check b -1143861252567568256 quint64.
+        // Check c -2 quint64.
+        // Continue.
         dummyStatement(&a, &b, &c);
     }
 
@@ -3346,24 +4041,41 @@ namespace basic {
         int  n = 1;
         n = 2;
         BREAK_HERE;
-        // Step.
+        // Check n 2 int.
+        // Continue.
         n = 3;
+        BREAK_HERE;
+        // Check n 3 int.
         // Continue.
         {
             QString n = "2";
             BREAK_HERE;
-            // Step.
+            // Check n "2" QString.
+            // Check n@1 3 int.
+            // Continue.
             n = "3";
+            BREAK_HERE;
+            // Check n "3" QString.
+            // Check n@1 3 int.
             // Continue.
             {
                 double n = 3.5;
                 BREAK_HERE;
-                // Step.
+                // Check n 3.5 double.
+                // Check n@1 "3" QString.
+                // Check n@2 3 int.
+                // Continue.
                 ++n;
+                BREAK_HERE;
+                // Check n 4.5 double.
+                // Check n@1 "3" QString.
+                // Check n@2 3 int.
                 // Continue.
                 dummyStatement(&n);
             }
             BREAK_HERE;
+            // Check n "3" QString.
+            // Check n@1 3 int.
             // Continue.
             n = "3";
             n = "4";
@@ -3532,6 +4244,11 @@ namespace qscript {
         QScriptValue s;
 
         BREAK_HERE;
+        // Check d (invalid) QScriptValue.
+        // Check engine "" QScriptEngine.
+        // Check s (invalid) QScriptValue.
+        // Check x1 <not accessible> QString.
+        // Continue.
         s = QScriptValue(33);
         int x = s.toInt32();
 
@@ -3548,6 +4265,8 @@ namespace qscript {
         date = s.toDateTime();
         s.setProperty("a", QScriptValue());
         QScriptValue d = s.data();
+        BREAK_HERE;
+        // Continue.
         dummyStatement(&x1, &v, &s, &d);
     #else
         dummyStatement();
@@ -3727,6 +4446,9 @@ namespace kr {
         KRBase *ptr2 = new KRB;
         ptr2 = new KRB;
         BREAK_HERE;
+        // CheckType ptr1 KRBase.
+        // CheckType ptr2 KRBase.
+        // Continue.
         // check ptr1 is shown as KRA and ptr2 as KRB
         dummyStatement(&ptr1, &ptr2);
     }
@@ -3778,6 +4500,7 @@ namespace bug842 {
         // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-842
         qWarning("Test");
         BREAK_HERE;
+        // Continue.
         // Check that Application Output pane contains string "Test".
         dummyStatement();
     }
@@ -3794,6 +4517,7 @@ namespace bug3611 {
         byte f = '2';
         int *x = (int*)&f;
         BREAK_HERE;
+        // Continue.
         // Step.
         f += 1;
         f += 1;
@@ -3873,6 +4597,12 @@ namespace bug4904 {
         map.insert(cs2.id, cs2);
         QMap<int, CustomStruct>::iterator it = map.begin();
         BREAK_HERE;
+        // CheckType cs1 bug4904::CustomStruct.
+        // CheckType cs2 bug4904::CustomStruct.
+        // CheckType it QMap<int, bug4904::CustomStruct>::iterator.
+        // Check map <2 items> QMap<int, bug4904::CustomStruct>.
+        // Continue.
+
         // - expand map/[0]/value
         // - verify  map[0].key == -1
         // - verify  map[0].value.id == -1
@@ -3896,6 +4626,9 @@ namespace bug5046 {
         f.c = 3;
         f.a = 4;
         BREAK_HERE;
+        // CheckType f bug5046::Foo.
+        // Continue.
+
         // - pop up main editor tooltip over 'f'
         // - verify that the entry is expandable, and expansion works
         dummyStatement(&f);
@@ -3949,6 +4682,10 @@ namespace bug5184 {
         QNetworkRequest request(url);
         QList<QByteArray> raw = request.rawHeaderList();
         BREAK_HERE;
+        // Check raw <0 items> QList<QByteArray>.
+        // CheckType request QNetworkRequest.
+        // Check url "http://127.0.0.1/" QUrl.
+        // Continue.
         dummyStatement(&request, &raw);
     }
 
@@ -3987,6 +4724,9 @@ namespace qc42170 {
     void helper(Object *obj)
     {
         BREAK_HERE;
+        // CheckType obj qc42170::Circle.
+        // Continue.
+
         // Check that obj is shown as a 'Circle' object.
         dummyStatement(obj);
     }
@@ -4024,6 +4764,12 @@ namespace bug5799 {
         typedef S1 Array[10];
         Array a2;
         BREAK_HERE;
+        // CheckType a1 bug5799::S1 [10].
+        // CheckType a2 bug5799::Array.
+        // CheckType s2 bug5799::S2.
+        // CheckType s4 bug5799::S4.
+        // Continue.
+
         // Expand s2 and s4.
         // Check there is no <unavailable synchronous data>
         dummyStatement(&s2, &s4, &a1, &a2);
@@ -4049,6 +4795,10 @@ namespace qc41700 {
         m["two"].push_back("3");
         map_t::const_iterator it = m.begin();
         BREAK_HERE;
+        // CheckType it std::map<std::string, std::list<std::string>>::const_iterator.
+        // Check m <2 items> qc41700::map_t.
+        // Continue.
+
         // Check that m is displayed nicely.
         dummyStatement(&it);
     }
@@ -4064,6 +4814,9 @@ namespace cp42895 {
     {
         qDebug() << c << d;
         BREAK_HERE;
+        // Check c 3 int.
+        // Check d 4 int.
+        // Continue.
         // Check there are frames for g and f in the stack view.
         dummyStatement(&c, &d);
     }
@@ -4157,7 +4910,16 @@ namespace gdb13393 {
         #else
         int sharedPtr = 1;
         #endif
-        BREAK_HERE
+        BREAK_HERE;
+        // CheckType d gdb13393::Derived.
+        // CheckType ptr gdb13393::Derived.
+        // CheckType ptrConst gdb13393::Derived.
+        // CheckType ptrToPtr gdb13393::Derived.
+        // CheckType ref gdb13393::Derived.
+        // CheckType refConst gdb13393::Derived.
+        // CheckType s gdb13393::S.
+        // Check sharedPtr 1 int.
+        // Continue.
         dummyStatement(&d, &s, &ptrToPtr, &sharedPtr, &ptrConst, &refConst, &ref);
     }
 
@@ -4212,8 +4974,8 @@ namespace sanity {
         // Check list2 <5 items> QList<char const*>
         // Check obj "An Object" QObject
         // Check qv <1 items> QVector<int>
-        // Check s "hallohallo" string
-        // Check v <1 items> vector<int>
+        // Check s "hallohallo" std::string
+        // Check v <1 items> std::vector<int>
         // Continue
 
         dummyStatement(&s, &qv, &v, &list, &list2, &obj);
