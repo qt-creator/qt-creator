@@ -646,9 +646,14 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
 
         return 0;
     }
+
+    // currently path-in-stringliteral is the only completion available in imports
+    if (contextFinder.isInImport())
+        return 0;
+
     // member "a.bc<complete>" or function "foo(<complete>" completion
-    else if (completionOperator == QLatin1Char('.')
-             || (completionOperator == QLatin1Char('(') && !onIdentifier)) {
+    if (completionOperator == QLatin1Char('.')
+            || (completionOperator == QLatin1Char('(') && !onIdentifier)) {
         // Look at the expression under cursor.
         //QTextCursor tc = textWidget->textCursor();
         QTextCursor tc(qmlInterface->document());
@@ -699,8 +704,9 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             return createContentProposal();
         return 0;
     }
+
     // global completion
-    else if (onIdentifier || assistInterface->reason() == ExplicitlyInvoked) {
+    if (onIdentifier || assistInterface->reason() == ExplicitlyInvoked) {
 
         bool doGlobalCompletion = true;
         bool doQmlKeywordCompletion = true;
