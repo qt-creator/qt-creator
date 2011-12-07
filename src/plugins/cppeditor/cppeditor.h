@@ -42,6 +42,7 @@
 #include <cplusplus/LookupContext.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
+#include <cpptools/commentssettings.h>
 
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
@@ -250,6 +251,8 @@ private Q_SLOTS:
 
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
+    void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
+
 private:
     void markSymbols(const QTextCursor &tc, const SemanticInfo &info);
     bool sortedOutline() const;
@@ -283,6 +286,8 @@ private:
     bool openCppEditorAt(const Link &);
 
     QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = QModelIndex()) const;
+
+    bool handleDocumentationComment(QKeyEvent *e);
 
     CPlusPlus::CppModelManagerInterface *m_modelManager;
 
@@ -325,6 +330,8 @@ private:
 
     FunctionDeclDefLinkFinder *m_declDefLinkFinder;
     QSharedPointer<FunctionDeclDefLink> m_declDefLink;
+
+    CppTools::CommentsSettings m_commentsSettings;
 };
 
 

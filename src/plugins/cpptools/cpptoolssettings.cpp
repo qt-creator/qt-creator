@@ -34,11 +34,14 @@
 #include "cpptoolsconstants.h"
 #include "cppcodestylepreferences.h"
 #include "cppcodestylepreferencesfactory.h"
+#include "commentssettings.h"
+#include "completionsettingspage.h"
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/codestylepool.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/settingsutils.h>
 #include <utils/qtcassert.h>
@@ -48,6 +51,7 @@
 static const char *idKey = "CppGlobal";
 
 using namespace CppTools;
+using namespace CppTools::Internal;
 using TextEditor::TabSettings;
 
 namespace CppTools {
@@ -56,7 +60,13 @@ namespace Internal {
 class CppToolsSettingsPrivate
 {
 public:
+    CppToolsSettingsPrivate()
+        : m_globalCodeStyle(0)
+        , m_completionSettingsPage(0)
+    {}
+
     CppCodeStylePreferences *m_globalCodeStyle;
+    CompletionSettingsPage *m_completionSettingsPage;
 };
 
 } // namespace Internal
@@ -70,7 +80,16 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
+
     qRegisterMetaType<CppTools::CppCodeStyleSettings>("CppTools::CppCodeStyleSettings");
+
+    d->m_completionSettingsPage = new CompletionSettingsPage(this);
+    ExtensionSystem::PluginManager::instance()->addObject(d->m_completionSettingsPage);
+
+    connect(d->m_completionSettingsPage,
+            SIGNAL(commentsSettingsChanged(CppTools::CommentsSettings)),
+            this,
+            SIGNAL(commentsSettingsChanged(CppTools::CommentsSettings)));
 
     TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
 
@@ -224,6 +243,8 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
 CppToolsSettings::~CppToolsSettings()
 {
+    ExtensionSystem::PluginManager::instance()->removeObject(d->m_completionSettingsPage);
+
     delete d;
 
     m_instance = 0;
@@ -239,3 +260,7 @@ CppCodeStylePreferences *CppToolsSettings::cppCodeStyle() const
     return d->m_globalCodeStyle;
 }
 
+const CommentsSettings &CppToolsSettings::commentsSettings() const
+{
+    return d->m_completionSettingsPage->commentsSettings();
+}

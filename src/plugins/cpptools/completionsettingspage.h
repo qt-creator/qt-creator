@@ -33,13 +33,17 @@
 #ifndef COMPLETIONSETTINGSPAGE_H
 #define COMPLETIONSETTINGSPAGE_H
 
+#include "commentssettings.h"
+
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditoroptionspage.h>
 
 namespace CppTools {
 namespace Internal {
 
-namespace Ui { class CompletionSettingsPage; }
+namespace Ui {
+class CompletionSettingsPage;
+}
 
 // TODO: Move this class to the text editor plugin
 
@@ -48,7 +52,7 @@ class CompletionSettingsPage : public TextEditor::TextEditorOptionsPage
     Q_OBJECT
 
 public:
-    CompletionSettingsPage();
+    CompletionSettingsPage(QObject *parent);
     ~CompletionSettingsPage();
 
     QString id() const;
@@ -59,12 +63,20 @@ public:
     void finish();
     virtual bool matches(const QString &) const;
 
+    const CommentsSettings &commentsSettings() const;
+
+signals:
+    void commentsSettingsChanged(const CppTools::CommentsSettings &settings);
+
 private:
     TextEditor::CaseSensitivity caseSensitivity() const;
     TextEditor::CompletionTrigger completionTrigger() const;
 
+    bool requireCommentsSettingsUpdate() const;
+
     Ui::CompletionSettingsPage *m_page;
     QString m_searchKeywords;
+    CommentsSettings m_commentsSettings;
 };
 
 } // namespace Internal

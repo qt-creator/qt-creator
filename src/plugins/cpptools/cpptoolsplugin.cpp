@@ -122,7 +122,6 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppClassesFilter(m_modelManager));
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager));
     addAutoReleasedObject(new CppCurrentDocumentFilter(m_modelManager, core->editorManager()));
-    addAutoReleasedObject(new CompletionSettingsPage);
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
     addAutoReleasedObject(new SymbolsFindFilter(m_modelManager));
     addAutoReleasedObject(new CppCodeStyleSettingsPage);

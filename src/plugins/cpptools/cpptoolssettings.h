@@ -40,7 +40,7 @@
 namespace CppTools
 {
 class CppCodeStylePreferences;
-
+class CommentsSettings;
 
 namespace Internal
 {
@@ -61,6 +61,10 @@ public:
     static CppToolsSettings *instance();
 
     CppCodeStylePreferences *cppCodeStyle() const;
+    const CommentsSettings &commentsSettings() const;
+
+signals:
+    void commentsSettingsChanged(const CppTools::CommentsSettings &settings);
 
 private:
     Internal::CppToolsSettingsPrivate *d;

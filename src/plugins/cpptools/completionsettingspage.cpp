@@ -32,6 +32,7 @@
 
 #include "completionsettingspage.h"
 #include "ui_completionsettingspage.h"
+#include "cpptoolsconstants.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -40,11 +41,16 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
 
+using namespace CppTools;
 using namespace CppTools::Internal;
+using namespace CppTools::Constants;
 
-CompletionSettingsPage::CompletionSettingsPage()
-    : m_page(0)
+CompletionSettingsPage::CompletionSettingsPage(QObject *parent)
+    : TextEditor::TextEditorOptionsPage(parent)
+    , m_page(0)
 {
+    if (QSettings *s = Core::ICore::instance()->settings())
+        m_commentsSettings.fromSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), s);
 }
 
 CompletionSettingsPage::~CompletionSettingsPage()
@@ -103,6 +109,9 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     m_page->surroundSelectedText->setChecked(settings.m_surroundingAutoBrackets);
     m_page->partiallyComplete->setChecked(settings.m_partiallyComplete);
     m_page->spaceAfterFunctionName->setChecked(settings.m_spaceAfterFunctionName);
+    m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
+    m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
+    m_page->leadingAsterisksCheckBox->setChecked(m_commentsSettings.m_leadingAsterisks);
 
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords) << m_page->caseSensitivityLabel->text()
@@ -110,9 +119,14 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
                 << ' ' << m_page->surroundSelectedText->text()
                 << ' ' << m_page->completionTriggerLabel->text()
                 << ' ' << m_page->partiallyComplete->text()
-                << ' ' << m_page->spaceAfterFunctionName->text();
+                << ' ' << m_page->spaceAfterFunctionName->text()
+                << ' ' << m_page->enableDoxygenCheckBox->text()
+                << ' ' << m_page->generateBriefCheckBox->text()
+                << ' ' << m_page->leadingAsterisksCheckBox->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
+
+    m_page->generateBriefCheckBox->setEnabled(m_page->enableDoxygenCheckBox->isChecked());
 
     return w;
 }
@@ -130,6 +144,17 @@ void CompletionSettingsPage::apply()
     settings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
 
     TextEditor::TextEditorSettings::instance()->setCompletionSettings(settings);
+
+    if (!requireCommentsSettingsUpdate())
+        return;
+
+    m_commentsSettings.m_enableDoxygen = m_page->enableDoxygenCheckBox->isChecked();
+    m_commentsSettings.m_generateBrief = m_page->generateBriefCheckBox->isChecked();
+    m_commentsSettings.m_leadingAsterisks = m_page->leadingAsterisksCheckBox->isChecked();
+    if (QSettings *s = Core::ICore::instance()->settings())
+        m_commentsSettings.toSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), s);
+
+    emit commentsSettingsChanged(m_commentsSettings);
 }
 
 bool CompletionSettingsPage::matches(const QString &s) const
@@ -167,4 +192,16 @@ void CompletionSettingsPage::finish()
         return;
     delete m_page;
     m_page = 0;
+}
+
+const CommentsSettings &CompletionSettingsPage::commentsSettings() const
+{
+    return m_commentsSettings;
+}
+
+bool CompletionSettingsPage::requireCommentsSettingsUpdate() const
+{
+    return m_commentsSettings.m_enableDoxygen != m_page->enableDoxygenCheckBox->isChecked()
+        || m_commentsSettings.m_generateBrief != m_page->generateBriefCheckBox->isChecked()
+        || m_commentsSettings.m_leadingAsterisks != m_page->leadingAsterisksCheckBox->isChecked();
 }

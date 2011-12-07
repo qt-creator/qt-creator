@@ -69,6 +69,8 @@
 #include <cpptools/cppcodestylesettings.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/doxygengenerator.h>
+#include <cpptools/cpptoolssettings.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -415,6 +417,7 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     , m_inRenameChanged(false)
     , m_firstRenameChange(false)
     , m_objcEnabled(false)
+    , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
 {
     m_initialized = false;
     qRegisterMetaType<CppEditor::Internal::SemanticInfo>("CppEditor::Internal::SemanticInfo");
@@ -451,6 +454,11 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     m_declDefLinkFinder = new FunctionDeclDefLinkFinder(this);
     connect(m_declDefLinkFinder, SIGNAL(foundLink(QSharedPointer<FunctionDeclDefLink>)),
             this, SLOT(onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink>)));
+
+    connect(CppTools::CppToolsSettings::instance(),
+            SIGNAL(commentsSettingsChanged(CppTools::CommentsSettings)),
+            this,
+            SLOT(onCommentsSettingsChanged(CppTools::CommentsSettings)));
 }
 
 CPPEditorWidget::~CPPEditorWidget()
@@ -1552,7 +1560,8 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     if (m_currentRenameSelection == NoCurrentRenameSelection) {
-        TextEditor::BaseTextEditorWidget::keyPressEvent(e);
+        if (!handleDocumentationComment(e))
+            TextEditor::BaseTextEditorWidget::keyPressEvent(e);
         return;
     }
 
@@ -2237,6 +2246,101 @@ void CPPEditorWidget::abortDeclDefLink()
 
     m_declDefLink->hideMarker(this);
     m_declDefLink.clear();
+}
+
+bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
+{
+    if (!m_commentsSettings.m_enableDoxygen
+            && !m_commentsSettings.m_leadingAsterisks) {
+        return false;
+    }
+
+    if (e->key() == Qt::Key_Return
+            || e->key() == Qt::Key_Enter) {
+        QTextCursor cursor = textCursor();
+        if (!autoCompleter()->isInComment(cursor))
+            return false;
+
+        // We are interested on two particular cases:
+        //   1) The cursor is right after a /** or /*! and the user pressed enter. If Doxygen
+        //      is enabled we need to generate an entire comment block.
+        //   2) The cursor is already in the middle of a multi-line comment and the user pressed
+        //      enter. If leading asterisk(s) is set we need to write a comment continuation
+        //      with those.
+
+        if (m_commentsSettings.m_enableDoxygen
+                && cursor.positionInBlock() >= 3) {
+            const int pos = cursor.position();
+            if (characterAt(pos - 3) == QChar('/')
+                    && characterAt(pos - 2) == QChar('*')
+                    && (characterAt(pos - 1) == QChar('*')
+                        || characterAt(pos - 1) == QChar('!'))) {
+                CppTools::DoxygenGenerator doxygen;
+                doxygen.setAddLeadingAsterisks(m_commentsSettings.m_leadingAsterisks);
+                doxygen.setGenerateBrief(m_commentsSettings.m_generateBrief);
+                doxygen.setStartComment(false);
+                if (characterAt(pos - 1) == QLatin1Char('!'))
+                    doxygen.setStyle(CppTools::DoxygenGenerator::QtStyle);
+                else
+                    doxygen.setStyle(CppTools::DoxygenGenerator::JavaStyle);
+
+                // Move until we reach any possibly meaningful content.
+                while (document()->characterAt(cursor.position()).isSpace())
+                    cursor.movePosition(QTextCursor::NextCharacter);
+
+                const QString &comment = doxygen.generate(cursor);
+                if (!comment.isEmpty()) {
+                    cursor.beginEditBlock();
+                    cursor.setPosition(pos);
+                    cursor.insertText(comment);
+                    cursor.setPosition(pos - 3, QTextCursor::KeepAnchor);
+                    indent(document(), cursor, QChar::Null);
+                    cursor.endEditBlock();
+                    e->accept();
+                    return true;
+                }
+                cursor.setPosition(pos);
+            }
+        }
+
+        if (!m_commentsSettings.m_leadingAsterisks)
+            return false;
+
+        const QString &text = cursor.block().text();
+        const int length = text.length();
+        int offset = 0;
+        for (; offset < length; ++offset) {
+            const QChar &current = text.at(offset);
+            if (!current.isSpace())
+                break;
+        }
+        if (offset < length
+                && (text.at(offset) == QLatin1Char('*')
+                    || (offset < length - 1
+                        && text.at(offset) == QLatin1Char('/')
+                        && text.at(offset + 1) == QLatin1Char('*')))) {
+            QString newLine(QLatin1Char('\n'));
+            newLine.append(QString(offset, QLatin1Char(' ')));
+            if (text.at(offset) == QLatin1Char('/')) {
+                newLine.append(QLatin1String(" *"));
+            } else {
+                int start = offset;
+                while (offset < length && text.at(offset) == QLatin1Char('*'))
+                    ++offset;
+                newLine.append(QString(offset - start, QLatin1Char('*')));
+            }
+            cursor.insertText(newLine);
+            e->accept();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void CPPEditorWidget::onCommentsSettingsChanged(const CppTools::CommentsSettings &settings)
+{
+    m_commentsSettings = settings;
 }
 
 #include "cppeditor.moc"

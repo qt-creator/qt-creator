@@ -6,11 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>241</height>
+    <width>484</width>
+    <height>376</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -197,6 +197,65 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="docCommentsGroup">
+     <property name="title">
+      <string>Documentation Comments</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QCheckBox" name="enableDoxygenCheckBox">
+        <property name="toolTip">
+         <string>Automatically create a Doxygen comment upon pressing enter after a /** or /*!</string>
+        </property>
+        <property name="text">
+         <string>Enable Doxygen blocks</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="generateBriefCheckBox">
+          <property name="toolTip">
+           <string>Generate a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration</string>
+          </property>
+          <property name="text">
+           <string>Generate brief description</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="leadingAsterisksCheckBox">
+        <property name="toolTip">
+         <string>Add leading asterisks when continuing comments on new lines</string>
+        </property>
+        <property name="text">
+         <string>Add leading asterisks</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -224,8 +283,8 @@
      <y>131</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>182</y>
+     <x>333</x>
+     <y>206</y>
     </hint>
    </hints>
   </connection>
@@ -242,6 +301,22 @@
     <hint type="destinationlabel">
      <x>119</x>
      <y>156</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>enableDoxygenCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>generateBriefCheckBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>153</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>204</x>
+     <y>293</y>
     </hint>
    </hints>
   </connection>
