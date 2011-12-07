@@ -72,6 +72,8 @@ public:
 
 StaticAnalysisMessages::StaticAnalysisMessages()
 {
+    // When changing a message or severity, update the documentation, currently
+    // in creator-editors.qdoc, accordingly.
     newMsg(ErrInvalidEnumValue, Error,
            tr("invalid value for enum"));
     newMsg(ErrEnumValueMustBeStringOrNumber, Error,
@@ -165,7 +167,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrUnknownComponent, Error,
            tr("unknown component"));
     newMsg(ErrCouldNotResolvePrototypeOf, Error,
-           tr("could not resolve the prototype '%1'' of '%2'"), 2);
+           tr("could not resolve the prototype '%1' of '%2'"), 2);
     newMsg(ErrCouldNotResolvePrototype, Error,
            tr("could not resolve the prototype '%1'"), 1);
     newMsg(ErrPrototypeCycle, Error,

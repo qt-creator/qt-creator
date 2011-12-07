@@ -54,6 +54,9 @@ enum Severity
 
 enum Type
 {
+    // Changing the numbers can break user code.
+    // When adding a new check, also add it to the documentation, currently
+    // in creator-editors.qdoc.
     UnknownType = 0,
     ErrInvalidEnumValue = 1,
     ErrEnumValueMustBeStringOrNumber = 2,
