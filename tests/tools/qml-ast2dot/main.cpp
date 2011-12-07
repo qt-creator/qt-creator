@@ -238,9 +238,6 @@ protected: // visiting methods:
         return false;
     }
 
-    virtual bool visit(UiFormal *ast) { terminal(ast->identifierToken); terminal(ast->asToken); terminal(ast->aliasToken); return false; }
-    virtual bool visit(UiSignature *ast) { terminal(ast->lparenToken); nonterminal(ast->formals); terminal(ast->rparenToken); return false; }
-
     virtual bool visit(StringLiteral *ast) { terminal(ast->literalToken); return false; }
     virtual bool visit(NumericLiteral *ast) { terminal(ast->literalToken); return false; }
     virtual bool visit(TrueLiteral *ast) { terminal(ast->trueToken); return false; }

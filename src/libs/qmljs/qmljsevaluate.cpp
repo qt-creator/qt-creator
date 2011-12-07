@@ -212,21 +212,6 @@ bool Evaluate::visit(AST::UiQualifiedId *ast)
     return false;
 }
 
-bool Evaluate::visit(AST::UiSignature *)
-{
-    return false;
-}
-
-bool Evaluate::visit(AST::UiFormalList *)
-{
-    return false;
-}
-
-bool Evaluate::visit(AST::UiFormal *)
-{
-    return false;
-}
-
 bool Evaluate::visit(AST::ThisExpression *)
 {
     return false;

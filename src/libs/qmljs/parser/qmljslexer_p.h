@@ -136,6 +136,8 @@ public:
 public:
     Lexer(Engine *engine);
 
+    bool qmlMode() const;
+
     QString code() const;
     void setCode(const QString &code, int lineno, bool qmlMode = true);
 
@@ -174,11 +176,12 @@ public:
         BalancedParentheses
     };
 
+protected:
+    int classify(const QChar *s, int n, bool qmlMode);
+
 private:
     inline void scanChar();
     int scanToken();
-
-    int classify(const QChar *s, int n, bool qmlMode);
 
     bool isLineTerminator() const;
     static bool isIdentLetter(QChar c);

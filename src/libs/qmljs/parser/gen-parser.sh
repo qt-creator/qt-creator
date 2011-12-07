@@ -15,7 +15,7 @@ perl -p -0777 -i -e 's/QT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QmlDirParser
 # export QmlJSGrammar
 perl -p -0777 -i -e 's/#include <QtCore\/qglobal.h>\n\nQT_BEGIN_NAMESPACE\n\nclass QmlJSGrammar\n/#include "qmljsglobal_p.h"\n#include <QtCore\/qglobal.h>\n\nQT_BEGIN_NAMESPACE\n\nclass QML_PARSER_EXPORT QmlJSGrammar\n/' qmljsgrammar_p.h
 # replace qmlglobal_p.h include with needed declaration
-perl -p -0777 -i -e 's/#include \<qmlglobal_p.h\>/bool Qml_isFileCaseCorrect(const QString &) { return true; }/' qmldirparser.cpp
+perl -p -0777 -i -e 's/#include \"qmlglobal_p.h\"/bool Qml_isFileCaseCorrect(const QString &) { return true; }/' qmldirparser.cpp
 
 ./changeLicense.py $me/../qmljs_global.h qml*.{cpp,h}
 

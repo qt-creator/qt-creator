@@ -79,9 +79,6 @@ protected:
     virtual bool visit(AST::UiObjectMemberList *ast);
     virtual bool visit(AST::UiArrayMemberList *ast);
     virtual bool visit(AST::UiQualifiedId *ast);
-    virtual bool visit(AST::UiSignature *ast);
-    virtual bool visit(AST::UiFormalList *ast);
-    virtual bool visit(AST::UiFormal *ast);
 
     // QmlJS
     virtual bool visit(AST::ThisExpression *ast);
