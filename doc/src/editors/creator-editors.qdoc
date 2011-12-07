@@ -446,7 +446,7 @@
         \o M15
         \o Error
         \o Duplicate id
-        \o
+        \o Ids in a file must be unique.
 
     \row
         \o M16
@@ -470,13 +470,17 @@
         \o M19
         \o Warning
         \o Assignment in condition
-        \o
+        \o It could be a typing error. If it is intentional, wrap the
+           assignment in parentheses.
 
     \row
         \o M20
         \o Warning
         \o Unterminated non-empty case block
-        \o
+        \o Case blocks should either be empty or end in a flow control
+           statement such as 'break', 'return' or 'continue'.
+           Alternatively you can indicate intentional fall through by
+           ending with a '// fall through' comment.
 
     \row
         \o M23
@@ -488,7 +492,8 @@
         \o M28
         \o Warning
         \o Unreachable
-        \o
+        \o Indicates that the underlined statement will never be
+           executed.
 
     \row
         \o M29
@@ -536,7 +541,10 @@
         \o M107
         \o Warning
         \o 'Name' is declared more than once
-        \o
+        \o Variables declared in a function are always visible everywhere
+           in the function, even when declared in nested blocks or
+           'for' statement conditions. Redeclaring a variable has no
+           effect.
 
     \row
         \o M108
@@ -584,7 +592,9 @@
         \o M115
         \o Warning
         \o Do not use stand-alone blocks
-        \o
+        \o Blocks do not affect variable scoping. Thus blocks that are
+           not associated to 'if', 'while', etc. have no effect and
+           should be avoided.
 
     \row
         \o M116
@@ -620,7 +630,16 @@
         \o M126
         \o Warning
         \o == and != may perform type coercion, use === or !== to avoid
-        \o
+        \o The non-strict equality comparison is allowed to convert its
+           arguments to a common type. That can lead to unexpected
+           results such as ' \t\r\n' == 0 being true. Prefer to use the
+           strict equality operators === and !== and be explicit about
+           conversions you require.
+    \row
+        \o M305
+        \o Warning
+        \o == and != perform type coercion, use === or !== to avoid
+        \o (see above)
 
     \row
         \o M127
@@ -645,8 +664,6 @@
         \o Error
         \o Unknown component
         \o
-
-
 
     \row
         \o M301
@@ -673,16 +690,11 @@
         \o
 
     \row
-        \o M305
-        \o Warning
-        \o == and != perform type coercion, use === or !== to avoid
-        \o
-
-    \row
         \o M306
         \o Warning
         \o Calls of functions that start with an uppercase letter should use 'new'
-        \o
+        \o By convention, functions that start with an uppercase letter
+           are constructor functions that should only be used with 'new'.
 
     \row
         \o M307
