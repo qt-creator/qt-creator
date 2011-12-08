@@ -90,11 +90,10 @@ public:
     BaseGitDiffArgumentsWidget(GitClient *client, const QString &directory,
                                const QStringList &args) :
         m_workingDirectory(directory),
-        m_client(client),
-        m_args(args)
+        m_client(client)
     {
-        Q_ASSERT(!directory.isEmpty());
-        Q_ASSERT(m_client);
+        QTC_ASSERT(!directory.isEmpty(), return);
+        QTC_ASSERT(m_client, return);
 
         m_patienceButton = addToggleButton(QLatin1String("--patience"), tr("Patience"),
                                            tr("Use the patience algorithm for calculating the differences."));
@@ -102,12 +101,13 @@ public:
         m_ignoreWSButton = addToggleButton("--ignore-space-change", tr("Ignore Whitespace"),
                                            tr("Ignore whitespace only changes."));
         mapSetting(m_ignoreWSButton, m_client->settings()->boolPointer(GitSettings::ignoreSpaceChangesInDiffKey));
+
+        setBaseArguments(args);
     }
 
 protected:
     QString m_workingDirectory;
     GitClient *m_client;
-    QStringList m_args;
     QToolButton *m_patienceButton;
     QToolButton *m_ignoreWSButton;
 };
@@ -127,7 +127,7 @@ public:
 
     void executeCommand()
     {
-        m_client->diff(m_workingDirectory, m_args, m_unstagedFileNames, m_stagedFileNames);
+        m_client->diff(m_workingDirectory, arguments(), m_unstagedFileNames, m_stagedFileNames);
     }
 
 private:
@@ -147,7 +147,7 @@ public:
 
     void executeCommand()
     {
-        m_client->diff(m_workingDirectory, m_args, m_fileName);
+        m_client->diff(m_workingDirectory, arguments(), m_fileName);
     }
 
 private:
@@ -164,9 +164,9 @@ public:
         m_branchName(branch)
     { }
 
-    void redoCommand()
+    void executeCommand()
     {
-        m_client->diffBranch(m_workingDirectory, m_args, m_branchName);
+        m_client->diffBranch(m_workingDirectory, arguments(), m_branchName);
     }
 
 private:
@@ -185,7 +185,6 @@ public:
         BaseGitDiffArgumentsWidget(client, directory, args),
         m_client(client),
         m_workingDirectory(directory),
-        m_args(args),
         m_id(id)
     {
         QList<ComboBoxItem> prettyChoices;
@@ -202,13 +201,12 @@ public:
 
     void executeCommand()
     {
-        m_client->show(m_workingDirectory, m_id, m_args);
+        m_client->show(m_workingDirectory, m_id, arguments());
     }
 
 private:
     GitClient *m_client;
     QString m_workingDirectory;
-    QStringList m_args;
     QString m_id;
 };
 
@@ -224,7 +222,6 @@ public:
         m_editor(0),
         m_client(client),
         m_workingDirectory(directory),
-        m_args(args),
         m_revision(revision),
         m_fileName(fileName)
     {
@@ -234,6 +231,8 @@ public:
         mapSetting(addToggleButton(QString("-w"), tr("Ignore Whitespace"),
                                    tr("Ignore whitespace only changes.")),
                    m_client->settings()->boolPointer(GitSettings::ignoreSpaceChangesInBlameKey));
+
+        setBaseArguments(args);
     }
 
     void setEditor(VCSBase::VCSBaseEditorWidget *editor)
@@ -247,14 +246,13 @@ public:
         int line = -1;
         if (m_editor)
             line = m_editor->lineNumberOfCurrentEditor();
-        m_client->blame(m_workingDirectory, m_args, m_fileName, m_revision, line);
+        m_client->blame(m_workingDirectory, arguments(), m_fileName, m_revision, line);
     }
 
 private:
     VCSBase::VCSBaseEditorWidget *m_editor;
     GitClient *m_client;
     QString m_workingDirectory;
-    QStringList m_args;
     QString m_revision;
     QString m_fileName;
 };
@@ -273,7 +271,6 @@ public:
         m_client(client),
         m_workingDirectory(directory),
         m_enableAnnotationContextMenu(enableAnnotationContextMenu),
-        m_args(args),
         m_fileNames(fileNames)
     {
         QToolButton *button = addToggleButton(QLatin1String("--patch"), tr("Show Diff"),
@@ -287,17 +284,15 @@ public:
 
     void executeCommand()
     {
-        m_client->log(m_workingDirectory, m_fileNames, m_enableAnnotationContextMenu, m_args);
+        m_client->log(m_workingDirectory, m_fileNames, m_enableAnnotationContextMenu, arguments());
     }
 
 private:
     GitClient *m_client;
     QString m_workingDirectory;
     bool m_enableAnnotationContextMenu;
-    QStringList m_args;
     QStringList m_fileNames;
 };
-
 
 inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property, const QString &entry)
 {
