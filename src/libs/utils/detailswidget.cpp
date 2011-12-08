@@ -139,8 +139,10 @@ QPixmap DetailsWidgetPrivate::cacheBackground(const QSize &size, bool expanded)
     pixmap.fill(Qt::transparent);
     QPainter p(&pixmap);
 
-    int topHeight = qMax(m_detailsButton->height(),
-                         m_useCheckBox ? m_summaryCheckBox->height() : m_summaryLabel->height());
+    int topHeight = m_useCheckBox ? m_summaryCheckBox->height() : m_summaryLabel->height();
+    if (m_state == DetailsWidget::Expanded || m_state == DetailsWidget::Collapsed) // Details Button is shown
+        topHeight = qMax(m_detailsButton->height(), topHeight);
+
     QRect topRect(0, 0, size.width(), topHeight);
     QRect fullRect(0, 0, size.width(), size.height());
 #ifdef Q_WS_MAC
@@ -175,7 +177,7 @@ void DetailsWidgetPrivate::updateControls()
     if (m_widget)
         m_widget->setVisible(m_state == DetailsWidget::Expanded || m_state == DetailsWidget::NoSummary);
     m_detailsButton->setChecked(m_state == DetailsWidget::Expanded && m_widget);
-    m_detailsButton->setVisible(m_state != DetailsWidget::NoSummary);
+    m_detailsButton->setVisible(m_state == DetailsWidget::Expanded || m_state == DetailsWidget::Collapsed);
     m_summaryLabel->setVisible(m_state != DetailsWidget::NoSummary && !m_useCheckBox);
     m_summaryCheckBox->setVisible(m_state != DetailsWidget::NoSummary && m_useCheckBox);
 
@@ -269,7 +271,7 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
     QPoint topLeft(topLeftWidget->geometry().left() - MARGIN, contentsRect().top());
     const QRect paintArea(topLeft, contentsRect().bottomRight());
 
-    if (d->m_state != Expanded) {
+    if (d->m_state == Collapsed) {
         if (d->m_collapsedPixmap.isNull() ||
             d->m_collapsedPixmap.size() != size())
             d->m_collapsedPixmap = d->cacheBackground(paintArea.size(), false);

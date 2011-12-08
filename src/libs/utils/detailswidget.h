@@ -56,7 +56,8 @@ public:
     enum State {
         Expanded,
         Collapsed,
-        NoSummary
+        NoSummary,
+        OnlySummary
     };
 
     explicit DetailsWidget(QWidget *parent = 0);

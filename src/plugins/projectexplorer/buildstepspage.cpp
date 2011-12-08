@@ -180,7 +180,9 @@ void BuildStepListWidget::init(BuildStepList *bsl)
 
     for (int i = 0; i < bsl->count(); ++i) {
         addBuildStep(i);
-        m_buildStepsData.at(i)->detailsWidget->setState(Utils::DetailsWidget::Collapsed);
+        // addBuilStep expands the config widget by default, which we don't want here
+        if (m_buildStepsData.at(i)->widget->showWidget())
+            m_buildStepsData.at(i)->detailsWidget->setState(Utils::DetailsWidget::Collapsed);
     }
 
     m_noStepsLabel->setVisible(bsl->isEmpty());
@@ -261,7 +263,11 @@ void BuildStepListWidget::addBuildStep(int pos)
     BuildStep *newStep = m_buildStepList->at(pos);
     addBuildStepWidget(pos, newStep);
     BuildStepsWidgetData *s = m_buildStepsData.at(pos);
-    s->detailsWidget->setState(Utils::DetailsWidget::Expanded);
+    // Expand new build steps by default
+    if (s->widget->showWidget())
+        s->detailsWidget->setState(Utils::DetailsWidget::Expanded);
+    else
+        s->detailsWidget->setState(Utils::DetailsWidget::OnlySummary);
 
     m_noStepsLabel->setVisible(false);
     updateBuildStepButtonsState();
