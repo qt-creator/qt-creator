@@ -89,6 +89,11 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     return true;
 }
 
+RemoteLinuxPlugin::~RemoteLinuxPlugin()
+{
+    removeObject(this);
+}
+
 void RemoteLinuxPlugin::extensionsInitialized()
 {
     /*
