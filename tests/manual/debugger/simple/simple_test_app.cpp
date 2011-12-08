@@ -47,7 +47,7 @@
 // The following commands are supported:
 //   // Check <name> <value> <type>
 //         - Checks whether the local variable is displayed with value and type.
-//   // Continue
+//   //// Continue
 //         - Continues execution
 // If the line after a BREAK_HERE line does not contain one of the
 // supported commands, the test stops.
@@ -323,15 +323,31 @@ namespace peekandpoke {
         } a = { { 42, 43 } };
         BREAK_HERE;
         // CheckType a union {...}.
+        // Expand a.
+        // Check a.b 43 int.
+        // Check a.d 9.1245819032257467e-313 double.
+        // Check a.f 5.88545355e-44 float.
+        // Check a.i 42 int.
         // Continue.
 
         // Expand a. Step.
         a.i = 1;
         BREAK_HERE;
+        // CheckType a union {...}.
+        // Expand a.
+        // Check a.b 43 int.
+        // Check a.d 9.1245819012000775e-313 double.
+        // Check a.f 1.40129846e-45 float.
+        // Check a.i 1 int.
         // Continue.
-        // Change a.i in Locals view to 0. This changes f, d but expectedly not b. Step.
         a.i = 2;
         BREAK_HERE;
+        // CheckType a union {...}.
+        // Expand a.
+        // Check a.b 43 int.
+        // Check a.d 9.1245819012494841e-313 double.
+        // Check a.f 2.80259693e-45 float.
+        // Check a.i 2 int.
         // Continue.
         a.i = 3;
         dummyStatement(&a);
@@ -431,16 +447,34 @@ namespace anon {
     {
     #ifndef Q_CC_RVCT
         TestAnonymous a;
+        BREAK_HERE;
+        // CheckType a anon::TestAnonymous.
+        // Expand a.
+        // Check a.#1   {...}.
+        // Expand a.#1.
+        // CheckType a.#1.b int.
+        // CheckType a.#1.i int.
+        // Check a.#2   {...}.
+        // Expand a.#2.
+        // CheckType a.#2.f float.
+        // CheckType a.d double.
+        // Continue.
         a.i = 1;
         a.i = 2;
         a.i = 3;
         Something s;
         BREAK_HERE;
-        // CheckType a anon::TestAnonymous.
         // CheckType s anon::(anonymous namespace)::Something.
+        // Expand s.
+        // Check s.a 1 int.
+        // Check s.b 1 int.
         // Continue.
-        // Step.
         s.foo();
+        BREAK_HERE;
+        // Expand s.
+        // Check s.a 42 int.
+        // Check s.b 43 int.
+        // Continue.
         dummyStatement(&a, &s);
     #endif
     }
@@ -464,6 +498,11 @@ namespace qbytearray {
         ba += 2;
         BREAK_HERE;
         // Check ba "Hello"World" QByteArray.
+        // Expand ba.
+        // Check ba.0 72 'H' char.
+        // Check ba.11 0 '\0' char.
+        // Check ba.12 1 char.
+        // Check ba.13 2 char.
         // Continue.
         dummyStatement(&ba);
     }
@@ -496,8 +535,6 @@ namespace qbytearray {
         // Check buf2 "\356" QByteArray.
         // Check buf3 "\ee" QByteArray.
         // CheckType str1 char *.
-        // CheckType str2 char *.
-        // CheckType str3 char *.
         // Continue.
         dummyStatement(&buf1, &buf2, &buf3);
     }
@@ -549,6 +586,11 @@ namespace qdatetime {
         QDate date;
         BREAK_HERE;
         // CheckType date QDate.
+        // Expand date.
+        // Check date.(ISO) "" QString.
+        // Check date.(Locale) "" QString.
+        // Check date.(SystemLocale) "" QString.
+        // Check date.toString "" QString.
         // Continue.
 
         // Step, check display.
@@ -562,8 +604,15 @@ namespace qdatetime {
     {
         QTime time;
         BREAK_HERE;
-        // CheckType time QTime.
+        // CheckType date QDateTime.
+        // Expand date.
+        // Check date.(ISO) "" QString.
+        // Check date.(Locale) "" QString.
+        // Check date.(SystemLocale) "" QString.
+        // CheckType date.toLocalTime QDateTime.
+        // Check date.toString "" QString.
         // Continue.
+
         // Step, check display.
         time = QTime::currentTime();
         time = time.addSecs(5);
@@ -575,8 +624,15 @@ namespace qdatetime {
     {
         QDateTime date;
         BREAK_HERE;
-        // CheckType date QDateTime.
+        // CheckType time QTime.
+        // Expand time.
+        // Check time.(ISO) "" QString.
+        // Check time.(Locale) "" QString.
+        // Check time.(SystemLocale) "" QString.
+        // Check time.toString "" QString.
+        // Check time.toUTC <not available> <unknown>.
         // Continue.
+
         // Step, check display.
         date = QDateTime::currentDateTime();
         date = date.addSecs(5);
@@ -619,6 +675,24 @@ namespace qhash {
         hash.insert("!", QList<int>() << 1 << 2);
         BREAK_HERE;
         // Check hash <3 items> QHash<QString, QList<int>>.
+        // Expand hash.
+        // Check hash.0   QHashNode<QString, QList<int>>.
+        // Expand hash.0.
+        // Check hash.0.key "Hallo" QString.
+        // Check hash.0.value <0 items> QList<int>.
+        // Check hash.1   QHashNode<QString, QList<int>>.
+        // Expand hash.1.
+        // Check hash.1.key "Welt" QString.
+        // Check hash.1.value <1 items> QList<int>.
+        // Expand hash.1.value.
+        // Check hash.1.value.0 1 int.
+        // Check hash.2   QHashNode<QString, QList<int>>.
+        // Expand hash.2.
+        // Check hash.2.key "!" QString.
+        // Check hash.2.value <2 items> QList<int>.
+        // Expand hash.2.value.
+        // Check hash.2.value.0 1 int.
+        // Check hash.2.value.1 2 int.
         // Continue.
         dummyStatement(&hash);
     }
@@ -630,6 +704,9 @@ namespace qhash {
         hash[22] = 22.0;
         BREAK_HERE;
         // Check hash <2 items> QHash<int, float>.
+        // Expand hash.
+        // Check hash.22 22 float.
+        // Check hash.11 11 float.
         // Continue.
         dummyStatement(&hash);
     }
@@ -648,6 +725,15 @@ namespace qhash {
         hash["111111111111111111129.0"] = 29.0;
         BREAK_HERE;
         // Check hash <9 items> QHash<QString, int>.
+        // Expand hash.
+        // Check hash.0   QHashNode<QString, int>.
+        // Expand hash.0.
+        // Check hash.0.key "123.0" QString.
+        // Check hash.0.value 22 int.
+        // Check hash.8   QHashNode<QString, int>.
+        // Expand hash.8.
+        // Check hash.8.key "11124.0" QString.
+        // Check hash.8.value 22 int.
         // Continue.
         dummyStatement(&hash);
     }
@@ -666,6 +752,15 @@ namespace qhash {
         hash["111111111111111111129.0"] = 29.0;
         BREAK_HERE;
         // Check hash <9 items> QHash<QByteArray, float>.
+        // Expand hash.
+        // Check hash.0   QHashNode<QByteArray, float>.
+        // Expand hash.0.
+        // Check hash.0.key "123.0" QByteArray.
+        // Check hash.0.value 22 float.
+        // Check hash.8   QHashNode<QByteArray, float>.
+        // Expand hash.8.
+        // Check hash.8.key "11124.0" QByteArray.
+        // Check hash.8.value 22 float.
         // Continue.
         dummyStatement(&hash);
     }
@@ -676,6 +771,11 @@ namespace qhash {
         hash[22] = "22.0";
         BREAK_HERE;
         // Check hash <1 items> QHash<int, QString>.
+        // Expand hash.
+        // Check hash.0   QHashNode<int, QString>.
+        // Expand hash.0.
+        // Check hash.0.key 22 int.
+        // Check hash.0.value "22.0" QString.
         // Continue.
         dummyStatement(&hash);
     }
@@ -687,6 +787,17 @@ namespace qhash {
         hash["33.0"] = Foo(33);
         BREAK_HERE;
         // Check hash <2 items> QHash<QString, Foo>.
+        // Expand hash.
+        // Check hash.0   QHashNode<QString, Foo>.
+        // Expand hash.0.
+        // Check hash.0.key "22.0" QString.
+        // CheckType hash.0.value Foo.
+        // Expand hash.0.value.
+        // Check hash.0.value.a 22 int.
+        // Check hash.1   QHashNode<QString, Foo>.
+        // Expand hash.1.
+        // Check hash.1.key "33.0" QString.
+        // CheckType hash.1.value Foo.
         // Continue.
         dummyStatement(&hash);
     }
@@ -700,7 +811,17 @@ namespace qhash {
         hash.insert(".", QPointer<QObject>(&ob));
         BREAK_HERE;
         // Check hash <3 items> QHash<QString, QPointer<QObject>>.
-        // Check ob "" QObject.
+        // Expand hash.
+        // Check hash.0   QHashNode<QString, QPointer<QObject>>.
+        // Expand hash.0.
+        // Check hash.0.key "Hallo" QString.
+        // CheckType hash.0.value QPointer<QObject>.
+        // Expand hash.0.value.
+        // CheckType hash.0.value.o QObject.
+        // Check hash.2   QHashNode<QString, QPointer<QObject>>.
+        // Expand hash.2.
+        // Check hash.2.key "." QString.
+        // CheckType hash.2.value QPointer<QObject>.
         // Continue.
         dummyStatement(&hash, &ob);
     }
@@ -791,6 +912,9 @@ namespace qlinkedlist {
         list.append(102);
         BREAK_HERE;
         // Check list <2 items> QLinkedList<int>.
+        // Expand list.
+        // Check list.0 101 int.
+        // Check list.1 102 int.
         // Continue.
         dummyStatement(&list);
     }
@@ -802,6 +926,9 @@ namespace qlinkedlist {
         list.append(104);
         BREAK_HERE;
         // Check list <2 items> QLinkedList<unsigned int>.
+        // Expand list.
+        // Check list.0 103 unsigned int.
+        // Check list.1 104 unsigned int.
         // Continue.
         dummyStatement(&list);
     }
@@ -814,6 +941,14 @@ namespace qlinkedlist {
         list.append(new Foo(3));
         BREAK_HERE;
         // Check list <3 items> QLinkedList<Foo*>.
+        // Expand list.
+        // CheckType list.0 Foo.
+        // Expand list.0.
+        // Check list.0.a 1 int.
+        // Check list.1 0x0 Foo *.
+        // CheckType list.2 Foo.
+        // Expand list.2.
+        // Check list.2.a 3 int.
         // Continue.
         dummyStatement(&list);
     }
@@ -825,6 +960,9 @@ namespace qlinkedlist {
         list.append(43);
         BREAK_HERE;
         // Check list <2 items> QLinkedList<unsigned long long>.
+        // Expand list.
+        // Check list.0 42 unsigned long long.
+        // Check list.1 43 unsigned long long.
         // Continue.
         dummyStatement(&list);
     }
@@ -836,6 +974,13 @@ namespace qlinkedlist {
         list.append(Foo(2));
         BREAK_HERE;
         // Check list <2 items> QLinkedList<Foo>.
+        // Expand list.
+        // CheckType list.0 Foo.
+        // Expand list.0.
+        // Check list.0.a 1 int.
+        // CheckType list.1 Foo.
+        // Expand list.1.
+        // Check list.1.a 2 int.
         // Continue.
         dummyStatement(&list);
     }
@@ -847,6 +992,9 @@ namespace qlinkedlist {
         list.push_back("bb");
         BREAK_HERE;
         // Check list <2 items> QLinkedList<std::string>.
+        // Expand list.
+        // Check list.0 "aa" std::string.
+        // Check list.1 "bb" std::string.
         // Continue.
         dummyStatement(&list);
     }
@@ -869,13 +1017,13 @@ namespace qlist {
     void testQListInt()
     {
         QList<int> big;
-        BREAK_HERE;
-        // Check big <0 items> QList<int>.
-        // Continue.
         for (int i = 0; i < 10000; ++i)
             big.push_back(i);
         BREAK_HERE;
         // Check big <10000 items> QList<int>.
+        // Expand big.
+        // Check big.0 0 int.
+        // Check big.1999 1999 int.
         // Continue.
         dummyStatement(&big);
     }
@@ -891,6 +1039,9 @@ namespace qlist {
         l.append(new int(3));
         BREAK_HERE;
         // Check l <3 items> QList<int*>.
+        // Expand l.
+        // CheckType l.0 int.
+        // CheckType l.2 int.
         // Continue.
         dummyStatement(&l);
     }
@@ -906,6 +1057,9 @@ namespace qlist {
         l.append(102);
         BREAK_HERE;
         // Check l <3 items> QList<unsigned int>.
+        // Expand l.
+        // Check l.0 101 unsigned int.
+        // Check l.2 102 unsigned int.
         // Continue.
         dummyStatement(&l);
     }
@@ -921,6 +1075,9 @@ namespace qlist {
         l.append(102);
         BREAK_HERE;
         // Check l <3 items> QList<unsigned short>.
+        // Expand l.
+        // Check l.0 101 unsigned short.
+        // Check l.2 102 unsigned short.
         // Continue.
         dummyStatement(&l);
     }
@@ -936,6 +1093,9 @@ namespace qlist {
         l.append(QChar('c'));
         BREAK_HERE;
         // Check l <3 items> QList<QChar>.
+        // Expand l.
+        // Check l.0 'a' (97) QChar.
+        // Check l.2 'c' (99) QChar.
         // Continue.
         dummyStatement(&l);
     }
@@ -951,6 +1111,9 @@ namespace qlist {
         l.append(102);
         BREAK_HERE;
         // Check l <3 items> QList<unsigned long long>.
+        // Expand l.
+        // Check l.0 101 unsigned long long.
+        // Check l.2 102 unsigned long long.
         // Continue.
         dummyStatement(&l);
     }
@@ -967,6 +1130,9 @@ namespace qlist {
         l.push_back("dd");
         BREAK_HERE;
         // Check l <4 items> QList<std::string>.
+        // Expand l.
+        // CheckType l.0 std::string.
+        // CheckType l.3 std::string.
         // Continue.
         dummyStatement(&l);
     }
@@ -981,6 +1147,9 @@ namespace qlist {
             l.push_back(i + 15);
         BREAK_HERE;
         // Check l <100 items> QList<Foo>.
+        // Expand l.
+        // CheckType l.0 Foo.
+        // CheckType l.99 Foo.
         // Continue.
         l.push_back(1000);
         l.push_back(1001);
@@ -1002,7 +1171,15 @@ namespace qlist {
             r.append(*rit++);
         BREAK_HERE;
         // Check l <3 items> QList<int>.
+        // Expand l.
+        // Check l.0 1 int.
+        // Check l.1 2 int.
+        // Check l.2 3 int.
         // Check r <3 items> QList<int>.
+        // Expand r.
+        // Check r.0 3 int.
+        // Check r.1 2 int.
+        // Check r.2 1 int.
         // CheckType rend qlist::Reverse.
         // CheckType rit qlist::Reverse.
         // Continue.
@@ -1052,6 +1229,19 @@ namespace qmap {
         map[22] = QStringList() << "22";
         BREAK_HERE;
         // Check map <2 items> QMap<unsigned int, QStringList>.
+        // Expand map.
+        // Check map.0   QMapNode<unsigned int, QStringList>.
+        // Expand map.0.
+        // Check map.0.key 11 unsigned int.
+        // Check map.0.value <1 items> QStringList.
+        // Expand map.0.value.
+        // Check map.0.value.0 "11" QString.
+        // Check map.1   QMapNode<unsigned int, QStringList>.
+        // Expand map.1.
+        // Check map.1.key 22 unsigned int.
+        // Check map.1.value <1 items> QStringList.
+        // Expand map.1.value.
+        // Check map.1.value.0 "22" QString.
         // Continue.
         dummyStatement(&map);
     }
@@ -1076,6 +1266,9 @@ namespace qmap {
         map[22] = 22.0;
         BREAK_HERE;
         // Check map <2 items> QMap<unsigned int, float>.
+        // Expand map.
+        // Check map.11 11 float.
+        // Check map.22 22 float.
         // Continue.
         dummyStatement(&map);
     }
@@ -1086,6 +1279,11 @@ namespace qmap {
         map["22.0"] = 22.0;
         BREAK_HERE;
         // Check map <1 items> QMap<QString, float>.
+        // Expand map.
+        // Check map.0   QMapNode<QString, float>.
+        // Expand map.0.
+        // Check map.0.key "22.0" QString.
+        // Check map.0.value 22 float.
         // Continue.
         dummyStatement(&map);
     }
@@ -1096,6 +1294,11 @@ namespace qmap {
         map[22] = "22.0";
         BREAK_HERE;
         // Check map <1 items> QMap<int, QString>.
+        // Expand map.
+        // Check map.0   QMapNode<int, QString>.
+        // Expand map.0.
+        // Check map.0.key 22 int.
+        // Check map.0.value "22.0" QString.
         // Continue.
         dummyStatement(&map);
     }
@@ -1107,6 +1310,19 @@ namespace qmap {
         map["33.0"] = Foo(33);
         BREAK_HERE;
         // Check map <2 items> QMap<QString, Foo>.
+        // Expand map.
+        // Check map.0   QMapNode<QString, Foo>.
+        // Expand map.0.
+        // Check map.0.key "22.0" QString.
+        // CheckType map.0.value Foo.
+        // Expand map.0.value.
+        // Check map.0.value.a 22 int.
+        // Check map.1   QMapNode<QString, Foo>.
+        // Expand map.1.
+        // Check map.1.key "33.0" QString.
+        // CheckType map.1.value Foo.
+        // Expand map.1.value.
+        // Check map.1.value.a 33 int.
         // Continue.
         dummyStatement(&map);
     }
@@ -1121,7 +1337,19 @@ namespace qmap {
         map.insert(".", QPointer<QObject>(&ob));
         BREAK_HERE;
         // Check map <3 items> QMap<QString, QPointer<QObject>>.
-        // Check ob "" QObject.
+        // Expand map.
+        // Check map.0   QMapNode<QString, QPointer<QObject>>.
+        // Expand map.0.
+        // Check map.0.key "." QString.
+        // CheckType map.0.value QPointer<QObject>.
+        // Expand map.0.value.
+        // CheckType map.0.value.o QObject.
+        // Check map.1   QMapNode<QString, QPointer<QObject>>.
+        // Expand map.1.
+        // Check map.1.key "Hallo" QString.
+        // Check map.2   QMapNode<QString, QPointer<QObject>>.
+        // Expand map.2.
+        // Check map.2.key "Welt" QString.
         // Continue.
         dummyStatement(&map);
     }
@@ -1140,6 +1368,29 @@ namespace qmap {
         map["2"] = x;
         BREAK_HERE;
         // Check map <4 items> QMap<QString, QList<nsA::nsB::SomeType*>>.
+        // Expand map.
+        // Check map.0   QMapNode<QString, QList<nsA::nsB::SomeType*>>.
+        // Expand map.0.
+        // Check map.0.key "1" QString.
+        // Check map.0.value <3 items> QList<nsA::nsB::SomeType*>.
+        // Expand map.0.value.
+        // CheckType map.0.value.0 nsA::nsB::SomeType.
+        // Expand map.0.value.0.
+        // Check map.0.value.0.a 1 int.
+        // CheckType map.0.value.1 nsA::nsB::SomeType.
+        // Expand map.0.value.1.
+        // Check map.0.value.1.a 2 int.
+        // CheckType map.0.value.2 nsA::nsB::SomeType.
+        // Expand map.0.value.2.
+        // Check map.0.value.2.a 3 int.
+        // Check map.3   QMapNode<QString, QList<nsA::nsB::SomeType*>>.
+        // Expand map.3.
+        // Check map.3.key "foo" QString.
+        // Check map.3.value <3 items> QList<nsA::nsB::SomeType*>.
+        // Expand map.3.value.
+        // CheckType map.3.value.2 nsA::nsB::SomeType.
+        // Expand map.3.value.2.
+        // Check map.3.value.2.a 3 int.
         // Check x <3 items> QList<nsA::nsB::SomeType*>.
         // Continue.
         dummyStatement(&map);
@@ -1156,6 +1407,9 @@ namespace qmap {
         map.insert(22, 36.0);
         BREAK_HERE;
         // Check map <6 items> QMultiMap<unsigned int, float>.
+        // Expand map.
+        // Check map.[0] 11 11 float.
+        // Check map.[5] 22 22 float.
         // Continue.
         dummyStatement(&map);
     }
@@ -1166,6 +1420,11 @@ namespace qmap {
         map.insert("22.0", 22.0);
         BREAK_HERE;
         // Check map <1 items> QMultiMap<QString, float>.
+        // Expand map.
+        // Check map.0   QMapNode<QString, float>.
+        // Expand map.0.
+        // Check map.0.key "22.0" QString.
+        // Check map.0.value 22 float.
         // Continue.
         dummyStatement(&map);
     }
@@ -1176,6 +1435,11 @@ namespace qmap {
         map.insert(22, "22.0");
         BREAK_HERE;
         // Check map <1 items> QMultiMap<int, QString>.
+        // Expand map.
+        // Check map.0   QMapNode<int, QString>.
+        // Expand map.0.
+        // Check map.0.key 22 int.
+        // Check map.0.value "22.0" QString.
         // Continue.
         dummyStatement(&map);
     }
@@ -1188,6 +1452,14 @@ namespace qmap {
         map.insert("22.0", Foo(22));
         BREAK_HERE;
         // Check map <3 items> QMultiMap<QString, Foo>.
+        // Expand map.
+        // Check map.0   QMapNode<QString, Foo>.
+        // Expand map.0.
+        // Check map.0.key "22.0" QString.
+        // CheckType map.0.value Foo.
+        // Expand map.0.value.
+        // Check map.0.value.a 22 int.
+        // Check map.2   QMapNode<QString, Foo>.
         // Continue.
         dummyStatement(&map);
     }
@@ -1202,7 +1474,20 @@ namespace qmap {
         map.insert(".", QPointer<QObject>(&ob));
         BREAK_HERE;
         // Check map <4 items> QMultiMap<QString, QPointer<QObject>>.
-        // Check ob "" QObject.
+        // Expand map.
+        // Check map.0   QMapNode<QString, QPointer<QObject>>.
+        // Expand map.0.
+        // Check map.0.key "." QString.
+        // CheckType map.0.value QPointer<QObject>.
+        // Check map.1   QMapNode<QString, QPointer<QObject>>.
+        // Expand map.1.
+        // Check map.1.key "." QString.
+        // Check map.2   QMapNode<QString, QPointer<QObject>>.
+        // Expand map.2.
+        // Check map.2.key "Hallo" QString.
+        // Check map.3   QMapNode<QString, QPointer<QObject>>.
+        // Expand map.3.
+        // Check map.3.key "Welt" QString.
         // Continue.
         dummyStatement(&map);
     }
@@ -1450,7 +1735,9 @@ namespace qobject {
     #if USE_PRIVATE
         DerivedObject ob;
         BREAK_HERE;
-        // Check ob "" qobject::DerivedObject.
+        // Expand ob.
+        // Expand ob.properties.
+        // Check ob.properties.x 43 QVariant (int).
         // Continue.
 
         // expand ob and ob.properties
@@ -1458,6 +1745,11 @@ namespace qobject {
         ob.setX(23);
         ob.setX(25);
         ob.setX(26);
+        BREAK_HERE;
+        // Expand ob.
+        // Expand ob.properties.
+        // Check ob.properties.x 26 QVariant (int).
+        // Continue.
     #endif
     }
 
@@ -1482,7 +1774,6 @@ namespace qregexp {
         BREAK_HERE;
         // Check re "a(.*)b(.*)c" QRegExp.
         // Continue.
-        // Step over until end, check display looks ok.
         QString str1 = "a1121b344c";
         QString str2 = "Xa1121b344c";
         BREAK_HERE;
@@ -1565,7 +1856,6 @@ namespace qrect {
         BREAK_HERE;
         // Check s (-1, -1) QSize.
         // Continue.
-        // Step over, check display looks sane.
         s = QSize(100, 200);
         BREAK_HERE;
         // Check s (100, 200) QSize.
@@ -1579,7 +1869,6 @@ namespace qrect {
         BREAK_HERE;
         // Check s (-1, -1) QSizeF.
         // Continue.
-        // Step over, check display looks sane.
         s = QSizeF(100, 200);
         BREAK_HERE;
         // Check s (100, 200) QSizeF.
@@ -1613,14 +1902,32 @@ namespace qregion {
         region += QRect(100, 100, 200, 200);
         BREAK_HERE;
         // Check region <1 items> QRegion.
+        // Expand region.
+        // CheckType region.extents QRect.
+        // Check region.innerArea 40000 int.
+        // CheckType region.innerRect QRect.
+        // Check region.numRects 1 int.
+        // Check region.rects <0 items> QVector<QRect>.
         // Continue.
         region += QRect(300, 300, 400, 500);
         BREAK_HERE;
         // Check region <2 items> QRegion.
+        // Expand region.
+        // CheckType region.extents QRect.
+        // Check region.innerArea 200000 int.
+        // CheckType region.innerRect QRect.
+        // Check region.numRects 2 int.
+        // Check region.rects <2 items> QVector<QRect>.
         // Continue.
         region += QRect(500, 500, 600, 600);
         BREAK_HERE;
         // Check region <4 items> QRegion.
+        // Expand region.
+        // CheckType region.extents QRect.
+        // Check region.innerArea 360000 int.
+        // CheckType region.innerRect QRect.
+        // Check region.numRects 4 int.
+        // Check region.rects <8 items> QVector<QRect>.
         // Continue.
         region += QRect(500, 500, 600, 600);
         BREAK_HERE;
@@ -1694,6 +2001,8 @@ namespace final {
         QVariant value = settings.value("item1","").toString();
         BREAK_HERE;
         // Check settings "" QSettings.
+        // Expand settings.
+        // Check settings.QObject "" QSettings.
         // Check value "" QVariant (QString).
         // Continue.
         dummyStatement(&settings, &value);
@@ -1781,6 +2090,9 @@ namespace qset {
         s.insert(22);
         BREAK_HERE;
         // Check s <2 items> QSet<int>.
+        // Expand s.
+        // Check s.22 22 int.
+        // Check s.11 11 int.
         // Continue.
         dummyStatement(&s);
     }
@@ -1792,6 +2104,9 @@ namespace qset {
         s.insert("22.0");
         BREAK_HERE;
         // Check s <2 items> QSet<QString>.
+        // Expand s.
+        // Check s.0 "11.0" QString.
+        // Check s.1 "22.0" QString.
         // Continue.
         dummyStatement(&s);
     }
@@ -1805,9 +2120,9 @@ namespace qset {
         s.insert(ptr);
         s.insert(ptr);
         BREAK_HERE;
-        // Check ob "" QObject.
-        // CheckType ptr QPointer<QObject>.
         // Check s <1 items> QSet<QPointer<QObject>>.
+        // Expand s.
+        // CheckType s.0 QPointer<QObject>.
         // Continue.
         dummyStatement(&ptr, &s);
     }
@@ -1939,8 +2254,30 @@ namespace qxml {
         atts.append("name3", "uri3", "localPart3", "value3");
         BREAK_HERE;
         // CheckType atts QXmlAttributes.
+        // Expand atts.
+        // CheckType atts.[vptr] .
+        // Check atts.attList <3 items> QXmlAttributes::AttributeList.
+        // Expand atts.attList.
+        // CheckType atts.attList.0 QXmlAttributes::Attribute.
+        // Expand atts.attList.0.
+        // Check atts.attList.0.localname "localPart1" QString.
+        // Check atts.attList.0.qname "name1" QString.
+        // Check atts.attList.0.uri "uri1" QString.
+        // Check atts.attList.0.value "value1" QString.
+        // CheckType atts.attList.1 QXmlAttributes::Attribute.
+        // Expand atts.attList.1.
+        // Check atts.attList.1.localname "localPart2" QString.
+        // Check atts.attList.1.qname "name2" QString.
+        // Check atts.attList.1.uri "uri2" QString.
+        // Check atts.attList.1.value "value2" QString.
+        // CheckType atts.attList.2 QXmlAttributes::Attribute.
+        // Expand atts.attList.2.
+        // Check atts.attList.2.localname "localPart3" QString.
+        // Check atts.attList.2.qname "name3" QString.
+        // Check atts.attList.2.uri "uri3" QString.
+        // Check atts.attList.2.value "value3" QString.
+        // Check atts.d <unavailable synchronous data> .
         // Continue.
-        // Expand, check that attributes are displayed.
         dummyStatement();
     }
 
@@ -1956,6 +2293,9 @@ namespace stddeque {
         deque.push_back(2);
         BREAK_HERE;
         // Check deque <2 items> std::deque<int>.
+        // Expand deque.
+        // Check deque.0 1 int.
+        // Check deque.1 2 int.
         // Continue.
         dummyStatement(&deque);
     }
@@ -1969,6 +2309,9 @@ namespace stddeque {
         deque.push_back(new int(2));
         BREAK_HERE;
         // Check deque <3 items> std::deque<int*>.
+        // Expand deque.
+        // CheckType deque.0 int.
+        // Check deque.1 0x0 int *.
         // Continue.
         deque.pop_back();
         deque.pop_front();
@@ -1983,6 +2326,13 @@ namespace stddeque {
         deque.push_front(2);
         BREAK_HERE;
         // Check deque <2 items> std::deque<Foo>.
+        // Expand deque.
+        // CheckType deque.0 Foo.
+        // Expand deque.0.
+        // Check deque.0.a 2 int.
+        // CheckType deque.1 Foo.
+        // Expand deque.1.
+        // Check deque.1.a 1 int.
         // Continue.
         dummyStatement(&deque);
     }
@@ -1994,6 +2344,13 @@ namespace stddeque {
         deque.push_back(new Foo(2));
         BREAK_HERE;
         // Check deque <2 items> std::deque<Foo*>.
+        // Expand deque.
+        // CheckType deque.0 Foo.
+        // Expand deque.0.
+        // Check deque.0.a 1 int.
+        // CheckType deque.1 Foo.
+        // Expand deque.1.
+        // Check deque.1.a 2 int.
         // Continue.
         dummyStatement(&deque);
     }
@@ -2023,6 +2380,11 @@ namespace stdhashset {
         h.insert(3);
         BREAK_HERE;
         // Check h <4 items> __gnu__cxx::hash_set<int>.
+        // Expand h.
+        // Check h.0 194 int.
+        // Check h.1 1 int.
+        // Check h.2 2 int.
+        // Check h.3 3 int.
         // Continue.
         dummyStatement(&h);
     #endif
@@ -2040,6 +2402,9 @@ namespace stdlist {
         list.push_back(2);
         BREAK_HERE;
         // Check list <2 items> std::list<int>.
+        // Expand list.
+        // Check list.0 1 int.
+        // Check list.1 2 int.
         // Continue.
         dummyStatement(&list);
     }
@@ -2052,6 +2417,10 @@ namespace stdlist {
         list.push_back(new int(2));
         BREAK_HERE;
         // Check list <3 items> std::list<int*>.
+        // Expand list.
+        // CheckType list.0 int.
+        // Check list.1 0x0 int *.
+        // CheckType list.2 int.
         // Continue.
         dummyStatement(&list);
     }
@@ -2064,6 +2433,9 @@ namespace stdlist {
             list.push_back(i);
         BREAK_HERE;
         // Check list <more than 1000 items> std::list<int>.
+        // Expand list.
+        // Check list.0 0 int.
+        // Check list.999 999 int.
         // Continue.
         dummyStatement(&list);
     }
@@ -2075,6 +2447,13 @@ namespace stdlist {
         list.push_back(16);
         BREAK_HERE;
         // Check list <2 items> std::list<Foo>.
+        // Expand list.
+        // CheckType list.0 Foo.
+        // Expand list.0.
+        // Check list.0.a 15 int.
+        // CheckType list.1 Foo.
+        // Expand list.1.
+        // Check list.1.a 16 int.
         // Continue.
         dummyStatement(&list);
     }
@@ -2087,6 +2466,14 @@ namespace stdlist {
         list.push_back(new Foo(2));
         BREAK_HERE;
         // Check list <3 items> std::list<Foo*>.
+        // Expand list.
+        // CheckType list.0 Foo.
+        // Expand list.0.
+        // Check list.0.a 1 int.
+        // Check list.1 0x0 Foo *.
+        // CheckType list.2 Foo.
+        // Expand list.2.
+        // Check list.2.a 2 int.
         // Continue.
         dummyStatement(&list);
     }
@@ -2098,6 +2485,9 @@ namespace stdlist {
         list.push_back(false);
         BREAK_HERE;
         // Check list <2 items> std::list<bool>.
+        // Expand list.
+        // Check list.0 true bool.
+        // Check list.1 false bool.
         // Continue.
         dummyStatement(&list);
     }
@@ -2126,6 +2516,19 @@ namespace stdmap {
         map["44.0"] = Foo(44);
         BREAK_HERE;
         // Check map <3 items> std::map<QString, Foo>.
+        // Expand map.
+        // Check map.0   std::pair<QString const, Foo>.
+        // Expand map.0.
+        // Check map.0.first "22.0" QString.
+        // CheckType map.0.second Foo.
+        // Expand map.0.second.
+        // Check map.0.second.a 22 int.
+        // Check map.1   std::pair<QString const, Foo>.
+        // Expand map.2.
+        // Check map.2.first "44.0" QString.
+        // CheckType map.2.second Foo.
+        // Expand map.2.second.
+        // Check map.2.second.a 44 int.
         // Continue.
         dummyStatement(&map);
     }
@@ -2137,6 +2540,23 @@ namespace stdmap {
         map["33.0"] = Foo(33);
         BREAK_HERE;
         // Check map <2 items> std::map<char const*, Foo>.
+        // Expand map.
+        // Check map.0   std::pair<char const* const, Foo>.
+        // Expand map.0.
+        // CheckType map.0.first char *.
+        // Expand map.0.first.
+        // Check map.0.first.*first 50 '2' char.
+        // CheckType map.0.second Foo.
+        // Expand map.0.second.
+        // Check map.0.second.a 22 int.
+        // Check map.1   std::pair<char const* const, Foo>.
+        // Expand map.1.
+        // CheckType map.1.first char *.
+        // Expand map.1.first.
+        // Check map.1.first.*first 51 '3' char.
+        // CheckType map.1.second Foo.
+        // Expand map.1.second.
+        // Check map.1.second.a 33 int.
         // Continue.
         dummyStatement(&map);
     }
@@ -2148,6 +2568,9 @@ namespace stdmap {
         map[22] = 2;
         BREAK_HERE;
         // Check map <2 items> std::map<unsigned int, unsigned int>.
+        // Expand map.
+        // Check map.11 1 unsigned int.
+        // Check map.22 2 unsigned int.
         // Continue.
         dummyStatement(&map);
     }
@@ -2159,6 +2582,19 @@ namespace stdmap {
         map[22] = QStringList() << "22";
         BREAK_HERE;
         // Check map <2 items> std::map<unsigned int, QStringList>.
+        // Expand map.
+        // Check map.0   std::pair<unsigned int const, QStringList>.
+        // Expand map.0.
+        // Check map.0.first 11 unsigned int.
+        // Check map.0.second <1 items> QStringList.
+        // Expand map.0.second.
+        // Check map.0.second.0 "11" QString.
+        // Check map.1   std::pair<unsigned int const, QStringList>.
+        // Expand map.1.
+        // Check map.1.first 22 unsigned int.
+        // Check map.1.second <1 items> QStringList.
+        // Expand map.1.second.
+        // Check map.1.second.0 "22" QString.
         // Continue.
         dummyStatement(&map);
     }
@@ -2182,6 +2618,9 @@ namespace stdmap {
         map[22] = 22.0;
         BREAK_HERE;
         // Check map <2 items> std::map<unsigned int, float>.
+        // Expand map.
+        // Check map.11 11 float.
+        // Check map.22 22 float.
         // Continue.
         dummyStatement(&map);
     }
@@ -2193,6 +2632,15 @@ namespace stdmap {
         map["22.0"] = 22.0;
         BREAK_HERE;
         // Check map <2 items> std::map<QString, float>.
+        // Expand map.
+        // Check map.0   std::pair<QString const, float>.
+        // Expand map.0.
+        // Check map.0.first "11.0" QString.
+        // Check map.0.second 11 float.
+        // Check map.1   std::pair<QString const, float>.
+        // Expand map.1.
+        // Check map.1.first "22.0" QString.
+        // Check map.1.second 22 float.
         // Continue.
         dummyStatement(&map);
     }
@@ -2204,6 +2652,15 @@ namespace stdmap {
         map[22] = "22.0";
         BREAK_HERE;
         // Check map <2 items> std::map<int, QString>.
+        // Expand map.
+        // Check map.0   std::pair<int const, QString>.
+        // Expand map.0.
+        // Check map.0.first 11 int.
+        // Check map.0.second "11.0" QString.
+        // Check map.1   std::pair<int const, QString>.
+        // Expand map.1.
+        // Check map.1.first 22 int.
+        // Check map.1.second "22.0" QString.
         // Continue.
         dummyStatement(&map);
     }
@@ -2217,7 +2674,14 @@ namespace stdmap {
         map["."] = QPointer<QObject>(&ob);
         BREAK_HERE;
         // Check map <3 items> std::map<QString, QPointer<QObject>>.
-        // Check ob "" QObject.
+        // Expand map.
+        // Check map.0   std::pair<QString const, QPointer<QObject>>.
+        // Expand map.0.
+        // Check map.0.first "." QString.
+        // CheckType map.0.second QPointer<QObject>.
+        // Check map.2   std::pair<QString const, QPointer<QObject>>.
+        // Expand map.2.
+        // Check map.2.first "Welt" QString.
         // Continue.
         dummyStatement(&map);
     }
@@ -2259,6 +2723,8 @@ namespace stdset {
         set.insert("22.0");
         BREAK_HERE;
         // Check set <1 items> std::set<QString>.
+        // Expand set.
+        // Check set.0 "22.0" QString.
         // Continue.
         dummyStatement(&set);
     }
@@ -2306,6 +2772,10 @@ namespace stdstack {
         s.push(new int(2));
         BREAK_HERE;
         // Check s <3 items> std::stack<int*>.
+        // Expand s.
+        // CheckType s.0 int.
+        // Check s.1 0x0 int *.
+        // CheckType s.2 int.
         // Continue.
         s.pop();
         BREAK_HERE;
@@ -2335,6 +2805,9 @@ namespace stdstack {
         s.push(2);
         BREAK_HERE;
         // Check s <2 items> std::stack<int>.
+        // Expand s.
+        // Check s.0 1 int.
+        // Check s.1 2 int.
         // Continue.
         dummyStatement(&s);
     }
@@ -2352,6 +2825,13 @@ namespace stdstack {
         s.push(new Foo(2));
         BREAK_HERE;
         // Check s <2 items> std::stack<Foo*>.
+        // Expand s.
+        // CheckType s.0 Foo.
+        // Expand s.0.
+        // Check s.0.a 1 int.
+        // CheckType s.1 Foo.
+        // Expand s.1.
+        // Check s.1.a 2 int.
         // Continue.
         dummyStatement(&s);
     }
@@ -2369,6 +2849,13 @@ namespace stdstack {
         s.push(2);
         BREAK_HERE;
         // Check s <2 items> std::stack<Foo>.
+        // Expand s.
+        // CheckType s.0 Foo.
+        // Expand s.0.
+        // Check s.0.a 1 int.
+        // CheckType s.1 Foo.
+        // Expand s.1.
+        // Check s.1.a 2 int.
         // Continue.
         dummyStatement(&s);
     }
@@ -2435,6 +2922,10 @@ namespace stdstring {
         l.push_back(str);
         BREAK_HERE;
         // Check l <4 items> QList<std::string>.
+        // Expand l.
+        // CheckType l.0 std::string.
+        // CheckType l.3 std::string.
+        // Check str "foo" std::string.
         // Continue.
         dummyStatement(&str, &l);
     }
@@ -2462,6 +2953,9 @@ namespace stdstring {
         v.push_back(str);
         BREAK_HERE;
         // Check v <4 items> std::vector<std::string>.
+        // Expand v.
+        // Check v.0 "foo" std::string.
+        // Check v.3 "foo" std::string.
         // Continue.
         dummyStatement(&str, &v);
     }
@@ -2495,6 +2989,10 @@ namespace stdvector {
         v.push_back(new int(2));
         BREAK_HERE;
         // Check v <3 items> std::vector<int*>.
+        // Expand v.
+        // Check v.0 1 int.
+        // Check v.1 0x0 int *.
+        // Check v.2 2 int.
         // Continue.
         dummyStatement(&v);
     }
@@ -2508,6 +3006,9 @@ namespace stdvector {
         v.push_back(4);
         BREAK_HERE;
         // Check v <4 items> std::vector<int>.
+        // Expand v.
+        // Check v.0 1 int.
+        // Check v.3 4 int.
         // Continue.
         dummyStatement(&v);
     }
@@ -2520,10 +3021,17 @@ namespace stdvector {
         v.push_back(0);
         v.push_back(new Foo(2));
         BREAK_HERE;
-        // CheckType f Foo.
         // Check v <3 items> std::vector<Foo*>.
+        // Expand v.
+        // CheckType v.0 Foo.
+        // Expand v.0.
+        // Check v.0.a 1 int.
+        // Expand v.0.x.
+        // Check v.1 0x0 Foo *.
+        // CheckType v.2 Foo.
+        // Expand v.2.
+        // Check v.2.a 2 int.
         // Continue.
-        // Expand v.[0].x
         dummyStatement(&v);
     }
 
@@ -2536,8 +3044,13 @@ namespace stdvector {
         v.push_back(4);
         BREAK_HERE;
         // Check v <4 items> std::vector<Foo>.
+        // Expand v.
+        // CheckType v.0 Foo.
+        // Expand v.0.
+        // Check v.0.a 1 int.
+        // Expand v.0.x.
+        // CheckType v.3 Foo.
         // Continue.
-        // Expand v.[0].x
         dummyStatement(&v);
     }
 
@@ -2551,6 +3064,12 @@ namespace stdvector {
         v.push_back(false);
         BREAK_HERE;
         // Check v <5 items> std::vector<bool>.
+        // Expand v.
+        // Check v.0 1 bool.
+        // Check v.1 0 bool.
+        // Check v.2 0 bool.
+        // Check v.3 1 bool.
+        // Check v.4 0 bool.
         // Continue.
         dummyStatement(&v);
     }
@@ -2566,7 +3085,15 @@ namespace stdvector {
         vector.push_back(0);
         BREAK_HERE;
         // Check list <1 items> std::list<int>.
+        // Expand list.
+        // Check list.0 45 int.
         // Check vector <4 items> std::vector<std::list<int>*>.
+        // Expand vector.
+        // Check vector.0 <0 items> std::list<int>.
+        // Check vector.2 <1 items> std::list<int>.
+        // Expand vector.2.
+        // Check vector.2.0 45 int.
+        // Check vector.3 0x0 std::list<int> *.
         // Continue.
         dummyStatement(&vector, &list);
     }
@@ -2646,6 +3173,9 @@ namespace qstack {
         s.append(2);
         BREAK_HERE;
         // Check s <2 items> QStack<int>.
+        // Expand s.
+        // Check s.0 1 int.
+        // Check s.1 2 int.
         // Continue.
         dummyStatement(&s);
     }
@@ -2657,6 +3187,9 @@ namespace qstack {
             s.append(i);
         BREAK_HERE;
         // Check s <10000 items> QStack<int>.
+        // Expand s.
+        // Check s.0 0 int.
+        // Check s.1999 1999 int.
         // Continue.
         dummyStatement(&s);
     }
@@ -2669,6 +3202,14 @@ namespace qstack {
         s.append(new Foo(2));
         BREAK_HERE;
         // Check s <3 items> QStack<Foo*>.
+        // Expand s.
+        // CheckType s.0 Foo.
+        // Expand s.0.
+        // Check s.0.a 1 int.
+        // Check s.1 0x0 Foo *.
+        // CheckType s.2 Foo.
+        // Expand s.2.
+        // Check s.2.a 2 int.
         // Continue.
         dummyStatement(&s);
     }
@@ -2682,6 +3223,13 @@ namespace qstack {
         s.append(4);
         BREAK_HERE;
         // Check s <4 items> QStack<Foo>.
+        // Expand s.
+        // CheckType s.0 Foo.
+        // Expand s.0.
+        // Check s.0.a 1 int.
+        // CheckType s.3 Foo.
+        // Expand s.3.
+        // Check s.3.a 4 int.
         // Continue.
         dummyStatement(&s);
     }
@@ -2693,6 +3241,9 @@ namespace qstack {
         s.append(false);
         BREAK_HERE;
         // Check s <2 items> QStack<bool>.
+        // Expand s.
+        // Check s.0 true bool.
+        // Check s.1 false bool.
         // Continue.
         dummyStatement(&s);
     }
@@ -2800,9 +3351,6 @@ namespace qstringlist {
     void testQStringList()
     {
         QStringList l;
-        BREAK_HERE;
-        // Check l <0 items> QStringList.
-        // Continue.
         l << "Hello ";
         l << " big, ";
         l << " fat ";
@@ -2810,6 +3358,10 @@ namespace qstringlist {
         l << " World ";
         BREAK_HERE;
         // Check l <3 items> QStringList.
+        // Expand l.
+        // Check l.0 " big, " QString.
+        // Check l.1 " fat " QString.
+        // Check l.2 " World " QString.
         // Continue.
         dummyStatement(&l);
     }
@@ -2849,8 +3401,6 @@ namespace formats {
         BREAK_HERE;
         // CheckType s char *.
         // CheckType t char *.
-        // CheckType u unsigned char *.
-        // CheckType uu unsigned char [3].
         // CheckType w wchar_t *.
         // Continue.
 
@@ -2861,11 +3411,8 @@ namespace formats {
         const unsigned char uu[] = { 'a', uchar('ö'), 'a' };
         const unsigned char *u = uu;
         BREAK_HERE;
-        // CheckType s char *.
-        // CheckType t char *.
         // CheckType u unsigned char *.
         // CheckType uu unsigned char [3].
-        // CheckType w wchar_t *.
         // Continue.
 
         // Make sure to undo "Change Format".
@@ -2957,6 +3504,8 @@ namespace qthread {
                 BREAK_HERE;
                 // Check j 3 int.
                 // CheckType this qthread::Thread.
+                // Expand this.
+                // Check this.QThread "This is thread #3" qthread::Thread.
                 // Continue.
                 dummyStatement(this);
             }
@@ -2978,8 +3527,10 @@ namespace qthread {
             thread[i].start();
         }
         BREAK_HERE;
-        // Check N 14 int.
         // CheckType thread qthread::Thread [14].
+        // Expand thread.
+        // Check thread.0 "This is thread #0" qthread::Thread.
+        // Check thread.13 "This is thread #13" qthread::Thread.
         // Continue.
         for (int i = 0; i != N; ++i) {
             thread[i].wait();
@@ -3092,24 +3643,32 @@ namespace qvariant {
         BREAK_HERE;
         // Check var (invalid) QVariant (invalid).
         // Continue.
-        // Expand var.
-        // Step with F10.
+
         // Check the list is updated properly.
         var.setValue(QStringList() << "World");
         BREAK_HERE;
         // Check var <1 items> QVariant (QStringList).
+        // Expand var.
+        // Check var.0 "World" QString.
         // Continue.
         var.setValue(QStringList() << "World" << "Hello");
         BREAK_HERE;
         // Check var <2 items> QVariant (QStringList).
+        // Expand var.
+        // Check var.1 "Hello" QString.
         // Continue.
         var.setValue(QStringList() << "Hello" << "Hello");
         BREAK_HERE;
         // Check var <2 items> QVariant (QStringList).
+        // Expand var.
+        // Check var.0 "Hello" QString.
+        // Check var.1 "Hello" QString.
         // Continue.
         var.setValue(QStringList() << "World" << "Hello" << "Hello");
         BREAK_HERE;
         // Check var <3 items> QVariant (QStringList).
+        // Expand var.
+        // Check var.0 "World" QString.
         // Continue.
         dummyStatement(&var);
     }
@@ -3122,8 +3681,22 @@ namespace qvariant {
         QHostAddress ha1 = var.value<QHostAddress>();
         BREAK_HERE;
         // Check ha "127.0.0.1" QHostAddress.
+        // Expand ha.
+        // Check ha.a 0 quint32.
+        // CheckType ha.a6 Q_IPV6ADDR.
+        // Check ha.ipString "127.0.0.1" QString.
+        // Check ha.isParsed false bool.
+        // Check ha.protocol QAbstractSocket::UnknownNetworkLayerProtocol (-1) QAbstractSocket::NetworkLayerProtocol.
+        // Check ha.scopeId "" QString.
         // Check ha1 "127.0.0.1" QHostAddress.
-        // CheckType var QVariant (Non).
+        // Expand ha1.
+        // Check ha1.a 0 quint32.
+        // CheckType ha1.a6 Q_IPV6ADDR.
+        // Check ha1.ipString "127.0.0.1" QString.
+        // Check ha1.isParsed false bool.
+        // Check ha1.protocol QAbstractSocket::UnknownNetworkLayerProtocol (-1) QAbstractSocket::NetworkLayerProtocol.
+        // Check ha1.scopeId "" QString.
+        // Check var <unavailable synchronous data> QVariant (Non).
         // Continue.
 
         // Expand ha, ha1 and var.
@@ -3145,7 +3718,33 @@ namespace qvariant {
         var.setValue(my);
         BREAK_HERE;
         // Check my <2 items> qvariant::MyType.
+        // Expand my.
+        // Check my.0   QMapNode<unsigned int, QStringList>.
+        // Expand my.0.
+        // Check my.0.key 1 unsigned int.
+        // Check my.0.value <1 items> QStringList.
+        // Expand my.0.value.
+        // Check my.0.value.0 "Hello" QString.
+        // Check my.1   QMapNode<unsigned int, QStringList>.
+        // Expand my.1.
+        // Check my.1.key 3 unsigned int.
+        // Check my.1.value <1 items> QStringList.
+        // Expand my.1.value.
+        // Check my.1.value.0 "World" QString.
         // Check var <2 items> QVariant (MyType).
+        // Expand var.
+        // Check var.0   QMapNode<unsigned int, QStringList>.
+        // Expand var.0.
+        // Check var.0.key 1 unsigned int.
+        // Check var.0.value <1 items> QStringList.
+        // Expand var.0.value.
+        // Check var.0.value.0 "Hello" QString.
+        // Check var.1   QMapNode<unsigned int, QStringList>.
+        // Expand var.1.
+        // Check var.1.key 3 unsigned int.
+        // Check var.1.value <1 items> QStringList.
+        // Expand var.1.value.
+        // Check var.1.value.0 "World" QString.
         // Continue.
         var.setValue(my);
         var.setValue(my);
@@ -3160,12 +3759,24 @@ namespace qvariant {
         QVariant variant = qVariantFromValue(list);
         BREAK_HERE;
         // Check list <3 items> QList<int>.
+        // Expand list.
+        // Check list.0 1 int.
+        // Check list.1 2 int.
+        // Check list.2 3 int.
         // Check variant <3 items> QVariant (QList<int>).
+        // Expand variant.
+        // Check variant.0 1 int.
+        // Check variant.1 2 int.
+        // Check variant.2 3 int.
         // Continue.
         list.clear();
         list = qVariantValue<QList<int> >(variant);
         BREAK_HERE;
         // Check list <3 items> QList<int>.
+        // Expand list.
+        // Check list.0 1 int.
+        // Check list.1 2 int.
+        // Check list.2 3 int.
         // Continue.
         dummyStatement(&list);
     }
@@ -3184,6 +3795,9 @@ namespace qvariant {
         vl.append(QVariant("2Some String"));
         BREAK_HERE;
         // Check vl <6 items> QVariantList.
+        // Expand vl.
+        // CheckType vl.0 QVariant (int).
+        // CheckType vl.2 QVariant (QString).
         // Continue.
         dummyStatement(&vl);
     }
@@ -3202,6 +3816,15 @@ namespace qvariant {
         vm["f"] = QVariant("2Some String");
         BREAK_HERE;
         // Check vm <6 items> QVariantMap.
+        // Expand vm.
+        // Check vm.0   QMapNode<QString, QVariant>.
+        // Expand vm.0.
+        // Check vm.0.key "a" QString.
+        // Check vm.0.value 1 QVariant (int).
+        // Check vm.5   QMapNode<QString, QVariant>.
+        // Expand vm.5.
+        // Check vm.5.key "f" QString.
+        // Check vm.5.value "2Some String" QVariant (QString).
         // Continue.
         dummyStatement(&vm);
     }
@@ -3229,7 +3852,11 @@ namespace qvector {
         QVector<int> vec(10000);
         BREAK_HERE;
         // Check vec <10000 items> QVector<int>.
+        // Expand vec.
+        // Check vec.0 0 int.
+        // Check vec.1999 0 int.
         // Continue.
+
         // step over
         // check that the display updates in reasonable time
         vec[1] = 1;
@@ -3238,6 +3865,9 @@ namespace qvector {
         vec.append(1);
         BREAK_HERE;
         // Check vec <10002 items> QVector<int>.
+        // Expand vec.
+        // Check vec.1 1 int.
+        // Check vec.2 2 int.
         // Continue.
         dummyStatement(&vec);
     }
@@ -3254,6 +3884,13 @@ namespace qvector {
         vec.append(2);
         BREAK_HERE;
         // Check vec <2 items> QVector<Foo>.
+        // Expand vec.
+        // CheckType vec.0 Foo.
+        // Expand vec.0.
+        // Check vec.0.a 1 int.
+        // CheckType vec.1 Foo.
+        // Expand vec.1.
+        // Check vec.1.a 2 int.
         // Continue.
         dummyStatement(&vec);
     }
@@ -3284,6 +3921,14 @@ namespace qvector {
         // off and on again, and check result looks sane.
         BREAK_HERE;
         // Check vec <3 items> QVector<Foo*>.
+        // Expand vec.
+        // CheckType vec.0 Foo.
+        // Expand vec.0.
+        // Check vec.0.a 1 int.
+        // Check vec.1 0x0 Foo *.
+        // CheckType vec.2 Foo.
+        // Expand vec.2.
+        // Check vec.2.a 2 int.
         // Continue.
         dummyStatement(&vec);
     }
@@ -3301,6 +3946,9 @@ namespace qvector {
         vec.append(false);
         BREAK_HERE;
         // Check vec <2 items> QVector<bool>.
+        // Expand vec.
+        // Check vec.0 true bool.
+        // Check vec.1 false bool.
         // Continue.
         dummyStatement(&vec);
     }
@@ -3317,7 +3965,23 @@ namespace qvector {
         vec.append(QList<int>() << 2 << 3);
         BREAK_HERE;
         // CheckType pv QVector<QList<int>>.
+        // Expand pv.
+        // Check pv.0 <1 items> QList<int>.
+        // Expand pv.0.
+        // Check pv.0.0 1 int.
+        // Check pv.1 <2 items> QList<int>.
+        // Expand pv.1.
+        // Check pv.1.0 2 int.
+        // Check pv.1.1 3 int.
         // Check vec <2 items> QVector<QList<int>>.
+        // Expand vec.
+        // Check vec.0 <1 items> QList<int>.
+        // Expand vec.0.
+        // Check vec.0.0 1 int.
+        // Check vec.1 <2 items> QList<int>.
+        // Expand vec.1.
+        // Check vec.1.0 2 int.
+        // Check vec.1.1 3 int.
         // Continue.
         dummyStatement(pv, &vec);
     }
@@ -3363,11 +4027,26 @@ namespace noargs {
         // Check i 1 int.
         // Check k 3 int.
         // Check list <2 items> noargs::GooList.
+        // Expand list.
+        // CheckType list.0 noargs::Goo.
+        // Expand list.0.
+        // Check list.0.n_ 1 int.
+        // Check list.0.str_ "Hello" QString.
+        // CheckType list.1 noargs::Goo.
+        // Expand list.1.
+        // Check list.1.n_ 2 int.
+        // Check list.1.str_ "World" QString.
         // Check list2 <2 items> QList<noargs::Goo>.
+        // Expand list2.
+        // CheckType list2.0 noargs::Goo.
+        // Expand list2.0.
+        // Check list2.0.n_ 1 int.
+        // Check list2.0.str_ "Hello" QString.
+        // CheckType list2.1 noargs::Goo.
+        // Expand list2.1.
+        // Check list2.1.n_ 2 int.
+        // Check list2.1.str_ "World" QString.
         // Continue.
-
-        // check display is ok, especially for _i_ and _k_
-
         dummyStatement(&i, &k);
     }
 
@@ -3521,6 +4200,12 @@ namespace basic {
                 d[i][j] = i + j;
         BREAK_HERE;
         // CheckType d double [3][3].
+        // Expand d.
+        // CheckType d.0 double [3].
+        // Expand d.0.
+        // Check d.0.0 0 double.
+        // Check d.0.2 2 double.
+        // CheckType d.2 double [3].
         // CheckType f XX.
         // CheckType ff Foo.
         // CheckType x X.
@@ -3538,6 +4223,9 @@ namespace basic {
         c[3] = 'd';
         BREAK_HERE;
         // CheckType c char [20].
+        // Expand c.
+        // Check c.0 97 'a' char.
+        // Check c.3 100 'd' char.
         // Continue.
         dummyStatement(&c);
     }
@@ -3551,6 +4239,11 @@ namespace basic {
         s[3] = "d";
         BREAK_HERE;
         // CheckType s QString [20].
+        // Expand s.
+        // Check s.0 "a" QString.
+        // Check s.3 "d" QString.
+        // Check s.4 "" QString.
+        // Check s.19 "" QString.
         // Continue.
         dummyStatement(&s);
     }
@@ -3564,6 +4257,11 @@ namespace basic {
         b[3] = "d";
         BREAK_HERE;
         // CheckType b QByteArray [20].
+        // Expand b.
+        // Check b.0 "a" QByteArray.
+        // Check b.3 "d" QByteArray.
+        // Check b.4 "" QByteArray.
+        // Check b.19 "" QByteArray.
         // Continue.
         dummyStatement(&b);
     }
@@ -3578,6 +4276,9 @@ namespace basic {
         }
         BREAK_HERE;
         // CheckType foo Foo [10].
+        // Expand foo.
+        // CheckType foo.0 Foo.
+        // CheckType foo.9 Foo.
         // Continue.
         dummyStatement(&foo);
     }
@@ -3590,6 +4291,8 @@ namespace basic {
         s[0] = 0;
         BREAK_HERE;
         // CheckType s char [5].
+        // Expand s.
+        // Check s.0 0 '\0' char.
         // Continue.
 
         // Expand 's' in Locals view.
@@ -3612,6 +4315,8 @@ namespace basic {
         char *s = buf;
         BREAK_HERE;
         // CheckType s char *.
+        // Expand s.
+        // Check s.*s 0 '\0' char.
         // Continue.
 
         // Expand 's' in Locals view.
@@ -3645,6 +4350,15 @@ namespace basic {
         S s;
         BREAK_HERE;
         // CheckType s basic::S.
+        // Expand s.
+        // CheckType s.b bool.
+        // CheckType s.c bool.
+        // CheckType s.d double.
+        // CheckType s.f float.
+        // CheckType s.i int.
+        // CheckType s.q qreal.
+        // CheckType s.x uint.
+        // CheckType s.y uint.
         // Continue.
         s.i = 0;
         dummyStatement(&s);
@@ -3666,6 +4380,11 @@ namespace basic {
         Function func("x", "sin(x)", 0, 1);
         BREAK_HERE;
         // CheckType func basic::Function.
+        // Expand func.
+        // Check func.f "sin(x)" QByteArray.
+        // Check func.max 1 double.
+        // Check func.min 0 double.
+        // Check func.var "x" QByteArray.
         // Continue.
         func.max = 10;
         func.f = "cos(x)";
@@ -3673,6 +4392,12 @@ namespace basic {
         func.max = 5;
         func.max = 6;
         func.max = 7;
+        BREAK_HERE;
+        // CheckType func basic::Function.
+        // Expand func.
+        // Check func.f "cos(x)" QByteArray.
+        // Check func.max 7 double.
+        // Continue.
         dummyStatement(&func);
     }
 
@@ -3689,6 +4414,11 @@ namespace basic {
         Color c;
         BREAK_HERE;
         // CheckType c basic::Color.
+        // Expand c.
+        // Check c.a 4 int.
+        // Check c.b 3 int.
+        // Check c.g 2 int.
+        // Check c.r 1 int.
         // Continue.
 
         // Expand c.
@@ -3728,6 +4458,9 @@ namespace basic {
         f.doit();
         BREAK_HERE;
         // CheckType f Foo.
+        // Expand f.
+        // Check f.a 5 int.
+        // Check f.b 2 int.
         // Continue.
         dummyStatement(&f);
     }
@@ -3741,6 +4474,9 @@ namespace basic {
         } u;
         BREAK_HERE;
         // CheckType u basic::U.
+        // Expand u.
+        // CheckType u.a int.
+        // CheckType u.b int.
         // Continue.
         dummyStatement(&u);
     }
@@ -3771,7 +4507,6 @@ namespace basic {
         // Check the display: All values should be <uninitialized> or random data.
         // Check that nothing bad happens if items with random data
         // are expanded.
-        // Continue.
         QString s;
         QStringList sl;
         QMap<int, int> mii;
@@ -3804,6 +4539,8 @@ namespace basic {
         QString u;
         BREAK_HERE;
         // CheckType s char *.
+        // Expand s.
+        // Check s.*s 97 'a' char.
         // Check u "" QString.
         // CheckType w wchar_t *.
         // Continue.
@@ -3844,6 +4581,9 @@ namespace basic {
         Foo *f = new Foo();
         BREAK_HERE;
         // CheckType f Foo.
+        // Expand f.
+        // Check f.a 0 int.
+        // Check f.b 5 int.
         // Continue.
         dummyStatement(f);
     }
@@ -3951,6 +4691,9 @@ namespace basic {
         BREAK_HERE;
         // Check N 10000 int.
         // CheckType bigv QDateTime [10000].
+        // Expand bigv.
+        // CheckType bigv.0 QDateTime.
+        // CheckType bigv.9999 QDateTime.
         // CheckType time QDateTime.
         // Continue.
 
@@ -3968,6 +4711,9 @@ namespace basic {
         BREAK_HERE;
         // Check N 10000 int.
         // CheckType bigv int [10000].
+        // Expand bigv.
+        // Check bigv.0 0 int.
+        // Check bigv.9999 9999 int.
         // Continue.
 
         // Expand bigv.
@@ -3998,7 +4744,7 @@ namespace basic {
         typedef void (*func_t)();
         func_t f2 = testFunctionPointerHelper;
         BREAK_HERE;
-        // CheckType f2 <basic::testFunctionPointerHelper()> basic::func_t.
+        // CheckType f2 basic::func_t.
         // Continue.
 
         // Check there's a valid display for f2.
@@ -4009,10 +4755,14 @@ namespace basic {
     {
         BREAK_HERE;
         // CheckType f Foo.
+        // Expand f.
+        // Check f.a 12 int.
         // Continue.
         ++f.a;
         BREAK_HERE;
         // CheckType f Foo.
+        // Expand f.
+        // Check f.a 13 int.
         // Continue.
     }
 
@@ -4079,6 +4829,10 @@ namespace basic {
             // Continue.
             n = "3";
             n = "4";
+            BREAK_HERE;
+            // Check n "4" QString.
+            // Check n@1 3 int.
+            // Continue.
             dummyStatement(&n);
         }
         ++n;
@@ -4266,6 +5020,10 @@ namespace qscript {
         s.setProperty("a", QScriptValue());
         QScriptValue d = s.data();
         BREAK_HERE;
+        // Check s <not accessible> QScriptValue (JSCoreValue).
+        // Check v 43 QVariant (int).
+        // Check x 507002817 int.
+        // Check x1 "34" QString.
         // Continue.
         dummyStatement(&x1, &v, &s, &d);
     #else
@@ -4447,9 +5205,12 @@ namespace kr {
         ptr2 = new KRB;
         BREAK_HERE;
         // CheckType ptr1 KRBase.
+        // Expand ptr1.
+        // Check ptr1.type KRBase::TYPE_A (0) KRBase::Type.
         // CheckType ptr2 KRBase.
+        // Expand ptr2.
+        // Check ptr2.type KRBase::TYPE_B (1) KRBase::Type.
         // Continue.
-        // check ptr1 is shown as KRA and ptr2 as KRB
         dummyStatement(&ptr1, &ptr2);
     }
 
@@ -4517,11 +5278,15 @@ namespace bug3611 {
         byte f = '2';
         int *x = (int*)&f;
         BREAK_HERE;
+        // Check f 50 bug3611::byte.
         // Continue.
         // Step.
         f += 1;
         f += 1;
         f += 1;
+        BREAK_HERE;
+        // Check f 53 bug3611::byte.
+        // Continue.
         dummyStatement(&f, &x);
     }
 
@@ -4597,10 +5362,15 @@ namespace bug4904 {
         map.insert(cs2.id, cs2);
         QMap<int, CustomStruct>::iterator it = map.begin();
         BREAK_HERE;
-        // CheckType cs1 bug4904::CustomStruct.
-        // CheckType cs2 bug4904::CustomStruct.
-        // CheckType it QMap<int, bug4904::CustomStruct>::iterator.
         // Check map <2 items> QMap<int, bug4904::CustomStruct>.
+        // Expand map.
+        // Check map.0   QMapNode<int, bug4904::CustomStruct>.
+        // Expand map.0.
+        // Check map.0.key -1 int.
+        // CheckType map.0.value bug4904::CustomStruct.
+        // Expand map.0.value.
+        // Check map.0.value.dvalue 3.1400000000000001 double.
+        // Check map.0.value.id -1 int.
         // Continue.
 
         // - expand map/[0]/value
@@ -4627,6 +5397,10 @@ namespace bug5046 {
         f.a = 4;
         BREAK_HERE;
         // CheckType f bug5046::Foo.
+        // Expand f.
+        // Check f.a 4 int.
+        // Check f.b 2 int.
+        // Check f.c 3 int.
         // Continue.
 
         // - pop up main editor tooltip over 'f'
@@ -4767,7 +5541,17 @@ namespace bug5799 {
         // CheckType a1 bug5799::S1 [10].
         // CheckType a2 bug5799::Array.
         // CheckType s2 bug5799::S2.
+        // Expand s2.
+        // CheckType s2.bug5799::S1 bug5799::S1.
+        // Expand s2.bug5799::S1.
+        // Check s2.bug5799::S1.m1 5 int.
+        // Check s2.bug5799::S1.m2 32767 int.
         // CheckType s4 bug5799::S4.
+        // Expand s4.
+        // CheckType s4.bug5799::S3 bug5799::S3.
+        // Expand s4.bug5799::S3.
+        // Check s4.bug5799::S3.m1 5 int.
+        // Check s4.bug5799::S3.m2 0 int.
         // Continue.
 
         // Expand s2 and s4.
@@ -4795,8 +5579,24 @@ namespace qc41700 {
         m["two"].push_back("3");
         map_t::const_iterator it = m.begin();
         BREAK_HERE;
-        // CheckType it std::map<std::string, std::list<std::string>>::const_iterator.
         // Check m <2 items> qc41700::map_t.
+        // Expand m.
+        // Check m.0   std::pair<std::string const, std::list<std::string>>.
+        // Expand m.0.
+        // Check m.0.first "one" std::string.
+        // Check m.0.second <3 items> std::list<std::string>.
+        // Expand m.0.second.
+        // Check m.0.second.0 "a" std::string.
+        // Check m.0.second.1 "b" std::string.
+        // Check m.0.second.2 "c" std::string.
+        // Check m.1   std::pair<std::string const, std::list<std::string>>.
+        // Expand m.1.
+        // Check m.1.first "two" std::string.
+        // Check m.1.second <3 items> std::list<std::string>.
+        // Expand m.1.second.
+        // Check m.1.second.0 "1" std::string.
+        // Check m.1.second.1 "2" std::string.
+        // Check m.1.second.2 "3" std::string.
         // Continue.
 
         // Check that m is displayed nicely.
@@ -4912,12 +5712,35 @@ namespace gdb13393 {
         #endif
         BREAK_HERE;
         // CheckType d gdb13393::Derived.
+        // Expand d.
+        // CheckType d.gdb13393::Base gdb13393::Derived.
+        // Check d.b 2 int.
         // CheckType ptr gdb13393::Derived.
+        // Expand ptr.
+        // CheckType ptr.[vptr] .
+        // Check ptr.a 1 int.
         // CheckType ptrConst gdb13393::Derived.
+        // Expand ptrConst.
+        // CheckType ptrConst.[vptr] .
+        // Check ptrConst.a 1 int.
         // CheckType ptrToPtr gdb13393::Derived.
+        // Expand ptrToPtr.
+        // CheckType ptrToPtr.[vptr] .
+        // Check ptrToPtr.a 1 int.
         // CheckType ref gdb13393::Derived.
+        // Expand ref.
+        // CheckType ref.[vptr] .
+        // Check ref.a 1 int.
         // CheckType refConst gdb13393::Derived.
+        // Expand refConst.
+        // CheckType refConst.[vptr] .
+        // Check refConst.a 1 int.
         // CheckType s gdb13393::S.
+        // Expand s.
+        // CheckType s.ptr gdb13393::Derived.
+        // CheckType s.ptrConst gdb13393::Derived.
+        // CheckType s.ref gdb13393::Derived.
+        // CheckType s.refConst gdb13393::Derived.
         // Check sharedPtr 1 int.
         // Continue.
         dummyStatement(&d, &s, &ptrToPtr, &sharedPtr, &ptrConst, &refConst, &ref);
