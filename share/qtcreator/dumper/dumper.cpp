@@ -30,8 +30,9 @@
 **
 **************************************************************************/
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
+#if USE_QT_CORE
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
@@ -100,6 +101,9 @@
 
 #endif // QT_BOOTSTRAPPED
 
+#endif // USE_QT_CORE
+
+
 #ifdef Q_OS_WIN
 #    include <windows.h>
 #endif
@@ -109,6 +113,8 @@
 #include <string>
 #include <set>
 #include <vector>
+
+#include <stdio.h>
 
 #ifdef QT_BOOTSTRAPPED
 
@@ -251,20 +257,22 @@ static const void *addOffset(const void *p, int offset)
     return offset + reinterpret_cast<const char *>(p);
 }
 
-static const void *skipvtable(const void *p)
-{
-    return sizeof(void *) + reinterpret_cast<const char *>(p);
-}
-
 static const void *deref(const void *p)
 {
     return *reinterpret_cast<const char* const*>(p);
+}
+
+#if USE_QT_CORE
+static const void *skipvtable(const void *p)
+{
+    return sizeof(void *) + reinterpret_cast<const char *>(p);
 }
 
 static const void *dfunc(const void *p)
 {
     return deref(skipvtable(p));
 }
+#endif
 
 static bool isEqual(const char *s, const char *t)
 {
@@ -366,6 +374,7 @@ static bool isStringType(const char *type)
         || isEqual(type, "wstring");
 }
 
+#if USE_QT_CORE
 static bool isMovableType(const char *type)
 {
     if (isPointerType(type))
@@ -434,6 +443,7 @@ static bool isMovableType(const char *type)
     }
     return false;
 }
+#endif
 
 struct QDumper
 {
@@ -1047,6 +1057,7 @@ void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
     }
 }
 
+#if USE_QT_CORE
 static void qDumpInnerValue(QDumper &d, const char *type, const void *addr)
 {
     d.putItem("addr", addr);
@@ -1057,6 +1068,7 @@ static void qDumpInnerValue(QDumper &d, const char *type, const void *addr)
 
     return qDumpInnerValueHelper(d, type, addr);
 }
+#endif
 
 static void qDumpInnerValueOrPointer(QDumper &d,
     const char *type, const char *strippedtype, const void *addr)
@@ -1080,6 +1092,8 @@ static void qDumpInnerValueOrPointer(QDumper &d,
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+#if USE_QT_CORE
 
 #ifndef QT_BOOTSTRAPPED
 struct ModelIndex { int r; int c; void *p; void *m; };
@@ -3119,6 +3133,8 @@ static void qDumpQWeakPointer(QDumper &d)
 #endif // QT_VERSION >= 0x040500
 #endif // QT_BOOTSTRAPPED
 
+#endif // QT_CORE
+
 static void qDumpStdList(QDumper &d)
 {
     const std::list<int> &list = *reinterpret_cast<const std::list<int> *>(d.data);
@@ -3417,6 +3433,37 @@ static void handleProtocolVersion2and3(QDumper &d)
             if (isEqual(type, "map"))
                 qDumpStdMap(d);
             break;
+        case 'e':
+            if (isEqual(type, "vector"))
+                qDumpStdVector(d);
+            else if (isEqual(type, "set"))
+                qDumpStdSet(d);
+            break;
+        case 'i':
+            if (isEqual(type, "list"))
+                qDumpStdList(d);
+            break;
+        case 's':
+            if (isEqual(type, "wstring"))
+                qDumpStdWString(d);
+            break;
+        case 't':
+            if (isEqual(type, "std::vector"))
+                qDumpStdVector(d);
+            else if (isEqual(type, "std::vector::bool"))
+                qDumpStdVectorBool(d);
+            else if (isEqual(type, "std::list"))
+                qDumpStdList(d);
+            else if (isEqual(type, "std::map"))
+                qDumpStdMap(d);
+            else if (isEqual(type, "std::set"))
+                qDumpStdSet(d);
+            else if (isEqual(type, "std::string") || isEqual(type, "string"))
+                qDumpStdString(d);
+            else if (isEqual(type, "std::wstring"))
+                qDumpStdWString(d);
+            break;
+#if USE_QT_CORE
         case 'A':
 #            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QAbstractItemModel"))
@@ -3441,12 +3488,6 @@ static void handleProtocolVersion2and3(QDumper &d)
             else if (isEqual(type, "QDir"))
                 qDumpQDir(d);
             break;
-        case 'e':
-            if (isEqual(type, "vector"))
-                qDumpStdVector(d);
-            else if (isEqual(type, "set"))
-                qDumpStdSet(d);
-            break;
         case 'F':
 #            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QFile"))
@@ -3460,10 +3501,6 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpQHash(d);
             else if (isEqual(type, "QHashNode"))
                 qDumpQHashNode(d);
-            break;
-        case 'i':
-            if (isEqual(type, "list"))
-                qDumpStdList(d);
             break;
         case 'I':
 #            if USE_QT_GUI
@@ -3557,26 +3594,6 @@ static void handleProtocolVersion2and3(QDumper &d)
             else if (isEqual(type, "QSizeF"))
                 qDumpQSizeF(d);
             break;
-        case 's':
-            if (isEqual(type, "wstring"))
-                qDumpStdWString(d);
-            break;
-        case 't':
-            if (isEqual(type, "std::vector"))
-                qDumpStdVector(d);
-            else if (isEqual(type, "std::vector::bool"))
-                qDumpStdVectorBool(d);
-            else if (isEqual(type, "std::list"))
-                qDumpStdList(d);
-            else if (isEqual(type, "std::map"))
-                qDumpStdMap(d);
-            else if (isEqual(type, "std::set"))
-                qDumpStdSet(d);
-            else if (isEqual(type, "std::string") || isEqual(type, "string"))
-                qDumpStdString(d);
-            else if (isEqual(type, "std::wstring"))
-                qDumpStdWString(d);
-            break;
         case 'T':
 #            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QTextCodec"))
@@ -3607,6 +3624,7 @@ static void handleProtocolVersion2and3(QDumper &d)
 #            endif
 #            endif
             break;
+#endif
     }
 
     if (!d.success)
@@ -3752,9 +3770,11 @@ void *qDumpObjectData440(
     }
 
     else {
+#if USE_QT_CORE
 #        ifndef QT_BOOTSTRAPPED
         qDebug() << "Unsupported protocol version" << protocolVersion;
 #        endif
+#endif
     }
     return outBuffer;
 }
