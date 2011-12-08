@@ -912,6 +912,8 @@ def bbedit(args):
     #warn("EDIT: %s %s %s %s: " % (pos, type, expr, value))
     if qqEditable.has_key(type):
         qqEditable[type](expr, value)
+    else:
+        gdb.execute("set (%s)=%s" % (expr, value))
 
 registerCommand("bbedit", bbedit)
 
@@ -1407,6 +1409,8 @@ class Dumper:
 
         if type.code == TypedefCode:
             type = type.strip_typedefs()
+            # The cast can destroy the address?
+            self.putAddress(value.address)
             # Workaround for http://sourceware.org/bugzilla/show_bug.cgi?id=13380
             if type.code == ArrayCode:
                 value = parseAndEvaluate("{%s}%s" % (type, value.address))
