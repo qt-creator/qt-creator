@@ -38,8 +38,9 @@
 #include <texteditor/syntaxhighlighter.h>
 
 namespace VCSBase {
-
-struct BaseAnnotationHighlighterPrivate;
+namespace Internal {
+class BaseAnnotationHighlighterPrivate;
+} // namespace Internal
 
 class VCSBASE_EXPORT BaseAnnotationHighlighter : public TextEditor::SyntaxHighlighter
 {
@@ -59,7 +60,7 @@ private:
     // Implement this to return the change number of a line
     virtual QString changeNumber(const QString &block) const = 0;
 
-    BaseAnnotationHighlighterPrivate *d;
+    Internal::BaseAnnotationHighlighterPrivate *const d;
 };
 
 } // namespace VCSBase

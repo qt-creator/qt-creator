@@ -63,8 +63,9 @@ class VCSBASE_EXPORT VCSBaseClient : public QObject
     Q_OBJECT
 
 public:
-    struct VCSBASE_EXPORT StatusItem
+    class VCSBASE_EXPORT StatusItem
     {
+    public:
         StatusItem();
         StatusItem(const QString &s, const QString &f);
         QString flags;

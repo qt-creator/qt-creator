@@ -61,7 +61,8 @@ namespace Internal {
 
 // For code clarity, a struct representing the entries of a mail map file
 // with parse and model functions.
-struct NickNameEntry {
+class NickNameEntry {
+public:
     void clear();
     bool parse(const QString &);
     QString nickName() const;

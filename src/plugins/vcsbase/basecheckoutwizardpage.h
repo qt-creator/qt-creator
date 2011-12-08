@@ -40,12 +40,13 @@
 namespace VCSBase {
 
 namespace Internal {
+class BaseCheckoutWizardPagePrivate;
+
 namespace Ui {
 class BaseCheckoutWizardPage;
 } // namespace Ui
 } // namespace Internal
 
-struct BaseCheckoutWizardPagePrivate;
 
 class VCSBASE_EXPORT BaseCheckoutWizardPage : public QWizardPage
 {
@@ -107,7 +108,7 @@ private slots:
     void slotRefreshBranches();
 
 private:
-    BaseCheckoutWizardPagePrivate *d;
+    Internal::BaseCheckoutWizardPagePrivate *const d;
 };
 
 } // namespace VCSBase

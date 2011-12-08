@@ -67,6 +67,6 @@ public:
     unsigned filter(const QStringList &filter, int column);
 };
 
-}
+} // namespace VCSBase
 
 #endif // SUBMITMODEL_H

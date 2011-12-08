@@ -65,8 +65,11 @@
 */
 
 namespace VCSBase {
+namespace Internal {
 
-struct BaseCheckoutWizardPrivate {
+class BaseCheckoutWizardPrivate
+{
+public:
     BaseCheckoutWizardPrivate() : dialog(0) {}
     void clear();
 
@@ -83,9 +86,11 @@ void BaseCheckoutWizardPrivate::clear()
     checkoutPath.clear();
 }
 
+} // namespace Internal
+
 BaseCheckoutWizard::BaseCheckoutWizard(QObject *parent) :
     Core::IWizard(parent),
-    d(new BaseCheckoutWizardPrivate)
+    d(new Internal::BaseCheckoutWizardPrivate)
 {
 }
 

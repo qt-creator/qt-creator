@@ -37,8 +37,11 @@
 
 namespace VCSBase {
 
-struct BaseVCSSubmitEditorFactoryPrivate
+namespace Internal {
+
+class BaseVCSSubmitEditorFactoryPrivate
 {
+public:
     BaseVCSSubmitEditorFactoryPrivate(const VCSBaseSubmitEditorParameters *parameters);
 
     const VCSBaseSubmitEditorParameters *m_parameters;
@@ -55,8 +58,10 @@ BaseVCSSubmitEditorFactoryPrivate::BaseVCSSubmitEditorFactoryPrivate(const VCSBa
 {
 }
 
+} // namespace Internal
+
 BaseVCSSubmitEditorFactory::BaseVCSSubmitEditorFactory(const VCSBaseSubmitEditorParameters *parameters) :
-    d(new BaseVCSSubmitEditorFactoryPrivate(parameters))
+    d(new Internal::BaseVCSSubmitEditorFactoryPrivate(parameters))
 {
 }
 

@@ -44,8 +44,9 @@ namespace VCSBase {
 namespace Internal {
 
 // Common VCS settings, message check script and user nick names.
-struct CommonVcsSettings
+class CommonVcsSettings
 {
+public:
     CommonVcsSettings();
 
     QString nickNameMailMap;

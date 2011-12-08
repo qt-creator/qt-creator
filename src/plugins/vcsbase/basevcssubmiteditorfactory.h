@@ -39,9 +39,12 @@
 
 namespace VCSBase {
 
-class  VCSBaseSubmitEditor;
-struct VCSBaseSubmitEditorParameters;
-struct BaseVCSSubmitEditorFactoryPrivate;
+class VCSBaseSubmitEditor;
+class VCSBaseSubmitEditorParameters;
+
+namespace Internal {
+class BaseVCSSubmitEditorFactoryPrivate;
+} // namespace Internal
 
 // Parametrizable base class for editor factories creating instances of
 // VCSBaseSubmitEditor subclasses.
@@ -66,7 +69,7 @@ private:
         *createBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
                                 QWidget *parent) = 0;
 
-    BaseVCSSubmitEditorFactoryPrivate *d;
+    Internal::BaseVCSSubmitEditorFactoryPrivate *const d;
 };
 
 // Utility template to create an editor that has a constructor taking the

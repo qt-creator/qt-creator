@@ -47,8 +47,6 @@
 
 Q_DECLARE_METATYPE(QVariant)
 
-namespace VCSBase {
-
 static QString msgTermination(int exitCode, const QString &binaryPath, const QStringList &args)
 {
     QString cmd = QFileInfo(binaryPath).baseName();
@@ -60,6 +58,9 @@ static QString msgTermination(int exitCode, const QString &binaryPath, const QSt
                 QCoreApplication::translate("VcsCommand", "\n'%1' failed (exit code %2).\n").arg(cmd).arg(exitCode) :
                 QCoreApplication::translate("VcsCommand", "\n'%1' completed (exit code %2).\n").arg(cmd).arg(exitCode);
 }
+
+namespace VCSBase {
+namespace Internal {
 
 class CommandPrivate
 {
@@ -112,10 +113,12 @@ CommandPrivate::Job::Job(const QStringList &a, int t) :
     Q_UNUSED(qvMetaId)
 }
 
+} // namespace Internal
+
 Command::Command(const QString &binary,
                  const QString &workingDirectory,
                  const QProcessEnvironment &environment) :
-    d(new CommandPrivate(binary, workingDirectory, environment))
+    d(new Internal::CommandPrivate(binary, workingDirectory, environment))
 {
 }
 
@@ -176,14 +179,11 @@ void Command::addJob(const QStringList &arguments)
 
 void Command::addJob(const QStringList &arguments, int timeout)
 {
-    d->m_jobs.push_back(CommandPrivate::Job(arguments, timeout));
+    d->m_jobs.push_back(Internal::CommandPrivate::Job(arguments, timeout));
 }
 
 void Command::execute()
 {
-    if (Constants::Internal::debug)
-        qDebug() << "Command::execute" << d->m_workingDirectory << d->m_jobs.size();
-
     d->m_lastExecSuccess = false;
     d->m_lastExecExitCode = -1;
 
@@ -217,10 +217,6 @@ QString Command::msgTimeout(int seconds)
 
 void Command::run()
 {
-    if (Constants::Internal::debug)
-        qDebug() << "Command::run" << workingDirectory() << d->m_jobs.size()
-                 << "terminal_disabled" << unixTerminalDisabled();
-
     // Check that the binary path is not empty
     if (binaryPath().trimmed().isEmpty()) {
         emit errorText(tr("Unable to start process, binary is empty"));
@@ -244,9 +240,6 @@ void Command::run()
     int exitCode = -1;
     bool ok = true;
     for (int j = 0; j < count; j++) {
-        if (Constants::Internal::debug)
-            qDebug() << "Command::run" << j << '/' << count << d->m_jobs.at(j).arguments;
-
         process->start(binaryPath(), d->m_jobs.at(j).arguments);
         if (!process->waitForStarted()) {
             ok = false;

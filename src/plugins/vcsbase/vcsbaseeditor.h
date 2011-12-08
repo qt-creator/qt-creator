@@ -51,7 +51,10 @@ namespace Core {
 
 namespace VCSBase {
 
-struct VCSBaseEditorWidgetPrivate;
+namespace Internal {
+class VCSBaseEditorWidgetPrivate;
+} // namespace Internal
+
 class DiffHighlighter;
 class BaseAnnotationHighlighter;
 
@@ -63,8 +66,9 @@ enum EditorContentType {
     DiffOutput
 };
 
-struct VCSBASE_EXPORT VCSBaseEditorParameters
+class VCSBASE_EXPORT VCSBaseEditorParameters
 {
+public:
     EditorContentType type;
     const char *id;
     const char *displayName;
@@ -263,7 +267,7 @@ private:
     QAction *createAnnotateAction(const QString &change, bool previous = false);
     QAction *createCopyRevisionAction(const QString &change);
 
-    VCSBaseEditorWidgetPrivate *d;
+    Internal::VCSBaseEditorWidgetPrivate *const d;
 };
 
 } // namespace VCSBase

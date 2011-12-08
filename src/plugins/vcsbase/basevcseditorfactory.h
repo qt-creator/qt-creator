@@ -41,8 +41,9 @@
 #include <QtCore/QStringList>
 
 namespace VCSBase {
-
-struct BaseVCSEditorFactoryPrivate;
+namespace Internal {
+class BaseVCSEditorFactoryPrivate;
+} // namespace Internal
 
 class VCSBASE_EXPORT BaseVCSEditorFactory : public Core::IEditorFactory
 {
@@ -66,7 +67,7 @@ private:
     virtual VCSBaseEditorWidget *createVCSBaseEditor(const VCSBaseEditorParameters *type,
                                                QWidget *parent) = 0;
 
-    BaseVCSEditorFactoryPrivate *d;
+    Internal::BaseVCSEditorFactoryPrivate *const d;
 };
 
 // Utility template to create an editor.

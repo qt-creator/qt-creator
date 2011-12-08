@@ -45,7 +45,10 @@ class QToolButton;
 QT_END_NAMESPACE
 
 namespace VCSBase {
+
+namespace Internal {
 class VCSBaseEditorParameterWidgetPrivate;
+} // namespace
 
 // Documentation->inside.
 class VCSBASE_EXPORT VCSBaseEditorParameterWidget : public QWidget
@@ -103,8 +106,8 @@ protected:
     void updateMappedSettings();
 
 private:
-    friend class VCSBaseEditorParameterWidgetPrivate;
-    VCSBaseEditorParameterWidgetPrivate *d;
+    friend class Internal::VCSBaseEditorParameterWidgetPrivate;
+    Internal::VCSBaseEditorParameterWidgetPrivate *const d;
 };
 
 } // namespace VCSBase

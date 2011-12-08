@@ -154,8 +154,6 @@ unsigned SubmitFileModel::filter(const QStringList &filter, int column)
                 qDeleteAll(takeRow(r));
                 rc++;
             }
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << " deleted " << rc << " items using " << filter << " , remaining " << rowCount();
     return rc;
 }
 

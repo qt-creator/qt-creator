@@ -48,8 +48,11 @@
 */
 
 namespace VCSBase {
+namespace Internal {
 
-struct BaseCheckoutWizardPagePrivate {
+class BaseCheckoutWizardPagePrivate
+{
+public:
     BaseCheckoutWizardPagePrivate() : m_valid(false), m_directoryEdited(false) {}
 
     Internal::Ui::BaseCheckoutWizardPage ui;
@@ -57,9 +60,11 @@ struct BaseCheckoutWizardPagePrivate {
     bool m_directoryEdited;
 };
 
+} // namespace Internal
+
 BaseCheckoutWizardPage::BaseCheckoutWizardPage(QWidget *parent) :
     QWizardPage(parent),
-    d(new BaseCheckoutWizardPagePrivate)
+    d(new Internal::BaseCheckoutWizardPagePrivate)
 {
     d->ui.setupUi(this);
 

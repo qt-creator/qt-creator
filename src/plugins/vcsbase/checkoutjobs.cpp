@@ -54,13 +54,20 @@ enum { debug = 0 };
 
 namespace VCSBase {
 
-AbstractCheckoutJob::AbstractCheckoutJob(QObject *parent) :
-    QObject(parent)
+namespace Internal {
+
+// Use a terminal-less process to suppress SSH prompts.
+static inline QSharedPointer<QProcess> createProcess()
 {
+    unsigned flags = 0;
+    if (VCSBasePlugin::isSshPromptConfigured())
+        flags = Utils::SynchronousProcess::UnixTerminalDisabled;
+    return Utils::SynchronousProcess::createProcess(flags);
 }
 
-struct ProcessCheckoutJobStep
+class ProcessCheckoutJobStep
 {
+public:
     ProcessCheckoutJobStep() {}
     explicit ProcessCheckoutJobStep(const QString &bin,
                                     const QStringList &args,
@@ -74,7 +81,9 @@ struct ProcessCheckoutJobStep
     QProcessEnvironment environment;
 };
 
-struct ProcessCheckoutJobPrivate {
+class ProcessCheckoutJobPrivate
+{
+public:
     ProcessCheckoutJobPrivate();
 
     QSharedPointer<QProcess> process;
@@ -82,13 +91,16 @@ struct ProcessCheckoutJobPrivate {
     QString binary;
 };
 
-// Use a terminal-less process to suppress SSH prompts.
-static inline QSharedPointer<QProcess> createProcess()
+ProcessCheckoutJobPrivate::ProcessCheckoutJobPrivate() :
+    process(createProcess())
 {
-    unsigned flags = 0;
-    if (VCSBasePlugin::isSshPromptConfigured())
-        flags = Utils::SynchronousProcess::UnixTerminalDisabled;
-    return Utils::SynchronousProcess::createProcess(flags);
+}
+
+} // namespace Internal
+
+AbstractCheckoutJob::AbstractCheckoutJob(QObject *parent) :
+    QObject(parent)
+{
 }
 
 /*!
@@ -97,14 +109,9 @@ static inline QSharedPointer<QProcess> createProcess()
     \brief Convenience implementation of a VCSBase::AbstractCheckoutJob using a QProcess.
 */
 
-ProcessCheckoutJobPrivate::ProcessCheckoutJobPrivate() :
-    process(createProcess())
-{    
-}
-
 ProcessCheckoutJob::ProcessCheckoutJob(QObject *parent) :
     AbstractCheckoutJob(parent),
-    d(new ProcessCheckoutJobPrivate)
+    d(new Internal::ProcessCheckoutJobPrivate)
 {
     connect(d->process.data(), SIGNAL(error(QProcess::ProcessError)), this, SLOT(slotError(QProcess::ProcessError)));
     connect(d->process.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(slotFinished(int,QProcess::ExitStatus)));
@@ -125,7 +132,7 @@ void ProcessCheckoutJob::addStep(const QString &binary,
 {
     if (debug)
         qDebug() << "ProcessCheckoutJob::addStep" << binary << args << workingDirectory;
-    d->stepQueue.enqueue(ProcessCheckoutJobStep(binary, args, workingDirectory, env));
+    d->stepQueue.enqueue(Internal::ProcessCheckoutJobStep(binary, args, workingDirectory, env));
 }
 
 void ProcessCheckoutJob::slotOutput()
@@ -183,7 +190,7 @@ void ProcessCheckoutJob::slotNext()
         return;
     }
     // Launch next
-    const ProcessCheckoutJobStep step = d->stepQueue.dequeue();
+    const Internal::ProcessCheckoutJobStep step = d->stepQueue.dequeue();
     d->process->setWorkingDirectory(step.workingDirectory);
 
     // Set up SSH correctly.

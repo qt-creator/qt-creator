@@ -601,9 +601,6 @@ Command *VCSBaseClient::createCommand(const QString &workingDirectory,
                                       VCSBase::VCSBaseEditorWidget *editor,
                                       JobOutputBindMode mode)
 {
-    if (Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << workingDirectory << editor;
-
     Command *cmd = new Command(d->m_clientSettings->stringValue(VCSBaseClientSettings::binaryPathKey),
                                workingDirectory, processEnvironment());
     cmd->setDefaultTimeout(d->m_clientSettings->intValue(VCSBaseClientSettings::timeoutKey));

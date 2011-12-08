@@ -210,8 +210,11 @@ VCSBaseDiffEditor::VCSBaseDiffEditor(VCSBaseEditorWidget *w, const VCSBaseEditor
 
 // ----------- VCSBaseEditorPrivate
 
-struct VCSBaseEditorWidgetPrivate
+namespace Internal {
+
+class VCSBaseEditorWidgetPrivate
 {
+public:
     VCSBaseEditorWidgetPrivate(const VCSBaseEditorParameters *type);
 
     const VCSBaseEditorParameters *m_parameters;
@@ -246,6 +249,8 @@ VCSBaseEditorWidgetPrivate::VCSBaseEditorWidgetPrivate(const VCSBaseEditorParame
 {
 }
 
+} // namespace Internal
+
 /*!
     \struct VCSBase::VCSBaseEditorParameters
 
@@ -271,11 +276,8 @@ VCSBaseEditorWidgetPrivate::VCSBaseEditorWidgetPrivate(const VCSBaseEditorParame
 
 VCSBaseEditorWidget::VCSBaseEditorWidget(const VCSBaseEditorParameters *type, QWidget *parent)
   : BaseTextEditorWidget(parent),
-    d(new VCSBaseEditorWidgetPrivate(type))
+    d(new Internal::VCSBaseEditorWidgetPrivate(type))
 {
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << "VCSBaseEditor::VCSBaseEditor" << type->type << type->id;
-
     viewport()->setMouseTracking(true);
     setBaseTextDocument(new Internal::VCSBaseTextDocument);
     setMimeType(QLatin1String(d->m_parameters->mimeType));
@@ -678,8 +680,6 @@ void VCSBaseEditorWidget::keyPressEvent(QKeyEvent *e)
 
 void VCSBaseEditorWidget::describe()
 {
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << "VCSBaseEditor::describe" << d->m_currentChange;
     if (!d->m_currentChange.isEmpty())
         emit describeRequested(d->m_source, d->m_currentChange);
 }
@@ -694,8 +694,6 @@ void VCSBaseEditorWidget::slotActivateAnnotation()
     const QSet<QString> changes = annotationChanges();
     if (changes.isEmpty())
         return;
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << "VCSBaseEditor::slotActivateAnnotation(): #" << changes.size();
 
     disconnect(this, SIGNAL(textChanged()), this, SLOT(slotActivateAnnotation()));
 
@@ -763,9 +761,6 @@ void VCSBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
         }
     }
 
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << "VCSBaseEditor::jumpToChangeFromDiff()1" << chunkStart << lineCount;
-
     if (chunkStart == -1 || lineCount < 0 || !block.isValid())
         return;
 
@@ -776,9 +771,6 @@ void VCSBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     const QString fileName = fileNameFromDiffSpecification(block);
 
     const bool exists = fileName.isEmpty() ? false : QFile::exists(fileName);
-
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << "VCSBaseEditor::jumpToChangeFromDiff()2" << fileName << "ex=" << exists << "line" << chunkStart <<  lineCount;
 
     if (!exists)
         return;
@@ -878,13 +870,9 @@ static QTextCodec *findFileCodec(const QString &source)
         for (EditorList::const_iterator it = editors.constBegin(); it != ecend; ++it)
             if (const TextEditor::BaseTextEditor *be = qobject_cast<const TextEditor::BaseTextEditor *>(*it)) {
                 QTextCodec *codec = be->editorWidget()->textCodec();
-                if (VCSBase::Constants::Internal::debug)
-                    qDebug() << Q_FUNC_INFO << source << codec->name();
                 return codec;
             }
     }
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << source << "not found";
     return 0;
 }
 
@@ -901,13 +889,9 @@ static QTextCodec *findProjectCodec(const QString &dir)
             if (const Core::IFile *file = (*it)->file())
                 if (file->fileName().startsWith(dir)) {
                     QTextCodec *codec = (*it)->editorConfiguration()->textCodec();
-                    if (VCSBase::Constants::Internal::debug)
-                        qDebug() << Q_FUNC_INFO << dir << (*it)->displayName() << codec->name();
                     return codec;
                 }
     }
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << dir << "not found";
     return 0;
 }
 
@@ -924,8 +908,6 @@ QTextCodec *VCSBaseEditorWidget::getCodec(const QString &source)
             return pc;
     }
     QTextCodec *sys = QTextCodec::codecForLocale();
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << source << "defaulting to " << sys->name();
     return sys;
 }
 
@@ -1189,8 +1171,6 @@ Core::IEditor* VCSBaseEditorWidget::locateEditorByTag(const QString &tag)
             break;
         }
     }
-    if (VCSBase::Constants::Internal::debug)
-        qDebug() << "locateEditorByTag " << tag << rc;
     return rc;
 }
 

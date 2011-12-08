@@ -52,10 +52,6 @@ const char VCS_ID_SUBVERSION[] = "J.Subversion";
 const char VCS_ID_PERFORCE[] = "P.Perforce";
 const char VCS_ID_CVS[] = "Z.CVS";
 
-namespace Internal {
-    enum { debug = 0 };
-} // namespace Internal
-
 } // namespace Constants
 } // namespace VCSBase
 

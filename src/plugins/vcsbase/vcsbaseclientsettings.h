@@ -45,7 +45,9 @@ QT_END_NAMESPACE
 
 namespace VCSBase {
 
+namespace Internal {
 class VCSBaseClientSettingsPrivate;
+} // namespace Internal
 
 class VCSBASE_EXPORT VCSBaseClientSettings
 {
@@ -93,7 +95,7 @@ protected:
 private:
     friend bool equals(const VCSBaseClientSettings &rhs);
     friend class VCSBaseClientSettingsPrivate;
-    QSharedDataPointer<VCSBaseClientSettingsPrivate> d;
+    QSharedDataPointer<Internal::VCSBaseClientSettingsPrivate> d;
 };
 
 inline bool operator==(const VCSBaseClientSettings &s1, const VCSBaseClientSettings &s2)

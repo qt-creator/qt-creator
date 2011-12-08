@@ -42,6 +42,10 @@
 
 namespace VCSBase {
 
+namespace Internal {
+class CommandPrivate;
+} // namespace Internal
+
 class VCSBASE_EXPORT Command : public QObject
 {
     Q_OBJECT
@@ -97,7 +101,7 @@ signals:
     void success(const QVariant &cookie);
 
 private:
-    class CommandPrivate *d;
+    class Internal::CommandPrivate *const d;
 };
 
 } //namespace VCSBase

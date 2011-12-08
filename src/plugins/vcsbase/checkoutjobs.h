@@ -47,7 +47,9 @@ QT_END_NAMESPACE
 
 namespace VCSBase {
 
-struct ProcessCheckoutJobPrivate;
+namespace Internal {
+class ProcessCheckoutJobPrivate;
+} // namespace Internal
 
 /* Abstract base class for a job creating an initial project checkout.
  * It should be something that runs in the background producing log
@@ -91,7 +93,7 @@ private slots:
     void slotNext();
 
 private:
-    ProcessCheckoutJobPrivate *d;
+    Internal::ProcessCheckoutJobPrivate *const d;
 };
 
 } // namespace VCSBase

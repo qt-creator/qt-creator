@@ -71,7 +71,7 @@ public:
     QRegExp filePattern() const;
 
 private:
-    Internal::DiffHighlighterPrivate *d;
+    Internal::DiffHighlighterPrivate *const d;
 };
 
 } // namespace VCSBase

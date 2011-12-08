@@ -52,16 +52,8 @@
 #include <QtCore/QFuture>
 #include <QtCore/QtConcurrentRun>
 
-/*!
-    \class VCSBase::CleanDialog
-
-    \brief File selector dialog for files not under version control.
-
-    Completely clean a directory under version control
-    from all files that are not under version control based on a list
-    generated from the version control system. Presents the user with
-    a checkable list of files and/or directories. Double click opens a file.
-*/
+namespace VCSBase {
+namespace Internal {
 
 enum { nameColumn, columnCount };
 enum { fileNameRole = Qt::UserRole, isDirectoryRole = Qt::UserRole + 1 };
@@ -91,12 +83,11 @@ static void removeFileRecursion(const QFileInfo &f, QString *errorMessage)
     }
 }
 
-namespace VCSBase {
-
 // A QFuture task for cleaning files in the background.
 // Emits error signal if not all files can be deleted.
 class CleanFilesTask : public QObject {
     Q_OBJECT
+
 public:
     explicit CleanFilesTask(const QString &repository, const QStringList &files);
 
@@ -134,7 +125,10 @@ void CleanFilesTask::run()
 }
 
 // ---------------- CleanDialogPrivate ----------------
-struct CleanDialogPrivate {
+
+class CleanDialogPrivate
+{
+public:
     CleanDialogPrivate();
 
     Internal::Ui::CleanDialog ui;
@@ -146,9 +140,22 @@ CleanDialogPrivate::CleanDialogPrivate() : m_filesModel(new QStandardItemModel(0
 {
 }
 
+} // namespace Internal
+
+/*!
+    \class VCSBase::CleanDialog
+
+    \brief File selector dialog for files not under version control.
+
+    Completely clean a directory under version control
+    from all files that are not under version control based on a list
+    generated from the version control system. Presents the user with
+    a checkable list of files and/or directories. Double click opens a file.
+*/
+
 CleanDialog::CleanDialog(QWidget *parent) :
     QDialog(parent),
-    d(new CleanDialogPrivate)
+    d(new Internal::CleanDialogPrivate)
 {
     setModal(true);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -200,8 +207,8 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
                                         || fileName.endsWith(qmlProUserSuffix));
         nameItem->setCheckable(true);
         nameItem->setCheckState(saveFile ? Qt::Unchecked : Qt::Checked);
-        nameItem->setData(QVariant(fi.absoluteFilePath()), fileNameRole);
-        nameItem->setData(QVariant(isDir), isDirectoryRole);
+        nameItem->setData(QVariant(fi.absoluteFilePath()), Internal::fileNameRole);
+        nameItem->setData(QVariant(isDir), Internal::isDirectoryRole);
         // Tooltip with size information
         if (fi.isFile()) {
             const QString lastModified = fi.lastModified().toString(Qt::DefaultLocaleShortDate);
@@ -222,7 +229,7 @@ QStringList CleanDialog::checkedFiles() const
         for (int r = 0; r < rowCount; r++) {
             const QStandardItem *item = d->m_filesModel->item(r, 0);
             if (item->checkState() == Qt::Checked)
-                rc.push_back(item->data(fileNameRole).toString());
+                rc.push_back(item->data(Internal::fileNameRole).toString());
         }
     }
     return rc;
@@ -247,12 +254,12 @@ bool CleanDialog::promptToDelete()
         return false;
 
     // Remove in background
-    CleanFilesTask *cleanTask = new CleanFilesTask(d->m_workingDirectory, selectedFiles);
+    Internal::CleanFilesTask *cleanTask = new Internal::CleanFilesTask(d->m_workingDirectory, selectedFiles);
     connect(cleanTask, SIGNAL(error(QString)),
             VCSBase::VCSBaseOutputWindow::instance(), SLOT(appendSilently(QString)),
             Qt::QueuedConnection);
 
-    QFuture<void> task = QtConcurrent::run(cleanTask, &CleanFilesTask::run);
+    QFuture<void> task = QtConcurrent::run(cleanTask, &Internal::CleanFilesTask::run);
     const QString taskName = tr("Cleaning %1").
                              arg(QDir::toNativeSeparators(d->m_workingDirectory));
     Core::ICore::instance()->progressManager()->addTask(task, taskName,
@@ -264,8 +271,8 @@ void CleanDialog::slotDoubleClicked(const QModelIndex &index)
 {
     // Open file on doubleclick
     if (const QStandardItem *item = d->m_filesModel->itemFromIndex(index))
-        if (!item->data(isDirectoryRole).toBool()) {
-            const QString fname = item->data(fileNameRole).toString();
+        if (!item->data(Internal::isDirectoryRole).toBool()) {
+            const QString fname = item->data(Internal::fileNameRole).toString();
             Core::EditorManager::instance()->openEditor(fname, Core::Id(), Core::EditorManager::ModeSwitch);
     }
 }

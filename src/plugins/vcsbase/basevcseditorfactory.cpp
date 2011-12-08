@@ -49,9 +49,11 @@
 */
 
 namespace VCSBase {
+namespace Internal {
 
-struct BaseVCSEditorFactoryPrivate
+class BaseVCSEditorFactoryPrivate
 {
+public:
     BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t);
 
     const VCSBaseEditorParameters *m_type;
@@ -69,8 +71,10 @@ BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorPara
 {
 }
 
+} // namespace Internal
+
 BaseVCSEditorFactory::BaseVCSEditorFactory(const VCSBaseEditorParameters *t)
-  : d(new BaseVCSEditorFactoryPrivate(t))
+  : d(new Internal::BaseVCSEditorFactoryPrivate(t))
 {
     d->m_displayName = QCoreApplication::translate("VCS", t->displayName);
 }

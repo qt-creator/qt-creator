@@ -80,19 +80,6 @@ private:
     Type m_type;
 };
 
-} // namespace Internal
-
-VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem()
-{
-}
-
-VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem(const QString &text,
-                                                         const QVariant &val) :
-    displayText(text),
-    value(val)
-{
-}
-
 class VCSBaseEditorParameterWidgetPrivate
 {
 public:
@@ -103,9 +90,11 @@ public:
     QStringList m_baseArguments;
     QHBoxLayout *m_layout;
     QList<VCSBaseEditorParameterWidget::OptionMapping> m_optionMappings;
-    QHash<QWidget*, Internal::SettingMappingData> m_settingMapping;
+    QHash<QWidget*, SettingMappingData> m_settingMapping;
     QStringList m_comboBoxOptionTemplate;
 };
+
+} // namespace Internal
 
 /*!
     \class VCSBase::VCSBaseEditorParameterWidget
@@ -118,8 +107,19 @@ public:
     that should trigger the rerun of the VCS operation.
 */
 
+VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem()
+{
+}
+
+VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem(const QString &text,
+                                                         const QVariant &val) :
+    displayText(text),
+    value(val)
+{
+}
+
 VCSBaseEditorParameterWidget::VCSBaseEditorParameterWidget(QWidget *parent) :
-    QWidget(parent), d(new VCSBaseEditorParameterWidgetPrivate)
+    QWidget(parent), d(new Internal::VCSBaseEditorParameterWidgetPrivate)
 {
     d->m_layout = new QHBoxLayout(this);
     d->m_layout->setContentsMargins(3, 0, 3, 0);

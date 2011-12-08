@@ -156,6 +156,7 @@ bool operator==(const SettingValue &lhs, const SettingValue &rhs)
 
 namespace VCSBase {
 
+namespace Internal {
 class VCSBaseClientSettingsPrivate : public QSharedData
 {
 public:
@@ -176,6 +177,8 @@ public:
     QString m_settingsGroup;
 };
 
+} // namespace Internal
+
 /*!
     \class VCSBase::VCSBaseClientSettings
 
@@ -192,7 +195,7 @@ const QLatin1String VCSBaseClientSettings::promptOnSubmitKey("PromptOnSubmit");
 const QLatin1String VCSBaseClientSettings::timeoutKey("Timeout");
 
 VCSBaseClientSettings::VCSBaseClientSettings() :
-    d(new VCSBaseClientSettingsPrivate)
+    d(new Internal::VCSBaseClientSettingsPrivate)
 {
     declareKey(binaryPathKey, QLatin1String(""));
     declareKey(userNameKey, QLatin1String(""));

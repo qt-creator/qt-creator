@@ -56,15 +56,19 @@ typedef QMap<QString, QTextCharFormat> ChangeNumberFormatMap;
 */
 
 namespace VCSBase {
+namespace Internal {
 
-struct BaseAnnotationHighlighterPrivate {
+class BaseAnnotationHighlighterPrivate {
+public:
     ChangeNumberFormatMap m_changeNumberMap;
 };
+
+} // namespace Internal
 
 BaseAnnotationHighlighter::BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                              QTextDocument *document) :
     TextEditor::SyntaxHighlighter(document),
-    d(new BaseAnnotationHighlighterPrivate)
+    d(new Internal::BaseAnnotationHighlighterPrivate)
 {
     setChangeNumbers(changeNumbers);
 }

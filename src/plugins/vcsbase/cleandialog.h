@@ -42,7 +42,10 @@ class QModelIndex;
 QT_END_NAMESPACE
 
 namespace VCSBase {
-struct CleanDialogPrivate;
+
+namespace Internal {
+class CleanDialogPrivate;
+} // namespace Internal
 
 class VCSBASE_EXPORT CleanDialog : public QDialog {
     Q_OBJECT
@@ -65,7 +68,7 @@ private:
     QStringList checkedFiles() const;
     bool promptToDelete();
 
-    CleanDialogPrivate *d;
+    Internal::CleanDialogPrivate *const d;
 };
 
 } // namespace VCSBase
