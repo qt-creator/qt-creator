@@ -3037,9 +3037,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     dock = m_mainWindow->createDockWidget(CppLanguage, localsAndWatchers);
     dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::RightDockWidgetArea);
 
-    m_commonOptionsPage = new CommonOptionsPage(m_globalDebuggerOptions);
-    m_plugin->addAutoReleasedObject(m_commonOptionsPage);
-
     // Do not fail to load the whole plugin if something goes wrong here.
     QString errorMessage;
     if (!parseArguments(m_arguments, &m_cmdLineEnabledEngines, &errorMessage)) {
