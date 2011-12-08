@@ -1064,7 +1064,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     QString buildTip = buildConfig.isEmpty() ? QLatin1String("")
         : tr("<b>Build:</b> %1<br/>").arg(buildConfig);
     QString deployTip = deployConfig.isEmpty() ? QLatin1String("")
-        : tr("<b>Deploy:</b>%1<br/>").arg(deployConfig);
+        : tr("<b>Deploy:</b> %1<br/>").arg(deployConfig);
     QString targetToolTip = targetToolTipText.isEmpty() ? QLatin1String("")
         : tr("<br/>%1").arg(targetToolTipText);
     QString toolTip = tr("<html><nobr><b>Project:</b> %1<br/>%2%3%4<b>Run:</b> %5%6</html>");
