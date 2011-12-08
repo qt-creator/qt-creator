@@ -761,7 +761,7 @@ void QmlProfilerTool::showLoadDialog()
 
     if (!filename.isEmpty()) {
         // delayed load (prevent graphical artifacts due to long load time)
-        d->m_traceWindow->getEventList()->load(filename);
+        d->m_traceWindow->getEventList()->setFilename(filename);
         QTimer::singleShot(100, d->m_traceWindow->getEventList(), SLOT(load()));
     }
 }
