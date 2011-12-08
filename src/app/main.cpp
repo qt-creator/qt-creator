@@ -282,11 +282,13 @@ int main(int argc, char **argv)
                             proxyUrl.port(), proxyUrl.userName(), proxyUrl.password());
         QNetworkProxy::setApplicationProxy(proxy);
     }
-#if defined(Q_OS_MAC)
+# if defined(Q_OS_MAC) // unix and mac
     else {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     }
-#endif
+# endif
+#else // windows
+    QNetworkProxyFactory::setUseSystemConfiguration(true);
 #endif
     // Load
     const QStringList pluginPaths = getPluginPaths();
