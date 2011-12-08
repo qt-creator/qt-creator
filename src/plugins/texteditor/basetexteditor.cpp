@@ -1524,8 +1524,13 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     d->m_moveLineUndoHack = false;
     d->clearVisibleFoldedBlock();
 
-    if (e->key() == Qt::Key_Escape) {
-        if (d->m_snippetOverlay->isVisible()) {
+    if (e->key() == Qt::Key_Alt
+            && d->m_behaviorSettings.m_keyboardTooltips) {
+        d->m_maybeFakeTooltipEvent = true;
+    } else {
+        d->m_maybeFakeTooltipEvent = false;
+        if (e->key() == Qt::Key_Escape
+                && d->m_snippetOverlay->isVisible()) {
             e->accept();
             d->m_snippetOverlay->hide();
             d->m_snippetOverlay->clear();
@@ -2345,12 +2350,12 @@ bool BaseTextEditorWidget::scrollWheelZoomingEnabled() const
 
 void BaseTextEditorWidget::setConstrainTooltips(bool b)
 {
-    d->m_behaviorSettings.m_constrainTooltips = b;
+    d->m_behaviorSettings.m_constrainHoverTooltips = b;
 }
 
 bool BaseTextEditorWidget::constrainTooltips() const
 {
-    return d->m_behaviorSettings.m_constrainTooltips;
+    return d->m_behaviorSettings.m_constrainHoverTooltips;
 }
 
 void BaseTextEditorWidget::setCamelCaseNavigationEnabled(bool b)
@@ -2445,6 +2450,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_highlightCurrentLine(true),
     m_requestMarkEnabled(true),
     m_lineSeparatorsAllowed(false),
+    m_maybeFakeTooltipEvent(false),
     m_visibleWrapColumn(0),
     m_linkPressed(false),
     m_delayedUpdateTimer(0),
@@ -2573,6 +2579,16 @@ QPoint BaseTextEditorWidget::toolTipPosition(const QTextCursor &c) const
     );
 }
 
+void BaseTextEditorWidget::processTooltipRequest(const QTextCursor &c)
+{
+    const QPoint toolTipPoint = toolTipPosition(c);
+    bool handled = false;
+    BaseTextEditor *ed = editor();
+    emit ed->tooltipOverrideRequested(ed, toolTipPoint, c.position(), &handled);
+    if (!handled)
+        emit ed->tooltipRequested(ed, toolTipPoint, c.position());
+}
+
 bool BaseTextEditorWidget::viewportEvent(QEvent *event)
 {
     d->m_contentsChanged = false;
@@ -2583,7 +2599,7 @@ bool BaseTextEditorWidget::viewportEvent(QEvent *event)
     } else if (event->type() == QEvent::ToolTip) {
         if (QApplication::keyboardModifiers() & Qt::ControlModifier
                 || (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)
-                    && d->m_behaviorSettings.m_constrainTooltips)) {
+                    && d->m_behaviorSettings.m_constrainHoverTooltips)) {
             // Tooltips should be eaten when either control is pressed (so they don't get in the
             // way of code navigation) or if they are in constrained mode and shift is not pressed.
             return true;
@@ -2600,14 +2616,7 @@ bool BaseTextEditorWidget::viewportEvent(QEvent *event)
             return true;
         }
 
-        // Allow plugins to show tooltips
-        const QTextCursor c = cursorForPosition(pos);
-        const QPoint toolTipPoint = toolTipPosition(c);
-        bool handled = false;
-        BaseTextEditor *ed = editor();
-        emit ed->tooltipOverrideRequested(ed, toolTipPoint, c.position(), &handled);
-        if (!handled)
-            emit ed->tooltipRequested(ed, toolTipPoint, c.position());
+        processTooltipRequest(cursorForPosition(pos));
         return true;
     }
     return QPlainTextEdit::viewportEvent(event);
@@ -4241,9 +4250,13 @@ void BaseTextEditorWidget::keyReleaseEvent(QKeyEvent *e)
     if (e->key() == Qt::Key_Control) {
         clearLink();
     } else if (e->key() == Qt::Key_Shift
-             && d->m_behaviorSettings.m_constrainTooltips
+             && d->m_behaviorSettings.m_constrainHoverTooltips
              && ToolTip::instance()->isVisible()) {
         ToolTip::instance()->hide();
+    } else if (e->key() == Qt::Key_Alt
+               && d->m_maybeFakeTooltipEvent) {
+        d->m_maybeFakeTooltipEvent = false;
+        processTooltipRequest(textCursor());
     }
 
     QPlainTextEdit::keyReleaseEvent(e);

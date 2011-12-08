@@ -337,7 +337,14 @@ Specifies how backspace interacts with indentation.
         <item>
          <widget class="QCheckBox" name="constrainTooltips">
           <property name="text">
-           <string>Enable &amp;tooltips only when Shift key is down</string>
+           <string>Enable hover &amp;tooltips only when Shift key is down</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="keyboardTooltips">
+          <property name="text">
+           <string>Enable &amp;keyboard tooltips when pressing and releasing the Alt key</string>
           </property>
          </widget>
         </item>

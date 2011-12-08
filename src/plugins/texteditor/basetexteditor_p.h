@@ -245,6 +245,7 @@ public:
     uint m_lineSeparatorsAllowed : 1;
     uint autoParenthesisOverwriteBackup : 1;
     uint surroundWithEnabledOverwriteBackup : 1;
+    uint m_maybeFakeTooltipEvent : 1;
     int m_visibleWrapColumn;
 
     QTextCharFormat m_linkFormat;

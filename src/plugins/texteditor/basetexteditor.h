@@ -563,6 +563,8 @@ private:
     bool camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode mode);
     bool camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveMode mode);
 
+    void processTooltipRequest(const QTextCursor &c);
+
     void transformSelection(Internal::TransformationMethod method);
 
 private slots:
