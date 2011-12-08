@@ -189,7 +189,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_SEMICOLON:   leave(true); break;
             case T_EQUAL:       enter(assign_open_or_initializer); break;
             case T_LBRACE:      enter(defun_open); break;
-            case T_COLON:       enter(member_init_open); enter(member_init); break;
+            case T_COLON:       enter(member_init_open); enter(member_init_expected); break;
             case T_OPERATOR:    enter(operator_declaration); break;
             default:            tryExpression(true); break;
             } break;
@@ -263,7 +263,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case member_init_open:
             switch (kind) {
             case T_LBRACE:      turnInto(defun_open); break;
-            case T_COMMA:       enter(member_init); break;
+            case T_COMMA:       enter(member_init_expected); break;
+            case T_SEMICOLON:   leave(); continue; // try to recover
+            } break;
+
+        case member_init_expected:
+            switch (kind) {
+            case T_IDENTIFIER:  turnInto(member_init); break;
+            case T_LBRACE:
             case T_SEMICOLON:   leave(); continue; // try to recover
             } break;
 
@@ -1185,14 +1192,25 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         // undo the continuation indent of the parent
         *savedPaddingDepth = 0;
 
+        // The paddingDepth is the expected location of the ',' and
+        // identifiers are padded +2 from that in member_init_expected.
         if (firstToken)
             *paddingDepth = tokenPosition-*indentDepth;
         else
-            *paddingDepth = m_tabSettings.m_indentSize - 2; // they'll get another 2 from member_init
+            *paddingDepth = m_tabSettings.m_indentSize - 2;
+        break;
+
+    case member_init_expected:
+        *paddingDepth += 2;
         break;
 
     case member_init:
-        *paddingDepth += 2; // savedIndentDepth is the position of ':'
+        // make continuation indents relative to identifier start
+        *paddingDepth = tokenPosition - *indentDepth;
+        if (firstToken) {
+            // see comment in member_init_open
+            *savedPaddingDepth = *paddingDepth - 2;
+        }
         break;
 
     case case_cont:

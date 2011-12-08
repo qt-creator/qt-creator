@@ -83,6 +83,8 @@ private Q_SLOTS:
     void switch5();
     void blocks();
     void memberInitializer();
+    void memberInitializer2();
+    void memberInitializer3();
     void templates();
     void operatorOverloads();
     void gnuStyle();
@@ -1094,6 +1096,62 @@ void tst_CodeFormatter::memberInitializer()
          << Line("    {}")
          << Line("}")
          ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::memberInitializer2()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("~   : foo()")
+         << Line("~   , foo()")
+         << Line("~   , foo()")
+         << Line("{}")
+         << Line("void foo()")
+         << Line("~ : foo()", 0, 4)
+         << Line("~ , foo()")
+         << Line("~ , foo()")
+         << Line("{}")
+         << Line("void foo()")
+         << Line("~   : foo(),")
+         << Line("~     foo(),")
+         << Line("~     foo()")
+         << Line("{}")
+         << Line("void foo()")
+         << Line("~ : foo(),", 0, 4)
+         << Line("~   foo(),")
+         << Line("~   foo()")
+         << Line("{}")
+         << Line("void foo()")
+         << Line("~   :")
+         << Line("~     foo(),")
+         << Line("~     foo(),")
+         << Line("~     foo()")
+         << Line("{}")
+         << Line("void foo()")
+         << Line("~   :")
+         << Line("~   foo(),", 0, 6)
+         << Line("~   foo(),")
+         << Line("~   foo()")
+         << Line("{}")
+            ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::memberInitializer3()
+{
+    QList<Line> data;
+    data << Line("void foo() :")
+         << Line("~   foo(),")
+         << Line("~   foo(),")
+         << Line("~   foo()")
+         << Line("{}")
+         << Line("void foo() :")
+         << Line("~     foo(),", 0, 4)
+         << Line("~     foo(),")
+         << Line("~     foo()")
+         << Line("{}")
+            ;
     checkIndent(data);
 }
 

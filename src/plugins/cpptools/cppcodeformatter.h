@@ -124,7 +124,8 @@ public: // must be public to make Q_GADGET introspection work
         access_specifier_start, // after 'private', 'protected' etc.
 
         member_init_open, // After ':' that starts a member initialization list.
-        member_init, // At the start and after every ',' in member_init_open
+        member_init_expected, // At the start and after every ',' in member_init_open
+        member_init, // After an identifier in member_init_expected
         member_init_paren_open, // After '(' in member_init.
 
         enum_start, // After 'enum'
