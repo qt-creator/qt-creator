@@ -62,3 +62,13 @@ def replaceEditorContent(editor, newcontent):
     type(editor, "<Ctrl+A>")
     type(editor, "<Delete>")
     type(editor, newcontent)
+
+def typeLines(editor, lines):
+    if isinstance(lines, (str, unicode)):
+        lines = [lines]
+    if isinstance(lines, (list, tuple)):
+        for line in lines:
+            type(editor, line)
+            type(editor, "<Enter>")
+    else:
+        test.warning("Illegal parameter passed to typeLines()")

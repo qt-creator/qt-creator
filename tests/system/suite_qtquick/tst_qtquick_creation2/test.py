@@ -46,8 +46,7 @@ def subprocessFunction():
     dragItemBy(textEdit, 30, 30, 50, 50, 0, Qt.LeftButton)
     test.log("Test editing")
     textEdit.cursorPosition = 0
-    type(textEdit, "This text is entered by Squish...")
-    type(textEdit, "<Return>")
+    typeLines(textEdit, "This text is entered by Squish...")
     test.log("Closing QmlApplicationViewer")
     sendEvent("QCloseEvent", "{type='QmlApplicationViewer' unnamed='1' visible='1'}")
 
