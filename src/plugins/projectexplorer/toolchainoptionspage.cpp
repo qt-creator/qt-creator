@@ -103,8 +103,9 @@ ToolChainModel::ToolChainModel(QWidget *configWidgetParent, QObject *parent) :
     connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
             this, SLOT(removeToolChain(ProjectExplorer::ToolChain*)));
 
-    m_autoRoot = new ToolChainNode(0);
-    m_manualRoot = new ToolChainNode(0);
+    m_root = new ToolChainNode(0);
+    m_autoRoot = new ToolChainNode(m_root);
+    m_manualRoot = new ToolChainNode(m_root);
 
     foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
         addToolChain(tc);
@@ -113,17 +114,14 @@ ToolChainModel::ToolChainModel(QWidget *configWidgetParent, QObject *parent) :
 
 ToolChainModel::~ToolChainModel()
 {
-    delete m_autoRoot;
-    delete m_manualRoot;
+    delete m_root;
 }
 
 QModelIndex ToolChainModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
-        if (row == 0)
-            return createIndex(0, 0, static_cast<void *>(m_autoRoot));
-        else
-            return createIndex(1, 0, static_cast<void *>(m_manualRoot));
+        if (row >= 0 && row < m_root->childNodes.count())
+            return createIndex(row, column, m_root->childNodes.at(row));
     }
     ToolChainNode *node = static_cast<ToolChainNode *>(parent.internalPointer());
     if (row < node->childNodes.count() && column < 2)
@@ -132,10 +130,28 @@ QModelIndex ToolChainModel::index(int row, int column, const QModelIndex &parent
         return QModelIndex();
 }
 
+QModelIndex ToolChainModel::index(const QModelIndex &topIdx, ToolChain *tc) const
+{
+    ToolChainNode *current = m_root;
+    if (topIdx.isValid())
+        current = static_cast<ToolChainNode *>(topIdx.internalPointer());
+    QTC_ASSERT(current, return QModelIndex());
+
+    if (current->toolChain == tc)
+        return topIdx;
+
+    for (int i = 0; i < current->childNodes.count(); ++i) {
+        QModelIndex result = index(index(current->childNodes.at(i)), tc);
+        if (result.isValid())
+            return result;
+    }
+    return QModelIndex();
+}
+
 QModelIndex ToolChainModel::parent(const QModelIndex &idx) const
 {
     ToolChainNode *node = static_cast<ToolChainNode *>(idx.internalPointer());
-    if (node->parent == 0)
+    if (node->parent == m_root)
         return QModelIndex();
     return index(node->parent);
 }
@@ -143,7 +159,7 @@ QModelIndex ToolChainModel::parent(const QModelIndex &idx) const
 int ToolChainModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return 2;
+        return m_root->childNodes.count();
     ToolChainNode *node = static_cast<ToolChainNode *>(parent.internalPointer());
     return node->childNodes.count();
 }
@@ -160,7 +176,7 @@ QVariant ToolChainModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     ToolChainNode *node = static_cast<ToolChainNode *>(index.internalPointer());
-    Q_ASSERT(node);
+    QTC_ASSERT(node, return QVariant());
     if (node == m_autoRoot && index.column() == 0 && role == Qt::DisplayRole)
         return tr("Auto-detected");
     if (node == m_manualRoot && index.column() == 0 && role == Qt::DisplayRole)
@@ -375,8 +391,10 @@ void ToolChainModel::markForAddition(ToolChain *tc)
 
 QModelIndex ToolChainModel::index(ToolChainNode *node, int column) const
 {
-    if (!node->parent)
-        return index(node == m_autoRoot ? 0 : 1, column, QModelIndex());
+    if (node == m_root)
+        return QModelIndex();
+    if (node->parent == m_root)
+        return index(m_root->childNodes.indexOf(node), column, QModelIndex());
     else
         return index(node->parent->childNodes.indexOf(node), column, index(node->parent));
 }
@@ -501,8 +519,8 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
     m_ui->toolChainView->expandAll();
 
     m_selectionModel = m_ui->toolChainView->selectionModel();
-    connect(m_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(toolChainSelectionChanged(QModelIndex,QModelIndex)));
+    connect(m_selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(toolChainSelectionChanged(QItemSelection)));
 
     // Get toolchainfactories:
     m_factories = ExtensionSystem::PluginManager::instance()->getObjects<ToolChainFactory>();
@@ -564,18 +582,15 @@ bool ToolChainOptionsPage::matches(const QString &s) const
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
-void ToolChainOptionsPage::toolChainSelectionChanged(const QModelIndex &current,
-                                                     const QModelIndex &previous)
+void ToolChainOptionsPage::toolChainSelectionChanged(const QItemSelection &current)
 {
-    Q_UNUSED(previous);
     if (m_currentTcWidget)
         m_currentTcWidget->setVisible(false);
 
-    m_currentTcWidget = m_model->widget(current);
+    m_currentTcWidget = current.indexes().isEmpty() ? 0 : m_model->widget(current.indexes().at(0));
 
     if (m_currentTcWidget)
         m_currentTcWidget->setVisible(true);
-
     updateState();
 }
 
@@ -595,6 +610,12 @@ void ToolChainOptionsPage::createToolChain(QObject *factoryObject)
     } if (!tc)
         return;
     m_model->markForAddition(tc);
+
+    QModelIndex newIdx = m_model->index(QModelIndex(), tc);
+    m_selectionModel->select(newIdx,
+                             QItemSelectionModel::Clear
+                             | QItemSelectionModel::SelectCurrent
+                             | QItemSelectionModel::Rows);
 }
 
 void ToolChainOptionsPage::removeToolChain()

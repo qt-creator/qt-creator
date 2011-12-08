@@ -67,6 +67,7 @@ public:
     ~ToolChainModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex index(const QModelIndex &topIdx, ToolChain *) const;
     QModelIndex parent(const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -134,7 +135,7 @@ public:
     virtual bool matches(const QString &) const;
 
 private slots:
-    void toolChainSelectionChanged(const QModelIndex &, const QModelIndex &);
+    void toolChainSelectionChanged(const QItemSelection &);
     void createToolChain(QObject *);
     void removeToolChain();
     void updateState();
