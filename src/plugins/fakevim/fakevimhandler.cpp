@@ -497,6 +497,14 @@ public:
     void parseFrom(const QString &str);
 };
 
+static bool iss(char a, char b)
+{
+    if (a >= 'a')
+        a -= 'a' - 'A';
+    if (b >= 'a')
+        b -= 'a' - 'A';
+    return a == b;
+}
 
 void Inputs::parseFrom(const QString &str)
 {
@@ -514,14 +522,14 @@ void Inputs::parseFrom(const QString &str)
         if (i + 5 < n)
             c5 = str.at(i + 5).unicode();
         if (c0 == '<') {
-            if ((c1 == 'C' || c1 == 'c') && c2 == '-' && c4 == '>') {
+            if (iss(c1, 'C') && c2 == '-' && c4 == '>') {
                 uint c = (c3 < 90 ? c3 : c3 - 32);
                 append(Input(c, RealControlModifier, QString(QChar(c - 64))));
                 i += 4;
-            } else if (c1 == 'C' && c2 == 'R' && c3 == '>') {
+            } else if (iss(c1, 'C') && iss(c2, 'R') && c3 == '>') {
                 append(Input(Key_Return, Qt::NoModifier, QString(QChar(13))));
                 i += 3;
-            } else if (c1 == 'E' && c2 == 's' && c3 == 'c' && c4 == '>') {
+            } else if (iss(c1, 'E') && iss(c2, 'S') && iss(c3, 'C') && c4 == '>') {
                 append(Input(Key_Escape, Qt::NoModifier, QString(QChar(27))));
                 i += 4;
             } else {
