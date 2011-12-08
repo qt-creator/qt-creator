@@ -44,7 +44,7 @@ QT_END_NAMESPACE
 namespace VCSBase {
 namespace Internal {
 
-struct CommonVcsSettings;
+class CommonVcsSettings;
 class CommonOptionsPage;
 class CoreListener;
 

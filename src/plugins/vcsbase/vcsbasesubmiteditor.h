@@ -51,11 +51,12 @@ namespace Utils {
 
 namespace VCSBase {
 namespace Internal {
-    struct CommonVcsSettings;
+    class CommonVcsSettings;
 }
 struct VCSBaseSubmitEditorPrivate;
 
-struct VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
+class VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
+public:
     const char *mimeType;
     const char *id;
     const char *displayName;
