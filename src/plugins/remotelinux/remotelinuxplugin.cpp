@@ -73,7 +73,6 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
 
     LinuxDeviceConfigurations::instance(this);
 
-    addObject(this);
     addAutoReleasedObject(new LinuxDeviceConfigurationsSettingsPage);
     addAutoReleasedObject(new GenericLinuxDeviceConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
@@ -87,11 +86,6 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     qRegisterMetaType<RemoteLinux::DeployableFile>("RemoteLinux::DeployableFile");
 
     return true;
-}
-
-RemoteLinuxPlugin::~RemoteLinuxPlugin()
-{
-    removeObject(this);
 }
 
 void RemoteLinuxPlugin::extensionsInitialized()

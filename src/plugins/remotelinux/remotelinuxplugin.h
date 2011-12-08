@@ -44,7 +44,6 @@ class RemoteLinuxPlugin : public ExtensionSystem::IPlugin
 
 public:
     RemoteLinuxPlugin();
-    ~RemoteLinuxPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
