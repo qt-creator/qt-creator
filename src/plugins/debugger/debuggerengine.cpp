@@ -1723,9 +1723,6 @@ void DebuggerEnginePrivate::handleAutoTestLine(int line)
     if (cmd == QLatin1String("Expand")) {
         m_engine->showMessage(_("'Expand' found in line %1, but not implemented yet.").arg(line));
         handleAutoTestLine(line + 1);
-    } else if (cmd == QLatin1String("Expand")) {
-        m_engine->showMessage(_("'Expand' found in line %1, but not implemented yet.").arg(line));
-        handleAutoTestLine(line + 1);
     } else if (cmd == QLatin1String("Check")) {
         QString name = s.section(QLatin1Char(' '), 1, 1);
         if (name.isEmpty()) {
