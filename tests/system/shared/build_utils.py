@@ -87,7 +87,7 @@ def checkCompile():
     output = waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1' windowTitle='Compile Output'"
                                  " window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
     waitFor("len(str(output.plainText))>0",5000)
-    success = str(output.plainText).lower().find("error")==-1
+    success = str(output.plainText).endswith("exited normally.")
     if success:
         test.log("Compile Output:\n%s" % output.plainText)
     else:

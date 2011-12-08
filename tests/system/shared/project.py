@@ -26,7 +26,7 @@ def openQmakeProject(projectPath):
         clickButton(findObject("{text='Open' type='QPushButton'}"))
     waitForObject("{type='Qt4ProjectManager::Internal::ProjectLoadWizard' visible='1' windowTitle='Project Setup'}")
     selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox", "For Each Qt Version One Debug And One Release")
-    clickButton(findObject("{text~='(Finish|Done)' type='QPushButton'}"))
+    clickButton(waitForObject("{text~='(Finish|Done)' type='QPushButton'}"))
 
 def openCmakeProject(projectPath):
     invokeMenuItem("File", "Open File or Project...")
