@@ -114,6 +114,7 @@ enum DebuggerActionCode
     UseAddressInStackView,
 
     RegisterForPostMortem,
+    ProvideMoreStartModes,
 
     // Gdb
     LoadGdbInit,

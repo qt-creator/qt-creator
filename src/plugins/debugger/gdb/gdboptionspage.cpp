@@ -68,6 +68,7 @@ public:
     QCheckBox *checkBoxLoadGdbInit;
     QLabel *labelDangerous;
     QCheckBox *checkBoxTargetAsync;
+    QCheckBox *checkBoxProvideMoreStartModes;
     QCheckBox *checkBoxAutoEnrichParameters;
     QCheckBox *checkBoxBreakOnWarning;
     QCheckBox *checkBoxBreakOnFatal;
@@ -144,6 +145,10 @@ public:
             "This allows or inhibits reading the user's default\n"
             ".gdbinit file on debugger startup."));
 
+        checkBoxProvideMoreStartModes = new QCheckBox(groupBoxGeneral);
+        checkBoxProvideMoreStartModes->setText(GdbOptionsPage::tr(
+            "Show more start modes in the Debug->Start Debugging menu"));
+
         labelDangerous = new QLabel(GdbOptionsPage::tr(
             "The options below should be used with care."));
 
@@ -211,6 +216,8 @@ public:
         formLayout->addRow(checkBoxAdjustBreakpointLocations);
         formLayout->addRow(checkBoxUseDynamicType);
         formLayout->addRow(checkBoxLoadGdbInit);
+        formLayout->addRow(checkBoxProvideMoreStartModes);
+        formLayout->addRow(new QLabel(QString()));
         formLayout->addRow(labelDangerous);
         formLayout->addRow(checkBoxTargetAsync);
         formLayout->addRow(checkBoxAutoEnrichParameters);
@@ -286,6 +293,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui->checkBoxUseDynamicType);
     m_group.insert(debuggerCore()->action(TargetAsync),
         m_ui->checkBoxTargetAsync);
+    m_group.insert(debuggerCore()->action(ProvideMoreStartModes),
+        m_ui->checkBoxProvideMoreStartModes);
     m_group.insert(debuggerCore()->action(AdjustBreakpointLocations),
         m_ui->checkBoxAdjustBreakpointLocations);
     m_group.insert(debuggerCore()->action(BreakOnWarning),
@@ -316,6 +325,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
                 << sep << m_ui->groupBoxGeneral->title()
                 << sep << m_ui->checkBoxLoadGdbInit->text()
                 << sep << m_ui->checkBoxTargetAsync->text()
+                << sep << m_ui->checkBoxProvideMoreStartModes->text()
                 << sep << m_ui->checkBoxUseDynamicType->text()
                 << sep << m_ui->labelGdbWatchdogTimeout->text()
                 << sep << m_ui->checkBoxEnableReverseDebugging->text()

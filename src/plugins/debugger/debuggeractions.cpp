@@ -474,6 +474,13 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
 #endif
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ProvideMoreStartOptions"));
+    item->setText(tr("Provide More Options to Start Debugging"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    insertItem(ProvideMoreStartModes, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("AllPluginBreakpoints"));
     item->setDefaultValue(true);
     insertItem(AllPluginBreakpoints, item);
