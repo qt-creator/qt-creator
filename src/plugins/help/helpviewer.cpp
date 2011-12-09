@@ -138,6 +138,7 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
         if (!canOpenPage(path)) {
             Utils::TempFileSaver saver(QDir::tempPath()
                 + QLatin1String("/qtchelp_XXXXXX.") + QFileInfo(path).completeSuffix());
+            saver.setAutoRemove(false);
             if (!saver.hasError())
                 saver.write(helpEngine.fileData(resolvedUrl));
             if (saver.finalize(Core::ICore::instance()->mainWindow()))
