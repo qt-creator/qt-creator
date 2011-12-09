@@ -61,9 +61,6 @@ public:
     void setResourceDragEnabled(bool e);
     bool resourceDragEnabled() const;
 
-    void setDefaultAddFileEnabled(bool enable);
-    bool defaultAddFileEnabled() const;
-
     void addFile(const QString &prefix, const QString &file);
 //    void removeFile(const QString &prefix, const QString &file);
 
@@ -71,7 +68,6 @@ public:
 
 signals:
     void dirtyChanged(bool dirty);
-    void addFilesTriggered(const QString &prefix);
 
 private slots:
     void updateCurrent();

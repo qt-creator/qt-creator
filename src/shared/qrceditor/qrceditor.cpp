@@ -51,7 +51,6 @@ QrcEditor::QrcEditor(QWidget *parent)
     layout->setSpacing(0);
     layout->setMargin(0);
     m_ui.centralWidget->setLayout(layout);
-    m_treeview->enableContextMenu(false);
     m_treeview->setFrameStyle(QFrame::NoFrame);;
     layout->addWidget(m_treeview);
 
@@ -63,8 +62,6 @@ QrcEditor::QrcEditor(QWidget *parent)
     addMenu->addAction(tr("Add Prefix"), this, SLOT(onAddPrefix()));
     m_ui.addButton->setMenu(addMenu);
 
-    connect(m_treeview, SIGNAL(addPrefixTriggered()), this, SLOT(onAddPrefix()));
-    connect(m_treeview, SIGNAL(addFilesTriggered(QString)), this, SLOT(onAddFiles()));
     connect(m_treeview, SIGNAL(removeItem()), this, SLOT(onRemove()));
     connect(m_treeview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(updateCurrent()));
@@ -92,9 +89,6 @@ QrcEditor::QrcEditor(QWidget *parent)
             m_treeview, SLOT(advanceMergeId()));
     connect(m_ui.languageText, SIGNAL(editingFinished()),
             m_treeview, SLOT(advanceMergeId()));
-
-    connect(m_treeview, SIGNAL(addFilesTriggered(const QString&)),
-        this, SIGNAL(addFilesTriggered(const QString&)));
 
     connect(&m_history, SIGNAL(canRedoChanged(bool)), this, SLOT(updateHistoryControls()));
     connect(&m_history, SIGNAL(canUndoChanged(bool)), this, SLOT(updateHistoryControls()));
@@ -338,16 +332,6 @@ void QrcEditor::setResourceDragEnabled(bool e)
 bool QrcEditor::resourceDragEnabled() const
 {
     return m_treeview->resourceDragEnabled();
-}
-
-void QrcEditor::setDefaultAddFileEnabled(bool enable)
-{
-    m_treeview->setDefaultAddFileEnabled(enable);
-}
-
-bool QrcEditor::defaultAddFileEnabled() const
-{
-    return m_treeview->defaultAddFileEnabled();
 }
 
 void QrcEditor::addFile(const QString &prefix, const QString &file)

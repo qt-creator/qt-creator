@@ -177,14 +177,6 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
 ResourceView::ResourceView(QUndoStack *history, QWidget *parent) :
     QTreeView(parent),
     m_qrcModel(new Internal::RelativeResourceModel(m_qrcFile, this)),
-    m_addFile(0),
-    m_editAlias(0),
-    m_removeItem(0),
-    m_addPrefix(0),
-    m_editPrefix(0),
-    m_editLang(0),
-    m_viewMenu(0),
-    m_defaultAddFile(false),
     m_history(history),
     m_mergeId(-1)
 {
@@ -195,11 +187,6 @@ ResourceView::ResourceView(QUndoStack *history, QWidget *parent) :
 
     connect(m_qrcModel, SIGNAL(dirtyChanged(bool)),
         this, SIGNAL(dirtyChanged(bool)));
-
-    setupMenu();
-
-    setDefaultAddFileEnabled(true);
-    enableContextMenu(true);
 }
 
 ResourceView::~ResourceView()
@@ -214,16 +201,6 @@ bool ResourceView::isDirty() const
 void ResourceView::setDirty(bool dirty)
 {
     m_qrcModel->setDirty(dirty);
-}
-
-void ResourceView::setDefaultAddFileEnabled(bool enable)
-{
-    m_defaultAddFile = enable;
-}
-
-bool ResourceView::defaultAddFileEnabled() const
-{
-    return m_defaultAddFile;
 }
 
 void ResourceView::findSamePlacePostDeletionModelIndex(int &row, QModelIndex &parent) const
@@ -337,65 +314,12 @@ void ResourceView::removeFiles(int prefixIndex, int firstFileIndex, int lastFile
     }
 }
 
-void ResourceView::enableContextMenu(bool enable)
-{
-    if (enable) {
-        connect(this, SIGNAL(clicked(const QModelIndex &)),
-            this, SLOT(popupMenu(const QModelIndex &)));
-    } else {
-        disconnect(this, SIGNAL(clicked(const QModelIndex &)),
-            this, SLOT(popupMenu(const QModelIndex &)));
-    }
-}
-
-void ResourceView::setupMenu()
-{
-    m_viewMenu = new QMenu(this);
-/*
-    m_addFile = m_viewMenu->addAction(tr("Add Files..."), this, SIGNAL(addFiles()));
-    m_editAlias = m_viewMenu->addAction(tr("Change Alias..."), this, SLOT(onEditAlias()));
-    m_addPrefix = m_viewMenu->addAction(tr("Add Prefix..."), this, SLOT(addPrefix()));
-    m_editPrefix = m_viewMenu->addAction(tr("Change Prefix..."), this, SLOT(onEditPrefix()));
-    m_editLang = m_viewMenu->addAction(tr("Change Language..."), this, SLOT(onEditLang()));
-    m_viewMenu->addSeparator();
-    m_removeItem = m_viewMenu->addAction(tr("Remove Item"), this, SLOT(removeItem()));
-*/
-    m_addFile = m_viewMenu->addAction(tr("Add Files..."), this, SLOT(onAddFiles()));
-    m_editAlias = m_viewMenu->addAction(tr("Change Alias..."), this, SLOT(onEditAlias()));
-    m_addPrefix = m_viewMenu->addAction(tr("Add Prefix..."), this, SIGNAL(addPrefixTriggered()));
-    m_editPrefix = m_viewMenu->addAction(tr("Change Prefix..."), this, SLOT(onEditPrefix()));
-    m_editLang = m_viewMenu->addAction(tr("Change Language..."), this, SLOT(onEditLang()));
-    m_viewMenu->addSeparator();
-    m_removeItem = m_viewMenu->addAction(tr("Remove Item"), this, SIGNAL(removeItem()));
-}
-
-void ResourceView::mouseReleaseEvent(QMouseEvent *e)
-{
-    m_releasePos = e->globalPos();
-    if (e->button() != Qt::RightButton)
-        m_releasePos = QPoint();
-
-    QTreeView::mouseReleaseEvent(e);
-}
-
 void ResourceView::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Delete)
         removeItem();
     else
         QTreeView::keyPressEvent(e);
-}
-
-void ResourceView::popupMenu(const QModelIndex &index)
-{
-    if (!m_releasePos.isNull()) {
-        m_addFile->setEnabled(index.isValid());
-        m_editPrefix->setEnabled(index.isValid());
-        m_editLang->setEnabled(index.isValid());
-        m_removeItem->setEnabled(index.isValid());
-
-        m_viewMenu->popup(m_releasePos);
-    }
 }
 
 QModelIndex ResourceView::addPrefix()
@@ -410,11 +334,6 @@ QStringList ResourceView::fileNamesToAdd()
     return QFileDialog::getOpenFileNames(this, tr("Open File"),
             m_qrcModel->absolutePath(QString()),
             tr("All files (*)"));
-}
-
-void ResourceView::onAddFiles()
-{
-    emit addFilesTriggered(currentPrefix());
 }
 
 void ResourceView::addFiles(QStringList fileList, const QModelIndex &index)
@@ -445,38 +364,6 @@ void ResourceView::addFile(const QString &prefix, const QString &file)
     addFiles(QStringList(file), preindex);
 }
 
-/*
-void ResourceView::removeItem()
-{
-    const QModelIndex index = currentIndex();
-    m_qrcModel->deleteItem(index);
-}
-
-void ResourceView::removeFile(const QString &prefix, const QString &file)
-{
-    const QModelIndex index = m_qrcModel->getIndex(prefix, file);
-    if (index.isValid())
-        m_qrcModel->deleteItem(index);
-}
-*/
-void ResourceView::onEditPrefix()
-{
-    QModelIndex index = currentIndex();
-    changePrefix(index);
-}
-
-void ResourceView::onEditLang()
-{
-    const QModelIndex index = currentIndex();
-    changeLang(index);
-}
-
-void ResourceView::onEditAlias()
-{
-    const QModelIndex index = currentIndex();
-    changeAlias(index);
-}
-
 bool ResourceView::load(const QString &fileName)
 {
     const QFileInfo fi(fileName);
@@ -491,51 +378,6 @@ bool ResourceView::load(const QString &fileName)
 bool ResourceView::save()
 {
     return m_qrcModel->save();
-}
-
-void ResourceView::changePrefix(const QModelIndex &index)
-{
-    bool ok = false;
-    const QModelIndex preindex = m_qrcModel->prefixIndex(index);
-
-    QString prefixBefore;
-    QString dummy;
-    m_qrcModel->getItem(preindex, prefixBefore, dummy);
-
-    QString const prefixAfter = QInputDialog::getText(this, tr("Change Prefix"), tr("Input prefix:"),
-        QLineEdit::Normal, prefixBefore, &ok);
-
-    if (ok)
-        addUndoCommand(preindex, PrefixProperty, prefixBefore, prefixAfter);
-}
-
-void ResourceView::changeLang(const QModelIndex &index)
-{
-    bool ok = false;
-    const QModelIndex preindex = m_qrcModel->prefixIndex(index);
-
-    QString const langBefore = m_qrcModel->lang(preindex);
-    QString const langAfter = QInputDialog::getText(this, tr("Change Language"), tr("Language:"),
-        QLineEdit::Normal, langBefore, &ok);
-
-    if (ok) {
-        addUndoCommand(preindex, LanguageProperty, langBefore, langAfter);
-    }
-}
-
-void ResourceView::changeAlias(const QModelIndex &index)
-{
-    if (!index.parent().isValid())
-        return;
-
-    bool ok = false;
-
-    QString const aliasBefore = m_qrcModel->alias(index);
-    QString const aliasAfter = QInputDialog::getText(this, tr("Change File Alias"), tr("Alias:"),
-        QLineEdit::Normal, aliasBefore, &ok);
-
-    if (ok)
-        addUndoCommand(index, AliasProperty, aliasBefore, aliasAfter);
 }
 
 QString ResourceView::currentAlias() const
