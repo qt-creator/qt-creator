@@ -32,9 +32,6 @@
 #ifndef SSHKEYCREATIONDIALOG_H
 #define SSHKEYCREATIONDIALOG_H
 
-#include "ui_sshkeycreationdialog.h"
-
-#include <QtCore/QScopedPointer>
 #include <QtGui/QDialog>
 
 namespace Utils {
@@ -43,6 +40,9 @@ class SshKeyGenerator;
 
 namespace RemoteLinux {
 namespace Internal {
+namespace Ui {
+class SshKeyCreationDialog;
+}
 
 class SshKeyCreationDialog : public QDialog
 {
@@ -51,23 +51,18 @@ public:
     SshKeyCreationDialog(QWidget *parent = 0);
     ~SshKeyCreationDialog();
 
-signals:
-    void privateKeyGenerated(const QString &path);
-
 private slots:
-    void slotToggled();
-    void generateSshKey();
-    void savePublicKey();
-    void savePrivateKey();
+    void keyTypeChanged();
+    void generateKeys();
+    void filePathChanged();
 
 private:
-    void checkSshDir();
-    void saveKey(bool publicKey);
+    void saveKeys();
+    QString privateKeyFilePath() const;
 
 private:
-    QString home;
-    QScopedPointer<Utils::SshKeyGenerator> m_keyGenerator;
-    Ui::SshKeyCreationDialog m_ui;
+    Utils::SshKeyGenerator *m_keyGenerator;
+    Ui::SshKeyCreationDialog *m_ui;
 };
 
 } // namespace Internal

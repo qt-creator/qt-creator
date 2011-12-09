@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>275</height>
+    <width>295</width>
+    <height>223</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,78 +19,24 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>500</width>
-    <height>275</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>SSH Key Configuration</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Options</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="keySize">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Key &amp;size:</string>
-        </property>
-        <property name="buddy">
-         <cstring>comboBox</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="comboBox">
-        <item>
-         <property name="text">
-          <string notr="true">1024</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">2048</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string notr="true">4096</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>328</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
        <widget class="QLabel" name="keyAlgo">
         <property name="text">
          <string>Key algorithm:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1" colspan="2">
+      <item row="0" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QRadioButton" name="rsa">
@@ -136,54 +82,45 @@
         </item>
        </layout>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Key</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QPlainTextEdit" name="plainTextEdit">
+      <item row="2" column="0">
+       <widget class="QLabel" name="keySize">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
+        <property name="text">
+         <string>Key &amp;size:</string>
         </property>
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-        <property name="undoRedoEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="plainText">
-         <string/>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        <property name="buddy">
+         <cstring>comboBox</cstring>
         </property>
        </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QPushButton" name="generateButton">
-          <property name="text">
-           <string>&amp;Generate SSH Key</string>
-          </property>
+         <widget class="QComboBox" name="comboBox">
+          <item>
+           <property name="text">
+            <string notr="true">1024</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">2048</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">4096</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer">
+         <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -195,60 +132,103 @@
           </property>
          </spacer>
         </item>
-        <item>
-         <widget class="QPushButton" name="savePublicKey">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Save P&amp;ublic Key...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="savePrivateKey">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Save Pr&amp;ivate Key...</string>
-          </property>
-         </widget>
-        </item>
        </layout>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="privateKeyFileLabel">
+        <property name="text">
+         <string>Private key file:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Public key file:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="Utils::PathChooser" name="privateKeyFilePathChooser" native="true"/>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLabel" name="publicKeyFileLabel">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>6</number>
+     </property>
      <item>
-      <spacer name="horizontalSpacer_2">
+      <widget class="QPushButton" name="generateButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&amp;Generate And Save Key Pair</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&amp;Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
       </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="closeButton">
-       <property name="text">
-        <string>&amp;Close</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>closeButton</tabstop>
- </tabstops>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -258,8 +238,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>351</x>
-     <y>96</y>
+     <x>195</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
      <x>381</x>

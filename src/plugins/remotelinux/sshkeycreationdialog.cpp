@@ -29,6 +29,7 @@
 **
 **************************************************************************/
 #include "sshkeycreationdialog.h"
+#include "ui_sshkeycreationdialog.h"
 
 #include "linuxdeviceconfiguration.h"
 
@@ -36,97 +37,91 @@
 #include <utils/fileutils.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
-#include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
-#include <QtNetwork/QHostInfo>
 
 using namespace Utils;
 using namespace RemoteLinux::Internal;
 
 SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
-    : QDialog(parent)
-    , home(QDesktopServices::storageLocation(QDesktopServices::HomeLocation))
-    , m_keyGenerator(new SshKeyGenerator)
+    : QDialog(parent), m_keyGenerator(0), m_ui(new Ui::SshKeyCreationDialog)
 {
-    m_ui.setupUi(this);
+    m_ui->setupUi(this);
+    m_ui->privateKeyFilePathChooser->setExpectedKind(PathChooser::File);
+    const QString defaultPath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+        + QLatin1String("/.ssh/qtc_id");
+    m_ui->privateKeyFilePathChooser->setPath(defaultPath);
+    filePathChanged();
 
-    connect(m_ui.rsa, SIGNAL(toggled(bool)), this, SLOT(slotToggled()));
-    connect(m_ui.dsa, SIGNAL(toggled(bool)), this, SLOT(slotToggled()));
-
-    connect(m_ui.generateButton, SIGNAL(clicked()), this, SLOT(generateSshKey()));
-    connect(m_ui.savePublicKey, SIGNAL(clicked()), this, SLOT(savePublicKey()));
-    connect(m_ui.savePrivateKey, SIGNAL(clicked()), this, SLOT(savePrivateKey()));
+    connect(m_ui->rsa, SIGNAL(toggled(bool)), this, SLOT(keyTypeChanged()));
+    connect(m_ui->dsa, SIGNAL(toggled(bool)), this, SLOT(keyTypeChanged()));
+    connect(m_ui->privateKeyFilePathChooser, SIGNAL(changed(QString)), SLOT(filePathChanged()));
+    connect(m_ui->generateButton, SIGNAL(clicked()), this, SLOT(generateKeys()));
 }
 
 SshKeyCreationDialog::~SshKeyCreationDialog()
 {
+    delete m_keyGenerator;
 }
 
-void SshKeyCreationDialog::slotToggled()
+void SshKeyCreationDialog::keyTypeChanged()
 {
-    m_ui.comboBox->setCurrentIndex(0);
-    m_ui.comboBox->setEnabled(m_ui.rsa->isChecked());
+    m_ui->comboBox->setCurrentIndex(0);
+    m_ui->comboBox->setEnabled(m_ui->rsa->isChecked());
 }
 
-void SshKeyCreationDialog::generateSshKey()
+void SshKeyCreationDialog::generateKeys()
 {
-    const SshKeyGenerator::KeyType keyType = m_ui.rsa->isChecked()
+    const SshKeyGenerator::KeyType keyType = m_ui->rsa->isChecked()
         ? SshKeyGenerator::Rsa
         : SshKeyGenerator::Dsa;
 
-    QApplication::setOverrideCursor(Qt::BusyCursor);
+    if (!m_keyGenerator)
+        m_keyGenerator = new SshKeyGenerator;
 
-    if (m_keyGenerator->generateKeys(keyType, SshKeyGenerator::Mixed,
-                                     m_ui.comboBox->currentText().toUShort())) {
-        m_ui.plainTextEdit->setPlainText(m_keyGenerator->publicKey());
-        m_ui.savePublicKey->setEnabled(true);
-        m_ui.savePrivateKey->setEnabled(true);
+    QApplication::setOverrideCursor(Qt::BusyCursor);
+    const bool success = m_keyGenerator->generateKeys(keyType, SshKeyGenerator::Mixed,
+        m_ui->comboBox->currentText().toUShort());
+    QApplication::restoreOverrideCursor();
+
+    if (success) {
+        saveKeys();
     } else {
-        m_ui.plainTextEdit->setPlainText(m_keyGenerator->error());
+        QMessageBox::critical(this, tr("Key Generation Failed"), m_keyGenerator->error());
+    }
+}
+
+void SshKeyCreationDialog::filePathChanged()
+{
+    m_ui->generateButton->setEnabled(!privateKeyFilePath().isEmpty());
+    m_ui->publicKeyFileLabel->setText(privateKeyFilePath() + QLatin1String(".pub"));
+}
+
+void SshKeyCreationDialog::saveKeys()
+{
+    const QString parentDir = QFileInfo(privateKeyFilePath()).dir().path();
+    if (!QDir::root().mkpath(parentDir)) {
+        QMessageBox::critical(this, tr("Failure To Save Key File"),
+            tr("Failed to create directory: '%1'.").arg(parentDir));
+        return;
     }
 
-    QApplication::restoreOverrideCursor();
-}
-
-void SshKeyCreationDialog::savePublicKey()
-{
-    saveKey(true);
-}
-
-void SshKeyCreationDialog::savePrivateKey()
-{
-    saveKey(false);
-}
-
-void SshKeyCreationDialog::checkSshDir()
-{
-    QDir dir(home + QString::fromLatin1("/.ssh"));
-    if (!dir.exists())
-        dir.mkpath(home + QString::fromLatin1("/.ssh"));
-}
-
-void SshKeyCreationDialog::saveKey(bool publicKey)
-{
-    checkSshDir();
-    const QString suggestedTypeSuffix =
-        m_keyGenerator->type() == SshKeyGenerator::Rsa ? "rsa" : "dsa";
-    const QString suggestedName = home + QString::fromLatin1("/.ssh/id_%1%2")
-        .arg(suggestedTypeSuffix).arg(publicKey ? ".pub" : "");
-    const QString dlgTitle
-        = publicKey ? tr("Save Public Key File") : tr("Save Private Key File");
-    const QString fileName
-        = QFileDialog::getSaveFileName(this, dlgTitle, suggestedName);
-    if (fileName.isEmpty())
+    FileSaver privSaver(privateKeyFilePath());
+    privSaver.write(m_keyGenerator->privateKey());
+    if (!privSaver.finalize(this))
         return;
+    QFile::setPermissions(privateKeyFilePath(), QFile::ReadOwner | QFile::WriteOwner);
 
-    Utils::FileSaver saver(fileName);
-    saver.write(publicKey
-            ? m_keyGenerator->publicKey()
-            : m_keyGenerator->privateKey());
-    if (saver.finalize(this) && !publicKey)
-        emit privateKeyGenerated(fileName);
-    if (!publicKey)
-        QFile::setPermissions(fileName, QFile::ReadOwner | QFile::WriteOwner);
+    FileSaver pubSaver(m_ui->publicKeyFileLabel->text());
+    pubSaver.write(m_keyGenerator->publicKey());
+    if (pubSaver.finalize(this))
+        accept();
+}
+
+QString SshKeyCreationDialog::privateKeyFilePath() const
+{
+    return m_ui->privateKeyFilePathChooser->path();
 }
