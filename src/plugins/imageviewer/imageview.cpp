@@ -190,7 +190,16 @@ void ImageView::setViewOutline(bool enable)
 
 void ImageView::doScale(qreal factor)
 {
-    scale(factor, factor);
+    qreal currentScale = transform().m11();
+    qreal newScale = currentScale * factor;
+    qreal actualFactor = factor;
+    // cap to 0.001 - 1000
+    if (newScale > 1000)
+        actualFactor = 1000./currentScale;
+    else if (newScale < 0.001)
+        actualFactor = 0.001/currentScale;
+
+    scale(actualFactor, actualFactor);
     emitScaleFactor();
 }
 
