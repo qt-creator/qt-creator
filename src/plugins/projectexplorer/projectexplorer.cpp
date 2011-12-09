@@ -2208,7 +2208,6 @@ void ProjectExplorerPlugin::updateDeployActions()
     const QString projectName = project ? project->displayName() : QString();
     const QString projectNameContextMenu = d->m_currentProject ? d->m_currentProject->displayName() : QString();
     bool hasProjects = !d->m_session->projects().isEmpty();
-    bool building = d->m_buildManager->isBuilding();
 
     d->m_deployAction->setParameter(projectName);
     d->m_deployAction->setEnabled(enableDeployActions);
@@ -2218,7 +2217,24 @@ void ProjectExplorerPlugin::updateDeployActions()
 
     d->m_deployProjectOnlyAction->setEnabled(enableDeployActions);
 
-    d->m_deploySessionAction->setEnabled(hasProjects && !building);
+    bool enableDeploySessionAction = true;
+    if (d->m_projectExplorerSettings.buildBeforeDeploy) {
+        const QList<Project *> & projects = d->m_session->projectOrder(0);
+        foreach (Project *project, projects) {
+            if (project
+                    && project->activeTarget()
+                    && project->activeTarget()->activeBuildConfiguration()
+                    && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
+                enableDeploySessionAction = false;
+                break;
+            }
+        }
+    }
+    if (!hasProjects
+            || !hasDeploySettings(0)
+            || d->m_buildManager->isBuilding())
+        enableDeploySessionAction = false;
+    d->m_deploySessionAction->setEnabled(enableDeploySessionAction);
 
     emit updateRunActions();
 }
