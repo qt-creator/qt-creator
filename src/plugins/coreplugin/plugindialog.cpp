@@ -113,9 +113,7 @@ void PluginDialog::updateButtons()
     ExtensionSystem::PluginSpec *selectedSpec = m_view->currentPlugin();
     if (selectedSpec) {
         m_detailsButton->setEnabled(true);
-        m_errorDetailsButton->setEnabled(selectedSpec->hasError()
-                                         || selectedSpec->isDisabledIndirectly()
-                                         || !selectedSpec->isEnabled());
+        m_errorDetailsButton->setEnabled(selectedSpec->hasError());
     } else {
         m_detailsButton->setEnabled(false);
         m_errorDetailsButton->setEnabled(false);
