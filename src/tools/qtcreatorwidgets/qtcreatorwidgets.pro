@@ -15,7 +15,7 @@ isEmpty(IDE_LIBRARY_BASENAME) {
 
 linux-*||win32 {
   # form abs path to qtcreator lib dir
-  QTC_LIBS=$$dirname(PWD)
+  QTC_LIBS=$$dirname(OUT_PWD)
   QTC_LIBS=$$dirname(QTC_LIBS)
   QTC_LIBS=$$dirname(QTC_LIBS)
   QTC_LIBS=$$QTC_LIBS/$$IDE_LIBRARY_BASENAME/qtcreator
