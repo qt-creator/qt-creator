@@ -106,7 +106,7 @@ def createProject_Qt_GUI(path, projectName, qtVersion, checks):
     __createProjectSetNameAndPath__(path, projectName, checks)
     __chooseTargets__()
     selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox_2", "For One Qt Version One Debug And One Release")
-    selectFromCombo(":scrollArea.Qt Version:_QComboBox", qtVersion.replace(".", "\\."))
+    selectFromCombo(":scrollArea.Qt Version:_QComboBox", qtVersion)
     if checks:
         if platform.system() in ('Windows', 'Microsoft'):
             path = os.path.abspath(path)

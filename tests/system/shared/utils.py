@@ -54,8 +54,10 @@ def verifyEnabled(objectSpec, expectedState = True):
 # param itemName is the item to be selected in the combo box
 def selectFromCombo(objectSpec, itemName):
     object = verifyEnabled(objectSpec)
-    mouseClick(object, 5, 5, 0, Qt.LeftButton)
-    mouseClick(waitForObjectItem(object, itemName), 5, 5, 0, Qt.LeftButton)
+    if itemName != str(object.currentText):
+        mouseClick(object, 5, 5, 0, Qt.LeftButton)
+        mouseClick(waitForObjectItem(object, itemName.replace(".", "\\.")), 5, 5, 0, Qt.LeftButton)
+        waitFor("str(object.currentText)==itemName", 5000)
 
 def selectFromLocator(filter, itemName = None):
     if itemName == None:

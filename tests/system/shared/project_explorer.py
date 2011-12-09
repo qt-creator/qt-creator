@@ -37,7 +37,7 @@ def prepareBuildSettings(targetCount, currentTarget, setReleaseBuild=True, disab
             wait = False
             try:
                 if qtCombo.currentText != defaultQtVersion:
-                    selectFromCombo(qtCombo, defaultQtVersion.replace(".", "\\."))
+                    selectFromCombo(qtCombo, defaultQtVersion)
                 if setReleaseBuild:
                     chooseThis = "%s Release" % defaultQtVersion
                 else:
