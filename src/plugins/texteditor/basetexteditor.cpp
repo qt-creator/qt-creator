@@ -2206,10 +2206,20 @@ bool BaseTextEditorWidget::restoreState(const QByteArray &state)
         QList<int> collapsedBlocks;
         stream >> collapsedBlocks;
         QTextDocument *doc = document();
+        bool layoutChanged = false;
         foreach(int blockNumber, collapsedBlocks) {
             QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
-            if (block.isValid())
+            if (block.isValid()) {
                 BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+                layoutChanged = true;
+            }
+        }
+        if (layoutChanged) {
+            BaseTextDocumentLayout *documentLayout =
+                    qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+            QTC_ASSERT(documentLayout, return false);
+            documentLayout->requestUpdate();
+            documentLayout->emitDocumentSizeChanged();
         }
     } else {
         if (d->m_displaySettings.m_autoFoldFirstComment)
