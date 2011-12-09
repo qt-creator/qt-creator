@@ -37,7 +37,6 @@ namespace QtSupport {
 namespace Constants {
 
 // Qt4 settings pages
-const char QT_SETTINGS_TR_CATEGORY[]    = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt4");
 const char QTVERSION_SETTINGS_PAGE_ID[] = "B.Qt Versions";
 const char QTVERSION_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");
 
