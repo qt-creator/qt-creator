@@ -38,6 +38,10 @@
 
 #include <QtCore/QPointer>
 
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
+
 namespace SharedTools {
     class QrcEditor;
 }
@@ -104,6 +108,7 @@ private slots:
     void dirtyChanged(bool);
     void onUndoStackChanged(bool canUndo, bool canRedo);
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
+    void showContextMenu(const QPoint &globalPoint, const QString &fileName);
 
 private:
     const QString m_extension;
@@ -115,6 +120,8 @@ private:
     ResourceEditorPlugin *m_plugin;
     bool m_shouldAutoSave;
     bool m_diskIo;
+    QMenu *m_contextMenu;
+    QMenu *m_openWithMenu;
 
 public:
     void onUndo();

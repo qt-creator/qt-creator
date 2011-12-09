@@ -176,7 +176,6 @@ private slots:
     void newProject();
     void showSessionManager();
     void populateOpenWithMenu();
-    void openWithMenuTriggered(QAction *action);
     void updateSessionMenu();
     void setSession(QAction *action);
 

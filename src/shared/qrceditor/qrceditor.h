@@ -68,6 +68,7 @@ public:
 
 signals:
     void dirtyChanged(bool dirty);
+    void showContextMenu(const QPoint &globalPos, const QString &fileName);
 
 private slots:
     void updateCurrent();

@@ -38,6 +38,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/filemanager.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/fileutils.h>
 
@@ -45,8 +46,9 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
-#include <QtGui/QMainWindow>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMenu>
 
 namespace ResourceEditor {
 namespace Internal {
@@ -77,16 +79,27 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
         m_resourceFile(new ResourceEditorFile(this)),
         m_plugin(plugin),
         m_shouldAutoSave(false),
-        m_diskIo(false)
+        m_diskIo(false),
+        m_contextMenu(new QMenu)
 {
     setContext(context);
     setWidget(m_resourceEditor);
 
     m_resourceEditor->setResourceDragEnabled(true);
+    m_openWithMenu = m_contextMenu->addMenu(tr("Open With"));
+    // Below we need QueuedConnection because otherwise, if this qrc file
+    // is inside of the qrc file, crashes happen when using "Open With" on it.
+    // (That is because this editor instance is deleted in executeOpenWithMenuAction
+    // in that case.)
+    connect(m_openWithMenu, SIGNAL(triggered(QAction*)),
+            Core::FileManager::instance(), SLOT(executeOpenWithMenuAction(QAction*)),
+            Qt::QueuedConnection);
 
     connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), this, SLOT(dirtyChanged(bool)));
     connect(m_resourceEditor, SIGNAL(undoStackChanged(bool, bool)),
             this, SLOT(onUndoStackChanged(bool, bool)));
+    connect(m_resourceEditor, SIGNAL(showContextMenu(QPoint,QString)),
+            this, SLOT(showContextMenu(QPoint,QString)));
     connect(m_resourceEditor->commandHistory(), SIGNAL(indexChanged(int)),
             this, SLOT(setShouldAutoSave()));
     connect(m_resourceFile, SIGNAL(changed()), this, SIGNAL(changed()));
@@ -98,6 +111,7 @@ ResourceEditorW::~ResourceEditorW()
 {
     if (m_resourceEditor)
         m_resourceEditor->deleteLater();
+    delete m_contextMenu;
 }
 
 bool ResourceEditorW::createNew(const QString &contents)
@@ -262,6 +276,13 @@ void ResourceEditorW::dirtyChanged(bool dirty)
 void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)
 {
     m_plugin->onUndoStackChanged(this, canUndo, canRedo);
+}
+
+void ResourceEditorW::showContextMenu(const QPoint &globalPoint, const QString &fileName)
+{
+    Core::FileManager::populateOpenWithMenu(m_openWithMenu, fileName);
+    if (!m_openWithMenu->actions().isEmpty())
+        m_contextMenu->popup(globalPoint);
 }
 
 void ResourceEditorW::onUndo()

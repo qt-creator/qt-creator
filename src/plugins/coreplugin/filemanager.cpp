@@ -1333,6 +1333,7 @@ void FileManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 
 void FileManager::executeOpenWithMenuAction(QAction *action)
 {
+    QTC_ASSERT(action, return);
     EditorManager *em = EditorManager::instance();
     const QVariant data = action->data();
     Internal::OpenWithEntry entry = qVariantValue<Internal::OpenWithEntry>(data);

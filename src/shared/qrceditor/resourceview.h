@@ -130,10 +130,14 @@ protected:
 signals:
     void removeItem();
     void dirtyChanged(bool b);
+    void showContextMenu(const QPoint &globalPos, const QString &fileName);
 
 public:
     QString getCurrentValue(NodeProperty property) const;
     void changeValue(const QModelIndex &nodeIndex, NodeProperty property, const QString &value);
+
+private slots:
+    void showContextMenu(const QPoint &pos);
 
 private:
     void addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,

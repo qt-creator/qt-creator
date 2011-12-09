@@ -182,11 +182,14 @@ ResourceView::ResourceView(QUndoStack *history, QWidget *parent) :
 {
     advanceMergeId();
     setModel(m_qrcModel);
+    setContextMenuPolicy(Qt::CustomContextMenu);
 
     header()->hide();
 
     connect(m_qrcModel, SIGNAL(dirtyChanged(bool)),
         this, SIGNAL(dirtyChanged(bool)));
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(showContextMenu(QPoint)));
 }
 
 ResourceView::~ResourceView()
@@ -427,6 +430,15 @@ void ResourceView::changeValue(const QModelIndex &nodeIndex, NodeProperty proper
     case LanguageProperty: m_qrcModel->changeLang(nodeIndex, value); return;
     default: Q_ASSERT(false);
     }
+}
+
+void ResourceView::showContextMenu(const QPoint &pos)
+{
+    const QModelIndex index = indexAt(pos);
+    const QString fileName = m_qrcModel->file(index);
+    if (fileName.isEmpty())
+        return;
+    emit showContextMenu(mapToGlobal(pos), fileName);
 }
 
 void ResourceView::advanceMergeId()

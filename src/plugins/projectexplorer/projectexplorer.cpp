@@ -515,7 +515,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_openWithMenu->setTitle(tr("Open With"));
 
     connect(d->m_openWithMenu, SIGNAL(triggered(QAction *)),
-            this, SLOT(openWithMenuTriggered(QAction *)));
+            Core::FileManager::instance(), SLOT(executeOpenWithMenuAction(QAction*)));
 
     //
     // Separators
@@ -2783,14 +2783,6 @@ void ProjectExplorerPlugin::setStartupProject()
 void ProjectExplorerPlugin::populateOpenWithMenu()
 {
     Core::FileManager::populateOpenWithMenu(d->m_openWithMenu, currentNode()->path());
-}
-
-void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
-{
-    if (!action)
-        qWarning() << "ProjectExplorerPlugin::openWithMenuTriggered no action, can't happen.";
-    else
-        Core::FileManager::executeOpenWithMenuAction(action);
 }
 
 void ProjectExplorerPlugin::updateSessionMenu()
