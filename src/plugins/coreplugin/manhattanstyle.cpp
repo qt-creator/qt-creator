@@ -698,8 +698,9 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 painter->save();
                 QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, widget);
                 QPalette customPal = cb->palette;
+                bool drawIcon = !(widget && widget->property("hideicon").toBool());
 
-                if (!cb->currentIcon.isNull()) {
+                if (!cb->currentIcon.isNull() && drawIcon) {
                     QIcon::Mode mode = cb->state & State_Enabled ? QIcon::Normal
                                                                  : QIcon::Disabled;
                     QPixmap pixmap = cb->currentIcon.pixmap(cb->iconSize, mode);
