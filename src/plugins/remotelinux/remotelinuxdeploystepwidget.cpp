@@ -54,9 +54,6 @@ RemoteLinuxDeployStepWidget::RemoteLinuxDeployStepWidget(AbstractRemoteLinuxDepl
     connect(list, SIGNAL(stepRemoved(int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(aboutToRemoveStep(int)),
         SLOT(handleStepToBeRemoved(int)));
-
-    connect(m_step->deployConfiguration(), SIGNAL(currentDeviceConfigurationChanged()),
-        SIGNAL(updateSummary()));
 }
 
 RemoteLinuxDeployStepWidget::~RemoteLinuxDeployStepWidget()
@@ -74,8 +71,7 @@ void RemoteLinuxDeployStepWidget::handleStepToBeRemoved(int step)
 
 QString RemoteLinuxDeployStepWidget::summaryText() const
 {
-    return tr("<b>%1 using device</b>: %2").arg(m_step->displayName(),
-        RemoteLinuxUtils::deviceConfigurationName(m_step->deployConfiguration()->deviceConfiguration()));
+    return tr("<b>%1</b>").arg(m_step->displayName());
 }
 
 } // namespace RemoteLinux
