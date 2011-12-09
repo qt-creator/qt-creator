@@ -101,8 +101,6 @@
 #include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/vcsmanager.h>
@@ -148,9 +146,6 @@
     \brief ProjectExplorerPlugin with static accessor and utility functions to obtain
     current project, open projects, etc.
 */
-
-Q_DECLARE_METATYPE(Core::IEditorFactory*)
-Q_DECLARE_METATYPE(Core::IExternalEditor*)
 
 namespace {
 bool debug = false;
@@ -2769,41 +2764,9 @@ void ProjectExplorerPlugin::setStartupProject()
     setStartupProject(d->m_currentProject);
 }
 
-void ProjectExplorerPlugin::populateOpenWithMenu(QMenu *menu, const QString &fileName)
-{
-    typedef QList<Core::IEditorFactory*> EditorFactoryList;
-    typedef QList<Core::IExternalEditor*> ExternalEditorList;
-
-    menu->clear();
-
-    bool anyMatches = false;
-
-    Core::ICore *core = Core::ICore::instance();
-    if (const Core::MimeType mt = core->mimeDatabase()->findByFile(QFileInfo(fileName))) {
-        const EditorFactoryList factories = core->editorManager()->editorFactories(mt, false);
-        const ExternalEditorList externalEditors = core->editorManager()->externalEditors(mt, false);
-        anyMatches = !factories.empty() || !externalEditors.empty();
-        if (anyMatches) {
-            // Add all suitable editors
-            foreach (Core::IEditorFactory *editorFactory, factories) {
-                // Add action to open with this very editor factory
-                QString const actionTitle = editorFactory->displayName();
-                QAction * const action = menu->addAction(actionTitle);
-                action->setData(qVariantFromValue(editorFactory));
-            }
-            // Add all suitable external editors
-            foreach (Core::IExternalEditor *externalEditor, externalEditors) {
-                QAction * const action = menu->addAction(externalEditor->displayName());
-                action->setData(qVariantFromValue(externalEditor));
-            }
-        }
-    }
-    menu->setEnabled(anyMatches);
-}
-
 void ProjectExplorerPlugin::populateOpenWithMenu()
 {
-    populateOpenWithMenu(d->m_openWithMenu, currentNode()->path());
+    Core::FileManager::populateOpenWithMenu(d->m_openWithMenu, currentNode()->path());
 }
 
 void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
@@ -2811,34 +2774,7 @@ void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
     if (!action)
         qWarning() << "ProjectExplorerPlugin::openWithMenuTriggered no action, can't happen.";
     else
-        openEditorFromAction(action, currentNode()->path());
-}
-
-void ProjectExplorerPlugin::openEditorFromAction(QAction *action, const QString &fileName)
-{
-    Core::EditorManager *em = Core::EditorManager::instance();
-    const QVariant data = action->data();
-    if (qVariantCanConvert<Core::IEditorFactory *>(data)) {
-        Core::IEditorFactory *factory = qVariantValue<Core::IEditorFactory *>(data);
-
-        // close any open editors that have this file open, but have a different type.
-        QList<Core::IEditor *> editorsOpenForFile = em->editorsForFileName(fileName);
-        if (!editorsOpenForFile.isEmpty()) {
-            foreach (Core::IEditor *openEditor, editorsOpenForFile) {
-                if (factory->id() == openEditor->id())
-                    editorsOpenForFile.removeAll(openEditor);
-            }
-            if (!em->closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
-                return;
-        }
-
-        em->openEditor(fileName, factory->id(), Core::EditorManager::ModeSwitch);
-        return;
-    }
-    if (qVariantCanConvert<Core::IExternalEditor *>(data)) {
-        Core::IExternalEditor *externalEditor = qVariantValue<Core::IExternalEditor *>(data);
-        em->openExternalEditor(fileName, externalEditor->id());
-    }
+        Core::FileManager::executeOpenWithMenuAction(action, currentNode()->path());
 }
 
 void ProjectExplorerPlugin::updateSessionMenu()

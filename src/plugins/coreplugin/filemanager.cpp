@@ -33,8 +33,10 @@
 #include "filemanager.h"
 
 #include "editormanager.h"
-#include "ieditor.h"
 #include "icore.h"
+#include "ieditor.h"
+#include "ieditorfactory.h"
+#include "iexternaleditor.h"
 #include "ifile.h"
 #include "iversioncontrol.h"
 #include "mimedatabase.h"
@@ -53,9 +55,11 @@
 #include <QtCore/QTimer>
 #include <QtCore/QFileSystemWatcher>
 #include <QtCore/QDateTime>
+#include <QtGui/QAction>
 #include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
+#include <QtGui/QMenu>
+#include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 
 /*!
@@ -94,6 +98,9 @@ static const char editorsKeyC[] = "EditorIds";
 static const char directoryGroupC[] = "Directories";
 static const char projectDirectoryKeyC[] = "Projects";
 static const char useProjectDirectoryKeyC[] = "UseProjectsDirectory";
+
+Q_DECLARE_METATYPE(Core::IEditorFactory*)
+Q_DECLARE_METATYPE(Core::IExternalEditor*)
 
 namespace Core {
 namespace Internal {
@@ -1272,6 +1279,65 @@ void FileManager::setFileDialogLastVisitedDirectory(const QString &directory)
 void FileManager::notifyFilesChangedInternally(const QStringList &files)
 {
     emit filesChangedInternally(files);
+}
+
+void FileManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
+{
+    typedef QList<IEditorFactory*> EditorFactoryList;
+    typedef QList<IExternalEditor*> ExternalEditorList;
+
+    menu->clear();
+
+    bool anyMatches = false;
+
+    ICore *core = ICore::instance();
+    if (const MimeType mt = core->mimeDatabase()->findByFile(QFileInfo(fileName))) {
+        const EditorFactoryList factories = core->editorManager()->editorFactories(mt, false);
+        const ExternalEditorList externalEditors = core->editorManager()->externalEditors(mt, false);
+        anyMatches = !factories.empty() || !externalEditors.empty();
+        if (anyMatches) {
+            // Add all suitable editors
+            foreach (IEditorFactory *editorFactory, factories) {
+                // Add action to open with this very editor factory
+                QString const actionTitle = editorFactory->displayName();
+                QAction * const action = menu->addAction(actionTitle);
+                action->setData(qVariantFromValue(editorFactory));
+            }
+            // Add all suitable external editors
+            foreach (IExternalEditor *externalEditor, externalEditors) {
+                QAction * const action = menu->addAction(externalEditor->displayName());
+                action->setData(qVariantFromValue(externalEditor));
+            }
+        }
+    }
+    menu->setEnabled(anyMatches);
+}
+
+void FileManager::executeOpenWithMenuAction(QAction *action, const QString &fileName)
+{
+    EditorManager *em = EditorManager::instance();
+    const QVariant data = action->data();
+    if (qVariantCanConvert<IEditorFactory *>(data)) {
+        IEditorFactory *factory = qVariantValue<IEditorFactory *>(data);
+
+        // close any open editors that have this file open, but have a different type.
+        QList<IEditor *> editorsOpenForFile = em->editorsForFileName(fileName);
+        if (!editorsOpenForFile.isEmpty()) {
+            foreach (IEditor *openEditor, editorsOpenForFile) {
+                if (factory->id() == openEditor->id())
+                    editorsOpenForFile.removeAll(openEditor);
+            }
+            if (!em->closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
+                return;
+        }
+
+        em->openEditor(fileName, factory->id(), EditorManager::ModeSwitch);
+        return;
+    }
+    if (qVariantCanConvert<IExternalEditor *>(data)) {
+        IExternalEditor *externalEditor = qVariantValue<IExternalEditor *>(data);
+        em->openExternalEditor(fileName, externalEditor->id());
+    }
 }
 
 // -------------- FileChangeBlocker

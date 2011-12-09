@@ -323,8 +323,8 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     // open with...
     if (!m_fileSystemModel->isDir(current)) {
         QMenu *openWith = menu.addMenu(tr("Open with"));
-        ProjectExplorerPlugin::populateOpenWithMenu(openWith,
-                                                    m_fileSystemModel->filePath(current));
+        Core::FileManager::populateOpenWithMenu(openWith,
+                                                m_fileSystemModel->filePath(current));
     }
 
     // Open file dialog to choose a path starting from current
@@ -361,8 +361,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             findOnFileSystem(info.absolutePath());
         return;
     }
-    ProjectExplorerPlugin::openEditorFromAction(action,
-                                                m_fileSystemModel->filePath(current));
+    Core::FileManager::executeOpenWithMenuAction(action, m_fileSystemModel->filePath(current));
 }
 
 QString FolderNavigationWidget::msgFindOnFileSystem()

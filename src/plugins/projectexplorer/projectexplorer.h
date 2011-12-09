@@ -96,8 +96,6 @@ public:
     bool saveModifiedFiles();
 
     void showContextMenu(QWidget *view, const QPoint &globalPos, Node *node);
-    static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
-    static void openEditorFromAction(QAction *action, const QString &fileName);
 
     //PluginInterface
     bool initialize(const QStringList &arguments, QString *errorMessage);

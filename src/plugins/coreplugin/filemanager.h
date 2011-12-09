@@ -41,7 +41,9 @@
 #include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QMainWindow;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -134,6 +136,9 @@ public:
 
     QString projectsDirectory() const;
     void setProjectsDirectory(const QString &);
+
+    static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
+    static void executeOpenWithMenuAction(QAction *action, const QString &fileName);
 
 public slots:
     /* Used to notify e.g. the code model to update the given files. Does *not*
