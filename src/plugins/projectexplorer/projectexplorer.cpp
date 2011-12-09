@@ -2774,7 +2774,7 @@ void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
     if (!action)
         qWarning() << "ProjectExplorerPlugin::openWithMenuTriggered no action, can't happen.";
     else
-        Core::FileManager::executeOpenWithMenuAction(action, currentNode()->path());
+        Core::FileManager::executeOpenWithMenuAction(action);
 }
 
 void ProjectExplorerPlugin::updateSessionMenu()

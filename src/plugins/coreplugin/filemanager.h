@@ -138,7 +138,7 @@ public:
     void setProjectsDirectory(const QString &);
 
     static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
-    static void executeOpenWithMenuAction(QAction *action, const QString &fileName);
+    static void executeOpenWithMenuAction(QAction *action);
 
 public slots:
     /* Used to notify e.g. the code model to update the given files. Does *not*

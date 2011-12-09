@@ -361,7 +361,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             findOnFileSystem(info.absolutePath());
         return;
     }
-    Core::FileManager::executeOpenWithMenuAction(action, m_fileSystemModel->filePath(current));
+    Core::FileManager::executeOpenWithMenuAction(action);
 }
 
 QString FolderNavigationWidget::msgFindOnFileSystem()

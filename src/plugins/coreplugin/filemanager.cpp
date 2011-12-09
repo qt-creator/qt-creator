@@ -48,13 +48,14 @@
 #include <utils/pathchooser.h>
 #include <utils/reloadpromptutils.h>
 
-#include <QtCore/QSettings>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QTimer>
-#include <QtCore/QFileSystemWatcher>
 #include <QtCore/QDateTime>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QFileSystemWatcher>
+#include <QtCore/QPair>
+#include <QtCore/QSettings>
+#include <QtCore/QTimer>
 #include <QtGui/QAction>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMainWindow>
@@ -99,11 +100,17 @@ static const char directoryGroupC[] = "Directories";
 static const char projectDirectoryKeyC[] = "Projects";
 static const char useProjectDirectoryKeyC[] = "UseProjectsDirectory";
 
-Q_DECLARE_METATYPE(Core::IEditorFactory*)
-Q_DECLARE_METATYPE(Core::IExternalEditor*)
 
 namespace Core {
 namespace Internal {
+
+struct OpenWithEntry
+{
+    OpenWithEntry() : editorFactory(0), externalEditor(0) {}
+    IEditorFactory *editorFactory;
+    IExternalEditor *externalEditor;
+    QString fileName;
+};
 
 struct FileStateItem
 {
@@ -193,6 +200,11 @@ FileManagerPrivate::FileManagerPrivate(FileManager *q, QMainWindow *mw) :
 }
 
 } // namespace Internal
+} // namespace Core
+
+Q_DECLARE_METATYPE(Core::Internal::OpenWithEntry)
+
+namespace Core {
 
 FileManager::FileManager(QMainWindow *mw)
   : QObject(mw),
@@ -1301,43 +1313,46 @@ void FileManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
                 // Add action to open with this very editor factory
                 QString const actionTitle = editorFactory->displayName();
                 QAction * const action = menu->addAction(actionTitle);
-                action->setData(qVariantFromValue(editorFactory));
+                Internal::OpenWithEntry entry;
+                entry.editorFactory = editorFactory;
+                entry.fileName = fileName;
+                action->setData(qVariantFromValue(entry));
             }
             // Add all suitable external editors
             foreach (IExternalEditor *externalEditor, externalEditors) {
                 QAction * const action = menu->addAction(externalEditor->displayName());
-                action->setData(qVariantFromValue(externalEditor));
+                Internal::OpenWithEntry entry;
+                entry.externalEditor = externalEditor;
+                entry.fileName = fileName;
+                action->setData(qVariantFromValue(entry));
             }
         }
     }
     menu->setEnabled(anyMatches);
 }
 
-void FileManager::executeOpenWithMenuAction(QAction *action, const QString &fileName)
+void FileManager::executeOpenWithMenuAction(QAction *action)
 {
     EditorManager *em = EditorManager::instance();
     const QVariant data = action->data();
-    if (qVariantCanConvert<IEditorFactory *>(data)) {
-        IEditorFactory *factory = qVariantValue<IEditorFactory *>(data);
-
+    Internal::OpenWithEntry entry = qVariantValue<Internal::OpenWithEntry>(data);
+    if (entry.editorFactory) {
         // close any open editors that have this file open, but have a different type.
-        QList<IEditor *> editorsOpenForFile = em->editorsForFileName(fileName);
+        QList<IEditor *> editorsOpenForFile = em->editorsForFileName(entry.fileName);
         if (!editorsOpenForFile.isEmpty()) {
             foreach (IEditor *openEditor, editorsOpenForFile) {
-                if (factory->id() == openEditor->id())
+                if (entry.editorFactory->id() == openEditor->id())
                     editorsOpenForFile.removeAll(openEditor);
             }
             if (!em->closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
                 return;
         }
 
-        em->openEditor(fileName, factory->id(), EditorManager::ModeSwitch);
+        em->openEditor(entry.fileName, entry.editorFactory->id(), EditorManager::ModeSwitch);
         return;
     }
-    if (qVariantCanConvert<IExternalEditor *>(data)) {
-        IExternalEditor *externalEditor = qVariantValue<IExternalEditor *>(data);
-        em->openExternalEditor(fileName, externalEditor->id());
-    }
+    if (entry.externalEditor)
+        em->openExternalEditor(entry.fileName, entry.externalEditor->id());
 }
 
 // -------------- FileChangeBlocker
