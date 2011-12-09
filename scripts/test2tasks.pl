@@ -39,18 +39,24 @@ my $lastLine = '';
 while (my $line = <STDIN> ) {
     chomp($line);
     # --- Continuation line?
-    if (substr($line, 0, 1) eq ' ') {
+    if (substr($line, 0, 1) eq ' ' && index($line, 'Loc: [') < 0) {
        $lastLine .= $line;
        next;
     }
-    # --- extract file name based matching '[..\].\tst_lancelot.cpp(258) : failure location'
-    if ($line =~ /^([^(]+)\((\d+)\) : failure location$/) {
-        my $slashPos = rindex($1, '/');
-        $slashPos = rindex($1, "\\") if $slashPos < 0;
-        my $fileName = $slashPos > 0 ? substr($1, $slashPos + 1) : $1;
+    # --- extract file name based matching:
+    #     Windows: '[..\].\tst_lancelot.cpp(258) : failure location'
+    #     Unix:    '  Loc: [file(1596)]'
+    if ($line =~ /^([^(]+)\((\d+)\) : failure location$/
+        || $line =~ /^\s*Loc:\s*\[([^(]+)\((\d+)\).*$/) {
+        my $fullFileName = $1;
         my $line = $2;
-        my $fullFileName = $fileHash{$fileName};
-        $fullFileName = $fileName unless defined $fullFileName;
+        if (index($fullFileName, '/') != 0) { # Unix has absolute file names, Windows may not
+            my $slashPos = rindex($fullFileName, '/');
+            $slashPos = rindex($fullFileName, "\\") if $slashPos < 0;
+            my $fileName = $slashPos > 0 ? substr($1, $slashPos + 1) : $fullFileName;
+            $fullFileName = $fileHash{$fileName};
+            $fullFileName = $fileName unless defined $fullFileName;
+        }
         my $type = index($lastLine, 'FAIL') == 0 ? 'err' : 'unknown';
         print $fullFileName, "\t", $line, "\t", $type, "\t", $lastLine,"\n";
     }
