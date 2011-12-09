@@ -68,6 +68,8 @@ public:
 
     bool initInternal(QString *error = 0);
 
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+
     static QString stepId();
     static QString displayName();
 

@@ -215,6 +215,7 @@ public:
 
     QString summaryText() const;
     QString displayName() const;
+    bool showWidget() const;
 };
 
 } // Internal

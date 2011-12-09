@@ -83,6 +83,8 @@ public:
         return QLatin1String("<b>") + displayName() + QLatin1String("</b>");
     }
 
+    virtual bool showWidget() const { return false; }
+
 private:
     Q_SLOT void handleStepToBeRemoved(int step)
     {
@@ -133,6 +135,7 @@ public:
     virtual QString displayName() const {
         return m_buildStep ? m_buildStep.data()->displayName() : QString();
     }
+    virtual bool showWidget() const { return false; }
 private:
     const QWeakPointer<const BuildStep> m_buildStep;
 };

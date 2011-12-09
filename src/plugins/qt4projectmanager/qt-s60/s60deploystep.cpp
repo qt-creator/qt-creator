@@ -678,6 +678,11 @@ QString S60DeployStepWidget::displayName() const
     return tr("Deploy SIS Package");
 }
 
+bool S60DeployStepWidget::showWidget() const
+{
+    return false;
+}
+
 // #pragma mark -- S60DeployStepFactory
 
 S60DeployStepFactory::S60DeployStepFactory(QObject *parent) :

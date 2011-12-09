@@ -69,6 +69,8 @@ public:
 
     QString displayName() const { return QString(); }
 
+    bool showWidget() const { return false; }
+
 private:
     const TarPackageCreationStep * const m_step;
 };

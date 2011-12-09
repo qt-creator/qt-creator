@@ -32,6 +32,7 @@
 #include "uploadandinstalltarpackagestep.h"
 
 #include "remotelinuxdeployconfiguration.h"
+#include "remotelinuxdeploystepwidget.h"
 #include "remotelinuxpackageinstaller.h"
 #include "tarpackagecreationstep.h"
 
@@ -41,11 +42,33 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
+namespace {
+
+class ConfigWidget : public BuildStepConfigWidget
+{
+    Q_OBJECT
+public:
+    ConfigWidget(UploadAndInstallTarPackageStep *step) : m_widget(step)
+    {
+        connect(&m_widget, SIGNAL(updateSummary()), SIGNAL(updateSummary()));
+    }
+    ~ConfigWidget() {}
+
+private:
+    QString summaryText() const { return m_widget.summaryText(); }
+    QString displayName() const { return m_widget.displayName(); }
+    bool showWidget() const { return false; }
+
+    RemoteLinuxDeployStepWidget m_widget;
+};
+} // anonymous namespace
+
 class UploadAndInstallTarPackageServicePrivate
 {
 public:
     RemoteLinuxTarPackageInstaller installer;
 };
+
 } // namespace Internal
 
 using namespace Internal;
@@ -99,6 +122,11 @@ bool UploadAndInstallTarPackageStep::initInternal(QString *error)
     return m_deployService->isDeploymentPossible(error);
 }
 
+BuildStepConfigWidget *UploadAndInstallTarPackageStep::createConfigWidget()
+{
+    return new ConfigWidget(this);
+}
+
 QString UploadAndInstallTarPackageStep::stepId()
 {
     return QLatin1String("MaemoUploadAndInstallTarPackageStep");
@@ -110,3 +138,5 @@ QString UploadAndInstallTarPackageStep::displayName()
 }
 
 } //namespace RemoteLinux
+
+#include "uploadandinstalltarpackagestep.moc"
