@@ -1262,7 +1262,11 @@ void ServiceBrowserPrivate::hadError(QStringList errorMsgs, bool completeFailure
 
 void MainConnection::stop(bool wait)
 {
+#if QT_VERSION >= 0x050000
+    if (m_status.load() < Stopping)
+#else
     if (m_status < Stopping)
+#endif
         increaseStatusTo(Stopping);
     if (m_mainRef)
         lib->stopConnection(m_mainRef);
@@ -1293,11 +1297,19 @@ MainConnection::~MainConnection()
 
 bool MainConnection::increaseStatusTo(int s)
 {
+#if QT_VERSION >= 0x050000
+    int sAtt = m_status.load();
+#else
     int sAtt = m_status;
+#endif
     while (sAtt < s){
         if (m_status.testAndSetRelaxed(sAtt, s))
             return true;
+#if QT_VERSION >= 0x050000
+        sAtt = m_status.load();
+#else
         sAtt = m_status;
+#endif
     }
     return false;
 }
@@ -1313,7 +1325,11 @@ void MainConnection::waitStartup()
     while (true){
         {
             QMutexLocker l(lock());
+#if QT_VERSION >= 0x050000
+            sAtt = m_status.load();
+#else
             sAtt = m_status;
+#endif
             if (sAtt >= Running)
                 return;
         }
@@ -1328,7 +1344,11 @@ void MainConnection::addBrowser(ServiceBrowserPrivate *browser)
     bool didFail;
     {
         QMutexLocker l(lock());
+#if QT_VERSION >= 0x050000
+        actualStatus = m_status.load();
+#else
         actualStatus = m_status;
+#endif
         m_browsers.append(browser);
         errs = m_errors;
         didFail = m_failed;
@@ -1400,7 +1420,11 @@ void MainConnection::abortLib(){
 void MainConnection::createConnection()
 {
     gotoValidLib();
+#if QT_VERSION >= 0x050000
+    while (m_status.load() <= Running) {
+#else
     while (m_status <= Running) {
+#endif
         if (!lib) {
             increaseStatusTo(Stopped);
             break;
@@ -1489,7 +1513,11 @@ void  MainConnection::handleEvents()
     m_nErrs = 0;
     createConnection();
     increaseStatusTo(Running);
+#if QT_VERSION >= 0x050000
+    while (m_status.load() < Stopping) {
+#else
     while (m_status < Stopping) {
+#endif
         if (m_nErrs > 10)
             increaseStatusTo(Stopping);
         switch (handleEvent()) {
@@ -1524,7 +1552,11 @@ void  MainConnection::handleEvents()
 
 ZConfLib::ConnectionRef MainConnection::mainRef()
 {
+#if QT_VERSION >= 0x050000
+    while (m_status.load() < Running){
+#else
     while (m_status < Running){
+#endif
         QThread::yieldCurrentThread();
     }
     return m_mainRef;

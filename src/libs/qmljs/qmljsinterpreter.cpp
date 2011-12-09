@@ -194,8 +194,13 @@ CppComponentValue::CppComponentValue(FakeMetaObject::ConstPtr metaObject, const 
 
 CppComponentValue::~CppComponentValue()
 {
+#if QT_VERSION >= 0x050000
+    delete _metaSignatures.load();
+    delete _signalScopes.load();
+#else
     delete _metaSignatures;
     delete _signalScopes;
+#endif
 }
 
 static QString generatedSlotName(const QString &base)
@@ -226,7 +231,11 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
     QSet<QString> explicitSignals;
 
     // make MetaFunction instances lazily when first needed
+#if QT_VERSION >= 0x050000
+    QList<const Value *> *signatures = _metaSignatures.load();
+#else
     QList<const Value *> *signatures = _metaSignatures;
+#endif
     if (!signatures) {
         signatures = new QList<const Value *>;
         signatures->reserve(_metaObject->methodCount());
@@ -234,7 +243,11 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
             signatures->append(new MetaFunction(_metaObject->method(index), valueOwner()));
         if (!_metaSignatures.testAndSetOrdered(0, signatures)) {
             delete signatures;
+#if QT_VERSION >= 0x050000
+            signatures = _metaSignatures.load();
+#else
             signatures = _metaSignatures;
+#endif
         }
     }
 
@@ -454,7 +467,11 @@ const QmlEnumValue *CppComponentValue::getEnumValue(const QString &typeName, con
 
 const ObjectValue *CppComponentValue::signalScope(const QString &signalName) const
 {
+#if QT_VERSION >= 0x050000
+    QHash<QString, const ObjectValue *> *scopes = _signalScopes.load();
+#else
     QHash<QString, const ObjectValue *> *scopes = _signalScopes;
+#endif
     if (!scopes) {
         scopes = new QHash<QString, const ObjectValue *>;
         // usually not all methods are signals
@@ -480,7 +497,11 @@ const ObjectValue *CppComponentValue::signalScope(const QString &signalName) con
         }
         if (!_signalScopes.testAndSetOrdered(0, scopes)) {
             delete scopes;
+#if QT_VERSION >= 0x050000
+            scopes = _signalScopes.load();
+#else
             scopes = _signalScopes;
+#endif
         }
     }
 
