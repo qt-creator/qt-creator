@@ -1659,7 +1659,9 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         *commitTemplate = sp.stdOut.mid(separatorPos + 1);
     } else {
         // Commit: Get the commit template
-        QString templateFilename = readConfigValue(workingDirectory, QLatin1String("commit.template"));
+        QString templateFilename = gitDir.absoluteFilePath(QLatin1String("MERGE_MSG"));
+        if (!QFileInfo(templateFilename).isFile())
+            templateFilename = readConfigValue(workingDirectory, QLatin1String("commit.template"));
         if (!templateFilename.isEmpty()) {
             // Make relative to repository
             const QFileInfo templateFileInfo(templateFilename);
