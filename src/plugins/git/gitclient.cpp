@@ -96,18 +96,20 @@ public:
         Q_ASSERT(!directory.isEmpty());
         Q_ASSERT(m_client);
 
-        mapSetting(addToggleButton(QLatin1String("--patience"), tr("Patience"),
-                                   tr("Use the patience algorithm for calculating the differences.")),
-                   client->settings()->boolPointer(GitSettings::diffPatienceKey));
-        mapSetting(addToggleButton("--ignore-space-change", tr("Ignore Whitespace"),
-                                   tr("Ignore whitespace only changes.")),
-                   m_client->settings()->boolPointer(GitSettings::ignoreSpaceChangesInDiffKey));
+        m_patienceButton = addToggleButton(QLatin1String("--patience"), tr("Patience"),
+                                           tr("Use the patience algorithm for calculating the differences."));
+        mapSetting(m_patienceButton, client->settings()->boolPointer(GitSettings::diffPatienceKey));
+        m_ignoreWSButton = addToggleButton("--ignore-space-change", tr("Ignore Whitespace"),
+                                           tr("Ignore whitespace only changes."));
+        mapSetting(m_ignoreWSButton, m_client->settings()->boolPointer(GitSettings::ignoreSpaceChangesInDiffKey));
     }
 
 protected:
     QString m_workingDirectory;
     GitClient *m_client;
     QStringList m_args;
+    QToolButton *m_patienceButton;
+    QToolButton *m_ignoreWSButton;
 };
 
 class GitCommitDiffArgumentsWidget : public BaseGitDiffArgumentsWidget
@@ -256,6 +258,46 @@ private:
     QString m_revision;
     QString m_fileName;
 };
+
+class GitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
+{
+    Q_OBJECT
+
+public:
+    GitLogArgumentsWidget(Git::Internal::GitClient *client,
+                          const QString &directory,
+                          bool enableAnnotationContextMenu,
+                          const QStringList &args,
+                          const QStringList &fileNames) :
+        BaseGitDiffArgumentsWidget(client, directory, args),
+        m_client(client),
+        m_workingDirectory(directory),
+        m_enableAnnotationContextMenu(enableAnnotationContextMenu),
+        m_args(args),
+        m_fileNames(fileNames)
+    {
+        QToolButton *button = addToggleButton(QLatin1String("--patch"), tr("Show Diff"),
+                                              tr("Show difference."));
+        mapSetting(button, m_client->settings()->boolPointer(GitSettings::logDiffKey));
+        connect(button, SIGNAL(toggled(bool)), m_patienceButton, SLOT(setEnabled(bool)));
+        connect(button, SIGNAL(toggled(bool)), m_ignoreWSButton, SLOT(setEnabled(bool)));
+        m_patienceButton->setEnabled(button->isChecked());
+        m_ignoreWSButton->setEnabled(button->isChecked());
+    }
+
+    void executeCommand()
+    {
+        m_client->log(m_workingDirectory, m_fileNames, m_enableAnnotationContextMenu, m_args);
+    }
+
+private:
+    GitClient *m_client;
+    QString m_workingDirectory;
+    bool m_enableAnnotationContextMenu;
+    QStringList m_args;
+    QStringList m_fileNames;
+};
+
 
 inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property, const QString &entry)
 {
@@ -545,8 +587,21 @@ void GitClient::graphLog(const QString &workingDirectory, const QString & branch
 }
 
 void GitClient::log(const QString &workingDirectory, const QStringList &fileNames,
-                    bool enableAnnotationContextMenu)
+                    bool enableAnnotationContextMenu, const QStringList &args)
 {
+    const QString msgArg = fileNames.empty() ? workingDirectory :
+                           fileNames.join(QString(", "));
+    const QString title = tr("Git Log \"%1\"").arg(msgArg);
+    const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
+    const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, fileNames);
+    VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
+    if (!editor)
+        editor = createVCSEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile,
+                                 new GitLogArgumentsWidget(this, workingDirectory,
+                                                           enableAnnotationContextMenu,
+                                                           args, fileNames));
+    editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
+
     QStringList arguments;
     arguments << QLatin1String("log") << QLatin1String(noColorOption)
               << QLatin1String(decorateOption);
@@ -555,18 +610,14 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
     if (logCount > 0)
          arguments << QLatin1String("-n") << QString::number(logCount);
 
+    GitLogArgumentsWidget *argWidget = qobject_cast<GitLogArgumentsWidget *>(editor->configurationWidget());
+    QStringList userArgs = argWidget->arguments();
+
+    arguments.append(userArgs);
+
     if (!fileNames.isEmpty())
         arguments.append(fileNames);
 
-    const QString msgArg = fileNames.empty() ? workingDirectory :
-                           fileNames.join(QString(", "));
-    const QString title = tr("Git Log \"%1\"").arg(msgArg);
-    const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
-    const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, fileNames);
-    VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
-    if (!editor)
-        editor = createVCSEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile, 0);
-    editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     executeGit(workingDirectory, arguments, editor);
 }
 

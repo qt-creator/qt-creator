@@ -49,6 +49,7 @@ const QLatin1String GitSettings::diffPatienceKey("DiffPatience");
 const QLatin1String GitSettings::winSetHomeEnvironmentKey("WinSetHomeEnvironment");
 const QLatin1String GitSettings::showPrettyFormatKey("DiffPrettyFormat");
 const QLatin1String GitSettings::gitkOptionsKey("GitKOptions");
+const QLatin1String GitSettings::logDiffKey("LogDiff");
 
 GitSettings::GitSettings()
 {
@@ -70,6 +71,7 @@ GitSettings::GitSettings()
     declareKey(winSetHomeEnvironmentKey, false);
     declareKey(gitkOptionsKey, QString());
     declareKey(showPrettyFormatKey, 2);
+    declareKey(logDiffKey, false);
 }
 
 QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const

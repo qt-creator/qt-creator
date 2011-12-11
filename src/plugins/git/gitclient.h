@@ -100,7 +100,7 @@ public:
     void graphLog(const QString &workingDirectory) { graphLog(workingDirectory, QString()); }
     void graphLog(const QString &workingDirectory, const QString &branch);
     void log(const QString &workingDirectory, const QStringList &fileNames = QStringList(),
-             bool enableAnnotationContextMenu = false);
+             bool enableAnnotationContextMenu = false, const QStringList &args = QStringList());
     void blame(const QString &workingDirectory, const QStringList &args, const QString &fileName,
                const QString &revision = QString(), int lineNumber = -1);
     void checkout(const QString &workingDirectory, const QString &file);
