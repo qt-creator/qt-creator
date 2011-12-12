@@ -46,6 +46,8 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT CompletingTextEdit : public QTextEdit
 {
     Q_OBJECT
+    Q_PROPERTY(int completionLengthThreshold
+               READ completionLengthThreshold WRITE setCompletionLengthThreshold)
 
 public:
     CompletingTextEdit(QWidget *parent = 0);
@@ -53,6 +55,9 @@ public:
 
     void setCompleter(QCompleter *c);
     QCompleter *completer() const;
+
+    int completionLengthThreshold() const;
+    void setCompletionLengthThreshold(int len);
 
 protected:
     void keyPressEvent(QKeyEvent *e);

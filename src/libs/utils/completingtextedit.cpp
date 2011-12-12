@@ -59,7 +59,10 @@ public:
     void insertCompletion(const QString &completion);
     QString textUnderCursor() const;
 
+    bool acceptsCompletionPrefix(const QString &prefix) const;
+
     QCompleter *m_completer;
+    int m_completionLengthThreshold;
 
 private:
     CompletingTextEdit *m_backPointer;
@@ -67,6 +70,7 @@ private:
 
 CompletingTextEditPrivate::CompletingTextEditPrivate(CompletingTextEdit *textEdit)
     : m_completer(0),
+      m_completionLengthThreshold(3),
       m_backPointer(textEdit)
 {
 }
@@ -88,6 +92,11 @@ QString CompletingTextEditPrivate::textUnderCursor() const
     QTextCursor tc = m_backPointer->textCursor();
     tc.select(QTextCursor::WordUnderCursor);
     return tc.selectedText();
+}
+
+bool CompletingTextEditPrivate::acceptsCompletionPrefix(const QString &prefix) const
+{
+    return prefix.length() >= m_completionLengthThreshold;
 }
 
 CompletingTextEdit::CompletingTextEdit(QWidget *parent)
@@ -121,6 +130,16 @@ QCompleter *CompletingTextEdit::completer() const
     return d->m_completer;
 }
 
+int CompletingTextEdit::completionLengthThreshold() const
+{
+    return d->m_completionLengthThreshold;
+}
+
+void CompletingTextEdit::setCompletionLengthThreshold(int len)
+{
+    d->m_completionLengthThreshold = len;
+}
+
 void CompletingTextEdit::keyPressEvent(QKeyEvent *e)
 {
     if (completer() && completer()->popup()->isVisible()) {
@@ -150,8 +169,8 @@ void CompletingTextEdit::keyPressEvent(QKeyEvent *e)
     const QString newCompletionPrefix = d->textUnderCursor();
     const QChar lastChar = e->text().isEmpty() ? QChar() : e->text().right(1).at(0);
 
-    if (!isShortcut && (hasModifier || e->text().isEmpty() || newCompletionPrefix.length() < 3
-                        || isEndOfWordChar(lastChar))) {
+    if (!isShortcut && (hasModifier || e->text().isEmpty() || isEndOfWordChar(lastChar)
+                        || !d->acceptsCompletionPrefix(newCompletionPrefix))) {
         completer()->popup()->hide();
         return;
     }
