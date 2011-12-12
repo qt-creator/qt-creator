@@ -65,6 +65,7 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QStandardItemModel>
+#include <QtGui/QGridLayout>
 
 using namespace Utils;
 
@@ -989,38 +990,33 @@ class TypeFormatsDialogPage : public QWidget
 public:
     TypeFormatsDialogPage()
     {
-        m_layout = new QVBoxLayout;
-        m_layout->setMargin(5);
-        m_layout->setSpacing(0);
-        m_layout->addItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding,
-            QSizePolicy::MinimumExpanding));
-        setLayout(m_layout);
+        m_layout = new QGridLayout;
+        m_layout->setColumnStretch(0, 2);
+        QVBoxLayout *vboxLayout = new QVBoxLayout;
+        vboxLayout->addLayout(m_layout);
+        vboxLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Ignored,
+                                            QSizePolicy::MinimumExpanding));
+        setLayout(vboxLayout);
     }
 
     void addTypeFormats(const QString &type,
         const QStringList &typeFormats, int current)
     {
-        QHBoxLayout *hl = new QHBoxLayout;
+        const int row = m_layout->rowCount();
+        int column = 0;
         QButtonGroup *group = new QButtonGroup(this);
-        QLabel *typeLabel = new QLabel(type, this);
-        hl->addWidget(typeLabel);
+        m_layout->addWidget(new QLabel(type), row, column++);
         for (int i = -1; i != typeFormats.size(); ++i) {
             QRadioButton *choice = new QRadioButton(this);
-            if (i == -1)
-                choice->setText(tr("Reset"));
-            else
-                choice->setText(typeFormats.at(i));
-            hl->addWidget(choice);
+            choice->setText(i == -1 ? tr("Reset") : typeFormats.at(i));
+            m_layout->addWidget(choice, row, column++);
             if (i == current)
                 choice->setChecked(true);
             group->addButton(choice, i);
         }
-        hl->addItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding,
-            QSizePolicy::MinimumExpanding));
-        m_layout->insertLayout(m_layout->count() - 1, hl);
     }
 private:
-    QVBoxLayout *m_layout;
+    QGridLayout *m_layout;
 };
 
 class TypeFormatsDialogUi
@@ -1069,6 +1065,8 @@ private:
 TypeFormatsDialog::TypeFormatsDialog(QWidget *parent)
    : QDialog(parent), m_ui(new TypeFormatsDialogUi(this))
 {
+    setWindowTitle(tr("Type Formats"));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->addPage(tr("Qt Types"));
     m_ui->addPage(tr("Standard Types"));
     m_ui->addPage(tr("Misc Types"));
