@@ -159,6 +159,7 @@ void dummyStatement(...) {}
 #if USE_BOOST
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 #endif
 
 #if USE_EIGEN
@@ -5068,11 +5069,52 @@ namespace boost {
         dummyStatement(&s, &j, &sl);
     }
 
+    void testBoostGregorianDate()
+    {
+        using namespace boost;
+        using namespace gregorian;
+        date d(2005, Nov, 29);
+        BREAK_HERE;
+        // Check d Tue Nov 29 2005 boost::gregorian::date.
+        // Continue
+
+        d += months(1);
+        BREAK_HERE;
+        // Check d Thu Dec 29 2005 boost::gregorian::date.
+        // Continue
+
+        d += months(1);
+        BREAK_HERE;
+        // Check d Sun Jan 29 2006 boost::gregorian::date.
+        // Continue
+
+        // snap-to-end-of-month behavior kicks in:
+        d += months(1);
+        BREAK_HERE;
+        // Check d Tue Feb 28 2006 boost::gregorian::date6.
+        // Continue.
+
+        // Also end of the month (expected in boost)
+        d += months(1);
+        BREAK_HERE;
+        // Check d Fri Mar 31 2006 boost::gregorian::date.
+        // Continue.
+
+        // Not where we started (expected in boost)
+        d -= months(4);
+        BREAK_HERE;
+        // Check d Tue Nov 30 2005 boost::gregorian::date.
+        // Continue.
+
+        dummyStatement(&d);
+    }
+
     void testBoost()
     {
         testBoostOptional1();
         testBoostOptional2();
         testBoostSharedPtr();
+        testBoostGregorianDate();
     }
 
     #else

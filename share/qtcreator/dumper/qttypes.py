@@ -2052,6 +2052,11 @@ def qdump__boost__shared_ptr(d, value):
             d.putIntItem("usecount", usecount)
 
 
+def qdump__boost__gregorian__date(d, value):
+    d.putValue(value["days_"], JulianDate)
+    d.putNumChild(0)
+
+
 #######################################################################
 #
 # Symbian
