@@ -254,7 +254,7 @@ def __getQMakeLibPath__(qtToolTip):
 # helper that tries to get the path of qmake of the QtVersion ToolTip
 def __getQMakeBinPath__(qtToolTip):
     qmake = ___searchInsideQtVersionToolTip___(qtToolTip, "qmake:")
-    endIndex = qmake.find("/qmake")
+    endIndex = qmake.find(os.sep + "qmake")
     return qmake[:endIndex]
 
 # helper that does the work for __getMkspec__() and __getQMakeVersion__()
