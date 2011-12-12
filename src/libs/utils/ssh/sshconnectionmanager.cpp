@@ -82,58 +82,99 @@ public:
         m_cleanupTimer.start(5*60*1000);
     }
 
-    ConnectionInfo::Ptr findConnection(const SshConnection::Ptr &connection)
-    {
-        foreach (const ConnectionInfo::Ptr &connInfo, m_connections) {
-            if (connInfo->connection == connection)
-                return connInfo;
-        }
-        return ConnectionInfo::Ptr();
-    }
-
-
     QSharedPointer<SshConnection> acquireConnection(const SshConnectionParameters &sshParams)
     {
         QMutexLocker locker(&m_listMutex);
-        foreach (const ConnectionInfo::Ptr &connInfo, m_connections) {
-            const SshConnection::Ptr connection = connInfo->connection;
-            bool connectionUsable = false;
-            if (connection->state() == SshConnection::Connected
-                    && connection->connectionParameters() == sshParams) {
-                if (connInfo->refCount == 0) {
-                    if (connection->thread() != QThread::currentThread()) {
-                        QMetaObject::invokeMethod(this, "switchToCallerThread",
-                            Qt::BlockingQueuedConnection,
-                            Q_ARG(SshConnection *, connection.data()),
-                            Q_ARG(QObject *, QThread::currentThread()));
-                    }
-                    connectionUsable = true;
-                } else if (connection->thread() == QThread::currentThread()) {
-                    connectionUsable = true;
-                }
-                if (connectionUsable) {
-                    ++connInfo->refCount;
-                    return connection;
-                }
-            }
+
+        // Check in-use connections:
+        foreach (SshConnection::Ptr connection, m_acquiredConnections) {
+            if (connection->connectionParameters() != sshParams)
+                continue;
+
+            if (connection->thread() != QThread::currentThread())
+                break;
+
+            if (m_deprecatedConnections.contains(connection)) // we were asked to no longer use this one...
+                break;
+
+            m_acquiredConnections.append(connection);
+            return connection;
         }
 
-        ConnectionInfo::Ptr connInfo
-            = ConnectionInfo::create(SshConnection::create(sshParams));
-        m_connections << connInfo;
-        return connInfo->connection;
+        // Checked cached open connections:
+        foreach (SshConnection::Ptr connection, m_unacquiredConnections) {
+            if (connection->state() != SshConnection::Connected
+                    || connection->connectionParameters() != sshParams)
+                continue;
+
+            if (connection->thread() != QThread::currentThread()) {
+                QMetaObject::invokeMethod(this, "switchToCallerThread",
+                    Qt::BlockingQueuedConnection,
+                    Q_ARG(SshConnection *, connection.data()),
+                    Q_ARG(QObject *, QThread::currentThread()));
+            }
+
+            m_unacquiredConnections.removeOne(connection);
+            m_acquiredConnections.append(connection);
+            return connection;
+        }
+
+        // create a new connection:
+        SshConnection::Ptr connection = SshConnection::create(sshParams);
+        connect(connection.data(), SIGNAL(disconnected()), this, SLOT(cleanup()));
+        m_acquiredConnections.append(connection);
+
+        return connection;
     }
 
     void releaseConnection(const SshConnection::Ptr &connection)
     {
         QMutexLocker locker(&m_listMutex);
-        ConnectionInfo::Ptr connInfo = findConnection(connection);
-        Q_ASSERT_X(connInfo, Q_FUNC_INFO, "Fatal: Unowned SSH Connection released.");
-        if (--connInfo->refCount == 0) {
+
+        m_acquiredConnections.removeOne(connection);
+        if (!m_acquiredConnections.contains(connection)) {
+            // no longer in use:
             connection->moveToThread(QCoreApplication::instance()->thread());
-            if (connection->state() != SshConnection::Connected)
-                m_connections.removeOne(connInfo);
+            if (m_deprecatedConnections.contains(connection))
+                m_deprecatedConnections.removeAll(connection);
+            else if (connection->state() == SshConnection::Connected) {
+                // Make sure to only keep one connection open
+                bool haveConnection = false;
+                foreach (SshConnection::Ptr conn, m_unacquiredConnections) {
+                    if (conn->connectionParameters() == connection->connectionParameters()) {
+                        haveConnection = true;
+                        break;
+                    }
+                }
+                if (!haveConnection)
+                    m_unacquiredConnections.append(connection);
+            }
         }
+    }
+
+    void forceNewConnection(const SshConnectionParameters &sshParams)
+    {
+        QMutexLocker locker(&m_listMutex);
+
+        SshConnection::Ptr toReset;
+        foreach (SshConnection::Ptr connection, m_unacquiredConnections) {
+            if (connection->connectionParameters() == sshParams) {
+                toReset = connection;
+                break;
+            }
+        }
+
+        if (toReset.isNull()) {
+            foreach (SshConnection::Ptr connection, m_acquiredConnections) {
+                if (connection->connectionParameters() == sshParams) {
+                    toReset = connection;
+                    break;
+                }
+            }
+        }
+
+        if (!toReset.isNull() && !m_deprecatedConnections.contains(toReset))
+            m_deprecatedConnections.append(toReset);
     }
 
 private:
@@ -142,21 +183,25 @@ private:
         connection->moveToThread(qobject_cast<QThread *>(threadObj));
     }
 
-    Q_SLOT void cleanup()
+private slots:
+    void cleanup()
     {
         QMutexLocker locker(&m_listMutex);
-        foreach (const ConnectionInfo::Ptr &connInfo, m_connections) {
-            if (connInfo->refCount == 0 &&
-                    connInfo->connection->state() != SshConnection::Connected) {
-                m_connections.removeOne(connInfo);
-            }
-        }
+
+        SshConnection::Ptr connection(static_cast<SshConnection *>(sender()));
+        if (connection.isNull())
+            return;
+
+        m_unacquiredConnections.removeAll(connection);
     }
 
+private:
     // We expect the number of concurrently open connections to be small.
     // If that turns out to not be the case, we can still use a data
     // structure with faster access.
-    QList<ConnectionInfo::Ptr> m_connections;
+    QList<SshConnection::Ptr> m_unacquiredConnections;
+    QList<SshConnection::Ptr> m_acquiredConnections;
+    QList<SshConnection::Ptr> m_deprecatedConnections;
 
     QMutex m_listMutex;
     QTimer m_cleanupTimer;
@@ -189,6 +234,11 @@ SshConnection::Ptr SshConnectionManager::acquireConnection(const SshConnectionPa
 void SshConnectionManager::releaseConnection(const SshConnection::Ptr &connection)
 {
     d->releaseConnection(connection);
+}
+
+void SshConnectionManager::forceNewConnection(const SshConnectionParameters &sshParams)
+{
+    d->forceNewConnection(sshParams);
 }
 
 } // namespace Utils
